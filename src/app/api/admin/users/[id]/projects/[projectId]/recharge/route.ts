@@ -8,7 +8,7 @@ const prisma = new PrismaClient();
 /** POST — Admin 手动充值（type=ADJUSTMENT） */
 export async function POST(
   request: Request,
-  { params }: { params: { userId: string; projectId: string } },
+  { params }: { params: { id: string; projectId: string } },
 ) {
   const auth = requireAdmin(request);
   if (!auth.ok) return auth.error;
@@ -21,7 +21,7 @@ export async function POST(
   }
 
   const project = await prisma.project.findFirst({
-    where: { id: params.projectId, userId: params.userId },
+    where: { id: params.projectId, userId: params.id },
   });
   if (!project) return errorResponse(404, "not_found", "Project not found");
 

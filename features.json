@@ -1,76 +1,55 @@
 {
   "features": [
-    { "id": "F001-F035", "title": "阶段1-5已完成", "priority": "high", "status": "completed", "acceptance": "done" },
-    { "id": "F036-F044", "title": "阶段6已完成", "priority": "high", "status": "completed", "acceptance": "done" },
+    { "id": "F001-F054", "title": "阶段1-7已完成", "priority": "high", "status": "completed", "acceptance": "done" },
+    { "id": "F055-F063", "title": "阶段8已完成", "priority": "high", "status": "completed", "acceptance": "done" },
     {
-      "id": "F045",
-      "title": "shadcn/ui 安装 + 控制台布局框架 + 角色路由守卫",
+      "id": "F064",
+      "title": "端到端测试脚本（全链路）",
       "priority": "high",
-      "status": "pending",
-      "acceptance": "安装 shadcn/ui; 侧边栏布局（210px, admin 额外菜单组）; /admin/* 路由守卫（非 ADMIN 重定向 /dashboard）; 未登录重定向 /login; 骨架屏 + Toast"
+      "status": "completed",
+      "acceptance": "scripts/e2e-test.ts：注册→登录→创建项目→生成Key→充值→支付回调→文本调用→流式调用→图片调用→查余额扣减→查交易记录→查审计日志→全文搜索；全部步骤输出 PASS/FAIL"
     },
     {
-      "id": "F046",
-      "title": "Admin API 后端（providers/models/channels CRUD）",
+      "id": "F065",
+      "title": "异常场景测试脚本",
       "priority": "high",
-      "status": "pending",
-      "acceptance": "/api/admin/providers GET/POST + /:id PATCH + /:id/config GET/PATCH; /api/admin/models GET/POST + /:id PATCH; /api/admin/channels GET/POST + /:id PATCH/DELETE; 全部需 ADMIN 角色"
+      "status": "completed",
+      "acceptance": "scripts/e2e-errors.ts：余额不足→402；吊销Key后调用→401；不存在模型→404；并发扣费(10并发)→余额正确无超扣"
     },
     {
-      "id": "F047",
-      "title": "Admin API 后端（logs/usage/finance/users）",
+      "id": "F066",
+      "title": "7家服务商全量验证脚本",
       "priority": "high",
-      "status": "pending",
-      "acceptance": "/api/admin/logs GET(分页+筛选) + /:traceId GET + /search GET; /api/admin/usage GET + /by-provider + /by-model; /api/admin/finance GET(毛利); /api/admin/users GET + /:id GET + 手动充值 POST"
+      "status": "completed",
+      "acceptance": "scripts/verify-providers.ts：遍历所有ACTIVE通道，文本通道发一次调用、图片通道发一次生成；输出每条通道 PASS/FAIL/latency；汇总报告"
     },
     {
-      "id": "F048",
-      "title": "服务商管理页面",
+      "id": "F067",
+      "title": "SDK README.md",
       "priority": "high",
-      "status": "pending",
-      "acceptance": "/admin/providers: 列表表格(name/baseUrl/adapter/channels数/status开关/actions); 添加/编辑对话框; 配置覆盖编辑面板(temperature/endpoints/quirks tag input)"
+      "status": "completed",
+      "acceptance": "sdk/README.md：安装(npm/yarn/pnpm)、初始化、非流式/流式/图片/models 代码示例、错误处理(含每种错误类型)、配置项说明、重试策略说明"
     },
     {
-      "id": "F049",
-      "title": "模型管理页面",
+      "id": "F068",
+      "title": "API 文档页面",
       "priority": "high",
-      "status": "pending",
-      "acceptance": "/admin/models: 列表表格(name/displayName/modality/context/channels数); 添加/编辑对话框(name/displayName/modality/maxTokens/contextWindow/capabilities 多选)"
+      "status": "completed",
+      "acceptance": "/docs 路由渲染 API 文档；覆盖认证方式、chat/images/models 端点、请求/响应格式、错误码、限流规则；代码示例可复制"
     },
     {
-      "id": "F050",
-      "title": "通道管理页面",
+      "id": "F069",
+      "title": "Dockerfile + docker-compose.yml",
       "priority": "high",
-      "status": "pending",
-      "acceptance": "/admin/channels: 列表+筛选(按provider/model/status); priority 内联编辑(点击→input→blur保存); 成本价/售价配置; status 切换; 添加/编辑/删除; 最近检查结果图标"
+      "status": "completed",
+      "acceptance": "Dockerfile: Node 22 + prisma generate + next build + 3000端口；docker-compose.yml: app + PostgreSQL + Redis 三服务；.dockerignore 排除 node_modules/.next/.env；docker compose up 可启动完整环境"
     },
     {
-      "id": "F051",
-      "title": "健康监控页面",
+      "id": "F070",
+      "title": "种子管理员 bcrypt 修复 + 上线检查清单 + TS编译验证",
       "priority": "high",
-      "status": "pending",
-      "acceptance": "/admin/health: 概览卡片(active/degraded/disabled数); 通道健康卡片列表(状态灯+L1/L2/L3+latency); 手动检查按钮→触发→显示结果; 查看历史展开最近20条"
-    },
-    {
-      "id": "F052",
-      "title": "全局审计日志页面",
-      "priority": "high",
-      "status": "pending",
-      "acceptance": "/admin/logs: 复用日志表格+搜索+筛选; 额外列(Project/Channel); 详情面板额外显示(channelId/costPrice/realModelId/利润); 项目筛选下拉框; 全文搜索"
-    },
-    {
-      "id": "F053",
-      "title": "全局用量页面",
-      "priority": "high",
-      "status": "pending",
-      "acceptance": "/admin/usage: 指标卡片(总调用/总收入/总成本/毛利); 收入vs成本双线趋势图(Recharts); 按服务商/模型环形图; 服务商费用明细表格(calls/cost/revenue/margin/margin%)"
-    },
-    {
-      "id": "F054",
-      "title": "开发者管理页面 + TS编译验证",
-      "priority": "high",
-      "status": "pending",
-      "acceptance": "/admin/users: 列表(name/email/projects数/totalBalance/totalCalls/registered); 详情(用户信息+项目列表+余额); 手动充值对话框(金额+备注→type=ADJUSTMENT); TypeScript 编译 0 错误"
+      "status": "completed",
+      "acceptance": "修复种子数据管理员密码为 bcrypt 哈希(可正常登录)；docs/LAUNCH_CHECKLIST.md 上线检查清单(基础设施/应用/支付/监控/安全 5类)；TypeScript 编译 0 错误"
     }
   ]
 }

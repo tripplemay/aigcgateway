@@ -1,5 +1,6 @@
 import { PrismaClient, Prisma, Currency } from "@prisma/client";
 import { createHash } from "crypto";
+import { hashSync } from "bcryptjs";
 
 const prisma = new PrismaClient();
 
@@ -259,10 +260,8 @@ const modelsByProvider: Record<string, ModelDef[]> = {
 async function main() {
   console.log("Seeding database...");
 
-  // 1. 创建管理员账号
-  const adminPasswordHash = createHash("sha256")
-    .update("admin123")
-    .digest("hex");
+  // 1. 创建管理员账号（bcrypt 哈希，与登录接口一致）
+  const adminPasswordHash = hashSync("admin123", 12);
 
   const admin = await prisma.user.upsert({
     where: { email: "admin@aigc-gateway.local" },
