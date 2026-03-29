@@ -35,9 +35,7 @@ const IMAGE_MIN_SIZES: Record<string, string> = {
 /**
  * 对一个通道执行三级检查，返回每级结果
  */
-export async function runHealthCheck(
-  route: RouteResult,
-): Promise<CheckResult[]> {
+export async function runHealthCheck(route: RouteResult): Promise<CheckResult[]> {
   const isImage = route.model.modality === "IMAGE";
 
   if (isImage) {
@@ -100,7 +98,8 @@ async function runTextCheck(route: RouteResult): Promise<CheckResult[]> {
     const l2Errors: string[] = [];
     if (!content && content !== "") l2Errors.push("missing choices[0].message.content");
     if (!usage) l2Errors.push("missing usage");
-    if (usage && (!usage.prompt_tokens && usage.prompt_tokens !== 0)) l2Errors.push("incomplete usage");
+    if (usage && !usage.prompt_tokens && usage.prompt_tokens !== 0)
+      l2Errors.push("incomplete usage");
     if (!finishReason) l2Errors.push("missing finish_reason");
 
     if (l2Errors.length > 0) {
@@ -135,9 +134,8 @@ async function runTextCheck(route: RouteResult): Promise<CheckResult[]> {
     return results;
   } catch (err) {
     const latencyMs = Date.now() - start;
-    const message = err instanceof EngineError
-      ? `${err.code}: ${err.message}`
-      : (err as Error).message;
+    const message =
+      err instanceof EngineError ? `${err.code}: ${err.message}` : (err as Error).message;
 
     results.push({
       level: "CONNECTIVITY",
@@ -221,9 +219,15 @@ async function runImageCheck(route: RouteResult): Promise<CheckResult[]> {
     // --- Level 3: 响应质量 ---
     if (hasUrl) {
       try {
-        const imgRes = await fetch(firstItem.url!, { method: "HEAD" });
+        // Use GET instead of HEAD — some providers (e.g. zhipu) return
+        // different Content-Type for HEAD vs GET, or require redirect following
+        const imgRes = await fetch(firstItem.url!, { method: "GET", redirect: "follow" });
         const contentType = imgRes.headers.get("content-type") ?? "";
-        const isImage = contentType.startsWith("image/");
+        // Accept image/* or octet-stream (binary download) or any 2xx with content
+        const isImage =
+          contentType.startsWith("image/") ||
+          contentType.includes("octet-stream") ||
+          (imgRes.ok && (imgRes.headers.get("content-length") ?? "0") !== "0");
         results.push({
           level: "QUALITY",
           result: isImage ? "PASS" : "FAIL",
@@ -254,9 +258,8 @@ async function runImageCheck(route: RouteResult): Promise<CheckResult[]> {
     return results;
   } catch (err) {
     const latencyMs = Date.now() - start;
-    const message = err instanceof EngineError
-      ? `${err.code}: ${err.message}`
-      : (err as Error).message;
+    const message =
+      err instanceof EngineError ? `${err.code}: ${err.message}` : (err as Error).message;
 
     results.push({
       level: "CONNECTIVITY",
