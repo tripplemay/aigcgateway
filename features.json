@@ -1,0 +1,75 @@
+{
+  "features": [
+    { "id": "F001", "title": "初始化 Next.js 项目", "priority": "high", "status": "completed", "acceptance": "done" },
+    { "id": "F002", "title": "创建 .env.example", "priority": "high", "status": "completed", "acceptance": "done" },
+    { "id": "F003", "title": "创建 lib/env.ts", "priority": "high", "status": "completed", "acceptance": "done" },
+    { "id": "F004", "title": "配置 Prisma Schema", "priority": "high", "status": "completed", "acceptance": "done" },
+    { "id": "F005", "title": "执行数据库迁移", "priority": "high", "status": "completed", "acceptance": "done" },
+    { "id": "F006", "title": "原生 SQL 迁移", "priority": "high", "status": "completed", "acceptance": "done" },
+    { "id": "F007", "title": "种子数据", "priority": "high", "status": "completed", "acceptance": "done" },
+    { "id": "F008", "title": "类型定义 + SSE 解析器", "priority": "high", "status": "completed", "acceptance": "done" },
+    { "id": "F009", "title": "OpenAI 兼容引擎", "priority": "high", "status": "completed", "acceptance": "done" },
+    { "id": "F010", "title": "配置覆盖层", "priority": "high", "status": "completed", "acceptance": "done" },
+    { "id": "F011", "title": "火山引擎 Adapter", "priority": "high", "status": "completed", "acceptance": "done" },
+    { "id": "F012", "title": "硅基流动 Adapter", "priority": "high", "status": "completed", "acceptance": "done" },
+    { "id": "F013", "title": "通道路由器", "priority": "high", "status": "completed", "acceptance": "done" },
+    { "id": "F014", "title": "集成测试脚本", "priority": "high", "status": "completed", "acceptance": "done" },
+    { "id": "F015", "title": "统一错误格式", "priority": "high", "status": "completed", "acceptance": "done" },
+    { "id": "F016", "title": "API Key 鉴权", "priority": "high", "status": "completed", "acceptance": "done" },
+    { "id": "F017", "title": "余额检查", "priority": "high", "status": "completed", "acceptance": "done" },
+    { "id": "F018", "title": "限流中间件", "priority": "high", "status": "completed", "acceptance": "done" },
+    { "id": "F019", "title": "chat/completions", "priority": "high", "status": "completed", "acceptance": "done" },
+    { "id": "F020", "title": "images/generations", "priority": "high", "status": "completed", "acceptance": "done" },
+    { "id": "F021", "title": "GET /v1/models", "priority": "high", "status": "completed", "acceptance": "done" },
+    { "id": "F022", "title": "异步后处理", "priority": "high", "status": "completed", "acceptance": "done" },
+    { "id": "F023", "title": "网关管道集成", "priority": "high", "status": "completed", "acceptance": "done" },
+    { "id": "F024", "title": "三级验证逻辑", "priority": "high", "status": "completed", "acceptance": "done" },
+    { "id": "F025", "title": "分级频率调度器", "priority": "high", "status": "completed", "acceptance": "done" },
+    { "id": "F026", "title": "自动降级与恢复", "priority": "high", "status": "completed", "acceptance": "done" },
+    { "id": "F027", "title": "HealthCheck 记录 + 清理", "priority": "high", "status": "completed", "acceptance": "done" },
+    { "id": "F028", "title": "告警推送", "priority": "high", "status": "completed", "acceptance": "done" },
+    { "id": "F029", "title": "手动检查接口", "priority": "high", "status": "completed", "acceptance": "done" },
+    {
+      "id": "F030",
+      "title": "SDK 项目初始化 + 类型定义",
+      "priority": "high",
+      "status": "completed",
+      "acceptance": "sdk/ 目录：package.json（零依赖、CJS+ESM+.d.ts exports）、tsconfig.json（strict）；src/types/ 完整类型定义（config/request/response），严格按设计文档签名"
+    },
+    {
+      "id": "F031",
+      "title": "SDK 错误类型层级（10个类）",
+      "priority": "high",
+      "status": "completed",
+      "acceptance": "src/errors.ts：GatewayError 基类 + AuthError/InsufficientBalanceError(balance)/ModelNotFoundError(model)/InvalidParameterError(param)/RateLimitError(retryAfter)/ProviderError/NoChannelError(model)/ContentFilteredError/ConnectionError(cause)；HTTP 响应自动映射到对应错误类"
+    },
+    {
+      "id": "F032",
+      "title": "SDK SSE 流式解析器 + ChatStream 类",
+      "priority": "high",
+      "status": "completed",
+      "acceptance": "src/stream.ts：ReadableStream→AsyncIterator<StreamChunk>；buffer 拼接、: 注释忽略、[DONE]；ChatStream 实现 AsyncIterable + traceId + usage + abort() + collect()→ChatResponse"
+    },
+    {
+      "id": "F033",
+      "title": "SDK 重试策略",
+      "priority": "high",
+      "status": "completed",
+      "acceptance": "src/retry.ts：指数退避（initialDelay × backoffMultiplier^n, maxDelay cap）；429 优先 Retry-After Header；retryOn 可配置；流式仅连接前重试；不重试 400/401/402/403/404/422"
+    },
+    {
+      "id": "F034",
+      "title": "SDK Gateway 类（chat+image+models）",
+      "priority": "high",
+      "status": "completed",
+      "acceptance": "src/gateway.ts：chat 方法重载（stream?false→ChatResponse, stream:true→ChatStream）；image→ImageResponse；models→ModelInfo[]；traceId 从 X-Trace-Id 或 body.id 提取；stream_options 默认开启"
+    },
+    {
+      "id": "F035",
+      "title": "SDK 构建 + 导出入口 + 示例脚本",
+      "priority": "high",
+      "status": "completed",
+      "acceptance": "tsup 构建 CJS+ESM+.d.ts；src/index.ts 完整导出清单（按设计文档 §8.2）；examples/ 目录含测试脚本覆盖全场景；tsc 编译 0 错误"
+    }
+  ]
+}
