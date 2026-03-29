@@ -6,22 +6,40 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { formatCurrency, timeAgo } from "@/lib/utils";
-import { X } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
+import { EmptyState } from "@/components/empty-state";
 
 interface LogEntry {
-  traceId: string; modelName: string; status: string; finishReason: string | null;
-  promptTokens: number | null; completionTokens: number | null; totalTokens: number | null;
-  sellPrice: number | null; latencyMs: number | null; ttftMs: number | null;
-  tokensPerSecond: number | null; createdAt: string; promptPreview?: string;
+  traceId: string;
+  modelName: string;
+  status: string;
+  finishReason: string | null;
+  promptTokens: number | null;
+  completionTokens: number | null;
+  totalTokens: number | null;
+  sellPrice: number | null;
+  latencyMs: number | null;
+  ttftMs: number | null;
+  tokensPerSecond: number | null;
+  createdAt: string;
+  promptPreview?: string;
   promptSnapshot?: Array<{ role: string; content: string }>;
   requestParams?: Record<string, unknown>;
-  responseContent?: string | null; errorMessage?: string | null;
+  responseContent?: string | null;
+  errorMessage?: string | null;
 }
 
 export default function LogsPage() {
-  const { current } = useProject();
+  const { current, loading: projLoading } = useProject();
   const [logs, setLogs] = useState<LogEntry[]>([]);
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
@@ -50,112 +68,287 @@ export default function LogsPage() {
       ? `/api/projects/${current.id}/logs/search?q=${encodeURIComponent(debouncedQ)}&page=${page}`
       : `/api/projects/${current.id}/logs?${params}`;
     const r = await apiFetch<{ data: LogEntry[]; pagination?: { total: number } }>(url);
-    setLogs(r.data); setTotal(r.pagination?.total ?? r.data.length);
+    setLogs(r.data);
+    setTotal(r.pagination?.total ?? r.data.length);
   }, [current, page, statusFilter, debouncedQ, startDate, endDate]);
 
-  useEffect(() => { load(); }, [load]);
+  useEffect(() => {
+    load();
+  }, [load]);
 
   const loadDetail = async (traceId: string) => {
     if (!current) return;
-    if (selectedTrace === traceId) { setSelectedTrace(null); setDetail(null); return; }
+    if (selectedTrace === traceId) {
+      setSelectedTrace(null);
+      setDetail(null);
+      return;
+    }
     const r = await apiFetch<LogEntry>(`/api/projects/${current.id}/logs/${traceId}`);
-    setDetail(r); setSelectedTrace(traceId);
+    setDetail(r);
+    setSelectedTrace(traceId);
   };
 
-  if (!current) return null;
+  if (projLoading)
+    return (
+      <div className="space-y-4 pt-4">
+        <Skeleton className="h-8 w-48" />
+        <Skeleton className="h-10 w-full" />
+        <Skeleton className="h-64 w-full" />
+      </div>
+    );
+  if (!current) return <EmptyState onCreated={() => window.location.reload()} />;
 
   return (
     <div>
       <h1 className="text-2xl font-bold mb-6">Audit Logs</h1>
       <div className="flex gap-2 mb-4 flex-wrap">
-        <Input className="max-w-sm" placeholder="Search prompts, models, trace IDs..."
-          value={searchQ} onChange={(e) => { setSearchQ(e.target.value); setPage(1); }} />
-        <Input type="date" className="w-36" value={startDate} onChange={(e) => { setStartDate(e.target.value); setPage(1); }} />
-        <Input type="date" className="w-36" value={endDate} onChange={(e) => { setEndDate(e.target.value); setPage(1); }} />
+        <Input
+          className="max-w-sm"
+          placeholder="Search prompts, models, trace IDs..."
+          value={searchQ}
+          onChange={(e) => {
+            setSearchQ(e.target.value);
+            setPage(1);
+          }}
+        />
+        <Input
+          type="date"
+          className="w-36"
+          value={startDate}
+          onChange={(e) => {
+            setStartDate(e.target.value);
+            setPage(1);
+          }}
+        />
+        <Input
+          type="date"
+          className="w-36"
+          value={endDate}
+          onChange={(e) => {
+            setEndDate(e.target.value);
+            setPage(1);
+          }}
+        />
         <div className="flex gap-1 ml-auto">
           {["", "SUCCESS", "ERROR", "FILTERED"].map((s) => (
-            <Button key={s} size="sm" variant={statusFilter === s ? "default" : "outline"}
-              onClick={() => { setStatusFilter(s); setPage(1); }}>{s || "All"}</Button>
+            <Button
+              key={s}
+              size="sm"
+              variant={statusFilter === s ? "default" : "outline"}
+              onClick={() => {
+                setStatusFilter(s);
+                setPage(1);
+              }}
+            >
+              {s || "All"}
+            </Button>
           ))}
         </div>
       </div>
 
-      {/* Detail panel */}
+      {/* Detail panel — 原型: .detail-panel */}
       {detail && (
-        <Card className="mb-4">
-          <CardContent className="p-4">
-            <div className="flex justify-between items-center mb-3">
-              <div className="flex items-center gap-2">
-                <span className="font-mono text-sm">{detail.traceId}</span>
-                <Badge variant={detail.status === "SUCCESS" ? "default" : "destructive"}>{detail.status}</Badge>
-                <span className="text-xs text-muted-foreground">{new Date(detail.createdAt).toLocaleString()}</span>
+        <div className="bg-white border border-border-custom rounded-xl p-5 mb-[14px]">
+          {/* Head: trace + status + time + close */}
+          <div className="flex justify-between items-center mb-[14px]">
+            <div className="flex items-center gap-2">
+              <span className="font-mono text-[13px] text-chart-blue">{detail.traceId}</span>
+              <Badge
+                variant={
+                  detail.status === "SUCCESS"
+                    ? "success"
+                    : detail.status === "FILTERED"
+                      ? "warning"
+                      : "error"
+                }
+              >
+                {detail.status.toLowerCase()}
+              </Badge>
+              <span className="text-xs text-text-tertiary">
+                {new Date(detail.createdAt).toLocaleString()}
+              </span>
+            </div>
+            <button
+              className="text-text-tertiary hover:text-text-primary text-lg px-1.5 py-0.5"
+              onClick={() => {
+                setSelectedTrace(null);
+                setDetail(null);
+              }}
+            >
+              &times;
+            </button>
+          </div>
+
+          {/* Metrics: 4-col grid */}
+          <div className="grid grid-cols-4 gap-2 mb-[14px]">
+            <div className="bg-surface rounded-[6px] px-3 py-2">
+              <div className="text-[11px] text-text-tertiary">Model</div>
+              <div className="text-[13px] font-medium text-text-primary mt-0.5">
+                {detail.modelName}
               </div>
-              <Button variant="ghost" size="icon" onClick={() => { setSelectedTrace(null); setDetail(null); }}><X className="h-4 w-4" /></Button>
             </div>
-            <div className="grid grid-cols-4 gap-3 mb-3 text-sm">
-              <div><span className="text-muted-foreground">Model:</span> {detail.modelName}</div>
-              <div><span className="text-muted-foreground">Tokens:</span> {detail.totalTokens ?? "—"}</div>
-              <div><span className="text-muted-foreground">Cost:</span> {detail.sellPrice != null ? formatCurrency(detail.sellPrice) : "—"}</div>
-              <div><span className="text-muted-foreground">Latency:</span> {detail.latencyMs}ms (TTFT: {detail.ttftMs ?? "—"}ms)</div>
+            <div className="bg-surface rounded-[6px] px-3 py-2">
+              <div className="text-[11px] text-text-tertiary">Tokens</div>
+              <div className="text-[13px] font-medium text-text-primary mt-0.5">
+                {detail.totalTokens ? detail.totalTokens.toLocaleString() : "—"}
+              </div>
             </div>
+            <div className="bg-surface rounded-[6px] px-3 py-2">
+              <div className="text-[11px] text-text-tertiary">Cost</div>
+              <div className="text-[13px] font-medium text-text-primary mt-0.5">
+                {detail.sellPrice != null ? `$${detail.sellPrice.toFixed(4)}` : "—"}
+              </div>
+            </div>
+            <div className="bg-surface rounded-[6px] px-3 py-2">
+              <div className="text-[11px] text-text-tertiary">Latency</div>
+              <div className="text-[13px] font-medium text-text-primary mt-0.5">
+                {detail.latencyMs != null ? `${(detail.latencyMs / 1000).toFixed(1)}s` : "—"}
+                {detail.ttftMs != null ? ` (TTFT ${(detail.ttftMs / 1000).toFixed(2)}s)` : ""}
+              </div>
+            </div>
+          </div>
+
+          {/* Params + Throughput: 2-col grid */}
+          <div className="grid grid-cols-2 gap-2 mb-[14px]">
             {detail.requestParams && (
-              <div className="mb-2">
-                <p className="text-xs font-medium text-muted-foreground uppercase mb-1">Parameters</p>
-                <pre className="bg-muted rounded-md p-3 text-xs font-mono whitespace-pre-wrap max-h-[120px] overflow-y-auto">{JSON.stringify(detail.requestParams, null, 2)}</pre>
+              <div className="bg-surface rounded-[6px] px-3 py-2">
+                <div className="text-[11px] text-text-tertiary">Parameters</div>
+                <div className="text-[13px] font-medium font-mono text-text-primary mt-0.5">
+                  {JSON.stringify(detail.requestParams)}
+                </div>
               </div>
             )}
-            {detail.promptSnapshot?.map((m, i) => (
-              <div key={i} className="mb-2">
-                <p className="text-xs font-medium text-muted-foreground uppercase mb-1">{m.role}</p>
-                <pre className="bg-muted rounded-md p-3 text-xs font-mono whitespace-pre-wrap max-h-[120px] overflow-y-auto">{m.content}</pre>
+            <div className="bg-surface rounded-[6px] px-3 py-2">
+              <div className="text-[11px] text-text-tertiary">Throughput</div>
+              <div className="text-[13px] font-medium font-mono text-text-primary mt-0.5">
+                {detail.tokensPerSecond ? `${detail.tokensPerSecond} tok/s` : "—"}
               </div>
-            ))}
-            {detail.responseContent && (
-              <div>
-                <p className="text-xs font-medium text-muted-foreground uppercase mb-1">Response</p>
-                <pre className={`rounded-md p-3 text-xs font-mono whitespace-pre-wrap max-h-[120px] overflow-y-auto ${detail.status === "ERROR" ? "bg-destructive/10" : "bg-muted"}`}>{detail.responseContent}</pre>
+            </div>
+          </div>
+
+          {/* Prompt sections */}
+          {detail.promptSnapshot?.map((m, i) => (
+            <div key={i}>
+              <div className="text-xs font-medium text-text-tertiary mb-1 mt-[14px]">
+                {m.role === "system"
+                  ? "System prompt"
+                  : m.role === "user"
+                    ? "User message"
+                    : m.role}
               </div>
-            )}
-            {detail.errorMessage && (
-              <div className="mt-2">
-                <p className="text-xs font-medium text-destructive uppercase mb-1">Error</p>
-                <pre className="bg-destructive/10 rounded-md p-3 text-xs font-mono">{detail.errorMessage}</pre>
-              </div>
-            )}
-          </CardContent>
-        </Card>
+              <pre className="bg-surface rounded-[6px] px-[14px] py-[10px] font-mono text-xs leading-relaxed text-text-primary whitespace-pre-wrap max-h-[120px] overflow-y-auto">
+                {m.content}
+              </pre>
+            </div>
+          ))}
+
+          {/* Response */}
+          {detail.responseContent && (
+            <div>
+              <div className="text-xs font-medium text-text-tertiary mb-1 mt-[14px]">Response</div>
+              <pre
+                className={`rounded-[6px] px-[14px] py-[10px] font-mono text-xs leading-relaxed whitespace-pre-wrap max-h-[120px] overflow-y-auto ${detail.status === "ERROR" ? "bg-error-bg-light text-error-text" : "bg-surface text-text-primary"}`}
+              >
+                {detail.responseContent}
+              </pre>
+            </div>
+          )}
+
+          {/* Error message */}
+          {detail.errorMessage && (
+            <div>
+              <div className="text-xs font-medium text-error-text mb-1 mt-[14px]">Error</div>
+              <pre className="bg-error-bg-light text-error-text rounded-[6px] px-[14px] py-[10px] font-mono text-xs leading-relaxed whitespace-pre-wrap">
+                {detail.errorMessage}
+              </pre>
+            </div>
+          )}
+        </div>
       )}
 
-      <Card><CardContent className="p-0">
-        <Table>
-          <TableHeader><TableRow>
-            <TableHead className="w-[60px]">Time</TableHead><TableHead className="w-[100px]">Trace</TableHead>
-            <TableHead className="w-[120px]">Model</TableHead><TableHead>Prompt</TableHead>
-            <TableHead className="w-[70px]">Status</TableHead><TableHead className="w-[70px]">Tokens</TableHead>
-            <TableHead className="w-[60px]">Cost</TableHead><TableHead className="w-[60px]">Latency</TableHead>
-          </TableRow></TableHeader>
-          <TableBody>
-            {logs.map((l) => (
-              <TableRow key={l.traceId} className="cursor-pointer" onClick={() => loadDetail(l.traceId)}>
-                <TableCell className="text-xs text-muted-foreground" title={l.createdAt}>{timeAgo(l.createdAt)}</TableCell>
-                <TableCell className="font-mono text-xs text-primary">{l.traceId.slice(0, 12)}</TableCell>
-                <TableCell className="font-medium text-xs">{l.modelName}</TableCell>
-                <TableCell className="text-xs text-muted-foreground truncate max-w-[200px]" title={l.promptPreview}>{l.promptPreview || "—"}</TableCell>
-                <TableCell><Badge variant={l.status === "SUCCESS" ? "default" : "destructive"}>{l.status}</Badge></TableCell>
-                <TableCell className="font-mono text-xs">{l.totalTokens ?? "--"}</TableCell>
-                <TableCell className="font-mono text-xs">{l.sellPrice != null ? formatCurrency(l.sellPrice) : "—"}</TableCell>
-                <TableCell className="font-mono text-xs text-muted-foreground">{l.latencyMs ?? "—"}ms</TableCell>
+      <Card>
+        <CardContent className="p-0">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="w-[60px]">Time</TableHead>
+                <TableHead className="w-[100px]">Trace</TableHead>
+                <TableHead className="w-[120px]">Model</TableHead>
+                <TableHead>Prompt</TableHead>
+                <TableHead className="w-[70px]">Status</TableHead>
+                <TableHead className="w-[70px]">Tokens</TableHead>
+                <TableHead className="w-[60px]">Cost</TableHead>
+                <TableHead className="w-[60px]">Latency</TableHead>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </CardContent></Card>
+            </TableHeader>
+            <TableBody>
+              {logs.map((l) => (
+                <TableRow
+                  key={l.traceId}
+                  className="cursor-pointer"
+                  onClick={() => loadDetail(l.traceId)}
+                >
+                  <TableCell
+                    className="font-mono text-[11px] text-text-tertiary whitespace-nowrap"
+                    title={l.createdAt}
+                  >
+                    {timeAgo(l.createdAt)}
+                  </TableCell>
+                  <TableCell className="font-mono text-[11px] text-chart-blue">
+                    {l.traceId.slice(0, 12)}
+                  </TableCell>
+                  <TableCell className="font-medium text-xs text-text-primary">
+                    {l.modelName}
+                  </TableCell>
+                  <TableCell
+                    className="text-xs text-text-secondary truncate max-w-[180px]"
+                    title={l.promptPreview}
+                  >
+                    {l.promptPreview || "—"}
+                  </TableCell>
+                  <TableCell>
+                    <Badge
+                      variant={
+                        l.status === "SUCCESS"
+                          ? "success"
+                          : l.status === "FILTERED"
+                            ? "warning"
+                            : "error"
+                      }
+                    >
+                      {l.status.toLowerCase()}
+                    </Badge>
+                  </TableCell>
+                  <TableCell className="font-mono text-[11px]">
+                    {l.totalTokens ? l.totalTokens.toLocaleString() : "--"}
+                  </TableCell>
+                  <TableCell className="font-mono text-[11px]">
+                    {l.sellPrice != null ? `$${l.sellPrice.toFixed(3)}` : "—"}
+                  </TableCell>
+                  <TableCell className="font-mono text-[11px] text-text-tertiary">
+                    {l.latencyMs != null ? `${(l.latencyMs / 1000).toFixed(1)}s` : "—"}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
 
       <div className="flex justify-between items-center mt-4">
         <span className="text-sm text-muted-foreground">{total} records</span>
         <div className="flex gap-2">
-          <Button size="sm" variant="outline" disabled={page <= 1} onClick={() => setPage(page - 1)}>Prev</Button>
-          <Button size="sm" variant="outline" onClick={() => setPage(page + 1)}>Next</Button>
+          <Button
+            size="sm"
+            variant="outline"
+            disabled={page <= 1}
+            onClick={() => setPage(page - 1)}
+          >
+            Prev
+          </Button>
+          <Button size="sm" variant="outline" onClick={() => setPage(page + 1)}>
+            Next
+          </Button>
         </div>
       </div>
     </div>

@@ -154,8 +154,8 @@ export default function ProvidersPage() {
                     <TableCell>{p.channelCount}</TableCell>
                     <TableCell>
                       <button onClick={() => toggleStatus(p)}>
-                        <Badge variant={p.status === "ACTIVE" ? "default" : "destructive"}>
-                          {p.status}
+                        <Badge variant={p.status === "ACTIVE" ? "success" : "error"}>
+                          {p.status.toLowerCase()}
                         </Badge>
                       </button>
                     </TableCell>

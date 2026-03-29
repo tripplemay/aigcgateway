@@ -31,11 +31,11 @@ interface LogEntry {
   createdAt: string;
 }
 
-const statusVariant: Record<string, "default" | "destructive" | "secondary" | "outline"> = {
-  SUCCESS: "default",
-  ERROR: "destructive",
-  TIMEOUT: "destructive",
-  FILTERED: "outline",
+const statusVariant: Record<string, "success" | "error" | "warning"> = {
+  SUCCESS: "success",
+  ERROR: "error",
+  TIMEOUT: "error",
+  FILTERED: "warning",
 };
 
 export default function AdminLogsPage() {
@@ -128,31 +128,38 @@ export default function AdminLogsPage() {
               ) : (
                 logs.map((l) => (
                   <TableRow key={l.traceId}>
-                    <TableCell className="text-xs text-muted-foreground" title={l.createdAt}>
+                    <TableCell
+                      className="font-mono text-[11px] text-text-tertiary"
+                      title={l.createdAt}
+                    >
                       {timeAgo(l.createdAt)}
                     </TableCell>
-                    <TableCell className="font-mono text-xs text-primary">
+                    <TableCell className="font-mono text-[11px] text-chart-blue">
                       {l.traceId.slice(0, 12)}
                     </TableCell>
                     <TableCell>{l.projectName}</TableCell>
-                    <TableCell className="font-medium text-xs">{l.modelName}</TableCell>
-                    <TableCell className="text-xs" title={l.channelId}>
+                    <TableCell className="font-medium text-xs text-text-primary">
+                      {l.modelName}
+                    </TableCell>
+                    <TableCell className="text-xs text-text-tertiary" title={l.channelId}>
                       {l.channelProvider}/{l.channelRealModelId}
                     </TableCell>
                     <TableCell>
-                      <Badge variant={statusVariant[l.status] ?? "secondary"}>{l.status}</Badge>
+                      <Badge variant={statusVariant[l.status] ?? "error"}>
+                        {l.status.toLowerCase()}
+                      </Badge>
                     </TableCell>
-                    <TableCell className="font-mono text-xs">
+                    <TableCell className="font-mono text-[11px]">
                       {l.promptTokens ?? "—"}/{l.completionTokens ?? "—"}
                     </TableCell>
-                    <TableCell className="font-mono text-xs">
+                    <TableCell className="font-mono text-[11px]">
                       {l.costPrice != null ? formatCurrency(l.costPrice) : "—"}
                     </TableCell>
-                    <TableCell className="font-mono text-xs">
+                    <TableCell className="font-mono text-[11px]">
                       {l.sellPrice != null ? formatCurrency(l.sellPrice) : "—"}
                     </TableCell>
-                    <TableCell className="font-mono text-xs text-muted-foreground">
-                      {l.latencyMs ?? "—"}ms
+                    <TableCell className="font-mono text-[11px] text-text-tertiary">
+                      {l.latencyMs != null ? `${(l.latencyMs / 1000).toFixed(1)}s` : "—"}
                     </TableCell>
                   </TableRow>
                 ))

@@ -19,6 +19,8 @@ import {
 import { toast } from "sonner";
 import { formatCurrency, timeAgo } from "@/lib/utils";
 import { cn } from "@/lib/utils";
+import { Skeleton } from "@/components/ui/skeleton";
+import { EmptyState } from "@/components/empty-state";
 
 interface BalanceInfo {
   balance: number;
@@ -44,7 +46,7 @@ const typeVariant: Record<string, "default" | "secondary" | "outline" | "destruc
 };
 
 export default function BalancePage() {
-  const { current } = useProject();
+  const { current, loading: projLoading } = useProject();
   const [info, setInfo] = useState<BalanceInfo | null>(null);
   const [txns, setTxns] = useState<TxnRow[]>([]);
   const [page, setPage] = useState(1);
@@ -97,7 +99,16 @@ export default function BalancePage() {
     }
   };
 
-  if (!current || !info) return null;
+  if (projLoading)
+    return (
+      <div className="space-y-4 pt-4">
+        <Skeleton className="h-8 w-48" />
+        <Skeleton className="h-10 w-full" />
+        <Skeleton className="h-64 w-full" />
+      </div>
+    );
+  if (!current) return <EmptyState onCreated={() => window.location.reload()} />;
+  if (!info) return null;
   const isLow = info.alertThreshold != null && info.balance <= info.alertThreshold;
 
   return (

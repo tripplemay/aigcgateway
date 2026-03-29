@@ -3,8 +3,18 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import {
-  LayoutDashboard, Key, Box, FileText, BarChart3, Wallet,
-  Zap, BookOpen, Server, Layers, Activity, Users, Settings,
+  LayoutDashboard,
+  Key,
+  Box,
+  FileText,
+  BarChart3,
+  Wallet,
+  Zap,
+  BookOpen,
+  Server,
+  Layers,
+  Activity,
+  Users,
 } from "lucide-react";
 
 interface NavItem {
@@ -21,36 +31,36 @@ interface NavGroup {
 
 const devNav: NavGroup[] = [
   {
-    title: "Project",
+    title: "project",
     items: [
       { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-      { label: "API Keys", href: "/keys", icon: Key },
+      { label: "API keys", href: "/keys", icon: Key },
       { label: "Models", href: "/models", icon: Box },
     ],
   },
   {
-    title: "Observe",
+    title: "observe",
     items: [
-      { label: "Audit Logs", href: "/logs", icon: FileText },
+      { label: "Audit logs", href: "/logs", icon: FileText },
       { label: "Usage", href: "/usage", icon: BarChart3 },
     ],
   },
   {
-    title: "Billing",
+    title: "billing",
     items: [{ label: "Balance", href: "/balance", icon: Wallet }],
   },
   {
-    title: "Help",
+    title: "help",
     items: [
-      { label: "Quick Start", href: "/quickstart", icon: Zap },
-      { label: "API Docs", href: "/docs", icon: BookOpen },
+      { label: "Quick start", href: "/quickstart", icon: Zap },
+      { label: "API docs", href: "/docs", icon: BookOpen },
     ],
   },
 ];
 
 const adminNav: NavGroup[] = [
   {
-    title: "Admin",
+    title: "admin",
     adminOnly: true,
     items: [
       { label: "Providers", href: "/admin/providers", icon: Server },
@@ -67,22 +77,29 @@ const adminNav: NavGroup[] = [
 interface SidebarProps {
   role: "ADMIN" | "DEVELOPER";
   userName?: string;
+  projectName?: string;
 }
 
-export function Sidebar({ role, userName }: SidebarProps) {
+export function Sidebar({ role, userName, projectName }: SidebarProps) {
   const pathname = usePathname();
   const groups = role === "ADMIN" ? [...devNav, ...adminNav] : devNav;
+  const initials = (userName ?? "U").slice(0, 2).toUpperCase();
 
   return (
-    <aside className="w-[210px] h-screen bg-gray-50 border-r flex flex-col fixed left-0 top-0 z-40">
-      <div className="p-4 border-b">
-        <h1 className="text-lg font-bold text-gray-900">AIGC Gateway</h1>
+    <aside className="w-[210px] h-screen bg-white border-r border-border-custom flex flex-col fixed left-0 top-0 z-40">
+      {/* Logo — 原型: .logo + .logo-icon */}
+      <div className="flex items-center gap-2 px-4 pb-[14px] pt-4 border-b border-border-custom mb-2">
+        <div className="flex h-6 w-6 items-center justify-center rounded-[6px] bg-brand text-[14px] font-bold text-white">
+          G
+        </div>
+        <span className="text-[15px] font-semibold text-text-primary">AIGC Gateway</span>
       </div>
 
-      <nav className="flex-1 overflow-y-auto py-2">
+      {/* Navigation */}
+      <nav className="flex-1 overflow-y-auto">
         {groups.map((group) => (
-          <div key={group.title} className="mb-2">
-            <p className="px-4 py-1 text-xs font-medium text-gray-400 uppercase">
+          <div key={group.title}>
+            <p className="px-4 pt-3 pb-1 text-[11px] text-text-hint tracking-[0.5px] lowercase">
               {group.title}
             </p>
             {group.items.map((item) => {
@@ -92,13 +109,15 @@ export function Sidebar({ role, userName }: SidebarProps) {
                   key={item.href}
                   href={item.href}
                   className={cn(
-                    "flex items-center gap-2 px-4 py-1.5 text-sm transition-colors",
+                    "flex items-center gap-[9px] py-2 px-4 text-[13px] border-l-[3px] transition-all duration-150",
                     active
-                      ? "bg-blue-50 text-blue-700 font-medium"
-                      : "text-gray-600 hover:bg-gray-100",
+                      ? "border-l-brand bg-page-bg text-text-primary font-medium"
+                      : "border-l-transparent text-text-hint hover:bg-surface hover:text-text-secondary",
                   )}
                 >
-                  <item.icon className="h-4 w-4" />
+                  <item.icon
+                    className={cn("h-4 w-4 shrink-0", active ? "opacity-75" : "opacity-45")}
+                  />
                   {item.label}
                 </Link>
               );
@@ -107,12 +126,19 @@ export function Sidebar({ role, userName }: SidebarProps) {
         ))}
       </nav>
 
-      <div className="p-4 border-t">
-        <Link href="/settings" className="flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900">
-          <Settings className="h-4 w-4" />
-          {userName ?? "Settings"}
-        </Link>
-      </div>
+      {/* Footer — 原型: .side-foot + .avatar */}
+      <Link
+        href="/settings"
+        className="mt-auto flex items-center gap-2 border-t border-border-custom px-4 py-3 transition-colors hover:bg-surface cursor-pointer"
+      >
+        <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-info-bg text-[11px] font-semibold text-chart-blue">
+          {initials}
+        </div>
+        <div className="min-w-0">
+          <p className="truncate text-xs font-medium text-text-primary">{userName ?? "User"}</p>
+          {projectName && <p className="truncate text-[11px] text-text-hint">{projectName}</p>}
+        </div>
+      </Link>
     </aside>
   );
 }

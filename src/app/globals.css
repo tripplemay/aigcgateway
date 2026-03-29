@@ -45,6 +45,46 @@
     --radius-2xl: calc(var(--radius) * 1.8);
     --radius-3xl: calc(var(--radius) * 2.2);
     --radius-4xl: calc(var(--radius) * 2.6);
+
+    /* Brand colors */
+    --color-brand: var(--brand);
+    --color-brand-light: var(--brand-light);
+    --color-brand-dark: var(--brand-dark);
+
+    /* Semantic colors */
+    --color-success-bg: var(--success-bg);
+    --color-success-text: var(--success-text);
+    --color-error-bg: var(--error-bg);
+    --color-error-text: var(--error-text);
+    --color-warning-bg: var(--warning-bg);
+    --color-warning-text: var(--warning-text);
+    --color-info-bg: var(--info-bg);
+    --color-info-text: var(--info-text);
+    --color-image-bg: var(--image-bg);
+    --color-image-text: var(--image-text);
+
+    /* Neutral colors */
+    --color-surface: var(--surface);
+    --color-page-bg: var(--page-bg);
+    --color-border-custom: var(--border-custom);
+    --color-text-primary: var(--text-primary);
+    --color-text-secondary: var(--text-secondary);
+    --color-text-tertiary: var(--text-tertiary);
+    --color-text-hint: var(--text-hint);
+
+    /* Table colors */
+    --color-table-bg: var(--table-bg);
+    --color-table-border: var(--table-border);
+
+    /* Error light background */
+    --color-error-bg-light: var(--error-bg-light);
+
+    /* Chart accent colors */
+    --color-chart-brand: var(--chart-brand);
+    --color-chart-teal: var(--chart-teal);
+    --color-chart-coral: var(--chart-coral);
+    --color-chart-blue: var(--chart-blue);
+    --color-chart-amber: var(--chart-amber);
 }
 
 :root {
@@ -80,6 +120,50 @@
     --sidebar-accent-foreground: oklch(0.205 0 0);
     --sidebar-border: oklch(0.922 0 0);
     --sidebar-ring: oklch(0.708 0 0);
+
+    /* Brand */
+    --brand: #6D5DD3;
+    --brand-light: #EEEDFE;
+    --brand-dark: #3C3489;
+
+    /* Semantic: success */
+    --success-bg: #EAF3DE;
+    --success-text: #27500A;
+    /* Semantic: error */
+    --error-bg: #FCEBEB;
+    --error-text: #791F1F;
+    /* Semantic: warning */
+    --warning-bg: #FAEEDA;
+    --warning-text: #633806;
+    /* Semantic: info */
+    --info-bg: #E6F1FB;
+    --info-text: #0C447C;
+    /* Semantic: image modality */
+    --image-bg: #FBEAF0;
+    --image-text: #72243E;
+
+    /* Neutral */
+    --surface: #f8f7f5;
+    --page-bg: #f3f2ee;
+    --border-custom: #e5e4e0;
+    --text-primary: #2C2C2A;
+    --text-secondary: #5F5E5A;
+    --text-tertiary: #888780;
+    --text-hint: #B4B2A9;
+
+    /* Table */
+    --table-bg: #fafaf8;
+    --table-border: #f0efe8;
+
+    /* Error light */
+    --error-bg-light: #FFF5F5;
+
+    /* Chart palette */
+    --chart-brand: #6D5DD3;
+    --chart-teal: #0F9D7A;
+    --chart-coral: #E85D30;
+    --chart-blue: #2B7BD5;
+    --chart-amber: #D4940E;
 }
 
 .dark {

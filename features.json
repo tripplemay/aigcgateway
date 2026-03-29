@@ -1,55 +1,68 @@
 {
   "features": [
-    { "id": "F001-F054", "title": "阶段1-7已完成", "priority": "high", "status": "completed", "acceptance": "done" },
-    { "id": "F055-F063", "title": "阶段8已完成", "priority": "high", "status": "completed", "acceptance": "done" },
+    { "id": "F001-F070", "title": "P1 阶段1-9 全部已完成", "priority": "high", "status": "completed", "acceptance": "done" },
     {
-      "id": "F064",
-      "title": "端到端测试脚本（全链路）",
+      "id": "FIX-001",
+      "title": "安装真正的 shadcn/ui 组件",
       "priority": "high",
       "status": "completed",
-      "acceptance": "scripts/e2e-test.ts：注册→登录→创建项目→生成Key→充值→支付回调→文本调用→流式调用→图片调用→查余额扣减→查交易记录→查审计日志→全文搜索；全部步骤输出 PASS/FAIL"
+      "acceptance": "1. components.json 存在且配置正确；2. 所有需要的组件已安装到 src/components/ui/（button, dialog, table, input, select, tabs, card, badge, dropdown-menu, sheet, toast/sonner, alert, separator, skeleton, popover, calendar, command, avatar, tooltip）；3. 所有页面从 @/components/ui/ 导入，无手写 UI 组件残留；4. npx tsc --noEmit 编译 0 错误"
     },
     {
-      "id": "F065",
-      "title": "异常场景测试脚本",
+      "id": "FIX-002",
+      "title": "注入品牌色和语义色到主题系统",
       "priority": "high",
       "status": "completed",
-      "acceptance": "scripts/e2e-errors.ts：余额不足→402；吊销Key后调用→401；不存在模型→404；并发扣费(10并发)→余额正确无超扣"
+      "acceptance": "1. globals.css 中定义品牌色 CSS 变量（--brand: #6D5DD3, --brand-light: #EEEDFE, --brand-dark: #3C3489）；2. 语义色变量（success bg/text, error bg/text, warning bg/text, info bg/text）；3. 中性色变量（surface #f8f7f5, page-bg #f3f2ee, border-custom #e5e4e0, 文字色层级 primary/secondary/tertiary/hint）；4. 图表配色变量（5色）；5. Tailwind @theme 中注册所有变量使 bg-brand/text-brand 等类名可用；6. 所有颜色通过 CSS 变量使用，不在组件中硬编码 hex"
     },
     {
-      "id": "F066",
-      "title": "7家服务商全量验证脚本",
+      "id": "FIX-003",
+      "title": "侧边栏视觉升级",
       "priority": "high",
       "status": "completed",
-      "acceptance": "scripts/verify-providers.ts：遍历所有ACTIVE通道，文本通道发一次调用、图片通道发一次生成；输出每条通道 PASS/FAIL/latency；汇总报告"
+      "acceptance": "1. Logo 区域：品牌色方块(圆角6px) + 白色图标 + 'AIGC Gateway' 文字；2. 导航选中态：左侧3px品牌色边框 + page-bg背景 + 主文字色 + 图标 80%不透明；3. 未选中态：hint 文字色 + 图标 45%不透明；4. 分组标签：11px hint色 + letter-spacing 0.5px；5. 底部：首字母头像(圆形 info-bg底 + 蓝色字) + 用户名 + 项目名"
     },
     {
-      "id": "F067",
-      "title": "SDK README.md",
+      "id": "FIX-004",
+      "title": "空状态缺少操作按钮",
       "priority": "high",
       "status": "completed",
-      "acceptance": "sdk/README.md：安装(npm/yarn/pnpm)、初始化、非流式/流式/图片/models 代码示例、错误处理(含每种错误类型)、配置项说明、重试策略说明"
+      "acceptance": "1. Dashboard 无项目时显示：居中图标 + 'No project yet' 文案 + 'Create Project' 按钮；2. 点击按钮可打开创建项目对话框；3. 所有空状态页面统一此模式"
     },
     {
-      "id": "F068",
-      "title": "API 文档页面",
+      "id": "FIX-005",
+      "title": "Logs/Usage/Balance/Keys 无项目时空白",
       "priority": "high",
       "status": "completed",
-      "acceptance": "/docs 路由渲染 API 文档；覆盖认证方式、chat/images/models 端点、请求/响应格式、错误码、限流规则；代码示例可复制"
+      "acceptance": "1. 四个文件中 if (!current) return null 改为显示 loading Skeleton + 无项目引导提示；2. 无项目时显示：'No project yet. Create your first project to get started.' + 创建按钮；3. 涉及文件：logs/page.tsx, usage/page.tsx, balance/page.tsx, keys/page.tsx"
     },
     {
-      "id": "F069",
-      "title": "Dockerfile + docker-compose.yml",
-      "priority": "high",
+      "id": "FIX-006",
+      "title": "Badge 样式统一",
+      "priority": "medium",
       "status": "completed",
-      "acceptance": "Dockerfile: Node 22 + prisma generate + next build + 3000端口；docker-compose.yml: app + PostgreSQL + Redis 三服务；.dockerignore 排除 node_modules/.next/.env；docker compose up 可启动完整环境"
+      "acceptance": "1. success/active: bg success-bg text success-text；2. error: bg error-bg text error-text；3. filtered/warning: bg warning-bg text warning-text；4. text(modality): bg info-bg text info-text；5. image(modality): bg #FBEAF0 text #72243E（通过CSS变量）；6. 通过 CSS 变量使用颜色，不硬编码 hex；7. Models/Audit Logs/Channels 页面 Badge 颜色正确区分"
     },
     {
-      "id": "F070",
-      "title": "种子管理员 bcrypt 修复 + 上线检查清单 + TS编译验证",
-      "priority": "high",
+      "id": "FIX-007",
+      "title": "Dashboard 图表和指标卡片优化",
+      "priority": "medium",
       "status": "completed",
-      "acceptance": "修复种子数据管理员密码为 bcrypt 哈希(可正常登录)；docs/LAUNCH_CHECKLIST.md 上线检查清单(基础设施/应用/支付/监控/安全 5类)；TypeScript 编译 0 错误"
+      "acceptance": "1. 指标卡片：surface 背景 + 10px圆角 + 趋势标签（绿上/红下）；2. Recharts 主色品牌色，第二色 teal；3. 面积图：品牌色 + 15%透明度填充；4. 柱状图：3px顶部圆角；5. 环形图：5色 + 右侧图例；6. Tooltip：白底 + 1px边框 + 8px圆角；7. 坐标轴：muted色 11px 隐藏轴线"
+    },
+    {
+      "id": "FIX-008",
+      "title": "表格全局样式优化",
+      "priority": "medium",
+      "status": "completed",
+      "acceptance": "1. 表头：11px灰色 + #fafaf8背景 + 底部分割线；2. 数据行：8px padding + 0.5px分割线 + hover #fafaf8；3. 等宽字段（traceId/cost/latency/tokens）用 font-mono；4. traceId 蓝色；5. Model名 font-weight 500；6. Prompt列 ellipsis 截断；7. 最后一行无底部分割线"
+    },
+    {
+      "id": "FIX-009",
+      "title": "审计日志详情面板样式",
+      "priority": "medium",
+      "status": "completed",
+      "acceptance": "1. 指标卡片：4列 grid + surface 背景 + 6px圆角；2. 代码块：font-mono + surface 背景 + 6px圆角 + max-h 120px 滚动；3. Error 响应：浅红背景 + 深红文字；4. 关闭按钮在右上角"
     }
   ]
 }
