@@ -61,7 +61,7 @@ async function runTextCheck(route: RouteResult): Promise<CheckResult[]> {
       {
         model: route.model.name,
         messages: [{ role: "user", content: "请回答1+1等于几，只回答数字" }],
-        max_tokens: 10,
+        max_tokens: 200,
         temperature: 0.01,
       },
       route,
