@@ -1,0 +1,53 @@
+import { PrismaClient } from "@prisma/client";
+import bcrypt from "bcryptjs";
+import { NextResponse } from "next/server";
+import { errorResponse } from "@/lib/api/errors";
+import { randomBytes } from "crypto";
+
+const prisma = new PrismaClient();
+
+export async function POST(request: Request) {
+  let body: { email?: string; password?: string; name?: string };
+  try {
+    body = await request.json();
+  } catch {
+    return errorResponse(400, "invalid_parameter", "Invalid JSON body");
+  }
+
+  const { email, password, name } = body;
+
+  if (!email || !password) {
+    return errorResponse(400, "invalid_parameter", "email and password are required");
+  }
+
+  if (password.length < 8) {
+    return errorResponse(422, "invalid_parameter", "Password must be at least 8 characters", { param: "password" });
+  }
+
+  const existing = await prisma.user.findUnique({ where: { email } });
+  if (existing) {
+    return errorResponse(409, "conflict", "Email already registered");
+  }
+
+  const passwordHash = await bcrypt.hash(password, 12);
+
+  const user = await prisma.user.create({
+    data: {
+      email,
+      passwordHash,
+      name: name ?? null,
+      role: "DEVELOPER",
+      emailVerified: false,
+    },
+  });
+
+  return NextResponse.json(
+    {
+      id: user.id,
+      email: user.email,
+      name: user.name,
+      emailVerified: user.emailVerified,
+    },
+    { status: 201 },
+  );
+}
