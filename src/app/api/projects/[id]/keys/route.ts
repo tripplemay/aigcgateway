@@ -1,10 +1,10 @@
-import { PrismaClient } from "@prisma/client";
+export const dynamic = "force-dynamic";
+import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import { randomBytes, createHash } from "crypto";
 import { verifyJwt } from "@/lib/api/jwt-middleware";
 import { errorResponse } from "@/lib/api/errors";
 
-const prisma = new PrismaClient();
 
 /** GET /api/projects/:id/keys — Key 列表（仅显示 prefix 掩码） */
 export async function GET(

@@ -5,9 +5,8 @@
  * 幂等：非 PENDING 状态直接返回成功
  */
 
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "@/lib/prisma";
 
-const prisma = new PrismaClient();
 
 export interface ProcessPaymentResult {
   success: boolean;

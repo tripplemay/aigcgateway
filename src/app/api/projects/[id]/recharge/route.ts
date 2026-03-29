@@ -1,9 +1,9 @@
-import { PrismaClient } from "@prisma/client";
+export const dynamic = "force-dynamic";
+import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import { verifyJwt } from "@/lib/api/jwt-middleware";
 import { errorResponse } from "@/lib/api/errors";
 
-const prisma = new PrismaClient();
 
 /** POST /api/projects/:id/recharge — 创建充值订单 */
 export async function POST(

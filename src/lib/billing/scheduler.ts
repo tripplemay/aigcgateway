@@ -5,9 +5,8 @@
  * - 每小时：检查所有项目余额，低于 alertThreshold 推送告警
  */
 
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "@/lib/prisma";
 
-const prisma = new PrismaClient();
 
 let expiredOrderTimer: ReturnType<typeof setInterval> | null = null;
 let balanceAlertTimer: ReturnType<typeof setInterval> | null = null;

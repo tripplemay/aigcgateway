@@ -28,18 +28,19 @@ export class OpenAICompatEngine implements EngineAdapter {
     request: ChatCompletionRequest,
     route: RouteResult,
   ): Promise<ChatCompletionResponse> {
-    const req = this.prepareRequest(
-      { ...request, stream: false },
-      route,
-    );
+    const req = this.prepareRequest({ ...request, stream: false }, route);
     const url = this.buildUrl(route, "chat");
     const headers = this.buildHeaders(route);
 
-    const response = await this.fetchWithProxy(url, {
-      method: "POST",
-      headers,
-      body: JSON.stringify(req),
-    }, route);
+    const response = await this.fetchWithProxy(
+      url,
+      {
+        method: "POST",
+        headers,
+        body: JSON.stringify(req),
+      },
+      route,
+    );
 
     const json = await response.json();
     return this.normalizeChatResponse(json);
@@ -49,34 +50,28 @@ export class OpenAICompatEngine implements EngineAdapter {
     request: ChatCompletionRequest,
     route: RouteResult,
   ): Promise<ReadableStream<ChatCompletionChunk>> {
-    const req = this.prepareRequest(
-      { ...request, stream: true },
-      route,
-    );
+    const req = this.prepareRequest({ ...request, stream: true }, route);
     const url = this.buildUrl(route, "chat");
     const headers = this.buildHeaders(route);
 
-    const response = await this.fetchWithProxy(url, {
-      method: "POST",
-      headers,
-      body: JSON.stringify(req),
-    }, route);
+    const response = await this.fetchWithProxy(
+      url,
+      {
+        method: "POST",
+        headers,
+        body: JSON.stringify(req),
+      },
+      route,
+    );
 
     if (!response.body) {
-      throw new EngineError(
-        "No response body for stream",
-        ErrorCodes.PROVIDER_ERROR,
-        502,
-      );
+      throw new EngineError("No response body for stream", ErrorCodes.PROVIDER_ERROR, 502);
     }
 
     const sseParser = createSSEParser();
     const textDecoder = createTextDecoderStream();
 
-    const chunkStream = new TransformStream<
-      { data: string; event?: string },
-      ChatCompletionChunk
-    >({
+    const chunkStream = new TransformStream<{ data: string; event?: string }, ChatCompletionChunk>({
       transform(sseEvent, controller) {
         try {
           const chunk = JSON.parse(sseEvent.data) as ChatCompletionChunk;
@@ -87,10 +82,7 @@ export class OpenAICompatEngine implements EngineAdapter {
       },
     });
 
-    return response.body
-      .pipeThrough(textDecoder)
-      .pipeThrough(sseParser)
-      .pipeThrough(chunkStream);
+    return response.body.pipeThrough(textDecoder).pipeThrough(sseParser).pipeThrough(chunkStream);
   }
 
   async imageGenerations(
@@ -116,11 +108,15 @@ export class OpenAICompatEngine implements EngineAdapter {
       ...(request.response_format ? { response_format: request.response_format } : {}),
     };
 
-    const response = await this.fetchWithProxy(url, {
-      method: "POST",
-      headers,
-      body: JSON.stringify(body),
-    }, route);
+    const response = await this.fetchWithProxy(
+      url,
+      {
+        method: "POST",
+        headers,
+        body: JSON.stringify(body),
+      },
+      route,
+    );
 
     const json = await response.json();
     return this.normalizeImageResponse(json);
@@ -179,18 +175,31 @@ export class OpenAICompatEngine implements EngineAdapter {
     init: RequestInit,
     route: RouteResult,
   ): Promise<Response> {
-    // Node.js 内置 fetch 不原生支持 SOCKS5 代理
-    // P1 先用环境变量级代理（HTTPS_PROXY）或 Provider.proxyUrl 配合 undici dispatcher
-    // 此处预留代理接口，实际代理在 router 层通过 proxyAgent 注入
-
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 60_000);
 
+    // 代理支持：Provider.proxyUrl → undici ProxyAgent → fetch dispatcher
+    const proxyUrl = route.provider.proxyUrl ?? process.env.PROXY_URL_PRIMARY ?? null;
+
     try {
-      const response = await fetch(url, {
-        ...init,
-        signal: controller.signal,
-      });
+      let response: Response;
+
+      if (proxyUrl) {
+        // 使用 undici 的 ProxyAgent 发送请求
+        const { ProxyAgent, fetch: undiciFetch } = await import("undici");
+        const dispatcher = new ProxyAgent(proxyUrl);
+        response = await (undiciFetch as unknown as typeof fetch)(url, {
+          ...init,
+          signal: controller.signal,
+          // @ts-expect-error undici dispatcher option
+          dispatcher,
+        });
+      } else {
+        response = await fetch(url, {
+          ...init,
+          signal: controller.signal,
+        });
+      }
 
       if (!response.ok) {
         const errorBody = await response.text().catch(() => "");
@@ -201,11 +210,7 @@ export class OpenAICompatEngine implements EngineAdapter {
     } catch (error) {
       if (error instanceof EngineError) throw error;
       if (error instanceof DOMException && error.name === "AbortError") {
-        throw new EngineError(
-          "Request timeout",
-          ErrorCodes.TIMEOUT,
-          504,
-        );
+        throw new EngineError("Request timeout", ErrorCodes.TIMEOUT, 504);
       }
       throw new EngineError(
         `Provider request failed: ${(error as Error).message}`,

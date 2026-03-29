@@ -3,7 +3,7 @@ import { Sidebar } from "@/components/sidebar";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 
 interface UserInfo {
   userId: string;
@@ -15,19 +15,37 @@ export default function ConsoleLayout({ children }: { children: React.ReactNode 
   const [user, setUser] = useState<UserInfo | null>(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
+  const pathname = usePathname();
 
   useEffect(() => {
     const token = localStorage.getItem("token");
-    if (!token) { router.push("/login"); return; }
+    if (!token) {
+      router.push("/login");
+      return;
+    }
     try {
       const payload = JSON.parse(atob(token.split(".")[1]));
-      setUser({ userId: payload.userId, role: payload.role, name: payload.name });
-    } catch { localStorage.removeItem("token"); router.push("/login"); }
+      const userInfo = { userId: payload.userId, role: payload.role, name: payload.name };
+      setUser(userInfo);
+
+      // Non-admin accessing /admin/* → redirect to /dashboard
+      if (pathname.startsWith("/admin") && userInfo.role !== "ADMIN") {
+        router.push("/dashboard");
+        return;
+      }
+    } catch {
+      localStorage.removeItem("token");
+      router.push("/login");
+    }
     setLoading(false);
-  }, [router]);
+  }, [router, pathname]);
 
   if (loading || !user) {
-    return <div className="flex items-center justify-center h-screen"><div className="animate-pulse text-muted-foreground">Loading...</div></div>;
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="animate-pulse text-muted-foreground">Loading...</div>
+      </div>
+    );
   }
 
   return (

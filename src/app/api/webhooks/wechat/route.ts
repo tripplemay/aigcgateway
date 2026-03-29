@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 /**
  * POST /api/webhooks/wechat — 微信支付回调
  *

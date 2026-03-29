@@ -1,8 +1,8 @@
-import { PrismaClient } from "@prisma/client";
+export const dynamic = "force-dynamic";
+import { prisma } from "@/lib/prisma";
 import { errorResponse } from "@/lib/api/errors";
 import { NextResponse } from "next/server";
 
-const prisma = new PrismaClient();
 
 /**
  * POST /api/auth/verify-email

@@ -16,7 +16,7 @@ interface RateLimitConfig {
   imageRpm: number;
 }
 
-function getProjectLimits(project: Project): RateLimitConfig {
+function getProjectLimits(project: Pick<Project, "rateLimit">): RateLimitConfig {
   const custom = project.rateLimit as { rpm?: number; tpm?: number; imageRpm?: number } | null;
   return {
     rpm: custom?.rpm ?? Number(process.env.DEFAULT_RPM ?? 60),
@@ -103,7 +103,7 @@ export async function checkRateLimit(
  * 记录 token 用量（TPM 检查）— 异步，不阻塞
  */
 export async function recordTokenUsage(
-  project: Project,
+  project: Pick<Project, "id" | "rateLimit">,
   tokens: number,
 ): Promise<void> {
   const redis = getRedis();
@@ -125,11 +125,7 @@ export async function recordTokenUsage(
   }
 }
 
-function rateLimitHeaders(
-  limit: number,
-  remaining: number,
-  reset: number,
-): Record<string, string> {
+function rateLimitHeaders(limit: number, remaining: number, reset: number): Record<string, string> {
   return {
     "X-RateLimit-Limit": String(limit),
     "X-RateLimit-Remaining": String(remaining),

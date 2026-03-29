@@ -4,14 +4,13 @@
  * modelName → Model → Channel(ACTIVE, priority ASC) → Provider + Config → Adapter 实例
  */
 
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "@/lib/prisma";
 import type { EngineAdapter, RouteResult } from "./types";
 import { EngineError, ErrorCodes } from "./types";
 import { OpenAICompatEngine } from "./openai-compat";
 import { VolcengineAdapter } from "./adapters/volcengine";
 import { SiliconFlowAdapter } from "./adapters/siliconflow";
 
-const prisma = new PrismaClient();
 
 // Adapter 单例缓存
 const adapterCache = new Map<string, EngineAdapter>();

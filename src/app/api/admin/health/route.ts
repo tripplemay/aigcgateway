@@ -1,15 +1,17 @@
+export const dynamic = "force-dynamic";
 /**
  * GET /api/admin/health
  *
  * 返回所有通道健康状态概览
  */
 
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
+import { requireAdmin } from "@/lib/api/admin-guard";
 
-const prisma = new PrismaClient();
-
-export async function GET() {
+export async function GET(request: Request) {
+  const auth = requireAdmin(request);
+  if (!auth.ok) return auth.error;
   const channels = await prisma.channel.findMany({
     include: {
       provider: { select: { name: true, displayName: true } },

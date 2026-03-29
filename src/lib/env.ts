@@ -68,7 +68,15 @@ const envSchema = z.object({
 
 export type Env = z.infer<typeof envSchema>;
 
-function validateEnv(): Env {
+/**
+ * Lazy singleton — validated on first access, not at import time.
+ * This prevents build-time errors when env vars are not yet available.
+ */
+let _env: Env | null = null;
+
+export function getEnv(): Env {
+  if (_env) return _env;
+
   const result = envSchema.safeParse(process.env);
 
   if (!result.success) {
@@ -80,7 +88,13 @@ function validateEnv(): Env {
     );
   }
 
-  return result.data;
+  _env = result.data;
+  return _env;
 }
 
-export const env = validateEnv();
+/** @deprecated Use getEnv() for lazy validation. Kept for backward compat. */
+export const env = new Proxy({} as Env, {
+  get(_target, prop: string) {
+    return getEnv()[prop as keyof Env];
+  },
+});

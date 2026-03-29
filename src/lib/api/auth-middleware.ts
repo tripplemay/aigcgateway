@@ -5,12 +5,11 @@
  */
 
 import { createHash } from "crypto";
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "@/lib/prisma";
 import type { Project, ApiKey } from "@prisma/client";
 import { errorResponse } from "./errors";
 import type { NextResponse } from "next/server";
 
-const prisma = new PrismaClient();
 
 export interface AuthContext {
   project: Project;

@@ -1,8 +1,7 @@
-import { PrismaClient } from "@prisma/client";
+export const dynamic = "force-dynamic";
+import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/api/admin-guard";
-
-const prisma = new PrismaClient();
 
 export async function GET(request: Request) {
   const auth = requireAdmin(request);
@@ -29,7 +28,7 @@ export async function GET(request: Request) {
       take: pageSize,
       include: {
         project: { select: { name: true } },
-        channel: { select: { realModelId: true, provider: { select: { name: true } } } },
+        channel: { select: { id: true, realModelId: true, provider: { select: { name: true } } } },
       },
     }),
     prisma.callLog.count({ where }),
@@ -41,6 +40,7 @@ export async function GET(request: Request) {
       projectName: log.project.name,
       projectId: log.projectId,
       modelName: log.modelName,
+      channelId: log.channel.id,
       channelProvider: log.channel.provider.name,
       channelRealModelId: log.channel.realModelId,
       status: log.status,

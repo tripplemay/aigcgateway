@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 /**
  * GET /v1/models
  *
@@ -5,10 +6,9 @@
  * 支持 ?modality=text|image 筛选
  */
 
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 
-const prisma = new PrismaClient();
 
 export async function GET(request: Request) {
   const url = new URL(request.url);

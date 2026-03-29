@@ -1,10 +1,10 @@
-import { PrismaClient } from "@prisma/client";
+export const dynamic = "force-dynamic";
+import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 import { errorResponse } from "@/lib/api/errors";
 import { signJwt } from "@/lib/api/jwt-middleware";
 import { NextResponse } from "next/server";
 
-const prisma = new PrismaClient();
 
 export async function POST(request: Request) {
   let body: { email?: string; password?: string };

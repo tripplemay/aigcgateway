@@ -15,13 +15,12 @@
  * 记录写入 HealthCheck 表 + 7 天清理
  */
 
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "@/lib/prisma";
 import type { Channel, ChannelStatus } from "@prisma/client";
 import { runHealthCheck, type CheckResult } from "./checker";
 import { sendAlert } from "./alert";
 import type { RouteResult } from "../engine/types";
 
-const prisma = new PrismaClient();
 
 const FAIL_THRESHOLD = Number(process.env.HEALTH_CHECK_FAIL_THRESHOLD ?? 3);
 const ACTIVE_INTERVAL = Number(process.env.HEALTH_CHECK_ACTIVE_INTERVAL_MS ?? 600_000);

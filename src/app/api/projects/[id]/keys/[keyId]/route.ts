@@ -1,9 +1,9 @@
-import { PrismaClient } from "@prisma/client";
+export const dynamic = "force-dynamic";
+import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import { verifyJwt } from "@/lib/api/jwt-middleware";
 import { errorResponse } from "@/lib/api/errors";
 
-const prisma = new PrismaClient();
 
 /** DELETE /api/projects/:id/keys/:keyId — 吊销 Key */
 export async function DELETE(

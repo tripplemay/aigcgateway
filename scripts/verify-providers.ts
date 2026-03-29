@@ -7,6 +7,7 @@
  * 用法：npx tsx scripts/verify-providers.ts
  */
 
+import "dotenv/config";
 import { PrismaClient } from "@prisma/client";
 import { resolveEngine } from "../src/lib/engine/index";
 

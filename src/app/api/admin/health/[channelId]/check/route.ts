@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 /**
  * POST /api/admin/health/:channelId/check
  *
@@ -6,11 +7,15 @@
 
 import { NextResponse } from "next/server";
 import { checkChannel } from "@/lib/health/scheduler";
+import { requireAdmin } from "@/lib/api/admin-guard";
 
 export async function POST(
-  _request: Request,
+  request: Request,
   { params }: { params: { channelId: string } },
 ) {
+  const auth = requireAdmin(request);
+  if (!auth.ok) return auth.error;
+
   const { channelId } = params;
 
   try {

@@ -1,9 +1,8 @@
-import { PrismaClient } from "@prisma/client";
+export const dynamic = "force-dynamic";
+import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/api/admin-guard";
 import { errorResponse } from "@/lib/api/errors";
-
-const prisma = new PrismaClient();
 
 export async function GET(request: Request) {
   const auth = requireAdmin(request);
@@ -18,11 +17,25 @@ export async function GET(request: Request) {
 
   const tsQuery = q.split(/\s+/).filter(Boolean).join(" & ");
 
-  const results = await prisma.$queryRaw<Array<{ id: string; traceId: string; modelName: string; status: string; createdAt: Date }>>`
-    SELECT id, "traceId", "modelName", status, "createdAt"
-    FROM call_logs
-    WHERE search_vector @@ to_tsquery('simple', ${tsQuery})
-    ORDER BY "createdAt" DESC
+  // Full JOIN to return all fields needed by the page
+  const results = await prisma.$queryRaw<Array<{
+    traceId: string; projectName: string; projectId: string; modelName: string;
+    channelId: string; channelProvider: string; channelRealModelId: string;
+    status: string; promptTokens: number | null; completionTokens: number | null;
+    costPrice: number | null; sellPrice: number | null; latencyMs: number | null;
+    createdAt: Date;
+  }>>`
+    SELECT cl."traceId", p.name AS "projectName", cl."projectId", cl."modelName",
+           ch.id AS "channelId", prov.name AS "channelProvider", ch."realModelId" AS "channelRealModelId",
+           cl.status, cl."promptTokens", cl."completionTokens",
+           cl."costPrice"::float, cl."sellPrice"::float, cl."latencyMs",
+           cl."createdAt"
+    FROM call_logs cl
+    JOIN projects p ON cl."projectId" = p.id
+    JOIN channels ch ON cl."channelId" = ch.id
+    JOIN providers prov ON ch."providerId" = prov.id
+    WHERE cl.search_vector @@ to_tsquery('simple', ${tsQuery})
+    ORDER BY cl."createdAt" DESC
     LIMIT ${pageSize} OFFSET ${(page - 1) * pageSize}
   `;
 

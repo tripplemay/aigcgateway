@@ -10,11 +10,16 @@
  * - ERROR / TIMEOUT: 不扣费
  */
 
-import { PrismaClient, Prisma } from "@prisma/client";
+import { prisma } from "@/lib/prisma";
+import { Prisma } from "@prisma/client";
 import type { CallStatus, FinishReason } from "@prisma/client";
-import type { RouteResult, Usage, ChatCompletionResponse, ImageGenerationResponse } from "../engine/types";
-
-const prisma = new PrismaClient();
+import type {
+  RouteResult,
+  Usage,
+  ChatCompletionResponse,
+  ImageGenerationResponse,
+} from "../engine/types";
+import { recordTokenUsage } from "./rate-limit";
 
 export interface PostProcessParams {
   traceId: string;
@@ -66,29 +71,22 @@ async function processChatResultAsync(params: ChatPostProcessParams): Promise<vo
 
   // 提取 usage
   const usage = params.response?.usage ?? params.streamChunks?.usage ?? null;
-  const finishReasonRaw = params.response?.choices?.[0]?.finish_reason
-    ?? params.streamChunks?.finishReason
-    ?? (isError ? "error" : null);
-  const responseContent = params.response?.choices?.[0]?.message?.content
-    ?? params.streamChunks?.content
-    ?? null;
+  const finishReasonRaw =
+    params.response?.choices?.[0]?.finish_reason ??
+    params.streamChunks?.finishReason ??
+    (isError ? "error" : null);
+  const responseContent =
+    params.response?.choices?.[0]?.message?.content ?? params.streamChunks?.content ?? null;
 
   const status = mapCallStatus(finishReasonRaw, isError);
   const finishReason = mapFinishReason(finishReasonRaw);
 
   // 计算成本
-  const { costUsd, sellUsd } = calculateTokenCost(
-    usage,
-    params.route,
-    status,
-  );
+  const { costUsd, sellUsd } = calculateTokenCost(usage, params.route, status);
 
-  const ttftMs = params.ttftTime
-    ? params.ttftTime - params.startTime
-    : null;
-  const tokensPerSecond = usage && latencyMs > 0
-    ? (usage.completion_tokens / (latencyMs / 1000))
-    : null;
+  const ttftMs = params.ttftTime ? params.ttftTime - params.startTime : null;
+  const tokensPerSecond =
+    usage && latencyMs > 0 ? usage.completion_tokens / (latencyMs / 1000) : null;
 
   // 写入 CallLog
   const callLog = await prisma.callLog.create({
@@ -118,6 +116,17 @@ async function processChatResultAsync(params: ChatPostProcessParams): Promise<vo
   // 扣费（ERROR / TIMEOUT 不扣）
   if (sellUsd > 0 && (status === "SUCCESS" || status === "FILTERED")) {
     await deductBalance(params.projectId, sellUsd, callLog.id);
+  }
+
+  // 记录 TPM（用于限流检查）
+  if (usage && usage.total_tokens > 0) {
+    const project = await prisma.project.findUnique({
+      where: { id: params.projectId },
+      select: { id: true, rateLimit: true },
+    });
+    if (project) {
+      recordTokenUsage(project, usage.total_tokens).catch(() => {});
+    }
   }
 }
 
@@ -221,11 +230,7 @@ function calculateCallCost(
 // 扣费
 // ============================================================
 
-async function deductBalance(
-  projectId: string,
-  amount: number,
-  callLogId: string,
-): Promise<void> {
+async function deductBalance(projectId: string, amount: number, callLogId: string): Promise<void> {
   if (amount <= 0) return;
 
   await prisma.$queryRaw`
