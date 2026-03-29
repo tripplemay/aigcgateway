@@ -242,7 +242,8 @@ export class OpenAICompatEngine implements EngineAdapter {
           index: (c.index as number) ?? i,
           message: {
             role: "assistant" as const,
-            content: (msg?.content as string) ?? null,
+            // Fallback: some providers (zhipu, deepseek) put output in reasoning_content when content is empty
+            content: (msg?.content as string) || (msg?.reasoning_content as string) || null,
             ...(msg?.tool_calls ? { tool_calls: msg.tool_calls as [] } : {}),
           },
           finish_reason: this.normalizeFinishReason(c.finish_reason as string | null),

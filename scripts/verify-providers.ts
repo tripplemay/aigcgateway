@@ -13,7 +13,14 @@ import { resolveEngine } from "../src/lib/engine/index";
 
 const prisma = new PrismaClient();
 
-interface Result { model: string; provider: string; modality: string; status: "PASS" | "FAIL"; latencyMs: number; error?: string }
+interface Result {
+  model: string;
+  provider: string;
+  modality: string;
+  status: "PASS" | "FAIL";
+  latencyMs: number;
+  error?: string;
+}
 
 async function main() {
   console.log("=".repeat(70));
@@ -45,15 +52,19 @@ async function main() {
 
       if (modality === "TEXT") {
         const res = await adapter.chatCompletions(
-          { model, messages: [{ role: "user", content: "Say OK" }], max_tokens: 5, temperature: 0.01 },
+          {
+            model,
+            messages: [{ role: "user", content: "Say OK" }],
+            max_tokens: 5,
+            temperature: 0.01,
+          },
           route,
         );
-        if (!res.choices?.[0]?.message?.content) throw new Error("Empty response");
+        const msg = res.choices?.[0]?.message as Record<string, unknown> | undefined;
+        const hasContent = !!(msg?.content || msg?.reasoning_content);
+        if (!hasContent) throw new Error("Empty response (no content or reasoning_content)");
       } else if (modality === "IMAGE") {
-        const res = await adapter.imageGenerations(
-          { model, prompt: "red circle", n: 1 },
-          route,
-        );
+        const res = await adapter.imageGenerations({ model, prompt: "red circle", n: 1 }, route);
         if (!res.data?.[0]?.url && !res.data?.[0]?.b64_json) throw new Error("No image");
       }
 
@@ -79,4 +90,7 @@ async function main() {
   process.exit(failed > 0 ? 1 : 0);
 }
 
-main().catch((e) => { console.error("Fatal:", e); process.exit(1); });
+main().catch((e) => {
+  console.error("Fatal:", e);
+  process.exit(1);
+});
