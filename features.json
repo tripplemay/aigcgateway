@@ -1,44 +1,27 @@
 {
   "features": [
     { "id": "F001-F070", "title": "P1 全部完成", "priority": "high", "status": "completed", "acceptance": "done" },
-    { "id": "FIX-001~009", "title": "P1 修复轮全部完成", "priority": "high", "status": "completed", "acceptance": "done" },
-    { "id": "DOM-001~005", "title": "域名方案调整全部完成", "priority": "high", "status": "completed", "acceptance": "done" },
-    { "id": "P2-1", "title": "P2-1 MCP 基座 + 认证 + list_models 全部完成", "priority": "high", "status": "completed", "acceptance": "done" },
-    { "id": "P2-2", "title": "P2-2 chat + generate_image Tools 全部完成", "priority": "high", "status": "completed", "acceptance": "done" },
+    { "id": "FIX~DOM~P2-1~P2-2~P2-3", "title": "修复轮+域名调整+P2-1~P2-3 全部完成", "priority": "high", "status": "completed", "acceptance": "done" },
     {
-      "id": "P2-3-001",
-      "title": "list_logs Tool",
+      "id": "P2-4-001",
+      "title": "错误处理增强：模型不存在时附带可用模型提示",
       "priority": "high",
       "status": "pending",
-      "acceptance": "1. 文件 lib/mcp/tools/list-logs.ts；2. 参数：limit(默认10最大50)+model(可选)+status(可选)+search(可选)，zod 校验；3. 查 CallLog 表仅当前项目记录；4. 返回 traceId/model/status/promptPreview/cost/latency/createdAt；5. 不返回 costPrice/channelId；6. search 使用全文搜索；7. description 与设计文档一致"
+      "acceptance": "1. chat.ts 模型不存在时返回 isError + 提示使用 list_models；2. generate-image.ts 同样处理；3. 错误消息包含 'Use list_models to see available models'"
     },
     {
-      "id": "P2-3-002",
-      "title": "get_log_detail Tool",
+      "id": "P2-4-002",
+      "title": "错误处理增强：超时详情 + 限流 retryAfter",
       "priority": "high",
       "status": "pending",
-      "acceptance": "1. 文件 lib/mcp/tools/get-log-detail.ts；2. 参数：trace_id(必填)；3. 校验 traceId 属于当前项目，跨项目返回 isError；4. 返回完整 prompt(messages)、AI 输出、参数、usage、cost、latency、status；5. description 与设计文档一致"
+      "acceptance": "1. chat.ts/generate-image.ts 捕获 EngineError(TIMEOUT)时返回超时详情（latency + 建议重试）；2. 限流被拒时返回 retryAfter 秒数；3. checkRateLimit 返回值中提取 retryAfter 信息"
     },
     {
-      "id": "P2-3-003",
-      "title": "get_balance Tool",
+      "id": "P2-4-003",
+      "title": "安全加固：路由层 URL Key 检查 + Origin 验证 + Key 日志脱敏",
       "priority": "high",
       "status": "pending",
-      "acceptance": "1. 文件 lib/mcp/tools/get-balance.ts；2. 参数：include_transactions(默认false)；3. 返回当前余额；4. include_transactions=true 时返回最近10条交易记录（type/amount/balanceAfter/description/createdAt）；5. description 与设计文档一致"
-    },
-    {
-      "id": "P2-3-004",
-      "title": "get_usage_summary Tool",
-      "priority": "high",
-      "status": "pending",
-      "acceptance": "1. 文件 lib/mcp/tools/get-usage-summary.ts；2. 参数：period(默认7d, today/7d/30d)；3. 返回 totalCalls/totalCost/totalTokens/avgLatency/topModels；4. 聚合查询 CallLog 表当前项目；5. description 与设计文档一致"
-    },
-    {
-      "id": "P2-3-005",
-      "title": "在 server.ts 中注册 4 个查询 Tools",
-      "priority": "high",
-      "status": "pending",
-      "acceptance": "1. server.ts 注册 7 个 Tool（list_models+chat+generate_image+list_logs+get_log_detail+get_balance+get_usage_summary）；2. npx tsc --noEmit 编译通过；3. 提交并推送触发 CI/CD"
+      "acceptance": "1. route.ts 拒绝 URL 参数中的 API Key（检查 query string 含 key/token/apikey）；2. 生产环境验证 Origin Header（警告但不阻断，兼容 MCP 客户端）；3. auth.ts 日志中只记录 key prefix 不记录完整 key"
     }
   ]
 }

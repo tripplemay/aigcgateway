@@ -35,10 +35,12 @@ export function registerChat(server: McpServer, projectId: string): void {
       const project = await prisma.project.findUnique({ where: { id: projectId } });
       if (!project || Number(project.balance) <= 0) {
         return {
-          content: [{
-            type: "text" as const,
-            text: `Insufficient balance. Current balance: $${Number(project?.balance ?? 0).toFixed(4)}. Please recharge at the console.`,
-          }],
+          content: [
+            {
+              type: "text" as const,
+              text: `Insufficient balance. Current balance: $${Number(project?.balance ?? 0).toFixed(4)}. Please recharge at the console.`,
+            },
+          ],
           isError: true,
         };
       }
@@ -47,7 +49,9 @@ export function registerChat(server: McpServer, projectId: string): void {
       const rateCheck = await checkRateLimit(project, "text");
       if (!rateCheck.ok) {
         return {
-          content: [{ type: "text" as const, text: "Rate limit exceeded. Please wait and try again." }],
+          content: [
+            { type: "text" as const, text: "Rate limit exceeded. Please retry after 60 seconds." },
+          ],
           isError: true,
         };
       }
@@ -61,8 +65,31 @@ export function registerChat(server: McpServer, projectId: string): void {
         adapter = resolved.adapter;
       } catch (err) {
         if (err instanceof EngineError && err.code === "model_not_found") {
+          const available = await prisma.model.findMany({
+            where: { channels: { some: { status: "ACTIVE" } }, modality: "TEXT" },
+            select: { name: true },
+            orderBy: { name: "asc" },
+            take: 10,
+          });
+          const names = available.map((m) => m.name).join(", ");
           return {
-            content: [{ type: "text" as const, text: `Model "${model}" not found. Use list_models to see available models.` }],
+            content: [
+              {
+                type: "text" as const,
+                text: `Model "${model}" not found. Available text models: ${names || "none"}. Use list_models for full details.`,
+              },
+            ],
+            isError: true,
+          };
+        }
+        if (err instanceof EngineError && err.code === "no_available_channel") {
+          return {
+            content: [
+              {
+                type: "text" as const,
+                text: `No available channel for model "${model}". The model may be temporarily unavailable. Try another model or retry later.`,
+              },
+            ],
             isError: true,
           };
         }
@@ -103,20 +130,28 @@ export function registerChat(server: McpServer, projectId: string): void {
         const usage = response.usage;
 
         return {
-          content: [{
-            type: "text" as const,
-            text: JSON.stringify({
-              content,
-              traceId,
-              model,
-              usage: usage ? {
-                promptTokens: usage.prompt_tokens,
-                completionTokens: usage.completion_tokens,
-                totalTokens: usage.total_tokens,
-              } : null,
-              finishReason: response.choices?.[0]?.finish_reason ?? null,
-            }, null, 2),
-          }],
+          content: [
+            {
+              type: "text" as const,
+              text: JSON.stringify(
+                {
+                  content,
+                  traceId,
+                  model,
+                  usage: usage
+                    ? {
+                        promptTokens: usage.prompt_tokens,
+                        completionTokens: usage.completion_tokens,
+                        totalTokens: usage.total_tokens,
+                      }
+                    : null,
+                  finishReason: response.choices?.[0]?.finish_reason ?? null,
+                },
+                null,
+                2,
+              ),
+            },
+          ],
         };
       } catch (err) {
         processChatResult({
@@ -130,6 +165,21 @@ export function registerChat(server: McpServer, projectId: string): void {
           error: { message: (err as Error).message, code: (err as EngineError)?.code },
           source: "mcp",
         });
+
+        const engineErr = err instanceof EngineError ? err : null;
+        const latencyMs = Date.now() - startTime;
+
+        if (engineErr?.code === "provider_timeout") {
+          return {
+            content: [
+              {
+                type: "text" as const,
+                text: `Provider timeout after ${(latencyMs / 1000).toFixed(1)}s. Try again or use a different model.`,
+              },
+            ],
+            isError: true,
+          };
+        }
 
         return {
           content: [{ type: "text" as const, text: `Error: ${(err as Error).message}` }],

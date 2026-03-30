@@ -1,9 +1,9 @@
 {
   "status": "planning",
-  "user_goal": "P2-3：查询类 Tools（list_logs / get_log_detail / get_balance / get_usage_summary）",
-  "total_features": 5,
+  "user_goal": "P2-4：Server Instructions + 错误处理 + 安全加固",
+  "total_features": 3,
   "completed_features": 0,
   "current_sprint": null,
-  "last_updated": "2026-03-30T23:35:00Z",
+  "last_updated": "2026-03-31T00:25:00Z",
   "evaluator_feedback": null
 }

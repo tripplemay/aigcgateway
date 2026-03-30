@@ -23,17 +23,25 @@ export function registerGenerateImage(server: McpServer, projectId: string): voi
       model: z.string().describe("Image model name, e.g. openai/dall-e-3, zhipu/cogview-4"),
       prompt: z.string().describe("Image description / prompt"),
       size: z.string().optional().describe("Image size, e.g. 1024x1024"),
-      n: z.number().int().min(1).max(4).optional().describe("Number of images to generate, default 1"),
+      n: z
+        .number()
+        .int()
+        .min(1)
+        .max(4)
+        .optional()
+        .describe("Number of images to generate, default 1"),
     },
     async ({ model, prompt, size, n }) => {
       // Check balance
       const project = await prisma.project.findUnique({ where: { id: projectId } });
       if (!project || Number(project.balance) <= 0) {
         return {
-          content: [{
-            type: "text" as const,
-            text: `Insufficient balance. Current balance: $${Number(project?.balance ?? 0).toFixed(4)}. Please recharge at the console.`,
-          }],
+          content: [
+            {
+              type: "text" as const,
+              text: `Insufficient balance. Current balance: $${Number(project?.balance ?? 0).toFixed(4)}. Please recharge at the console.`,
+            },
+          ],
           isError: true,
         };
       }
@@ -42,7 +50,9 @@ export function registerGenerateImage(server: McpServer, projectId: string): voi
       const rateCheck = await checkRateLimit(project, "image");
       if (!rateCheck.ok) {
         return {
-          content: [{ type: "text" as const, text: "Rate limit exceeded. Please wait and try again." }],
+          content: [
+            { type: "text" as const, text: "Rate limit exceeded. Please retry after 60 seconds." },
+          ],
           isError: true,
         };
       }
@@ -56,8 +66,31 @@ export function registerGenerateImage(server: McpServer, projectId: string): voi
         adapter = resolved.adapter;
       } catch (err) {
         if (err instanceof EngineError && err.code === "model_not_found") {
+          const available = await prisma.model.findMany({
+            where: { channels: { some: { status: "ACTIVE" } }, modality: "IMAGE" },
+            select: { name: true },
+            orderBy: { name: "asc" },
+            take: 10,
+          });
+          const names = available.map((m) => m.name).join(", ");
           return {
-            content: [{ type: "text" as const, text: `Model "${model}" not found. Use list_models with modality 'image' to see available image models.` }],
+            content: [
+              {
+                type: "text" as const,
+                text: `Model "${model}" not found. Available image models: ${names || "none"}. Use list_models with modality 'image' for full details.`,
+              },
+            ],
+            isError: true,
+          };
+        }
+        if (err instanceof EngineError && err.code === "no_available_channel") {
+          return {
+            content: [
+              {
+                type: "text" as const,
+                text: `No available channel for model "${model}". Try another model or retry later.`,
+              },
+            ],
             isError: true,
           };
         }
@@ -96,15 +129,21 @@ export function registerGenerateImage(server: McpServer, projectId: string): voi
         const urls = response.data.map((d) => d.url).filter(Boolean);
 
         return {
-          content: [{
-            type: "text" as const,
-            text: JSON.stringify({
-              images: urls,
-              traceId,
-              model,
-              count: urls.length,
-            }, null, 2),
-          }],
+          content: [
+            {
+              type: "text" as const,
+              text: JSON.stringify(
+                {
+                  images: urls,
+                  traceId,
+                  model,
+                  count: urls.length,
+                },
+                null,
+                2,
+              ),
+            },
+          ],
         };
       } catch (err) {
         processImageResult({
@@ -118,6 +157,21 @@ export function registerGenerateImage(server: McpServer, projectId: string): voi
           error: { message: (err as Error).message, code: (err as EngineError)?.code },
           source: "mcp",
         });
+
+        const engineErr = err instanceof EngineError ? err : null;
+        const latencyMs = Date.now() - startTime;
+
+        if (engineErr?.code === "provider_timeout") {
+          return {
+            content: [
+              {
+                type: "text" as const,
+                text: `Provider timeout after ${(latencyMs / 1000).toFixed(1)}s. Try again or use a different model.`,
+              },
+            ],
+            isError: true,
+          };
+        }
 
         return {
           content: [{ type: "text" as const, text: `Error: ${(err as Error).message}` }],
