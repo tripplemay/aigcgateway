@@ -1,0 +1,76 @@
+name: Publish SDK to npm
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - sdk/package.json
+
+permissions:
+  contents: write
+
+jobs:
+  check-version:
+    name: Check Version Change
+    runs-on: ubuntu-latest
+    outputs:
+      changed: ${{ steps.check.outputs.changed }}
+      version: ${{ steps.check.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Detect version change
+        id: check
+        run: |
+          CURRENT=$(node -p "require('./sdk/package.json').version")
+          PREVIOUS=$(git show HEAD~1:sdk/package.json 2>/dev/null | node -p "JSON.parse(require('fs').readFileSync('/dev/stdin','utf8')).version" 2>/dev/null || echo "")
+          echo "current=$CURRENT previous=$PREVIOUS"
+          if [ "$CURRENT" != "$PREVIOUS" ] && [ -n "$PREVIOUS" ]; then
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+            echo "version=$CURRENT" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          fi
+
+  publish:
+    name: Publish to npm
+    needs: check-version
+    if: needs.check-version.outputs.changed == 'true'
+    runs-on: ubuntu-latest
+    environment: npm-publish
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          registry-url: https://registry.npmjs.org
+
+      - name: Install & Build SDK
+        working-directory: sdk
+        run: |
+          npm ci
+          npm run typecheck
+          npm run build
+
+      - name: Publish
+        working-directory: sdk
+        run: npm publish --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: sdk-v${{ needs.check-version.outputs.version }}
+          name: "SDK v${{ needs.check-version.outputs.version }}"
+          body: |
+            ## @guangai/aigc-sdk v${{ needs.check-version.outputs.version }}
+
+            ```bash
+            npm install @guangai/aigc-sdk@${{ needs.check-version.outputs.version }}
+            ```
+          generate_release_notes: true

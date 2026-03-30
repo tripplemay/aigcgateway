@@ -1,5 +1,5 @@
 {
-  "name": "aigc-gateway-sdk",
+  "name": "@guangai/aigc-sdk",
   "version": "0.1.0",
   "description": "Official TypeScript SDK for AIGC Gateway",
   "main": "dist/index.js",

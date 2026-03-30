@@ -1,0 +1,94 @@
+version: "3.8"
+
+services:
+  # --- Nginx reverse proxy + SSL termination ---
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+      - ./nginx/ssl-params.conf:/etc/nginx/ssl-params.conf:ro
+      - ./certbot/conf:/etc/letsencrypt:ro
+      - ./certbot/www:/var/www/certbot:ro
+    depends_on:
+      - app
+    restart: unless-stopped
+    # Reload config every 6h to pick up renewed certificates
+    command: >
+      /bin/sh -c '
+        while :; do
+          sleep 6h & wait $${!};
+          nginx -s reload;
+        done &
+        nginx -g "daemon off;"
+      '
+
+  # --- Certbot auto-renewal ---
+  certbot:
+    image: certbot/certbot
+    volumes:
+      - ./certbot/conf:/etc/letsencrypt
+      - ./certbot/www:/var/www/certbot
+    entrypoint: >
+      /bin/sh -c '
+        trap exit TERM;
+        while :; do
+          certbot renew --quiet;
+          sleep 12h & wait $${!};
+        done
+      '
+    restart: unless-stopped
+
+  # --- Application ---
+  app:
+    image: ghcr.io/${GITHUB_REPO:-yixingzhou/aigcgateway}:latest
+    expose:
+      - "3000"
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=postgresql://aigc:${POSTGRES_PASSWORD}@postgres:5432/aigc_gateway
+      - REDIS_URL=redis://redis:6379/0
+      - JWT_SECRET=${JWT_SECRET}
+      - ENCRYPTION_KEY=${ENCRYPTION_KEY}
+      - EXCHANGE_RATE_CNY_TO_USD=${EXCHANGE_RATE_CNY_TO_USD:-0.137}
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+      - LOG_FORMAT=json
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    restart: unless-stopped
+
+  # --- PostgreSQL ---
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: aigc
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: aigc_gateway
+    ports:
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U aigc"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # --- Redis ---
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "127.0.0.1:6379:6379"
+    volumes:
+      - redisdata:/data
+    restart: unless-stopped
+
+volumes:
+  pgdata:
+  redisdata:
