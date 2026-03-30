@@ -2,33 +2,76 @@
   "features": [
     { "id": "F001-F070", "title": "P1 全部完成", "priority": "high", "status": "completed", "acceptance": "done" },
     { "id": "FIX~DOM~P2-1~P2-5", "title": "修复轮+域名+P2-1~P2-5 全部完成", "priority": "high", "status": "completed", "acceptance": "done" },
+    { "id": "P2-6", "title": "P2-6 集成测试+文档+MCP配置页面 全部完成", "priority": "high", "status": "completed", "acceptance": "done" },
     {
-      "id": "P2-6-001",
-      "title": "MCP 集成测试脚本 scripts/test-mcp.ts",
+      "id": "F101",
+      "title": "Prisma schema 变更 + migration",
       "priority": "high",
       "status": "completed",
-      "acceptance": "1. 连接 MCP → 认证通过；2. 依次调用 list_models/chat/generate_image/list_logs/get_log_detail/get_balance/get_usage_summary；3. 每步输出 PASS/FAIL；4. chat 验证 traceId+usage；5. list_logs 包含刚才的 MCP 调用；6. get_balance 验证余额扣减"
+      "acceptance": "1. 新增 SystemConfig 表（key/value/description）；2. ProviderConfig 新增 staticModels Json? 字段；3. Channel 新增 sellPriceLocked Boolean 字段默认 false；4. npx prisma migrate dev 成功；5. npx prisma generate 无错"
     },
     {
-      "id": "P2-6-002",
-      "title": "MCP 错误场景测试",
+      "id": "F102",
+      "title": "SystemConfig CRUD + seed 默认值",
       "priority": "high",
       "status": "completed",
-      "acceptance": "1. 无效 Key → 401；2. 余额不足 → isError+余额信息；3. 无效模型 → isError+可用模型提示；4. 可在 test-mcp.ts 中或单独脚本"
+      "acceptance": "1. seed.ts 写入 DEFAULT_MARKUP_RATIO=1.2；2. 新增 lib/config.ts 提供 getConfig(key)/setConfig(key,value) 工具函数；3. GET /api/admin/config 返回所有配置；4. PUT /api/admin/config 可更新配置；5. Admin 权限校验"
     },
     {
-      "id": "P2-6-003",
-      "title": "MCP 配置帮助页面 /mcp-setup",
+      "id": "F103",
+      "title": "服务商 /models 接口适配层",
       "priority": "high",
       "status": "completed",
-      "acceptance": "1. 路由 /mcp-setup 可访问；2. 自动检测 API Key 生成配置片段；3. 支持 Claude Code/Cursor/通用 三种模板；4. 配置片段可复制；5. 可用 Tools 列表及说明；6. 中英文双语（useTranslations）；7. 侧边栏 HELP 分组新增入口"
+      "acceptance": "1. 新增 lib/sync/provider-models.ts；2. 为 OpenAI/Anthropic/DeepSeek/智谱/OpenRouter/硅基流动 6 家实现 fetchModels()；3. 返回统一格式 { id, name, modality, contextWindow, pricing? }；4. 每家错误处理+超时 15s；5. 使用 Provider.authConfig 中的 apiKey 认证"
     },
     {
-      "id": "P2-6-004",
-      "title": "更新 /docs 页面新增 MCP 章节 + TypeScript 编译验证",
+      "id": "F104",
+      "title": "静态模型回退（火山引擎）",
       "priority": "high",
       "status": "completed",
-      "acceptance": "1. /docs 页面新增 MCP 接入说明章节；2. 包含配置示例和 Tools 说明；3. 中英文双语；4. npx tsc --noEmit 编译 0 错误；5. 提交推送触发 CI/CD"
+      "acceptance": "1. 不支持 /models 的服务商从 ProviderConfig.staticModels 读取；2. seed.ts 为火山引擎写入 staticModels 数据；3. 返回格式与 F103 fetchModels() 一致；4. staticModels 为空时返回空数组不报错"
+    },
+    {
+      "id": "F105",
+      "title": "同步引擎核心逻辑",
+      "priority": "high",
+      "status": "completed",
+      "acceptance": "1. 新增 lib/sync/model-sync.ts；2. 遍历所有 ACTIVE Provider 获取模型列表；3. 新模型 → 创建 Model + Channel（costPrice 从 API 取或设 0，sellPrice = costPrice × DEFAULT_MARKUP_RATIO）；4. 下架模型 → Channel.status=DISABLED；5. sellPriceLocked=true 的 Channel 跳过价格更新；6. Model.name 去重（provider/model 格式）；7. 同一模型多 Provider → 一个 Model 多个 Channel"
+    },
+    {
+      "id": "F106",
+      "title": "同步结果日志记录",
+      "priority": "high",
+      "status": "completed",
+      "acceptance": "1. 每次同步生成结构化结果：新增数/下架数/失败 Provider 及原因/耗时；2. 结果存入 SystemConfig（key=LAST_SYNC_RESULT）；3. GET /api/admin/sync-status 返回最近一次同步时间和结果"
+    },
+    {
+      "id": "F107",
+      "title": "同步触发：启动 + 定时任务",
+      "priority": "high",
+      "status": "completed",
+      "acceptance": "1. instrumentation.ts 注册：应用启动执行一次完整同步；2. node-cron 每天 04:00 执行同步；3. 与健康检查调度器模式一致；4. 同步过程不阻塞应用启动"
+    },
+    {
+      "id": "F108",
+      "title": "同步触发：API 端点 + 控制台按钮",
+      "priority": "high",
+      "status": "completed",
+      "acceptance": "1. POST /api/admin/sync-models 端点（Admin 权限）手动触发同步并返回结果；2. Admin 模型管理页面右上角新增 Sync Models 按钮；3. 按钮点击后显示 loading + 结果；4. 页面展示最近一次同步时间和结果摘要；5. 中英文双语"
+    },
+    {
+      "id": "F109",
+      "title": "更新 seed.ts：移除 Model/Channel 种子数据",
+      "priority": "high",
+      "status": "completed",
+      "acceptance": "1. seed.ts 删除手动定义的 Model 和 Channel 部分；2. 保留 Provider + ProviderConfig + 管理员账号；3. 更新 ProviderConfig.supportsModelsApi（6家 true，火山引擎 false）；4. 火山引擎写入 staticModels；5. seed 可正常执行无错"
+    },
+    {
+      "id": "F110",
+      "title": "sellPriceLocked 联动逻辑",
+      "priority": "medium",
+      "status": "completed",
+      "acceptance": "1. PUT /api/admin/channels/[id] 修改 sellPrice 时自动将 sellPriceLocked 设为 true；2. 控制台 Channel 列表/编辑界面显示锁定状态标识（锁图标）；3. 中英文双语"
     }
   ]
 }

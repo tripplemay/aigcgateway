@@ -4,7 +4,6 @@ import { NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/api/admin-guard";
 import { errorResponse } from "@/lib/api/errors";
 
-
 export async function GET(request: Request) {
   const auth = requireAdmin(request);
   if (!auth.ok) return auth.error;
@@ -41,6 +40,7 @@ export async function GET(request: Request) {
       priority: ch.priority,
       costPrice: ch.costPrice,
       sellPrice: ch.sellPrice,
+      sellPriceLocked: ch.sellPriceLocked,
       status: ch.status,
       lastHealthResult: ch.healthChecks[0]?.result ?? null,
     })),

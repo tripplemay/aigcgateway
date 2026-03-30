@@ -43,6 +43,18 @@ export default function ModelsPage() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [form, setForm] = useState<Record<string, unknown>>({});
   const [editId, setEditId] = useState<string | null>(null);
+  const [syncing, setSyncing] = useState(false);
+  const [syncStatus, setSyncStatus] = useState<{
+    lastSyncTime: string | null;
+    lastSyncResult: {
+      summary: {
+        totalNewModels: number;
+        totalNewChannels: number;
+        totalDisabledChannels: number;
+        totalFailedProviders: number;
+      };
+    } | null;
+  } | null>(null);
 
   const load = async () => {
     setLoading(true);
@@ -50,8 +62,33 @@ export default function ModelsPage() {
     setModels(r.data);
     setLoading(false);
   };
+
+  const loadSyncStatus = async () => {
+    try {
+      const r = await apiFetch<{ data: typeof syncStatus }>("/api/admin/sync-status");
+      setSyncStatus(r.data);
+    } catch {
+      // ignore
+    }
+  };
+
+  const handleSync = async () => {
+    setSyncing(true);
+    try {
+      await apiFetch("/api/admin/sync-models", { method: "POST" });
+      toast.success(t("syncSuccess"));
+      await load();
+      await loadSyncStatus();
+    } catch (e) {
+      toast.error(`${t("syncFailed")}: ${(e as Error).message}`);
+    } finally {
+      setSyncing(false);
+    }
+  };
+
   useEffect(() => {
     load();
+    loadSyncStatus();
   }, []);
 
   const save = async () => {
@@ -75,16 +112,41 @@ export default function ModelsPage() {
   return (
     <div>
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">{t("title")}</h1>
-        <Button
-          onClick={() => {
-            setForm({});
-            setEditId(null);
-            setDialogOpen(true);
-          }}
-        >
-          {t("addModel")}
-        </Button>
+        <div>
+          <h1 className="text-2xl font-bold">{t("title")}</h1>
+          {syncStatus?.lastSyncTime && (
+            <p className="text-sm text-muted-foreground mt-1">
+              {t("lastSync")}: {new Date(syncStatus.lastSyncTime).toLocaleString()}
+              {syncStatus.lastSyncResult && (
+                <span className="ml-2">
+                  (+{syncStatus.lastSyncResult.summary.totalNewChannels} {t("newModels")}, -
+                  {syncStatus.lastSyncResult.summary.totalDisabledChannels} {t("disabledChannels")}
+                  {syncStatus.lastSyncResult.summary.totalFailedProviders > 0 && (
+                    <span className="text-destructive ml-1">
+                      , {syncStatus.lastSyncResult.summary.totalFailedProviders}{" "}
+                      {t("failedProviders")}
+                    </span>
+                  )}
+                  )
+                </span>
+              )}
+            </p>
+          )}
+        </div>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={handleSync} disabled={syncing}>
+            {syncing ? t("syncing") : t("syncModels")}
+          </Button>
+          <Button
+            onClick={() => {
+              setForm({});
+              setEditId(null);
+              setDialogOpen(true);
+            }}
+          >
+            {t("addModel")}
+          </Button>
+        </div>
       </div>
       <Card>
         <CardContent className="p-0">

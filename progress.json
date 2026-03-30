@@ -1,15 +1,9 @@
 {
-  "status": "done",
-  "user_goal": "P2-6：集成测试 + 文档 + MCP 配置页面",
-  "total_features": 4,
-  "completed_features": 4,
+  "status": "building",
+  "user_goal": "P1 优化补丁：模型自动同步",
+  "total_features": 10,
+  "completed_features": 10,
   "current_sprint": null,
-  "last_updated": "2026-03-31T03:10:00Z",
-  "evaluator_feedback": {
-    "summary": "全部 4 条功能通过验证，集成测试 + MCP 配置页面 + 文档完成",
-    "pass_count": 4,
-    "partial_count": 0,
-    "fail_count": 0,
-    "issues": []
-  }
+  "last_updated": "2026-03-30T11:35:00Z",
+  "evaluator_feedback": null
 }

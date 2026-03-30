@@ -252,7 +252,15 @@
     "image": "Image",
     "contextWindow": "Context Window",
     "editModel": "Edit Model",
-    "addModelTitle": "Add Model"
+    "addModelTitle": "Add Model",
+    "syncModels": "Sync Models",
+    "syncing": "Syncing...",
+    "syncSuccess": "Sync completed",
+    "syncFailed": "Sync failed",
+    "lastSync": "Last sync",
+    "newModels": "new models",
+    "disabledChannels": "disabled",
+    "failedProviders": "failed providers"
   },
   "adminChannels": {
     "title": "Channels",
@@ -263,7 +271,8 @@
     "health": "Health",
     "priorityUpdated": "Priority updated",
     "deleteConfirm": "Delete this channel?",
-    "deleted": "Deleted"
+    "deleted": "Deleted",
+    "priceLocked": "Price locked (manually set, won't be overwritten by sync)"
   },
   "adminHealth": {
     "title": "Health Monitor",

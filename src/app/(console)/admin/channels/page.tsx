@@ -24,6 +24,7 @@ interface Channel {
   priority: number;
   costPrice: Record<string, unknown>;
   sellPrice: Record<string, unknown>;
+  sellPriceLocked: boolean;
   status: string;
   lastHealthResult: string | null;
 }
@@ -139,7 +140,14 @@ export default function ChannelsPage() {
                       )}
                     </TableCell>
                     <TableCell className="text-xs font-mono">{fmtPrice(ch.costPrice)}</TableCell>
-                    <TableCell className="text-xs font-mono">{fmtPrice(ch.sellPrice)}</TableCell>
+                    <TableCell className="text-xs font-mono">
+                      {fmtPrice(ch.sellPrice)}
+                      {ch.sellPriceLocked && (
+                        <span className="ml-1 text-muted-foreground" title={t("priceLocked")}>
+                          🔒
+                        </span>
+                      )}
+                    </TableCell>
                     <TableCell>
                       <button onClick={() => toggleStatus(ch)}>
                         <Badge variant={ch.status === "ACTIVE" ? "success" : "error"}>

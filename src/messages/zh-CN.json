@@ -252,7 +252,15 @@
     "image": "图片",
     "contextWindow": "上下文窗口",
     "editModel": "编辑模型",
-    "addModelTitle": "添加模型"
+    "addModelTitle": "添加模型",
+    "syncModels": "同步模型",
+    "syncing": "同步中...",
+    "syncSuccess": "同步完成",
+    "syncFailed": "同步失败",
+    "lastSync": "上次同步",
+    "newModels": "新增模型",
+    "disabledChannels": "已下架",
+    "failedProviders": "失败服务商"
   },
   "adminChannels": {
     "title": "通道管理",
@@ -263,7 +271,8 @@
     "health": "健康",
     "priorityUpdated": "优先级已更新",
     "deleteConfirm": "确认删除此通道？",
-    "deleted": "已删除"
+    "deleted": "已删除",
+    "priceLocked": "价格已锁定（手动设置，同步不会覆盖）"
   },
   "adminHealth": {
     "title": "健康监控",
