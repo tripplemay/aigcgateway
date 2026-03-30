@@ -1,13 +1,13 @@
 {
   "status": "done",
-  "user_goal": "P1 修复轮：Bug 修复 + UI 重构（9个FIX任务，不新增功能）",
-  "total_features": 9,
-  "completed_features": 9,
+  "user_goal": "域名方案调整：去掉 api 子域名，控制台和 API 共用 aigc.guangai.ai",
+  "total_features": 5,
+  "completed_features": 5,
   "current_sprint": null,
-  "last_updated": "2026-03-30T18:20:00Z",
+  "last_updated": "2026-03-30T19:40:00Z",
   "evaluator_feedback": {
-    "summary": "全部9项PASS，所有验收标准均满足，P1修复轮完成",
-    "pass_count": 9,
+    "summary": "全部 7 条功能通过验证，域名方案调整完成",
+    "pass_count": 7,
     "partial_count": 0,
     "fail_count": 0,
     "issues": []

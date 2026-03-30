@@ -5,17 +5,17 @@ Official TypeScript SDK for AIGC Gateway. Zero dependencies, Node 18+.
 ## Installation
 
 ```bash
-npm install aigc-gateway-sdk
+npm install @guangai/aigc-sdk
 ```
 
 ## Quick Start
 
 ```typescript
-import { Gateway } from 'aigc-gateway-sdk'
+import { Gateway } from '@guangai/aigc-sdk'
 
 const gw = new Gateway({
   apiKey: 'pk_your_api_key',
-  baseUrl: 'https://your-gateway.com', // optional
+  baseUrl: 'https://aigc.guangai.ai', // optional
 })
 ```
 
@@ -109,7 +109,7 @@ import {
   ContentFilteredError,
   ConnectionError,
   GatewayError,
-} from 'aigc-gateway-sdk'
+} from '@guangai/aigc-sdk'
 
 try {
   await gw.chat({ ... })

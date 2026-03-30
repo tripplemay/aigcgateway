@@ -1,68 +1,41 @@
 {
   "features": [
     { "id": "F001-F070", "title": "P1 阶段1-9 全部已完成", "priority": "high", "status": "completed", "acceptance": "done" },
+    { "id": "FIX-001~009", "title": "P1 修复轮全部完成", "priority": "high", "status": "completed", "acceptance": "done" },
     {
-      "id": "FIX-001",
-      "title": "安装真正的 shadcn/ui 组件",
+      "id": "DOM-001",
+      "title": "Nginx 配置去掉 api 子域名",
       "priority": "high",
       "status": "completed",
-      "acceptance": "1. components.json 存在且配置正确；2. 所有需要的组件已安装到 src/components/ui/（button, dialog, table, input, select, tabs, card, badge, dropdown-menu, sheet, toast/sonner, alert, separator, skeleton, popover, calendar, command, avatar, tooltip）；3. 所有页面从 @/components/ui/ 导入，无手写 UI 组件残留；4. npx tsc --noEmit 编译 0 错误"
+      "acceptance": "1. nginx/conf.d/default.conf 删除 api.aigc.guangai.ai 的 server block；2. 主域名 aigc.guangai.ai server block 包含 SSE 支持（proxy_buffering off + proxy_read_timeout 120s）；3. HTTP server_name 只包含 aigc.guangai.ai 和 cdn.guangai.ai；4. nginx -t 通过"
     },
     {
-      "id": "FIX-002",
-      "title": "注入品牌色和语义色到主题系统",
+      "id": "DOM-002",
+      "title": "SSL 脚本去掉 api 子域名",
       "priority": "high",
       "status": "completed",
-      "acceptance": "1. globals.css 中定义品牌色 CSS 变量（--brand: #6D5DD3, --brand-light: #EEEDFE, --brand-dark: #3C3489）；2. 语义色变量（success bg/text, error bg/text, warning bg/text, info bg/text）；3. 中性色变量（surface #f8f7f5, page-bg #f3f2ee, border-custom #e5e4e0, 文字色层级 primary/secondary/tertiary/hint）；4. 图表配色变量（5色）；5. Tailwind @theme 中注册所有变量使 bg-brand/text-brand 等类名可用；6. 所有颜色通过 CSS 变量使用，不在组件中硬编码 hex"
+      "acceptance": "1. scripts/init-ssl.sh 中 DOMAINS 变量只包含 aigc.guangai.ai 和 cdn.aigc.guangai.ai；2. 不再引用 api.aigc.guangai.ai"
     },
     {
-      "id": "FIX-003",
-      "title": "侧边栏视觉升级",
+      "id": "DOM-003",
+      "title": "环境变量和配置文件更新",
       "priority": "high",
       "status": "completed",
-      "acceptance": "1. Logo 区域：品牌色方块(圆角6px) + 白色图标 + 'AIGC Gateway' 文字；2. 导航选中态：左侧3px品牌色边框 + page-bg背景 + 主文字色 + 图标 80%不透明；3. 未选中态：hint 文字色 + 图标 45%不透明；4. 分组标签：11px hint色 + letter-spacing 0.5px；5. 底部：首字母头像(圆形 info-bg底 + 蓝色字) + 用户名 + 项目名"
+      "acceptance": "1. .env.example 中 API_BASE_URL 示例为 https://aigc.guangai.ai/v1；2. 支付回调地址示例为 https://aigc.guangai.ai/api/webhooks/alipay 和 /wechat；3. src/lib/env.ts 无硬编码域名"
     },
     {
-      "id": "FIX-004",
-      "title": "空状态缺少操作按钮",
+      "id": "DOM-004",
+      "title": "SDK 默认 baseUrl 和文档更新",
       "priority": "high",
       "status": "completed",
-      "acceptance": "1. Dashboard 无项目时显示：居中图标 + 'No project yet' 文案 + 'Create Project' 按钮；2. 点击按钮可打开创建项目对话框；3. 所有空状态页面统一此模式"
+      "acceptance": "1. sdk/README.md 中 baseUrl 示例改为 https://aigc.guangai.ai；2. sdk/src/gateway.ts 无硬编码 api.aigc 域名；3. 包名引用更新为 @guangai/aigc-sdk"
     },
     {
-      "id": "FIX-005",
-      "title": "Logs/Usage/Balance/Keys 无项目时空白",
+      "id": "DOM-005",
+      "title": "VPS 生产环境 Nginx 同步更新",
       "priority": "high",
       "status": "completed",
-      "acceptance": "1. 四个文件中 if (!current) return null 改为显示 loading Skeleton + 无项目引导提示；2. 无项目时显示：'No project yet. Create your first project to get started.' + 创建按钮；3. 涉及文件：logs/page.tsx, usage/page.tsx, balance/page.tsx, keys/page.tsx"
-    },
-    {
-      "id": "FIX-006",
-      "title": "Badge 样式统一",
-      "priority": "medium",
-      "status": "completed",
-      "acceptance": "1. success/active: bg success-bg text success-text；2. error: bg error-bg text error-text；3. filtered/warning: bg warning-bg text warning-text；4. text(modality): bg info-bg text info-text；5. image(modality): bg #FBEAF0 text #72243E（通过CSS变量）；6. 通过 CSS 变量使用颜色，不硬编码 hex；7. Models/Audit Logs/Channels 页面 Badge 颜色正确区分"
-    },
-    {
-      "id": "FIX-007",
-      "title": "Dashboard 图表和指标卡片优化",
-      "priority": "medium",
-      "status": "completed",
-      "acceptance": "1. 指标卡片：surface 背景 + 10px圆角 + 趋势标签（绿上/红下）；2. Recharts 主色品牌色，第二色 teal；3. 面积图：品牌色 + 15%透明度填充；4. 柱状图：3px顶部圆角；5. 环形图：5色 + 右侧图例；6. Tooltip：白底 + 1px边框 + 8px圆角；7. 坐标轴：muted色 11px 隐藏轴线"
-    },
-    {
-      "id": "FIX-008",
-      "title": "表格全局样式优化",
-      "priority": "medium",
-      "status": "completed",
-      "acceptance": "1. 表头：11px灰色 + #fafaf8背景 + 底部分割线；2. 数据行：8px padding + 0.5px分割线 + hover #fafaf8；3. 等宽字段（traceId/cost/latency/tokens）用 font-mono；4. traceId 蓝色；5. Model名 font-weight 500；6. Prompt列 ellipsis 截断；7. 最后一行无底部分割线"
-    },
-    {
-      "id": "FIX-009",
-      "title": "审计日志详情面板样式",
-      "priority": "medium",
-      "status": "completed",
-      "acceptance": "1. 指标卡片：4列 grid + surface 背景 + 6px圆角；2. 代码块：font-mono + surface 背景 + 6px圆角 + max-h 120px 滚动；3. Error 响应：浅红背景 + 深红文字；4. 关闭按钮在右上角"
+      "acceptance": "1. VPS 上 /etc/nginx/sites-available/aigc-gateway 去掉 api.aigc.guangai.ai；2. nginx -t 通过；3. curl https://aigc.guangai.ai/v1/models 返回 200"
     }
   ]
 }

@@ -14,7 +14,7 @@ set -euo pipefail
 #   sudo ./scripts/init-ssl.sh
 # -----------------------------------------------------------
 
-DOMAINS="aigc.guangai.ai api.aigc.guangai.ai cdn.aigc.guangai.ai"
+DOMAINS="aigc.guangai.ai cdn.aigc.guangai.ai"
 EMAIL="admin@guangai.ai"
 COMPOSE_FILE="docker-compose.production.yml"
 DATA_DIR="./certbot"
