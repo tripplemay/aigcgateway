@@ -27,7 +27,7 @@
       "id": "P2-6-004",
       "title": "更新 /docs 页面新增 MCP 章节 + TypeScript 编译验证",
       "priority": "high",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "1. /docs 页面新增 MCP 接入说明章节；2. 包含配置示例和 Tools 说明；3. 中英文双语；4. npx tsc --noEmit 编译 0 错误；5. 提交推送触发 CI/CD"
     }
   ]
