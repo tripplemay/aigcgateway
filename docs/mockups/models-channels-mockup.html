@@ -1,0 +1,330 @@
+<!-- AIGC Gateway — Models & Channels 管理界面原型 -->
+<!-- 此文件作为 Claude Code 的视觉参考，不是生产代码 -->
+<!-- Admin 视图：三层折叠（服务商 → 模型 → 通道卡片） -->
+<!-- 开发者视图：两层折叠（服务商 → 模型），无通道卡片 -->
+
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f3f2ee; padding: 24px; color: #2C2C2A; }
+
+  .page-header { display: flex; align-items: center; justify-content: space-between; margin: 0 0 20px; }
+  .page-header h1 { font-size: 20px; font-weight: 500; }
+  .header-actions { display: flex; gap: 8px; align-items: center; }
+
+  /* Tab filter */
+  .tabs { display: flex; gap: 2px; background: #e5e4e0; border-radius: 8px; padding: 2px; }
+  .tab { font-size: 13px; padding: 6px 14px; border-radius: 6px; cursor: pointer; color: #5F5E5A; background: transparent; border: none; font-family: inherit; }
+  .tab.active { background: #fff; color: #2C2C2A; font-weight: 500; box-shadow: 0 0 0 0.5px #e5e4e0; }
+
+  /* Search */
+  .search { font-size: 13px; padding: 7px 12px; border: 0.5px solid #e5e4e0; border-radius: 8px; width: 220px; font-family: inherit; background: #fff; }
+  .search:focus { outline: none; border-color: #6D5DD3; }
+
+  /* Sync button */
+  .sync-btn { font-size: 12px; padding: 7px 14px; border-radius: 8px; border: 0.5px solid #e5e4e0; background: #fff; color: #2C2C2A; cursor: pointer; font-family: inherit; }
+  .sync-btn:hover { background: #f8f7f5; }
+
+  /* Provider card */
+  .provider-card { border: 0.5px solid #e5e4e0; border-radius: 12px; margin: 0 0 12px; overflow: hidden; background: #fff; }
+
+  .provider-header { display: flex; align-items: center; gap: 10px; padding: 14px 16px; cursor: pointer; }
+  .provider-header:hover { background: #f8f7f5; }
+
+  .provider-logo { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 500; color: #fff; flex-shrink: 0; }
+
+  .provider-name { font-size: 14px; font-weight: 500; }
+  .provider-count { font-size: 12px; color: #888780; margin-left: 4px; }
+
+  .provider-stats { display: flex; gap: 12px; margin-left: auto; font-size: 12px; color: #888780; align-items: center; }
+  .provider-stats span { display: flex; align-items: center; gap: 4px; }
+
+  .chevron { font-size: 12px; color: #B4B2A9; margin-left: 8px; }
+
+  /* Status dots */
+  .dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; display: inline-block; }
+  .dot-active { background: #639922; }
+  .dot-degraded { background: #BA7517; }
+  .dot-disabled { background: #E24B4A; }
+
+  /* Model list inside provider */
+  .model-list { padding: 0 16px 12px; }
+
+  .model-row { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 8px; cursor: pointer; }
+  .model-row:hover { background: #f8f7f5; }
+  .model-row.expanded { background: #f8f7f5; }
+
+  .model-name { font-size: 13px; font-weight: 500; flex: 1; font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace; }
+
+  .badge { font-size: 11px; padding: 2px 8px; border-radius: 4px; font-weight: 500; }
+  .badge-text { background: #E6F1FB; color: #0C447C; }
+  .badge-image { background: #FBEAF0; color: #72243E; }
+
+  .model-meta { font-size: 12px; color: #888780; }
+  .model-price { font-size: 12px; color: #5F5E5A; font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace; }
+
+  /* Channel panel (Admin only, inside expanded model) */
+  .channel-panel { background: #f8f7f5; border-radius: 8px; padding: 12px; margin: 4px 12px 10px; }
+
+  .channel-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+
+  .channel-card { background: #fff; border-radius: 8px; padding: 12px 14px; border: 0.5px solid #e5e4e0; position: relative; }
+  .channel-card-active { border-left: 3px solid #639922; border-radius: 0 8px 8px 0; }
+  .channel-card-degraded { border-left: 3px solid #BA7517; border-radius: 0 8px 8px 0; }
+  .channel-card-disabled { border-left: 3px solid #E24B4A; border-radius: 0 8px 8px 0; opacity: 0.6; }
+
+  .channel-top { display: flex; align-items: center; justify-content: space-between; margin: 0 0 8px; }
+  .channel-provider { font-size: 13px; font-weight: 500; }
+  .channel-priority { font-size: 11px; color: #888780; background: #f3f2ee; padding: 2px 8px; border-radius: 4px; cursor: pointer; }
+  .channel-priority:hover { background: #e5e4e0; }
+
+  .channel-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 12px; }
+  .channel-stat { font-size: 11px; color: #888780; }
+  .channel-stat b { color: #2C2C2A; font-weight: 500; }
+
+  .channel-bar { height: 3px; border-radius: 2px; margin: 8px 0 0; background: #e5e4e0; }
+  .channel-bar-fill { height: 3px; border-radius: 2px; }
+
+  /* Footer legend */
+  .footer { font-size: 11px; color: #B4B2A9; display: flex; gap: 16px; margin: 16px 0 0; align-items: center; }
+  .footer span { display: flex; align-items: center; gap: 4px; }
+
+  /* Section label */
+  .section-label { font-size: 11px; color: #B4B2A9; text-transform: uppercase; letter-spacing: 0.5px; margin: 0 0 8px; padding: 0 4px; }
+</style>
+
+<!-- ==================== ADMIN VIEW ==================== -->
+<div style="margin-bottom: 48px;">
+  <div class="section-label">Admin view — three levels: provider → model → channel cards</div>
+
+  <div class="page-header">
+    <h1>Models &amp; channels</h1>
+    <div class="header-actions">
+      <input class="search" type="text" placeholder="Search models..." />
+      <div class="tabs">
+        <button class="tab active">All</button>
+        <button class="tab">Text</button>
+        <button class="tab">Image</button>
+      </div>
+      <button class="sync-btn">↻ Sync models</button>
+    </div>
+  </div>
+
+  <!-- Provider: DeepSeek (expanded, with one model expanded showing channels) -->
+  <div class="provider-card">
+    <div class="provider-header">
+      <div class="provider-logo" style="background: #0F9D7A;">DS</div>
+      <span class="provider-name">DeepSeek</span>
+      <span class="provider-count">2 models</span>
+      <div class="provider-stats">
+        <span><span class="dot dot-active"></span> 2 active</span>
+      </div>
+      <span class="chevron">▲</span>
+    </div>
+
+    <div class="model-list">
+      <!-- Model: deepseek/v3 (expanded, showing channel cards) -->
+      <div class="model-row expanded">
+        <span class="dot dot-active"></span>
+        <span class="model-name">deepseek/v3</span>
+        <span class="badge badge-text">text</span>
+        <span class="model-meta">128K</span>
+        <span class="model-price">$0.27 / $1.10 /M</span>
+        <span class="chevron">▲</span>
+      </div>
+
+      <!-- Channel cards for deepseek/v3 -->
+      <div class="channel-panel">
+        <div class="channel-grid">
+          <!-- Channel 1: DeepSeek direct -->
+          <div class="channel-card channel-card-active">
+            <div class="channel-top">
+              <span class="channel-provider">DeepSeek direct</span>
+              <span class="channel-priority">P1</span>
+            </div>
+            <div class="channel-stats">
+              <span class="channel-stat">Cost <b>$0.14 / $0.28</b></span>
+              <span class="channel-stat">Sell <b>$0.27 / $1.10</b></span>
+              <span class="channel-stat">Latency <b>320ms</b></span>
+              <span class="channel-stat">Success <b>99.2%</b></span>
+            </div>
+            <div class="channel-bar"><div class="channel-bar-fill" style="width: 99%; background: #639922;"></div></div>
+          </div>
+
+          <!-- Channel 2: SiliconFlow -->
+          <div class="channel-card channel-card-active">
+            <div class="channel-top">
+              <span class="channel-provider">SiliconFlow</span>
+              <span class="channel-priority">P2</span>
+            </div>
+            <div class="channel-stats">
+              <span class="channel-stat">Cost <b>$0.18 / $0.35</b></span>
+              <span class="channel-stat">Sell <b>$0.27 / $1.10</b></span>
+              <span class="channel-stat">Latency <b>480ms</b></span>
+              <span class="channel-stat">Success <b>97.8%</b></span>
+            </div>
+            <div class="channel-bar"><div class="channel-bar-fill" style="width: 98%; background: #639922;"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Model: deepseek/reasoner (collapsed) -->
+      <div class="model-row">
+        <span class="dot dot-active"></span>
+        <span class="model-name">deepseek/reasoner</span>
+        <span class="badge badge-text">text</span>
+        <span class="model-meta">128K</span>
+        <span class="model-price">$0.55 / $2.19 /M</span>
+        <span class="chevron">▶</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Provider: OpenAI (collapsed, showing health summary) -->
+  <div class="provider-card">
+    <div class="provider-header">
+      <div class="provider-logo" style="background: #534AB7;">OA</div>
+      <span class="provider-name">OpenAI</span>
+      <span class="provider-count">8 models</span>
+      <div class="provider-stats">
+        <span><span class="dot dot-active"></span> 5</span>
+        <span><span class="dot dot-degraded"></span> 1</span>
+        <span><span class="dot dot-disabled"></span> 2</span>
+      </div>
+      <span class="chevron">▶</span>
+    </div>
+  </div>
+
+  <!-- Provider: Anthropic (collapsed, all disabled) -->
+  <div class="provider-card">
+    <div class="provider-header">
+      <div class="provider-logo" style="background: #D85A30;">An</div>
+      <span class="provider-name">Anthropic</span>
+      <span class="provider-count">3 models</span>
+      <div class="provider-stats">
+        <span><span class="dot dot-disabled"></span> 3 disabled</span>
+      </div>
+      <span class="chevron">▶</span>
+    </div>
+  </div>
+
+  <!-- Provider: Zhipu (collapsed) -->
+  <div class="provider-card">
+    <div class="provider-header">
+      <div class="provider-logo" style="background: #185FA5;">ZP</div>
+      <span class="provider-name">Zhipu AI</span>
+      <span class="provider-count">4 models</span>
+      <div class="provider-stats">
+        <span><span class="dot dot-active"></span> 4 active</span>
+      </div>
+      <span class="chevron">▶</span>
+    </div>
+  </div>
+
+  <!-- Provider: OpenRouter (collapsed, many models) -->
+  <div class="provider-card">
+    <div class="provider-header">
+      <div class="provider-logo" style="background: #888780;">OR</div>
+      <span class="provider-name">OpenRouter</span>
+      <span class="provider-count">276 models</span>
+      <div class="provider-stats">
+        <span><span class="dot dot-active"></span> 274</span>
+        <span><span class="dot dot-degraded"></span> 2</span>
+      </div>
+      <span class="chevron">▶</span>
+    </div>
+  </div>
+
+  <div class="footer">
+    <span><span class="dot dot-active"></span> Active</span>
+    <span><span class="dot dot-degraded"></span> Degraded</span>
+    <span><span class="dot dot-disabled"></span> Disabled</span>
+    <span style="margin-left: auto;">Last synced: 3 minutes ago</span>
+  </div>
+</div>
+
+<!-- ==================== DEVELOPER VIEW ==================== -->
+<div>
+  <div class="section-label">Developer view — two levels only: provider → model list (no channel cards, no health dots)</div>
+
+  <div class="page-header">
+    <h1>Models</h1>
+    <div class="header-actions">
+      <input class="search" type="text" placeholder="Search models..." />
+      <div class="tabs">
+        <button class="tab active">All</button>
+        <button class="tab">Text</button>
+        <button class="tab">Image</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Provider: DeepSeek (expanded) -->
+  <div class="provider-card">
+    <div class="provider-header">
+      <div class="provider-logo" style="background: #0F9D7A;">DS</div>
+      <span class="provider-name">DeepSeek</span>
+      <span class="provider-count">2 models</span>
+      <span class="chevron">▲</span>
+    </div>
+    <div class="model-list">
+      <div class="model-row">
+        <span class="model-name">deepseek/v3</span>
+        <span class="badge badge-text">text</span>
+        <span class="model-meta">128K</span>
+        <span class="model-price">$0.27 / $1.10 /M</span>
+      </div>
+      <div class="model-row">
+        <span class="model-name">deepseek/reasoner</span>
+        <span class="badge badge-text">text</span>
+        <span class="model-meta">128K</span>
+        <span class="model-price">$0.55 / $2.19 /M</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Provider: OpenAI (collapsed) -->
+  <div class="provider-card">
+    <div class="provider-header">
+      <div class="provider-logo" style="background: #534AB7;">OA</div>
+      <span class="provider-name">OpenAI</span>
+      <span class="provider-count">8 models</span>
+      <span class="chevron">▶</span>
+    </div>
+  </div>
+
+  <!-- Provider: OpenRouter (collapsed, note: 276 models) -->
+  <div class="provider-card">
+    <div class="provider-header">
+      <div class="provider-logo" style="background: #888780;">OR</div>
+      <span class="provider-name">OpenRouter</span>
+      <span class="provider-count">276 models</span>
+      <span class="chevron">▶</span>
+    </div>
+  </div>
+</div>
+
+<!--
+  IMPLEMENTATION NOTES FOR CLAUDE CODE:
+
+  1. CARD CONTAINERS are essential — every provider group must be wrapped in a card
+     with border (0.5px solid #e5e4e0), border-radius (12px), and white background.
+     Do NOT use plain text with indentation.
+
+  2. DEFAULT STATE is COLLAPSED — all providers collapsed on page load.
+     Click to expand. Never auto-expand all.
+
+  3. LARGE MODEL LISTS (like OpenRouter 276 models) — when expanded, show first 20 models
+     with a "Show all 276 models" button at the bottom. Do not render 276 rows at once.
+
+  4. CHANNEL CARDS (Admin only) — must be grid layout (2 columns), with colored left border
+     for health status. Include cost/sell price, latency, success rate, and progress bar.
+
+  5. DEVELOPER VIEW — only two levels (provider → model). No channel cards, no health dots,
+     no "Sync models" button. Developer only sees model name, badge, context, and sell price.
+
+  6. COLORS — use the project's brand color system:
+     Active: #639922, Degraded: #BA7517, Disabled: #E24B4A
+     Badge text: bg #E6F1FB text #0C447C
+     Badge image: bg #FBEAF0 text #72243E
+     Surface: #f8f7f5, Border: #e5e4e0, Muted text: #888780
+-->
