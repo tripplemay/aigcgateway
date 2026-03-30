@@ -2,8 +2,6 @@
 import { useEffect, useState, useCallback } from "react";
 import { useTranslations } from "next-intl";
 import { apiFetch } from "@/lib/api-client";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { formatContext } from "@/lib/utils";
@@ -50,37 +48,43 @@ interface ProviderGroup {
 }
 
 // ============================================================
-// Helpers
+// Mockup-accurate constants
 // ============================================================
 
-const STATUS_COLORS: Record<string, string> = {
-  ACTIVE: "bg-emerald-500",
-  DEGRADED: "bg-amber-500",
-  DISABLED: "bg-red-500",
+const PROVIDER_COLORS: Record<string, string> = {
+  openai: "#534AB7",
+  anthropic: "#D85A30",
+  deepseek: "#0F9D7A",
+  zhipu: "#185FA5",
+  volcengine: "#E24B4A",
+  siliconflow: "#0F9D7A",
+  openrouter: "#888780",
 };
 
-const HEALTH_COLORS: Record<string, string> = {
-  healthy: "bg-emerald-500",
-  degraded: "bg-amber-500",
-  unhealthy: "bg-red-500",
-  unknown: "bg-gray-300",
+const PROVIDER_ABBR: Record<string, string> = {
+  openai: "OA",
+  anthropic: "An",
+  deepseek: "DS",
+  zhipu: "ZP",
+  volcengine: "VE",
+  siliconflow: "SF",
+  openrouter: "OR",
 };
 
-const STATUS_BORDER: Record<string, string> = {
-  ACTIVE: "border-l-emerald-500",
-  DEGRADED: "border-l-amber-500",
-  DISABLED: "border-l-red-500",
-};
+const STATUS_DOT = { ACTIVE: "#639922", DEGRADED: "#BA7517", DISABLED: "#E24B4A" };
+const HEALTH_DOT: Record<string, string> = { healthy: "#639922", degraded: "#BA7517", unhealthy: "#E24B4A", unknown: "#B4B2A9" };
+
+const MODELS_PER_PAGE = 20;
 
 function fmtPrice(p: Record<string, unknown> | null) {
-  if (!p) return "—";
+  if (!p) return "\u2014";
   if (p.unit === "call") {
     const v = Number(p.perCall ?? 0);
     return v === 0 ? "Free" : `$${v}/call`;
   }
   const inp = Number(p.inputPer1M ?? 0);
   const out = Number(p.outputPer1M ?? 0);
-  return inp === 0 && out === 0 ? "Free" : `$${inp}/$${out} /M`;
+  return inp === 0 && out === 0 ? "Free" : `$${inp} / $${out} /M`;
 }
 
 // ============================================================
@@ -98,27 +102,14 @@ export default function ModelsChannelsPage() {
   const [syncing, setSyncing] = useState(false);
   const [lastSyncTime, setLastSyncTime] = useState<string | null>(null);
   const [lastSyncResult, setLastSyncResult] = useState<{
-    summary: {
-      totalNewModels: number;
-      totalNewChannels: number;
-      totalDisabledChannels: number;
-      totalFailedProviders: number;
-    };
-    providers: Array<{
-      providerName: string;
-      success: boolean;
-      error?: string;
-      modelCount: number;
-      newChannels: string[];
-      disabledChannels: string[];
-    }>;
+    summary: { totalNewChannels: number; totalDisabledChannels: number; totalFailedProviders: number };
+    providers: Array<{ providerName: string; success: boolean; error?: string }>;
   } | null>(null);
 
-  // Expand state
   const [expandedProviders, setExpandedProviders] = useState<Set<string>>(new Set());
   const [expandedModels, setExpandedModels] = useState<Set<string>>(new Set());
+  const [showAllModels, setShowAllModels] = useState<Set<string>>(new Set());
 
-  // Inline edit state
   const [editingPriority, setEditingPriority] = useState<string | null>(null);
   const [priorityValue, setPriorityValue] = useState("");
   const [editingSellPrice, setEditingSellPrice] = useState<string | null>(null);
@@ -137,23 +128,13 @@ export default function ModelsChannelsPage() {
 
   const loadSyncStatus = async () => {
     try {
-      const r = await apiFetch<{
-        data: {
-          lastSyncTime: string | null;
-          lastSyncResult: typeof lastSyncResult | null;
-        };
-      }>("/api/admin/sync-status");
+      const r = await apiFetch<{ data: { lastSyncTime: string | null; lastSyncResult: typeof lastSyncResult } }>("/api/admin/sync-status");
       setLastSyncTime(r.data.lastSyncTime);
       setLastSyncResult(r.data.lastSyncResult);
-    } catch {
-      // ignore
-    }
+    } catch { /* ignore */ }
   };
 
-  useEffect(() => {
-    load();
-    loadSyncStatus();
-  }, [load]);
+  useEffect(() => { load(); loadSyncStatus(); }, [load]);
 
   const handleSync = async () => {
     setSyncing(true);
@@ -162,359 +143,289 @@ export default function ModelsChannelsPage() {
       toast.success(t("syncSuccess"));
       await load();
       await loadSyncStatus();
-    } catch (e) {
-      toast.error(`${t("syncFailed")}: ${(e as Error).message}`);
-    } finally {
-      setSyncing(false);
-    }
+    } catch (e) { toast.error(`${t("syncFailed")}: ${(e as Error).message}`); }
+    finally { setSyncing(false); }
   };
 
-  const toggleProvider = (id: string) => {
-    setExpandedProviders((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
-      return next;
-    });
-  };
-
-  const toggleModel = (id: string) => {
-    setExpandedModels((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
-      return next;
-    });
+  const toggle = (set: Set<string>, id: string) => {
+    const next = new Set(set);
+    if (next.has(id)) next.delete(id); else next.add(id);
+    return next;
   };
 
   const savePriority = async (channelId: string) => {
     const p = Number(priorityValue);
     if (p > 0) {
-      await apiFetch(`/api/admin/channels/${channelId}`, {
-        method: "PATCH",
-        body: JSON.stringify({ priority: p }),
-      });
+      await apiFetch(`/api/admin/channels/${channelId}`, { method: "PATCH", body: JSON.stringify({ priority: p }) });
       toast.success(t("priorityUpdated"));
       load();
     }
     setEditingPriority(null);
   };
 
-  const saveSellPrice = async (channel: ChannelEntry) => {
+  const saveSellPrice = async (ch: ChannelEntry) => {
     const val = Number(sellPriceValue);
-    if (isNaN(val) || val < 0) {
-      setEditingSellPrice(null);
-      return;
-    }
-    const sp = channel.sellPrice;
-    const newSellPrice =
-      sp.unit === "call"
-        ? { perCall: val, unit: "call" }
-        : { inputPer1M: val, outputPer1M: val, unit: "token" };
-
-    await apiFetch(`/api/admin/channels/${channel.id}`, {
-      method: "PATCH",
-      body: JSON.stringify({ sellPrice: newSellPrice }),
-    });
+    if (isNaN(val) || val < 0) { setEditingSellPrice(null); return; }
+    const sp = ch.sellPrice;
+    const newSP = sp.unit === "call" ? { perCall: val, unit: "call" } : { inputPer1M: val, outputPer1M: val, unit: "token" };
+    await apiFetch(`/api/admin/channels/${ch.id}`, { method: "PATCH", body: JSON.stringify({ sellPrice: newSP }) });
     toast.success(t("priceSaved"));
     setEditingSellPrice(null);
     load();
   };
 
-  // ============================================================
-  // Render
-  // ============================================================
-
   return (
     <div>
-      {/* Top bar */}
-      <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
-        <h1 className="text-2xl font-bold">{t("title")}</h1>
-        <div className="flex items-center gap-2">
-          <Input
-            className="w-56"
+      {/* ── Header ── */}
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20 }}>
+        <h1 style={{ fontSize: 20, fontWeight: 500 }}>{t("title")}</h1>
+        <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+          <input
+            className="focus:outline-none"
+            style={{ fontSize: 13, padding: "7px 12px", border: "0.5px solid #e5e4e0", borderRadius: 8, width: 220, background: "#fff", fontFamily: "inherit" }}
+            type="text"
             placeholder={t("searchPlaceholder")}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
-          <div className="flex gap-1">
-            {[
-              { val: "", label: t("all") },
-              { val: "TEXT", label: t("text") },
-              { val: "IMAGE", label: t("image") },
-            ].map((m) => (
-              <Button
+          <div style={{ display: "flex", gap: 2, background: "#e5e4e0", borderRadius: 8, padding: 2 }}>
+            {[{ val: "", label: t("all") }, { val: "TEXT", label: t("text") }, { val: "IMAGE", label: t("image") }].map((m) => (
+              <button
                 key={m.val}
-                size="sm"
-                variant={modality === m.val ? "default" : "outline"}
                 onClick={() => setModality(m.val)}
+                style={{
+                  fontSize: 13, padding: "6px 14px", borderRadius: 6, cursor: "pointer",
+                  background: modality === m.val ? "#fff" : "transparent",
+                  color: modality === m.val ? "#2C2C2A" : "#5F5E5A",
+                  fontWeight: modality === m.val ? 500 : 400,
+                  border: "none", fontFamily: "inherit",
+                  boxShadow: modality === m.val ? "0 0 0 0.5px #e5e4e0" : "none",
+                }}
               >
                 {m.label}
-              </Button>
+              </button>
             ))}
           </div>
-          <Button variant="outline" onClick={handleSync} disabled={syncing}>
-            {syncing ? t("syncing") : t("syncModels")}
-          </Button>
+          <button
+            onClick={handleSync}
+            disabled={syncing}
+            style={{ fontSize: 12, padding: "7px 14px", borderRadius: 8, border: "0.5px solid #e5e4e0", background: "#fff", color: "#2C2C2A", cursor: "pointer", fontFamily: "inherit" }}
+          >
+            {syncing ? t("syncing") : `\u21BB ${t("syncModels")}`}
+          </button>
         </div>
       </div>
 
-      {/* Provider groups */}
+      {/* ── Provider cards ── */}
       {loading ? (
-        <p className="text-center py-12 text-muted-foreground">{tc("loading")}</p>
+        <p style={{ textAlign: "center", padding: "48px 0", color: "#888780" }}>{tc("loading")}</p>
       ) : (
-        <div className="space-y-3">
-          {data.map((provider) => (
-            <div key={provider.id} className="border rounded-lg bg-white overflow-hidden">
-              {/* Layer 1: Provider header */}
-              <button
-                className="w-full flex items-center justify-between px-4 py-3 hover:bg-muted/50 transition-colors"
-                onClick={() => toggleProvider(provider.id)}
-              >
-                <div className="flex items-center gap-3">
-                  <div className="flex h-8 w-8 items-center justify-center rounded-md bg-brand/10 text-brand text-sm font-bold">
-                    {provider.displayName.charAt(0)}
+        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+          {data.map((prov) => {
+            const expanded = expandedProviders.has(prov.id);
+            const bgColor = PROVIDER_COLORS[prov.name] ?? "#888780";
+            const abbr = PROVIDER_ABBR[prov.name] ?? prov.displayName.slice(0, 2);
+            const visibleModels = showAllModels.has(prov.id) ? prov.models : prov.models.slice(0, MODELS_PER_PAGE);
+            const hasMore = prov.models.length > MODELS_PER_PAGE && !showAllModels.has(prov.id);
+
+            return (
+              <div key={prov.id} style={{ border: "0.5px solid #e5e4e0", borderRadius: 12, overflow: "hidden", background: "#fff" }}>
+                {/* Provider header */}
+                <div
+                  onClick={() => setExpandedProviders((s) => toggle(s, prov.id))}
+                  style={{ display: "flex", alignItems: "center", gap: 10, padding: "14px 16px", cursor: "pointer" }}
+                  onMouseEnter={(e) => (e.currentTarget.style.background = "#f8f7f5")}
+                  onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
+                >
+                  <div style={{ width: 32, height: 32, borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, fontWeight: 500, color: "#fff", flexShrink: 0, background: bgColor }}>
+                    {abbr}
                   </div>
-                  <span className="font-medium text-sm">{provider.displayName}</span>
-                  <span className="text-xs text-muted-foreground">
-                    {provider.summary.modelCount} {t("models")}
-                  </span>
+                  <span style={{ fontSize: 14, fontWeight: 500 }}>{prov.displayName}</span>
+                  <span style={{ fontSize: 12, color: "#888780", marginLeft: 4 }}>{prov.summary.modelCount} {t("models")}</span>
+                  <div style={{ display: "flex", gap: 12, marginLeft: "auto", fontSize: 12, color: "#888780", alignItems: "center" }}>
+                    {prov.summary.activeChannels > 0 && (
+                      <span style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                        <span style={{ width: 7, height: 7, borderRadius: "50%", background: STATUS_DOT.ACTIVE, display: "inline-block" }} />
+                        {prov.summary.activeChannels}
+                      </span>
+                    )}
+                    {prov.summary.degradedChannels > 0 && (
+                      <span style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                        <span style={{ width: 7, height: 7, borderRadius: "50%", background: STATUS_DOT.DEGRADED, display: "inline-block" }} />
+                        {prov.summary.degradedChannels}
+                      </span>
+                    )}
+                    {prov.summary.disabledChannels > 0 && (
+                      <span style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                        <span style={{ width: 7, height: 7, borderRadius: "50%", background: STATUS_DOT.DISABLED, display: "inline-block" }} />
+                        {prov.summary.disabledChannels}
+                      </span>
+                    )}
+                    <span style={{ fontSize: 12, color: "#B4B2A9", marginLeft: 8 }}>{expanded ? "\u25B2" : "\u25B6"}</span>
+                  </div>
                 </div>
-                <div className="flex items-center gap-3">
-                  {provider.summary.activeChannels > 0 && (
-                    <span className="flex items-center gap-1 text-xs">
-                      <span className="h-2 w-2 rounded-full bg-emerald-500" />
-                      {provider.summary.activeChannels}
-                    </span>
-                  )}
-                  {provider.summary.degradedChannels > 0 && (
-                    <span className="flex items-center gap-1 text-xs">
-                      <span className="h-2 w-2 rounded-full bg-amber-500" />
-                      {provider.summary.degradedChannels}
-                    </span>
-                  )}
-                  {provider.summary.disabledChannels > 0 && (
-                    <span className="flex items-center gap-1 text-xs">
-                      <span className="h-2 w-2 rounded-full bg-red-500" />
-                      {provider.summary.disabledChannels}
-                    </span>
-                  )}
-                  <span className="text-muted-foreground text-xs">
-                    {expandedProviders.has(provider.id) ? "▲" : "▼"}
-                  </span>
-                </div>
-              </button>
 
-              {/* Layer 2: Models */}
-              {expandedProviders.has(provider.id) && (
-                <div className="border-t">
-                  {provider.models.map((model) => (
-                    <div key={model.id}>
-                      <button
-                        className="w-full flex items-center gap-3 px-6 py-2.5 hover:bg-muted/30 transition-colors text-left"
-                        onClick={() => toggleModel(model.id)}
-                      >
-                        <span
-                          className={`h-2 w-2 rounded-full shrink-0 ${HEALTH_COLORS[model.healthStatus]}`}
-                        />
-                        <span className="font-mono text-xs flex-1">{model.name}</span>
-                        <Badge
-                          variant={model.modality === "TEXT" ? "info" : "image"}
-                          className="text-[10px]"
-                        >
-                          {model.modality.toLowerCase()}
-                        </Badge>
-                        <span className="text-xs text-muted-foreground w-16 text-right">
-                          {model.contextWindow ? formatContext(model.contextWindow) : "—"}
-                        </span>
-                        <span className="text-xs font-mono w-32 text-right">
-                          {fmtPrice(model.sellPrice)}
-                        </span>
-                        <span className="text-muted-foreground text-[10px] w-4">
-                          {expandedModels.has(model.id) ? "▲" : "▼"}
-                        </span>
-                      </button>
-
-                      {/* Layer 3: Channels */}
-                      {expandedModels.has(model.id) && (
-                        <div className="px-6 pb-3 pt-1">
-                          <div className="grid grid-cols-2 gap-3">
-                            {model.channels.map((ch) => (
-                              <div
-                                key={ch.id}
-                                className={`border-l-4 ${STATUS_BORDER[ch.status]} rounded-md border bg-muted/20 p-3`}
-                              >
-                                {/* Card header */}
-                                <div className="flex items-center justify-between mb-2">
-                                  <span className="text-xs font-mono text-muted-foreground">
-                                    {ch.realModelId}
-                                  </span>
-                                  <div className="flex items-center gap-2">
-                                    {/* Priority */}
-                                    {editingPriority === ch.id ? (
-                                      <Input
-                                        className="w-12 h-6 text-center text-xs"
-                                        autoFocus
-                                        value={priorityValue}
-                                        onChange={(e) => setPriorityValue(e.target.value)}
-                                        onBlur={() => savePriority(ch.id)}
-                                        onKeyDown={(e) => e.key === "Enter" && savePriority(ch.id)}
-                                      />
-                                    ) : (
-                                      <button
-                                        className="text-xs bg-muted px-1.5 py-0.5 rounded hover:bg-muted-foreground/20"
-                                        onClick={() => {
-                                          setEditingPriority(ch.id);
-                                          setPriorityValue(String(ch.priority));
-                                        }}
-                                      >
-                                        P{ch.priority}
-                                      </button>
-                                    )}
-                                    <span
-                                      className={`h-2 w-2 rounded-full ${STATUS_COLORS[ch.status]}`}
-                                    />
-                                  </div>
-                                </div>
-
-                                {/* 4 metrics */}
-                                <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs">
-                                  <div>
-                                    <span className="text-muted-foreground">
-                                      {t("costPrice")}:{" "}
-                                    </span>
-                                    <span className="font-mono">{fmtPrice(ch.costPrice)}</span>
-                                  </div>
-                                  <div>
-                                    <span className="text-muted-foreground">
-                                      {t("sellPrice")}:{" "}
-                                    </span>
-                                    {editingSellPrice === ch.id ? (
-                                      <Input
-                                        className="inline w-16 h-5 text-xs font-mono"
-                                        autoFocus
-                                        value={sellPriceValue}
-                                        onChange={(e) => setSellPriceValue(e.target.value)}
-                                        onBlur={() => saveSellPrice(ch)}
-                                        onKeyDown={(e) => e.key === "Enter" && saveSellPrice(ch)}
-                                      />
-                                    ) : (
-                                      <button
-                                        className="font-mono hover:underline"
-                                        onClick={() => {
-                                          setEditingSellPrice(ch.id);
-                                          const sp = ch.sellPrice;
-                                          setSellPriceValue(
-                                            String(sp.unit === "call" ? sp.perCall : sp.inputPer1M),
-                                          );
-                                        }}
-                                      >
-                                        {fmtPrice(ch.sellPrice)}
-                                      </button>
-                                    )}
-                                    {ch.sellPriceLocked && (
-                                      <span className="ml-1" title={t("priceLocked")}>
-                                        🔒
-                                      </span>
-                                    )}
-                                  </div>
-                                  <div>
-                                    <span className="text-muted-foreground">{t("latency")}: </span>
-                                    <span className="font-mono">
-                                      {ch.latencyMs !== null
-                                        ? `${ch.latencyMs}${t("ms")}`
-                                        : t("noData")}
-                                    </span>
-                                  </div>
-                                  <div>
-                                    <span className="text-muted-foreground">
-                                      {t("successRate")}:{" "}
-                                    </span>
-                                    <span className="font-mono">
-                                      {ch.successRate !== null ? `${ch.successRate}%` : t("noData")}
-                                    </span>
-                                    {ch.totalCalls > 0 && (
-                                      <span className="text-muted-foreground ml-1">
-                                        ({ch.totalCalls} {t("calls")})
-                                      </span>
-                                    )}
-                                  </div>
-                                </div>
-
-                                {/* Success rate progress bar */}
-                                <div className="mt-2 h-1.5 bg-muted rounded-full overflow-hidden">
-                                  <div
-                                    className="h-full bg-emerald-500 rounded-full transition-all"
-                                    style={{ width: `${ch.successRate ?? 0}%` }}
-                                  />
-                                </div>
-                              </div>
-                            ))}
+                {/* Model list */}
+                {expanded && (
+                  <div style={{ padding: "0 16px 12px" }}>
+                    {visibleModels.map((model) => {
+                      const modelExpanded = expandedModels.has(model.id);
+                      return (
+                        <div key={model.id}>
+                          <div
+                            onClick={() => setExpandedModels((s) => toggle(s, model.id))}
+                            style={{
+                              display: "flex", alignItems: "center", gap: 12, padding: "10px 12px", borderRadius: 8, cursor: "pointer",
+                              background: modelExpanded ? "#f8f7f5" : "transparent",
+                            }}
+                            onMouseEnter={(e) => { if (!modelExpanded) e.currentTarget.style.background = "#f8f7f5"; }}
+                            onMouseLeave={(e) => { if (!modelExpanded) e.currentTarget.style.background = "transparent"; }}
+                          >
+                            <span style={{ width: 7, height: 7, borderRadius: "50%", background: HEALTH_DOT[model.healthStatus], flexShrink: 0, display: "inline-block" }} />
+                            <span style={{ fontSize: 13, fontWeight: 500, flex: 1, fontFamily: "'SF Mono','Fira Code','Consolas',monospace" }}>{model.name}</span>
+                            <span style={{
+                              fontSize: 11, padding: "2px 8px", borderRadius: 4, fontWeight: 500,
+                              background: model.modality === "TEXT" ? "#E6F1FB" : "#FBEAF0",
+                              color: model.modality === "TEXT" ? "#0C447C" : "#72243E",
+                            }}>
+                              {model.modality.toLowerCase()}
+                            </span>
+                            <span style={{ fontSize: 12, color: "#888780" }}>{model.contextWindow ? formatContext(model.contextWindow) : "\u2014"}</span>
+                            <span style={{ fontSize: 12, color: "#5F5E5A", fontFamily: "'SF Mono','Fira Code','Consolas',monospace" }}>{fmtPrice(model.sellPrice)}</span>
+                            <span style={{ fontSize: 12, color: "#B4B2A9" }}>{modelExpanded ? "\u25B2" : "\u25B6"}</span>
                           </div>
+
+                          {/* Channel cards */}
+                          {modelExpanded && (
+                            <div style={{ background: "#f8f7f5", borderRadius: 8, padding: 12, margin: "4px 12px 10px" }}>
+                              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+                                {model.channels.map((ch) => {
+                                  const borderColor = STATUS_DOT[ch.status];
+                                  const barColor = (ch.successRate ?? 0) >= 90 ? "#639922" : (ch.successRate ?? 0) >= 50 ? "#BA7517" : "#E24B4A";
+                                  return (
+                                    <div
+                                      key={ch.id}
+                                      style={{
+                                        background: "#fff", borderRadius: "0 8px 8px 0", padding: "12px 14px",
+                                        border: "0.5px solid #e5e4e0", borderLeft: `3px solid ${borderColor}`,
+                                        opacity: ch.status === "DISABLED" ? 0.6 : 1, position: "relative",
+                                      }}
+                                    >
+                                      {/* Top: provider + priority */}
+                                      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
+                                        <span style={{ fontSize: 13, fontWeight: 500 }}>{ch.realModelId}</span>
+                                        {editingPriority === ch.id ? (
+                                          <Input
+                                            className="w-12 h-6 text-center text-xs"
+                                            autoFocus
+                                            value={priorityValue}
+                                            onChange={(e) => setPriorityValue(e.target.value)}
+                                            onBlur={() => savePriority(ch.id)}
+                                            onKeyDown={(e) => e.key === "Enter" && savePriority(ch.id)}
+                                          />
+                                        ) : (
+                                          <span
+                                            onClick={(e) => { e.stopPropagation(); setEditingPriority(ch.id); setPriorityValue(String(ch.priority)); }}
+                                            style={{ fontSize: 11, color: "#888780", background: "#f3f2ee", padding: "2px 8px", borderRadius: 4, cursor: "pointer" }}
+                                          >
+                                            P{ch.priority}
+                                          </span>
+                                        )}
+                                      </div>
+
+                                      {/* 4 stats */}
+                                      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "4px 12px" }}>
+                                        <span style={{ fontSize: 11, color: "#888780" }}>Cost <b style={{ color: "#2C2C2A", fontWeight: 500 }}>{fmtPrice(ch.costPrice)}</b></span>
+                                        <span style={{ fontSize: 11, color: "#888780" }}>
+                                          Sell{" "}
+                                          {editingSellPrice === ch.id ? (
+                                            <Input
+                                              className="inline w-16 h-5 text-xs font-mono"
+                                              autoFocus
+                                              value={sellPriceValue}
+                                              onChange={(e) => setSellPriceValue(e.target.value)}
+                                              onBlur={() => saveSellPrice(ch)}
+                                              onKeyDown={(e) => e.key === "Enter" && saveSellPrice(ch)}
+                                            />
+                                          ) : (
+                                            <b
+                                              style={{ color: "#2C2C2A", fontWeight: 500, cursor: "pointer" }}
+                                              onClick={(e) => {
+                                                e.stopPropagation();
+                                                setEditingSellPrice(ch.id);
+                                                setSellPriceValue(String(ch.sellPrice.unit === "call" ? ch.sellPrice.perCall : ch.sellPrice.inputPer1M));
+                                              }}
+                                            >
+                                              {fmtPrice(ch.sellPrice)}
+                                            </b>
+                                          )}
+                                          {ch.sellPriceLocked && <span title={t("priceLocked")}> 🔒</span>}
+                                        </span>
+                                        <span style={{ fontSize: 11, color: "#888780" }}>Latency <b style={{ color: "#2C2C2A", fontWeight: 500 }}>{ch.latencyMs !== null ? `${ch.latencyMs}ms` : "\u2014"}</b></span>
+                                        <span style={{ fontSize: 11, color: "#888780" }}>Success <b style={{ color: "#2C2C2A", fontWeight: 500 }}>{ch.successRate !== null ? `${ch.successRate}%` : "\u2014"}</b></span>
+                                      </div>
+
+                                      {/* Progress bar */}
+                                      <div style={{ height: 3, borderRadius: 2, marginTop: 8, background: "#e5e4e0" }}>
+                                        <div style={{ height: 3, borderRadius: 2, width: `${ch.successRate ?? 0}%`, background: barColor }} />
+                                      </div>
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                            </div>
+                          )}
                         </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          ))}
+                      );
+                    })}
+
+                    {/* Show all button */}
+                    {hasMore && (
+                      <button
+                        onClick={() => setShowAllModels((s) => { const n = new Set(s); n.add(prov.id); return n; })}
+                        style={{ display: "block", width: "100%", padding: "10px 0", fontSize: 12, color: "#5F5E5A", background: "transparent", border: "none", cursor: "pointer", fontFamily: "inherit" }}
+                      >
+                        {t("showAll", { count: prov.models.length })}
+                      </button>
+                    )}
+                  </div>
+                )}
+              </div>
+            );
+          })}
         </div>
       )}
 
-      {/* Bottom status bar */}
-      <div className="mt-6 space-y-2">
-        <div className="flex items-center justify-between text-xs text-muted-foreground">
-          <div className="flex items-center gap-4">
-            <span className="font-medium">{t("legend")}:</span>
-            <span className="flex items-center gap-1">
-              <span className="h-2 w-2 rounded-full bg-emerald-500" /> {t("active")}
-            </span>
-            <span className="flex items-center gap-1">
-              <span className="h-2 w-2 rounded-full bg-amber-500" /> {t("degraded")}
-            </span>
-            <span className="flex items-center gap-1">
-              <span className="h-2 w-2 rounded-full bg-red-500" /> {t("disabled")}
-            </span>
-          </div>
-          {lastSyncTime && (
-            <span>
-              {t("lastSync")}: {new Date(lastSyncTime).toLocaleString()}
-            </span>
-          )}
-        </div>
-
-        {/* Sync result summary */}
-        {lastSyncResult && (
-          <div className="border rounded-md p-3 bg-muted/30 text-xs">
-            <div className="flex items-center gap-4 mb-2">
-              <span className="font-medium">{t("syncResult")}:</span>
-              <span className="text-emerald-600">
-                +{lastSyncResult.summary.totalNewChannels} {t("newChannels")}
-              </span>
-              <span className="text-red-600">
-                -{lastSyncResult.summary.totalDisabledChannels} {t("disabledLabel")}
-              </span>
-              {lastSyncResult.summary.totalFailedProviders > 0 && (
-                <span className="text-red-600 font-medium">
-                  {lastSyncResult.summary.totalFailedProviders} {t("failedLabel")}
-                </span>
-              )}
-            </div>
-            {lastSyncResult.providers.some((p) => !p.success) && (
-              <div className="space-y-1">
-                {lastSyncResult.providers
-                  .filter((p) => !p.success)
-                  .map((p) => (
-                    <div key={p.providerName} className="text-red-600">
-                      ✗ {p.providerName}: {p.error}
-                    </div>
-                  ))}
-              </div>
-            )}
-          </div>
+      {/* ── Footer ── */}
+      <div style={{ fontSize: 11, color: "#B4B2A9", display: "flex", gap: 16, marginTop: 16, alignItems: "center" }}>
+        <span style={{ display: "flex", alignItems: "center", gap: 4 }}>
+          <span style={{ width: 7, height: 7, borderRadius: "50%", background: "#639922", display: "inline-block" }} /> {t("active")}
+        </span>
+        <span style={{ display: "flex", alignItems: "center", gap: 4 }}>
+          <span style={{ width: 7, height: 7, borderRadius: "50%", background: "#BA7517", display: "inline-block" }} /> {t("degraded")}
+        </span>
+        <span style={{ display: "flex", alignItems: "center", gap: 4 }}>
+          <span style={{ width: 7, height: 7, borderRadius: "50%", background: "#E24B4A", display: "inline-block" }} /> {t("disabled")}
+        </span>
+        {lastSyncTime && (
+          <span style={{ marginLeft: "auto" }}>{t("lastSync")}: {new Date(lastSyncTime).toLocaleString()}</span>
         )}
       </div>
+
+      {/* Sync result */}
+      {lastSyncResult && (
+        <div style={{ border: "0.5px solid #e5e4e0", borderRadius: 8, padding: 12, marginTop: 8, background: "#f8f7f5", fontSize: 11, color: "#888780" }}>
+          <span>{t("syncResult")}: </span>
+          <span style={{ color: "#639922" }}>+{lastSyncResult.summary.totalNewChannels} {t("newChannels")}</span>
+          <span style={{ margin: "0 8px" }}>-{lastSyncResult.summary.totalDisabledChannels} {t("disabledLabel")}</span>
+          {lastSyncResult.summary.totalFailedProviders > 0 && (
+            <span style={{ color: "#E24B4A" }}>{lastSyncResult.summary.totalFailedProviders} {t("failedLabel")}</span>
+          )}
+          {lastSyncResult.providers.filter((p) => !p.success).map((p) => (
+            <div key={p.providerName} style={{ color: "#E24B4A", marginTop: 4 }}>\u2717 {p.providerName}: {p.error}</div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

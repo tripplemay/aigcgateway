@@ -4,61 +4,34 @@
     { "id": "FIX~DOM~P2-1~P2-5", "title": "修复轮+域名+P2-1~P2-5 全部完成", "priority": "high", "status": "completed", "acceptance": "done" },
     { "id": "P2-6", "title": "P2-6 集成测试+文档+MCP配置页面 全部完成", "priority": "high", "status": "completed", "acceptance": "done" },
     { "id": "F101-F110", "title": "P1.1 模型自动同步 全部完成", "priority": "high", "status": "completed", "acceptance": "done" },
+    { "id": "F201-F208", "title": "P1.2 模型/通道管理界面重构 全部完成", "priority": "high", "status": "completed", "acceptance": "done" },
     {
-      "id": "F201",
-      "title": "GET /api/admin/models-channels 聚合 API",
+      "id": "F301",
+      "title": "Admin 模型页按原型重写",
       "priority": "high",
       "status": "completed",
-      "acceptance": "1. 返回按 Provider 分组的模型+通道数据；2. 每个通道含 healthStatus/latencyMs/successRate；3. 优先 CallLog 7天统计，fallback HealthCheck；4. Provider 级汇总（active/degraded/disabled 数+模型总数）；5. 支持 ?modality=TEXT/IMAGE 筛选和 ?search=xxx 模型名搜索；6. Admin 权限"
+      "acceptance": "1. Provider 独立卡片（border 0.5px #e5e4e0 + radius 12px + 白底）；2. Provider logo 彩色方块+2字母缩写（每家不同颜色）；3. 默认全部折叠；4. 展开后模型列表最多显示 20 条+Show all 按钮；5. Chevron 用 ▶/▲；6. 状态色 Active=#639922 Degraded=#BA7517 Disabled=#E24B4A；7. 顶部操作栏：搜索+Tab 筛选+Sync 按钮；8. 底部图例+同步时间+同步结果摘要"
     },
     {
-      "id": "F202",
-      "title": "Admin 三层折叠 — 第一层（Provider 分组）",
+      "id": "F302",
+      "title": "Admin 通道卡片按原型重写",
       "priority": "high",
       "status": "completed",
-      "acceptance": "1. /admin/models 重写为三层折叠结构；2. 第一层：Provider 可折叠卡片；3. 左侧首字母+名称；4. 右侧健康汇总（绿/黄/红圆点+数量）+模型总数；5. 点击展开/折叠"
+      "acceptance": "1. Channel panel 背景 #f8f7f5 radius 8px；2. Grid 2列；3. 卡片白底 border 0.5px + 左边框 3px 状态色条（active 绿/degraded 黄/disabled 红+opacity 0.6）；4. 卡片顶部 Provider 名+Priority 标签（可点击编辑）；5. 4 指标 grid 2×2：Cost/Sell/Latency/Success；6. 底部 3px 进度条；7. Sell price 可内联编辑"
     },
     {
-      "id": "F203",
-      "title": "Admin 三层折叠 — 第二层（模型列表）",
+      "id": "F303",
+      "title": "Developer 模型页按原型重写",
       "priority": "high",
       "status": "completed",
-      "acceptance": "1. 展开 Provider 后显示模型列表；2. 每行：健康圆点+模型名(等宽)+模态 Badge(text蓝/image粉)+上下文窗口+售价；3. 模型健康=最优 ACTIVE 通道的健康状态；4. 点击模型行展开第三层"
+      "acceptance": "1. 两层折叠（Provider→Model）；2. 默认全部折叠；3. 无健康圆点、无通道卡片、无 Sync 按钮；4. Provider 卡片样式同 Admin（彩色 logo+名称+模型数+chevron）但无健康汇总；5. 模型行：模型名+badge+context+售价（无 chevron）；6. 大量模型前 20 条+Show all；7. 搜索+Tab 筛选保留"
     },
     {
-      "id": "F204",
-      "title": "Admin 三层折叠 — 第三层（通道卡片）",
+      "id": "F304",
+      "title": "i18n 补齐 + TypeScript 编译验证",
       "priority": "high",
       "status": "completed",
-      "acceptance": "1. 展开模型后显示通道卡片（grid 2列）；2. 左边框颜色标记状态（绿active/黄degraded/红disabled）；3. 卡片：Provider名+Priority标签+Cost/Sell/Latency/SuccessRate 4指标+底部成功率进度条；4. Priority 可点击修改；5. Sell price 可内联编辑→保存后 sellPriceLocked=true"
-    },
-    {
-      "id": "F205",
-      "title": "顶部操作栏 + 底部状态栏",
-      "priority": "high",
-      "status": "completed",
-      "acceptance": "1. 顶部：模态筛选(All/Text/Image)按钮组+Sync Models 按钮+搜索框；2. 底部：图例(绿Active/黄Degraded/红Disabled)+上次同步时间；3. Sync Models 触发同步后刷新数据"
-    },
-    {
-      "id": "F206",
-      "title": "侧边栏合并 + 移除独立 Channels 页面",
-      "priority": "high",
-      "status": "completed",
-      "acceptance": "1. 侧边栏 Models+Channels 合并为 'Models & channels' 指向 /admin/models；2. 删除 /admin/channels 独立页面路由文件；3. 中英文双语"
-    },
-    {
-      "id": "F207",
-      "title": "开发者 /models 页面重构（两层折叠）",
-      "priority": "high",
-      "status": "completed",
-      "acceptance": "1. 开发者模型页改为两层折叠；2. 第一层 Provider 分组（名称+模型数）；3. 第二层模型列表（模型名+模态 Badge+上下文窗口+售价）；4. 不显示通道/costPrice/健康状态；5. 搜索+模态筛选保留；6. 需要新 API 或复用现有 GET /api/v1/models 扩展"
-    },
-    {
-      "id": "F208",
-      "title": "i18n 完整 + TypeScript 编译验证",
-      "priority": "high",
-      "status": "completed",
-      "acceptance": "1. 所有新增 UI 文字中英文翻译完整；2. npx tsc --noEmit 编译 0 错误；3. npm run lint 无新增 error"
+      "acceptance": "1. 新增 showAll/showAllCount i18n key；2. npx tsc --noEmit 编译 0 错误"
     }
   ]
 }

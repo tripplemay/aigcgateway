@@ -133,7 +133,8 @@
     "active": "active",
     "modelCount": "models",
     "text": "Text",
-    "image": "Image"
+    "image": "Image",
+    "showAll": "Show all {count} models"
   },
   "logs": {
     "title": "Audit Logs",
@@ -276,7 +277,8 @@
     "syncResult": "Last sync result",
     "newChannels": "new channels",
     "disabledLabel": "disabled",
-    "failedLabel": "failed providers"
+    "failedLabel": "failed providers",
+    "showAll": "Show all {count} models"
   },
   "adminHealth": {
     "title": "Health Monitor",

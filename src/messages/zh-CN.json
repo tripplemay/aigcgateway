@@ -133,7 +133,8 @@
     "active": "可用",
     "modelCount": "个模型",
     "text": "文本",
-    "image": "图片"
+    "image": "图片",
+    "showAll": "显示全部 {count} 个模型"
   },
   "logs": {
     "title": "审计日志",
@@ -276,7 +277,8 @@
     "syncResult": "上次同步结果",
     "newChannels": "新增通道",
     "disabledLabel": "已下架",
-    "failedLabel": "失败服务商"
+    "failedLabel": "失败服务商",
+    "showAll": "显示全部 {count} 个模型"
   },
   "adminHealth": {
     "title": "健康监控",
