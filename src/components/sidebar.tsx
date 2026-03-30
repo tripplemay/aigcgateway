@@ -14,7 +14,6 @@ import {
   Zap,
   BookOpen,
   Server,
-  Layers,
   Activity,
   Users,
   Globe,
@@ -69,8 +68,7 @@ const adminNav: NavGroup[] = [
     adminOnly: true,
     items: [
       { labelKey: "providers", href: "/admin/providers", icon: Server },
-      { labelKey: "models", href: "/admin/models", icon: Box },
-      { labelKey: "channels", href: "/admin/channels", icon: Layers },
+      { labelKey: "modelsChannels", href: "/admin/models", icon: Box },
       { labelKey: "health", href: "/admin/health", icon: Activity },
       { labelKey: "auditLogs", href: "/admin/logs", icon: FileText },
       { labelKey: "usage", href: "/admin/usage", icon: BarChart3 },
