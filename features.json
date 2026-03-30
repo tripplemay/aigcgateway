@@ -1,41 +1,49 @@
 {
   "features": [
-    { "id": "F001-F070", "title": "P1 阶段1-9 全部已完成", "priority": "high", "status": "completed", "acceptance": "done" },
+    { "id": "F001-F070", "title": "P1 全部完成", "priority": "high", "status": "completed", "acceptance": "done" },
     { "id": "FIX-001~009", "title": "P1 修复轮全部完成", "priority": "high", "status": "completed", "acceptance": "done" },
+    { "id": "DOM-001~005", "title": "域名方案调整全部完成", "priority": "high", "status": "completed", "acceptance": "done" },
     {
-      "id": "DOM-001",
-      "title": "Nginx 配置去掉 api 子域名",
+      "id": "P2-1-001",
+      "title": "安装 MCP SDK 依赖",
       "priority": "high",
       "status": "completed",
-      "acceptance": "1. nginx/conf.d/default.conf 删除 api.aigc.guangai.ai 的 server block；2. 主域名 aigc.guangai.ai server block 包含 SSE 支持（proxy_buffering off + proxy_read_timeout 120s）；3. HTTP server_name 只包含 aigc.guangai.ai 和 cdn.guangai.ai；4. nginx -t 通过"
+      "acceptance": "1. package.json 包含 @modelcontextprotocol/sdk 和 zod 依赖；2. npm ci 安装成功；3. npx tsc --noEmit 编译通过"
     },
     {
-      "id": "DOM-002",
-      "title": "SSL 脚本去掉 api 子域名",
+      "id": "P2-1-002",
+      "title": "数据库迁移：CallLog 新增 source 字段",
       "priority": "high",
       "status": "completed",
-      "acceptance": "1. scripts/init-ssl.sh 中 DOMAINS 变量只包含 aigc.guangai.ai 和 cdn.aigc.guangai.ai；2. 不再引用 api.aigc.guangai.ai"
+      "acceptance": "1. Prisma schema 中 CallLog 模型新增 source String @default('api')；2. 迁移 SQL 包含 ALTER TABLE call_logs ADD COLUMN source + CREATE INDEX；3. npx prisma migrate dev 成功；4. npx prisma generate 成功"
     },
     {
-      "id": "DOM-003",
-      "title": "环境变量和配置文件更新",
+      "id": "P2-1-003",
+      "title": "MCP 认证模块 lib/mcp/auth.ts",
       "priority": "high",
       "status": "completed",
-      "acceptance": "1. .env.example 中 API_BASE_URL 示例为 https://aigc.guangai.ai/v1；2. 支付回调地址示例为 https://aigc.guangai.ai/api/webhooks/alipay 和 /wechat；3. src/lib/env.ts 无硬编码域名"
+      "acceptance": "1. 从 Authorization Header 提取 Bearer token；2. sha256(key) 查 api_keys 表关联 Project；3. 认证失败返回 null 或抛错（供路由层返回 401）；4. 复用现有 auth-middleware.ts 的逻辑，不重复实现；5. 导出 authenticateMcp 函数返回 { project, apiKey }"
     },
     {
-      "id": "DOM-004",
-      "title": "SDK 默认 baseUrl 和文档更新",
+      "id": "P2-1-004",
+      "title": "MCP 服务器基座 lib/mcp/server.ts",
       "priority": "high",
       "status": "completed",
-      "acceptance": "1. sdk/README.md 中 baseUrl 示例改为 https://aigc.guangai.ai；2. sdk/src/gateway.ts 无硬编码 api.aigc 域名；3. 包名引用更新为 @guangai/aigc-sdk"
+      "acceptance": "1. 使用 McpServer 创建实例（name: 'aigc-gateway', version: '1.0.0'）；2. 配置 Server Instructions（见设计文档 §2.4）；3. 导出 createMcpServer 函数"
     },
     {
-      "id": "DOM-005",
-      "title": "VPS 生产环境 Nginx 同步更新",
+      "id": "P2-1-005",
+      "title": "实现 list_models Tool",
       "priority": "high",
       "status": "completed",
-      "acceptance": "1. VPS 上 /etc/nginx/sites-available/aigc-gateway 去掉 api.aigc.guangai.ai；2. nginx -t 通过；3. curl https://aigc.guangai.ai/v1/models 返回 200"
+      "acceptance": "1. 文件位于 lib/mcp/tools/list-models.ts；2. 参数：modality(可选, string, text/image)；3. 返回模型列表（name/displayName/modality/contextWindow/price/capabilities）；4. 查 Model 表 + 关联 ACTIVE Channel 的 sellPrice；5. description 与设计文档 §3.2 一致；6. 使用 zod 定义参数 schema"
+    },
+    {
+      "id": "P2-1-006",
+      "title": "Streamable HTTP 路由 app/api/mcp/route.ts",
+      "priority": "high",
+      "status": "pending",
+      "acceptance": "1. 处理 POST（客户端请求）+ GET（SSE 流）+ DELETE（session 终止）；2. 使用 StreamableHTTPServerTransport；3. 无状态模式，每个请求独立认证；4. 认证失败返回 HTTP 401；5. export const dynamic = 'force-dynamic'；6. curl POST https://aigc.guangai.ai/mcp 带有效 API Key 能成功连接；7. 调用 list_models 返回正确的模型列表"
     }
   ]
 }

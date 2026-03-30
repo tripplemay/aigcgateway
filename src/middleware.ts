@@ -11,9 +11,16 @@ export function middleware(request: NextRequest) {
     return NextResponse.rewrite(url);
   }
 
+  // /mcp → rewrite to /api/mcp
+  if (pathname === "/mcp") {
+    const url = request.nextUrl.clone();
+    url.pathname = "/api/mcp";
+    return NextResponse.rewrite(url);
+  }
+
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: ["/v1/:path*"],
+  matcher: ["/v1/:path*", "/mcp"],
 };
