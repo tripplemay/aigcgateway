@@ -29,7 +29,7 @@ async function handleMcpRequest(request: Request): Promise<Response> {
     sessionIdGenerator: undefined, // 无状态模式
   });
 
-  const server = createMcpServer();
+  const server = createMcpServer(auth.project.id);
   await server.connect(transport);
 
   // 将请求交给 transport 处理

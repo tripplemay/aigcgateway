@@ -1,21 +1,21 @@
 {
   "status": "reviewing",
-  "user_goal": "P2-1：MCP 基座 + 认证 + list_models",
-  "total_features": 6,
-  "completed_features": 5,
+  "user_goal": "P2-2：chat + generate_image Tools（含审计+计费）",
+  "total_features": 3,
+  "completed_features": 2,
   "current_sprint": null,
-  "last_updated": "2026-03-30T21:00:00Z",
+  "last_updated": "2026-03-30T22:50:00Z",
   "evaluator_feedback": {
-    "summary": "代码质量全部达标，P2-1-006 需要 commit + 部署后验证端到端",
-    "pass_count": 5,
+    "summary": "代码质量全部达标，P2-2-003 需要 commit + 部署后验证 tools/list 返回 3 个 Tool",
+    "pass_count": 2,
     "partial_count": 1,
     "fail_count": 0,
     "issues": [
       {
-        "feature_id": "P2-1-006",
+        "feature_id": "P2-2-003",
         "result": "PARTIAL",
-        "description": "MCP 代码未 commit/部署到 VPS，curl POST https://aigc.guangai.ai/mcp 返回 404",
-        "steps_to_reproduce": "1. SSH 到 VPS；2. curl -X POST https://aigc.guangai.ai/mcp -H 'Authorization: Bearer invalid_key'；3. 返回 404 而非 401"
+        "description": "P2-2 代码未 commit/部署到 VPS，tools/list 仍只返回 list_models 1 个 tool，应返回 3 个",
+        "steps_to_reproduce": "1. curl POST https://aigc.guangai.ai/mcp tools/list；2. 只返回 list_models，缺少 chat 和 generate_image"
       }
     ]
   }

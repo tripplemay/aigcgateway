@@ -30,6 +30,7 @@ export interface PostProcessParams {
   requestParams: Record<string, unknown>;
   startTime: number;
   ttftTime?: number;
+  source?: string; // 'api' | 'sdk' | 'mcp'
 }
 
 export interface ChatPostProcessParams extends PostProcessParams {
@@ -110,6 +111,7 @@ async function processChatResultAsync(params: ChatPostProcessParams): Promise<vo
       tokensPerSecond,
       errorMessage: params.error?.message ?? null,
       errorCode: params.error?.code ?? null,
+      source: params.source ?? "api",
     },
   });
 
@@ -153,6 +155,7 @@ async function processImageResultAsync(params: ImagePostProcessParams): Promise<
       sellPrice: sellUsd,
       errorMessage: params.error?.message ?? null,
       errorCode: params.error?.code ?? null,
+      source: params.source ?? "api",
     },
   });
 
