@@ -9,7 +9,7 @@ RUN npm ci --production=false && npx prisma generate
 
 # Build
 COPY . .
-RUN npm run build
+RUN mkdir -p public && npm run build
 
 # Production image
 FROM node:22-slim AS runner
