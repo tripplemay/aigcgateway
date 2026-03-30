@@ -1,9 +1,9 @@
 {
   "status": "planning",
-  "user_goal": "P2-5：控制台国际化（中英文双语）",
+  "user_goal": "P2-6：集成测试 + 文档 + MCP 配置页面",
   "total_features": 4,
   "completed_features": 0,
   "current_sprint": null,
-  "last_updated": "2026-03-31T01:10:00Z",
+  "last_updated": "2026-03-31T02:25:00Z",
   "evaluator_feedback": null
 }

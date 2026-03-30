@@ -180,6 +180,65 @@ curl /v1/models?modality=image`}</Code>
           <p className="text-muted-foreground">Limits can be customized per project by admin.</p>
         </div>
       </Section>
+
+      <Section title="MCP (Model Context Protocol)">
+        <p className="text-sm mb-3">
+          Connect AI editors (Claude Code, Cursor, Windsurf) to AIGC Gateway via MCP. Use the same
+          API Key for authentication.
+        </p>
+        <p className="text-sm mb-2">
+          <strong>Endpoint:</strong>{" "}
+          <code className="bg-muted px-1 rounded">https://aigc.guangai.ai/mcp</code>
+        </p>
+        <p className="text-sm mb-3">
+          <strong>Protocol:</strong> Streamable HTTP (stateless)
+        </p>
+        <Code>{`// Claude Code: ~/.claude/claude_code_config.json
+{
+  "mcpServers": {
+    "aigc-gateway": {
+      "type": "streamable-http",
+      "url": "https://aigc.guangai.ai/mcp",
+      "headers": {
+        "Authorization": "Bearer pk_your_api_key"
+      }
+    }
+  }
+}`}</Code>
+        <p className="text-sm mt-3 mb-2">
+          <strong>Available Tools:</strong>
+        </p>
+        <div className="text-sm space-y-1">
+          <p>
+            <code className="bg-muted px-1 rounded">list_models</code> — List models with pricing
+          </p>
+          <p>
+            <code className="bg-muted px-1 rounded">chat</code> — Text generation (non-streaming)
+          </p>
+          <p>
+            <code className="bg-muted px-1 rounded">generate_image</code> — Image generation
+          </p>
+          <p>
+            <code className="bg-muted px-1 rounded">list_logs</code> — View call logs
+          </p>
+          <p>
+            <code className="bg-muted px-1 rounded">get_log_detail</code> — Full call details
+          </p>
+          <p>
+            <code className="bg-muted px-1 rounded">get_balance</code> — Check balance
+          </p>
+          <p>
+            <code className="bg-muted px-1 rounded">get_usage_summary</code> — Usage statistics
+          </p>
+        </div>
+        <p className="text-sm text-muted-foreground mt-2">
+          See{" "}
+          <a href="/mcp-setup" className="text-primary underline">
+            MCP Setup
+          </a>{" "}
+          page for full configuration guide.
+        </p>
+      </Section>
     </div>
   );
 }

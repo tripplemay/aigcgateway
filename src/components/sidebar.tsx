@@ -18,6 +18,7 @@ import {
   Activity,
   Users,
   Globe,
+  Plug,
 } from "lucide-react";
 
 interface NavItem {
@@ -57,6 +58,7 @@ const devNav: NavGroup[] = [
     items: [
       { labelKey: "quickStart", href: "/quickstart", icon: Zap },
       { labelKey: "apiDocs", href: "/docs", icon: BookOpen },
+      { labelKey: "mcpSetup", href: "/mcp-setup", icon: Plug },
     ],
   },
 ];
@@ -150,7 +152,9 @@ export function Sidebar({ role, userName, projectName }: SidebarProps) {
             {initials}
           </div>
           <div className="min-w-0">
-            <p className="truncate text-xs font-medium text-text-primary">{userName ?? t("user")}</p>
+            <p className="truncate text-xs font-medium text-text-primary">
+              {userName ?? t("user")}
+            </p>
             {projectName && <p className="truncate text-[11px] text-text-hint">{projectName}</p>}
           </div>
         </Link>

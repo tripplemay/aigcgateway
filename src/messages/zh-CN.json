@@ -41,7 +41,8 @@
     "health": "健康监控",
     "users": "用户",
     "user": "用户",
-    "language": "EN"
+    "language": "EN",
+    "mcpSetup": "MCP 配置"
   },
   "emptyState": {
     "title": "暂无项目",
@@ -299,5 +300,33 @@
     "manualRecharge": "手动充值",
     "amountUsd": "金额（USD）",
     "reason": "手动充值原因"
+  },
+  "mcpSetup": {
+    "title": "MCP 配置",
+    "subtitle": "通过 MCP 协议将 AI 编辑器连接到 AIGC Gateway",
+    "step1": "第一步：获取 API Key",
+    "step1Desc": "在 API 密钥页面创建密钥，或使用已有密钥。",
+    "goToKeys": "前往 API 密钥",
+    "step2": "第二步：配置编辑器",
+    "step2Desc": "复制下方配置，粘贴到编辑器的 MCP 配置文件中。",
+    "claudeCode": "Claude Code",
+    "cursor": "Cursor",
+    "generic": "通用格式",
+    "claudePath": "~/.claude/claude_code_config.json",
+    "cursorPath": ".cursor/mcp.json",
+    "copied": "配置已复制！",
+    "copy": "复制",
+    "step3": "第三步：开始使用",
+    "step3Desc": "配置完成后，你的 AI 编辑器可以使用以下 Tools：",
+    "tools": "可用 Tools",
+    "toolListModels": "查看可用模型和价格",
+    "toolChat": "发送对话补全请求",
+    "toolGenerateImage": "使用 AI 模型生成图片",
+    "toolListLogs": "查看最近调用记录",
+    "toolGetLogDetail": "查看单次调用完整详情",
+    "toolGetBalance": "查看项目余额和交易记录",
+    "toolGetUsageSummary": "查看用量统计",
+    "noKey": "未找到 API 密钥，请先创建。",
+    "selectKey": "选择 API Key"
   }
 }

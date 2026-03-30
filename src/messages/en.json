@@ -41,7 +41,8 @@
     "health": "Health",
     "users": "Users",
     "user": "User",
-    "language": "中文"
+    "language": "中文",
+    "mcpSetup": "MCP setup"
   },
   "emptyState": {
     "title": "No project yet",
@@ -299,5 +300,33 @@
     "manualRecharge": "Manual Recharge",
     "amountUsd": "Amount (USD)",
     "reason": "Reason for manual recharge"
+  },
+  "mcpSetup": {
+    "title": "MCP Setup",
+    "subtitle": "Connect your AI editor to AIGC Gateway via MCP protocol",
+    "step1": "Step 1: Get your API Key",
+    "step1Desc": "Create an API Key in the API Keys page, or use an existing one.",
+    "goToKeys": "Go to API Keys",
+    "step2": "Step 2: Configure your editor",
+    "step2Desc": "Copy the configuration below and paste it into your editor's MCP config file.",
+    "claudeCode": "Claude Code",
+    "cursor": "Cursor",
+    "generic": "Generic",
+    "claudePath": "~/.claude/claude_code_config.json",
+    "cursorPath": ".cursor/mcp.json",
+    "copied": "Configuration copied!",
+    "copy": "Copy",
+    "step3": "Step 3: Start using",
+    "step3Desc": "After configuration, your AI editor can use the following Tools:",
+    "tools": "Available Tools",
+    "toolListModels": "List available models with pricing",
+    "toolChat": "Send chat completion requests",
+    "toolGenerateImage": "Generate images with AI models",
+    "toolListLogs": "View recent call logs",
+    "toolGetLogDetail": "Get full details of a specific call",
+    "toolGetBalance": "Check project balance and transactions",
+    "toolGetUsageSummary": "View usage statistics",
+    "noKey": "No API Key found. Create one first.",
+    "selectKey": "Select API Key"
   }
 }
