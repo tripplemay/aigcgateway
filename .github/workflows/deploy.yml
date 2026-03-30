@@ -20,31 +20,46 @@ jobs:
         uses: appleboy/ssh-action@v1
         with:
           host: ${{ secrets.VPS_HOST }}
-          username: deploy
-          key: ${{ secrets.VPS_SSH_KEY }}
+          port: ${{ secrets.VPS_SSH_PORT }}
+          username: root
+          password: ${{ secrets.VPS_PASSWORD }}
+          command_timeout: 10m
           script: |
+            set -e
             cd /opt/aigc-gateway
 
-            # Login to GHCR
-            echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+            echo "=== Pull latest code ==="
+            git fetch origin main
+            git reset --hard origin/main
 
-            # Pull latest image and restart
-            docker compose pull app
-            docker compose up -d --remove-orphans
+            echo "=== Install dependencies ==="
+            NODE_OPTIONS="--max-old-space-size=512" npm ci --production=false
 
-            # Run database migrations
-            docker compose exec -T app npx prisma migrate deploy
+            echo "=== Prisma generate + migrate ==="
+            npx prisma generate
+            source .env.production
+            DATABASE_URL="$DATABASE_URL" npx prisma migrate deploy
 
-            # Wait for app to be ready
-            echo "Waiting for app to start..."
-            sleep 5
+            echo "=== Build ==="
+            NODE_OPTIONS="--max-old-space-size=512" npm run build
+
+            echo "=== Copy static to standalone ==="
+            cp -r .next/static .next/standalone/.next/static
+            mkdir -p .next/standalone/public
+
+            echo "=== Restart PM2 ==="
+            pm2 restart aigc-gateway || pm2 start ecosystem.config.cjs
+
+            echo "=== Waiting for app ==="
+            sleep 3
 
       - name: Health Check
         uses: appleboy/ssh-action@v1
         with:
           host: ${{ secrets.VPS_HOST }}
-          username: deploy
-          key: ${{ secrets.VPS_SSH_KEY }}
+          port: ${{ secrets.VPS_SSH_PORT }}
+          username: root
+          password: ${{ secrets.VPS_PASSWORD }}
           script: |
             MAX_RETRIES=10
             RETRY=0
@@ -52,7 +67,7 @@ jobs:
               RETRY=$((RETRY + 1))
               if [ $RETRY -ge $MAX_RETRIES ]; then
                 echo "Health check failed after $MAX_RETRIES attempts"
-                docker compose -f /opt/aigc-gateway/docker-compose.yml logs app --tail=50
+                pm2 logs aigc-gateway --lines 30 --nostream
                 exit 1
               fi
               echo "Retry $RETRY/$MAX_RETRIES..."
@@ -62,10 +77,10 @@ jobs:
 
       - name: Notify Success
         if: success()
-        run: echo "✅ Deployed to production — $(date -u '+%Y-%m-%d %H:%M UTC')"
+        run: echo "Deployed to production — $(date -u '+%Y-%m-%d %H:%M UTC')"
 
       - name: Notify Failure
         if: failure()
         run: |
-          echo "❌ Deployment failed — check logs above"
+          echo "Deployment failed — check logs above"
           exit 1
