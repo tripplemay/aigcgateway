@@ -1,22 +1,9 @@
 {
-  "status": "reviewing",
-  "user_goal": "P2-2：chat + generate_image Tools（含审计+计费）",
-  "total_features": 3,
-  "completed_features": 2,
+  "status": "planning",
+  "user_goal": "P2-3：查询类 Tools（list_logs / get_log_detail / get_balance / get_usage_summary）",
+  "total_features": 5,
+  "completed_features": 0,
   "current_sprint": null,
-  "last_updated": "2026-03-30T22:50:00Z",
-  "evaluator_feedback": {
-    "summary": "代码质量全部达标，P2-2-003 需要 commit + 部署后验证 tools/list 返回 3 个 Tool",
-    "pass_count": 2,
-    "partial_count": 1,
-    "fail_count": 0,
-    "issues": [
-      {
-        "feature_id": "P2-2-003",
-        "result": "PARTIAL",
-        "description": "P2-2 代码未 commit/部署到 VPS，tools/list 仍只返回 list_models 1 个 tool，应返回 3 个",
-        "steps_to_reproduce": "1. curl POST https://aigc.guangai.ai/mcp tools/list；2. 只返回 list_models，缺少 chat 和 generate_image"
-      }
-    ]
-  }
+  "last_updated": "2026-03-30T23:35:00Z",
+  "evaluator_feedback": null
 }

@@ -9,6 +9,10 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { registerListModels } from "./tools/list-models";
 import { registerChat } from "./tools/chat";
 import { registerGenerateImage } from "./tools/generate-image";
+import { registerListLogs } from "./tools/list-logs";
+import { registerGetLogDetail } from "./tools/get-log-detail";
+import { registerGetBalance } from "./tools/get-balance";
+import { registerGetUsageSummary } from "./tools/get-usage-summary";
 
 const SERVER_INSTRUCTIONS = `AIGC Gateway 是一个 AI 服务商聚合平台。你可以通过以下 Tools 帮助用户：
 
@@ -40,6 +44,12 @@ export function createMcpServer(projectId: string): McpServer {
   // AI invocation tools (need project context for billing)
   registerChat(server, projectId);
   registerGenerateImage(server, projectId);
+
+  // Query tools (need project context for scoping)
+  registerListLogs(server, projectId);
+  registerGetLogDetail(server, projectId);
+  registerGetBalance(server, projectId);
+  registerGetUsageSummary(server, projectId);
 
   return server;
 }
