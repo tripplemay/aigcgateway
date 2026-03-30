@@ -32,17 +32,20 @@ jobs:
             git fetch origin main
             git reset --hard origin/main
 
+            echo "=== Stop app to free memory for build ==="
+            pm2 stop aigc-gateway 2>/dev/null || true
+
             echo "=== Clean + Install dependencies ==="
             rm -rf node_modules .next
-            NODE_OPTIONS="--max-old-space-size=512" npm ci
+            npm ci
 
             echo "=== Prisma generate + migrate ==="
             npx prisma generate
             source .env.production
             DATABASE_URL="$DATABASE_URL" npx prisma migrate deploy
 
-            echo "=== Build ==="
-            NODE_OPTIONS="--max-old-space-size=512" npm run build
+            echo "=== Build (768MB heap, using swap) ==="
+            NODE_OPTIONS="--max-old-space-size=768" npm run build
 
             echo "=== Copy static to standalone ==="
             cp -r .next/static .next/standalone/.next/static
