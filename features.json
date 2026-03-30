@@ -71,7 +71,7 @@
       "title": "sellPriceLocked 联动逻辑",
       "priority": "medium",
       "status": "completed",
-      "acceptance": "1. PUT /api/admin/channels/[id] 修改 sellPrice 时自动将 sellPriceLocked 设为 true；2. 控制台 Channel 列表/编辑界面显示锁定状态标识（锁图标）；3. 中英文双语"
+      "acceptance": "1. PATCH /api/admin/channels/[id] 修改 sellPrice 时自动将 sellPriceLocked 设为 true；2. 控制台 Channel 列表/编辑界面显示锁定状态标识（锁图标）；3. 中英文双语"
     }
   ]
 }
