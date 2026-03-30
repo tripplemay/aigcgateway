@@ -32,8 +32,9 @@ jobs:
             git fetch origin main
             git reset --hard origin/main
 
-            echo "=== Install dependencies ==="
-            NODE_OPTIONS="--max-old-space-size=512" npm ci --production=false
+            echo "=== Clean + Install dependencies ==="
+            rm -rf node_modules .next
+            NODE_OPTIONS="--max-old-space-size=512" npm ci
 
             echo "=== Prisma generate + migrate ==="
             npx prisma generate
