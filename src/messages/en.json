@@ -272,7 +272,11 @@
     "priceLocked": "Price locked",
     "priorityUpdated": "Priority updated",
     "priceSaved": "Price saved",
-    "legend": "Legend"
+    "legend": "Legend",
+    "syncResult": "Last sync result",
+    "newChannels": "new channels",
+    "disabledLabel": "disabled",
+    "failedLabel": "failed providers"
   },
   "adminHealth": {
     "title": "Health Monitor",

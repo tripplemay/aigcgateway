@@ -97,6 +97,22 @@ export default function ModelsChannelsPage() {
   const [modality, setModality] = useState("");
   const [syncing, setSyncing] = useState(false);
   const [lastSyncTime, setLastSyncTime] = useState<string | null>(null);
+  const [lastSyncResult, setLastSyncResult] = useState<{
+    summary: {
+      totalNewModels: number;
+      totalNewChannels: number;
+      totalDisabledChannels: number;
+      totalFailedProviders: number;
+    };
+    providers: Array<{
+      providerName: string;
+      success: boolean;
+      error?: string;
+      modelCount: number;
+      newChannels: string[];
+      disabledChannels: string[];
+    }>;
+  } | null>(null);
 
   // Expand state
   const [expandedProviders, setExpandedProviders] = useState<Set<string>>(new Set());
@@ -122,9 +138,13 @@ export default function ModelsChannelsPage() {
   const loadSyncStatus = async () => {
     try {
       const r = await apiFetch<{
-        data: { lastSyncTime: string | null };
+        data: {
+          lastSyncTime: string | null;
+          lastSyncResult: typeof lastSyncResult | null;
+        };
       }>("/api/admin/sync-status");
       setLastSyncTime(r.data.lastSyncTime);
+      setLastSyncResult(r.data.lastSyncResult);
     } catch {
       // ignore
     }
@@ -338,9 +358,7 @@ export default function ModelsChannelsPage() {
                                         value={priorityValue}
                                         onChange={(e) => setPriorityValue(e.target.value)}
                                         onBlur={() => savePriority(ch.id)}
-                                        onKeyDown={(e) =>
-                                          e.key === "Enter" && savePriority(ch.id)
-                                        }
+                                        onKeyDown={(e) => e.key === "Enter" && savePriority(ch.id)}
                                       />
                                     ) : (
                                       <button
@@ -362,11 +380,15 @@ export default function ModelsChannelsPage() {
                                 {/* 4 metrics */}
                                 <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs">
                                   <div>
-                                    <span className="text-muted-foreground">{t("costPrice")}: </span>
+                                    <span className="text-muted-foreground">
+                                      {t("costPrice")}:{" "}
+                                    </span>
                                     <span className="font-mono">{fmtPrice(ch.costPrice)}</span>
                                   </div>
                                   <div>
-                                    <span className="text-muted-foreground">{t("sellPrice")}: </span>
+                                    <span className="text-muted-foreground">
+                                      {t("sellPrice")}:{" "}
+                                    </span>
                                     {editingSellPrice === ch.id ? (
                                       <Input
                                         className="inline w-16 h-5 text-xs font-mono"
@@ -374,9 +396,7 @@ export default function ModelsChannelsPage() {
                                         value={sellPriceValue}
                                         onChange={(e) => setSellPriceValue(e.target.value)}
                                         onBlur={() => saveSellPrice(ch)}
-                                        onKeyDown={(e) =>
-                                          e.key === "Enter" && saveSellPrice(ch)
-                                        }
+                                        onKeyDown={(e) => e.key === "Enter" && saveSellPrice(ch)}
                                       />
                                     ) : (
                                       <button
@@ -385,11 +405,7 @@ export default function ModelsChannelsPage() {
                                           setEditingSellPrice(ch.id);
                                           const sp = ch.sellPrice;
                                           setSellPriceValue(
-                                            String(
-                                              sp.unit === "call"
-                                                ? sp.perCall
-                                                : sp.inputPer1M,
-                                            ),
+                                            String(sp.unit === "call" ? sp.perCall : sp.inputPer1M),
                                           );
                                         }}
                                       >
@@ -405,11 +421,15 @@ export default function ModelsChannelsPage() {
                                   <div>
                                     <span className="text-muted-foreground">{t("latency")}: </span>
                                     <span className="font-mono">
-                                      {ch.latencyMs !== null ? `${ch.latencyMs}${t("ms")}` : t("noData")}
+                                      {ch.latencyMs !== null
+                                        ? `${ch.latencyMs}${t("ms")}`
+                                        : t("noData")}
                                     </span>
                                   </div>
                                   <div>
-                                    <span className="text-muted-foreground">{t("successRate")}: </span>
+                                    <span className="text-muted-foreground">
+                                      {t("successRate")}:{" "}
+                                    </span>
                                     <span className="font-mono">
                                       {ch.successRate !== null ? `${ch.successRate}%` : t("noData")}
                                     </span>
@@ -443,23 +463,56 @@ export default function ModelsChannelsPage() {
       )}
 
       {/* Bottom status bar */}
-      <div className="flex items-center justify-between mt-6 text-xs text-muted-foreground">
-        <div className="flex items-center gap-4">
-          <span className="font-medium">{t("legend")}:</span>
-          <span className="flex items-center gap-1">
-            <span className="h-2 w-2 rounded-full bg-emerald-500" /> {t("active")}
-          </span>
-          <span className="flex items-center gap-1">
-            <span className="h-2 w-2 rounded-full bg-amber-500" /> {t("degraded")}
-          </span>
-          <span className="flex items-center gap-1">
-            <span className="h-2 w-2 rounded-full bg-red-500" /> {t("disabled")}
-          </span>
+      <div className="mt-6 space-y-2">
+        <div className="flex items-center justify-between text-xs text-muted-foreground">
+          <div className="flex items-center gap-4">
+            <span className="font-medium">{t("legend")}:</span>
+            <span className="flex items-center gap-1">
+              <span className="h-2 w-2 rounded-full bg-emerald-500" /> {t("active")}
+            </span>
+            <span className="flex items-center gap-1">
+              <span className="h-2 w-2 rounded-full bg-amber-500" /> {t("degraded")}
+            </span>
+            <span className="flex items-center gap-1">
+              <span className="h-2 w-2 rounded-full bg-red-500" /> {t("disabled")}
+            </span>
+          </div>
+          {lastSyncTime && (
+            <span>
+              {t("lastSync")}: {new Date(lastSyncTime).toLocaleString()}
+            </span>
+          )}
         </div>
-        {lastSyncTime && (
-          <span>
-            {t("lastSync")}: {new Date(lastSyncTime).toLocaleString()}
-          </span>
+
+        {/* Sync result summary */}
+        {lastSyncResult && (
+          <div className="border rounded-md p-3 bg-muted/30 text-xs">
+            <div className="flex items-center gap-4 mb-2">
+              <span className="font-medium">{t("syncResult")}:</span>
+              <span className="text-emerald-600">
+                +{lastSyncResult.summary.totalNewChannels} {t("newChannels")}
+              </span>
+              <span className="text-red-600">
+                -{lastSyncResult.summary.totalDisabledChannels} {t("disabledLabel")}
+              </span>
+              {lastSyncResult.summary.totalFailedProviders > 0 && (
+                <span className="text-red-600 font-medium">
+                  {lastSyncResult.summary.totalFailedProviders} {t("failedLabel")}
+                </span>
+              )}
+            </div>
+            {lastSyncResult.providers.some((p) => !p.success) && (
+              <div className="space-y-1">
+                {lastSyncResult.providers
+                  .filter((p) => !p.success)
+                  .map((p) => (
+                    <div key={p.providerName} className="text-red-600">
+                      ✗ {p.providerName}: {p.error}
+                    </div>
+                  ))}
+              </div>
+            )}
+          </div>
         )}
       </div>
     </div>

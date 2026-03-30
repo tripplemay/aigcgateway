@@ -272,7 +272,11 @@
     "priceLocked": "价格已锁定",
     "priorityUpdated": "优先级已更新",
     "priceSaved": "价格已保存",
-    "legend": "图例"
+    "legend": "图例",
+    "syncResult": "上次同步结果",
+    "newChannels": "新增通道",
+    "disabledLabel": "已下架",
+    "failedLabel": "失败服务商"
   },
   "adminHealth": {
     "title": "健康监控",
