@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
+import { useTranslations } from "next-intl";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,6 +11,9 @@ import { apiFetch } from "@/lib/api-client";
 import { useRouter } from "next/navigation";
 
 export default function SettingsPage() {
+  const t = useTranslations("settings");
+  const tc = useTranslations("common");
+  const ta = useTranslations("auth");
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
   const [oldPassword, setOldPassword] = useState("");
@@ -30,7 +34,7 @@ export default function SettingsPage() {
   const saveName = async () => {
     try {
       await apiFetch("/api/auth/profile", { method: "PATCH", body: JSON.stringify({ name }) });
-      toast.success("Name updated");
+      toast.success(t("nameUpdated"));
     } catch (e) {
       toast.error((e as Error).message);
     }
@@ -38,11 +42,11 @@ export default function SettingsPage() {
 
   const changePassword = async () => {
     if (newPassword.length < 8) {
-      toast.error("Password must be at least 8 characters");
+      toast.error(ta("passwordMin"));
       return;
     }
     if (newPassword !== confirmPassword) {
-      toast.error("Passwords do not match");
+      toast.error(ta("passwordMismatch"));
       return;
     }
     try {
@@ -50,7 +54,7 @@ export default function SettingsPage() {
         method: "POST",
         body: JSON.stringify({ oldPassword, newPassword }),
       });
-      toast.success("Password changed");
+      toast.success(t("passwordChanged"));
       setOldPassword("");
       setNewPassword("");
       setConfirmPassword("");
@@ -61,32 +65,36 @@ export default function SettingsPage() {
 
   return (
     <div className="max-w-2xl">
-      <h1 className="text-2xl font-bold mb-6">Settings</h1>
+      <h1 className="text-2xl font-bold mb-6">{t("title")}</h1>
 
       <Card className="mb-6">
         <CardHeader>
-          <CardTitle className="text-base">Profile</CardTitle>
+          <CardTitle className="text-base">{t("profile")}</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div>
-            <Label>Email</Label>
+            <Label>{t("email")}</Label>
             <Input disabled value={email} className="bg-muted" />
           </div>
           <div>
-            <Label>Name</Label>
-            <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Your name" />
+            <Label>{t("name")}</Label>
+            <Input
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder={t("namePlaceholder")}
+            />
           </div>
-          <Button onClick={saveName}>Save</Button>
+          <Button onClick={saveName}>{tc("save")}</Button>
         </CardContent>
       </Card>
 
       <Card className="mb-6">
         <CardHeader>
-          <CardTitle className="text-base">Change Password</CardTitle>
+          <CardTitle className="text-base">{t("changePassword")}</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div>
-            <Label>Current Password</Label>
+            <Label>{t("currentPassword")}</Label>
             <Input
               type="password"
               value={oldPassword}
@@ -94,37 +102,35 @@ export default function SettingsPage() {
             />
           </div>
           <div>
-            <Label>New Password</Label>
+            <Label>{t("newPassword")}</Label>
             <Input
               type="password"
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
-              placeholder="At least 8 characters"
+              placeholder={t("newPasswordPlaceholder")}
             />
           </div>
           <div>
-            <Label>Confirm New Password</Label>
+            <Label>{t("confirmNewPassword")}</Label>
             <Input
               type="password"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
             />
           </div>
-          <Button onClick={changePassword}>Change Password</Button>
+          <Button onClick={changePassword}>{t("changePassword")}</Button>
         </CardContent>
       </Card>
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Notifications</CardTitle>
+          <CardTitle className="text-base">{t("notifications")}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium">Low balance email alert</p>
-              <p className="text-xs text-muted-foreground">
-                Receive email when balance drops below threshold
-              </p>
+              <p className="text-sm font-medium">{t("lowBalanceAlert")}</p>
+              <p className="text-xs text-muted-foreground">{t("lowBalanceDesc")}</p>
             </div>
             <Switch checked={alertEmail} onCheckedChange={setAlertEmail} />
           </div>
@@ -134,8 +140,8 @@ export default function SettingsPage() {
       <Card className="mt-6 border-destructive/50">
         <CardContent className="p-6 flex items-center justify-between">
           <div>
-            <p className="text-sm font-medium">Sign Out</p>
-            <p className="text-xs text-muted-foreground">Clear session and return to login page</p>
+            <p className="text-sm font-medium">{t("signOut")}</p>
+            <p className="text-xs text-muted-foreground">{t("signOutDesc")}</p>
           </div>
           <Button
             variant="destructive"
@@ -145,7 +151,7 @@ export default function SettingsPage() {
               router.push("/login");
             }}
           >
-            Sign Out
+            {t("signOut")}
           </Button>
         </CardContent>
       </Card>

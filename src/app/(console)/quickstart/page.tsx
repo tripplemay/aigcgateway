@@ -1,17 +1,13 @@
 "use client";
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Copy, Check } from "lucide-react";
 
-const steps = [
-  {
-    title: "Step 1: Install the SDK",
-    code: `npm install aigc-gateway-sdk`,
-  },
-  {
-    title: "Step 2: Your First Call",
-    code: `import { Gateway } from 'aigc-gateway-sdk'
+const stepCodes = [
+  `npm install aigc-gateway-sdk`,
+  `import { Gateway } from 'aigc-gateway-sdk'
 
 const gw = new Gateway({
   apiKey: 'pk_...',
@@ -24,10 +20,7 @@ const res = await gw.chat({
 })
 
 console.log(res.content)`,
-  },
-  {
-    title: "Step 3: Streaming",
-    code: `const stream = await gw.chat({
+  `const stream = await gw.chat({
   model: 'deepseek/v3',
   messages: [{ role: 'user', content: 'Write a poem' }],
   stream: true,
@@ -38,17 +31,13 @@ for await (const chunk of stream) {
 }
 
 console.log('Usage:', stream.usage)`,
-  },
-  {
-    title: "Step 4: Image Generation",
-    code: `const img = await gw.image({
+  `const img = await gw.image({
   model: 'zhipu/cogview-3-flash',
   prompt: 'A friendly robot teacher',
   size: '1024x1024',
 })
 
 console.log(img.url)`,
-  },
 ];
 
 function CodeBlock({ code }: { code: string }) {
@@ -60,8 +49,15 @@ function CodeBlock({ code }: { code: string }) {
   };
   return (
     <div className="relative">
-      <pre className="bg-zinc-950 text-zinc-100 rounded-md p-4 text-sm font-mono overflow-x-auto">{code}</pre>
-      <Button variant="ghost" size="icon" className="absolute top-2 right-2 text-zinc-400 hover:text-zinc-100" onClick={copy}>
+      <pre className="bg-zinc-950 text-zinc-100 rounded-md p-4 text-sm font-mono overflow-x-auto">
+        {code}
+      </pre>
+      <Button
+        variant="ghost"
+        size="icon"
+        className="absolute top-2 right-2 text-zinc-400 hover:text-zinc-100"
+        onClick={copy}
+      >
         {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
       </Button>
     </div>
@@ -69,14 +65,20 @@ function CodeBlock({ code }: { code: string }) {
 }
 
 export default function QuickStartPage() {
+  const t = useTranslations("quickstart");
+  const stepTitles = [t("step1"), t("step2"), t("step3"), t("step4")];
   return (
     <div>
-      <h1 className="text-2xl font-bold mb-6">Quick Start</h1>
+      <h1 className="text-2xl font-bold mb-6">{t("title")}</h1>
       <div className="space-y-6">
-        {steps.map((step, i) => (
+        {stepCodes.map((code, i) => (
           <Card key={i}>
-            <CardHeader><CardTitle className="text-base">{step.title}</CardTitle></CardHeader>
-            <CardContent><CodeBlock code={step.code} /></CardContent>
+            <CardHeader>
+              <CardTitle className="text-base">{stepTitles[i]}</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <CodeBlock code={code} />
+            </CardContent>
           </Card>
         ))}
       </div>

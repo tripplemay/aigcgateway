@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 import { apiFetch } from "@/lib/api-client";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -35,6 +36,8 @@ interface Model {
 }
 
 export default function ModelsPage() {
+  const t = useTranslations("adminModels");
+  const tc = useTranslations("common");
   const [models, setModels] = useState<Model[]>([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -61,7 +64,7 @@ export default function ModelsPage() {
       } else {
         await apiFetch("/api/admin/models", { method: "POST", body: JSON.stringify(form) });
       }
-      toast.success("Saved");
+      toast.success(tc("saved"));
       setDialogOpen(false);
       load();
     } catch (e) {
@@ -72,7 +75,7 @@ export default function ModelsPage() {
   return (
     <div>
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Models</h1>
+        <h1 className="text-2xl font-bold">{t("title")}</h1>
         <Button
           onClick={() => {
             setForm({});
@@ -80,7 +83,7 @@ export default function ModelsPage() {
             setDialogOpen(true);
           }}
         >
-          + Add Model
+          {t("addModel")}
         </Button>
       </div>
       <Card>
@@ -88,19 +91,19 @@ export default function ModelsPage() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Name</TableHead>
-                <TableHead>Display Name</TableHead>
-                <TableHead>Modality</TableHead>
+                <TableHead>{tc("name")}</TableHead>
+                <TableHead>{t("displayName")}</TableHead>
+                <TableHead>{t("modality")}</TableHead>
                 <TableHead>Context</TableHead>
                 <TableHead>Channels</TableHead>
-                <TableHead>Actions</TableHead>
+                <TableHead>{tc("actions")}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {loading ? (
                 <TableRow>
                   <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
-                    Loading...
+                    {tc("loading")}
                   </TableCell>
                 </TableRow>
               ) : (
@@ -125,7 +128,7 @@ export default function ModelsPage() {
                           setDialogOpen(true);
                         }}
                       >
-                        Edit
+                        {tc("edit")}
                       </Button>
                     </TableCell>
                   </TableRow>
@@ -139,11 +142,11 @@ export default function ModelsPage() {
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{editId ? "Edit Model" : "Add Model"}</DialogTitle>
+            <DialogTitle>{editId ? t("editModel") : t("addModelTitle")}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <div>
-              <Label>Name</Label>
+              <Label>{tc("name")}</Label>
               <Input
                 placeholder="openai/gpt-4o"
                 value={(form.name as string) ?? ""}
@@ -151,14 +154,14 @@ export default function ModelsPage() {
               />
             </div>
             <div>
-              <Label>Display Name</Label>
+              <Label>{t("displayName")}</Label>
               <Input
                 value={(form.displayName as string) ?? ""}
                 onChange={(e) => setForm({ ...form, displayName: e.target.value })}
               />
             </div>
             <div>
-              <Label>Modality</Label>
+              <Label>{t("modality")}</Label>
               <Select
                 value={(form.modality as string) ?? "TEXT"}
                 onValueChange={(v) => setForm({ ...form, modality: v })}
@@ -167,13 +170,13 @@ export default function ModelsPage() {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="TEXT">Text</SelectItem>
-                  <SelectItem value="IMAGE">Image</SelectItem>
+                  <SelectItem value="TEXT">{t("text")}</SelectItem>
+                  <SelectItem value="IMAGE">{t("image")}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
             <div>
-              <Label>Context Window</Label>
+              <Label>{t("contextWindow")}</Label>
               <Input
                 type="number"
                 value={(form.contextWindow as number) ?? ""}
@@ -184,9 +187,9 @@ export default function ModelsPage() {
             </div>
             <div className="flex justify-end gap-2">
               <Button variant="outline" onClick={() => setDialogOpen(false)}>
-                Cancel
+                {tc("cancel")}
               </Button>
-              <Button onClick={save}>Save</Button>
+              <Button onClick={save}>{tc("save")}</Button>
             </div>
           </div>
         </DialogContent>

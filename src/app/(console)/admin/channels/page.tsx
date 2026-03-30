@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 import { apiFetch } from "@/lib/api-client";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -28,6 +29,8 @@ interface Channel {
 }
 
 export default function ChannelsPage() {
+  const t = useTranslations("adminChannels");
+  const tc = useTranslations("common");
   const [channels, setChannels] = useState<Channel[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingPriority, setEditingPriority] = useState<string | null>(null);
@@ -50,7 +53,7 @@ export default function ChannelsPage() {
         method: "PATCH",
         body: JSON.stringify({ priority: p }),
       });
-      toast.success("Priority updated");
+      toast.success(t("priorityUpdated"));
       load();
     }
     setEditingPriority(null);
@@ -66,9 +69,9 @@ export default function ChannelsPage() {
   };
 
   const deleteChannel = async (id: string) => {
-    if (!confirm("Delete this channel?")) return;
+    if (!confirm(t("deleteConfirm"))) return;
     await apiFetch(`/api/admin/channels/${id}`, { method: "DELETE" });
-    toast.success("Deleted");
+    toast.success(t("deleted"));
     load();
   };
 
@@ -78,7 +81,7 @@ export default function ChannelsPage() {
   return (
     <div>
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Channels</h1>
+        <h1 className="text-2xl font-bold">{t("title")}</h1>
       </div>
       <Card>
         <CardContent className="p-0">
@@ -86,21 +89,21 @@ export default function ChannelsPage() {
             <TableHeader>
               <TableRow>
                 <TableHead>Model</TableHead>
-                <TableHead>Provider</TableHead>
-                <TableHead>Real ID</TableHead>
-                <TableHead>Priority</TableHead>
+                <TableHead>{t("provider")}</TableHead>
+                <TableHead>{t("realId")}</TableHead>
+                <TableHead>{t("priority")}</TableHead>
                 <TableHead>Cost</TableHead>
-                <TableHead>Sell</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Health</TableHead>
-                <TableHead>Actions</TableHead>
+                <TableHead>{t("sell")}</TableHead>
+                <TableHead>{tc("status")}</TableHead>
+                <TableHead>{t("health")}</TableHead>
+                <TableHead>{tc("actions")}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {loading ? (
                 <TableRow>
                   <TableCell colSpan={9} className="text-center py-8 text-muted-foreground">
-                    Loading...
+                    {tc("loading")}
                   </TableCell>
                 </TableRow>
               ) : (
@@ -158,7 +161,7 @@ export default function ChannelsPage() {
                         className="text-destructive"
                         onClick={() => deleteChannel(ch.id)}
                       >
-                        Delete
+                        {tc("delete")}
                       </Button>
                     </TableCell>
                   </TableRow>

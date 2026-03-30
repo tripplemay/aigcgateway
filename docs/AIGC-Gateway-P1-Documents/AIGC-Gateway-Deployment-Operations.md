@@ -3,7 +3,7 @@
 > 版本 1.0 · 2026年3月29日
 > 配套文档：AIGC-Gateway-P1-PRD · AIGC-Gateway-Database-Design
 
-**关于占位符：** `${DOMAIN}` 代表最终注册的域名，通过环境变量配置。
+**关于占位符：** `aigc.guangai.ai` 代表最终注册的域名，通过环境变量配置。
 
 ---
 
@@ -169,9 +169,9 @@ NODE_ENV=production
 PORT=3000
 
 # ========== 域名（占位符） ==========
-API_BASE_URL=https://api.${DOMAIN}/v1
-SITE_URL=https://console.${DOMAIN}
-CDN_BASE_URL=https://cdn.${DOMAIN}
+API_BASE_URL=https://aigc.guangai.ai/v1
+SITE_URL=https://aigc.guangai.ai
+CDN_BASE_URL=https://cdn.aigc.guangai.ai
 
 # ========== 数据库 ==========
 DATABASE_URL=postgresql://user:pass@host:5432/aigc_gateway
@@ -192,13 +192,13 @@ PROXY_URL_SECONDARY=socks5://proxy2-host:1080
 ALIPAY_APP_ID=<app_id>
 ALIPAY_PRIVATE_KEY=<rsa_private_key>
 ALIPAY_PUBLIC_KEY=<alipay_public_key>
-ALIPAY_NOTIFY_URL=${API_BASE_URL}/api/webhooks/alipay
+ALIPAY_NOTIFY_URL=https://aigc.guangai.ai/api/webhooks/alipay
 
 WECHAT_MCH_ID=<merchant_id>
 WECHAT_API_KEY_V3=<api_key>
 WECHAT_CERT_SERIAL=<cert_serial>
 WECHAT_PRIVATE_KEY=<rsa_private_key>
-WECHAT_NOTIFY_URL=${API_BASE_URL}/api/webhooks/wechat
+WECHAT_NOTIFY_URL=https://aigc.guangai.ai/api/webhooks/wechat
 
 # ========== 汇率 ==========
 EXCHANGE_RATE_CNY_TO_USD=0.137

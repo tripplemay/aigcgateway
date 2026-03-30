@@ -12,6 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { apiFetch } from "@/lib/api-client";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 
 interface CreateProjectDialogProps {
   trigger: React.ReactNode;
@@ -19,13 +20,14 @@ interface CreateProjectDialogProps {
 }
 
 export function CreateProjectDialog({ trigger, onCreated }: CreateProjectDialogProps) {
+  const t = useTranslations("createProject");
   const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
   const [loading, setLoading] = useState(false);
 
   const handleCreate = async () => {
     if (!name.trim()) {
-      toast.error("Project name is required");
+      toast.error(t("nameRequired"));
       return;
     }
     setLoading(true);
@@ -34,7 +36,7 @@ export function CreateProjectDialog({ trigger, onCreated }: CreateProjectDialogP
         method: "POST",
         body: JSON.stringify({ name: name.trim() }),
       });
-      toast.success("Project created");
+      toast.success(t("created"));
       setName("");
       setOpen(false);
       onCreated?.();
@@ -50,21 +52,21 @@ export function CreateProjectDialog({ trigger, onCreated }: CreateProjectDialogP
       <DialogTrigger render={<span />}>{trigger}</DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Create Project</DialogTitle>
+          <DialogTitle>{t("title")}</DialogTitle>
         </DialogHeader>
         <div className="space-y-4 pt-2">
           <div className="space-y-2">
-            <Label htmlFor="project-name">Project name</Label>
+            <Label htmlFor="project-name">{t("nameLabel")}</Label>
             <Input
               id="project-name"
-              placeholder="e.g. My AI App"
+              placeholder={t("namePlaceholder")}
               value={name}
               onChange={(e) => setName(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleCreate()}
             />
           </div>
           <Button onClick={handleCreate} disabled={loading} className="w-full">
-            {loading ? "Creating..." : "Create"}
+            {loading ? t("creating") : t("title")}
           </Button>
         </div>
       </DialogContent>

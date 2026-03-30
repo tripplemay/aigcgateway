@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 import { apiFetch } from "@/lib/api-client";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
@@ -39,6 +40,9 @@ const statusVariant: Record<string, "success" | "error" | "warning"> = {
 };
 
 export default function AdminLogsPage() {
+  const t = useTranslations("adminLogs");
+  const tl = useTranslations("logs");
+  const tc = useTranslations("common");
   const [logs, setLogs] = useState<LogEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
@@ -72,17 +76,17 @@ export default function AdminLogsPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold mb-6">Global Audit Logs</h1>
+      <h1 className="text-2xl font-bold mb-6">{t("title")}</h1>
       <div className="flex gap-2 mb-4">
         <Input
           className="max-w-sm"
-          placeholder="Search prompts, models, trace IDs..."
+          placeholder={tl("searchPlaceholder")}
           value={searchQ}
           onChange={(e) => setSearchQ(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && doSearch()}
         />
         <Button variant="outline" onClick={doSearch}>
-          Search
+          {tc("search")}
         </Button>
         <div className="flex gap-1 ml-auto">
           {["", "SUCCESS", "ERROR", "FILTERED"].map((s) => (
@@ -95,7 +99,7 @@ export default function AdminLogsPage() {
                 setPage(1);
               }}
             >
-              {s || "All"}
+              {s || tc("all")}
             </Button>
           ))}
         </div>
@@ -106,23 +110,23 @@ export default function AdminLogsPage() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Time</TableHead>
-                <TableHead>Trace</TableHead>
-                <TableHead>Project</TableHead>
-                <TableHead>Model</TableHead>
-                <TableHead>Channel</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Tokens</TableHead>
-                <TableHead>Cost</TableHead>
+                <TableHead>{tl("time")}</TableHead>
+                <TableHead>{tl("trace")}</TableHead>
+                <TableHead>{t("project")}</TableHead>
+                <TableHead>{tl("model")}</TableHead>
+                <TableHead>{t("channel")}</TableHead>
+                <TableHead>{tc("status")}</TableHead>
+                <TableHead>{tl("tokens")}</TableHead>
+                <TableHead>{tl("cost")}</TableHead>
                 <TableHead>Sell</TableHead>
-                <TableHead>Latency</TableHead>
+                <TableHead>{tl("latency")}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {loading ? (
                 <TableRow>
                   <TableCell colSpan={10} className="text-center py-8 text-muted-foreground">
-                    Loading...
+                    {tc("loading")}
                   </TableCell>
                 </TableRow>
               ) : (
@@ -170,7 +174,9 @@ export default function AdminLogsPage() {
       </Card>
 
       <div className="flex justify-between items-center mt-4">
-        <span className="text-sm text-muted-foreground">{total} records</span>
+        <span className="text-sm text-muted-foreground">
+          {total} {tc("records")}
+        </span>
         <div className="flex gap-2">
           <Button
             size="sm"
@@ -178,10 +184,10 @@ export default function AdminLogsPage() {
             disabled={page <= 1}
             onClick={() => setPage(page - 1)}
           >
-            Prev
+            {tc("prev")}
           </Button>
           <Button size="sm" variant="outline" onClick={() => setPage(page + 1)}>
-            Next
+            {tc("next")}
           </Button>
         </div>
       </div>

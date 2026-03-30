@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -23,6 +24,8 @@ interface ModelItem {
 }
 
 export default function ModelsPage() {
+  const t = useTranslations("models");
+  const tc = useTranslations("common");
   const [models, setModels] = useState<ModelItem[]>([]);
   const [search, setSearch] = useState("");
   const [modality, setModality] = useState("");
@@ -47,11 +50,11 @@ export default function ModelsPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold mb-6">Models</h1>
+      <h1 className="text-2xl font-bold mb-6">{t("title")}</h1>
       <div className="flex gap-2 mb-4">
         <Input
           className="max-w-sm"
-          placeholder="Search models..."
+          placeholder={t("searchPlaceholder")}
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
@@ -63,7 +66,7 @@ export default function ModelsPage() {
               variant={modality === m ? "default" : "outline"}
               onClick={() => setModality(m)}
             >
-              {m || "All"}
+              {m || tc("all")}
             </Button>
           ))}
         </div>
@@ -73,11 +76,11 @@ export default function ModelsPage() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Model</TableHead>
-                <TableHead>Type</TableHead>
-                <TableHead>Price</TableHead>
-                <TableHead>Context</TableHead>
-                <TableHead>Status</TableHead>
+                <TableHead>{tc("name")}</TableHead>
+                <TableHead>{t("type")}</TableHead>
+                <TableHead>{t("price")}</TableHead>
+                <TableHead>{t("context")}</TableHead>
+                <TableHead>{tc("status")}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -98,7 +101,7 @@ export default function ModelsPage() {
                     {m.context_window ? formatContext(m.context_window) : "—"}
                   </TableCell>
                   <TableCell>
-                    <Badge variant="success">active</Badge>
+                    <Badge variant="success">{t("active")}</Badge>
                   </TableCell>
                 </TableRow>
               ))}

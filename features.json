@@ -1,27 +1,34 @@
 {
   "features": [
     { "id": "F001-F070", "title": "P1 全部完成", "priority": "high", "status": "completed", "acceptance": "done" },
-    { "id": "FIX~DOM~P2-1~P2-2~P2-3", "title": "修复轮+域名调整+P2-1~P2-3 全部完成", "priority": "high", "status": "completed", "acceptance": "done" },
+    { "id": "FIX~DOM~P2-1~P2-4", "title": "修复轮+域名+P2-1~P2-4 全部完成", "priority": "high", "status": "completed", "acceptance": "done" },
     {
-      "id": "P2-4-001",
-      "title": "错误处理增强：模型不存在时附带可用模型提示",
+      "id": "P2-5-001",
+      "title": "安装 next-intl + 创建翻译文件 + Provider 配置",
       "priority": "high",
-      "status": "pending",
-      "acceptance": "1. chat.ts 模型不存在时返回 isError + 提示使用 list_models；2. generate-image.ts 同样处理；3. 错误消息包含 'Use list_models to see available models'"
+      "status": "completed",
+      "acceptance": "1. npm install next-intl；2. messages/en.json 和 messages/zh-CN.json 包含全部页面的翻译 key；3. 创建 i18n 配置和 Provider 组件；4. layout.tsx 中包裹 NextIntlClientProvider；5. 创建 useLocale hook + localStorage 持久化"
     },
     {
-      "id": "P2-4-002",
-      "title": "错误处理增强：超时详情 + 限流 retryAfter",
+      "id": "P2-5-002",
+      "title": "侧边栏 + 通用组件国际化 + 语言切换 UI",
       "priority": "high",
-      "status": "pending",
-      "acceptance": "1. chat.ts/generate-image.ts 捕获 EngineError(TIMEOUT)时返回超时详情（latency + 建议重试）；2. 限流被拒时返回 retryAfter 秒数；3. checkRateLimit 返回值中提取 retryAfter 信息"
+      "status": "completed",
+      "acceptance": "1. sidebar.tsx 所有菜单项和分组标签用 useTranslations；2. empty-state.tsx / create-project-dialog.tsx 国际化；3. 侧边栏底部添加语言切换按钮（中/EN）；4. 切换即时生效无需刷新"
     },
     {
-      "id": "P2-4-003",
-      "title": "安全加固：路由层 URL Key 检查 + Origin 验证 + Key 日志脱敏",
+      "id": "P2-5-003",
+      "title": "开发者页面国际化（9页）",
       "priority": "high",
-      "status": "pending",
-      "acceptance": "1. route.ts 拒绝 URL 参数中的 API Key（检查 query string 含 key/token/apikey）；2. 生产环境验证 Origin Header（警告但不阻断，兼容 MCP 客户端）；3. auth.ts 日志中只记录 key prefix 不记录完整 key"
+      "status": "completed",
+      "acceptance": "1. dashboard/keys/models/logs/usage/balance/quickstart/docs/settings 9个页面所有用户可见文字通过 useTranslations 获取；2. 表格列头、按钮、标签、空状态、错误消息全部翻译；3. 模型名/API Key/traceId/代码示例不翻译；4. 时间格式中英文差异化"
+    },
+    {
+      "id": "P2-5-004",
+      "title": "管理员页面 + 登录注册页国际化（10页）",
+      "priority": "high",
+      "status": "completed",
+      "acceptance": "1. admin 7页（providers/models/channels/health/logs/usage/users+detail）国际化；2. login/register 2页国际化；3. 所有表单标签、按钮、表格列头翻译；4. npx tsc --noEmit 编译通过"
     }
   ]
 }

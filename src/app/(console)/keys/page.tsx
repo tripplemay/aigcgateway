@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 import { apiFetch } from "@/lib/api-client";
 import { useProject } from "@/hooks/use-project";
 import { Button } from "@/components/ui/button";
@@ -33,6 +34,8 @@ interface ApiKeyRow {
 }
 
 export default function KeysPage() {
+  const t = useTranslations("keys");
+  const tc = useTranslations("common");
   const { current, loading: projLoading } = useProject();
   const [keys, setKeys] = useState<ApiKeyRow[]>([]);
   const [createOpen, setCreateOpen] = useState(false);
@@ -56,14 +59,14 @@ export default function KeysPage() {
       body: JSON.stringify({ name: keyName || undefined }),
     });
     setNewKey(r.key);
-    toast.success("Key created");
+    toast.success(t("created_toast"));
     load();
   };
 
   const revoke = async () => {
     if (!current || !revokeId) return;
     await apiFetch(`/api/projects/${current.id}/keys/${revokeId}`, { method: "DELETE" });
-    toast.success("Key revoked");
+    toast.success(t("revoked_toast"));
     setRevokeId(null);
     load();
   };
@@ -71,7 +74,7 @@ export default function KeysPage() {
   const copyKey = () => {
     if (newKey) {
       navigator.clipboard.writeText(newKey);
-      toast.success("Copied!");
+      toast.success(tc("copied"));
     }
   };
 
@@ -88,7 +91,7 @@ export default function KeysPage() {
   return (
     <div>
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">API Keys</h1>
+        <h1 className="text-2xl font-bold">{t("title")}</h1>
         <Button
           onClick={() => {
             setKeyName("");
@@ -96,7 +99,7 @@ export default function KeysPage() {
             setCreateOpen(true);
           }}
         >
-          + Create Key
+          {t("createKey")}
         </Button>
       </div>
 
@@ -105,12 +108,12 @@ export default function KeysPage() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Key</TableHead>
-                <TableHead>Name</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Last Used</TableHead>
-                <TableHead>Created</TableHead>
-                <TableHead>Actions</TableHead>
+                <TableHead>{t("key")}</TableHead>
+                <TableHead>{tc("name")}</TableHead>
+                <TableHead>{tc("status")}</TableHead>
+                <TableHead>{t("lastUsed")}</TableHead>
+                <TableHead>{t("created")}</TableHead>
+                <TableHead>{tc("actions")}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -124,7 +127,7 @@ export default function KeysPage() {
                     </Badge>
                   </TableCell>
                   <TableCell className="text-muted-foreground">
-                    {k.lastUsedAt ? timeAgo(k.lastUsedAt) : "Never"}
+                    {k.lastUsedAt ? timeAgo(k.lastUsedAt) : tc("never")}
                   </TableCell>
                   <TableCell className="text-muted-foreground">{timeAgo(k.createdAt)}</TableCell>
                   <TableCell>
@@ -135,7 +138,7 @@ export default function KeysPage() {
                         className="text-destructive"
                         onClick={() => setRevokeId(k.id)}
                       >
-                        Revoke
+                        {t("revoke")}
                       </Button>
                     )}
                   </TableCell>
@@ -150,12 +153,12 @@ export default function KeysPage() {
       <Dialog open={createOpen} onOpenChange={setCreateOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{newKey ? "Key Created" : "Create API Key"}</DialogTitle>
+            <DialogTitle>{newKey ? t("keyCreated") : t("createApiKey")}</DialogTitle>
           </DialogHeader>
           {newKey ? (
             <div className="space-y-4">
               <div className="bg-destructive/10 text-destructive text-sm rounded-md p-3">
-                This key will only be shown once. Copy it now.
+                {t("keyWarning")}
               </div>
               <div className="flex gap-2">
                 <Input readOnly value={newKey} className="font-mono text-xs" />
@@ -164,25 +167,25 @@ export default function KeysPage() {
                 </Button>
               </div>
               <Button className="w-full" onClick={() => setCreateOpen(false)}>
-                Done
+                {tc("done")}
               </Button>
             </div>
           ) : (
             <div className="space-y-4">
               <div>
-                <Label>Name (optional)</Label>
+                <Label>{t("nameOptional")}</Label>
                 <Input
                   value={keyName}
                   onChange={(e) => setKeyName(e.target.value)}
-                  placeholder="e.g. production"
+                  placeholder={t("namePlaceholder")}
                   maxLength={50}
                 />
               </div>
               <div className="flex justify-end gap-2">
                 <Button variant="outline" onClick={() => setCreateOpen(false)}>
-                  Cancel
+                  {tc("cancel")}
                 </Button>
-                <Button onClick={create}>Create</Button>
+                <Button onClick={create}>{tc("create")}</Button>
               </div>
             </div>
           )}
@@ -193,18 +196,15 @@ export default function KeysPage() {
       <Dialog open={!!revokeId} onOpenChange={() => setRevokeId(null)}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Revoke API Key?</DialogTitle>
+            <DialogTitle>{t("revokeTitle")}</DialogTitle>
           </DialogHeader>
-          <p className="text-sm text-muted-foreground">
-            This key will be immediately invalidated. All requests using this key will return 401.
-            This cannot be undone.
-          </p>
+          <p className="text-sm text-muted-foreground">{t("revokeWarning")}</p>
           <div className="flex justify-end gap-2 mt-4">
             <Button variant="outline" onClick={() => setRevokeId(null)}>
-              Cancel
+              {tc("cancel")}
             </Button>
             <Button variant="destructive" onClick={revoke}>
-              Revoke
+              {t("revoke")}
             </Button>
           </div>
         </DialogContent>

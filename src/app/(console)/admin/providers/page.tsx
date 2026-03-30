@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 import { apiFetch } from "@/lib/api-client";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -49,6 +50,8 @@ interface ProviderConfig {
 }
 
 export default function ProvidersPage() {
+  const t = useTranslations("adminProviders");
+  const tc = useTranslations("common");
   const [providers, setProviders] = useState<Provider[]>([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -95,7 +98,7 @@ export default function ProvidersPage() {
       } else {
         await apiFetch("/api/admin/providers", { method: "POST", body: JSON.stringify(form) });
       }
-      toast.success("Saved");
+      toast.success(tc("saved"));
       setDialogOpen(false);
       load();
     } catch (e) {
@@ -118,27 +121,27 @@ export default function ProvidersPage() {
   return (
     <div>
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Providers</h1>
-        <Button onClick={openCreate}>+ Add Provider</Button>
+        <h1 className="text-2xl font-bold">{t("title")}</h1>
+        <Button onClick={openCreate}>{t("addProvider")}</Button>
       </div>
       <Card>
         <CardContent className="p-0">
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Name</TableHead>
-                <TableHead>Base URL</TableHead>
-                <TableHead>Adapter</TableHead>
+                <TableHead>{tc("name")}</TableHead>
+                <TableHead>{t("baseUrl")}</TableHead>
+                <TableHead>{t("adapter")}</TableHead>
                 <TableHead>Channels</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Actions</TableHead>
+                <TableHead>{tc("status")}</TableHead>
+                <TableHead>{tc("actions")}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {loading ? (
                 <TableRow>
                   <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
-                    Loading...
+                    {tc("loading")}
                   </TableCell>
                 </TableRow>
               ) : (
@@ -161,7 +164,7 @@ export default function ProvidersPage() {
                     </TableCell>
                     <TableCell className="flex gap-1">
                       <Button variant="ghost" size="sm" onClick={() => openEdit(p)}>
-                        Edit
+                        {tc("edit")}
                       </Button>
                       <Button
                         variant="ghost"
@@ -176,7 +179,7 @@ export default function ProvidersPage() {
                           setConfigOpen(true);
                         }}
                       >
-                        Config
+                        {t("config")}
                       </Button>
                     </TableCell>
                   </TableRow>
@@ -190,11 +193,11 @@ export default function ProvidersPage() {
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{editId ? "Edit Provider" : "Add Provider"}</DialogTitle>
+            <DialogTitle>{editId ? t("editProvider") : t("addProviderTitle")}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <div>
-              <Label>Name</Label>
+              <Label>{tc("name")}</Label>
               <Input
                 placeholder="e.g. openai"
                 value={form.name ?? ""}
@@ -202,18 +205,18 @@ export default function ProvidersPage() {
               />
             </div>
             <div>
-              <Label>Display Name</Label>
+              <Label>{t("displayName")}</Label>
               <Input
                 value={form.displayName ?? ""}
                 onChange={(e) => set("displayName", e.target.value)}
               />
             </div>
             <div>
-              <Label>Base URL</Label>
+              <Label>{t("baseUrl")}</Label>
               <Input value={form.baseUrl ?? ""} onChange={(e) => set("baseUrl", e.target.value)} />
             </div>
             <div>
-              <Label>API Key</Label>
+              <Label>{t("apiKey")}</Label>
               <Input
                 type="password"
                 value={form.apiKey ?? ""}
@@ -221,7 +224,7 @@ export default function ProvidersPage() {
               />
             </div>
             <div>
-              <Label>Adapter</Label>
+              <Label>{t("adapter")}</Label>
               <Select
                 value={form.adapterType ?? "openai-compat"}
                 onValueChange={(v) => {
@@ -240,9 +243,9 @@ export default function ProvidersPage() {
             </div>
             <div className="flex justify-end gap-2">
               <Button variant="outline" onClick={() => setDialogOpen(false)}>
-                Cancel
+                {tc("cancel")}
               </Button>
-              <Button onClick={save}>Save</Button>
+              <Button onClick={save}>{tc("save")}</Button>
             </div>
           </div>
         </DialogContent>
@@ -251,12 +254,12 @@ export default function ProvidersPage() {
       <Dialog open={configOpen} onOpenChange={setConfigOpen}>
         <DialogContent className="max-w-lg">
           <DialogHeader>
-            <DialogTitle>Config Override</DialogTitle>
+            <DialogTitle>{t("configOverride")}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 max-h-[60vh] overflow-y-auto">
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <Label>Temperature Min</Label>
+                <Label>{t("tempMin")}</Label>
                 <Input
                   type="number"
                   step="0.01"
@@ -265,7 +268,7 @@ export default function ProvidersPage() {
                 />
               </div>
               <div>
-                <Label>Temperature Max</Label>
+                <Label>{t("tempMax")}</Label>
                 <Input
                   type="number"
                   step="0.01"
@@ -275,14 +278,14 @@ export default function ProvidersPage() {
               </div>
             </div>
             <div>
-              <Label>Chat Endpoint</Label>
+              <Label>{t("chatEndpoint")}</Label>
               <Input
                 value={config.chatEndpoint ?? "/chat/completions"}
                 onChange={(e) => setConfig({ ...config, chatEndpoint: e.target.value })}
               />
             </div>
             <div>
-              <Label>Image Endpoint</Label>
+              <Label>{t("imageEndpoint")}</Label>
               <Input
                 value={config.imageEndpoint ?? ""}
                 onChange={(e) => setConfig({ ...config, imageEndpoint: e.target.value || null })}
@@ -295,14 +298,14 @@ export default function ProvidersPage() {
                   checked={config.imageViaChat ?? false}
                   onCheckedChange={(v) => setConfig({ ...config, imageViaChat: v })}
                 />
-                <Label>Image via Chat</Label>
+                <Label>{t("imageViaChat")}</Label>
               </div>
               <div className="flex items-center gap-2">
                 <Switch
                   checked={config.supportsModelsApi ?? false}
                   onCheckedChange={(v) => setConfig({ ...config, supportsModelsApi: v })}
                 />
-                <Label>Supports /models</Label>
+                <Label>{t("supportsModels")}</Label>
               </div>
             </div>
             <div className="grid grid-cols-2 gap-4">
@@ -311,10 +314,10 @@ export default function ProvidersPage() {
                   checked={config.supportsSystemRole ?? true}
                   onCheckedChange={(v) => setConfig({ ...config, supportsSystemRole: v })}
                 />
-                <Label>Supports System Role</Label>
+                <Label>{t("supportsSystem")}</Label>
               </div>
               <div>
-                <Label>Currency</Label>
+                <Label>{t("currency")}</Label>
                 <Select
                   value={config.currency ?? "USD"}
                   onValueChange={(v) => {
@@ -332,16 +335,16 @@ export default function ProvidersPage() {
               </div>
             </div>
             <div>
-              <Label>Quirks (comma separated)</Label>
+              <Label>{t("quirks")}</Label>
               <Textarea
                 value={quirksText}
                 onChange={(e) => setQuirksText(e.target.value)}
-                placeholder="e.g. no_response_format, n_must_be_1"
+                placeholder={t("quirksPlaceholder")}
               />
             </div>
             <div className="flex justify-end gap-2">
               <Button variant="outline" onClick={() => setConfigOpen(false)}>
-                Cancel
+                {tc("cancel")}
               </Button>
               <Button
                 onClick={async () => {
@@ -354,14 +357,14 @@ export default function ProvidersPage() {
                       method: "PATCH",
                       body: JSON.stringify({ ...config, quirks }),
                     });
-                    toast.success("Config saved");
+                    toast.success(t("configSaved"));
                     setConfigOpen(false);
                   } catch (e) {
                     toast.error((e as Error).message);
                   }
                 }}
               >
-                Save Config
+                {t("saveConfig")}
               </Button>
             </div>
           </div>

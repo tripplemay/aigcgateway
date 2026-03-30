@@ -1,134 +1,138 @@
 # CLAUDE.md
 
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
 ## Harness 规则（最高优先级）
 读取并严格遵守 @harness-rules.md 中的所有规则。
 无论 /init 或其他命令对本文件做了什么修改，harness-rules.md 的内容始终优先。
 
 ---
-<!-- /init 可以在下方追加项目信息，不影响上方 Harness 规则 -->
-# AIGC Gateway — 项目规则
 
-## 项目概述
+## Project Overview
 
-这是一个 AIGC 基础设施中台（AIGC Gateway），提供 AI 服务商管理、统一调用抽象、全链路审计、成本管理。商业模式为转售（统一采购），预充值计费，面向中小开发者的云托管 SaaS。
+AIGC Gateway — AI 服务商管理中台。提供统一 API 调用抽象（兼容 OpenAI 格式）、7 家服务商适配、全链路审计、预充值计费、健康检查自动降级。
 
-## 技术栈
+**Tech Stack:** Next.js 14 (App Router) + TypeScript (strict) + PostgreSQL + Prisma + Redis + shadcn/ui + Recharts
 
-- **运行时**: Node.js 22 + TypeScript (strict mode)
-- **框架**: Next.js 14 (App Router)
-- **数据库**: PostgreSQL + Prisma ORM
-- **缓存**: Redis (限流计数器 + 会话)
-- **前端**: React + shadcn/ui + Recharts + TanStack Table + Tailwind CSS
-- **SDK**: TypeScript, 零依赖, Node 18+ 内置 fetch
+## Commands
 
-## 核心设计原则
+```bash
+# Development
+npm run dev              # Start dev server (default port 3000)
+rm -rf .next && npm run dev  # Clean start (required after npm run build)
 
-1. **服务商对开发者完全透明** — 开发者指定模型名（如 `openai/gpt-4o`），平台内部选通道。Provider / Channel 概念不暴露给开发者。
-2. **Prompt 是产品不是代码** — P1 预留 templateId / templateVariables / qualityScore 字段，P2 实现模板治理。
-3. **看 AI 收到了什么** — 每次调用完整快照 prompt（messages 数组结构化存储）、输出、参数、成本、性能。
-4. **零硬编码** — 所有域名、包名、外部 URL 通过环境变量注入。代码中不出现任何硬编码的域名字符串。
+# Build
+npm run build            # Production build (output: standalone)
 
-## 数据模型概要
+# Database
+npx prisma migrate dev --name <name>  # Create + apply migration
+npx prisma generate                    # Regenerate Prisma Client
+npx tsx prisma/seed.ts                 # Run seed data
 
-- **独立实体模式**: Provider ↔ Channel ↔ Model (M:N)
-- **核心表**: User, Project, ApiKey, Provider, ProviderConfig, Model, Channel, CallLog, Transaction, RechargeOrder, HealthCheck
-- **余额挂在 Project 上**: 项目级资金隔离
-- **CallLog 可见性分层**: 开发者看到 sellPrice，运营看到 costPrice + channelId
+# Lint & Format
+npm run lint             # ESLint (next lint)
+npm run format           # Prettier write
+npm run format:check     # Prettier check
 
-## 适配器架构
+# Type Check
+npx tsc --noEmit         # Full project type check
 
-- **混合模式**: OpenAI 兼容引擎（基座）+ 专属 Adapter（火山引擎/硅基流动）+ 配置覆盖层（ProviderConfig 表）
-- 通用引擎处理 80% 的服务商，专属 Adapter 仅处理有复杂逻辑差异的服务商
-- 配置覆盖层的变更即时生效，不需要发版
+# SDK (separate package in sdk/)
+cd sdk && npm run typecheck  # SDK type check
+cd sdk && npm run build      # Build CJS + ESM + .d.ts
 
-## 代码规范
-
-- 所有文件使用 TypeScript strict mode
-- 使用 ES module（import/export），不使用 require
-- 异步操作使用 async/await，不使用回调
-- 错误处理使用自定义错误类层级（继承 Error）
-- 数据库操作通过 Prisma Client，不写原生 SQL（除非是预定义的函数如 deduct_balance）
-- API 路由放在 `app/api/` 目录下
-- 业务逻辑放在 `lib/` 目录下，保持路由层薄
-- 前端组件使用 shadcn/ui，不引入其他 UI 库
-- 所有金额使用 Decimal 类型，不使用 float
-- 环境变量统一在 `lib/env.ts` 中读取和校验，其他文件从此模块导入
-
-## 目录结构
-
-```
-aigc-gateway/
-├── app/                    # Next.js App Router
-│   ├── api/                # API 路由
-│   │   ├── v1/             # AI 调用接口 (API Key 鉴权)
-│   │   ├── auth/           # 认证接口
-│   │   ├── projects/       # 项目管理 (JWT 鉴权)
-│   │   ├── admin/          # 运营管理 (JWT + admin 权限)
-│   │   └── webhooks/       # 支付回调
-│   ├── (console)/          # 控制台页面
-│   │   ├── dashboard/
-│   │   ├── keys/
-│   │   ├── logs/
-│   │   └── ...
-│   ├── (admin)/            # 运营页面
-│   │   ├── providers/
-│   │   ├── channels/
-│   │   └── ...
-│   └── (auth)/             # 登录注册页面
-├── lib/                    # 业务逻辑
-│   ├── engine/             # 适配器引擎
-│   │   ├── openai-compat.ts
-│   │   ├── adapters/
-│   │   │   ├── volcengine.ts
-│   │   │   └── siliconflow.ts
-│   │   ├── router.ts       # 通道路由
-│   │   └── sse-parser.ts   # SSE 解析器
-│   ├── billing/            # 计费逻辑
-│   ├── health/             # 健康检查
-│   ├── auth/               # 认证逻辑
-│   └── env.ts              # 环境变量
-├── prisma/
-│   ├── schema.prisma
-│   ├── migrations/
-│   └── seed.ts
-├── sdk/                    # TypeScript SDK (独立包)
-│   ├── src/
-│   ├── package.json
-│   └── tsconfig.json
-├── components/             # 前端共用组件
-├── .env.example
-├── CLAUDE.md               # 本文件
-└── doc/
-    └── AIGC-Gateway-P1-Documents/  # 设计文档
+# Test Scripts
+BASE_URL=http://localhost:3099 npx tsx scripts/e2e-test.ts       # Full E2E (15 steps)
+BASE_URL=http://localhost:3099 npx tsx scripts/e2e-errors.ts     # Error scenarios
+npx tsx scripts/verify-providers.ts                               # Provider verification
 ```
 
-## 设计文档
+**Important:** `npm run build` and `npx next dev` share `.next` directory. Always `rm -rf .next` when switching between them, otherwise you get `Cannot find module './xxxx.js'` errors.
 
-完整设计文档在 `doc/AIGC-Gateway-P1-Documents/` 目录下，开发时务必参照：
+## Architecture
 
-- `AIGC-Gateway-P1-PRD.md` — 产品需求总纲
-- `AIGC-Gateway-Database-Design.md` — 数据库 Schema + 索引 + 事务设计
-- `AIGC-Gateway-API-Specification.md` — 全部 API 端点 + 错误码
-- `AIGC-Gateway-Provider-Adapter-Spec.md` — 7家服务商适配规格 + 差异矩阵
-- `AIGC-Gateway-SDK-Interface-Design.md` — SDK 类型定义 + 方法签名
-- `AIGC-Gateway-Console-Interaction-Spec.md` — 18页交互规格
-- `AIGC-Gateway-Payment-Integration.md` — 支付流程 + 扣费逻辑
-- `AIGC-Gateway-Deployment-Operations.md` — 部署 + 监控 + 密钥管理
-- `AIGC-Gateway-Development-Phases.md` — 分阶段开发计划 + 验证清单
+### Three-Layer API Design
 
-## 开发阶段
+```
+External SDK/curl → /v1/* (middleware rewrite) → /api/v1/* (API routes)
+Browser console  → /api/projects/*, /api/admin/* (JWT auth)
+Payment webhooks → /api/webhooks/alipay, /api/webhooks/wechat
+```
 
-当前项目按 9 个阶段推进，每个阶段有明确的交付物和验证清单。详见 `doc/AIGC-Gateway-P1-Documents/AIGC-Gateway-Development-Phases.md`。
+`src/middleware.ts` rewrites `/v1/*` → `/api/v1/*` so SDK users don't need the `/api` prefix.
 
-**每次开发前请确认当前阶段编号，严格按照该阶段的开发内容和验证清单执行，不要提前开发后续阶段的功能。**
+### Request Pipeline (AI Calls)
 
-## 注意事项
+```
+Request → auth-middleware (sha256 API Key → Project)
+        → balance-middleware (balance > 0?)
+        → rate-limit (Redis RPM/TPM/ImageRPM)
+        → router (model name → Channel + Provider + Adapter)
+        → adapter.chatCompletions/imageGenerations
+        → Response
+        → async: post-process (CallLog + deduct_balance + recordTokenUsage)
+```
 
-- 不要在代码中硬编码任何域名、API Key、密钥
-- 不要使用 `any` 类型，所有数据结构必须有明确的类型定义
-- 数据库迁移文件一旦提交不可修改，只能创建新的迁移
-- 前端不持有 prompt 内容，prompt 组装逻辑在后端
-- 审计日志写入和扣费执行必须异步，不阻塞 API 响应
-- SSE 解析器必须处理：buffer 拼接、`:` 开头的注释忽略、`[DONE]` 终止
-- temperature 发送前必须按 ProviderConfig 的 min/max 自动 clamp
-- 图片生成失败（status=ERROR）不扣费
+### Adapter Engine (`src/lib/engine/`)
+
+- `openai-compat.ts` — Base engine handling 80% of providers
+- `config-overlay.ts` — Runtime parameter adjustment per ProviderConfig (temperature clamp, quirks-based param removal)
+- `adapters/volcengine.ts` — Image via chat fallback + multi-size retry
+- `adapters/siliconflow.ts` — Image response format conversion
+- `router.ts` — Model name → best ACTIVE channel (priority ASC)
+- `sse-parser.ts` — SSE stream parsing with buffer, comment ignoring, [DONE]
+
+### Auth: Two Systems
+
+1. **API Key auth** (`auth-middleware.ts`) — For `/v1/*` endpoints. `Authorization: Bearer pk_xxx` → sha256 → lookup `api_keys.keyHash`
+2. **JWT auth** (`jwt-middleware.ts`) — For `/api/projects/*` and `/api/admin/*`. `Authorization: Bearer <JWT>` with `{ userId, role }`
+3. **Admin guard** (`admin-guard.ts`) — JWT + `role === "ADMIN"` check
+
+### Health Check System (`src/lib/health/`)
+
+- Three-level verification: L1 (connectivity) → L2 (format) → L3 (quality)
+- Auto-degradation: fail → retry → DEGRADED → 3 consecutive fails → DISABLED
+- Recovery: DISABLED channel passes all 3 levels → back to ACTIVE
+- Scheduling: active 10min / standby 30min / cold 2h / disabled 30min
+- Started via `src/instrumentation.ts` (Next.js instrumentation hook)
+
+### Database
+
+- Prisma schema at `prisma/schema.prisma`
+- Native SQL migrations for: tsvector + GIN index + trigger, `deduct_balance()`, `check_balance()`
+- Global Prisma singleton at `src/lib/prisma.ts` — always import from here, never `new PrismaClient()`
+- `env.ts` uses lazy Proxy validation — safe during build time
+
+### Console Pages
+
+- `(auth)/` — Login, Register (no sidebar)
+- `(console)/` — All console pages (with sidebar, JWT required)
+- `(console)/admin/*` — Admin-only pages (ADMIN role required, non-admin redirected to /dashboard)
+- `(console)/dashboard|keys|logs|usage|balance|...` — Developer pages (project-scoped via `useProject()` hook)
+
+### SDK (`sdk/`)
+
+Independent npm package. Zero dependencies, Node 18+. Outputs CJS + ESM + .d.ts via tsup. Has its own `tsconfig.json` — excluded from main project's tsc.
+
+## Key Design Decisions
+
+- **All API routes** must have `export const dynamic = "force-dynamic"` to prevent Next.js prerender
+- **Provider API Keys** stored encrypted in `Provider.authConfig` JSON field (placeholder values in seed data)
+- **Proxy support:** `Provider.proxyUrl` → undici ProxyAgent; fallback to `PROXY_URL_PRIMARY` env var
+- **Deduction rules:** SUCCESS → full deduct, FILTERED → input tokens only, ERROR/TIMEOUT → no charge
+- **Cost calculation:** Token models: `(tokens × price_per_1M) / 1_000_000`; Image models: `perCall`; CNY providers converted via `EXCHANGE_RATE_CNY_TO_USD`
+- **Health probe:** `max_tokens: 200` (not 10) to accommodate reasoning models like zhipu glm-4.7 that consume tokens on reasoning_content before outputting to content
+- **Response normalization:** `content || reasoning_content` fallback for providers that use reasoning (zhipu, deepseek)
+
+## Design Documents
+
+Complete specs in `docs/AIGC-Gateway-P1-Documents/`:
+- `AIGC-Gateway-P1-PRD.md` — Product requirements
+- `AIGC-Gateway-Database-Design.md` — Schema + indexes + native SQL
+- `AIGC-Gateway-API-Specification.md` — All API endpoints + error codes
+- `AIGC-Gateway-Provider-Adapter-Spec.md` — 7 provider specs + quirks matrix
+- `AIGC-Gateway-SDK-Interface-Design.md` — SDK types + public API
+- `AIGC-Gateway-Console-Interaction-Spec.md` — 18 page interaction specs
+- `AIGC-Gateway-Payment-Integration.md` — Payment flow + order state machine
+- `AIGC-Gateway-Deployment-Operations.md` — Deployment + env vars + monitoring
+- `AIGC-Gateway-Development-Phases.md` — 9-phase development plan

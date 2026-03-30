@@ -4,7 +4,7 @@
 > 配套文档：AIGC-Gateway-P1-PRD · AIGC-Gateway-API-Specification
 > 技术栈：Next.js + shadcn/ui + Recharts + TanStack Table + Tailwind CSS
 
-**关于占位符：** `${SITE_URL}` 代表控制台地址，`${API_BASE_URL}` 代表 API 网关地址，均通过环境变量配置。
+**域名：** `https://aigc.guangai.ai` — 控制台页面和 API 网关（`/v1/*`）共用同一域名。
 
 ---
 

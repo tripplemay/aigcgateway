@@ -1,7 +1,7 @@
 # AIGC Gateway — Claude Code 启动提示词
 
 > 使用方式：每个阶段开始时，复制对应的提示词发送给 Claude Code。
-> 前提：CLAUDE.md 已放在项目根目录，设计文档已放在 doc/AIGC-Gateway-P1-Documents/ 目录。
+> 前提：CLAUDE.md 已放在项目根目录，设计文档已放在 docs/AIGC-Gateway-P1-Documents/ 目录。
 
 ---
 
@@ -12,8 +12,8 @@
 
 请先阅读以下文档：
 1. CLAUDE.md（项目规则）
-2. doc/AIGC-Gateway-P1-Documents/AIGC-Gateway-Database-Design.md（数据库设计）
-3. doc/AIGC-Gateway-P1-Documents/AIGC-Gateway-Provider-Adapter-Spec.md 的第 2 节（各家服务商配置数据，用于种子数据）
+2. docs/AIGC-Gateway-P1-Documents/AIGC-Gateway-Database-Design.md（数据库设计）
+3. docs/AIGC-Gateway-P1-Documents/AIGC-Gateway-Provider-Adapter-Spec.md 的第 2 节（各家服务商配置数据，用于种子数据）
 
 本阶段要完成：
 1. 初始化 Next.js 项目（App Router + TypeScript + Tailwind CSS）
@@ -40,8 +40,8 @@
 当前进入【阶段 2：适配器引擎 + 服务商对接】。阶段 1 已完成并验证通过。
 
 请先阅读：
-1. doc/AIGC-Gateway-P1-Documents/AIGC-Gateway-Provider-Adapter-Spec.md（完整文档，这是本阶段的核心参照）
-2. doc/AIGC-Gateway-P1-Documents/AIGC-Gateway-Database-Design.md 中 Provider / ProviderConfig / Channel 相关部分
+1. docs/AIGC-Gateway-P1-Documents/AIGC-Gateway-Provider-Adapter-Spec.md（完整文档，这是本阶段的核心参照）
+2. docs/AIGC-Gateway-P1-Documents/AIGC-Gateway-Database-Design.md 中 Provider / ProviderConfig / Channel 相关部分
 
 本阶段要完成：
 1. OpenAI 兼容引擎（lib/engine/openai-compat.ts）：请求构建 + SSE 解析 + usage 提取 + 错误映射 + 响应标准化
@@ -65,8 +65,8 @@
 当前进入【阶段 3：API 网关核心端点】。阶段 2 已完成并验证通过。
 
 请先阅读：
-1. doc/AIGC-Gateway-P1-Documents/AIGC-Gateway-API-Specification.md 的第 2 节（AI 调用接口）+ 第 7 节（错误处理）+ 第 8 节（限流）
-2. doc/AIGC-Gateway-P1-Documents/AIGC-Gateway-Database-Design.md 中 CallLog + Transaction 相关部分
+1. docs/AIGC-Gateway-P1-Documents/AIGC-Gateway-API-Specification.md 的第 2 节（AI 调用接口）+ 第 7 节（错误处理）+ 第 8 节（限流）
+2. docs/AIGC-Gateway-P1-Documents/AIGC-Gateway-Database-Design.md 中 CallLog + Transaction 相关部分
 
 本阶段要完成：
 1. API Key 鉴权中间件：sha256(key) → 查 api_keys.keyHash → 关联 Project → 挂到 request context
@@ -92,8 +92,8 @@
 当前进入【阶段 4：健康检查系统】。阶段 2、3 已完成。
 
 请先阅读：
-1. doc/AIGC-Gateway-P1-Documents/AIGC-Gateway-Provider-Adapter-Spec.md 第 5 节（健康检查探针适配）
-2. doc/AIGC-Gateway-P1-Documents/AIGC-Gateway-Development-Phases.md 中阶段 4 的详细内容
+1. docs/AIGC-Gateway-P1-Documents/AIGC-Gateway-Provider-Adapter-Spec.md 第 5 节（健康检查探针适配）
+2. docs/AIGC-Gateway-P1-Documents/AIGC-Gateway-Development-Phases.md 中阶段 4 的详细内容
 
 本阶段要完成：
 1. 三级验证逻辑（lib/health/checker.ts）：
@@ -125,8 +125,8 @@
 当前进入【阶段 5：TypeScript SDK】。阶段 3 已完成，API 网关在线可调用。
 
 请先阅读：
-1. doc/AIGC-Gateway-P1-Documents/AIGC-Gateway-SDK-Interface-Design.md（完整文档，这是本阶段的核心参照）
-2. doc/AIGC-Gateway-P1-Documents/AIGC-Gateway-API-Specification.md 第 9 节（SDK 接口映射）
+1. docs/AIGC-Gateway-P1-Documents/AIGC-Gateway-SDK-Interface-Design.md（完整文档，这是本阶段的核心参照）
+2. docs/AIGC-Gateway-P1-Documents/AIGC-Gateway-API-Specification.md 第 9 节（SDK 接口映射）
 
 SDK 在 sdk/ 目录下独立开发，作为单独的 npm 包。
 
@@ -153,9 +153,9 @@ SDK 在 sdk/ 目录下独立开发，作为单独的 npm 包。
 当前进入【阶段 6：认证 + 计费 + 支付】。阶段 1、3 已完成。
 
 请先阅读：
-1. doc/AIGC-Gateway-P1-Documents/AIGC-Gateway-Payment-Integration.md（完整文档）
-2. doc/AIGC-Gateway-P1-Documents/AIGC-Gateway-API-Specification.md 第 4 节（项目管理）+ 第 6 节（认证接口）
-3. doc/AIGC-Gateway-P1-Documents/AIGC-Gateway-Database-Design.md 中 User / ApiKey / Transaction / RechargeOrder 相关部分
+1. docs/AIGC-Gateway-P1-Documents/AIGC-Gateway-Payment-Integration.md（完整文档）
+2. docs/AIGC-Gateway-P1-Documents/AIGC-Gateway-API-Specification.md 第 4 节（项目管理）+ 第 6 节（认证接口）
+3. docs/AIGC-Gateway-P1-Documents/AIGC-Gateway-Database-Design.md 中 User / ApiKey / Transaction / RechargeOrder 相关部分
 
 本阶段要完成：
 1. 用户认证：注册（邮箱+密码+名称）、登录（JWT）、邮箱验证、密码 bcrypt 哈希
@@ -182,8 +182,8 @@ SDK 在 sdk/ 目录下独立开发，作为单独的 npm 包。
 当前进入【阶段 7：运营控制台 Admin 页面】。阶段 4、6 已完成。
 
 请先阅读：
-1. doc/AIGC-Gateway-P1-Documents/AIGC-Gateway-Console-Interaction-Spec.md 第 1 节（全局规范）+ 第 4 节（运营页面）
-2. doc/AIGC-Gateway-P1-Documents/AIGC-Gateway-API-Specification.md 第 5 节（运营管理接口）
+1. docs/AIGC-Gateway-P1-Documents/AIGC-Gateway-Console-Interaction-Spec.md 第 1 节（全局规范）+ 第 4 节（运营页面）
+2. docs/AIGC-Gateway-P1-Documents/AIGC-Gateway-API-Specification.md 第 5 节（运营管理接口）
 
 本阶段要完成：
 1. 控制台布局框架：安装 shadcn/ui + 侧边栏导航 + admin/developer 角色路由守卫
@@ -208,8 +208,8 @@ SDK 在 sdk/ 目录下独立开发，作为单独的 npm 包。
 当前进入【阶段 8：开发者控制台】。阶段 6、7 已完成。
 
 请先阅读：
-1. doc/AIGC-Gateway-P1-Documents/AIGC-Gateway-Console-Interaction-Spec.md 第 2 节（开发者页面）+ 第 3 节（共用页面）
-2. doc/AIGC-Gateway-P1-Documents/AIGC-Gateway-API-Specification.md 第 4 节（项目管理接口）
+1. docs/AIGC-Gateway-P1-Documents/AIGC-Gateway-Console-Interaction-Spec.md 第 2 节（开发者页面）+ 第 3 节（共用页面）
+2. docs/AIGC-Gateway-P1-Documents/AIGC-Gateway-API-Specification.md 第 4 节（项目管理接口）
 
 本阶段要完成：
 1. 注册/登录页面：居中卡片布局，表单校验（参照交互规格的校验规则）
@@ -235,8 +235,8 @@ developer 角色不能看到 admin 菜单。所有数据仅显示当前项目范
 当前进入【阶段 9：集成测试 + 文档 + 上线】。全部开发阶段已完成。
 
 请先阅读：
-1. doc/AIGC-Gateway-P1-Documents/AIGC-Gateway-Deployment-Operations.md（完整文档，特别是第 10 节上线检查清单）
-2. doc/AIGC-Gateway-P1-Documents/AIGC-Gateway-Development-Phases.md 阶段 9 的验证清单
+1. docs/AIGC-Gateway-P1-Documents/AIGC-Gateway-Deployment-Operations.md（完整文档，特别是第 10 节上线检查清单）
+2. docs/AIGC-Gateway-P1-Documents/AIGC-Gateway-Development-Phases.md 阶段 9 的验证清单
 
 本阶段要完成：
 1. 端到端测试脚本：覆盖注册→充值→调用（7家）→审计→扣费完整链路
@@ -260,7 +260,7 @@ developer 角色不能看到 admin 菜单。所有数据仅显示当前项目范
 ```
 我们正在开发 AIGC Gateway 项目，当前处于【阶段 N：阶段名称】。
 
-请阅读 CLAUDE.md 了解项目规则，然后阅读 doc/AIGC-Gateway-P1-Documents/AIGC-Gateway-Development-Phases.md 中阶段 N 的具体内容。
+请阅读 CLAUDE.md 了解项目规则，然后阅读 docs/AIGC-Gateway-P1-Documents/AIGC-Gateway-Development-Phases.md 中阶段 N 的具体内容。
 
 上次对话中已完成 [已完成的内容]，接下来需要继续 [待完成的内容]。
 

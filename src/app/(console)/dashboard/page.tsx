@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 import { apiFetch } from "@/lib/api-client";
 import { useProject } from "@/hooks/use-project";
 import { Badge } from "@/components/ui/badge";
@@ -80,6 +81,8 @@ const customTooltipStyle = {
 const axisTickStyle = { fontSize: 11, fill: "var(--text-tertiary)" };
 
 export default function DashboardPage() {
+  const t = useTranslations("dashboard");
+  const tc = useTranslations("common");
   const { current, loading: projLoading } = useProject();
   const [usage, setUsage] = useState<UsageSummary | null>(null);
   const [daily, setDaily] = useState<DailyData[]>([]);
@@ -133,17 +136,17 @@ export default function DashboardPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold mb-6">Dashboard</h1>
+      <h1 className="text-2xl font-bold mb-6">{t("title")}</h1>
 
       {balanceInfo &&
         balanceInfo.alertThreshold != null &&
         balanceInfo.balance <= balanceInfo.alertThreshold && (
           <div className="mb-4 rounded-md border border-destructive bg-destructive/10 p-4 text-sm text-destructive">
-            <strong>Low Balance Warning:</strong> Your balance is{" "}
-            {formatCurrency(balanceInfo.balance, 2)}, below the alert threshold of{" "}
+            <strong>{t("lowBalance")}</strong> {t("balanceIs")}{" "}
+            {formatCurrency(balanceInfo.balance, 2)}, {t("belowThreshold")}{" "}
             {formatCurrency(balanceInfo.alertThreshold, 2)}.{" "}
             <Link href="/balance" className="underline font-medium">
-              Recharge now
+              {t("rechargeNow")}
             </Link>
           </div>
         )}
@@ -152,27 +155,27 @@ export default function DashboardPage() {
         <div className="grid grid-cols-4 gap-[10px] mb-[18px]">
           {[
             {
-              label: "Today's calls",
+              label: t("todayCalls"),
               value: usage.totalCalls.toLocaleString(),
-              sub: "vs yesterday",
+              sub: t("vsYesterday"),
               trend: null as { value: string; up: boolean } | null,
             },
             {
-              label: "Today's cost",
+              label: t("todayCost"),
               value: formatCurrency(usage.totalCost, 2),
-              sub: "vs yesterday",
+              sub: t("vsYesterday"),
               trend: null as { value: string; up: boolean } | null,
             },
             {
-              label: "Avg latency",
+              label: t("avgLatency"),
               value: `${usage.avgLatencyMs}ms`,
               sub: `TTFT ${usage.avgTtftMs ?? 0}ms`,
               trend: null,
             },
             {
-              label: "Success rate",
+              label: t("successRate"),
               value: `${(usage.successRate * 100).toFixed(1)}%`,
-              sub: `${usage.errorCount} errors today`,
+              sub: t("errorsToday", { count: usage.errorCount }),
               trend: null,
             },
           ].map((c) => (
@@ -199,7 +202,7 @@ export default function DashboardPage() {
       <div className="grid grid-cols-2 gap-3 mb-[14px]">
         <div className="bg-white border border-border-custom rounded-xl px-[18px] py-4">
           <div className="text-[13px] font-semibold text-text-primary mb-[14px]">
-            Calls trend (14 days)
+            {t("callsTrend")}
           </div>
           <div className="h-[175px]">
             <ResponsiveContainer width="100%" height="100%">
@@ -221,7 +224,7 @@ export default function DashboardPage() {
         </div>
         <div className="bg-white border border-border-custom rounded-xl px-[18px] py-4">
           <div className="text-[13px] font-semibold text-text-primary mb-[14px]">
-            Cost trend (14 days)
+            {t("costTrend")}
           </div>
           <div className="h-[175px]">
             <ResponsiveContainer width="100%" height="100%">
@@ -249,7 +252,7 @@ export default function DashboardPage() {
       <div className="grid grid-cols-2 gap-3 mb-[14px]">
         <div className="bg-white border border-border-custom rounded-xl px-[18px] py-4">
           <div className="text-[13px] font-semibold text-text-primary mb-[14px]">
-            Hourly distribution
+            {t("hourlyDist")}
           </div>
           <div className="h-[155px]">
             <ResponsiveContainer width="100%" height="100%">
@@ -264,7 +267,7 @@ export default function DashboardPage() {
         </div>
         <div className="bg-white border border-border-custom rounded-xl px-[18px] py-4">
           <div className="text-[13px] font-semibold text-text-primary mb-[14px]">
-            Model distribution
+            {t("modelDist")}
           </div>
           <div className="flex items-center gap-4">
             <div className="h-[130px] w-[130px] shrink-0">
@@ -313,21 +316,21 @@ export default function DashboardPage() {
 
       <div className="bg-white border border-border-custom rounded-xl px-[18px] py-4">
         <div className="text-[13px] font-semibold text-text-primary mb-[14px] flex justify-between items-center">
-          Recent calls
+          {t("recentCalls")}
           <Link href="/logs" className="text-xs font-normal text-chart-blue cursor-pointer">
-            View all
+            {t("viewAll")}
           </Link>
         </div>
         <div>
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="w-[110px]">Trace</TableHead>
-                <TableHead className="w-[120px]">Model</TableHead>
-                <TableHead>Prompt</TableHead>
-                <TableHead className="w-[80px]">Status</TableHead>
-                <TableHead className="w-[70px]">Cost</TableHead>
-                <TableHead className="w-[70px]">Latency</TableHead>
+                <TableHead className="w-[110px]">{t("trace")}</TableHead>
+                <TableHead className="w-[120px]">{t("model")}</TableHead>
+                <TableHead>{t("prompt")}</TableHead>
+                <TableHead className="w-[80px]">{tc("status")}</TableHead>
+                <TableHead className="w-[70px]">{t("cost")}</TableHead>
+                <TableHead className="w-[70px]">{t("latency")}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>

@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 import { apiFetch } from "@/lib/api-client";
 import { useProject } from "@/hooks/use-project";
 import { Button } from "@/components/ui/button";
@@ -46,6 +47,8 @@ const typeVariant: Record<string, "default" | "secondary" | "outline" | "destruc
 };
 
 export default function BalancePage() {
+  const t = useTranslations("balance");
+  const tc = useTranslations("common");
   const { current, loading: projLoading } = useProject();
   const [info, setInfo] = useState<BalanceInfo | null>(null);
   const [txns, setTxns] = useState<TxnRow[]>([]);
@@ -78,7 +81,7 @@ export default function BalancePage() {
     if (!current) return;
     const amt = customAmount ? Number(customAmount) : amount;
     if (amt < 1 || amt > 10000) {
-      toast.error("Amount must be $1-$10,000");
+      toast.error(t("amountError"));
       return;
     }
     try {
@@ -88,10 +91,10 @@ export default function BalancePage() {
       });
       setRechargeOpen(false);
       if (res.paymentUrl) {
-        toast.success("Redirecting to payment...");
+        toast.success(t("redirecting"));
         window.open(res.paymentUrl, "_blank");
       } else {
-        toast.success("Recharge order created");
+        toast.success(t("orderCreated"));
       }
       load();
     } catch (e) {
@@ -113,33 +116,33 @@ export default function BalancePage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold mb-6">Balance</h1>
+      <h1 className="text-2xl font-bold mb-6">{t("title")}</h1>
 
       <Card className={cn("mb-6", isLow && "border-destructive")}>
         <CardContent className="p-6 flex items-center justify-between">
           <div>
-            <p className="text-sm text-muted-foreground">Current Balance</p>
+            <p className="text-sm text-muted-foreground">{t("currentBalance")}</p>
             <p className={cn("text-4xl font-bold", isLow && "text-destructive")}>
               {formatCurrency(info.balance, 2)}
             </p>
             {info.lastRecharge && (
               <p className="text-xs text-muted-foreground mt-1">
-                Last recharge: {formatCurrency(info.lastRecharge.amount, 2)} ·{" "}
+                {t("lastRecharge")} {formatCurrency(info.lastRecharge.amount, 2)} ·{" "}
                 {timeAgo(info.lastRecharge.createdAt)}
               </p>
             )}
           </div>
-          <Button onClick={() => setRechargeOpen(true)}>Recharge</Button>
+          <Button onClick={() => setRechargeOpen(true)}>{t("recharge")}</Button>
         </CardContent>
       </Card>
 
       <Card className="mb-6">
         <CardContent className="p-4 flex items-center gap-4">
-          <Label className="whitespace-nowrap">Alert Threshold ($)</Label>
+          <Label className="whitespace-nowrap">{t("alertThreshold")}</Label>
           <Input
             type="number"
             className="w-32"
-            placeholder="e.g. 5.00"
+            placeholder={t("alertPlaceholder")}
             value={threshold}
             onChange={(e) => setThreshold(e.target.value)}
           />
@@ -152,28 +155,28 @@ export default function BalancePage() {
                 method: "PATCH",
                 body: JSON.stringify({ alertThreshold: Number(threshold) || null }),
               });
-              toast.success("Alert threshold saved");
+              toast.success(t("thresholdSaved"));
               load();
             }}
           >
-            Save
+            {tc("save")}
           </Button>
         </CardContent>
       </Card>
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-sm">Transactions</CardTitle>
+          <CardTitle className="text-sm">{t("transactions")}</CardTitle>
         </CardHeader>
         <CardContent className="p-0">
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Time</TableHead>
-                <TableHead>Type</TableHead>
-                <TableHead>Amount</TableHead>
-                <TableHead>Balance After</TableHead>
-                <TableHead>Description</TableHead>
+                <TableHead>{t("time")}</TableHead>
+                <TableHead>{t("type")}</TableHead>
+                <TableHead>{t("amount")}</TableHead>
+                <TableHead>{t("balanceAfter")}</TableHead>
+                <TableHead>{t("description")}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -206,7 +209,9 @@ export default function BalancePage() {
       </Card>
 
       <div className="flex justify-between items-center mt-4">
-        <span className="text-sm text-muted-foreground">{total} records</span>
+        <span className="text-sm text-muted-foreground">
+          {total} {tc("records")}
+        </span>
         <div className="flex gap-2">
           <Button
             size="sm"
@@ -214,7 +219,7 @@ export default function BalancePage() {
             disabled={page <= 1}
             onClick={() => setPage(page - 1)}
           >
-            Prev
+            {tc("prev")}
           </Button>
           <Button
             size="sm"
@@ -222,7 +227,7 @@ export default function BalancePage() {
             disabled={page * 20 >= total}
             onClick={() => setPage(page + 1)}
           >
-            Next
+            {tc("next")}
           </Button>
         </div>
       </div>
@@ -230,11 +235,11 @@ export default function BalancePage() {
       <Dialog open={rechargeOpen} onOpenChange={setRechargeOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Recharge</DialogTitle>
+            <DialogTitle>{t("rechargeTitle")}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <div>
-              <Label>Select Amount</Label>
+              <Label>{t("selectAmount")}</Label>
               <div className="grid grid-cols-4 gap-2 mt-2">
                 {AMOUNTS.map((a) => (
                   <Button
@@ -251,16 +256,16 @@ export default function BalancePage() {
               </div>
             </div>
             <div>
-              <Label>Custom Amount</Label>
+              <Label>{t("customAmount")}</Label>
               <Input
                 type="number"
-                placeholder="$1 - $10,000"
+                placeholder={t("amountPlaceholder")}
                 value={customAmount}
                 onChange={(e) => setCustomAmount(e.target.value)}
               />
             </div>
             <div>
-              <Label>Payment Method</Label>
+              <Label>{t("paymentMethod")}</Label>
               <div className="flex gap-2 mt-2">
                 {["alipay", "wechat"].map((m) => (
                   <Button
@@ -268,16 +273,16 @@ export default function BalancePage() {
                     variant={payMethod === m ? "default" : "outline"}
                     onClick={() => setPayMethod(m)}
                   >
-                    {m === "alipay" ? "Alipay" : "WeChat Pay"}
+                    {m === "alipay" ? t("alipay") : t("wechatPay")}
                   </Button>
                 ))}
               </div>
             </div>
             <div className="flex justify-end gap-2">
               <Button variant="outline" onClick={() => setRechargeOpen(false)}>
-                Cancel
+                {tc("cancel")}
               </Button>
-              <Button onClick={doRecharge}>Confirm Recharge</Button>
+              <Button onClick={doRecharge}>{t("confirmRecharge")}</Button>
             </div>
           </div>
         </DialogContent>

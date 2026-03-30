@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 import { apiFetch } from "@/lib/api-client";
 import { useProject } from "@/hooks/use-project";
 import { Button } from "@/components/ui/button";
@@ -51,6 +52,7 @@ const customTooltipStyle = {
 const axisTickStyle = { fontSize: 11, fill: "var(--text-tertiary)" };
 
 export default function UsagePage() {
+  const t = useTranslations("usage");
   const { current, loading: projLoading } = useProject();
   const [period, setPeriod] = useState("7d");
   const [summary, setSummary] = useState<Record<string, number> | null>(null);
@@ -87,7 +89,7 @@ export default function UsagePage() {
   return (
     <div>
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-[20px] font-semibold text-text-primary">Usage</h1>
+        <h1 className="text-[20px] font-semibold text-text-primary">{t("title")}</h1>
         <div className="flex gap-1">
           {["today", "7d", "30d"].map((p) => (
             <Button
@@ -105,10 +107,10 @@ export default function UsagePage() {
       {summary && (
         <div className="grid grid-cols-4 gap-[10px] mb-[18px]">
           {[
-            { label: "Total calls", value: (summary.totalCalls ?? 0).toLocaleString() },
-            { label: "Total cost", value: formatCurrency(summary.totalCost ?? 0, 2) },
-            { label: "Total tokens", value: (summary.totalTokens ?? 0).toLocaleString() },
-            { label: "Avg latency", value: `${summary.avgLatencyMs ?? 0}ms` },
+            { label: t("totalCalls"), value: (summary.totalCalls ?? 0).toLocaleString() },
+            { label: t("totalCost"), value: formatCurrency(summary.totalCost ?? 0, 2) },
+            { label: t("totalTokens"), value: (summary.totalTokens ?? 0).toLocaleString() },
+            { label: t("avgLatency"), value: `${summary.avgLatencyMs ?? 0}ms` },
           ].map((c) => (
             <div key={c.label} className="bg-surface rounded-[10px] p-4">
               <div className="text-xs text-text-tertiary mb-1.5">{c.label}</div>
@@ -122,7 +124,9 @@ export default function UsagePage() {
 
       <div className="grid grid-cols-2 gap-3 mb-[14px]">
         <div className="bg-white border border-border-custom rounded-xl px-[18px] py-4">
-          <div className="text-[13px] font-semibold text-text-primary mb-[14px]">Daily calls</div>
+          <div className="text-[13px] font-semibold text-text-primary mb-[14px]">
+            {t("dailyCalls")}
+          </div>
           <div className="h-[175px]">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={daily}>
@@ -142,7 +146,9 @@ export default function UsagePage() {
           </div>
         </div>
         <div className="bg-white border border-border-custom rounded-xl px-[18px] py-4">
-          <div className="text-[13px] font-semibold text-text-primary mb-[14px]">Daily cost</div>
+          <div className="text-[13px] font-semibold text-text-primary mb-[14px]">
+            {t("dailyCost")}
+          </div>
           <div className="h-[175px]">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={daily}>
@@ -163,7 +169,9 @@ export default function UsagePage() {
 
       <div className="grid grid-cols-2 gap-3">
         <div className="bg-white border border-border-custom rounded-xl px-[18px] py-4">
-          <div className="text-[13px] font-semibold text-text-primary mb-[14px]">By model</div>
+          <div className="text-[13px] font-semibold text-text-primary mb-[14px]">
+            {t("byModel")}
+          </div>
           <div className="flex items-center gap-4">
             <div className="h-[130px] w-[130px] shrink-0">
               <ResponsiveContainer width="100%" height="100%">
@@ -208,15 +216,17 @@ export default function UsagePage() {
           </div>
         </div>
         <div className="bg-white border border-border-custom rounded-xl px-[18px] py-4">
-          <div className="text-[13px] font-semibold text-text-primary mb-[14px]">Model ranking</div>
+          <div className="text-[13px] font-semibold text-text-primary mb-[14px]">
+            {t("modelRanking")}
+          </div>
           <Table>
             <TableHeader>
               <TableRow>
                 <TableHead>Model</TableHead>
-                <TableHead>Calls</TableHead>
-                <TableHead>Tokens</TableHead>
-                <TableHead>Cost</TableHead>
-                <TableHead>Avg Latency</TableHead>
+                <TableHead>{t("calls")}</TableHead>
+                <TableHead>{t("tokens")}</TableHead>
+                <TableHead>{t("cost")}</TableHead>
+                <TableHead>{t("avgLatency")}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>

@@ -127,7 +127,7 @@ enum OrderStatus {
 **回调处理：**
 
 ```
-POST ${API_BASE_URL}/api/webhooks/alipay
+POST https://aigc.guangai.ai/api/webhooks/alipay
 
 1. 验证签名（RSA2 / 支付宝公钥）
 2. 检查 trade_status：
@@ -157,7 +157,7 @@ POST ${API_BASE_URL}/api/webhooks/alipay
 **回调处理：**
 
 ```
-POST ${API_BASE_URL}/api/webhooks/wechat
+POST https://aigc.guangai.ai/api/webhooks/wechat
 
 1. 验证签名（WECHATPAY2-SHA256-RSA2048）
 2. 解密通知数据（AES-256-GCM）

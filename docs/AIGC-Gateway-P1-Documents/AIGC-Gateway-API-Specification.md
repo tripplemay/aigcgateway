@@ -3,14 +3,14 @@
 > 版本 1.0 · 2026年3月29日
 > 配套文档：AIGC-Gateway-P1-PRD · AIGC-Gateway-Database-Design
 
-**关于占位符：** 本文档中所有域名、包名使用占位符，实际值通过环境变量或配置注入：
+**域名与环境变量对照：**
 
-| 占位符 | 环境变量 | 说明 |
-|--------|---------|------|
-| `${API_BASE_URL}` | `AIGC_GATEWAY_BASE_URL` | API 网关地址，如 `https://api.your-domain.com/v1` |
-| `${CDN_BASE_URL}` | `AIGC_GATEWAY_CDN_URL` | 静态资源/图片 CDN 地址 |
-| `${SITE_URL}` | `AIGC_GATEWAY_SITE_URL` | 控制台/官网地址 |
-| `${SDK_PACKAGE}` | — | npm 包名，待注册后确定 |
+| 配置项 | 值 | 环境变量 |
+|--------|-----|---------|
+| API 网关 | `https://aigc.guangai.ai/v1` | `AIGC_GATEWAY_BASE_URL` |
+| CDN | `https://cdn.aigc.guangai.ai` | `AIGC_GATEWAY_CDN_URL` |
+| 控制台/官网 | `https://aigc.guangai.ai` | `AIGC_GATEWAY_SITE_URL` |
+| npm 包名 | `@guangai/aigc-sdk` | — |
 
 ---
 
@@ -19,7 +19,7 @@
 ### 1.1 Base URL
 
 ```
-${API_BASE_URL}
+https://aigc.guangai.ai/v1
 ```
 
 通过环境变量 `AIGC_GATEWAY_BASE_URL` 配置，不在代码中硬编码。
@@ -220,7 +220,7 @@ POST /v1/images/generations
   "created": 1711699200,
   "data": [
     {
-      "url": "${CDN_BASE_URL}/images/img_a1b2c3.png",
+      "url": "https://cdn.aigc.guangai.ai/images/img_a1b2c3.png",
       "revised_prompt": "实际使用的 prompt（仅部分模型返回）"
     }
   ]
@@ -737,11 +737,11 @@ HTTP/1.1 402 Payment Required
 TypeScript SDK 的方法与 API 端点的对应关系：
 
 ```typescript
-import { Gateway } from ${SDK_PACKAGE}
+import { Gateway } from @guangai/aigc-sdk
 
 const gw = new Gateway({
   apiKey: 'pk_...',
-  baseUrl: '${API_BASE_URL}',  // 可选，默认值
+  baseUrl: 'https://aigc.guangai.ai/v1',  // 可选，默认值
   timeout: 30000,          // 超时（毫秒），默认 30s
   retry: {
     maxRetries: 2,         // 最大重试次数，默认 2
@@ -795,7 +795,7 @@ const imageModels = await gw.models({ modality: 'image' })
 
 ```typescript
 import { GatewayError, RateLimitError, InsufficientBalanceError,
-         ProviderError, AuthError } from ${SDK_PACKAGE}
+         ProviderError, AuthError } from @guangai/aigc-sdk
 
 try {
   await gw.chat({ ... })

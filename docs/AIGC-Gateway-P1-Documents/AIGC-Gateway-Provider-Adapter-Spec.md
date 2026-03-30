@@ -430,7 +430,7 @@ class SiliconFlowAdapter extends OpenAICompatAdapter {
 | **Auth header** | `Authorization: Bearer {API_KEY}` |
 | **Adapter type** | `openai-compat` |
 | **需要代理** | 是 |
-| **额外 Header** | `HTTP-Referer: ${SITE_URL}`（可选）|
+| **额外 Header** | `HTTP-Referer: https://aigc.guangai.ai`（可选）|
 
 **文本模型（通过 OpenRouter 访问）：**
 

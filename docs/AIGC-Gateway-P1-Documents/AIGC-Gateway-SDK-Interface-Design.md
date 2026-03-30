@@ -2,11 +2,11 @@
 
 > 版本 1.0 · 2026年3月29日
 > 配套文档：AIGC-Gateway-P1-PRD · AIGC-Gateway-API-Specification
-> 包名：`${SDK_PACKAGE}`（待注册）
+> 包名：`@guangai/aigc-sdk`
 > 语言：TypeScript（P1）
 > 目标：500行以内，开发者5分钟跑通
 
-**关于占位符：** `${API_BASE_URL}` 代表 API 网关地址，`${SDK_PACKAGE}` 代表 npm 包名，均通过环境变量或配置注入，不硬编码。详见 API 接口文档的占位符说明。
+**关于占位符：** `https://aigc.guangai.ai/v1` 代表 API 网关地址，`@guangai/aigc-sdk` 代表 npm 包名，均通过环境变量或配置注入，不硬编码。详见 API 接口文档的占位符说明。
 
 ---
 
@@ -15,17 +15,17 @@
 ### 1.1 安装
 
 ```bash
-npm install ${SDK_PACKAGE}
+npm install @guangai/aigc-sdk
 # or
-yarn add ${SDK_PACKAGE}
+yarn add @guangai/aigc-sdk
 # or
-pnpm add ${SDK_PACKAGE}
+pnpm add @guangai/aigc-sdk
 ```
 
 ### 1.2 初始化
 
 ```typescript
-import { Gateway } from '${SDK_PACKAGE}'
+import { Gateway } from '@guangai/aigc-sdk'
 
 const gw = new Gateway({
   apiKey: 'pk_a1b2c3d4...',
@@ -43,7 +43,7 @@ interface GatewayConfig {
   /** API Key，必填。格式 pk_xxx */
   apiKey: string
 
-  /** Base URL，默认 ${API_BASE_URL} */
+  /** Base URL，默认 https://aigc.guangai.ai/v1 */
   baseUrl?: string
 
   /** 请求超时（毫秒），默认 30000 */
@@ -550,7 +550,7 @@ import {
   NoChannelError,
   ContentFilteredError,
   ConnectionError,
-} from '${SDK_PACKAGE}'
+} from '@guangai/aigc-sdk'
 
 try {
   const res = await gw.chat({ model: 'openai/gpt-4o', messages: [...] })
@@ -739,7 +739,7 @@ const traceId = response.headers.get('x-trace-id')
 
 ```json
 {
-  "name": "${SDK_PACKAGE}",
+  "name": "@guangai/aigc-sdk",
   "version": "0.1.0",
   "description": "Official TypeScript SDK for AIGC Gateway",
   "main": "dist/index.js",
@@ -761,7 +761,7 @@ const traceId = response.headers.get('x-trace-id')
 ### 8.2 导出清单
 
 ```typescript
-// ${SDK_PACKAGE} 的公开导出
+// @guangai/aigc-sdk 的公开导出
 
 // 主类
 export { Gateway } from './gateway'
