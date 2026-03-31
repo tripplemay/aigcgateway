@@ -69,7 +69,7 @@ async function callInternalAI(prompt: string): Promise<string> {
   }
 
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 60_000);
+  const timeoutId = setTimeout(() => controller.abort(), 120_000);
 
   try {
     const proxyUrl = deepseekProvider.proxyUrl ?? process.env.PROXY_URL_PRIMARY ?? null;
@@ -168,8 +168,8 @@ async function fetchDocPage(url: string, provider?: Provider): Promise<string> {
     .replace(/\s+/g, " ")
     .trim();
 
-  // 截断到 ~30k 字符（避免 token 超限）
-  return cleaned.slice(0, 30_000);
+  // 截断到 ~10k 字符（减少 AI 处理时间，定价表通常在前几千字符内）
+  return cleaned.slice(0, 10_000);
 }
 
 // ============================================================
