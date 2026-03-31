@@ -1,13 +1,13 @@
 {
   "status": "done",
-  "user_goal": "P1.5 模型同步引擎完善 — 7 家服务商专属适配器 + pricingOverrides + 跨服务商去重",
-  "total_features": 12,
-  "completed_features": 12,
+  "user_goal": "P1.6 模型同步引擎重构 — 两层同步架构（API + AI 文档提取），消除硬编码数据依赖",
+  "total_features": 11,
+  "completed_features": 11,
   "current_sprint": null,
-  "last_updated": "2026-03-31T02:30:00Z",
+  "last_updated": "2026-04-01T02:15:00Z",
   "evaluator_feedback": {
-    "summary": "P1.5 全部 12 个功能通过验收，7 家适配器架构清晰、调度器重构完善、跨服务商去重逻辑正确、tsc+build+启动均通过",
-    "pass_count": 12,
+    "summary": "全部 11 项功能 PASS。两层同步架构实现完整，硬编码数据依赖已完全消除，types.ts 冗余已清理，火山引擎 text: 内嵌方案验证通过。",
+    "pass_count": 11,
     "partial_count": 0,
     "fail_count": 0,
     "issues": []

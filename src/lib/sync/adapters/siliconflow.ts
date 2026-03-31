@@ -1,5 +1,5 @@
 import type { SyncAdapter, SyncedModel, ProviderWithConfig } from "./base";
-import { fetchWithTimeout, getApiKey, getBaseUrl, getPricingOverride, inferModality } from "./base";
+import { fetchWithTimeout, getApiKey, getBaseUrl, inferModality } from "./base";
 
 /** 排除这些类型的模型 */
 const EXCLUDED_KEYWORDS = ["embedding", "rerank", "audio", "tts", "whisper", "asr"];
@@ -25,20 +25,11 @@ export const siliconflowAdapter: SyncAdapter = {
 
     return rawModels
       .filter((m) => !shouldExclude(m.id))
-      .map((m) => {
-        const override = getPricingOverride(provider.config, m.id);
-        const modality = override?.modality === "image" ? "IMAGE" as const : inferModality(m.id);
-
-        return {
-          modelId: m.id,
-          name: `siliconflow/${m.id}`,
-          displayName: override?.displayName ?? m.id,
-          modality,
-          contextWindow: override?.contextWindow,
-          maxOutputTokens: override?.maxOutputTokens,
-          inputPricePerM: override?.inputPricePerM,
-          outputPricePerM: override?.outputPricePerM,
-        };
-      });
+      .map((m) => ({
+        modelId: m.id,
+        name: `siliconflow/${m.id}`,
+        displayName: m.id,
+        modality: inferModality(m.id),
+      }));
   },
 };

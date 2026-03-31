@@ -1,58 +1,19 @@
 /**
- * SyncAdapter 接口 — 每家服务商实现专属同步逻辑
+ * SyncAdapter 基础工具 + 类型重导出
  */
 
 import type { Provider, ProviderConfig } from "@prisma/client";
 
-export type ProviderWithConfig = Provider & { config: ProviderConfig | null };
-
-/** 服务商同步后返回的统一模型格式 */
-export interface SyncedModel {
-  /** 服务商原始 model ID（即 realModelId） */
-  modelId: string;
-  /** 统一命名：provider/model */
-  name: string;
-  /** 显示名称 */
-  displayName: string;
-  /** 模态 */
-  modality: "TEXT" | "IMAGE";
-  /** 上下文窗口 */
-  contextWindow?: number;
-  /** 最大输出 token */
-  maxOutputTokens?: number;
-  /** 输入价格（美元/百万 token） */
-  inputPricePerM?: number;
-  /** 输出价格（美元/百万 token） */
-  outputPricePerM?: number;
-  /** 模型能力标签 */
-  capabilities?: string[];
-}
-
-/** 同步适配器接口 */
-export interface SyncAdapter {
-  readonly providerName: string;
-  fetchModels(provider: ProviderWithConfig): Promise<SyncedModel[]>;
-}
-
-/** pricingOverrides 中单条模型的覆盖定义 */
-export interface PricingOverride {
-  inputPricePerM?: number;
-  outputPricePerM?: number;
-  inputPriceCNYPerM?: number;
-  outputPriceCNYPerM?: number;
-  contextWindow?: number;
-  maxOutputTokens?: number;
-  displayName?: string;
-  modality?: "text" | "image";
-}
+// 重导出共享类型（适配器继续从 base 导入即可）
+export type { ProviderWithConfig, SyncedModel, SyncAdapter, PricingOverride } from "../types";
 
 /** 从 ProviderConfig.pricingOverrides 读取指定模型的覆盖 */
 export function getPricingOverride(
   config: ProviderConfig | null,
   modelId: string,
-): PricingOverride | undefined {
+): import("../types").PricingOverride | undefined {
   if (!config?.pricingOverrides) return undefined;
-  const overrides = config.pricingOverrides as Record<string, PricingOverride>;
+  const overrides = config.pricingOverrides as Record<string, import("../types").PricingOverride>;
   return overrides[modelId];
 }
 

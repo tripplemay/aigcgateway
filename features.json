@@ -1,95 +1,16 @@
 {
   "features": [
-    { "id": "F001-F070", "title": "P1 全部完成", "priority": "high", "status": "completed", "acceptance": "done" },
-    { "id": "FIX~DOM~P2-1~P2-5", "title": "修复轮+域名+P2-1~P2-5 全部完成", "priority": "high", "status": "completed", "acceptance": "done" },
-    { "id": "P2-6", "title": "P2-6 集成测试+文档+MCP配置页面 全部完成", "priority": "high", "status": "completed", "acceptance": "done" },
-    { "id": "F101-F110", "title": "P1.1 模型自动同步 全部完成", "priority": "high", "status": "completed", "acceptance": "done" },
-    { "id": "F201-F208", "title": "P1.2 模型/通道管理界面重构 全部完成", "priority": "high", "status": "completed", "acceptance": "done" },
-    { "id": "F301-F304", "title": "P1.3 模型页面按原型还原 全部完成", "priority": "high", "status": "completed", "acceptance": "done" },
-    { "id": "F401-F403", "title": "P1.4 模型页面原型差距修复 全部完成", "priority": "high", "status": "completed", "acceptance": "done" },
-    {
-      "id": "F501",
-      "title": "数据库变更：ProviderConfig 新增 pricingOverrides 字段",
-      "priority": "high",
-      "status": "completed",
-      "acceptance": "1. Prisma schema 中 ProviderConfig 新增 pricingOverrides Json? 字段；2. 创建迁移文件并应用；3. npx tsc --noEmit 编译 0 错误"
-    },
-    {
-      "id": "F502",
-      "title": "SyncAdapter 接口 + 类型定义",
-      "priority": "high",
-      "status": "completed",
-      "acceptance": "1. 创建 src/lib/sync/adapters/base.ts 定义 SyncAdapter 接口和 SyncedModel 类型；2. SyncedModel 包含 modelId/displayName/modality/contextWindow/maxOutputTokens/inputPricePerM/outputPricePerM/capabilities；3. 从 provider-models.ts 迁移并扩展现有 SyncedModel 类型；4. tsc 编译通过"
-    },
-    {
-      "id": "F503",
-      "title": "OpenAI 同步适配器",
-      "priority": "high",
-      "status": "completed",
-      "acceptance": "1. 创建 src/lib/sync/adapters/openai.ts；2. 调用 /models 获取列表，白名单过滤（gpt-4o/4.1/o3/o4-mini/dall-e-3 等）；3. 从 pricingOverrides 补充价格和上下文窗口；4. 模型命名 openai/{model_id}；5. tsc 编译通过"
-    },
-    {
-      "id": "F504",
-      "title": "Anthropic 同步适配器",
-      "priority": "high",
-      "status": "completed",
-      "acceptance": "1. 创建 src/lib/sync/adapters/anthropic.ts；2. 调用 /models（带 anthropic-version header）获取列表 + 上下文窗口；3. 从 pricingOverrides 补充价格；4. 模型命名 anthropic/{model_id}；5. tsc 编译通过"
-    },
-    {
-      "id": "F505",
-      "title": "DeepSeek 同步适配器",
-      "priority": "high",
-      "status": "completed",
-      "acceptance": "1. 创建 src/lib/sync/adapters/deepseek.ts；2. 调用 /models 获取 ID；3. 映射友好名称（deepseek-chat→deepseek/v3，deepseek-reasoner→deepseek/reasoner）；4. 从 pricingOverrides 补充价格、上下文窗口、displayName；5. tsc 编译通过"
-    },
-    {
-      "id": "F506",
-      "title": "智谱 AI 同步适配器",
-      "priority": "high",
-      "status": "completed",
-      "acceptance": "1. 创建 src/lib/sync/adapters/zhipu.ts；2. 调用 /models 获取列表；3. 从 pricingOverrides 补充价格（人民币），适配器内用 EXCHANGE_RATE_CNY_TO_USD 转换为美元；4. 模型命名 zhipu/{model_id}；5. tsc 编译通过"
-    },
-    {
-      "id": "F507",
-      "title": "火山引擎同步适配器",
-      "priority": "high",
-      "status": "completed",
-      "acceptance": "1. 创建 src/lib/sync/adapters/volcengine.ts；2. 不调远程 API，完全从 staticModels 读取；3. 价格为人民币，适配器内做汇率转换；4. 模型命名 volcengine/{model_id}；5. tsc 编译通过"
-    },
-    {
-      "id": "F508",
-      "title": "硅基流动同步适配器",
-      "priority": "high",
-      "status": "completed",
-      "acceptance": "1. 创建 src/lib/sync/adapters/siliconflow.ts；2. 调用 /models 获取完整列表；3. 过滤排除 embedding/rerank/audio 类型，只保留 chat 和 image；4. 从 pricingOverrides 补充价格（如有）；5. 模型命名 siliconflow/{model_id}；6. tsc 编译通过"
-    },
-    {
-      "id": "F509",
-      "title": "OpenRouter 同步适配器",
-      "priority": "high",
-      "status": "completed",
-      "acceptance": "1. 创建 src/lib/sync/adapters/openrouter.ts；2. 调用 /models 获取全部数据含价格；3. pricing 单位转换（×1000000→美元/百万token）；4. 过滤排除免费模型和 deprecated 模型；5. 模型命名 openrouter/{原始id}；6. tsc 编译通过"
-    },
-    {
-      "id": "F510",
-      "title": "重构 model-sync.ts 调度器：接入适配器 + 合并逻辑 + 跨服务商去重",
-      "priority": "high",
-      "status": "completed",
-      "acceptance": "1. model-sync.ts 通过 provider.name 分发到对应 SyncAdapter；2. 合并逻辑：API 返回 > pricingOverrides > 默认 0；3. 跨服务商同模型去重：同一底层模型只创建一个 Model，多个 Channel；4. sellPriceLocked=true 的通道同步时价格不被覆盖；5. 删除旧的 provider-models.ts（逻辑已迁移到各适配器）；6. tsc 编译通过"
-    },
-    {
-      "id": "F511",
-      "title": "种子数据更新：每家 Provider 预填 pricingOverrides",
-      "priority": "high",
-      "status": "completed",
-      "acceptance": "1. prisma/seed.ts 为 7 家 Provider 的 ProviderConfig 预填 pricingOverrides；2. 火山引擎更新 staticModels 为需求指定的豆包 + seedream 列表；3. 价格数据与需求文档一致；4. npx prisma db seed 执行成功"
-    },
-    {
-      "id": "F512",
-      "title": "TypeScript 编译验证 + 启动验证",
-      "priority": "high",
-      "status": "completed",
-      "acceptance": "1. npx tsc --noEmit 编译 0 错误；2. npm run build 成功；3. npm run dev 启动后 10 秒内自动触发模型同步，控制台日志无报错"
-    }
+    { "id": "F001-F512", "title": "P1~P1.5 全部完成", "priority": "high", "status": "completed", "acceptance": "done" },
+    { "id": "F601", "title": "数据库变更：ProviderConfig 新增 docUrls 字段", "priority": "high", "status": "completed", "acceptance": "done" },
+    { "id": "F602", "title": "种子数据更新：docUrls 填入 + pricingOverrides 清空", "priority": "high", "status": "completed", "acceptance": "done" },
+    { "id": "F603", "title": "类型定义重构：src/lib/sync/types.ts", "priority": "high", "status": "completed", "acceptance": "done" },
+    { "id": "F604", "title": "内部 AI 调用函数：绕过鉴权和计费直接调用 DeepSeek", "priority": "high", "status": "completed", "acceptance": "done" },
+    { "id": "F605", "title": "AI 文档提取层：doc-enricher.ts 核心逻辑", "priority": "high", "status": "completed", "acceptance": "done" },
+    { "id": "F606", "title": "重构 7 家适配器：移除硬编码数据依赖", "priority": "high", "status": "completed", "acceptance": "done" },
+    { "id": "F607", "title": "重构 model-sync.ts 调度器：两层同步架构", "priority": "high", "status": "completed", "acceptance": "done" },
+    { "id": "F608", "title": "同步日志增强：每层数据来源统计", "priority": "medium", "status": "completed", "acceptance": "done" },
+    { "id": "F609", "title": "火山引擎验证：AI 提取模型数量远多于旧 staticModels", "priority": "high", "status": "completed", "acceptance": "done — 14 models via AI inline text extraction" },
+    { "id": "F610", "title": "全链路集成验证：7 家服务商两层同步", "priority": "high", "status": "completed", "acceptance": "done" },
+    { "id": "F611", "title": "TypeScript 编译 + Build 验证", "priority": "high", "status": "completed", "acceptance": "done" }
   ]
 }

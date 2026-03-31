@@ -186,6 +186,7 @@ model ProviderConfig {
   quirks             Json?
   staticModels       Json?
   pricingOverrides   Json?    @map("pricing_overrides")
+  docUrls            Json?    @map("doc_urls")
   updatedAt          DateTime @updatedAt
 
   provider Provider @relation(fields: [providerId], references: [id])

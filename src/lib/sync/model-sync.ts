@@ -1,12 +1,27 @@
 /**
- * 模型自动同步引擎
+ * 模型自动同步引擎 — 两层架构
  *
- * 遍历 ACTIVE Provider → 通过专属 SyncAdapter 获取模型列表 → 对比数据库 → 新增/下架
+ * 第 1 层：/models API（自动，免费）
+ * 第 2 层：AI 读服务商文档（自动，低成本，补全缺失数据）
+ *
+ * 数据合并优先级：
+ * 1. /models API 返回 → 直接用
+ * 2. AI 从文档提取 → 只补不覆盖
+ * 3. 运营手动 pricingOverrides → 最高优先级
+ * 4. sellPriceLocked=true → 永远不被覆盖
+ * 5. 全都没有 → costPrice = 0
  */
 
 import { prisma } from "@/lib/prisma";
 import { getConfigNumber } from "@/lib/config";
-import type { SyncAdapter, SyncedModel, ProviderWithConfig } from "./adapters/base";
+import type {
+  SyncAdapter,
+  SyncedModel,
+  ProviderWithConfig,
+  PricingOverride,
+} from "./adapters/base";
+
+import { enrichFromDocs } from "./doc-enricher";
 import type { ModelModality } from "@prisma/client";
 
 // ── 适配器注册表 ──
@@ -52,6 +67,9 @@ interface ProviderSyncResult {
   providerName: string;
   success: boolean;
   error?: string;
+  apiModels: number;
+  aiEnriched: number;
+  overrides: number;
   newModels: string[];
   newChannels: string[];
   disabledChannels: string[];
@@ -91,18 +109,53 @@ function applySellMarkup(costPrice: Record<string, unknown>, markupRatio: number
 }
 
 // ============================================================
+// 运营手动覆盖应用
+// ============================================================
+
+const EXCHANGE_RATE = parseFloat(process.env.EXCHANGE_RATE_CNY_TO_USD ?? "0.137");
+
+function applyOverrides(
+  models: SyncedModel[],
+  config: { pricingOverrides?: unknown },
+): { models: SyncedModel[]; count: number } {
+  if (!config.pricingOverrides) return { models, count: 0 };
+
+  const overrides = config.pricingOverrides as Record<string, PricingOverride>;
+  let count = 0;
+
+  const result = models.map((m) => {
+    const override = overrides[m.modelId];
+    if (!override) return m;
+
+    count++;
+    const updated = { ...m };
+
+    if (override.inputPricePerM !== undefined) updated.inputPricePerM = override.inputPricePerM;
+    if (override.outputPricePerM !== undefined) updated.outputPricePerM = override.outputPricePerM;
+    if (override.inputPriceCNYPerM !== undefined && updated.inputPricePerM === undefined) {
+      updated.inputPricePerM = +(override.inputPriceCNYPerM * EXCHANGE_RATE).toFixed(4);
+    }
+    if (override.outputPriceCNYPerM !== undefined && updated.outputPricePerM === undefined) {
+      updated.outputPricePerM = +(override.outputPriceCNYPerM * EXCHANGE_RATE).toFixed(4);
+    }
+    if (override.contextWindow !== undefined) updated.contextWindow = override.contextWindow;
+    if (override.maxOutputTokens !== undefined) updated.maxOutputTokens = override.maxOutputTokens;
+    if (override.displayName !== undefined) updated.displayName = override.displayName;
+    if (override.modality !== undefined) {
+      updated.modality = override.modality === "image" ? "IMAGE" : "TEXT";
+    }
+
+    return updated;
+  });
+
+  return { models: result, count };
+}
+
+// ============================================================
 // 跨服务商同模型去重映射
 // ============================================================
 
-/**
- * 已知的跨服务商同模型映射。
- * key = "openrouter 返回的 model ID", value = "直连服务商的 Model.name"
- *
- * OpenRouter 上的这些模型会创建 Channel 关联到已有的直连 Model，
- * 而不是创建重复的 Model。
- */
 const CROSS_PROVIDER_MAP: Record<string, string> = {
-  // OpenRouter ID → 直连 Model.name
   "openai/gpt-4o": "openai/gpt-4o",
   "openai/gpt-4o-mini": "openai/gpt-4o-mini",
   "openai/gpt-4.1": "openai/gpt-4.1",
@@ -118,7 +171,6 @@ const CROSS_PROVIDER_MAP: Record<string, string> = {
   "deepseek/deepseek-reasoner": "deepseek/reasoner",
 };
 
-/** 解析模型的最终 Model.name（处理跨服务商去重） */
 function resolveModelName(syncedModel: SyncedModel, providerName: string): string {
   if (providerName === "openrouter") {
     const mapped = CROSS_PROVIDER_MAP[syncedModel.modelId];
@@ -128,7 +180,121 @@ function resolveModelName(syncedModel: SyncedModel, providerName: string): strin
 }
 
 // ============================================================
-// 核心同步逻辑
+// 数据库 reconcile
+// ============================================================
+
+async function reconcile(
+  provider: ProviderWithConfig,
+  models: SyncedModel[],
+  markupRatio: number,
+): Promise<{ newModels: string[]; newChannels: string[]; disabledChannels: string[] }> {
+  const newModels: string[] = [];
+  const newChannels: string[] = [];
+  const disabledChannels: string[] = [];
+
+  const existingChannels = await prisma.channel.findMany({
+    where: { providerId: provider.id },
+    include: { model: true },
+  });
+
+  const channelByRealModelId = new Map(existingChannels.map((ch) => [ch.realModelId, ch]));
+  const remoteRealModelIds = new Set(models.map((m) => m.modelId));
+
+  for (const remoteModel of models) {
+    const existingChannel = channelByRealModelId.get(remoteModel.modelId);
+
+    if (existingChannel) {
+      const updateData: Record<string, unknown> = {};
+
+      if (existingChannel.status !== "ACTIVE") {
+        updateData.status = "ACTIVE";
+      }
+
+      if (!existingChannel.sellPriceLocked) {
+        const costPrice = buildCostPrice(remoteModel);
+        const sellPrice = applySellMarkup(costPrice, markupRatio);
+        updateData.costPrice = costPrice;
+        updateData.sellPrice = sellPrice;
+      }
+
+      if (Object.keys(updateData).length > 0) {
+        await prisma.channel.update({
+          where: { id: existingChannel.id },
+          data: updateData,
+        });
+      }
+      continue;
+    }
+
+    // 新模型
+    const modelName = resolveModelName(remoteModel, provider.name);
+    const model = await prisma.model.upsert({
+      where: { name: modelName },
+      update: {
+        contextWindow: remoteModel.contextWindow ?? undefined,
+        maxTokens: remoteModel.maxOutputTokens ?? undefined,
+      },
+      create: {
+        name: modelName,
+        displayName: remoteModel.displayName,
+        modality: remoteModel.modality as ModelModality,
+        contextWindow: remoteModel.contextWindow ?? null,
+        maxTokens: remoteModel.maxOutputTokens ?? null,
+      },
+    });
+
+    const existingByModel = existingChannels.find((ch) => ch.modelId === model.id);
+    if (existingByModel) {
+      const updateData: Record<string, unknown> = { realModelId: remoteModel.modelId };
+      if (existingByModel.status !== "ACTIVE") updateData.status = "ACTIVE";
+      if (!existingByModel.sellPriceLocked) {
+        updateData.costPrice = buildCostPrice(remoteModel);
+        updateData.sellPrice = applySellMarkup(
+          updateData.costPrice as Record<string, unknown>,
+          markupRatio,
+        );
+      }
+      await prisma.channel.update({ where: { id: existingByModel.id }, data: updateData });
+      continue;
+    }
+
+    const costPrice = buildCostPrice(remoteModel);
+    const sellPrice = applySellMarkup(costPrice, markupRatio);
+
+    await prisma.channel.create({
+      data: {
+        providerId: provider.id,
+        modelId: model.id,
+        realModelId: remoteModel.modelId,
+        priority: 1,
+        costPrice,
+        sellPrice,
+        status: "ACTIVE",
+      },
+    });
+
+    if (!existingChannels.some((ch) => ch.model.name === modelName)) {
+      newModels.push(modelName);
+    }
+    newChannels.push(`${provider.name}/${remoteModel.modelId}`);
+  }
+
+  // 下架：服务商不再返回的模型
+  for (const channel of existingChannels) {
+    if (channel.status !== "DISABLED" && !remoteRealModelIds.has(channel.realModelId)) {
+      await prisma.channel.update({
+        where: { id: channel.id },
+        data: { status: "DISABLED" },
+      });
+      disabledChannels.push(`${provider.name}/${channel.realModelId}`);
+    }
+  }
+
+  return { newModels, newChannels, disabledChannels };
+}
+
+// ============================================================
+// 核心：两层同步 + reconcile
 // ============================================================
 
 async function syncProvider(
@@ -139,6 +305,9 @@ async function syncProvider(
   const result: ProviderSyncResult = {
     providerName: provider.name,
     success: false,
+    apiModels: 0,
+    aiEnriched: 0,
+    overrides: 0,
     newModels: [],
     newChannels: [],
     disabledChannels: [],
@@ -146,119 +315,44 @@ async function syncProvider(
   };
 
   try {
-    // 1. 通过适配器获取模型列表
-    const remoteModels = await adapter.fetchModels(provider);
-    result.modelCount = remoteModels.length;
-
-    // 2. 获取该 Provider 现有的所有 Channel（含 DISABLED，用于恢复）
-    const existingChannels = await prisma.channel.findMany({
-      where: { providerId: provider.id },
-      include: { model: true },
-    });
-
-    const channelByRealModelId = new Map(existingChannels.map((ch) => [ch.realModelId, ch]));
-    const remoteRealModelIds = new Set(remoteModels.map((m) => m.modelId));
-
-    for (const remoteModel of remoteModels) {
-      const existingChannel = channelByRealModelId.get(remoteModel.modelId);
-
-      if (existingChannel) {
-        const updateData: Record<string, unknown> = {};
-
-        // 服务商仍返回该模型 → 恢复 DEGRADED/DISABLED 通道为 ACTIVE
-        if (existingChannel.status !== "ACTIVE") {
-          updateData.status = "ACTIVE";
-        }
-
-        // 更新 costPrice（仅 sellPriceLocked=false）
-        if (!existingChannel.sellPriceLocked) {
-          const costPrice = buildCostPrice(remoteModel);
-          const sellPrice = applySellMarkup(costPrice, markupRatio);
-          updateData.costPrice = costPrice;
-          updateData.sellPrice = sellPrice;
-        }
-
-        if (Object.keys(updateData).length > 0) {
-          await prisma.channel.update({
-            where: { id: existingChannel.id },
-            data: updateData,
-          });
-        }
-        continue;
-      }
-
-      // 新模型：创建 Model（如果不存在）+ Channel
-      const modelName = resolveModelName(remoteModel, provider.name);
-      const model = await prisma.model.upsert({
-        where: { name: modelName },
-        update: {
-          contextWindow: remoteModel.contextWindow ?? undefined,
-          maxTokens: remoteModel.maxOutputTokens ?? undefined,
-        },
-        create: {
-          name: modelName,
-          displayName: remoteModel.displayName,
-          modality: remoteModel.modality as ModelModality,
-          contextWindow: remoteModel.contextWindow ?? null,
-          maxTokens: remoteModel.maxOutputTokens ?? null,
-        },
-      });
-
-      // 防重复：检查是否已有该 provider + model 的 channel（realModelId 可能变化过）
-      const existingByModel = existingChannels.find((ch) => ch.modelId === model.id);
-      if (existingByModel) {
-        // 复用已有 channel：更新 realModelId + 恢复状态
-        const updateData: Record<string, unknown> = {
-          realModelId: remoteModel.modelId,
-        };
-        if (existingByModel.status !== "ACTIVE") {
-          updateData.status = "ACTIVE";
-        }
-        if (!existingByModel.sellPriceLocked) {
-          updateData.costPrice = buildCostPrice(remoteModel);
-          updateData.sellPrice = applySellMarkup(
-            updateData.costPrice as Record<string, unknown>,
-            markupRatio,
-          );
-        }
-        await prisma.channel.update({
-          where: { id: existingByModel.id },
-          data: updateData,
-        });
-        continue;
-      }
-
-      const costPrice = buildCostPrice(remoteModel);
-      const sellPrice = applySellMarkup(costPrice, markupRatio);
-
-      await prisma.channel.create({
-        data: {
-          providerId: provider.id,
-          modelId: model.id,
-          realModelId: remoteModel.modelId,
-          priority: 1,
-          costPrice,
-          sellPrice,
-          status: "ACTIVE",
-        },
-      });
-
-      if (!existingChannels.some((ch) => ch.model.name === modelName)) {
-        result.newModels.push(modelName);
-      }
-      result.newChannels.push(`${provider.name}/${remoteModel.modelId}`);
+    // ── 第 1 层：/models API ──
+    let models: SyncedModel[] = [];
+    try {
+      models = await adapter.fetchModels(provider);
+      result.apiModels = models.length;
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      result.error = `API fetch failed: ${msg}`;
+      console.log(`[model-sync] ${provider.name} Layer 1 failed: ${msg}`);
     }
 
-    // 4. 下架处理：服务商不再返回的模型 → Channel DISABLED
-    for (const channel of existingChannels) {
-      if (channel.status !== "DISABLED" && !remoteRealModelIds.has(channel.realModelId)) {
-        await prisma.channel.update({
-          where: { id: channel.id },
-          data: { status: "DISABLED" },
-        });
-        result.disabledChannels.push(`${provider.name}/${channel.realModelId}`);
+    // ── 第 2 层：AI 读文档补充 ──
+    if (provider.config) {
+      try {
+        const enrichResult = await enrichFromDocs(provider, provider.config, models);
+        models = enrichResult.models;
+        result.aiEnriched = enrichResult.aiEnriched;
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : String(err);
+        console.log(`[model-sync] ${provider.name} Layer 2 failed: ${msg}`);
+        // 不中断，继续用第 1 层数据
       }
     }
+
+    // ── 应用运营手动覆盖（如有）──
+    if (provider.config?.pricingOverrides) {
+      const overrideResult = applyOverrides(models, provider.config);
+      models = overrideResult.models;
+      result.overrides = overrideResult.count;
+    }
+
+    result.modelCount = models.length;
+
+    // ── reconcile 入库 ──
+    const dbResult = await reconcile(provider, models, markupRatio);
+    result.newModels = dbResult.newModels;
+    result.newChannels = dbResult.newChannels;
+    result.disabledChannels = dbResult.disabledChannels;
 
     result.success = true;
   } catch (err) {
@@ -300,7 +394,6 @@ export async function runModelSync(): Promise<SyncResult> {
       include: { config: true },
     });
 
-    // 逐个同步（串行，避免并发数据库冲突）
     const providerResults: ProviderSyncResult[] = [];
     for (const provider of providers) {
       const adapter = ADAPTERS[provider.name];
@@ -309,6 +402,9 @@ export async function runModelSync(): Promise<SyncResult> {
           providerName: provider.name,
           success: false,
           error: `No sync adapter found for provider "${provider.name}"`,
+          apiModels: 0,
+          aiEnriched: 0,
+          overrides: 0,
           newModels: [],
           newChannels: [],
           disabledChannels: [],
@@ -319,9 +415,23 @@ export async function runModelSync(): Promise<SyncResult> {
 
       const result = await syncProvider(provider, adapter, markupRatio);
       providerResults.push(result);
+
+      // ── 分层统计日志 ──
+      const hasDocUrls =
+        Array.isArray(provider.config?.docUrls) &&
+        (provider.config.docUrls as unknown[]).length > 0;
+      const aiNote =
+        result.aiEnriched > 0
+          ? `, AI: +${result.aiEnriched} enriched`
+          : hasDocUrls
+            ? ", AI: 0 enriched"
+            : "";
+      const overrideNote = result.overrides > 0 ? `, overrides: ${result.overrides}` : "";
+
       console.log(
         `[model-sync] ${provider.name}: ${result.success ? "OK" : "FAIL"} ` +
-          `(+${result.newChannels.length} new, -${result.disabledChannels.length} disabled)` +
+          `${result.modelCount} models (API: ${result.apiModels}${aiNote}${overrideNote}) ` +
+          `+${result.newChannels.length} new, -${result.disabledChannels.length} disabled` +
           (result.error ? ` error: ${result.error}` : ""),
       );
     }

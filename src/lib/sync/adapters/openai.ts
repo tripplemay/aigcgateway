@@ -1,5 +1,5 @@
 import type { SyncAdapter, SyncedModel, ProviderWithConfig } from "./base";
-import { fetchWithTimeout, getApiKey, getBaseUrl, getPricingOverride } from "./base";
+import { fetchWithTimeout, getApiKey, getBaseUrl, inferModality } from "./base";
 
 /** 白名单：只同步这些模型前缀 */
 const CHAT_WHITELIST = [
@@ -7,7 +7,7 @@ const CHAT_WHITELIST = [
   "gpt-4.1", "gpt-4.1-mini", "gpt-4.1-nano",
   "o3", "o3-mini", "o4-mini",
 ];
-const IMAGE_WHITELIST = ["dall-e-3"];
+const IMAGE_WHITELIST = ["dall-e-3", "gpt-image-1"];
 
 function isWhitelisted(id: string): boolean {
   return (
@@ -32,20 +32,11 @@ export const openaiAdapter: SyncAdapter = {
 
     return rawModels
       .filter((m) => isWhitelisted(m.id))
-      .map((m) => {
-        const override = getPricingOverride(provider.config, m.id);
-        const isImage = IMAGE_WHITELIST.includes(m.id);
-
-        return {
-          modelId: m.id,
-          name: `openai/${m.id}`,
-          displayName: override?.displayName ?? m.id,
-          modality: isImage ? "IMAGE" as const : "TEXT" as const,
-          contextWindow: override?.contextWindow,
-          maxOutputTokens: override?.maxOutputTokens,
-          inputPricePerM: override?.inputPricePerM,
-          outputPricePerM: override?.outputPricePerM,
-        };
-      });
+      .map((m) => ({
+        modelId: m.id,
+        name: `openai/${m.id}`,
+        displayName: m.id,
+        modality: inferModality(m.id),
+      }));
   },
 };

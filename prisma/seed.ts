@@ -4,7 +4,16 @@ import { hashSync } from "bcryptjs";
 const prisma = new PrismaClient();
 
 // ============================================================
-// Provider 定义（Model/Channel 由同步引擎自动创建）
+// Provider 定义
+//
+// 数据策略（每家走哪条路径）：
+//   OpenAI:     /models API + pricingOverrides 手动补价格（文档页 403 反爬）
+//   Anthropic:  /models API + pricingOverrides 手动补价格（文档页 SPA）
+//   DeepSeek:   /models API + AI 读文档补价格（文档页可 fetch）
+//   智谱:       /models API + pricingOverrides 手动补价格（文档页 SPA）
+//   火山引擎:   staticModels 手动维护（无 /models API，文档页 SPA）
+//   硅基流动:   /models API + AI 读文档补价格（文档页可 fetch）
+//   OpenRouter: /models API 含完整价格，不需要补充
 // ============================================================
 
 const providers = [
@@ -25,6 +34,7 @@ const providers = [
       currency: "USD" as Currency,
       quirks: [],
       staticModels: null,
+      docUrls: null,
       pricingOverrides: {
         "gpt-4o": { inputPricePerM: 2.5, outputPricePerM: 10.0, contextWindow: 128000 },
         "gpt-4o-mini": { inputPricePerM: 0.15, outputPricePerM: 0.6, contextWindow: 128000 },
@@ -35,6 +45,7 @@ const providers = [
         "o3-mini": { inputPricePerM: 1.1, outputPricePerM: 4.4, contextWindow: 200000 },
         "o4-mini": { inputPricePerM: 1.1, outputPricePerM: 4.4, contextWindow: 200000 },
         "dall-e-3": { modality: "image" },
+        "gpt-image-1": { modality: "image" },
       },
     },
   },
@@ -55,6 +66,7 @@ const providers = [
       currency: "USD" as Currency,
       quirks: ["no_response_format", "no_penalty_params", "n_must_be_1", "base_url_trailing_slash"],
       staticModels: null,
+      docUrls: null,
       pricingOverrides: {
         "claude-opus-4-6": { inputPricePerM: 5.0, outputPricePerM: 25.0 },
         "claude-sonnet-4-6": { inputPricePerM: 3.0, outputPricePerM: 15.0 },
@@ -78,20 +90,8 @@ const providers = [
       currency: "USD" as Currency,
       quirks: ["has_reasoning_content", "has_cache_hit_tokens", "sse_keepalive_comments"],
       staticModels: null,
-      pricingOverrides: {
-        "deepseek-chat": {
-          inputPricePerM: 0.28,
-          outputPricePerM: 0.42,
-          contextWindow: 131072,
-          displayName: "DeepSeek V3.2",
-        },
-        "deepseek-reasoner": {
-          inputPricePerM: 0.28,
-          outputPricePerM: 0.42,
-          contextWindow: 131072,
-          displayName: "DeepSeek R1 (Thinking)",
-        },
-      },
+      pricingOverrides: null,
+      docUrls: ["https://api-docs.deepseek.com/quick_start/pricing"],
     },
   },
   {
@@ -111,6 +111,7 @@ const providers = [
       currency: "USD" as Currency,
       quirks: ["temperature_open_interval"],
       staticModels: null,
+      docUrls: null,
       pricingOverrides: {
         "glm-4-plus": { inputPriceCNYPerM: 50, outputPriceCNYPerM: 50, contextWindow: 128000 },
         "glm-4-air": { inputPriceCNYPerM: 1, outputPriceCNYPerM: 1, contextWindow: 128000 },
@@ -118,7 +119,11 @@ const providers = [
         "glm-4-flash": { inputPriceCNYPerM: 0, outputPriceCNYPerM: 0, contextWindow: 128000 },
         "glm-4-flashx": { inputPriceCNYPerM: 0.1, outputPriceCNYPerM: 0.1, contextWindow: 128000 },
         "glm-4-long": { inputPriceCNYPerM: 1, outputPriceCNYPerM: 1, contextWindow: 1048576 },
-        "cogview-3-plus": { modality: "image" },
+        "glm-4.7": { inputPriceCNYPerM: 4, outputPriceCNYPerM: 16, contextWindow: 200000 },
+        "glm-4.7-flash": { inputPriceCNYPerM: 0, outputPriceCNYPerM: 0, contextWindow: 200000 },
+        "glm-5": { inputPriceCNYPerM: 8, outputPriceCNYPerM: 24, contextWindow: 200000 },
+        "cogview-4": { modality: "image" },
+        "cogview-3-flash": { modality: "image" },
       },
     },
   },
@@ -143,39 +148,20 @@ const providers = [
         "multi_size_retry",
         "no_charge_on_image_failure",
       ],
+      pricingOverrides: null,
+      docUrls: null,
       staticModels: [
-        {
-          id: "doubao-1.5-pro-256k",
-          displayName: "豆包 1.5 Pro 256K",
-          modality: "TEXT",
-          contextWindow: 262144,
-          inputPriceCNYPerM: 0.8,
-          outputPriceCNYPerM: 2,
-        },
-        {
-          id: "doubao-1.5-pro-32k",
-          displayName: "豆包 1.5 Pro 32K",
-          modality: "TEXT",
-          contextWindow: 32768,
-          inputPriceCNYPerM: 0.4,
-          outputPriceCNYPerM: 2,
-        },
-        {
-          id: "doubao-lite-128k",
-          displayName: "豆包 Lite 128K",
-          modality: "TEXT",
-          contextWindow: 131072,
-          inputPriceCNYPerM: 0.3,
-          outputPriceCNYPerM: 1,
-        },
-        {
-          id: "doubao-pro-256k",
-          displayName: "豆包 Pro 256K",
-          modality: "TEXT",
-          contextWindow: 262144,
-          inputPriceCNYPerM: 0.5,
-          outputPriceCNYPerM: 2,
-        },
+        { id: "doubao-1.5-pro-256k", displayName: "豆包 1.5 Pro 256K", modality: "TEXT", contextWindow: 262144, inputPriceCNYPerM: 0.8, outputPriceCNYPerM: 2 },
+        { id: "doubao-1.5-pro-32k", displayName: "豆包 1.5 Pro 32K", modality: "TEXT", contextWindow: 32768, inputPriceCNYPerM: 0.4, outputPriceCNYPerM: 2 },
+        { id: "doubao-1.5-lite-256k", displayName: "豆包 1.5 Lite 256K", modality: "TEXT", contextWindow: 262144, inputPriceCNYPerM: 0.3, outputPriceCNYPerM: 0.6 },
+        { id: "doubao-1.5-lite-32k", displayName: "豆包 1.5 Lite 32K", modality: "TEXT", contextWindow: 32768, inputPriceCNYPerM: 0.15, outputPriceCNYPerM: 0.3 },
+        { id: "doubao-1.5-vision-pro-32k", displayName: "豆包 1.5 Vision Pro 32K", modality: "TEXT", contextWindow: 32768, inputPriceCNYPerM: 3, outputPriceCNYPerM: 9 },
+        { id: "doubao-pro-256k", displayName: "豆包 Pro 256K", modality: "TEXT", contextWindow: 262144, inputPriceCNYPerM: 0.5, outputPriceCNYPerM: 2 },
+        { id: "doubao-pro-32k", displayName: "豆包 Pro 32K", modality: "TEXT", contextWindow: 32768, inputPriceCNYPerM: 0.4, outputPriceCNYPerM: 1.2 },
+        { id: "doubao-lite-128k", displayName: "豆包 Lite 128K", modality: "TEXT", contextWindow: 131072, inputPriceCNYPerM: 0.3, outputPriceCNYPerM: 1 },
+        { id: "doubao-lite-32k", displayName: "豆包 Lite 32K", modality: "TEXT", contextWindow: 32768, inputPriceCNYPerM: 0.15, outputPriceCNYPerM: 0.5 },
+        { id: "deepseek-v3-ark", displayName: "DeepSeek V3 (方舟)", modality: "TEXT", contextWindow: 131072, inputPriceCNYPerM: 2, outputPriceCNYPerM: 8 },
+        { id: "deepseek-r1-ark", displayName: "DeepSeek R1 (方舟)", modality: "TEXT", contextWindow: 131072, inputPriceCNYPerM: 4, outputPriceCNYPerM: 16 },
         { id: "seedream-3.0", displayName: "Seedream 3.0", modality: "IMAGE" },
         { id: "seedream-4.0", displayName: "Seedream 4.0", modality: "IMAGE" },
         { id: "seedream-4.5", displayName: "Seedream 4.5", modality: "IMAGE" },
@@ -200,6 +186,7 @@ const providers = [
       quirks: ["image_response_format_diff", "model_id_has_org_prefix", "has_reasoning_content"],
       staticModels: null,
       pricingOverrides: null,
+      docUrls: ["https://siliconflow.cn/pricing"],
     },
   },
   {
@@ -220,6 +207,7 @@ const providers = [
       quirks: ["models_api_has_pricing", "sse_openrouter_comments", "image_via_chat_modalities"],
       staticModels: null,
       pricingOverrides: null,
+      docUrls: null,
     },
   },
 ];
@@ -259,7 +247,7 @@ async function main() {
   });
   console.log("  SystemConfig: DEFAULT_MARKUP_RATIO = 1.2");
 
-  // 3. 创建 Provider + ProviderConfig（不再创建 Model/Channel，由同步引擎处理）
+  // 3. 创建 Provider + ProviderConfig
   for (const providerDef of providers) {
     const provider = await prisma.provider.upsert({
       where: { name: providerDef.name },
@@ -282,24 +270,23 @@ async function main() {
     });
     console.log(`  Provider: ${provider.displayName}`);
 
-    // ProviderConfig（含 staticModels + pricingOverrides）
-    const { currency, staticModels, pricingOverrides, ...configRest } = providerDef.config;
-    const staticModelsValue = staticModels === null ? Prisma.JsonNull : staticModels;
-    const pricingOverridesValue = pricingOverrides ? pricingOverrides : Prisma.JsonNull;
+    const { currency, staticModels, pricingOverrides, docUrls, ...configRest } = providerDef.config;
     await prisma.providerConfig.upsert({
       where: { providerId: provider.id },
       update: {
         ...configRest,
         currency,
-        staticModels: staticModelsValue,
-        pricingOverrides: pricingOverridesValue,
+        staticModels: staticModels === null ? Prisma.JsonNull : staticModels,
+        pricingOverrides: pricingOverrides === null ? Prisma.JsonNull : pricingOverrides,
+        docUrls: docUrls === null ? Prisma.JsonNull : docUrls,
       },
       create: {
         providerId: provider.id,
         ...configRest,
         currency,
-        staticModels: staticModelsValue,
-        pricingOverrides: pricingOverridesValue,
+        staticModels: staticModels === null ? Prisma.JsonNull : staticModels,
+        pricingOverrides: pricingOverrides === null ? Prisma.JsonNull : pricingOverrides,
+        docUrls: docUrls === null ? Prisma.JsonNull : docUrls,
       },
     });
   }

@@ -28,7 +28,6 @@ export const volcengineAdapter: SyncAdapter = {
       const modality =
         m.modality?.toUpperCase() === "IMAGE" ? ("IMAGE" as const) : inferModality(m.id);
 
-      // 人民币价格转美元
       let inputPricePerM = m.inputPricePerM;
       let outputPricePerM = m.outputPricePerM;
       if (inputPricePerM === undefined && m.inputPriceCNYPerM !== undefined) {
