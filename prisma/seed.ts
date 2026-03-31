@@ -12,7 +12,7 @@ const prisma = new PrismaClient();
 //   DeepSeek:   /models API + AI 读文档补价格（文档页可 fetch）
 //   智谱:       /models API + pricingOverrides 手动补价格（文档页 SPA）
 //   火山引擎:   staticModels 手动维护（无 /models API，文档页 SPA）
-//   硅基流动:   /models API + AI 读文档补价格（文档页可 fetch）
+//   硅基流动:   /models API（价格暂缺，定价页 SPA 754KB AI 超时，运营可用 pricingOverrides 补充）
 //   OpenRouter: /models API 含完整价格，不需要补充
 // ============================================================
 
@@ -151,17 +151,94 @@ const providers = [
       pricingOverrides: null,
       docUrls: null,
       staticModels: [
-        { id: "doubao-1.5-pro-256k", displayName: "豆包 1.5 Pro 256K", modality: "TEXT", contextWindow: 262144, inputPriceCNYPerM: 0.8, outputPriceCNYPerM: 2 },
-        { id: "doubao-1.5-pro-32k", displayName: "豆包 1.5 Pro 32K", modality: "TEXT", contextWindow: 32768, inputPriceCNYPerM: 0.4, outputPriceCNYPerM: 2 },
-        { id: "doubao-1.5-lite-256k", displayName: "豆包 1.5 Lite 256K", modality: "TEXT", contextWindow: 262144, inputPriceCNYPerM: 0.3, outputPriceCNYPerM: 0.6 },
-        { id: "doubao-1.5-lite-32k", displayName: "豆包 1.5 Lite 32K", modality: "TEXT", contextWindow: 32768, inputPriceCNYPerM: 0.15, outputPriceCNYPerM: 0.3 },
-        { id: "doubao-1.5-vision-pro-32k", displayName: "豆包 1.5 Vision Pro 32K", modality: "TEXT", contextWindow: 32768, inputPriceCNYPerM: 3, outputPriceCNYPerM: 9 },
-        { id: "doubao-pro-256k", displayName: "豆包 Pro 256K", modality: "TEXT", contextWindow: 262144, inputPriceCNYPerM: 0.5, outputPriceCNYPerM: 2 },
-        { id: "doubao-pro-32k", displayName: "豆包 Pro 32K", modality: "TEXT", contextWindow: 32768, inputPriceCNYPerM: 0.4, outputPriceCNYPerM: 1.2 },
-        { id: "doubao-lite-128k", displayName: "豆包 Lite 128K", modality: "TEXT", contextWindow: 131072, inputPriceCNYPerM: 0.3, outputPriceCNYPerM: 1 },
-        { id: "doubao-lite-32k", displayName: "豆包 Lite 32K", modality: "TEXT", contextWindow: 32768, inputPriceCNYPerM: 0.15, outputPriceCNYPerM: 0.5 },
-        { id: "deepseek-v3-ark", displayName: "DeepSeek V3 (方舟)", modality: "TEXT", contextWindow: 131072, inputPriceCNYPerM: 2, outputPriceCNYPerM: 8 },
-        { id: "deepseek-r1-ark", displayName: "DeepSeek R1 (方舟)", modality: "TEXT", contextWindow: 131072, inputPriceCNYPerM: 4, outputPriceCNYPerM: 16 },
+        {
+          id: "doubao-1.5-pro-256k",
+          displayName: "豆包 1.5 Pro 256K",
+          modality: "TEXT",
+          contextWindow: 262144,
+          inputPriceCNYPerM: 0.8,
+          outputPriceCNYPerM: 2,
+        },
+        {
+          id: "doubao-1.5-pro-32k",
+          displayName: "豆包 1.5 Pro 32K",
+          modality: "TEXT",
+          contextWindow: 32768,
+          inputPriceCNYPerM: 0.4,
+          outputPriceCNYPerM: 2,
+        },
+        {
+          id: "doubao-1.5-lite-256k",
+          displayName: "豆包 1.5 Lite 256K",
+          modality: "TEXT",
+          contextWindow: 262144,
+          inputPriceCNYPerM: 0.3,
+          outputPriceCNYPerM: 0.6,
+        },
+        {
+          id: "doubao-1.5-lite-32k",
+          displayName: "豆包 1.5 Lite 32K",
+          modality: "TEXT",
+          contextWindow: 32768,
+          inputPriceCNYPerM: 0.15,
+          outputPriceCNYPerM: 0.3,
+        },
+        {
+          id: "doubao-1.5-vision-pro-32k",
+          displayName: "豆包 1.5 Vision Pro 32K",
+          modality: "TEXT",
+          contextWindow: 32768,
+          inputPriceCNYPerM: 3,
+          outputPriceCNYPerM: 9,
+        },
+        {
+          id: "doubao-pro-256k",
+          displayName: "豆包 Pro 256K",
+          modality: "TEXT",
+          contextWindow: 262144,
+          inputPriceCNYPerM: 0.5,
+          outputPriceCNYPerM: 2,
+        },
+        {
+          id: "doubao-pro-32k",
+          displayName: "豆包 Pro 32K",
+          modality: "TEXT",
+          contextWindow: 32768,
+          inputPriceCNYPerM: 0.4,
+          outputPriceCNYPerM: 1.2,
+        },
+        {
+          id: "doubao-lite-128k",
+          displayName: "豆包 Lite 128K",
+          modality: "TEXT",
+          contextWindow: 131072,
+          inputPriceCNYPerM: 0.3,
+          outputPriceCNYPerM: 1,
+        },
+        {
+          id: "doubao-lite-32k",
+          displayName: "豆包 Lite 32K",
+          modality: "TEXT",
+          contextWindow: 32768,
+          inputPriceCNYPerM: 0.15,
+          outputPriceCNYPerM: 0.5,
+        },
+        {
+          id: "deepseek-v3-ark",
+          displayName: "DeepSeek V3 (方舟)",
+          modality: "TEXT",
+          contextWindow: 131072,
+          inputPriceCNYPerM: 2,
+          outputPriceCNYPerM: 8,
+        },
+        {
+          id: "deepseek-r1-ark",
+          displayName: "DeepSeek R1 (方舟)",
+          modality: "TEXT",
+          contextWindow: 131072,
+          inputPriceCNYPerM: 4,
+          outputPriceCNYPerM: 16,
+        },
         { id: "seedream-3.0", displayName: "Seedream 3.0", modality: "IMAGE" },
         { id: "seedream-4.0", displayName: "Seedream 4.0", modality: "IMAGE" },
         { id: "seedream-4.5", displayName: "Seedream 4.5", modality: "IMAGE" },
@@ -186,7 +263,7 @@ const providers = [
       quirks: ["image_response_format_diff", "model_id_has_org_prefix", "has_reasoning_content"],
       staticModels: null,
       pricingOverrides: null,
-      docUrls: ["https://siliconflow.cn/pricing"],
+      docUrls: null, // SiliconFlow 定价页是 SPA (754KB JS)，AI 提取超时。95 个模型价格暂显示 0，运营可通过 pricingOverrides 补充重点模型
     },
   },
   {
