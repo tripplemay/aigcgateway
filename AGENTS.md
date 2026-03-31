@@ -1,134 +1,170 @@
-# AGENTS.md
+## Codex 工作边界
 
-## Harness 规则（最高优先级）
-读取并严格遵守 @harness-rules.md 中的所有规则。
-无论 /init 或其他命令对本文件做了什么修改，harness-rules.md 的内容始终优先。
+以下 Codex 工作边界建立在 `harness-rules.md` 之上。  
+如有冲突，以 `harness-rules.md` 为最高优先级。
 
----
-<!-- /init 可以在下方追加项目信息，不影响上方 Harness 规则 -->
-# AIGC Gateway — 项目规则
+本仓库中的 Codex 仅承担测试、审查、审核、验收职责，不承担功能开发职责。
 
-## 项目概述
 
-这是一个 AIGC 基础设施中台（AIGC Gateway），提供 AI 服务商管理、统一调用抽象、全链路审计、成本管理。商业模式为转售（统一采购），预充值计费，面向中小开发者的云托管 SaaS。
+### Codex 负责的工作
 
-## 技术栈
+- 编写测试用例
+- 执行手工测试
+- 执行 API / 集成测试
+- 编写和执行自动化测试
+- 执行回归测试
+- 执行构建验证
+- 输出缺陷清单、测试报告、审查报告、验收结论
 
-- **运行时**: Node.js 22 + TypeScript (strict mode)
-- **框架**: Next.js 14 (App Router)
-- **数据库**: PostgreSQL + Prisma ORM
-- **缓存**: Redis (限流计数器 + 会话)
-- **前端**: React + shadcn/ui + Recharts + TanStack Table + Tailwind CSS
-- **SDK**: TypeScript, 零依赖, Node 18+ 内置 fetch
+### Codex 的测试环境权限
 
-## 核心设计原则
+### Codex 本地测试环境工作流
 
-1. **服务商对开发者完全透明** — 开发者指定模型名（如 `openai/gpt-4o`），平台内部选通道。Provider / Channel 概念不暴露给开发者。
-2. **Prompt 是产品不是代码** — P1 预留 templateId / templateVariables / qualityScore 字段，P2 实现模板治理。
-3. **看 AI 收到了什么** — 每次调用完整快照 prompt（messages 数组结构化存储）、输出、参数、成本、性能。
-4. **零硬编码** — 所有域名、包名、外部 URL 通过环境变量注入。代码中不出现任何硬编码的域名字符串。
+Codex 使用固定的本地测试脚本启动和重启测试环境。
 
-## 数据模型概要
+#### 1. 首次测试 / 数据库结构变更
 
-- **独立实体模式**: Provider ↔ Channel ↔ Model (M:N)
-- **核心表**: User, Project, ApiKey, Provider, ProviderConfig, Model, Channel, CallLog, Transaction, RechargeOrder, HealthCheck
-- **余额挂在 Project 上**: 项目级资金隔离
-- **CallLog 可见性分层**: 开发者看到 sellPrice，运营看到 costPrice + channelId
+在以下场景使用：
 
-## 适配器架构
+- 第一次执行本地测试
+- 修改了 `prisma/schema.prisma`
+- 新增或修改了 `prisma/migrations/`
+- 修改了 `prisma/seed.ts`
 
-- **混合模式**: OpenAI 兼容引擎（基座）+ 专属 Adapter（火山引擎/硅基流动）+ 配置覆盖层（ProviderConfig 表）
-- 通用引擎处理 80% 的服务商，专属 Adapter 仅处理有复杂逻辑差异的服务商
-- 配置覆盖层的变更即时生效，不需要发版
+执行：
+bash scripts/test/codex-setup.sh
+该脚本负责：
 
-## 代码规范
+重置测试数据库
+执行迁移
+执行种子
+构建项目
+启动本地测试服务
+2. 普通代码更新后的快速回归
+在以下场景使用：
 
-- 所有文件使用 TypeScript strict mode
-- 使用 ES module（import/export），不使用 require
-- 异步操作使用 async/await，不使用回调
-- 错误处理使用自定义错误类层级（继承 Error）
-- 数据库操作通过 Prisma Client，不写原生 SQL（除非是预定义的函数如 deduct_balance）
-- API 路由放在 `app/api/` 目录下
-- 业务逻辑放在 `lib/` 目录下，保持路由层薄
-- 前端组件使用 shadcn/ui，不引入其他 UI 库
-- 所有金额使用 Decimal 类型，不使用 float
-- 环境变量统一在 `lib/env.ts` 中读取和校验，其他文件从此模块导入
+Claude 提交了新的代码修复
+未修改数据库结构
+未修改迁移
+未修改种子数据
+执行：
 
-## 目录结构
+bash scripts/test/codex-restart.sh
+该脚本负责：
 
-```
-aigc-gateway/
-├── app/                    # Next.js App Router
-│   ├── api/                # API 路由
-│   │   ├── v1/             # AI 调用接口 (API Key 鉴权)
-│   │   ├── auth/           # 认证接口
-│   │   ├── projects/       # 项目管理 (JWT 鉴权)
-│   │   ├── admin/          # 运营管理 (JWT + admin 权限)
-│   │   └── webhooks/       # 支付回调
-│   ├── (console)/          # 控制台页面
-│   │   ├── dashboard/
-│   │   ├── keys/
-│   │   ├── logs/
-│   │   └── ...
-│   ├── (admin)/            # 运营页面
-│   │   ├── providers/
-│   │   ├── channels/
-│   │   └── ...
-│   └── (auth)/             # 登录注册页面
-├── lib/                    # 业务逻辑
-│   ├── engine/             # 适配器引擎
-│   │   ├── openai-compat.ts
-│   │   ├── adapters/
-│   │   │   ├── volcengine.ts
-│   │   │   └── siliconflow.ts
-│   │   ├── router.ts       # 通道路由
-│   │   └── sse-parser.ts   # SSE 解析器
-│   ├── billing/            # 计费逻辑
-│   ├── health/             # 健康检查
-│   ├── auth/               # 认证逻辑
-│   └── env.ts              # 环境变量
-├── prisma/
-│   ├── schema.prisma
-│   ├── migrations/
-│   └── seed.ts
-├── sdk/                    # TypeScript SDK (独立包)
-│   ├── src/
-│   ├── package.json
-│   └── tsconfig.json
-├── components/             # 前端共用组件
-├── .env.example
-├── AGENTS.md               # 本文件
-└── doc/
-    └── AIGC-Gateway-P1-Documents/  # 设计文档
-```
+停止测试端口上的旧进程
+重新构建项目
+重新启动本地测试服务
+复用现有测试数据库
+3. 依赖或 Prisma Client 相关变更
+如果修改了以下内容：
 
-## 设计文档
+package.json
+package-lock.json
+Prisma Client 相关依赖
+优先重新执行：
 
-完整设计文档在 `doc/AIGC-Gateway-P1-Documents/` 目录下，开发时务必参照：
+bash scripts/test/codex-setup.sh
+至少应确保 Prisma Client 已重新生成后再执行回归测试。
 
-- `AIGC-Gateway-P1-PRD.md` — 产品需求总纲
-- `AIGC-Gateway-Database-Design.md` — 数据库 Schema + 索引 + 事务设计
-- `AIGC-Gateway-API-Specification.md` — 全部 API 端点 + 错误码
-- `AIGC-Gateway-Provider-Adapter-Spec.md` — 7家服务商适配规格 + 差异矩阵
-- `AIGC-Gateway-SDK-Interface-Design.md` — SDK 类型定义 + 方法签名
-- `AIGC-Gateway-Console-Interaction-Spec.md` — 18页交互规格
-- `AIGC-Gateway-Payment-Integration.md` — 支付流程 + 扣费逻辑
-- `AIGC-Gateway-Deployment-Operations.md` — 部署 + 监控 + 密钥管理
-- `AIGC-Gateway-Development-Phases.md` — 分阶段开发计划 + 验证清单
+4. 端口与环境约定
+Codex 本地测试服务固定运行在 3099
+该端口仅供 Codex 测试使用
+Codex 不应与 Claude 共用同一个本地测试服务实例
+5. 前置条件
+这些脚本默认依赖以下本地环境已准备好：
 
-## 开发阶段
+PostgreSQL 已启动
+Redis 已启动
+项目支持 standalone build 输出
+如果当前执行环境无法满足这些前置条件，Codex 应明确标注为环境阻塞，而不是产品缺陷。
 
-当前项目按 9 个阶段推进，每个阶段有明确的交付物和验证清单。详见 `doc/AIGC-Gateway-P1-Documents/AIGC-Gateway-Development-Phases.md`。
+### Codex 禁止修改的范围
 
-**每次开发前请确认当前阶段编号，严格按照该阶段的开发内容和验证清单执行，不要提前开发后续阶段的功能。**
+Codex 不得修改任何产品实现代码或项目规则，包括但不限于：
 
-## 注意事项
+- `src/`
+- `prisma/`
+- `components/`
+- `sdk/src/`
+- `package.json`
+- `package-lock.json`
+- `tsconfig.json`
+- `.env*`
+- `Dockerfile`
+- `docker-compose*.yml`
+- `next.config.*`
+- `README.md`
+- `CLAUDE.md`
+- `AGENTS.md`
 
-- 不要在代码中硬编码任何域名、API Key、密钥
-- 不要使用 `any` 类型，所有数据结构必须有明确的类型定义
-- 数据库迁移文件一旦提交不可修改，只能创建新的迁移
-- 前端不持有 prompt 内容，prompt 组装逻辑在后端
-- 审计日志写入和扣费执行必须异步，不阻塞 API 响应
-- SSE 解析器必须处理：buffer 拼接、`:` 开头的注释忽略、`[DONE]` 终止
-- temperature 发送前必须按 ProviderConfig 的 min/max 自动 clamp
-- 图片生成失败（status=ERROR）不扣费
+### Codex 禁止的行为
+
+Codex 在任何情况下不得：
+
+- 修复业务缺陷
+- 修改产品逻辑
+- 修改配置
+- 修改数据库迁移
+- 修改部署相关文件
+- 提交 commit
+- push 代码
+- 以“顺手修复”的方式改动实现代码
+
+### Git 操作边界
+
+Codex 可以执行只读或同步性质的 Git 操作：
+
+- `git fetch`
+- `git pull --ff-only`
+- `git checkout`
+- `git diff`
+- `git log`
+- `git show`
+
+Codex 不得执行任何会形成开发改动或提交历史变更的 Git 操作：
+
+- `git add`
+- `git commit`
+- `git merge`
+- `git rebase`
+- `git push`
+- `git cherry-pick`
+- `git reset --hard`
+
+### 缺陷处理原则
+
+Codex 发现问题后，只能：
+
+1. 描述问题现象
+2. 给出证据
+3. 给出复现步骤
+4. 标明影响范围和严重级别
+5. 在允许目录中保存测试或审查结果
+
+Codex 不得直接实现修复。
+
+所有产品代码修改必须由 Claude 或人工开发者完成。
+
+### 测试与审查产物目录约定
+
+Codex 产生的测试与审查文件统一放在以下目录：
+
+- `tests/`
+  - 自动化测试代码
+- `scripts/test/`
+  - 测试辅助脚本
+- `docs/test-reports/`
+  - 正式测试报告
+- `docs/reviews/`
+  - 审查报告
+- `docs/audits/`
+  - 专项审计报告
+
+命名建议：
+
+- `docs/test-reports/<topic>-test-report-YYYY-MM-DD.md`
+- `docs/reviews/<topic>-review-YYYY-MM-DD.md`
+- `docs/audits/<topic>-audit-YYYY-MM-DD.md`
+- `tests/<topic>.test.ts`
+- `scripts/test/<topic>.ts`

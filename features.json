@@ -5,33 +5,91 @@
     { "id": "P2-6", "title": "P2-6 集成测试+文档+MCP配置页面 全部完成", "priority": "high", "status": "completed", "acceptance": "done" },
     { "id": "F101-F110", "title": "P1.1 模型自动同步 全部完成", "priority": "high", "status": "completed", "acceptance": "done" },
     { "id": "F201-F208", "title": "P1.2 模型/通道管理界面重构 全部完成", "priority": "high", "status": "completed", "acceptance": "done" },
+    { "id": "F301-F304", "title": "P1.3 模型页面按原型还原 全部完成", "priority": "high", "status": "completed", "acceptance": "done" },
+    { "id": "F401-F403", "title": "P1.4 模型页面原型差距修复 全部完成", "priority": "high", "status": "completed", "acceptance": "done" },
     {
-      "id": "F301",
-      "title": "Admin 模型页按原型重写",
+      "id": "F501",
+      "title": "数据库变更：ProviderConfig 新增 pricingOverrides 字段",
       "priority": "high",
       "status": "completed",
-      "acceptance": "1. Provider 独立卡片（border 0.5px #e5e4e0 + radius 12px + 白底）；2. Provider logo 彩色方块+2字母缩写（每家不同颜色）；3. 默认全部折叠；4. 展开后模型列表最多显示 20 条+Show all 按钮；5. Chevron 用 ▶/▲；6. 状态色 Active=#639922 Degraded=#BA7517 Disabled=#E24B4A；7. 顶部操作栏：搜索+Tab 筛选+Sync 按钮；8. 底部图例+同步时间+同步结果摘要"
+      "acceptance": "1. Prisma schema 中 ProviderConfig 新增 pricingOverrides Json? 字段；2. 创建迁移文件并应用；3. npx tsc --noEmit 编译 0 错误"
     },
     {
-      "id": "F302",
-      "title": "Admin 通道卡片按原型重写",
+      "id": "F502",
+      "title": "SyncAdapter 接口 + 类型定义",
       "priority": "high",
       "status": "completed",
-      "acceptance": "1. Channel panel 背景 #f8f7f5 radius 8px；2. Grid 2列；3. 卡片白底 border 0.5px + 左边框 3px 状态色条（active 绿/degraded 黄/disabled 红+opacity 0.6）；4. 卡片顶部 Provider 名+Priority 标签（可点击编辑）；5. 4 指标 grid 2×2：Cost/Sell/Latency/Success；6. 底部 3px 进度条；7. Sell price 可内联编辑"
+      "acceptance": "1. 创建 src/lib/sync/adapters/base.ts 定义 SyncAdapter 接口和 SyncedModel 类型；2. SyncedModel 包含 modelId/displayName/modality/contextWindow/maxOutputTokens/inputPricePerM/outputPricePerM/capabilities；3. 从 provider-models.ts 迁移并扩展现有 SyncedModel 类型；4. tsc 编译通过"
     },
     {
-      "id": "F303",
-      "title": "Developer 模型页按原型重写",
+      "id": "F503",
+      "title": "OpenAI 同步适配器",
       "priority": "high",
       "status": "completed",
-      "acceptance": "1. 两层折叠（Provider→Model）；2. 默认全部折叠；3. 无健康圆点、无通道卡片、无 Sync 按钮；4. Provider 卡片样式同 Admin（彩色 logo+名称+模型数+chevron）但无健康汇总；5. 模型行：模型名+badge+context+售价（无 chevron）；6. 大量模型前 20 条+Show all；7. 搜索+Tab 筛选保留"
+      "acceptance": "1. 创建 src/lib/sync/adapters/openai.ts；2. 调用 /models 获取列表，白名单过滤（gpt-4o/4.1/o3/o4-mini/dall-e-3 等）；3. 从 pricingOverrides 补充价格和上下文窗口；4. 模型命名 openai/{model_id}；5. tsc 编译通过"
     },
     {
-      "id": "F304",
-      "title": "i18n 补齐 + TypeScript 编译验证",
+      "id": "F504",
+      "title": "Anthropic 同步适配器",
       "priority": "high",
       "status": "completed",
-      "acceptance": "1. 新增 showAll/showAllCount i18n key；2. npx tsc --noEmit 编译 0 错误"
+      "acceptance": "1. 创建 src/lib/sync/adapters/anthropic.ts；2. 调用 /models（带 anthropic-version header）获取列表 + 上下文窗口；3. 从 pricingOverrides 补充价格；4. 模型命名 anthropic/{model_id}；5. tsc 编译通过"
+    },
+    {
+      "id": "F505",
+      "title": "DeepSeek 同步适配器",
+      "priority": "high",
+      "status": "completed",
+      "acceptance": "1. 创建 src/lib/sync/adapters/deepseek.ts；2. 调用 /models 获取 ID；3. 映射友好名称（deepseek-chat→deepseek/v3，deepseek-reasoner→deepseek/reasoner）；4. 从 pricingOverrides 补充价格、上下文窗口、displayName；5. tsc 编译通过"
+    },
+    {
+      "id": "F506",
+      "title": "智谱 AI 同步适配器",
+      "priority": "high",
+      "status": "completed",
+      "acceptance": "1. 创建 src/lib/sync/adapters/zhipu.ts；2. 调用 /models 获取列表；3. 从 pricingOverrides 补充价格（人民币），适配器内用 EXCHANGE_RATE_CNY_TO_USD 转换为美元；4. 模型命名 zhipu/{model_id}；5. tsc 编译通过"
+    },
+    {
+      "id": "F507",
+      "title": "火山引擎同步适配器",
+      "priority": "high",
+      "status": "completed",
+      "acceptance": "1. 创建 src/lib/sync/adapters/volcengine.ts；2. 不调远程 API，完全从 staticModels 读取；3. 价格为人民币，适配器内做汇率转换；4. 模型命名 volcengine/{model_id}；5. tsc 编译通过"
+    },
+    {
+      "id": "F508",
+      "title": "硅基流动同步适配器",
+      "priority": "high",
+      "status": "completed",
+      "acceptance": "1. 创建 src/lib/sync/adapters/siliconflow.ts；2. 调用 /models 获取完整列表；3. 过滤排除 embedding/rerank/audio 类型，只保留 chat 和 image；4. 从 pricingOverrides 补充价格（如有）；5. 模型命名 siliconflow/{model_id}；6. tsc 编译通过"
+    },
+    {
+      "id": "F509",
+      "title": "OpenRouter 同步适配器",
+      "priority": "high",
+      "status": "completed",
+      "acceptance": "1. 创建 src/lib/sync/adapters/openrouter.ts；2. 调用 /models 获取全部数据含价格；3. pricing 单位转换（×1000000→美元/百万token）；4. 过滤排除免费模型和 deprecated 模型；5. 模型命名 openrouter/{原始id}；6. tsc 编译通过"
+    },
+    {
+      "id": "F510",
+      "title": "重构 model-sync.ts 调度器：接入适配器 + 合并逻辑 + 跨服务商去重",
+      "priority": "high",
+      "status": "completed",
+      "acceptance": "1. model-sync.ts 通过 provider.name 分发到对应 SyncAdapter；2. 合并逻辑：API 返回 > pricingOverrides > 默认 0；3. 跨服务商同模型去重：同一底层模型只创建一个 Model，多个 Channel；4. sellPriceLocked=true 的通道同步时价格不被覆盖；5. 删除旧的 provider-models.ts（逻辑已迁移到各适配器）；6. tsc 编译通过"
+    },
+    {
+      "id": "F511",
+      "title": "种子数据更新：每家 Provider 预填 pricingOverrides",
+      "priority": "high",
+      "status": "completed",
+      "acceptance": "1. prisma/seed.ts 为 7 家 Provider 的 ProviderConfig 预填 pricingOverrides；2. 火山引擎更新 staticModels 为需求指定的豆包 + seedream 列表；3. 价格数据与需求文档一致；4. npx prisma db seed 执行成功"
+    },
+    {
+      "id": "F512",
+      "title": "TypeScript 编译验证 + 启动验证",
+      "priority": "high",
+      "status": "completed",
+      "acceptance": "1. npx tsc --noEmit 编译 0 错误；2. npm run build 成功；3. npm run dev 启动后 10 秒内自动触发模型同步，控制台日志无报错"
     }
   ]
 }

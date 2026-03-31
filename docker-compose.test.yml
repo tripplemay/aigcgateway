@@ -1,0 +1,71 @@
+# docker-compose.test.yml
+# Isolated test environment for Codex (runs in GitHub Actions runner)
+# NOT used in production — production uses PM2 directly on VPS
+
+services:
+  test-db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: test
+      POSTGRES_PASSWORD: test
+      POSTGRES_DB: aigc_gateway_test
+    ports:
+      - "5433:5432"
+    tmpfs:
+      - /var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U test"]
+      interval: 2s
+      timeout: 5s
+      retries: 10
+
+  test-redis:
+    image: redis:7-alpine
+    ports:
+      - "6380:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 2s
+      timeout: 5s
+      retries: 10
+
+  test-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: test
+    environment:
+      NODE_ENV: test
+      PORT: 3099
+      DATABASE_URL: postgresql://test:test@test-db:5432/aigc_gateway_test
+      REDIS_URL: redis://test-redis:6379/0
+      JWT_SECRET: test-jwt-secret-for-ci-only
+      JWT_EXPIRES_IN: 7d
+      EXCHANGE_RATE_CNY_TO_USD: "0.137"
+      DEFAULT_MARKUP_RATIO: "1.2"
+      HEALTH_CHECK_ACTIVE_INTERVAL_MS: "600000"
+      HEALTH_CHECK_STANDBY_INTERVAL_MS: "1800000"
+      HEALTH_CHECK_COLD_INTERVAL_MS: "7200000"
+      HEALTH_CHECK_FAIL_THRESHOLD: "3"
+      DEFAULT_RPM: "60"
+      DEFAULT_TPM: "100000"
+      DEFAULT_IMAGE_RPM: "10"
+    ports:
+      - "3099:3099"
+    depends_on:
+      test-db:
+        condition: service_healthy
+      test-redis:
+        condition: service_healthy
+    command: >
+      sh -c "
+        npx prisma migrate deploy &&
+        npx prisma db seed &&
+        node server.js
+      "
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:3099/v1/models || exit 1"]
+      interval: 5s
+      timeout: 10s
+      retries: 20
+      start_period: 30s

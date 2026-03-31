@@ -1,9 +1,15 @@
 {
-  "status": "building",
-  "user_goal": "P1.3 模型页面按原型还原",
-  "total_features": 4,
-  "completed_features": 4,
+  "status": "done",
+  "user_goal": "P1.5 模型同步引擎完善 — 7 家服务商专属适配器 + pricingOverrides + 跨服务商去重",
+  "total_features": 12,
+  "completed_features": 12,
   "current_sprint": null,
-  "last_updated": "2026-03-30T16:15:00Z",
-  "evaluator_feedback": null
+  "last_updated": "2026-03-31T02:30:00Z",
+  "evaluator_feedback": {
+    "summary": "P1.5 全部 12 个功能通过验收，7 家适配器架构清晰、调度器重构完善、跨服务商去重逻辑正确、tsc+build+启动均通过",
+    "pass_count": 12,
+    "partial_count": 0,
+    "fail_count": 0,
+    "issues": []
+  }
 }

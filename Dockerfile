@@ -11,7 +11,7 @@ RUN npm ci --production=false && npx prisma generate
 COPY . .
 RUN mkdir -p public && npm run build
 
-# Production image
+# Production image (minimal)
 FROM node:22-slim AS runner
 WORKDIR /app
 
@@ -25,4 +25,20 @@ COPY --from=base /app/prisma ./prisma
 COPY --from=base /app/node_modules/.prisma ./node_modules/.prisma
 
 EXPOSE 3000
+CMD ["node", "server.js"]
+
+# Test image (full node_modules for migrate + seed)
+FROM node:22-slim AS test
+WORKDIR /app
+
+ENV NODE_ENV=test
+
+COPY --from=base /app/.next/standalone ./
+COPY --from=base /app/.next/static ./.next/static
+COPY --from=base /app/public ./public
+COPY --from=base /app/prisma ./prisma
+COPY --from=base /app/node_modules ./node_modules
+COPY --from=base /app/package.json ./package.json
+
+EXPOSE 3099
 CMD ["node", "server.js"]

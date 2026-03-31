@@ -1,0 +1,3 @@
+{
+  "setup": "bash scripts/test/codex-setup.sh"
+}
