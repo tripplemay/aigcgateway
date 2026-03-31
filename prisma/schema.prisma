@@ -185,6 +185,7 @@ model ProviderConfig {
   currency           Currency @default(USD)
   quirks             Json?
   staticModels       Json?
+  pricingOverrides   Json?    @map("pricing_overrides")
   updatedAt          DateTime @updatedAt
 
   provider Provider @relation(fields: [providerId], references: [id])
