@@ -14,7 +14,7 @@ export async function GET(request: Request) {
   const url = new URL(request.url);
   const modalityFilter = url.searchParams.get("modality")?.toUpperCase();
 
-  // 查所有有 ACTIVE channel 的模型
+  // 查所有有 ACTIVE channel 的模型，include provider for displayName
   const models = await prisma.model.findMany({
     where: {
       channels: { some: { status: "ACTIVE" } },
@@ -25,14 +25,19 @@ export async function GET(request: Request) {
         where: { status: "ACTIVE" },
         orderBy: { priority: "asc" },
         take: 1,
-        select: { sellPrice: true },
+        select: {
+          sellPrice: true,
+          provider: { select: { displayName: true } },
+        },
       },
     },
     orderBy: { name: "asc" },
   });
 
   const data = models.map((model) => {
-    const sellPrice = model.channels[0]?.sellPrice as Record<string, unknown> | undefined;
+    const channel = model.channels[0];
+    const sellPrice = channel?.sellPrice as Record<string, unknown> | undefined;
+    const providerName = channel?.provider?.displayName ?? null;
     const capabilities = (model.capabilities as Record<string, unknown>) ?? {};
 
     const pricing: Record<string, unknown> = {};
@@ -54,6 +59,7 @@ export async function GET(request: Request) {
       object: "model" as const,
       display_name: model.displayName,
       modality: model.modality.toLowerCase(),
+      ...(providerName ? { provider_name: providerName } : {}),
       ...(model.contextWindow ? { context_window: model.contextWindow } : {}),
       ...(model.maxTokens ? { max_output_tokens: model.maxTokens } : {}),
       pricing,

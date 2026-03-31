@@ -7,6 +7,7 @@ interface ModelItem {
   id: string;
   display_name: string;
   modality: string;
+  provider_name?: string;
   context_window?: number;
   pricing: Record<string, unknown>;
 }
@@ -35,12 +36,10 @@ function fmtPrice(p: Record<string, unknown>) {
   return inp === 0 && out === 0 ? "Free" : `$${inp} / $${out} /M`;
 }
 
-function getProviderName(modelId: string): string {
+function getProviderKey(modelId: string): string {
   const slash = modelId.indexOf("/");
   return slash > 0 ? modelId.substring(0, slash) : "other";
 }
-
-function capitalize(s: string): string { return s.charAt(0).toUpperCase() + s.slice(1); }
 
 export default function ModelsPage() {
   const t = useTranslations("models");
@@ -60,15 +59,22 @@ export default function ModelsPage() {
 
   const grouped = useMemo(() => {
     const filtered = models.filter((m) => !search || m.id.toLowerCase().includes(search.toLowerCase()));
-    const map = new Map<string, ModelItem[]>();
+    const map = new Map<string, { displayName: string; models: ModelItem[] }>();
     for (const m of filtered) {
-      const prov = getProviderName(m.id);
-      if (!map.has(prov)) map.set(prov, []);
-      map.get(prov)!.push(m);
+      const key = getProviderKey(m.id);
+      if (!map.has(key)) {
+        map.set(key, { displayName: m.provider_name ?? key, models: [] });
+      }
+      const group = map.get(key)!;
+      // Use provider_name from first model that has it
+      if (m.provider_name && group.displayName === key) {
+        group.displayName = m.provider_name;
+      }
+      group.models.push(m);
     }
     const groups: ProviderGroup[] = [];
-    for (const [name, items] of map) {
-      groups.push({ name, displayName: capitalize(name), models: items });
+    for (const [name, val] of map) {
+      groups.push({ name, displayName: val.displayName, models: val.models });
     }
     return groups.sort((a, b) => a.name.localeCompare(b.name));
   }, [models, search]);
