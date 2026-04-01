@@ -4,13 +4,25 @@ export const dynamic = "force-dynamic";
  *
  * 返回所有有 ACTIVE channel 的 Model + sellPrice + capabilities
  * 支持 ?modality=text|image 筛选
+ *
+ * 鉴权策略（可选）：
+ * - 无 Bearer token → 公开访问，返回模型列表
+ * - 有 Bearer token → 走完整鉴权链（revoked/expired/permissions/IP）
+ *   projectInfo=false 时返回 403
  */
 
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
-
+import { authenticateApiKey } from "@/lib/api/auth-middleware";
 
 export async function GET(request: Request) {
+  // 可选鉴权：有 Bearer token 才校验
+  const authHeader = request.headers.get("authorization");
+  if (authHeader) {
+    const auth = await authenticateApiKey(request);
+    if (!auth.ok) return auth.error;
+  }
+
   const url = new URL(request.url);
   const modalityFilter = url.searchParams.get("modality")?.toUpperCase();
 
