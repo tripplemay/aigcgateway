@@ -339,6 +339,37 @@ async function syncProvider(
       }
     }
 
+    // ── 应用运营手动覆盖（如有）──
+    if (provider.config?.pricingOverrides) {
+      const overrideResult = applyOverrides(models, provider.config);
+      models = overrideResult.models;
+      result.overrides = overrideResult.count;
+    }
+
+    // ── 安全防护：AI 提取异常时保留现有数据 ──
+    // 在白名单过滤之前检查，用合并后的原始模型数判断
+    const existingChannelCount = await prisma.channel.count({
+      where: { providerId: provider.id, status: { not: "DISABLED" } },
+    });
+
+    if (models.length === 0 && existingChannelCount > 0) {
+      console.log(
+        `[model-sync] ${provider.name}: SKIPPED reconcile — 0 models from API+AI but DB has ${existingChannelCount} active channels`,
+      );
+      result.modelCount = 0;
+      result.success = true;
+      return result;
+    }
+
+    if (existingChannelCount > 0 && models.length < existingChannelCount * 0.5) {
+      console.log(
+        `[model-sync] ${provider.name}: SKIPPED reconcile — model count ${models.length} < 50% of existing ${existingChannelCount}`,
+      );
+      result.modelCount = models.length;
+      result.success = true;
+      return result;
+    }
+
     // ── 适配器白名单过滤（过滤 AI 引入的非目标模型）──
     if (adapter.filterModel) {
       const before = models.length;
@@ -350,35 +381,7 @@ async function syncProvider(
       }
     }
 
-    // ── 应用运营手动覆盖（如有）──
-    if (provider.config?.pricingOverrides) {
-      const overrideResult = applyOverrides(models, provider.config);
-      models = overrideResult.models;
-      result.overrides = overrideResult.count;
-    }
-
     result.modelCount = models.length;
-
-    // ── 安全防护：AI 提取异常时保留现有数据 ──
-    const existingChannelCount = await prisma.channel.count({
-      where: { providerId: provider.id, status: { not: "DISABLED" } },
-    });
-
-    if (models.length === 0 && existingChannelCount > 0) {
-      console.log(
-        `[model-sync] ${provider.name}: SKIPPED reconcile — AI returned 0 models but DB has ${existingChannelCount} active channels`,
-      );
-      result.success = true;
-      return result;
-    }
-
-    if (existingChannelCount > 0 && models.length < existingChannelCount * 0.5) {
-      console.log(
-        `[model-sync] ${provider.name}: SKIPPED reconcile — model count ${models.length} < 50% of existing ${existingChannelCount}`,
-      );
-      result.success = true;
-      return result;
-    }
 
     // ── reconcile 入库 ──
     const dbResult = await reconcile(provider, models, markupRatio);
