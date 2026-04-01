@@ -348,6 +348,27 @@ async function syncProvider(
 
     result.modelCount = models.length;
 
+    // ── 安全防护：AI 提取异常时保留现有数据 ──
+    const existingChannelCount = await prisma.channel.count({
+      where: { providerId: provider.id, status: { not: "DISABLED" } },
+    });
+
+    if (models.length === 0 && existingChannelCount > 0) {
+      console.log(
+        `[model-sync] ${provider.name}: SKIPPED reconcile — AI returned 0 models but DB has ${existingChannelCount} active channels`,
+      );
+      result.success = true;
+      return result;
+    }
+
+    if (existingChannelCount > 0 && models.length < existingChannelCount * 0.5) {
+      console.log(
+        `[model-sync] ${provider.name}: SKIPPED reconcile — model count ${models.length} < 50% of existing ${existingChannelCount}`,
+      );
+      result.success = true;
+      return result;
+    }
+
     // ── reconcile 入库 ──
     const dbResult = await reconcile(provider, models, markupRatio);
     result.newModels = dbResult.newModels;

@@ -8,7 +8,7 @@
 import type { Provider, ProviderConfig } from "@prisma/client";
 import type { SyncedModel } from "./types";
 import { prisma } from "@/lib/prisma";
-import { fetchWithTimeout, getApiKey, getBaseUrl } from "./adapters/base";
+import { getApiKey, getBaseUrl } from "./adapters/base";
 
 const EXCHANGE_RATE = parseFloat(process.env.EXCHANGE_RATE_CNY_TO_USD ?? "0.137");
 
@@ -128,48 +128,37 @@ async function callInternalAI(prompt: string): Promise<string> {
 }
 
 // ============================================================
-// HTML 获取
+// 页面内容获取（通过 Jina Reader 渲染 SPA 页面）
 // ============================================================
 
-async function fetchDocPage(url: string, provider?: Provider): Promise<string> {
-  const headers: Record<string, string> = {
-    "User-Agent": "Mozilla/5.0 (compatible; AIGC-Gateway-Sync/1.0)",
-    Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-  };
+const JINA_READER_PREFIX = "https://r.jina.ai/";
 
-  let response: Response;
+async function fetchDocPage(url: string): Promise<string> {
+  const jinaUrl = `${JINA_READER_PREFIX}${url}`;
 
-  if (provider) {
-    response = await fetchWithTimeout(url, headers, provider, 15_000);
-  } else {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 15_000);
-    try {
-      response = await fetch(url, { headers, signal: controller.signal });
-    } finally {
-      clearTimeout(timeoutId);
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 30_000);
+
+  try {
+    const response = await fetch(jinaUrl, {
+      headers: {
+        Accept: "text/plain",
+        "User-Agent": "Mozilla/5.0 (compatible; AIGC-Gateway-Sync/1.0)",
+      },
+      signal: controller.signal,
+    });
+
+    if (!response.ok) {
+      throw new Error(`Jina Reader returned ${response.status} for ${url}`);
     }
+
+    const text = await response.text();
+
+    // Jina 返回 markdown，截断到 ~10k 字符（定价表通常在前部分）
+    return text.slice(0, 10_000);
+  } finally {
+    clearTimeout(timeoutId);
   }
-
-  if (!response.ok) {
-    throw new Error(`HTTP ${response.status} for ${url}`);
-  }
-
-  const html = await response.text();
-
-  // 粗略提取正文（去掉 script/style/nav），控制发给 AI 的长度
-  const cleaned = html
-    .replace(/<script[\s\S]*?<\/script>/gi, "")
-    .replace(/<style[\s\S]*?<\/style>/gi, "")
-    .replace(/<nav[\s\S]*?<\/nav>/gi, "")
-    .replace(/<header[\s\S]*?<\/header>/gi, "")
-    .replace(/<footer[\s\S]*?<\/footer>/gi, "")
-    .replace(/<[^>]+>/g, " ")
-    .replace(/\s+/g, " ")
-    .trim();
-
-  // 截断到 ~10k 字符（减少 AI 处理时间，定价表通常在前几千字符内）
-  return cleaned.slice(0, 10_000);
 }
 
 // ============================================================
@@ -287,7 +276,7 @@ export async function enrichFromDocs(
   for (const url of docUrls) {
     try {
       console.log(`[doc-enricher] Fetching ${url} for ${provider.name}...`);
-      const content = await fetchDocPage(url, provider);
+      const content = await fetchDocPage(url);
 
       if (content.length < 100) {
         console.log(`[doc-enricher] Page too short for ${url}, skipping`);
