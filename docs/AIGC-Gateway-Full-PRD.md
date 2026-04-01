@@ -1,0 +1,472 @@
+# AIGC Gateway — 完整产品 PRD
+
+> AIGC 全链路质量审计与管理平台
+> Version 2.0 | 2026-04-01
+> 状态：P1 已完成，P1优化补丁进行中，P2 MCP+国际化进行中
+
+---
+
+## 1. 产品概述
+
+### 1.1 产品定位
+
+AIGC Gateway 是一个面向中小开发者的 AIGC 基础设施中台。业务应用通过简单接入，即可获得服务商统一管理、全链路质量审计、成本监控、模型自动发现等能力。
+
+核心价值：让开发者专注于"AI 做什么"，平台负责"AI 怎么调、怎么管、怎么审"。
+
+### 1.2 商业模式
+
+| 维度 | 决策 |
+|------|------|
+| 商业模式 | 转售（统一采购，开发者向平台付费） |
+| 计费模式 | 预充值（先充钱后用，余额不足返回 402） |
+| 部署形态 | 云托管 SaaS |
+| 目标用户 | 中小开发者 |
+| 接入方式 | API（主线）+ SDK（推荐）+ MCP（AI 编辑器） |
+| 支付渠道 | 支付宝 + 微信支付 |
+
+### 1.3 核心设计原则
+
+- **服务商对开发者完全透明** — 开发者指定模型，平台内部选通道，Provider/Channel 不暴露
+- **AI 驱动运营自动化** — 模型发现、定价获取由 AI 自动从服务商文档提取，不依赖硬编码
+- **全链路可观测** — 每次调用完整快照 prompt、输出、参数、成本、性能
+- **Prompt 是产品不是代码** — 预留模板治理基建，P3 重点实现
+
+### 1.4 域名与基础设施
+
+| 配置项 | 值 |
+|--------|-----|
+| 控制台 + API 网关 | https://aigc.guangai.ai |
+| API 路径 | /v1/* |
+| MCP 端点 | /mcp |
+| CDN | https://cdn.aigc.guangai.ai |
+| npm SDK | @guangai/aigc-sdk |
+| 服务器 | 2核 4GB Linux VPS，PM2 管理 |
+| SSL | Nginx + Let's Encrypt |
+
+---
+
+## 2. 数据模型
+
+### 2.1 核心实体关系
+
+采用独立实体模式，Provider ↔ Channel ↔ Model 为多对多关系，通过 Channel 关联。
+
+| 实体 | 职责 | 开发者可见 |
+|------|------|----------|
+| Provider | 服务商信息（端点、鉴权、代理配置） | 否 |
+| ProviderConfig | 服务商配置覆盖层（参数约束、文档URL、价格兜底） | 否 |
+| Model | 模型信息（统一名称、模态、能力参数） | 是 |
+| Channel | 通道（关联 Provider+Model，realModelId、priority、pricing、status） | 否 |
+| Project | 开发者项目（API Key、配额、余额） | 是 |
+| CallLog | 调用日志（prompt 快照、输出、成本、性能） | 是（部分字段） |
+| User | 用户账号（角色：admin / developer） | 是 |
+| ApiKey | 项目 API Key（存 hash，原文仅展示一次） | 是 |
+| Transaction | 交易记录（充值、扣费） | 是 |
+| RechargeOrder | 充值订单（支付状态机） | 是 |
+| HealthCheck | 通道健康检查记录 | 否 |
+| SystemConfig | 系统级配置（加价比例等） | 否 |
+
+### 2.2 模型命名规范
+
+开发者传入统一格式 `provider/model`，平台内部通过 `Channel.realModelId` 映射到服务商真实 ID。
+
+| 开发者传入 | 直连通道 realModelId | OpenRouter 通道 realModelId |
+|----------|---------------------|---------------------------|
+| deepseek/v3 | deepseek-chat | deepseek/deepseek-chat |
+| openai/gpt-4o | gpt-4o | openai/gpt-4o |
+
+### 2.3 路由策略
+
+开发者指定模型 → 查 Model → 查 Channel（status=ACTIVE, 按 priority 排序）→ 取第一条 → 调用对应 Provider。
+
+### 2.4 账号结构
+
+User → Project (1:N) → ApiKey (1:N)。余额挂在 Project 上。
+
+---
+
+## 3. 适配器架构
+
+### 3.1 三层混合模式
+
+| 层次 | 职责 | 变更响应速度 |
+|------|------|-----------|
+| 配置覆盖层（DB） | 端点路径、参数约束、鉴权格式、能力声明 | 分钟级（改 DB 即时生效） |
+| 专属 Adapter | 复杂逻辑差异（图片走 chat 接口、响应格式不同等） | 小时级（改代码发版） |
+| OpenAI 兼容引擎（基座） | 标准请求构建、SSE 解析、usage 提取、错误映射 | 很少变更 |
+
+### 3.2 首批 7 家服务商
+
+| 服务商 | 能力 | 接入方式 | 代理 |
+|--------|------|---------|------|
+| OpenAI | 文本 + 图片 | 通用引擎 | 需代理 |
+| Anthropic | 文本 | 通用引擎 | 需代理 |
+| DeepSeek | 文本 | 通用引擎 | 直连 |
+| 智谱 AI | 文本 + 图片 | 通用引擎 | 直连 |
+| 火山引擎 | 文本 + 图片 | 专属 Adapter | 直连 |
+| 硅基流动 | 文本 + 图片 | 专属 Adapter | 直连 |
+| OpenRouter | 文本 + 图片 | 通用引擎 | 需代理 |
+
+### 3.3 扩展性
+
+新增服务商只需：一个请求 Adapter 文件 + 一个同步 Adapter 文件 + 种子数据。不改现有代码。
+
+---
+
+## 4. 模型自动同步引擎
+
+### 4.1 设计目标
+
+引擎自动探查每家服务商的完整模型列表和定价信息，不依赖硬编码数据。
+
+### 4.2 两层同步架构
+
+| 层 | 数据来源 | 成本 | 覆盖范围 |
+|---|---------|------|---------|
+| 第 1 层 | /models API | 免费 | 模型列表（部分服务商含价格） |
+| 第 2 层 | Jina Reader 渲染文档 + DeepSeek AI 提取 | 低 | 补全价格、上下文窗口、发现新模型 |
+
+### 4.3 数据合并优先级
+
+1. 运营手动设置（sellPriceLocked=true）→ 最高
+2. /models API 返回 → 高
+3. AI 从文档提取 → 中（只补不覆盖）
+4. pricingOverrides 兜底 → 低（正常为空）
+5. 无数据 → costPrice=0，显示 "—"
+
+### 4.4 7 家服务商同步策略
+
+| 服务商 | 第 1 层（API） | 第 2 层（Jina + AI） |
+|--------|-------------|---------------------|
+| OpenAI | /models + 白名单过滤 | AI 提取价格+上下文 |
+| Anthropic | /models（含 context） | AI 补充价格 |
+| DeepSeek | /models（仅 2 个 ID） | AI 补充价格 |
+| 智谱 | /models | AI 补充价格（CNY→USD） |
+| 火山引擎 | 无 API | AI 从文档提取全部模型+价格 |
+| 硅基流动 | /models（95+ 模型） | AI 补充价格 |
+| OpenRouter | /models（含完整价格） | 不需要 |
+
+### 4.5 同步触发方式
+
+- 应用启动时自动同步
+- 每天凌晨 4:00 定时同步（node-cron）
+- 控制台手动触发（Admin → Sync models 按钮）
+
+### 4.6 降级保护
+
+- AI 提取返回 0 个模型（但数据库已有数据）→ 跳过更新
+- AI 提取返回 < 50% 现有模型数 → 跳过更新
+- Jina/AI 失败 → 仅使用第 1 层数据，现有数据不受影响
+
+### 4.7 内部 AI 调用
+
+使用平台内部 DeepSeek 通道。绕过鉴权、计费、限流。不写 CallLog，不扣费。
+
+---
+
+## 5. API 网关
+
+### 5.1 API 设计
+
+| 维度 | 决策 |
+|------|------|
+| 接口风格 | 兼容 OpenAI 格式 + 扩展 Header（X-Trace-Id） |
+| 流式响应 | SSE（Server-Sent Events） |
+| 核心端点 | POST /v1/chat/completions, POST /v1/images/generations, GET /v1/models |
+| 中间件管道 | API Key 鉴权 → 余额检查 → 限流 → 参数校验 → 日志初始化 |
+| 异步后处理 | 调用完成后异步写入 CallLog + 执行 deduct_balance |
+
+### 5.2 错误处理
+
+| HTTP 状态码 | 含义 |
+|------------|------|
+| 401 | API Key 无效或已吊销 |
+| 402 | 余额不足 |
+| 404 | 模型不存在 |
+| 429 | 超过限流配额（含 Retry-After header） |
+| 502 | 服务商调用失败 |
+
+### 5.3 TypeScript SDK
+
+@guangai/aigc-sdk@0.1.0，已发布到 npm。
+
+封装：鉴权、SSE 流式解析、10 个错误类型、指数退避重试、traceId 透传。500 行以内，开发者 5 分钟跑通。
+
+---
+
+## 6. MCP 服务器（P2）
+
+### 6.1 设计目标
+
+让 AI 编辑器（Claude Code、Cursor、Windsurf 等）通过 MCP 协议直接使用平台全部能力。
+
+### 6.2 技术方案
+
+| 决策项 | 结论 |
+|--------|------|
+| 传输协议 | Streamable HTTP |
+| 端点 | https://aigc.guangai.ai/mcp |
+| 认证 | 复用 API Key（Bearer Token） |
+| 部署 | 和 API 网关同一 Next.js 应用 |
+
+### 6.3 MCP Tools（7 个）
+
+**AI 调用类（产生费用）：**
+
+| Tool | 说明 |
+|------|------|
+| chat | 文本生成，返回 AI 输出 + traceId + 费用 |
+| generate_image | 图片生成，返回图片 URL + traceId + 费用 |
+
+**查询类（不产生费用）：**
+
+| Tool | 说明 |
+|------|------|
+| list_models | 查看可用模型、价格和能力 |
+| list_logs | 查看最近调用记录，支持全文搜索 |
+| get_log_detail | 查看单次调用完整详情 |
+| get_balance | 查看项目余额和交易记录 |
+| get_usage_summary | 查看用量汇总和模型排行 |
+
+### 6.4 三种接入方式关系
+
+| 方式 | 适用场景 | 说明 |
+|------|---------|------|
+| MCP | 开发阶段 | AI 编辑器中实验、调试、生成代码 |
+| SDK | 运行时（推荐） | 生产环境后端服务 |
+| HTTP API | 运行时（通用） | 任何语言 |
+
+三种方式走同一条链路，审计日志和计费统一。
+
+---
+
+## 7. 计费系统
+
+| 维度 | 决策 |
+|------|------|
+| 模式 | 预充值（先充钱后用，余额不足返回 402） |
+| 定价 | 双层定价（Channel 上设 costPrice + sellPrice） |
+| 加价 | 默认加价比例存 SystemConfig 表（DEFAULT_MARKUP_RATIO = 1.2） |
+| 扣费 | 每次调用完成后按 usage × sellPrice 异步扣除（deduct_balance 并发安全） |
+| 充值 | 对接支付宝当面付/网站支付 + 微信 Native 支付 |
+| 幂等 | 同一 paymentOrderId 只入账一次 |
+| 定时任务 | 过期订单关闭（每 5 分钟）+ 余额告警（每小时） |
+| 价格保护 | sellPriceLocked 字段，运营手动改价后同步不覆盖 |
+
+---
+
+## 8. 审计日志
+
+### 8.1 记录内容
+
+| 字段组 | 内容 |
+|--------|------|
+| 标识 | id, traceId, projectId, channelId, modelName, source(api/sdk/mcp) |
+| Prompt 快照 | promptSnapshot（messages 数组结构化存储）, requestParams |
+| 完整输出 | responseContent, finishReason |
+| 用量与成本 | promptTokens, completionTokens, totalTokens, costPrice, sellPrice |
+| 性能指标 | latencyMs, ttftMs, tokensPerSecond |
+| 状态 | status (success/error/timeout/filtered), errorMessage |
+| P3 预留 | templateId, templateVariables, qualityScore |
+
+### 8.2 可见性分层
+
+| 角色 | 可见字段 |
+|------|---------|
+| 开发者 | traceId, modelName, promptSnapshot, responseContent, token 用量, sellPrice, 性能, status |
+| 运营 | 全部字段，含 channelId, costPrice, 真实模型 ID |
+
+### 8.3 查询能力
+
+- 按 traceId 精确查询
+- 按项目 + 时间范围 + 模型 + 状态筛选
+- prompt + 输出内容全文搜索（PG tsvector + GIN 索引）
+- 永久保留，P3 做冷热分离
+
+---
+
+## 9. 健康检查
+
+### 9.1 分级频率
+
+| 通道类型 | 频率 | 定义 |
+|---------|------|------|
+| 活跃通道 | 每 10 分钟 | 过去 1 小时内有真实调用 |
+| 备用通道 | 每 30 分钟 | priority > 1 且 status=active |
+| 冷门通道 | 每 2 小时 | 过去 24h 无真实调用 |
+
+### 9.2 三级验证
+
+| 级别 | 验证内容 |
+|------|---------|
+| Level 1 | HTTP 200 + 鉴权通过 + 响应非空 |
+| Level 2 | choices[0].message.content 存在、usage 完整、finish_reason 有效 |
+| Level 3 | 固定 prompt（"1+1=?"）验证返回内容包含 "2" |
+
+### 9.3 自动降级与恢复
+
+- 单次失败 → 重试 → 仍失败标记 DEGRADED
+- 连续 3 次失败 → 自动 DISABLED
+- DISABLED 通道降频检查，恢复后自动设回 ACTIVE
+
+---
+
+## 10. 控制台
+
+### 10.1 技术栈
+
+Next.js + shadcn/ui + Recharts + TanStack Table + Tailwind CSS。
+一套系统两个角色（admin / developer），开发者自助注册。
+中英文双语（P2 国际化）。
+
+### 10.2 Admin 页面
+
+| 页面 | 功能 |
+|------|------|
+| 服务商管理 | Provider CRUD + 配置覆盖编辑 |
+| **模型与通道管理** | **三层折叠结构**（服务商→模型→通道卡片），健康状态色点汇总，priority/sellPrice 内联编辑，Sync models 按钮 |
+| 健康监控 | 通道健康卡片（状态灯 + L1/L2/L3）+ 手动检查 |
+| 全局审计日志 | 全项目日志 + channelId/costPrice 可见 + 全文搜索 |
+| 全局用量 | 收入 vs 成本趋势 + 按服务商/模型分布 + 毛利 |
+| 开发者管理 | 开发者列表 + 详情 + 手动充值 |
+
+### 10.3 开发者页面
+
+| 页面 | 功能 |
+|------|------|
+| Dashboard | 4 指标卡片 + Recharts 图表 + 最近调用 |
+| API Key 管理 | 创建（仅展示一次）+ 吊销 |
+| **模型列表** | **两层分组结构**（服务商→模型），无通道，无健康状态 |
+| 审计日志 | 全文搜索 + 状态筛选 + 详情展开面板 |
+| 用量统计 | 时间范围 + 图表 + 模型排行 |
+| 余额与充值 | 余额卡片 + 充值对话框 + 交易记录 |
+| 快速开始 | 4 步代码示例 + 复制按钮 |
+| MCP 配置 | Claude Code / Cursor 配置示例 |
+| 账号设置 | 个人信息 + 修改密码 |
+
+---
+
+## 11. 部署与运维
+
+### 11.1 基础设施
+
+| 组件 | 配置 |
+|------|------|
+| 应用服务器 | 2核 4GB Linux VPS，PM2 管理 |
+| 数据库 | PostgreSQL（本地安装） |
+| 缓存 | Redis（本地安装） |
+| 反向代理 | Nginx + Let's Encrypt SSL |
+| 代理节点 | 香港/新加坡（访问 OpenAI/Claude/OpenRouter） |
+
+### 11.2 CI/CD（半自动）
+
+| 工作流 | 触发 | 操作 |
+|--------|------|------|
+| ci.yml | push 到 main（自动） | lint + typecheck + Docker 镜像构建推 ghcr.io |
+| deploy.yml | CI 成功后（需手动审批） | SSH → git pull → npm ci → prisma migrate → build → pm2 restart |
+| publish-sdk.yml | sdk/package.json version 变化（需手动审批） | npm publish |
+
+### 11.3 定时任务
+
+| 任务 | 频率 |
+|------|------|
+| 健康检查（活跃/备用/冷门） | 10min / 30min / 2h |
+| 模型自动同步 | 每日 04:00 |
+| 过期订单关闭 | 每 5 分钟 |
+| HealthCheck 记录清理 | 每日 04:30 |
+| 每日对账 | 每日 06:00 |
+| 代理节点检测 | 每 5 分钟 |
+| 余额告警检查 | 每小时 |
+
+### 11.4 测试环境
+
+Codex 测试 Agent 使用 docker-compose.test.yml 在独立 sandbox 中启动隔离的 app + PostgreSQL + Redis（端口 3099/5433/6380），不占 VPS 资源。按需手动触发。
+
+---
+
+## 12. 开发工具链
+
+### 12.1 Agent 分工
+
+| Agent | 职责 | 工具 |
+|-------|------|------|
+| Claude Code | 功能开发、Bug 修复 | Claude Code CLI |
+| Codex | 测试、审查、验收 | OpenAI Codex |
+| Claude（本对话） | 产品规划、架构决策、文档维护 | Claude.ai |
+
+### 12.2 职责边界
+
+- Claude Code 开发，Codex 测试，严格分离
+- Codex 只允许修改 tests/、scripts/test/、docs/test-reports/、docs/reviews/、docs/audits/
+- Codex 发现问题只输出缺陷报告，修复由 Claude Code 或人工完成
+- AGENTS.md 定义完整的工作边界
+
+---
+
+## 13. 外部服务依赖
+
+| 服务 | 用途 | SLA | 降级方案 |
+|------|------|-----|---------|
+| Jina Reader (r.jina.ai) | 渲染 SPA 文档页为 Markdown | 免费，无 SLA | 保留现有模型数据 |
+| 7 家 AI 服务商 API | 模型调用 | 各家不同 | 健康检查自动降级 |
+| 支付宝/微信支付 | 充值 | 商业 SLA | 订单超时关闭 |
+| GitHub Actions | CI/CD | GitHub SLA | 手动 SSH 部署 |
+| ghcr.io | Docker 镜像归档 | GitHub SLA | 仅归档用途，不影响运行 |
+
+---
+
+## 14. 版本路线图
+
+### P1（已完成）
+- 项目骨架 + 数据库（12 表）
+- 适配器引擎 + 7 家服务商对接
+- API 网关核心端点
+- 健康检查系统（三级验证 + 自动降级）
+- TypeScript SDK（已发布 npm）
+- 认证 + 计费 + 支付
+- 运营控制台（8 页）+ 开发者控制台（9 页）
+- 集成测试 + 部署配置
+- 修复轮（9 项 UI/Bug 修复）
+
+### P1 优化补丁（进行中）
+- 模型自动同步引擎（两层同步 + Jina + AI 提取）— 已完成
+- 模型/通道管理 UI 重构（三层折叠结构）— 进行中
+- 开发者模型页面重构（两层分组）— 进行中
+
+### P2（进行中）
+- MCP 服务器（7 个 Tools）— P2-1~P2-4 已完成
+- 控制台中英文国际化 — P2-5 进行中
+- MCP 集成测试 — P2-6 待办
+
+### P3（规划中）
+- Prompt 模板治理（版本管理、变量注入、硬编码检测、效果追踪、A/B 测试）
+- 解析位置：服务端（开发者传 templateId + variables，平台组装 prompt）
+- 管理权：两层（平台模板 + 项目模板）
+- MCP 创建模板：直接生效 + 版本保护
+
+### P3+（待规划）
+- 质量诊断
+- 自动 failover
+- 日志冷热分离
+- Python SDK
+
+---
+
+## 15. 技术栈汇总
+
+| 层次 | 技术选择 |
+|------|---------|
+| 后端框架 | Next.js（App Router + API Routes） |
+| 语言 | TypeScript |
+| ORM | Prisma |
+| 数据库 | PostgreSQL（主存储 + tsvector 全文搜索） |
+| 缓存 | Redis（限流 + 会话 + 缓存） |
+| 前端 | Next.js + shadcn/ui + Recharts + TanStack Table + Tailwind CSS |
+| SDK | TypeScript（@guangai/aigc-sdk） |
+| MCP | @modelcontextprotocol/sdk（Streamable HTTP） |
+| 支付 | 支付宝 + 微信支付 |
+| 部署 | PM2 + Nginx + Let's Encrypt |
+| CI/CD | GitHub Actions + ghcr.io |
+| 模型同步 | Jina Reader + DeepSeek AI 内部调用 |
+| 测试 | Codex Agent + docker-compose.test.yml |

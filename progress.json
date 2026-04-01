@@ -1,13 +1,13 @@
 {
   "status": "done",
-  "user_goal": "P1.6 模型同步引擎重构 — 两层同步架构（API + AI 文档提取），消除硬编码数据依赖",
-  "total_features": 11,
-  "completed_features": 11,
+  "user_goal": "P1.3 模型页面按原型还原",
+  "total_features": 4,
+  "completed_features": 4,
   "current_sprint": null,
-  "last_updated": "2026-04-01T04:15:00Z",
+  "last_updated": "2026-03-30T16:50:00Z",
   "evaluator_feedback": {
-    "summary": "P1.6 结项。两层同步架构 + Jina Reader + AI 提取 + 安全防护全部在生产验证通过。462 个模型对外可见，6 家 Provider 覆盖。已知限制：SiliconFlow 价格暂缺（Jina 对该页面不稳定），Anthropic 401（API Key 运营问题）。",
-    "pass_count": 11,
+    "summary": "4 PASS / 0 PARTIAL / 0 FAIL — 全部功能验证通过，原型还原度完整",
+    "pass_count": 4,
     "partial_count": 0,
     "fail_count": 0,
     "issues": []
