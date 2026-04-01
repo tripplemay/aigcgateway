@@ -1,20 +1,19 @@
 "use client";
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import { useTranslations } from "next-intl";
 import { apiFetch } from "@/lib/api-client";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { formatContext } from "@/lib/utils";
+import "material-symbols/outlined.css";
 
 // ============================================================
-// Types — model-first structure (F401 API)
+// Types
 // ============================================================
 
 interface ChannelEntry {
   id: string;
   realModelId: string;
-  providerName: string;
-  providerId: string;
   priority: number;
   costPrice: Record<string, unknown>;
   sellPrice: Record<string, unknown>;
@@ -25,7 +24,7 @@ interface ChannelEntry {
   totalCalls: number;
 }
 
-interface ModelGroup {
+interface ModelEntry {
   id: string;
   name: string;
   displayName: string;
@@ -33,23 +32,61 @@ interface ModelGroup {
   contextWindow: number | null;
   healthStatus: "healthy" | "degraded" | "unhealthy" | "unknown";
   sellPrice: Record<string, unknown> | null;
+  channels: ChannelEntry[];
+}
+
+interface ProviderGroup {
+  id: string;
+  name: string;
+  displayName: string;
   summary: {
-    channelCount: number;
+    modelCount: number;
     activeChannels: number;
     degradedChannels: number;
     disabledChannels: number;
   };
-  channels: ChannelEntry[];
+  models: ModelEntry[];
 }
 
 // ============================================================
 // Constants
 // ============================================================
 
-const STATUS_DOT = { ACTIVE: "#639922", DEGRADED: "#BA7517", DISABLED: "#E24B4A" };
-const HEALTH_DOT: Record<string, string> = { healthy: "#639922", degraded: "#BA7517", unhealthy: "#E24B4A", unknown: "#B4B2A9" };
+const PROVIDER_COLORS: Record<string, string> = {
+  openai: "#534AB7",
+  anthropic: "#D85A30",
+  deepseek: "#0F9D7A",
+  zhipu: "#185FA5",
+  volcengine: "#E24B4A",
+  siliconflow: "#0F9D7A",
+  openrouter: "#888780",
+};
+
+const PROVIDER_ABBR: Record<string, string> = {
+  openai: "OA",
+  anthropic: "An",
+  deepseek: "DS",
+  zhipu: "ZP",
+  volcengine: "VE",
+  siliconflow: "SF",
+  openrouter: "OR",
+};
+
+const STATUS_CFG = {
+  ACTIVE: { color: "#639922", bg: "bg-[#eaf3de]", text: "text-[#27500a]" },
+  DEGRADED: { color: "#BA7517", bg: "bg-[#faeeda]", text: "text-[#633806]" },
+  DISABLED: { color: "#E24B4A", bg: "bg-[#fcebeb]", text: "text-[#791f1f]" },
+} as const;
+
+const HEALTH_CFG: Record<string, { color: string; label: string }> = {
+  healthy: { color: "#639922", label: "Healthy" },
+  degraded: { color: "#BA7517", label: "Degraded" },
+  unhealthy: { color: "#E24B4A", label: "Unhealthy" },
+  unknown: { color: "#B4B2A9", label: "Unknown" },
+};
 
 const MODELS_PER_PAGE = 20;
+const MATRIX_PER_PAGE = 10;
 
 function fmtPrice(p: Record<string, unknown> | null) {
   if (!p) return "\u2014";
@@ -59,7 +96,11 @@ function fmtPrice(p: Record<string, unknown> | null) {
   }
   const inp = Number(p.inputPer1M ?? 0);
   const out = Number(p.outputPer1M ?? 0);
-  return inp === 0 && out === 0 ? "Free" : `$${inp} / $${out} /M`;
+  return inp === 0 && out === 0 ? "Free" : `$${inp} / $${out}`;
+}
+
+function MIcon({ name, className = "" }: { name: string; className?: string }) {
+  return <span className={`material-symbols-outlined ${className}`}>{name}</span>;
 }
 
 // ============================================================
@@ -70,46 +111,107 @@ export default function ModelsChannelsPage() {
   const t = useTranslations("adminModels");
   const tc = useTranslations("common");
 
-  const [data, setData] = useState<ModelGroup[]>([]);
+  const [data, setData] = useState<ProviderGroup[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [modality, setModality] = useState("");
   const [syncing, setSyncing] = useState(false);
   const [lastSyncTime, setLastSyncTime] = useState<string | null>(null);
   const [lastSyncResult, setLastSyncResult] = useState<{
-    summary: { totalNewChannels: number; totalDisabledChannels: number; totalFailedProviders: number };
+    summary: {
+      totalNewChannels: number;
+      totalDisabledChannels: number;
+      totalFailedProviders: number;
+    };
     providers: Array<{ providerName: string; success: boolean; error?: string }>;
   } | null>(null);
 
+  const [expandedProviders, setExpandedProviders] = useState<Set<string>>(new Set());
   const [expandedModels, setExpandedModels] = useState<Set<string>>(new Set());
-  const [visibleCount, setVisibleCount] = useState(MODELS_PER_PAGE);
+  const [showAllModels, setShowAllModels] = useState<Set<string>>(new Set());
 
   const [editingPriority, setEditingPriority] = useState<string | null>(null);
   const [priorityValue, setPriorityValue] = useState("");
   const [editingSellPrice, setEditingSellPrice] = useState<string | null>(null);
   const [sellPriceValue, setSellPriceValue] = useState("");
 
+  const [matrixPage, setMatrixPage] = useState(0);
+
+  // ── Data loading ──
   const load = useCallback(async () => {
     setLoading(true);
     const params = new URLSearchParams();
     if (modality) params.set("modality", modality);
     if (search) params.set("search", search);
     const q = params.toString() ? `?${params}` : "";
-    const r = await apiFetch<{ data: ModelGroup[] }>(`/api/admin/models-channels${q}`);
+    const r = await apiFetch<{ data: ProviderGroup[] }>(`/api/admin/models-channels${q}`);
     setData(r.data);
     setLoading(false);
   }, [modality, search]);
 
-  const loadSyncStatus = async () => {
+  const loadSyncStatus = useCallback(async () => {
     try {
-      const r = await apiFetch<{ data: { lastSyncTime: string | null; lastSyncResult: typeof lastSyncResult } }>("/api/admin/sync-status");
+      const r = await apiFetch<{
+        data: { lastSyncTime: string | null; lastSyncResult: typeof lastSyncResult };
+      }>("/api/admin/sync-status");
       setLastSyncTime(r.data.lastSyncTime);
       setLastSyncResult(r.data.lastSyncResult);
-    } catch { /* ignore */ }
-  };
+    } catch {
+      /* ignore */
+    }
+  }, []);
 
-  useEffect(() => { load(); loadSyncStatus(); }, [load]);
+  useEffect(() => {
+    load();
+    loadSyncStatus();
+  }, [load, loadSyncStatus]);
 
+  // ── Aggregated stats ──
+  const stats = useMemo(() => {
+    let totalChannels = 0,
+      activeChannels = 0,
+      degradedCount = 0;
+    let totalSuccess = 0,
+      totalCalls = 0;
+    data.forEach((prov) => {
+      totalChannels +=
+        prov.summary.activeChannels + prov.summary.degradedChannels + prov.summary.disabledChannels;
+      activeChannels += prov.summary.activeChannels;
+      degradedCount += prov.summary.degradedChannels;
+      prov.models.forEach((m) =>
+        m.channels.forEach((ch) => {
+          if (ch.successRate !== null && ch.totalCalls > 0) {
+            totalSuccess += ch.successRate * ch.totalCalls;
+            totalCalls += ch.totalCalls;
+          }
+        }),
+      );
+    });
+    const efficiency = totalCalls > 0 ? (totalSuccess / totalCalls).toFixed(1) : "—";
+    return { efficiency, activeChannels, totalChannels, degradedCount };
+  }, [data]);
+
+  // ── Flat matrix ──
+  const matrixRows = useMemo(() => {
+    const rows: Array<{ providerName: string; modelName: string; channel: ChannelEntry }> = [];
+    data.forEach((prov) =>
+      prov.models.forEach((m) =>
+        m.channels.forEach((ch) => {
+          rows.push({ providerName: prov.displayName, modelName: m.name, channel: ch });
+        }),
+      ),
+    );
+    return rows;
+  }, [data]);
+
+  const matrixTotal = matrixRows.length;
+  const matrixPageCount = Math.max(1, Math.ceil(matrixTotal / MATRIX_PER_PAGE));
+  const matrixSlice = matrixRows.slice(
+    matrixPage * MATRIX_PER_PAGE,
+    (matrixPage + 1) * MATRIX_PER_PAGE,
+  );
+
+  // ── Actions ──
   const handleSync = async () => {
     setSyncing(true);
     try {
@@ -117,20 +219,27 @@ export default function ModelsChannelsPage() {
       toast.success(t("syncSuccess"));
       await load();
       await loadSyncStatus();
-    } catch (e) { toast.error(`${t("syncFailed")}: ${(e as Error).message}`); }
-    finally { setSyncing(false); }
+    } catch (e) {
+      toast.error(`${t("syncFailed")}: ${(e as Error).message}`);
+    } finally {
+      setSyncing(false);
+    }
   };
 
   const toggle = (set: Set<string>, id: string) => {
     const next = new Set(set);
-    if (next.has(id)) next.delete(id); else next.add(id);
+    if (next.has(id)) next.delete(id);
+    else next.add(id);
     return next;
   };
 
   const savePriority = async (channelId: string) => {
     const p = Number(priorityValue);
     if (p > 0) {
-      await apiFetch(`/api/admin/channels/${channelId}`, { method: "PATCH", body: JSON.stringify({ priority: p }) });
+      await apiFetch(`/api/admin/channels/${channelId}`, {
+        method: "PATCH",
+        body: JSON.stringify({ priority: p }),
+      });
       toast.success(t("priorityUpdated"));
       load();
     }
@@ -139,238 +248,614 @@ export default function ModelsChannelsPage() {
 
   const saveSellPrice = async (ch: ChannelEntry) => {
     const val = Number(sellPriceValue);
-    if (isNaN(val) || val < 0) { setEditingSellPrice(null); return; }
+    if (isNaN(val) || val < 0) {
+      setEditingSellPrice(null);
+      return;
+    }
     const sp = ch.sellPrice;
-    const newSP = sp.unit === "call" ? { perCall: val, unit: "call" } : { inputPer1M: val, outputPer1M: val, unit: "token" };
-    await apiFetch(`/api/admin/channels/${ch.id}`, { method: "PATCH", body: JSON.stringify({ sellPrice: newSP }) });
+    const newSP =
+      sp.unit === "call"
+        ? { perCall: val, unit: "call" }
+        : { inputPer1M: val, outputPer1M: val, unit: "token" };
+    await apiFetch(`/api/admin/channels/${ch.id}`, {
+      method: "PATCH",
+      body: JSON.stringify({ sellPrice: newSP }),
+    });
     toast.success(t("priceSaved"));
     setEditingSellPrice(null);
     load();
   };
 
-  const visibleModels = data.slice(0, visibleCount);
-  const hasMore = data.length > visibleCount;
+  const levelBadge = (priority: number) => {
+    if (priority <= 1) return { label: "L1", cls: "bg-[var(--ds-primary)] text-white" };
+    if (priority <= 2) return { label: "L2", cls: "bg-[var(--ds-secondary)] text-white" };
+    return { label: "L3", cls: "bg-[var(--ds-outline)] text-white" };
+  };
 
+  // ── Render ──
   return (
-    <div>
-      {/* ── Header ── */}
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20 }}>
-        <h1 style={{ fontSize: 20, fontWeight: 500 }}>{t("title")}</h1>
-        <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+    <div className="max-w-[1200px]">
+      {/* ══════════ Page Header ══════════ */}
+      <div className="flex items-start justify-between mb-8">
+        <div>
+          <h1 className="text-3xl font-[var(--font-heading)] font-bold text-[var(--ds-on-surface)] mb-2">
+            {t("title")}
+          </h1>
+          <p className="text-[var(--ds-on-surface-variant)] text-sm leading-relaxed">
+            {t("pageDescription")}
+          </p>
+        </div>
+        <button className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[var(--ds-primary)] text-[var(--ds-on-primary)] text-sm font-medium hover:opacity-90 transition-opacity shrink-0">
+          <MIcon name="add" className="text-lg" />
+          {t("createChannel")}
+        </button>
+      </div>
+
+      {/* ══════════ Stats Cards ══════════ */}
+      <div className="grid grid-cols-3 gap-4 mb-8">
+        {/* Routing Efficiency */}
+        <div className="bg-[var(--ds-surface-container)] p-6 rounded-xl">
+          <div className="flex items-center gap-2 mb-3">
+            <MIcon name="route" className="text-[var(--ds-primary)] text-xl" />
+            <span className="text-[var(--ds-on-surface-variant)] text-xs font-medium uppercase tracking-wider">
+              {t("routingEfficiency")}
+            </span>
+          </div>
+          <p className="text-2xl font-[var(--font-heading)] font-bold text-[var(--ds-on-surface)]">
+            {stats.efficiency}%
+          </p>
+        </div>
+        {/* Provider Health */}
+        <div className="bg-[var(--ds-surface-container)] p-6 rounded-xl">
+          <div className="flex items-center gap-2 mb-3">
+            <MIcon name="health_and_safety" className="text-[var(--ds-primary)] text-xl" />
+            <span className="text-[var(--ds-on-surface-variant)] text-xs font-medium uppercase tracking-wider">
+              {t("providerHealth")}
+            </span>
+          </div>
+          <p className="text-2xl font-[var(--font-heading)] font-bold text-[var(--ds-on-surface)]">
+            {stats.activeChannels}/{stats.totalChannels}
+          </p>
+          {stats.degradedCount > 0 && (
+            <p className="text-xs text-[var(--ds-error)] mt-1">
+              {stats.degradedCount} {t("degraded")}
+            </p>
+          )}
+        </div>
+        {/* Pricing Drift */}
+        <div className="bg-[var(--ds-surface-container)] p-6 rounded-xl">
+          <div className="flex items-center gap-2 mb-3">
+            <MIcon name="trending_down" className="text-[var(--ds-primary)] text-xl" />
+            <span className="text-[var(--ds-on-surface-variant)] text-xs font-medium uppercase tracking-wider">
+              {t("pricingDrift")}
+            </span>
+          </div>
+          <p className="text-2xl font-[var(--font-heading)] font-bold text-[var(--ds-on-surface)]">
+            —
+          </p>
+        </div>
+      </div>
+
+      {/* ══════════ Search & Filter Bar ══════════ */}
+      <div className="flex items-center gap-3 mb-6">
+        {/* Search */}
+        <div className="flex-1 flex items-center bg-[var(--ds-surface-container)] rounded-lg px-4 py-2.5">
+          <MIcon name="search" className="text-[var(--ds-on-surface-variant)] text-lg" />
           <input
-            className="focus:outline-none"
-            style={{ fontSize: 13, padding: "7px 12px", border: "0.5px solid #e5e4e0", borderRadius: 8, width: 220, background: "#fff", fontFamily: "inherit" }}
             type="text"
             placeholder={t("searchPlaceholder")}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
+            className="flex-1 ml-2 bg-transparent outline-none text-sm text-[var(--ds-on-surface)] placeholder:text-[var(--ds-outline)]"
           />
-          <div style={{ display: "flex", gap: 2, background: "#e5e4e0", borderRadius: 8, padding: 2 }}>
-            {[{ val: "", label: t("all") }, { val: "TEXT", label: t("text") }, { val: "IMAGE", label: t("image") }].map((m) => (
-              <button
-                key={m.val}
-                onClick={() => setModality(m.val)}
-                style={{
-                  fontSize: 13, padding: "6px 14px", borderRadius: 6, cursor: "pointer",
-                  background: modality === m.val ? "#fff" : "transparent",
-                  color: modality === m.val ? "#2C2C2A" : "#5F5E5A",
-                  fontWeight: modality === m.val ? 500 : 400,
-                  border: "none", fontFamily: "inherit",
-                  boxShadow: modality === m.val ? "0 0 0 0.5px #e5e4e0" : "none",
-                }}
-              >
-                {m.label}
-              </button>
-            ))}
-          </div>
-          <button
-            onClick={handleSync}
-            disabled={syncing}
-            style={{ fontSize: 12, padding: "7px 14px", borderRadius: 8, border: "0.5px solid #e5e4e0", background: "#fff", color: "#2C2C2A", cursor: "pointer", fontFamily: "inherit" }}
-          >
-            {syncing ? t("syncing") : `\u21BB ${t("syncModels")}`}
-          </button>
         </div>
+        {/* Modality pills */}
+        <div className="flex gap-1 bg-[var(--ds-surface-container)] rounded-lg p-1">
+          {[
+            { val: "", label: t("all") },
+            { val: "TEXT", label: t("text") },
+            { val: "IMAGE", label: t("image") },
+          ].map((m) => (
+            <button
+              key={m.val}
+              onClick={() => setModality(m.val)}
+              className={`text-sm px-4 py-1.5 rounded-md transition-all ${
+                modality === m.val
+                  ? "bg-[var(--ds-surface-container-lowest)] text-[var(--ds-on-surface)] font-medium shadow-sm"
+                  : "text-[var(--ds-on-surface-variant)] hover:text-[var(--ds-on-surface)]"
+              }`}
+            >
+              {m.label}
+            </button>
+          ))}
+        </div>
+        {/* Filter */}
+        <button className="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-[var(--ds-surface-container-lowest)] text-[var(--ds-on-surface-variant)] text-sm hover:bg-[var(--ds-surface-container)] transition-colors border border-[var(--ds-outline-variant)]/40">
+          <MIcon name="filter_list" className="text-lg" />
+          {t("filter")}
+        </button>
+        {/* Sort */}
+        <button className="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-[var(--ds-surface-container-lowest)] text-[var(--ds-on-surface-variant)] text-sm hover:bg-[var(--ds-surface-container)] transition-colors border border-[var(--ds-outline-variant)]/40">
+          <MIcon name="sort" className="text-lg" />
+          {t("sortBy")}
+        </button>
+        {/* Sync */}
+        <button
+          onClick={handleSync}
+          disabled={syncing}
+          className="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-[var(--ds-primary)] text-[var(--ds-on-primary)] text-sm font-medium hover:opacity-90 transition-opacity disabled:opacity-50"
+        >
+          <MIcon name="sync" className="text-lg" />
+          {syncing ? t("syncing") : t("syncModels")}
+        </button>
       </div>
 
-      {/* ── Model list ── */}
+      {/* ══════════ Provider Cards ══════════ */}
       {loading ? (
-        <p style={{ textAlign: "center", padding: "48px 0", color: "#888780" }}>{tc("loading")}</p>
+        <div className="text-center py-12 text-[var(--ds-outline)]">{tc("loading")}</div>
       ) : (
-        <div style={{ border: "0.5px solid #e5e4e0", borderRadius: 12, overflow: "hidden", background: "#fff" }}>
-          {visibleModels.map((model) => {
-            const expanded = expandedModels.has(model.id);
+        <div className="flex flex-col gap-3">
+          {data.map((prov) => {
+            const expanded = expandedProviders.has(prov.id);
+            const bgColor = PROVIDER_COLORS[prov.name] ?? "#888780";
+            const abbr = PROVIDER_ABBR[prov.name] ?? prov.displayName.slice(0, 2);
+            const visibleModels = showAllModels.has(prov.id)
+              ? prov.models
+              : prov.models.slice(0, MODELS_PER_PAGE);
+            const hasMore = prov.models.length > MODELS_PER_PAGE && !showAllModels.has(prov.id);
+            const totalProv =
+              prov.summary.activeChannels +
+              prov.summary.degradedChannels +
+              prov.summary.disabledChannels;
+            const healthLabel =
+              prov.summary.degradedChannels > 0 || prov.summary.disabledChannels > 0
+                ? "degraded"
+                : "healthy";
+
             return (
-              <div key={model.id}>
-                {/* Model row */}
-                <div
-                  onClick={() => setExpandedModels((s) => toggle(s, model.id))}
-                  style={{
-                    display: "flex", alignItems: "center", gap: 12, padding: "10px 16px", cursor: "pointer",
-                    background: expanded ? "#f8f7f5" : "transparent",
-                    borderBottom: "0.5px solid #f3f2ee",
-                  }}
-                  onMouseEnter={(e) => { if (!expanded) e.currentTarget.style.background = "#f8f7f5"; }}
-                  onMouseLeave={(e) => { if (!expanded) e.currentTarget.style.background = "transparent"; }}
+              <div
+                key={prov.id}
+                className="bg-[var(--ds-surface-container-high)] rounded-xl overflow-hidden"
+              >
+                {/* Provider header */}
+                <button
+                  onClick={() => setExpandedProviders((s) => toggle(s, prov.id))}
+                  className="w-full flex items-center gap-3 p-4 hover:bg-[var(--ds-surface-container)] transition-colors text-left"
                 >
-                  <span style={{ width: 7, height: 7, borderRadius: "50%", background: HEALTH_DOT[model.healthStatus], flexShrink: 0, display: "inline-block" }} />
-                  <span style={{ fontSize: 13, fontWeight: 500, flex: 1, fontFamily: "'SF Mono','Fira Code','Consolas',monospace" }}>{model.name}</span>
-                  <span style={{
-                    fontSize: 11, padding: "2px 8px", borderRadius: 4, fontWeight: 500,
-                    background: model.modality === "TEXT" ? "#E6F1FB" : "#FBEAF0",
-                    color: model.modality === "TEXT" ? "#0C447C" : "#72243E",
-                  }}>
-                    {model.modality.toLowerCase()}
-                  </span>
-                  <span style={{ fontSize: 12, color: "#888780" }}>{model.contextWindow ? formatContext(model.contextWindow) : "\u2014"}</span>
-                  <span style={{ fontSize: 12, color: "#5F5E5A", fontFamily: "'SF Mono','Fira Code','Consolas',monospace" }}>{fmtPrice(model.sellPrice)}</span>
-                  <div style={{ display: "flex", gap: 8, alignItems: "center", fontSize: 12, color: "#888780" }}>
-                    {model.summary.activeChannels > 0 && (
-                      <span style={{ display: "flex", alignItems: "center", gap: 3 }}>
-                        <span style={{ width: 6, height: 6, borderRadius: "50%", background: STATUS_DOT.ACTIVE, display: "inline-block" }} />
-                        {model.summary.activeChannels}
-                      </span>
-                    )}
-                    {model.summary.degradedChannels > 0 && (
-                      <span style={{ display: "flex", alignItems: "center", gap: 3 }}>
-                        <span style={{ width: 6, height: 6, borderRadius: "50%", background: STATUS_DOT.DEGRADED, display: "inline-block" }} />
-                        {model.summary.degradedChannels}
-                      </span>
-                    )}
-                    {model.summary.disabledChannels > 0 && (
-                      <span style={{ display: "flex", alignItems: "center", gap: 3 }}>
-                        <span style={{ width: 6, height: 6, borderRadius: "50%", background: STATUS_DOT.DISABLED, display: "inline-block" }} />
-                        {model.summary.disabledChannels}
-                      </span>
-                    )}
+                  <div
+                    className="w-10 h-10 rounded-lg flex items-center justify-center text-sm font-semibold text-white shrink-0"
+                    style={{ background: bgColor }}
+                  >
+                    {abbr}
                   </div>
-                  <span style={{ fontSize: 12, color: "#B4B2A9" }}>{expanded ? "\u25B2" : "\u25B6"}</span>
-                </div>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-[var(--font-heading)] font-bold text-[var(--ds-on-surface)] text-sm">
+                      {prov.displayName}
+                    </h3>
+                    <p className="text-xs text-[var(--ds-on-surface-variant)]">
+                      {prov.summary.modelCount} {t("models")} {t("active")}
+                    </p>
+                  </div>
+                  {/* Status chips */}
+                  <div className="flex items-center gap-2">
+                    {prov.summary.activeChannels > 0 && (
+                      <span className="flex items-center gap-1 text-xs">
+                        <span
+                          className="w-2 h-2 rounded-full"
+                          style={{ background: STATUS_CFG.ACTIVE.color }}
+                        />
+                        <span className="text-[var(--ds-on-surface-variant)]">
+                          {prov.summary.activeChannels}
+                        </span>
+                      </span>
+                    )}
+                    {prov.summary.degradedChannels > 0 && (
+                      <span className="flex items-center gap-1 text-xs">
+                        <span
+                          className="w-2 h-2 rounded-full"
+                          style={{ background: STATUS_CFG.DEGRADED.color }}
+                        />
+                        <span className="text-[var(--ds-on-surface-variant)]">
+                          {prov.summary.degradedChannels}
+                        </span>
+                      </span>
+                    )}
+                    {prov.summary.disabledChannels > 0 && (
+                      <span className="flex items-center gap-1 text-xs">
+                        <span
+                          className="w-2 h-2 rounded-full"
+                          style={{ background: STATUS_CFG.DISABLED.color }}
+                        />
+                        <span className="text-[var(--ds-on-surface-variant)]">
+                          {prov.summary.disabledChannels}
+                        </span>
+                      </span>
+                    )}
+                    <span
+                      className={`ml-2 px-2 py-0.5 rounded text-xs font-medium ${
+                        healthLabel === "healthy"
+                          ? "bg-[#eaf3de] text-[#27500a]"
+                          : "bg-[#faeeda] text-[#633806]"
+                      }`}
+                    >
+                      L1 {HEALTH_CFG[healthLabel].label}
+                    </span>
+                    <MIcon
+                      name={expanded ? "expand_less" : "expand_more"}
+                      className="text-[var(--ds-outline)] text-xl"
+                    />
+                  </div>
+                </button>
 
-                {/* Channel cards */}
+                {/* Model list */}
                 {expanded && (
-                  <div style={{ background: "#f8f7f5", padding: 12, margin: "0 16px 8px", borderRadius: 8 }}>
-                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
-                      {model.channels.map((ch) => {
-                        const borderColor = STATUS_DOT[ch.status];
-                        const barColor = (ch.successRate ?? 0) >= 90 ? "#639922" : (ch.successRate ?? 0) >= 50 ? "#BA7517" : "#E24B4A";
+                  <div className="px-4 pb-4">
+                    <div className="space-y-1">
+                      {visibleModels.map((model) => {
+                        const modelExpanded = expandedModels.has(model.id);
                         return (
-                          <div
-                            key={ch.id}
-                            style={{
-                              background: "#fff", borderRadius: "0 8px 8px 0", padding: "12px 14px",
-                              border: "0.5px solid #e5e4e0", borderLeft: `3px solid ${borderColor}`,
-                              opacity: ch.status === "DISABLED" ? 0.6 : 1, position: "relative",
-                            }}
-                          >
-                            {/* Top: provider name + priority */}
-                            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
-                              <span style={{ fontSize: 13, fontWeight: 500 }}>{ch.providerName}</span>
-                              {editingPriority === ch.id ? (
-                                <Input
-                                  className="w-12 h-6 text-center text-xs"
-                                  autoFocus
-                                  value={priorityValue}
-                                  onChange={(e) => setPriorityValue(e.target.value)}
-                                  onBlur={() => savePriority(ch.id)}
-                                  onKeyDown={(e) => e.key === "Enter" && savePriority(ch.id)}
-                                />
-                              ) : (
-                                <span
-                                  onClick={(e) => { e.stopPropagation(); setEditingPriority(ch.id); setPriorityValue(String(ch.priority)); }}
-                                  style={{ fontSize: 11, color: "#888780", background: "#f3f2ee", padding: "2px 8px", borderRadius: 4, cursor: "pointer" }}
-                                >
-                                  P{ch.priority}
-                                </span>
-                              )}
-                            </div>
-
-                            {/* 4 stats */}
-                            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "4px 12px" }}>
-                              <span style={{ fontSize: 11, color: "#888780" }}>Cost <b style={{ color: "#2C2C2A", fontWeight: 500 }}>{fmtPrice(ch.costPrice)}</b></span>
-                              <span style={{ fontSize: 11, color: "#888780" }}>
-                                Sell{" "}
-                                {editingSellPrice === ch.id ? (
-                                  <Input
-                                    className="inline w-16 h-5 text-xs font-mono"
-                                    autoFocus
-                                    value={sellPriceValue}
-                                    onChange={(e) => setSellPriceValue(e.target.value)}
-                                    onBlur={() => saveSellPrice(ch)}
-                                    onKeyDown={(e) => e.key === "Enter" && saveSellPrice(ch)}
-                                  />
-                                ) : (
-                                  <b
-                                    style={{ color: "#2C2C2A", fontWeight: 500, cursor: "pointer" }}
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      setEditingSellPrice(ch.id);
-                                      setSellPriceValue(String(ch.sellPrice.unit === "call" ? ch.sellPrice.perCall : ch.sellPrice.inputPer1M));
-                                    }}
-                                  >
-                                    {fmtPrice(ch.sellPrice)}
-                                  </b>
-                                )}
-                                {ch.sellPriceLocked && <span title={t("priceLocked")}> 🔒</span>}
+                          <div key={model.id}>
+                            {/* Model row */}
+                            <button
+                              onClick={() => setExpandedModels((s) => toggle(s, model.id))}
+                              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left transition-colors ${
+                                modelExpanded
+                                  ? "bg-[var(--ds-surface)]"
+                                  : "hover:bg-[var(--ds-surface)]"
+                              }`}
+                            >
+                              <MIcon
+                                name="model_training"
+                                className="text-[var(--ds-on-surface-variant)] text-lg"
+                              />
+                              <span
+                                className="w-2 h-2 rounded-full shrink-0"
+                                style={{
+                                  background: HEALTH_CFG[model.healthStatus]?.color ?? "#B4B2A9",
+                                }}
+                              />
+                              <span className="flex-1 text-sm font-medium font-mono text-[var(--ds-on-surface)] truncate">
+                                {model.name}
                               </span>
-                              <span style={{ fontSize: 11, color: "#888780" }}>Latency <b style={{ color: "#2C2C2A", fontWeight: 500 }}>{ch.latencyMs !== null ? `${ch.latencyMs}ms` : "\u2014"}</b></span>
-                              <span style={{ fontSize: 11, color: "#888780" }}>Success <b style={{ color: "#2C2C2A", fontWeight: 500 }}>{ch.successRate !== null ? `${ch.successRate}%` : "\u2014"}</b></span>
-                            </div>
+                              <span
+                                className={`text-[10px] px-2 py-0.5 rounded font-medium ${
+                                  model.modality === "TEXT"
+                                    ? "bg-[var(--color-info-bg)] text-[var(--color-info-text)]"
+                                    : "bg-[var(--color-image-bg)] text-[var(--color-image-text)]"
+                                }`}
+                              >
+                                {model.modality.toLowerCase()}
+                              </span>
+                              <span className="text-xs text-[var(--ds-on-surface-variant)] w-16 text-right">
+                                {model.contextWindow ? formatContext(model.contextWindow) : "—"}
+                              </span>
+                              <span className="text-xs font-mono text-[var(--ds-on-surface-variant)] w-28 text-right">
+                                {fmtPrice(model.sellPrice)}
+                              </span>
+                              <MIcon
+                                name={modelExpanded ? "expand_less" : "expand_more"}
+                                className="text-[var(--ds-outline)] text-lg"
+                              />
+                            </button>
 
-                            {/* Progress bar */}
-                            <div style={{ height: 3, borderRadius: 2, marginTop: 8, background: "#e5e4e0" }}>
-                              <div style={{ height: 3, borderRadius: 2, width: `${ch.successRate ?? 0}%`, background: barColor }} />
-                            </div>
+                            {/* Channel clusters */}
+                            {modelExpanded && (
+                              <div className="bg-[var(--ds-surface)] rounded-lg p-3 mx-3 mb-2 space-y-2">
+                                {model.channels.map((ch) => {
+                                  const badge = levelBadge(ch.priority);
+                                  const barColor =
+                                    (ch.successRate ?? 0) >= 90
+                                      ? "#639922"
+                                      : (ch.successRate ?? 0) >= 50
+                                        ? "#BA7517"
+                                        : "#E24B4A";
+                                  return (
+                                    <div
+                                      key={ch.id}
+                                      className={`flex items-center justify-between p-3 rounded-lg bg-[var(--ds-surface-container-lowest)] ${
+                                        ch.status === "DISABLED" ? "opacity-50" : ""
+                                      }`}
+                                    >
+                                      <div className="flex-1 min-w-0">
+                                        <div className="flex items-center gap-2 mb-1">
+                                          <span className="text-sm font-medium text-[var(--ds-on-surface)]">
+                                            {ch.realModelId}
+                                          </span>
+                                          <span
+                                            className={`text-[10px] px-1.5 py-0.5 rounded font-medium ${badge.cls}`}
+                                          >
+                                            {badge.label}
+                                          </span>
+                                        </div>
+                                        <div className="flex items-center gap-4 text-xs text-[var(--ds-on-surface-variant)]">
+                                          <span>
+                                            {t("costPrice")}:{" "}
+                                            <b className="text-[var(--ds-on-surface)] font-medium">
+                                              {fmtPrice(ch.costPrice)}
+                                            </b>
+                                          </span>
+                                          <span>
+                                            {t("sellPrice")}:{" "}
+                                            {editingSellPrice === ch.id ? (
+                                              <Input
+                                                className="inline w-16 h-5 text-xs font-mono"
+                                                autoFocus
+                                                value={sellPriceValue}
+                                                onChange={(e) => setSellPriceValue(e.target.value)}
+                                                onBlur={() => saveSellPrice(ch)}
+                                                onKeyDown={(e) =>
+                                                  e.key === "Enter" && saveSellPrice(ch)
+                                                }
+                                              />
+                                            ) : (
+                                              <b
+                                                className="text-[var(--ds-on-surface)] font-medium cursor-pointer hover:underline"
+                                                onClick={(e) => {
+                                                  e.stopPropagation();
+                                                  setEditingSellPrice(ch.id);
+                                                  setSellPriceValue(
+                                                    String(
+                                                      ch.sellPrice.unit === "call"
+                                                        ? ch.sellPrice.perCall
+                                                        : ch.sellPrice.inputPer1M,
+                                                    ),
+                                                  );
+                                                }}
+                                              >
+                                                {fmtPrice(ch.sellPrice)}
+                                              </b>
+                                            )}
+                                            {ch.sellPriceLocked && (
+                                              <MIcon
+                                                name="lock"
+                                                className="text-[10px] ml-0.5 text-[var(--ds-outline)]"
+                                              />
+                                            )}
+                                          </span>
+                                          <span>
+                                            {t("latency")}:{" "}
+                                            <b className="text-[var(--ds-on-surface)] font-medium">
+                                              {ch.latencyMs !== null ? `${ch.latencyMs}ms` : "—"}
+                                            </b>
+                                          </span>
+                                          <span>
+                                            {t("successRate")}:{" "}
+                                            <b className="text-[var(--ds-on-surface)] font-medium">
+                                              {ch.successRate !== null ? `${ch.successRate}%` : "—"}
+                                            </b>
+                                          </span>
+                                        </div>
+                                        {/* Progress bar */}
+                                        <div className="h-[3px] rounded-full mt-2 bg-[var(--ds-outline-variant)]/30 w-full max-w-[200px]">
+                                          <div
+                                            className="h-[3px] rounded-full"
+                                            style={{
+                                              width: `${ch.successRate ?? 0}%`,
+                                              background: barColor,
+                                            }}
+                                          />
+                                        </div>
+                                      </div>
+                                      <div className="flex items-center gap-3 ml-4">
+                                        {/* Priority badge */}
+                                        {editingPriority === ch.id ? (
+                                          <Input
+                                            className="w-12 h-6 text-center text-xs"
+                                            autoFocus
+                                            value={priorityValue}
+                                            onChange={(e) => setPriorityValue(e.target.value)}
+                                            onBlur={() => savePriority(ch.id)}
+                                            onKeyDown={(e) =>
+                                              e.key === "Enter" && savePriority(ch.id)
+                                            }
+                                          />
+                                        ) : (
+                                          <span
+                                            onClick={(e) => {
+                                              e.stopPropagation();
+                                              setEditingPriority(ch.id);
+                                              setPriorityValue(String(ch.priority));
+                                            }}
+                                            className="text-xs text-[var(--ds-on-surface-variant)] bg-[var(--ds-surface-container)] px-2 py-0.5 rounded cursor-pointer hover:bg-[var(--ds-surface-container-high)]"
+                                          >
+                                            P{ch.priority}
+                                          </span>
+                                        )}
+                                        {/* Status dot */}
+                                        <span
+                                          className="w-2 h-2 rounded-full"
+                                          style={{ background: STATUS_CFG[ch.status].color }}
+                                          title={ch.status}
+                                        />
+                                      </div>
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                            )}
                           </div>
                         );
                       })}
                     </div>
+
+                    {/* Show all button */}
+                    {hasMore && (
+                      <button
+                        onClick={() =>
+                          setShowAllModels((s) => {
+                            const n = new Set(s);
+                            n.add(prov.id);
+                            return n;
+                          })
+                        }
+                        className="w-full py-2.5 text-xs text-[var(--ds-on-surface-variant)] hover:text-[var(--ds-on-surface)] transition-colors"
+                      >
+                        {t("showAll", { count: prov.models.length })}
+                      </button>
+                    )}
                   </div>
                 )}
               </div>
             );
           })}
+        </div>
+      )}
 
-          {/* Show all button */}
-          {hasMore && (
-            <button
-              onClick={() => setVisibleCount(data.length)}
-              style={{ display: "block", width: "100%", padding: "10px 0", fontSize: 12, color: "#5F5E5A", background: "transparent", border: "none", borderTop: "0.5px solid #f3f2ee", cursor: "pointer", fontFamily: "inherit" }}
-            >
-              {t("showAll", { count: data.length })}
-            </button>
+      {/* ══════════ Global Model Matrix ══════════ */}
+      {!loading && matrixRows.length > 0 && (
+        <div className="mt-8 bg-[var(--ds-surface-container-high)] rounded-xl p-6">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="font-[var(--font-heading)] font-bold text-[var(--ds-on-surface)]">
+              {t("globalModelMatrix")}
+            </h2>
+            <div className="flex items-center gap-3 text-sm text-[var(--ds-on-surface-variant)]">
+              <span>
+                {matrixTotal} {t("total")}
+              </span>
+              <button onClick={() => load()} className="hover:text-[var(--ds-on-surface)]">
+                <MIcon name="refresh" className="text-lg" />
+              </button>
+            </div>
+          </div>
+
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="bg-[var(--ds-surface-container)]">
+                <th className="text-left p-3 text-xs font-semibold uppercase tracking-wider text-[var(--ds-on-surface-variant)]">
+                  {t("modelIdentifier")}
+                </th>
+                <th className="text-left p-3 text-xs font-semibold uppercase tracking-wider text-[var(--ds-on-surface-variant)]">
+                  {t("provider")}
+                </th>
+                <th className="text-left p-3 text-xs font-semibold uppercase tracking-wider text-[var(--ds-on-surface-variant)]">
+                  {t("availability")}
+                </th>
+                <th className="text-left p-3 text-xs font-semibold uppercase tracking-wider text-[var(--ds-on-surface-variant)]">
+                  {t("tokenCost")}
+                </th>
+                <th className="text-left p-3 text-xs font-semibold uppercase tracking-wider text-[var(--ds-on-surface-variant)]">
+                  {t("latency")}
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {matrixSlice.map((row, i) => (
+                <tr
+                  key={`${row.channel.id}-${i}`}
+                  className="hover:bg-[var(--ds-surface-container)] transition-colors"
+                >
+                  <td className="p-3 font-mono text-[var(--ds-on-surface)]">{row.modelName}</td>
+                  <td className="p-3 text-[var(--ds-on-surface-variant)]">{row.providerName}</td>
+                  <td className="p-3">
+                    <span
+                      className="inline-block w-2 h-2 rounded-full"
+                      style={{ background: STATUS_CFG[row.channel.status].color }}
+                    />
+                  </td>
+                  <td className="p-3 font-mono text-[var(--ds-on-surface)]">
+                    {fmtPrice(row.channel.costPrice)}
+                  </td>
+                  <td className="p-3 text-[var(--ds-on-surface-variant)]">
+                    {row.channel.latencyMs !== null ? `${row.channel.latencyMs}ms` : "—"}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+
+          {/* Pagination */}
+          {matrixPageCount > 1 && (
+            <div className="flex items-center justify-between mt-4 text-sm">
+              <span className="text-[var(--ds-on-surface-variant)]">
+                {t("showingEntries", { count: matrixSlice.length, total: matrixTotal })}
+              </span>
+              <div className="flex gap-1">
+                <button
+                  onClick={() => setMatrixPage((p) => Math.max(0, p - 1))}
+                  disabled={matrixPage === 0}
+                  className="px-3 py-1 rounded border border-[var(--ds-outline-variant)]/50 text-[var(--ds-on-surface-variant)] hover:bg-[var(--ds-surface-container)] disabled:opacity-40"
+                >
+                  {t("previous")}
+                </button>
+                {Array.from({ length: Math.min(5, matrixPageCount) }, (_, i) => {
+                  const page = matrixPage < 3 ? i : matrixPage - 2 + i;
+                  if (page >= matrixPageCount) return null;
+                  return (
+                    <button
+                      key={page}
+                      onClick={() => setMatrixPage(page)}
+                      className={`px-3 py-1 rounded ${
+                        page === matrixPage
+                          ? "bg-[var(--ds-primary)] text-[var(--ds-on-primary)]"
+                          : "border border-[var(--ds-outline-variant)]/50 text-[var(--ds-on-surface-variant)] hover:bg-[var(--ds-surface-container)]"
+                      }`}
+                    >
+                      {page + 1}
+                    </button>
+                  );
+                })}
+                <button
+                  onClick={() => setMatrixPage((p) => Math.min(matrixPageCount - 1, p + 1))}
+                  disabled={matrixPage >= matrixPageCount - 1}
+                  className="px-3 py-1 rounded border border-[var(--ds-outline-variant)]/50 text-[var(--ds-on-surface-variant)] hover:bg-[var(--ds-surface-container)] disabled:opacity-40"
+                >
+                  {t("next")}
+                </button>
+              </div>
+            </div>
           )}
         </div>
       )}
 
-      {/* ── Footer ── */}
-      <div style={{ fontSize: 11, color: "#B4B2A9", display: "flex", gap: 16, marginTop: 16, alignItems: "center" }}>
-        <span style={{ display: "flex", alignItems: "center", gap: 4 }}>
-          <span style={{ width: 7, height: 7, borderRadius: "50%", background: "#639922", display: "inline-block" }} /> {t("active")}
+      {/* ══════════ Footer ══════════ */}
+      <div className="flex items-center gap-4 mt-6 text-xs text-[var(--ds-on-surface-variant)]">
+        <span className="flex items-center gap-1.5">
+          <span className="w-2 h-2 rounded-full" style={{ background: STATUS_CFG.ACTIVE.color }} />{" "}
+          {t("active")}
         </span>
-        <span style={{ display: "flex", alignItems: "center", gap: 4 }}>
-          <span style={{ width: 7, height: 7, borderRadius: "50%", background: "#BA7517", display: "inline-block" }} /> {t("degraded")}
+        <span className="flex items-center gap-1.5">
+          <span
+            className="w-2 h-2 rounded-full"
+            style={{ background: STATUS_CFG.DEGRADED.color }}
+          />{" "}
+          {t("degraded")}
         </span>
-        <span style={{ display: "flex", alignItems: "center", gap: 4 }}>
-          <span style={{ width: 7, height: 7, borderRadius: "50%", background: "#E24B4A", display: "inline-block" }} /> {t("disabled")}
+        <span className="flex items-center gap-1.5">
+          <span
+            className="w-2 h-2 rounded-full"
+            style={{ background: STATUS_CFG.DISABLED.color }}
+          />{" "}
+          {t("disabled")}
         </span>
         {lastSyncTime && (
-          <span style={{ marginLeft: "auto" }}>{t("lastSync")}: {new Date(lastSyncTime).toLocaleString()}</span>
+          <span className="ml-auto">
+            {t("lastSync")}: {new Date(lastSyncTime).toLocaleString()}
+          </span>
         )}
       </div>
 
       {/* Sync result */}
       {lastSyncResult && (
-        <div style={{ border: "0.5px solid #e5e4e0", borderRadius: 8, padding: 12, marginTop: 8, background: "#f8f7f5", fontSize: 11, color: "#888780" }}>
+        <div className="bg-[var(--ds-surface-container)] rounded-lg p-3 mt-2 text-xs text-[var(--ds-on-surface-variant)]">
           <span>{t("syncResult")}: </span>
-          <span style={{ color: "#639922" }}>+{lastSyncResult.summary.totalNewChannels} {t("newChannels")}</span>
-          <span style={{ margin: "0 8px" }}>-{lastSyncResult.summary.totalDisabledChannels} {t("disabledLabel")}</span>
+          <span className="text-[#639922]">
+            +{lastSyncResult.summary.totalNewChannels} {t("newChannels")}
+          </span>
+          <span className="mx-2">
+            -{lastSyncResult.summary.totalDisabledChannels} {t("disabledLabel")}
+          </span>
           {lastSyncResult.summary.totalFailedProviders > 0 && (
-            <span style={{ color: "#E24B4A" }}>{lastSyncResult.summary.totalFailedProviders} {t("failedLabel")}</span>
+            <span className="text-[var(--ds-error)]">
+              {lastSyncResult.summary.totalFailedProviders} {t("failedLabel")}
+            </span>
           )}
-          {lastSyncResult.providers.filter((p) => !p.success).map((p) => (
-            <div key={p.providerName} style={{ color: "#E24B4A", marginTop: 4 }}>{"\u2717"} {p.providerName}: {p.error}</div>
-          ))}
+          {lastSyncResult.providers
+            .filter((p) => !p.success)
+            .map((p) => (
+              <div key={p.providerName} className="text-[var(--ds-error)] mt-1">
+                ✗ {p.providerName}: {p.error}
+              </div>
+            ))}
         </div>
       )}
     </div>

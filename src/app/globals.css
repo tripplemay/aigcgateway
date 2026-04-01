@@ -1,11 +1,12 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
+@import "material-symbols/outlined.css";
 
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-    --font-heading: var(--font-sans);
+    --font-heading: var(--font-heading), 'Manrope', sans-serif;
     --font-sans: var(--font-sans);
     --color-sidebar-ring: var(--sidebar-ring);
     --color-sidebar-border: var(--sidebar-border);
@@ -164,6 +165,23 @@
     --chart-coral: #E85D30;
     --chart-blue: #2B7BD5;
     --chart-amber: #D4940E;
+
+    /* Algorithmic Atelier design system */
+    --ds-primary: #5443b9;
+    --ds-primary-container: #6d5dd3;
+    --ds-on-primary: #ffffff;
+    --ds-surface: #faf8ff;
+    --ds-surface-container: #eaedff;
+    --ds-surface-container-high: #e2e7ff;
+    --ds-surface-container-low: #f2f3ff;
+    --ds-surface-container-lowest: #ffffff;
+    --ds-on-surface: #131b2e;
+    --ds-on-surface-variant: #474553;
+    --ds-outline: #787584;
+    --ds-outline-variant: #c9c4d5;
+    --ds-error: #ba1a1a;
+    --ds-tertiary: #7c4b00;
+    --ds-secondary: #5f5987;
 }
 
 .dark {

@@ -9,7 +9,11 @@ const messages = { en, "zh-CN": zhCN };
 function IntlInner({ children }: { children: React.ReactNode }) {
   const { locale } = useLocale();
   return (
-    <NextIntlClientProvider locale={locale} messages={messages[locale]}>
+    <NextIntlClientProvider
+      locale={locale}
+      messages={messages[locale]}
+      timeZone={Intl.DateTimeFormat().resolvedOptions().timeZone}
+    >
       {children}
     </NextIntlClientProvider>
   );
