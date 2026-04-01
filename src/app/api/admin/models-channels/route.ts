@@ -15,7 +15,9 @@ export async function GET(request: Request) {
   const models = await prisma.model.findMany({
     where: {
       channels: { some: {} },
-      ...(modalityFilter ? { modality: modalityFilter as "TEXT" | "IMAGE" | "VIDEO" | "AUDIO" } : {}),
+      ...(modalityFilter
+        ? { modality: modalityFilter as "TEXT" | "IMAGE" | "VIDEO" | "AUDIO" }
+        : {}),
       ...(search ? { name: { contains: search, mode: "insensitive" as const } } : {}),
     },
     include: {
@@ -67,94 +69,105 @@ export async function GET(request: Request) {
     if (entry) entry.successCalls = s._count.id;
   }
 
-  // 3. Build model-first grouped response
-  const result = models.map((model) => {
-    const sortedChannels = [...model.channels].sort(
-      (a, b) => a.priority - b.priority,
-    );
+  // 3. Build channel entries with stats for each model
+  function buildChannelEntry(ch: (typeof models)[0]["channels"][0]) {
+    const stats = statsMap.get(ch.id);
+    const hc = ch.healthChecks[0];
+    let latencyMs: number | null = null;
+    let successRate: number | null = null;
+    if (stats && stats.totalCalls > 0) {
+      latencyMs = stats.avgLatencyMs ? Math.round(stats.avgLatencyMs) : null;
+      successRate = Math.round((stats.successCalls / stats.totalCalls) * 100);
+    } else if (hc) {
+      latencyMs = hc.latencyMs;
+      successRate = hc.result === "PASS" ? 100 : 0;
+    }
+    return {
+      id: ch.id,
+      realModelId: ch.realModelId,
+      priority: ch.priority,
+      costPrice: ch.costPrice,
+      sellPrice: ch.sellPrice,
+      sellPriceLocked: ch.sellPriceLocked,
+      status: ch.status,
+      latencyMs,
+      successRate,
+      totalCalls: stats?.totalCalls ?? 0,
+    };
+  }
 
-    const channelEntries = sortedChannels.map((ch) => {
-      const stats = statsMap.get(ch.id);
-      const hc = ch.healthChecks[0];
+  function deriveHealth(channels: ReturnType<typeof buildChannelEntry>[]) {
+    const best = channels.find((c) => c.status === "ACTIVE");
+    if (!best) return "unknown" as const;
+    if (best.successRate !== null && best.successRate >= 90) return "healthy" as const;
+    if (best.successRate !== null && best.successRate >= 50) return "degraded" as const;
+    if (best.successRate !== null) return "unhealthy" as const;
+    return "unknown" as const;
+  }
 
-      let latencyMs: number | null = null;
-      let successRate: number | null = null;
+  // 4. Group by provider
+  const providerMap = new Map<
+    string,
+    {
+      id: string;
+      name: string;
+      displayName: string;
+      models: Map<
+        string,
+        { model: (typeof models)[0]; channels: ReturnType<typeof buildChannelEntry>[] }
+      >;
+    }
+  >();
 
-      if (stats && stats.totalCalls > 0) {
-        latencyMs = stats.avgLatencyMs
-          ? Math.round(stats.avgLatencyMs)
-          : null;
-        successRate = Math.round(
-          (stats.successCalls / stats.totalCalls) * 100,
-        );
-      } else if (hc) {
-        latencyMs = hc.latencyMs;
-        successRate = hc.result === "PASS" ? 100 : 0;
+  for (const model of models) {
+    for (const ch of model.channels) {
+      const prov = ch.provider;
+      let group = providerMap.get(prov.id);
+      if (!group) {
+        group = { id: prov.id, name: prov.name, displayName: prov.displayName, models: new Map() };
+        providerMap.set(prov.id, group);
       }
+      let modelGroup = group.models.get(model.id);
+      if (!modelGroup) {
+        modelGroup = { model, channels: [] };
+        group.models.set(model.id, modelGroup);
+      }
+      modelGroup.channels.push(buildChannelEntry(ch));
+    }
+  }
 
+  const result = Array.from(providerMap.values()).map((group) => {
+    let activeChannels = 0,
+      degradedChannels = 0,
+      disabledChannels = 0;
+    const modelEntries = Array.from(group.models.values()).map(({ model, channels }) => {
+      const sorted = channels.sort((a, b) => a.priority - b.priority);
+      activeChannels += sorted.filter((c) => c.status === "ACTIVE").length;
+      degradedChannels += sorted.filter((c) => c.status === "DEGRADED").length;
+      disabledChannels += sorted.filter((c) => c.status === "DISABLED").length;
+      const bestSellPrice = sorted.find((c) => c.status === "ACTIVE")?.sellPrice ?? null;
       return {
-        id: ch.id,
-        realModelId: ch.realModelId,
-        providerName: ch.provider.displayName,
-        providerId: ch.provider.id,
-        priority: ch.priority,
-        costPrice: ch.costPrice,
-        sellPrice: ch.sellPrice,
-        sellPriceLocked: ch.sellPriceLocked,
-        status: ch.status,
-        latencyMs,
-        successRate,
-        totalCalls: stats?.totalCalls ?? 0,
+        id: model.id,
+        name: model.name,
+        displayName: model.displayName,
+        modality: model.modality,
+        contextWindow: model.contextWindow,
+        healthStatus: deriveHealth(sorted),
+        sellPrice: bestSellPrice,
+        channels: sorted,
       };
     });
-
-    // Model health = best ACTIVE channel's health
-    const bestActive = channelEntries.find((c) => c.status === "ACTIVE");
-    let healthStatus: "healthy" | "degraded" | "unhealthy" | "unknown" =
-      "unknown";
-    if (bestActive) {
-      if (bestActive.successRate !== null && bestActive.successRate >= 90)
-        healthStatus = "healthy";
-      else if (
-        bestActive.successRate !== null &&
-        bestActive.successRate >= 50
-      )
-        healthStatus = "degraded";
-      else if (bestActive.successRate !== null)
-        healthStatus = "unhealthy";
-    }
-
-    // Best sellPrice (from highest priority ACTIVE channel)
-    const bestSellPrice = sortedChannels.find(
-      (c) => c.status === "ACTIVE",
-    )?.sellPrice;
-
-    // Channel status summary
-    const activeCount = sortedChannels.filter(
-      (c) => c.status === "ACTIVE",
-    ).length;
-    const degradedCount = sortedChannels.filter(
-      (c) => c.status === "DEGRADED",
-    ).length;
-    const disabledCount = sortedChannels.filter(
-      (c) => c.status === "DISABLED",
-    ).length;
-
     return {
-      id: model.id,
-      name: model.name,
-      displayName: model.displayName,
-      modality: model.modality,
-      contextWindow: model.contextWindow,
-      healthStatus,
-      sellPrice: bestSellPrice ?? null,
+      id: group.id,
+      name: group.name,
+      displayName: group.displayName,
       summary: {
-        channelCount: channelEntries.length,
-        activeChannels: activeCount,
-        degradedChannels: degradedCount,
-        disabledChannels: disabledCount,
+        modelCount: modelEntries.length,
+        activeChannels,
+        degradedChannels,
+        disabledChannels,
       },
-      channels: channelEntries,
+      models: modelEntries,
     };
   });
 
