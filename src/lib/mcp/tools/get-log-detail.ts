@@ -8,8 +8,12 @@
 import { z } from "zod";
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { prisma } from "@/lib/prisma";
+import { checkMcpPermission } from "@/lib/mcp/auth";
+import type { McpServerOptions } from "@/lib/mcp/server";
 
-export function registerGetLogDetail(server: McpServer, projectId: string): void {
+export function registerGetLogDetail(server: McpServer, opts: McpServerOptions): void {
+  const { projectId, permissions } = opts;
+
   server.tool(
     "get_log_detail",
     `Get full details of a specific AI call by trace ID. Returns the complete prompt (messages array), AI response, model parameters, token usage, cost, and latency. Useful for debugging prompt quality issues.`,
@@ -17,6 +21,10 @@ export function registerGetLogDetail(server: McpServer, projectId: string): void
       trace_id: z.string().describe("The traceId of the call to look up"),
     },
     async ({ trace_id }) => {
+      const permErr = checkMcpPermission(permissions, "logAccess");
+      if (permErr) {
+        return { content: [{ type: "text" as const, text: permErr }], isError: true };
+      }
       const log = await prisma.callLog.findUnique({
         where: { traceId: trace_id },
         select: {
@@ -43,7 +51,9 @@ export function registerGetLogDetail(server: McpServer, projectId: string): void
 
       if (!log) {
         return {
-          content: [{ type: "text" as const, text: `Call log with traceId "${trace_id}" not found.` }],
+          content: [
+            { type: "text" as const, text: `Call log with traceId "${trace_id}" not found.` },
+          ],
           isError: true,
         };
       }
@@ -51,7 +61,12 @@ export function registerGetLogDetail(server: McpServer, projectId: string): void
       // Cross-project access check
       if (log.projectId !== projectId) {
         return {
-          content: [{ type: "text" as const, text: `Access denied: this call log belongs to a different project.` }],
+          content: [
+            {
+              type: "text" as const,
+              text: `Access denied: this call log belongs to a different project.`,
+            },
+          ],
           isError: true,
         };
       }
@@ -79,10 +94,12 @@ export function registerGetLogDetail(server: McpServer, projectId: string): void
       };
 
       return {
-        content: [{
-          type: "text" as const,
-          text: JSON.stringify(result, null, 2),
-        }],
+        content: [
+          {
+            type: "text" as const,
+            text: JSON.stringify(result, null, 2),
+          },
+        ],
       };
     },
   );

@@ -21,7 +21,7 @@ export async function POST(request: Request) {
   // 1. 鉴权
   const auth = await authenticateApiKey(request);
   if (!auth.ok) return auth.error;
-  const { project } = auth.ctx;
+  const { project, apiKey } = auth.ctx;
 
   // 2. 余额检查
   const balanceCheck = checkBalance(project);
@@ -41,8 +41,8 @@ export async function POST(request: Request) {
     });
   }
 
-  // 4. 限流（图片 RPM）
-  const rateCheck = await checkRateLimit(project, "image");
+  // 4. 限流（Key 级 RPM 收紧）
+  const rateCheck = await checkRateLimit(project, "image", apiKey.rateLimit);
   if (!rateCheck.ok) return rateCheck.error;
   const rateLimitHeaders = rateCheck.headers;
 

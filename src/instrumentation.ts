@@ -11,6 +11,7 @@
 export async function register() {
   // 仅在 Node.js server 运行时启动（不在 edge runtime 或 build 时）
   if (process.env.NEXT_RUNTIME === "nodejs") {
+    const { prisma } = await import("@/lib/prisma");
     const { startScheduler, cleanupOldRecords } = await import("@/lib/health/scheduler");
     const { startBillingScheduler } = await import("@/lib/billing/scheduler");
     const { startModelSyncScheduler } = await import("@/lib/sync/scheduler");
@@ -35,6 +36,27 @@ export async function register() {
 
     // 启动模型同步调度器（启动时同步 + 每天 04:00 定时同步）
     startModelSyncScheduler();
+
+    // 每小时扫描并吊销过期 API Key
+    setInterval(
+      async () => {
+        try {
+          const result = await prisma.apiKey.updateMany({
+            where: {
+              status: "ACTIVE",
+              expiresAt: { lt: new Date() },
+            },
+            data: { status: "REVOKED" },
+          });
+          if (result.count > 0) {
+            console.log(`[key-expiry] Auto-revoked ${result.count} expired keys`);
+          }
+        } catch (err) {
+          console.error("[key-expiry] error:", err);
+        }
+      },
+      60 * 60 * 1000,
+    );
 
     console.log("[instrumentation] Schedulers started");
   }

@@ -8,8 +8,12 @@
 import { z } from "zod";
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { prisma } from "@/lib/prisma";
+import { checkMcpPermission } from "@/lib/mcp/auth";
+import type { McpServerOptions } from "@/lib/mcp/server";
 
-export function registerListModels(server: McpServer): void {
+export function registerListModels(server: McpServer, opts: McpServerOptions): void {
+  const { permissions } = opts;
+
   server.tool(
     "list_models",
     `List available AI models on AIGC Gateway with pricing and capabilities. Use this to find the right model for a task, or to generate SDK code with correct model names. Filter by modality (text/image) if needed.`,
@@ -20,14 +24,16 @@ export function registerListModels(server: McpServer): void {
         .describe("Filter by modality: text or image. Omit to return all models."),
     },
     async ({ modality }) => {
+      const permErr = checkMcpPermission(permissions, "projectInfo");
+      if (permErr) {
+        return { content: [{ type: "text" as const, text: permErr }], isError: true };
+      }
       const modalityFilter = modality?.toUpperCase();
 
       const models = await prisma.model.findMany({
         where: {
           channels: { some: { status: "ACTIVE" } },
-          ...(modalityFilter
-            ? { modality: modalityFilter as "TEXT" | "IMAGE" }
-            : {}),
+          ...(modalityFilter ? { modality: modalityFilter as "TEXT" | "IMAGE" } : {}),
         },
         include: {
           channels: {
@@ -41,9 +47,7 @@ export function registerListModels(server: McpServer): void {
       });
 
       const data = models.map((model) => {
-        const sellPrice = model.channels[0]?.sellPrice as
-          | Record<string, unknown>
-          | undefined;
+        const sellPrice = model.channels[0]?.sellPrice as Record<string, unknown> | undefined;
 
         let price = "N/A";
         if (sellPrice) {
@@ -55,8 +59,7 @@ export function registerListModels(server: McpServer): void {
           }
         }
 
-        const capabilities =
-          (model.capabilities as Record<string, unknown>) ?? {};
+        const capabilities = (model.capabilities as Record<string, unknown>) ?? {};
 
         return {
           name: model.name,

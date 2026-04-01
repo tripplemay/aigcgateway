@@ -8,28 +8,49 @@
 import { z } from "zod";
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { prisma } from "@/lib/prisma";
+import { checkMcpPermission } from "@/lib/mcp/auth";
+import type { McpServerOptions } from "@/lib/mcp/server";
 
-export function registerListLogs(server: McpServer, projectId: string): void {
+export function registerListLogs(server: McpServer, opts: McpServerOptions): void {
+  const { projectId, permissions } = opts;
+
   server.tool(
     "list_logs",
     `List recent AI call logs for your project. Shows trace ID, model, status, prompt preview, cost, and latency. Use 'search' to find calls by prompt content. Use get_log_detail with a trace ID for the full prompt and response.`,
     {
-      limit: z.number().int().min(1).max(50).optional().describe("Number of logs to return, default 10, max 50"),
+      limit: z
+        .number()
+        .int()
+        .min(1)
+        .max(50)
+        .optional()
+        .describe("Number of logs to return, default 10, max 50"),
       model: z.string().optional().describe("Filter by model name, e.g. openai/gpt-4o"),
       status: z.enum(["success", "error", "filtered"]).optional().describe("Filter by status"),
       search: z.string().optional().describe("Full-text search in prompt content"),
     },
     async ({ limit, model, status, search }) => {
+      const permErr = checkMcpPermission(permissions, "logAccess");
+      if (permErr) {
+        return { content: [{ type: "text" as const, text: permErr }], isError: true };
+      }
       const take = limit ?? 10;
 
       // Full-text search path
       if (search) {
         const tsQuery = search.split(/\s+/).filter(Boolean).join(" & ");
-        const results = await prisma.$queryRaw<Array<{
-          traceId: string; modelName: string; status: string; sellPrice: number | null;
-          latencyMs: number | null; totalTokens: number | null; createdAt: Date;
-          promptSnapshot: unknown;
-        }>>`
+        const results = await prisma.$queryRaw<
+          Array<{
+            traceId: string;
+            modelName: string;
+            status: string;
+            sellPrice: number | null;
+            latencyMs: number | null;
+            totalTokens: number | null;
+            createdAt: Date;
+            promptSnapshot: unknown;
+          }>
+        >`
           SELECT "traceId", "modelName", status, "sellPrice"::float, "latencyMs", "totalTokens", "createdAt", "promptSnapshot"
           FROM call_logs
           WHERE "projectId" = ${projectId} AND search_vector @@ to_tsquery('simple', ${tsQuery})
@@ -37,10 +58,12 @@ export function registerListLogs(server: McpServer, projectId: string): void {
         `;
 
         return {
-          content: [{
-            type: "text" as const,
-            text: JSON.stringify(results.map(formatLog), null, 2),
-          }],
+          content: [
+            {
+              type: "text" as const,
+              text: JSON.stringify(results.map(formatLog), null, 2),
+            },
+          ],
         };
       }
 
@@ -68,10 +91,12 @@ export function registerListLogs(server: McpServer, projectId: string): void {
       });
 
       return {
-        content: [{
-          type: "text" as const,
-          text: JSON.stringify(logs.map(formatLog), null, 2),
-        }],
+        content: [
+          {
+            type: "text" as const,
+            text: JSON.stringify(logs.map(formatLog), null, 2),
+          },
+        ],
       };
     },
   );
@@ -89,9 +114,10 @@ function formatLog(log: {
 }) {
   const snapshot = log.promptSnapshot as Array<{ content?: string }> | null;
   const lastUserMsg = snapshot?.filter((m) => (m as { role?: string }).role === "user").pop();
-  const preview = typeof lastUserMsg?.content === "string"
-    ? lastUserMsg.content.slice(0, 100) + (lastUserMsg.content.length > 100 ? "..." : "")
-    : null;
+  const preview =
+    typeof lastUserMsg?.content === "string"
+      ? lastUserMsg.content.slice(0, 100) + (lastUserMsg.content.length > 100 ? "..." : "")
+      : null;
 
   return {
     traceId: log.traceId,

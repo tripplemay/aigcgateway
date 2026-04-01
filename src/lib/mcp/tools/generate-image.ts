@@ -14,8 +14,11 @@ import { prisma } from "@/lib/prisma";
 import { checkRateLimit } from "@/lib/api/rate-limit";
 import { EngineError } from "@/lib/engine/types";
 import type { ImageGenerationRequest } from "@/lib/engine/types";
+import { checkMcpPermission } from "@/lib/mcp/auth";
+import type { McpServerOptions } from "@/lib/mcp/server";
 
-export function registerGenerateImage(server: McpServer, projectId: string): void {
+export function registerGenerateImage(server: McpServer, opts: McpServerOptions): void {
+  const { projectId, permissions, keyRateLimit } = opts;
   server.tool(
     "generate_image",
     `Generate images using an AI model via AIGC Gateway. Returns image URLs, trace ID, and cost. Use list_models with modality 'image' to find available image models.`,
@@ -32,6 +35,12 @@ export function registerGenerateImage(server: McpServer, projectId: string): voi
         .describe("Number of images to generate, default 1"),
     },
     async ({ model, prompt, size, n }) => {
+      // Permission check
+      const permErr = checkMcpPermission(permissions, "imageGeneration");
+      if (permErr) {
+        return { content: [{ type: "text" as const, text: permErr }], isError: true };
+      }
+
       // Check balance
       const project = await prisma.project.findUnique({ where: { id: projectId } });
       if (!project || Number(project.balance) <= 0) {
@@ -47,7 +56,7 @@ export function registerGenerateImage(server: McpServer, projectId: string): voi
       }
 
       // Rate limit (image RPM)
-      const rateCheck = await checkRateLimit(project, "image");
+      const rateCheck = await checkRateLimit(project, "image", keyRateLimit);
       if (!rateCheck.ok) {
         return {
           content: [

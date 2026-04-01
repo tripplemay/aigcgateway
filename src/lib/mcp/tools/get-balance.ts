@@ -8,15 +8,26 @@
 import { z } from "zod";
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { prisma } from "@/lib/prisma";
+import { checkMcpPermission } from "@/lib/mcp/auth";
+import type { McpServerOptions } from "@/lib/mcp/server";
 
-export function registerGetBalance(server: McpServer, projectId: string): void {
+export function registerGetBalance(server: McpServer, opts: McpServerOptions): void {
+  const { projectId, permissions } = opts;
+
   server.tool(
     "get_balance",
     `Check your project's current balance and optionally view recent transactions. Set include_transactions to true to see the last 10 charges, top-ups, and adjustments.`,
     {
-      include_transactions: z.boolean().optional().describe("Include last 10 transactions, default false"),
+      include_transactions: z
+        .boolean()
+        .optional()
+        .describe("Include last 10 transactions, default false"),
     },
     async ({ include_transactions }) => {
+      const permErr = checkMcpPermission(permissions, "projectInfo");
+      if (permErr) {
+        return { content: [{ type: "text" as const, text: permErr }], isError: true };
+      }
       const project = await prisma.project.findUnique({
         where: { id: projectId },
         select: { balance: true },
@@ -57,10 +68,12 @@ export function registerGetBalance(server: McpServer, projectId: string): void {
       }
 
       return {
-        content: [{
-          type: "text" as const,
-          text: JSON.stringify(result, null, 2),
-        }],
+        content: [
+          {
+            type: "text" as const,
+            text: JSON.stringify(result, null, 2),
+          },
+        ],
       };
     },
   );

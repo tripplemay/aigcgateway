@@ -31,14 +31,18 @@ type RateLimitResult =
 
 /**
  * 检查 RPM 限流
+ * @param keyRateLimit — Key 级 RPM 覆盖（只能收紧，不能超过项目级）
  */
 export async function checkRateLimit(
   project: Project,
   type: "text" | "image",
+  keyRateLimit?: number | null,
 ): Promise<RateLimitResult> {
   const redis = getRedis();
   const limits = getProjectLimits(project);
-  const limit = type === "image" ? limits.imageRpm : limits.rpm;
+  const projectLimit = type === "image" ? limits.imageRpm : limits.rpm;
+  // Key 级 RPM 只能收紧（Math.min），不能超过项目级
+  const limit = keyRateLimit != null ? Math.min(keyRateLimit, projectLimit) : projectLimit;
 
   const now = Math.floor(Date.now() / 1000);
   const windowStart = now - 60;

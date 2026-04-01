@@ -8,15 +8,26 @@
 import { z } from "zod";
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { prisma } from "@/lib/prisma";
+import { checkMcpPermission } from "@/lib/mcp/auth";
+import type { McpServerOptions } from "@/lib/mcp/server";
 
-export function registerGetUsageSummary(server: McpServer, projectId: string): void {
+export function registerGetUsageSummary(server: McpServer, opts: McpServerOptions): void {
+  const { projectId, permissions } = opts;
+
   server.tool(
     "get_usage_summary",
     `Get usage summary for your project over a time period. Returns total calls, cost, tokens, average latency, and top models by usage. Default period is last 7 days. Use 'today', '7d', or '30d'.`,
     {
-      period: z.enum(["today", "7d", "30d"]).optional().describe("Time period: today, 7d (default), or 30d"),
+      period: z
+        .enum(["today", "7d", "30d"])
+        .optional()
+        .describe("Time period: today, 7d (default), or 30d"),
     },
     async ({ period }) => {
+      const permErr = checkMcpPermission(permissions, "projectInfo");
+      if (permErr) {
+        return { content: [{ type: "text" as const, text: permErr }], isError: true };
+      }
       const p = period ?? "7d";
       const days = p === "today" ? 1 : p === "30d" ? 30 : 7;
       const since = new Date(Date.now() - days * 86400000);
@@ -43,7 +54,8 @@ export function registerGetUsageSummary(server: McpServer, projectId: string): v
         totalCalls: agg._count,
         totalCost: `$${Number(agg._sum.sellPrice ?? 0).toFixed(4)}`,
         totalTokens: agg._sum.totalTokens ?? 0,
-        avgLatency: agg._avg.latencyMs != null ? `${(agg._avg.latencyMs / 1000).toFixed(1)}s` : null,
+        avgLatency:
+          agg._avg.latencyMs != null ? `${(agg._avg.latencyMs / 1000).toFixed(1)}s` : null,
         topModels: topModels.map((m) => ({
           model: m.modelName,
           calls: m._count,
@@ -52,10 +64,12 @@ export function registerGetUsageSummary(server: McpServer, projectId: string): v
       };
 
       return {
-        content: [{
-          type: "text" as const,
-          text: JSON.stringify(result, null, 2),
-        }],
+        content: [
+          {
+            type: "text" as const,
+            text: JSON.stringify(result, null, 2),
+          },
+        ],
       };
     },
   );

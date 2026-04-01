@@ -21,7 +21,7 @@ export async function POST(request: Request) {
   // 1. 鉴权
   const auth = await authenticateApiKey(request);
   if (!auth.ok) return auth.error;
-  const { project } = auth.ctx;
+  const { project, apiKey } = auth.ctx;
 
   // 2. 余额检查
   const balanceCheck = checkBalance(project);
@@ -41,8 +41,8 @@ export async function POST(request: Request) {
     });
   }
 
-  // 4. 限流
-  const rateCheck = await checkRateLimit(project, "text");
+  // 4. 限流（Key 级 RPM 收紧）
+  const rateCheck = await checkRateLimit(project, "text", apiKey.rateLimit);
   if (!rateCheck.ok) return rateCheck.error;
   const rateLimitHeaders = rateCheck.headers;
 
@@ -65,10 +65,28 @@ export async function POST(request: Request) {
 
   // 6. 执行请求
   if (body.stream) {
-    return handleStream(body, route, adapter, traceId, project.id, modelName, startTime, rateLimitHeaders);
+    return handleStream(
+      body,
+      route,
+      adapter,
+      traceId,
+      project.id,
+      modelName,
+      startTime,
+      rateLimitHeaders,
+    );
   }
 
-  return handleNonStream(body, route, adapter, traceId, project.id, modelName, startTime, rateLimitHeaders);
+  return handleNonStream(
+    body,
+    route,
+    adapter,
+    traceId,
+    project.id,
+    modelName,
+    startTime,
+    rateLimitHeaders,
+  );
 }
 
 // ============================================================
@@ -189,9 +207,7 @@ async function handleStream(
               model: modelName,
             };
 
-            controller.enqueue(
-              encoder.encode(`data: ${JSON.stringify(outputChunk)}\n\n`),
-            );
+            controller.enqueue(encoder.encode(`data: ${JSON.stringify(outputChunk)}\n\n`));
           }
 
           // 发送 [DONE]

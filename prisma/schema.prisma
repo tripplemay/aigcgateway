@@ -132,14 +132,20 @@ model Project {
 }
 
 model ApiKey {
-  id         String       @id @default(cuid())
-  projectId  String
-  keyHash    String       @unique
-  keyPrefix  String
-  name       String?
-  status     ApiKeyStatus @default(ACTIVE)
-  lastUsedAt DateTime?
-  createdAt  DateTime     @default(now())
+  id          String       @id @default(cuid())
+  projectId   String
+  keyHash     String       @unique
+  keyPrefix   String
+  name        String?
+  description String?
+  status      ApiKeyStatus @default(ACTIVE)
+  permissions Json         @default("{}")
+  expiresAt   DateTime?
+  rateLimit   Int?
+  ipWhitelist Json?
+  lastUsedAt  DateTime?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
 
   project Project @relation(fields: [projectId], references: [id])
 

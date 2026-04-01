@@ -14,13 +14,16 @@ import { prisma } from "@/lib/prisma";
 import { checkRateLimit } from "@/lib/api/rate-limit";
 import { EngineError } from "@/lib/engine/types";
 import type { ChatCompletionRequest } from "@/lib/engine/types";
+import { checkMcpPermission } from "@/lib/mcp/auth";
+import type { McpServerOptions } from "@/lib/mcp/server";
 
 const messageSchema = z.object({
   role: z.enum(["system", "user", "assistant"]),
   content: z.string(),
 });
 
-export function registerChat(server: McpServer, projectId: string): void {
+export function registerChat(server: McpServer, opts: McpServerOptions): void {
+  const { projectId, permissions, keyRateLimit } = opts;
   server.tool(
     "chat",
     `Send a chat completion request to an AI model via AIGC Gateway. The platform handles provider routing, cost tracking, and audit logging. Returns the generated text, trace ID for debugging, and token usage with cost. Use list_models first to find available models and their pricing.`,
@@ -31,6 +34,12 @@ export function registerChat(server: McpServer, projectId: string): void {
       max_tokens: z.number().int().positive().optional().describe("Maximum output tokens"),
     },
     async ({ model, messages, temperature, max_tokens }) => {
+      // Permission check
+      const permErr = checkMcpPermission(permissions, "chatCompletion");
+      if (permErr) {
+        return { content: [{ type: "text" as const, text: permErr }], isError: true };
+      }
+
       // Check balance
       const project = await prisma.project.findUnique({ where: { id: projectId } });
       if (!project || Number(project.balance) <= 0) {
@@ -46,7 +55,7 @@ export function registerChat(server: McpServer, projectId: string): void {
       }
 
       // Rate limit
-      const rateCheck = await checkRateLimit(project, "text");
+      const rateCheck = await checkRateLimit(project, "text", keyRateLimit);
       if (!rateCheck.ok) {
         return {
           content: [
