@@ -56,17 +56,23 @@ npm run build
 
 # ── 4. 启动 + 就绪探针 ──
 echo "=== [4/4] Start on :3099 ==="
-node .next/standalone/server.js &
+nohup node .next/standalone/server.js > /tmp/aigc-test-server.log 2>&1 &
 APP_PID=$!
+disown $APP_PID
 
 for i in $(seq 1 30); do
-  if curl -sf http://localhost:3099/v1/models > /dev/null 2>&1; then
+  if curl -sf --noproxy '*' http://localhost:3099/v1/models > /dev/null 2>&1; then
     echo "=== Test environment ready at http://localhost:3099 (PID: $APP_PID) ==="
+    echo "=== Server log: /tmp/aigc-test-server.log ==="
     exit 0
+  fi
+  if ! kill -0 $APP_PID 2>/dev/null; then
+    echo "ERROR: Server process exited unexpectedly. Check /tmp/aigc-test-server.log" >&2
+    exit 1
   fi
   sleep 2
 done
 
-echo "ERROR: App failed to start within 60 seconds" >&2
+echo "ERROR: App failed to start within 60 seconds. Check /tmp/aigc-test-server.log" >&2
 kill $APP_PID 2>/dev/null || true
 exit 1

@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>API Keys - AIGC Gateway</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&amp;family=Inter:wght@100..900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "surface-container-highest": "#dae2fd",
+              "on-background": "#131b2e",
+              "surface-container-low": "#f2f3ff",
+              "surface-dim": "#d2d9f4",
+              "tertiary-fixed-dim": "#ffb964",
+              "surface-tint": "#5c4cc1",
+              "surface": "#faf8ff",
+              "surface-container": "#eaedff",
+              "primary-fixed-dim": "#c8bfff",
+              "on-tertiary-container": "#fff0e4",
+              "on-tertiary-fixed": "#2b1700",
+              "on-primary-fixed-variant": "#4431a8",
+              "outline": "#787584",
+              "on-primary-fixed": "#190064",
+              "surface-container-lowest": "#ffffff",
+              "primary": "#5443b9",
+              "outline-variant": "#c9c4d5",
+              "tertiary-fixed": "#ffddba",
+              "on-surface-variant": "#474553",
+              "surface-bright": "#faf8ff",
+              "inverse-on-surface": "#eef0ff",
+              "primary-container": "#6d5dd3",
+              "background": "#faf8ff",
+              "secondary": "#5f5987",
+              "primary-fixed": "#e5deff",
+              "on-secondary": "#ffffff",
+              "secondary-fixed": "#e5deff",
+              "error-container": "#ffdad6",
+              "tertiary-container": "#9d6100",
+              "on-secondary-fixed-variant": "#47416e",
+              "tertiary": "#7c4b00",
+              "secondary-fixed-dim": "#c8c0f5",
+              "surface-variant": "#dae2fd",
+              "on-tertiary": "#ffffff",
+              "surface-container-high": "#e2e7ff",
+              "on-tertiary-fixed-variant": "#663e00",
+              "on-primary-container": "#f6f1ff",
+              "on-primary": "#ffffff",
+              "secondary-container": "#d0c9fe",
+              "on-error-container": "#93000a",
+              "inverse-primary": "#c8bfff",
+              "on-secondary-fixed": "#1b153f",
+              "on-secondary-container": "#585280",
+              "inverse-surface": "#283044",
+              "error": "#ba1a1a",
+              "on-surface": "#131b2e",
+              "on-error": "#ffffff"
+            },
+            fontFamily: {
+              "headline": ["Manrope"],
+              "body": ["Inter"],
+              "label": ["Inter"]
+            },
+            borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+          },
+        },
+      }
+    </script>
+<style>
+        body { font-family: 'Manrope', sans-serif; }
+        .font-manrope { font-family: 'Manrope', sans-serif; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+    </style>
+</head>
+<body class="bg-surface text-on-surface antialiased overflow-hidden">
+<!-- SideNavBar from Layout Shell -->
+<aside class="fixed left-0 top-0 h-full w-64 bg-slate-50 dark:bg-slate-900 flex flex-col py-6 z-40">
+<div class="px-6 mb-8">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-primary to-primary-container flex items-center justify-center">
+<span class="material-symbols-outlined text-white text-lg" data-icon="token">token</span>
+</div>
+<div class="flex flex-col">
+<span class="text-lg font-black tracking-tighter text-[#5443b9] dark:text-[#6D5DD3] font-manrope">AIGC Gateway</span>
+<span class="text-[10px] uppercase tracking-widest text-slate-400 font-bold">Algorithmic Atelier</span>
+</div>
+</div>
+</div>
+<div class="px-4 mb-6">
+<button class="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-primary to-primary-container text-white text-sm font-bold font-manrope flex items-center justify-center gap-2 shadow-lg shadow-primary/20 scale-95 active:scale-100 transition-transform">
+<span class="material-symbols-outlined text-sm" data-icon="add">add</span>
+                New Project
+            </button>
+</div>
+<nav class="flex-1 space-y-1 overflow-y-auto px-2">
+<a class="flex items-center gap-3 px-4 py-2 text-slate-500 dark:text-slate-400 hover:bg-[#f2f3ff] dark:hover:bg-slate-800/80 transition-colors font-manrope tracking-tight font-bold text-sm" href="#">
+<span class="material-symbols-outlined" data-icon="folder_managed">folder_managed</span>
+                Projects
+            </a>
+<a class="flex items-center gap-3 px-4 py-2 text-slate-500 dark:text-slate-400 hover:bg-[#f2f3ff] dark:hover:bg-slate-800/80 transition-colors font-manrope tracking-tight font-bold text-sm" href="#">
+<span class="material-symbols-outlined" data-icon="smart_toy">smart_toy</span>
+                Models
+            </a>
+<a class="flex items-center gap-3 px-4 py-2 text-slate-500 dark:text-slate-400 hover:bg-[#f2f3ff] dark:hover:bg-slate-800/80 transition-colors font-manrope tracking-tight font-bold text-sm" href="#">
+<span class="material-symbols-outlined" data-icon="terminal">terminal</span>
+                Logs
+            </a>
+<a class="flex items-center gap-3 px-4 py-2 text-slate-500 dark:text-slate-400 hover:bg-[#f2f3ff] dark:hover:bg-slate-800/80 transition-colors font-manrope tracking-tight font-bold text-sm" href="#">
+<span class="material-symbols-outlined" data-icon="hub">hub</span>
+                Channels
+            </a>
+<a class="flex items-center gap-3 px-4 py-2 text-slate-500 dark:text-slate-400 hover:bg-[#f2f3ff] dark:hover:bg-slate-800/80 transition-colors font-manrope tracking-tight font-bold text-sm" href="#">
+<span class="material-symbols-outlined" data-icon="settings_input_component">settings_input_component</span>
+                Providers
+            </a>
+<!-- ACTIVE STATE: API Keys (Updated to use Layout Shell style) -->
+<a class="flex items-center gap-3 px-4 py-2 text-[#5443b9] dark:text-[#6D5DD3] border-l-4 border-[#5443b9] bg-[#f2f3ff] dark:bg-slate-800 font-manrope tracking-tight font-bold text-sm transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="vpn_key">vpn_key</span>
+                API Keys
+            </a>
+<a class="flex items-center gap-3 px-4 py-2 text-slate-500 dark:text-slate-400 hover:bg-[#f2f3ff] dark:hover:bg-slate-800/80 transition-colors font-manrope tracking-tight font-bold text-sm" href="#">
+<span class="material-symbols-outlined" data-icon="payments">payments</span>
+                Billing
+            </a>
+</nav>
+<div class="px-4 mt-auto pt-6">
+<div class="p-4 rounded-xl bg-surface-container-high flex flex-col gap-2">
+<div class="flex items-center justify-between">
+<span class="text-xs font-bold text-on-surface-variant">Wallet Balance</span>
+<span class="text-xs font-black text-primary">$1,240.50</span>
+</div>
+<div class="w-full bg-outline-variant/30 h-1.5 rounded-full overflow-hidden">
+<div class="bg-primary w-2/3 h-full rounded-full"></div>
+</div>
+</div>
+</div>
+</aside>
+<!-- Main Wrapper -->
+<div class="ml-64 flex flex-col h-screen overflow-y-auto">
+<!-- TopAppBar from Layout Shell -->
+<header class="sticky top-0 z-50 w-full bg-white/80 dark:bg-slate-950/80 backdrop-blur-xl border-b border-slate-200/15 dark:border-slate-800/15 flex justify-between items-center h-16 px-8 shadow-sm dark:shadow-none shrink-0">
+<div class="flex items-center gap-6 flex-1">
+<div class="relative w-full max-w-md">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-lg" data-icon="search">search</span>
+<input class="w-full bg-surface-container-low border-none rounded-full py-2 pl-10 pr-4 text-sm focus:ring-2 focus:ring-primary/20 placeholder:text-slate-400 font-body" placeholder="Search keys, resources, or logs..." type="text"/>
+</div>
+<nav class="hidden md:flex items-center gap-6">
+<a class="text-slate-600 dark:text-slate-400 hover:text-[#5443b9] transition-all font-manrope text-sm font-medium" href="#">Documentation</a>
+<a class="text-slate-600 dark:text-slate-400 hover:text-[#5443b9] transition-all font-manrope text-sm font-medium" href="#">API Reference</a>
+<a class="text-slate-600 dark:text-slate-400 hover:text-[#5443b9] transition-all font-manrope text-sm font-medium" href="#">Support</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<div class="flex items-center gap-2 bg-surface-container-low p-1 rounded-lg">
+<button class="px-2 py-1 text-[10px] font-black rounded-md bg-white shadow-sm text-primary">EN</button>
+<button class="px-2 py-1 text-[10px] font-bold text-slate-400">CN</button>
+</div>
+<div class="flex items-center gap-2">
+<button class="p-2 text-slate-500 hover:bg-surface-container-high rounded-full transition-colors opacity-80 hover:opacity-100">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<button class="p-2 text-slate-500 hover:bg-surface-container-high rounded-full transition-colors opacity-80 hover:opacity-100">
+<span class="material-symbols-outlined" data-icon="dark_mode">dark_mode</span>
+</button>
+<button class="p-2 text-slate-500 hover:bg-surface-container-high rounded-full transition-colors opacity-80 hover:opacity-100">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+</button>
+</div>
+<div class="h-8 w-px bg-slate-200/50 mx-2"></div>
+<button class="px-4 py-1.5 bg-primary text-white rounded-lg text-sm font-bold font-manrope hover:bg-primary-container transition-all">
+                    Deploy
+                </button>
+<div class="flex items-center gap-3 ml-2 cursor-pointer group">
+<img alt="User Avatar" class="w-8 h-8 rounded-full object-cover ring-2 ring-primary/20 group-hover:ring-primary/50 transition-all" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAjJsH_sMoct6sJPDelTd69qKu19h7WyMtO0gGulCSpwuIWMD6aVxPS7dD0zsDMgJ70tamF4knrZhbxmVogHRTsYisyaAJ1Hzze7GFs-w97nSKrA3q2heha8JjrDV6aGeOPjncyxrTUrekt5VIzfe28UTSP33MEdNNnSw59-h1alQEXpylWGa1gOCdiHPJAxthpJK7MUjXdI1OvYt71A32SwnTHEM6Pnzidi5Hda8r5Zk4sQhGL4u2VFcbVbvriCgX_ZwN_zVsXiO8"/>
+</div>
+</div>
+</header>
+<!-- Main Content (API Keys Page Content) -->
+<main class="flex-1 p-8 bg-surface">
+<div class="max-w-7xl mx-auto space-y-8">
+<!-- Page Header -->
+<div class="flex items-end justify-between">
+<div>
+<div class="flex items-center gap-2 mb-2">
+<span class="px-2 py-0.5 bg-primary-fixed text-on-primary-fixed-variant text-[10px] font-black rounded uppercase tracking-tighter">Infrastructure / Security</span>
+</div>
+<h1 class="text-4xl font-extrabold tracking-tighter text-on-surface font-manrope">API Keys</h1>
+<p class="text-on-surface-variant text-sm mt-1">Generate and manage access tokens for your AIGC Gateway infrastructure.</p>
+</div>
+</div>
+<!-- Premium Stats Section -->
+<section class="grid grid-cols-1 md:grid-cols-3 gap-6">
+<div class="p-6 rounded-2xl bg-surface-container-lowest border-l-4 border-primary shadow-sm flex justify-between items-center group hover:bg-surface-container transition-all duration-300">
+<div>
+<p class="text-[10px] uppercase tracking-widest text-slate-500 font-bold mb-1">Active Infrastructure</p>
+<h2 class="text-4xl font-black tracking-tighter text-on-surface font-manrope">8 <span class="text-slate-300 font-light text-2xl">/ 25 keys</span></h2>
+</div>
+<div class="w-12 h-12 rounded-xl bg-primary/5 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-3xl" style="font-variation-settings: 'FILL' 1;">developer_board</span>
+</div>
+</div>
+<div class="p-6 rounded-2xl bg-surface-container-lowest border-l-4 border-tertiary shadow-sm flex justify-between items-center group hover:bg-surface-container transition-all duration-300">
+<div>
+<p class="text-[10px] uppercase tracking-widest text-slate-500 font-bold mb-1">Daily Capacity</p>
+<h2 class="text-4xl font-black tracking-tighter text-on-surface font-manrope">1,000,000 <span class="text-slate-300 font-light text-2xl">req</span></h2>
+</div>
+<div class="w-12 h-12 rounded-xl bg-tertiary/5 flex items-center justify-center text-tertiary">
+<span class="material-symbols-outlined text-3xl" style="font-variation-settings: 'FILL' 1;">speed</span>
+</div>
+</div>
+<div class="p-6 rounded-2xl bg-primary text-on-primary shadow-xl shadow-primary/10 relative overflow-hidden flex flex-col justify-between">
+<div class="absolute -right-4 -top-4 w-24 h-24 bg-white/10 rounded-full blur-2xl"></div>
+<div>
+<p class="text-[10px] uppercase tracking-widest opacity-80 font-bold">Quick Action</p>
+<h3 class="text-xl font-bold mt-1 font-manrope">Generate New API Key</h3>
+</div>
+<button class="mt-4 w-full py-2.5 bg-white text-primary font-bold rounded-xl flex items-center justify-center gap-2 hover:bg-indigo-50 transition-all scale-95 active:scale-100 duration-150">
+<span class="material-symbols-outlined">add</span>
+<span>Create Key</span>
+</button>
+</div>
+</section>
+<!-- Key Management Table -->
+<section class="bg-surface-container-lowest rounded-2xl shadow-sm border border-slate-200/5 overflow-hidden">
+<div class="px-6 py-5 flex justify-between items-center border-b border-outline-variant/10">
+<h3 class="text-lg font-extrabold tracking-tight font-manrope">Active Infrastructure Keys</h3>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">search</span>
+<input class="pl-9 pr-4 py-2 text-sm rounded-full bg-surface-container-low border-none focus:ring-2 focus:ring-primary/20 w-64 transition-all placeholder:text-slate-400" placeholder="Search keys..." type="text"/>
+</div>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left">
+<thead class="bg-surface-container-high/30 text-[11px] uppercase tracking-widest text-slate-500 font-black">
+<tr>
+<th class="px-6 py-4">Name &amp; Project</th>
+<th class="px-6 py-4">Access Key</th>
+<th class="px-6 py-4">Created</th>
+<th class="px-6 py-4">Last Used</th>
+<th class="px-6 py-4 text-center">Status</th>
+<th class="px-6 py-4 text-right">Actions</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant/10">
+<tr class="hover:bg-surface-container-low transition-colors group">
+<td class="px-6 py-5">
+<div class="font-bold text-on-surface text-sm">Production-Gateway-01</div>
+<div class="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">Project: Alpha_Nebula</div>
+</td>
+<td class="px-6 py-5">
+<div class="flex items-center gap-2 font-mono text-xs text-slate-600 bg-surface-container-low px-2 py-1 rounded">
+<span>ak-••••••••••••v9x2</span>
+<button class="p-1 hover:bg-primary-fixed rounded transition-colors text-primary">
+<span class="material-symbols-outlined text-sm">content_copy</span>
+</button>
+</div>
+</td>
+<td class="px-6 py-5 text-xs text-slate-500 font-medium">Oct 12, 2023</td>
+<td class="px-6 py-5 text-xs text-slate-500 font-medium">2 mins ago</td>
+<td class="px-6 py-5 text-center">
+<span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-black bg-green-50 text-green-700 border border-green-200 uppercase tracking-tighter">
+                                            ACTIVE
+                                        </span>
+</td>
+<td class="px-6 py-5 text-right">
+<div class="flex justify-end gap-1">
+<button class="p-2 text-slate-400 hover:text-primary hover:bg-primary/5 rounded-lg transition-all">
+<span class="material-symbols-outlined text-lg">edit</span>
+</button>
+<button class="p-2 text-slate-400 hover:text-error hover:bg-error/5 rounded-lg transition-all">
+<span class="material-symbols-outlined text-lg">block</span>
+</button>
+</div>
+</td>
+</tr>
+<tr class="hover:bg-surface-container-low transition-colors group">
+<td class="px-6 py-5">
+<div class="font-bold text-on-surface text-sm">Dev-Sandbox-Internal</div>
+<div class="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">Project: Beta_Research</div>
+</td>
+<td class="px-6 py-5">
+<div class="flex items-center gap-2 font-mono text-xs text-slate-600 bg-surface-container-low px-2 py-1 rounded">
+<span>ak-••••••••••••f821</span>
+<button class="p-1 hover:bg-primary-fixed rounded transition-colors text-primary">
+<span class="material-symbols-outlined text-sm">content_copy</span>
+</button>
+</div>
+</td>
+<td class="px-6 py-5 text-xs text-slate-500 font-medium">Sep 05, 2023</td>
+<td class="px-6 py-5 text-xs text-slate-500 font-medium">4 days ago</td>
+<td class="px-6 py-5 text-center">
+<span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-black bg-green-50 text-green-700 border border-green-200 uppercase tracking-tighter">
+                                            ACTIVE
+                                        </span>
+</td>
+<td class="px-6 py-5 text-right">
+<div class="flex justify-end gap-1">
+<button class="p-2 text-slate-400 hover:text-primary hover:bg-primary/5 rounded-lg transition-all">
+<span class="material-symbols-outlined text-lg">edit</span>
+</button>
+<button class="p-2 text-slate-400 hover:text-error hover:bg-error/5 rounded-lg transition-all">
+<span class="material-symbols-outlined text-lg">block</span>
+</button>
+</div>
+</td>
+</tr>
+<tr class="hover:bg-surface-container-low transition-colors group">
+<td class="px-6 py-5">
+<div class="font-bold text-on-surface text-sm">Legacy-Connector-V1</div>
+<div class="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">Project: Shared_Legacy</div>
+</td>
+<td class="px-6 py-5">
+<div class="flex items-center gap-2 font-mono text-xs text-slate-400 bg-surface-container-low px-2 py-1 rounded opacity-60">
+<span>ak-••••••••••••z2m1</span>
+</div>
+</td>
+<td class="px-6 py-5 text-xs text-slate-500 font-medium">Aug 20, 2023</td>
+<td class="px-6 py-5 text-xs text-slate-500 font-medium">Aug 21, 2023</td>
+<td class="px-6 py-5 text-center">
+<span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-black bg-slate-100 text-slate-500 border border-slate-200 uppercase tracking-tighter">
+                                            REVOKED
+                                        </span>
+</td>
+<td class="px-6 py-5 text-right">
+<div class="flex justify-end gap-1">
+<button class="p-2 text-slate-400 hover:text-primary hover:bg-primary/5 rounded-lg transition-all">
+<span class="material-symbols-outlined text-lg">history</span>
+</button>
+<button class="p-2 text-slate-400 hover:text-error hover:bg-error/5 rounded-lg transition-all">
+<span class="material-symbols-outlined text-lg">delete</span>
+</button>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="px-6 py-4 bg-surface-container-high/30 border-t border-outline-variant/10 flex justify-between items-center text-[10px] text-slate-500 font-black uppercase tracking-widest">
+<p>Showing 3 of 8 total keys</p>
+<div class="flex gap-2">
+<button class="px-3 py-1.5 rounded-lg border border-outline-variant/30 hover:bg-white transition-all">Prev</button>
+<button class="px-3 py-1.5 rounded-lg bg-white border border-outline-variant/50 shadow-sm text-primary">1</button>
+<button class="px-3 py-1.5 rounded-lg border border-outline-variant/30 hover:bg-white transition-all">2</button>
+<button class="px-3 py-1.5 rounded-lg border border-outline-variant/30 hover:bg-white transition-all">Next</button>
+</div>
+</div>
+</section>
+<!-- Security Best Practices -->
+<section class="space-y-6 pt-4">
+<div class="mb-2">
+<h3 class="text-2xl font-black tracking-tighter text-on-surface font-manrope">Security Best Practices</h3>
+<p class="text-sm text-slate-500 mt-1">Essential guidelines for managing your infrastructure credentials safely.</p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+<div class="p-6 rounded-2xl bg-surface-container-lowest border border-slate-200/5 shadow-sm flex gap-4 transition-transform hover:scale-[1.02]">
+<div class="w-12 h-12 shrink-0 rounded-xl bg-primary/5 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-2xl">lock</span>
+</div>
+<div>
+<h4 class="font-black text-on-surface mb-1 font-manrope">Never Hardcode Keys</h4>
+<p class="text-xs text-slate-500 leading-relaxed font-medium">Store keys in environment variables or a secure secret management system rather than your source code.</p>
+</div>
+</div>
+<div class="p-6 rounded-2xl bg-surface-container-lowest border border-slate-200/5 shadow-sm flex gap-4 transition-transform hover:scale-[1.02]">
+<div class="w-12 h-12 shrink-0 rounded-xl bg-tertiary/5 flex items-center justify-center text-tertiary">
+<span class="material-symbols-outlined text-2xl">autorenew</span>
+</div>
+<div>
+<h4 class="font-black text-on-surface mb-1 font-manrope">Rotate Keys Regularly</h4>
+<p class="text-xs text-slate-500 leading-relaxed font-medium">Limit the lifespan of your credentials by rotating your API keys every 90 days to minimize exposure risk.</p>
+</div>
+</div>
+<div class="p-6 rounded-2xl bg-surface-container-lowest border border-slate-200/5 shadow-sm flex gap-4 transition-transform hover:scale-[1.02]">
+<div class="w-12 h-12 shrink-0 rounded-xl bg-secondary/5 flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined text-2xl">policy</span>
+</div>
+<div>
+<h4 class="font-black text-on-surface mb-1 font-manrope">Least Privilege</h4>
+<p class="text-xs text-slate-500 leading-relaxed font-medium">Create separate keys for different environments and restrict permissions based on the specific project scope.</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Footer -->
+<footer class="py-12 border-t border-outline-variant/10">
+<div class="flex flex-col md:flex-row justify-between items-center gap-6 text-[10px] text-slate-400 font-bold uppercase tracking-widest">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">verified_user</span>
+<span>AIGC Gateway Security v4.2.1-stable</span>
+</div>
+<div class="flex gap-8">
+<a class="hover:text-primary transition-colors" href="#">Privacy Policy</a>
+<a class="hover:text-primary transition-colors" href="#">Terms of Service</a>
+<a class="hover:text-primary transition-colors" href="#">System Status</a>
+</div>
+<p>© 2024 Algorithmic Atelier. All rights reserved.</p>
+</div>
+</footer>
+</div>
+</main>
+</div>
+<!-- Floating Action Button -->
+<div class="fixed bottom-8 right-8 z-50">
+<button class="w-14 h-14 rounded-2xl bg-primary text-white shadow-2xl shadow-primary/30 flex items-center justify-center hover:scale-110 active:scale-95 transition-all duration-200">
+<span class="material-symbols-outlined text-3xl" style="font-variation-settings: 'FILL' 1;">add</span>
+</button>
+</div>
+</body></html>

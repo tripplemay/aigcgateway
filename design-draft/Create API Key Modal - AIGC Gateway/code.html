@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>AIGC Gateway - Create API Key</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "surface-dim": "#d2d9f4",
+              "on-background": "#131b2e",
+              "on-secondary": "#ffffff",
+              "on-tertiary-container": "#fff0e4",
+              "inverse-on-surface": "#eef0ff",
+              "on-tertiary": "#ffffff",
+              "surface-tint": "#5c4cc1",
+              "on-secondary-fixed": "#1b153f",
+              "surface-variant": "#dae2fd",
+              "surface-container-lowest": "#ffffff",
+              "error-container": "#ffdad6",
+              "surface-container-highest": "#dae2fd",
+              "error": "#ba1a1a",
+              "surface": "#faf8ff",
+              "on-secondary-container": "#585280",
+              "on-tertiary-fixed-variant": "#663e00",
+              "surface-container-low": "#f2f3ff",
+              "secondary": "#5f5987",
+              "outline-variant": "#c9c4d5",
+              "outline": "#787584",
+              "tertiary-container": "#9d6100",
+              "on-primary": "#ffffff",
+              "primary-fixed-dim": "#c8bfff",
+              "inverse-primary": "#c8bfff",
+              "on-surface-variant": "#474553",
+              "on-primary-fixed-variant": "#4431a8",
+              "surface-container": "#eaedff",
+              "secondary-fixed": "#e5deff",
+              "tertiary-fixed": "#ffddba",
+              "on-surface": "#131b2e",
+              "on-tertiary-fixed": "#2b1700",
+              "on-error-container": "#93000a",
+              "primary-fixed": "#e5deff",
+              "surface-bright": "#faf8ff",
+              "tertiary-fixed-dim": "#ffb964",
+              "secondary-container": "#d0c9fe",
+              "on-primary-fixed": "#190064",
+              "inverse-surface": "#283044",
+              "primary": "#5443b9",
+              "on-secondary-fixed-variant": "#47416e",
+              "surface-container-high": "#e2e7ff",
+              "on-error": "#ffffff",
+              "background": "#faf8ff",
+              "secondary-fixed-dim": "#c8c0f5",
+              "primary-container": "#6d5dd3",
+              "on-primary-container": "#f6f1ff",
+              "tertiary": "#7c4b00"
+            },
+            fontFamily: {
+              "headline": ["Manrope"],
+              "body": ["Inter"],
+              "label": ["Inter"]
+            },
+            borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+          },
+        },
+      }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+        h1, h2, h3, h4, .font-headline { font-family: 'Manrope', sans-serif; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface">
+<!-- Sidebar (As per Shared Components) -->
+<aside class="fixed left-0 top-0 h-screen w-64 bg-slate-100 flex flex-col p-4 gap-y-2 font-['Manrope'] text-sm font-medium z-10">
+<div class="flex items-center gap-3 px-2 py-4 mb-4">
+<div class="w-8 h-8 bg-primary-container rounded-lg flex items-center justify-center text-white">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">hub</span>
+</div>
+<div>
+<div class="text-lg font-black text-indigo-700">Main Gateway</div>
+<div class="text-[10px] uppercase tracking-widest text-slate-500 font-bold">Infrastructure</div>
+</div>
+</div>
+<nav class="flex-1 space-y-1">
+<div class="flex items-center gap-3 px-3 py-2 text-slate-600 hover:bg-slate-200 transition-colors rounded-lg cursor-pointer">
+<span class="material-symbols-outlined">dashboard</span> Dashboard
+            </div>
+<div class="flex items-center gap-3 px-3 py-2 text-slate-600 hover:bg-slate-200 transition-colors rounded-lg cursor-pointer">
+<span class="material-symbols-outlined">description</span> Call Logs
+            </div>
+<div class="flex items-center gap-3 px-3 py-2 text-slate-600 hover:bg-slate-200 transition-colors rounded-lg cursor-pointer">
+<span class="material-symbols-outlined">model_training</span> Models
+            </div>
+<div class="flex items-center gap-3 px-3 py-2 text-slate-600 hover:bg-slate-200 transition-colors rounded-lg cursor-pointer">
+<span class="material-symbols-outlined">settings_input_component</span> Channels
+            </div>
+<div class="flex items-center gap-3 px-3 py-2 text-slate-600 hover:bg-slate-200 transition-colors rounded-lg cursor-pointer">
+<span class="material-symbols-outlined">hub</span> Providers
+            </div>
+<!-- Active State -->
+<div class="flex items-center gap-3 px-3 py-2 bg-white text-indigo-600 border-l-4 border-indigo-600 shadow-sm rounded-r-lg cursor-pointer">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">vpn_key</span> API Keys
+            </div>
+<div class="flex items-center gap-3 px-3 py-2 text-slate-600 hover:bg-slate-200 transition-colors rounded-lg cursor-pointer">
+<span class="material-symbols-outlined">account_balance_wallet</span> Wallet
+            </div>
+<div class="flex items-center gap-3 px-3 py-2 text-slate-600 hover:bg-slate-200 transition-colors rounded-lg cursor-pointer">
+<span class="material-symbols-outlined">receipt_long</span> Transactions
+            </div>
+</nav>
+<div class="mt-auto border-t border-slate-200 pt-4 space-y-1">
+<div class="flex items-center gap-3 px-3 py-2 text-slate-600 hover:bg-slate-200 transition-colors rounded-lg cursor-pointer">
+<span class="material-symbols-outlined">translate</span> Language
+            </div>
+<div class="flex items-center gap-3 px-3 py-2 text-slate-600 hover:bg-slate-200 transition-colors rounded-lg cursor-pointer">
+<span class="material-symbols-outlined">menu_book</span> Documentation
+            </div>
+</div>
+</aside>
+<!-- Main Content Canvas (Background for Modal) -->
+<main class="ml-64 min-h-screen bg-surface p-8 opacity-40">
+<!-- Top Bar -->
+<header class="flex justify-between items-center mb-8">
+<div>
+<h1 class="text-3xl font-extrabold tracking-tight text-on-surface">API Keys</h1>
+<p class="text-on-surface-variant text-sm mt-1">Manage secure access credentials for your AIGC workflows.</p>
+</div>
+<button class="bg-primary-container text-on-primary-container px-5 py-2.5 rounded-full font-headline font-bold text-sm flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">add</span> Create New Key
+            </button>
+</header>
+<!-- Background Content: Stats & Table -->
+<div class="grid grid-cols-3 gap-6 mb-8">
+<div class="bg-surface-container-lowest p-6 rounded-xl shadow-sm border border-outline-variant/10">
+<p class="text-label-sm uppercase tracking-wider text-on-surface-variant font-bold text-[10px]">Active Keys</p>
+<p class="text-3xl font-headline font-extrabold mt-2 text-primary">12</p>
+</div>
+<div class="bg-surface-container-lowest p-6 rounded-xl shadow-sm border border-outline-variant/10">
+<p class="text-label-sm uppercase tracking-wider text-on-surface-variant font-bold text-[10px]">Requests (24h)</p>
+<p class="text-3xl font-headline font-extrabold mt-2 text-primary">1.2M</p>
+</div>
+<div class="bg-surface-container-lowest p-6 rounded-xl shadow-sm border border-outline-variant/10">
+<p class="text-label-sm uppercase tracking-wider text-on-surface-variant font-bold text-[10px]">Latency Avg</p>
+<p class="text-3xl font-headline font-extrabold mt-2 text-primary">142ms</p>
+</div>
+</div>
+<div class="bg-surface-container-lowest rounded-xl overflow-hidden">
+<table class="w-full text-left">
+<thead class="bg-surface-container-low">
+<tr>
+<th class="px-6 py-4 text-[11px] font-headline font-bold uppercase tracking-widest text-on-surface-variant">Name</th>
+<th class="px-6 py-4 text-[11px] font-headline font-bold uppercase tracking-widest text-on-surface-variant">Key Preview</th>
+<th class="px-6 py-4 text-[11px] font-headline font-bold uppercase tracking-widest text-on-surface-variant">Status</th>
+<th class="px-6 py-4 text-[11px] font-headline font-bold uppercase tracking-widest text-on-surface-variant">Created</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-surface-container-low">
+<tr class="hover:bg-surface-container-high transition-colors">
+<td class="px-6 py-4 font-medium">Production Gateway</td>
+<td class="px-6 py-4 text-xs font-mono text-on-surface-variant">sk-aigc...v4x9</td>
+<td class="px-6 py-4"><span class="bg-secondary-container text-on-secondary-container px-2 py-0.5 rounded text-[10px] font-bold uppercase">Active</span></td>
+<td class="px-6 py-4 text-xs">2 days ago</td>
+</tr>
+<tr class="hover:bg-surface-container-high transition-colors">
+<td class="px-6 py-4 font-medium">Test Sandbox</td>
+<td class="px-6 py-4 text-xs font-mono text-on-surface-variant">sk-aigc...m2l0</td>
+<td class="px-6 py-4"><span class="bg-secondary-container text-on-secondary-container px-2 py-0.5 rounded text-[10px] font-bold uppercase">Active</span></td>
+<td class="px-6 py-4 text-xs">1 week ago</td>
+</tr>
+</tbody>
+</table>
+</div>
+</main>
+<!-- Modal Overlay -->
+<div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-on-background/40 backdrop-blur-sm">
+<!-- Modal Content -->
+<div class="bg-surface-container-lowest w-full max-w-lg rounded-xl shadow-2xl overflow-hidden flex flex-col font-headline animate-in fade-in zoom-in duration-300">
+<!-- Header -->
+<div class="px-8 py-6 bg-surface-container-low flex justify-between items-center">
+<div>
+<h2 class="text-xl font-extrabold tracking-tight text-on-surface">Create New API Key</h2>
+<p class="text-on-surface-variant text-xs mt-1 font-body">Generate a unique key to access the gateway programmatically.</p>
+</div>
+<button class="text-on-surface-variant hover:text-on-surface transition-colors">
+<span class="material-symbols-outlined">close</span>
+</button>
+</div>
+<!-- Form Body -->
+<form class="p-8 space-y-6">
+<!-- Key Name -->
+<div class="space-y-1.5">
+<label class="text-[11px] font-bold uppercase tracking-widest text-on-surface-variant block">Key Name</label>
+<input class="w-full bg-surface-container-low border-none rounded-lg px-4 py-3 text-on-surface text-sm focus:ring-2 focus:ring-primary-container transition-all outline-none" placeholder="e.g. Production Frontend" type="text"/>
+</div>
+<!-- Description -->
+<div class="space-y-1.5">
+<label class="text-[11px] font-bold uppercase tracking-widest text-on-surface-variant block">Description</label>
+<textarea class="w-full bg-surface-container-low border-none rounded-lg px-4 py-3 text-on-surface text-sm focus:ring-2 focus:ring-primary-container transition-all outline-none resize-none" placeholder="Briefly describe what this key is used for..." rows="3"></textarea>
+</div>
+<!-- Expiration & Permissions Grid -->
+<div class="grid grid-cols-2 gap-6">
+<div class="space-y-1.5">
+<label class="text-[11px] font-bold uppercase tracking-widest text-on-surface-variant block">Expiration Date</label>
+<div class="relative">
+<select class="w-full bg-surface-container-low border-none rounded-lg px-4 py-3 text-on-surface text-sm focus:ring-2 focus:ring-primary-container appearance-none outline-none cursor-pointer">
+<option>Never expires</option>
+<option>30 Days</option>
+<option>90 Days</option>
+<option>Custom Date</option>
+</select>
+<span class="material-symbols-outlined absolute right-3 top-2.5 text-on-surface-variant pointer-events-none">expand_more</span>
+</div>
+</div>
+<div class="space-y-1.5">
+<label class="text-[11px] font-bold uppercase tracking-widest text-on-surface-variant block">Permissions</label>
+<div class="flex flex-wrap gap-2 pt-1">
+<label class="relative flex items-center cursor-pointer group">
+<input checked="" class="peer sr-only" type="checkbox"/>
+<div class="px-3 py-1.5 rounded-lg border-2 border-outline-variant bg-transparent text-[11px] font-bold text-on-surface-variant peer-checked:bg-primary-container/10 peer-checked:border-primary-container peer-checked:text-primary transition-all">Read</div>
+</label>
+<label class="relative flex items-center cursor-pointer group">
+<input class="peer sr-only" type="checkbox"/>
+<div class="px-3 py-1.5 rounded-lg border-2 border-outline-variant bg-transparent text-[11px] font-bold text-on-surface-variant peer-checked:bg-primary-container/10 peer-checked:border-primary-container peer-checked:text-primary transition-all">Write</div>
+</label>
+<label class="relative flex items-center cursor-pointer group">
+<input class="peer sr-only" type="checkbox"/>
+<div class="px-3 py-1.5 rounded-lg border-2 border-outline-variant bg-transparent text-[11px] font-bold text-on-surface-variant peer-checked:bg-primary-container/10 peer-checked:border-primary-container peer-checked:text-primary transition-all">Admin</div>
+</label>
+</div>
+</div>
+</div>
+<!-- Warning Notice -->
+<div class="bg-tertiary/10 p-4 rounded-xl flex gap-3 border border-tertiary/20">
+<span class="material-symbols-outlined text-tertiary">warning</span>
+<p class="text-[11px] leading-relaxed text-on-tertiary-fixed-variant font-medium">
+                        For security reasons, your API key will only be shown once after creation. Make sure to copy and store it securely.
+                    </p>
+</div>
+</form>
+<!-- Footer Actions -->
+<div class="px-8 py-6 bg-surface-container-low/50 flex justify-end items-center gap-4">
+<button class="px-6 py-2.5 text-on-surface-variant hover:text-on-surface font-bold text-sm transition-colors">
+                    Cancel
+                </button>
+<button class="bg-primary-container text-on-primary-container px-8 py-3 rounded-xl font-bold text-sm flex items-center gap-2 shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-transform">
+                    Create Key
+                    <span class="material-symbols-outlined text-sm">rocket_launch</span>
+</button>
+</div>
+</div>
+</div>
+</body></html>

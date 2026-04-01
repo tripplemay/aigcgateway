@@ -31,26 +31,27 @@ npm run build
 
 # ── 3. 启动 + 就绪探针 ──
 echo "=== [2/2] Start on :3099 ==="
-node .next/standalone/server.js &
+nohup node .next/standalone/server.js > /tmp/aigc-test-server.log 2>&1 &
 APP_PID=$!
+disown $APP_PID
 
 MAX_WAIT=90
 INTERVAL=3
 ELAPSED=0
 while [ $ELAPSED -lt $MAX_WAIT ]; do
-  if curl -sf http://localhost:3099/v1/models > /dev/null 2>&1; then
+  if curl -sf --noproxy '*' http://localhost:3099/v1/models > /dev/null 2>&1; then
     echo "=== Test environment ready at http://localhost:3099 (PID: $APP_PID) in ${ELAPSED}s ==="
+    echo "=== Server log: /tmp/aigc-test-server.log ==="
     exit 0
   fi
-  # Check if process is still alive
   if ! kill -0 $APP_PID 2>/dev/null; then
-    echo "ERROR: Server process exited unexpectedly" >&2
+    echo "ERROR: Server process exited unexpectedly. Check /tmp/aigc-test-server.log" >&2
     exit 1
   fi
   sleep $INTERVAL
   ELAPSED=$((ELAPSED + INTERVAL))
 done
 
-echo "ERROR: App failed to start within ${MAX_WAIT} seconds" >&2
+echo "ERROR: App failed to start within ${MAX_WAIT} seconds. Check /tmp/aigc-test-server.log" >&2
 kill $APP_PID 2>/dev/null || true
 exit 1
