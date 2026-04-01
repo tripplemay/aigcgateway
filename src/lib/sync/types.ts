@@ -44,6 +44,8 @@ export interface PricingOverride {
 export interface SyncAdapter {
   readonly providerName: string;
   fetchModels(provider: ProviderWithConfig): Promise<SyncedModel[]>;
+  /** 可选：过滤 AI 提取的模型（如 OpenAI 白名单） */
+  filterModel?(modelId: string): boolean;
 }
 
 /** AI 文档提取层接口 */

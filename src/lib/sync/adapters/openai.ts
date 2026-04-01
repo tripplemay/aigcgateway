@@ -3,9 +3,14 @@ import { fetchWithTimeout, getApiKey, getBaseUrl, inferModality } from "./base";
 
 /** 白名单：只同步这些模型前缀 */
 const CHAT_WHITELIST = [
-  "gpt-4o", "gpt-4o-mini",
-  "gpt-4.1", "gpt-4.1-mini", "gpt-4.1-nano",
-  "o3", "o3-mini", "o4-mini",
+  "gpt-4o",
+  "gpt-4o-mini",
+  "gpt-4.1",
+  "gpt-4.1-mini",
+  "gpt-4.1-nano",
+  "o3",
+  "o3-mini",
+  "o4-mini",
 ];
 const IMAGE_WHITELIST = ["dall-e-3", "gpt-image-1"];
 
@@ -18,6 +23,10 @@ function isWhitelisted(id: string): boolean {
 
 export const openaiAdapter: SyncAdapter = {
   providerName: "openai",
+
+  filterModel(modelId: string): boolean {
+    return isWhitelisted(modelId);
+  },
 
   async fetchModels(provider: ProviderWithConfig): Promise<SyncedModel[]> {
     const res = await fetchWithTimeout(

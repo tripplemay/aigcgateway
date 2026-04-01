@@ -339,6 +339,17 @@ async function syncProvider(
       }
     }
 
+    // ── 适配器白名单过滤（过滤 AI 引入的非目标模型）──
+    if (adapter.filterModel) {
+      const before = models.length;
+      models = models.filter((m) => adapter.filterModel!(m.modelId));
+      if (before !== models.length) {
+        console.log(
+          `[model-sync] ${provider.name}: filtered ${before - models.length} non-whitelisted models from AI results`,
+        );
+      }
+    }
+
     // ── 应用运营手动覆盖（如有）──
     if (provider.config?.pricingOverrides) {
       const overrideResult = applyOverrides(models, provider.config);
