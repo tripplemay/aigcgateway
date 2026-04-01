@@ -31,9 +31,7 @@ export interface AuthContext {
   apiKey: ApiKey;
 }
 
-type AuthResult =
-  | { ok: true; ctx: AuthContext }
-  | { ok: false; error: NextResponse };
+type AuthResult = { ok: true; ctx: AuthContext } | { ok: false; error: NextResponse };
 
 type Endpoint = "chat" | "image" | "log" | "model" | "unknown";
 
@@ -47,9 +45,7 @@ function detectEndpoint(request: Request): Endpoint {
   return "unknown";
 }
 
-export async function authenticateApiKey(
-  request: Request,
-): Promise<AuthResult> {
+export async function authenticateApiKey(request: Request): Promise<AuthResult> {
   const authHeader = request.headers.get("authorization");
 
   if (!authHeader) {
@@ -63,7 +59,11 @@ export async function authenticateApiKey(
   if (parts.length !== 2 || parts[0] !== "Bearer" || !parts[1]) {
     return {
       ok: false,
-      error: errorResponse(401, "invalid_api_key", "Invalid Authorization format. Expected: Bearer <api_key>"),
+      error: errorResponse(
+        401,
+        "invalid_api_key",
+        "Invalid Authorization format. Expected: Bearer <api_key>",
+      ),
     };
   }
 
@@ -91,9 +91,7 @@ export async function authenticateApiKey(
 
   // 过期兜底检查（定时任务是主力，这里是兜底）
   if (apiKey.expiresAt && new Date(apiKey.expiresAt) < new Date()) {
-    prisma.apiKey
-      .update({ where: { id: apiKey.id }, data: { status: "REVOKED" } })
-      .catch(() => {});
+    prisma.apiKey.update({ where: { id: apiKey.id }, data: { status: "REVOKED" } }).catch(() => {});
     return {
       ok: false,
       error: errorResponse(401, "invalid_api_key", "API key has expired"),
@@ -105,18 +103,34 @@ export async function authenticateApiKey(
   const endpoint = detectEndpoint(request);
 
   if (endpoint === "chat" && permissions.chatCompletion === false) {
-    return { ok: false, error: errorResponse(403, "forbidden", "API key lacks chatCompletion permission") };
+    return {
+      ok: false,
+      error: errorResponse(403, "forbidden", "API key lacks chatCompletion permission"),
+    };
   }
   if (endpoint === "image" && permissions.imageGeneration === false) {
-    return { ok: false, error: errorResponse(403, "forbidden", "API key lacks imageGeneration permission") };
+    return {
+      ok: false,
+      error: errorResponse(403, "forbidden", "API key lacks imageGeneration permission"),
+    };
   }
   if (endpoint === "model" && permissions.projectInfo === false) {
-    return { ok: false, error: errorResponse(403, "forbidden", "API key lacks projectInfo permission") };
+    return {
+      ok: false,
+      error: errorResponse(403, "forbidden", "API key lacks projectInfo permission"),
+    };
   }
 
   // IP 白名单检查
+  // null = 不限制; [] = 拒绝全部; ["1.2.3.4"] = 白名单
   const whitelist = apiKey.ipWhitelist as string[] | null;
-  if (whitelist && whitelist.length > 0) {
+  if (Array.isArray(whitelist)) {
+    if (whitelist.length === 0) {
+      return {
+        ok: false,
+        error: errorResponse(403, "forbidden", "IP whitelist is empty — all requests blocked"),
+      };
+    }
     const clientIp = getClientIp(request);
     if (!isIpInWhitelist(clientIp, whitelist)) {
       return {

@@ -1,15 +1,13 @@
 export const dynamic = "force-dynamic";
 import { prisma } from "@/lib/prisma";
+import { Prisma } from "@prisma/client";
 import { NextResponse } from "next/server";
 import { randomBytes, createHash } from "crypto";
 import { verifyJwt } from "@/lib/api/jwt-middleware";
 import { errorResponse } from "@/lib/api/errors";
 
 /** GET /api/projects/:id/keys — Key 列表（分页 + 搜索） */
-export async function GET(
-  request: Request,
-  { params }: { params: { id: string } },
-) {
+export async function GET(request: Request, { params }: { params: { id: string } }) {
   const auth = verifyJwt(request);
   if (!auth.ok) return auth.error;
 
@@ -26,9 +24,7 @@ export async function GET(
 
   const where = {
     projectId: params.id,
-    ...(search
-      ? { name: { contains: search, mode: "insensitive" as const } }
-      : {}),
+    ...(search ? { name: { contains: search, mode: "insensitive" as const } } : {}),
   };
 
   const keys = await prisma.apiKey.findMany({
@@ -67,10 +63,7 @@ export async function GET(
 }
 
 /** POST /api/projects/:id/keys — 生成 Key（返回原文仅一次） */
-export async function POST(
-  request: Request,
-  { params }: { params: { id: string } },
-) {
+export async function POST(request: Request, { params }: { params: { id: string } }) {
   const auth = verifyJwt(request);
   if (!auth.ok) return auth.error;
 
@@ -84,6 +77,8 @@ export async function POST(
     description?: string;
     expiresAt?: string | null;
     permissions?: Record<string, boolean>;
+    rateLimit?: number | null;
+    ipWhitelist?: string[] | null;
   } = {};
   try {
     body = await request.json();
@@ -102,6 +97,24 @@ export async function POST(
     }
   }
 
+  // 校验 rateLimit
+  if (body.rateLimit !== undefined && body.rateLimit !== null) {
+    if (typeof body.rateLimit !== "number" || body.rateLimit <= 0) {
+      return errorResponse(400, "invalid_input", "rateLimit must be a positive number or null");
+    }
+  }
+
+  // 校验 ipWhitelist
+  if (body.ipWhitelist !== undefined && body.ipWhitelist !== null) {
+    if (!Array.isArray(body.ipWhitelist)) {
+      return errorResponse(
+        400,
+        "invalid_input",
+        "ipWhitelist must be an array of IPs/CIDRs or null",
+      );
+    }
+  }
+
   // 生成 Key: pk_ + 64 位随机 hex
   const rawKey = `pk_${randomBytes(32).toString("hex")}`;
   const keyHash = createHash("sha256").update(rawKey).digest("hex");
@@ -117,6 +130,13 @@ export async function POST(
       status: "ACTIVE",
       permissions: body.permissions ?? {},
       expiresAt: body.expiresAt ? new Date(body.expiresAt) : null,
+      rateLimit: body.rateLimit ?? null,
+      ipWhitelist:
+        body.ipWhitelist !== undefined
+          ? body.ipWhitelist === null
+            ? Prisma.JsonNull
+            : body.ipWhitelist
+          : undefined,
     },
   });
 
