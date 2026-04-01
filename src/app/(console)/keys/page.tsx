@@ -37,7 +37,6 @@ export default function KeysPage() {
   const [keys, setKeys] = useState<ApiKeyRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
-  const [debouncedSearch, setDebouncedSearch] = useState("");
   const [page, setPage] = useState(0);
 
   // Create modal state
@@ -59,15 +58,6 @@ export default function KeysPage() {
   useEffect(() => {
     load();
   }, [current]);
-
-  // Debounce search to ensure state sync
-  useEffect(() => {
-    const t = setTimeout(() => {
-      setDebouncedSearch(searchQuery.trim().toLowerCase());
-      setPage(0);
-    }, 150);
-    return () => clearTimeout(t);
-  }, [searchQuery]);
 
   const create = async () => {
     if (!current) return;
@@ -94,11 +84,12 @@ export default function KeysPage() {
   };
 
   // Filtered + paginated keys
-  const filtered = debouncedSearch
+  const normalizedSearch = searchQuery.trim().toLowerCase();
+  const filtered = normalizedSearch
     ? keys.filter(
         (k) =>
-          (k.name ?? "").toLowerCase().includes(debouncedSearch) ||
-          k.maskedKey.toLowerCase().includes(debouncedSearch),
+          (k.name ?? "").toLowerCase().includes(normalizedSearch) ||
+          k.maskedKey.toLowerCase().includes(normalizedSearch),
       )
     : keys;
 
@@ -214,12 +205,26 @@ export default function KeysPage() {
                 search
               </span>
               <input
-                className="pl-9 pr-4 py-2 text-sm rounded-full bg-ds-surface-container-low border-none focus:ring-2 focus:ring-ds-primary/20 w-64 transition-all placeholder:text-slate-400 outline-none"
+                className="pl-9 pr-8 py-2 text-sm rounded-full bg-ds-surface-container-low border-none focus:ring-2 focus:ring-ds-primary/20 w-64 transition-all placeholder:text-slate-400 outline-none"
                 placeholder={t("searchKeys")}
                 type="text"
                 value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+                onChange={(e) => {
+                  setSearchQuery(e.target.value);
+                  setPage(0);
+                }}
               />
+              {searchQuery && (
+                <button
+                  onClick={() => {
+                    setSearchQuery("");
+                    setPage(0);
+                  }}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-ds-on-surface transition-colors"
+                >
+                  <span className="material-symbols-outlined text-sm">close</span>
+                </button>
+              )}
             </div>
           </div>
           {/* Table — lines 240-344 */}
