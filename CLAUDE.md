@@ -122,6 +122,13 @@ MCP is not a separate service — it's a route handler inside the same Next.js a
 - `env.ts` uses lazy Proxy validation — safe during build time
 - CallLog.source field: `'api'` | `'sdk'` | `'mcp'` to distinguish call origins
 
+### Migration 规则（必须遵守）
+
+- **提交前必须 review migration SQL：** 检查 NOT NULL 列是否有 DEFAULT（生产表非空时无 DEFAULT 会失败），检查是否夹带了无关表的变更
+- **`@updatedAt` 字段的 migration 必须手动补 `DEFAULT now()`：** Prisma 生成的 SQL 不带 DEFAULT，对非空表会导致生产部署失败
+- **不要用 `prisma migrate reset` + `migrate dev` 处理有 schema 漂移的库：** 会把所有差异打包成一个 migration，混入无关变更。应先修复漂移或用 `prisma migrate diff` 生成目标化 SQL
+- **每个 migration 只包含一个功能的变更：** 不同功能的 schema 变更必须拆为独立 migration
+
 ### Console Pages
 
 - `(auth)/` — Login, Register (no sidebar)
