@@ -1,5 +1,6 @@
 "use client";
 import { Sidebar } from "@/components/sidebar";
+import { TopAppBar } from "@/components/top-app-bar";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { useEffect, useState } from "react";
@@ -59,11 +60,31 @@ export default function ConsoleLayout({ children }: { children: React.ReactNode 
     );
   }
 
+  /*
+   * Layout structure — strict replica of Layout Shell code.html:
+   *   line  84: <body class="bg-surface text-on-surface antialiased overflow-hidden">
+   *   line  86: <aside ...> (Sidebar)
+   *   line 144: <div class="ml-64 flex flex-col h-screen">
+   *   line 146:   <header ...> (TopAppBar)
+   *   line 184:   <main class="flex-1 overflow-y-auto bg-surface p-8">
+   */
   return (
     <TooltipProvider>
-      <div className="flex min-h-screen bg-page-bg">
-        <Sidebar role={user.role} userName={user.name} projectName={projectName} />
-        <main className="flex-1 ml-[210px] p-6">{children}</main>
+      <div className="bg-ds-surface text-ds-on-surface antialiased overflow-hidden">
+        <Sidebar
+          role={user.role}
+          userName={user.name}
+          projectName={projectName}
+        />
+        {/* code.html line 144 */}
+        <div className="ml-64 flex flex-col h-screen">
+          {/* code.html line 146 */}
+          <TopAppBar userName={user.name} />
+          {/* code.html line 184 */}
+          <main className="flex-1 overflow-y-auto bg-ds-surface p-8">
+            {children}
+          </main>
+        </div>
       </div>
       <Toaster richColors />
     </TooltipProvider>

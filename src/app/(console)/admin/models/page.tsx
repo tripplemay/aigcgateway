@@ -4,7 +4,6 @@ import { useTranslations } from "next-intl";
 import { apiFetch } from "@/lib/api-client";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
-import { formatContext } from "@/lib/utils";
 import "material-symbols/outlined.css";
 
 // ============================================================
@@ -49,24 +48,11 @@ interface ProviderGroup {
 }
 
 // ============================================================
-// Constants — aligned with Stitch "Algorithmic Atelier" tokens
+// Helpers
 // ============================================================
 
-const STATUS_CFG = {
-  ACTIVE: { color: "var(--ds-secondary)", label: "L1", bg: "bg-[var(--ds-secondary)]/10", text: "text-[var(--ds-secondary)]" },
-  DEGRADED: { color: "var(--ds-tertiary)", label: "L2", bg: "bg-[var(--ds-tertiary)]/10", text: "text-[var(--ds-tertiary)]" },
-  DISABLED: { color: "var(--ds-error)", label: "L3", bg: "bg-[var(--ds-error)]/10", text: "text-[var(--ds-error)]" },
-} as const;
-
-const HEALTH_LABEL: Record<string, string> = {
-  healthy: "Healthy",
-  degraded: "Degraded",
-  unhealthy: "Unhealthy",
-  unknown: "Unknown",
-};
-
+const MATRIX_PER_PAGE = 4;
 const MODELS_PER_PAGE = 20;
-const MATRIX_PER_PAGE = 10;
 
 function fmtPrice(p: Record<string, unknown> | null) {
   if (!p) return "\u2014";
@@ -76,18 +62,7 @@ function fmtPrice(p: Record<string, unknown> | null) {
   }
   const inp = Number(p.inputPer1M ?? 0);
   const out = Number(p.outputPer1M ?? 0);
-  return inp === 0 && out === 0 ? "Free" : `$${inp} / $${out}`;
-}
-
-function MIcon({ name, className = "", filled = false }: { name: string; className?: string; filled?: boolean }) {
-  return (
-    <span
-      className={`material-symbols-outlined ${className}`}
-      style={filled ? { fontVariationSettings: "'FILL' 1" } : undefined}
-    >
-      {name}
-    </span>
-  );
+  return inp === 0 && out === 0 ? "Free" : `$${inp.toFixed(2)} / $${out.toFixed(2)}`;
 }
 
 // ============================================================
@@ -101,40 +76,32 @@ export default function ModelsChannelsPage() {
   const [data, setData] = useState<ProviderGroup[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
-  const [modality, setModality] = useState("");
   const [syncing, setSyncing] = useState(false);
   const [lastSyncTime, setLastSyncTime] = useState<string | null>(null);
   const [lastSyncResult, setLastSyncResult] = useState<{
-    summary: {
-      totalNewChannels: number;
-      totalDisabledChannels: number;
-      totalFailedProviders: number;
-    };
+    summary: { totalNewChannels: number; totalDisabledChannels: number; totalFailedProviders: number };
     providers: Array<{ providerName: string; success: boolean; error?: string }>;
   } | null>(null);
 
   const [expandedProviders, setExpandedProviders] = useState<Set<string>>(new Set());
   const [expandedModels, setExpandedModels] = useState<Set<string>>(new Set());
   const [showAllModels, setShowAllModels] = useState<Set<string>>(new Set());
-
   const [editingPriority, setEditingPriority] = useState<string | null>(null);
   const [priorityValue, setPriorityValue] = useState("");
   const [editingSellPrice, setEditingSellPrice] = useState<string | null>(null);
   const [sellPriceValue, setSellPriceValue] = useState("");
-
   const [matrixPage, setMatrixPage] = useState(0);
 
   // ── Data loading ──
   const load = useCallback(async () => {
     setLoading(true);
     const params = new URLSearchParams();
-    if (modality) params.set("modality", modality);
     if (search) params.set("search", search);
     const q = params.toString() ? `?${params}` : "";
     const r = await apiFetch<{ data: ProviderGroup[] }>(`/api/admin/models-channels${q}`);
     setData(r.data);
     setLoading(false);
-  }, [modality, search]);
+  }, [search]);
 
   const loadSyncStatus = useCallback(async () => {
     try {
@@ -143,26 +110,17 @@ export default function ModelsChannelsPage() {
       }>("/api/admin/sync-status");
       setLastSyncTime(r.data.lastSyncTime);
       setLastSyncResult(r.data.lastSyncResult);
-    } catch {
-      /* ignore */
-    }
+    } catch { /* ignore */ }
   }, []);
 
-  useEffect(() => {
-    load();
-    loadSyncStatus();
-  }, [load, loadSyncStatus]);
+  useEffect(() => { load(); loadSyncStatus(); }, [load, loadSyncStatus]);
 
   // ── Aggregated stats ──
   const stats = useMemo(() => {
-    let totalChannels = 0,
-      activeChannels = 0,
-      degradedCount = 0;
-    let totalSuccess = 0,
-      totalCalls = 0;
+    let totalChannels = 0, activeChannels = 0, degradedCount = 0;
+    let totalSuccess = 0, totalCalls = 0;
     data.forEach((prov) => {
-      totalChannels +=
-        prov.summary.activeChannels + prov.summary.degradedChannels + prov.summary.disabledChannels;
+      totalChannels += prov.summary.activeChannels + prov.summary.degradedChannels + prov.summary.disabledChannels;
       activeChannels += prov.summary.activeChannels;
       degradedCount += prov.summary.degradedChannels;
       prov.models.forEach((m) =>
@@ -193,10 +151,7 @@ export default function ModelsChannelsPage() {
 
   const matrixTotal = matrixRows.length;
   const matrixPageCount = Math.max(1, Math.ceil(matrixTotal / MATRIX_PER_PAGE));
-  const matrixSlice = matrixRows.slice(
-    matrixPage * MATRIX_PER_PAGE,
-    (matrixPage + 1) * MATRIX_PER_PAGE,
-  );
+  const matrixSlice = matrixRows.slice(matrixPage * MATRIX_PER_PAGE, (matrixPage + 1) * MATRIX_PER_PAGE);
 
   // ── Actions ──
   const handleSync = async () => {
@@ -204,29 +159,21 @@ export default function ModelsChannelsPage() {
     try {
       await apiFetch("/api/admin/sync-models", { method: "POST" });
       toast.success(t("syncSuccess"));
-      await load();
-      await loadSyncStatus();
-    } catch (e) {
-      toast.error(`${t("syncFailed")}: ${(e as Error).message}`);
-    } finally {
-      setSyncing(false);
-    }
+      await load(); await loadSyncStatus();
+    } catch (e) { toast.error(`${t("syncFailed")}: ${(e as Error).message}`); }
+    finally { setSyncing(false); }
   };
 
   const toggle = (set: Set<string>, id: string) => {
     const next = new Set(set);
-    if (next.has(id)) next.delete(id);
-    else next.add(id);
+    if (next.has(id)) next.delete(id); else next.add(id);
     return next;
   };
 
   const savePriority = async (channelId: string) => {
     const p = Number(priorityValue);
     if (p > 0) {
-      await apiFetch(`/api/admin/channels/${channelId}`, {
-        method: "PATCH",
-        body: JSON.stringify({ priority: p }),
-      });
+      await apiFetch(`/api/admin/channels/${channelId}`, { method: "PATCH", body: JSON.stringify({ priority: p }) });
       toast.success(t("priorityUpdated"));
       load();
     }
@@ -235,252 +182,179 @@ export default function ModelsChannelsPage() {
 
   const saveSellPrice = async (ch: ChannelEntry) => {
     const val = Number(sellPriceValue);
-    if (isNaN(val) || val < 0) {
-      setEditingSellPrice(null);
-      return;
-    }
+    if (isNaN(val) || val < 0) { setEditingSellPrice(null); return; }
     const sp = ch.sellPrice;
-    const newSP =
-      sp.unit === "call"
-        ? { perCall: val, unit: "call" }
-        : { inputPer1M: val, outputPer1M: val, unit: "token" };
-    await apiFetch(`/api/admin/channels/${ch.id}`, {
-      method: "PATCH",
-      body: JSON.stringify({ sellPrice: newSP }),
-    });
+    const newSP = sp.unit === "call" ? { perCall: val, unit: "call" } : { inputPer1M: val, outputPer1M: val, unit: "token" };
+    await apiFetch(`/api/admin/channels/${ch.id}`, { method: "PATCH", body: JSON.stringify({ sellPrice: newSP }) });
     toast.success(t("priceSaved"));
     setEditingSellPrice(null);
     load();
   };
 
-  const channelStatusLabel = (ch: ChannelEntry) => {
-    if (ch.status === "DISABLED") return t("disabled");
-    const pct = ch.priority <= 1 ? "80%" : ch.priority <= 2 ? "15%" : "5%";
-    return `${t("priority")}: ${pct}`;
-  };
-
-  const channelAction = (ch: ChannelEntry) => {
-    if (ch.status === "ACTIVE") return { label: "Edit", cls: "text-[var(--ds-primary)]" };
-    if (ch.status === "DEGRADED") return { label: "Retry", cls: "text-[var(--ds-tertiary)]", icon: "warning" };
-    return { label: "Troubleshoot", cls: "text-[var(--ds-error)]" };
-  };
-
-  // ── Render ──
+  // ── Render — strict 1:1 replica of code.html lines 183-467 ──
   return (
-    <div className="max-w-[1200px]">
-      {/* ══════════ Page Header ══════════ */}
+    /* code.html line 183: <div class="max-w-7xl mx-auto"> */
+    <div className="max-w-7xl mx-auto">
+
+      {/* ═══ Page Header — code.html lines 185-193 ═══ */}
       <div className="mb-10 flex justify-between items-end">
         <div>
-          <h1 className="font-[var(--font-heading)] text-3xl font-extrabold tracking-tight text-[var(--ds-on-surface)] mb-2">
+          <h1 className="font-[var(--font-heading)] text-4xl font-extrabold tracking-tight text-ds-on-surface mb-2">
             {t("title")}
           </h1>
-          <p className="text-[var(--ds-on-surface-variant)] max-w-2xl">
-            {t("pageDescription")}
-          </p>
+          <p className="text-ds-on-surface-variant text-sm max-w-2xl">{t("pageDescription")}</p>
         </div>
-        <button className="bg-gradient-to-r from-[var(--ds-primary)] to-[var(--ds-primary-container)] text-white px-6 py-2.5 rounded-xl font-semibold shadow-lg shadow-[var(--ds-primary)]/20 flex items-center gap-2 hover:scale-[1.02] transition-transform active:scale-95">
-          <MIcon name="add" />
-          {t("createChannel")}
+        <button className="bg-gradient-to-r from-ds-primary to-ds-primary-container text-white px-6 py-2.5 rounded-xl font-bold shadow-lg shadow-ds-primary/20 flex items-center gap-2 hover:scale-[1.02] transition-transform active:scale-95 font-[var(--font-heading)]">
+          <span className="material-symbols-outlined">add</span> {t("createChannel")}
         </button>
       </div>
 
-      {/* ══════════ Premium Stats Section ══════════ */}
+      {/* ═══ Premium Stats Section — code.html lines 195-235 ═══ */}
       <section className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
-        {/* Routing Efficiency */}
-        <div className="bg-[var(--ds-surface-container-lowest)] p-6 rounded-2xl shadow-sm relative overflow-hidden group">
-          <div className="absolute -right-4 -top-4 w-24 h-24 bg-[var(--ds-primary)]/5 rounded-full blur-2xl group-hover:bg-[var(--ds-primary)]/10 transition-colors" />
+        {/* Routing Efficiency — lines 196-208 */}
+        <div className="bg-ds-surface-container-lowest p-6 rounded-2xl shadow-sm relative overflow-hidden group border border-slate-200/5">
+          <div className="absolute -right-4 -top-4 w-24 h-24 bg-ds-primary/5 rounded-full blur-2xl group-hover:bg-ds-primary/10 transition-colors" />
           <div className="flex items-center gap-4 mb-4">
-            <div className="w-12 h-12 bg-[var(--ds-primary)]/10 rounded-2xl flex items-center justify-center text-[var(--ds-primary)]">
-              <MIcon name="route" className="text-3xl" />
+            <div className="w-12 h-12 bg-ds-primary/10 rounded-2xl flex items-center justify-center text-ds-primary">
+              <span className="material-symbols-outlined text-3xl">route</span>
             </div>
-            <span className="font-[var(--font-heading)] font-bold text-[var(--ds-on-surface-variant)] uppercase tracking-widest text-[10px]">
-              {t("routingEfficiency")}
-            </span>
+            <span className="font-[var(--font-heading)] font-bold text-ds-on-surface-variant uppercase tracking-widest text-[10px]">{t("routingEfficiency")}</span>
           </div>
           <div className="flex items-baseline gap-2">
-            <span className="font-[var(--font-heading)] text-4xl font-extrabold text-[var(--ds-on-surface)]">
-              {stats.efficiency}%
-            </span>
+            <span className="font-[var(--font-heading)] text-4xl font-extrabold text-ds-on-surface">{stats.efficiency}%</span>
           </div>
         </div>
-
-        {/* Provider Health */}
-        <div className="bg-[var(--ds-surface-container-lowest)] p-6 rounded-2xl shadow-sm relative overflow-hidden group">
-          <div className="absolute -right-4 -top-4 w-24 h-24 bg-[var(--ds-secondary)]/5 rounded-full blur-2xl group-hover:bg-[var(--ds-secondary)]/10 transition-colors" />
+        {/* Provider Health — lines 209-221 */}
+        <div className="bg-ds-surface-container-lowest p-6 rounded-2xl shadow-sm relative overflow-hidden group border border-slate-200/5">
+          <div className="absolute -right-4 -top-4 w-24 h-24 bg-ds-secondary/5 rounded-full blur-2xl group-hover:bg-ds-secondary/10 transition-colors" />
           <div className="flex items-center gap-4 mb-4">
-            <div className="w-12 h-12 bg-[var(--ds-secondary)]/10 rounded-2xl flex items-center justify-center text-[var(--ds-secondary)]">
-              <MIcon name="health_and_safety" className="text-3xl" filled />
+            <div className="w-12 h-12 bg-ds-secondary/10 rounded-2xl flex items-center justify-center text-ds-secondary">
+              <span className="material-symbols-outlined text-3xl" style={{ fontVariationSettings: "'FILL' 1" }}>health_and_safety</span>
             </div>
-            <span className="font-[var(--font-heading)] font-bold text-[var(--ds-on-surface-variant)] uppercase tracking-widest text-[10px]">
-              {t("providerHealth")}
-            </span>
+            <span className="font-[var(--font-heading)] font-bold text-ds-on-surface-variant uppercase tracking-widest text-[10px]">{t("providerHealth")}</span>
           </div>
           <div className="flex items-baseline gap-2">
-            <span className="font-[var(--font-heading)] text-4xl font-extrabold text-[var(--ds-on-surface)]">
-              {stats.activeChannels}/{stats.totalChannels}
-            </span>
-            {stats.degradedCount > 0 && (
-              <span className="text-[var(--ds-tertiary)] font-semibold text-xs">
-                {stats.degradedCount} {t("degraded")}
-              </span>
-            )}
+            <span className="font-[var(--font-heading)] text-4xl font-extrabold text-ds-on-surface">{stats.activeChannels}/{stats.totalChannels}</span>
+            {stats.degradedCount > 0 && <span className="text-ds-tertiary font-bold text-xs">{stats.degradedCount} {t("degraded")}</span>}
           </div>
         </div>
-
-        {/* Pricing Drift */}
-        <div className="bg-[var(--ds-surface-container-lowest)] p-6 rounded-2xl shadow-sm relative overflow-hidden group">
-          <div className="absolute -right-4 -top-4 w-24 h-24 bg-[var(--ds-tertiary)]/5 rounded-full blur-2xl group-hover:bg-[var(--ds-tertiary)]/10 transition-colors" />
+        {/* Pricing Drift — lines 222-234 */}
+        <div className="bg-ds-surface-container-lowest p-6 rounded-2xl shadow-sm relative overflow-hidden group border border-slate-200/5">
+          <div className="absolute -right-4 -top-4 w-24 h-24 bg-ds-tertiary/5 rounded-full blur-2xl group-hover:bg-ds-tertiary/10 transition-colors" />
           <div className="flex items-center gap-4 mb-4">
-            <div className="w-12 h-12 bg-[var(--ds-tertiary)]/10 rounded-2xl flex items-center justify-center text-[var(--ds-tertiary)]">
-              <MIcon name="trending_down" className="text-3xl" />
+            <div className="w-12 h-12 bg-ds-tertiary/10 rounded-2xl flex items-center justify-center text-ds-tertiary">
+              <span className="material-symbols-outlined text-3xl">trending_down</span>
             </div>
-            <span className="font-[var(--font-heading)] font-bold text-[var(--ds-on-surface-variant)] uppercase tracking-widest text-[10px]">
-              {t("pricingDrift")}
-            </span>
+            <span className="font-[var(--font-heading)] font-bold text-ds-on-surface-variant uppercase tracking-widest text-[10px]">{t("pricingDrift")}</span>
           </div>
           <div className="flex items-baseline gap-2">
-            <span className="font-[var(--font-heading)] text-4xl font-extrabold text-[var(--ds-on-surface)]">
-              &mdash;
-            </span>
+            <span className="font-[var(--font-heading)] text-4xl font-extrabold text-ds-on-surface">&mdash;</span>
           </div>
         </div>
       </section>
 
-      {/* ══════════ Search & Filter Bar ══════════ */}
-      <div className="bg-[var(--ds-surface-container-low)] p-4 rounded-2xl mb-6 flex flex-wrap items-center gap-4">
+      {/* ═══ Search and Filter Bar — code.html lines 237-255 ═══ */}
+      <div className="bg-ds-surface-container-low p-4 rounded-2xl mb-6 flex flex-wrap items-center gap-4">
         <div className="flex-1 min-w-[300px] relative">
-          <MIcon name="search" className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--ds-outline)]" />
+          <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-ds-outline">search</span>
           <input
-            type="text"
+            className="w-full bg-ds-surface-container-lowest border-none rounded-xl pl-10 pr-4 py-2.5 text-sm focus:ring-2 focus:ring-ds-primary/20 placeholder:text-ds-outline/60 font-[var(--font-heading)] outline-none"
             placeholder={t("searchPlaceholder")}
+            type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full bg-[var(--ds-surface-container-lowest)] rounded-xl pl-10 pr-4 py-2.5 text-sm focus:ring-2 focus:ring-[var(--ds-primary)]/20 placeholder:text-[var(--ds-outline)]/60 outline-none border-none"
           />
         </div>
         <div className="flex items-center gap-2">
-          {/* Modality pills */}
-          {[
-            { val: "", label: t("all") },
-            { val: "TEXT", label: t("text") },
-            { val: "IMAGE", label: t("image") },
-          ].map((m) => (
-            <button
-              key={m.val}
-              onClick={() => setModality(m.val)}
-              className={`px-4 py-2.5 rounded-xl text-sm font-semibold flex items-center gap-2 transition-colors ${
-                modality === m.val
-                  ? "bg-[var(--ds-primary)] text-white"
-                  : "bg-[var(--ds-surface-container-lowest)] text-[var(--ds-on-surface-variant)] hover:bg-white"
-              }`}
-            >
-              {m.label}
-            </button>
-          ))}
-        </div>
-        <div className="flex items-center gap-2">
-          <button className="bg-[var(--ds-surface-container-lowest)] px-4 py-2.5 rounded-xl text-sm font-semibold flex items-center gap-2 text-[var(--ds-on-surface-variant)] hover:bg-white transition-colors">
-            <MIcon name="filter_list" className="text-lg" /> {t("filter")}
+          <button className="bg-ds-surface-container-lowest px-4 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2 text-ds-on-surface-variant hover:bg-white transition-colors font-[var(--font-heading)]">
+            <span className="material-symbols-outlined text-lg">filter_list</span> {t("filter")}
           </button>
-          <button className="bg-[var(--ds-surface-container-lowest)] px-4 py-2.5 rounded-xl text-sm font-semibold flex items-center gap-2 text-[var(--ds-on-surface-variant)] hover:bg-white transition-colors">
-            <MIcon name="sort" className="text-lg" /> {t("sortBy")}
+          <button className="bg-ds-surface-container-lowest px-4 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2 text-ds-on-surface-variant hover:bg-white transition-colors font-[var(--font-heading)]">
+            <span className="material-symbols-outlined text-lg">sort</span> {t("sortBy")}
           </button>
         </div>
-        <div className="h-8 w-px bg-[var(--ds-outline-variant)]/30 hidden lg:block" />
-        {/* Sync button */}
+        <div className="h-8 w-px bg-ds-outline-variant/30 hidden lg:block" />
+        {/* All Clear indicator — code.html lines 251-254 */}
+        <div className="flex items-center gap-1.5 px-3">
+          <span className="w-2 h-2 rounded-full bg-ds-secondary" />
+          <span className="text-[10px] font-bold text-ds-on-surface-variant uppercase tracking-wider">All Clear</span>
+        </div>
+        {/* Sync (functional addition, appended at end) */}
         <button
           onClick={handleSync}
           disabled={syncing}
-          className="bg-gradient-to-r from-[var(--ds-primary)] to-[var(--ds-primary-container)] text-white px-4 py-2.5 rounded-xl text-sm font-semibold flex items-center gap-2 hover:scale-[1.02] transition-transform disabled:opacity-50"
+          className="bg-gradient-to-r from-ds-primary to-ds-primary-container text-white px-4 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2 hover:scale-[1.02] transition-transform disabled:opacity-50 font-[var(--font-heading)]"
         >
-          <MIcon name="sync" className="text-lg" />
+          <span className="material-symbols-outlined text-lg">sync</span>
           {syncing ? t("syncing") : t("syncModels")}
         </button>
       </div>
 
-      {/* ══════════ Hierarchical Provider Cards ══════════ */}
+      {/* ═══ Hierarchical Channel Manager — code.html lines 257-369 ═══ */}
       {loading ? (
-        <div className="text-center py-12 text-[var(--ds-outline)]">{tc("loading")}</div>
+        <div className="text-center py-12 text-ds-outline">{tc("loading")}</div>
       ) : (
         <div className="space-y-6">
           {data.map((prov) => {
             const expanded = expandedProviders.has(prov.id);
-            const totalProv =
-              prov.summary.activeChannels + prov.summary.degradedChannels + prov.summary.disabledChannels;
-            const healthLabel =
-              prov.summary.disabledChannels > 0
-                ? "degraded"
-                : prov.summary.degradedChannels > 0
-                  ? "degraded"
-                  : "healthy";
+            const healthLabel = (prov.summary.degradedChannels > 0 || prov.summary.disabledChannels > 0) ? "Degraded" : "Healthy";
             const visibleModels = showAllModels.has(prov.id) ? prov.models : prov.models.slice(0, MODELS_PER_PAGE);
             const hasMore = prov.models.length > MODELS_PER_PAGE && !showAllModels.has(prov.id);
 
             return (
-              <div key={prov.id} className="bg-[var(--ds-surface-container-low)] rounded-3xl p-6 transition-all duration-300">
-                {/* ── Provider Header ── */}
+              /* Level 1: Provider Container — code.html line 259 */
+              <div key={prov.id} className="bg-ds-surface-container-low rounded-3xl p-6 transition-all duration-300">
+                {/* Provider Header — code.html lines 260-274 */}
                 <div
-                  className="flex items-center justify-between mb-1 group cursor-pointer"
+                  className={`flex items-center justify-between ${expanded ? "mb-6" : ""} group cursor-pointer`}
                   onClick={() => setExpandedProviders((s) => toggle(s, prov.id))}
                 >
                   <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center shadow-sm text-[var(--ds-primary)] font-bold text-sm">
+                    <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center shadow-sm text-ds-primary font-bold text-sm">
                       {prov.displayName.slice(0, 2)}
                     </div>
                     <div>
-                      <h3 className="font-[var(--font-heading)] font-bold text-xl text-[var(--ds-on-surface)]">
-                        {prov.displayName}
-                      </h3>
+                      <h3 className="font-[var(--font-heading)] font-bold text-xl text-ds-on-surface">{prov.displayName}</h3>
                       <div className="flex items-center gap-3 mt-0.5">
-                        <span className="text-xs text-[var(--ds-on-surface-variant)] font-medium">
-                          {prov.summary.modelCount} {t("models")} {t("active")}
-                        </span>
-                        <span className="text-xs text-[var(--ds-secondary)] flex items-center gap-1">
-                          <span className="w-1.5 h-1.5 rounded-full bg-[var(--ds-secondary)]" />
-                          L1 {HEALTH_LABEL[healthLabel]}
+                        <span className="text-xs text-ds-on-surface-variant font-bold">{prov.summary.modelCount} Models {t("active")}</span>
+                        <span className="text-xs text-ds-secondary flex items-center gap-1">
+                          <span className="w-1.5 h-1.5 rounded-full bg-ds-secondary" />
+                          L1 {healthLabel}
                         </span>
                       </div>
                     </div>
                   </div>
-                  <MIcon
-                    name={expanded ? "expand_less" : "expand_more"}
-                    className="text-[var(--ds-outline)] group-hover:text-[var(--ds-primary)] transition-colors"
-                  />
+                  <span className="material-symbols-outlined text-ds-outline group-hover:text-ds-primary transition-colors">
+                    {expanded ? "expand_less" : "expand_more"}
+                  </span>
                 </div>
 
-                {/* ── Model List ── */}
+                {/* Level 2: Model Rows — code.html lines 276-349 */}
                 {expanded && (
-                  <div className="space-y-4 ml-2 pl-4 mt-6" style={{ borderLeft: "2px solid color-mix(in srgb, var(--ds-outline-variant) 20%, transparent)" }}>
+                  <div className="space-y-4 ml-2 pl-4 border-l-2 border-ds-outline-variant/20">
                     {visibleModels.map((model) => {
                       const modelExpanded = expandedModels.has(model.id);
                       const avgLatency = model.channels.reduce((s, c) => s + (c.latencyMs ?? 0), 0) / (model.channels.filter((c) => c.latencyMs !== null).length || 1);
                       const totalCallsModel = model.channels.reduce((s, c) => s + c.totalCalls, 0);
 
                       return (
-                        <div key={model.id} className="bg-[var(--ds-surface-container-lowest)] rounded-2xl overflow-hidden">
-                          {/* Model header */}
+                        <div key={model.id} className="bg-ds-surface-container-lowest rounded-2xl overflow-hidden shadow-sm border border-slate-200/5">
+                          {/* Model Header — code.html lines 278-294 */}
                           <div
-                            className="p-4 flex items-center justify-between cursor-pointer hover:bg-[var(--ds-surface-container-low)]/50 transition-colors"
-                            style={modelExpanded ? { borderBottom: "1px solid color-mix(in srgb, var(--ds-outline-variant) 10%, transparent)" } : undefined}
+                            className="p-4 bg-slate-50/50 flex items-center justify-between border-b border-ds-outline-variant/10 cursor-pointer"
                             onClick={() => setExpandedModels((s) => toggle(s, model.id))}
                           >
                             <div className="flex items-center gap-4">
-                              <MIcon name="model_training" className="text-[var(--ds-primary)]/60" />
-                              <span className="font-[var(--font-heading)] font-bold text-[var(--ds-on-surface)]">
-                                {model.displayName || model.name}
-                              </span>
+                              <span className="material-symbols-outlined text-ds-primary/60">model_training</span>
+                              <span className="font-[var(--font-heading)] font-bold text-ds-on-surface">{model.displayName || model.name}</span>
                               {model.channels.some((c) => c.priority <= 1) && (
-                                <span className="text-[10px] font-black bg-[var(--ds-primary)]/10 text-[var(--ds-primary)] px-2 py-0.5 rounded-md uppercase">
-                                  High Priority
-                                </span>
+                                <span className="text-[10px] font-black bg-ds-primary/10 text-ds-primary px-2 py-0.5 rounded-md uppercase">High Priority</span>
                               )}
                             </div>
                             <div className="flex items-center gap-6 text-sm">
                               {model.channels.some((c) => c.latencyMs !== null) && (
                                 <div className="flex flex-col items-end">
-                                  <span className="text-[10px] text-[var(--ds-outline)] uppercase font-bold tracking-tighter">
-                                    {t("latency")}
-                                  </span>
+                                  <span className="text-[10px] text-ds-outline uppercase font-bold tracking-tighter">{t("latency")}</span>
                                   <span className="font-[var(--font-heading)] font-bold">
                                     {avgLatency > 1000 ? `${(avgLatency / 1000).toFixed(1)}s` : `${Math.round(avgLatency)}ms`}
                                   </span>
@@ -488,105 +362,76 @@ export default function ModelsChannelsPage() {
                               )}
                               {totalCallsModel > 0 && (
                                 <div className="flex flex-col items-end">
-                                  <span className="text-[10px] text-[var(--ds-outline)] uppercase font-bold tracking-tighter">
-                                    Calls
-                                  </span>
+                                  <span className="text-[10px] text-ds-outline uppercase font-bold tracking-tighter">{t("calls")}</span>
                                   <span className="font-[var(--font-heading)] font-bold">
                                     {totalCallsModel > 1000 ? `${(totalCallsModel / 1000).toFixed(1)}k` : totalCallsModel}
                                   </span>
                                 </div>
                               )}
-                              <MIcon
-                                name={modelExpanded ? "expand_less" : "expand_more"}
-                                className="text-[var(--ds-outline)]"
-                              />
                             </div>
                           </div>
 
-                          {/* Channel Cards Grid */}
+                          {/* Level 3: Channel Cards Grid — code.html lines 296-347 */}
                           {modelExpanded && (
                             <div className="p-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                               {model.channels.map((ch) => {
-                                const cfg = STATUS_CFG[ch.status];
-                                const action = channelAction(ch);
+                                const isActive = ch.status === "ACTIVE";
+                                const isDegraded = ch.status === "DEGRADED";
+                                const isDisabled = ch.status === "DISABLED";
+                                const statusLabel = isActive ? "L1" : isDegraded ? "L2" : "L3";
+                                const dotColor = isActive ? "bg-ds-secondary" : isDegraded ? "bg-ds-tertiary" : "bg-ds-error";
+                                const badgeBg = isActive ? "bg-ds-secondary/10 text-ds-secondary" : isDegraded ? "bg-ds-tertiary/10 text-ds-tertiary" : "bg-ds-error/10 text-ds-error";
+
                                 return (
                                   <div
                                     key={ch.id}
-                                    className={`p-4 rounded-xl hover:shadow-md transition-shadow group relative ${
-                                      ch.status === "DISABLED" ? "opacity-75" : ""
+                                    className={`p-4 rounded-xl border hover:shadow-md transition-shadow group relative ${
+                                      isDegraded ? "bg-ds-tertiary-container/5 border-ds-tertiary/20" :
+                                      isDisabled ? "bg-ds-error-container/5 border-ds-error/20 opacity-75" :
+                                      "border-ds-outline-variant/20"
                                     }`}
-                                    style={{
-                                      border: `1px solid color-mix(in srgb, ${ch.status === "DEGRADED" ? "var(--ds-tertiary)" : ch.status === "DISABLED" ? "var(--ds-error)" : "var(--ds-outline-variant)"} 20%, transparent)`,
-                                      backgroundColor: ch.status === "DEGRADED"
-                                        ? "color-mix(in srgb, var(--ds-tertiary) 3%, transparent)"
-                                        : ch.status === "DISABLED"
-                                          ? "color-mix(in srgb, var(--ds-error) 3%, transparent)"
-                                          : undefined,
-                                    }}
                                   >
+                                    {/* Card header — code.html lines 298-306 */}
                                     <div className="flex items-start justify-between mb-3">
                                       <div>
-                                        <div className="font-bold text-sm text-[var(--ds-on-surface)]">
-                                          {ch.realModelId}
-                                        </div>
-                                        <div className="text-[10px] text-[var(--ds-on-surface-variant)] opacity-60">
-                                          ID: {ch.id.slice(0, 8)}
-                                        </div>
+                                        <div className="font-bold text-sm text-ds-on-surface">{ch.realModelId}</div>
+                                        <div className="text-[10px] text-ds-on-surface-variant opacity-60">ID: {ch.id.slice(0, 8)}</div>
                                       </div>
-                                      <div
-                                        className="flex items-center gap-1.5 px-2 py-0.5 rounded-full"
-                                        style={{
-                                          backgroundColor: `color-mix(in srgb, ${cfg.color} 10%, transparent)`,
-                                          color: cfg.color,
-                                        }}
-                                      >
-                                        <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: cfg.color }} />
-                                        <span className="text-[10px] font-bold uppercase">{cfg.label}</span>
+                                      <div className={`flex items-center gap-1.5 ${badgeBg} px-2 py-0.5 rounded-full`}>
+                                        <span className={`w-1.5 h-1.5 rounded-full ${dotColor}`} />
+                                        <span className="text-[10px] font-bold uppercase">{statusLabel}</span>
                                       </div>
                                     </div>
 
-                                    {/* Price & Success */}
-                                    <div className="text-xs text-[var(--ds-on-surface-variant)] space-y-1 mb-3">
-                                      <div className="flex justify-between">
-                                        <span>{t("sellPrice")}</span>
-                                        {editingSellPrice === ch.id ? (
-                                          <Input
-                                            className="inline w-20 h-5 text-xs font-mono"
-                                            autoFocus
-                                            value={sellPriceValue}
-                                            onChange={(e) => setSellPriceValue(e.target.value)}
-                                            onBlur={() => saveSellPrice(ch)}
-                                            onKeyDown={(e) => e.key === "Enter" && saveSellPrice(ch)}
-                                          />
-                                        ) : (
-                                          <span
-                                            className="font-medium text-[var(--ds-on-surface)] cursor-pointer hover:underline"
-                                            onClick={(e) => {
-                                              e.stopPropagation();
-                                              setEditingSellPrice(ch.id);
-                                              setSellPriceValue(
-                                                String(ch.sellPrice.unit === "call" ? ch.sellPrice.perCall : ch.sellPrice.inputPer1M),
-                                              );
-                                            }}
-                                          >
-                                            {fmtPrice(ch.sellPrice)}
-                                            {ch.sellPriceLocked && (
-                                              <MIcon name="lock" className="text-[10px] ml-0.5 text-[var(--ds-outline)]" />
-                                            )}
-                                          </span>
-                                        )}
-                                      </div>
-                                      {ch.successRate !== null && (
-                                        <div className="flex justify-between">
-                                          <span>{t("successRate")}</span>
-                                          <span className="font-medium text-[var(--ds-on-surface)]">{ch.successRate}%</span>
-                                        </div>
+                                    {/* Sell price (editable) */}
+                                    <div className="text-xs text-ds-on-surface-variant mb-1">
+                                      {t("sellPrice")}:{" "}
+                                      {editingSellPrice === ch.id ? (
+                                        <Input
+                                          className="inline w-20 h-5 text-xs font-mono"
+                                          autoFocus
+                                          value={sellPriceValue}
+                                          onChange={(e) => setSellPriceValue(e.target.value)}
+                                          onBlur={() => saveSellPrice(ch)}
+                                          onKeyDown={(e) => e.key === "Enter" && saveSellPrice(ch)}
+                                        />
+                                      ) : (
+                                        <span
+                                          className="font-bold text-ds-on-surface cursor-pointer hover:underline"
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            setEditingSellPrice(ch.id);
+                                            setSellPriceValue(String(ch.sellPrice.unit === "call" ? ch.sellPrice.perCall : ch.sellPrice.inputPer1M));
+                                          }}
+                                        >
+                                          {fmtPrice(ch.sellPrice)}
+                                        </span>
                                       )}
                                     </div>
 
-                                    {/* Footer: Weight + Action */}
+                                    {/* Card footer — code.html lines 308-311 */}
                                     <div className="mt-4 flex items-center justify-between">
-                                      <div className="text-xs font-medium text-[var(--ds-on-surface-variant)]">
+                                      <div className="text-xs font-bold text-ds-on-surface-variant">
                                         {editingPriority === ch.id ? (
                                           <Input
                                             className="w-12 h-5 text-center text-xs"
@@ -609,46 +454,31 @@ export default function ModelsChannelsPage() {
                                           </span>
                                         )}
                                       </div>
-                                      <button
-                                        className={`${ch.status === "ACTIVE" ? "opacity-0 group-hover:opacity-100" : "opacity-100"} transition-opacity font-bold text-xs flex items-center gap-1 ${action.cls}`}
-                                      >
-                                        {action.icon && <MIcon name={action.icon} className="text-sm" />}
-                                        {action.label}
-                                      </button>
+                                      {isActive && (
+                                        <button className="opacity-0 group-hover:opacity-100 transition-opacity text-ds-primary font-bold text-xs">{t("edit")}</button>
+                                      )}
+                                      {isDegraded && (
+                                        <button className="opacity-100 text-ds-tertiary font-bold text-xs flex items-center gap-1">
+                                          <span className="material-symbols-outlined text-sm">warning</span> {t("retry")}
+                                        </button>
+                                      )}
+                                      {isDisabled && (
+                                        <button className="text-ds-error font-bold text-xs">{t("troubleshoot")}</button>
+                                      )}
                                     </div>
                                   </div>
                                 );
                               })}
                             </div>
                           )}
-
-                          {/* Collapsed model row (no channels visible) */}
-                          {!modelExpanded && model.channels.length === 0 && (
-                            <div className="p-4 flex items-center justify-between opacity-60">
-                              <div className="flex items-center gap-4">
-                                <MIcon name="model_training" className="text-[var(--ds-outline)]" />
-                                <span className="font-[var(--font-heading)] font-bold text-[var(--ds-on-surface)]">
-                                  {model.displayName || model.name}
-                                </span>
-                              </div>
-                              <MIcon name="add_circle" className="text-[var(--ds-outline)]" />
-                            </div>
-                          )}
                         </div>
                       );
                     })}
 
-                    {/* Show all button */}
                     {hasMore && (
                       <button
-                        onClick={() =>
-                          setShowAllModels((s) => {
-                            const n = new Set(s);
-                            n.add(prov.id);
-                            return n;
-                          })
-                        }
-                        className="w-full py-2.5 text-xs text-[var(--ds-on-surface-variant)] hover:text-[var(--ds-on-surface)] transition-colors"
+                        onClick={() => setShowAllModels((s) => { const n = new Set(s); n.add(prov.id); return n; })}
+                        className="w-full py-2.5 text-xs text-ds-on-surface-variant hover:text-ds-on-surface transition-colors font-bold"
                       >
                         {t("showAll", { count: prov.models.length })}
                       </button>
@@ -661,83 +491,65 @@ export default function ModelsChannelsPage() {
         </div>
       )}
 
-      {/* ══════════ Global Model Matrix ══════════ */}
+      {/* ═══ Global Model Matrix — code.html lines 371-466 ═══ */}
       {!loading && matrixRows.length > 0 && (
-        <div className="mt-12">
+        <div className="mt-12 mb-8">
+          {/* Header — code.html lines 372-380 */}
           <div className="flex items-center justify-between mb-6">
-            <h2 className="font-[var(--font-heading)] font-extrabold text-lg flex items-center gap-2">
+            <h2 className="font-[var(--font-heading)] font-extrabold text-2xl flex items-center gap-2">
               {t("globalModelMatrix")}
-              <span className="bg-[var(--ds-primary)]/10 text-[var(--ds-primary)] text-[10px] px-2 py-1 rounded-full">
-                {matrixTotal} {t("total")}
-              </span>
+              <span className="bg-ds-primary/10 text-ds-primary text-xs px-3 py-1 rounded-full">{matrixTotal} {t("total")}</span>
             </h2>
             <div className="flex gap-2">
-              <button className="p-2 hover:bg-[var(--ds-surface-container)] rounded-lg" onClick={() => load()}>
-                <MIcon name="refresh" />
+              <button className="p-2 hover:bg-ds-surface-container rounded-lg transition-colors">
+                <span className="material-symbols-outlined">download</span>
+              </button>
+              <button className="p-2 hover:bg-ds-surface-container rounded-lg transition-colors" onClick={() => load()}>
+                <span className="material-symbols-outlined">refresh</span>
               </button>
             </div>
           </div>
 
-          <div className="bg-[var(--ds-surface-container-lowest)] rounded-3xl shadow-sm overflow-hidden">
-            <table className="w-full text-left border-collapse">
+          {/* Table — code.html lines 381-465 */}
+          <div className="bg-ds-surface-container-lowest rounded-3xl shadow-sm overflow-hidden border border-slate-200/5">
+            <table className="w-full text-left border-collapse font-[var(--font-heading)]">
               <thead>
-                <tr className="bg-[var(--ds-surface-container-low)]/50">
-                  <th className="px-6 py-4 text-[10px] font-bold text-[var(--ds-on-surface-variant)] uppercase tracking-[0.1em]">
-                    {t("modelIdentifier")}
-                  </th>
-                  <th className="px-6 py-4 text-[10px] font-bold text-[var(--ds-on-surface-variant)] uppercase tracking-[0.1em]">
-                    {t("provider")}
-                  </th>
-                  <th className="px-6 py-4 text-[10px] font-bold text-[var(--ds-on-surface-variant)] uppercase tracking-[0.1em]">
-                    {t("availability")}
-                  </th>
-                  <th className="px-6 py-4 text-[10px] font-bold text-[var(--ds-on-surface-variant)] uppercase tracking-[0.1em]">
-                    {t("tokenCost")}
-                  </th>
-                  <th className="px-6 py-4 text-[10px] font-bold text-[var(--ds-on-surface-variant)] uppercase tracking-[0.1em]">
-                    {t("latency")}
-                  </th>
+                <tr className="bg-ds-surface-container-low/50">
+                  <th className="px-6 py-4 text-[10px] font-bold text-ds-on-surface-variant uppercase tracking-widest">{t("modelIdentifier")}</th>
+                  <th className="px-6 py-4 text-[10px] font-bold text-ds-on-surface-variant uppercase tracking-widest">{t("provider")}</th>
+                  <th className="px-6 py-4 text-[10px] font-bold text-ds-on-surface-variant uppercase tracking-widest">{t("availability")}</th>
+                  <th className="px-6 py-4 text-[10px] font-bold text-ds-on-surface-variant uppercase tracking-widest">{t("tokenCost")}</th>
+                  <th className="px-6 py-4 text-[10px] font-bold text-ds-on-surface-variant uppercase tracking-widest">{t("lastPing")}</th>
                   <th className="px-6 py-4" />
                 </tr>
               </thead>
-              <tbody>
+              <tbody className="divide-y divide-ds-outline-variant/10">
                 {matrixSlice.map((row, i) => {
                   const rate = row.channel.successRate ?? 0;
-                  const barColor =
-                    rate >= 90 ? "var(--ds-secondary)" : rate >= 50 ? "var(--ds-tertiary)" : "var(--ds-error)";
+                  const barColor = rate >= 90 ? "bg-ds-secondary" : rate >= 50 ? "bg-ds-tertiary" : "bg-ds-error";
+                  const dotColor = row.channel.status === "ACTIVE" ? "bg-ds-secondary" : row.channel.status === "DEGRADED" ? "bg-ds-tertiary" : "bg-ds-error";
+                  const isTimedOut = row.channel.status === "DISABLED" && row.channel.latencyMs === null;
+
                   return (
-                    <tr
-                      key={`${row.channel.id}-${i}`}
-                      className="hover:bg-[var(--ds-surface-container-high)] transition-colors group"
-                    >
+                    <tr key={`${row.channel.id}-${i}`} className="hover:bg-ds-surface-container-high transition-colors group">
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-3">
-                          <div
-                            className="w-2 h-2 rounded-full"
-                            style={{ backgroundColor: STATUS_CFG[row.channel.status].color }}
-                          />
-                          <span className="font-[var(--font-heading)] font-bold text-sm text-[var(--ds-on-surface)]">
-                            {row.modelName}
-                          </span>
+                          <div className={`w-2 h-2 rounded-full ${dotColor}`} />
+                          <span className="font-bold text-sm text-ds-on-surface">{row.modelName}</span>
                         </div>
                       </td>
-                      <td className="px-6 py-4 text-xs font-medium">{row.providerName}</td>
+                      <td className="px-6 py-4 text-xs font-bold">{row.providerName}</td>
                       <td className="px-6 py-4">
-                        <div className="w-24 h-1.5 bg-[var(--ds-outline-variant)]/20 rounded-full overflow-hidden">
-                          <div
-                            className="h-full rounded-full"
-                            style={{ width: `${rate}%`, backgroundColor: barColor }}
-                          />
+                        <div className="w-24 h-1.5 bg-ds-outline-variant/20 rounded-full overflow-hidden">
+                          <div className={`h-full rounded-full ${barColor}`} style={{ width: `${rate}%` }} />
                         </div>
                       </td>
-                      <td className="px-6 py-4 font-[var(--font-heading)] font-bold text-xs">
-                        {fmtPrice(row.channel.costPrice)}
-                      </td>
-                      <td className="px-6 py-4 text-xs text-[var(--ds-on-surface-variant)]">
-                        {row.channel.latencyMs !== null ? `${row.channel.latencyMs}ms` : "\u2014"}
+                      <td className="px-6 py-4 font-bold text-xs">{fmtPrice(row.channel.costPrice)}</td>
+                      <td className={`px-6 py-4 text-xs ${isTimedOut ? "text-ds-error font-bold" : "text-ds-on-surface-variant"}`}>
+                        {isTimedOut ? "Timed Out" : row.channel.latencyMs !== null ? `${row.channel.latencyMs}ms` : "\u2014"}
                       </td>
                       <td className="px-6 py-4 text-right">
-                        <MIcon name="more_vert" className="text-[var(--ds-outline)] opacity-0 group-hover:opacity-100 cursor-pointer" />
+                        <span className="material-symbols-outlined text-ds-outline opacity-0 group-hover:opacity-100 cursor-pointer">more_vert</span>
                       </td>
                     </tr>
                   );
@@ -745,17 +557,15 @@ export default function ModelsChannelsPage() {
               </tbody>
             </table>
 
-            {/* Pagination */}
+            {/* Pagination — code.html lines 453-464 */}
             {matrixPageCount > 1 && (
-              <div className="p-4 bg-[var(--ds-surface-container-low)]/30 flex justify-between items-center text-xs font-medium text-[var(--ds-on-surface-variant)]">
-                <span>
-                  {t("showingEntries", { count: matrixSlice.length, total: matrixTotal })}
-                </span>
+              <div className="p-4 bg-slate-50 border-t border-ds-outline-variant/10 flex justify-between items-center text-xs font-bold text-ds-on-surface-variant">
+                <span>{t("showingEntries", { count: matrixSlice.length, total: matrixTotal })}</span>
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => setMatrixPage((p) => Math.max(0, p - 1))}
                     disabled={matrixPage === 0}
-                    className="px-3 py-1 bg-white rounded-lg hover:bg-[var(--ds-surface-container)] transition-colors disabled:opacity-50"
+                    className="px-3 py-1 bg-white rounded-lg border border-ds-outline-variant/30 hover:bg-ds-surface-container transition-colors disabled:opacity-50"
                   >
                     {t("previous")}
                   </button>
@@ -763,34 +573,27 @@ export default function ModelsChannelsPage() {
                     const page = matrixPage < 3 ? i : matrixPage - 2 + i;
                     if (page >= matrixPageCount) return null;
                     return (
-                      <button
+                      <span
                         key={page}
                         onClick={() => setMatrixPage(page)}
-                        className={`px-3 py-1 rounded-lg ${
-                          page === matrixPage
-                            ? "bg-[var(--ds-primary)] text-white"
-                            : "hover:bg-[var(--ds-surface-container)] cursor-pointer"
+                        className={`px-3 py-1 rounded-lg cursor-pointer ${
+                          page === matrixPage ? "bg-ds-primary text-white" : "hover:bg-ds-surface-container"
                         }`}
                       >
                         {page + 1}
-                      </button>
+                      </span>
                     );
                   })}
                   {matrixPageCount > 5 && matrixPage < matrixPageCount - 3 && (
                     <>
-                      <span className="px-1 text-[var(--ds-outline)]">...</span>
-                      <button
-                        onClick={() => setMatrixPage(matrixPageCount - 1)}
-                        className="px-3 py-1 rounded-lg hover:bg-[var(--ds-surface-container)] cursor-pointer"
-                      >
-                        {matrixPageCount}
-                      </button>
+                      <span className="px-1 text-ds-outline">...</span>
+                      <span onClick={() => setMatrixPage(matrixPageCount - 1)} className="px-3 py-1 hover:bg-ds-surface-container rounded-lg cursor-pointer">{matrixPageCount}</span>
                     </>
                   )}
                   <button
                     onClick={() => setMatrixPage((p) => Math.min(matrixPageCount - 1, p + 1))}
                     disabled={matrixPage >= matrixPageCount - 1}
-                    className="px-3 py-1 bg-white rounded-lg hover:bg-[var(--ds-surface-container)] transition-colors disabled:opacity-50"
+                    className="px-3 py-1 bg-white rounded-lg border border-ds-outline-variant/30 hover:bg-ds-surface-container transition-colors disabled:opacity-50"
                   >
                     {t("next")}
                   </button>
@@ -801,36 +604,19 @@ export default function ModelsChannelsPage() {
         </div>
       )}
 
-      {/* ══════════ Sync Status Footer ══════════ */}
-      {(lastSyncTime || lastSyncResult) && (
-        <div className="mt-6 text-xs text-[var(--ds-on-surface-variant)]">
-          {lastSyncTime && (
-            <span>
-              {t("lastSync")}: {new Date(lastSyncTime).toLocaleString()}
-            </span>
-          )}
+      {/* Sync status footer */}
+      {lastSyncTime && (
+        <div className="mt-6 text-xs text-ds-on-surface-variant">
+          {t("lastSync")}: {new Date(lastSyncTime).toLocaleString()}
           {lastSyncResult && (
-            <div className="bg-[var(--ds-surface-container-low)] rounded-xl p-3 mt-2">
-              <span>{t("syncResult")}: </span>
-              <span className="text-[var(--ds-secondary)]">
-                +{lastSyncResult.summary.totalNewChannels} {t("newChannels")}
-              </span>
-              <span className="mx-2">
-                -{lastSyncResult.summary.totalDisabledChannels} {t("disabledLabel")}
-              </span>
+            <span className="ml-4">
+              {t("syncResult")}:{" "}
+              <span className="text-ds-secondary">+{lastSyncResult.summary.totalNewChannels} {t("newChannels")}</span>
+              <span className="mx-2">-{lastSyncResult.summary.totalDisabledChannels} {t("disabledLabel")}</span>
               {lastSyncResult.summary.totalFailedProviders > 0 && (
-                <span className="text-[var(--ds-error)]">
-                  {lastSyncResult.summary.totalFailedProviders} {t("failedLabel")}
-                </span>
+                <span className="text-ds-error">{lastSyncResult.summary.totalFailedProviders} {t("failedLabel")}</span>
               )}
-              {lastSyncResult.providers
-                .filter((p) => !p.success)
-                .map((p) => (
-                  <div key={p.providerName} className="text-[var(--ds-error)] mt-1">
-                    {p.providerName}: {p.error}
-                  </div>
-                ))}
-            </div>
+            </span>
           )}
         </div>
       )}

@@ -23,26 +23,26 @@
   },
   "sidebar": {
     "brand": "AIGC Gateway",
-    "project": "project",
-    "observe": "observe",
-    "billing": "billing",
-    "help": "help",
-    "admin": "admin",
-    "dashboard": "Dashboard",
-    "apiKeys": "API keys",
+    "algorithmicAtelier": "Algorithmic Atelier",
+    "newProject": "New Project",
+    "projects": "Projects",
     "models": "Models",
-    "auditLogs": "Audit logs",
-    "usage": "Usage",
-    "balance": "Balance",
-    "quickStart": "Quick start",
-    "apiDocs": "API docs",
+    "logs": "Logs",
+    "channels": "Channels",
     "providers": "Providers",
-    "modelsChannels": "Models & channels",
+    "billing": "Billing",
     "health": "Health",
     "users": "Users",
+    "walletBalance": "Wallet Balance",
     "user": "User",
-    "language": "中文",
-    "mcpSetup": "MCP setup"
+    "language": "中文"
+  },
+  "topBar": {
+    "searchPlaceholder": "Search resources, logs, or keys...",
+    "documentation": "Documentation",
+    "apiReference": "API Reference",
+    "support": "Support",
+    "deploy": "Deploy"
   },
   "emptyState": {
     "title": "No project yet",
@@ -248,7 +248,7 @@
     "configSaved": "Config saved"
   },
   "adminModels": {
-    "title": "Models & Channels",
+    "title": "Channel Management",
     "syncModels": "Sync Models",
     "syncing": "Syncing...",
     "syncSuccess": "Sync completed",

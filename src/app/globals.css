@@ -86,6 +86,56 @@
     --color-chart-coral: var(--chart-coral);
     --color-chart-blue: var(--chart-blue);
     --color-chart-amber: var(--chart-amber);
+
+    /* ── Algorithmic Atelier design system — Tailwind first-class colors ── */
+    /* Registered from code.html tailwind config (lines 16-63) */
+    --color-ds-primary: var(--ds-primary);
+    --color-ds-primary-container: var(--ds-primary-container);
+    --color-ds-on-primary: var(--ds-on-primary);
+    --color-ds-on-primary-container: var(--ds-on-primary-container);
+    --color-ds-on-primary-fixed: var(--ds-on-primary-fixed);
+    --color-ds-on-primary-fixed-variant: var(--ds-on-primary-fixed-variant);
+    --color-ds-surface: var(--ds-surface);
+    --color-ds-surface-dim: var(--ds-surface-dim);
+    --color-ds-surface-bright: var(--ds-surface-bright);
+    --color-ds-surface-tint: var(--ds-surface-tint);
+    --color-ds-surface-variant: var(--ds-surface-variant);
+    --color-ds-surface-container: var(--ds-surface-container);
+    --color-ds-surface-container-high: var(--ds-surface-container-high);
+    --color-ds-surface-container-highest: var(--ds-surface-container-highest);
+    --color-ds-surface-container-low: var(--ds-surface-container-low);
+    --color-ds-surface-container-lowest: var(--ds-surface-container-lowest);
+    --color-ds-on-surface: var(--ds-on-surface);
+    --color-ds-on-surface-variant: var(--ds-on-surface-variant);
+    --color-ds-on-background: var(--ds-on-background);
+    --color-ds-outline: var(--ds-outline);
+    --color-ds-outline-variant: var(--ds-outline-variant);
+    --color-ds-error: var(--ds-error);
+    --color-ds-error-container: var(--ds-error-container);
+    --color-ds-on-error: var(--ds-on-error);
+    --color-ds-on-error-container: var(--ds-on-error-container);
+    --color-ds-secondary: var(--ds-secondary);
+    --color-ds-secondary-container: var(--ds-secondary-container);
+    --color-ds-on-secondary: var(--ds-on-secondary);
+    --color-ds-on-secondary-container: var(--ds-on-secondary-container);
+    --color-ds-on-secondary-fixed: var(--ds-on-secondary-fixed);
+    --color-ds-on-secondary-fixed-variant: var(--ds-on-secondary-fixed-variant);
+    --color-ds-secondary-fixed: var(--ds-secondary-fixed);
+    --color-ds-secondary-fixed-dim: var(--ds-secondary-fixed-dim);
+    --color-ds-tertiary: var(--ds-tertiary);
+    --color-ds-tertiary-container: var(--ds-tertiary-container);
+    --color-ds-on-tertiary: var(--ds-on-tertiary);
+    --color-ds-on-tertiary-container: var(--ds-on-tertiary-container);
+    --color-ds-on-tertiary-fixed: var(--ds-on-tertiary-fixed);
+    --color-ds-on-tertiary-fixed-variant: var(--ds-on-tertiary-fixed-variant);
+    --color-ds-tertiary-fixed: var(--ds-tertiary-fixed);
+    --color-ds-tertiary-fixed-dim: var(--ds-tertiary-fixed-dim);
+    --color-ds-inverse-surface: var(--ds-inverse-surface);
+    --color-ds-inverse-on-surface: var(--ds-inverse-on-surface);
+    --color-ds-inverse-primary: var(--ds-inverse-primary);
+    --color-ds-primary-fixed: var(--ds-primary-fixed);
+    --color-ds-primary-fixed-dim: var(--ds-primary-fixed-dim);
+    --color-ds-background: var(--ds-background);
 }
 
 :root {
@@ -166,22 +216,54 @@
     --chart-blue: #2B7BD5;
     --chart-amber: #D4940E;
 
-    /* Algorithmic Atelier design system */
+    /* Algorithmic Atelier design system — full token set from code.html lines 16-63 */
     --ds-primary: #5443b9;
     --ds-primary-container: #6d5dd3;
     --ds-on-primary: #ffffff;
+    --ds-on-primary-container: #f6f1ff;
+    --ds-on-primary-fixed: #190064;
+    --ds-on-primary-fixed-variant: #4431a8;
+    --ds-primary-fixed: #e5deff;
+    --ds-primary-fixed-dim: #c8bfff;
     --ds-surface: #faf8ff;
+    --ds-surface-dim: #d2d9f4;
+    --ds-surface-bright: #faf8ff;
+    --ds-surface-tint: #5c4cc1;
+    --ds-surface-variant: #dae2fd;
     --ds-surface-container: #eaedff;
     --ds-surface-container-high: #e2e7ff;
+    --ds-surface-container-highest: #dae2fd;
     --ds-surface-container-low: #f2f3ff;
     --ds-surface-container-lowest: #ffffff;
     --ds-on-surface: #131b2e;
     --ds-on-surface-variant: #474553;
+    --ds-on-background: #131b2e;
+    --ds-background: #faf8ff;
     --ds-outline: #787584;
     --ds-outline-variant: #c9c4d5;
     --ds-error: #ba1a1a;
-    --ds-tertiary: #7c4b00;
+    --ds-error-container: #ffdad6;
+    --ds-on-error: #ffffff;
+    --ds-on-error-container: #93000a;
     --ds-secondary: #5f5987;
+    --ds-secondary-container: #d0c9fe;
+    --ds-on-secondary: #ffffff;
+    --ds-on-secondary-container: #585280;
+    --ds-on-secondary-fixed: #1b153f;
+    --ds-on-secondary-fixed-variant: #47416e;
+    --ds-secondary-fixed: #e5deff;
+    --ds-secondary-fixed-dim: #c8c0f5;
+    --ds-tertiary: #7c4b00;
+    --ds-tertiary-container: #9d6100;
+    --ds-on-tertiary: #ffffff;
+    --ds-on-tertiary-container: #fff0e4;
+    --ds-on-tertiary-fixed: #2b1700;
+    --ds-on-tertiary-fixed-variant: #663e00;
+    --ds-tertiary-fixed: #ffddba;
+    --ds-tertiary-fixed-dim: #ffb964;
+    --ds-inverse-surface: #283044;
+    --ds-inverse-on-surface: #eef0ff;
+    --ds-inverse-primary: #c8bfff;
 }
 
 .dark {
@@ -216,6 +298,15 @@
     --sidebar-accent-foreground: oklch(0.985 0 0);
     --sidebar-border: oklch(1 0 0 / 10%);
     --sidebar-ring: oklch(0.556 0 0);
+}
+
+/* ── Atelier utility classes — from code.html lines 76-84 ── */
+.glass-panel {
+  backdrop-filter: blur(12px);
+  background-color: rgba(250, 248, 255, 0.8);
+}
+.no-line-card {
+  border: none;
 }
 
 @layer base {

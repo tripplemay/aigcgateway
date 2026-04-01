@@ -23,26 +23,26 @@
   },
   "sidebar": {
     "brand": "AIGC Gateway",
-    "project": "项目",
-    "observe": "监控",
-    "billing": "计费",
-    "help": "帮助",
-    "admin": "管理",
-    "dashboard": "仪表盘",
-    "apiKeys": "API 密钥",
+    "algorithmicAtelier": "Algorithmic Atelier",
+    "newProject": "新建项目",
+    "projects": "项目",
     "models": "模型",
-    "auditLogs": "审计日志",
-    "usage": "用量",
-    "balance": "余额",
-    "quickStart": "快速开始",
-    "apiDocs": "API 文档",
+    "logs": "日志",
+    "channels": "通道",
     "providers": "服务商",
-    "modelsChannels": "模型与通道",
+    "billing": "计费",
     "health": "健康监控",
     "users": "用户",
+    "walletBalance": "钱包余额",
     "user": "用户",
-    "language": "EN",
-    "mcpSetup": "MCP 配置"
+    "language": "EN"
+  },
+  "topBar": {
+    "searchPlaceholder": "搜索资源、日志或密钥...",
+    "documentation": "文档",
+    "apiReference": "API 参考",
+    "support": "支持",
+    "deploy": "部署"
   },
   "emptyState": {
     "title": "暂无项目",
@@ -248,7 +248,7 @@
     "configSaved": "配置已保存"
   },
   "adminModels": {
-    "title": "模型与通道",
+    "title": "通道管理",
     "syncModels": "同步模型",
     "syncing": "同步中...",
     "syncSuccess": "同步完成",
