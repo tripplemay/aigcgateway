@@ -41,8 +41,8 @@ jobs:
 
             echo "=== Prisma generate + migrate ==="
             npx prisma generate
-            source .env.production
-            DATABASE_URL="$DATABASE_URL" npx prisma migrate deploy
+            set -a && source .env.production && set +a
+            npx prisma migrate deploy
 
             echo "=== Build (768MB heap, using swap) ==="
             NODE_OPTIONS="--max-old-space-size=768" npm run build
