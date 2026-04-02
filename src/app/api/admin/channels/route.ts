@@ -32,14 +32,14 @@ export async function GET(request: Request) {
   const healthMap = new Map<string, string>();
 
   if (channelIds.length > 0) {
-    const healthRows = await prisma.$queryRaw<Array<{ channel_id: string; result: string }>>`
-      SELECT DISTINCT ON (channel_id) channel_id, result
+    const healthRows = await prisma.$queryRaw<Array<{ channelId: string; result: string }>>`
+      SELECT DISTINCT ON ("channelId") "channelId", result
       FROM health_checks
-      WHERE channel_id = ANY(${channelIds})
-      ORDER BY channel_id, created_at DESC
+      WHERE "channelId" = ANY(${channelIds})
+      ORDER BY "channelId", "createdAt" DESC
     `;
     for (const row of healthRows) {
-      healthMap.set(row.channel_id, row.result);
+      healthMap.set(row.channelId, row.result);
     }
   }
 

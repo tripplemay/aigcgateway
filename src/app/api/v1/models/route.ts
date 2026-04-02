@@ -18,32 +18,12 @@ import { getRedis } from "@/lib/redis";
 
 const CACHE_TTL = 120; // seconds
 
-export async function GET(request: Request) {
-  // 可选鉴权：有 Bearer token 才校验
-  const authHeader = request.headers.get("authorization");
-  if (authHeader) {
-    const auth = await authenticateApiKey(request);
-    if (!auth.ok) return auth.error;
-  }
+// In-process singleflight：缓存 miss 时只允许 1 个 DB 查询，其余复用同一个 Promise
+// 当前 PM2 单实例部署有效；多实例时需改为 Redis 分布式锁
+const inflightRequests = new Map<string, Promise<string>>();
 
-  const url = new URL(request.url);
-  const modalityFilter = url.searchParams.get("modality")?.toUpperCase();
-
-  // Redis 缓存：按 modality 区分 key
-  const cacheKey = modalityFilter ? `models:list:${modalityFilter}` : "models:list";
-  const redis = getRedis();
-
-  if (redis) {
-    try {
-      const cached = await redis.get(cacheKey);
-      if (cached) {
-        return NextResponse.json(JSON.parse(cached));
-      }
-    } catch {
-      // Redis 读失败则 fallthrough 到 DB 查询
-    }
-  }
-
+/** 查 DB + 构造响应 JSON 字符串 */
+async function queryModelsJSON(modalityFilter: string | undefined): Promise<string> {
   const models = await prisma.model.findMany({
     where: {
       channels: { some: { status: "ACTIVE" } },
@@ -106,12 +86,61 @@ export async function GET(request: Request) {
     };
   });
 
-  const responseBody = { object: "list", data };
+  return JSON.stringify({ object: "list", data });
+}
 
-  // 写入 Redis 缓存
+/** 带 singleflight 的缓存读取 */
+async function getModelsWithSingleflight(
+  cacheKey: string,
+  modalityFilter: string | undefined,
+): Promise<string> {
+  const redis = getRedis();
+
+  // 1. 读缓存
   if (redis) {
-    redis.set(cacheKey, JSON.stringify(responseBody), "EX", CACHE_TTL).catch(() => {});
+    try {
+      const cached = await redis.get(cacheKey);
+      if (cached) return cached;
+    } catch {
+      // Redis 读失败则 fallthrough
+    }
   }
 
-  return NextResponse.json(responseBody);
+  // 2. 已有 inflight 请求，复用同一个 Promise
+  const existing = inflightRequests.get(cacheKey);
+  if (existing) return existing;
+
+  // 3. 发起新的 DB 查询
+  const promise = queryModelsJSON(modalityFilter)
+    .then((json) => {
+      if (redis) {
+        redis.set(cacheKey, json, "EX", CACHE_TTL).catch(() => {});
+      }
+      return json;
+    })
+    .finally(() => {
+      inflightRequests.delete(cacheKey);
+    });
+
+  inflightRequests.set(cacheKey, promise);
+  return promise;
+}
+
+export async function GET(request: Request) {
+  // 可选鉴权：有 Bearer token 才校验
+  const authHeader = request.headers.get("authorization");
+  if (authHeader) {
+    const auth = await authenticateApiKey(request);
+    if (!auth.ok) return auth.error;
+  }
+
+  const url = new URL(request.url);
+  const modalityFilter = url.searchParams.get("modality")?.toUpperCase();
+  const cacheKey = modalityFilter ? `models:list:${modalityFilter}` : "models:list";
+
+  const json = await getModelsWithSingleflight(cacheKey, modalityFilter);
+  return new NextResponse(json, {
+    status: 200,
+    headers: { "content-type": "application/json" },
+  });
 }
