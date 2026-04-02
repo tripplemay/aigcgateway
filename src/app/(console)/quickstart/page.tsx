@@ -1,26 +1,24 @@
 "use client";
 import { useState } from "react";
 import { useTranslations } from "next-intl";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Copy, Check } from "lucide-react";
+import "material-symbols/outlined.css";
 
 const stepCodes = [
-  `npm install aigc-gateway-sdk`,
-  `import { Gateway } from 'aigc-gateway-sdk'
+  `npm install @guangai/aigc-sdk`,
+  `import { AigcClient } from '@guangai/aigc-sdk'
 
-const gw = new Gateway({
+const client = new AigcClient({
   apiKey: 'pk_...',
-  baseUrl: '${typeof window !== "undefined" ? window.location.origin : ""}'
+  baseUrl: '${typeof window !== "undefined" ? window.location.origin : ""}/v1'
 })
 
-const res = await gw.chat({
+const res = await client.chat({
   model: 'deepseek/v3',
   messages: [{ role: 'user', content: 'Hello!' }],
 })
 
 console.log(res.content)`,
-  `const stream = await gw.chat({
+  `const stream = await client.chat({
   model: 'deepseek/v3',
   messages: [{ role: 'user', content: 'Write a poem' }],
   stream: true,
@@ -31,7 +29,7 @@ for await (const chunk of stream) {
 }
 
 console.log('Usage:', stream.usage)`,
-  `const img = await gw.image({
+  `const img = await client.image({
   model: 'zhipu/cogview-3-flash',
   prompt: 'A friendly robot teacher',
   size: '1024x1024',
@@ -39,6 +37,8 @@ console.log('Usage:', stream.usage)`,
 
 console.log(img.url)`,
 ];
+
+const STEP_ICONS = ["download", "code", "stream", "image"];
 
 function CodeBlock({ code }: { code: string }) {
   const [copied, setCopied] = useState(false);
@@ -49,17 +49,17 @@ function CodeBlock({ code }: { code: string }) {
   };
   return (
     <div className="relative">
-      <pre className="bg-zinc-950 text-zinc-100 rounded-md p-4 text-sm font-mono overflow-x-auto">
+      <pre className="bg-[#1e1e2e] text-indigo-200 rounded-xl p-5 text-sm font-mono overflow-x-auto leading-relaxed">
         {code}
       </pre>
-      <Button
-        variant="ghost"
-        size="icon"
-        className="absolute top-2 right-2 text-zinc-400 hover:text-zinc-100"
+      <button
         onClick={copy}
+        className="absolute top-3 right-3 p-2 text-slate-500 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
       >
-        {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
-      </Button>
+        <span className="material-symbols-outlined text-sm">
+          {copied ? "check" : "content_copy"}
+        </span>
+      </button>
     </div>
   );
 }
@@ -67,19 +67,38 @@ function CodeBlock({ code }: { code: string }) {
 export default function QuickStartPage() {
   const t = useTranslations("quickstart");
   const stepTitles = [t("step1"), t("step2"), t("step3"), t("step4")];
+
   return (
-    <div>
-      <h1 className="text-2xl font-bold mb-6">{t("title")}</h1>
-      <div className="space-y-6">
+    <div className="max-w-7xl mx-auto space-y-8">
+      <div>
+        <h2 className="text-3xl font-extrabold tracking-tight font-[var(--font-heading)] text-ds-on-surface">
+          {t("title")}
+        </h2>
+        <p className="text-ds-on-surface-variant font-medium mt-1">
+          Get started with AIGC Gateway in 4 simple steps.
+        </p>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {stepCodes.map((code, i) => (
-          <Card key={i}>
-            <CardHeader>
-              <CardTitle className="text-base">{stepTitles[i]}</CardTitle>
-            </CardHeader>
-            <CardContent>
+          <div key={i} className="bg-ds-surface-container-lowest rounded-2xl shadow-sm overflow-hidden">
+            <div className="p-6 flex items-center gap-4">
+              <div className="w-10 h-10 rounded-xl bg-ds-primary/10 flex items-center justify-center text-ds-primary shrink-0">
+                <span className="material-symbols-outlined">{STEP_ICONS[i]}</span>
+              </div>
+              <div>
+                <span className="text-[10px] font-bold text-ds-primary uppercase tracking-widest">
+                  Step {i + 1}
+                </span>
+                <h3 className="font-[var(--font-heading)] font-bold text-ds-on-surface">
+                  {stepTitles[i]}
+                </h3>
+              </div>
+            </div>
+            <div className="px-6 pb-6">
               <CodeBlock code={code} />
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         ))}
       </div>
     </div>

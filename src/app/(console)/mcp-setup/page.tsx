@@ -3,69 +3,28 @@ import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { apiFetch } from "@/lib/api-client";
 import { useProject } from "@/hooks/use-project";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
-import { Copy, ExternalLink } from "lucide-react";
 import Link from "next/link";
+import "material-symbols/outlined.css";
 
-interface ApiKeyRow {
-  id: string;
-  keyPrefix: string;
-  name: string | null;
-  status: string;
-}
+interface ApiKeyRow { id: string; keyPrefix: string; name: string | null; status: string; }
 
 const TOOLS = [
-  { name: "list_models", descKey: "toolListModels" },
-  { name: "chat", descKey: "toolChat" },
-  { name: "generate_image", descKey: "toolGenerateImage" },
-  { name: "list_logs", descKey: "toolListLogs" },
-  { name: "get_log_detail", descKey: "toolGetLogDetail" },
-  { name: "get_balance", descKey: "toolGetBalance" },
-  { name: "get_usage_summary", descKey: "toolGetUsageSummary" },
+  { name: "list_models", descKey: "toolListModels", icon: "smart_toy" },
+  { name: "chat", descKey: "toolChat", icon: "chat" },
+  { name: "generate_image", descKey: "toolGenerateImage", icon: "image" },
+  { name: "list_logs", descKey: "toolListLogs", icon: "terminal" },
+  { name: "get_log_detail", descKey: "toolGetLogDetail", icon: "description" },
+  { name: "get_balance", descKey: "toolGetBalance", icon: "payments" },
+  { name: "get_usage_summary", descKey: "toolGetUsageSummary", icon: "bar_chart" },
 ] as const;
 
-function generateConfig(
-  type: "claude" | "cursor" | "generic",
-  keyPrefix: string,
-): string {
+function generateConfig(type: "claude" | "cursor" | "generic", keyPrefix: string): string {
   const url = "https://aigc.guangai.ai/mcp";
   const keyPlaceholder = `${keyPrefix}••••••••`;
-
-  if (type === "claude") {
-    return JSON.stringify(
-      {
-        mcpServers: {
-          "aigc-gateway": {
-            type: "streamable-http",
-            url,
-            headers: { Authorization: `Bearer ${keyPlaceholder}` },
-          },
-        },
-      },
-      null,
-      2,
-    );
-  }
-
-  if (type === "cursor") {
-    return JSON.stringify(
-      {
-        mcpServers: {
-          "aigc-gateway": {
-            url,
-            headers: { Authorization: `Bearer ${keyPlaceholder}` },
-          },
-        },
-      },
-      null,
-      2,
-    );
-  }
-
-  // Generic
+  if (type === "claude") return JSON.stringify({ mcpServers: { "aigc-gateway": { type: "streamable-http", url, headers: { Authorization: `Bearer ${keyPlaceholder}` } } } }, null, 2);
+  if (type === "cursor") return JSON.stringify({ mcpServers: { "aigc-gateway": { url, headers: { Authorization: `Bearer ${keyPlaceholder}` } } } }, null, 2);
   return `URL: ${url}\nAuthorization: Bearer ${keyPlaceholder}`;
 }
 
@@ -78,149 +37,117 @@ export default function McpSetupPage() {
 
   useEffect(() => {
     if (!current) return;
-    apiFetch<{ data: ApiKeyRow[] }>(`/api/projects/${current.id}/keys`).then(
-      (r) => {
-        const active = r.data.filter((k) => k.status === "ACTIVE");
-        setKeys(active);
-        if (active.length > 0) setSelectedKey(active[0].keyPrefix);
-      },
-    );
+    apiFetch<{ data: ApiKeyRow[] }>(`/api/projects/${current.id}/keys`).then((r) => {
+      const active = r.data.filter((k) => k.status === "ACTIVE");
+      setKeys(active);
+      if (active.length > 0) setSelectedKey(active[0].keyPrefix);
+    });
   }, [current]);
 
-  if (projLoading) {
-    return (
-      <div className="space-y-4 pt-4">
-        <Skeleton className="h-8 w-48" />
-        <Skeleton className="h-64 w-full" />
-      </div>
-    );
-  }
+  if (projLoading) return (<div className="space-y-4 pt-4"><Skeleton className="h-8 w-48" /><Skeleton className="h-64 w-full" /></div>);
 
   const copyConfig = () => {
-    const config = generateConfig(tab, selectedKey);
-    navigator.clipboard.writeText(config);
+    navigator.clipboard.writeText(generateConfig(tab, selectedKey || "pk_your_"));
     toast.success(t("copied"));
   };
 
-  return (
-    <div className="max-w-2xl">
-      <h1 className="text-[20px] font-semibold text-text-primary mb-1">
-        {t("title")}
-      </h1>
-      <p className="text-[13px] text-text-tertiary mb-6">{t("subtitle")}</p>
+  const TABS = [
+    { key: "claude" as const, label: t("claudeCode"), path: t("claudePath") },
+    { key: "cursor" as const, label: t("cursor"), path: t("cursorPath") },
+    { key: "generic" as const, label: t("generic"), path: null },
+  ];
 
-      {/* Step 1: API Key */}
-      <div className="bg-white border border-border-custom rounded-xl p-5 mb-4">
-        <h2 className="text-[14px] font-semibold text-text-primary mb-2">
-          {t("step1")}
-        </h2>
-        <p className="text-[13px] text-text-secondary mb-3">
-          {t("step1Desc")}
-        </p>
-        {keys.length === 0 ? (
-          <div className="flex items-center gap-3">
-            <p className="text-[13px] text-text-tertiary">{t("noKey")}</p>
-            <Link href="/keys">
-              <Button size="sm" variant="outline">
-                {t("goToKeys")} <ExternalLink className="h-3 w-3 ml-1" />
-              </Button>
-            </Link>
+  return (
+    <div className="max-w-4xl mx-auto space-y-8">
+      <div>
+        <h2 className="text-3xl font-extrabold tracking-tight font-[var(--font-heading)] text-ds-on-surface">{t("title")}</h2>
+        <p className="text-ds-on-surface-variant font-medium mt-1">{t("subtitle")}</p>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {/* Step 1: API Key */}
+        <div className="bg-ds-surface-container-lowest p-6 rounded-2xl shadow-sm">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-10 h-10 rounded-xl bg-ds-primary/10 flex items-center justify-center text-ds-primary">
+              <span className="material-symbols-outlined">key</span>
+            </div>
+            <div>
+              <span className="text-[10px] font-bold text-ds-primary uppercase tracking-widest">Step 1</span>
+              <h3 className="font-[var(--font-heading)] font-bold">{t("step1")}</h3>
+            </div>
           </div>
-        ) : (
-          <div className="flex items-center gap-2">
-            <span className="text-[12px] text-text-tertiary">
-              {t("selectKey")}:
-            </span>
+          {keys.length === 0 ? (
+            <div className="space-y-3">
+              <p className="text-sm text-slate-500">{t("noKey")}</p>
+              <Link href="/keys" className="text-sm font-bold text-ds-primary hover:underline flex items-center gap-1">
+                {t("goToKeys")} <span className="material-symbols-outlined text-sm">arrow_forward</span>
+              </Link>
+            </div>
+          ) : (
             <select
-              className="border border-border-custom rounded-md px-2 py-1 text-[13px] bg-white"
+              className="w-full bg-ds-surface-container-low border-none rounded-xl px-4 py-3 text-sm font-medium focus:ring-2 focus:ring-ds-primary/20 outline-none"
               value={selectedKey}
               onChange={(e) => setSelectedKey(e.target.value)}
             >
               {keys.map((k) => (
-                <option key={k.id} value={k.keyPrefix}>
-                  {k.keyPrefix}•••• {k.name ? `(${k.name})` : ""}
-                </option>
+                <option key={k.id} value={k.keyPrefix}>{k.keyPrefix}•••• {k.name ? `(${k.name})` : ""}</option>
               ))}
             </select>
-          </div>
-        )}
-      </div>
-
-      {/* Step 2: Config */}
-      <div className="bg-white border border-border-custom rounded-xl p-5 mb-4">
-        <h2 className="text-[14px] font-semibold text-text-primary mb-2">
-          {t("step2")}
-        </h2>
-        <p className="text-[13px] text-text-secondary mb-3">
-          {t("step2Desc")}
-        </p>
-
-        {/* Tabs */}
-        <div className="flex gap-1 mb-3">
-          {(["claude", "cursor", "generic"] as const).map((type) => (
-            <Button
-              key={type}
-              size="sm"
-              variant={tab === type ? "default" : "outline"}
-              onClick={() => setTab(type)}
-            >
-              {t(type === "claude" ? "claudeCode" : type === "cursor" ? "cursor" : "generic")}
-            </Button>
-          ))}
+          )}
         </div>
 
-        {/* Config path hint */}
-        {tab === "claude" && (
-          <p className="text-[11px] text-text-hint mb-2 font-mono">
-            {t("claudePath")}
-          </p>
-        )}
-        {tab === "cursor" && (
-          <p className="text-[11px] text-text-hint mb-2 font-mono">
-            {t("cursorPath")}
-          </p>
-        )}
-
-        {/* Config block */}
-        <div className="relative">
-          <pre className="bg-[#1a1a1a] text-[#e0e0e0] rounded-lg p-4 text-[12px] font-mono leading-relaxed overflow-x-auto">
-            {generateConfig(tab, selectedKey || "pk_your_")}
-          </pre>
-          <Button
-            size="sm"
-            variant="outline"
-            className="absolute top-2 right-2 h-7 text-[11px]"
-            onClick={copyConfig}
-          >
-            <Copy className="h-3 w-3 mr-1" />
-            {t("copy")}
-          </Button>
+        {/* Step 2: Config */}
+        <div className="md:col-span-2 bg-ds-surface-container-lowest p-6 rounded-2xl shadow-sm">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-10 h-10 rounded-xl bg-ds-primary/10 flex items-center justify-center text-ds-primary">
+              <span className="material-symbols-outlined">code</span>
+            </div>
+            <div>
+              <span className="text-[10px] font-bold text-ds-primary uppercase tracking-widest">Step 2</span>
+              <h3 className="font-[var(--font-heading)] font-bold">{t("step2")}</h3>
+            </div>
+          </div>
+          <div className="flex bg-ds-surface-container-low p-1 rounded-xl mb-4">
+            {TABS.map((tb) => (
+              <button key={tb.key} onClick={() => setTab(tb.key)}
+                className={`flex-1 px-4 py-1.5 text-xs font-bold transition-all ${tab === tb.key ? "text-ds-primary bg-white rounded-lg shadow-sm" : "text-slate-500 hover:text-slate-700"}`}>
+                {tb.label}
+              </button>
+            ))}
+          </div>
+          {TABS.find((tb) => tb.key === tab)?.path && (
+            <p className="text-[11px] text-slate-400 font-mono mb-2">{TABS.find((tb) => tb.key === tab)!.path}</p>
+          )}
+          <div className="relative">
+            <pre className="bg-[#1e1e2e] text-indigo-200 rounded-xl p-5 text-xs font-mono leading-relaxed overflow-x-auto">
+              {generateConfig(tab, selectedKey || "pk_your_")}
+            </pre>
+            <button onClick={copyConfig} className="absolute top-3 right-3 p-2 text-slate-500 hover:text-white hover:bg-white/10 rounded-lg transition-colors">
+              <span className="material-symbols-outlined text-sm">content_copy</span>
+            </button>
+          </div>
         </div>
       </div>
 
       {/* Step 3: Tools */}
-      <div className="bg-white border border-border-custom rounded-xl p-5">
-        <h2 className="text-[14px] font-semibold text-text-primary mb-2">
-          {t("step3")}
-        </h2>
-        <p className="text-[13px] text-text-secondary mb-3">
-          {t("step3Desc")}
-        </p>
-        <h3 className="text-[12px] font-medium text-text-tertiary mb-2">
-          {t("tools")}
-        </h3>
-        <div className="space-y-2">
+      <div className="bg-ds-surface-container-lowest p-6 rounded-2xl shadow-sm">
+        <div className="flex items-center gap-3 mb-6">
+          <div className="w-10 h-10 rounded-xl bg-ds-primary/10 flex items-center justify-center text-ds-primary">
+            <span className="material-symbols-outlined">build</span>
+          </div>
+          <div>
+            <span className="text-[10px] font-bold text-ds-primary uppercase tracking-widest">Step 3</span>
+            <h3 className="font-[var(--font-heading)] font-bold">{t("step3")}</h3>
+          </div>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           {TOOLS.map((tool) => (
-            <div
-              key={tool.name}
-              className="flex items-center gap-3 py-1.5 border-b border-border-custom last:border-0"
-            >
-              <Badge variant="info" className="font-mono text-[11px]">
-                {tool.name}
-              </Badge>
-              <span className="text-[13px] text-text-secondary">
-                {t(tool.descKey)}
-              </span>
+            <div key={tool.name} className="flex items-center gap-3 p-3 rounded-xl hover:bg-ds-surface-container-low transition-colors">
+              <span className="material-symbols-outlined text-ds-primary-container">{tool.icon}</span>
+              <div>
+                <span className="text-xs font-mono font-bold text-ds-primary">{tool.name}</span>
+                <p className="text-xs text-ds-on-surface-variant">{t(tool.descKey)}</p>
+              </div>
             </div>
           ))}
         </div>
