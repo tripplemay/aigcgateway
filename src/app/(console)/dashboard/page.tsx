@@ -3,15 +3,6 @@ import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { apiFetch } from "@/lib/api-client";
 import { useProject } from "@/hooks/use-project";
-import { Badge } from "@/components/ui/badge";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import { formatCurrency, timeAgo } from "@/lib/utils";
 import {
   AreaChart,
@@ -29,6 +20,11 @@ import {
 import Link from "next/link";
 import { EmptyState } from "@/components/empty-state";
 import { Skeleton } from "@/components/ui/skeleton";
+import "material-symbols/outlined.css";
+
+// ============================================================
+// Types (unchanged)
+// ============================================================
 
 interface UsageSummary {
   totalCalls: number;
@@ -58,27 +54,11 @@ interface ModelData {
   cost: number;
 }
 
-const CHART_COLORS = [
-  "var(--chart-brand)",
-  "var(--chart-teal)",
-  "var(--chart-coral)",
-  "var(--chart-blue)",
-  "var(--chart-amber)",
-];
+const PIE_COLORS = ["#5443b9", "#5f5987", "#7c4b00", "#c8bfff", "#ffb964"];
 
-const customTooltipStyle = {
-  contentStyle: {
-    background: "#fff",
-    border: "1px solid var(--border-custom)",
-    borderRadius: 8,
-    padding: 10,
-    fontSize: 12,
-  },
-  labelStyle: { fontWeight: 500, color: "var(--text-primary)" },
-  itemStyle: { color: "var(--text-secondary)" },
-};
-
-const axisTickStyle = { fontSize: 11, fill: "var(--text-tertiary)" };
+// ============================================================
+// Component
+// ============================================================
 
 export default function DashboardPage() {
   const t = useTranslations("dashboard");
@@ -97,7 +77,6 @@ export default function DashboardPage() {
   useEffect(() => {
     if (!current) return;
     const pid = current.id;
-    // Fetch balance for low-balance warning
     apiFetch<{ balance: number; alertThreshold: number | null }>(`/api/projects/${pid}/balance`)
       .then(setBalanceInfo)
       .catch(() => {});
@@ -111,7 +90,6 @@ export default function DashboardPage() {
       setDaily(d.data);
       setLogs(l.data);
       setModels(m.data);
-      // Compute hourly distribution from recent logs (fetch more for this)
       apiFetch<{ data: Array<{ createdAt: string }> }>(
         `/api/projects/${pid}/logs?pageSize=100`,
       ).then((r) => {
@@ -134,245 +112,362 @@ export default function DashboardPage() {
     );
   if (!current) return <EmptyState onCreated={() => window.location.reload()} />;
 
-  return (
-    <div>
-      <h1 className="text-2xl font-bold mb-6">{t("title")}</h1>
+  const totalModelCalls = models.reduce((s, x) => s + x.calls, 0);
 
+  // ── Render — 1:1 replica of Dashboard (Full Redesign) code.html lines 160-504 ──
+  return (
+    <>
+      {/* ═══ Low Balance Warning — code.html lines 162-168 ═══ */}
       {balanceInfo &&
         balanceInfo.alertThreshold != null &&
         balanceInfo.balance <= balanceInfo.alertThreshold && (
-          <div className="mb-4 rounded-md border border-destructive bg-destructive/10 p-4 text-sm text-destructive">
-            <strong>{t("lowBalance")}</strong> {t("balanceIs")}{" "}
-            {formatCurrency(balanceInfo.balance, 2)}, {t("belowThreshold")}{" "}
-            {formatCurrency(balanceInfo.alertThreshold, 2)}.{" "}
-            <Link href="/balance" className="underline font-medium">
+          <div className="mb-8 bg-ds-error-container text-ds-on-error-container px-6 py-3 rounded-2xl flex items-center justify-between border-l-4 border-ds-error">
+            <div className="flex items-center gap-3">
+              <span className="material-symbols-outlined text-ds-error">warning</span>
+              <p className="font-medium">
+                {t("lowBalance")} {t("balanceIs")} {formatCurrency(balanceInfo.balance, 2)},{" "}
+                {t("belowThreshold")} {formatCurrency(balanceInfo.alertThreshold, 2)}.
+              </p>
+            </div>
+            <Link
+              href="/balance"
+              className="text-sm font-bold underline underline-offset-4 hover:opacity-80"
+            >
               {t("rechargeNow")}
             </Link>
           </div>
         )}
 
+      {/* ═══ Header Section — code.html lines 170-185 ═══ */}
+      <div className="flex justify-between items-end mb-10">
+        <div>
+          <h2 className="text-3xl font-extrabold tracking-tight text-ds-on-surface font-[var(--font-heading)]">
+            {t("title")}
+          </h2>
+          <p className="text-ds-on-surface-variant font-medium mt-1">
+            {t("subtitle") ?? "Real-time performance metrics"}
+          </p>
+        </div>
+      </div>
+
+      {/* ═══ Bento Grid: Stats & Balance — code.html lines 187-246 ═══ */}
       {usage && (
-        <div className="grid grid-cols-4 gap-[10px] mb-[18px]">
-          {[
-            {
-              label: t("todayCalls"),
-              value: usage.totalCalls.toLocaleString(),
-              sub: t("vsYesterday"),
-              trend: null as { value: string; up: boolean } | null,
-            },
-            {
-              label: t("todayCost"),
-              value: formatCurrency(usage.totalCost, 2),
-              sub: t("vsYesterday"),
-              trend: null as { value: string; up: boolean } | null,
-            },
-            {
-              label: t("avgLatency"),
-              value: `${usage.avgLatencyMs}ms`,
-              sub: `TTFT ${usage.avgTtftMs ?? 0}ms`,
-              trend: null,
-            },
-            {
-              label: t("successRate"),
-              value: `${(usage.successRate * 100).toFixed(1)}%`,
-              sub: t("errorsToday", { count: usage.errorCount }),
-              trend: null,
-            },
-          ].map((c) => (
-            <div key={c.label} className="bg-surface rounded-[10px] p-4">
-              <div className="text-xs text-text-tertiary mb-1.5">{c.label}</div>
-              <div className="text-2xl font-semibold tracking-tight text-text-primary">
-                {c.value}
-              </div>
-              <div className="text-[11px] text-text-tertiary mt-1">
-                {c.sub}
-                {c.trend && (
-                  <span
-                    className={`inline-block ml-1 px-[7px] py-px rounded text-[11px] font-medium ${c.trend.up ? "bg-success-bg text-success-text" : "bg-error-bg text-error-text"}`}
-                  >
-                    {c.trend.value}
-                  </span>
-                )}
+        <div className="grid grid-cols-12 gap-6 mb-8">
+          {/* Summary Cards Cluster — code.html lines 189-226 */}
+          <div className="col-span-12 lg:col-span-8 grid grid-cols-2 md:grid-cols-4 gap-4">
+            {/* Total Calls */}
+            <div className="bg-ds-surface-container-lowest p-5 rounded-xl border border-ds-outline-variant/10 flex flex-col justify-between h-32 group hover:shadow-xl hover:shadow-ds-primary/5 transition-all">
+              <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">
+                {t("todayCalls")}
+              </span>
+              <div className="flex items-end justify-between">
+                <span className="text-2xl font-extrabold font-[var(--font-heading)]">
+                  {usage.totalCalls.toLocaleString()}
+                </span>
               </div>
             </div>
-          ))}
+            {/* Avg Cost */}
+            <div className="bg-ds-surface-container-lowest p-5 rounded-xl border border-ds-outline-variant/10 flex flex-col justify-between h-32 group hover:shadow-xl hover:shadow-ds-primary/5 transition-all">
+              <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">
+                {t("todayCost")}
+              </span>
+              <div className="flex items-end justify-between">
+                <span className="text-2xl font-extrabold font-[var(--font-heading)]">
+                  {formatCurrency(usage.totalCost, 2)}
+                </span>
+              </div>
+            </div>
+            {/* Latency */}
+            <div className="bg-ds-surface-container-lowest p-5 rounded-xl border border-ds-outline-variant/10 flex flex-col justify-between h-32 group hover:shadow-xl hover:shadow-ds-primary/5 transition-all">
+              <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">
+                {t("avgLatency")}
+              </span>
+              <div className="flex items-end justify-between">
+                <span className="text-2xl font-extrabold font-[var(--font-heading)]">
+                  {usage.avgLatencyMs}ms
+                </span>
+              </div>
+            </div>
+            {/* Success Rate */}
+            <div className="bg-ds-surface-container-lowest p-5 rounded-xl border border-ds-outline-variant/10 flex flex-col justify-between h-32 group hover:shadow-xl hover:shadow-ds-primary/5 transition-all">
+              <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">
+                {t("successRate")}
+              </span>
+              <div className="flex items-end justify-between">
+                <span className="text-2xl font-extrabold font-[var(--font-heading)]">
+                  {(usage.successRate * 100).toFixed(1)}%
+                </span>
+                <span className="text-slate-400 text-xs font-bold px-2 py-0.5 rounded-full italic">
+                  {t("errorsToday", { count: usage.errorCount })}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Balance Card — code.html lines 228-245 */}
+          <div className="col-span-12 lg:col-span-4 bg-gradient-to-br from-indigo-700 to-indigo-900 p-6 rounded-2xl relative overflow-hidden text-white shadow-2xl shadow-indigo-900/20">
+            <div className="relative z-10 flex flex-col h-full justify-between">
+              <div>
+                <div className="flex justify-between items-start">
+                  <span className="text-indigo-200 text-sm font-medium uppercase tracking-widest">
+                    {tc("balance") ?? "Account Balance"}
+                  </span>
+                  <span className="material-symbols-outlined text-indigo-300">
+                    account_balance_wallet
+                  </span>
+                </div>
+                <h3 className="text-4xl font-extrabold mt-2">
+                  {balanceInfo ? formatCurrency(balanceInfo.balance, 2) : "$0.00"}
+                </h3>
+              </div>
+              <Link
+                href="/balance"
+                className="mt-4 w-full bg-white text-indigo-900 font-extrabold py-3 rounded-xl hover:bg-indigo-50 transition-colors text-center block"
+              >
+                {t("rechargeNow")}
+              </Link>
+            </div>
+            <div className="absolute -bottom-10 -right-10 w-40 h-40 bg-white/10 rounded-full blur-3xl" />
+            <div className="absolute -top-10 -left-10 w-32 h-32 bg-ds-primary-container/20 rounded-full blur-2xl" />
+          </div>
         </div>
       )}
 
-      <div className="grid grid-cols-2 gap-3 mb-[14px]">
-        <div className="bg-white border border-border-custom rounded-xl px-[18px] py-4">
-          <div className="text-[13px] font-semibold text-text-primary mb-[14px]">
-            {t("callsTrend")}
+      {/* ═══ Charts Row — code.html lines 248-352 ═══ */}
+      <div className="grid grid-cols-12 gap-6 mb-8">
+        {/* Area Chart: 14-day Calls — code.html lines 250-311 */}
+        <div className="col-span-12 xl:col-span-8 bg-ds-surface-container-lowest p-6 rounded-2xl border border-ds-outline-variant/10">
+          <div className="flex justify-between items-start mb-6">
+            <div>
+              <h4 className="font-[var(--font-heading)] font-bold text-lg">{t("callsTrend")}</h4>
+              <p className="text-sm text-ds-on-surface-variant">Last 14 days activity logs</p>
+            </div>
           </div>
-          <div className="h-[175px]">
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={daily}>
-                <XAxis dataKey="date" tick={axisTickStyle} axisLine={false} tickLine={false} />
-                <YAxis tick={axisTickStyle} axisLine={false} tickLine={false} />
-                <Tooltip {...customTooltipStyle} />
-                <Area
-                  type="monotone"
-                  dataKey="calls"
-                  stroke="var(--chart-brand)"
-                  strokeWidth={2}
-                  fill="var(--chart-brand)"
-                  fillOpacity={0.15}
-                />
-              </AreaChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-        <div className="bg-white border border-border-custom rounded-xl px-[18px] py-4">
-          <div className="text-[13px] font-semibold text-text-primary mb-[14px]">
-            {t("costTrend")}
-          </div>
-          <div className="h-[175px]">
+          <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={daily}>
-                <XAxis dataKey="date" tick={axisTickStyle} axisLine={false} tickLine={false} />
-                <YAxis
-                  tick={axisTickStyle}
+                <XAxis
+                  dataKey="date"
+                  tick={{ fontSize: 10, fill: "#94a3b8" }}
                   axisLine={false}
                   tickLine={false}
-                  tickFormatter={(v: number) => `$${v}`}
                 />
-                <Tooltip {...customTooltipStyle} />
-                <Bar
-                  dataKey="cost"
-                  fill="var(--chart-teal)"
-                  radius={[3, 3, 0, 0]}
-                  barSize={undefined}
+                <YAxis tick={{ fontSize: 10, fill: "#94a3b8" }} axisLine={false} tickLine={false} />
+                <Tooltip
+                  contentStyle={{
+                    background: "rgba(250,248,255,0.95)",
+                    backdropFilter: "blur(12px)",
+                    border: "none",
+                    borderRadius: 12,
+                    boxShadow: "0 20px 40px rgba(19,27,46,0.06)",
+                    fontSize: 12,
+                  }}
                 />
+                <Bar dataKey="calls" fill="#5443b9" radius={[2, 2, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
+          </div>
+        </div>
+
+        {/* Model Distribution Pie — code.html lines 314-352 */}
+        <div className="col-span-12 xl:col-span-4 bg-ds-surface-container-lowest p-6 rounded-2xl border border-ds-outline-variant/10">
+          <h4 className="font-[var(--font-heading)] font-bold text-lg mb-6">{t("modelDist")}</h4>
+          <div className="relative h-48 w-48 mx-auto flex items-center justify-center">
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie
+                  data={models}
+                  dataKey="calls"
+                  nameKey="model"
+                  cx="50%"
+                  cy="50%"
+                  innerRadius={48}
+                  outerRadius={72}
+                  strokeWidth={2}
+                  stroke="#fff"
+                >
+                  {models.map((_, i) => (
+                    <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />
+                  ))}
+                </Pie>
+                <Tooltip
+                  contentStyle={{
+                    background: "rgba(250,248,255,0.95)",
+                    backdropFilter: "blur(12px)",
+                    border: "none",
+                    borderRadius: 12,
+                    fontSize: 12,
+                  }}
+                />
+              </PieChart>
+            </ResponsiveContainer>
+            <div className="absolute text-center">
+              <span className="block text-2xl font-extrabold text-ds-on-surface">
+                {totalModelCalls > 1000
+                  ? `${(totalModelCalls / 1000).toFixed(1)}K`
+                  : totalModelCalls}
+              </span>
+              <span className="text-[10px] font-bold text-slate-500 uppercase">Requests</span>
+            </div>
+          </div>
+          <div className="mt-8 space-y-3">
+            {models.slice(0, 5).map((m, i) => {
+              const pct = totalModelCalls > 0 ? Math.round((m.calls / totalModelCalls) * 100) : 0;
+              return (
+                <div key={m.model} className="flex items-center justify-between text-sm">
+                  <div className="flex items-center gap-2">
+                    <span
+                      className="w-2.5 h-2.5 rounded-full"
+                      style={{ background: PIE_COLORS[i % PIE_COLORS.length] }}
+                    />
+                    <span className="font-medium truncate max-w-[140px]">{m.model}</span>
+                  </div>
+                  <span className="font-bold text-slate-600">{pct}%</span>
+                </div>
+              );
+            })}
           </div>
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-3 mb-[14px]">
-        <div className="bg-white border border-border-custom rounded-xl px-[18px] py-4">
-          <div className="text-[13px] font-semibold text-text-primary mb-[14px]">
-            {t("hourlyDist")}
-          </div>
-          <div className="h-[155px]">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={hourly}>
-                <XAxis dataKey="hour" tick={axisTickStyle} axisLine={false} tickLine={false} />
-                <YAxis tick={axisTickStyle} axisLine={false} tickLine={false} />
-                <Tooltip {...customTooltipStyle} />
-                <Bar dataKey="calls" fill="var(--chart-brand)" radius={[3, 3, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-        <div className="bg-white border border-border-custom rounded-xl px-[18px] py-4">
-          <div className="text-[13px] font-semibold text-text-primary mb-[14px]">
-            {t("modelDist")}
-          </div>
-          <div className="flex items-center gap-4">
-            <div className="h-[130px] w-[130px] shrink-0">
+      {/* ═══ Lower Section — code.html lines 355-503 ═══ */}
+      <div className="grid grid-cols-12 gap-6">
+        {/* 24h Distribution & Cost — code.html lines 357-399 */}
+        <div className="col-span-12 xl:col-span-4 space-y-6">
+          {/* 24h Load Distribution */}
+          <div className="bg-ds-surface-container-lowest p-6 rounded-2xl border border-ds-outline-variant/10">
+            <h4 className="font-[var(--font-heading)] font-bold text-lg mb-4">{t("hourlyDist")}</h4>
+            <div className="h-32">
               <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={models}
-                    dataKey="calls"
-                    nameKey="model"
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={30}
-                    outerRadius={55}
-                    strokeWidth={2}
-                    stroke="#fff"
-                  >
-                    {models.map((_, i) => (
-                      <Cell key={i} fill={CHART_COLORS[i % CHART_COLORS.length]} />
-                    ))}
-                  </Pie>
-                  <Tooltip {...customTooltipStyle} />
-                </PieChart>
+                <BarChart data={hourly}>
+                  <XAxis
+                    dataKey="hour"
+                    tick={{ fontSize: 9, fill: "#94a3b8" }}
+                    axisLine={false}
+                    tickLine={false}
+                    interval={3}
+                  />
+                  <Tooltip
+                    contentStyle={{
+                      background: "rgba(250,248,255,0.95)",
+                      backdropFilter: "blur(12px)",
+                      border: "none",
+                      borderRadius: 12,
+                      fontSize: 12,
+                    }}
+                  />
+                  <Bar dataKey="calls" fill="#5443b9" radius={[2, 2, 0, 0]} />
+                </BarChart>
               </ResponsiveContainer>
             </div>
-            <div className="flex-1 space-y-1">
-              {models.map((m, i) => {
-                const total = models.reduce((s, x) => s + x.calls, 0);
-                const pct = total > 0 ? Math.round((m.calls / total) * 100) : 0;
-                return (
-                  <div key={m.model} className="flex items-center gap-2 text-xs">
-                    <span
-                      className="h-2 w-2 rounded-full shrink-0"
-                      style={{ background: CHART_COLORS[i % CHART_COLORS.length] }}
-                    />
-                    <span className="flex-1 text-text-secondary truncate">{m.model}</span>
-                    <span className="font-semibold text-text-primary min-w-[32px] text-right">
-                      {pct}%
-                    </span>
-                  </div>
-                );
-              })}
+          </div>
+
+          {/* Daily Spend — code.html lines 376-398 */}
+          <div className="bg-ds-surface-container-lowest p-6 rounded-2xl border border-ds-outline-variant/10">
+            <div className="flex justify-between items-center mb-4">
+              <h4 className="font-[var(--font-heading)] font-bold text-lg">{t("costTrend")}</h4>
+              <span className="text-sm font-bold text-ds-primary">
+                {usage ? formatCurrency(usage.totalCost, 2) : "$0"} Total
+              </span>
+            </div>
+            <div className="h-24">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={daily}>
+                  <XAxis dataKey="date" hide />
+                  <Tooltip
+                    contentStyle={{
+                      background: "rgba(250,248,255,0.95)",
+                      backdropFilter: "blur(12px)",
+                      border: "none",
+                      borderRadius: 12,
+                      fontSize: 12,
+                    }}
+                    formatter={(v) => [`$${Number(v).toFixed(3)}`, "Cost"]}
+                  />
+                  <Bar dataKey="cost" fill="#5f5987" radius={[2, 2, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
             </div>
           </div>
         </div>
-      </div>
 
-      <div className="bg-white border border-border-custom rounded-xl px-[18px] py-4">
-        <div className="text-[13px] font-semibold text-text-primary mb-[14px] flex justify-between items-center">
-          {t("recentCalls")}
-          <Link href="/logs" className="text-xs font-normal text-chart-blue cursor-pointer">
-            {t("viewAll")}
-          </Link>
-        </div>
-        <div>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="w-[110px]">{t("trace")}</TableHead>
-                <TableHead className="w-[120px]">{t("model")}</TableHead>
-                <TableHead>{t("prompt")}</TableHead>
-                <TableHead className="w-[80px]">{tc("status")}</TableHead>
-                <TableHead className="w-[70px]">{t("cost")}</TableHead>
-                <TableHead className="w-[70px]">{t("latency")}</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {logs.map((l) => (
-                <TableRow key={l.traceId}>
-                  <TableCell className="font-mono text-[11px] text-chart-blue">
-                    {l.traceId.slice(0, 12)}
-                  </TableCell>
-                  <TableCell className="font-medium text-xs text-text-primary">
-                    {l.modelName}
-                  </TableCell>
-                  <TableCell
-                    className="text-xs text-text-secondary truncate max-w-[180px]"
-                    title={l.promptPreview}
+        {/* Recent Calls Table — code.html lines 401-503 */}
+        <div className="col-span-12 xl:col-span-8 bg-ds-surface-container-lowest p-6 rounded-2xl border border-ds-outline-variant/10">
+          <div className="flex justify-between items-center mb-6">
+            <h4 className="font-[var(--font-heading)] font-bold text-lg">{t("recentCalls")}</h4>
+            <Link
+              href="/logs"
+              className="text-sm font-bold text-ds-primary hover:underline underline-offset-4 flex items-center gap-1"
+            >
+              {t("viewAll")}{" "}
+              <span className="material-symbols-outlined text-sm">arrow_forward</span>
+            </Link>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full text-left">
+              <thead>
+                <tr className="text-[10px] font-bold text-slate-500 uppercase tracking-widest border-b border-ds-outline-variant/10">
+                  <th className="pb-4">{t("trace")}</th>
+                  <th className="pb-4">{t("model")}</th>
+                  <th className="pb-4 text-center">{tc("status")}</th>
+                  <th className="pb-4 text-right">{t("cost")}</th>
+                  <th className="pb-4 text-right">{t("latency")}</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-50">
+                {logs.map((l) => (
+                  <tr
+                    key={l.traceId}
+                    className="group hover:bg-ds-surface-container-high/30 transition-colors"
                   >
-                    {l.promptPreview || "—"}
-                  </TableCell>
-                  <TableCell>
-                    <Badge
-                      variant={
-                        l.status === "SUCCESS"
-                          ? "success"
-                          : l.status === "FILTERED"
-                            ? "warning"
-                            : "error"
-                      }
-                    >
-                      {l.status.toLowerCase()}
-                    </Badge>
-                  </TableCell>
-                  <TableCell className="font-mono text-[11px]">
-                    {l.sellPrice != null ? `$${l.sellPrice.toFixed(3)}` : "—"}
-                  </TableCell>
-                  <TableCell className="font-mono text-[11px] text-text-tertiary">
-                    {l.latencyMs != null ? `${(l.latencyMs / 1000).toFixed(1)}s` : "—"}
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+                    <td className="py-4 text-sm font-mono text-indigo-600">
+                      {l.traceId.slice(0, 12)}
+                    </td>
+                    <td className="py-4">
+                      <div className="flex items-center gap-2">
+                        <div className="w-6 h-6 rounded bg-indigo-50 flex items-center justify-center">
+                          <span className="material-symbols-outlined text-indigo-600 text-xs">
+                            bolt
+                          </span>
+                        </div>
+                        <span className="text-sm font-medium">{l.modelName}</span>
+                      </div>
+                    </td>
+                    <td className="py-4 text-center">
+                      {l.status === "SUCCESS" ? (
+                        <span className="text-[10px] font-bold px-2 py-1 rounded bg-ds-secondary-container/50 text-ds-secondary border border-ds-secondary/10">
+                          200 OK
+                        </span>
+                      ) : l.status === "FILTERED" ? (
+                        <span className="text-[10px] font-bold px-2 py-1 rounded bg-ds-tertiary-fixed/50 text-ds-tertiary border border-ds-tertiary/10">
+                          FILTERED
+                        </span>
+                      ) : (
+                        <span className="text-[10px] font-bold px-2 py-1 rounded bg-ds-error-container/50 text-ds-error border border-ds-error/10">
+                          ERROR
+                        </span>
+                      )}
+                    </td>
+                    <td className="py-4 text-right text-sm font-bold">
+                      {l.sellPrice != null ? `$${l.sellPrice.toFixed(3)}` : "—"}
+                    </td>
+                    <td className="py-4 text-right text-sm text-slate-500 font-medium">
+                      {l.latencyMs != null ? `${l.latencyMs}ms` : "—"}
+                    </td>
+                  </tr>
+                ))}
+                {logs.length === 0 && (
+                  <tr>
+                    <td colSpan={5} className="py-12 text-center text-ds-outline">
+                      No recent calls
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }
