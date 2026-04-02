@@ -37,7 +37,7 @@ jobs:
 
             echo "=== Clean + Install dependencies ==="
             rm -rf node_modules .next
-            npm ci --ignore-scripts
+            npm ci
 
             echo "=== Prisma generate + migrate ==="
             npx prisma generate
