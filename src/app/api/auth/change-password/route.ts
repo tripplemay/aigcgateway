@@ -16,7 +16,9 @@ export async function POST(request: Request) {
     return errorResponse(400, "invalid_parameter", "oldPassword and newPassword are required");
   }
   if (newPassword.length < 8) {
-    return errorResponse(422, "invalid_parameter", "New password must be at least 8 characters", { param: "newPassword" });
+    return errorResponse(422, "invalid_parameter", "New password must be at least 8 characters", {
+      param: "newPassword",
+    });
   }
 
   const user = await prisma.user.findUnique({ where: { id: auth.payload.userId } });
@@ -27,7 +29,7 @@ export async function POST(request: Request) {
     return errorResponse(401, "invalid_credentials", "Current password is incorrect");
   }
 
-  const newHash = await bcrypt.hash(newPassword, 12);
+  const newHash = await bcrypt.hash(newPassword, 10);
   await prisma.user.update({
     where: { id: auth.payload.userId },
     data: { passwordHash: newHash },

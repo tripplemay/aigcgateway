@@ -13,6 +13,7 @@ export async function GET(request: Request) {
   const modelId = url.searchParams.get("modelId");
   const status = url.searchParams.get("status")?.toUpperCase();
 
+  // 查询 channels（不 include healthChecks，避免 N+1）
   const channels = await prisma.channel.findMany({
     where: {
       ...(providerId ? { providerId } : {}),
@@ -22,10 +23,25 @@ export async function GET(request: Request) {
     include: {
       provider: { select: { name: true, displayName: true } },
       model: { select: { name: true, displayName: true, modality: true } },
-      healthChecks: { orderBy: { createdAt: "desc" }, take: 1, select: { result: true } },
     },
     orderBy: [{ model: { name: "asc" } }, { priority: "asc" }],
   });
+
+  // 批量查询每个 channel 的最新 HealthCheck（DISTINCT ON 原生 SQL）
+  const channelIds = channels.map((ch) => ch.id);
+  const healthMap = new Map<string, string>();
+
+  if (channelIds.length > 0) {
+    const healthRows = await prisma.$queryRaw<Array<{ channel_id: string; result: string }>>`
+      SELECT DISTINCT ON (channel_id) channel_id, result
+      FROM health_checks
+      WHERE channel_id = ANY(${channelIds})
+      ORDER BY channel_id, created_at DESC
+    `;
+    for (const row of healthRows) {
+      healthMap.set(row.channel_id, row.result);
+    }
+  }
 
   return NextResponse.json({
     data: channels.map((ch) => ({
@@ -42,7 +58,7 @@ export async function GET(request: Request) {
       sellPrice: ch.sellPrice,
       sellPriceLocked: ch.sellPriceLocked,
       status: ch.status,
-      lastHealthResult: ch.healthChecks[0]?.result ?? null,
+      lastHealthResult: healthMap.get(ch.id) ?? null,
     })),
   });
 }

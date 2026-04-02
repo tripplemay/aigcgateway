@@ -14,6 +14,9 @@ export const dynamic = "force-dynamic";
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import { authenticateApiKey } from "@/lib/api/auth-middleware";
+import { getRedis } from "@/lib/redis";
+
+const CACHE_TTL = 120; // seconds
 
 export async function GET(request: Request) {
   // 可选鉴权：有 Bearer token 才校验
@@ -26,13 +29,36 @@ export async function GET(request: Request) {
   const url = new URL(request.url);
   const modalityFilter = url.searchParams.get("modality")?.toUpperCase();
 
-  // 查所有有 ACTIVE channel 的模型，include provider for displayName
+  // Redis 缓存：按 modality 区分 key
+  const cacheKey = modalityFilter ? `models:list:${modalityFilter}` : "models:list";
+  const redis = getRedis();
+
+  if (redis) {
+    try {
+      const cached = await redis.get(cacheKey);
+      if (cached) {
+        return NextResponse.json(JSON.parse(cached));
+      }
+    } catch {
+      // Redis 读失败则 fallthrough 到 DB 查询
+    }
+  }
+
   const models = await prisma.model.findMany({
     where: {
       channels: { some: { status: "ACTIVE" } },
-      ...(modalityFilter ? { modality: modalityFilter as "TEXT" | "IMAGE" | "VIDEO" | "AUDIO" } : {}),
+      ...(modalityFilter
+        ? { modality: modalityFilter as "TEXT" | "IMAGE" | "VIDEO" | "AUDIO" }
+        : {}),
     },
-    include: {
+    select: {
+      name: true,
+      displayName: true,
+      modality: true,
+      maxTokens: true,
+      contextWindow: true,
+      capabilities: true,
+      description: true,
       channels: {
         where: { status: "ACTIVE" },
         orderBy: { priority: "asc" },
@@ -80,8 +106,12 @@ export async function GET(request: Request) {
     };
   });
 
-  return NextResponse.json({
-    object: "list",
-    data,
-  });
+  const responseBody = { object: "list", data };
+
+  // 写入 Redis 缓存
+  if (redis) {
+    redis.set(cacheKey, JSON.stringify(responseBody), "EX", CACHE_TTL).catch(() => {});
+  }
+
+  return NextResponse.json(responseBody);
 }

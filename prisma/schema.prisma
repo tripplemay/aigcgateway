@@ -107,6 +107,7 @@ model User {
   projects Project[]
 
   @@index([email])
+  @@index([role, createdAt(sort: Desc)])
   @@map("users")
 }
 
@@ -215,6 +216,7 @@ model Model {
   channels Channel[]
 
   @@index([modality])
+  @@index([name])
   @@map("models")
 }
 

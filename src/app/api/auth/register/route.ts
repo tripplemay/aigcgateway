@@ -5,7 +5,6 @@ import { NextResponse } from "next/server";
 import { errorResponse } from "@/lib/api/errors";
 import { randomBytes } from "crypto";
 
-
 export async function POST(request: Request) {
   let body: { email?: string; password?: string; name?: string };
   try {
@@ -21,7 +20,9 @@ export async function POST(request: Request) {
   }
 
   if (password.length < 8) {
-    return errorResponse(422, "invalid_parameter", "Password must be at least 8 characters", { param: "password" });
+    return errorResponse(422, "invalid_parameter", "Password must be at least 8 characters", {
+      param: "password",
+    });
   }
 
   const existing = await prisma.user.findUnique({ where: { email } });
@@ -29,7 +30,7 @@ export async function POST(request: Request) {
     return errorResponse(409, "conflict", "Email already registered");
   }
 
-  const passwordHash = await bcrypt.hash(password, 12);
+  const passwordHash = await bcrypt.hash(password, 10);
 
   const user = await prisma.user.create({
     data: {

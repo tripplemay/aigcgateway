@@ -5,7 +5,6 @@ import { errorResponse } from "@/lib/api/errors";
 import { signJwt } from "@/lib/api/jwt-middleware";
 import { NextResponse } from "next/server";
 
-
 export async function POST(request: Request) {
   let body: { email?: string; password?: string };
   try {
@@ -28,6 +27,13 @@ export async function POST(request: Request) {
   const valid = await bcrypt.compare(password, user.passwordHash);
   if (!valid) {
     return errorResponse(401, "invalid_credentials", "Invalid email or password");
+  }
+
+  // Rehash 存量 cost=12 的密码为 cost=10，降低后续登录延迟
+  const currentRounds = bcrypt.getRounds(user.passwordHash);
+  if (currentRounds !== 10) {
+    const newHash = await bcrypt.hash(password, 10);
+    prisma.user.update({ where: { id: user.id }, data: { passwordHash: newHash } }).catch(() => {});
   }
 
   const token = signJwt({ userId: user.id, role: user.role });
