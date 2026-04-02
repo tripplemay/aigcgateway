@@ -3,19 +3,8 @@ import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { apiFetch } from "@/lib/api-client";
 import { useProject } from "@/hooks/use-project";
-import { Button } from "@/components/ui/button";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import { formatCurrency } from "@/lib/utils";
 import {
-  AreaChart,
-  Area,
   BarChart,
   Bar,
   PieChart,
@@ -28,34 +17,36 @@ import {
 } from "recharts";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState } from "@/components/empty-state";
+import "material-symbols/outlined.css";
 
-const CHART_COLORS = [
-  "var(--chart-brand)",
-  "var(--chart-teal)",
-  "var(--chart-coral)",
-  "var(--chart-blue)",
-  "var(--chart-amber)",
-];
+// ============================================================
+// Types & constants
+// ============================================================
 
-const customTooltipStyle = {
+const PIE_COLORS = ["#6d5dd3", "#5f5987", "#ffb964", "#c8bfff", "#7c4b00"];
+const PERIODS = ["today", "7d", "30d"] as const;
+
+const tooltipStyle = {
   contentStyle: {
-    background: "#fff",
-    border: "1px solid var(--border-custom)",
-    borderRadius: 8,
-    padding: 10,
+    background: "rgba(250,248,255,0.95)",
+    backdropFilter: "blur(12px)",
+    border: "none",
+    borderRadius: 12,
+    boxShadow: "0 20px 40px rgba(19,27,46,0.06)",
     fontSize: 12,
   },
-  labelStyle: { fontWeight: 500, color: "var(--text-primary)" },
-  itemStyle: { color: "var(--text-secondary)" },
 };
 
-const axisTickStyle = { fontSize: 11, fill: "var(--text-tertiary)" };
+// ============================================================
+// Component
+// ============================================================
 
 export default function UsagePage() {
   const t = useTranslations("usage");
   const { current, loading: projLoading } = useProject();
-  const [period, setPeriod] = useState("7d");
+  const [period, setPeriod] = useState<string>("7d");
   const [summary, setSummary] = useState<Record<string, number> | null>(null);
+  const [prevSummary, setPrevSummary] = useState<Record<string, number> | null>(null);
   const [daily, setDaily] = useState<Array<Record<string, unknown>>>([]);
   const [byModel, setByModel] = useState<Array<Record<string, unknown>>>([]);
 
@@ -63,14 +54,19 @@ export default function UsagePage() {
     if (!current) return;
     const pid = current.id;
     const days = period === "today" ? 1 : period === "30d" ? 30 : 7;
+    // 当期 + 上期双请求（决策 C：前端计算环比）
+    const prevPeriod = period === "today" ? "today" : period;
+    const prevDays = days;
     Promise.all([
       apiFetch<Record<string, number>>(`/api/projects/${pid}/usage?period=${period}`),
+      apiFetch<Record<string, number>>(`/api/projects/${pid}/usage?period=${prevPeriod}&offset=${prevDays}`).catch(() => null),
       apiFetch<{ data: Array<Record<string, unknown>> }>(
         `/api/projects/${pid}/usage/daily?days=${days}`,
       ),
       apiFetch<{ data: Array<Record<string, unknown>> }>(`/api/projects/${pid}/usage/by-model`),
-    ]).then(([s, d, m]) => {
+    ]).then(([s, ps, d, m]) => {
       setSummary(s);
+      setPrevSummary(ps);
       setDaily(d.data);
       setByModel(m.data);
     });
@@ -86,165 +82,293 @@ export default function UsagePage() {
     );
   if (!current) return <EmptyState onCreated={() => window.location.reload()} />;
 
+  const totalModelCalls = byModel.reduce((s, x) => s + ((x.calls as number) ?? 0), 0);
+
+  /** 计算环比趋势 */
+  const trend = (key: string, invert = false) => {
+    if (!summary || !prevSummary) return null;
+    const curr = summary[key] ?? 0;
+    const prev = prevSummary[key] ?? 0;
+    if (prev === 0) return null;
+    const pct = ((curr - prev) / prev) * 100;
+    const isUp = invert ? pct < 0 : pct > 0;
+    return { pct: Math.abs(pct).toFixed(1), isUp, isPositive: isUp };
+  };
+
+  // ── Render — 1:1 replica of Usage Analytics code.html lines 154-374 ──
   return (
-    <div>
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-[20px] font-semibold text-text-primary">{t("title")}</h1>
-        <div className="flex gap-1">
-          {["today", "7d", "30d"].map((p) => (
-            <Button
+    <div className="max-w-7xl mx-auto space-y-8">
+      {/* ═══ Header + Period Selector — code.html lines 156-165 ═══ */}
+      <section className="flex justify-between items-center">
+        <div>
+          <h3 className="text-2xl font-extrabold font-[var(--font-heading)] text-ds-on-surface tracking-tight">
+            {t("title")}
+          </h3>
+          <p className="text-ds-on-surface-variant text-sm">
+            Review your model consumption and performance metrics.
+          </p>
+        </div>
+        <div className="bg-ds-surface-container-low p-1 rounded-full flex gap-1">
+          {PERIODS.map((p) => (
+            <button
               key={p}
-              size="sm"
-              variant={period === p ? "default" : "outline"}
               onClick={() => setPeriod(p)}
+              className={`px-5 py-1.5 rounded-full text-xs font-bold transition-all ${
+                period === p
+                  ? "bg-white text-ds-primary shadow-sm"
+                  : "text-ds-on-surface-variant hover:text-ds-primary"
+              }`}
             >
               {p}
-            </Button>
+            </button>
           ))}
         </div>
-      </div>
+      </section>
 
+      {/* ═══ Stats Cards — code.html lines 167-212 ═══ */}
       {summary && (
-        <div className="grid grid-cols-4 gap-[10px] mb-[18px]">
+        <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {[
-            { label: t("totalCalls"), value: (summary.totalCalls ?? 0).toLocaleString() },
-            { label: t("totalCost"), value: formatCurrency(summary.totalCost ?? 0, 2) },
-            { label: t("totalTokens"), value: (summary.totalTokens ?? 0).toLocaleString() },
-            { label: t("avgLatency"), value: `${summary.avgLatencyMs ?? 0}ms` },
-          ].map((c) => (
-            <div key={c.label} className="bg-surface rounded-[10px] p-4">
-              <div className="text-xs text-text-tertiary mb-1.5">{c.label}</div>
-              <div className="text-2xl font-semibold tracking-tight text-text-primary">
-                {c.value}
+            {
+              label: t("totalCalls"),
+              value: (summary.totalCalls ?? 0).toLocaleString(),
+              icon: "call",
+              trendData: trend("totalCalls"),
+            },
+            {
+              label: t("totalCost"),
+              value: formatCurrency(summary.totalCost ?? 0, 2),
+              icon: "payments",
+              trendData: trend("totalCost"),
+            },
+            {
+              label: t("totalTokens"),
+              value: (summary.totalTokens ?? 0).toLocaleString(),
+              icon: "generating_tokens",
+              trendData: null,
+            },
+            {
+              label: t("avgLatency"),
+              value: `${summary.avgLatencyMs ?? 0}ms`,
+              icon: "speed",
+              trendData: trend("avgLatencyMs", true),
+            },
+          ].map((card) => (
+            <div
+              key={card.label}
+              className="bg-ds-surface-container-lowest p-6 rounded-xl shadow-sm"
+            >
+              <div className="flex items-center justify-between mb-4">
+                <span className="text-xs font-bold text-ds-outline uppercase tracking-widest">
+                  {card.label}
+                </span>
+                <span className="material-symbols-outlined text-ds-primary-container text-lg">
+                  {card.icon}
+                </span>
               </div>
+              <div className="text-3xl font-black font-[var(--font-heading)] text-ds-on-surface">
+                {card.value}
+              </div>
+              {card.trendData ? (
+                <div
+                  className={`mt-2 text-[10px] font-bold flex items-center gap-1 ${card.trendData.isPositive ? "text-green-600" : "text-red-600"}`}
+                >
+                  <span className="material-symbols-outlined text-[12px]">
+                    {card.trendData.isPositive ? "trending_up" : "trending_down"}
+                  </span>
+                  {card.trendData.isPositive ? "+" : "-"}{card.trendData.pct}% vs last period
+                </div>
+              ) : (
+                <div className="mt-2 text-[10px] font-bold text-ds-primary flex items-center gap-1">
+                  <span className="material-symbols-outlined text-[12px]">horizontal_rule</span>
+                  Stable activity
+                </div>
+              )}
             </div>
           ))}
-        </div>
+        </section>
       )}
 
-      <div className="grid grid-cols-2 gap-3 mb-[14px]">
-        <div className="bg-white border border-border-custom rounded-xl px-[18px] py-4">
-          <div className="text-[13px] font-semibold text-text-primary mb-[14px]">
-            {t("dailyCalls")}
+      {/* ═══ Charts Row — code.html lines 213-306 ═══ */}
+      <section className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Daily Performance Chart — code.html lines 214-268 */}
+        <div className="lg:col-span-2 bg-ds-surface-container-lowest p-8 rounded-xl shadow-sm space-y-8">
+          <div>
+            <h4 className="text-sm font-bold uppercase tracking-widest text-ds-outline mb-1">
+              Daily Performance
+            </h4>
+            <p className="text-lg font-extrabold font-[var(--font-heading)]">
+              {t("dailyCalls")} & {t("dailyCost")}
+            </p>
           </div>
-          <div className="h-[175px]">
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={daily}>
-                <XAxis dataKey="date" tick={axisTickStyle} axisLine={false} tickLine={false} />
-                <YAxis tick={axisTickStyle} axisLine={false} tickLine={false} />
-                <Tooltip {...customTooltipStyle} />
-                <Area
-                  type="monotone"
-                  dataKey="calls"
-                  stroke="var(--chart-brand)"
-                  strokeWidth={2}
-                  fill="var(--chart-brand)"
-                  fillOpacity={0.15}
-                />
-              </AreaChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-        <div className="bg-white border border-border-custom rounded-xl px-[18px] py-4">
-          <div className="text-[13px] font-semibold text-text-primary mb-[14px]">
-            {t("dailyCost")}
-          </div>
-          <div className="h-[175px]">
+          <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={daily}>
-                <XAxis dataKey="date" tick={axisTickStyle} axisLine={false} tickLine={false} />
-                <YAxis
-                  tick={axisTickStyle}
+                <XAxis
+                  dataKey="date"
+                  tick={{ fontSize: 10, fill: "#787584" }}
                   axisLine={false}
                   tickLine={false}
-                  tickFormatter={(v: number) => `$${v}`}
                 />
-                <Tooltip {...customTooltipStyle} />
-                <Bar dataKey="cost" fill="var(--chart-teal)" radius={[3, 3, 0, 0]} />
+                <YAxis
+                  tick={{ fontSize: 10, fill: "#787584" }}
+                  axisLine={false}
+                  tickLine={false}
+                />
+                <Tooltip {...tooltipStyle} />
+                <Bar dataKey="calls" fill="#6d5dd3" opacity={0.2} radius={[4, 4, 0, 0]} />
+                <Bar dataKey="cost" fill="#5443b9" radius={[2, 2, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>
+          <div className="flex justify-center gap-8 pt-4">
+            <div className="flex items-center gap-2">
+              <span className="w-3 h-3 rounded-full bg-ds-primary/20" />
+              <span className="text-xs font-bold text-ds-on-surface">{t("dailyCalls")}</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="w-3 h-3 rounded-full bg-ds-primary" />
+              <span className="text-xs font-bold text-ds-on-surface">{t("dailyCost")}</span>
+            </div>
+          </div>
         </div>
-      </div>
 
-      <div className="grid grid-cols-2 gap-3">
-        <div className="bg-white border border-border-custom rounded-xl px-[18px] py-4">
-          <div className="text-[13px] font-semibold text-text-primary mb-[14px]">
+        {/* Model Distribution — code.html lines 269-305 */}
+        <div className="bg-ds-surface-container-lowest p-8 rounded-xl shadow-sm flex flex-col">
+          <h4 className="text-sm font-bold uppercase tracking-widest text-ds-outline mb-1">
+            Workload
+          </h4>
+          <p className="text-lg font-extrabold font-[var(--font-heading)] mb-8">
             {t("byModel")}
-          </div>
-          <div className="flex items-center gap-4">
-            <div className="h-[130px] w-[130px] shrink-0">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={byModel}
-                    dataKey="calls"
-                    nameKey="model"
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={30}
-                    outerRadius={55}
-                    strokeWidth={2}
-                    stroke="#fff"
-                  >
-                    {byModel.map((_, i) => (
-                      <Cell key={i} fill={CHART_COLORS[i % CHART_COLORS.length]} />
-                    ))}
-                  </Pie>
-                  <Tooltip {...customTooltipStyle} />
-                </PieChart>
-              </ResponsiveContainer>
+          </p>
+          <div className="relative flex-1 flex items-center justify-center min-h-[200px]">
+            <ResponsiveContainer width={192} height={192}>
+              <PieChart>
+                <Pie
+                  data={byModel}
+                  dataKey="calls"
+                  nameKey="model"
+                  cx="50%"
+                  cy="50%"
+                  innerRadius={56}
+                  outerRadius={80}
+                  strokeWidth={2}
+                  stroke="#fff"
+                >
+                  {byModel.map((_, i) => (
+                    <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />
+                  ))}
+                </Pie>
+                <Tooltip {...tooltipStyle} />
+              </PieChart>
+            </ResponsiveContainer>
+            <div className="absolute text-center">
+              <div className="text-2xl font-black font-[var(--font-heading)]">100%</div>
+              <div className="text-[10px] font-bold text-ds-outline uppercase">Utilized</div>
             </div>
-            <div className="flex-1 space-y-1">
-              {byModel.map((m, i) => {
-                const total = byModel.reduce((s, x) => s + (x.calls as number), 0);
-                const pct = total > 0 ? Math.round(((m.calls as number) / total) * 100) : 0;
-                return (
-                  <div key={m.model as string} className="flex items-center gap-2 text-xs">
+          </div>
+          <div className="mt-8 space-y-3">
+            {byModel.slice(0, 5).map((m, i) => {
+              const pct =
+                totalModelCalls > 0
+                  ? Math.round(((m.calls as number) / totalModelCalls) * 100)
+                  : 0;
+              return (
+                <div key={m.model as string} className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
                     <span
-                      className="h-2 w-2 rounded-full shrink-0"
-                      style={{ background: CHART_COLORS[i % CHART_COLORS.length] }}
+                      className="w-2 h-2 rounded-full"
+                      style={{ background: PIE_COLORS[i % PIE_COLORS.length] }}
                     />
-                    <span className="flex-1 text-text-secondary truncate">{m.model as string}</span>
-                    <span className="font-semibold text-text-primary min-w-[32px] text-right">
-                      {pct}%
-                    </span>
+                    <span className="text-xs font-medium">{m.model as string}</span>
                   </div>
-                );
-              })}
-            </div>
+                  <span className="text-xs font-bold">{pct}%</span>
+                </div>
+              );
+            })}
           </div>
         </div>
-        <div className="bg-white border border-border-custom rounded-xl px-[18px] py-4">
-          <div className="text-[13px] font-semibold text-text-primary mb-[14px]">
-            {t("modelRanking")}
-          </div>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Model</TableHead>
-                <TableHead>{t("calls")}</TableHead>
-                <TableHead>{t("tokens")}</TableHead>
-                <TableHead>{t("cost")}</TableHead>
-                <TableHead>{t("avgLatency")}</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {byModel.map((m) => (
-                <TableRow key={m.model as string}>
-                  <TableCell className="text-xs font-mono">{m.model as string}</TableCell>
-                  <TableCell>{(m.calls as number).toLocaleString()}</TableCell>
-                  <TableCell>{(m.tokens as number).toLocaleString()}</TableCell>
-                  <TableCell className="font-mono">{formatCurrency(m.cost as number, 4)}</TableCell>
-                  <TableCell className="font-mono text-text-tertiary">
-                    {m.avgLatency as number}ms
-                  </TableCell>
-                </TableRow>
+      </section>
+
+      {/* ═══ Model Ranking Table — code.html lines 307-372 ═══ */}
+      <section className="bg-ds-surface-container-lowest rounded-xl shadow-sm overflow-hidden">
+        <div className="p-8 pb-4">
+          <h4 className="text-sm font-bold uppercase tracking-widest text-ds-outline mb-1">
+            Leaderboard
+          </h4>
+          <p className="text-lg font-extrabold font-[var(--font-heading)]">{t("modelRanking")}</p>
+        </div>
+        <div className="overflow-x-auto">
+          <table className="w-full text-left">
+            <thead>
+              <tr className="bg-ds-surface-container-low">
+                <th className="px-8 py-4 text-[10px] font-bold text-ds-outline uppercase tracking-widest">
+                  Model
+                </th>
+                <th className="px-8 py-4 text-[10px] font-bold text-ds-outline uppercase tracking-widest">
+                  {t("calls")}
+                </th>
+                <th className="px-8 py-4 text-[10px] font-bold text-ds-outline uppercase tracking-widest">
+                  {t("tokens")}
+                </th>
+                <th className="px-8 py-4 text-[10px] font-bold text-ds-outline uppercase tracking-widest">
+                  {t("cost")}
+                </th>
+                <th className="px-8 py-4 text-[10px] font-bold text-ds-outline uppercase tracking-widest">
+                  {t("avgLatency")}
+                </th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-ds-surface-container-low">
+              {byModel.map((m, i) => (
+                <tr
+                  key={m.model as string}
+                  className="hover:bg-ds-surface-container-high/30 transition-colors"
+                >
+                  <td className="px-8 py-5">
+                    <div className="flex items-center gap-3">
+                      <div
+                        className="w-8 h-8 rounded-lg flex items-center justify-center"
+                        style={{
+                          background: `${PIE_COLORS[i % PIE_COLORS.length]}15`,
+                          color: PIE_COLORS[i % PIE_COLORS.length],
+                        }}
+                      >
+                        <span
+                          className="material-symbols-outlined text-lg"
+                          style={{ fontVariationSettings: "'FILL' 1" }}
+                        >
+                          auto_awesome
+                        </span>
+                      </div>
+                      <span className="text-sm font-bold">{m.model as string}</span>
+                    </div>
+                  </td>
+                  <td className="px-8 py-5 text-sm font-medium">
+                    {((m.calls as number) ?? 0).toLocaleString()}
+                  </td>
+                  <td className="px-8 py-5 text-sm font-medium">
+                    {((m.tokens as number) ?? 0).toLocaleString()}
+                  </td>
+                  <td className="px-8 py-5 text-sm font-bold text-ds-primary">
+                    {formatCurrency((m.cost as number) ?? 0, 2)}
+                  </td>
+                  <td className="px-8 py-5 text-sm font-medium">
+                    {(m.avgLatency as number) ?? 0}ms
+                  </td>
+                </tr>
               ))}
-            </TableBody>
-          </Table>
+              {byModel.length === 0 && (
+                <tr>
+                  <td colSpan={5} className="px-8 py-12 text-center text-ds-outline">
+                    No data
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
         </div>
-      </div>
+      </section>
     </div>
   );
 }

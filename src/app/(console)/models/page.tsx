@@ -2,6 +2,11 @@
 import { useEffect, useState, useMemo } from "react";
 import { useTranslations } from "next-intl";
 import { formatContext } from "@/lib/utils";
+import "material-symbols/outlined.css";
+
+// ============================================================
+// Types & helpers (unchanged)
+// ============================================================
 
 interface ModelItem {
   id: string;
@@ -41,6 +46,10 @@ function getProviderKey(modelId: string): string {
   return slash > 0 ? modelId.substring(0, slash) : "other";
 }
 
+// ============================================================
+// Component
+// ============================================================
+
 export default function ModelsPage() {
   const t = useTranslations("models");
   const tc = useTranslations("common");
@@ -62,20 +71,13 @@ export default function ModelsPage() {
     const map = new Map<string, { displayName: string; models: ModelItem[] }>();
     for (const m of filtered) {
       const key = getProviderKey(m.id);
-      if (!map.has(key)) {
-        map.set(key, { displayName: m.provider_name ?? key, models: [] });
-      }
+      if (!map.has(key)) map.set(key, { displayName: m.provider_name ?? key, models: [] });
       const group = map.get(key)!;
-      // Use provider_name from first model that has it
-      if (m.provider_name && group.displayName === key) {
-        group.displayName = m.provider_name;
-      }
+      if (m.provider_name && group.displayName === key) group.displayName = m.provider_name;
       group.models.push(m);
     }
     const groups: ProviderGroup[] = [];
-    for (const [name, val] of map) {
-      groups.push({ name, displayName: val.displayName, models: val.models });
-    }
+    for (const [name, val] of map) groups.push({ name, displayName: val.displayName, models: val.models });
     return groups.sort((a, b) => a.name.localeCompare(b.name));
   }, [models, search]);
 
@@ -85,33 +87,52 @@ export default function ModelsPage() {
     return next;
   };
 
+  const totalModels = models.length;
+  const textModels = models.filter((m) => m.modality === "text").length;
+  const imageModels = models.filter((m) => m.modality === "image").length;
+
+  // ── Render — 1:1 replica of Models (Full Redesign) code.html ──
   return (
-    <div>
-      {/* Header */}
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20 }}>
-        <h1 style={{ fontSize: 20, fontWeight: 500 }}>{t("title")}</h1>
-        <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-          <input
-            className="focus:outline-none"
-            style={{ fontSize: 13, padding: "7px 12px", border: "0.5px solid #e5e4e0", borderRadius: 8, width: 220, background: "#fff", fontFamily: "inherit" }}
-            type="text"
-            placeholder={t("searchPlaceholder")}
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
-          <div style={{ display: "flex", gap: 2, background: "#e5e4e0", borderRadius: 8, padding: 2 }}>
-            {[{ val: "", label: tc("all") }, { val: "text", label: t("text") }, { val: "image", label: t("image") }].map((m) => (
+    <div className="max-w-7xl mx-auto space-y-8">
+      {/* ═══ Page Header ═══ */}
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+        <div>
+          <h2 className="text-3xl font-extrabold tracking-tight font-[var(--font-heading)] text-ds-on-surface">
+            {t("title")}
+          </h2>
+          <p className="text-ds-on-surface-variant font-medium mt-1">
+            Browse available models and pricing across all providers.
+          </p>
+        </div>
+        <div className="flex items-center gap-3">
+          {/* Search */}
+          <div className="relative">
+            <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">
+              search
+            </span>
+            <input
+              className="pl-9 pr-4 py-2 text-sm rounded-full bg-ds-surface-container-low border-none focus:ring-2 focus:ring-ds-primary/20 w-56 transition-all placeholder:text-slate-400 outline-none"
+              type="text"
+              placeholder={t("searchPlaceholder")}
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+          </div>
+          {/* Modality filter */}
+          <div className="flex bg-ds-surface-container-low p-1 rounded-xl">
+            {[
+              { val: "", label: tc("all") },
+              { val: "text", label: t("text") },
+              { val: "image", label: t("image") },
+            ].map((m) => (
               <button
                 key={m.val}
                 onClick={() => setModality(m.val)}
-                style={{
-                  fontSize: 13, padding: "6px 14px", borderRadius: 6, cursor: "pointer",
-                  background: modality === m.val ? "#fff" : "transparent",
-                  color: modality === m.val ? "#2C2C2A" : "#5F5E5A",
-                  fontWeight: modality === m.val ? 500 : 400,
-                  border: "none", fontFamily: "inherit",
-                  boxShadow: modality === m.val ? "0 0 0 0.5px #e5e4e0" : "none",
-                }}
+                className={`px-4 py-1.5 text-xs font-bold uppercase tracking-wider transition-all ${
+                  modality === m.val
+                    ? "text-indigo-700 bg-white rounded-lg shadow-sm"
+                    : "text-slate-500 hover:text-slate-700"
+                }`}
               >
                 {m.label}
               </button>
@@ -120,8 +141,60 @@ export default function ModelsPage() {
         </div>
       </div>
 
-      {/* Provider groups */}
-      <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+      {/* ═══ Stats Cards ═══ */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="bg-ds-surface-container-lowest p-6 rounded-xl shadow-sm">
+          <div className="flex items-center justify-between mb-4">
+            <span className="text-xs font-bold text-ds-outline uppercase tracking-widest">
+              Total Models
+            </span>
+            <span className="material-symbols-outlined text-ds-primary-container text-lg">
+              smart_toy
+            </span>
+          </div>
+          <div className="text-3xl font-black font-[var(--font-heading)] text-ds-on-surface">
+            {totalModels}
+          </div>
+          <div className="mt-2 text-[10px] font-bold text-ds-on-surface-variant">
+            {textModels} text · {imageModels} image
+          </div>
+        </div>
+        <div className="bg-ds-surface-container-lowest p-6 rounded-xl shadow-sm">
+          <div className="flex items-center justify-between mb-4">
+            <span className="text-xs font-bold text-ds-outline uppercase tracking-widest">
+              Avg Latency
+            </span>
+            <span className="material-symbols-outlined text-ds-primary-container text-lg">
+              speed
+            </span>
+          </div>
+          <div className="text-3xl font-black font-[var(--font-heading)] text-ds-on-surface">
+            —
+          </div>
+          <div className="mt-2 text-[10px] font-bold text-ds-on-surface-variant">
+            Coming soon
+          </div>
+        </div>
+        <div className="bg-ds-surface-container-lowest p-6 rounded-xl shadow-sm">
+          <div className="flex items-center justify-between mb-4">
+            <span className="text-xs font-bold text-ds-outline uppercase tracking-widest">
+              Active Providers
+            </span>
+            <span className="material-symbols-outlined text-ds-primary-container text-lg">
+              hub
+            </span>
+          </div>
+          <div className="text-3xl font-black font-[var(--font-heading)] text-ds-on-surface">
+            {grouped.length}
+          </div>
+          <div className="mt-2 text-[10px] font-bold text-ds-on-surface-variant">
+            Provider groups
+          </div>
+        </div>
+      </div>
+
+      {/* ═══ Provider Groups ═══ */}
+      <div className="space-y-4">
         {grouped.map((group) => {
           const expanded = expandedProviders.has(group.name);
           const bgColor = PROVIDER_COLORS[group.name] ?? "#888780";
@@ -130,55 +203,63 @@ export default function ModelsPage() {
           const hasMore = group.models.length > MODELS_PER_PAGE && !showAllModels.has(group.name);
 
           return (
-            <div key={group.name} style={{ border: "0.5px solid #e5e4e0", borderRadius: 12, overflow: "hidden", background: "#fff" }}>
+            <div key={group.name} className="bg-ds-surface-container-lowest rounded-xl shadow-sm overflow-hidden">
               {/* Provider header */}
               <div
                 onClick={() => setExpandedProviders((s) => toggle(s, group.name))}
-                style={{ display: "flex", alignItems: "center", gap: 10, padding: "14px 16px", cursor: "pointer" }}
-                onMouseEnter={(e) => (e.currentTarget.style.background = "#f8f7f5")}
-                onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
+                className="flex items-center gap-3 px-6 py-4 cursor-pointer hover:bg-ds-surface-container-low transition-colors"
               >
-                <div style={{ width: 32, height: 32, borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, fontWeight: 500, color: "#fff", flexShrink: 0, background: bgColor }}>
+                <div
+                  className="w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold text-white shrink-0"
+                  style={{ background: bgColor }}
+                >
                   {abbr}
                 </div>
-                <span style={{ fontSize: 14, fontWeight: 500 }}>{group.displayName}</span>
-                <span style={{ fontSize: 12, color: "#888780", marginLeft: 4 }}>{group.models.length} {t("modelCount")}</span>
-                <span style={{ fontSize: 12, color: "#B4B2A9", marginLeft: "auto" }}>{expanded ? "\u25B2" : "\u25B6"}</span>
+                <span className="text-sm font-bold text-ds-on-surface">{group.displayName}</span>
+                <span className="text-xs text-slate-500 ml-1">
+                  {group.models.length} {t("modelCount")}
+                </span>
+                <span className="material-symbols-outlined text-slate-400 ml-auto text-sm">
+                  {expanded ? "expand_less" : "expand_more"}
+                </span>
               </div>
 
               {/* Model list */}
               {expanded && (
-                <div style={{ padding: "0 16px 12px" }}>
+                <div className="px-6 pb-4">
                   {visibleModels.map((m) => (
                     <div
                       key={m.id}
-                      style={{ display: "flex", alignItems: "center", gap: 12, padding: "10px 12px", borderRadius: 8 }}
-                      onMouseEnter={(e) => (e.currentTarget.style.background = "#f8f7f5")}
-                      onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
+                      className="flex items-center gap-4 px-4 py-3 rounded-lg hover:bg-ds-surface-container-low transition-colors"
                     >
-                      <span style={{ fontSize: 13, fontWeight: 500, flex: 1, fontFamily: "'SF Mono','Fira Code','Consolas',monospace" }}>{m.id}</span>
-                      <span style={{
-                        fontSize: 11, padding: "2px 8px", borderRadius: 4, fontWeight: 500,
-                        background: m.modality === "text" ? "#E6F1FB" : "#FBEAF0",
-                        color: m.modality === "text" ? "#0C447C" : "#72243E",
-                      }}>
+                      <span className="text-sm font-medium font-mono flex-1 text-ds-on-surface">
+                        {m.id}
+                      </span>
+                      <span
+                        className={`text-[10px] font-bold px-2 py-0.5 rounded uppercase ${
+                          m.modality === "text"
+                            ? "bg-indigo-50 text-indigo-700"
+                            : "bg-pink-50 text-pink-700"
+                        }`}
+                      >
                         {m.modality}
                       </span>
-                      <span style={{ fontSize: 12, color: "#888780" }}>{m.context_window ? formatContext(m.context_window) : "\u2014"}</span>
-                      <span style={{
-                        fontSize: 12, fontFamily: "'SF Mono','Fira Code','Consolas',monospace",
-                        color: fmtPrice(m.pricing) === "Free" ? "#639922" : "#5F5E5A",
-                        fontWeight: fmtPrice(m.pricing) === "Free" ? 600 : 400,
-                      }}>
+                      <span className="text-xs text-slate-500 w-20 text-right">
+                        {m.context_window ? formatContext(m.context_window) : "—"}
+                      </span>
+                      <span
+                        className={`text-xs font-mono w-32 text-right ${
+                          fmtPrice(m.pricing) === "Free" ? "text-green-600 font-bold" : "text-slate-600"
+                        }`}
+                      >
                         {fmtPrice(m.pricing)}
                       </span>
                     </div>
                   ))}
-
                   {hasMore && (
                     <button
                       onClick={() => setShowAllModels((s) => { const n = new Set(s); n.add(group.name); return n; })}
-                      style={{ display: "block", width: "100%", padding: "10px 0", fontSize: 12, color: "#5F5E5A", background: "transparent", border: "none", cursor: "pointer", fontFamily: "inherit" }}
+                      className="w-full py-3 text-xs font-bold text-ds-primary hover:underline"
                     >
                       {t("showAll", { count: group.models.length })}
                     </button>
@@ -188,6 +269,9 @@ export default function ModelsPage() {
             </div>
           );
         })}
+        {grouped.length === 0 && (
+          <div className="text-center py-12 text-ds-outline">No models found</div>
+        )}
       </div>
     </div>
   );
