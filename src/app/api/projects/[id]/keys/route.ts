@@ -18,9 +18,14 @@ export async function GET(request: Request, { params }: { params: { id: string }
 
   const url = new URL(request.url);
   const search = url.searchParams.get("search")?.trim().toLowerCase() ?? "";
-  const page = Math.max(1, parseInt(url.searchParams.get("page") ?? "0", 10));
-  const limit = Math.max(1, Math.min(100, parseInt(url.searchParams.get("limit") ?? "0", 10)));
-  const hasPagination = page > 0 && limit > 0;
+  const limitParam = url.searchParams.get("limit") ?? url.searchParams.get("pageSize") ?? "0";
+  const hasPageParam =
+    url.searchParams.has("page") ||
+    url.searchParams.has("limit") ||
+    url.searchParams.has("pageSize");
+  const page = Math.max(1, parseInt(url.searchParams.get("page") ?? "1", 10));
+  const limit = Math.max(1, Math.min(100, parseInt(limitParam, 10)));
+  const hasPagination = hasPageParam && parseInt(limitParam, 10) > 0;
 
   const where = {
     projectId: params.id,

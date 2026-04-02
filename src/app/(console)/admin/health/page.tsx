@@ -4,7 +4,6 @@ import { useTranslations } from "next-intl";
 import { apiFetch } from "@/lib/api-client";
 import { toast } from "sonner";
 import { timeAgo } from "@/lib/utils";
-import "material-symbols/outlined.css";
 
 interface HealthChannel {
   channelId: string;

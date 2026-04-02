@@ -4,7 +4,6 @@ import { useTranslations } from "next-intl";
 import { apiFetch } from "@/lib/api-client";
 import { formatCurrency, timeAgo } from "@/lib/utils";
 import Link from "next/link";
-import "material-symbols/outlined.css";
 
 interface UserRow {
   id: string;

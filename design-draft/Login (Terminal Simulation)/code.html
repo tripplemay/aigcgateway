@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Login | AIGC Gateway</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;family=Inter:wght@400;500;600&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "on-secondary": "#ffffff",
+              "primary-fixed-dim": "#c8bfff",
+              "primary": "#5443b9",
+              "inverse-surface": "#283044",
+              "primary-container": "#6d5dd3",
+              "outline-variant": "#c9c4d5",
+              "on-primary-container": "#f6f1ff",
+              "inverse-primary": "#c8bfff",
+              "surface-variant": "#dae2fd",
+              "tertiary-fixed-dim": "#ffb964",
+              "surface-bright": "#faf8ff",
+              "on-error-container": "#93000a",
+              "surface-tint": "#5c4cc1",
+              "secondary-fixed": "#e5deff",
+              "on-primary-fixed-variant": "#4431a8",
+              "inverse-on-surface": "#eef0ff",
+              "error": "#ba1a1a",
+              "surface-container-lowest": "#ffffff",
+              "on-surface": "#131b2e",
+              "on-secondary-container": "#585280",
+              "secondary": "#5f5987",
+              "surface": "#faf8ff",
+              "on-secondary-fixed-variant": "#47416e",
+              "surface-dim": "#d2d9f4",
+              "on-secondary-fixed": "#1b153f",
+              "on-surface-variant": "#474553",
+              "error-container": "#ffdad6",
+              "on-primary": "#ffffff",
+              "surface-container-highest": "#dae2fd",
+              "on-tertiary": "#ffffff",
+              "on-primary-fixed": "#190064",
+              "tertiary-container": "#9d6100",
+              "secondary-fixed-dim": "#c8c0f5",
+              "outline": "#787584",
+              "on-tertiary-container": "#fff0e4",
+              "surface-container-low": "#f2f3ff",
+              "secondary-container": "#d0c9fe",
+              "on-background": "#131b2e",
+              "tertiary": "#7c4b00",
+              "on-error": "#ffffff",
+              "tertiary-fixed": "#ffddba",
+              "surface-container": "#eaedff",
+              "surface-container-high": "#e2e7ff",
+              "on-tertiary-fixed-variant": "#663e00",
+              "on-tertiary-fixed": "#2b1700",
+              "background": "#faf8ff",
+              "primary-fixed": "#e5deff"
+            },
+            fontFamily: {
+              "headline": ["Manrope"],
+              "body": ["Manrope"],
+              "label": ["Manrope"],
+              "mono": ["JetBrains Mono", "monospace"]
+            },
+            borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+          },
+        },
+      }
+    </script>
+<style>
+      body { font-family: 'Manrope', sans-serif; }
+      h1, h2, h3, .font-headline { font-family: 'Manrope', sans-serif; }
+      .no-scrollbar::-webkit-scrollbar { display: none; }
+      .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+      @keyframes blink {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0; }
+      }
+      .cursor-blink {
+        display: inline-block;
+        width: 8px;
+        height: 1.2em;
+        background-color: #6d5dd3;
+        vertical-align: middle;
+        animation: blink 1s step-end infinite;
+      }
+
+      .terminal-fade-in {
+        animation: fadeIn 0.8s ease-out forwards;
+      }
+
+      @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+
+      .command-line::before {
+        content: "$ ";
+        color: #6d5dd3;
+        font-weight: bold;
+      }
+
+      .scanline {
+        width: 100%;
+        height: 100px;
+        z-index: 5;
+        background: linear-gradient(0deg, rgba(0, 0, 0, 0) 0%, rgba(109, 93, 211, 0.05) 50%, rgba(0, 0, 0, 0) 100%);
+        opacity: 0.1;
+        position: absolute;
+        bottom: 100%;
+        animation: scanline 6s linear infinite;
+      }
+
+      @keyframes scanline {
+        0% { bottom: 100%; }
+        100% { bottom: -100%; }
+      }
+
+      /* Custom styles for the dynamic terminal */
+      #terminal-content {
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+      }
+      #terminal-content::-webkit-scrollbar {
+        display: none;
+      }
+    </style>
+</head>
+<body class="bg-surface text-on-surface antialiased overflow-hidden">
+<main class="flex min-h-screen w-full">
+<!-- Left Side: Terminal Interface -->
+<section class="hidden lg:flex lg:w-1/2 relative flex-col justify-between p-16 overflow-hidden bg-[#0a0a0c]">
+<!-- Background Grid Effect -->
+<div class="absolute inset-0 z-0 opacity-10" style="background-image: radial-gradient(#6d5dd3 0.5px, transparent 0.5px); background-size: 24px 24px;"></div>
+<div class="scanline"></div>
+<!-- Brand Header -->
+<div class="relative z-10">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary-container text-4xl" data-weight="fill">hub</span>
+<span class="text-xl font-headline font-bold tracking-tighter text-white">AIGC Gateway</span>
+</div>
+</div>
+<!-- Terminal Container -->
+<div class="relative z-10 flex flex-col items-center justify-center h-full max-w-2xl mx-auto w-full">
+<div class="w-full bg-[#13141C] rounded-xl border border-white/10 shadow-2xl overflow-hidden terminal-fade-in">
+<!-- Window Header -->
+<div class="bg-[#1C1E26] px-4 py-3 flex items-center justify-between border-b border-white/5">
+<div class="flex gap-1.5">
+<div class="w-3 h-3 rounded-full bg-[#FF5F56]"></div>
+<div class="w-3 h-3 rounded-full bg-[#FFBD2E]"></div>
+<div class="w-3 h-3 rounded-full bg-[#27C93F]"></div>
+</div>
+<div class="text-[10px] font-mono text-white/40 uppercase tracking-widest">aigc-cli — bash</div>
+<div class="w-12"></div>
+</div>
+<!-- Window Content -->
+<div class="p-6 font-mono text-sm leading-relaxed h-[360px] overflow-hidden flex flex-col" id="terminal-content">
+<div class="space-y-4" id="terminal-history"></div>
+<div class="mt-4 flex items-center gap-2">
+<span class="command-line text-white/90" id="current-command"></span>
+<span class="cursor-blink"></span>
+</div>
+</div>
+</div>
+<div class="mt-12 text-center">
+<h1 class="text-4xl font-headline font-extrabold tracking-tight text-white leading-[1.1] mb-4">
+                        Professional Observability.
+                    </h1>
+<p class="text-lg text-outline-variant/60 font-medium tracking-wide">
+                        The Algorithmic Atelier for modern AI developers.
+                    </p>
+</div>
+</div>
+<!-- Left Side Footer -->
+<div class="relative z-10 flex justify-between items-end">
+<div class="flex gap-8">
+<div class="flex flex-col">
+<span class="text-2xl font-headline font-bold text-white">99.9%</span>
+<span class="text-[10px] font-mono uppercase tracking-widest text-primary-container font-semibold">Uptime</span>
+</div>
+<div class="flex flex-col">
+<span class="text-2xl font-headline font-bold text-white">&lt;20ms</span>
+<span class="text-[10px] font-mono uppercase tracking-widest text-primary-container font-semibold">Latency</span>
+</div>
+</div>
+<span class="text-[10px] font-mono text-white/20 tracking-[0.2em] uppercase">SYSTEMS_STABLE_V2.0.4</span>
+</div>
+</section>
+<!-- Right Side: Authentication Form -->
+<section class="w-full lg:w-1/2 flex flex-col justify-center items-center bg-surface-container-lowest px-8 py-12 md:px-24">
+<div class="w-full max-w-md">
+<!-- Mobile Logo (Visible only on small screens) -->
+<div class="lg:hidden flex justify-center mb-12">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-3xl" data-weight="fill">hub</span>
+<span class="text-xl font-headline font-bold tracking-tighter text-on-surface">AIGC Gateway</span>
+</div>
+</div>
+<!-- Header -->
+<div class="mb-10 text-center lg:text-left">
+<h2 class="text-3xl font-headline font-extrabold text-on-surface tracking-tight mb-2">Welcome Back</h2>
+<p class="text-on-surface-variant text-sm font-medium">Please enter your details to access your dashboard.</p>
+</div>
+<!-- Form -->
+<form class="space-y-6">
+<div class="space-y-1.5">
+<label class="block text-[11px] font-bold uppercase tracking-widest text-on-surface-variant/80 ml-1" for="email">Email Address</label>
+<input class="w-full px-4 py-3.5 bg-surface-container-low border-none rounded-xl text-on-surface placeholder:text-outline focus:ring-2 focus:ring-primary-container transition-all duration-200" id="email" name="email" placeholder="name@company.com" type="email"/>
+</div>
+<div class="space-y-1.5">
+<div class="flex justify-between items-center px-1">
+<label class="block text-[11px] font-bold uppercase tracking-widest text-on-surface-variant/80" for="password">Password</label>
+<a class="text-[11px] font-bold uppercase tracking-widest text-primary-container hover:text-primary transition-colors" href="#">Forgot Password?</a>
+</div>
+<div class="relative group">
+<input class="w-full px-4 py-3.5 bg-surface-container-low border-none rounded-xl text-on-surface placeholder:text-outline focus:ring-2 focus:ring-primary-container transition-all duration-200" id="password" name="password" placeholder="••••••••" type="password"/>
+<button class="absolute right-4 top-1/2 -translate-y-1/2 text-outline hover:text-on-surface transition-colors" type="button">
+<span class="material-symbols-outlined text-xl">visibility</span>
+</button>
+</div>
+</div>
+<div class="flex items-center">
+<input class="h-4 w-4 rounded border-outline-variant text-primary focus:ring-primary-container bg-surface-container-low" id="remember" name="remember" type="checkbox"/>
+<label class="ml-2 block text-sm font-medium text-on-surface-variant" for="remember">Remember Me</label>
+</div>
+<button class="w-full py-4 bg-gradient-to-r from-primary to-primary-container text-white font-headline font-bold rounded-xl shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 active:scale-[0.98] transition-all duration-200" type="submit">
+                        Sign In
+                    </button>
+</form>
+<!-- Divider -->
+<div class="relative my-10">
+<div class="absolute inset-0 flex items-center">
+<div class="w-full border-t border-surface-container-high"></div>
+</div>
+<div class="relative flex justify-center text-xs">
+<span class="px-4 bg-surface-container-lowest text-outline font-medium tracking-wide uppercase">Or continue with</span>
+</div>
+</div>
+<!-- Social Logins -->
+<div class="flex gap-4">
+<button class="flex-1 flex justify-center items-center gap-3 py-3 px-4 bg-surface-container-low border border-transparent rounded-xl hover:bg-surface-container-high transition-colors active:scale-95 duration-150">
+<svg class="w-5 h-5" viewbox="0 0 24 24">
+<path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"></path>
+<path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"></path>
+<path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"></path>
+<path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 12-4.53z" fill="#EA4335"></path>
+</svg>
+<span class="text-sm font-semibold text-on-surface">Google</span>
+</button>
+<button class="flex-1 flex justify-center items-center gap-3 py-3 px-4 bg-surface-container-low border border-transparent rounded-xl hover:bg-surface-container-high transition-colors active:scale-95 duration-150">
+<svg class="w-5 h-5 text-on-surface fill-current" viewbox="0 0 24 24">
+<path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.744.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"></path>
+</svg>
+<span class="text-sm font-semibold text-on-surface">GitHub</span>
+</button>
+</div>
+<!-- Footer Link -->
+<div class="mt-12 text-center">
+<p class="text-sm font-medium text-on-surface-variant">
+                        Don't have an account? 
+                        <a class="text-primary-container font-bold hover:underline ml-1" href="#">Register</a>
+</p>
+</div>
+</div>
+<!-- Contextual Footer (Semantic shell) -->
+<footer class="mt-auto pt-12 flex flex-col items-center gap-4">
+<div class="flex gap-6">
+<a class="text-[10px] font-bold uppercase tracking-widest text-outline hover:text-primary-container transition-colors" href="#">Documentation</a>
+<a class="text-[10px] font-bold uppercase tracking-widest text-outline hover:text-primary-container transition-colors" href="#">Privacy Policy</a>
+<a class="text-[10px] font-bold uppercase tracking-widest text-outline hover:text-primary-container transition-colors" href="#">Support</a>
+</div>
+<p class="text-[9px] font-medium tracking-wide uppercase text-outline-variant/60">© 2024 AIGC Gateway. Professional Engineering.</p>
+</footer>
+</section>
+</main>
+<script>
+    const historyContainer = document.getElementById('terminal-history');
+    const currentCommandSpan = document.getElementById('current-command');
+    const terminalContent = document.getElementById('terminal-content');
+
+    const sequences = [
+        {
+            command: 'aigc chat --model deepseek/v3 --stream "Analyze efficiency"',
+            responses: [
+                { text: '[STREAM] Trace ID: trc_8f2a1b92 initializing...', color: 'text-white/40' },
+                { text: '[SUCCESS] Connection established with deepseek/v3', color: 'text-primary-container' },
+                { text: '[DATA] Tokens/sec: 142 | Latency: 18ms', color: 'text-white/60' },
+                { text: '[BILLING] Cost: $0.032 | Model: deepseek-v3', color: 'text-primary-fixed-dim' }
+            ]
+        },
+        {
+            command: 'aigc health --check',
+            responses: [
+                { text: '[INFO] Querying global node cluster...', color: 'text-white/40' },
+                { text: '[SUCCESS] 24/24 nodes responding. Status: 200 OK', color: 'text-primary-container' },
+                { text: '[INFO] Current Load: 12.4% | Uptime: 99.99%', color: 'text-white/60' }
+            ]
+        },
+        {
+            command: 'aigc logs --filter "error" --limit 2',
+            responses: [
+                { text: '[LOG] 14:02:31 - Request processed in 12ms', color: 'text-white/40' },
+                { text: '[INFO] Trace ID: trc_7b321x88 | Status: 200 OK', color: 'text-white/60' },
+                { text: '[SUCCESS] Cache hit: hash_8a221fb', color: 'text-primary-container' }
+            ]
+        },
+        {
+            command: 'aigc billing --usage',
+            responses: [
+                { text: '[INFO] Fetching real-time quota data...', color: 'text-white/40' },
+                { text: '[DATA] Daily Spend: $142.05 | Monthly: $1,420.55', color: 'text-white/90' },
+                { text: '[SUCCESS] Quota Remaining: 78.4%', color: 'text-primary-container' }
+            ]
+        }
+    ];
+
+    let currentSeqIndex = 0;
+
+    async function typeText(element, text, speed = 40) {
+        element.textContent = '';
+        for (let i = 0; i < text.length; i++) {
+            element.textContent += text.charAt(i);
+            await new Promise(resolve => setTimeout(resolve, speed + Math.random() * 40));
+        }
+    }
+
+    function addHistoryLine(text, colorClass = 'text-white/60', isCommand = false) {
+        const line = document.createElement('div');
+        if (isCommand) {
+            line.className = 'command-line text-white/90 font-bold';
+            line.textContent = text;
+        } else {
+            line.className = `${colorClass} mt-1`;
+            line.textContent = text;
+        }
+        historyContainer.appendChild(line);
+        
+        // Auto-scroll logic
+        terminalContent.scrollTop = terminalContent.scrollHeight;
+        
+        // Keep history manageable
+        if (historyContainer.children.length > 20) {
+            historyContainer.removeChild(historyContainer.firstChild);
+        }
+    }
+
+    async function runSequence() {
+        const seq = sequences[currentSeqIndex];
+        
+        // 1. Type the command
+        await typeText(currentCommandSpan, seq.command);
+        await new Promise(resolve => setTimeout(resolve, 600));
+        
+        // 2. Add command to history and clear current
+        addHistoryLine(seq.command, null, true);
+        currentCommandSpan.textContent = '';
+        
+        // 3. Stream responses
+        for (const res of seq.responses) {
+            await new Promise(resolve => setTimeout(resolve, 200 + Math.random() * 500));
+            addHistoryLine(res.text, res.color);
+        }
+        
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        
+        // 4. Next sequence
+        currentSeqIndex = (currentSeqIndex + 1) % sequences.length;
+        runSequence();
+    }
+
+    // Start the loop
+    setTimeout(runSequence, 1000);
+</script>
+</body></html>

@@ -8,7 +8,6 @@ import Link from "next/link";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState } from "@/components/empty-state";
 import { toast } from "sonner";
-import "material-symbols/outlined.css";
 
 // ============================================================
 // Types

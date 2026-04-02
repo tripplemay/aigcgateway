@@ -3,7 +3,6 @@ import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { apiFetch } from "@/lib/api-client";
 import { formatCurrency, timeAgo } from "@/lib/utils";
-import "material-symbols/outlined.css";
 
 interface LogEntry {
   traceId: string;

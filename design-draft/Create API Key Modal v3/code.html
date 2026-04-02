@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Create New API Key - AIGC Gateway</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "secondary-fixed": "#e5deff",
+                        "tertiary-fixed": "#ffddba",
+                        "tertiary-container": "#9d6100",
+                        "secondary-fixed-dim": "#c8c0f5",
+                        "on-surface-variant": "#474553",
+                        "on-surface": "#131b2e",
+                        "on-primary-fixed-variant": "#4431a8",
+                        "surface-variant": "#dae2fd",
+                        "on-tertiary-fixed-variant": "#663e00",
+                        "on-tertiary-fixed": "#2b1700",
+                        "surface-container-lowest": "#ffffff",
+                        "on-secondary-container": "#585280",
+                        "on-secondary-fixed-variant": "#47416e",
+                        "secondary-container": "#d0c9fe",
+                        "outline-variant": "#c9c4d5",
+                        "on-primary-container": "#f6f1ff",
+                        "on-background": "#131b2e",
+                        "surface-container-low": "#f2f3ff",
+                        "tertiary": "#7c4b00",
+                        "on-error-container": "#93000a",
+                        "inverse-surface": "#283044",
+                        "surface": "#faf8ff",
+                        "outline": "#787584",
+                        "background": "#faf8ff",
+                        "surface-dim": "#d2d9f4",
+                        "on-tertiary-container": "#fff0e4",
+                        "on-secondary-fixed": "#1b153f",
+                        "on-secondary": "#ffffff",
+                        "surface-container-high": "#e2e7ff",
+                        "surface-container": "#eaedff",
+                        "surface-bright": "#faf8ff",
+                        "error": "#ba1a1a",
+                        "primary-fixed-dim": "#c8bfff",
+                        "primary": "#5443b9",
+                        "on-primary": "#ffffff",
+                        "tertiary-fixed-dim": "#ffb964",
+                        "surface-tint": "#5c4cc1",
+                        "primary-fixed": "#e5deff",
+                        "on-error": "#ffffff",
+                        "inverse-primary": "#c8bfff",
+                        "primary-container": "#6d5dd3",
+                        "on-primary-fixed": "#190064",
+                        "inverse-on-surface": "#eef0ff",
+                        "on-tertiary": "#ffffff",
+                        "surface-container-highest": "#dae2fd",
+                        "error-container": "#ffdad6",
+                        "secondary": "#5f5987"
+                    },
+                    fontFamily: {
+                        "headline": ["Manrope"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    },
+                    borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body { font-family: 'Inter', sans-serif; }
+        h1, h2, h3 { font-family: 'Manrope', sans-serif; }
+    </style>
+</head>
+<body class="bg-surface text-on-surface">
+<!-- Top Navigation Bar -->
+<header class="bg-slate-50/80 dark:bg-slate-950/80 backdrop-blur-xl flex justify-between items-center px-6 py-3 w-full docked full-width top-0 sticky z-50 font-['Manrope'] tracking-tight antialiased">
+<div class="flex items-center gap-8">
+<span class="text-xl font-bold tracking-tighter text-slate-900 dark:text-slate-50">AIGC Gateway</span>
+<nav class="hidden md:flex gap-6">
+<a class="text-slate-500 dark:text-slate-400 font-medium hover:bg-slate-200/50 dark:hover:bg-slate-800/50 transition-colors px-2 py-1 rounded" href="#">Dashboard</a>
+<a class="text-slate-500 dark:text-slate-400 font-medium hover:bg-slate-200/50 dark:hover:bg-slate-800/50 transition-colors px-2 py-1 rounded" href="#">Call Logs</a>
+<a class="text-slate-500 dark:text-slate-400 font-medium hover:bg-slate-200/50 dark:hover:bg-slate-800/50 transition-colors px-2 py-1 rounded" href="#">Models</a>
+<a class="text-indigo-700 dark:text-indigo-300 border-b-2 border-indigo-600 font-semibold px-2 py-1" href="#">API Keys</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<button class="hover:bg-slate-200/50 p-2 rounded-full transition-all active:scale-90">
+<span class="material-symbols-outlined text-slate-600" data-icon="language">language</span>
+</button>
+<button class="hover:bg-slate-200/50 p-2 rounded-full transition-all active:scale-90">
+<span class="material-symbols-outlined text-slate-600" data-icon="notifications">notifications</span>
+</button>
+<div class="w-8 h-8 rounded-full bg-primary-container flex items-center justify-center text-white text-xs font-bold">
+                JD
+            </div>
+</div>
+</header>
+<div class="flex">
+<!-- Sidebar -->
+<aside class="fixed left-0 top-0 h-screen w-64 bg-slate-100 dark:bg-slate-900 flex flex-col h-full p-4 gap-y-2 font-['Manrope'] text-sm font-medium pt-20">
+<div class="mb-6 px-2">
+<h2 class="text-lg font-black text-indigo-700 dark:text-indigo-400">Main Gateway</h2>
+<p class="text-[10px] uppercase tracking-widest text-slate-500">Infrastructure</p>
+</div>
+<nav class="flex-1 space-y-1">
+<a class="flex items-center gap-3 p-3 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800 transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+                    Dashboard
+                </a>
+<a class="flex items-center gap-3 p-3 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800 transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="description">description</span>
+                    Call Logs
+                </a>
+<a class="flex items-center gap-3 p-3 rounded-xl bg-white dark:bg-slate-800 text-indigo-600 dark:text-indigo-400 border-l-4 border-indigo-600 shadow-sm transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="vpn_key" style="font-variation-settings: 'FILL' 1;">vpn_key</span>
+                    API Keys
+                </a>
+<a class="flex items-center gap-3 p-3 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800 transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="settings_input_component">settings_input_component</span>
+                    Channels
+                </a>
+<a class="flex items-center gap-3 p-3 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800 transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="hub">hub</span>
+                    Providers
+                </a>
+<a class="flex items-center gap-3 p-3 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800 transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="account_balance_wallet">account_balance_wallet</span>
+                    Wallet
+                </a>
+</nav>
+<div class="mt-auto pt-4 border-t border-slate-200 dark:border-slate-800">
+<a class="flex items-center gap-3 p-3 rounded-xl text-slate-600 hover:bg-slate-200 transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="menu_book">menu_book</span>
+                    Documentation
+                </a>
+</div>
+</aside>
+<!-- Main Content Canvas (Behind Modal) -->
+<main class="ml-64 flex-1 p-10 min-h-screen">
+<div class="flex justify-between items-end mb-8">
+<div>
+<h1 class="text-4xl font-extrabold tracking-tight text-on-surface">API Keys</h1>
+<p class="text-slate-500 mt-2">Manage programmatic access to your infrastructure</p>
+</div>
+</div>
+<!-- Dashboard Content Mockup (Blurred) -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-8 opacity-40">
+<div class="bg-surface-container-lowest p-6 rounded-xl shadow-sm border-b-2 border-outline-variant/10">
+<div class="h-4 w-24 bg-slate-200 rounded mb-4"></div>
+<div class="h-8 w-full bg-slate-100 rounded"></div>
+</div>
+<div class="bg-surface-container-lowest p-6 rounded-xl shadow-sm border-b-2 border-outline-variant/10">
+<div class="h-4 w-24 bg-slate-200 rounded mb-4"></div>
+<div class="h-8 w-full bg-slate-100 rounded"></div>
+</div>
+<div class="bg-surface-container-lowest p-6 rounded-xl shadow-sm border-b-2 border-outline-variant/10">
+<div class="h-4 w-24 bg-slate-200 rounded mb-4"></div>
+<div class="h-8 w-full bg-slate-100 rounded"></div>
+</div>
+</div>
+</main>
+</div>
+<!-- Modal Overlay -->
+<div class="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-on-surface/40 backdrop-blur-md">
+<!-- Create New API Key Modal -->
+<div class="w-full max-w-xl bg-surface rounded-xl shadow-2xl overflow-hidden border border-outline-variant/20 animate-in fade-in zoom-in duration-300">
+<div class="p-8">
+<!-- Header -->
+<div class="flex items-center justify-between mb-2">
+<h2 class="text-2xl font-extrabold tracking-tight text-on-surface">Create New API Key</h2>
+<button class="text-outline hover:text-on-surface transition-colors">
+<span class="material-symbols-outlined" data-icon="close">close</span>
+</button>
+</div>
+<p class="text-on-surface-variant font-body text-sm mb-8">Generate a unique key to access the gateway programmatically.</p>
+<!-- Form -->
+<form class="space-y-6">
+<!-- Key Name -->
+<div class="space-y-2">
+<label class="block text-xs font-bold uppercase tracking-widest text-secondary font-label" for="key-name">Key Name</label>
+<input class="w-full px-4 py-3 bg-surface-container-low border-0 border-b-2 border-outline-variant/30 focus:border-primary focus:ring-0 transition-all font-body rounded-t-lg" id="key-name" placeholder="e.g. Production Frontend" type="text"/>
+</div>
+<!-- Description -->
+<div class="space-y-2">
+<label class="block text-xs font-bold uppercase tracking-widest text-secondary font-label" for="description">Description</label>
+<textarea class="w-full px-4 py-3 bg-surface-container-low border-0 border-b-2 border-outline-variant/30 focus:border-primary focus:ring-0 transition-all font-body rounded-t-lg resize-none" id="description" placeholder="What is this key used for?" rows="2"></textarea>
+</div>
+<!-- Row: Expiration & Permissions -->
+<div class="grid grid-cols-2 gap-6">
+<!-- Expiration -->
+<div class="space-y-2">
+<label class="block text-xs font-bold uppercase tracking-widest text-secondary font-label" for="expiration">Expiration Date</label>
+<div class="relative">
+<select class="w-full appearance-none px-4 py-3 bg-surface-container-low border-0 border-b-2 border-outline-variant/30 focus:border-primary focus:ring-0 font-body rounded-t-lg pr-10" id="expiration">
+<option>Never</option>
+<option>30 days</option>
+<option>60 days</option>
+<option>90 days</option>
+</select>
+<span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-outline" data-icon="expand_more">expand_more</span>
+</div>
+</div>
+<!-- Permissions Toggles -->
+<div class="space-y-4">
+<label class="block text-xs font-bold uppercase tracking-widest text-secondary font-label">Permissions</label>
+<div class="space-y-3">
+<div class="flex items-center justify-between group">
+<span class="text-sm font-medium text-on-surface">Read</span>
+<button class="relative inline-flex h-5 w-10 shrink-0 cursor-pointer items-center rounded-full bg-primary-container transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2" type="button">
+<span class="translate-x-5 inline-block h-4 w-4 transform rounded-full bg-white transition-transform"></span>
+</button>
+</div>
+<div class="flex items-center justify-between group">
+<span class="text-sm font-medium text-on-surface">Write</span>
+<button class="relative inline-flex h-5 w-10 shrink-0 cursor-pointer items-center rounded-full bg-outline-variant transition-colors" type="button">
+<span class="translate-x-1 inline-block h-4 w-4 transform rounded-full bg-white transition-transform"></span>
+</button>
+</div>
+<div class="flex items-center justify-between group">
+<span class="text-sm font-medium text-on-surface">Admin</span>
+<button class="relative inline-flex h-5 w-10 shrink-0 cursor-pointer items-center rounded-full bg-outline-variant transition-colors" type="button">
+<span class="translate-x-1 inline-block h-4 w-4 transform rounded-full bg-white transition-transform"></span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Warning Box -->
+<div class="flex gap-4 p-4 bg-tertiary-fixed rounded-xl border-l-4 border-tertiary">
+<span class="material-symbols-outlined text-tertiary" data-icon="warning" style="font-variation-settings: 'FILL' 1;">warning</span>
+<div class="space-y-1">
+<p class="text-xs font-bold text-on-tertiary-fixed uppercase tracking-wider">Security Warning</p>
+<p class="text-xs text-on-tertiary-fixed-variant leading-relaxed">For your protection, this key will only be shown <span class="font-bold underline">once</span>. Make sure to copy it immediately and store it in a secure location.</p>
+</div>
+</div>
+</form>
+</div>
+<!-- Modal Footer -->
+<div class="p-6 px-8 bg-surface-container-low flex justify-end items-center gap-4">
+<button class="px-6 py-2.5 text-sm font-semibold text-secondary hover:bg-slate-200 rounded-lg transition-colors">
+                    Cancel
+                </button>
+<button class="px-8 py-2.5 text-sm font-bold text-white bg-gradient-to-r from-primary to-primary-container rounded-lg shadow-lg shadow-primary/20 hover:brightness-110 active:scale-95 transition-all">
+                    Create Key
+                </button>
+</div>
+</div>
+</div>
+</body></html>

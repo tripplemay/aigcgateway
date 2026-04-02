@@ -20,7 +20,6 @@ import {
 import Link from "next/link";
 import { EmptyState } from "@/components/empty-state";
 import { Skeleton } from "@/components/ui/skeleton";
-import "material-symbols/outlined.css";
 
 // ============================================================
 // Types (unchanged)

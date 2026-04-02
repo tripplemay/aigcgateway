@@ -2,7 +2,6 @@
 import { useEffect, useState, useMemo } from "react";
 import { useTranslations } from "next-intl";
 import { formatContext } from "@/lib/utils";
-import "material-symbols/outlined.css";
 
 // ============================================================
 // Types & helpers (unchanged)

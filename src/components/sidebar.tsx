@@ -3,7 +3,6 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { useTranslations } from "next-intl";
-import "material-symbols/outlined.css";
 
 /*
  * Sidebar — strict 1:1 replica of Layout Shell code.html lines 86-142.

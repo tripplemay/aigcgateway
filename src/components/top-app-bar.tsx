@@ -2,7 +2,6 @@
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { useLocale } from "@/hooks/use-locale";
-import "material-symbols/outlined.css";
 
 /*
  * TopAppBar — strict 1:1 replica of Layout Shell code.html lines 146-182.

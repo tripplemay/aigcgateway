@@ -4,7 +4,6 @@ import { useTranslations } from "next-intl";
 import { apiFetch } from "@/lib/api-client";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
-import "material-symbols/outlined.css";
 
 // ============================================================
 // Types

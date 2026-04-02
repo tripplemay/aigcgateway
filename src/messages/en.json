@@ -370,7 +370,9 @@
   },
   "adminUsage": {
     "title": "Global Usage",
+    "totalCalls": "Total Calls",
     "revenue": "Revenue",
+    "cost": "Cost",
     "margin": "Margin",
     "revenueByProvider": "Revenue by Provider",
     "callsByModel": "Calls by Model",

@@ -8,7 +8,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState } from "@/components/empty-state";
 import { toast } from "sonner";
 import Link from "next/link";
-import "material-symbols/outlined.css";
 
 interface KeyDetail {
   id: string;

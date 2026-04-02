@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Usage Logs | AIGC Gateway</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "on-primary-fixed-variant": "#4431a8",
+              "surface-container-high": "#e2e7ff",
+              "on-primary-container": "#f6f1ff",
+              "background": "#faf8ff",
+              "on-tertiary": "#ffffff",
+              "tertiary-fixed": "#ffddba",
+              "primary-fixed-dim": "#c8bfff",
+              "surface-bright": "#faf8ff",
+              "inverse-on-surface": "#eef0ff",
+              "on-background": "#131b2e",
+              "tertiary-container": "#9d6100",
+              "on-secondary-fixed-variant": "#47416e",
+              "outline-variant": "#c9c4d5",
+              "primary-container": "#6d5dd3",
+              "on-error-container": "#93000a",
+              "inverse-surface": "#283044",
+              "tertiary-fixed-dim": "#ffb964",
+              "primary-fixed": "#e5deff",
+              "on-tertiary-fixed": "#2b1700",
+              "tertiary": "#7c4b00",
+              "surface-container-highest": "#dae2fd",
+              "on-tertiary-container": "#fff0e4",
+              "on-surface": "#131b2e",
+              "error": "#ba1a1a",
+              "secondary-fixed": "#e5deff",
+              "inverse-primary": "#c8bfff",
+              "surface-variant": "#dae2fd",
+              "on-secondary": "#ffffff",
+              "surface-container": "#eaedff",
+              "outline": "#787584",
+              "secondary": "#5f5987",
+              "on-primary": "#ffffff",
+              "secondary-fixed-dim": "#c8c0f5",
+              "on-surface-variant": "#474553",
+              "surface-container-low": "#f2f3ff",
+              "secondary-container": "#d0c9fe",
+              "primary": "#5443b9",
+              "surface-container-lowest": "#ffffff",
+              "on-tertiary-fixed-variant": "#663e00",
+              "error-container": "#ffdad6",
+              "surface": "#faf8ff",
+              "on-secondary-container": "#585280",
+              "on-error": "#ffffff",
+              "on-secondary-fixed": "#1b153f",
+              "on-primary-fixed": "#190064",
+              "surface-tint": "#5c4cc1",
+              "surface-dim": "#d2d9f4"
+            },
+            fontFamily: {
+              "headline": ["Manrope"],
+              "body": ["Inter"],
+              "label": ["Inter"]
+            },
+            borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+          },
+        },
+      }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+        h1, h2, h3, .font-headline { font-family: 'Manrope', sans-serif; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+    </style>
+</head>
+<body class="bg-background text-on-background selection:bg-primary-fixed selection:text-on-primary-fixed">
+<!-- SideNavBar -->
+<aside class="fixed h-full w-64 left-0 top-0 bg-slate-50 flex flex-col h-screen py-6 px-4 z-50">
+<div class="mb-10 px-2">
+<h1 class="text-xl font-bold tracking-tight text-indigo-700">AIGC Gateway</h1>
+<p class="text-xs font-medium text-slate-500 font-label">Algorithmic Atelier</p>
+</div>
+<nav class="flex-1 space-y-2">
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 font-medium hover:bg-slate-200 transition-colors duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="font-label">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 font-medium hover:bg-slate-200 transition-colors duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="model_training">model_training</span>
+<span class="font-label">Models</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 font-medium hover:bg-slate-200 transition-colors duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="vpn_key">vpn_key</span>
+<span class="font-label">API Keys</span>
+</a>
+<a class="relative bg-indigo-50 text-indigo-700 before:absolute before:left-0 before:w-1 before:h-6 before:bg-indigo-600 before:rounded-r-full flex items-center gap-3 px-3 py-2.5 rounded-lg font-medium transition-colors duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="terminal">terminal</span>
+<span class="font-label">Usage Logs</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 font-medium hover:bg-slate-200 transition-colors duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="font-label">Settings</span>
+</a>
+</nav>
+<div class="mt-auto space-y-2 pt-6">
+<button class="w-full bg-gradient-to-r from-primary to-primary-container text-white py-2.5 rounded-xl font-bold text-sm shadow-lg shadow-primary/20 mb-4 transition-transform active:scale-[0.98]">
+                New Project
+            </button>
+<a class="flex items-center gap-3 px-3 py-2 text-slate-600 font-medium hover:bg-slate-200 transition-colors duration-200 rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="menu_book">menu_book</span>
+<span class="text-sm">Documentation</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-slate-600 font-medium hover:bg-slate-200 transition-colors duration-200 rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="support_agent">support_agent</span>
+<span class="text-sm">Support</span>
+</a>
+</div>
+</aside>
+<!-- TopNavBar -->
+<header class="sticky top-0 w-full z-40 bg-white/80 backdrop-blur-xl flex items-center justify-between h-16 px-8 ml-64 border-none shadow-sm">
+<div class="flex items-center gap-6">
+<div class="relative">
+<span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 material-symbols-outlined scale-75">search</span>
+<input class="bg-surface-container-low border-none rounded-full pl-10 pr-4 py-1.5 text-sm w-64 focus:ring-2 focus:ring-primary/20 placeholder:text-slate-400" placeholder="Search traces..." type="text"/>
+</div>
+<nav class="hidden lg:flex items-center gap-8">
+<a class="text-slate-500 font-medium text-sm hover:text-indigo-500 transition-all" href="#">Global View</a>
+<a class="text-slate-500 font-medium text-sm hover:text-indigo-500 transition-all" href="#">Endpoints</a>
+<a class="text-slate-500 font-medium text-sm hover:text-indigo-500 transition-all" href="#">Security</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<button class="p-2 text-slate-500 hover:bg-slate-100 rounded-full transition-colors">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<button class="p-2 text-slate-500 hover:bg-slate-100 rounded-full transition-colors">
+<span class="material-symbols-outlined" data-icon="help_outline">help_outline</span>
+</button>
+<div class="h-8 w-8 rounded-full overflow-hidden border border-slate-200">
+<img alt="User Avatar" class="h-full w-full object-cover" data-alt="Modern geometric avatar of a technical professional with a clean minimalist aesthetic" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBgCLw2tqV2MFR2Aa1WTWC1NwNnDgAvg02_qkMB1kkoy-3zyb__Sbp_QCyPOIKIYsSl_HI71pyHIWySp_sg60sAN7_ARrUE7H-dDJ8k6MmYfZS9vXeCX52XbKx5SkOVtHBO0hIxg4rQe4EJng8qL2RUWqnhXWH5w7xnntTACv3uX4YiV9abgpV8jQ3xNClzfn377X9XTbcsCS-57FnTRs6cF2M_4LwP0-KloCbiaDkzX75ZIlHaE6WUCPrULdIzNms-Q6B3vbJPB7Y"/>
+</div>
+<button class="bg-primary text-on-primary px-4 py-1.5 rounded-full text-sm font-semibold hover:opacity-90 transition-all">
+                Deploy Model
+            </button>
+</div>
+</header>
+<main class="ml-64 p-8">
+<!-- Page Header & Filters -->
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8">
+<div>
+<h2 class="text-3xl font-extrabold tracking-tight font-headline text-on-surface">Usage Logs</h2>
+<p class="text-slate-500 font-medium mt-1">Real-time observability and inference telemetry</p>
+</div>
+<div class="flex flex-wrap items-center gap-3">
+<div class="flex bg-surface-container-low p-1 rounded-xl">
+<button class="px-4 py-1.5 text-xs font-bold uppercase tracking-wider text-indigo-700 bg-white rounded-lg shadow-sm">All</button>
+<button class="px-4 py-1.5 text-xs font-bold uppercase tracking-wider text-slate-500 hover:text-slate-700">Success</button>
+<button class="px-4 py-1.5 text-xs font-bold uppercase tracking-wider text-slate-500 hover:text-slate-700">Errors</button>
+</div>
+<button class="flex items-center gap-2 bg-surface-container-low px-4 py-2 rounded-xl text-sm font-semibold text-slate-600 hover:bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined text-sm">calendar_today</span>
+                    Last 24 Hours
+                </button>
+<button class="flex items-center gap-2 bg-surface-container-low px-4 py-2 rounded-xl text-sm font-semibold text-slate-600 hover:bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined text-sm">filter_list</span>
+                    More Filters
+                </button>
+</div>
+</div>
+<!-- Logs Table Layout -->
+<div class="bg-surface-container-lowest rounded-2xl overflow-hidden shadow-sm">
+<table class="w-full text-left border-collapse">
+<thead class="bg-surface-container-low/50 border-none">
+<tr>
+<th class="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-400">Time</th>
+<th class="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-400">Trace ID</th>
+<th class="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-400">Model</th>
+<th class="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-400">Preview</th>
+<th class="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-400">Status</th>
+<th class="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-400">Tokens</th>
+<th class="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-400 text-right">Cost</th>
+<th class="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-400 text-right">Latency</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-slate-50">
+<!-- Row 1 -->
+<tr class="hover:bg-surface-container-low group cursor-pointer transition-colors border-none">
+<td class="px-6 py-4 whitespace-nowrap">
+<span class="text-xs font-semibold text-slate-400">14:02:33.102</span>
+</td>
+<td class="px-6 py-4">
+<span class="text-sm font-mono text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded">tr_8k2n9...</span>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+<span class="text-xs font-bold text-slate-700">gpt-4o-mini</span>
+</div>
+</td>
+<td class="px-6 py-4 max-w-[240px]">
+<p class="text-xs text-slate-500 truncate">Explain quantum computing to a 5-year-old using only fruit metaphors...</p>
+</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-tight bg-green-100 text-green-700">200 OK</span>
+</td>
+<td class="px-6 py-4">
+<span class="text-xs font-medium text-slate-600">1,204</span>
+</td>
+<td class="px-6 py-4 text-right">
+<span class="text-xs font-medium text-slate-600">$0.0018</span>
+</td>
+<td class="px-6 py-4 text-right">
+<span class="text-xs font-medium text-slate-600">842ms</span>
+</td>
+</tr>
+<!-- Expanded Details Example (Row 2 Visual) -->
+<tr class="bg-indigo-50/30">
+<td class="p-0" colspan="8">
+<div class="px-8 py-8 flex flex-col gap-8">
+<div class="grid grid-cols-4 gap-6">
+<div class="bg-white p-4 rounded-xl shadow-sm border border-indigo-100/50">
+<p class="text-[10px] font-bold text-slate-400 uppercase mb-1">Trace ID</p>
+<p class="text-sm font-mono text-slate-800">tr_9z4m2_gateway_prod_001</p>
+</div>
+<div class="bg-white p-4 rounded-xl shadow-sm border border-indigo-100/50">
+<p class="text-[10px] font-bold text-slate-400 uppercase mb-1">Timestamp</p>
+<p class="text-sm font-medium text-slate-800">Oct 24, 2023 • 14:02:11</p>
+</div>
+<div class="bg-white p-4 rounded-xl shadow-sm border border-indigo-100/50">
+<p class="text-[10px] font-bold text-slate-400 uppercase mb-1">Total Tokens</p>
+<p class="text-sm font-medium text-slate-800">2,450 (180 prompt)</p>
+</div>
+<div class="bg-white p-4 rounded-xl shadow-sm border border-indigo-100/50">
+<p class="text-[10px] font-bold text-slate-400 uppercase mb-1">Cache Status</p>
+<p class="text-sm font-medium text-emerald-600 flex items-center gap-1">
+<span class="material-symbols-outlined text-sm">verified</span>
+                                            Hit (Edge)
+                                        </p>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-8">
+<div class="space-y-4">
+<h4 class="text-xs font-bold uppercase tracking-widest text-slate-500 flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">input</span> Prompt Messages
+                                        </h4>
+<div class="space-y-3">
+<div class="bg-slate-100/80 p-4 rounded-xl">
+<div class="flex items-center justify-between mb-2">
+<span class="text-[10px] font-bold px-2 py-0.5 bg-slate-200 text-slate-600 rounded">SYSTEM</span>
+</div>
+<p class="text-sm text-slate-600 italic">"You are a professional chef specializing in Italian molecular gastronomy."</p>
+</div>
+<div class="bg-white p-4 rounded-xl border border-slate-100">
+<div class="flex items-center justify-between mb-2">
+<span class="text-[10px] font-bold px-2 py-0.5 bg-indigo-100 text-indigo-700 rounded">USER</span>
+</div>
+<p class="text-sm text-slate-800">"Create a recipe for carbonara using espuma techniques."</p>
+</div>
+</div>
+</div>
+<div class="space-y-4">
+<h4 class="text-xs font-bold uppercase tracking-widest text-slate-500 flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">output</span> Model Response
+                                        </h4>
+<div class="bg-white p-6 rounded-xl border-l-4 border-indigo-500 shadow-sm relative">
+<span class="absolute top-4 right-4 text-[10px] font-bold text-indigo-400 uppercase">Assistant</span>
+<p class="text-sm text-slate-700 leading-relaxed">
+                                                To prepare Carbonara Espuma, start by emulsifying Pecorino Romano and Guanciale fat at exactly 65°C. Load into an iSi siphon with dual N2O charges. The result is a weightless silk texture that maintains the traditional flavor profile while...
+                                            </p>
+<div class="mt-4 pt-4 border-t border-slate-50 flex items-center justify-between">
+<span class="text-[10px] text-slate-400">Finish Reason: Stop</span>
+<button class="text-[10px] font-bold text-indigo-600 hover:underline">Copy Response</button>
+</div>
+</div>
+</div>
+</div>
+<div class="space-y-4">
+<h4 class="text-xs font-bold uppercase tracking-widest text-slate-500">JSON Parameters</h4>
+<div class="bg-[#1e1e2e] p-4 rounded-xl font-mono text-xs text-indigo-200 overflow-x-auto">
+<pre>{
+  "model": "gpt-4o",
+  "temperature": 0.7,
+  "max_tokens": 1000,
+  "top_p": 1,
+  "frequency_penalty": 0,
+  "presence_penalty": 0
+}</pre>
+</div>
+</div>
+</div>
+</td>
+</tr>
+<!-- Placeholder Rows -->
+<tr class="hover:bg-surface-container-low transition-colors border-none">
+<td class="px-6 py-4 whitespace-nowrap"><span class="text-xs font-semibold text-slate-400">14:01:55.991</span></td>
+<td class="px-6 py-4"><span class="text-sm font-mono text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded">tr_6l1x3...</span></td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-blue-500"></span>
+<span class="text-xs font-bold text-slate-700">claude-3-5-sonnet</span>
+</div>
+</td>
+<td class="px-6 py-4 max-w-[240px]"><p class="text-xs text-slate-500 truncate">Write a python script to scrape stock prices from Yahoo Finance...</p></td>
+<td class="px-6 py-4"><span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-tight bg-green-100 text-green-700">200 OK</span></td>
+<td class="px-6 py-4"><span class="text-xs font-medium text-slate-600">3,110</span></td>
+<td class="px-6 py-4 text-right"><span class="text-xs font-medium text-slate-600">$0.0093</span></td>
+<td class="px-6 py-4 text-right"><span class="text-xs font-medium text-slate-600">1,210ms</span></td>
+</tr>
+<!-- Repeated rows for 20 total - shorthand for layout purposes -->
+<tr class="hover:bg-surface-container-low transition-colors border-none">
+<td class="px-6 py-4 whitespace-nowrap"><span class="text-xs font-semibold text-slate-400">14:00:12.440</span></td>
+<td class="px-6 py-4"><span class="text-sm font-mono text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded">tr_2p9w4...</span></td>
+<td class="px-6 py-4"><div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-red-400"></span><span class="text-xs font-bold text-slate-700">dall-e-3</span></div></td>
+<td class="px-6 py-4 max-w-[240px]"><p class="text-xs text-slate-500 truncate">A futuristic city at night with neon lights and flying cars...</p></td>
+<td class="px-6 py-4"><span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-tight bg-red-100 text-red-700">429 RATE</span></td>
+<td class="px-6 py-4"><span class="text-xs font-medium text-slate-600">0</span></td>
+<td class="px-6 py-4 text-right"><span class="text-xs font-medium text-slate-600">$0.0000</span></td>
+<td class="px-6 py-4 text-right"><span class="text-xs font-medium text-slate-600">45ms</span></td>
+</tr>
+<!-- Additional repetitive rows to fill volume -->
+<tr class="hover:bg-surface-container-low transition-colors border-none opacity-80"><td class="px-6 py-4 whitespace-nowrap"><span class="text-xs font-semibold text-slate-300">13:58:45.102</span></td><td class="px-6 py-4"><span class="text-sm font-mono text-slate-400 bg-slate-50 px-2 py-0.5 rounded">tr_1v5r2...</span></td><td class="px-6 py-4"><div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-emerald-500"></span><span class="text-xs font-bold text-slate-500">gpt-4o</span></div></td><td class="px-6 py-4"><p class="text-xs text-slate-400 truncate">Customer support simulation for banking app...</p></td><td class="px-6 py-4"><span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-tight bg-slate-100 text-slate-500">200 OK</span></td><td class="px-6 py-4"><span class="text-xs font-medium text-slate-400">890</span></td><td class="px-6 py-4 text-right"><span class="text-xs font-medium text-slate-400">$0.0026</span></td><td class="px-6 py-4 text-right"><span class="text-xs font-medium text-slate-400">650ms</span></td></tr>
+<tr class="hover:bg-surface-container-low transition-colors border-none opacity-80"><td class="px-6 py-4 whitespace-nowrap"><span class="text-xs font-semibold text-slate-300">13:57:30.882</span></td><td class="px-6 py-4"><span class="text-sm font-mono text-slate-400 bg-slate-50 px-2 py-0.5 rounded">tr_9h4f5...</span></td><td class="px-6 py-4"><div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-emerald-500"></span><span class="text-xs font-bold text-slate-500">gpt-4o</span></div></td><td class="px-6 py-4"><p class="text-xs text-slate-400 truncate">Summarize the attached financial transcript...</p></td><td class="px-6 py-4"><span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-tight bg-slate-100 text-slate-500">200 OK</span></td><td class="px-6 py-4"><span class="text-xs font-medium text-slate-400">4,200</span></td><td class="px-6 py-4 text-right"><span class="text-xs font-medium text-slate-400">$0.0126</span></td><td class="px-6 py-4 text-right"><span class="text-xs font-medium text-slate-400">2,410ms</span></td></tr>
+</tbody>
+</table>
+<!-- Pagination -->
+<div class="px-6 py-4 bg-surface-container-low/30 flex items-center justify-between">
+<span class="text-xs font-medium text-slate-500">Showing 1-20 of 14,293 traces</span>
+<div class="flex items-center gap-1">
+<button class="p-1.5 rounded-lg hover:bg-white text-slate-400 transition-colors">
+<span class="material-symbols-outlined text-lg">chevron_left</span>
+</button>
+<button class="w-8 h-8 flex items-center justify-center rounded-lg bg-white shadow-sm text-indigo-600 font-bold text-xs">1</button>
+<button class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white text-slate-500 font-medium text-xs transition-colors">2</button>
+<button class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white text-slate-500 font-medium text-xs transition-colors">3</button>
+<span class="px-2 text-slate-400">...</span>
+<button class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white text-slate-500 font-medium text-xs transition-colors">715</button>
+<button class="p-1.5 rounded-lg hover:bg-white text-slate-400 transition-colors">
+<span class="material-symbols-outlined text-lg">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Metrics Grid (Asymmetric Insight Panel) -->
+<div class="mt-8 grid grid-cols-12 gap-6">
+<div class="col-span-12 lg:col-span-8 bg-surface-container-lowest p-6 rounded-2xl shadow-sm">
+<div class="flex items-center justify-between mb-6">
+<h3 class="font-headline font-bold text-on-surface">Recent Latency Trends</h3>
+<div class="flex gap-4">
+<div class="flex items-center gap-2">
+<span class="w-3 h-3 rounded-full bg-indigo-500"></span>
+<span class="text-[10px] font-bold text-slate-400 uppercase">Avg P95</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="w-3 h-3 rounded-full bg-emerald-400"></span>
+<span class="text-[10px] font-bold text-slate-400 uppercase">Median</span>
+</div>
+</div>
+</div>
+<!-- Visual Placeholder for a Chart -->
+<div class="h-48 w-full flex items-end justify-between gap-1">
+<div class="w-full bg-indigo-100 rounded-t-sm h-[60%]"></div>
+<div class="w-full bg-indigo-100 rounded-t-sm h-[45%]"></div>
+<div class="w-full bg-indigo-100 rounded-t-sm h-[70%]"></div>
+<div class="w-full bg-indigo-200 rounded-t-sm h-[85%]"></div>
+<div class="w-full bg-indigo-600 rounded-t-sm h-[40%]"></div>
+<div class="w-full bg-indigo-100 rounded-t-sm h-[55%]"></div>
+<div class="w-full bg-indigo-100 rounded-t-sm h-[65%]"></div>
+<div class="w-full bg-indigo-100 rounded-t-sm h-[75%]"></div>
+<div class="w-full bg-indigo-100 rounded-t-sm h-[30%]"></div>
+<div class="w-full bg-indigo-100 rounded-t-sm h-[90%]"></div>
+<div class="w-full bg-indigo-100 rounded-t-sm h-[50%]"></div>
+<div class="w-full bg-indigo-600 rounded-t-sm h-[60%]"></div>
+<div class="w-full bg-indigo-100 rounded-t-sm h-[40%]"></div>
+<div class="w-full bg-indigo-100 rounded-t-sm h-[70%]"></div>
+<div class="w-full bg-indigo-100 rounded-t-sm h-[85%]"></div>
+</div>
+</div>
+<div class="col-span-12 lg:col-span-4 flex flex-col gap-6">
+<div class="bg-indigo-600 p-6 rounded-2xl text-white shadow-xl shadow-indigo-200">
+<h4 class="text-[10px] font-bold uppercase tracking-widest opacity-70 mb-1">Cost Optimization</h4>
+<p class="text-2xl font-extrabold font-headline mb-4">Save up to 32%</p>
+<p class="text-xs opacity-90 leading-relaxed mb-6">Switching your frequent queries to <span class="font-bold underline">gpt-4o-mini</span> could significantly reduce your infra costs based on last 7 days of traffic.</p>
+<button class="w-full py-2 bg-white/20 hover:bg-white/30 backdrop-blur-md rounded-xl text-xs font-bold transition-colors">Apply Savings</button>
+</div>
+<div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+<div class="flex items-center justify-between mb-4">
+<h4 class="text-[10px] font-bold uppercase tracking-widest text-slate-400">Total Logs Volume</h4>
+<span class="material-symbols-outlined text-slate-300">analytics</span>
+</div>
+<p class="text-3xl font-extrabold font-headline text-on-surface">1.42M</p>
+<p class="text-[10px] font-bold text-emerald-600 mt-1">↑ 12% from last week</p>
+</div>
+</div>
+</div>
+</main>
+</body></html>

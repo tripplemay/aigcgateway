@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>AIGC Gateway - MCP Setup</title>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "on-primary-fixed-variant": "#4431a8",
+              "surface-container-high": "#e2e7ff",
+              "on-primary-container": "#f6f1ff",
+              "background": "#faf8ff",
+              "on-tertiary": "#ffffff",
+              "tertiary-fixed": "#ffddba",
+              "primary-fixed-dim": "#c8bfff",
+              "surface-bright": "#faf8ff",
+              "inverse-on-surface": "#eef0ff",
+              "on-background": "#131b2e",
+              "tertiary-container": "#9d6100",
+              "on-secondary-fixed-variant": "#47416e",
+              "outline-variant": "#c9c4d5",
+              "primary-container": "#6d5dd3",
+              "on-error-container": "#93000a",
+              "inverse-surface": "#283044",
+              "tertiary-fixed-dim": "#ffb964",
+              "primary-fixed": "#e5deff",
+              "on-tertiary-fixed": "#2b1700",
+              "tertiary": "#7c4b00",
+              "surface-container-highest": "#dae2fd",
+              "on-tertiary-container": "#fff0e4",
+              "on-surface": "#131b2e",
+              "error": "#ba1a1a",
+              "secondary-fixed": "#e5deff",
+              "inverse-primary": "#c8bfff",
+              "surface-variant": "#dae2fd",
+              "on-secondary": "#ffffff",
+              "surface-container": "#eaedff",
+              "outline": "#787584",
+              "secondary": "#5f5987",
+              "on-primary": "#ffffff",
+              "secondary-fixed-dim": "#c8c0f5",
+              "on-surface-variant": "#474553",
+              "surface-container-low": "#f2f3ff",
+              "secondary-container": "#d0c9fe",
+              "primary": "#5443b9",
+              "surface-container-lowest": "#ffffff",
+              "on-tertiary-fixed-variant": "#663e00",
+              "error-container": "#ffdad6",
+              "surface": "#faf8ff",
+              "on-secondary-container": "#585280",
+              "on-error": "#ffffff",
+              "on-secondary-fixed": "#1b153f",
+              "on-primary-fixed": "#190064",
+              "surface-tint": "#5c4cc1",
+              "surface-dim": "#d2d9f4"
+            },
+            fontFamily: {
+              "headline": ["Manrope"],
+              "body": ["Inter"],
+              "label": ["Inter"]
+            },
+            borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            display: inline-block;
+            line-height: 1;
+            width: 1em;
+            height: 1em;
+        }
+        body { font-family: 'Inter', sans-serif; }
+        h1, h2, h3, h4 { font-family: 'Manrope', sans-serif; }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(12px);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface">
+<!-- SideNavBar from JSON -->
+<aside class="fixed h-full w-64 left-0 top-0 bg-slate-50 dark:bg-slate-900 flex flex-col py-6 px-4 z-50">
+<div class="mb-10 px-2">
+<h1 class="text-xl font-bold tracking-tight text-indigo-700 dark:text-indigo-300">AIGC Gateway</h1>
+<p class="text-xs font-medium text-slate-500 tracking-wider uppercase opacity-70">Algorithmic Atelier</p>
+</div>
+<nav class="flex-1 space-y-2">
+<!-- Active Tab: API Keys (Mapped from Context) -->
+<a class="group flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors duration-200 text-slate-600 dark:text-slate-400 font-medium hover:bg-slate-200 dark:hover:bg-slate-800" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="text-sm">Dashboard</span>
+</a>
+<a class="group flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors duration-200 text-slate-600 dark:text-slate-400 font-medium hover:bg-slate-200 dark:hover:bg-slate-800" href="#">
+<span class="material-symbols-outlined" data-icon="model_training">model_training</span>
+<span class="text-sm">Models</span>
+</a>
+<!-- ACTIVE: API Keys -->
+<a class="group flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors duration-200 relative bg-indigo-50 dark:bg-indigo-900/20 text-indigo-700 dark:text-indigo-300 before:absolute before:left-0 before:w-1 before:h-6 before:bg-indigo-600 before:rounded-r-full" href="#">
+<span class="material-symbols-outlined" data-icon="vpn_key">vpn_key</span>
+<span class="text-sm">API Keys</span>
+</a>
+<a class="group flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors duration-200 text-slate-600 dark:text-slate-400 font-medium hover:bg-slate-200 dark:hover:bg-slate-800" href="#">
+<span class="material-symbols-outlined" data-icon="terminal">terminal</span>
+<span class="text-sm">Usage Logs</span>
+</a>
+<a class="group flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors duration-200 text-slate-600 dark:text-slate-400 font-medium hover:bg-slate-200 dark:hover:bg-slate-800" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="text-sm">Settings</span>
+</a>
+</nav>
+<div class="mt-auto space-y-2 pt-6 border-t border-slate-200/50">
+<button class="w-full mb-4 flex items-center justify-center gap-2 bg-gradient-to-r from-primary to-primary-container text-white py-2.5 rounded-xl font-semibold shadow-lg shadow-primary/20 hover:opacity-90 active:scale-[0.98] transition-all">
+<span class="material-symbols-outlined text-lg" data-icon="add">add</span>
+<span class="text-sm">New Project</span>
+</button>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-600 dark:text-slate-400 text-sm hover:bg-slate-200 transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="menu_book">menu_book</span>
+<span>Documentation</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-600 dark:text-slate-400 text-sm hover:bg-slate-200 transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="support_agent">support_agent</span>
+<span>Support</span>
+</a>
+</div>
+</aside>
+<!-- TopNavBar from JSON -->
+<header class="sticky top-0 w-full z-40 flex items-center justify-between h-16 px-8 ml-64 bg-white/80 dark:bg-slate-950/80 backdrop-blur-xl transition-all duration-300 ease-in-out">
+<div class="flex items-center gap-8">
+<div class="relative w-64">
+<span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 material-symbols-outlined text-lg" data-icon="search">search</span>
+<input class="w-full bg-slate-50 dark:bg-slate-900 border-none rounded-full py-1.5 pl-10 pr-4 text-sm focus:ring-2 focus:ring-primary/20" placeholder="Search Gateway..." type="text"/>
+</div>
+<nav class="flex gap-6">
+<a class="text-slate-500 dark:text-slate-400 text-sm font-medium hover:text-indigo-500 transition-colors" href="#">Global View</a>
+<a class="text-slate-500 dark:text-slate-400 text-sm font-medium hover:text-indigo-500 transition-colors" href="#">Endpoints</a>
+<a class="text-slate-500 dark:text-slate-400 text-sm font-medium hover:text-indigo-500 transition-colors" href="#">Security</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<button class="material-symbols-outlined p-2 text-slate-500 hover:bg-slate-100 rounded-full transition-colors" data-icon="notifications">notifications</button>
+<button class="material-symbols-outlined p-2 text-slate-500 hover:bg-slate-100 rounded-full transition-colors" data-icon="help_outline">help_outline</button>
+<div class="h-8 w-px bg-slate-200"></div>
+<button class="bg-primary text-white text-xs font-bold px-4 py-2 rounded-full hover:bg-primary-container transition-colors">Deploy Model</button>
+<img alt="User Avatar" class="w-8 h-8 rounded-full border border-slate-200" data-alt="Minimalist geometric user avatar with purple and blue accents and clean vector lines" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBDPCIih3TRu9Cb_1urPGmFK9upiLcN8UP-ViJWFWrZeN3r55IGuCRGbxx2j4X7swHtAqXihSqDQRP-8C0mhgqcukCqEHQ8v-7IsJFk8mK6eZbqvP9p5pJpWeQ4xxV_52i2FU80SFWUsU3X0fiTXFMuD088_K83J1vYttPLBr0F2SZxR5PAu0kyszqM_RERej6BMzZ2tGjnTyjpZKXrNYpybofdrHXDUcoyv9bdv3jqDoB4AfsIpJ1BqELnDJdsoNo2pOZSmt4Zczg"/>
+</div>
+</header>
+<!-- Main Canvas -->
+<main class="ml-64 p-10 max-w-7xl mx-auto">
+<!-- Page Header -->
+<header class="mb-12">
+<div class="flex items-center gap-3 mb-2">
+<span class="bg-indigo-100 text-indigo-700 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-widest">Setup Guide</span>
+<div class="h-px flex-1 bg-surface-container-high"></div>
+</div>
+<h2 class="text-4xl font-extrabold tracking-tight text-on-surface mb-2">MCP Setup Redesign</h2>
+<p class="text-slate-500 max-w-2xl">Connect your local development environment to the AIGC Gateway Model Context Protocol (MCP) in three simple steps.</p>
+</header>
+<!-- Bento Grid Layout -->
+<div class="grid grid-cols-12 gap-8">
+<!-- Step 1: API Key Selection -->
+<section class="col-span-12 lg:col-span-5 flex flex-col gap-6">
+<div class="bg-surface-container-lowest p-8 rounded-xl shadow-[0px_20px_40px_rgba(19,27,46,0.04)] relative overflow-hidden group">
+<div class="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-10 transition-opacity">
+<span class="material-symbols-outlined text-8xl" data-icon="key">key</span>
+</div>
+<div class="flex items-center gap-4 mb-6">
+<div class="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-white font-bold">1</div>
+<h3 class="text-xl font-bold">Select Active API Key</h3>
+</div>
+<div class="space-y-3">
+<label class="block">
+<div class="relative cursor-pointer group">
+<input checked="" class="peer absolute opacity-0" name="api_key" type="radio"/>
+<div class="p-4 rounded-xl border-2 border-transparent bg-surface-container-low peer-checked:border-primary peer-checked:bg-white transition-all flex items-center justify-between">
+<div>
+<p class="text-xs font-bold text-slate-400 mb-1 uppercase tracking-tighter">Production Main</p>
+<p class="font-mono text-sm">sk_live_••••••••39a2</p>
+</div>
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+<span class="text-[10px] font-bold text-emerald-600 uppercase">Active</span>
+</div>
+</div>
+</div>
+</label>
+<label class="block">
+<div class="relative cursor-pointer group">
+<input class="peer absolute opacity-0" name="api_key" type="radio"/>
+<div class="p-4 rounded-xl border-2 border-transparent bg-surface-container-low peer-checked:border-primary peer-checked:bg-white transition-all flex items-center justify-between">
+<div>
+<p class="text-xs font-bold text-slate-400 mb-1 uppercase tracking-tighter">Development Sandbox</p>
+<p class="font-mono text-sm">sk_test_••••••••11x9</p>
+</div>
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-slate-300"></span>
+<span class="text-[10px] font-bold text-slate-500 uppercase">Idle</span>
+</div>
+</div>
+</div>
+</label>
+</div>
+<button class="mt-6 w-full py-3 text-sm font-bold text-indigo-600 border border-indigo-100 rounded-xl hover:bg-indigo-50 transition-colors">
+                        Create New Key
+                    </button>
+</div>
+<!-- Tool Badges -->
+<div class="bg-surface-container-low p-8 rounded-xl">
+<div class="flex items-center gap-4 mb-6">
+<div class="w-10 h-10 rounded-full bg-primary-container flex items-center justify-center text-white font-bold">3</div>
+<h3 class="text-xl font-bold">Protocol Tools</h3>
+</div>
+<div class="grid grid-cols-1 gap-4">
+<div class="flex items-start gap-4 p-3 bg-white rounded-lg shadow-sm border border-slate-100/50">
+<div class="p-2 bg-indigo-50 text-indigo-600 rounded-lg">
+<span class="material-symbols-outlined" data-icon="list_alt">list_alt</span>
+</div>
+<div>
+<p class="text-sm font-bold">list_models</p>
+<p class="text-xs text-slate-500">Retrieves available AIGC gateways and configurations.</p>
+</div>
+</div>
+<div class="flex items-start gap-4 p-3 bg-white rounded-lg shadow-sm border border-slate-100/50">
+<div class="p-2 bg-indigo-50 text-indigo-600 rounded-lg">
+<span class="material-symbols-outlined" data-icon="forum">forum</span>
+</div>
+<div>
+<p class="text-sm font-bold">chat_completion</p>
+<p class="text-xs text-slate-500">Universal interface for LLM interaction across providers.</p>
+</div>
+</div>
+<div class="flex items-start gap-4 p-3 bg-white rounded-lg shadow-sm border border-slate-100/50">
+<div class="p-2 bg-indigo-50 text-indigo-600 rounded-lg">
+<span class="material-symbols-outlined" data-icon="image">image</span>
+</div>
+<div>
+<p class="text-sm font-bold">generate_image</p>
+<p class="text-xs text-slate-500">Prompt-to-image conversion via connected AIGC endpoints.</p>
+</div>
+</div>
+<div class="flex items-start gap-4 p-3 bg-white rounded-lg shadow-sm border border-slate-100/50">
+<div class="p-2 bg-indigo-50 text-indigo-600 rounded-lg">
+<span class="material-symbols-outlined" data-icon="data_object">data_object</span>
+</div>
+<div>
+<p class="text-sm font-bold">get_context</p>
+<p class="text-xs text-slate-500">Fetches metadata for current model state.</p>
+</div>
+</div>
+<div class="flex items-start gap-4 p-3 bg-white rounded-lg shadow-sm border border-slate-100/50">
+<div class="p-2 bg-indigo-50 text-indigo-600 rounded-lg">
+<span class="material-symbols-outlined" data-icon="memory">memory</span>
+</div>
+<div>
+<p class="text-sm font-bold">token_count</p>
+<p class="text-xs text-slate-500">Utility to estimate cost and context window usage.</p>
+</div>
+</div>
+<div class="flex items-start gap-4 p-3 bg-white rounded-lg shadow-sm border border-slate-100/50">
+<div class="p-2 bg-indigo-50 text-indigo-600 rounded-lg">
+<span class="material-symbols-outlined" data-icon="analytics">analytics</span>
+</div>
+<div>
+<p class="text-sm font-bold">fetch_logs</p>
+<p class="text-xs text-slate-500">Detailed audit trail for the selected API session.</p>
+</div>
+</div>
+<div class="flex items-start gap-4 p-3 bg-white rounded-lg shadow-sm border border-slate-100/50">
+<div class="p-2 bg-indigo-50 text-indigo-600 rounded-lg">
+<span class="material-symbols-outlined" data-icon="shield">shield</span>
+</div>
+<div>
+<p class="text-sm font-bold">verify_key</p>
+<p class="text-xs text-slate-500">Security check for current connection integrity.</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Step 2: Config Code Blocks -->
+<section class="col-span-12 lg:col-span-7">
+<div class="bg-surface-container-lowest p-8 rounded-xl shadow-[0px_20px_40px_rgba(19,27,46,0.04)] h-full border border-white/50">
+<div class="flex items-center justify-between mb-8">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-primary-container/20 text-primary flex items-center justify-center font-bold">2</div>
+<h3 class="text-xl font-bold">Configure Tooling</h3>
+</div>
+<div class="flex p-1 bg-surface-container rounded-lg">
+<button class="px-4 py-1.5 text-xs font-bold rounded-md bg-white shadow-sm text-indigo-600">Claude</button>
+<button class="px-4 py-1.5 text-xs font-bold rounded-md text-slate-500 hover:text-slate-800">Cursor</button>
+<button class="px-4 py-1.5 text-xs font-bold rounded-md text-slate-500 hover:text-slate-800">Generic</button>
+</div>
+</div>
+<div class="relative group">
+<div class="absolute top-4 right-4 z-10 flex gap-2">
+<button class="bg-slate-800 text-slate-400 p-2 rounded-lg hover:text-white transition-colors flex items-center gap-2">
+<span class="material-symbols-outlined text-sm" data-icon="content_copy">content_copy</span>
+<span class="text-[10px] font-bold uppercase tracking-widest">Copy Config</span>
+</button>
+</div>
+<div class="bg-slate-950 rounded-2xl p-6 pt-12 overflow-x-auto border border-slate-800 shadow-2xl">
+<pre class="text-sm font-mono leading-relaxed text-indigo-100"><code>{
+  "mcpServers": {
+    "aigc-gateway": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@aigc-gateway/mcp-server",
+        "--api-key",
+        "<span class="text-indigo-400">sk_live_••••••••39a2</span>",
+        "--region",
+        "us-east-1"
+      ],
+      "env": {
+        "DEBUG": "true",
+        "CACHE_DIR": "./.mcp-cache"
+      }
+    }
+  }
+}</code></pre>
+</div>
+</div>
+<!-- Visual Reinforcement / Graphic -->
+<div class="mt-12 p-8 rounded-2xl bg-indigo-50/50 border border-indigo-100 flex items-center gap-8">
+<div class="w-24 h-24 shrink-0 bg-white rounded-xl shadow-lg shadow-indigo-100/50 flex items-center justify-center">
+<span class="material-symbols-outlined text-4xl text-indigo-600" data-icon="dynamic_form">dynamic_form</span>
+</div>
+<div>
+<h4 class="font-bold text-indigo-900 mb-1">Dynamic Tool Injection</h4>
+<p class="text-sm text-indigo-700/70">By including this config, your IDE will automatically recognize and contextually suggest AIGC Gateway capabilities as first-class tools.</p>
+</div>
+</div>
+<div class="mt-8 flex justify-end">
+<button class="group flex items-center gap-2 bg-slate-900 text-white px-8 py-3 rounded-full font-bold hover:bg-black transition-all">
+<span>Finalize Installation</span>
+<span class="material-symbols-outlined group-hover:translate-x-1 transition-transform" data-icon="arrow_forward">arrow_forward</span>
+</button>
+</div>
+</div>
+</section>
+</div>
+<!-- Secondary Section: Visual Context -->
+<div class="mt-12 grid grid-cols-1 md:grid-cols-3 gap-8">
+<div class="relative h-48 rounded-xl overflow-hidden group">
+<img alt="Abstract data visualization" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" data-alt="Abstract 3D render of purple and blue glowing particles flowing in a dark digital space with shallow depth of field" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBNcwEbSlg22sBf84Bu3HU4b1rqjliJ1fqmfJMsaGW7Mzy9mh7QJ07p-we59RikVeaP-0E22X7gjMIVwODQaIapQ2KUubWpUXQ86kC1xbIG6B6XKg3fcqBV-tY9D-f6ZYjGOL35fCXwrHgXpppA9rycNHHMicSSNdaqxcr6yaJ6ABIEmOXmxMO5upiypDN3ld3YAIBSTjo09ZcilWCX3R9JHoehfnMdnDYT4OMlDnIVJPxZdzFSxGb_qVgDF2HYct-WjumGDV5dw20"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent p-6 flex flex-col justify-end">
+<h5 class="text-white font-bold">Latency Optimization</h5>
+<p class="text-white/60 text-xs">Edge-routing enabled for all MCP requests.</p>
+</div>
+</div>
+<div class="relative h-48 rounded-xl overflow-hidden group">
+<img alt="Cybersecurity circuit board" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" data-alt="Modern high-tech circuit board with glowing cyan lines and futuristic microchips on a dark metallic surface" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAcnqQ_dfanzmiVxjUz7HsBD0zmxPbW8JBfZtPiuYRgcgZOSuDOtBoWyVjH2ORtnqe3SyoDl8N4sMAqR4TWVyqRgNREO0qi8DA3kny-fZKQSYHDa3mxvgl4q2SFgacBxlWvga8Afee2GqDP5AzkxzeUdWqCd_AjYi09tN0gMK1YVW_rwjJLJrSsTyr6f1CfXYGFEncG9pAVmgLQPBu9twJj-ycpv-Vqwv7a5H5klspSGc70xKFwZcqEygc_OGzrwmdWRSM29YkmyQM"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent p-6 flex flex-col justify-end">
+<h5 class="text-white font-bold">End-to-End Encryption</h5>
+<p class="text-white/60 text-xs">Your local tools remain private and secure.</p>
+</div>
+</div>
+<div class="relative h-48 rounded-xl overflow-hidden group">
+<img alt="Global network" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" data-alt="Stunning view of earth at night from space showing global connectivity networks with golden lights and deep blue oceans" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCGni3XUIF8dkT5FDTbdVSiJumkFzEJ76PkulaQsVJnPUW8doIJOjLnb68LXfeCRWqOUDJMoGqDnzryRm0Dm2RepwUbjZ6A443kdL6asuJ-QwGRfAUOX66ItaEQkMmguzXSRtX8Ev2NuR7O-GOcB7ed2ewJXHGFrJdjojeXs2yqKZjHznaFLBP-WbYeO2Q_C6qDJitqQippi6MB4gFHp-ypTjBfFvxznY8_CQ4Zas6Az5DjRLiD_JQOGMIMTKTv81_jVqAdb-w3jYk"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent p-6 flex flex-col justify-end">
+<h5 class="text-white font-bold">Global Gateway</h5>
+<p class="text-white/60 text-xs">Switch between 50+ providers seamlessly.</p>
+</div>
+</div>
+</div>
+</main>
+</body></html>

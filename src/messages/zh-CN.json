@@ -370,7 +370,9 @@
   },
   "adminUsage": {
     "title": "全局用量",
+    "totalCalls": "总调用量",
     "revenue": "收入",
+    "cost": "成本",
     "margin": "利润",
     "revenueByProvider": "服务商收入",
     "callsByModel": "模型调用量",

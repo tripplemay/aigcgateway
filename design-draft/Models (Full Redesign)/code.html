@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>AIGC Gateway | Models</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&amp;family=Inter:wght@400;500;600&amp;family=JetBrains+Mono&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "on-primary-fixed-variant": "#4431a8",
+              "surface-container-high": "#e2e7ff",
+              "on-primary-container": "#f6f1ff",
+              "background": "#faf8ff",
+              "on-tertiary": "#ffffff",
+              "tertiary-fixed": "#ffddba",
+              "primary-fixed-dim": "#c8bfff",
+              "surface-bright": "#faf8ff",
+              "inverse-on-surface": "#eef0ff",
+              "on-background": "#131b2e",
+              "tertiary-container": "#9d6100",
+              "on-secondary-fixed-variant": "#47416e",
+              "outline-variant": "#c9c4d5",
+              "primary-container": "#6d5dd3",
+              "on-error-container": "#93000a",
+              "inverse-surface": "#283044",
+              "tertiary-fixed-dim": "#ffb964",
+              "primary-fixed": "#e5deff",
+              "on-tertiary-fixed": "#2b1700",
+              "tertiary": "#7c4b00",
+              "surface-container-highest": "#dae2fd",
+              "on-tertiary-container": "#fff0e4",
+              "on-surface": "#131b2e",
+              "error": "#ba1a1a",
+              "secondary-fixed": "#e5deff",
+              "inverse-primary": "#c8bfff",
+              "surface-variant": "#dae2fd",
+              "on-secondary": "#ffffff",
+              "surface-container": "#eaedff",
+              "outline": "#787584",
+              "secondary": "#5f5987",
+              "on-primary": "#ffffff",
+              "secondary-fixed-dim": "#c8c0f5",
+              "on-surface-variant": "#474553",
+              "surface-container-low": "#f2f3ff",
+              "secondary-container": "#d0c9fe",
+              "primary": "#5443b9",
+              "surface-container-lowest": "#ffffff",
+              "on-tertiary-fixed-variant": "#663e00",
+              "error-container": "#ffdad6",
+              "surface": "#faf8ff",
+              "on-secondary-container": "#585280",
+              "on-error": "#ffffff",
+              "on-secondary-fixed": "#1b153f",
+              "on-primary-fixed": "#190064",
+              "surface-tint": "#5c4cc1",
+              "surface-dim": "#d2d9f4"
+            },
+            fontFamily: {
+              "headline": ["Manrope"],
+              "body": ["Inter"],
+              "label": ["Inter"],
+              "mono": ["JetBrains Mono"]
+            },
+            borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+          },
+        },
+      }
+    </script>
+<style>
+      .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        vertical-align: middle;
+      }
+      body { font-family: 'Inter', sans-serif; }
+      h1, h2, h3, h4 { font-family: 'Manrope', sans-serif; }
+    </style>
+</head>
+<body class="bg-surface text-on-surface">
+<!-- SideNavBar Anchor -->
+<aside class="fixed h-full w-64 left-0 top-0 bg-slate-50 dark:bg-slate-900 flex flex-col py-6 px-4 z-50">
+<div class="mb-10 px-4">
+<span class="text-xl font-bold tracking-tight text-indigo-700 dark:text-indigo-300">AIGC Gateway</span>
+<p class="text-[10px] uppercase tracking-[0.2em] text-slate-400 font-bold mt-1">Algorithmic Atelier</p>
+</div>
+<nav class="flex-1 space-y-2">
+<!-- Dashboard -->
+<a class="flex items-center gap-3 px-4 py-2.5 rounded-xl text-slate-600 dark:text-slate-400 font-medium hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="text-sm">Dashboard</span>
+</a>
+<!-- Models (Active) -->
+<a class="relative flex items-center gap-3 px-4 py-2.5 rounded-xl bg-indigo-50 dark:bg-indigo-900/20 text-indigo-700 dark:text-indigo-300 before:absolute before:left-0 before:w-1 before:h-6 before:bg-indigo-600 before:rounded-r-full font-semibold" href="#">
+<span class="material-symbols-outlined" data-icon="model_training">model_training</span>
+<span class="text-sm">Models</span>
+</a>
+<!-- API Keys -->
+<a class="flex items-center gap-3 px-4 py-2.5 rounded-xl text-slate-600 dark:text-slate-400 font-medium hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="vpn_key">vpn_key</span>
+<span class="text-sm">API Keys</span>
+</a>
+<!-- Usage Logs -->
+<a class="flex items-center gap-3 px-4 py-2.5 rounded-xl text-slate-600 dark:text-slate-400 font-medium hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="terminal">terminal</span>
+<span class="text-sm">Usage Logs</span>
+</a>
+<!-- Settings -->
+<a class="flex items-center gap-3 px-4 py-2.5 rounded-xl text-slate-600 dark:text-slate-400 font-medium hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="text-sm">Settings</span>
+</a>
+</nav>
+<div class="mt-auto pt-6 space-y-1">
+<button class="w-full bg-gradient-to-br from-primary to-primary-container text-white py-3 rounded-xl font-bold text-sm shadow-lg shadow-indigo-500/20 mb-6 active:scale-[0.98] transition-transform">
+                New Project
+            </button>
+<a class="flex items-center gap-3 px-4 py-2 text-slate-500 hover:text-indigo-600 transition-colors" href="#">
+<span class="material-symbols-outlined text-xl" data-icon="menu_book">menu_book</span>
+<span class="text-xs font-semibold">Documentation</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-2 text-slate-500 hover:text-indigo-600 transition-colors" href="#">
+<span class="material-symbols-outlined text-xl" data-icon="support_agent">support_agent</span>
+<span class="text-xs font-semibold">Support</span>
+</a>
+</div>
+</aside>
+<!-- TopNavBar Anchor -->
+<header class="sticky top-0 w-full z-40 bg-white/80 backdrop-blur-xl flex items-center justify-between h-16 px-8 ml-64 border-none">
+<div class="flex items-center flex-1 max-w-xl">
+<div class="relative w-full">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline" data-icon="search">search</span>
+<input class="w-full bg-surface-container-low border-none rounded-full py-2 pl-10 pr-4 text-sm focus:ring-2 focus:ring-primary/20 placeholder:text-outline" placeholder="Search models, providers or endpoints..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-slate-500 hover:text-indigo-600 cursor-pointer" data-icon="notifications">notifications</span>
+<span class="material-symbols-outlined text-slate-500 hover:text-indigo-600 cursor-pointer" data-icon="help_outline">help_outline</span>
+</div>
+<button class="bg-primary text-white px-5 py-2 rounded-lg text-sm font-semibold hover:opacity-90 transition-all">
+                Deploy Model
+            </button>
+<div class="h-8 w-8 rounded-full bg-indigo-100 overflow-hidden ring-2 ring-white">
+<img alt="User Avatar" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCfgIqpQpF6o8y85BZiG8ceuuId8-G-mYdqQTNCuWK3fetu_1uFFqsEGgJvu97TBn6sQOWtQop8PVlA_Uut7Pk4bsEQOTBq0eilP5zXn53Jxra2UKDkT-hJA5hD2kbDpFGCiizeIOhuqWFPChNuaO7_t3iiFaqpFgfYhdQjZlabxkgBSYvU7lL6j73vjxn5sULYgFrRpxAiR1d8xATapPcTcl3okelGDpsnhDZgM5Y8gM_p0Ro0QNGrJEqBqnOh0SS9Op9MtIEJtvc"/>
+</div>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="ml-64 p-10 min-h-screen">
+<!-- Page Header -->
+<div class="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-4">
+<div>
+<h1 class="text-4xl font-extrabold tracking-tight text-on-surface mb-2">Model Inventory</h1>
+<p class="text-on-surface-variant font-medium">Explore and manage high-performance generative models across your multi-cloud architecture.</p>
+</div>
+<!-- Filters -->
+<div class="flex items-center bg-surface-container-low p-1.5 rounded-xl">
+<button class="px-5 py-2 text-sm font-bold bg-white text-primary rounded-lg shadow-sm">All</button>
+<button class="px-5 py-2 text-sm font-semibold text-on-surface-variant hover:text-primary transition-colors">Text</button>
+<button class="px-5 py-2 text-sm font-semibold text-on-surface-variant hover:text-primary transition-colors">Image</button>
+<button class="px-5 py-2 text-sm font-semibold text-on-surface-variant hover:text-primary transition-colors">Audio</button>
+</div>
+</div>
+<!-- Bento Grid Statistics -->
+<div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
+<div class="col-span-1 md:col-span-2 bg-surface-container-lowest p-6 rounded-xl shadow-[0px_20px_40px_rgba(19,27,46,0.04)] flex flex-col justify-between overflow-hidden relative">
+<div class="relative z-10">
+<span class="text-[10px] font-bold text-primary uppercase tracking-widest">Active Infrastructure</span>
+<h3 class="text-3xl font-extrabold mt-2">128 Total Models</h3>
+</div>
+<div class="mt-8 flex items-end gap-2 relative z-10">
+<div class="w-1/4 h-12 bg-primary/10 rounded-lg"></div>
+<div class="w-1/4 h-20 bg-primary/20 rounded-lg"></div>
+<div class="w-1/4 h-16 bg-primary/40 rounded-lg"></div>
+<div class="w-1/4 h-24 bg-primary rounded-lg"></div>
+</div>
+<!-- Decorative element -->
+<div class="absolute -right-12 -top-12 w-48 h-48 bg-indigo-50 rounded-full blur-3xl opacity-50"></div>
+</div>
+<div class="bg-surface-container-lowest p-6 rounded-xl shadow-[0px_20px_40px_rgba(19,27,46,0.04)]">
+<span class="text-[10px] font-bold text-tertiary uppercase tracking-widest">Optimization</span>
+<h3 class="text-3xl font-extrabold mt-2">1.2ms</h3>
+<p class="text-xs text-on-surface-variant mt-2">Avg. Latency Overhead</p>
+</div>
+<div class="bg-surface-container-lowest p-6 rounded-xl shadow-[0px_20px_40px_rgba(19,27,46,0.04)]">
+<span class="text-[10px] font-bold text-secondary uppercase tracking-widest">Global Reach</span>
+<h3 class="text-3xl font-extrabold mt-2">14</h3>
+<p class="text-xs text-on-surface-variant mt-2">Active Provider Regions</p>
+</div>
+</div>
+<!-- Models List Container -->
+<div class="space-y-6">
+<!-- Provider Group: OpenAI -->
+<div class="group">
+<div class="flex items-center justify-between mb-4 px-2">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-lg bg-black flex items-center justify-center">
+<span class="material-symbols-outlined text-white text-lg" data-icon="auto_awesome">auto_awesome</span>
+</div>
+<h2 class="text-xl font-bold tracking-tight">OpenAI</h2>
+<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-surface-container-high text-primary uppercase">Managed</span>
+</div>
+<button class="text-sm font-semibold text-primary hover:underline">Collapse</button>
+</div>
+<div class="bg-surface-container-lowest rounded-xl overflow-hidden shadow-[0px_20px_40px_rgba(19,27,46,0.02)] border border-outline-variant/10">
+<table class="w-full text-left border-collapse">
+<thead class="bg-surface-container-low border-b border-outline-variant/5">
+<tr>
+<th class="px-6 py-4 text-[10px] font-bold text-outline uppercase tracking-widest">Model ID</th>
+<th class="px-6 py-4 text-[10px] font-bold text-outline uppercase tracking-widest">Modality</th>
+<th class="px-6 py-4 text-[10px] font-bold text-outline uppercase tracking-widest">Context</th>
+<th class="px-6 py-4 text-[10px] font-bold text-outline uppercase tracking-widest">Pricing</th>
+<th class="px-6 py-4 text-[10px] font-bold text-outline uppercase tracking-widest text-right">Actions</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant/5">
+<tr class="hover:bg-surface-container-low transition-colors group/row">
+<td class="px-6 py-4">
+<div class="flex flex-col">
+<span class="font-mono text-sm font-semibold text-on-surface">gpt-4o</span>
+<span class="text-[10px] text-outline font-medium">Latest flagship model</span>
+</div>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-2">
+<span class="px-2 py-1 bg-indigo-50 text-indigo-600 rounded text-[10px] font-bold border border-indigo-100 uppercase">Text</span>
+<span class="px-2 py-1 bg-amber-50 text-amber-600 rounded text-[10px] font-bold border border-amber-100 uppercase">Vision</span>
+</div>
+</td>
+<td class="px-6 py-4">
+<span class="text-sm font-semibold text-on-surface-variant">128k <span class="text-outline font-normal">tokens</span></span>
+</td>
+<td class="px-6 py-4">
+<div class="flex flex-col">
+<span class="text-xs font-bold text-on-surface">$5.00 <span class="text-outline font-normal">/ 1M input</span></span>
+<span class="text-xs font-bold text-on-surface">$15.00 <span class="text-outline font-normal">/ 1M output</span></span>
+</div>
+</td>
+<td class="px-6 py-4 text-right">
+<button class="p-2 rounded-lg hover:bg-white text-outline group-hover/row:text-primary transition-colors">
+<span class="material-symbols-outlined" data-icon="settings_ethernet">settings_ethernet</span>
+</button>
+</td>
+</tr>
+<tr class="hover:bg-surface-container-low transition-colors group/row">
+<td class="px-6 py-4">
+<div class="flex flex-col">
+<span class="font-mono text-sm font-semibold text-on-surface">gpt-3.5-turbo-0125</span>
+<span class="text-[10px] text-outline font-medium">Efficient legacy tier</span>
+</div>
+</td>
+<td class="px-6 py-4">
+<span class="px-2 py-1 bg-indigo-50 text-indigo-600 rounded text-[10px] font-bold border border-indigo-100 uppercase">Text</span>
+</td>
+<td class="px-6 py-4">
+<span class="text-sm font-semibold text-on-surface-variant">16k <span class="text-outline font-normal">tokens</span></span>
+</td>
+<td class="px-6 py-4">
+<div class="flex flex-col">
+<span class="text-xs font-bold text-on-surface">$0.50 <span class="text-outline font-normal">/ 1M input</span></span>
+<span class="text-xs font-bold text-on-surface">$1.50 <span class="text-outline font-normal">/ 1M output</span></span>
+</div>
+</td>
+<td class="px-6 py-4 text-right">
+<button class="p-2 rounded-lg hover:bg-white text-outline group-hover/row:text-primary transition-colors">
+<span class="material-symbols-outlined" data-icon="settings_ethernet">settings_ethernet</span>
+</button>
+</td>
+</tr>
+<tr class="hover:bg-surface-container-low transition-colors group/row">
+<td class="px-6 py-4">
+<div class="flex flex-col">
+<span class="font-mono text-sm font-semibold text-on-surface">dall-e-3</span>
+<span class="text-[10px] text-outline font-medium">Creative image generation</span>
+</div>
+</td>
+<td class="px-6 py-4">
+<span class="px-2 py-1 bg-emerald-50 text-emerald-600 rounded text-[10px] font-bold border border-emerald-100 uppercase">Image</span>
+</td>
+<td class="px-6 py-4">
+<span class="text-sm font-semibold text-on-surface-variant">N/A</span>
+</td>
+<td class="px-6 py-4">
+<span class="text-xs font-bold text-on-surface">$0.040 <span class="text-outline font-normal">/ Standard image</span></span>
+</td>
+<td class="px-6 py-4 text-right">
+<button class="p-2 rounded-lg hover:bg-white text-outline group-hover/row:text-primary transition-colors">
+<span class="material-symbols-outlined" data-icon="settings_ethernet">settings_ethernet</span>
+</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<!-- Provider Group: Anthropic -->
+<div class="group">
+<div class="flex items-center justify-between mb-4 px-2">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-lg bg-orange-600 flex items-center justify-center">
+<span class="material-symbols-outlined text-white text-lg" data-icon="psychology">psychology</span>
+</div>
+<h2 class="text-xl font-bold tracking-tight">Anthropic</h2>
+<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-surface-container-high text-primary uppercase">Self-Hosted</span>
+</div>
+<button class="text-sm font-semibold text-primary hover:underline">Collapse</button>
+</div>
+<div class="bg-surface-container-lowest rounded-xl overflow-hidden shadow-[0px_20px_40px_rgba(19,27,46,0.02)] border border-outline-variant/10">
+<table class="w-full text-left border-collapse">
+<thead class="bg-surface-container-low border-b border-outline-variant/5">
+<tr>
+<th class="px-6 py-4 text-[10px] font-bold text-outline uppercase tracking-widest">Model ID</th>
+<th class="px-6 py-4 text-[10px] font-bold text-outline uppercase tracking-widest">Modality</th>
+<th class="px-6 py-4 text-[10px] font-bold text-outline uppercase tracking-widest">Context</th>
+<th class="px-6 py-4 text-[10px] font-bold text-outline uppercase tracking-widest">Pricing</th>
+<th class="px-6 py-4 text-[10px] font-bold text-outline uppercase tracking-widest text-right">Actions</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant/5">
+<tr class="hover:bg-surface-container-low transition-colors group/row">
+<td class="px-6 py-4">
+<div class="flex flex-col">
+<span class="font-mono text-sm font-semibold text-on-surface">claude-3-opus-20240229</span>
+<span class="text-[10px] text-outline font-medium">Deep reasoning flagship</span>
+</div>
+</td>
+<td class="px-6 py-4">
+<span class="px-2 py-1 bg-indigo-50 text-indigo-600 rounded text-[10px] font-bold border border-indigo-100 uppercase">Text</span>
+</td>
+<td class="px-6 py-4">
+<span class="text-sm font-semibold text-on-surface-variant">200k <span class="text-outline font-normal">tokens</span></span>
+</td>
+<td class="px-6 py-4">
+<div class="flex flex-col">
+<span class="text-xs font-bold text-on-surface">$15.00 <span class="text-outline font-normal">/ 1M input</span></span>
+<span class="text-xs font-bold text-on-surface">$75.00 <span class="text-outline font-normal">/ 1M output</span></span>
+</div>
+</td>
+<td class="px-6 py-4 text-right">
+<button class="p-2 rounded-lg hover:bg-white text-outline group-hover/row:text-primary transition-colors">
+<span class="material-symbols-outlined" data-icon="settings_ethernet">settings_ethernet</span>
+</button>
+</td>
+</tr>
+<tr class="hover:bg-surface-container-low transition-colors group/row">
+<td class="px-6 py-4">
+<div class="flex flex-col">
+<span class="font-mono text-sm font-semibold text-on-surface">claude-3-sonnet-20240229</span>
+<span class="text-[10px] text-outline font-medium">Balanced speed &amp; power</span>
+</div>
+</td>
+<td class="px-6 py-4">
+<span class="px-2 py-1 bg-indigo-50 text-indigo-600 rounded text-[10px] font-bold border border-indigo-100 uppercase">Text</span>
+</td>
+<td class="px-6 py-4">
+<span class="text-sm font-semibold text-on-surface-variant">200k <span class="text-outline font-normal">tokens</span></span>
+</td>
+<td class="px-6 py-4">
+<div class="flex flex-col">
+<span class="text-xs font-bold text-on-surface">$3.00 <span class="text-outline font-normal">/ 1M input</span></span>
+<span class="text-xs font-bold text-on-surface">$15.00 <span class="text-outline font-normal">/ 1M output</span></span>
+</div>
+</td>
+<td class="px-6 py-4 text-right">
+<button class="p-2 rounded-lg hover:bg-white text-outline group-hover/row:text-primary transition-colors">
+<span class="material-symbols-outlined" data-icon="settings_ethernet">settings_ethernet</span>
+</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<!-- Show All Button -->
+<div class="pt-8 flex justify-center">
+<button class="flex items-center gap-2 px-10 py-3 bg-surface-container-low text-primary font-bold rounded-xl hover:bg-surface-container-high transition-all border border-primary/10">
+                    Show All 128 Models
+                    <span class="material-symbols-outlined" data-icon="expand_more">expand_more</span>
+</button>
+</div>
+</div>
+<!-- Footer Section -->
+<footer class="mt-24 pt-12 border-t border-outline-variant/20 flex flex-col md:flex-row justify-between items-center gap-8">
+<div class="flex flex-col gap-2">
+<div class="flex items-center gap-3">
+<span class="text-lg font-bold text-indigo-700">AIGC Gateway</span>
+<span class="w-1 h-1 bg-outline rounded-full"></span>
+<span class="text-xs font-medium text-outline">v2.4.0-stable</span>
+</div>
+<p class="text-[10px] font-semibold text-outline tracking-wider uppercase">Managed by Algorithmic Atelier © 2024</p>
+</div>
+<div class="flex items-center gap-8">
+<div class="text-right">
+<span class="block text-[10px] font-bold text-outline uppercase">API Status</span>
+<span class="flex items-center gap-2 text-sm font-bold text-secondary">
+<span class="w-2 h-2 rounded-full bg-secondary"></span>
+                        All Systems Operational
+                    </span>
+</div>
+<div class="flex gap-4">
+<a class="w-10 h-10 rounded-full bg-surface-container-low flex items-center justify-center text-outline hover:text-primary hover:bg-white transition-all shadow-sm" href="#">
+<span class="material-symbols-outlined" data-icon="terminal">terminal</span>
+</a>
+<a class="w-10 h-10 rounded-full bg-surface-container-low flex items-center justify-center text-outline hover:text-primary hover:bg-white transition-all shadow-sm" href="#">
+<span class="material-symbols-outlined" data-icon="hub">hub</span>
+</a>
+</div>
+</div>
+</footer>
+</main>
+</body></html>

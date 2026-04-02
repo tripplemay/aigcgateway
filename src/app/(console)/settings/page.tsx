@@ -4,7 +4,6 @@ import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { apiFetch } from "@/lib/api-client";
 import { useRouter } from "next/navigation";
-import "material-symbols/outlined.css";
 
 export default function SettingsPage() {
   const t = useTranslations("settings");

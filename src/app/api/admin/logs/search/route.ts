@@ -15,16 +15,26 @@ export async function GET(request: Request) {
 
   if (!q) return errorResponse(400, "invalid_parameter", "q is required");
 
-  const tsQuery = q.split(/\s+/).filter(Boolean).join(" & ");
+  const likePattern = `%${q}%`;
 
-  // Full JOIN to return all fields needed by the page
-  const results = await prisma.$queryRaw<Array<{
-    traceId: string; projectName: string; projectId: string; modelName: string;
-    channelId: string; channelProvider: string; channelRealModelId: string;
-    status: string; promptTokens: number | null; completionTokens: number | null;
-    costPrice: number | null; sellPrice: number | null; latencyMs: number | null;
-    createdAt: Date;
-  }>>`
+  const results = await prisma.$queryRaw<
+    Array<{
+      traceId: string;
+      projectName: string;
+      projectId: string;
+      modelName: string;
+      channelId: string;
+      channelProvider: string;
+      channelRealModelId: string;
+      status: string;
+      promptTokens: number | null;
+      completionTokens: number | null;
+      costPrice: number | null;
+      sellPrice: number | null;
+      latencyMs: number | null;
+      createdAt: Date;
+    }>
+  >`
     SELECT cl."traceId", p.name AS "projectName", cl."projectId", cl."modelName",
            ch.id AS "channelId", prov.name AS "channelProvider", ch."realModelId" AS "channelRealModelId",
            cl.status, cl."promptTokens", cl."completionTokens",
@@ -34,7 +44,7 @@ export async function GET(request: Request) {
     JOIN projects p ON cl."projectId" = p.id
     JOIN channels ch ON cl."channelId" = ch.id
     JOIN providers prov ON ch."providerId" = prov.id
-    WHERE cl.search_vector @@ to_tsquery('simple', ${tsQuery})
+    WHERE cl."traceId" ILIKE ${likePattern} OR cl."modelName" ILIKE ${likePattern} OR p.name ILIKE ${likePattern}
     ORDER BY cl."createdAt" DESC
     LIMIT ${pageSize} OFFSET ${(page - 1) * pageSize}
   `;

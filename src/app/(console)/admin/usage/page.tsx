@@ -4,7 +4,6 @@ import { useTranslations } from "next-intl";
 import { apiFetch } from "@/lib/api-client";
 import { formatCurrency } from "@/lib/utils";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
-import "material-symbols/outlined.css";
 
 interface UsageSummary { totalCalls: number; totalRevenue: number; totalCost: number; margin: number; }
 interface ProviderData { provider: string; calls: number; cost: number; revenue: number; margin: number; marginPercent: number; }

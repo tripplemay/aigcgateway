@@ -38,7 +38,7 @@ export function registerListLogs(server: McpServer, opts: McpServerOptions): voi
 
       // Full-text search path
       if (search) {
-        const tsQuery = search.split(/\s+/).filter(Boolean).join(" & ");
+        const likePattern = `%${search}%`;
         const results = await prisma.$queryRaw<
           Array<{
             traceId: string;
@@ -53,7 +53,7 @@ export function registerListLogs(server: McpServer, opts: McpServerOptions): voi
         >`
           SELECT "traceId", "modelName", status, "sellPrice"::float, "latencyMs", "totalTokens", "createdAt", "promptSnapshot"
           FROM call_logs
-          WHERE "projectId" = ${projectId} AND search_vector @@ to_tsquery('simple', ${tsQuery})
+          WHERE "projectId" = ${projectId} AND ("traceId" ILIKE ${likePattern} OR "modelName" ILIKE ${likePattern})
           ORDER BY "createdAt" DESC LIMIT ${take}
         `;
 

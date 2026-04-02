@@ -2,7 +2,6 @@
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
-import "material-symbols/outlined.css";
 
 // ============================================================
 // Step data — code.html lines 172-255

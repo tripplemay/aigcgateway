@@ -6,7 +6,6 @@ import { useProject } from "@/hooks/use-project";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
 import Link from "next/link";
-import "material-symbols/outlined.css";
 
 // ============================================================
 // Types & config

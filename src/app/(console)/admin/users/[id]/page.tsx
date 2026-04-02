@@ -6,7 +6,6 @@ import { apiFetch } from "@/lib/api-client";
 import { formatCurrency } from "@/lib/utils";
 import { toast } from "sonner";
 import Link from "next/link";
-import "material-symbols/outlined.css";
 
 interface UserDetail {
   id: string;

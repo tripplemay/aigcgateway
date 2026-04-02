@@ -7,7 +7,6 @@ import { toast } from "sonner";
 import { formatCurrency, timeAgo } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState } from "@/components/empty-state";
-import "material-symbols/outlined.css";
 
 // ============================================================
 // Types (unchanged)

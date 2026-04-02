@@ -4,12 +4,13 @@ import { NextResponse } from "next/server";
 import { verifyJwt } from "@/lib/api/jwt-middleware";
 import { errorResponse } from "@/lib/api/errors";
 
-
 export async function GET(request: Request, { params }: { params: { id: string } }) {
   const auth = verifyJwt(request);
   if (!auth.ok) return auth.error;
 
-  const project = await prisma.project.findFirst({ where: { id: params.id, userId: auth.payload.userId } });
+  const project = await prisma.project.findFirst({
+    where: { id: params.id, userId: auth.payload.userId },
+  });
   if (!project) return errorResponse(404, "not_found", "Project not found");
 
   const url = new URL(request.url);
@@ -18,15 +19,22 @@ export async function GET(request: Request, { params }: { params: { id: string }
 
   const page = Math.max(1, Number(url.searchParams.get("page") ?? 1));
   const pageSize = Math.min(100, Number(url.searchParams.get("pageSize") ?? 20));
-  const tsQuery = q.split(/\s+/).filter(Boolean).join(" & ");
+  const likePattern = `%${q}%`;
 
-  const results = await prisma.$queryRaw<Array<{
-    traceId: string; modelName: string; status: string; sellPrice: number | null;
-    latencyMs: number | null; totalTokens: number | null; createdAt: Date;
-  }>>`
+  const results = await prisma.$queryRaw<
+    Array<{
+      traceId: string;
+      modelName: string;
+      status: string;
+      sellPrice: number | null;
+      latencyMs: number | null;
+      totalTokens: number | null;
+      createdAt: Date;
+    }>
+  >`
     SELECT "traceId", "modelName", status, "sellPrice"::float, "latencyMs", "totalTokens", "createdAt"
     FROM call_logs
-    WHERE "projectId" = ${params.id} AND search_vector @@ to_tsquery('simple', ${tsQuery})
+    WHERE "projectId" = ${params.id} AND ("traceId" ILIKE ${likePattern} OR "modelName" ILIKE ${likePattern})
     ORDER BY "createdAt" DESC LIMIT ${pageSize} OFFSET ${(page - 1) * pageSize}
   `;
 
