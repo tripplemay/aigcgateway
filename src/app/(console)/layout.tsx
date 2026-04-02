@@ -16,6 +16,7 @@ interface UserInfo {
 export default function ConsoleLayout({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<UserInfo | null>(null);
   const [projectName, setProjectName] = useState<string | undefined>(undefined);
+  const [walletBalance, setWalletBalance] = useState<string | undefined>(undefined);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
   const pathname = usePathname();
@@ -37,12 +38,17 @@ export default function ConsoleLayout({ children }: { children: React.ReactNode 
         return;
       }
 
-      // Load current project name for sidebar
+      // Load current project name + balance for sidebar
       apiFetch<{ data: { id: string; name: string }[] }>("/api/projects")
         .then((r) => {
           const saved = localStorage.getItem("projectId");
           const found = r.data.find((p) => p.id === saved) ?? r.data[0];
-          if (found) setProjectName(found.name);
+          if (found) {
+            setProjectName(found.name);
+            apiFetch<{ balance: number }>(`/api/projects/${found.id}/balance`)
+              .then((b) => setWalletBalance(`$${Number(b.balance).toFixed(2)}`))
+              .catch(() => {});
+          }
         })
         .catch(() => {});
     } catch {
@@ -75,15 +81,14 @@ export default function ConsoleLayout({ children }: { children: React.ReactNode 
           role={user.role}
           userName={user.name}
           projectName={projectName}
+          walletBalance={walletBalance}
         />
         {/* code.html line 144 */}
         <div className="ml-64 flex flex-col h-screen">
           {/* code.html line 146 */}
           <TopAppBar userName={user.name} />
           {/* code.html line 184 */}
-          <main className="flex-1 overflow-y-auto bg-ds-surface p-8">
-            {children}
-          </main>
+          <main className="flex-1 overflow-y-auto bg-ds-surface p-8">{children}</main>
         </div>
       </div>
       <Toaster richColors />
