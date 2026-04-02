@@ -21,7 +21,6 @@ import { runHealthCheck, type CheckResult } from "./checker";
 import { sendAlert } from "./alert";
 import type { RouteResult } from "../engine/types";
 
-
 const FAIL_THRESHOLD = Number(process.env.HEALTH_CHECK_FAIL_THRESHOLD ?? 3);
 const ACTIVE_INTERVAL = Number(process.env.HEALTH_CHECK_ACTIVE_INTERVAL_MS ?? 600_000);
 const STANDBY_INTERVAL = Number(process.env.HEALTH_CHECK_STANDBY_INTERVAL_MS ?? 1_800_000);
@@ -93,6 +92,9 @@ export async function cleanupOldRecords(): Promise<number> {
 // 调度逻辑
 // ============================================================
 
+/** 每轮最多同时检查的 channel 数，防止挤占连接池 */
+const MAX_CHECKS_PER_ROUND = 5;
+
 async function runScheduledChecks(): Promise<void> {
   const now = Date.now();
 
@@ -108,47 +110,66 @@ async function runScheduledChecks(): Promise<void> {
     },
   });
 
+  // 批量预查询：哪些 channel 在过去 1 小时 / 24 小时有调用
+  const oneHourAgo = new Date(now - 60 * 60 * 1000);
+  const oneDayAgo = new Date(now - 24 * 60 * 60 * 1000);
+  const [recentHour, recentDay] = await Promise.all([
+    prisma.callLog.groupBy({
+      by: ["channelId"],
+      where: { createdAt: { gte: oneHourAgo }, channelId: { not: undefined } },
+    }),
+    prisma.callLog.groupBy({
+      by: ["channelId"],
+      where: { createdAt: { gte: oneDayAgo }, channelId: { not: undefined } },
+    }),
+  ]);
+  const hourActive = new Set(recentHour.map((r) => r.channelId));
+  const dayActive = new Set(recentDay.map((r) => r.channelId));
+
+  // 筛选本轮需要检查的 channel（限制数量）
+  const dueChannels: Array<{ channel: (typeof channels)[0]; route: RouteResult }> = [];
+
   for (const channel of channels) {
     if (!channel.provider.config) continue;
+    if (dueChannels.length >= MAX_CHECKS_PER_ROUND) break;
 
     const lastCheckTime = channel.healthChecks[0]?.createdAt?.getTime() ?? 0;
-    const interval = await getCheckInterval(channel);
+    const interval = getCheckIntervalFast(channel, hourActive, dayActive);
     const elapsed = now - lastCheckTime;
 
     if (elapsed < interval) continue;
 
-    const route: RouteResult = {
+    dueChannels.push({
       channel,
-      provider: channel.provider,
-      config: channel.provider.config,
-      model: channel.model,
-    };
+      route: {
+        channel,
+        provider: channel.provider,
+        config: channel.provider.config,
+        model: channel.model,
+      },
+    });
+  }
 
+  // 逐个执行（不并发），避免连接池和事件循环压力
+  for (const { route } of dueChannels) {
     try {
       await executeCheckWithRetry(route);
     } catch (err) {
-      console.error(`[health-scheduler] check failed for ${channel.id}:`, err);
+      console.error(`[health-scheduler] check failed for ${route.channel.id}:`, err);
     }
   }
 }
 
-async function getCheckInterval(channel: Channel): Promise<number> {
+/** 纯内存版 — 不做 DB 查询，依赖批量预查询结果 */
+function getCheckIntervalFast(
+  channel: Channel,
+  hourActive: Set<string | null>,
+  dayActive: Set<string | null>,
+): number {
   if (channel.status === "DISABLED") return DISABLED_INTERVAL;
-
-  const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
-  const recentCallCount = await prisma.callLog.count({
-    where: { channelId: channel.id, createdAt: { gte: oneHourAgo } },
-  });
-  if (recentCallCount > 0) return ACTIVE_INTERVAL;
-
+  if (hourActive.has(channel.id)) return ACTIVE_INTERVAL;
   if (channel.priority > 1) return STANDBY_INTERVAL;
-
-  const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
-  const dayCallCount = await prisma.callLog.count({
-    where: { channelId: channel.id, createdAt: { gte: oneDayAgo } },
-  });
-  if (dayCallCount === 0) return COLD_INTERVAL;
-
+  if (!dayActive.has(channel.id)) return COLD_INTERVAL;
   return STANDBY_INTERVAL;
 }
 
@@ -217,10 +238,7 @@ async function handleFailure(route: RouteResult): Promise<void> {
 // 记录写入
 // ============================================================
 
-async function writeHealthRecords(
-  channelId: string,
-  results: CheckResult[],
-): Promise<void> {
+async function writeHealthRecords(channelId: string, results: CheckResult[]): Promise<void> {
   await prisma.healthCheck.createMany({
     data: results.map((r) => ({
       channelId,
@@ -237,10 +255,7 @@ async function writeHealthRecords(
 // 状态变更 + 告警
 // ============================================================
 
-async function updateChannelStatus(
-  route: RouteResult,
-  newStatus: ChannelStatus,
-): Promise<void> {
+async function updateChannelStatus(route: RouteResult, newStatus: ChannelStatus): Promise<void> {
   const oldStatus = route.channel.status;
   if (oldStatus === newStatus) return;
 
@@ -249,9 +264,7 @@ async function updateChannelStatus(
     data: { status: newStatus },
   });
 
-  console.log(
-    `[health] ${route.provider.name}/${route.model.name} ${oldStatus} → ${newStatus}`,
-  );
+  console.log(`[health] ${route.provider.name}/${route.model.name} ${oldStatus} → ${newStatus}`);
 
   await sendAlert({
     event: "channel_status_changed",
