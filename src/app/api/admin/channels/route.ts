@@ -3,17 +3,20 @@ import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/api/admin-guard";
 import { errorResponse } from "@/lib/api/errors";
+import {
+  getCachedChannels,
+  getInflightQuery,
+  setInflightQuery,
+  setCachedChannels,
+  clearInflightQuery,
+  invalidateChannelsCache,
+} from "./_cache";
 
-export async function GET(request: Request) {
-  const auth = requireAdmin(request);
-  if (!auth.ok) return auth.error;
-
-  const url = new URL(request.url);
-  const providerId = url.searchParams.get("providerId");
-  const modelId = url.searchParams.get("modelId");
-  const status = url.searchParams.get("status")?.toUpperCase();
-
-  // 查询 channels（不 include healthChecks，避免 N+1）
+async function queryChannelsJSON(
+  providerId: string | null,
+  modelId: string | null,
+  status: string | null,
+): Promise<string> {
   const channels = await prisma.channel.findMany({
     where: {
       ...(providerId ? { providerId } : {}),
@@ -43,7 +46,7 @@ export async function GET(request: Request) {
     }
   }
 
-  return NextResponse.json({
+  return JSON.stringify({
     data: channels.map((ch) => ({
       id: ch.id,
       providerName: ch.provider.displayName,
@@ -60,6 +63,65 @@ export async function GET(request: Request) {
       status: ch.status,
       lastHealthResult: healthMap.get(ch.id) ?? null,
     })),
+  });
+}
+
+export async function GET(request: Request) {
+  const auth = requireAdmin(request);
+  if (!auth.ok) return auth.error;
+
+  const url = new URL(request.url);
+  const providerId = url.searchParams.get("providerId");
+  const modelId = url.searchParams.get("modelId");
+  const status = url.searchParams.get("status")?.toUpperCase();
+
+  // 有过滤条件时跳过缓存，直接查 DB
+  const hasFilter = providerId || modelId || status;
+
+  if (!hasFilter) {
+    // 缓存命中
+    const cached = getCachedChannels();
+    if (cached) {
+      return new NextResponse(cached, {
+        status: 200,
+        headers: { "content-type": "application/json" },
+      });
+    }
+
+    // Singleflight：复用 inflight 查询
+    const existing = getInflightQuery();
+    if (existing) {
+      const json = await existing;
+      return new NextResponse(json, {
+        status: 200,
+        headers: { "content-type": "application/json" },
+      });
+    }
+
+    // 新查询
+    const promise = queryChannelsJSON(null, null, null)
+      .then((json) => {
+        setCachedChannels(json);
+        return json;
+      })
+      .finally(() => {
+        clearInflightQuery();
+      });
+
+    setInflightQuery(promise);
+
+    const json = await promise;
+    return new NextResponse(json, {
+      status: 200,
+      headers: { "content-type": "application/json" },
+    });
+  }
+
+  // 有过滤条件，直接查
+  const json = await queryChannelsJSON(providerId, modelId, status ?? null);
+  return new NextResponse(json, {
+    status: 200,
+    headers: { "content-type": "application/json" },
   });
 }
 
@@ -84,5 +146,6 @@ export async function POST(request: Request) {
     },
   });
 
+  invalidateChannelsCache();
   return NextResponse.json(channel, { status: 201 });
 }
