@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { timeAgo } from "@/lib/utils";
 import { EmptyState } from "@/components/empty-state";
 import { Skeleton } from "@/components/ui/skeleton";
+import Link from "next/link";
 
 // ============================================================
 // Types
@@ -41,6 +42,14 @@ export default function KeysPage() {
   // Create modal state
   const [createOpen, setCreateOpen] = useState(false);
   const [keyName, setKeyName] = useState("");
+  const [keyDescription, setKeyDescription] = useState("");
+  const [keyExpiration, setKeyExpiration] = useState("never");
+  const [keyPermissions, setKeyPermissions] = useState({
+    chatCompletion: true,
+    imageGeneration: true,
+    logAccess: true,
+    projectInfo: true,
+  });
   const [newKey, setNewKey] = useState<string | null>(null);
 
   // Revoke confirm state
@@ -60,9 +69,29 @@ export default function KeysPage() {
 
   const create = async () => {
     if (!current) return;
+    const expiresAt =
+      keyExpiration === "never"
+        ? null
+        : keyExpiration === "30d"
+          ? new Date(Date.now() + 30 * 86400000).toISOString()
+          : keyExpiration === "90d"
+            ? new Date(Date.now() + 90 * 86400000).toISOString()
+            : keyExpiration === "1y"
+              ? new Date(Date.now() + 365 * 86400000).toISOString()
+              : null;
+    const permissions: Record<string, boolean> = {};
+    if (!keyPermissions.chatCompletion) permissions.chatCompletion = false;
+    if (!keyPermissions.imageGeneration) permissions.imageGeneration = false;
+    if (!keyPermissions.logAccess) permissions.logAccess = false;
+    if (!keyPermissions.projectInfo) permissions.projectInfo = false;
     const r = await apiFetch<{ key: string }>(`/api/projects/${current.id}/keys`, {
       method: "POST",
-      body: JSON.stringify({ name: keyName || undefined }),
+      body: JSON.stringify({
+        name: keyName || undefined,
+        description: keyDescription || undefined,
+        expiresAt,
+        permissions: Object.keys(permissions).length > 0 ? permissions : undefined,
+      }),
     });
     setNewKey(r.key);
     toast.success(t("created_toast"));
@@ -181,6 +210,14 @@ export default function KeysPage() {
             <button
               onClick={() => {
                 setKeyName("");
+                setKeyDescription("");
+                setKeyExpiration("never");
+                setKeyPermissions({
+                  chatCompletion: true,
+                  imageGeneration: true,
+                  logAccess: true,
+                  projectInfo: true,
+                });
                 setNewKey(null);
                 setCreateOpen(true);
               }}
@@ -304,13 +341,12 @@ export default function KeysPage() {
                         <div className="flex justify-end gap-1">
                           {k.status === "ACTIVE" ? (
                             <>
-                              <button
-                                disabled
-                                className="p-2 text-slate-300 cursor-not-allowed rounded-lg"
-                                title="Coming soon"
+                              <Link
+                                href={`/keys/${k.id}`}
+                                className="p-2 text-slate-400 hover:text-ds-primary hover:bg-ds-primary/5 rounded-lg transition-all"
                               >
                                 <span className="material-symbols-outlined text-lg">edit</span>
-                              </button>
+                              </Link>
                               <button
                                 onClick={() => setRevokeId(k.id)}
                                 className="p-2 text-slate-400 hover:text-ds-error hover:bg-ds-error/5 rounded-lg transition-all"
@@ -552,36 +588,35 @@ export default function KeysPage() {
                       onChange={(e) => setKeyName(e.target.value)}
                     />
                   </div>
-                  {/* Description — disabled (backend not ready) */}
-                  <div className="space-y-1.5 opacity-50">
+                  {/* Description */}
+                  <div className="space-y-1.5">
                     <label className="text-[11px] font-bold uppercase tracking-widest text-ds-on-surface-variant block">
-                      {t("description")}{" "}
-                      <span className="text-ds-primary normal-case tracking-normal">
-                        ({t("comingSoon")})
-                      </span>
+                      {t("description")}
                     </label>
                     <textarea
-                      className="w-full bg-ds-surface-container-low border-none rounded-lg px-4 py-3 text-ds-on-surface text-sm outline-none resize-none cursor-not-allowed"
+                      className="w-full bg-ds-surface-container-low border-none rounded-lg px-4 py-3 text-ds-on-surface text-sm outline-none resize-none focus:ring-2 focus:ring-ds-primary-container transition-all"
                       placeholder={t("descriptionPlaceholder")}
                       rows={3}
-                      disabled
+                      value={keyDescription}
+                      onChange={(e) => setKeyDescription(e.target.value)}
                     />
                   </div>
-                  {/* Expiration & Permissions Grid — disabled */}
-                  <div className="grid grid-cols-2 gap-6 opacity-50">
+                  {/* Expiration & Permissions Grid */}
+                  <div className="grid grid-cols-2 gap-6">
                     <div className="space-y-1.5">
                       <label className="text-[11px] font-bold uppercase tracking-widest text-ds-on-surface-variant block">
-                        {t("expirationDate")}{" "}
-                        <span className="text-ds-primary normal-case tracking-normal">
-                          ({t("comingSoon")})
-                        </span>
+                        {t("expirationDate")}
                       </label>
                       <div className="relative">
                         <select
-                          disabled
-                          className="w-full bg-ds-surface-container-low border-none rounded-lg px-4 py-3 text-ds-on-surface text-sm appearance-none outline-none cursor-not-allowed"
+                          className="w-full bg-ds-surface-container-low border-none rounded-lg px-4 py-3 text-ds-on-surface text-sm appearance-none outline-none focus:ring-2 focus:ring-ds-primary-container transition-all"
+                          value={keyExpiration}
+                          onChange={(e) => setKeyExpiration(e.target.value)}
                         >
-                          <option>{t("neverExpires")}</option>
+                          <option value="never">{t("neverExpires")}</option>
+                          <option value="30d">30 days</option>
+                          <option value="90d">90 days</option>
+                          <option value="1y">1 year</option>
                         </select>
                         <span className="material-symbols-outlined absolute right-3 top-2.5 text-ds-on-surface-variant pointer-events-none">
                           expand_more
@@ -590,21 +625,33 @@ export default function KeysPage() {
                     </div>
                     <div className="space-y-1.5">
                       <label className="text-[11px] font-bold uppercase tracking-widest text-ds-on-surface-variant block">
-                        {t("permissions")}{" "}
-                        <span className="text-ds-primary normal-case tracking-normal">
-                          ({t("comingSoon")})
-                        </span>
+                        {t("permissions")}
                       </label>
                       <div className="flex flex-wrap gap-2 pt-1">
-                        <div className="px-3 py-1.5 rounded-lg border-2 border-ds-primary-container bg-ds-primary-container/10 text-[11px] font-bold text-ds-primary">
-                          {t("permRead")}
-                        </div>
-                        <div className="px-3 py-1.5 rounded-lg border-2 border-ds-outline-variant bg-transparent text-[11px] font-bold text-ds-on-surface-variant">
-                          {t("permWrite")}
-                        </div>
-                        <div className="px-3 py-1.5 rounded-lg border-2 border-ds-outline-variant bg-transparent text-[11px] font-bold text-ds-on-surface-variant">
-                          {t("permAdmin")}
-                        </div>
+                        {[
+                          { key: "chatCompletion" as const, label: "Chat" },
+                          { key: "imageGeneration" as const, label: "Image" },
+                          { key: "logAccess" as const, label: "Logs" },
+                          { key: "projectInfo" as const, label: "Info" },
+                        ].map((perm) => (
+                          <button
+                            key={perm.key}
+                            type="button"
+                            onClick={() =>
+                              setKeyPermissions((prev) => ({
+                                ...prev,
+                                [perm.key]: !prev[perm.key],
+                              }))
+                            }
+                            className={`px-3 py-1.5 rounded-lg border-2 text-[11px] font-bold transition-all ${
+                              keyPermissions[perm.key]
+                                ? "border-ds-primary-container bg-ds-primary-container/10 text-ds-primary"
+                                : "border-ds-outline-variant bg-transparent text-ds-on-surface-variant"
+                            }`}
+                          >
+                            {perm.label}
+                          </button>
+                        ))}
                       </div>
                     </div>
                   </div>
