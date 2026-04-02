@@ -469,6 +469,71 @@ export default function LogsPage() {
           </div>
         </div>
       </div>
+
+      {/* ═══ Metrics Grid (Asymmetric Insight Panel) — code.html lines 349-400 ═══ */}
+      <div className="mt-8 grid grid-cols-12 gap-6">
+        {/* Left: Latency Trends — lines 351-383 */}
+        <div className="col-span-12 lg:col-span-8 bg-ds-surface-container-lowest p-6 rounded-2xl shadow-sm">
+          <div className="flex items-center justify-between mb-6">
+            <h3 className="font-[var(--font-heading)] font-bold text-ds-on-surface">
+              Recent Latency Trends
+            </h3>
+            <div className="flex gap-4">
+              <div className="flex items-center gap-2">
+                <span className="w-3 h-3 rounded-full bg-indigo-500" />
+                <span className="text-[10px] font-bold text-slate-400 uppercase">Avg P95</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="w-3 h-3 rounded-full bg-emerald-400" />
+                <span className="text-[10px] font-bold text-slate-400 uppercase">Median</span>
+              </div>
+            </div>
+          </div>
+          {/* Faux chart bars — lines 366-382 */}
+          <div className="h-48 w-full flex items-end justify-between gap-1">
+            {[60, 45, 70, 85, 40, 55, 65, 75, 30, 90, 50, 60, 40, 70, 85].map((h, i) => (
+              <div
+                key={i}
+                className={`w-full rounded-t-sm ${i === 4 || i === 11 ? "bg-indigo-600" : i === 3 ? "bg-indigo-200" : "bg-indigo-100"}`}
+                style={{ height: `${h}%` }}
+              />
+            ))}
+          </div>
+        </div>
+        {/* Right: Insight Cards — lines 384-399 */}
+        <div className="col-span-12 lg:col-span-4 flex flex-col gap-6">
+          {/* Cost Optimization — lines 385-390 */}
+          <div className="bg-indigo-600 p-6 rounded-2xl text-white shadow-xl shadow-indigo-200">
+            <h4 className="text-[10px] font-bold uppercase tracking-widest opacity-70 mb-1">
+              Cost Optimization
+            </h4>
+            <p className="text-2xl font-extrabold font-[var(--font-heading)] mb-4">
+              Save up to 32%
+            </p>
+            <p className="text-xs opacity-90 leading-relaxed mb-6">
+              Switching your frequent queries to{" "}
+              <span className="font-bold underline">gpt-4o-mini</span> could significantly reduce
+              your infra costs based on last 7 days of traffic.
+            </p>
+            <button className="w-full py-2 bg-white/20 hover:bg-white/30 backdrop-blur-md rounded-xl text-xs font-bold transition-colors">
+              Apply Savings
+            </button>
+          </div>
+          {/* Total Logs Volume — lines 391-398 */}
+          <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+            <div className="flex items-center justify-between mb-4">
+              <h4 className="text-[10px] font-bold uppercase tracking-widest text-slate-400">
+                Total Logs Volume
+              </h4>
+              <span className="material-symbols-outlined text-slate-300">analytics</span>
+            </div>
+            <p className="text-3xl font-extrabold font-[var(--font-heading)] text-ds-on-surface">
+              {total > 1000 ? `${(total / 1000).toFixed(1)}K` : total}
+            </p>
+            <p className="text-[10px] font-bold text-emerald-600 mt-1">Total records</p>
+          </div>
+        </div>
+      </div>
     </>
   );
 }

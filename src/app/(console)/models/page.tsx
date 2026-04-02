@@ -24,18 +24,31 @@ interface ProviderGroup {
 }
 
 const PROVIDER_COLORS: Record<string, string> = {
-  openai: "#534AB7", anthropic: "#D85A30", deepseek: "#0F9D7A",
-  zhipu: "#185FA5", volcengine: "#E24B4A", siliconflow: "#0F9D7A", openrouter: "#888780",
+  openai: "#534AB7",
+  anthropic: "#D85A30",
+  deepseek: "#0F9D7A",
+  zhipu: "#185FA5",
+  volcengine: "#E24B4A",
+  siliconflow: "#0F9D7A",
+  openrouter: "#888780",
 };
 const PROVIDER_ABBR: Record<string, string> = {
-  openai: "OA", anthropic: "An", deepseek: "DS",
-  zhipu: "ZP", volcengine: "VE", siliconflow: "SF", openrouter: "OR",
+  openai: "OA",
+  anthropic: "An",
+  deepseek: "DS",
+  zhipu: "ZP",
+  volcengine: "VE",
+  siliconflow: "SF",
+  openrouter: "OR",
 };
 
 const MODELS_PER_PAGE = 20;
 
 function fmtPrice(p: Record<string, unknown>) {
-  if (p.unit === "call") { const v = Number(p.per_call ?? 0); return v === 0 ? "Free" : `$${v}/img`; }
+  if (p.unit === "call") {
+    const v = Number(p.per_call ?? 0);
+    return v === 0 ? "Free" : `$${v}/img`;
+  }
   const inp = Number(p.input_per_1m ?? 0);
   const out = Number(p.output_per_1m ?? 0);
   return inp === 0 && out === 0 ? "Free" : `$${inp} / $${out} /M`;
@@ -67,7 +80,9 @@ export default function ModelsPage() {
   }, [modality]);
 
   const grouped = useMemo(() => {
-    const filtered = models.filter((m) => !search || m.id.toLowerCase().includes(search.toLowerCase()));
+    const filtered = models.filter(
+      (m) => !search || m.id.toLowerCase().includes(search.toLowerCase()),
+    );
     const map = new Map<string, { displayName: string; models: ModelItem[] }>();
     for (const m of filtered) {
       const key = getProviderKey(m.id);
@@ -77,13 +92,15 @@ export default function ModelsPage() {
       group.models.push(m);
     }
     const groups: ProviderGroup[] = [];
-    for (const [name, val] of map) groups.push({ name, displayName: val.displayName, models: val.models });
+    for (const [name, val] of map)
+      groups.push({ name, displayName: val.displayName, models: val.models });
     return groups.sort((a, b) => a.name.localeCompare(b.name));
   }, [models, search]);
 
   const toggle = (set: Set<string>, id: string) => {
     const next = new Set(set);
-    if (next.has(id)) next.delete(id); else next.add(id);
+    if (next.has(id)) next.delete(id);
+    else next.add(id);
     return next;
   };
 
@@ -141,55 +158,45 @@ export default function ModelsPage() {
         </div>
       </div>
 
-      {/* ═══ Stats Cards ═══ */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-ds-surface-container-lowest p-6 rounded-xl shadow-sm">
-          <div className="flex items-center justify-between mb-4">
-            <span className="text-xs font-bold text-ds-outline uppercase tracking-widest">
-              Total Models
+      {/* ═══ Bento Grid Statistics — code.html lines 170-196 ═══ */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
+        {/* First card: col-span-2 — lines 172-185 */}
+        <div className="col-span-1 md:col-span-2 bg-ds-surface-container-lowest p-6 rounded-xl shadow-[0px_20px_40px_rgba(19,27,46,0.04)] flex flex-col justify-between overflow-hidden relative">
+          <div className="relative z-10">
+            <span className="text-[10px] font-bold text-ds-primary uppercase tracking-widest">
+              Active Infrastructure
             </span>
-            <span className="material-symbols-outlined text-ds-primary-container text-lg">
-              smart_toy
-            </span>
+            <h3 className="text-3xl font-extrabold mt-2 font-[var(--font-heading)]">
+              {totalModels} Total Models
+            </h3>
           </div>
-          <div className="text-3xl font-black font-[var(--font-heading)] text-ds-on-surface">
-            {totalModels}
+          {/* Mini bar chart — lines 177-182 */}
+          <div className="mt-8 flex items-end gap-2 relative z-10">
+            <div className="w-1/4 h-12 bg-ds-primary/10 rounded-lg" />
+            <div className="w-1/4 h-20 bg-ds-primary/20 rounded-lg" />
+            <div className="w-1/4 h-16 bg-ds-primary/40 rounded-lg" />
+            <div className="w-1/4 h-24 bg-ds-primary rounded-lg" />
           </div>
-          <div className="mt-2 text-[10px] font-bold text-ds-on-surface-variant">
-            {textModels} text · {imageModels} image
-          </div>
+          {/* Decorative — line 184 */}
+          <div className="absolute -right-12 -top-12 w-48 h-48 bg-indigo-50 rounded-full blur-3xl opacity-50" />
         </div>
-        <div className="bg-ds-surface-container-lowest p-6 rounded-xl shadow-sm">
-          <div className="flex items-center justify-between mb-4">
-            <span className="text-xs font-bold text-ds-outline uppercase tracking-widest">
-              Avg Latency
-            </span>
-            <span className="material-symbols-outlined text-ds-primary-container text-lg">
-              speed
-            </span>
-          </div>
-          <div className="text-3xl font-black font-[var(--font-heading)] text-ds-on-surface">
-            —
-          </div>
-          <div className="mt-2 text-[10px] font-bold text-ds-on-surface-variant">
-            Coming soon
-          </div>
+        {/* Optimization card — lines 186-190 */}
+        <div className="bg-ds-surface-container-lowest p-6 rounded-xl shadow-[0px_20px_40px_rgba(19,27,46,0.04)]">
+          <span className="text-[10px] font-bold text-ds-tertiary uppercase tracking-widest">
+            Optimization
+          </span>
+          <h3 className="text-3xl font-extrabold mt-2 font-[var(--font-heading)]">—</h3>
+          <p className="text-xs text-ds-on-surface-variant mt-2">Avg. Latency Overhead</p>
         </div>
-        <div className="bg-ds-surface-container-lowest p-6 rounded-xl shadow-sm">
-          <div className="flex items-center justify-between mb-4">
-            <span className="text-xs font-bold text-ds-outline uppercase tracking-widest">
-              Active Providers
-            </span>
-            <span className="material-symbols-outlined text-ds-primary-container text-lg">
-              hub
-            </span>
-          </div>
-          <div className="text-3xl font-black font-[var(--font-heading)] text-ds-on-surface">
+        {/* Active Providers card — lines 191-195 */}
+        <div className="bg-ds-surface-container-lowest p-6 rounded-xl shadow-[0px_20px_40px_rgba(19,27,46,0.04)]">
+          <span className="text-[10px] font-bold text-ds-secondary uppercase tracking-widest">
+            Active Providers
+          </span>
+          <h3 className="text-3xl font-extrabold mt-2 font-[var(--font-heading)]">
             {grouped.length}
-          </div>
-          <div className="mt-2 text-[10px] font-bold text-ds-on-surface-variant">
-            Provider groups
-          </div>
+          </h3>
+          <p className="text-xs text-ds-on-surface-variant mt-2">Provider groups</p>
         </div>
       </div>
 
@@ -199,11 +206,16 @@ export default function ModelsPage() {
           const expanded = expandedProviders.has(group.name);
           const bgColor = PROVIDER_COLORS[group.name] ?? "#888780";
           const abbr = PROVIDER_ABBR[group.name] ?? group.displayName.slice(0, 2);
-          const visibleModels = showAllModels.has(group.name) ? group.models : group.models.slice(0, MODELS_PER_PAGE);
+          const visibleModels = showAllModels.has(group.name)
+            ? group.models
+            : group.models.slice(0, MODELS_PER_PAGE);
           const hasMore = group.models.length > MODELS_PER_PAGE && !showAllModels.has(group.name);
 
           return (
-            <div key={group.name} className="bg-ds-surface-container-lowest rounded-xl shadow-sm overflow-hidden">
+            <div
+              key={group.name}
+              className="bg-ds-surface-container-lowest rounded-xl shadow-sm overflow-hidden"
+            >
               {/* Provider header */}
               <div
                 onClick={() => setExpandedProviders((s) => toggle(s, group.name))}
@@ -249,7 +261,9 @@ export default function ModelsPage() {
                       </span>
                       <span
                         className={`text-xs font-mono w-32 text-right ${
-                          fmtPrice(m.pricing) === "Free" ? "text-green-600 font-bold" : "text-slate-600"
+                          fmtPrice(m.pricing) === "Free"
+                            ? "text-green-600 font-bold"
+                            : "text-slate-600"
                         }`}
                       >
                         {fmtPrice(m.pricing)}
@@ -258,7 +272,13 @@ export default function ModelsPage() {
                   ))}
                   {hasMore && (
                     <button
-                      onClick={() => setShowAllModels((s) => { const n = new Set(s); n.add(group.name); return n; })}
+                      onClick={() =>
+                        setShowAllModels((s) => {
+                          const n = new Set(s);
+                          n.add(group.name);
+                          return n;
+                        })
+                      }
                       className="w-full py-3 text-xs font-bold text-ds-primary hover:underline"
                     >
                       {t("showAll", { count: group.models.length })}
