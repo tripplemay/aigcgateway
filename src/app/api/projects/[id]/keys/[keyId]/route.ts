@@ -15,12 +15,14 @@ async function verifyOwnership(request: Request, params: { id: string; keyId: st
   const project = await prisma.project.findFirst({
     where: { id: params.id, userId: auth.payload.userId },
   });
-  if (!project) return { ok: false as const, error: errorResponse(404, "not_found", "Project not found") };
+  if (!project)
+    return { ok: false as const, error: errorResponse(404, "not_found", "Project not found") };
 
   const apiKey = await prisma.apiKey.findFirst({
     where: { id: params.keyId, projectId: params.id },
   });
-  if (!apiKey) return { ok: false as const, error: errorResponse(404, "not_found", "API Key not found") };
+  if (!apiKey)
+    return { ok: false as const, error: errorResponse(404, "not_found", "API Key not found") };
 
   return { ok: true as const, project, apiKey };
 }
@@ -68,7 +70,11 @@ export async function PATCH(request: Request, { params }: Params) {
 
   // 不允许通过 PATCH 修改 status
   if ("status" in body) {
-    return errorResponse(400, "invalid_input", "status cannot be changed via PATCH. Use DELETE to revoke.");
+    return errorResponse(
+      400,
+      "invalid_input",
+      "status cannot be changed via PATCH. Use DELETE to revoke.",
+    );
   }
 
   const data: Record<string, unknown> = {};
@@ -83,10 +89,16 @@ export async function PATCH(request: Request, { params }: Params) {
     data.description = typeof body.description === "string" ? body.description : null;
   }
 
-  // permissions — 合并更新
+  // permissions — 空对象 {} 表示重置为全权限，非空则合并更新
   if ("permissions" in body && typeof body.permissions === "object" && body.permissions !== null) {
-    const current = (result.apiKey.permissions ?? {}) as Record<string, boolean>;
-    data.permissions = { ...current, ...(body.permissions as Record<string, boolean>) };
+    const incoming = body.permissions as Record<string, boolean>;
+    if (Object.keys(incoming).length === 0) {
+      // 空对象 = 重置为全权限（{} 等同于全放行）
+      data.permissions = {};
+    } else {
+      const current = (result.apiKey.permissions ?? {}) as Record<string, boolean>;
+      data.permissions = { ...current, ...incoming };
+    }
   }
 
   // expiresAt
@@ -128,7 +140,11 @@ export async function PATCH(request: Request, { params }: Params) {
       }
       data.ipWhitelist = body.ipWhitelist;
     } else {
-      return errorResponse(400, "invalid_input", "ipWhitelist must be an array of IPs/CIDRs or null");
+      return errorResponse(
+        400,
+        "invalid_input",
+        "ipWhitelist must be an array of IPs/CIDRs or null",
+      );
     }
   }
 

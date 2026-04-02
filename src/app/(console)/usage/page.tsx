@@ -59,7 +59,9 @@ export default function UsagePage() {
     const prevDays = days;
     Promise.all([
       apiFetch<Record<string, number>>(`/api/projects/${pid}/usage?period=${period}`),
-      apiFetch<Record<string, number>>(`/api/projects/${pid}/usage?period=${prevPeriod}&offset=${prevDays}`).catch(() => null),
+      apiFetch<Record<string, number>>(
+        `/api/projects/${pid}/usage?period=${prevPeriod}&offset=${prevDays}`,
+      ).catch(() => null),
       apiFetch<{ data: Array<Record<string, unknown>> }>(
         `/api/projects/${pid}/usage/daily?days=${days}`,
       ),
@@ -176,13 +178,16 @@ export default function UsagePage() {
                   <span className="material-symbols-outlined text-[12px]">
                     {card.trendData.isPositive ? "trending_up" : "trending_down"}
                   </span>
-                  {card.trendData.isPositive ? "+" : "-"}{card.trendData.pct}% vs last period
+                  {card.trendData.isPositive ? "+" : "-"}
+                  {card.trendData.pct}% vs last period
                 </div>
-              ) : (
+              ) : summary && (summary.totalCalls ?? 0) > 0 ? (
                 <div className="mt-2 text-[10px] font-bold text-ds-primary flex items-center gap-1">
                   <span className="material-symbols-outlined text-[12px]">horizontal_rule</span>
                   Stable activity
                 </div>
+              ) : (
+                <div className="mt-2 text-[10px] font-bold text-slate-400">—</div>
               )}
             </div>
           ))}
@@ -210,11 +215,7 @@ export default function UsagePage() {
                   axisLine={false}
                   tickLine={false}
                 />
-                <YAxis
-                  tick={{ fontSize: 10, fill: "#787584" }}
-                  axisLine={false}
-                  tickLine={false}
-                />
+                <YAxis tick={{ fontSize: 10, fill: "#787584" }} axisLine={false} tickLine={false} />
                 <Tooltip {...tooltipStyle} />
                 <Bar dataKey="calls" fill="#6d5dd3" opacity={0.2} radius={[4, 4, 0, 0]} />
                 <Bar dataKey="cost" fill="#5443b9" radius={[2, 2, 0, 0]} />
@@ -238,9 +239,7 @@ export default function UsagePage() {
           <h4 className="text-sm font-bold uppercase tracking-widest text-ds-outline mb-1">
             Workload
           </h4>
-          <p className="text-lg font-extrabold font-[var(--font-heading)] mb-8">
-            {t("byModel")}
-          </p>
+          <p className="text-lg font-extrabold font-[var(--font-heading)] mb-8">{t("byModel")}</p>
           <div className="relative flex-1 flex items-center justify-center min-h-[200px]">
             <ResponsiveContainer width={192} height={192}>
               <PieChart>
@@ -263,16 +262,18 @@ export default function UsagePage() {
               </PieChart>
             </ResponsiveContainer>
             <div className="absolute text-center">
-              <div className="text-2xl font-black font-[var(--font-heading)]">100%</div>
-              <div className="text-[10px] font-bold text-ds-outline uppercase">Utilized</div>
+              <div className="text-2xl font-black font-[var(--font-heading)]">
+                {totalModelCalls > 0 ? "100%" : "—"}
+              </div>
+              <div className="text-[10px] font-bold text-ds-outline uppercase">
+                {totalModelCalls > 0 ? "Utilized" : "No data"}
+              </div>
             </div>
           </div>
           <div className="mt-8 space-y-3">
             {byModel.slice(0, 5).map((m, i) => {
               const pct =
-                totalModelCalls > 0
-                  ? Math.round(((m.calls as number) / totalModelCalls) * 100)
-                  : 0;
+                totalModelCalls > 0 ? Math.round(((m.calls as number) / totalModelCalls) * 100) : 0;
               return (
                 <div key={m.model as string} className="flex items-center justify-between">
                   <div className="flex items-center gap-2">

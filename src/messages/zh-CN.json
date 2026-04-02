@@ -19,7 +19,9 @@
     "status": "状态",
     "copied": "已复制！",
     "saved": "已保存",
-    "never": "从未使用"
+    "never": "从未使用",
+    "of": "/",
+    "balance": "账户余额"
   },
   "sidebar": {
     "brand": "AIGC Gateway",
@@ -92,6 +94,7 @@
   },
   "dashboard": {
     "title": "仪表盘",
+    "subtitle": "AIGC 节点实时性能指标",
     "lowBalance": "余额不足警告：",
     "balanceIs": "当前余额为",
     "belowThreshold": "低于预警阈值",
@@ -196,7 +199,9 @@
     "systemPrompt": "系统提示词",
     "userMessage": "用户消息",
     "response": "响应",
-    "error": "错误"
+    "error": "错误",
+    "showing": "显示",
+    "traces": "条记录"
   },
   "usage": {
     "title": "用量统计",
@@ -218,6 +223,7 @@
     "recharge": "充值",
     "lastRecharge": "上次充值：",
     "alertThreshold": "预警阈值（$）",
+    "alertDescription": "当余额低于此金额时通知我。",
     "alertPlaceholder": "例如：5.00",
     "transactions": "交易记录",
     "time": "时间",

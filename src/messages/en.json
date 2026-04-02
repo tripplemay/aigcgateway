@@ -19,7 +19,9 @@
     "status": "Status",
     "copied": "Copied!",
     "saved": "Saved",
-    "never": "Never"
+    "never": "Never",
+    "of": "of",
+    "balance": "Account Balance"
   },
   "sidebar": {
     "brand": "AIGC Gateway",
@@ -92,6 +94,7 @@
   },
   "dashboard": {
     "title": "Dashboard",
+    "subtitle": "Real-time performance metrics for AIGC nodes.",
     "lowBalance": "Low Balance Warning:",
     "balanceIs": "Your balance is",
     "belowThreshold": "below the alert threshold of",
@@ -196,7 +199,9 @@
     "systemPrompt": "System prompt",
     "userMessage": "User message",
     "response": "Response",
-    "error": "Error"
+    "error": "Error",
+    "showing": "Showing",
+    "traces": "traces"
   },
   "usage": {
     "title": "Usage",
@@ -218,6 +223,7 @@
     "recharge": "Recharge",
     "lastRecharge": "Last recharge:",
     "alertThreshold": "Alert Threshold ($)",
+    "alertDescription": "Notify me when my balance drops below this amount.",
     "alertPlaceholder": "e.g. 5.00",
     "transactions": "Transactions",
     "time": "Time",
