@@ -2,7 +2,7 @@ name: Deploy to VPS
 
 on:
   workflow_run:
-    workflows: ["CI — Lint, Build & Push Image"]
+    workflows: ["CI — Lint & Type Check"]
     types: [completed]
     branches: [main]
 
@@ -37,7 +37,7 @@ jobs:
 
             echo "=== Clean + Install dependencies ==="
             rm -rf node_modules .next
-            npm ci
+            npm ci --ignore-scripts
 
             echo "=== Prisma generate + migrate ==="
             npx prisma generate
