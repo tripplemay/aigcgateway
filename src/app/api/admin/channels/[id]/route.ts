@@ -14,7 +14,7 @@ export async function PATCH(request: Request, { params }: { params: { id: string
     body.sellPriceLocked = true;
   }
   const channel = await prisma.channel.update({ where: { id: params.id }, data: body });
-  invalidateChannelsCache();
+  await invalidateChannelsCache();
   return NextResponse.json(channel);
 }
 
@@ -23,6 +23,6 @@ export async function DELETE(request: Request, { params }: { params: { id: strin
   if (!auth.ok) return auth.error;
 
   await prisma.channel.delete({ where: { id: params.id } });
-  invalidateChannelsCache();
+  await invalidateChannelsCache();
   return NextResponse.json({ message: "Channel deleted" });
 }

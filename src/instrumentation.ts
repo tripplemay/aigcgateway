@@ -11,6 +11,15 @@
 export async function register() {
   // 仅在 Node.js server 运行时启动（不在 edge runtime 或 build 时）
   if (process.env.NEXT_RUNTIME === "nodejs") {
+    // PM2 cluster 模式下，只让 worker 0 执行定时任务，避免多进程重复执行
+    const isWorkerZero =
+      process.env.NODE_APP_INSTANCE === "0" || process.env.NODE_APP_INSTANCE === undefined; // 单进程模式也能跑
+
+    if (!isWorkerZero) {
+      console.log(`[instrumentation] Worker ${process.env.NODE_APP_INSTANCE} — skip schedulers`);
+      return;
+    }
+
     const { prisma } = await import("@/lib/prisma");
     const { startScheduler, cleanupOldRecords } = await import("@/lib/health/scheduler");
     const { startBillingScheduler } = await import("@/lib/billing/scheduler");
@@ -58,6 +67,6 @@ export async function register() {
       60 * 60 * 1000,
     );
 
-    console.log("[instrumentation] Schedulers started");
+    console.log("[instrumentation] Worker 0 — schedulers started");
   }
 }

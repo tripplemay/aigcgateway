@@ -493,7 +493,7 @@ export async function runModelSync(): Promise<SyncResult> {
     await setConfig("LAST_SYNC_RESULT", JSON.stringify(syncResult), "最近一次模型同步结果");
     await setConfig("LAST_SYNC_TIME", syncResult.finishedAt, "最近一次模型同步时间");
 
-    // 同步完成后 invalidate models 缓存
+    // 同步完成后 invalidate 所有相关缓存
     const { getRedis } = await import("@/lib/redis");
     const redis = getRedis();
     if (redis) {
@@ -504,6 +504,7 @@ export async function runModelSync(): Promise<SyncResult> {
           "models:list:IMAGE",
           "models:list:VIDEO",
           "models:list:AUDIO",
+          "cache:admin:channels",
         )
         .catch(() => {});
     }

@@ -5,10 +5,10 @@ import { requireAdmin } from "@/lib/api/admin-guard";
 import { errorResponse } from "@/lib/api/errors";
 import {
   getCachedChannels,
-  getInflightQuery,
-  setInflightQuery,
   setCachedChannels,
-  clearInflightQuery,
+  acquireLock,
+  releaseLock,
+  waitForCache,
   invalidateChannelsCache,
 } from "./_cache";
 
@@ -66,6 +66,32 @@ async function queryChannelsJSON(
   });
 }
 
+/** 带 Redis 分布式锁的 singleflight 查询 */
+async function getChannelsWithCache(): Promise<string> {
+  // 1. 读缓存
+  const cached = await getCachedChannels();
+  if (cached) return cached;
+
+  // 2. 抢锁
+  const locked = await acquireLock();
+  if (locked) {
+    try {
+      const json = await queryChannelsJSON(null, null, null);
+      await setCachedChannels(json);
+      return json;
+    } finally {
+      await releaseLock();
+    }
+  }
+
+  // 3. 未抢到锁，等待缓存
+  const waited = await waitForCache();
+  if (waited) return waited;
+
+  // 4. 兜底：直接查 DB（不写缓存）
+  return queryChannelsJSON(null, null, null);
+}
+
 export async function GET(request: Request) {
   const auth = requireAdmin(request);
   if (!auth.ok) return auth.error;
@@ -78,47 +104,10 @@ export async function GET(request: Request) {
   // 有过滤条件时跳过缓存，直接查 DB
   const hasFilter = providerId || modelId || status;
 
-  if (!hasFilter) {
-    // 缓存命中
-    const cached = getCachedChannels();
-    if (cached) {
-      return new NextResponse(cached, {
-        status: 200,
-        headers: { "content-type": "application/json" },
-      });
-    }
+  const json = hasFilter
+    ? await queryChannelsJSON(providerId, modelId, status ?? null)
+    : await getChannelsWithCache();
 
-    // Singleflight：复用 inflight 查询
-    const existing = getInflightQuery();
-    if (existing) {
-      const json = await existing;
-      return new NextResponse(json, {
-        status: 200,
-        headers: { "content-type": "application/json" },
-      });
-    }
-
-    // 新查询
-    const promise = queryChannelsJSON(null, null, null)
-      .then((json) => {
-        setCachedChannels(json);
-        return json;
-      })
-      .finally(() => {
-        clearInflightQuery();
-      });
-
-    setInflightQuery(promise);
-
-    const json = await promise;
-    return new NextResponse(json, {
-      status: 200,
-      headers: { "content-type": "application/json" },
-    });
-  }
-
-  // 有过滤条件，直接查
-  const json = await queryChannelsJSON(providerId, modelId, status ?? null);
   return new NextResponse(json, {
     status: 200,
     headers: { "content-type": "application/json" },
@@ -146,6 +135,6 @@ export async function POST(request: Request) {
     },
   });
 
-  invalidateChannelsCache();
+  await invalidateChannelsCache();
   return NextResponse.json(channel, { status: 201 });
 }

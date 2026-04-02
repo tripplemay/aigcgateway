@@ -2,18 +2,29 @@ export const dynamic = "force-dynamic";
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/api/admin-guard";
+import { getRedis } from "@/lib/redis";
 
-// 内存缓存：同步状态变更极少，TTL 30 秒
-let cachedData: { data: unknown; expiresAt: number } | null = null;
-const CACHE_TTL_MS = 30_000;
+const CACHE_KEY = "cache:admin:sync-status";
+const CACHE_TTL = 30; // seconds
 
 export async function GET(request: Request) {
   const auth = requireAdmin(request);
   if (!auth.ok) return auth.error;
 
-  const now = Date.now();
-  if (cachedData && cachedData.expiresAt > now) {
-    return NextResponse.json({ data: cachedData.data });
+  // Redis 缓存
+  const redis = getRedis();
+  if (redis) {
+    try {
+      const cached = await redis.get(CACHE_KEY);
+      if (cached) {
+        return new NextResponse(cached, {
+          status: 200,
+          headers: { "content-type": "application/json" },
+        });
+      }
+    } catch {
+      // Redis 读失败则 fallthrough
+    }
   }
 
   // 合并两次 getConfig 为单次 findMany
@@ -34,8 +45,15 @@ export async function GET(request: Request) {
     }
   }
 
-  const responseData = { lastSyncTime, lastSyncResult };
-  cachedData = { data: responseData, expiresAt: now + CACHE_TTL_MS };
+  const json = JSON.stringify({ data: { lastSyncTime, lastSyncResult } });
 
-  return NextResponse.json({ data: responseData });
+  // 写入 Redis 缓存
+  if (redis) {
+    redis.set(CACHE_KEY, json, "EX", CACHE_TTL).catch(() => {});
+  }
+
+  return new NextResponse(json, {
+    status: 200,
+    headers: { "content-type": "application/json" },
+  });
 }
