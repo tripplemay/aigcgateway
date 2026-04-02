@@ -25,15 +25,21 @@ interface NavItem {
 
 const mainNav: NavItem[] = [
   { labelKey: "projects", href: "/dashboard", icon: "folder_managed" },
+  { labelKey: "apiKeys", href: "/keys", icon: "key" },
   { labelKey: "models", href: "/models", icon: "smart_toy" },
   { labelKey: "logs", href: "/logs", icon: "terminal" },
-  { labelKey: "channels", href: "/admin/models", icon: "hub" },
-  { labelKey: "providers", href: "/admin/providers", icon: "settings_input_component" },
+  { labelKey: "usage", href: "/usage", icon: "bar_chart" },
   { labelKey: "billing", href: "/balance", icon: "payments" },
+  { labelKey: "quickStart", href: "/quickstart", icon: "rocket_launch" },
+  { labelKey: "mcpSetup", href: "/mcp-setup", icon: "electrical_services" },
 ];
 
 const adminNav: NavItem[] = [
+  { labelKey: "modelsChannels", href: "/admin/models", icon: "hub" },
+  { labelKey: "providers", href: "/admin/providers", icon: "settings_input_component" },
   { labelKey: "health", href: "/admin/health", icon: "health_and_safety" },
+  { labelKey: "adminLogs", href: "/admin/logs", icon: "receipt_long" },
+  { labelKey: "adminUsage", href: "/admin/usage", icon: "monitoring" },
   { labelKey: "users", href: "/admin/users", icon: "group" },
 ];
 
@@ -90,8 +96,8 @@ export function Sidebar({ role, walletBalance }: SidebarProps) {
                 /* code.html lines 110-129: inactive state */
                 "flex items-center gap-3 px-4 py-2 transition-colors font-[var(--font-heading)] tracking-tight font-bold text-sm",
                 active
-                  /* code.html line 106: active state */
-                  ? "text-[#5443b9] dark:text-[#6D5DD3] border-l-4 border-[#5443b9] bg-[#f2f3ff] dark:bg-slate-800"
+                  ? /* code.html line 106: active state */
+                    "text-[#5443b9] dark:text-[#6D5DD3] border-l-4 border-[#5443b9] bg-[#f2f3ff] dark:bg-slate-800"
                   : "text-slate-500 dark:text-slate-400 hover:bg-[#f2f3ff] dark:hover:bg-slate-800/80",
               )}
             >
@@ -127,7 +133,9 @@ export function Sidebar({ role, walletBalance }: SidebarProps) {
       <div className="px-4 mt-auto pt-6">
         <div className="p-4 rounded-xl bg-ds-surface-container-high flex flex-col gap-2">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-ds-on-surface-variant">{t("walletBalance")}</span>
+            <span className="text-xs font-bold text-ds-on-surface-variant">
+              {t("walletBalance")}
+            </span>
             <span className="text-xs font-black text-ds-primary">{walletBalance ?? "$0.00"}</span>
           </div>
           <div className="w-full bg-ds-outline-variant/30 h-1.5 rounded-full overflow-hidden">
