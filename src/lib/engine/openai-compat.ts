@@ -301,10 +301,20 @@ export class OpenAICompatEngine implements EngineAdapter {
     if (Array.isArray(parts)) {
       for (const part of parts) {
         const p = part as Record<string, unknown>;
+        // OpenAI gpt-image 格式：{ type: "image_url", image_url: { url: "..." } }
         if (p.type === "image_url" && (p.image_url as Record<string, unknown>)?.url) {
           return {
             created: result.created,
             data: [{ url: (p.image_url as Record<string, unknown>).url as string }],
+          };
+        }
+        // Gemini 原生格式：{ type: "inline_data", inline_data: { mime_type: "image/png", data: "base64..." } }
+        const inlineData = p.inline_data as Record<string, unknown> | undefined;
+        if ((p.type === "inline_data" || inlineData) && inlineData?.data) {
+          const mime = (inlineData.mime_type as string) || "image/png";
+          return {
+            created: result.created,
+            data: [{ url: `data:${mime};base64,${inlineData.data as string}` }],
           };
         }
       }

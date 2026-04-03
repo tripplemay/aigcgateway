@@ -175,7 +175,10 @@ export function registerGenerateImage(server: McpServer, opts: McpServerOptions)
             content: [
               {
                 type: "text" as const,
-                text: `Provider timeout after ${(latencyMs / 1000).toFixed(1)}s. Try again or use a different model.`,
+                text: JSON.stringify({
+                  code: "provider_timeout",
+                  message: `Provider timeout after ${(latencyMs / 1000).toFixed(1)}s. Try again or use a different model.`,
+                }),
               },
             ],
             isError: true,
@@ -183,7 +186,15 @@ export function registerGenerateImage(server: McpServer, opts: McpServerOptions)
         }
 
         return {
-          content: [{ type: "text" as const, text: `Error: ${(err as Error).message}` }],
+          content: [
+            {
+              type: "text" as const,
+              text: JSON.stringify({
+                code: engineErr?.code ?? "provider_error",
+                message: (err as Error).message,
+              }),
+            },
+          ],
           isError: true,
         };
       }
