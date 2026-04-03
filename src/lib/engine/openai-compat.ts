@@ -292,10 +292,36 @@ export class OpenAICompatEngine implements EngineAdapter {
     };
 
     const result = await this.chatCompletions(chatReq, route);
-    const content = result.choices[0]?.message?.content ?? "";
 
-    // 尝试从 content 中提取图片 URL
-    // 优先匹配带扩展名的图片 URL，其次匹配任意 HTTPS URL（兼容 Google Storage 等无扩展名链接）
+    // 1. 检查 multimodal content（部分模型返回 content 数组含 image_url 类型）
+    const choice = result.choices[0];
+    const rawContent = choice?.message?.content;
+    const msg = choice?.message as Record<string, unknown> | undefined;
+    const parts = msg?.parts ?? (Array.isArray(msg?.content) ? msg.content : null);
+    if (Array.isArray(parts)) {
+      for (const part of parts) {
+        const p = part as Record<string, unknown>;
+        if (p.type === "image_url" && (p.image_url as Record<string, unknown>)?.url) {
+          return {
+            created: result.created,
+            data: [{ url: (p.image_url as Record<string, unknown>).url as string }],
+          };
+        }
+      }
+    }
+
+    const content = typeof rawContent === "string" ? rawContent : "";
+
+    // 2. 检查 base64 data URI（部分模型内联返回图片）
+    const base64Match = content.match(/data:image\/[a-z]+;base64,[A-Za-z0-9+/=]+/);
+    if (base64Match) {
+      return {
+        created: result.created,
+        data: [{ url: base64Match[0] }],
+      };
+    }
+
+    // 3. 匹配带扩展名的图片 URL
     const urlWithExtMatch = content.match(/https?:\/\/[^\s"'<>]+\.(png|jpg|jpeg|webp|gif)/i);
     if (urlWithExtMatch) {
       return {
@@ -304,6 +330,7 @@ export class OpenAICompatEngine implements EngineAdapter {
       };
     }
 
+    // 4. 匹配任意 HTTPS URL（兼容 Google Storage 等无扩展名链接）
     const anyUrlMatch = content.match(/https?:\/\/[^\s"'<>]+/);
     if (anyUrlMatch) {
       return {
@@ -312,11 +339,19 @@ export class OpenAICompatEngine implements EngineAdapter {
       };
     }
 
-    // content 为空或不含 URL，返回空数组（上层 filter(Boolean) 会正确处理）
-    return {
-      created: result.created,
-      data: content ? [{ url: content }] : [],
-    };
+    // 5. 无法提取图片 — 抛出错误而非返回空数组
+    console.warn(
+      `[imageViaChat] Failed to extract image from chat response. model=${route.channel.realModelId} content_length=${content.length} content_preview=${content.slice(0, 200)}`,
+    );
+    throw this.mapProviderError(
+      200,
+      JSON.stringify({
+        error: {
+          message: `Image generation via chat returned no extractable image. The model responded with text instead of an image. Content preview: "${content.slice(0, 100)}"`,
+          code: "no_image_in_response",
+        },
+      }),
+    );
   }
 
   // ------------------------------------------------------------------

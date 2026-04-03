@@ -36,7 +36,7 @@ export function registerListLogs(server: McpServer, opts: McpServerOptions): voi
       }
       const take = limit ?? 10;
 
-      // Full-text search path
+      // Full-text search path — extract text from JSONB promptSnapshot before matching
       if (search) {
         const likePattern = `%${search}%`;
         const results = await prisma.$queryRaw<
@@ -53,7 +53,16 @@ export function registerListLogs(server: McpServer, opts: McpServerOptions): voi
         >`
           SELECT "traceId", "modelName", status, "sellPrice"::float, "latencyMs", "totalTokens", "createdAt", "promptSnapshot"
           FROM call_logs
-          WHERE "projectId" = ${projectId} AND ("promptSnapshot"::text ILIKE ${likePattern} OR "responseContent" ILIKE ${likePattern})
+          WHERE "projectId" = ${projectId}
+            AND (
+              -- Extract text content from JSONB array elements for reliable matching
+              EXISTS (
+                SELECT 1 FROM jsonb_array_elements("promptSnapshot"::jsonb) AS msg
+                WHERE msg->>'content' ILIKE ${likePattern}
+              )
+              OR "responseContent" ILIKE ${likePattern}
+              OR "modelName" ILIKE ${likePattern}
+            )
           ORDER BY "createdAt" DESC LIMIT ${take}
         `;
 

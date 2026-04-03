@@ -85,6 +85,13 @@ async function processChatResultAsync(params: ChatPostProcessParams): Promise<vo
   // 计算成本
   const { costUsd, sellUsd } = calculateTokenCost(usage, params.route, status);
 
+  // 定价缺失告警：成功调用但 sellPrice 为 0，说明 channel 未配置定价
+  if (status === "SUCCESS" && usage && usage.total_tokens > 0 && sellUsd === 0) {
+    console.warn(
+      `[post-process] WARNING: zero sell price for channel=${params.route.channel.id} model=${params.modelName} tokens=${usage.total_tokens}. Check channel sellPrice config.`,
+    );
+  }
+
   const ttftMs = params.ttftTime ? params.ttftTime - params.startTime : null;
   const tokensPerSecond =
     usage && latencyMs > 0 ? usage.completion_tokens / (latencyMs / 1000) : null;
