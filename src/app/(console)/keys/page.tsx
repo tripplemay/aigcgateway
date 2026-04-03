@@ -243,11 +243,18 @@ export default function KeysPage() {
               <input
                 className="pl-9 pr-8 py-2 text-sm rounded-full bg-ds-surface-container-low border-none focus:ring-2 focus:ring-ds-primary/20 w-64 transition-all placeholder:text-slate-400 outline-none"
                 placeholder={t("searchKeys")}
-                type="text"
+                type="search"
                 value={searchQuery}
                 onChange={(e) => {
                   setSearchQuery(e.target.value);
                   setPage(0);
+                }}
+                onInput={(e) => {
+                  const val = (e.target as HTMLInputElement).value;
+                  if (val !== searchQuery) {
+                    setSearchQuery(val);
+                    setPage(0);
+                  }
                 }}
               />
               {searchQuery && (
