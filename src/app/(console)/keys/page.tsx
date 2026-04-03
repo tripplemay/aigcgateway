@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { useTranslations } from "next-intl";
 import { apiFetch } from "@/lib/api-client";
 import { useProject } from "@/hooks/use-project";
@@ -38,6 +38,16 @@ export default function KeysPage() {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [page, setPage] = useState(0);
+  const searchRef = useRef<HTMLInputElement>(null);
+
+  // Sync search state from DOM — catches all clear methods (keyboard, right-click, autofill, MCP)
+  const syncSearchFromDom = useCallback(() => {
+    const el = searchRef.current;
+    if (el && el.value !== searchQuery) {
+      setSearchQuery(el.value);
+      setPage(0);
+    }
+  }, [searchQuery]);
 
   // Create modal state
   const [createOpen, setCreateOpen] = useState(false);
@@ -241,6 +251,7 @@ export default function KeysPage() {
                 search
               </span>
               <input
+                ref={searchRef}
                 className="pl-9 pr-8 py-2 text-sm rounded-full bg-ds-surface-container-low border-none focus:ring-2 focus:ring-ds-primary/20 w-64 transition-all placeholder:text-slate-400 outline-none"
                 placeholder={t("searchKeys")}
                 type="search"
@@ -249,13 +260,9 @@ export default function KeysPage() {
                   setSearchQuery(e.target.value);
                   setPage(0);
                 }}
-                onInput={(e) => {
-                  const val = (e.target as HTMLInputElement).value;
-                  if (val !== searchQuery) {
-                    setSearchQuery(val);
-                    setPage(0);
-                  }
-                }}
+                onInput={syncSearchFromDom}
+                onBlur={syncSearchFromDom}
+                onKeyUp={syncSearchFromDom}
               />
               {searchQuery && (
                 <button
