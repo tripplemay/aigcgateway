@@ -22,10 +22,10 @@ AIGC Gateway — AI 服务商管理中台。统一 API 调用抽象（兼容 Ope
 
 ## 最近修复（2026-04-03）
 
-**fix: MCP L2 三项修复**
-- `post-process.ts`: 成功调用但 sellUsd=0 时打印 console.warn 告警（channelId + model + tokens）
-- `openai-compat.ts imageViaChat`: 重写 — multimodal parts → base64 → URL 正则 → 全部失败抛 `no_image_in_response` 错误（不再返回空数组伪装成功）
-- `list-logs.ts search`: 从 `promptSnapshot::text ILIKE` 改为 `jsonb_array_elements → msg->>'content' ILIKE`，同时增加 modelName 搜索
+- `post-process.ts`: 成功调用但 sellUsd=0 时打印 console.warn 告警
+- `openai-compat.ts imageViaChat`: 重写 — multimodal parts → base64 → URL 正则 → 全部失败抛错
+- `list-logs.ts search`: 改为 jsonb_array_elements 提取纯文本匹配
+- `keys/page.tsx search`: 改为 uncontrolled input（ref + searchTick），消除 DOM/State 不同步
 
 ## 已知遗留问题
 
@@ -34,6 +34,10 @@ AIGC Gateway — AI 服务商管理中台。统一 API 调用抽象（兼容 Ope
 3. 同步耗时偏高（~264s）
 4. Chat 计费 $0 — Channel sellPrice 为 {} 或 0，根因与 #1 同源（定价数据缺失），需管理员手动补充
 5. 图片生成 — 代码已修复（抛错），但 Gemini via chat 的实际图片返回格式仍需验证
+
+## 已知限制（决定不修复）
+
+- API Keys 搜索框：Chrome MCP 程序化设值 `input.value=""` 不触发浏览器事件，导致自动化测试中清空搜索后列表不恢复。普通用户（键盘、鼠标、浏览器原生×按钮、close 按钮）不受影响。标记为"仅影响自动化测试工具"。
 
 ## Staging / 生产环境
 
