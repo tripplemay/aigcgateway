@@ -17,27 +17,36 @@ AIGC Gateway — AI 服务商管理中台。统一 API 调用抽象（兼容 Ope
 - P1 完成：项目骨架 + 7 家服务商 + API 网关 + 健康检查 + SDK + 认证计费支付 + 控制台 17 页
 - P1 优化补丁完成：模型自动同步引擎 + 模型/通道 UI 重构 + API Keys 权限扩展 + 全站性能优化（14项）+ 全站 UI 重构（Stitch 设计稿，16/18 页已完成，Login/Register 待办）
 - P2 完成：MCP 服务器 (7 Tools) + 控制台国际化 (20页 + 259 key) + 集成测试
+- 性能优化：Redis 缓存迁移 + PM2 cluster 已签收 PASS
+- MCP L2 集成：读类 Tools + 错误场景 PASS，写类链路（chat/image 计费）受定价数据缺失影响
 
-## 最近已修复的 Bug（2026-04-03）
+## 最近修复（2026-04-03）
 
-**Bug 1 — list-logs.ts 搜索列错误**
-- 文件：`src/lib/mcp/tools/list-logs.ts` line 56
-- 原因：search SQL 搜 `traceId` / `modelName` 而非 prompt 内容
-- 修复：改为 `"promptSnapshot"::text ILIKE ... OR "responseContent" ILIKE ...`
+**fix: MCP L2 三项修复**
+- `post-process.ts`: 成功调用但 sellUsd=0 时打印 console.warn 告警（channelId + model + tokens）
+- `openai-compat.ts imageViaChat`: 重写 — multimodal parts → base64 → URL 正则 → 全部失败抛 `no_image_in_response` 错误（不再返回空数组伪装成功）
+- `list-logs.ts search`: 从 `promptSnapshot::text ILIKE` 改为 `jsonb_array_elements → msg->>'content' ILIKE`，同时增加 modelName 搜索
 
-**Bug 2 — imageViaChat URL 正则过严**
-- 文件：`src/lib/engine/openai-compat.ts` imageViaChat 方法
-- 原因：正则只匹配带 `.png/.jpg/.jpeg/.webp/.gif` 扩展名的 URL，Gemini/Google Storage 返回无扩展名链接导致 `images: []`
-- 修复：三层降级匹配（带扩展名 URL → 任意 HTTPS URL → 空则返回 `data: []`）
+## 已知遗留问题
 
-**Config 问题（未修复，需手动处理）**
-- deepseek/v3 channel 在生产库的 `sellPrice.inputPer1M` / `outputPer1M` = 0
-- 需要管理员在控制台 → Channels 里手动填写正确价格
+1. SiliconFlow 价格补全未生效（aiEnriched=0）
+2. Anthropic 直连 401
+3. 同步耗时偏高（~264s）
+4. Chat 计费 $0 — Channel sellPrice 为 {} 或 0，根因与 #1 同源（定价数据缺失），需管理员手动补充
+5. 图片生成 — 代码已修复（抛错），但 Gemini via chat 的实际图片返回格式仍需验证
 
-## Staging 环境
+## Staging / 生产环境
 
 - URL: https://aigc.guangai.ai
-- 有余额的 API Key 已配置在生产环境，可用于 L2 测试
+- Stitch 设计稿项目 ID: 13523510089051052358
+- 有余额的 API Key 已配置，可用于 L2 测试
+
+## 关键开发规则
+
+- Schema 变更 + migration + 引用代码必须同一 commit，否则 CI tsc 会死锁
+- git pull 后 schema 变了必须 `npx prisma generate`
+- 设计稿从 Stitch MCP 下载后存到 `design-draft/{屏幕名}/code.html + screen.png`
+- 前端页面重构必须按原型 code.html 1:1 复刻 DOM 结构和 class
 
 **Why:** 以上状态供下次会话快速定位当前进度，避免重新梳理
 **How to apply:** 开始新任务前先对照此文件确认当前阶段，继续未完成的工作
