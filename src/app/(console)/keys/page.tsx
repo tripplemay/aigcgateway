@@ -36,18 +36,14 @@ export default function KeysPage() {
 
   const [keys, setKeys] = useState<ApiKeyRow[]>([]);
   const [loading, setLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState("");
   const [page, setPage] = useState(0);
   const searchRef = useRef<HTMLInputElement>(null);
-
-  // Sync search state from DOM — catches all clear methods (keyboard, right-click, autofill, MCP)
-  const syncSearchFromDom = useCallback(() => {
-    const el = searchRef.current;
-    if (el && el.value !== searchQuery) {
-      setSearchQuery(el.value);
-      setPage(0);
-    }
-  }, [searchQuery]);
+  // Uncontrolled search: tick counter forces re-render, filter reads ref directly
+  const [searchTick, setSearchTick] = useState(0);
+  const triggerSearch = useCallback(() => {
+    setSearchTick((n) => n + 1);
+    setPage(0);
+  }, []);
 
   // Create modal state
   const [createOpen, setCreateOpen] = useState(false);
@@ -121,8 +117,9 @@ export default function KeysPage() {
     toast.success(tc("copied"));
   };
 
-  // Filtered + paginated keys
-  const normalizedSearch = searchQuery.trim().toLowerCase();
+  // Filtered + paginated keys — reads DOM ref directly, searchTick triggers re-eval
+  void searchTick; // ensure React re-renders when tick changes
+  const normalizedSearch = (searchRef.current?.value ?? "").trim().toLowerCase();
   const filtered = normalizedSearch
     ? keys.filter(
         (k) =>
@@ -255,20 +252,15 @@ export default function KeysPage() {
                 className="pl-9 pr-8 py-2 text-sm rounded-full bg-ds-surface-container-low border-none focus:ring-2 focus:ring-ds-primary/20 w-64 transition-all placeholder:text-slate-400 outline-none"
                 placeholder={t("searchKeys")}
                 type="search"
-                value={searchQuery}
-                onChange={(e) => {
-                  setSearchQuery(e.target.value);
-                  setPage(0);
-                }}
-                onInput={syncSearchFromDom}
-                onBlur={syncSearchFromDom}
-                onKeyUp={syncSearchFromDom}
+                defaultValue=""
+                onChange={triggerSearch}
+                onInput={triggerSearch}
               />
-              {searchQuery && (
+              {normalizedSearch && (
                 <button
                   onClick={() => {
-                    setSearchQuery("");
-                    setPage(0);
+                    if (searchRef.current) searchRef.current.value = "";
+                    triggerSearch();
                   }}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-ds-on-surface transition-colors"
                 >
