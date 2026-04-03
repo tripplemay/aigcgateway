@@ -25,6 +25,7 @@ interface NavItem {
 const mainNav: NavItem[] = [
   { labelKey: "projects", href: "/dashboard", icon: "folder_managed" },
   { labelKey: "apiKeys", href: "/keys", icon: "key" },
+  { labelKey: "templates", href: "/templates", icon: "extension" },
   { labelKey: "models", href: "/models", icon: "smart_toy" },
   { labelKey: "logs", href: "/logs", icon: "terminal" },
   { labelKey: "usage", href: "/usage", icon: "bar_chart" },
@@ -40,6 +41,7 @@ const adminNav: NavItem[] = [
   { labelKey: "adminLogs", href: "/admin/logs", icon: "receipt_long" },
   { labelKey: "adminUsage", href: "/admin/usage", icon: "monitoring" },
   { labelKey: "users", href: "/admin/users", icon: "group" },
+  { labelKey: "adminTemplates", href: "/admin/templates", icon: "folder_copy" },
 ];
 
 interface SidebarProps {

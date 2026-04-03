@@ -123,56 +123,56 @@
       "id": "F018",
       "title": "Stitch 原型: 模板列表页 (由用户完成)",
       "priority": "high",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "design-draft/ 下有 code.html + screen.png"
     },
     {
       "id": "F019",
       "title": "Stitch 原型: 模板编辑页 (由用户完成)",
       "priority": "high",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "design-draft/ 下有 code.html + screen.png"
     },
     {
       "id": "F020",
       "title": "Stitch 原型: Admin 模板管理页 (由用户完成)",
       "priority": "high",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "design-draft/ 下有 code.html + screen.png"
     },
     {
       "id": "F021",
       "title": "前端: 模板列表页 /templates (等 Stitch 原型)",
       "priority": "high",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "按原型 1:1 复刻，接入 API，含搜索 + Fork"
     },
     {
       "id": "F022",
       "title": "前端: 模板编辑页 /templates/:id (等 Stitch 原型)",
       "priority": "high",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "按原型 1:1 复刻，messages 编辑器 + 变量定义 + 版本历史"
     },
     {
       "id": "F023",
       "title": "前端: Admin 模板管理页 /admin/templates (等 Stitch 原型)",
       "priority": "high",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "按原型 1:1 复刻，平台公共模板 CRUD + category"
     },
     {
       "id": "F024",
       "title": "侧边栏导航: 新增模板入口",
       "priority": "medium",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "开发者导航新增'模板'，Admin 新增'模板管理'"
     },
     {
       "id": "F025",
       "title": "i18n: 模板相关全部文案",
       "priority": "medium",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "en.json + zh-CN.json 同步，无缺失 key"
     }
   ]

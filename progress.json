@@ -1,17 +1,17 @@
 {
-  "status": "building",
+  "status": "done",
   "user_goal": "P3-1 Prompt 模板治理基础建设：数据模型（Template + TemplateVersion + CallLog.templateVersionId）、变量注入引擎、模板 CRUD API、版本管理 API、/v1/chat/completions 扩展支持 templateId+variables、qualityScore 回传 API、MCP 5个新工具+chat改造、控制台模板管理页面（需 Stitch 原型先行）。详见 docs/specs/AIGC-Gateway-Template-Governance-P3-1-Spec.md",
   "total_features": 25,
-  "completed_features": 17,
-  "current_sprint": "F018",
-  "last_updated": "2026-04-03T11:04:00Z",
+  "completed_features": 25,
+  "current_sprint": null,
+  "last_updated": "2026-04-03T13:55:23Z",
   "reference_docs": [
     "docs/specs/AIGC-Gateway-Template-Governance-P3-1-Spec.md",
     "docs/AIGC-Gateway-Full-PRD.md"
   ],
   "evaluator_feedback": {
-    "summary": "F001-F017 本地 L1 验收通过；模板数据模型、CRUD、版本管理、qualityScore、MCP 模板工具与 templateId 注入链路均已验证。F018-F025 仍为 pending，未纳入本轮验收。",
-    "pass_count": 17,
+    "summary": "F001-F025 本地 L1 验收通过。F018-F025 已完成原型、开发者模板页、模板详情页、Admin 模板管理页、侧边栏入口与 i18n 回归，当前无遗留失败项。",
+    "pass_count": 25,
     "partial_count": 0,
     "fail_count": 0,
     "issues": []

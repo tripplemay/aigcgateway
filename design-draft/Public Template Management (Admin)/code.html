@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>AIGC Gateway - Template Governance</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface-container-highest": "#dae2fd",
+                    "on-primary-fixed-variant": "#4431a8",
+                    "outline-variant": "#c9c4d5",
+                    "secondary-fixed": "#e5deff",
+                    "surface-container-low": "#f2f3ff",
+                    "secondary-fixed-dim": "#c8c0f5",
+                    "tertiary-container": "#9d6100",
+                    "surface-container": "#eaedff",
+                    "tertiary": "#7c4b00",
+                    "secondary-container": "#d0c9fe",
+                    "on-tertiary": "#ffffff",
+                    "surface-container-lowest": "#ffffff",
+                    "on-tertiary-container": "#fff0e4",
+                    "on-secondary-fixed-variant": "#47416e",
+                    "primary-container": "#6d5dd3",
+                    "primary": "#5443b9",
+                    "on-primary": "#ffffff",
+                    "on-primary-container": "#f6f1ff",
+                    "on-error": "#ffffff",
+                    "surface-dim": "#d2d9f4",
+                    "error-container": "#ffdad6",
+                    "on-tertiary-fixed": "#2b1700",
+                    "on-secondary-fixed": "#1b153f",
+                    "on-primary-fixed": "#190064",
+                    "surface": "#faf8ff",
+                    "primary-fixed": "#e5deff",
+                    "surface-container-high": "#e2e7ff",
+                    "background": "#faf8ff",
+                    "inverse-surface": "#283044",
+                    "secondary": "#5f5987",
+                    "inverse-primary": "#c8bfff",
+                    "surface-tint": "#5c4cc1",
+                    "surface-bright": "#faf8ff",
+                    "on-secondary": "#ffffff",
+                    "inverse-on-surface": "#eef0ff",
+                    "error": "#ba1a1a",
+                    "tertiary-fixed-dim": "#ffb964",
+                    "tertiary-fixed": "#ffddba",
+                    "on-surface-variant": "#474553",
+                    "on-background": "#131b2e",
+                    "primary-fixed-dim": "#c8bfff",
+                    "outline": "#787584",
+                    "on-surface": "#131b2e",
+                    "on-tertiary-fixed-variant": "#663e00",
+                    "surface-variant": "#dae2fd",
+                    "on-secondary-container": "#585280",
+                    "on-error-container": "#93000a"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "fontFamily": {
+                    "headline": ["Manrope"],
+                    "body": ["Inter"],
+                    "label": ["Inter"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(12px);
+        }
+        .no-line { border: none !important; }
+    </style>
+</head>
+<body class="bg-surface font-body text-on-surface selection:bg-primary/20">
+<!-- SideNavBar Shell -->
+<aside class="fixed left-0 top-0 h-full w-64 bg-[#f2f3ff] dark:bg-slate-900 flex flex-col py-6 px-4 font-['Manrope'] tracking-tight z-50">
+<div class="mb-10 px-2">
+<h1 class="text-xl font-bold text-[#131b2e] dark:text-white">AIGC Gateway</h1>
+<p class="text-xs text-slate-500 font-medium">Template Governance</p>
+</div>
+<nav class="flex-1 space-y-2">
+<!-- Active State: Templates (based on page intent) -->
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-500 dark:text-slate-400 hover:text-[#5443b9] transition-colors duration-200 group" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="font-medium">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg bg-white dark:bg-slate-800 text-[#5443b9] border-l-4 border-[#5443b9] font-semibold transition-colors duration-200 group" href="#">
+<span class="material-symbols-outlined" data-icon="folder_copy">folder_copy</span>
+<span class="font-medium">Templates</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-500 dark:text-slate-400 hover:text-[#5443b9] transition-colors duration-200 group" href="#">
+<span class="material-symbols-outlined" data-icon="history">history</span>
+<span class="font-medium">Versions</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-500 dark:text-slate-400 hover:text-[#5443b9] transition-colors duration-200 group" href="#">
+<span class="material-symbols-outlined" data-icon="category">category</span>
+<span class="font-medium">Categories</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-500 dark:text-slate-400 hover:text-[#5443b9] transition-colors duration-200 group" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="font-medium">Settings</span>
+</a>
+</nav>
+<div class="mt-auto space-y-2 border-t border-slate-200/50 pt-6">
+<button class="w-full bg-gradient-to-br from-primary to-primary-container text-on-primary py-3 rounded-xl font-bold flex items-center justify-center gap-2 shadow-lg shadow-primary/20 active:scale-95 transition-transform">
+<span class="material-symbols-outlined text-sm" data-icon="add">add</span>
+<span>Create Template</span>
+</button>
+<div class="pt-4 px-2 space-y-4">
+<a class="flex items-center gap-3 text-sm text-slate-500 hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined text-lg" data-icon="menu_book">menu_book</span>
+<span>Documentation</span>
+</a>
+<a class="flex items-center gap-3 text-sm text-slate-500 hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined text-lg" data-icon="contact_support">contact_support</span>
+<span>Support</span>
+</a>
+</div>
+</div>
+</aside>
+<!-- Main Canvas -->
+<main class="ml-64 min-h-screen">
+<!-- TopAppBar -->
+<header class="flex justify-between items-center w-full px-8 h-16 sticky top-0 z-40 bg-[#faf8ff]/80 dark:bg-slate-950/80 backdrop-blur-xl shadow-[0px_20px_40px_rgba(19,27,46,0.06)] no-line font-['Manrope'] font-medium">
+<div class="flex items-center gap-8 flex-1">
+<div class="relative w-96 group">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors" data-icon="search">search</span>
+<input class="w-full bg-surface-container-low border-none rounded-full py-2 pl-10 pr-4 text-sm focus:ring-2 focus:ring-primary/20 placeholder:text-slate-400" placeholder="Search global templates..." type="text"/>
+</div>
+<nav class="hidden lg:flex items-center gap-6">
+<a class="text-[#5443b9] border-b-2 border-[#5443b9] pb-1 text-sm tracking-tight" href="#">Global Library</a>
+<a class="text-slate-600 dark:text-slate-400 hover:text-[#5443b9] transition-all text-sm tracking-tight" href="#">Developer Portal</a>
+<a class="text-slate-600 dark:text-slate-400 hover:text-[#5443b9] transition-all text-sm tracking-tight" href="#">Admin Console</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<button class="material-symbols-outlined p-2 text-slate-600 hover:text-primary transition-colors" data-icon="notifications">notifications</button>
+<button class="material-symbols-outlined p-2 text-slate-600 hover:text-primary transition-colors" data-icon="help_outline">help_outline</button>
+<button class="bg-primary text-on-primary px-5 py-2 rounded-lg text-sm font-bold opacity-80 hover:opacity-100 transition-all active:scale-95">Deploy Template</button>
+<div class="w-10 h-10 rounded-full bg-surface-container-highest flex items-center justify-center border-2 border-white overflow-hidden shadow-sm">
+<img alt="Admin Avatar" class="w-full h-full object-cover" data-alt="professional corporate headshot of a person with friendly expression in bright studio lighting with neutral background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuATXBzjUVkJOT0ZEMO_AIQoBqVJvLSfB3tnTUZVKpatCj-B1AhhERgQBDqOHBNh2epH1PnYKjGG4Ri4zjbiiHib9yXMdKlAnn1ljxOSgEJuGogcR9ZgoMdRY159r-TOM8sxvxTzyYFTj9djKu0wQ86TxfeDr9T4iUbOQ1o9aEGAb4aMU3lhpxy-JL4ZhMUCcgzgQIH96MbXV-AaoDzQXtVARqexyyOcVclHdyVKyqX6gGsmGkZOyZh7k_aHMimmVyFGA0osEgx5hHfp"/>
+</div>
+</div>
+</header>
+<!-- Content Area -->
+<div class="p-8 space-y-8">
+<!-- Hero Stats Bento -->
+<section class="grid grid-cols-1 md:grid-cols-4 gap-6">
+<div class="md:col-span-2 bg-surface-container-lowest p-6 rounded-xl shadow-[0px_20px_40px_rgba(19,27,46,0.03)] flex flex-col justify-between relative overflow-hidden group">
+<div class="relative z-10">
+<span class="text-[0.65rem] font-bold uppercase tracking-widest text-primary/60 mb-2 block">Global Ecosystem</span>
+<h2 class="text-3xl font-extrabold text-on-surface tracking-tighter">Public Repository</h2>
+<p class="text-sm text-slate-500 mt-2 max-w-xs">Curating high-performance AIGC blueprints across global nodes.</p>
+</div>
+<div class="mt-8 flex items-baseline gap-2">
+<span class="text-4xl font-black text-primary">1,284</span>
+<span class="text-xs font-bold text-secondary flex items-center gap-1">
+<span class="material-symbols-outlined text-sm" data-icon="trending_up">trending_up</span>
+                            +12% this month
+                        </span>
+</div>
+<div class="absolute -right-4 -bottom-4 opacity-10 group-hover:scale-110 transition-transform duration-500">
+<span class="material-symbols-outlined text-9xl text-primary" data-icon="hub">hub</span>
+</div>
+</div>
+<div class="bg-surface-container-low p-6 rounded-xl flex flex-col justify-between">
+<div class="flex justify-between items-start">
+<div class="p-2 bg-white rounded-lg shadow-sm">
+<span class="material-symbols-outlined text-tertiary" data-icon="star" data-weight="fill" style="font-variation-settings: 'FILL' 1;">star</span>
+</div>
+<span class="text-xs font-bold text-tertiary bg-tertiary-fixed px-2 py-1 rounded-full">Target Met</span>
+</div>
+<div>
+<span class="text-[0.65rem] font-bold uppercase tracking-widest text-slate-500 mb-1 block">Avg Quality Score</span>
+<h3 class="text-2xl font-bold tracking-tight">9.42<span class="text-slate-400 font-medium text-lg ml-1">/10</span></h3>
+<div class="w-full bg-slate-200 h-1 mt-3 rounded-full overflow-hidden">
+<div class="bg-tertiary h-full w-[94%]"></div>
+</div>
+</div>
+</div>
+<div class="bg-surface-container-low p-6 rounded-xl flex flex-col justify-between">
+<div class="flex justify-between items-start">
+<div class="p-2 bg-white rounded-lg shadow-sm">
+<span class="material-symbols-outlined text-secondary" data-icon="bolt">bolt</span>
+</div>
+</div>
+<div>
+<span class="text-[0.65rem] font-bold uppercase tracking-widest text-slate-500 mb-1 block">Active Categories</span>
+<h3 class="text-2xl font-bold tracking-tight">24<span class="text-slate-400 font-medium text-lg ml-1">Verticals</span></h3>
+<div class="flex gap-1 mt-3">
+<div class="h-1 flex-1 bg-primary/20 rounded-full"></div>
+<div class="h-1 flex-1 bg-primary/40 rounded-full"></div>
+<div class="h-1 flex-1 bg-primary/60 rounded-full"></div>
+<div class="h-1 flex-1 bg-primary rounded-full"></div>
+</div>
+</div>
+</div>
+</section>
+<!-- Filters & Category Management -->
+<section class="flex flex-col md:flex-row justify-between items-end gap-6 pb-2 border-b border-outline-variant/10">
+<div class="flex items-center gap-4 overflow-x-auto pb-2 scrollbar-hide">
+<button class="px-5 py-2 rounded-full bg-primary text-on-primary text-xs font-bold whitespace-nowrap shadow-md shadow-primary/20">All Templates</button>
+<button class="px-5 py-2 rounded-full bg-surface-container-high text-slate-600 text-xs font-semibold hover:bg-white hover:shadow-sm transition-all whitespace-nowrap">Image Gen</button>
+<button class="px-5 py-2 rounded-full bg-surface-container-high text-slate-600 text-xs font-semibold hover:bg-white hover:shadow-sm transition-all whitespace-nowrap">LLM Logic</button>
+<button class="px-5 py-2 rounded-full bg-surface-container-high text-slate-600 text-xs font-semibold hover:bg-white hover:shadow-sm transition-all whitespace-nowrap">Vector Search</button>
+<button class="px-5 py-2 rounded-full bg-surface-container-high text-slate-600 text-xs font-semibold hover:bg-white hover:shadow-sm transition-all whitespace-nowrap">Agent Workflow</button>
+<button class="w-10 h-10 flex items-center justify-center rounded-full bg-primary-fixed text-primary hover:bg-primary hover:text-white transition-all">
+<span class="material-symbols-outlined text-xl" data-icon="add">add</span>
+</button>
+</div>
+<div class="flex items-center gap-3">
+<span class="text-[0.65rem] font-bold text-slate-400 uppercase tracking-widest mr-2">Sort by</span>
+<button class="bg-surface-container-lowest px-4 py-2 rounded-lg text-xs font-semibold text-on-surface-variant flex items-center gap-2 shadow-sm">
+                        Quality Score
+                        <span class="material-symbols-outlined text-sm" data-icon="keyboard_arrow_down">keyboard_arrow_down</span>
+</button>
+</div>
+</section>
+<!-- Template Grid (Asymmetric) -->
+<section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+<!-- Template Card 1 -->
+<div class="group bg-surface-container-lowest rounded-xl overflow-hidden hover:shadow-[0px_30px_60px_rgba(19,27,46,0.12)] transition-all duration-500 flex flex-col border border-transparent hover:border-primary/10">
+<div class="relative h-48 overflow-hidden">
+<img alt="Pattern Visual" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" data-alt="abstract artistic background with swirling deep purple and vibrant blue patterns resembling digital flow or data energy" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBSndp_VJ0cECPvF6YxC8mC28RxG3OC_X7mGxCGATPLRJf9b2kkRNvXyA5gkO_mxsjjjDvWzEDlUYBnis-IM4ZuDihMElRmMRXQXV746lejt7DvNb88OgxCVNwleu7hveLYyuU1rsbMd3daGxrCI0g5sHp0PXCtIztGHB7Rf65OBFfUoXGSYd3NzGtEIUOXZCmRU-7URJu2qJzyUQZ3UFcp0qTlofaiWwg0FJPWTSCFQMzJX9tbw6d-arDStV4fmU378pr4EUAWvf4T"/>
+<div class="absolute inset-0 bg-gradient-to-t from-on-surface/60 to-transparent"></div>
+<div class="absolute top-4 left-4 flex gap-2">
+<span class="bg-white/90 backdrop-blur-md text-primary text-[0.65rem] font-black px-2 py-1 rounded tracking-tighter uppercase">LLM Logic</span>
+</div>
+<div class="absolute bottom-4 left-4 right-4 flex justify-between items-end">
+<h4 class="text-white font-bold text-lg leading-tight">Reasoning_Chain_v4</h4>
+<div class="flex items-center gap-1 bg-white/20 backdrop-blur-md px-2 py-1 rounded text-white text-xs font-bold">
+<span class="material-symbols-outlined text-xs" data-icon="star" data-weight="fill" style="font-variation-settings: 'FILL' 1;">star</span>
+                                9.8
+                            </div>
+</div>
+</div>
+<div class="p-6 flex-1 flex flex-col gap-4">
+<p class="text-xs text-slate-500 line-clamp-2 leading-relaxed">Advanced chain-of-thought template optimized for complex logical inference and structured data extraction with multi-turn memory.</p>
+<div class="flex items-center justify-between mt-auto pt-4 border-t border-slate-100">
+<div class="flex -space-x-2">
+<div class="w-6 h-6 rounded-full border-2 border-white bg-slate-200"></div>
+<div class="w-6 h-6 rounded-full border-2 border-white bg-slate-300"></div>
+<div class="w-6 h-6 rounded-full border-2 border-white bg-primary/20 flex items-center justify-center text-[10px] font-bold text-primary">+82</div>
+</div>
+<button class="text-primary text-xs font-bold hover:underline flex items-center gap-1 group/btn">
+                                View Metrics
+                                <span class="material-symbols-outlined text-sm group-hover/btn:translate-x-1 transition-transform" data-icon="arrow_forward">arrow_forward</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Template Card 2 -->
+<div class="group bg-surface-container-lowest rounded-xl overflow-hidden hover:shadow-[0px_30px_60px_rgba(19,27,46,0.12)] transition-all duration-500 flex flex-col border border-transparent hover:border-primary/10">
+<div class="relative h-48 overflow-hidden">
+<img alt="Pattern Visual" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" data-alt="vibrant neon gradient landscape with organic liquid shapes and glass-like refractions in shades of violet and cyan" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBlwqCZEHPXwqS7jBFTkn276KjS4g0dPzmtoDWlXe4GsqIn1EHsUsMtde2wDcF8DnJnzJ1CABssLRNQIx3joqwqkppDjnfkh_T_Eyi_mnmKlUK_fPPSUBgGNEiQJzgntbmS8edU4oVQQ3LioZpPgJrc1IdSokN8tD27OBllre6lx0zrOVx6inlo_dv9-_AbNAZUJi_uUXRMqQhrmtjWmBhcfQT1NNFo9Q8H9CwHCiDV0kXKViKGwUv0J8BQyGVpeSFzjZa6aGt2rjaP"/>
+<div class="absolute inset-0 bg-gradient-to-t from-on-surface/60 to-transparent"></div>
+<div class="absolute top-4 left-4 flex gap-2">
+<span class="bg-white/90 backdrop-blur-md text-primary text-[0.65rem] font-black px-2 py-1 rounded tracking-tighter uppercase">Image Gen</span>
+</div>
+<div class="absolute bottom-4 left-4 right-4 flex justify-between items-end">
+<h4 class="text-white font-bold text-lg leading-tight">Photoreal_Master_XL</h4>
+<div class="flex items-center gap-1 bg-white/20 backdrop-blur-md px-2 py-1 rounded text-white text-xs font-bold">
+<span class="material-symbols-outlined text-xs" data-icon="star" data-weight="fill" style="font-variation-settings: 'FILL' 1;">star</span>
+                                9.2
+                            </div>
+</div>
+</div>
+<div class="p-6 flex-1 flex flex-col gap-4">
+<p class="text-xs text-slate-500 line-clamp-2 leading-relaxed">High-fidelity diffusion prompt architect for ultra-realistic architectural and portrait generations with zero artifact bias.</p>
+<div class="flex items-center justify-between mt-auto pt-4 border-t border-slate-100">
+<div class="flex -space-x-2">
+<div class="w-6 h-6 rounded-full border-2 border-white bg-slate-200"></div>
+<div class="w-6 h-6 rounded-full border-2 border-white bg-slate-300"></div>
+<div class="w-6 h-6 rounded-full border-2 border-white bg-primary/20 flex items-center justify-center text-[10px] font-bold text-primary">+215</div>
+</div>
+<button class="text-primary text-xs font-bold hover:underline flex items-center gap-1 group/btn">
+                                View Metrics
+                                <span class="material-symbols-outlined text-sm group-hover/btn:translate-x-1 transition-transform" data-icon="arrow_forward">arrow_forward</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Template Card 3 -->
+<div class="group bg-surface-container-lowest rounded-xl overflow-hidden hover:shadow-[0px_30px_60px_rgba(19,27,46,0.12)] transition-all duration-500 flex flex-col border border-transparent hover:border-primary/10">
+<div class="relative h-48 overflow-hidden">
+<img alt="Pattern Visual" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" data-alt="complex geometric 3D visualization of wireframe networks and nodes with glowing orange light on a dark background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC9dYK2NYZrQpx0Hjwf56cHQHHXo7WnYv3g77fNaHTF5NGPGbmh13CbA3HifGpd5R7WeGcp-LrUgj0E4WffDJ0bSk_X1usyjV4KSBEo5x5TCxO66aN6diiP5Y3vDjlkqbM69QRQUNdckoeg1FbHwvBO9PK6prAuj4gDwoJy3P8mCeoqiodxqJr-PfV5_A7uZ0sn3W3mT3mRsD4dtKopqGJBlqDGaLukb7qIROjzwvGqCXp6cFZM542Nvg8eds60MvDgIP2oiCm7VscI"/>
+<div class="absolute inset-0 bg-gradient-to-t from-on-surface/60 to-transparent"></div>
+<div class="absolute top-4 left-4 flex gap-2">
+<span class="bg-white/90 backdrop-blur-md text-primary text-[0.65rem] font-black px-2 py-1 rounded tracking-tighter uppercase">Agent Workflow</span>
+</div>
+<div class="absolute bottom-4 left-4 right-4 flex justify-between items-end">
+<h4 class="text-white font-bold text-lg leading-tight">Multimodal_Planner_GS</h4>
+<div class="flex items-center gap-1 bg-white/20 backdrop-blur-md px-2 py-1 rounded text-white text-xs font-bold">
+<span class="material-symbols-outlined text-xs" data-icon="star" data-weight="fill" style="font-variation-settings: 'FILL' 1;">star</span>
+                                8.9
+                            </div>
+</div>
+</div>
+<div class="p-6 flex-1 flex flex-col gap-4">
+<p class="text-xs text-slate-500 line-clamp-2 leading-relaxed">Sophisticated agent orchestration framework for handling text, image, and tool-use in a unified governance cycle.</p>
+<div class="flex items-center justify-between mt-auto pt-4 border-t border-slate-100">
+<div class="flex -space-x-2">
+<div class="w-6 h-6 rounded-full border-2 border-white bg-slate-200"></div>
+<div class="w-6 h-6 rounded-full border-2 border-white bg-slate-300"></div>
+<div class="w-6 h-6 rounded-full border-2 border-white bg-primary/20 flex items-center justify-center text-[10px] font-bold text-primary">+45</div>
+</div>
+<button class="text-primary text-xs font-bold hover:underline flex items-center gap-1 group/btn">
+                                View Metrics
+                                <span class="material-symbols-outlined text-sm group-hover/btn:translate-x-1 transition-transform" data-icon="arrow_forward">arrow_forward</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Asymmetric "Featured" Wide Card -->
+<div class="md:col-span-2 group bg-surface-container-low rounded-xl overflow-hidden p-8 flex flex-col md:flex-row gap-8 items-center border border-primary/5 hover:border-primary/20 transition-all">
+<div class="flex-1 space-y-4">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-lg" data-icon="verified">verified</span>
+<span class="text-[0.65rem] font-extrabold uppercase tracking-[0.2em] text-primary">Certified Template of the Week</span>
+</div>
+<h3 class="text-4xl font-black tracking-tighter text-on-surface">Data_Privacy_Guardian</h3>
+<p class="text-sm text-slate-500 leading-relaxed">The industry standard for sanitizing sensitive data within LLM prompts. Features automatic PII detection and synthetic data injection for high-compliance environments.</p>
+<div class="flex items-center gap-6 pt-2">
+<div>
+<span class="text-[10px] font-bold text-slate-400 uppercase">Deployments</span>
+<p class="font-bold text-lg">42.8k</p>
+</div>
+<div>
+<span class="text-[10px] font-bold text-slate-400 uppercase">Success Rate</span>
+<p class="font-bold text-lg text-secondary">99.9%</p>
+</div>
+</div>
+<button class="bg-primary text-on-primary px-8 py-3 rounded-xl font-bold text-sm shadow-xl shadow-primary/30 active:scale-95 transition-transform">Audit Governance</button>
+</div>
+<div class="w-full md:w-64 h-64 bg-surface rounded-2xl overflow-hidden shadow-inner flex items-center justify-center relative">
+<img alt="Cyber Security" class="w-full h-full object-cover mix-blend-overlay opacity-80" data-alt="glowing circuit board and digital code streams representing cybersecurity and data encryption in a dark tech aesthetic" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDtYHVO_iMN0LoKuTNWFzFn4PYIkpVXZkILzI6toQrPcH37F4W0F48-NFlUgDktznyuDZOqhNK_ahIhvQ5n-tDPQ-JZ57hBA8AfScIpnqlGvY1H0HI5fRD-Fs8tTXNd9ofg4f7kbZwTJ1WiXGhI3ReFsOCsJ7yk0_xUtQLZedPE7DaCcKxlSAQzIgw7Fh4_s0a5j1R84A8rb90O5A3Kk5IriWOKmrcnls1Xs2TeIwGMXAiwJTtVrwJ_Hi7eOtEMtA4GN9ZQuPtiVFKq"/>
+<div class="absolute flex flex-col items-center">
+<span class="material-symbols-outlined text-6xl text-primary" data-icon="security">security</span>
+<span class="text-xs font-bold text-primary mt-2">ENCRYPTED</span>
+</div>
+</div>
+</div>
+<!-- Stats Card Small -->
+<div class="bg-primary p-8 rounded-xl text-on-primary flex flex-col justify-center items-center text-center gap-4 relative overflow-hidden">
+<div class="absolute -top-10 -right-10 w-32 h-32 bg-white/10 rounded-full blur-3xl"></div>
+<span class="material-symbols-outlined text-5xl opacity-50" data-icon="auto_awesome">auto_awesome</span>
+<h5 class="text-xl font-bold">Automatic Quality Re-scoring</h5>
+<p class="text-xs opacity-80 font-medium">System runs every 24h to ensure public templates meet strict Gateway latency and safety standards.</p>
+<button class="mt-2 bg-white/20 hover:bg-white/30 backdrop-blur-md px-6 py-2 rounded-lg text-xs font-bold transition-all">Review Log</button>
+</div>
+</section>
+</div>
+</main>
+<!-- FAB for Create action (Suppress on settings etc, but show on global templates list) -->
+<button class="fixed bottom-8 right-8 w-16 h-16 bg-primary text-on-primary rounded-full shadow-2xl flex items-center justify-center hover:scale-110 active:scale-90 transition-all z-50 group">
+<span class="material-symbols-outlined text-3xl" data-icon="add">add</span>
+<span class="absolute right-full mr-4 bg-on-surface text-white text-[10px] px-3 py-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity font-bold pointer-events-none whitespace-nowrap">SUBMIT NEW TEMPLATE</span>
+</button>
+</body></html>
