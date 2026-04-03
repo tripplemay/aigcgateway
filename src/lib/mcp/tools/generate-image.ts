@@ -86,7 +86,10 @@ export function registerGenerateImage(server: McpServer, opts: McpServerOptions)
             content: [
               {
                 type: "text" as const,
-                text: `Model "${model}" not found. Available image models: ${names || "none"}. Use list_models with modality 'image' for full details.`,
+                text: JSON.stringify({
+                  code: "model_not_found",
+                  message: `Model "${model}" not found. Available image models: ${names || "none"}. Use list_models with modality 'image' for full details.`,
+                }),
               },
             ],
             isError: true,
@@ -97,14 +100,25 @@ export function registerGenerateImage(server: McpServer, opts: McpServerOptions)
             content: [
               {
                 type: "text" as const,
-                text: `No available channel for model "${model}". Try another model or retry later.`,
+                text: JSON.stringify({
+                  code: "no_available_channel",
+                  message: `No available channel for model "${model}". Try another model or retry later.`,
+                }),
               },
             ],
             isError: true,
           };
         }
         return {
-          content: [{ type: "text" as const, text: `Routing error: ${(err as Error).message}` }],
+          content: [
+            {
+              type: "text" as const,
+              text: JSON.stringify({
+                code: (err instanceof EngineError ? err.code : null) ?? "routing_error",
+                message: (err as Error).message,
+              }),
+            },
+          ],
           isError: true,
         };
       }
