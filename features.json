@@ -1,112 +1,179 @@
 {
   "features": [
     {
-      "id": "F701",
-      "title": "TC-04-3: Verify CallLog.source='mcp' after chat call",
+      "id": "F001",
+      "title": "Prisma Schema: Template + TemplateVersion 模型",
       "priority": "high",
       "status": "completed",
-      "description": "After calling chat tool via MCP, verify through API that CallLog.source === 'mcp' by querying GET /api/projects/:id/logs with the returned traceId",
-      "acceptance": "Fetch logs with traceId filter, find the log entry, assert source field equals 'mcp'",
-      "testFile": "scripts/test-mcp.ts"
+      "acceptance": "prisma/schema.prisma 包含 Template 和 TemplateVersion 模型，字段与规格 §2.1/§2.2 完全一致"
     },
     {
-      "id": "F702",
-      "title": "TC-04-4: Verify billing consistency between MCP chat and API chat",
+      "id": "F002",
+      "title": "Prisma Schema: CallLog 新增 templateVersionId",
       "priority": "high",
       "status": "completed",
-      "description": "Call the same model with identical messages both via MCP chat and POST /v1/chat/completions, then compare cost values",
-      "acceptance": "Two calls should have cost difference <= 5% (when token counts are similar)",
-      "testFile": "scripts/test-mcp.ts"
+      "acceptance": "CallLog 模型新增 templateVersionId String? @map(\"template_version_id\") 字段"
     },
     {
-      "id": "F703",
-      "title": "TC-04-7: Verify balance reduction after chat call",
+      "id": "F003",
+      "title": "Migration: templates + template_versions 表 + CallLog 变更",
       "priority": "high",
       "status": "completed",
-      "description": "Add balance check before and after chat call, verify that post-call balance < pre-call balance",
-      "acceptance": "Step: get_balance before chat → step: chat → step: get_balance after chat → assert after < before",
-      "testFile": "scripts/test-mcp.ts"
+      "acceptance": "migration SQL 正确，prisma generate 无类型错误，与 schema/代码同一 commit"
     },
     {
-      "id": "F704",
-      "title": "TC-05-1: Test generate_image normal call and response structure",
-      "priority": "high",
-      "status": "completed",
-      "description": "Call generate_image tool with valid model, prompt, and size parameters. Verify response contains imageUrls array, traceId, and cost",
-      "acceptance": "Response.imageUrls is non-empty array, contains valid URLs; traceId is present; cost is a number > 0",
-      "testFile": "scripts/test-mcp.ts"
-    },
-    {
-      "id": "F705",
-      "title": "TC-05-2: Verify CallLog.source='mcp' after generate_image call",
-      "priority": "high",
-      "status": "completed",
-      "description": "After calling generate_image tool, verify through API that the generated CallLog.source === 'mcp'",
-      "acceptance": "Query /api/projects/:id/logs with the returned traceId, assert source === 'mcp'",
-      "testFile": "scripts/test-mcp.ts"
-    },
-    {
-      "id": "F706",
-      "title": "TC-05-3: Test generate_image with invalid model error",
-      "priority": "high",
-      "status": "completed",
-      "description": "Call generate_image with non-existent model name, verify isError=true in response",
-      "acceptance": "Response.isError === true, error message contains 'not found' or model hint",
-      "testFile": "scripts/test-mcp.ts"
-    },
-    {
-      "id": "F707",
-      "title": "TC-06-3: Test list_logs with model filter parameter",
-      "priority": "high",
-      "status": "completed",
-      "description": "Call list_logs with model='deepseek/v3' parameter, verify all returned logs have matching model field",
-      "acceptance": "All returned logs[i].model === 'deepseek/v3'",
-      "testFile": "scripts/test-mcp.ts"
-    },
-    {
-      "id": "F708",
-      "title": "TC-06-4: Test list_logs with status filter parameter",
-      "priority": "high",
-      "status": "completed",
-      "description": "Call list_logs with status='success' parameter, verify all returned logs have status='success'",
-      "acceptance": "All returned logs[i].status === 'success'",
-      "testFile": "scripts/test-mcp.ts"
-    },
-    {
-      "id": "F709",
-      "title": "TC-06-5: Test list_logs with search full-text parameter",
-      "priority": "high",
-      "status": "completed",
-      "description": "Call list_logs with search='Say OK' parameter (from earlier chat call), verify returned logs contain that prompt",
-      "acceptance": "Returned logs contain entries with matching search term in prompt/response fields",
-      "testFile": "scripts/test-mcp.ts"
-    },
-    {
-      "id": "F710",
-      "title": "TC-04-6: Test chat with insufficient balance scenario",
-      "priority": "high",
-      "status": "completed",
-      "description": "Call chat tool using an API key associated with a project that has balance=0, verify isError=true with balance-related error message",
-      "acceptance": "Response.isError === true, error message mentions balance or insufficient funds",
-      "testFile": "scripts/test-mcp-errors.ts"
-    },
-    {
-      "id": "F711",
-      "title": "Prepare test data: Create zero-balance test project",
-      "priority": "high",
-      "status": "completed",
-      "description": "Either create a test project with balance=0 in seed data, or add a script to set up this scenario dynamically",
-      "acceptance": "A test project exists with balance=0 that can be used for TC-04-6",
-      "testFile": "prisma/seed.ts or scripts/setup-test-data.ts"
-    },
-    {
-      "id": "F712",
-      "title": "Update test script helper functions for API calls",
+      "id": "F004",
+      "title": "种子数据: 平台公共模板示例",
       "priority": "medium",
       "status": "completed",
-      "description": "Enhance test scripts to properly handle API calls to /api/projects/:id/logs and /v1/chat/completions with proper error handling and assertions",
-      "acceptance": "All API calls in test-mcp.ts have proper error handling and status code checks",
-      "testFile": "scripts/test-mcp.ts"
+      "acceptance": "seed.ts 包含 2-3 个平台公共模板（projectId=null），各含至少 1 个版本和变量定义"
+    },
+    {
+      "id": "F005",
+      "title": "变量注入引擎 src/lib/template/inject.ts",
+      "priority": "high",
+      "status": "completed",
+      "acceptance": "接收 templateVersionId + variables → 校验必填 → 全局替换 {{}} → 返回 messages 数组"
+    },
+    {
+      "id": "F006",
+      "title": "Admin 模板 CRUD API (7 路由)",
+      "priority": "high",
+      "status": "completed",
+      "acceptance": "§4.2 全部 7 个路由实现，JWT+ADMIN 鉴权"
+    },
+    {
+      "id": "F007",
+      "title": "项目模板 CRUD API (9 路由)",
+      "priority": "high",
+      "status": "completed",
+      "acceptance": "§4.1 全部 9 个路由实现，JWT 鉴权 + 项目归属校验，含 fork 公共模板"
+    },
+    {
+      "id": "F008",
+      "title": "版本管理: 创建版本 + 切换活跃版本",
+      "priority": "high",
+      "status": "completed",
+      "acceptance": "POST versions 自增 versionNumber，PATCH active-version 切换"
+    },
+    {
+      "id": "F009",
+      "title": "/v1/chat/completions 扩展: templateId + variables",
+      "priority": "high",
+      "status": "completed",
+      "acceptance": "传 templateId 时走模板注入链路，CallLog 记录 templateVersionId"
+    },
+    {
+      "id": "F010",
+      "title": "qualityScore 回传 API",
+      "priority": "medium",
+      "status": "completed",
+      "acceptance": "PATCH /api/projects/:id/logs/:traceId/quality 接受 score 0.0~1.0"
+    },
+    {
+      "id": "F011",
+      "title": "公共模板列表 API (无需登录)",
+      "priority": "medium",
+      "status": "completed",
+      "acceptance": "GET /api/public-templates 返回 projectId=null 的模板列表"
+    },
+    {
+      "id": "F012",
+      "title": "MCP Tool: create_template (草稿生成，不写库)",
+      "priority": "high",
+      "status": "completed",
+      "acceptance": "根据 description 生成 messages + variables 草稿 JSON，不写数据库"
+    },
+    {
+      "id": "F013",
+      "title": "MCP Tool: confirm_template (草稿保存)",
+      "priority": "high",
+      "status": "completed",
+      "acceptance": "接收草稿 + name，写入 Template + TemplateVersion"
+    },
+    {
+      "id": "F014",
+      "title": "MCP Tool: list_templates",
+      "priority": "high",
+      "status": "completed",
+      "acceptance": "列出项目私有 + 平台公共模板，支持 search 和 includePublic"
+    },
+    {
+      "id": "F015",
+      "title": "MCP Tool: get_template",
+      "priority": "high",
+      "status": "completed",
+      "acceptance": "返回模板详情 + 所有版本 + 变量定义"
+    },
+    {
+      "id": "F016",
+      "title": "MCP Tool: update_template (创建新版本)",
+      "priority": "high",
+      "status": "completed",
+      "acceptance": "为已有模板创建新版本，不自动切换活跃版本"
+    },
+    {
+      "id": "F017",
+      "title": "MCP chat 工具改造: templateId + variables",
+      "priority": "high",
+      "status": "completed",
+      "acceptance": "传入 templateId 时走模板注入链路，messages 可省略"
+    },
+    {
+      "id": "F018",
+      "title": "Stitch 原型: 模板列表页 (由用户完成)",
+      "priority": "high",
+      "status": "pending",
+      "acceptance": "design-draft/ 下有 code.html + screen.png"
+    },
+    {
+      "id": "F019",
+      "title": "Stitch 原型: 模板编辑页 (由用户完成)",
+      "priority": "high",
+      "status": "pending",
+      "acceptance": "design-draft/ 下有 code.html + screen.png"
+    },
+    {
+      "id": "F020",
+      "title": "Stitch 原型: Admin 模板管理页 (由用户完成)",
+      "priority": "high",
+      "status": "pending",
+      "acceptance": "design-draft/ 下有 code.html + screen.png"
+    },
+    {
+      "id": "F021",
+      "title": "前端: 模板列表页 /templates (等 Stitch 原型)",
+      "priority": "high",
+      "status": "pending",
+      "acceptance": "按原型 1:1 复刻，接入 API，含搜索 + Fork"
+    },
+    {
+      "id": "F022",
+      "title": "前端: 模板编辑页 /templates/:id (等 Stitch 原型)",
+      "priority": "high",
+      "status": "pending",
+      "acceptance": "按原型 1:1 复刻，messages 编辑器 + 变量定义 + 版本历史"
+    },
+    {
+      "id": "F023",
+      "title": "前端: Admin 模板管理页 /admin/templates (等 Stitch 原型)",
+      "priority": "high",
+      "status": "pending",
+      "acceptance": "按原型 1:1 复刻，平台公共模板 CRUD + category"
+    },
+    {
+      "id": "F024",
+      "title": "侧边栏导航: 新增模板入口",
+      "priority": "medium",
+      "status": "pending",
+      "acceptance": "开发者导航新增'模板'，Admin 新增'模板管理'"
+    },
+    {
+      "id": "F025",
+      "title": "i18n: 模板相关全部文案",
+      "priority": "medium",
+      "status": "pending",
+      "acceptance": "en.json + zh-CN.json 同步，无缺失 key"
     }
   ]
 }

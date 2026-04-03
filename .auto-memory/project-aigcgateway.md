@@ -19,6 +19,7 @@ AIGC Gateway — AI 服务商管理中台。统一 API 调用抽象（兼容 Ope
 - P2 完成：MCP 服务器 (7 Tools) + 控制台国际化 (20页 + 259 key) + 集成测试
 - 性能优化：Redis 缓存迁移 + PM2 cluster 已签收 PASS
 - MCP L2 集成：读类 Tools + 错误场景 PASS，写类链路（chat/image 计费）受定价数据缺失影响
+- **P3-1 规划完成，progress.json 已重置为 "new"，待 Harness Planner 启动**
 
 ## 最近修复（2026-04-03）
 
@@ -26,6 +27,12 @@ AIGC Gateway — AI 服务商管理中台。统一 API 调用抽象（兼容 Ope
 - `openai-compat.ts imageViaChat`: 重写 — multimodal parts → base64 → URL 正则 → 全部失败抛错
 - `list-logs.ts search`: 改为 jsonb_array_elements 提取纯文本匹配
 - `keys/page.tsx search`: 改为 uncontrolled input（ref + searchTick），消除 DOM/State 不同步
+
+## P3-1 关键提醒
+
+- 前端新页面（模板列表、模板编辑、Admin 模板管理）必须 **Stitch 原型先行**，再开始前端开发
+- 后端阶段（数据库 + 注入引擎 + API）与 Stitch 设计可并行
+- 规格文档：`docs/specs/AIGC-Gateway-Template-Governance-P3-1-Spec.md`
 
 ## 已知遗留问题
 

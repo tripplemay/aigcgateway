@@ -252,6 +252,106 @@ async function main() {
     });
   }
 
+  // 4. 平台公共模板（projectId=null）
+  const templateSeeds = [
+    {
+      name: "通用翻译助手",
+      description: "将任意文本翻译为目标语言，支持自定义语气风格",
+      category: "translation",
+      messages: [
+        {
+          role: "system",
+          content:
+            "你是一个专业翻译，请将用户的文本翻译为{{target_language}}。语气风格：{{tone}}。只输出翻译结果，不要解释。",
+        },
+        { role: "user", content: "{{text}}" },
+      ],
+      variables: [
+        { name: "target_language", description: "目标语言，如 English、日本語", required: true },
+        {
+          name: "tone",
+          description: "语气风格，如 正式、口语化、学术",
+          required: false,
+          defaultValue: "正式",
+        },
+        { name: "text", description: "待翻译的文本", required: true },
+      ],
+    },
+    {
+      name: "代码审查专家",
+      description: "对代码片段进行审查，给出改进建议",
+      category: "development",
+      messages: [
+        {
+          role: "system",
+          content:
+            "你是一位资深{{language}}开发者。请对以下代码进行审查，从代码质量、安全性、性能三个维度给出改进建议。用中文回答。",
+        },
+        { role: "user", content: "```{{language}}\n{{code}}\n```" },
+      ],
+      variables: [
+        { name: "language", description: "编程语言，如 TypeScript、Python、Go", required: true },
+        { name: "code", description: "待审查的代码片段", required: true },
+      ],
+    },
+    {
+      name: "内容摘要生成",
+      description: "将长文本压缩为指定长度的摘要",
+      category: "writing",
+      messages: [
+        {
+          role: "system",
+          content:
+            "请将以下内容压缩为不超过{{max_words}}字的摘要。保留核心观点，使用{{style}}风格。",
+        },
+        { role: "user", content: "{{content}}" },
+      ],
+      variables: [
+        { name: "max_words", description: "摘要最大字数", required: false, defaultValue: "200" },
+        {
+          name: "style",
+          description: "摘要风格，如 新闻简报、技术摘要、通俗易懂",
+          required: false,
+          defaultValue: "通俗易懂",
+        },
+        { name: "content", description: "待摘要的长文本", required: true },
+      ],
+    },
+  ];
+
+  for (const tpl of templateSeeds) {
+    const existing = await prisma.template.findFirst({
+      where: { projectId: null, name: tpl.name },
+    });
+    if (!existing) {
+      const template = await prisma.template.create({
+        data: {
+          projectId: null,
+          name: tpl.name,
+          description: tpl.description,
+          category: tpl.category,
+          createdBy: admin.id,
+        },
+      });
+      const version = await prisma.templateVersion.create({
+        data: {
+          templateId: template.id,
+          versionNumber: 1,
+          messages: tpl.messages,
+          variables: tpl.variables,
+          changelog: "初始版本",
+        },
+      });
+      await prisma.template.update({
+        where: { id: template.id },
+        data: { activeVersionId: version.id },
+      });
+      console.log(`  Template: ${tpl.name} (v1)`);
+    } else {
+      console.log(`  Template: ${tpl.name} (already exists)`);
+    }
+  }
+
   console.log("\nSeed completed! (Model/Channel will be created by model sync on startup)");
 }
 

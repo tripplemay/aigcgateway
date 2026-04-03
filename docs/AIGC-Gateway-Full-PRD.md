@@ -1,8 +1,8 @@
 # AIGC Gateway — 完整产品 PRD
 
 > AIGC 全链路质量审计与管理平台
-> Version 2.0 | 2026-04-01
-> 状态：P1 已完成，P1优化补丁进行中，P2 MCP+国际化进行中
+> Version 3.0 | 2026-04-03
+> 状态：P1 已完成，P1优化补丁已完成，P2 已完成，P3 规划中
 
 ---
 
@@ -463,13 +463,57 @@ Codex 测试 Agent 使用 docker-compose.test.yml 在独立 sandbox 中启动隔
 - MCP 集成测试 — P2-6 待办
 
 ### P3（规划中）
-- Prompt 模板治理（版本管理、变量注入、硬编码检测、效果追踪、A/B 测试）
-- 解析位置：服务端（开发者传 templateId + variables，平台组装 prompt）
-- 管理权：两层（平台模板 + 项目模板）
-- MCP 创建模板：直接生效 + 版本保护
+
+P3 核心主题：**Prompt 模板治理**，分三期交付。
+
+#### 核心设计决策
+
+| 设计点 | 决策 |
+|--------|------|
+| 模板管理层级 | 两层：平台公共模板（Admin 管理）+ 项目私有模板（开发者管理）|
+| 调用方式 | 开发者传 `templateId + variables`，平台服务端组装 prompt |
+| 变量类型 | 仅支持 `string`，占位符格式 `{{变量名}}` |
+| 模板内容结构 | 完整 messages 数组（支持多轮对话预设 / few-shot）|
+| 版本管理 | TemplateVersion 表，`activeVersionId` 字段控制活跃版本 |
+| Fork 机制 | 开发者可 fork 平台公共模板，保留 `forkedFromId` 溯源 |
+| Fork 更新通知 | 控制台轻量提示"源模板有新版本"，不强制同步 |
+| qualityScore | 开发者业务侧回传（API 写回指定 traceId）|
+| A/B 测试 | 手动切版本 + 各版本效果数据并排对比，不做自动流量分配 |
+| 硬编码检测 | CallLog 分析重复 prompt，控制台提示，一键转模板 |
+| MCP 创建模板 | AI 生成草稿 → 展示给开发者确认 → 保存，不自动直接写入 |
+
+#### P3-1（核心基建）— 当前期
+
+**数据库变更：**
+- 新增 `templates` 表（模板主体：id / projectId / name / description / category / activeVersionId / forkedFromId / createdBy）
+- 新增 `template_versions` 表（版本快照：id / templateId / versionNumber / messages / variables / changelog）
+- `call_logs` 新增 `templateVersionId` 字段
+
+**后端：**
+- 模板 CRUD API（`/api/projects/:id/templates`，`/api/admin/templates`）
+- 版本管理 API（创建版本、切换 activeVersion）
+- 变量注入引擎（`{{变量名}}` 占位符替换，组装 messages 数组）
+- `POST /v1/chat/completions` 扩展支持 `templateId + variables` 入参
+- `qualityScore` 回传 API（`PATCH /api/projects/:id/logs/:traceId/quality`）
+
+**控制台（需 Stitch 原型先行）：**
+- 开发者模板列表页（项目模板 + 可 fork 的平台公共模板）
+- 模板编辑页（messages 数组编辑器 + 变量定义 + 版本历史）
+- Admin 平台模板管理页
+
+**MCP 工具（5 个新增 + 1 个改造）：**
+- `create_template`（生成草稿，返回预览）
+- `confirm_template`（确认保存）
+- `list_templates`（列出模板，支持关键词搜索）
+- `get_template`（查看模板详情）
+- `update_template`（创建新版本）
+- `chat`（改造，新增 `templateId + variables` 支持）
+
+#### P3-2（效果追踪 + A/B 对比）— 待规划
+
+#### P3-3（智能化）— 待规划
 
 ### P3+（待规划）
-- 质量诊断
 - 自动 failover
 - 日志冷热分离
 - Python SDK

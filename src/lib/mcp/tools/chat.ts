@@ -15,6 +15,7 @@ import { checkRateLimit } from "@/lib/api/rate-limit";
 import { EngineError } from "@/lib/engine/types";
 import type { ChatCompletionRequest } from "@/lib/engine/types";
 import { checkMcpPermission } from "@/lib/mcp/auth";
+import { injectByTemplateId, InjectionError } from "@/lib/template/inject";
 import type { McpServerOptions } from "@/lib/mcp/server";
 
 const messageSchema = z.object({
@@ -26,14 +27,27 @@ export function registerChat(server: McpServer, opts: McpServerOptions): void {
   const { projectId, permissions, keyRateLimit } = opts;
   server.tool(
     "chat",
-    `Send a chat completion request to an AI model via AIGC Gateway. The platform handles provider routing, cost tracking, and audit logging. Returns the generated text, trace ID for debugging, and token usage with cost. Use list_models first to find available models and their pricing.`,
+    `Send a chat completion request to an AI model via AIGC Gateway. Supports two modes: (1) direct messages, or (2) templateId + variables for template-based calls. When templateId is provided, messages can be omitted — the template's active version will be used with variable injection. Returns generated text, trace ID, and token usage.`,
     {
       model: z.string().describe("Model name, e.g. openai/gpt-4o, deepseek/v3"),
-      messages: z.array(messageSchema).describe("Message array [{role, content}]"),
+      messages: z
+        .array(messageSchema)
+        .optional()
+        .describe("Message array [{role, content}]. Optional when using templateId."),
+      templateId: z
+        .string()
+        .optional()
+        .describe(
+          "Template ID — if provided, uses template's active version with variable injection",
+        ),
+      variables: z
+        .record(z.string())
+        .optional()
+        .describe('Variables to inject into template, e.g. {"language": "Python", "code": "..."}'),
       temperature: z.number().min(0).max(2).optional().describe("Sampling temperature, 0-2"),
       max_tokens: z.number().int().positive().optional().describe("Maximum output tokens"),
     },
-    async ({ model, messages, temperature, max_tokens }) => {
+    async ({ model, messages, templateId, variables, temperature, max_tokens }) => {
       // Permission check
       const permErr = checkMcpPermission(permissions, "chatCompletion");
       if (permErr) {
@@ -61,6 +75,41 @@ export function registerChat(server: McpServer, opts: McpServerOptions): void {
           content: [
             { type: "text" as const, text: "Rate limit exceeded. Please retry after 60 seconds." },
           ],
+          isError: true,
+        };
+      }
+
+      // Template injection
+      let resolvedMessages = messages;
+      let tplVersionId: string | undefined;
+      let tplVariables: Record<string, string> | undefined;
+
+      if (templateId) {
+        try {
+          const injected = await injectByTemplateId(templateId, variables || {});
+          resolvedMessages = injected.messages as {
+            role: "system" | "user" | "assistant";
+            content: string;
+          }[];
+          tplVersionId = injected.templateVersionId;
+          tplVariables = variables;
+        } catch (err) {
+          if (err instanceof InjectionError) {
+            return {
+              content: [{ type: "text" as const, text: `Template error: ${err.message}` }],
+              isError: true,
+            };
+          }
+          return {
+            content: [{ type: "text" as const, text: `Template error: ${(err as Error).message}` }],
+            isError: true,
+          };
+        }
+      }
+
+      if (!resolvedMessages || resolvedMessages.length === 0) {
+        return {
+          content: [{ type: "text" as const, text: "Either messages or templateId is required." }],
           isError: true,
         };
       }
@@ -113,7 +162,7 @@ export function registerChat(server: McpServer, opts: McpServerOptions): void {
 
       const request: ChatCompletionRequest = {
         model,
-        messages,
+        messages: resolvedMessages,
         ...(temperature !== undefined ? { temperature } : {}),
         ...(max_tokens !== undefined ? { max_tokens } : {}),
         stream: false,
@@ -128,11 +177,13 @@ export function registerChat(server: McpServer, opts: McpServerOptions): void {
           projectId,
           route,
           modelName: model,
-          promptSnapshot: messages,
+          promptSnapshot: resolvedMessages,
           requestParams: { temperature, max_tokens },
           startTime,
           response,
           source: "mcp",
+          templateVersionId: tplVersionId,
+          templateVariables: tplVariables,
         });
 
         const content = response.choices?.[0]?.message?.content ?? "";
@@ -168,11 +219,13 @@ export function registerChat(server: McpServer, opts: McpServerOptions): void {
           projectId,
           route,
           modelName: model,
-          promptSnapshot: messages,
+          promptSnapshot: resolvedMessages,
           requestParams: { temperature, max_tokens },
           startTime,
           error: { message: (err as Error).message, code: (err as EngineError)?.code },
           source: "mcp",
+          templateVersionId: tplVersionId,
+          templateVariables: tplVariables,
         });
 
         const engineErr = err instanceof EngineError ? err : null;

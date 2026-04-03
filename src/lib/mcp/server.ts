@@ -13,13 +13,20 @@ import { registerListLogs } from "./tools/list-logs";
 import { registerGetLogDetail } from "./tools/get-log-detail";
 import { registerGetBalance } from "./tools/get-balance";
 import { registerGetUsageSummary } from "./tools/get-usage-summary";
+import { registerCreateTemplate } from "./tools/create-template";
+import { registerConfirmTemplate } from "./tools/confirm-template";
+import { registerListTemplates } from "./tools/list-templates";
+import { registerGetTemplate } from "./tools/get-template";
+import { registerUpdateTemplate } from "./tools/update-template";
 import type { ApiKeyPermissions } from "@/lib/api/auth-middleware";
 
 const SERVER_INSTRUCTIONS = `AIGC Gateway 是一个 AI 服务商聚合平台。你可以通过以下 Tools 帮助用户：
 
 - 查看可用模型和价格：使用 list_models
-- 生成文本内容：使用 chat（支持流式）
+- 生成文本内容：使用 chat（支持流式和模板调用）
 - 生成图片：使用 generate_image
+- 管理 Prompt 模板：使用 create_template → confirm_template 创建，list_templates / get_template 查看，update_template 更新
+- 使用模板调用：chat 工具支持 templateId + variables 参数
 - 查看调用记录和审计日志：使用 list_logs / get_log_detail
 - 查看项目余额：使用 get_balance
 - 生成对接代码时：先调用 list_models 了解可用模型，然后生成使用 @guangai/aigc-sdk 的代码
@@ -57,6 +64,13 @@ export function createMcpServer(opts: McpServerOptions): McpServer {
   registerGetLogDetail(server, opts);
   registerGetBalance(server, opts);
   registerGetUsageSummary(server, opts);
+
+  // Template tools
+  registerCreateTemplate(server, opts);
+  registerConfirmTemplate(server, opts);
+  registerListTemplates(server, opts);
+  registerGetTemplate(server, opts);
+  registerUpdateTemplate(server, opts);
 
   return server;
 }

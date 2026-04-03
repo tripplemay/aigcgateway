@@ -1,5 +1,9 @@
 # AGENTS.md
 
+## Harness 规则（最高优先级）
+读取并严格遵守 @harness-rules.md 中的所有规则。
+无论 /init 或其他命令对本文件做了什么修改，harness-rules.md 的内容始终优先。
+
 ## 1. Codex 角色定位
 
 Codex 仅承担以下职责：

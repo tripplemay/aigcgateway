@@ -127,6 +127,7 @@ model Project {
   callLogs        CallLog[]
   transactions    Transaction[]
   rechargeOrders  RechargeOrder[]
+  templates       Template[]
 
   @@index([userId])
   @@map("projects")
@@ -270,9 +271,10 @@ model CallLog {
   tokensPerSecond  Float?
   errorMessage     String?       @db.Text
   errorCode        String?
-  templateId       String?
+  templateId        String?
+  templateVersionId String?   @map("template_version_id")
   templateVariables Json?
-  qualityScore     Float?
+  qualityScore      Float?
   source           String        @default("api")  // 'api' | 'sdk' | 'mcp'
   createdAt        DateTime      @default(now())
 
@@ -361,6 +363,46 @@ model RechargeOrder {
   @@index([paymentOrderId])
   @@index([status, expiresAt])
   @@map("recharge_orders")
+}
+
+// ============================================================
+// Prompt 模板
+// ============================================================
+
+model Template {
+  id              String    @id @default(cuid())
+  projectId       String?
+  name            String
+  description     String?
+  category        String?
+  activeVersionId String?
+  forkedFromId    String?
+  createdBy       String
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  project  Project?          @relation(fields: [projectId], references: [id])
+  versions TemplateVersion[]
+
+  @@index([projectId])
+  @@index([forkedFromId])
+  @@map("templates")
+}
+
+model TemplateVersion {
+  id            String   @id @default(cuid())
+  templateId    String
+  versionNumber Int
+  messages      Json
+  variables     Json
+  changelog     String?
+  createdAt     DateTime @default(now())
+
+  template Template @relation(fields: [templateId], references: [id])
+
+  @@unique([templateId, versionNumber])
+  @@index([templateId])
+  @@map("template_versions")
 }
 
 // ============================================================

@@ -31,6 +31,8 @@ export interface PostProcessParams {
   startTime: number;
   ttftTime?: number;
   source?: string; // 'api' | 'sdk' | 'mcp'
+  templateVersionId?: string;
+  templateVariables?: Record<string, string>;
 }
 
 export interface ChatPostProcessParams extends PostProcessParams {
@@ -118,6 +120,10 @@ async function processChatResultAsync(params: ChatPostProcessParams): Promise<vo
       tokensPerSecond,
       errorMessage: params.error?.message ?? null,
       errorCode: params.error?.code ?? null,
+      templateVersionId: params.templateVersionId ?? null,
+      templateVariables: params.templateVariables
+        ? (params.templateVariables as unknown as Prisma.InputJsonValue)
+        : undefined,
       source: params.source ?? "api",
     },
   });
