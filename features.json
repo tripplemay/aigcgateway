@@ -1,16 +1,112 @@
 {
   "features": [
-    { "id": "F001-F512", "title": "P1~P1.5 全部完成", "priority": "high", "status": "completed", "acceptance": "done" },
-    { "id": "F601", "title": "数据库变更：ProviderConfig 新增 docUrls 字段", "priority": "high", "status": "completed", "acceptance": "done" },
-    { "id": "F602", "title": "种子数据更新：docUrls 填入 + pricingOverrides 清空", "priority": "high", "status": "completed", "acceptance": "done" },
-    { "id": "F603", "title": "类型定义重构：src/lib/sync/types.ts", "priority": "high", "status": "completed", "acceptance": "done" },
-    { "id": "F604", "title": "内部 AI 调用函数：绕过鉴权和计费直接调用 DeepSeek", "priority": "high", "status": "completed", "acceptance": "done" },
-    { "id": "F605", "title": "AI 文档提取层：doc-enricher.ts 核心逻辑", "priority": "high", "status": "completed", "acceptance": "done" },
-    { "id": "F606", "title": "重构 7 家适配器：移除硬编码数据依赖", "priority": "high", "status": "completed", "acceptance": "done" },
-    { "id": "F607", "title": "重构 model-sync.ts 调度器：两层同步架构", "priority": "high", "status": "completed", "acceptance": "done" },
-    { "id": "F608", "title": "同步日志增强：每层数据来源统计", "priority": "medium", "status": "completed", "acceptance": "done" },
-    { "id": "F609", "title": "火山引擎验证：AI 提取模型数量远多于旧 staticModels", "priority": "high", "status": "completed", "acceptance": "done — 14 models via AI inline text extraction" },
-    { "id": "F610", "title": "全链路集成验证：7 家服务商两层同步", "priority": "high", "status": "completed", "acceptance": "done" },
-    { "id": "F611", "title": "TypeScript 编译 + Build 验证", "priority": "high", "status": "completed", "acceptance": "done" }
+    {
+      "id": "F701",
+      "title": "TC-04-3: Verify CallLog.source='mcp' after chat call",
+      "priority": "high",
+      "status": "completed",
+      "description": "After calling chat tool via MCP, verify through API that CallLog.source === 'mcp' by querying GET /api/projects/:id/logs with the returned traceId",
+      "acceptance": "Fetch logs with traceId filter, find the log entry, assert source field equals 'mcp'",
+      "testFile": "scripts/test-mcp.ts"
+    },
+    {
+      "id": "F702",
+      "title": "TC-04-4: Verify billing consistency between MCP chat and API chat",
+      "priority": "high",
+      "status": "completed",
+      "description": "Call the same model with identical messages both via MCP chat and POST /v1/chat/completions, then compare cost values",
+      "acceptance": "Two calls should have cost difference <= 5% (when token counts are similar)",
+      "testFile": "scripts/test-mcp.ts"
+    },
+    {
+      "id": "F703",
+      "title": "TC-04-7: Verify balance reduction after chat call",
+      "priority": "high",
+      "status": "completed",
+      "description": "Add balance check before and after chat call, verify that post-call balance < pre-call balance",
+      "acceptance": "Step: get_balance before chat → step: chat → step: get_balance after chat → assert after < before",
+      "testFile": "scripts/test-mcp.ts"
+    },
+    {
+      "id": "F704",
+      "title": "TC-05-1: Test generate_image normal call and response structure",
+      "priority": "high",
+      "status": "completed",
+      "description": "Call generate_image tool with valid model, prompt, and size parameters. Verify response contains imageUrls array, traceId, and cost",
+      "acceptance": "Response.imageUrls is non-empty array, contains valid URLs; traceId is present; cost is a number > 0",
+      "testFile": "scripts/test-mcp.ts"
+    },
+    {
+      "id": "F705",
+      "title": "TC-05-2: Verify CallLog.source='mcp' after generate_image call",
+      "priority": "high",
+      "status": "completed",
+      "description": "After calling generate_image tool, verify through API that the generated CallLog.source === 'mcp'",
+      "acceptance": "Query /api/projects/:id/logs with the returned traceId, assert source === 'mcp'",
+      "testFile": "scripts/test-mcp.ts"
+    },
+    {
+      "id": "F706",
+      "title": "TC-05-3: Test generate_image with invalid model error",
+      "priority": "high",
+      "status": "completed",
+      "description": "Call generate_image with non-existent model name, verify isError=true in response",
+      "acceptance": "Response.isError === true, error message contains 'not found' or model hint",
+      "testFile": "scripts/test-mcp.ts"
+    },
+    {
+      "id": "F707",
+      "title": "TC-06-3: Test list_logs with model filter parameter",
+      "priority": "high",
+      "status": "completed",
+      "description": "Call list_logs with model='deepseek/v3' parameter, verify all returned logs have matching model field",
+      "acceptance": "All returned logs[i].model === 'deepseek/v3'",
+      "testFile": "scripts/test-mcp.ts"
+    },
+    {
+      "id": "F708",
+      "title": "TC-06-4: Test list_logs with status filter parameter",
+      "priority": "high",
+      "status": "completed",
+      "description": "Call list_logs with status='success' parameter, verify all returned logs have status='success'",
+      "acceptance": "All returned logs[i].status === 'success'",
+      "testFile": "scripts/test-mcp.ts"
+    },
+    {
+      "id": "F709",
+      "title": "TC-06-5: Test list_logs with search full-text parameter",
+      "priority": "high",
+      "status": "completed",
+      "description": "Call list_logs with search='Say OK' parameter (from earlier chat call), verify returned logs contain that prompt",
+      "acceptance": "Returned logs contain entries with matching search term in prompt/response fields",
+      "testFile": "scripts/test-mcp.ts"
+    },
+    {
+      "id": "F710",
+      "title": "TC-04-6: Test chat with insufficient balance scenario",
+      "priority": "high",
+      "status": "completed",
+      "description": "Call chat tool using an API key associated with a project that has balance=0, verify isError=true with balance-related error message",
+      "acceptance": "Response.isError === true, error message mentions balance or insufficient funds",
+      "testFile": "scripts/test-mcp-errors.ts"
+    },
+    {
+      "id": "F711",
+      "title": "Prepare test data: Create zero-balance test project",
+      "priority": "high",
+      "status": "completed",
+      "description": "Either create a test project with balance=0 in seed data, or add a script to set up this scenario dynamically",
+      "acceptance": "A test project exists with balance=0 that can be used for TC-04-6",
+      "testFile": "prisma/seed.ts or scripts/setup-test-data.ts"
+    },
+    {
+      "id": "F712",
+      "title": "Update test script helper functions for API calls",
+      "priority": "medium",
+      "status": "completed",
+      "description": "Enhance test scripts to properly handle API calls to /api/projects/:id/logs and /v1/chat/completions with proper error handling and assertions",
+      "acceptance": "All API calls in test-mcp.ts have proper error handling and status code checks",
+      "testFile": "scripts/test-mcp.ts"
+    }
   ]
 }

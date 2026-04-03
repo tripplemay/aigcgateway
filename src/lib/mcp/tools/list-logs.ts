@@ -53,7 +53,7 @@ export function registerListLogs(server: McpServer, opts: McpServerOptions): voi
         >`
           SELECT "traceId", "modelName", status, "sellPrice"::float, "latencyMs", "totalTokens", "createdAt", "promptSnapshot"
           FROM call_logs
-          WHERE "projectId" = ${projectId} AND ("traceId" ILIKE ${likePattern} OR "modelName" ILIKE ${likePattern})
+          WHERE "projectId" = ${projectId} AND ("promptSnapshot"::text ILIKE ${likePattern} OR "responseContent" ILIKE ${likePattern})
           ORDER BY "createdAt" DESC LIMIT ${take}
         `;
 

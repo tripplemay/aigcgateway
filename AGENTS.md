@@ -466,7 +466,6 @@ Codex 产生的测试和审查产物，统一放在以下目录：
 - `tests/`
 - `scripts/test/`
 - `docs/test-reports/`
-- `docs/reviews/`
 - `docs/audits/`
 
 如需新增目录，应保持语义清晰，并确保其用途明确属于测试 / 审查 / 验收体系。
@@ -507,3 +506,109 @@ Codex 产生的测试和审查产物，统一放在以下目录：
 - 不执行高风险写入
 - 不覆盖现场
 - 先报告，再等待开发侧处理
+
+---
+
+## 16. 文档目录结构（2026-04-03 整理后）
+
+`docs/` 目录按角色用途划分，Codex 只需关注以下两个目录：
+
+```
+docs/
+├── AIGC-Gateway-Full-PRD.md      # 产品全貌（如需了解背景可参考）
+├── specs/                         # 技术规格 — 理解被测系统行为时参考
+├── test-cases/                    # ← Codex 主要输入：执行前读这里
+├── test-reports/                  # ← Codex 主要输出：签收报告写这里
+├── provider/                      # 服务商接入 ADR（了解各服务商差异时参考）
+└── archive/                       # 历史文档，无需阅读
+```
+
+### 16.1 test-cases/ — 测试用例（输入）
+
+| 文件 | 覆盖模块 |
+|------|---------|
+| `api-keys-backend-api-test-cases-*.md` | API Keys 后端接口 |
+| `api-keys-frontend-test-cases-*.md` | API Keys 前端交互 |
+| `api-keys-manual-test-cases-*.md` | API Keys 手动验收 |
+| `channel-management-unit-test-cases.md` | 通道管理 |
+| `frontend-redesign-api-test-cases-*.md` | 前端重构接口回归 |
+| `frontend-redesign-manual-test-cases-*.md` | 前端重构手动验收 |
+| `model-sync-engine-*-test-cases-*.md` | 模型同步引擎 |
+| `model-sync-ai-enrichment-*-test-cases-*.md` | AI 数据提取模块 |
+| `redis-cluster-*-test-cases-*.md` | Redis 缓存集成与性能 |
+| `aigc-gateway-performance-test-plan-*.md` | 整体性能测试计划 |
+
+### 16.2 test-reports/ — 最终签收报告（输出）
+
+`test-reports/` 只保留每轮的**最终签收报告**，过程中间轮次不需要单独存档。
+
+命名规范：`{模块}-{环境}-{结论}-{日期}.md`，例如：
+```
+model-sync-production-signoff-2026-04-05.md
+api-keys-staging-acceptance-2026-04-05.md
+```
+
+历史过程报告已归档至 `archive/test-reports-history/`，无需参考。
+
+### 16.3 specs/ — 技术规格（参考）
+
+测试用例有疑义时，可查阅对应规格文档：
+
+| 文件 | 内容 |
+|------|------|
+| `AIGC-Gateway-API-Specification.md` | 全量接口定义、请求/响应格式、错误码 |
+| `AIGC-Gateway-Database-Design.md` | 数据库表结构、字段含义 |
+| `AIGC-Gateway-Payment-Integration.md` | 支付状态机、充值流程 |
+| `AIGC-Gateway-SDK-Interface-Design.md` | TypeScript SDK 接口 |
+| `AIGC-Gateway-Model-Auto-Sync-PRD.md` | 模型自动同步引擎规格 |
+| `api-keys-backend-spec.md` | API Keys 后端详细规格 |
+| `api-keys-frontend-spec.md` | API Keys 前端交互规格 |
+
+### 16.4 不需要读的目录
+
+- `archive/` — 历史文档，对当前测试没有参考价值
+- `design-draft/` — UI 设计稿 HTML，与测试无关
+
+---
+
+## 17. 分层测试策略
+
+### 17.1 背景：本地测试环境的限制
+
+本地测试环境（3099）的种子数据使用占位符 provider API Key（如 `PLACEHOLDER_DEEPSEEK_KEY`）。
+这是有意为之的设计——真实 provider 密钥不应出现在测试 seed 中。
+
+直接后果是：所有需要向真实 AI 服务商发起上游调用的操作，在本地环境都会返回 502 Bad Gateway。
+
+### 17.2 两层测试分工
+
+| 测试层 | 环境 | 覆盖内容 | 不覆盖内容 |
+|--------|------|---------|-----------|
+| **L1 本地基础设施层** | `localhost:3099` | MCP 协议、认证/鉴权、路由结构、错误处理、读类 MCP Tools、日志查询、余额查询 | 真实 AI 调用、计费扣减验证、source='mcp' 写入验证 |
+| **L2 Staging 全链路层** | Staging 环境（有真实 provider key） | chat / generate_image 完整链路、CallLog 写入、source 字段、计费一致性、余额变化 | — |
+
+### 17.3 本地可测 vs 需要 Staging 的用例
+
+**本地可测（L1）：**
+- TC-01-x MCP 初始化与协议
+- TC-02-x Tools 列举
+- TC-03-x list_models
+- TC-06-x get_balance（读取）
+- TC-07-x list_logs（查询，不验证 AI 调用生成的 log）
+- TC-09-x get_usage_summary
+- TC-04-1/2/3 错误场景：无效 key、无效模型、余额不足
+- TC-08-x generate_image 错误场景（无效模型）
+
+**需要 Staging 环境（L2）：**
+- TC-04-4/5/6/7 chat 主链路（含 source='mcp' 验证、计费一致性）
+- TC-05-x generate_image 主链路
+- TC-08-x generate_image 正常调用
+- TC-06-x get_balance 前后对比（依赖真实调用产生扣减）
+- TC-07-x list_logs 含 'Say OK' 内容搜索（依赖真实调用生成 log）
+
+### 17.4 执行规则
+
+1. **Codex 每轮必须先执行 L1 本地测试**，确认基础设施层通过
+2. **L2 Staging 测试需要用户明确授权**，并由用户提供 Staging 环境地址和测试 API Key
+3. L2 测试时，`PRODUCTION_STAGE`、`PRODUCTION_DB_WRITE`、`HIGH_COST_OPS` 的值必须按 §7 规定读取并复述
+4. **L1 FAIL 不等于 L2 FAIL**，报告中必须区分失败层级

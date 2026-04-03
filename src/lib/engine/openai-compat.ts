@@ -295,17 +295,27 @@ export class OpenAICompatEngine implements EngineAdapter {
     const content = result.choices[0]?.message?.content ?? "";
 
     // 尝试从 content 中提取图片 URL
-    const urlMatch = content.match(/https?:\/\/[^\s"'<>]+\.(png|jpg|jpeg|webp|gif)/i);
-    if (urlMatch) {
+    // 优先匹配带扩展名的图片 URL，其次匹配任意 HTTPS URL（兼容 Google Storage 等无扩展名链接）
+    const urlWithExtMatch = content.match(/https?:\/\/[^\s"'<>]+\.(png|jpg|jpeg|webp|gif)/i);
+    if (urlWithExtMatch) {
       return {
         created: result.created,
-        data: [{ url: urlMatch[0] }],
+        data: [{ url: urlWithExtMatch[0] }],
       };
     }
 
+    const anyUrlMatch = content.match(/https?:\/\/[^\s"'<>]+/);
+    if (anyUrlMatch) {
+      return {
+        created: result.created,
+        data: [{ url: anyUrlMatch[0] }],
+      };
+    }
+
+    // content 为空或不含 URL，返回空数组（上层 filter(Boolean) 会正确处理）
     return {
       created: result.created,
-      data: [{ url: content }],
+      data: content ? [{ url: content }] : [],
     };
   }
 

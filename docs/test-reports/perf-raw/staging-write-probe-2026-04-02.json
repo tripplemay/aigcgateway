@@ -1,0 +1,18 @@
+[
+  {
+    "scenario": "project",
+    "count": 10,
+    "status_codes": {"201": 10},
+    "avg_ms": 657.73,
+    "p50_ms": 656.74,
+    "max_ms": 690.37
+  },
+  {
+    "scenario": "key",
+    "count": 10,
+    "status_codes": {"201": 10},
+    "avg_ms": 673.77,
+    "p50_ms": 652.23,
+    "max_ms": 761.68
+  }
+]

@@ -1,0 +1,24 @@
+PM2 cluster / nginx evidence captured during rerun:
+- pm2 list showed aigc-gateway id 0 and 1 in cluster mode online
+- pm2 list also showed aigc-staging in fork mode on pid 138172
+- pm2 logs aigc-gateway included:
+  [instrumentation] Worker 1 — skip schedulers
+- nginx config included:
+  /etc/nginx/conf.d/aigc-staging.conf: listen 8301;
+  /etc/nginx/conf.d/aigc-staging.conf: proxy_pass http://127.0.0.1:3001;
+- local server curls:
+  127.0.0.1:3001/v1/models -> 200 0.036405
+  127.0.0.1:3001/api/auth/login -> 200 0.330396
+  127.0.0.1:8301/v1/models -> 200 0.041517
+  127.0.0.1:8301/api/auth/login -> 200 0.163803
+- redis after authenticated hits:
+  cache:admin:channels
+  cache:admin:sync-status
+  ttl cache:admin:sync-status = 29
+  ttl cache:admin:channels = 30
+  models:list ttl observed = 119 then 5 during rerun windows
+- local perf via SSH on 127.0.0.1:3001:
+  models c20 a200 avg ~187-194ms
+  sync-status c10 a100 avg 48.47ms
+  channels c10 a100 avg 136.68ms
+  login c10 a100 avg ~42-61ms

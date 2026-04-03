@@ -180,9 +180,33 @@ Independent npm package `@guangai/aigc-sdk`. Zero dependencies, Node 18+. Output
 
 ## Design Documents
 
-P1 specs in `docs/AIGC-Gateway-P1-Documents/`, P2 specs in `docs/AIGC-Gateway-P2-Documents/`.
+文档目录结构（2026-04-03 整理后，按角色用途划分）：
+
+```
+docs/
+├── AIGC-Gateway-Full-PRD.md        # 产品全貌与版本路线图（背景参考）
+├── specs/                           # ← 实现规格，开发时优先查阅
+│   ├── AIGC-Gateway-API-Specification.md
+│   ├── AIGC-Gateway-Database-Design.md
+│   ├── AIGC-Gateway-Provider-Adapter-Spec.md
+│   ├── AIGC-Gateway-Payment-Integration.md
+│   ├── AIGC-Gateway-Console-Interaction-Spec.md
+│   ├── AIGC-Gateway-SDK-Interface-Design.md
+│   ├── AIGC-Gateway-Deployment-Operations.md
+│   ├── AIGC-Gateway-Model-Auto-Sync-PRD.md
+│   ├── api-keys-backend-spec.md
+│   └── api-keys-frontend-spec.md
+├── provider/                        # 各服务商接入 ADR（新增服务商时参考）
+├── test-cases/                      # 测试用例（Codex 读，开发不需要）
+├── test-reports/                    # 最终签收报告（Codex 写，开发不需要）
+├── design-draft/                    # Stitch UI 设计稿 HTML（页面还原时参考）
+└── archive/                         # 历史文档，无需阅读
+```
+
+**开发时只需关注 `docs/specs/` 和 `docs/provider/`**，其他目录不需要主动读取。
 
 ## Development Status
 
-- **P1 完成:** 70 features + fix round (UI重构 + shadcn/ui + 品牌主题)
+- **P1 完成:** 项目骨架 + 7 家服务商 + API 网关 + 健康检查 + SDK + 认证计费支付 + 控制台 17 页
+- **P1 优化补丁完成:** 模型自动同步引擎 + 模型/通道 UI 重构 + API Keys 权限扩展 + 全站性能优化（14项）+ 全站 UI 重构（Stitch 设计稿，16/18 页已完成，Login/Register 待办）
 - **P2 完成:** MCP 服务器 (7 Tools) + 控制台国际化 (20页 + 259 key) + 集成测试

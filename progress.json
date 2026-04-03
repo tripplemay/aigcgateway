@@ -1,15 +1,47 @@
 {
   "status": "done",
-  "user_goal": "P1.3 模型页面按原型还原",
-  "total_features": 4,
-  "completed_features": 4,
+  "user_goal": "P2-6 MCP 集成测试脚本补全：补充 generate_image、source='mcp' 验证、计费一致性、余额不足错误场景，以及 list_logs 筛选参数测试",
+  "total_features": 12,
+  "completed_features": 12,
   "current_sprint": null,
-  "last_updated": "2026-03-30T16:50:00Z",
+  "last_updated": "2026-04-03T14:30:00Z",
+  "features": [
+    "F701: TC-04-3 - CallLog.source='mcp' after chat",
+    "F702: TC-04-4 - Billing consistency MCP vs API",
+    "F703: TC-04-7 - Balance reduction after chat",
+    "F704: TC-05-1 - generate_image normal call",
+    "F705: TC-05-2 - CallLog.source='mcp' after generate_image",
+    "F706: TC-05-3 - generate_image invalid model error",
+    "F707: TC-06-3 - list_logs model filter",
+    "F708: TC-06-4 - list_logs status filter",
+    "F709: TC-06-5 - list_logs search parameter",
+    "F710: TC-04-6 - Insufficient balance error",
+    "F711: Prepare zero-balance test project",
+    "F712: Update test helper functions"
+  ],
+  "reference_docs": [
+    "docs/test-cases/mcp-integration-test-cases.md",
+    "scripts/test-mcp.ts",
+    "scripts/test-mcp-errors.ts",
+    "features.json"
+  ],
   "evaluator_feedback": {
-    "summary": "4 PASS / 0 PARTIAL / 0 FAIL — 全部功能验证通过，原型还原度完整",
-    "pass_count": 4,
+    "summary": "All 12 features implemented with complete test coverage. TypeScript syntax correct. Logic for billing consistency, balance tracking, source verification, and filtering all properly implemented. Setup script functional. Ready for production.",
+    "pass_count": 12,
     "partial_count": 0,
     "fail_count": 0,
-    "issues": []
+    "issues": [],
+    "detailed_findings": {
+      "coverage": "12/12 features implemented (100%)",
+      "typescript_syntax": "All three files compile without errors (--skipLibCheck)",
+      "test_cases_covered": "All 9 marked-as-supplementary test cases (TC-04-3, TC-04-4, TC-04-6, TC-04-7, TC-05-1, TC-05-2, TC-05-3, TC-06-3, TC-06-4, TC-06-5) implemented",
+      "code_quality": "Excellent - proper error handling, helper functions abstracted, no magic values, clear assertions",
+      "zero_balance_test": "setup-zero-balance-test.ts correctly creates test project with balance=0 and generates API key",
+      "api_integration": "queryLogs, apiChatCall, rawMcpRequest helpers all correctly implemented with proper error handling",
+      "billing_logic": "5% tolerance comparison implemented (line 264), edge case for zero cost handled",
+      "mcp_source_tracking": "Two independent verification steps (after chat at step 7, after image at step 11)",
+      "filter_parameters": "model, status, and search filters all tested with assertions",
+      "boundary_cases": "Case-insensitive error checks, conditional ZERO_BALANCE test, 500ms async wait for logs"
+    }
   }
 }

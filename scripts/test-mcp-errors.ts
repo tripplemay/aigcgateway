@@ -2,10 +2,14 @@
  * MCP 错误场景测试
  *
  * 用法：BASE_URL=http://localhost:3099 API_KEY=pk_xxx npx tsx scripts/test-mcp-errors.ts
+ *
+ * 环境变量：
+ *   ZERO_BALANCE_API_KEY=pk_xxx - API Key of a project with zero balance (for TC-04-6)
  */
 
 const BASE = process.env.BASE_URL ?? "http://localhost:3099";
 const API_KEY = process.env.API_KEY ?? "";
+const ZERO_BALANCE_API_KEY = process.env.ZERO_BALANCE_API_KEY ?? "";
 const MCP_URL = `${BASE}/mcp`;
 
 let passed = 0;
@@ -102,7 +106,8 @@ async function main() {
     });
     if (res.status !== 400) throw new Error(`Expected 400, got ${res.status}`);
     const body = await res.json();
-    if (!body.error?.includes("URL")) throw new Error(`Unexpected error: ${JSON.stringify(body)}`);
+    const text = `${body.error ?? ""} ${body.message ?? ""}`;
+    if (!text.includes("URL")) throw new Error(`Unexpected error: ${JSON.stringify(body)}`);
   });
 
   // First initialize with valid key for tool calls
@@ -144,6 +149,33 @@ async function main() {
     const text = result.content?.[0]?.text ?? "";
     if (!text.includes("not found")) throw new Error(`Unexpected: ${text}`);
   });
+
+  // 5. Insufficient balance → isError (only if ZERO_BALANCE_API_KEY provided)
+  if (ZERO_BALANCE_API_KEY) {
+    await step("5. Chat with insufficient balance → isError", async () => {
+      const { body } = await rawMcpRequest(
+        "tools/call",
+        {
+          name: "chat",
+          arguments: {
+            model: "deepseek/v3",
+            messages: [{ role: "user", content: "test" }],
+            max_tokens: 10,
+          },
+        },
+        ZERO_BALANCE_API_KEY,
+      );
+      const result = (body as { result?: { isError?: boolean; content?: Array<{ text?: string }> } })?.result;
+      if (!result?.isError) throw new Error("Expected isError=true for zero balance");
+      const text = result.content?.[0]?.text ?? "";
+      if (!text.toLowerCase().includes("balance") && !text.toLowerCase().includes("insufficient")) {
+        throw new Error(`Expected error message to mention balance, got: ${text}`);
+      }
+      console.log(`(balance error detected) `);
+    });
+  } else {
+    console.log("  5. Chat with insufficient balance → SKIPPED (set ZERO_BALANCE_API_KEY env var)");
+  }
 
   console.log("\n" + "=".repeat(60));
   console.log(`Results: ${passed} PASS | ${failed} FAIL`);

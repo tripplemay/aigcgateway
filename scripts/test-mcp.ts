@@ -11,6 +11,8 @@ const MCP_URL = `${BASE}/mcp`;
 let passed = 0;
 let failed = 0;
 let lastTraceId = "";
+let imageTraceId = "";
+let selectedImageModel = "";
 
 async function mcpRequest(method: string, params?: Record<string, unknown>) {
   const body = {
@@ -36,7 +38,6 @@ async function mcpRequest(method: string, params?: Record<string, unknown>) {
 
   const contentType = res.headers.get("content-type") ?? "";
 
-  // Handle SSE response
   if (contentType.includes("text/event-stream")) {
     const text = await res.text();
     const lines = text.split("\n");
@@ -46,9 +47,7 @@ async function mcpRequest(method: string, params?: Record<string, unknown>) {
         lastData = line.slice(6);
       }
     }
-    if (lastData) {
-      return JSON.parse(lastData);
-    }
+    if (lastData) return JSON.parse(lastData);
     throw new Error("No data in SSE response");
   }
 
@@ -61,6 +60,51 @@ async function callTool(name: string, args: Record<string, unknown> = {}) {
     throw new Error(`MCP error: ${JSON.stringify(result.error)}`);
   }
   return result.result ?? result;
+}
+
+function parseTextContent(result: unknown): string {
+  const text = (result as { content?: Array<{ text?: string }> })?.content?.[0]?.text ?? "";
+  if (!text) throw new Error("No text content in MCP tool result");
+  return text;
+}
+
+function parseMoney(value: unknown): number {
+  if (typeof value === "number") return value;
+  if (typeof value === "string") {
+    const cleaned = value.replace(/[$,\s]/g, "");
+    const parsed = Number(cleaned);
+    if (!Number.isNaN(parsed)) return parsed;
+  }
+  throw new Error(`Cannot parse money value: ${String(value)}`);
+}
+
+async function getLogDetail(traceId: string) {
+  const result = await callTool("get_log_detail", { trace_id: traceId });
+  return JSON.parse(parseTextContent(result));
+}
+
+async function apiChatCall(model: string, messages: Array<{ role: string; content: string }>) {
+  const res = await fetch(`${BASE}/v1/chat/completions`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${API_KEY}`,
+    },
+    body: JSON.stringify({
+      model,
+      messages,
+      max_tokens: 10,
+    }),
+  });
+
+  if (!res.ok) {
+    throw new Error(`API chat error ${res.status}: ${await res.text()}`);
+  }
+
+  return {
+    traceId: res.headers.get("x-trace-id") ?? "",
+    body: await res.json(),
+  };
 }
 
 async function step(name: string, fn: () => Promise<void>) {
@@ -82,7 +126,6 @@ async function main() {
   console.log(`Key: ${API_KEY.slice(0, 8)}...`);
   console.log("=".repeat(60));
 
-  // 1. Initialize
   await step("1. MCP Initialize", async () => {
     const result = await mcpRequest("initialize", {
       protocolVersion: "2024-11-05",
@@ -94,7 +137,6 @@ async function main() {
     console.log(`(server: ${serverInfo.name} v${serverInfo.version}) `);
   });
 
-  // 2. List Tools
   await step("2. List Tools", async () => {
     const result = await mcpRequest("tools/list");
     const tools = result.result?.tools ?? result.tools ?? [];
@@ -103,66 +145,169 @@ async function main() {
     console.log(`(${tools.length} tools: ${names.join(", ")}) `);
   });
 
-  // 3. list_models
   await step("3. list_models", async () => {
     const result = await callTool("list_models");
-    const content = result.content?.[0]?.text ?? "";
-    const models = JSON.parse(content);
+    const models = JSON.parse(parseTextContent(result));
     if (!Array.isArray(models)) throw new Error("Expected array");
-    console.log(`(${models.length} models) `);
+    const imageModel = models.find((m: { modality?: string; name?: string }) => m.modality === "image");
+    selectedImageModel = imageModel?.name ?? "";
+    console.log(`(${models.length} models${selectedImageModel ? `, image=${selectedImageModel}` : ""}) `);
   });
 
-  // 4. chat
-  await step("4. chat (deepseek/v3)", async () => {
+  let balanceBefore = 0;
+  await step("4. get_balance (before chat)", async () => {
+    const result = await callTool("get_balance");
+    const data = JSON.parse(parseTextContent(result));
+    if (data.balance === undefined) throw new Error("No balance");
+    balanceBefore = data.balance;
+    console.log(`(balance: ${balanceBefore}) `);
+  });
+
+  let mcpTokens = 0;
+  await step("5. chat (deepseek/v3, MCP)", async () => {
     const result = await callTool("chat", {
       model: "deepseek/v3",
       messages: [{ role: "user", content: "Say OK" }],
       max_tokens: 10,
     });
-    const content = result.content?.[0]?.text ?? "";
-    const data = JSON.parse(content);
+    const data = JSON.parse(parseTextContent(result));
     if (!data.traceId) throw new Error("No traceId");
     if (!data.content) throw new Error("No content");
     lastTraceId = data.traceId;
-    console.log(`(traceId: ${data.traceId}, tokens: ${data.usage?.totalTokens}) `);
+    mcpTokens = data.usage?.totalTokens ?? 0;
+    console.log(`(traceId: ${data.traceId}, tokens: ${mcpTokens}) `);
   });
 
-  // 5. list_logs
-  await step("5. list_logs (find MCP call)", async () => {
-    const result = await callTool("list_logs", { limit: 5 });
-    const content = result.content?.[0]?.text ?? "";
-    const logs = JSON.parse(content);
-    if (!Array.isArray(logs) || logs.length === 0) throw new Error("No logs returned");
-    const found = logs.find((l: { traceId: string }) => l.traceId === lastTraceId);
-    if (!found) console.log(`(traceId ${lastTraceId} not found yet — may be async) `);
-    else console.log(`(found traceId: ${found.traceId}, cost: ${found.cost}) `);
+  await step("6. get_balance (after chat)", async () => {
+    const result = await callTool("get_balance");
+    const data = JSON.parse(parseTextContent(result));
+    if (data.balance === undefined) throw new Error("No balance");
+    const balanceAfter = data.balance;
+    if (balanceAfter >= balanceBefore) {
+      throw new Error(`Balance should decrease: before=${balanceBefore}, after=${balanceAfter}`);
+    }
+    console.log(`(before: ${balanceBefore}, after: ${balanceAfter}) `);
   });
 
-  // 6. get_log_detail
-  await step("6. get_log_detail", async () => {
+  await step("7. Verify CallLog.source='mcp' (get_log_detail)", async () => {
+    await new Promise((r) => setTimeout(r, 500));
+    const detail = await getLogDetail(lastTraceId);
+    if (detail.source !== "mcp") {
+      throw new Error(`Expected source='mcp', got source='${detail.source}'`);
+    }
+    console.log(`(source: ${detail.source}) `);
+  });
+
+  let apiTraceId = "";
+  await step("8. chat (deepseek/v3, API) for billing comparison", async () => {
+    const response = await apiChatCall("deepseek/v3", [{ role: "user", content: "Say OK" }]);
+    if (!response.body.usage) throw new Error("No usage in API response");
+    if (!response.traceId) throw new Error("No X-Trace-Id in API response");
+    apiTraceId = response.traceId;
+    console.log(`(traceId: ${apiTraceId}, tokens: ${response.body.usage.total_tokens}) `);
+  });
+
+  await step("9. Verify billing consistency (MCP vs API)", async () => {
+    await new Promise((r) => setTimeout(r, 500));
+    const mcpDetail = await getLogDetail(lastTraceId);
+    const apiDetail = await getLogDetail(apiTraceId);
+    const mcpCost = parseMoney(mcpDetail.cost);
+    const apiCost = parseMoney(apiDetail.cost);
+    if (mcpCost === 0) throw new Error("MCP cost was 0, cannot compare");
+    const costDiff = Math.abs(mcpCost - apiCost) / mcpCost;
+    if (costDiff > 0.05) {
+      throw new Error(
+        `Cost diff too high: ${(costDiff * 100).toFixed(2)}%, MCP=${mcpCost}, API=${apiCost}`,
+      );
+    }
+    console.log(`(diff: ${(costDiff * 100).toFixed(2)}%) `);
+  });
+
+  await step("10. generate_image (normal call)", async () => {
+    if (!selectedImageModel) throw new Error("No image model found from list_models");
+    const result = await callTool("generate_image", {
+      model: selectedImageModel,
+      prompt: "a red circle",
+      size: "1024x1024",
+    });
+    const data = JSON.parse(parseTextContent(result));
+    if (!data.images || !Array.isArray(data.images) || data.images.length === 0) {
+      throw new Error("No images in response");
+    }
+    if (!data.traceId) throw new Error("No traceId");
+    imageTraceId = data.traceId;
+    console.log(`(traceId: ${data.traceId}, model: ${selectedImageModel}, images: ${data.images.length}) `);
+  });
+
+  await step("11. Verify CallLog.source='mcp' (generate_image)", async () => {
+    await new Promise((r) => setTimeout(r, 500));
+    const detail = await getLogDetail(imageTraceId);
+    if (detail.source !== "mcp") {
+      throw new Error(`Expected source='mcp', got source='${detail.source}'`);
+    }
+    console.log(`(source: ${detail.source}) `);
+  });
+
+  await step("12. generate_image (invalid model error)", async () => {
+    const result = await callTool("generate_image", {
+      model: "nonexistent/image-model",
+      prompt: "a test",
+      size: "1024x1024",
+    });
+    const content = parseTextContent(result);
+    if (!result.isError) {
+      throw new Error("Expected isError=true for invalid model");
+    }
+    if (!content.toLowerCase().includes("not found")) {
+      throw new Error(`Unexpected error text: ${content}`);
+    }
+    console.log("(error returned as expected) ");
+  });
+
+  await step("13. list_logs (model filter: deepseek/v3)", async () => {
+    const result = await callTool("list_logs", { model: "deepseek/v3", limit: 10 });
+    const logs = JSON.parse(parseTextContent(result));
+    if (!Array.isArray(logs)) throw new Error("Expected array");
+    for (const log of logs) {
+      if (log.model !== "deepseek/v3") {
+        throw new Error(`Expected model='deepseek/v3', got '${log.model}'`);
+      }
+    }
+    console.log(`(${logs.length} logs, all model=deepseek/v3) `);
+  });
+
+  await step("14. list_logs (status filter: success)", async () => {
+    const result = await callTool("list_logs", { status: "success", limit: 10 });
+    const logs = JSON.parse(parseTextContent(result));
+    if (!Array.isArray(logs)) throw new Error("Expected array");
+    for (const log of logs) {
+      if (log.status !== "success") {
+        throw new Error(`Expected status='success', got '${log.status}'`);
+      }
+    }
+    console.log(`(${logs.length} logs, all status=success) `);
+  });
+
+  await step("15. list_logs (search: 'Say OK')", async () => {
+    const result = await callTool("list_logs", { search: "Say OK", limit: 10 });
+    const logs = JSON.parse(parseTextContent(result));
+    if (!Array.isArray(logs) || logs.length === 0) {
+      throw new Error("No logs found with search term 'Say OK'");
+    }
+    console.log(`(${logs.length} logs found with search) `);
+  });
+
+  await step("16. get_log_detail (first chat log)", async () => {
     if (!lastTraceId) throw new Error("No traceId from chat step");
-    const result = await callTool("get_log_detail", { trace_id: lastTraceId });
-    const content = result.content?.[0]?.text ?? "";
-    const detail = JSON.parse(content);
+    const detail = await getLogDetail(lastTraceId);
     if (!detail.prompt) throw new Error("No prompt in detail");
     if (!detail.model) throw new Error("No model in detail");
     console.log(`(model: ${detail.model}, status: ${detail.status}) `);
   });
 
-  // 7. get_balance
-  await step("7. get_balance", async () => {
-    const result = await callTool("get_balance", { include_transactions: true });
-    const content = result.content?.[0]?.text ?? "";
-    const data = JSON.parse(content);
-    if (!data.balance) throw new Error("No balance");
-    console.log(`(balance: ${data.balance}, txns: ${data.transactions?.length ?? 0}) `);
-  });
-
-  // 8. get_usage_summary
-  await step("8. get_usage_summary (7d)", async () => {
+  await step("17. get_usage_summary (7d)", async () => {
     const result = await callTool("get_usage_summary", { period: "7d" });
-    const content = result.content?.[0]?.text ?? "";
-    const data = JSON.parse(content);
+    const data = JSON.parse(parseTextContent(result));
     if (data.totalCalls === undefined) throw new Error("No totalCalls");
     console.log(`(calls: ${data.totalCalls}, cost: ${data.totalCost}) `);
   });
