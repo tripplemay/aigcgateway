@@ -45,7 +45,22 @@ export async function GET(request: Request) {
     }
   }
 
-  const json = JSON.stringify({ data: { lastSyncTime, lastSyncResult } });
+  // 零定价 Channel 统计（可观测性：F-DATA-02）
+  const zeroPriceCount = await prisma.$queryRawUnsafe<[{ cnt: number }]>(
+    `SELECT count(*)::int as cnt FROM channels
+     WHERE status = 'ACTIVE'
+       AND COALESCE(("sellPrice"::jsonb->>'inputPer1M')::float, 0) = 0
+       AND COALESCE(("sellPrice"::jsonb->>'outputPer1M')::float, 0) = 0
+       AND COALESCE(("sellPrice"::jsonb->>'perCall')::float, 0) = 0`,
+  );
+
+  const json = JSON.stringify({
+    data: {
+      lastSyncTime,
+      lastSyncResult,
+      zeroPriceActiveChannels: zeroPriceCount[0]?.cnt ?? 0,
+    },
+  });
 
   // 写入 Redis 缓存
   if (redis) {

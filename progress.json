@@ -4,17 +4,18 @@
   "total_features": 7,
   "completed_features": 7,
   "current_sprint": null,
-  "last_updated": "2026-04-04T07:30:00Z",
+  "last_updated": "2026-04-04T08:00:00Z",
   "reference_docs": [
     "src/lib/sync/model-sync.ts",
     "src/lib/sync/adapters/openrouter.ts",
     "src/lib/sync/adapters/openrouter-whitelist.ts",
     "src/lib/api/post-process.ts",
     "prisma/seed.ts",
-    "scripts/fix-empty-sell-price.ts"
+    "scripts/fix-empty-sell-price.ts",
+    "src/app/api/admin/sync-status/route.ts"
   ],
   "evaluator_feedback": {
-    "summary": "Generator 修复轮 3：F-DATA-03 根因修复（pricingOverrides 字段名 inputPer1M→inputPriceCNYPerM），已在生产 DB 更新并触发 sync，overrides=6 生效。F-DATA-02 零定价 Channel 的 costPrice 也为空，无法通过 markup 重算，warn 日志提供可观测性。",
+    "summary": "Generator 修复轮 4：sync-status API 增加 zeroPriceActiveChannels 字段，使零定价 Channel 可从外部接口验证。",
     "pass_count": 0,
     "partial_count": 0,
     "fail_count": 0,
