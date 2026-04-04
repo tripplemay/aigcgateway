@@ -75,3 +75,24 @@
 - `docs/specs/` 下规格文档已创建
 - features.json 已创建
 - progress.json 已更新为 status: "planning"，docs.spec 已填写
+
+---
+
+## status = "done" 时的收尾流程
+
+当 Codex 将 progress.json 置为 `done` 后，Cowork 接手执行以下步骤（**必须按顺序**）：
+
+### 1. 更新项目记忆（强制）
+更新 `.auto-memory/project-aigcgateway.md`，内容覆盖：
+- 当前开发状态（本批次完成了什么）
+- 最近一批次改动（关键文件和变更）
+- Harness 状态（status=done，N/M PASS）
+- 已知遗留问题（如有新增）
+
+**这是唯一记忆源，不更新则下次会话（包括所有 agent）将读到过期信息。**
+
+### 2. 处理 proposed-learnings（如有）
+读取 `framework/proposed-learnings.md`，逐条提交用户确认，确认后写入对应 framework 文件。
+
+### 3. 询问下一批次
+记忆更新完成后，告知用户本批次已归档，询问是否开始下一批次。

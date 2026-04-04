@@ -1,17 +1,4 @@
 {
   "description": "需求池：已与用户确认但尚未开发的功能，等待下一批次启动时统一安排",
-  "items": [
-    {
-      "id": "BL-001",
-      "title": "白名单外通道改为硬删除（不保留 DISABLED）",
-      "description": "有白名单的服务商（OpenRouter、SiliconFlow、Zhipu 等），白名单以外的模型通道应从数据库直接 DELETE，而非 DISABLED。目标：白名单以外的通道不出现在 Disabled Nodes、不被健康检查触及、不被任何服务感知。",
-      "decisions": [
-        "model-sync.ts 白名单清理：updateMany({ status: DISABLED }) → deleteMany()",
-        "只影响有 filterModel 的 Provider",
-        "被删除的 Channel 对应的孤立 Model 记录可保留（不影响任何 UI）"
-      ],
-      "confirmed_at": "2026-04-04",
-      "priority": "high"
-    }
-  ]
+  "items": []
 }

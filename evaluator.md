@@ -17,6 +17,8 @@
 - `verifying`：首轮验收（Generator 刚完成实现）
 - `reverifying`：复验（Generator 已根据上轮 evaluator_feedback 修复，fix_rounds 已更新）
 
+同时读取 `.auto-memory/MEMORY.md` 及 `project-aigcgateway.md`，了解项目当前状态、已知遗留问题和环境信息（Staging 地址等）。`.auto-memory/` 是唯一记忆源，验收前必须读取，避免基于过期信息打分。
+
 ### 2. 启动项目
 运行项目，确认它能正常启动。如果无法启动，直接记为严重问题。
 

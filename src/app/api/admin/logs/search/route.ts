@@ -42,8 +42,8 @@ export async function GET(request: Request) {
            cl."createdAt"
     FROM call_logs cl
     JOIN projects p ON cl."projectId" = p.id
-    JOIN channels ch ON cl."channelId" = ch.id
-    JOIN providers prov ON ch."providerId" = prov.id
+    LEFT JOIN channels ch ON cl."channelId" = ch.id
+    LEFT JOIN providers prov ON ch."providerId" = prov.id
     WHERE cl."traceId" ILIKE ${likePattern} OR cl."modelName" ILIKE ${likePattern} OR p.name ILIKE ${likePattern}
     ORDER BY cl."createdAt" DESC
     LIMIT ${pageSize} OFFSET ${(page - 1) * pageSize}

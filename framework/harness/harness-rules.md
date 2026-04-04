@@ -20,6 +20,9 @@
 - `progress.json` — 当前阶段和进度
 - `features.json` — 功能列表和状态
 - `harness-rules.md` — 本文件自身
+- `.auto-memory/MEMORY.md` — 项目记忆索引（**Cowork 必读**，读完后按需加载 `project-aigcgateway.md` 等记忆文件）
+
+`.auto-memory/` 是唯一的项目记忆源，通过 git 在所有 agent 和 Cowork 之间同步。Cowork 作为 PM，每次会话必须读取最新项目记忆，才能做出准确的规划决策。
 
 多 Agent 并发场景下，缓存版本可能落后于实际状态，导致角色误判或重复工作。
 

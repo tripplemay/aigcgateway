@@ -253,7 +253,7 @@ model CallLog {
   id               String        @id @default(cuid())
   traceId          String        @unique @default(cuid())
   projectId        String
-  channelId        String
+  channelId        String?
   modelName        String
   promptSnapshot   Json
   requestParams    Json?
@@ -279,7 +279,7 @@ model CallLog {
   createdAt        DateTime      @default(now())
 
   project Project @relation(fields: [projectId], references: [id])
-  channel Channel @relation(fields: [channelId], references: [id])
+  channel Channel? @relation(fields: [channelId], references: [id], onDelete: SetNull)
 
   @@index([traceId])
   @@index([projectId, createdAt(sort: Desc)])
@@ -331,7 +331,7 @@ model HealthCheck {
   responseBody String?           @db.Text
   createdAt    DateTime          @default(now())
 
-  channel Channel @relation(fields: [channelId], references: [id])
+  channel Channel @relation(fields: [channelId], references: [id], onDelete: Cascade)
 
   @@index([channelId, createdAt(sort: Desc)])
   @@index([channelId, result])

@@ -1,51 +1,32 @@
 {
   "status": "done",
-  "user_goal": "健康检查与同步优化批次：图片通道改轻量健康检查、修复白名单清理被安全防护跳过的 Bug、硅基流动和智谱 AI 只保留 TEXT/IMAGE 模型",
-  "total_features": 4,
-  "completed_features": 4,
+  "user_goal": "白名单硬删除批次：白名单外通道从数据库物理删除（deleteMany），不保留 DISABLED 状态",
+  "total_features": 1,
+  "completed_features": 1,
   "fix_rounds": 1,
   "current_sprint": null,
-  "last_updated": "2026-04-04T06:31:30Z",
+  "last_updated": "2026-04-04T07:21:00Z",
   "reference_docs": [
-    "docs/specs/health-sync-filter-optimization-spec.md",
-    "src/lib/health/checker.ts",
-    "src/lib/sync/model-sync.ts",
-    "src/lib/sync/adapters/base.ts",
-    "src/lib/sync/adapters/siliconflow.ts",
-    "src/lib/sync/adapters/zhipu.ts"
+    "docs/specs/whitelist-hard-delete-spec.md",
+    "src/lib/sync/model-sync.ts"
   ],
   "docs": {
-    "spec": "docs/specs/health-sync-filter-optimization-spec.md",
+    "spec": "docs/specs/whitelist-hard-delete-spec.md",
     "test_cases": null,
-    "signoff": "docs/test-reports/health-sync-filter-signoff-2026-04-04.md",
+    "signoff": "docs/test-reports/whitelist-hard-delete-signoff-2026-04-04.md",
     "framework_reviewed": false
   },
   "evaluator_feedback": {
-    "summary": "本地 3099 复验结果为 4 PASS / 0 PARTIAL / 0 FAIL。F-FILTER-SL 的 reranker 分类问题已修复，当前批次已闭环通过。",
-    "pass_count": 4,
+    "summary": "本地 3099 复验结果为 1 PASS / 0 PARTIAL / 0 FAIL。白名单外 channel 在带有关联 HealthCheck / CallLog 的情况下可被物理删除，HealthCheck 级联删除，CallLog.channelId 置空。",
+    "pass_count": 1,
     "partial_count": 0,
     "fail_count": 0,
     "issues": []
   },
   "features": [
     {
-      "id": "F-HEALTH-01",
-      "title": "图片通道健康检查改为 /models 轻量探测",
-      "status": "completed"
-    },
-    {
-      "id": "F-SYNC-01",
-      "title": "修复白名单清理被安全防护提前返回跳过的问题",
-      "status": "completed"
-    },
-    {
-      "id": "F-FILTER-SL",
-      "title": "硅基流动：扩展 inferModality 并只保留 TEXT/IMAGE 模型",
-      "status": "completed"
-    },
-    {
-      "id": "F-FILTER-ZP",
-      "title": "智谱 AI：添加模型过滤，只保留 TEXT/IMAGE 模型",
+      "id": "F-DELETE-01",
+      "title": "白名单外通道改为硬删除（deleteMany 替换 updateMany DISABLED）",
       "status": "completed"
     }
   ]

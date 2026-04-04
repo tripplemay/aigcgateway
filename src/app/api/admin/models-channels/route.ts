@@ -58,6 +58,7 @@ export async function GET(request: Request) {
     { totalCalls: number; successCalls: number; avgLatencyMs: number | null }
   >();
   for (const s of callLogStats) {
+    if (!s.channelId) continue;
     statsMap.set(s.channelId, {
       totalCalls: s._count.id,
       successCalls: 0,
@@ -65,6 +66,7 @@ export async function GET(request: Request) {
     });
   }
   for (const s of successCounts) {
+    if (!s.channelId) continue;
     const entry = statsMap.get(s.channelId);
     if (entry) entry.successCalls = s._count.id;
   }

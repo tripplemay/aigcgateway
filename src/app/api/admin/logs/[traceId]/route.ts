@@ -4,11 +4,7 @@ import { NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/api/admin-guard";
 import { errorResponse } from "@/lib/api/errors";
 
-
-export async function GET(
-  request: Request,
-  { params }: { params: { traceId: string } },
-) {
+export async function GET(request: Request, { params }: { params: { traceId: string } }) {
   const auth = requireAdmin(request);
   if (!auth.ok) return auth.error;
 
@@ -27,8 +23,8 @@ export async function GET(
     costPrice: log.costPrice ? Number(log.costPrice) : null,
     sellPrice: log.sellPrice ? Number(log.sellPrice) : null,
     projectName: log.project.name,
-    channelId: log.channel.id,
-    channelProvider: log.channel.provider.name,
-    channelRealModelId: log.channel.realModelId,
+    channelId: log.channel?.id ?? log.channelId,
+    channelProvider: log.channel?.provider.name ?? null,
+    channelRealModelId: log.channel?.realModelId ?? null,
   });
 }

@@ -370,23 +370,23 @@ async function syncProvider(
       result.overrides = overrideResult.count;
     }
 
-    // ── 白名单 Provider：主动清理白名单外的 ACTIVE Channel ──
+    // ── 白名单 Provider：硬删除白名单外的所有 Channel（含已 DISABLED）──
     // 放在安全防护之前，确保即使 API 故障也能清理非白名单 Channel
+    // 使用 deleteMany 而非 updateMany DISABLED，彻底消除 Disabled Nodes 污染
     if (adapter.filterModel) {
-      const allActive = await prisma.channel.findMany({
-        where: { providerId: provider.id, status: { not: "DISABLED" } },
+      const allChannels = await prisma.channel.findMany({
+        where: { providerId: provider.id },
         select: { id: true, realModelId: true },
       });
-      const toClean = allActive.filter((ch) => !adapter.filterModel!(ch.realModelId));
-      if (toClean.length > 0) {
-        await prisma.channel.updateMany({
-          where: { id: { in: toClean.map((ch) => ch.id) } },
-          data: { status: "DISABLED" },
+      const toDelete = allChannels.filter((ch) => !adapter.filterModel!(ch.realModelId));
+      if (toDelete.length > 0) {
+        await prisma.channel.deleteMany({
+          where: { id: { in: toDelete.map((ch) => ch.id) } },
         });
         console.log(
-          `[model-sync] ${provider.name}: disabled ${toClean.length} channels outside whitelist`,
+          `[model-sync] ${provider.name}: deleted ${toDelete.length} channels outside whitelist`,
         );
-        result.disabledChannels.push(...toClean.map((ch) => `${provider.name}/${ch.realModelId}`));
+        result.disabledChannels.push(...toDelete.map((ch) => `${provider.name}/${ch.realModelId}`));
       }
     }
 

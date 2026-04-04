@@ -1,65 +1,19 @@
 {
-  "batch": "健康检查与同步优化批次",
+  "batch": "白名单硬删除批次",
   "created_at": "2026-04-04",
   "features": [
     {
-      "id": "F-HEALTH-01",
-      "title": "图片通道健康检查改为 /models 轻量探测",
-      "description": "图片通道的健康检查目前调用 imageGenerations()，会真实生成图片并产生费用。改为调用 Provider 的 /models 接口做轻量连通性探测，验证 API Key 有效性和网络可达性，不生成图片。",
-      "files": ["src/lib/health/checker.ts"],
+      "id": "F-DELETE-01",
+      "title": "白名单外通道改为硬删除（deleteMany 替换 updateMany DISABLED）",
+      "status": "completed",
+      "file": "src/lib/sync/model-sync.ts",
       "acceptance": [
-        "runImageCheck() 不再调用 imageGenerations()",
-        "改为调用 Provider 的 /models（或等效轻量）接口",
-        "L1 PASS 条件：接口返回 HTTP 200 且响应非空",
-        "L2 FORMAT 检查：响应包含 data 数组（模型列表格式有效）",
-        "图片通道健康检查不产生任何计费行为",
-        "现有文本通道检查逻辑不受影响"
-      ],
-      "status": "completed"
-    },
-    {
-      "id": "F-SYNC-01",
-      "title": "修复白名单清理被安全防护提前返回跳过的问题",
-      "description": "model-sync.ts 中，白名单清理逻辑位于安全防护 early return 之后。当 fetchModels() 因 API 故障返回空列表时，安全防护提前 return，白名单清理永远不会执行。修复方式：将白名单清理移至安全防护判断之前独立执行。",
-      "files": ["src/lib/sync/model-sync.ts"],
-      "acceptance": [
-        "白名单清理逻辑（filterModel 存在时 DISABLE 非白名单 channel）在安全防护 early return 之前执行",
-        "安全防护逻辑本身保持不变（models=0 时跳过 reconcile）",
-        "当 fetchModels 成功时，行为与修复前完全一致",
-        "当 fetchModels 失败（返回空）时，白名单清理仍然执行，reconcile 跳过",
-        "[L2] 手动触发同步后，OpenRouter 非白名单通道被 DISABLE，活跃通道数收窄至白名单数量"
-      ],
-      "status": "completed"
-    },
-    {
-      "id": "F-FILTER-SL",
-      "title": "硅基流动：扩展 inferModality 并只保留 TEXT/IMAGE 模型",
-      "description": "当前 inferModality() 只返回 TEXT 或 IMAGE，无法识别 EMBEDDING/RERANKING/AUDIO 等类型，导致 BGE 系列嵌入模型、CosyVoice 等语音模型被误判为 TEXT 并同步进来。在 base.ts 中扩展 inferModality() 支持识别 EMBEDDING/RERANKING/AUDIO 三类，SiliconFlow 适配器过滤只保留 TEXT 和 IMAGE，并实现 filterModel 触发 cleanup。",
-      "files": [
-        "src/lib/sync/adapters/base.ts",
-        "src/lib/sync/adapters/siliconflow.ts"
-      ],
-      "acceptance": [
-        "inferModality() 能正确识别 BAAI/bge-* 系列为 EMBEDDING",
-        "inferModality() 能正确识别 *reranker* 系列为 RERANKING",
-        "inferModality() 能正确识别 CosyVoice、SenseVoice、IndexTTS、whisper 等为 AUDIO",
-        "SiliconFlow 适配器只同步 TEXT 和 IMAGE 模型",
-        "SiliconFlow 适配器实现 filterModel，触发 cleanup 机制",
-        "[L2] 同步后硅基流动活跃通道不再包含 embedding/reranking/audio 模型"
-      ],
-      "status": "completed"
-    },
-    {
-      "id": "F-FILTER-ZP",
-      "title": "智谱 AI：添加模型过滤，只保留 TEXT/IMAGE 模型",
-      "description": "智谱适配器目前全量同步，无任何过滤。复用扩展后的 inferModality()，只保留 TEXT 和 IMAGE 模型，排除 embedding/audio 等专用模型，并实现 filterModel 触发 cleanup。",
-      "files": ["src/lib/sync/adapters/zhipu.ts"],
-      "acceptance": [
-        "zhipu 适配器使用扩展后的 inferModality() 过滤，只同步 TEXT 和 IMAGE 模型",
-        "zhipu 适配器实现 filterModel，触发 cleanup 机制",
-        "[L2] 同步后智谱活跃通道不包含 embedding/audio 等非对话模型"
-      ],
-      "status": "completed"
+        "触发模型同步后，有 filterModel 的服务商白名单外通道从数据库物理删除",
+        "SELECT Channel WHERE providerId=白名单服务商 AND realModelId NOT IN 白名单 → 空集",
+        "控制台 Disabled Nodes 中不再出现白名单外通道",
+        "白名单内通道停止返回时仍正常 DISABLED（reconcile 下架逻辑不变）",
+        "查询范围扩展为所有 Channel（含已 DISABLED），不留死角"
+      ]
     }
   ]
 }
