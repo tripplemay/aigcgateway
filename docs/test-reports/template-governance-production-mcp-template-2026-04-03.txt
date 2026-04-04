@@ -1,0 +1,15 @@
+tools list_models,chat,generate_image,list_logs,get_log_detail,get_balance,get_usage_summary,create_template,confirm_template,list_templates,get_template,update_template
+create_template.ok 2
+confirm_template.ok cmnj2l59u00vqrn5rvt48k9oz
+list_templates.ok 1
+get_template.ok cmnj2l59y00vsrn5r3h5yrhbn
+update_template.ok cmnj2l601000hrn5y2a091zp4
+mcp.chat.ok trc_dgdu5pgo0t8zdbe26afeiqmv
+admin.log.ok mcp cmnj2l59y00vsrn5r3h5yrhbn
+SUMMARY PASS
+{
+  "templateId": "cmnj2l59u00vqrn5rvt48k9oz",
+  "version1Id": "cmnj2l59y00vsrn5r3h5yrhbn",
+  "version2Id": "cmnj2l601000hrn5y2a091zp4",
+  "traceId": "trc_dgdu5pgo0t8zdbe26afeiqmv"
+}

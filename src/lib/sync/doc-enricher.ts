@@ -271,6 +271,13 @@ export async function enrichFromDocs(
     return { models: existingModels, aiEnriched: 0 };
   }
 
+  // 图片模型不做 AI 丰富化：图片模型无法返回文本描述，强行调用会触发实际图片生成计费
+  const textModels = existingModels.filter((m) => m.modality !== "IMAGE");
+  const imageModels = existingModels.filter((m) => m.modality === "IMAGE");
+  if (textModels.length === 0) {
+    return { models: existingModels, aiEnriched: 0 };
+  }
+
   const allAIModels: SyncedModel[] = [];
 
   for (const url of docUrls) {
@@ -300,17 +307,19 @@ export async function enrichFromDocs(
     return { models: existingModels, aiEnriched: 0 };
   }
 
-  const countMissingBefore = existingModels.filter(
+  const countMissingBefore = textModels.filter(
     (m) => m.inputPricePerM === undefined || m.outputPricePerM === undefined,
   ).length;
 
-  const merged = mergeModels(existingModels, allAIModels);
+  // 只对文本模型做 merge，图片模型原样保留
+  const mergedText = mergeModels(textModels, allAIModels);
+  const merged = [...mergedText, ...imageModels];
 
   const countMissingAfter = merged.filter(
     (m) => m.inputPricePerM === undefined || m.outputPricePerM === undefined,
   ).length;
 
-  const newModelsFromAI = merged.length - existingModels.length;
+  const newModelsFromAI = mergedText.length - textModels.length;
   const pricesFilled = countMissingBefore - countMissingAfter;
 
   return {

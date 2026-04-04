@@ -1,0 +1,39 @@
+============================================================
+AIGC Gateway — MCP Integration Test
+MCP: http://154.40.40.116:8301/mcp
+Key: pk_1ec76...
+============================================================
+  1. MCP Initialize... (server: aigc-gateway v1.0.0) 
+✅ PASS
+  2. List Tools... (12 tools: list_models, chat, generate_image, list_logs, get_log_detail, get_balance, get_usage_summary, create_template, confirm_template, list_templates, get_template, update_template) 
+✅ PASS
+  3. list_models... (437 models, image=openai/dall-e-3) 
+✅ PASS
+  4. get_balance (before chat)... (balance: $6.8500) 
+✅ PASS
+  5. chat (deepseek/v3, MCP)... (traceId: trc_e97qrhxckudfakqte7lyyn9q, tokens: 7) 
+✅ PASS
+  6. get_balance (after chat)... ❌ FAIL: Balance should decrease: before=$6.8500, after=$6.8500
+  7. Verify CallLog.source='mcp' (get_log_detail)... (source: mcp) 
+✅ PASS
+  8. chat (deepseek/v3, API) for billing comparison... (traceId: trc_c2ph25aiaeaqad44d3zc3ts1, tokens: 7) 
+✅ PASS
+  9. Verify billing consistency (MCP vs API)... ❌ FAIL: MCP cost was 0, cannot compare
+  10. generate_image (normal call)... ❌ FAIL: Unexpected token 'E', "Error: Inc"... is not valid JSON
+  11. Verify CallLog.source='mcp' (generate_image)... ❌ FAIL: Unexpected token 'C', "Call log w"... is not valid JSON
+  12. generate_image (invalid model error)... (error returned as expected) 
+✅ PASS
+  13. list_logs (model filter: deepseek/v3)... (2 logs, all model=deepseek/v3) 
+✅ PASS
+  14. list_logs (status filter: success)... (2 logs, all status=success) 
+✅ PASS
+  15. list_logs (search: 'Say OK')... (2 logs found with search) 
+✅ PASS
+  16. get_log_detail (first chat log)... (model: deepseek/v3, status: success) 
+✅ PASS
+  17. get_usage_summary (7d)... (calls: 3, cost: $0.0000) 
+✅ PASS
+
+============================================================
+Results: 13 PASS | 4 FAIL | 17 total
+============================================================

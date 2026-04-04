@@ -1,0 +1,14 @@
+login.dev DEVELOPER codex-dev@aigc-gateway.local
+login.admin ADMIN codex-admin@aigc-gateway.local
+project codex-dev-project-001 Codex Dev Project
+admin.create cmnj2jx3500uzrn5ru3zs1g6r cmnj2jx3b00v1rn5r43vo06p4
+project.fork cmnj2jywf00v3rn5r2g5tq0yz
+SUMMARY PASS
+{
+  "projectId": "codex-dev-project-001",
+  "adminTplId": "cmnj2jx3500uzrn5ru3zs1g6r",
+  "devTplId": "cmnj2jz57000drn5y9mziacw9",
+  "traceId": "trc_u1v15n1pq5f4g37gilh5v5uo",
+  "verifiedTemplateVersionId": "cmnj2jzv100v8rn5r4k2u6xok",
+  "qualityScore": 0.88
+}

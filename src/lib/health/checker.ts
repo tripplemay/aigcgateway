@@ -216,45 +216,10 @@ async function runImageCheck(route: RouteResult): Promise<CheckResult[]> {
       responseBody: null,
     });
 
-    // --- Level 3: 响应质量 ---
-    if (hasUrl) {
-      try {
-        // Use GET instead of HEAD — some providers (e.g. zhipu) return
-        // different Content-Type for HEAD vs GET, or require redirect following
-        const imgRes = await fetch(firstItem.url!, { method: "GET", redirect: "follow" });
-        const contentType = imgRes.headers.get("content-type") ?? "";
-        // Accept image/* or octet-stream (binary download) or any 2xx with content
-        const isImage =
-          contentType.startsWith("image/") ||
-          contentType.includes("octet-stream") ||
-          (imgRes.ok && (imgRes.headers.get("content-length") ?? "0") !== "0");
-        results.push({
-          level: "QUALITY",
-          result: isImage ? "PASS" : "FAIL",
-          latencyMs,
-          errorMessage: isImage ? null : `URL returned Content-Type: ${contentType}`,
-          responseBody: null,
-        });
-      } catch (err) {
-        results.push({
-          level: "QUALITY",
-          result: "FAIL",
-          latencyMs,
-          errorMessage: `URL fetch failed: ${(err as Error).message}`,
-          responseBody: null,
-        });
-      }
-    } else {
-      // b64_json 存在即通过 L3
-      results.push({
-        level: "QUALITY",
-        result: "PASS",
-        latencyMs,
-        errorMessage: null,
-        responseBody: null,
-      });
-    }
-
+    // 图片通道止步于 L2：不执行 L3 质量探测
+    // 原因：L3 需要真实生成一张图片，OpenRouter 图片模型单次 $0.04–$0.19，
+    // 每 12 分钟对所有图片 channel 各探一次会产生严重成本浪费。
+    // L2 已验证接口格式正确（data[0].url/b64_json 存在），对可用性判断已足够。
     return results;
   } catch (err) {
     const latencyMs = Date.now() - start;

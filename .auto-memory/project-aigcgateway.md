@@ -19,7 +19,7 @@ AIGC Gateway — AI 服务商管理中台。统一 API 调用抽象（兼容 Ope
 - P2 完成：MCP 服务器 (7 Tools) + 控制台国际化 (20页 + 259 key) + 集成测试
 - 性能优化：Redis 缓存迁移 + PM2 cluster 已签收 PASS
 - MCP L2 集成：读类 Tools + 错误场景 PASS，写类链路（chat/image 计费）受定价数据缺失影响
-- **P3-1 规划完成，progress.json 已重置为 "new"，待 Harness Planner 启动**
+- **P3-1 完成（2026-04-03）：** Prompt 模板治理 25/25 功能全部 PASS（数据模型、注入引擎、16 API 路由、MCP 5 新工具、控制台 3 页面、侧边栏、i18n）
 
 ## 最近修复（2026-04-03）
 
@@ -28,11 +28,12 @@ AIGC Gateway — AI 服务商管理中台。统一 API 调用抽象（兼容 Ope
 - `list-logs.ts search`: 改为 jsonb_array_elements 提取纯文本匹配
 - `keys/page.tsx search`: 改为 uncontrolled input（ref + searchTick），消除 DOM/State 不同步
 
-## P3-1 关键提醒
+## P3-1 交付记录
 
-- 前端新页面（模板列表、模板编辑、Admin 模板管理）必须 **Stitch 原型先行**，再开始前端开发
-- 后端阶段（数据库 + 注入引擎 + API）与 Stitch 设计可并行
 - 规格文档：`docs/specs/AIGC-Gateway-Template-Governance-P3-1-Spec.md`
+- Harness 状态：`progress.json` status=done, 25/25 PASS
+- 后端提交：`ea01617` feat: P3-1 Prompt 模板治理后端基建（F001-F017）
+- 前端提交：`edbc55d` feat: P3-1 控制台模板治理前端（F018-F025）
 
 ## 已知遗留问题
 
@@ -46,11 +47,23 @@ AIGC Gateway — AI 服务商管理中台。统一 API 调用抽象（兼容 Ope
 
 - API Keys 搜索框：Chrome MCP 程序化设值 `input.value=""` 不触发浏览器事件，导致自动化测试中清空搜索后列表不恢复。普通用户（键盘、鼠标、浏览器原生×按钮、close 按钮）不受影响。标记为"仅影响自动化测试工具"。
 
-## Staging / 生产环境
+## 生产环境
 
-- URL: https://aigc.guangai.ai
+- 控制台：`https://aigc.guangai.ai`（备用 `http://154.40.40.116:8301`）
+- API：`https://aigc.guangai.ai/v1/`
+- MCP：`https://aigc.guangai.ai/mcp`
 - Stitch 设计稿项目 ID: 13523510089051052358
-- 有余额的 API Key 已配置，可用于 L2 测试
+
+### Codex 测试账号（2026-04-03 创建，无需重复创建）
+
+**Admin:** `codex-admin@aigc-gateway.local` / `Codex@2026!`
+- API Key: `pk_aa6b13e75918e44a1b7247bb91b01777ac0446b7a5e8eaa2dedbfa0d6a5aaa03`
+
+**Developer:** `codex-dev@aigc-gateway.local` / `Codex@2026!`
+- Project ID: `codex-dev-project-001`
+- API Key: `pk_1ec762a2f01e514a9880e45708a962b9434d804b4c5c1629939d93a3e40414e9`
+
+两账号初始余额各 $6.85（≈50 CNY）
 
 ## 关键开发规则
 
