@@ -20,23 +20,21 @@ AIGC Gateway — AI 服务商管理中台。统一 API 调用抽象（兼容 Ope
 - 性能优化：Redis 缓存迁移 + PM2 cluster 已签收 PASS
 - MCP L2 集成：读类 Tools + 错误场景 PASS，写类链路（chat/image 计费）已修复并通过生产验收
 - **P3-1 完成（2026-04-03）：** Prompt 模板治理 25/25 功能全部 PASS（数据模型、注入引擎、16 API 路由、MCP 5 新工具、控制台 3 页面、侧边栏、i18n）
-- **成本优化 + Bug 修复批次完成（2026-04-04）：** 7/7 PASS（Evaluator：Codex），OpenRouter 成本 ~$482/周 → ~$9/周
+- **成本优化 + Bug 修复批次完成（2026-04-04）：** 7/7 PASS，OpenRouter 成本 ~$482/周 → ~$9/周
 - **健康检查与同步优化批次完成（2026-04-04）：** 4/4 PASS，图片通道改轻量探测、白名单清理 Bug 修复、SiliconFlow/Zhipu 过滤只保留 TEXT/IMAGE
+- **白名单硬删除批次完成（2026-04-04）：** 1/1 PASS，白名单外通道改为 deleteMany 物理删除，不再出现在 Disabled Nodes
 
-## 最近修复（2026-04-04）— 健康检查与同步优化批次
+## 最近批次（2026-04-04）— 白名单硬删除批次
 
-- `checker.ts runImageCheck()`：图片通道健康检查改为调 `/models` 轻量接口，不生成真实图片，彻底消除图片探测成本
-- `model-sync.ts syncProvider()`：白名单清理移至安全防护 early return 之前，修复 API 故障时清理被跳过的 Bug
-- `base.ts inferModality()`：扩展支持 EMBEDDING/RERANKING/AUDIO 识别，新增 `isChatModality()` 辅助函数
-- `siliconflow.ts`：使用 `isChatModality` 过滤，实现 `filterModel`，只同步 TEXT/IMAGE 模型
-- `zhipu.ts`：同上，首次添加过滤逻辑
+- `model-sync.ts syncProvider()`：白名单清理从 `updateMany DISABLED` 改为 `deleteMany`，查询范围扩展为全部 Channel（含已 DISABLED），彻底消除 Disabled Nodes 污染
+- HealthCheck 关联记录级联删除，CallLog.channelId 置空（外键约束已处理）
 
-**签收文档：** `docs/test-reports/health-sync-filter-signoff-2026-04-04.md`
-**Harness 状态：** `progress.json` status=done, 4/4 PASS
+**签收文档：** `docs/test-reports/whitelist-hard-delete-signoff-2026-04-04.md`
+**Harness 状态：** `progress.json` status=done, 1/1 PASS, fix_rounds=1
 
 ## 需求池（backlog.json）
 
-- **BL-001**（high）：白名单外通道改为硬删除 — 有 filterModel 的 Provider，非白名单 Channel 应 deleteMany 而非 DISABLED，不出现在 Disabled Nodes、不被健康检查探测
+（空）
 
 ## 最近修复（2026-04-04）— 成本优化 + Bug 修复批次
 

@@ -1,11 +1,11 @@
 {
-  "status": "verifying",
+  "status": "done",
   "user_goal": "性能优化批次：修复冷启动慢（Prisma 连接池）、模型页缓存、用量页全表扫描查询",
   "total_features": 3,
   "completed_features": 3,
   "fix_rounds": 0,
   "current_sprint": null,
-  "last_updated": "2026-04-04T12:00:00Z",
+  "last_updated": "2026-04-04T19:20:56Z",
   "reference_docs": [
     "docs/specs/perf-optimization-spec.md",
     "src/lib/prisma.ts",
@@ -18,10 +18,16 @@
   "docs": {
     "spec": "docs/specs/perf-optimization-spec.md",
     "test_cases": null,
-    "signoff": null,
+    "signoff": "docs/test-reports/perf-optimization-local-signoff-2026-04-04.md",
     "framework_reviewed": false
   },
-  "evaluator_feedback": null,
+  "evaluator_feedback": {
+    "summary": "本地首轮验收 3/3 PASS。Prisma 单例、模型页缓存、用量页时间过滤与索引均验证通过。",
+    "pass_count": 3,
+    "partial_count": 0,
+    "fail_count": 0,
+    "issues": []
+  },
   "features": [
     {
       "id": "F-PERF-01",
