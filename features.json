@@ -1,47 +1,72 @@
 {
-  "batch": "性能优化批次",
+  "batch": "服务器迁移批次",
   "created_at": "2026-04-04",
   "features": [
     {
-      "id": "F-PERF-01",
-      "title": "Prisma 连接池保活（修复冷启动慢）",
+      "id": "F-MIGRATE-01",
+      "title": "新服务器环境安装（Node.js 22 / PostgreSQL 17 / Redis / Nginx / PM2）",
       "status": "completed",
-      "file": "src/lib/prisma.ts",
       "acceptance": [
-        "生产和开发环境都将 PrismaClient 挂到 globalThis，防止重复创建实例",
-        "DATABASE_URL 支持 connection_limit 和 pool_timeout 参数（代码加注释说明）",
-        "可选：instrumentation.ts 启动时调用 prisma.$connect() 预热连接池"
+        "node -v 输出 v22.x",
+        "psql --version 输出 PostgreSQL 17.x",
+        "redis-cli ping 返回 PONG",
+        "pm2 -v 成功",
+        "/opt/aigc-gateway 目录存在且为 git 仓库（main 分支最新）"
       ]
     },
     {
-      "id": "F-PERF-02",
-      "title": "模型页 Redis 缓存（修复持续慢）",
+      "id": "F-MIGRATE-02",
+      "title": "配置文件迁移（.env.production / ecosystem.config.cjs）",
       "status": "completed",
-      "file": "src/app/api/admin/models-channels/route.ts",
       "acceptance": [
-        "无过滤参数时读写 cache:admin:channels，TTL 300 秒",
-        "有 modality 或 search 参数时使用 cache:admin:channels:{modality}:{search}",
-        "Redis 不可用时降级走 DB，不抛错",
-        "第二次加载模型页响应时间 < 200ms（缓存命中）",
-        "model-sync 完成后 del 缓存，下次加载走 DB（已有 invalidation，验证生效即可）"
+        ".env.production 已复制到新服务器 /opt/aigc-gateway/，包含 JWT_SECRET / ENCRYPTION_KEY / DATABASE_URL",
+        "ecosystem.config.cjs 已复制，NODE_OPTIONS 内存限制已去掉或调高（16GB 服务器）",
+        "DATABASE_URL 中 connection_limit 已从 5 调高到 20"
       ]
     },
     {
-      "id": "F-PERF-03",
-      "title": "用量页查询优化（by-model / by-provider 加时间过滤 + 索引）",
+      "id": "F-MIGRATE-03",
+      "title": "PostgreSQL 数据迁移（pg_dump → 传输 → pg_restore）",
       "status": "completed",
-      "files": [
-        "src/app/api/admin/usage/by-model/route.ts",
-        "src/app/api/admin/usage/by-provider/route.ts",
-        "src/app/api/admin/usage/route.ts",
-        "prisma/schema.prisma"
-      ],
       "acceptance": [
-        "by-model / by-provider SQL 加 WHERE createdAt >= $1，支持 period 参数（默认 7d）",
-        "prisma/schema.prisma CallLog 追加 @@index([status, createdAt(sort: Desc)])",
-        "对应 migration 已创建并可执行",
-        "by-model / by-provider / usage 三个接口加 Redis 缓存，key 含 period，TTL 600 秒",
-        "本地有数据时 by-model / by-provider 响应时间 < 1 秒"
+        "新服务器 aigc_gateway 库存在，用户 aigc 有权限",
+        "SELECT COUNT(*) FROM call_logs 新旧服务器结果一致",
+        "SELECT COUNT(*) FROM channels 新旧服务器结果一致",
+        "SELECT COUNT(*) FROM models 新旧服务器结果一致"
+      ]
+    },
+    {
+      "id": "F-MIGRATE-04",
+      "title": "应用构建与 PM2 启动",
+      "status": "completed",
+      "acceptance": [
+        "npm ci / prisma generate / prisma migrate deploy / npm run build 均无报错",
+        "pm2 list 显示 aigc-gateway 状态为 online",
+        "curl http://localhost:3000/v1/models 返回 200",
+        "pm2 startup 已配置（开机自启）"
+      ]
+    },
+    {
+      "id": "F-MIGRATE-05",
+      "title": "Nginx 配置 + IP 验证 + SSL 证书签发",
+      "status": "completed",
+      "acceptance": [
+        "nginx/conf.d 配置已复制，proxy_pass 已改为 localhost:3000",
+        "nginx -t 无报错",
+        "curl http://34.180.93.185/v1/models 返回 200（DNS 切换前 IP 验证）",
+        "DNS 切换后 certbot 签发证书成功",
+        "curl https://aigc.guangai.ai/v1/models 返回 200，SSL 证书有效"
+      ]
+    },
+    {
+      "id": "F-MIGRATE-06",
+      "title": "deploy.yml 更新 + GitHub Actions 密钥切换",
+      "status": "pending",
+      "acceptance": [
+        "deploy.yml 中 username 改为 tripplezhou（或 root，视服务器配置）",
+        "GitHub Secrets VPS_HOST 已更新为 34.180.93.185",
+        "VPS_SSH_PORT / VPS_PASSWORD 已更新为新服务器对应值",
+        "向 main 推送 commit 后 GitHub Actions 部署流水线成功执行"
       ]
     }
   ]

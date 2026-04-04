@@ -1,48 +1,42 @@
 {
-  "status": "done",
-  "user_goal": "性能优化批次：修复冷启动慢（Prisma 连接池）、模型页缓存、用量页全表扫描查询",
-  "total_features": 3,
-  "completed_features": 3,
-  "fix_rounds": 0,
-  "current_sprint": null,
-  "last_updated": "2026-04-04T19:20:56Z",
+  "status": "fixing",
+  "user_goal": "服务器迁移批次：将生产环境从旧 VPS（154.40.40.116，1GB RAM）迁移到 GCP 新服务器（34.180.93.185，16GB RAM，Ubuntu 22.04）",
+  "total_features": 6,
+  "completed_features": 5,
+  "fix_rounds": 1,
+  "current_sprint": "F-MIGRATE-06",
+  "last_updated": "2026-04-04T15:06:00Z",
   "reference_docs": [
-    "docs/specs/perf-optimization-spec.md",
-    "src/lib/prisma.ts",
-    "src/app/api/admin/models-channels/route.ts",
-    "src/app/api/admin/usage/by-model/route.ts",
-    "src/app/api/admin/usage/by-provider/route.ts",
-    "src/app/api/admin/usage/route.ts",
-    "prisma/schema.prisma"
+    "docs/specs/server-migration-spec.md",
+    ".github/workflows/deploy.yml",
+    "docs/test-reports/server-migration-fix-evidence-2026-04-04.md"
   ],
   "docs": {
-    "spec": "docs/specs/perf-optimization-spec.md",
+    "spec": "docs/specs/server-migration-spec.md",
     "test_cases": null,
-    "signoff": "docs/test-reports/perf-optimization-local-signoff-2026-04-04.md",
+    "signoff": null,
     "framework_reviewed": false
   },
   "evaluator_feedback": {
-    "summary": "本地首轮验收 3/3 PASS。Prisma 单例、模型页缓存、用量页时间过滤与索引均验证通过。",
-    "pass_count": 3,
-    "partial_count": 0,
+    "summary": "服务器迁移批次复验结果为 5 PASS / 1 PARTIAL / 0 FAIL。F-MIGRATE-05 已翻正，F-MIGRATE-06 仍缺 GitHub Actions 部署成功与 Secrets 切换完成的直接证据。",
+    "pass_count": 5,
+    "partial_count": 1,
     "fail_count": 0,
-    "issues": []
+    "issues": [
+      {
+        "feature_id": "F-MIGRATE-06",
+        "result": "PARTIAL",
+        "description": "deploy.yml 已改为 GCP 服务器并且新服务器当前 HEAD 与部署相关 commit 一致，但仍缺 GitHub Actions 最近一次部署成功和 Secrets 已切换的直接证据。",
+        "steps_to_reproduce": "1. 检查 .github/workflows/deploy.yml 使用 VPS_HOST/VPS_SSH_PORT/VPS_USERNAME/VPS_SSH_KEY 2. 检查新服务器 /opt/aigc-gateway HEAD 为 c74026c 3. 公开 GitHub API 对 Actions runs 返回 404，无法直接确认最近一次私有流水线结果"
+      }
+    ]
   },
   "features": [
-    {
-      "id": "F-PERF-01",
-      "title": "Prisma 连接池保活（修复冷启动慢）",
-      "status": "completed"
-    },
-    {
-      "id": "F-PERF-02",
-      "title": "模型页 Redis 缓存（修复持续慢）",
-      "status": "completed"
-    },
-    {
-      "id": "F-PERF-03",
-      "title": "用量页查询优化（by-model / by-provider 加时间过滤 + 索引）",
-      "status": "completed"
-    }
+    { "id": "F-MIGRATE-01", "title": "新服务器环境安装", "status": "completed" },
+    { "id": "F-MIGRATE-02", "title": "配置文件迁移", "status": "completed" },
+    { "id": "F-MIGRATE-03", "title": "PostgreSQL 数据迁移", "status": "completed" },
+    { "id": "F-MIGRATE-04", "title": "应用构建与 PM2 启动", "status": "completed" },
+    { "id": "F-MIGRATE-05", "title": "Nginx 配置 + IP 验证 + SSL 证书签发", "status": "completed" },
+    { "id": "F-MIGRATE-06", "title": "deploy.yml 更新 + GitHub Actions 密钥切换", "status": "pending" }
   ]
 }
