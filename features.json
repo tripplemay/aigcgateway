@@ -1,18 +1,47 @@
 {
-  "batch": "白名单硬删除批次",
+  "batch": "性能优化批次",
   "created_at": "2026-04-04",
   "features": [
     {
-      "id": "F-DELETE-01",
-      "title": "白名单外通道改为硬删除（deleteMany 替换 updateMany DISABLED）",
+      "id": "F-PERF-01",
+      "title": "Prisma 连接池保活（修复冷启动慢）",
       "status": "completed",
-      "file": "src/lib/sync/model-sync.ts",
+      "file": "src/lib/prisma.ts",
       "acceptance": [
-        "触发模型同步后，有 filterModel 的服务商白名单外通道从数据库物理删除",
-        "SELECT Channel WHERE providerId=白名单服务商 AND realModelId NOT IN 白名单 → 空集",
-        "控制台 Disabled Nodes 中不再出现白名单外通道",
-        "白名单内通道停止返回时仍正常 DISABLED（reconcile 下架逻辑不变）",
-        "查询范围扩展为所有 Channel（含已 DISABLED），不留死角"
+        "生产和开发环境都将 PrismaClient 挂到 globalThis，防止重复创建实例",
+        "DATABASE_URL 支持 connection_limit 和 pool_timeout 参数（代码加注释说明）",
+        "可选：instrumentation.ts 启动时调用 prisma.$connect() 预热连接池"
+      ]
+    },
+    {
+      "id": "F-PERF-02",
+      "title": "模型页 Redis 缓存（修复持续慢）",
+      "status": "completed",
+      "file": "src/app/api/admin/models-channels/route.ts",
+      "acceptance": [
+        "无过滤参数时读写 cache:admin:channels，TTL 300 秒",
+        "有 modality 或 search 参数时使用 cache:admin:channels:{modality}:{search}",
+        "Redis 不可用时降级走 DB，不抛错",
+        "第二次加载模型页响应时间 < 200ms（缓存命中）",
+        "model-sync 完成后 del 缓存，下次加载走 DB（已有 invalidation，验证生效即可）"
+      ]
+    },
+    {
+      "id": "F-PERF-03",
+      "title": "用量页查询优化（by-model / by-provider 加时间过滤 + 索引）",
+      "status": "completed",
+      "files": [
+        "src/app/api/admin/usage/by-model/route.ts",
+        "src/app/api/admin/usage/by-provider/route.ts",
+        "src/app/api/admin/usage/route.ts",
+        "prisma/schema.prisma"
+      ],
+      "acceptance": [
+        "by-model / by-provider SQL 加 WHERE createdAt >= $1，支持 period 参数（默认 7d）",
+        "prisma/schema.prisma CallLog 追加 @@index([status, createdAt(sort: Desc)])",
+        "对应 migration 已创建并可执行",
+        "by-model / by-provider / usage 三个接口加 Redis 缓存，key 含 period，TTL 600 秒",
+        "本地有数据时 by-model / by-provider 响应时间 < 1 秒"
       ]
     }
   ]

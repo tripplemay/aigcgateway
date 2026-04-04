@@ -2,6 +2,9 @@ export const dynamic = "force-dynamic";
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/api/admin-guard";
+import { getRedis } from "@/lib/redis";
+
+const CACHE_TTL = 300; // 5 分钟
 
 export async function GET(request: Request) {
   const auth = requireAdmin(request);
@@ -10,6 +13,22 @@ export async function GET(request: Request) {
   const url = new URL(request.url);
   const modalityFilter = url.searchParams.get("modality")?.toUpperCase();
   const search = url.searchParams.get("search")?.toLowerCase();
+
+  // 读 Redis 缓存（无 modality/search 时走主 key，与 model-sync invalidation 一致）
+  const cacheKey =
+    modalityFilter || search
+      ? `cache:admin:channels:${modalityFilter ?? ""}:${search ?? ""}`
+      : "cache:admin:channels";
+
+  const redis = getRedis();
+  if (redis) {
+    try {
+      const cached = await redis.get(cacheKey);
+      if (cached) return new Response(cached, { headers: { "Content-Type": "application/json" } });
+    } catch {
+      // Redis 不可用，降级走 DB
+    }
+  }
 
   // 1. Fetch all models with their channels (including provider info)
   const models = await prisma.model.findMany({
@@ -173,5 +192,9 @@ export async function GET(request: Request) {
     };
   });
 
-  return NextResponse.json({ data: result });
+  const json = JSON.stringify({ data: result });
+  if (redis) {
+    redis.set(cacheKey, json, "EX", CACHE_TTL).catch(() => {});
+  }
+  return new Response(json, { headers: { "Content-Type": "application/json" } });
 }

@@ -25,6 +25,11 @@ export async function register() {
     const { startBillingScheduler } = await import("@/lib/billing/scheduler");
     const { startModelSyncScheduler } = await import("@/lib/sync/scheduler");
 
+    // 预热 Prisma 连接池，避免首次请求冷启动延迟
+    prisma
+      .$connect()
+      .catch((err: unknown) => console.error("[instrumentation] prisma connect error:", err));
+
     // 启动健康检查调度器
     startScheduler();
 

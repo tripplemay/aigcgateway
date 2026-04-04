@@ -1,32 +1,41 @@
 {
-  "status": "done",
-  "user_goal": "白名单硬删除批次：白名单外通道从数据库物理删除（deleteMany），不保留 DISABLED 状态",
-  "total_features": 1,
-  "completed_features": 1,
-  "fix_rounds": 1,
+  "status": "verifying",
+  "user_goal": "性能优化批次：修复冷启动慢（Prisma 连接池）、模型页缓存、用量页全表扫描查询",
+  "total_features": 3,
+  "completed_features": 3,
+  "fix_rounds": 0,
   "current_sprint": null,
-  "last_updated": "2026-04-04T07:21:00Z",
+  "last_updated": "2026-04-04T12:00:00Z",
   "reference_docs": [
-    "docs/specs/whitelist-hard-delete-spec.md",
-    "src/lib/sync/model-sync.ts"
+    "docs/specs/perf-optimization-spec.md",
+    "src/lib/prisma.ts",
+    "src/app/api/admin/models-channels/route.ts",
+    "src/app/api/admin/usage/by-model/route.ts",
+    "src/app/api/admin/usage/by-provider/route.ts",
+    "src/app/api/admin/usage/route.ts",
+    "prisma/schema.prisma"
   ],
   "docs": {
-    "spec": "docs/specs/whitelist-hard-delete-spec.md",
+    "spec": "docs/specs/perf-optimization-spec.md",
     "test_cases": null,
-    "signoff": "docs/test-reports/whitelist-hard-delete-signoff-2026-04-04.md",
+    "signoff": null,
     "framework_reviewed": false
   },
-  "evaluator_feedback": {
-    "summary": "本地 3099 复验结果为 1 PASS / 0 PARTIAL / 0 FAIL。白名单外 channel 在带有关联 HealthCheck / CallLog 的情况下可被物理删除，HealthCheck 级联删除，CallLog.channelId 置空。",
-    "pass_count": 1,
-    "partial_count": 0,
-    "fail_count": 0,
-    "issues": []
-  },
+  "evaluator_feedback": null,
   "features": [
     {
-      "id": "F-DELETE-01",
-      "title": "白名单外通道改为硬删除（deleteMany 替换 updateMany DISABLED）",
+      "id": "F-PERF-01",
+      "title": "Prisma 连接池保活（修复冷启动慢）",
+      "status": "completed"
+    },
+    {
+      "id": "F-PERF-02",
+      "title": "模型页 Redis 缓存（修复持续慢）",
+      "status": "completed"
+    },
+    {
+      "id": "F-PERF-03",
+      "title": "用量页查询优化（by-model / by-provider 加时间过滤 + 索引）",
       "status": "completed"
     }
   ]
