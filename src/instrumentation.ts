@@ -21,6 +21,7 @@ export async function register() {
     }
 
     const { prisma } = await import("@/lib/prisma");
+    const { getRedis } = await import("@/lib/redis");
     const { startScheduler, cleanupOldRecords } = await import("@/lib/health/scheduler");
     const { startBillingScheduler } = await import("@/lib/billing/scheduler");
     const { startModelSyncScheduler } = await import("@/lib/sync/scheduler");
@@ -29,6 +30,12 @@ export async function register() {
     prisma
       .$connect()
       .catch((err: unknown) => console.error("[instrumentation] prisma connect error:", err));
+
+    // 检查 Redis 可用性（redis.ts 在 import 时已自动建连，这里只打日志）
+    const redis = getRedis();
+    console.log(
+      `[instrumentation] Redis: ${redis ? "connected" : "not available (REDIS_URL missing or connection failed)"}`,
+    );
 
     // 启动健康检查调度器
     startScheduler();
