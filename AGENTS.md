@@ -616,3 +616,43 @@ api-keys-staging-acceptance-2026-04-05.md
 2. **L2 Staging 测试需要用户明确授权**，并由用户提供 Staging 环境地址和测试 API Key
 3. L2 测试时，`PRODUCTION_STAGE`、`PRODUCTION_DB_WRITE`、`HIGH_COST_OPS` 的值必须按 §7 规定读取并复述
 4. **L1 FAIL 不等于 L2 FAIL**，报告中必须区分失败层级
+
+---
+
+## 18. 状态机阶段与文档交付要求（2026-04-04 更新）
+
+### 18.1 Codex 对应的状态机阶段
+
+当前 Harness 状态机（详见 @harness-rules.md）：
+
+```
+new → planning → building → verifying → fixing ⟷ reverifying → done
+```
+
+Codex 只在以下两个阶段介入：
+
+| status | Codex 动作 |
+|---|---|
+| `verifying` | 首轮验收：逐条验证 features.json，写入 evaluator_feedback，有问题置 `fixing` |
+| `reverifying` | 复验：确认 fix_rounds 已递增，重新验收所有 FAIL/PARTIAL 功能，全 PASS 后写 signoff 置 `done` |
+
+**Codex 不处理 `building` / `fixing` 阶段**，这两个阶段由 Claude CLI（Generator）负责。
+
+### 18.2 signoff 硬性要求
+
+`reverifying` 阶段全部 PASS 后，**必须**在置 `done` 之前：
+
+1. 在 `docs/test-reports/` 下创建签收报告，文件名格式：`[批次名称]-signoff-YYYY-MM-DD.md`
+2. 将文件路径写入 `progress.json` 的 `docs.signoff` 字段
+
+```json
+"docs": {
+  "signoff": "test-reports/[批次名称]-signoff-YYYY-MM-DD.md"
+}
+```
+
+**`docs.signoff` 为 null 时，不得将 status 置为 `done`。这是硬性门控，不可跳过。**
+
+### 18.3 fix_rounds 说明
+
+`fix_rounds` 记录 fixing ↔ reverifying 循环次数。每次 Generator 完成修复并将 status 置为 `reverifying` 时，fix_rounds 应已 +1。Codex 在 `reverifying` 阶段开始前，应确认 fix_rounds 数值已更新，作为"Generator 确实执行过修复"的依据。

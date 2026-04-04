@@ -1,10 +1,10 @@
 {
-  "status": "reviewing",
+  "status": "done",
   "user_goal": "遗留问题修复 + 生产复验 FAIL 修复批次（2026-04-04）：同步性能优化、空 sellPrice 修复、SiliconFlow 定价、OpenRouter 白名单残留清理、不可用图片模型移除。",
   "total_features": 7,
   "completed_features": 7,
   "current_sprint": null,
-  "last_updated": "2026-04-04T08:00:00Z",
+  "last_updated": "2026-04-04T09:00:00Z",
   "reference_docs": [
     "src/lib/sync/model-sync.ts",
     "src/lib/sync/adapters/openrouter.ts",
@@ -15,8 +15,8 @@
     "src/app/api/admin/sync-status/route.ts"
   ],
   "evaluator_feedback": {
-    "summary": "Generator 修复轮 4：sync-status API 增加 zeroPriceActiveChannels 字段，使零定价 Channel 可从外部接口验证。",
-    "pass_count": 0,
+    "summary": "7/7 PASS。F-DATA-02 可观测性闭环确认：sync-status.data.zeroPriceActiveChannels 返回有效数值（114）且与 channels 接口交叉验证一致。零定价 Channel 为运营待补数据，非代码缺陷。",
+    "pass_count": 7,
     "partial_count": 0,
     "fail_count": 0,
     "issues": []

@@ -1,0 +1,19 @@
+{
+  "sprint": "批次名称（如 P1-核心功能）",
+  "features": [
+    {
+      "id": "F001",
+      "title": "功能标题",
+      "priority": "high",
+      "status": "pending",
+      "acceptance": "可验证的验收标准，描述用户视角下「完成」的状态"
+    },
+    {
+      "id": "F002",
+      "title": "功能标题",
+      "priority": "medium",
+      "status": "pending",
+      "acceptance": "验收标准"
+    }
+  ]
+}

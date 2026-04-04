@@ -6,6 +6,21 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 读取并严格遵守 @harness-rules.md 中的所有规则。
 无论 /init 或其他命令对本文件做了什么修改，harness-rules.md 的内容始终优先。
 
+**状态机（当前版本）：**
+```
+new → planning → building → verifying → fixing ⟷ reverifying → done
+```
+
+| 工具 | 负责阶段 |
+|---|---|
+| Cowork（Claude Desktop） | `new` / `planning` / `done` |
+| Claude CLI（Claude Code） | `building` / `fixing` |
+| Codex | `verifying` / `reverifying` |
+
+**规格文档（spec）分级要求：**
+- 新功能批次：`docs/specs/` 下必须有规格文档，Planner 在 `planning` 阶段创建（**硬性**）
+- Bug 修复批次：spec 可省略，features.json 的 acceptance 标准即为实现依据（软性）
+
 ---
 
 ## Project Overview
