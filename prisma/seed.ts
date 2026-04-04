@@ -147,13 +147,14 @@ const providers = [
       quirks: ["image_response_format_diff", "model_id_has_org_prefix", "has_reasoning_content"],
       staticModels: null,
       // SiliconFlow AI doc-enricher 提取不稳定，手动补充主要模型定价（CNY/百万 token）
+      // 字段名须与 PricingOverride 接口一致：inputPriceCNYPerM / outputPriceCNYPerM
       pricingOverrides: {
-        "Qwen/Qwen2.5-72B-Instruct": { inputPer1M: 4.13, outputPer1M: 4.13, currency: "CNY" },
-        "Qwen/Qwen2.5-32B-Instruct": { inputPer1M: 1.26, outputPer1M: 1.26, currency: "CNY" },
-        "Qwen/Qwen2.5-7B-Instruct": { inputPer1M: 0.35, outputPer1M: 0.35, currency: "CNY" },
-        "Qwen/QwQ-32B": { inputPer1M: 1.26, outputPer1M: 1.26, currency: "CNY" },
-        "deepseek-ai/DeepSeek-R1": { inputPer1M: 4.0, outputPer1M: 16.0, currency: "CNY" },
-        "deepseek-ai/DeepSeek-V3": { inputPer1M: 2.0, outputPer1M: 8.0, currency: "CNY" },
+        "Qwen/Qwen2.5-72B-Instruct": { inputPriceCNYPerM: 4.13, outputPriceCNYPerM: 4.13 },
+        "Qwen/Qwen2.5-32B-Instruct": { inputPriceCNYPerM: 1.26, outputPriceCNYPerM: 1.26 },
+        "Qwen/Qwen2.5-7B-Instruct": { inputPriceCNYPerM: 0.35, outputPriceCNYPerM: 0.35 },
+        "Qwen/QwQ-32B": { inputPriceCNYPerM: 1.26, outputPriceCNYPerM: 1.26 },
+        "deepseek-ai/DeepSeek-R1": { inputPriceCNYPerM: 4.0, outputPriceCNYPerM: 16.0 },
+        "deepseek-ai/DeepSeek-V3": { inputPriceCNYPerM: 2.0, outputPriceCNYPerM: 8.0 },
       },
       docUrls: ["https://siliconflow.cn/pricing"],
     },

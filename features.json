@@ -25,14 +25,14 @@
       "id": "F-DATA-02",
       "title": "Channel 创建时 sellPrice 非空校验",
       "priority": "medium",
-      "status": "completed",
+      "status": "pending",
       "acceptance": "reconcile 中创建新 Channel 时，若计算出的 sellPrice 全为 0 则打印 warn 日志。不阻塞创建但提供可观测性。（代码已实现，本地无法构造触发场景，推迟到生产验证）"
     },
     {
       "id": "F-DATA-03",
       "title": "SiliconFlow pricingOverrides 补充",
       "priority": "medium",
-      "status": "completed",
+      "status": "pending",
       "acceptance": "在 prisma/seed.ts 中为 SiliconFlow 6 个主要模型添加 pricingOverrides。（本地无真实 Key 无法验证运行态，推迟到生产验证）"
     },
     {
