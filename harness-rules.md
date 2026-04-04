@@ -65,6 +65,21 @@ docs/
 └── adr/           # 可选：架构决策记录
 ```
 
+## 需求池（backlog.json）
+
+**backlog.json** 是独立于当前批次的需求暂存区。Cowork 在与用户确认需求后，若当前有批次正在执行，将需求写入 backlog.json 而非打断当前批次。
+
+**写入规则（Cowork）：**
+- 任意阶段均可向 backlog.json 追加条目
+- 条目格式：`{ id, title, description, decisions[], confirmed_at, priority }`
+- 写入后告知用户"已加入需求池，等待下一批次安排"
+
+**读取规则（Planner）：**
+- 每次新批次启动（status = new）时，必须先读 backlog.json
+- 有条目时向用户展示，询问本批次要包含哪些
+- 选中的条目并入 features.json，并从 backlog.json 中移除
+- 未选条目保留在 backlog.json
+
 ## 铁律（任何情况下不得违反）
 1. 永远不要一次性生成所有代码，必须分功能逐条实现
 2. 每完成一个功能，立即写入 progress.json，不得跳过

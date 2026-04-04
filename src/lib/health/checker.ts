@@ -25,13 +25,6 @@ export interface CheckResult {
   responseBody: string | null;
 }
 
-// 图片通道最小尺寸（按 provider name）
-const IMAGE_MIN_SIZES: Record<string, string> = {
-  openai: "1024x1024",
-  zhipu: "1024x1024",
-  siliconflow: "512x512",
-};
-
 /**
  * 对一个通道执行三级检查，返回每级结果
  */
@@ -154,32 +147,52 @@ async function runTextCheck(route: RouteResult): Promise<CheckResult[]> {
 
 async function runImageCheck(route: RouteResult): Promise<CheckResult[]> {
   const results: CheckResult[] = [];
-  const adapter = getAdapterForRoute(route);
-  const size = IMAGE_MIN_SIZES[route.provider.name] ?? "1024x1024";
-
   const start = Date.now();
 
-  // --- Level 1: 连通性 ---
+  // 图片通道改为 /models 轻量探测，不再调用 imageGenerations()
+  // 原因：imageGenerations 会真实生成图片并产生费用（单次 $0.04–$0.19）
+  // /models 为元数据接口，无计费，能验证 API Key 有效性和网络可达性
+  const baseUrl = route.provider.baseUrl.replace(/\/+$/, "");
+  const authConfig = route.provider.authConfig as { apiKey?: string } | null;
+  const apiKey = authConfig?.apiKey ?? "";
+  const proxyUrl = route.provider.proxyUrl ?? process.env.PROXY_URL_PRIMARY ?? null;
+
   try {
-    const response = await adapter.imageGenerations(
-      {
-        model: route.model.name,
-        prompt: "a red circle on white background",
-        n: 1,
-        size,
-      },
-      route,
-    );
+    let response: Response;
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 15_000);
+
+    try {
+      if (proxyUrl) {
+        const { ProxyAgent, fetch: undiciFetch } = await import("undici");
+        const dispatcher = new ProxyAgent(proxyUrl);
+        response = await (undiciFetch as unknown as typeof fetch)(`${baseUrl}/models`, {
+          headers: { Authorization: `Bearer ${apiKey}` },
+          signal: controller.signal,
+          // @ts-expect-error undici dispatcher option
+          dispatcher,
+        });
+      } else {
+        response = await fetch(`${baseUrl}/models`, {
+          headers: { Authorization: `Bearer ${apiKey}` },
+          signal: controller.signal,
+        });
+      }
+    } finally {
+      clearTimeout(timeoutId);
+    }
 
     const latencyMs = Date.now() - start;
+    const body = await response.text();
 
-    if (!response || !response.data?.length) {
+    // --- Level 1: 连通性 (HTTP 200 + 响应非空) ---
+    if (!response.ok || !body) {
       results.push({
         level: "CONNECTIVITY",
         result: "FAIL",
         latencyMs,
-        errorMessage: "Empty response or no data",
-        responseBody: JSON.stringify(response).slice(0, 2000),
+        errorMessage: `HTTP ${response.status}${body ? `: ${body.slice(0, 200)}` : ""}`,
+        responseBody: body.slice(0, 2000),
       });
       return results;
     }
@@ -189,20 +202,23 @@ async function runImageCheck(route: RouteResult): Promise<CheckResult[]> {
       result: "PASS",
       latencyMs,
       errorMessage: null,
-      responseBody: JSON.stringify(response).slice(0, 500),
+      responseBody: body.slice(0, 500),
     });
 
-    // --- Level 2: 格式一致性 ---
-    const firstItem = response.data[0];
-    const hasUrl = !!firstItem?.url;
-    const hasB64 = !!firstItem?.b64_json;
+    // --- Level 2: 格式 (响应包含 data 数组) ---
+    let parsed: { data?: unknown[] } | null = null;
+    try {
+      parsed = JSON.parse(body);
+    } catch {
+      /* not JSON */
+    }
 
-    if (!hasUrl && !hasB64) {
+    if (!parsed || !Array.isArray(parsed.data)) {
       results.push({
         level: "FORMAT",
         result: "FAIL",
         latencyMs,
-        errorMessage: "Missing data[0].url and data[0].b64_json",
+        errorMessage: "Response missing data array",
         responseBody: null,
       });
       return results;
@@ -216,10 +232,7 @@ async function runImageCheck(route: RouteResult): Promise<CheckResult[]> {
       responseBody: null,
     });
 
-    // 图片通道止步于 L2：不执行 L3 质量探测
-    // 原因：L3 需要真实生成一张图片，OpenRouter 图片模型单次 $0.04–$0.19，
-    // 每 12 分钟对所有图片 channel 各探一次会产生严重成本浪费。
-    // L2 已验证接口格式正确（data[0].url/b64_json 存在），对可用性判断已足够。
+    // 图片通道止步于 L2，不执行 L3
     return results;
   } catch (err) {
     const latencyMs = Date.now() - start;

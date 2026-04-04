@@ -1,16 +1,12 @@
 import type { SyncAdapter, SyncedModel, ProviderWithConfig } from "./base";
-import { fetchWithTimeout, getApiKey, getBaseUrl, inferModality } from "./base";
-
-/** 排除这些类型的模型 */
-const EXCLUDED_KEYWORDS = ["embedding", "rerank", "audio", "tts", "whisper", "asr"];
-
-function shouldExclude(modelId: string): boolean {
-  const lower = modelId.toLowerCase();
-  return EXCLUDED_KEYWORDS.some((kw) => lower.includes(kw));
-}
+import { fetchWithTimeout, getApiKey, getBaseUrl, inferModality, isChatModality } from "./base";
 
 export const siliconflowAdapter: SyncAdapter = {
   providerName: "siliconflow",
+
+  filterModel(modelId: string): boolean {
+    return isChatModality(modelId);
+  },
 
   async fetchModels(provider: ProviderWithConfig): Promise<SyncedModel[]> {
     const res = await fetchWithTimeout(
@@ -24,7 +20,7 @@ export const siliconflowAdapter: SyncAdapter = {
     const rawModels = (json.data ?? []) as Array<{ id: string }>;
 
     return rawModels
-      .filter((m) => !shouldExclude(m.id))
+      .filter((m) => isChatModality(m.id))
       .map((m) => ({
         modelId: m.id,
         name: `siliconflow/${m.id}`,

@@ -15,7 +15,7 @@ export interface SyncedModel {
   /** 显示名称 */
   displayName: string;
   /** 模态 */
-  modality: "TEXT" | "IMAGE";
+  modality: "TEXT" | "IMAGE" | "EMBEDDING" | "RERANKING" | "AUDIO";
   /** 上下文窗口 */
   contextWindow?: number;
   /** 最大输出 token */

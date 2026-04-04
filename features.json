@@ -1,53 +1,65 @@
 {
+  "batch": "健康检查与同步优化批次",
+  "created_at": "2026-04-04",
   "features": [
     {
-      "id": "F-PERF-01",
-      "title": "model-sync Provider 并行化",
-      "priority": "high",
-      "status": "completed",
-      "acceptance": "syncProvider 调用改为 Promise.allSettled 并行执行，各 provider 互不阻塞。本地 sync 总耗时从 ~264s 降至 <80s"
+      "id": "F-HEALTH-01",
+      "title": "图片通道健康检查改为 /models 轻量探测",
+      "description": "图片通道的健康检查目前调用 imageGenerations()，会真实生成图片并产生费用。改为调用 Provider 的 /models 接口做轻量连通性探测，验证 API Key 有效性和网络可达性，不生成图片。",
+      "files": ["src/lib/health/checker.ts"],
+      "acceptance": [
+        "runImageCheck() 不再调用 imageGenerations()",
+        "改为调用 Provider 的 /models（或等效轻量）接口",
+        "L1 PASS 条件：接口返回 HTTP 200 且响应非空",
+        "L2 FORMAT 检查：响应包含 data 数组（模型列表格式有效）",
+        "图片通道健康检查不产生任何计费行为",
+        "现有文本通道检查逻辑不受影响"
+      ],
+      "status": "completed"
     },
     {
-      "id": "F-PERF-02",
-      "title": "reconcile 批量 DB 操作",
-      "priority": "high",
-      "status": "completed",
-      "acceptance": "reconcile 内 channel update/create 使用 Prisma transaction 或批量操作，减少串行 DB round-trip。单 provider reconcile 耗时下降 50%+"
+      "id": "F-SYNC-01",
+      "title": "修复白名单清理被安全防护提前返回跳过的问题",
+      "description": "model-sync.ts 中，白名单清理逻辑位于安全防护 early return 之后。当 fetchModels() 因 API 故障返回空列表时，安全防护提前 return，白名单清理永远不会执行。修复方式：将白名单清理移至安全防护判断之前独立执行。",
+      "files": ["src/lib/sync/model-sync.ts"],
+      "acceptance": [
+        "白名单清理逻辑（filterModel 存在时 DISABLE 非白名单 channel）在安全防护 early return 之前执行",
+        "安全防护逻辑本身保持不变（models=0 时跳过 reconcile）",
+        "当 fetchModels 成功时，行为与修复前完全一致",
+        "当 fetchModels 失败（返回空）时，白名单清理仍然执行，reconcile 跳过",
+        "[L2] 手动触发同步后，OpenRouter 非白名单通道被 DISABLE，活跃通道数收窄至白名单数量"
+      ],
+      "status": "completed"
     },
     {
-      "id": "F-DATA-01",
-      "title": "空 sellPrice Channel 一次性修复",
-      "priority": "medium",
-      "status": "completed",
-      "acceptance": "扫描所有 ACTIVE TEXT Channel 中 sellPrice 为 {} 或 inputPer1M=0 且 outputPer1M=0 的记录，用 costPrice × markupRatio 重算 sellPrice。修复后 0 个 ACTIVE TEXT Channel 存在空定价"
+      "id": "F-FILTER-SL",
+      "title": "硅基流动：扩展 inferModality 并只保留 TEXT/IMAGE 模型",
+      "description": "当前 inferModality() 只返回 TEXT 或 IMAGE，无法识别 EMBEDDING/RERANKING/AUDIO 等类型，导致 BGE 系列嵌入模型、CosyVoice 等语音模型被误判为 TEXT 并同步进来。在 base.ts 中扩展 inferModality() 支持识别 EMBEDDING/RERANKING/AUDIO 三类，SiliconFlow 适配器过滤只保留 TEXT 和 IMAGE，并实现 filterModel 触发 cleanup。",
+      "files": [
+        "src/lib/sync/adapters/base.ts",
+        "src/lib/sync/adapters/siliconflow.ts"
+      ],
+      "acceptance": [
+        "inferModality() 能正确识别 BAAI/bge-* 系列为 EMBEDDING",
+        "inferModality() 能正确识别 *reranker* 系列为 RERANKING",
+        "inferModality() 能正确识别 CosyVoice、SenseVoice、IndexTTS、whisper 等为 AUDIO",
+        "SiliconFlow 适配器只同步 TEXT 和 IMAGE 模型",
+        "SiliconFlow 适配器实现 filterModel，触发 cleanup 机制",
+        "[L2] 同步后硅基流动活跃通道不再包含 embedding/reranking/audio 模型"
+      ],
+      "status": "completed"
     },
     {
-      "id": "F-DATA-02",
-      "title": "Channel 零定价可观测性",
-      "priority": "medium",
-      "status": "completed",
-      "acceptance": "1) reconcile 创建新 Channel 时 sellPrice=0 打印 warn 日志；2) GET /api/admin/sync-status 响应包含 zeroPriceActiveChannels 字段，值为当前 ACTIVE 零定价 Channel 数量，可从外部接口验证"
-    },
-    {
-      "id": "F-DATA-03",
-      "title": "SiliconFlow pricingOverrides 补充",
-      "priority": "medium",
-      "status": "completed",
-      "acceptance": "在 prisma/seed.ts 中为 SiliconFlow 6 个主要模型添加 pricingOverrides。（本地无真实 Key 无法验证运行态，推迟到生产验证）"
-    },
-    {
-      "id": "F-FIX-01",
-      "title": "OpenRouter 白名单外残留 Channel 彻底清理",
-      "priority": "high",
-      "status": "completed",
-      "acceptance": "生产 /v1/models 中 openrouter/* 模型数 <= 30（白名单大小），不包含 :free 模型和非白名单模型。reconcile 下架逻辑确保白名单外 Channel status=DISABLED"
-    },
-    {
-      "id": "F-FIX-02",
-      "title": "OpenRouter 图片白名单精简 — 移除不可用模型",
-      "priority": "high",
-      "status": "completed",
-      "acceptance": "从 openrouter-whitelist.ts 移除返回空 content 的图片模型（gemini-2.5-flash-image、gpt-5-image-mini），仅保留有稳定出图能力的。生产 sync 后这些模型 Channel 被 DISABLE，/v1/models 不再暴露"
+      "id": "F-FILTER-ZP",
+      "title": "智谱 AI：添加模型过滤，只保留 TEXT/IMAGE 模型",
+      "description": "智谱适配器目前全量同步，无任何过滤。复用扩展后的 inferModality()，只保留 TEXT 和 IMAGE 模型，排除 embedding/audio 等专用模型，并实现 filterModel 触发 cleanup。",
+      "files": ["src/lib/sync/adapters/zhipu.ts"],
+      "acceptance": [
+        "zhipu 适配器使用扩展后的 inferModality() 过滤，只同步 TEXT 和 IMAGE 模型",
+        "zhipu 适配器实现 filterModel，触发 cleanup 机制",
+        "[L2] 同步后智谱活跃通道不包含 embedding/audio 等非对话模型"
+      ],
+      "status": "completed"
     }
   ]
 }

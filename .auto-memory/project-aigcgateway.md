@@ -21,6 +21,22 @@ AIGC Gateway — AI 服务商管理中台。统一 API 调用抽象（兼容 Ope
 - MCP L2 集成：读类 Tools + 错误场景 PASS，写类链路（chat/image 计费）已修复并通过生产验收
 - **P3-1 完成（2026-04-03）：** Prompt 模板治理 25/25 功能全部 PASS（数据模型、注入引擎、16 API 路由、MCP 5 新工具、控制台 3 页面、侧边栏、i18n）
 - **成本优化 + Bug 修复批次完成（2026-04-04）：** 7/7 PASS（Evaluator：Codex），OpenRouter 成本 ~$482/周 → ~$9/周
+- **健康检查与同步优化批次完成（2026-04-04）：** 4/4 PASS，图片通道改轻量探测、白名单清理 Bug 修复、SiliconFlow/Zhipu 过滤只保留 TEXT/IMAGE
+
+## 最近修复（2026-04-04）— 健康检查与同步优化批次
+
+- `checker.ts runImageCheck()`：图片通道健康检查改为调 `/models` 轻量接口，不生成真实图片，彻底消除图片探测成本
+- `model-sync.ts syncProvider()`：白名单清理移至安全防护 early return 之前，修复 API 故障时清理被跳过的 Bug
+- `base.ts inferModality()`：扩展支持 EMBEDDING/RERANKING/AUDIO 识别，新增 `isChatModality()` 辅助函数
+- `siliconflow.ts`：使用 `isChatModality` 过滤，实现 `filterModel`，只同步 TEXT/IMAGE 模型
+- `zhipu.ts`：同上，首次添加过滤逻辑
+
+**签收文档：** `docs/test-reports/health-sync-filter-signoff-2026-04-04.md`
+**Harness 状态：** `progress.json` status=done, 4/4 PASS
+
+## 需求池（backlog.json）
+
+- **BL-001**（high）：白名单外通道改为硬删除 — 有 filterModel 的 Provider，非白名单 Channel 应 deleteMany 而非 DISABLED，不出现在 Disabled Nodes、不被健康检查探测
 
 ## 最近修复（2026-04-04）— 成本优化 + Bug 修复批次
 

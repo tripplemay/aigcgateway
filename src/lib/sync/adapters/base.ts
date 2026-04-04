@@ -17,14 +17,55 @@ export function getPricingOverride(
   return overrides[modelId];
 }
 
-/** 推断 modality */
-export function inferModality(modelId: string): "TEXT" | "IMAGE" {
+/** 推断 modality（扩展版：支持 EMBEDDING/RERANKING/AUDIO） */
+export type InferredModality = "TEXT" | "IMAGE" | "EMBEDDING" | "RERANKING" | "AUDIO";
+
+export function inferModality(modelId: string): InferredModality {
   const lower = modelId.toLowerCase();
-  const imageKeywords = [
-    "dall-e", "image", "cogview", "seedream",
-    "stable-diffusion", "sd-", "sdxl", "flux", "midjourney",
+
+  // RERANKING（优先于 EMBEDDING，因为 bge-reranker 同时含 "bge" 和 "reranker"）
+  const rerankKeywords = ["reranker", "rerank"];
+  if (rerankKeywords.some((kw) => lower.includes(kw))) return "RERANKING";
+
+  // EMBEDDING（bge 系列名称不含 "embedding"，需用 "bge" 关键词）
+  const embeddingKeywords = ["bge", "embed", "e5-", "text-embedding"];
+  if (embeddingKeywords.some((kw) => lower.includes(kw))) return "EMBEDDING";
+
+  // AUDIO（TTS/ASR/语音）
+  const audioKeywords = [
+    "tts",
+    "whisper",
+    "asr",
+    "cosyvoice",
+    "sensevoice",
+    "speech",
+    "audio",
+    "voice",
+    "indextts",
   ];
-  return imageKeywords.some((kw) => lower.includes(kw)) ? "IMAGE" : "TEXT";
+  if (audioKeywords.some((kw) => lower.includes(kw))) return "AUDIO";
+
+  // IMAGE
+  const imageKeywords = [
+    "dall-e",
+    "image",
+    "cogview",
+    "seedream",
+    "stable-diffusion",
+    "sd-",
+    "sdxl",
+    "flux",
+    "midjourney",
+  ];
+  if (imageKeywords.some((kw) => lower.includes(kw))) return "IMAGE";
+
+  return "TEXT";
+}
+
+/** 判断模型是否为对话类（TEXT 或 IMAGE） */
+export function isChatModality(modelId: string): boolean {
+  const m = inferModality(modelId);
+  return m === "TEXT" || m === "IMAGE";
 }
 
 /** 通用 fetch with timeout + proxy */

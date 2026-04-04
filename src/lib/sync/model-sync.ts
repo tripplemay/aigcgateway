@@ -370,6 +370,26 @@ async function syncProvider(
       result.overrides = overrideResult.count;
     }
 
+    // ── 白名单 Provider：主动清理白名单外的 ACTIVE Channel ──
+    // 放在安全防护之前，确保即使 API 故障也能清理非白名单 Channel
+    if (adapter.filterModel) {
+      const allActive = await prisma.channel.findMany({
+        where: { providerId: provider.id, status: { not: "DISABLED" } },
+        select: { id: true, realModelId: true },
+      });
+      const toClean = allActive.filter((ch) => !adapter.filterModel!(ch.realModelId));
+      if (toClean.length > 0) {
+        await prisma.channel.updateMany({
+          where: { id: { in: toClean.map((ch) => ch.id) } },
+          data: { status: "DISABLED" },
+        });
+        console.log(
+          `[model-sync] ${provider.name}: disabled ${toClean.length} channels outside whitelist`,
+        );
+        result.disabledChannels.push(...toClean.map((ch) => `${provider.name}/${ch.realModelId}`));
+      }
+    }
+
     // ── 安全防护：AI 提取异常时保留现有数据 ──
     // 在白名单过滤之前检查，用合并后的原始模型数判断
     const existingChannelCount = await prisma.channel.count({
@@ -409,25 +429,6 @@ async function syncProvider(
     }
 
     result.modelCount = models.length;
-
-    // ── 白名单 Provider：主动清理白名单外的 ACTIVE Channel ──
-    if (adapter.filterModel) {
-      const allActive = await prisma.channel.findMany({
-        where: { providerId: provider.id, status: { not: "DISABLED" } },
-        select: { id: true, realModelId: true },
-      });
-      const toClean = allActive.filter((ch) => !adapter.filterModel!(ch.realModelId));
-      if (toClean.length > 0) {
-        await prisma.channel.updateMany({
-          where: { id: { in: toClean.map((ch) => ch.id) } },
-          data: { status: "DISABLED" },
-        });
-        console.log(
-          `[model-sync] ${provider.name}: disabled ${toClean.length} channels outside whitelist`,
-        );
-        result.disabledChannels.push(...toClean.map((ch) => `${provider.name}/${ch.realModelId}`));
-      }
-    }
 
     // ── reconcile 入库 ──
     const dbResult = await reconcile(provider, models, markupRatio);
