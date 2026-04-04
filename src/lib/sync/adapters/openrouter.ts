@@ -5,6 +5,10 @@ import { OPENROUTER_MODEL_WHITELIST } from "./openrouter-whitelist";
 export const openrouterAdapter: SyncAdapter = {
   providerName: "openrouter",
 
+  filterModel(modelId: string): boolean {
+    return OPENROUTER_MODEL_WHITELIST.has(modelId);
+  },
+
   async fetchModels(provider: ProviderWithConfig): Promise<SyncedModel[]> {
     const res = await fetchWithTimeout(
       `${getBaseUrl(provider)}/models`,

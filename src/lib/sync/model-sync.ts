@@ -361,7 +361,10 @@ async function syncProvider(
       return result;
     }
 
-    if (existingChannelCount > 0 && models.length < existingChannelCount * 0.5) {
+    // 如果适配器有白名单，安全阈值基于白名单大小而非历史 Channel 数
+    // （白名单收窄场景下，新模型数必然远小于历史 Channel 数，不应跳过 reconcile）
+    const hasWhitelist = !!adapter.filterModel;
+    if (!hasWhitelist && existingChannelCount > 0 && models.length < existingChannelCount * 0.5) {
       console.log(
         `[model-sync] ${provider.name}: SKIPPED reconcile — model count ${models.length} < 50% of existing ${existingChannelCount}`,
       );
