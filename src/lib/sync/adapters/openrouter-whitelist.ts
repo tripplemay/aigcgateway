@@ -72,11 +72,9 @@ export const OPENROUTER_MODEL_WHITELIST = new Set([
   "perplexity/sonar-pro",
 
   // ──────────────────────────────────────────────
-  // 图片生成（严格限制数量，只选性价比高的）
-  // 注意：这些模型会跳过 doc-enricher AI 丰富化和健康检查 L3
+  // 图片生成 — 已从 OpenRouter 白名单移除（2026-04-04）
+  // 原因：OpenRouter 图片模型走 chat 端点，频繁返回空 content，
+  //       生产验证 gemini-2.5-flash-image / gpt-5-image-mini 均 FAIL。
+  //       图片生成由直连 Provider（OpenAI dall-e-3、zhipu、volcengine）承担。
   // ──────────────────────────────────────────────
-
-  "google/gemini-2.5-flash-image",
-  "openai/gpt-5-image-mini",
-  "bytedance-seed/seedream-4.5-20251203",
 ]);

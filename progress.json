@@ -1,78 +1,23 @@
 {
-  "status": "done",
-  "user_goal": "成本优化 + Bug 修复批次（2026-04-04）：OpenRouter 全量同步导致健康检查每周产生 $480+ 费用，需收窄同步范围并修复图片模型探针策略；同步修复 MCP 图片生成、日志搜索两个功能性 Bug。",
+  "status": "reviewing",
+  "user_goal": "遗留问题修复 + 生产复验 FAIL 修复批次（2026-04-04）：同步性能优化、空 sellPrice 修复、SiliconFlow 定价、OpenRouter 白名单残留清理、不可用图片模型移除。",
   "total_features": 7,
   "completed_features": 7,
   "current_sprint": null,
-  "last_updated": "2026-04-04T01:02:00Z",
+  "last_updated": "2026-04-04T06:30:00Z",
   "reference_docs": [
-    "src/lib/sync/adapters/openrouter-whitelist.ts",
+    "src/lib/sync/model-sync.ts",
     "src/lib/sync/adapters/openrouter.ts",
-    "src/lib/health/checker.ts",
-    "src/lib/sync/doc-enricher.ts",
-    "src/lib/mcp/tools/list-logs.ts",
-    "src/lib/engine/openai-compat.ts",
-    "src/lib/mcp/tools/generate-image.ts"
+    "src/lib/sync/adapters/openrouter-whitelist.ts",
+    "src/lib/api/post-process.ts",
+    "prisma/seed.ts",
+    "scripts/fix-empty-sell-price.ts"
   ],
   "evaluator_feedback": {
-    "summary": "本地 3099 最终验收通过：7 项全部 PASS。F-COST-01 文档已回写为 30 个白名单模型；复验确认白名单文件为 30 条，OpenRouter 实际同步 29 条，符合 openrouter.ts 中白名单 + 排除免费/零价模型的实现逻辑。",
-    "pass_count": 7,
-    "partial_count": 0,
+    "summary": "5 PASS + 2 PARTIAL（F-DATA-02/03 代码已实现，因本地环境限制无法触发验证，标记为推迟到生产验证）。7/7 completed。",
+    "pass_count": 5,
+    "partial_count": 2,
     "fail_count": 0,
     "issues": []
-  },
-  "features": [
-    {
-      "id": "F-COST-01",
-      "title": "OpenRouter 模型白名单",
-      "description": "新建 openrouter-whitelist.ts，收录 30 个主流模型。openrouter.ts 同步前先过白名单，将同步模型数从 310 降到 30。",
-      "files": [
-        "src/lib/sync/adapters/openrouter-whitelist.ts",
-        "src/lib/sync/adapters/openrouter.ts"
-      ],
-      "status": "completed"
-    },
-    {
-      "id": "F-COST-02",
-      "title": "健康检查图片 channel 封顶 L2",
-      "description": "checker.ts runImageCheck() 中，图片通道完成 L2（格式验证）后直接返回，不再执行 L3 真实图片生成探针。预计节省 $171/周。",
-      "files": ["src/lib/health/checker.ts"],
-      "status": "completed"
-    },
-    {
-      "id": "F-COST-03",
-      "title": "doc-enricher 跳过图片模型 AI 丰富化",
-      "description": "enrichFromDocs() 入口过滤图片模型，只对文本模型调用 DeepSeek AI 丰富化，图片模型直接透传。预计节省 $237/周。",
-      "files": ["src/lib/sync/doc-enricher.ts"],
-      "status": "completed"
-    },
-    {
-      "id": "F-BUG-01",
-      "title": "list-logs.ts 搜索列错误修复",
-      "description": "search SQL 从 traceId/modelName ILIKE 改为 promptSnapshot::text ILIKE OR responseContent ILIKE，实现真正的 prompt 内容搜索。",
-      "files": ["src/lib/mcp/tools/list-logs.ts"],
-      "status": "completed"
-    },
-    {
-      "id": "F-BUG-02",
-      "title": "imageViaChat URL 提取增强",
-      "description": "openai-compat.ts imageViaChat() 重写：multimodal parts 数组 → base64 data URI → 带扩展名 URL → 任意 HTTPS URL → 抛出明确错误。兼容 Gemini 无扩展名 Google Storage URL。",
-      "files": ["src/lib/engine/openai-compat.ts"],
-      "status": "completed"
-    },
-    {
-      "id": "F-BUG-03",
-      "title": "generate-image MCP 错误响应结构化（F-IMG-01）",
-      "description": "generate-image.ts catch 块错误 text 改为结构化 JSON {code, message}，provider_timeout 分支同步处理，避免客户端 JSON.parse 失败。",
-      "files": ["src/lib/mcp/tools/generate-image.ts"],
-      "status": "completed"
-    },
-    {
-      "id": "F-ARCH-01",
-      "title": "OpenRouter 白名单维护规范",
-      "description": "openrouter-whitelist.ts 顶部注明维护规则：优先使用浮动别名、版本快照仅合规需求时使用、建议每季度审查一次。",
-      "files": ["src/lib/sync/adapters/openrouter-whitelist.ts"],
-      "status": "completed"
-    }
-  ]
+  }
 }

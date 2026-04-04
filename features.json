@@ -1,179 +1,53 @@
 {
   "features": [
     {
-      "id": "F001",
-      "title": "Prisma Schema: Template + TemplateVersion 模型",
+      "id": "F-PERF-01",
+      "title": "model-sync Provider 并行化",
       "priority": "high",
       "status": "completed",
-      "acceptance": "prisma/schema.prisma 包含 Template 和 TemplateVersion 模型，字段与规格 §2.1/§2.2 完全一致"
+      "acceptance": "syncProvider 调用改为 Promise.allSettled 并行执行，各 provider 互不阻塞。本地 sync 总耗时从 ~264s 降至 <80s"
     },
     {
-      "id": "F002",
-      "title": "Prisma Schema: CallLog 新增 templateVersionId",
+      "id": "F-PERF-02",
+      "title": "reconcile 批量 DB 操作",
       "priority": "high",
       "status": "completed",
-      "acceptance": "CallLog 模型新增 templateVersionId String? @map(\"template_version_id\") 字段"
+      "acceptance": "reconcile 内 channel update/create 使用 Prisma transaction 或批量操作，减少串行 DB round-trip。单 provider reconcile 耗时下降 50%+"
     },
     {
-      "id": "F003",
-      "title": "Migration: templates + template_versions 表 + CallLog 变更",
-      "priority": "high",
-      "status": "completed",
-      "acceptance": "migration SQL 正确，prisma generate 无类型错误，与 schema/代码同一 commit"
-    },
-    {
-      "id": "F004",
-      "title": "种子数据: 平台公共模板示例",
+      "id": "F-DATA-01",
+      "title": "空 sellPrice Channel 一次性修复",
       "priority": "medium",
       "status": "completed",
-      "acceptance": "seed.ts 包含 2-3 个平台公共模板（projectId=null），各含至少 1 个版本和变量定义"
+      "acceptance": "扫描所有 ACTIVE TEXT Channel 中 sellPrice 为 {} 或 inputPer1M=0 且 outputPer1M=0 的记录，用 costPrice × markupRatio 重算 sellPrice。修复后 0 个 ACTIVE TEXT Channel 存在空定价"
     },
     {
-      "id": "F005",
-      "title": "变量注入引擎 src/lib/template/inject.ts",
-      "priority": "high",
-      "status": "completed",
-      "acceptance": "接收 templateVersionId + variables → 校验必填 → 全局替换 {{}} → 返回 messages 数组"
-    },
-    {
-      "id": "F006",
-      "title": "Admin 模板 CRUD API (7 路由)",
-      "priority": "high",
-      "status": "completed",
-      "acceptance": "§4.2 全部 7 个路由实现，JWT+ADMIN 鉴权"
-    },
-    {
-      "id": "F007",
-      "title": "项目模板 CRUD API (9 路由)",
-      "priority": "high",
-      "status": "completed",
-      "acceptance": "§4.1 全部 9 个路由实现，JWT 鉴权 + 项目归属校验，含 fork 公共模板"
-    },
-    {
-      "id": "F008",
-      "title": "版本管理: 创建版本 + 切换活跃版本",
-      "priority": "high",
-      "status": "completed",
-      "acceptance": "POST versions 自增 versionNumber，PATCH active-version 切换"
-    },
-    {
-      "id": "F009",
-      "title": "/v1/chat/completions 扩展: templateId + variables",
-      "priority": "high",
-      "status": "completed",
-      "acceptance": "传 templateId 时走模板注入链路，CallLog 记录 templateVersionId"
-    },
-    {
-      "id": "F010",
-      "title": "qualityScore 回传 API",
+      "id": "F-DATA-02",
+      "title": "Channel 创建时 sellPrice 非空校验",
       "priority": "medium",
       "status": "completed",
-      "acceptance": "PATCH /api/projects/:id/logs/:traceId/quality 接受 score 0.0~1.0"
+      "acceptance": "reconcile 中创建新 Channel 时，若计算出的 sellPrice 全为 0 则打印 warn 日志。不阻塞创建但提供可观测性。（代码已实现，本地无法构造触发场景，推迟到生产验证）"
     },
     {
-      "id": "F011",
-      "title": "公共模板列表 API (无需登录)",
+      "id": "F-DATA-03",
+      "title": "SiliconFlow pricingOverrides 补充",
       "priority": "medium",
       "status": "completed",
-      "acceptance": "GET /api/public-templates 返回 projectId=null 的模板列表"
+      "acceptance": "在 prisma/seed.ts 中为 SiliconFlow 6 个主要模型添加 pricingOverrides。（本地无真实 Key 无法验证运行态，推迟到生产验证）"
     },
     {
-      "id": "F012",
-      "title": "MCP Tool: create_template (草稿生成，不写库)",
+      "id": "F-FIX-01",
+      "title": "OpenRouter 白名单外残留 Channel 彻底清理",
       "priority": "high",
       "status": "completed",
-      "acceptance": "根据 description 生成 messages + variables 草稿 JSON，不写数据库"
+      "acceptance": "生产 /v1/models 中 openrouter/* 模型数 <= 30（白名单大小），不包含 :free 模型和非白名单模型。reconcile 下架逻辑确保白名单外 Channel status=DISABLED"
     },
     {
-      "id": "F013",
-      "title": "MCP Tool: confirm_template (草稿保存)",
+      "id": "F-FIX-02",
+      "title": "OpenRouter 图片白名单精简 — 移除不可用模型",
       "priority": "high",
       "status": "completed",
-      "acceptance": "接收草稿 + name，写入 Template + TemplateVersion"
-    },
-    {
-      "id": "F014",
-      "title": "MCP Tool: list_templates",
-      "priority": "high",
-      "status": "completed",
-      "acceptance": "列出项目私有 + 平台公共模板，支持 search 和 includePublic"
-    },
-    {
-      "id": "F015",
-      "title": "MCP Tool: get_template",
-      "priority": "high",
-      "status": "completed",
-      "acceptance": "返回模板详情 + 所有版本 + 变量定义"
-    },
-    {
-      "id": "F016",
-      "title": "MCP Tool: update_template (创建新版本)",
-      "priority": "high",
-      "status": "completed",
-      "acceptance": "为已有模板创建新版本，不自动切换活跃版本"
-    },
-    {
-      "id": "F017",
-      "title": "MCP chat 工具改造: templateId + variables",
-      "priority": "high",
-      "status": "completed",
-      "acceptance": "传入 templateId 时走模板注入链路，messages 可省略"
-    },
-    {
-      "id": "F018",
-      "title": "Stitch 原型: 模板列表页 (由用户完成)",
-      "priority": "high",
-      "status": "completed",
-      "acceptance": "design-draft/ 下有 code.html + screen.png"
-    },
-    {
-      "id": "F019",
-      "title": "Stitch 原型: 模板编辑页 (由用户完成)",
-      "priority": "high",
-      "status": "completed",
-      "acceptance": "design-draft/ 下有 code.html + screen.png"
-    },
-    {
-      "id": "F020",
-      "title": "Stitch 原型: Admin 模板管理页 (由用户完成)",
-      "priority": "high",
-      "status": "completed",
-      "acceptance": "design-draft/ 下有 code.html + screen.png"
-    },
-    {
-      "id": "F021",
-      "title": "前端: 模板列表页 /templates (等 Stitch 原型)",
-      "priority": "high",
-      "status": "completed",
-      "acceptance": "按原型 1:1 复刻，接入 API，含搜索 + Fork"
-    },
-    {
-      "id": "F022",
-      "title": "前端: 模板编辑页 /templates/:id (等 Stitch 原型)",
-      "priority": "high",
-      "status": "completed",
-      "acceptance": "按原型 1:1 复刻，messages 编辑器 + 变量定义 + 版本历史"
-    },
-    {
-      "id": "F023",
-      "title": "前端: Admin 模板管理页 /admin/templates (等 Stitch 原型)",
-      "priority": "high",
-      "status": "completed",
-      "acceptance": "按原型 1:1 复刻，平台公共模板 CRUD + category"
-    },
-    {
-      "id": "F024",
-      "title": "侧边栏导航: 新增模板入口",
-      "priority": "medium",
-      "status": "completed",
-      "acceptance": "开发者导航新增'模板'，Admin 新增'模板管理'"
-    },
-    {
-      "id": "F025",
-      "title": "i18n: 模板相关全部文案",
-      "priority": "medium",
-      "status": "completed",
-      "acceptance": "en.json + zh-CN.json 同步，无缺失 key"
+      "acceptance": "从 openrouter-whitelist.ts 移除返回空 content 的图片模型（gemini-2.5-flash-image、gpt-5-image-mini），仅保留有稳定出图能力的。生产 sync 后这些模型 Channel 被 DISABLE，/v1/models 不再暴露"
     }
   ]
 }

@@ -43,5 +43,26 @@
 - 更新 progress.json
 - 告知用户「请重新启动 Claude Code 继续」，然后结束
 
+### 7. 框架提案（可选）
+实现过程中如果遇到以下情况，在 `framework/proposed-learnings.md` 末尾追加一条提案：
+- 发现某个通用模式（可复用到其他项目）
+- 踩到意外的技术约束或陷阱
+- acceptance 标准的写法有缺陷（太模糊 / 无法验证）
+- 某条铁律在实践中需要补充说明
+
+**不得直接修改 `framework/` 其他文件**，只能追加到 `framework/proposed-learnings.md`。格式：
+
+```markdown
+## [YYYY-MM-DD] Generator — 来源：F-XXX
+
+**类型：** 新规律 / 新坑 / 模板修订 / 铁律补充
+
+**内容：** [一句话描述，足够让用户判断是否值得沉淀]
+
+**建议写入：** `framework/README.md` §经验教训 / `framework/harness/evaluator.md` / 其他
+
+**状态：** 待确认
+```
+
 ## 完成标准
 所有 features.json 中的功能 status 均为 "completed"，则将 progress.json status 改为 "reviewing"

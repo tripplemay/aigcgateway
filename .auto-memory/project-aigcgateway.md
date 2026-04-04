@@ -12,26 +12,34 @@ AIGC Gateway — AI 服务商管理中台。统一 API 调用抽象（兼容 Ope
 
 **仓库目录:** aigcgateway（已连接为 Cowork 工作目录）
 
-## 当前开发状态（截至 2026-04-03）
+## 当前开发状态（截至 2026-04-04）
 
 - P1 完成：项目骨架 + 7 家服务商 + API 网关 + 健康检查 + SDK + 认证计费支付 + 控制台 17 页
 - P1 优化补丁完成：模型自动同步引擎 + 模型/通道 UI 重构 + API Keys 权限扩展 + 全站性能优化（14项）+ 全站 UI 重构（Stitch 设计稿，16/18 页已完成，Login/Register 待办）
 - P2 完成：MCP 服务器 (7 Tools) + 控制台国际化 (20页 + 259 key) + 集成测试
 - 性能优化：Redis 缓存迁移 + PM2 cluster 已签收 PASS
-- MCP L2 集成：读类 Tools + 错误场景 PASS，写类链路（chat/image 计费）受定价数据缺失影响
+- MCP L2 集成：读类 Tools + 错误场景 PASS，写类链路（chat/image 计费）已修复并通过生产验收
 - **P3-1 完成（2026-04-03）：** Prompt 模板治理 25/25 功能全部 PASS（数据模型、注入引擎、16 API 路由、MCP 5 新工具、控制台 3 页面、侧边栏、i18n）
+- **成本优化 + Bug 修复批次完成（2026-04-04）：** 7/7 PASS（Evaluator：Codex），OpenRouter 成本 ~$482/周 → ~$9/周
 
-## 最近修复（2026-04-03）
+## 最近修复（2026-04-04）— 成本优化 + Bug 修复批次
 
-- `post-process.ts`: 成功调用但 sellUsd=0 时打印 console.warn 告警
-- `openai-compat.ts imageViaChat`: 重写 — multimodal parts → base64 → URL 正则 → 全部失败抛错
-- `list-logs.ts search`: 改为 jsonb_array_elements 提取纯文本匹配
-- `keys/page.tsx search`: 改为 uncontrolled input（ref + searchTick），消除 DOM/State 不同步
+- `openrouter-whitelist.ts`（新增）：30 个主流模型白名单，OpenRouter 同步范围 310 → 30
+- `openrouter.ts`：同步前先过白名单 filter
+- `checker.ts runImageCheck()`：图片通道封顶 L2，不执行 L3 真实图片生成探针（原根因：每 12 分钟单次 $0.04–$0.19）
+- `doc-enricher.ts`：跳过图片模型 AI 丰富化（modality=IMAGE 直接透传）
+- `list-logs.ts`：MCP search SQL 改为 promptSnapshot / responseContent ILIKE（原错误：traceId/modelName）
+- `openai-compat.ts imageViaChat`：四级提取链（multimodal parts → base64 → 带扩展名 URL → 任意 HTTPS URL）
+- `generate-image.ts`：MCP 错误响应结构化为 JSON `{code, message}`
 
-## P3-1 交付记录
+**签收文档：** `docs/test-reports/cost-optimization-bugfix-signoff-2026-04-04.md`
+**Harness 状态：** `progress.json` status=done, 7/7 PASS
+
+## 历史批次交付记录
+
+### P3-1（2026-04-03）
 
 - 规格文档：`docs/specs/AIGC-Gateway-Template-Governance-P3-1-Spec.md`
-- Harness 状态：`progress.json` status=done, 25/25 PASS
 - 后端提交：`ea01617` feat: P3-1 Prompt 模板治理后端基建（F001-F017）
 - 前端提交：`edbc55d` feat: P3-1 控制台模板治理前端（F018-F025）
 
@@ -41,7 +49,8 @@ AIGC Gateway — AI 服务商管理中台。统一 API 调用抽象（兼容 Ope
 2. Anthropic 直连 401
 3. 同步耗时偏高（~264s）
 4. Chat 计费 $0 — Channel sellPrice 为 {} 或 0，根因与 #1 同源（定价数据缺失），需管理员手动补充
-5. 图片生成 — 代码已修复（抛错），但 Gemini via chat 的实际图片返回格式仍需验证
+5. ~~图片生成 inline_data~~ — 已修复（2026-04-04，F-BUG-02 增加 inline_data 支持）
+6. ~~dall-e-3 + IMAGE 定价~~ — 已修复（2026-04-04，OpenAI 付费 Key + 16 Channel sellPriceLocked + 生产验收 PASS）
 
 ## 已知限制（决定不修复）
 

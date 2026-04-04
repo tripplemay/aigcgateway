@@ -48,5 +48,26 @@
 ### 5. 更新 features.json
 将 FAIL 和 PARTIAL 的功能 status 改回 "pending"，等待 Generator 修复。
 
+### 6. 框架提案（可选）
+验收过程中如果遇到以下情况，在 `framework/proposed-learnings.md` 末尾追加一条提案：
+- acceptance 标准太模糊导致无法客观判定 PASS / FAIL
+- 某类 Bug 是系统性的（说明 Generator 指令或模板需要补充）
+- 验收步骤中发现某个通用的验证方法值得固化
+- 某个 PARTIAL 反复出现，说明验收标准写法需要改进
+
+**不得直接修改 `framework/` 其他文件**，只能追加到 `framework/proposed-learnings.md`。格式：
+
+```markdown
+## [YYYY-MM-DD] Evaluator — 来源：F-XXX
+
+**类型：** 新规律 / 新坑 / 模板修订 / 铁律补充
+
+**内容：** [一句话描述，足够让用户判断是否值得沉淀]
+
+**建议写入：** `framework/README.md` §经验教训 / `framework/harness/generator.md` / 其他
+
+**状态：** 待确认
+```
+
 ## 完成标准
 所有功能均为 PASS 后，将 progress.json status 改为 "done"

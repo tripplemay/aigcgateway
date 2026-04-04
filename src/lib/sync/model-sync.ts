@@ -200,6 +200,11 @@ async function reconcile(
   const channelByRealModelId = new Map(existingChannels.map((ch) => [ch.realModelId, ch]));
   const remoteRealModelIds = new Set(models.map((m) => m.modelId));
 
+  // 收集批量操作
+  const batchOps: Array<
+    ReturnType<typeof prisma.channel.update> | ReturnType<typeof prisma.channel.create>
+  > = [];
+
   for (const remoteModel of models) {
     const existingChannel = channelByRealModelId.get(remoteModel.modelId);
 
@@ -218,15 +223,14 @@ async function reconcile(
       }
 
       if (Object.keys(updateData).length > 0) {
-        await prisma.channel.update({
-          where: { id: existingChannel.id },
-          data: updateData,
-        });
+        batchOps.push(
+          prisma.channel.update({ where: { id: existingChannel.id }, data: updateData }),
+        );
       }
       continue;
     }
 
-    // 新模型
+    // 新模型 — model upsert 必须串行（有依赖关系）
     const modelName = resolveModelName(remoteModel, provider.name);
     const model = await prisma.model.upsert({
       where: { name: modelName },
@@ -254,24 +258,34 @@ async function reconcile(
           markupRatio,
         );
       }
-      await prisma.channel.update({ where: { id: existingByModel.id }, data: updateData });
+      batchOps.push(prisma.channel.update({ where: { id: existingByModel.id }, data: updateData }));
       continue;
     }
 
     const costPrice = buildCostPrice(remoteModel);
     const sellPrice = applySellMarkup(costPrice, markupRatio);
 
-    await prisma.channel.create({
-      data: {
-        providerId: provider.id,
-        modelId: model.id,
-        realModelId: remoteModel.modelId,
-        priority: 1,
-        costPrice,
-        sellPrice,
-        status: "ACTIVE",
-      },
-    });
+    // 可观测性：新 Channel sellPrice 全为 0 时打印告警
+    const sp = sellPrice as unknown as Record<string, number>;
+    if ((sp.inputPer1M === 0 && sp.outputPer1M === 0) || sp.perCall === 0) {
+      console.warn(
+        `[model-sync] WARNING: zero sellPrice for new channel ${provider.name}/${remoteModel.modelId}`,
+      );
+    }
+
+    batchOps.push(
+      prisma.channel.create({
+        data: {
+          providerId: provider.id,
+          modelId: model.id,
+          realModelId: remoteModel.modelId,
+          priority: 1,
+          costPrice,
+          sellPrice,
+          status: "ACTIVE",
+        },
+      }),
+    );
 
     if (!existingChannels.some((ch) => ch.model.name === modelName)) {
       newModels.push(modelName);
@@ -280,14 +294,24 @@ async function reconcile(
   }
 
   // 下架：服务商不再返回的模型
-  for (const channel of existingChannels) {
-    if (channel.status !== "DISABLED" && !remoteRealModelIds.has(channel.realModelId)) {
-      await prisma.channel.update({
-        where: { id: channel.id },
+  const toDisable = existingChannels.filter(
+    (ch) => ch.status !== "DISABLED" && !remoteRealModelIds.has(ch.realModelId),
+  );
+  if (toDisable.length > 0) {
+    batchOps.push(
+      prisma.channel.updateMany({
+        where: { id: { in: toDisable.map((ch) => ch.id) } },
         data: { status: "DISABLED" },
-      });
-      disabledChannels.push(`${provider.name}/${channel.realModelId}`);
+      }) as unknown as ReturnType<typeof prisma.channel.update>,
+    );
+    for (const ch of toDisable) {
+      disabledChannels.push(`${provider.name}/${ch.realModelId}`);
     }
+  }
+
+  // 批量提交所有 channel 操作
+  if (batchOps.length > 0) {
+    await prisma.$transaction(batchOps);
   }
 
   return { newModels, newChannels, disabledChannels };
@@ -386,6 +410,25 @@ async function syncProvider(
 
     result.modelCount = models.length;
 
+    // ── 白名单 Provider：主动清理白名单外的 ACTIVE Channel ──
+    if (adapter.filterModel) {
+      const allActive = await prisma.channel.findMany({
+        where: { providerId: provider.id, status: { not: "DISABLED" } },
+        select: { id: true, realModelId: true },
+      });
+      const toClean = allActive.filter((ch) => !adapter.filterModel!(ch.realModelId));
+      if (toClean.length > 0) {
+        await prisma.channel.updateMany({
+          where: { id: { in: toClean.map((ch) => ch.id) } },
+          data: { status: "DISABLED" },
+        });
+        console.log(
+          `[model-sync] ${provider.name}: disabled ${toClean.length} channels outside whitelist`,
+        );
+        result.disabledChannels.push(...toClean.map((ch) => `${provider.name}/${ch.realModelId}`));
+      }
+    }
+
     // ── reconcile 入库 ──
     const dbResult = await reconcile(provider, models, markupRatio);
     result.newModels = dbResult.newModels;
@@ -432,11 +475,11 @@ export async function runModelSync(): Promise<SyncResult> {
       include: { config: true },
     });
 
-    const providerResults: ProviderSyncResult[] = [];
-    for (const provider of providers) {
+    // 并行同步所有 provider（各 provider 独立，互不阻塞）
+    const syncTasks = providers.map((provider) => {
       const adapter = ADAPTERS[provider.name];
       if (!adapter) {
-        providerResults.push({
+        return Promise.resolve({
           providerName: provider.name,
           success: false,
           error: `No sync adapter found for provider "${provider.name}"`,
@@ -447,14 +490,32 @@ export async function runModelSync(): Promise<SyncResult> {
           newChannels: [],
           disabledChannels: [],
           modelCount: 0,
-        });
-        continue;
+        } as ProviderSyncResult);
       }
+      return syncProvider(provider, adapter, markupRatio);
+    });
 
-      const result = await syncProvider(provider, adapter, markupRatio);
-      providerResults.push(result);
+    const settled = await Promise.allSettled(syncTasks);
+    const providerResults: ProviderSyncResult[] = settled.map((s, i) =>
+      s.status === "fulfilled"
+        ? s.value
+        : {
+            providerName: providers[i].name,
+            success: false,
+            error: s.reason instanceof Error ? s.reason.message : String(s.reason),
+            apiModels: 0,
+            aiEnriched: 0,
+            overrides: 0,
+            newModels: [],
+            newChannels: [],
+            disabledChannels: [],
+            modelCount: 0,
+          },
+    );
 
-      // ── 分层统计日志 ──
+    for (let i = 0; i < providerResults.length; i++) {
+      const result = providerResults[i];
+      const provider = providers[i];
       const hasDocUrls =
         Array.isArray(provider.config?.docUrls) &&
         (provider.config.docUrls as unknown[]).length > 0;
