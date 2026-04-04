@@ -1,72 +1,34 @@
 {
-  "batch": "服务器迁移批次",
-  "created_at": "2026-04-04",
+  "batch": "nginx-gzip 批次",
+  "created_at": "2026-04-05",
   "features": [
     {
-      "id": "F-MIGRATE-01",
-      "title": "新服务器环境安装（Node.js 22 / PostgreSQL 17 / Redis / Nginx / PM2）",
+      "id": "F-GZIP-01",
+      "title": "修改 nginx/conf.d/default.conf：启用 gzip + 拆分 /v1/models location + 修正 proxy_pass 地址",
+      "priority": "high",
+      "executor": "generator",
       "status": "completed",
       "acceptance": [
-        "node -v 输出 v22.x",
-        "psql --version 输出 PostgreSQL 17.x",
-        "redis-cli ping 返回 PONG",
-        "pm2 -v 成功",
-        "/opt/aigc-gateway 目录存在且为 git 仓库（main 分支最新）"
+        "nginx -t 语法验证通过",
+        "server block 顶部包含 gzip on 及 gzip_types application/json",
+        "location = /v1/models 精确匹配块存在，且在 location /v1/ 之前，无 proxy_buffering off",
+        "所有 proxy_pass 均为 http://localhost:3000，不存在 http://app:3000"
       ]
     },
     {
-      "id": "F-MIGRATE-02",
-      "title": "配置文件迁移（.env.production / ecosystem.config.cjs）",
-      "status": "completed",
-      "acceptance": [
-        ".env.production 已复制到新服务器 /opt/aigc-gateway/，包含 JWT_SECRET / ENCRYPTION_KEY / DATABASE_URL",
-        "ecosystem.config.cjs 已复制，NODE_OPTIONS 内存限制已去掉或调高（16GB 服务器）",
-        "DATABASE_URL 中 connection_limit 已从 5 调高到 20"
-      ]
-    },
-    {
-      "id": "F-MIGRATE-03",
-      "title": "PostgreSQL 数据迁移（pg_dump → 传输 → pg_restore）",
-      "status": "completed",
-      "acceptance": [
-        "新服务器 aigc_gateway 库存在，用户 aigc 有权限",
-        "SELECT COUNT(*) FROM call_logs 新旧服务器结果一致",
-        "SELECT COUNT(*) FROM channels 新旧服务器结果一致",
-        "SELECT COUNT(*) FROM models 新旧服务器结果一致"
-      ]
-    },
-    {
-      "id": "F-MIGRATE-04",
-      "title": "应用构建与 PM2 启动",
-      "status": "completed",
-      "acceptance": [
-        "npm ci / prisma generate / prisma migrate deploy / npm run build 均无报错",
-        "pm2 list 显示 aigc-gateway 状态为 online",
-        "curl http://localhost:3000/v1/models 返回 200",
-        "pm2 startup 已配置（开机自启）"
-      ]
-    },
-    {
-      "id": "F-MIGRATE-05",
-      "title": "Nginx 配置 + IP 验证 + SSL 证书签发",
-      "status": "completed",
-      "acceptance": [
-        "nginx/conf.d 配置已复制，proxy_pass 已改为 localhost:3000",
-        "nginx -t 无报错",
-        "curl http://34.180.93.185/v1/models 返回 200（DNS 切换前 IP 验证）",
-        "DNS 切换后 certbot 签发证书成功",
-        "curl https://aigc.guangai.ai/v1/models 返回 200，SSL 证书有效"
-      ]
-    },
-    {
-      "id": "F-MIGRATE-06",
-      "title": "deploy.yml 更新 + GitHub Actions 密钥切换",
+      "id": "F-GZIP-02",
+      "title": "部署验证 + 压测复跑（gzip 效果验证）",
+      "priority": "high",
+      "executor": "codex",
       "status": "pending",
       "acceptance": [
-        "deploy.yml 中 username 改为 tripplezhou（或 root，视服务器配置）",
-        "GitHub Secrets VPS_HOST 已更新为 34.180.93.185",
-        "VPS_SSH_PORT / VPS_PASSWORD 已更新为新服务器对应值",
-        "向 main 推送 commit 后 GitHub Actions 部署流水线成功执行"
+        "nginx -T | grep gzip 输出包含 gzip on",
+        "curl -sI -H 'Accept-Encoding: gzip' https://aigc.guangai.ai/v1/models | grep content-encoding 返回 gzip",
+        "A Warm P99 < 800ms（当前基线 1654ms）",
+        "B Warm P99 < 800ms（当前基线 1554ms）",
+        "C/D Warm P99 仍 < 800ms（不退步）",
+        "场景 E 错误率 < 1%，PM2 未重启",
+        "压测报告写入 docs/test-reports/stress-test-postgzip-2026-04-05.md"
       ]
     }
   ]

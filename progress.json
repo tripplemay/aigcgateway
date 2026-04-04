@@ -1,42 +1,34 @@
 {
-  "status": "fixing",
-  "user_goal": "服务器迁移批次：将生产环境从旧 VPS（154.40.40.116，1GB RAM）迁移到 GCP 新服务器（34.180.93.185，16GB RAM，Ubuntu 22.04）",
-  "total_features": 6,
-  "completed_features": 5,
-  "fix_rounds": 1,
-  "current_sprint": "F-MIGRATE-06",
-  "last_updated": "2026-04-04T15:06:00Z",
+  "status": "verifying",
+  "user_goal": "nginx-gzip 批次：启用 gzip 压缩，拆分 /v1/models location，预期将 A/B Warm P99 从 ~1600ms 降至 <800ms",
+  "total_features": 2,
+  "completed_features": 1,
+  "fix_rounds": 0,
+  "current_sprint": null,
+  "last_updated": "2026-04-05T11:00:00Z",
   "reference_docs": [
-    "docs/specs/server-migration-spec.md",
-    ".github/workflows/deploy.yml",
-    "docs/test-reports/server-migration-fix-evidence-2026-04-04.md"
+    "docs/specs/nginx-gzip-spec.md",
+    "nginx/conf.d/default.conf"
   ],
   "docs": {
-    "spec": "docs/specs/server-migration-spec.md",
+    "spec": "docs/specs/nginx-gzip-spec.md",
     "test_cases": null,
     "signoff": null,
     "framework_reviewed": false
   },
-  "evaluator_feedback": {
-    "summary": "服务器迁移批次复验结果为 5 PASS / 1 PARTIAL / 0 FAIL。F-MIGRATE-05 已翻正，F-MIGRATE-06 仍缺 GitHub Actions 部署成功与 Secrets 切换完成的直接证据。",
-    "pass_count": 5,
-    "partial_count": 1,
-    "fail_count": 0,
-    "issues": [
-      {
-        "feature_id": "F-MIGRATE-06",
-        "result": "PARTIAL",
-        "description": "deploy.yml 已改为 GCP 服务器并且新服务器当前 HEAD 与部署相关 commit 一致，但仍缺 GitHub Actions 最近一次部署成功和 Secrets 已切换的直接证据。",
-        "steps_to_reproduce": "1. 检查 .github/workflows/deploy.yml 使用 VPS_HOST/VPS_SSH_PORT/VPS_USERNAME/VPS_SSH_KEY 2. 检查新服务器 /opt/aigc-gateway HEAD 为 c74026c 3. 公开 GitHub API 对 Actions runs 返回 404，无法直接确认最近一次私有流水线结果"
-      }
-    ]
-  },
+  "evaluator_feedback": null,
   "features": [
-    { "id": "F-MIGRATE-01", "title": "新服务器环境安装", "status": "completed" },
-    { "id": "F-MIGRATE-02", "title": "配置文件迁移", "status": "completed" },
-    { "id": "F-MIGRATE-03", "title": "PostgreSQL 数据迁移", "status": "completed" },
-    { "id": "F-MIGRATE-04", "title": "应用构建与 PM2 启动", "status": "completed" },
-    { "id": "F-MIGRATE-05", "title": "Nginx 配置 + IP 验证 + SSL 证书签发", "status": "completed" },
-    { "id": "F-MIGRATE-06", "title": "deploy.yml 更新 + GitHub Actions 密钥切换", "status": "pending" }
+    {
+      "id": "F-GZIP-01",
+      "title": "修改 nginx/conf.d/default.conf：启用 gzip + 拆分 /v1/models location + 修正 proxy_pass 地址",
+      "status": "completed",
+      "executor": "generator"
+    },
+    {
+      "id": "F-GZIP-02",
+      "title": "部署验证 + 压测复跑（gzip 效果验证）",
+      "status": "pending",
+      "executor": "codex"
+    }
   ]
 }
