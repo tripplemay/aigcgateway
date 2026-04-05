@@ -324,6 +324,27 @@ Codex 不得擅自修改团队协作文档或规范文档。
 
 ## 10. Git 操作边界
 
+### 分支规则
+
+项目采用双分支策略：
+
+| 分支 | 用途 |
+|---|---|
+| `dev` | Generator（Claude CLI）推送代码，Codex 从此分支拉取测试 |
+| `main` | 生产分支，由 Cowork 在 done 阶段合并，触发自动部署 |
+
+**Codex 每次启动测试前，必须先同步 `dev` 分支最新代码：**
+
+```bash
+git fetch origin
+git checkout dev
+git reset --hard origin/dev
+```
+
+这确保 Codex 测试的是 Generator 最新提交的版本，而不是本地旧版本。
+
+### 允许的 Git 操作
+
 Codex 允许执行只读或低风险 Git 操作，例如：
 
 - `git status`
