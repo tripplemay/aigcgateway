@@ -91,6 +91,13 @@ export async function POST(request: Request): Promise<Response> {
 }
 
 export async function GET(request: Request): Promise<Response> {
+  // 健康检查：非 SSE 的 GET 请求直接返回 200
+  if (!request.headers.get("accept")?.includes("text/event-stream")) {
+    return new Response(JSON.stringify({ status: "ok", protocol: "mcp-streamable-http" }), {
+      status: 200,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
   return handleMcpRequest(request);
 }
 

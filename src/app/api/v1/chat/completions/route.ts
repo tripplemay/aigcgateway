@@ -29,20 +29,25 @@ export async function POST(request: Request) {
   if (!balanceCheck.ok) return balanceCheck.error;
 
   // 3. 解析请求体
-  let body: ChatCompletionRequest & { templateId?: string; variables?: Record<string, string> };
+  let body: ChatCompletionRequest & {
+    templateId?: string;
+    template_id?: string;
+    variables?: Record<string, string>;
+  };
   try {
     body = await request.json();
   } catch {
     return errorResponse(400, "invalid_parameter", "Invalid JSON body");
   }
 
-  // 模板注入：templateId 优先于 messages
+  // 模板注入：支持 templateId（camelCase）和 template_id（snake_case）
+  const resolvedTemplateId = body.templateId ?? body.template_id;
   let templateVersionId: string | undefined;
   let templateVariables: Record<string, string> | undefined;
 
-  if (body.templateId) {
+  if (resolvedTemplateId) {
     try {
-      const injected = await injectByTemplateId(body.templateId, body.variables || {});
+      const injected = await injectByTemplateId(resolvedTemplateId, body.variables || {});
       body.messages = injected.messages as ChatCompletionRequest["messages"];
       templateVersionId = injected.templateVersionId;
       templateVariables = body.variables;
@@ -54,10 +59,15 @@ export async function POST(request: Request) {
     }
   }
 
-  if (!body.model || !body.messages?.length) {
-    return errorResponse(400, "invalid_parameter", "model and messages are required", {
-      param: !body.model ? "model" : "messages",
-    });
+  if (!body.model || (!body.messages?.length && !resolvedTemplateId)) {
+    return errorResponse(
+      400,
+      "invalid_parameter",
+      "model and messages are required (messages can be omitted when template_id is provided)",
+      {
+        param: !body.model ? "model" : "messages",
+      },
+    );
   }
 
   // 4. 限流（Key 级 RPM 收紧）
@@ -83,7 +93,7 @@ export async function POST(request: Request) {
   const modelName = body.model;
 
   // 6. 执行请求
-  const templateCtx = { templateVersionId, templateVariables };
+  const templateCtx = { templateId: resolvedTemplateId, templateVersionId, templateVariables };
 
   if (body.stream) {
     return handleStream(
@@ -117,6 +127,7 @@ export async function POST(request: Request) {
 // ============================================================
 
 type TemplateCtx = {
+  templateId?: string;
   templateVersionId?: string;
   templateVariables?: Record<string, string>;
 };
