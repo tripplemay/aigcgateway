@@ -1,33 +1,25 @@
 {
-  "status": "done",
-  "user_goal": "template-new-page 批次：新建创建模板页面，修复 /templates/new 路由 404 问题",
-  "total_features": 1,
-  "completed_features": 1,
+  "status": "building",
+  "user_goal": "dx-fix 批次：修复开发者集成体验问题（SERVER_INSTRUCTIONS、REST API template_id、SDK 修复、MCP 健康检查）",
+  "total_features": 4,
+  "completed_features": 0,
   "fix_rounds": 0,
-  "current_sprint": null,
-  "last_updated": "2026-04-05T15:05:00Z",
+  "current_sprint": "F-DX-01",
+  "last_updated": "2026-04-05T15:30:00Z",
   "reference_docs": [
-    "design-draft/Template Editor (Developer)/code.html"
+    "docs/specs/dx-fix-spec.md"
   ],
   "docs": {
-    "spec": null,
+    "spec": "docs/specs/dx-fix-spec.md",
     "test_cases": null,
-    "signoff": "docs/test-reports/template-new-page-signoff-2026-04-05.md",
+    "signoff": null,
     "framework_reviewed": false
   },
-  "evaluator_feedback": {
-    "summary": "template-new-page 批次本地首轮验收通过，1/1 PASS。",
-    "pass_count": 1,
-    "partial_count": 0,
-    "fail_count": 0,
-    "issues": []
-  },
+  "evaluator_feedback": null,
   "features": [
-    {
-      "id": "F-TPL-01",
-      "title": "新建 src/app/(console)/templates/new/page.tsx — 创建模板页",
-      "status": "completed",
-      "executor": "generator"
-    }
+    { "id": "F-DX-01", "title": "更新 SERVER_INSTRUCTIONS — 补全约束说明和正确集成示例", "status": "pending", "executor": "generator" },
+    { "id": "F-DX-02", "title": "REST API /v1/chat/completions 原生支持 template_id + variables", "status": "pending", "executor": "generator" },
+    { "id": "F-DX-03", "title": "SDK 修复 template_id + README 包名修正", "status": "pending", "executor": "generator" },
+    { "id": "F-DX-04", "title": "MCP GET /mcp 返回 200 健康检查", "status": "pending", "executor": "generator" }
   ]
 }

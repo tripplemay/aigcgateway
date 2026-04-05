@@ -1,26 +1,63 @@
 {
-  "batch": "template-new-page 批次",
+  "batch": "dx-fix 批次（开发者体验修复）",
   "created_at": "2026-04-05",
   "features": [
     {
-      "id": "F-TPL-01",
-      "title": "新建 src/app/(console)/templates/new/page.tsx — 创建模板页",
-      "priority": "P1",
+      "id": "F-DX-01",
+      "title": "更新 SERVER_INSTRUCTIONS — 补全约束说明和正确集成示例",
+      "priority": "P0",
       "executor": "generator",
-      "status": "completed",
-      "description": "当前 router.push('/templates/new') 因缺少静态路由文件，被 [templateId]/page.tsx 捕获，调用 GET /api/projects/{id}/templates/new 返回 404。修复：新建 new/page.tsx，Next.js 静态路段优先级高于动态路段，路由自动正确命中。",
-      "design_ref": "design-draft/Template Editor (Developer)/code.html",
+      "status": "pending",
+      "description": "当前 SERVER_INSTRUCTIONS 缺失关键约束信息，导致接入的 agent 生成错误集成代码。需补充：(1) template_id 仅在 MCP 中有效，REST API/SDK 静默忽略；(2) 模型名必须是 provider/model-name 格式；(3) update_template 后新版本需在控制台手动激活；(4) SDK template_id 类型存在但未实现；(5) 后端服务使用模板的正确方式（get_template 获取内容后手动组装 messages）。",
       "acceptance": [
-        "文件 src/app/(console)/templates/new/page.tsx 存在",
-        "页面包含 name（必填）、description（选填）输入框",
-        "页面包含至少一个 message block（role 下拉：system/user/assistant，content 文本框）",
-        "支持动态增减 message block（Add Message / Remove 按钮）",
-        "页面包含 variables 区域（可选，支持增减变量行：name、description、required、defaultValue）",
-        "提交调用 POST /api/projects/{id}/templates，body: { name, description, messages, variables }",
-        "提交成功后跳转到 /templates/{newId}",
-        "提交失败时展示 toast 错误信息",
-        "页面布局与 Template Editor 设计稿一致（design-draft/Template Editor (Developer)/code.html）",
-        "i18n：所有文案使用 useTranslations('templates')，en.json 和 zh-CN.json 同步更新"
+        "SERVER_INSTRUCTIONS 包含 template_id 仅 MCP 可用的明确警告",
+        "SERVER_INSTRUCTIONS 包含模型名 provider/model-name 格式说明",
+        "SERVER_INSTRUCTIONS 包含 update_template 新版本需手动激活的提示",
+        "SERVER_INSTRUCTIONS 包含后端服务使用模板的正确代码示例",
+        "SERVER_INSTRUCTIONS 已更新，包含新 Tool 的使用说明和约束"
+      ]
+    },
+    {
+      "id": "F-DX-02",
+      "title": "REST API /v1/chat/completions 原生支持 template_id + variables",
+      "priority": "P0",
+      "executor": "generator",
+      "status": "pending",
+      "description": "当前 REST API 接受 template_id 字段但静默忽略，导致开发者误以为模板生效。修复：在 /api/v1/chat/completions 的处理逻辑中，当请求包含 template_id 时，调用模板注入引擎（injectByTemplateId）解析模板并替换变量，组装 messages 后再调用模型。messages 字段在有 template_id 时应为可选。",
+      "acceptance": [
+        "POST /v1/chat/completions 传入 template_id + variables，服务端正确解析模板并替换变量",
+        "传入 template_id 时 messages 字段可省略",
+        "template_id 不存在时返回明确错误（404），而非静默忽略",
+        "传入 template_id 时 CallLog 记录 templateId 字段",
+        "不影响现有不传 template_id 的调用"
+      ]
+    },
+    {
+      "id": "F-DX-03",
+      "title": "SDK 修复 template_id：运行时实现或移除类型定义",
+      "priority": "P0",
+      "executor": "generator",
+      "status": "pending",
+      "description": "SDK 的 TypeScript 类型定义中有 template_id 字段，但运行时代码完全不处理该字段，静默丢弃。依赖 F-DX-02 完成后，在 SDK 中实现 template_id 的序列化逻辑，确保字段被正确传入请求 body。同时修正 SDK README 中错误的包名（aigc-gateway-sdk → @guangai/aigc-sdk）。",
+      "acceptance": [
+        "SDK chat() 方法传入 template_id + variables，字段被正确序列化到请求 body",
+        "SDK README 中所有 import 示例均使用正确包名 @guangai/aigc-sdk",
+        "SDK 版本号递增，触发 publish-sdk.yml 自动发布",
+        "cd sdk && npm run typecheck 通过"
+      ]
+    },
+    {
+      "id": "F-DX-04",
+      "title": "MCP GET /mcp 返回 200 健康检查响应，而非 406",
+      "priority": "P2",
+      "executor": "generator",
+      "status": "pending",
+      "description": "当前 /api/mcp/route.ts 只处理 POST/GET(SSE)/DELETE，对不符合 MCP 协议的 GET 探活请求返回 406。修复：在 GET 处理逻辑中，当 Accept 头不包含 text/event-stream 时，返回 200 + {status:'ok', protocol:'mcp-streamable-http'}，让 HTTP 探活工具识别服务为存活状态。",
+      "acceptance": [
+        "curl -s https://aigc.guangai.ai/mcp 返回 HTTP 200",
+        "响应 body 包含 {\"status\":\"ok\",\"protocol\":\"mcp-streamable-http\"}",
+        "正常的 MCP SSE 连接（Accept: text/event-stream）不受影响",
+        "正常的 MCP POST JSON-RPC 调用不受影响"
       ]
     }
   ]
