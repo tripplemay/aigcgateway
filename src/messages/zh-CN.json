@@ -420,8 +420,14 @@
     "toolGetLogDetail": "查看单次调用完整详情",
     "toolGetBalance": "查看项目余额和交易记录",
     "toolGetUsageSummary": "查看用量统计",
+    "toolListActions": "查看可用的 Action（原子执行单元）",
+    "toolRunAction": "使用变量执行 Action",
+    "toolListTemplates": "查看可用的 Template（多步工作流）",
+    "toolRunTemplate": "执行 Template 工作流",
     "noKey": "未找到 API 密钥，请先创建。",
-    "selectKey": "选择 API Key"
+    "selectKey": "选择 API Key",
+    "createNewKey": "创建新密钥",
+    "finalize": "完成配置"
   },
   "actions": {
     "title": "动作",

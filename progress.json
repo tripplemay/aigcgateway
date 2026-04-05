@@ -1,45 +1,26 @@
 {
   "status": "done",
-  "user_goal": "P4 Action+Template 统一重构：将旧 Template 系统重建为 Action（原子单元）+ Template（编排组合）两层架构，支持单步/串行多步/Fan-out 三种执行模式",
-  "total_features": 18,
-  "completed_features": 18,
+  "user_goal": "mcp-setup-fix：修复 MCP 设置页 Tool 列表缺失新 Tool、i18n 缺失、死按钮、硬编码文案四个问题",
+  "total_features": 1,
+  "completed_features": 1,
   "fix_rounds": 0,
   "current_sprint": null,
-  "last_updated": "2026-04-05T21:00:00Z",
-  "reference_docs": [
-    "docs/specs/action-template-redesign-spec.md"
-  ],
+  "last_updated": "2026-04-05T23:05:00Z",
+  "reference_docs": [],
   "docs": {
-    "spec": "docs/specs/action-template-redesign-spec.md",
-    "test_cases": "docs/test-cases/p4-action-template-local-test-cases-2026-04-05.md",
-    "signoff": "docs/test-reports/p4-action-template-local-signoff-2026-04-05.md",
-    "framework_reviewed": true
+    "spec": null,
+    "test_cases": null,
+    "signoff": "docs/test-reports/mcp-setup-fix-local-signoff-2026-04-05.md",
+    "framework_reviewed": false
   },
   "evaluator_feedback": {
-    "summary": "P4 Action+Template 本地 L1 首轮验收通过：18/18 PASS。使用测试域 mock provider 完成 Action/Template/MCP/CallLog 全链路验证，未发现阻塞问题。",
-    "pass_count": 18,
+    "summary": "F-MSF-01 本地 L1 验收通过：MCP 设置页 11 个 Tool 已完整展示，新增 i18n key 生效，Create New Key 不再硬编码，Finalize Installation 可跳转 /dashboard；npm run lint 与 tsc --noEmit 通过（lint 仅有历史 warning）。",
+    "pass_count": 1,
     "partial_count": 0,
     "fail_count": 0,
     "issues": []
   },
   "features": [
-    { "id": "F-P4-01", "title": "Schema：删除旧 TemplateVersion，重建 Template，新增 Action/ActionVersion 模型", "status": "completed", "executor": "generator" },
-    { "id": "F-P4-02", "title": "Schema：新增 TemplateStep 模型 + StepRole 枚举", "status": "completed", "executor": "generator" },
-    { "id": "F-P4-03", "title": "Schema：CallLog 字段更新", "status": "completed", "executor": "generator" },
-    { "id": "F-P4-04", "title": "Action CRUD API", "status": "completed", "executor": "generator" },
-    { "id": "F-P4-05", "title": "Template CRUD API", "status": "completed", "executor": "generator" },
-    { "id": "F-P4-06", "title": "ActionRunner 执行引擎", "status": "completed", "executor": "generator" },
-    { "id": "F-P4-07", "title": "TemplateRunner Sequential", "status": "completed", "executor": "generator" },
-    { "id": "F-P4-08", "title": "TemplateRunner Fan-out", "status": "completed", "executor": "generator" },
-    { "id": "F-P4-09", "title": "/v1/actions/run 端点", "status": "completed", "executor": "generator" },
-    { "id": "F-P4-10", "title": "/v1/templates/run 端点", "status": "completed", "executor": "generator" },
-    { "id": "F-P4-11", "title": "清理旧 Template 系统", "status": "completed", "executor": "generator" },
-    { "id": "F-P4-12", "title": "控制台 Action 列表页 + 侧边栏", "status": "completed", "executor": "generator" },
-    { "id": "F-P4-13", "title": "控制台 Action 创建/详情页", "status": "completed", "executor": "generator" },
-    { "id": "F-P4-14", "title": "控制台 Template 列表页（重构）", "status": "completed", "executor": "generator" },
-    { "id": "F-P4-15", "title": "控制台 Template 创建/详情页（重构）", "status": "completed", "executor": "generator" },
-    { "id": "F-P4-16", "title": "MCP 更新（删除旧 5 Tool，新增 4 Tool，更新 SERVER_INSTRUCTIONS）", "status": "completed", "executor": "generator" },
-    { "id": "F-P4-17", "title": "i18n 更新", "status": "completed", "executor": "generator" },
-    { "id": "F-P4-18", "title": "E2E 验证（Codex）", "status": "completed", "executor": "codex" }
+    { "id": "F-MSF-01", "title": "MCP 设置页 Tool 列表补全 + i18n + 死按钮修复 + 硬编码文案修复", "status": "done", "executor": "generator" }
   ]
 }

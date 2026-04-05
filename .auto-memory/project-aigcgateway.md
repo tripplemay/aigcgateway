@@ -113,7 +113,16 @@ AIGC Gateway — AI 服务商管理中台。统一 API 调用抽象（兼容 Ope
 **签收文档：** `docs/test-reports/perf-optimization-local-signoff-2026-04-04.md`
 **Harness 状态：** status=done, 3/3 PASS
 
-## 最近批次（2026-04-05）— p4-action-template 批次
+## 最近批次（2026-04-05）— mcp-setup-fix 批次
+
+- 目标：修复 MCP 设置页 4 个问题
+- 交付：F-MSF-01：TOOLS 数组补全 11 个 Tool（新增 list_actions/run_action/list_templates/run_template）；en.json/zh-CN.json 补 4 个新 tool i18n key；"Finalize Installation" 死按钮改为跳转 /dashboard；"Create New Key" 硬编码改走 t()
+- fix_rounds：0
+
+**签收文档：** `docs/test-reports/mcp-setup-fix-local-signoff-2026-04-05.md`
+**Harness 状态：** status=done, 1/1 PASS, fix_rounds=0
+
+## 前置批次（2026-04-05）— p4-action-template 批次
 
 - 目标：将旧 Template 系统彻底重构为 Action（原子单元）+ Template（编排组合）两层架构
 - 规格文档：`docs/specs/action-template-redesign-spec.md`

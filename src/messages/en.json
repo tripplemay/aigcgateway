@@ -420,8 +420,14 @@
     "toolGetLogDetail": "Get full details of a specific call",
     "toolGetBalance": "Check project balance and transactions",
     "toolGetUsageSummary": "View usage statistics",
+    "toolListActions": "List available Actions (atomic execution units)",
+    "toolRunAction": "Execute an Action with variables",
+    "toolListTemplates": "List available Templates (multi-step workflows)",
+    "toolRunTemplate": "Execute a Template workflow",
     "noKey": "No API Key found. Create one first.",
-    "selectKey": "Select API Key"
+    "selectKey": "Select API Key",
+    "createNewKey": "Create New Key",
+    "finalize": "Finalize Installation"
   },
   "actions": {
     "title": "Actions",
