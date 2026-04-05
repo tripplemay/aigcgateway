@@ -351,25 +351,42 @@ Codex 允许执行只读或低风险 Git 操作，例如：
 - `git switch <existing-branch>`
 - `git checkout <existing-branch>`（仅限切换到已存在分支）
 
-Codex 禁止执行以下 Git 操作：
+### 状态机文件的提交与推送（显式授权）
 
-- `git commit`
-- `git push`
-- `git merge`
+Codex 在每个阶段结束时，必须将状态机文件和测试产物提交并推送到远端，确保其他 agent 可以看到最新状态。
+
+**允许提交和推送的文件范围：**
+- `progress.json` — 阶段状态
+- `features.json` — 功能状态
+- `docs/test-cases/` — 测试用例
+- `docs/test-reports/` — 测试报告、签收文档
+- `.auto-memory/` — 项目记忆
+
+**标准推送流程：**
+```bash
+git add progress.json features.json docs/test-reports/ docs/test-cases/ .auto-memory/
+git commit -m "test: verifying/reverifying 阶段产物（[批次名]）"
+git push origin main
+```
+
+**严禁在同一个 commit 中包含产品代码文件**（`src/`、`prisma/`、`scripts/`、配置文件等）。如发现暂存区中有这些文件，必须先 `git restore --staged <file>` 将其移出，再提交。
+
+### 禁止的 Git 操作
+
+- `git merge`（除 `--ff-only origin/main` 同步外）
 - `git rebase`
 - `git cherry-pick`
 - `git stash`
 - `git reset`
 - `git clean`
 - `git checkout -- <file>`
-- `git restore`
+- `git restore`（暂存区移出文件除外，见上方授权）
 - `git checkout <commit>`（如果会改变当前工作区）
-- 任何可能覆盖、丢失、改写本地改动的操作
-- 任何可能形成正式开发提交历史的操作
+- 任何可能改写产品代码提交历史的操作
 
 原则：
 
-> Codex 可以观察仓库状态，但不能接管仓库历史。
+> Codex 只提交测试域的产物，不接管产品代码的提交历史。
 
 ---
 
