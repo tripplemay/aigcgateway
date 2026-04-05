@@ -189,9 +189,7 @@ export default function ActionDetailPage() {
                 <div key={i} className="text-xs text-slate-600 dark:text-slate-400">
                   <span className="font-mono font-bold">{`{{${v.name}}}`}</span>
                   {v.description && <span className="ml-2">{v.description}</span>}
-                  {v.required && (
-                    <span className="ml-2 text-red-400">{t("required")}</span>
-                  )}
+                  {v.required && <span className="ml-2 text-red-400">{t("required")}</span>}
                 </div>
               ))}
             </div>
@@ -215,9 +213,7 @@ export default function ActionDetailPage() {
                     {t("active")}
                   </span>
                 )}
-                {v.changelog && (
-                  <span className="text-xs text-slate-500">{v.changelog}</span>
-                )}
+                {v.changelog && <span className="text-xs text-slate-500">{v.changelog}</span>}
               </div>
               {v.id !== action.activeVersionId && (
                 <button

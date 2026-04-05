@@ -40,7 +40,10 @@ export function registerListActions(server: McpServer, opts: McpServerOptions): 
           description: a.description,
           model: a.model,
           activeVersion: activeVer
-            ? { versionNumber: activeVer.versionNumber, variableCount: (activeVer.variables as unknown[]).length }
+            ? {
+                versionNumber: activeVer.versionNumber,
+                variableCount: (activeVer.variables as unknown[]).length,
+              }
             : null,
         };
       });

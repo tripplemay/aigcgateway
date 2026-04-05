@@ -110,7 +110,10 @@ export async function runAction(
       const { done, value } = await reader.read();
       if (done) break;
 
-      const chunk = value as { choices?: { delta?: { content?: string }; finish_reason?: string }[]; usage?: Usage };
+      const chunk = value as {
+        choices?: { delta?: { content?: string }; finish_reason?: string }[];
+        usage?: Usage;
+      };
 
       if (!ttftTime && chunk.choices?.[0]?.delta?.content) {
         ttftTime = Date.now();
@@ -193,9 +196,7 @@ export async function runAction(
 /**
  * Run an Action without streaming — returns full result
  */
-export async function runActionNonStream(
-  params: ActionRunParams,
-): Promise<ActionRunResult> {
+export async function runActionNonStream(params: ActionRunParams): Promise<ActionRunResult> {
   const { actionId, projectId, variables, source = "api", templateRunId } = params;
 
   const action = await prisma.action.findFirst({

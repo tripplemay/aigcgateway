@@ -29,9 +29,7 @@ export function registerChat(server: McpServer, opts: McpServerOptions): void {
     `Send a chat completion request to an AI model via AIGC Gateway. Pass model name and messages array. Returns generated text, trace ID, and token usage.`,
     {
       model: z.string().describe("Model name, e.g. openai/gpt-4o, deepseek/v3"),
-      messages: z
-        .array(messageSchema)
-        .describe("Message array [{role, content}]."),
+      messages: z.array(messageSchema).describe("Message array [{role, content}]."),
       temperature: z.number().min(0).max(2).optional().describe("Sampling temperature, 0-2"),
       max_tokens: z.number().int().positive().optional().describe("Maximum output tokens"),
     },

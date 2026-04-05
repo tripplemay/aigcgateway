@@ -47,7 +47,8 @@ export async function GET(request: Request, { params }: Params) {
   ]);
 
   const data = actions.map((a) => {
-    const activeVersion = a.versions.find((v) => v.id === a.activeVersionId) ?? a.versions[0] ?? null;
+    const activeVersion =
+      a.versions.find((v) => v.id === a.activeVersionId) ?? a.versions[0] ?? null;
     return {
       id: a.id,
       name: a.name,

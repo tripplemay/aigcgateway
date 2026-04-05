@@ -77,7 +77,11 @@ export async function POST(request: Request) {
       // Extract step details from collected events
       const steps = collected
         .map((d) => {
-          try { return JSON.parse(d); } catch { return null; }
+          try {
+            return JSON.parse(d);
+          } catch {
+            return null;
+          }
         })
         .filter((e) => e?.type === "step_end" || e?.type === "branch_end");
 

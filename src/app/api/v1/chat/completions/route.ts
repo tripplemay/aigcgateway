@@ -65,10 +65,28 @@ export async function POST(request: Request) {
 
   // 6. 执行请求
   if (body.stream) {
-    return handleStream(body, route, adapter, traceId, project.id, modelName, startTime, rateLimitHeaders);
+    return handleStream(
+      body,
+      route,
+      adapter,
+      traceId,
+      project.id,
+      modelName,
+      startTime,
+      rateLimitHeaders,
+    );
   }
 
-  return handleNonStream(body, route, adapter, traceId, project.id, modelName, startTime, rateLimitHeaders);
+  return handleNonStream(
+    body,
+    route,
+    adapter,
+    traceId,
+    project.id,
+    modelName,
+    startTime,
+    rateLimitHeaders,
+  );
 }
 
 // ============================================================
@@ -206,7 +224,7 @@ async function handleStream(
             requestParams: extractRequestParams(body),
             startTime,
             ttftTime,
-                  streamChunks: {
+            streamChunks: {
               content: fullContent,
               usage: lastUsage,
               finishReason: lastFinishReason,
@@ -224,7 +242,7 @@ async function handleStream(
             requestParams: extractRequestParams(body),
             startTime,
             ttftTime,
-                  error: {
+            error: {
               message: (err as Error).message,
             },
           });

@@ -80,7 +80,9 @@ export default function NewActionPage() {
       {/* Basic info */}
       <div className="space-y-4">
         <div>
-          <label className="text-sm font-bold text-slate-600 dark:text-slate-400">{t("name")}</label>
+          <label className="text-sm font-bold text-slate-600 dark:text-slate-400">
+            {t("name")}
+          </label>
           <input
             className="mt-1 w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm"
             placeholder={t("namePlaceholder")}
@@ -89,7 +91,9 @@ export default function NewActionPage() {
           />
         </div>
         <div>
-          <label className="text-sm font-bold text-slate-600 dark:text-slate-400">{t("model")}</label>
+          <label className="text-sm font-bold text-slate-600 dark:text-slate-400">
+            {t("model")}
+          </label>
           <input
             className="mt-1 w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm font-mono"
             placeholder={t("modelPlaceholder")}

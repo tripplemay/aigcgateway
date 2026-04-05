@@ -44,9 +44,12 @@ export default function TemplatesPage() {
 
   const modeLabel = (mode: string) => {
     switch (mode) {
-      case "sequential": return t("modeSequential");
-      case "fan-out": return t("modeFanout");
-      default: return t("modeSingle");
+      case "sequential":
+        return t("modeSequential");
+      case "fan-out":
+        return t("modeFanout");
+      default:
+        return t("modeSingle");
     }
   };
 
@@ -85,10 +88,16 @@ export default function TemplatesPage() {
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50">
-                <th className="text-left px-4 py-3 font-bold text-slate-500">{t("templateName")}</th>
+                <th className="text-left px-4 py-3 font-bold text-slate-500">
+                  {t("templateName")}
+                </th>
                 <th className="text-left px-4 py-3 font-bold text-slate-500">{t("steps")}</th>
-                <th className="text-left px-4 py-3 font-bold text-slate-500">{t("executionMode")}</th>
-                <th className="text-left px-4 py-3 font-bold text-slate-500">{t("descriptionLabel")}</th>
+                <th className="text-left px-4 py-3 font-bold text-slate-500">
+                  {t("executionMode")}
+                </th>
+                <th className="text-left px-4 py-3 font-bold text-slate-500">
+                  {t("descriptionLabel")}
+                </th>
               </tr>
             </thead>
             <tbody>

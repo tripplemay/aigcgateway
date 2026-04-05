@@ -21,7 +21,10 @@ export function registerRunAction(server: McpServer, opts: McpServerOptions): vo
     "Run a single Action by its ID. Pass variables to inject into the Action's prompt template. Returns the complete text output, trace ID, and token usage.",
     {
       action_id: z.string().describe("Action ID to run"),
-      variables: z.record(z.string()).optional().describe("Variables to inject, e.g. {\"topic\": \"AI\"}"),
+      variables: z
+        .record(z.string())
+        .optional()
+        .describe('Variables to inject, e.g. {"topic": "AI"}'),
     },
     async ({ action_id, variables = {} }) => {
       // Permission check

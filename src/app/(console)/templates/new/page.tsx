@@ -52,7 +52,11 @@ export default function NewTemplatePage() {
     setSteps(updated);
   };
 
-  const executionMode = steps.some((s) => s.role === "SPLITTER") ? "Fan-out" : steps.length > 1 ? "Sequential" : "Single";
+  const executionMode = steps.some((s) => s.role === "SPLITTER")
+    ? "Fan-out"
+    : steps.length > 1
+      ? "Sequential"
+      : "Single";
 
   const handleSubmit = async () => {
     if (!current) return;
@@ -76,11 +80,16 @@ export default function NewTemplatePage() {
 
   const roleLabel = (role: string) => {
     switch (role) {
-      case "SEQUENTIAL": return t("roleSequential");
-      case "SPLITTER": return t("roleSplitter");
-      case "BRANCH": return t("roleBranch");
-      case "MERGE": return t("roleMerge");
-      default: return role;
+      case "SEQUENTIAL":
+        return t("roleSequential");
+      case "SPLITTER":
+        return t("roleSplitter");
+      case "BRANCH":
+        return t("roleBranch");
+      case "MERGE":
+        return t("roleMerge");
+      default:
+        return role;
     }
   };
 
@@ -92,7 +101,9 @@ export default function NewTemplatePage() {
 
       <div className="space-y-4">
         <div>
-          <label className="text-sm font-bold text-slate-600 dark:text-slate-400">{t("templateName")}</label>
+          <label className="text-sm font-bold text-slate-600 dark:text-slate-400">
+            {t("templateName")}
+          </label>
           <input
             className="mt-1 w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm"
             placeholder={t("namePlaceholder")}
@@ -101,7 +112,9 @@ export default function NewTemplatePage() {
           />
         </div>
         <div>
-          <label className="text-sm font-bold text-slate-600 dark:text-slate-400">{t("descriptionLabel")}</label>
+          <label className="text-sm font-bold text-slate-600 dark:text-slate-400">
+            {t("descriptionLabel")}
+          </label>
           <input
             className="mt-1 w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm"
             placeholder={t("descriptionPlaceholder")}
@@ -122,7 +135,9 @@ export default function NewTemplatePage() {
       {/* Steps editor */}
       <div className="space-y-3">
         <div className="flex items-center justify-between">
-          <label className="text-sm font-bold text-slate-600 dark:text-slate-400">{t("steps")}</label>
+          <label className="text-sm font-bold text-slate-600 dark:text-slate-400">
+            {t("steps")}
+          </label>
           <button onClick={addStep} className="text-xs text-ds-primary font-bold hover:underline">
             + {t("addStep")}
           </button>
@@ -172,11 +187,19 @@ export default function NewTemplatePage() {
         {steps.length > 1 && (
           <div className="text-xs text-slate-400 bg-slate-50 dark:bg-slate-800/50 rounded-lg p-3 space-y-1">
             <p className="font-bold">{t("reservedVariables")}:</p>
-            <p><code className="font-mono">{"{{previous_output}}"}</code> — {t("reservedPreviousOutput")}</p>
+            <p>
+              <code className="font-mono">{"{{previous_output}}"}</code> —{" "}
+              {t("reservedPreviousOutput")}
+            </p>
             {steps.some((s) => s.role === "SPLITTER") && (
               <>
-                <p><code className="font-mono">{"{{branch_input}}"}</code> — {t("reservedBranchInput")}</p>
-                <p><code className="font-mono">{"{{all_outputs}}"}</code> — {t("reservedAllOutputs")}</p>
+                <p>
+                  <code className="font-mono">{"{{branch_input}}"}</code> —{" "}
+                  {t("reservedBranchInput")}
+                </p>
+                <p>
+                  <code className="font-mono">{"{{all_outputs}}"}</code> — {t("reservedAllOutputs")}
+                </p>
               </>
             )}
           </div>

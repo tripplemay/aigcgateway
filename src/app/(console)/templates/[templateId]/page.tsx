@@ -56,20 +56,29 @@ export default function TemplateDetailPage() {
 
   const roleLabel = (role: string) => {
     switch (role) {
-      case "SEQUENTIAL": return t("roleSequential");
-      case "SPLITTER": return t("roleSplitter");
-      case "BRANCH": return t("roleBranch");
-      case "MERGE": return t("roleMerge");
-      default: return role;
+      case "SEQUENTIAL":
+        return t("roleSequential");
+      case "SPLITTER":
+        return t("roleSplitter");
+      case "BRANCH":
+        return t("roleBranch");
+      case "MERGE":
+        return t("roleMerge");
+      default:
+        return role;
     }
   };
 
   const roleBadgeColor = (role: string) => {
     switch (role) {
-      case "SPLITTER": return "bg-amber-50 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400";
-      case "BRANCH": return "bg-purple-50 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400";
-      case "MERGE": return "bg-teal-50 text-teal-600 dark:bg-teal-900/30 dark:text-teal-400";
-      default: return "bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400";
+      case "SPLITTER":
+        return "bg-amber-50 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400";
+      case "BRANCH":
+        return "bg-purple-50 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400";
+      case "MERGE":
+        return "bg-teal-50 text-teal-600 dark:bg-teal-900/30 dark:text-teal-400";
+      default:
+        return "bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400";
     }
   };
 
@@ -100,7 +109,9 @@ export default function TemplateDetailPage() {
             className="flex items-center gap-3 p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900"
           >
             <span className="text-sm font-black text-slate-300 w-8">#{step.order}</span>
-            <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold ${roleBadgeColor(step.role)}`}>
+            <span
+              className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold ${roleBadgeColor(step.role)}`}
+            >
               {roleLabel(step.role)}
             </span>
             <div className="flex-1">
@@ -109,7 +120,11 @@ export default function TemplateDetailPage() {
             </div>
             {i > 0 && (
               <div className="text-[10px] text-slate-400 bg-slate-50 dark:bg-slate-800 rounded px-2 py-1">
-                {step.role === "BRANCH" ? "{{branch_input}}" : step.role === "MERGE" ? "{{all_outputs}}" : "{{previous_output}}"}
+                {step.role === "BRANCH"
+                  ? "{{branch_input}}"
+                  : step.role === "MERGE"
+                    ? "{{all_outputs}}"
+                    : "{{previous_output}}"}
               </div>
             )}
           </div>
