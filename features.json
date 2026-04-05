@@ -7,7 +7,7 @@
       "title": "新建 src/app/(console)/templates/new/page.tsx — 创建模板页",
       "priority": "P1",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "description": "当前 router.push('/templates/new') 因缺少静态路由文件，被 [templateId]/page.tsx 捕获，调用 GET /api/projects/{id}/templates/new 返回 404。修复：新建 new/page.tsx，Next.js 静态路段优先级高于动态路段，路由自动正确命中。",
       "design_ref": "design-draft/Template Editor (Developer)/code.html",
       "acceptance": [

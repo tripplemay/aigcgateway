@@ -1,11 +1,11 @@
 {
-  "status": "building",
+  "status": "verifying",
   "user_goal": "template-new-page 批次：新建创建模板页面，修复 /templates/new 路由 404 问题",
   "total_features": 1,
-  "completed_features": 0,
+  "completed_features": 1,
   "fix_rounds": 0,
-  "current_sprint": "F-TPL-01",
-  "last_updated": "2026-04-05T13:00:00Z",
+  "current_sprint": null,
+  "last_updated": "2026-04-05T14:00:00Z",
   "reference_docs": [
     "design-draft/Template Editor (Developer)/code.html"
   ],
@@ -20,7 +20,7 @@
     {
       "id": "F-TPL-01",
       "title": "新建 src/app/(console)/templates/new/page.tsx — 创建模板页",
-      "status": "pending",
+      "status": "completed",
       "executor": "generator"
     }
   ]
