@@ -1,16 +1,17 @@
 name: Deploy to VPS
 
 on:
-  workflow_run:
-    workflows: ["CI — Lint & Type Check"]
-    types: [completed]
-    branches: [main]
+  workflow_dispatch:
+    inputs:
+      reason:
+        description: '部署原因（可选）'
+        required: false
+        default: 'Manual deploy'
 
 jobs:
   deploy:
     name: Deploy to Production
     runs-on: ubuntu-latest
-    if: github.event.workflow_run.conclusion == 'success'
     environment: production
 
     steps:

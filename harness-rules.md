@@ -118,6 +118,24 @@ docs/
 - 选中的条目并入 features.json，并从 backlog.json 中移除
 - 未选条目保留在 backlog.json
 
+## 分支规则
+
+项目使用单一 `main` 分支：
+
+| 操作 | 执行者 | 说明 |
+|---|---|---|
+| `git push origin main` | Generator（Claude CLI） | 触发 CI（lint + tsc），不自动部署 |
+| 手动触发 Deploy workflow | Cowork | Codex 验收通过后，在 GitHub Actions 手动点击触发部署 |
+
+```bash
+# Generator 的标准提交流程
+git add <files>
+git commit -m "..."
+git push origin main         # 触发 CI，不触发部署
+```
+
+进度类文件（progress.json / features.json / .auto-memory/ 等）推 `main` 不触发 CI（paths-ignore 已配置）。
+
 ## 铁律（任何情况下不得违反）
 1. 永远不要一次性生成所有代码，必须分功能逐条实现
 2. 每完成一个功能，立即写入 progress.json，不得跳过
