@@ -1,0 +1,66 @@
+{
+  "passed": 11,
+  "failed": 0,
+  "results": [
+    {
+      "name": "tools/list includes 13 tools",
+      "ok": true,
+      "detail": "chat, generate_image, get_action_detail, get_balance, get_log_detail, get_template_detail, get_usage_summary, list_actions, list_logs, list_models, list_templates, run_action, run_template"
+    },
+    {
+      "name": "generate_image tool description contains size guidance",
+      "ok": true,
+      "detail": "size guidance present"
+    },
+    {
+      "name": "list_models quality gate",
+      "ok": true,
+      "detail": "2 deduped models"
+    },
+    {
+      "name": "list_models show_all_channels=true",
+      "ok": true,
+      "detail": "openai/dall-e-3 channels=1"
+    },
+    {
+      "name": "all 13 tools callable (smoke)",
+      "ok": true,
+      "detail": "traceId=trc_aiwgbvzpptiyyqjepbn2jy1d"
+    },
+    {
+      "name": "get_action_detail returns messages and variables",
+      "ok": true,
+      "detail": "versions=1"
+    },
+    {
+      "name": "get_template_detail returns orchestration steps",
+      "ok": true,
+      "detail": "steps=2"
+    },
+    {
+      "name": "error: insufficient balance",
+      "ok": true,
+      "detail": "insufficient balance message verified"
+    },
+    {
+      "name": "error: model not found",
+      "ok": true,
+      "detail": "model_not_found message verified"
+    },
+    {
+      "name": "error: invalid parameter type",
+      "ok": true,
+      "detail": "schema validation error verified"
+    },
+    {
+      "name": "error: rate limit exceeded",
+      "ok": true,
+      "detail": "rate limit message verified (project=cmnlxae9k00409y1hrgcrife3)"
+    }
+  ],
+  "projectId": "cmnlxae6j003a9y1h24d8ibfz",
+  "apiKeyPrefix": "pk_56be6",
+  "actionId": "cmnlxae7c003e9y1hz4cdqp7j",
+  "templateId": "cmnlxae7j003m9y1h1bchxozc",
+  "traceId": "trc_aiwgbvzpptiyyqjepbn2jy1d"
+}

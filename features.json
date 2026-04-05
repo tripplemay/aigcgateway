@@ -79,7 +79,7 @@
       "title": "E2E 验证（Codex 执行，含错误场景覆盖）",
       "priority": "medium",
       "executor": "codex",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "1) list_models 返回 ≤28 个去重模型，无大小写重复，无 $0/null/空 capabilities 噪音；2) 所有 13 个 MCP 工具可正常调用；3) get_action_detail 返回完整 Action 信息含 messages/variables；4) get_template_detail 返回完整步骤编排信息；5) generate_image description 包含模型尺寸说明；6) 错误场景覆盖：余额不足、模型不存在、参数类型错误、rate limit 均返回清晰错误信息"
     }
   ]

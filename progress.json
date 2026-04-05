@@ -1,19 +1,25 @@
 {
-  "status": "verifying",
+  "status": "done",
   "user_goal": "mcp-dx-round2：白名单收紧至28个精选模型、list_models去重、capabilities补全去tools、generate_image文档、get_action_detail/get_template_detail新工具、SERVER_INSTRUCTIONS更新",
   "total_features": 10,
-  "completed_features": 9,
+  "completed_features": 10,
   "fix_rounds": 0,
   "current_sprint": null,
-  "last_updated": "2026-04-06T03:00:00Z",
+  "last_updated": "2026-04-06T06:10:00Z",
   "reference_docs": ["docs/specs/mcp-dx-round2-spec.md"],
   "docs": {
     "spec": "docs/specs/mcp-dx-round2-spec.md",
     "test_cases": null,
-    "signoff": null,
+    "signoff": "docs/test-reports/mcp-dx-round2-local-signoff-2026-04-06.md",
     "framework_reviewed": false
   },
-  "evaluator_feedback": null,
+  "evaluator_feedback": {
+    "summary": "mcp-dx-round2 本地 L1 验收通过，F-DX2-10 覆盖项全部 PASS。",
+    "pass_count": 10,
+    "partial_count": 0,
+    "fail_count": 0,
+    "issues": []
+  },
   "features": [
     { "id": "F-DX2-01", "title": "白名单收紧至 28 个精选模型", "status": "completed", "executor": "generator" },
     { "id": "F-DX2-02", "title": "list_models 默认去重", "status": "completed", "executor": "generator" },
@@ -24,6 +30,6 @@
     { "id": "F-DX2-07", "title": "SERVER_INSTRUCTIONS 更新", "status": "completed", "executor": "generator" },
     { "id": "F-DX2-08", "title": "MCP 设置页补充 2 个新工具", "status": "completed", "executor": "generator" },
     { "id": "F-DX2-09", "title": "i18n 更新", "status": "completed", "executor": "generator" },
-    { "id": "F-DX2-10", "title": "E2E 验证 + 错误场景覆盖（Codex）", "status": "pending", "executor": "codex" }
+    { "id": "F-DX2-10", "title": "E2E 验证 + 错误场景覆盖（Codex）", "status": "completed", "executor": "codex" }
   ]
 }
