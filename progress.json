@@ -1,11 +1,11 @@
 {
-  "status": "building",
+  "status": "verifying",
   "user_goal": "mcp-dx-round2：白名单收紧至28个精选模型、list_models去重、capabilities补全去tools、generate_image文档、get_action_detail/get_template_detail新工具、SERVER_INSTRUCTIONS更新",
   "total_features": 10,
-  "completed_features": 0,
+  "completed_features": 9,
   "fix_rounds": 0,
   "current_sprint": null,
-  "last_updated": "2026-04-06T01:30:00Z",
+  "last_updated": "2026-04-06T03:00:00Z",
   "reference_docs": ["docs/specs/mcp-dx-round2-spec.md"],
   "docs": {
     "spec": "docs/specs/mcp-dx-round2-spec.md",
@@ -15,15 +15,15 @@
   },
   "evaluator_feedback": null,
   "features": [
-    { "id": "F-DX2-01", "title": "白名单收紧至 28 个精选模型", "status": "pending", "executor": "generator" },
-    { "id": "F-DX2-02", "title": "list_models 默认去重", "status": "pending", "executor": "generator" },
-    { "id": "F-DX2-03", "title": "capabilities 补全 + 去掉 tools", "status": "pending", "executor": "generator" },
-    { "id": "F-DX2-04", "title": "generate_image 文档补充", "status": "pending", "executor": "generator" },
-    { "id": "F-DX2-05", "title": "新增 get_action_detail MCP 工具", "status": "pending", "executor": "generator" },
-    { "id": "F-DX2-06", "title": "新增 get_template_detail MCP 工具", "status": "pending", "executor": "generator" },
-    { "id": "F-DX2-07", "title": "SERVER_INSTRUCTIONS 更新", "status": "pending", "executor": "generator" },
-    { "id": "F-DX2-08", "title": "MCP 设置页补充 2 个新工具", "status": "pending", "executor": "generator" },
-    { "id": "F-DX2-09", "title": "i18n 更新", "status": "pending", "executor": "generator" },
+    { "id": "F-DX2-01", "title": "白名单收紧至 28 个精选模型", "status": "completed", "executor": "generator" },
+    { "id": "F-DX2-02", "title": "list_models 默认去重", "status": "completed", "executor": "generator" },
+    { "id": "F-DX2-03", "title": "capabilities 补全 + 去掉 tools", "status": "completed", "executor": "generator" },
+    { "id": "F-DX2-04", "title": "generate_image 文档补充", "status": "completed", "executor": "generator" },
+    { "id": "F-DX2-05", "title": "新增 get_action_detail MCP 工具", "status": "completed", "executor": "generator" },
+    { "id": "F-DX2-06", "title": "新增 get_template_detail MCP 工具", "status": "completed", "executor": "generator" },
+    { "id": "F-DX2-07", "title": "SERVER_INSTRUCTIONS 更新", "status": "completed", "executor": "generator" },
+    { "id": "F-DX2-08", "title": "MCP 设置页补充 2 个新工具", "status": "completed", "executor": "generator" },
+    { "id": "F-DX2-09", "title": "i18n 更新", "status": "completed", "executor": "generator" },
     { "id": "F-DX2-10", "title": "E2E 验证 + 错误场景覆盖（Codex）", "status": "pending", "executor": "codex" }
   ]
 }

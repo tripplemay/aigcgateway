@@ -17,6 +17,8 @@ import { registerListActions } from "./tools/list-actions";
 import { registerRunAction } from "./tools/run-action";
 import { registerListTemplates } from "./tools/list-templates";
 import { registerRunTemplate } from "./tools/run-template";
+import { registerGetActionDetail } from "./tools/get-action-detail";
+import { registerGetTemplateDetail } from "./tools/get-template-detail";
 import type { ApiKeyPermissions } from "@/lib/api/auth-middleware";
 
 const SERVER_INSTRUCTIONS = `# AIGC Gateway — AI 服务商聚合平台
@@ -33,11 +35,16 @@ const SERVER_INSTRUCTIONS = `# AIGC Gateway — AI 服务商聚合平台
 - 模型名格式：provider/model-name（如 openai/gpt-4o、deepseek/deepseek-chat）
 
 ## 图片生成（generate_image）
-- generate_image(model, prompt) — 支持 dall-e-3、cogview、FLUX 等
+- generate_image(model, prompt) — 支持多种图片模型
+- openai/gpt-image-1：最高质量，1024x1024/1536x1024/1024x1536
+- openai/dall-e-3：高质量，1024x1024/1792x1024/1024x1792
+- volcengine/seedream-4.5：中文优化
+- 通义万相（Wanx）：阿里图片模型
 
 ## Action（原子执行单元）
 Action 绑定一个模型 + 提示词 + 变量定义，可复用。
 - **list_actions** — 查看所有 Actions
+- **get_action_detail(action_id)** — 查看 Action 详情（激活版本的 messages/variables、版本历史）
 - **run_action(action_id, variables)** — 执行 Action，传入变量
 - 创建/编辑 Action 需在控制台操作
 
@@ -46,6 +53,7 @@ Template 由多个 Action 按顺序或并行组合：
 - **Sequential（串行）**：步骤按 order 执行，每步自动注入 {{previous_output}}
 - **Fan-out（并行分拆）**：SPLITTER 输出 JSON 数组 → BRANCH 并行 → MERGE 合并
 - **list_templates** — 查看所有 Templates 及步骤详情
+- **get_template_detail(template_id)** — 查看 Template 详情（执行模式、步骤列表、保留变量）
 - **run_template(template_id, variables)** — 执行 Template
 - 创建/编辑 Template 需在控制台操作
 
@@ -114,8 +122,10 @@ export function createMcpServer(opts: McpServerOptions): McpServer {
   // Action & Template tools
   registerListActions(server, opts);
   registerRunAction(server, opts);
+  registerGetActionDetail(server, opts);
   registerListTemplates(server, opts);
   registerRunTemplate(server, opts);
+  registerGetTemplateDetail(server, opts);
 
   return server;
 }
