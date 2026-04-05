@@ -1,26 +1,33 @@
 {
-  "status": "done",
-  "user_goal": "mcp-setup-fix：修复 MCP 设置页 Tool 列表缺失新 Tool、i18n 缺失、死按钮、硬编码文案四个问题",
-  "total_features": 1,
-  "completed_features": 1,
+  "status": "building",
+  "user_goal": "mcp-capability-enhancement：模型去重+统一白名单、capabilities填充、chat stream/response_format、SERVER_INSTRUCTIONS重写、空结果引导、source清理、ttftMs暴露、usage summary增强",
+  "total_features": 14,
+  "completed_features": 0,
   "fix_rounds": 0,
   "current_sprint": null,
-  "last_updated": "2026-04-05T23:05:00Z",
-  "reference_docs": [],
+  "last_updated": "2026-04-05T23:30:00Z",
+  "reference_docs": ["docs/specs/mcp-capability-enhancement-spec.md"],
   "docs": {
-    "spec": null,
+    "spec": "docs/specs/mcp-capability-enhancement-spec.md",
     "test_cases": null,
-    "signoff": "docs/test-reports/mcp-setup-fix-local-signoff-2026-04-05.md",
+    "signoff": null,
     "framework_reviewed": false
   },
-  "evaluator_feedback": {
-    "summary": "F-MSF-01 本地 L1 验收通过：MCP 设置页 11 个 Tool 已完整展示，新增 i18n key 生效，Create New Key 不再硬编码，Finalize Installation 可跳转 /dashboard；npm run lint 与 tsc --noEmit 通过（lint 仅有历史 warning）。",
-    "pass_count": 1,
-    "partial_count": 0,
-    "fail_count": 0,
-    "issues": []
-  },
+  "evaluator_feedback": null,
   "features": [
-    { "id": "F-MSF-01", "title": "MCP 设置页 Tool 列表补全 + i18n + 死按钮修复 + 硬编码文案修复", "status": "done", "executor": "generator" }
+    { "id": "F-MCE-01", "title": "resolveModelName() toLowerCase 去重修复", "status": "pending", "executor": "generator" },
+    { "id": "F-MCE-02", "title": "统一模型白名单 model-whitelist.ts", "status": "pending", "executor": "generator" },
+    { "id": "F-MCE-03", "title": "capabilities 填充（上游+fallback+兜底）", "status": "pending", "executor": "generator" },
+    { "id": "F-MCE-04", "title": "list_models 返回 capabilities", "status": "pending", "executor": "generator" },
+    { "id": "F-MCE-05", "title": "chat 工具新增 stream 参数", "status": "pending", "executor": "generator" },
+    { "id": "F-MCE-06", "title": "chat 工具新增 response_format 参数", "status": "pending", "executor": "generator" },
+    { "id": "F-MCE-07", "title": "SERVER_INSTRUCTIONS 全面重写", "status": "pending", "executor": "generator" },
+    { "id": "F-MCE-08", "title": "空结果引导文案", "status": "pending", "executor": "generator" },
+    { "id": "F-MCE-09", "title": "CallLog.source 去掉 sdk", "status": "pending", "executor": "generator" },
+    { "id": "F-MCE-10", "title": "get_log_detail 补 ttftMs 原始值", "status": "pending", "executor": "generator" },
+    { "id": "F-MCE-11", "title": "usage summary 基础筛选+分组", "status": "pending", "executor": "generator" },
+    { "id": "F-MCE-12", "title": "usage summary Action/Template 维度", "status": "pending", "executor": "generator" },
+    { "id": "F-MCE-13", "title": "i18n 更新", "status": "pending", "executor": "generator" },
+    { "id": "F-MCE-14", "title": "E2E 验证（Codex）", "status": "pending", "executor": "codex" }
   ]
 }
