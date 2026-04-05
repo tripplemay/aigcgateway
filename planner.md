@@ -108,7 +108,7 @@ executor:codex 的典型场景：压力测试执行、code review、安全审计
 
 ## status = "done" 时的收尾流程
 
-当 Codex 将 progress.json 置为 `done` 后，Cowork 接手执行以下步骤（**必须按顺序**）：
+当 Codex 将 progress.json 置为 `done` 后，Claude CLI 接手执行以下步骤（**必须按顺序**）：
 
 ### 1. 更新项目记忆（强制）
 更新 `.auto-memory/project-aigcgateway.md`，内容覆盖：

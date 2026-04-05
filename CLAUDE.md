@@ -10,7 +10,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 1. 读取 `.auto-memory/MEMORY.md`（项目记忆索引），按需加载 `project-aigcgateway.md` 等记忆文件
 2. 读取 `progress.json`，确认当前阶段，再加载对应角色文件（generator.md / evaluator.md / planner.md）
 
-**分支规则（Claude CLI 必须遵守）：代码提交推 `main` 分支。部署由 Cowork 在 done 阶段通过 GitHub Actions 手动触发，不自动部署。**
+**分支规则（Claude CLI 必须遵守）：代码提交推 `main` 分支。部署由用户在 done 阶段通过 GitHub Actions 手动触发，不自动部署。**
 
 `.auto-memory/` 是唯一跨会话记忆源，包含：当前开发状态、已知遗留问题、生产环境信息、Codex 测试账号等。不读则可能基于过期信息做出错误决策。
 
@@ -21,12 +21,11 @@ new → planning → building → verifying → fixing ⟷ reverifying → done
 
 | 工具 | 负责阶段 |
 |---|---|
-| Cowork（Claude Desktop） | `new` / `planning` / `done` |
-| Claude CLI（Claude Code） | `building` / `fixing` |
+| Claude CLI（Claude Code） | `new` / `planning` / `building` / `fixing` / `done` |
 | Codex | `verifying` / `reverifying` |
 
 **规格文档（spec）分级要求：**
-- 新功能批次：`docs/specs/` 下必须有规格文档，Planner 在 `planning` 阶段创建（**硬性**）
+- 新功能批次：`docs/specs/` 下必须有规格文档，Claude CLI 在 `planning` 阶段创建（**硬性**）
 - Bug 修复批次：spec 可省略，features.json 的 acceptance 标准即为实现依据（软性）
 
 ---

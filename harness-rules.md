@@ -5,16 +5,15 @@
 
 ## 工具与角色对应
 
-三个工具通过 `progress.json` 交接，不直接通信：
+两个工具通过 `progress.json` 交接，不直接通信：
 
 | 工具 | 角色 | 负责阶段 |
 |---|---|---|
-| Cowork（Claude Desktop） | Planner + 记忆维护 | `new` / `planning` / `done` |
-| Claude CLI（Claude Code） | Generator（功能实现 + 修复） | `building` / `fixing` |
+| Claude CLI（Claude Code） | Planner + Generator（需求拆解 + 功能实现 + 修复 + 记忆维护） | `new` / `planning` / `building` / `fixing` / `done` |
 | Codex | Evaluator（测试设计 + 执行 + 验收 + 复验） | `verifying` / `reverifying` |
 
 **职责边界说明：**
-- Generator 只负责「把功能做出来」——业务逻辑、API、UI、数据库变更。不写任何测试。
+- Claude CLI 负责全流程：需求拆解、规格文档、功能实现、修复、记忆维护。不写任何测试。
 - Codex 拥有完整的「测试域」——设计测试用例、编写测试脚本、执行测试、分析结果、输出报告。
 
 ## Feature 执行者（executor）
@@ -66,13 +65,13 @@ git pull --ff-only origin main
 
 | status | 执行工具 | 加载文件 | 动作 |
 |---|---|---|---|
-| `new` | Cowork | planner.md | 拆解需求，生成 features.json，写 spec |
-| `planning` | Claude CLI | generator.md | 按功能列表逐条实现 |
-| `building` | Claude CLI | generator.md | 继续实现（上次中断时） |
+| `new` | Claude CLI | planner.md | 拆解需求，生成 features.json，写 spec |
+| `planning` | Claude CLI | planner.md | 继续 planning（上次中断时） |
+| `building` | Claude CLI | generator.md | 按功能列表逐条实现 |
 | `verifying` | Codex | evaluator.md | 首轮验收 |
 | `fixing` | Claude CLI | generator.md | 根据 evaluator_feedback 修复 |
 | `reverifying` | Codex | evaluator.md | 复验，写 signoff 报告 |
-| `done` | Cowork | — | 更新记忆，处理 proposed-learnings |
+| `done` | Claude CLI | planner.md | 更新记忆，处理 proposed-learnings，询问下一批次 |
 
 ### 第二步：读取对应角色文件
 根据阶段加载 planner.md / generator.md / evaluator.md 并严格执行。
@@ -112,9 +111,9 @@ docs/
 
 ## 需求池（backlog.json）
 
-**backlog.json** 是独立于当前批次的需求暂存区。Cowork 在与用户确认需求后，若当前有批次正在执行，将需求写入 backlog.json 而非打断当前批次。
+**backlog.json** 是独立于当前批次的需求暂存区。Claude CLI 在与用户确认需求后，若当前有批次正在执行，将需求写入 backlog.json 而非打断当前批次。
 
-**写入规则（Cowork）：**
+**写入规则（Claude CLI）：**
 - 任意阶段均可向 backlog.json 追加条目
 - 条目格式：`{ id, title, description, decisions[], confirmed_at, priority }`
 - 写入后告知用户"已加入需求池，等待下一批次安排"
@@ -131,8 +130,8 @@ docs/
 
 | 操作 | 执行者 | 说明 |
 |---|---|---|
-| `git push origin main` | Generator（Claude CLI） | 触发 CI（lint + tsc），不自动部署 |
-| 手动触发 Deploy workflow | Cowork | Codex 验收通过后，在 GitHub Actions 手动点击触发部署 |
+| `git push origin main` | Claude CLI | 触发 CI（lint + tsc），不自动部署 |
+| 手动触发 Deploy workflow | 用户 | Codex 验收通过后，在 GitHub Actions 手动点击触发部署 |
 
 ```bash
 # Generator 的标准提交流程
@@ -152,19 +151,19 @@ git push origin main         # 触发 CI，不触发部署
 6. Generator 不得执行 `executor:codex` 的功能；Codex 不得实现 `executor:generator` 的功能
 7. 压测执行、code review、安全审计等"产出报告"类任务，必须标注 `executor:codex`
 
-## Cowork（Claude）框架提案规则
+## 框架提案规则
 
-Cowork 在执行任务过程中，若发现框架值得更新，采用以下两种模式：
+Claude CLI 在执行任务过程中，若发现框架值得更新，采用以下两种模式：
 
 - **即时提出**：影响当前决策的、需要用户立即判断的，直接在对话中提出，用户确认后立即更新 `framework/` 文件
-- **后台队列**：不紧急的、不影响主线任务的，追加到 `framework/proposed-learnings.md`，在下次用户说「更新项目共享记忆」时一并提出
+- **后台队列**：不紧急的、不影响主线任务的，追加到 `framework/proposed-learnings.md`，在 `done` 阶段一并提出
 
 **不得在未经用户确认的情况下直接修改 `framework/` 其他文件。**
 
 格式（追加到 `framework/proposed-learnings.md`）：
 
 ```markdown
-## [YYYY-MM-DD] Cowork — 来源：[触发场景简述]
+## [YYYY-MM-DD] Claude CLI — 来源：[触发场景简述]
 
 **类型：** 新规律 / 新坑 / 模板修订 / 铁律补充
 

@@ -12,13 +12,13 @@ type: feedback
 
 | status | 执行工具 | 角色 |
 |---|---|---|
-| `new` | Cowork | Planner：读 backlog，拆需求，写 spec |
-| `planning` | Claude CLI | Generator：按 features.json 实现 |
-| `building` | Claude CLI | Generator：继续实现（上次中断） |
+| `new` | Claude CLI | Planner：读 backlog，拆需求，写 spec |
+| `planning` | Claude CLI | Planner：继续 planning（上次中断） |
+| `building` | Claude CLI | Generator：按 features.json 实现 |
 | `verifying` | Codex | Evaluator：首轮验收 |
 | `fixing` | Claude CLI | Generator：根据 evaluator_feedback 修复 |
 | `reverifying` | Codex | Evaluator：复验，写 signoff |
-| `done` | Cowork | Planner：更新记忆 → 处理 proposed-learnings → 下一批 |
+| `done` | Claude CLI | Planner：更新记忆 → 处理 proposed-learnings → 下一批 |
 
 - 上下文窗口剩余不足 20% 时立即保存进度，结束会话
 - 每完成一个功能立即更新 progress.json，不得跳过

@@ -113,7 +113,38 @@ AIGC Gateway — AI 服务商管理中台。统一 API 调用抽象（兼容 Ope
 **签收文档：** `docs/test-reports/perf-optimization-local-signoff-2026-04-04.md`
 **Harness 状态：** status=done, 3/3 PASS
 
-## 最近批次（2026-04-06）— mcp-capability-enhancement 批次
+## 最近批次（2026-04-06）— mcp-dx-round2 批次
+
+- 目标：第二轮 MCP 开发者体验优化（白名单收紧+去重+capabilities+新MCP工具）
+- 规格文档：`docs/specs/mcp-dx-round2-spec.md`
+- 交付：
+  - F-DX2-01：白名单收紧至 28 个精选模型（从"已接入什么"转为"开发者需要什么"），OpenAI 改精确匹配
+  - F-DX2-02：list_models 默认按 canonical name 去重，同一模型只展示一条
+  - F-DX2-03：capabilities 补全（对照 28 个模型）+ 去掉 tools 标记（MCP 不支持传 tools）
+  - F-DX2-04：generate_image tool description 补充各图片模型尺寸说明
+  - F-DX2-05~06：新增 get_action_detail / get_template_detail 两个查询类 MCP 工具
+  - F-DX2-07：SERVER_INSTRUCTIONS 更新（含新工具说明+图片模型指引，工具总数 13 个）
+  - F-DX2-08：MCP 设置页 TOOLS 数组补充 2 个新工具
+  - F-DX2-09：i18n 更新
+  - F-DX2-10：E2E 验证 + 错误场景覆盖（Codex）
+- fix_rounds：0（首轮直接通过）
+
+**28 个精选模型白名单（按场景分类）：**
+- 旗舰对话（8）：GPT-4o, Claude Sonnet 4, Gemini 2.5 Pro, DeepSeek V3, Grok 3, Qwen Plus, GLM-4 Plus, Kimi
+- 轻量/高速（7）：GPT-4o Mini, Gemini 2.5 Flash, Gemini 2.0 Flash, Claude Haiku 3.5, Grok 3 Mini, GLM-4 Flash, MiniMax
+- 长上下文（2）：Gemini 1.5 Pro, Doubao Pro 256K
+- 推理（3）：o3, o4-mini, DeepSeek R1
+- 搜索增强（2）：Perplexity Sonar, Perplexity Sonar Pro
+- 阿里旗舰（1）：Qwen Max
+- 多模态视觉（1）：Doubao Vision Pro
+- 图片生成（4）：GPT Image 1, DALL-E 3, 通义万相(Wanx), Seedream 4.5
+
+**MCP 工具总数：** 13 个（原 11 + get_action_detail + get_template_detail）
+
+**签收文档：** `docs/test-reports/mcp-dx-round2-local-signoff-2026-04-06.md`
+**Harness 状态：** status=done, 10/10 PASS, fix_rounds=0
+
+## 前置批次（2026-04-06）— mcp-capability-enhancement 批次
 
 - 目标：MCP 能力增强（模型去重+统一白名单、capabilities 填充、chat stream/response_format、SERVER_INSTRUCTIONS 重写、空结果引导、source 清理、ttftMs 暴露、usage summary 增强）
 - 规格文档：`docs/specs/mcp-capability-enhancement-spec.md`
@@ -186,7 +217,7 @@ AIGC Gateway — AI 服务商管理中台。统一 API 调用抽象（兼容 Ope
 
 ## 需求池（backlog.json，截至 2026-04-06）
 
-当前需求池为空。第二轮 MCP 新用户评估报告（AIGC_GATEWAY_NEW_USER_EVALUATION.md）发现 7 个新问题，正在逐项讨论方案中。
+当前需求池为空。
 
 ## 工作流升级（2026-04-05）
 

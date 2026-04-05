@@ -76,7 +76,7 @@
 **不得直接修改 `framework/` 其他文件**，只能追加到 `framework/proposed-learnings.md`。格式：
 
 ```markdown
-## [YYYY-MM-DD] Generator — 来源：F-XXX
+## [YYYY-MM-DD] Claude CLI — 来源：F-XXX
 
 **类型：** 新规律 / 新坑 / 模板修订 / 铁律补充
 
