@@ -43,16 +43,23 @@ features.json 中每条功能必须声明 `executor` 字段：
 
 ## 启动流程（每次必须按顺序执行）
 
-### 第零步：清缓存，读最新文件
-**每次启动，必须从磁盘重新读取以下文件，不得使用任何缓存版本：**
+### 第零步：同步远端，读最新文件
+
+**第一：先从远端拉取最新代码（所有 agent 通用）**
+
+```bash
+git pull --ff-only origin main
+```
+
+`progress.json`、`features.json`、`.auto-memory/`、`harness-rules.md` 等状态机文件均通过 git 在所有 agent 之间同步。不先拉取，读到的可能是其他 agent 推送之前的旧状态，导致阶段误判或重复工作。
+
+> 同机场景下此命令输出 `Already up to date.`，无副作用，仍需执行。
+
+**第二：从磁盘重新读取以下文件，不得使用任何缓存版本：**
 - `progress.json` — 当前阶段和进度
 - `features.json` — 功能列表和状态
 - `harness-rules.md` — 本文件自身
 - `.auto-memory/MEMORY.md` — 项目记忆索引（**所有 agent 必读**，读完后按需加载 `project-aigcgateway.md` 等记忆文件）
-
-`.auto-memory/` 是唯一的项目记忆源，通过 git 在所有 agent 和 Cowork 之间同步。包含当前开发状态、已知遗留问题、生产环境信息、Codex 测试账号等关键上下文。不读则可能基于过期信息做出错误决策。
-
-多 Agent 并发场景下，缓存版本可能落后于实际状态，导致角色误判或重复工作。
 
 ### 第一步：判断阶段
 读取 progress.json（已确认为最新版本）：
