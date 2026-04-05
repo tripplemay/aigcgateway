@@ -143,7 +143,7 @@
       "title": "E2E 验证：Action CRUD + 单步执行 + 串行 Template + Fan-out Template + MCP Tool",
       "priority": "high",
       "executor": "codex",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "验证覆盖：1) 创建 Action → 激活版本 → /v1/actions/run（stream=true）→ SSE 格式正确 → CallLog.actionId 已写入；2) 创建 2 步串行 Template → /v1/templates/run → SSE 含 step_start×2 → previous_output 正确传递至第 2 步；3) 创建 Fan-out Template（SPLITTER+BRANCH+MERGE）→ /v1/templates/run → SSE 含 branch_start×N → MERGE 收到 all_outputs；4) MCP run-action/run-template Tool 调用返回正确；5) /v1/chat/completions 不再接受 template_id（忽略或报参数错误）"
     }
   ]

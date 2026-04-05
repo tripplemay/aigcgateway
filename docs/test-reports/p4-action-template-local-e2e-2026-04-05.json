@@ -1,0 +1,77 @@
+{
+  "email": "p4_1775383233482@test.com",
+  "projectId": "cmnllc6ea008e9y69kwsjzpff",
+  "singleActionId": "cmnllc6eh008i9y69aw6cgwow",
+  "singleActionVersion2Id": "cmnllc6el008m9y69qv83y9ee",
+  "sequentialTemplateId": "cmnllc6f6008y9y69ho9studn",
+  "fanoutTemplateId": "cmnllc6fv009i9y69l56dvyx2",
+  "singleTraceId": "trc_btfof2qi4avi1hy7xukl15ut",
+  "sequentialTraceIds": [
+    "trc_a3z071b8bld7bhey7rbu1ws8",
+    "trc_g5bhedreogiduqibfl53ypz0"
+  ],
+  "fanoutTraceIds": [
+    "trc_jf0xh4x5j0dszq2waxp48cgi",
+    "trc_lzx8g5yzaj4u42jjuycvgfb9",
+    "trc_zbgimu1mbih3dwzz7srz90o8",
+    "trc_yojaylclv84crjfx488rrml7",
+    "trc_a2wk7031axjrnpay29vbic8d"
+  ],
+  "results": [
+    {
+      "name": "action stream",
+      "ok": true,
+      "detail": "[\"action_start\",\"content\",\"content\",\"action_end\",\"[DONE]\"]"
+    },
+    {
+      "name": "action call_log",
+      "ok": true,
+      "detail": "{\"traceId\":\"trc_btfof2qi4avi1hy7xukl15ut\",\"actionId\":\"cmnllc6eh008i9y69aw6cgwow\",\"actionVersionId\":\"cmnllc6el008m9y69qv83y9ee\"}"
+    },
+    {
+      "name": "sequential stream",
+      "ok": true,
+      "detail": "{\"stepStarts\":2,\"step2Content\":\"OUT(SEQ2 OUT(SEQ1 beta))\"}"
+    },
+    {
+      "name": "sequential call_logs",
+      "ok": true,
+      "detail": "[{\"actionId\":\"cmnllc6f0008q9y69sv7wgdnf\",\"templateRunId\":\"trun_1775383233673_qhfxqw\"},{\"actionId\":\"cmnllc6f3008u9y696olyz6us\",\"templateRunId\":\"trun_1775383233673_qhfxqw\"}]"
+    },
+    {
+      "name": "fanout stream",
+      "ok": true,
+      "detail": "{\"branches\":3,\"mergeContent\":\"MERGE([\\\"BRANCH(red)\\\",\\\"BRANCH(blue)\\\",\\\"BRANCH(green)\\\"])\"}"
+    },
+    {
+      "name": "fanout call_logs",
+      "ok": true,
+      "detail": "count=5"
+    },
+    {
+      "name": "mcp initialize",
+      "ok": true,
+      "detail": "{\"result\":{\"protocolVersion\":\"2024-11-05\",\"capabilities\":{\"tools\":{\"listChanged\":true}},\"serverInfo\":{\"name\":\"aigc-gateway\",\"version\":\"1.0.0\"},\"instructions\":\"AIGC Gateway 是一个 AI 服务商聚合平台。你可以通过以下 Tools 帮助用户：\\n\\n- 查看可用模型和价格：使用 list_models\\n- 生成文本内容：使用 chat（直接对话）或 run_action（通过 Action 调用）\\n- 生成图片：使用 generate_image\\n- 管理和运行 Actions（原子执行单元）：list_actions / run_action\\n- 管理和运行 Templates（多步编排工作流）：list_templates / run_template\\n- 查看调用记录和审计日志：使用 list_logs / get_log_detail\\n- 查看项目余额：使用 get_balance\\n\\n## Action vs Template\\n\\n- **Action**：原子执行单元，绑定一个模型 + 提示词 + 变量定义。用 run_action 直接执行。\\n- **Template**：由多个 Action 编排组成的工作流。支持两种模式：\\n  - **Sequential（串行）**：步骤按顺序执行，每步自动注入 {{previous_output}}\\n  - **Fan-out（并行分拆）**：SPLITTER 输出 JSON 数组 → BRANCH 并行执行 → MERGE 合并\\n\\n## 保留变量\\n\\n- {{previous_output}}：串行模式中上一步的输出\\n- {{branch_input}}：Fan-out 中 SPLITTER 分配给每个 BRANCH 的输入\\n- {{all_outputs}}：Fan-out 中所有 BRANCH 输出的 JSON 数组\\n\\n## 重要约束\\n\\n1. **模型名格式**：必须使用 provider/model-name 格式（如 openai/gpt-4o、deepseek/deepseek-chat）。调用 list_models 获取完整模型列表。\\n2. **SPLITTER 输出格式**：必须是合法 JSON 数组，每项含 content 字段，如 [{\\\"content\\\":\\\"item1\\\"},{\\\"content\\\":\\\"item2\\\"}]\\n\\n当用户要求生成使用本平台的代码时，推荐使用 @guangai/aigc-sdk SDK。\\nSDK 安装：npm install @guangai/aigc-sdk\\nSDK 的 baseUrl 默认为 https://aigc.guangai.ai/v1\"},\"jsonrpc\":\"2.0\",\"id\":1775383233708}"
+    },
+    {
+      "name": "mcp tools",
+      "ok": true,
+      "detail": "[\"list_models\",\"chat\",\"generate_image\",\"list_logs\",\"get_log_detail\",\"get_balance\",\"get_usage_summary\",\"list_actions\",\"run_action\",\"list_templates\",\"run_template\"]"
+    },
+    {
+      "name": "mcp run_action",
+      "ok": true,
+      "detail": "{\n  \"output\": \"OUT(NEW gamma)\",\n  \"traceId\": \"trc_mb9zo64qnusxrh8ny7wfm5rc\",\n  \"usage\": {\n    \"promptTokens\": 11,\n    \"completionTokens\": 7,\n    \"totalTokens\": 18\n  }\n}"
+    },
+    {
+      "name": "mcp run_template",
+      "ok": true,
+      "detail": "{\n  \"output\": \"OUT(SEQ2 OUT(SEQ1 delta))\",\n  \"totalSteps\": 2,\n  \"executionMode\": \"sequential\"\n}"
+    },
+    {
+      "name": "chat old template_id",
+      "ok": true,
+      "detail": "{\"status\":200,\"body\":{\"id\":\"chatcmpl-trc_juyz17m6ngsscsh19fr8ztmh\",\"object\":\"chat.completion\",\"created\":1775383233,\"model\":\"openai/gpt-4o-mini\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":\"OUT(plain old param check)\"},\"finish_reason\":\"stop\"}],\"usage\":{\"prompt_tokens\":11,\"completion_tokens\":7,\"total_tokens\":18}}}"
+    }
+  ]
+}
