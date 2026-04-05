@@ -1,57 +1,26 @@
 {
-  "batch": "error-handling-fix 批次（BL-008）",
+  "batch": "template-new-page 批次",
   "created_at": "2026-04-05",
   "features": [
     {
-      "id": "F-FIX-01",
-      "title": "admin/health/page.tsx — load() 加 try/catch，失败时展示空状态",
+      "id": "F-TPL-01",
+      "title": "新建 src/app/(console)/templates/new/page.tsx — 创建模板页",
       "priority": "P1",
       "executor": "generator",
-      "status": "done",
+      "status": "pending",
+      "description": "当前 router.push('/templates/new') 因缺少静态路由文件，被 [templateId]/page.tsx 捕获，调用 GET /api/projects/{id}/templates/new 返回 404。修复：新建 new/page.tsx，Next.js 静态路段优先级高于动态路段，路由自动正确命中。",
+      "design_ref": "design-draft/Template Editor (Developer)/code.html",
       "acceptance": [
-        "load() 包含 try/catch",
-        "catch 里执行 setSummary({ active:0, degraded:0, disabled:0, total:0 }) + setChannels([])",
-        "访问 /admin/health 时后端返回非 2xx，页面不崩溃，展示空状态或错误提示",
-        "其他页面导航不受影响"
-      ]
-    },
-    {
-      "id": "F-FIX-02",
-      "title": "admin/models/page.tsx — load() 加 try/catch + catch 里补 setLoading(false)",
-      "priority": "P1",
-      "executor": "generator",
-      "status": "done",
-      "acceptance": [
-        "load() 包含 try/catch",
-        "catch 里执行 setData([]) + setLoading(false)",
-        "访问 /admin/models 时后端返回非 2xx，loading 骨架消失，页面展示空状态或错误提示",
-        "其他页面导航不受影响"
-      ]
-    },
-    {
-      "id": "F-FIX-03",
-      "title": "models/page.tsx — fetch 链加 .catch()",
-      "priority": "P1",
-      "executor": "generator",
-      "status": "done",
-      "acceptance": [
-        "fetch 链末尾加 .catch(() => setModels([]))",
-        "访问 /models 时后端返回非 2xx 或网络错误，页面展示空状态（No models found），不崩溃",
-        "其他页面导航不受影响"
-      ]
-    },
-    {
-      "id": "F-FIX-04",
-      "title": "新增 src/app/(console)/error.tsx — 全局 Error Boundary 兜底",
-      "priority": "P1",
-      "executor": "generator",
-      "status": "done",
-      "acceptance": [
-        "文件 src/app/(console)/error.tsx 存在",
-        "文件顶部包含 'use client' 指令",
-        "导出默认函数，接收 { error, reset } props，类型正确",
-        "页面展示错误信息 + 重试按钮（调用 reset()）",
-        "构建不报错（npx tsc --noEmit 通过）"
+        "文件 src/app/(console)/templates/new/page.tsx 存在",
+        "页面包含 name（必填）、description（选填）输入框",
+        "页面包含至少一个 message block（role 下拉：system/user/assistant，content 文本框）",
+        "支持动态增减 message block（Add Message / Remove 按钮）",
+        "页面包含 variables 区域（可选，支持增减变量行：name、description、required、defaultValue）",
+        "提交调用 POST /api/projects/{id}/templates，body: { name, description, messages, variables }",
+        "提交成功后跳转到 /templates/{newId}",
+        "提交失败时展示 toast 错误信息",
+        "页面布局与 Template Editor 设计稿一致（design-draft/Template Editor (Developer)/code.html）",
+        "i18n：所有文案使用 useTranslations('templates')，en.json 和 zh-CN.json 同步更新"
       ]
     }
   ]

@@ -1,29 +1,27 @@
 {
-  "status": "done",
-  "user_goal": "error-handling-fix 批次：修复三个页面无错误处理导致 App Router 导航状态污染（BL-008）",
-  "total_features": 4,
-  "completed_features": 4,
-  "fix_rounds": 1,
-  "current_sprint": null,
-  "last_updated": "2026-04-05T12:30:00Z",
-  "reference_docs": [],
+  "status": "building",
+  "user_goal": "template-new-page 批次：新建创建模板页面，修复 /templates/new 路由 404 问题",
+  "total_features": 1,
+  "completed_features": 0,
+  "fix_rounds": 0,
+  "current_sprint": "F-TPL-01",
+  "last_updated": "2026-04-05T13:00:00Z",
+  "reference_docs": [
+    "design-draft/Template Editor (Developer)/code.html"
+  ],
   "docs": {
     "spec": null,
     "test_cases": null,
-    "signoff": "docs/test-reports/error-handling-fix-signoff-2026-04-05.md",
+    "signoff": null,
     "framework_reviewed": false
   },
-  "evaluator_feedback": {
-    "summary": "复验结果：4 PASS / 0 PARTIAL / 0 FAIL。F-FIX-02 已修复 lastSyncResultDetail 读取与 summary 安全访问，生产失败注入下 /admin/models 不再崩溃，导航正常。",
-    "pass_count": 4,
-    "partial_count": 0,
-    "fail_count": 0,
-    "issues": []
-  },
+  "evaluator_feedback": null,
   "features": [
-    { "id": "F-FIX-01", "title": "admin/health/page.tsx — load() 加 try/catch", "status": "done", "executor": "generator" },
-    { "id": "F-FIX-02", "title": "admin/models/page.tsx — load() 加 try/catch + setLoading(false)", "status": "done", "executor": "generator" },
-    { "id": "F-FIX-03", "title": "models/page.tsx — fetch 链加 .catch()", "status": "done", "executor": "generator" },
-    { "id": "F-FIX-04", "title": "新增 src/app/(console)/error.tsx", "status": "done", "executor": "generator" }
+    {
+      "id": "F-TPL-01",
+      "title": "新建 src/app/(console)/templates/new/page.tsx — 创建模板页",
+      "status": "pending",
+      "executor": "generator"
+    }
   ]
 }
