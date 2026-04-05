@@ -95,7 +95,7 @@
       "title": "get_usage_summary 增加 actionId/templateId 维度统计",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "1) 新增 action_id/template_id 可选 filter 参数；2) group_by 新增 'action'/'template' 选项；3) group_by=action 时按 actionId 分组，附带 Action name；4) group_by=template 时按 templateId 分组，附带 Template name；5) 与 F-MCE-11 的其他 filter/groupBy 可叠加使用；6) npm run lint 通过，tsc --noEmit 无报错"
     },
     {
@@ -111,7 +111,7 @@
       "title": "E2E 验证（Codex 执行）",
       "priority": "medium",
       "executor": "codex",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "1) 所有 11 个 MCP 工具可正常调用；2) chat stream=true 返回完整内容；3) chat response_format=json_object 返回合法 JSON；4) list_models 包含 capabilities 字段；5) get_log_detail 包含 ttftMs；6) get_usage_summary 新参数生效；7) 空 Action/Template 列表返回引导文案；8) 模型列表无大小写重复"
     }
   ]

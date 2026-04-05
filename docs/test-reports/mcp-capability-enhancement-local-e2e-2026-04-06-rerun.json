@@ -1,0 +1,102 @@
+{
+  "passed": 18,
+  "failed": 0,
+  "results": [
+    {
+      "name": "MCP initialize + SERVER_INSTRUCTIONS",
+      "ok": true,
+      "detail": "aigc-gateway"
+    },
+    {
+      "name": "tools/list includes 11 tools",
+      "ok": true,
+      "detail": "chat, generate_image, get_balance, get_log_detail, get_usage_summary, list_actions, list_logs, list_models, list_templates, run_action, run_template"
+    },
+    {
+      "name": "list_models returns capabilities + no case duplicates",
+      "ok": true,
+      "detail": "27 models"
+    },
+    {
+      "name": "get_balance",
+      "ok": true,
+      "detail": "$20.0000"
+    },
+    {
+      "name": "list_actions empty guidance",
+      "ok": true,
+      "detail": "No Actions found. Create your first Action in the console at https://aigc.guangai.ai/actions"
+    },
+    {
+      "name": "list_templates empty guidance",
+      "ok": true,
+      "detail": "No Templates found. Create your first Template in the console at https://aigc.guangai.ai/templates"
+    },
+    {
+      "name": "list_actions with data",
+      "ok": true,
+      "detail": "2 actions"
+    },
+    {
+      "name": "list_templates with data",
+      "ok": true,
+      "detail": "1 templates"
+    },
+    {
+      "name": "run_action",
+      "ok": true,
+      "detail": "trc_nz7io8ircokmhwd159k9x8ck"
+    },
+    {
+      "name": "run_template",
+      "ok": true,
+      "detail": "cmnls47vm002m9yisvqurl8tc"
+    },
+    {
+      "name": "chat stream=true",
+      "ok": true,
+      "detail": "{\"traceId\":\"trc_vwlp4uxeolnjvi8370p3wsp0\",\"ttftMs\":1}"
+    },
+    {
+      "name": "get_log_detail includes ttftMs",
+      "ok": true,
+      "detail": "{\"ttftMs\":1,\"source\":\"mcp\"}"
+    },
+    {
+      "name": "chat response_format=json_object",
+      "ok": true,
+      "detail": "{\"ok\":true,\"prompt\":\"MCE JSON HELLO\"}"
+    },
+    {
+      "name": "generate_image",
+      "ok": true,
+      "detail": "https://example.com/mock-image.png"
+    },
+    {
+      "name": "list_logs",
+      "ok": true,
+      "detail": "5 logs"
+    },
+    {
+      "name": "get_usage_summary source/day grouping",
+      "ok": true,
+      "detail": "{\"key\":\"mcp\",\"totalCalls\":6,\"totalCost\":\"$0.0120\",\"totalTokens\":100}"
+    },
+    {
+      "name": "get_usage_summary action_id + group_by=action",
+      "ok": true,
+      "detail": "{\"key\":\"cmnls47vc002e9yis74252ev9 (mce-action)\",\"totalCalls\":2,\"totalCost\":\"$0.0000\",\"totalTokens\":40}"
+    },
+    {
+      "name": "get_usage_summary template_id + group_by=template",
+      "ok": true,
+      "detail": "{\"key\":\"cmnls47vm002m9yisvqurl8tc (mce-template)\",\"totalCalls\":2,\"totalCost\":\"$0.0000\",\"totalTokens\":40}"
+    }
+  ],
+  "projectId": "cmnls47t6002a9yisxjiyk0ct",
+  "apiKeyPrefix": "pk_8cc95",
+  "actionId": "cmnls47vc002e9yis74252ev9",
+  "templateId": "cmnls47vm002m9yisvqurl8tc",
+  "templateRunId": "cmnls47vm002m9yisvqurl8tc",
+  "streamTraceId": "trc_vwlp4uxeolnjvi8370p3wsp0"
+}
