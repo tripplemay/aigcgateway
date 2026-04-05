@@ -71,3 +71,15 @@
 **内容：** 多 Agent 并发场景下，Codex 读取到缓存版本的 progress.json（旧状态 reviewing/6 of 7），导致角色误判和状态误报。清缓存重读后才恢复正确。每次启动时必须强制从磁盘读取最新文件。
 
 **状态：** 已实现（harness-rules.md 第零步，2026-04-04）
+
+---
+
+## [2026-04-06] Claude CLI — 来源：MCP 沙盒生存测试 + BL-019 hotfix
+
+**类型：** 新坑 + 铁律补充
+
+**内容：** 新增 sync adapter 时必须实现 `filterModel` 方法。白名单是模型暴露的最高优先级控制，但 volcengine/deepseek/anthropic 三个 adapter 遗漏了 `filterModel`，导致白名单收紧后旧 Channel 未被清理，`list_models` 仍返回不可用模型。Agent 选中这些模型后调用 404。此外，bug fix 级别的 hotfix 未走 harness 流程，应在 proposed-learnings 中记录。
+
+**建议写入：** `framework/README.md` §经验教训 — "每个 SyncAdapter 必须实现 filterModel，白名单是最高优先级"
+
+**状态：** 待确认
