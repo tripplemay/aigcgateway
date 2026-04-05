@@ -1,31 +1,12 @@
 import type { SyncAdapter, SyncedModel, ProviderWithConfig } from "./base";
 import { fetchWithTimeout, getApiKey, getBaseUrl, inferModality } from "./base";
-
-/** 白名单：只同步这些模型前缀 */
-const CHAT_WHITELIST = [
-  "gpt-4o",
-  "gpt-4o-mini",
-  "gpt-4.1",
-  "gpt-4.1-mini",
-  "gpt-4.1-nano",
-  "o3",
-  "o3-mini",
-  "o4-mini",
-];
-const IMAGE_WHITELIST = ["dall-e-3", "gpt-image-1"];
-
-function isWhitelisted(id: string): boolean {
-  return (
-    CHAT_WHITELIST.some((prefix) => id === prefix || id.startsWith(`${prefix}-`)) ||
-    IMAGE_WHITELIST.includes(id)
-  );
-}
+import { isOpenAIModelWhitelisted } from "../model-whitelist";
 
 export const openaiAdapter: SyncAdapter = {
   providerName: "openai",
 
   filterModel(modelId: string): boolean {
-    return isWhitelisted(modelId);
+    return isOpenAIModelWhitelisted(modelId);
   },
 
   async fetchModels(provider: ProviderWithConfig): Promise<SyncedModel[]> {
@@ -40,7 +21,7 @@ export const openaiAdapter: SyncAdapter = {
     const rawModels = (json.data ?? []) as Array<{ id: string }>;
 
     return rawModels
-      .filter((m) => isWhitelisted(m.id))
+      .filter((m) => isOpenAIModelWhitelisted(m.id))
       .map((m) => ({
         modelId: m.id,
         name: `openai/${m.id}`,

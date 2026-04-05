@@ -7,7 +7,7 @@
       "title": "model-sync resolveModelName() 加 toLowerCase() 修复大小写去重",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "1) resolveModelName() 返回值统一 toLowerCase()；2) 同名不同大小写的模型同步后只保留一条；3) CROSS_PROVIDER_MAP 中的映射值不受影响；4) npm run lint 通过，tsc --noEmit 无报错"
     },
     {
@@ -15,7 +15,7 @@
       "title": "统一模型白名单：新建 model-whitelist.ts，废弃 openrouter-whitelist.ts",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "1) 新文件 src/lib/sync/model-whitelist.ts，导出单一 Set<string>（约 30-50 个精选模型名）；2) 覆盖所有 7 家服务商的主流模型；3) model-sync.ts 在 upsert 前对所有 provider 做白名单检查；4) openrouter.ts 的 filterModel() 改为引用统一白名单；5) openrouter-whitelist.ts 文件删除；6) 白名单外模型在同步时物理删除（延续现有逻辑）；7) npm run lint 通过，tsc --noEmit 无报错"
     },
     {
@@ -23,7 +23,7 @@
       "title": "model-sync 填充 capabilities（上游 API + 静态 fallback + unknown 兜底）",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "1) 各 adapter fetchModels() 提取上游 capabilities 信息（如有）；2) 新文件 src/lib/sync/model-capabilities-fallback.ts 提供静态映射；3) model-sync upsert 时写入 capabilities 字段：上游 > fallback > {\"unknown\":true}；4) 同步后 Model.capabilities 不再为 null；5) npm run lint 通过，tsc --noEmit 无报错"
     },
     {
@@ -31,7 +31,7 @@
       "title": "list_models MCP 工具返回 capabilities 字段",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "1) list_models 返回的每个模型对象中包含 capabilities 字段；2) 字段值来自 Model 表；3) npm run lint 通过，tsc --noEmit 无报错"
     },
     {
@@ -39,7 +39,7 @@
       "title": "MCP chat 工具新增 stream 参数（SSE 流式输出）",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "1) chat tool schema 新增 stream: boolean optional 参数；2) stream=true 时调用底层 adapter 的 streaming 模式；3) 返回完整内容 + usage + ttftMs；4) stream=false（默认）行为不变；5) processChatResult 正确写入 CallLog（source='mcp'）；6) npm run lint 通过，tsc --noEmit 无报错"
     },
     {
@@ -47,7 +47,7 @@
       "title": "MCP chat 工具新增 response_format 参数",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "1) chat tool schema 新增 response_format: {type: 'text'|'json_object'} optional 参数；2) 传递给底层 ChatCompletionRequest；3) json_object 模式返回的内容为合法 JSON；4) npm run lint 通过，tsc --noEmit 无报错"
     },
     {
@@ -55,7 +55,7 @@
       "title": "SERVER_INSTRUCTIONS 全面重写（Quick Start + 全场景覆盖 + 控制台引导）",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "1) SERVER_INSTRUCTIONS 包含 Quick Start 段落（推荐调用顺序）；2) 覆盖所有 11 个工具的使用场景和示例；3) 包含对话（含 stream/response_format）、图片生成、Action、Template、日志、用量、余额查询的完整说明；4) 包含控制台 URL 引导（创建 Action/Template、充值、API Key 管理）；5) 包含 SDK 推荐；6) 包含 Action vs Template 对比和保留变量说明；7) npm run lint 通过，tsc --noEmit 无报错"
     },
     {
@@ -63,7 +63,7 @@
       "title": "list_actions / list_templates 空结果返回引导文案",
       "priority": "low",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "1) list_actions 返回空数组时 message 字段包含引导文案（含控制台 URL）；2) list_templates 返回空数组时 message 字段包含引导文案（含控制台 URL）；3) 有数据时无额外 message；4) npm run lint 通过，tsc --noEmit 无报错"
     },
     {
@@ -71,7 +71,7 @@
       "title": "CallLog.source 去掉 'sdk'，清理文档和注释",
       "priority": "low",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "1) 代码中所有 'api'|'sdk'|'mcp' 注释改为 'api'|'mcp'；2) CLAUDE.md 中 CallLog.source 描述更新；3) 无功能变更，纯清理；4) npm run lint 通过，tsc --noEmit 无报错"
     },
     {
@@ -79,7 +79,7 @@
       "title": "get_log_detail 返回补充 ttftMs 原始毫秒数",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "1) get_log_detail 返回中同时包含 ttftMs（数字，毫秒）和 ttft（格式化字符串）；2) 现有 ttft 字段保留不变；3) npm run lint 通过，tsc --noEmit 无报错"
     },
     {
@@ -87,7 +87,7 @@
       "title": "get_usage_summary 增加 model/period/source/group_by 筛选参数",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "1) 新增 model/source/group_by 可选参数；2) 各 filter 参数叠加到 Prisma where 条件；3) group_by=model 时返回 groups[] 数组（key + totalCalls + totalCost + totalTokens）；4) group_by=day 时按日期分组；5) group_by=source 时按 api/mcp 分组；6) 无 group_by 时返回与现有相同的聚合结果；7) npm run lint 通过，tsc --noEmit 无报错"
     },
     {
@@ -95,7 +95,7 @@
       "title": "get_usage_summary 增加 actionId/templateId 维度统计",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "1) 新增 action_id/template_id 可选 filter 参数；2) group_by 新增 'action'/'template' 选项；3) group_by=action 时按 actionId 分组，附带 Action name；4) group_by=template 时按 templateId 分组，附带 Template name；5) 与 F-MCE-11 的其他 filter/groupBy 可叠加使用；6) npm run lint 通过，tsc --noEmit 无报错"
     },
     {
@@ -103,7 +103,7 @@
       "title": "i18n 更新（如有新增用户可见文案）",
       "priority": "low",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "1) 所有新增用户可见文案通过 useTranslations()；2) en.json 和 zh-CN.json 同步更新，无缺失 key；3) npm run lint 通过，tsc --noEmit 无报错"
     },
     {

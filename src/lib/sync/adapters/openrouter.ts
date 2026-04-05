@@ -1,12 +1,12 @@
 import type { SyncAdapter, SyncedModel, ProviderWithConfig } from "./base";
 import { fetchWithTimeout, getApiKey, getBaseUrl, inferModality } from "./base";
-import { OPENROUTER_MODEL_WHITELIST } from "./openrouter-whitelist";
+import { isModelWhitelisted } from "../model-whitelist";
 
 export const openrouterAdapter: SyncAdapter = {
   providerName: "openrouter",
 
   filterModel(modelId: string): boolean {
-    return OPENROUTER_MODEL_WHITELIST.has(modelId);
+    return isModelWhitelisted("openrouter", modelId);
   },
 
   async fetchModels(provider: ProviderWithConfig): Promise<SyncedModel[]> {
@@ -30,7 +30,7 @@ export const openrouterAdapter: SyncAdapter = {
     return rawModels
       .filter((m) => {
         // 白名单过滤：只同步明确收录的主流模型
-        if (!OPENROUTER_MODEL_WHITELIST.has(m.id)) return false;
+        if (!isModelWhitelisted("openrouter", m.id)) return false;
         // 排除免费模型（pricing 全为 0 或 "0"）
         if (m.pricing) {
           const prompt = parseFloat(m.pricing.prompt ?? "0");

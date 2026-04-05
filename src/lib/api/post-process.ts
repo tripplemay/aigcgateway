@@ -30,7 +30,7 @@ export interface PostProcessParams {
   requestParams: Record<string, unknown>;
   startTime: number;
   ttftTime?: number;
-  source?: string; // 'api' | 'sdk' | 'mcp'
+  source?: string; // 'api' | 'mcp'
   actionId?: string;
   actionVersionId?: string;
   templateRunId?: string;

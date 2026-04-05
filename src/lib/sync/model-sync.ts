@@ -14,6 +14,7 @@
 
 import { prisma } from "@/lib/prisma";
 import { getConfigNumber } from "@/lib/config";
+import { resolveCapabilities } from "./model-capabilities-fallback";
 import type {
   SyncAdapter,
   SyncedModel,
@@ -22,7 +23,7 @@ import type {
 } from "./adapters/base";
 
 import { enrichFromDocs } from "./doc-enricher";
-import type { ModelModality } from "@prisma/client";
+import type { ModelModality, Prisma } from "@prisma/client";
 
 // ── 适配器注册表 ──
 import { openaiAdapter } from "./adapters/openai";
@@ -176,7 +177,7 @@ function resolveModelName(syncedModel: SyncedModel, providerName: string): strin
     const mapped = CROSS_PROVIDER_MAP[syncedModel.modelId];
     if (mapped) return mapped;
   }
-  return syncedModel.name;
+  return syncedModel.name.toLowerCase();
 }
 
 // ============================================================
@@ -232,11 +233,13 @@ async function reconcile(
 
     // 新模型 — model upsert 必须串行（有依赖关系）
     const modelName = resolveModelName(remoteModel, provider.name);
+    const capabilities = remoteModel.capabilities ?? resolveCapabilities(remoteModel.modelId);
     const model = await prisma.model.upsert({
       where: { name: modelName },
       update: {
         contextWindow: remoteModel.contextWindow ?? undefined,
         maxTokens: remoteModel.maxOutputTokens ?? undefined,
+        capabilities: capabilities as unknown as Prisma.InputJsonValue,
       },
       create: {
         name: modelName,
@@ -244,6 +247,7 @@ async function reconcile(
         modality: remoteModel.modality as ModelModality,
         contextWindow: remoteModel.contextWindow ?? null,
         maxTokens: remoteModel.maxOutputTokens ?? null,
+        capabilities: capabilities as unknown as Prisma.InputJsonValue,
       },
     });
 

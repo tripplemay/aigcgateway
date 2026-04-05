@@ -19,37 +19,67 @@ import { registerListTemplates } from "./tools/list-templates";
 import { registerRunTemplate } from "./tools/run-template";
 import type { ApiKeyPermissions } from "@/lib/api/auth-middleware";
 
-const SERVER_INSTRUCTIONS = `AIGC Gateway 是一个 AI 服务商聚合平台。你可以通过以下 Tools 帮助用户：
+const SERVER_INSTRUCTIONS = `# AIGC Gateway — AI 服务商聚合平台
 
-- 查看可用模型和价格：使用 list_models
-- 生成文本内容：使用 chat（直接对话）或 run_action（通过 Action 调用）
-- 生成图片：使用 generate_image
-- 管理和运行 Actions（原子执行单元）：list_actions / run_action
-- 管理和运行 Templates（多步编排工作流）：list_templates / run_template
-- 查看调用记录和审计日志：使用 list_logs / get_log_detail
-- 查看项目余额：使用 get_balance
+## Quick Start
+1. **get_balance** — 查看余额，确认可用
+2. **list_models** — 浏览可用模型、价格和 capabilities
+3. **chat** — 发送第一条消息
 
-## Action vs Template
+## 对话生成（chat）
+- 基础对话：chat(model, messages)
+- 流式输出：chat(model, messages, stream=true) — 返回包含 ttftMs 性能指标
+- 结构化 JSON：chat(model, messages, response_format={type:"json_object"})
+- 模型名格式：provider/model-name（如 openai/gpt-4o、deepseek/deepseek-chat）
 
-- **Action**：原子执行单元，绑定一个模型 + 提示词 + 变量定义。用 run_action 直接执行。
-- **Template**：由多个 Action 编排组成的工作流。支持两种模式：
-  - **Sequential（串行）**：步骤按顺序执行，每步自动注入 {{previous_output}}
-  - **Fan-out（并行分拆）**：SPLITTER 输出 JSON 数组 → BRANCH 并行执行 → MERGE 合并
+## 图片生成（generate_image）
+- generate_image(model, prompt) — 支持 dall-e-3、cogview、FLUX 等
 
-## 保留变量
+## Action（原子执行单元）
+Action 绑定一个模型 + 提示词 + 变量定义，可复用。
+- **list_actions** — 查看所有 Actions
+- **run_action(action_id, variables)** — 执行 Action，传入变量
+- 创建/编辑 Action 需在控制台操作
 
-- {{previous_output}}：串行模式中上一步的输出
-- {{branch_input}}：Fan-out 中 SPLITTER 分配给每个 BRANCH 的输入
-- {{all_outputs}}：Fan-out 中所有 BRANCH 输出的 JSON 数组
+## Template（多步编排工作流）
+Template 由多个 Action 按顺序或并行组合：
+- **Sequential（串行）**：步骤按 order 执行，每步自动注入 {{previous_output}}
+- **Fan-out（并行分拆）**：SPLITTER 输出 JSON 数组 → BRANCH 并行 → MERGE 合并
+- **list_templates** — 查看所有 Templates 及步骤详情
+- **run_template(template_id, variables)** — 执行 Template
+- 创建/编辑 Template 需在控制台操作
 
-## 重要约束
+### 保留变量
+- {{previous_output}} — 串行模式中上一步的输出
+- {{branch_input}} — Fan-out 中每个分支的输入
+- {{all_outputs}} — Fan-out 中所有分支输出的 JSON 数组
+- SPLITTER 输出格式：[{"content":"item1"},{"content":"item2"}]
 
-1. **模型名格式**：必须使用 provider/model-name 格式（如 openai/gpt-4o、deepseek/deepseek-chat）。调用 list_models 获取完整模型列表。
-2. **SPLITTER 输出格式**：必须是合法 JSON 数组，每项含 content 字段，如 [{"content":"item1"},{"content":"item2"}]
+## 日志与调试
+- **list_logs(search, status, limit)** — 搜索调用记录
+- **get_log_detail(trace_id)** — 查看完整 prompt、response、性能指标（ttftMs、latency、tokensPerSecond）
 
-当用户要求生成使用本平台的代码时，推荐使用 @guangai/aigc-sdk SDK。
-SDK 安装：npm install @guangai/aigc-sdk
-SDK 的 baseUrl 默认为 https://aigc.guangai.ai/v1`;
+## 用量与成本
+- **get_usage_summary** — 查看花费汇总
+  - 筛选：model, source(api/mcp), action_id, template_id
+  - 分组：group_by=model/day/source/action/template
+  - 时间：period=today/7d/30d
+
+## 控制台操作（无法通过 MCP 完成）
+- 创建/编辑 Action 和 Template
+- 充值余额
+- 管理 API Key 和权限
+- 控制台地址：https://aigc.guangai.ai
+
+## SDK 推荐
+生成代码时推荐 @guangai/aigc-sdk：
+\`\`\`
+npm install @guangai/aigc-sdk
+import { Gateway } from '@guangai/aigc-sdk';
+const gw = new Gateway({ apiKey: 'pk_xxx', baseUrl: 'https://aigc.guangai.ai/v1' });
+const res = await gw.chat({ model: 'openai/gpt-4o', messages: [...] });
+\`\`\`
+`;
 
 export interface McpServerOptions {
   projectId: string;

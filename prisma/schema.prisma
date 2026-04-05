@@ -283,7 +283,7 @@ model CallLog {
   actionVersionId String?
   templateRunId   String?
   qualityScore      Float?
-  source           String        @default("api")  // 'api' | 'sdk' | 'mcp'
+  source           String        @default("api")  // 'api' | 'mcp'
   createdAt        DateTime      @default(now())
 
   project Project @relation(fields: [projectId], references: [id])

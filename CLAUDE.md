@@ -143,7 +143,7 @@ MCP is not a separate service — it's a route handler inside the same Next.js a
 - Native SQL migrations for: tsvector + GIN index + trigger, `deduct_balance()`, `check_balance()`
 - Global Prisma singleton at `src/lib/prisma.ts` — always import from here, never `new PrismaClient()`
 - `env.ts` uses lazy Proxy validation — safe during build time
-- CallLog.source field: `'api'` | `'sdk'` | `'mcp'` to distinguish call origins
+- CallLog.source field: `'api'` | `'mcp'` to distinguish call origins
 
 ### Migration 规则（必须遵守）
 

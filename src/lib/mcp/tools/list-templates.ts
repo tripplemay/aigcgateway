@@ -53,11 +53,17 @@ export function registerListTemplates(server: McpServer, opts: McpServerOptions)
         })),
       }));
 
+      const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://aigc.guangai.ai";
+      const result: Record<string, unknown> = { data, pagination: { page, pageSize, total } };
+      if (data.length === 0) {
+        result.message = `No Templates found. Create your first Template in the console at ${baseUrl}/templates`;
+      }
+
       return {
         content: [
           {
             type: "text" as const,
-            text: JSON.stringify({ data, pagination: { page, pageSize, total } }, null, 2),
+            text: JSON.stringify(result, null, 2),
           },
         ],
       };

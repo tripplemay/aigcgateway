@@ -48,11 +48,17 @@ export function registerListActions(server: McpServer, opts: McpServerOptions): 
         };
       });
 
+      const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://aigc.guangai.ai";
+      const result: Record<string, unknown> = { data, pagination: { page, pageSize, total } };
+      if (data.length === 0) {
+        result.message = `No Actions found. Create your first Action in the console at ${baseUrl}/actions`;
+      }
+
       return {
         content: [
           {
             type: "text" as const,
-            text: JSON.stringify({ data, pagination: { page, pageSize, total } }, null, 2),
+            text: JSON.stringify(result, null, 2),
           },
         ],
       };

@@ -25,7 +25,7 @@ export interface SyncedModel {
   /** 输出价格（美元/百万 token） */
   outputPricePerM?: number;
   /** 模型能力标签 */
-  capabilities?: string[];
+  capabilities?: Record<string, boolean>;
 }
 
 /** pricingOverrides 中单条模型的覆盖定义 */

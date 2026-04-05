@@ -1,11 +1,12 @@
 import type { SyncAdapter, SyncedModel, ProviderWithConfig } from "./base";
-import { fetchWithTimeout, getApiKey, getBaseUrl, inferModality, isChatModality } from "./base";
+import { fetchWithTimeout, getApiKey, getBaseUrl, inferModality } from "./base";
+import { isModelWhitelisted } from "../model-whitelist";
 
 export const siliconflowAdapter: SyncAdapter = {
   providerName: "siliconflow",
 
   filterModel(modelId: string): boolean {
-    return isChatModality(modelId);
+    return isModelWhitelisted("siliconflow", modelId);
   },
 
   async fetchModels(provider: ProviderWithConfig): Promise<SyncedModel[]> {
@@ -20,7 +21,7 @@ export const siliconflowAdapter: SyncAdapter = {
     const rawModels = (json.data ?? []) as Array<{ id: string }>;
 
     return rawModels
-      .filter((m) => isChatModality(m.id))
+      .filter((m) => isModelWhitelisted("siliconflow", m.id))
       .map((m) => ({
         modelId: m.id,
         name: `siliconflow/${m.id}`,

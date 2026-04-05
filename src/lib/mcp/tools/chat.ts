@@ -32,8 +32,18 @@ export function registerChat(server: McpServer, opts: McpServerOptions): void {
       messages: z.array(messageSchema).describe("Message array [{role, content}]."),
       temperature: z.number().min(0).max(2).optional().describe("Sampling temperature, 0-2"),
       max_tokens: z.number().int().positive().optional().describe("Maximum output tokens"),
+      stream: z
+        .boolean()
+        .optional()
+        .describe(
+          "Enable streaming mode. The response is still returned as a single result, but includes ttftMs (time to first token) for performance insight.",
+        ),
+      response_format: z
+        .object({ type: z.enum(["text", "json_object"]) })
+        .optional()
+        .describe("Response format. Use json_object for structured JSON output."),
     },
-    async ({ model, messages, temperature, max_tokens }) => {
+    async ({ model, messages, temperature, max_tokens, stream, response_format }) => {
       // Permission check
       const permErr = checkMcpPermission(permissions, "chatCompletion");
       if (permErr) {
@@ -123,10 +133,56 @@ export function registerChat(server: McpServer, opts: McpServerOptions): void {
         messages: messages,
         ...(temperature !== undefined ? { temperature } : {}),
         ...(max_tokens !== undefined ? { max_tokens } : {}),
-        stream: false,
+        ...(response_format ? { response_format } : {}),
+        stream: !!stream,
       };
 
       try {
+        // Stream mode: consume server-side, return with ttftMs
+        if (stream) {
+          const streamResult = await adapter.chatCompletionsStream(request, route);
+          const reader = streamResult.getReader();
+          let fullContent = "";
+          let lastUsage: import("@/lib/engine/types").Usage | null = null;
+          let lastFinishReason: string | null = null;
+          let ttftTime: number | undefined;
+
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            const chunk = value as {
+              choices?: { delta?: { content?: string }; finish_reason?: string }[];
+              usage?: import("@/lib/engine/types").Usage;
+            };
+            if (!ttftTime && chunk.choices?.[0]?.delta?.content) ttftTime = Date.now();
+            const delta = chunk.choices?.[0]?.delta?.content;
+            if (delta) fullContent += delta;
+            if (chunk.usage) lastUsage = chunk.usage;
+            if (chunk.choices?.[0]?.finish_reason) lastFinishReason = chunk.choices[0].finish_reason;
+          }
+
+          const ttftMs = ttftTime ? ttftTime - startTime : null;
+          processChatResult({
+            traceId, projectId, route, modelName: model,
+            promptSnapshot: messages, requestParams: { temperature, max_tokens, stream: true },
+            startTime, ttftTime,
+            streamChunks: { content: fullContent, usage: lastUsage, finishReason: lastFinishReason },
+            source: "mcp",
+          });
+
+          return {
+            content: [{
+              type: "text" as const,
+              text: JSON.stringify({
+                content: fullContent, traceId, model, ttftMs,
+                usage: lastUsage ? { promptTokens: lastUsage.prompt_tokens, completionTokens: lastUsage.completion_tokens, totalTokens: lastUsage.total_tokens } : null,
+                finishReason: lastFinishReason,
+              }, null, 2),
+            }],
+          };
+        }
+
+        // Non-stream mode (default)
         const response = await adapter.chatCompletions(request, route);
 
         // Post-process: write CallLog (source='mcp') + deduct balance
