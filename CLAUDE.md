@@ -186,6 +186,16 @@ Independent npm package `@guangai/aigc-sdk`. Zero dependencies, Node 18+. Output
 - MCP and API share the same rate limit quotas (RPM/TPM)
 - Never modify Server Instructions without product owner approval
 
+**每次新增或修改 MCP Tool，必须同步更新 `src/lib/mcp/server.ts` 的 `SERVER_INSTRUCTIONS`，包含：**
+1. 该 Tool 的适用场景和调用方式
+2. 与 REST API / SDK 的能力差异（如 MCP 独有功能需明确标注）
+3. 已知约束或注意事项（如"新版本需手动激活"等）
+
+**对应 features.json 的 acceptance 中必须包含此条：**
+> "SERVER_INSTRUCTIONS 已更新，包含新 Tool 的使用说明和约束"
+
+漏写 Server Instructions = Codex 验收不通过。
+
 ## i18n Rules
 
 - All user-visible text must go through `useTranslations()`, never hardcode strings
