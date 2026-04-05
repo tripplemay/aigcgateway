@@ -113,7 +113,33 @@ AIGC Gateway — AI 服务商管理中台。统一 API 调用抽象（兼容 Ope
 **签收文档：** `docs/test-reports/perf-optimization-local-signoff-2026-04-04.md`
 **Harness 状态：** status=done, 3/3 PASS
 
-## 最近批次（2026-04-05）— dx-fix 批次
+## 最近批次（2026-04-05）— p4-action-template 批次
+
+- 目标：将旧 Template 系统彻底重构为 Action（原子单元）+ Template（编排组合）两层架构
+- 规格文档：`docs/specs/action-template-redesign-spec.md`
+- 交付：
+  - F-P4-01~03：Schema 重建（删除旧 template_versions、重建 templates、新增 actions/action_versions/template_steps/StepRole 枚举、CallLog 字段迁移）
+  - F-P4-04~05：Action CRUD API + Template CRUD API（含版本管理、激活、步骤管理）
+  - F-P4-06~08：ActionRunner + TemplateRunner Sequential（{{previous_output}}）+ TemplateRunner Fan-out（SPLITTER/BRANCH/MERGE，{{branch_input}}/{{all_outputs}}）
+  - F-P4-09~10：/v1/actions/run + /v1/templates/run 端点（SSE + 计费 + 鉴权）
+  - F-P4-11：清理旧 Template 系统（inject.ts、fork 路由、/v1/chat/completions template_id 逻辑）
+  - F-P4-12~15：控制台 Action 列表/创建/详情页 + Template 列表/创建/详情页（重构）
+  - F-P4-16：MCP 更新（删旧 5 Tool → 新增 list-actions/run-action/list-templates/run-template，SERVER_INSTRUCTIONS 更新）
+  - F-P4-17：i18n 更新（actions.* 命名空间 + templates.* 更新）
+  - F-P4-18：E2E 验证（Codex）
+- fix_rounds：0（首轮直接通过）
+
+**关键架构变化：**
+- `Action` = 原子执行单元：model + messages（提示词）+ variables + 版本管理
+- `Template` = Action 编排层：1 步（单步）/ N 步顺序（串行）/ SPLITTER+BRANCH+MERGE（Fan-out）
+- 保留变量：`{{previous_output}}`（串行步骤间传递）、`{{branch_input}}`（Fan-out 分支输入）、`{{all_outputs}}`（Merge 步骤汇总）
+- `/v1/actions/run` 和 `/v1/templates/run` 为新调用端点，SSE 含步骤/分支标记
+- 旧 `/v1/chat/completions` 不再接受 template_id
+
+**签收文档：** `docs/test-reports/p4-action-template-local-signoff-2026-04-05.md`
+**Harness 状态：** status=done, 18/18 PASS, fix_rounds=0
+
+## 前置批次（2026-04-05）— dx-fix 批次
 
 - 目标：修复开发者集成体验问题（SERVER_INSTRUCTIONS、REST API template_id、SDK 修复、MCP 健康检查）
 - 交付：
@@ -128,11 +154,7 @@ AIGC Gateway — AI 服务商管理中台。统一 API 调用抽象（兼容 Ope
 
 ## 需求池（backlog.json，截至 2026-04-05）
 
-- **BL-010（高优先级）：** Action + Template 统一重构（P4）
-  - 将现有 Template 系统重构为两层：Action（原子单元，含 model+提示词）+ Template（Action 编排组合）
-  - 替代 BL-001/002/003 四个独立需求，统一解决 prepend、串行 Workflow、Fan-out 并行、动作模型映射
-  - 允许破坏性变更（生产数据为测试数据，无需迁移）
-  - 详见 `backlog.json`
+当前需求池为空，详见 `backlog.json`
 
 ## 工作流升级（2026-04-05）
 
