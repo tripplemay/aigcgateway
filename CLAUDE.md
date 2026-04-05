@@ -10,6 +10,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 1. 读取 `.auto-memory/MEMORY.md`（项目记忆索引），按需加载 `project-aigcgateway.md` 等记忆文件
 2. 读取 `progress.json`，确认当前阶段，再加载对应角色文件（generator.md / evaluator.md / planner.md）
 
+**分支规则（Claude CLI 必须遵守）：代码提交只推 `dev` 分支，严禁推 `main`。**
+`main` 由 Cowork 在 `done` 阶段完成合并后推送，推送 `main` 将触发生产环境自动部署。
+
 `.auto-memory/` 是唯一跨会话记忆源，包含：当前开发状态、已知遗留问题、生产环境信息、Codex 测试账号等。不读则可能基于过期信息做出错误决策。
 
 **状态机（当前版本）：**
