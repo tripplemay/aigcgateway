@@ -95,7 +95,7 @@
       "title": "get_usage_summary 增加 actionId/templateId 维度统计",
       "priority": "medium",
       "executor": "generator",
-      "status": "completed",
+      "status": "pending",
       "acceptance": "1) 新增 action_id/template_id 可选 filter 参数；2) group_by 新增 'action'/'template' 选项；3) group_by=action 时按 actionId 分组，附带 Action name；4) group_by=template 时按 templateId 分组，附带 Template name；5) 与 F-MCE-11 的其他 filter/groupBy 可叠加使用；6) npm run lint 通过，tsc --noEmit 无报错"
     },
     {

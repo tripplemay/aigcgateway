@@ -1,19 +1,38 @@
 {
-  "status": "verifying",
+  "status": "fixing",
   "user_goal": "mcp-capability-enhancement：模型去重+统一白名单、capabilities填充、chat stream/response_format、SERVER_INSTRUCTIONS重写、空结果引导、source清理、ttftMs暴露、usage summary增强",
   "total_features": 14,
-  "completed_features": 13,
+  "completed_features": 12,
   "fix_rounds": 0,
-  "current_sprint": null,
-  "last_updated": "2026-04-05T23:55:00Z",
+  "current_sprint": "F-MCE-12",
+  "last_updated": "2026-04-06T00:20:00Z",
   "reference_docs": ["docs/specs/mcp-capability-enhancement-spec.md"],
   "docs": {
     "spec": "docs/specs/mcp-capability-enhancement-spec.md",
-    "test_cases": null,
+    "test_cases": "docs/test-cases/mcp-capability-enhancement-local-test-cases-2026-04-06.md",
     "signoff": null,
     "framework_reviewed": false
   },
-  "evaluator_feedback": null,
+  "evaluator_feedback": {
+    "summary": "本地 L1 首轮验收结果：12 PASS / 2 FAIL。MCP 11 个工具链路基本打通，stream、response_format=json_object、ttftMs、空结果引导、统一白名单文件删除与 SERVER_INSTRUCTIONS 重写均通过。唯一功能缺陷集中在 Template 维度用量统计：get_usage_summary(group_by=template) 返回 templateRunId，且未附带 Template name，template_id 过滤也未形成有效约束，导致 F-MCE-12 与依赖该断言的 F-MCE-14 未通过。",
+    "pass_count": 12,
+    "partial_count": 0,
+    "fail_count": 2,
+    "issues": [
+      {
+        "id": "F-MCE-12",
+        "severity": "high",
+        "summary": "get_usage_summary 的 Template 维度返回 templateRunId，未附带 Template name，且 template_id 过滤未按 Template ID 生效。",
+        "evidence": "docs/test-reports/mcp-capability-enhancement-local-e2e-2026-04-05.json"
+      },
+      {
+        "id": "F-MCE-14",
+        "severity": "medium",
+        "summary": "E2E 验证因 Template 维度用量统计缺陷未能全部通过。",
+        "evidence": "docs/test-reports/mcp-capability-enhancement-local-e2e-2026-04-05.json"
+      }
+    ]
+  },
   "features": [
     { "id": "F-MCE-01", "title": "resolveModelName() toLowerCase 去重修复", "status": "completed", "executor": "generator" },
     { "id": "F-MCE-02", "title": "统一模型白名单 model-whitelist.ts", "status": "completed", "executor": "generator" },
@@ -26,7 +45,7 @@
     { "id": "F-MCE-09", "title": "CallLog.source 去掉 sdk", "status": "completed", "executor": "generator" },
     { "id": "F-MCE-10", "title": "get_log_detail 补 ttftMs 原始值", "status": "completed", "executor": "generator" },
     { "id": "F-MCE-11", "title": "usage summary 基础筛选+分组", "status": "completed", "executor": "generator" },
-    { "id": "F-MCE-12", "title": "usage summary Action/Template 维度", "status": "completed", "executor": "generator" },
+    { "id": "F-MCE-12", "title": "usage summary Action/Template 维度", "status": "pending", "executor": "generator" },
     { "id": "F-MCE-13", "title": "i18n 更新", "status": "completed", "executor": "generator" },
     { "id": "F-MCE-14", "title": "E2E 验证（Codex）", "status": "pending", "executor": "codex" }
   ]
