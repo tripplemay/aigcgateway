@@ -1,5 +1,6 @@
 import type { SyncAdapter, SyncedModel, ProviderWithConfig } from "./base";
 import { fetchWithTimeout, getApiKey, getBaseUrl } from "./base";
+import { isModelWhitelisted } from "../model-whitelist";
 
 /** DeepSeek model ID → 友好名称映射（命名规范，非硬编码数据） */
 const NAME_MAP: Record<string, string> = {
@@ -9,6 +10,10 @@ const NAME_MAP: Record<string, string> = {
 
 export const deepseekAdapter: SyncAdapter = {
   providerName: "deepseek",
+
+  filterModel(modelId: string): boolean {
+    return isModelWhitelisted("deepseek", modelId);
+  },
 
   async fetchModels(provider: ProviderWithConfig): Promise<SyncedModel[]> {
     const res = await fetchWithTimeout(

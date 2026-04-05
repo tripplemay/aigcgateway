@@ -1,4 +1,13 @@
 {
   "description": "需求池：已与用户确认但尚未开发的功能，等待下一批次启动时统一安排",
-  "items": []
+  "items": [
+    {
+      "id": "BL-019",
+      "title": "list_models 返回不可用模型导致 agent 调用 404",
+      "description": "list_models / GET /v1/models 返回了 Channel 不可用的模型（如 volcengine/doubao-1.5-lite-32k），agent 选中后调用返回 404 model_not_found。需要在模型列表接口中过滤掉无 ACTIVE Channel 的模型，或标注可用状态。来源：MCP agent 友好度沙盒测试（2026-04-06）。",
+      "decisions": [],
+      "confirmed_at": "2026-04-06",
+      "priority": "high"
+    }
+  ]
 }

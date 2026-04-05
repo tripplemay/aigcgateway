@@ -1,8 +1,13 @@
 import type { SyncAdapter, SyncedModel, ProviderWithConfig } from "./base";
 import { fetchWithTimeout, getApiKey, getBaseUrl } from "./base";
+import { isModelWhitelisted } from "../model-whitelist";
 
 export const anthropicAdapter: SyncAdapter = {
   providerName: "anthropic",
+
+  filterModel(modelId: string): boolean {
+    return isModelWhitelisted("anthropic", modelId);
+  },
 
   async fetchModels(provider: ProviderWithConfig): Promise<SyncedModel[]> {
     const res = await fetchWithTimeout(

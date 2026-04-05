@@ -1,5 +1,6 @@
 import type { SyncAdapter, SyncedModel, ProviderWithConfig } from "./base";
 import { inferModality } from "./base";
+import { isModelWhitelisted } from "../model-whitelist";
 
 const EXCHANGE_RATE = parseFloat(process.env.EXCHANGE_RATE_CNY_TO_USD ?? "0.137");
 
@@ -18,6 +19,10 @@ interface StaticModelDef {
 
 export const volcengineAdapter: SyncAdapter = {
   providerName: "volcengine",
+
+  filterModel(modelId: string): boolean {
+    return isModelWhitelisted("volcengine", modelId);
+  },
 
   async fetchModels(provider: ProviderWithConfig): Promise<SyncedModel[]> {
     // 火山引擎不支持 /models API，完全从 staticModels 读取
