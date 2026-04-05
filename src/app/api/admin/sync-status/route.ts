@@ -57,7 +57,7 @@ export async function GET(request: Request) {
   // F-INFRA-06: 从 LAST_SYNC_RESULT 提取 lastSyncAt / lastSyncDuration / lastSyncResult
   let lastSyncAt: string | null = lastSyncTime;
   let lastSyncDuration: number | null = null;
-  let lastSyncResultStatus: "success" | "partial" | "failed" | null = null;
+  let lastSyncResultSummary: "success" | "partial" | "failed" | null = null;
 
   if (lastSyncResult && typeof lastSyncResult === "object") {
     if (typeof lastSyncResult.durationMs === "number") {
@@ -66,14 +66,14 @@ export async function GET(request: Request) {
     const summary = lastSyncResult.summary as Record<string, number> | undefined;
     if (summary) {
       if (summary.totalFailedProviders === 0) {
-        lastSyncResultStatus = "success";
+        lastSyncResultSummary = "success";
       } else if (
         Array.isArray(lastSyncResult.providers) &&
         summary.totalFailedProviders < (lastSyncResult.providers as unknown[]).length
       ) {
-        lastSyncResultStatus = "partial";
+        lastSyncResultSummary = "partial";
       } else {
-        lastSyncResultStatus = "failed";
+        lastSyncResultSummary = "failed";
       }
     }
   }
@@ -81,11 +81,11 @@ export async function GET(request: Request) {
   const json = JSON.stringify({
     data: {
       lastSyncTime,
-      lastSyncResult,
+      lastSyncResultDetail: lastSyncResult,
       zeroPriceActiveChannels: zeroPriceCount[0]?.cnt ?? 0,
       lastSyncAt,
       lastSyncDuration,
-      lastSyncResultStatus,
+      lastSyncResult: lastSyncResultSummary,
     },
   });
 

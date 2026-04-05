@@ -61,13 +61,18 @@ export async function GET(request: Request) {
     },
   });
 
-  const disabledList = disabledChannels.map((ch) => ({
-    id: ch.id,
-    name: ch.model.name,
-    provider: ch.provider.name,
-    disabledReason: ch.healthChecks[0]?.errorMessage ?? null,
-    disabledAt: ch.updatedAt.toISOString(),
-  }));
+  const disabledList = disabledChannels.map((ch) => {
+    // 规格要求：disabledReason 优先取 Channel.notes（当前 schema 无此字段），
+    // 无则取该通道最近一条失败 HealthCheck 的 errorMessage
+    const notes = (ch as Record<string, unknown>).notes as string | undefined;
+    return {
+      id: ch.id,
+      name: ch.model.name,
+      provider: ch.provider.name,
+      disabledReason: notes || ch.healthChecks[0]?.errorMessage || null,
+      disabledAt: ch.updatedAt.toISOString(),
+    };
+  });
 
   return NextResponse.json({
     lastSyncAt,

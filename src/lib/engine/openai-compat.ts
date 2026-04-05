@@ -372,6 +372,18 @@ export class OpenAICompatEngine implements EngineAdapter {
       };
     }
 
+    // Stage 3 失败：无带扩展名的图片 URL
+    if (content.length > 0) {
+      console.error("[imageViaChat] extraction failed", {
+        stage: "url-with-ext",
+        contentType: typeof rawContent,
+        partTypes: [],
+        urlCandidateCount: (content.match(/https?:\/\//g) ?? []).length,
+        dataUriFound: /data:image\//.test(content),
+        ...diagBase,
+      });
+    }
+
     // 4. 匹配任意 HTTPS URL（兼容 Google Storage 等无扩展名链接）
     const anyUrlMatch = content.match(/https?:\/\/[^\s"'<>]+/);
     if (anyUrlMatch) {

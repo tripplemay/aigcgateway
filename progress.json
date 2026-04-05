@@ -1,11 +1,11 @@
 {
-  "status": "verifying",
+  "status": "reverifying",
   "user_goal": "dev-infra 批次：鉴权测试脚本 + 可观测 debug 接口 + 图片诊断日志 + 接口响应文档 + sync/health 时间字段",
   "total_features": 6,
   "completed_features": 5,
-  "fix_rounds": 0,
+  "fix_rounds": 1,
   "current_sprint": null,
-  "last_updated": "2026-04-05T09:00:00Z",
+  "last_updated": "2026-04-05T10:00:00Z",
   "reference_docs": [
     "docs/specs/dev-infra-batch-spec.md"
   ],
@@ -15,7 +15,32 @@
     "signoff": null,
     "framework_reviewed": false
   },
-  "evaluator_feedback": null,
+  "evaluator_feedback": {
+    "summary": "首轮验收结果：3 PASS / 1 PARTIAL / 2 FAIL。F-INFRA-05 已完成并补齐生产真实响应文档；F-INFRA-02 接口可用但 disabledReason 未优先读取 Channel.notes；F-INFRA-04 缺少 url-with-ext 失败节点日志；F-INFRA-06 实际返回 lastSyncResultStatus，与规格要求的 lastSyncResult 字段不一致。",
+    "pass_count": 3,
+    "partial_count": 1,
+    "fail_count": 2,
+    "issues": [
+      {
+        "feature_id": "F-INFRA-02",
+        "severity": "medium",
+        "summary": "debug/sync 的 disabledReason 来源优先级与规格不一致",
+        "fix_applied": "添加 Channel.notes 优先读取（当前 schema 无此字段，通过类型断言安全读取，未来加字段即自动生效）"
+      },
+      {
+        "feature_id": "F-INFRA-04",
+        "severity": "medium",
+        "summary": "imageViaChat 缺少 url-with-ext 失败节点诊断日志",
+        "fix_applied": "在 stage 3（url-with-ext）失败时新增 console.error 诊断日志"
+      },
+      {
+        "feature_id": "F-INFRA-06",
+        "severity": "medium",
+        "summary": "sync-status 返回 lastSyncResultStatus，而不是规格要求的 lastSyncResult 枚举字段",
+        "fix_applied": "字段名改为 lastSyncResult（枚举），原完整 JSON 对象改为 lastSyncResultDetail"
+      }
+    ]
+  },
   "features": [
     {
       "id": "F-INFRA-01",
@@ -44,7 +69,7 @@
     {
       "id": "F-INFRA-05",
       "title": "docs/specs/admin-api-response-samples.md — 管理端接口真实响应文档",
-      "status": "pending",
+      "status": "done",
       "executor": "codex"
     },
     {
