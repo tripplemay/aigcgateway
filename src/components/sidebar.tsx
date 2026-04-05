@@ -25,6 +25,7 @@ interface NavItem {
 const mainNav: NavItem[] = [
   { labelKey: "projects", href: "/dashboard", icon: "folder_managed" },
   { labelKey: "apiKeys", href: "/keys", icon: "key" },
+  { labelKey: "actions", href: "/actions", icon: "bolt" },
   { labelKey: "templates", href: "/templates", icon: "extension" },
   { labelKey: "models", href: "/models", icon: "smart_toy" },
   { labelKey: "logs", href: "/logs", icon: "terminal" },

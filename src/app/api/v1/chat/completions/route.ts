@@ -12,7 +12,6 @@ import { errorResponse } from "@/lib/api/errors";
 import { generateTraceId, jsonResponse, sseResponse } from "@/lib/api/response";
 import { resolveEngine } from "@/lib/engine";
 import { processChatResult } from "@/lib/api/post-process";
-import { injectByTemplateId, InjectionError } from "@/lib/template/inject";
 import type { ChatCompletionRequest, ChatCompletionChunk, Usage } from "@/lib/engine/types";
 import { EngineError } from "@/lib/engine/types";
 
@@ -29,45 +28,17 @@ export async function POST(request: Request) {
   if (!balanceCheck.ok) return balanceCheck.error;
 
   // 3. 解析请求体
-  let body: ChatCompletionRequest & {
-    templateId?: string;
-    template_id?: string;
-    variables?: Record<string, string>;
-  };
+  let body: ChatCompletionRequest;
   try {
     body = await request.json();
   } catch {
     return errorResponse(400, "invalid_parameter", "Invalid JSON body");
   }
 
-  // 模板注入：支持 templateId（camelCase）和 template_id（snake_case）
-  const resolvedTemplateId = body.templateId ?? body.template_id;
-  let templateVersionId: string | undefined;
-  let templateVariables: Record<string, string> | undefined;
-
-  if (resolvedTemplateId) {
-    try {
-      const injected = await injectByTemplateId(resolvedTemplateId, body.variables || {});
-      body.messages = injected.messages as ChatCompletionRequest["messages"];
-      templateVersionId = injected.templateVersionId;
-      templateVariables = body.variables;
-    } catch (err) {
-      if (err instanceof InjectionError) {
-        return errorResponse(err.status, "template_error", err.message);
-      }
-      return errorResponse(500, "template_error", (err as Error).message);
-    }
-  }
-
-  if (!body.model || (!body.messages?.length && !resolvedTemplateId)) {
-    return errorResponse(
-      400,
-      "invalid_parameter",
-      "model and messages are required (messages can be omitted when template_id is provided)",
-      {
-        param: !body.model ? "model" : "messages",
-      },
-    );
+  if (!body.model || !body.messages?.length) {
+    return errorResponse(400, "invalid_parameter", "model and messages are required", {
+      param: !body.model ? "model" : "messages",
+    });
   }
 
   // 4. 限流（Key 级 RPM 收紧）
@@ -93,44 +64,16 @@ export async function POST(request: Request) {
   const modelName = body.model;
 
   // 6. 执行请求
-  const templateCtx = { templateId: resolvedTemplateId, templateVersionId, templateVariables };
-
   if (body.stream) {
-    return handleStream(
-      body,
-      route,
-      adapter,
-      traceId,
-      project.id,
-      modelName,
-      startTime,
-      rateLimitHeaders,
-      templateCtx,
-    );
+    return handleStream(body, route, adapter, traceId, project.id, modelName, startTime, rateLimitHeaders);
   }
 
-  return handleNonStream(
-    body,
-    route,
-    adapter,
-    traceId,
-    project.id,
-    modelName,
-    startTime,
-    rateLimitHeaders,
-    templateCtx,
-  );
+  return handleNonStream(body, route, adapter, traceId, project.id, modelName, startTime, rateLimitHeaders);
 }
 
 // ============================================================
 // 非流式
 // ============================================================
-
-type TemplateCtx = {
-  templateId?: string;
-  templateVersionId?: string;
-  templateVariables?: Record<string, string>;
-};
 
 async function handleNonStream(
   body: ChatCompletionRequest,
@@ -141,7 +84,6 @@ async function handleNonStream(
   modelName: string,
   startTime: number,
   rateLimitHeaders: Record<string, string>,
-  tplCtx: TemplateCtx = {},
 ) {
   try {
     const response = await adapter.chatCompletions(body, route);
@@ -163,7 +105,6 @@ async function handleNonStream(
       requestParams: extractRequestParams(body),
       startTime,
       response,
-      ...tplCtx,
     });
 
     return jsonResponse(result, 200, traceId, rateLimitHeaders);
@@ -178,7 +119,6 @@ async function handleNonStream(
       promptSnapshot: body.messages,
       requestParams: extractRequestParams(body),
       startTime,
-      ...tplCtx,
       error: {
         message: (err as Error).message,
         code: engineErr?.code,
@@ -205,7 +145,6 @@ async function handleStream(
   modelName: string,
   startTime: number,
   rateLimitHeaders: Record<string, string>,
-  tplCtx: TemplateCtx = {},
 ) {
   try {
     const stream = await adapter.chatCompletionsStream(body, route);
@@ -267,8 +206,7 @@ async function handleStream(
             requestParams: extractRequestParams(body),
             startTime,
             ttftTime,
-            ...tplCtx,
-            streamChunks: {
+                  streamChunks: {
               content: fullContent,
               usage: lastUsage,
               finishReason: lastFinishReason,
@@ -286,8 +224,7 @@ async function handleStream(
             requestParams: extractRequestParams(body),
             startTime,
             ttftTime,
-            ...tplCtx,
-            error: {
+                  error: {
               message: (err as Error).message,
             },
           });
@@ -307,7 +244,6 @@ async function handleStream(
       promptSnapshot: body.messages,
       requestParams: extractRequestParams(body),
       startTime,
-      ...tplCtx,
       error: {
         message: (err as Error).message,
         code: engineErr?.code,

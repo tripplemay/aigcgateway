@@ -1,0 +1,93 @@
+export const dynamic = "force-dynamic";
+
+/**
+ * POST /v1/actions/run
+ *
+ * 运行单个 Action：API Key 鉴权 → 余额检查 → 限流 → ActionRunner
+ */
+
+import { authenticateApiKey } from "@/lib/api/auth-middleware";
+import { checkBalance } from "@/lib/api/balance-middleware";
+import { checkRateLimit } from "@/lib/api/rate-limit";
+import { errorResponse } from "@/lib/api/errors";
+import { sseResponse, generateTraceId } from "@/lib/api/response";
+import { runAction, runActionNonStream, InjectionError } from "@/lib/action/runner";
+
+export async function POST(request: Request) {
+  // 1. Auth
+  const auth = await authenticateApiKey(request);
+  if (!auth.ok) return auth.error;
+  const { project, apiKey } = auth.ctx;
+
+  // 2. Balance
+  const balanceCheck = checkBalance(project);
+  if (!balanceCheck.ok) return balanceCheck.error;
+
+  // 3. Parse body
+  let body: {
+    action_id: string;
+    variables?: Record<string, string>;
+    stream?: boolean;
+  };
+  try {
+    body = await request.json();
+  } catch {
+    return errorResponse(400, "invalid_parameter", "Invalid JSON body");
+  }
+
+  if (!body.action_id) {
+    return errorResponse(400, "invalid_parameter", "action_id is required");
+  }
+
+  // 4. Rate limit
+  const rateCheck = await checkRateLimit(project, "text", apiKey.rateLimit);
+  if (!rateCheck.ok) return rateCheck.error;
+
+  const params = {
+    actionId: body.action_id,
+    projectId: project.id,
+    variables: body.variables || {},
+    source: "api",
+  };
+
+  // 5. Execute
+  if (body.stream === false) {
+    try {
+      const result = await runActionNonStream(params);
+      return Response.json({
+        output: result.output,
+        trace_id: result.traceId,
+        usage: result.usage,
+      });
+    } catch (err) {
+      if (err instanceof InjectionError) {
+        return errorResponse(err.status, "action_error", err.message);
+      }
+      return errorResponse(500, "internal_error", (err as Error).message);
+    }
+  }
+
+  // Stream mode (default)
+  const encoder = new TextEncoder();
+  const stream = new ReadableStream({
+    async start(controller) {
+      try {
+        await runAction(params, (data) => {
+          controller.enqueue(encoder.encode(`data: ${data}\n\n`));
+        });
+        controller.enqueue(encoder.encode("data: [DONE]\n\n"));
+        controller.close();
+      } catch (err) {
+        if (!controller.desiredSize) return; // already closed
+        controller.enqueue(
+          encoder.encode(
+            `data: ${JSON.stringify({ type: "error", message: (err as Error).message })}\n\n`,
+          ),
+        );
+        controller.close();
+      }
+    },
+  });
+
+  return sseResponse(stream, generateTraceId());
+}

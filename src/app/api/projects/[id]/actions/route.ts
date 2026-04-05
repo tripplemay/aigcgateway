@@ -4,11 +4,10 @@ import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import { verifyJwt } from "@/lib/api/jwt-middleware";
 import { errorResponse } from "@/lib/api/errors";
-import type { StepRole } from "@prisma/client";
 
 type Params = { params: { id: string } };
 
-// GET /api/projects/:id/templates — 列出项目 Templates
+// GET /api/projects/:id/actions — 列出项目 Actions
 export async function GET(request: Request, { params }: Params) {
   const auth = verifyJwt(request);
   if (!auth.ok) return auth.error;
@@ -31,27 +30,37 @@ export async function GET(request: Request, { params }: Params) {
     ];
   }
 
-  const [templates, total] = await Promise.all([
-    prisma.template.findMany({
+  const [actions, total] = await Promise.all([
+    prisma.action.findMany({
       where,
       include: {
-        steps: {
-          orderBy: { order: "asc" },
-          include: { action: { select: { id: true, name: true, model: true } } },
+        versions: {
+          orderBy: { versionNumber: "desc" },
+          take: 1,
         },
       },
       orderBy: { updatedAt: "desc" },
       skip: (page - 1) * pageSize,
       take: pageSize,
     }),
-    prisma.template.count({ where }),
+    prisma.action.count({ where }),
   ]);
 
-  const data = templates.map((t) => ({
-    ...t,
-    stepCount: t.steps.length,
-    executionMode: inferExecutionMode(t.steps),
-  }));
+  const data = actions.map((a) => {
+    const activeVersion = a.versions.find((v) => v.id === a.activeVersionId) ?? a.versions[0] ?? null;
+    return {
+      id: a.id,
+      name: a.name,
+      description: a.description,
+      model: a.model,
+      activeVersionId: a.activeVersionId,
+      activeVersion: activeVersion
+        ? { id: activeVersion.id, versionNumber: activeVersion.versionNumber }
+        : null,
+      createdAt: a.createdAt,
+      updatedAt: a.updatedAt,
+    };
+  });
 
   return NextResponse.json({
     data,
@@ -59,7 +68,7 @@ export async function GET(request: Request, { params }: Params) {
   });
 }
 
-// POST /api/projects/:id/templates — 创建 Template（含 steps）
+// POST /api/projects/:id/actions — 创建 Action（含首个版本并激活）
 export async function POST(request: Request, { params }: Params) {
   const auth = verifyJwt(request);
   if (!auth.ok) return auth.error;
@@ -70,48 +79,38 @@ export async function POST(request: Request, { params }: Params) {
   if (!project) return errorResponse(404, "not_found", "Project not found");
 
   const body = await request.json();
-  const { name, description, steps } = body;
+  const { name, description, model, messages, variables, changelog } = body;
 
   if (!name) return errorResponse(400, "invalid_parameter", "name is required");
-  if (!steps || !Array.isArray(steps) || steps.length === 0) {
-    return errorResponse(400, "invalid_parameter", "steps array is required");
+  if (!model) return errorResponse(400, "invalid_parameter", "model is required");
+  if (!messages || !Array.isArray(messages) || messages.length === 0) {
+    return errorResponse(400, "invalid_parameter", "messages array is required");
   }
 
-  // Validate all referenced actions exist and belong to this project
-  const actionIds = [...new Set(steps.map((s: { actionId: string }) => s.actionId))];
-  const actions = await prisma.action.findMany({
-    where: { id: { in: actionIds as string[] }, projectId: project.id },
-  });
-  if (actions.length !== actionIds.length) {
-    return errorResponse(400, "invalid_parameter", "One or more actionIds are invalid");
-  }
-
-  const template = await prisma.template.create({
+  const action = await prisma.action.create({
     data: {
       projectId: project.id,
       name,
       description: description || null,
-      steps: {
-        create: steps.map((s: { actionId: string; order: number; role?: string }) => ({
-          action: { connect: { id: s.actionId } },
-          order: s.order,
-          role: (s.role || "SEQUENTIAL") as StepRole,
-        })),
-      },
-    },
-    include: {
-      steps: {
-        orderBy: { order: "asc" },
-        include: { action: { select: { id: true, name: true, model: true } } },
-      },
+      model,
     },
   });
 
-  return NextResponse.json(template, { status: 201 });
-}
+  const version = await prisma.actionVersion.create({
+    data: {
+      actionId: action.id,
+      versionNumber: 1,
+      messages,
+      variables: variables || [],
+      changelog: changelog || "初始版本",
+    },
+  });
 
-function inferExecutionMode(steps: { role: string }[]): string {
-  if (steps.length <= 1) return "single";
-  if (steps.some((s) => s.role === "SPLITTER")) return "fan-out";
-  return "sequential";
+  const updated = await prisma.action.update({
+    where: { id: action.id },
+    data: { activeVersionId: version.id },
+    include: { versions: true },
+  });
+
+  return NextResponse.json(updated, { status: 201 });
 }

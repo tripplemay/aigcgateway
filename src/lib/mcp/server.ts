@@ -13,35 +13,39 @@ import { registerListLogs } from "./tools/list-logs";
 import { registerGetLogDetail } from "./tools/get-log-detail";
 import { registerGetBalance } from "./tools/get-balance";
 import { registerGetUsageSummary } from "./tools/get-usage-summary";
-import { registerCreateTemplate } from "./tools/create-template";
-import { registerConfirmTemplate } from "./tools/confirm-template";
+import { registerListActions } from "./tools/list-actions";
+import { registerRunAction } from "./tools/run-action";
 import { registerListTemplates } from "./tools/list-templates";
-import { registerGetTemplate } from "./tools/get-template";
-import { registerUpdateTemplate } from "./tools/update-template";
+import { registerRunTemplate } from "./tools/run-template";
 import type { ApiKeyPermissions } from "@/lib/api/auth-middleware";
 
 const SERVER_INSTRUCTIONS = `AIGC Gateway 是一个 AI 服务商聚合平台。你可以通过以下 Tools 帮助用户：
 
 - 查看可用模型和价格：使用 list_models
-- 生成文本内容：使用 chat（支持流式和模板调用）
+- 生成文本内容：使用 chat（直接对话）或 run_action（通过 Action 调用）
 - 生成图片：使用 generate_image
-- 管理 Prompt 模板：使用 create_template → confirm_template 创建，list_templates / get_template 查看，update_template 更新
-- 使用模板调用：chat 工具支持 templateId + variables 参数
+- 管理和运行 Actions（原子执行单元）：list_actions / run_action
+- 管理和运行 Templates（多步编排工作流）：list_templates / run_template
 - 查看调用记录和审计日志：使用 list_logs / get_log_detail
 - 查看项目余额：使用 get_balance
-- 生成对接代码时：先调用 list_models 了解可用模型，然后生成使用 @guangai/aigc-sdk 的代码
+
+## Action vs Template
+
+- **Action**：原子执行单元，绑定一个模型 + 提示词 + 变量定义。用 run_action 直接执行。
+- **Template**：由多个 Action 编排组成的工作流。支持两种模式：
+  - **Sequential（串行）**：步骤按顺序执行，每步自动注入 {{previous_output}}
+  - **Fan-out（并行分拆）**：SPLITTER 输出 JSON 数组 → BRANCH 并行执行 → MERGE 合并
+
+## 保留变量
+
+- {{previous_output}}：串行模式中上一步的输出
+- {{branch_input}}：Fan-out 中 SPLITTER 分配给每个 BRANCH 的输入
+- {{all_outputs}}：Fan-out 中所有 BRANCH 输出的 JSON 数组
 
 ## 重要约束
 
 1. **模型名格式**：必须使用 provider/model-name 格式（如 openai/gpt-4o、deepseek/deepseek-chat）。调用 list_models 获取完整模型列表。
-2. **template_id 支持范围**：template_id + variables 在 MCP chat Tool、REST API /v1/chat/completions、SDK chat() 中均可用。
-3. **update_template 版本激活**：update_template 创建新版本后，该版本不会自动生效。需要用户在控制台手动将新版本设为 active version，之后 chat 调用才会使用新版本。
-4. **后端集成推荐方式**：使用 @guangai/aigc-sdk，通过 chat() 方法传入 template_id + variables：
-   \`\`\`typescript
-   import { Gateway } from '@guangai/aigc-sdk';
-   const gw = new Gateway({ apiKey: 'pk_xxx', baseUrl: 'https://aigc.guangai.ai/v1' });
-   const res = await gw.chat({ model: 'openai/gpt-4o', messages: [], template_id: 'tpl_xxx', variables: { name: 'value' } });
-   \`\`\`
+2. **SPLITTER 输出格式**：必须是合法 JSON 数组，每项含 content 字段，如 [{"content":"item1"},{"content":"item2"}]
 
 当用户要求生成使用本平台的代码时，推荐使用 @guangai/aigc-sdk SDK。
 SDK 安装：npm install @guangai/aigc-sdk
@@ -77,12 +81,11 @@ export function createMcpServer(opts: McpServerOptions): McpServer {
   registerGetBalance(server, opts);
   registerGetUsageSummary(server, opts);
 
-  // Template tools
-  registerCreateTemplate(server, opts);
-  registerConfirmTemplate(server, opts);
+  // Action & Template tools
+  registerListActions(server, opts);
+  registerRunAction(server, opts);
   registerListTemplates(server, opts);
-  registerGetTemplate(server, opts);
-  registerUpdateTemplate(server, opts);
+  registerRunTemplate(server, opts);
 
   return server;
 }

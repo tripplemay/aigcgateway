@@ -1,7 +1,7 @@
 /**
  * MCP Tool: list_templates
  *
- * 列出项目私有模板 + 平台公共模板。查询类工具，不写审计日志。
+ * 列出当前项目所有 Templates，含名称、描述、步骤数、执行模式摘要。
  */
 
 import { z } from "zod";
@@ -14,64 +14,53 @@ export function registerListTemplates(server: McpServer, opts: McpServerOptions)
 
   server.tool(
     "list_templates",
-    `List available prompt templates. Shows both project-private templates and platform public templates. Use search to filter by name/description. Returns template name, description, category, version count, and variable definitions.`,
+    "List all Templates in the current project. Templates orchestrate one or more Actions into sequential or fan-out workflows.",
     {
-      search: z.string().optional().describe("Search keyword for name or description"),
-      includePublic: z
-        .boolean()
-        .optional()
-        .default(true)
-        .describe("Include platform public templates (default: true)"),
+      page: z.number().int().positive().optional().describe("Page number (default 1)"),
+      pageSize: z.number().int().min(1).max(100).optional().describe("Items per page (default 20)"),
     },
-    async ({ search, includePublic }) => {
-      const conditions: object[] = [{ projectId }];
-      if (includePublic) {
-        conditions.push({ projectId: null });
-      }
-
-      const where: Record<string, unknown> = { OR: conditions };
-      if (search) {
-        where.AND = {
-          OR: [
-            { name: { contains: search, mode: "insensitive" } },
-            { description: { contains: search, mode: "insensitive" } },
-          ],
-        };
-      }
-
+    async ({ page = 1, pageSize = 20 }) => {
       const templates = await prisma.template.findMany({
-        where,
+        where: { projectId },
         include: {
-          versions: {
-            orderBy: { versionNumber: "desc" },
-            take: 1,
-            select: { id: true, versionNumber: true, variables: true },
+          steps: {
+            orderBy: { order: "asc" },
+            include: { action: { select: { name: true, model: true } } },
           },
-          _count: { select: { versions: true } },
         },
         orderBy: { updatedAt: "desc" },
-        take: 50,
+        skip: (page - 1) * pageSize,
+        take: pageSize,
       });
 
-      const result = templates.map((t) => ({
+      const total = await prisma.template.count({ where: { projectId } });
+
+      const data = templates.map((t) => ({
         id: t.id,
         name: t.name,
         description: t.description,
-        category: t.category,
-        isPublic: t.projectId === null,
-        activeVersionId: t.activeVersionId,
-        versionCount: t._count.versions,
-        latestVersion: t.versions[0] || null,
+        stepCount: t.steps.length,
+        executionMode: t.steps.some((s) => s.role === "SPLITTER")
+          ? "fan-out"
+          : t.steps.length > 1
+            ? "sequential"
+            : "single",
+        steps: t.steps.map((s) => ({
+          order: s.order,
+          role: s.role,
+          actionName: s.action.name,
+          model: s.action.model,
+        })),
       }));
 
       return {
         content: [
           {
             type: "text" as const,
-            text: JSON.stringify({ templates: result, total: result.length }, null, 2),
+            text: JSON.stringify({ data, pagination: { page, pageSize, total } }, null, 2),
           },
         ],
       };
-    }
+    },
   );
 }

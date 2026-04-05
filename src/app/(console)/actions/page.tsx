@@ -7,29 +7,29 @@ import { Skeleton } from "@/components/ui/skeleton";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
-interface TemplateRow {
+interface ActionRow {
   id: string;
   name: string;
   description: string | null;
-  stepCount: number;
-  executionMode: string;
+  model: string;
+  activeVersion: { id: string; versionNumber: number } | null;
   updatedAt: string;
 }
 
-export default function TemplatesPage() {
-  const t = useTranslations("templates");
+export default function ActionsPage() {
+  const t = useTranslations("actions");
   const { current, loading: projLoading } = useProject();
   const router = useRouter();
 
-  const [templates, setTemplates] = useState<TemplateRow[]>([]);
+  const [actions, setActions] = useState<ActionRow[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!current) return;
     setLoading(true);
-    apiFetch<{ data: TemplateRow[] }>(`/api/projects/${current.id}/templates?pageSize=100`)
-      .then((d) => setTemplates(d.data))
-      .catch(() => setTemplates([]))
+    apiFetch<{ data: ActionRow[] }>(`/api/projects/${current.id}/actions?pageSize=100`)
+      .then((d) => setActions(d.data))
+      .catch(() => setActions([]))
       .finally(() => setLoading(false));
   }, [current]);
 
@@ -42,16 +42,9 @@ export default function TemplatesPage() {
     );
   }
 
-  const modeLabel = (mode: string) => {
-    switch (mode) {
-      case "sequential": return t("modeSequential");
-      case "fan-out": return t("modeFanout");
-      default: return t("modeSingle");
-    }
-  };
-
   return (
     <div className="p-6 space-y-6">
+      {/* Header */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-black tracking-tight font-[var(--font-heading)]">
@@ -60,7 +53,7 @@ export default function TemplatesPage() {
           <p className="text-sm text-slate-500 mt-1">{t("subtitle")}</p>
         </div>
         <Link
-          href="/templates/new"
+          href="/actions/new"
           className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-ds-primary text-white text-sm font-bold shadow-lg shadow-ds-primary/20 hover:opacity-90 transition"
         >
           <span className="material-symbols-outlined text-sm">add</span>
@@ -68,13 +61,14 @@ export default function TemplatesPage() {
         </Link>
       </div>
 
-      {templates.length === 0 ? (
+      {/* List */}
+      {actions.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-20">
-          <span className="material-symbols-outlined text-4xl text-slate-300 mb-4">extension</span>
+          <span className="material-symbols-outlined text-4xl text-slate-300 mb-4">bolt</span>
           <h2 className="text-lg font-bold mb-1">{t("emptyTitle")}</h2>
           <p className="text-sm text-slate-500 mb-4">{t("emptyDesc")}</p>
           <button
-            onClick={() => router.push("/templates/new")}
+            onClick={() => router.push("/actions/new")}
             className="px-4 py-2 rounded-xl bg-ds-primary text-white text-sm font-bold"
           >
             {t("create")}
@@ -85,28 +79,34 @@ export default function TemplatesPage() {
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50">
-                <th className="text-left px-4 py-3 font-bold text-slate-500">{t("templateName")}</th>
-                <th className="text-left px-4 py-3 font-bold text-slate-500">{t("steps")}</th>
-                <th className="text-left px-4 py-3 font-bold text-slate-500">{t("executionMode")}</th>
-                <th className="text-left px-4 py-3 font-bold text-slate-500">{t("descriptionLabel")}</th>
+                <th className="text-left px-4 py-3 font-bold text-slate-500">{t("name")}</th>
+                <th className="text-left px-4 py-3 font-bold text-slate-500">{t("model")}</th>
+                <th className="text-left px-4 py-3 font-bold text-slate-500">{t("version")}</th>
+                <th className="text-left px-4 py-3 font-bold text-slate-500">{t("description")}</th>
               </tr>
             </thead>
             <tbody>
-              {templates.map((tpl) => (
+              {actions.map((action) => (
                 <tr
-                  key={tpl.id}
+                  key={action.id}
                   className="border-b border-slate-50 dark:border-slate-800/50 hover:bg-slate-50 dark:hover:bg-slate-800/30 cursor-pointer transition"
-                  onClick={() => router.push(`/templates/${tpl.id}`)}
+                  onClick={() => router.push(`/actions/${action.id}`)}
                 >
-                  <td className="px-4 py-3 font-bold text-ds-primary">{tpl.name}</td>
-                  <td className="px-4 py-3">{tpl.stepCount}</td>
+                  <td className="px-4 py-3 font-bold text-ds-primary">{action.name}</td>
+                  <td className="px-4 py-3 text-slate-600 dark:text-slate-400 font-mono text-xs">
+                    {action.model}
+                  </td>
                   <td className="px-4 py-3">
-                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400">
-                      {modeLabel(tpl.executionMode)}
-                    </span>
+                    {action.activeVersion ? (
+                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold bg-emerald-50 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400">
+                        v{action.activeVersion.versionNumber}
+                      </span>
+                    ) : (
+                      <span className="text-slate-400">—</span>
+                    )}
                   </td>
                   <td className="px-4 py-3 text-slate-500 truncate max-w-xs">
-                    {tpl.description || "—"}
+                    {action.description || "—"}
                   </td>
                 </tr>
               ))}

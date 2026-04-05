@@ -1,12 +1,14 @@
 export const dynamic = "force-dynamic";
+
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import { verifyJwt } from "@/lib/api/jwt-middleware";
 import { errorResponse } from "@/lib/api/errors";
+import type { StepRole } from "@prisma/client";
 
 type Params = { params: { id: string; templateId: string } };
 
-// GET /api/projects/:id/templates/:templateId — 模板详情
+// GET /api/projects/:id/templates/:templateId — Template 详情
 export async function GET(request: Request, { params }: Params) {
   const auth = verifyJwt(request);
   if (!auth.ok) return auth.error;
@@ -16,20 +18,22 @@ export async function GET(request: Request, { params }: Params) {
   });
   if (!project) return errorResponse(404, "not_found", "Project not found");
 
-  const template = await prisma.template.findUnique({
-    where: { id: params.templateId },
-    include: { versions: { orderBy: { versionNumber: "desc" } } },
+  const template = await prisma.template.findFirst({
+    where: { id: params.templateId, projectId: project.id },
+    include: {
+      steps: {
+        orderBy: { order: "asc" },
+        include: { action: { select: { id: true, name: true, model: true, description: true } } },
+      },
+    },
   });
-
-  if (!template || template.projectId !== project.id) {
-    return errorResponse(404, "not_found", "Template not found");
-  }
+  if (!template) return errorResponse(404, "not_found", "Template not found");
 
   return NextResponse.json(template);
 }
 
-// PATCH /api/projects/:id/templates/:templateId — 更新模板信息
-export async function PATCH(request: Request, { params }: Params) {
+// PUT /api/projects/:id/templates/:templateId — 更新 Template（含 steps：先删后建）
+export async function PUT(request: Request, { params }: Params) {
   const auth = verifyJwt(request);
   if (!auth.ok) return auth.error;
 
@@ -38,27 +42,54 @@ export async function PATCH(request: Request, { params }: Params) {
   });
   if (!project) return errorResponse(404, "not_found", "Project not found");
 
-  const existing = await prisma.template.findUnique({ where: { id: params.templateId } });
-  if (!existing || existing.projectId !== project.id) {
-    return errorResponse(404, "not_found", "Template not found");
-  }
+  const existing = await prisma.template.findFirst({
+    where: { id: params.templateId, projectId: project.id },
+  });
+  if (!existing) return errorResponse(404, "not_found", "Template not found");
 
   const body = await request.json();
-  const { name, description } = body;
-  const data: Record<string, unknown> = {};
-  if (name !== undefined) data.name = name;
-  if (description !== undefined) data.description = description;
+  const { name, description, steps } = body;
+
+  // If steps provided, validate action ownership
+  if (steps && Array.isArray(steps)) {
+    const actionIds = [...new Set(steps.map((s: { actionId: string }) => s.actionId))];
+    const actions = await prisma.action.findMany({
+      where: { id: { in: actionIds as string[] }, projectId: project.id },
+    });
+    if (actions.length !== actionIds.length) {
+      return errorResponse(400, "invalid_parameter", "One or more actionIds are invalid");
+    }
+
+    // Delete existing steps and recreate
+    await prisma.templateStep.deleteMany({ where: { templateId: params.templateId } });
+    await prisma.templateStep.createMany({
+      data: steps.map((s: { actionId: string; order: number; role?: string }) => ({
+        templateId: params.templateId,
+        actionId: s.actionId,
+        order: s.order,
+        role: (s.role || "SEQUENTIAL") as StepRole,
+      })),
+    });
+  }
 
   const updated = await prisma.template.update({
     where: { id: params.templateId },
-    data,
-    include: { versions: { orderBy: { versionNumber: "desc" } } },
+    data: {
+      ...(name !== undefined ? { name } : {}),
+      ...(description !== undefined ? { description } : {}),
+    },
+    include: {
+      steps: {
+        orderBy: { order: "asc" },
+        include: { action: { select: { id: true, name: true, model: true } } },
+      },
+    },
   });
 
   return NextResponse.json(updated);
 }
 
-// DELETE /api/projects/:id/templates/:templateId — 删除模板
+// DELETE /api/projects/:id/templates/:templateId — 删除 Template（级联删除 steps）
 export async function DELETE(request: Request, { params }: Params) {
   const auth = verifyJwt(request);
   if (!auth.ok) return auth.error;
@@ -68,13 +99,11 @@ export async function DELETE(request: Request, { params }: Params) {
   });
   if (!project) return errorResponse(404, "not_found", "Project not found");
 
-  const existing = await prisma.template.findUnique({ where: { id: params.templateId } });
-  if (!existing || existing.projectId !== project.id) {
-    return errorResponse(404, "not_found", "Template not found");
-  }
+  const existing = await prisma.template.findFirst({
+    where: { id: params.templateId, projectId: project.id },
+  });
+  if (!existing) return errorResponse(404, "not_found", "Template not found");
 
-  await prisma.templateVersion.deleteMany({ where: { templateId: params.templateId } });
   await prisma.template.delete({ where: { id: params.templateId } });
-
-  return NextResponse.json({ success: true });
+  return NextResponse.json({ deleted: true });
 }
