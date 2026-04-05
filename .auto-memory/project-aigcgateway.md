@@ -29,7 +29,17 @@ AIGC Gateway — AI 服务商管理中台。统一 API 调用抽象（兼容 Ope
 - **nginx-gzip 批次完成（2026-04-05）：** 2/2 PASS，nginx 启用 gzip + /v1/models 精确 location 拆分，A/B P99 降至目标范围
 - **dev-infra 批次完成（2026-04-05）：** 6/6 PASS，鉴权脚本 + debug 接口 + 诊断日志 + 接口响应文档 + sync/health 时间字段；Codex 测试脚本简化为单一入口
 
-## 最近批次（2026-04-05）— error-handling-fix 批次
+## 最近批次（2026-04-05）— template-new-page 批次
+
+- 目标：修复 `/templates/new` 路由 404 问题（BL-008 延伸）
+- 根因：`router.push('/templates/new')` 被 `[templateId]/page.tsx` 捕获，因缺少静态 `new/page.tsx`
+- 交付：`src/app/(console)/templates/new/page.tsx` — 创建模板表单页（name/description/messages/variables，提交 POST /api/projects/{id}/templates，成功后跳转详情页）
+- 验收：1/1 PASS，fix_rounds=0，本地首轮通过
+
+**签收文档：** `docs/test-reports/template-new-page-signoff-2026-04-05.md`
+**Harness 状态：** status=done
+
+## 前置批次（2026-04-05）— error-handling-fix 批次
 
 - 目标：修复三个页面无错误处理导致 App Router 导航状态污染（BL-008）
 - 根因：`apiFetch` 抛错时无 try/catch → unhandled promise rejection → App Router 客户端导航状态损坏，全站后续导航全部失败；无 `error.tsx` 兜底
@@ -106,6 +116,12 @@ AIGC Gateway — AI 服务商管理中台。统一 API 调用抽象（兼容 Ope
 ## 需求池（backlog.json，截至 2026-04-05）
 
 当前需求池为空，详见 `backlog.json`
+
+## 工作流升级（2026-04-05）
+
+- **部署改为手动触发：** `deploy.yml` 从 `workflow_run` 改为 `workflow_dispatch`，Codex 验收通过后由用户在 GitHub Actions 手动点击触发
+- **Codex 获得状态机文件推送权限：** 可 commit + push `progress.json`、`features.json`、`docs/test-reports/`、`.auto-memory/`，但严禁包含产品代码
+- **所有 agent 启动第零步统一为：** `git pull --ff-only origin main` → 再读状态机文件，确保多机同步
 
 ## 最近修复（2026-04-04）— 成本优化 + Bug 修复批次
 
