@@ -44,9 +44,14 @@ export default function HealthPage() {
   const [checking, setChecking] = useState<string | null>(null);
 
   const load = async () => {
-    const r = await apiFetch<{ summary: Summary; data: HealthChannel[] }>("/api/admin/health");
-    setSummary(r.summary);
-    setChannels(r.data);
+    try {
+      const r = await apiFetch<{ summary: Summary; data: HealthChannel[] }>("/api/admin/health");
+      setSummary(r.summary);
+      setChannels(r.data);
+    } catch {
+      setSummary({ active: 0, degraded: 0, disabled: 0, total: 0 });
+      setChannels([]);
+    }
   };
   useEffect(() => {
     load();

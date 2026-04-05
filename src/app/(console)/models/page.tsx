@@ -75,7 +75,8 @@ export default function ModelsPage() {
     const q = modality ? `?modality=${modality}` : "";
     fetch(`/v1/models${q}`)
       .then((r) => r.json())
-      .then((r) => setModels(r.data ?? []));
+      .then((r) => setModels(r.data ?? []))
+      .catch(() => setModels([]));
   }, [modality]);
 
   const grouped = useMemo(() => {

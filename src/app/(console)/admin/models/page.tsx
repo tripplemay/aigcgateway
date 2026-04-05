@@ -78,7 +78,11 @@ export default function ModelsChannelsPage() {
   const [syncing, setSyncing] = useState(false);
   const [lastSyncTime, setLastSyncTime] = useState<string | null>(null);
   const [lastSyncResult, setLastSyncResult] = useState<{
-    summary: { totalNewChannels: number; totalDisabledChannels: number; totalFailedProviders: number };
+    summary: {
+      totalNewChannels: number;
+      totalDisabledChannels: number;
+      totalFailedProviders: number;
+    };
     providers: Array<{ providerName: string; success: boolean; error?: string }>;
   } | null>(null);
 
@@ -94,12 +98,17 @@ export default function ModelsChannelsPage() {
   // ── Data loading ──
   const load = useCallback(async () => {
     setLoading(true);
-    const params = new URLSearchParams();
-    if (search) params.set("search", search);
-    const q = params.toString() ? `?${params}` : "";
-    const r = await apiFetch<{ data: ProviderGroup[] }>(`/api/admin/models-channels${q}`);
-    setData(r.data);
-    setLoading(false);
+    try {
+      const params = new URLSearchParams();
+      if (search) params.set("search", search);
+      const q = params.toString() ? `?${params}` : "";
+      const r = await apiFetch<{ data: ProviderGroup[] }>(`/api/admin/models-channels${q}`);
+      setData(r.data);
+    } catch {
+      setData([]);
+    } finally {
+      setLoading(false);
+    }
   }, [search]);
 
   const loadSyncStatus = useCallback(async () => {
@@ -109,17 +118,26 @@ export default function ModelsChannelsPage() {
       }>("/api/admin/sync-status");
       setLastSyncTime(r.data.lastSyncTime);
       setLastSyncResult(r.data.lastSyncResult);
-    } catch { /* ignore */ }
+    } catch {
+      /* ignore */
+    }
   }, []);
 
-  useEffect(() => { load(); loadSyncStatus(); }, [load, loadSyncStatus]);
+  useEffect(() => {
+    load();
+    loadSyncStatus();
+  }, [load, loadSyncStatus]);
 
   // ── Aggregated stats ──
   const stats = useMemo(() => {
-    let totalChannels = 0, activeChannels = 0, degradedCount = 0;
-    let totalSuccess = 0, totalCalls = 0;
+    let totalChannels = 0,
+      activeChannels = 0,
+      degradedCount = 0;
+    let totalSuccess = 0,
+      totalCalls = 0;
     data.forEach((prov) => {
-      totalChannels += prov.summary.activeChannels + prov.summary.degradedChannels + prov.summary.disabledChannels;
+      totalChannels +=
+        prov.summary.activeChannels + prov.summary.degradedChannels + prov.summary.disabledChannels;
       activeChannels += prov.summary.activeChannels;
       degradedCount += prov.summary.degradedChannels;
       prov.models.forEach((m) =>
@@ -150,7 +168,10 @@ export default function ModelsChannelsPage() {
 
   const matrixTotal = matrixRows.length;
   const matrixPageCount = Math.max(1, Math.ceil(matrixTotal / MATRIX_PER_PAGE));
-  const matrixSlice = matrixRows.slice(matrixPage * MATRIX_PER_PAGE, (matrixPage + 1) * MATRIX_PER_PAGE);
+  const matrixSlice = matrixRows.slice(
+    matrixPage * MATRIX_PER_PAGE,
+    (matrixPage + 1) * MATRIX_PER_PAGE,
+  );
 
   // ── Actions ──
   const handleSync = async () => {
@@ -158,21 +179,29 @@ export default function ModelsChannelsPage() {
     try {
       await apiFetch("/api/admin/sync-models", { method: "POST" });
       toast.success(t("syncSuccess"));
-      await load(); await loadSyncStatus();
-    } catch (e) { toast.error(`${t("syncFailed")}: ${(e as Error).message}`); }
-    finally { setSyncing(false); }
+      await load();
+      await loadSyncStatus();
+    } catch (e) {
+      toast.error(`${t("syncFailed")}: ${(e as Error).message}`);
+    } finally {
+      setSyncing(false);
+    }
   };
 
   const toggle = (set: Set<string>, id: string) => {
     const next = new Set(set);
-    if (next.has(id)) next.delete(id); else next.add(id);
+    if (next.has(id)) next.delete(id);
+    else next.add(id);
     return next;
   };
 
   const savePriority = async (channelId: string) => {
     const p = Number(priorityValue);
     if (p > 0) {
-      await apiFetch(`/api/admin/channels/${channelId}`, { method: "PATCH", body: JSON.stringify({ priority: p }) });
+      await apiFetch(`/api/admin/channels/${channelId}`, {
+        method: "PATCH",
+        body: JSON.stringify({ priority: p }),
+      });
       toast.success(t("priorityUpdated"));
       load();
     }
@@ -181,10 +210,19 @@ export default function ModelsChannelsPage() {
 
   const saveSellPrice = async (ch: ChannelEntry) => {
     const val = Number(sellPriceValue);
-    if (isNaN(val) || val < 0) { setEditingSellPrice(null); return; }
+    if (isNaN(val) || val < 0) {
+      setEditingSellPrice(null);
+      return;
+    }
     const sp = ch.sellPrice;
-    const newSP = sp.unit === "call" ? { perCall: val, unit: "call" } : { inputPer1M: val, outputPer1M: val, unit: "token" };
-    await apiFetch(`/api/admin/channels/${ch.id}`, { method: "PATCH", body: JSON.stringify({ sellPrice: newSP }) });
+    const newSP =
+      sp.unit === "call"
+        ? { perCall: val, unit: "call" }
+        : { inputPer1M: val, outputPer1M: val, unit: "token" };
+    await apiFetch(`/api/admin/channels/${ch.id}`, {
+      method: "PATCH",
+      body: JSON.stringify({ sellPrice: newSP }),
+    });
     toast.success(t("priceSaved"));
     setEditingSellPrice(null);
     load();
@@ -194,7 +232,6 @@ export default function ModelsChannelsPage() {
   return (
     /* code.html line 183: <div class="max-w-7xl mx-auto"> */
     <div className="max-w-7xl mx-auto">
-
       {/* ═══ Page Header — code.html lines 185-193 ═══ */}
       <div className="mb-10 flex justify-between items-end">
         <div>
@@ -217,10 +254,14 @@ export default function ModelsChannelsPage() {
             <div className="w-12 h-12 bg-ds-primary/10 rounded-2xl flex items-center justify-center text-ds-primary">
               <span className="material-symbols-outlined text-3xl">route</span>
             </div>
-            <span className="font-[var(--font-heading)] font-bold text-ds-on-surface-variant uppercase tracking-widest text-[10px]">{t("routingEfficiency")}</span>
+            <span className="font-[var(--font-heading)] font-bold text-ds-on-surface-variant uppercase tracking-widest text-[10px]">
+              {t("routingEfficiency")}
+            </span>
           </div>
           <div className="flex items-baseline gap-2">
-            <span className="font-[var(--font-heading)] text-4xl font-extrabold text-ds-on-surface">{stats.efficiency}%</span>
+            <span className="font-[var(--font-heading)] text-4xl font-extrabold text-ds-on-surface">
+              {stats.efficiency}%
+            </span>
           </div>
         </div>
         {/* Provider Health — lines 209-221 */}
@@ -228,13 +269,26 @@ export default function ModelsChannelsPage() {
           <div className="absolute -right-4 -top-4 w-24 h-24 bg-ds-secondary/5 rounded-full blur-2xl group-hover:bg-ds-secondary/10 transition-colors" />
           <div className="flex items-center gap-4 mb-4">
             <div className="w-12 h-12 bg-ds-secondary/10 rounded-2xl flex items-center justify-center text-ds-secondary">
-              <span className="material-symbols-outlined text-3xl" style={{ fontVariationSettings: "'FILL' 1" }}>health_and_safety</span>
+              <span
+                className="material-symbols-outlined text-3xl"
+                style={{ fontVariationSettings: "'FILL' 1" }}
+              >
+                health_and_safety
+              </span>
             </div>
-            <span className="font-[var(--font-heading)] font-bold text-ds-on-surface-variant uppercase tracking-widest text-[10px]">{t("providerHealth")}</span>
+            <span className="font-[var(--font-heading)] font-bold text-ds-on-surface-variant uppercase tracking-widest text-[10px]">
+              {t("providerHealth")}
+            </span>
           </div>
           <div className="flex items-baseline gap-2">
-            <span className="font-[var(--font-heading)] text-4xl font-extrabold text-ds-on-surface">{stats.activeChannels}/{stats.totalChannels}</span>
-            {stats.degradedCount > 0 && <span className="text-ds-tertiary font-bold text-xs">{stats.degradedCount} {t("degraded")}</span>}
+            <span className="font-[var(--font-heading)] text-4xl font-extrabold text-ds-on-surface">
+              {stats.activeChannels}/{stats.totalChannels}
+            </span>
+            {stats.degradedCount > 0 && (
+              <span className="text-ds-tertiary font-bold text-xs">
+                {stats.degradedCount} {t("degraded")}
+              </span>
+            )}
           </div>
         </div>
         {/* Pricing Drift — lines 222-234 */}
@@ -244,10 +298,14 @@ export default function ModelsChannelsPage() {
             <div className="w-12 h-12 bg-ds-tertiary/10 rounded-2xl flex items-center justify-center text-ds-tertiary">
               <span className="material-symbols-outlined text-3xl">trending_down</span>
             </div>
-            <span className="font-[var(--font-heading)] font-bold text-ds-on-surface-variant uppercase tracking-widest text-[10px]">{t("pricingDrift")}</span>
+            <span className="font-[var(--font-heading)] font-bold text-ds-on-surface-variant uppercase tracking-widest text-[10px]">
+              {t("pricingDrift")}
+            </span>
           </div>
           <div className="flex items-baseline gap-2">
-            <span className="font-[var(--font-heading)] text-4xl font-extrabold text-ds-on-surface">&mdash;</span>
+            <span className="font-[var(--font-heading)] text-4xl font-extrabold text-ds-on-surface">
+              &mdash;
+            </span>
           </div>
         </div>
       </section>
@@ -255,7 +313,9 @@ export default function ModelsChannelsPage() {
       {/* ═══ Search and Filter Bar — code.html lines 237-255 ═══ */}
       <div className="bg-ds-surface-container-low p-4 rounded-2xl mb-6 flex flex-wrap items-center gap-4">
         <div className="flex-1 min-w-[300px] relative">
-          <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-ds-outline">search</span>
+          <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-ds-outline">
+            search
+          </span>
           <input
             className="w-full bg-ds-surface-container-lowest border-none rounded-xl pl-10 pr-4 py-2.5 text-sm focus:ring-2 focus:ring-ds-primary/20 placeholder:text-ds-outline/60 font-[var(--font-heading)] outline-none"
             placeholder={t("searchPlaceholder")}
@@ -276,7 +336,9 @@ export default function ModelsChannelsPage() {
         {/* All Clear indicator — code.html lines 251-254 */}
         <div className="flex items-center gap-1.5 px-3">
           <span className="w-2 h-2 rounded-full bg-ds-secondary" />
-          <span className="text-[10px] font-bold text-ds-on-surface-variant uppercase tracking-wider">All Clear</span>
+          <span className="text-[10px] font-bold text-ds-on-surface-variant uppercase tracking-wider">
+            All Clear
+          </span>
         </div>
         {/* Sync (functional addition, appended at end) */}
         <button
@@ -296,13 +358,21 @@ export default function ModelsChannelsPage() {
         <div className="space-y-6">
           {data.map((prov) => {
             const expanded = expandedProviders.has(prov.id);
-            const healthLabel = (prov.summary.degradedChannels > 0 || prov.summary.disabledChannels > 0) ? "Degraded" : "Healthy";
-            const visibleModels = showAllModels.has(prov.id) ? prov.models : prov.models.slice(0, MODELS_PER_PAGE);
+            const healthLabel =
+              prov.summary.degradedChannels > 0 || prov.summary.disabledChannels > 0
+                ? "Degraded"
+                : "Healthy";
+            const visibleModels = showAllModels.has(prov.id)
+              ? prov.models
+              : prov.models.slice(0, MODELS_PER_PAGE);
             const hasMore = prov.models.length > MODELS_PER_PAGE && !showAllModels.has(prov.id);
 
             return (
               /* Level 1: Provider Container — code.html line 259 */
-              <div key={prov.id} className="bg-ds-surface-container-low rounded-3xl p-6 transition-all duration-300">
+              <div
+                key={prov.id}
+                className="bg-ds-surface-container-low rounded-3xl p-6 transition-all duration-300"
+              >
                 {/* Provider Header — code.html lines 260-274 */}
                 <div
                   className={`flex items-center justify-between ${expanded ? "mb-6" : ""} group cursor-pointer`}
@@ -313,9 +383,13 @@ export default function ModelsChannelsPage() {
                       {prov.displayName.slice(0, 2)}
                     </div>
                     <div>
-                      <h3 className="font-[var(--font-heading)] font-bold text-xl text-ds-on-surface">{prov.displayName}</h3>
+                      <h3 className="font-[var(--font-heading)] font-bold text-xl text-ds-on-surface">
+                        {prov.displayName}
+                      </h3>
                       <div className="flex items-center gap-3 mt-0.5">
-                        <span className="text-xs text-ds-on-surface-variant font-bold">{prov.summary.modelCount} Models {t("active")}</span>
+                        <span className="text-xs text-ds-on-surface-variant font-bold">
+                          {prov.summary.modelCount} Models {t("active")}
+                        </span>
                         <span className="text-xs text-ds-secondary flex items-center gap-1">
                           <span className="w-1.5 h-1.5 rounded-full bg-ds-secondary" />
                           L1 {healthLabel}
@@ -333,37 +407,56 @@ export default function ModelsChannelsPage() {
                   <div className="space-y-4 ml-2 pl-4 border-l-2 border-ds-outline-variant/20">
                     {visibleModels.map((model) => {
                       const modelExpanded = expandedModels.has(model.id);
-                      const avgLatency = model.channels.reduce((s, c) => s + (c.latencyMs ?? 0), 0) / (model.channels.filter((c) => c.latencyMs !== null).length || 1);
+                      const avgLatency =
+                        model.channels.reduce((s, c) => s + (c.latencyMs ?? 0), 0) /
+                        (model.channels.filter((c) => c.latencyMs !== null).length || 1);
                       const totalCallsModel = model.channels.reduce((s, c) => s + c.totalCalls, 0);
 
                       return (
-                        <div key={model.id} className="bg-ds-surface-container-lowest rounded-2xl overflow-hidden shadow-sm border border-slate-200/5">
+                        <div
+                          key={model.id}
+                          className="bg-ds-surface-container-lowest rounded-2xl overflow-hidden shadow-sm border border-slate-200/5"
+                        >
                           {/* Model Header — code.html lines 278-294 */}
                           <div
                             className="p-4 bg-slate-50/50 flex items-center justify-between border-b border-ds-outline-variant/10 cursor-pointer"
                             onClick={() => setExpandedModels((s) => toggle(s, model.id))}
                           >
                             <div className="flex items-center gap-4">
-                              <span className="material-symbols-outlined text-ds-primary/60">model_training</span>
-                              <span className="font-[var(--font-heading)] font-bold text-ds-on-surface">{model.displayName || model.name}</span>
+                              <span className="material-symbols-outlined text-ds-primary/60">
+                                model_training
+                              </span>
+                              <span className="font-[var(--font-heading)] font-bold text-ds-on-surface">
+                                {model.displayName || model.name}
+                              </span>
                               {model.channels.some((c) => c.priority <= 1) && (
-                                <span className="text-[10px] font-black bg-ds-primary/10 text-ds-primary px-2 py-0.5 rounded-md uppercase">High Priority</span>
+                                <span className="text-[10px] font-black bg-ds-primary/10 text-ds-primary px-2 py-0.5 rounded-md uppercase">
+                                  High Priority
+                                </span>
                               )}
                             </div>
                             <div className="flex items-center gap-6 text-sm">
                               {model.channels.some((c) => c.latencyMs !== null) && (
                                 <div className="flex flex-col items-end">
-                                  <span className="text-[10px] text-ds-outline uppercase font-bold tracking-tighter">{t("latency")}</span>
+                                  <span className="text-[10px] text-ds-outline uppercase font-bold tracking-tighter">
+                                    {t("latency")}
+                                  </span>
                                   <span className="font-[var(--font-heading)] font-bold">
-                                    {avgLatency > 1000 ? `${(avgLatency / 1000).toFixed(1)}s` : `${Math.round(avgLatency)}ms`}
+                                    {avgLatency > 1000
+                                      ? `${(avgLatency / 1000).toFixed(1)}s`
+                                      : `${Math.round(avgLatency)}ms`}
                                   </span>
                                 </div>
                               )}
                               {totalCallsModel > 0 && (
                                 <div className="flex flex-col items-end">
-                                  <span className="text-[10px] text-ds-outline uppercase font-bold tracking-tighter">{t("calls")}</span>
+                                  <span className="text-[10px] text-ds-outline uppercase font-bold tracking-tighter">
+                                    {t("calls")}
+                                  </span>
                                   <span className="font-[var(--font-heading)] font-bold">
-                                    {totalCallsModel > 1000 ? `${(totalCallsModel / 1000).toFixed(1)}k` : totalCallsModel}
+                                    {totalCallsModel > 1000
+                                      ? `${(totalCallsModel / 1000).toFixed(1)}k`
+                                      : totalCallsModel}
                                   </span>
                                 </div>
                               )}
@@ -378,27 +471,45 @@ export default function ModelsChannelsPage() {
                                 const isDegraded = ch.status === "DEGRADED";
                                 const isDisabled = ch.status === "DISABLED";
                                 const statusLabel = isActive ? "L1" : isDegraded ? "L2" : "L3";
-                                const dotColor = isActive ? "bg-ds-secondary" : isDegraded ? "bg-ds-tertiary" : "bg-ds-error";
-                                const badgeBg = isActive ? "bg-ds-secondary/10 text-ds-secondary" : isDegraded ? "bg-ds-tertiary/10 text-ds-tertiary" : "bg-ds-error/10 text-ds-error";
+                                const dotColor = isActive
+                                  ? "bg-ds-secondary"
+                                  : isDegraded
+                                    ? "bg-ds-tertiary"
+                                    : "bg-ds-error";
+                                const badgeBg = isActive
+                                  ? "bg-ds-secondary/10 text-ds-secondary"
+                                  : isDegraded
+                                    ? "bg-ds-tertiary/10 text-ds-tertiary"
+                                    : "bg-ds-error/10 text-ds-error";
 
                                 return (
                                   <div
                                     key={ch.id}
                                     className={`p-4 rounded-xl border hover:shadow-md transition-shadow group relative ${
-                                      isDegraded ? "bg-ds-tertiary-container/5 border-ds-tertiary/20" :
-                                      isDisabled ? "bg-ds-error-container/5 border-ds-error/20 opacity-75" :
-                                      "border-ds-outline-variant/20"
+                                      isDegraded
+                                        ? "bg-ds-tertiary-container/5 border-ds-tertiary/20"
+                                        : isDisabled
+                                          ? "bg-ds-error-container/5 border-ds-error/20 opacity-75"
+                                          : "border-ds-outline-variant/20"
                                     }`}
                                   >
                                     {/* Card header — code.html lines 298-306 */}
                                     <div className="flex items-start justify-between mb-3">
                                       <div>
-                                        <div className="font-bold text-sm text-ds-on-surface">{ch.realModelId}</div>
-                                        <div className="text-[10px] text-ds-on-surface-variant opacity-60">ID: {ch.id.slice(0, 8)}</div>
+                                        <div className="font-bold text-sm text-ds-on-surface">
+                                          {ch.realModelId}
+                                        </div>
+                                        <div className="text-[10px] text-ds-on-surface-variant opacity-60">
+                                          ID: {ch.id.slice(0, 8)}
+                                        </div>
                                       </div>
-                                      <div className={`flex items-center gap-1.5 ${badgeBg} px-2 py-0.5 rounded-full`}>
+                                      <div
+                                        className={`flex items-center gap-1.5 ${badgeBg} px-2 py-0.5 rounded-full`}
+                                      >
                                         <span className={`w-1.5 h-1.5 rounded-full ${dotColor}`} />
-                                        <span className="text-[10px] font-bold uppercase">{statusLabel}</span>
+                                        <span className="text-[10px] font-bold uppercase">
+                                          {statusLabel}
+                                        </span>
                                       </div>
                                     </div>
 
@@ -420,7 +531,13 @@ export default function ModelsChannelsPage() {
                                           onClick={(e) => {
                                             e.stopPropagation();
                                             setEditingSellPrice(ch.id);
-                                            setSellPriceValue(String(ch.sellPrice.unit === "call" ? ch.sellPrice.perCall : ch.sellPrice.inputPer1M));
+                                            setSellPriceValue(
+                                              String(
+                                                ch.sellPrice.unit === "call"
+                                                  ? ch.sellPrice.perCall
+                                                  : ch.sellPrice.inputPer1M,
+                                              ),
+                                            );
                                           }}
                                         >
                                           {fmtPrice(ch.sellPrice)}
@@ -438,7 +555,9 @@ export default function ModelsChannelsPage() {
                                             value={priorityValue}
                                             onChange={(e) => setPriorityValue(e.target.value)}
                                             onBlur={() => savePriority(ch.id)}
-                                            onKeyDown={(e) => e.key === "Enter" && savePriority(ch.id)}
+                                            onKeyDown={(e) =>
+                                              e.key === "Enter" && savePriority(ch.id)
+                                            }
                                           />
                                         ) : (
                                           <span
@@ -454,15 +573,22 @@ export default function ModelsChannelsPage() {
                                         )}
                                       </div>
                                       {isActive && (
-                                        <button className="opacity-0 group-hover:opacity-100 transition-opacity text-ds-primary font-bold text-xs">{t("edit")}</button>
+                                        <button className="opacity-0 group-hover:opacity-100 transition-opacity text-ds-primary font-bold text-xs">
+                                          {t("edit")}
+                                        </button>
                                       )}
                                       {isDegraded && (
                                         <button className="opacity-100 text-ds-tertiary font-bold text-xs flex items-center gap-1">
-                                          <span className="material-symbols-outlined text-sm">warning</span> {t("retry")}
+                                          <span className="material-symbols-outlined text-sm">
+                                            warning
+                                          </span>{" "}
+                                          {t("retry")}
                                         </button>
                                       )}
                                       {isDisabled && (
-                                        <button className="text-ds-error font-bold text-xs">{t("troubleshoot")}</button>
+                                        <button className="text-ds-error font-bold text-xs">
+                                          {t("troubleshoot")}
+                                        </button>
                                       )}
                                     </div>
                                   </div>
@@ -476,7 +602,13 @@ export default function ModelsChannelsPage() {
 
                     {hasMore && (
                       <button
-                        onClick={() => setShowAllModels((s) => { const n = new Set(s); n.add(prov.id); return n; })}
+                        onClick={() =>
+                          setShowAllModels((s) => {
+                            const n = new Set(s);
+                            n.add(prov.id);
+                            return n;
+                          })
+                        }
                         className="w-full py-2.5 text-xs text-ds-on-surface-variant hover:text-ds-on-surface transition-colors font-bold"
                       >
                         {t("showAll", { count: prov.models.length })}
@@ -497,13 +629,18 @@ export default function ModelsChannelsPage() {
           <div className="flex items-center justify-between mb-6">
             <h2 className="font-[var(--font-heading)] font-extrabold text-2xl flex items-center gap-2">
               {t("globalModelMatrix")}
-              <span className="bg-ds-primary/10 text-ds-primary text-xs px-3 py-1 rounded-full">{matrixTotal} {t("total")}</span>
+              <span className="bg-ds-primary/10 text-ds-primary text-xs px-3 py-1 rounded-full">
+                {matrixTotal} {t("total")}
+              </span>
             </h2>
             <div className="flex gap-2">
               <button className="p-2 hover:bg-ds-surface-container rounded-lg transition-colors">
                 <span className="material-symbols-outlined">download</span>
               </button>
-              <button className="p-2 hover:bg-ds-surface-container rounded-lg transition-colors" onClick={() => load()}>
+              <button
+                className="p-2 hover:bg-ds-surface-container rounded-lg transition-colors"
+                onClick={() => load()}
+              >
                 <span className="material-symbols-outlined">refresh</span>
               </button>
             </div>
@@ -514,41 +651,76 @@ export default function ModelsChannelsPage() {
             <table className="w-full text-left border-collapse font-[var(--font-heading)]">
               <thead>
                 <tr className="bg-ds-surface-container-low/50">
-                  <th className="px-6 py-4 text-[10px] font-bold text-ds-on-surface-variant uppercase tracking-widest">{t("modelIdentifier")}</th>
-                  <th className="px-6 py-4 text-[10px] font-bold text-ds-on-surface-variant uppercase tracking-widest">{t("provider")}</th>
-                  <th className="px-6 py-4 text-[10px] font-bold text-ds-on-surface-variant uppercase tracking-widest">{t("availability")}</th>
-                  <th className="px-6 py-4 text-[10px] font-bold text-ds-on-surface-variant uppercase tracking-widest">{t("tokenCost")}</th>
-                  <th className="px-6 py-4 text-[10px] font-bold text-ds-on-surface-variant uppercase tracking-widest">{t("lastPing")}</th>
+                  <th className="px-6 py-4 text-[10px] font-bold text-ds-on-surface-variant uppercase tracking-widest">
+                    {t("modelIdentifier")}
+                  </th>
+                  <th className="px-6 py-4 text-[10px] font-bold text-ds-on-surface-variant uppercase tracking-widest">
+                    {t("provider")}
+                  </th>
+                  <th className="px-6 py-4 text-[10px] font-bold text-ds-on-surface-variant uppercase tracking-widest">
+                    {t("availability")}
+                  </th>
+                  <th className="px-6 py-4 text-[10px] font-bold text-ds-on-surface-variant uppercase tracking-widest">
+                    {t("tokenCost")}
+                  </th>
+                  <th className="px-6 py-4 text-[10px] font-bold text-ds-on-surface-variant uppercase tracking-widest">
+                    {t("lastPing")}
+                  </th>
                   <th className="px-6 py-4" />
                 </tr>
               </thead>
               <tbody className="divide-y divide-ds-outline-variant/10">
                 {matrixSlice.map((row, i) => {
                   const rate = row.channel.successRate ?? 0;
-                  const barColor = rate >= 90 ? "bg-ds-secondary" : rate >= 50 ? "bg-ds-tertiary" : "bg-ds-error";
-                  const dotColor = row.channel.status === "ACTIVE" ? "bg-ds-secondary" : row.channel.status === "DEGRADED" ? "bg-ds-tertiary" : "bg-ds-error";
-                  const isTimedOut = row.channel.status === "DISABLED" && row.channel.latencyMs === null;
+                  const barColor =
+                    rate >= 90 ? "bg-ds-secondary" : rate >= 50 ? "bg-ds-tertiary" : "bg-ds-error";
+                  const dotColor =
+                    row.channel.status === "ACTIVE"
+                      ? "bg-ds-secondary"
+                      : row.channel.status === "DEGRADED"
+                        ? "bg-ds-tertiary"
+                        : "bg-ds-error";
+                  const isTimedOut =
+                    row.channel.status === "DISABLED" && row.channel.latencyMs === null;
 
                   return (
-                    <tr key={`${row.channel.id}-${i}`} className="hover:bg-ds-surface-container-high transition-colors group">
+                    <tr
+                      key={`${row.channel.id}-${i}`}
+                      className="hover:bg-ds-surface-container-high transition-colors group"
+                    >
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-3">
                           <div className={`w-2 h-2 rounded-full ${dotColor}`} />
-                          <span className="font-bold text-sm text-ds-on-surface">{row.modelName}</span>
+                          <span className="font-bold text-sm text-ds-on-surface">
+                            {row.modelName}
+                          </span>
                         </div>
                       </td>
                       <td className="px-6 py-4 text-xs font-bold">{row.providerName}</td>
                       <td className="px-6 py-4">
                         <div className="w-24 h-1.5 bg-ds-outline-variant/20 rounded-full overflow-hidden">
-                          <div className={`h-full rounded-full ${barColor}`} style={{ width: `${rate}%` }} />
+                          <div
+                            className={`h-full rounded-full ${barColor}`}
+                            style={{ width: `${rate}%` }}
+                          />
                         </div>
                       </td>
-                      <td className="px-6 py-4 font-bold text-xs">{fmtPrice(row.channel.costPrice)}</td>
-                      <td className={`px-6 py-4 text-xs ${isTimedOut ? "text-ds-error font-bold" : "text-ds-on-surface-variant"}`}>
-                        {isTimedOut ? "Timed Out" : row.channel.latencyMs !== null ? `${row.channel.latencyMs}ms` : "\u2014"}
+                      <td className="px-6 py-4 font-bold text-xs">
+                        {fmtPrice(row.channel.costPrice)}
+                      </td>
+                      <td
+                        className={`px-6 py-4 text-xs ${isTimedOut ? "text-ds-error font-bold" : "text-ds-on-surface-variant"}`}
+                      >
+                        {isTimedOut
+                          ? "Timed Out"
+                          : row.channel.latencyMs !== null
+                            ? `${row.channel.latencyMs}ms`
+                            : "\u2014"}
                       </td>
                       <td className="px-6 py-4 text-right">
-                        <span className="material-symbols-outlined text-ds-outline opacity-0 group-hover:opacity-100 cursor-pointer">more_vert</span>
+                        <span className="material-symbols-outlined text-ds-outline opacity-0 group-hover:opacity-100 cursor-pointer">
+                          more_vert
+                        </span>
                       </td>
                     </tr>
                   );
@@ -559,7 +731,9 @@ export default function ModelsChannelsPage() {
             {/* Pagination — code.html lines 453-464 */}
             {matrixPageCount > 1 && (
               <div className="p-4 bg-slate-50 border-t border-ds-outline-variant/10 flex justify-between items-center text-xs font-bold text-ds-on-surface-variant">
-                <span>{t("showingEntries", { count: matrixSlice.length, total: matrixTotal })}</span>
+                <span>
+                  {t("showingEntries", { count: matrixSlice.length, total: matrixTotal })}
+                </span>
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => setMatrixPage((p) => Math.max(0, p - 1))}
@@ -576,7 +750,9 @@ export default function ModelsChannelsPage() {
                         key={page}
                         onClick={() => setMatrixPage(page)}
                         className={`px-3 py-1 rounded-lg cursor-pointer ${
-                          page === matrixPage ? "bg-ds-primary text-white" : "hover:bg-ds-surface-container"
+                          page === matrixPage
+                            ? "bg-ds-primary text-white"
+                            : "hover:bg-ds-surface-container"
                         }`}
                       >
                         {page + 1}
@@ -586,7 +762,12 @@ export default function ModelsChannelsPage() {
                   {matrixPageCount > 5 && matrixPage < matrixPageCount - 3 && (
                     <>
                       <span className="px-1 text-ds-outline">...</span>
-                      <span onClick={() => setMatrixPage(matrixPageCount - 1)} className="px-3 py-1 hover:bg-ds-surface-container rounded-lg cursor-pointer">{matrixPageCount}</span>
+                      <span
+                        onClick={() => setMatrixPage(matrixPageCount - 1)}
+                        className="px-3 py-1 hover:bg-ds-surface-container rounded-lg cursor-pointer"
+                      >
+                        {matrixPageCount}
+                      </span>
                     </>
                   )}
                   <button
@@ -610,10 +791,16 @@ export default function ModelsChannelsPage() {
           {lastSyncResult && (
             <span className="ml-4">
               {t("syncResult")}:{" "}
-              <span className="text-ds-secondary">+{lastSyncResult.summary.totalNewChannels} {t("newChannels")}</span>
-              <span className="mx-2">-{lastSyncResult.summary.totalDisabledChannels} {t("disabledLabel")}</span>
+              <span className="text-ds-secondary">
+                +{lastSyncResult.summary.totalNewChannels} {t("newChannels")}
+              </span>
+              <span className="mx-2">
+                -{lastSyncResult.summary.totalDisabledChannels} {t("disabledLabel")}
+              </span>
               {lastSyncResult.summary.totalFailedProviders > 0 && (
-                <span className="text-ds-error">{lastSyncResult.summary.totalFailedProviders} {t("failedLabel")}</span>
+                <span className="text-ds-error">
+                  {lastSyncResult.summary.totalFailedProviders} {t("failedLabel")}
+                </span>
               )}
             </span>
           )}
