@@ -1,60 +1,150 @@
 {
-  "batch": "dx-fix 批次（开发者体验修复）",
+  "batch": "p4-action-template",
   "created_at": "2026-04-05",
   "features": [
     {
-      "id": "F-DX-01",
-      "title": "更新 SERVER_INSTRUCTIONS — 补全约束说明和正确集成示例",
-      "priority": "P0",
-      "executor": "generator",
-      "status": "completed",
-      "acceptance": [
-        "SERVER_INSTRUCTIONS 包含 template_id 仅 MCP 可用的明确警告",
-        "SERVER_INSTRUCTIONS 包含模型名 provider/model-name 格式说明",
-        "SERVER_INSTRUCTIONS 包含 update_template 新版本需手动激活的提示",
-        "SERVER_INSTRUCTIONS 包含后端服务使用模板的正确代码示例",
-        "SERVER_INSTRUCTIONS 已更新，包含新 Tool 的使用说明和约束"
-      ]
-    },
-    {
-      "id": "F-DX-02",
-      "title": "REST API /v1/chat/completions 原生支持 template_id + variables",
-      "priority": "P0",
+      "id": "F-P4-01",
+      "title": "Schema：删除旧 TemplateVersion，重建 Template，新增 Action/ActionVersion 模型",
+      "priority": "high",
       "executor": "generator",
       "status": "pending",
-      "acceptance": [
-        "POST /v1/chat/completions 传入 template_id + variables，服务端正确解析模板并替换变量",
-        "传入 template_id 时 messages 字段可省略",
-        "template_id 不存在时返回明确错误（404），而非静默忽略",
-        "传入 template_id 时 CallLog 记录 templateId 字段",
-        "不影响现有不传 template_id 的调用"
-      ]
+      "acceptance": "migration 可执行；prisma generate 成功；Action/ActionVersion 表含规格文档所有字段；旧 template_versions 表已删除；templates 表已按新 schema 重建（无旧字段）"
     },
     {
-      "id": "F-DX-03",
-      "title": "SDK 修复 template_id：运行时实现或移除类型定义",
-      "priority": "P0",
-      "executor": "generator",
-      "status": "completed",
-      "acceptance": [
-        "SDK chat() 方法传入 template_id + variables，字段被正确序列化到请求 body",
-        "SDK README 中所有 import 示例均使用正确包名 @guangai/aigc-sdk",
-        "SDK 版本号递增，触发 publish-sdk.yml 自动发布",
-        "cd sdk && npm run typecheck 通过"
-      ]
-    },
-    {
-      "id": "F-DX-04",
-      "title": "MCP GET /mcp 返回 200 健康检查响应，而非 406",
-      "priority": "P2",
+      "id": "F-P4-02",
+      "title": "Schema：新增 TemplateStep 模型 + StepRole 枚举",
+      "priority": "high",
       "executor": "generator",
       "status": "pending",
-      "acceptance": [
-        "curl -s https://aigc.guangai.ai/mcp 返回 HTTP 200",
-        "响应 body 包含 {\"status\":\"ok\",\"protocol\":\"mcp-streamable-http\"}",
-        "正常的 MCP SSE 连接（Accept: text/event-stream）不受影响",
-        "正常的 MCP POST JSON-RPC 调用不受影响"
-      ]
+      "acceptance": "TemplateStep 表含 templateId/actionId/order/role 字段；StepRole 枚举含 SEQUENTIAL/SPLITTER/BRANCH/MERGE；TemplateStep→Template 外键级联删除；TemplateStep→Action 外键无级联删除；@@unique([templateId, order]) 约束存在"
+    },
+    {
+      "id": "F-P4-03",
+      "title": "Schema：CallLog 字段更新（删除 templateId/templateVersionId/templateVariables，新增 actionId/actionVersionId/templateRunId）",
+      "priority": "high",
+      "executor": "generator",
+      "status": "pending",
+      "acceptance": "CallLog 不再含旧三个字段；新增 actionId/actionVersionId/templateRunId（均可空，String?）；migration SQL 无 NOT NULL 问题；tsc --noEmit 无报错"
+    },
+    {
+      "id": "F-P4-04",
+      "title": "Action CRUD API（/api/projects/:id/actions 全套路由 + 版本管理 + 激活）",
+      "priority": "high",
+      "executor": "generator",
+      "status": "pending",
+      "acceptance": "POST /api/projects/:id/actions（创建同时建首版本并激活）；GET 列表（含 activeVersion）；GET /:actionId 详情；PUT /:actionId 更新基础信息；DELETE /:actionId；POST /:actionId/versions 新建版本；GET /:actionId/versions 版本列表；PUT /:actionId/active-version 激活指定版本；JWT 鉴权全覆盖；export const dynamic = 'force-dynamic'"
+    },
+    {
+      "id": "F-P4-05",
+      "title": "Template CRUD API（/api/projects/:id/templates 全套路由 + 步骤管理）",
+      "priority": "high",
+      "executor": "generator",
+      "status": "pending",
+      "acceptance": "POST 创建含 steps 数组；GET 列表；GET /:templateId 详情（含 steps + 每步 Action name/model）；PUT 更新含 steps（先删后建）；DELETE 级联删除 steps；JWT 鉴权；export const dynamic = 'force-dynamic'"
+    },
+    {
+      "id": "F-P4-06",
+      "title": "ActionRunner：单个 Action 执行引擎（变量注入 + SSE + 计费写 CallLog）",
+      "priority": "high",
+      "executor": "generator",
+      "status": "pending",
+      "acceptance": "src/lib/action/runner.ts 实现 runAction()；加载 activeVersion；校验必填变量（缺失返回 400）；{{variable}} 替换；调用 engine.chatCompletions；SSE 输出 action_start/content delta/action_end；写 CallLog（actionId/actionVersionId）并扣费；返回完整 output 字符串供上层串联"
+    },
+    {
+      "id": "F-P4-07",
+      "title": "TemplateRunner Sequential：串行多步执行（{{previous_output}} 自动注入）",
+      "priority": "high",
+      "executor": "generator",
+      "status": "pending",
+      "acceptance": "src/lib/template/sequential.ts 实现；步骤按 order 顺序执行；第 2 步起 variables 自动注入 previous_output；SSE 含 step_start{step,role,action_id,model}/content/step_end{step,usage}；全部完成发 done；任一步骤失败立即终止并输出 error SSE"
+    },
+    {
+      "id": "F-P4-08",
+      "title": "TemplateRunner Fan-out：SPLITTER→BRANCH×N→MERGE 动态并行执行",
+      "priority": "high",
+      "executor": "generator",
+      "status": "pending",
+      "acceptance": "src/lib/template/fanout.ts 实现；SPLITTER 输出 JSON.parse 失败返回 error SSE；每个 BRANCH 收到 branch_input = part.content；Promise.all 并行；SSE 含 branch_start{branch,input}/content/branch_end；MERGE 收到 all_outputs = JSON.stringify(outputs[])；无 MERGE 时按序拼接；每步独立计费写 CallLog"
+    },
+    {
+      "id": "F-P4-09",
+      "title": "/v1/actions/run 端点（middleware 重写 + API Key 鉴权 + 余额 + 限流）",
+      "priority": "high",
+      "executor": "generator",
+      "status": "pending",
+      "acceptance": "src/app/api/v1/actions/run/route.ts 存在；middleware.ts 新增 /v1/actions/run → /api/v1/actions/run 重写规则；API Key 鉴权（sha256 查 api_keys）；余额检查；Redis 限流；stream=true 返回 SSE；stream=false 返回聚合 JSON {output:string}；export const dynamic = 'force-dynamic'"
+    },
+    {
+      "id": "F-P4-10",
+      "title": "/v1/templates/run 端点（middleware 重写 + API Key 鉴权 + 自动判断执行模式）",
+      "priority": "high",
+      "executor": "generator",
+      "status": "pending",
+      "acceptance": "src/app/api/v1/templates/run/route.ts 存在；middleware.ts 新增重写规则；鉴权/余额/限流同上；自动判断模式（全 SEQUENTIAL → sequential.ts，含 SPLITTER → fanout.ts）；stream=true 返回带步骤标记的 SSE；stream=false 返回 {output:string,steps:[]}；export const dynamic = 'force-dynamic'"
+    },
+    {
+      "id": "F-P4-11",
+      "title": "清理旧 Template 系统（删除 inject.ts、旧 API 路由、/v1/chat/completions template_id 逻辑）",
+      "priority": "high",
+      "executor": "generator",
+      "status": "pending",
+      "acceptance": "src/lib/template/inject.ts 删除或内容清空替换；/v1/chat/completions route.ts 不再引用 injectByTemplateId，不再处理 template_id 字段；/api/projects/:id/templates/fork 路由文件删除；旧 active-version（针对 TemplateVersion 的）路由删除；tsc --noEmit 无报错；npm run lint 通过"
+    },
+    {
+      "id": "F-P4-12",
+      "title": "控制台 Action 列表页（/actions）+ 侧边栏入口",
+      "priority": "medium",
+      "executor": "generator",
+      "status": "pending",
+      "acceptance": "src/app/(console)/actions/page.tsx 存在；展示项目所有 Actions（名称/模型/激活版本号/描述）；新建按钮跳转 /actions/new；点击行跳转详情；空状态有引导；侧边栏新增 Actions 入口（国际化 label，图标 smart_toy 或 bolt）；en.json/zh-CN.json 有对应 key"
+    },
+    {
+      "id": "F-P4-13",
+      "title": "控制台 Action 创建页（/actions/new）+ 详情/编辑页（/actions/:actionId）",
+      "priority": "medium",
+      "executor": "generator",
+      "status": "pending",
+      "acceptance": "创建页：名称/描述/模型选择器（调用 /api/v1/models）/messages 多条编辑器/变量定义区（与旧 templates/new 编辑器样式一致）；提交 POST /api/projects/:id/actions；成功跳转详情；详情页：基础信息展示/激活版本 messages+variables 展示/版本历史列表/切换激活版本/新建版本入口；支持编辑 name/description/model（PUT 请求）"
+    },
+    {
+      "id": "F-P4-14",
+      "title": "控制台 Template 列表页（/templates，重构）",
+      "priority": "medium",
+      "executor": "generator",
+      "status": "pending",
+      "acceptance": "旧 /templates 列表页完全替换；展示 Templates（名称/步骤数/执行模式标签：顺序|Fan-out/描述）；新建跳转 /templates/new；点击行跳转详情；空状态有引导"
+    },
+    {
+      "id": "F-P4-15",
+      "title": "控制台 Template 创建页（/templates/new）+ 详情/编辑页（/templates/:templateId，重构）",
+      "priority": "medium",
+      "executor": "generator",
+      "status": "pending",
+      "acceptance": "创建/编辑页：名称/描述/步骤编排器（每步可选已有 Action + 设置 role）；步骤可增删；执行模式自动推断并展示；非第一步显示可用保留变量提示；提交 POST/PUT /api/projects/:id/templates；详情页：步骤列表（Action 名称/model/role badge）/编辑入口；旧 templates/new 和 templates/[templateId] 完全替换"
+    },
+    {
+      "id": "F-P4-16",
+      "title": "MCP 更新：删除旧 5 Tool，新增 4 Tool，更新 SERVER_INSTRUCTIONS",
+      "priority": "medium",
+      "executor": "generator",
+      "status": "pending",
+      "acceptance": "旧 create-template/get-template/list-templates/update-template/confirm-template 文件删除；新增 list-actions.ts/run-action.ts/list-templates.ts/run-template.ts；server.ts 注册新 4 Tool、注销旧 Tool；chat.ts 移除 template_id 参数；SERVER_INSTRUCTIONS 更新（Action/Template 区别、保留变量说明、SPLITTER JSON 格式、run-action/run-template 用法）；SERVER_INSTRUCTIONS 已更新，包含新 Tool 的使用说明和约束"
+    },
+    {
+      "id": "F-P4-17",
+      "title": "i18n 更新（en.json + zh-CN.json：新增 actions.*，更新 templates.*）",
+      "priority": "low",
+      "executor": "generator",
+      "status": "pending",
+      "acceptance": "en.json 和 zh-CN.json 均新增 actions 命名空间；templates 命名空间更新（步骤/执行模式/StepRole 等）；StepRole 四个值有中英文文案；两文件 key 完全一致无缺失；npm run lint 通过"
+    },
+    {
+      "id": "F-P4-18",
+      "title": "E2E 验证：Action CRUD + 单步执行 + 串行 Template + Fan-out Template + MCP Tool",
+      "priority": "high",
+      "executor": "codex",
+      "status": "pending",
+      "acceptance": "验证覆盖：1) 创建 Action → 激活版本 → /v1/actions/run（stream=true）→ SSE 格式正确 → CallLog.actionId 已写入；2) 创建 2 步串行 Template → /v1/templates/run → SSE 含 step_start×2 → previous_output 正确传递至第 2 步；3) 创建 Fan-out Template（SPLITTER+BRANCH+MERGE）→ /v1/templates/run → SSE 含 branch_start×N → MERGE 收到 all_outputs；4) MCP run-action/run-template Tool 调用返回正确；5) /v1/chat/completions 不再接受 template_id（忽略或报参数错误）"
     }
   ]
 }

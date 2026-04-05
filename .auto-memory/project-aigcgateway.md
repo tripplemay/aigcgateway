@@ -113,9 +113,26 @@ AIGC Gateway — AI 服务商管理中台。统一 API 调用抽象（兼容 Ope
 **签收文档：** `docs/test-reports/perf-optimization-local-signoff-2026-04-04.md`
 **Harness 状态：** status=done, 3/3 PASS
 
+## 最近批次（2026-04-05）— dx-fix 批次
+
+- 目标：修复开发者集成体验问题（SERVER_INSTRUCTIONS、REST API template_id、SDK 修复、MCP 健康检查）
+- 交付：
+  - F-DX-01：SERVER_INSTRUCTIONS 补全约束说明和集成示例（model name 格式、template_id prepend 模式、update_template 激活说明、SDK 示例代码）
+  - F-DX-02：REST API `/v1/chat/completions` 原生支持 `template_id + variables`，CallLog.templateId 正确写入
+  - F-DX-03：SDK 修复 templateId → template_id 序列化，README 包名修正为 `@guangai/aigc-sdk`
+  - F-DX-04：MCP GET `/mcp` 无 API Key 时返回 200 + `{status:'ok', protocol:'mcp-streamable-http'}`
+- fix_rounds：2（F-DX-02 CallLog 漏写 + F-DX-04 502 各修复一轮）
+
+**签收文档：** `docs/test-reports/dx-fix-signoff-2026-04-05.md`
+**Harness 状态：** status=done, 4/4 PASS
+
 ## 需求池（backlog.json，截至 2026-04-05）
 
-当前需求池为空，详见 `backlog.json`
+- **BL-010（高优先级）：** Action + Template 统一重构（P4）
+  - 将现有 Template 系统重构为两层：Action（原子单元，含 model+提示词）+ Template（Action 编排组合）
+  - 替代 BL-001/002/003 四个独立需求，统一解决 prepend、串行 Workflow、Fan-out 并行、动作模型映射
+  - 允许破坏性变更（生产数据为测试数据，无需迁移）
+  - 详见 `backlog.json`
 
 ## 工作流升级（2026-04-05）
 

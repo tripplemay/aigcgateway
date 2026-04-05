@@ -1,4 +1,24 @@
 {
   "description": "需求池：已与用户确认但尚未开发的功能，等待下一批次启动时统一安排",
-  "items": []
+  "items": [
+    {
+      "id": "BL-010",
+      "title": "Action + Template 统一重构（P4）",
+      "description": "将现有 Template 系统彻底重构为两层架构：Action（原子单元）+ Template（Action 的编排组合）。Action 定义「用哪个模型、说什么」，Template 定义「按什么顺序/结构组合多个 Action」。此设计统一替代 BL-001（template prepend）、BL-002（串行 Workflow）、BL-003（Fan-out 并行）、BL-004（动作模型映射）四个独立需求。生产数据为测试数据，无需迁移，允许破坏性变更。",
+      "decisions": [
+        "Action = 原子单元：{name, model, messages（提示词内容）, variables, 版本管理}",
+        "Template = Action 的编排层：steps: ActionStep[]，每步有 execution_mode（sequential/parallel/fan-out）",
+        "1 个 Action 的 Template = 原来的简单模板；N 个顺序 Action = 串行流水线；Splitter+并行+Merge = Fan-out",
+        "{{previous_output}} 为保留变量，步骤间自动传递；Fan-out 中 {{all_outputs}} 汇总所有分支",
+        "完全删除旧 Template 系统（schema、API 路由、MCP Tool、控制台页面），不保留向后兼容",
+        "新增 /v1/actions/run 和 /v1/templates/run 端点，SSE 流式返回带步骤/分支标记",
+        "MCP 新增 run-action 和 run-template tool，更新 SERVER_INSTRUCTIONS",
+        "控制台新增 Action 编辑器页面 + Template 编排页面（可视化步骤配置）",
+        "计费：每个 Action 执行单独计量，统一归到 TemplateRun / ActionRun 审计记录"
+      ],
+      "confirmed_at": "2026-04-05",
+      "priority": "high",
+      "replaces": ["BL-001", "BL-002", "BL-003"]
+    }
+  ]
 }
