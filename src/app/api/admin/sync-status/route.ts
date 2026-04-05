@@ -54,11 +54,38 @@ export async function GET(request: Request) {
        AND COALESCE(("sellPrice"::jsonb->>'perCall')::float, 0) = 0`,
   );
 
+  // F-INFRA-06: 从 LAST_SYNC_RESULT 提取 lastSyncAt / lastSyncDuration / lastSyncResult
+  let lastSyncAt: string | null = lastSyncTime;
+  let lastSyncDuration: number | null = null;
+  let lastSyncResultStatus: "success" | "partial" | "failed" | null = null;
+
+  if (lastSyncResult && typeof lastSyncResult === "object") {
+    if (typeof lastSyncResult.durationMs === "number") {
+      lastSyncDuration = +(lastSyncResult.durationMs / 1000).toFixed(1);
+    }
+    const summary = lastSyncResult.summary as Record<string, number> | undefined;
+    if (summary) {
+      if (summary.totalFailedProviders === 0) {
+        lastSyncResultStatus = "success";
+      } else if (
+        Array.isArray(lastSyncResult.providers) &&
+        summary.totalFailedProviders < (lastSyncResult.providers as unknown[]).length
+      ) {
+        lastSyncResultStatus = "partial";
+      } else {
+        lastSyncResultStatus = "failed";
+      }
+    }
+  }
+
   const json = JSON.stringify({
     data: {
       lastSyncTime,
       lastSyncResult,
       zeroPriceActiveChannels: zeroPriceCount[0]?.cnt ?? 0,
+      lastSyncAt,
+      lastSyncDuration,
+      lastSyncResultStatus,
     },
   });
 

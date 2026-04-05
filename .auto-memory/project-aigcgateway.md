@@ -12,7 +12,7 @@ AIGC Gateway — AI 服务商管理中台。统一 API 调用抽象（兼容 Ope
 
 **仓库目录:** aigcgateway（已连接为 Cowork 工作目录）
 
-## 当前开发状态（截至 2026-04-04）
+## 当前开发状态（截至 2026-04-05）
 
 - P1 完成：项目骨架 + 7 家服务商 + API 网关 + 健康检查 + SDK + 认证计费支付 + 控制台 17 页
 - P1 优化补丁完成：模型自动同步引擎 + 模型/通道 UI 重构 + API Keys 权限扩展 + 全站性能优化（14项）+ 全站 UI 重构（Stitch 设计稿，16/18 页已完成，Login/Register 待办）
@@ -23,18 +23,65 @@ AIGC Gateway — AI 服务商管理中台。统一 API 调用抽象（兼容 Ope
 - **成本优化 + Bug 修复批次完成（2026-04-04）：** 7/7 PASS，OpenRouter 成本 ~$482/周 → ~$9/周
 - **健康检查与同步优化批次完成（2026-04-04）：** 4/4 PASS，图片通道改轻量探测、白名单清理 Bug 修复、SiliconFlow/Zhipu 过滤只保留 TEXT/IMAGE
 - **白名单硬删除批次完成（2026-04-04）：** 1/1 PASS，白名单外通道改为 deleteMany 物理删除，不再出现在 Disabled Nodes
+- **性能优化批次完成（2026-04-04）：** 3/3 PASS，Prisma 连接池保活、模型页 Redis 缓存、用量页全表扫描修复
+- **服务器迁移批次完成（2026-04-04）：** 6/6 PASS，生产环境迁移至 GCP 新服务器（34.180.93.185，16GB RAM），旧 VPS 废弃
+- **压力测试批次完成（2026-04-05）：** 2/2 PASS，新服务器生产压测通过；发现 nginx 缺少 gzip，大 JSON 响应是 A/B 场景 P99 偏高根因
+- **nginx-gzip 批次完成（2026-04-05）：** 2/2 PASS，nginx 启用 gzip + /v1/models 精确 location 拆分，A/B P99 降至目标范围
 
-## 最近批次（2026-04-04）— 白名单硬删除批次
+## 最近批次（2026-04-05）— nginx-gzip 批次
 
-- `model-sync.ts syncProvider()`：白名单清理从 `updateMany DISABLED` 改为 `deleteMany`，查询范围扩展为全部 Channel（含已 DISABLED），彻底消除 Disabled Nodes 污染
-- HealthCheck 关联记录级联删除，CallLog.channelId 置空（外键约束已处理）
+- 目标：启用 nginx gzip 压缩，拆分 `/v1/models` location，将 A/B Warm P99 从 ~1600ms 降至 <800ms
+- 变更：`nginx/conf.d/default.conf` — 新增 gzip 配置（comp_level 4，min_length 1024）；新增 `location = /v1/models` 精确匹配块（支持 buffering + gzip）；保留 `location /v1/` 的 `proxy_buffering off`（SSE 流式需要）；所有 proxy_pass 修正为 `http://localhost:3000`
+- 验证：Codex 生产侧确认 `curl` 返回 `content-encoding: gzip`，localhost 压测 A/B P99 降至目标范围内
+- 批次类型：混合批次（F-GZIP-01 generator + F-GZIP-02 codex）
 
-**签收文档：** `docs/test-reports/whitelist-hard-delete-signoff-2026-04-04.md`
-**Harness 状态：** `progress.json` status=done, 1/1 PASS, fix_rounds=1
+**签收文档：** `docs/test-reports/nginx-gzip-signoff-2026-04-05.md`
+**Harness 状态：** status=done, 2/2 PASS, fix_rounds=0
 
-## 需求池（backlog.json）
+## 前置批次（2026-04-05）— 压力测试批次
 
-（空）
+- 目标：在新生产服务器验证吞吐量、Redis 缓存效果和并发稳定性
+- 脚本：`scripts/stress-test.ts`（autocannon，5 场景，自动 JWT 登录）
+- 结论：系统稳定（0% 错误率，PM2 无重启），Redis 缓存生效（B 场景冷热 6x 差距）
+- 阈值：原 200ms P99 为本地网络假设，不适用外网 HTTPS，已按两轮实测数据修订（A/B <2000ms、C/D <800ms）
+- **关键发现：nginx 无 gzip 配置**，大 JSON 响应（100-300KB）是 A/B P50≈900ms 的根本原因；已作为 BL-007 完成
+- 同期：框架升级至 v0.3.0，引入 `executor:codex` 字段，测试域完整归属 Codex
+
+**签收文档：** `docs/test-reports/stress-test-signoff-2026-04-05.md`
+**Harness 状态：** status=done, 2/2 PASS, fix_rounds=1
+
+## 前前置批次（2026-04-04）— 服务器迁移批次
+
+- 新服务器：GCP e2-highmem-2，16GB RAM，东京，Ubuntu 22.04，外网 IP `34.180.93.185`
+- 环境安装：Node.js 22 / PostgreSQL 17 / Redis / Nginx / PM2
+- 数据迁移：pg_dump → scp → pg_restore，行数一致验证通过
+- 应用构建：npm ci / prisma migrate deploy / npm run build（无 NODE_OPTIONS 限制）/ pm2 start
+- Nginx：proxy_pass 改为 `localhost:3000`（非 Docker），SSL 证书通过 certbot 签发
+- CI/CD：deploy.yml 和 GitHub Secrets 更新为新服务器，Actions 自动部署验证通过
+- 旧服务器（154.40.40.116，1GB VPS）已废弃
+
+**签收文档：** `docs/test-reports/server-migration-signoff-2026-04-04.md`
+**Harness 状态：** status=done, 6/6 PASS, fix_rounds=2
+
+## 前前置批次（2026-04-04）— 性能优化批次
+
+- `src/lib/prisma.ts`：生产和开发都挂 globalThis，防止重复创建连接池
+- `src/app/api/admin/models-channels/route.ts`：加 Redis 缓存（TTL 300s）
+- `src/app/api/admin/usage/` 三个接口：加时间过滤 + Redis 缓存（TTL 600s），修复全表扫描
+- `prisma/schema.prisma`：CallLog 补 `@@index([status, createdAt(sort: Desc)])`
+
+**签收文档：** `docs/test-reports/perf-optimization-local-signoff-2026-04-04.md`
+**Harness 状态：** status=done, 3/3 PASS
+
+## 需求池（backlog.json，截至 2026-04-05）
+
+- **BL-002（P1）：** 管理端统一鉴权测试入口脚本（`scripts/admin-auth.ts`）
+- **BL-003（P1）：** 生产侧只读可观测字段（`/api/admin/debug/` 命名空间）
+- **BL-004（P1）：** 图片生成失败链路诊断日志强化
+- **BL-005（P2）：** 管理端接口响应结构文档化（真实 JSON 样例）
+- **BL-006（P2）：** 健康检查/同步结果时间窗口过滤
+
+详见 `backlog.json`
 
 ## 最近修复（2026-04-04）— 成本优化 + Bug 修复批次
 
@@ -72,10 +119,35 @@ AIGC Gateway — AI 服务商管理中台。统一 API 调用抽象（兼容 Ope
 
 ## 生产环境
 
-- 控制台：`https://aigc.guangai.ai`（备用 `http://154.40.40.116:8301`）
+- 控制台：`https://aigc.guangai.ai`
 - API：`https://aigc.guangai.ai/v1/`
 - MCP：`https://aigc.guangai.ai/mcp`
 - Stitch 设计稿项目 ID: 13523510089051052358
+
+### 生产服务器（2026-04-04 迁移至 GCP）
+
+| 项目 | 值 |
+|---|---|
+| 服务商 | Google Cloud Platform |
+| 实例名 | instance-20260403-154049 |
+| 地区 | asia-northeast1-b（东京） |
+| 机型 | e2-highmem-2（2 vCPU，16GB RAM） |
+| 系统 | Ubuntu 22.04 LTS (x86_64) |
+| 外网 IP | `34.180.93.185` |
+| SSH 用户 | `tripplezhou` |
+| 部署路径 | `/opt/aigc-gateway` |
+| 启动方式 | PM2（`ecosystem.config.cjs`） |
+| 反向代理 | Nginx → `localhost:3000` |
+| 配置文件 | `/opt/aigc-gateway/.env.production`（不在仓库） |
+| CI/CD | GitHub Actions → SSH → `git pull + npm ci + build + pm2 restart` |
+
+**Claude CLI / Codex 在生产环境操作时：**
+- SSH 登录：`ssh tripplezhou@34.180.93.185`
+- 切换到部署目录：`cd /opt/aigc-gateway`
+- 加载环境变量：`set -a && source .env.production && set +a`
+- 查看日志：`pm2 logs aigc-gateway`
+- 重启应用：`pm2 restart aigc-gateway`
+- 构建时无需 NODE_OPTIONS 内存限制（16GB，旧 VPS 的 768MB 限制已废弃）
 
 ### Codex 测试账号（2026-04-03 创建，无需重复创建）
 
@@ -88,12 +160,21 @@ AIGC Gateway — AI 服务商管理中台。统一 API 调用抽象（兼容 Ope
 
 两账号初始余额各 $6.85（≈50 CNY）
 
+## Harness 框架版本（v0.3.0，2026-04-05）
+
+- **executor 字段**：每条 feature 必须声明 `executor: "generator"` 或 `executor: "codex"`
+- **批次类型**：普通（全 generator）/ 混合（部分 codex）/ Codex-only（全 codex，跳过 building）
+- **测试域归属**：单元测试、E2E 脚本、压测脚本全部由 Codex 编写和执行，Generator 不写任何测试
+- framework/ 目录已更新至 v0.3.0，CHANGELOG 有完整记录
+
 ## 关键开发规则
 
 - Schema 变更 + migration + 引用代码必须同一 commit，否则 CI tsc 会死锁
 - git pull 后 schema 变了必须 `npx prisma generate`
 - 设计稿从 Stitch MCP 下载后存到 `design-draft/{屏幕名}/code.html + screen.png`
 - 前端页面重构必须按原型 code.html 1:1 复刻 DOM 结构和 class
+- 生产构建无需 `NODE_OPTIONS="--max-old-space-size=768"`（新服务器 16GB，旧 VPS 限制已废弃）
+- 生产部署不使用 Docker，使用 PM2 直接运行 `.next/standalone/server.js`
 
 **Why:** 以上状态供下次会话快速定位当前进度，避免重新梳理
 **How to apply:** 开始新任务前先对照此文件确认当前阶段，继续未完成的工作

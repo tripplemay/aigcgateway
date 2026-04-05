@@ -38,18 +38,36 @@ export async function GET(request: Request) {
     total: channels.length,
   };
 
-  const data = channels.map((ch) => ({
-    channelId: ch.id,
-    provider: ch.provider.displayName,
-    providerName: ch.provider.name,
-    model: ch.model.name,
-    modelDisplayName: ch.model.displayName,
-    modality: ch.model.modality,
-    realModelId: ch.realModelId,
-    status: ch.status,
-    priority: ch.priority,
-    lastChecks: ch.healthChecks,
-  }));
+  const data = channels.map((ch) => {
+    // F-INFRA-06: lastCheckedAt + consecutiveFailures
+    const lastCheckedAt =
+      ch.healthChecks.length > 0 ? ch.healthChecks[0].createdAt.toISOString() : null;
+
+    // 连续失败次数：从最近的 check 往前数直到遇到非 FAIL
+    let consecutiveFailures = 0;
+    for (const hc of ch.healthChecks) {
+      if (hc.result === "FAIL") {
+        consecutiveFailures++;
+      } else {
+        break;
+      }
+    }
+
+    return {
+      channelId: ch.id,
+      provider: ch.provider.displayName,
+      providerName: ch.provider.name,
+      model: ch.model.name,
+      modelDisplayName: ch.model.displayName,
+      modality: ch.model.modality,
+      realModelId: ch.realModelId,
+      status: ch.status,
+      priority: ch.priority,
+      lastChecks: ch.healthChecks,
+      lastCheckedAt,
+      consecutiveFailures,
+    };
+  });
 
   return NextResponse.json({ summary, data });
 }

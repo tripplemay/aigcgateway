@@ -1,17 +1,16 @@
 {
   "status": "verifying",
-  "user_goal": "nginx-gzip 批次：启用 gzip 压缩，拆分 /v1/models location，预期将 A/B Warm P99 从 ~1600ms 降至 <800ms",
-  "total_features": 2,
-  "completed_features": 1,
+  "user_goal": "dev-infra 批次：鉴权测试脚本 + 可观测 debug 接口 + 图片诊断日志 + 接口响应文档 + sync/health 时间字段",
+  "total_features": 6,
+  "completed_features": 5,
   "fix_rounds": 0,
   "current_sprint": null,
-  "last_updated": "2026-04-05T11:00:00Z",
+  "last_updated": "2026-04-05T09:00:00Z",
   "reference_docs": [
-    "docs/specs/nginx-gzip-spec.md",
-    "nginx/conf.d/default.conf"
+    "docs/specs/dev-infra-batch-spec.md"
   ],
   "docs": {
-    "spec": "docs/specs/nginx-gzip-spec.md",
+    "spec": "docs/specs/dev-infra-batch-spec.md",
     "test_cases": null,
     "signoff": null,
     "framework_reviewed": false
@@ -19,16 +18,40 @@
   "evaluator_feedback": null,
   "features": [
     {
-      "id": "F-GZIP-01",
-      "title": "修改 nginx/conf.d/default.conf：启用 gzip + 拆分 /v1/models location + 修正 proxy_pass 地址",
-      "status": "completed",
+      "id": "F-INFRA-01",
+      "title": "scripts/admin-auth.ts — 管理端统一鉴权测试入口脚本",
+      "status": "done",
       "executor": "generator"
     },
     {
-      "id": "F-GZIP-02",
-      "title": "部署验证 + 压测复跑（gzip 效果验证）",
+      "id": "F-INFRA-02",
+      "title": "GET /api/admin/debug/sync — sync 差异 + 通道 disable 原因接口",
+      "status": "done",
+      "executor": "generator"
+    },
+    {
+      "id": "F-INFRA-03",
+      "title": "GET /api/admin/debug/enrichment — enrichment 统计接口",
+      "status": "done",
+      "executor": "generator"
+    },
+    {
+      "id": "F-INFRA-04",
+      "title": "imageViaChat 提取链诊断日志强化",
+      "status": "done",
+      "executor": "generator"
+    },
+    {
+      "id": "F-INFRA-05",
+      "title": "docs/specs/admin-api-response-samples.md — 管理端接口真实响应文档",
       "status": "pending",
       "executor": "codex"
+    },
+    {
+      "id": "F-INFRA-06",
+      "title": "sync-status + health 接口新增时间字段",
+      "status": "done",
+      "executor": "generator"
     }
   ]
 }

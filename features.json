@@ -1,34 +1,84 @@
 {
-  "batch": "nginx-gzip 批次",
+  "batch": "dev-infra 批次",
   "created_at": "2026-04-05",
   "features": [
     {
-      "id": "F-GZIP-01",
-      "title": "修改 nginx/conf.d/default.conf：启用 gzip + 拆分 /v1/models location + 修正 proxy_pass 地址",
+      "id": "F-INFRA-01",
+      "title": "scripts/admin-auth.ts — 管理端统一鉴权测试入口脚本",
       "priority": "high",
       "executor": "generator",
-      "status": "completed",
+      "status": "done",
       "acceptance": [
-        "nginx -t 语法验证通过",
-        "server block 顶部包含 gzip on 及 gzip_types application/json",
-        "location = /v1/models 精确匹配块存在，且在 location /v1/ 之前，无 proxy_buffering off",
-        "所有 proxy_pass 均为 http://localhost:3000，不存在 http://app:3000"
+        "文件 scripts/admin-auth.ts 存在",
+        "导出 getAdminToken() 和 getAdminHeaders() 函数",
+        "支持 BASE_URL 环境变量，默认 http://localhost:3099",
+        "npx tsx scripts/admin-auth.ts 可独立运行，打印 token 前 20 字符",
+        "顶部注释包含 5 个高频管理接口的 curl 等价示例"
       ]
     },
     {
-      "id": "F-GZIP-02",
-      "title": "部署验证 + 压测复跑（gzip 效果验证）",
+      "id": "F-INFRA-02",
+      "title": "GET /api/admin/debug/sync — sync 差异 + 通道 disable 原因接口",
       "priority": "high",
+      "executor": "generator",
+      "status": "done",
+      "acceptance": [
+        "路由 src/app/api/admin/debug/sync/route.ts 存在，有 export const dynamic = 'force-dynamic'",
+        "JWT Admin 鉴权（adminGuard）",
+        "响应包含 lastSyncAt、lastSyncDuration、syncedModelCount、exposedModelCount、disabledChannels 字段",
+        "disabledChannels 每条包含 id、name、provider、disabledReason、disabledAt",
+        "SyncLog 表不存在或无记录时返回 null 而非报错"
+      ]
+    },
+    {
+      "id": "F-INFRA-03",
+      "title": "GET /api/admin/debug/enrichment — enrichment 统计接口",
+      "priority": "high",
+      "executor": "generator",
+      "status": "done",
+      "acceptance": [
+        "路由 src/app/api/admin/debug/enrichment/route.ts 存在",
+        "JWT Admin 鉴权",
+        "响应包含 totalModels、enrichedModels、unenrichedModels、enrichmentRate、byProvider 字段",
+        "byProvider 按 provider 分组，每条包含 provider、total、enriched、rate"
+      ]
+    },
+    {
+      "id": "F-INFRA-04",
+      "title": "imageViaChat 提取链诊断日志强化",
+      "priority": "medium",
+      "executor": "generator",
+      "status": "done",
+      "acceptance": [
+        "openai-compat.ts imageViaChat 函数在 4 个关键失败节点均有 console.error 诊断日志",
+        "日志包含 stage、contentType、partTypes、urlCandidateCount、dataUriFound、model、provider 字段",
+        "不影响现有功能逻辑，仅新增日志输出"
+      ]
+    },
+    {
+      "id": "F-INFRA-05",
+      "title": "docs/specs/admin-api-response-samples.md — 管理端接口真实响应文档",
+      "priority": "medium",
       "executor": "codex",
       "status": "pending",
       "acceptance": [
-        "nginx -T | grep gzip 输出包含 gzip on",
-        "curl -sI -H 'Accept-Encoding: gzip' https://aigc.guangai.ai/v1/models | grep content-encoding 返回 gzip",
-        "A Warm P99 < 800ms（当前基线 1654ms）",
-        "B Warm P99 < 800ms（当前基线 1554ms）",
-        "C/D Warm P99 仍 < 800ms（不退步）",
-        "场景 E 错误率 < 1%，PM2 未重启",
-        "压测报告写入 docs/test-reports/stress-test-postgzip-2026-04-05.md"
+        "文件 docs/specs/admin-api-response-samples.md 存在",
+        "包含 5 个接口的真实响应 JSON 样例：models-channels、usage、usage/by-model、sync-status、health",
+        "每个接口有关键字段说明",
+        "响应来自生产环境真实调用（非 mock）"
+      ]
+    },
+    {
+      "id": "F-INFRA-06",
+      "title": "sync-status 接口新增 lastSyncAt/Duration/Result，health 接口新增 lastCheckedAt/consecutiveFailures",
+      "priority": "medium",
+      "executor": "generator",
+      "status": "done",
+      "acceptance": [
+        "sync-status 响应新增 lastSyncAt（ISO 8601 或 null）、lastSyncDuration（秒或 null）、lastSyncResult（'success'|'partial'|'failed'|null）",
+        "health 响应每条 channel 新增 lastCheckedAt（ISO 8601 或 null）、consecutiveFailures（number）",
+        "无 SyncLog 记录或无 HealthCheckLog 记录时返回 null，不报错",
+        "现有字段不变，向后兼容"
       ]
     }
   ]

@@ -31,16 +31,32 @@
 如省略，`docs.spec` 填 `null`。
 
 ### 3. 生成功能列表
-将需求展开为 5-30 条具体功能，写入 features.json，格式如下：
+将需求展开为 5-30 条具体功能，写入 features.json。
+
+**每条功能必须声明 `executor` 字段：**
+- `"generator"`（默认）：代码实现类，由 Claude CLI 在 building 阶段完成
+- `"codex"`：执行/评估类，由 Codex 在 verifying 阶段完成
+
+executor:codex 的典型场景：压力测试执行、code review、安全审计、E2E 测试运行、性能分析报告。
+
 ```json
 {
   "features": [
     {
       "id": "F001",
-      "title": "用户可以输入任务标题",
+      "title": "编写压测脚本 scripts/stress-test.ts",
       "priority": "high",
+      "executor": "generator",
       "status": "pending",
-      "acceptance": "输入框存在，输入后按回车可提交，内容显示在列表中"
+      "acceptance": "脚本存在，支持 BASE_URL，可正常执行"
+    },
+    {
+      "id": "F002",
+      "title": "执行压测并输出报告",
+      "priority": "high",
+      "executor": "codex",
+      "status": "pending",
+      "acceptance": "报告文件已生成，包含所有场景数据和结论"
     }
   ]
 }
@@ -51,10 +67,14 @@
 - medium：重要但非必须的功能
 - low：锦上添花的功能，最后实现
 
-### 5. 更新 progress.json
+### 5. 判断批次类型并更新 progress.json
+
+检查 features.json 中所有功能的 executor 字段：
+
+**存在任意一条 `executor:generator`（普通批次 / 混合批次）：**
 ```json
 {
-  "status": "planning",
+  "status": "building",
   "user_goal": "用一句话描述用户目标",
   "total_features": 20,
   "completed_features": 0,
@@ -71,10 +91,18 @@
 }
 ```
 
+**全部为 `executor:codex`（Codex-only 批次，跳过 building）：**
+```json
+{
+  "status": "verifying",
+  ...（其他字段相同）
+}
+```
+
 ## 完成标准
-- `docs/specs/` 下规格文档已创建
-- features.json 已创建
-- progress.json 已更新为 status: "planning"，docs.spec 已填写
+- `docs/specs/` 下规格文档已创建（新功能批次硬性要求，Bug 修复可省略）
+- features.json 已创建，每条功能均有 `executor` 字段
+- progress.json 已更新为 `building` 或 `verifying`（取决于批次类型）
 
 ---
 

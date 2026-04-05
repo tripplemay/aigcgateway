@@ -10,8 +10,36 @@
 | 工具 | 角色 | 负责阶段 |
 |---|---|---|
 | Cowork（Claude Desktop） | Planner + 记忆维护 | `new` / `planning` / `done` |
-| Claude CLI（Claude Code） | Generator（实现 + 修复） | `building` / `fixing` |
-| Codex | Evaluator（验收 + 复验） | `verifying` / `reverifying` |
+| Claude CLI（Claude Code） | Generator（功能实现 + 修复） | `building` / `fixing` |
+| Codex | Evaluator（测试设计 + 执行 + 验收 + 复验） | `verifying` / `reverifying` |
+
+**职责边界说明：**
+- Generator 只负责「把功能做出来」——业务逻辑、API、UI、数据库变更。不写任何测试。
+- Codex 拥有完整的「测试域」——设计测试用例、编写测试脚本、执行测试、分析结果、输出报告。
+
+## Feature 执行者（executor）
+
+features.json 中每条功能必须声明 `executor` 字段：
+
+| executor 值 | 含义 | 由谁执行 | 执行阶段 |
+|---|---|---|---|
+| `"generator"` | 代码实现类（默认值） | Claude CLI | `building` |
+| `"codex"` | 执行 / 评估类 | Codex | `verifying` |
+
+**executor:codex 的适用场景：** 压力测试执行、code review、安全审计、E2E 测试运行、性能分析报告。
+这类任务的交付物是"结果报告"而非代码，由 Generator 提供工具/脚本，Codex 操作工具产出结论。
+
+## 批次类型
+
+| 批次类型 | 特征 | 状态流转 |
+|---|---|---|
+| 普通批次 | 全部 `executor:generator` | `planning → building → verifying → done` |
+| 混合批次 | 部分 `generator`，部分 `codex` | `planning → building → verifying → done` |
+| Codex-only 批次 | 全部 `executor:codex` | `planning → verifying → done`（跳过 building） |
+
+**判断规则（Planner 在 planning 末尾执行）：**
+- features.json 中存在任意一条 `executor:generator` → status 设为 `building`
+- features.json 中全部为 `executor:codex` → status 直接设为 `verifying`（Codex-only 批次）
 
 ## 启动流程（每次必须按顺序执行）
 
@@ -48,11 +76,18 @@
 ## 状态流转图
 
 ```
-new → planning → building → verifying → fixing ⟷ reverifying → done
-                                  ↑__________________________|
-                                        （有问题继续循环）
+普通批次 / 混合批次：
+  new → planning → building → verifying → fixing ⟷ reverifying → done
+                                    ↑__________________________|
+                                          （有问题继续循环）
+
+Codex-only 批次（全部 executor:codex）：
+  new → planning → verifying → fixing ⟷ reverifying → done
+                      ↑___________________________|
 ```
 
+- `planning → building`：仅当存在 `executor:generator` 的功能时
+- `planning → verifying`：当全部功能均为 `executor:codex` 时（跳过 building）
 - `verifying`：首轮，有问题 → `fixing`，全 PASS → `done`
 - `fixing`：修复完成 → `reverifying`，fix_rounds +1
 - `reverifying`：有问题 → `fixing`，全 PASS → `done`
@@ -89,6 +124,8 @@ docs/
 3. 上下文窗口剩余不足 20% 时，立即保存进度，结束当前会话
 4. 不得自己评估自己的代码质量，评估由 Codex（evaluator.md）完成
 5. 每次提交代码前必须确认可以运行，不提交无法运行的代码
+6. Generator 不得执行 `executor:codex` 的功能；Codex 不得实现 `executor:generator` 的功能
+7. 压测执行、code review、安全审计等"产出报告"类任务，必须标注 `executor:codex`
 
 ## Cowork（Claude）框架提案规则
 

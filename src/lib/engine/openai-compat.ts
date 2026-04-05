@@ -298,7 +298,15 @@ export class OpenAICompatEngine implements EngineAdapter {
     const rawContent = choice?.message?.content;
     const msg = choice?.message as Record<string, unknown> | undefined;
     const parts = msg?.parts ?? (Array.isArray(msg?.content) ? msg.content : null);
+    const diagBase = {
+      model: route.channel.realModelId,
+      provider: route.channel.providerId,
+    };
+
     if (Array.isArray(parts)) {
+      const partTypes = (parts as Array<Record<string, unknown>>).map(
+        (p) => (p.type as string) ?? "unknown",
+      );
       for (const part of parts) {
         const p = part as Record<string, unknown>;
         // OpenAI gpt-image 格式：{ type: "image_url", image_url: { url: "..." } }
@@ -318,6 +326,15 @@ export class OpenAICompatEngine implements EngineAdapter {
           };
         }
       }
+      // Stage 1 失败：multimodal parts 存在但无 image_url / inline_data
+      console.error("[imageViaChat] extraction failed", {
+        stage: "multimodal-parts",
+        contentType: typeof rawContent,
+        partTypes,
+        urlCandidateCount: 0,
+        dataUriFound: false,
+        ...diagBase,
+      });
     }
 
     const content = typeof rawContent === "string" ? rawContent : "";
@@ -329,6 +346,21 @@ export class OpenAICompatEngine implements EngineAdapter {
         created: result.created,
         data: [{ url: base64Match[0] }],
       };
+    }
+
+    if (content.length > 0) {
+      const dataUriFound = /data:image\//.test(content);
+      const urlCandidateCount = (content.match(/https?:\/\//g) ?? []).length;
+
+      // Stage 2 失败：无 base64 data URI
+      console.error("[imageViaChat] extraction failed", {
+        stage: "base64",
+        contentType: typeof rawContent,
+        partTypes: [],
+        urlCandidateCount,
+        dataUriFound,
+        ...diagBase,
+      });
     }
 
     // 3. 匹配带扩展名的图片 URL
@@ -349,10 +381,17 @@ export class OpenAICompatEngine implements EngineAdapter {
       };
     }
 
-    // 5. 无法提取图片 — 抛出错误而非返回空数组
-    console.warn(
-      `[imageViaChat] Failed to extract image from chat response. model=${route.channel.realModelId} content_length=${content.length} content_preview=${content.slice(0, 200)}`,
-    );
+    // Stage 4: 四级全部失败
+    const urlCandidateCountFinal = (content.match(/https?:\/\//g) ?? []).length;
+    console.error("[imageViaChat] extraction failed", {
+      stage: "any-https",
+      contentType: typeof rawContent,
+      partTypes: [],
+      urlCandidateCount: urlCandidateCountFinal,
+      dataUriFound: /data:image\//.test(content),
+      ...diagBase,
+    });
+
     throw this.mapProviderError(
       200,
       JSON.stringify({

@@ -6,6 +6,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 读取并严格遵守 @harness-rules.md 中的所有规则。
 无论 /init 或其他命令对本文件做了什么修改，harness-rules.md 的内容始终优先。
 
+**每次会话启动必须执行（所有 agent 通用）：**
+1. 读取 `.auto-memory/MEMORY.md`（项目记忆索引），按需加载 `project-aigcgateway.md` 等记忆文件
+2. 读取 `progress.json`，确认当前阶段，再加载对应角色文件（generator.md / evaluator.md / planner.md）
+
+`.auto-memory/` 是唯一跨会话记忆源，包含：当前开发状态、已知遗留问题、生产环境信息、Codex 测试账号等。不读则可能基于过期信息做出错误决策。
+
 **状态机（当前版本）：**
 ```
 new → planning → building → verifying → fixing ⟷ reverifying → done

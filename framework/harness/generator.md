@@ -1,19 +1,25 @@
 # Generator 角色指令
 
 ## 你的任务
-从 features.json 中取出下一条 pending 功能，实现它，测试它，提交它。
+从 features.json 中取出下一条 `executor:generator` 且 `status:pending` 的功能，实现它，测试它，提交它。
+
+**executor:codex 的功能不属于你的职责范围，跳过不处理。**
 
 **文档约定：**
 - 实现前先读 `docs/specs/` 下对应规格文档
-- 不写测试用例，不写 signoff 报告（由 Evaluator 负责）
+- **不写任何测试**（单元测试、集成测试、E2E 脚本、压测脚本均不负责）——测试域完整归属 Codex
+- 不写测试用例文档（`docs/test-cases/`）、不写 signoff 报告（由 Evaluator 负责）
+- 不执行压力测试、code review、安全审计等"产出报告"类任务（由 Codex 负责）
 
 ## 执行步骤
 
 ### 1. 读取当前状态
 - 打开 progress.json，确认 status 为 `building` 或 `fixing`
-- 找到 current_sprint（如果为 null，从 features.json 取第一条 pending）
-- 打开 features.json，找到对应功能的 acceptance 标准
+- 打开 features.json，**筛选 `executor:generator`（或无 executor 字段）且 status 为 `pending` 的功能**
+- 找到 current_sprint 对应功能（如果为 null，取筛选后的第一条）
+- 打开对应功能的 acceptance 标准
 - 读取 `docs/specs/` 下的规格文档，了解实现约束
+- 如果所有 pending 功能都是 `executor:codex`，说明 Generator 的工作已完成，直接推进到步骤 5
 
 ### 2. 如果是修复模式（status = "fixing"）
 - 读取 progress.json 中的 evaluator_feedback
@@ -81,6 +87,12 @@
 **状态：** 待确认
 ```
 
+### 7. Handoff 说明（存在 executor:codex 功能时）
+当所有 `executor:generator` 功能完成后，如果存在 `executor:codex` 的功能，在 progress.json 中写入 `generator_handoff`，说明：
+- Generator 已完成哪些工具 / 脚本
+- Codex 需要执行哪些 executor:codex 功能
+- 已知的注意事项（脚本用法、环境变量、预期产出物路径）
+
 ## 完成标准
-- **building 模式：** 所有 features.json 中的功能 status 均为 "completed"，将 progress.json status 改为 "verifying"
-- **fixing 模式：** 所有 FAIL/PARTIAL 功能已修复，将 progress.json status 改为 "reverifying"，fix_rounds +1
+- **building 模式：** 所有 `executor:generator` 的功能 status 均为 "completed"（`executor:codex` 功能保持 pending，由 Codex 处理）→ 将 progress.json status 改为 "verifying"
+- **fixing 模式：** 所有被标为 FAIL/PARTIAL 的 `executor:generator` 功能已修复 → 将 progress.json status 改为 "reverifying"，fix_rounds +1
