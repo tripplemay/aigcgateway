@@ -44,10 +44,7 @@ const WHITELIST: Record<string, Set<string>> = {
     "perplexity/sonar-pro",
   ]),
 
-  deepseek: new Set([
-    "deepseek-chat",
-    "deepseek-reasoner",
-  ]),
+  deepseek: new Set(["deepseek-chat", "deepseek-reasoner"]),
 
   volcengine: new Set([
     "doubao-pro-32k",
@@ -61,15 +58,9 @@ const WHITELIST: Record<string, Set<string>> = {
     "Qwen/Wanx",
   ]),
 
-  zhipu: new Set([
-    "glm-4-plus",
-    "glm-4-flash",
-  ]),
+  zhipu: new Set(["glm-4-plus", "glm-4-flash"]),
 
-  anthropic: new Set([
-    "claude-sonnet-4-20250514",
-    "claude-3-5-haiku-20241022",
-  ]),
+  anthropic: new Set(["claude-sonnet-4-20250514", "claude-3-5-haiku-20241022"]),
 };
 
 /**

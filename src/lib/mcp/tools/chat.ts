@@ -158,27 +158,52 @@ export function registerChat(server: McpServer, opts: McpServerOptions): void {
             const delta = chunk.choices?.[0]?.delta?.content;
             if (delta) fullContent += delta;
             if (chunk.usage) lastUsage = chunk.usage;
-            if (chunk.choices?.[0]?.finish_reason) lastFinishReason = chunk.choices[0].finish_reason;
+            if (chunk.choices?.[0]?.finish_reason)
+              lastFinishReason = chunk.choices[0].finish_reason;
           }
 
           const ttftMs = ttftTime ? ttftTime - startTime : null;
           processChatResult({
-            traceId, projectId, route, modelName: model,
-            promptSnapshot: messages, requestParams: { temperature, max_tokens, stream: true },
-            startTime, ttftTime,
-            streamChunks: { content: fullContent, usage: lastUsage, finishReason: lastFinishReason },
+            traceId,
+            projectId,
+            route,
+            modelName: model,
+            promptSnapshot: messages,
+            requestParams: { temperature, max_tokens, stream: true },
+            startTime,
+            ttftTime,
+            streamChunks: {
+              content: fullContent,
+              usage: lastUsage,
+              finishReason: lastFinishReason,
+            },
             source: "mcp",
           });
 
           return {
-            content: [{
-              type: "text" as const,
-              text: JSON.stringify({
-                content: fullContent, traceId, model, ttftMs,
-                usage: lastUsage ? { promptTokens: lastUsage.prompt_tokens, completionTokens: lastUsage.completion_tokens, totalTokens: lastUsage.total_tokens } : null,
-                finishReason: lastFinishReason,
-              }, null, 2),
-            }],
+            content: [
+              {
+                type: "text" as const,
+                text: JSON.stringify(
+                  {
+                    content: fullContent,
+                    traceId,
+                    model,
+                    ttftMs,
+                    usage: lastUsage
+                      ? {
+                          promptTokens: lastUsage.prompt_tokens,
+                          completionTokens: lastUsage.completion_tokens,
+                          totalTokens: lastUsage.total_tokens,
+                        }
+                      : null,
+                    finishReason: lastFinishReason,
+                  },
+                  null,
+                  2,
+                ),
+              },
+            ],
           };
         }
 
