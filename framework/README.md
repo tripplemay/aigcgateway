@@ -8,7 +8,7 @@
 
 ```
 framework/
-├── harness/               # 状态机核心（Planner → Generator → Evaluator）
+├── harness/               # 状态机核心（7 状态：new→planning→building→verifying→fixing⟷reverifying→done）
 │   ├── harness-rules.md   # 状态机规则，复制到项目根目录
 │   ├── planner.md         # Planner 角色指令，复制到项目根目录
 │   ├── generator.md       # Generator 角色指令，复制到项目根目录

@@ -27,8 +27,38 @@ AIGC Gateway — AI 服务商管理中台。统一 API 调用抽象（兼容 Ope
 - **服务器迁移批次完成（2026-04-04）：** 6/6 PASS，生产环境迁移至 GCP 新服务器（34.180.93.185，16GB RAM），旧 VPS 废弃
 - **压力测试批次完成（2026-04-05）：** 2/2 PASS，新服务器生产压测通过；发现 nginx 缺少 gzip，大 JSON 响应是 A/B 场景 P99 偏高根因
 - **nginx-gzip 批次完成（2026-04-05）：** 2/2 PASS，nginx 启用 gzip + /v1/models 精确 location 拆分，A/B P99 降至目标范围
+- **dev-infra 批次完成（2026-04-05）：** 6/6 PASS，鉴权脚本 + debug 接口 + 诊断日志 + 接口响应文档 + sync/health 时间字段；Codex 测试脚本简化为单一入口
 
-## 最近批次（2026-04-05）— nginx-gzip 批次
+## 最近批次（2026-04-05）— error-handling-fix 批次
+
+- 目标：修复三个页面无错误处理导致 App Router 导航状态污染（BL-008）
+- 根因：`apiFetch` 抛错时无 try/catch → unhandled promise rejection → App Router 客户端导航状态损坏，全站后续导航全部失败；无 `error.tsx` 兜底
+- 交付：
+  - `admin/health/page.tsx`：load() 加 try/catch，catch 里 setSummary 重置 + setChannels([])
+  - `admin/models/page.tsx`：load() 加 try/catch，catch 里 setData([]) + setLoading(false)
+  - `models/page.tsx`：fetch 链末加 .catch(() => setModels([]))
+  - `src/app/(console)/error.tsx`：新增全局 Error Boundary（'use client' + reset()）
+
+**签收文档：** `docs/test-reports/error-handling-fix-signoff-2026-04-05.md`
+**Harness 状态：** status=done, 4/4 PASS, fix_rounds=1
+
+## 前置批次（2026-04-05）— dev-infra 批次
+
+- 目标：降低 Codex 每轮验收的前置准备成本，提升生产侧可观测性
+- 交付：
+  - `scripts/admin-auth.ts` — 统一鉴权入口（getAdminToken / getAdminHeaders）
+  - `GET /api/admin/debug/sync` — sync 差异 + 通道 disable 原因
+  - `GET /api/admin/debug/enrichment` — enrichment 命中率统计
+  - `src/lib/engine/openai-compat.ts` imageViaChat 四级提取链诊断日志
+  - `docs/specs/admin-api-response-samples.md` — 5 个高频管理接口真实响应文档（Codex 执行）
+  - sync-status 接口新增 lastSyncAt / lastSyncDuration / lastSyncResult
+  - health 接口每条 channel 新增 lastCheckedAt / consecutiveFailures
+- 同期：Codex 本地测试环境简化——三个脚本合并为一个 `codex-setup.sh`，新增 `codex-wait.sh`，AGENTS.md 第 4 节更新
+
+**签收文档：** `docs/test-reports/dev-infra-signoff-2026-04-05.md`
+**Harness 状态：** status=done, 6/6 PASS, fix_rounds=1
+
+## 前置批次（2026-04-05）— nginx-gzip 批次
 
 - 目标：启用 nginx gzip 压缩，拆分 `/v1/models` location，将 A/B Warm P99 从 ~1600ms 降至 <800ms
 - 变更：`nginx/conf.d/default.conf` — 新增 gzip 配置（comp_level 4，min_length 1024）；新增 `location = /v1/models` 精确匹配块（支持 buffering + gzip）；保留 `location /v1/` 的 `proxy_buffering off`（SSE 流式需要）；所有 proxy_pass 修正为 `http://localhost:3000`
@@ -75,13 +105,7 @@ AIGC Gateway — AI 服务商管理中台。统一 API 调用抽象（兼容 Ope
 
 ## 需求池（backlog.json，截至 2026-04-05）
 
-- **BL-002（P1）：** 管理端统一鉴权测试入口脚本（`scripts/admin-auth.ts`）
-- **BL-003（P1）：** 生产侧只读可观测字段（`/api/admin/debug/` 命名空间）
-- **BL-004（P1）：** 图片生成失败链路诊断日志强化
-- **BL-005（P2）：** 管理端接口响应结构文档化（真实 JSON 样例）
-- **BL-006（P2）：** 健康检查/同步结果时间窗口过滤
-
-详见 `backlog.json`
+当前需求池为空，详见 `backlog.json`
 
 ## 最近修复（2026-04-04）— 成本优化 + Bug 修复批次
 

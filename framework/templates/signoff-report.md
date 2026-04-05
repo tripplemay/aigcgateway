@@ -55,8 +55,8 @@
 
 ## Harness 说明
 
-本批改动由 [角色] 实现，经 Planner → Generator → Evaluator 流程。
-`progress.json` 已设为 `status: "reviewing"`，等待 Evaluator 验收后更新为 `"done"`。
+本批改动经 Harness 状态机完整流程（planning → building → verifying → done）交付。
+`progress.json` 已设为 `status: "done"`，signoff 路径已填入 `docs.signoff`。
 
 ---
 

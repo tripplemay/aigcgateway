@@ -3,6 +3,16 @@ name: CI — Lint & Type Check
 on:
   push:
     branches: [main]
+    paths-ignore:
+      - 'progress.json'
+      - 'features.json'
+      - 'backlog.json'
+      - 'harness-rules.md'
+      - 'CLAUDE.md'
+      - 'AGENTS.md'
+      - '.auto-memory/**'
+      - 'docs/**'
+      - 'framework/**'
   pull_request:
     branches: [main]
 

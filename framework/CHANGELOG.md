@@ -44,7 +44,7 @@
 framework/
 ├── README.md                  新项目启动指南（5步流程）+ 经验教训
 ├── harness/
-│   ├── harness-rules.md       状态机规则（Planner → Generator → Evaluator）
+│   ├── harness-rules.md       状态机规则（7 状态机，Cowork/Claude CLI/Codex 三工具协作）
 │   ├── planner.md             Planner 角色指令
 │   ├── generator.md           Generator 角色指令
 │   ├── evaluator.md           Evaluator 角色指令

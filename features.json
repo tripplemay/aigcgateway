@@ -7,7 +7,7 @@
       "title": "admin/health/page.tsx — load() 加 try/catch，失败时展示空状态",
       "priority": "P1",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": [
         "load() 包含 try/catch",
         "catch 里执行 setSummary({ active:0, degraded:0, disabled:0, total:0 }) + setChannels([])",
@@ -20,7 +20,7 @@
       "title": "admin/models/page.tsx — load() 加 try/catch + catch 里补 setLoading(false)",
       "priority": "P1",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": [
         "load() 包含 try/catch",
         "catch 里执行 setData([]) + setLoading(false)",
@@ -33,7 +33,7 @@
       "title": "models/page.tsx — fetch 链加 .catch()",
       "priority": "P1",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": [
         "fetch 链末尾加 .catch(() => setModels([]))",
         "访问 /models 时后端返回非 2xx 或网络错误，页面展示空状态（No models found），不崩溃",
@@ -45,7 +45,7 @@
       "title": "新增 src/app/(console)/error.tsx — 全局 Error Boundary 兜底",
       "priority": "P1",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": [
         "文件 src/app/(console)/error.tsx 存在",
         "文件顶部包含 'use client' 指令",
