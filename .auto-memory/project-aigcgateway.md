@@ -12,7 +12,7 @@ AIGC Gateway — AI 服务商管理中台。统一 API 调用抽象（兼容 Ope
 
 **仓库目录:** aigcgateway（已连接为 Cowork 工作目录）
 
-## 当前开发状态（截至 2026-04-05）
+## 当前开发状态（截至 2026-04-06）
 
 - P1 完成：项目骨架 + 7 家服务商 + API 网关 + 健康检查 + SDK + 认证计费支付 + 控制台 17 页
 - P1 优化补丁完成：模型自动同步引擎 + 模型/通道 UI 重构 + API Keys 权限扩展 + 全站性能优化（14项）+ 全站 UI 重构（Stitch 设计稿，16/18 页已完成，Login/Register 待办）
@@ -113,7 +113,30 @@ AIGC Gateway — AI 服务商管理中台。统一 API 调用抽象（兼容 Ope
 **签收文档：** `docs/test-reports/perf-optimization-local-signoff-2026-04-04.md`
 **Harness 状态：** status=done, 3/3 PASS
 
-## 最近批次（2026-04-05）— mcp-setup-fix 批次
+## 最近批次（2026-04-06）— mcp-capability-enhancement 批次
+
+- 目标：MCP 能力增强（模型去重+统一白名单、capabilities 填充、chat stream/response_format、SERVER_INSTRUCTIONS 重写、空结果引导、source 清理、ttftMs 暴露、usage summary 增强）
+- 规格文档：`docs/specs/mcp-capability-enhancement-spec.md`
+- 交付：
+  - F-MCE-01：resolveModelName() toLowerCase 去重修复
+  - F-MCE-02：统一模型白名单 model-whitelist.ts（替代 openrouter-whitelist.ts）
+  - F-MCE-03：capabilities 填充（上游 API + model-capabilities-fallback.ts + unknown 兜底）
+  - F-MCE-04：list_models 返回 capabilities 字段
+  - F-MCE-05：chat 工具新增 stream 参数（服务端消费 stream 后一次性返回含 ttftMs）
+  - F-MCE-06：chat 工具新增 response_format 参数（json_object 支持）
+  - F-MCE-07：SERVER_INSTRUCTIONS 全面重写（Quick Start + 全场景覆盖 + 控制台引导）
+  - F-MCE-08：list_actions/list_templates 空结果返回引导文案
+  - F-MCE-09：CallLog.source 去掉 'sdk'，只保留 'api'/'mcp'
+  - F-MCE-10：get_log_detail 补 ttftMs 原始毫秒数
+  - F-MCE-11~12：get_usage_summary 增加 model/period/source/action/template 筛选和分组
+  - F-MCE-13：i18n 更新
+  - F-MCE-14：E2E 验证（Codex）
+- fix_rounds：1（F-MCE-12 templateRunId 修复）
+
+**签收文档：** `docs/test-reports/mcp-capability-enhancement-local-signoff-2026-04-06.md`
+**Harness 状态：** status=done, 14/14 PASS, fix_rounds=1
+
+## 前置批次（2026-04-05）— mcp-setup-fix 批次
 
 - 目标：修复 MCP 设置页 4 个问题
 - 交付：F-MSF-01：TOOLS 数组补全 11 个 Tool（新增 list_actions/run_action/list_templates/run_template）；en.json/zh-CN.json 补 4 个新 tool i18n key；"Finalize Installation" 死按钮改为跳转 /dashboard；"Create New Key" 硬编码改走 t()
@@ -161,9 +184,9 @@ AIGC Gateway — AI 服务商管理中台。统一 API 调用抽象（兼容 Ope
 **签收文档：** `docs/test-reports/dx-fix-signoff-2026-04-05.md`
 **Harness 状态：** status=done, 4/4 PASS
 
-## 需求池（backlog.json，截至 2026-04-05）
+## 需求池（backlog.json，截至 2026-04-06）
 
-当前需求池为空，详见 `backlog.json`
+当前需求池为空。第二轮 MCP 新用户评估报告（AIGC_GATEWAY_NEW_USER_EVALUATION.md）发现 7 个新问题，正在逐项讨论方案中。
 
 ## 工作流升级（2026-04-05）
 

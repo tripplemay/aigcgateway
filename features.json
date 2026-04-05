@@ -1,118 +1,86 @@
 {
-  "batch": "mcp-capability-enhancement",
-  "created_at": "2026-04-05",
+  "batch": "mcp-dx-round2",
+  "created_at": "2026-04-06",
   "features": [
     {
-      "id": "F-MCE-01",
-      "title": "model-sync resolveModelName() 加 toLowerCase() 修复大小写去重",
+      "id": "F-DX2-01",
+      "title": "白名单收紧至 28 个精选模型 + OpenAI 改精确匹配",
       "priority": "high",
       "executor": "generator",
-      "status": "completed",
-      "acceptance": "1) resolveModelName() 返回值统一 toLowerCase()；2) 同名不同大小写的模型同步后只保留一条；3) CROSS_PROVIDER_MAP 中的映射值不受影响；4) npm run lint 通过，tsc --noEmit 无报错"
+      "status": "pending",
+      "acceptance": "1) model-whitelist.ts 重写，包含且仅包含确认的 28 个模型；2) isOpenAIModelWhitelisted 废弃 startsWith 前缀匹配，改为精确匹配；3) 未接入的模型（Kimi/MiniMax/Perplexity/Gemini 等）通过 OpenRouter 代理时白名单条目正确映射；4) 白名单外模型同步时物理删除；5) npm run lint 通过，tsc --noEmit 无报错"
     },
     {
-      "id": "F-MCE-02",
-      "title": "统一模型白名单：新建 model-whitelist.ts，废弃 openrouter-whitelist.ts",
+      "id": "F-DX2-02",
+      "title": "list_models 默认按 canonical name 去重",
       "priority": "high",
       "executor": "generator",
-      "status": "completed",
-      "acceptance": "1) 新文件 src/lib/sync/model-whitelist.ts，导出单一 Set<string>（约 30-50 个精选模型名）；2) 覆盖所有 7 家服务商的主流模型；3) model-sync.ts 在 upsert 前对所有 provider 做白名单检查；4) openrouter.ts 的 filterModel() 改为引用统一白名单；5) openrouter-whitelist.ts 文件删除；6) 白名单外模型在同步时物理删除（延续现有逻辑）；7) npm run lint 通过，tsc --noEmit 无报错"
+      "status": "pending",
+      "acceptance": "1) list_models 返回的模型列表按 canonical name 去重，同一基础模型只展示一条；2) 去重后取优先级最高渠道的信息（价格、capabilities）；3) 支持可选参数 show_all_channels=true 展示全量；4) REST API /v1/models 同步去重；5) npm run lint 通过，tsc --noEmit 无报错"
     },
     {
-      "id": "F-MCE-03",
-      "title": "model-sync 填充 capabilities（上游 API + 静态 fallback + unknown 兜底）",
+      "id": "F-DX2-03",
+      "title": "capabilities 补全（对照 28 个模型）+ 去掉 tools 标记",
+      "priority": "high",
+      "executor": "generator",
+      "status": "pending",
+      "acceptance": "1) model-capabilities-fallback.ts 覆盖全部 28 个白名单模型；2) capabilities 只标 streaming/vision/json_mode，不标 tools；3) 所有 28 个模型的 capabilities 不再出现空 {}；4) npm run lint 通过，tsc --noEmit 无报错"
+    },
+    {
+      "id": "F-DX2-04",
+      "title": "generate_image tool description 补充各模型尺寸说明",
       "priority": "medium",
       "executor": "generator",
-      "status": "completed",
-      "acceptance": "1) 各 adapter fetchModels() 提取上游 capabilities 信息（如有）；2) 新文件 src/lib/sync/model-capabilities-fallback.ts 提供静态映射；3) model-sync upsert 时写入 capabilities 字段：上游 > fallback > {\"unknown\":true}；4) 同步后 Model.capabilities 不再为 null；5) npm run lint 通过，tsc --noEmit 无报错"
+      "status": "pending",
+      "acceptance": "1) generate_image 的 tool description 包含各图片模型支持的尺寸范围；2) npm run lint 通过，tsc --noEmit 无报错"
     },
     {
-      "id": "F-MCE-04",
-      "title": "list_models MCP 工具返回 capabilities 字段",
+      "id": "F-DX2-05",
+      "title": "新增 MCP 工具 get_action_detail",
       "priority": "medium",
       "executor": "generator",
-      "status": "completed",
-      "acceptance": "1) list_models 返回的每个模型对象中包含 capabilities 字段；2) 字段值来自 Model 表；3) npm run lint 通过，tsc --noEmit 无报错"
+      "status": "pending",
+      "acceptance": "1) 新文件 src/lib/mcp/tools/get-action-detail.ts；2) 返回 Action 基本信息 + 激活版本详情（messages/variables）+ 版本列表；3) 跨项目访问检查；4) Action 不存在时返回 isError；5) server.ts 注册该工具；6) npm run lint 通过，tsc --noEmit 无报错"
     },
     {
-      "id": "F-MCE-05",
-      "title": "MCP chat 工具新增 stream 参数（SSE 流式输出）",
+      "id": "F-DX2-06",
+      "title": "新增 MCP 工具 get_template_detail",
+      "priority": "medium",
+      "executor": "generator",
+      "status": "pending",
+      "acceptance": "1) 新文件 src/lib/mcp/tools/get-template-detail.ts；2) 返回 Template 基本信息 + 执行模式 + 步骤列表（含每步 Action 信息）；3) 跨项目访问检查；4) Template 不存在时返回 isError；5) server.ts 注册该工具；6) npm run lint 通过，tsc --noEmit 无报错"
+    },
+    {
+      "id": "F-DX2-07",
+      "title": "SERVER_INSTRUCTIONS 更新（新增 get_action_detail/get_template_detail + 图片模型指引）",
       "priority": "high",
       "executor": "generator",
-      "status": "completed",
-      "acceptance": "1) chat tool schema 新增 stream: boolean optional 参数；2) stream=true 时调用底层 adapter 的 streaming 模式；3) 返回完整内容 + usage + ttftMs；4) stream=false（默认）行为不变；5) processChatResult 正确写入 CallLog（source='mcp'）；6) npm run lint 通过，tsc --noEmit 无报错"
+      "status": "pending",
+      "acceptance": "1) SERVER_INSTRUCTIONS 包含 get_action_detail 和 get_template_detail 的使用说明和场景；2) 包含图片模型选型指引（各模型尺寸差异）；3) 工具总数描述更新为 13 个；4) npm run lint 通过，tsc --noEmit 无报错"
     },
     {
-      "id": "F-MCE-06",
-      "title": "MCP chat 工具新增 response_format 参数",
-      "priority": "high",
-      "executor": "generator",
-      "status": "completed",
-      "acceptance": "1) chat tool schema 新增 response_format: {type: 'text'|'json_object'} optional 参数；2) 传递给底层 ChatCompletionRequest；3) json_object 模式返回的内容为合法 JSON；4) npm run lint 通过，tsc --noEmit 无报错"
-    },
-    {
-      "id": "F-MCE-07",
-      "title": "SERVER_INSTRUCTIONS 全面重写（Quick Start + 全场景覆盖 + 控制台引导）",
-      "priority": "high",
-      "executor": "generator",
-      "status": "completed",
-      "acceptance": "1) SERVER_INSTRUCTIONS 包含 Quick Start 段落（推荐调用顺序）；2) 覆盖所有 11 个工具的使用场景和示例；3) 包含对话（含 stream/response_format）、图片生成、Action、Template、日志、用量、余额查询的完整说明；4) 包含控制台 URL 引导（创建 Action/Template、充值、API Key 管理）；5) 包含 SDK 推荐；6) 包含 Action vs Template 对比和保留变量说明；7) npm run lint 通过，tsc --noEmit 无报错"
-    },
-    {
-      "id": "F-MCE-08",
-      "title": "list_actions / list_templates 空结果返回引导文案",
+      "id": "F-DX2-08",
+      "title": "MCP 设置页 TOOLS 数组补充 get_action_detail / get_template_detail",
       "priority": "low",
       "executor": "generator",
-      "status": "completed",
-      "acceptance": "1) list_actions 返回空数组时 message 字段包含引导文案（含控制台 URL）；2) list_templates 返回空数组时 message 字段包含引导文案（含控制台 URL）；3) 有数据时无额外 message；4) npm run lint 通过，tsc --noEmit 无报错"
+      "status": "pending",
+      "acceptance": "1) mcp-setup page TOOLS 数组新增 2 个工具（共 13 个）；2) en.json + zh-CN.json 补对应 i18n key；3) npm run lint 通过，tsc --noEmit 无报错"
     },
     {
-      "id": "F-MCE-09",
-      "title": "CallLog.source 去掉 'sdk'，清理文档和注释",
+      "id": "F-DX2-09",
+      "title": "i18n 更新（新增工具描述等用户可见文案）",
       "priority": "low",
       "executor": "generator",
-      "status": "completed",
-      "acceptance": "1) 代码中所有 'api'|'sdk'|'mcp' 注释改为 'api'|'mcp'；2) CLAUDE.md 中 CallLog.source 描述更新；3) 无功能变更，纯清理；4) npm run lint 通过，tsc --noEmit 无报错"
-    },
-    {
-      "id": "F-MCE-10",
-      "title": "get_log_detail 返回补充 ttftMs 原始毫秒数",
-      "priority": "medium",
-      "executor": "generator",
-      "status": "completed",
-      "acceptance": "1) get_log_detail 返回中同时包含 ttftMs（数字，毫秒）和 ttft（格式化字符串）；2) 现有 ttft 字段保留不变；3) npm run lint 通过，tsc --noEmit 无报错"
-    },
-    {
-      "id": "F-MCE-11",
-      "title": "get_usage_summary 增加 model/period/source/group_by 筛选参数",
-      "priority": "medium",
-      "executor": "generator",
-      "status": "completed",
-      "acceptance": "1) 新增 model/source/group_by 可选参数；2) 各 filter 参数叠加到 Prisma where 条件；3) group_by=model 时返回 groups[] 数组（key + totalCalls + totalCost + totalTokens）；4) group_by=day 时按日期分组；5) group_by=source 时按 api/mcp 分组；6) 无 group_by 时返回与现有相同的聚合结果；7) npm run lint 通过，tsc --noEmit 无报错"
-    },
-    {
-      "id": "F-MCE-12",
-      "title": "get_usage_summary 增加 actionId/templateId 维度统计",
-      "priority": "medium",
-      "executor": "generator",
-      "status": "completed",
-      "acceptance": "1) 新增 action_id/template_id 可选 filter 参数；2) group_by 新增 'action'/'template' 选项；3) group_by=action 时按 actionId 分组，附带 Action name；4) group_by=template 时按 templateId 分组，附带 Template name；5) 与 F-MCE-11 的其他 filter/groupBy 可叠加使用；6) npm run lint 通过，tsc --noEmit 无报错"
-    },
-    {
-      "id": "F-MCE-13",
-      "title": "i18n 更新（如有新增用户可见文案）",
-      "priority": "low",
-      "executor": "generator",
-      "status": "completed",
+      "status": "pending",
       "acceptance": "1) 所有新增用户可见文案通过 useTranslations()；2) en.json 和 zh-CN.json 同步更新，无缺失 key；3) npm run lint 通过，tsc --noEmit 无报错"
     },
     {
-      "id": "F-MCE-14",
-      "title": "E2E 验证（Codex 执行）",
+      "id": "F-DX2-10",
+      "title": "E2E 验证（Codex 执行，含错误场景覆盖）",
       "priority": "medium",
       "executor": "codex",
-      "status": "completed",
-      "acceptance": "1) 所有 11 个 MCP 工具可正常调用；2) chat stream=true 返回完整内容；3) chat response_format=json_object 返回合法 JSON；4) list_models 包含 capabilities 字段；5) get_log_detail 包含 ttftMs；6) get_usage_summary 新参数生效；7) 空 Action/Template 列表返回引导文案；8) 模型列表无大小写重复"
+      "status": "pending",
+      "acceptance": "1) list_models 返回 ≤28 个去重模型，无大小写重复，无 $0/null/空 capabilities 噪音；2) 所有 13 个 MCP 工具可正常调用；3) get_action_detail 返回完整 Action 信息含 messages/variables；4) get_template_detail 返回完整步骤编排信息；5) generate_image description 包含模型尺寸说明；6) 错误场景覆盖：余额不足、模型不存在、参数类型错误、rate limit 均返回清晰错误信息"
     }
   ]
 }
