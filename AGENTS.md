@@ -326,24 +326,16 @@ Codex 不得擅自修改团队协作文档或规范文档。
 
 ### 分支规则
 
-项目采用双分支策略：
+项目使用单一 `main` 分支。Generator（Claude CLI）直接推 `main`，部署由 Cowork 在 Codex 验收后手动触发。
 
-| 分支 | 用途 |
-|---|---|
-| `dev` | Generator（Claude CLI）推送代码，Codex 从此分支拉取测试 |
-| `main` | 生产分支，由 Cowork 在 done 阶段合并，触发自动部署 |
-
-**Codex 每次启动测试前，必须先同步 `dev` 分支最新代码：**
+**Codex 每次启动测试前，先同步 `main` 分支最新代码：**
 
 ```bash
 git fetch origin
-git checkout dev
-git merge --ff-only origin/dev
+git merge --ff-only origin/main
 ```
 
-`git merge --ff-only` 只做快进合并（不产生 merge commit，不改写历史），属于安全同步操作，是本节规则的显式例外。
-
-这确保 Codex 测试的是 Generator 最新提交的版本，而不是本地旧版本。
+`git merge --ff-only` 只做快进合并（不产生 merge commit），是本节规则的显式例外。
 
 ### 允许的 Git 操作
 
@@ -358,7 +350,7 @@ Codex 允许执行只读或低风险 Git 操作，例如：
 - `git fetch`
 - `git switch <existing-branch>`
 - `git checkout <existing-branch>`（仅限切换到已存在分支）
-- `git merge --ff-only origin/dev`（快进同步 dev 分支，见上方分支规则）
+- `git merge --ff-only origin/main`（快进同步 main 分支，见上方分支规则）
 
 Codex 禁止执行以下 Git 操作：
 

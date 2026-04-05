@@ -118,33 +118,23 @@ docs/
 - 选中的条目并入 features.json，并从 backlog.json 中移除
 - 未选条目保留在 backlog.json
 
-## 分支规则（多 agent 协作）
+## 分支规则
 
-项目采用双分支策略，代码不直接推 `main`：
+项目使用单一 `main` 分支：
 
-| 分支 | 使用者 | 触发 CI | 触发部署 |
-|---|---|---|---|
-| `dev` | Generator（Claude CLI） | ✅ lint + tsc | ❌ |
-| `main` | Cowork（合并操作） | ✅ lint + tsc | ✅ 自动部署生产 |
-
-**Generator 铁律：所有代码提交必须推送到 `dev` 分支，严禁直接推 `main`。**
-
-`dev` → `main` 的合并由 Cowork 在 `done` 阶段执行，时机：Codex 完成 reverifying 并输出签收报告之后。
+| 操作 | 执行者 | 说明 |
+|---|---|---|
+| `git push origin main` | Generator（Claude CLI） | 触发 CI（lint + tsc），不自动部署 |
+| 手动触发 Deploy workflow | Cowork | Codex 验收通过后，在 GitHub Actions 手动点击触发部署 |
 
 ```bash
 # Generator 的标准提交流程
 git add <files>
 git commit -m "..."
-git push origin dev          # ← 固定推 dev，不推 main
-
-# Cowork 在 done 阶段执行合并
-git checkout main
-git merge dev --no-ff
-git push origin main         # ← 触发生产部署
-git checkout dev
+git push origin main         # 触发 CI，不触发部署
 ```
 
-进度类文件（progress.json / features.json / .auto-memory/ 等）可直接推 `dev` 或 `main`，均不触发部署（paths-ignore 已配置）。
+进度类文件（progress.json / features.json / .auto-memory/ 等）推 `main` 不触发 CI（paths-ignore 已配置）。
 
 ## 铁律（任何情况下不得违反）
 1. 永远不要一次性生成所有代码，必须分功能逐条实现
@@ -154,7 +144,6 @@ git checkout dev
 5. 每次提交代码前必须确认可以运行，不提交无法运行的代码
 6. Generator 不得执行 `executor:codex` 的功能；Codex 不得实现 `executor:generator` 的功能
 7. 压测执行、code review、安全审计等"产出报告"类任务，必须标注 `executor:codex`
-8. **代码提交只推 `dev` 分支，严禁推 `main`**（`main` 由 Cowork 在 done 阶段合并）
 
 ## Cowork（Claude）框架提案规则
 
