@@ -114,10 +114,13 @@ export default function ModelsChannelsPage() {
   const loadSyncStatus = useCallback(async () => {
     try {
       const r = await apiFetch<{
-        data: { lastSyncTime: string | null; lastSyncResult: typeof lastSyncResult };
+        data: {
+          lastSyncTime: string | null;
+          lastSyncResultDetail: typeof lastSyncResult;
+        };
       }>("/api/admin/sync-status");
       setLastSyncTime(r.data.lastSyncTime);
-      setLastSyncResult(r.data.lastSyncResult);
+      setLastSyncResult(r.data.lastSyncResultDetail ?? null);
     } catch {
       /* ignore */
     }
@@ -788,7 +791,7 @@ export default function ModelsChannelsPage() {
       {lastSyncTime && (
         <div className="mt-6 text-xs text-ds-on-surface-variant">
           {t("lastSync")}: {new Date(lastSyncTime).toLocaleString()}
-          {lastSyncResult && (
+          {lastSyncResult?.summary && (
             <span className="ml-4">
               {t("syncResult")}:{" "}
               <span className="text-ds-secondary">

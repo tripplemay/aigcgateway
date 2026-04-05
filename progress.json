@@ -1,11 +1,11 @@
 {
-  "status": "verifying",
+  "status": "reverifying",
   "user_goal": "error-handling-fix 批次：修复三个页面无错误处理导致 App Router 导航状态污染（BL-008）",
   "total_features": 4,
   "completed_features": 4,
-  "fix_rounds": 0,
+  "fix_rounds": 1,
   "current_sprint": null,
-  "last_updated": "2026-04-05T11:30:00Z",
+  "last_updated": "2026-04-05T12:15:00Z",
   "reference_docs": [],
   "docs": {
     "spec": null,
@@ -13,7 +13,20 @@
     "signoff": null,
     "framework_reviewed": false
   },
-  "evaluator_feedback": null,
+  "evaluator_feedback": {
+    "summary": "首轮 3 PASS / 1 FAIL。F-FIX-02 因 sync-status 接口字段重命名（lastSyncResult→lastSyncResultDetail）导致前端读取崩溃。",
+    "pass_count": 3,
+    "partial_count": 0,
+    "fail_count": 1,
+    "issues": [
+      {
+        "feature_id": "F-FIX-02",
+        "result": "FAIL",
+        "description": "lastSyncResult 字段被 F-INFRA-06 重命名为 lastSyncResultDetail，前端未同步更新",
+        "fix_applied": "loadSyncStatus 改读 lastSyncResultDetail，渲染加 lastSyncResult?.summary 安全访问"
+      }
+    ]
+  },
   "features": [
     { "id": "F-FIX-01", "title": "admin/health/page.tsx — load() 加 try/catch", "status": "done", "executor": "generator" },
     { "id": "F-FIX-02", "title": "admin/models/page.tsx — load() 加 try/catch + setLoading(false)", "status": "done", "executor": "generator" },
