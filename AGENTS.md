@@ -338,8 +338,10 @@ Codex 不得擅自修改团队协作文档或规范文档。
 ```bash
 git fetch origin
 git checkout dev
-git reset --hard origin/dev
+git merge --ff-only origin/dev
 ```
+
+`git merge --ff-only` 只做快进合并（不产生 merge commit，不改写历史），属于安全同步操作，是本节规则的显式例外。
 
 这确保 Codex 测试的是 Generator 最新提交的版本，而不是本地旧版本。
 
@@ -356,6 +358,7 @@ Codex 允许执行只读或低风险 Git 操作，例如：
 - `git fetch`
 - `git switch <existing-branch>`
 - `git checkout <existing-branch>`（仅限切换到已存在分支）
+- `git merge --ff-only origin/dev`（快进同步 dev 分支，见上方分支规则）
 
 Codex 禁止执行以下 Git 操作：
 
