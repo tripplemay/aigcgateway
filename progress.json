@@ -1,10 +1,10 @@
 {
-  "status": "fixing",
+  "status": "reverifying",
   "user_goal": "mcp-capability-enhancement：模型去重+统一白名单、capabilities填充、chat stream/response_format、SERVER_INSTRUCTIONS重写、空结果引导、source清理、ttftMs暴露、usage summary增强",
   "total_features": 14,
-  "completed_features": 12,
-  "fix_rounds": 0,
-  "current_sprint": "F-MCE-12",
+  "completed_features": 13,
+  "fix_rounds": 1,
+  "current_sprint": null,
   "last_updated": "2026-04-06T00:20:00Z",
   "reference_docs": ["docs/specs/mcp-capability-enhancement-spec.md"],
   "docs": {
@@ -45,7 +45,7 @@
     { "id": "F-MCE-09", "title": "CallLog.source 去掉 sdk", "status": "completed", "executor": "generator" },
     { "id": "F-MCE-10", "title": "get_log_detail 补 ttftMs 原始值", "status": "completed", "executor": "generator" },
     { "id": "F-MCE-11", "title": "usage summary 基础筛选+分组", "status": "completed", "executor": "generator" },
-    { "id": "F-MCE-12", "title": "usage summary Action/Template 维度", "status": "pending", "executor": "generator" },
+    { "id": "F-MCE-12", "title": "usage summary Action/Template 维度", "status": "completed", "executor": "generator" },
     { "id": "F-MCE-13", "title": "i18n 更新", "status": "completed", "executor": "generator" },
     { "id": "F-MCE-14", "title": "E2E 验证（Codex）", "status": "pending", "executor": "codex" }
   ]

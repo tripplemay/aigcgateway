@@ -170,8 +170,15 @@ async function buildGroupedQuery(
       _sum: { totalTokens: true, sellPrice: true },
       orderBy: { _count: { templateRunId: "desc" } },
     });
+    // templateRunId now stores the Template ID — look up names
+    const templateIds = groups.map((g) => g.templateRunId!).filter(Boolean);
+    const templates = await prisma.template.findMany({
+      where: { id: { in: templateIds } },
+      select: { id: true, name: true },
+    });
+    const nameMap = new Map(templates.map((t) => [t.id, t.name]));
     return groups.map((g) => ({
-      key: g.templateRunId!,
+      key: `${g.templateRunId} (${nameMap.get(g.templateRunId!) ?? "unknown"})`,
       totalCalls: g._count,
       totalCost: `$${Number(g._sum.sellPrice ?? 0).toFixed(4)}`,
       totalTokens: g._sum.totalTokens ?? 0,

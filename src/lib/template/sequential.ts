@@ -33,7 +33,7 @@ export async function runSequential(
   if (!template) throw new InjectionError("Template not found", 404);
   if (template.steps.length === 0) throw new InjectionError("Template has no steps", 400);
 
-  const templateRunId = `trun_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+  const templateRunId = templateId;
   let previousOutput: string | null = null;
 
   for (const step of template.steps) {

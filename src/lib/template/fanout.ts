@@ -41,7 +41,7 @@ export async function runFanout(
   if (!splitterStep) throw new InjectionError("Fan-out template must have a SPLITTER step", 400);
   if (!branchStep) throw new InjectionError("Fan-out template must have a BRANCH step", 400);
 
-  const templateRunId = `trun_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+  const templateRunId = templateId;
 
   // ── Step 0: SPLITTER ──
   let splitterOutput = "";
