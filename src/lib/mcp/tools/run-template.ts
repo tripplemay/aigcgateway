@@ -102,7 +102,7 @@ Pass variables to inject into each step's Action prompts.`,
                 model: evt.model,
               };
             } else if (evt.type === "step_end" && currentStep) {
-              if (evt.output && !currentStep.output) currentStep.output = evt.output;
+              if (evt.output) currentStep.output = evt.output;
               currentStep.usage = evt.usage ?? null;
               currentStep.latencyMs = Date.now() - stepStartTime;
               steps.push(currentStep);
