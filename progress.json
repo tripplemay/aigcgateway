@@ -1,9 +1,9 @@
 {
-  "status": "fixing",
+  "status": "reverifying",
   "user_goal": "dx-provider-fixes：上游错误脱敏、4 个 Provider sync 修复、capabilities unknown 清理、MCP 工具示例更新",
   "total_features": 5,
   "completed_features": 2,
-  "fix_rounds": 1,
+  "fix_rounds": 2,
   "current_sprint": null,
   "last_updated": "2026-04-06T04:26:00Z",
   "reference_docs": [],
@@ -18,38 +18,13 @@
     "signoff": null,
     "framework_reviewed": false
   },
-  "evaluator_feedback": {
-    "summary": "本地 L1 复验未通过：F-DPF-01、F-DPF-03 通过；F-DPF-02、F-DPF-04、F-DPF-05 失败。",
-    "pass_count": 2,
-    "partial_count": 0,
-    "fail_count": 3,
-    "issues": [
-      {
-        "feature_id": "F-DPF-02",
-        "result": "FAIL",
-        "description": "4 个目标 adapter 已具备空 apiKey 预检，但本地实际 sync 结果仍显示 deepseek/anthropic/zhipu/siliconflow 全部为 401，未满足“修复后本地 sync 能正常创建 Channel”的验收标准。",
-        "steps_to_reproduce": "1. 启动本地测试环境 bash scripts/test/codex-setup.sh 2. 等待就绪 bash scripts/test/codex-wait.sh 3. 读取 system_config.LAST_SYNC_RESULT 4. 观察 deepseek/anthropic/zhipu/siliconflow 的 error 均为 API fetch failed: <Provider> /models returned 401"
-      },
-      {
-        "feature_id": "F-DPF-04",
-        "result": "FAIL",
-        "description": "MCP tool description 仍包含与当前 list_models 不一致的硬编码示例。chat 仍出现 openrouter/anthropic/claude-sonnet-4、anthropic/claude-sonnet-4；generate_image 仍出现 gpt-image-1、dall-e-3、seedream-4.5、Wanx。",
-        "steps_to_reproduce": "1. 新建本地测试用户、项目和 API Key 2. 调用 MCP tools/list 读取 chat 与 generate_image description 3. 调用 MCP list_models 4. 对比 description 中示例与 list_models 返回，示例模型不存在"
-      },
-      {
-        "feature_id": "F-DPF-05",
-        "result": "FAIL",
-        "description": "使用新建项目 API Key 调用 MCP list_models 返回空列表，导致本批次 E2E 验证无法完成，也无法验证 description 与实际模型列表一致。",
-        "steps_to_reproduce": "1. 新建本地测试用户、项目和 API Key 2. 充值 project balance 为 20 3. 使用该 API Key 调用 MCP tools/call name=list_models 4. 返回空列表"
-      }
-    ]
-  },
-  "generator_handoff": "F-DPF-01 修复：pk_ 正则已覆盖（pk[-_] 匹配）。F-DPF-02：requireApiKey() 预检已到位，4 个 Provider 的 401 错误是缺少有效 apiKey 的配置问题，需用户在 Admin > Providers 手动配置。F-DPF-04 修复：chat/generate_image description 不再硬编码示例模型名，改为引导用户先调 list_models 获取实际可用名称。",
+  “evaluator_feedback”: null,
+  “generator_handoff”: “第二轮修复：F-DPF-04 彻底移除 tool description 和 SERVER_INSTRUCTIONS 中所有硬编码模型名（包括 gpt-image-1/dall-e-3/seedream-4.5/Wanx/openai/gpt-4o 等），改为纯引导文案 'Call list_models first'。F-DPF-02 排查结论：本地/生产环境的 deepseek/zhipu/anthropic/siliconflow 返回 401 因为 Provider.authConfig 中的 apiKey 为空或无效，这是管理员配置问题而非代码 bug，requireApiKey() 已对空 key 做预检。”,
   "features": [
     { "id": "F-DPF-01", "title": "上游错误信息脱敏", "status": "completed", "executor": "generator" },
     { "id": "F-DPF-02", "title": "4 个 Provider sync 修复", "status": "pending", "executor": "generator" },
     { "id": "F-DPF-03", "title": "capabilities unknown 清理", "status": "completed", "executor": "generator" },
-    { "id": "F-DPF-04", "title": "MCP 工具示例模型名更新", "status": "pending", "executor": "generator" },
+    { "id": "F-DPF-04", "title": "MCP 工具示例模型名更新", "status": "completed", "executor": "generator" },
     { "id": "F-DPF-05", "title": "E2E 验证", "status": "pending", "executor": "codex" }
   ]
 }

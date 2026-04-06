@@ -36,10 +36,7 @@ const SERVER_INSTRUCTIONS = `# AIGC Gateway — AI 服务商聚合平台
 
 ## 图片生成（generate_image）
 - generate_image(model, prompt) — 支持多种图片模型
-- openai/gpt-image-1：最高质量，1024x1024/1536x1024/1024x1536
-- openai/dall-e-3：高质量，1024x1024/1792x1024/1024x1792
-- volcengine/seedream-4.5：中文优化
-- 通义万相（Wanx）：阿里图片模型
+- **必须先 list_models(modality='image') 获取可用图片模型名和尺寸**
 
 ## Action（原子执行单元）
 Action 绑定一个模型 + 提示词 + 变量定义，可复用。
@@ -85,7 +82,7 @@ Template 由多个 Action 按顺序或并行组合：
 npm install @guangai/aigc-sdk
 import { Gateway } from '@guangai/aigc-sdk';
 const gw = new Gateway({ apiKey: 'pk_xxx', baseUrl: 'https://aigc.guangai.ai/v1' });
-const res = await gw.chat({ model: 'openai/gpt-4o', messages: [...] });
+const res = await gw.chat({ model: '<model-from-list_models>', messages: [...] });
 \`\`\`
 `;
 

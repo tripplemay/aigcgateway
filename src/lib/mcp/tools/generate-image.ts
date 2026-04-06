@@ -21,9 +21,7 @@ export function registerGenerateImage(server: McpServer, opts: McpServerOptions)
   const { projectId, permissions, keyRateLimit } = opts;
   server.tool(
     "generate_image",
-    `Generate images using an AI model via AIGC Gateway. Returns image URLs, trace ID, and cost.
-
-IMPORTANT: Use list_models(modality='image') first to get exact model names and supported sizes. Common image models include gpt-image-1, dall-e-3, seedream-4.5, Wanx (names may have provider prefix).`,
+    `Generate images using an AI model via AIGC Gateway. Returns image URLs, trace ID, and cost. IMPORTANT: Call list_models(modality='image') first to get available image model names and supported sizes.`,
     {
       model: z.string().describe("Exact image model name from list_models output"),
       prompt: z.string().describe("Image description / prompt"),

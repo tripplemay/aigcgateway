@@ -26,13 +26,9 @@ export function registerChat(server: McpServer, opts: McpServerOptions): void {
   const { projectId, permissions, keyRateLimit } = opts;
   server.tool(
     "chat",
-    `Send a chat completion request to an AI model via AIGC Gateway. Pass model name and messages array. Returns generated text, trace ID, and token usage.
-
-IMPORTANT: Use list_models first to get exact model names available on this instance. Model names vary by deployment (e.g. openrouter/anthropic/claude-sonnet-4 or anthropic/claude-sonnet-4).`,
+    `Send a chat completion request to an AI model via AIGC Gateway. Pass model name and messages array. Returns generated text, trace ID, and token usage. IMPORTANT: Call list_models first to get available model names.`,
     {
-      model: z
-        .string()
-        .describe("Exact model name from list_models output"),
+      model: z.string().describe("Exact model name from list_models output"),
       messages: z.array(messageSchema).describe("Message array [{role, content}]."),
       temperature: z.number().min(0).max(2).optional().describe("Sampling temperature, 0-2"),
       max_tokens: z.number().int().positive().optional().describe("Maximum output tokens"),
