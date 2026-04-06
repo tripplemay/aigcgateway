@@ -28,12 +28,11 @@ export function registerChat(server: McpServer, opts: McpServerOptions): void {
     "chat",
     `Send a chat completion request to an AI model via AIGC Gateway. Pass model name and messages array. Returns generated text, trace ID, and token usage.
 
-Example models (use list_models to see all):
-- Flagship: openai/gpt-4o, anthropic/claude-sonnet-4, google/gemini-2.5-pro
-- Lightweight: openai/gpt-4o-mini, google/gemini-2.5-flash, zhipu/glm-4-flash
-- Reasoning: openai/o3, deepseek/deepseek-reasoner`,
+IMPORTANT: Use list_models first to get exact model names available on this instance. Model names vary by deployment (e.g. openrouter/anthropic/claude-sonnet-4 or anthropic/claude-sonnet-4).`,
     {
-      model: z.string().describe("Model name, e.g. openai/gpt-4o, deepseek/v3, google/gemini-2.5-pro"),
+      model: z
+        .string()
+        .describe("Exact model name from list_models output"),
       messages: z.array(messageSchema).describe("Message array [{role, content}]."),
       temperature: z.number().min(0).max(2).optional().describe("Sampling temperature, 0-2"),
       max_tokens: z.number().int().positive().optional().describe("Maximum output tokens"),
@@ -284,7 +283,12 @@ Example models (use list_models to see all):
         }
 
         return {
-          content: [{ type: "text" as const, text: `Error: ${sanitizeErrorMessage((err as Error).message)}` }],
+          content: [
+            {
+              type: "text" as const,
+              text: `Error: ${sanitizeErrorMessage((err as Error).message)}`,
+            },
+          ],
           isError: true,
         };
       }

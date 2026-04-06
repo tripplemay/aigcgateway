@@ -32,7 +32,7 @@ const SERVER_INSTRUCTIONS = `# AIGC Gateway — AI 服务商聚合平台
 - 基础对话：chat(model, messages)
 - 流式输出：chat(model, messages, stream=true) — 返回包含 ttftMs 性能指标
 - 结构化 JSON：chat(model, messages, response_format={type:"json_object"})
-- 模型名格式：provider/model-name（如 openai/gpt-4o、deepseek/v3、google/gemini-2.5-pro）
+- **必须先 list_models 获取可用模型名，再调用 chat**（模型名因部署而异）
 
 ## 图片生成（generate_image）
 - generate_image(model, prompt) — 支持多种图片模型

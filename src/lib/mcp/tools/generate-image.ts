@@ -23,15 +23,9 @@ export function registerGenerateImage(server: McpServer, opts: McpServerOptions)
     "generate_image",
     `Generate images using an AI model via AIGC Gateway. Returns image URLs, trace ID, and cost.
 
-Available image models:
-- openai/gpt-image-1: Best quality, 1024x1024/1536x1024/1024x1536
-- openai/dall-e-3: Good quality, 1024x1024/1792x1024/1024x1792
-- volcengine/seedream-4.5: Chinese-optimized, various sizes
-- siliconflow/Qwen/Wanx: 通义万相 (Wanx)
-
-Use list_models(modality='image') to see all available models and pricing.`,
+IMPORTANT: Use list_models(modality='image') first to get exact model names and supported sizes. Common image models include gpt-image-1, dall-e-3, seedream-4.5, Wanx (names may have provider prefix).`,
     {
-      model: z.string().describe("Image model name, e.g. openai/gpt-image-1, openai/dall-e-3"),
+      model: z.string().describe("Exact image model name from list_models output"),
       prompt: z.string().describe("Image description / prompt"),
       size: z.string().optional().describe("Image size, e.g. 1024x1024"),
       n: z

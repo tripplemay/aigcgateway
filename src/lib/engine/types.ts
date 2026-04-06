@@ -128,13 +128,16 @@ export function sanitizeErrorMessage(message: string): string {
   let sanitized = message;
   // Remove URLs
   sanitized = sanitized.replace(/https?:\/\/[^\s"'<>,;)}\]]+/gi, "[URL removed]");
-  // Remove API Key fragments (sk-xxx, pk-xxx, key_xxx, Bearer xxx)
-  sanitized = sanitized.replace(/\b(sk-|pk-|key_)[a-zA-Z0-9_-]{4,}/gi, "[key removed]");
+  // Remove API Key fragments (sk-xxx, sk_xxx, pk-xxx, pk_xxx, key_xxx, Bearer xxx)
+  sanitized = sanitized.replace(/\b(sk[-_]|pk[-_]|key[-_])[a-zA-Z0-9_-]{4,}/gi, "[key removed]");
   sanitized = sanitized.replace(/Bearer\s+[a-zA-Z0-9_.-]{8,}/gi, "Bearer [redacted]");
   // Remove QQ group numbers
   sanitized = sanitized.replace(/(QQ群?|加群|群号)[：:\s]*\d{5,}/gi, "[contact removed]");
   // Remove email addresses
-  sanitized = sanitized.replace(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g, "[email removed]");
+  sanitized = sanitized.replace(
+    /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g,
+    "[email removed]",
+  );
   // Remove IP addresses (v4)
   sanitized = sanitized.replace(/\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}(:\d+)?\b/g, "[IP removed]");
   return sanitized;
