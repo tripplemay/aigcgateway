@@ -1,5 +1,5 @@
 import type { SyncAdapter, SyncedModel, ProviderWithConfig } from "./base";
-import { fetchWithTimeout, getApiKey, getBaseUrl } from "./base";
+import { fetchWithTimeout, requireApiKey, getBaseUrl } from "./base";
 import { isModelWhitelisted } from "../model-whitelist";
 
 /** DeepSeek model ID → 友好名称映射（命名规范，非硬编码数据） */
@@ -18,7 +18,7 @@ export const deepseekAdapter: SyncAdapter = {
   async fetchModels(provider: ProviderWithConfig): Promise<SyncedModel[]> {
     const res = await fetchWithTimeout(
       `${getBaseUrl(provider)}/models`,
-      { Authorization: `Bearer ${getApiKey(provider)}` },
+      { Authorization: `Bearer ${requireApiKey(provider)}` },
       provider,
     );
     if (!res.ok) throw new Error(`DeepSeek /models returned ${res.status}`);

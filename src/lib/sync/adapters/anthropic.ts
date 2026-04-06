@@ -1,5 +1,5 @@
 import type { SyncAdapter, SyncedModel, ProviderWithConfig } from "./base";
-import { fetchWithTimeout, getApiKey, getBaseUrl } from "./base";
+import { fetchWithTimeout, requireApiKey, getBaseUrl } from "./base";
 import { isModelWhitelisted } from "../model-whitelist";
 
 export const anthropicAdapter: SyncAdapter = {
@@ -13,7 +13,7 @@ export const anthropicAdapter: SyncAdapter = {
     const res = await fetchWithTimeout(
       `${getBaseUrl(provider)}/models`,
       {
-        "x-api-key": getApiKey(provider),
+        "x-api-key": requireApiKey(provider),
         "anthropic-version": "2023-06-01",
       },
       provider,

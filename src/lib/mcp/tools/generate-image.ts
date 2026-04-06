@@ -12,7 +12,7 @@ import { generateTraceId } from "@/lib/api/response";
 import { processImageResult } from "@/lib/api/post-process";
 import { prisma } from "@/lib/prisma";
 import { checkRateLimit } from "@/lib/api/rate-limit";
-import { EngineError } from "@/lib/engine/types";
+import { EngineError, sanitizeErrorMessage } from "@/lib/engine/types";
 import type { ImageGenerationRequest } from "@/lib/engine/types";
 import { checkMcpPermission } from "@/lib/mcp/auth";
 import type { McpServerOptions } from "@/lib/mcp/server";
@@ -23,15 +23,15 @@ export function registerGenerateImage(server: McpServer, opts: McpServerOptions)
     "generate_image",
     `Generate images using an AI model via AIGC Gateway. Returns image URLs, trace ID, and cost.
 
-Model differences:
-- openai/gpt-image-1: Best quality, supports 1024x1024/1536x1024/1024x1536, auto/hd quality
+Available image models:
+- openai/gpt-image-1: Best quality, 1024x1024/1536x1024/1024x1536
 - openai/dall-e-3: Good quality, 1024x1024/1792x1024/1024x1792
 - volcengine/seedream-4.5: Chinese-optimized, various sizes
-- siliconflow/Qwen/Wanx: Chinese-optimized (通义万相)
+- siliconflow/Qwen/Wanx: 通义万相 (Wanx)
 
-Use list_models(modality='image') to see available models and pricing.`,
+Use list_models(modality='image') to see all available models and pricing.`,
     {
-      model: z.string().describe("Image model name, e.g. openai/dall-e-3, zhipu/cogview-4"),
+      model: z.string().describe("Image model name, e.g. openai/gpt-image-1, openai/dall-e-3"),
       prompt: z.string().describe("Image description / prompt"),
       size: z.string().optional().describe("Image size, e.g. 1024x1024"),
       n: z
@@ -213,7 +213,7 @@ Use list_models(modality='image') to see available models and pricing.`,
               type: "text" as const,
               text: JSON.stringify({
                 code: engineErr?.code ?? "provider_error",
-                message: (err as Error).message,
+                message: sanitizeErrorMessage((err as Error).message),
               }),
             },
           ],

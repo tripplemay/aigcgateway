@@ -12,7 +12,7 @@ import { generateTraceId } from "@/lib/api/response";
 import { processChatResult } from "@/lib/api/post-process";
 import { prisma } from "@/lib/prisma";
 import { checkRateLimit } from "@/lib/api/rate-limit";
-import { EngineError } from "@/lib/engine/types";
+import { EngineError, sanitizeErrorMessage } from "@/lib/engine/types";
 import type { ChatCompletionRequest } from "@/lib/engine/types";
 import { checkMcpPermission } from "@/lib/mcp/auth";
 import type { McpServerOptions } from "@/lib/mcp/server";
@@ -26,9 +26,14 @@ export function registerChat(server: McpServer, opts: McpServerOptions): void {
   const { projectId, permissions, keyRateLimit } = opts;
   server.tool(
     "chat",
-    `Send a chat completion request to an AI model via AIGC Gateway. Pass model name and messages array. Returns generated text, trace ID, and token usage.`,
+    `Send a chat completion request to an AI model via AIGC Gateway. Pass model name and messages array. Returns generated text, trace ID, and token usage.
+
+Example models (use list_models to see all):
+- Flagship: openai/gpt-4o, anthropic/claude-sonnet-4, google/gemini-2.5-pro
+- Lightweight: openai/gpt-4o-mini, google/gemini-2.5-flash, zhipu/glm-4-flash
+- Reasoning: openai/o3, deepseek/deepseek-reasoner`,
     {
-      model: z.string().describe("Model name, e.g. openai/gpt-4o, deepseek/v3"),
+      model: z.string().describe("Model name, e.g. openai/gpt-4o, deepseek/v3, google/gemini-2.5-pro"),
       messages: z.array(messageSchema).describe("Message array [{role, content}]."),
       temperature: z.number().min(0).max(2).optional().describe("Sampling temperature, 0-2"),
       max_tokens: z.number().int().positive().optional().describe("Maximum output tokens"),
@@ -279,7 +284,7 @@ export function registerChat(server: McpServer, opts: McpServerOptions): void {
         }
 
         return {
-          content: [{ type: "text" as const, text: `Error: ${(err as Error).message}` }],
+          content: [{ type: "text" as const, text: `Error: ${sanitizeErrorMessage((err as Error).message)}` }],
           isError: true,
         };
       }

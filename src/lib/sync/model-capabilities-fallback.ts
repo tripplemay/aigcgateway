@@ -11,7 +11,6 @@ export interface ModelCapabilities {
   vision?: boolean;
   json_mode?: boolean;
   streaming?: boolean;
-  unknown?: boolean;
 }
 
 const CAPABILITIES_MAP: Record<string, ModelCapabilities> = {
@@ -75,12 +74,12 @@ const CAPABILITIES_MAP: Record<string, ModelCapabilities> = {
 /**
  * Resolve capabilities for a model by matching its ID against known keys.
  * Tries exact match first, then prefix match (longest prefix wins).
- * Returns { unknown: true } if no match found.
+ * Returns {} if no match found.
  */
 export function resolveCapabilities(modelId: string): ModelCapabilities {
   // Exact match
   if (modelId in CAPABILITIES_MAP) {
-    return { ...CAPABILITIES_MAP[modelId], unknown: false };
+    return { ...CAPABILITIES_MAP[modelId] };
   }
 
   // Prefix match (longest prefix wins)
@@ -89,8 +88,8 @@ export function resolveCapabilities(modelId: string): ModelCapabilities {
     .sort((a, b) => b[0].length - a[0].length);
 
   if (matches.length > 0) {
-    return { ...matches[0][1], unknown: false };
+    return { ...matches[0][1] };
   }
 
-  return { unknown: true };
+  return {};
 }

@@ -1,5 +1,5 @@
 import type { SyncAdapter, SyncedModel, ProviderWithConfig } from "./base";
-import { fetchWithTimeout, getApiKey, getBaseUrl, inferModality } from "./base";
+import { fetchWithTimeout, requireApiKey, getBaseUrl, inferModality } from "./base";
 import { isModelWhitelisted } from "../model-whitelist";
 
 export const zhipuAdapter: SyncAdapter = {
@@ -12,7 +12,7 @@ export const zhipuAdapter: SyncAdapter = {
   async fetchModels(provider: ProviderWithConfig): Promise<SyncedModel[]> {
     const res = await fetchWithTimeout(
       `${getBaseUrl(provider)}/models`,
-      { Authorization: `Bearer ${getApiKey(provider)}` },
+      { Authorization: `Bearer ${requireApiKey(provider)}` },
       provider,
     );
     if (!res.ok) throw new Error(`Zhipu /models returned ${res.status}`);

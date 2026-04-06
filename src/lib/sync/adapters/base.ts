@@ -103,6 +103,18 @@ export function getApiKey(provider: Provider): string {
   return authConfig?.apiKey ?? "";
 }
 
+/** 预检 API Key，为空时抛出明确错误 */
+export function requireApiKey(provider: Provider): string {
+  const key = getApiKey(provider);
+  if (!key) {
+    throw new Error(
+      `Provider "${provider.name}" has no API Key configured in authConfig. ` +
+      `Please add an apiKey via Admin > Providers before syncing.`,
+    );
+  }
+  return key;
+}
+
 /** 获取 base URL（去掉尾部斜杠） */
 export function getBaseUrl(provider: Provider): string {
   return provider.baseUrl.replace(/\/+$/, "");

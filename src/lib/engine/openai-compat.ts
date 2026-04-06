@@ -15,7 +15,7 @@ import type {
   RouteResult,
   Usage,
 } from "./types";
-import { EngineError, ErrorCodes } from "./types";
+import { EngineError, ErrorCodes, sanitizeErrorMessage } from "./types";
 import { applyConfigOverlay, getQuirks } from "./config-overlay";
 import { createSSEParser, createTextDecoderStream } from "./sse-parser";
 
@@ -213,7 +213,7 @@ export class OpenAICompatEngine implements EngineAdapter {
         throw new EngineError("Request timeout", ErrorCodes.TIMEOUT, 504);
       }
       throw new EngineError(
-        `Provider request failed: ${(error as Error).message}`,
+        sanitizeErrorMessage(`Provider request failed: ${(error as Error).message}`),
         ErrorCodes.PROVIDER_ERROR,
         502,
         error,
@@ -448,7 +448,7 @@ export class OpenAICompatEngine implements EngineAdapter {
         break;
     }
 
-    return new EngineError(message, code, status, parsed);
+    return new EngineError(sanitizeErrorMessage(message), code, status, parsed);
   }
 
   // ------------------------------------------------------------------
