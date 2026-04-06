@@ -2,38 +2,6 @@
   "description": "需求池：已与用户确认但尚未开发的功能，等待下一批次启动时统一安排",
   "items": [
     {
-      "id": "BL-020",
-      "title": "上游错误透传泄露供应商凭据（安全 P0）",
-      "description": "调用 openai/gpt-4o-mini 时上游返回的错误信息被直接透传给用户，暴露了上游渠道商域名（chatanywhere.tech）、部分 API Key（sk-e9T****yXf0）、QQ 群号。需要统一错误包装层，所有上游错误必须被平台级错误替换。来源：DX 审查报告（2026-04-06）。",
-      "decisions": [],
-      "confirmed_at": "2026-04-06",
-      "priority": "critical"
-    },
-    {
-      "id": "BL-021",
-      "title": "deepseek/zhipu/anthropic/siliconflow 四个 Provider 的 sync 从未创建 Channel",
-      "description": "生产环境这 4 个 Provider 状态 ACTIVE 但 Channel 数为 0，导致白名单中的 8 个模型（deepseek/v3、deepseek/reasoner、zhipu/glm-4-plus、zhipu/glm-4-flash、anthropic/claude-sonnet-4、anthropic/claude-3.5-haiku、siliconflow/Qwen/Wanx）不在 list_models 中。需排查 sync 失败原因（API 认证？网络？adapter 缺陷？）并修复。来源：DX 审查报告 + 生产 DB 排查（2026-04-06）。",
-      "decisions": [],
-      "confirmed_at": "2026-04-06",
-      "priority": "critical"
-    },
-    {
-      "id": "BL-022",
-      "title": "capabilities 字段存在 unknown 无意义值",
-      "description": "部分 OpenRouter 模型 capabilities 中出现 { unknown: true } 或 { unknown: false, streaming: true }，语义不明。需清理 unknown 字段，确保 capabilities 只包含有意义的键（streaming/vision/json_mode）。来源：DX 审查报告（2026-04-06）。",
-      "decisions": [],
-      "confirmed_at": "2026-04-06",
-      "priority": "high"
-    },
-    {
-      "id": "BL-023",
-      "title": "chat 工具 model 参数 description 中的示例模型与 list_models 不一致",
-      "description": "chat 工具 description 中写了 e.g. deepseek/v3，但 deepseek/v3 不在 list_models 返回中（因 Channel 未创建）。需要保持示例与实际可用模型一致。来源：DX 审查报告（2026-04-06）。",
-      "decisions": [],
-      "confirmed_at": "2026-04-06",
-      "priority": "medium"
-    },
-    {
       "id": "BL-024",
       "title": "Action/Template MCP 工具缺少 create/update/delete",
       "description": "MCP 侧只有 list/get/run，无法创建或修改 Action/Template，开发者必须切换到 Web 控制台。建议至少补全 create_action/update_action，让 AI Agent 能自主管理 prompt 模板。来源：DX 审查报告 + MCP 能力审计（2026-04-06）。",

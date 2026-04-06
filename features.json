@@ -1,78 +1,46 @@
 {
-  "batch": "ui-redesign-templates-actions",
+  "batch": "dx-provider-fixes",
   "created_at": "2026-04-06",
   "features": [
     {
-      "id": "F-UI-01",
-      "title": "Actions 列表页按 Stitch 设计稿重构",
-      "priority": "high",
+      "id": "F-DPF-01",
+      "title": "上游错误信息脱敏：mapProviderError 消息清洗",
+      "priority": "critical",
       "executor": "generator",
-      "status": "completed",
-      "acceptance": "1) /actions 页面按 Stitch 'Action List' 设计稿还原；2) 表格列：Action Name、Model（badge）、Active Version（badge）、Variables 数量、Description、Updated；3) 空状态展示；4) 侧边栏 Actions 项高亮；5) npm run lint + tsc 通过"
+      "status": "pending",
+      "acceptance": "1) openai-compat.ts mapProviderError() 中，对 message 进行脱敏：移除 URL（http/https）、API Key 片段（sk-*、pk-*）、QQ 群号等敏感信息；2) 用户看到的错误为平台级描述（如 'Provider temporarily unavailable, please try another model'），不含上游供应商细节；3) MCP 工具（chat/generate-image）的错误返回同样脱敏；4) npm run lint + tsc 通过"
     },
     {
-      "id": "F-UI-02",
-      "title": "Action 详情页按 Stitch 设计稿重构",
-      "priority": "high",
+      "id": "F-DPF-02",
+      "title": "排查并修复 4 个 Provider 的 sync 失败原因",
+      "priority": "critical",
       "executor": "generator",
-      "status": "completed",
-      "acceptance": "1) /actions/:id 页面按 Stitch 'Action Detail' 设计稿还原；2) 面包屑导航；3) 活跃版本区：messages 预览（{{变量}}高亮）+ variables 表格；4) 版本历史时间线（含 changelog）；5) 元数据面板（创建日期、版本数、被几个 Template 引用）；6) npm run lint + tsc 通过"
+      "status": "pending",
+      "acceptance": "1) 排查 deepseek/zhipu/anthropic/siliconflow 在生产环境 sync 失败的根因（authConfig 缺失？baseUrl 错误？网络不通？）；2) 修复后在本地验证 sync 能正常为这 4 个 provider 创建 Channel；3) 如果是生产 Provider 配置问题（缺 apiKey），在排查报告中明确标注，供用户手动修复；4) adapter fetchModels() 增加空 apiKey 预检，提前报错而非发出无效请求；5) npm run lint + tsc 通过"
     },
     {
-      "id": "F-UI-03",
-      "title": "Action 创建/编辑页按 Stitch 设计稿重构",
+      "id": "F-DPF-03",
+      "title": "清理 capabilities 中的 unknown 字段",
       "priority": "high",
       "executor": "generator",
-      "status": "completed",
-      "acceptance": "1) /actions/new 页面按 Stitch 'Create Prompt Action' 设计稿还原；2) 基本信息区（名称、描述、模型下拉）；3) Messages 编辑器（角色下拉 + 内容 textarea，{{变量}}高亮）；4) Variables 自动检测区（名称、描述、必填开关、默认值）；5) npm run lint + tsc 通过"
+      "status": "pending",
+      "acceptance": "1) model-capabilities-fallback.ts 的 resolveCapabilities() 返回值不再包含 unknown 字段；2) 未匹配模型返回 {} 而非 { unknown: true }；3) 已匹配模型不再附加 unknown: false；4) 生产 DB 中已有的 unknown 字段通过 sync 自动覆盖清除；5) npm run lint + tsc 通过"
     },
     {
-      "id": "F-UI-04",
-      "title": "Templates 列表页按 Stitch 设计稿重构",
-      "priority": "high",
-      "executor": "generator",
-      "status": "completed",
-      "acceptance": "1) /templates 页面按 Stitch 'Template List' 设计稿还原；2) 表格列：Template Name、Steps 数量、Execution Mode（Single/Sequential/Fan-out badge）、Description、Updated；3) 空状态展示；4) 侧边栏 Templates 项高亮；5) npm run lint + tsc 通过"
-    },
-    {
-      "id": "F-UI-05",
-      "title": "Template 详情页按 Stitch 设计稿重构",
-      "priority": "high",
-      "executor": "generator",
-      "status": "completed",
-      "acceptance": "1) /templates/:id 页面按 Stitch 'Template Detail' 设计稿还原；2) 面包屑导航；3) 步骤流水线可视化（编号 1→2→3，每步显示 Action 名、模型、角色 badge）；4) 右侧 Template Info 面板（创建日期、步骤数、执行模式）；5) Edit/Delete 按钮；6) npm run lint + tsc 通过"
-    },
-    {
-      "id": "F-UI-06",
-      "title": "Template 创建/编辑页按 Stitch 设计稿重构",
-      "priority": "high",
-      "executor": "generator",
-      "status": "completed",
-      "acceptance": "1) /templates/new 页面按 Stitch 'Template Editor' 设计稿还原；2) 基本信息区（名称、描述）；3) Execution Sequence builder（可排序步骤列表，每步选 Action + Role 下拉）；4) 添加/删除/拖拽排序步骤；5) npm run lint + tsc 通过"
-    },
-    {
-      "id": "F-UI-07",
-      "title": "Admin 模板管理页按 Stitch 设计稿重构",
+      "id": "F-DPF-04",
+      "title": "chat/generate_image 工具 description 示例模型名更新",
       "priority": "medium",
       "executor": "generator",
-      "status": "completed",
-      "acceptance": "1) /admin/templates 页面按 Stitch 'Admin: Template Management' 设计稿还原；2) 统计卡片（总数、公开、私有）；3) 表格含 Template Name、Project、Steps、Public 开关、Quality Score、Created、操作列；4) 搜索 + 筛选；5) 分页；6) npm run lint + tsc 通过"
+      "status": "pending",
+      "acceptance": "1) chat 工具 description 中的示例模型名全部来自当前 list_models 实际返回的模型；2) generate_image 工具同样更新；3) 示例覆盖不同价位（旗舰/轻量/免费）；4) npm run lint + tsc 通过"
     },
     {
-      "id": "F-UI-08",
-      "title": "i18n 补全（新增/变更的 UI 文案）",
-      "priority": "medium",
-      "executor": "generator",
-      "status": "completed",
-      "acceptance": "1) 重构涉及的所有用户可见文案通过 useTranslations()；2) en.json 和 zh-CN.json 同步更新，无缺失 key；3) npm run lint + tsc 通过"
-    },
-    {
-      "id": "F-UI-09",
-      "title": "E2E 验证（页面可访问 + 功能完整）",
+      "id": "F-DPF-05",
+      "title": "E2E 验证",
       "priority": "medium",
       "executor": "codex",
-      "status": "completed",
-      "acceptance": "1) 7 个重构页面均可正常访问，无白屏/报错；2) CRUD 操作功能完整；3) 中英文切换正常；4) 与 Stitch 设计稿视觉一致性检查"
+      "status": "pending",
+      "acceptance": "1) 模拟上游错误场景，确认返回的错误信息不含敏感内容（URL/Key/QQ）；2) list_models 返回的模型全部可调用（无 404/503）；3) capabilities 无 unknown 字段；4) chat/generate_image description 中的示例模型在 list_models 中存在"
     }
   ]
 }
