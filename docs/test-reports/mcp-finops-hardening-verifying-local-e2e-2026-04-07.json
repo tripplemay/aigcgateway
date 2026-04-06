@@ -1,6 +1,6 @@
 {
   "batch": "mcp-finops-hardening",
-  "generatedAt": "2026-04-06T17:24:38.485Z",
+  "generatedAt": "2026-04-06T17:31:19.061Z",
   "environment": "http://localhost:3099",
   "checks": [
     {
@@ -16,7 +16,7 @@
     {
       "name": "F-MH-02 activate_version rollback",
       "ok": true,
-      "detail": "v2=cmnngn494000a9yi7jn8fmnyj -> v1=cmnngn48w00089yi786nbipar"
+      "detail": "v2=cmnngvpcn000a9ya2gcg1ctt4 -> v1=cmnngvpch00089ya27rr8saki"
     },
     {
       "name": "F-MH-03 run_template returns detailed steps[]",
@@ -26,7 +26,7 @@
     {
       "name": "F-MH-04 get_balance transactions include traceId",
       "ok": true,
-      "detail": "tx=2, traceId=trc_uhdghuqd11np0lpu5j241t05, imageTraceId=trc_c69vpny4au9dziqmhlsq0pie"
+      "detail": "tx=2, traceId=trc_thry4la4t56wb4yp4wd93jx7, imageTraceId=trc_bvhp83kdcm0mc4p9hslf2ls4"
     },
     {
       "name": "F-MH-05 top_p=0 handled",
