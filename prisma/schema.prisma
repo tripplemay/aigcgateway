@@ -215,6 +215,9 @@ model Model {
   name          String        @unique
   displayName   String
   modality      ModelModality
+  enabled       Boolean       @default(false)
+  canonicalName String        @default("")
+  isVariant     Boolean       @default(false)
   maxTokens     Int?
   contextWindow Int?
   capabilities  Json?
@@ -226,6 +229,7 @@ model Model {
 
   @@index([modality])
   @@index([name])
+  @@index([enabled])
   @@map("models")
 }
 
