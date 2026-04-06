@@ -12,15 +12,16 @@ AIGC Gateway — AI 服务商管理中台。统一 API 调用抽象（兼容 Ope
 
 ## 当前开发状态（截至 2026-04-06）
 
-**最新完成批次：** `ui-1to1-restoration`（8/8 PASS，fix_rounds=2）
+**最新完成批次：** `whitelist-db-migration`（9/9 PASS，fix_rounds=0）
 **Harness 状态：** done
-**签收报告：** `docs/test-reports/ui-1to1-restoration-signoff-2026-04-06.md`
+**签收报告：** `docs/test-reports/whitelist-db-migration-signoff-2026-04-06.md`
 
 ### 近期完成批次（2026-04-06）
 
+- `whitelist-db-migration`（9/9 PASS）— 模型白名单从代码迁移到 DB，Admin 控制台手动管理，全量同步+按需启用
 - `dx-provider-fixes`（5/5 PASS）— 上游错误脱敏 + sync 预检 + capabilities 清理 + MCP 示例更新
 - `ui-redesign-templates-actions`（9/9 PASS）— 7 个模板/动作页面 Stitch 设计稿重构
-- `ui-1to1-restoration`（8/8 PASS）— 上述 7 页面 1:1 设计稿严格还原修复
+- `ui-1to1-restoration`（8/8 PASS）— 上述 7 页面设计稿严格还原修复
 
 ### 里程碑总览
 
@@ -32,6 +33,7 @@ AIGC Gateway — AI 服务商管理中台。统一 API 调用抽象（兼容 Ope
 - bugfix-model-cleanup：孤立 Model 清理 + MCP 错误码修复（5/5 PASS）
 - ui-redesign-templates-actions + ui-1to1-restoration：7 个模板/动作页面 Stitch 1:1 还原（9/9 + 8/8 PASS）
 - dx-provider-fixes：上游错误脱敏 + sync 预检 + capabilities 清理（5/5 PASS）
+- **whitelist-db-migration：模型白名单迁移到 DB + Admin 管理页 + usage 修复（9/9 PASS）**
 
 ### 本轮框架升级（2026-04-06）
 
@@ -40,28 +42,26 @@ AIGC Gateway — AI 服务商管理中台。统一 API 调用抽象（兼容 Ope
 3. **记忆分层：** 共享层 `.auto-memory/`（git-tracked）存项目状态，本机层存用户偏好
 4. **会话结束记忆检查点：** 所有角色、所有阶段、每次会话结束时检查并更新共享记忆
 5. **Planner 增强：** §0a 读用户反馈 + §2.5 Stitch 设计稿检查 + §5 角色分配询问
-6. **Generator 增强：** UI 重构必须先读原型 HTML 再编码 + JSON 文件禁止弯引号
+6. **Generator 增强：** UI 重构改为「完全还原 HTML 代码」（禁止语义重写）+ JSON 文件禁止弯引号
 7. **Evaluator 增强：** UI 重构验收必须读原型 HTML 逐块核对
 8. **用户反馈目录：** `docs/test-reports/user_report/` 纳入 Planner 启动必读
 9. **Agent 注册表：** `.agents-registry`（git-tracked）列出项目所有 agent，Planner 角色分配时读取
 10. **AGENTS.md 适配：** Codex 启动读 `.agent-id` codex 行 + role_assignments 判断
 
-## Backlog（3 条待处理）
+## Backlog（2 条待处理）
 
 | ID | 优先级 | 标题 |
 |---|---|---|
 | BL-024 | medium | Action/Template MCP 缺 create/update/delete |
-| BL-026 | medium | usage summary 日期格式修复（Date.toString → ISO 8601） |
-| BL-027 | low | usage 中已下线模型名标注 deprecated |
+| BL-028 | high | Actions/Templates 页面清理 + 完全还原修复（移除假数据面板 + 改造为真实统计 + 补全交互） |
 
-BL-020~023 已在 dx-provider-fixes 处理，BL-025 已在 ui-1to1-restoration 处理。
+BL-026/027 已在 whitelist-db-migration 处理。
 
 ## 已知遗留问题
 
-1. 4 个 Provider（deepseek/zhipu/anthropic/siliconflow）需在生产环境配置有效 apiKey 后触发 sync 验证（代码层 requireApiKey() 预检已完成）
-2. SiliconFlow 价格补全未生效（aiEnriched=0）
+1. 白名单重构后需在生产部署并触发 sync，然后在 Admin 白名单页启用所需模型
+2. Actions/Templates 页面存在无后端支持的装饰面板和语义替换 → BL-028
 3. 同步耗时偏高（~264s）
-4. 模板/动作 7 个页面存在手写内容未 1:1 还原设计稿 → BL-025
 
 ## 已知限制（决定不修复）
 
