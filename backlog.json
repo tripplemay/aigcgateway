@@ -1,4 +1,16 @@
 {
   "description": "需求池：已与用户确认但尚未开发的功能，等待下一批次启动时统一安排",
-  "items": []
+  "items": [
+    {
+      "id": "BL-043",
+      "title": "最低扣费保护（MIN_CHARGE）",
+      "description": "非免费模型的每次调用至少扣 $0.00000001（DECIMAL(16,8) 最小正值）。防止未来接入极低价模型（如嵌入模型 $0.001/1M）时，1 token 成本被 DB 精度截断为 0 导致上游收费但用户免费。在 deductBalance 中加 Math.max(amount, MIN_CHARGE)。来源：FinOps 精度分析（2026-04-07）。",
+      "decisions": [
+        "MIN_CHARGE = 0.00000001（DECIMAL(16,8) 最小正值）",
+        "仅当 sellUsd > 0 时生效（免费模型不受影响）"
+      ],
+      "confirmed_at": "2026-04-07",
+      "priority": "medium"
+    }
+  ]
 }
