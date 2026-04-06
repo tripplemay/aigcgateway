@@ -1,9 +1,9 @@
 {
-  "status": "fixing",
+  "status": "reverifying",
   "user_goal": "ui-1to1-restoration: 7 个模板/动作页面按 design-draft HTML 严格 1:1 还原修复",
   "total_features": 8,
-  "completed_features": 6,
-  "fix_rounds": 1,
+  "completed_features": 7,
+  "fix_rounds": 2,
   "current_sprint": null,
   "last_updated": "2026-04-06T05:15:14Z",
   "reference_docs": [],
@@ -18,29 +18,10 @@
     "signoff": null,
     "framework_reviewed": false
   },
-  "evaluator_feedback": {
-    "summary": "第 1 轮复验部分通过：Actions 列表页分页按钮与 Template 详情页缺失区块已补齐，但 Action 详情页 Performance Matrix 仍未按原型恢复，批次继续停留 fixing。",
-    "pass_count": 6,
-    "partial_count": 0,
-    "fail_count": 2,
-    "issues": [
-      {
-        "feature_id": "F-1TO1-02",
-        "result": "FAIL",
-        "description": "Action 详情页顶部 New Version 和 Usage 已补回，但右侧 Performance Matrix 仍显示 Versions / Model，而非原型要求的 Avg Latency / Token Cost / Success Rate。",
-        "steps_to_reproduce": "1. 对照 design-draft/Action Detail (v2)/index.html 第 332-359 行 2. 查看 src/app/(console)/actions/[actionId]/page.tsx 第 366-394 行 3. 当前仍渲染 Versions/Model，未恢复 Avg Latency/Token Cost/Success Rate"
-      },
-      {
-        "feature_id": "F-1TO1-08",
-        "result": "FAIL",
-        "description": "L1 API/E2E CRUD 继续通过，但原型对照复验仍未全通过，故整体不能签收。",
-        "steps_to_reproduce": "1. 运行 scripts/test/ui-redesign-templates-actions-e2e-2026-04-06.ts，结果 5/5 通过 2. 对照 design-draft/Action Detail (v2)/index.html 与 src/app/(console)/actions/[actionId]/page.tsx 3. 发现 Action Detail 的 Performance Matrix 仍不一致"
-      }
-    ]
-  },
+  "evaluator_feedback": null,
   "features": [
     { "id": "F-1TO1-01", "title": "Actions 列表页 1:1 还原", "status": "completed", "executor": "generator" },
-    { "id": "F-1TO1-02", "title": "Action 详情页 1:1 还原", "status": "pending", "executor": "generator" },
+    { "id": "F-1TO1-02", "title": "Action 详情页 1:1 还原", "status": "completed", "executor": "generator" },
     { "id": "F-1TO1-03", "title": "Action 创建/编辑页 1:1 还原", "status": "completed", "executor": "generator" },
     { "id": "F-1TO1-04", "title": "Templates 列表页 1:1 还原", "status": "completed", "executor": "generator" },
     { "id": "F-1TO1-05", "title": "Template 详情页 1:1 还原", "status": "completed", "executor": "generator" },

@@ -371,24 +371,34 @@ export default function ActionDetailPage() {
             <div className="grid grid-cols-2 gap-4">
               <div className="p-4 bg-white/5 rounded-xl border border-white/10">
                 <span className="text-[10px] font-bold text-slate-400 uppercase block mb-1">
-                  Versions
+                  Avg Latency
                 </span>
                 <div className="flex items-baseline gap-1">
                   <span className="text-2xl font-headline font-extrabold text-primary-fixed-dim">
-                    {action.versions.length}
+                    —
                   </span>
-                  <span className="text-xs font-medium text-slate-400">total</span>
+                  <span className="text-xs font-medium text-slate-400">ms</span>
                 </div>
               </div>
               <div className="p-4 bg-white/5 rounded-xl border border-white/10">
                 <span className="text-[10px] font-bold text-slate-400 uppercase block mb-1">
-                  Model
+                  Token Cost
                 </span>
                 <div className="flex items-baseline gap-1">
-                  <span className="text-sm font-headline font-extrabold text-primary-fixed-dim truncate">
-                    {action.model.split("/").pop()}
+                  <span className="text-2xl font-headline font-extrabold text-primary-fixed-dim">
+                    —
                   </span>
+                  <span className="text-[10px] font-medium text-slate-400">/avg</span>
                 </div>
+              </div>
+            </div>
+            <div className="mt-6 pt-6 border-t border-white/5">
+              <div className="flex justify-between items-center text-xs text-slate-400 mb-2">
+                <span>Success Rate</span>
+                <span className="text-primary-fixed-dim">—</span>
+              </div>
+              <div className="w-full h-1.5 bg-white/5 rounded-full overflow-hidden">
+                <div className="h-full bg-gradient-to-r from-primary to-primary-container w-full" />
               </div>
             </div>
           </div>
