@@ -7,7 +7,7 @@
       "title": "Actions 列表页按 Stitch 设计稿重构",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "1) /actions 页面按 Stitch 'Action List' 设计稿还原；2) 表格列：Action Name、Model（badge）、Active Version（badge）、Variables 数量、Description、Updated；3) 空状态展示；4) 侧边栏 Actions 项高亮；5) npm run lint + tsc 通过"
     },
     {
@@ -15,7 +15,7 @@
       "title": "Action 详情页按 Stitch 设计稿重构",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "1) /actions/:id 页面按 Stitch 'Action Detail' 设计稿还原；2) 面包屑导航；3) 活跃版本区：messages 预览（{{变量}}高亮）+ variables 表格；4) 版本历史时间线（含 changelog）；5) 元数据面板（创建日期、版本数、被几个 Template 引用）；6) npm run lint + tsc 通过"
     },
     {
@@ -23,7 +23,7 @@
       "title": "Action 创建/编辑页按 Stitch 设计稿重构",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "1) /actions/new 页面按 Stitch 'Create Prompt Action' 设计稿还原；2) 基本信息区（名称、描述、模型下拉）；3) Messages 编辑器（角色下拉 + 内容 textarea，{{变量}}高亮）；4) Variables 自动检测区（名称、描述、必填开关、默认值）；5) npm run lint + tsc 通过"
     },
     {
@@ -31,7 +31,7 @@
       "title": "Templates 列表页按 Stitch 设计稿重构",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "1) /templates 页面按 Stitch 'Template List' 设计稿还原；2) 表格列：Template Name、Steps 数量、Execution Mode（Single/Sequential/Fan-out badge）、Description、Updated；3) 空状态展示；4) 侧边栏 Templates 项高亮；5) npm run lint + tsc 通过"
     },
     {
@@ -39,7 +39,7 @@
       "title": "Template 详情页按 Stitch 设计稿重构",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "1) /templates/:id 页面按 Stitch 'Template Detail' 设计稿还原；2) 面包屑导航；3) 步骤流水线可视化（编号 1→2→3，每步显示 Action 名、模型、角色 badge）；4) 右侧 Template Info 面板（创建日期、步骤数、执行模式）；5) Edit/Delete 按钮；6) npm run lint + tsc 通过"
     },
     {
@@ -47,7 +47,7 @@
       "title": "Template 创建/编辑页按 Stitch 设计稿重构",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "1) /templates/new 页面按 Stitch 'Template Editor' 设计稿还原；2) 基本信息区（名称、描述）；3) Execution Sequence builder（可排序步骤列表，每步选 Action + Role 下拉）；4) 添加/删除/拖拽排序步骤；5) npm run lint + tsc 通过"
     },
     {
@@ -55,7 +55,7 @@
       "title": "Admin 模板管理页按 Stitch 设计稿重构",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "1) /admin/templates 页面按 Stitch 'Admin: Template Management' 设计稿还原；2) 统计卡片（总数、公开、私有）；3) 表格含 Template Name、Project、Steps、Public 开关、Quality Score、Created、操作列；4) 搜索 + 筛选；5) 分页；6) npm run lint + tsc 通过"
     },
     {
@@ -63,7 +63,7 @@
       "title": "i18n 补全（新增/变更的 UI 文案）",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "1) 重构涉及的所有用户可见文案通过 useTranslations()；2) en.json 和 zh-CN.json 同步更新，无缺失 key；3) npm run lint + tsc 通过"
     },
     {

@@ -6,6 +6,12 @@ import { useProject } from "@/hooks/use-project";
 import { Skeleton } from "@/components/ui/skeleton";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { timeAgo } from "@/lib/utils";
+
+interface StepInfo {
+  role: string;
+  action: { name: string; model: string };
+}
 
 interface TemplateRow {
   id: string;
@@ -13,6 +19,7 @@ interface TemplateRow {
   description: string | null;
   stepCount: number;
   executionMode: string;
+  steps: StepInfo[];
   updatedAt: string;
 }
 
@@ -35,94 +42,125 @@ export default function TemplatesPage() {
 
   if (projLoading || loading) {
     return (
-      <div className="p-6 space-y-4">
-        <Skeleton className="h-8 w-48" />
-        <Skeleton className="h-64 w-full" />
+      <div className="p-8 space-y-6">
+        <Skeleton className="h-10 w-48" />
+        <Skeleton className="h-[400px] w-full rounded-xl" />
       </div>
     );
   }
 
-  const modeLabel = (mode: string) => {
-    switch (mode) {
-      case "sequential":
-        return t("modeSequential");
-      case "fan-out":
-        return t("modeFanout");
-      default:
-        return t("modeSingle");
-    }
+  const modeBadge = (mode: string) => {
+    const styles: Record<string, string> = {
+      sequential: "bg-indigo-100 text-indigo-700",
+      "fan-out": "bg-amber-100 text-amber-700",
+      single: "bg-slate-100 text-slate-600",
+    };
+    const labels: Record<string, string> = {
+      sequential: t("modeSequential"),
+      "fan-out": t("modeFanout"),
+      single: t("modeSingle"),
+    };
+    return (
+      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-tighter ${styles[mode] || styles.single}`}>
+        {labels[mode] || mode}
+      </span>
+    );
   };
 
   return (
-    <div className="p-6 space-y-6">
-      <div className="flex items-center justify-between">
+    <section className="px-10 py-12">
+      <div className="flex justify-between items-end mb-10">
         <div>
-          <h1 className="text-2xl font-black tracking-tight font-[var(--font-heading)]">
+          <h1 className="text-4xl font-extrabold tracking-tight text-on-surface mb-2 font-headline">
             {t("title")}
           </h1>
-          <p className="text-sm text-slate-500 mt-1">{t("subtitle")}</p>
+          <p className="text-slate-500 font-medium">{t("subtitle")}</p>
         </div>
         <Link
           href="/templates/new"
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-ds-primary text-white text-sm font-bold shadow-lg shadow-ds-primary/20 hover:opacity-90 transition"
+          className="bg-gradient-to-r from-primary to-primary-container text-white px-6 py-3 rounded-xl font-bold flex items-center gap-2 shadow-xl shadow-indigo-500/20 hover:scale-[0.98] transition-all"
         >
-          <span className="material-symbols-outlined text-sm">add</span>
+          <span className="material-symbols-outlined text-lg">add_circle</span>
           {t("create")}
         </Link>
       </div>
 
       {templates.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-20">
-          <span className="material-symbols-outlined text-4xl text-slate-300 mb-4">extension</span>
-          <h2 className="text-lg font-bold mb-1">{t("emptyTitle")}</h2>
-          <p className="text-sm text-slate-500 mb-4">{t("emptyDesc")}</p>
-          <button
-            onClick={() => router.push("/templates/new")}
-            className="px-4 py-2 rounded-xl bg-ds-primary text-white text-sm font-bold"
+        <div className="flex flex-col items-center justify-center py-24">
+          <div className="w-16 h-16 rounded-2xl bg-surface-container-high flex items-center justify-center mb-6">
+            <span className="material-symbols-outlined text-3xl text-slate-400">extension</span>
+          </div>
+          <h2 className="text-xl font-bold font-headline mb-2">{t("emptyTitle")}</h2>
+          <p className="text-sm text-slate-500 mb-6 max-w-md text-center">{t("emptyDesc")}</p>
+          <Link
+            href="/templates/new"
+            className="bg-gradient-to-r from-[#5443b9] to-[#6d5dd3] text-white px-5 py-2.5 rounded-lg text-sm font-bold flex items-center gap-2 shadow-lg shadow-primary/20"
           >
+            <span className="material-symbols-outlined text-sm">add</span>
             {t("create")}
-          </button>
+          </Link>
         </div>
       ) : (
-        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden">
-          <table className="w-full text-sm">
+        <div className="bg-surface-container-lowest rounded-xl p-1 shadow-sm overflow-hidden">
+          <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="border-b border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50">
-                <th className="text-left px-4 py-3 font-bold text-slate-500">
+              <tr className="bg-surface-container-low">
+                <th className="px-6 py-4 text-[10px] font-extrabold uppercase tracking-widest text-slate-500">
                   {t("templateName")}
                 </th>
-                <th className="text-left px-4 py-3 font-bold text-slate-500">{t("steps")}</th>
-                <th className="text-left px-4 py-3 font-bold text-slate-500">
+                <th className="px-6 py-4 text-[10px] font-extrabold uppercase tracking-widest text-slate-500">
+                  {t("steps")}
+                </th>
+                <th className="px-6 py-4 text-[10px] font-extrabold uppercase tracking-widest text-slate-500">
                   {t("executionMode")}
                 </th>
-                <th className="text-left px-4 py-3 font-bold text-slate-500">
+                <th className="px-6 py-4 text-[10px] font-extrabold uppercase tracking-widest text-slate-500">
                   {t("descriptionLabel")}
                 </th>
+                <th className="px-6 py-4 text-[10px] font-extrabold uppercase tracking-widest text-slate-500">
+                  {t("updated")}
+                </th>
+                <th className="px-6 py-4" />
               </tr>
             </thead>
-            <tbody>
+            <tbody className="divide-y divide-transparent">
               {templates.map((tpl) => (
                 <tr
                   key={tpl.id}
-                  className="border-b border-slate-50 dark:border-slate-800/50 hover:bg-slate-50 dark:hover:bg-slate-800/30 cursor-pointer transition"
+                  className="group hover:bg-surface-container-low transition-colors duration-150 cursor-pointer"
                   onClick={() => router.push(`/templates/${tpl.id}`)}
                 >
-                  <td className="px-4 py-3 font-bold text-ds-primary">{tpl.name}</td>
-                  <td className="px-4 py-3">{tpl.stepCount}</td>
-                  <td className="px-4 py-3">
-                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400">
-                      {modeLabel(tpl.executionMode)}
+                  <td className="px-6 py-5">
+                    <span className="text-primary font-bold text-sm tracking-tight">{tpl.name}</span>
+                  </td>
+                  <td className="px-6 py-5">
+                    <span className="text-slate-600 text-xs font-medium">
+                      {tpl.stepCount} {t("stepsUnit")}
                     </span>
                   </td>
-                  <td className="px-4 py-3 text-slate-500 truncate max-w-xs">
-                    {tpl.description || "—"}
+                  <td className="px-6 py-5">{modeBadge(tpl.executionMode)}</td>
+                  <td className="px-6 py-5 max-w-xs">
+                    <p className="text-slate-500 text-xs truncate">{tpl.description || "—"}</p>
+                  </td>
+                  <td className="px-6 py-5">
+                    <span className="text-slate-400 text-xs">{timeAgo(tpl.updatedAt)}</span>
+                  </td>
+                  <td className="px-6 py-5 text-right">
+                    <span className="material-symbols-outlined text-slate-300 group-hover:text-primary transition-colors">
+                      chevron_right
+                    </span>
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
+          <div className="px-6 py-4 flex items-center justify-between bg-surface-container-low/30">
+            <p className="text-xs text-slate-500 font-medium">
+              {t("showing")} <span className="text-on-surface">{templates.length}</span>
+            </p>
+          </div>
         </div>
       )}
-    </div>
+    </section>
   );
 }
