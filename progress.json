@@ -1,11 +1,11 @@
 {
-  "status": "verifying",
-  "user_goal": "whitelist-db-migration: 模型白名单从代码迁移到数据库，Admin 控制台手动管理，全量同步+按需启用",
+  "status": "done",
+  "user_goal": "whitelist-db-migration: \u6a21\u578b\u767d\u540d\u5355\u4ece\u4ee3\u7801\u8fc1\u79fb\u5230\u6570\u636e\u5e93\uff0cAdmin \u63a7\u5236\u53f0\u624b\u52a8\u7ba1\u7406\uff0c\u5168\u91cf\u540c\u6b65+\u6309\u9700\u542f\u7528",
   "total_features": 9,
-  "completed_features": 8,
+  "completed_features": 9,
   "fix_rounds": 0,
   "current_sprint": null,
-  "last_updated": "2026-04-06T22:30:00Z",
+  "last_updated": "2026-04-06T09:00:53Z",
   "reference_docs": [],
   "role_assignments": {
     "planner": "Kimi",
@@ -15,32 +15,94 @@
   "docs": {
     "spec": null,
     "test_cases": null,
-    "signoff": null,
+    "signoff": "test-reports/whitelist-db-migration-signoff-2026-04-06.md",
     "framework_reviewed": false
   },
-  "evaluator_feedback": null,
+  "evaluator_feedback": {
+    "summary": "\u6a21\u578b\u767d\u540d\u5355\u8fc1\u79fb\u81f3\u6570\u636e\u5e93\u7684 9 \u9879\u5185\u5bb9\u5df2\u5728\u672c\u5730\u7aef\u5230\u7aef\u9a8c\u6536\u901a\u8fc7\u3002",
+    "pass_count": 9,
+    "partial_count": 0,
+    "fail_count": 0,
+    "issues": []
+  },
   "generator_handoff": {
-    "completed": ["F-WL-01", "F-WL-02", "F-WL-03", "F-WL-04", "F-WL-05", "F-WL-06", "F-WL-07", "F-WL-08"],
-    "codex_tasks": ["F-WL-09: E2E 验证"],
+    "completed": [
+      "F-WL-01",
+      "F-WL-02",
+      "F-WL-03",
+      "F-WL-04",
+      "F-WL-05",
+      "F-WL-06",
+      "F-WL-07",
+      "F-WL-08"
+    ],
+    "codex_tasks": [
+      "F-WL-09: E2E \u9a8c\u8bc1"
+    ],
     "notes": [
-      "F-WL-01/02 由前一个会话完成（Model 表 enabled/canonicalName/isVariant + Sync 引擎全量入库）",
-      "F-WL-03: API/MCP/Router/HealthCheck 全部加了 enabled=true 过滤，新增 MODEL_NOT_AVAILABLE 错误码（403）",
-      "F-WL-04: GET /api/admin/models 返回全量模型+channels+health，支持 provider/modality/search 筛选，按 canonicalName 分组+变体折叠；PATCH 支持 enabled 开关和 sellPrice 编辑",
-      "F-WL-05: /admin/model-whitelist 页面按 Stitch 设计稿实现，含统计卡片、搜索筛选、Enable 开关、售价编辑、Channels/Health 状态、NEW 标记、变体折叠、分页",
-      "F-WL-06: usage summary 日期格式改为 to_char(..., 'YYYY-MM-DD')，MCP 和 REST API 均已修复",
-      "F-WL-07: get_usage_summary topModels 对 enabled=false 的模型标注 deprecated: true",
-      "F-WL-08: 白名单页面所有文案通过 useTranslations()，en.json/zh-CN.json 同步更新"
+      "F-WL-01/02 \u7531\u524d\u4e00\u4e2a\u4f1a\u8bdd\u5b8c\u6210\uff08Model \u8868 enabled/canonicalName/isVariant + Sync \u5f15\u64ce\u5168\u91cf\u5165\u5e93\uff09",
+      "F-WL-03: API/MCP/Router/HealthCheck \u5168\u90e8\u52a0\u4e86 enabled=true \u8fc7\u6ee4\uff0c\u65b0\u589e MODEL_NOT_AVAILABLE \u9519\u8bef\u7801\uff08403\uff09",
+      "F-WL-04: GET /api/admin/models \u8fd4\u56de\u5168\u91cf\u6a21\u578b+channels+health\uff0c\u652f\u6301 provider/modality/search \u7b5b\u9009\uff0c\u6309 canonicalName \u5206\u7ec4+\u53d8\u4f53\u6298\u53e0\uff1bPATCH \u652f\u6301 enabled \u5f00\u5173\u548c sellPrice \u7f16\u8f91",
+      "F-WL-05: /admin/model-whitelist \u9875\u9762\u6309 Stitch \u8bbe\u8ba1\u7a3f\u5b9e\u73b0\uff0c\u542b\u7edf\u8ba1\u5361\u7247\u3001\u641c\u7d22\u7b5b\u9009\u3001Enable \u5f00\u5173\u3001\u552e\u4ef7\u7f16\u8f91\u3001Channels/Health \u72b6\u6001\u3001NEW \u6807\u8bb0\u3001\u53d8\u4f53\u6298\u53e0\u3001\u5206\u9875",
+      "F-WL-06: usage summary \u65e5\u671f\u683c\u5f0f\u6539\u4e3a to_char(..., 'YYYY-MM-DD')\uff0cMCP \u548c REST API \u5747\u5df2\u4fee\u590d",
+      "F-WL-07: get_usage_summary topModels \u5bf9 enabled=false \u7684\u6a21\u578b\u6807\u6ce8 deprecated: true",
+      "F-WL-08: \u767d\u540d\u5355\u9875\u9762\u6240\u6709\u6587\u6848\u901a\u8fc7 useTranslations()\uff0cen.json/zh-CN.json \u540c\u6b65\u66f4\u65b0"
     ]
   },
   "features": [
-    { "id": "F-WL-01", "title": "Model 表新增字段", "status": "completed", "executor": "generator" },
-    { "id": "F-WL-02", "title": "Sync 引擎改造", "status": "completed", "executor": "generator" },
-    { "id": "F-WL-03", "title": "API 层适配", "status": "completed", "executor": "generator" },
-    { "id": "F-WL-04", "title": "Admin API", "status": "completed", "executor": "generator" },
-    { "id": "F-WL-05", "title": "Admin 白名单管理页面", "status": "completed", "executor": "generator" },
-    { "id": "F-WL-06", "title": "usage 日期格式修复", "status": "completed", "executor": "generator" },
-    { "id": "F-WL-07", "title": "usage 已下线模型标注", "status": "completed", "executor": "generator" },
-    { "id": "F-WL-08", "title": "i18n 补全", "status": "completed", "executor": "generator" },
-    { "id": "F-WL-09", "title": "E2E 验证", "status": "pending", "executor": "codex" }
+    {
+      "id": "F-WL-01",
+      "title": "Model \u8868\u65b0\u589e\u5b57\u6bb5",
+      "status": "completed",
+      "executor": "generator"
+    },
+    {
+      "id": "F-WL-02",
+      "title": "Sync \u5f15\u64ce\u6539\u9020",
+      "status": "completed",
+      "executor": "generator"
+    },
+    {
+      "id": "F-WL-03",
+      "title": "API \u5c42\u9002\u914d",
+      "status": "completed",
+      "executor": "generator"
+    },
+    {
+      "id": "F-WL-04",
+      "title": "Admin API",
+      "status": "completed",
+      "executor": "generator"
+    },
+    {
+      "id": "F-WL-05",
+      "title": "Admin \u767d\u540d\u5355\u7ba1\u7406\u9875\u9762",
+      "status": "completed",
+      "executor": "generator"
+    },
+    {
+      "id": "F-WL-06",
+      "title": "usage \u65e5\u671f\u683c\u5f0f\u4fee\u590d",
+      "status": "completed",
+      "executor": "generator"
+    },
+    {
+      "id": "F-WL-07",
+      "title": "usage \u5df2\u4e0b\u7ebf\u6a21\u578b\u6807\u6ce8",
+      "status": "completed",
+      "executor": "generator"
+    },
+    {
+      "id": "F-WL-08",
+      "title": "i18n \u8865\u5168",
+      "status": "completed",
+      "executor": "generator"
+    },
+    {
+      "id": "F-WL-09",
+      "title": "E2E \u9a8c\u8bc1",
+      "status": "completed",
+      "executor": "codex"
+    }
   ]
 }
