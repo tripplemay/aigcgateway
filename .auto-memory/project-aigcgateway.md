@@ -42,28 +42,27 @@ AIGC Gateway — AI 服务商管理中台。统一 API 调用抽象（兼容 Ope
 3. **记忆分层：** 共享层 `.auto-memory/`（git-tracked）存项目状态，本机层存用户偏好
 4. **会话结束记忆检查点：** 所有角色、所有阶段、每次会话结束时检查并更新共享记忆
 5. **Planner 增强：** §0a 读用户反馈 + §2.5 Stitch 设计稿检查 + §5 角色分配询问
-6. **Generator 增强：** UI 重构必须先读原型 HTML 再编码（design-draft 是 source of truth）
-7. **用户反馈目录：** `docs/test-reports/user_report/` 纳入 Planner 启动必读
+6. **Generator 增强：** UI 重构必须先读原型 HTML 再编码 + JSON 文件禁止弯引号
+7. **Evaluator 增强：** UI 重构验收必须读原型 HTML 逐块核对
+8. **用户反馈目录：** `docs/test-reports/user_report/` 纳入 Planner 启动必读
+9. **Agent 注册表：** `.agents-registry`（git-tracked）列出项目所有 agent，Planner 角色分配时读取
+10. **AGENTS.md 适配：** Codex 启动读 `.agent-id` codex 行 + role_assignments 判断
 
-## Backlog（5 条待处理）
+## Backlog（2 条待处理）
 
 | ID | 优先级 | 标题 |
 |---|---|---|
-| BL-020 | critical | 上游错误透传泄露供应商凭据 |
-| BL-021 | critical | deepseek/zhipu/anthropic/siliconflow 四个 Provider sync 未创建 Channel |
-| BL-022 | high | capabilities 存在 unknown 无意义值 |
-| BL-023 | medium | chat 工具示例模型与 list_models 不一致 |
 | BL-024 | medium | Action/Template MCP 缺 create/update/delete |
+| BL-025 | high | 模板/动作 7 个页面 1:1 设计稿还原修复 |
 
-来源：`docs/test-reports/user_report/aigc-gateway-dx-audit-report-2026-04-06.md`
+BL-020~023 已在 dx-provider-fixes 批次中处理完毕。
 
 ## 已知遗留问题
 
-1. deepseek/zhipu/anthropic/siliconflow 四个 Provider Channel 数为 0（sync 从未成功创建）→ BL-021
-2. 上游错误透传暴露凭据 → BL-020
-3. SiliconFlow 价格补全未生效（aiEnriched=0）
-4. Anthropic 直连 401
-5. 同步耗时偏高（~264s）
+1. 4 个 Provider（deepseek/zhipu/anthropic/siliconflow）需在生产环境配置有效 apiKey 后触发 sync 验证（代码层 requireApiKey() 预检已完成）
+2. SiliconFlow 价格补全未生效（aiEnriched=0）
+3. 同步耗时偏高（~264s）
+4. 模板/动作 7 个页面存在手写内容未 1:1 还原设计稿 → BL-025
 
 ## 已知限制（决定不修复）
 

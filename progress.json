@@ -7,11 +7,7 @@
   "current_sprint": null,
   "last_updated": "2026-04-06T04:44:00Z",
   "reference_docs": [],
-  "role_assignments": {
-    "planner": "Kimi",
-    "generator": "Johnsong",
-    "evaluator": "Reviewer"
-  },
+  "role_assignments": null,
   "docs": {
     "spec": null,
     "test_cases": null,

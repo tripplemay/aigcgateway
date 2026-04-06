@@ -50,7 +50,9 @@
 - 没有破坏已有功能
 
 ### 5. 更新记录
-将 features.json 中该功能的 status 改为 "completed"，更新 progress.json：
+将 features.json 中该功能的 status 改为 "completed"，更新 progress.json。
+
+**JSON 文件编码要求：** 写入 progress.json / features.json 时，必须使用标准 ASCII 双引号 `"`（U+0022），禁止使用中文弯引号 `""` `''`（U+201C/U+201D/U+2018/U+2019）。弯引号会导致 JSON 解析失败，阻塞整个状态机流转。
 
 **building 模式：**
 ```json
