@@ -7,7 +7,7 @@
       "title": "capabilities 补全 function_calling + 注释更新",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "1) model-capabilities-fallback.ts 文件头注释更新，移除'不标 function_calling'说明；2) ModelCapabilities 接口新增 function_calling?: boolean；3) 支持 function calling 的模型（GPT-4o/4o-mini、Claude、Gemini、DeepSeek、GLM-4 等）标注 function_calling: true；4) npm run lint + tsc 通过"
     },
     {
@@ -15,7 +15,7 @@
       "title": "文本模型 contextWindow 补全",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "1) 新增 contextWindow fallback 映射（或扩展现有 capabilities fallback）；2) 所有 28 个白名单文本模型均有非 null 的 contextWindow 值；3) 同步逻辑优先使用 provider 返回值，fallback 仅补缺；4) npm run lint + tsc 通过"
     },
     {
@@ -23,7 +23,7 @@
       "title": "run_action 增加 dry_run 模式",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "1) run_action tool inputSchema 新增 dry_run (boolean, optional, default false)；2) dry_run=true 时：渲染变量注入后的 messages 并返回，不调用模型、不扣费、不写 CallLog；3) 返回格式包含 rendered_messages 数组；4) SERVER_INSTRUCTIONS 更新包含 dry_run 说明；5) npm run lint + tsc 通过"
     },
     {
@@ -39,7 +39,7 @@
       "title": "SDK 补全 Action/Template 类型",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "1) sdk/src/types/ 新增 Action、ActionVersion、Template、TemplateStep 类型定义；2) ChatParams 新增 n?: number 和 stream_options?: { include_usage?: boolean }；3) cd sdk && npm run typecheck 通过；4) cd sdk && npm run build 通过"
     },
     {
@@ -47,7 +47,7 @@
       "title": "SDK README 更新",
       "priority": "low",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "1) README 记录 MCP 20 个 Tool 的能力概览；2) 记录 Action/Template 类型的用法；3) ChatParams 新增参数有文档说明"
     },
     {

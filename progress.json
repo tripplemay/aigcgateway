@@ -1,11 +1,11 @@
 {
-  "status": "verifying",
+  "status": "fixing",
   "user_goal": "dx-metadata-enhancement: capabilities/contextWindow 补全 + dry_run + error_code + SDK 类型对齐",
   "total_features": 7,
-  "completed_features": 6,
+  "completed_features": 5,
   "fix_rounds": 0,
   "current_sprint": null,
-  "last_updated": "2026-04-07T02:00:00Z",
+  "last_updated": "2026-04-06T15:34:01Z",
   "reference_docs": [],
   "role_assignments": {
     "planner": "Kimi",
@@ -18,10 +18,40 @@
     "signoff": null,
     "framework_reviewed": false
   },
-  "evaluator_feedback": null,
+  "evaluator_feedback": {
+    "summary": "本轮本地验收 5 PASS / 1 FAIL；F-DX-04（chat 错误返回 error_code）未达标。",
+    "pass_count": 5,
+    "partial_count": 0,
+    "fail_count": 1,
+    "issues": [
+      {
+        "feature_id": "F-DX-04",
+        "result": "FAIL",
+        "description": "chat 在 model_not_found/model_not_available 路径返回纯文本，不包含 [error_code]。",
+        "steps_to_reproduce": "1) 调用 MCP chat，model=openai/not-a-real-model 2) 观察错误文本不含方括号 error_code。"
+      }
+    ],
+    "evidence": [
+      "docs/test-reports/dx-metadata-enhancement-local-e2e-2026-04-06.json",
+      "docs/test-reports/dx-metadata-enhancement-local-acceptance-2026-04-06.md"
+    ],
+    "notes": [
+      "F-DX-01/02/03、F-DX-05/06 已通过本地验收。",
+      "sdk typecheck/build 均通过。"
+    ]
+  },
   "generator_handoff": {
-    "completed": ["F-DX-01", "F-DX-02", "F-DX-03", "F-DX-04", "F-DX-05", "F-DX-06"],
-    "codex_tasks": ["F-DX-07: E2E 验证"],
+    "completed": [
+      "F-DX-01",
+      "F-DX-02",
+      "F-DX-03",
+      "F-DX-04",
+      "F-DX-05",
+      "F-DX-06"
+    ],
+    "codex_tasks": [
+      "F-DX-07: E2E 验证"
+    ],
     "notes": [
       "F-DX-01: ModelCapabilities 新增 function_calling 字段，GPT-4o/Claude/Gemini/DeepSeek/GLM/Qwen/Grok 标注 true",
       "F-DX-02: 新增 CONTEXT_WINDOW_MAP + resolveContextWindow()，sync 逻辑优先 provider 值，fallback 补缺",
@@ -32,12 +62,47 @@
     ]
   },
   "features": [
-    { "id": "F-DX-01", "title": "capabilities 补全 function_calling", "status": "completed", "executor": "generator" },
-    { "id": "F-DX-02", "title": "文本模型 contextWindow 补全", "status": "completed", "executor": "generator" },
-    { "id": "F-DX-03", "title": "run_action dry_run 模式", "status": "completed", "executor": "generator" },
-    { "id": "F-DX-04", "title": "MCP 错误返回 error_code", "status": "completed", "executor": "generator" },
-    { "id": "F-DX-05", "title": "SDK 补全 Action/Template 类型", "status": "completed", "executor": "generator" },
-    { "id": "F-DX-06", "title": "SDK README 更新", "status": "completed", "executor": "generator" },
-    { "id": "F-DX-07", "title": "E2E 验证", "status": "pending", "executor": "codex" }
+    {
+      "id": "F-DX-01",
+      "title": "capabilities 补全 function_calling",
+      "status": "completed",
+      "executor": "generator"
+    },
+    {
+      "id": "F-DX-02",
+      "title": "文本模型 contextWindow 补全",
+      "status": "completed",
+      "executor": "generator"
+    },
+    {
+      "id": "F-DX-03",
+      "title": "run_action dry_run 模式",
+      "status": "completed",
+      "executor": "generator"
+    },
+    {
+      "id": "F-DX-04",
+      "title": "MCP 错误返回 error_code",
+      "status": "pending",
+      "executor": "generator"
+    },
+    {
+      "id": "F-DX-05",
+      "title": "SDK 补全 Action/Template 类型",
+      "status": "completed",
+      "executor": "generator"
+    },
+    {
+      "id": "F-DX-06",
+      "title": "SDK README 更新",
+      "status": "completed",
+      "executor": "generator"
+    },
+    {
+      "id": "F-DX-07",
+      "title": "E2E 验证",
+      "status": "pending",
+      "executor": "codex"
+    }
   ]
 }

@@ -12,9 +12,9 @@ AIGC Gateway — AI 服务商管理中台。统一 API 调用抽象（兼容 Ope
 
 ## 当前开发状态（截至 2026-04-06）
 
-**最新完成批次：** `action-pages-design-restore`（5/5 PASS，fix_rounds=0）
-**Harness 状态：** done
-**签收报告：** `docs/test-reports/action-pages-design-restore-signoff-2026-04-06.md`
+**当前批次：** `dx-metadata-enhancement`（5 PASS / 1 FAIL，等待修复）
+**Harness 状态：** fixing
+**最新验收报告：** `docs/test-reports/dx-metadata-enhancement-local-acceptance-2026-04-06.md`
 
 ### 近期完成批次（2026-04-06）
 
@@ -63,15 +63,12 @@ Action 相关权威设计稿（3 个，已更新确认）：
 
 状态：3 页设计稿还原已完成并通过验收（`action-pages-design-restore` 5/5 PASS）
 
-## Backlog（5 条待处理）
+## Backlog（1 条待处理）
 
 | ID | 优先级 | 标题 |
 |---|---|---|
-| BL-030 | high | capabilities 补全 function_calling + 注释更新 |
-| BL-031 | medium | 文本模型 contextWindow 补全 |
-| BL-032 | medium | run_action dry_run 模式 |
 | BL-033 | medium | MCP 错误返回增加 error_code + chat.ts catch 对齐 |
-| BL-034 | medium | SDK 补全 Action/Template 类型 + ChatParams 对齐 + README |
+| BL-030/031/032/034 | — | 已在 `dx-metadata-enhancement` 批次通过本地验收 |
 
 BL-024/026/027/028 已完成。
 
