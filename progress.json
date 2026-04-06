@@ -18,8 +18,8 @@
     "signoff": null,
     "framework_reviewed": false
   },
-  “evaluator_feedback”: null,
-  “generator_handoff”: “F-DPF-01 修复：pk_ 正则已覆盖（pk[-_] 匹配）。F-DPF-02：requireApiKey() 预检已到位，4 个 Provider 的 401 错误是缺少有效 apiKey 的配置问题，需用户在 Admin > Providers 手动配置。F-DPF-04 修复：chat/generate_image description 不再硬编码示例模型名，改为引导用户先调 list_models 获取实际可用名称。”,
+  "evaluator_feedback": null,
+  "generator_handoff": "F-DPF-01 修复：pk_ 正则已覆盖（pk[-_] 匹配）。F-DPF-02：requireApiKey() 预检已到位，4 个 Provider 的 401 错误是缺少有效 apiKey 的配置问题，需用户在 Admin > Providers 手动配置。F-DPF-04 修复：chat/generate_image description 不再硬编码示例模型名，改为引导用户先调 list_models 获取实际可用名称。",
   "features": [
     { "id": "F-DPF-01", "title": "上游错误信息脱敏", "status": "completed", "executor": "generator" },
     { "id": "F-DPF-02", "title": "4 个 Provider sync 修复", "status": "completed", "executor": "generator" },

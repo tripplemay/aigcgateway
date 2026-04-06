@@ -95,3 +95,15 @@
 **建议写入：** `planner.md` §2 或 §3 — 新增检查项："涉及 UI 页面架构变更时，检查 Stitch 是否有对应设计稿，有则追加更新设计稿的功能条目"
 
 **状态：** 已写入（2026-04-06）— planner.md §2.5 "检查 Stitch 设计稿"
+
+---
+
+## [2026-04-06] Kimi — 来源：Reviewer 复验发现 progress.json 非法字符
+
+**类型：** 新坑
+
+**内容：** Generator 写入 progress.json 时使用了中文弯引号（U+201C/U+201D）作为 JSON 结构分隔符，导致 JSON 解析失败。状态机文件（progress.json / features.json）必须使用标准 ASCII 双引号。建议在 generator.md 中增加提醒：写入 JSON 文件时禁止使用弯引号。
+
+**建议写入：** `generator.md` §5 — "状态文件必须使用标准 ASCII 双引号，禁止弯引号"
+
+**状态：** 待确认
