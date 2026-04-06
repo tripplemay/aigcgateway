@@ -1,0 +1,39 @@
+{
+  "batch": "dx-metadata-enhancement",
+  "generatedAt": "2026-04-06T15:53:32.009Z",
+  "environment": "http://localhost:3099",
+  "checks": [
+    {
+      "name": "mcp initialize",
+      "ok": true,
+      "detail": "status=200"
+    },
+    {
+      "name": "text models contextWindow non-null",
+      "ok": true,
+      "detail": "text=1"
+    },
+    {
+      "name": "supported family models expose function_calling=true",
+      "ok": true,
+      "detail": "candidates=1"
+    },
+    {
+      "name": "run_action dry_run returns rendered_messages",
+      "ok": true,
+      "detail": "[{\"role\":\"user\",\"content\":\"TOPIC=dry-run-check\"}]"
+    },
+    {
+      "name": "run_action dry_run no balance deduction",
+      "ok": true,
+      "detail": "before=5, after=5"
+    },
+    {
+      "name": "chat error contains [error_code]",
+      "ok": false,
+      "detail": "Model \"openai/not-a-real-model\" not found. Available text models: openai/gpt-4o-mini. Use list_models for full details."
+    }
+  ],
+  "pass": 5,
+  "fail": 1
+}
