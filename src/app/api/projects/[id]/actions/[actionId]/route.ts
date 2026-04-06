@@ -19,11 +19,18 @@ export async function GET(request: Request, { params }: Params) {
 
   const action = await prisma.action.findFirst({
     where: { id: params.actionId, projectId: project.id },
-    include: { versions: { orderBy: { versionNumber: "desc" } } },
+    include: {
+      versions: { orderBy: { versionNumber: "desc" } },
+      _count: { select: { templateSteps: true } },
+    },
   });
   if (!action) return errorResponse(404, "not_found", "Action not found");
 
-  return NextResponse.json(action);
+  return NextResponse.json({
+    ...action,
+    usedInTemplates: action._count.templateSteps,
+    _count: undefined,
+  });
 }
 
 // PUT /api/projects/:id/actions/:actionId — 更新 Action 基础信息

@@ -241,15 +241,14 @@ export default function TemplateDetailPage() {
               </div>
             </div>
 
-            {/* Pipeline Preview — design-draft line 306-312 */}
+            {/* Pipeline Summary */}
             <div className="mt-10 pt-8 border-t border-slate-50">
               <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-4">
-                Pipeline Preview
+                {t("pipelineSummary")}
               </p>
-              <div className="h-32 w-full rounded-xl bg-surface-container-low overflow-hidden relative">
-                <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-secondary/10" />
-                <div className="absolute inset-0 bg-gradient-to-t from-surface-container-lowest to-transparent" />
-              </div>
+              <p className="text-sm text-slate-600">
+                {template.steps.length} {t("stepsUnit")}, {executionMode}
+              </p>
             </div>
           </div>
 

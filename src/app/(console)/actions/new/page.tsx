@@ -25,6 +25,8 @@ export default function NewActionPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const editId = searchParams.get("edit");
+  const newVersionId = searchParams.get("newVersion");
+  const sourceActionId = editId || newVersionId;
 
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
@@ -37,9 +39,9 @@ export default function NewActionPage() {
   const [changelog, setChangelog] = useState("");
   const [saving, setSaving] = useState(false);
 
-  // Load existing action data in edit mode
+  // Load existing action data in edit/newVersion mode
   useEffect(() => {
-    if (!current || !editId) return;
+    if (!current || !sourceActionId) return;
     apiFetch<{
       name: string;
       description: string | null;
@@ -50,7 +52,7 @@ export default function NewActionPage() {
         messages: Message[];
         variables: VarDef[];
       }[];
-    }>(`/api/projects/${current.id}/actions/${editId}`)
+    }>(`/api/projects/${current.id}/actions/${sourceActionId}`)
       .then((data) => {
         setName(data.name);
         setDescription(data.description || "");
@@ -70,7 +72,7 @@ export default function NewActionPage() {
         }
       })
       .catch(() => toast.error("Failed to load action"));
-  }, [current, editId]);
+  }, [current, sourceActionId]);
 
   const addMessage = () => setMessages([...messages, { role: "user", content: "" }]);
   const removeMessage = (i: number) => setMessages(messages.filter((_, idx) => idx !== i));
@@ -104,7 +106,15 @@ export default function NewActionPage() {
 
     setSaving(true);
     try {
-      if (editId) {
+      if (newVersionId) {
+        // New version mode: only create a new version, don't update action metadata
+        await apiFetch(`/api/projects/${current.id}/actions/${newVersionId}/versions`, {
+          method: "POST",
+          body: JSON.stringify({ messages, variables, changelog }),
+        });
+        toast.success(t("updated"));
+        router.push(`/actions/${newVersionId}`);
+      } else if (editId) {
         await apiFetch(`/api/projects/${current.id}/actions/${editId}`, {
           method: "PUT",
           body: JSON.stringify({ name, description, model }),
@@ -152,7 +162,7 @@ export default function NewActionPage() {
           </Link>
           <span className="material-symbols-outlined text-sm">chevron_right</span>
           <span className="text-primary font-semibold">
-            {editId ? t("editTitle") : t("createTitle")}
+            {newVersionId ? t("newVersion") : editId ? t("editTitle") : t("createTitle")}
           </span>
         </nav>
       </header>

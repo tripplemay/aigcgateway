@@ -526,6 +526,12 @@
     "withActiveVersion": "已激活版本",
     "uniqueModels": "模型种类",
     "noDescription": "无描述",
+    "usedInTemplates": "被 {count} 个模板使用",
+    "actionInsights": "动作概览",
+    "created": "创建时间",
+    "lastUpdated": "最后更新",
+    "versions": "版本数",
+    "usageLabel": "使用情况",
     "newVersion": "新版本",
     "delete": "删除",
     "confirmDelete": "确定要删除此动作吗？此操作不可撤销。",
@@ -549,8 +555,9 @@
     "ctaTitle": "组合提示词链",
     "ctaDesc": "将多个原子动作组合为复杂的多步工作流。",
     "ctaButton": "查看模板",
-    "actionHealth": "运行健康度",
-    "successful": "成功率"
+    "actionStats": "调用统计",
+    "totalCalls": "总调用次数",
+    "recentCalls": "近 7 天"
   },
   "templates": {
     "title": "模板",
@@ -602,8 +609,11 @@
     "searchPlaceholder": "搜索模板...",
     "of": "/",
     "active": "个",
-    "healthTitle": "模板状态",
-    "healthDesc": "实时性能指标",
+    "templateStats": "模板概览",
+    "templateStatsDesc": "工作流集合",
+    "totalTemplates": "模板数",
+    "totalSteps": "总步骤数",
+    "pipelineSummary": "流水线摘要",
     "ctaTitle": "扩展自动化",
     "ctaDesc": "将模板连接到流式 API，实现多步工作流的毫秒级延迟响应。"
   },

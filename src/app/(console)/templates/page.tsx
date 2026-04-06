@@ -192,17 +192,29 @@ export default function TemplatesPage() {
             </div>
           </div>
 
-          {/* Featured Section: Bento Grid — design-draft line 277-313 */}
+          {/* Featured Section: Bento Grid */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-6">
             <div className="col-span-1 bg-surface-container-low p-6 rounded-xl relative overflow-hidden group">
               <div className="relative z-10">
                 <h3 className="font-headline text-lg font-bold text-on-surface mb-1">
-                  {t("healthTitle")}
+                  {t("templateStats")}
                 </h3>
-                <p className="text-xs text-slate-500 mb-4">{t("healthDesc")}</p>
-                <div className="flex items-end gap-2">
-                  <span className="text-3xl font-black text-primary">{templates.length}</span>
-                  <span className="text-[10px] text-secondary font-bold mb-1">{t("active")}</span>
+                <p className="text-xs text-slate-500 mb-4">{t("templateStatsDesc")}</p>
+                <div className="flex items-end gap-4">
+                  <div>
+                    <span className="text-3xl font-black text-primary">{templates.length}</span>
+                    <span className="text-[10px] text-slate-500 font-bold block">
+                      {t("totalTemplates")}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="text-3xl font-black text-secondary">
+                      {templates.reduce((sum, tpl) => sum + tpl.stepCount, 0)}
+                    </span>
+                    <span className="text-[10px] text-slate-500 font-bold block">
+                      {t("totalSteps")}
+                    </span>
+                  </div>
                 </div>
               </div>
               <div className="absolute -right-4 -bottom-4 opacity-10 group-hover:scale-110 transition-transform">
@@ -210,7 +222,7 @@ export default function TemplatesPage() {
                   className="material-symbols-outlined text-8xl"
                   style={{ fontVariationSettings: "'FILL' 1" }}
                 >
-                  insights
+                  account_tree
                 </span>
               </div>
             </div>

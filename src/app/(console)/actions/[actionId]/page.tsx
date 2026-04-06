@@ -26,6 +26,7 @@ interface ActionDetail {
   activeVersionId: string | null;
   versions: ActionVersion[];
   createdAt: string;
+  usedInTemplates?: number;
 }
 
 export default function ActionDetailPage() {
@@ -122,7 +123,7 @@ export default function ActionDetailPage() {
               {t("edit")}
             </Link>
             <Link
-              href={`/actions/new?edit=${actionId}`}
+              href={`/actions/new?newVersion=${actionId}`}
               className="px-6 py-2.5 bg-gradient-to-r from-primary to-primary-container text-white font-bold rounded-xl flex items-center gap-2 shadow-lg shadow-primary/20 hover:opacity-90 transition-opacity"
             >
               <span className="material-symbols-outlined text-sm">add_circle</span>
@@ -303,10 +304,10 @@ export default function ActionDetailPage() {
 
         {/* Right Column: Sidebar — design-draft line 288-367 */}
         <aside className="col-span-12 lg:col-span-4 space-y-6">
-          {/* Action Insights Card — design-draft line 290-330 */}
+          {/* Action Insights Card */}
           <div className="bg-surface-container-lowest rounded-xl p-6 shadow-sm border border-outline-variant/10 sticky top-8">
             <h3 className="text-xs font-black text-slate-400 uppercase tracking-[0.2em] mb-6">
-              Action Insights
+              {t("actionInsights")}
             </h3>
             <div className="space-y-6">
               <div className="flex items-center justify-between group">
@@ -314,7 +315,7 @@ export default function ActionDetailPage() {
                   <span className="material-symbols-outlined text-slate-400 group-hover:text-primary transition-colors">
                     calendar_today
                   </span>
-                  <span className="text-sm font-medium text-slate-600">Created</span>
+                  <span className="text-sm font-medium text-slate-600">{t("created")}</span>
                 </div>
                 <span className="text-sm font-bold text-on-surface">
                   {new Date(action.createdAt).toLocaleDateString()}
@@ -325,7 +326,7 @@ export default function ActionDetailPage() {
                   <span className="material-symbols-outlined text-slate-400 group-hover:text-primary transition-colors">
                     history
                   </span>
-                  <span className="text-sm font-medium text-slate-600">Last Updated</span>
+                  <span className="text-sm font-medium text-slate-600">{t("lastUpdated")}</span>
                 </div>
                 <span className="text-sm font-bold text-secondary">
                   {timeAgo(action.versions[0]?.createdAt ?? action.createdAt)}
@@ -336,69 +337,20 @@ export default function ActionDetailPage() {
                   <span className="material-symbols-outlined text-slate-400 group-hover:text-primary transition-colors">
                     layers
                   </span>
-                  <span className="text-sm font-medium text-slate-600">Versions</span>
+                  <span className="text-sm font-medium text-slate-600">{t("versions")}</span>
                 </div>
-                <span className="text-sm font-bold text-on-surface">
-                  {action.versions.length} total
-                </span>
+                <span className="text-sm font-bold text-on-surface">{action.versions.length}</span>
               </div>
               <div className="flex items-center justify-between group">
                 <div className="flex items-center gap-3">
                   <span className="material-symbols-outlined text-slate-400 group-hover:text-primary transition-colors">
                     link
                   </span>
-                  <span className="text-sm font-medium text-slate-600">Usage</span>
+                  <span className="text-sm font-medium text-slate-600">{t("usageLabel")}</span>
                 </div>
-                <span className="text-sm font-bold text-on-surface">—</span>
-              </div>
-            </div>
-            {/* Decorative graphic — design-draft line 323-329 */}
-            <div className="mt-8 rounded-lg overflow-hidden h-32 relative">
-              <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-secondary/10 z-10" />
-              <div className="absolute bottom-2 left-2 z-20">
-                <span className="text-[10px] font-black text-white bg-black/40 px-2 py-1 backdrop-blur rounded uppercase tracking-tighter">
-                  System Health: Stable
+                <span className="text-sm font-bold text-on-surface">
+                  {t("usedInTemplates", { count: action.usedInTemplates ?? 0 })}
                 </span>
-              </div>
-            </div>
-          </div>
-
-          {/* Performance Matrix — design-draft line 332-359 */}
-          <div className="bg-[#131b2e] rounded-xl p-6 shadow-xl text-white">
-            <h3 className="text-xs font-black text-slate-400 uppercase tracking-[0.2em] mb-6">
-              Performance Matrix
-            </h3>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="p-4 bg-white/5 rounded-xl border border-white/10">
-                <span className="text-[10px] font-bold text-slate-400 uppercase block mb-1">
-                  Avg Latency
-                </span>
-                <div className="flex items-baseline gap-1">
-                  <span className="text-2xl font-headline font-extrabold text-primary-fixed-dim">
-                    —
-                  </span>
-                  <span className="text-xs font-medium text-slate-400">ms</span>
-                </div>
-              </div>
-              <div className="p-4 bg-white/5 rounded-xl border border-white/10">
-                <span className="text-[10px] font-bold text-slate-400 uppercase block mb-1">
-                  Token Cost
-                </span>
-                <div className="flex items-baseline gap-1">
-                  <span className="text-2xl font-headline font-extrabold text-primary-fixed-dim">
-                    —
-                  </span>
-                  <span className="text-[10px] font-medium text-slate-400">/avg</span>
-                </div>
-              </div>
-            </div>
-            <div className="mt-6 pt-6 border-t border-white/5">
-              <div className="flex justify-between items-center text-xs text-slate-400 mb-2">
-                <span>Success Rate</span>
-                <span className="text-primary-fixed-dim">—</span>
-              </div>
-              <div className="w-full h-1.5 bg-white/5 rounded-full overflow-hidden">
-                <div className="h-full bg-gradient-to-r from-primary to-primary-container w-full" />
               </div>
             </div>
           </div>

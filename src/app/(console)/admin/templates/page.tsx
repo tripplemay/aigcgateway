@@ -4,6 +4,7 @@ import { useTranslations } from "next-intl";
 import { apiFetch } from "@/lib/api-client";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 interface AdminTemplate {
   id: string;
@@ -34,6 +35,7 @@ interface Pagination {
 
 export default function AdminTemplatesPage() {
   const t = useTranslations("adminTemplates");
+  const router = useRouter();
 
   const [templates, setTemplates] = useState<AdminTemplate[]>([]);
   const [stats, setStats] = useState<Stats>({
@@ -231,9 +233,6 @@ export default function AdminTemplatesPage() {
                   {t("colPublic")}
                 </th>
                 <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-400">
-                  {t("colQuality")}
-                </th>
-                <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-400">
                   {t("colCreated")}
                 </th>
                 <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-400 text-right">
@@ -275,27 +274,16 @@ export default function AdminTemplatesPage() {
                       <div className="w-10 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary" />
                     </label>
                   </td>
-                  {/* Quality Score — design-draft line 289-295 */}
-                  <td className="px-6 py-4">
-                    <div className="flex items-center gap-2">
-                      <div className="flex-1 h-1.5 w-24 bg-slate-100 rounded-full overflow-hidden">
-                        <div
-                          className="h-full bg-primary rounded-full"
-                          style={{ width: `${tpl.qualityScore ?? 0}%` }}
-                        />
-                      </div>
-                      <span className="text-xs font-bold text-slate-700">
-                        {tpl.qualityScore ?? "—"}
-                      </span>
-                    </div>
-                  </td>
                   {/* Created Date */}
                   <td className="px-6 py-4 text-xs font-medium text-slate-500">
                     {new Date(tpl.createdAt).toLocaleDateString()}
                   </td>
                   {/* Actions — design-draft line 298-305 */}
                   <td className="px-6 py-4 text-right space-x-2">
-                    <button className="p-1.5 text-slate-400 hover:text-primary hover:bg-primary/5 rounded transition-all">
+                    <button
+                      onClick={() => router.push(`/templates/${tpl.id}`)}
+                      className="p-1.5 text-slate-400 hover:text-primary hover:bg-primary/5 rounded transition-all"
+                    >
                       <span className="material-symbols-outlined text-xl">visibility</span>
                     </button>
                     <button
@@ -309,7 +297,7 @@ export default function AdminTemplatesPage() {
               ))}
               {templates.length === 0 && (
                 <tr>
-                  <td colSpan={7} className="px-6 py-12 text-center text-slate-400">
+                  <td colSpan={6} className="px-6 py-12 text-center text-slate-400">
                     {t("empty")}
                   </td>
                 </tr>

@@ -526,6 +526,12 @@
     "withActiveVersion": "With Active Version",
     "uniqueModels": "Unique Models",
     "noDescription": "No description",
+    "usedInTemplates": "Used in {count} templates",
+    "actionInsights": "Action Insights",
+    "created": "Created",
+    "lastUpdated": "Last Updated",
+    "versions": "Versions",
+    "usageLabel": "Usage",
     "newVersion": "New Version",
     "delete": "Delete",
     "confirmDelete": "Are you sure you want to delete this action? This cannot be undone.",
@@ -549,8 +555,9 @@
     "ctaTitle": "Master Prompt Chaining",
     "ctaDesc": "Combine multiple atomic actions to create sophisticated multi-step workflows.",
     "ctaButton": "View Templates",
-    "actionHealth": "Action Health",
-    "successful": "Successful"
+    "actionStats": "Action Stats",
+    "totalCalls": "Total Calls",
+    "recentCalls": "Last 7 Days"
   },
   "templates": {
     "title": "Templates",
@@ -602,8 +609,11 @@
     "searchPlaceholder": "Search templates...",
     "of": "of",
     "active": "active",
-    "healthTitle": "Templates Health",
-    "healthDesc": "Real-time performance metrics",
+    "templateStats": "Template Overview",
+    "templateStatsDesc": "Your workflow collection",
+    "totalTemplates": "Templates",
+    "totalSteps": "Total Steps",
+    "pipelineSummary": "Pipeline Summary",
     "ctaTitle": "Scale your Automation",
     "ctaDesc": "Connect your templates to our streaming API for millisecond latency response on multi-step workflows."
   },
