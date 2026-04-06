@@ -63,9 +63,15 @@ Action 相关权威设计稿（3 个，已更新确认）：
 
 状态：3 页设计稿还原已完成并通过验收（`action-pages-design-restore` 5/5 PASS）
 
-## Backlog（0 条待处理）
+## Backlog（5 条待处理）
 
-当前 backlog 为空。
+| ID | 优先级 | 标题 |
+|---|---|---|
+| BL-030 | high | capabilities 补全 function_calling + 注释更新 |
+| BL-031 | medium | 文本模型 contextWindow 补全 |
+| BL-032 | medium | run_action dry_run 模式 |
+| BL-033 | medium | MCP 错误返回增加 error_code + chat.ts catch 对齐 |
+| BL-034 | medium | SDK 补全 Action/Template 类型 + ChatParams 对齐 + README |
 
 BL-024/026/027/028 已完成。
 
