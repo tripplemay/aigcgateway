@@ -15,7 +15,7 @@
       "title": "Action 详情页 1:1 还原修复",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "1) Read design-draft/Action Detail (v2)/index.html 提取完整结构；2) /actions/:id 页面含完整信息面板（创建日期、版本数、模板引用数）、版本历史时间线、messages 预览、variables 表格，与原型 1:1 一致；3) npm run lint + tsc 通过"
     },
     {
@@ -63,7 +63,7 @@
       "title": "E2E 验证（原型对照 + 功能完整）",
       "priority": "high",
       "executor": "codex",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "1) Evaluator 逐页 Read design-draft HTML 与实现代码对照，确认 DOM 结构、字段、交互入口 1:1 一致；2) 7 个页面均可正常访问，CRUD 功能完整；3) 编辑态回填和更新正常工作"
     }
   ]

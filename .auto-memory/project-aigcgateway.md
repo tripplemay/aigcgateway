@@ -27,12 +27,16 @@ AIGC Gateway — AI 服务商管理中台。统一 API 调用抽象（兼容 Ope
 
 ### 当前进行中批次
 
+- 无
+
+### 最新完成批次补充
+
 - `ui-1to1-restoration`
-  - 当前阶段：`fixing`
-  - 第 1 轮复验结论：部分通过，继续修复
-  - 已通过：`F-1TO1-01`、`F-1TO1-03`、`F-1TO1-04`、`F-1TO1-05`、`F-1TO1-06`、`F-1TO1-07`
-  - 剩余失败：`F-1TO1-02` Action Detail 的 Performance Matrix 仍未恢复原型字段；`F-1TO1-08` 原型对照验收未通过
-  - 报告：`docs/test-reports/ui-1to1-restoration-local-reverification-2026-04-06.md`
+  - 当前阶段：`done`
+  - 签收结论：通过
+  - 最终通过：`F-1TO1-01` ~ `F-1TO1-08`
+  - 关键修复闭环：Action Detail 已恢复 `Avg Latency` / `Token Cost` / `Success Rate` 结构
+  - 签收报告：`docs/test-reports/ui-1to1-restoration-signoff-2026-04-06.md`
 
 ### 里程碑总览
 
