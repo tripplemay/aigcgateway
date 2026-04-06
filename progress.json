@@ -1,5 +1,5 @@
 {
-  "status": "fixing",
+  "status": "reverifying",
   "user_goal": "mcp-finops-hardening: 安全脱敏 + MCP 工具增强(activate_version/version_id/步骤明细) + FinOps 基础设施(trace_id/精度/下钻)",
   "total_features": 10,
   "completed_features": 9,
@@ -76,7 +76,7 @@
     {
       "id": "F-MH-03",
       "title": "run_template 返回步骤明细",
-      "status": "pending",
+      "status": "completed",
       "executor": "generator"
     },
     {

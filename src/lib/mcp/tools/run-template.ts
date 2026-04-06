@@ -78,49 +78,47 @@ Pass variables to inject into each step's Action prompts.`,
       const hasSplitter = template.steps.some((s) => s.role === "SPLITTER");
 
       try {
-        interface StepDetail {
-          stepIndex: number;
+        // Collect per-step details from SSE events
+        interface StepEvent {
           actionName?: string;
           model?: string;
-          input?: unknown[];
-          output?: string;
-          usage?: { prompt_tokens: number; completion_tokens: number } | null;
-          latencyMs?: number;
+          output: string;
+          usage: { prompt_tokens: number; completion_tokens: number } | null;
+          latencyMs: number;
         }
-        const steps: StepDetail[] = [];
-        let currentStep: StepDetail | null = null;
-        let stepStartTime = 0;
+        const stepEvents: StepEvent[] = [];
+        let curOutput = "";
+        let curUsage: { prompt_tokens: number; completion_tokens: number } | null = null;
+        let curActionName: string | undefined;
+        let curModel: string | undefined;
+        let stepStart = 0;
 
         const collectWriter = (data: string) => {
           try {
             const evt = JSON.parse(data);
             if (evt.type === "step_start") {
-              stepStartTime = Date.now();
-              currentStep = {
-                stepIndex: evt.step,
-                actionName: evt.action_name ?? undefined,
-                model: evt.model,
-              };
-            } else if (evt.type === "step_end" && currentStep) {
-              if (evt.output) currentStep.output = evt.output;
-              currentStep.usage = evt.usage ?? null;
-              currentStep.latencyMs = Date.now() - stepStartTime;
-              steps.push(currentStep);
-              currentStep = null;
-            } else if (evt.type === "content" && currentStep) {
-              currentStep.output = (currentStep.output ?? "") + (evt.delta ?? "");
+              curOutput = "";
+              curUsage = null;
+              curActionName = evt.action_name;
+              curModel = evt.model;
+              stepStart = Date.now();
+            } else if (evt.type === "content") {
+              if (evt.delta) curOutput += evt.delta;
+            } else if (evt.type === "step_end") {
+              // step_end.output is authoritative (from runner result)
+              const finalOutput = evt.output !== undefined ? String(evt.output) : curOutput;
+              stepEvents.push({
+                actionName: curActionName,
+                model: curModel,
+                output: finalOutput,
+                usage: evt.usage ?? curUsage,
+                latencyMs: Date.now() - stepStart,
+              });
             }
           } catch {
-            // ignore parse errors
+            // ignore
           }
         };
-
-        // Pre-load action versions for input rendering
-        const actionIds = template.steps.map((s) => s.actionId);
-        const actions = await prisma.action.findMany({
-          where: { id: { in: actionIds } },
-          include: { versions: { orderBy: { versionNumber: "desc" }, take: 1 } },
-        });
 
         const params = {
           templateId: template_id,
@@ -133,33 +131,39 @@ Pass variables to inject into each step's Action prompts.`,
           ? await runFanout(params, collectWriter)
           : await runSequential(params, collectWriter);
 
-        // Populate input (rendered messages) for each step
+        // Build steps with input (rendered messages)
+        const actionIds = template.steps.map((s) => s.actionId);
+        const actions = await prisma.action.findMany({
+          where: { id: { in: actionIds } },
+          include: { versions: { orderBy: { versionNumber: "desc" }, take: 1 } },
+        });
         const actionMap = new Map(actions.map((a) => [a.id, a]));
+
         let prevOutput: string | null = null;
-        for (let i = 0; i < steps.length; i++) {
-          const templateStep = template.steps[i];
-          if (templateStep) {
-            const act = actionMap.get(templateStep.actionId);
-            const ver = act?.versions[0];
-            if (ver) {
-              const msgs = ver.messages as { role: string; content: string }[];
-              const varDefs = (ver.variables ?? []) as {
-                name: string;
-                description?: string;
-                required: boolean;
-                defaultValue?: string;
-              }[];
-              const stepVars: Record<string, string> = { ...variables };
-              if (prevOutput !== null) stepVars.previous_output = prevOutput;
-              try {
-                steps[i].input = injectVariables(msgs, varDefs, stepVars);
-              } catch {
-                steps[i].input = msgs;
-              }
-            }
+        const steps = template.steps.map((ts, i) => {
+          const se = stepEvents[i];
+          const act = actionMap.get(ts.actionId);
+          const ver = act?.versions[0];
+          let input: unknown[] | undefined;
+          if (ver) {
+            const msgs = ver.messages as { role: string; content: string }[];
+            const varDefs = (ver.variables ?? []) as { name: string; description?: string; required: boolean; defaultValue?: string }[];
+            const stepVars: Record<string, string> = { ...variables };
+            if (prevOutput !== null) stepVars.previous_output = prevOutput;
+            try { input = injectVariables(msgs, varDefs, stepVars); } catch { input = msgs; }
           }
-          prevOutput = steps[i].output ?? null;
-        }
+          const stepOutput = se?.output ?? "";
+          prevOutput = stepOutput;
+          return {
+            stepIndex: i,
+            actionName: se?.actionName ?? act?.name ?? null,
+            model: se?.model ?? act?.model ?? null,
+            input,
+            output: stepOutput,
+            usage: se?.usage ?? null,
+            latencyMs: se?.latencyMs ?? null,
+          };
+        });
 
         return {
           content: [
