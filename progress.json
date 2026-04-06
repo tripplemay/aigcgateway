@@ -1,11 +1,11 @@
 {
-  "status": "reverifying",
+  "status": "fixing",
   "user_goal": "ui-redesign-templates-actions：按 Stitch 设计稿重构 7 个模板/动作页面（Action 列表/详情/编辑 + Template 列表/详情/编辑 + Admin 模板管理）",
   "total_features": 9,
-  "completed_features": 8,
+  "completed_features": 7,
   "fix_rounds": 1,
   "current_sprint": null,
-  "last_updated": "2026-04-06T14:00:00Z",
+  "last_updated": "2026-04-06T02:28:00Z",
   "reference_docs": [],
   "docs": {
     "spec": null,
@@ -14,28 +14,22 @@
     "framework_reviewed": false
   },
   "evaluator_feedback": {
-    "summary": "UI 重构批次首轮验收未通过：编辑页回填缺失 + Admin 模板管理页关键能力未达标。",
-    "pass_count": 6,
+    "summary": "本地复验部分通过：Action/Template 编辑回填已修复，但 Admin 模板管理页仍缺少 Public 开关与 Quality Score，整体仍需修复。",
+    "pass_count": 7,
     "partial_count": 0,
-    "fail_count": 3,
+    "fail_count": 2,
     "issues": [
-      {
-        "feature_id": "F-UI-03",
-        "result": "FAIL",
-        "description": "/actions/new?edit={id} 未进入编辑态，表单未回填既有 Action 数据。",
-        "steps_to_reproduce": "1. 登录用户并创建 Action 2. 访问 /actions/{id} 3. 点击“编辑”进入 /actions/new?edit={id} 4. 观察页面仍为空创建表单"
-      },
-      {
-        "feature_id": "F-UI-06",
-        "result": "FAIL",
-        "description": "/templates/new?edit={id} 未进入编辑态，模板名称与步骤未回填。",
-        "steps_to_reproduce": "1. 登录用户并创建 Template 2. 访问 /templates/{id} 3. 点击“编辑”进入 /templates/new?edit={id} 4. 观察页面仍为空创建表单"
-      },
       {
         "feature_id": "F-UI-07",
         "result": "FAIL",
-        "description": "/admin/templates 页面缺少 Public 开关、Quality Score、操作列等验收要求能力。",
-        "steps_to_reproduce": "1. 管理员登录 2. 访问 /admin/templates 3. 对照验收标准检查表格列与管理能力"
+        "description": "本地 /admin/templates 页面仍未展示 Public 开关与 Quality Score 列，未满足验收要求。",
+        "steps_to_reproduce": "1. 使用 admin@aigc-gateway.local 登录本地 3099 2. 访问 /admin/templates 3. 观察表格列仅有 模板名称/项目/步骤/模式/创建时间/操作，缺少 Public 与 Quality Score。"
+      },
+      {
+        "feature_id": "F-UI-09",
+        "result": "FAIL",
+        "description": "本地 E2E 未全量通过：F-UI-07 未通过导致整体验收未通过。",
+        "steps_to_reproduce": "参见 docs/test-reports/ui-redesign-templates-actions-local-reverification-2026-04-06.md。"
       }
     ]
   },
@@ -46,7 +40,7 @@
     { "id": "F-UI-04", "title": "Templates 列表页重构", "status": "completed", "executor": "generator" },
     { "id": "F-UI-05", "title": "Template 详情页重构", "status": "completed", "executor": "generator" },
     { "id": "F-UI-06", "title": "Template 创建/编辑页重构", "status": "completed", "executor": "generator" },
-    { "id": "F-UI-07", "title": "Admin 模板管理页重构", "status": "completed", "executor": "generator" },
+    { "id": "F-UI-07", "title": "Admin 模板管理页重构", "status": "pending", "executor": "generator" },
     { "id": "F-UI-08", "title": "i18n 补全", "status": "completed", "executor": "generator" },
     { "id": "F-UI-09", "title": "E2E 验证", "status": "pending", "executor": "codex" }
   ]

@@ -23,7 +23,7 @@
       "title": "Action 创建/编辑页按 Stitch 设计稿重构",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "1) /actions/new 页面按 Stitch 'Create Prompt Action' 设计稿还原；2) 基本信息区（名称、描述、模型下拉）；3) Messages 编辑器（角色下拉 + 内容 textarea，{{变量}}高亮）；4) Variables 自动检测区（名称、描述、必填开关、默认值）；5) npm run lint + tsc 通过"
     },
     {
@@ -47,7 +47,7 @@
       "title": "Template 创建/编辑页按 Stitch 设计稿重构",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "1) /templates/new 页面按 Stitch 'Template Editor' 设计稿还原；2) 基本信息区（名称、描述）；3) Execution Sequence builder（可排序步骤列表，每步选 Action + Role 下拉）；4) 添加/删除/拖拽排序步骤；5) npm run lint + tsc 通过"
     },
     {

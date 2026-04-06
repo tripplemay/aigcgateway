@@ -1,0 +1,15 @@
+{
+  "base": "http://localhost:3099",
+  "user": {
+    "email": "ui_local_1775442296474@test.com",
+    "password": "Test1234",
+    "name": "UI Local Tester"
+  },
+  "projectId": "cmnmki3p7001l9yja7noc7tux",
+  "actionId": "cmnmki3pb001n9yjajckd3ba9",
+  "templateId": "cmnmki3ph001r9yjacxdfao1z",
+  "createdAt": "2026-04-06T02:24:56.649Z",
+  "cleanupAt": "2026-04-06T02:27:09.128Z",
+  "templateDeleteStatus": 200,
+  "actionDeleteStatus": 200
+}
