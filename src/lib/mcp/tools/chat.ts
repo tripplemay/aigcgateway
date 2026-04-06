@@ -102,7 +102,7 @@ export function registerChat(server: McpServer, opts: McpServerOptions): void {
           content: [
             {
               type: "text" as const,
-              text: `Insufficient balance. Current balance: $${Number(project?.balance ?? 0).toFixed(4)}. Please recharge at the console.`,
+              text: `[insufficient_balance] Insufficient balance. Current balance: $${Number(project?.balance ?? 0).toFixed(4)}. Please recharge at the console.`,
             },
           ],
           isError: true,
@@ -114,7 +114,10 @@ export function registerChat(server: McpServer, opts: McpServerOptions): void {
       if (!rateCheck.ok) {
         return {
           content: [
-            { type: "text" as const, text: "Rate limit exceeded. Please retry after 60 seconds." },
+            {
+              type: "text" as const,
+              text: "[rate_limited] Rate limit exceeded. Please retry after 60 seconds.",
+            },
           ],
           isError: true,
         };
@@ -122,7 +125,12 @@ export function registerChat(server: McpServer, opts: McpServerOptions): void {
 
       if (!messages || messages.length === 0) {
         return {
-          content: [{ type: "text" as const, text: "messages is required and cannot be empty." }],
+          content: [
+            {
+              type: "text" as const,
+              text: "[invalid_request] messages is required and cannot be empty.",
+            },
+          ],
           isError: true,
         };
       }
@@ -154,7 +162,7 @@ export function registerChat(server: McpServer, opts: McpServerOptions): void {
             content: [
               {
                 type: "text" as const,
-                text: `${reason} Available text models: ${names || "none"}. Use list_models for full details.`,
+                text: `[${err.code}] ${reason} Available text models: ${names || "none"}. Use list_models for full details.`,
               },
             ],
             isError: true,
@@ -165,14 +173,15 @@ export function registerChat(server: McpServer, opts: McpServerOptions): void {
             content: [
               {
                 type: "text" as const,
-                text: `No available channel for model "${model}". The model may be temporarily unavailable. Try another model or retry later.`,
+                text: `[channel_unavailable] No available channel for model "${model}". The model may be temporarily unavailable. Try another model or retry later.`,
               },
             ],
             isError: true,
           };
         }
+        const routeCode = err instanceof EngineError ? err.code : "routing_error";
         return {
-          content: [{ type: "text" as const, text: `Routing error: ${(err as Error).message}` }],
+          content: [{ type: "text" as const, text: `[${routeCode}] ${(err as Error).message}` }],
           isError: true,
         };
       }
