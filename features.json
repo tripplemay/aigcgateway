@@ -1,46 +1,70 @@
 {
-  "batch": "dx-provider-fixes",
+  "batch": "ui-1to1-restoration",
   "created_at": "2026-04-06",
   "features": [
     {
-      "id": "F-DPF-01",
-      "title": "上游错误信息脱敏：mapProviderError 消息清洗",
-      "priority": "critical",
-      "executor": "generator",
-      "status": "completed",
-      "acceptance": "1) openai-compat.ts mapProviderError() 中，对 message 进行脱敏：移除 URL（http/https）、API Key 片段（sk-*、pk-*）、QQ 群号等敏感信息；2) 用户看到的错误为平台级描述（如 'Provider temporarily unavailable, please try another model'），不含上游供应商细节；3) MCP 工具（chat/generate-image）的错误返回同样脱敏；4) npm run lint + tsc 通过"
-    },
-    {
-      "id": "F-DPF-02",
-      "title": "排查并修复 4 个 Provider 的 sync 失败原因",
-      "priority": "critical",
-      "executor": "generator",
-      "status": "pending",
-      "acceptance": "1) 排查 deepseek/zhipu/anthropic/siliconflow 在生产环境 sync 失败的根因（authConfig 缺失？baseUrl 错误？网络不通？）；2) 修复后在本地验证 sync 能正常为这 4 个 provider 创建 Channel；3) 如果是生产 Provider 配置问题（缺 apiKey），在排查报告中明确标注，供用户手动修复；4) adapter fetchModels() 增加空 apiKey 预检，提前报错而非发出无效请求；5) npm run lint + tsc 通过"
-    },
-    {
-      "id": "F-DPF-03",
-      "title": "清理 capabilities 中的 unknown 字段",
+      "id": "F-1TO1-01",
+      "title": "Actions 列表页 1:1 还原修复",
       "priority": "high",
       "executor": "generator",
-      "status": "completed",
-      "acceptance": "1) model-capabilities-fallback.ts 的 resolveCapabilities() 返回值不再包含 unknown 字段；2) 未匹配模型返回 {} 而非 { unknown: true }；3) 已匹配模型不再附加 unknown: false；4) 生产 DB 中已有的 unknown 字段通过 sync 自动覆盖清除；5) npm run lint + tsc 通过"
+      "status": "pending",
+      "acceptance": "1) Read design-draft/Action List (v2)/index.html 提取完整结构；2) /actions 页面 DOM 结构、表格列、信息密度与原型 1:1 一致；3) npm run lint + tsc 通过"
     },
     {
-      "id": "F-DPF-04",
-      "title": "chat/generate_image 工具 description 示例模型名更新",
-      "priority": "medium",
+      "id": "F-1TO1-02",
+      "title": "Action 详情页 1:1 还原修复",
+      "priority": "high",
       "executor": "generator",
-      "status": "completed",
-      "acceptance": "1) chat 工具 description 中的示例模型名全部来自当前 list_models 实际返回的模型；2) generate_image 工具同样更新；3) 示例覆盖不同价位（旗舰/轻量/免费）；4) npm run lint + tsc 通过"
+      "status": "pending",
+      "acceptance": "1) Read design-draft/Action Detail (v2)/index.html 提取完整结构；2) /actions/:id 页面含完整信息面板（创建日期、版本数、模板引用数）、版本历史时间线、messages 预览、variables 表格，与原型 1:1 一致；3) npm run lint + tsc 通过"
     },
     {
-      "id": "F-DPF-05",
-      "title": "E2E 验证",
-      "priority": "medium",
+      "id": "F-1TO1-03",
+      "title": "Action 创建/编辑页 1:1 还原修复（含编辑态）",
+      "priority": "high",
+      "executor": "generator",
+      "status": "pending",
+      "acceptance": "1) Read design-draft/Action Editor (v2)/index.html 提取完整结构；2) /actions/new 支持创建态和编辑态（?edit={id} 参数回填 + PUT 更新）；3) Messages 编辑器、Variables 自动检测区与原型 1:1 一致；4) npm run lint + tsc 通过"
+    },
+    {
+      "id": "F-1TO1-04",
+      "title": "Templates 列表页 1:1 还原修复",
+      "priority": "high",
+      "executor": "generator",
+      "status": "pending",
+      "acceptance": "1) Read design-draft/Template List (v2)/index.html 提取完整结构；2) /templates 页面 DOM 结构、表格列、信息密度与原型 1:1 一致；3) npm run lint + tsc 通过"
+    },
+    {
+      "id": "F-1TO1-05",
+      "title": "Template 详情页 1:1 还原修复",
+      "priority": "high",
+      "executor": "generator",
+      "status": "pending",
+      "acceptance": "1) Read design-draft/Template Detail (v2)/index.html 提取完整结构；2) /templates/:id 步骤流水线、信息侧栏、add-step 占位等视觉组件与原型 1:1 一致；3) npm run lint + tsc 通过"
+    },
+    {
+      "id": "F-1TO1-06",
+      "title": "Template 创建/编辑页 1:1 还原修复（含编辑态）",
+      "priority": "high",
+      "executor": "generator",
+      "status": "pending",
+      "acceptance": "1) Read design-draft/Template Editor (v2)/index.html 提取完整结构；2) /templates/new 支持创建态和编辑态（?edit={id} 参数回填 + PUT 更新）；3) Execution Sequence builder 与原型 1:1 一致；4) npm run lint + tsc 通过"
+    },
+    {
+      "id": "F-1TO1-07",
+      "title": "Admin 模板管理页 1:1 还原修复",
+      "priority": "high",
+      "executor": "generator",
+      "status": "pending",
+      "acceptance": "1) Read design-draft/Admin Template Management (v2)/index.html 提取完整结构；2) /admin/templates 含统计卡片（total/public/private）、表格含 Public 开关、Quality Score、操作列、搜索筛选分页，与原型 1:1 一致；3) npm run lint + tsc 通过"
+    },
+    {
+      "id": "F-1TO1-08",
+      "title": "E2E 验证（原型对照 + 功能完整）",
+      "priority": "high",
       "executor": "codex",
-      "status": "completed",
-      "acceptance": "1) 模拟上游错误场景，确认返回的错误信息不含敏感内容（URL/Key/QQ）；2) list_models 返回的模型全部可调用（无 404/503）；3) capabilities 无 unknown 字段；4) chat/generate_image description 中的示例模型在 list_models 中存在"
+      "status": "pending",
+      "acceptance": "1) Evaluator 逐页 Read design-draft HTML 与实现代码对照，确认 DOM 结构、字段、交互入口 1:1 一致；2) 7 个页面均可正常访问，CRUD 功能完整；3) 编辑态回填和更新正常工作"
     }
   ]
 }
