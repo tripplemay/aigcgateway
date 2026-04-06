@@ -11,7 +11,6 @@ import { OpenAICompatEngine } from "./openai-compat";
 import { VolcengineAdapter } from "./adapters/volcengine";
 import { SiliconFlowAdapter } from "./adapters/siliconflow";
 
-
 // Adapter 单例缓存
 const adapterCache = new Map<string, EngineAdapter>();
 
@@ -47,10 +46,14 @@ export async function routeByModelName(modelName: string): Promise<RouteResult> 
   });
 
   if (!model) {
+    throw new EngineError(`Model "${modelName}" not found`, ErrorCodes.MODEL_NOT_FOUND, 404);
+  }
+
+  if (!model.enabled) {
     throw new EngineError(
-      `Model "${modelName}" not found`,
-      ErrorCodes.MODEL_NOT_FOUND,
-      404,
+      `Model "${modelName}" is not available. It may be disabled by the administrator.`,
+      ErrorCodes.MODEL_NOT_AVAILABLE,
+      403,
     );
   }
 

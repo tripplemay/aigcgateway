@@ -82,6 +82,17 @@ export function registerGetUsageSummary(server: McpServer, opts: McpServerOption
         }),
       ]);
 
+      // Check which top models are still enabled (available in list_models)
+      const topModelNames = topModels.map((m) => m.modelName);
+      const activeModels =
+        topModelNames.length > 0
+          ? await prisma.model.findMany({
+              where: { name: { in: topModelNames }, enabled: true },
+              select: { name: true },
+            })
+          : [];
+      const activeSet = new Set(activeModels.map((m) => m.name));
+
       const result = {
         period: p,
         totalCalls: agg._count,
@@ -93,6 +104,7 @@ export function registerGetUsageSummary(server: McpServer, opts: McpServerOption
           model: m.modelName,
           calls: m._count,
           cost: `$${Number(m._sum.sellPrice ?? 0).toFixed(4)}`,
+          ...(!activeSet.has(m.modelName) ? { deprecated: true } : {}),
         })),
       };
 
@@ -185,11 +197,11 @@ async function buildGroupedQuery(
     }));
   }
 
-  // day grouping — use raw SQL
+  // day grouping — use raw SQL with ISO 8601 date format
   const dayGroups = await prisma.$queryRaw<
     { day: string; count: bigint; tokens: bigint; cost: number }[]
   >`
-    SELECT DATE(\"createdAt\") as day,
+    SELECT to_char(DATE("createdAt"), 'YYYY-MM-DD') as day,
            COUNT(*) as count,
            COALESCE(SUM("totalTokens"), 0) as tokens,
            COALESCE(SUM("sellPrice"::numeric), 0) as cost
@@ -197,11 +209,11 @@ async function buildGroupedQuery(
     WHERE "projectId" = ${where.projectId as string}
       AND "createdAt" >= ${(where.createdAt as { gte: Date }).gte}
     GROUP BY DATE("createdAt")
-    ORDER BY day DESC
+    ORDER BY DATE("createdAt") DESC
   `;
 
   return dayGroups.map((g) => ({
-    key: String(g.day),
+    key: g.day,
     totalCalls: Number(g.count),
     totalCost: `$${Number(g.cost).toFixed(4)}`,
     totalTokens: Number(g.tokens),

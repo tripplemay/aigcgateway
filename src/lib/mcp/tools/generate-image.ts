@@ -74,21 +74,28 @@ export function registerGenerateImage(server: McpServer, opts: McpServerOptions)
         route = resolved.route;
         adapter = resolved.adapter;
       } catch (err) {
-        if (err instanceof EngineError && err.code === "model_not_found") {
+        if (
+          err instanceof EngineError &&
+          (err.code === "model_not_found" || err.code === "model_not_available")
+        ) {
           const available = await prisma.model.findMany({
-            where: { channels: { some: { status: "ACTIVE" } }, modality: "IMAGE" },
+            where: { enabled: true, channels: { some: { status: "ACTIVE" } }, modality: "IMAGE" },
             select: { name: true },
             orderBy: { name: "asc" },
             take: 10,
           });
           const names = available.map((m) => m.name).join(", ");
+          const reason =
+            err.code === "model_not_available"
+              ? `Model "${model}" is not available (disabled by admin).`
+              : `Model "${model}" not found.`;
           return {
             content: [
               {
                 type: "text" as const,
                 text: JSON.stringify({
-                  code: "model_not_found",
-                  message: `Model "${model}" not found. Available image models: ${names || "none"}. Use list_models with modality 'image' for full details.`,
+                  code: err.code,
+                  message: `${reason} Available image models: ${names || "none"}. Use list_models with modality 'image' for full details.`,
                 }),
               },
             ],

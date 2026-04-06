@@ -99,6 +99,9 @@ async function runScheduledChecks(): Promise<void> {
   const now = Date.now();
 
   const channels = await prisma.channel.findMany({
+    where: {
+      model: { enabled: true },
+    },
     include: {
       provider: { include: { config: true } },
       model: true,

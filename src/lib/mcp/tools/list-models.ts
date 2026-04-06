@@ -37,6 +37,7 @@ export function registerListModels(server: McpServer, opts: McpServerOptions): v
 
       const models = await prisma.model.findMany({
         where: {
+          enabled: true,
           channels: { some: { status: "ACTIVE" } },
           ...(modalityFilter ? { modality: modalityFilter as "TEXT" | "IMAGE" } : {}),
         },

@@ -1,11 +1,11 @@
 {
-  "status": "building",
+  "status": "verifying",
   "user_goal": "whitelist-db-migration: 模型白名单从代码迁移到数据库，Admin 控制台手动管理，全量同步+按需启用",
   "total_features": 9,
-  "completed_features": 2,
+  "completed_features": 8,
   "fix_rounds": 0,
-  "current_sprint": "F-WL-03",
-  "last_updated": "2026-04-06T20:00:00Z",
+  "current_sprint": null,
+  "last_updated": "2026-04-06T22:30:00Z",
   "reference_docs": [],
   "role_assignments": {
     "planner": "Kimi",
@@ -19,15 +19,28 @@
     "framework_reviewed": false
   },
   "evaluator_feedback": null,
+  "generator_handoff": {
+    "completed": ["F-WL-01", "F-WL-02", "F-WL-03", "F-WL-04", "F-WL-05", "F-WL-06", "F-WL-07", "F-WL-08"],
+    "codex_tasks": ["F-WL-09: E2E 验证"],
+    "notes": [
+      "F-WL-01/02 由前一个会话完成（Model 表 enabled/canonicalName/isVariant + Sync 引擎全量入库）",
+      "F-WL-03: API/MCP/Router/HealthCheck 全部加了 enabled=true 过滤，新增 MODEL_NOT_AVAILABLE 错误码（403）",
+      "F-WL-04: GET /api/admin/models 返回全量模型+channels+health，支持 provider/modality/search 筛选，按 canonicalName 分组+变体折叠；PATCH 支持 enabled 开关和 sellPrice 编辑",
+      "F-WL-05: /admin/model-whitelist 页面按 Stitch 设计稿实现，含统计卡片、搜索筛选、Enable 开关、售价编辑、Channels/Health 状态、NEW 标记、变体折叠、分页",
+      "F-WL-06: usage summary 日期格式改为 to_char(..., 'YYYY-MM-DD')，MCP 和 REST API 均已修复",
+      "F-WL-07: get_usage_summary topModels 对 enabled=false 的模型标注 deprecated: true",
+      "F-WL-08: 白名单页面所有文案通过 useTranslations()，en.json/zh-CN.json 同步更新"
+    ]
+  },
   "features": [
     { "id": "F-WL-01", "title": "Model 表新增字段", "status": "completed", "executor": "generator" },
     { "id": "F-WL-02", "title": "Sync 引擎改造", "status": "completed", "executor": "generator" },
-    { "id": "F-WL-03", "title": "API 层适配", "status": "pending", "executor": "generator" },
-    { "id": "F-WL-04", "title": "Admin API", "status": "pending", "executor": "generator" },
-    { "id": "F-WL-05", "title": "Admin 白名单管理页面", "status": "pending", "executor": "generator" },
-    { "id": "F-WL-06", "title": "usage 日期格式修复", "status": "pending", "executor": "generator" },
-    { "id": "F-WL-07", "title": "usage 已下线模型标注", "status": "pending", "executor": "generator" },
-    { "id": "F-WL-08", "title": "i18n 补全", "status": "pending", "executor": "generator" },
+    { "id": "F-WL-03", "title": "API 层适配", "status": "completed", "executor": "generator" },
+    { "id": "F-WL-04", "title": "Admin API", "status": "completed", "executor": "generator" },
+    { "id": "F-WL-05", "title": "Admin 白名单管理页面", "status": "completed", "executor": "generator" },
+    { "id": "F-WL-06", "title": "usage 日期格式修复", "status": "completed", "executor": "generator" },
+    { "id": "F-WL-07", "title": "usage 已下线模型标注", "status": "completed", "executor": "generator" },
+    { "id": "F-WL-08", "title": "i18n 补全", "status": "completed", "executor": "generator" },
     { "id": "F-WL-09", "title": "E2E 验证", "status": "pending", "executor": "codex" }
   ]
 }

@@ -90,19 +90,26 @@ export function registerChat(server: McpServer, opts: McpServerOptions): void {
         route = resolved.route;
         adapter = resolved.adapter;
       } catch (err) {
-        if (err instanceof EngineError && err.code === "model_not_found") {
+        if (
+          err instanceof EngineError &&
+          (err.code === "model_not_found" || err.code === "model_not_available")
+        ) {
           const available = await prisma.model.findMany({
-            where: { channels: { some: { status: "ACTIVE" } }, modality: "TEXT" },
+            where: { enabled: true, channels: { some: { status: "ACTIVE" } }, modality: "TEXT" },
             select: { name: true },
             orderBy: { name: "asc" },
             take: 10,
           });
           const names = available.map((m) => m.name).join(", ");
+          const reason =
+            err.code === "model_not_available"
+              ? `Model "${model}" is not available (disabled by admin).`
+              : `Model "${model}" not found.`;
           return {
             content: [
               {
                 type: "text" as const,
-                text: `Model "${model}" not found. Available text models: ${names || "none"}. Use list_models for full details.`,
+                text: `${reason} Available text models: ${names || "none"}. Use list_models for full details.`,
               },
             ],
             isError: true,

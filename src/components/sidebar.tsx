@@ -37,6 +37,7 @@ const mainNav: NavItem[] = [
 
 const adminNav: NavItem[] = [
   { labelKey: "modelsChannels", href: "/admin/models", icon: "hub" },
+  { labelKey: "modelWhitelist", href: "/admin/model-whitelist", icon: "verified_user" },
   { labelKey: "providers", href: "/admin/providers", icon: "settings_input_component" },
   { labelKey: "health", href: "/admin/health", icon: "health_and_safety" },
   { labelKey: "adminLogs", href: "/admin/logs", icon: "receipt_long" },

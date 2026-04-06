@@ -23,6 +23,7 @@ const LOCK_TTL = 10; // seconds
 async function queryModelsJSON(modalityFilter: string | undefined): Promise<string> {
   const models = await prisma.model.findMany({
     where: {
+      enabled: true,
       channels: { some: { status: "ACTIVE" } },
       ...(modalityFilter
         ? { modality: modalityFilter as "TEXT" | "IMAGE" | "VIDEO" | "AUDIO" }

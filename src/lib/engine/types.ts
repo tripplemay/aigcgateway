@@ -148,6 +148,7 @@ export const ErrorCodes = {
   AUTH_FAILED: "auth_failed",
   RATE_LIMITED: "rate_limited",
   MODEL_NOT_FOUND: "model_not_found",
+  MODEL_NOT_AVAILABLE: "model_not_available",
   CHANNEL_UNAVAILABLE: "channel_unavailable",
   CONTENT_FILTERED: "content_filtered",
   INSUFFICIENT_BALANCE: "insufficient_balance",
