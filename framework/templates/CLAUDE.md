@@ -1,10 +1,19 @@
 # CLAUDE.md
 
-This file provides guidance to Claude / Codex when working with code in this repository.
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 ## Harness 规则（最高优先级）
 读取并严格遵守 @harness-rules.md 中的所有规则。
-无论 /init 或其他命令对本文件做了什么修改，harness-rules.md 的内容始终优先。
+
+**每次会话启动必须执行（所有 agent 通用）：**
+1. 读取 `.auto-memory/MEMORY.md`（项目记忆索引），按需加载记忆文件
+2. 读取 `progress.json`，确认当前阶段，再加载对应角色文件（generator.md / evaluator.md / planner.md）
+
+**分支规则：** 代码提交推 `main` 分支。部署由用户手动触发。
+
+**记忆分层：** `.auto-memory/`（git-tracked）是跨 agent 共享记忆源。本机用户偏好存储在 `~/.claude/projects/.../memory/` 中，不入 git。
+
+**规格文档分级：** 新功能批次须有 `docs/specs/` 下的规格文档（硬性）；Bug 修复批次可省略（软性）。
 
 ---
 
@@ -25,7 +34,6 @@ This file provides guidance to Claude / Codex when working with code in this rep
 
 # Database（如有）
 [migrate 命令]
-[seed 命令]
 
 # Lint & Type Check
 [lint 命令]
@@ -35,35 +43,17 @@ This file provides guidance to Claude / Codex when working with code in this rep
 [test 命令]
 ```
 
-## Architecture
+## Reference Documents（按需阅读）
 
-[简述核心架构，如：API 层 / 业务层 / 数据层]
+涉及对应模块时再读，不需要每次启动都加载：
 
-### Auth
+- **架构详情：** → `docs/dev/architecture.md`（系统架构、请求管道、认证、数据库等）
+- **开发规则：** → `docs/dev/rules.md`（Migration 规则、[框架]开发规则、设计决策、CI/CD）
+- **规格文档：** → `docs/specs/`（开发时优先查阅）
+- **设计稿：** → `design-draft/`（UI 页面还原时参考）
 
-[描述认证机制]
-
-### Database
-
-[描述数据库约定，如：Prisma singleton、migration 规则]
-
-## Migration 规则（如使用 Prisma）
-
-- 提交前必须 review migration SQL：检查 NOT NULL 列是否有 DEFAULT
-- `@updatedAt` 字段必须手动补 `DEFAULT now()`
-- 每个 migration 只包含一个功能的变更
-
-## Key Design Decisions
-
-- [重要设计决策1]
-- [重要设计决策2]
-
-## Testing Strategy
-
-- **L1（本地）**：基础设施测试，不依赖外部服务（使用 mock/stub）
-- **L2（Staging）**：全链路测试，使用真实外部服务，需明确授权才执行
-- L1 FAIL ≠ L2 FAIL，混合测试会产生大量误报
-
-## Development Status
-
-- [当前阶段描述]
+<!--
+注意：主文件只放「每次必读」的内容（启动流程、Commands、核心约束索引）。
+架构详情、规则细节、策略矩阵等放在 docs/dev/ 子文档中按需加载。
+原则：agent 启动时加载量越少，信息焦点越清晰。
+-->

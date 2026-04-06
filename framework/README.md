@@ -19,10 +19,29 @@ framework/
 │   ├── user-role.md       # 用户角色模板
 │   └── project.md         # 项目状态模板
 └── templates/             # 项目级配置模板
-    ├── CLAUDE.md          # Claude / Codex 项目指令模板
+    ├── CLAUDE.md          # Claude 项目指令模板（精简版，索引子文档）
+    ├── AGENTS.md          # Codex 指令模板（精简版，索引子文档）
     ├── signoff-report.md  # 功能签收报告模板
     └── features.template.json  # features.json 模板
 ```
+
+### 文档分层设计
+
+主文件（CLAUDE.md / AGENTS.md）只放**每次启动必读**的内容，详细规则按需加载：
+
+```
+项目根目录/
+├── CLAUDE.md              # ~70 行：启动流程 + Commands + 子文档索引
+├── AGENTS.md              # ~100 行：角色定义 + 核心规则 + 子文档索引
+├── harness-rules.md       # ~260 行：状态机（始终加载）
+├── planner.md / generator.md / evaluator.md  # 角色文件（按阶段加载）
+└── docs/dev/              # 按需加载的参考文档
+    ├── architecture.md    # 系统架构详情（涉及对应模块时读）
+    ├── rules.md           # 开发规则汇总：Migration / MCP / i18n / 设计决策 / CI/CD
+    └── codex-policies.md  # Codex 详细策略：生产测试矩阵 / 禁止列表 / Git 操作 / 报告模板
+```
+
+**原则：** agent 启动时加载量越少，信息焦点越清晰。架构详情、策略矩阵、报告模板等只在需要时才读取。
 
 ---
 
@@ -49,25 +68,26 @@ cp framework/memory/project.md     .auto-memory/project.md
 
 填写 `user-role.md` 和 `project.md` 中的占位内容（用户信息、技术栈、项目描述）。
 
-### 第 3 步：配置 CLAUDE.md
+### 第 3 步：配置 CLAUDE.md + AGENTS.md
 
 ```bash
 cp framework/templates/CLAUDE.md ./CLAUDE.md
+cp framework/templates/AGENTS.md ./AGENTS.md
 ```
 
-编辑 `CLAUDE.md`，填写：项目名称、技术栈、常用命令、架构说明、关键设计决策。
-
-在文件顶部确保有这两行（不可删除）：
-```markdown
-## Harness 规则（最高优先级）
-读取并严格遵守 @harness-rules.md 中的所有规则。
-```
+编辑 `CLAUDE.md`，填写：项目名称、技术栈、常用命令。
+编辑 `AGENTS.md`，调整生产测试开关值（PRODUCTION_STAGE / DB_WRITE / HIGH_COST_OPS）。
 
 ### 第 4 步：建立文档目录结构
 
 ```bash
-mkdir -p docs/specs docs/test-cases docs/test-reports docs/design-draft
+mkdir -p docs/specs docs/test-cases docs/test-reports docs/design-draft docs/dev
 ```
+
+在 `docs/dev/` 中创建按需加载的参考文档：
+- `architecture.md` — 系统架构详情
+- `rules.md` — 开发规则汇总（Migration / MCP / i18n / 设计决策 / CI/CD）
+- `codex-policies.md` — Codex 详细策略（生产测试矩阵 / 禁止列表 / Git 操作 / 报告模板）
 
 ### 第 5 步：将记忆目录纳入 git 版本控制
 
