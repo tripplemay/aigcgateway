@@ -1,4 +1,69 @@
 {
   "description": "需求池：已与用户确认但尚未开发的功能，等待下一批次启动时统一安排",
-  "items": []
+  "items": [
+    {
+      "id": "BL-035",
+      "title": "generate_image 上游错误脱敏遗漏",
+      "description": "dx-provider-fixes 批次只对 chat 路径做了上游错误脱敏，generate_image 路径遗漏。混沌测试发现无效尺寸时透传了上游供应商 QQ 群号。需排查 generate_image 所有错误路径，确保 sanitizeErrorMessage 覆盖。来源：混沌工程报告（2026-04-06）。",
+      "decisions": [],
+      "confirmed_at": "2026-04-07",
+      "priority": "high"
+    },
+    {
+      "id": "BL-036",
+      "title": "activate_version — Action 版本回滚能力",
+      "description": "当前只能通过 create_action_version 创建新版本来切换活跃版本，无法直接回滚到旧版本。需新增 MCP Tool activate_version(action_id, version_id)。REST API 已有 PUT /actions/:id/active-version，MCP 侧缺失。来源：工作流编排审查报告（2026-04-06）。",
+      "decisions": [],
+      "confirmed_at": "2026-04-07",
+      "priority": "high"
+    },
+    {
+      "id": "BL-037",
+      "title": "run_template 返回步骤明细",
+      "description": "当前 run_template 只返回最终 output，无法看到每步的输入/输出/token 消耗。需返回 steps[] 数组，含每步 {input, output, usage, latencyMs}。来源：工作流编排审查报告（2026-04-06）。",
+      "decisions": [],
+      "confirmed_at": "2026-04-07",
+      "priority": "high"
+    },
+    {
+      "id": "BL-038",
+      "title": "交易流水增加 trace_id 关联",
+      "description": "余额交易流水（BalanceTransaction）缺少 trace_id 字段，无法将扣费记录追溯到具体 API 调用。FinOps 审计发现 3 笔'幽灵交易'无法归因。需改 DB schema 增加 traceId 字段，deduct_balance 时传入。来源：FinOps 审计报告（2026-04-06）。",
+      "decisions": [],
+      "confirmed_at": "2026-04-07",
+      "priority": "high"
+    },
+    {
+      "id": "BL-039",
+      "title": "top_p Schema 与运行时校验一致性",
+      "description": "chat tool 的 inputSchema 定义 top_p min=0（含 0），但上游 DeepSeek 运行时拒绝 0（开区间 (0,1]）。需统一：要么 Schema 改为 exclusiveMinimum: 0，要么在引擎层补偿（top_p=0 → 0.01）。来源：混沌工程报告（2026-04-06）。",
+      "decisions": [],
+      "confirmed_at": "2026-04-07",
+      "priority": "medium"
+    },
+    {
+      "id": "BL-040",
+      "title": "run_action 支持 version_id 参数",
+      "description": "当前 run_action 只能执行活跃版本，无法指定 version_id 做 A/B 测试。需新增可选 version_id 参数。来源：工作流编排审查报告（2026-04-06）。",
+      "decisions": [],
+      "confirmed_at": "2026-04-07",
+      "priority": "medium"
+    },
+    {
+      "id": "BL-041",
+      "title": "计费精度提升至 8 位小数",
+      "description": "当前系统仅 4 位小数精度，微额调用（如 $0.0000042）被截断为 $0.0000。内部计费应使用 8 位精度，对外展示保留 4 位。来源：FinOps 审计报告（2026-04-06）。",
+      "decisions": [],
+      "confirmed_at": "2026-04-07",
+      "priority": "medium"
+    },
+    {
+      "id": "BL-042",
+      "title": "聚合统计支持明细下钻",
+      "description": "get_usage_summary 返回聚合数据但无法逆向拆解验证 Σ(单笔)=聚合。需支持按 trace_id 下钻或提供对账能力。来源：FinOps 审计报告（2026-04-06）。",
+      "decisions": [],
+      "confirmed_at": "2026-04-07",
+      "priority": "medium"
+    }
+  ]
 }
