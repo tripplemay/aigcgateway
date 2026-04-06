@@ -1,0 +1,96 @@
+{
+  "batch": "dx-provider-fixes",
+  "base": "http://localhost:3099",
+  "timestamp": "2026-04-06T03:48:42.206Z",
+  "passed": 5,
+  "failed": 2,
+  "results": [
+    {
+      "name": "register/login user + create project/api key",
+      "ok": true,
+      "detail": {
+        "projectId": "cmnmnhtct001k9ya667upnjrm",
+        "keyPrefix": "pk_c9164"
+      }
+    },
+    {
+      "name": "admin sync-status check for 4 providers",
+      "ok": true,
+      "detail": {
+        "deepseek": {
+          "modelCount": 0,
+          "error": "API fetch failed: DeepSeek /models returned 401"
+        },
+        "zhipu": {
+          "modelCount": 0,
+          "error": "API fetch failed: Zhipu /models returned 401"
+        },
+        "anthropic": {
+          "modelCount": 0,
+          "error": "API fetch failed: Anthropic /models returned 401"
+        },
+        "siliconflow": {
+          "modelCount": 0,
+          "error": "API fetch failed: SiliconFlow /models returned 401"
+        }
+      }
+    },
+    {
+      "name": "mcp initialize + tools/list",
+      "ok": true,
+      "detail": {
+        "toolCount": 13
+      }
+    },
+    {
+      "name": "list_models: no unknown in capabilities",
+      "ok": true,
+      "detail": {
+        "count": 4
+      }
+    },
+    {
+      "name": "chat/generate_image description examples exist in list_models",
+      "ok": false,
+      "detail": "example models not in list_models: openai/gpt-4o, anthropic/claude-sonnet-4, google/gemini-2.5-pro, openai/gpt-4o-mini, google/gemini-2.5-flash, zhipu/glm-4-flash, openai/o3, deepseek/deepseek-reasoner, openai/gpt-image-1, 1024x1024/1536x1024, openai/dall-e-3, 1024x1024/1792x1024, volcengine/seedream-4.5, siliconflow/qwen"
+    },
+    {
+      "name": "list_models returned models callable: no 404/503",
+      "ok": true,
+      "detail": {
+        "checked": 4
+      }
+    },
+    {
+      "name": "sanitize check in API and MCP error message",
+      "ok": false,
+      "detail": "API error leaks sensitive info: Insufficient balance. Current balance: $0.000000. Please recharge."
+    }
+  ],
+  "extras": {
+    "projectId": "cmnmnhtct001k9ya667upnjrm",
+    "keyPrefix": "pk_c9164",
+    "callStatuses": [
+      {
+        "model": "openrouter/anthropic/claude-3.5-haiku",
+        "modality": "text",
+        "status": 402
+      },
+      {
+        "model": "openrouter/deepseek/deepseek-r1",
+        "modality": "text",
+        "status": 402
+      },
+      {
+        "model": "openrouter/minimax/minimax-01",
+        "modality": "text",
+        "status": 402
+      },
+      {
+        "model": "openrouter/perplexity/sonar",
+        "modality": "text",
+        "status": 402
+      }
+    ]
+  }
+}

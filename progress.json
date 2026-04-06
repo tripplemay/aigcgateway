@@ -1,11 +1,11 @@
 {
-  "status": "verifying",
+  "status": "fixing",
   "user_goal": "dx-provider-fixes：上游错误脱敏、4 个 Provider sync 修复、capabilities unknown 清理、MCP 工具示例更新",
   "total_features": 5,
-  "completed_features": 4,
+  "completed_features": 1,
   "fix_rounds": 0,
   "current_sprint": null,
-  "last_updated": "2026-04-06T16:00:00Z",
+  "last_updated": "2026-04-06T03:52:00Z",
   "reference_docs": [],
   "role_assignments": {
     "planner": "Kimi",
@@ -18,12 +18,43 @@
     "signoff": null,
     "framework_reviewed": false
   },
-  "evaluator_feedback": null,
+  "evaluator_feedback": {
+    "summary": "首轮验收未通过：脱敏仍泄露 pk_ 片段、4 个 Provider 同步闭环未达标、MCP 示例模型名与 list_models 不一致。",
+    "pass_count": 1,
+    "partial_count": 0,
+    "fail_count": 4,
+    "issues": [
+      {
+        "feature_id": "F-DPF-01",
+        "result": "FAIL",
+        "description": "sanitizeErrorMessage 未覆盖 pk_ 前缀，构造错误信息中的 pk_ 片段未被脱敏。",
+        "steps_to_reproduce": "1. 调用 sanitizeErrorMessage 传入含 sk-/pk_/URL/QQ 的字符串 2. 检查返回值 3. 发现 pk_abcdef... 仍原样保留。"
+      },
+      {
+        "feature_id": "F-DPF-02",
+        "result": "FAIL",
+        "description": "sync-status 中 deepseek/zhipu/anthropic/siliconflow 仍为 modelCount=0，错误为 /models returned 401，本地未验证到“为 4 个 provider 创建 channel”闭环。",
+        "steps_to_reproduce": "1. 管理员登录 2. GET /api/admin/sync-status 3. 查看 lastSyncResultDetail.providers 中上述 4 个 provider 的 modelCount 与 error。"
+      },
+      {
+        "feature_id": "F-DPF-04",
+        "result": "FAIL",
+        "description": "MCP tools/list 中 chat/generate_image description 示例模型名与当前 list_models 返回集合不一致（存在缺失）。",
+        "steps_to_reproduce": "1. MCP initialize + tools/list 2. 提取 chat/generate_image description 中模型名 3. 调用 list_models 并比对 4. 发现多条示例不在列表。"
+      },
+      {
+        "feature_id": "F-DPF-05",
+        "result": "FAIL",
+        "description": "E2E 未全量通过（F-DPF-01、F-DPF-04 失败，且 F-DPF-02 闭环未达标）。",
+        "steps_to_reproduce": "参见 docs/test-reports/dx-provider-fixes-local-verifying-2026-04-06.md。"
+      }
+    ]
+  },
   "features": [
-    { "id": "F-DPF-01", "title": "上游错误信息脱敏", "status": "completed", "executor": "generator" },
-    { "id": "F-DPF-02", "title": "4 个 Provider sync 修复", "status": "completed", "executor": "generator" },
+    { "id": "F-DPF-01", "title": "上游错误信息脱敏", "status": "pending", "executor": "generator" },
+    { "id": "F-DPF-02", "title": "4 个 Provider sync 修复", "status": "pending", "executor": "generator" },
     { "id": "F-DPF-03", "title": "capabilities unknown 清理", "status": "completed", "executor": "generator" },
-    { "id": "F-DPF-04", "title": "MCP 工具示例模型名更新", "status": "completed", "executor": "generator" },
+    { "id": "F-DPF-04", "title": "MCP 工具示例模型名更新", "status": "pending", "executor": "generator" },
     { "id": "F-DPF-05", "title": "E2E 验证", "status": "pending", "executor": "codex" }
   ]
 }

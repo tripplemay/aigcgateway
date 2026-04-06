@@ -1,0 +1,5 @@
+{
+  "raw": "upstream failed at https://api.test.com/v1/chat with sk-abcDEF123456 and pk_abcdef1234567890 QQ群:123456 email a@b.com ip 1.2.3.4",
+  "sanitized": "upstream failed at [URL removed] with [key removed] and pk_abcdef1234567890 [contact removed] email [email removed] ip [IP removed]",
+  "hasLeak": true
+}
