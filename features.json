@@ -23,7 +23,7 @@
       "title": "run_template 返回步骤明细",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "1) run_template 返回增加 steps[] 数组；2) 每步包含 stepIndex, actionName, input(渲染后的 messages), output, usage(tokens), latencyMs；3) 保留原有 output 字段（最终输出）；4) SERVER_INSTRUCTIONS 更新说明步骤明细；5) npm run lint + tsc 通过"
     },
     {

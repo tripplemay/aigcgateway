@@ -7,20 +7,12 @@
 
 ## 结果
 
-- 通过：8
-- 失败：1
-- 阶段结论：`reverifying -> fixing`
+- 通过：9
+- 失败：0
+- 阶段结论：`reverifying -> done`
 
-## 失败项（阻塞）
+## 验收结论
 
-- **F-MH-03**：`run_template` 返回 `steps[]` 时 `steps[0].usage` 仍缺失
-- 期望：每步包含 `stepIndex, actionName, input, output, usage, latencyMs`
-- 复现报错：`usage missing at 0`
-
-## 回归通过项
-
-- F-MH-01、F-MH-02、F-MH-04、F-MH-05、F-MH-06、F-MH-07、F-MH-08 全部通过
-
-## 风险
-
-- `fix_rounds` 仍为 `0`，与 reverifying 阶段存在流程不一致风险
+- F-MH-03 已通过：`run_template` 返回的 `steps[]` 明细满足 `stepIndex, actionName, input, output, usage, latencyMs`
+- 其余 F-MH-01/02/04/05/06/07/08 回归均通过
+- 批次 `mcp-finops-hardening` 全部功能已满足验收标准

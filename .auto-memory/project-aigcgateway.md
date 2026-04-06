@@ -12,10 +12,10 @@ AIGC Gateway — AI 服务商管理中台。统一 API 调用抽象（兼容 Ope
 
 ## 当前开发状态（截至 2026-04-07）
 
-**当前批次：** `mcp-finops-hardening`（reverifying 后再次回到 fixing）
-**Harness 状态：** fixing
-**最新验收报告：** `docs/test-reports/mcp-finops-hardening-reverifying-2026-04-07.md`
-**失败点：** F-MH-03（`run_template` 的 `steps[0].output` 仍缺失）
+**当前批次：** `mcp-finops-hardening`（已完成签收）
+**Harness 状态：** done
+**最新验收报告：** `docs/test-reports/mcp-finops-hardening-signoff-2026-04-07.md`
+**结果：** 全部验收项 PASS（F-MH-03 已修复）
 
 ### 近期完成批次（2026-04-06）
 
