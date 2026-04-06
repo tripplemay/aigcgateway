@@ -109,7 +109,7 @@ export function requireApiKey(provider: Provider): string {
   if (!key) {
     throw new Error(
       `Provider "${provider.name}" has no API Key configured in authConfig. ` +
-      `Please add an apiKey via Admin > Providers before syncing.`,
+        `Please add an apiKey via Admin > Providers before syncing.`,
     );
   }
   return key;

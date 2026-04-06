@@ -33,7 +33,7 @@ import { zhipuAdapter } from "./adapters/zhipu";
 import { volcengineAdapter } from "./adapters/volcengine";
 import { siliconflowAdapter } from "./adapters/siliconflow";
 import { openrouterAdapter } from "./adapters/openrouter";
-import { getAllWhitelistedModelNames } from "./model-whitelist";
+// model-whitelist.ts removed — whitelist now managed via Model.enabled in DB
 
 // ── 并发保护 ──
 let syncInProgress = false;
@@ -173,6 +173,12 @@ const CROSS_PROVIDER_MAP: Record<string, string> = {
   "deepseek/deepseek-reasoner": "deepseek/reasoner",
 };
 
+/** Compute canonicalName by stripping provider routing prefix */
+function computeCanonicalName(modelName: string): string {
+  if (modelName.startsWith("openrouter/")) return modelName.slice(11);
+  return modelName;
+}
+
 function resolveModelName(syncedModel: SyncedModel, providerName: string): string {
   if (providerName === "openrouter") {
     const mapped = CROSS_PROVIDER_MAP[syncedModel.modelId];
@@ -235,12 +241,14 @@ async function reconcile(
     // 新模型 — model upsert 必须串行（有依赖关系）
     const modelName = resolveModelName(remoteModel, provider.name);
     const capabilities = remoteModel.capabilities ?? resolveCapabilities(remoteModel.modelId);
+    const canonicalName = computeCanonicalName(modelName);
     const model = await prisma.model.upsert({
       where: { name: modelName },
       update: {
         contextWindow: remoteModel.contextWindow ?? undefined,
         maxTokens: remoteModel.maxOutputTokens ?? undefined,
         capabilities: capabilities as unknown as Prisma.InputJsonValue,
+        canonicalName,
       },
       create: {
         name: modelName,
@@ -249,6 +257,8 @@ async function reconcile(
         contextWindow: remoteModel.contextWindow ?? null,
         maxTokens: remoteModel.maxOutputTokens ?? null,
         capabilities: capabilities as unknown as Prisma.InputJsonValue,
+        enabled: false,
+        canonicalName,
       },
     });
 
@@ -375,28 +385,7 @@ async function syncProvider(
       result.overrides = overrideResult.count;
     }
 
-    // ── 白名单 Provider：硬删除白名单外的所有 Channel（含已 DISABLED）──
-    // 放在安全防护之前，确保即使 API 故障也能清理非白名单 Channel
-    // 使用 deleteMany 而非 updateMany DISABLED，彻底消除 Disabled Nodes 污染
-    if (adapter.filterModel) {
-      const allChannels = await prisma.channel.findMany({
-        where: { providerId: provider.id },
-        select: { id: true, realModelId: true },
-      });
-      const toDelete = allChannels.filter((ch) => !adapter.filterModel!(ch.realModelId));
-      if (toDelete.length > 0) {
-        await prisma.channel.deleteMany({
-          where: { id: { in: toDelete.map((ch) => ch.id) } },
-        });
-        console.log(
-          `[model-sync] ${provider.name}: deleted ${toDelete.length} channels outside whitelist`,
-        );
-        result.disabledChannels.push(...toDelete.map((ch) => `${provider.name}/${ch.realModelId}`));
-      }
-    }
-
-    // ── 安全防护：AI 提取异常时保留现有数据 ──
-    // 在白名单过滤之前检查，用合并后的原始模型数判断
+    // ── 安全防护：API 返回空时保留现有数据 ──
     const existingChannelCount = await prisma.channel.count({
       where: { providerId: provider.id, status: { not: "DISABLED" } },
     });
@@ -410,10 +399,7 @@ async function syncProvider(
       return result;
     }
 
-    // 如果适配器有白名单，安全阈值基于白名单大小而非历史 Channel 数
-    // （白名单收窄场景下，新模型数必然远小于历史 Channel 数，不应跳过 reconcile）
-    const hasWhitelist = !!adapter.filterModel;
-    if (!hasWhitelist && existingChannelCount > 0 && models.length < existingChannelCount * 0.5) {
+    if (existingChannelCount > 0 && models.length < existingChannelCount * 0.5) {
       console.log(
         `[model-sync] ${provider.name}: SKIPPED reconcile — model count ${models.length} < 50% of existing ${existingChannelCount}`,
       );
@@ -422,7 +408,7 @@ async function syncProvider(
       return result;
     }
 
-    // ── 适配器白名单过滤（过滤 AI 引入的非目标模型）──
+    // ── 适配器 modality 过滤（过滤 EMBEDDING/RERANKING/AUDIO）──
     if (adapter.filterModel) {
       const before = models.length;
       models = models.filter((m) => adapter.filterModel!(m.modelId));
@@ -558,23 +544,14 @@ export async function runModelSync(): Promise<SyncResult> {
       },
     };
 
-    // ── 全局清理：删除白名单以外的 Model + 关联 Channel ──
-    const whitelistedNames = getAllWhitelistedModelNames(CROSS_PROVIDER_MAP);
-    const allModels = await prisma.model.findMany({ select: { id: true, name: true } });
-    const orphanModels = allModels.filter((m) => !whitelistedNames.has(m.name));
-    if (orphanModels.length > 0) {
-      const orphanIds = orphanModels.map((m) => m.id);
-      // 先删 Channel（CallLog.channelId 会 SetNull，HealthCheck cascade 自动删）
-      const deletedChannels = await prisma.channel.deleteMany({
-        where: { modelId: { in: orphanIds } },
-      });
-      const deletedModels = await prisma.model.deleteMany({
-        where: { id: { in: orphanIds } },
-      });
-      console.log(
-        `[model-sync] Global cleanup: deleted ${deletedModels.count} orphan models, ${deletedChannels.count} orphan channels`,
-      );
-    }
+    // ── 后处理：更新 isVariant（同 canonicalName 多条 → isVariant=true）──
+    await prisma.$executeRaw`
+      UPDATE "models" SET "isVariant" = EXISTS (
+        SELECT 1 FROM "models" m2
+        WHERE m2."canonicalName" = "models"."canonicalName"
+          AND m2."id" != "models"."id"
+      )
+    `;
 
     // 保存同步结果到 SystemConfig
     const { setConfig } = await import("@/lib/config");

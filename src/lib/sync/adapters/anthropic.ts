@@ -1,12 +1,11 @@
 import type { SyncAdapter, SyncedModel, ProviderWithConfig } from "./base";
-import { fetchWithTimeout, requireApiKey, getBaseUrl } from "./base";
-import { isModelWhitelisted } from "../model-whitelist";
+import { fetchWithTimeout, requireApiKey, getBaseUrl, isChatModality } from "./base";
 
 export const anthropicAdapter: SyncAdapter = {
   providerName: "anthropic",
 
   filterModel(modelId: string): boolean {
-    return isModelWhitelisted("anthropic", modelId);
+    return isChatModality(modelId);
   },
 
   async fetchModels(provider: ProviderWithConfig): Promise<SyncedModel[]> {

@@ -1,6 +1,5 @@
 import type { SyncAdapter, SyncedModel, ProviderWithConfig } from "./base";
-import { inferModality } from "./base";
-import { isModelWhitelisted } from "../model-whitelist";
+import { inferModality, isChatModality } from "./base";
 
 const EXCHANGE_RATE = parseFloat(process.env.EXCHANGE_RATE_CNY_TO_USD ?? "0.137");
 
@@ -21,7 +20,7 @@ export const volcengineAdapter: SyncAdapter = {
   providerName: "volcengine",
 
   filterModel(modelId: string): boolean {
-    return isModelWhitelisted("volcengine", modelId);
+    return isChatModality(modelId);
   },
 
   async fetchModels(provider: ProviderWithConfig): Promise<SyncedModel[]> {

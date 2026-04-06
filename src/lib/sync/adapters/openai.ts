@@ -1,12 +1,11 @@
 import type { SyncAdapter, SyncedModel, ProviderWithConfig } from "./base";
-import { fetchWithTimeout, requireApiKey, getBaseUrl, inferModality } from "./base";
-import { isOpenAIModelWhitelisted } from "../model-whitelist";
+import { fetchWithTimeout, requireApiKey, getBaseUrl, inferModality, isChatModality } from "./base";
 
 export const openaiAdapter: SyncAdapter = {
   providerName: "openai",
 
   filterModel(modelId: string): boolean {
-    return isOpenAIModelWhitelisted(modelId);
+    return isChatModality(modelId);
   },
 
   async fetchModels(provider: ProviderWithConfig): Promise<SyncedModel[]> {
@@ -21,7 +20,7 @@ export const openaiAdapter: SyncAdapter = {
     const rawModels = (json.data ?? []) as Array<{ id: string }>;
 
     return rawModels
-      .filter((m) => isOpenAIModelWhitelisted(m.id))
+      .filter((m) => isChatModality(m.id))
       .map((m) => ({
         modelId: m.id,
         name: `openai/${m.id}`,

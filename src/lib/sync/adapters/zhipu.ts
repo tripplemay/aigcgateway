@@ -1,12 +1,11 @@
 import type { SyncAdapter, SyncedModel, ProviderWithConfig } from "./base";
-import { fetchWithTimeout, requireApiKey, getBaseUrl, inferModality } from "./base";
-import { isModelWhitelisted } from "../model-whitelist";
+import { fetchWithTimeout, requireApiKey, getBaseUrl, inferModality, isChatModality } from "./base";
 
 export const zhipuAdapter: SyncAdapter = {
   providerName: "zhipu",
 
   filterModel(modelId: string): boolean {
-    return isModelWhitelisted("zhipu", modelId);
+    return isChatModality(modelId);
   },
 
   async fetchModels(provider: ProviderWithConfig): Promise<SyncedModel[]> {
@@ -21,7 +20,7 @@ export const zhipuAdapter: SyncAdapter = {
     const rawModels = (json.data ?? []) as Array<{ id: string }>;
 
     return rawModels
-      .filter((m) => isModelWhitelisted("zhipu", m.id))
+      .filter((m) => isChatModality(m.id))
       .map((m) => ({
         modelId: m.id,
         name: `zhipu/${m.id}`,

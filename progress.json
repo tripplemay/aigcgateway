@@ -2,9 +2,9 @@
   "status": "building",
   "user_goal": "whitelist-db-migration: 模型白名单从代码迁移到数据库，Admin 控制台手动管理，全量同步+按需启用",
   "total_features": 9,
-  "completed_features": 1,
+  "completed_features": 2,
   "fix_rounds": 0,
-  "current_sprint": "F-WL-02",
+  "current_sprint": "F-WL-03",
   "last_updated": "2026-04-06T20:00:00Z",
   "reference_docs": [],
   "role_assignments": {
@@ -21,7 +21,7 @@
   "evaluator_feedback": null,
   "features": [
     { "id": "F-WL-01", "title": "Model 表新增字段", "status": "completed", "executor": "generator" },
-    { "id": "F-WL-02", "title": "Sync 引擎改造", "status": "pending", "executor": "generator" },
+    { "id": "F-WL-02", "title": "Sync 引擎改造", "status": "completed", "executor": "generator" },
     { "id": "F-WL-03", "title": "API 层适配", "status": "pending", "executor": "generator" },
     { "id": "F-WL-04", "title": "Admin API", "status": "pending", "executor": "generator" },
     { "id": "F-WL-05", "title": "Admin 白名单管理页面", "status": "pending", "executor": "generator" },

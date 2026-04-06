@@ -1,12 +1,11 @@
 import type { SyncAdapter, SyncedModel, ProviderWithConfig } from "./base";
-import { fetchWithTimeout, requireApiKey, getBaseUrl, inferModality } from "./base";
-import { isModelWhitelisted } from "../model-whitelist";
+import { fetchWithTimeout, requireApiKey, getBaseUrl, inferModality, isChatModality } from "./base";
 
 export const openrouterAdapter: SyncAdapter = {
   providerName: "openrouter",
 
   filterModel(modelId: string): boolean {
-    return isModelWhitelisted("openrouter", modelId);
+    return isChatModality(modelId);
   },
 
   async fetchModels(provider: ProviderWithConfig): Promise<SyncedModel[]> {
@@ -29,8 +28,8 @@ export const openrouterAdapter: SyncAdapter = {
 
     return rawModels
       .filter((m) => {
-        // 白名单过滤：只同步明确收录的主流模型
-        if (!isModelWhitelisted("openrouter", m.id)) return false;
+        // 只同步对话和图片模型
+        if (!isChatModality(m.id)) return false;
         // 排除免费模型（pricing 全为 0 或 "0"）
         if (m.pricing) {
           const prompt = parseFloat(m.pricing.prompt ?? "0");
