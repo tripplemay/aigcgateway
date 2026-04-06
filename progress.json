@@ -1,19 +1,25 @@
 {
-  "status": "verifying",
+  "status": "done",
   "user_goal": "bugfix-model-cleanup：清理白名单外孤立 Model、Sync 引擎收紧、MCP 错误码修复、Admin 可见性改善",
   "total_features": 5,
-  "completed_features": 4,
+  "completed_features": 5,
   "fix_rounds": 0,
   "current_sprint": null,
-  "last_updated": "2026-04-06T09:30:00Z",
+  "last_updated": "2026-04-06T00:48:00Z",
   "reference_docs": [],
   "docs": {
     "spec": null,
     "test_cases": null,
-    "signoff": null,
+    "signoff": "docs/test-reports/bugfix-model-cleanup-local-signoff-2026-04-06.md",
     "framework_reviewed": false
   },
-  "evaluator_feedback": null,
+  "evaluator_feedback": {
+    "summary": "bugfix-model-cleanup 本地验收通过，F-CLN-05 四项验证全部 PASS。",
+    "pass_count": 5,
+    "partial_count": 0,
+    "fail_count": 0,
+    "issues": []
+  },
   "generator_handoff": {
     "completed": ["F-CLN-01", "F-CLN-02", "F-CLN-03", "F-CLN-04"],
     "pending_codex": ["F-CLN-05"],
@@ -30,6 +36,6 @@
     { "id": "F-CLN-02", "title": "一次性清理脚本：purge 生产库孤立 Model", "status": "completed", "executor": "generator" },
     { "id": "F-CLN-03", "title": "MCP chat/generate_image 错误码匹配修复", "status": "completed", "executor": "generator" },
     { "id": "F-CLN-04", "title": "Admin models 页面增加 ACTIVE Channel 计数", "status": "completed", "executor": "generator" },
-    { "id": "F-CLN-05", "title": "E2E 验证", "status": "pending", "executor": "codex" }
+    { "id": "F-CLN-05", "title": "E2E 验证", "status": "completed", "executor": "codex" }
   ]
 }

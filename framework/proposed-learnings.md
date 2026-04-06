@@ -83,3 +83,15 @@
 **建议写入：** `framework/README.md` §经验教训 — "每个 SyncAdapter 必须实现 filterModel，白名单是最高优先级"
 
 **状态：** 已写入（2026-04-06）— framework/README.md §经验教训·Sync Adapter
+
+---
+
+## [2026-04-06] Claude CLI — 来源：P3-1 模板页面设计稿过期
+
+**类型：** 铁律补充
+
+**内容：** P3-1 重构引入 Action + Template 两层架构后，Stitch 中的 4 个模板设计稿（基于旧的单层 Template 概念）从未更新，导致设计稿与代码架构严重脱节。Planner 在 planning 阶段拆解功能时，若涉及已有 Stitch 设计稿的页面架构变更（数据模型重构、页面新增/合并/拆分），必须同时创建一条 "更新 Stitch 设计稿" 的功能条目，确保设计稿与代码同步演进。
+
+**建议写入：** `planner.md` §2 或 §3 — 新增检查项："涉及 UI 页面架构变更时，检查 Stitch 是否有对应设计稿，有则追加更新设计稿的功能条目"
+
+**状态：** 已写入（2026-04-06）— planner.md §2.5 "检查 Stitch 设计稿"

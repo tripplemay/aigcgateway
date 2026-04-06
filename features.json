@@ -39,7 +39,7 @@
       "title": "E2E 验证",
       "priority": "medium",
       "executor": "codex",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "1) 清理脚本 dry-run 输出正确；2) 同步后无白名单外 Model；3) 错误码匹配验证；4) admin models 显示正确"
     }
   ]

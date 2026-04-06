@@ -1,0 +1,30 @@
+{
+  "passed": 4,
+  "failed": 0,
+  "results": [
+    {
+      "name": "F-CLN-02: cleanup script dry-run output",
+      "ok": true,
+      "detail": "dry-run contains orphan: openai/orphan-test-1775436430891"
+    },
+    {
+      "name": "F-CLN-01: sync cleanup removes non-whitelist models",
+      "ok": true,
+      "detail": "sync updated at 2026-04-06T00:47:12.418Z; orphan removed"
+    },
+    {
+      "name": "F-CLN-03: MCP chat/generate_image channel_unavailable behavior",
+      "ok": true,
+      "detail": "chat/isError + generate_image/code=channel_unavailable"
+    },
+    {
+      "name": "F-CLN-04: admin models returns correct activeChannelCount",
+      "ok": true,
+      "detail": "openrouter/anthropic/claude-3.5-haiku: activeChannelCount=1"
+    }
+  ],
+  "orphanName": "openai/orphan-test-1775436430891",
+  "syncTimeAfter": "2026-04-06T00:47:12.418Z",
+  "textModelName": "openrouter/anthropic/claude-3.5-haiku",
+  "imageModelName": "openai/dall-e-3"
+}
