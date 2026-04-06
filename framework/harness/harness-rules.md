@@ -56,6 +56,7 @@ git pull --ff-only origin main
 
 **第二：从磁盘重新读取以下文件，不得使用任何缓存版本：**
 - `.agent-id` — 当前 agent 的身份标识（文件不存在则 myId = null）
+- `.agents-registry` — 项目 agent 注册表（Planner 角色分配时使用）
 - `progress.json` — 当前阶段和进度
 - `features.json` — 功能列表和状态
 - `harness-rules.md` — 本文件自身

@@ -85,18 +85,27 @@ executor:codex 的典型场景：压力测试执行、code review、安全审计
 
 ### 5. 角色分配（多 agent 环境）
 
-如果项目根目录存在 `.agent-id` 文件，说明项目配置了多 agent 协作，Planner 必须在写入 progress.json 前询问用户：
+如果项目根目录存在 `.agents-registry` 文件，读取可用 agent 列表，在写入 progress.json 前向用户展示并询问：
 
-1. "本批次由哪个 agent 执行 Generator？"（默认：当前 agent）
-2. "本批次由哪个 agent 执行 Evaluator？"（默认：codex）
-3. 用户指定后写入 `role_assignments`
-4. 用户说"默认"或不指定 → 不写入 `role_assignments`，按默认映射
+```
+可用 agent：
+  CLI: Kimi, Johnsong
+  Codex: Reviewer
+
+本批次角色分配：
+  Generator → ?（默认：当前 agent）
+  Evaluator → ?（默认：Reviewer）
+```
+
+1. 用户指定后写入 `role_assignments`
+2. 用户说"默认"或不指定 → 不写入 `role_assignments`，按默认映射
 
 **校验规则（写入前必须检查）：**
 - generator 和 evaluator 不能是同一个 agent-id
-- 当前阶段（方向 B）：Codex 只能被分配为 evaluator
+- 当前阶段（方向 B）：Codex 类 agent 只能被分配为 evaluator
+- 指定的 agent 名必须在 `.agents-registry` 中存在
 
-`.agent-id` 文件不存在 → 跳过此步骤，按默认映射。
+`.agents-registry` 文件不存在 → 跳过此步骤，按默认映射。
 
 ### 6. 判断批次类型并更新 progress.json
 
