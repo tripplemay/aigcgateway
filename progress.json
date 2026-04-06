@@ -9,11 +9,7 @@
   "reference_docs": [
     "docs/specs/mcp-crud-chat-params-spec.md"
   ],
-  "role_assignments": {
-    "planner": "Kimi",
-    "generator": "Johnsong",
-    "evaluator": "Reviewer"
-  },
+  "role_assignments": null,
   "docs": {
     "spec": "docs/specs/mcp-crud-chat-params-spec.md",
     "test_cases": null,

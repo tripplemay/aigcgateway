@@ -45,16 +45,27 @@ AIGC Gateway — AI 服务商管理中台。统一 API 调用抽象（兼容 Ope
 2. **`.agent-id` 结构化格式：** `cli: Andy` / `codex: Reviewer`，同机器区分 CLI 和 Codex
 3. **记忆分层：** 共享层 `.auto-memory/`（git-tracked）存项目状态，本机层存用户偏好
 4. **会话结束记忆检查点：** 所有角色、所有阶段、每次会话结束时检查并更新共享记忆
-5. **Planner 增强：** §0a 读用户反馈 + §2.5 Stitch 设计稿检查 + §5 角色分配询问
-6. **Generator 增强：** UI 重构改为「完全还原 HTML 代码」（禁止语义重写）+ JSON 文件禁止弯引号
-7. **Evaluator 增强：** UI 重构验收必须读原型 HTML 逐块核对
+5. **Planner 增强：** §0a 读用户反馈 + §2.5 Stitch 设计稿检查 + §5 角色分配询问 + 功能改造批次设计稿一致性 acceptance 要求
+6. **Generator 增强：** UI 重构改为「完全还原 HTML 代码」+ JSON 禁止弯引号 + 设计稿页面保护规则（禁止擅自改变布局结构）
+7. **Evaluator 增强：** UI 重构验收逐块核对 + 有设计稿页面修改后必须视觉一致性交叉校验
 8. **用户反馈目录：** `docs/test-reports/user_report/` 纳入 Planner 启动必读
 9. **Agent 注册表：** `.agents-registry`（git-tracked）列出项目所有 agent，Planner 角色分配时读取
 10. **AGENTS.md 适配：** Codex 启动读 `.agent-id` codex 行 + role_assignments 判断
 
-## Backlog（0 条待处理）
+### Stitch 设计稿状态（2026-04-06 清理后）
 
-当前 backlog 为空。
+Action 相关权威设计稿（3 个，已更新确认）：
+- **Action List (Updated)** — 全宽表格，无统计卡片/假数据，底部 CTA
+- **Action Detail (Updated)** — Delete 按钮 + 垂直时间线 + 仅 Insights + Quick-Link（无 Performance Matrix）
+- **Action Editor (Updated)** — Model 下拉选择器（非文本输入），无 Auto-saved
+
+待办：按更新后的设计稿还原 3 个 Action 页面代码
+
+## Backlog（1 条待处理）
+
+| ID | 优先级 | 标题 |
+|---|---|---|
+| BL-029 | high | Action 页面按更新设计稿还原（3 页面） |
 
 BL-024/026/027/028 已完成。
 
