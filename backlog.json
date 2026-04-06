@@ -8,19 +8,6 @@
       "decisions": [],
       "confirmed_at": "2026-04-06",
       "priority": "medium"
-    },
-    {
-      "id": "BL-028",
-      "title": "Actions/Templates 页面清理 + 完全还原修复",
-      "description": "合并两个问题：(1) 页面存在语义替换（指标/图标/链接被 Generator 重写）；(2) 大量无后端支持的装饰性 UI 元素。处理方案：移除假数据面板（Action Latency 柱状图、Performance Matrix、System Health 徽章、Vertex AI Promo、Quality Score 列、Pipeline Preview 空渐变），改造为真实数据（Action Health→CallLog 聚合统计、Templates Health→真实数量统计、Usage→TemplateStep count），补全交互（分页、New Version 语义修正、Admin 查看按钮、通知/帮助按钮移除或接通）。来源：用户外网验收 + 功能审计（2026-04-06）。",
-      "decisions": [
-        "移除：Latency 柱状图、Performance Matrix、System Health 徽章、Vertex AI Promo、Quality Score、Pipeline Preview 空渐变",
-        "改造：Health 面板→CallLog 聚合、Usage→TemplateStep count",
-        "补全：分页、New Version 语义、Admin 查看按钮",
-        "Generator 完全还原 HTML 代码规则适用"
-      ],
-      "confirmed_at": "2026-04-06",
-      "priority": "high"
     }
   ]
 }

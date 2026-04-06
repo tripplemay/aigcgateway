@@ -1,78 +1,78 @@
 {
-  "batch": "whitelist-db-migration",
+  "batch": "page-cleanup-actions-templates",
   "created_at": "2026-04-06",
   "features": [
     {
-      "id": "F-WL-01",
-      "title": "Model 表新增 enabled / canonicalName / isVariant 字段",
-      "priority": "critical",
-      "executor": "generator",
-      "status": "completed",
-      "acceptance": "1) Prisma schema Model 新增 enabled Boolean @default(false)、canonicalName String、isVariant Boolean @default(false)；2) migration SQL 正确，NOT NULL 列有 DEFAULT；3) 现有模型迁移后 enabled=true（保持现有服务不中断）；4) canonicalName 和 isVariant 由迁移脚本根据现有 name 计算填充；5) npm run lint + tsc 通过"
-    },
-    {
-      "id": "F-WL-02",
-      "title": "Sync 引擎改造：全量入库 + adapter 过滤只保留 modality",
-      "priority": "critical",
-      "executor": "generator",
-      "status": "completed",
-      "acceptance": "1) 删除 model-whitelist.ts；2) 各 adapter filterModel 改为只过滤 EMBEDDING/RERANKING/AUDIO（不再做白名单匹配）；3) sync 入库时自动计算 canonicalName 和 isVariant；4) 新模型入库 enabled=false；5) model-sync.ts 全局清理逻辑改为基于 enabled 字段而非白名单；6) npm run lint + tsc 通过"
-    },
-    {
-      "id": "F-WL-03",
-      "title": "API 层适配：list_models / router / 健康检查只对 enabled=true 生效",
-      "priority": "critical",
-      "executor": "generator",
-      "status": "completed",
-      "acceptance": "1) GET /v1/models 和 MCP list_models WHERE enabled=true；2) router.ts resolveEngine 只路由到 enabled=true 的模型；3) 健康检查只对 enabled=true 的模型执行；4) 未启用模型调用时返回明确错误（model_not_available）；5) npm run lint + tsc 通过"
-    },
-    {
-      "id": "F-WL-04",
-      "title": "Admin API：模型启用/禁用 + 售价编辑",
+      "id": "F-PC-01",
+      "title": "Actions 列表页：移除假数据面板 + 改造为真实统计",
       "priority": "high",
       "executor": "generator",
-      "status": "completed",
-      "acceptance": "1) PATCH /api/admin/models/:id 支持 enabled 开关和 sellPrice 编辑；2) GET /api/admin/models 返回全量模型（含 enabled/canonicalName/isVariant/channels/health 信息）；3) 支持 provider/modality/search 筛选；4) 按 canonicalName 分组，变体折叠返回；5) npm run lint + tsc 通过"
+      "status": "pending",
+      "acceptance": "1) 移除 Action Latency 柱状图（硬编码数据）；2) 移除 Vertex AI Promo 卡片；3) Action Health 面板改为从 CallLog 聚合的真实统计（总调用次数、最近 7 天调用数）；4) 移除通知/帮助空壳按钮；5) npm run lint + tsc 通过"
     },
     {
-      "id": "F-WL-05",
-      "title": "Admin 模型白名单管理页面（按 Stitch 设计稿）",
+      "id": "F-PC-02",
+      "title": "Actions 列表页：补全分页功能",
       "priority": "high",
       "executor": "generator",
-      "status": "completed",
-      "acceptance": "1) Read design-draft/Model Whitelist (Admin)/index.html 提取完整结构；2) /admin/model-whitelist 页面含统计卡片、搜索筛选、Enable 开关、售价编辑、Channels/Health 状态、NEW 标记、变体折叠、分页；3) 与原型 1:1 一致；4) npm run lint + tsc 通过"
+      "status": "pending",
+      "acceptance": "1) 前端分页组件接通（Previous/Next 有 onClick）；2) 后端 API 支持 page/pageSize 参数；3) 分页状态正确（总数、当前页、禁用态）；4) npm run lint + tsc 通过"
     },
     {
-      "id": "F-WL-06",
-      "title": "usage summary 日期格式修复（BL-026）",
+      "id": "F-PC-03",
+      "title": "Action 详情页：移除假数据 + 改造为真实统计",
+      "priority": "high",
+      "executor": "generator",
+      "status": "pending",
+      "acceptance": "1) 移除 Performance Matrix（Avg Latency/Token Cost/Success Rate 三个 '—'）；2) 移除 System Health: Stable 硬编码徽章；3) Usage 字段改为从 TemplateStep count 查询真实的 'used in N templates' 数据；4) npm run lint + tsc 通过"
+    },
+    {
+      "id": "F-PC-04",
+      "title": "Action 详情页：New Version 按钮语义修正",
+      "priority": "high",
+      "executor": "generator",
+      "status": "pending",
+      "acceptance": "1) 'New Version' 按钮改为创建当前 Action 的新版本流程（而非跳转到编辑 Action）；2) 点击后进入新建版本表单（预填当前活跃版本的 messages/variables 作为基础）；3) npm run lint + tsc 通过"
+    },
+    {
+      "id": "F-PC-05",
+      "title": "Templates 列表页：Health 卡片改造为真实统计",
       "priority": "medium",
       "executor": "generator",
-      "status": "completed",
-      "acceptance": "1) get_usage_summary 按天分组的 key 改为 ISO 8601 格式（YYYY-MM-DD）；2) MCP 和 REST API 返回一致；3) npm run lint + tsc 通过"
+      "status": "pending",
+      "acceptance": "1) Health 卡片标题和数据改为真实的模板统计（模板总数、总步骤数或活跃模板数）；2) 不展示误导性的百分比或趋势；3) npm run lint + tsc 通过"
     },
     {
-      "id": "F-WL-07",
-      "title": "usage 已下线模型标注（BL-027）",
+      "id": "F-PC-06",
+      "title": "Template 详情页：移除 Pipeline Preview 空渐变",
       "priority": "medium",
       "executor": "generator",
-      "status": "completed",
-      "acceptance": "1) get_usage_summary topModels 中，如果模型不在 list_models 返回集合中（enabled=false 或已删除），标注 deprecated: true；2) npm run lint + tsc 通过"
+      "status": "pending",
+      "acceptance": "1) 移除 Pipeline Preview 空渐变容器；2) 如需保留占位，改为简洁的步骤摘要文字（如 '3 steps, Sequential mode'）；3) npm run lint + tsc 通过"
     },
     {
-      "id": "F-WL-08",
+      "id": "F-PC-07",
+      "title": "Admin 模板管理页：移除 Quality Score + 查看按钮接通",
+      "priority": "medium",
+      "executor": "generator",
+      "status": "pending",
+      "acceptance": "1) 移除 Quality Score 列（无计算规则，始终 '—'）；2) 查看按钮（眼睛图标）接通 onClick，跳转到模板详情页；3) npm run lint + tsc 通过"
+    },
+    {
+      "id": "F-PC-08",
       "title": "i18n 补全",
-      "priority": "medium",
+      "priority": "low",
       "executor": "generator",
-      "status": "completed",
-      "acceptance": "1) 新增页面所有用户可见文案通过 useTranslations()；2) en.json 和 zh-CN.json 同步更新；3) npm run lint + tsc 通过"
+      "status": "pending",
+      "acceptance": "1) 变更涉及的所有用户可见文案通过 useTranslations()；2) en.json 和 zh-CN.json 同步更新；3) npm run lint + tsc 通过"
     },
     {
-      "id": "F-WL-09",
+      "id": "F-PC-09",
       "title": "E2E 验证",
       "priority": "high",
       "executor": "codex",
-      "status": "completed",
-      "acceptance": "1) 新模型 sync 后 enabled=false，不出现在 list_models；2) Admin 启用后出现在 list_models 且可调用；3) Admin 禁用后从 list_models 消失；4) 售价编辑生效；5) 变体折叠展示正确；6) usage 日期格式为 YYYY-MM-DD；7) 原型 1:1 对照（Evaluator 读 design-draft HTML）"
+      "status": "pending",
+      "acceptance": "1) Actions 列表页无假数据面板，Health 展示真实统计，分页可用；2) Action 详情页无 Performance Matrix/System Health，Usage 展示真实模板引用数，New Version 创建新版本而非编辑 Action；3) Templates 列表页 Health 卡片展示真实统计；4) Template 详情页无空渐变；5) Admin 模板页无 Quality Score 列，查看按钮可跳转；6) 无 '—' 占位的装饰性指标"
     }
   ]
 }

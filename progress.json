@@ -1,104 +1,33 @@
 {
-  "status": "done",
-  "user_goal": "whitelist-db-migration: \u6a21\u578b\u767d\u540d\u5355\u4ece\u4ee3\u7801\u8fc1\u79fb\u5230\u6570\u636e\u5e93\uff0cAdmin \u63a7\u5236\u53f0\u624b\u52a8\u7ba1\u7406\uff0c\u5168\u91cf\u540c\u6b65+\u6309\u9700\u542f\u7528",
+  "status": "building",
+  "user_goal": "page-cleanup-actions-templates: 移除假数据面板、改造为真实统计、补全交互（分页/New Version/Admin 查看）",
   "total_features": 9,
-  "completed_features": 9,
+  "completed_features": 0,
   "fix_rounds": 0,
   "current_sprint": null,
-  "last_updated": "2026-04-06T09:00:53Z",
+  "last_updated": "2026-04-06T23:00:00Z",
   "reference_docs": [],
-  "role_assignments": null,
+  "role_assignments": {
+    "planner": "Kimi",
+    "generator": "Johnsong",
+    "evaluator": "Reviewer"
+  },
   "docs": {
     "spec": null,
     "test_cases": null,
-    "signoff": "test-reports/whitelist-db-migration-signoff-2026-04-06.md",
+    "signoff": null,
     "framework_reviewed": false
   },
-  "evaluator_feedback": {
-    "summary": "\u6a21\u578b\u767d\u540d\u5355\u8fc1\u79fb\u81f3\u6570\u636e\u5e93\u7684 9 \u9879\u5185\u5bb9\u5df2\u5728\u672c\u5730\u7aef\u5230\u7aef\u9a8c\u6536\u901a\u8fc7\u3002",
-    "pass_count": 9,
-    "partial_count": 0,
-    "fail_count": 0,
-    "issues": []
-  },
-  "generator_handoff": {
-    "completed": [
-      "F-WL-01",
-      "F-WL-02",
-      "F-WL-03",
-      "F-WL-04",
-      "F-WL-05",
-      "F-WL-06",
-      "F-WL-07",
-      "F-WL-08"
-    ],
-    "codex_tasks": [
-      "F-WL-09: E2E \u9a8c\u8bc1"
-    ],
-    "notes": [
-      "F-WL-01/02 \u7531\u524d\u4e00\u4e2a\u4f1a\u8bdd\u5b8c\u6210\uff08Model \u8868 enabled/canonicalName/isVariant + Sync \u5f15\u64ce\u5168\u91cf\u5165\u5e93\uff09",
-      "F-WL-03: API/MCP/Router/HealthCheck \u5168\u90e8\u52a0\u4e86 enabled=true \u8fc7\u6ee4\uff0c\u65b0\u589e MODEL_NOT_AVAILABLE \u9519\u8bef\u7801\uff08403\uff09",
-      "F-WL-04: GET /api/admin/models \u8fd4\u56de\u5168\u91cf\u6a21\u578b+channels+health\uff0c\u652f\u6301 provider/modality/search \u7b5b\u9009\uff0c\u6309 canonicalName \u5206\u7ec4+\u53d8\u4f53\u6298\u53e0\uff1bPATCH \u652f\u6301 enabled \u5f00\u5173\u548c sellPrice \u7f16\u8f91",
-      "F-WL-05: /admin/model-whitelist \u9875\u9762\u6309 Stitch \u8bbe\u8ba1\u7a3f\u5b9e\u73b0\uff0c\u542b\u7edf\u8ba1\u5361\u7247\u3001\u641c\u7d22\u7b5b\u9009\u3001Enable \u5f00\u5173\u3001\u552e\u4ef7\u7f16\u8f91\u3001Channels/Health \u72b6\u6001\u3001NEW \u6807\u8bb0\u3001\u53d8\u4f53\u6298\u53e0\u3001\u5206\u9875",
-      "F-WL-06: usage summary \u65e5\u671f\u683c\u5f0f\u6539\u4e3a to_char(..., 'YYYY-MM-DD')\uff0cMCP \u548c REST API \u5747\u5df2\u4fee\u590d",
-      "F-WL-07: get_usage_summary topModels \u5bf9 enabled=false \u7684\u6a21\u578b\u6807\u6ce8 deprecated: true",
-      "F-WL-08: \u767d\u540d\u5355\u9875\u9762\u6240\u6709\u6587\u6848\u901a\u8fc7 useTranslations()\uff0cen.json/zh-CN.json \u540c\u6b65\u66f4\u65b0"
-    ]
-  },
+  "evaluator_feedback": null,
   "features": [
-    {
-      "id": "F-WL-01",
-      "title": "Model \u8868\u65b0\u589e\u5b57\u6bb5",
-      "status": "completed",
-      "executor": "generator"
-    },
-    {
-      "id": "F-WL-02",
-      "title": "Sync \u5f15\u64ce\u6539\u9020",
-      "status": "completed",
-      "executor": "generator"
-    },
-    {
-      "id": "F-WL-03",
-      "title": "API \u5c42\u9002\u914d",
-      "status": "completed",
-      "executor": "generator"
-    },
-    {
-      "id": "F-WL-04",
-      "title": "Admin API",
-      "status": "completed",
-      "executor": "generator"
-    },
-    {
-      "id": "F-WL-05",
-      "title": "Admin \u767d\u540d\u5355\u7ba1\u7406\u9875\u9762",
-      "status": "completed",
-      "executor": "generator"
-    },
-    {
-      "id": "F-WL-06",
-      "title": "usage \u65e5\u671f\u683c\u5f0f\u4fee\u590d",
-      "status": "completed",
-      "executor": "generator"
-    },
-    {
-      "id": "F-WL-07",
-      "title": "usage \u5df2\u4e0b\u7ebf\u6a21\u578b\u6807\u6ce8",
-      "status": "completed",
-      "executor": "generator"
-    },
-    {
-      "id": "F-WL-08",
-      "title": "i18n \u8865\u5168",
-      "status": "completed",
-      "executor": "generator"
-    },
-    {
-      "id": "F-WL-09",
-      "title": "E2E \u9a8c\u8bc1",
-      "status": "completed",
-      "executor": "codex"
-    }
+    { "id": "F-PC-01", "title": "Actions 列表页：移除假数据 + 真实统计", "status": "pending", "executor": "generator" },
+    { "id": "F-PC-02", "title": "Actions 列表页：补全分页", "status": "pending", "executor": "generator" },
+    { "id": "F-PC-03", "title": "Action 详情页：移除假数据 + 真实统计", "status": "pending", "executor": "generator" },
+    { "id": "F-PC-04", "title": "Action 详情页：New Version 语义修正", "status": "pending", "executor": "generator" },
+    { "id": "F-PC-05", "title": "Templates 列表页：Health 卡片改造", "status": "pending", "executor": "generator" },
+    { "id": "F-PC-06", "title": "Template 详情页：移除空渐变", "status": "pending", "executor": "generator" },
+    { "id": "F-PC-07", "title": "Admin 模板页：移除 Quality Score + 查看接通", "status": "pending", "executor": "generator" },
+    { "id": "F-PC-08", "title": "i18n 补全", "status": "pending", "executor": "generator" },
+    { "id": "F-PC-09", "title": "E2E 验证", "status": "pending", "executor": "codex" }
   ]
 }
