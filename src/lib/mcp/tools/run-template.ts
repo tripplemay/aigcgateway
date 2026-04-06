@@ -12,6 +12,7 @@ import { prisma } from "@/lib/prisma";
 import { checkRateLimit } from "@/lib/api/rate-limit";
 import { checkMcpPermission } from "@/lib/mcp/auth";
 import { InjectionError } from "@/lib/action/runner";
+import { injectVariables } from "@/lib/action/inject";
 import { runSequential } from "@/lib/template/sequential";
 import { runFanout } from "@/lib/template/fanout";
 import type { McpServerOptions } from "@/lib/mcp/server";
@@ -81,6 +82,7 @@ Pass variables to inject into each step's Action prompts.`,
           stepIndex: number;
           actionName?: string;
           model?: string;
+          input?: unknown[];
           output?: string;
           usage?: { prompt_tokens: number; completion_tokens: number } | null;
           latencyMs?: number;
@@ -94,7 +96,11 @@ Pass variables to inject into each step's Action prompts.`,
             const evt = JSON.parse(data);
             if (evt.type === "step_start") {
               stepStartTime = Date.now();
-              currentStep = { stepIndex: evt.step, actionName: undefined, model: evt.model };
+              currentStep = {
+                stepIndex: evt.step,
+                actionName: evt.action_name ?? undefined,
+                model: evt.model,
+              };
             } else if (evt.type === "step_end" && currentStep) {
               currentStep.usage = evt.usage ?? null;
               currentStep.latencyMs = Date.now() - stepStartTime;
@@ -108,6 +114,13 @@ Pass variables to inject into each step's Action prompts.`,
           }
         };
 
+        // Pre-load action versions for input rendering
+        const actionIds = template.steps.map((s) => s.actionId);
+        const actions = await prisma.action.findMany({
+          where: { id: { in: actionIds } },
+          include: { versions: { orderBy: { versionNumber: "desc" }, take: 1 } },
+        });
+
         const params = {
           templateId: template_id,
           projectId,
@@ -118,6 +131,29 @@ Pass variables to inject into each step's Action prompts.`,
         const result = hasSplitter
           ? await runFanout(params, collectWriter)
           : await runSequential(params, collectWriter);
+
+        // Populate input (rendered messages) for each step
+        const actionMap = new Map(actions.map((a) => [a.id, a]));
+        let prevOutput: string | null = null;
+        for (let i = 0; i < steps.length; i++) {
+          const templateStep = template.steps[i];
+          if (templateStep) {
+            const act = actionMap.get(templateStep.actionId);
+            const ver = act?.versions[0];
+            if (ver) {
+              const msgs = ver.messages as { role: string; content: string }[];
+              const varDefs = (ver.variables ?? []) as { name: string; description?: string; required: boolean; defaultValue?: string }[];
+              const stepVars: Record<string, string> = { ...variables };
+              if (prevOutput !== null) stepVars.previous_output = prevOutput;
+              try {
+                steps[i].input = injectVariables(msgs, varDefs, stepVars);
+              } catch {
+                steps[i].input = msgs;
+              }
+            }
+          }
+          prevOutput = steps[i].output ?? null;
+        }
 
         return {
           content: [

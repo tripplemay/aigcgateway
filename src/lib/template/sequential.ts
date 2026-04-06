@@ -44,6 +44,7 @@ export async function runSequential(
         step: step.order,
         role: step.role,
         action_id: step.action.id,
+        action_name: step.action.name,
         model: step.action.model,
       }),
     );
