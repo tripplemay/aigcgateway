@@ -7,7 +7,7 @@
       "title": "Actions 列表页 1:1 还原修复",
       "priority": "high",
       "executor": "generator",
-      "status": "completed",
+      "status": "pending",
       "acceptance": "1) Read design-draft/Action List (v2)/index.html 提取完整结构；2) /actions 页面 DOM 结构、表格列、信息密度与原型 1:1 一致；3) npm run lint + tsc 通过"
     },
     {
@@ -15,7 +15,7 @@
       "title": "Action 详情页 1:1 还原修复",
       "priority": "high",
       "executor": "generator",
-      "status": "completed",
+      "status": "pending",
       "acceptance": "1) Read design-draft/Action Detail (v2)/index.html 提取完整结构；2) /actions/:id 页面含完整信息面板（创建日期、版本数、模板引用数）、版本历史时间线、messages 预览、variables 表格，与原型 1:1 一致；3) npm run lint + tsc 通过"
     },
     {
@@ -39,7 +39,7 @@
       "title": "Template 详情页 1:1 还原修复",
       "priority": "high",
       "executor": "generator",
-      "status": "completed",
+      "status": "pending",
       "acceptance": "1) Read design-draft/Template Detail (v2)/index.html 提取完整结构；2) /templates/:id 步骤流水线、信息侧栏、add-step 占位等视觉组件与原型 1:1 一致；3) npm run lint + tsc 通过"
     },
     {

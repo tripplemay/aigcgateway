@@ -25,6 +25,15 @@ AIGC Gateway — AI 服务商管理中台。统一 API 调用抽象（兼容 Ope
   - 特殊说明：`F-DPF-02` 的代码层 `requireApiKey()` 预检已验收通过；真实 Provider key 配置闭环按用户确认后置到生产环境有效 key 配置后执行
   - 签收报告：`docs/test-reports/dx-provider-fixes-signoff-2026-04-06.md`
 
+### 当前进行中批次
+
+- `ui-1to1-restoration`
+  - 当前阶段：`fixing`
+  - 首轮原型对照结论：未通过
+  - 通过：`F-1TO1-03`、`F-1TO1-04`、`F-1TO1-06`、`F-1TO1-07`
+  - 失败：`F-1TO1-01` Actions 列表页缺少原型分页控件；`F-1TO1-02` Action 详情页缺少 New Version 且侧栏信息不一致；`F-1TO1-05` Template 详情页缺少 Add Step Placeholder 和 Pipeline Preview；`F-1TO1-08` 原型对照验收未通过
+  - 报告：`docs/test-reports/ui-1to1-restoration-local-verification-2026-04-06.md`
+
 ### 里程碑总览
 
 - P1：项目骨架 + 7 家服务商 + API 网关 + 健康检查 + SDK + 认证计费支付 + 控制台 17 页
