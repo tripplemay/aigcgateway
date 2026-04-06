@@ -61,7 +61,9 @@ export function registerChat(server: McpServer, opts: McpServerOptions): void {
           }),
         )
         .optional()
-        .describe("Function calling tool definitions. Each tool has type:'function' and a function object with name, description, and JSON Schema parameters."),
+        .describe(
+          "Function calling tool definitions. Each tool has type:'function' and a function object with name, description, and JSON Schema parameters.",
+        ),
       tool_choice: z
         .union([
           z.enum(["auto", "none", "required"]),
@@ -71,9 +73,22 @@ export function registerChat(server: McpServer, opts: McpServerOptions): void {
           }),
         ])
         .optional()
-        .describe("Tool choice strategy: 'auto', 'none', 'required', or a specific function object."),
+        .describe(
+          "Tool choice strategy: 'auto', 'none', 'required', or a specific function object.",
+        ),
     },
-    async ({ model, messages, temperature, max_tokens, stream, response_format, top_p, frequency_penalty, tools, tool_choice }) => {
+    async ({
+      model,
+      messages,
+      temperature,
+      max_tokens,
+      stream,
+      response_format,
+      top_p,
+      frequency_penalty,
+      tools,
+      tool_choice,
+    }) => {
       // Permission check
       const permErr = checkMcpPermission(permissions, "chatCompletion");
       if (permErr) {
@@ -315,18 +330,19 @@ export function registerChat(server: McpServer, opts: McpServerOptions): void {
             content: [
               {
                 type: "text" as const,
-                text: `Provider timeout after ${(latencyMs / 1000).toFixed(1)}s. Try again or use a different model.`,
+                text: `[provider_timeout] Provider timeout after ${(latencyMs / 1000).toFixed(1)}s. Try again or use a different model.`,
               },
             ],
             isError: true,
           };
         }
 
+        const errorCode = engineErr?.code ?? "provider_error";
         return {
           content: [
             {
               type: "text" as const,
-              text: `Error: ${sanitizeErrorMessage((err as Error).message)}`,
+              text: `[${errorCode}] ${sanitizeErrorMessage((err as Error).message)}`,
             },
           ],
           isError: true,

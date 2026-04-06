@@ -49,6 +49,8 @@ export interface ChatParams {
     | "required"
     | { type: "function"; function: { name: string } };
   seed?: number;
+  n?: number;
+  stream_options?: { include_usage?: boolean };
 }
 
 export interface ChatStreamParams extends Omit<ChatParams, "stream"> {

@@ -20,6 +20,10 @@ export type {
   ToolDefinition,
 } from "./types/request";
 
+// Action & Template 类型
+export type { Action, ActionVersion, ActionMessage, ActionVariable } from "./types/action";
+export type { Template, TemplateStep } from "./types/template";
+
 // 响应类型
 export type {
   ChatResponse,

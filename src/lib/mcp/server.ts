@@ -51,7 +51,7 @@ const SERVER_INSTRUCTIONS = `# AIGC Gateway — AI 服务商聚合平台
 Action 绑定一个模型 + 提示词 + 变量定义，可复用。
 - **list_actions** — 查看所有 Actions
 - **get_action_detail(action_id)** — 查看 Action 详情（激活版本的 messages/variables、版本历史）
-- **run_action(action_id, variables)** — 执行 Action，传入变量
+- **run_action(action_id, variables, dry_run?)** — 执行 Action，传入变量。dry_run=true 时仅渲染变量不调用模型（免费预览）
 - **create_action(name, model, messages, variables?)** — 创建新 Action + v1 版本
 - **update_action(action_id, name?, description?, model?)** — 更新 Action 元数据（不影响版本）
 - **delete_action(action_id)** — 删除 Action（被 Template 引用时会阻止）

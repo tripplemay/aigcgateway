@@ -112,12 +112,13 @@ Pass variables to inject into each step's Action prompts.`,
       } catch (err) {
         if (err instanceof InjectionError) {
           return {
-            content: [{ type: "text" as const, text: `Template error: ${err.message}` }],
+            content: [{ type: "text" as const, text: `[template_error] ${err.message}` }],
             isError: true,
           };
         }
+        const code = (err as { code?: string }).code ?? "provider_error";
         return {
-          content: [{ type: "text" as const, text: `Error: ${(err as Error).message}` }],
+          content: [{ type: "text" as const, text: `[${code}] ${(err as Error).message}` }],
           isError: true,
         };
       }

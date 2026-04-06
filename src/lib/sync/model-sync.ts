@@ -14,7 +14,7 @@
 
 import { prisma } from "@/lib/prisma";
 import { getConfigNumber } from "@/lib/config";
-import { resolveCapabilities } from "./model-capabilities-fallback";
+import { resolveCapabilities, resolveContextWindow } from "./model-capabilities-fallback";
 import type {
   SyncAdapter,
   SyncedModel,
@@ -241,11 +241,12 @@ async function reconcile(
     // 新模型 — model upsert 必须串行（有依赖关系）
     const modelName = resolveModelName(remoteModel, provider.name);
     const capabilities = remoteModel.capabilities ?? resolveCapabilities(remoteModel.modelId);
+    const contextWindow = remoteModel.contextWindow ?? resolveContextWindow(remoteModel.modelId);
     const canonicalName = computeCanonicalName(modelName);
     const model = await prisma.model.upsert({
       where: { name: modelName },
       update: {
-        contextWindow: remoteModel.contextWindow ?? undefined,
+        contextWindow: contextWindow ?? undefined,
         maxTokens: remoteModel.maxOutputTokens ?? undefined,
         capabilities: capabilities as unknown as Prisma.InputJsonValue,
         canonicalName,
@@ -254,7 +255,7 @@ async function reconcile(
         name: modelName,
         displayName: remoteModel.displayName,
         modality: remoteModel.modality as ModelModality,
-        contextWindow: remoteModel.contextWindow ?? null,
+        contextWindow: contextWindow ?? null,
         maxTokens: remoteModel.maxOutputTokens ?? null,
         capabilities: capabilities as unknown as Prisma.InputJsonValue,
         enabled: false,

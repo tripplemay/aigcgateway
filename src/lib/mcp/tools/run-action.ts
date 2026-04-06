@@ -11,6 +11,7 @@ import { prisma } from "@/lib/prisma";
 import { checkRateLimit } from "@/lib/api/rate-limit";
 import { checkMcpPermission } from "@/lib/mcp/auth";
 import { runActionNonStream, InjectionError } from "@/lib/action/runner";
+import { injectVariables } from "@/lib/action/inject";
 import type { McpServerOptions } from "@/lib/mcp/server";
 
 export function registerRunAction(server: McpServer, opts: McpServerOptions): void {
@@ -25,12 +26,72 @@ export function registerRunAction(server: McpServer, opts: McpServerOptions): vo
         .record(z.string())
         .optional()
         .describe('Variables to inject, e.g. {"topic": "AI"}'),
+      dry_run: z
+        .boolean()
+        .optional()
+        .describe(
+          "Preview mode: render variables into messages without calling the model. No cost, no billing.",
+        ),
     },
-    async ({ action_id, variables = {} }) => {
+    async ({ action_id, variables = {}, dry_run }) => {
       // Permission check
       const permErr = checkMcpPermission(permissions, "chatCompletion");
       if (permErr) {
         return { content: [{ type: "text" as const, text: permErr }], isError: true };
+      }
+
+      // Dry run: render variables without calling model
+      if (dry_run) {
+        try {
+          const action = await prisma.action.findFirst({
+            where: { id: action_id, projectId },
+          });
+          if (!action || !action.activeVersionId) {
+            return {
+              content: [
+                {
+                  type: "text" as const,
+                  text: `Action "${action_id}" not found or has no active version.`,
+                },
+              ],
+              isError: true,
+            };
+          }
+          const version = await prisma.actionVersion.findUnique({
+            where: { id: action.activeVersionId },
+          });
+          if (!version) {
+            return {
+              content: [{ type: "text" as const, text: "Active version not found." }],
+              isError: true,
+            };
+          }
+          const messages = version.messages as { role: string; content: string }[];
+          const variableDefs = (version.variables ?? []) as {
+            name: string;
+            description?: string;
+            required: boolean;
+            defaultValue?: string;
+          }[];
+          const rendered = injectVariables(messages, variableDefs, variables);
+          return {
+            content: [
+              {
+                type: "text" as const,
+                text: JSON.stringify(
+                  { dry_run: true, action_id, model: action.model, rendered_messages: rendered },
+                  null,
+                  2,
+                ),
+              },
+            ],
+          };
+        } catch (err) {
+          return {
+            content: [{ type: "text" as const, text: `[dry_run_error] ${(err as Error).message}` }],
+            isError: true,
+          };
+        }
       }
 
       // Balance check
@@ -89,12 +150,13 @@ export function registerRunAction(server: McpServer, opts: McpServerOptions): vo
       } catch (err) {
         if (err instanceof InjectionError) {
           return {
-            content: [{ type: "text" as const, text: `Action error: ${err.message}` }],
+            content: [{ type: "text" as const, text: `[action_error] ${err.message}` }],
             isError: true,
           };
         }
+        const code = (err as { code?: string }).code ?? "provider_error";
         return {
-          content: [{ type: "text" as const, text: `Error: ${(err as Error).message}` }],
+          content: [{ type: "text" as const, text: `[${code}] ${(err as Error).message}` }],
           isError: true,
         };
       }
