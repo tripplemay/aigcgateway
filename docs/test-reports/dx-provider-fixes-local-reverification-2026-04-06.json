@@ -1,6 +1,6 @@
 {
   "baseUrl": "http://localhost:3099",
-  "generatedAt": "2026-04-06T04:25:29.855Z",
+  "generatedAt": "2026-04-06T04:35:59.778Z",
   "checks": [
     {
       "name": "runtime smoke: admin login route responds 200",
@@ -9,8 +9,8 @@
     },
     {
       "name": "F-DPF-05: register user + create key + tools/list + list_models",
-      "ok": false,
-      "detail": "list_models returned empty"
+      "ok": true,
+      "detail": "project=cmnmp6mwy001f9yjdb7hn054o models=14"
     },
     {
       "name": "F-DPF-01: sanitizeErrorMessage removes URL/key/QQ/email/IP",
@@ -39,13 +39,13 @@
     },
     {
       "name": "F-DPF-04: chat description hardcoded examples exist in list_models",
-      "ok": false,
-      "detail": "chat description examples absent from list_models: openrouter/anthropic/claude-sonnet-4, anthropic/claude-sonnet-4"
+      "ok": true,
+      "detail": "examples=<none>"
     },
     {
       "name": "F-DPF-04: generate_image description hardcoded examples exist in list_models",
-      "ok": false,
-      "detail": "generate_image examples absent from list_models: gpt-image-1, dall-e-3, seedream-4.5, Wanx"
+      "ok": true,
+      "detail": "examples=<none>"
     }
   ],
   "features": [
@@ -66,13 +66,13 @@
     },
     {
       "featureId": "F-DPF-04",
-      "result": "FAIL",
-      "detail": "chat=chat description examples absent from list_models: openrouter/anthropic/claude-sonnet-4, anthropic/claude-sonnet-4; generate_image=generate_image examples absent from list_models: gpt-image-1, dall-e-3, seedream-4.5, Wanx"
+      "result": "PASS",
+      "detail": "chat=examples=<none>; generate_image=examples=<none>"
     },
     {
       "featureId": "F-DPF-05",
-      "result": "FAIL",
-      "detail": "list_models returned empty"
+      "result": "PASS",
+      "detail": "project=cmnmp6mwy001f9yjdb7hn054o models=14"
     }
   ]
 }

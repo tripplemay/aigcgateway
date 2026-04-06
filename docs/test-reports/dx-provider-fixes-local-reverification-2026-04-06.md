@@ -21,15 +21,15 @@
   `sanitizeErrorMessage()` 可去除 URL、`sk-*` / `pk-*`、QQ群号、邮箱、IP、Bearer token。
 - `F-DPF-03` PASS
   `resolveCapabilities()` 对命中与未命中模型均不再返回 `unknown`；本地 DB 未发现 `capabilities.unknown` 残留。
+- `F-DPF-04` PASS
+  `chat`、`generate_image` tool description 与 `SERVER_INSTRUCTIONS` 中的硬编码模型名已移除；运行时检查未发现示例模型残留。
+- `F-DPF-05` PASS
+  在等待启动后的 model sync 完成后，新建项目 API Key 下的 MCP `list_models` 返回 14 个模型；本地 L1 E2E 验证恢复通过。
 
 ## 失败项
 
 - `F-DPF-02` FAIL
   4 个目标 adapter 在 `apiKey` 为空时已能提前报出明确错误，这部分通过；但本地实际 sync 结果仍显示 `deepseek` / `anthropic` / `zhipu` / `siliconflow` 全部报 `401`，未满足“修复后本地 sync 能正常创建 Channel”的验收要求。
-- `F-DPF-04` FAIL
-  `chat` description 仍包含 `openrouter/anthropic/claude-sonnet-4`、`anthropic/claude-sonnet-4` 等不在当前 `list_models` 返回中的示例；`generate_image` description 仍包含 `gpt-image-1`、`dall-e-3`、`seedream-4.5`、`Wanx`，也均不在当前 `list_models` 返回中。
-- `F-DPF-05` FAIL
-  使用新建项目 API Key 调用 MCP `list_models` 时返回空列表，导致本批次要求的 E2E 验证无法通过，也无法证明 description 与真实模型列表一致。
 
 ## 风险项
 
@@ -47,10 +47,8 @@
 
 ## 最终结论
 
-本批次本地复验未通过，状态应回退到 `fixing`。
+本批次第二轮本地复验仍未完全通过，状态应保持在 `fixing`。
 
 需要 Generator 至少处理以下问题后再进入下一轮 `reverifying`：
 
 1. 处理 `F-DPF-02` 的本地 sync 仍为 401、未创建 Channel 的问题，或明确修订其本地验收边界。
-2. 移除或改写 `chat` / `generate_image` description 中与当前 `list_models` 不一致的硬编码示例。
-3. 修复 `list_models` 对新建项目 API Key 返回空列表的问题，否则 `F-DPF-05` 无法完成。

@@ -1,11 +1,11 @@
 {
-  "status": "reverifying",
+  "status": "fixing",
   "user_goal": "dx-provider-fixes：上游错误脱敏、4 个 Provider sync 修复、capabilities unknown 清理、MCP 工具示例更新",
   "total_features": 5,
-  "completed_features": 2,
+  "completed_features": 4,
   "fix_rounds": 2,
   "current_sprint": null,
-  "last_updated": "2026-04-06T04:26:00Z",
+  "last_updated": "2026-04-06T04:36:00Z",
   "reference_docs": [],
   "role_assignments": {
     "planner": "Kimi",
@@ -18,13 +18,26 @@
     "signoff": null,
     "framework_reviewed": false
   },
-  “evaluator_feedback”: null,
-  “generator_handoff”: “第二轮修复：F-DPF-04 彻底移除 tool description 和 SERVER_INSTRUCTIONS 中所有硬编码模型名（包括 gpt-image-1/dall-e-3/seedream-4.5/Wanx/openai/gpt-4o 等），改为纯引导文案 'Call list_models first'。F-DPF-02 排查结论：本地/生产环境的 deepseek/zhipu/anthropic/siliconflow 返回 401 因为 Provider.authConfig 中的 apiKey 为空或无效，这是管理员配置问题而非代码 bug，requireApiKey() 已对空 key 做预检。”,
+  "evaluator_feedback": {
+    "summary": "第二轮本地 L1 复验：F-DPF-01、F-DPF-03、F-DPF-04、F-DPF-05 通过；F-DPF-02 仍未通过。",
+    "pass_count": 4,
+    "partial_count": 0,
+    "fail_count": 1,
+    "issues": [
+      {
+        "feature_id": "F-DPF-02",
+        "result": "FAIL",
+        "description": "4 个目标 adapter 的空 apiKey 预检已经到位，但本地实际 sync 结果仍显示 deepseek/anthropic/zhipu/siliconflow 全部返回 401，未满足“修复后在本地验证 sync 能正常为这 4 个 provider 创建 Channel”的验收标准。",
+        "steps_to_reproduce": "1. 启动本地测试环境 bash scripts/test/codex-setup.sh 2. 等待就绪 bash scripts/test/codex-wait.sh 3. 观察启动日志或读取 system_config.LAST_SYNC_RESULT 4. deepseek/anthropic/zhipu/siliconflow 仍为 API fetch failed: <Provider> /models returned 401，未创建 Channel"
+      }
+    ]
+  },
+  "generator_handoff": "第二轮修复已验证：F-DPF-04 通过，tool description 和 SERVER_INSTRUCTIONS 中硬编码模型名已移除；F-DPF-05 通过，等待 model sync 完成后新项目 API Key 下 list_models 返回 14 个模型。当前唯一未通过项是 F-DPF-02：代码层空 key 预检已完成，但 acceptance 仍要求本地 sync 为 deepseek/zhipu/anthropic/siliconflow 创建 Channel，而本地环境仍因 Provider.authConfig 为空或无效返回 401。",
   "features": [
     { "id": "F-DPF-01", "title": "上游错误信息脱敏", "status": "completed", "executor": "generator" },
     { "id": "F-DPF-02", "title": "4 个 Provider sync 修复", "status": "pending", "executor": "generator" },
     { "id": "F-DPF-03", "title": "capabilities unknown 清理", "status": "completed", "executor": "generator" },
     { "id": "F-DPF-04", "title": "MCP 工具示例模型名更新", "status": "completed", "executor": "generator" },
-    { "id": "F-DPF-05", "title": "E2E 验证", "status": "pending", "executor": "codex" }
+    { "id": "F-DPF-05", "title": "E2E 验证", "status": "completed", "executor": "codex" }
   ]
 }

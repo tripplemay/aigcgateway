@@ -31,7 +31,7 @@
       "title": "chat/generate_image 工具 description 示例模型名更新",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "1) chat 工具 description 中的示例模型名全部来自当前 list_models 实际返回的模型；2) generate_image 工具同样更新；3) 示例覆盖不同价位（旗舰/轻量/免费）；4) npm run lint + tsc 通过"
     },
     {
@@ -39,7 +39,7 @@
       "title": "E2E 验证",
       "priority": "medium",
       "executor": "codex",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "1) 模拟上游错误场景，确认返回的错误信息不含敏感内容（URL/Key/QQ）；2) list_models 返回的模型全部可调用（无 404/503）；3) capabilities 无 unknown 字段；4) chat/generate_image description 中的示例模型在 list_models 中存在"
     }
   ]
