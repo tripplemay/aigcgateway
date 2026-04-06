@@ -8,6 +8,14 @@
       "decisions": [],
       "confirmed_at": "2026-04-06",
       "priority": "medium"
+    },
+    {
+      "id": "BL-025",
+      "title": "模板/动作 7 个页面 1:1 设计稿还原修复",
+      "description": "ui-redesign-templates-actions 批次 9/9 PASS 后，用户在外网发现仍存在大量手写内容未按原型 HTML 1:1 还原。需要逐页对照 design-draft/ 下的 HTML 源码重新修复。涉及：/actions, /actions/:id, /actions/new, /templates, /templates/:id, /templates/new, /admin/templates。来源：用户外网验收反馈（2026-04-06）。",
+      "decisions": ["Generator 必须先 Read design-draft HTML 再编码", "Evaluator 验收时必须读原型逐块核对"],
+      "confirmed_at": "2026-04-06",
+      "priority": "high"
     }
   ]
 }

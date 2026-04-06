@@ -69,6 +69,18 @@
 - PARTIAL：主要功能可用，但有小问题（说明具体是什么）
 - FAIL：无法使用或严重不符（说明具体原因和复现步骤）
 
+**UI 重构批次的额外验收要求（当 acceptance 中包含"设计稿还原"时，必须执行）：**
+
+对每个涉及设计稿还原的页面，Evaluator 必须：
+
+1. **Read 原型文件**：`Read design-draft/xxx/index.html`，通读完整 HTML 源码
+2. **Read 实现文件**：`Read src/app/(console)/xxx/page.tsx`
+3. **逐块核对**：对照原型 HTML 的 DOM 结构，检查实现中是否覆盖了所有区块、表格列、表单字段、交互入口（按钮/开关/下拉）
+4. **识别功能缺失**：原型中有但实现中没有的功能（如编辑态、操作列）判 FAIL
+5. **识别结构简化**：原型中有但实现中简化的区块（如信息面板字段缺失）判 PARTIAL
+
+**不读原型直接根据 acceptance 文字判分 = 不合格的验收。** 原型 HTML 是 source of truth，acceptance 只是摘要。
+
 ### 5. 生成反馈报告
 将结果写入 progress.json 的 evaluator_feedback：
 ```json
