@@ -1,0 +1,38 @@
+{
+  "passed": 5,
+  "failed": 0,
+  "results": [
+    {
+      "name": "F-UI API: create action",
+      "ok": true,
+      "detail": "cmnmm278a00049yi428q4sqkt"
+    },
+    {
+      "name": "F-UI API: actions list/detail/update",
+      "ok": true,
+      "detail": "UI Test Action Updated"
+    },
+    {
+      "name": "F-UI API: create template",
+      "ok": true,
+      "detail": "cmnmm279000089yi4jrd4qs80"
+    },
+    {
+      "name": "F-UI API: templates list/detail/update/delete",
+      "ok": true,
+      "detail": "template/action delete ok"
+    },
+    {
+      "name": "F-UI API: admin templates endpoint",
+      "ok": true,
+      "detail": "totalTemplates=0"
+    }
+  ],
+  "testUser": {
+    "email": "ui_redesign_1775444913505@test.com",
+    "password": "Test1234",
+    "name": "UI Redesign Tester"
+  },
+  "projectId": "cmnmm278400029yi45tzuvm9d",
+  "notes": "Use testUser credentials for manual/browser checks on redesigned pages."
+}

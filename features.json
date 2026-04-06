@@ -71,7 +71,7 @@
       "title": "E2E 验证（页面可访问 + 功能完整）",
       "priority": "medium",
       "executor": "codex",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "1) 7 个重构页面均可正常访问，无白屏/报错；2) CRUD 操作功能完整；3) 中英文切换正常；4) 与 Stitch 设计稿视觉一致性检查"
     }
   ]

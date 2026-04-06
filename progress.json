@@ -1,19 +1,25 @@
 {
-  "status": "reverifying",
+  "status": "done",
   "user_goal": "ui-redesign-templates-actions：按 Stitch 设计稿重构 7 个模板/动作页面（Action 列表/详情/编辑 + Template 列表/详情/编辑 + Admin 模板管理）",
   "total_features": 9,
-  "completed_features": 8,
+  "completed_features": 9,
   "fix_rounds": 3,
   "current_sprint": null,
-  "last_updated": "2026-04-06T11:00:00Z",
+  "last_updated": "2026-04-06T03:12:00Z",
   "reference_docs": [],
   "docs": {
     "spec": null,
     "test_cases": null,
-    "signoff": null,
+    "signoff": "docs/test-reports/ui-redesign-templates-actions-local-signoff-2026-04-06.md",
     "framework_reviewed": false
   },
-  "evaluator_feedback": null,
+  "evaluator_feedback": {
+    "summary": "本地复验通过：F-UI-09 完成，批次全部 9/9 PASS。",
+    "pass_count": 9,
+    "partial_count": 0,
+    "fail_count": 0,
+    "issues": []
+  },
   "features": [
     { "id": "F-UI-01", "title": "Actions 列表页重构", "status": "completed", "executor": "generator" },
     { "id": "F-UI-02", "title": "Action 详情页重构", "status": "completed", "executor": "generator" },
@@ -23,6 +29,6 @@
     { "id": "F-UI-06", "title": "Template 创建/编辑页重构", "status": "completed", "executor": "generator" },
     { "id": "F-UI-07", "title": "Admin 模板管理页重构", "status": "completed", "executor": "generator" },
     { "id": "F-UI-08", "title": "i18n 补全", "status": "completed", "executor": "generator" },
-    { "id": "F-UI-09", "title": "E2E 验证", "status": "pending", "executor": "codex" }
+    { "id": "F-UI-09", "title": "E2E 验证", "status": "completed", "executor": "codex" }
   ]
 }
