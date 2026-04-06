@@ -10,7 +10,7 @@ AIGC Gateway — AI 服务商管理中台。统一 API 调用抽象（兼容 Ope
 
 **Tech Stack:** Next.js 14 (App Router) + TypeScript + PostgreSQL + Prisma + Redis + shadcn/ui + @modelcontextprotocol/sdk + next-intl
 
-## 当前开发状态（截至 2026-04-06）
+## 当前开发状态（截至 2026-04-07）
 
 **最新完成批次：** `dx-metadata-enhancement`（7/7 PASS，fix_rounds=5）
 **Harness 状态：** done
@@ -64,11 +64,20 @@ Action 相关权威设计稿（3 个，已更新确认）：
 
 状态：3 页设计稿还原已完成并通过验收（`action-pages-design-restore` 5/5 PASS）
 
-## Backlog（0 条待处理）
+## Backlog（8 条待处理）
 
-当前 backlog 为空。
+| ID | 优先级 | 标题 | 来源 |
+|---|---|---|---|
+| BL-035 | high | generate_image 上游错误脱敏遗漏 | 混沌测试 |
+| BL-036 | high | activate_version 版本回滚 | 工作流审查 |
+| BL-037 | high | run_template 返回步骤明细 | 工作流审查 |
+| BL-038 | high | 交易流水增加 trace_id | FinOps 审计 |
+| BL-039 | medium | top_p Schema 一致性 | 混沌测试 |
+| BL-040 | medium | run_action 支持 version_id | 工作流审查 |
+| BL-041 | medium | 计费精度 4→8 位 | FinOps 审计 |
+| BL-042 | medium | 聚合统计明细下钻 | FinOps 审计 |
 
-BL-024/026/027/028 已完成。
+BL-024~034 已完成。
 
 ## 已知遗留问题
 
