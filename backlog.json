@@ -8,6 +8,14 @@
       "decisions": [],
       "confirmed_at": "2026-04-06",
       "priority": "medium"
+    },
+    {
+      "id": "BL-028",
+      "title": "Actions/Templates 列表页完全还原 HTML 修复",
+      "description": "ui-1to1-restoration 批次签收后，用户在外网发现 Actions 和 Templates 列表页仍存在语义替换问题：右侧 Latency/Health 面板的指标被替换为计数统计、图标被替换（more_horiz→chevron_right）、CTA 链接目标被改。需要按 generator.md 新规则（完全还原 HTML 代码）重新修复。来源：用户外网验收 + 原型对照分析（2026-04-06）。",
+      "decisions": ["Generator 必须逐行翻译原型 HTML，禁止语义重写", "Evaluator 验收时逐元素核对指标类型/图标/链接目标"],
+      "confirmed_at": "2026-04-06",
+      "priority": "high"
     }
   ]
 }
