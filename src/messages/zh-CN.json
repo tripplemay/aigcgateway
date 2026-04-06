@@ -490,7 +490,17 @@
     "changelog": "变更日志",
     "changelogPlaceholder": "初始版本...",
     "detectedVars": "检测到的变量",
-    "editTitle": "编辑动作"
+    "editTitle": "编辑动作",
+    "colActionName": "动作名称",
+    "searchPlaceholder": "搜索动作...",
+    "showing": "显示",
+    "of": "/",
+    "actionsUnit": "个动作",
+    "ctaTitle": "组合提示词链",
+    "ctaDesc": "将多个原子动作组合为复杂的多步工作流。",
+    "ctaButton": "查看模板",
+    "actionHealth": "运行健康度",
+    "successful": "成功率"
   },
   "templates": {
     "title": "模板",

@@ -2,9 +2,9 @@
   "status": "fixing",
   "user_goal": "ui-redesign-templates-actions：按 Stitch 设计稿重构 7 个模板/动作页面（Action 列表/详情/编辑 + Template 列表/详情/编辑 + Admin 模板管理）",
   "total_features": 9,
-  "completed_features": 7,
-  "fix_rounds": 1,
-  "current_sprint": null,
+  "completed_features": 1,
+  "fix_rounds": 2,
+  "current_sprint": "F-UI-02",
   "last_updated": "2026-04-06T02:28:00Z",
   "reference_docs": [],
   "docs": {

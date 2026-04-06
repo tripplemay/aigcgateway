@@ -490,7 +490,17 @@
     "changelog": "Changelog",
     "changelogPlaceholder": "Initial version...",
     "detectedVars": "Detected Variables",
-    "editTitle": "Edit Action"
+    "editTitle": "Edit Action",
+    "colActionName": "Action Name",
+    "searchPlaceholder": "Search actions...",
+    "showing": "Showing",
+    "of": "of",
+    "actionsUnit": "actions",
+    "ctaTitle": "Master Prompt Chaining",
+    "ctaDesc": "Combine multiple atomic actions to create sophisticated multi-step workflows.",
+    "ctaButton": "View Templates",
+    "actionHealth": "Action Health",
+    "successful": "Successful"
   },
   "templates": {
     "title": "Templates",
