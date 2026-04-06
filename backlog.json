@@ -1,45 +1,4 @@
 {
   "description": "需求池：已与用户确认但尚未开发的功能，等待下一批次启动时统一安排",
-  "items": [
-    {
-      "id": "BL-030",
-      "title": "capabilities 补全 function_calling + 注释更新",
-      "description": "mcp-crud-chat-params 批次给 chat tool 加了 tools/tool_choice 但 model-capabilities-fallback.ts 未同步更新，文件头注释仍写着'不标 function_calling'。需要给支持 function calling 的模型加上 function_calling: true，并更新注释。来源：DX 审查报告 #1（2026-04-06）。",
-      "decisions": [],
-      "confirmed_at": "2026-04-06",
-      "priority": "high"
-    },
-    {
-      "id": "BL-031",
-      "title": "文本模型 contextWindow 补全",
-      "description": "部分文本模型 contextWindow 为 null（如 deepseek/reasoner），开发者无法判断模型容量。需要在 capabilities fallback 或同步逻辑中补全所有文本模型的 contextWindow 数据。来源：DX 审查报告 #4（2026-04-06）。",
-      "decisions": [],
-      "confirmed_at": "2026-04-06",
-      "priority": "medium"
-    },
-    {
-      "id": "BL-032",
-      "title": "run_action 增加 dry_run 模式",
-      "description": "开发者无法在不消耗 token 的情况下预览变量注入后的最终 prompt。增加 dry_run: true 参数，返回渲染后的 messages 但不调用模型。对 prompt 调试极有价值。来源：DX 审查报告 #5（2026-04-06）。",
-      "decisions": [],
-      "confirmed_at": "2026-04-06",
-      "priority": "medium"
-    },
-    {
-      "id": "BL-033",
-      "title": "MCP 错误返回增加 error_code",
-      "description": "EngineError 已有 ErrorCodes 枚举（auth_failed/rate_limited/insufficient_balance 等），但 MCP Tool 的 isError:true 返回只传人类可读 message，未附带 error_code。AI Agent 无法程序化判断错误类型。来源：DX 审查报告 #2（2026-04-06）。",
-      "decisions": [],
-      "confirmed_at": "2026-04-06",
-      "priority": "medium"
-    },
-    {
-      "id": "BL-034",
-      "title": "SDK 补全 Action/Template 类型 + ChatParams 对齐 + README 更新",
-      "description": "SDK 缺少 Action/Template 相关类型定义（API 已有完整 CRUD），ChatParams 缺少 n 和 stream_options 参数（引擎已支持），README 未记录 MCP CRUD 工具。来源：代码审查（2026-04-06）。",
-      "decisions": [],
-      "confirmed_at": "2026-04-06",
-      "priority": "medium"
-    }
-  ]
+  "items": []
 }
