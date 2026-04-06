@@ -62,7 +62,17 @@ git pull --ff-only origin main
 - `.auto-memory/MEMORY.md` — 项目记忆索引（**所有 agent 必读**，读完后按需加载 `project-aigcgateway.md` 等记忆文件）
 
 ### 第一步：识别身份与角色
-基于第零步已读取的 `.agent-id`（myId）和 `progress.json`（status + role_assignments），判断当前 agent 的角色。
+
+`.agent-id` 文件格式为按工具类型分行：
+```
+cli: Andy
+codex: Reviewer
+```
+- Claude CLI 读取 `cli:` 行的值作为 myId
+- Codex 读取 `codex:` 行的值作为 myId
+- 文件不存在或对应行不存在则 myId = null
+
+基于 myId 和 `progress.json`（status + role_assignments），判断当前 agent 的角色。
 
 ### 第二步：判断阶段与角色
 
