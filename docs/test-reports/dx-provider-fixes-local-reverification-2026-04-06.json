@@ -1,6 +1,6 @@
 {
   "baseUrl": "http://localhost:3099",
-  "generatedAt": "2026-04-06T04:35:59.778Z",
+  "generatedAt": "2026-04-06T04:43:16.571Z",
   "checks": [
     {
       "name": "runtime smoke: admin login route responds 200",
@@ -10,7 +10,7 @@
     {
       "name": "F-DPF-05: register user + create key + tools/list + list_models",
       "ok": true,
-      "detail": "project=cmnmp6mwy001f9yjdb7hn054o models=14"
+      "detail": "project=cmnmpfzy6001f9y3ldht3embh models=14"
     },
     {
       "name": "F-DPF-01: sanitizeErrorMessage removes URL/key/QQ/email/IP",
@@ -72,7 +72,7 @@
     {
       "featureId": "F-DPF-05",
       "result": "PASS",
-      "detail": "project=cmnmp6mwy001f9yjdb7hn054o models=14"
+      "detail": "project=cmnmpfzy6001f9y3ldht3embh models=14"
     }
   ]
 }
