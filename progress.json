@@ -1,97 +1,23 @@
 {
-  "status": "done",
-  "user_goal": "dx-metadata-enhancement: capabilities/contextWindow 补全 + dry_run + error_code + SDK 类型对齐",
-  "total_features": 7,
-  "completed_features": 7,
-  "fix_rounds": 5,
+  "status": "building",
+  "user_goal": "mcp-finops-hardening: 安全脱敏 + MCP 工具增强(activate_version/version_id/步骤明细) + FinOps 基础设施(trace_id/精度/下钻)",
+  "total_features": 10,
+  "completed_features": 0,
+  "fix_rounds": 0,
   "current_sprint": null,
-  "last_updated": "2026-04-06T16:22:03Z",
+  "last_updated": "2026-04-07T01:00:00Z",
   "reference_docs": [],
-  "role_assignments": null,
+  "role_assignments": {
+    "planner": "Kimi",
+    "generator": "Johnsong",
+    "evaluator": "Reviewer"
+  },
   "docs": {
     "spec": null,
     "test_cases": null,
-    "signoff": "test-reports/dx-metadata-enhancement-signoff-2026-04-07.md",
+    "signoff": null,
     "framework_reviewed": false
   },
-  "evaluator_feedback": {
-    "summary": "清缓存后复验通过：6 PASS / 0 FAIL，dx-metadata-enhancement 签收通过。",
-    "pass_count": 7,
-    "partial_count": 0,
-    "fail_count": 0,
-    "issues": [],
-    "evidence": [
-      "docs/test-reports/dx-metadata-enhancement-reverify-local-e2e-2026-04-07-round6.json",
-      "docs/test-reports/dx-metadata-enhancement-signoff-2026-04-07.md"
-    ],
-    "notes": [
-      "chat 错误返回现为带错误码结构（示例：[model_not_found] ...）。",
-      "sdk typecheck/build 通过。"
-    ]
-  },
-  "generator_handoff": {
-    "completed": [
-      "F-DX-01",
-      "F-DX-02",
-      "F-DX-03",
-      "F-DX-04",
-      "F-DX-05",
-      "F-DX-06"
-    ],
-    "codex_tasks": [
-      "F-DX-07: E2E 验证"
-    ],
-    "notes": [
-      "F-DX-01: ModelCapabilities 新增 function_calling 字段，GPT-4o/Claude/Gemini/DeepSeek/GLM/Qwen/Grok 标注 true",
-      "F-DX-02: 新增 CONTEXT_WINDOW_MAP + resolveContextWindow()，sync 逻辑优先 provider 值，fallback 补缺",
-      "F-DX-03: run_action 新增 dry_run 参数，true 时仅渲染变量返回 rendered_messages，不调模型不扣费",
-      "F-DX-04: chat/run_action/run_template catch 统一 [error_code] message 格式（代码在 8a778a9 已修复，chat.ts:165 有 [${err.code}]。测试前必须 rm -rf .next && npm run build 清除构建缓存）",
-      "F-DX-05: SDK 新增 Action/ActionVersion/Template/TemplateStep 类型；ChatParams 新增 n + stream_options",
-      "F-DX-06: SDK README 新增 Function Calling 示例 + ChatParams 参数表 + Action/Template 类型说明 + 20 Tools 列表"
-    ]
-  },
-  "features": [
-    {
-      "id": "F-DX-01",
-      "title": "capabilities 补全 function_calling",
-      "status": "completed",
-      "executor": "generator"
-    },
-    {
-      "id": "F-DX-02",
-      "title": "文本模型 contextWindow 补全",
-      "status": "completed",
-      "executor": "generator"
-    },
-    {
-      "id": "F-DX-03",
-      "title": "run_action dry_run 模式",
-      "status": "completed",
-      "executor": "generator"
-    },
-    {
-      "id": "F-DX-04",
-      "title": "MCP 错误返回 error_code",
-      "status": "completed",
-      "executor": "generator"
-    },
-    {
-      "id": "F-DX-05",
-      "title": "SDK 补全 Action/Template 类型",
-      "status": "completed",
-      "executor": "generator"
-    },
-    {
-      "id": "F-DX-06",
-      "title": "SDK README 更新",
-      "status": "completed",
-      "executor": "generator"
-    },
-    {
-      "id": "F-DX-07",
-      "title": "E2E 验证",
-      "status": "completed",
-      "executor": "codex"
-    }
-  ]
+  "evaluator_feedback": null,
+  "generator_handoff": null
 }

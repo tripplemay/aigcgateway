@@ -1,62 +1,86 @@
 {
-  "batch": "dx-metadata-enhancement",
-  "created_at": "2026-04-06",
+  "batch": "mcp-finops-hardening",
+  "created_at": "2026-04-07",
   "features": [
     {
-      "id": "F-DX-01",
-      "title": "capabilities 补全 function_calling + 注释更新",
+      "id": "F-MH-01",
+      "title": "generate_image 上游错误脱敏",
       "priority": "high",
       "executor": "generator",
-      "status": "completed",
-      "acceptance": "1) model-capabilities-fallback.ts 文件头注释更新，移除'不标 function_calling'说明；2) ModelCapabilities 接口新增 function_calling?: boolean；3) 支持 function calling 的模型（GPT-4o/4o-mini、Claude、Gemini、DeepSeek、GLM-4 等）标注 function_calling: true；4) npm run lint + tsc 通过"
+      "status": "pending",
+      "acceptance": "1) generate_image 所有错误路径经过 sanitizeErrorMessage；2) 无效尺寸等上游错误不透传供应商原始文本（QQ 群号、URL、Key 片段等）；3) npm run lint + tsc 通过"
     },
     {
-      "id": "F-DX-02",
-      "title": "文本模型 contextWindow 补全",
+      "id": "F-MH-02",
+      "title": "activate_version MCP Tool",
+      "priority": "high",
+      "executor": "generator",
+      "status": "pending",
+      "acceptance": "1) 新文件 src/lib/mcp/tools/activate-version.ts；2) 输入：action_id, version_id；3) 校验 action 和 version 属于当前 projectId；4) 更新 Action.activeVersionId；5) server.ts 注册 + SERVER_INSTRUCTIONS 更新；6) npm run lint + tsc 通过"
+    },
+    {
+      "id": "F-MH-03",
+      "title": "run_template 返回步骤明细",
+      "priority": "high",
+      "executor": "generator",
+      "status": "pending",
+      "acceptance": "1) run_template 返回增加 steps[] 数组；2) 每步包含 stepIndex, actionName, input(渲染后的 messages), output, usage(tokens), latencyMs；3) 保留原有 output 字段（最终输出）；4) SERVER_INSTRUCTIONS 更新说明步骤明细；5) npm run lint + tsc 通过"
+    },
+    {
+      "id": "F-MH-04",
+      "title": "交易流水增加 trace_id",
+      "priority": "high",
+      "executor": "generator",
+      "status": "pending",
+      "acceptance": "1) BalanceTransaction 表新增 traceId 字段（可选，String?）；2) migration 文件只包含此变更，有 DEFAULT null；3) deduct_balance 调用时传入 traceId；4) get_balance 返回的交易流水包含 traceId；5) npm run lint + tsc 通过"
+    },
+    {
+      "id": "F-MH-05",
+      "title": "top_p Schema 与运行时校验一致性",
       "priority": "medium",
       "executor": "generator",
-      "status": "completed",
-      "acceptance": "1) 新增 contextWindow fallback 映射（或扩展现有 capabilities fallback）；2) 所有 28 个白名单文本模型均有非 null 的 contextWindow 值；3) 同步逻辑优先使用 provider 返回值，fallback 仅补缺；4) npm run lint + tsc 通过"
+      "status": "pending",
+      "acceptance": "1) chat tool inputSchema 的 top_p 改为 exclusiveMinimum: 0（不含 0）；2) 或在引擎层 config-overlay 中将 top_p=0 补偿为 0.01；3) Schema 定义与运行时行为一致；4) npm run lint + tsc 通过"
     },
     {
-      "id": "F-DX-03",
-      "title": "run_action 增加 dry_run 模式",
+      "id": "F-MH-06",
+      "title": "run_action 支持 version_id 参数",
       "priority": "medium",
       "executor": "generator",
-      "status": "completed",
-      "acceptance": "1) run_action tool inputSchema 新增 dry_run (boolean, optional, default false)；2) dry_run=true 时：渲染变量注入后的 messages 并返回，不调用模型、不扣费、不写 CallLog；3) 返回格式包含 rendered_messages 数组；4) SERVER_INSTRUCTIONS 更新包含 dry_run 说明；5) npm run lint + tsc 通过"
+      "status": "pending",
+      "acceptance": "1) run_action inputSchema 新增 version_id (string, optional)；2) 有 version_id 时执行指定版本，无则执行活跃版本；3) 校验 version 属于目标 action；4) SERVER_INSTRUCTIONS 更新；5) npm run lint + tsc 通过"
     },
     {
-      "id": "F-DX-04",
-      "title": "MCP 错误返回增加 error_code + chat.ts catch 对齐",
+      "id": "F-MH-07",
+      "title": "计费精度提升至 8 位小数",
       "priority": "medium",
       "executor": "generator",
-      "status": "completed",
-      "acceptance": "1) chat.ts 通用 catch 对齐 generate-image.ts 模式：每个 catch 都附带 error_code；2) run_action/run_template 的 EngineError catch 也附带 error_code；3) 错误返回文本格式统一为包含 error_code 的结构（如 [error_code] message）；4) npm run lint + tsc 通过"
+      "status": "pending",
+      "acceptance": "1) 内部计费计算使用至少 8 位小数精度；2) DB 存储精度支持 8 位（检查 Decimal 字段精度，必要时 migration 调整）；3) API/MCP 对外展示保留 4 位小数；4) 微额调用（如 $0.0000042）不被截断为 $0.0000；5) npm run lint + tsc 通过"
     },
     {
-      "id": "F-DX-05",
-      "title": "SDK 补全 Action/Template 类型",
+      "id": "F-MH-08",
+      "title": "聚合统计支持 trace_id 下钻",
       "priority": "medium",
       "executor": "generator",
-      "status": "completed",
-      "acceptance": "1) sdk/src/types/ 新增 Action、ActionVersion、Template、TemplateStep 类型定义；2) ChatParams 新增 n?: number 和 stream_options?: { include_usage?: boolean }；3) cd sdk && npm run typecheck 通过；4) cd sdk && npm run build 通过"
+      "status": "pending",
+      "acceptance": "1) get_usage_summary 或 list_logs 支持返回每笔调用的 traceId + cost 明细（依赖 F-MH-04 的 traceId）；2) 开发者可通过明细验证 Σ(单笔) ≈ 聚合总计；3) SERVER_INSTRUCTIONS 更新；4) npm run lint + tsc 通过"
     },
     {
-      "id": "F-DX-06",
-      "title": "SDK README 更新",
-      "priority": "low",
+      "id": "F-MH-09",
+      "title": "SERVER_INSTRUCTIONS 统一更新",
+      "priority": "high",
       "executor": "generator",
-      "status": "completed",
-      "acceptance": "1) README 记录 MCP 20 个 Tool 的能力概览；2) 记录 Action/Template 类型的用法；3) ChatParams 新增参数有文档说明"
+      "status": "pending",
+      "acceptance": "1) 所有新增/修改 Tool 的说明写入 SERVER_INSTRUCTIONS；2) activate_version、run_action version_id、run_template 步骤明细、trace_id 相关变更均有说明"
     },
     {
-      "id": "F-DX-07",
+      "id": "F-MH-10",
       "title": "E2E 验证",
       "priority": "high",
       "executor": "codex",
-      "status": "completed",
-      "acceptance": "1) list_models 返回的模型中支持 function calling 的有 function_calling: true；2) 所有文本模型 contextWindow 非 null；3) run_action dry_run=true 返回 rendered_messages 不扣费；4) chat tool 错误返回包含 error_code；5) SDK typecheck + build 通过"
+      "status": "pending",
+      "acceptance": "1) generate_image 无效尺寸不泄露供应商信息；2) activate_version 可回滚到旧版本；3) run_template 返回 steps[] 含每步明细；4) 交易流水包含 traceId；5) top_p=0 被正确处理；6) run_action 可指定 version_id；7) 微额调用计费不截断；8) 聚合统计可下钻验证"
     }
   ]
 }
