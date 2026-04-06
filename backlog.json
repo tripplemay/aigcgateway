@@ -1,13 +1,4 @@
 {
   "description": "需求池：已与用户确认但尚未开发的功能，等待下一批次启动时统一安排",
-  "items": [
-    {
-      "id": "BL-024",
-      "title": "Action/Template MCP 工具缺少 create/update/delete",
-      "description": "MCP 侧只有 list/get/run，无法创建或修改 Action/Template，开发者必须切换到 Web 控制台。建议至少补全 create_action/update_action，让 AI Agent 能自主管理 prompt 模板。来源：DX 审查报告 + MCP 能力审计（2026-04-06）。",
-      "decisions": [],
-      "confirmed_at": "2026-04-06",
-      "priority": "medium"
-    }
-  ]
+  "items": []
 }
