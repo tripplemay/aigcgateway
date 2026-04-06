@@ -1,0 +1,113 @@
+{
+  "batch": "mcp-crud-chat-params",
+  "generatedAt": "2026-04-06T13:16:08.752Z",
+  "passed": 20,
+  "failed": 0,
+  "checks": [
+    {
+      "name": "F-MCP-01 SDK ChatParams removed template_id",
+      "ok": true,
+      "detail": "hasTemplateId=false"
+    },
+    {
+      "name": "F-MCP-01 SDK ChatParams removed variables",
+      "ok": true,
+      "detail": "hasVariablesInChatParams=false"
+    },
+    {
+      "name": "MCP initialize",
+      "ok": true,
+      "detail": "initialized"
+    },
+    {
+      "name": "F-MCP-11 tools registered",
+      "ok": true,
+      "detail": "missing=none"
+    },
+    {
+      "name": "F-MCP-02/03 chat accepts top_p/frequency_penalty/tools/tool_choice",
+      "ok": true,
+      "detail": "isError=false, traceId=trc_hquapaaow5siwsnl3wzv1k66"
+    },
+    {
+      "name": "F-MCP-03 chat response contains tool_calls",
+      "ok": true,
+      "detail": "tool_calls_len=1"
+    },
+    {
+      "name": "F-MCP-04 create_action success",
+      "ok": true,
+      "detail": "action_id=cmnn7rk6o00s09yoryluspupd"
+    },
+    {
+      "name": "F-MCP-05 update_action success",
+      "ok": true,
+      "detail": "{\n  \"action_id\": \"cmnn7rk6o00s09yoryluspupd\",\n  \"name\": \"crud action a1 updated\",\n  \"model\": \"mock/text-1775481368798\",\n  \"message\": \"Action updated\"\n}"
+    },
+    {
+      "name": "F-MCP-07 create_action_version success",
+      "ok": true,
+      "detail": "version=2"
+    },
+    {
+      "name": "F-MCP-07 version auto-increment + active set",
+      "ok": true,
+      "detail": "before=1, after=2, activeMatch=true"
+    },
+    {
+      "name": "F-MCP-08 create_template success",
+      "ok": true,
+      "detail": "template_id=cmnn7rk7l00sa9yorcsol20nm"
+    },
+    {
+      "name": "F-MCP-09 update_template success",
+      "ok": true,
+      "detail": "{\n  \"template_id\": \"cmnn7rk7l00sa9yorcsol20nm\",\n  \"message\": \"Template updated\"\n}"
+    },
+    {
+      "name": "F-MCP-09 steps full replacement",
+      "ok": true,
+      "detail": "stepLen=1, actionId=cmnn7rk7h00s69yorkgefsr4o"
+    },
+    {
+      "name": "F-MCP-06 delete_action blocked when referenced",
+      "ok": true,
+      "detail": "Cannot delete: Action is used in 1 template step(s). Remove it from templates first."
+    },
+    {
+      "name": "F-MCP-10 delete_template success",
+      "ok": true,
+      "detail": "{\n  \"template_id\": \"cmnn7rk7l00sa9yorcsol20nm\",\n  \"message\": \"Template deleted\"\n}"
+    },
+    {
+      "name": "F-MCP-06 delete_action success after template removed",
+      "ok": true,
+      "detail": "{\n  \"action_id\": \"cmnn7rk7h00s69yorkgefsr4o\",\n  \"message\": \"Action deleted\"\n}"
+    },
+    {
+      "name": "F-MCP-06 delete_action success",
+      "ok": true,
+      "detail": "{\n  \"action_id\": \"cmnn7rk6o00s09yoryluspupd\",\n  \"message\": \"Action deleted\"\n}"
+    },
+    {
+      "name": "F-MCP-12 permission denied returns isError",
+      "ok": true,
+      "detail": "API key lacks projectInfo permission"
+    },
+    {
+      "name": "F-MCP-12 cross-project action access denied",
+      "ok": true,
+      "detail": "Action \"cmnn7rk8e00sg9yorfmw5j32l\" not found in this project."
+    },
+    {
+      "name": "F-MCP-12 cross-project template access denied",
+      "ok": true,
+      "detail": "Template \"cmnn7rk8l00sk9yorphdc9vi7\" not found in this project."
+    }
+  ],
+  "artifacts": {
+    "model": "mock/text-1775481368798",
+    "project1": "cmnn7rk5j00rm9yorgq7c6e2i",
+    "project2": "cmnn7rk5s00rs9yor4o86yl85"
+  }
+}

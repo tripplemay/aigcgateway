@@ -12,12 +12,13 @@ AIGC Gateway — AI 服务商管理中台。统一 API 调用抽象（兼容 Ope
 
 ## 当前开发状态（截至 2026-04-06）
 
-**最新完成批次：** `page-cleanup-actions-templates`（9/9 PASS，fix_rounds=0）
+**最新完成批次：** `mcp-crud-chat-params`（12/12 PASS，fix_rounds=0）
 **Harness 状态：** done
-**签收报告：** `docs/test-reports/page-cleanup-actions-templates-signoff-2026-04-06.md`
+**签收报告：** `docs/test-reports/mcp-crud-chat-params-signoff-2026-04-06.md`
 
 ### 近期完成批次（2026-04-06）
 
+- `mcp-crud-chat-params`（12/12 PASS）— MCP 新增 Action/Template CRUD + chat function-calling 参数增强 + SDK 类型清理
 - `page-cleanup-actions-templates`（9/9 PASS）— 清理 Actions/Templates 假数据面板、接入真实统计、补全分页/New Version/Admin 查看
 - `whitelist-db-migration`（9/9 PASS）— 模型白名单从代码迁移到 DB，Admin 控制台手动管理，全量同步+按需启用
 - `dx-provider-fixes`（5/5 PASS）— 上游错误脱敏 + sync 预检 + capabilities 清理 + MCP 示例更新
@@ -34,7 +35,8 @@ AIGC Gateway — AI 服务商管理中台。统一 API 调用抽象（兼容 Ope
 - bugfix-model-cleanup：孤立 Model 清理 + MCP 错误码修复（5/5 PASS）
 - ui-redesign-templates-actions + ui-1to1-restoration：7 个模板/动作页面 Stitch 1:1 还原（9/9 + 8/8 PASS）
 - dx-provider-fixes：上游错误脱敏 + sync 预检 + capabilities 清理（5/5 PASS）
-- **page-cleanup-actions-templates：清理 Actions/Templates 假数据与装饰指标，改为真实统计并补全关键交互（9/9 PASS）**
+- **mcp-crud-chat-params：MCP 补齐 Action/Template CRUD，chat 增强 top_p/frequency_penalty/tools/tool_choice，SDK 清理 phantom 字段（12/12 PASS）**
+- page-cleanup-actions-templates：清理 Actions/Templates 假数据与装饰指标，改为真实统计并补全关键交互（9/9 PASS）
 - whitelist-db-migration：模型白名单迁移到 DB + Admin 管理页 + usage 修复（9/9 PASS）
 
 ### 本轮框架升级（2026-04-06）
@@ -50,13 +52,11 @@ AIGC Gateway — AI 服务商管理中台。统一 API 调用抽象（兼容 Ope
 9. **Agent 注册表：** `.agents-registry`（git-tracked）列出项目所有 agent，Planner 角色分配时读取
 10. **AGENTS.md 适配：** Codex 启动读 `.agent-id` codex 行 + role_assignments 判断
 
-## Backlog（1 条待处理）
+## Backlog（0 条待处理）
 
-| ID | 优先级 | 标题 |
-|---|---|---|
-| BL-024 | medium | Action/Template MCP 缺 create/update/delete |
+当前 backlog 为空。
 
-BL-026/027/028 已完成。
+BL-024/026/027/028 已完成。
 
 ## 已知遗留问题
 
