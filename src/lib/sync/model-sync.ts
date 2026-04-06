@@ -33,6 +33,7 @@ import { zhipuAdapter } from "./adapters/zhipu";
 import { volcengineAdapter } from "./adapters/volcengine";
 import { siliconflowAdapter } from "./adapters/siliconflow";
 import { openrouterAdapter } from "./adapters/openrouter";
+import { getAllWhitelistedModelNames } from "./model-whitelist";
 
 // ── 并发保护 ──
 let syncInProgress = false;
@@ -556,6 +557,24 @@ export async function runModelSync(): Promise<SyncResult> {
         totalFailedProviders: providerResults.filter((r) => !r.success).length,
       },
     };
+
+    // ── 全局清理：删除白名单以外的 Model + 关联 Channel ──
+    const whitelistedNames = getAllWhitelistedModelNames(CROSS_PROVIDER_MAP);
+    const allModels = await prisma.model.findMany({ select: { id: true, name: true } });
+    const orphanModels = allModels.filter((m) => !whitelistedNames.has(m.name));
+    if (orphanModels.length > 0) {
+      const orphanIds = orphanModels.map((m) => m.id);
+      // 先删 Channel（CallLog.channelId 会 SetNull，HealthCheck cascade 自动删）
+      const deletedChannels = await prisma.channel.deleteMany({
+        where: { modelId: { in: orphanIds } },
+      });
+      const deletedModels = await prisma.model.deleteMany({
+        where: { id: { in: orphanIds } },
+      });
+      console.log(
+        `[model-sync] Global cleanup: deleted ${deletedModels.count} orphan models, ${deletedChannels.count} orphan channels`,
+      );
+    }
 
     // 保存同步结果到 SystemConfig
     const { setConfig } = await import("@/lib/config");

@@ -1,86 +1,46 @@
 {
-  "batch": "mcp-dx-round2",
+  "batch": "bugfix-model-cleanup",
   "created_at": "2026-04-06",
   "features": [
     {
-      "id": "F-DX2-01",
-      "title": "白名单收紧至 28 个精选模型 + OpenAI 改精确匹配",
+      "id": "F-CLN-01",
+      "title": "Sync 引擎收紧：同步后删除白名单以外的 Model + Channel",
       "priority": "high",
       "executor": "generator",
       "status": "completed",
-      "acceptance": "1) model-whitelist.ts 重写，包含且仅包含确认的 28 个模型；2) isOpenAIModelWhitelisted 废弃 startsWith 前缀匹配，改为精确匹配；3) 未接入的模型（Kimi/MiniMax/Perplexity/Gemini 等）通过 OpenRouter 代理时白名单条目正确映射；4) 白名单外模型同步时物理删除；5) npm run lint 通过，tsc --noEmit 无报错"
+      "acceptance": "1) model-sync.ts reconcile 完成后，删除所有 name 不在白名单中的 Model 记录及其关联 Channel；2) 新 Provider 同步时不会创建白名单外的 Model；3) npm run lint + tsc 通过"
     },
     {
-      "id": "F-DX2-02",
-      "title": "list_models 默认按 canonical name 去重",
+      "id": "F-CLN-02",
+      "title": "一次性清理脚本：purge 生产库孤立 Model",
       "priority": "high",
       "executor": "generator",
       "status": "completed",
-      "acceptance": "1) list_models 返回的模型列表按 canonical name 去重，同一基础模型只展示一条；2) 去重后取优先级最高渠道的信息（价格、capabilities）；3) 支持可选参数 show_all_channels=true 展示全量；4) REST API /v1/models 同步去重；5) npm run lint 通过，tsc --noEmit 无报错"
+      "acceptance": "1) scripts/cleanup-orphan-models.ts 存在；2) 读取白名单，删除不在白名单中的 Model 及其 Channel（cascade）；3) 执行前打印待删除列表，需确认后执行；4) 支持 dry-run 模式"
     },
     {
-      "id": "F-DX2-03",
-      "title": "capabilities 补全（对照 28 个模型）+ 去掉 tools 标记",
+      "id": "F-CLN-03",
+      "title": "MCP chat/generate_image 错误码匹配修复",
       "priority": "high",
       "executor": "generator",
       "status": "completed",
-      "acceptance": "1) model-capabilities-fallback.ts 覆盖全部 28 个白名单模型；2) capabilities 只标 streaming/vision/json_mode，不标 tools；3) 所有 28 个模型的 capabilities 不再出现空 {}；4) npm run lint 通过，tsc --noEmit 无报错"
+      "acceptance": "1) chat.ts 和 generate-image.ts 中 \"no_available_channel\" 改为 \"channel_unavailable\" 匹配 ErrorCodes；2) 无可用渠道时返回友好错误信息；3) npm run lint + tsc 通过"
     },
     {
-      "id": "F-DX2-04",
-      "title": "generate_image tool description 补充各模型尺寸说明",
+      "id": "F-CLN-04",
+      "title": "Admin models 页面增加 ACTIVE Channel 计数",
       "priority": "medium",
       "executor": "generator",
       "status": "completed",
-      "acceptance": "1) generate_image 的 tool description 包含各图片模型支持的尺寸范围；2) npm run lint 通过，tsc --noEmit 无报错"
+      "acceptance": "1) /api/admin/models 返回 activeChannelCount（仅计 ACTIVE 状态）；2) 前端 models 管理页展示该数值；3) npm run lint + tsc 通过"
     },
     {
-      "id": "F-DX2-05",
-      "title": "新增 MCP 工具 get_action_detail",
-      "priority": "medium",
-      "executor": "generator",
-      "status": "completed",
-      "acceptance": "1) 新文件 src/lib/mcp/tools/get-action-detail.ts；2) 返回 Action 基本信息 + 激活版本详情（messages/variables）+ 版本列表；3) 跨项目访问检查；4) Action 不存在时返回 isError；5) server.ts 注册该工具；6) npm run lint 通过，tsc --noEmit 无报错"
-    },
-    {
-      "id": "F-DX2-06",
-      "title": "新增 MCP 工具 get_template_detail",
-      "priority": "medium",
-      "executor": "generator",
-      "status": "completed",
-      "acceptance": "1) 新文件 src/lib/mcp/tools/get-template-detail.ts；2) 返回 Template 基本信息 + 执行模式 + 步骤列表（含每步 Action 信息）；3) 跨项目访问检查；4) Template 不存在时返回 isError；5) server.ts 注册该工具；6) npm run lint 通过，tsc --noEmit 无报错"
-    },
-    {
-      "id": "F-DX2-07",
-      "title": "SERVER_INSTRUCTIONS 更新（新增 get_action_detail/get_template_detail + 图片模型指引）",
-      "priority": "high",
-      "executor": "generator",
-      "status": "completed",
-      "acceptance": "1) SERVER_INSTRUCTIONS 包含 get_action_detail 和 get_template_detail 的使用说明和场景；2) 包含图片模型选型指引（各模型尺寸差异）；3) 工具总数描述更新为 13 个；4) npm run lint 通过，tsc --noEmit 无报错"
-    },
-    {
-      "id": "F-DX2-08",
-      "title": "MCP 设置页 TOOLS 数组补充 get_action_detail / get_template_detail",
-      "priority": "low",
-      "executor": "generator",
-      "status": "completed",
-      "acceptance": "1) mcp-setup page TOOLS 数组新增 2 个工具（共 13 个）；2) en.json + zh-CN.json 补对应 i18n key；3) npm run lint 通过，tsc --noEmit 无报错"
-    },
-    {
-      "id": "F-DX2-09",
-      "title": "i18n 更新（新增工具描述等用户可见文案）",
-      "priority": "low",
-      "executor": "generator",
-      "status": "completed",
-      "acceptance": "1) 所有新增用户可见文案通过 useTranslations()；2) en.json 和 zh-CN.json 同步更新，无缺失 key；3) npm run lint 通过，tsc --noEmit 无报错"
-    },
-    {
-      "id": "F-DX2-10",
-      "title": "E2E 验证（Codex 执行，含错误场景覆盖）",
+      "id": "F-CLN-05",
+      "title": "E2E 验证",
       "priority": "medium",
       "executor": "codex",
-      "status": "completed",
-      "acceptance": "1) list_models 返回 ≤28 个去重模型，无大小写重复，无 $0/null/空 capabilities 噪音；2) 所有 13 个 MCP 工具可正常调用；3) get_action_detail 返回完整 Action 信息含 messages/variables；4) get_template_detail 返回完整步骤编排信息；5) generate_image description 包含模型尺寸说明；6) 错误场景覆盖：余额不足、模型不存在、参数类型错误、rate limit 均返回清晰错误信息"
+      "status": "pending",
+      "acceptance": "1) 清理脚本 dry-run 输出正确；2) 同步后无白名单外 Model；3) 错误码匹配验证；4) admin models 显示正确"
     }
   ]
 }

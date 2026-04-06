@@ -80,3 +80,26 @@ export function isOpenAIModelWhitelisted(modelId: string): boolean {
   const whitelist = WHITELIST.openai!;
   return whitelist.has(modelId);
 }
+
+/**
+ * Build the complete set of canonical Model names that should exist in the database.
+ * This combines all provider whitelists with their name resolution rules:
+ * - openrouter models: check CROSS_PROVIDER_MAP first, then "openrouter/{modelId}"
+ * - other providers: "{providerName}/{modelId}"
+ */
+export function getAllWhitelistedModelNames(crossProviderMap: Record<string, string>): Set<string> {
+  const names = new Set<string>();
+
+  for (const [providerName, modelIds] of Object.entries(WHITELIST)) {
+    for (const modelId of modelIds) {
+      if (providerName === "openrouter") {
+        const mapped = crossProviderMap[modelId];
+        names.add(mapped ?? `openrouter/${modelId}`);
+      } else {
+        names.add(`${providerName}/${modelId}`);
+      }
+    }
+  }
+
+  return names;
+}

@@ -108,7 +108,7 @@ export function registerChat(server: McpServer, opts: McpServerOptions): void {
             isError: true,
           };
         }
-        if (err instanceof EngineError && err.code === "no_available_channel") {
+        if (err instanceof EngineError && err.code === "channel_unavailable") {
           return {
             content: [
               {

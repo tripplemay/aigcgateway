@@ -103,13 +103,13 @@ Use list_models(modality='image') to see available models and pricing.`,
             isError: true,
           };
         }
-        if (err instanceof EngineError && err.code === "no_available_channel") {
+        if (err instanceof EngineError && err.code === "channel_unavailable") {
           return {
             content: [
               {
                 type: "text" as const,
                 text: JSON.stringify({
-                  code: "no_available_channel",
+                  code: "channel_unavailable",
                   message: `No available channel for model "${model}". Try another model or retry later.`,
                 }),
               },

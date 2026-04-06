@@ -82,4 +82,4 @@
 
 **建议写入：** `framework/README.md` §经验教训 — "每个 SyncAdapter 必须实现 filterModel，白名单是最高优先级"
 
-**状态：** 待确认
+**状态：** 已写入（2026-04-06）— framework/README.md §经验教训·Sync Adapter

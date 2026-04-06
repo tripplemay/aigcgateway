@@ -152,7 +152,7 @@ curl /v1/models?modality=image`}</Code>
             error
           </p>
           <p>
-            <Badge variant="destructive">503</Badge> <code>no_available_channel</code> — No active
+            <Badge variant="destructive">503</Badge> <code>channel_unavailable</code> — No active
             channel for model
           </p>
         </div>

@@ -166,6 +166,9 @@ docs/test-reports/[批次名称]-signoff-YYYY-MM-DD.md
 - 聚合型服务商（OpenRouter 等）的图片生成能力不可信赖，gemini-flash-image / gpt-image 类模型频繁返回空 content；图片生成应优先使用直连 Provider（OpenAI DALL-E、volcengine、zhipu 等）
 - doc-enricher 类工具需要按 modality 过滤，图片模型不需要 AI 丰富化
 
+**Sync Adapter**
+- 每个 SyncAdapter 必须实现 `filterModel` 方法，白名单是模型暴露的最高优先级控制。遗漏 filterModel 会导致白名单收紧后旧模型残留在 DB，list_models 仍返回不可用模型，agent 选中后 404
+
 **Schema 变更**
 - 每个 migration 只包含一个功能的变更，不要把不同功能的 schema 变更打包在一起
 - `@updatedAt` 字段 migration 必须手动补 `DEFAULT now()`，Prisma 不自动加
