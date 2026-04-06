@@ -14,7 +14,7 @@ AIGC Gateway — AI 服务商管理中台。统一 API 调用抽象（兼容 Ope
 
 **当前批次：** `dx-metadata-enhancement`（5 PASS / 1 FAIL，等待修复）
 **Harness 状态：** fixing
-**最新验收报告：** `docs/test-reports/dx-metadata-enhancement-reverification-2026-04-06-round3.md`（清缓存后复验仍 FAIL）
+**最新验收报告：** `docs/test-reports/dx-metadata-enhancement-reverification-2026-04-07-round4.md`（清缓存后复验仍 FAIL）
 
 ### 近期完成批次（2026-04-06）
 
