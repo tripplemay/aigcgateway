@@ -12,12 +12,13 @@ AIGC Gateway — AI 服务商管理中台。统一 API 调用抽象（兼容 Ope
 
 ## 当前开发状态（截至 2026-04-06）
 
-**最新完成批次：** `mcp-crud-chat-params`（12/12 PASS，fix_rounds=0）
+**最新完成批次：** `action-pages-design-restore`（5/5 PASS，fix_rounds=0）
 **Harness 状态：** done
-**签收报告：** `docs/test-reports/mcp-crud-chat-params-signoff-2026-04-06.md`
+**签收报告：** `docs/test-reports/action-pages-design-restore-signoff-2026-04-06.md`
 
 ### 近期完成批次（2026-04-06）
 
+- `action-pages-design-restore`（5/5 PASS）— 按更新后的 Stitch 设计稿还原 Action List / Detail / Editor 三页
 - `mcp-crud-chat-params`（12/12 PASS）— MCP 新增 Action/Template CRUD + chat function-calling 参数增强 + SDK 类型清理
 - `page-cleanup-actions-templates`（9/9 PASS）— 清理 Actions/Templates 假数据面板、接入真实统计、补全分页/New Version/Admin 查看
 - `whitelist-db-migration`（9/9 PASS）— 模型白名单从代码迁移到 DB，Admin 控制台手动管理，全量同步+按需启用
@@ -35,7 +36,8 @@ AIGC Gateway — AI 服务商管理中台。统一 API 调用抽象（兼容 Ope
 - bugfix-model-cleanup：孤立 Model 清理 + MCP 错误码修复（5/5 PASS）
 - ui-redesign-templates-actions + ui-1to1-restoration：7 个模板/动作页面 Stitch 1:1 还原（9/9 + 8/8 PASS）
 - dx-provider-fixes：上游错误脱敏 + sync 预检 + capabilities 清理（5/5 PASS）
-- **mcp-crud-chat-params：MCP 补齐 Action/Template CRUD，chat 增强 top_p/frequency_penalty/tools/tool_choice，SDK 清理 phantom 字段（12/12 PASS）**
+- **action-pages-design-restore：Action List / Detail / Editor 三页按更新设计稿还原（5/5 PASS）**
+- mcp-crud-chat-params：MCP 补齐 Action/Template CRUD，chat 增强 top_p/frequency_penalty/tools/tool_choice，SDK 清理 phantom 字段（12/12 PASS）
 - page-cleanup-actions-templates：清理 Actions/Templates 假数据与装饰指标，改为真实统计并补全关键交互（9/9 PASS）
 - whitelist-db-migration：模型白名单迁移到 DB + Admin 管理页 + usage 修复（9/9 PASS）
 
@@ -59,13 +61,11 @@ Action 相关权威设计稿（3 个，已更新确认）：
 - **Action Detail (Updated)** — Delete 按钮 + 垂直时间线 + 仅 Insights + Quick-Link（无 Performance Matrix）
 - **Action Editor (Updated)** — Model 下拉选择器（非文本输入），无 Auto-saved
 
-待办：按更新后的设计稿还原 3 个 Action 页面代码
+状态：3 页设计稿还原已完成并通过验收（`action-pages-design-restore` 5/5 PASS）
 
-## Backlog（1 条待处理）
+## Backlog（0 条待处理）
 
-| ID | 优先级 | 标题 |
-|---|---|---|
-| BL-029 | high | Action 页面按更新设计稿还原（3 页面） |
+当前 backlog 为空。
 
 BL-024/026/027/028 已完成。
 

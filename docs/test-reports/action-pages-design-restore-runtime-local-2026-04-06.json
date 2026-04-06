@@ -1,0 +1,32 @@
+{
+  "generatedAt": "2026-04-06T14:59:43.544Z",
+  "checks": [
+    {
+      "name": "editor model source endpoint reachable",
+      "ok": true,
+      "detail": "status=200"
+    },
+    {
+      "name": "editor model source contract is array",
+      "ok": true,
+      "detail": "isArray=true, count=0"
+    },
+    {
+      "name": "detail delete precondition action created",
+      "ok": true,
+      "detail": "status=201, id=cmnnbgrew00t59yorqn0te2q5"
+    },
+    {
+      "name": "detail delete endpoint success",
+      "ok": true,
+      "detail": "status=200, deleted=true"
+    },
+    {
+      "name": "list pagination endpoint success",
+      "ok": true,
+      "detail": "status=200, page=1"
+    }
+  ],
+  "pass": 5,
+  "fail": 0
+}

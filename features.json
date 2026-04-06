@@ -7,7 +7,7 @@
       "title": "Action List 页面按更新设计稿还原",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "1) 读取 design-draft/Action List (Updated)/index.html 并按设计稿还原；2) 移除右侧统计面板，表格改为全宽（12 cols）；3) 底部 CTA Banner 文案匹配设计稿；4) 无统计卡片、无假数据面板；5) 变更后页面布局与设计稿一致；6) npm run lint + tsc 通过"
     },
     {
@@ -15,7 +15,7 @@
       "title": "Action Detail 页面按更新设计稿还原",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "1) 读取 design-draft/Action Detail (Updated)/index.html 并按设计稿还原；2) Hero 区增加红色 Delete 按钮（与 Edit/New Version 并排）；3) Version History 改为垂直时间线（连接线 + 圆形头像 + Rollback 按钮）；4) 右侧仅保留 Action Insights + Developer Quick-Link；5) 无 Performance Matrix、无 System Health；6) 变更后页面布局与设计稿一致；7) npm run lint + tsc 通过"
     },
     {
@@ -23,7 +23,7 @@
       "title": "Action Editor 页面按更新设计稿还原",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "1) 读取 design-draft/Action Editor (Updated)/index.html 并按设计稿还原；2) Model 字段改为下拉选择器（从 API 获取可用模型列表）；3) Footer 无 Auto-saved 文字，仅 Cancel + Save；4) 变更后页面布局与设计稿一致；5) npm run lint + tsc 通过"
     },
     {
@@ -31,7 +31,7 @@
       "title": "i18n 补全",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "1) 变更涉及的所有用户可见文案通过 useTranslations()；2) en.json 和 zh-CN.json 同步更新；3) npm run lint + tsc 通过"
     },
     {
@@ -39,7 +39,7 @@
       "title": "E2E 验证",
       "priority": "high",
       "executor": "codex",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "1) Action List 全宽表格、无统计面板、CTA Banner 可见；2) Action Detail Delete 按钮可用（弹确认、跳转）、Version History 为时间线形式、右侧无 Performance Matrix；3) Action Editor Model 为下拉选择器（显示可用模型列表）、Footer 无 Auto-saved；4) 三个页面布局与设计稿一致（逐块核对）"
     }
   ]

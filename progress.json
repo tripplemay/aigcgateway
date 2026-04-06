@@ -1,11 +1,11 @@
 {
-  "status": "verifying",
+  "status": "done",
   "user_goal": "action-pages-design-restore: 按更新后的 Stitch 设计稿还原 Action List / Detail / Editor 三个页面",
   "total_features": 5,
-  "completed_features": 4,
+  "completed_features": 5,
   "fix_rounds": 0,
   "current_sprint": null,
-  "last_updated": "2026-04-07T01:00:00Z",
+  "last_updated": "2026-04-06T15:02:00Z",
   "reference_docs": [],
   "role_assignments": {
     "planner": "Kimi",
@@ -15,13 +15,34 @@
   "docs": {
     "spec": null,
     "test_cases": null,
-    "signoff": null,
+    "signoff": "test-reports/action-pages-design-restore-signoff-2026-04-06.md",
     "framework_reviewed": false
   },
-  "evaluator_feedback": null,
+  "evaluator_feedback": {
+    "summary": "L1 本地验收通过：F-AR-01~F-AR-05 全部 PASS。",
+    "pass_count": 5,
+    "partial_count": 0,
+    "fail_count": 0,
+    "issues": [],
+    "evidence": [
+      "docs/test-reports/action-pages-design-restore-runtime-local-2026-04-06.json",
+      "docs/test-reports/action-pages-design-restore-signoff-2026-04-06.md"
+    ],
+    "notes": [
+      "chrome-devtools MCP 不可用，页面交互通过代码路径+接口链路验证。",
+      "本地种子数据下 /v1/models 为空数组，但接口契约与前端下拉接入正确。"
+    ]
+  },
   "generator_handoff": {
-    "completed": ["F-AR-01", "F-AR-02", "F-AR-03", "F-AR-04"],
-    "codex_tasks": ["F-AR-05: E2E 验证"],
+    "completed": [
+      "F-AR-01",
+      "F-AR-02",
+      "F-AR-03",
+      "F-AR-04"
+    ],
+    "codex_tasks": [
+      "F-AR-05: E2E 验证"
+    ],
     "notes": [
       "F-AR-01: Action List 全宽表格（移除右侧统计面板），CTA Banner 改为深色大卡片匹配设计稿，分页 Previous/Next 文案化",
       "F-AR-02: Action Detail Hero 区新增红色 Delete 按钮；Version History 改为垂直时间线（连接线+圆形节点+Rollback 按钮）；右侧 Insights 改为 icon 卡片样式；新增 Support Documentation Teaser",
@@ -30,10 +51,35 @@
     ]
   },
   "features": [
-    { "id": "F-AR-01", "title": "Action List 页面按更新设计稿还原", "status": "completed", "executor": "generator" },
-    { "id": "F-AR-02", "title": "Action Detail 页面按更新设计稿还原", "status": "completed", "executor": "generator" },
-    { "id": "F-AR-03", "title": "Action Editor 页面按更新设计稿还原", "status": "completed", "executor": "generator" },
-    { "id": "F-AR-04", "title": "i18n 补全", "status": "completed", "executor": "generator" },
-    { "id": "F-AR-05", "title": "E2E 验证", "status": "pending", "executor": "codex" }
+    {
+      "id": "F-AR-01",
+      "title": "Action List 页面按更新设计稿还原",
+      "status": "completed",
+      "executor": "generator"
+    },
+    {
+      "id": "F-AR-02",
+      "title": "Action Detail 页面按更新设计稿还原",
+      "status": "completed",
+      "executor": "generator"
+    },
+    {
+      "id": "F-AR-03",
+      "title": "Action Editor 页面按更新设计稿还原",
+      "status": "completed",
+      "executor": "generator"
+    },
+    {
+      "id": "F-AR-04",
+      "title": "i18n 补全",
+      "status": "completed",
+      "executor": "generator"
+    },
+    {
+      "id": "F-AR-05",
+      "title": "E2E 验证",
+      "status": "completed",
+      "executor": "codex"
+    }
   ]
 }
