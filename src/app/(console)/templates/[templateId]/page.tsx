@@ -7,6 +7,7 @@ import { useParams, useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Skeleton } from "@/components/ui/skeleton";
 import Link from "next/link";
+import { timeAgo } from "@/lib/utils";
 
 interface StepDetail {
   id: string;
@@ -21,6 +22,7 @@ interface TemplateDetail {
   description: string | null;
   steps: StepDetail[];
   createdAt: string;
+  updatedAt: string;
 }
 
 export default function TemplateDetailPage() {
@@ -70,124 +72,175 @@ export default function TemplateDetailPage() {
         ? t("modeFanout")
         : t("modeSequential");
 
-  const roleBadge = (role: string) => {
-    const styles: Record<string, string> = {
-      SEQUENTIAL: "bg-indigo-100 text-indigo-700",
-      SPLITTER: "bg-amber-100 text-amber-700",
-      BRANCH: "bg-purple-100 text-purple-700",
-      MERGE: "bg-teal-100 text-teal-700",
-    };
-    const labels: Record<string, string> = {
-      SEQUENTIAL: t("roleSequential"),
-      SPLITTER: t("roleSplitter"),
-      BRANCH: t("roleBranch"),
-      MERGE: t("roleMerge"),
-    };
-    return (
-      <span
-        className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-tighter ${styles[role] || "bg-slate-100 text-slate-600"}`}
-      >
-        {labels[role] || role}
-      </span>
-    );
-  };
+  const executionModeRaw =
+    template.steps.length <= 1 ? "Single" : hasSplitter ? "Fan-out" : "Sequential";
+
+  // Count models used
+  const modelCounts = new Map<string, number>();
+  template.steps.forEach((s) => {
+    const m = s.action.model.split("/").pop() || s.action.model;
+    modelCounts.set(m, (modelCounts.get(m) || 0) + 1);
+  });
 
   return (
-    <main className="p-8">
-      {/* Breadcrumb */}
-      <header className="flex flex-col gap-6 mb-10">
-        <div className="flex items-center gap-2 text-sm text-slate-500">
-          <Link href="/templates" className="hover:text-primary transition-colors">
-            {t("title")}
-          </Link>
-          <span className="material-symbols-outlined text-xs">chevron_right</span>
-          <span className="text-primary font-medium">{template.name}</span>
-        </div>
-        <div className="flex justify-between items-start">
-          <div className="space-y-1">
-            <h1 className="text-4xl font-headline font-bold tracking-tight">{template.name}</h1>
-            <p className="text-slate-600 text-lg max-w-2xl mt-2">{template.description || "—"}</p>
-          </div>
-          <div className="flex gap-3">
-            <Link
-              href={`/templates/new?edit=${templateId}`}
-              className="px-5 py-2.5 bg-surface-container-low text-on-surface hover:bg-surface-container-high transition-colors font-semibold rounded-xl flex items-center gap-2"
-            >
-              <span className="material-symbols-outlined text-sm">edit</span>
-              {t("edit")}
+    <main className="pt-8 px-10 pb-16 min-h-screen">
+      {/* Header — design-draft line 181-199 */}
+      <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-12">
+        <div className="max-w-2xl">
+          {/* Breadcrumb */}
+          <div className="flex items-center gap-2 text-sm text-slate-500 mb-4">
+            <Link href="/templates" className="hover:text-primary transition-colors">
+              {t("title")}
             </Link>
-            <button
-              onClick={handleDelete}
-              className="px-5 py-2.5 bg-surface-container-low text-error hover:bg-error/10 transition-colors font-semibold rounded-xl flex items-center gap-2"
-            >
-              <span className="material-symbols-outlined text-sm">delete</span>
-              {t("delete")}
-            </button>
+            <span className="material-symbols-outlined text-xs">chevron_right</span>
+            <span className="text-primary font-medium">{template.name}</span>
           </div>
+          <div className="flex items-center gap-3 mb-3">
+            <h1 className="text-4xl font-extrabold font-headline tracking-tight text-on-surface">
+              {template.name}
+            </h1>
+            <span className="px-3 py-1 bg-primary/10 text-primary rounded-full text-[10px] font-bold tracking-widest uppercase">
+              {executionModeRaw}
+            </span>
+          </div>
+          <p className="text-on-surface-variant text-lg leading-relaxed">
+            {template.description || "—"}
+          </p>
         </div>
-      </header>
+        <div className="flex gap-3">
+          <button
+            onClick={handleDelete}
+            className="px-6 py-3 bg-surface-container-highest text-on-surface-variant font-semibold rounded-xl hover:bg-surface-container-high transition-colors flex items-center gap-2"
+          >
+            <span className="material-symbols-outlined scale-90">delete</span>
+            {t("delete")}
+          </button>
+          <Link
+            href={`/templates/new?edit=${templateId}`}
+            className="px-6 py-3 bg-gradient-to-r from-primary to-primary-container text-white font-bold rounded-xl shadow-lg shadow-primary/20 hover:opacity-90 transition-opacity flex items-center gap-2"
+          >
+            <span className="material-symbols-outlined scale-90">edit</span>
+            {t("edit")}
+          </Link>
+        </div>
+      </div>
 
-      <div className="grid grid-cols-12 gap-8">
-        {/* Left: Steps Pipeline */}
-        <div className="col-span-12 lg:col-span-8">
-          <section className="bg-surface-container-lowest rounded-xl p-8 shadow-sm border border-outline-variant/10">
-            <h2 className="text-xl font-headline font-bold mb-8">{t("executionPipeline")}</h2>
-            <div className="space-y-4">
-              {template.steps.map((step, i) => (
-                <div key={step.id}>
-                  <div className="flex items-center gap-4 p-5 bg-surface rounded-xl border border-outline-variant/10 hover:border-primary/20 transition-all">
-                    <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold shrink-0">
-                      {step.order + 1}
+      <div className="grid grid-cols-12 gap-10">
+        {/* Orchestration Pipeline — design-draft line 202-280 */}
+        <div className="col-span-12 lg:col-span-8 space-y-8 relative">
+          {/* Pipeline connector CSS inline for the vertical line */}
+          <style>{`
+            .pipeline-step { position: relative; }
+            .pipeline-connector::before {
+              content: '';
+              position: absolute;
+              left: 2rem;
+              top: 4rem;
+              bottom: -2rem;
+              width: 2px;
+              background: linear-gradient(to bottom, #6d5dd3 0%, #dae2fd 100%);
+              z-index: 0;
+            }
+            .pipeline-step:last-child .pipeline-connector::before {
+              display: none;
+            }
+          `}</style>
+          {template.steps.map((step) => (
+            <div key={step.id} className="pipeline-step relative flex items-start gap-6">
+              <div className="pipeline-connector" />
+              <div className="w-16 h-16 rounded-2xl bg-primary text-white flex items-center justify-center font-headline font-extrabold text-2xl z-10 shadow-xl shadow-primary/20">
+                {step.order + 1}
+              </div>
+              <div className="flex-1 bg-surface-container-lowest/60 backdrop-blur-md p-6 rounded-2xl border border-white/40 shadow-sm hover:shadow-md transition-shadow group cursor-pointer">
+                <div className="flex justify-between items-start mb-4">
+                  <div>
+                    <h3 className="font-headline font-bold text-xl text-on-surface group-hover:text-primary transition-colors">
+                      {step.action.name}
+                    </h3>
+                    <div className="flex items-center gap-2 mt-1">
+                      <span className="text-xs font-medium text-slate-400">Action</span>
+                      <span className="w-1 h-1 rounded-full bg-slate-300" />
+                      <span className="text-xs font-semibold text-primary">
+                        {step.action.model.split("/").pop()}
+                      </span>
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-3 mb-1">
-                        <span className="font-bold text-on-surface">{step.action.name}</span>
-                        {roleBadge(step.role)}
-                      </div>
-                      <p className="text-xs font-mono text-slate-400">{step.action.model}</p>
-                    </div>
-                    <Link
-                      href={`/actions/${step.action.id}`}
-                      className="text-xs text-primary font-bold hover:underline shrink-0"
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      {t("viewAction")}
-                    </Link>
                   </div>
-                  {i < template.steps.length - 1 && (
-                    <div className="flex justify-center py-2">
-                      <div className="w-0.5 h-6 bg-outline-variant/30" />
-                    </div>
-                  )}
+                  <Link
+                    href={`/actions/${step.action.id}`}
+                    onClick={(e) => e.stopPropagation()}
+                    className="material-symbols-outlined text-slate-400 group-hover:rotate-180 transition-transform duration-300"
+                  >
+                    unfold_more
+                  </Link>
+                </div>
+                <div className="flex items-center gap-4">
+                  <span className="px-3 py-1 bg-surface-container-high text-on-secondary-container text-[10px] font-bold tracking-wider rounded uppercase">
+                    {step.role}
+                  </span>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Metadata Sidebar — design-draft line 282-328 */}
+        <div className="col-span-12 lg:col-span-4 space-y-6">
+          {/* Template Info Card */}
+          <div className="bg-surface-container-lowest p-8 rounded-xl border border-slate-100 shadow-sm">
+            <div className="flex items-center gap-3 mb-8">
+              <span className="material-symbols-outlined text-primary">info</span>
+              <h2 className="font-headline font-bold text-lg tracking-tight">
+                {t("templateInfo")}
+              </h2>
+            </div>
+            <div className="space-y-6">
+              <div className="flex justify-between items-center">
+                <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">
+                  {t("createdAt")}
+                </span>
+                <span className="text-sm font-semibold text-on-surface">
+                  {new Date(template.createdAt).toLocaleDateString()}
+                </span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">
+                  {t("updated")}
+                </span>
+                <span className="text-sm font-semibold text-primary">
+                  {timeAgo(template.updatedAt)}
+                </span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">
+                  {t("totalSteps")}
+                </span>
+                <span className="text-sm font-semibold text-on-surface">
+                  {template.steps.length} Steps
+                </span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">
+                  {t("executionMode")}
+                </span>
+                <span className="text-sm font-semibold text-on-surface">{executionMode}</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Resources Used Card — design-draft line 315-327 */}
+          <div className="bg-surface-container p-6 rounded-xl">
+            <h4 className="text-xs font-bold text-on-secondary-container uppercase tracking-widest mb-4">
+              Resources Used
+            </h4>
+            <div className="space-y-4">
+              {[...modelCounts.entries()].map(([model, count]) => (
+                <div key={model} className="flex items-center gap-3">
+                  <div className="w-2 h-2 rounded-full bg-primary" />
+                  <span className="text-sm font-medium">
+                    {model} ({count}x)
+                  </span>
                 </div>
               ))}
-            </div>
-          </section>
-        </div>
-
-        {/* Right: Template Info */}
-        <div className="col-span-12 lg:col-span-4 space-y-6">
-          <div className="bg-surface-container-lowest p-6 rounded-xl shadow-sm border border-outline-variant/10">
-            <h4 className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-6">
-              {t("templateInfo")}
-            </h4>
-            <div className="space-y-5">
-              <div>
-                <p className="text-[10px] text-slate-400 font-bold uppercase">
-                  {t("executionMode")}
-                </p>
-                <p className="text-sm font-medium mt-1">{executionMode}</p>
-              </div>
-              <div>
-                <p className="text-[10px] text-slate-400 font-bold uppercase">{t("totalSteps")}</p>
-                <p className="text-sm font-medium mt-1">{template.steps.length}</p>
-              </div>
-              <div>
-                <p className="text-[10px] text-slate-400 font-bold uppercase">{t("createdAt")}</p>
-                <p className="text-sm font-medium mt-1">
-                  {new Date(template.createdAt).toLocaleDateString()}
-                </p>
-              </div>
             </div>
           </div>
 

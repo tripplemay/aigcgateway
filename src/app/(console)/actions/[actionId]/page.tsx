@@ -89,8 +89,8 @@ export default function ActionDetailPage() {
   const activeVersion = action.versions.find((v) => v.id === action.activeVersionId);
 
   return (
-    <main className="p-8">
-      {/* Breadcrumb */}
+    <main className="p-8 min-h-screen">
+      {/* Breadcrumb & Top Bar — design-draft line 150-174 */}
       <header className="flex flex-col gap-6 mb-10">
         <div className="flex items-center gap-2 text-sm text-slate-500">
           <Link href="/actions" className="hover:text-primary transition-colors">
@@ -102,7 +102,9 @@ export default function ActionDetailPage() {
         <div className="flex justify-between items-start">
           <div className="space-y-1">
             <div className="flex items-center gap-4">
-              <h1 className="text-4xl font-headline font-bold tracking-tight">{action.name}</h1>
+              <h1 className="text-4xl font-headline font-bold tracking-tight text-on-background">
+                {action.name}
+              </h1>
               <span className="px-3 py-1 bg-surface-container-high text-primary rounded-full text-xs font-bold uppercase tracking-wider">
                 {action.model.split("/").pop()}
               </span>
@@ -131,16 +133,16 @@ export default function ActionDetailPage() {
       </header>
 
       <div className="grid grid-cols-12 gap-8">
-        {/* Left: Content */}
+        {/* Left Column — design-draft line 178-285 */}
         <div className="col-span-12 lg:col-span-8 space-y-8">
-          {/* Active Version */}
+          {/* Active Version Section — design-draft line 180-243 */}
           {activeVersion && (
             <section className="bg-surface-container-lowest rounded-xl p-8 shadow-sm border border-outline-variant/10">
               <div className="flex items-center justify-between mb-8">
                 <div className="flex items-center gap-4">
                   <h2 className="text-xl font-headline font-bold">{t("activeVersion")}</h2>
                   <span className="bg-primary/10 text-primary text-xs font-black px-3 py-1 rounded-full border border-primary/20">
-                    v{activeVersion.versionNumber}
+                    V{activeVersion.versionNumber}
                   </span>
                 </div>
                 <span className="text-xs uppercase tracking-widest text-slate-400">
@@ -148,16 +150,16 @@ export default function ActionDetailPage() {
                 </span>
               </div>
 
-              {/* Messages Preview */}
-              <div className="space-y-4 mb-8">
+              {/* Messages Preview — design-draft line 189-208 */}
+              <div className="space-y-6 mb-10">
                 {activeVersion.messages.map((msg, i) => (
                   <div
                     key={i}
-                    className={`p-5 rounded-xl ${
+                    className={
                       msg.role === "system"
-                        ? "bg-surface-container-low border-l-4 border-primary/40"
-                        : "bg-surface border border-outline-variant/20"
-                    }`}
+                        ? "bg-surface-container-low p-5 rounded-xl rounded-tl-none border-l-4 border-primary/40"
+                        : "bg-surface rounded-xl p-5 border border-outline-variant/20"
+                    }
                   >
                     <div className="flex items-center gap-2 mb-2">
                       <span className="material-symbols-outlined text-sm text-primary">
@@ -167,8 +169,12 @@ export default function ActionDetailPage() {
                             ? "smart_toy"
                             : "person"}
                       </span>
-                      <span className="text-[10px] font-black uppercase tracking-widest text-primary">
-                        {msg.role}
+                      <span className="text-xs font-black uppercase tracking-widest text-primary">
+                        {msg.role === "system"
+                          ? "System Message"
+                          : msg.role === "assistant"
+                            ? "Assistant"
+                            : "User Prompt"}
                       </span>
                     </div>
                     <p className="text-on-surface leading-relaxed whitespace-pre-wrap">
@@ -176,7 +182,7 @@ export default function ActionDetailPage() {
                         part.startsWith("{{") ? (
                           <span
                             key={j}
-                            className="bg-primary/10 text-primary px-1.5 py-0.5 rounded font-mono font-medium text-sm"
+                            className="text-[#6D5DD3] bg-[rgba(109,93,211,0.1)] font-mono px-1 py-0.5 rounded font-semibold"
                           >
                             {part}
                           </span>
@@ -189,128 +195,165 @@ export default function ActionDetailPage() {
                 ))}
               </div>
 
-              {/* Variables Table */}
+              {/* Variables Table — design-draft line 210-242 */}
               {activeVersion.variables.length > 0 && (
                 <div>
                   <h3 className="text-sm font-black text-on-surface-variant uppercase tracking-widest mb-4">
                     {t("variableDefinitions")}
                   </h3>
-                  <table className="w-full text-left">
-                    <thead className="bg-surface-container-high/30">
-                      <tr className="text-[10px] text-slate-500 font-black uppercase tracking-[0.1em]">
-                        <th className="px-4 py-3">{t("varName")}</th>
-                        <th className="px-4 py-3">{t("description")}</th>
-                        <th className="px-4 py-3">{t("required")}</th>
-                        <th className="px-4 py-3">{t("defaultValue")}</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-surface-container-low">
-                      {activeVersion.variables.map((v, i) => (
-                        <tr
-                          key={i}
-                          className="hover:bg-surface-container-high/20 transition-colors"
-                        >
-                          <td className="px-4 py-4 font-mono text-xs text-primary font-bold">
-                            {v.name}
-                          </td>
-                          <td className="px-4 py-4 text-sm text-slate-600">
-                            {v.description || "—"}
-                          </td>
-                          <td className="px-4 py-4">
-                            {v.required ? (
-                              <span
-                                className="material-symbols-outlined text-primary"
-                                style={{ fontVariationSettings: "'FILL' 1" }}
-                              >
-                                check_circle
-                              </span>
-                            ) : (
-                              <span className="text-slate-400">—</span>
-                            )}
-                          </td>
-                          <td className="px-4 py-4 text-xs font-mono text-slate-400">
-                            {v.defaultValue || "—"}
-                          </td>
+                  <div className="overflow-hidden bg-surface-container-lowest">
+                    <table className="w-full text-left">
+                      <thead className="bg-surface-container-high/30">
+                        <tr className="text-[10px] text-slate-500 font-black uppercase tracking-[0.1em]">
+                          <th className="px-4 py-3">{t("varName")}</th>
+                          <th className="px-4 py-3">{t("description")}</th>
+                          <th className="px-4 py-3">{t("required")}</th>
+                          <th className="px-4 py-3">{t("defaultValue")}</th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                      </thead>
+                      <tbody className="divide-y divide-surface-container-low">
+                        {activeVersion.variables.map((v, i) => (
+                          <tr
+                            key={i}
+                            className="hover:bg-surface-container-high/20 transition-colors"
+                          >
+                            <td className="px-4 py-4 font-mono text-xs text-primary font-bold">
+                              {v.name}
+                            </td>
+                            <td className="px-4 py-4 text-sm text-slate-600">
+                              {v.description || "—"}
+                            </td>
+                            <td className="px-4 py-4">
+                              {v.required ? (
+                                <span
+                                  className="material-symbols-outlined text-primary"
+                                  style={{ fontVariationSettings: "'FILL' 1" }}
+                                >
+                                  check_circle
+                                </span>
+                              ) : (
+                                <span className="text-slate-400">—</span>
+                              )}
+                            </td>
+                            <td className="px-4 py-4 text-xs font-mono text-slate-400">
+                              {v.defaultValue || "—"}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
               )}
             </section>
           )}
 
-          {/* Version History */}
+          {/* Version History — design-draft line 244-284 */}
           <section className="bg-surface-container-lowest rounded-xl p-8 shadow-sm border border-outline-variant/10">
             <h2 className="text-xl font-headline font-bold mb-6">{t("versionHistory")}</h2>
             <div className="space-y-4">
-              {action.versions.map((v) => (
-                <div
-                  key={v.id}
-                  className={`flex items-center justify-between p-4 bg-surface rounded-xl ${
-                    v.id === action.activeVersionId
-                      ? "border-l-4 border-primary"
-                      : "border border-outline-variant/10"
-                  }`}
-                >
-                  <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold">
-                      {v.versionNumber}
+              {action.versions.map((v) => {
+                const isActive = v.id === action.activeVersionId;
+                return (
+                  <div
+                    key={v.id}
+                    className={`flex items-center justify-between p-4 rounded-xl ${
+                      isActive
+                        ? "bg-surface border-l-4 border-primary"
+                        : "bg-surface-container-low/30 hover:bg-surface-container-low transition-colors"
+                    }`}
+                  >
+                    <div className="flex items-center gap-4">
+                      <div
+                        className={`w-10 h-10 rounded-full flex items-center justify-center font-bold ${
+                          isActive ? "bg-primary/10 text-primary" : "bg-slate-200 text-slate-600"
+                        }`}
+                      >
+                        {v.versionNumber}
+                      </div>
+                      <div>
+                        <h4 className="font-bold text-on-surface">
+                          v{v.versionNumber}
+                          {isActive && ` (${t("active")})`}
+                        </h4>
+                        <p className="text-xs text-slate-500">
+                          {timeAgo(v.createdAt)}
+                          {v.changelog && ` · "${v.changelog}"`}
+                        </p>
+                      </div>
                     </div>
-                    <div>
-                      <h4 className="font-bold text-on-surface">
-                        v{v.versionNumber}
-                        {v.id === action.activeVersionId && ` (${t("active")})`}
-                      </h4>
-                      <p className="text-xs text-slate-500">
-                        {v.changelog || "—"} · {timeAgo(v.createdAt)}
-                      </p>
-                    </div>
+                    {isActive ? (
+                      <span className="text-xs px-2 py-0.5 bg-primary/10 text-primary rounded font-bold">
+                        {t("active")}
+                      </span>
+                    ) : (
+                      <button
+                        onClick={() => handleActivate(v.id)}
+                        className="text-xs font-bold text-primary hover:underline px-3"
+                      >
+                        {t("activate")}
+                      </button>
+                    )}
                   </div>
-                  {v.id === action.activeVersionId ? (
-                    <span className="text-xs px-2 py-0.5 bg-primary/10 text-primary rounded font-bold">
-                      {t("active")}
-                    </span>
-                  ) : (
-                    <button
-                      onClick={() => handleActivate(v.id)}
-                      className="text-xs text-primary font-bold hover:underline"
-                    >
-                      {t("activate")}
-                    </button>
-                  )}
-                </div>
-              ))}
+                );
+              })}
             </div>
           </section>
         </div>
 
-        {/* Right: Metadata */}
-        <div className="col-span-12 lg:col-span-4 space-y-6">
-          <div className="bg-surface-container-lowest p-6 rounded-xl shadow-sm border border-outline-variant/10">
-            <h4 className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-6">
+        {/* Right Column: Sidebar — design-draft line 288-367 */}
+        <aside className="col-span-12 lg:col-span-4 space-y-6">
+          {/* Action Insights Card — design-draft line 290-330 */}
+          <div className="bg-surface-container-lowest rounded-xl p-6 shadow-sm border border-outline-variant/10 sticky top-8">
+            <h3 className="text-xs font-black text-slate-400 uppercase tracking-[0.2em] mb-6">
               {t("metadata")}
-            </h4>
-            <div className="space-y-5">
-              <div>
-                <p className="text-[10px] text-slate-400 font-bold uppercase">{t("createdAt")}</p>
-                <p className="text-sm font-medium mt-1">
+            </h3>
+            <div className="space-y-6">
+              <div className="flex items-center justify-between group">
+                <div className="flex items-center gap-3">
+                  <span className="material-symbols-outlined text-slate-400 group-hover:text-primary transition-colors">
+                    calendar_today
+                  </span>
+                  <span className="text-sm font-medium text-slate-600">{t("createdAt")}</span>
+                </div>
+                <span className="text-sm font-bold text-on-surface">
                   {new Date(action.createdAt).toLocaleDateString()}
-                </p>
+                </span>
               </div>
-              <div>
-                <p className="text-[10px] text-slate-400 font-bold uppercase">
-                  {t("totalVersions")}
-                </p>
-                <p className="text-sm font-medium mt-1">{action.versions.length}</p>
+              <div className="flex items-center justify-between group">
+                <div className="flex items-center gap-3">
+                  <span className="material-symbols-outlined text-slate-400 group-hover:text-primary transition-colors">
+                    layers
+                  </span>
+                  <span className="text-sm font-medium text-slate-600">{t("totalVersions")}</span>
+                </div>
+                <span className="text-sm font-bold text-on-surface">
+                  {action.versions.length} total
+                </span>
               </div>
-              <div>
-                <p className="text-[10px] text-slate-400 font-bold uppercase">{t("model")}</p>
-                <p className="text-sm font-mono font-medium mt-1">{action.model}</p>
+              <div className="flex items-center justify-between group">
+                <div className="flex items-center gap-3">
+                  <span className="material-symbols-outlined text-slate-400 group-hover:text-primary transition-colors">
+                    smart_toy
+                  </span>
+                  <span className="text-sm font-medium text-slate-600">{t("model")}</span>
+                </div>
+                <span className="text-sm font-bold text-on-surface font-mono">
+                  {action.model.split("/").pop()}
+                </span>
               </div>
             </div>
           </div>
-        </div>
+
+          {/* Developer Quick-Link Card — design-draft line 361-367 */}
+          <div className="bg-surface-container-high rounded-xl p-6 border border-primary/10">
+            <h3 className="text-sm font-bold text-primary mb-3">Developer Quick-Link</h3>
+            <div className="bg-on-background/5 p-3 rounded font-mono text-[11px] text-slate-600 break-all select-all cursor-pointer">
+              POST /v1/actions/run
+            </div>
+            <p className="text-[10px] mt-2 text-slate-500 italic">Action ID: {action.id}</p>
+          </div>
+        </aside>
       </div>
     </main>
   );

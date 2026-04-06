@@ -413,12 +413,14 @@ model ActionVersion {
 }
 
 model Template {
-  id          String   @id @default(cuid())
-  projectId   String
-  name        String
-  description String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id           String   @id @default(cuid())
+  projectId    String
+  name         String
+  description  String?
+  isPublic     Boolean  @default(false)
+  qualityScore Int?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
   project Project       @relation(fields: [projectId], references: [id])
   steps   TemplateStep[]

@@ -22,7 +22,7 @@ export async function GET(request: Request) {
     ];
   }
 
-  const [templates, total, actionCount] = await Promise.all([
+  const [templates, total, actionCount, publicCount] = await Promise.all([
     prisma.template.findMany({
       where,
       include: {
@@ -38,6 +38,7 @@ export async function GET(request: Request) {
     }),
     prisma.template.count({ where }),
     prisma.action.count(),
+    prisma.template.count({ where: { isPublic: true } }),
   ]);
 
   const data = templates.map((t) => ({
@@ -52,13 +53,20 @@ export async function GET(request: Request) {
       : t.steps.length > 1
         ? "sequential"
         : "single",
+    isPublic: t.isPublic,
+    qualityScore: t.qualityScore,
     createdAt: t.createdAt,
     updatedAt: t.updatedAt,
   }));
 
   return NextResponse.json({
     data,
-    stats: { totalTemplates: total, totalActions: actionCount },
+    stats: {
+      totalTemplates: total,
+      totalActions: actionCount,
+      publicCount,
+      privateCount: total - publicCount,
+    },
     pagination: { page, pageSize, total, totalPages: Math.ceil(total / pageSize) },
   });
 }

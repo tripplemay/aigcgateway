@@ -56,7 +56,7 @@ export default function ActionsPage() {
 
   return (
     <>
-      {/* code.html line 144-162: header */}
+      {/* Header — design-draft line 144-162 */}
       <header className="sticky top-0 z-40 bg-[#faf8ff] dark:bg-slate-950 flex justify-between items-center w-full px-8 py-4 shadow-[0px_20px_40px_rgba(19,27,46,0.04)]">
         <div>
           <h2 className="text-2xl font-black text-[#131b2e] dark:text-slate-100 font-headline tracking-[-0.02em]">
@@ -65,6 +65,7 @@ export default function ActionsPage() {
           <p className="text-sm text-slate-500 font-medium">{t("subtitle")}</p>
         </div>
         <div className="flex items-center gap-6">
+          {/* Search — design-draft line 150-153 */}
           <div className="relative group">
             <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-lg">
               search
@@ -77,6 +78,7 @@ export default function ActionsPage() {
               onChange={(e) => setSearch(e.target.value)}
             />
           </div>
+          {/* Create button — design-draft line 158-161 */}
           <Link
             href="/actions/new"
             className="bg-gradient-to-r from-[#5443b9] to-[#6d5dd3] text-white px-5 py-2.5 rounded-lg text-sm font-bold flex items-center gap-2 hover:opacity-90 transition-all active:scale-95 shadow-lg shadow-primary/20"
@@ -87,7 +89,7 @@ export default function ActionsPage() {
         </div>
       </header>
 
-      {/* code.html line 164-328: section */}
+      {/* Section — design-draft line 164-328 */}
       <section className="p-8 space-y-8 flex-1">
         {actions.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-24">
@@ -106,53 +108,91 @@ export default function ActionsPage() {
           </div>
         ) : (
           <div className="grid grid-cols-12 gap-8">
-            {/* code.html line 166-268: left col-span-9 */}
+            {/* Left: Table — design-draft line 166-268 */}
             <div className="col-span-12 lg:col-span-9 space-y-6">
               <div className="bg-surface-container-lowest rounded-xl shadow-sm overflow-hidden">
                 <table className="w-full text-left border-collapse">
                   <thead>
                     <tr className="bg-surface-container-low/50">
-                      <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-500">{t("colActionName")}</th>
-                      <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-500">{t("model")}</th>
-                      <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-500">{t("version")}</th>
-                      <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-500 text-center">{t("vars")}</th>
-                      <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-500">{t("description")}</th>
-                      <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-500">{t("updated")}</th>
+                      <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-500">
+                        {t("colActionName")}
+                      </th>
+                      <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-500">
+                        {t("model")}
+                      </th>
+                      <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-500">
+                        {t("version")}
+                      </th>
+                      <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-500 text-center">
+                        {t("vars")}
+                      </th>
+                      <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-500">
+                        {t("description")}
+                      </th>
+                      <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-500">
+                        {t("updated")}
+                      </th>
                       <th className="px-6 py-4"></th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-50">
                     {filtered.map((action) => {
-                      const varCount = action.versions?.[0]?.variables ? (action.versions[0].variables as unknown[]).length : 0;
+                      const varCount = action.versions?.[0]?.variables
+                        ? (action.versions[0].variables as unknown[]).length
+                        : 0;
                       return (
-                        <tr key={action.id} className="hover:bg-surface-container-high transition-colors group cursor-pointer" onClick={() => router.push(`/actions/${action.id}`)}>
+                        <tr
+                          key={action.id}
+                          className="hover:bg-surface-container-high transition-colors group cursor-pointer"
+                          onClick={() => router.push(`/actions/${action.id}`)}
+                        >
                           <td className="px-6 py-5 font-bold text-primary">{action.name}</td>
-                          <td className="px-6 py-5 text-sm font-medium text-slate-700">{action.model.split("/").pop()}</td>
+                          <td className="px-6 py-5 text-sm font-medium text-slate-700">
+                            {action.model.split("/").pop()}
+                          </td>
                           <td className="px-6 py-5">
                             {action.activeVersion ? (
-                              <span className="px-2 py-0.5 rounded-full bg-secondary-container text-on-secondary-container text-[10px] font-bold">v{action.activeVersion.versionNumber}</span>
-                            ) : (<span className="text-slate-400">—</span>)}
+                              <span className="px-2 py-0.5 rounded-full bg-secondary-container text-on-secondary-container text-[10px] font-bold">
+                                v{action.activeVersion.versionNumber}
+                              </span>
+                            ) : (
+                              <span className="text-slate-400">—</span>
+                            )}
                           </td>
                           <td className="px-6 py-5 text-center">
-                            <span className="px-2 py-0.5 rounded-lg bg-surface-container-low text-slate-600 text-xs font-bold border border-outline-variant/30">{varCount}</span>
+                            <span className="px-2 py-0.5 rounded-lg bg-surface-container-low text-slate-600 text-xs font-bold border border-outline-variant/30">
+                              {varCount}
+                            </span>
                           </td>
-                          <td className="px-6 py-5 text-xs text-slate-500 max-w-[200px] truncate">{action.description || "—"}</td>
-                          <td className="px-6 py-5 text-xs font-medium text-slate-400">{timeAgo(action.updatedAt)}</td>
+                          <td className="px-6 py-5 text-xs text-slate-500 max-w-[200px] truncate">
+                            {action.description || "—"}
+                          </td>
+                          <td className="px-6 py-5 text-xs font-medium text-slate-400">
+                            {timeAgo(action.updatedAt)}
+                          </td>
                           <td className="px-6 py-5 text-right">
-                            <span className="material-symbols-outlined text-slate-300 group-hover:text-primary transition-colors">chevron_right</span>
+                            <span className="material-symbols-outlined text-slate-300 group-hover:text-primary transition-colors">
+                              chevron_right
+                            </span>
                           </td>
                         </tr>
                       );
                     })}
                   </tbody>
                 </table>
+                {/* Pagination footer — design-draft line 248-254 */}
                 <div className="px-6 py-4 flex items-center justify-between bg-surface-container-low/30">
-                  <p className="text-xs text-slate-500 font-medium">{t("showing")} <span className="text-on-surface">{filtered.length}</span> {t("of")} <span className="text-on-surface">{actions.length}</span> {t("actionsUnit")}</p>
+                  <p className="text-xs text-slate-500 font-medium">
+                    {t("showing")} <span className="text-on-surface">{filtered.length}</span>{" "}
+                    {t("of")} <span className="text-on-surface">{actions.length}</span>{" "}
+                    {t("actionsUnit")}
+                  </p>
                 </div>
               </div>
-              {/* code.html line 256-268: CTA banner */}
-              <div className="glass p-6 rounded-xl border border-primary/10 flex items-center justify-between gap-6 relative overflow-hidden">
-                <div className="absolute -right-12 -top-12 w-48 h-48 bg-primary/5 rounded-full blur-3xl"></div>
+
+              {/* CTA banner — design-draft line 256-268 */}
+              <div className="bg-white/70 backdrop-blur-xl p-6 rounded-xl border border-primary/10 flex items-center justify-between gap-6 relative overflow-hidden">
+                <div className="absolute -right-12 -top-12 w-48 h-48 bg-primary/5 rounded-full blur-3xl" />
                 <div className="flex-1">
                   <h4 className="text-lg font-bold font-headline mb-2 flex items-center gap-2">
                     <span className="material-symbols-outlined text-primary">auto_awesome</span>
@@ -160,39 +200,78 @@ export default function ActionsPage() {
                   </h4>
                   <p className="text-sm text-slate-600 leading-relaxed max-w-2xl">{t("ctaDesc")}</p>
                 </div>
-                <Link href="/templates" className="bg-primary text-white px-6 py-3 rounded-lg text-sm font-bold whitespace-nowrap hover:shadow-lg hover:shadow-primary/30 transition-all">
+                <Link
+                  href="/templates"
+                  className="bg-primary text-white px-6 py-3 rounded-lg text-sm font-bold whitespace-nowrap hover:shadow-lg hover:shadow-primary/30 transition-all"
+                >
                   {t("ctaButton")}
                 </Link>
               </div>
             </div>
-            {/* code.html line 270-327: right col-span-3 */}
+
+            {/* Right sidebar — design-draft line 270-327 */}
             <div className="col-span-12 lg:col-span-3 space-y-6">
+              {/* Action Stats — design-draft line 271-297 */}
               <div className="bg-surface-container-lowest p-6 rounded-xl shadow-sm">
-                <h4 className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-4">{t("statsTitle")}</h4>
+                <h4 className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-4">
+                  {t("statsTitle")}
+                </h4>
                 <div className="space-y-4 pt-2">
                   <div>
-                    <p className="text-2xl font-black font-headline text-on-surface">{actions.length}</p>
-                    <p className="text-[10px] text-slate-400 font-bold uppercase tracking-tight">{t("totalActions")}</p>
+                    <p className="text-2xl font-black font-headline text-on-surface">
+                      {actions.length}
+                    </p>
+                    <p className="text-[10px] text-slate-400 font-bold uppercase tracking-tight">
+                      {t("totalActions")}
+                    </p>
                   </div>
                   <div>
-                    <p className="text-2xl font-black font-headline text-on-surface">{actions.filter((a) => a.activeVersion).length}</p>
-                    <p className="text-[10px] text-slate-400 font-bold uppercase tracking-tight">{t("withActiveVersion")}</p>
+                    <p className="text-2xl font-black font-headline text-on-surface">
+                      {actions.filter((a) => a.activeVersion).length}
+                    </p>
+                    <p className="text-[10px] text-slate-400 font-bold uppercase tracking-tight">
+                      {t("withActiveVersion")}
+                    </p>
                   </div>
                   <div>
-                    <p className="text-2xl font-black font-headline text-on-surface">{new Set(actions.map((a) => a.model)).size}</p>
-                    <p className="text-[10px] text-slate-400 font-bold uppercase tracking-tight">{t("uniqueModels")}</p>
+                    <p className="text-2xl font-black font-headline text-on-surface">
+                      {new Set(actions.map((a) => a.model)).size}
+                    </p>
+                    <p className="text-[10px] text-slate-400 font-bold uppercase tracking-tight">
+                      {t("uniqueModels")}
+                    </p>
                   </div>
                 </div>
               </div>
+
+              {/* Action Health — design-draft line 298-319 */}
               <div className="bg-surface-container-lowest p-6 rounded-xl shadow-sm relative overflow-hidden">
-                <h4 className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-6">{t("actionHealth")}</h4>
+                <h4 className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-6">
+                  {t("actionHealth")}
+                </h4>
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-bold">{t("successful")}</span>
                     <span className="text-xs font-black text-primary">—</span>
                   </div>
                   <div className="w-full bg-surface-container-high h-1.5 rounded-full overflow-hidden">
-                    <div className="bg-primary h-full rounded-full" style={{ width: "100%" }}></div>
+                    <div className="bg-primary h-full rounded-full" style={{ width: "100%" }} />
+                  </div>
+                  <div className="grid grid-cols-2 gap-4 pt-2">
+                    <div>
+                      <p className="text-lg font-bold font-headline">{actions.length}</p>
+                      <p className="text-[10px] text-slate-400 font-bold uppercase">
+                        {t("totalActions")}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-lg font-bold font-headline">
+                        {new Set(actions.map((a) => a.model)).size}
+                      </p>
+                      <p className="text-[10px] text-slate-400 font-bold uppercase">
+                        {t("uniqueModels")}
+                      </p>
+                    </div>
                   </div>
                 </div>
               </div>

@@ -55,7 +55,7 @@
       "title": "Admin 模板管理页按 Stitch 设计稿重构",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "1) /admin/templates 页面按 Stitch 'Admin: Template Management' 设计稿还原；2) 统计卡片（总数、公开、私有）；3) 表格含 Template Name、Project、Steps、Public 开关、Quality Score、Created、操作列；4) 搜索 + 筛选；5) 分页；6) npm run lint + tsc 通过"
     },
     {
