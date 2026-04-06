@@ -130,7 +130,7 @@ async function processChatResultAsync(params: ChatPostProcessParams): Promise<vo
 
   // 扣费（ERROR / TIMEOUT 不扣）
   if (sellUsd > 0 && (status === "SUCCESS" || status === "FILTERED")) {
-    await deductBalance(params.projectId, sellUsd, callLog.id);
+    await deductBalance(params.projectId, sellUsd, callLog.id, params.traceId);
   }
 
   // 记录 TPM（用于限流检查）
@@ -174,7 +174,7 @@ async function processImageResultAsync(params: ImagePostProcessParams): Promise<
 
   // 图片失败不扣费
   if (sellUsd > 0 && status === "SUCCESS") {
-    await deductBalance(params.projectId, sellUsd, callLog.id);
+    await deductBalance(params.projectId, sellUsd, callLog.id, params.traceId);
   }
 }
 
@@ -246,15 +246,21 @@ function calculateCallCost(
 // 扣费
 // ============================================================
 
-async function deductBalance(projectId: string, amount: number, callLogId: string): Promise<void> {
+async function deductBalance(
+  projectId: string,
+  amount: number,
+  callLogId: string,
+  traceId?: string,
+): Promise<void> {
   if (amount <= 0) return;
 
   await prisma.$queryRaw`
     SELECT * FROM deduct_balance(
       ${projectId}::TEXT,
-      ${amount}::DECIMAL(12,6),
+      ${amount}::DECIMAL(16,8),
       ${callLogId}::TEXT,
-      ${"API call deduction"}::TEXT
+      ${"API call deduction"}::TEXT,
+      ${traceId ?? null}::TEXT
     )
   `;
 }

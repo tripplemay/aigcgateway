@@ -23,6 +23,7 @@ import { registerCreateAction } from "./tools/create-action";
 import { registerUpdateAction } from "./tools/update-action";
 import { registerDeleteAction } from "./tools/delete-action";
 import { registerCreateActionVersion } from "./tools/create-action-version";
+import { registerActivateVersion } from "./tools/activate-version";
 import { registerCreateTemplate } from "./tools/create-template";
 import { registerUpdateTemplate } from "./tools/update-template";
 import { registerDeleteTemplate } from "./tools/delete-template";
@@ -51,7 +52,8 @@ const SERVER_INSTRUCTIONS = `# AIGC Gateway — AI 服务商聚合平台
 Action 绑定一个模型 + 提示词 + 变量定义，可复用。
 - **list_actions** — 查看所有 Actions
 - **get_action_detail(action_id)** — 查看 Action 详情（激活版本的 messages/variables、版本历史）
-- **run_action(action_id, variables, dry_run?)** — 执行 Action，传入变量。dry_run=true 时仅渲染变量不调用模型（免费预览）
+- **run_action(action_id, variables?, version_id?, dry_run?)** — 执行 Action。version_id 指定版本（默认活跃版本）；dry_run=true 仅渲染变量不调用模型（免费预览）
+- **activate_version(action_id, version_id)** — 切换 Action 活跃版本（版本回滚/升级）
 - **create_action(name, model, messages, variables?)** — 创建新 Action + v1 版本
 - **update_action(action_id, name?, description?, model?)** — 更新 Action 元数据（不影响版本）
 - **delete_action(action_id)** — 删除 Action（被 Template 引用时会阻止）
@@ -63,7 +65,7 @@ Template 由多个 Action 按顺序或并行组合：
 - **Fan-out（并行分拆）**：SPLITTER 输出 JSON 数组 → BRANCH 并行 → MERGE 合并
 - **list_templates** — 查看所有 Templates 及步骤详情
 - **get_template_detail(template_id)** — 查看 Template 详情（执行模式、步骤列表、保留变量）
-- **run_template(template_id, variables)** — 执行 Template
+- **run_template(template_id, variables)** — 执行 Template，返回包含 steps[] 每步明细（output、usage、latencyMs）
 - **create_template(name, description?, steps)** — 创建新 Template（steps 中的 action_id 必须属于当前项目）
 - **update_template(template_id, name?, description?, steps?)** — 更新 Template（steps 提供时全量替换）
 - **delete_template(template_id)** — 删除 Template（级联删除步骤）
@@ -79,6 +81,7 @@ Template 由多个 Action 按顺序或并行组合：
 - **get_log_detail(trace_id)** — 查看完整 prompt、response、性能指标（ttftMs、latency、tokensPerSecond）
 
 ## 用量与成本
+- **get_balance(include_transactions?)** — 查看余额和最近交易（交易含 traceId 用于关联调用记录）
 - **get_usage_summary** — 查看花费汇总
   - 筛选：model, source(api/mcp), action_id, template_id
   - 分组：group_by=model/day/source/action/template
@@ -137,6 +140,7 @@ export function createMcpServer(opts: McpServerOptions): McpServer {
   registerUpdateAction(server, opts);
   registerDeleteAction(server, opts);
   registerCreateActionVersion(server, opts);
+  registerActivateVersion(server, opts);
   registerListTemplates(server, opts);
   registerRunTemplate(server, opts);
   registerGetTemplateDetail(server, opts);

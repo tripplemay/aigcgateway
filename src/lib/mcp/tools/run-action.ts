@@ -26,6 +26,12 @@ export function registerRunAction(server: McpServer, opts: McpServerOptions): vo
         .record(z.string())
         .optional()
         .describe('Variables to inject, e.g. {"topic": "AI"}'),
+      version_id: z
+        .string()
+        .optional()
+        .describe(
+          "Run a specific version instead of the active version. Must belong to the target action.",
+        ),
       dry_run: z
         .boolean()
         .optional()
@@ -33,7 +39,7 @@ export function registerRunAction(server: McpServer, opts: McpServerOptions): vo
           "Preview mode: render variables into messages without calling the model. No cost, no billing.",
         ),
     },
-    async ({ action_id, variables = {}, dry_run }) => {
+    async ({ action_id, variables = {}, version_id, dry_run }) => {
       // Permission check
       const permErr = checkMcpPermission(permissions, "chatCompletion");
       if (permErr) {
@@ -46,19 +52,23 @@ export function registerRunAction(server: McpServer, opts: McpServerOptions): vo
           const action = await prisma.action.findFirst({
             where: { id: action_id, projectId },
           });
-          if (!action || !action.activeVersionId) {
+          if (!action) {
             return {
               content: [
-                {
-                  type: "text" as const,
-                  text: `Action "${action_id}" not found or has no active version.`,
-                },
+                { type: "text" as const, text: `Action "${action_id}" not found in this project.` },
               ],
               isError: true,
             };
           }
-          const version = await prisma.actionVersion.findUnique({
-            where: { id: action.activeVersionId },
+          const targetVersionId = version_id ?? action.activeVersionId;
+          if (!targetVersionId) {
+            return {
+              content: [{ type: "text" as const, text: `Action has no active version.` }],
+              isError: true,
+            };
+          }
+          const version = await prisma.actionVersion.findFirst({
+            where: { id: targetVersionId, actionId: action_id },
           });
           if (!version) {
             return {
@@ -122,6 +132,7 @@ export function registerRunAction(server: McpServer, opts: McpServerOptions): vo
           actionId: action_id,
           projectId,
           variables,
+          versionId: version_id,
           source: "mcp",
         });
 

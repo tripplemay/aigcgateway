@@ -42,7 +42,12 @@ export function registerChat(server: McpServer, opts: McpServerOptions): void {
         .object({ type: z.enum(["text", "json_object"]) })
         .optional()
         .describe("Response format. Use json_object for structured JSON output."),
-      top_p: z.number().min(0).max(1).optional().describe("Nucleus sampling probability, 0-1"),
+      top_p: z
+        .number()
+        .gt(0)
+        .max(1)
+        .optional()
+        .describe("Nucleus sampling probability, (0, 1]. Must be greater than 0."),
       frequency_penalty: z
         .number()
         .min(-2)
@@ -181,9 +186,7 @@ export function registerChat(server: McpServer, opts: McpServerOptions): void {
         }
         const routeCode = err instanceof EngineError ? err.code : "routing_error";
         return {
-          content: [
-            { type: "text" as const, text: `[${routeCode}] ${(err as Error).message}` },
-          ],
+          content: [{ type: "text" as const, text: `[${routeCode}] ${(err as Error).message}` }],
           isError: true,
         };
       }
@@ -351,7 +354,10 @@ export function registerChat(server: McpServer, opts: McpServerOptions): void {
         const errorCode = engineErr?.code ?? "provider_error";
         return {
           content: [
-            { type: "text" as const, text: `[${errorCode}] ${sanitizeErrorMessage((err as Error).message)}` },
+            {
+              type: "text" as const,
+              text: `[${errorCode}] ${sanitizeErrorMessage((err as Error).message)}`,
+            },
           ],
           isError: true,
         };

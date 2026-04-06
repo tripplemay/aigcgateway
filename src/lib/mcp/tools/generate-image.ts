@@ -122,7 +122,7 @@ export function registerGenerateImage(server: McpServer, opts: McpServerOptions)
               type: "text" as const,
               text: JSON.stringify({
                 code: (err instanceof EngineError ? err.code : null) ?? "routing_error",
-                message: (err as Error).message,
+                message: sanitizeErrorMessage((err as Error).message),
               }),
             },
           ],

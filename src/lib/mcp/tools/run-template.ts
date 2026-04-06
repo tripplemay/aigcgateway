@@ -77,9 +77,35 @@ Pass variables to inject into each step's Action prompts.`,
       const hasSplitter = template.steps.some((s) => s.role === "SPLITTER");
 
       try {
-        const collected: string[] = [];
+        interface StepDetail {
+          stepIndex: number;
+          actionName?: string;
+          model?: string;
+          output?: string;
+          usage?: { prompt_tokens: number; completion_tokens: number } | null;
+          latencyMs?: number;
+        }
+        const steps: StepDetail[] = [];
+        let currentStep: StepDetail | null = null;
+        let stepStartTime = 0;
+
         const collectWriter = (data: string) => {
-          collected.push(data);
+          try {
+            const evt = JSON.parse(data);
+            if (evt.type === "step_start") {
+              stepStartTime = Date.now();
+              currentStep = { stepIndex: evt.step, actionName: undefined, model: evt.model };
+            } else if (evt.type === "step_end" && currentStep) {
+              currentStep.usage = evt.usage ?? null;
+              currentStep.latencyMs = Date.now() - stepStartTime;
+              steps.push(currentStep);
+              currentStep = null;
+            } else if (evt.type === "content" && currentStep) {
+              currentStep.output = (currentStep.output ?? "") + (evt.delta ?? "");
+            }
+          } catch {
+            // ignore parse errors
+          }
         };
 
         const params = {
@@ -102,6 +128,7 @@ Pass variables to inject into each step's Action prompts.`,
                   output: result.output,
                   totalSteps: result.totalSteps,
                   executionMode: hasSplitter ? "fan-out" : "sequential",
+                  steps,
                 },
                 null,
                 2,

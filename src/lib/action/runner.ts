@@ -27,6 +27,7 @@ export interface ActionRunParams {
   variables: Record<string, string>;
   source?: string;
   templateRunId?: string;
+  versionId?: string;
 }
 
 export interface ActionRunResult {
@@ -45,19 +46,21 @@ export async function runAction(
   params: ActionRunParams,
   write: SSEWriter,
 ): Promise<ActionRunResult> {
-  const { actionId, projectId, variables, source = "api", templateRunId } = params;
+  const { actionId, projectId, variables, source = "api", templateRunId, versionId } = params;
 
-  // 1. Load Action + activeVersion
+  // 1. Load Action + version (specific or active)
   const action = await prisma.action.findFirst({
     where: { id: actionId, projectId },
   });
   if (!action) throw new InjectionError("Action not found", 404);
-  if (!action.activeVersionId) throw new InjectionError("Action has no active version", 400);
 
-  const version = await prisma.actionVersion.findUnique({
-    where: { id: action.activeVersionId },
+  const targetVersionId = versionId ?? action.activeVersionId;
+  if (!targetVersionId) throw new InjectionError("Action has no active version", 400);
+
+  const version = await prisma.actionVersion.findFirst({
+    where: { id: targetVersionId, actionId },
   });
-  if (!version) throw new InjectionError("Active version not found", 404);
+  if (!version) throw new InjectionError("Version not found", 404);
 
   // 2. Inject variables
   const messages = version.messages as unknown as Message[];
@@ -197,18 +200,20 @@ export async function runAction(
  * Run an Action without streaming — returns full result
  */
 export async function runActionNonStream(params: ActionRunParams): Promise<ActionRunResult> {
-  const { actionId, projectId, variables, source = "api", templateRunId } = params;
+  const { actionId, projectId, variables, source = "api", templateRunId, versionId } = params;
 
   const action = await prisma.action.findFirst({
     where: { id: actionId, projectId },
   });
   if (!action) throw new InjectionError("Action not found", 404);
-  if (!action.activeVersionId) throw new InjectionError("Action has no active version", 400);
 
-  const version = await prisma.actionVersion.findUnique({
-    where: { id: action.activeVersionId },
+  const targetVersionId = versionId ?? action.activeVersionId;
+  if (!targetVersionId) throw new InjectionError("Action has no active version", 400);
+
+  const version = await prisma.actionVersion.findFirst({
+    where: { id: targetVersionId, actionId },
   });
-  if (!version) throw new InjectionError("Active version not found", 404);
+  if (!version) throw new InjectionError("Version not found", 404);
 
   const messages = version.messages as unknown as Message[];
   const variableDefs = version.variables as unknown as VarDef[];

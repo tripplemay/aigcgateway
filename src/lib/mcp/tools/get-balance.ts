@@ -53,6 +53,7 @@ export function registerGetBalance(server: McpServer, opts: McpServerOptions): v
             type: true,
             amount: true,
             balanceAfter: true,
+            traceId: true,
             description: true,
             createdAt: true,
           },
@@ -62,6 +63,7 @@ export function registerGetBalance(server: McpServer, opts: McpServerOptions): v
           type: t.type.toLowerCase(),
           amount: `$${Number(t.amount).toFixed(4)}`,
           balanceAfter: `$${Number(t.balanceAfter).toFixed(4)}`,
+          traceId: t.traceId ?? null,
           description: t.description,
           createdAt: t.createdAt,
         }));

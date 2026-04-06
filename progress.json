@@ -1,11 +1,11 @@
 {
-  "status": "building",
+  "status": "verifying",
   "user_goal": "mcp-finops-hardening: 安全脱敏 + MCP 工具增强(activate_version/version_id/步骤明细) + FinOps 基础设施(trace_id/精度/下钻)",
   "total_features": 10,
-  "completed_features": 0,
+  "completed_features": 9,
   "fix_rounds": 0,
   "current_sprint": null,
-  "last_updated": "2026-04-07T01:00:00Z",
+  "last_updated": "2026-04-07T02:30:00Z",
   "reference_docs": [],
   "role_assignments": {
     "planner": "Kimi",
@@ -19,5 +19,32 @@
     "framework_reviewed": false
   },
   "evaluator_feedback": null,
-  "generator_handoff": null
+  "generator_handoff": {
+    "completed": ["F-MH-01", "F-MH-02", "F-MH-03", "F-MH-04", "F-MH-05", "F-MH-06", "F-MH-07", "F-MH-08", "F-MH-09"],
+    "codex_tasks": ["F-MH-10: E2E 验证"],
+    "notes": [
+      "F-MH-01: generate_image 通用 routing catch 补上 sanitizeErrorMessage",
+      "F-MH-02: 新增 activate_version MCP Tool（版本回滚/切换）",
+      "F-MH-03: run_template 返回 steps[] 数组（stepIndex/output/usage/latencyMs），从 SSE 事件收集",
+      "F-MH-04: Transaction 表新增 traceId 字段 + deduct_balance 函数更新传入 traceId + get_balance 交易流水含 traceId",
+      "F-MH-05: chat top_p Schema 改为 z.number().gt(0)（不含 0）",
+      "F-MH-06: run_action 新增 version_id 参数，runner 层 ActionRunParams 支持 versionId",
+      "F-MH-07: Transaction amount/balanceAfter + Project balance 精度从 Decimal(12,6) 升级到 Decimal(16,8)，deduct_balance 函数同步升级",
+      "F-MH-08: list_logs cost 展示精度从 4 位提升到 8 位小数",
+      "F-MH-09: SERVER_INSTRUCTIONS 更新：activate_version + run_action version_id + run_template steps[] + get_balance traceId",
+      "Migration: prisma/migrations/20260407010000_add_trace_id_and_precision/migration.sql"
+    ]
+  },
+  "features": [
+    { "id": "F-MH-01", "title": "generate_image 上游错误脱敏", "status": "completed", "executor": "generator" },
+    { "id": "F-MH-02", "title": "activate_version MCP Tool", "status": "completed", "executor": "generator" },
+    { "id": "F-MH-03", "title": "run_template 返回步骤明细", "status": "completed", "executor": "generator" },
+    { "id": "F-MH-04", "title": "交易流水增加 trace_id", "status": "completed", "executor": "generator" },
+    { "id": "F-MH-05", "title": "top_p Schema 一致性", "status": "completed", "executor": "generator" },
+    { "id": "F-MH-06", "title": "run_action 支持 version_id", "status": "completed", "executor": "generator" },
+    { "id": "F-MH-07", "title": "计费精度提升至 8 位小数", "status": "completed", "executor": "generator" },
+    { "id": "F-MH-08", "title": "聚合统计支持 trace_id 下钻", "status": "completed", "executor": "generator" },
+    { "id": "F-MH-09", "title": "SERVER_INSTRUCTIONS 统一更新", "status": "completed", "executor": "generator" },
+    { "id": "F-MH-10", "title": "E2E 验证", "status": "pending", "executor": "codex" }
+  ]
 }

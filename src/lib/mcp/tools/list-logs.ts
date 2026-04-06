@@ -133,7 +133,7 @@ function formatLog(log: {
     model: log.modelName,
     status: log.status.toLowerCase(),
     promptPreview: preview,
-    cost: log.sellPrice != null ? `$${Number(log.sellPrice).toFixed(4)}` : null,
+    cost: log.sellPrice != null ? `$${Number(log.sellPrice).toFixed(8)}` : null,
     latency: log.latencyMs != null ? `${(log.latencyMs / 1000).toFixed(1)}s` : null,
     tokens: log.totalTokens ?? null,
     createdAt: log.createdAt,
