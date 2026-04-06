@@ -76,11 +76,12 @@ export async function runSequential(
 
       previousOutput = result.output;
 
-      // SSE: step_end
+      // SSE: step_end (includes output for collectors)
       write(
         JSON.stringify({
           type: "step_end",
           step: step.order,
+          output: result.output,
           usage: result.usage
             ? {
                 prompt_tokens: result.usage.prompt_tokens,

@@ -102,6 +102,7 @@ Pass variables to inject into each step's Action prompts.`,
                 model: evt.model,
               };
             } else if (evt.type === "step_end" && currentStep) {
+              if (evt.output && !currentStep.output) currentStep.output = evt.output;
               currentStep.usage = evt.usage ?? null;
               currentStep.latencyMs = Date.now() - stepStartTime;
               steps.push(currentStep);
@@ -142,7 +143,12 @@ Pass variables to inject into each step's Action prompts.`,
             const ver = act?.versions[0];
             if (ver) {
               const msgs = ver.messages as { role: string; content: string }[];
-              const varDefs = (ver.variables ?? []) as { name: string; description?: string; required: boolean; defaultValue?: string }[];
+              const varDefs = (ver.variables ?? []) as {
+                name: string;
+                description?: string;
+                required: boolean;
+                defaultValue?: string;
+              }[];
               const stepVars: Record<string, string> = { ...variables };
               if (prevOutput !== null) stepVars.previous_output = prevOutput;
               try {
