@@ -94,10 +94,9 @@ export default function ActionsPage() {
                 </thead>
                 <tbody className="divide-y divide-slate-50">
                   {actions.map((action) => {
-                    const varCount =
-                      action.versions?.[0]?.variables
-                        ? (action.versions[0].variables as unknown[]).length
-                        : 0;
+                    const varCount = action.versions?.[0]?.variables
+                      ? (action.versions[0].variables as unknown[]).length
+                      : 0;
                     return (
                       <tr
                         key={action.id}

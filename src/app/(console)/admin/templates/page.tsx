@@ -32,7 +32,9 @@ export default function AdminTemplatesPage() {
   const load = (s?: string) => {
     setLoading(true);
     const q = s !== undefined ? s : search;
-    apiFetch<{ data: AdminTemplate[]; stats: Stats }>(`/api/admin/templates?pageSize=50${q ? `&search=${encodeURIComponent(q)}` : ""}`)
+    apiFetch<{ data: AdminTemplate[]; stats: Stats }>(
+      `/api/admin/templates?pageSize=50${q ? `&search=${encodeURIComponent(q)}` : ""}`,
+    )
       .then((d) => {
         setTemplates(d.data);
         setStats(d.stats);
@@ -53,7 +55,9 @@ export default function AdminTemplatesPage() {
       single: "bg-slate-100 text-slate-600",
     };
     return (
-      <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-tighter ${styles[mode] || styles.single}`}>
+      <span
+        className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-tighter ${styles[mode] || styles.single}`}
+      >
         {mode}
       </span>
     );
@@ -80,15 +84,25 @@ export default function AdminTemplatesPage() {
       {/* Stats Cards */}
       <div className="grid grid-cols-3 gap-6">
         <div className="bg-surface-container-lowest p-6 rounded-xl shadow-sm">
-          <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">{t("totalTemplates")}</p>
-          <p className="text-3xl font-black font-headline text-on-surface mt-2">{stats.totalTemplates}</p>
+          <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">
+            {t("totalTemplates")}
+          </p>
+          <p className="text-3xl font-black font-headline text-on-surface mt-2">
+            {stats.totalTemplates}
+          </p>
         </div>
         <div className="bg-surface-container-lowest p-6 rounded-xl shadow-sm">
-          <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">{t("totalActions")}</p>
-          <p className="text-3xl font-black font-headline text-on-surface mt-2">{stats.totalActions}</p>
+          <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">
+            {t("totalActions")}
+          </p>
+          <p className="text-3xl font-black font-headline text-on-surface mt-2">
+            {stats.totalActions}
+          </p>
         </div>
         <div className="bg-surface-container-lowest p-6 rounded-xl shadow-sm">
-          <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">{t("projects")}</p>
+          <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">
+            {t("projects")}
+          </p>
           <p className="text-3xl font-black font-headline text-on-surface mt-2">
             {new Set(templates.map((t) => t.projectName)).size}
           </p>
@@ -97,7 +111,9 @@ export default function AdminTemplatesPage() {
 
       {/* Search */}
       <div className="relative max-w-md">
-        <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">search</span>
+        <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">
+          search
+        </span>
         <input
           className="pl-10 pr-4 py-2.5 bg-surface-container-low border-none rounded-xl text-sm w-full focus:ring-2 focus:ring-primary/20"
           placeholder={t("searchPlaceholder")}
@@ -114,11 +130,21 @@ export default function AdminTemplatesPage() {
         <table className="w-full text-left border-collapse">
           <thead>
             <tr className="bg-surface-container-low">
-              <th className="px-6 py-4 text-[10px] font-extrabold uppercase tracking-widest text-slate-500">{t("colName")}</th>
-              <th className="px-6 py-4 text-[10px] font-extrabold uppercase tracking-widest text-slate-500">{t("colProject")}</th>
-              <th className="px-6 py-4 text-[10px] font-extrabold uppercase tracking-widest text-slate-500">{t("colSteps")}</th>
-              <th className="px-6 py-4 text-[10px] font-extrabold uppercase tracking-widest text-slate-500">{t("colMode")}</th>
-              <th className="px-6 py-4 text-[10px] font-extrabold uppercase tracking-widest text-slate-500">{t("colCreated")}</th>
+              <th className="px-6 py-4 text-[10px] font-extrabold uppercase tracking-widest text-slate-500">
+                {t("colName")}
+              </th>
+              <th className="px-6 py-4 text-[10px] font-extrabold uppercase tracking-widest text-slate-500">
+                {t("colProject")}
+              </th>
+              <th className="px-6 py-4 text-[10px] font-extrabold uppercase tracking-widest text-slate-500">
+                {t("colSteps")}
+              </th>
+              <th className="px-6 py-4 text-[10px] font-extrabold uppercase tracking-widest text-slate-500">
+                {t("colMode")}
+              </th>
+              <th className="px-6 py-4 text-[10px] font-extrabold uppercase tracking-widest text-slate-500">
+                {t("colCreated")}
+              </th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-50">
@@ -127,7 +153,9 @@ export default function AdminTemplatesPage() {
                 <td className="px-6 py-5">
                   <p className="font-bold text-primary text-sm">{tpl.name}</p>
                   {tpl.description && (
-                    <p className="text-xs text-slate-500 truncate max-w-[200px] mt-0.5">{tpl.description}</p>
+                    <p className="text-xs text-slate-500 truncate max-w-[200px] mt-0.5">
+                      {tpl.description}
+                    </p>
                   )}
                 </td>
                 <td className="px-6 py-5 text-sm text-slate-600">{tpl.projectName}</td>

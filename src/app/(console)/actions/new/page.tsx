@@ -116,12 +116,19 @@ export default function NewActionPage() {
           {/* Basic Info */}
           <section className="bg-surface-container-lowest rounded-xl p-6 shadow-sm">
             <div className="flex items-center gap-2 mb-6">
-              <span className="material-symbols-outlined text-primary" style={{ fontVariationSettings: "'FILL' 1" }}>info</span>
+              <span
+                className="material-symbols-outlined text-primary"
+                style={{ fontVariationSettings: "'FILL' 1" }}
+              >
+                info
+              </span>
               <h2 className="font-headline font-bold text-lg">{t("basicInfo")}</h2>
             </div>
             <div className="grid grid-cols-2 gap-6">
               <div>
-                <label className="block text-[10px] font-bold text-outline uppercase tracking-wider mb-2">{t("name")}</label>
+                <label className="block text-[10px] font-bold text-outline uppercase tracking-wider mb-2">
+                  {t("name")}
+                </label>
                 <input
                   className="w-full bg-surface-container-low border-none rounded-lg p-3 text-sm"
                   placeholder={t("namePlaceholder")}
@@ -130,7 +137,9 @@ export default function NewActionPage() {
                 />
               </div>
               <div>
-                <label className="block text-[10px] font-bold text-outline uppercase tracking-wider mb-2">{t("model")}</label>
+                <label className="block text-[10px] font-bold text-outline uppercase tracking-wider mb-2">
+                  {t("model")}
+                </label>
                 <input
                   className="w-full bg-surface-container-low border-none rounded-lg p-3 text-sm font-mono"
                   placeholder={t("modelPlaceholder")}
@@ -139,7 +148,9 @@ export default function NewActionPage() {
                 />
               </div>
               <div className="col-span-2">
-                <label className="block text-[10px] font-bold text-outline uppercase tracking-wider mb-2">{t("descriptionLabel")}</label>
+                <label className="block text-[10px] font-bold text-outline uppercase tracking-wider mb-2">
+                  {t("descriptionLabel")}
+                </label>
                 <textarea
                   className="w-full bg-surface-container-low border-none rounded-lg p-3 text-sm"
                   placeholder={t("descriptionPlaceholder")}
@@ -155,7 +166,12 @@ export default function NewActionPage() {
           <section className="bg-surface-container-lowest rounded-xl p-6 shadow-sm">
             <div className="flex justify-between items-center mb-6">
               <div className="flex items-center gap-2">
-                <span className="material-symbols-outlined text-primary" style={{ fontVariationSettings: "'FILL' 1" }}>forum</span>
+                <span
+                  className="material-symbols-outlined text-primary"
+                  style={{ fontVariationSettings: "'FILL' 1" }}
+                >
+                  forum
+                </span>
                 <h2 className="font-headline font-bold text-lg">{t("messagesEditor")}</h2>
               </div>
               <button
@@ -168,7 +184,10 @@ export default function NewActionPage() {
             </div>
             <div className="space-y-4">
               {messages.map((msg, i) => (
-                <div key={i} className="group relative bg-surface p-4 rounded-xl border border-outline-variant/10 hover:border-primary/30 transition-all">
+                <div
+                  key={i}
+                  className="group relative bg-surface p-4 rounded-xl border border-outline-variant/10 hover:border-primary/30 transition-all"
+                >
                   <div className="flex items-center justify-between mb-3">
                     <select
                       className={`px-2 py-0.5 text-[10px] font-extrabold rounded uppercase tracking-tighter border-none ${roleStyle[msg.role]}`}
@@ -176,7 +195,9 @@ export default function NewActionPage() {
                       onChange={(e) => updateMessage(i, "role", e.target.value)}
                     >
                       {Object.entries(roleLabel).map(([val, label]) => (
-                        <option key={val} value={val}>{label}</option>
+                        <option key={val} value={val}>
+                          {label}
+                        </option>
                       ))}
                     </select>
                     {messages.length > 1 && (
@@ -199,7 +220,9 @@ export default function NewActionPage() {
               ))}
             </div>
             <div className="mt-8 pt-6 border-t border-outline-variant/20">
-              <label className="block text-[10px] font-bold text-outline uppercase tracking-wider mb-2">{t("changelog")}</label>
+              <label className="block text-[10px] font-bold text-outline uppercase tracking-wider mb-2">
+                {t("changelog")}
+              </label>
               <input
                 className="w-full bg-surface-container-low border-none rounded-lg p-3 text-sm italic"
                 placeholder={t("changelogPlaceholder")}
@@ -215,7 +238,12 @@ export default function NewActionPage() {
           <section className="bg-surface-container-lowest rounded-xl p-6 shadow-sm sticky top-24 border border-outline-variant/20">
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-2">
-                <span className="material-symbols-outlined text-primary" style={{ fontVariationSettings: "'FILL' 1" }}>data_object</span>
+                <span
+                  className="material-symbols-outlined text-primary"
+                  style={{ fontVariationSettings: "'FILL' 1" }}
+                >
+                  data_object
+                </span>
                 <h2 className="font-headline font-bold text-lg">{t("variableDefinitions")}</h2>
               </div>
               <button
@@ -229,10 +257,15 @@ export default function NewActionPage() {
             {/* Auto-detected variables hint */}
             {detectedVars.size > 0 && (
               <div className="mb-4 p-3 bg-primary/5 rounded-lg">
-                <p className="text-[10px] font-bold text-primary uppercase tracking-wider mb-2">{t("detectedVars")}</p>
+                <p className="text-[10px] font-bold text-primary uppercase tracking-wider mb-2">
+                  {t("detectedVars")}
+                </p>
                 <div className="flex flex-wrap gap-1.5">
                   {[...detectedVars].map((v) => (
-                    <span key={v} className="bg-primary/10 text-primary px-2 py-0.5 rounded font-mono text-xs font-medium">
+                    <span
+                      key={v}
+                      className="bg-primary/10 text-primary px-2 py-0.5 rounded font-mono text-xs font-medium"
+                    >
                       {`{{${v}}}`}
                     </span>
                   ))}
@@ -245,7 +278,10 @@ export default function NewActionPage() {
             ) : (
               <div className="space-y-4">
                 {variables.map((v, i) => (
-                  <div key={i} className="bg-surface p-4 rounded-xl border border-outline-variant/10 space-y-3">
+                  <div
+                    key={i}
+                    className="bg-surface p-4 rounded-xl border border-outline-variant/10 space-y-3"
+                  >
                     <div className="flex items-center justify-between">
                       <input
                         className="font-mono text-sm font-bold text-primary bg-transparent border-none p-0 focus:ring-0 w-full"
@@ -253,7 +289,10 @@ export default function NewActionPage() {
                         value={v.name}
                         onChange={(e) => updateVariable(i, "name", e.target.value)}
                       />
-                      <button onClick={() => removeVariable(i)} className="text-error/60 hover:text-error">
+                      <button
+                        onClick={() => removeVariable(i)}
+                        className="text-error/60 hover:text-error"
+                      >
                         <span className="material-symbols-outlined text-sm">close</span>
                       </button>
                     </div>

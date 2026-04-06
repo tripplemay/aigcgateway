@@ -63,7 +63,12 @@ export default function TemplateDetailPage() {
   }
 
   const hasSplitter = template.steps.some((s) => s.role === "SPLITTER");
-  const executionMode = template.steps.length <= 1 ? t("modeSingle") : hasSplitter ? t("modeFanout") : t("modeSequential");
+  const executionMode =
+    template.steps.length <= 1
+      ? t("modeSingle")
+      : hasSplitter
+        ? t("modeFanout")
+        : t("modeSequential");
 
   const roleBadge = (role: string) => {
     const styles: Record<string, string> = {
@@ -79,7 +84,9 @@ export default function TemplateDetailPage() {
       MERGE: t("roleMerge"),
     };
     return (
-      <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-tighter ${styles[role] || "bg-slate-100 text-slate-600"}`}>
+      <span
+        className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-tighter ${styles[role] || "bg-slate-100 text-slate-600"}`}
+      >
         {labels[role] || role}
       </span>
     );
@@ -90,7 +97,9 @@ export default function TemplateDetailPage() {
       {/* Breadcrumb */}
       <header className="flex flex-col gap-6 mb-10">
         <div className="flex items-center gap-2 text-sm text-slate-500">
-          <Link href="/templates" className="hover:text-primary transition-colors">{t("title")}</Link>
+          <Link href="/templates" className="hover:text-primary transition-colors">
+            {t("title")}
+          </Link>
           <span className="material-symbols-outlined text-xs">chevron_right</span>
           <span className="text-primary font-medium">{template.name}</span>
         </div>
@@ -164,7 +173,9 @@ export default function TemplateDetailPage() {
             </h4>
             <div className="space-y-5">
               <div>
-                <p className="text-[10px] text-slate-400 font-bold uppercase">{t("executionMode")}</p>
+                <p className="text-[10px] text-slate-400 font-bold uppercase">
+                  {t("executionMode")}
+                </p>
                 <p className="text-sm font-medium mt-1">{executionMode}</p>
               </div>
               <div>
@@ -173,7 +184,9 @@ export default function TemplateDetailPage() {
               </div>
               <div>
                 <p className="text-[10px] text-slate-400 font-bold uppercase">{t("createdAt")}</p>
-                <p className="text-sm font-medium mt-1">{new Date(template.createdAt).toLocaleDateString()}</p>
+                <p className="text-sm font-medium mt-1">
+                  {new Date(template.createdAt).toLocaleDateString()}
+                </p>
               </div>
             </div>
           </div>
@@ -181,15 +194,32 @@ export default function TemplateDetailPage() {
           {/* Reserved variables hint */}
           {template.steps.length > 1 && (
             <div className="bg-primary/5 p-4 rounded-xl border border-primary/10">
-              <p className="text-[10px] font-bold text-primary uppercase tracking-wider mb-3">{t("reservedVariables")}</p>
+              <p className="text-[10px] font-bold text-primary uppercase tracking-wider mb-3">
+                {t("reservedVariables")}
+              </p>
               <div className="space-y-2 text-xs text-slate-600">
                 {!hasSplitter && (
-                  <p><code className="font-mono text-primary bg-primary/10 px-1.5 py-0.5 rounded">{"{{previous_output}}"}</code> — {t("reservedPreviousOutput")}</p>
+                  <p>
+                    <code className="font-mono text-primary bg-primary/10 px-1.5 py-0.5 rounded">
+                      {"{{previous_output}}"}
+                    </code>{" "}
+                    — {t("reservedPreviousOutput")}
+                  </p>
                 )}
                 {hasSplitter && (
                   <>
-                    <p><code className="font-mono text-primary bg-primary/10 px-1.5 py-0.5 rounded">{"{{branch_input}}"}</code> — {t("reservedBranchInput")}</p>
-                    <p><code className="font-mono text-primary bg-primary/10 px-1.5 py-0.5 rounded">{"{{all_outputs}}"}</code> — {t("reservedAllOutputs")}</p>
+                    <p>
+                      <code className="font-mono text-primary bg-primary/10 px-1.5 py-0.5 rounded">
+                        {"{{branch_input}}"}
+                      </code>{" "}
+                      — {t("reservedBranchInput")}
+                    </p>
+                    <p>
+                      <code className="font-mono text-primary bg-primary/10 px-1.5 py-0.5 rounded">
+                        {"{{all_outputs}}"}
+                      </code>{" "}
+                      — {t("reservedAllOutputs")}
+                    </p>
                   </>
                 )}
               </div>

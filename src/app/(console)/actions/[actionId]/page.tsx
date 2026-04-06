@@ -161,7 +161,11 @@ export default function ActionDetailPage() {
                   >
                     <div className="flex items-center gap-2 mb-2">
                       <span className="material-symbols-outlined text-sm text-primary">
-                        {msg.role === "system" ? "terminal" : msg.role === "assistant" ? "smart_toy" : "person"}
+                        {msg.role === "system"
+                          ? "terminal"
+                          : msg.role === "assistant"
+                            ? "smart_toy"
+                            : "person"}
                       </span>
                       <span className="text-[10px] font-black uppercase tracking-widest text-primary">
                         {msg.role}
@@ -170,7 +174,10 @@ export default function ActionDetailPage() {
                     <p className="text-on-surface leading-relaxed whitespace-pre-wrap">
                       {msg.content.split(/(\{\{[^}]+\}\})/).map((part, j) =>
                         part.startsWith("{{") ? (
-                          <span key={j} className="bg-primary/10 text-primary px-1.5 py-0.5 rounded font-mono font-medium text-sm">
+                          <span
+                            key={j}
+                            className="bg-primary/10 text-primary px-1.5 py-0.5 rounded font-mono font-medium text-sm"
+                          >
                             {part}
                           </span>
                         ) : (
@@ -199,17 +206,31 @@ export default function ActionDetailPage() {
                     </thead>
                     <tbody className="divide-y divide-surface-container-low">
                       {activeVersion.variables.map((v, i) => (
-                        <tr key={i} className="hover:bg-surface-container-high/20 transition-colors">
-                          <td className="px-4 py-4 font-mono text-xs text-primary font-bold">{v.name}</td>
-                          <td className="px-4 py-4 text-sm text-slate-600">{v.description || "—"}</td>
+                        <tr
+                          key={i}
+                          className="hover:bg-surface-container-high/20 transition-colors"
+                        >
+                          <td className="px-4 py-4 font-mono text-xs text-primary font-bold">
+                            {v.name}
+                          </td>
+                          <td className="px-4 py-4 text-sm text-slate-600">
+                            {v.description || "—"}
+                          </td>
                           <td className="px-4 py-4">
                             {v.required ? (
-                              <span className="material-symbols-outlined text-primary" style={{ fontVariationSettings: "'FILL' 1" }}>check_circle</span>
+                              <span
+                                className="material-symbols-outlined text-primary"
+                                style={{ fontVariationSettings: "'FILL' 1" }}
+                              >
+                                check_circle
+                              </span>
                             ) : (
                               <span className="text-slate-400">—</span>
                             )}
                           </td>
-                          <td className="px-4 py-4 text-xs font-mono text-slate-400">{v.defaultValue || "—"}</td>
+                          <td className="px-4 py-4 text-xs font-mono text-slate-400">
+                            {v.defaultValue || "—"}
+                          </td>
                         </tr>
                       ))}
                     </tbody>
@@ -227,7 +248,9 @@ export default function ActionDetailPage() {
                 <div
                   key={v.id}
                   className={`flex items-center justify-between p-4 bg-surface rounded-xl ${
-                    v.id === action.activeVersionId ? "border-l-4 border-primary" : "border border-outline-variant/10"
+                    v.id === action.activeVersionId
+                      ? "border-l-4 border-primary"
+                      : "border border-outline-variant/10"
                   }`}
                 >
                   <div className="flex items-center gap-4">
@@ -271,10 +294,14 @@ export default function ActionDetailPage() {
             <div className="space-y-5">
               <div>
                 <p className="text-[10px] text-slate-400 font-bold uppercase">{t("createdAt")}</p>
-                <p className="text-sm font-medium mt-1">{new Date(action.createdAt).toLocaleDateString()}</p>
+                <p className="text-sm font-medium mt-1">
+                  {new Date(action.createdAt).toLocaleDateString()}
+                </p>
               </div>
               <div>
-                <p className="text-[10px] text-slate-400 font-bold uppercase">{t("totalVersions")}</p>
+                <p className="text-[10px] text-slate-400 font-bold uppercase">
+                  {t("totalVersions")}
+                </p>
                 <p className="text-sm font-medium mt-1">{action.versions.length}</p>
               </div>
               <div>

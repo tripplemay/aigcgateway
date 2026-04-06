@@ -61,7 +61,9 @@ export default function TemplatesPage() {
       single: t("modeSingle"),
     };
     return (
-      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-tighter ${styles[mode] || styles.single}`}>
+      <span
+        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-tighter ${styles[mode] || styles.single}`}
+      >
         {labels[mode] || mode}
       </span>
     );
@@ -131,7 +133,9 @@ export default function TemplatesPage() {
                   onClick={() => router.push(`/templates/${tpl.id}`)}
                 >
                   <td className="px-6 py-5">
-                    <span className="text-primary font-bold text-sm tracking-tight">{tpl.name}</span>
+                    <span className="text-primary font-bold text-sm tracking-tight">
+                      {tpl.name}
+                    </span>
                   </td>
                   <td className="px-6 py-5">
                     <span className="text-slate-600 text-xs font-medium">

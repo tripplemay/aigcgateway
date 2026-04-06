@@ -87,7 +87,9 @@ export default function NewTemplatePage() {
     <main className="p-8 max-w-5xl mx-auto w-full">
       {/* Breadcrumb */}
       <div className="flex items-center gap-2 text-sm text-slate-500 mb-6">
-        <Link href="/templates" className="hover:text-primary transition-colors">{t("title")}</Link>
+        <Link href="/templates" className="hover:text-primary transition-colors">
+          {t("title")}
+        </Link>
         <span className="material-symbols-outlined text-xs">chevron_right</span>
         <span className="text-primary font-medium">{t("createTitle")}</span>
       </div>
@@ -102,12 +104,19 @@ export default function NewTemplatePage() {
       {/* Basic Info */}
       <section className="bg-surface-container-lowest rounded-xl p-6 shadow-sm mb-6">
         <div className="flex items-center gap-2 mb-6">
-          <span className="material-symbols-outlined text-primary" style={{ fontVariationSettings: "'FILL' 1" }}>info</span>
+          <span
+            className="material-symbols-outlined text-primary"
+            style={{ fontVariationSettings: "'FILL' 1" }}
+          >
+            info
+          </span>
           <h2 className="font-headline font-bold text-lg">{t("basicInfo")}</h2>
         </div>
         <div className="grid grid-cols-2 gap-6">
           <div>
-            <label className="block text-[10px] font-bold text-outline uppercase tracking-wider mb-2">{t("templateName")}</label>
+            <label className="block text-[10px] font-bold text-outline uppercase tracking-wider mb-2">
+              {t("templateName")}
+            </label>
             <input
               className="w-full bg-surface-container-low border-none rounded-lg p-3 text-sm"
               placeholder={t("namePlaceholder")}
@@ -116,13 +125,17 @@ export default function NewTemplatePage() {
             />
           </div>
           <div>
-            <label className="block text-[10px] font-bold text-outline uppercase tracking-wider mb-2">{t("executionMode")}</label>
+            <label className="block text-[10px] font-bold text-outline uppercase tracking-wider mb-2">
+              {t("executionMode")}
+            </label>
             <div className="bg-surface-container-low rounded-lg p-3 text-sm font-medium text-slate-600">
               {executionMode}
             </div>
           </div>
           <div className="col-span-2">
-            <label className="block text-[10px] font-bold text-outline uppercase tracking-wider mb-2">{t("descriptionLabel")}</label>
+            <label className="block text-[10px] font-bold text-outline uppercase tracking-wider mb-2">
+              {t("descriptionLabel")}
+            </label>
             <textarea
               className="w-full bg-surface-container-low border-none rounded-lg p-3 text-sm"
               placeholder={t("descriptionPlaceholder")}
@@ -138,7 +151,12 @@ export default function NewTemplatePage() {
       <section className="bg-surface-container-lowest rounded-xl p-6 shadow-sm mb-6">
         <div className="flex justify-between items-center mb-6">
           <div className="flex items-center gap-2">
-            <span className="material-symbols-outlined text-primary" style={{ fontVariationSettings: "'FILL' 1" }}>account_tree</span>
+            <span
+              className="material-symbols-outlined text-primary"
+              style={{ fontVariationSettings: "'FILL' 1" }}
+            >
+              account_tree
+            </span>
             <h2 className="font-headline font-bold text-lg">{t("executionSequence")}</h2>
           </div>
           <button
@@ -175,7 +193,9 @@ export default function NewTemplatePage() {
                   onChange={(e) => updateStep(i, "role", e.target.value)}
                 >
                   {ROLES.map((r) => (
-                    <option key={r} value={r}>{roleLabels[r]}</option>
+                    <option key={r} value={r}>
+                      {roleLabels[r]}
+                    </option>
                   ))}
                 </select>
                 {steps.length > 1 && (
@@ -199,13 +219,24 @@ export default function NewTemplatePage() {
         {/* Reserved variable hints */}
         {steps.length > 1 && (
           <div className="mt-6 p-4 bg-primary/5 rounded-xl border border-primary/10">
-            <p className="text-[10px] font-bold text-primary uppercase tracking-wider mb-2">{t("reservedVariables")}</p>
+            <p className="text-[10px] font-bold text-primary uppercase tracking-wider mb-2">
+              {t("reservedVariables")}
+            </p>
             <div className="space-y-1 text-xs text-slate-600">
-              <p><code className="font-mono text-primary">{"{{previous_output}}"}</code> — {t("reservedPreviousOutput")}</p>
+              <p>
+                <code className="font-mono text-primary">{"{{previous_output}}"}</code> —{" "}
+                {t("reservedPreviousOutput")}
+              </p>
               {steps.some((s) => s.role === "SPLITTER") && (
                 <>
-                  <p><code className="font-mono text-primary">{"{{branch_input}}"}</code> — {t("reservedBranchInput")}</p>
-                  <p><code className="font-mono text-primary">{"{{all_outputs}}"}</code> — {t("reservedAllOutputs")}</p>
+                  <p>
+                    <code className="font-mono text-primary">{"{{branch_input}}"}</code> —{" "}
+                    {t("reservedBranchInput")}
+                  </p>
+                  <p>
+                    <code className="font-mono text-primary">{"{{all_outputs}}"}</code> —{" "}
+                    {t("reservedAllOutputs")}
+                  </p>
                 </>
               )}
             </div>
