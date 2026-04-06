@@ -7,7 +7,7 @@
       "title": "上游错误信息脱敏：mapProviderError 消息清洗",
       "priority": "critical",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "1) openai-compat.ts mapProviderError() 中，对 message 进行脱敏：移除 URL（http/https）、API Key 片段（sk-*、pk-*）、QQ 群号等敏感信息；2) 用户看到的错误为平台级描述（如 'Provider temporarily unavailable, please try another model'），不含上游供应商细节；3) MCP 工具（chat/generate-image）的错误返回同样脱敏；4) npm run lint + tsc 通过"
     },
     {

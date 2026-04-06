@@ -1,0 +1,78 @@
+{
+  "baseUrl": "http://localhost:3099",
+  "generatedAt": "2026-04-06T04:25:29.855Z",
+  "checks": [
+    {
+      "name": "runtime smoke: admin login route responds 200",
+      "ok": true,
+      "detail": "login route reachable"
+    },
+    {
+      "name": "F-DPF-05: register user + create key + tools/list + list_models",
+      "ok": false,
+      "detail": "list_models returned empty"
+    },
+    {
+      "name": "F-DPF-01: sanitizeErrorMessage removes URL/key/QQ/email/IP",
+      "ok": true,
+      "detail": "Provider failed at [URL removed] with [key removed] [key removed] [contact removed] [email removed] [IP removed] Bearer [redacted]"
+    },
+    {
+      "name": "F-DPF-02: 4 adapters fail fast when apiKey is missing",
+      "ok": true,
+      "detail": "deepseek: Provider \"deepseek\" has no API Key configured in authConfig. Please add an apiKey via Admin > Providers before syncing. | anthropic: Provider \"anthropic\" has no API Key configured in authConfig. Please add an apiKey via Admin > Providers before syncing. | zhipu: Provider \"zhipu\" has no API Key configured in authConfig. Please add an apiKey via Admin > Providers before syncing. | siliconflow: Provider \"siliconflow\" has no API Key configured in authConfig. Please add an apiKey via Admin > Providers before syncing."
+    },
+    {
+      "name": "F-DPF-02: local sync still reports 401 for the 4 target providers",
+      "ok": true,
+      "detail": "deepseek: API fetch failed: DeepSeek /models returned 401 | anthropic: API fetch failed: Anthropic /models returned 401 | zhipu: API fetch failed: Zhipu /models returned 401 | siliconflow: API fetch failed: SiliconFlow /models returned 401"
+    },
+    {
+      "name": "F-DPF-03: resolveCapabilities never returns unknown",
+      "ok": true,
+      "detail": "known={\"vision\":true,\"json_mode\":true,\"streaming\":true} fallback={}"
+    },
+    {
+      "name": "F-DPF-03: local DB models contain no capabilities.unknown",
+      "ok": true,
+      "detail": "no DB rows with capabilities.unknown"
+    },
+    {
+      "name": "F-DPF-04: chat description hardcoded examples exist in list_models",
+      "ok": false,
+      "detail": "chat description examples absent from list_models: openrouter/anthropic/claude-sonnet-4, anthropic/claude-sonnet-4"
+    },
+    {
+      "name": "F-DPF-04: generate_image description hardcoded examples exist in list_models",
+      "ok": false,
+      "detail": "generate_image examples absent from list_models: gpt-image-1, dall-e-3, seedream-4.5, Wanx"
+    }
+  ],
+  "features": [
+    {
+      "featureId": "F-DPF-01",
+      "result": "PASS",
+      "detail": "Provider failed at [URL removed] with [key removed] [key removed] [contact removed] [email removed] [IP removed] Bearer [redacted]"
+    },
+    {
+      "featureId": "F-DPF-02",
+      "result": "FAIL",
+      "detail": "precheck=deepseek: Provider \"deepseek\" has no API Key configured in authConfig. Please add an apiKey via Admin > Providers before syncing. | anthropic: Provider \"anthropic\" has no API Key configured in authConfig. Please add an apiKey via Admin > Providers before syncing. | zhipu: Provider \"zhipu\" has no API Key configured in authConfig. Please add an apiKey via Admin > Providers before syncing. | siliconflow: Provider \"siliconflow\" has no API Key configured in authConfig. Please add an apiKey via Admin > Providers before syncing.; local_sync=deepseek: API fetch failed: DeepSeek /models returned 401 | anthropic: API fetch failed: Anthropic /models returned 401 | zhipu: API fetch failed: Zhipu /models returned 401 | siliconflow: API fetch failed: SiliconFlow /models returned 401"
+    },
+    {
+      "featureId": "F-DPF-03",
+      "result": "PASS",
+      "detail": "known={\"vision\":true,\"json_mode\":true,\"streaming\":true} fallback={}; no DB rows with capabilities.unknown"
+    },
+    {
+      "featureId": "F-DPF-04",
+      "result": "FAIL",
+      "detail": "chat=chat description examples absent from list_models: openrouter/anthropic/claude-sonnet-4, anthropic/claude-sonnet-4; generate_image=generate_image examples absent from list_models: gpt-image-1, dall-e-3, seedream-4.5, Wanx"
+    },
+    {
+      "featureId": "F-DPF-05",
+      "result": "FAIL",
+      "detail": "list_models returned empty"
+    }
+  ]
+}

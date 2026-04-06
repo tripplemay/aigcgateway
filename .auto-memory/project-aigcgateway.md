@@ -16,6 +16,15 @@ AIGC Gateway — AI 服务商管理中台。统一 API 调用抽象（兼容 Ope
 **Harness 状态：** done
 **签收报告：** `docs/test-reports/ui-redesign-templates-actions-local-signoff-2026-04-06.md`
 
+### 当前进行中批次
+
+- `dx-provider-fixes`
+  - 当前阶段：`fixing`
+  - 最近一次 Evaluator 复验结论：本地 L1 未通过
+  - 通过：`F-DPF-01` 上游错误脱敏、`F-DPF-03` capabilities unknown 清理
+  - 失败：`F-DPF-02` 4 个 Provider 本地 sync 仍报 401、`F-DPF-04` MCP description 示例与 `list_models` 不一致、`F-DPF-05` 新项目 API Key 下 `list_models` 为空
+  - 复验报告：`docs/test-reports/dx-provider-fixes-local-reverification-2026-04-06.md`
+
 ### 里程碑总览
 
 - P1：项目骨架 + 7 家服务商 + API 网关 + 健康检查 + SDK + 认证计费支付 + 控制台 17 页
