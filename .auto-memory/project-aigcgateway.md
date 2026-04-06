@@ -29,10 +29,10 @@ AIGC Gateway — AI 服务商管理中台。统一 API 调用抽象（兼容 Ope
 
 - `ui-1to1-restoration`
   - 当前阶段：`fixing`
-  - 首轮原型对照结论：未通过
-  - 通过：`F-1TO1-03`、`F-1TO1-04`、`F-1TO1-06`、`F-1TO1-07`
-  - 失败：`F-1TO1-01` Actions 列表页缺少原型分页控件；`F-1TO1-02` Action 详情页缺少 New Version 且侧栏信息不一致；`F-1TO1-05` Template 详情页缺少 Add Step Placeholder 和 Pipeline Preview；`F-1TO1-08` 原型对照验收未通过
-  - 报告：`docs/test-reports/ui-1to1-restoration-local-verification-2026-04-06.md`
+  - 第 1 轮复验结论：部分通过，继续修复
+  - 已通过：`F-1TO1-01`、`F-1TO1-03`、`F-1TO1-04`、`F-1TO1-05`、`F-1TO1-06`、`F-1TO1-07`
+  - 剩余失败：`F-1TO1-02` Action Detail 的 Performance Matrix 仍未恢复原型字段；`F-1TO1-08` 原型对照验收未通过
+  - 报告：`docs/test-reports/ui-1to1-restoration-local-reverification-2026-04-06.md`
 
 ### 里程碑总览
 
