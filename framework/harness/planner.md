@@ -83,7 +83,22 @@ executor:codex 的典型场景：压力测试执行、code review、安全审计
 - medium：重要但非必须的功能
 - low：锦上添花的功能，最后实现
 
-### 5. 判断批次类型并更新 progress.json
+### 5. 角色分配（多 agent 环境）
+
+如果项目根目录存在 `.agent-id` 文件，说明项目配置了多 agent 协作，Planner 必须在写入 progress.json 前询问用户：
+
+1. "本批次由哪个 agent 执行 Generator？"（默认：当前 agent）
+2. "本批次由哪个 agent 执行 Evaluator？"（默认：codex）
+3. 用户指定后写入 `role_assignments`
+4. 用户说"默认"或不指定 → 不写入 `role_assignments`，按默认映射
+
+**校验规则（写入前必须检查）：**
+- generator 和 evaluator 不能是同一个 agent-id
+- 当前阶段（方向 B）：Codex 只能被分配为 evaluator
+
+`.agent-id` 文件不存在 → 跳过此步骤，按默认映射。
+
+### 6. 判断批次类型并更新 progress.json
 
 检查 features.json 中所有功能的 executor 字段：
 
@@ -97,6 +112,7 @@ executor:codex 的典型场景：压力测试执行、code review、安全审计
   "fix_rounds": 0,
   "current_sprint": null,
   "last_updated": "当前时间",
+  "role_assignments": null,
   "docs": {
     "spec": "specs/[批次名称]-spec.md",
     "test_cases": null,
@@ -138,5 +154,8 @@ executor:codex 的典型场景：压力测试执行、code review、安全审计
 ### 2. 处理 proposed-learnings（如有）
 读取 `framework/proposed-learnings.md`，逐条提交用户确认，确认后写入对应 framework 文件。
 
-### 3. 询问下一批次
+### 3. 清除 role_assignments
+如果 progress.json 中存在 `role_assignments`，将其设为 `null`。角色分配仅对当前批次有效，下一批次重新分配。
+
+### 4. 询问下一批次
 记忆更新完成后，告知用户本批次已归档，询问是否开始下一批次。

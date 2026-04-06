@@ -60,8 +60,28 @@ git pull --ff-only origin main
 - `harness-rules.md` — 本文件自身
 - `.auto-memory/MEMORY.md` — 项目记忆索引（**所有 agent 必读**，读完后按需加载 `project-aigcgateway.md` 等记忆文件）
 
-### 第一步：判断阶段
-读取 progress.json（已确认为最新版本）：
+### 第一步：识别身份
+读取项目根目录 `.agent-id` 文件（如存在），获取当前 agent 的身份标识（如 `local`、`remote-builder-1`）。文件不存在则 myId = null。
+
+### 第二步：判断阶段与角色
+
+读取 progress.json（已确认为最新版本），获取 `status` 和 `role_assignments`。
+
+**角色判断逻辑：**
+
+```
+如果 role_assignments 不存在或为 null：
+  → 按默认映射执行（Claude CLI = planner + generator，Codex = evaluator）
+
+如果 role_assignments 存在：
+  如果 myId = null（未配置 .agent-id）：
+    → 不主动执行任何角色，告知用户"检测到 role_assignments 但未配置 .agent-id，请先创建"
+  如果 myId 有值：
+    → 匹配 role_assignments 中的角色，加载对应角色文件
+    → myId 不在当前阶段对应角色中 → 告知用户"本阶段工作已分配给其他 agent（{对应 agent-id}）"，等待指令
+```
+
+**默认映射（无 role_assignments 时）：**
 
 | status | 执行工具 | 加载文件 | 动作 |
 |---|---|---|---|
@@ -73,8 +93,16 @@ git pull --ff-only origin main
 | `reverifying` | Codex | evaluator.md | 复验，写 signoff 报告 |
 | `done` | Claude CLI | planner.md | 更新记忆，处理 proposed-learnings，询问下一批次 |
 
-### 第二步：读取对应角色文件
-根据阶段加载 planner.md / generator.md / evaluator.md 并严格执行。
+**阶段与角色的对应关系：**
+
+| 阶段 | 需要的角色 |
+|---|---|
+| `new` / `planning` / `done` | planner |
+| `building` / `fixing` | generator |
+| `verifying` / `reverifying` | evaluator |
+
+### 第三步：读取对应角色文件
+根据第二步的判断结果加载 planner.md / generator.md / evaluator.md 并严格执行。
 
 ### 第三步：完成后更新 progress.json
 每个阶段结束后必须更新 progress.json 中的 status 字段，再结束会话。
@@ -143,6 +171,32 @@ git push origin main         # 触发 CI，不触发部署
 
 进度类文件（progress.json / features.json / .auto-memory/ 等）推 `main` 不触发 CI（paths-ignore 已配置）。
 
+## 角色动态分配（role_assignments）
+
+支持在 progress.json 中按批次指定角色分配，覆盖默认映射。
+
+**字段格式（progress.json）：**
+```json
+{
+  "role_assignments": {
+    "planner": "local",
+    "generator": "remote-builder-1",
+    "evaluator": "codex-1"
+  }
+}
+```
+
+**约束规则：**
+- generator 和 evaluator 不得为同一 agent-id（不能自己评估自己的代码）
+- planner 可与任何角色重叠
+- 当前阶段（方向 B）：Codex 只能被分配为 evaluator（AGENTS.md 限制）
+- `role_assignments` 为 null 或不存在时，按默认映射执行，完全向后兼容
+- done 阶段清除 `role_assignments`
+
+**适用边界：**
+- 跨机器多 agent：各机器配不同 `.agent-id`，通过 `role_assignments` 分工 → 支持
+- 同机器多实例：共享同一 `.agent-id`，harness 无法区分 → 由用户在对话中口头指定
+
 ## 铁律（任何情况下不得违反）
 1. 永远不要一次性生成所有代码，必须分功能逐条实现
 2. 每完成一个功能，立即写入 progress.json，不得跳过
@@ -151,6 +205,7 @@ git push origin main         # 触发 CI，不触发部署
 5. 每次提交代码前必须确认可以运行，不提交无法运行的代码
 6. Generator 不得执行 `executor:codex` 的功能；Codex 不得实现 `executor:generator` 的功能
 7. 压测执行、code review、安全审计等"产出报告"类任务，必须标注 `executor:codex`
+8. `role_assignments` 存在时，agent 只执行分配给自己的角色，不越界
 
 ## 框架提案规则
 

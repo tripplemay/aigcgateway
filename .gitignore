@@ -1,6 +1,9 @@
 # MCP config (contains API keys)
 .mcp.json
 
+# Agent identity (per-machine, not shared)
+.agent-id
+
 # dependencies
 /node_modules
 /.pnp
