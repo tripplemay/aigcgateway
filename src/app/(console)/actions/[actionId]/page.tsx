@@ -343,6 +343,45 @@ export default function ActionDetailPage() {
                 </span>
               </div>
             </div>
+            {/* Decorative graphic — design-draft line 323-329 */}
+            <div className="mt-8 rounded-lg overflow-hidden h-32 relative">
+              <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-secondary/10 z-10" />
+              <div className="absolute bottom-2 left-2 z-20">
+                <span className="text-[10px] font-black text-white bg-black/40 px-2 py-1 backdrop-blur rounded uppercase tracking-tighter">
+                  System Health: Stable
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Performance Matrix — design-draft line 332-359 */}
+          <div className="bg-[#131b2e] rounded-xl p-6 shadow-xl text-white">
+            <h3 className="text-xs font-black text-slate-400 uppercase tracking-[0.2em] mb-6">
+              Performance Matrix
+            </h3>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="p-4 bg-white/5 rounded-xl border border-white/10">
+                <span className="text-[10px] font-bold text-slate-400 uppercase block mb-1">
+                  Versions
+                </span>
+                <div className="flex items-baseline gap-1">
+                  <span className="text-2xl font-headline font-extrabold text-primary-fixed-dim">
+                    {action.versions.length}
+                  </span>
+                  <span className="text-xs font-medium text-slate-400">total</span>
+                </div>
+              </div>
+              <div className="p-4 bg-white/5 rounded-xl border border-white/10">
+                <span className="text-[10px] font-bold text-slate-400 uppercase block mb-1">
+                  Model
+                </span>
+                <div className="flex items-baseline gap-1">
+                  <span className="text-sm font-headline font-extrabold text-primary-fixed-dim truncate">
+                    {action.model.split("/").pop()}
+                  </span>
+                </div>
+              </div>
+            </div>
           </div>
 
           {/* Developer Quick-Link Card — design-draft line 361-367 */}

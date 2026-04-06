@@ -78,6 +78,11 @@ export default function ActionsPage() {
               onChange={(e) => setSearch(e.target.value)}
             />
           </div>
+          {/* Notification & Help — design-draft line 154-157 */}
+          <div className="flex items-center gap-4 text-slate-500">
+            <button className="hover:text-primary transition-colors"><span className="material-symbols-outlined">notifications</span></button>
+            <button className="hover:text-primary transition-colors"><span className="material-symbols-outlined">help_outline</span></button>
+          </div>
           {/* Create button — design-draft line 158-161 */}
           <Link
             href="/actions/new"
@@ -211,34 +216,33 @@ export default function ActionsPage() {
 
             {/* Right sidebar — design-draft line 270-327 */}
             <div className="col-span-12 lg:col-span-3 space-y-6">
-              {/* Action Stats — design-draft line 271-297 */}
+              {/* Action Latency — design-draft line 271-297 */}
               <div className="bg-surface-container-lowest p-6 rounded-xl shadow-sm">
                 <h4 className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-4">
-                  {t("statsTitle")}
+                  Action Latency
                 </h4>
-                <div className="space-y-4 pt-2">
+                <div className="flex items-end gap-1.5 h-32 mb-4">
+                  {[60, 45, 80, 65, 40, 90, 75].map((h, i) => (
+                    <div
+                      key={i}
+                      className={`flex-1 rounded-t-lg transition-all hover:bg-primary-container ${i === 3 ? "bg-primary-container" : "bg-surface-container-high"}`}
+                      style={{ height: `${h}%` }}
+                    />
+                  ))}
+                </div>
+                <div className="flex justify-between items-center">
                   <div>
-                    <p className="text-2xl font-black font-headline text-on-surface">
-                      {actions.length}
-                    </p>
+                    <p className="text-2xl font-black font-headline text-on-surface">{actions.length}</p>
                     <p className="text-[10px] text-slate-400 font-bold uppercase tracking-tight">
                       {t("totalActions")}
                     </p>
                   </div>
-                  <div>
+                  <div className="text-right">
                     <p className="text-2xl font-black font-headline text-on-surface">
                       {actions.filter((a) => a.activeVersion).length}
                     </p>
                     <p className="text-[10px] text-slate-400 font-bold uppercase tracking-tight">
                       {t("withActiveVersion")}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-2xl font-black font-headline text-on-surface">
-                      {new Set(actions.map((a) => a.model)).size}
-                    </p>
-                    <p className="text-[10px] text-slate-400 font-bold uppercase tracking-tight">
-                      {t("uniqueModels")}
                     </p>
                   </div>
                 </div>
@@ -247,7 +251,7 @@ export default function ActionsPage() {
               {/* Action Health — design-draft line 298-319 */}
               <div className="bg-surface-container-lowest p-6 rounded-xl shadow-sm relative overflow-hidden">
                 <h4 className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-6">
-                  {t("actionHealth")}
+                  Action Health
                 </h4>
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
@@ -273,6 +277,16 @@ export default function ActionsPage() {
                       </p>
                     </div>
                   </div>
+                </div>
+              </div>
+
+              {/* Promo card — design-draft line 320-327 */}
+              <div className="rounded-xl overflow-hidden shadow-sm aspect-square relative group cursor-pointer bg-gradient-to-br from-primary/20 to-secondary/10">
+                <div className="absolute inset-0 bg-gradient-to-t from-on-surface/90 to-transparent p-6 flex flex-col justify-end">
+                  <p className="text-white text-sm font-bold mb-1">Vertex AI integration</p>
+                  <p className="text-slate-300 text-[10px]">
+                    Supports specialized models for healthcare and finance industries.
+                  </p>
                 </div>
               </div>
             </div>

@@ -178,6 +178,29 @@ export default function NewTemplatePage() {
               </div>
             </div>
           </section>
+
+          {/* Pipeline Stats — design-draft line 196-208 */}
+          <section className="bg-surface-container-low rounded-xl p-6">
+            <p className="text-[10px] font-black uppercase tracking-widest text-outline mb-4">
+              Pipeline Stats
+            </p>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="bg-white p-4 rounded-lg">
+                <p className="text-[10px] text-outline font-bold">STEPS</p>
+                <p className="text-xl font-headline font-bold text-primary">{steps.length}</p>
+              </div>
+              <div className="bg-white p-4 rounded-lg">
+                <p className="text-[10px] text-outline font-bold">MODE</p>
+                <p className="text-xl font-headline font-bold text-primary">
+                  {steps.some((s) => s.role === "SPLITTER")
+                    ? "Fan-out"
+                    : steps.length > 1
+                      ? "Seq"
+                      : "Single"}
+                </p>
+              </div>
+            </div>
+          </section>
         </div>
 
         {/* Right Column: Step Builder — design-draft line 210-332 */}
@@ -318,6 +341,28 @@ export default function NewTemplatePage() {
               </div>
             </div>
           )}
+
+          {/* Deploy CTA — design-draft line 315-331 */}
+          <div className="mt-12 p-8 rounded-2xl bg-indigo-900 text-indigo-50 relative overflow-hidden">
+            <div className="relative z-10">
+              <h4 className="font-headline font-bold text-xl mb-2">Ready to Deploy?</h4>
+              <p className="text-indigo-200 text-sm max-w-md">
+                Once saved, this template will be available as an API endpoint for your production
+                environment immediately.
+              </p>
+              <div className="mt-6 flex gap-4">
+                <button
+                  onClick={handleSubmit}
+                  disabled={saving}
+                  className="px-6 py-3 bg-white text-indigo-900 rounded-lg text-sm font-bold shadow-xl hover:scale-105 transition-transform disabled:opacity-50"
+                >
+                  {saving ? "..." : t("saveTemplate")}
+                </button>
+              </div>
+            </div>
+            <div className="absolute -right-12 -bottom-12 w-64 h-64 bg-primary-container/20 blur-3xl rounded-full" />
+            <div className="absolute right-12 top-4 w-32 h-32 bg-indigo-400/10 blur-2xl rounded-full" />
+          </div>
         </div>
       </div>
     </main>
