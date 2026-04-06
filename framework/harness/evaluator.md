@@ -75,11 +75,13 @@
 
 1. **Read 原型文件**：`Read design-draft/xxx/index.html`，通读完整 HTML 源码
 2. **Read 实现文件**：`Read src/app/(console)/xxx/page.tsx`
-3. **逐块核对**：对照原型 HTML 的 DOM 结构，检查实现中是否覆盖了所有区块、表格列、表单字段、交互入口（按钮/开关/下拉）
-4. **识别功能缺失**：原型中有但实现中没有的功能（如编辑态、操作列）判 FAIL
-5. **识别结构简化**：原型中有但实现中简化的区块（如信息面板字段缺失）判 PARTIAL
+3. **逐元素核对**：对照原型 HTML，检查实现是否完全还原了 DOM 结构、class 名、图标名、数据字段语义、按钮/链接目标
+4. **识别语义替换**：原型中的指标类型被替换（如 Avg Latency 被换成 Total Count）判 FAIL
+5. **识别图标/交互替换**：原型中的图标或链接目标被替换（如 `more_horiz` 被换成 `chevron_right`）判 FAIL
+6. **识别区块删除**：原型中有但实现中删除的区块判 FAIL
+7. **识别结构简化**：原型中有但实现中简化的区块（如面板字段缺失）判 PARTIAL
 
-**不读原型直接根据 acceptance 文字判分 = 不合格的验收。** 原型 HTML 是 source of truth，acceptance 只是摘要。
+**验收标准：完全还原 HTML 代码。** 原型 HTML 是 source of truth，acceptance 只是摘要。实现应该是原型的机械翻译（HTML → React），不是语义重写。
 
 ### 5. 生成反馈报告
 将结果写入 progress.json 的 evaluator_feedback：
