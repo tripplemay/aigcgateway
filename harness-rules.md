@@ -102,11 +102,12 @@ Codex-only 批次（全部 executor:codex）：
 
 ```
 docs/
-├── specs/         # Planner 写，Generator 读
-├── test-cases/    # Evaluator 读写
-├── test-reports/  # Evaluator 在 reverifying→done 时写（硬性要求）
-├── archive/       # 历史文档归档
-└── adr/           # 可选：架构决策记录
+├── specs/                  # Planner 写，Generator 读
+├── test-cases/             # Evaluator 读写
+├── test-reports/           # Evaluator 在 reverifying→done 时写（硬性要求）
+│   └── user_report/        # 用户反馈报告（Planner 在新批次启动时必读）
+├── archive/                # 历史文档归档
+└── adr/                    # 可选：架构决策记录
 ```
 
 ## 需求池（backlog.json）

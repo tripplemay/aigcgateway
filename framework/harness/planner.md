@@ -5,12 +5,19 @@
 
 ## 执行步骤
 
-### 0. 读取需求池（backlog.json）
-启动新批次前，先读取 `backlog.json`：
+### 0. 读取需求池 + 用户反馈
+启动新批次前，依次读取：
+
+**0a. 用户反馈（`docs/test-reports/user_report/`）**
+- 检查该目录是否有新增或未处理的反馈报告
+- 有 → 向用户展示报告摘要和关键问题，询问是否纳入本批次
+- 用户反馈是需求的重要来源，尤其是 P0/P1 级别的 DX 问题应优先考虑
+
+**0b. 需求池（`backlog.json`）**
 - 如果有待处理条目，向用户展示列表，询问本批次要包含哪些
 - 用户选取后，将选中条目并入本批次的 features.json
 - 选中的条目从 backlog.json 中移除（未选的保留）
-- 如果 backlog 为空，直接询问用户新需求
+- 如果 backlog 为空且无用户反馈，直接询问用户新需求
 
 ### 1. 深入理解需求
 向用户提出以下问题（如果 progress.json 中已有 user_goal 则跳过）：
@@ -29,6 +36,15 @@
 
 **Bug 修复批次（软性）：** spec 可省略，features.json 的 acceptance 标准即为 Generator 的实现依据。
 如省略，`docs.spec` 填 `null`。
+
+### 2.5 检查 Stitch 设计稿（UI 页面变更时必须）
+
+如果本批次涉及 **UI 页面的架构变更**（数据模型重构、页面新增/合并/拆分），必须：
+1. 检查 Stitch 项目中是否有对应页面的设计稿
+2. 有 → 追加一条 "更新 Stitch 设计稿" 的功能条目到 features.json
+3. 无 → 评估是否需要新建设计稿（新页面建议先设计再编码）
+
+**不做此检查会导致设计稿与代码架构脱节，后续需要额外的重构轮修复。**
 
 ### 3. 生成功能列表
 将需求展开为 5-30 条具体功能，写入 features.json。
@@ -108,7 +124,7 @@ executor:codex 的典型场景：压力测试执行、code review、安全审计
 
 ## status = "done" 时的收尾流程
 
-当 Codex 将 progress.json 置为 `done` 后，Cowork 接手执行以下步骤（**必须按顺序**）：
+当 Codex 将 progress.json 置为 `done` 后，Claude CLI 接手执行以下步骤（**必须按顺序**）：
 
 ### 1. 更新项目记忆（强制）
 更新 `.auto-memory/project-aigcgateway.md`，内容覆盖：

@@ -231,6 +231,7 @@ docs/
 ├── provider/                        # 各服务商接入 ADR（新增服务商时参考）
 ├── test-cases/                      # 测试用例（Codex 读，开发不需要）
 ├── test-reports/                    # 最终签收报告（Codex 写，开发不需要）
+│   └── user_report/                 # ← 用户反馈报告（新批次 planning 时必读）
 ├── design-draft/                    # Stitch UI 设计稿 HTML（页面还原时参考）
 └── archive/                         # 历史文档，无需阅读
 ```
