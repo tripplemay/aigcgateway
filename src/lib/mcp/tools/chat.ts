@@ -102,7 +102,7 @@ export function registerChat(server: McpServer, opts: McpServerOptions): void {
           content: [
             {
               type: "text" as const,
-              text: `[insufficient_balance] Insufficient balance. Current balance: $${Number(project?.balance ?? 0).toFixed(4)}. Please recharge at the console.`,
+              text: JSON.stringify({ error_code: "insufficient_balance", message: `Insufficient balance. Current balance: $${Number(project?.balance ?? 0).toFixed(4)}. Please recharge at the console.` }),
             },
           ],
           isError: true,
@@ -116,7 +116,7 @@ export function registerChat(server: McpServer, opts: McpServerOptions): void {
           content: [
             {
               type: "text" as const,
-              text: "[rate_limited] Rate limit exceeded. Please retry after 60 seconds.",
+              text: JSON.stringify({ error_code: "rate_limited", message: "Rate limit exceeded. Please retry after 60 seconds." }),
             },
           ],
           isError: true,
@@ -128,7 +128,7 @@ export function registerChat(server: McpServer, opts: McpServerOptions): void {
           content: [
             {
               type: "text" as const,
-              text: "[invalid_request] messages is required and cannot be empty.",
+              text: JSON.stringify({ error_code: "invalid_request", message: "messages is required and cannot be empty." }),
             },
           ],
           isError: true,
@@ -162,7 +162,10 @@ export function registerChat(server: McpServer, opts: McpServerOptions): void {
             content: [
               {
                 type: "text" as const,
-                text: `[${err.code}] ${reason} Available text models: ${names || "none"}. Use list_models for full details.`,
+                text: JSON.stringify({
+                  error_code: err.code,
+                  message: `${reason} Available text models: ${names || "none"}. Use list_models for full details.`,
+                }),
               },
             ],
             isError: true,
@@ -173,7 +176,10 @@ export function registerChat(server: McpServer, opts: McpServerOptions): void {
             content: [
               {
                 type: "text" as const,
-                text: `[channel_unavailable] No available channel for model "${model}". The model may be temporarily unavailable. Try another model or retry later.`,
+                text: JSON.stringify({
+                  error_code: "channel_unavailable",
+                  message: `No available channel for model "${model}". The model may be temporarily unavailable. Try another model or retry later.`,
+                }),
               },
             ],
             isError: true,
@@ -181,7 +187,12 @@ export function registerChat(server: McpServer, opts: McpServerOptions): void {
         }
         const routeCode = err instanceof EngineError ? err.code : "routing_error";
         return {
-          content: [{ type: "text" as const, text: `[${routeCode}] ${(err as Error).message}` }],
+          content: [
+            {
+              type: "text" as const,
+              text: JSON.stringify({ error_code: routeCode, message: (err as Error).message }),
+            },
+          ],
           isError: true,
         };
       }
@@ -339,7 +350,10 @@ export function registerChat(server: McpServer, opts: McpServerOptions): void {
             content: [
               {
                 type: "text" as const,
-                text: `[provider_timeout] Provider timeout after ${(latencyMs / 1000).toFixed(1)}s. Try again or use a different model.`,
+                text: JSON.stringify({
+                  error_code: "provider_timeout",
+                  message: `Provider timeout after ${(latencyMs / 1000).toFixed(1)}s. Try again or use a different model.`,
+                }),
               },
             ],
             isError: true,
@@ -351,7 +365,10 @@ export function registerChat(server: McpServer, opts: McpServerOptions): void {
           content: [
             {
               type: "text" as const,
-              text: `[${errorCode}] ${sanitizeErrorMessage((err as Error).message)}`,
+              text: JSON.stringify({
+                error_code: errorCode,
+                message: sanitizeErrorMessage((err as Error).message),
+              }),
             },
           ],
           isError: true,

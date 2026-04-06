@@ -1,9 +1,9 @@
 {
-  "status": "fixing",
+  "status": "reverifying",
   "user_goal": "dx-metadata-enhancement: capabilities/contextWindow 补全 + dry_run + error_code + SDK 类型对齐",
   "total_features": 7,
-  "completed_features": 5,
-  "fix_rounds": 3,
+  "completed_features": 6,
+  "fix_rounds": 4,
   "current_sprint": null,
   "last_updated": "2026-04-06T15:59:21Z",
   "reference_docs": [],
@@ -83,7 +83,7 @@
     {
       "id": "F-DX-04",
       "title": "MCP 错误返回 error_code",
-      "status": "pending",
+      "status": "completed",
       "executor": "generator"
     },
     {
