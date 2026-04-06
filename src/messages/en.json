@@ -477,6 +477,7 @@
     "withActiveVersion": "With Active Version",
     "uniqueModels": "Unique Models",
     "noDescription": "No description",
+    "newVersion": "New Version",
     "delete": "Delete",
     "confirmDelete": "Are you sure you want to delete this action? This cannot be undone.",
     "deleted": "Action deleted",

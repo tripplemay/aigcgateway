@@ -80,8 +80,12 @@ export default function ActionsPage() {
           </div>
           {/* Notification & Help — design-draft line 154-157 */}
           <div className="flex items-center gap-4 text-slate-500">
-            <button className="hover:text-primary transition-colors"><span className="material-symbols-outlined">notifications</span></button>
-            <button className="hover:text-primary transition-colors"><span className="material-symbols-outlined">help_outline</span></button>
+            <button className="hover:text-primary transition-colors">
+              <span className="material-symbols-outlined">notifications</span>
+            </button>
+            <button className="hover:text-primary transition-colors">
+              <span className="material-symbols-outlined">help_outline</span>
+            </button>
           </div>
           {/* Create button — design-draft line 158-161 */}
           <Link
@@ -192,6 +196,14 @@ export default function ActionsPage() {
                     {t("of")} <span className="text-on-surface">{actions.length}</span>{" "}
                     {t("actionsUnit")}
                   </p>
+                  <div className="flex gap-2">
+                    <button className="px-3 py-1.5 rounded-lg bg-surface text-slate-400 border border-outline-variant/30 cursor-not-allowed">
+                      <span className="material-symbols-outlined text-sm">chevron_left</span>
+                    </button>
+                    <button className="px-3 py-1.5 rounded-lg bg-surface text-slate-600 border border-outline-variant/30 hover:bg-slate-50 transition-colors">
+                      <span className="material-symbols-outlined text-sm">chevron_right</span>
+                    </button>
+                  </div>
                 </div>
               </div>
 
@@ -232,7 +244,9 @@ export default function ActionsPage() {
                 </div>
                 <div className="flex justify-between items-center">
                   <div>
-                    <p className="text-2xl font-black font-headline text-on-surface">{actions.length}</p>
+                    <p className="text-2xl font-black font-headline text-on-surface">
+                      {actions.length}
+                    </p>
                     <p className="text-[10px] text-slate-400 font-bold uppercase tracking-tight">
                       {t("totalActions")}
                     </p>

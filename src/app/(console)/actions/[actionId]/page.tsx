@@ -121,13 +121,13 @@ export default function ActionDetailPage() {
               <span className="material-symbols-outlined text-sm">edit</span>
               {t("edit")}
             </Link>
-            <button
-              onClick={handleDelete}
-              className="px-5 py-2.5 bg-surface-container-low text-error hover:bg-error/10 transition-colors font-semibold rounded-xl flex items-center gap-2"
+            <Link
+              href={`/actions/new?edit=${actionId}`}
+              className="px-6 py-2.5 bg-gradient-to-r from-primary to-primary-container text-white font-bold rounded-xl flex items-center gap-2 shadow-lg shadow-primary/20 hover:opacity-90 transition-opacity"
             >
-              <span className="material-symbols-outlined text-sm">delete</span>
-              {t("delete")}
-            </button>
+              <span className="material-symbols-outlined text-sm">add_circle</span>
+              {t("newVersion")}
+            </Link>
           </div>
         </div>
       </header>
@@ -306,7 +306,7 @@ export default function ActionDetailPage() {
           {/* Action Insights Card — design-draft line 290-330 */}
           <div className="bg-surface-container-lowest rounded-xl p-6 shadow-sm border border-outline-variant/10 sticky top-8">
             <h3 className="text-xs font-black text-slate-400 uppercase tracking-[0.2em] mb-6">
-              {t("metadata")}
+              Action Insights
             </h3>
             <div className="space-y-6">
               <div className="flex items-center justify-between group">
@@ -314,7 +314,7 @@ export default function ActionDetailPage() {
                   <span className="material-symbols-outlined text-slate-400 group-hover:text-primary transition-colors">
                     calendar_today
                   </span>
-                  <span className="text-sm font-medium text-slate-600">{t("createdAt")}</span>
+                  <span className="text-sm font-medium text-slate-600">Created</span>
                 </div>
                 <span className="text-sm font-bold text-on-surface">
                   {new Date(action.createdAt).toLocaleDateString()}
@@ -323,9 +323,20 @@ export default function ActionDetailPage() {
               <div className="flex items-center justify-between group">
                 <div className="flex items-center gap-3">
                   <span className="material-symbols-outlined text-slate-400 group-hover:text-primary transition-colors">
+                    history
+                  </span>
+                  <span className="text-sm font-medium text-slate-600">Last Updated</span>
+                </div>
+                <span className="text-sm font-bold text-secondary">
+                  {timeAgo(action.versions[0]?.createdAt ?? action.createdAt)}
+                </span>
+              </div>
+              <div className="flex items-center justify-between group">
+                <div className="flex items-center gap-3">
+                  <span className="material-symbols-outlined text-slate-400 group-hover:text-primary transition-colors">
                     layers
                   </span>
-                  <span className="text-sm font-medium text-slate-600">{t("totalVersions")}</span>
+                  <span className="text-sm font-medium text-slate-600">Versions</span>
                 </div>
                 <span className="text-sm font-bold text-on-surface">
                   {action.versions.length} total
@@ -334,13 +345,11 @@ export default function ActionDetailPage() {
               <div className="flex items-center justify-between group">
                 <div className="flex items-center gap-3">
                   <span className="material-symbols-outlined text-slate-400 group-hover:text-primary transition-colors">
-                    smart_toy
+                    link
                   </span>
-                  <span className="text-sm font-medium text-slate-600">{t("model")}</span>
+                  <span className="text-sm font-medium text-slate-600">Usage</span>
                 </div>
-                <span className="text-sm font-bold text-on-surface font-mono">
-                  {action.model.split("/").pop()}
-                </span>
+                <span className="text-sm font-bold text-on-surface">—</span>
               </div>
             </div>
             {/* Decorative graphic — design-draft line 323-329 */}

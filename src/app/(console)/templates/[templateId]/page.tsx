@@ -181,6 +181,21 @@ export default function TemplateDetailPage() {
               </div>
             </div>
           ))}
+
+          {/* Add Step Placeholder — design-draft line 271-279 */}
+          <Link
+            href={`/templates/new?edit=${templateId}`}
+            className="flex items-center gap-6 opacity-40 hover:opacity-100 transition-opacity cursor-pointer group"
+          >
+            <div className="w-16 h-16 rounded-2xl border-2 border-dashed border-primary flex items-center justify-center bg-transparent">
+              <span className="material-symbols-outlined text-primary">add</span>
+            </div>
+            <div className="flex-1 py-6">
+              <span className="font-headline font-bold text-lg text-primary">
+                Add Orchestration Step
+              </span>
+            </div>
+          </Link>
         </div>
 
         {/* Metadata Sidebar — design-draft line 282-328 */}
@@ -223,6 +238,17 @@ export default function TemplateDetailPage() {
                   {t("executionMode")}
                 </span>
                 <span className="text-sm font-semibold text-on-surface">{executionMode}</span>
+              </div>
+            </div>
+
+            {/* Pipeline Preview — design-draft line 306-312 */}
+            <div className="mt-10 pt-8 border-t border-slate-50">
+              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-4">
+                Pipeline Preview
+              </p>
+              <div className="h-32 w-full rounded-xl bg-surface-container-low overflow-hidden relative">
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-secondary/10" />
+                <div className="absolute inset-0 bg-gradient-to-t from-surface-container-lowest to-transparent" />
               </div>
             </div>
           </div>

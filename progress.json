@@ -1,9 +1,9 @@
 {
-  "status": "fixing",
+  "status": "reverifying",
   "user_goal": "ui-1to1-restoration: 7 个模板/动作页面按 design-draft HTML 严格 1:1 还原修复",
   "total_features": 8,
-  "completed_features": 4,
-  "fix_rounds": 0,
+  "completed_features": 7,
+  "fix_rounds": 1,
   "current_sprint": null,
   "last_updated": "2026-04-06T18:20:00Z",
   "reference_docs": [],
@@ -18,44 +18,13 @@
     "signoff": null,
     "framework_reviewed": false
   },
-  "evaluator_feedback": {
-    "summary": "首轮原型对照验收未通过：API 层 CRUD 通过，但 Actions 列表页、Action 详情页、Template 详情页仍与 design-draft 存在明确结构/交互差距。",
-    "pass_count": 4,
-    "partial_count": 0,
-    "fail_count": 4,
-    "issues": [
-      {
-        "feature_id": "F-1TO1-01",
-        "result": "FAIL",
-        "description": "Actions 列表页缺少原型底部左右分页按钮，只保留了 Showing 文案，未达到 1:1 还原。",
-        "steps_to_reproduce": "1. 对照 design-draft/Action List (v2)/index.html 底部表格 footer 2. 查看 src/app/(console)/actions/page.tsx 3. 实现缺少 chevron_left / chevron_right 分页按钮区域"
-      },
-      {
-        "feature_id": "F-1TO1-02",
-        "result": "FAIL",
-        "description": "Action 详情页顶部缺少原型中的 New Version 主操作，且右侧信息卡把原型的 Usage/性能字段替换成了 Model/Versions。",
-        "steps_to_reproduce": "1. 对照 design-draft/Action Detail (v2)/index.html 顶部操作区与侧栏 2. 查看 src/app/(console)/actions/[actionId]/page.tsx 3. 实现为 Edit + Delete，且侧栏字段不一致"
-      },
-      {
-        "feature_id": "F-1TO1-05",
-        "result": "FAIL",
-        "description": "Template 详情页缺少原型中的 Add Orchestration Step 占位块与 Pipeline Preview，未达到 1:1 还原。",
-        "steps_to_reproduce": "1. 对照 design-draft/Template Detail (v2)/index.html 中步骤列表末尾和右侧 Template Info 卡 2. 查看 src/app/(console)/templates/[templateId]/page.tsx 3. 两个原型区块均缺失"
-      },
-      {
-        "feature_id": "F-1TO1-08",
-        "result": "FAIL",
-        "description": "原型对照 E2E 验收未通过。虽然脚本级 CRUD 验证通过，但仍发现多处页面与原型不一致，不能签收。",
-        "steps_to_reproduce": "1. 运行 scripts/test/ui-redesign-templates-actions-e2e-2026-04-06.ts，确认 API CRUD 通过 2. 逐页对照 design-draft HTML 与实现代码 3. 发现 /actions、/actions/[id]、/templates/[id] 存在明确差距"
-      }
-    ]
-  },
+  "evaluator_feedback": null,
   "features": [
-    { "id": "F-1TO1-01", "title": "Actions 列表页 1:1 还原", "status": "pending", "executor": "generator" },
-    { "id": "F-1TO1-02", "title": "Action 详情页 1:1 还原", "status": "pending", "executor": "generator" },
+    { "id": "F-1TO1-01", "title": "Actions 列表页 1:1 还原", "status": "completed", "executor": "generator" },
+    { "id": "F-1TO1-02", "title": "Action 详情页 1:1 还原", "status": "completed", "executor": "generator" },
     { "id": "F-1TO1-03", "title": "Action 创建/编辑页 1:1 还原", "status": "completed", "executor": "generator" },
     { "id": "F-1TO1-04", "title": "Templates 列表页 1:1 还原", "status": "completed", "executor": "generator" },
-    { "id": "F-1TO1-05", "title": "Template 详情页 1:1 还原", "status": "pending", "executor": "generator" },
+    { "id": "F-1TO1-05", "title": "Template 详情页 1:1 还原", "status": "completed", "executor": "generator" },
     { "id": "F-1TO1-06", "title": "Template 创建/编辑页 1:1 还原", "status": "completed", "executor": "generator" },
     { "id": "F-1TO1-07", "title": "Admin 模板管理页 1:1 还原", "status": "completed", "executor": "generator" },
     { "id": "F-1TO1-08", "title": "E2E 验证（原型对照）", "status": "pending", "executor": "codex" }

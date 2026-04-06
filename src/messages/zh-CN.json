@@ -477,6 +477,7 @@
     "withActiveVersion": "已激活版本",
     "uniqueModels": "模型种类",
     "noDescription": "无描述",
+    "newVersion": "新版本",
     "delete": "删除",
     "confirmDelete": "确定要删除此动作吗？此操作不可撤销。",
     "deleted": "动作已删除",
