@@ -55,13 +55,14 @@ git pull --ff-only origin main
 > 同机场景下此命令输出 `Already up to date.`，无副作用，仍需执行。
 
 **第二：从磁盘重新读取以下文件，不得使用任何缓存版本：**
+- `.agent-id` — 当前 agent 的身份标识（文件不存在则 myId = null）
 - `progress.json` — 当前阶段和进度
 - `features.json` — 功能列表和状态
 - `harness-rules.md` — 本文件自身
 - `.auto-memory/MEMORY.md` — 项目记忆索引（**所有 agent 必读**，读完后按需加载 `project-aigcgateway.md` 等记忆文件）
 
-### 第一步：识别身份
-读取项目根目录 `.agent-id` 文件（如存在），获取当前 agent 的身份标识（如 `local`、`remote-builder-1`）。文件不存在则 myId = null。
+### 第一步：识别身份与角色
+基于第零步已读取的 `.agent-id`（myId）和 `progress.json`（status + role_assignments），判断当前 agent 的角色。
 
 ### 第二步：判断阶段与角色
 
