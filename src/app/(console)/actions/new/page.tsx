@@ -1,9 +1,9 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useTranslations } from "next-intl";
 import { apiFetch } from "@/lib/api-client";
 import { useProject } from "@/hooks/use-project";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import Link from "next/link";
 
@@ -23,6 +23,8 @@ export default function NewActionPage() {
   const t = useTranslations("actions");
   const { current } = useProject();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const editId = searchParams.get("edit");
 
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
@@ -34,6 +36,40 @@ export default function NewActionPage() {
   const [variables, setVariables] = useState<VarDef[]>([]);
   const [changelog, setChangelog] = useState("");
   const [saving, setSaving] = useState(false);
+
+  // Load existing action data in edit mode
+  useEffect(() => {
+    if (!current || !editId) return;
+    apiFetch<{
+      name: string;
+      description: string | null;
+      model: string;
+      activeVersionId: string | null;
+      versions: {
+        id: string;
+        messages: Message[];
+        variables: VarDef[];
+      }[];
+    }>(`/api/projects/${current.id}/actions/${editId}`)
+      .then((data) => {
+        setName(data.name);
+        setDescription(data.description || "");
+        setModel(data.model);
+        const activeVer = data.versions.find((v) => v.id === data.activeVersionId) ?? data.versions[0];
+        if (activeVer) {
+          setMessages(activeVer.messages);
+          setVariables(
+            activeVer.variables.map((v) => ({
+              name: v.name,
+              description: v.description || "",
+              required: v.required,
+              defaultValue: v.defaultValue || "",
+            })),
+          );
+        }
+      })
+      .catch(() => toast.error("Failed to load action"));
+  }, [current, editId]);
 
   const addMessage = () => setMessages([...messages, { role: "user", content: "" }]);
   const removeMessage = (i: number) => setMessages(messages.filter((_, idx) => idx !== i));
@@ -67,12 +103,26 @@ export default function NewActionPage() {
 
     setSaving(true);
     try {
-      const data = await apiFetch<{ id: string }>(`/api/projects/${current.id}/actions`, {
-        method: "POST",
-        body: JSON.stringify({ name, description, model, messages, variables, changelog }),
-      });
-      toast.success(t("created"));
-      router.push(`/actions/${data.id}`);
+      if (editId) {
+        // Update existing action + create new version
+        await apiFetch(`/api/projects/${current.id}/actions/${editId}`, {
+          method: "PUT",
+          body: JSON.stringify({ name, description, model }),
+        });
+        await apiFetch(`/api/projects/${current.id}/actions/${editId}/versions`, {
+          method: "POST",
+          body: JSON.stringify({ messages, variables, changelog }),
+        });
+        toast.success(t("updated"));
+        router.push(`/actions/${editId}`);
+      } else {
+        const data = await apiFetch<{ id: string }>(`/api/projects/${current.id}/actions`, {
+          method: "POST",
+          body: JSON.stringify({ name, description, model, messages, variables, changelog }),
+        });
+        toast.success(t("created"));
+        router.push(`/actions/${data.id}`);
+      }
     } catch (err) {
       toast.error((err as Error).message);
     } finally {
@@ -100,12 +150,12 @@ export default function NewActionPage() {
           {t("title")}
         </Link>
         <span className="material-symbols-outlined text-xs">chevron_right</span>
-        <span className="text-primary font-medium">{t("createTitle")}</span>
+        <span className="text-primary font-medium">{editId ? t("editTitle") : t("createTitle")}</span>
       </div>
 
       <div className="mb-10">
         <h1 className="font-headline font-extrabold text-4xl text-on-surface tracking-tight mb-2">
-          {t("createTitle")}
+          {editId ? t("editTitle") : t("createTitle")}
         </h1>
         <p className="text-on-surface-variant max-w-2xl">{t("createSubtitle")}</p>
       </div>

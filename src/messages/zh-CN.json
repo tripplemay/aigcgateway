@@ -489,7 +489,8 @@
     "createSubtitle": "定义一个新的原子 AI 操作，包含模型、提示词和变量。",
     "changelog": "变更日志",
     "changelogPlaceholder": "初始版本...",
-    "detectedVars": "检测到的变量"
+    "detectedVars": "检测到的变量",
+    "editTitle": "编辑动作"
   },
   "templates": {
     "title": "模板",
@@ -535,7 +536,9 @@
     "basicInfo": "基本信息",
     "createSubtitle": "将 Action 组合为多步工作流。",
     "executionSequence": "执行序列",
-    "cancel": "取消"
+    "cancel": "取消",
+    "editTitle": "编辑模板",
+    "updated": "模板已更新"
   },
   "adminTemplates": {
     "title": "模板管理",
@@ -549,6 +552,8 @@
     "colSteps": "步骤",
     "colMode": "模式",
     "colCreated": "创建时间",
+    "colActions": "操作",
+    "deleted": "模板已删除",
     "empty": "暂无模板",
     "loadError": "加载模板失败"
   }

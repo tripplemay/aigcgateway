@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { useTranslations } from "next-intl";
 import { apiFetch } from "@/lib/api-client";
 import { useProject } from "@/hooks/use-project";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import Link from "next/link";
 
@@ -25,6 +25,8 @@ export default function NewTemplatePage() {
   const t = useTranslations("templates");
   const { current } = useProject();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const editId = searchParams.get("edit");
 
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
@@ -38,6 +40,28 @@ export default function NewTemplatePage() {
       .then((d) => setActions(d.data))
       .catch(() => {});
   }, [current]);
+
+  // Load existing template data in edit mode
+  useEffect(() => {
+    if (!current || !editId) return;
+    apiFetch<{
+      name: string;
+      description: string | null;
+      steps: { actionId: string; order: number; role: string; action: { id: string } }[];
+    }>(`/api/projects/${current.id}/templates/${editId}`)
+      .then((data) => {
+        setName(data.name);
+        setDescription(data.description || "");
+        setSteps(
+          data.steps.map((s) => ({
+            actionId: s.action.id,
+            order: s.order,
+            role: s.role,
+          })),
+        );
+      })
+      .catch(() => toast.error("Failed to load template"));
+  }, [current, editId]);
 
   const addStep = () =>
     setSteps([...steps, { actionId: "", order: steps.length, role: "SEQUENTIAL" }]);
@@ -70,12 +94,21 @@ export default function NewTemplatePage() {
 
     setSaving(true);
     try {
-      const data = await apiFetch<{ id: string }>(`/api/projects/${current.id}/templates`, {
-        method: "POST",
-        body: JSON.stringify({ name, description, steps }),
-      });
-      toast.success(t("created"));
-      router.push(`/templates/${data.id}`);
+      if (editId) {
+        await apiFetch(`/api/projects/${current.id}/templates/${editId}`, {
+          method: "PUT",
+          body: JSON.stringify({ name, description, steps }),
+        });
+        toast.success(t("updated"));
+        router.push(`/templates/${editId}`);
+      } else {
+        const data = await apiFetch<{ id: string }>(`/api/projects/${current.id}/templates`, {
+          method: "POST",
+          body: JSON.stringify({ name, description, steps }),
+        });
+        toast.success(t("created"));
+        router.push(`/templates/${data.id}`);
+      }
     } catch (err) {
       toast.error((err as Error).message);
     } finally {
@@ -91,12 +124,12 @@ export default function NewTemplatePage() {
           {t("title")}
         </Link>
         <span className="material-symbols-outlined text-xs">chevron_right</span>
-        <span className="text-primary font-medium">{t("createTitle")}</span>
+        <span className="text-primary font-medium">{editId ? t("editTitle") : t("createTitle")}</span>
       </div>
 
       <div className="mb-10">
         <h1 className="font-headline font-extrabold text-4xl text-on-surface tracking-tight mb-2">
-          {t("createTitle")}
+          {editId ? t("editTitle") : t("createTitle")}
         </h1>
         <p className="text-on-surface-variant max-w-2xl">{t("createSubtitle")}</p>
       </div>

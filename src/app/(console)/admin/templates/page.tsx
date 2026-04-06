@@ -4,6 +4,7 @@ import { useTranslations } from "next-intl";
 import { apiFetch } from "@/lib/api-client";
 import { Skeleton } from "@/components/ui/skeleton";
 import { timeAgo } from "@/lib/utils";
+import { toast } from "sonner";
 
 interface AdminTemplate {
   id: string;
@@ -61,6 +62,17 @@ export default function AdminTemplatesPage() {
         {mode}
       </span>
     );
+  };
+
+  const handleDelete = async (id: string, name: string) => {
+    if (!confirm(`Delete template "${name}"?`)) return;
+    try {
+      await apiFetch(`/api/admin/templates/${id}`, { method: "DELETE" });
+      toast.success(t("deleted"));
+      load();
+    } catch (err) {
+      toast.error((err as Error).message);
+    }
   };
 
   if (loading) {
@@ -145,6 +157,9 @@ export default function AdminTemplatesPage() {
               <th className="px-6 py-4 text-[10px] font-extrabold uppercase tracking-widest text-slate-500">
                 {t("colCreated")}
               </th>
+              <th className="px-6 py-4 text-[10px] font-extrabold uppercase tracking-widest text-slate-500">
+                {t("colActions")}
+              </th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-50">
@@ -162,11 +177,22 @@ export default function AdminTemplatesPage() {
                 <td className="px-6 py-5 text-sm text-slate-600">{tpl.stepCount}</td>
                 <td className="px-6 py-5">{modeBadge(tpl.executionMode)}</td>
                 <td className="px-6 py-5 text-xs text-slate-400">{timeAgo(tpl.createdAt)}</td>
+                <td className="px-6 py-5">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDelete(tpl.id, tpl.name);
+                    }}
+                    className="p-1.5 text-slate-400 hover:text-error hover:bg-error/10 rounded-lg transition-all"
+                  >
+                    <span className="material-symbols-outlined text-sm">delete</span>
+                  </button>
+                </td>
               </tr>
             ))}
             {templates.length === 0 && (
               <tr>
-                <td colSpan={5} className="px-6 py-12 text-center text-slate-400">
+                <td colSpan={6} className="px-6 py-12 text-center text-slate-400">
                   {t("empty")}
                 </td>
               </tr>

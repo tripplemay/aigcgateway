@@ -489,7 +489,8 @@
     "createSubtitle": "Define a new atomic AI operation with model, prompts, and variables.",
     "changelog": "Changelog",
     "changelogPlaceholder": "Initial version...",
-    "detectedVars": "Detected Variables"
+    "detectedVars": "Detected Variables",
+    "editTitle": "Edit Action"
   },
   "templates": {
     "title": "Templates",
@@ -535,7 +536,9 @@
     "basicInfo": "Basic Info",
     "createSubtitle": "Compose Actions into a multi-step workflow.",
     "executionSequence": "Execution Sequence",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "editTitle": "Edit Template",
+    "updated": "Template updated"
   },
   "adminTemplates": {
     "title": "Template Management",
@@ -549,6 +552,8 @@
     "colSteps": "Steps",
     "colMode": "Mode",
     "colCreated": "Created",
+    "colActions": "Actions",
+    "deleted": "Template deleted",
     "empty": "No templates found"
   }
 }
