@@ -7,7 +7,7 @@
       "title": "generate_image 上游错误脱敏",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "1) generate_image 所有错误路径经过 sanitizeErrorMessage；2) 无效尺寸等上游错误不透传供应商原始文本（QQ 群号、URL、Key 片段等）；3) npm run lint + tsc 通过"
     },
     {
@@ -15,7 +15,7 @@
       "title": "activate_version MCP Tool",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "1) 新文件 src/lib/mcp/tools/activate-version.ts；2) 输入：action_id, version_id；3) 校验 action 和 version 属于当前 projectId；4) 更新 Action.activeVersionId；5) server.ts 注册 + SERVER_INSTRUCTIONS 更新；6) npm run lint + tsc 通过"
     },
     {
@@ -31,7 +31,7 @@
       "title": "交易流水增加 trace_id",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "1) BalanceTransaction 表新增 traceId 字段（可选，String?）；2) migration 文件只包含此变更，有 DEFAULT null；3) deduct_balance 调用时传入 traceId；4) get_balance 返回的交易流水包含 traceId；5) npm run lint + tsc 通过"
     },
     {
@@ -39,7 +39,7 @@
       "title": "top_p Schema 与运行时校验一致性",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "1) chat tool inputSchema 的 top_p 改为 exclusiveMinimum: 0（不含 0）；2) 或在引擎层 config-overlay 中将 top_p=0 补偿为 0.01；3) Schema 定义与运行时行为一致；4) npm run lint + tsc 通过"
     },
     {
@@ -47,7 +47,7 @@
       "title": "run_action 支持 version_id 参数",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "1) run_action inputSchema 新增 version_id (string, optional)；2) 有 version_id 时执行指定版本，无则执行活跃版本；3) 校验 version 属于目标 action；4) SERVER_INSTRUCTIONS 更新；5) npm run lint + tsc 通过"
     },
     {
@@ -55,7 +55,7 @@
       "title": "计费精度提升至 8 位小数",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "1) 内部计费计算使用至少 8 位小数精度；2) DB 存储精度支持 8 位（检查 Decimal 字段精度，必要时 migration 调整）；3) API/MCP 对外展示保留 4 位小数；4) 微额调用（如 $0.0000042）不被截断为 $0.0000；5) npm run lint + tsc 通过"
     },
     {
@@ -63,7 +63,7 @@
       "title": "聚合统计支持 trace_id 下钻",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "1) get_usage_summary 或 list_logs 支持返回每笔调用的 traceId + cost 明细（依赖 F-MH-04 的 traceId）；2) 开发者可通过明细验证 Σ(单笔) ≈ 聚合总计；3) SERVER_INSTRUCTIONS 更新；4) npm run lint + tsc 通过"
     },
     {
@@ -71,7 +71,7 @@
       "title": "SERVER_INSTRUCTIONS 统一更新",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "1) 所有新增/修改 Tool 的说明写入 SERVER_INSTRUCTIONS；2) activate_version、run_action version_id、run_template 步骤明细、trace_id 相关变更均有说明"
     },
     {
@@ -79,7 +79,7 @@
       "title": "E2E 验证",
       "priority": "high",
       "executor": "codex",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "1) generate_image 无效尺寸不泄露供应商信息；2) activate_version 可回滚到旧版本；3) run_template 返回 steps[] 含每步明细；4) 交易流水包含 traceId；5) top_p=0 被正确处理；6) run_action 可指定 version_id；7) 微额调用计费不截断；8) 聚合统计可下钻验证"
     }
   ]

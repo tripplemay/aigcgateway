@@ -1,11 +1,11 @@
 {
-  "status": "verifying",
+  "status": "fixing",
   "user_goal": "mcp-finops-hardening: 安全脱敏 + MCP 工具增强(activate_version/version_id/步骤明细) + FinOps 基础设施(trace_id/精度/下钻)",
   "total_features": 10,
   "completed_features": 9,
   "fix_rounds": 0,
   "current_sprint": null,
-  "last_updated": "2026-04-07T02:30:00Z",
+  "last_updated": "2026-04-06T17:10:02Z",
   "reference_docs": [],
   "role_assignments": {
     "planner": "Kimi",
@@ -18,10 +18,35 @@
     "signoff": null,
     "framework_reviewed": false
   },
-  "evaluator_feedback": null,
+  "evaluator_feedback": {
+    "summary": "L1 本地复验完成：F-MH-10 执行完成；F-MH-03 未满足步骤明细字段要求（缺 actionName/input）。其余验收项通过。",
+    "pass_count": 9,
+    "partial_count": 0,
+    "fail_count": 1,
+    "issues": [
+      {
+        "feature_id": "F-MH-03",
+        "result": "FAIL",
+        "description": "run_template 返回的 steps[] 未包含 acceptance 要求的 actionName 和 input(渲染后的 messages) 字段。实测第 0 步即缺失 actionName。",
+        "steps_to_reproduce": "1) 本地启动 3099 并执行 scripts/test/mcp-finops-hardening-e2e-2026-04-07.ts\n2) 调用 run_template(template_id, variables)\n3) 检查 result.steps[0] 字段，仅有 stepIndex/model/output/usage/latencyMs，无 actionName/input"
+      }
+    ]
+  },
   "generator_handoff": {
-    "completed": ["F-MH-01", "F-MH-02", "F-MH-03", "F-MH-04", "F-MH-05", "F-MH-06", "F-MH-07", "F-MH-08", "F-MH-09"],
-    "codex_tasks": ["F-MH-10: E2E 验证"],
+    "completed": [
+      "F-MH-01",
+      "F-MH-02",
+      "F-MH-03",
+      "F-MH-04",
+      "F-MH-05",
+      "F-MH-06",
+      "F-MH-07",
+      "F-MH-08",
+      "F-MH-09"
+    ],
+    "codex_tasks": [
+      "F-MH-10: E2E 验证"
+    ],
     "notes": [
       "F-MH-01: generate_image 通用 routing catch 补上 sanitizeErrorMessage",
       "F-MH-02: 新增 activate_version MCP Tool（版本回滚/切换）",
@@ -36,15 +61,65 @@
     ]
   },
   "features": [
-    { "id": "F-MH-01", "title": "generate_image 上游错误脱敏", "status": "completed", "executor": "generator" },
-    { "id": "F-MH-02", "title": "activate_version MCP Tool", "status": "completed", "executor": "generator" },
-    { "id": "F-MH-03", "title": "run_template 返回步骤明细", "status": "completed", "executor": "generator" },
-    { "id": "F-MH-04", "title": "交易流水增加 trace_id", "status": "completed", "executor": "generator" },
-    { "id": "F-MH-05", "title": "top_p Schema 一致性", "status": "completed", "executor": "generator" },
-    { "id": "F-MH-06", "title": "run_action 支持 version_id", "status": "completed", "executor": "generator" },
-    { "id": "F-MH-07", "title": "计费精度提升至 8 位小数", "status": "completed", "executor": "generator" },
-    { "id": "F-MH-08", "title": "聚合统计支持 trace_id 下钻", "status": "completed", "executor": "generator" },
-    { "id": "F-MH-09", "title": "SERVER_INSTRUCTIONS 统一更新", "status": "completed", "executor": "generator" },
-    { "id": "F-MH-10", "title": "E2E 验证", "status": "pending", "executor": "codex" }
+    {
+      "id": "F-MH-01",
+      "title": "generate_image 上游错误脱敏",
+      "status": "completed",
+      "executor": "generator"
+    },
+    {
+      "id": "F-MH-02",
+      "title": "activate_version MCP Tool",
+      "status": "completed",
+      "executor": "generator"
+    },
+    {
+      "id": "F-MH-03",
+      "title": "run_template 返回步骤明细",
+      "status": "pending",
+      "executor": "generator"
+    },
+    {
+      "id": "F-MH-04",
+      "title": "交易流水增加 trace_id",
+      "status": "completed",
+      "executor": "generator"
+    },
+    {
+      "id": "F-MH-05",
+      "title": "top_p Schema 一致性",
+      "status": "completed",
+      "executor": "generator"
+    },
+    {
+      "id": "F-MH-06",
+      "title": "run_action 支持 version_id",
+      "status": "completed",
+      "executor": "generator"
+    },
+    {
+      "id": "F-MH-07",
+      "title": "计费精度提升至 8 位小数",
+      "status": "completed",
+      "executor": "generator"
+    },
+    {
+      "id": "F-MH-08",
+      "title": "聚合统计支持 trace_id 下钻",
+      "status": "completed",
+      "executor": "generator"
+    },
+    {
+      "id": "F-MH-09",
+      "title": "SERVER_INSTRUCTIONS 统一更新",
+      "status": "completed",
+      "executor": "generator"
+    },
+    {
+      "id": "F-MH-10",
+      "title": "E2E 验证",
+      "status": "completed",
+      "executor": "codex"
+    }
   ]
 }

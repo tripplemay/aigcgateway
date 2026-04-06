@@ -12,9 +12,10 @@ AIGC Gateway — AI 服务商管理中台。统一 API 调用抽象（兼容 Ope
 
 ## 当前开发状态（截至 2026-04-07）
 
-**最新完成批次：** `dx-metadata-enhancement`（7/7 PASS，fix_rounds=5）
-**Harness 状态：** done
-**签收报告：** `docs/test-reports/dx-metadata-enhancement-signoff-2026-04-07.md`
+**当前批次：** `mcp-finops-hardening`（verifying 已完成，进入 fixing）
+**Harness 状态：** fixing
+**最新验收报告：** `docs/test-reports/mcp-finops-hardening-verifying-2026-04-07.md`
+**失败点：** F-MH-03（`run_template` 的 `steps[]` 缺 `actionName` 与 `input` 字段）
 
 ### 近期完成批次（2026-04-06）
 
