@@ -7,7 +7,7 @@
       "title": "Actions 列表页：移除假数据面板 + 改造为真实统计",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "1) 移除 Action Latency 柱状图（硬编码数据）；2) 移除 Vertex AI Promo 卡片；3) Action Health 面板改为从 CallLog 聚合的真实统计（总调用次数、最近 7 天调用数）；4) 移除通知/帮助空壳按钮；5) npm run lint + tsc 通过"
     },
     {
@@ -15,7 +15,7 @@
       "title": "Actions 列表页：补全分页功能",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "1) 前端分页组件接通（Previous/Next 有 onClick）；2) 后端 API 支持 page/pageSize 参数；3) 分页状态正确（总数、当前页、禁用态）；4) npm run lint + tsc 通过"
     },
     {
@@ -23,7 +23,7 @@
       "title": "Action 详情页：移除假数据 + 改造为真实统计",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "1) 移除 Performance Matrix（Avg Latency/Token Cost/Success Rate 三个 '—'）；2) 移除 System Health: Stable 硬编码徽章；3) Usage 字段改为从 TemplateStep count 查询真实的 'used in N templates' 数据；4) npm run lint + tsc 通过"
     },
     {
@@ -31,7 +31,7 @@
       "title": "Action 详情页：New Version 按钮语义修正",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "1) 'New Version' 按钮改为创建当前 Action 的新版本流程（而非跳转到编辑 Action）；2) 点击后进入新建版本表单（预填当前活跃版本的 messages/variables 作为基础）；3) npm run lint + tsc 通过"
     },
     {
@@ -39,7 +39,7 @@
       "title": "Templates 列表页：Health 卡片改造为真实统计",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "1) Health 卡片标题和数据改为真实的模板统计（模板总数、总步骤数或活跃模板数）；2) 不展示误导性的百分比或趋势；3) npm run lint + tsc 通过"
     },
     {
@@ -47,7 +47,7 @@
       "title": "Template 详情页：移除 Pipeline Preview 空渐变",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "1) 移除 Pipeline Preview 空渐变容器；2) 如需保留占位，改为简洁的步骤摘要文字（如 '3 steps, Sequential mode'）；3) npm run lint + tsc 通过"
     },
     {
@@ -55,7 +55,7 @@
       "title": "Admin 模板管理页：移除 Quality Score + 查看按钮接通",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "1) 移除 Quality Score 列（无计算规则，始终 '—'）；2) 查看按钮（眼睛图标）接通 onClick，跳转到模板详情页；3) npm run lint + tsc 通过"
     },
     {
@@ -63,7 +63,7 @@
       "title": "i18n 补全",
       "priority": "low",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "1) 变更涉及的所有用户可见文案通过 useTranslations()；2) en.json 和 zh-CN.json 同步更新；3) npm run lint + tsc 通过"
     },
     {
@@ -71,7 +71,7 @@
       "title": "E2E 验证",
       "priority": "high",
       "executor": "codex",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "1) Actions 列表页无假数据面板，Health 展示真实统计，分页可用；2) Action 详情页无 Performance Matrix/System Health，Usage 展示真实模板引用数，New Version 创建新版本而非编辑 Action；3) Templates 列表页 Health 卡片展示真实统计；4) Template 详情页无空渐变；5) Admin 模板页无 Quality Score 列，查看按钮可跳转；6) 无 '—' 占位的装饰性指标"
     }
   ]

@@ -12,12 +12,13 @@ AIGC Gateway — AI 服务商管理中台。统一 API 调用抽象（兼容 Ope
 
 ## 当前开发状态（截至 2026-04-06）
 
-**最新完成批次：** `whitelist-db-migration`（9/9 PASS，fix_rounds=0）
+**最新完成批次：** `page-cleanup-actions-templates`（9/9 PASS，fix_rounds=0）
 **Harness 状态：** done
-**签收报告：** `docs/test-reports/whitelist-db-migration-signoff-2026-04-06.md`
+**签收报告：** `docs/test-reports/page-cleanup-actions-templates-signoff-2026-04-06.md`
 
 ### 近期完成批次（2026-04-06）
 
+- `page-cleanup-actions-templates`（9/9 PASS）— 清理 Actions/Templates 假数据面板、接入真实统计、补全分页/New Version/Admin 查看
 - `whitelist-db-migration`（9/9 PASS）— 模型白名单从代码迁移到 DB，Admin 控制台手动管理，全量同步+按需启用
 - `dx-provider-fixes`（5/5 PASS）— 上游错误脱敏 + sync 预检 + capabilities 清理 + MCP 示例更新
 - `ui-redesign-templates-actions`（9/9 PASS）— 7 个模板/动作页面 Stitch 设计稿重构
@@ -33,7 +34,8 @@ AIGC Gateway — AI 服务商管理中台。统一 API 调用抽象（兼容 Ope
 - bugfix-model-cleanup：孤立 Model 清理 + MCP 错误码修复（5/5 PASS）
 - ui-redesign-templates-actions + ui-1to1-restoration：7 个模板/动作页面 Stitch 1:1 还原（9/9 + 8/8 PASS）
 - dx-provider-fixes：上游错误脱敏 + sync 预检 + capabilities 清理（5/5 PASS）
-- **whitelist-db-migration：模型白名单迁移到 DB + Admin 管理页 + usage 修复（9/9 PASS）**
+- **page-cleanup-actions-templates：清理 Actions/Templates 假数据与装饰指标，改为真实统计并补全关键交互（9/9 PASS）**
+- whitelist-db-migration：模型白名单迁移到 DB + Admin 管理页 + usage 修复（9/9 PASS）
 
 ### 本轮框架升级（2026-04-06）
 
@@ -48,20 +50,18 @@ AIGC Gateway — AI 服务商管理中台。统一 API 调用抽象（兼容 Ope
 9. **Agent 注册表：** `.agents-registry`（git-tracked）列出项目所有 agent，Planner 角色分配时读取
 10. **AGENTS.md 适配：** Codex 启动读 `.agent-id` codex 行 + role_assignments 判断
 
-## Backlog（2 条待处理）
+## Backlog（1 条待处理）
 
 | ID | 优先级 | 标题 |
 |---|---|---|
 | BL-024 | medium | Action/Template MCP 缺 create/update/delete |
-| BL-028 | high | Actions/Templates 页面清理 + 完全还原修复（移除假数据面板 + 改造为真实统计 + 补全交互） |
 
-BL-026/027 已在 whitelist-db-migration 处理。
+BL-026/027/028 已完成。
 
 ## 已知遗留问题
 
 1. 白名单重构后需在生产部署并触发 sync，然后在 Admin 白名单页启用所需模型
-2. Actions/Templates 页面存在无后端支持的装饰面板和语义替换 → BL-028
-3. 同步耗时偏高（~264s）
+2. 同步耗时偏高（~264s）
 
 ## 已知限制（决定不修复）
 

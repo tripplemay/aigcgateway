@@ -1,0 +1,27 @@
+{
+  "checks": [
+    {
+      "name": "actions pagination page1/page2",
+      "ok": true,
+      "detail": "page1=20, page2=5, total=25, totalPages=2, overlap=false"
+    },
+    {
+      "name": "templates list contains created templates and numeric stepCount",
+      "ok": true,
+      "detail": "hasAll=true, stepCountNumeric=true, listed=3"
+    },
+    {
+      "name": "action detail usedInTemplates equals real template-step references",
+      "ok": true,
+      "detail": "usedInTemplates=1, computedUsage=1, versions=1"
+    },
+    {
+      "name": "actions stats endpoint returns numeric call stats",
+      "ok": true,
+      "detail": "totalCalls=0, recentCalls=0"
+    }
+  ],
+  "pass": 4,
+  "fail": 0,
+  "generatedAt": "2026-04-06T09:38:47.998Z"
+}

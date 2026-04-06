@@ -5,7 +5,7 @@
     {
       "name": "F-UI API: create action",
       "ok": true,
-      "detail": "cmnmqwo2m00049yzwospqulre"
+      "detail": "cmnmzynm000x29yb7928nbgxi"
     },
     {
       "name": "F-UI API: actions list/detail/update",
@@ -15,7 +15,7 @@
     {
       "name": "F-UI API: create template",
       "ok": true,
-      "detail": "cmnmqwo3g00089yzw2zbmzk95"
+      "detail": "cmnmzynmi00x69yb79mxepkv3"
     },
     {
       "name": "F-UI API: templates list/detail/update/delete",
@@ -25,14 +25,14 @@
     {
       "name": "F-UI API: admin templates endpoint",
       "ok": true,
-      "detail": "totalTemplates=0"
+      "detail": "totalTemplates=5"
     }
   ],
   "testUser": {
-    "email": "ui_redesign_1775453053470@test.com",
+    "email": "ui_redesign_1775468262768@test.com",
     "password": "Test1234",
     "name": "UI Redesign Tester"
   },
-  "projectId": "cmnmqwo2h00029yzwvfq9gh1c",
+  "projectId": "cmnmzynlu00x09yb7vrow1gyc",
   "notes": "Use testUser credentials for manual/browser checks on redesigned pages."
 }

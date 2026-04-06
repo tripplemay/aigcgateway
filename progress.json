@@ -1,11 +1,11 @@
 {
-  "status": "verifying",
+  "status": "done",
   "user_goal": "page-cleanup-actions-templates: 移除假数据面板、改造为真实统计、补全交互（分页/New Version/Admin 查看）",
   "total_features": 9,
-  "completed_features": 8,
+  "completed_features": 9,
   "fix_rounds": 0,
   "current_sprint": null,
-  "last_updated": "2026-04-06T23:30:00Z",
+  "last_updated": "2026-04-06T09:42:00Z",
   "reference_docs": [],
   "role_assignments": {
     "planner": "Kimi",
@@ -15,13 +15,40 @@
   "docs": {
     "spec": null,
     "test_cases": null,
-    "signoff": null,
+    "signoff": "test-reports/page-cleanup-actions-templates-signoff-2026-04-06.md",
     "framework_reviewed": false
   },
-  "evaluator_feedback": null,
+  "evaluator_feedback": {
+    "summary": "L1 本地验收通过：F-PC-01~F-PC-09 全部 PASS。",
+    "pass_count": 9,
+    "partial_count": 0,
+    "fail_count": 0,
+    "issues": [],
+    "evidence": [
+      "docs/test-reports/ui-redesign-templates-actions-local-e2e-2026-04-06.json",
+      "docs/test-reports/page-cleanup-actions-templates-local-api-verify-2026-04-06.json",
+      "docs/test-reports/page-cleanup-actions-templates-new-version-local-2026-04-06.json",
+      "docs/test-reports/page-cleanup-actions-templates-signoff-2026-04-06.md"
+    ],
+    "notes": [
+      "Chrome DevTools MCP 本轮不可用（Transport closed），UI 以代码核对 + API 验证替代。",
+      "本结论适用于 L1 本地环境（localhost:3099）。"
+    ]
+  },
   "generator_handoff": {
-    "completed": ["F-PC-01", "F-PC-02", "F-PC-03", "F-PC-04", "F-PC-05", "F-PC-06", "F-PC-07", "F-PC-08"],
-    "codex_tasks": ["F-PC-09: E2E 验证"],
+    "completed": [
+      "F-PC-01",
+      "F-PC-02",
+      "F-PC-03",
+      "F-PC-04",
+      "F-PC-05",
+      "F-PC-06",
+      "F-PC-07",
+      "F-PC-08"
+    ],
+    "codex_tasks": [
+      "F-PC-09: E2E 验证"
+    ],
     "notes": [
       "F-PC-01+02: Actions 列表页重写 — 移除 Action Latency 柱状图、Vertex AI Promo、通知/帮助按钮；改为真实 CallLog 统计（新增 /api/projects/:id/actions/stats）；分页组件接通后端 page/pageSize",
       "F-PC-03: Action 详情页 — 移除 Performance Matrix（Avg Latency/Token Cost/Success Rate）和 System Health: Stable 徽章；Usage 改为从 TemplateStep count 查询真实引用数",
@@ -33,14 +60,59 @@
     ]
   },
   "features": [
-    { "id": "F-PC-01", "title": "Actions 列表页：移除假数据 + 真实统计", "status": "completed", "executor": "generator" },
-    { "id": "F-PC-02", "title": "Actions 列表页：补全分页", "status": "completed", "executor": "generator" },
-    { "id": "F-PC-03", "title": "Action 详情页：移除假数据 + 真实统计", "status": "completed", "executor": "generator" },
-    { "id": "F-PC-04", "title": "Action 详情页：New Version 语义修正", "status": "completed", "executor": "generator" },
-    { "id": "F-PC-05", "title": "Templates 列表页：Health 卡片改造", "status": "completed", "executor": "generator" },
-    { "id": "F-PC-06", "title": "Template 详情页：移除空渐变", "status": "completed", "executor": "generator" },
-    { "id": "F-PC-07", "title": "Admin 模板页：移除 Quality Score + 查看接通", "status": "completed", "executor": "generator" },
-    { "id": "F-PC-08", "title": "i18n 补全", "status": "completed", "executor": "generator" },
-    { "id": "F-PC-09", "title": "E2E 验证", "status": "pending", "executor": "codex" }
+    {
+      "id": "F-PC-01",
+      "title": "Actions 列表页：移除假数据 + 真实统计",
+      "status": "completed",
+      "executor": "generator"
+    },
+    {
+      "id": "F-PC-02",
+      "title": "Actions 列表页：补全分页",
+      "status": "completed",
+      "executor": "generator"
+    },
+    {
+      "id": "F-PC-03",
+      "title": "Action 详情页：移除假数据 + 真实统计",
+      "status": "completed",
+      "executor": "generator"
+    },
+    {
+      "id": "F-PC-04",
+      "title": "Action 详情页：New Version 语义修正",
+      "status": "completed",
+      "executor": "generator"
+    },
+    {
+      "id": "F-PC-05",
+      "title": "Templates 列表页：Health 卡片改造",
+      "status": "completed",
+      "executor": "generator"
+    },
+    {
+      "id": "F-PC-06",
+      "title": "Template 详情页：移除空渐变",
+      "status": "completed",
+      "executor": "generator"
+    },
+    {
+      "id": "F-PC-07",
+      "title": "Admin 模板页：移除 Quality Score + 查看接通",
+      "status": "completed",
+      "executor": "generator"
+    },
+    {
+      "id": "F-PC-08",
+      "title": "i18n 补全",
+      "status": "completed",
+      "executor": "generator"
+    },
+    {
+      "id": "F-PC-09",
+      "title": "E2E 验证",
+      "status": "completed",
+      "executor": "codex"
+    }
   ]
 }
