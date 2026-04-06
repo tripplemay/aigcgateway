@@ -32,6 +32,14 @@
       "decisions": [],
       "confirmed_at": "2026-04-06",
       "priority": "medium"
+    },
+    {
+      "id": "BL-034",
+      "title": "SDK 补全 Action/Template 类型 + ChatParams 对齐 + README 更新",
+      "description": "SDK 缺少 Action/Template 相关类型定义（API 已有完整 CRUD），ChatParams 缺少 n 和 stream_options 参数（引擎已支持），README 未记录 MCP CRUD 工具。来源：代码审查（2026-04-06）。",
+      "decisions": [],
+      "confirmed_at": "2026-04-06",
+      "priority": "medium"
     }
   ]
 }
