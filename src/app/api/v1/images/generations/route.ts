@@ -13,7 +13,7 @@ import { generateTraceId, jsonResponse } from "@/lib/api/response";
 import { resolveEngine } from "@/lib/engine";
 import { processImageResult } from "@/lib/api/post-process";
 import type { ImageGenerationRequest } from "@/lib/engine/types";
-import { EngineError } from "@/lib/engine/types";
+import { EngineError, sanitizeErrorMessage } from "@/lib/engine/types";
 
 export async function POST(request: Request) {
   const traceId = generateTraceId();
@@ -55,9 +55,9 @@ export async function POST(request: Request) {
     adapter = resolved.adapter;
   } catch (err) {
     if (err instanceof EngineError) {
-      return errorResponse(err.statusCode, err.code, err.message);
+      return errorResponse(err.statusCode, err.code, sanitizeErrorMessage(err.message));
     }
-    return errorResponse(502, "provider_error", (err as Error).message);
+    return errorResponse(502, "provider_error", sanitizeErrorMessage((err as Error).message));
   }
 
   const startTime = Date.now();
@@ -98,8 +98,8 @@ export async function POST(request: Request) {
     });
 
     if (engineErr) {
-      return errorResponse(engineErr.statusCode, engineErr.code, engineErr.message);
+      return errorResponse(engineErr.statusCode, engineErr.code, sanitizeErrorMessage(engineErr.message));
     }
-    return errorResponse(502, "provider_error", (err as Error).message);
+    return errorResponse(502, "provider_error", sanitizeErrorMessage((err as Error).message));
   }
 }

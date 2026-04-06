@@ -254,10 +254,14 @@ async function deductBalance(
 ): Promise<void> {
   if (amount <= 0) return;
 
+  // Minimum charge protection: prevent micro amounts from being truncated to $0
+  const MIN_CHARGE = 0.00000001;
+  const finalAmount = amount < MIN_CHARGE ? MIN_CHARGE : amount;
+
   await prisma.$queryRaw`
     SELECT * FROM deduct_balance(
       ${projectId}::TEXT,
-      ${amount}::DECIMAL(16,8),
+      ${finalAmount}::DECIMAL(16,8),
       ${callLogId}::TEXT,
       ${"API call deduction"}::TEXT,
       ${traceId ?? null}::TEXT

@@ -140,6 +140,20 @@ export function registerChat(server: McpServer, opts: McpServerOptions): void {
         };
       }
 
+      // Validate no empty content
+      const emptyContentIdx = messages.findIndex((m) => !m.content || m.content.trim().length === 0);
+      if (emptyContentIdx >= 0) {
+        return {
+          content: [
+            {
+              type: "text" as const,
+              text: `[invalid_request] messages[${emptyContentIdx}].content is empty. All messages must have non-empty content.`,
+            },
+          ],
+          isError: true,
+        };
+      }
+
       // Resolve engine
       let route;
       let adapter;
