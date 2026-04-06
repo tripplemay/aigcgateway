@@ -6,6 +6,8 @@
 
 ## 1. Codex 角色定位
 
+> **角色分配机制：** 本文件定义的是 Codex 在方向 B（试行期）下的默认角色。实际角色受 `.agents-registry` + `progress.json role_assignments` 约束。当前阶段（方向 B），Codex 仅限担任 evaluator。将来升级到方向 A 后，Codex 可被分配为任意角色，届时本节将相应放开。
+
 Codex 仅承担以下职责：
 
 - 测试
@@ -30,7 +32,7 @@ Codex 不承担以下职责：
 
 > Codex 只负责发现问题、验证结果、提供证据，不负责直接修复产品实现。
 
-如测试过程中发现缺陷，Codex 必须记录并反馈给 Claude 或人工开发者处理，不得自行修改产品实现代码来“顺手修复”问题。
+如测试过程中发现缺陷，Codex 必须记录并反馈给 Generator 或人工开发者处理，不得自行修改产品实现代码来”顺手修复”问题。
 
 ---
 
@@ -38,6 +40,7 @@ Codex 不承担以下职责：
 
 收到任务后，Codex 默认按以下顺序执行：
 
+0. 读取 `.agent-id` 文件的 `codex:` 行，确认自己的身份标识
 1. 阅读当前任务说明
 2. 阅读本文件 `AGENTS.md`
 3. 如存在交接或测试文档，优先阅读相关文档
@@ -614,14 +617,16 @@ api-keys-staging-acceptance-2026-04-05.md
 new → planning → building → verifying → fixing ⟷ reverifying → done
 ```
 
-Codex 只在以下两个阶段介入：
+**默认映射（无 role_assignments 时）：** Codex 在以下两个阶段介入：
 
 | status | Codex 动作 |
 |---|---|
 | `verifying` | 首轮验收：逐条验证 features.json，写入 evaluator_feedback，有问题置 `fixing` |
 | `reverifying` | 复验：确认 fix_rounds 已递增，重新验收所有 FAIL/PARTIAL 功能，全 PASS 后写 signoff 置 `done` |
 
-**Codex 不处理 `building` / `fixing` 阶段**，这两个阶段由 Claude CLI（Generator）负责。
+**有 role_assignments 时：** Codex 读取 `progress.json` 的 `role_assignments`，确认 evaluator 字段是否为自己的 agent-id。是 → 按上表执行；不是 → 告知用户「本阶段 evaluator 已分配给其他 agent」，等待指令。
+
+**Codex 不处理 `building` / `fixing` 阶段**（方向 B 限制），这两个阶段由 Generator 负责。
 
 ### 18.2 signoff 硬性要求
 
