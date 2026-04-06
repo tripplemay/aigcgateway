@@ -12,12 +12,13 @@ AIGC Gateway — AI 服务商管理中台。统一 API 调用抽象（兼容 Ope
 
 ## 当前开发状态（截至 2026-04-06）
 
-**当前批次：** `dx-metadata-enhancement`（5 PASS / 1 FAIL，等待修复）
-**Harness 状态：** fixing
-**最新验收报告：** `docs/test-reports/dx-metadata-enhancement-reverification-2026-04-07-round4.md`（清缓存后复验仍 FAIL）
+**最新完成批次：** `dx-metadata-enhancement`（7/7 PASS，fix_rounds=5）
+**Harness 状态：** done
+**签收报告：** `docs/test-reports/dx-metadata-enhancement-signoff-2026-04-07.md`
 
 ### 近期完成批次（2026-04-06）
 
+- `dx-metadata-enhancement`（7/7 PASS）— capabilities/contextWindow 补全、run_action dry_run、MCP 错误码结构统一、SDK 类型与 README 对齐
 - `action-pages-design-restore`（5/5 PASS）— 按更新后的 Stitch 设计稿还原 Action List / Detail / Editor 三页
 - `mcp-crud-chat-params`（12/12 PASS）— MCP 新增 Action/Template CRUD + chat function-calling 参数增强 + SDK 类型清理
 - `page-cleanup-actions-templates`（9/9 PASS）— 清理 Actions/Templates 假数据面板、接入真实统计、补全分页/New Version/Admin 查看
@@ -63,12 +64,9 @@ Action 相关权威设计稿（3 个，已更新确认）：
 
 状态：3 页设计稿还原已完成并通过验收（`action-pages-design-restore` 5/5 PASS）
 
-## Backlog（1 条待处理）
+## Backlog（0 条待处理）
 
-| ID | 优先级 | 标题 |
-|---|---|---|
-| BL-033 | medium | MCP 错误返回增加 error_code + chat.ts catch 对齐 |
-| BL-030/031/032/034 | — | 已在 `dx-metadata-enhancement` 批次通过本地验收 |
+当前 backlog 为空。
 
 BL-024/026/027/028 已完成。
 

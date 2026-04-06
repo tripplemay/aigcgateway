@@ -1,11 +1,11 @@
 {
-  "status": "reverifying",
+  "status": "done",
   "user_goal": "dx-metadata-enhancement: capabilities/contextWindow 补全 + dry_run + error_code + SDK 类型对齐",
   "total_features": 7,
-  "completed_features": 6,
+  "completed_features": 7,
   "fix_rounds": 5,
   "current_sprint": null,
-  "last_updated": "2026-04-06T16:13:17Z",
+  "last_updated": "2026-04-06T16:22:03Z",
   "reference_docs": [],
   "role_assignments": {
     "planner": "Kimi",
@@ -15,28 +15,21 @@
   "docs": {
     "spec": null,
     "test_cases": null,
-    "signoff": null,
+    "signoff": "test-reports/dx-metadata-enhancement-signoff-2026-04-07.md",
     "framework_reviewed": false
   },
   "evaluator_feedback": {
-    "summary": "清除构建缓存后复验（round4）：5 PASS / 1 FAIL。F-DX-04 仍未满足 [error_code] message 格式。",
-    "pass_count": 5,
+    "summary": "清缓存后复验通过：6 PASS / 0 FAIL，dx-metadata-enhancement 签收通过。",
+    "pass_count": 7,
     "partial_count": 0,
-    "fail_count": 1,
-    "issues": [
-      {
-        "feature_id": "F-DX-04",
-        "result": "FAIL",
-        "description": "chat 非法模型错误返回为 JSON {error_code,message}，未满足方括号前缀格式。",
-        "steps_to_reproduce": "MCP chat: model=openai/not-a-real-model；检查错误文本格式。"
-      }
-    ],
+    "fail_count": 0,
+    "issues": [],
     "evidence": [
-      "docs/test-reports/dx-metadata-enhancement-reverify-local-e2e-2026-04-07-round4.json",
-      "docs/test-reports/dx-metadata-enhancement-reverification-2026-04-07-round4.md"
+      "docs/test-reports/dx-metadata-enhancement-reverify-local-e2e-2026-04-07-round6.json",
+      "docs/test-reports/dx-metadata-enhancement-signoff-2026-04-07.md"
     ],
     "notes": [
-      "已执行 rm -rf .next 并重新 codex-setup 后复验。",
+      "chat 错误返回现为带错误码结构（示例：[model_not_found] ...）。",
       "sdk typecheck/build 通过。"
     ]
   },
@@ -101,7 +94,7 @@
     {
       "id": "F-DX-07",
       "title": "E2E 验证",
-      "status": "pending",
+      "status": "completed",
       "executor": "codex"
     }
   ]

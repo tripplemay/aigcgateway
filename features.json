@@ -31,7 +31,7 @@
       "title": "MCP 错误返回增加 error_code + chat.ts catch 对齐",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "1) chat.ts 通用 catch 对齐 generate-image.ts 模式：每个 catch 都附带 error_code；2) run_action/run_template 的 EngineError catch 也附带 error_code；3) 错误返回文本格式统一为包含 error_code 的结构（如 [error_code] message）；4) npm run lint + tsc 通过"
     },
     {
@@ -55,7 +55,7 @@
       "title": "E2E 验证",
       "priority": "high",
       "executor": "codex",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "1) list_models 返回的模型中支持 function calling 的有 function_calling: true；2) 所有文本模型 contextWindow 非 null；3) run_action dry_run=true 返回 rendered_messages 不扣费；4) chat tool 错误返回包含 error_code；5) SDK typecheck + build 通过"
     }
   ]
