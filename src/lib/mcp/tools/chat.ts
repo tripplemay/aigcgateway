@@ -42,8 +42,38 @@ export function registerChat(server: McpServer, opts: McpServerOptions): void {
         .object({ type: z.enum(["text", "json_object"]) })
         .optional()
         .describe("Response format. Use json_object for structured JSON output."),
+      top_p: z.number().min(0).max(1).optional().describe("Nucleus sampling probability, 0-1"),
+      frequency_penalty: z
+        .number()
+        .min(-2)
+        .max(2)
+        .optional()
+        .describe("Frequency penalty, -2 to 2. Positive values reduce repetition."),
+      tools: z
+        .array(
+          z.object({
+            type: z.literal("function"),
+            function: z.object({
+              name: z.string(),
+              description: z.string().optional(),
+              parameters: z.record(z.unknown()).optional(),
+            }),
+          }),
+        )
+        .optional()
+        .describe("Function calling tool definitions. Each tool has type:'function' and a function object with name, description, and JSON Schema parameters."),
+      tool_choice: z
+        .union([
+          z.enum(["auto", "none", "required"]),
+          z.object({
+            type: z.literal("function"),
+            function: z.object({ name: z.string() }),
+          }),
+        ])
+        .optional()
+        .describe("Tool choice strategy: 'auto', 'none', 'required', or a specific function object."),
     },
-    async ({ model, messages, temperature, max_tokens, stream, response_format }) => {
+    async ({ model, messages, temperature, max_tokens, stream, response_format, top_p, frequency_penalty, tools, tool_choice }) => {
       // Permission check
       const permErr = checkMcpPermission(permissions, "chatCompletion");
       if (permErr) {
@@ -141,6 +171,10 @@ export function registerChat(server: McpServer, opts: McpServerOptions): void {
         ...(temperature !== undefined ? { temperature } : {}),
         ...(max_tokens !== undefined ? { max_tokens } : {}),
         ...(response_format ? { response_format } : {}),
+        ...(top_p !== undefined ? { top_p } : {}),
+        ...(frequency_penalty !== undefined ? { frequency_penalty } : {}),
+        ...(tools ? { tools } : {}),
+        ...(tool_choice ? { tool_choice } : {}),
         stream: !!stream,
       };
 
@@ -230,7 +264,9 @@ export function registerChat(server: McpServer, opts: McpServerOptions): void {
           source: "mcp",
         });
 
-        const content = response.choices?.[0]?.message?.content ?? "";
+        const choice = response.choices?.[0];
+        const content = choice?.message?.content ?? "";
+        const toolCalls = choice?.message?.tool_calls ?? undefined;
         const usage = response.usage;
 
         return {
@@ -249,7 +285,8 @@ export function registerChat(server: McpServer, opts: McpServerOptions): void {
                         totalTokens: usage.total_tokens,
                       }
                     : null,
-                  finishReason: response.choices?.[0]?.finish_reason ?? null,
+                  finishReason: choice?.finish_reason ?? null,
+                  ...(toolCalls ? { tool_calls: toolCalls } : {}),
                 },
                 null,
                 2,

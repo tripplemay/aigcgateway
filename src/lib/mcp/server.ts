@@ -19,6 +19,13 @@ import { registerListTemplates } from "./tools/list-templates";
 import { registerRunTemplate } from "./tools/run-template";
 import { registerGetActionDetail } from "./tools/get-action-detail";
 import { registerGetTemplateDetail } from "./tools/get-template-detail";
+import { registerCreateAction } from "./tools/create-action";
+import { registerUpdateAction } from "./tools/update-action";
+import { registerDeleteAction } from "./tools/delete-action";
+import { registerCreateActionVersion } from "./tools/create-action-version";
+import { registerCreateTemplate } from "./tools/create-template";
+import { registerUpdateTemplate } from "./tools/update-template";
+import { registerDeleteTemplate } from "./tools/delete-template";
 import type { ApiKeyPermissions } from "@/lib/api/auth-middleware";
 
 const SERVER_INSTRUCTIONS = `# AIGC Gateway — AI 服务商聚合平台
@@ -32,6 +39,8 @@ const SERVER_INSTRUCTIONS = `# AIGC Gateway — AI 服务商聚合平台
 - 基础对话：chat(model, messages)
 - 流式输出：chat(model, messages, stream=true) — 返回包含 ttftMs 性能指标
 - 结构化 JSON：chat(model, messages, response_format={type:"json_object"})
+- 采样控制：top_p (0-1), frequency_penalty (-2~2), temperature (0-2)
+- Function Calling：chat(model, messages, tools=[...], tool_choice="auto") — 响应中包含 tool_calls
 - **必须先 list_models 获取可用模型名，再调用 chat**（模型名因部署而异）
 
 ## 图片生成（generate_image）
@@ -43,7 +52,10 @@ Action 绑定一个模型 + 提示词 + 变量定义，可复用。
 - **list_actions** — 查看所有 Actions
 - **get_action_detail(action_id)** — 查看 Action 详情（激活版本的 messages/variables、版本历史）
 - **run_action(action_id, variables)** — 执行 Action，传入变量
-- 创建/编辑 Action 需在控制台操作
+- **create_action(name, model, messages, variables?)** — 创建新 Action + v1 版本
+- **update_action(action_id, name?, description?, model?)** — 更新 Action 元数据（不影响版本）
+- **delete_action(action_id)** — 删除 Action（被 Template 引用时会阻止）
+- **create_action_version(action_id, messages, variables?, changelog?, set_active?)** — 创建新版本（版本号自动递增，默认设为活跃版本）
 
 ## Template（多步编排工作流）
 Template 由多个 Action 按顺序或并行组合：
@@ -52,7 +64,9 @@ Template 由多个 Action 按顺序或并行组合：
 - **list_templates** — 查看所有 Templates 及步骤详情
 - **get_template_detail(template_id)** — 查看 Template 详情（执行模式、步骤列表、保留变量）
 - **run_template(template_id, variables)** — 执行 Template
-- 创建/编辑 Template 需在控制台操作
+- **create_template(name, description?, steps)** — 创建新 Template（steps 中的 action_id 必须属于当前项目）
+- **update_template(template_id, name?, description?, steps?)** — 更新 Template（steps 提供时全量替换）
+- **delete_template(template_id)** — 删除 Template（级联删除步骤）
 
 ### 保留变量
 - {{previous_output}} — 串行模式中上一步的输出
@@ -71,7 +85,6 @@ Template 由多个 Action 按顺序或并行组合：
   - 时间：period=today/7d/30d
 
 ## 控制台操作（无法通过 MCP 完成）
-- 创建/编辑 Action 和 Template
 - 充值余额
 - 管理 API Key 和权限
 - 控制台地址：https://aigc.guangai.ai
@@ -120,9 +133,16 @@ export function createMcpServer(opts: McpServerOptions): McpServer {
   registerListActions(server, opts);
   registerRunAction(server, opts);
   registerGetActionDetail(server, opts);
+  registerCreateAction(server, opts);
+  registerUpdateAction(server, opts);
+  registerDeleteAction(server, opts);
+  registerCreateActionVersion(server, opts);
   registerListTemplates(server, opts);
   registerRunTemplate(server, opts);
   registerGetTemplateDetail(server, opts);
+  registerCreateTemplate(server, opts);
+  registerUpdateTemplate(server, opts);
+  registerDeleteTemplate(server, opts);
 
   return server;
 }

@@ -1,11 +1,11 @@
 {
-  "status": "building",
+  "status": "verifying",
   "user_goal": "mcp-crud-chat-params: MCP Action/Template CRUD 工具 + chat Tool 参数增强 + SDK phantom 字段清理",
   "total_features": 12,
-  "completed_features": 0,
+  "completed_features": 11,
   "fix_rounds": 0,
   "current_sprint": null,
-  "last_updated": "2026-04-06T21:00:00Z",
+  "last_updated": "2026-04-06T23:45:00Z",
   "reference_docs": [
     "docs/specs/mcp-crud-chat-params-spec.md"
   ],
@@ -21,5 +21,30 @@
     "framework_reviewed": false
   },
   "evaluator_feedback": null,
-  "generator_handoff": null
+  "generator_handoff": {
+    "completed": ["F-MCP-01", "F-MCP-02", "F-MCP-03", "F-MCP-04", "F-MCP-05", "F-MCP-06", "F-MCP-07", "F-MCP-08", "F-MCP-09", "F-MCP-10", "F-MCP-11"],
+    "codex_tasks": ["F-MCP-12: E2E 验证"],
+    "notes": [
+      "F-MCP-01: SDK ChatParams 移除 template_id + variables 字段，typecheck 通过",
+      "F-MCP-02: chat Tool 新增 top_p + frequency_penalty 参数，透传到 ChatCompletionRequest",
+      "F-MCP-03: chat Tool 新增 tools + tool_choice（Function Calling），响应包含 tool_calls",
+      "F-MCP-04~07: Action CRUD 4 个新 Tool（create/update/delete/create_version）",
+      "F-MCP-08~10: Template CRUD 3 个新 Tool（create/update/delete）",
+      "F-MCP-11: SERVER_INSTRUCTIONS 已更新：chat 增强参数说明 + 7 个新 CRUD Tool 使用说明，移除'创建/编辑需在控制台操作'提示"
+    ]
+  },
+  "features": [
+    { "id": "F-MCP-01", "title": "SDK 移除 phantom template_id/variables", "status": "completed", "executor": "generator" },
+    { "id": "F-MCP-02", "title": "chat Tool 增加 top_p + frequency_penalty 参数", "status": "completed", "executor": "generator" },
+    { "id": "F-MCP-03", "title": "chat Tool 增加 tools + tool_choice", "status": "completed", "executor": "generator" },
+    { "id": "F-MCP-04", "title": "create_action MCP Tool", "status": "completed", "executor": "generator" },
+    { "id": "F-MCP-05", "title": "update_action MCP Tool", "status": "completed", "executor": "generator" },
+    { "id": "F-MCP-06", "title": "delete_action MCP Tool", "status": "completed", "executor": "generator" },
+    { "id": "F-MCP-07", "title": "create_action_version MCP Tool", "status": "completed", "executor": "generator" },
+    { "id": "F-MCP-08", "title": "create_template MCP Tool", "status": "completed", "executor": "generator" },
+    { "id": "F-MCP-09", "title": "update_template MCP Tool", "status": "completed", "executor": "generator" },
+    { "id": "F-MCP-10", "title": "delete_template MCP Tool", "status": "completed", "executor": "generator" },
+    { "id": "F-MCP-11", "title": "SERVER_INSTRUCTIONS 更新", "status": "completed", "executor": "generator" },
+    { "id": "F-MCP-12", "title": "E2E 验证", "status": "pending", "executor": "codex" }
+  ]
 }

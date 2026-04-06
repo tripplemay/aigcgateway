@@ -49,8 +49,6 @@ export interface ChatParams {
     | "required"
     | { type: "function"; function: { name: string } };
   seed?: number;
-  template_id?: string;
-  variables?: Record<string, string>;
 }
 
 export interface ChatStreamParams extends Omit<ChatParams, "stream"> {
