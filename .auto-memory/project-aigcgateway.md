@@ -12,10 +12,9 @@ AIGC Gateway — AI 服务商管理中台。统一 API 调用抽象（兼容 Ope
 
 ## 当前开发状态（截至 2026-04-07）
 
-**当前批次：** `mcp-finops-hardening`（已完成签收）
+**最新完成批次：** `mcp-finops-hardening`（10/10 PASS，fix_rounds=0）
 **Harness 状态：** done
-**最新验收报告：** `docs/test-reports/mcp-finops-hardening-signoff-2026-04-07.md`
-**结果：** 全部验收项 PASS（F-MH-03 已修复）
+**签收报告：** `docs/test-reports/mcp-finops-hardening-signoff-2026-04-07.md`
 
 ### 近期完成批次（2026-04-06）
 
@@ -65,20 +64,15 @@ Action 相关权威设计稿（3 个，已更新确认）：
 
 状态：3 页设计稿还原已完成并通过验收（`action-pages-design-restore` 5/5 PASS）
 
-## Backlog（8 条待处理）
+## Backlog（3 条待处理）
 
 | ID | 优先级 | 标题 | 来源 |
 |---|---|---|---|
-| BL-035 | high | generate_image 上游错误脱敏遗漏 | 混沌测试 |
-| BL-036 | high | activate_version 版本回滚 | 工作流审查 |
-| BL-037 | high | run_template 返回步骤明细 | 工作流审查 |
-| BL-038 | high | 交易流水增加 trace_id | FinOps 审计 |
-| BL-039 | medium | top_p Schema 一致性 | 混沌测试 |
-| BL-040 | medium | run_action 支持 version_id | 工作流审查 |
-| BL-041 | medium | 计费精度 4→8 位 | FinOps 审计 |
-| BL-042 | medium | 聚合统计明细下钻 | FinOps 审计 |
+| BL-043 | medium | 最低扣费保护（MIN_CHARGE） | FinOps 精度分析 |
+| BL-044 | high | generate_image 脱敏补全（F-MH-01 残留） | 混沌测试复测 |
+| BL-045 | medium | 空 content 校验 | 混沌测试复测 |
 
-BL-024~034 已完成。
+BL-024~042 已完成。
 
 ## 已知遗留问题
 

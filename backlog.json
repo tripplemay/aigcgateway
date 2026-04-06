@@ -11,6 +11,22 @@
       ],
       "confirmed_at": "2026-04-07",
       "priority": "medium"
+    },
+    {
+      "id": "BL-044",
+      "title": "generate_image 上游错误脱敏补全（F-MH-01 残留）",
+      "description": "F-MH-01 只修了通用 routing catch，但 2026-04-07 混沌测试复测仍发现 3 处泄露：1) OpenAI 空 prompt/无效尺寸时透传 QQ 群号；2) volcengine Request ID 透传；3) volcengine 端点名透传。需排查 generate_image 的所有上游错误路径（不仅是 routing catch），确保 sanitizeErrorMessage 全覆盖。来源：混沌测试复测报告（2026-04-07）。",
+      "decisions": [],
+      "confirmed_at": "2026-04-07",
+      "priority": "high"
+    },
+    {
+      "id": "BL-045",
+      "title": "空 content 校验",
+      "description": "messages[].content 为空字符串时未被拦截，模型正常响应并消耗 2510 tokens。建议增加 content 最小长度校验或 trim 后检查非空。来源：混沌测试复测报告（2026-04-07）。",
+      "decisions": [],
+      "confirmed_at": "2026-04-07",
+      "priority": "medium"
     }
   ]
 }
