@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Model Whitelist - AIGC Gateway</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Manrope:wght@700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface-container-lowest": "#ffffff",
+                    "surface-container-low": "#f2f3ff",
+                    "primary-fixed": "#e5deff",
+                    "inverse-primary": "#c8bfff",
+                    "error": "#ba1a1a",
+                    "tertiary-fixed-dim": "#ffb964",
+                    "secondary-fixed": "#e5deff",
+                    "surface-container-high": "#e2e7ff",
+                    "outline-variant": "#c9c4d5",
+                    "primary-container": "#6d5dd3",
+                    "on-surface": "#131b2e",
+                    "on-error-container": "#93000a",
+                    "on-primary": "#ffffff",
+                    "on-secondary-fixed": "#1b153f",
+                    "tertiary-fixed": "#ffddba",
+                    "outline": "#787584",
+                    "tertiary-container": "#9d6100",
+                    "primary-fixed-dim": "#c8bfff",
+                    "on-tertiary-fixed-variant": "#663e00",
+                    "on-tertiary-fixed": "#2b1700",
+                    "tertiary": "#7c4b00",
+                    "on-secondary-container": "#585280",
+                    "surface-tint": "#5c4cc1",
+                    "secondary-container": "#d0c9fe",
+                    "inverse-on-surface": "#eef0ff",
+                    "background": "#faf8ff",
+                    "on-tertiary": "#ffffff",
+                    "surface-dim": "#d2d9f4",
+                    "surface-container-highest": "#dae2fd",
+                    "on-surface-variant": "#474553",
+                    "inverse-surface": "#283044",
+                    "on-primary-fixed-variant": "#4431a8",
+                    "error-container": "#ffdad6",
+                    "on-tertiary-container": "#fff0e4",
+                    "surface": "#faf8ff",
+                    "on-secondary": "#ffffff",
+                    "surface-bright": "#faf8ff",
+                    "on-primary-container": "#f6f1ff",
+                    "surface-container": "#eaedff",
+                    "secondary": "#5f5987",
+                    "on-background": "#131b2e",
+                    "primary": "#5443b9",
+                    "on-primary-fixed": "#190064",
+                    "surface-variant": "#dae2fd",
+                    "secondary-fixed-dim": "#c8c0f5",
+                    "on-error": "#ffffff",
+                    "on-secondary-fixed-variant": "#47416e"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "fontFamily": {
+                    "headline": ["Manrope"],
+                    "body": ["Inter"],
+                    "label": ["Inter"]
+            }
+          },
+        }
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body { font-family: 'Inter', sans-serif; }
+        h1, h2, h3 { font-family: 'Manrope', sans-serif; }
+    </style>
+</head>
+<body class="bg-surface text-on-surface">
+<!-- Side Navigation Shell -->
+<aside class="fixed left-0 h-full w-64 bg-surface-container-low flex flex-col py-6 px-4 space-y-2 overflow-y-auto shadow-xl z-20">
+<div class="mb-8 px-2 flex items-center gap-3">
+<div class="w-10 h-10 bg-primary-container rounded-xl flex items-center justify-center">
+<span class="material-symbols-outlined text-white" style="font-variation-settings: 'FILL' 1;">gate</span>
+</div>
+<div>
+<h2 class="text-lg font-black text-primary tracking-tight leading-none">AIGC Gateway</h2>
+<p class="text-[10px] uppercase tracking-widest text-slate-500 font-bold">Admin Console</p>
+</div>
+</div>
+<nav class="flex-1 space-y-1">
+<!-- Navigation Items Mapping -->
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all text-slate-600 font-medium hover:bg-white/50 group" href="#">
+<span class="material-symbols-outlined text-xl">dashboard</span>
+<span class="text-sm">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all text-slate-600 font-medium hover:bg-white/50 group" href="#">
+<span class="material-symbols-outlined text-xl">extension</span>
+<span class="text-sm">Models</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all text-slate-600 font-medium hover:bg-white/50 group" href="#">
+<span class="material-symbols-outlined text-xl">key</span>
+<span class="text-sm">API Keys</span>
+</a>
+<div class="pt-4 pb-2 px-3 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Administrative</div>
+<!-- Active Item: Model Whitelist -->
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-white text-primary font-bold border-l-4 border-primary shadow-sm transition-all scale-98" href="#">
+<span class="material-symbols-outlined text-xl" style="font-variation-settings: 'FILL' 1;">verified_user</span>
+<span class="text-sm">Model Whitelist</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all text-slate-600 font-medium hover:bg-white/50 group" href="#">
+<span class="material-symbols-outlined text-xl">group</span>
+<span class="text-sm">Users</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all text-slate-600 font-medium hover:bg-white/50 group" href="#">
+<span class="material-symbols-outlined text-xl">cloud_queue</span>
+<span class="text-sm">Providers</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all text-slate-600 font-medium hover:bg-white/50 group" href="#">
+<span class="material-symbols-outlined text-xl">favorite_border</span>
+<span class="text-sm">Health</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all text-slate-600 font-medium hover:bg-white/50 group" href="#">
+<span class="material-symbols-outlined text-xl">history_edu</span>
+<span class="text-sm">Admin Logs</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all text-slate-600 font-medium hover:bg-white/50 group" href="#">
+<span class="material-symbols-outlined text-xl">query_stats</span>
+<span class="text-sm">Admin Usage</span>
+</a>
+<div class="pt-4 pb-2 px-3 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Configuration</div>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all text-slate-600 font-medium hover:bg-white/50 group" href="#">
+<span class="material-symbols-outlined text-xl">settings</span>
+<span class="text-sm">Settings</span>
+</a>
+</nav>
+<div class="mt-auto px-2">
+<button class="w-full py-3 bg-gradient-to-r from-primary to-primary-container text-white rounded-xl font-semibold shadow-lg shadow-primary/20 hover:opacity-90 transition-all flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-sm">add</span>
+<span>New Deployment</span>
+</button>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="ml-64 min-h-screen bg-surface">
+<!-- Top App Bar -->
+<header class="flex justify-between items-center px-8 py-4 w-full bg-background/80 backdrop-blur-md sticky top-0 z-10">
+<div class="flex items-center gap-4 bg-surface-container-low rounded-full px-4 py-2 w-96">
+<span class="material-symbols-outlined text-slate-400 text-lg">search</span>
+<input class="bg-transparent border-none focus:ring-0 text-sm w-full p-0 text-on-surface" placeholder="Global search models or keys..." type="text"/>
+</div>
+<div class="flex items-center gap-5">
+<button class="p-2 text-slate-500 hover:bg-surface-container-low rounded-full transition-colors relative">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-2 right-2 w-2 h-2 bg-error rounded-full border-2 border-surface"></span>
+</button>
+<button class="p-2 text-slate-500 hover:bg-surface-container-low rounded-full transition-colors">
+<span class="material-symbols-outlined">help_outline</span>
+</button>
+<div class="h-8 w-px bg-outline-variant/30 mx-1"></div>
+<div class="flex items-center gap-3 pl-2">
+<div class="text-right">
+<p class="text-xs font-bold leading-none">Admin User</p>
+<p class="text-[10px] text-slate-400">admin@aigc.gateway</p>
+</div>
+<img alt="Admin Profile" class="w-9 h-9 rounded-full bg-slate-200" data-alt="professional portrait of a tech executive wearing a dark modern suit with clean minimalist background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBrz4oArxucT3B6shwesnKUu-fcfsB-a4KN7Zwg9Ag31TlQaGUCZKEttEdFXn5R7u-E9rQIITnRa82oAU2VwwALMziaw79V2FBtec_WSFtW0qhPUgmfSaLHoLsGtJXwGq4uT1-NEabUMr4idKg5mvjUpaLvE0ogF_oXu56yM8q3q5zgjcSS03ZavbC-533Leq20lknWkk47Sobz0yllcri5Qtrqf52jpxwMC2wMKayaS-oD3GVcuAlTm78NZ3sT5dCPstThUrWtQsrU"/>
+</div>
+</div>
+</header>
+<div class="px-8 py-8 max-w-7xl mx-auto space-y-10">
+<!-- Page Header -->
+<section>
+<h1 class="text-4xl font-extrabold tracking-tight text-on-surface">Model Whitelist</h1>
+<p class="mt-2 text-slate-500 text-lg">Enable models for your users. Only enabled models appear in <code class="bg-surface-container-low px-1.5 py-0.5 rounded text-sm font-mono text-primary">list_models</code> and can be called.</p>
+</section>
+<!-- Bento Stats Row -->
+<section class="grid grid-cols-1 md:grid-cols-3 gap-6">
+<div class="bg-white/60 backdrop-blur-lg rounded-xl p-6 shadow-sm border border-white/40 flex items-center gap-5 group hover:shadow-md transition-all">
+<div class="w-14 h-14 rounded-xl bg-primary-fixed flex items-center justify-center text-primary group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-3xl" style="font-variation-settings: 'FILL' 1;">database</span>
+</div>
+<div>
+<p class="text-xs font-bold uppercase tracking-widest text-slate-400">Total Models</p>
+<h3 class="text-3xl font-black text-on-surface">156</h3>
+<p class="text-xs text-secondary font-medium mt-0.5">All providers synced</p>
+</div>
+</div>
+<div class="bg-white/60 backdrop-blur-lg rounded-xl p-6 shadow-sm border border-white/40 flex items-center gap-5 group hover:shadow-md transition-all">
+<div class="w-14 h-14 rounded-xl bg-surface-container-highest flex items-center justify-center text-primary group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-3xl" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</div>
+<div>
+<p class="text-xs font-bold uppercase tracking-widest text-slate-400">Enabled</p>
+<h3 class="text-3xl font-black text-on-surface">23</h3>
+<p class="text-xs text-secondary font-medium mt-0.5">Whitelisted models</p>
+</div>
+</div>
+<div class="bg-white/60 backdrop-blur-lg rounded-xl p-6 shadow-sm border border-white/40 flex items-center gap-5 group hover:shadow-md transition-all">
+<div class="w-14 h-14 rounded-xl bg-tertiary-fixed flex items-center justify-center text-tertiary group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-3xl" style="font-variation-settings: 'FILL' 1;">hub</span>
+</div>
+<div>
+<p class="text-xs font-bold uppercase tracking-widest text-slate-400">Providers</p>
+<h3 class="text-3xl font-black text-on-surface">7</h3>
+<p class="text-xs text-secondary font-medium mt-0.5">Active upstream channels</p>
+</div>
+</div>
+</section>
+<!-- Filter Bar -->
+<section class="flex flex-wrap items-center gap-4 bg-surface-container-low p-2 rounded-2xl">
+<div class="flex-1 min-w-[240px] relative">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-lg">search</span>
+<input class="w-full bg-white border-none rounded-xl pl-11 pr-4 py-3 focus:ring-2 focus:ring-primary/20 shadow-sm text-sm" placeholder="Filter by model name..." type="text"/>
+</div>
+<div class="flex items-center gap-3">
+<select class="bg-white border-none rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary/20 shadow-sm text-sm font-medium min-w-[140px]">
+<option>All Providers</option>
+<option>OpenAI</option>
+<option>OpenRouter</option>
+<option>DeepSeek</option>
+<option>Anthropic</option>
+<option>SiliconFlow</option>
+</select>
+<select class="bg-white border-none rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary/20 shadow-sm text-sm font-medium min-w-[140px]">
+<option>All Modalities</option>
+<option>Text</option>
+<option>Image</option>
+</select>
+<button class="bg-white p-3 rounded-xl shadow-sm text-slate-500 hover:text-primary transition-colors">
+<span class="material-symbols-outlined">filter_list</span>
+</button>
+</div>
+</section>
+<!-- Main Data Table Container -->
+<section class="bg-surface-container-lowest rounded-2xl shadow-xl shadow-slate-200/50 overflow-hidden">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container-high/30">
+<th class="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-slate-500">Enable</th>
+<th class="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-slate-500">Model Name</th>
+<th class="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-slate-500">Provider</th>
+<th class="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-slate-500">Modality</th>
+<th class="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-slate-500 text-center">Context</th>
+<th class="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-slate-500">Price (Sell/Cost)</th>
+<th class="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-slate-500">Channels</th>
+<th class="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-slate-500">Health</th>
+<th class="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-slate-500 text-right">Actions</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-slate-100/50">
+<!-- Row 1: GPT-4o -->
+<tr class="hover:bg-surface-container-high/10 transition-colors group">
+<td class="px-6 py-5">
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+</label>
+</td>
+<td class="px-6 py-5">
+<div class="flex items-center gap-2">
+<span class="font-bold text-on-surface text-sm">gpt-4o</span>
+</div>
+</td>
+<td class="px-6 py-5">
+<div class="flex items-center gap-2">
+<div class="w-6 h-6 rounded bg-on-surface flex items-center justify-center p-1">
+<img alt="OpenAI Logo" class="invert" data-alt="minimalist white openai logo icon on black background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAe3MAjIYcWdkkbjN5XICk1-z-BRNabyhWlxzqhYz61352fMMdNdP-diAw6hh7RHAbOrEvLlBFHgI-nzGsHUmN4ucUT8lxhPublbPQO6ld9r43_p3uaaGtYGPZ0ceGOsFJplDNuR4SD7LUiynTsZQeSWQp7aPWig3AgCPrC_KNYRgJIMaotVimpaW03-o-Qua3Auvu-ETtyViUBbNAX5PVqCB4VpSCRiO94aJR4MqnwoJr68wbCi8d3-0GpX-CE4slXrIny6q5NYTph"/>
+</div>
+<span class="text-xs font-semibold text-slate-600">OpenAI</span>
+</div>
+</td>
+<td class="px-6 py-5">
+<span class="bg-primary-fixed text-primary text-[10px] font-bold px-2 py-1 rounded-md">TEXT</span>
+</td>
+<td class="px-6 py-5 text-center">
+<span class="text-xs font-mono text-slate-500">128K</span>
+</td>
+<td class="px-6 py-5">
+<div class="flex flex-col">
+<div class="flex items-center gap-1 group/edit cursor-pointer">
+<span class="text-xs font-bold text-on-surface">$3.00 / $12.00</span>
+<span class="material-symbols-outlined text-[14px] opacity-0 group-hover/edit:opacity-100 transition-opacity">edit</span>
+</div>
+<span class="text-[10px] text-slate-400 font-medium">$2.50 / $10.00 Cost</span>
+</div>
+</td>
+<td class="px-6 py-5">
+<div class="flex items-center gap-1.5">
+<div class="w-2 h-2 rounded-full bg-emerald-500"></div>
+<span class="text-xs font-bold text-emerald-600">1 ACTIVE</span>
+</div>
+</td>
+<td class="px-6 py-5">
+<div class="flex items-center gap-1 text-emerald-600">
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<span class="text-[10px] font-bold uppercase tracking-tight">Healthy</span>
+</div>
+</td>
+<td class="px-6 py-5 text-right">
+<button class="p-1.5 hover:bg-surface-container-low rounded-lg transition-colors">
+<span class="material-symbols-outlined text-slate-400">unfold_more</span>
+</button>
+</td>
+</tr>
+<!-- Row 2: Llama 3.1 -->
+<tr class="hover:bg-surface-container-high/10 transition-colors group">
+<td class="px-6 py-5">
+<label class="relative inline-flex items-center cursor-pointer">
+<input class="sr-only peer" type="checkbox"/>
+<div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+</label>
+</td>
+<td class="px-6 py-5">
+<div class="flex items-center gap-2">
+<span class="font-bold text-on-surface text-sm">llama-3.1-405b</span>
+<span class="bg-tertiary-fixed text-on-tertiary-fixed text-[9px] font-black px-1.5 py-0.5 rounded uppercase tracking-tighter">New</span>
+</div>
+</td>
+<td class="px-6 py-5">
+<div class="flex items-center gap-2">
+<div class="w-6 h-6 rounded bg-slate-100 flex items-center justify-center text-[10px] font-bold text-slate-500">OR</div>
+<span class="text-xs font-semibold text-slate-600">OpenRouter</span>
+</div>
+</td>
+<td class="px-6 py-5">
+<span class="bg-primary-fixed text-primary text-[10px] font-bold px-2 py-1 rounded-md">TEXT</span>
+</td>
+<td class="px-6 py-5 text-center">
+<span class="text-xs font-mono text-slate-500">128K</span>
+</td>
+<td class="px-6 py-5">
+<div class="flex flex-col">
+<div class="flex items-center gap-1">
+<span class="text-xs font-bold text-slate-400">—</span>
+</div>
+<span class="text-[10px] text-slate-400 font-medium">$0.84 / $0.84 Cost</span>
+</div>
+</td>
+<td class="px-6 py-5">
+<div class="flex items-center gap-1.5">
+<div class="w-2 h-2 rounded-full bg-emerald-500"></div>
+<span class="text-xs font-bold text-emerald-600">1 ACTIVE</span>
+</div>
+</td>
+<td class="px-6 py-5">
+<div class="flex items-center gap-1 text-slate-400">
+<span class="material-symbols-outlined text-sm">help</span>
+<span class="text-[10px] font-bold uppercase tracking-tight">Unknown</span>
+</div>
+</td>
+<td class="px-6 py-5 text-right">
+<button class="p-1.5 hover:bg-surface-container-low rounded-lg transition-colors">
+<span class="material-symbols-outlined text-slate-400">unfold_more</span>
+</button>
+</td>
+</tr>
+<!-- Row 3: Stable Diffusion -->
+<tr class="hover:bg-surface-container-high/10 transition-colors group">
+<td class="px-6 py-5">
+<label class="relative inline-flex items-center cursor-pointer">
+<input class="sr-only peer" type="checkbox"/>
+<div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+</label>
+</td>
+<td class="px-6 py-5">
+<div class="flex items-center gap-2">
+<span class="font-bold text-on-surface text-sm">stable-diffusion-xl</span>
+</div>
+</td>
+<td class="px-6 py-5">
+<div class="flex items-center gap-2">
+<div class="w-6 h-6 rounded bg-slate-800 flex items-center justify-center">
+<span class="material-symbols-outlined text-white text-[14px]">cloud</span>
+</div>
+<span class="text-xs font-semibold text-slate-600">SiliconFlow</span>
+</div>
+</td>
+<td class="px-6 py-5">
+<span class="bg-secondary-container text-secondary text-[10px] font-bold px-2 py-1 rounded-md">IMAGE</span>
+</td>
+<td class="px-6 py-5 text-center">
+<span class="text-xs font-mono text-slate-300">—</span>
+</td>
+<td class="px-6 py-5">
+<div class="flex flex-col">
+<div class="flex items-center gap-1">
+<span class="text-xs font-bold text-slate-400">—</span>
+</div>
+<span class="text-[10px] text-slate-400 font-medium">$0.02 / img Cost</span>
+</div>
+</td>
+<td class="px-6 py-5">
+<div class="flex items-center gap-1.5">
+<div class="w-2 h-2 rounded-full bg-slate-300"></div>
+<span class="text-xs font-bold text-slate-400">0 ACTIVE</span>
+</div>
+</td>
+<td class="px-6 py-5">
+<div class="flex items-center gap-1 text-slate-300">
+<span class="material-symbols-outlined text-sm">remove</span>
+<span class="text-[10px] font-bold uppercase tracking-tight">—</span>
+</div>
+</td>
+<td class="px-6 py-5 text-right">
+<button class="p-1.5 hover:bg-surface-container-low rounded-lg transition-colors">
+<span class="material-symbols-outlined text-slate-400">unfold_more</span>
+</button>
+</td>
+</tr>
+</tbody>
+</table>
+<!-- Pagination Footer -->
+<footer class="px-6 py-4 flex items-center justify-between bg-surface-container-low/50">
+<p class="text-sm text-slate-500 font-medium">Showing <span class="text-on-surface font-bold">1-20</span> of 156 models</p>
+<div class="flex items-center gap-2">
+<button class="p-2 border border-slate-200 rounded-lg hover:bg-white transition-colors disabled:opacity-50" disabled="">
+<span class="material-symbols-outlined text-lg">chevron_left</span>
+</button>
+<div class="flex items-center gap-1">
+<button class="w-8 h-8 rounded-lg bg-primary text-white text-xs font-bold shadow-sm">1</button>
+<button class="w-8 h-8 rounded-lg hover:bg-white text-xs font-bold text-slate-600 transition-colors">2</button>
+<button class="w-8 h-8 rounded-lg hover:bg-white text-xs font-bold text-slate-600 transition-colors">3</button>
+<span class="px-1 text-slate-400">...</span>
+<button class="w-8 h-8 rounded-lg hover:bg-white text-xs font-bold text-slate-600 transition-colors">8</button>
+</div>
+<button class="p-2 border border-slate-200 rounded-lg hover:bg-white transition-colors">
+<span class="material-symbols-outlined text-lg">chevron_right</span>
+</button>
+</div>
+</footer>
+</section>
+</div>
+</main>
+</body></html>

@@ -1,34 +1,33 @@
 {
-  "status": "done",
-  "user_goal": "ui-1to1-restoration: 7 个模板/动作页面按 design-draft HTML 严格 1:1 还原修复",
-  "total_features": 8,
-  "completed_features": 8,
-  "fix_rounds": 2,
+  "status": "building",
+  "user_goal": "whitelist-db-migration: 模型白名单从代码迁移到数据库，Admin 控制台手动管理，全量同步+按需启用",
+  "total_features": 9,
+  "completed_features": 0,
+  "fix_rounds": 0,
   "current_sprint": null,
-  "last_updated": "2026-04-06T05:24:12Z",
+  "last_updated": "2026-04-06T20:00:00Z",
   "reference_docs": [],
-  "role_assignments": null,
+  "role_assignments": {
+    "planner": "Kimi",
+    "generator": "Johnsong",
+    "evaluator": "Reviewer"
+  },
   "docs": {
     "spec": null,
     "test_cases": null,
-    "signoff": "docs/test-reports/ui-1to1-restoration-signoff-2026-04-06.md",
+    "signoff": null,
     "framework_reviewed": false
   },
-  "evaluator_feedback": {
-    "summary": "第 2 轮复验通过：Action Detail 的 Performance Matrix 已恢复为原型要求的 Avg Latency / Token Cost / Success Rate，L1 API/E2E 继续 5/5 通过，批次达到签收条件。",
-    "pass_count": 8,
-    "partial_count": 0,
-    "fail_count": 0,
-    "issues": []
-  },
+  "evaluator_feedback": null,
   "features": [
-    { "id": "F-1TO1-01", "title": "Actions 列表页 1:1 还原", "status": "completed", "executor": "generator" },
-    { "id": "F-1TO1-02", "title": "Action 详情页 1:1 还原", "status": "completed", "executor": "generator" },
-    { "id": "F-1TO1-03", "title": "Action 创建/编辑页 1:1 还原", "status": "completed", "executor": "generator" },
-    { "id": "F-1TO1-04", "title": "Templates 列表页 1:1 还原", "status": "completed", "executor": "generator" },
-    { "id": "F-1TO1-05", "title": "Template 详情页 1:1 还原", "status": "completed", "executor": "generator" },
-    { "id": "F-1TO1-06", "title": "Template 创建/编辑页 1:1 还原", "status": "completed", "executor": "generator" },
-    { "id": "F-1TO1-07", "title": "Admin 模板管理页 1:1 还原", "status": "completed", "executor": "generator" },
-    { "id": "F-1TO1-08", "title": "E2E 验证（原型对照）", "status": "completed", "executor": "codex" }
+    { "id": "F-WL-01", "title": "Model 表新增字段", "status": "pending", "executor": "generator" },
+    { "id": "F-WL-02", "title": "Sync 引擎改造", "status": "pending", "executor": "generator" },
+    { "id": "F-WL-03", "title": "API 层适配", "status": "pending", "executor": "generator" },
+    { "id": "F-WL-04", "title": "Admin API", "status": "pending", "executor": "generator" },
+    { "id": "F-WL-05", "title": "Admin 白名单管理页面", "status": "pending", "executor": "generator" },
+    { "id": "F-WL-06", "title": "usage 日期格式修复", "status": "pending", "executor": "generator" },
+    { "id": "F-WL-07", "title": "usage 已下线模型标注", "status": "pending", "executor": "generator" },
+    { "id": "F-WL-08", "title": "i18n 补全", "status": "pending", "executor": "generator" },
+    { "id": "F-WL-09", "title": "E2E 验证", "status": "pending", "executor": "codex" }
   ]
 }

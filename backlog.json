@@ -8,22 +8,6 @@
       "decisions": [],
       "confirmed_at": "2026-04-06",
       "priority": "medium"
-    },
-    {
-      "id": "BL-026",
-      "title": "usage summary 按天分组日期格式修复",
-      "description": "get_usage_summary 按天分组时，key 为 JavaScript Date.toString() 格式（如 'Mon Apr 06 2026 00:00:00 GMT+0000'），应改为 ISO 8601（YYYY-MM-DD）。来源：DX 审查报告第二份（2026-04-06）。",
-      "decisions": [],
-      "confirmed_at": "2026-04-06",
-      "priority": "medium"
-    },
-    {
-      "id": "BL-027",
-      "title": "usage 中已下线模型名标注处理",
-      "description": "get_usage_summary topModels 中出现 deepseek/v3、zhipu/glm-4.7-flash 等不在 list_models 中的模型名（历史调用记录）。应标注 deprecated 或说明该模型已不可用。来源：DX 审查报告第二份（2026-04-06）。",
-      "decisions": [],
-      "confirmed_at": "2026-04-06",
-      "priority": "low"
     }
   ]
 }
