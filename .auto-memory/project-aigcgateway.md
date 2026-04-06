@@ -12,31 +12,15 @@ AIGC Gateway — AI 服务商管理中台。统一 API 调用抽象（兼容 Ope
 
 ## 当前开发状态（截至 2026-04-06）
 
-**最新完成批次：** `ui-redesign-templates-actions`（9/9 PASS，fix_rounds=3）
+**最新完成批次：** `ui-1to1-restoration`（8/8 PASS，fix_rounds=2）
 **Harness 状态：** done
-**签收报告：** `docs/test-reports/ui-redesign-templates-actions-local-signoff-2026-04-06.md`
+**签收报告：** `docs/test-reports/ui-1to1-restoration-signoff-2026-04-06.md`
 
-### 最新完成批次
+### 近期完成批次（2026-04-06）
 
-- `dx-provider-fixes`
-  - 当前阶段：`done`
-  - 签收结论：通过
-  - 本地 L1 通过：`F-DPF-01`、`F-DPF-03`、`F-DPF-04`、`F-DPF-05`
-  - 特殊说明：`F-DPF-02` 的代码层 `requireApiKey()` 预检已验收通过；真实 Provider key 配置闭环按用户确认后置到生产环境有效 key 配置后执行
-  - 签收报告：`docs/test-reports/dx-provider-fixes-signoff-2026-04-06.md`
-
-### 当前进行中批次
-
-- 无
-
-### 最新完成批次补充
-
-- `ui-1to1-restoration`
-  - 当前阶段：`done`
-  - 签收结论：通过
-  - 最终通过：`F-1TO1-01` ~ `F-1TO1-08`
-  - 关键修复闭环：Action Detail 已恢复 `Avg Latency` / `Token Cost` / `Success Rate` 结构
-  - 签收报告：`docs/test-reports/ui-1to1-restoration-signoff-2026-04-06.md`
+- `dx-provider-fixes`（5/5 PASS）— 上游错误脱敏 + sync 预检 + capabilities 清理 + MCP 示例更新
+- `ui-redesign-templates-actions`（9/9 PASS）— 7 个模板/动作页面 Stitch 设计稿重构
+- `ui-1to1-restoration`（8/8 PASS）— 上述 7 页面 1:1 设计稿严格还原修复
 
 ### 里程碑总览
 
@@ -46,7 +30,8 @@ AIGC Gateway — AI 服务商管理中台。统一 API 调用抽象（兼容 Ope
 - P3-1：Prompt 模板治理（25/25 PASS）→ 后重构为 Action + Template 两层架构（p4-action-template 18/18 PASS）
 - mcp-dx-round2：白名单收紧至 28 模型 + list_models 去重 + capabilities 补全（10/10 PASS）
 - bugfix-model-cleanup：孤立 Model 清理 + MCP 错误码修复（5/5 PASS）
-- **ui-redesign-templates-actions：7 个模板/动作页面按 Stitch 设计稿 1:1 重构（9/9 PASS）**
+- ui-redesign-templates-actions + ui-1to1-restoration：7 个模板/动作页面 Stitch 1:1 还原（9/9 + 8/8 PASS）
+- dx-provider-fixes：上游错误脱敏 + sync 预检 + capabilities 清理（5/5 PASS）
 
 ### 本轮框架升级（2026-04-06）
 
@@ -61,14 +46,15 @@ AIGC Gateway — AI 服务商管理中台。统一 API 调用抽象（兼容 Ope
 9. **Agent 注册表：** `.agents-registry`（git-tracked）列出项目所有 agent，Planner 角色分配时读取
 10. **AGENTS.md 适配：** Codex 启动读 `.agent-id` codex 行 + role_assignments 判断
 
-## Backlog（2 条待处理）
+## Backlog（3 条待处理）
 
 | ID | 优先级 | 标题 |
 |---|---|---|
 | BL-024 | medium | Action/Template MCP 缺 create/update/delete |
-| BL-025 | high | 模板/动作 7 个页面 1:1 设计稿还原修复 |
+| BL-026 | medium | usage summary 日期格式修复（Date.toString → ISO 8601） |
+| BL-027 | low | usage 中已下线模型名标注 deprecated |
 
-BL-020~023 已在 dx-provider-fixes 批次中处理完毕。
+BL-020~023 已在 dx-provider-fixes 处理，BL-025 已在 ui-1to1-restoration 处理。
 
 ## 已知遗留问题
 
