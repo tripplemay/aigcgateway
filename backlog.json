@@ -1,19 +1,4 @@
 {
   "description": "需求池：已与用户确认但尚未开发的功能，等待下一批次启动时统一安排",
-  "items": [
-    {
-      "id": "BL-029",
-      "title": "Action 页面按更新设计稿还原（3 页面）",
-      "description": "Action List / Action Detail / Action Editor 三个页面按 Stitch 更新后的权威设计稿还原代码。主要偏差：1) Action List 统计区移除（改为全宽表格）；2) Action Detail 增加 Delete 按钮、Version History 改为垂直时间线、移除 Performance Matrix；3) Action Editor Model 字段改为下拉选择器。设计稿已由用户在 Stitch 上确认。",
-      "decisions": [
-        "Action List 统计区完全移除（用户选择 C）",
-        "Action Detail 右侧只保留 Insights + Quick-Link（用户选择 A）",
-        "Model 选择用下拉选择器（用户选择 A）",
-        "Version History 用垂直时间线（用户选择 A）",
-        "Delete 按钮放在 Hero 区与 Edit/New Version 并排（用户选择 A）"
-      ],
-      "confirmed_at": "2026-04-06",
-      "priority": "high"
-    }
-  ]
+  "items": []
 }
