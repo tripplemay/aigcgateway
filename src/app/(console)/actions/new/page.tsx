@@ -38,6 +38,7 @@ export default function NewActionPage() {
   const [variables, setVariables] = useState<VarDef[]>([]);
   const [changelog, setChangelog] = useState("");
   const [saving, setSaving] = useState(false);
+  const [availableModels, setAvailableModels] = useState<string[]>([]);
 
   // Load existing action data in edit/newVersion mode
   useEffect(() => {
@@ -73,6 +74,16 @@ export default function NewActionPage() {
       })
       .catch(() => toast.error("Failed to load action"));
   }, [current, sourceActionId]);
+
+  // Fetch available models for dropdown
+  useEffect(() => {
+    fetch("/v1/models")
+      .then((r) => r.json())
+      .then((d: { data: { id: string }[] }) => {
+        setAvailableModels(d.data.map((m) => m.id));
+      })
+      .catch(() => {});
+  }, []);
 
   const addMessage = () => setMessages([...messages, { role: "user", content: "" }]);
   const removeMessage = (i: number) => setMessages(messages.filter((_, idx) => idx !== i));
@@ -206,14 +217,25 @@ export default function NewActionPage() {
                 </div>
                 <div className="col-span-2 md:col-span-1">
                   <label className="block text-[10px] font-bold text-outline uppercase tracking-wider mb-2">
-                    {t("model")}
+                    {t("modelSelection")}
                   </label>
-                  <input
-                    className="w-full bg-surface-container-low border-none border-b-2 border-outline-variant/30 focus:border-primary focus:ring-0 rounded-lg p-3 text-sm font-mono transition-all"
-                    placeholder={t("modelPlaceholder")}
-                    value={model}
-                    onChange={(e) => setModel(e.target.value)}
-                  />
+                  <div className="relative">
+                    <select
+                      className="w-full bg-surface-container-low border-none border-b-2 border-outline-variant/30 focus:border-primary focus:ring-0 rounded-lg p-3 text-sm appearance-none transition-all"
+                      value={model}
+                      onChange={(e) => setModel(e.target.value)}
+                    >
+                      <option value="">{t("modelPlaceholder")}</option>
+                      {availableModels.map((m) => (
+                        <option key={m} value={m}>
+                          {m}
+                        </option>
+                      ))}
+                    </select>
+                    <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-outline-variant">
+                      expand_more
+                    </span>
+                  </div>
                 </div>
                 <div className="col-span-2">
                   <label className="block text-[10px] font-bold text-outline uppercase tracking-wider mb-2">
@@ -391,7 +413,7 @@ export default function NewActionPage() {
                 onClick={addVariable}
                 className="mt-4 w-full py-2 text-sm font-semibold text-primary bg-primary/10 hover:bg-primary/20 rounded-lg transition-all"
               >
-                + Add Variable
+                + {t("addVariable")}
               </button>
             </section>
           </div>
@@ -400,10 +422,7 @@ export default function NewActionPage() {
 
       {/* Footer Actions — design-draft line 300-316 */}
       <footer className="mt-auto px-8 py-6 bg-surface-container-low border-t border-outline-variant/20">
-        <div className="max-w-7xl mx-auto flex justify-between items-center">
-          <div className="flex items-center gap-4 text-xs text-on-surface-variant">
-            {editId && <span>Action ID: {editId}</span>}
-          </div>
+        <div className="max-w-7xl mx-auto flex items-center justify-end">
           <div className="flex items-center gap-3">
             <Link
               href="/actions"

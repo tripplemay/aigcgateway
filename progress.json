@@ -1,11 +1,11 @@
 {
-  "status": "building",
+  "status": "verifying",
   "user_goal": "action-pages-design-restore: 按更新后的 Stitch 设计稿还原 Action List / Detail / Editor 三个页面",
   "total_features": 5,
-  "completed_features": 0,
+  "completed_features": 4,
   "fix_rounds": 0,
   "current_sprint": null,
-  "last_updated": "2026-04-07T00:30:00Z",
+  "last_updated": "2026-04-07T01:00:00Z",
   "reference_docs": [],
   "role_assignments": {
     "planner": "Kimi",
@@ -19,5 +19,21 @@
     "framework_reviewed": false
   },
   "evaluator_feedback": null,
-  "generator_handoff": null
+  "generator_handoff": {
+    "completed": ["F-AR-01", "F-AR-02", "F-AR-03", "F-AR-04"],
+    "codex_tasks": ["F-AR-05: E2E 验证"],
+    "notes": [
+      "F-AR-01: Action List 全宽表格（移除右侧统计面板），CTA Banner 改为深色大卡片匹配设计稿，分页 Previous/Next 文案化",
+      "F-AR-02: Action Detail Hero 区新增红色 Delete 按钮；Version History 改为垂直时间线（连接线+圆形节点+Rollback 按钮）；右侧 Insights 改为 icon 卡片样式；新增 Support Documentation Teaser",
+      "F-AR-03: Action Editor Model 字段改为下拉选择器（从 /v1/models API 获取）；Footer 仅 Cancel + Save（无 Auto-saved、无 Action ID）",
+      "F-AR-04: 所有新增/修改文案已 i18n（rollback/devQuickLink/docsTeaser/viewDocs/modelSelection 等）"
+    ]
+  },
+  "features": [
+    { "id": "F-AR-01", "title": "Action List 页面按更新设计稿还原", "status": "completed", "executor": "generator" },
+    { "id": "F-AR-02", "title": "Action Detail 页面按更新设计稿还原", "status": "completed", "executor": "generator" },
+    { "id": "F-AR-03", "title": "Action Editor 页面按更新设计稿还原", "status": "completed", "executor": "generator" },
+    { "id": "F-AR-04", "title": "i18n 补全", "status": "completed", "executor": "generator" },
+    { "id": "F-AR-05", "title": "E2E 验证", "status": "pending", "executor": "codex" }
+  ]
 }
