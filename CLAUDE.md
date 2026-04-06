@@ -12,7 +12,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **分支规则（Claude CLI 必须遵守）：代码提交推 `main` 分支。部署由用户在 done 阶段通过 GitHub Actions 手动触发，不自动部署。**
 
-`.auto-memory/` 是唯一跨会话记忆源，包含：当前开发状态、已知遗留问题、生产环境信息、Codex 测试账号等。不读则可能基于过期信息做出错误决策。
+`.auto-memory/`（git-tracked）是跨 agent 共享记忆源，包含：项目状态、生产环境信息、架构决策等。所有角色（Planner / Generator / Evaluator）均可读写，每次会话结束时如有变更应更新并 push。本机用户偏好记忆（沟通风格、行为反馈）存储在 `~/.claude/projects/.../memory/` 中，不入 git。
 
 **状态机（当前版本）：**
 ```

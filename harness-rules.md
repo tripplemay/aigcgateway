@@ -105,8 +105,20 @@ git pull --ff-only origin main
 ### 第三步：读取对应角色文件
 根据第二步的判断结果加载 planner.md / generator.md / evaluator.md 并严格执行。
 
-### 第三步：完成后更新 progress.json
+### 第四步：完成后更新 progress.json
 每个阶段结束后必须更新 progress.json 中的 status 字段，再结束会话。
+
+### 第五步：会话结束时更新共享记忆（所有角色通用）
+每次会话结束前（包括上下文不足 20% 被迫结束时），检查本会话是否产生了以下变更：
+- 项目状态变化（批次完成、阶段推进、重要 bug 发现）
+- 架构或框架规则变更
+- 新增外部资源引用（新的 Stitch 设计稿、新的 Provider 配置等）
+- 生产环境变化
+
+**有变更 → 更新 `.auto-memory/project-aigcgateway.md`，commit 并 push。**
+无变更 → 跳过。
+
+这条规则适用于所有角色（Planner / Generator / Evaluator），不仅限于 done 阶段。
 
 ## 状态流转图
 
@@ -138,6 +150,17 @@ docs/
 ├── archive/                # 历史文档归档
 └── adr/                    # 可选：架构决策记录
 ```
+
+## 记忆分层
+
+项目使用两层记忆系统，按用途分开存储：
+
+| 层 | 位置 | 共享范围 | 存储内容 | 谁写 |
+|---|---|---|---|---|
+| **共享层** | `.auto-memory/`（git-tracked） | 所有 agent | 项目状态、生产环境信息、参考资源、架构决策 | 所有角色均可写 |
+| **本机层** | `~/.claude/projects/.../memory/`（本地） | 仅本机 agent | 用户偏好、沟通风格、行为反馈 | 本机 agent 自动维护 |
+
+**原则：** 如果一条信息对远端 agent 有用 → 写入 `.auto-memory/`（共享层）。如果只跟当前用户的交互习惯有关 → 写入本机层。
 
 ## 需求池（backlog.json）
 
