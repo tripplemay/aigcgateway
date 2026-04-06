@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Template Details | AIGC Gateway</title>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        "colors": {
+                "on-error": "#ffffff",
+                "surface-container-high": "#e2e7ff",
+                "secondary-fixed": "#e5deff",
+                "inverse-on-surface": "#eef0ff",
+                "on-primary-container": "#f6f1ff",
+                "surface-variant": "#dae2fd",
+                "surface-dim": "#d2d9f4",
+                "on-tertiary-fixed-variant": "#663e00",
+                "on-secondary-fixed-variant": "#47416e",
+                "secondary": "#5f5987",
+                "tertiary-fixed-dim": "#ffb964",
+                "primary-fixed-dim": "#c8bfff",
+                "primary-container": "#6d5dd3",
+                "outline": "#787584",
+                "on-primary-fixed": "#190064",
+                "primary": "#5443b9",
+                "on-primary": "#ffffff",
+                "surface-container-low": "#f2f3ff",
+                "surface": "#faf8ff",
+                "surface-container-highest": "#dae2fd",
+                "background": "#faf8ff",
+                "on-tertiary-fixed": "#2b1700",
+                "error": "#ba1a1a",
+                "surface-container": "#eaedff",
+                "on-secondary": "#ffffff",
+                "on-secondary-fixed": "#1b153f",
+                "primary-fixed": "#e5deff",
+                "on-primary-fixed-variant": "#4431a8",
+                "on-surface": "#131b2e",
+                "inverse-primary": "#c8bfff",
+                "surface-container-lowest": "#ffffff",
+                "on-tertiary": "#ffffff",
+                "tertiary-fixed": "#ffddba",
+                "on-error-container": "#93000a",
+                "tertiary": "#7c4b00",
+                "on-tertiary-container": "#fff0e4",
+                "on-surface-variant": "#474553",
+                "surface-bright": "#faf8ff",
+                "outline-variant": "#c9c4d5",
+                "secondary-container": "#d0c9fe",
+                "on-background": "#131b2e",
+                "secondary-fixed-dim": "#c8c0f5",
+                "error-container": "#ffdad6",
+                "on-secondary-container": "#585280",
+                "inverse-surface": "#283044",
+                "tertiary-container": "#9d6100",
+                "surface-tint": "#5c4cc1"
+        },
+        "borderRadius": {
+                "DEFAULT": "0.125rem",
+                "lg": "0.25rem",
+                "xl": "0.5rem",
+                "full": "0.75rem"
+        },
+        "fontFamily": {
+                "headline": [
+                        "Manrope"
+                ],
+                "body": [
+                        "Inter"
+                ],
+                "label": [
+                        "Inter"
+                ]
+        }
+},
+    },
+  }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .pipeline-connector::before {
+            content: '';
+            position: absolute;
+            left: 2rem;
+            top: 4rem;
+            bottom: -2rem;
+            width: 2px;
+            background: linear-gradient(to bottom, #6d5dd3 0%, #dae2fd 100%);
+            z-index: 0;
+        }
+        .pipeline-step:last-child .pipeline-connector::before {
+            display: none;
+        }
+    </style>
+</head>
+<body class="bg-surface font-body text-on-surface antialiased">
+<!-- SideNavBar -->
+<aside class="bg-slate-50 dark:bg-slate-900 font-['Manrope'] tracking-tight h-screen w-64 fixed left-0 top-0 flex flex-col h-full py-6 px-4 z-50">
+<div class="mb-10 px-4">
+<span class="text-xl font-bold text-[#5443B9] dark:text-[#6D5DD3]">AIGC Gateway</span>
+<p class="text-xs text-slate-500 font-medium tracking-widest mt-1">ALGORITHMIC ATELIER</p>
+</div>
+<nav class="flex-1 space-y-2">
+<!-- Dashboard -->
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/50 transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="text-sm font-semibold">Dashboard</span>
+</a>
+<!-- Models -->
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/50 transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined" data-icon="extension">extension</span>
+<span class="text-sm font-semibold">Models</span>
+</a>
+<!-- API Keys -->
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/50 transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined" data-icon="vpn_key">vpn_key</span>
+<span class="text-sm font-semibold">API Keys</span>
+</a>
+<!-- Templates (ACTIVE) -->
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg bg-slate-200 dark:bg-slate-800 text-[#5443B9] border-l-4 border-[#5443B9] transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined" data-icon="description">description</span>
+<span class="text-sm font-semibold">Templates</span>
+</a>
+<!-- Logs -->
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/50 transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined" data-icon="history_edu">history_edu</span>
+<span class="text-sm font-semibold">Logs</span>
+</a>
+<!-- Balance -->
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/50 transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined" data-icon="account_balance_wallet">account_balance_wallet</span>
+<span class="text-sm font-semibold">Balance</span>
+</a>
+<!-- Settings -->
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/50 transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="text-sm font-semibold">Settings</span>
+</a>
+</nav>
+<div class="mt-auto px-4 py-4 bg-surface-container-high/50 rounded-xl flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-primary overflow-hidden">
+<img alt="User Profile Avatar" class="w-full h-full object-cover" data-alt="Close up portrait of a professional male software engineer with glasses smiling slightly in a bright workspace" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA402nRvmRRzzxeRQYoF9du1kAXmfEkYh5o_8wmCkMTzmFoWwjr-n0HsA_Ykk6F6najydPy7vgQYwfCmq-B64JYRYO-7zb1sfei6urFTBrZbqEy5RAvdTUzUDfG_9ug_l3AS4cAMgiD1vCjcRbnnHaKuXzHxNKd5ClRT9qFsXBeOKeHNhyLKhl5Y0KQD8cRkKDO7LGETKHrfPC2FReH7rMKpjkV2qwgwPa4TTIbL022v56v_hE0kUY3K9LoKVfMXne7zzSU2ahGat5l"/>
+</div>
+<div>
+<p class="text-xs font-bold text-on-surface">Alex Rivera</p>
+<p class="text-[10px] text-slate-500 uppercase tracking-widest">Developer Pro</p>
+</div>
+</div>
+</aside>
+<!-- TopAppBar -->
+<header class="bg-white/80 dark:bg-slate-950/80 backdrop-blur-xl fixed top-0 right-0 w-[calc(100%-16rem)] z-40 border-b border-slate-200/15 dark:border-slate-800/15 shadow-sm dark:shadow-none font-['Manrope'] font-semibold flex justify-between items-center px-8 h-16">
+<div class="flex items-center gap-2">
+<span class="text-slate-400 font-medium">Templates</span>
+<span class="material-symbols-outlined text-slate-300 scale-75">chevron_right</span>
+<span class="text-[#5443B9]">Customer Support Pipeline</span>
+</div>
+<div class="flex items-center gap-6">
+<div class="flex gap-4">
+<a class="text-slate-500 hover:text-[#6D5DD3] transition-colors text-sm" href="#">Docs</a>
+<a class="text-slate-500 hover:text-[#6D5DD3] transition-colors text-sm" href="#">Support</a>
+<a class="text-slate-500 hover:text-[#6D5DD3] transition-colors text-sm" href="#">Changelog</a>
+</div>
+<div class="flex items-center gap-3 border-l border-slate-200 pl-6 ml-2">
+<button class="material-symbols-outlined text-slate-500 hover:text-[#5443B9] transition-transform scale-95 active:scale-100" data-icon="notifications">notifications</button>
+<button class="material-symbols-outlined text-slate-500 hover:text-[#5443B9] transition-transform scale-95 active:scale-100" data-icon="help_outline">help_outline</button>
+</div>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="ml-64 pt-24 px-10 pb-16 min-h-screen">
+<!-- Header Section -->
+<div class="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-12">
+<div class="max-w-2xl">
+<div class="flex items-center gap-3 mb-3">
+<h1 class="text-4xl font-extrabold font-headline tracking-tight text-on-surface">Customer Support Pipeline</h1>
+<span class="px-3 py-1 bg-primary/10 text-primary rounded-full text-[10px] font-bold tracking-widest uppercase">Sequential</span>
+</div>
+<p class="text-on-surface-variant text-lg leading-relaxed">Refining the conversational context for the v2.4 multi-language routing engine.</p>
+</div>
+<div class="flex gap-3">
+<button class="px-6 py-3 bg-surface-container-highest text-on-surface-variant font-semibold rounded-xl hover:bg-surface-container-high transition-colors flex items-center gap-2">
+<span class="material-symbols-outlined scale-90" data-icon="delete">delete</span>
+                    Delete
+                </button>
+<button class="px-6 py-3 bg-gradient-to-r from-primary to-primary-container text-white font-bold rounded-xl shadow-lg shadow-primary/20 hover:opacity-90 transition-opacity flex items-center gap-2">
+<span class="material-symbols-outlined scale-90" data-icon="edit">edit</span>
+                    Edit Template
+                </button>
+</div>
+</div>
+<div class="grid grid-cols-12 gap-10">
+<!-- Orchestration Pipeline (Main Section) -->
+<div class="col-span-12 lg:col-span-8 space-y-8 relative">
+<!-- Step 1 -->
+<div class="pipeline-step relative flex items-start gap-6">
+<div class="pipeline-connector"></div>
+<div class="w-16 h-16 rounded-2xl bg-primary text-white flex items-center justify-center font-headline font-extrabold text-2xl z-10 shadow-xl shadow-primary/20">1</div>
+<div class="flex-1 bg-surface-container-lowest/60 backdrop-blur-md p-6 rounded-2xl border border-white/40 shadow-sm hover:shadow-md transition-shadow group cursor-pointer">
+<div class="flex justify-between items-start mb-4">
+<div>
+<h3 class="font-headline font-bold text-xl text-on-surface group-hover:text-primary transition-colors">Intent Classifier</h3>
+<div class="flex items-center gap-2 mt-1">
+<span class="text-xs font-medium text-slate-400">Action</span>
+<span class="w-1 h-1 rounded-full bg-slate-300"></span>
+<span class="text-xs font-semibold text-primary">gpt-4o-mini</span>
+</div>
+</div>
+<span class="material-symbols-outlined text-slate-400 group-hover:rotate-180 transition-transform duration-300" data-icon="unfold_more">unfold_more</span>
+</div>
+<div class="flex items-center gap-4">
+<span class="px-3 py-1 bg-surface-container-high text-on-secondary-container text-[10px] font-bold tracking-wider rounded uppercase">Sequential</span>
+<div class="flex -space-x-2">
+<div class="w-6 h-6 rounded-full border-2 border-white bg-slate-100 flex items-center justify-center">
+<span class="material-symbols-outlined text-[10px] scale-75" data-icon="hub">hub</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Step 2 -->
+<div class="pipeline-step relative flex items-start gap-6">
+<div class="pipeline-connector"></div>
+<div class="w-16 h-16 rounded-2xl bg-primary text-white flex items-center justify-center font-headline font-extrabold text-2xl z-10 shadow-xl shadow-primary/20">2</div>
+<div class="flex-1 bg-surface-container-lowest/60 backdrop-blur-md p-6 rounded-2xl border border-white/40 shadow-sm hover:shadow-md transition-shadow group cursor-pointer">
+<div class="flex justify-between items-start mb-4">
+<div>
+<h3 class="font-headline font-bold text-xl text-on-surface group-hover:text-primary transition-colors">Response Generator</h3>
+<div class="flex items-center gap-2 mt-1">
+<span class="text-xs font-medium text-slate-400">Action</span>
+<span class="w-1 h-1 rounded-full bg-slate-300"></span>
+<span class="text-xs font-semibold text-primary">claude-sonnet-4</span>
+</div>
+</div>
+<span class="material-symbols-outlined text-slate-400 group-hover:rotate-180 transition-transform duration-300" data-icon="unfold_more">unfold_more</span>
+</div>
+<div class="flex items-center gap-4">
+<span class="px-3 py-1 bg-surface-container-high text-on-secondary-container text-[10px] font-bold tracking-wider rounded uppercase">Sequential</span>
+</div>
+</div>
+</div>
+<!-- Step 3 -->
+<div class="pipeline-step relative flex items-start gap-6">
+<div class="pipeline-connector"></div>
+<div class="w-16 h-16 rounded-2xl bg-primary text-white flex items-center justify-center font-headline font-extrabold text-2xl z-10 shadow-xl shadow-primary/20">3</div>
+<div class="flex-1 bg-surface-container-lowest/60 backdrop-blur-md p-6 rounded-2xl border border-white/40 shadow-sm hover:shadow-md transition-shadow group cursor-pointer">
+<div class="flex justify-between items-start mb-4">
+<div>
+<h3 class="font-headline font-bold text-xl text-on-surface group-hover:text-primary transition-colors">Quality Checker</h3>
+<div class="flex items-center gap-2 mt-1">
+<span class="text-xs font-medium text-slate-400">Action</span>
+<span class="w-1 h-1 rounded-full bg-slate-300"></span>
+<span class="text-xs font-semibold text-primary">gpt-4o-mini</span>
+</div>
+</div>
+<span class="material-symbols-outlined text-slate-400 group-hover:rotate-180 transition-transform duration-300" data-icon="unfold_more">unfold_more</span>
+</div>
+<div class="flex items-center gap-4">
+<span class="px-3 py-1 bg-surface-container-high text-on-secondary-container text-[10px] font-bold tracking-wider rounded uppercase">Sequential</span>
+</div>
+</div>
+</div>
+<!-- Add Step Placeholder -->
+<div class="flex items-center gap-6 opacity-40 hover:opacity-100 transition-opacity cursor-pointer group">
+<div class="w-16 h-16 rounded-2xl border-2 border-dashed border-primary flex items-center justify-center bg-transparent">
+<span class="material-symbols-outlined text-primary" data-icon="add">add</span>
+</div>
+<div class="flex-1 py-6">
+<span class="font-headline font-bold text-lg text-primary">Add Orchestration Step</span>
+</div>
+</div>
+</div>
+<!-- Metadata Sidebar (Right) -->
+<div class="col-span-12 lg:col-span-4 space-y-6">
+<div class="bg-surface-container-lowest p-8 rounded-full border border-slate-100 shadow-sm">
+<div class="flex items-center gap-3 mb-8">
+<span class="material-symbols-outlined text-primary" data-icon="info">info</span>
+<h2 class="font-headline font-bold text-lg tracking-tight">Template Info</h2>
+</div>
+<div class="space-y-6">
+<div class="flex justify-between items-center">
+<span class="text-xs font-bold text-slate-400 uppercase tracking-widest">Created Date</span>
+<span class="text-sm font-semibold text-on-surface">Oct 12, 2023</span>
+</div>
+<div class="flex justify-between items-center">
+<span class="text-xs font-bold text-slate-400 uppercase tracking-widest">Last Updated</span>
+<span class="text-sm font-semibold text-primary">2 mins ago</span>
+</div>
+<div class="flex justify-between items-center">
+<span class="text-xs font-bold text-slate-400 uppercase tracking-widest">Step Count</span>
+<span class="text-sm font-semibold text-on-surface">3 Steps</span>
+</div>
+<div class="flex justify-between items-center">
+<span class="text-xs font-bold text-slate-400 uppercase tracking-widest">Execution Mode</span>
+<span class="text-sm font-semibold text-on-surface">Sequential</span>
+</div>
+</div>
+<div class="mt-10 pt-8 border-t border-slate-50">
+<p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-4">Pipeline Preview</p>
+<div class="h-32 w-full rounded-xl bg-surface-container-low overflow-hidden relative">
+<img alt="Abstract digital network diagram" class="w-full h-full object-cover opacity-60" data-alt="Abstract aesthetic digital visualization of connected dots and glowing purple neon lines on a dark futuristic background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD1eB5Hon0-Y70_xc9CoWkDeVLisp-UcndBDSKh_sSfoKg1o_fe8fT7mQdABaoc7bL9xtoQqE46wT1X9n2yyKs1lgWaaoUC2M_aYYocaezfWTa_9v5X4jADgNTUUD4rXBAeMORhJWJp8MB7sKk2JEYhBWr0l5YrypcId3Htm1mJ8Z3kmN8UoZ40OG1mpVxPmjzX3kYJko2xmSxbbu3CncFFNNeq1G1B2CkcY-wEAtqjtJO9HXPwU2ldyoZz7eRfd9VKn5V86XudcQJF"/>
+<div class="absolute inset-0 bg-gradient-to-t from-surface-container-lowest to-transparent"></div>
+</div>
+</div>
+</div>
+<!-- Model Stats Card -->
+<div class="bg-surface-container p-6 rounded-xl">
+<h4 class="text-xs font-bold text-on-secondary-container uppercase tracking-widest mb-4">Resources Used</h4>
+<div class="space-y-4">
+<div class="flex items-center gap-3">
+<div class="w-2 h-2 rounded-full bg-primary"></div>
+<span class="text-sm font-medium">GPT-4o Mini (2x)</span>
+</div>
+<div class="flex items-center gap-3">
+<div class="w-2 h-2 rounded-full bg-[#E57373]"></div>
+<span class="text-sm font-medium">Claude Sonnet 4 (1x)</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+</body></html>

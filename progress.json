@@ -1,41 +1,28 @@
 {
-  "status": "done",
-  "user_goal": "bugfix-model-cleanup：清理白名单外孤立 Model、Sync 引擎收紧、MCP 错误码修复、Admin 可见性改善",
-  "total_features": 5,
-  "completed_features": 5,
+  "status": "building",
+  "user_goal": "ui-redesign-templates-actions：按 Stitch 设计稿重构 7 个模板/动作页面（Action 列表/详情/编辑 + Template 列表/详情/编辑 + Admin 模板管理）",
+  "total_features": 9,
+  "completed_features": 0,
   "fix_rounds": 0,
   "current_sprint": null,
-  "last_updated": "2026-04-06T00:48:00Z",
+  "last_updated": "2026-04-06T11:00:00Z",
   "reference_docs": [],
   "docs": {
     "spec": null,
     "test_cases": null,
-    "signoff": "docs/test-reports/bugfix-model-cleanup-local-signoff-2026-04-06.md",
+    "signoff": null,
     "framework_reviewed": false
   },
-  "evaluator_feedback": {
-    "summary": "bugfix-model-cleanup 本地验收通过，F-CLN-05 四项验证全部 PASS。",
-    "pass_count": 5,
-    "partial_count": 0,
-    "fail_count": 0,
-    "issues": []
-  },
-  "generator_handoff": {
-    "completed": ["F-CLN-01", "F-CLN-02", "F-CLN-03", "F-CLN-04"],
-    "pending_codex": ["F-CLN-05"],
-    "notes": [
-      "清理脚本: npx tsx scripts/cleanup-orphan-models.ts (dry-run) / --apply (实际删除)",
-      "Sync 引擎: runModelSync() 末尾新增全局清理，基于 getAllWhitelistedModelNames()",
-      "错误码: chat.ts/generate-image.ts 的 'no_available_channel' 已改为 'channel_unavailable' 匹配 ErrorCodes",
-      "Admin API: /api/admin/models 新增 activeChannelCount 字段",
-      "生产环境需先运行清理脚本再部署新代码（或部署后触发一次同步也可自动清理）"
-    ]
-  },
+  "evaluator_feedback": null,
   "features": [
-    { "id": "F-CLN-01", "title": "Sync 引擎收紧：同步后删除白名单以外的 Model + Channel", "status": "completed", "executor": "generator" },
-    { "id": "F-CLN-02", "title": "一次性清理脚本：purge 生产库孤立 Model", "status": "completed", "executor": "generator" },
-    { "id": "F-CLN-03", "title": "MCP chat/generate_image 错误码匹配修复", "status": "completed", "executor": "generator" },
-    { "id": "F-CLN-04", "title": "Admin models 页面增加 ACTIVE Channel 计数", "status": "completed", "executor": "generator" },
-    { "id": "F-CLN-05", "title": "E2E 验证", "status": "completed", "executor": "codex" }
+    { "id": "F-UI-01", "title": "Actions 列表页重构", "status": "pending", "executor": "generator" },
+    { "id": "F-UI-02", "title": "Action 详情页重构", "status": "pending", "executor": "generator" },
+    { "id": "F-UI-03", "title": "Action 创建/编辑页重构", "status": "pending", "executor": "generator" },
+    { "id": "F-UI-04", "title": "Templates 列表页重构", "status": "pending", "executor": "generator" },
+    { "id": "F-UI-05", "title": "Template 详情页重构", "status": "pending", "executor": "generator" },
+    { "id": "F-UI-06", "title": "Template 创建/编辑页重构", "status": "pending", "executor": "generator" },
+    { "id": "F-UI-07", "title": "Admin 模板管理页重构", "status": "pending", "executor": "generator" },
+    { "id": "F-UI-08", "title": "i18n 补全", "status": "pending", "executor": "generator" },
+    { "id": "F-UI-09", "title": "E2E 验证", "status": "pending", "executor": "codex" }
   ]
 }

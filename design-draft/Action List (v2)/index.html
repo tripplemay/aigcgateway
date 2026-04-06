@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Actions | AIGC Gateway</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Manrope:wght@700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "secondary": "#5f5987",
+                    "primary-fixed-dim": "#c8bfff",
+                    "on-error-container": "#93000a",
+                    "on-background": "#131b2e",
+                    "inverse-surface": "#283044",
+                    "on-surface-variant": "#474553",
+                    "tertiary-fixed": "#ffddba",
+                    "surface-container-lowest": "#ffffff",
+                    "primary-container": "#6d5dd3",
+                    "tertiary-container": "#9d6100",
+                    "surface-tint": "#5c4cc1",
+                    "outline-variant": "#c9c4d5",
+                    "on-primary": "#ffffff",
+                    "surface-bright": "#faf8ff",
+                    "surface-container": "#eaedff",
+                    "secondary-fixed-dim": "#c8c0f5",
+                    "inverse-on-surface": "#eef0ff",
+                    "on-primary-container": "#f6f1ff",
+                    "on-tertiary-container": "#fff0e4",
+                    "surface-container-highest": "#dae2fd",
+                    "on-error": "#ffffff",
+                    "on-tertiary-fixed-variant": "#663e00",
+                    "on-primary-fixed-variant": "#4431a8",
+                    "error": "#ba1a1a",
+                    "on-secondary": "#ffffff",
+                    "surface-dim": "#d2d9f4",
+                    "on-tertiary": "#ffffff",
+                    "on-secondary-fixed-variant": "#47416e",
+                    "error-container": "#ffdad6",
+                    "primary-fixed": "#e5deff",
+                    "outline": "#787584",
+                    "tertiary-fixed-dim": "#ffb964",
+                    "on-primary-fixed": "#190064",
+                    "on-tertiary-fixed": "#2b1700",
+                    "surface-variant": "#dae2fd",
+                    "tertiary": "#7c4b00",
+                    "surface-container-high": "#e2e7ff",
+                    "on-surface": "#131b2e",
+                    "secondary-container": "#d0c9fe",
+                    "secondary-fixed": "#e5deff",
+                    "surface": "#faf8ff",
+                    "primary": "#5443b9",
+                    "surface-container-low": "#f2f3ff",
+                    "on-secondary-fixed": "#1b153f",
+                    "background": "#faf8ff",
+                    "on-secondary-container": "#585280",
+                    "inverse-primary": "#c8bfff"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "fontFamily": {
+                    "headline": ["Manrope"],
+                    "body": ["Inter"],
+                    "label": ["Inter"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+        .font-headline { font-family: 'Manrope', sans-serif; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .glass {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+    </style>
+</head>
+<body class="bg-surface text-on-surface">
+<aside class="fixed h-full w-64 left-0 top-0 bg-slate-50 dark:bg-slate-900 flex flex-col gap-2 p-4">
+<div class="mb-8 px-2">
+<h1 class="text-xl font-bold tracking-tight text-[#131b2e] dark:text-slate-100 font-headline">AIGC Gateway</h1>
+<p class="text-[10px] uppercase tracking-widest text-slate-400 font-medium">Algorithmic Atelier</p>
+</div>
+<nav class="flex flex-col gap-1 flex-1">
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-500 dark:text-slate-400 font-medium hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800/30 transition-colors duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="text-sm">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-500 dark:text-slate-400 font-medium hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800/30 transition-colors duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="extension">extension</span>
+<span class="text-sm">Models</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-500 dark:text-slate-400 font-medium hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800/30 transition-colors duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="vpn_key">vpn_key</span>
+<span class="text-sm">API Keys</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-slate-200/50 dark:bg-slate-800/50 text-[#5443b9] dark:text-[#6D5DD3] font-bold border-l-4 border-[#5443b9] active:scale-[0.98] transition-transform" href="#">
+<span class="material-symbols-outlined" data-icon="bolt">bolt</span>
+<span class="text-sm">Actions</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-500 dark:text-slate-400 font-medium hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800/30 transition-colors duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="description">description</span>
+<span class="text-sm">Templates</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-500 dark:text-slate-400 font-medium hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800/30 transition-colors duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="history">history</span>
+<span class="text-sm">Logs</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-500 dark:text-slate-400 font-medium hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800/30 transition-colors duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="payments">payments</span>
+<span class="text-sm">Balance</span>
+</a>
+</nav>
+<div class="mt-auto pt-4 border-t border-slate-200 dark:border-slate-800">
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-500 dark:text-slate-400 font-medium hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800/30 transition-colors duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="text-sm">Settings</span>
+</a>
+<div class="flex items-center gap-3 px-3 py-4 mt-2">
+<div class="w-8 h-8 rounded-full bg-primary-container flex items-center justify-center text-on-primary-container text-xs font-bold">JD</div>
+<div class="flex-1 overflow-hidden">
+<p class="text-xs font-bold truncate">John Doe</p>
+<p class="text-[10px] text-slate-500 truncate">Pro Plan</p>
+</div>
+</div>
+</div>
+</aside>
+<main class="ml-64 flex-1 flex flex-col min-h-screen">
+<header class="sticky top-0 z-40 bg-[#faf8ff] dark:bg-slate-950 flex justify-between items-center w-full px-8 py-4 shadow-[0px_20px_40px_rgba(19,27,46,0.04)]">
+<div>
+<h2 class="text-2xl font-black text-[#131b2e] dark:text-slate-100 font-headline tracking-[-0.02em]">Actions</h2>
+<p class="text-sm text-slate-500 font-medium">Reusable atomic prompt operations</p>
+</div>
+<div class="flex items-center gap-6">
+<div class="relative group">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-lg" data-icon="search">search</span>
+<input class="pl-10 pr-4 py-2 bg-surface-container-low border-none rounded-xl text-sm w-64 focus:ring-2 focus:ring-primary/20 transition-all" placeholder="Search actions..." type="text"/>
+</div>
+<div class="flex items-center gap-4 text-slate-500">
+<button class="hover:text-primary transition-colors"><span class="material-symbols-outlined" data-icon="notifications">notifications</span></button>
+<button class="hover:text-primary transition-colors"><span class="material-symbols-outlined" data-icon="help_outline">help_outline</span></button>
+</div>
+<button class="bg-gradient-to-r from-[#5443b9] to-[#6d5dd3] text-white px-5 py-2.5 rounded-lg text-sm font-bold flex items-center gap-2 hover:opacity-90 transition-all active:scale-95 shadow-lg shadow-primary/20">
+<span class="material-symbols-outlined text-sm" data-icon="add">add</span>
+                    Create Action
+                </button>
+</div>
+</header>
+<section class="p-8 space-y-8 flex-1">
+<div class="grid grid-cols-12 gap-8">
+<div class="col-span-12 lg:col-span-9 space-y-6">
+<div class="bg-surface-container-lowest rounded-xl shadow-sm overflow-hidden">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container-low/50">
+<th class="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-500">Action Name</th>
+<th class="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-500">Model</th>
+<th class="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-500">Version</th>
+<th class="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-500 text-center">Vars</th>
+<th class="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-500">Description</th>
+<th class="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-500">Updated</th>
+<th class="px-6 py-4"></th>
+</tr>
+</thead>
+<tbody class="divide-y divide-slate-50">
+<tr class="hover:bg-surface-container-high transition-colors group cursor-pointer">
+<td class="px-6 py-5 font-bold text-primary">Intent Classifier</td>
+<td class="px-6 py-5 text-sm font-medium text-slate-700">gpt-4o-mini</td>
+<td class="px-6 py-5">
+<span class="px-2 py-0.5 rounded-full bg-secondary-container text-on-secondary-container text-[10px] font-bold">v4</span>
+</td>
+<td class="px-6 py-5 text-center">
+<span class="px-2 py-0.5 rounded-lg bg-surface-container-low text-slate-600 text-xs font-bold border border-outline-variant/30">2</span>
+</td>
+<td class="px-6 py-5 text-xs text-slate-500 max-w-[200px] truncate">Classifies user intent into predefined categories...</td>
+<td class="px-6 py-5 text-xs font-medium text-slate-400">Oct 12, 2023</td>
+<td class="px-6 py-5 text-right"><span class="material-symbols-outlined text-slate-300 group-hover:text-primary transition-colors" data-icon="chevron_right">chevron_right</span></td>
+</tr>
+<tr class="hover:bg-surface-container-high transition-colors group cursor-pointer">
+<td class="px-6 py-5 font-bold text-primary">Response Generator</td>
+<td class="px-6 py-5 text-sm font-medium text-slate-700">claude-3-5-sonnet</td>
+<td class="px-6 py-5">
+<span class="px-2 py-0.5 rounded-full bg-secondary-container text-on-secondary-container text-[10px] font-bold">v2</span>
+</td>
+<td class="px-6 py-5 text-center">
+<span class="px-2 py-0.5 rounded-lg bg-surface-container-low text-slate-600 text-xs font-bold border border-outline-variant/30">5</span>
+</td>
+<td class="px-6 py-5 text-xs text-slate-500 max-w-[200px] truncate">Generates detailed technical responses based on...</td>
+<td class="px-6 py-5 text-xs font-medium text-primary">2 mins ago</td>
+<td class="px-6 py-5 text-right"><span class="material-symbols-outlined text-slate-300 group-hover:text-primary transition-colors" data-icon="chevron_right">chevron_right</span></td>
+</tr>
+<tr class="hover:bg-surface-container-high transition-colors group cursor-pointer">
+<td class="px-6 py-5 font-bold text-primary">Quality Checker</td>
+<td class="px-6 py-5 text-sm font-medium text-slate-700">gpt-4o</td>
+<td class="px-6 py-5">
+<span class="px-2 py-0.5 rounded-full bg-secondary-container text-on-secondary-container text-[10px] font-bold">v1</span>
+</td>
+<td class="px-6 py-5 text-center">
+<span class="px-2 py-0.5 rounded-lg bg-surface-container-low text-slate-600 text-xs font-bold border border-outline-variant/30">1</span>
+</td>
+<td class="px-6 py-5 text-xs text-slate-500 max-w-[200px] truncate">Evaluates response quality against business logic...</td>
+<td class="px-6 py-5 text-xs font-medium text-slate-400">Yesterday</td>
+<td class="px-6 py-5 text-right"><span class="material-symbols-outlined text-slate-300 group-hover:text-primary transition-colors" data-icon="chevron_right">chevron_right</span></td>
+</tr>
+<tr class="hover:bg-surface-container-high transition-colors group cursor-pointer">
+<td class="px-6 py-5 font-bold text-primary">Sentiment Analyzer</td>
+<td class="px-6 py-5 text-sm font-medium text-slate-700">gpt-4o-mini</td>
+<td class="px-6 py-5">
+<span class="px-2 py-0.5 rounded-full bg-secondary-container text-on-secondary-container text-[10px] font-bold">v3</span>
+</td>
+<td class="px-6 py-5 text-center">
+<span class="px-2 py-0.5 rounded-lg bg-surface-container-low text-slate-600 text-xs font-bold border border-outline-variant/30">1</span>
+</td>
+<td class="px-6 py-5 text-xs text-slate-500 max-w-[200px] truncate">Detects user sentiment and emotional tone in...</td>
+<td class="px-6 py-5 text-xs font-medium text-slate-400">Oct 05, 2023</td>
+<td class="px-6 py-5 text-right"><span class="material-symbols-outlined text-slate-300 group-hover:text-primary transition-colors" data-icon="chevron_right">chevron_right</span></td>
+</tr>
+<tr class="hover:bg-surface-container-high transition-colors group cursor-pointer">
+<td class="px-6 py-5 font-bold text-primary">Content Moderator</td>
+<td class="px-6 py-5 text-sm font-medium text-slate-700">llama-3-70b</td>
+<td class="px-6 py-5">
+<span class="px-2 py-0.5 rounded-full bg-secondary-container text-on-secondary-container text-[10px] font-bold">v2</span>
+</td>
+<td class="px-6 py-5 text-center">
+<span class="px-2 py-0.5 rounded-lg bg-surface-container-low text-slate-600 text-xs font-bold border border-outline-variant/30">3</span>
+</td>
+<td class="px-6 py-5 text-xs text-slate-500 max-w-[200px] truncate">Checks for safety and compliance violations and...</td>
+<td class="px-6 py-5 text-xs font-medium text-slate-400">2 days ago</td>
+<td class="px-6 py-5 text-right"><span class="material-symbols-outlined text-slate-300 group-hover:text-primary transition-colors" data-icon="chevron_right">chevron_right</span></td>
+</tr>
+</tbody>
+</table>
+<div class="px-6 py-4 flex items-center justify-between bg-surface-container-low/30">
+<p class="text-xs text-slate-500 font-medium">Showing <span class="text-on-surface">5</span> of <span class="text-on-surface">24</span> actions</p>
+<div class="flex gap-2">
+<button class="px-3 py-1.5 rounded-lg bg-surface text-slate-400 border border-outline-variant/30 cursor-not-allowed"><span class="material-symbols-outlined text-sm" data-icon="chevron_left">chevron_left</span></button>
+<button class="px-3 py-1.5 rounded-lg bg-surface text-slate-600 border border-outline-variant/30 hover:bg-slate-50 transition-colors"><span class="material-symbols-outlined text-sm" data-icon="chevron_right">chevron_right</span></button>
+</div>
+</div>
+</div>
+<div class="glass p-6 rounded-xl border border-primary/10 flex items-center justify-between gap-6 relative overflow-hidden">
+<div class="absolute -right-12 -top-12 w-48 h-48 bg-primary/5 rounded-full blur-3xl"></div>
+<div class="flex-1">
+<h4 class="text-lg font-bold font-headline mb-2 flex items-center gap-2">
+<span class="material-symbols-outlined text-primary" data-icon="auto_awesome">auto_awesome</span>
+                                Master Prompt Chaining
+                            </h4>
+<p class="text-sm text-slate-600 leading-relaxed max-w-2xl">
+                                Combine multiple atomic actions to create sophisticated multi-step workflows. Orchestrate complex logic across different models effortlessly with our graph-based editor.
+                            </p>
+</div>
+<button class="bg-primary text-white px-6 py-3 rounded-lg text-sm font-bold whitespace-nowrap hover:shadow-lg hover:shadow-primary/30 transition-all">Read Documentation</button>
+</div>
+</div>
+<div class="col-span-12 lg:col-span-3 space-y-6">
+<div class="bg-surface-container-lowest p-6 rounded-xl shadow-sm">
+<h4 class="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-4">Action Latency</h4>
+<div class="flex items-end gap-1.5 h-32 mb-4">
+<div class="flex-1 bg-surface-container-high rounded-t-lg h-[60%] transition-all hover:bg-primary-container group relative">
+<div class="absolute -top-8 left-1/2 -translate-x-1/2 bg-on-surface text-white text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">120ms</div>
+</div>
+<div class="flex-1 bg-surface-container-high rounded-t-lg h-[45%] transition-all hover:bg-primary-container group relative"></div>
+<div class="flex-1 bg-surface-container-high rounded-t-lg h-[80%] transition-all hover:bg-primary-container group relative"></div>
+<div class="flex-1 bg-primary-container rounded-t-lg h-[65%] transition-all group relative"></div>
+<div class="flex-1 bg-surface-container-high rounded-t-lg h-[40%] transition-all hover:bg-primary-container group relative"></div>
+<div class="flex-1 bg-surface-container-high rounded-t-lg h-[90%] transition-all hover:bg-primary-container group relative"></div>
+<div class="flex-1 bg-surface-container-high rounded-t-lg h-[75%] transition-all hover:bg-primary-container group relative"></div>
+</div>
+<div class="flex justify-between items-center">
+<div>
+<p class="text-2xl font-black font-headline text-on-surface">142ms</p>
+<p class="text-[10px] text-slate-400 font-bold uppercase tracking-tight">Avg. Latency</p>
+</div>
+<div class="text-right">
+<p class="text-xs font-bold text-error flex items-center justify-end gap-1">
+<span class="material-symbols-outlined text-[14px]" data-icon="trending_up">trending_up</span>
+                                    12%
+                                </p>
+<p class="text-[10px] text-slate-400 font-bold uppercase tracking-tight">Vs Last Week</p>
+</div>
+</div>
+</div>
+<div class="bg-surface-container-lowest p-6 rounded-xl shadow-sm relative overflow-hidden">
+<h4 class="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-6">Action Health</h4>
+<div class="space-y-4">
+<div class="flex items-center justify-between">
+<span class="text-xs font-bold">Successful</span>
+<span class="text-xs font-black text-primary">99.2%</span>
+</div>
+<div class="w-full bg-surface-container-high h-1.5 rounded-full overflow-hidden">
+<div class="bg-primary h-full" style="width: 99.2%"></div>
+</div>
+<div class="grid grid-cols-2 gap-4 pt-2">
+<div>
+<p class="text-lg font-bold font-headline">1.2M</p>
+<p class="text-[10px] text-slate-400 font-bold uppercase">Requests</p>
+</div>
+<div>
+<p class="text-lg font-bold font-headline">0.8%</p>
+<p class="text-[10px] text-slate-400 font-bold uppercase">Errors</p>
+</div>
+</div>
+</div>
+</div>
+<div class="rounded-xl overflow-hidden shadow-sm aspect-square relative group cursor-pointer">
+<img alt="Abstract digital art" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" data-alt="abstract flowing liquid metal purple and blue gradients with futuristic soft focus nodes and data points floating" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBpEnmI2Vjw24-evXdBTpRMpKHGTvsJXFToZz9tA9DHIOBu9NBKhsjzeZ-e4r1gCY4BKco9N1c4pPtw-1NxuYqYdtuIjlkL1_JyST9PxA8FQ1poUTLc0XY5UdYoGTHrmUtRprTw7e4TX-JBwZasXYckDDhwnyk7FItYdDsLAD6jVU92X1AAgrBaylZmvOJHd4dPW81Q_NK2BSa2wYVVMp2q9TM6wEL_wwdMRfhZwKhPeXi6P8rFSrdDRKngTZ7N6w0GZCVS1Ftw_bGH"/>
+<div class="absolute inset-0 bg-gradient-to-t from-on-surface/90 to-transparent p-6 flex flex-col justify-end">
+<p class="text-white text-sm font-bold mb-1">New: Vertex AI integration</p>
+<p class="text-slate-300 text-[10px]">Now supports specialized models for healthcare and finance industries.</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+</main>
+</body></html>

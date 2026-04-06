@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Create Template | AIGC Gateway</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&amp;family=Inter:wght@300;400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-secondary": "#ffffff",
+                        "surface-bright": "#faf8ff",
+                        "on-primary-container": "#f6f1ff",
+                        "inverse-primary": "#c8bfff",
+                        "on-secondary-container": "#585280",
+                        "surface-container-lowest": "#ffffff",
+                        "secondary-fixed": "#e5deff",
+                        "error-container": "#ffdad6",
+                        "tertiary-fixed": "#ffddba",
+                        "on-primary-fixed": "#190064",
+                        "primary": "#5443b9",
+                        "surface-variant": "#dae2fd",
+                        "primary-container": "#6d5dd3",
+                        "on-surface": "#131b2e",
+                        "on-error": "#ffffff",
+                        "outline-variant": "#c9c4d5",
+                        "on-background": "#131b2e",
+                        "surface-dim": "#d2d9f4",
+                        "surface-container-low": "#f2f3ff",
+                        "inverse-on-surface": "#eef0ff",
+                        "on-secondary-fixed": "#1b153f",
+                        "on-secondary-fixed-variant": "#47416e",
+                        "tertiary": "#7c4b00",
+                        "on-primary": "#ffffff",
+                        "on-tertiary-fixed": "#2b1700",
+                        "on-tertiary-container": "#fff0e4",
+                        "background": "#faf8ff",
+                        "primary-fixed": "#e5deff",
+                        "on-error-container": "#93000a",
+                        "outline": "#787584",
+                        "secondary-fixed-dim": "#c8c0f5",
+                        "tertiary-container": "#9d6100",
+                        "surface-container-high": "#e2e7ff",
+                        "secondary-container": "#d0c9fe",
+                        "on-primary-fixed-variant": "#4431a8",
+                        "tertiary-fixed-dim": "#ffb964",
+                        "primary-fixed-dim": "#c8bfff",
+                        "surface-tint": "#5c4cc1",
+                        "surface-container-highest": "#dae2fd",
+                        "surface": "#faf8ff",
+                        "inverse-surface": "#283044",
+                        "surface-container": "#eaedff",
+                        "secondary": "#5f5987",
+                        "error": "#ba1a1a",
+                        "on-tertiary-fixed-variant": "#663e00",
+                        "on-surface-variant": "#474553",
+                        "on-tertiary": "#ffffff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "fontFamily": {
+                        "headline": ["Manrope"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+    </style>
+</head>
+<body class="bg-surface font-body text-on-surface antialiased">
+<!-- Sidebar Navigation -->
+<aside class="fixed left-0 top-0 h-full w-64 bg-surface-container-low flex flex-col py-8 px-4 space-y-2 z-40">
+<div class="px-4 mb-8">
+<h1 class="font-headline font-black text-2xl tracking-tighter text-indigo-700 dark:text-indigo-500">Atelier</h1>
+<p class="text-[10px] uppercase tracking-[0.2em] text-outline font-bold mt-1">Creative Infrastructure</p>
+</div>
+<nav class="flex-1 space-y-2">
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 hover:bg-slate-200 hover:translate-x-1 transition-all duration-200 rounded-lg group" href="#">
+<span class="material-symbols-outlined text-xl">dashboard</span>
+<span class="font-inter text-sm font-medium">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 hover:bg-slate-200 hover:translate-x-1 transition-all duration-200 rounded-lg group" href="#">
+<span class="material-symbols-outlined text-xl">smart_toy</span>
+<span class="font-inter text-sm font-medium">Models</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 hover:bg-slate-200 hover:translate-x-1 transition-all duration-200 rounded-lg group" href="#">
+<span class="material-symbols-outlined text-xl">vpn_key</span>
+<span class="font-inter text-sm font-medium">API Keys</span>
+</a>
+<!-- Active State: Templates -->
+<a class="flex items-center gap-3 px-4 py-3 bg-white text-indigo-700 border-l-4 border-indigo-600 shadow-sm transition-all duration-200 rounded-r-lg group" href="#">
+<span class="material-symbols-outlined text-xl" style="font-variation-settings: 'FILL' 1;">description</span>
+<span class="font-inter text-sm font-bold">Templates</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 hover:bg-slate-200 hover:translate-x-1 transition-all duration-200 rounded-lg group" href="#">
+<span class="material-symbols-outlined text-xl">history</span>
+<span class="font-inter text-sm font-medium">Logs</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 hover:bg-slate-200 hover:translate-x-1 transition-all duration-200 rounded-lg group" href="#">
+<span class="material-symbols-outlined text-xl">account_balance_wallet</span>
+<span class="font-inter text-sm font-medium">Balance</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 hover:bg-slate-200 hover:translate-x-1 transition-all duration-200 rounded-lg group" href="#">
+<span class="material-symbols-outlined text-xl">settings</span>
+<span class="font-inter text-sm font-medium">Settings</span>
+</a>
+</nav>
+<div class="mt-auto pt-6 px-4">
+<div class="flex items-center gap-3 p-2 rounded-xl bg-surface-container-high/50">
+<img alt="User Profile" class="w-8 h-8 rounded-full bg-primary-container" data-alt="professional headshot of a developer in a minimalist studio setting with soft purple ambient lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCgaI4NjC__iLeZhRpMzIxgRa47x2I2D4XTchgXvHwdPvf03nLDobpGnwfgyvKoPatwBh4JxZWD5vzb1nN9IZhlecAHZUJwrNPQSvuYAMGn3ccnScP_vHiS7Y3p6pOi5OkATHCrHCVkFa84LtBrx8H_M15CZtJedLbHeF6JMbKPEO-frvi-2eBzlXSaqXxfUkIO9J2mFs9BCDH6eYSHFXgm14ojhODJK_LMhLugJ78gV6AiPHVmq4D27i5CYSv3-cXnDTlSarwDDJlE"/>
+<div class="overflow-hidden">
+<p class="text-xs font-bold truncate">Alex Rivera</p>
+<p class="text-[10px] text-outline truncate">Pro Plan</p>
+</div>
+</div>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="ml-64 min-h-screen p-8 md:p-12 lg:p-16">
+<!-- Header Section -->
+<header class="mb-12 flex justify-between items-end">
+<div>
+<nav class="flex items-center gap-2 text-outline mb-4 text-xs font-bold tracking-widest uppercase">
+<span>Templates</span>
+<span class="material-symbols-outlined text-sm">chevron_right</span>
+<span class="text-primary">Editor</span>
+</nav>
+<h2 class="font-headline font-extrabold text-4xl tracking-tight text-on-surface">Create Template</h2>
+<p class="text-on-surface-variant mt-2 max-w-xl">Design multi-step inference chains with sequential processing, branching logic, and result aggregation.</p>
+</div>
+<div class="flex gap-4">
+<button class="px-6 py-2.5 text-sm font-bold text-outline hover:text-on-surface transition-colors">
+                    Cancel
+                </button>
+<button class="px-8 py-2.5 bg-gradient-to-r from-primary to-primary-container text-white text-sm font-bold rounded-lg shadow-lg shadow-primary/20 hover:scale-105 active:scale-95 transition-all">
+                    Save Template
+                </button>
+</div>
+</header>
+<div class="grid grid-cols-12 gap-8">
+<!-- Left Column: Basic Info -->
+<div class="col-span-12 lg:col-span-4 space-y-8">
+<section class="bg-surface-container-lowest rounded-xl p-6 shadow-sm">
+<h3 class="font-headline font-bold text-lg mb-6 flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">info</span>
+                        Identity &amp; Intent
+                    </h3>
+<div class="space-y-6">
+<div>
+<label class="block text-[10px] font-black uppercase tracking-widest text-outline mb-2">Template Name</label>
+<input class="w-full bg-surface-container-low border-none border-b-2 border-transparent focus:border-primary focus:ring-0 rounded-lg py-3 px-4 font-medium transition-all" placeholder="e.g., Customer Support Router" type="text" value="Multimodal Analysis Pipeline"/>
+</div>
+<div>
+<label class="block text-[10px] font-black uppercase tracking-widest text-outline mb-2">Description</label>
+<textarea class="w-full bg-surface-container-low border-none border-b-2 border-transparent focus:border-primary focus:ring-0 rounded-lg py-3 px-4 font-medium transition-all resize-none" placeholder="Briefly describe the workflow purpose..." rows="4">Standardized pipeline for processing user-uploaded images and generating contextual text descriptions with intent classification.</textarea>
+</div>
+<div class="pt-4">
+<div class="flex items-center justify-between p-4 bg-primary/5 rounded-lg">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary">auto_awesome</span>
+<div>
+<p class="text-xs font-bold">Auto-Optimization</p>
+<p class="text-[10px] text-outline">Let AI refine step parameters</p>
+</div>
+</div>
+<div class="w-10 h-5 bg-primary rounded-full relative cursor-pointer">
+<div class="absolute right-1 top-1 w-3 h-3 bg-white rounded-full"></div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Status Card -->
+<section class="bg-surface-container-low rounded-xl p-6">
+<p class="text-[10px] font-black uppercase tracking-widest text-outline mb-4">Pipeline Stats</p>
+<div class="grid grid-cols-2 gap-4">
+<div class="bg-white p-4 rounded-lg">
+<p class="text-[10px] text-outline font-bold">EST. LATENCY</p>
+<p class="text-xl font-headline font-bold text-primary">1.2s</p>
+</div>
+<div class="bg-white p-4 rounded-lg">
+<p class="text-[10px] text-outline font-bold">TOKEN COST</p>
+<p class="text-xl font-headline font-bold text-primary">~420</p>
+</div>
+</div>
+</section>
+</div>
+<!-- Right Column: Step Builder -->
+<div class="col-span-12 lg:col-span-8 space-y-6">
+<div class="flex items-center justify-between mb-2">
+<h3 class="font-headline font-bold text-lg flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">account_tree</span>
+                        Execution Sequence
+                    </h3>
+<button class="flex items-center gap-2 bg-white px-4 py-2 rounded-lg text-sm font-bold text-primary shadow-sm hover:shadow-md hover:bg-primary hover:text-white transition-all group">
+<span class="material-symbols-outlined text-sm transition-transform group-hover:rotate-90">add</span>
+                        Add Step
+                    </button>
+</div>
+<!-- Steps List -->
+<div class="space-y-4">
+<!-- Example Step 1 -->
+<div class="glass-panel group relative flex items-start gap-4 p-5 rounded-xl border border-transparent hover:border-outline-variant/30 transition-all shadow-sm">
+<div class="mt-2 cursor-grab active:cursor-grabbing text-outline opacity-40 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined">drag_indicator</span>
+</div>
+<div class="flex-1 grid grid-cols-1 md:grid-cols-12 gap-4 items-end">
+<div class="md:col-span-1">
+<label class="block text-[9px] font-black uppercase text-outline mb-1">Order</label>
+<div class="bg-surface-container-high/50 w-full text-center py-2 rounded-md font-black text-primary">1</div>
+</div>
+<div class="md:col-span-6">
+<label class="block text-[9px] font-black uppercase text-outline mb-1">Action Engine</label>
+<div class="relative">
+<select class="w-full bg-surface-container-low border-none rounded-lg py-2 px-3 text-sm font-semibold appearance-none focus:ring-2 focus:ring-primary/20">
+<option selected="">Intent Classifier</option>
+<option>Response Generator</option>
+<option>Data Extractor</option>
+<option>Tone Adjuster</option>
+</select>
+<span class="material-symbols-outlined absolute right-2 top-2 text-sm pointer-events-none">expand_more</span>
+</div>
+</div>
+<div class="md:col-span-4">
+<label class="block text-[9px] font-black uppercase text-outline mb-1">Execution Role</label>
+<div class="relative">
+<select class="w-full bg-surface-container-low border-none rounded-lg py-2 px-3 text-sm font-semibold appearance-none focus:ring-2 focus:ring-primary/20">
+<option selected="">SEQUENTIAL</option>
+<option>SPLITTER</option>
+<option>AGGREGATOR</option>
+</select>
+<span class="material-symbols-outlined absolute right-2 top-2 text-sm pointer-events-none">expand_more</span>
+</div>
+</div>
+<div class="md:col-span-1 flex justify-end">
+<button class="p-2 text-outline-variant hover:text-error transition-colors rounded-lg hover:bg-error/5">
+<span class="material-symbols-outlined">delete</span>
+</button>
+</div>
+</div>
+<!-- Visual Connector -->
+<div class="absolute left-7 top-full h-4 w-px bg-outline-variant/30"></div>
+</div>
+<!-- Example Step 2 -->
+<div class="glass-panel group relative flex items-start gap-4 p-5 rounded-xl border border-transparent hover:border-outline-variant/30 transition-all shadow-sm">
+<div class="mt-2 cursor-grab active:cursor-grabbing text-outline opacity-40 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined">drag_indicator</span>
+</div>
+<div class="flex-1 grid grid-cols-1 md:grid-cols-12 gap-4 items-end">
+<div class="md:col-span-1">
+<label class="block text-[9px] font-black uppercase text-outline mb-1">Order</label>
+<div class="bg-surface-container-high/50 w-full text-center py-2 rounded-md font-black text-primary">2</div>
+</div>
+<div class="md:col-span-6">
+<label class="block text-[9px] font-black uppercase text-outline mb-1">Action Engine</label>
+<div class="relative">
+<select class="w-full bg-surface-container-low border-none rounded-lg py-2 px-3 text-sm font-semibold appearance-none focus:ring-2 focus:ring-primary/20">
+<option>Intent Classifier</option>
+<option selected="">Response Generator</option>
+<option>Data Extractor</option>
+<option>Tone Adjuster</option>
+</select>
+<span class="material-symbols-outlined absolute right-2 top-2 text-sm pointer-events-none">expand_more</span>
+</div>
+</div>
+<div class="md:col-span-4">
+<label class="block text-[9px] font-black uppercase text-outline mb-1">Execution Role</label>
+<div class="relative">
+<select class="w-full bg-surface-container-low border-none rounded-lg py-2 px-3 text-sm font-semibold appearance-none focus:ring-2 focus:ring-primary/20">
+<option>SEQUENTIAL</option>
+<option>SPLITTER</option>
+<option selected="">AGGREGATOR</option>
+</select>
+<span class="material-symbols-outlined absolute right-2 top-2 text-sm pointer-events-none">expand_more</span>
+</div>
+</div>
+<div class="md:col-span-1 flex justify-end">
+<button class="p-2 text-outline-variant hover:text-error transition-colors rounded-lg hover:bg-error/5">
+<span class="material-symbols-outlined">delete</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Add Step Placeholder -->
+<button class="w-full py-8 rounded-xl border-2 border-dashed border-outline-variant/40 text-outline hover:border-primary/40 hover:text-primary transition-all flex flex-col items-center justify-center gap-2 group">
+<div class="w-10 h-10 rounded-full bg-surface-container-high flex items-center justify-center group-hover:bg-primary/10">
+<span class="material-symbols-outlined">add_circle</span>
+</div>
+<span class="text-xs font-bold tracking-widest uppercase">Insert Intermediate Step</span>
+</button>
+</div>
+<!-- Footer Summary Card -->
+<div class="mt-12 p-8 rounded-2xl bg-indigo-900 text-indigo-50 relative overflow-hidden">
+<div class="relative z-10">
+<h4 class="font-headline font-bold text-xl mb-2">Ready to Deploy?</h4>
+<p class="text-indigo-200 text-sm max-w-md">Once saved, this template will be available as an API endpoint for your production environment immediately.</p>
+<div class="mt-6 flex gap-4">
+<button class="px-6 py-3 bg-white text-indigo-900 rounded-lg text-sm font-bold shadow-xl hover:scale-105 transition-transform">
+                                Finalize &amp; Save
+                            </button>
+<button class="px-6 py-3 border border-indigo-500/50 hover:bg-indigo-800 rounded-lg text-sm font-bold transition-all">
+                                Dry Run Test
+                            </button>
+</div>
+</div>
+<!-- Decorative Background Elements -->
+<div class="absolute -right-12 -bottom-12 w-64 h-64 bg-primary-container/20 blur-3xl rounded-full"></div>
+<div class="absolute right-12 top-4 w-32 h-32 bg-indigo-400/10 blur-2xl rounded-full"></div>
+</div>
+</div>
+</div>
+</main>
+<!-- Global Top Nav (Small Screens Only) -->
+<header class="md:hidden fixed top-0 w-full z-50 bg-slate-50/80 backdrop-blur-xl flex justify-between items-center px-6 py-3">
+<h1 class="text-xl font-extrabold text-indigo-700 tracking-tighter">Atelier</h1>
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-indigo-600">notifications</span>
+<div class="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center">
+<span class="material-symbols-outlined text-indigo-600 text-sm">person</span>
+</div>
+</div>
+</header>
+</body></html>

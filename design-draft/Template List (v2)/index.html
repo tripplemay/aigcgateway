@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>AIGC Gateway - Templates</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;family=Manrope:wght@600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                "outline-variant": "#c9c4d5",
+                "on-primary-fixed-variant": "#4431a8",
+                "on-error-container": "#93000a",
+                "secondary-container": "#d0c9fe",
+                "tertiary": "#7c4b00",
+                "surface-container-high": "#e2e7ff",
+                "inverse-primary": "#c8bfff",
+                "on-tertiary-fixed": "#2b1700",
+                "surface-container-highest": "#dae2fd",
+                "on-surface-variant": "#474553",
+                "primary-fixed": "#e5deff",
+                "primary-fixed-dim": "#c8bfff",
+                "on-tertiary-fixed-variant": "#663e00",
+                "tertiary-fixed": "#ffddba",
+                "surface-container": "#eaedff",
+                "on-primary": "#ffffff",
+                "error-container": "#ffdad6",
+                "outline": "#787584",
+                "on-background": "#131b2e",
+                "tertiary-fixed-dim": "#ffb964",
+                "surface-dim": "#d2d9f4",
+                "surface-container-low": "#f2f3ff",
+                "background": "#faf8ff",
+                "tertiary-container": "#9d6100",
+                "on-surface": "#131b2e",
+                "on-secondary-fixed": "#1b153f",
+                "inverse-on-surface": "#eef0ff",
+                "primary-container": "#6d5dd3",
+                "error": "#ba1a1a",
+                "surface-container-lowest": "#ffffff",
+                "surface": "#faf8ff",
+                "on-secondary-container": "#585280",
+                "on-secondary-fixed-variant": "#47416e",
+                "on-primary-container": "#f6f1ff",
+                "surface-tint": "#5c4cc1",
+                "on-tertiary": "#ffffff",
+                "secondary-fixed-dim": "#c8c0f5",
+                "secondary-fixed": "#e5deff",
+                "secondary": "#5f5987",
+                "surface-bright": "#faf8ff",
+                "on-tertiary-container": "#fff0e4",
+                "surface-variant": "#dae2fd",
+                "primary": "#5443b9",
+                "on-primary-fixed": "#190064",
+                "on-secondary": "#ffffff",
+                "on-error": "#ffffff",
+                "inverse-surface": "#283044"
+            },
+            "borderRadius": {
+                "DEFAULT": "0.125rem",
+                "lg": "0.25rem",
+                "xl": "0.5rem",
+                "full": "0.75rem"
+            },
+            "fontFamily": {
+                "headline": ["Manrope"],
+                "body": ["Inter"],
+                "label": ["Inter"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+      .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      }
+      body {
+        font-family: 'Inter', sans-serif;
+      }
+      h1, h2, h3, .headline {
+        font-family: 'Manrope', sans-serif;
+      }
+    </style>
+</head>
+<body class="bg-surface text-on-surface">
+<!-- SideNavBar Component -->
+<aside class="fixed left-0 top-0 h-screen w-64 bg-slate-100 dark:bg-slate-900 flex flex-col h-full py-6 space-y-2 z-40">
+<div class="px-6 mb-8">
+<div class="flex items-center space-x-3">
+<div class="w-8 h-8 rounded-lg bg-primary-container flex items-center justify-center">
+<span class="material-symbols-outlined text-on-primary-container text-lg">terminal</span>
+</div>
+<div>
+<h2 class="text-lg font-black text-indigo-600 dark:text-indigo-400 tracking-tighter">AIGC Gateway</h2>
+<p class="text-[10px] uppercase tracking-widest text-slate-500 font-bold">Algorithmic Atelier</p>
+</div>
+</div>
+</div>
+<nav class="flex-1 px-3 space-y-1">
+<a class="flex items-center space-x-3 px-4 py-2.5 text-slate-600 dark:text-slate-400 hover:text-indigo-500 hover:bg-slate-200 dark:hover:bg-slate-800 transition-all rounded-lg font-medium" href="#">
+<span class="material-symbols-outlined text-xl" data-icon="dashboard">dashboard</span>
+<span class="text-sm">Dashboard</span>
+</a>
+<a class="flex items-center space-x-3 px-4 py-2.5 text-slate-600 dark:text-slate-400 hover:text-indigo-500 hover:bg-slate-200 dark:hover:bg-slate-800 transition-all rounded-lg font-medium" href="#">
+<span class="material-symbols-outlined text-xl" data-icon="extension">extension</span>
+<span class="text-sm">Models</span>
+</a>
+<a class="flex items-center space-x-3 px-4 py-2.5 text-slate-600 dark:text-slate-400 hover:text-indigo-500 hover:bg-slate-200 dark:hover:bg-slate-800 transition-all rounded-lg font-medium" href="#">
+<span class="material-symbols-outlined text-xl" data-icon="vpn_key">vpn_key</span>
+<span class="text-sm">API Keys</span>
+</a>
+<!-- Active State: Templates -->
+<a class="flex items-center space-x-3 px-4 py-2.5 bg-white dark:bg-slate-800 text-indigo-600 dark:text-indigo-400 border-l-4 border-indigo-600 font-semibold rounded-r-lg" href="#">
+<span class="material-symbols-outlined text-xl" data-icon="description">description</span>
+<span class="text-sm">Templates</span>
+</a>
+<a class="flex items-center space-x-3 px-4 py-2.5 text-slate-600 dark:text-slate-400 hover:text-indigo-500 hover:bg-slate-200 dark:hover:bg-slate-800 transition-all rounded-lg font-medium" href="#">
+<span class="material-symbols-outlined text-xl" data-icon="list_alt">list_alt</span>
+<span class="text-sm">Logs</span>
+</a>
+<a class="flex items-center space-x-3 px-4 py-2.5 text-slate-600 dark:text-slate-400 hover:text-indigo-500 hover:bg-slate-200 dark:hover:bg-slate-800 transition-all rounded-lg font-medium" href="#">
+<span class="material-symbols-outlined text-xl" data-icon="account_balance_wallet">account_balance_wallet</span>
+<span class="text-sm">Balance</span>
+</a>
+<a class="flex items-center space-x-3 px-4 py-2.5 text-slate-600 dark:text-slate-400 hover:text-indigo-500 hover:bg-slate-200 dark:hover:bg-slate-800 transition-all rounded-lg font-medium" href="#">
+<span class="material-symbols-outlined text-xl" data-icon="settings">settings</span>
+<span class="text-sm">Settings</span>
+</a>
+</nav>
+<div class="px-6 pt-6">
+<button class="w-full bg-primary-container text-white py-3 rounded-xl font-bold text-sm shadow-lg shadow-indigo-500/20 hover:scale-[0.98] transition-transform">
+                Upgrade Plan
+            </button>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="ml-64 min-h-screen">
+<!-- TopAppBar Component -->
+<header class="bg-slate-50/80 dark:bg-slate-950/80 backdrop-blur-xl sticky top-0 z-30 flex justify-between items-center w-full px-8 py-4">
+<div class="flex items-center space-x-4">
+<div class="md:hidden">
+<span class="material-symbols-outlined text-slate-600">menu</span>
+</div>
+<div class="h-8 w-[1px] bg-slate-200 hidden md:block"></div>
+<span class="text-slate-500 text-sm font-medium">Templates Explorer</span>
+</div>
+<div class="flex items-center space-x-6">
+<div class="relative flex items-center">
+<span class="material-symbols-outlined absolute left-3 text-slate-400 text-sm">search</span>
+<input class="bg-surface-container-low border-none rounded-full py-1.5 pl-9 pr-4 text-sm w-64 focus:ring-2 focus:ring-primary/20 placeholder-slate-400" placeholder="Search templates..." type="text"/>
+</div>
+<div class="flex items-center space-x-3">
+<button class="p-2 text-slate-500 hover:bg-slate-200/50 rounded-full transition-colors">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<button class="p-2 text-slate-500 hover:bg-slate-200/50 rounded-full transition-colors">
+<span class="material-symbols-outlined" data-icon="help_outline">help_outline</span>
+</button>
+<img alt="User profile" class="w-8 h-8 rounded-full object-cover ring-2 ring-indigo-100" data-alt="Close up portrait of a professional woman with a minimalist background, soft studio lighting, corporate headshot style" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA2a1JWTq7-H0cavPaHU7pvuvCvI3Ce7u5OJrMLGxHBYrJr_2IZiS99B23MMxzAZfpeztG8aR2LbP89qQEsw7g3tpxXAx6T9QksJhf43udbEyINOKW9obYbEGx5e9x6lG8Lv2NkS6piEhbHCW1rC_s6dpKjbziidoKn8S15C5onyPiFvsUS9g6WGJuFsgzlQikcuOzCe_6T1NuL01ZtMdX3EaTBjUDb_FOTTj-jSmIkHsx6AnJZzksDy7LrTeEFSEOFgqRxZKKiZYtk"/>
+</div>
+</div>
+</header>
+<!-- Page Header -->
+<section class="px-10 py-12">
+<div class="flex justify-between items-end mb-10">
+<div>
+<h1 class="text-4xl font-extrabold tracking-tight text-on-surface mb-2">Templates</h1>
+<p class="text-slate-500 font-medium">Orchestrate multi-step AI workflows by composing Actions</p>
+</div>
+<button class="bg-gradient-to-r from-primary to-primary-container text-white px-6 py-3 rounded-xl font-bold flex items-center space-x-2 shadow-xl shadow-indigo-500/20 hover:scale-[0.98] transition-all">
+<span class="material-symbols-outlined text-lg">add_circle</span>
+<span>+ Create Template</span>
+</button>
+</div>
+<!-- Dashboard Grid Area -->
+<div class="space-y-8">
+<!-- Table Section -->
+<div class="bg-surface-container-lowest rounded-xl p-1 shadow-sm overflow-hidden">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container-low">
+<th class="px-6 py-4 text-[10px] font-extrabold uppercase tracking-widest text-slate-500">Template Name</th>
+<th class="px-6 py-4 text-[10px] font-extrabold uppercase tracking-widest text-slate-500">Steps</th>
+<th class="px-6 py-4 text-[10px] font-extrabold uppercase tracking-widest text-slate-500">Execution Mode</th>
+<th class="px-6 py-4 text-[10px] font-extrabold uppercase tracking-widest text-slate-500">Description</th>
+<th class="px-6 py-4 text-[10px] font-extrabold uppercase tracking-widest text-slate-500">Updated</th>
+<th class="px-6 py-4 text-[10px] font-extrabold uppercase tracking-widest text-slate-500"></th>
+</tr>
+</thead>
+<tbody class="divide-y divide-transparent">
+<!-- Template Row 1 -->
+<tr class="group hover:bg-surface-container-low transition-colors duration-150">
+<td class="px-6 py-5">
+<a class="text-primary font-bold text-sm tracking-tight hover:underline" href="#">Sentiment &amp; Summary</a>
+</td>
+<td class="px-6 py-5">
+<span class="text-slate-600 text-xs font-medium">3 steps</span>
+</td>
+<td class="px-6 py-5">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-indigo-100 text-indigo-700 uppercase tracking-tighter">
+                                        Sequential
+                                    </span>
+</td>
+<td class="px-6 py-5 max-w-xs">
+<p class="text-slate-500 text-xs truncate">Analyze user feedback sentiment and generate a concise summary.</p>
+</td>
+<td class="px-6 py-5">
+<span class="text-slate-400 text-xs">2 hours ago</span>
+</td>
+<td class="px-6 py-5 text-right">
+<button class="opacity-0 group-hover:opacity-100 p-1.5 text-slate-400 hover:text-primary transition-all">
+<span class="material-symbols-outlined text-lg">more_horiz</span>
+</button>
+</td>
+</tr>
+<!-- Template Row 2 -->
+<tr class="group hover:bg-surface-container-low transition-colors duration-150">
+<td class="px-6 py-5">
+<a class="text-primary font-bold text-sm tracking-tight hover:underline" href="#">Multilingual Product Desc</a>
+</td>
+<td class="px-6 py-5">
+<span class="text-slate-600 text-xs font-medium">5 steps</span>
+</td>
+<td class="px-6 py-5">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-purple-100 text-purple-700 uppercase tracking-tighter">
+                                        Fan-out
+                                    </span>
+</td>
+<td class="px-6 py-5 max-w-xs">
+<p class="text-slate-500 text-xs truncate">Translate base description into 5 languages in parallel.</p>
+</td>
+<td class="px-6 py-5">
+<span class="text-slate-400 text-xs">1 day ago</span>
+</td>
+<td class="px-6 py-5 text-right">
+<button class="opacity-0 group-hover:opacity-100 p-1.5 text-slate-400 hover:text-primary transition-all">
+<span class="material-symbols-outlined text-lg">more_horiz</span>
+</button>
+</td>
+</tr>
+<!-- Template Row 3 -->
+<tr class="group hover:bg-surface-container-low transition-colors duration-150">
+<td class="px-6 py-5">
+<a class="text-primary font-bold text-sm tracking-tight hover:underline" href="#">Support Action</a>
+</td>
+<td class="px-6 py-5">
+<span class="text-slate-600 text-xs font-medium">1 step</span>
+</td>
+<td class="px-6 py-5">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-slate-200 text-slate-700 uppercase tracking-tighter">
+                                        Single
+                                    </span>
+</td>
+<td class="px-6 py-5 max-w-xs">
+<p class="text-slate-500 text-xs truncate">Atomic action for standard support ticket classification.</p>
+</td>
+<td class="px-6 py-5">
+<span class="text-slate-400 text-xs">3 days ago</span>
+</td>
+<td class="px-6 py-5 text-right">
+<button class="opacity-0 group-hover:opacity-100 p-1.5 text-slate-400 hover:text-primary transition-all">
+<span class="material-symbols-outlined text-lg">more_horiz</span>
+</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Featured Section: Bento Grid Preview -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 pt-6">
+<div class="col-span-1 bg-surface-container-low p-6 rounded-xl relative overflow-hidden group">
+<div class="relative z-10">
+<h3 class="headline text-lg font-bold text-on-surface mb-1">Templates Health</h3>
+<p class="text-xs text-slate-500 mb-4">Real-time performance metrics</p>
+<div class="flex items-end space-x-2">
+<span class="text-3xl font-black text-primary">99.8%</span>
+<span class="text-[10px] text-secondary font-bold mb-1">+0.4%</span>
+</div>
+</div>
+<div class="absolute -right-4 -bottom-4 opacity-10 group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-8xl" style="font-variation-settings: 'FILL' 1;">insights</span>
+</div>
+</div>
+<div class="col-span-2 bg-gradient-to-br from-primary to-indigo-800 p-6 rounded-xl text-white flex justify-between items-center relative overflow-hidden">
+<div class="relative z-10">
+<h3 class="headline text-lg font-bold mb-1">Scale your Automation</h3>
+<p class="text-xs text-white/70 mb-4 max-w-sm">Connect your templates to our streaming API for millisecond latency response on multi-step workflows.</p>
+<button class="bg-white text-primary px-4 py-2 rounded-lg text-xs font-bold hover:bg-slate-100 transition-colors">Documentation</button>
+</div>
+<div class="relative z-10 hidden lg:block">
+<div class="flex -space-x-3">
+<div class="w-10 h-10 rounded-full border-2 border-white/20 bg-white/10 flex items-center justify-center backdrop-blur-md">
+<span class="material-symbols-outlined text-sm">bolt</span>
+</div>
+<div class="w-10 h-10 rounded-full border-2 border-white/20 bg-white/10 flex items-center justify-center backdrop-blur-md">
+<span class="material-symbols-outlined text-sm">api</span>
+</div>
+<div class="w-10 h-10 rounded-full border-2 border-white/20 bg-white/10 flex items-center justify-center backdrop-blur-md">
+<span class="material-symbols-outlined text-sm">auto_awesome</span>
+</div>
+</div>
+</div>
+<!-- Abstract Background Decoration -->
+<div class="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -mr-20 -mt-20 blur-3xl"></div>
+</div>
+</div>
+</div>
+</section>
+<!-- Footer Info -->
+<footer class="px-10 py-8 border-t border-transparent text-slate-400 text-[10px] uppercase tracking-widest font-bold flex justify-between items-center">
+<span>AIGC Gateway v2.4.0-atelier</span>
+<div class="flex space-x-6">
+<a class="hover:text-primary transition-colors" href="#">System Status</a>
+<a class="hover:text-primary transition-colors" href="#">API Docs</a>
+<a class="hover:text-primary transition-colors" href="#">Support</a>
+</div>
+</footer>
+</main>
+</body></html>

@@ -1,46 +1,78 @@
 {
-  "batch": "bugfix-model-cleanup",
+  "batch": "ui-redesign-templates-actions",
   "created_at": "2026-04-06",
   "features": [
     {
-      "id": "F-CLN-01",
-      "title": "Sync 引擎收紧：同步后删除白名单以外的 Model + Channel",
+      "id": "F-UI-01",
+      "title": "Actions 列表页按 Stitch 设计稿重构",
       "priority": "high",
       "executor": "generator",
-      "status": "completed",
-      "acceptance": "1) model-sync.ts reconcile 完成后，删除所有 name 不在白名单中的 Model 记录及其关联 Channel；2) 新 Provider 同步时不会创建白名单外的 Model；3) npm run lint + tsc 通过"
+      "status": "pending",
+      "acceptance": "1) /actions 页面按 Stitch 'Action List' 设计稿还原；2) 表格列：Action Name、Model（badge）、Active Version（badge）、Variables 数量、Description、Updated；3) 空状态展示；4) 侧边栏 Actions 项高亮；5) npm run lint + tsc 通过"
     },
     {
-      "id": "F-CLN-02",
-      "title": "一次性清理脚本：purge 生产库孤立 Model",
+      "id": "F-UI-02",
+      "title": "Action 详情页按 Stitch 设计稿重构",
       "priority": "high",
       "executor": "generator",
-      "status": "completed",
-      "acceptance": "1) scripts/cleanup-orphan-models.ts 存在；2) 读取白名单，删除不在白名单中的 Model 及其 Channel（cascade）；3) 执行前打印待删除列表，需确认后执行；4) 支持 dry-run 模式"
+      "status": "pending",
+      "acceptance": "1) /actions/:id 页面按 Stitch 'Action Detail' 设计稿还原；2) 面包屑导航；3) 活跃版本区：messages 预览（{{变量}}高亮）+ variables 表格；4) 版本历史时间线（含 changelog）；5) 元数据面板（创建日期、版本数、被几个 Template 引用）；6) npm run lint + tsc 通过"
     },
     {
-      "id": "F-CLN-03",
-      "title": "MCP chat/generate_image 错误码匹配修复",
+      "id": "F-UI-03",
+      "title": "Action 创建/编辑页按 Stitch 设计稿重构",
       "priority": "high",
       "executor": "generator",
-      "status": "completed",
-      "acceptance": "1) chat.ts 和 generate-image.ts 中 \"no_available_channel\" 改为 \"channel_unavailable\" 匹配 ErrorCodes；2) 无可用渠道时返回友好错误信息；3) npm run lint + tsc 通过"
+      "status": "pending",
+      "acceptance": "1) /actions/new 页面按 Stitch 'Create Prompt Action' 设计稿还原；2) 基本信息区（名称、描述、模型下拉）；3) Messages 编辑器（角色下拉 + 内容 textarea，{{变量}}高亮）；4) Variables 自动检测区（名称、描述、必填开关、默认值）；5) npm run lint + tsc 通过"
     },
     {
-      "id": "F-CLN-04",
-      "title": "Admin models 页面增加 ACTIVE Channel 计数",
+      "id": "F-UI-04",
+      "title": "Templates 列表页按 Stitch 设计稿重构",
+      "priority": "high",
+      "executor": "generator",
+      "status": "pending",
+      "acceptance": "1) /templates 页面按 Stitch 'Template List' 设计稿还原；2) 表格列：Template Name、Steps 数量、Execution Mode（Single/Sequential/Fan-out badge）、Description、Updated；3) 空状态展示；4) 侧边栏 Templates 项高亮；5) npm run lint + tsc 通过"
+    },
+    {
+      "id": "F-UI-05",
+      "title": "Template 详情页按 Stitch 设计稿重构",
+      "priority": "high",
+      "executor": "generator",
+      "status": "pending",
+      "acceptance": "1) /templates/:id 页面按 Stitch 'Template Detail' 设计稿还原；2) 面包屑导航；3) 步骤流水线可视化（编号 1→2→3，每步显示 Action 名、模型、角色 badge）；4) 右侧 Template Info 面板（创建日期、步骤数、执行模式）；5) Edit/Delete 按钮；6) npm run lint + tsc 通过"
+    },
+    {
+      "id": "F-UI-06",
+      "title": "Template 创建/编辑页按 Stitch 设计稿重构",
+      "priority": "high",
+      "executor": "generator",
+      "status": "pending",
+      "acceptance": "1) /templates/new 页面按 Stitch 'Template Editor' 设计稿还原；2) 基本信息区（名称、描述）；3) Execution Sequence builder（可排序步骤列表，每步选 Action + Role 下拉）；4) 添加/删除/拖拽排序步骤；5) npm run lint + tsc 通过"
+    },
+    {
+      "id": "F-UI-07",
+      "title": "Admin 模板管理页按 Stitch 设计稿重构",
       "priority": "medium",
       "executor": "generator",
-      "status": "completed",
-      "acceptance": "1) /api/admin/models 返回 activeChannelCount（仅计 ACTIVE 状态）；2) 前端 models 管理页展示该数值；3) npm run lint + tsc 通过"
+      "status": "pending",
+      "acceptance": "1) /admin/templates 页面按 Stitch 'Admin: Template Management' 设计稿还原；2) 统计卡片（总数、公开、私有）；3) 表格含 Template Name、Project、Steps、Public 开关、Quality Score、Created、操作列；4) 搜索 + 筛选；5) 分页；6) npm run lint + tsc 通过"
     },
     {
-      "id": "F-CLN-05",
-      "title": "E2E 验证",
+      "id": "F-UI-08",
+      "title": "i18n 补全（新增/变更的 UI 文案）",
+      "priority": "medium",
+      "executor": "generator",
+      "status": "pending",
+      "acceptance": "1) 重构涉及的所有用户可见文案通过 useTranslations()；2) en.json 和 zh-CN.json 同步更新，无缺失 key；3) npm run lint + tsc 通过"
+    },
+    {
+      "id": "F-UI-09",
+      "title": "E2E 验证（页面可访问 + 功能完整）",
       "priority": "medium",
       "executor": "codex",
-      "status": "completed",
-      "acceptance": "1) 清理脚本 dry-run 输出正确；2) 同步后无白名单外 Model；3) 错误码匹配验证；4) admin models 显示正确"
+      "status": "pending",
+      "acceptance": "1) 7 个重构页面均可正常访问，无白屏/报错；2) CRUD 操作功能完整；3) 中英文切换正常；4) 与 Stitch 设计稿视觉一致性检查"
     }
   ]
 }

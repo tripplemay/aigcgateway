@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Create Action | AIGC Gateway</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Manrope:wght@700;800&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+    </style>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-secondary-container": "#585280",
+                    "tertiary-fixed-dim": "#ffb964",
+                    "on-surface-variant": "#474553",
+                    "error": "#ba1a1a",
+                    "secondary-fixed": "#e5deff",
+                    "primary-fixed-dim": "#c8bfff",
+                    "outline": "#787584",
+                    "surface-container": "#eaedff",
+                    "on-secondary-fixed": "#1b153f",
+                    "on-secondary": "#ffffff",
+                    "primary-container": "#6d5dd3",
+                    "outline-variant": "#c9c4d5",
+                    "on-tertiary-fixed": "#2b1700",
+                    "on-primary-fixed": "#190064",
+                    "surface-bright": "#faf8ff",
+                    "surface-tint": "#5c4cc1",
+                    "surface-container-high": "#e2e7ff",
+                    "surface-container-low": "#f2f3ff",
+                    "on-error-container": "#93000a",
+                    "surface-container-highest": "#dae2fd",
+                    "on-primary-container": "#f6f1ff",
+                    "primary": "#5443b9",
+                    "on-tertiary": "#ffffff",
+                    "primary-fixed": "#e5deff",
+                    "on-tertiary-fixed-variant": "#663e00",
+                    "inverse-on-surface": "#eef0ff",
+                    "inverse-surface": "#283044",
+                    "surface": "#faf8ff",
+                    "on-primary-fixed-variant": "#4431a8",
+                    "surface-dim": "#d2d9f4",
+                    "on-background": "#131b2e",
+                    "background": "#faf8ff",
+                    "on-surface": "#131b2e",
+                    "error-container": "#ffdad6",
+                    "on-error": "#ffffff",
+                    "surface-container-lowest": "#ffffff",
+                    "on-primary": "#ffffff",
+                    "tertiary-fixed": "#ffddba",
+                    "secondary": "#5f5987",
+                    "tertiary": "#7c4b00",
+                    "tertiary-container": "#9d6100",
+                    "surface-variant": "#dae2fd",
+                    "secondary-fixed-dim": "#c8c0f5",
+                    "on-secondary-fixed-variant": "#47416e",
+                    "on-tertiary-container": "#fff0e4",
+                    "secondary-container": "#d0c9fe",
+                    "inverse-primary": "#c8bfff"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "fontFamily": {
+                    "headline": ["Manrope"],
+                    "body": ["Inter"],
+                    "label": ["Inter"]
+            }
+          },
+        },
+      }
+    </script>
+</head>
+<body class="bg-surface font-body text-on-surface">
+<!-- SideNavBar Component Implementation -->
+<aside class="fixed h-screen w-64 left-0 top-0 bg-surface-container-low flex flex-col py-6 px-4 gap-2 z-50">
+<div class="flex items-center gap-3 px-2 mb-8">
+<div class="w-10 h-10 bg-primary-container rounded-xl flex items-center justify-center text-on-primary-container">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">token</span>
+</div>
+<div>
+<div class="font-headline font-extrabold text-primary text-xl leading-tight">Atelier</div>
+<div class="text-[10px] font-label text-outline uppercase tracking-widest">v2.1.0-atomic</div>
+</div>
+</div>
+<nav class="flex-1 space-y-1">
+<a class="flex items-center gap-3 px-4 py-2.5 rounded-r-lg text-slate-600 hover:bg-slate-200/50 hover:translate-x-1 transition-transform duration-200" href="#">
+<span class="material-symbols-outlined text-xl">dashboard</span>
+<span class="font-medium text-sm">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-2.5 rounded-r-lg text-slate-600 hover:bg-slate-200/50 hover:translate-x-1 transition-transform duration-200" href="#">
+<span class="material-symbols-outlined text-xl">view_in_ar</span>
+<span class="font-medium text-sm">Models</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-2.5 rounded-r-lg text-slate-600 hover:bg-slate-200/50 hover:translate-x-1 transition-transform duration-200" href="#">
+<span class="material-symbols-outlined text-xl">vpn_key</span>
+<span class="font-medium text-sm">API Keys</span>
+</a>
+<!-- Active Tab: Actions -->
+<a class="flex items-center gap-3 px-4 py-2.5 bg-white text-primary border-l-4 border-primary rounded-r-lg shadow-sm" href="#">
+<span class="material-symbols-outlined text-xl" style="font-variation-settings: 'FILL' 1;">bolt</span>
+<span class="font-medium text-sm">Actions</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-2.5 rounded-r-lg text-slate-600 hover:bg-slate-200/50 hover:translate-x-1 transition-transform duration-200" href="#">
+<span class="material-symbols-outlined text-xl">description</span>
+<span class="font-medium text-sm">Templates</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-2.5 rounded-r-lg text-slate-600 hover:bg-slate-200/50 hover:translate-x-1 transition-transform duration-200" href="#">
+<span class="material-symbols-outlined text-xl">list_alt</span>
+<span class="font-medium text-sm">Logs</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-2.5 rounded-r-lg text-slate-600 hover:bg-slate-200/50 hover:translate-x-1 transition-transform duration-200" href="#">
+<span class="material-symbols-outlined text-xl">account_balance_wallet</span>
+<span class="font-medium text-sm">Balance</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-2.5 rounded-r-lg text-slate-600 hover:bg-slate-200/50 hover:translate-x-1 transition-transform duration-200" href="#">
+<span class="material-symbols-outlined text-xl">settings</span>
+<span class="font-medium text-sm">Settings</span>
+</a>
+</nav>
+<div class="mt-auto space-y-1 pt-6 border-t border-outline-variant/20">
+<a class="flex items-center gap-3 px-4 py-2 text-slate-600 hover:bg-slate-200/50 transition-colors" href="#">
+<span class="material-symbols-outlined text-xl">help</span>
+<span class="text-xs font-medium">Help</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-2 text-slate-600 hover:bg-slate-200/50 transition-colors" href="#">
+<span class="material-symbols-outlined text-xl">menu_book</span>
+<span class="text-xs font-medium">Documentation</span>
+</a>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="ml-64 min-h-screen flex flex-col bg-surface overflow-x-hidden">
+<!-- Top Navigation Bar Component Implementation -->
+<header class="sticky top-0 w-full px-6 py-3 bg-slate-50/80 backdrop-blur-xl flex justify-between items-center z-40">
+<div class="flex items-center gap-2">
+<nav class="flex items-center text-xs font-label text-slate-500 gap-2">
+<span>Actions</span>
+<span class="material-symbols-outlined text-sm">chevron_right</span>
+<span class="text-primary font-semibold">Create New</span>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<div class="flex items-center gap-2">
+<button class="p-2 text-slate-500 hover:bg-slate-100/50 rounded-full transition-colors">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="p-2 text-slate-500 hover:bg-slate-100/50 rounded-full transition-colors">
+<span class="material-symbols-outlined">account_balance_wallet</span>
+</button>
+</div>
+<div class="h-8 w-[1px] bg-outline-variant/30"></div>
+<div class="flex items-center gap-3 pl-2">
+<img alt="User profile" class="w-8 h-8 rounded-full border border-outline-variant/30" data-alt="Close-up portrait of a professional male software engineer in a modern workspace with soft natural lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAo-oqwDZ8OS4o4T_W8-mVwCbqSFm26cb-mgWH4i2Ylv2l5cs4rGVSwBkpxrZJ3BsNEabl_IActZN8o24KkIRKlXXgd3GrkVirVJw8iqnmzv8AkeIrk0HqkeG9QXdFhi08MeiPH3jkx4fdf6BvjJ5u_EvHOel-UJjZFTiN0SG0gecCWi7VEAfgPC7DefBEFm_Me2baH52WmyosWEe5xJadIHI2OBiK2hwSj43grecPaJvwnt_ZNmHvhoQOewvW5Tn050Bbrs-HRWWhd"/>
+</div>
+</div>
+</header>
+<!-- Editor Content -->
+<div class="p-8 max-w-7xl mx-auto w-full flex-1">
+<div class="mb-10">
+<h1 class="font-headline font-extrabold text-4xl text-on-surface tracking-tight mb-2">Create Action</h1>
+<p class="text-on-surface-variant max-w-2xl">Define a new programmatic gateway for your AI models. Configure prompts, set parameters, and map variables.</p>
+</div>
+<!-- Bento Grid Layout for Editor -->
+<div class="grid grid-cols-12 gap-6">
+<!-- Left Column: Basic Info & Message Editor -->
+<div class="col-span-12 lg:col-span-8 space-y-6">
+<!-- Section 1: Basic Info -->
+<section class="bg-surface-container-lowest rounded-xl p-6 shadow-sm">
+<div class="flex items-center gap-2 mb-6">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">info</span>
+<h2 class="font-headline font-bold text-lg text-on-surface">Basic Info</h2>
+</div>
+<div class="grid grid-cols-2 gap-6">
+<div class="col-span-2 md:col-span-1">
+<label class="block text-[10px] font-bold text-outline uppercase tracking-wider mb-2">Action Name</label>
+<input class="w-full bg-surface-container-low border-none border-b-2 border-outline-variant/30 focus:border-primary focus:ring-0 rounded-lg p-3 text-sm transition-all" placeholder="e.g. Code Review Assistant" type="text"/>
+</div>
+<div class="col-span-2 md:col-span-1">
+<label class="block text-[10px] font-bold text-outline uppercase tracking-wider mb-2">Model Selection</label>
+<select class="w-full bg-surface-container-low border-none border-b-2 border-outline-variant/30 focus:border-primary focus:ring-0 rounded-lg p-3 text-sm appearance-none transition-all">
+<option>gpt-4o-mini</option>
+<option>claude-sonnet-4</option>
+<option>gpt-4-turbo</option>
+</select>
+</div>
+<div class="col-span-2">
+<label class="block text-[10px] font-bold text-outline uppercase tracking-wider mb-2">Description</label>
+<textarea class="w-full bg-surface-container-low border-none border-b-2 border-outline-variant/30 focus:border-primary focus:ring-0 rounded-lg p-3 text-sm transition-all" placeholder="Describe what this action does..." rows="2"></textarea>
+</div>
+</div>
+</section>
+<!-- Section 2: Messages Editor -->
+<section class="bg-surface-container-lowest rounded-xl p-6 shadow-sm">
+<div class="flex justify-between items-center mb-6">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">forum</span>
+<h2 class="font-headline font-bold text-lg text-on-surface">Messages Editor</h2>
+</div>
+<button class="flex items-center gap-2 px-4 py-2 bg-primary/10 text-primary hover:bg-primary/20 rounded-full transition-all text-sm font-semibold">
+<span class="material-symbols-outlined text-lg">add</span>
+                                Add Message
+                            </button>
+</div>
+<div class="space-y-4">
+<!-- System Message -->
+<div class="group relative bg-surface p-4 rounded-xl border border-outline-variant/10 hover:border-primary/30 transition-all">
+<div class="flex items-center justify-between mb-3">
+<span class="px-2 py-0.5 bg-on-surface/5 text-[10px] font-extrabold rounded uppercase tracking-tighter text-on-surface-variant">System</span>
+<button class="opacity-0 group-hover:opacity-100 p-1 text-error hover:bg-error/10 rounded transition-all">
+<span class="material-symbols-outlined text-sm">delete</span>
+</button>
+</div>
+<div class="relative">
+<p class="text-sm leading-relaxed text-on-surface">
+                                        You are a professional <span class="bg-primary/10 text-primary px-1.5 py-0.5 rounded font-mono font-medium">role</span> assistant.
+                                    </p>
+</div>
+</div>
+<!-- User Message -->
+<div class="group relative bg-surface p-4 rounded-xl border border-outline-variant/10 hover:border-primary/30 transition-all">
+<div class="flex items-center justify-between mb-3">
+<span class="px-2 py-0.5 bg-primary/5 text-[10px] font-extrabold rounded uppercase tracking-tighter text-primary">User</span>
+<button class="opacity-0 group-hover:opacity-100 p-1 text-error hover:bg-error/10 rounded transition-all">
+<span class="material-symbols-outlined text-sm">delete</span>
+</button>
+</div>
+<div class="relative">
+<p class="text-sm leading-relaxed text-on-surface">
+                                        Help me with <span class="bg-primary/10 text-primary px-1.5 py-0.5 rounded font-mono font-medium">task</span>.
+                                    </p>
+</div>
+</div>
+</div>
+<div class="mt-8 pt-6 border-t border-outline-variant/20">
+<label class="block text-[10px] font-bold text-outline uppercase tracking-wider mb-2">Changelog (v1.0.0)</label>
+<input class="w-full bg-surface-container-low border-none border-b-2 border-outline-variant/30 focus:border-primary focus:ring-0 rounded-lg p-3 text-sm transition-all italic" placeholder="Initial version release..." type="text"/>
+</div>
+</section>
+</div>
+<!-- Right Column: Variables Panel -->
+<div class="col-span-12 lg:col-span-4">
+<section class="glass-panel rounded-xl p-6 shadow-sm sticky top-24 border border-outline-variant/20">
+<div class="flex items-center gap-2 mb-6">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">variables</span>
+<h2 class="font-headline font-bold text-lg text-on-surface">Detected Variables</h2>
+</div>
+<div class="space-y-6">
+<!-- Variable: Role -->
+<div class="p-4 bg-surface-container-low rounded-lg space-y-3">
+<div class="flex justify-between items-center">
+<span class="text-sm font-bold font-headline text-primary">role</span>
+<label class="relative inline-flex items-center cursor-pointer scale-75">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-11 h-6 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+<span class="ms-2 text-[10px] font-bold text-outline uppercase">Required</span>
+</label>
+</div>
+<input class="w-full bg-white border-none border-b border-outline-variant/30 focus:border-primary focus:ring-0 rounded p-2 text-xs" placeholder="Description" type="text" value="Assistant's professional persona"/>
+<input class="w-full bg-white border-none border-b border-outline-variant/30 focus:border-primary focus:ring-0 rounded p-2 text-xs font-mono" placeholder="Default Value" type="text" value="coding"/>
+</div>
+<!-- Variable: Task -->
+<div class="p-4 bg-surface-container-low rounded-lg space-y-3">
+<div class="flex justify-between items-center">
+<span class="text-sm font-bold font-headline text-primary">task</span>
+<label class="relative inline-flex items-center cursor-pointer scale-75">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-11 h-6 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+<span class="ms-2 text-[10px] font-bold text-outline uppercase">Required</span>
+</label>
+</div>
+<input class="w-full bg-white border-none border-b border-outline-variant/30 focus:border-primary focus:ring-0 rounded p-2 text-xs" placeholder="Description" type="text" value="The specific request for the AI"/>
+<input class="w-full bg-white border-none border-b border-outline-variant/30 focus:border-primary focus:ring-0 rounded p-2 text-xs font-mono" placeholder="Default Value" type="text"/>
+</div>
+</div>
+<div class="mt-6 p-4 bg-primary/5 rounded-lg border border-primary/10">
+<p class="text-[11px] text-primary/80 leading-relaxed italic">Variables are automatically detected from message content using the {{variable}} syntax.</p>
+</div>
+</section>
+</div>
+</div>
+</div>
+<!-- Footer Actions Component -->
+<footer class="mt-auto px-8 py-6 bg-surface-container-low border-t border-outline-variant/20">
+<div class="max-w-7xl mx-auto flex justify-between items-center">
+<div class="flex items-center gap-4 text-xs text-on-surface-variant">
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-sm">cloud_upload</span> Auto-saved 2m ago</span>
+<span class="w-1 h-1 bg-outline-variant rounded-full"></span>
+<span>Action ID: act_928k_atelier</span>
+</div>
+<div class="flex items-center gap-3">
+<button class="px-6 py-2.5 text-secondary font-semibold hover:bg-slate-200/50 rounded-xl transition-all">
+                        Cancel
+                    </button>
+<button class="px-8 py-2.5 bg-gradient-to-r from-primary to-primary-container text-white font-bold rounded-xl shadow-lg shadow-primary/20 hover:opacity-90 active:scale-[0.98] transition-all">
+                        Save Action
+                    </button>
+</div>
+</div>
+</footer>
+</main>
+</body></html>

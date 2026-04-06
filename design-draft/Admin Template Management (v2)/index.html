@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>AIGC Gateway | Template Management</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-surface-variant": "#474553",
+                        "surface-variant": "#dae2fd",
+                        "secondary": "#5f5987",
+                        "on-primary-fixed": "#190064",
+                        "secondary-fixed": "#e5deff",
+                        "primary-fixed": "#e5deff",
+                        "on-error-container": "#93000a",
+                        "surface-container-low": "#f2f3ff",
+                        "on-secondary-container": "#585280",
+                        "surface-container-lowest": "#ffffff",
+                        "background": "#faf8ff",
+                        "on-primary-fixed-variant": "#4431a8",
+                        "surface": "#faf8ff",
+                        "surface-container-highest": "#dae2fd",
+                        "surface-bright": "#faf8ff",
+                        "outline": "#787584",
+                        "on-tertiary-fixed-variant": "#663e00",
+                        "primary-fixed-dim": "#c8bfff",
+                        "on-tertiary-fixed": "#2b1700",
+                        "tertiary-container": "#9d6100",
+                        "inverse-on-surface": "#eef0ff",
+                        "secondary-container": "#d0c9fe",
+                        "outline-variant": "#c9c4d5",
+                        "on-tertiary-container": "#fff0e4",
+                        "on-secondary-fixed": "#1b153f",
+                        "on-primary-container": "#f6f1ff",
+                        "surface-container": "#eaedff",
+                        "inverse-primary": "#c8bfff",
+                        "on-secondary": "#ffffff",
+                        "on-tertiary": "#ffffff",
+                        "tertiary-fixed": "#ffddba",
+                        "on-background": "#131b2e",
+                        "on-surface": "#131b2e",
+                        "error": "#ba1a1a",
+                        "on-error": "#ffffff",
+                        "on-primary": "#ffffff",
+                        "surface-dim": "#d2d9f4",
+                        "tertiary": "#7c4b00",
+                        "error-container": "#ffdad6",
+                        "on-secondary-fixed-variant": "#47416e",
+                        "secondary-fixed-dim": "#c8c0f5",
+                        "inverse-surface": "#283044",
+                        "primary": "#5443b9",
+                        "tertiary-fixed-dim": "#ffb964",
+                        "surface-tint": "#5c4cc1",
+                        "primary-container": "#6d5dd3"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "fontFamily": {
+                        "headline": ["Manrope"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+        h1, h2, h3, .headline { font-family: 'Manrope', sans-serif; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface">
+<!-- SideNavBar Component Implementation -->
+<aside class="h-screen w-64 fixed left-0 top-0 overflow-y-auto bg-slate-50 border-r border-slate-200/50 z-40">
+<div class="flex flex-col gap-2 p-4 h-full">
+<div class="px-2 py-6">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 bg-primary-container rounded-xl flex items-center justify-center text-white">
+<span class="material-symbols-outlined" data-icon="hub">hub</span>
+</div>
+<div>
+<h1 class="text-lg font-black text-[#131b2e] uppercase tracking-tighter headline">AIGC Gateway</h1>
+<p class="text-[10px] uppercase tracking-widest text-primary font-bold opacity-70">Algorithmic Atelier</p>
+</div>
+</div>
+</div>
+<button class="mb-4 flex items-center justify-center gap-2 bg-gradient-to-r from-primary to-primary-container text-white font-headline text-sm font-bold py-3 px-4 rounded-xl shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all">
+<span class="material-symbols-outlined" data-icon="add_circle">add_circle</span>
+                New Template
+            </button>
+<!-- Navigation Sections -->
+<div class="space-y-6">
+<div>
+<p class="px-4 text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-2">General</p>
+<nav class="space-y-1">
+<a class="flex items-center gap-3 px-4 py-2 text-slate-600 hover:bg-[#f2f3ff] transition-colors rounded-lg font-headline text-sm font-semibold" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span> Dashboard
+                        </a>
+<a class="flex items-center gap-3 px-4 py-2 text-slate-600 hover:bg-[#f2f3ff] transition-colors rounded-lg font-headline text-sm font-semibold" href="#">
+<span class="material-symbols-outlined" data-icon="extension">extension</span> Models
+                        </a>
+<a class="flex items-center gap-3 px-4 py-2 text-slate-600 hover:bg-[#f2f3ff] transition-colors rounded-lg font-headline text-sm font-semibold" href="#">
+<span class="material-symbols-outlined" data-icon="vpn_key">vpn_key</span> API Keys
+                        </a>
+<a class="flex items-center gap-3 px-4 py-2 text-slate-600 hover:bg-[#f2f3ff] transition-colors rounded-lg font-headline text-sm font-semibold" href="#">
+<span class="material-symbols-outlined" data-icon="description">description</span> Templates
+                        </a>
+</nav>
+</div>
+<div>
+<p class="px-4 text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-2">Admin</p>
+<nav class="space-y-1">
+<!-- ACTIVE TAB: Admin Templates -->
+<a class="flex items-center gap-3 px-4 py-2 bg-white text-[#5443b9] border-l-4 border-[#5443b9] shadow-sm font-headline text-sm font-bold" href="#">
+<span class="material-symbols-outlined" data-icon="settings_suggest">settings_suggest</span> Admin Templates
+                        </a>
+<a class="flex items-center gap-3 px-4 py-2 text-slate-600 hover:bg-[#f2f3ff] transition-colors rounded-lg font-headline text-sm font-semibold" href="#">
+<span class="material-symbols-outlined" data-icon="group">group</span> Users
+                        </a>
+<a class="flex items-center gap-3 px-4 py-2 text-slate-600 hover:bg-[#f2f3ff] transition-colors rounded-lg font-headline text-sm font-semibold" href="#">
+<span class="material-symbols-outlined" data-icon="cloud_done">cloud_done</span> Providers
+                        </a>
+<a class="flex items-center gap-3 px-4 py-2 text-slate-600 hover:bg-[#f2f3ff] transition-colors rounded-lg font-headline text-sm font-semibold" href="#">
+<span class="material-symbols-outlined" data-icon="terminal">terminal</span> Admin Logs
+                        </a>
+<a class="flex items-center gap-3 px-4 py-2 text-slate-600 hover:bg-[#f2f3ff] transition-colors rounded-lg font-headline text-sm font-semibold" href="#">
+<span class="material-symbols-outlined" data-icon="analytics">analytics</span> Admin Usage
+                        </a>
+</nav>
+</div>
+</div>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="ml-64 min-h-screen">
+<!-- TopNavBar Component Implementation -->
+<header class="sticky top-0 z-30 w-full glass-panel border-b border-slate-200/50">
+<div class="flex justify-between items-center h-16 px-8">
+<div class="flex items-center gap-4">
+<h2 class="headline font-bold text-lg text-on-surface">Template Management</h2>
+<div class="h-4 w-[1px] bg-outline-variant/30"></div>
+<div class="relative group">
+<span class="absolute inset-y-0 left-3 flex items-center text-slate-400">
+<span class="material-symbols-outlined text-lg" data-icon="search">search</span>
+</span>
+<input class="pl-10 pr-4 py-1.5 bg-surface-container-low border-none rounded-full text-xs w-64 focus:ring-2 focus:ring-primary/20 transition-all outline-none font-medium" placeholder="Search across infrastructure..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<div class="flex items-center gap-3">
+<button class="p-2 text-slate-500 hover:bg-slate-100 rounded-full transition-colors relative">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+<span class="absolute top-2 right-2 w-2 h-2 bg-error rounded-full border-2 border-white"></span>
+</button>
+<button class="p-2 text-slate-500 hover:bg-slate-100 rounded-full transition-colors">
+<span class="material-symbols-outlined" data-icon="help_outline">help_outline</span>
+</button>
+</div>
+<button class="bg-primary/10 text-primary px-4 py-2 rounded-lg text-sm font-bold headline hover:bg-primary/20 transition-all active:scale-95">
+                        Create New
+                    </button>
+<div class="flex items-center gap-3 pl-4 border-l border-slate-200/50">
+<img class="w-8 h-8 rounded-full border border-primary/20" data-alt="close-up portrait of a professional male administrator with a confident expression in a brightly lit modern office setting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCSL7q4tSMC_O_09lErwwCcuCYXm2ZFU_Uwj3Uk92dC9v7KkgYjXeKo3b1V5w55JLGDhIRSk0AKxOI9mOhPCvVfVcgruPr31Wb34kwC-GqFTNAAqXPIFozrxu05oyfZSc10LB1Aa2Gpofb4HgI86kBqxMQGkR6pm7OqrmNb9IbP6WNpeOk1hCKnpAAQw7kMkLgSXDSwgjb8veUUbt6DKp_U1EUp52WK8Ml8VBZsZTeBfWq35REanPU6UE4ofUiYB0QxjU6SjK7NRV2g"/>
+</div>
+</div>
+</div>
+</header>
+<div class="p-8 space-y-8">
+<!-- Header Section -->
+<div class="flex flex-col gap-1">
+<h1 class="headline text-3xl font-extrabold tracking-tight text-on-surface">Template Management</h1>
+<p class="text-on-surface-variant font-medium opacity-70">Manage all templates across the organization's projects</p>
+</div>
+<!-- Bento Stats Row -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+<div class="bg-surface-container-lowest p-6 rounded-xl shadow-sm border border-slate-200/50 flex items-center justify-between group hover:shadow-md transition-shadow">
+<div>
+<p class="text-[10px] font-bold uppercase tracking-widest text-slate-500 mb-1">Total Templates</p>
+<h3 class="headline text-3xl font-extrabold text-[#131b2e]">248</h3>
+</div>
+<div class="w-12 h-12 rounded-full bg-primary/5 flex items-center justify-center text-primary group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-3xl" data-icon="inventory_2">inventory_2</span>
+</div>
+</div>
+<div class="bg-surface-container-lowest p-6 rounded-xl shadow-sm border border-slate-200/50 flex items-center justify-between group hover:shadow-md transition-shadow">
+<div>
+<p class="text-[10px] font-bold uppercase tracking-widest text-slate-500 mb-1">Public Templates</p>
+<h3 class="headline text-3xl font-extrabold text-[#131b2e]">42</h3>
+</div>
+<div class="w-12 h-12 rounded-full bg-secondary/5 flex items-center justify-center text-secondary group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-3xl" data-icon="public">public</span>
+</div>
+</div>
+<div class="bg-surface-container-lowest p-6 rounded-xl shadow-sm border border-slate-200/50 flex items-center justify-between group hover:shadow-md transition-shadow">
+<div>
+<p class="text-[10px] font-bold uppercase tracking-widest text-slate-500 mb-1">Private Templates</p>
+<h3 class="headline text-3xl font-extrabold text-[#131b2e]">206</h3>
+</div>
+<div class="w-12 h-12 rounded-full bg-tertiary/5 flex items-center justify-center text-tertiary group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-3xl" data-icon="lock">lock</span>
+</div>
+</div>
+</div>
+<!-- Table Control Bar -->
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-4 glass-panel p-4 rounded-xl border border-slate-200/30">
+<div class="flex items-center gap-4 flex-1">
+<div class="relative flex-1 max-w-md">
+<span class="absolute inset-y-0 left-3 flex items-center text-slate-400">
+<span class="material-symbols-outlined text-lg" data-icon="filter_list">filter_list</span>
+</span>
+<input class="pl-10 pr-4 py-2.5 bg-surface rounded-lg border-none w-full text-sm focus:ring-2 focus:ring-primary/20 outline-none font-medium text-on-surface shadow-inner" placeholder="Search template name or project..." type="text"/>
+</div>
+<div class="h-10 w-[1px] bg-slate-200 hidden md:block"></div>
+<div class="flex items-center gap-2">
+<label class="text-xs font-bold uppercase text-slate-400 tracking-tighter">Visibility:</label>
+<select class="bg-surface border-none rounded-lg py-2 pl-3 pr-8 text-sm font-semibold text-on-surface focus:ring-2 focus:ring-primary/20 shadow-sm">
+<option>All Templates</option>
+<option>Public Only</option>
+<option>Private Only</option>
+</select>
+</div>
+</div>
+<div class="flex items-center gap-2">
+<button class="px-4 py-2 bg-surface text-slate-600 rounded-lg text-xs font-bold border border-slate-200 hover:bg-slate-50 transition-colors flex items-center gap-2">
+<span class="material-symbols-outlined text-base" data-icon="file_download">file_download</span> Export CSV
+                    </button>
+<button class="px-4 py-2 bg-surface text-slate-600 rounded-lg text-xs font-bold border border-slate-200 hover:bg-slate-50 transition-colors flex items-center gap-2">
+<span class="material-symbols-outlined text-base" data-icon="refresh">refresh</span> Reload
+                    </button>
+</div>
+</div>
+<!-- Modern TanStack-style Table -->
+<div class="bg-surface-container-lowest rounded-xl shadow-sm overflow-hidden border border-slate-200/50">
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-slate-50/50">
+<th class="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-400">Template Name</th>
+<th class="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-400">Project</th>
+<th class="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-400">Steps</th>
+<th class="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-400">Public</th>
+<th class="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-400">Quality Score</th>
+<th class="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-400">Created Date</th>
+<th class="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-400 text-right">Actions</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-slate-100">
+<!-- Row 1 -->
+<tr class="hover:bg-slate-50/80 transition-colors">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-lg bg-indigo-50 flex items-center justify-center text-indigo-500">
+<span class="material-symbols-outlined text-xl" data-icon="forum">forum</span>
+</div>
+<span class="font-semibold text-sm text-[#131b2e]">Customer Support Pipeline</span>
+</div>
+</td>
+<td class="px-6 py-4 text-sm text-slate-600 font-medium">Project Alpha</td>
+<td class="px-6 py-4">
+<span class="px-2.5 py-1 bg-slate-100 text-slate-600 rounded-md text-[11px] font-bold">3 steps</span>
+</td>
+<td class="px-6 py-4">
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-10 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
+</label>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-2">
+<div class="flex-1 h-1.5 w-24 bg-slate-100 rounded-full overflow-hidden">
+<div class="h-full bg-primary rounded-full" style="width: 92%"></div>
+</div>
+<span class="text-xs font-bold text-slate-700">92</span>
+</div>
+</td>
+<td class="px-6 py-4 text-xs font-medium text-slate-500">Oct 12, 2023</td>
+<td class="px-6 py-4 text-right space-x-2">
+<button class="p-1.5 text-slate-400 hover:text-primary hover:bg-primary/5 rounded transition-all">
+<span class="material-symbols-outlined text-xl" data-icon="visibility">visibility</span>
+</button>
+<button class="p-1.5 text-slate-400 hover:text-error hover:bg-error/5 rounded transition-all">
+<span class="material-symbols-outlined text-xl" data-icon="delete">delete</span>
+</button>
+</td>
+</tr>
+<!-- Row 2 -->
+<tr class="hover:bg-slate-50/80 transition-colors">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-lg bg-teal-50 flex items-center justify-center text-teal-500">
+<span class="material-symbols-outlined text-xl" data-icon="verified_user">verified_user</span>
+</div>
+<span class="font-semibold text-sm text-[#131b2e]">Content Moderation Chain</span>
+</div>
+</td>
+<td class="px-6 py-4 text-sm text-slate-600 font-medium">Platform Public</td>
+<td class="px-6 py-4">
+<span class="px-2.5 py-1 bg-slate-100 text-slate-600 rounded-md text-[11px] font-bold">5 steps</span>
+</td>
+<td class="px-6 py-4">
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-10 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
+</label>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-2">
+<div class="flex-1 h-1.5 w-24 bg-slate-100 rounded-full overflow-hidden">
+<div class="h-full bg-primary rounded-full" style="width: 88%"></div>
+</div>
+<span class="text-xs font-bold text-slate-700">88</span>
+</div>
+</td>
+<td class="px-6 py-4 text-xs font-medium text-slate-500">Oct 12, 2023</td>
+<td class="px-6 py-4 text-right space-x-2">
+<button class="p-1.5 text-slate-400 hover:text-primary hover:bg-primary/5 rounded transition-all">
+<span class="material-symbols-outlined text-xl" data-icon="visibility">visibility</span>
+</button>
+<button class="p-1.5 text-slate-400 hover:text-error hover:bg-error/5 rounded transition-all">
+<span class="material-symbols-outlined text-xl" data-icon="delete">delete</span>
+</button>
+</td>
+</tr>
+<!-- Row 3 -->
+<tr class="hover:bg-slate-50/80 transition-colors">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center text-blue-500">
+<span class="material-symbols-outlined text-xl" data-icon="summarize">summarize</span>
+</div>
+<span class="font-semibold text-sm text-[#131b2e]">Legal Document Summarizer</span>
+</div>
+</td>
+<td class="px-6 py-4 text-sm text-slate-600 font-medium">LegalTech Inc</td>
+<td class="px-6 py-4">
+<span class="px-2.5 py-1 bg-slate-100 text-slate-600 rounded-md text-[11px] font-bold">2 steps</span>
+</td>
+<td class="px-6 py-4">
+<label class="relative inline-flex items-center cursor-pointer">
+<input class="sr-only peer" type="checkbox"/>
+<div class="w-10 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
+</label>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-2">
+<div class="flex-1 h-1.5 w-24 bg-slate-100 rounded-full overflow-hidden">
+<div class="h-full bg-primary rounded-full" style="width: 95%"></div>
+</div>
+<span class="text-xs font-bold text-slate-700">95</span>
+</div>
+</td>
+<td class="px-6 py-4 text-xs font-medium text-slate-500">Nov 02, 2023</td>
+<td class="px-6 py-4 text-right space-x-2">
+<button class="p-1.5 text-slate-400 hover:text-primary hover:bg-primary/5 rounded transition-all">
+<span class="material-symbols-outlined text-xl" data-icon="visibility">visibility</span>
+</button>
+<button class="p-1.5 text-slate-400 hover:text-error hover:bg-error/5 rounded transition-all">
+<span class="material-symbols-outlined text-xl" data-icon="delete">delete</span>
+</button>
+</td>
+</tr>
+<!-- Row 4 -->
+<tr class="hover:bg-slate-50/80 transition-colors">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-lg bg-orange-50 flex items-center justify-center text-orange-500">
+<span class="material-symbols-outlined text-xl" data-icon="edit_note">edit_note</span>
+</div>
+<span class="font-semibold text-sm text-[#131b2e]">Creative Copywriter v2</span>
+</div>
+</td>
+<td class="px-6 py-4 text-sm text-slate-600 font-medium">Marketing Dept</td>
+<td class="px-6 py-4">
+<span class="px-2.5 py-1 bg-slate-100 text-slate-600 rounded-md text-[11px] font-bold">4 steps</span>
+</td>
+<td class="px-6 py-4">
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-10 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
+</label>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-2">
+<div class="flex-1 h-1.5 w-24 bg-slate-100 rounded-full overflow-hidden">
+<div class="h-full bg-primary rounded-full" style="width: 81%"></div>
+</div>
+<span class="text-xs font-bold text-slate-700">81</span>
+</div>
+</td>
+<td class="px-6 py-4 text-xs font-medium text-slate-500">Sep 28, 2023</td>
+<td class="px-6 py-4 text-right space-x-2">
+<button class="p-1.5 text-slate-400 hover:text-primary hover:bg-primary/5 rounded transition-all">
+<span class="material-symbols-outlined text-xl" data-icon="visibility">visibility</span>
+</button>
+<button class="p-1.5 text-slate-400 hover:text-error hover:bg-error/5 rounded transition-all">
+<span class="material-symbols-outlined text-xl" data-icon="delete">delete</span>
+</button>
+</td>
+</tr>
+<!-- Row 5 -->
+<tr class="hover:bg-slate-50/80 transition-colors">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-lg bg-rose-50 flex items-center justify-center text-rose-500">
+<span class="material-symbols-outlined text-xl" data-icon="code">code</span>
+</div>
+<span class="font-semibold text-sm text-[#131b2e]">Code Review Guardrail</span>
+</div>
+</td>
+<td class="px-6 py-4 text-sm text-slate-600 font-medium">Internal Dev</td>
+<td class="px-6 py-4">
+<span class="px-2.5 py-1 bg-slate-100 text-slate-600 rounded-md text-[11px] font-bold">6 steps</span>
+</td>
+<td class="px-6 py-4">
+<label class="relative inline-flex items-center cursor-pointer">
+<input class="sr-only peer" type="checkbox"/>
+<div class="w-10 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
+</label>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-2">
+<div class="flex-1 h-1.5 w-24 bg-slate-100 rounded-full overflow-hidden">
+<div class="h-full bg-primary rounded-full" style="width: 94%"></div>
+</div>
+<span class="text-xs font-bold text-slate-700">94</span>
+</div>
+</td>
+<td class="px-6 py-4 text-xs font-medium text-slate-500">Oct 15, 2023</td>
+<td class="px-6 py-4 text-right space-x-2">
+<button class="p-1.5 text-slate-400 hover:text-primary hover:bg-primary/5 rounded transition-all">
+<span class="material-symbols-outlined text-xl" data-icon="visibility">visibility</span>
+</button>
+<button class="p-1.5 text-slate-400 hover:text-error hover:bg-error/5 rounded transition-all">
+<span class="material-symbols-outlined text-xl" data-icon="delete">delete</span>
+</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Pagination Controls -->
+<div class="px-6 py-4 bg-slate-50/50 flex items-center justify-between border-t border-slate-100">
+<p class="text-xs text-slate-500 font-medium">Showing <span class="text-on-surface font-bold">1 - 5</span> of <span class="text-on-surface font-bold">248</span> templates</p>
+<div class="flex items-center gap-1">
+<button class="p-2 text-slate-400 hover:text-primary disabled:opacity-30" disabled="">
+<span class="material-symbols-outlined" data-icon="chevron_left">chevron_left</span>
+</button>
+<button class="w-8 h-8 flex items-center justify-center text-xs font-bold bg-primary text-white rounded-lg">1</button>
+<button class="w-8 h-8 flex items-center justify-center text-xs font-bold text-slate-600 hover:bg-slate-200 rounded-lg">2</button>
+<button class="w-8 h-8 flex items-center justify-center text-xs font-bold text-slate-600 hover:bg-slate-200 rounded-lg">3</button>
+<span class="px-2 text-slate-400">...</span>
+<button class="w-8 h-8 flex items-center justify-center text-xs font-bold text-slate-600 hover:bg-slate-200 rounded-lg">50</button>
+<button class="p-2 text-slate-400 hover:text-primary">
+<span class="material-symbols-outlined" data-icon="chevron_right">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Contextual Insights Section (Asymmetric) -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-8 mt-12">
+<div class="lg:col-span-8 space-y-6">
+<div class="flex items-center justify-between">
+<h4 class="headline font-bold text-lg">System Health &amp; Latency</h4>
+<button class="text-xs font-bold text-primary flex items-center gap-1">View Details <span class="material-symbols-outlined text-sm" data-icon="arrow_forward">arrow_forward</span></button>
+</div>
+<div class="h-64 glass-panel rounded-2xl border border-slate-200/40 relative overflow-hidden flex items-center justify-center">
+<!-- Abstract Chart Visualization Placeholder -->
+<div class="absolute inset-0 bg-gradient-to-tr from-primary/5 to-transparent"></div>
+<div class="relative z-10 text-center space-y-2">
+<span class="material-symbols-outlined text-4xl text-primary/30" data-icon="query_stats">query_stats</span>
+<p class="text-xs font-bold text-slate-400 tracking-widest uppercase">Live Infrastructure Monitoring</p>
+<div class="flex items-end gap-1 h-32 px-12 mt-4">
+<div class="bg-primary/20 w-8 rounded-t-md" style="height: 40%"></div>
+<div class="bg-primary/40 w-8 rounded-t-md" style="height: 60%"></div>
+<div class="bg-primary/20 w-8 rounded-t-md" style="height: 30%"></div>
+<div class="bg-primary/60 w-8 rounded-t-md shadow-lg shadow-primary/20" style="height: 90%"></div>
+<div class="bg-primary/30 w-8 rounded-t-md" style="height: 50%"></div>
+<div class="bg-primary/20 w-8 rounded-t-md" style="height: 70%"></div>
+<div class="bg-primary/50 w-8 rounded-t-md" style="height: 85%"></div>
+<div class="bg-primary/20 w-8 rounded-t-md" style="height: 45%"></div>
+</div>
+</div>
+</div>
+</div>
+<div class="lg:col-span-4 glass-panel p-6 rounded-2xl border border-primary/10 bg-primary/5 relative overflow-hidden group">
+<div class="relative z-10">
+<p class="text-[10px] font-bold uppercase tracking-widest text-primary mb-2">Pro Tip</p>
+<h4 class="headline font-bold text-lg mb-4 leading-tight">Optimize Template Performance</h4>
+<p class="text-sm text-slate-600 leading-relaxed mb-6">
+                            Templates with more than 5 steps typically experience a 12% increase in latency. Consider fragmenting complex pipelines for better orchestration.
+                        </p>
+<a class="inline-flex items-center gap-2 text-xs font-extrabold text-primary group-hover:gap-3 transition-all" href="#">
+                            READ BEST PRACTICES
+                            <span class="material-symbols-outlined text-sm" data-icon="open_in_new">open_in_new</span>
+</a>
+</div>
+<span class="material-symbols-outlined absolute -bottom-8 -right-8 text-9xl text-primary opacity-5 rotate-12" data-icon="lightbulb">lightbulb</span>
+</div>
+</div>
+</div>
+</main>
+<!-- FAB for quick action -->
+<button class="fixed bottom-8 right-8 w-14 h-14 bg-primary text-white rounded-full shadow-2xl shadow-primary/40 flex items-center justify-center hover:scale-110 active:scale-95 transition-all z-50 group">
+<span class="material-symbols-outlined text-2xl transition-transform group-hover:rotate-90" data-icon="add">add</span>
+<span class="absolute right-16 bg-on-surface text-white text-[10px] font-bold px-3 py-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none uppercase tracking-widest">Quick Create</span>
+</button>
+</body></html>
