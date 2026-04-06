@@ -1,11 +1,11 @@
 {
-  "status": "reverifying",
+  "status": "fixing",
   "user_goal": "mcp-finops-hardening: 安全脱敏 + MCP 工具增强(activate_version/version_id/步骤明细) + FinOps 基础设施(trace_id/精度/下钻)",
   "total_features": 10,
   "completed_features": 9,
   "fix_rounds": 0,
   "current_sprint": null,
-  "last_updated": "2026-04-06T17:31:35Z",
+  "last_updated": "2026-04-06T23:20:09Z",
   "reference_docs": [],
   "role_assignments": {
     "planner": "Kimi",
@@ -19,7 +19,7 @@
     "framework_reviewed": false
   },
   "evaluator_feedback": {
-    "summary": "reverifying 再次执行：F-MH-03 仍失败（steps[0].output 缺失），其余项通过。",
+    "summary": "reverifying 执行完成：F-MH-03 仍失败（steps[0].usage 缺失），其余项通过。",
     "pass_count": 9,
     "partial_count": 0,
     "fail_count": 1,
@@ -27,8 +27,8 @@
       {
         "feature_id": "F-MH-03",
         "result": "FAIL",
-        "description": "run_template 的 steps[] 第 0 步 output 仍缺失/为空，未满足步骤明细完整性要求。",
-        "steps_to_reproduce": "1) source scripts/test/codex-env.sh && npx tsx scripts/test/mcp-finops-hardening-e2e-2026-04-07.ts\n2) 查看 F-MH-03 检查项\n3) 报错 output missing at 0"
+        "description": "run_template 返回 steps[] 时第 0 步 usage 缺失，未满足每步包含 usage(tokens) 的验收要求。",
+        "steps_to_reproduce": "1) source scripts/test/codex-env.sh && npx tsx scripts/test/mcp-finops-hardening-e2e-2026-04-07.ts\n2) 查看 F-MH-03 检查项\n3) 报错 usage missing at 0"
       }
     ]
   },
@@ -76,7 +76,7 @@
     {
       "id": "F-MH-03",
       "title": "run_template 返回步骤明细",
-      "status": "completed",
+      "status": "pending",
       "executor": "generator"
     },
     {

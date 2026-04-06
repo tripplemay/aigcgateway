@@ -13,9 +13,9 @@
 
 ## 失败项（阻塞）
 
-- **F-MH-03**：`run_template` 返回 `steps[]` 时 `steps[0].output` 仍缺失/为空
+- **F-MH-03**：`run_template` 返回 `steps[]` 时 `steps[0].usage` 仍缺失
 - 期望：每步包含 `stepIndex, actionName, input, output, usage, latencyMs`
-- 复现报错：`output missing at 0`
+- 复现报错：`usage missing at 0`
 
 ## 回归通过项
 
