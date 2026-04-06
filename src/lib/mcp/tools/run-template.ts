@@ -147,10 +147,19 @@ Pass variables to inject into each step's Action prompts.`,
           let input: unknown[] | undefined;
           if (ver) {
             const msgs = ver.messages as { role: string; content: string }[];
-            const varDefs = (ver.variables ?? []) as { name: string; description?: string; required: boolean; defaultValue?: string }[];
+            const varDefs = (ver.variables ?? []) as {
+              name: string;
+              description?: string;
+              required: boolean;
+              defaultValue?: string;
+            }[];
             const stepVars: Record<string, string> = { ...variables };
             if (prevOutput !== null) stepVars.previous_output = prevOutput;
-            try { input = injectVariables(msgs, varDefs, stepVars); } catch { input = msgs; }
+            try {
+              input = injectVariables(msgs, varDefs, stepVars);
+            } catch {
+              input = msgs;
+            }
           }
           const stepOutput = se?.output ?? "";
           prevOutput = stepOutput;
@@ -160,7 +169,7 @@ Pass variables to inject into each step's Action prompts.`,
             model: se?.model ?? act?.model ?? null,
             input,
             output: stepOutput,
-            usage: se?.usage ?? null,
+            usage: se?.usage ?? { prompt_tokens: 0, completion_tokens: 0 },
             latencyMs: se?.latencyMs ?? null,
           };
         });
