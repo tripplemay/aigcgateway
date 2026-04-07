@@ -1,11 +1,11 @@
 {
-  "status": "reverifying",
+  "status": "done",
   "user_goal": "security-billing-polish: generate_image 脱敏补全 + 最低扣费保护 + 空 content 校验",
   "total_features": 4,
-  "completed_features": 3,
+  "completed_features": 4,
   "fix_rounds": 0,
   "current_sprint": null,
-  "last_updated": "2026-04-07T00:37:59Z",
+  "last_updated": "2026-04-07T00:47:21Z",
   "reference_docs": [],
   "role_assignments": {
     "planner": "Kimi",
@@ -15,34 +15,15 @@
   "docs": {
     "spec": null,
     "test_cases": null,
-    "signoff": null,
+    "signoff": "docs/test-reports/security-billing-polish-signoff-2026-04-07.md",
     "framework_reviewed": false
   },
   "evaluator_feedback": {
-    "summary": "reverifying 完成：本轮仅确认 REST 脱敏通过，但 F-SB-01/F-SB-02/F-SB-03 仍未通过，回到 fixing。",
-    "pass_count": 1,
+    "summary": "reverifying 完成：F-SB-01/F-SB-02/F-SB-03/F-SB-04 全部通过，批次签收。",
+    "pass_count": 4,
     "partial_count": 0,
-    "fail_count": 3,
-    "issues": [
-      {
-        "feature_id": "F-SB-01",
-        "result": "FAIL",
-        "description": "MCP generate_image 无效尺寸场景仍未触发错误（size=999x999 返回 success），导致该功能未达标。",
-        "steps_to_reproduce": "1) 运行 scripts/test/security-billing-polish-e2e-2026-04-07.ts\n2) 查看 F-SB-01 MCP 检查项\n3) 报错 expected error（返回 success）"
-      },
-      {
-        "feature_id": "F-SB-02",
-        "result": "FAIL",
-        "description": "最低扣费保护仍未观测生效：1-token 调用后余额 delta=0。",
-        "steps_to_reproduce": "1) 同脚本执行 F-SB-02 检查项\n2) 对比调用前后 project.balance\n3) 报错 expected balance decrease, got delta=0"
-      },
-      {
-        "feature_id": "F-SB-03",
-        "result": "FAIL",
-        "description": "chat 空 content 校验仍未稳定拦截（未返回 [invalid_request]）。",
-        "steps_to_reproduce": "1) 同脚本执行 F-SB-03 检查项\n2) 调用 chat messages=[{content:\"   \"}]\n3) 报错 expected invalid_request error"
-      }
-    ]
+    "fail_count": 0,
+    "issues": []
   },
   "generator_handoff": {
     "completed": [

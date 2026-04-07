@@ -1,6 +1,6 @@
 {
   "batch": "security-billing-polish",
-  "generatedAt": "2026-04-07T00:37:32.666Z",
+  "generatedAt": "2026-04-07T00:46:40.819Z",
   "environment": "http://localhost:3099",
   "checks": [
     {
@@ -10,8 +10,8 @@
     },
     {
       "name": "F-SB-01 MCP generate_image invalid size sanitized",
-      "ok": false,
-      "detail": "expected error"
+      "ok": true,
+      "detail": "{\"code\":\"invalid_request\",\"message\":\"invalid size; [contact removed]; volcengine [infra removed]; [rid removed]\"}"
     },
     {
       "name": "F-SB-01 REST generate_image empty prompt sanitized",
@@ -20,15 +20,15 @@
     },
     {
       "name": "F-SB-03 empty content blocked at gateway",
-      "ok": false,
-      "detail": "expected invalid_request error"
+      "ok": true,
+      "detail": "[invalid_request] messages[0].content is empty. All messages must have non-empty content."
     },
     {
       "name": "F-SB-02 MIN_CHARGE applied on 1-token call",
-      "ok": false,
-      "detail": "expected balance decrease, got delta=0"
+      "ok": true,
+      "detail": "delta=0.00000001"
     }
   ],
-  "pass": 2,
-  "fail": 3
+  "pass": 5,
+  "fail": 0
 }
