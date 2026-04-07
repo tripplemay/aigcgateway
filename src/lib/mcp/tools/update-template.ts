@@ -41,7 +41,9 @@ export function registerUpdateTemplate(server: McpServer, opts: McpServerOptions
       });
       if (!template) {
         return {
-          content: [{ type: "text" as const, text: `Template "${template_id}" not found in this project.` }],
+          content: [
+            { type: "text" as const, text: `Template "${template_id}" not found in this project.` },
+          ],
           isError: true,
         };
       }
@@ -51,11 +53,7 @@ export function registerUpdateTemplate(server: McpServer, opts: McpServerOptions
       if (name !== undefined) data.name = name;
       if (description !== undefined) data.description = description;
 
-      if (Object.keys(data).length > 0) {
-        await prisma.template.update({ where: { id: template_id }, data });
-      }
-
-      // Replace steps if provided
+      // Replace steps if provided — validate first
       if (steps) {
         const actionIds = steps.map((s) => s.action_id);
         const actions = await prisma.action.findMany({
@@ -75,30 +73,40 @@ export function registerUpdateTemplate(server: McpServer, opts: McpServerOptions
             isError: true,
           };
         }
-
-        await prisma.templateStep.deleteMany({ where: { templateId: template_id } });
-        await prisma.templateStep.createMany({
-          data: steps.map((s, i) => ({
-            templateId: template_id,
-            actionId: s.action_id,
-            order: i + 1,
-            role: s.role || "SEQUENTIAL",
-          })),
-        });
       }
 
-      return {
-        content: [
-          {
-            type: "text" as const,
-            text: JSON.stringify(
-              { template_id, message: "Template updated" },
-              null,
-              2,
-            ),
-          },
-        ],
-      };
+      try {
+        if (Object.keys(data).length > 0) {
+          await prisma.template.update({ where: { id: template_id }, data });
+        }
+
+        if (steps) {
+          await prisma.templateStep.deleteMany({ where: { templateId: template_id } });
+          await prisma.templateStep.createMany({
+            data: steps.map((s, i) => ({
+              templateId: template_id,
+              actionId: s.action_id,
+              order: i + 1,
+              role: s.role || "SEQUENTIAL",
+            })),
+          });
+        }
+
+        return {
+          content: [
+            {
+              type: "text" as const,
+              text: JSON.stringify({ template_id, message: "Template updated" }, null, 2),
+            },
+          ],
+        };
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : "Template update failed";
+        return {
+          content: [{ type: "text" as const, text: `[internal_error] ${msg}` }],
+          isError: true,
+        };
+      }
     },
   );
 }

@@ -16,7 +16,13 @@ async function main() {
   console.log();
 
   const allModels = await prisma.model.findMany({
-    select: { id: true, name: true, modality: true, enabled: true, _count: { select: { channels: true } } },
+    select: {
+      id: true,
+      name: true,
+      modality: true,
+      enabled: true,
+      _count: { select: { channels: true } },
+    },
     orderBy: { name: "asc" },
   });
 

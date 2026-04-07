@@ -77,6 +77,20 @@ export async function POST(request: Request, { params }: Params) {
     return errorResponse(400, "invalid_parameter", "steps array is required");
   }
 
+  // Validate each step has actionId and a numeric order
+  for (const s of steps as { actionId?: string; order?: number }[]) {
+    if (!s.actionId)
+      return errorResponse(400, "invalid_parameter", "Each step must have an actionId");
+    if (typeof s.order !== "number")
+      return errorResponse(400, "invalid_parameter", "Each step must have a numeric order");
+  }
+
+  // Validate no duplicate orders
+  const orders = steps.map((s: { order: number }) => s.order);
+  if (new Set(orders).size !== orders.length) {
+    return errorResponse(400, "invalid_parameter", "Duplicate step order values");
+  }
+
   // Validate all referenced actions exist and belong to this project
   const actionIds = [...new Set(steps.map((s: { actionId: string }) => s.actionId))];
   const actions = await prisma.action.findMany({
@@ -86,28 +100,33 @@ export async function POST(request: Request, { params }: Params) {
     return errorResponse(400, "invalid_parameter", "One or more actionIds are invalid");
   }
 
-  const template = await prisma.template.create({
-    data: {
-      projectId: project.id,
-      name,
-      description: description || null,
-      steps: {
-        create: steps.map((s: { actionId: string; order: number; role?: string }) => ({
-          action: { connect: { id: s.actionId } },
-          order: s.order,
-          role: (s.role || "SEQUENTIAL") as StepRole,
-        })),
+  try {
+    const template = await prisma.template.create({
+      data: {
+        projectId: project.id,
+        name,
+        description: description || null,
+        steps: {
+          create: steps.map((s: { actionId: string; order: number; role?: string }, i: number) => ({
+            actionId: s.actionId,
+            order: s.order ?? i,
+            role: (s.role || "SEQUENTIAL") as StepRole,
+          })),
+        },
       },
-    },
-    include: {
-      steps: {
-        orderBy: { order: "asc" },
-        include: { action: { select: { id: true, name: true, model: true } } },
+      include: {
+        steps: {
+          orderBy: { order: "asc" },
+          include: { action: { select: { id: true, name: true, model: true } } },
+        },
       },
-    },
-  });
+    });
 
-  return NextResponse.json(template, { status: 201 });
+    return NextResponse.json(template, { status: 201 });
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : "Template creation failed";
+    return errorResponse(500, "internal_error", msg);
+  }
 }
 
 function inferExecutionMode(steps: { role: string }[]): string {

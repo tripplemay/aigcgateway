@@ -52,6 +52,17 @@ export async function PUT(request: Request, { params }: Params) {
 
   // If steps provided, validate action ownership
   if (steps && Array.isArray(steps)) {
+    for (const s of steps as { actionId?: string; order?: number }[]) {
+      if (!s.actionId)
+        return errorResponse(400, "invalid_parameter", "Each step must have an actionId");
+      if (typeof s.order !== "number")
+        return errorResponse(400, "invalid_parameter", "Each step must have a numeric order");
+    }
+    const orders = steps.map((s: { order: number }) => s.order);
+    if (new Set(orders).size !== orders.length) {
+      return errorResponse(400, "invalid_parameter", "Duplicate step order values");
+    }
+
     const actionIds = [...new Set(steps.map((s: { actionId: string }) => s.actionId))];
     const actions = await prisma.action.findMany({
       where: { id: { in: actionIds as string[] }, projectId: project.id },
@@ -59,34 +70,41 @@ export async function PUT(request: Request, { params }: Params) {
     if (actions.length !== actionIds.length) {
       return errorResponse(400, "invalid_parameter", "One or more actionIds are invalid");
     }
-
-    // Delete existing steps and recreate
-    await prisma.templateStep.deleteMany({ where: { templateId: params.templateId } });
-    await prisma.templateStep.createMany({
-      data: steps.map((s: { actionId: string; order: number; role?: string }) => ({
-        templateId: params.templateId,
-        actionId: s.actionId,
-        order: s.order,
-        role: (s.role || "SEQUENTIAL") as StepRole,
-      })),
-    });
   }
 
-  const updated = await prisma.template.update({
-    where: { id: params.templateId },
-    data: {
-      ...(name !== undefined ? { name } : {}),
-      ...(description !== undefined ? { description } : {}),
-    },
-    include: {
-      steps: {
-        orderBy: { order: "asc" },
-        include: { action: { select: { id: true, name: true, model: true } } },
-      },
-    },
-  });
+  try {
+    if (steps && Array.isArray(steps)) {
+      // Delete existing steps and recreate
+      await prisma.templateStep.deleteMany({ where: { templateId: params.templateId } });
+      await prisma.templateStep.createMany({
+        data: steps.map((s: { actionId: string; order: number; role?: string }) => ({
+          templateId: params.templateId,
+          actionId: s.actionId,
+          order: s.order,
+          role: (s.role || "SEQUENTIAL") as StepRole,
+        })),
+      });
+    }
 
-  return NextResponse.json(updated);
+    const updated = await prisma.template.update({
+      where: { id: params.templateId },
+      data: {
+        ...(name !== undefined ? { name } : {}),
+        ...(description !== undefined ? { description } : {}),
+      },
+      include: {
+        steps: {
+          orderBy: { order: "asc" },
+          include: { action: { select: { id: true, name: true, model: true } } },
+        },
+      },
+    });
+
+    return NextResponse.json(updated);
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : "Template update failed";
+    return errorResponse(500, "internal_error", msg);
+  }
 }
 
 // DELETE /api/projects/:id/templates/:templateId — 删除 Template（级联删除 steps）

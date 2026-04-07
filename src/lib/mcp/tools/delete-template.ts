@@ -30,18 +30,31 @@ export function registerDeleteTemplate(server: McpServer, opts: McpServerOptions
       });
       if (!template) {
         return {
-          content: [{ type: "text" as const, text: `Template "${template_id}" not found in this project.` }],
+          content: [
+            { type: "text" as const, text: `Template "${template_id}" not found in this project.` },
+          ],
           isError: true,
         };
       }
 
-      await prisma.template.delete({ where: { id: template_id } });
+      try {
+        await prisma.template.delete({ where: { id: template_id } });
 
-      return {
-        content: [
-          { type: "text" as const, text: JSON.stringify({ template_id, message: "Template deleted" }, null, 2) },
-        ],
-      };
+        return {
+          content: [
+            {
+              type: "text" as const,
+              text: JSON.stringify({ template_id, message: "Template deleted" }, null, 2),
+            },
+          ],
+        };
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : "Template deletion failed";
+        return {
+          content: [{ type: "text" as const, text: `[internal_error] ${msg}` }],
+          isError: true,
+        };
+      }
     },
   );
 }

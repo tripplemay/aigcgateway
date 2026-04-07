@@ -7,7 +7,7 @@
       "title": "Template 创建 API 500 修复",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "1) POST /api/projects/:id/templates 正常返回 201 + 创建的 Template 数据；2) 排查 500 根因（可能与 balance-user-level-backend 的 schema 变更有关）；3) 创建包含多步骤的 Template 正常工作；4) npm run lint + tsc 通过"
     },
     {
@@ -15,7 +15,7 @@
       "title": "MCP create_template Tool 验证",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "1) MCP create_template Tool 可正常创建 Template；2) run_template 可执行已创建的 Template；3) delete_template 可正常删除；4) npm run lint + tsc 通过"
     },
     {

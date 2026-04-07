@@ -57,39 +57,47 @@ export function registerCreateTemplate(server: McpServer, opts: McpServerOptions
         };
       }
 
-      const template = await prisma.template.create({
-        data: {
-          projectId,
-          name,
-          description: description || null,
-          steps: {
-            create: steps.map((s, i) => ({
-              actionId: s.action_id,
-              order: i + 1,
-              role: s.role || "SEQUENTIAL",
-            })),
+      try {
+        const template = await prisma.template.create({
+          data: {
+            projectId,
+            name,
+            description: description || null,
+            steps: {
+              create: steps.map((s, i) => ({
+                actionId: s.action_id,
+                order: i + 1,
+                role: s.role || "SEQUENTIAL",
+              })),
+            },
           },
-        },
-        include: { steps: { orderBy: { order: "asc" } } },
-      });
+          include: { steps: { orderBy: { order: "asc" } } },
+        });
 
-      return {
-        content: [
-          {
-            type: "text" as const,
-            text: JSON.stringify(
-              {
-                template_id: template.id,
-                name: template.name,
-                step_count: template.steps.length,
-                message: "Template created successfully",
-              },
-              null,
-              2,
-            ),
-          },
-        ],
-      };
+        return {
+          content: [
+            {
+              type: "text" as const,
+              text: JSON.stringify(
+                {
+                  template_id: template.id,
+                  name: template.name,
+                  step_count: template.steps.length,
+                  message: "Template created successfully",
+                },
+                null,
+                2,
+              ),
+            },
+          ],
+        };
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : "Template creation failed";
+        return {
+          content: [{ type: "text" as const, text: `[internal_error] ${msg}` }],
+          isError: true,
+        };
+      }
     },
   );
 }

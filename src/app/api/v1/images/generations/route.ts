@@ -98,7 +98,11 @@ export async function POST(request: Request) {
     });
 
     if (engineErr) {
-      return errorResponse(engineErr.statusCode, engineErr.code, sanitizeErrorMessage(engineErr.message));
+      return errorResponse(
+        engineErr.statusCode,
+        engineErr.code,
+        sanitizeErrorMessage(engineErr.message),
+      );
     }
     return errorResponse(502, "provider_error", sanitizeErrorMessage((err as Error).message));
   }
