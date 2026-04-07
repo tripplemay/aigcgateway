@@ -1,19 +1,4 @@
 {
   "description": "需求池：已与用户确认但尚未开发的功能，等待下一批次启动时统一安排",
-  "items": [
-    {
-      "id": "BL-050",
-      "title": "MCP 配置页面重构 — 一键复制可直接使用的配置",
-      "description": "当前 MCP Setup 页面的配置包含掩码 Key（pk_xxx••••••••），用户复制后 Agent 无法使用。参考 Stitch 的 MCP 导出模式重构。核心要求：1) 用户选择客户端后，页面生成包含完整 API Key 的、可直接粘贴使用的配置；2) 覆盖所有主流 MCP 客户端，每种客户端提供其原生配置格式。来源：用户反馈（2026-04-07）。",
-      "decisions": [
-        "API Key 完整展示：新增输入框让用户粘贴完整 Key，或在创建 Key 后引导到此页面",
-        "客户端覆盖清单：Claude Code（CLI 命令）、Claude Desktop（JSON）、Cursor（JSON .cursor/mcp.json）、Codex（TOML）、VS Code Copilot（JSON .vscode/mcp.json）、Windsurf（JSON）、Cline（JSON）、Roo Code（JSON）、JetBrains（JSON）、Generic（URL+Header）",
-        "每种格式必须一键复制后可直接使用，不需要用户手动替换任何占位符",
-        "底部大按钮一键复制，参考 Stitch UI",
-        "Claude Code 给 CLI 命令（claude mcp add --transport streamable-http --url ... --header ...），不给 JSON"
-      ],
-      "confirmed_at": "2026-04-07",
-      "priority": "high"
-    }
-  ]
+  "items": []
 }

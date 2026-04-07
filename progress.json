@@ -1,29 +1,23 @@
 {
-  "status": "done",
-  "user_goal": "frontend-fix-round1: 前端审查发现统一修复（权限/交互/i18n/Hook/模型/精度）",
-  "total_features": 8,
-  "completed_features": 8,
-  "fix_rounds": 1,
+  "status": "building",
+  "user_goal": "mcp-setup-redesign: MCP 配置页面重构，10 种客户端一键复制直接可用",
+  "total_features": 10,
+  "completed_features": 0,
+  "fix_rounds": 0,
   "current_sprint": null,
-  "last_updated": "2026-04-07T11:55:00Z",
-  "reference_docs": [
-    "docs/test-reports/frontend-audit-verifying-2026-04-07.md",
-    "docs/test-reports/frontend-fix-round1-verifying-2026-04-07.md",
-    "docs/test-reports/frontend-fix-round1-reverifying-2026-04-07.md"
-  ],
-  "role_assignments": null,
+  "last_updated": "2026-04-07T14:00:00Z",
+  "reference_docs": [],
+  "role_assignments": {
+    "planner": "Kimi",
+    "generator": "Mark",
+    "evaluator": "Reviewer"
+  },
   "docs": {
     "spec": null,
     "test_cases": null,
-    "signoff": "docs/test-reports/frontend-fix-round1-signoff-2026-04-07.md",
+    "signoff": null,
     "framework_reviewed": false
   },
-  "evaluator_feedback": {
-    "summary": "F-FF-01~08 全部通过（补齐 UI 证据与 MCP 精度验证）。",
-    "pass_count": 8,
-    "partial_count": 0,
-    "fail_count": 0,
-    "issues": []
-  },
-  "generator_handoff": "Mark: F-FF-01~07 全部完成，F-FF-08 (executor:codex) 待 Evaluator 验收"
+  "evaluator_feedback": null,
+  "generator_handoff": null
 }

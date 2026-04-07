@@ -1,70 +1,86 @@
 {
-  "batch": "frontend-fix-round1",
+  "batch": "mcp-setup-redesign",
   "created_at": "2026-04-07",
   "features": [
     {
-      "id": "F-FF-01",
-      "title": "CreateProjectDialog + Sidebar New Project 修复",
+      "id": "F-MS-01",
+      "title": "API Key 输入机制",
       "priority": "high",
       "executor": "generator",
-      "status": "done",
-      "acceptance": "1) create-project-dialog.tsx 的 DialogTrigger 不再使用 render={<span />}，点击 trigger 能打开 Dialog；2) sidebar.tsx 的 New Project 按钮绑定 CreateProjectDialog 或跳转到创建页；3) 创建项目流程完整可用；4) npm run lint + tsc 通过"
+      "status": "pending",
+      "acceptance": "1) MCP Setup 页面新增 API Key 输入框，用户可粘贴完整 Key；2) 输入后实时更新下方配置代码块中的 Key；3) 也支持从已有 Key 列表选择（保留当前 radio 选择，但选择后仍需用户粘贴完整 Key）；4) npm run lint + tsc 通过"
     },
     {
-      "id": "F-FF-02",
-      "title": "未登录路由保护 + role 校验优化",
+      "id": "F-MS-02",
+      "title": "Claude Code 配置（CLI 命令）",
       "priority": "high",
       "executor": "generator",
-      "status": "done",
-      "acceptance": "1) 控制台 layout 增加服务端或中间件级别的未登录拦截（redirect 到 /login），不依赖纯客户端跳转；2) 前端 role 判断不再直接 atob 信任 localStorage token，改为从 API 获取或至少做 JWT 过期检查；3) Developer 访问 /admin/* 前端路由时被拦截到 dashboard；4) npm run lint + tsc 通过"
+      "status": "pending",
+      "acceptance": "1) 选择 Claude Code 时生成 CLI 命令：claude mcp add aigc-gateway --transport streamable-http --url https://aigc.guangai.ai/mcp --header \"Authorization: Bearer pk_xxx...\"；2) 包含用户输入的完整 API Key；3) 一键复制可直接在终端运行；4) npm run lint + tsc 通过"
     },
     {
-      "id": "F-FF-03",
-      "title": "Keys 页死链修复",
+      "id": "F-MS-03",
+      "title": "Claude Desktop 配置（JSON）",
+      "priority": "high",
+      "executor": "generator",
+      "status": "pending",
+      "acceptance": "1) 选择 Claude Desktop 时生成 claude_desktop_config.json 格式的 JSON；2) 包含 type: streamable-http、url、headers.Authorization；3) 一键复制可直接粘贴到配置文件；4) npm run lint + tsc 通过"
+    },
+    {
+      "id": "F-MS-04",
+      "title": "Cursor 配置（JSON）",
+      "priority": "high",
+      "executor": "generator",
+      "status": "pending",
+      "acceptance": "1) 选择 Cursor 时生成 .cursor/mcp.json 格式的 JSON；2) 一键复制可直接使用；3) npm run lint + tsc 通过"
+    },
+    {
+      "id": "F-MS-05",
+      "title": "Codex 配置（TOML）",
+      "priority": "high",
+      "executor": "generator",
+      "status": "pending",
+      "acceptance": "1) 选择 Codex 时生成 TOML 格式：[mcp_servers.aigc-gateway] url = ... [mcp_servers.aigc-gateway.http_headers] \"Authorization\" = \"Bearer pk_xxx...\"；2) 一键复制可直接粘贴到 codex.toml；3) npm run lint + tsc 通过"
+    },
+    {
+      "id": "F-MS-06",
+      "title": "VS Code Copilot 配置（JSON）",
       "priority": "medium",
       "executor": "generator",
-      "status": "done",
-      "acceptance": "1) keys/page.tsx 的 3 处 href='#' 改为实际链接或移除；2) 如果是 footer 占位链接（Privacy/Terms/Status），可直接移除或改为 # with onClick preventDefault + toast 提示；3) npm run lint + tsc 通过"
+      "status": "pending",
+      "acceptance": "1) 选择 VS Code 时生成 .vscode/mcp.json 格式；2) 一键复制可直接使用；3) npm run lint + tsc 通过"
     },
     {
-      "id": "F-FF-04",
-      "title": "i18n 硬编码残留修复",
+      "id": "F-MS-07",
+      "title": "Windsurf / Cline / Roo Code / JetBrains 配置",
       "priority": "medium",
       "executor": "generator",
-      "status": "done",
-      "acceptance": "1) models/page.tsx:293 的 'No models found' 改为 useTranslations；2) balance/page.tsx:279 的 'No transactions' 改为 useTranslations；3) en.json 和 zh-CN.json 同步新增对应 key；4) npm run lint + tsc 通过"
+      "status": "pending",
+      "acceptance": "1) 每种客户端生成其原生配置格式；2) Windsurf: ~/.codeium/windsurf/mcp_config.json；3) Cline: cline_mcp_settings.json；4) Roo Code: roo_mcp_settings.json；5) JetBrains: JSON 格式；6) 所有配置一键复制可直接使用；7) npm run lint + tsc 通过"
     },
     {
-      "id": "F-FF-05",
-      "title": "Hook 依赖修复",
+      "id": "F-MS-08",
+      "title": "Generic 配置 + UI 整体布局",
       "priority": "medium",
       "executor": "generator",
-      "status": "done",
-      "acceptance": "1) admin/logs/page.tsx:49 的 useEffect 补全 load 依赖；2) admin/users/[id]/page.tsx:30 同上；3) balance/page.tsx:71 同上；4) keys/page.tsx:74 同上；5) npm run lint 无 react-hooks/exhaustive-deps warning；6) npm run lint + tsc 通过"
+      "status": "pending",
+      "acceptance": "1) Generic 保留 URL + Header 格式；2) 客户端选择改为下拉菜单（替代 Tab）；3) 底部大按钮一键复制（替代右上角小按钮）；4) 移除 Tools 列表（页面聚焦配置，不需要列 21 个 Tool）；5) 参考 Stitch 的简洁布局；6) npm run lint + tsc 通过"
     },
     {
-      "id": "F-FF-06",
-      "title": "doubao-pro-32k 不可用模型处理",
-      "priority": "medium",
+      "id": "F-MS-09",
+      "title": "i18n 补全",
+      "priority": "low",
       "executor": "generator",
-      "status": "done",
-      "acceptance": "1) 排查 doubao-pro-32k 不可用的原因（白名单/channel/健康检查）；2) 从白名单移除或修复 channel 配置使其可用；3) list_models 不再返回实际不可用的模型；4) npm run lint + tsc 通过"
+      "status": "pending",
+      "acceptance": "1) 所有新增文案通过 useTranslations；2) en.json 和 zh-CN.json 同步更新；3) npm run lint + tsc 通过"
     },
     {
-      "id": "F-FF-07",
-      "title": "费用展示精度统一 8 位",
-      "priority": "medium",
-      "executor": "generator",
-      "status": "done",
-      "acceptance": "1) get_log_detail 的 cost 展示从 .toFixed(4) 改为 .toFixed(8)；2) get_usage_summary 的 cost/totalCost 从 .toFixed(4) 改为 .toFixed(8)；3) get_balance 交易流水的 amount 展示统一精度；4) npm run lint + tsc 通过"
-    },
-    {
-      "id": "F-FF-08",
+      "id": "F-MS-10",
       "title": "E2E 验证",
       "priority": "high",
       "executor": "codex",
-      "status": "done",
-      "acceptance": "1) CreateProjectDialog 可正常打开并创建项目；2) Sidebar New Project 可用；3) 未登录访问 /dashboard 被拦截到 /login；4) Developer 无法进入 /admin/* 前端页面；5) Keys 页无 href='#' 死链；6) 中文环境下 models 和 balance 页无英文硬编码；7) npm run lint 无 exhaustive-deps warning；8) list_models 不含不可用模型；9) get_log_detail/get_usage_summary/get_balance 费用显示 8 位小数"
+      "status": "pending",
+      "acceptance": "1) 输入完整 API Key 后，所有客户端配置中 Key 正确填充；2) Claude Code 生成 CLI 命令格式；3) Codex 生成 TOML 格式；4) 所有配置一键复制后内容完整（无掩码占位符）；5) 切换客户端时配置实时更新"
     }
   ]
 }
