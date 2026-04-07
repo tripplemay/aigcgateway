@@ -15,7 +15,7 @@
       "title": "未登录路由保护 + role 校验优化",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) 控制台 layout 增加服务端或中间件级别的未登录拦截（redirect 到 /login），不依赖纯客户端跳转；2) 前端 role 判断不再直接 atob 信任 localStorage token，改为从 API 获取或至少做 JWT 过期检查；3) Developer 访问 /admin/* 前端路由时被拦截到 dashboard；4) npm run lint + tsc 通过"
     },
     {

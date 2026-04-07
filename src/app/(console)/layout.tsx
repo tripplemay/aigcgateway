@@ -27,35 +27,38 @@ export default function ConsoleLayout({ children }: { children: React.ReactNode 
       router.push("/login");
       return;
     }
-    try {
-      const payload = JSON.parse(atob(token.split(".")[1]));
-      const userInfo = { userId: payload.userId, role: payload.role, name: payload.name };
-      setUser(userInfo);
 
-      // Non-admin accessing /admin/* → redirect to /dashboard
-      if (pathname.startsWith("/admin") && userInfo.role !== "ADMIN") {
-        router.push("/dashboard");
-        return;
-      }
+    // Fetch user profile from API (server-verified JWT)
+    apiFetch<{ id: string; role: "ADMIN" | "DEVELOPER"; name?: string }>("/api/auth/profile")
+      .then((profile) => {
+        const userInfo: UserInfo = { userId: profile.id, role: profile.role, name: profile.name };
+        setUser(userInfo);
 
-      // Load current project name + balance for sidebar
-      apiFetch<{ data: { id: string; name: string }[] }>("/api/projects")
-        .then((r) => {
-          const saved = localStorage.getItem("projectId");
-          const found = r.data.find((p) => p.id === saved) ?? r.data[0];
-          if (found) {
-            setProjectName(found.name);
-            apiFetch<{ balance: number }>(`/api/projects/${found.id}/balance`)
-              .then((b) => setWalletBalance(`$${Number(b.balance).toFixed(2)}`))
-              .catch(() => {});
-          }
-        })
-        .catch(() => {});
-    } catch {
-      localStorage.removeItem("token");
-      router.push("/login");
-    }
-    setLoading(false);
+        // Non-admin accessing /admin/* → redirect to /dashboard
+        if (pathname.startsWith("/admin") && userInfo.role !== "ADMIN") {
+          router.push("/dashboard");
+          return;
+        }
+
+        // Load current project name + balance for sidebar
+        apiFetch<{ data: { id: string; name: string }[] }>("/api/projects")
+          .then((r) => {
+            const saved = localStorage.getItem("projectId");
+            const found = r.data.find((p) => p.id === saved) ?? r.data[0];
+            if (found) {
+              setProjectName(found.name);
+              apiFetch<{ balance: number }>(`/api/projects/${found.id}/balance`)
+                .then((b) => setWalletBalance(`$${Number(b.balance).toFixed(2)}`))
+                .catch(() => {});
+            }
+          })
+          .catch(() => {});
+      })
+      .catch(() => {
+        localStorage.removeItem("token");
+        router.push("/login");
+      })
+      .finally(() => setLoading(false));
   }, [router, pathname]);
 
   if (loading || !user) {
