@@ -15,7 +15,7 @@
       "title": "generate_image size 参数提示",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) list_models 返回的 image 模型增加 supportedSizes 字段（如 dall-e-3: [\"1024x1024\",\"1024x1792\",\"1792x1024\"]）；2) 数据来源为静态 fallback 映射（各模型尺寸固定）；3) generate_image 的 Schema description 中提示参考 list_models；4) npm run lint + tsc 通过"
     },
     {
@@ -31,7 +31,7 @@
       "title": "image 模型 contextWindow 语义修正",
       "priority": "low",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) image 模型（dall-e-3/gpt-image-1/seedream/cogview）的 contextWindow 在 list_models 返回中为 null（不展示）；2) cogview-3 的 contextWindow=1000 从 DB 中修正为 null；3) 可在 capabilities fallback 中处理，或在 list_models 输出时过滤；4) npm run lint + tsc 通过"
     },
     {

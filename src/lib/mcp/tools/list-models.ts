@@ -11,6 +11,7 @@ import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { prisma } from "@/lib/prisma";
 import { checkMcpPermission } from "@/lib/mcp/auth";
 import type { McpServerOptions } from "@/lib/mcp/server";
+import { resolveSupportedSizes } from "@/lib/sync/model-capabilities-fallback";
 
 export function registerListModels(server: McpServer, opts: McpServerOptions): void {
   const { permissions } = opts;
@@ -92,10 +93,16 @@ export function registerListModels(server: McpServer, opts: McpServerOptions): v
           name: model.name,
           displayName: model.displayName,
           modality: model.modality.toLowerCase(),
-          contextWindow: model.contextWindow ?? null,
+          contextWindow: model.modality === "IMAGE" ? null : (model.contextWindow ?? null),
           price,
           capabilities,
         };
+
+        // Add supportedSizes for image models
+        if (model.modality === "IMAGE") {
+          const sizes = resolveSupportedSizes(model.name);
+          if (sizes) result.supportedSizes = sizes;
+        }
 
         if (show_all_channels) {
           result.channels = model.channels.map((ch: ModelRow["channels"][number]) => ({

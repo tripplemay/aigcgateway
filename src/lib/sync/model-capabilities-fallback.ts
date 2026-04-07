@@ -165,3 +165,35 @@ export function resolveContextWindow(modelId: string): number | null {
 
   return null;
 }
+
+/**
+ * Supported image sizes per model (static mapping).
+ */
+const SUPPORTED_SIZES_MAP: Record<string, string[]> = {
+  "dall-e-3": ["1024x1024", "1024x1792", "1792x1024"],
+  "dall-e": ["256x256", "512x512", "1024x1024"],
+  "gpt-image-1": ["1024x1024", "1024x1536", "1536x1024", "auto"],
+  "seedream-4.5": ["1024x1024", "960x1280", "1280x960", "720x1440", "1440x720"],
+  "seedream": ["1024x1024", "960x1280", "1280x960"],
+  cogview: ["1024x1024"],
+  "Qwen/Wanx": ["1024x1024", "720x1280", "1280x720"],
+};
+
+/**
+ * Resolve supported image sizes for a model. Returns null if not an image model.
+ */
+export function resolveSupportedSizes(modelId: string): string[] | null {
+  if (modelId in SUPPORTED_SIZES_MAP) {
+    return SUPPORTED_SIZES_MAP[modelId];
+  }
+
+  const matches = Object.entries(SUPPORTED_SIZES_MAP)
+    .filter(([prefix]) => modelId.startsWith(prefix))
+    .sort((a, b) => b[0].length - a[0].length);
+
+  if (matches.length > 0) {
+    return matches[0][1];
+  }
+
+  return null;
+}

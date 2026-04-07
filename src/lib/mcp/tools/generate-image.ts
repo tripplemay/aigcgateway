@@ -25,7 +25,7 @@ export function registerGenerateImage(server: McpServer, opts: McpServerOptions)
     {
       model: z.string().describe("Exact image model name from list_models output"),
       prompt: z.string().describe("Image description / prompt"),
-      size: z.string().optional().describe("Image size, e.g. 1024x1024"),
+      size: z.string().optional().describe("Image size. Check supportedSizes in list_models(modality='image') for valid values per model. Example: 1024x1024"),
       n: z
         .number()
         .int()
