@@ -1,8 +1,8 @@
 {
-  "status": "building",
+  "status": "verifying",
   "user_goal": "project-switcher-ui: 项目切换 UI + 创建后自动切换 + useProject Context Provider",
   "total_features": 6,
-  "completed_features": 0,
+  "completed_features": 5,
   "fix_rounds": 0,
   "current_sprint": null,
   "last_updated": "2026-04-07T23:00:00Z",
@@ -19,5 +19,5 @@
     "framework_reviewed": false
   },
   "evaluator_feedback": null,
-  "generator_handoff": null
+  "generator_handoff": "Mark: F-PS-01~05 全部完成。useProject 改为 Context Provider（ProjectProvider）、Sidebar 项目下拉选择器、创建后自动切换（refresh+auto-select newest）、layout 余额从 Provider 获取、i18n 补全"
 }

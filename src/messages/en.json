@@ -27,6 +27,7 @@
     "brand": "AIGC Gateway",
     "algorithmicAtelier": "Algorithmic Atelier",
     "newProject": "New Project",
+    "noProject": "No Project",
     "projects": "Projects",
     "apiKeys": "API Keys",
     "models": "Models",

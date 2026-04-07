@@ -7,7 +7,7 @@
       "title": "useProject 改为 Context Provider",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) 新建 ProjectProvider context，包裹 (console) layout 的 children；2) 提供 projects/current/loading/select/refresh 方法；3) 所有使用 useProject() 的组件自动共享状态；4) 项目切换时所有依赖 current 的组件同步更新；5) npm run lint + tsc 通过"
     },
     {
@@ -15,7 +15,7 @@
       "title": "Sidebar 项目下拉选择器",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) sidebar 增加项目下拉选择器（显示当前项目名，点击展开项目列表）；2) 选择后调用 ProjectProvider.select()，Dashboard 等页面自动刷新数据；3) 当前选中项目有视觉高亮；4) npm run lint + tsc 通过"
     },
     {
@@ -23,7 +23,7 @@
       "title": "创建项目后自动切换",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) Sidebar 的 CreateProjectDialog 传入 onCreated 回调；2) 创建成功后调用 ProjectProvider.refresh() 刷新列表；3) 自动切换到新创建的项目；4) Dashboard 立即显示新项目数据（空状态）；5) npm run lint + tsc 通过"
     },
     {
@@ -31,7 +31,7 @@
       "title": "Layout 余额显示对齐 ProjectProvider",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) layout.tsx 的余额显示改为从 ProjectProvider 获取（不再独立调 API）；2) 切换项目后余额自动更新；3) npm run lint + tsc 通过"
     },
     {
@@ -39,7 +39,7 @@
       "title": "i18n 补全",
       "priority": "low",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) 项目选择器相关文案通过 useTranslations；2) en.json 和 zh-CN.json 同步更新；3) npm run lint + tsc 通过"
     },
     {

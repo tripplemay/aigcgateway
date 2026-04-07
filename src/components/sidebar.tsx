@@ -1,9 +1,11 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { useTranslations } from "next-intl";
 import { CreateProjectDialog } from "@/components/create-project-dialog";
+import { useProject } from "@/hooks/use-project";
 
 /*
  * Sidebar — strict 1:1 replica of Layout Shell code.html lines 86-142.
@@ -11,7 +13,7 @@ import { CreateProjectDialog } from "@/components/create-project-dialog";
  * Substitutions:
  *   - static <a href="#"> → <Link href="..."> with project routes
  *   - hardcoded text → t() i18n calls
- *   - Wallet balance is dynamic-ready (props)
+ *   - Wallet balance from ProjectProvider
  *   - Admin-only items appended with same styling
  */
 
@@ -50,15 +52,16 @@ const adminNav: NavItem[] = [
 interface SidebarProps {
   role: "ADMIN" | "DEVELOPER";
   userName?: string;
-  projectName?: string;
-  walletBalance?: string;
 }
 
-export function Sidebar({ role, walletBalance }: SidebarProps) {
+export function Sidebar({ role }: SidebarProps) {
   const pathname = usePathname();
   const t = useTranslations("sidebar");
+  const { projects, current, select, refresh } = useProject();
+  const [projectDropdownOpen, setProjectDropdownOpen] = useState(false);
 
   const isActive = (href: string) => pathname === href || pathname.startsWith(href + "/");
+  const walletBalance = current ? `$${Number(current.balance).toFixed(2)}` : "$0.00";
 
   return (
     /* code.html line 86 */
@@ -80,6 +83,48 @@ export function Sidebar({ role, walletBalance }: SidebarProps) {
         </div>
       </div>
 
+      {/* Project Switcher */}
+      <div className="px-4 mb-2">
+        <div className="relative">
+          <button
+            onClick={() => setProjectDropdownOpen(!projectDropdownOpen)}
+            className="w-full flex items-center justify-between px-3 py-2.5 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm font-bold text-ds-on-surface hover:border-ds-primary/30 transition-colors"
+          >
+            <div className="flex items-center gap-2 min-w-0">
+              <span className="material-symbols-outlined text-ds-primary text-lg">folder</span>
+              <span className="truncate">{current?.name ?? t("noProject")}</span>
+            </div>
+            <span className="material-symbols-outlined text-slate-400 text-lg shrink-0">
+              {projectDropdownOpen ? "expand_less" : "unfold_more"}
+            </span>
+          </button>
+          {projectDropdownOpen && (
+            <div className="absolute z-50 mt-1 w-full bg-white dark:bg-slate-800 rounded-xl shadow-xl border border-slate-200 dark:border-slate-700 py-1 max-h-48 overflow-y-auto">
+              {projects.map((p) => (
+                <button
+                  key={p.id}
+                  onClick={() => {
+                    select(p.id);
+                    setProjectDropdownOpen(false);
+                  }}
+                  className={cn(
+                    "w-full flex items-center gap-2 px-3 py-2 text-sm hover:bg-indigo-50 dark:hover:bg-slate-700 transition-colors",
+                    current?.id === p.id
+                      ? "text-ds-primary font-bold bg-indigo-50/50 dark:bg-slate-700/50"
+                      : "text-slate-700 dark:text-slate-300",
+                  )}
+                >
+                  <span className="material-symbols-outlined text-lg">
+                    {current?.id === p.id ? "folder_open" : "folder"}
+                  </span>
+                  <span className="truncate">{p.name}</span>
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+
       {/* New Project CTA — code.html lines 98-103 */}
       <div className="px-4 mb-6">
         <CreateProjectDialog
@@ -89,6 +134,7 @@ export function Sidebar({ role, walletBalance }: SidebarProps) {
               {t("newProject")}
             </button>
           }
+          onCreated={() => refresh()}
         />
       </div>
 
@@ -144,7 +190,7 @@ export function Sidebar({ role, walletBalance }: SidebarProps) {
             <span className="text-xs font-bold text-ds-on-surface-variant">
               {t("walletBalance")}
             </span>
-            <span className="text-xs font-black text-ds-primary">{walletBalance ?? "$0.00"}</span>
+            <span className="text-xs font-black text-ds-primary">{walletBalance}</span>
           </div>
           <div className="w-full bg-ds-outline-variant/30 h-1.5 rounded-full overflow-hidden">
             <div className="bg-ds-primary w-2/3 h-full rounded-full" />

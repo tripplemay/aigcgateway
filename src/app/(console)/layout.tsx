@@ -6,6 +6,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { apiFetch } from "@/lib/api-client";
+import { ProjectProvider } from "@/hooks/use-project";
 
 interface UserInfo {
   userId: string;
@@ -15,8 +16,6 @@ interface UserInfo {
 
 export default function ConsoleLayout({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<UserInfo | null>(null);
-  const [projectName, setProjectName] = useState<string | undefined>(undefined);
-  const [walletBalance, setWalletBalance] = useState<string | undefined>(undefined);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
   const pathname = usePathname();
@@ -28,31 +27,15 @@ export default function ConsoleLayout({ children }: { children: React.ReactNode 
       return;
     }
 
-    // Fetch user profile from API (server-verified JWT)
     apiFetch<{ id: string; role: "ADMIN" | "DEVELOPER"; name?: string }>("/api/auth/profile")
       .then((profile) => {
         const userInfo: UserInfo = { userId: profile.id, role: profile.role, name: profile.name };
         setUser(userInfo);
 
-        // Non-admin accessing /admin/* → redirect to /dashboard
         if (pathname.startsWith("/admin") && userInfo.role !== "ADMIN") {
           router.push("/dashboard");
           return;
         }
-
-        // Load current project name + balance for sidebar
-        apiFetch<{ data: { id: string; name: string }[] }>("/api/projects")
-          .then((r) => {
-            const saved = localStorage.getItem("projectId");
-            const found = r.data.find((p) => p.id === saved) ?? r.data[0];
-            if (found) {
-              setProjectName(found.name);
-              apiFetch<{ balance: number }>(`/api/projects/${found.id}/balance`)
-                .then((b) => setWalletBalance(`$${Number(b.balance).toFixed(2)}`))
-                .catch(() => {});
-            }
-          })
-          .catch(() => {});
       })
       .catch(() => {
         localStorage.removeItem("token");
@@ -80,22 +63,19 @@ export default function ConsoleLayout({ children }: { children: React.ReactNode 
    */
   return (
     <TooltipProvider>
-      <div className="bg-ds-surface text-ds-on-surface antialiased overflow-hidden">
-        <Sidebar
-          role={user.role}
-          userName={user.name}
-          projectName={projectName}
-          walletBalance={walletBalance}
-        />
-        {/* code.html line 144 */}
-        <div className="ml-64 flex flex-col h-screen">
-          {/* code.html line 146 */}
-          <TopAppBar userName={user.name} />
-          {/* code.html line 184 */}
-          <main className="flex-1 overflow-y-auto bg-ds-surface p-8">{children}</main>
+      <ProjectProvider>
+        <div className="bg-ds-surface text-ds-on-surface antialiased overflow-hidden">
+          <Sidebar role={user.role} userName={user.name} />
+          {/* code.html line 144 */}
+          <div className="ml-64 flex flex-col h-screen">
+            {/* code.html line 146 */}
+            <TopAppBar userName={user.name} />
+            {/* code.html line 184 */}
+            <main className="flex-1 overflow-y-auto bg-ds-surface p-8">{children}</main>
+          </div>
         </div>
-      </div>
-      <Toaster richColors />
+        <Toaster richColors />
+      </ProjectProvider>
     </TooltipProvider>
   );
 }
