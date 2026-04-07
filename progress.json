@@ -1,11 +1,11 @@
 {
-  "status": "reverifying",
+  "status": "fixing",
   "user_goal": "security-billing-polish: generate_image 脱敏补全 + 最低扣费保护 + 空 content 校验",
   "total_features": 4,
   "completed_features": 3,
   "fix_rounds": 0,
   "current_sprint": null,
-  "last_updated": "2026-04-07T00:24:25Z",
+  "last_updated": "2026-04-07T00:32:34Z",
   "reference_docs": [],
   "role_assignments": {
     "planner": "Kimi",
@@ -19,7 +19,7 @@
     "framework_reviewed": false
   },
   "evaluator_feedback": {
-    "summary": "reverifying 完成：复验未通过，F-SB-01/F-SB-02/F-SB-03 仍存在问题，回到 fixing。",
+    "summary": "reverifying 重跑完成：复验仍未通过，F-SB-01/F-SB-02/F-SB-03 继续回到 fixing。",
     "pass_count": 1,
     "partial_count": 0,
     "fail_count": 3,
