@@ -23,7 +23,7 @@
       "title": "幽灵模型状态管理",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) list_models MCP Tool 只返回 enabled=true 且有 ACTIVE channel 的模型（当前可能只检查 enabled）；2) 已下线模型不出现在 list_models 中；3) get_usage_summary 中出现的历史模型不影响 list_models；4) npm run lint + tsc 通过"
     },
     {
