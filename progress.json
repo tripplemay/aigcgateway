@@ -1,5 +1,5 @@
 {
-  "status": "verifying",
+  "status": "fixing",
   "user_goal": "model-metadata-fix: capabilities fallback 修复 + size 提示 + 幽灵模型 + contextWindow 语义",
   "total_features": 6,
   "completed_features": 5,
@@ -20,6 +20,19 @@
     "signoff": null,
     "framework_reviewed": false
   },
-  "evaluator_feedback": null,
+  "evaluator_feedback": {
+    "summary": "F-MM-06 E2E 验证失败：list_models 仍缺少 gpt-4o 能力与 image supportedSizes，DX 审查吐槽未闭环。",
+    "pass_count": 0,
+    "partial_count": 0,
+    "fail_count": 1,
+    "issues": [
+      {
+        "feature_id": "F-MM-06",
+        "result": "FAIL",
+        "description": "MCP list_models 输出里 gpt-4o capabilities 依旧为空，image 模型没有 supportedSizes；验收要求的 capabilities fallback / size 提示未生效。",
+        "steps_to_reproduce": "\n1. 启动本地 L1：bash scripts/test/codex-setup.sh + bash scripts/test/codex-wait.sh\n2. 以任意 API Key 调用 MCP list_models（Accept: application/json, text/event-stream）\n3. 响应中 gpt-4o capabilities={}，image 模型只含 capabilities，不含 supportedSizes"
+      }
+    ]
+  },
   "generator_handoff": "Mark: F-MM-01~05 全部完成。capabilities fallback 空对象修复、supportedSizes 新增、image contextWindow null、SERVER_INSTRUCTIONS 更新。F-MM-06 (executor:codex) 待验收"
 }
