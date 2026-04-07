@@ -240,7 +240,8 @@ async function reconcile(
 
     // 新模型 — model upsert 必须串行（有依赖关系）
     const modelName = resolveModelName(remoteModel, provider.name);
-    const capabilities = remoteModel.capabilities ?? resolveCapabilities(remoteModel.modelId);
+    const hasCapabilities = remoteModel.capabilities != null && Object.keys(remoteModel.capabilities).length > 0;
+    const capabilities = hasCapabilities ? remoteModel.capabilities : resolveCapabilities(remoteModel.modelId);
     const contextWindow = remoteModel.contextWindow ?? resolveContextWindow(remoteModel.modelId);
     const canonicalName = computeCanonicalName(modelName);
     const model = await prisma.model.upsert({

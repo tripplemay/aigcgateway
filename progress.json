@@ -2,9 +2,9 @@
   "status": "building",
   "user_goal": "model-metadata-fix: capabilities fallback 修复 + size 提示 + 幽灵模型 + contextWindow 语义",
   "total_features": 6,
-  "completed_features": 0,
+  "completed_features": 1,
   "fix_rounds": 0,
-  "current_sprint": null,
+  "current_sprint": "F-MM-02",
   "last_updated": "2026-04-07T22:00:00Z",
   "reference_docs": [
     "docs/test-reports/user_report/aigc-gateway-dx-audit-report.md"

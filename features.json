@@ -7,7 +7,7 @@
       "title": "capabilities fallback 逻辑修复",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) model-sync.ts 中 capabilities 赋值逻辑改为：当 remoteModel.capabilities 为 null/undefined/空对象 {} 时均走 resolveCapabilities fallback；2) contextWindow 同理处理；3) 修复后触发一次 sync，验证 DB 中 gpt-4o 的 capabilities 包含 function_calling/vision/json_mode/streaming；4) npm run lint + tsc 通过"
     },
     {
