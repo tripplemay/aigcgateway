@@ -47,7 +47,7 @@
       "title": "E2E 验证",
       "priority": "high",
       "executor": "codex",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) list_models 中 gpt-4o 的 capabilities 包含 function_calling: true；2) image 模型有 supportedSizes 字段；3) list_models 不含已下线模型（doubao-pro-32k 等）；4) image 模型 contextWindow 为 null；5) 对比 DX 审查报告 5.5/10 中 6 个吐槽点的修复情况"
     }
   ]
