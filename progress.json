@@ -1,11 +1,11 @@
 {
-  "status": "verifying",
+  "status": "fixing",
   "user_goal": "bugfix-template-api: Template 创建 API 500 修复",
   "total_features": 3,
   "completed_features": 2,
   "fix_rounds": 0,
   "current_sprint": null,
-  "last_updated": "2026-04-08T05:00:00Z",
+  "last_updated": "2026-04-08T06:30:00Z",
   "reference_docs": [],
   "role_assignments": {
     "planner": "Kimi",
@@ -14,11 +14,24 @@
   },
   "docs": {
     "spec": null,
-    "test_cases": null,
+    "test_cases": "docs/test-cases/bugfix-template-api-local-test-cases-2026-04-08.md",
     "signoff": null,
     "framework_reviewed": false
   },
-  "evaluator_feedback": null,
+  "evaluator_feedback": {
+    "summary": "/api/auth/login 持续 401/502，无法启动模板 API 验证，需先修复登录接口。",
+    "pass_count": 0,
+    "partial_count": 0,
+    "fail_count": 1,
+    "issues": [
+      {
+        "feature_id": "F-BT-03",
+        "result": "FAIL",
+        "description": "本地 L1 环境调用 /api/auth/login (admin/dev 账号) 均返回 401 或 502，无法获取 token 继续模板 API/MCP 测试。",
+        "steps_to_reproduce": "curl -X POST http://localhost:3099/api/auth/login -H 'Content-Type: application/json' -d '{"email":"codex-admin@aigc-gateway.local","password":"Codex@2026!"}'"
+      }
+    ]
+  },
   "generator_handoff": {
     "completed": ["F-BT-01", "F-BT-02"],
     "codex_tasks": ["F-BT-03: E2E 验证"],
