@@ -1,46 +1,70 @@
 {
-  "batch": "frontend-audit",
+  "batch": "frontend-fix-round1",
   "created_at": "2026-04-07",
   "features": [
     {
-      "id": "F-FA-01",
-      "title": "审查：死链/空链 + 交互断裂 + 组件一致性",
+      "id": "F-FF-01",
+      "title": "CreateProjectDialog + Sidebar New Project 修复",
       "priority": "high",
-      "executor": "codex",
+      "executor": "generator",
       "status": "pending",
-      "acceptance": "1) 检查所有 20 个控制台页面的 href='#'、onClick 未绑定、按钮无响应；2) 检查 Dialog/Modal/表单提交/分页/搜索是否工作；3) 检查 @base-ui/react render prop 误用；4) 产出报告列出所有问题"
+      "acceptance": "1) create-project-dialog.tsx 的 DialogTrigger 不再使用 render={<span />}，点击 trigger 能打开 Dialog；2) sidebar.tsx 的 New Project 按钮绑定 CreateProjectDialog 或跳转到创建页；3) 创建项目流程完整可用；4) npm run lint + tsc 通过"
     },
     {
-      "id": "F-FA-02",
-      "title": "审查：空状态体验 + i18n 完整性",
+      "id": "F-FF-02",
+      "title": "未登录路由保护 + role 校验优化",
       "priority": "high",
-      "executor": "codex",
+      "executor": "generator",
       "status": "pending",
-      "acceptance": "1) 各页面无数据时是否有引导文案（非空白页）；2) 检查硬编码文本、translation key 缺失、en.json/zh-CN.json 不同步；3) 产出报告"
+      "acceptance": "1) 控制台 layout 增加服务端或中间件级别的未登录拦截（redirect 到 /login），不依赖纯客户端跳转；2) 前端 role 判断不再直接 atob 信任 localStorage token，改为从 API 获取或至少做 JWT 过期检查；3) Developer 访问 /admin/* 前端路由时被拦截到 dashboard；4) npm run lint + tsc 通过"
     },
     {
-      "id": "F-FA-03",
-      "title": "审查：性能 + 控制台错误 + 响应式",
+      "id": "F-FF-03",
+      "title": "Keys 页死链修复",
       "priority": "medium",
-      "executor": "codex",
+      "executor": "generator",
       "status": "pending",
-      "acceptance": "1) 检查不必要的重渲染、缺少 loading skeleton、N+1 API 调用；2) 页面加载时是否有 JS 报错、React hydration mismatch、404 资源；3) 页面在不同宽度下是否溢出/截断/重叠；4) 产出报告"
+      "acceptance": "1) keys/page.tsx 的 3 处 href='#' 改为实际链接或移除；2) 如果是 footer 占位链接（Privacy/Terms/Status），可直接移除或改为 # with onClick preventDefault + toast 提示；3) npm run lint + tsc 通过"
     },
     {
-      "id": "F-FA-04",
-      "title": "审查：权限边界 + 错误边界 + 数据泄露",
+      "id": "F-FF-04",
+      "title": "i18n 硬编码残留修复",
+      "priority": "medium",
+      "executor": "generator",
+      "status": "pending",
+      "acceptance": "1) models/page.tsx:293 的 'No models found' 改为 useTranslations；2) balance/page.tsx:279 的 'No transactions' 改为 useTranslations；3) en.json 和 zh-CN.json 同步新增对应 key；4) npm run lint + tsc 通过"
+    },
+    {
+      "id": "F-FF-05",
+      "title": "Hook 依赖修复",
+      "priority": "medium",
+      "executor": "generator",
+      "status": "pending",
+      "acceptance": "1) admin/logs/page.tsx:49 的 useEffect 补全 load 依赖；2) admin/users/[id]/page.tsx:30 同上；3) balance/page.tsx:71 同上；4) keys/page.tsx:74 同上；5) npm run lint 无 react-hooks/exhaustive-deps warning；6) npm run lint + tsc 通过"
+    },
+    {
+      "id": "F-FF-06",
+      "title": "doubao-pro-32k 不可用模型处理",
+      "priority": "medium",
+      "executor": "generator",
+      "status": "pending",
+      "acceptance": "1) 排查 doubao-pro-32k 不可用的原因（白名单/channel/健康检查）；2) 从白名单移除或修复 channel 配置使其可用；3) list_models 不再返回实际不可用的模型；4) npm run lint + tsc 通过"
+    },
+    {
+      "id": "F-FF-07",
+      "title": "费用展示精度统一 8 位",
+      "priority": "medium",
+      "executor": "generator",
+      "status": "pending",
+      "acceptance": "1) get_log_detail 的 cost 展示从 .toFixed(4) 改为 .toFixed(8)；2) get_usage_summary 的 cost/totalCost 从 .toFixed(4) 改为 .toFixed(8)；3) get_balance 交易流水的 amount 展示统一精度；4) npm run lint + tsc 通过"
+    },
+    {
+      "id": "F-FF-08",
+      "title": "E2E 验证",
       "priority": "high",
       "executor": "codex",
       "status": "pending",
-      "acceptance": "1) Developer 角色不能访问 Admin 页面；2) 未登录用户不能直接访问控制台路由；3) API 返回 500/403/网络断开时有 error boundary 兜底（非白屏）；4) 非 Admin 用户不能看到其他项目数据；5) 产出报告"
-    },
-    {
-      "id": "F-FA-05",
-      "title": "审查：表单校验一致性 + 设计稿一致性 + 废弃代码",
-      "priority": "medium",
-      "executor": "codex",
-      "status": "pending",
-      "acceptance": "1) 前端校验与后端 API 校验一致（前端放过后端拒绝的情况列出）；2) 有 design-draft/ 原型的页面布局与设计稿一致；3) 未使用组件、console.log、已注释代码块列出；4) 产出报告"
+      "acceptance": "1) CreateProjectDialog 可正常打开并创建项目；2) Sidebar New Project 可用；3) 未登录访问 /dashboard 被拦截到 /login；4) Developer 无法进入 /admin/* 前端页面；5) Keys 页无 href='#' 死链；6) 中文环境下 models 和 balance 页无英文硬编码；7) npm run lint 无 exhaustive-deps warning；8) list_models 不含不可用模型；9) get_log_detail/get_usage_summary/get_balance 费用显示 8 位小数"
     }
   ]
 }

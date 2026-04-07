@@ -1,13 +1,19 @@
 {
-  "status": "verifying",
-  "user_goal": "frontend-audit: 前端全面审查（14 维度，20 个控制台页面）",
-  "total_features": 5,
+  "status": "building",
+  "user_goal": "frontend-fix-round1: 前端审查发现统一修复（权限/交互/i18n/Hook/模型/精度）",
+  "total_features": 8,
   "completed_features": 0,
   "fix_rounds": 0,
   "current_sprint": null,
-  "last_updated": "2026-04-07T10:00:00Z",
-  "reference_docs": [],
-  "role_assignments": null,
+  "last_updated": "2026-04-07T12:00:00Z",
+  "reference_docs": [
+    "docs/test-reports/frontend-audit-verifying-2026-04-07.md"
+  ],
+  "role_assignments": {
+    "planner": "Kimi",
+    "generator": "Johnsong",
+    "evaluator": "Reviewer"
+  },
   "docs": {
     "spec": null,
     "test_cases": null,
