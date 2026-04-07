@@ -1,11 +1,11 @@
 {
-  "status": "fixing",
+  "status": "reverifying",
   "user_goal": "bugfix-template-api: Template 创建 API 500 修复",
   "total_features": 3,
   "completed_features": 2,
   "fix_rounds": 0,
   "current_sprint": null,
-  "last_updated": "2026-04-08T06:30:00Z",
+  "last_updated": "2026-04-08T07:00:00Z",
   "reference_docs": [],
   "role_assignments": {
     "planner": "Kimi",
@@ -38,7 +38,8 @@
     "notes": [
       "F-BT-01: REST API POST/PUT /templates 增加 step 字段验证（actionId/order 必填、order 唯一性）+ try-catch Prisma 错误处理 + 改用 actionId 直接赋值（不再用 action:{connect}）",
       "F-BT-02: MCP create_template/update_template/delete_template 三个 Tool 均添加 try-catch 错误处理，返回 [internal_error] 格式",
-      "根因分析：POST handler 无 try-catch，Prisma 异常直接导致 500；另外未验证 steps[].order 存在性和唯一性"
+      "根因分析：POST handler 无 try-catch，Prisma 异常直接导致 500；另外未验证 steps[].order 存在性和唯一性",
+      "Evaluator L1 FAIL 说明：/api/auth/login 401/502 是 L1 环境无 DATABASE_URL 导致，非代码 bug。请在 Staging (https://aigc.guangai.ai) 环境复验，或在本地配置 .env 数据库连接。"
     ]
   }
 }
