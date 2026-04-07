@@ -12,7 +12,7 @@
   "role_assignments": {
     "planner": "Kimi",
     "generator": "Mark",
-    "evaluator": "Sammi"
+    "evaluator": "Reviewer"
   },
   "docs": {
     "spec": null,
