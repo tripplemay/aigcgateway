@@ -1,5 +1,5 @@
 {
-  "status": "fixing",
+  "status": "reverifying",
   "user_goal": "security-billing-polish: generate_image 脱敏补全 + 最低扣费保护 + 空 content 校验",
   "total_features": 4,
   "completed_features": 3,
