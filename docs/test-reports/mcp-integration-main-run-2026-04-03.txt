@@ -1,0 +1,26 @@
+============================================================
+AIGC Gateway — MCP Integration Test
+MCP: http://localhost:3099/mcp
+Key: pk_81233...
+============================================================
+  1. MCP Initialize... ❌ FAIL: HTTP 401: {"error":"Unauthorized","message":"Invalid or missing API key"}
+  2. List Tools... ❌ FAIL: HTTP 401: {"error":"Unauthorized","message":"Invalid or missing API key"}
+  3. list_models... ❌ FAIL: HTTP 401: {"error":"Unauthorized","message":"Invalid or missing API key"}
+  4. get_balance (before chat)... ❌ FAIL: HTTP 401: {"error":"Unauthorized","message":"Invalid or missing API key"}
+  5. chat (deepseek/v3, MCP)... ❌ FAIL: HTTP 401: {"error":"Unauthorized","message":"Invalid or missing API key"}
+  6. get_balance (after chat)... ❌ FAIL: HTTP 401: {"error":"Unauthorized","message":"Invalid or missing API key"}
+  7. Verify CallLog.source='mcp' (get_log_detail)... ❌ FAIL: HTTP 401: {"error":"Unauthorized","message":"Invalid or missing API key"}
+  8. chat (deepseek/v3, API) for billing comparison... ❌ FAIL: API chat error 401: {"error":{"type":"authentication_error","code":"invalid_api_key","message":"Invalid API key"}}
+  9. Verify billing consistency (MCP vs API)... ❌ FAIL: HTTP 401: {"error":"Unauthorized","message":"Invalid or missing API key"}
+  10. generate_image (normal call)... ❌ FAIL: No image model found from list_models
+  11. Verify CallLog.source='mcp' (generate_image)... ❌ FAIL: HTTP 401: {"error":"Unauthorized","message":"Invalid or missing API key"}
+  12. generate_image (invalid model error)... ❌ FAIL: HTTP 401: {"error":"Unauthorized","message":"Invalid or missing API key"}
+  13. list_logs (model filter: deepseek/v3)... ❌ FAIL: HTTP 401: {"error":"Unauthorized","message":"Invalid or missing API key"}
+  14. list_logs (status filter: success)... ❌ FAIL: HTTP 401: {"error":"Unauthorized","message":"Invalid or missing API key"}
+  15. list_logs (search: 'Say OK')... ❌ FAIL: HTTP 401: {"error":"Unauthorized","message":"Invalid or missing API key"}
+  16. get_log_detail (first chat log)... ❌ FAIL: No traceId from chat step
+  17. get_usage_summary (7d)... ❌ FAIL: HTTP 401: {"error":"Unauthorized","message":"Invalid or missing API key"}
+
+============================================================
+Results: 0 PASS | 17 FAIL | 17 total
+============================================================

@@ -204,6 +204,16 @@ git commit -m "..."
 git push origin main         # 触发 CI，不触发部署
 ```
 
+**推送前遗漏检查（所有角色必须执行）：**
+
+每次 `git push` 之前，必须检查测试产物目录是否有未提交文件：
+
+```bash
+git status --short docs/test-reports/ docs/test-cases/ .auto-memory/
+```
+
+如果有未追踪文件（`??` 开头），必须一并加入当前 commit 或追加一个 commit 再推送。**不得留下未推送的测试产物，否则其他 agent 在远端看不到这些证据。**
+
 进度类文件（progress.json / features.json / .auto-memory/ 等）推 `main` 不触发 CI（paths-ignore 已配置）。
 
 ## 角色动态分配（role_assignments）

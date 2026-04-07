@@ -1,0 +1,34 @@
+============================================================
+AIGC Gateway — MCP Integration Test
+MCP: http://localhost:3099/mcp
+Key: pk_548c8...
+============================================================
+  1. MCP Initialize... (server: aigc-gateway v1.0.0) 
+✅ PASS
+  2. List Tools... (7 tools: list_models, chat, generate_image, list_logs, get_log_detail, get_balance, get_usage_summary) 
+✅ PASS
+  3. list_models... (301 models, image=openrouter/google/gemini-2.5-flash-image) 
+✅ PASS
+  4. get_balance (before chat)... (balance: $50.0000) 
+✅ PASS
+  5. chat (deepseek/v3, MCP)... ❌ FAIL: Unexpected token 'E', "Error: Mis"... is not valid JSON
+  6. get_balance (after chat)... ❌ FAIL: Balance should decrease: before=$50.0000, after=$50.0000
+  7. Verify CallLog.source='mcp' (get_log_detail)... ❌ FAIL: Unexpected token 'C', "Call log w"... is not valid JSON
+  8. chat (deepseek/v3, API) for billing comparison... ❌ FAIL: API chat error 401: {"error":{"type":"authentication_error","code":"auth_failed","message":"Missing Authentication header"}}
+  9. Verify billing consistency (MCP vs API)... ❌ FAIL: Unexpected token 'C', "Call log w"... is not valid JSON
+  10. generate_image (normal call)... ❌ FAIL: Unexpected token 'E', "Error: Mis"... is not valid JSON
+  11. Verify CallLog.source='mcp' (generate_image)... ❌ FAIL: Unexpected token 'C', "Call log w"... is not valid JSON
+  12. generate_image (invalid model error)... (error returned as expected) 
+✅ PASS
+  13. list_logs (model filter: deepseek/v3)... (2 logs, all model=deepseek/v3) 
+✅ PASS
+  14. list_logs (status filter: success)... (0 logs, all status=success) 
+✅ PASS
+  15. list_logs (search: 'Say OK')... ❌ FAIL: No logs found with search term 'Say OK'
+  16. get_log_detail (first chat log)... ❌ FAIL: No traceId from chat step
+  17. get_usage_summary (7d)... (calls: 3, cost: $0.0000) 
+✅ PASS
+
+============================================================
+Results: 8 PASS | 9 FAIL | 17 total
+============================================================

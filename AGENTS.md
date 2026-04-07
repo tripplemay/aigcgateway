@@ -70,6 +70,7 @@ bash scripts/test/codex-wait.sh
 
 - 测试前必须 `git pull --ff-only origin main`
 - 每个阶段结束提交状态机文件 + 测试产物到 main
+- **推送前必须执行 `git status --short docs/test-reports/ docs/test-cases/ .auto-memory/` 确认无遗漏的未追踪文件**
 - 严禁在 commit 中包含产品代码文件
 - 禁止 merge/rebase/cherry-pick/reset/clean 等改写历史操作
 

@@ -1,0 +1,14 @@
+============================================================
+AIGC Gateway — MCP Error Scenario Tests
+============================================================
+  1. Invalid API Key → 401... ✅ PASS
+  2. API Key in URL → 400... ✅ PASS
+  3. Invalid model → isError + available models... (includes list_models hint) 
+✅ PASS
+  4. Cross-project traceId → access denied... ✅ PASS
+  5. Chat with insufficient balance → isError... (balance error detected) 
+✅ PASS
+
+============================================================
+Results: 5 PASS | 0 FAIL
+============================================================

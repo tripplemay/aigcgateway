@@ -1,0 +1,38 @@
+============================================================
+AIGC Gateway — MCP Integration Test
+MCP: https://aigc.guangai.ai/mcp
+Key: pk_388ff...
+============================================================
+  1. MCP Initialize... (server: aigc-gateway v1.0.0) 
+✅ PASS
+  2. List Tools... (7 tools: list_models, chat, generate_image, list_logs, get_log_detail, get_balance, get_usage_summary) 
+✅ PASS
+  3. list_models... (421 models, image=openrouter/google/gemini-2.5-flash-image) 
+✅ PASS
+  4. get_balance (before chat)... (balance: $50.0000) 
+✅ PASS
+  5. chat (deepseek/v3, MCP)... (traceId: trc_ifokwgiajou07nvoekxzz0lp, tokens: 7) 
+✅ PASS
+  6. get_balance (after chat)... ❌ FAIL: Balance should decrease: before=$50.0000, after=$50.0000
+  7. Verify CallLog.source='mcp' (get_log_detail)... (source: mcp) 
+✅ PASS
+  8. chat (deepseek/v3, API) for billing comparison... (traceId: trc_zq15k3g021x77akz023xty34, tokens: 7) 
+✅ PASS
+  9. Verify billing consistency (MCP vs API)... ❌ FAIL: MCP cost was 0, cannot compare
+  10. generate_image (normal call)... ❌ FAIL: No images in response
+  11. Verify CallLog.source='mcp' (generate_image)... ❌ FAIL: Unexpected token 'C', "Call log w"... is not valid JSON
+  12. generate_image (invalid model error)... (error returned as expected) 
+✅ PASS
+  13. list_logs (model filter: deepseek/v3)... (4 logs, all model=deepseek/v3) 
+✅ PASS
+  14. list_logs (status filter: success)... (6 logs, all status=success) 
+✅ PASS
+  15. list_logs (search: 'Say OK')... ❌ FAIL: No logs found with search term 'Say OK'
+  16. get_log_detail (first chat log)... (model: deepseek/v3, status: success) 
+✅ PASS
+  17. get_usage_summary (7d)... (calls: 6, cost: $0.0000) 
+✅ PASS
+
+============================================================
+Results: 12 PASS | 5 FAIL | 17 total
+============================================================

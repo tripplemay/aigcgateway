@@ -1,0 +1,20 @@
+{
+  "batch": "mcp-finops-hardening",
+  "generatedAt": "2026-04-06T17:00:28.649Z",
+  "environment": "http://localhost:3099",
+  "checks": [
+    {
+      "name": "mcp initialize",
+      "ok": true,
+      "detail": "status=200"
+    },
+    {
+      "name": "generate_image invalid size no upstream leak",
+      "ok": false,
+      "detail": "{\"images\":[\"https://example.com/mock.png\"],\"traceId\":\"trc_ydgcccn11gf2ne6zw9b0fzfa\",\"model\":\"openai/gpt-image-1\",\"count\":1}"
+    }
+  ],
+  "fatal": "TypeError: Cannot read properties of undefined (reading 'id')\n    at [stdin]:74:46\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)",
+  "pass": 1,
+  "fail": 2
+}

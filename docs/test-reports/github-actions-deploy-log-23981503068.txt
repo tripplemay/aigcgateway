@@ -1,0 +1,535 @@
+Deploy to Production	Set up job	﻿2026-04-04T15:07:29.1094925Z Current runner version: '2.333.1'
+Deploy to Production	Set up job	2026-04-04T15:07:29.1132205Z ##[group]Runner Image Provisioner
+Deploy to Production	Set up job	2026-04-04T15:07:29.1133757Z Hosted Compute Agent
+Deploy to Production	Set up job	2026-04-04T15:07:29.1134840Z Version: 20260213.493
+Deploy to Production	Set up job	2026-04-04T15:07:29.1136033Z Commit: 5c115507f6dd24b8de37d8bbe0bb4509d0cc0fa3
+Deploy to Production	Set up job	2026-04-04T15:07:29.1137445Z Build Date: 2026-02-13T00:28:41Z
+Deploy to Production	Set up job	2026-04-04T15:07:29.1138756Z Worker ID: {d25bdd85-27a5-4716-ae0a-5f8663387daa}
+Deploy to Production	Set up job	2026-04-04T15:07:29.1140057Z Azure Region: eastus
+Deploy to Production	Set up job	2026-04-04T15:07:29.1141424Z ##[endgroup]
+Deploy to Production	Set up job	2026-04-04T15:07:29.1144358Z ##[group]Operating System
+Deploy to Production	Set up job	2026-04-04T15:07:29.1145530Z Ubuntu
+Deploy to Production	Set up job	2026-04-04T15:07:29.1146542Z 24.04.4
+Deploy to Production	Set up job	2026-04-04T15:07:29.1147455Z LTS
+Deploy to Production	Set up job	2026-04-04T15:07:29.1148499Z ##[endgroup]
+Deploy to Production	Set up job	2026-04-04T15:07:29.1149581Z ##[group]Runner Image
+Deploy to Production	Set up job	2026-04-04T15:07:29.1151023Z Image: ubuntu-24.04
+Deploy to Production	Set up job	2026-04-04T15:07:29.1152273Z Version: 20260329.72.1
+Deploy to Production	Set up job	2026-04-04T15:07:29.1154201Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20260329.72/images/ubuntu/Ubuntu2404-Readme.md
+Deploy to Production	Set up job	2026-04-04T15:07:29.1157396Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20260329.72
+Deploy to Production	Set up job	2026-04-04T15:07:29.1159250Z ##[endgroup]
+Deploy to Production	Set up job	2026-04-04T15:07:29.1161631Z ##[group]GITHUB_TOKEN Permissions
+Deploy to Production	Set up job	2026-04-04T15:07:29.1164682Z Contents: read
+Deploy to Production	Set up job	2026-04-04T15:07:29.1165797Z Metadata: read
+Deploy to Production	Set up job	2026-04-04T15:07:29.1166906Z Packages: read
+Deploy to Production	Set up job	2026-04-04T15:07:29.1167843Z ##[endgroup]
+Deploy to Production	Set up job	2026-04-04T15:07:29.1171270Z Secret source: Actions
+Deploy to Production	Set up job	2026-04-04T15:07:29.1172695Z Prepare workflow directory
+Deploy to Production	Set up job	2026-04-04T15:07:29.1643930Z Prepare all required actions
+Deploy to Production	Set up job	2026-04-04T15:07:29.1698553Z Getting action download info
+Deploy to Production	Set up job	2026-04-04T15:07:29.4679624Z Download action repository 'actions/checkout@v4' (SHA:34e114876b0b11c390a56381ad16ebd13914f8d5)
+Deploy to Production	Set up job	2026-04-04T15:07:29.6098773Z Download action repository 'appleboy/ssh-action@v1' (SHA:0ff4204d59e8e51***8ff73bce53f80d53301dee2)
+Deploy to Production	Set up job	2026-04-04T15:07:30.0071055Z Complete job name: Deploy to Production
+Deploy to Production	Run actions/checkout@v4	﻿2026-04-04T15:07:30.0883822Z ##[group]Run actions/checkout@v4
+Deploy to Production	Run actions/checkout@v4	2026-04-04T15:07:30.0885467Z with:
+Deploy to Production	Run actions/checkout@v4	2026-04-04T15:07:30.0886411Z   repository: tripplemay/aigcgateway
+Deploy to Production	Run actions/checkout@v4	2026-04-04T15:07:30.0887794Z   token: ***
+Deploy to Production	Run actions/checkout@v4	2026-04-04T15:07:30.0888692Z   ssh-strict: true
+Deploy to Production	Run actions/checkout@v4	2026-04-04T15:07:30.0889620Z   ssh-user: git
+Deploy to Production	Run actions/checkout@v4	2026-04-04T15:07:30.0890966Z   persist-credentials: true
+Deploy to Production	Run actions/checkout@v4	2026-04-04T15:07:30.0892125Z   clean: true
+Deploy to Production	Run actions/checkout@v4	2026-04-04T15:07:30.0893540Z   sparse-checkout-cone-mode: true
+Deploy to Production	Run actions/checkout@v4	2026-04-04T15:07:30.0894680Z   fetch-depth: 1
+Deploy to Production	Run actions/checkout@v4	2026-04-04T15:07:30.0895626Z   fetch-tags: false
+Deploy to Production	Run actions/checkout@v4	2026-04-04T15:07:30.0896609Z   show-progress: true
+Deploy to Production	Run actions/checkout@v4	2026-04-04T15:07:30.0897624Z   lfs: false
+Deploy to Production	Run actions/checkout@v4	2026-04-04T15:07:30.0898539Z   submodules: false
+Deploy to Production	Run actions/checkout@v4	2026-04-04T15:07:30.0899529Z   set-safe-directory: true
+Deploy to Production	Run actions/checkout@v4	2026-04-04T15:07:30.0901586Z ##[endgroup]
+Deploy to Production	Run actions/checkout@v4	2026-04-04T15:07:30.2416167Z Syncing repository: tripplemay/aigcgateway
+Deploy to Production	Run actions/checkout@v4	2026-04-04T15:07:30.2591455Z ##[group]Getting Git version info
+Deploy to Production	Run actions/checkout@v4	2026-04-04T15:07:30.2593059Z Working directory is '/home/runner/work/aigcgateway/aigcgateway'
+Deploy to Production	Run actions/checkout@v4	2026-04-04T15:07:30.2675473Z [command]/usr/bin/git version
+Deploy to Production	Run actions/checkout@v4	2026-04-04T15:07:30.2676940Z git version 2.53.0
+Deploy to Production	Run actions/checkout@v4	2026-04-04T15:07:30.2680939Z ##[endgroup]
+Deploy to Production	Run actions/checkout@v4	2026-04-04T15:07:30.2688210Z Temporarily overriding HOME='/home/runner/work/_temp/ad692302-a76d-42ae-8***5-2fb1f8127706' before making global git config changes
+Deploy to Production	Run actions/checkout@v4	2026-04-04T15:07:30.2691378Z Adding repository directory to the temporary git global config as a safe directory
+Deploy to Production	Run actions/checkout@v4	2026-04-04T15:07:30.2693751Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/aigcgateway/aigcgateway
+Deploy to Production	Run actions/checkout@v4	2026-04-04T15:07:30.2698233Z Deleting the contents of '/home/runner/work/aigcgateway/aigcgateway'
+Deploy to Production	Run actions/checkout@v4	2026-04-04T15:07:30.2700841Z ##[group]Initializing the repository
+Deploy to Production	Run actions/checkout@v4	2026-04-04T15:07:30.2702558Z [command]/usr/bin/git init /home/runner/work/aigcgateway/aigcgateway
+Deploy to Production	Run actions/checkout@v4	2026-04-04T15:07:30.2712810Z hint: Using 'master' as the name for the initial branch. This default branch name
+Deploy to Production	Run actions/checkout@v4	2026-04-04T15:07:30.2715489Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+Deploy to Production	Run actions/checkout@v4	2026-04-04T15:07:30.2717039Z hint: to use in all of your new repositories, which will suppress this warning,
+Deploy to Production	Run actions/checkout@v4	2026-04-04T15:07:30.2718502Z hint: call:
+Deploy to Production	Run actions/checkout@v4	2026-04-04T15:07:30.2719305Z hint:
+Deploy to Production	Run actions/checkout@v4	2026-04-04T15:07:30.2720420Z hint: 	git config --global init.defaultBranch <name>
+Deploy to Production	Run actions/checkout@v4	2026-04-04T15:07:30.2721822Z hint:
+Deploy to Production	Run actions/checkout@v4	2026-04-04T15:07:30.2722850Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+Deploy to Production	Run actions/checkout@v4	2026-04-04T15:07:30.2724217Z hint: 'development'. The just-created branch can be renamed via this command:
+Deploy to Production	Run actions/checkout@v4	2026-04-04T15:07:30.2725364Z hint:
+Deploy to Production	Run actions/checkout@v4	2026-04-04T15:07:30.2726181Z hint: 	git branch -m <name>
+Deploy to Production	Run actions/checkout@v4	2026-04-04T15:07:30.2727072Z hint:
+Deploy to Production	Run actions/checkout@v4	2026-04-04T15:07:30.2728055Z hint: Disable this message with "git config set advice.defaultBranchName false"
+Deploy to Production	Run actions/checkout@v4	2026-04-04T15:07:30.2741181Z Initialized empty Git repository in /home/runner/work/aigcgateway/aigcgateway/.git/
+Deploy to Production	Run actions/checkout@v4	2026-04-04T15:07:30.2746626Z [command]/usr/bin/git remote add origin https://github.com/tripplemay/aigcgateway
+Deploy to Production	Run actions/checkout@v4	2026-04-04T15:07:30.2777825Z ##[endgroup]
+Deploy to Production	Run actions/checkout@v4	2026-04-04T15:07:30.2779843Z ##[group]Disabling automatic garbage collection
+Deploy to Production	Run actions/checkout@v4	2026-04-04T15:07:30.2782075Z [command]/usr/bin/git config --local gc.auto 0
+Deploy to Production	Run actions/checkout@v4	2026-04-04T15:07:30.2815489Z ##[endgroup]
+Deploy to Production	Run actions/checkout@v4	2026-04-04T15:07:30.2817119Z ##[group]Setting up auth
+Deploy to Production	Run actions/checkout@v4	2026-04-04T15:07:30.2822509Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+Deploy to Production	Run actions/checkout@v4	2026-04-04T15:07:30.2856649Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+Deploy to Production	Run actions/checkout@v4	2026-04-04T15:07:30.3157050Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+Deploy to Production	Run actions/checkout@v4	2026-04-04T15:07:30.3190237Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+Deploy to Production	Run actions/checkout@v4	2026-04-04T15:07:30.3431401Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+Deploy to Production	Run actions/checkout@v4	2026-04-04T15:07:30.3464176Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+Deploy to Production	Run actions/checkout@v4	2026-04-04T15:07:30.3729882Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+Deploy to Production	Run actions/checkout@v4	2026-04-04T15:07:30.3747971Z ##[endgroup]
+Deploy to Production	Run actions/checkout@v4	2026-04-04T15:07:30.3751662Z ##[group]Fetching the repository
+Deploy to Production	Run actions/checkout@v4	2026-04-04T15:07:30.3759187Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +5cee3d21ce44a87d176d1bea32b5743740aa5578:refs/remotes/origin/main
+Deploy to Production	Run actions/checkout@v4	2026-04-04T15:07:31.8499123Z From https://github.com/tripplemay/aigcgateway
+Deploy to Production	Run actions/checkout@v4	2026-04-04T15:07:31.8501793Z  * [new ref]         5cee3d21ce44a87d176d1bea32b5743740aa5578 -> origin/main
+Deploy to Production	Run actions/checkout@v4	2026-04-04T15:07:31.8539725Z ##[endgroup]
+Deploy to Production	Run actions/checkout@v4	2026-04-04T15:07:31.8542805Z ##[group]Determining the checkout info
+Deploy to Production	Run actions/checkout@v4	2026-04-04T15:07:31.8548366Z ##[endgroup]
+Deploy to Production	Run actions/checkout@v4	2026-04-04T15:07:31.8557959Z [command]/usr/bin/git sparse-checkout disable
+Deploy to Production	Run actions/checkout@v4	2026-04-04T15:07:31.8616326Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+Deploy to Production	Run actions/checkout@v4	2026-04-04T15:07:31.8655320Z ##[group]Checking out the ref
+Deploy to Production	Run actions/checkout@v4	2026-04-04T15:07:31.8667485Z [command]/usr/bin/git checkout --progress --force -B main refs/remotes/origin/main
+Deploy to Production	Run actions/checkout@v4	2026-04-04T15:07:32.0886693Z Switched to a new branch 'main'
+Deploy to Production	Run actions/checkout@v4	2026-04-04T15:07:32.0887386Z branch 'main' set up to track 'origin/main'.
+Deploy to Production	Run actions/checkout@v4	2026-04-04T15:07:32.0907489Z ##[endgroup]
+Deploy to Production	Run actions/checkout@v4	2026-04-04T15:07:32.0973771Z [command]/usr/bin/git log -1 --format=%H
+Deploy to Production	Run actions/checkout@v4	2026-04-04T15:07:32.1009128Z 5cee3d21ce44a87d176d1bea32b5743740aa5578
+Deploy to Production	Deploy via SSH	﻿2026-04-04T15:07:32.1389126Z ##[group]Run appleboy/ssh-action@v1
+Deploy to Production	Deploy via SSH	2026-04-04T15:07:32.1389505Z with:
+Deploy to Production	Deploy via SSH	2026-04-04T15:07:32.1389769Z   host: ***
+Deploy to Production	Deploy via SSH	2026-04-04T15:07:32.1389992Z   port: ***
+Deploy to Production	Deploy via SSH	2026-04-04T15:07:32.1390297Z   username: ***
+Deploy to Production	Deploy via SSH	2026-04-04T15:07:32.1392299Z   key: ***
+Deploy to Production	Deploy via SSH	2026-04-04T15:07:32.1392521Z   command_timeout: 10m
+Deploy to Production	Deploy via SSH	2026-04-04T15:07:32.1394827Z   script: set -e
+Deploy to Production	Deploy via SSH	cd /opt/aigc-gateway
+Deploy to Production	Deploy via SSH	
+Deploy to Production	Deploy via SSH	echo "=== Pull latest code ==="
+Deploy to Production	Deploy via SSH	git fetch origin main
+Deploy to Production	Deploy via SSH	git reset --hard origin/main
+Deploy to Production	Deploy via SSH	
+Deploy to Production	Deploy via SSH	echo "=== Stop app to free memory for build ==="
+Deploy to Production	Deploy via SSH	pm2 stop aigc-gateway 2>/dev/null || true
+Deploy to Production	Deploy via SSH	
+Deploy to Production	Deploy via SSH	echo "=== Clean + Install dependencies ==="
+Deploy to Production	Deploy via SSH	rm -rf node_modules .next
+Deploy to Production	Deploy via SSH	npm ci
+Deploy to Production	Deploy via SSH	
+Deploy to Production	Deploy via SSH	echo "=== Prisma generate + migrate ==="
+Deploy to Production	Deploy via SSH	npx prisma generate
+Deploy to Production	Deploy via SSH	set -a && source .env.production && set +a
+Deploy to Production	Deploy via SSH	npx prisma migrate deploy
+Deploy to Production	Deploy via SSH	
+Deploy to Production	Deploy via SSH	echo "=== Build ==="
+Deploy to Production	Deploy via SSH	npm run build
+Deploy to Production	Deploy via SSH	
+Deploy to Production	Deploy via SSH	echo "=== Copy static to standalone ==="
+Deploy to Production	Deploy via SSH	cp -r .next/static .next/standalone/.next/static
+Deploy to Production	Deploy via SSH	mkdir -p .next/standalone/public
+Deploy to Production	Deploy via SSH	
+Deploy to Production	Deploy via SSH	echo "=== Restart PM2 ==="
+Deploy to Production	Deploy via SSH	pm2 restart aigc-gateway || pm2 start ecosystem.config.cjs
+Deploy to Production	Deploy via SSH	
+Deploy to Production	Deploy via SSH	echo "=== Waiting for app ==="
+Deploy to Production	Deploy via SSH	sleep 3
+Deploy to Production	Deploy via SSH	
+Deploy to Production	Deploy via SSH	2026-04-04T15:07:32.1397491Z   protocol: tcp
+Deploy to Production	Deploy via SSH	2026-04-04T15:07:32.1397721Z   timeout: 30s
+Deploy to Production	Deploy via SSH	2026-04-04T15:07:32.1397957Z   proxy_port: ***
+Deploy to Production	Deploy via SSH	2026-04-04T15:07:32.1398200Z   proxy_protocol: tcp
+Deploy to Production	Deploy via SSH	2026-04-04T15:07:32.1398452Z   proxy_timeout: 30s
+Deploy to Production	Deploy via SSH	2026-04-04T15:07:32.1398691Z   curl_insecure: false
+Deploy to Production	Deploy via SSH	2026-04-04T15:07:32.1398939Z   capture_stdout: false
+Deploy to Production	Deploy via SSH	2026-04-04T15:07:32.1399204Z ##[endgroup]
+Deploy to Production	Deploy via SSH	2026-04-04T15:07:32.1493793Z ##[group]Run echo "$GITHUB_ACTION_PATH" >> $GITHUB_PATH
+Deploy to Production	Deploy via SSH	2026-04-04T15:07:32.1494277Z [36;1mecho "$GITHUB_ACTION_PATH" >> $GITHUB_PATH[0m
+Deploy to Production	Deploy via SSH	2026-04-04T15:07:32.1526228Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+Deploy to Production	Deploy via SSH	2026-04-04T15:07:32.1526624Z env:
+Deploy to Production	Deploy via SSH	2026-04-04T15:07:32.1526953Z   GITHUB_ACTION_PATH: /home/runner/work/_actions/appleboy/ssh-action/v1
+Deploy to Production	Deploy via SSH	2026-04-04T15:07:32.1527343Z ##[endgroup]
+Deploy to Production	Deploy via SSH	2026-04-04T15:07:32.1650085Z ##[group]Run entrypoint.sh
+Deploy to Production	Deploy via SSH	2026-04-04T15:07:32.1650378Z [36;1mentrypoint.sh[0m
+Deploy to Production	Deploy via SSH	2026-04-04T15:07:32.1677761Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+Deploy to Production	Deploy via SSH	2026-04-04T15:07:32.1678157Z env:
+Deploy to Production	Deploy via SSH	2026-04-04T15:07:32.1678487Z   GITHUB_ACTION_PATH: /home/runner/work/_actions/appleboy/ssh-action/v1
+Deploy to Production	Deploy via SSH	2026-04-04T15:07:32.1678923Z   INPUT_HOST: ***
+Deploy to Production	Deploy via SSH	2026-04-04T15:07:32.1679163Z   INPUT_PORT: ***
+Deploy to Production	Deploy via SSH	2026-04-04T15:07:32.1679402Z   INPUT_PROTOCOL: tcp
+Deploy to Production	Deploy via SSH	2026-04-04T15:07:32.1679660Z   INPUT_USERNAME: ***
+Deploy to Production	Deploy via SSH	2026-04-04T15:07:32.1679899Z   INPUT_PASSWORD: 
+Deploy to Production	Deploy via SSH	2026-04-04T15:07:32.1680135Z   INPUT_PASSPHRASE: 
+Deploy to Production	Deploy via SSH	2026-04-04T15:07:32.1682144Z   INPUT_KEY: ***
+Deploy to Production	Deploy via SSH	2026-04-04T15:07:32.1682402Z   INPUT_KEY_PATH: 
+Deploy to Production	Deploy via SSH	2026-04-04T15:07:32.1682636Z   INPUT_FINGERPRINT: 
+Deploy to Production	Deploy via SSH	2026-04-04T15:07:32.1682879Z   INPUT_PROXY_HOST: 
+Deploy to Production	Deploy via SSH	2026-04-04T15:07:32.1683149Z   INPUT_PROXY_PORT: ***
+Deploy to Production	Deploy via SSH	2026-04-04T15:07:32.1683410Z   INPUT_PROXY_USERNAME: 
+Deploy to Production	Deploy via SSH	2026-04-04T15:07:32.1683662Z   INPUT_PROXY_PASSWORD: 
+Deploy to Production	Deploy via SSH	2026-04-04T15:07:32.1683926Z   INPUT_PROXY_PASSPHRASE: 
+Deploy to Production	Deploy via SSH	2026-04-04T15:07:32.1684178Z   INPUT_PROXY_KEY: 
+Deploy to Production	Deploy via SSH	2026-04-04T15:07:32.1684415Z   INPUT_PROXY_KEY_PATH: 
+Deploy to Production	Deploy via SSH	2026-04-04T15:07:32.1684673Z   INPUT_PROXY_FINGERPRINT: 
+Deploy to Production	Deploy via SSH	2026-04-04T15:07:32.1684939Z   INPUT_TIMEOUT: 30s
+Deploy to Production	Deploy via SSH	2026-04-04T15:07:32.1685179Z   INPUT_PROXY_TIMEOUT: 30s
+Deploy to Production	Deploy via SSH	2026-04-04T15:07:32.1685437Z   INPUT_COMMAND_TIMEOUT: 10m
+Deploy to Production	Deploy via SSH	2026-04-04T15:07:32.1687765Z   INPUT_SCRIPT: set -e
+Deploy to Production	Deploy via SSH	cd /opt/aigc-gateway
+Deploy to Production	Deploy via SSH	
+Deploy to Production	Deploy via SSH	echo "=== Pull latest code ==="
+Deploy to Production	Deploy via SSH	git fetch origin main
+Deploy to Production	Deploy via SSH	git reset --hard origin/main
+Deploy to Production	Deploy via SSH	
+Deploy to Production	Deploy via SSH	echo "=== Stop app to free memory for build ==="
+Deploy to Production	Deploy via SSH	pm2 stop aigc-gateway 2>/dev/null || true
+Deploy to Production	Deploy via SSH	
+Deploy to Production	Deploy via SSH	echo "=== Clean + Install dependencies ==="
+Deploy to Production	Deploy via SSH	rm -rf node_modules .next
+Deploy to Production	Deploy via SSH	npm ci
+Deploy to Production	Deploy via SSH	
+Deploy to Production	Deploy via SSH	echo "=== Prisma generate + migrate ==="
+Deploy to Production	Deploy via SSH	npx prisma generate
+Deploy to Production	Deploy via SSH	set -a && source .env.production && set +a
+Deploy to Production	Deploy via SSH	npx prisma migrate deploy
+Deploy to Production	Deploy via SSH	
+Deploy to Production	Deploy via SSH	echo "=== Build ==="
+Deploy to Production	Deploy via SSH	npm run build
+Deploy to Production	Deploy via SSH	
+Deploy to Production	Deploy via SSH	echo "=== Copy static to standalone ==="
+Deploy to Production	Deploy via SSH	cp -r .next/static .next/standalone/.next/static
+Deploy to Production	Deploy via SSH	mkdir -p .next/standalone/public
+Deploy to Production	Deploy via SSH	
+Deploy to Production	Deploy via SSH	echo "=== Restart PM2 ==="
+Deploy to Production	Deploy via SSH	pm2 restart aigc-gateway || pm2 start ecosystem.config.cjs
+Deploy to Production	Deploy via SSH	
+Deploy to Production	Deploy via SSH	echo "=== Waiting for app ==="
+Deploy to Production	Deploy via SSH	sleep 3
+Deploy to Production	Deploy via SSH	
+Deploy to Production	Deploy via SSH	2026-04-04T15:07:32.1690225Z   INPUT_SCRIPT_FILE: 
+Deploy to Production	Deploy via SSH	2026-04-04T15:07:32.1690719Z   INPUT_ENVS: 
+Deploy to Production	Deploy via SSH	2026-04-04T15:07:32.1691042Z   INPUT_ENVS_FORMAT: 
+Deploy to Production	Deploy via SSH	2026-04-04T15:07:32.1691506Z   INPUT_DEBUG: 
+Deploy to Production	Deploy via SSH	2026-04-04T15:07:32.1691732Z   INPUT_ALL_ENVS: 
+Deploy to Production	Deploy via SSH	2026-04-04T15:07:32.1691960Z   INPUT_REQUEST_PTY: 
+Deploy to Production	Deploy via SSH	2026-04-04T15:07:32.1692205Z   INPUT_USE_INSECURE_CIPHER: 
+Deploy to Production	Deploy via SSH	2026-04-04T15:07:32.1692472Z   INPUT_CIPHER: 
+Deploy to Production	Deploy via SSH	2026-04-04T15:07:32.1692714Z   INPUT_PROXY_USE_INSECURE_CIPHER: 
+Deploy to Production	Deploy via SSH	2026-04-04T15:07:32.1692997Z   INPUT_PROXY_CIPHER: 
+Deploy to Production	Deploy via SSH	2026-04-04T15:07:32.1693241Z   INPUT_SYNC: 
+Deploy to Production	Deploy via SSH	2026-04-04T15:07:32.1693466Z   INPUT_CAPTURE_STDOUT: false
+Deploy to Production	Deploy via SSH	2026-04-04T15:07:32.1693903Z   INPUT_CURL_INSECURE: false
+Deploy to Production	Deploy via SSH	2026-04-04T15:07:32.1694194Z   DRONE_SSH_VERSION: 
+Deploy to Production	Deploy via SSH	2026-04-04T15:07:32.1694427Z ##[endgroup]
+Deploy to Production	Deploy via SSH	2026-04-04T15:07:32.1796741Z Downloading drone-ssh-1.8.2-linux-amd64 from https://github.com/appleboy/drone-ssh/releases/download/v1.8.2
+Deploy to Production	Deploy via SSH	2026-04-04T15:07:32.2974107Z ======= CLI Version Information =======
+Deploy to Production	Deploy via SSH	2026-04-04T15:07:32.2990904Z Drone SSH version 1.8.2
+Deploy to Production	Deploy via SSH	2026-04-04T15:07:32.2995433Z =======================================
+Deploy to Production	Deploy via SSH	2026-04-04T15:07:34.5455739Z === Pull latest code ===
+Deploy to Production	Deploy via SSH	2026-04-04T15:07:35.5362825Z From https://github.com/tripplemay/aigcgateway
+Deploy to Production	Deploy via SSH	2026-04-04T15:07:35.5363744Z  * branch            main       -> FETCH_HEAD
+Deploy to Production	Deploy via SSH	2026-04-04T15:07:35.5473895Z    c74026c..5cee3d2  main       -> origin/main
+Deploy to Production	Deploy via SSH	2026-04-04T15:07:35.6178302Z HEAD is now at 5cee3d2 chore: 服务器迁移修复证据 + Nginx IP 直连修复
+Deploy to Production	Deploy via SSH	2026-04-04T15:07:35.6184865Z === Stop app to free memory for build ===
+Deploy to Production	Deploy via SSH	2026-04-04T15:07:35.8973025Z [PM2] Applying action stopProcessId on app [aigc-gateway](ids: [ 0, 1 ])
+Deploy to Production	Deploy via SSH	2026-04-04T15:07:36.0153154Z [PM2] [aigc-gateway](0) ✓
+Deploy to Production	Deploy via SSH	2026-04-04T15:07:36.1299948Z [PM2] [aigc-gateway](1) ✓
+Deploy to Production	Deploy via SSH	2026-04-04T15:07:36.1343173Z ┌────┬─────────────────┬─────────────┬─────────┬─────────┬──────────┬────────┬──────┬───────────┬──────────┬──────────┬──────────┬──────────┐
+Deploy to Production	Deploy via SSH	2026-04-04T15:07:36.1345237Z │ id │ name            │ namespace   │ version │ mode    │ pid      │ uptime │ ↺    │ status    │ cpu      │ mem      │ user     │ watching │
+Deploy to Production	Deploy via SSH	2026-04-04T15:07:36.1347220Z ├────┼─────────────────┼─────────────┼─────────┼─────────┼──────────┼────────┼──────┼───────────┼──────────┼──────────┼──────────┼──────────┤
+Deploy to Production	Deploy via SSH	2026-04-04T15:07:36.1348948Z │ 0  │ aigc-gateway    │ default     │ 0.1.0   │ cluster │ 0        │ 0      │ 0    │ stopped   │ 0%       │ 0b       │ tripple… │ disabled │
+Deploy to Production	Deploy via SSH	2026-04-04T15:07:36.1351237Z │ 1  │ aigc-gateway    │ default     │ 0.1.0   │ cluster │ 0        │ 0      │ 0    │ stopped   │ 0%       │ 0b       │ tripple… │ disabled │
+Deploy to Production	Deploy via SSH	2026-04-04T15:07:36.1353158Z └────┴─────────────────┴─────────────┴─────────┴─────────┴──────────┴────────┴──────┴───────────┴──────────┴──────────┴──────────┴──────────┘
+Deploy to Production	Deploy via SSH	2026-04-04T15:07:36.1431946Z === Clean + Install dependencies ===
+Deploy to Production	Deploy via SSH	2026-04-04T15:07:53.1350727Z npm warn deprecated inflight@1.0.6: This module is not supported, and leaks memory. Do not use it. Check out lru-cache if you want a good and tested way to coalesce async requests by a key value, which is much more comprehensive and powerful.
+Deploy to Production	Deploy via SSH	2026-04-04T15:07:53.4855573Z npm warn deprecated @humanwhocodes/config-array@0.13.0: Use @eslint/config-array instead
+Deploy to Production	Deploy via SSH	2026-04-04T15:07:53.5074087Z npm warn deprecated rimraf@3.0.2: Rimraf versions prior to v4 are no longer supported
+Deploy to Production	Deploy via SSH	2026-04-04T15:07:53.7413881Z npm warn deprecated glob@7.2.3: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
+Deploy to Production	Deploy via SSH	2026-04-04T15:07:54.0826621Z npm warn deprecated @humanwhocodes/object-schema@2.0.3: Use @eslint/object-schema instead
+Deploy to Production	Deploy via SSH	2026-04-04T15:07:57.0081980Z npm warn deprecated node-domexception@1.0.0: Use your platform's native DOMException instead
+Deploy to Production	Deploy via SSH	2026-04-04T15:08:00.4436414Z npm warn deprecated glob@10.3.10: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
+Deploy to Production	Deploy via SSH	2026-04-04T15:08:06.8792868Z npm warn deprecated eslint@8.57.1: This version is no longer supported. Please see https://eslint.org/version-support for other options.
+Deploy to Production	Deploy via SSH	2026-04-04T15:08:28.5878096Z added 813 packages, and audited 814 packages in 50s
+Deploy to Production	Deploy via SSH	2026-04-04T15:08:28.5892296Z 259 packages are looking for funding
+Deploy to Production	Deploy via SSH	2026-04-04T15:08:28.5893234Z   run `npm fund` for details
+Deploy to Production	Deploy via SSH	2026-04-04T15:08:28.8573952Z 8 high severity vulnerabilities
+Deploy to Production	Deploy via SSH	2026-04-04T15:08:28.8574692Z To address issues that do not require attention, run:
+Deploy to Production	Deploy via SSH	2026-04-04T15:08:28.8576010Z   npm audit fix
+Deploy to Production	Deploy via SSH	2026-04-04T15:08:28.8578544Z To address all issues (including breaking changes), run:
+Deploy to Production	Deploy via SSH	2026-04-04T15:08:28.8581024Z   npm audit fix --force
+Deploy to Production	Deploy via SSH	2026-04-04T15:08:28.8581847Z Run `npm audit` for details.
+Deploy to Production	Deploy via SSH	2026-04-04T15:08:29.0181265Z === Prisma generate + migrate ===
+Deploy to Production	Deploy via SSH	2026-04-04T15:08:30.7509109Z warn The configuration property `package.json#prisma` is deprecated and will be removed in Prisma 7. Please migrate to a Prisma config file (e.g., `prisma.config.ts`).
+Deploy to Production	Deploy via SSH	2026-04-04T15:08:30.7511970Z For more information, see: https://pris.ly/prisma-config
+Deploy to Production	Deploy via SSH	2026-04-04T15:08:31.3283064Z Prisma schema loaded from prisma/schema.prisma
+Deploy to Production	Deploy via SSH	2026-04-04T15:08:32.3947380Z ✔ Generated Prisma Client (v6.19.2) to ./node_modules/@prisma/client in 504ms
+Deploy to Production	Deploy via SSH	2026-04-04T15:08:32.3948970Z Start by importing your Prisma Client (See: https://pris.ly/d/importing-client)
+Deploy to Production	Deploy via SSH	2026-04-04T15:08:32.3950813Z Tip: Interested in query caching in just a few lines of code? Try Accelerate today! https://pris.ly/tip-3-accelerate
+Deploy to Production	Deploy via SSH	2026-04-04T15:08:34.1637323Z warn The configuration property `package.json#prisma` is deprecated and will be removed in Prisma 7. Please migrate to a Prisma config file (e.g., `prisma.config.ts`).
+Deploy to Production	Deploy via SSH	2026-04-04T15:08:34.1639652Z For more information, see: https://pris.ly/prisma-config
+Deploy to Production	Deploy via SSH	2026-04-04T15:08:34.7015226Z Prisma schema loaded from prisma/schema.prisma
+Deploy to Production	Deploy via SSH	2026-04-04T15:08:34.7124141Z Datasource "db": PostgreSQL database "aigc_gateway", schema "public" at "127.0.0.1:5432"
+Deploy to Production	Deploy via SSH	2026-04-04T15:08:34.8481568Z 13 migrations found in prisma/migrations
+Deploy to Production	Deploy via SSH	2026-04-04T15:08:34.9675361Z No pending migrations to apply.
+Deploy to Production	Deploy via SSH	2026-04-04T15:08:35.0098717Z === Build ===
+Deploy to Production	Deploy via SSH	2026-04-04T15:08:35.1833368Z > aigc-gateway@0.1.0 build
+Deploy to Production	Deploy via SSH	2026-04-04T15:08:35.1834274Z > next build
+Deploy to Production	Deploy via SSH	2026-04-04T15:08:36.1609378Z   ▲ Next.js 14.2.35
+Deploy to Production	Deploy via SSH	2026-04-04T15:08:36.1612810Z   - Environments: .env.production
+Deploy to Production	Deploy via SSH	2026-04-04T15:08:36.1614116Z   - Experiments (use with caution):
+Deploy to Production	Deploy via SSH	2026-04-04T15:08:36.1615182Z     · instrumentationHook
+Deploy to Production	Deploy via SSH	2026-04-04T15:08:36.2530050Z    Creating an optimized production build ...
+Deploy to Production	Deploy via SSH	2026-04-04T15:09:37.2922221Z  ✓ Compiled successfully
+Deploy to Production	Deploy via SSH	2026-04-04T15:09:37.2930401Z    Linting and checking validity of types ...
+Deploy to Production	Deploy via SSH	2026-04-04T15:09:52.5959559Z ./src/app/(console)/admin/logs/page.tsx
+Deploy to Production	Deploy via SSH	2026-04-04T15:09:52.5961869Z 49:6  Warning: React Hook useEffect has a missing dependency: 'load'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+Deploy to Production	Deploy via SSH	2026-04-04T15:09:52.5963860Z ./src/app/(console)/admin/users/[id]/page.tsx
+Deploy to Production	Deploy via SSH	2026-04-04T15:09:52.5965132Z 30:32  Warning: React Hook useEffect has a missing dependency: 'load'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+Deploy to Production	Deploy via SSH	2026-04-04T15:09:52.5966343Z ./src/app/(console)/balance/page.tsx
+Deploy to Production	Deploy via SSH	2026-04-04T15:09:52.5967338Z 71:6  Warning: React Hook useEffect has a missing dependency: 'load'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+Deploy to Production	Deploy via SSH	2026-04-04T15:09:52.5968175Z ./src/app/(console)/keys/page.tsx
+Deploy to Production	Deploy via SSH	2026-04-04T15:09:52.5968971Z 74:6  Warning: React Hook useEffect has a missing dependency: 'load'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+Deploy to Production	Deploy via SSH	2026-04-04T15:09:52.5969815Z ./src/app/layout.tsx
+Deploy to Production	Deploy via SSH	2026-04-04T15:09:52.5971108Z 23:9  Warning: Custom fonts not added in `pages/_document.js` will only load for a single page. This is discouraged. See: https://nextjs.org/docs/messages/no-page-custom-font  @next/next/no-page-custom-font
+Deploy to Production	Deploy via SSH	2026-04-04T15:09:52.5972600Z info  - Need to disable some ESLint rules? Learn more here: https://nextjs.org/docs/basic-features/eslint#disabling-rules
+Deploy to Production	Deploy via SSH	2026-04-04T15:10:10.2169053Z    Collecting page data ...
+Deploy to Production	Deploy via SSH	2026-04-04T15:10:11.8891750Z [redis] connected
+Deploy to Production	Deploy via SSH	2026-04-04T15:10:16.6060452Z    Generating static pages (0/24) ...
+Deploy to Production	Deploy via SSH	2026-04-04T15:10:18.8160037Z    Generating static pages (6/24) 
+Deploy to Production	Deploy via SSH	2026-04-04T15:10:19.5167460Z    Generating static pages (12/24) 
+Deploy to Production	Deploy via SSH	2026-04-04T15:10:20.3761669Z    Generating static pages (18/24) 
+Deploy to Production	Deploy via SSH	2026-04-04T15:10:21.3342613Z  ✓ Generating static pages (24/24)
+Deploy to Production	Deploy via SSH	2026-04-04T15:10:22.2200347Z    Finalizing page optimization ...
+Deploy to Production	Deploy via SSH	2026-04-04T15:10:22.2203755Z    Collecting build traces ...
+Deploy to Production	Deploy via SSH	2026-04-04T15:10:44.6057378Z Route (app)                                                   Size     First Load JS
+Deploy to Production	Deploy via SSH	2026-04-04T15:10:44.6059519Z ┌ ○ /                                                         587 B          88.1 kB
+Deploy to Production	Deploy via SSH	2026-04-04T15:10:44.6061043Z ├ ○ /_not-found                                               880 B          88.4 kB
+Deploy to Production	Deploy via SSH	2026-04-04T15:10:44.6063674Z ├ ○ /admin/health                                             2.47 kB         120 kB
+Deploy to Production	Deploy via SSH	2026-04-04T15:10:44.6065586Z ├ ○ /admin/logs                                               2.85 kB         111 kB
+Deploy to Production	Deploy via SSH	2026-04-04T15:10:44.6066617Z ├ ○ /admin/models                                             5.69 kB         129 kB
+Deploy to Production	Deploy via SSH	2026-04-04T15:10:44.6070239Z ├ ○ /admin/providers                                          8.91 kB         129 kB
+Deploy to Production	Deploy via SSH	2026-04-04T15:10:44.6090149Z ├ ○ /admin/templates                                          3.47 kB         112 kB
+Deploy to Production	Deploy via SSH	2026-04-04T15:10:44.6091671Z ├ ○ /admin/usage                                              2.51 kB         ***6 kB
+Deploy to Production	Deploy via SSH	2026-04-04T15:10:44.6092540Z ├ ○ /admin/users                                              1.57 kB         118 kB
+Deploy to Production	Deploy via SSH	2026-04-04T15:10:44.6093474Z ├ ƒ /admin/users/[id]                                         2.59 kB         129 kB
+Deploy to Production	Deploy via SSH	2026-04-04T15:10:44.6094388Z ├ ƒ /api/admin/channels                                       0 B                0 B
+Deploy to Production	Deploy via SSH	2026-04-04T15:10:44.6095317Z ├ ƒ /api/admin/channels/[id]                                  0 B                0 B
+Deploy to Production	Deploy via SSH	2026-04-04T15:10:44.6096162Z ├ ƒ /api/admin/config                                         0 B                0 B
+Deploy to Production	Deploy via SSH	2026-04-04T15:10:44.6096683Z ├ ƒ /api/admin/finance                                        0 B                0 B
+Deploy to Production	Deploy via SSH	2026-04-04T15:10:44.6097193Z ├ ƒ /api/admin/health                                         0 B                0 B
+Deploy to Production	Deploy via SSH	2026-04-04T15:10:44.6097729Z ├ ƒ /api/admin/health/[channelId]/check                       0 B                0 B
+Deploy to Production	Deploy via SSH	2026-04-04T15:10:44.6098261Z ├ ƒ /api/admin/logs                                           0 B                0 B
+Deploy to Production	Deploy via SSH	2026-04-04T15:10:44.6098760Z ├ ƒ /api/admin/logs/[traceId]                                 0 B                0 B
+Deploy to Production	Deploy via SSH	2026-04-04T15:10:44.6099271Z ├ ƒ /api/admin/logs/search                                    0 B                0 B
+Deploy to Production	Deploy via SSH	2026-04-04T15:10:44.6099782Z ├ ƒ /api/admin/models                                         0 B                0 B
+Deploy to Production	Deploy via SSH	2026-04-04T15:10:44.6100300Z ├ ƒ /api/admin/models-channels                                0 B                0 B
+Deploy to Production	Deploy via SSH	2026-04-04T15:10:44.6101620Z ├ ƒ /api/admin/models/[id]                                    0 B                0 B
+Deploy to Production	Deploy via SSH	2026-04-04T15:10:44.6102170Z ├ ƒ /api/admin/providers                                      0 B                0 B
+Deploy to Production	Deploy via SSH	2026-04-04T15:10:44.6102694Z ├ ƒ /api/admin/providers/[id]                                 0 B                0 B
+Deploy to Production	Deploy via SSH	2026-04-04T15:10:44.6103269Z ├ ƒ /api/admin/providers/[id]/config                          0 B                0 B
+Deploy to Production	Deploy via SSH	2026-04-04T15:10:44.6103971Z ├ ƒ /api/admin/sync-models                                    0 B                0 B
+Deploy to Production	Deploy via SSH	2026-04-04T15:10:44.6104520Z ├ ƒ /api/admin/sync-status                                    0 B                0 B
+Deploy to Production	Deploy via SSH	2026-04-04T15:10:44.6105049Z ├ ƒ /api/admin/templates                                      0 B                0 B
+Deploy to Production	Deploy via SSH	2026-04-04T15:10:44.6105588Z ├ ƒ /api/admin/templates/[templateId]                         0 B                0 B
+Deploy to Production	Deploy via SSH	2026-04-04T15:10:44.6106187Z ├ ƒ /api/admin/templates/[templateId]/active-version          0 B                0 B
+Deploy to Production	Deploy via SSH	2026-04-04T15:10:44.6106789Z ├ ƒ /api/admin/templates/[templateId]/versions                0 B                0 B
+Deploy to Production	Deploy via SSH	2026-04-04T15:10:44.6107333Z ├ ƒ /api/admin/usage                                          0 B                0 B
+Deploy to Production	Deploy via SSH	2026-04-04T15:10:44.6107841Z ├ ƒ /api/admin/usage/by-model                                 0 B                0 B
+Deploy to Production	Deploy via SSH	2026-04-04T15:10:44.6108378Z ├ ƒ /api/admin/usage/by-provider                              0 B                0 B
+Deploy to Production	Deploy via SSH	2026-04-04T15:10:44.6108902Z ├ ƒ /api/admin/users                                          0 B                0 B
+Deploy to Production	Deploy via SSH	2026-04-04T15:10:44.6109386Z ├ ƒ /api/admin/users/[id]                                     0 B                0 B
+Deploy to Production	Deploy via SSH	2026-04-04T15:10:44.6109917Z ├ ƒ /api/admin/users/[id]/projects/[projectId]/recharge       0 B                0 B
+Deploy to Production	Deploy via SSH	2026-04-04T15:10:44.6110724Z ├ ƒ /api/auth/change-password                                 0 B                0 B
+Deploy to Production	Deploy via SSH	2026-04-04T15:10:44.6111270Z ├ ƒ /api/auth/login                                           0 B                0 B
+Deploy to Production	Deploy via SSH	2026-04-04T15:10:44.6111776Z ├ ƒ /api/auth/profile                                         0 B                0 B
+Deploy to Production	Deploy via SSH	2026-04-04T15:10:44.6112274Z ├ ƒ /api/auth/register                                        0 B                0 B
+Deploy to Production	Deploy via SSH	2026-04-04T15:10:44.6112782Z ├ ƒ /api/auth/verify-email                                    0 B                0 B
+Deploy to Production	Deploy via SSH	2026-04-04T15:10:44.6113270Z ├ ƒ /api/mcp                                                  0 B                0 B
+Deploy to Production	Deploy via SSH	2026-04-04T15:10:44.6113740Z ├ ƒ /api/projects                                             0 B                0 B
+Deploy to Production	Deploy via SSH	2026-04-04T15:10:44.6114220Z ├ ƒ /api/projects/[id]                                        0 B                0 B
+Deploy to Production	Deploy via SSH	2026-04-04T15:10:44.6114728Z ├ ƒ /api/projects/[id]/balance                                0 B                0 B
+Deploy to Production	Deploy via SSH	2026-04-04T15:10:44.6115243Z ├ ƒ /api/projects/[id]/keys                                   0 B                0 B
+Deploy to Production	Deploy via SSH	2026-04-04T15:10:44.6115758Z ├ ƒ /api/projects/[id]/keys/[keyId]                           0 B                0 B
+Deploy to Production	Deploy via SSH	2026-04-04T15:10:44.6116275Z ├ ƒ /api/projects/[id]/logs                                   0 B                0 B
+Deploy to Production	Deploy via SSH	2026-04-04T15:10:44.6116783Z ├ ƒ /api/projects/[id]/logs/[traceId]                         0 B                0 B
+Deploy to Production	Deploy via SSH	2026-04-04T15:10:44.6117320Z ├ ƒ /api/projects/[id]/logs/[traceId]/quality                 0 B                0 B
+Deploy to Production	Deploy via SSH	2026-04-04T15:10:44.6117854Z ├ ƒ /api/projects/[id]/logs/search                            0 B                0 B
+Deploy to Production	Deploy via SSH	2026-04-04T15:10:44.6118387Z ├ ƒ /api/projects/[id]/recharge                               0 B                0 B
+Deploy to Production	Deploy via SSH	2026-04-04T15:10:44.6118918Z ├ ƒ /api/projects/[id]/templates                              0 B                0 B
+Deploy to Production	Deploy via SSH	2026-04-04T15:10:44.6119457Z ├ ƒ /api/projects/[id]/templates/[templateId]                 0 B                0 B
+Deploy to Production	Deploy via SSH	2026-04-04T15:10:44.6120028Z ├ ƒ /api/projects/[id]/templates/[templateId]/active-version  0 B                0 B
+Deploy to Production	Deploy via SSH	2026-04-04T15:10:44.6120838Z ├ ƒ /api/projects/[id]/templates/[templateId]/versions        0 B                0 B
+Deploy to Production	Deploy via SSH	2026-04-04T15:10:44.6121634Z ├ ƒ /api/projects/[id]/templates/fork                         0 B                0 B
+Deploy to Production	Deploy via SSH	2026-04-04T15:10:44.6122184Z ├ ƒ /api/projects/[id]/transactions                           0 B                0 B
+Deploy to Production	Deploy via SSH	2026-04-04T15:10:44.6122708Z ├ ƒ /api/projects/[id]/usage                                  0 B                0 B
+Deploy to Production	Deploy via SSH	2026-04-04T15:10:44.6123231Z ├ ƒ /api/projects/[id]/usage/by-model                         0 B                0 B
+Deploy to Production	Deploy via SSH	2026-04-04T15:10:44.6123876Z ├ ƒ /api/projects/[id]/usage/daily                            0 B                0 B
+Deploy to Production	Deploy via SSH	2026-04-04T15:10:44.6124404Z ├ ƒ /api/public-templates                                     0 B                0 B
+Deploy to Production	Deploy via SSH	2026-04-04T15:10:44.6124939Z ├ ƒ /api/v1/chat/completions                                  0 B                0 B
+Deploy to Production	Deploy via SSH	2026-04-04T15:10:44.6125464Z ├ ƒ /api/v1/images/generations                                0 B                0 B
+Deploy to Production	Deploy via SSH	2026-04-04T15:10:44.6125962Z ├ ƒ /api/v1/models                                            0 B                0 B
+Deploy to Production	Deploy via SSH	2026-04-04T15:10:44.6126467Z ├ ƒ /api/webhooks/alipay                                      0 B                0 B
+Deploy to Production	Deploy via SSH	2026-04-04T15:10:44.6126972Z ├ ƒ /api/webhooks/wechat                                      0 B                0 B
+Deploy to Production	Deploy via SSH	2026-04-04T15:10:44.6127458Z ├ ○ /balance                                                  6.23 kB         155 kB
+Deploy to Production	Deploy via SSH	2026-04-04T15:10:44.6127957Z ├ ○ /dashboard                                                6.*** kB         276 kB
+Deploy to Production	Deploy via SSH	2026-04-04T15:10:44.6128455Z ├ ○ /docs                                                     4.26 kB         117 kB
+Deploy to Production	Deploy via SSH	2026-04-04T15:10:44.6128919Z ├ ○ /keys                                                     7.45 kB         165 kB
+Deploy to Production	Deploy via SSH	2026-04-04T15:10:44.6129378Z ├ ƒ /keys/[keyId]                                             5.92 kB         163 kB
+Deploy to Production	Deploy via SSH	2026-04-04T15:10:44.6129838Z ├ ○ /login                                                    10 kB           128 kB
+Deploy to Production	Deploy via SSH	2026-04-04T15:10:44.6130279Z ├ ○ /logs                                                     6.78 kB         155 kB
+Deploy to Production	Deploy via SSH	2026-04-04T15:10:44.6131002Z ├ ƒ /logs/[traceId]                                           5.46 kB         163 kB
+Deploy to Production	Deploy via SSH	2026-04-04T15:10:44.6131486Z ├ ○ /mcp-setup                                                3.4 kB          130 kB
+Deploy to Production	Deploy via SSH	2026-04-04T15:10:44.6131947Z ├ ○ /models                                                   2.84 kB         111 kB
+Deploy to Production	Deploy via SSH	2026-04-04T15:10:44.6132420Z ├ ○ /quickstart                                               2.18 kB         111 kB
+Deploy to Production	Deploy via SSH	2026-04-04T15:10:44.6132898Z ├ ○ /register                                                 3.66 kB         138 kB
+Deploy to Production	Deploy via SSH	2026-04-04T15:10:44.6133360Z ├ ○ /settings                                                 2.74 kB         112 kB
+Deploy to Production	Deploy via SSH	2026-04-04T15:10:44.6133835Z ├ ○ /templates                                                3.13 kB         112 kB
+Deploy to Production	Deploy via SSH	2026-04-04T15:10:44.6134334Z ├ ƒ /templates/[templateId]                                   3.99 kB         113 kB
+Deploy to Production	Deploy via SSH	2026-04-04T15:10:44.6134821Z └ ○ /usage                                                    5.87 kB         267 kB
+Deploy to Production	Deploy via SSH	2026-04-04T15:10:44.6135247Z + First Load JS shared by all                                 87.5 kB
+Deploy to Production	Deploy via SSH	2026-04-04T15:10:44.6135742Z   ├ chunks/2117-45cb7f2eedbda447.js                           31.9 kB
+Deploy to Production	Deploy via SSH	2026-04-04T15:10:44.6136246Z   ├ chunks/fd9d1056-b8054d1a6cc99d5c.js                       53.6 kB
+Deploy to Production	Deploy via SSH	2026-04-04T15:10:44.6136727Z   └ other shared chunks (total)                               1.97 kB
+Deploy to Production	Deploy via SSH	2026-04-04T15:10:44.6137177Z ƒ Middleware                                                  26.8 kB
+Deploy to Production	Deploy via SSH	2026-04-04T15:10:44.6137587Z ○  (Static)   prerendered as static content
+Deploy to Production	Deploy via SSH	2026-04-04T15:10:44.6137934Z ƒ  (Dynamic)  server-rendered on demand
+Deploy to Production	Deploy via SSH	2026-04-04T15:10:44.6906491Z === Copy static to standalone ===
+Deploy to Production	Deploy via SSH	2026-04-04T15:10:44.7040689Z === Restart PM2 ===
+Deploy to Production	Deploy via SSH	2026-04-04T15:10:44.9651084Z Use --update-env to update environment variables
+Deploy to Production	Deploy via SSH	2026-04-04T15:10:44.9716599Z [PM2] Applying action restartProcessId on app [aigc-gateway](ids: [ 0, 1 ])
+Deploy to Production	Deploy via SSH	2026-04-04T15:10:45.0323882Z [PM2] [aigc-gateway](0) ✓
+Deploy to Production	Deploy via SSH	2026-04-04T15:10:45.1344011Z [PM2] [aigc-gateway](1) ✓
+Deploy to Production	Deploy via SSH	2026-04-04T15:10:45.1566491Z ┌────┬─────────────────┬─────────────┬─────────┬─────────┬──────────┬────────┬──────┬───────────┬──────────┬──────────┬──────────┬──────────┐
+Deploy to Production	Deploy via SSH	2026-04-04T15:10:45.1568608Z │ id │ name            │ namespace   │ version │ mode    │ pid      │ uptime │ ↺    │ status    │ cpu      │ mem      │ user     │ watching │
+Deploy to Production	Deploy via SSH	2026-04-04T15:10:45.1570929Z ├────┼─────────────────┼─────────────┼─────────┼─────────┼──────────┼────────┼──────┼───────────┼──────────┼──────────┼──────────┼──────────┤
+Deploy to Production	Deploy via SSH	2026-04-04T15:10:45.1572595Z │ 0  │ aigc-gateway    │ default     │ 0.1.0   │ cluster │ 39266    │ 0s     │ 0    │ online    │ 0%       │ 56.4mb   │ tripple… │ disabled │
+Deploy to Production	Deploy via SSH	2026-04-04T15:10:45.1573963Z │ 1  │ aigc-gateway    │ default     │ 0.1.0   │ cluster │ 39273    │ 0s     │ 0    │ online    │ 0%       │ 45.8mb   │ tripple… │ disabled │
+Deploy to Production	Deploy via SSH	2026-04-04T15:10:45.1576014Z └────┴─────────────────┴─────────────┴─────────┴─────────┴──────────┴────────┴──────┴───────────┴──────────┴──────────┴──────────┴──────────┘
+Deploy to Production	Deploy via SSH	2026-04-04T15:10:45.1803570Z === Waiting for app ===
+Deploy to Production	Deploy via SSH	2026-04-04T15:10:48.1862840Z ===============================================
+Deploy to Production	Deploy via SSH	2026-04-04T15:10:48.1864898Z ✅ Successfully executed commands to all hosts.
+Deploy to Production	Deploy via SSH	2026-04-04T15:10:48.1866016Z ===============================================
+Deploy to Production	Health Check	﻿2026-04-04T15:10:48.2086052Z ##[group]Run appleboy/ssh-action@v1
+Deploy to Production	Health Check	2026-04-04T15:10:48.2086367Z with:
+Deploy to Production	Health Check	2026-04-04T15:10:48.2086608Z   host: ***
+Deploy to Production	Health Check	2026-04-04T15:10:48.2086859Z   port: ***
+Deploy to Production	Health Check	2026-04-04T15:10:48.2087090Z   username: ***
+Deploy to Production	Health Check	2026-04-04T15:10:48.2088879Z   key: ***
+Deploy to Production	Health Check	2026-04-04T15:10:48.2090073Z   script: MAX_RETRIES=10
+Deploy to Production	Health Check	RETRY=0
+Deploy to Production	Health Check	until curl -sf http://localhost:3000/v1/models > /dev/null 2>&1; do
+Deploy to Production	Health Check	  RETRY=$((RETRY + 1))
+Deploy to Production	Health Check	  if [ $RETRY -ge $MAX_RETRIES ]; then
+Deploy to Production	Health Check	    echo "Health check failed after $MAX_RETRIES attempts"
+Deploy to Production	Health Check	    pm2 logs aigc-gateway --lines 30 --nostream
+Deploy to Production	Health Check	    exit 1
+Deploy to Production	Health Check	  fi
+Deploy to Production	Health Check	  echo "Retry $RETRY/$MAX_RETRIES..."
+Deploy to Production	Health Check	  sleep 3
+Deploy to Production	Health Check	done
+Deploy to Production	Health Check	echo "Health check passed"
+Deploy to Production	Health Check	
+Deploy to Production	Health Check	2026-04-04T15:10:48.2091512Z   protocol: tcp
+Deploy to Production	Health Check	2026-04-04T15:10:48.2091732Z   timeout: 30s
+Deploy to Production	Health Check	2026-04-04T15:10:48.2091953Z   command_timeout: 10m
+Deploy to Production	Health Check	2026-04-04T15:10:48.2092209Z   proxy_port: ***
+Deploy to Production	Health Check	2026-04-04T15:10:48.2092435Z   proxy_protocol: tcp
+Deploy to Production	Health Check	2026-04-04T15:10:48.2092669Z   proxy_timeout: 30s
+Deploy to Production	Health Check	2026-04-04T15:10:48.2092911Z   curl_insecure: false
+Deploy to Production	Health Check	2026-04-04T15:10:48.2093145Z   capture_stdout: false
+Deploy to Production	Health Check	2026-04-04T15:10:48.2093411Z ##[endgroup]
+Deploy to Production	Health Check	2026-04-04T15:10:48.2110860Z ##[group]Run echo "$GITHUB_ACTION_PATH" >> $GITHUB_PATH
+Deploy to Production	Health Check	2026-04-04T15:10:48.2111276Z [36;1mecho "$GITHUB_ACTION_PATH" >> $GITHUB_PATH[0m
+Deploy to Production	Health Check	2026-04-04T15:10:48.2136528Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+Deploy to Production	Health Check	2026-04-04T15:10:48.2136886Z env:
+Deploy to Production	Health Check	2026-04-04T15:10:48.2137200Z   GITHUB_ACTION_PATH: /home/runner/work/_actions/appleboy/ssh-action/v1
+Deploy to Production	Health Check	2026-04-04T15:10:48.2137583Z ##[endgroup]
+Deploy to Production	Health Check	2026-04-04T15:10:48.2214021Z ##[group]Run entrypoint.sh
+Deploy to Production	Health Check	2026-04-04T15:10:48.2214302Z [36;1mentrypoint.sh[0m
+Deploy to Production	Health Check	2026-04-04T15:10:48.2238091Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+Deploy to Production	Health Check	2026-04-04T15:10:48.2238444Z env:
+Deploy to Production	Health Check	2026-04-04T15:10:48.2238752Z   GITHUB_ACTION_PATH: /home/runner/work/_actions/appleboy/ssh-action/v1
+Deploy to Production	Health Check	2026-04-04T15:10:48.2239170Z   INPUT_HOST: ***
+Deploy to Production	Health Check	2026-04-04T15:10:48.2239401Z   INPUT_PORT: ***
+Deploy to Production	Health Check	2026-04-04T15:10:48.2239624Z   INPUT_PROTOCOL: tcp
+Deploy to Production	Health Check	2026-04-04T15:10:48.2239878Z   INPUT_USERNAME: ***
+Deploy to Production	Health Check	2026-04-04T15:10:48.2240120Z   INPUT_PASSWORD: 
+Deploy to Production	Health Check	2026-04-04T15:10:48.2240339Z   INPUT_PASSPHRASE: 
+Deploy to Production	Health Check	2026-04-04T15:10:48.2242392Z   INPUT_KEY: ***
+Deploy to Production	Health Check	2026-04-04T15:10:48.2242797Z   INPUT_KEY_PATH: 
+Deploy to Production	Health Check	2026-04-04T15:10:48.2243027Z   INPUT_FINGERPRINT: 
+Deploy to Production	Health Check	2026-04-04T15:10:48.2243260Z   INPUT_PROXY_HOST: 
+Deploy to Production	Health Check	2026-04-04T15:10:48.2243495Z   INPUT_PROXY_PORT: ***
+Deploy to Production	Health Check	2026-04-04T15:10:48.2243736Z   INPUT_PROXY_USERNAME: 
+Deploy to Production	Health Check	2026-04-04T15:10:48.2243973Z   INPUT_PROXY_PASSWORD: 
+Deploy to Production	Health Check	2026-04-04T15:10:48.2244208Z   INPUT_PROXY_PASSPHRASE: 
+Deploy to Production	Health Check	2026-04-04T15:10:48.2244457Z   INPUT_PROXY_KEY: 
+Deploy to Production	Health Check	2026-04-04T15:10:48.2244678Z   INPUT_PROXY_KEY_PATH: 
+Deploy to Production	Health Check	2026-04-04T15:10:48.2244920Z   INPUT_PROXY_FINGERPRINT: 
+Deploy to Production	Health Check	2026-04-04T15:10:48.2245163Z   INPUT_TIMEOUT: 30s
+Deploy to Production	Health Check	2026-04-04T15:10:48.2245385Z   INPUT_PROXY_TIMEOUT: 30s
+Deploy to Production	Health Check	2026-04-04T15:10:48.2245633Z   INPUT_COMMAND_TIMEOUT: 10m
+Deploy to Production	Health Check	2026-04-04T15:10:48.2246879Z   INPUT_SCRIPT: MAX_RETRIES=10
+Deploy to Production	Health Check	RETRY=0
+Deploy to Production	Health Check	until curl -sf http://localhost:3000/v1/models > /dev/null 2>&1; do
+Deploy to Production	Health Check	  RETRY=$((RETRY + 1))
+Deploy to Production	Health Check	  if [ $RETRY -ge $MAX_RETRIES ]; then
+Deploy to Production	Health Check	    echo "Health check failed after $MAX_RETRIES attempts"
+Deploy to Production	Health Check	    pm2 logs aigc-gateway --lines 30 --nostream
+Deploy to Production	Health Check	    exit 1
+Deploy to Production	Health Check	  fi
+Deploy to Production	Health Check	  echo "Retry $RETRY/$MAX_RETRIES..."
+Deploy to Production	Health Check	  sleep 3
+Deploy to Production	Health Check	done
+Deploy to Production	Health Check	echo "Health check passed"
+Deploy to Production	Health Check	
+Deploy to Production	Health Check	2026-04-04T15:10:48.2248192Z   INPUT_SCRIPT_FILE: 
+Deploy to Production	Health Check	2026-04-04T15:10:48.2248419Z   INPUT_ENVS: 
+Deploy to Production	Health Check	2026-04-04T15:10:48.2248628Z   INPUT_ENVS_FORMAT: 
+Deploy to Production	Health Check	2026-04-04T15:10:48.2248850Z   INPUT_DEBUG: 
+Deploy to Production	Health Check	2026-04-04T15:10:48.2249054Z   INPUT_ALL_ENVS: 
+Deploy to Production	Health Check	2026-04-04T15:10:48.2249270Z   INPUT_REQUEST_PTY: 
+Deploy to Production	Health Check	2026-04-04T15:10:48.2249506Z   INPUT_USE_INSECURE_CIPHER: 
+Deploy to Production	Health Check	2026-04-04T15:10:48.2249751Z   INPUT_CIPHER: 
+Deploy to Production	Health Check	2026-04-04T15:10:48.2249976Z   INPUT_PROXY_USE_INSECURE_CIPHER: 
+Deploy to Production	Health Check	2026-04-04T15:10:48.2250250Z   INPUT_PROXY_CIPHER: 
+Deploy to Production	Health Check	2026-04-04T15:10:48.2250759Z   INPUT_SYNC: 
+Deploy to Production	Health Check	2026-04-04T15:10:48.2250994Z   INPUT_CAPTURE_STDOUT: false
+Deploy to Production	Health Check	2026-04-04T15:10:48.2251255Z   INPUT_CURL_INSECURE: false
+Deploy to Production	Health Check	2026-04-04T15:10:48.2251503Z   DRONE_SSH_VERSION: 
+Deploy to Production	Health Check	2026-04-04T15:10:48.2251729Z ##[endgroup]
+Deploy to Production	Health Check	2026-04-04T15:10:48.2349492Z Binary drone-ssh-1.8.2-linux-amd64 already exists, skipping download
+Deploy to Production	Health Check	2026-04-04T15:10:48.2353471Z ======= CLI Version Information =======
+Deploy to Production	Health Check	2026-04-04T15:10:48.2372146Z Drone SSH version 1.8.2
+Deploy to Production	Health Check	2026-04-04T15:10:48.2375034Z =======================================
+Deploy to Production	Health Check	2026-04-04T15:10:50.4292438Z Health check passed
+Deploy to Production	Health Check	2026-04-04T15:10:50.4297271Z ===============================================
+Deploy to Production	Health Check	2026-04-04T15:10:50.4298475Z ✅ Successfully executed commands to all hosts.
+Deploy to Production	Health Check	2026-04-04T15:10:50.4300323Z ===============================================
+Deploy to Production	Notify Success	﻿2026-04-04T15:10:50.4340060Z ##[group]Run echo "Deployed to production — $(date -u '+%Y-%m-%d %H:%M UTC')"
+Deploy to Production	Notify Success	2026-04-04T15:10:50.4340998Z [36;1mecho "Deployed to production — $(date -u '+%Y-%m-%d %H:%M UTC')"[0m
+Deploy to Production	Notify Success	2026-04-04T15:10:50.4368536Z shell: /usr/bin/bash -e {0}
+Deploy to Production	Notify Success	2026-04-04T15:10:50.4368810Z ##[endgroup]
+Deploy to Production	Notify Success	2026-04-04T15:10:50.4426781Z Deployed to production — 2026-04-04 15:10 UTC
+Deploy to Production	Post Run actions/checkout@v4	﻿2026-04-04T15:10:50.4553090Z Post job cleanup.
+Deploy to Production	Post Run actions/checkout@v4	2026-04-04T15:10:50.5503850Z [command]/usr/bin/git version
+Deploy to Production	Post Run actions/checkout@v4	2026-04-04T15:10:50.5545527Z git version 2.53.0
+Deploy to Production	Post Run actions/checkout@v4	2026-04-04T15:10:50.5595152Z Temporarily overriding HOME='/home/runner/work/_temp/569f885e-b13a-49fc-a3ac-f7cb02481fd4' before making global git config changes
+Deploy to Production	Post Run actions/checkout@v4	2026-04-04T15:10:50.5602323Z Adding repository directory to the temporary git global config as a safe directory
+Deploy to Production	Post Run actions/checkout@v4	2026-04-04T15:10:50.5613509Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/aigcgateway/aigcgateway
+Deploy to Production	Post Run actions/checkout@v4	2026-04-04T15:10:50.5651180Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+Deploy to Production	Post Run actions/checkout@v4	2026-04-04T15:10:50.5687799Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+Deploy to Production	Post Run actions/checkout@v4	2026-04-04T15:10:50.5940025Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+Deploy to Production	Post Run actions/checkout@v4	2026-04-04T15:10:50.5968653Z http.https://github.com/.extraheader
+Deploy to Production	Post Run actions/checkout@v4	2026-04-04T15:10:50.5982722Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+Deploy to Production	Post Run actions/checkout@v4	2026-04-04T15:10:50.6014781Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+Deploy to Production	Post Run actions/checkout@v4	2026-04-04T15:10:50.6264018Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+Deploy to Production	Post Run actions/checkout@v4	2026-04-04T15:10:50.6278141Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+Deploy to Production	Complete job	﻿2026-04-04T15:10:50.6614999Z Cleaning up orphan processes
+Deploy to Production	Complete job	2026-04-04T15:10:50.6870051Z ##[warning]Node.js 20 actions are deprecated. The following actions are running on Node.js 20 and may not work as expected: actions/checkout@v4. Actions will be forced to run with Node.js 24 by default starting June 2nd, 2026. Node.js 20 will be removed from the runner on September 16th, 2026. Please check if updated versions of these actions are available that support Node.js 24. To opt into Node.js 24 now, set the FORCE_JAVASCRIPT_ACTIONS_TO_NODE24=true environment variable on the runner or in your workflow file. Once Node.js 24 becomes the default, you can temporarily opt out by setting ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION=true. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
