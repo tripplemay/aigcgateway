@@ -1,38 +1,23 @@
 {
-  "status": "done",
-  "user_goal": "user-profile-center: Sidebar 用户信息 + 个人中心入口 + 登录历史",
-  "total_features": 6,
-  "completed_features": 6,
+  "status": "building",
+  "user_goal": "bugfix-template-api: Template 创建 API 500 修复",
+  "total_features": 3,
+  "completed_features": 0,
   "fix_rounds": 0,
   "current_sprint": null,
-  "last_updated": "2026-04-08T03:30:00Z",
+  "last_updated": "2026-04-08T04:00:00Z",
   "reference_docs": [],
-  "role_assignments": null,
+  "role_assignments": {
+    "planner": "Kimi",
+    "generator": "Johnsong",
+    "evaluator": "Reviewer"
+  },
   "docs": {
     "spec": null,
-    "test_cases": "docs/test-cases/user-profile-center-local-test-cases-2026-04-08.md",
-    "signoff": "docs/test-reports/user-profile-center-signoff-2026-04-08.md",
+    "test_cases": null,
+    "signoff": null,
     "framework_reviewed": false
   },
   "evaluator_feedback": null,
-  "generator_handoff": {
-    "completed": ["F-UP-01", "F-UP-02", "F-UP-03", "F-UP-04", "F-UP-05"],
-    "codex_tasks": ["F-UP-06: E2E 验证"],
-    "notes": [
-      "F-UP-01: Sidebar 底部新增用户信息区（名称/email前缀 + Admin/Developer 角色徽标），layout 传入 email",
-      "F-UP-02: mainNav 新增 Settings 入口（齿轮图标），用户信息区可点击跳转 /settings",
-      "F-UP-03: Prisma LoginHistory 表 + migration + 登录成功时写入记录（IP from X-Forwarded-For, userAgent）",
-      "F-UP-04: GET /api/auth/login-history API + Settings 页安全日志区域（时间/IP/浏览器，最近 20 条）",
-      "F-UP-05: en.json + zh-CN.json 同步（settings/admin/developer/securityLog/securityLogDesc/noLoginHistory）",
-      "Migration: prisma/migrations/20260408020000_add_login_history/migration.sql"
-    ]
-  },
-  "features": [
-    { "id": "F-UP-01", "title": "Sidebar 底部用户信息展示", "status": "completed", "executor": "generator" },
-    { "id": "F-UP-02", "title": "个人中心入口（Sidebar 跳转）", "status": "completed", "executor": "generator" },
-    { "id": "F-UP-03", "title": "LoginHistory 表 + 登录时写入记录", "status": "completed", "executor": "generator" },
-    { "id": "F-UP-04", "title": "Settings 页安全日志展示", "status": "completed", "executor": "generator" },
-    { "id": "F-UP-05", "title": "i18n 补全", "status": "completed", "executor": "generator" },
-    { "id": "F-UP-06", "title": "E2E 验证", "status": "completed", "executor": "codex" }
-  ]
+  "generator_handoff": null
 }
