@@ -7,7 +7,7 @@
       "title": "CreateProjectDialog + Sidebar New Project 修复",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) create-project-dialog.tsx 的 DialogTrigger 不再使用 render={<span />}，点击 trigger 能打开 Dialog；2) sidebar.tsx 的 New Project 按钮绑定 CreateProjectDialog 或跳转到创建页；3) 创建项目流程完整可用；4) npm run lint + tsc 通过"
     },
     {

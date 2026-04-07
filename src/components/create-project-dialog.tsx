@@ -15,7 +15,7 @@ import { toast } from "sonner";
 import { useTranslations } from "next-intl";
 
 interface CreateProjectDialogProps {
-  trigger: React.ReactNode;
+  trigger: React.ReactElement;
   onCreated?: () => void;
 }
 
@@ -49,7 +49,7 @@ export function CreateProjectDialog({ trigger, onCreated }: CreateProjectDialogP
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger render={<span />}>{trigger}</DialogTrigger>
+      <DialogTrigger render={trigger} />
       <DialogContent>
         <DialogHeader>
           <DialogTitle>{t("title")}</DialogTitle>

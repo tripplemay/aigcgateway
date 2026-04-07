@@ -3,6 +3,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { useTranslations } from "next-intl";
+import { CreateProjectDialog } from "@/components/create-project-dialog";
 
 /*
  * Sidebar — strict 1:1 replica of Layout Shell code.html lines 86-142.
@@ -81,10 +82,14 @@ export function Sidebar({ role, walletBalance }: SidebarProps) {
 
       {/* New Project CTA — code.html lines 98-103 */}
       <div className="px-4 mb-6">
-        <button className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-ds-primary to-ds-primary-container text-white text-sm font-bold font-[var(--font-heading)] flex items-center justify-center gap-2 shadow-lg shadow-ds-primary/20 scale-95 active:scale-100 transition-transform">
-          <span className="material-symbols-outlined text-sm">add</span>
-          {t("newProject")}
-        </button>
+        <CreateProjectDialog
+          trigger={
+            <button className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-ds-primary to-ds-primary-container text-white text-sm font-bold font-[var(--font-heading)] flex items-center justify-center gap-2 shadow-lg shadow-ds-primary/20 scale-95 active:scale-100 transition-transform">
+              <span className="material-symbols-outlined text-sm">add</span>
+              {t("newProject")}
+            </button>
+          }
+        />
       </div>
 
       {/* Navigation — code.html lines 104-130 */}
