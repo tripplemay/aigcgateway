@@ -276,7 +276,7 @@ export default function BalancePage() {
                 {txns.length === 0 && (
                   <tr>
                     <td colSpan={5} className="px-6 py-12 text-center text-ds-outline">
-                      No transactions
+                      {t("noTransactions")}
                     </td>
                   </tr>
                 )}

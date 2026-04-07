@@ -187,7 +187,8 @@
     "modelCount": "个模型",
     "text": "文本",
     "image": "图片",
-    "showAll": "显示全部 {count} 个模型"
+    "showAll": "显示全部 {count} 个模型",
+    "noModelsFound": "未找到模型"
   },
   "logs": {
     "title": "审计日志",
@@ -247,7 +248,8 @@
     "amountError": "金额必须在 $1-$10,000 之间",
     "redirecting": "正在跳转到支付页面...",
     "orderCreated": "充值订单已创建",
-    "thresholdSaved": "预警阈值已保存"
+    "thresholdSaved": "预警阈值已保存",
+    "noTransactions": "暂无交易记录"
   },
   "quickstart": {
     "title": "快速开始",

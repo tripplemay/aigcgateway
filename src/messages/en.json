@@ -187,7 +187,8 @@
     "modelCount": "models",
     "text": "Text",
     "image": "Image",
-    "showAll": "Show all {count} models"
+    "showAll": "Show all {count} models",
+    "noModelsFound": "No models found"
   },
   "logs": {
     "title": "Audit Logs",
@@ -247,7 +248,8 @@
     "amountError": "Amount must be $1-$10,000",
     "redirecting": "Redirecting to payment...",
     "orderCreated": "Recharge order created",
-    "thresholdSaved": "Alert threshold saved"
+    "thresholdSaved": "Alert threshold saved",
+    "noTransactions": "No transactions"
   },
   "quickstart": {
     "title": "Quick Start",

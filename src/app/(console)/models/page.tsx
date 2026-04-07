@@ -290,7 +290,7 @@ export default function ModelsPage() {
           );
         })}
         {grouped.length === 0 && (
-          <div className="text-center py-12 text-ds-outline">No models found</div>
+          <div className="text-center py-12 text-ds-outline">{t("noModelsFound")}</div>
         )}
       </div>
     </div>

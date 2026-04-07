@@ -31,7 +31,7 @@
       "title": "i18n 硬编码残留修复",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) models/page.tsx:293 的 'No models found' 改为 useTranslations；2) balance/page.tsx:279 的 'No transactions' 改为 useTranslations；3) en.json 和 zh-CN.json 同步新增对应 key；4) npm run lint + tsc 通过"
     },
     {
