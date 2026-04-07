@@ -7,11 +7,7 @@
   "current_sprint": null,
   "last_updated": "2026-04-08T00:45:00Z",
   "reference_docs": [],
-  "role_assignments": {
-    "planner": "Kimi",
-    "generator": "Mark",
-    "evaluator": "Reviewer"
-  },
+  "role_assignments": null,
   "docs": {
     "spec": null,
     "test_cases": "docs/test-cases/balance-user-level-backend-local-test-cases-2026-04-08.md",

@@ -10,15 +10,16 @@ AIGC Gateway — AI 服务商管理中台。统一 API 调用抽象（兼容 Ope
 
 **Tech Stack:** Next.js 14 (App Router) + TypeScript + PostgreSQL + Prisma + Redis + shadcn/ui + @modelcontextprotocol/sdk + next-intl
 
-## 当前开发状态（截至 2026-04-07）
+## 当前开发状态（截至 2026-04-08）
 
-**最新完成批次：** `project-switcher-ui`（6/6 PASS，executor: generator+codex；Sidebar 项目切换 + ProjectProvider）
+**最新完成批次：** `balance-user-level-backend`（8/8 PASS，fix_rounds=1，Generator=Mark）
 **Harness 状态：** done
-**签收报告：** `docs/test-reports/project-switcher-ui-signoff-2026-04-07.md`
+**签收报告：** `docs/test-reports/balance-user-level-backend-signoff-2026-04-08.md`
 
-### 近期完成批次（2026-04-07 ~ 2026-04-06）
+### 近期完成批次（2026-04-08 ~ 2026-04-06）
 
-- `project-switcher-ui`（6/6 PASS）— ProjectProvider Context、Sidebar 项目下拉、创建后自动切换、余额联动、i18n、L1 E2E
+- `balance-user-level-backend`（8/8 PASS）— 余额从 Project 级改为 User 级：DB migration + SQL 函数重写 + post-process 对齐 + 充值 API + MCP/REST + Sidebar/Dashboard/Admin
+- `project-switcher-ui`（6/6 PASS）— ProjectProvider Context、Sidebar 项目下拉、创建后自动切换、余额联动
 
 - `dx-metadata-enhancement`（7/7 PASS）— capabilities/contextWindow 补全、run_action dry_run、MCP 错误码结构统一、SDK 类型与 README 对齐
 - `action-pages-design-restore`（5/5 PASS）— 按更新后的 Stitch 设计稿还原 Action List / Detail / Editor 三页
@@ -66,13 +67,9 @@ Action 相关权威设计稿（3 个，已更新确认）：
 
 状态：3 页设计稿还原已完成并通过验收（`action-pages-design-restore` 5/5 PASS）
 
-## Backlog（1 条待处理）
+## Backlog（0 条待处理）
 
-| ID | 优先级 | 标题 |
-|---|---|---|
-| BL-055 | high | 余额从项目级改为用户级（架构变更，分批次 B 后端 + C 前端对齐） |
-
-BL-024~056 已完成（BL-056 项目切换 UI 已在 project-switcher-ui 批次完成）。
+BL-024~056 全部已完成。当前无待处理需求。
 
 ## 已知遗留问题
 
