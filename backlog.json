@@ -1,4 +1,13 @@
 {
   "description": "需求池：已与用户确认但尚未开发的功能，等待下一批次启动时统一安排",
-  "items": []
+  "items": [
+    {
+      "id": "BL-059",
+      "title": "Template 创建 API 返回 500",
+      "description": "POST /api/projects/:id/templates 返回 500，无响应体。可能与 balance-user-level-backend 批次的余额改造有关（schema 变更影响了关联查询）。两个账号均复现（tripplezhou + codex-admin）。来源：生产环境验证（2026-04-08）。",
+      "decisions": [],
+      "confirmed_at": "2026-04-08",
+      "priority": "high"
+    }
+  ]
 }
