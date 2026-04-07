@@ -1,8 +1,8 @@
 {
-  "status": "fixing",
+  "status": "reverifying",
   "user_goal": "security-billing-polish: generate_image 脱敏补全 + 最低扣费保护 + 空 content 校验",
   "total_features": 4,
-  "completed_features": 1,
+  "completed_features": 3,
   "fix_rounds": 0,
   "current_sprint": null,
   "last_updated": "2026-04-07T00:12:32Z",
@@ -63,19 +63,19 @@
     {
       "id": "F-SB-01",
       "title": "generate_image 上游错误脱敏补全",
-      "status": "pending",
+      "status": "completed",
       "executor": "generator"
     },
     {
       "id": "F-SB-02",
       "title": "最低扣费保护（MIN_CHARGE）",
-      "status": "pending",
+      "status": "completed",
       "executor": "generator"
     },
     {
       "id": "F-SB-03",
       "title": "空 content 校验",
-      "status": "pending",
+      "status": "completed",
       "executor": "generator"
     },
     {
