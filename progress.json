@@ -1,11 +1,11 @@
 {
-  "status": "verifying",
+  "status": "fixing",
   "user_goal": "security-billing-polish: generate_image 脱敏补全 + 最低扣费保护 + 空 content 校验",
   "total_features": 4,
-  "completed_features": 3,
+  "completed_features": 1,
   "fix_rounds": 0,
   "current_sprint": null,
-  "last_updated": "2026-04-07T09:00:00Z",
+  "last_updated": "2026-04-07T00:12:32Z",
   "reference_docs": [],
   "role_assignments": {
     "planner": "Kimi",
@@ -18,10 +18,41 @@
     "signoff": null,
     "framework_reviewed": false
   },
-  "evaluator_feedback": null,
+  "evaluator_feedback": {
+    "summary": "verifying 完成：F-SB-04 已执行，发现 F-SB-01/F-SB-02/F-SB-03 均未满足验收，进入 fixing。",
+    "pass_count": 1,
+    "partial_count": 0,
+    "fail_count": 3,
+    "issues": [
+      {
+        "feature_id": "F-SB-01",
+        "result": "FAIL",
+        "description": "generate_image 脱敏不完整：REST 错误仍包含 Request ID 与 volcengine 端点信息；MCP 对无效尺寸未触发错误场景。",
+        "steps_to_reproduce": "1) 运行 scripts/test/security-billing-polish-e2e-2026-04-07.ts\n2) 查看 F-SB-01 两个检查项\n3) REST 检查项报 leak detected: request id；MCP 检查项 expected error"
+      },
+      {
+        "feature_id": "F-SB-02",
+        "result": "FAIL",
+        "description": "最低扣费保护未生效：1-token 调用后余额无变化（delta=0）。",
+        "steps_to_reproduce": "1) 同脚本执行 F-SB-02 检查项\n2) 对比调用前后 project.balance\n3) 报错 expected balance decrease, got delta=0"
+      },
+      {
+        "feature_id": "F-SB-03",
+        "result": "FAIL",
+        "description": "chat 空 content 未在网关层拦截，空白消息未返回 [invalid_request]。",
+        "steps_to_reproduce": "1) 同脚本执行 F-SB-03 检查项\n2) 调用 chat messages=[{content:\"   \"}]\n3) 报错 expected invalid_request error"
+      }
+    ]
+  },
   "generator_handoff": {
-    "completed": ["F-SB-01", "F-SB-02", "F-SB-03"],
-    "codex_tasks": ["F-SB-04: E2E 验证"],
+    "completed": [
+      "F-SB-01",
+      "F-SB-02",
+      "F-SB-03"
+    ],
+    "codex_tasks": [
+      "F-SB-04: E2E 验证"
+    ],
     "notes": [
       "F-SB-01: generate_image MCP + REST API 全路径 sanitizeErrorMessage 补全（routing catch + adapter catch + REST /v1/images/generations 4 处）",
       "F-SB-02: deductBalance 增加 MIN_CHARGE=0.00000001 最低扣费保护，amount>0 但小于 MIN_CHARGE 时扣 MIN_CHARGE",
@@ -29,9 +60,29 @@
     ]
   },
   "features": [
-    { "id": "F-SB-01", "title": "generate_image 上游错误脱敏补全", "status": "completed", "executor": "generator" },
-    { "id": "F-SB-02", "title": "最低扣费保护（MIN_CHARGE）", "status": "completed", "executor": "generator" },
-    { "id": "F-SB-03", "title": "空 content 校验", "status": "completed", "executor": "generator" },
-    { "id": "F-SB-04", "title": "E2E 验证", "status": "pending", "executor": "codex" }
+    {
+      "id": "F-SB-01",
+      "title": "generate_image 上游错误脱敏补全",
+      "status": "pending",
+      "executor": "generator"
+    },
+    {
+      "id": "F-SB-02",
+      "title": "最低扣费保护（MIN_CHARGE）",
+      "status": "pending",
+      "executor": "generator"
+    },
+    {
+      "id": "F-SB-03",
+      "title": "空 content 校验",
+      "status": "pending",
+      "executor": "generator"
+    },
+    {
+      "id": "F-SB-04",
+      "title": "E2E 验证",
+      "status": "completed",
+      "executor": "codex"
+    }
   ]
 }

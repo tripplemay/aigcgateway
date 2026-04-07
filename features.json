@@ -31,7 +31,7 @@
       "title": "E2E 验证",
       "priority": "high",
       "executor": "codex",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "1) generate_image 空 prompt / 无效尺寸 / volcengine 错误均不泄露供应商信息（QQ 群号、Request ID、端点名）；2) 微额调用（1 token）实际产生扣费（余额减少）；3) 空 content messages 被网关层拦截，返回 [invalid_request]"
     }
   ]

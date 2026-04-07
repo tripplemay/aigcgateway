@@ -12,9 +12,10 @@ AIGC Gateway — AI 服务商管理中台。统一 API 调用抽象（兼容 Ope
 
 ## 当前开发状态（截至 2026-04-07）
 
-**最新完成批次：** `mcp-finops-hardening`（10/10 PASS，fix_rounds=0）
-**Harness 状态：** done
-**签收报告：** `docs/test-reports/mcp-finops-hardening-signoff-2026-04-07.md`
+**当前批次：** `security-billing-polish`（verifying 已执行，进入 fixing）
+**Harness 状态：** fixing
+**最新验收报告：** `docs/test-reports/security-billing-polish-verifying-2026-04-07.md`
+**当前失败点：** F-SB-01（脱敏不完整/无效尺寸场景异常）、F-SB-02（MIN_CHARGE 未观测生效）、F-SB-03（空 content 未拦截）
 
 ### 近期完成批次（2026-04-06）
 

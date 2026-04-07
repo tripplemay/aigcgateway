@@ -1,0 +1,34 @@
+{
+  "batch": "security-billing-polish",
+  "generatedAt": "2026-04-07T00:11:43.658Z",
+  "environment": "http://localhost:3099",
+  "checks": [
+    {
+      "name": "mcp initialize",
+      "ok": true,
+      "detail": "ok"
+    },
+    {
+      "name": "F-SB-01 MCP generate_image invalid size sanitized",
+      "ok": false,
+      "detail": "expected error"
+    },
+    {
+      "name": "F-SB-01 REST generate_image empty prompt sanitized",
+      "ok": false,
+      "detail": "leak detected: request id in {\"error\":{\"type\":\"invalid_request_error\",\"code\":\"invalid_request\",\"message\":\"prompt empty; [contact removed]; endpoint volcengine/cn-beijing; Request ID req-abc\"}}"
+    },
+    {
+      "name": "F-SB-03 empty content blocked at gateway",
+      "ok": false,
+      "detail": "expected invalid_request error"
+    },
+    {
+      "name": "F-SB-02 MIN_CHARGE applied on 1-token call",
+      "ok": false,
+      "detail": "expected balance decrease, got delta=0"
+    }
+  ],
+  "pass": 1,
+  "fail": 4
+}
