@@ -1,86 +1,54 @@
 {
-  "batch": "mcp-setup-redesign",
+  "batch": "model-metadata-fix",
   "created_at": "2026-04-07",
   "features": [
     {
-      "id": "F-MS-01",
-      "title": "API Key 输入机制",
+      "id": "F-MM-01",
+      "title": "capabilities fallback 逻辑修复",
       "priority": "high",
       "executor": "generator",
-      "status": "done",
-      "acceptance": "1) MCP Setup 页面新增 API Key 输入框，用户可粘贴完整 Key；2) 输入后实时更新下方配置代码块中的 Key；3) 也支持从已有 Key 列表选择（保留当前 radio 选择，但选择后仍需用户粘贴完整 Key）；4) npm run lint + tsc 通过"
+      "status": "pending",
+      "acceptance": "1) model-sync.ts 中 capabilities 赋值逻辑改为：当 remoteModel.capabilities 为 null/undefined/空对象 {} 时均走 resolveCapabilities fallback；2) contextWindow 同理处理；3) 修复后触发一次 sync，验证 DB 中 gpt-4o 的 capabilities 包含 function_calling/vision/json_mode/streaming；4) npm run lint + tsc 通过"
     },
     {
-      "id": "F-MS-02",
-      "title": "Claude Code 配置（CLI 命令）",
-      "priority": "high",
-      "executor": "generator",
-      "status": "done",
-      "acceptance": "1) 选择 Claude Code 时生成 CLI 命令：claude mcp add aigc-gateway --transport streamable-http --url https://aigc.guangai.ai/mcp --header \"Authorization: Bearer pk_xxx...\"；2) 包含用户输入的完整 API Key；3) 一键复制可直接在终端运行；4) npm run lint + tsc 通过"
-    },
-    {
-      "id": "F-MS-03",
-      "title": "Claude Desktop 配置（JSON）",
-      "priority": "high",
-      "executor": "generator",
-      "status": "done",
-      "acceptance": "1) 选择 Claude Desktop 时生成 claude_desktop_config.json 格式的 JSON；2) 包含 type: streamable-http、url、headers.Authorization；3) 一键复制可直接粘贴到配置文件；4) npm run lint + tsc 通过"
-    },
-    {
-      "id": "F-MS-04",
-      "title": "Cursor 配置（JSON）",
-      "priority": "high",
-      "executor": "generator",
-      "status": "done",
-      "acceptance": "1) 选择 Cursor 时生成 .cursor/mcp.json 格式的 JSON；2) 一键复制可直接使用；3) npm run lint + tsc 通过"
-    },
-    {
-      "id": "F-MS-05",
-      "title": "Codex 配置（TOML）",
-      "priority": "high",
-      "executor": "generator",
-      "status": "done",
-      "acceptance": "1) 选择 Codex 时生成 TOML 格式：[mcp_servers.aigc-gateway] url = ... [mcp_servers.aigc-gateway.http_headers] \"Authorization\" = \"Bearer pk_xxx...\"；2) 一键复制可直接粘贴到 codex.toml；3) npm run lint + tsc 通过"
-    },
-    {
-      "id": "F-MS-06",
-      "title": "VS Code Copilot 配置（JSON）",
+      "id": "F-MM-02",
+      "title": "generate_image size 参数提示",
       "priority": "medium",
       "executor": "generator",
-      "status": "done",
-      "acceptance": "1) 选择 VS Code 时生成 .vscode/mcp.json 格式；2) 一键复制可直接使用；3) npm run lint + tsc 通过"
+      "status": "pending",
+      "acceptance": "1) list_models 返回的 image 模型增加 supportedSizes 字段（如 dall-e-3: [\"1024x1024\",\"1024x1792\",\"1792x1024\"]）；2) 数据来源为静态 fallback 映射（各模型尺寸固定）；3) generate_image 的 Schema description 中提示参考 list_models；4) npm run lint + tsc 通过"
     },
     {
-      "id": "F-MS-07",
-      "title": "Windsurf / Cline / Roo Code / JetBrains 配置",
+      "id": "F-MM-03",
+      "title": "幽灵模型状态管理",
       "priority": "medium",
       "executor": "generator",
-      "status": "done",
-      "acceptance": "1) 每种客户端生成其原生配置格式；2) Windsurf: ~/.codeium/windsurf/mcp_config.json；3) Cline: cline_mcp_settings.json；4) Roo Code: roo_mcp_settings.json；5) JetBrains: JSON 格式；6) 所有配置一键复制可直接使用；7) npm run lint + tsc 通过"
+      "status": "pending",
+      "acceptance": "1) list_models MCP Tool 只返回 enabled=true 且有 ACTIVE channel 的模型（当前可能只检查 enabled）；2) 已下线模型不出现在 list_models 中；3) get_usage_summary 中出现的历史模型不影响 list_models；4) npm run lint + tsc 通过"
     },
     {
-      "id": "F-MS-08",
-      "title": "Generic 配置 + UI 整体布局",
-      "priority": "medium",
-      "executor": "generator",
-      "status": "done",
-      "acceptance": "1) Generic 保留 URL + Header 格式；2) 客户端选择改为下拉菜单（替代 Tab）；3) 底部大按钮一键复制（替代右上角小按钮）；4) 移除 Tools 列表（页面聚焦配置，不需要列 21 个 Tool）；5) 参考 Stitch 的简洁布局；6) npm run lint + tsc 通过"
-    },
-    {
-      "id": "F-MS-09",
-      "title": "i18n 补全",
+      "id": "F-MM-04",
+      "title": "image 模型 contextWindow 语义修正",
       "priority": "low",
       "executor": "generator",
-      "status": "done",
-      "acceptance": "1) 所有新增文案通过 useTranslations；2) en.json 和 zh-CN.json 同步更新；3) npm run lint + tsc 通过"
+      "status": "pending",
+      "acceptance": "1) image 模型（dall-e-3/gpt-image-1/seedream/cogview）的 contextWindow 在 list_models 返回中为 null（不展示）；2) cogview-3 的 contextWindow=1000 从 DB 中修正为 null；3) 可在 capabilities fallback 中处理，或在 list_models 输出时过滤；4) npm run lint + tsc 通过"
     },
     {
-      "id": "F-MS-10",
+      "id": "F-MM-05",
+      "title": "SERVER_INSTRUCTIONS 更新",
+      "priority": "medium",
+      "executor": "generator",
+      "status": "pending",
+      "acceptance": "1) list_models 返回值变更（supportedSizes、capabilities 补全）在 SERVER_INSTRUCTIONS 中说明；2) npm run lint + tsc 通过"
+    },
+    {
+      "id": "F-MM-06",
       "title": "E2E 验证",
       "priority": "high",
       "executor": "codex",
-      "status": "done",
-      "acceptance": "1) 输入完整 API Key 后，所有客户端配置中 Key 正确填充；2) Claude Code 生成 CLI 命令格式；3) Codex 生成 TOML 格式；4) 所有配置一键复制后内容完整（无掩码占位符）；5) 切换客户端时配置实时更新"
+      "status": "pending",
+      "acceptance": "1) list_models 中 gpt-4o 的 capabilities 包含 function_calling: true；2) image 模型有 supportedSizes 字段；3) list_models 不含已下线模型（doubao-pro-32k 等）；4) image 模型 contextWindow 为 null；5) 对比 DX 审查报告 5.5/10 中 6 个吐槽点的修复情况"
     }
   ]
 }
