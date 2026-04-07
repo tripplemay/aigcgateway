@@ -11,7 +11,7 @@ import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { prisma } from "@/lib/prisma";
 import { checkMcpPermission } from "@/lib/mcp/auth";
 import type { McpServerOptions } from "@/lib/mcp/server";
-import { resolveSupportedSizes } from "@/lib/sync/model-capabilities-fallback";
+import { resolveCapabilities, resolveSupportedSizes } from "@/lib/sync/model-capabilities-fallback";
 
 export function registerListModels(server: McpServer, opts: McpServerOptions): void {
   const { permissions } = opts;
@@ -87,7 +87,11 @@ export function registerListModels(server: McpServer, opts: McpServerOptions): v
           }
         }
 
-        const capabilities = (model.capabilities as Record<string, unknown>) ?? {};
+        // Fallback: if DB capabilities is empty, resolve from static map
+        const dbCaps = model.capabilities as Record<string, unknown> | null;
+        const capabilities = (dbCaps && Object.keys(dbCaps).length > 0)
+          ? dbCaps
+          : resolveCapabilities(model.name);
 
         const result: Record<string, unknown> = {
           name: model.name,

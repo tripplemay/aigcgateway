@@ -15,6 +15,7 @@ import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import { authenticateApiKey } from "@/lib/api/auth-middleware";
 import { getRedis } from "@/lib/redis";
+import { resolveCapabilities, resolveSupportedSizes } from "@/lib/sync/model-capabilities-fallback";
 
 const CACHE_TTL = 120; // seconds
 const LOCK_TTL = 10; // seconds
@@ -70,7 +71,10 @@ async function queryModelsJSON(modalityFilter: string | undefined): Promise<stri
     const channel = model.channels[0];
     const sellPrice = channel?.sellPrice as Record<string, unknown> | undefined;
     const providerName = channel?.provider?.displayName ?? null;
-    const capabilities = (model.capabilities as Record<string, unknown>) ?? {};
+    const dbCaps = model.capabilities as Record<string, unknown> | null;
+    const capabilities = (dbCaps && Object.keys(dbCaps).length > 0)
+      ? dbCaps
+      : resolveCapabilities(model.name);
 
     const pricing: Record<string, unknown> = {};
     if (sellPrice) {
@@ -86,16 +90,20 @@ async function queryModelsJSON(modalityFilter: string | undefined): Promise<stri
       }
     }
 
+    const isImage = model.modality === "IMAGE";
+    const sizes = isImage ? resolveSupportedSizes(model.name) : null;
+
     return {
       id: model.name,
       object: "model" as const,
       display_name: model.displayName,
       modality: model.modality.toLowerCase(),
       ...(providerName ? { provider_name: providerName } : {}),
-      ...(model.contextWindow ? { context_window: model.contextWindow } : {}),
+      ...(!isImage && model.contextWindow ? { context_window: model.contextWindow } : {}),
       ...(model.maxTokens ? { max_output_tokens: model.maxTokens } : {}),
       pricing,
       capabilities,
+      ...(sizes ? { supported_sizes: sizes } : {}),
       ...(model.description ? { description: model.description } : {}),
     };
   });

@@ -1,9 +1,9 @@
 {
-  "status": "fixing",
+  "status": "reverifying",
   "user_goal": "model-metadata-fix: capabilities fallback 修复 + size 提示 + 幽灵模型 + contextWindow 语义",
   "total_features": 6,
   "completed_features": 5,
-  "fix_rounds": 0,
+  "fix_rounds": 1,
   "current_sprint": null,
   "last_updated": "2026-04-07T22:00:00Z",
   "reference_docs": [
@@ -34,5 +34,5 @@
       }
     ]
   },
-  "generator_handoff": "Mark: F-MM-01~05 全部完成。capabilities fallback 空对象修复、supportedSizes 新增、image contextWindow null、SERVER_INSTRUCTIONS 更新。F-MM-06 (executor:codex) 待验收"
+  "generator_handoff": "Mark fix round 1: list_models 和 /v1/models 输出层增加 capabilities fallback（DB 为空时用静态映射补全）+ supportedSizes 补全 + image contextWindow null。根因：sync 后 DB 中旧数据 capabilities={} 未触发重新 sync，输出层需兜底"
 }
