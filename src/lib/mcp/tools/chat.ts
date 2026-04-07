@@ -19,7 +19,7 @@ import type { McpServerOptions } from "@/lib/mcp/server";
 
 const messageSchema = z.object({
   role: z.enum(["system", "user", "assistant"]),
-  content: z.string().refine((s) => s.trim().length > 0, { message: "Message content must not be empty or whitespace-only" }),
+  content: z.string(),
 });
 
 export function registerChat(server: McpServer, opts: McpServerOptions): void {

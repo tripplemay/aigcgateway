@@ -141,11 +141,11 @@ export function sanitizeErrorMessage(message: string): string {
   // Remove IP addresses (v4)
   sanitized = sanitized.replace(/\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}(:\d+)?\b/g, "[IP removed]");
   // Remove Request IDs (Request ID xxx, RequestId: xxx, req-xxx patterns)
-  sanitized = sanitized.replace(/Request\s*ID[:\s]+[a-zA-Z0-9_-]+/gi, "[request ID removed]");
-  sanitized = sanitized.replace(/\breq-[a-zA-Z0-9_-]{4,}/gi, "[request ID removed]");
+  sanitized = sanitized.replace(/Request\s*ID[:\s]+[a-zA-Z0-9_-]+/gi, "[rid removed]");
+  sanitized = sanitized.replace(/\breq-[a-zA-Z0-9_-]{4,}/gi, "[rid removed]");
   // Remove provider endpoint/region info (endpoint xxx/region, cn-xxx, us-xxx-N)
-  sanitized = sanitized.replace(/endpoint\s+[a-zA-Z0-9/._-]+/gi, "[endpoint removed]");
-  sanitized = sanitized.replace(/\b[a-z]{2}-[a-z]+-\d+\b/g, "[region removed]");
+  sanitized = sanitized.replace(/endpoint\s+[a-zA-Z0-9/._-]+/gi, "[infra removed]");
+  sanitized = sanitized.replace(/\b[a-z]{2}-[a-z]+-\d+\b/g, "[infra removed]");
   return sanitized;
 }
 
