@@ -38,6 +38,18 @@ export async function POST(request: Request) {
 
   const token = signJwt({ userId: user.id, role: user.role });
 
+  // Write login history (async, non-blocking)
+  const ip =
+    request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
+    request.headers.get("x-real-ip") ||
+    null;
+  const userAgent = request.headers.get("user-agent") || null;
+  prisma.loginHistory
+    .create({
+      data: { userId: user.id, ip, userAgent },
+    })
+    .catch(() => {});
+
   return NextResponse.json({
     token,
     user: {

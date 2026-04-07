@@ -112,12 +112,26 @@ model User {
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
-  projects     Project[]
-  transactions Transaction[]
+  projects      Project[]
+  transactions  Transaction[]
+  loginHistory  LoginHistory[]
 
   @@index([email])
   @@index([role, createdAt(sort: Desc)])
   @@map("users")
+}
+
+model LoginHistory {
+  id        String   @id @default(cuid())
+  userId    String
+  ip        String?
+  userAgent String?
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([userId, createdAt(sort: Desc)])
+  @@map("login_history")
 }
 
 model Project {

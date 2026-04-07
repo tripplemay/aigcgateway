@@ -5,6 +5,23 @@ import { toast } from "sonner";
 import { apiFetch } from "@/lib/api-client";
 import { useRouter } from "next/navigation";
 
+interface LoginRecord {
+  id: string;
+  ip: string | null;
+  userAgent: string | null;
+  createdAt: string;
+}
+
+function parseUserAgent(ua: string | null): string {
+  if (!ua) return "Unknown";
+  if (ua.includes("Chrome")) return "Chrome";
+  if (ua.includes("Firefox")) return "Firefox";
+  if (ua.includes("Safari")) return "Safari";
+  if (ua.includes("Edge")) return "Edge";
+  if (ua.includes("curl")) return "curl";
+  return ua.slice(0, 30);
+}
+
 export default function SettingsPage() {
   const t = useTranslations("settings");
   const tc = useTranslations("common");
@@ -15,6 +32,7 @@ export default function SettingsPage() {
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [alertEmail, setAlertEmail] = useState(true);
+  const [loginHistory, setLoginHistory] = useState<LoginRecord[]>([]);
   const router = useRouter();
 
   useEffect(() => {
@@ -23,6 +41,9 @@ export default function SettingsPage() {
         setEmail(u.email);
         setName(u.name ?? "");
       })
+      .catch(() => {});
+    apiFetch<{ data: LoginRecord[] }>("/api/auth/login-history")
+      .then((r) => setLoginHistory(r.data))
       .catch(() => {});
   }, []);
 
@@ -178,6 +199,55 @@ export default function SettingsPage() {
                 />
               </button>
             </div>
+          </section>
+
+          {/* Security Log — Login History */}
+          <section className="bg-ds-surface-container-lowest rounded-xl p-8 shadow-sm">
+            <div className="flex items-center gap-4 mb-8">
+              <div className="w-12 h-12 rounded-xl bg-ds-error-container/20 flex items-center justify-center text-ds-error">
+                <span
+                  className="material-symbols-outlined"
+                  style={{ fontVariationSettings: "'FILL' 1" }}
+                >
+                  shield
+                </span>
+              </div>
+              <div>
+                <h2 className="text-xl font-bold font-[var(--font-heading)]">{t("securityLog")}</h2>
+                <p className="text-sm text-ds-on-surface-variant">{t("securityLogDesc")}</p>
+              </div>
+            </div>
+            {loginHistory.length === 0 ? (
+              <p className="text-sm text-ds-on-surface-variant text-center py-6">
+                {t("noLoginHistory")}
+              </p>
+            ) : (
+              <div className="space-y-3">
+                {loginHistory.map((record) => (
+                  <div
+                    key={record.id}
+                    className="flex items-center justify-between p-3 rounded-lg bg-ds-surface-container-low"
+                  >
+                    <div className="flex items-center gap-3">
+                      <span className="material-symbols-outlined text-ds-on-surface-variant text-lg">
+                        devices
+                      </span>
+                      <div>
+                        <p className="text-sm font-medium text-ds-on-surface">
+                          {parseUserAgent(record.userAgent)}
+                        </p>
+                        <p className="text-xs text-ds-on-surface-variant">
+                          IP: {record.ip || "Unknown"}
+                        </p>
+                      </div>
+                    </div>
+                    <span className="text-xs text-ds-on-surface-variant">
+                      {new Date(record.createdAt).toLocaleString()}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
           </section>
         </div>
 

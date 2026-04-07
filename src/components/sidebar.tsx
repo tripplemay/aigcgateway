@@ -36,6 +36,7 @@ const mainNav: NavItem[] = [
   { labelKey: "billing", href: "/balance", icon: "payments" },
   { labelKey: "quickStart", href: "/quickstart", icon: "rocket_launch" },
   { labelKey: "mcpSetup", href: "/mcp-setup", icon: "electrical_services" },
+  { labelKey: "settings", href: "/settings", icon: "settings" },
 ];
 
 const adminNav: NavItem[] = [
@@ -52,9 +53,10 @@ const adminNav: NavItem[] = [
 interface SidebarProps {
   role: "ADMIN" | "DEVELOPER";
   userName?: string;
+  email?: string;
 }
 
-export function Sidebar({ role }: SidebarProps) {
+export function Sidebar({ role, userName, email }: SidebarProps) {
   const pathname = usePathname();
   const t = useTranslations("sidebar");
   const { projects, current, select, refresh } = useProject();
@@ -183,8 +185,32 @@ export function Sidebar({ role }: SidebarProps) {
           })}
       </nav>
 
+      {/* User Info */}
+      <div className="px-4 mt-auto pt-4">
+        <Link
+          href="/settings"
+          className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-[#f2f3ff] dark:hover:bg-slate-800 transition-colors group"
+        >
+          <div className="w-8 h-8 rounded-full bg-ds-primary/10 flex items-center justify-center text-ds-primary shrink-0">
+            <span className="material-symbols-outlined text-lg">person</span>
+          </div>
+          <div className="min-w-0 flex-1">
+            <p className="text-sm font-bold text-ds-on-surface truncate">
+              {userName || email?.split("@")[0] || "User"}
+            </p>
+            <p className="text-[10px] font-bold uppercase tracking-widest text-ds-on-surface-variant">
+              {role === "ADMIN" ? (
+                <span className="text-ds-primary">{t("admin")}</span>
+              ) : (
+                <span>{t("developer")}</span>
+              )}
+            </p>
+          </div>
+        </Link>
+      </div>
+
       {/* Wallet Balance — code.html lines 131-141 */}
-      <div className="px-4 mt-auto pt-6">
+      <div className="px-4 pt-2">
         <div className="p-4 rounded-xl bg-ds-surface-container-high flex flex-col gap-2">
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold text-ds-on-surface-variant">

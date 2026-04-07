@@ -47,6 +47,9 @@
     "templates": "Templates",
     "modelWhitelist": "Model Whitelist",
     "adminTemplates": "Template Mgmt",
+    "settings": "Settings",
+    "admin": "Admin",
+    "developer": "Developer",
     "walletBalance": "Wallet Balance",
     "user": "User",
     "language": "中文"
@@ -280,7 +283,10 @@
     "signOut": "Sign Out",
     "signOutDesc": "Clear session and return to login page",
     "nameUpdated": "Name updated",
-    "passwordChanged": "Password changed"
+    "passwordChanged": "Password changed",
+    "securityLog": "Security Log",
+    "securityLogDesc": "Recent login activity for your account.",
+    "noLoginHistory": "No login records yet."
   },
   "adminProviders": {
     "title": "Providers",

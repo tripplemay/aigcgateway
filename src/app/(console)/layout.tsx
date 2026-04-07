@@ -12,6 +12,7 @@ interface UserInfo {
   userId: string;
   role: "ADMIN" | "DEVELOPER";
   name?: string;
+  email?: string;
 }
 
 export default function ConsoleLayout({ children }: { children: React.ReactNode }) {
@@ -27,9 +28,16 @@ export default function ConsoleLayout({ children }: { children: React.ReactNode 
       return;
     }
 
-    apiFetch<{ id: string; role: "ADMIN" | "DEVELOPER"; name?: string }>("/api/auth/profile")
+    apiFetch<{ id: string; email: string; role: "ADMIN" | "DEVELOPER"; name?: string }>(
+      "/api/auth/profile",
+    )
       .then((profile) => {
-        const userInfo: UserInfo = { userId: profile.id, role: profile.role, name: profile.name };
+        const userInfo: UserInfo = {
+          userId: profile.id,
+          role: profile.role,
+          name: profile.name,
+          email: profile.email,
+        };
         setUser(userInfo);
 
         if (pathname.startsWith("/admin") && userInfo.role !== "ADMIN") {
@@ -65,7 +73,7 @@ export default function ConsoleLayout({ children }: { children: React.ReactNode 
     <TooltipProvider>
       <ProjectProvider>
         <div className="bg-ds-surface text-ds-on-surface antialiased overflow-hidden">
-          <Sidebar role={user.role} userName={user.name} />
+          <Sidebar role={user.role} userName={user.name} email={user.email} />
           {/* code.html line 144 */}
           <div className="ml-64 flex flex-col h-screen">
             {/* code.html line 146 */}

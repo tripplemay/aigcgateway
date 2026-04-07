@@ -47,6 +47,9 @@
     "templates": "模板",
     "modelWhitelist": "模型白名单",
     "adminTemplates": "模板管理",
+    "settings": "设置",
+    "admin": "管理员",
+    "developer": "开发者",
     "walletBalance": "钱包余额",
     "user": "用户",
     "language": "EN"
@@ -280,7 +283,10 @@
     "signOut": "退出登录",
     "signOutDesc": "清除会话并返回登录页面",
     "nameUpdated": "姓名已更新",
-    "passwordChanged": "密码已修改"
+    "passwordChanged": "密码已修改",
+    "securityLog": "安全日志",
+    "securityLogDesc": "您的账号近期登录记录。",
+    "noLoginHistory": "暂无登录记录。"
   },
   "adminProviders": {
     "title": "服务商",
