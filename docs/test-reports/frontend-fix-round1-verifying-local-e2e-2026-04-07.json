@@ -1,0 +1,49 @@
+{
+  "batch": "frontend-fix-round1",
+  "generatedAt": "2026-04-07T11:19:53.093Z",
+  "environment": "http://localhost:3099",
+  "checks": [
+    {
+      "name": "admin login",
+      "ok": true,
+      "detail": "status=200"
+    },
+    {
+      "name": "developer login",
+      "ok": true,
+      "detail": "status=200"
+    },
+    {
+      "name": "api /v1/models excludes doubao-pro-32k",
+      "ok": true,
+      "detail": "status=200"
+    },
+    {
+      "name": "mcp list_models excludes doubao-pro-32k",
+      "ok": true,
+      "detail": "count=0"
+    },
+    {
+      "name": "mcp get_balance amount precision=8",
+      "ok": true,
+      "detail": "{\"balance\":\"$12.34567890\",\"amount\":\"$-0.12345678\"}"
+    },
+    {
+      "name": "mcp get_usage_summary totalCost precision=8",
+      "ok": true,
+      "detail": "$0.12345678"
+    },
+    {
+      "name": "mcp get_log_detail cost precision=8",
+      "ok": true,
+      "detail": "$0.12345678"
+    },
+    {
+      "name": "developer server access /admin/users blocked",
+      "ok": true,
+      "detail": "status=307"
+    }
+  ],
+  "pass": 8,
+  "fail": 0
+}

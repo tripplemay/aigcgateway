@@ -1,0 +1,52 @@
+{
+  "batch": "frontend-fix-round1",
+  "generatedAt": "2026-04-07T11:51:32Z",
+  "environment": "http://localhost:3099",
+  "checks": [
+    {
+      "name": "CreateProjectDialog via main CTA",
+      "ok": true,
+      "detail": "Dialog opens and submits (UI Test Project 1) — see chrome-devtools snapshots"
+    },
+    {
+      "name": "Sidebar 新建项目 CTA",
+      "ok": true,
+      "detail": "Sidebar button opens dialog and successfully created Sidebar Project 2"
+    },
+    {
+      "name": "Unauthenticated /dashboard redirect",
+      "ok": true,
+      "detail": "curl --noproxy '*' /dashboard => HTTP 307 location=/login"
+    },
+    {
+      "name": "Developer access /admin/users",
+      "ok": true,
+      "detail": "curl with Bearer developer token => HTTP 307 location=/dashboard"
+    },
+    {
+      "name": "npm run lint -- --no-cache",
+      "ok": true,
+      "detail": "No react-hooks/exhaustive-deps warnings (only Next custom font warning)"
+    },
+    {
+      "name": "Model whitelist",
+      "ok": true,
+      "detail": "SELECT count(*) FROM models WHERE name='doubao-pro-32k' => 0"
+    },
+    {
+      "name": "MCP get_balance precision",
+      "ok": true,
+      "detail": "Balance $12.34567890, transaction amount $0.12345678"
+    },
+    {
+      "name": "MCP get_usage_summary precision",
+      "ok": true,
+      "detail": "totalCost $0.12345678, avgLatency 1.2s"
+    },
+    {
+      "name": "MCP get_log_detail precision",
+      "ok": true,
+      "detail": "trace_ui_e2e cost $0.12345678, ttft 0.40s"
+    }
+  ]
+}

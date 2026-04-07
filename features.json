@@ -63,7 +63,7 @@
       "title": "E2E 验证",
       "priority": "high",
       "executor": "codex",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) CreateProjectDialog 可正常打开并创建项目；2) Sidebar New Project 可用；3) 未登录访问 /dashboard 被拦截到 /login；4) Developer 无法进入 /admin/* 前端页面；5) Keys 页无 href='#' 死链；6) 中文环境下 models 和 balance 页无英文硬编码；7) npm run lint 无 exhaustive-deps warning；8) list_models 不含不可用模型；9) get_log_detail/get_usage_summary/get_balance 费用显示 8 位小数"
     }
   ]
