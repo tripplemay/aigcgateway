@@ -1,0 +1,38 @@
+{
+  "email": "upc_test_1775584542129@test.com",
+  "userId": "cmnox6x3f00qk9yu0kqcueoti",
+  "results": [
+    {
+      "name": "register",
+      "ok": true,
+      "detail": "upc_test_1775584542129@test.com"
+    },
+    {
+      "name": "login #1",
+      "ok": true
+    },
+    {
+      "name": "login #2",
+      "ok": true
+    },
+    {
+      "name": "history endpoint",
+      "ok": true,
+      "detail": "records=2"
+    }
+  ],
+  "history": [
+    {
+      "id": "cmnox6x6v00qo9yu061a7gtwc",
+      "ip": "127.0.0.1",
+      "userAgent": "CodexTest/UA-2",
+      "createdAt": "2026-04-07T17:55:42.343Z"
+    },
+    {
+      "id": "cmnox6x5a00qm9yu084xci6mg",
+      "ip": "127.0.0.1",
+      "userAgent": "CodexTest/UA-1",
+      "createdAt": "2026-04-07T17:55:42.287Z"
+    }
+  ]
+}

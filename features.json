@@ -7,7 +7,7 @@
       "title": "Sidebar 底部用户信息展示",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) Sidebar 底部显示当前登录用户的名称（或 email 前缀）+ 角色徽标（Admin/Developer）；2) 数据从 /api/auth/profile 获取；3) 不需要头像；4) npm run lint + tsc 通过"
     },
     {
@@ -15,7 +15,7 @@
       "title": "个人中心入口（Sidebar 跳转）",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) Sidebar 用户信息区域可点击，跳转到 /settings；2) Sidebar 导航中增加 Settings 入口（齿轮图标）；3) 当前路由为 /settings 时导航高亮；4) npm run lint + tsc 通过"
     },
     {
@@ -23,7 +23,7 @@
       "title": "LoginHistory 表 + 登录时写入记录",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) Prisma schema 新增 LoginHistory 表（id, userId, ip, userAgent, createdAt）；2) migration 文件只包含此变更；3) 登录成功时（/api/auth/login）写入一条记录，IP 从 X-Forwarded-For 或 request header 获取；4) npm run lint + tsc 通过"
     },
     {
@@ -31,7 +31,7 @@
       "title": "Settings 页安全日志展示",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) Settings 页新增'安全日志'区域；2) 展示最近 20 条登录记录（时间、IP、设备/浏览器）；3) 新增 API GET /api/auth/login-history 返回登录历史；4) npm run lint + tsc 通过"
     },
     {
@@ -39,7 +39,7 @@
       "title": "i18n 补全",
       "priority": "low",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) 所有新增文案通过 useTranslations；2) en.json 和 zh-CN.json 同步更新；3) npm run lint + tsc 通过"
     },
     {
@@ -47,7 +47,7 @@
       "title": "E2E 验证",
       "priority": "high",
       "executor": "codex",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) Sidebar 底部显示用户名和角色；2) 点击跳转到 /settings；3) 登录后 LoginHistory 有新记录；4) Settings 页安全日志区域展示登录历史（时间/IP/设备）；5) Admin 和 Developer 角色徽标正确区分"
     }
   ]
