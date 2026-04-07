@@ -55,7 +55,7 @@
       "title": "费用展示精度统一 8 位",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) get_log_detail 的 cost 展示从 .toFixed(4) 改为 .toFixed(8)；2) get_usage_summary 的 cost/totalCost 从 .toFixed(4) 改为 .toFixed(8)；3) get_balance 交易流水的 amount 展示统一精度；4) npm run lint + tsc 通过"
     },
     {

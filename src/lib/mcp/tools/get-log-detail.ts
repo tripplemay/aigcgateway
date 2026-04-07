@@ -85,7 +85,7 @@ export function registerGetLogDetail(server: McpServer, opts: McpServerOptions):
           completionTokens: log.completionTokens,
           totalTokens: log.totalTokens,
         },
-        cost: log.sellPrice != null ? `$${Number(log.sellPrice).toFixed(4)}` : null,
+        cost: log.sellPrice != null ? `$${Number(log.sellPrice).toFixed(8)}` : null,
         latency: log.latencyMs != null ? `${(log.latencyMs / 1000).toFixed(1)}s` : null,
         ttftMs: log.ttftMs,
         ttft: log.ttftMs != null ? `${(log.ttftMs / 1000).toFixed(2)}s` : null,

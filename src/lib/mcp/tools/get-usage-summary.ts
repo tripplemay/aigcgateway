@@ -96,14 +96,14 @@ export function registerGetUsageSummary(server: McpServer, opts: McpServerOption
       const result = {
         period: p,
         totalCalls: agg._count,
-        totalCost: `$${Number(agg._sum.sellPrice ?? 0).toFixed(4)}`,
+        totalCost: `$${Number(agg._sum.sellPrice ?? 0).toFixed(8)}`,
         totalTokens: agg._sum.totalTokens ?? 0,
         avgLatency:
           agg._avg.latencyMs != null ? `${(agg._avg.latencyMs / 1000).toFixed(1)}s` : null,
         topModels: topModels.map((m) => ({
           model: m.modelName,
           calls: m._count,
-          cost: `$${Number(m._sum.sellPrice ?? 0).toFixed(4)}`,
+          cost: `$${Number(m._sum.sellPrice ?? 0).toFixed(8)}`,
           ...(!activeSet.has(m.modelName) ? { deprecated: true } : {}),
         })),
       };
@@ -130,7 +130,7 @@ async function buildGroupedQuery(
     return groups.map((g) => ({
       key: g.modelName,
       totalCalls: g._count,
-      totalCost: `$${Number(g._sum.sellPrice ?? 0).toFixed(4)}`,
+      totalCost: `$${Number(g._sum.sellPrice ?? 0).toFixed(8)}`,
       totalTokens: g._sum.totalTokens ?? 0,
     }));
   }
@@ -146,7 +146,7 @@ async function buildGroupedQuery(
     return groups.map((g) => ({
       key: g.source,
       totalCalls: g._count,
-      totalCost: `$${Number(g._sum.sellPrice ?? 0).toFixed(4)}`,
+      totalCost: `$${Number(g._sum.sellPrice ?? 0).toFixed(8)}`,
       totalTokens: g._sum.totalTokens ?? 0,
     }));
   }
@@ -169,7 +169,7 @@ async function buildGroupedQuery(
     return groups.map((g) => ({
       key: `${g.actionId} (${nameMap.get(g.actionId!) ?? "unknown"})`,
       totalCalls: g._count,
-      totalCost: `$${Number(g._sum.sellPrice ?? 0).toFixed(4)}`,
+      totalCost: `$${Number(g._sum.sellPrice ?? 0).toFixed(8)}`,
       totalTokens: g._sum.totalTokens ?? 0,
     }));
   }
@@ -192,7 +192,7 @@ async function buildGroupedQuery(
     return groups.map((g) => ({
       key: `${g.templateRunId} (${nameMap.get(g.templateRunId!) ?? "unknown"})`,
       totalCalls: g._count,
-      totalCost: `$${Number(g._sum.sellPrice ?? 0).toFixed(4)}`,
+      totalCost: `$${Number(g._sum.sellPrice ?? 0).toFixed(8)}`,
       totalTokens: g._sum.totalTokens ?? 0,
     }));
   }
@@ -215,7 +215,7 @@ async function buildGroupedQuery(
   return dayGroups.map((g) => ({
     key: g.day,
     totalCalls: Number(g.count),
-    totalCost: `$${Number(g.cost).toFixed(4)}`,
+    totalCost: `$${Number(g.cost).toFixed(8)}`,
     totalTokens: Number(g.tokens),
   }));
 }

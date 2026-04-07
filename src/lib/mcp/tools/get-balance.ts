@@ -41,7 +41,7 @@ export function registerGetBalance(server: McpServer, opts: McpServerOptions): v
       }
 
       const result: Record<string, unknown> = {
-        balance: `$${Number(project.balance).toFixed(4)}`,
+        balance: `$${Number(project.balance).toFixed(8)}`,
       };
 
       if (include_transactions) {
@@ -61,8 +61,8 @@ export function registerGetBalance(server: McpServer, opts: McpServerOptions): v
 
         result.transactions = transactions.map((t) => ({
           type: t.type.toLowerCase(),
-          amount: `$${Number(t.amount).toFixed(4)}`,
-          balanceAfter: `$${Number(t.balanceAfter).toFixed(4)}`,
+          amount: `$${Number(t.amount).toFixed(8)}`,
+          balanceAfter: `$${Number(t.balanceAfter).toFixed(8)}`,
           traceId: t.traceId ?? null,
           description: t.description,
           createdAt: t.createdAt,
