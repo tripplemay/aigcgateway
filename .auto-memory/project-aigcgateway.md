@@ -66,13 +66,16 @@ Action 相关权威设计稿（3 个，已更新确认）：
 
 状态：3 页设计稿还原已完成并通过验收（`action-pages-design-restore` 5/5 PASS）
 
-## Backlog（1 条待处理）
+## Backlog（4 条待处理）
 
 | ID | 优先级 | 标题 |
 |---|---|---|
-| BL-050 | high | MCP 配置页面重构（10 种客户端一键复制，参考 Stitch） |
+| BL-051 | high | capabilities fallback ?? 不处理空对象（影响所有 OpenAI/OpenRouter 模型） |
+| BL-052 | medium | generate_image size Enum 提示 |
+| BL-053 | medium | 幽灵模型状态管理 |
+| BL-054 | low | image 模型 contextWindow 语义修正 |
 
-BL-024~049 已完成。
+BL-024~050 已完成。
 
 ## 已知遗留问题
 

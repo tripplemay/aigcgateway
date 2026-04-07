@@ -251,6 +251,7 @@ git status --short docs/test-reports/ docs/test-cases/ .auto-memory/
 6. Generator 不得执行 `executor:codex` 的功能；Codex 不得实现 `executor:generator` 的功能
 7. 压测执行、code review、安全审计等"产出报告"类任务，必须标注 `executor:codex`
 8. `role_assignments` 存在时，agent 只执行分配给自己的角色，不越界
+9. 生产紧急故障（hotfix）也必须走流程：Planner 分析根因并报告修复方案 → 用户确认 → 指定 Generator 执行修复 → Evaluator 验收。Planner 不得直接修改产品代码，即使是一行代码
 
 ## 框架提案规则
 

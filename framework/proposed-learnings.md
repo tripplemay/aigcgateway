@@ -134,4 +134,4 @@
 
 **建议写入：** `harness-rules.md` 铁律 — 新增第 9 条："生产紧急故障（hotfix）流程：Planner 分析根因并报告修复方案 → 用户确认 → 指定 Generator 执行修复 → Evaluator 验收。Planner 不得直接修改产品代码，即使是一行代码。"
 
-**状态：** 待确认
+**状态：** 已写入（2026-04-07）— harness-rules.md 铁律第 9 条

@@ -10,11 +10,7 @@
     "docs/test-reports/mcp-setup-redesign-verifying-2026-04-07.md",
     "docs/test-reports/mcp-setup-redesign-verifying-local-e2e-2026-04-07.json"
   ],
-  "role_assignments": {
-    "planner": "Kimi",
-    "generator": "Mark",
-    "evaluator": "Reviewer"
-  },
+  "role_assignments": null,
   "docs": {
     "spec": null,
     "test_cases": null,
