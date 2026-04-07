@@ -1,4 +1,13 @@
 {
   "description": "需求池：已与用户确认但尚未开发的功能，等待下一批次启动时统一安排",
-  "items": []
+  "items": [
+    {
+      "id": "BL-046",
+      "title": "CreateProjectDialog 点击无反应",
+      "description": "create-project-dialog.tsx L52 的 DialogTrigger render={<span />} 导致 trigger 按钮点击事件失效。@base-ui/react 的 render prop 应直接传入 trigger 元素而非包裹 <span>。新用户注册后无法创建项目，平台不可用。来源：生产环境用户报告（2026-04-07）。",
+      "decisions": [],
+      "confirmed_at": "2026-04-07",
+      "priority": "high"
+    }
+  ]
 }
