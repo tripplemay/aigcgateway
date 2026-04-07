@@ -5,7 +5,7 @@ import { requireAdmin } from "@/lib/api/admin-guard";
 import { errorResponse } from "@/lib/api/errors";
 
 
-/** POST — Admin 手动充值（type=ADJUSTMENT） */
+/** POST — Admin 手动充值（充到 User 级别，保留 projectId 用于审计） */
 export async function POST(
   request: Request,
   { params }: { params: { id: string; projectId: string } },
@@ -26,14 +26,16 @@ export async function POST(
   if (!project) return errorResponse(404, "not_found", "Project not found");
 
   const result = await prisma.$transaction(async (tx) => {
-    const updated = await tx.project.update({
-      where: { id: params.projectId },
+    // Recharge to User balance (not Project)
+    const updated = await tx.user.update({
+      where: { id: params.id },
       data: { balance: { increment: amount } },
     });
 
     const txn = await tx.transaction.create({
       data: {
         projectId: params.projectId,
+        userId: params.id,
         type: "ADJUSTMENT",
         amount,
         balanceAfter: updated.balance,

@@ -10,6 +10,11 @@ export async function GET(request: Request) {
   const auth = verifyJwt(request);
   if (!auth.ok) return auth.error;
 
+  const user = await prisma.user.findUnique({
+    where: { id: auth.payload.userId },
+    select: { balance: true },
+  });
+
   const projects = await prisma.project.findMany({
     where: { userId: auth.payload.userId },
     orderBy: { createdAt: "desc" },
@@ -17,12 +22,15 @@ export async function GET(request: Request) {
       id: true,
       name: true,
       description: true,
-      balance: true,
       createdAt: true,
     },
   });
 
-  return NextResponse.json({ data: projects });
+  // Return user-level balance on each project (all projects share the same balance)
+  const userBalance = user ? Number(user.balance) : 0;
+  return NextResponse.json({
+    data: projects.map((p) => ({ ...p, balance: userBalance })),
+  });
 }
 
 /** POST /api/projects — 创建项目 */

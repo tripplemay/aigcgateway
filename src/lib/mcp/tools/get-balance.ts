@@ -1,7 +1,7 @@
 /**
  * MCP Tool: get_balance
  *
- * 查看项目余额和最近交易。
+ * 查看用户余额和最近交易。
  * 查询类 Tool —— 不写入审计日志，不扣费。
  */
 
@@ -16,7 +16,7 @@ export function registerGetBalance(server: McpServer, opts: McpServerOptions): v
 
   server.tool(
     "get_balance",
-    `Check your project's current balance and optionally view recent transactions. Set include_transactions to true to see the last 10 charges, top-ups, and adjustments.`,
+    `Check your current balance (user-level, shared across all projects) and optionally view recent transactions. Set include_transactions to true to see the last 10 charges, top-ups, and adjustments.`,
     {
       include_transactions: z
         .boolean()
@@ -28,9 +28,11 @@ export function registerGetBalance(server: McpServer, opts: McpServerOptions): v
       if (permErr) {
         return { content: [{ type: "text" as const, text: permErr }], isError: true };
       }
+
+      // Get user-level balance via project → user
       const project = await prisma.project.findUnique({
         where: { id: projectId },
-        select: { balance: true },
+        select: { userId: true, user: { select: { balance: true } } },
       });
 
       if (!project) {
@@ -41,10 +43,11 @@ export function registerGetBalance(server: McpServer, opts: McpServerOptions): v
       }
 
       const result: Record<string, unknown> = {
-        balance: `$${Number(project.balance).toFixed(8)}`,
+        balance: `$${Number(project.user.balance).toFixed(8)}`,
       };
 
       if (include_transactions) {
+        // Transactions still filtered by projectId for per-project detail
         const transactions = await prisma.transaction.findMany({
           where: { projectId },
           orderBy: { createdAt: "desc" },

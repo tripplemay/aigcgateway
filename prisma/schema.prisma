@@ -108,10 +108,12 @@ model User {
   name          String?
   role          UserRole @default(DEVELOPER)
   emailVerified Boolean  @default(false)
+  balance       Decimal  @default(0) @db.Decimal(16, 8)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
-  projects Project[]
+  projects     Project[]
+  transactions Transaction[]
 
   @@index([email])
   @@index([role, createdAt(sort: Desc)])
@@ -311,6 +313,7 @@ model CallLog {
 model Transaction {
   id             String            @id @default(cuid())
   projectId      String
+  userId         String?
   type           TransactionType
   amount         Decimal           @db.Decimal(16, 8)
   balanceAfter   Decimal           @db.Decimal(16, 8)
@@ -324,9 +327,11 @@ model Transaction {
   createdAt      DateTime          @default(now())
 
   project Project @relation(fields: [projectId], references: [id])
+  user    User?   @relation(fields: [userId], references: [id])
 
   @@index([projectId, createdAt(sort: Desc)])
   @@index([projectId, type])
+  @@index([userId, createdAt(sort: Desc)])
   @@index([paymentOrderId])
   @@map("transactions")
 }

@@ -1,19 +1,24 @@
 /**
  * 余额检查中间件
  *
- * Project.balance > 0，否则 402 + 当前余额
+ * User.balance > 0，否则 402 + 当前余额
  */
 
-import type { Project } from "@prisma/client";
 import { errorResponse } from "./errors";
 import type { NextResponse } from "next/server";
+
+interface BalanceHolder {
+  balance: number | { toNumber?: () => number } | string;
+}
 
 type BalanceResult =
   | { ok: true }
   | { ok: false; error: NextResponse };
 
-export function checkBalance(project: Project): BalanceResult {
-  const balance = Number(project.balance);
+export function checkBalance(entity: BalanceHolder): BalanceResult {
+  const balance = typeof entity.balance === "object" && entity.balance !== null && "toNumber" in entity.balance
+    ? (entity.balance as { toNumber: () => number }).toNumber()
+    : Number(entity.balance);
 
   if (balance <= 0) {
     return {

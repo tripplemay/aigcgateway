@@ -1,8 +1,8 @@
 {
-  "status": "building",
+  "status": "verifying",
   "user_goal": "balance-user-level-backend: 余额从项目级改为用户级（DB + SQL函数 + API + MCP + UI 全链路）",
   "total_features": 8,
-  "completed_features": 0,
+  "completed_features": 7,
   "fix_rounds": 0,
   "current_sprint": null,
   "last_updated": "2026-04-08T00:00:00Z",
@@ -19,5 +19,5 @@
     "framework_reviewed": false
   },
   "evaluator_feedback": null,
-  "generator_handoff": null
+  "generator_handoff": "Mark: F-BU-01~07 全部完成。User.balance 字段+migration、deduct_balance/check_balance SQL 函数重写（通过 project→user 查找）、checkBalance 改为检查 user.balance、充值 API 改为更新 user.balance、get_balance MCP 返回 user 级余额、REST /api/projects/:id/balance 返回 user 级余额、/api/projects GET 返回 user 级余额、admin 用户详情返回 user.balance"
 }

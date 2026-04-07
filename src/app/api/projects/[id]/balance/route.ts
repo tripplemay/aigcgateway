@@ -17,8 +17,8 @@ export async function GET(
     where: { id: params.id, userId: auth.payload.userId },
     select: {
       id: true,
-      balance: true,
       alertThreshold: true,
+      user: { select: { balance: true } },
     },
   });
   if (!project) return errorResponse(404, "not_found", "Project not found");
@@ -31,7 +31,7 @@ export async function GET(
   });
 
   return NextResponse.json({
-    balance: Number(project.balance),
+    balance: Number(project.user.balance),
     alertThreshold: project.alertThreshold ? Number(project.alertThreshold) : null,
     lastRecharge: lastRecharge
       ? {

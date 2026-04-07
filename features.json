@@ -7,7 +7,7 @@
       "title": "User 表新增 balance 字段 + migration",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) User 表新增 balance Decimal(16,8) DEFAULT 0；2) migration 将现有 Project.balance 按 userId 合并到 User.balance（SUM）；3) migration 文件只包含此变更；4) 本地 prisma migrate dev 通过；5) npm run lint + tsc 通过"
     },
     {
@@ -15,7 +15,7 @@
       "title": "deduct_balance / check_balance SQL 函数重写",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) deduct_balance 改为从 User.balance 扣费（通过 projectId 找到 userId）；2) check_balance 改为检查 User.balance；3) Transaction 表保留 projectId（记录来源），新增 userId 字段；4) migration 文件包含函数重写 + Transaction.userId 字段；5) npm run lint + tsc 通过"
     },
     {
@@ -23,7 +23,7 @@
       "title": "post-process 扣费逻辑对齐",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) src/lib/api/post-process.ts 的 deductBalance 调用传入 userId（从 project 关联获取）；2) balance check 中间件改为查 User.balance；3) 扣费仍记录 projectId 用于分析；4) npm run lint + tsc 通过"
     },
     {
@@ -31,7 +31,7 @@
       "title": "充值 API 改为 User 级别",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) Admin 充值接口改为给 User 充值（不再选 Project）；2) 充值记录写入 Transaction，userId 必填，projectId 可为空；3) 原有的 Project 级充值接口兼容处理（充到 User）；4) npm run lint + tsc 通过"
     },
     {
@@ -39,7 +39,7 @@
       "title": "get_balance MCP Tool + REST API 对齐",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) get_balance MCP Tool 返回 User 级余额（不再返回 Project 级）；2) REST API /api/projects/:id/balance 返回 User 级余额（向后兼容，所有项目看到同一个余额）；3) 交易明细仍按 projectId 过滤；4) npm run lint + tsc 通过"
     },
     {
@@ -47,7 +47,7 @@
       "title": "Sidebar + Dashboard 余额显示对齐",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) Sidebar 钱包显示 User 级总余额（切换项目不变化）；2) Dashboard 余额卡片显示 User 级总余额；3) Admin 用户详情页余额显示 User.balance；4) npm run lint + tsc 通过"
     },
     {
@@ -55,7 +55,7 @@
       "title": "Admin 充值页面对齐",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) Admin 用户详情页充值改为给 User 充值；2) 不再需要选择项目；3) 充值后 User.balance 立即更新；4) npm run lint + tsc 通过"
     },
     {

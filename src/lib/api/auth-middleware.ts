@@ -14,7 +14,7 @@
 
 import { createHash } from "crypto";
 import { prisma } from "@/lib/prisma";
-import type { Project, ApiKey } from "@prisma/client";
+import type { Project, ApiKey, User } from "@prisma/client";
 import { errorResponse } from "./errors";
 import { getClientIp, isIpInWhitelist } from "./ip-utils";
 import type { NextResponse } from "next/server";
@@ -27,7 +27,7 @@ export interface ApiKeyPermissions {
 }
 
 export interface AuthContext {
-  project: Project;
+  project: Project & { user: User };
   apiKey: ApiKey;
 }
 
@@ -72,7 +72,7 @@ export async function authenticateApiKey(request: Request): Promise<AuthResult> 
 
   const apiKey = await prisma.apiKey.findUnique({
     where: { keyHash },
-    include: { project: true },
+    include: { project: { include: { user: true } } },
   });
 
   if (!apiKey) {

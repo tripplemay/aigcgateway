@@ -35,11 +35,11 @@ export async function GET(
     email: user.email,
     role: user.role,
     emailVerified: user.emailVerified,
+    balance: Number(user.balance),
     createdAt: user.createdAt,
     projects: user.projects.map((p) => ({
       id: p.id,
       name: p.name,
-      balance: Number(p.balance),
       callCount: p._count.callLogs,
       keyCount: p._count.apiKeys,
       createdAt: p.createdAt,

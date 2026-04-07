@@ -24,7 +24,7 @@ export async function POST(request: Request) {
   const { project, apiKey } = auth.ctx;
 
   // 2. 余额检查
-  const balanceCheck = checkBalance(project);
+  const balanceCheck = checkBalance(project.user);
   if (!balanceCheck.ok) return balanceCheck.error;
 
   // 3. 解析请求体

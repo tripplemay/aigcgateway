@@ -23,7 +23,7 @@ export async function POST(request: Request) {
   const { project, apiKey } = auth.ctx;
 
   // 2. Balance
-  const balanceCheck = checkBalance(project);
+  const balanceCheck = checkBalance(project.user);
   if (!balanceCheck.ok) return balanceCheck.error;
 
   // 3. Parse body
