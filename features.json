@@ -1,38 +1,46 @@
 {
-  "batch": "security-billing-polish",
+  "batch": "frontend-audit",
   "created_at": "2026-04-07",
   "features": [
     {
-      "id": "F-SB-01",
-      "title": "generate_image 上游错误脱敏补全",
-      "priority": "high",
-      "executor": "generator",
-      "status": "completed",
-      "acceptance": "1) generate_image 的所有错误路径（不仅是通用 routing catch，还包括 adapter 内部 catch、上游参数校验错误、认证失败等）均经过 sanitizeErrorMessage；2) 空 prompt 时不透传 QQ 群号；3) 无效尺寸时不透传 QQ 群号；4) volcengine 错误时不透传 Request ID 和端点名；5) npm run lint + tsc 通过"
-    },
-    {
-      "id": "F-SB-02",
-      "title": "最低扣费保护（MIN_CHARGE）",
-      "priority": "medium",
-      "executor": "generator",
-      "status": "completed",
-      "acceptance": "1) deductBalance 函数中加入 MIN_CHARGE = 0.00000001；2) 当 amount > 0 但小于 MIN_CHARGE 时，实际扣费为 MIN_CHARGE；3) sellUsd = 0（免费模型）时不受影响，仍跳过扣费；4) npm run lint + tsc 通过"
-    },
-    {
-      "id": "F-SB-03",
-      "title": "空 content 校验",
-      "priority": "medium",
-      "executor": "generator",
-      "status": "completed",
-      "acceptance": "1) chat tool 对 messages[].content 增加非空校验（trim 后长度 > 0）；2) 空 content 返回 [invalid_request] 错误，不转发到上游模型；3) npm run lint + tsc 通过"
-    },
-    {
-      "id": "F-SB-04",
-      "title": "E2E 验证",
+      "id": "F-FA-01",
+      "title": "审查：死链/空链 + 交互断裂 + 组件一致性",
       "priority": "high",
       "executor": "codex",
-      "status": "completed",
-      "acceptance": "1) generate_image 空 prompt / 无效尺寸 / volcengine 错误均不泄露供应商信息（QQ 群号、Request ID、端点名）；2) 微额调用（1 token）实际产生扣费（余额减少）；3) 空 content messages 被网关层拦截，返回 [invalid_request]"
+      "status": "pending",
+      "acceptance": "1) 检查所有 20 个控制台页面的 href='#'、onClick 未绑定、按钮无响应；2) 检查 Dialog/Modal/表单提交/分页/搜索是否工作；3) 检查 @base-ui/react render prop 误用；4) 产出报告列出所有问题"
+    },
+    {
+      "id": "F-FA-02",
+      "title": "审查：空状态体验 + i18n 完整性",
+      "priority": "high",
+      "executor": "codex",
+      "status": "pending",
+      "acceptance": "1) 各页面无数据时是否有引导文案（非空白页）；2) 检查硬编码文本、translation key 缺失、en.json/zh-CN.json 不同步；3) 产出报告"
+    },
+    {
+      "id": "F-FA-03",
+      "title": "审查：性能 + 控制台错误 + 响应式",
+      "priority": "medium",
+      "executor": "codex",
+      "status": "pending",
+      "acceptance": "1) 检查不必要的重渲染、缺少 loading skeleton、N+1 API 调用；2) 页面加载时是否有 JS 报错、React hydration mismatch、404 资源；3) 页面在不同宽度下是否溢出/截断/重叠；4) 产出报告"
+    },
+    {
+      "id": "F-FA-04",
+      "title": "审查：权限边界 + 错误边界 + 数据泄露",
+      "priority": "high",
+      "executor": "codex",
+      "status": "pending",
+      "acceptance": "1) Developer 角色不能访问 Admin 页面；2) 未登录用户不能直接访问控制台路由；3) API 返回 500/403/网络断开时有 error boundary 兜底（非白屏）；4) 非 Admin 用户不能看到其他项目数据；5) 产出报告"
+    },
+    {
+      "id": "F-FA-05",
+      "title": "审查：表单校验一致性 + 设计稿一致性 + 废弃代码",
+      "priority": "medium",
+      "executor": "codex",
+      "status": "pending",
+      "acceptance": "1) 前端校验与后端 API 校验一致（前端放过后端拒绝的情况列出）；2) 有 design-draft/ 原型的页面布局与设计稿一致；3) 未使用组件、console.log、已注释代码块列出；4) 产出报告"
     }
   ]
 }

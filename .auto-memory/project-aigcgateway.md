@@ -12,10 +12,9 @@ AIGC Gateway — AI 服务商管理中台。统一 API 调用抽象（兼容 Ope
 
 ## 当前开发状态（截至 2026-04-07）
 
-**当前批次：** `security-billing-polish`（已签收）
+**最新完成批次：** `security-billing-polish`（4/4 PASS，fix_rounds=0）
 **Harness 状态：** done
-**最新验收报告：** `docs/test-reports/security-billing-polish-signoff-2026-04-07.md`
-**当前结论：** F-SB-01/F-SB-02/F-SB-03/F-SB-04 全部通过（5/5）
+**签收报告：** `docs/test-reports/security-billing-polish-signoff-2026-04-07.md`
 
 ### 近期完成批次（2026-04-06）
 
@@ -65,15 +64,14 @@ Action 相关权威设计稿（3 个，已更新确认）：
 
 状态：3 页设计稿还原已完成并通过验收（`action-pages-design-restore` 5/5 PASS）
 
-## Backlog（3 条待处理）
+## Backlog（2 条待处理）
 
-| ID | 优先级 | 标题 | 来源 |
+| ID | 优先级 | 标题 | 类型 |
 |---|---|---|---|
-| BL-043 | medium | 最低扣费保护（MIN_CHARGE） | FinOps 精度分析 |
-| BL-044 | high | generate_image 脱敏补全（F-MH-01 残留） | 混沌测试复测 |
-| BL-045 | medium | 空 content 校验 | 混沌测试复测 |
+| BL-046 | high | CreateProjectDialog 点击无反应 | generator 修复 |
+| BL-047 | high | 前端全面审查（14 维度，20 页面） | codex-only 审查 |
 
-BL-024~042 已完成。
+BL-024~045 已完成。
 
 ## 已知遗留问题
 
