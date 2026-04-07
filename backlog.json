@@ -8,6 +8,18 @@
       "decisions": [],
       "confirmed_at": "2026-04-07",
       "priority": "high"
+    },
+    {
+      "id": "BL-047",
+      "title": "前端全面审查（14 维度，Codex-only）",
+      "description": "对 20 个控制台页面进行全面审查，产出审查报告。审查维度：1) 死链/空链；2) 交互断裂（Dialog/表单/分页/搜索）；3) 组件一致性（@base-ui/react render prop 误用等）；4) 空状态体验；5) i18n 完整性；6) 性能问题（重渲染/loading/N+1 API）；7) 控制台错误（JS报错/hydration mismatch）；8) 响应式/布局；9) 权限边界（Developer vs Admin，路由守卫）；10) 错误边界（API 500/403/断网白屏）；11) 表单校验一致性（前后端）；12) 数据泄露（越权数据）；13) 设计稿一致性（有原型的页面）；14) 废弃代码（未使用组件/console.log）。来源：用户要求（2026-04-07）。",
+      "decisions": [
+        "executor: codex（Codex-only 批次，跳过 building）",
+        "产出物：docs/test-reports/ 下的审查报告",
+        "覆盖全部 20 个控制台页面"
+      ],
+      "confirmed_at": "2026-04-07",
+      "priority": "high"
     }
   ]
 }
