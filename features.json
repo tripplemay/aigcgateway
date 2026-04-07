@@ -7,7 +7,7 @@
       "title": "User 表新增 balance 字段 + migration",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) User 表新增 balance Decimal(16,8) DEFAULT 0；2) migration 将现有 Project.balance 按 userId 合并到 User.balance（SUM）；3) migration 文件只包含此变更；4) 本地 prisma migrate dev 通过；5) npm run lint + tsc 通过"
     },
     {
@@ -15,7 +15,7 @@
       "title": "deduct_balance / check_balance SQL 函数重写",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) deduct_balance 改为从 User.balance 扣费（通过 projectId 找到 userId）；2) check_balance 改为检查 User.balance；3) Transaction 表保留 projectId（记录来源），新增 userId 字段；4) migration 文件包含函数重写 + Transaction.userId 字段；5) npm run lint + tsc 通过"
     },
     {

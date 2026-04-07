@@ -27,7 +27,11 @@ CREATE INDEX "transactions_userId_createdAt_idx" ON "transactions"("userId", "cr
 ALTER TABLE "transactions" ADD CONSTRAINT "transactions_userId_fkey"
   FOREIGN KEY ("userId") REFERENCES "users"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
--- Step 7: Rewrite deduct_balance to operate on users.balance
+-- Step 7: Drop old functions and recreate for users.balance
+DROP FUNCTION IF EXISTS deduct_balance(TEXT, DECIMAL, TEXT, TEXT, TEXT);
+DROP FUNCTION IF EXISTS deduct_balance(TEXT, DECIMAL, TEXT, TEXT);
+DROP FUNCTION IF EXISTS check_balance(TEXT);
+
 CREATE OR REPLACE FUNCTION deduct_balance(
   p_project_id TEXT,
   p_amount DECIMAL(16,8),

@@ -1,9 +1,9 @@
 {
-  "status": "fixing",
+  "status": "reverifying",
   "user_goal": "balance-user-level-backend: 余额从项目级改为用户级（DB + SQL函数 + API + MCP + UI 全链路）",
   "total_features": 8,
   "completed_features": 7,
-  "fix_rounds": 0,
+  "fix_rounds": 1,
   "current_sprint": null,
   "last_updated": "2026-04-07T23:32:00Z",
   "reference_docs": [],
