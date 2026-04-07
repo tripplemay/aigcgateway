@@ -1,25 +1,23 @@
 {
-  "status": "done",
-  "user_goal": "project-switcher-ui: 项目切换 UI + 创建后自动切换 + useProject Context Provider",
-  "total_features": 6,
-  "completed_features": 6,
+  "status": "building",
+  "user_goal": "balance-user-level-backend: 余额从项目级改为用户级（DB + SQL函数 + API + MCP + UI 全链路）",
+  "total_features": 8,
+  "completed_features": 0,
   "fix_rounds": 0,
   "current_sprint": null,
-  "last_updated": "2026-04-07T23:00:00Z",
+  "last_updated": "2026-04-08T00:00:00Z",
   "reference_docs": [],
-  "role_assignments": null,
+  "role_assignments": {
+    "planner": "Kimi",
+    "generator": "Mark",
+    "evaluator": "Reviewer"
+  },
   "docs": {
     "spec": null,
-    "test_cases": "test-cases/project-switcher-ui-local-test-cases-2026-04-07.md",
-    "signoff": "test-reports/project-switcher-ui-signoff-2026-04-07.md",
+    "test_cases": null,
+    "signoff": null,
     "framework_reviewed": false
   },
-  "evaluator_feedback": {
-    "summary": "project-switcher-ui L1 验收 6/6 PASS，Playwright 场景覆盖项目创建/切换/余额/刷新持久化。",
-    "pass_count": 6,
-    "partial_count": 0,
-    "fail_count": 0,
-    "issues": []
-  },
-  "generator_handoff": "Mark: F-PS-01~05 全部完成。useProject 改为 Context Provider（ProjectProvider）、Sidebar 项目下拉选择器、创建后自动切换（refresh+auto-select newest）、layout 余额从 Provider 获取、i18n 补全"
+  "evaluator_feedback": null,
+  "generator_handoff": null
 }

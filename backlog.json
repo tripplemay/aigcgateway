@@ -1,28 +1,4 @@
 {
   "description": "需求池：已与用户确认但尚未开发的功能，等待下一批次启动时统一安排",
-  "items": [
-    {
-      "id": "BL-055",
-      "title": "余额从项目级改为用户级（架构变更）",
-      "description": "当前余额挂在 Project 上，每个项目独立充值扣费。改为 User 级别共享余额，所有项目共用。涉及 DB schema、deduct_balance/check_balance SQL 函数、充值 API、交易记录、Sidebar 余额显示、get_balance MCP Tool、Admin 充值页面。来源：用户产品决策（2026-04-07）。",
-      "decisions": [
-        "User 表新增 balance 字段（Decimal(16,8)），Project 表 balance 字段保留但废弃",
-        "deduct_balance/check_balance SQL 函数改为操作 User.balance",
-        "Transaction 表保留 projectId（用于分析哪个项目产生的消费），新增 userId",
-        "充值入口改为 User 级别（Admin 给用户充值，不选项目）",
-        "get_balance MCP Tool 返回用户总余额",
-        "Sidebar 钱包显示用户总余额"
-      ],
-      "confirmed_at": "2026-04-07",
-      "priority": "high"
-    },
-    {
-      "id": "BL-056",
-      "title": "项目切换 UI + 创建后自动切换",
-      "description": "当前 sidebar 无项目选择器，创建项目后不切换不刷新。需要：1) sidebar 增加项目下拉选择器（PRD 设计中有 nav-section: project）；2) CreateProjectDialog 的 onCreated 回调刷新列表并自动切换到新项目；3) useProject 改为 Context Provider 实现全局状态同步。来源：用户产品反馈 + 前端审查（2026-04-07）。",
-      "decisions": [],
-      "confirmed_at": "2026-04-07",
-      "priority": "high"
-    }
-  ]
+  "items": []
 }

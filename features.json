@@ -1,54 +1,70 @@
 {
-  "batch": "project-switcher-ui",
+  "batch": "balance-user-level-backend",
   "created_at": "2026-04-07",
   "features": [
     {
-      "id": "F-PS-01",
-      "title": "useProject 改为 Context Provider",
+      "id": "F-BU-01",
+      "title": "User 表新增 balance 字段 + migration",
       "priority": "high",
       "executor": "generator",
-      "status": "done",
-      "acceptance": "1) 新建 ProjectProvider context，包裹 (console) layout 的 children；2) 提供 projects/current/loading/select/refresh 方法；3) 所有使用 useProject() 的组件自动共享状态；4) 项目切换时所有依赖 current 的组件同步更新；5) npm run lint + tsc 通过"
+      "status": "pending",
+      "acceptance": "1) User 表新增 balance Decimal(16,8) DEFAULT 0；2) migration 将现有 Project.balance 按 userId 合并到 User.balance（SUM）；3) migration 文件只包含此变更；4) 本地 prisma migrate dev 通过；5) npm run lint + tsc 通过"
     },
     {
-      "id": "F-PS-02",
-      "title": "Sidebar 项目下拉选择器",
+      "id": "F-BU-02",
+      "title": "deduct_balance / check_balance SQL 函数重写",
       "priority": "high",
       "executor": "generator",
-      "status": "done",
-      "acceptance": "1) sidebar 增加项目下拉选择器（显示当前项目名，点击展开项目列表）；2) 选择后调用 ProjectProvider.select()，Dashboard 等页面自动刷新数据；3) 当前选中项目有视觉高亮；4) npm run lint + tsc 通过"
+      "status": "pending",
+      "acceptance": "1) deduct_balance 改为从 User.balance 扣费（通过 projectId 找到 userId）；2) check_balance 改为检查 User.balance；3) Transaction 表保留 projectId（记录来源），新增 userId 字段；4) migration 文件包含函数重写 + Transaction.userId 字段；5) npm run lint + tsc 通过"
     },
     {
-      "id": "F-PS-03",
-      "title": "创建项目后自动切换",
+      "id": "F-BU-03",
+      "title": "post-process 扣费逻辑对齐",
       "priority": "high",
       "executor": "generator",
-      "status": "done",
-      "acceptance": "1) Sidebar 的 CreateProjectDialog 传入 onCreated 回调；2) 创建成功后调用 ProjectProvider.refresh() 刷新列表；3) 自动切换到新创建的项目；4) Dashboard 立即显示新项目数据（空状态）；5) npm run lint + tsc 通过"
+      "status": "pending",
+      "acceptance": "1) src/lib/api/post-process.ts 的 deductBalance 调用传入 userId（从 project 关联获取）；2) balance check 中间件改为查 User.balance；3) 扣费仍记录 projectId 用于分析；4) npm run lint + tsc 通过"
     },
     {
-      "id": "F-PS-04",
-      "title": "Layout 余额显示对齐 ProjectProvider",
+      "id": "F-BU-04",
+      "title": "充值 API 改为 User 级别",
+      "priority": "high",
+      "executor": "generator",
+      "status": "pending",
+      "acceptance": "1) Admin 充值接口改为给 User 充值（不再选 Project）；2) 充值记录写入 Transaction，userId 必填，projectId 可为空；3) 原有的 Project 级充值接口兼容处理（充到 User）；4) npm run lint + tsc 通过"
+    },
+    {
+      "id": "F-BU-05",
+      "title": "get_balance MCP Tool + REST API 对齐",
+      "priority": "high",
+      "executor": "generator",
+      "status": "pending",
+      "acceptance": "1) get_balance MCP Tool 返回 User 级余额（不再返回 Project 级）；2) REST API /api/projects/:id/balance 返回 User 级余额（向后兼容，所有项目看到同一个余额）；3) 交易明细仍按 projectId 过滤；4) npm run lint + tsc 通过"
+    },
+    {
+      "id": "F-BU-06",
+      "title": "Sidebar + Dashboard 余额显示对齐",
       "priority": "medium",
       "executor": "generator",
-      "status": "done",
-      "acceptance": "1) layout.tsx 的余额显示改为从 ProjectProvider 获取（不再独立调 API）；2) 切换项目后余额自动更新；3) npm run lint + tsc 通过"
+      "status": "pending",
+      "acceptance": "1) Sidebar 钱包显示 User 级总余额（切换项目不变化）；2) Dashboard 余额卡片显示 User 级总余额；3) Admin 用户详情页余额显示 User.balance；4) npm run lint + tsc 通过"
     },
     {
-      "id": "F-PS-05",
-      "title": "i18n 补全",
-      "priority": "low",
+      "id": "F-BU-07",
+      "title": "Admin 充值页面对齐",
+      "priority": "medium",
       "executor": "generator",
-      "status": "done",
-      "acceptance": "1) 项目选择器相关文案通过 useTranslations；2) en.json 和 zh-CN.json 同步更新；3) npm run lint + tsc 通过"
+      "status": "pending",
+      "acceptance": "1) Admin 用户详情页充值改为给 User 充值；2) 不再需要选择项目；3) 充值后 User.balance 立即更新；4) npm run lint + tsc 通过"
     },
     {
-      "id": "F-PS-06",
+      "id": "F-BU-08",
       "title": "E2E 验证",
       "priority": "high",
       "executor": "codex",
-      "status": "done",
-      "acceptance": "1) 创建项目后 Dashboard 自动切换显示新项目数据；2) Sidebar 项目下拉可切换，切换后 Dashboard/Keys/Actions 等页面数据对应更新；3) 余额显示跟随当前项目变化；4) 刷新页面后仍保持上次选中的项目"
+      "status": "pending",
+      "acceptance": "1) 用户有多个项目时，所有项目看到同一个余额；2) 项目 A 调用扣费后，项目 B 的余额同步减少；3) Admin 充值后，用户所有项目余额同步增加；4) get_balance MCP 返回用户级余额；5) 切换项目时 Sidebar 余额不变；6) 交易明细仍能按项目过滤"
     }
   ]
 }
