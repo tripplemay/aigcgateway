@@ -12,10 +12,9 @@ AIGC Gateway — AI 服务商管理中台。统一 API 调用抽象（兼容 Ope
 
 ## 当前开发状态（截至 2026-04-07）
 
-**当前批次：** `frontend-fix-round1`（done）
+**最新完成批次：** `frontend-fix-round1`（8/8 PASS，fix_rounds=1，Generator=Mark）
 **Harness 状态：** done
-**最新验收报告：** `docs/test-reports/frontend-fix-round1-reverifying-2026-04-07.md`
-**当前结论：** F-FF-01~08 全部通过（补齐 UI 证据 + MCP 精度验证），signoff `docs/test-reports/frontend-fix-round1-signoff-2026-04-07.md`。
+**签收报告：** `docs/test-reports/frontend-fix-round1-signoff-2026-04-07.md`
 
 ### 近期完成批次（2026-04-06）
 
@@ -65,14 +64,13 @@ Action 相关权威设计稿（3 个，已更新确认）：
 
 状态：3 页设计稿还原已完成并通过验收（`action-pages-design-restore` 5/5 PASS）
 
-## Backlog（2 条待处理）
+## Backlog（1 条待处理）
 
-| ID | 优先级 | 标题 | 类型 |
-|---|---|---|---|
-| BL-046 | high | CreateProjectDialog 点击无反应 | generator 修复 |
-| BL-047 | high | 前端全面审查（14 维度，20 页面） | codex-only 审查 |
+| ID | 优先级 | 标题 |
+|---|---|---|
+| BL-050 | high | MCP 配置页面重构（10 种客户端一键复制，参考 Stitch） |
 
-BL-024~045 已完成。
+BL-024~049 已完成。
 
 ## 已知遗留问题
 
