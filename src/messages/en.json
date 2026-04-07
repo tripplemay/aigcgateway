@@ -166,6 +166,7 @@
     "revokeWarning": "This key will be immediately invalidated. All requests using this key will return 401. This cannot be undone.",
     "created_toast": "Key created",
     "revoked_toast": "Key revoked",
+    "comingSoon": "Coming soon",
     "securityBestPractices": "Security Best Practices",
     "securitySubtitle": "Essential guidelines for managing your infrastructure credentials safely.",
     "neverHardcode": "Never Hardcode Keys",

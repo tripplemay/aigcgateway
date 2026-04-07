@@ -474,15 +474,15 @@ export default function KeysPage() {
               <span>AIGC Gateway Security v4.2.1-stable</span>
             </div>
             <div className="flex gap-8">
-              <a className="hover:text-ds-primary transition-colors" href="#">
+              <button className="hover:text-ds-primary transition-colors" onClick={() => toast.info(t("comingSoon"))}>
                 Privacy Policy
-              </a>
-              <a className="hover:text-ds-primary transition-colors" href="#">
+              </button>
+              <button className="hover:text-ds-primary transition-colors" onClick={() => toast.info(t("comingSoon"))}>
                 Terms of Service
-              </a>
-              <a className="hover:text-ds-primary transition-colors" href="#">
+              </button>
+              <button className="hover:text-ds-primary transition-colors" onClick={() => toast.info(t("comingSoon"))}>
                 System Status
-              </a>
+              </button>
             </div>
             <p>&copy; 2024 Algorithmic Atelier. All rights reserved.</p>
           </div>

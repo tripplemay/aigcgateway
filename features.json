@@ -23,7 +23,7 @@
       "title": "Keys 页死链修复",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) keys/page.tsx 的 3 处 href='#' 改为实际链接或移除；2) 如果是 footer 占位链接（Privacy/Terms/Status），可直接移除或改为 # with onClick preventDefault + toast 提示；3) npm run lint + tsc 通过"
     },
     {

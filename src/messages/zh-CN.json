@@ -166,6 +166,7 @@
     "revokeWarning": "此密钥将立即失效，所有使用该密钥的请求将返回 401 错误。此操作不可撤销。",
     "created_toast": "密钥已创建",
     "revoked_toast": "密钥已吊销",
+    "comingSoon": "即将推出",
     "securityBestPractices": "安全最佳实践",
     "securitySubtitle": "安全管理基础设施凭证的必备指南。",
     "neverHardcode": "永远不要硬编码密钥",
