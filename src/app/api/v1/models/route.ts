@@ -21,7 +21,7 @@ const LOCK_TTL = 10; // seconds
 
 /** 查 DB + 构造响应 JSON 字符串 */
 async function queryModelsJSON(modalityFilter: string | undefined): Promise<string> {
-  const models = await prisma.model.findMany({
+  const allModels = await prisma.model.findMany({
     where: {
       enabled: true,
       channels: { some: { status: "ACTIVE" } },
@@ -44,13 +44,29 @@ async function queryModelsJSON(modalityFilter: string | undefined): Promise<stri
         select: {
           sellPrice: true,
           provider: { select: { displayName: true } },
+          healthChecks: {
+            orderBy: { createdAt: "desc" },
+            take: 1,
+            select: { result: true },
+          },
         },
       },
     },
     orderBy: { name: "asc" },
   });
 
-  const data = models.map((model) => {
+  // Filter out models whose only ACTIVE channels all have latest health check FAIL
+  type ModelRow = typeof allModels[number];
+  type ChannelRow = ModelRow["channels"][number];
+  const models: ModelRow[] = allModels.filter((m: ModelRow) => {
+    const healthyChannels = m.channels.filter((ch: ChannelRow) => {
+      const lastCheck = ch.healthChecks[0];
+      return !lastCheck || lastCheck.result !== "FAIL";
+    });
+    return healthyChannels.length > 0;
+  });
+
+  const data = models.map((model: ModelRow) => {
     const channel = model.channels[0];
     const sellPrice = channel?.sellPrice as Record<string, unknown> | undefined;
     const providerName = channel?.provider?.displayName ?? null;

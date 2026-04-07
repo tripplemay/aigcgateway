@@ -47,7 +47,7 @@
       "title": "doubao-pro-32k 不可用模型处理",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) 排查 doubao-pro-32k 不可用的原因（白名单/channel/健康检查）；2) 从白名单移除或修复 channel 配置使其可用；3) list_models 不再返回实际不可用的模型；4) npm run lint + tsc 通过"
     },
     {

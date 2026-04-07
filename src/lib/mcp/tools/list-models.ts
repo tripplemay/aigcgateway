@@ -35,7 +35,7 @@ export function registerListModels(server: McpServer, opts: McpServerOptions): v
       }
       const modalityFilter = modality?.toUpperCase();
 
-      const models = await prisma.model.findMany({
+      const allModels = await prisma.model.findMany({
         where: {
           enabled: true,
           channels: { some: { status: "ACTIVE" } },
@@ -47,15 +47,32 @@ export function registerListModels(server: McpServer, opts: McpServerOptions): v
             orderBy: { priority: "asc" },
             ...(show_all_channels ? {} : { take: 1 }),
             select: {
+              id: true,
               sellPrice: true,
               provider: { select: { name: true } },
+              healthChecks: {
+                orderBy: { createdAt: "desc" },
+                take: 1,
+                select: { result: true },
+              },
             },
           },
         },
         orderBy: { name: "asc" },
       });
 
-      const data = models.map((model) => {
+      // Filter out models whose only ACTIVE channels all have latest health check FAIL
+      type ModelRow = typeof allModels[number];
+      type ChannelRow = ModelRow["channels"][number];
+      const models: ModelRow[] = allModels.filter((m: ModelRow) => {
+        const healthy = m.channels.filter((ch: ChannelRow) => {
+          const lastCheck = ch.healthChecks[0];
+          return !lastCheck || lastCheck.result !== "FAIL";
+        });
+        return healthy.length > 0;
+      });
+
+      const data = models.map((model: ModelRow) => {
         const bestChannel = model.channels[0];
         const sellPrice = bestChannel?.sellPrice as Record<string, unknown> | undefined;
 
@@ -81,7 +98,7 @@ export function registerListModels(server: McpServer, opts: McpServerOptions): v
         };
 
         if (show_all_channels) {
-          result.channels = model.channels.map((ch) => ({
+          result.channels = model.channels.map((ch: ModelRow["channels"][number]) => ({
             provider: ch.provider.name,
             sellPrice: ch.sellPrice,
           }));
