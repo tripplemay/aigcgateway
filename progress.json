@@ -2,9 +2,9 @@
   "status": "building",
   "user_goal": "frontend-fix-round1: 前端审查发现统一修复（权限/交互/i18n/Hook/模型/精度）",
   "total_features": 8,
-  "completed_features": 4,
+  "completed_features": 5,
   "fix_rounds": 0,
-  "current_sprint": "F-FF-05",
+  "current_sprint": "F-FF-06",
   "last_updated": "2026-04-07T12:00:00Z",
   "reference_docs": [
     "docs/test-reports/frontend-audit-verifying-2026-04-07.md"

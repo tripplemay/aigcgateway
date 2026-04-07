@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { apiFetch } from "@/lib/api-client";
@@ -26,8 +26,8 @@ export default function UserDetailPage() {
   const [amount, setAmount] = useState("");
   const [description, setDescription] = useState("");
 
-  const load = async () => { const r = await apiFetch<UserDetail>(`/api/admin/users/${params.id}`); setUser(r); };
-  useEffect(() => { load(); }, [params.id]);
+  const load = useCallback(async () => { const r = await apiFetch<UserDetail>(`/api/admin/users/${params.id}`); setUser(r); }, [params.id]);
+  useEffect(() => { load(); }, [load]);
 
   const doRecharge = async () => {
     try {

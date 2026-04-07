@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState, useRef, useCallback } from "react";
+import { useCallback, useEffect, useState, useRef } from "react";
 import { useTranslations } from "next-intl";
 import { apiFetch } from "@/lib/api-client";
 import { useProject } from "@/hooks/use-project";
@@ -61,17 +61,17 @@ export default function KeysPage() {
   // Revoke confirm state
   const [revokeId, setRevokeId] = useState<string | null>(null);
 
-  const load = async () => {
+  const load = useCallback(async () => {
     if (!current) return;
     setLoading(true);
     const r = await apiFetch<{ data: ApiKeyRow[] }>(`/api/projects/${current.id}/keys`);
     setKeys(r.data);
     setLoading(false);
-  };
+  }, [current]);
 
   useEffect(() => {
     load();
-  }, [current]);
+  }, [load]);
 
   const create = async () => {
     if (!current) return;

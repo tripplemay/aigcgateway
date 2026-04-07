@@ -39,7 +39,7 @@
       "title": "Hook 依赖修复",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) admin/logs/page.tsx:49 的 useEffect 补全 load 依赖；2) admin/users/[id]/page.tsx:30 同上；3) balance/page.tsx:71 同上；4) keys/page.tsx:74 同上；5) npm run lint 无 react-hooks/exhaustive-deps warning；6) npm run lint + tsc 通过"
     },
     {

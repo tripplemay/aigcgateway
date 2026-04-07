@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { apiFetch } from "@/lib/api-client";
 import { formatCurrency, timeAgo } from "@/lib/utils";
@@ -31,7 +31,7 @@ export default function AdminLogsPage() {
   const [statusFilter, setStatusFilter] = useState("");
   const [searchQ, setSearchQ] = useState("");
 
-  const load = async () => {
+  const load = useCallback(async () => {
     setLoading(true);
     const params = new URLSearchParams({ page: String(page), pageSize: "20" });
     if (statusFilter) params.set("status", statusFilter);
@@ -42,11 +42,11 @@ export default function AdminLogsPage() {
     setLogs(r.data);
     setTotal(r.pagination?.total ?? r.data.length);
     setLoading(false);
-  };
+  }, [page, statusFilter, searchQ]);
 
   useEffect(() => {
     load();
-  }, [page, statusFilter]);
+  }, [load]);
 
   const doSearch = () => {
     setPage(1);

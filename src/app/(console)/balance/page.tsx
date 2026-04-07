@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { apiFetch } from "@/lib/api-client";
 import { useProject } from "@/hooks/use-project";
@@ -53,7 +53,7 @@ export default function BalancePage() {
   const [payMethod, setPayMethod] = useState("alipay");
   const [threshold, setThreshold] = useState("");
 
-  const load = async () => {
+  const load = useCallback(async () => {
     if (!current) return;
     const [b, tx] = await Promise.all([
       apiFetch<BalanceInfo>(`/api/projects/${current.id}/balance`),
@@ -65,10 +65,10 @@ export default function BalancePage() {
     setTxns(tx.data);
     setTotal(tx.pagination.total);
     if (b.alertThreshold != null) setThreshold(String(b.alertThreshold));
-  };
+  }, [current, page]);
   useEffect(() => {
     load();
-  }, [current, page]);
+  }, [load]);
 
   const doRecharge = async () => {
     if (!current) return;
