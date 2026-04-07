@@ -79,7 +79,7 @@
       "title": "E2E 验证",
       "priority": "high",
       "executor": "codex",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) 输入完整 API Key 后，所有客户端配置中 Key 正确填充；2) Claude Code 生成 CLI 命令格式；3) Codex 生成 TOML 格式；4) 所有配置一键复制后内容完整（无掩码占位符）；5) 切换客户端时配置实时更新"
     }
   ]

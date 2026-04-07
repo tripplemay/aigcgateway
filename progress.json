@@ -1,12 +1,15 @@
 {
-  "status": "verifying",
+  "status": "done",
   "user_goal": "mcp-setup-redesign: MCP 配置页面重构，10 种客户端一键复制直接可用",
   "total_features": 10,
-  "completed_features": 9,
+  "completed_features": 10,
   "fix_rounds": 0,
   "current_sprint": null,
-  "last_updated": "2026-04-07T14:00:00Z",
-  "reference_docs": [],
+  "last_updated": "2026-04-07T12:31:30Z",
+  "reference_docs": [
+    "docs/test-reports/mcp-setup-redesign-verifying-2026-04-07.md",
+    "docs/test-reports/mcp-setup-redesign-verifying-local-e2e-2026-04-07.json"
+  ],
   "role_assignments": {
     "planner": "Kimi",
     "generator": "Mark",
@@ -15,9 +18,15 @@
   "docs": {
     "spec": null,
     "test_cases": null,
-    "signoff": null,
+    "signoff": "docs/test-reports/mcp-setup-redesign-signoff-2026-04-07.md",
     "framework_reviewed": false
   },
-  "evaluator_feedback": null,
+  "evaluator_feedback": {
+    "summary": "F-MS-01~10 全部通过；新 MCP Setup 支持 10 种客户端格式、API Key 粘贴与复制守卫。",
+    "pass_count": 10,
+    "partial_count": 0,
+    "fail_count": 0,
+    "issues": []
+  },
   "generator_handoff": "Mark: F-MS-01~09 全部完成，页面完全重写。10 种客户端配置、API Key 粘贴输入、下拉菜单选择、底部大按钮复制。F-MS-10 (executor:codex) 待验收"
 }

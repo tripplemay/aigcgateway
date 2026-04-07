@@ -12,9 +12,11 @@ AIGC Gateway — AI 服务商管理中台。统一 API 调用抽象（兼容 Ope
 
 ## 当前开发状态（截至 2026-04-07）
 
-**最新完成批次：** `frontend-fix-round1`（8/8 PASS，fix_rounds=1，Generator=Mark）
+**最新完成批次：** `mcp-setup-redesign`（10/10 PASS，Generator=Mark，Evaluator=Reviewer）
 **Harness 状态：** done
-**签收报告：** `docs/test-reports/frontend-fix-round1-signoff-2026-04-07.md`
+**签收报告：** `docs/test-reports/mcp-setup-redesign-signoff-2026-04-07.md`
+
+上一批 `frontend-fix-round1`（8/8 PASS，fix_rounds=1）资料保留在 `docs/test-reports/frontend-fix-round1-*.md`。
 
 ### 近期完成批次（2026-04-06）
 

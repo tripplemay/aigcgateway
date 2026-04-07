@@ -1,0 +1,40 @@
+{
+  "batch": "mcp-setup-redesign",
+  "generatedAt": "2026-04-07T12:30:59Z",
+  "environment": "http://localhost:3099",
+  "projectId": "cmnolcuh200qi9ysnrnagqhmc",
+  "checks": [
+    {
+      "name": "Claude Code CLI config",
+      "ok": true,
+      "detail": "pre block renders 'claude mcp add ... --header \"Authorization: Bearer pk_52b901c7...1332\"' after粘贴完整 API Key"
+    },
+    {
+      "name": "Codex TOML config",
+      "ok": true,
+      "detail": "pre block shows [mcp_servers.aigc-gateway] + Authorization = 'Bearer pk_52b901c7...1332'"
+    },
+    {
+      "name": "Generic config",
+      "ok": true,
+      "detail": "URL + Header 文本区包含 'Authorization: Bearer pk_52b901c7...1332' (截图 mcp-setup-redesign-config.png)"
+    },
+    {
+      "name": "Key shortcut requires full key",
+      "ok": true,
+      "detail": "点击 'pk_52b90••••' 按钮 → 输入框显示掩码，toast 提示 '请在上方输入框中粘贴完整的 API Key'"
+    },
+    {
+      "name": "Copy guard",
+      "ok": true,
+      "detail": "掩码状态下点击复制按钮 → toast 显示 '请先输入 API Key'，配置未复制"
+    },
+    {
+      "name": "Key list API",
+      "ok": true,
+      "detail": "GET /api/projects/cmnolcuh200qi9ysnrnagqhmc/keys 仅返回 keyPrefix/maskedKey（无完整 Key）"
+    }
+  ],
+  "pass": 6,
+  "fail": 0
+}
