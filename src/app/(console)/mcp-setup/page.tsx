@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { apiFetch } from "@/lib/api-client";
 import { useProject } from "@/hooks/use-project";
@@ -18,71 +18,210 @@ interface ApiKeyRow {
   status: string;
 }
 
-const TOOLS = [
-  { name: "list_models", descKey: "toolListModels", icon: "list_alt" },
-  { name: "chat", descKey: "toolChat", icon: "forum" },
-  { name: "generate_image", descKey: "toolGenerateImage", icon: "image" },
-  { name: "list_actions", descKey: "toolListActions", icon: "bolt" },
-  { name: "get_action_detail", descKey: "toolGetActionDetail", icon: "info" },
-  { name: "run_action", descKey: "toolRunAction", icon: "play_arrow" },
-  { name: "list_templates", descKey: "toolListTemplates", icon: "account_tree" },
-  { name: "get_template_detail", descKey: "toolGetTemplateDetail", icon: "info" },
-  { name: "run_template", descKey: "toolRunTemplate", icon: "rocket_launch" },
-  { name: "list_logs", descKey: "toolListLogs", icon: "data_object" },
-  { name: "get_log_detail", descKey: "toolGetLogDetail", icon: "analytics" },
-  { name: "get_balance", descKey: "toolGetBalance", icon: "memory" },
-  { name: "get_usage_summary", descKey: "toolGetUsageSummary", icon: "shield" },
-] as const;
+type ClientType =
+  | "claude-code"
+  | "claude-desktop"
+  | "cursor"
+  | "codex"
+  | "vscode"
+  | "windsurf"
+  | "cline"
+  | "roo-code"
+  | "jetbrains"
+  | "generic";
 
-function generateConfig(type: "claude" | "cursor" | "generic", keyPrefix: string): string {
-  const url = "https://aigc.guangai.ai/mcp";
-  const keyPlaceholder = `${keyPrefix}••••••••`;
-  if (type === "claude")
-    return JSON.stringify(
-      {
-        mcpServers: {
-          "aigc-gateway": {
-            type: "streamable-http",
-            url,
-            headers: { Authorization: `Bearer ${keyPlaceholder}` },
+const CLIENT_OPTIONS: { value: ClientType; label: string; icon: string }[] = [
+  { value: "claude-code", label: "Claude Code", icon: "terminal" },
+  { value: "claude-desktop", label: "Claude Desktop", icon: "computer" },
+  { value: "cursor", label: "Cursor", icon: "edit" },
+  { value: "codex", label: "Codex", icon: "code" },
+  { value: "vscode", label: "VS Code Copilot", icon: "code_blocks" },
+  { value: "windsurf", label: "Windsurf", icon: "surfing" },
+  { value: "cline", label: "Cline", icon: "smart_toy" },
+  { value: "roo-code", label: "Roo Code", icon: "smart_toy" },
+  { value: "jetbrains", label: "JetBrains", icon: "integration_instructions" },
+  { value: "generic", label: "Generic", icon: "settings" },
+];
+
+const MCP_URL = "https://aigc.guangai.ai/mcp";
+
+function generateConfig(client: ClientType, apiKey: string): string {
+  const bearer = `Bearer ${apiKey || "pk_your_api_key"}`;
+
+  switch (client) {
+    case "claude-code":
+      return `claude mcp add aigc-gateway \\
+  --transport streamable-http \\
+  --url ${MCP_URL} \\
+  --header "Authorization: ${bearer}"`;
+
+    case "claude-desktop":
+      return JSON.stringify(
+        {
+          mcpServers: {
+            "aigc-gateway": {
+              type: "streamable-http",
+              url: MCP_URL,
+              headers: { Authorization: bearer },
+            },
           },
         },
-      },
-      null,
-      2,
-    );
-  if (type === "cursor")
-    return JSON.stringify(
-      {
-        mcpServers: {
-          "aigc-gateway": { url, headers: { Authorization: `Bearer ${keyPlaceholder}` } },
+        null,
+        2,
+      );
+
+    case "cursor":
+      return JSON.stringify(
+        {
+          mcpServers: {
+            "aigc-gateway": {
+              url: MCP_URL,
+              headers: { Authorization: bearer },
+            },
+          },
         },
-      },
-      null,
-      2,
-    );
-  return `URL: ${url}\nAuthorization: Bearer ${keyPlaceholder}`;
+        null,
+        2,
+      );
+
+    case "codex":
+      return `[mcp_servers.aigc-gateway]
+url = "${MCP_URL}"
+
+[mcp_servers.aigc-gateway.http_headers]
+"Authorization" = "${bearer}"`;
+
+    case "vscode":
+      return JSON.stringify(
+        {
+          servers: {
+            "aigc-gateway": {
+              type: "http",
+              url: MCP_URL,
+              headers: { Authorization: bearer },
+            },
+          },
+        },
+        null,
+        2,
+      );
+
+    case "windsurf":
+      return JSON.stringify(
+        {
+          mcpServers: {
+            "aigc-gateway": {
+              serverUrl: MCP_URL,
+              headers: { Authorization: bearer },
+            },
+          },
+        },
+        null,
+        2,
+      );
+
+    case "cline":
+      return JSON.stringify(
+        {
+          mcpServers: {
+            "aigc-gateway": {
+              url: MCP_URL,
+              headers: { Authorization: bearer },
+            },
+          },
+        },
+        null,
+        2,
+      );
+
+    case "roo-code":
+      return JSON.stringify(
+        {
+          mcpServers: {
+            "aigc-gateway": {
+              url: MCP_URL,
+              headers: { Authorization: bearer },
+            },
+          },
+        },
+        null,
+        2,
+      );
+
+    case "jetbrains":
+      return JSON.stringify(
+        {
+          servers: {
+            "aigc-gateway": {
+              type: "http",
+              url: MCP_URL,
+              headers: { Authorization: bearer },
+            },
+          },
+        },
+        null,
+        2,
+      );
+
+    case "generic":
+      return `URL: ${MCP_URL}\nAuthorization: ${bearer}`;
+  }
+}
+
+function getConfigPath(client: ClientType): string {
+  switch (client) {
+    case "claude-code":
+      return "Terminal";
+    case "claude-desktop":
+      return "claude_desktop_config.json";
+    case "cursor":
+      return ".cursor/mcp.json";
+    case "codex":
+      return "codex.toml";
+    case "vscode":
+      return ".vscode/mcp.json";
+    case "windsurf":
+      return "~/.codeium/windsurf/mcp_config.json";
+    case "cline":
+      return "cline_mcp_settings.json";
+    case "roo-code":
+      return "roo_mcp_settings.json";
+    case "jetbrains":
+      return "Settings → Tools → MCP Servers";
+    case "generic":
+      return "URL + Header";
+  }
+}
+
+function getConfigLang(client: ClientType): string {
+  if (client === "claude-code") return "bash";
+  if (client === "codex") return "toml";
+  if (client === "generic") return "text";
+  return "json";
 }
 
 // ============================================================
-// Page — code.html lines 162-379
+// Page
 // ============================================================
 
 export default function McpSetupPage() {
   const t = useTranslations("mcpSetup");
   const { current, loading: projLoading } = useProject();
   const [keys, setKeys] = useState<ApiKeyRow[]>([]);
-  const [selectedKey, setSelectedKey] = useState<string>("");
-  const [tab, setTab] = useState<"claude" | "cursor" | "generic">("claude");
+  const [apiKey, setApiKey] = useState("");
+  const [client, setClient] = useState<ClientType>("claude-code");
+  const [dropdownOpen, setDropdownOpen] = useState(false);
 
-  useEffect(() => {
+  const loadKeys = useCallback(() => {
     if (!current) return;
     apiFetch<{ data: ApiKeyRow[] }>(`/api/projects/${current.id}/keys`).then((r) => {
-      const active = r.data.filter((k) => k.status === "ACTIVE");
-      setKeys(active);
-      if (active.length > 0) setSelectedKey(active[0].keyPrefix);
+      setKeys(r.data.filter((k) => k.status === "ACTIVE"));
     });
   }, [current]);
+
+  useEffect(() => {
+    loadKeys();
+  }, [loadKeys]);
 
   if (projLoading)
     return (
@@ -92,191 +231,164 @@ export default function McpSetupPage() {
       </div>
     );
 
+  const selectKeyFromList = (prefix: string) => {
+    setApiKey(`${prefix}••••••••`);
+    toast.info(t("pasteFullKey"));
+  };
+
+  const configText = generateConfig(client, apiKey);
+  const selectedClient = CLIENT_OPTIONS.find((c) => c.value === client)!;
+
   const copyConfig = () => {
-    navigator.clipboard.writeText(generateConfig(tab, selectedKey || "pk_your_"));
+    if (!apiKey || apiKey.includes("••••")) {
+      toast.error(t("enterKeyFirst"));
+      return;
+    }
+    navigator.clipboard.writeText(configText);
     toast.success(t("copied"));
   };
 
   return (
-    /* code.html line 162 */
-    <div className="max-w-7xl mx-auto">
-      {/* Page Header — code.html lines 164-171 */}
-      <header className="mb-12">
+    <div className="max-w-3xl mx-auto">
+      {/* Page Header */}
+      <header className="mb-10">
         <div className="flex items-center gap-3 mb-2">
           <span className="bg-indigo-100 text-indigo-700 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-widest">
             Setup Guide
           </span>
-          <div className="h-px flex-1 bg-ds-surface-container-high" />
         </div>
         <h2 className="text-4xl font-extrabold tracking-tight text-ds-on-surface mb-2 font-[var(--font-heading)]">
           {t("title")}
         </h2>
-        <p className="text-slate-500 max-w-2xl">{t("subtitle")}</p>
+        <p className="text-slate-500">{t("subtitle")}</p>
       </header>
 
-      {/* Bento Grid — code.html line 173: grid-cols-12 */}
-      <div className="grid grid-cols-12 gap-8">
-        {/* ═══ Left Column (col-span-5) — lines 175-291 ═══ */}
-        <section className="col-span-12 lg:col-span-5 flex flex-col gap-6">
-          {/* Step 1: API Key Selection — lines 176-218 */}
-          <div className="bg-ds-surface-container-lowest p-8 rounded-xl shadow-[0px_20px_40px_rgba(19,27,46,0.04)] relative overflow-hidden group">
-            <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-10 transition-opacity">
-              <span className="material-symbols-outlined text-8xl">key</span>
+      <div className="space-y-8">
+        {/* ═══ Step 1: API Key ═══ */}
+        <section className="bg-ds-surface-container-lowest p-8 rounded-xl shadow-sm">
+          <div className="flex items-center gap-4 mb-6">
+            <div className="w-10 h-10 rounded-full bg-ds-primary flex items-center justify-center text-white font-bold text-sm">
+              1
             </div>
-            <div className="flex items-center gap-4 mb-6">
-              <div className="w-10 h-10 rounded-full bg-ds-primary flex items-center justify-center text-white font-bold">
-                1
-              </div>
-              <h3 className="text-xl font-bold font-[var(--font-heading)]">{t("step1")}</h3>
-            </div>
-            {/* Radio key cards — lines 184-214 */}
-            <div className="space-y-3">
-              {keys.length === 0 ? (
-                <div className="p-4 rounded-xl bg-ds-surface-container-low text-center">
-                  <p className="text-sm text-slate-500 mb-2">{t("noKey")}</p>
-                  <Link href="/keys" className="text-sm font-bold text-indigo-600 hover:underline">
-                    {t("goToKeys")}
-                  </Link>
-                </div>
-              ) : (
-                keys.map((k) => (
-                  <label key={k.id} className="block">
-                    <div className="relative cursor-pointer">
-                      <input
-                        type="radio"
-                        name="api_key"
-                        className="peer absolute opacity-0"
-                        checked={selectedKey === k.keyPrefix}
-                        onChange={() => setSelectedKey(k.keyPrefix)}
-                      />
-                      <div className="p-4 rounded-xl border-2 border-transparent bg-ds-surface-container-low peer-checked:border-ds-primary peer-checked:bg-white transition-all flex items-center justify-between">
-                        <div>
-                          <p className="text-xs font-bold text-slate-400 mb-1 uppercase tracking-tighter">
-                            {k.name ?? "Unnamed Key"}
-                          </p>
-                          <p className="font-mono text-sm">{k.keyPrefix}••••••••</p>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                          <span className="text-[10px] font-bold text-emerald-600 uppercase">
-                            Active
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  </label>
-                ))
-              )}
-            </div>
-            {/* Create New Key — line 216-218 */}
-            <Link
-              href="/keys"
-              className="mt-6 w-full py-3 text-sm font-bold text-indigo-600 border border-indigo-100 rounded-xl hover:bg-indigo-50 transition-colors block text-center"
-            >
-              {t("createNewKey")}
-            </Link>
-          </div>
-
-          {/* Step 3: Protocol Tools — lines 220-291 */}
-          <div className="bg-ds-surface-container-low p-8 rounded-xl">
-            <div className="flex items-center gap-4 mb-6">
-              <div className="w-10 h-10 rounded-full bg-ds-primary-container flex items-center justify-center text-white font-bold">
-                3
-              </div>
-              <h3 className="text-xl font-bold font-[var(--font-heading)]">{t("step3")}</h3>
-            </div>
-            <div className="grid grid-cols-1 gap-4">
-              {TOOLS.map((tool) => (
-                <div
-                  key={tool.name}
-                  className="flex items-start gap-4 p-3 bg-white rounded-lg shadow-sm border border-slate-100/50"
-                >
-                  <div className="p-2 bg-indigo-50 text-indigo-600 rounded-lg">
-                    <span className="material-symbols-outlined">{tool.icon}</span>
-                  </div>
-                  <div>
-                    <p className="text-sm font-bold">{tool.name}</p>
-                    <p className="text-xs text-slate-500">{t(tool.descKey)}</p>
-                  </div>
-                </div>
-              ))}
+            <div>
+              <h3 className="text-lg font-bold font-[var(--font-heading)]">{t("step1")}</h3>
+              <p className="text-sm text-slate-500">{t("step1Desc")}</p>
             </div>
           </div>
-        </section>
 
-        {/* ═══ Right Column (col-span-7) — lines 293-352 ═══ */}
-        <section className="col-span-12 lg:col-span-7">
-          <div className="bg-ds-surface-container-lowest p-8 rounded-xl shadow-[0px_20px_40px_rgba(19,27,46,0.04)] h-full border border-white/50">
-            {/* Header + Tabs — lines 296-305 */}
-            <div className="flex items-center justify-between mb-8">
-              <div className="flex items-center gap-4">
-                <div className="w-10 h-10 rounded-full bg-ds-primary-container/20 text-ds-primary flex items-center justify-center font-bold">
-                  2
-                </div>
-                <h3 className="text-xl font-bold font-[var(--font-heading)]">{t("step2")}</h3>
-              </div>
-              <div className="flex p-1 bg-ds-surface-container rounded-lg">
-                {(["claude", "cursor", "generic"] as const).map((type) => (
+          {/* API Key input */}
+          <div className="space-y-3">
+            <input
+              type="text"
+              className="w-full bg-ds-surface-container-low border-none rounded-lg px-4 py-3 text-sm font-mono text-ds-on-surface outline-none focus:ring-2 focus:ring-ds-primary/20 transition-all placeholder:text-slate-400"
+              placeholder={t("keyPlaceholder")}
+              value={apiKey}
+              onChange={(e) => setApiKey(e.target.value)}
+            />
+
+            {/* Key list shortcuts */}
+            {keys.length > 0 && (
+              <div className="flex flex-wrap gap-2">
+                {keys.map((k) => (
                   <button
-                    key={type}
-                    onClick={() => setTab(type)}
-                    className={`px-4 py-1.5 text-xs font-bold rounded-md transition-all ${tab === type ? "bg-white shadow-sm text-indigo-600" : "text-slate-500 hover:text-slate-800"}`}
+                    key={k.id}
+                    onClick={() => selectKeyFromList(k.keyPrefix)}
+                    className="px-3 py-1.5 text-xs font-mono bg-ds-surface-container-low rounded-lg hover:bg-ds-surface-container transition-colors text-slate-600"
                   >
-                    {type === "claude" ? "Claude" : type === "cursor" ? "Cursor" : "Generic"}
+                    {k.keyPrefix}••••
+                    {k.name && (
+                      <span className="ml-1 text-slate-400 font-sans">({k.name})</span>
+                    )}
                   </button>
                 ))}
               </div>
-            </div>
+            )}
 
-            {/* Config code block — lines 307-334 */}
-            <div className="relative group">
-              <div className="absolute top-4 right-4 z-10 flex gap-2">
-                <button
-                  onClick={copyConfig}
-                  className="bg-slate-800 text-slate-400 p-2 rounded-lg hover:text-white transition-colors flex items-center gap-2"
-                >
-                  <span className="material-symbols-outlined text-sm">content_copy</span>
-                  <span className="text-[10px] font-bold uppercase tracking-widest">
-                    Copy Config
-                  </span>
-                </button>
+            {keys.length === 0 && (
+              <div className="text-center py-2">
+                <Link href="/keys" className="text-sm font-bold text-indigo-600 hover:underline">
+                  {t("goToKeys")}
+                </Link>
               </div>
-              <div className="bg-slate-950 rounded-2xl p-6 pt-12 overflow-x-auto border border-slate-800 shadow-2xl">
-                <pre className="text-sm font-mono leading-relaxed text-indigo-100">
-                  {generateConfig(tab, selectedKey || "pk_your_")}
-                </pre>
-              </div>
-            </div>
+            )}
+          </div>
+        </section>
 
-            {/* Dynamic Tool Injection — lines 337-345 */}
-            <div className="mt-12 p-8 rounded-2xl bg-indigo-50/50 border border-indigo-100 flex items-center gap-8">
-              <div className="w-24 h-24 shrink-0 bg-white rounded-xl shadow-lg shadow-indigo-100/50 flex items-center justify-center">
-                <span className="material-symbols-outlined text-4xl text-indigo-600">
-                  dynamic_form
-                </span>
-              </div>
-              <div>
-                <h4 className="font-bold text-indigo-900 mb-1">Dynamic Tool Injection</h4>
-                <p className="text-sm text-indigo-700/70">
-                  By including this config, your IDE will automatically recognize and contextually
-                  suggest AIGC Gateway capabilities as first-class tools.
-                </p>
-              </div>
+        {/* ═══ Step 2: Client + Config ═══ */}
+        <section className="bg-ds-surface-container-lowest p-8 rounded-xl shadow-sm">
+          <div className="flex items-center gap-4 mb-6">
+            <div className="w-10 h-10 rounded-full bg-ds-primary-container flex items-center justify-center text-white font-bold text-sm">
+              2
             </div>
-
-            {/* Finalize button — lines 346-351 */}
-            <div className="mt-8 flex justify-end">
-              <Link
-                href="/dashboard"
-                className="group flex items-center gap-2 bg-slate-900 text-white px-8 py-3 rounded-full font-bold hover:bg-black transition-all"
-              >
-                <span>{t("finalize")}</span>
-                <span className="material-symbols-outlined group-hover:translate-x-1 transition-transform">
-                  arrow_forward
-                </span>
-              </Link>
+            <div>
+              <h3 className="text-lg font-bold font-[var(--font-heading)]">{t("step2")}</h3>
+              <p className="text-sm text-slate-500">{t("step2Desc")}</p>
             </div>
           </div>
+
+          {/* Client dropdown */}
+          <div className="relative mb-6">
+            <button
+              onClick={() => setDropdownOpen(!dropdownOpen)}
+              className="w-full flex items-center justify-between px-4 py-3 bg-ds-surface-container-low rounded-lg text-sm font-bold text-ds-on-surface hover:bg-ds-surface-container transition-colors"
+            >
+              <div className="flex items-center gap-3">
+                <span className="material-symbols-outlined text-ds-primary">
+                  {selectedClient.icon}
+                </span>
+                <span>{selectedClient.label}</span>
+              </div>
+              <span className="material-symbols-outlined text-slate-400">
+                {dropdownOpen ? "expand_less" : "expand_more"}
+              </span>
+            </button>
+            {dropdownOpen && (
+              <div className="absolute z-20 mt-1 w-full bg-white rounded-xl shadow-xl border border-slate-100 py-1 max-h-80 overflow-y-auto">
+                {CLIENT_OPTIONS.map((opt) => (
+                  <button
+                    key={opt.value}
+                    onClick={() => {
+                      setClient(opt.value);
+                      setDropdownOpen(false);
+                    }}
+                    className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm hover:bg-indigo-50 transition-colors ${
+                      client === opt.value
+                        ? "text-indigo-600 font-bold bg-indigo-50/50"
+                        : "text-slate-700"
+                    }`}
+                  >
+                    <span className="material-symbols-outlined text-lg">{opt.icon}</span>
+                    <span>{opt.label}</span>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Config path hint */}
+          <div className="flex items-center gap-2 mb-3 text-xs text-slate-400">
+            <span className="material-symbols-outlined text-sm">folder</span>
+            <span className="font-mono">{getConfigPath(client)}</span>
+            <span className="px-1.5 py-0.5 bg-slate-100 rounded text-[10px] font-bold uppercase">
+              {getConfigLang(client)}
+            </span>
+          </div>
+
+          {/* Config code block */}
+          <div className="bg-slate-950 rounded-2xl p-6 overflow-x-auto border border-slate-800">
+            <pre className="text-sm font-mono leading-relaxed text-indigo-100 whitespace-pre-wrap">
+              {configText}
+            </pre>
+          </div>
+
+          {/* Copy button */}
+          <button
+            onClick={copyConfig}
+            className="mt-6 w-full py-3.5 bg-ds-primary text-white font-bold rounded-xl flex items-center justify-center gap-2 shadow-lg shadow-ds-primary/20 hover:opacity-90 active:scale-[0.98] transition-all text-sm"
+          >
+            <span className="material-symbols-outlined">content_copy</span>
+            <span>{t("copyConfig")}</span>
+          </button>
         </section>
       </div>
     </div>

@@ -1,8 +1,8 @@
 {
-  "status": "building",
+  "status": "verifying",
   "user_goal": "mcp-setup-redesign: MCP 配置页面重构，10 种客户端一键复制直接可用",
   "total_features": 10,
-  "completed_features": 0,
+  "completed_features": 9,
   "fix_rounds": 0,
   "current_sprint": null,
   "last_updated": "2026-04-07T14:00:00Z",
@@ -19,5 +19,5 @@
     "framework_reviewed": false
   },
   "evaluator_feedback": null,
-  "generator_handoff": null
+  "generator_handoff": "Mark: F-MS-01~09 全部完成，页面完全重写。10 种客户端配置、API Key 粘贴输入、下拉菜单选择、底部大按钮复制。F-MS-10 (executor:codex) 待验收"
 }
