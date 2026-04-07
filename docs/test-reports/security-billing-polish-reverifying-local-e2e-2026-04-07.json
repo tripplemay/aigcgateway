@@ -1,6 +1,6 @@
 {
   "batch": "security-billing-polish",
-  "generatedAt": "2026-04-07T00:31:35.392Z",
+  "generatedAt": "2026-04-07T00:37:32.666Z",
   "environment": "http://localhost:3099",
   "checks": [
     {
@@ -15,8 +15,8 @@
     },
     {
       "name": "F-SB-01 REST generate_image empty prompt sanitized",
-      "ok": false,
-      "detail": "leak detected: request id in {\"error\":{\"type\":\"invalid_request_error\",\"code\":\"invalid_request\",\"message\":\"prompt empty; [contact removed]; [[endpoint removed]]; [[request ID removed]]\"}}"
+      "ok": true,
+      "detail": "status=400"
     },
     {
       "name": "F-SB-03 empty content blocked at gateway",
@@ -29,6 +29,6 @@
       "detail": "expected balance decrease, got delta=0"
     }
   ],
-  "pass": 1,
-  "fail": 4
+  "pass": 2,
+  "fail": 3
 }
