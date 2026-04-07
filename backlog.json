@@ -1,4 +1,25 @@
 {
   "description": "需求池：已与用户确认但尚未开发的功能，等待下一批次启动时统一安排",
-  "items": []
+  "items": [
+    {
+      "id": "BL-057",
+      "title": "Sidebar 用户信息展示 + 个人中心入口",
+      "description": "当前 Sidebar 底部只有钱包余额，无用户信息。需要：1) Sidebar 底部显示用户名 + email + 角色徽标；2) 点击跳转到 /settings（个人中心入口）。来源：用户产品需求（2026-04-08）。",
+      "decisions": [
+        "不需要头像上传",
+        "显示内容：用户名（或 email 前缀）+ 角色（Admin/Developer）",
+        "点击区域跳转到 /settings"
+      ],
+      "confirmed_at": "2026-04-08",
+      "priority": "high"
+    },
+    {
+      "id": "BL-058",
+      "title": "登录历史 / 安全日志",
+      "description": "用户在个人中心可以查看自己的登录历史。需要：1) 新建 LoginHistory 表（userId, ip, userAgent, createdAt）；2) 登录成功时写入记录；3) Settings 页增加安全日志区域展示最近 N 条登录记录。来源：用户产品需求（2026-04-08）。",
+      "decisions": [],
+      "confirmed_at": "2026-04-08",
+      "priority": "medium"
+    }
+  ]
 }
