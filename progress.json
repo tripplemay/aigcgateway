@@ -1,14 +1,12 @@
 {
-  "status": "done",
-  "user_goal": "model-metadata-fix: capabilities fallback 修复 + size 提示 + 幽灵模型 + contextWindow 语义",
+  "status": "building",
+  "user_goal": "project-switcher-ui: 项目切换 UI + 创建后自动切换 + useProject Context Provider",
   "total_features": 6,
-  "completed_features": 6,
-  "fix_rounds": 1,
+  "completed_features": 0,
+  "fix_rounds": 0,
   "current_sprint": null,
-  "last_updated": "2026-04-07T22:00:00Z",
-  "reference_docs": [
-    "docs/test-reports/user_report/aigc-gateway-dx-audit-report.md"
-  ],
+  "last_updated": "2026-04-07T23:00:00Z",
+  "reference_docs": [],
   "role_assignments": {
     "planner": "Kimi",
     "generator": "Mark",
@@ -17,9 +15,9 @@
   "docs": {
     "spec": null,
     "test_cases": null,
-    "signoff": "docs/test-reports/model-metadata-fix-signoff-2026-04-07.md",
+    "signoff": null,
     "framework_reviewed": false
   },
   "evaluator_feedback": null,
-  "generator_handoff": "Mark fix round 1: list_models 和 /v1/models 输出层增加 capabilities fallback（DB 为空时用静态映射补全）+ supportedSizes 补全 + image contextWindow null。根因：sync 后 DB 中旧数据 capabilities={} 未触发重新 sync，输出层需兜底"
+  "generator_handoff": null
 }

@@ -12,11 +12,9 @@ AIGC Gateway — AI 服务商管理中台。统一 API 调用抽象（兼容 Ope
 
 ## 当前开发状态（截至 2026-04-07）
 
-**最新完成批次：** `mcp-setup-redesign`（10/10 PASS，Generator=Mark，Evaluator=Reviewer）
+**最新完成批次：** `model-metadata-fix`（6/6 PASS，fix_rounds=1，Generator=Mark）
 **Harness 状态：** done
-**签收报告：** `docs/test-reports/mcp-setup-redesign-signoff-2026-04-07.md`
-
-上一批 `frontend-fix-round1`（8/8 PASS，fix_rounds=1）资料保留在 `docs/test-reports/frontend-fix-round1-*.md`。
+**签收报告：** `docs/test-reports/model-metadata-fix-signoff-2026-04-07.md`
 
 ### 近期完成批次（2026-04-06）
 
@@ -66,16 +64,16 @@ Action 相关权威设计稿（3 个，已更新确认）：
 
 状态：3 页设计稿还原已完成并通过验收（`action-pages-design-restore` 5/5 PASS）
 
-## Backlog（4 条待处理）
+## Backlog（2 条待处理）
 
 | ID | 优先级 | 标题 |
 |---|---|---|
-| BL-051 | high | capabilities fallback ?? 不处理空对象（影响所有 OpenAI/OpenRouter 模型） |
-| BL-052 | medium | generate_image size Enum 提示 |
-| BL-053 | medium | 幽灵模型状态管理 |
-| BL-054 | low | image 模型 contextWindow 语义修正 |
+| BL-055 | high | 余额从项目级改为用户级（架构变更，建议分 3 批次） |
+| BL-056 | high | 项目切换 UI + 创建后自动切换 |
 
-BL-024~050 已完成。
+BL-024~054 已完成。
+
+**开发顺序建议：** 先做 BL-056（项目切换 UI，不碰余额），再做 BL-055 后端，最后 BL-055 前端对齐。
 
 ## 已知遗留问题
 
