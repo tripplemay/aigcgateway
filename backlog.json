@@ -28,6 +28,14 @@
       "decisions": [],
       "confirmed_at": "2026-04-07",
       "priority": "high"
+    },
+    {
+      "id": "BL-049",
+      "title": "费用展示精度统一为 8 位小数",
+      "description": "list_logs 已改为 .toFixed(8)，但 get_log_detail（仍为 .toFixed(4)）、get_usage_summary（仍为 .toFixed(4)）、get_balance 交易流水展示精度未统一。导致小额调用在部分接口显示 $0.0000 造成'隐形扣费'困惑。需统一所有费用展示出口为 8 位小数。来源：FinOps 审计复测（2026-04-07）。",
+      "decisions": [],
+      "confirmed_at": "2026-04-07",
+      "priority": "medium"
     }
   ]
 }
