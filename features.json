@@ -39,7 +39,7 @@
       "title": "SERVER_INSTRUCTIONS 更新",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) list_models 返回值变更（supportedSizes、capabilities 补全）在 SERVER_INSTRUCTIONS 中说明；2) npm run lint + tsc 通过"
     },
     {

@@ -1,10 +1,10 @@
 {
-  "status": "building",
+  "status": "verifying",
   "user_goal": "model-metadata-fix: capabilities fallback 修复 + size 提示 + 幽灵模型 + contextWindow 语义",
   "total_features": 6,
-  "completed_features": 4,
+  "completed_features": 5,
   "fix_rounds": 0,
-  "current_sprint": "F-MM-05",
+  "current_sprint": null,
   "last_updated": "2026-04-07T22:00:00Z",
   "reference_docs": [
     "docs/test-reports/user_report/aigc-gateway-dx-audit-report.md"
@@ -21,5 +21,5 @@
     "framework_reviewed": false
   },
   "evaluator_feedback": null,
-  "generator_handoff": null
+  "generator_handoff": "Mark: F-MM-01~05 全部完成。capabilities fallback 空对象修复、supportedSizes 新增、image contextWindow null、SERVER_INSTRUCTIONS 更新。F-MM-06 (executor:codex) 待验收"
 }

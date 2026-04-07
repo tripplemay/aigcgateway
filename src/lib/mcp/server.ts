@@ -33,7 +33,7 @@ const SERVER_INSTRUCTIONS = `# AIGC Gateway — AI 服务商聚合平台
 
 ## Quick Start
 1. **get_balance** — 查看余额，确认可用
-2. **list_models** — 浏览可用模型、价格和 capabilities
+2. **list_models** — 浏览可用模型、价格、capabilities 和图片尺寸（supportedSizes）
 3. **chat** — 发送第一条消息
 
 ## 对话生成（chat）
@@ -45,8 +45,10 @@ const SERVER_INSTRUCTIONS = `# AIGC Gateway — AI 服务商聚合平台
 - **必须先 list_models 获取可用模型名，再调用 chat**（模型名因部署而异）
 
 ## 图片生成（generate_image）
-- generate_image(model, prompt) — 支持多种图片模型
-- **必须先 list_models(modality='image') 获取可用图片模型名和尺寸**
+- generate_image(model, prompt, size?) — 支持多种图片模型
+- **必须先 list_models(modality='image') 获取可用图片模型名**
+- list_models 返回的 image 模型包含 **supportedSizes** 字段（如 ["1024x1024","1024x1792"]），generate_image 的 size 参数必须从中选择
+- 每个模型的 **capabilities** 已预填充（function_calling、vision、json_mode、streaming 等）
 
 ## Action（原子执行单元）
 Action 绑定一个模型 + 提示词 + 变量定义，可复用。
