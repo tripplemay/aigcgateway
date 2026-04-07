@@ -20,6 +20,14 @@
       ],
       "confirmed_at": "2026-04-07",
       "priority": "high"
+    },
+    {
+      "id": "BL-048",
+      "title": "doubao-pro-32k 在 list_models 可见但不可用",
+      "description": "工作流编排复测中发现 volcengine/doubao-pro-32k 出现在 list_models 结果中，但实际调用失败。可能原因：1) 健康检查未将其标为 DISABLED；2) 白名单包含但 channel 实际不可用。需排查并过滤不可用模型或增加 status 字段标注。来源：工作流编排审查复测（2026-04-07）。",
+      "decisions": [],
+      "confirmed_at": "2026-04-07",
+      "priority": "high"
     }
   ]
 }
