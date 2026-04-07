@@ -1,4 +1,37 @@
 {
   "description": "需求池：已与用户确认但尚未开发的功能，等待下一批次启动时统一安排",
-  "items": []
+  "items": [
+    {
+      "id": "BL-051",
+      "title": "capabilities fallback 逻辑修复（?? 不处理空对象）",
+      "description": "model-sync.ts 中 `remoteModel.capabilities ?? resolveCapabilities()` 的 ?? 运算符只处理 null/undefined，当 provider 返回空对象 {} 时 fallback 不生效。导致 gpt-4o 等模型的 capabilities 在 DB 中为 {}，function_calling/vision/json_mode 全部缺失。修复：改为检查 Object.keys(capabilities).length === 0 时也走 fallback。来源：DX 审查报告（2026-04-07，5.5/10）。",
+      "decisions": [],
+      "confirmed_at": "2026-04-07",
+      "priority": "high"
+    },
+    {
+      "id": "BL-052",
+      "title": "generate_image size 参数增加 Enum 提示",
+      "description": "generate_image 的 size 参数为自由 string，无 enum 约束。不同模型支持不同尺寸，用户只能靠报错才知道合法值。建议在 list_models 返回中为 image 模型增加 supportedSizes 字段，或至少在 Schema description 中说明。来源：DX 审查报告 吐槽 2。",
+      "decisions": [],
+      "confirmed_at": "2026-04-07",
+      "priority": "medium"
+    },
+    {
+      "id": "BL-053",
+      "title": "幽灵模型 — 已下线模型的状态管理",
+      "description": "usage 日志中出现 list_models 不返回的模型（glm-4.7-flash、doubao-1.5-lite-32k、doubao-pro-32k），说明模型下线后无通知。建议：1) Model 表增加 status 字段（active/deprecated/removed）；2) deprecated 模型仍展示但标注警告；3) 下线模型提供迁移建议（replacedBy）。来源：DX 审查报告 吐槽 5。",
+      "decisions": [],
+      "confirmed_at": "2026-04-07",
+      "priority": "medium"
+    },
+    {
+      "id": "BL-054",
+      "title": "image 模型 contextWindow 语义修正",
+      "description": "cogview-3 的 contextWindow=1000 语义模糊（token？字符？），image 模型不应复用文本模型的 contextWindow 字段。建议：image 模型不返回 contextWindow，或改为 maxPromptLength 并标注单位。来源：DX 审查报告 吐槽 6。",
+      "decisions": [],
+      "confirmed_at": "2026-04-07",
+      "priority": "low"
+    }
+  ]
 }
