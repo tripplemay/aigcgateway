@@ -12,11 +12,14 @@ AIGC Gateway — AI 服务商管理中台。统一 API 调用抽象（兼容 Ope
 
 ## 当前开发状态（截至 2026-04-08）
 
-**最新完成批次：** `balance-user-level-backend`（8/8 PASS，fix_rounds=1，Generator=Mark）
+**最新完成批次：** `user-profile-center`（6/6 PASS，fix_rounds=0，Generator=Johnsong）
 **Harness 状态：** done
-**签收报告：** `docs/test-reports/balance-user-level-backend-signoff-2026-04-08.md`
+**签收报告：** `docs/test-reports/user-profile-center-signoff-2026-04-08.md`
 
 ### 近期完成批次（2026-04-08 ~ 2026-04-06）
+
+- `user-profile-center`（6/6 PASS）— Sidebar 用户信息 + 个人中心入口 + LoginHistory 表 + 安全日志展示
+- `balance-user-level-backend`（8/8 PASS）— 余额从 Project 级改为 User 级全链路
 
 - `balance-user-level-backend`（8/8 PASS）— 余额从 Project 级改为 User 级：DB migration + SQL 函数重写 + post-process 对齐 + 充值 API + MCP/REST + Sidebar/Dashboard/Admin
 - `project-switcher-ui`（6/6 PASS）— ProjectProvider Context、Sidebar 项目下拉、创建后自动切换、余额联动
@@ -67,9 +70,13 @@ Action 相关权威设计稿（3 个，已更新确认）：
 
 状态：3 页设计稿还原已完成并通过验收（`action-pages-design-restore` 5/5 PASS）
 
-## Backlog（0 条待处理）
+## Backlog（1 条待处理）
 
-BL-024~056 全部已完成。当前无待处理需求。
+| ID | 优先级 | 标题 |
+|---|---|---|
+| BL-059 | high | Template 创建 API 返回 500（生产环境） |
+
+BL-024~058 已完成。
 
 ## 已知遗留问题
 
