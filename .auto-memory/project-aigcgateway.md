@@ -12,11 +12,13 @@ AIGC Gateway — AI 服务商管理中台。统一 API 调用抽象（兼容 Ope
 
 ## 当前开发状态（截至 2026-04-07）
 
-**最新完成批次：** `model-metadata-fix`（6/6 PASS，fix_rounds=1，Generator=Mark）
+**最新完成批次：** `project-switcher-ui`（6/6 PASS，executor: generator+codex；Sidebar 项目切换 + ProjectProvider）
 **Harness 状态：** done
-**签收报告：** `docs/test-reports/model-metadata-fix-signoff-2026-04-07.md`
+**签收报告：** `docs/test-reports/project-switcher-ui-signoff-2026-04-07.md`
 
-### 近期完成批次（2026-04-06）
+### 近期完成批次（2026-04-07 ~ 2026-04-06）
+
+- `project-switcher-ui`（6/6 PASS）— ProjectProvider Context、Sidebar 项目下拉、创建后自动切换、余额联动、i18n、L1 E2E
 
 - `dx-metadata-enhancement`（7/7 PASS）— capabilities/contextWindow 补全、run_action dry_run、MCP 错误码结构统一、SDK 类型与 README 对齐
 - `action-pages-design-restore`（5/5 PASS）— 按更新后的 Stitch 设计稿还原 Action List / Detail / Editor 三页

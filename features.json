@@ -47,7 +47,7 @@
       "title": "E2E 验证",
       "priority": "high",
       "executor": "codex",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) 创建项目后 Dashboard 自动切换显示新项目数据；2) Sidebar 项目下拉可切换，切换后 Dashboard/Keys/Actions 等页面数据对应更新；3) 余额显示跟随当前项目变化；4) 刷新页面后仍保持上次选中的项目"
     }
   ]
