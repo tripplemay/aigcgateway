@@ -7,11 +7,7 @@
   "current_sprint": null,
   "last_updated": "2026-04-07T23:00:00Z",
   "reference_docs": [],
-  "role_assignments": {
-    "planner": "Kimi",
-    "generator": "Mark",
-    "evaluator": "Reviewer"
-  },
+  "role_assignments": null,
   "docs": {
     "spec": null,
     "test_cases": "test-cases/project-switcher-ui-local-test-cases-2026-04-07.md",
