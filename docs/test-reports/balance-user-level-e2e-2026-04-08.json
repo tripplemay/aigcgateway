@@ -1,13 +1,13 @@
 {
-  "email": "bu_user_1775575807906@test.com",
-  "userId": "cmnorzpr300r99yza40tj5hhp",
-  "projectA": "cmnorzpub00rb9yza30ok82g5",
-  "projectB": "cmnorzpud00rd9yzad2jw3jr9",
+  "email": "bu_user_1775576379828@test.com",
+  "userId": "cmnosbz1800qh9yzvu55u6rmt",
+  "projectA": "cmnosbzan00qj9yzvuk15nrsx",
+  "projectB": "cmnosbzaq00ql9yzvft12k15m",
   "results": [
     {
       "name": "register+login user",
       "ok": true,
-      "detail": "user=bu_user_1775575807906@test.com"
+      "detail": "user=bu_user_1775576379828@test.com"
     },
     {
       "name": "shared balance across projects",
@@ -32,16 +32,16 @@
     {
       "name": "get_balance tool shows user balance",
       "ok": true,
-      "detail": "{\n  \"balance\": \"$69.99999712\",\n  \"transactions\": [\n    {\n      \"type\": \"deduction\",\n      \"amount\": \"$-0.00000288\",\n      \"balanceAfter\": \"$49.99999712\",\n      \"traceId\": \"trc_z8spdlpaz7y8c7uhohqiwnqq\",\n      \"description\": \"API call deduction\",\n      \"createdAt\": \"2026-04-07T23:30:08.166Z\"\n    },\n    {\n      \"type\": \"adjustment\",\n      \"amount\": \"$50.00000000\",\n      \"balanceAfter\": \"$50.00000000\",\n      \"traceId\": null,\n      \"description\": \"balance-user-level-e2e\",\n      \"createdAt\": \"2026-04-07T15:30:08.154Z\"\n    }\n  ]\n}"
+      "detail": "{\n  \"balance\": \"$69.99999712\",\n  \"transactions\": [\n    {\n      \"type\": \"deduction\",\n      \"amount\": \"$-0.00000288\",\n      \"balanceAfter\": \"$49.99999712\",\n      \"traceId\": \"trc_u43nn15v2nkr8y8jufohdndj\",\n      \"description\": \"API call deduction\",\n      \"createdAt\": \"2026-04-07T23:39:40.306Z\"\n    },\n    {\n      \"type\": \"adjustment\",\n      \"amount\": \"$50.00000000\",\n      \"balanceAfter\": \"$50.00000000\",\n      \"traceId\": null,\n      \"description\": \"balance-user-level-e2e\",\n      \"createdAt\": \"2026-04-07T15:39:40.283Z\"\n    }\n  ]\n}"
     }
   ],
   "finalBalance": [
     {
-      "id": "cmnorzpud00rd9yzad2jw3jr9",
+      "id": "cmnosbzaq00ql9yzvft12k15m",
       "balance": 69.99999712
     },
     {
-      "id": "cmnorzpub00rb9yza30ok82g5",
+      "id": "cmnosbzan00qj9yzvuk15nrsx",
       "balance": 69.99999712
     }
   ]
