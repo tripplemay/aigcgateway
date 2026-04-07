@@ -1,6 +1,6 @@
 {
   "batch": "security-billing-polish",
-  "generatedAt": "2026-04-07T00:11:43.658Z",
+  "generatedAt": "2026-04-07T00:22:57.508Z",
   "environment": "http://localhost:3099",
   "checks": [
     {
@@ -16,7 +16,7 @@
     {
       "name": "F-SB-01 REST generate_image empty prompt sanitized",
       "ok": false,
-      "detail": "leak detected: request id in {\"error\":{\"type\":\"invalid_request_error\",\"code\":\"invalid_request\",\"message\":\"prompt empty; [contact removed]; endpoint volcengine/cn-beijing; Request ID req-abc\"}}"
+      "detail": "leak detected: request id in {\"error\":{\"type\":\"invalid_request_error\",\"code\":\"invalid_request\",\"message\":\"prompt empty; [contact removed]; [[endpoint removed]]; [[request ID removed]]\"}}"
     },
     {
       "name": "F-SB-03 empty content blocked at gateway",

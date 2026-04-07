@@ -1,11 +1,11 @@
 {
-  "status": "reverifying",
+  "status": "fixing",
   "user_goal": "security-billing-polish: generate_image 脱敏补全 + 最低扣费保护 + 空 content 校验",
   "total_features": 4,
-  "completed_features": 3,
+  "completed_features": 1,
   "fix_rounds": 0,
   "current_sprint": null,
-  "last_updated": "2026-04-07T00:12:32Z",
+  "last_updated": "2026-04-07T00:24:25Z",
   "reference_docs": [],
   "role_assignments": {
     "planner": "Kimi",
@@ -19,7 +19,7 @@
     "framework_reviewed": false
   },
   "evaluator_feedback": {
-    "summary": "verifying 完成：F-SB-04 已执行，发现 F-SB-01/F-SB-02/F-SB-03 均未满足验收，进入 fixing。",
+    "summary": "reverifying 完成：复验未通过，F-SB-01/F-SB-02/F-SB-03 仍存在问题，回到 fixing。",
     "pass_count": 1,
     "partial_count": 0,
     "fail_count": 3,
@@ -27,19 +27,19 @@
       {
         "feature_id": "F-SB-01",
         "result": "FAIL",
-        "description": "generate_image 脱敏不完整：REST 错误仍包含 Request ID 与 volcengine 端点信息；MCP 对无效尺寸未触发错误场景。",
-        "steps_to_reproduce": "1) 运行 scripts/test/security-billing-polish-e2e-2026-04-07.ts\n2) 查看 F-SB-01 两个检查项\n3) REST 检查项报 leak detected: request id；MCP 检查项 expected error"
+        "description": "MCP generate_image 无效尺寸场景仍未触发错误（size=999x999 返回 success）；REST 空 prompt 返回已是脱敏占位文案，自动检测规则需调整。",
+        "steps_to_reproduce": "1) 运行 scripts/test/security-billing-polish-e2e-2026-04-07.ts\n2) 查看 F-SB-01 两个检查项\n3) MCP 检查项仍为 expected error；REST 返回含 [[endpoint removed]] / [[request ID removed]] 占位文本"
       },
       {
         "feature_id": "F-SB-02",
         "result": "FAIL",
-        "description": "最低扣费保护未生效：1-token 调用后余额无变化（delta=0）。",
+        "description": "最低扣费保护仍未观测生效：1-token 调用后余额 delta=0。",
         "steps_to_reproduce": "1) 同脚本执行 F-SB-02 检查项\n2) 对比调用前后 project.balance\n3) 报错 expected balance decrease, got delta=0"
       },
       {
         "feature_id": "F-SB-03",
         "result": "FAIL",
-        "description": "chat 空 content 未在网关层拦截，空白消息未返回 [invalid_request]。",
+        "description": "chat 空 content 校验仍未稳定拦截（未返回 [invalid_request]）。",
         "steps_to_reproduce": "1) 同脚本执行 F-SB-03 检查项\n2) 调用 chat messages=[{content:\"   \"}]\n3) 报错 expected invalid_request error"
       }
     ]
