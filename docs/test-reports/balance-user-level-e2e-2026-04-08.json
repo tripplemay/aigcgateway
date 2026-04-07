@@ -1,0 +1,48 @@
+{
+  "email": "bu_user_1775575807906@test.com",
+  "userId": "cmnorzpr300r99yza40tj5hhp",
+  "projectA": "cmnorzpub00rb9yza30ok82g5",
+  "projectB": "cmnorzpud00rd9yzad2jw3jr9",
+  "results": [
+    {
+      "name": "register+login user",
+      "ok": true,
+      "detail": "user=bu_user_1775575807906@test.com"
+    },
+    {
+      "name": "shared balance across projects",
+      "ok": true,
+      "detail": "balance=$50.0000"
+    },
+    {
+      "name": "deduction via chat completion",
+      "ok": true,
+      "detail": "delta=$-0.000003, balance=$49.999997"
+    },
+    {
+      "name": "transactions filtered per project",
+      "ok": true,
+      "detail": "A tx count=2"
+    },
+    {
+      "name": "admin recharge affects all projects",
+      "ok": true,
+      "detail": "balance=$69.999997"
+    },
+    {
+      "name": "get_balance tool shows user balance",
+      "ok": true,
+      "detail": "{\n  \"balance\": \"$69.99999712\",\n  \"transactions\": [\n    {\n      \"type\": \"deduction\",\n      \"amount\": \"$-0.00000288\",\n      \"balanceAfter\": \"$49.99999712\",\n      \"traceId\": \"trc_z8spdlpaz7y8c7uhohqiwnqq\",\n      \"description\": \"API call deduction\",\n      \"createdAt\": \"2026-04-07T23:30:08.166Z\"\n    },\n    {\n      \"type\": \"adjustment\",\n      \"amount\": \"$50.00000000\",\n      \"balanceAfter\": \"$50.00000000\",\n      \"traceId\": null,\n      \"description\": \"balance-user-level-e2e\",\n      \"createdAt\": \"2026-04-07T15:30:08.154Z\"\n    }\n  ]\n}"
+    }
+  ],
+  "finalBalance": [
+    {
+      "id": "cmnorzpud00rd9yzad2jw3jr9",
+      "balance": 69.99999712
+    },
+    {
+      "id": "cmnorzpub00rb9yza30ok82g5",
+      "balance": 69.99999712
+    }
+  ]
+}

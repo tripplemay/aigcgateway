@@ -7,7 +7,7 @@
       "title": "User 表新增 balance 字段 + migration",
       "priority": "high",
       "executor": "generator",
-      "status": "done",
+      "status": "pending",
       "acceptance": "1) User 表新增 balance Decimal(16,8) DEFAULT 0；2) migration 将现有 Project.balance 按 userId 合并到 User.balance（SUM）；3) migration 文件只包含此变更；4) 本地 prisma migrate dev 通过；5) npm run lint + tsc 通过"
     },
     {
@@ -15,7 +15,7 @@
       "title": "deduct_balance / check_balance SQL 函数重写",
       "priority": "high",
       "executor": "generator",
-      "status": "done",
+      "status": "pending",
       "acceptance": "1) deduct_balance 改为从 User.balance 扣费（通过 projectId 找到 userId）；2) check_balance 改为检查 User.balance；3) Transaction 表保留 projectId（记录来源），新增 userId 字段；4) migration 文件包含函数重写 + Transaction.userId 字段；5) npm run lint + tsc 通过"
     },
     {
@@ -63,7 +63,7 @@
       "title": "E2E 验证",
       "priority": "high",
       "executor": "codex",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) 用户有多个项目时，所有项目看到同一个余额；2) 项目 A 调用扣费后，项目 B 的余额同步减少；3) Admin 充值后，用户所有项目余额同步增加；4) get_balance MCP 返回用户级余额；5) 切换项目时 Sidebar 余额不变；6) 交易明细仍能按项目过滤"
     }
   ]
