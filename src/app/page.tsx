@@ -16,12 +16,14 @@ export default function Home() {
       // JWT 过期检查（exp 是秒级时间戳）
       if (payload.exp && payload.exp * 1000 < Date.now()) {
         localStorage.removeItem("token");
+        document.cookie = "token=; path=/; max-age=0";
         router.replace("/login");
         return;
       }
       router.replace("/dashboard");
     } catch {
       localStorage.removeItem("token");
+      document.cookie = "token=; path=/; max-age=0";
       router.replace("/login");
     }
   }, [router]);

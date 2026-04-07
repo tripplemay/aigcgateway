@@ -56,6 +56,7 @@ export default function ConsoleLayout({ children }: { children: React.ReactNode 
       })
       .catch(() => {
         localStorage.removeItem("token");
+        document.cookie = "token=; path=/; max-age=0";
         router.push("/login");
       })
       .finally(() => setLoading(false));
