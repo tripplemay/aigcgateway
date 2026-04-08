@@ -7,7 +7,7 @@
       "title": "list_models MCP Tool 简化",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "1) 去掉 resolveCapabilities/resolveSupportedSizes fallback 逻辑，直接读 DB capabilities 和 supportedSizes；2) 返回的模型 id 是 canonical name（如 gpt-4o）；3) 不再需要去重（Model 已唯一）；4) npm run lint + tsc 通过"
     },
     {
@@ -15,7 +15,7 @@
       "title": "/v1/models REST API 简化",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "1) 同 F-P4B-01，去掉 fallback，直接读 DB；2) 返回的 id 是 canonical name；3) npm run lint + tsc 通过"
     },
     {
@@ -23,7 +23,7 @@
       "title": "路由层验证（model='gpt-4o' 正确路由）",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "1) routeByModelName('gpt-4o') 正确找到 Model 并选取优先级最高的 ACTIVE Channel；2) 同一 Model 多个 Provider Channel 时按 priority ASC 选优；3) 确认 router.ts 无需代码改动（或做必要微调）；4) npm run lint + tsc 通过"
     },
     {
@@ -31,7 +31,7 @@
       "title": "废弃 model-capabilities-fallback.ts 中的 resolve 函数",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "1) 删除或标记废弃 resolveCapabilities/resolveContextWindow/resolveSupportedSizes 函数及其映射表（CAPABILITIES_MAP/CONTEXT_WINDOW_MAP/SUPPORTED_SIZES_MAP）；2) 确认无其他文件引用这些函数（sync 已改为查 ModelAlias）；3) npm run lint + tsc 通过"
     },
     {

@@ -218,8 +218,8 @@ async function reconcile(
         modality: remoteModel.modality as ModelModality,
         contextWindow: remoteModel.contextWindow ?? null,
         maxTokens: remoteModel.maxOutputTokens ?? null,
-        capabilities: {},  // 由管理员在 Admin UI 设置
-        enabled: false,     // 默认不启用
+        capabilities: {}, // 由管理员在 Admin UI 设置
+        enabled: false, // 默认不启用
       },
     });
 
@@ -256,7 +256,7 @@ async function reconcile(
           providerId: provider.id,
           realModelId: remoteModel.modelId,
           status: "ACTIVE",
-          priority: 10,  // 默认优先级，管理员可调
+          priority: 10, // 默认优先级，管理员可调
           costPrice: costPrice as unknown as Prisma.InputJsonValue,
           sellPrice: sellPrice as unknown as Prisma.InputJsonValue,
         },
