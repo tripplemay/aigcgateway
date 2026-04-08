@@ -1,84 +1,58 @@
 {
-  "batch": "R2A-user-pages-keys-logs-models",
+  "batch": "R2B-user-pages-balance-usage-settings",
   "created_at": "2026-04-08",
   "features": [
     {
-      "id": "F-R2A-01",
-      "title": "Keys 列表页还原",
+      "id": "F-R2B-01",
+      "title": "Balance 页面还原",
       "priority": "high",
       "executor": "generator",
-      "status": "completed",
-      "acceptance": "1) 使用 useAsyncData + Table + SearchBar + Pagination 替换旧代码；2) 表格列：名称、masked key（可复制）、创建日期、最后使用、状态 badge；3) 行操作：编辑（跳转 /keys/[keyId]）、吊销（弹 RevokeKeyDialog）；4) 对齐 design-draft/keys/code.html 视觉；5) 文本走 next-intl；6) npm run lint + tsc 通过",
-      "design_ref": "design-draft/keys/code.html"
+      "status": "pending",
+      "acceptance": "1) 使用 useAsyncData + Card + Table + Pagination 替换旧代码；2) 余额卡片：当前余额、最近充值金额+日期；3) 告警阈值显示；4) 交易历史表格（时间、类型 badge、描述、金额、余额变化）；5) 交易类型筛选；6) 分页；7) 'Recharge' 按钮弹出 RechargeDialog；8) 对齐 design-draft/balance/code.html（忽略 DESIGN.md 标注项）；9) npm run lint + tsc 通过",
+      "design_ref": "design-draft/balance/code.html"
     },
     {
-      "id": "F-R2A-02",
-      "title": "CreateKeyDialog 组件",
+      "id": "F-R2B-02",
+      "title": "RechargeDialog 组件",
       "priority": "high",
       "executor": "generator",
-      "status": "completed",
-      "acceptance": "1) 独立组件 src/components/keys/create-key-dialog.tsx；2) 使用 Dialog 组件；3) 表单：名称、描述、过期选项（Never/30d/60d/90d）、权限开关；4) 创建成功后显示完整 key + 复制按钮；5) 对齐 design-draft/keys-create-modal/code.html；6) npm run lint + tsc 通过",
-      "design_ref": "design-draft/keys-create-modal/code.html"
+      "status": "pending",
+      "acceptance": "1) 独立组件 src/components/balance/recharge-dialog.tsx；2) 使用 Dialog 组件；3) 预设金额快选 + 自定义金额输入；4) 支付方式选择（Alipay/WeChat）；5) 提交后调用 POST /recharge 返回 paymentUrl；6) 对齐 design-draft/balance-recharge-modal/code.html；7) npm run lint + tsc 通过",
+      "design_ref": "design-draft/balance-recharge-modal/code.html"
     },
     {
-      "id": "F-R2A-03",
-      "title": "RevokeKeyDialog 组件",
+      "id": "F-R2B-03",
+      "title": "Usage 页面还原",
+      "priority": "high",
+      "executor": "generator",
+      "status": "pending",
+      "acceptance": "1) 使用 useAsyncData + Card；2) KPI 卡片（总调用、总费用、总 Tokens、平均延迟）；3) 周期选择器（today/7d/30d）；4) 每日趋势图（recharts BarChart）；5) 模型分布饼图（recharts PieChart）；6) 模型排名表格（Table 组件）；7) 对齐 design-draft/usage/code.html（忽略 DESIGN.md 标注项）；8) npm run lint + tsc 通过",
+      "design_ref": "design-draft/usage/code.html"
+    },
+    {
+      "id": "F-R2B-04",
+      "title": "Settings 页面还原",
+      "priority": "high",
+      "executor": "generator",
+      "status": "pending",
+      "acceptance": "1) 使用 useAsyncData + Card + Input；2) 个人信息区（邮箱只读、显示名称可编辑、保存）；3) 密码修改区（旧密码+新密码+确认+提交）；4) 登录历史表格（Table 组件：IP、UA、时间）；5) 退出登录按钮；6) 对齐 design-draft/settings/code.html（忽略 DESIGN.md 标注项）；7) npm run lint + tsc 通过",
+      "design_ref": "design-draft/settings/code.html"
+    },
+    {
+      "id": "F-R2B-05",
+      "title": "i18n 补全（balance/usage/settings）",
       "priority": "medium",
       "executor": "generator",
-      "status": "completed",
-      "acceptance": "1) 独立组件 src/components/keys/revoke-key-dialog.tsx；2) 使用 Dialog 组件；3) 显示 key 名称 + 警告文本 + 确认/取消按钮；4) 确认后调用 DELETE API 并触发列表刷新；5) npm run lint + tsc 通过"
+      "status": "pending",
+      "acceptance": "1) messages/en.json 和 messages/zh.json 中 balance/usage/settings 相关 key 齐全；2) 所有用户可见文本无硬编码（包括 placeholder、breadcrumb、状态标签、时间格式化、分页文案）；3) 切换中文后页面无英文残留；4) npm run lint + tsc 通过"
     },
     {
-      "id": "F-R2A-04",
-      "title": "Keys 设置页还原",
-      "priority": "high",
-      "executor": "generator",
-      "status": "completed",
-      "acceptance": "1) 使用 useAsyncData + Card + Input + Switch；2) 基本信息区（名称、描述可编辑，masked key 可复制）；3) Permissions 开关组；4) Rate Limit (RPM) 输入；5) IP 白名单 textarea；6) 保存按钮调用 PATCH API；7) Danger Zone 吊销按钮（弹 RevokeKeyDialog）；8) 对齐 design-draft/keys-settings/code.html；9) npm run lint + tsc 通过",
-      "design_ref": "design-draft/keys-settings/code.html"
-    },
-    {
-      "id": "F-R2A-05",
-      "title": "Logs 列表页还原",
-      "priority": "high",
-      "executor": "generator",
-      "status": "completed",
-      "acceptance": "1) 使用 useAsyncData + Table + SearchBar + Pagination；2) 表格列：时间、Trace ID（可复制）、模型、预览、状态 badge、Tokens、费用、延迟；3) 状态筛选 tab（All/Success/Error）；4) 模型筛选下拉；5) 搜索走 /logs/search；6) 行点击跳转详情页；7) 对齐 design-draft/logs/code.html；8) npm run lint + tsc 通过",
-      "design_ref": "design-draft/logs/code.html"
-    },
-    {
-      "id": "F-R2A-06",
-      "title": "Logs 详情页还原",
-      "priority": "high",
-      "executor": "generator",
-      "status": "completed",
-      "acceptance": "1) 使用 useAsyncData + Card；2) 头部：traceId（可复制）、状态 badge、时间、延迟；3) 统计卡片：模型、Tokens、费用、吞吐量；4) Prompt Messages 面板（system/user 消息列表）；5) Response Content 面板（支持文本展示）；6) Request Parameters（JSON 折叠）；7) 质量评分按钮（POST quality API）；8) 对齐 design-draft/logs-detail/code.html；9) npm run lint + tsc 通过",
-      "design_ref": "design-draft/logs-detail/code.html"
-    },
-    {
-      "id": "F-R2A-07",
-      "title": "Models 列表页还原",
-      "priority": "high",
-      "executor": "generator",
-      "status": "completed",
-      "acceptance": "1) 使用 useAsyncData；2) 按 provider_name 客户端分组，Provider 组头显示名称 + 模型数量；3) Modality tab 切换（All/Text/Image）；4) 每行：模型 ID、Modality badge、Context Window、定价；5) 分组可折叠/展开；6) 统计卡片：Total Models；7) 对齐 design-draft/models/code.html；8) npm run lint + tsc 通过",
-      "design_ref": "design-draft/models/code.html"
-    },
-    {
-      "id": "F-R2A-08",
-      "title": "i18n 补全（keys/logs/models）",
-      "priority": "medium",
-      "executor": "generator",
-      "status": "completed",
-      "acceptance": "1) messages/en.json 和 messages/zh.json 中 keys/logs/models 相关 key 齐全；2) 所有用户可见文本无硬编码英文；3) 切换语言后页面正常显示；4) npm run lint + tsc 通过"
-    },
-    {
-      "id": "F-R2A-09",
-      "title": "R2A 视觉回归验收",
+      "id": "F-R2B-06",
+      "title": "R2B 视觉回归验收",
       "priority": "high",
       "executor": "codex",
-      "status": "completed",
-      "acceptance": "1) 登录后 /keys、/keys/[keyId]、/logs、/logs/[traceId]、/models 页面正常加载，无控制台报错；2) DS 组件使用正确（Table/SearchBar/Pagination/Dialog/Card）；3) 视觉与设计稿基本一致；4) CRUD 操作正常（创建 key、吊销 key、查看日志详情）；5) 签收报告生成"
+      "status": "pending",
+      "acceptance": "1) /balance、/usage、/settings 页面正常加载，无控制台报错；2) DS 组件使用正确；3) 视觉与设计稿基本一致；4) 充值下单流程正常；5) 图表正常渲染；6) 中英文切换无残留；7) 签收报告生成"
     }
   ]
 }

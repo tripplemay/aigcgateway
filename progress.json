@@ -1,151 +1,34 @@
 {
-  "status": "done",
-  "user_goal": "R2A — 用户侧页面还原（Keys + Logs + Models）：6 个页面从旧代码模式还原为 R1 设计系统，对齐 Stitch 设计稿",
-  "total_features": 9,
-  "completed_features": 9,
-  "fix_rounds": 4,
+  "status": "building",
+  "user_goal": "R2B — 用户侧页面还原（Balance + Usage + Settings）：3 个页面从旧代码模式还原为 R1 设计系统，对齐 Stitch 设计稿",
+  "total_features": 6,
+  "completed_features": 0,
+  "fix_rounds": 0,
   "current_sprint": null,
-  "last_updated": "2026-04-08T15:40:28Z",
+  "last_updated": "2026-04-08T16:30:00Z",
   "reference_docs": [
-    "docs/specs/R2A-user-pages-keys-logs-models-spec.md",
-    "design-draft/keys/code.html",
-    "design-draft/logs/code.html",
-    "design-draft/models/code.html"
+    "docs/specs/R2B-user-pages-balance-usage-settings-spec.md",
+    "design-draft/balance/code.html",
+    "design-draft/usage/code.html",
+    "design-draft/settings/code.html"
   ],
-  "role_assignments": null,
+  "role_assignments": {
+    "planner": "Richard",
+    "generator": "Johnsong",
+    "evaluator": "Reviewer"
+  },
   "docs": {
-    "spec": "docs/specs/R2A-user-pages-keys-logs-models-spec.md",
-    "test_cases": "docs/test-reports/R2A-user-pages-keys-logs-models-reverifying-round4-2026-04-08.md",
-    "signoff": "docs/test-reports/R2A-user-pages-keys-logs-models-signoff-2026-04-08.md",
+    "spec": "docs/specs/R2B-user-pages-balance-usage-settings-spec.md",
+    "test_cases": null,
+    "signoff": null,
     "framework_reviewed": false
   },
-  "evaluator_feedback": {
-    "summary": "R2A round4 复验完成：9/9 PASS，满足签收条件。",
-    "pass_count": 9,
-    "partial_count": 0,
-    "fail_count": 0,
-    "issues": [],
-    "report": "docs/test-reports/R2A-user-pages-keys-logs-models-reverifying-round4-2026-04-08.md"
-  },
-  "_prev_feedback_round3": {
-    "summary": "R2A 复验 round 3 未通过：7 PASS / 1 PARTIAL / 1 FAIL。/logs i18n 已修复，但 /keys/[keyId] 仍有英文硬编码。",
-    "pass_count": 7,
-    "partial_count": 1,
-    "fail_count": 1,
-    "issues": [
-      {
-        "feature_id": "F-R2A-08",
-        "result": "FAIL",
-        "description": "CN 模式下 /keys/[keyId] 仍出现英文可见文案（API Keys、Enter key name...、Describe this key's usage...、REVOKED）。",
-        "steps_to_reproduce": "登录后切换 CN，访问 /keys/{keyId}，观察 breadcrumb、placeholder 和状态标签。"
-      },
-      {
-        "feature_id": "F-R2A-09",
-        "result": "PARTIAL",
-        "description": "目标页面可加载且 CRUD/评分链路可用，但受 F-R2A-08 影响不能签收。",
-        "steps_to_reproduce": "按 round3 报告路径复验 /keys、/keys/{keyId}、/logs、/logs/{traceId}、/models。"
-      }
-    ],
-    "report": "docs/test-reports/R2A-user-pages-keys-logs-models-reverifying-round3-2026-04-08.md"
-  },
-  "_prev_feedback_round2": {
-    "summary": "R2A 复验 round 2 未通过：7 PASS / 1 PARTIAL / 1 FAIL。阻塞点仍为 F-R2A-08（共享层 i18n 硬编码）。",
-    "pass_count": 7,
-    "partial_count": 1,
-    "fail_count": 1,
-    "issues": [
-      {
-        "feature_id": "F-R2A-08",
-        "result": "FAIL",
-        "description": "CN 语言下 /logs 仍出现英文硬编码（timeAgo 与分页 of）。",
-        "steps_to_reproduce": "切换到 CN 后访问 /logs，观察时间列显示 10s ago/1m ago，分页显示 OF。"
-      },
-      {
-        "feature_id": "F-R2A-09",
-        "result": "PARTIAL",
-        "description": "目标页面可加载且关键链路可用，但受 F-R2A-08 影响不能签收。",
-        "steps_to_reproduce": "登录后复验 /keys、/logs、/logs/{traceId}、/models；CN 模式下检查文案。"
-      }
-    ],
-    "report": "docs/test-reports/R2A-user-pages-keys-logs-models-reverifying-round2-2026-04-08.md"
-  },
-  "_prev_feedback_round1": {
-    "summary": "R2A 复验未完全通过：7 PASS / 1 PARTIAL / 1 FAIL。唯一阻塞为 F-R2A-08（仍有硬编码英文文案）。",
-    "pass_count": 7,
-    "partial_count": 1,
-    "fail_count": 1,
-    "issues": [
-      {
-        "feature_id": "F-R2A-08",
-        "result": "FAIL",
-        "description": "keys/logs/models 仍存在硬编码英文用户文案，未满足“无硬编码英文”验收要求。",
-        "steps_to_reproduce": "切换到 CN 后访问 /logs、/logs/{traceId}、/models；同时核对对应源码行。"
-      },
-      {
-        "feature_id": "F-R2A-09",
-        "result": "PARTIAL",
-        "description": "页面加载、DS 组件、创建/吊销 key、日志详情与质量评分链路可用；但因 F-R2A-08 未过，仍不可签收。",
-        "steps_to_reproduce": "按复验报告步骤执行 5 个目标页面检查。"
-      }
-    ],
-    "report": "docs/test-reports/R2A-user-pages-keys-logs-models-reverifying-2026-04-08.md"
-  },
-  "_prev_feedback_round0": {
-    "summary": "R2A 首轮验收未通过：2 PASS / 2 PARTIAL / 5 FAIL，需回 fixing。",
-    "pass_count": 2,
-    "partial_count": 2,
-    "fail_count": 5,
-    "issues": [
-      {
-        "feature_id": "F-R2A-02",
-        "result": "FAIL",
-        "description": "CreateKeyDialog 过期选项不符合验收（缺 60d，存在 1y）。",
-        "steps_to_reproduce": "打开 /keys -> 创建密钥弹窗 -> 检查 Expiration 下拉选项。"
-      },
-      {
-        "feature_id": "F-R2A-04",
-        "result": "FAIL",
-        "description": "Keys 设置页缺少过期设置项。",
-        "steps_to_reproduce": "打开 /keys/{keyId}，检查 Security & Limits 区域字段。"
-      },
-      {
-        "feature_id": "F-R2A-05",
-        "result": "FAIL",
-        "description": "Logs 列表缺少模型筛选下拉，且行点击为行内展开而非跳转详情页。",
-        "steps_to_reproduce": "打开 /logs，检查筛选控件；点击任意日志行观察行为。"
-      },
-      {
-        "feature_id": "F-R2A-06",
-        "result": "FAIL",
-        "description": "Logs 详情页缺少质量评分按钮与 POST quality API 交互。",
-        "steps_to_reproduce": "打开 /logs/{traceId}，检查页面操作区与网络请求。"
-      },
-      {
-        "feature_id": "F-R2A-07",
-        "result": "PARTIAL",
-        "description": "Models 页面框架存在，但在当前种子数据无模型，分组折叠/展开行为未完成有效验证。",
-        "steps_to_reproduce": "打开 /models，观察当前数据与分组交互可验证范围。"
-      },
-      {
-        "feature_id": "F-R2A-08",
-        "result": "FAIL",
-        "description": "存在硬编码英文文案，未满足“无硬编码用户文案”。",
-        "steps_to_reproduce": "查看 /logs 与 /logs/{traceId} 页面文本及对应源码。"
-      },
-      {
-        "feature_id": "F-R2A-09",
-        "result": "PARTIAL",
-        "description": "目标页面与 CRUD 链路可运行，但仍有 DS/设计一致性与 i18n 问题，不能签收。",
-        "steps_to_reproduce": "按验证报告步骤访问 5 个目标页面并核对验收项。"
-      }
-    ],
-    "report": "docs/test-reports/R2A-user-pages-keys-logs-models-verifying-2026-04-08.md"
-  },
-  "generator_handoff": "All 8 generator features (F-R2A-01~08) completed. Pages refactored: /keys (list + create dialog + revoke dialog + settings), /logs (list + detail), /models. All pages now use useAsyncData, Table/SearchBar/Pagination DS components, and Dialog for modals. i18n keys added to en.json and zh-CN.json for all user-visible strings. F-R2A-09 (visual regression) is executor:codex. tsc + lint pass cleanly.",
+  "evaluator_feedback": null,
+  "generator_handoff": null,
   "session_notes": {
-    "Richard": "R2A planning 完成。9 条功能（8 generator + 1 codex）。keys 3 页 + create/revoke dialog、logs 2 页、models 1 页 + i18n。所有页面当前都是旧模式，需完全重写。设计稿已整理到 design-draft/ 新结构。",
-    "Johnsong": "R2A fixing round 2 完成。仅剩 F-R2A-08 硬编码英文问题。修复：models 页（subtitle/stats 卡片 6 处）、logs 列表页（Avg P95/Median/Save up to/Apply Savings 4 处）、logs 详情页（Model/Tokens/Cost/Throughput 统计标签 + Messages count 5 处）。所有 i18n key 已加到 en.json + zh-CN.json。",
+    "Richard": "R2B planning 完成。6 条功能（5 generator + 1 codex）。balance 页+充值弹窗、usage 页（含 recharts 图表）、settings 页 + i18n。spec 中特别加了 i18n 自检清单（R2A 教训）。recharts 已在项目中。",
+    "Johnsong": null,
     "Mark": null,
-    "Reviewer": "reverifying round 4 完成：F-R2A-08/F-R2A-09 均 PASS，已生成 signoff 并置 done。"
+    "Reviewer": null
   }
 }
