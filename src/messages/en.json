@@ -21,7 +21,8 @@
     "saved": "Saved",
     "never": "Never",
     "of": "of",
-    "balance": "Account Balance"
+    "balance": "Account Balance",
+    "page": "Page"
   },
   "sidebar": {
     "brand": "AIGC Gateway",

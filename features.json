@@ -7,7 +7,7 @@
       "title": "Button 组件对齐设计系统",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) default variant 使用 bg-gradient-to-r from-ds-primary to-ds-primary-container；2) 其他 variant 不变；3) 页面中 21 处手写渐变按钮删除内联样式，改用 Button 组件；4) npm run lint + tsc 通过"
     },
     {
@@ -15,7 +15,7 @@
       "title": "Input 组件对齐设计系统",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) 默认样式改为底线风格：border-b-2 border-ds-outline-variant，无其他 border；2) bg 改为 bg-ds-surface-container-low；3) focus 时底线变 ds-primary；4) 现有使用 Input 的页面不报错；5) npm run lint + tsc 通过"
     },
     {
@@ -23,7 +23,7 @@
       "title": "Card 组件对齐设计系统",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) 去掉 ring-1 ring-foreground/10；2) CardFooter 去掉 border-t；3) 依赖 tonal layering 制造层级感；4) 现有使用 Card 的页面视觉正常；5) npm run lint + tsc 通过"
     },
     {
@@ -31,7 +31,7 @@
       "title": "Dialog 组件对齐设计系统（Glassmorphism）",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) DialogOverlay 改为 backdrop-blur-lg + bg-black/20；2) DialogContent 去掉 ring-1，加 shadow-xl shadow-ds-on-surface/6；3) DialogFooter 去掉 border-t；4) 打开任意 dialog 视觉正确；5) npm run lint + tsc 通过"
     },
     {
@@ -39,7 +39,7 @@
       "title": "Table 组件对齐设计系统",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) TableHeader 去掉 [&_tr]:border-b；2) TableRow 去掉 box-shadow 分割线，hover 改为 bg-ds-surface-container-high/30；3) TableHead 加 uppercase tracking-widest font-bold text-[10px]；4) npm run lint + tsc 通过"
     },
     {
@@ -47,7 +47,7 @@
       "title": "Sidebar 对齐设计系统",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) aside bg 改为 bg-ds-surface-container-low（去掉 bg-slate-50）；2) active 导航项改为 before 伪元素 3px accent pill（去掉 border-l-4）；3) Project Switcher 去掉 border；4) dropdown 去掉 border，加 shadow + backdrop-blur；5) nav item 间距改为 space-y-2；6) 参照 design-draft/Layout Shell code.html；7) npm run lint + tsc 通过"
     },
     {
@@ -55,7 +55,7 @@
       "title": "TopAppBar 对齐设计系统",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) 去掉 border-b，保持 backdrop-blur-xl + shadow-sm；2) Deploy 按钮改用 Button 组件或渐变样式；3) 参照 design-draft/Layout Shell code.html；4) npm run lint + tsc 通过"
     },
     {
@@ -63,7 +63,7 @@
       "title": "useAsyncData hook 抽取",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) 创建 src/hooks/use-async-data.ts；2) 接口：useAsyncData<T>(fetcher, deps) → { data, loading, error, refetch }；3) 内部使用 apiFetch，自动处理 loading/error 状态；4) 支持依赖项变化自动 refetch；5) 导出类型正确；6) npm run lint + tsc 通过"
     },
     {
@@ -71,7 +71,7 @@
       "title": "SearchBar 公共组件抽取",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) 创建 src/components/search-bar.tsx；2) props: placeholder, value, onChange, onKeyDown?, className?；3) 使用 Material icon search，rounded-full，bg-ds-surface-container-low；4) 样式与设计系统一致；5) npm run lint + tsc 通过"
     },
     {
@@ -79,7 +79,7 @@
       "title": "Pagination 公共组件抽取",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) 创建 src/components/pagination.tsx；2) props: page, totalPages, onPageChange, total?, pageSize?；3) 支持简单模式（Previous/Next）和完整模式（带页码）；4) 样式与设计系统一致（无 border，tonal layering）；5) npm run lint + tsc 通过"
     },
     {
@@ -87,7 +87,7 @@
       "title": "Dashboard 页面试点还原",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) 统计卡片去掉 border，用 tonal layering；2) Recent Calls 表格去掉 divide-y，用 hover 高亮；3) 所有颜色使用 ds-* token（无硬编码 slate/indigo）；4) 使用 useAsyncData hook 替代手写 useEffect + useState；5) 对照 design-draft/Dashboard (Full Redesign) v2/code.html 视觉一致；6) npm run lint + tsc 通过"
     },
     {
@@ -95,7 +95,7 @@
       "title": "全局 No-Line 清理（Dashboard + Layout 范围）",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) Dashboard 页面和 Layout 相关组件中无 border-b/border-t/divide-y 用于分隔（border-l 的 accent pill 除外）；2) 其他页面不改动（留给后续批次）；3) npm run lint + tsc 通过"
     },
     {

@@ -21,7 +21,8 @@
     "saved": "已保存",
     "never": "从未使用",
     "of": "/",
-    "balance": "账户余额"
+    "balance": "账户余额",
+    "page": "页"
   },
   "sidebar": {
     "brand": "AIGC Gateway",

@@ -1,8 +1,8 @@
 {
-  "status": "building",
+  "status": "verifying",
   "user_goal": "R1 — 设计系统基础对齐 + Dashboard 试点还原：修好基础组件（Button/Input/Card/Dialog/Table）、Layout Shell（Sidebar/TopAppBar），抽取公共组件（SearchBar/Pagination/useAsyncData），Dashboard 作为试点验证",
   "total_features": 13,
-  "completed_features": 0,
+  "completed_features": 12,
   "fix_rounds": 0,
   "current_sprint": null,
   "last_updated": "2026-04-08T21:30:00Z",
@@ -23,5 +23,5 @@
     "framework_reviewed": false
   },
   "evaluator_feedback": null,
-  "generator_handoff": null
+  "generator_handoff": "Mark: F-R1-01~12 全部完成。基础组件5个对齐设计系统、Sidebar/TopAppBar Layout 对齐、useAsyncData+SearchBar+Pagination 公共组件、Dashboard 试点还原（useAsyncData+no-border+ds-token）、No-Line 清理"
 }
