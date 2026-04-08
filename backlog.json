@@ -11,6 +11,14 @@
       ],
       "confirmed_at": "2026-04-08",
       "priority": "medium"
+    },
+    {
+      "id": "BL-066",
+      "title": "Sync 未处理 provider 返回重复模型 ID",
+      "description": "chatanywhere 的 /models API 返回 193 个模型中有 28 个重复 ID（如 gpt-4o 出现 2 次、deepseek-r1-0528 出现 4 次）。sync 遍历到重复 ID 时尝试创建第二个相同 channel，触发唯一约束冲突 (providerId, modelId, realModelId)，导致整个 provider 的 sync 事务失败回滚。需要在 reconcile 前对模型列表按 modelId 去重。来源：生产环境排查（2026-04-08）。",
+      "decisions": [],
+      "confirmed_at": "2026-04-08",
+      "priority": "high"
     }
   ]
 }
