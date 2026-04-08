@@ -3,16 +3,56 @@
   "items": [
     {
       "id": "BL-065",
-      "title": "支付回调验签（支付功能上线前必须修）",
-      "description": "alipay/wechat webhook 端点未验证签名。当前无订单记录风险低，支付接入前必须修。",
+      "title": "支付回调验签 + 幂等（支付功能上线前必须修）",
+      "description": "alipay/wechat webhook 未验签 + 并发下可重复入账（幂等失效）。来源：backend-audit-2026-04-08.md [高]×2。",
       "decisions": [],
       "confirmed_at": "2026-04-08",
-      "priority": "medium"
+      "priority": "high"
     },
     {
       "id": "BL-068",
       "title": "Per-Key 使用分析（Keys Insights 页面）",
       "description": "需 schema 迁移：CallLog 加 apiKeyId 外键 + 3 个 per-key 统计 API（汇总、每日分布、模型分布）。设计稿在 design-draft/_needs-redesign/keys-insights/。",
+      "decisions": [],
+      "confirmed_at": "2026-04-09",
+      "priority": "low"
+    },
+    {
+      "id": "BL-069",
+      "title": "余额模型收敛（User.balance 与 Project.balance 混用）",
+      "description": "balance-user-level 迁移后，支付入账仍加 project.balance，MCP 多工具仍看 project.balance。需统一收敛到 User.balance。来源：backend-audit-2026-04-08.md [高]。",
+      "decisions": [],
+      "confirmed_at": "2026-04-09",
+      "priority": "high"
+    },
+    {
+      "id": "BL-070",
+      "title": "邮箱验证接口可伪造（无 token 校验）",
+      "description": "verify-email 接口知道 userId 即可将任意账号标记为 emailVerified=true。来源：backend-audit-2026-04-08.md [中]。",
+      "decisions": [],
+      "confirmed_at": "2026-04-09",
+      "priority": "medium"
+    },
+    {
+      "id": "BL-071",
+      "title": "JWT 密钥缺失时退化为空密钥",
+      "description": "JWT_SECRET 未配置时 fallback 为空字符串，安全性失效。来源：backend-audit-2026-04-08.md [中]。",
+      "decisions": [],
+      "confirmed_at": "2026-04-09",
+      "priority": "medium"
+    },
+    {
+      "id": "BL-072",
+      "title": "限流回滚逻辑无效（计数污染）",
+      "description": "pipeline.exec() 后的 zremrangebyscore 未再次 exec()，且按 score 删除会误删同秒请求。来源：backend-audit-2026-04-08.md [中]。",
+      "decisions": [],
+      "confirmed_at": "2026-04-09",
+      "priority": "medium"
+    },
+    {
+      "id": "BL-073",
+      "title": "高风险路径自动化测试覆盖",
+      "description": "支付回调、限流边界、邮箱验证等缺少回归保障。来源：backend-audit-2026-04-08.md [低]。",
       "decisions": [],
       "confirmed_at": "2026-04-09",
       "priority": "low"
