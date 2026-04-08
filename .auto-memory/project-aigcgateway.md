@@ -12,10 +12,10 @@ AIGC Gateway — AI 服务商管理中台。统一 API 调用抽象（兼容 Ope
 
 ## 当前开发状态（截至 2026-04-08）
 
-**最新完成批次：** `security-and-robustness`（5/5 完成，fix_rounds=1）
-**验证结论：** `F-SR-05` 在 reverifying 4/4 PASS（AC1~AC4 全通过）
+**最新完成批次：** `P4-1a-schema-sync`（6/6 完成，verifying 5/5 PASS）
+**验证结论：** canonical 聚合与去重链路通过：`gpt-4o` 单 Model + 多 Provider Channels；ModelAlias 种子数据生效；重复 modelId 不报错
 **Harness 状态：** done
-**签收报告：** `docs/test-reports/security-and-robustness-signoff-2026-04-08.md`
+**签收报告：** `docs/test-reports/p4-1a-schema-sync-signoff-2026-04-08.md`
 
 ### 近期完成批次（2026-04-08 ~ 2026-04-06）
 

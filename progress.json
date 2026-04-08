@@ -1,11 +1,11 @@
 {
-  "status": "verifying",
+  "status": "done",
   "user_goal": "P4-1a-schema-sync: 模型聚合核心重构 — Schema 清空重建 + ModelAlias + Sync 改造",
   "total_features": 6,
-  "completed_features": 5,
+  "completed_features": 6,
   "fix_rounds": 0,
   "current_sprint": null,
-  "last_updated": "2026-04-08T16:00:00Z",
+  "last_updated": "2026-04-08T04:35:00Z",
   "reference_docs": [
     "docs/specs/P4-model-aggregation-PRD.md",
     "docs/specs/P4-model-aggregation-spec.md"
@@ -17,11 +17,17 @@
   },
   "docs": {
     "spec": "docs/specs/P4-model-aggregation-spec.md",
-    "test_cases": null,
-    "signoff": null,
+    "test_cases": "docs/test-cases/p4-1a-schema-sync-e2e-2026-04-08.md",
+    "signoff": "docs/test-reports/p4-1a-schema-sync-signoff-2026-04-08.md",
     "framework_reviewed": false
   },
-  "evaluator_feedback": null,
+  "evaluator_feedback": {
+    "summary": "verifying 首轮 5/5 全通过，F-P4A-06 签收完成。",
+    "pass_count": 5,
+    "partial_count": 0,
+    "fail_count": 0,
+    "issues": []
+  },
   "generator_handoff": {
     "completed": ["F-P4A-01", "F-P4A-02", "F-P4A-03", "F-P4A-04", "F-P4A-05"],
     "codex_tasks": ["F-P4A-06: E2E 验证"],

@@ -47,7 +47,7 @@
       "title": "E2E 验证",
       "priority": "high",
       "executor": "codex",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "1) sync 后 Model.name 是 canonical name（如 gpt-4o 而非 openai/gpt-4o）；2) 同一模型（如 gpt-4o）通过多个 Provider sync 后只有一条 Model 记录；3) 该 Model 下有多个 Channel（来自不同 Provider）；4) ModelAlias 表有初始数据；5) Provider 返回重复 modelId 不报错"
     }
   ]

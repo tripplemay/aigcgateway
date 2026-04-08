@@ -1,0 +1,38 @@
+{
+  "mockBase": "http://127.0.0.1:3320",
+  "passCount": 5,
+  "failCount": 0,
+  "syncSummary": {
+    "totalNewModels": 3,
+    "totalNewChannels": 3,
+    "totalDisabledChannels": 0,
+    "totalFailedProviders": 0
+  },
+  "steps": [
+    {
+      "name": "AC1 canonical model name is used after sync",
+      "ok": true,
+      "detail": "hasCanonical=true, prefixedCount=0"
+    },
+    {
+      "name": "AC2 same model across providers has one Model record",
+      "ok": true,
+      "detail": "gpt4oCount=1"
+    },
+    {
+      "name": "AC3 canonical model has channels from multiple providers",
+      "ok": true,
+      "detail": "activeChannels=2, providers=openai,openrouter"
+    },
+    {
+      "name": "AC4 model_aliases seeded data exists",
+      "ok": true,
+      "detail": "aliasCount=28, sample=gpt-4o-2024-11-20->gpt-4o"
+    },
+    {
+      "name": "AC5 duplicate modelId from provider does not break sync",
+      "ok": true,
+      "detail": "openai=ok:none, openrouter=ok:none"
+    }
+  ]
+}
