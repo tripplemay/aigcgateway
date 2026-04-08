@@ -1,0 +1,46 @@
+{
+  "baseUrl": "https://aigc.guangai.ai",
+  "email": "codex-prod-template-20260408@aigc-gateway.local",
+  "projectId": "cmnpacd9i0003bn4209ancdcn",
+  "templateId": "cmnpace0q000dbn42fdi61v5e",
+  "actions": {
+    "a": "cmnpacdqf0005bn42lm1jd9y2",
+    "b": "cmnpacdvp0009bn4241sn3dn1"
+  },
+  "apiKey": "pk_982d917fd0fb7bc8a04963d31911e9f7dd1556a50a6a1e71409740dea0b90dbf",
+  "steps": [
+    {
+      "name": "create project",
+      "ok": true,
+      "detail": "cmnpacd9i0003bn4209ancdcn"
+    },
+    {
+      "name": "create actions",
+      "ok": true,
+      "detail": "cmnpacdqf0005bn42lm1jd9y2,cmnpacdvp0009bn4241sn3dn1"
+    },
+    {
+      "name": "create template",
+      "ok": true,
+      "detail": "cmnpace0q000dbn42fdi61v5e"
+    },
+    {
+      "name": "missing order validation",
+      "ok": true
+    },
+    {
+      "name": "duplicate order validation",
+      "ok": true
+    },
+    {
+      "name": "create api key",
+      "ok": true,
+      "detail": "pk_982d917fd0fb7"
+    },
+    {
+      "name": "mcp create_template error",
+      "ok": true,
+      "detail": "event: message\ndata: {\"result\":{\"content\":[{\"type\":\"text\",\"text\":\"MCP error -32602: Input validation error: Invalid arguments for tool create_template: [\\n  {\\n    \\\"code\\\": \\\"invalid_type\\\",\\n    \\\"expected\\\": \\\"string\\\",\\n    \\\"received\\\": \\\"undefined\\\",\\n    \\\"path\\\": [\\n      \\\"steps\\\",\\n      0,\\n      \\\"action_id\\\"\\n    ],\\n    \\\"message\\\": \\\"Required\\\"\\n  }\\n]\"}],\"isError\":true},\"jsonrpc\":\"2.0\",\"id\":1775606633037}\n\n"
+    }
+  ]
+}
