@@ -75,6 +75,22 @@ codex: Reviewer
 
 基于 myId 和 `progress.json`（status + role_assignments），判断当前 agent 的角色。
 
+### 第 1.2 步：自动注册（myId 有值时执行）
+
+如果 myId 有值，检查 `.agents-registry` 中对应工具类型（cli / codex）下是否已包含 myId：
+- **已存在** → 跳过
+- **不存在** → 将 myId 追加到对应类型列表中，保存文件，commit 并 push
+
+```bash
+# 示例：CLI agent "Mark" 首次启动，自动注册
+# .agents-registry 变更：cli 列表追加 "- Mark"
+git add .agents-registry
+git commit -m "chore: auto-register agent Mark (cli)"
+git push origin main
+```
+
+**注意：** 此步骤仅做追加，不删除已有条目。移除不再使用的 agent 由用户手动编辑。
+
 ### 第 1.5 步：检查用户是否直接指派了独立任务
 
 **在进入状态机角色判断之前，先检查用户在当前对话中是否已经给出了明确的独立任务指令。**
