@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Manrope:wght@600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "on-secondary-fixed-variant": "#47416e",
+                      "inverse-primary": "#c8bfff",
+                      "on-tertiary-fixed": "#2b1700",
+                      "on-primary-fixed-variant": "#4431a8",
+                      "on-surface-variant": "#474553",
+                      "on-tertiary-container": "#fff0e4",
+                      "on-secondary-fixed": "#1b153f",
+                      "tertiary": "#7c4b00",
+                      "primary-container": "#6d5dd3",
+                      "inverse-on-surface": "#eef0ff",
+                      "error-container": "#ffdad6",
+                      "on-error": "#ffffff",
+                      "surface-tint": "#5c4cc1",
+                      "tertiary-fixed-dim": "#ffb964",
+                      "on-primary-fixed": "#190064",
+                      "surface-bright": "#faf8ff",
+                      "surface-dim": "#d2d9f4",
+                      "tertiary-container": "#9d6100",
+                      "on-surface": "#131b2e",
+                      "inverse-surface": "#283044",
+                      "primary": "#5443b9",
+                      "on-background": "#131b2e",
+                      "surface": "#faf8ff",
+                      "secondary": "#5f5987",
+                      "outline": "#787584",
+                      "surface-container-low": "#f2f3ff",
+                      "on-tertiary-fixed-variant": "#663e00",
+                      "surface-container": "#eaedff",
+                      "primary-fixed": "#e5deff",
+                      "on-secondary": "#ffffff",
+                      "on-primary-container": "#f6f1ff",
+                      "surface-variant": "#dae2fd",
+                      "secondary-fixed-dim": "#c8c0f5",
+                      "primary-fixed-dim": "#c8bfff",
+                      "on-error-container": "#93000a",
+                      "surface-container-highest": "#dae2fd",
+                      "tertiary-fixed": "#ffddba",
+                      "secondary-container": "#d0c9fe",
+                      "outline-variant": "#c9c4d5",
+                      "on-tertiary": "#ffffff",
+                      "on-secondary-container": "#585280",
+                      "background": "#faf8ff",
+                      "surface-container-lowest": "#ffffff",
+                      "secondary-fixed": "#e5deff",
+                      "surface-container-high": "#e2e7ff",
+                      "error": "#ba1a1a",
+                      "on-primary": "#ffffff"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.125rem",
+                      "lg": "0.25rem",
+                      "xl": "0.5rem",
+                      "full": "0.75rem"
+              },
+              "fontFamily": {
+                      "headline": ["Manrope"],
+                      "body": ["Inter"],
+                      "label": ["Inter"]
+              }
+            },
+          },
+        }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+        h1, h2, h3, .font-headline { font-family: 'Manrope', sans-serif; }
+        .material-symbols-outlined { font-size: 20px; }
+        .glass-blur { backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+    </style>
+</head>
+<body class="bg-surface text-on-surface antialiased">
+<!-- SideNavBar Component -->
+<aside class="w-64 h-screen fixed left-0 top-0 bg-slate-50 dark:bg-slate-900 flex flex-col p-4 gap-2 z-50">
+<div class="flex items-center gap-3 mb-8 px-2">
+<div class="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
+<span class="material-symbols-outlined text-white" data-icon="auto_awesome">auto_awesome</span>
+</div>
+<div>
+<h1 class="text-xl font-bold tracking-tighter text-[#5443b9] dark:text-[#6D5DD3]">AIGC Gateway</h1>
+<p class="font-inter text-xs text-slate-500 font-medium uppercase tracking-wider">Engineering Workspace</p>
+</div>
+</div>
+<button class="mb-6 flex items-center justify-center gap-2 px-4 py-2.5 bg-[#5443b9] text-white rounded-xl font-manrope font-bold text-sm shadow-lg shadow-primary/20 hover:bg-[#6D5DD3] transition-all active:scale-95">
+<span class="material-symbols-outlined" data-icon="add">add</span>
+            New Template
+        </button>
+<nav class="flex flex-col gap-1">
+<a class="flex items-center gap-3 px-4 py-2 text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="font-inter text-sm font-medium">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-2 text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="layers">layers</span>
+<span class="font-inter text-sm font-medium">Models</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-2 text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="vpn_key">vpn_key</span>
+<span class="font-inter text-sm font-medium">API Keys</span>
+</a>
+<!-- Active State: Templates -->
+<a class="flex items-center gap-3 px-4 py-2 bg-white dark:bg-slate-800 text-[#5443b9] dark:text-[#6D5DD3] rounded-lg border-l-4 border-[#5443b9]" href="#">
+<span class="material-symbols-outlined" data-icon="schema" style="font-variation-settings: 'FILL' 1;">schema</span>
+<span class="font-inter text-sm font-semibold">Templates</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-2 text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="terminal">terminal</span>
+<span class="font-inter text-sm font-medium">Logs</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-2 text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="account_balance_wallet">account_balance_wallet</span>
+<span class="font-inter text-sm font-medium">Balance</span>
+</a>
+<div class="mt-auto">
+<a class="flex items-center gap-3 px-4 py-2 text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="font-inter text-sm font-medium">Settings</span>
+</a>
+</div>
+</nav>
+</aside>
+<!-- TopNavBar Component -->
+<header class="fixed top-0 right-0 left-64 h-16 z-40 bg-white/80 dark:bg-slate-950/80 backdrop-blur-xl border-b border-slate-200/50 dark:border-slate-800/50 flex justify-between items-center px-8 w-full shadow-sm dark:shadow-none">
+<div class="flex items-center bg-surface-container-low px-3 py-1.5 rounded-full w-96">
+<span class="material-symbols-outlined text-slate-400 mr-2" data-icon="search">search</span>
+<input class="bg-transparent border-none focus:ring-0 text-sm w-full placeholder:text-slate-400" placeholder="Search resources..." type="text"/>
+</div>
+<div class="flex items-center gap-6">
+<nav class="hidden md:flex items-center gap-6">
+<a class="font-manrope font-semibold text-sm text-slate-600 dark:text-slate-400 hover:text-[#5443b9] transition-colors" href="#">Docs</a>
+<a class="font-manrope font-semibold text-sm text-slate-600 dark:text-slate-400 hover:text-[#5443b9] transition-colors" href="#">Support</a>
+<a class="font-manrope font-semibold text-sm text-slate-600 dark:text-slate-400 hover:text-[#5443b9] transition-colors" href="#">Community</a>
+</nav>
+<div class="h-6 w-[1px] bg-slate-200 dark:bg-slate-800 mx-2"></div>
+<div class="flex items-center gap-4">
+<button class="text-slate-500 hover:text-[#5443b9] transition-colors"><span class="material-symbols-outlined" data-icon="notifications">notifications</span></button>
+<button class="text-slate-500 hover:text-[#5443b9] transition-colors"><span class="material-symbols-outlined" data-icon="help_outline">help_outline</span></button>
+<div class="w-8 h-8 rounded-full overflow-hidden border-2 border-primary-container">
+<img alt="User Profile" class="w-full h-full object-cover" data-alt="professional headshot of a modern tech developer with clean background soft studio lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDmoX_YMyox3xmY1hlybi_wVH_Dcui4D4p0PVLkxd8OePifnrYVynVV6yIdhx-dciMdG7a73mNtUuRcPTllYEIMEbw2eRCz1F7ZOpKaUaBr-Q9aC7Pl7ZlBYkijvDPA3PSDSQ4NdBpwIh3zp7dnB53urZx3CnY7_LLx6gEhRqJjl71pQlaTf2Ohhphs-mVYCtv7QOZ6YkDSx1Mcuf3E15Fxo8KojCLyHvbKN3avTLxKkeN6b8VLUqEsxYLENwaDz-R9TnLsR6rNEF6r"/>
+</div>
+</div>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="ml-64 mt-16 p-8 min-h-screen">
+<!-- Header Section -->
+<div class="flex justify-between items-end mb-10">
+<div class="max-w-2xl">
+<h2 class="text-4xl font-headline font-extrabold tracking-tight text-on-surface mb-2">Templates</h2>
+<p class="text-slate-500 font-body text-base leading-relaxed">Orchestrate complex AI workflows by chaining multiple prompt actions with sequential or parallel execution.</p>
+</div>
+<button class="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-[#5443b9] to-[#6d5dd3] text-white rounded-xl font-manrope font-bold shadow-lg shadow-primary/30 transition-all hover:-translate-y-0.5 active:scale-95">
+<span class="material-symbols-outlined" data-icon="add_circle">add_circle</span>
+                Create Template
+            </button>
+</div>
+<!-- Dashboard Bento Content -->
+<div class="grid grid-cols-1 gap-8">
+<!-- Main Data Table Container -->
+<div class="bg-surface-container-lowest rounded-xl p-2 shadow-sm">
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container-low">
+<th class="px-6 py-4 label-md uppercase tracking-widest text-[10px] font-bold text-slate-400">Name</th>
+<th class="px-6 py-4 label-md uppercase tracking-widest text-[10px] font-bold text-slate-400">Steps</th>
+<th class="px-6 py-4 label-md uppercase tracking-widest text-[10px] font-bold text-slate-400">Execution Mode</th>
+<th class="px-6 py-4 label-md uppercase tracking-widest text-[10px] font-bold text-slate-400">Description</th>
+<th class="px-6 py-4 label-md uppercase tracking-widest text-[10px] font-bold text-slate-400">Last Updated</th>
+<th class="px-6 py-4 text-right"></th>
+</tr>
+</thead>
+<tbody class="divide-y divide-transparent">
+<!-- Row 1 -->
+<tr class="group hover:bg-surface-container-high transition-colors">
+<td class="px-6 py-5">
+<a class="font-manrope font-bold text-[#5443b9] hover:underline block text-base" href="#">Customer Support Pipeline</a>
+<span class="text-[10px] text-slate-400 font-medium">ID: TMP-8821</span>
+</td>
+<td class="px-6 py-5">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-secondary-container text-on-secondary-container rounded-full text-xs font-semibold">
+<span class="material-symbols-outlined !text-xs" data-icon="reorder">reorder</span>
+                                        3 Steps
+                                    </span>
+</td>
+<td class="px-6 py-5">
+<span class="px-3 py-1 bg-primary-container/10 text-primary font-semibold text-xs rounded-lg uppercase tracking-wider">Sequential</span>
+</td>
+<td class="px-6 py-5">
+<p class="text-slate-500 text-sm max-w-xs truncate">Triage, sentiment analysis, and drafting responses.</p>
+</td>
+<td class="px-6 py-5">
+<span class="text-slate-400 text-xs font-medium">2 mins ago</span>
+</td>
+<td class="px-6 py-5 text-right">
+<button class="text-slate-300 hover:text-primary transition-colors"><span class="material-symbols-outlined" data-icon="more_vert">more_vert</span></button>
+</td>
+</tr>
+<!-- Row 2 -->
+<tr class="group hover:bg-surface-container-high transition-colors">
+<td class="px-6 py-5">
+<a class="font-manrope font-bold text-[#5443b9] hover:underline block text-base" href="#">Content Moderation Chain</a>
+<span class="text-[10px] text-slate-400 font-medium">ID: TMP-9012</span>
+</td>
+<td class="px-6 py-5">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-secondary-container text-on-secondary-container rounded-full text-xs font-semibold">
+<span class="material-symbols-outlined !text-xs" data-icon="reorder">reorder</span>
+                                        5 Steps
+                                    </span>
+</td>
+<td class="px-6 py-5">
+<span class="px-3 py-1 bg-tertiary-container/10 text-tertiary font-semibold text-xs rounded-lg uppercase tracking-wider">Splitter (Fan-out)</span>
+</td>
+<td class="px-6 py-5">
+<p class="text-slate-500 text-sm max-w-xs truncate">Parallel safety checks across 4 different models.</p>
+</td>
+<td class="px-6 py-5">
+<span class="text-slate-400 text-xs font-medium">Oct 12, 2023</span>
+</td>
+<td class="px-6 py-5 text-right">
+<button class="text-slate-300 hover:text-primary transition-colors"><span class="material-symbols-outlined" data-icon="more_vert">more_vert</span></button>
+</td>
+</tr>
+<!-- Row 3 -->
+<tr class="group hover:bg-surface-container-high transition-colors">
+<td class="px-6 py-5">
+<a class="font-manrope font-bold text-[#5443b9] hover:underline block text-base" href="#">Multilingual Content Engine</a>
+<span class="text-[10px] text-slate-400 font-medium">ID: TMP-4431</span>
+</td>
+<td class="px-6 py-5">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-secondary-container text-on-secondary-container rounded-full text-xs font-semibold">
+<span class="material-symbols-outlined !text-xs" data-icon="reorder">reorder</span>
+                                        4 Steps
+                                    </span>
+</td>
+<td class="px-6 py-5">
+<span class="px-3 py-1 bg-primary-container/10 text-primary font-semibold text-xs rounded-lg uppercase tracking-wider">Sequential</span>
+</td>
+<td class="px-6 py-5">
+<p class="text-slate-500 text-sm max-w-xs truncate">Translation and localization with cultural context review.</p>
+</td>
+<td class="px-6 py-5">
+<span class="text-slate-400 text-xs font-medium">Oct 10, 2023</span>
+</td>
+<td class="px-6 py-5 text-right">
+<button class="text-slate-300 hover:text-primary transition-colors"><span class="material-symbols-outlined" data-icon="more_vert">more_vert</span></button>
+</td>
+</tr>
+<!-- Row 4 -->
+<tr class="group hover:bg-surface-container-high transition-colors">
+<td class="px-6 py-5">
+<a class="font-manrope font-bold text-[#5443b9] hover:underline block text-base" href="#">RAG Document Processor</a>
+<span class="text-[10px] text-slate-400 font-medium">ID: TMP-1102</span>
+</td>
+<td class="px-6 py-5">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-secondary-container text-on-secondary-container rounded-full text-xs font-semibold">
+<span class="material-symbols-outlined !text-xs" data-icon="reorder">reorder</span>
+                                        6 Steps
+                                    </span>
+</td>
+<td class="px-6 py-5">
+<span class="px-3 py-1 bg-slate-100 text-slate-600 font-semibold text-xs rounded-lg uppercase tracking-wider">Aggregator</span>
+</td>
+<td class="px-6 py-5">
+<p class="text-slate-500 text-sm max-w-xs truncate">Retrieval, synthesis, and citation verification.</p>
+</td>
+<td class="px-6 py-5">
+<span class="text-slate-400 text-xs font-medium">Oct 08, 2023</span>
+</td>
+<td class="px-6 py-5 text-right">
+<button class="text-slate-300 hover:text-primary transition-colors"><span class="material-symbols-outlined" data-icon="more_vert">more_vert</span></button>
+</td>
+</tr>
+<!-- Row 5 -->
+<tr class="group hover:bg-surface-container-high transition-colors">
+<td class="px-6 py-5 border-b-0">
+<a class="font-manrope font-bold text-[#5443b9] hover:underline block text-base" href="#">Sentiment Analysis Flow</a>
+<span class="text-[10px] text-slate-400 font-medium">ID: TMP-5592</span>
+</td>
+<td class="px-6 py-5 border-b-0">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-secondary-container text-on-secondary-container rounded-full text-xs font-semibold">
+<span class="material-symbols-outlined !text-xs" data-icon="reorder">reorder</span>
+                                        2 Steps
+                                    </span>
+</td>
+<td class="px-6 py-5 border-b-0">
+<span class="px-3 py-1 bg-primary-container/10 text-primary font-semibold text-xs rounded-lg uppercase tracking-wider">Sequential</span>
+</td>
+<td class="px-6 py-5 border-b-0">
+<p class="text-slate-500 text-sm max-w-xs truncate">Fast inference for social media stream analysis.</p>
+</td>
+<td class="px-6 py-5 border-b-0">
+<span class="text-slate-400 text-xs font-medium">Oct 05, 2023</span>
+</td>
+<td class="px-6 py-5 text-right border-b-0">
+<button class="text-slate-300 hover:text-primary transition-colors"><span class="material-symbols-outlined" data-icon="more_vert">more_vert</span></button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Pagination / Footer subtle hint -->
+<div class="px-6 py-4 flex justify-between items-center border-t border-slate-100/50">
+<p class="text-xs text-slate-400 font-medium">Showing 5 of 24 templates</p>
+<div class="flex gap-2">
+<button class="w-8 h-8 flex items-center justify-center rounded-lg bg-surface-container-low text-slate-400 hover:text-primary transition-all"><span class="material-symbols-outlined" data-icon="chevron_left">chevron_left</span></button>
+<button class="w-8 h-8 flex items-center justify-center rounded-lg bg-primary text-white shadow-md shadow-primary/20"><span class="text-xs font-bold">1</span></button>
+<button class="w-8 h-8 flex items-center justify-center rounded-lg bg-surface-container-low text-slate-600 hover:text-primary transition-all"><span class="text-xs font-bold">2</span></button>
+<button class="w-8 h-8 flex items-center justify-center rounded-lg bg-surface-container-low text-slate-400 hover:text-primary transition-all"><span class="material-symbols-outlined" data-icon="chevron_right">chevron_right</span></button>
+</div>
+</div>
+</div>
+<!-- Empty State / Concept Section -->
+<div class="mt-12 bg-surface-container-low rounded-3xl p-12 border-2 border-dashed border-outline-variant/30 flex flex-col items-center text-center">
+<div class="w-20 h-20 bg-white rounded-2xl flex items-center justify-center shadow-xl mb-6 relative overflow-hidden group">
+<div class="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent"></div>
+<span class="material-symbols-outlined text-4xl text-primary" data-icon="hub">hub</span>
+</div>
+<h3 class="text-2xl font-headline font-bold text-on-surface mb-2">Build your first orchestration</h3>
+<p class="text-slate-500 font-body text-sm max-w-sm mb-8">Templates allow you to link prompts across GPT-4, Claude, and Llama to create enterprise-grade AI features in minutes.</p>
+<div class="flex gap-4">
+<button class="px-6 py-2.5 bg-white text-[#5443b9] border border-slate-200 rounded-xl font-bold text-sm shadow-sm hover:shadow-md transition-all active:scale-95">Explore Documentation</button>
+<button class="px-6 py-2.5 bg-[#5443b9] text-white rounded-xl font-bold text-sm shadow-lg shadow-primary/20 hover:bg-[#6D5DD3] transition-all active:scale-95">Import from Library</button>
+</div>
+</div>
+</div>
+</main>
+<!-- Contextual FAB (Suppressing for Table View as requested in rules, but keeping as a mental anchor) -->
+<!-- Visual Accent Decor -->
+<div class="fixed -bottom-32 -right-32 w-96 h-96 bg-primary/5 rounded-full blur-[120px] pointer-events-none -z-10"></div>
+<div class="fixed top-20 -left-20 w-64 h-64 bg-secondary/5 rounded-full blur-[80px] pointer-events-none -z-10"></div>
+</body></html>

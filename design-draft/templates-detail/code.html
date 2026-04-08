@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Customer Support Pipeline - AIGC Gateway</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-tertiary-fixed": "#2b1700",
+                        "on-error-container": "#93000a",
+                        "surface": "#faf8ff",
+                        "on-error": "#ffffff",
+                        "background": "#faf8ff",
+                        "secondary-fixed": "#e5deff",
+                        "outline-variant": "#c9c4d5",
+                        "surface-container": "#eaedff",
+                        "primary-fixed": "#e5deff",
+                        "on-surface-variant": "#474553",
+                        "tertiary-fixed-dim": "#ffb964",
+                        "inverse-primary": "#c8bfff",
+                        "primary": "#5443b9",
+                        "on-tertiary-fixed-variant": "#663e00",
+                        "surface-tint": "#5c4cc1",
+                        "primary-fixed-dim": "#c8bfff",
+                        "secondary-fixed-dim": "#c8c0f5",
+                        "error": "#ba1a1a",
+                        "on-surface": "#131b2e",
+                        "surface-bright": "#faf8ff",
+                        "on-background": "#131b2e",
+                        "on-tertiary-container": "#fff0e4",
+                        "surface-container-highest": "#dae2fd",
+                        "tertiary-container": "#9d6100",
+                        "outline": "#787584",
+                        "error-container": "#ffdad6",
+                        "surface-container-high": "#e2e7ff",
+                        "surface-container-low": "#f2f3ff",
+                        "inverse-surface": "#283044",
+                        "inverse-on-surface": "#eef0ff",
+                        "on-secondary": "#ffffff",
+                        "on-primary-fixed-variant": "#4431a8",
+                        "on-primary-fixed": "#190064",
+                        "tertiary-fixed": "#ffddba",
+                        "on-primary-container": "#f6f1ff",
+                        "secondary": "#5f5987",
+                        "primary-container": "#6d5dd3",
+                        "on-secondary-fixed": "#1b153f",
+                        "surface-container-lowest": "#ffffff",
+                        "on-secondary-fixed-variant": "#47416e",
+                        "surface-variant": "#dae2fd",
+                        "secondary-container": "#d0c9fe",
+                        "on-secondary-container": "#585280",
+                        "on-primary": "#ffffff",
+                        "surface-dim": "#d2d9f4",
+                        "tertiary": "#7c4b00",
+                        "on-tertiary": "#ffffff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "fontFamily": {
+                        "headline": ["Manrope"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    }
+                },
+            }
+        }
+    </script>
+</head>
+<body class="bg-surface font-body text-on-surface">
+<!-- Shell Layout -->
+<div class="flex min-h-screen">
+<!-- SideNavBar -->
+<aside class="fixed left-0 top-0 h-full flex flex-col w-64 bg-slate-100 dark:bg-[#1a233a] z-50">
+<div class="p-6 flex items-center gap-3">
+<div class="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-primary-container flex items-center justify-center text-white">
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">architecture</span>
+</div>
+<div>
+<h1 class="text-xl font-black text-[#5443b9] dark:text-[#8172e0] font-headline tracking-tight">AIGC Gateway</h1>
+<p class="text-[10px] font-headline font-bold text-slate-500 uppercase tracking-widest">Algorithmic Atelier</p>
+</div>
+</div>
+<nav class="mt-6 flex-1 px-3 space-y-1">
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 dark:text-slate-400 hover:text-[#6D5DD3] transition-colors hover:bg-slate-200/50 rounded-xl group" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-label text-sm">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 dark:text-slate-400 hover:text-[#6D5DD3] transition-colors hover:bg-slate-200/50 rounded-xl group" href="#">
+<span class="material-symbols-outlined">extension</span>
+<span class="font-label text-sm">Models</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 dark:text-slate-400 hover:text-[#6D5DD3] transition-colors hover:bg-slate-200/50 rounded-xl group" href="#">
+<span class="material-symbols-outlined">vpn_key</span>
+<span class="font-label text-sm">API Keys</span>
+</a>
+<!-- Active Item -->
+<a class="flex items-center gap-3 px-4 py-3 text-[#5443b9] dark:text-[#8172e0] bg-white dark:bg-[#131b2e] border-l-4 border-[#5443b9] font-bold rounded-r-xl" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">auto_awesome_motion</span>
+<span class="font-label text-sm">Templates</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 dark:text-slate-400 hover:text-[#6D5DD3] transition-colors hover:bg-slate-200/50 rounded-xl group" href="#">
+<span class="material-symbols-outlined">history_edu</span>
+<span class="font-label text-sm">Logs</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 dark:text-slate-400 hover:text-[#6D5DD3] transition-colors hover:bg-slate-200/50 rounded-xl group" href="#">
+<span class="material-symbols-outlined">account_balance_wallet</span>
+<span class="font-label text-sm">Balance</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 dark:text-slate-400 hover:text-[#6D5DD3] transition-colors hover:bg-slate-200/50 rounded-xl group" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-label text-sm">Settings</span>
+</a>
+</nav>
+<div class="p-6">
+<button class="w-full py-3 bg-gradient-to-r from-primary to-primary-container text-white rounded-xl font-bold text-sm shadow-lg shadow-primary/20 hover:scale-[1.02] transition-transform flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-sm">add</span>
+                    New Template
+                </button>
+</div>
+</aside>
+<!-- Main Content -->
+<main class="flex-1 ml-64 min-h-screen">
+<!-- TopAppBar -->
+<header class="sticky top-0 z-40 flex justify-between items-center px-8 py-4 bg-white/80 dark:bg-[#0f172a]/80 backdrop-blur-xl border-b border-slate-100 dark:border-slate-800/50">
+<div class="flex items-center gap-4">
+<h2 class="text-lg font-bold text-[#131b2e] dark:text-white font-headline tracking-tighter">Template Details</h2>
+<nav class="hidden md:flex items-center gap-6 ml-8">
+<a class="text-slate-600 dark:text-slate-400 hover:text-[#5443b9] text-sm font-medium" href="#">Docs</a>
+<a class="text-slate-600 dark:text-slate-400 hover:text-[#5443b9] text-sm font-medium" href="#">Support</a>
+<a class="text-slate-600 dark:text-slate-400 hover:text-[#5443b9] text-sm font-medium" href="#">Community</a>
+</nav>
+</div>
+<div class="flex items-center gap-3">
+<div class="relative flex items-center">
+<span class="material-symbols-outlined absolute left-3 text-slate-400 text-sm">search</span>
+<input class="pl-10 pr-4 py-2 bg-surface-container-low border-none rounded-full text-xs w-64 focus:ring-2 focus:ring-primary/20" placeholder="Search templates..." type="text"/>
+</div>
+<button class="p-2 text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg transition-transform scale-95 active:scale-100">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="p-2 text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg transition-transform scale-95 active:scale-100">
+<span class="material-symbols-outlined">help_outline</span>
+</button>
+<div class="w-8 h-8 rounded-full overflow-hidden ml-2 border border-slate-200">
+<img alt="User Avatar" class="w-full h-full object-cover" data-alt="close-up portrait of a professional modern software developer in a minimal office setting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDfeEXfH__viVioOwan6ysKA1J6cdFSe063LvU5-g98gIYpqfEaZ5Mxe-8Wu_8gxE7rD1wk-gbjJsLy2c7et42n8aWUok6jEJEni44JX6WGu_y-inuSLh77FC_4vcaNCB42aD9CjK3KfuAdWOa5SQ2S--lfpP7zTYEQAuYa9W4hQ0TmLIxfKyeFtwe3lzgO8UNn5_kZsNicS-KZCpizL2lCe2rD5P_0ZShGfIA8e73THZiGiYJsleBKsRGNXtcVcDNYp7gRWXTx2KdY"/>
+</div>
+</div>
+</header>
+<div class="p-10 max-w-7xl mx-auto">
+<!-- Breadcrumb -->
+<nav class="flex items-center gap-2 text-xs text-slate-500 mb-6 font-medium tracking-wide">
+<span>Templates</span>
+<span class="material-symbols-outlined text-[14px]">chevron_right</span>
+<span class="text-primary font-semibold">Customer Support Pipeline</span>
+</nav>
+<!-- Page Header Section -->
+<div class="flex justify-between items-start mb-12">
+<div class="max-w-2xl">
+<div class="flex items-center gap-3 mb-3">
+<h1 class="text-4xl font-extrabold text-on-surface font-headline tracking-tighter">Customer Support Pipeline</h1>
+<span class="px-3 py-1 bg-secondary-container text-on-secondary-container text-[10px] font-bold rounded-full tracking-widest uppercase">SEQUENTIAL</span>
+</div>
+<p class="text-slate-500 text-lg font-light leading-relaxed">Refining the conversational context for the v2.4 multi-language routing engine.</p>
+</div>
+<div class="flex items-center gap-3">
+<button class="px-6 py-3 bg-gradient-to-r from-primary to-primary-container text-white rounded-xl font-bold text-sm flex items-center gap-2 hover:shadow-xl hover:shadow-primary/20 transition-all">
+<span class="material-symbols-outlined text-lg">edit</span>
+                            Edit Template
+                        </button>
+<button class="px-6 py-3 border border-error/20 text-error rounded-xl font-bold text-sm hover:bg-error/5 transition-all">
+                            Delete
+                        </button>
+</div>
+</div>
+<!-- Bento Content Grid -->
+<div class="grid grid-cols-12 gap-10">
+<!-- Left Column: Steps Pipeline -->
+<div class="col-span-8">
+<h3 class="font-headline text-xs font-bold tracking-[0.2em] text-slate-400 uppercase mb-8">Execution Architecture</h3>
+<div class="relative space-y-12">
+<!-- Connector Line -->
+<div class="absolute left-[26px] top-4 bottom-4 w-[2px] bg-gradient-to-b from-primary/40 via-primary/20 to-transparent"></div>
+<!-- Step 1 -->
+<div class="relative flex gap-8 group">
+<div class="relative z-10 flex-shrink-0 w-[52px] h-[52px] rounded-full bg-white border-4 border-surface shadow-md flex items-center justify-center text-primary font-black font-headline text-lg">
+                                    1
+                                </div>
+<div class="flex-1 glass-panel p-6 rounded-xl border border-white/40 shadow-sm hover:shadow-md transition-shadow">
+<div class="flex justify-between items-start">
+<div>
+<div class="flex items-center gap-2 mb-1">
+<h4 class="text-lg font-bold font-headline text-on-surface">Intent Classifier</h4>
+<span class="px-2 py-0.5 bg-slate-100 text-slate-500 text-[9px] font-bold rounded uppercase tracking-wider">SEQUENTIAL</span>
+</div>
+<p class="text-sm text-slate-400 flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">robot_2</span>
+                                                gpt-4o-mini
+                                            </p>
+</div>
+<button class="p-2 text-slate-300 hover:text-primary transition-colors">
+<span class="material-symbols-outlined">settings</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Step 2 -->
+<div class="relative flex gap-8 group">
+<div class="relative z-10 flex-shrink-0 w-[52px] h-[52px] rounded-full bg-white border-4 border-surface shadow-md flex items-center justify-center text-primary font-black font-headline text-lg">
+                                    2
+                                </div>
+<div class="flex-1 glass-panel p-6 rounded-xl border border-white/40 shadow-sm hover:shadow-md transition-shadow border-l-4 border-l-primary">
+<div class="flex justify-between items-start">
+<div>
+<div class="flex items-center gap-2 mb-1">
+<h4 class="text-lg font-bold font-headline text-on-surface">Response Generator</h4>
+<span class="px-2 py-0.5 bg-slate-100 text-slate-500 text-[9px] font-bold rounded uppercase tracking-wider">SEQUENTIAL</span>
+</div>
+<p class="text-sm text-slate-400 flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">bolt</span>
+                                                claude-sonnet-4
+                                            </p>
+</div>
+<button class="p-2 text-slate-300 hover:text-primary transition-colors">
+<span class="material-symbols-outlined">settings</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Step 3 -->
+<div class="relative flex gap-8 group">
+<div class="relative z-10 flex-shrink-0 w-[52px] h-[52px] rounded-full bg-white border-4 border-surface shadow-md flex items-center justify-center text-primary font-black font-headline text-lg">
+                                    3
+                                </div>
+<div class="flex-1 glass-panel p-6 rounded-xl border border-white/40 shadow-sm hover:shadow-md transition-shadow">
+<div class="flex justify-between items-start">
+<div>
+<div class="flex items-center gap-2 mb-1">
+<h4 class="text-lg font-bold font-headline text-on-surface">Quality Checker</h4>
+<span class="px-2 py-0.5 bg-slate-100 text-slate-500 text-[9px] font-bold rounded uppercase tracking-wider">SEQUENTIAL</span>
+</div>
+<p class="text-sm text-slate-400 flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">verified</span>
+                                                gpt-4o-mini
+                                            </p>
+</div>
+<button class="p-2 text-slate-300 hover:text-primary transition-colors">
+<span class="material-symbols-outlined">settings</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Add Step Placeholder -->
+<div class="relative flex gap-8">
+<div class="flex-shrink-0 w-[52px] h-[52px] rounded-full border-2 border-dashed border-slate-300 flex items-center justify-center text-slate-300">
+<span class="material-symbols-outlined">add</span>
+</div>
+<button class="flex-1 border-2 border-dashed border-slate-200 rounded-xl py-6 flex items-center justify-center gap-2 text-slate-400 font-bold text-sm hover:bg-slate-50 hover:border-primary/30 hover:text-primary transition-all group">
+<span class="material-symbols-outlined group-hover:rotate-90 transition-transform">add_circle</span>
+                                    Add Orchestration Step
+                                </button>
+</div>
+</div>
+</div>
+<!-- Right Panel: Metadata -->
+<div class="col-span-4 space-y-8">
+<!-- Info Card -->
+<div class="bg-surface-container-lowest p-8 rounded-xl shadow-sm">
+<h3 class="font-headline text-xs font-bold tracking-[0.2em] text-slate-400 uppercase mb-6">Template Info</h3>
+<div class="space-y-5">
+<div class="flex justify-between items-center">
+<span class="text-xs text-slate-400 font-medium uppercase tracking-wider">Created Date</span>
+<span class="text-sm font-semibold text-on-surface">Oct 12, 2023</span>
+</div>
+<div class="flex justify-between items-center">
+<span class="text-xs text-slate-400 font-medium uppercase tracking-wider">Last Updated</span>
+<span class="text-sm font-semibold text-secondary">2 mins ago</span>
+</div>
+<div class="flex justify-between items-center">
+<span class="text-xs text-slate-400 font-medium uppercase tracking-wider">Step Count</span>
+<span class="text-sm font-semibold text-on-surface">3 Steps</span>
+</div>
+<div class="flex justify-between items-center">
+<span class="text-xs text-slate-400 font-medium uppercase tracking-wider">Execution Mode</span>
+<div class="flex items-center gap-2 text-primary font-bold text-sm">
+<span class="material-symbols-outlined text-[16px]">reorder</span>
+                                        Sequential
+                                    </div>
+</div>
+</div>
+<div class="mt-10 pt-8 border-t border-slate-100">
+<h4 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">Pipeline Preview</h4>
+<div class="relative h-40 bg-surface-container rounded-lg overflow-hidden flex items-center justify-center group">
+<div class="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-primary via-transparent to-transparent"></div>
+<div class="flex items-center gap-4 relative z-10">
+<div class="w-3 h-3 rounded-full bg-primary/40 animate-pulse"></div>
+<div class="w-16 h-[2px] bg-primary/20"></div>
+<div class="w-3 h-3 rounded-full bg-primary ring-4 ring-primary/20"></div>
+<div class="w-16 h-[2px] bg-primary/20"></div>
+<div class="w-3 h-3 rounded-full bg-primary/40"></div>
+</div>
+<!-- Background decorative image -->
+<div class="absolute inset-0 opacity-10 pointer-events-none bg-cover bg-center" data-alt="minimalist abstract visualization of neural network nodes connecting with soft purple glowing lines on a clean white background" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDW0w782phn1JeHmzabWHvkMZJpxfgogyGT80naoK9Gq1uXJ_G-nboiJSSkx0B6Jeep-m6h-khRTqHnbnoX6NP4RGGLXZCHYnyufaQe5PrrnXIPK-tOViEmUfr13EILAlOPfaENjxEG8KU3bwKWiVKTgaqNeaQ4dnYtsh1gv31IzZXcjOmKB3QzlyF34watM8d6P20L4dFoRaiPh5Ir0KQ59eJ3OOXaz3ZlB_jZPWa4WY-cbTkA-FetY4TDNTh10wXLh6hHPk9kmpau')"></div>
+</div>
+</div>
+</div>
+<!-- Resources Card -->
+<div class="bg-surface-container-lowest p-8 rounded-xl shadow-sm">
+<h3 class="font-headline text-xs font-bold tracking-[0.2em] text-slate-400 uppercase mb-6">Resources Used</h3>
+<div class="space-y-4">
+<div class="flex items-center justify-between p-3 rounded-lg hover:bg-slate-50 transition-colors">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded bg-primary/5 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-lg">memory</span>
+</div>
+<span class="text-sm font-medium text-slate-600">gpt-4o-mini</span>
+</div>
+<span class="text-xs font-bold px-2 py-1 bg-surface-container-high rounded text-slate-500">2x</span>
+</div>
+<div class="flex items-center justify-between p-3 rounded-lg hover:bg-slate-50 transition-colors">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded bg-secondary/5 flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined text-lg">psychology</span>
+</div>
+<span class="text-sm font-medium text-slate-600">claude-sonnet-4</span>
+</div>
+<span class="text-xs font-bold px-2 py-1 bg-surface-container-high rounded text-slate-500">1x</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+</body></html>
