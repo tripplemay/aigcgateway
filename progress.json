@@ -2,7 +2,7 @@
   "status": "building",
   "user_goal": "R1 — 设计系统基础对齐 + Dashboard 试点还原：修好基础组件（Button/Input/Card/Dialog/Table）、Layout Shell（Sidebar/TopAppBar），抽取公共组件（SearchBar/Pagination/useAsyncData），Dashboard 作为试点验证",
   "total_features": 13,
-  "completed_features": 0,
+  "completed_features": 5,
   "fix_rounds": 0,
   "current_sprint": null,
   "last_updated": "2026-04-08T21:30:00Z",

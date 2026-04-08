@@ -7,7 +7,7 @@
       "title": "Button 组件对齐设计系统",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) default variant 使用 bg-gradient-to-r from-ds-primary to-ds-primary-container；2) 其他 variant 不变；3) 页面中 21 处手写渐变按钮删除内联样式，改用 Button 组件；4) npm run lint + tsc 通过"
     },
     {
@@ -15,7 +15,7 @@
       "title": "Input 组件对齐设计系统",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) 默认样式改为底线风格：border-b-2 border-ds-outline-variant，无其他 border；2) bg 改为 bg-ds-surface-container-low；3) focus 时底线变 ds-primary；4) 现有使用 Input 的页面不报错；5) npm run lint + tsc 通过"
     },
     {
@@ -23,7 +23,7 @@
       "title": "Card 组件对齐设计系统",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) 去掉 ring-1 ring-foreground/10；2) CardFooter 去掉 border-t；3) 依赖 tonal layering 制造层级感；4) 现有使用 Card 的页面视觉正常；5) npm run lint + tsc 通过"
     },
     {
@@ -31,7 +31,7 @@
       "title": "Dialog 组件对齐设计系统（Glassmorphism）",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) DialogOverlay 改为 backdrop-blur-lg + bg-black/20；2) DialogContent 去掉 ring-1，加 shadow-xl shadow-ds-on-surface/6；3) DialogFooter 去掉 border-t；4) 打开任意 dialog 视觉正确；5) npm run lint + tsc 通过"
     },
     {
@@ -39,7 +39,7 @@
       "title": "Table 组件对齐设计系统",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) TableHeader 去掉 [&_tr]:border-b；2) TableRow 去掉 box-shadow 分割线，hover 改为 bg-ds-surface-container-high/30；3) TableHead 加 uppercase tracking-widest font-bold text-[10px]；4) npm run lint + tsc 通过"
     },
     {
