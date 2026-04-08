@@ -1,11 +1,11 @@
 {
-  "status": "reverifying",
+  "status": "fixing",
   "user_goal": "R2A — 用户侧页面还原（Keys + Logs + Models）：6 个页面从旧代码模式还原为 R1 设计系统，对齐 Stitch 设计稿",
   "total_features": 9,
-  "completed_features": 8,
+  "completed_features": 7,
   "fix_rounds": 1,
   "current_sprint": null,
-  "last_updated": "2026-04-08T13:05:00Z",
+  "last_updated": "2026-04-08T14:45:00Z",
   "reference_docs": [
     "docs/specs/R2A-user-pages-keys-logs-models-spec.md",
     "design-draft/keys/code.html",
@@ -19,11 +19,31 @@
   },
   "docs": {
     "spec": "docs/specs/R2A-user-pages-keys-logs-models-spec.md",
-    "test_cases": "docs/test-reports/R2A-user-pages-keys-logs-models-verifying-2026-04-08.md",
+    "test_cases": "docs/test-reports/R2A-user-pages-keys-logs-models-reverifying-2026-04-08.md",
     "signoff": null,
     "framework_reviewed": false
   },
-  "evaluator_feedback": null,
+  "evaluator_feedback": {
+    "summary": "R2A 复验未完全通过：7 PASS / 1 PARTIAL / 1 FAIL。唯一阻塞为 F-R2A-08（仍有硬编码英文文案）。",
+    "pass_count": 7,
+    "partial_count": 1,
+    "fail_count": 1,
+    "issues": [
+      {
+        "feature_id": "F-R2A-08",
+        "result": "FAIL",
+        "description": "keys/logs/models 仍存在硬编码英文用户文案，未满足“无硬编码英文”验收要求。",
+        "steps_to_reproduce": "切换到 CN 后访问 /logs、/logs/{traceId}、/models；同时核对对应源码行。"
+      },
+      {
+        "feature_id": "F-R2A-09",
+        "result": "PARTIAL",
+        "description": "页面加载、DS 组件、创建/吊销 key、日志详情与质量评分链路可用；但因 F-R2A-08 未过，仍不可签收。",
+        "steps_to_reproduce": "按复验报告步骤执行 5 个目标页面检查。"
+      }
+    ],
+    "report": "docs/test-reports/R2A-user-pages-keys-logs-models-reverifying-2026-04-08.md"
+  },
   "_prev_feedback_round0": {
     "summary": "R2A 首轮验收未通过：2 PASS / 2 PARTIAL / 5 FAIL，需回 fixing。",
     "pass_count": 2,
@@ -80,6 +100,6 @@
     "Richard": "R2A planning 完成。9 条功能（8 generator + 1 codex）。keys 3 页 + create/revoke dialog、logs 2 页、models 1 页 + i18n。所有页面当前都是旧模式，需完全重写。设计稿已整理到 design-draft/ 新结构。",
     "Johnsong": "R2A fixing round 1 完成。修复 Evaluator 报告的 5 FAIL + 2 PARTIAL：1) F-R2A-02 过期选项改为 Never/30d/60d/90d；2) F-R2A-04 加过期日期编辑；3) F-R2A-05 加模型筛选下拉 + 行点击跳转详情页（移除内联展开）；4) F-R2A-06 加质量评分按钮（PATCH quality API）；5) F-R2A-08 修复所有硬编码英文（logs 列表/详情页 section titles, metadata labels, 状态选项全部 i18n 化）。",
     "Mark": null,
-    "Reviewer": "verifying 完成：执行 L1 冒烟与 R2A 目标页验收，创建/吊销 key 与日志详情链路已验证。发现 5 FAIL + 2 PARTIAL，已将 status 置 fixing，报告见 docs/test-reports/R2A-user-pages-keys-logs-models-verifying-2026-04-08.md。"
+    "Reviewer": "reverifying round 1 完成：F-R2A-02/04/05/06/07 已通过，F-R2A-08 仍失败（硬编码英文文案），F-R2A-09 因此仅 PARTIAL。状态回退 fixing，报告见 docs/test-reports/R2A-user-pages-keys-logs-models-reverifying-2026-04-08.md。"
   }
 }

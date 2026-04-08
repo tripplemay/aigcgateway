@@ -7,10 +7,10 @@ type: project
 ## 当前批次
 
 **R2A-user-pages-keys-logs-models** — 用户侧页面还原：Keys + Logs + Models
-- Status: `fixing`（verifying 结果：2 PASS / 2 PARTIAL / 5 FAIL）
+- Status: `fixing`（reverifying 结果：7 PASS / 1 PARTIAL / 1 FAIL）
 - Spec: `docs/specs/R2A-user-pages-keys-logs-models-spec.md`
-- Verifying 报告: `docs/test-reports/R2A-user-pages-keys-logs-models-verifying-2026-04-08.md`
-- 待修复重点: logs 模型筛选与详情跳转、logs 详情 quality 按钮、i18n 硬编码、keys 过期项
+- Reverifying 报告: `docs/test-reports/R2A-user-pages-keys-logs-models-reverifying-2026-04-08.md`
+- 唯一阻塞: `F-R2A-08`（logs/models 页面仍有硬编码英文文案）
 
 ## UI 重构全局计划
 
