@@ -58,7 +58,7 @@ console.log('Usage:', stream.usage)
 ### Collect Stream into Full Response
 
 ```typescript
-const stream = await gw.chat({ model: 'deepseek/v3', messages: [...], stream: true })
+const stream = await gw.chat({ model: 'deepseek-v3', messages: [...], stream: true })
 const res = await stream.collect()
 console.log(res.content)  // Complete text
 ```

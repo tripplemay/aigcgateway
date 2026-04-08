@@ -7,7 +7,7 @@
       "title": "SDK 文档更新",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) sdk/README.md 更新 model 参数说明：传 canonical name（如 gpt-4o），不再需要 provider 前缀；2) 示例代码中的 model 字段全部改为 canonical name；3) cd sdk && npm run typecheck 通过"
     },
     {
