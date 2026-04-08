@@ -7,8 +7,11 @@ type: project
 ## 当前批次
 
 **R2B-user-pages-balance-usage-settings** — 用户侧页面还原：Balance + Usage + Settings
-- Status: `verifying`（5/5 generator 功能完成，等待 Codex 验收）
-- 变更：useAsyncData + DS Table/Pagination + i18n 全面补齐
+- Status: `fixing`（Codex 首轮验收失败，待 Generator 修复）
+- 验收结论：/balance、/usage、i18n 通过；/settings 个人信息保存失败
+- 阻断缺陷：修改姓名后点击保存无更新请求（仅 GET /api/auth/profile），刷新后回退
+- 报告：`docs/test-reports/R2B-user-pages-balance-usage-settings-verifying-2026-04-09.md`
+- 变更背景：useAsyncData + DS Table/Pagination + i18n 全面补齐
 - 已移除：Notifications/System Status（DESIGN.md ignore）
 
 ## UI 重构全局计划

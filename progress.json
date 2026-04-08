@@ -1,11 +1,11 @@
 {
-  "status": "verifying",
+  "status": "fixing",
   "user_goal": "R2B — 用户侧页面还原（Balance + Usage + Settings）：3 个页面从旧代码模式还原为 R1 设计系统，对齐 Stitch 设计稿",
   "total_features": 6,
-  "completed_features": 5,
+  "completed_features": 4,
   "fix_rounds": 0,
   "current_sprint": null,
-  "last_updated": "2026-04-09T00:30:00Z",
+  "last_updated": "2026-04-09T00:42:00Z",
   "reference_docs": [
     "docs/specs/R2B-user-pages-balance-usage-settings-spec.md",
     "design-draft/balance/code.html",
@@ -23,12 +23,32 @@
     "signoff": null,
     "framework_reviewed": false
   },
-  "evaluator_feedback": null,
+  "evaluator_feedback": {
+    "summary": "R2B 首轮验收未通过：/settings 个人信息保存链路失效，需进入 fixing。",
+    "pass_count": 4,
+    "partial_count": 0,
+    "fail_count": 2,
+    "issues": [
+      {
+        "feature_id": "F-R2B-04",
+        "result": "FAIL",
+        "description": "设置页个人信息保存无效：修改姓名后点击“保存更改”未触发更新请求，刷新后姓名回退。",
+        "steps_to_reproduce": "1) 进入 /settings 2) 姓名改为 Reviewer QA 3) 点击保存更改 4) Network 仅见 GET /api/auth/profile，无更新请求 5) 刷新后姓名恢复 Admin"
+      },
+      {
+        "feature_id": "F-R2B-06",
+        "result": "FAIL",
+        "description": "视觉回归验收未通过：受 F-R2B-04 阻断缺陷影响，不满足“页面功能正常”验收项。",
+        "steps_to_reproduce": "复现 F-R2B-04 后，R2B 验收总评应判 FAIL。"
+      }
+    ],
+    "report": "docs/test-reports/R2B-user-pages-balance-usage-settings-verifying-2026-04-09.md"
+  },
   "generator_handoff": "R2B building 完成。5/5 generator 功能已实现：Balance 页（useAsyncData+DS Table/Pagination+类型筛选）、RechargeDialog 独立组件、Usage 页（recharts BarChart/PieChart+DS Table）、Settings 页（profile+password+login history DS Table）、i18n 全面补全。Notifications 和 System Status 按 DESIGN.md 标注已移除。tsc+lint 通过。",
   "session_notes": {
     "Richard": "R2B planning 完成。6 条功能（5 generator + 1 codex）。balance 页+充值弹窗、usage 页（含 recharts 图表）、settings 页 + i18n。spec 中特别加了 i18n 自检清单（R2A 教训）。recharts 已在项目中。",
     "Johnsong": "R2B building 一轮完成。Balance: useAsyncData 替代 useEffect+useCallback、DS Table/Pagination 替代原生 table、新增交易类型筛选、i18n 全部补齐。Usage: 移除了 prevSummary 环比逻辑（DESIGN.md ignore）、typed interfaces 替代 Record、DS Table 替代原生。Settings: 移除 Notifications 和 System Status（DESIGN.md ignore）、login history 改用 DS Table、全部硬编码英文转 i18n。RechargeDialog 抽为独立组件 src/components/balance/。",
     "Mark": null,
-    "Reviewer": null
+    "Reviewer": "R2B verifying 完成（L1）：/balance、/usage、i18n 与充值流程可用；/settings 个人信息保存失败（无更新请求，刷新回退），据此判定 F-R2B-04 与 F-R2B-06 为 FAIL，状态切换至 fixing。报告：docs/test-reports/R2B-user-pages-balance-usage-settings-verifying-2026-04-09.md"
   }
 }

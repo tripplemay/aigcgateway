@@ -34,7 +34,7 @@
       "title": "Settings 页面还原",
       "priority": "high",
       "executor": "generator",
-      "status": "done",
+      "status": "pending",
       "acceptance": "1) 使用 useAsyncData + Card + Input；2) 个人信息区（邮箱只读、显示名称可编辑、保存）；3) 密码修改区（旧密码+新密码+确认+提交）；4) 登录历史表格（Table 组件：IP、UA、时间）；5) 退出登录按钮；6) 对齐 design-draft/settings/code.html（忽略 DESIGN.md 标注项）；7) npm run lint + tsc 通过",
       "design_ref": "design-draft/settings/code.html"
     },
