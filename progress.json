@@ -1,11 +1,11 @@
 {
-  "status": "reverifying",
+  "status": "done",
   "user_goal": "R2A — 用户侧页面还原（Keys + Logs + Models）：6 个页面从旧代码模式还原为 R1 设计系统，对齐 Stitch 设计稿",
   "total_features": 9,
-  "completed_features": 8,
+  "completed_features": 9,
   "fix_rounds": 4,
   "current_sprint": null,
-  "last_updated": "2026-04-08T15:24:15Z",
+  "last_updated": "2026-04-08T15:40:28Z",
   "reference_docs": [
     "docs/specs/R2A-user-pages-keys-logs-models-spec.md",
     "design-draft/keys/code.html",
@@ -19,11 +19,18 @@
   },
   "docs": {
     "spec": "docs/specs/R2A-user-pages-keys-logs-models-spec.md",
-    "test_cases": "docs/test-reports/R2A-user-pages-keys-logs-models-reverifying-round3-2026-04-08.md",
-    "signoff": null,
+    "test_cases": "docs/test-reports/R2A-user-pages-keys-logs-models-reverifying-round4-2026-04-08.md",
+    "signoff": "docs/test-reports/R2A-user-pages-keys-logs-models-signoff-2026-04-08.md",
     "framework_reviewed": false
   },
-  "evaluator_feedback": null,
+  "evaluator_feedback": {
+    "summary": "R2A round4 复验完成：9/9 PASS，满足签收条件。",
+    "pass_count": 9,
+    "partial_count": 0,
+    "fail_count": 0,
+    "issues": [],
+    "report": "docs/test-reports/R2A-user-pages-keys-logs-models-reverifying-round4-2026-04-08.md"
+  },
   "_prev_feedback_round3": {
     "summary": "R2A 复验 round 3 未通过：7 PASS / 1 PARTIAL / 1 FAIL。/logs i18n 已修复，但 /keys/[keyId] 仍有英文硬编码。",
     "pass_count": 7,
@@ -143,6 +150,6 @@
     "Richard": "R2A planning 完成。9 条功能（8 generator + 1 codex）。keys 3 页 + create/revoke dialog、logs 2 页、models 1 页 + i18n。所有页面当前都是旧模式，需完全重写。设计稿已整理到 design-draft/ 新结构。",
     "Johnsong": "R2A fixing round 2 完成。仅剩 F-R2A-08 硬编码英文问题。修复：models 页（subtitle/stats 卡片 6 处）、logs 列表页（Avg P95/Median/Save up to/Apply Savings 4 处）、logs 详情页（Model/Tokens/Cost/Throughput 统计标签 + Messages count 5 处）。所有 i18n key 已加到 en.json + zh-CN.json。",
     "Mark": null,
-    "Reviewer": "reverifying round 3 完成：/logs timeAgo 与分页 i18n 已修复；但 /keys/[keyId] 仍有英文硬编码，F-R2A-08 FAIL、F-R2A-09 PARTIAL，状态回退 fixing。"
+    "Reviewer": "reverifying round 4 完成：F-R2A-08/F-R2A-09 均 PASS，已生成 signoff 并置 done。"
   }
 }

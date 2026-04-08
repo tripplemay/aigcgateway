@@ -77,7 +77,7 @@
       "title": "R2A 视觉回归验收",
       "priority": "high",
       "executor": "codex",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "1) 登录后 /keys、/keys/[keyId]、/logs、/logs/[traceId]、/models 页面正常加载，无控制台报错；2) DS 组件使用正确（Table/SearchBar/Pagination/Dialog/Card）；3) 视觉与设计稿基本一致；4) CRUD 操作正常（创建 key、吊销 key、查看日志详情）；5) 签收报告生成"
     }
   ]
