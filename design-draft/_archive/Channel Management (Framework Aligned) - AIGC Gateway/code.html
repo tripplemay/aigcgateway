@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Channel Management | AIGC Gateway</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&amp;family=Inter:wght@100..900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "surface-container-highest": "#dae2fd",
+              "on-background": "#131b2e",
+              "surface-container-low": "#f2f3ff",
+              "surface-dim": "#d2d9f4",
+              "tertiary-fixed-dim": "#ffb964",
+              "surface-tint": "#5c4cc1",
+              "surface": "#faf8ff",
+              "surface-container": "#eaedff",
+              "primary-fixed-dim": "#c8bfff",
+              "on-tertiary-container": "#fff0e4",
+              "on-tertiary-fixed": "#2b1700",
+              "on-primary-fixed-variant": "#4431a8",
+              "outline": "#787584",
+              "on-primary-fixed": "#190064",
+              "surface-container-lowest": "#ffffff",
+              "primary": "#5443b9",
+              "outline-variant": "#c9c4d5",
+              "tertiary-fixed": "#ffddba",
+              "on-surface-variant": "#474553",
+              "surface-bright": "#faf8ff",
+              "inverse-on-surface": "#eef0ff",
+              "primary-container": "#6d5dd3",
+              "background": "#faf8ff",
+              "secondary": "#5f5987",
+              "primary-fixed": "#e5deff",
+              "on-secondary": "#ffffff",
+              "secondary-fixed": "#e5deff",
+              "error-container": "#ffdad6",
+              "tertiary-container": "#9d6100",
+              "on-secondary-fixed-variant": "#47416e",
+              "tertiary": "#7c4b00",
+              "secondary-fixed-dim": "#c8c0f5",
+              "surface-variant": "#dae2fd",
+              "on-tertiary": "#ffffff",
+              "surface-container-high": "#e2e7ff",
+              "on-tertiary-fixed-variant": "#663e00",
+              "on-primary-container": "#f6f1ff",
+              "on-primary": "#ffffff",
+              "secondary-container": "#d0c9fe",
+              "on-error-container": "#93000a",
+              "inverse-primary": "#c8bfff",
+              "on-secondary-fixed": "#1b153f",
+              "on-secondary-container": "#585280",
+              "inverse-surface": "#283044",
+              "error": "#ba1a1a",
+              "on-surface": "#131b2e",
+              "on-error": "#ffffff"
+            },
+            fontFamily: {
+              "headline": ["Manrope"],
+              "body": ["Manrope"],
+              "label": ["Manrope"]
+            },
+            borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+          },
+        },
+      }
+    </script>
+<style>
+        body { font-family: 'Manrope', sans-serif; }
+        .font-manrope { font-family: 'Manrope', sans-serif; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+    </style>
+</head>
+<body class="bg-surface text-on-surface antialiased overflow-hidden font-manrope">
+<!-- SideNavBar Anchor (From SCREEN_44) -->
+<aside class="fixed left-0 top-0 h-full w-64 bg-slate-50 dark:bg-slate-900 flex flex-col py-6 z-40">
+<div class="px-6 mb-8">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-primary to-primary-container flex items-center justify-center">
+<span class="material-symbols-outlined text-white text-lg" data-icon="token">token</span>
+</div>
+<div class="flex flex-col">
+<span class="text-lg font-black tracking-tighter text-[#5443b9] dark:text-[#6D5DD3] font-manrope">AIGC Gateway</span>
+<span class="text-[10px] uppercase tracking-widest text-slate-400 font-bold">Algorithmic Atelier</span>
+</div>
+</div>
+</div>
+<div class="px-4 mb-6">
+<button class="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-primary to-primary-container text-white text-sm font-bold font-manrope flex items-center justify-center gap-2 shadow-lg shadow-primary/20 scale-95 active:scale-100 transition-transform">
+<span class="material-symbols-outlined text-sm" data-icon="add">add</span>
+            New Project
+        </button>
+</div>
+<nav class="flex-1 space-y-1 overflow-y-auto px-2">
+<a class="flex items-center gap-3 px-4 py-2 text-slate-500 dark:text-slate-400 hover:bg-[#f2f3ff] dark:hover:bg-slate-800/80 transition-colors font-manrope tracking-tight font-bold text-sm" href="#">
+<span class="material-symbols-outlined" data-icon="folder_managed">folder_managed</span>
+            Projects
+        </a>
+<a class="flex items-center gap-3 px-4 py-2 text-slate-500 dark:text-slate-400 hover:bg-[#f2f3ff] dark:hover:bg-slate-800/80 transition-colors font-manrope tracking-tight font-bold text-sm" href="#">
+<span class="material-symbols-outlined" data-icon="smart_toy">smart_toy</span>
+            Models
+        </a>
+<a class="flex items-center gap-3 px-4 py-2 text-slate-500 dark:text-slate-400 hover:bg-[#f2f3ff] dark:hover:bg-slate-800/80 transition-colors font-manrope tracking-tight font-bold text-sm" href="#">
+<span class="material-symbols-outlined" data-icon="terminal">terminal</span>
+            Logs
+        </a>
+<a class="flex items-center gap-3 px-4 py-2 text-[#5443b9] dark:text-[#6D5DD3] border-l-4 border-[#5443b9] bg-[#f2f3ff] dark:bg-slate-800 font-manrope tracking-tight font-bold text-sm transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="hub">hub</span>
+            Channels
+        </a>
+<a class="flex items-center gap-3 px-4 py-2 text-slate-500 dark:text-slate-400 hover:bg-[#f2f3ff] dark:hover:bg-slate-800/80 transition-colors font-manrope tracking-tight font-bold text-sm" href="#">
+<span class="material-symbols-outlined" data-icon="settings_input_component">settings_input_component</span>
+            Providers
+        </a>
+<a class="flex items-center gap-3 px-4 py-2 text-slate-500 dark:text-slate-400 hover:bg-[#f2f3ff] dark:hover:bg-slate-800/80 transition-colors font-manrope tracking-tight font-bold text-sm" href="#">
+<span class="material-symbols-outlined" data-icon="payments">payments</span>
+            Billing
+        </a>
+</nav>
+<div class="px-4 mt-auto pt-6">
+<div class="p-4 rounded-xl bg-surface-container-high flex flex-col gap-2">
+<div class="flex items-center justify-between">
+<span class="text-xs font-bold text-on-surface-variant">Wallet Balance</span>
+<span class="text-xs font-black text-primary">$1,240.50</span>
+</div>
+<div class="w-full bg-outline-variant/30 h-1.5 rounded-full overflow-hidden">
+<div class="bg-primary w-2/3 h-full rounded-full"></div>
+</div>
+</div>
+</div>
+</aside>
+<!-- Main Wrapper -->
+<div class="ml-64 flex flex-col h-screen">
+<!-- TopAppBar Anchor (From SCREEN_44) -->
+<header class="sticky top-0 z-50 w-full bg-white/80 dark:bg-slate-950/80 backdrop-blur-xl border-b border-slate-200/15 dark:border-slate-800/15 flex justify-between items-center h-16 px-8 shadow-sm dark:shadow-none">
+<div class="flex items-center gap-6 flex-1">
+<div class="relative w-full max-w-md">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-lg" data-icon="search">search</span>
+<input class="w-full bg-surface-container-low border-none rounded-full py-2 pl-10 pr-4 text-sm focus:ring-2 focus:ring-primary/20 placeholder:text-slate-400 font-manrope" placeholder="Search resources, logs, or keys..." type="text"/>
+</div>
+<nav class="hidden md:flex items-center gap-6">
+<a class="text-slate-600 dark:text-slate-400 hover:text-[#5443b9] transition-all font-manrope text-sm font-medium" href="#">Documentation</a>
+<a class="text-slate-600 dark:text-slate-400 hover:text-[#5443b9] transition-all font-manrope text-sm font-medium" href="#">API Reference</a>
+<a class="text-slate-600 dark:text-slate-400 hover:text-[#5443b9] transition-all font-manrope text-sm font-medium" href="#">Support</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<div class="flex items-center gap-2 bg-surface-container-low p-1 rounded-lg">
+<button class="px-2 py-1 text-[10px] font-black rounded-md bg-white shadow-sm text-primary">EN</button>
+<button class="px-2 py-1 text-[10px] font-bold text-slate-400">CN</button>
+</div>
+<div class="flex items-center gap-2">
+<button class="p-2 text-slate-500 hover:bg-surface-container-high rounded-full transition-colors opacity-80 hover:opacity-100">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<button class="p-2 text-slate-500 hover:bg-surface-container-high rounded-full transition-colors opacity-80 hover:opacity-100">
+<span class="material-symbols-outlined" data-icon="dark_mode">dark_mode</span>
+</button>
+<button class="p-2 text-slate-500 hover:bg-surface-container-high rounded-full transition-colors opacity-80 hover:opacity-100">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+</button>
+</div>
+<div class="h-8 w-px bg-slate-200/50 mx-2"></div>
+<button class="px-4 py-1.5 bg-primary text-white rounded-lg text-sm font-bold font-manrope hover:bg-primary-container transition-all">
+                Deploy
+            </button>
+<div class="flex items-center gap-3 ml-2 cursor-pointer group">
+<img alt="User Avatar" class="w-8 h-8 rounded-full object-cover ring-2 ring-primary/20 group-hover:ring-primary/50 transition-all" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAjJsH_sMoct6sJPDelTd69qKu19h7WyMtO0gGulCSpwuIWMD6aVxPS7dD0zsDMgJ70tamF4knrZhbxmVogHRTsYisyaAJ1Hzze7GFs-w97nSKrA3q2heha8JjrDV6aGeOPjncyxrTUrekt5VIzfe28UTSP33MEdNNnSw59-h1alQEXpylWGa1gOCdiHPJAxthpJK7MUjXdI1OvYt71A32SwnTHEM6Pnzidi5Hda8r5Zk4sQhGL4u2VFcbVbvriCgX_ZwN_zVsXiO8"/>
+</div>
+</div>
+</header>
+<!-- Main Content Area -->
+<main class="flex-1 overflow-y-auto bg-surface p-8">
+<div class="max-w-7xl mx-auto">
+<!-- Page Header (Business Content from SCREEN_38) -->
+<div class="mb-10 flex justify-between items-end">
+<div>
+<h1 class="font-manrope text-4xl font-extrabold tracking-tight text-on-surface mb-2">Channel Management</h1>
+<p class="text-on-surface-variant text-sm max-w-2xl">Configure orchestration routes and health rules for model providers. Manage failover priorities and cost-efficient routing clusters.</p>
+</div>
+<button class="bg-gradient-to-r from-primary to-primary-container text-white px-6 py-2.5 rounded-xl font-bold shadow-lg shadow-primary/20 flex items-center gap-2 hover:scale-[1.02] transition-transform active:scale-95 font-manrope">
+<span class="material-symbols-outlined">add</span> Create New Channel
+                </button>
+</div>
+<!-- Premium Stats Section (Style from SCREEN_40 applied to SCREEN_38 content) -->
+<section class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+<div class="bg-surface-container-lowest p-6 rounded-2xl shadow-sm relative overflow-hidden group border border-slate-200/5">
+<div class="absolute -right-4 -top-4 w-24 h-24 bg-primary/5 rounded-full blur-2xl group-hover:bg-primary/10 transition-colors"></div>
+<div class="flex items-center gap-4 mb-4">
+<div class="w-12 h-12 bg-primary/10 rounded-2xl flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-3xl">route</span>
+</div>
+<span class="font-manrope font-bold text-on-surface-variant uppercase tracking-widest text-[10px]">Routing Efficiency</span>
+</div>
+<div class="flex items-baseline gap-2">
+<span class="font-manrope text-4xl font-extrabold text-on-surface">99.2%</span>
+<span class="text-secondary font-bold text-xs">+1.4%</span>
+</div>
+</div>
+<div class="bg-surface-container-lowest p-6 rounded-2xl shadow-sm relative overflow-hidden group border border-slate-200/5">
+<div class="absolute -right-4 -top-4 w-24 h-24 bg-secondary/5 rounded-full blur-2xl group-hover:bg-secondary/10 transition-colors"></div>
+<div class="flex items-center gap-4 mb-4">
+<div class="w-12 h-12 bg-secondary/10 rounded-2xl flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined text-3xl" style="font-variation-settings: 'FILL' 1;">health_and_safety</span>
+</div>
+<span class="font-manrope font-bold text-on-surface-variant uppercase tracking-widest text-[10px]">Provider Health</span>
+</div>
+<div class="flex items-baseline gap-2">
+<span class="font-manrope text-4xl font-extrabold text-on-surface">94/96</span>
+<span class="text-tertiary font-bold text-xs">2 Degrading</span>
+</div>
+</div>
+<div class="bg-surface-container-lowest p-6 rounded-2xl shadow-sm relative overflow-hidden group border border-slate-200/5">
+<div class="absolute -right-4 -top-4 w-24 h-24 bg-tertiary/5 rounded-full blur-2xl group-hover:bg-tertiary/10 transition-colors"></div>
+<div class="flex items-center gap-4 mb-4">
+<div class="w-12 h-12 bg-tertiary/10 rounded-2xl flex items-center justify-center text-tertiary">
+<span class="material-symbols-outlined text-3xl">trending_down</span>
+</div>
+<span class="font-manrope font-bold text-on-surface-variant uppercase tracking-widest text-[10px]">Pricing Drift</span>
+</div>
+<div class="flex items-baseline gap-2">
+<span class="font-manrope text-4xl font-extrabold text-on-surface">-$1,420</span>
+<span class="text-error font-bold text-xs">-8% Cost</span>
+</div>
+</div>
+</section>
+<!-- Search and Filter Bar -->
+<div class="bg-surface-container-low p-4 rounded-2xl mb-6 flex flex-wrap items-center gap-4">
+<div class="flex-1 min-w-[300px] relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline">search</span>
+<input class="w-full bg-surface-container-lowest border-none rounded-xl pl-10 pr-4 py-2.5 text-sm focus:ring-2 focus:ring-primary/20 placeholder:text-outline/60 font-manrope" placeholder="Search across 300+ models, providers or channels..." type="text"/>
+</div>
+<div class="flex items-center gap-2">
+<button class="bg-surface-container-lowest px-4 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2 text-on-surface-variant hover:bg-white transition-colors font-manrope">
+<span class="material-symbols-outlined text-lg">filter_list</span> Filter
+                    </button>
+<button class="bg-surface-container-lowest px-4 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2 text-on-surface-variant hover:bg-white transition-colors font-manrope">
+<span class="material-symbols-outlined text-lg">sort</span> Priority
+                    </button>
+</div>
+<div class="h-8 w-px bg-outline-variant/30 hidden lg:block"></div>
+<div class="flex items-center gap-1.5 px-3">
+<span class="w-2 h-2 rounded-full bg-secondary"></span>
+<span class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">All Clear</span>
+</div>
+</div>
+<!-- Hierarchical Channel Manager (3-layer collapsible preserved) -->
+<div class="space-y-6">
+<!-- Level 1: Provider Container -->
+<div class="bg-surface-container-low rounded-3xl p-6 transition-all duration-300">
+<div class="flex items-center justify-between mb-6 group cursor-pointer">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-white flex items-center justify-center shadow-sm">
+<img alt="OpenAI" class="w-6 h-6" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBulcivcu7MjAlF3AXs8AkcRof_LHqZi9KfTxJhvketxN5EZtzLFbxIr8wP9qfZF_YUmX8PVJ8fakTVfQb5Amc9ZPlbXNtOLrUmyZ_Fy4tIlRzE1G7vebESg4kEGqHV1EM8kUldsJEmPuthiSXJz2mLLuMx2ljly_egpMZOFyM8sxkctyPOcAj3hacaWuJPXGTJEFZwpomV7BhJ03DFlI_MAksStVlt4ldiXFrhtEdMeYk8ZwyS2oBYOLCtyfqn4kj0Fgc7boTt5KI"/>
+</div>
+<div>
+<h3 class="font-manrope font-bold text-xl text-on-surface">OpenAI Global</h3>
+<div class="flex items-center gap-3 mt-0.5">
+<span class="text-xs text-on-surface-variant font-bold">12 Models Active</span>
+<span class="text-xs text-secondary flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-secondary"></span> L1 Healthy</span>
+</div>
+</div>
+</div>
+<span class="material-symbols-outlined text-outline group-hover:text-primary transition-colors">expand_more</span>
+</div>
+<!-- Level 2: Model Row -->
+<div class="space-y-4 ml-2 pl-4 border-l-2 border-outline-variant/20">
+<div class="bg-surface-container-lowest rounded-2xl overflow-hidden shadow-sm border border-slate-200/5">
+<div class="p-4 bg-slate-50/50 flex items-center justify-between border-b border-outline-variant/10">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-primary/60">model_training</span>
+<span class="font-manrope font-bold text-on-surface">GPT-4o-Turbo</span>
+<span class="text-[10px] font-black bg-primary/10 text-primary px-2 py-0.5 rounded-md uppercase">High Priority</span>
+</div>
+<div class="flex items-center gap-6 text-sm">
+<div class="flex flex-col items-end">
+<span class="text-[10px] text-outline uppercase font-bold tracking-tighter">Avg Latency</span>
+<span class="font-manrope font-bold">1.2s</span>
+</div>
+<div class="flex flex-col items-end">
+<span class="text-[10px] text-outline uppercase font-bold tracking-tighter">Throughput</span>
+<span class="font-manrope font-bold">4.2k r/m</span>
+</div>
+</div>
+</div>
+<!-- Level 3: Channel Cards Grid -->
+<div class="p-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+<div class="p-4 rounded-xl border border-outline-variant/20 hover:shadow-md transition-shadow group relative">
+<div class="flex items-start justify-between mb-3">
+<div>
+<div class="font-bold text-sm text-on-surface">East-US Tier 1</div>
+<div class="text-[10px] text-on-surface-variant opacity-60">ID: CH-0941-X</div>
+</div>
+<div class="flex items-center gap-1.5 bg-secondary/10 text-secondary px-2 py-0.5 rounded-full">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>
+<span class="text-[10px] font-bold uppercase">L1</span>
+</div>
+</div>
+<div class="mt-4 flex items-center justify-between">
+<div class="text-xs font-bold text-on-surface-variant">Weight: 80%</div>
+<button class="opacity-0 group-hover:opacity-100 transition-opacity text-primary font-bold text-xs">Edit</button>
+</div>
+</div>
+<div class="p-4 rounded-xl border border-outline-variant/20 hover:shadow-md transition-shadow group relative bg-tertiary-container/5 border-tertiary/20">
+<div class="flex items-start justify-between mb-3">
+<div>
+<div class="font-bold text-sm text-on-surface">West-EU Failover</div>
+<div class="text-[10px] text-on-surface-variant opacity-60">ID: CH-2248-Y</div>
+</div>
+<div class="flex items-center gap-1.5 bg-tertiary/10 text-tertiary px-2 py-0.5 rounded-full">
+<span class="w-1.5 h-1.5 rounded-full bg-tertiary"></span>
+<span class="text-[10px] font-bold uppercase">L2</span>
+</div>
+</div>
+<div class="mt-4 flex items-center justify-between">
+<div class="text-xs font-bold text-on-surface-variant">Weight: 15%</div>
+<button class="opacity-100 text-tertiary font-bold text-xs flex items-center gap-1">
+<span class="material-symbols-outlined text-sm">warning</span> Retry
+                                        </button>
+</div>
+</div>
+<div class="p-4 rounded-xl border border-outline-variant/20 hover:shadow-md transition-shadow group relative bg-error-container/5 border-error/20 opacity-75">
+<div class="flex items-start justify-between mb-3">
+<div>
+<div class="font-bold text-sm text-on-surface">Asia-Pacific Edge</div>
+<div class="text-[10px] text-on-surface-variant opacity-60">ID: CH-8812-Z</div>
+</div>
+<div class="flex items-center gap-1.5 bg-error/10 text-error px-2 py-0.5 rounded-full">
+<span class="w-1.5 h-1.5 rounded-full bg-error"></span>
+<span class="text-[10px] font-bold uppercase">L3</span>
+</div>
+</div>
+<div class="mt-4 flex items-center justify-between">
+<div class="text-xs font-bold text-on-surface-variant">Disabled</div>
+<button class="text-error font-bold text-xs">Troubleshoot</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Another Provider (Anthropic) -->
+<div class="bg-surface-container-low rounded-3xl p-6 transition-all duration-300">
+<div class="flex items-center justify-between group cursor-pointer">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-white flex items-center justify-center shadow-sm p-1">
+<img alt="Anthropic" class="w-full h-full object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDsPVwpZXqt5bxPlAwUR17pf1pjGO3E2RaFdC1YL4dygRjRU8mhTxwvHDTFMU9pECuO8Q8wXCpk0PsQnWqEzNLz0roDdIbuuiAhNDMdo0XyLtHktWLitlz1uZLIlQXCCzna7m2-9GDEZqiBurCVyB0spaw2ca8V3CFupF2LU75eV1tXw1zsmkNtvGM5PHt-K9rlv-X_O8AegaDX2-XGGdXGMh_6sQ3cbiF5B-sr6c0asrB-p0QBGis39cc8c3TicpkLcd0QJmw0dGQ"/>
+</div>
+<div>
+<h3 class="font-manrope font-bold text-xl text-on-surface">Anthropic Claude</h3>
+<div class="flex items-center gap-3 mt-0.5">
+<span class="text-xs text-on-surface-variant font-bold">8 Models Active</span>
+<span class="text-xs text-secondary flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-secondary"></span> L1 Healthy</span>
+</div>
+</div>
+</div>
+<span class="material-symbols-outlined text-outline group-hover:text-primary transition-colors">expand_more</span>
+</div>
+</div>
+</div>
+<!-- Global Model Matrix Table (from SCREEN_38) -->
+<div class="mt-12 mb-8">
+<div class="flex items-center justify-between mb-6">
+<h2 class="font-manrope font-extrabold text-2xl flex items-center gap-2">
+                        Global Model Matrix <span class="bg-primary/10 text-primary text-xs px-3 py-1 rounded-full">312 Total</span>
+</h2>
+<div class="flex gap-2">
+<button class="p-2 hover:bg-surface-container rounded-lg transition-colors"><span class="material-symbols-outlined">download</span></button>
+<button class="p-2 hover:bg-surface-container rounded-lg transition-colors"><span class="material-symbols-outlined">refresh</span></button>
+</div>
+</div>
+<div class="bg-surface-container-lowest rounded-3xl shadow-sm overflow-hidden border border-slate-200/5">
+<table class="w-full text-left border-collapse font-manrope">
+<thead>
+<tr class="bg-surface-container-low/50">
+<th class="px-6 py-4 text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">Model Identifier</th>
+<th class="px-6 py-4 text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">Cluster</th>
+<th class="px-6 py-4 text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">Availability</th>
+<th class="px-6 py-4 text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">Token Cost (1M)</th>
+<th class="px-6 py-4 text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">Last Ping</th>
+<th class="px-6 py-4"></th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant/10">
+<tr class="hover:bg-surface-container-high transition-colors group">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="w-2 h-2 rounded-full bg-secondary"></div>
+<span class="font-bold text-sm text-on-surface">claude-3-5-sonnet-20240620</span>
+</div>
+</td>
+<td class="px-6 py-4 text-xs font-bold">AWS Bedrock</td>
+<td class="px-6 py-4">
+<div class="w-24 h-1.5 bg-outline-variant/20 rounded-full overflow-hidden">
+<div class="w-[99.9%] h-full bg-secondary"></div>
+</div>
+</td>
+<td class="px-6 py-4 font-bold text-xs">$3.00 / $15.00</td>
+<td class="px-6 py-4 text-xs text-on-surface-variant">22ms ago</td>
+<td class="px-6 py-4 text-right">
+<span class="material-symbols-outlined text-outline opacity-0 group-hover:opacity-100 cursor-pointer">more_vert</span>
+</td>
+</tr>
+<tr class="hover:bg-surface-container-high transition-colors group">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="w-2 h-2 rounded-full bg-secondary"></div>
+<span class="font-bold text-sm text-on-surface">gpt-4-0613-legacy</span>
+</div>
+</td>
+<td class="px-6 py-4 text-xs font-bold">Azure OpenAI</td>
+<td class="px-6 py-4">
+<div class="w-24 h-1.5 bg-outline-variant/20 rounded-full overflow-hidden">
+<div class="w-[94.2%] h-full bg-tertiary"></div>
+</div>
+</td>
+<td class="px-6 py-4 font-bold text-xs">$30.00 / $60.00</td>
+<td class="px-6 py-4 text-xs text-on-surface-variant">142ms ago</td>
+<td class="px-6 py-4 text-right">
+<span class="material-symbols-outlined text-outline opacity-0 group-hover:opacity-100 cursor-pointer">more_vert</span>
+</td>
+</tr>
+<tr class="hover:bg-surface-container-high transition-colors group">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="w-2 h-2 rounded-full bg-error"></div>
+<span class="font-bold text-sm text-on-surface">llama-3-70b-instruct</span>
+</div>
+</td>
+<td class="px-6 py-4 text-xs font-bold">Groq Cluster</td>
+<td class="px-6 py-4">
+<div class="w-24 h-1.5 bg-outline-variant/20 rounded-full overflow-hidden">
+<div class="w-[0%] h-full bg-error"></div>
+</div>
+</td>
+<td class="px-6 py-4 font-bold text-xs">$0.59 / $0.79</td>
+<td class="px-6 py-4 text-xs text-error font-bold">Timed Out</td>
+<td class="px-6 py-4 text-right">
+<span class="material-symbols-outlined text-outline opacity-0 group-hover:opacity-100 cursor-pointer">more_vert</span>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="p-4 bg-slate-50 border-t border-outline-variant/10 flex justify-between items-center text-xs font-bold text-on-surface-variant">
+<span>Showing 4 of 312 entries</span>
+<div class="flex items-center gap-2">
+<button class="px-3 py-1 bg-white rounded-lg border border-outline-variant/30 hover:bg-surface-container transition-colors disabled:opacity-50">Previous</button>
+<span class="px-3 py-1 bg-primary text-white rounded-lg">1</span>
+<span class="px-3 py-1 hover:bg-surface-container rounded-lg cursor-pointer">2</span>
+<span class="px-3 py-1 hover:bg-surface-container rounded-lg cursor-pointer">3</span>
+<span class="px-1 text-outline">...</span>
+<span class="px-3 py-1 hover:bg-surface-container rounded-lg cursor-pointer">78</span>
+<button class="px-3 py-1 bg-white rounded-lg border border-outline-variant/30 hover:bg-surface-container transition-colors">Next</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+</body></html>

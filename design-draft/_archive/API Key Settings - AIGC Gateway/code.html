@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>API Key Settings | AIGC Gateway</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "primary-fixed": "#e5deff",
+              "on-tertiary": "#ffffff",
+              "on-surface-variant": "#474553",
+              "on-error": "#ffffff",
+              "tertiary-fixed": "#ffddba",
+              "surface-variant": "#dae2fd",
+              "secondary": "#5f5987",
+              "inverse-primary": "#c8bfff",
+              "on-tertiary-fixed": "#2b1700",
+              "surface": "#faf8ff",
+              "primary-container": "#6d5dd3",
+              "on-surface": "#131b2e",
+              "inverse-surface": "#283044",
+              "secondary-fixed": "#e5deff",
+              "primary": "#5443b9",
+              "on-background": "#131b2e",
+              "surface-container-lowest": "#ffffff",
+              "error": "#ba1a1a",
+              "on-tertiary-container": "#fff0e4",
+              "on-primary-container": "#f6f1ff",
+              "on-primary": "#ffffff",
+              "tertiary": "#7c4b00",
+              "primary-fixed-dim": "#c8bfff",
+              "background": "#faf8ff",
+              "on-secondary-fixed-variant": "#47416e",
+              "surface-dim": "#d2d9f4",
+              "surface-bright": "#faf8ff",
+              "error-container": "#ffdad6",
+              "tertiary-fixed-dim": "#ffb964",
+              "surface-container-high": "#e2e7ff",
+              "tertiary-container": "#9d6100",
+              "on-secondary": "#ffffff",
+              "inverse-on-surface": "#eef0ff",
+              "surface-tint": "#5c4cc1",
+              "on-secondary-container": "#585280",
+              "on-primary-fixed": "#190064",
+              "surface-container-highest": "#dae2fd",
+              "outline-variant": "#c9c4d5",
+              "on-tertiary-fixed-variant": "#663e00",
+              "surface-container-low": "#f2f3ff",
+              "secondary-fixed-dim": "#c8c0f5",
+              "on-secondary-fixed": "#1b153f",
+              "outline": "#787584",
+              "on-primary-fixed-variant": "#4431a8",
+              "secondary-container": "#d0c9fe",
+              "surface-container": "#eaedff",
+              "on-error-container": "#93000a"
+            },
+            fontFamily: {
+              "headline": ["Manrope"],
+              "body": ["Inter"],
+              "label": ["Inter"]
+            },
+            borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(12px);
+        }
+    </style>
+</head>
+<body class="bg-surface text-on-surface font-body selection:bg-primary-fixed selection:text-primary">
+<!-- Sidebar Navigation -->
+<aside class="fixed left-0 top-0 h-full w-64 bg-surface-container-low flex flex-col py-6 px-4 gap-2 z-50">
+<div class="flex items-center gap-3 px-2 mb-8">
+<div class="w-10 h-10 bg-primary-container rounded-xl flex items-center justify-center text-white shadow-lg shadow-primary/20">
+<span class="material-symbols-outlined" data-weight="fill">hub</span>
+</div>
+<div>
+<h1 class="text-lg font-black text-primary leading-none font-headline">AIGC Gateway</h1>
+<p class="text-[10px] uppercase tracking-widest font-semibold text-on-surface-variant/60 mt-1">Algorithmic Atelier</p>
+</div>
+</div>
+<nav class="flex-1 space-y-1 overflow-y-auto no-scrollbar">
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant/70 hover:bg-surface-container-high rounded-xl transition-all duration-200 font-label text-sm font-semibold uppercase tracking-widest" href="#">
+<span class="material-symbols-outlined">dashboard</span> Dashboard
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant/70 hover:bg-surface-container-high rounded-xl transition-all duration-200 font-label text-sm font-semibold uppercase tracking-widest" href="#">
+<span class="material-symbols-outlined">description</span> Call Logs
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant/70 hover:bg-surface-container-high rounded-xl transition-all duration-200 font-label text-sm font-semibold uppercase tracking-widest" href="#">
+<span class="material-symbols-outlined">model_training</span> Models
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant/70 hover:bg-surface-container-high rounded-xl transition-all duration-200 font-label text-sm font-semibold uppercase tracking-widest" href="#">
+<span class="material-symbols-outlined">hub</span> Channels
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 bg-surface-container-lowest text-primary border-l-4 border-primary rounded-r-lg shadow-sm transition-all duration-200 font-label text-sm font-semibold uppercase tracking-widest" href="#">
+<span class="material-symbols-outlined">vpn_key</span> API Keys
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant/70 hover:bg-surface-container-high rounded-xl transition-all duration-200 font-label text-sm font-semibold uppercase tracking-widest" href="#">
+<span class="material-symbols-outlined">account_balance_wallet</span> Wallet
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant/70 hover:bg-surface-container-high rounded-xl transition-all duration-200 font-label text-sm font-semibold uppercase tracking-widest" href="#">
+<span class="material-symbols-outlined">receipt_long</span> Transactions
+            </a>
+</nav>
+<div class="mt-auto pt-4 border-t border-outline-variant/10 space-y-1">
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant/70 hover:bg-surface-container-high rounded-xl transition-all duration-200 font-label text-sm font-semibold uppercase tracking-widest" href="#">
+<span class="material-symbols-outlined">settings</span> Settings
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant/70 hover:bg-surface-container-high rounded-xl transition-all duration-200 font-label text-sm font-semibold uppercase tracking-widest" href="#">
+<span class="material-symbols-outlined">help_outline</span> Support
+            </a>
+</div>
+</aside>
+<!-- Top App Bar -->
+<header class="fixed top-0 left-64 right-0 h-16 bg-surface flex justify-between items-center px-8 z-40">
+<div class="flex items-center gap-4">
+<a class="p-2 hover:bg-surface-container-low rounded-full transition-colors group" href="#">
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary">arrow_back</span>
+</a>
+<div class="flex flex-col">
+<nav class="flex items-center gap-2 text-xs font-medium text-on-surface-variant/60 mb-0.5">
+<span>API Keys</span>
+<span class="material-symbols-outlined text-[14px]">chevron_right</span>
+<span class="text-primary/80">Production-Gateway-01</span>
+</nav>
+<h2 class="text-xl font-bold tracking-tighter text-on-surface font-headline leading-tight">API Key Settings</h2>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<button class="flex items-center gap-2 px-4 py-2 bg-surface-container-low rounded-full hover:bg-surface-container-high transition-colors text-sm font-semibold text-on-surface-variant">
+<span class="material-symbols-outlined text-[20px]">language</span>
+<span>English</span>
+</button>
+<button class="p-2 text-on-surface-variant hover:bg-surface-container-low rounded-full transition-colors relative">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-2 right-2 w-2 h-2 bg-error rounded-full"></span>
+</button>
+<div class="w-10 h-10 rounded-full overflow-hidden bg-surface-container-high cursor-pointer ring-2 ring-primary/10">
+<img class="w-full h-full object-cover" data-alt="close-up portrait of a professional developer in a bright office setting with soft natural light" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDoS7-PuDFf5VAAOwE7nyMqrvJLaF3cS91gzc8Y517jAsRNaVoIcWNS1pExbbFgwyiQ29mvbdeTyhjG1bpWsDrI5B6ShLe20QmjY40xQXwMQqeGQFLsdfkqLzIxpY8FwfqvYQAJ14CJSvGY-b3Eh4PMjjYnegR7E6nXbVJojJ9gXS_Z6JSqJ5m1FdjUVXf5WOomsdkCxBgVvxHNtm6YisqHvKDeaFpsUVM7Ah9R7mDDjFcEdDOhU0vMIesjAO8d3ZkpgNBOPw8fqEM"/>
+</div>
+</div>
+</header>
+<!-- Main Content -->
+<main class="ml-64 mt-16 p-8 min-h-screen">
+<div class="max-w-5xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8">
+<!-- Left Column: Core Settings -->
+<div class="lg:col-span-2 space-y-8">
+<!-- General Info -->
+<section class="bg-surface-container-lowest rounded-xl p-6 shadow-sm ring-1 ring-primary/5">
+<div class="flex items-center gap-2 mb-6">
+<span class="material-symbols-outlined text-primary" data-weight="fill">badge</span>
+<h3 class="font-headline font-bold text-lg">General Information</h3>
+</div>
+<div class="space-y-6">
+<div class="group">
+<label class="block text-xs font-bold uppercase tracking-wider text-on-surface-variant/60 mb-2">Key Name</label>
+<input class="w-full bg-surface-container-low border-0 border-b-2 border-outline-variant/30 focus:border-primary focus:ring-0 px-0 py-3 text-on-surface font-medium transition-all" placeholder="Enter key name..." type="text" value="Production-Gateway-01"/>
+</div>
+<div class="group">
+<label class="block text-xs font-bold uppercase tracking-wider text-on-surface-variant/60 mb-2">Description</label>
+<textarea class="w-full bg-surface-container-low border-0 border-b-2 border-outline-variant/30 focus:border-primary focus:ring-0 px-0 py-3 text-on-surface font-medium transition-all resize-none" placeholder="Provide a brief description of this key's usage context..." rows="3">Primary API key for production image processing and real-time chat endpoints.</textarea>
+</div>
+</div>
+</section>
+<!-- Permissions Section -->
+<section class="bg-surface-container-lowest rounded-xl p-6 shadow-sm ring-1 ring-primary/5">
+<div class="flex items-center justify-between mb-6">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary" data-weight="fill">shield_person</span>
+<h3 class="font-headline font-bold text-lg">Permissions</h3>
+</div>
+<span class="text-[10px] bg-primary-fixed text-primary px-2 py-0.5 rounded-full font-bold uppercase tracking-widest">Scope: Restricted</span>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<!-- Permission Item -->
+<div class="flex items-center justify-between p-4 bg-surface-container-low rounded-xl hover:bg-surface-container-high transition-colors">
+<div class="flex flex-col">
+<span class="text-sm font-bold text-on-surface">Chat Completion</span>
+<span class="text-[11px] text-on-surface-variant/70">Execute LLM queries</span>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-11 h-6 bg-outline-variant rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+</label>
+</div>
+<!-- Permission Item -->
+<div class="flex items-center justify-between p-4 bg-surface-container-low rounded-xl hover:bg-surface-container-high transition-colors">
+<div class="flex flex-col">
+<span class="text-sm font-bold text-on-surface">Image Generation</span>
+<span class="text-[11px] text-on-surface-variant/70">DALL-E &amp; Stable Diffusion</span>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-11 h-6 bg-outline-variant rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+</label>
+</div>
+<!-- Permission Item -->
+<div class="flex items-center justify-between p-4 bg-surface-container-low rounded-xl hover:bg-surface-container-high transition-colors opacity-60">
+<div class="flex flex-col">
+<span class="text-sm font-bold text-on-surface">Log Access</span>
+<span class="text-[11px] text-on-surface-variant/70">View request history</span>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input class="sr-only peer" type="checkbox"/>
+<div class="w-11 h-6 bg-outline-variant rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+</label>
+</div>
+<!-- Permission Item -->
+<div class="flex items-center justify-between p-4 bg-surface-container-low rounded-xl hover:bg-surface-container-high transition-colors opacity-60">
+<div class="flex flex-col">
+<span class="text-sm font-bold text-on-surface">Project Info</span>
+<span class="text-[11px] text-on-surface-variant/70">Read metadata</span>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input class="sr-only peer" type="checkbox"/>
+<div class="w-11 h-6 bg-outline-variant rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+</label>
+</div>
+</div>
+</section>
+<!-- Security & Limits -->
+<section class="bg-surface-container-lowest rounded-xl p-6 shadow-sm ring-1 ring-primary/5">
+<div class="flex items-center gap-2 mb-6">
+<span class="material-symbols-outlined text-primary" data-weight="fill">lock_reset</span>
+<h3 class="font-headline font-bold text-lg">Security &amp; Limits</h3>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+<div>
+<label class="block text-xs font-bold uppercase tracking-wider text-on-surface-variant/60 mb-2">Rate Limit (RPM)</label>
+<div class="flex items-center gap-4">
+<input class="flex-1 bg-surface-container-low border-0 border-b-2 border-outline-variant/30 focus:border-primary focus:ring-0 px-0 py-3 text-on-surface font-medium transition-all" type="number" value="1000"/>
+<span class="text-xs text-on-surface-variant/60 font-semibold italic">Requests/Min</span>
+</div>
+</div>
+<div>
+<label class="block text-xs font-bold uppercase tracking-wider text-on-surface-variant/60 mb-2">IP Whitelist</label>
+<textarea class="w-full text-sm font-mono bg-surface-container-low border-0 border-b-2 border-outline-variant/30 focus:border-primary focus:ring-0 px-2 py-3 text-on-surface transition-all resize-none" placeholder="192.168.1.1
+10.0.0.1" rows="4">142.250.190.46
+172.217.14.206</textarea>
+<p class="mt-2 text-[10px] text-on-surface-variant/50">Restrict key usage to specific IP addresses. One per line.</p>
+</div>
+</div>
+</section>
+</div>
+<!-- Right Column: Status & Exposure -->
+<div class="space-y-8">
+<!-- Status Section -->
+<section class="bg-surface-container-lowest rounded-xl p-6 shadow-sm ring-1 ring-primary/5">
+<div class="flex items-center justify-between mb-4">
+<h3 class="font-headline font-bold text-lg">Key Status</h3>
+<span class="flex h-2 w-2 relative">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-secondary opacity-75"></span>
+<span class="relative inline-flex rounded-full h-2 w-2 bg-secondary"></span>
+</span>
+</div>
+<div class="flex items-center justify-between p-4 bg-primary/5 rounded-xl border border-primary/10">
+<div class="flex flex-col">
+<span class="text-sm font-bold text-primary uppercase tracking-tighter">Active</span>
+<span class="text-[11px] text-on-surface-variant/70">Ready for requests</span>
+</div>
+<label class="relative inline-flex items-center cursor-pointer scale-110">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-12 h-6.5 bg-outline-variant rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[3px] after:left-[3px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+</label>
+</div>
+<p class="mt-4 text-xs text-on-surface-variant/60 leading-relaxed italic">Disabling this key will immediately revoke access to all associated endpoints.</p>
+</section>
+<!-- Key Exposure -->
+<section class="bg-surface-container-lowest rounded-xl p-6 shadow-sm ring-1 ring-primary/5">
+<h3 class="font-headline font-bold text-lg mb-4">API Key</h3>
+<div class="relative group">
+<input class="w-full bg-surface-container-low border-0 rounded-lg pl-4 pr-12 py-3 text-sm font-mono text-on-surface-variant" readonly="" type="text" value="ak-••••••••••••v9x2"/>
+<button class="absolute right-2 top-1/2 -translate-y-1/2 p-2 hover:bg-surface-container-high rounded-md text-primary transition-colors">
+<span class="material-symbols-outlined text-[20px]">content_copy</span>
+</button>
+</div>
+<div class="mt-4 p-3 bg-tertiary-fixed/30 rounded-lg flex gap-3">
+<span class="material-symbols-outlined text-tertiary text-[20px]">warning</span>
+<p class="text-[11px] text-on-tertiary-fixed-variant leading-snug">Never share your API key in publicly accessible areas (GitHub, client-side code, etc).</p>
+</div>
+<button class="w-full mt-6 py-3 px-4 bg-primary text-white font-bold rounded-xl text-sm hover:opacity-90 transition-all shadow-md shadow-primary/20 flex items-center justify-center gap-2">
+<span>Save Changes</span>
+<span class="material-symbols-outlined text-[18px]">save</span>
+</button>
+</section>
+<!-- Danger Zone -->
+<section class="bg-surface-container-low rounded-xl p-6 ring-1 ring-error/20">
+<div class="flex items-center gap-2 mb-4 text-error">
+<span class="material-symbols-outlined" data-weight="fill">dangerous</span>
+<h3 class="font-headline font-bold text-lg">Danger Zone</h3>
+</div>
+<p class="text-xs text-on-surface-variant leading-relaxed mb-6">
+                        Deleting this API key is a permanent action. All applications using this key will stop functioning immediately.
+                    </p>
+<button class="w-full py-3 px-4 border-2 border-error/20 text-error font-bold rounded-xl text-sm hover:bg-error hover:text-white transition-all flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-[18px]">delete</span>
+<span>Delete API Key</span>
+</button>
+</section>
+</div>
+</div>
+</main>
+<!-- Visual Element: Floating Gradient Blur -->
+<div class="fixed top-[20%] right-[-5%] w-[40vw] h-[40vw] rounded-full bg-primary/5 blur-[120px] -z-10 pointer-events-none"></div>
+<div class="fixed bottom-[10%] left-[10%] w-[30vw] h-[30vw] rounded-full bg-secondary/5 blur-[100px] -z-10 pointer-events-none"></div>
+</body></html>

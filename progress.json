@@ -1,27 +1,28 @@
 {
-  "status": "done",
-  "user_goal": "R1 — 设计系统基础对齐 + Dashboard 试点还原：修好基础组件（Button/Input/Card/Dialog/Table）、Layout Shell（Sidebar/TopAppBar），抽取公共组件（SearchBar/Pagination/useAsyncData），Dashboard 作为试点验证",
-  "total_features": 13,
-  "completed_features": 13,
+  "status": "building",
+  "user_goal": "R2A — 用户侧页面还原（Keys + Logs + Models）：6 个页面从旧代码模式还原为 R1 设计系统，对齐 Stitch 设计稿",
+  "total_features": 9,
+  "completed_features": 0,
   "fix_rounds": 0,
   "current_sprint": null,
-  "last_updated": "2026-04-08T09:40:43Z",
+  "last_updated": "2026-04-08T11:30:00Z",
   "reference_docs": [
-    "docs/specs/R1-design-system-foundation-spec.md",
-    "design-draft/Layout Shell - AIGC Gateway/DESIGN.md",
-    "design-draft/Dashboard (Full Redesign) v2/code.html"
+    "docs/specs/R2A-user-pages-keys-logs-models-spec.md",
+    "design-draft/keys/code.html",
+    "design-draft/logs/code.html",
+    "design-draft/models/code.html"
   ],
   "role_assignments": null,
   "docs": {
-    "spec": "docs/specs/R1-design-system-foundation-spec.md",
-    "test_cases": "docs/test-cases/r1-design-system-foundation-e2e-2026-04-08.md",
-    "signoff": "docs/test-reports/r1-design-system-foundation-signoff-2026-04-08.md",
+    "spec": "docs/specs/R2A-user-pages-keys-logs-models-spec.md",
+    "test_cases": null,
+    "signoff": null,
     "framework_reviewed": false
   },
-  "evaluator_feedback": "Verifier: F-R1-13 本地 L1 验收通过（Dashboard 加载、Sidebar active accent pill、SearchBar/Pagination 渲染通过），签收通过。",
-  "generator_handoff": "Mark: F-R1-01~12 全部完成。基础组件5个对齐设计系统、Sidebar/TopAppBar Layout 对齐、useAsyncData+SearchBar+Pagination 公共组件、Dashboard 试点还原（useAsyncData+no-border+ds-token）、No-Line 清理",
+  "evaluator_feedback": null,
+  "generator_handoff": null,
   "session_notes": {
-    "Richard": "本会话完成 R1 planning + 共享记忆系统重构（分层加载 T0/T1/T2 + role-context + session_notes）。framework/ 已同步至 v0.4.0。Mark 已完成 12/12 generator 功能，等待 Reviewer 验收。",
+    "Richard": "R2A planning 完成。9 条功能（8 generator + 1 codex）。keys 3 页 + create/revoke dialog、logs 2 页、models 1 页 + i18n。所有页面当前都是旧模式，需完全重写。设计稿已整理到 design-draft/ 新结构。",
     "Mark": null,
     "Reviewer": null
   }

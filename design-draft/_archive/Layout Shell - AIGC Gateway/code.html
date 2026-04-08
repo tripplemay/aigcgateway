@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>AIGC Gateway - Algorithmic Atelier</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&amp;family=Inter:wght@100..900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "surface-container-highest": "#dae2fd",
+              "on-background": "#131b2e",
+              "surface-container-low": "#f2f3ff",
+              "surface-dim": "#d2d9f4",
+              "tertiary-fixed-dim": "#ffb964",
+              "surface-tint": "#5c4cc1",
+              "surface": "#faf8ff",
+              "surface-container": "#eaedff",
+              "primary-fixed-dim": "#c8bfff",
+              "on-tertiary-container": "#fff0e4",
+              "on-tertiary-fixed": "#2b1700",
+              "on-primary-fixed-variant": "#4431a8",
+              "outline": "#787584",
+              "on-primary-fixed": "#190064",
+              "surface-container-lowest": "#ffffff",
+              "primary": "#5443b9",
+              "outline-variant": "#c9c4d5",
+              "tertiary-fixed": "#ffddba",
+              "on-surface-variant": "#474553",
+              "surface-bright": "#faf8ff",
+              "inverse-on-surface": "#eef0ff",
+              "primary-container": "#6d5dd3",
+              "background": "#faf8ff",
+              "secondary": "#5f5987",
+              "primary-fixed": "#e5deff",
+              "on-secondary": "#ffffff",
+              "secondary-fixed": "#e5deff",
+              "error-container": "#ffdad6",
+              "tertiary-container": "#9d6100",
+              "on-secondary-fixed-variant": "#47416e",
+              "tertiary": "#7c4b00",
+              "secondary-fixed-dim": "#c8c0f5",
+              "surface-variant": "#dae2fd",
+              "on-tertiary": "#ffffff",
+              "surface-container-high": "#e2e7ff",
+              "on-tertiary-fixed-variant": "#663e00",
+              "on-primary-container": "#f6f1ff",
+              "on-primary": "#ffffff",
+              "secondary-container": "#d0c9fe",
+              "on-error-container": "#93000a",
+              "inverse-primary": "#c8bfff",
+              "on-secondary-fixed": "#1b153f",
+              "on-secondary-container": "#585280",
+              "inverse-surface": "#283044",
+              "error": "#ba1a1a",
+              "on-surface": "#131b2e",
+              "on-error": "#ffffff"
+            },
+            fontFamily: {
+              "headline": ["Manrope"],
+              "body": ["Inter"],
+              "label": ["Inter"]
+            },
+            borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+          },
+        },
+      }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+        .font-manrope { font-family: 'Manrope', sans-serif; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+    </style>
+</head>
+<body class="bg-surface text-on-surface antialiased overflow-hidden">
+<!-- SideNavBar Anchor -->
+<aside class="fixed left-0 top-0 h-full w-64 bg-slate-50 dark:bg-slate-900 flex flex-col py-6 z-40">
+<div class="px-6 mb-8">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-primary to-primary-container flex items-center justify-center">
+<span class="material-symbols-outlined text-white text-lg" data-icon="token">token</span>
+</div>
+<div class="flex flex-col">
+<span class="text-lg font-black tracking-tighter text-[#5443b9] dark:text-[#6D5DD3] font-manrope">AIGC Gateway</span>
+<span class="text-[10px] uppercase tracking-widest text-slate-400 font-bold">Algorithmic Atelier</span>
+</div>
+</div>
+</div>
+<div class="px-4 mb-6">
+<button class="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-primary to-primary-container text-white text-sm font-bold font-manrope flex items-center justify-center gap-2 shadow-lg shadow-primary/20 scale-95 active:scale-100 transition-transform">
+<span class="material-symbols-outlined text-sm" data-icon="add">add</span>
+                New Project
+            </button>
+</div>
+<nav class="flex-1 space-y-1 overflow-y-auto px-2">
+<!-- Projects (Active) -->
+<a class="flex items-center gap-3 px-4 py-2 text-[#5443b9] dark:text-[#6D5DD3] border-l-4 border-[#5443b9] bg-[#f2f3ff] dark:bg-slate-800 font-manrope tracking-tight font-bold text-sm transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="folder_managed">folder_managed</span>
+                Projects
+            </a>
+<a class="flex items-center gap-3 px-4 py-2 text-slate-500 dark:text-slate-400 hover:bg-[#f2f3ff] dark:hover:bg-slate-800/80 transition-colors font-manrope tracking-tight font-bold text-sm" href="#">
+<span class="material-symbols-outlined" data-icon="smart_toy">smart_toy</span>
+                Models
+            </a>
+<a class="flex items-center gap-3 px-4 py-2 text-slate-500 dark:text-slate-400 hover:bg-[#f2f3ff] dark:hover:bg-slate-800/80 transition-colors font-manrope tracking-tight font-bold text-sm" href="#">
+<span class="material-symbols-outlined" data-icon="terminal">terminal</span>
+                Logs
+            </a>
+<a class="flex items-center gap-3 px-4 py-2 text-slate-500 dark:text-slate-400 hover:bg-[#f2f3ff] dark:hover:bg-slate-800/80 transition-colors font-manrope tracking-tight font-bold text-sm" href="#">
+<span class="material-symbols-outlined" data-icon="hub">hub</span>
+                Channels
+            </a>
+<a class="flex items-center gap-3 px-4 py-2 text-slate-500 dark:text-slate-400 hover:bg-[#f2f3ff] dark:hover:bg-slate-800/80 transition-colors font-manrope tracking-tight font-bold text-sm" href="#">
+<span class="material-symbols-outlined" data-icon="settings_input_component">settings_input_component</span>
+                Providers
+            </a>
+<a class="flex items-center gap-3 px-4 py-2 text-slate-500 dark:text-slate-400 hover:bg-[#f2f3ff] dark:hover:bg-slate-800/80 transition-colors font-manrope tracking-tight font-bold text-sm" href="#">
+<span class="material-symbols-outlined" data-icon="payments">payments</span>
+                Billing
+            </a>
+</nav>
+<div class="px-4 mt-auto pt-6">
+<div class="p-4 rounded-xl bg-surface-container-high flex flex-col gap-2">
+<div class="flex items-center justify-between">
+<span class="text-xs font-bold text-on-surface-variant">Wallet Balance</span>
+<span class="text-xs font-black text-primary">$1,240.50</span>
+</div>
+<div class="w-full bg-outline-variant/30 h-1.5 rounded-full overflow-hidden">
+<div class="bg-primary w-2/3 h-full rounded-full"></div>
+</div>
+</div>
+</div>
+</aside>
+<!-- Main Wrapper -->
+<div class="ml-64 flex flex-col h-screen">
+<!-- TopAppBar Anchor -->
+<header class="sticky top-0 z-50 w-full bg-white/80 dark:bg-slate-950/80 backdrop-blur-xl border-b border-slate-200/15 dark:border-slate-800/15 flex justify-between items-center h-16 px-8 shadow-sm dark:shadow-none">
+<div class="flex items-center gap-6 flex-1">
+<div class="relative w-full max-w-md">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-lg" data-icon="search">search</span>
+<input class="w-full bg-surface-container-low border-none rounded-full py-2 pl-10 pr-4 text-sm focus:ring-2 focus:ring-primary/20 placeholder:text-slate-400 font-body" placeholder="Search resources, logs, or keys..." type="text"/>
+</div>
+<nav class="hidden md:flex items-center gap-6">
+<a class="text-slate-600 dark:text-slate-400 hover:text-[#5443b9] transition-all font-manrope text-sm font-medium" href="#">Documentation</a>
+<a class="text-slate-600 dark:text-slate-400 hover:text-[#5443b9] transition-all font-manrope text-sm font-medium" href="#">API Reference</a>
+<a class="text-slate-600 dark:text-slate-400 hover:text-[#5443b9] transition-all font-manrope text-sm font-medium" href="#">Support</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<div class="flex items-center gap-2 bg-surface-container-low p-1 rounded-lg">
+<button class="px-2 py-1 text-[10px] font-black rounded-md bg-white shadow-sm text-primary">EN</button>
+<button class="px-2 py-1 text-[10px] font-bold text-slate-400">CN</button>
+</div>
+<div class="flex items-center gap-2">
+<button class="p-2 text-slate-500 hover:bg-surface-container-high rounded-full transition-colors opacity-80 hover:opacity-100">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<button class="p-2 text-slate-500 hover:bg-surface-container-high rounded-full transition-colors opacity-80 hover:opacity-100">
+<span class="material-symbols-outlined" data-icon="dark_mode">dark_mode</span>
+</button>
+<button class="p-2 text-slate-500 hover:bg-surface-container-high rounded-full transition-colors opacity-80 hover:opacity-100">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+</button>
+</div>
+<div class="h-8 w-px bg-slate-200/50 mx-2"></div>
+<button class="px-4 py-1.5 bg-primary text-white rounded-lg text-sm font-bold font-manrope hover:bg-primary-container transition-all">
+                    Deploy
+                </button>
+<div class="flex items-center gap-3 ml-2 cursor-pointer group">
+<img alt="User Avatar" class="w-8 h-8 rounded-full object-cover ring-2 ring-primary/20 group-hover:ring-primary/50 transition-all" data-alt="portrait of a professional young designer with glasses in a minimalist studio environment soft natural lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAjJsH_sMoct6sJPDelTd69qKu19h7WyMtO0gGulCSpwuIWMD6aVxPS7dD0zsDMgJ70tamF4knrZhbxmVogHRTsYisyaAJ1Hzze7GFs-w97nSKrA3q2heha8JjrDV6aGeOPjncyxrTUrekt5VIzfe28UTSP33MEdNNnSw59-h1alQEXpylWGa1gOCdiHPJAxthpJK7MUjXdI1OvYt71A32SwnTHEM6Pnzidi5Hda8r5Zk4sQhGL4u2VFcbVbvriCgX_ZwN_zVsXiO8"/>
+</div>
+</div>
+</header>
+<!-- Main Content Container -->
+<main class="flex-1 overflow-y-auto bg-surface p-8">
+<div class="max-w-7xl mx-auto space-y-8">
+<!-- Page Header -->
+<div class="flex items-end justify-between">
+<div>
+<div class="flex items-center gap-2 mb-2">
+<span class="px-2 py-0.5 bg-primary-fixed text-on-primary-fixed-variant text-[10px] font-black rounded uppercase tracking-tighter">Gateway / v2.4</span>
+</div>
+<h1 class="text-4xl font-extrabold tracking-tighter text-on-surface font-manrope">Dashboard</h1>
+<p class="text-on-surface-variant text-sm mt-1">Manage your generative AI infrastructure and monitor orchestrations.</p>
+</div>
+<div class="flex gap-3">
+<button class="px-4 py-2 bg-surface-container-lowest text-on-surface-variant font-bold text-sm rounded-xl border border-outline-variant/20 hover:bg-surface-container transition-colors font-manrope">
+                            View Reports
+                        </button>
+</div>
+</div>
+<!-- Content Placeholder Shell -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+<!-- Stats Grid (Tonal Layering Example) -->
+<div class="bg-surface-container-lowest p-6 rounded-xl shadow-sm border border-slate-200/5 transition-transform hover:scale-[1.01]">
+<div class="flex justify-between items-start mb-4">
+<span class="material-symbols-outlined text-primary p-2 bg-primary-fixed rounded-lg" data-icon="auto_awesome">auto_awesome</span>
+<span class="text-[10px] font-bold text-tertiary px-2 py-1 bg-tertiary-fixed rounded-full">+12.5%</span>
+</div>
+<p class="text-on-surface-variant text-xs font-bold uppercase tracking-widest mb-1">Total Invocations</p>
+<h3 class="text-3xl font-black text-on-surface font-manrope">1.2M</h3>
+</div>
+<div class="bg-surface-container-lowest p-6 rounded-xl shadow-sm border border-slate-200/5 transition-transform hover:scale-[1.01]">
+<div class="flex justify-between items-start mb-4">
+<span class="material-symbols-outlined text-primary p-2 bg-primary-fixed rounded-lg" data-icon="speed">speed</span>
+<span class="text-[10px] font-bold text-secondary px-2 py-1 bg-secondary-fixed rounded-full">Optimal</span>
+</div>
+<p class="text-on-surface-variant text-xs font-bold uppercase tracking-widest mb-1">Avg. Latency</p>
+<h3 class="text-3xl font-black text-on-surface font-manrope">240ms</h3>
+</div>
+<div class="bg-surface-container-lowest p-6 rounded-xl shadow-sm border border-slate-200/5 transition-transform hover:scale-[1.01]">
+<div class="flex justify-between items-start mb-4">
+<span class="material-symbols-outlined text-primary p-2 bg-primary-fixed rounded-lg" data-icon="paid">paid</span>
+<span class="text-[10px] font-bold text-error px-2 py-1 bg-error-container rounded-full">-2.1%</span>
+</div>
+<p class="text-on-surface-variant text-xs font-bold uppercase tracking-widest mb-1">Cost Efficiency</p>
+<h3 class="text-3xl font-black text-on-surface font-manrope">98.4%</h3>
+</div>
+</div>
+<!-- Empty Canvas Indicator -->
+<div class="relative min-h-[400px] rounded-2xl border-2 border-dashed border-outline-variant/30 bg-surface-container-low flex flex-col items-center justify-center text-center p-12">
+<div class="w-20 h-20 mb-6 opacity-20">
+<span class="material-symbols-outlined text-[80px] text-slate-400" data-icon="grid_view">grid_view</span>
+</div>
+<h2 class="text-2xl font-black text-slate-300 font-manrope mb-2">Content Placeholder</h2>
+<p class="max-w-md text-slate-400 text-sm">This is the algorithmic atelier's primary canvas. Select a module from the sidebar to begin orchestration or view deployment logs.</p>
+<div class="mt-8 flex gap-4">
+<div class="w-32 h-2 rounded-full bg-slate-200/50"></div>
+<div class="w-24 h-2 rounded-full bg-slate-200/50"></div>
+<div class="w-40 h-2 rounded-full bg-slate-200/50"></div>
+</div>
+</div>
+</div>
+</main>
+</div>
+</body></html>

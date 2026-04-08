@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>AIGC Gateway - Trace Detail</title>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Manrope:wght@600;700;800&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "tertiary-fixed": "#ffddba",
+              "on-tertiary-fixed": "#2b1700",
+              "on-surface": "#131b2e",
+              "inverse-primary": "#c8bfff",
+              "error": "#ba1a1a",
+              "on-primary-container": "#f6f1ff",
+              "on-tertiary": "#ffffff",
+              "surface-container-high": "#e2e7ff",
+              "on-tertiary-container": "#fff0e4",
+              "tertiary-fixed-dim": "#ffb964",
+              "surface-variant": "#dae2fd",
+              "surface-container": "#eaedff",
+              "secondary": "#5f5987",
+              "primary-container": "#6d5dd3",
+              "on-primary-fixed-variant": "#4431a8",
+              "primary": "#5443b9",
+              "error-container": "#ffdad6",
+              "surface-container-lowest": "#ffffff",
+              "secondary-fixed-dim": "#c8c0f5",
+              "outline": "#787584",
+              "inverse-on-surface": "#eef0ff",
+              "on-tertiary-fixed-variant": "#663e00",
+              "on-error-container": "#93000a",
+              "tertiary-container": "#9d6100",
+              "on-secondary-container": "#585280",
+              "background": "#faf8ff",
+              "on-primary-fixed": "#190064",
+              "on-error": "#ffffff",
+              "outline-variant": "#c9c4d5",
+              "surface-dim": "#d2d9f4",
+              "secondary-fixed": "#e5deff",
+              "tertiary": "#7c4b00",
+              "primary-fixed-dim": "#c8bfff",
+              "surface-container-low": "#f2f3ff",
+              "on-secondary-fixed-variant": "#47416e",
+              "on-surface-variant": "#474553",
+              "surface-tint": "#5c4cc1",
+              "on-primary": "#ffffff",
+              "on-background": "#131b2e",
+              "surface-container-highest": "#dae2fd",
+              "surface": "#faf8ff",
+              "on-secondary-fixed": "#1b153f",
+              "on-secondary": "#ffffff",
+              "surface-bright": "#faf8ff",
+              "secondary-container": "#d0c9fe",
+              "primary-fixed": "#e5deff",
+              "inverse-surface": "#283044"
+            },
+            fontFamily: {
+              "headline": ["Manrope", "sans-serif"],
+              "body": ["Inter", "sans-serif"],
+              "label": ["Inter", "sans-serif"]
+            },
+            borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+          },
+        },
+      }
+    </script>
+<style>
+      .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      }
+      body {
+        font-family: 'Inter', sans-serif;
+      }
+      h1, h2, h3 {
+        font-family: 'Manrope', sans-serif;
+      }
+      .glass-effect {
+        backdrop-filter: blur(12px);
+        background: rgba(255, 255, 255, 0.8);
+      }
+    </style>
+</head>
+<body class="bg-surface text-on-surface">
+<!-- Shell Layout -->
+<div class="flex h-screen overflow-hidden">
+<!-- SideNavBar -->
+<aside class="hidden md:flex flex-col h-screen p-4 gap-2 w-64 bg-surface-container-low transition-all duration-200 ease-in-out fixed left-0 top-0">
+<div class="flex items-center gap-3 px-2 mb-8">
+<div class="w-10 h-10 bg-primary-container rounded-xl flex items-center justify-center text-on-primary-container">
+<span class="material-symbols-outlined" data-icon="hub">hub</span>
+</div>
+<div>
+<h1 class="text-lg font-bold text-primary leading-tight">AIGC Gateway</h1>
+<p class="text-[10px] uppercase tracking-widest text-on-surface-variant/60 font-semibold">Algorithmic Atelier</p>
+</div>
+</div>
+<nav class="flex-1 space-y-1">
+<a class="flex items-center gap-3 px-3 py-2.5 text-on-surface/70 hover:text-primary hover:bg-white/50 rounded-lg transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="text-sm font-medium">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 bg-white text-primary border-l-4 border-primary rounded-r-lg transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="description">description</span>
+<span class="text-sm font-bold">Call Logs</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 text-on-surface/70 hover:text-primary hover:bg-white/50 rounded-lg transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="Model_Training">model_training</span>
+<span class="text-sm font-medium">Models</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 text-on-surface/70 hover:text-primary hover:bg-white/50 rounded-lg transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="key">key</span>
+<span class="text-sm font-medium">API Keys</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 text-on-surface/70 hover:text-primary hover:bg-white/50 rounded-lg transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="text-sm font-medium">Settings</span>
+</a>
+</nav>
+<div class="mt-auto pt-4 border-t border-outline-variant/10 space-y-1">
+<a class="flex items-center gap-3 px-3 py-2 text-on-surface/70 hover:text-primary hover:bg-white/50 rounded-lg transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="menu_book">menu_book</span>
+<span class="text-xs font-medium">Documentation</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-on-surface/70 hover:text-primary hover:bg-white/50 rounded-lg transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="contact_support">contact_support</span>
+<span class="text-xs font-medium">Support</span>
+</a>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="flex-1 md:ml-64 flex flex-col h-screen overflow-y-auto">
+<!-- TopAppBar -->
+<header class="flex justify-between items-center px-8 py-4 w-full bg-surface/80 backdrop-blur-md sticky top-0 z-50">
+<div class="flex items-center gap-4">
+<div class="md:hidden">
+<span class="material-symbols-outlined text-on-surface" data-icon="menu">menu</span>
+</div>
+<nav class="hidden md:flex items-center gap-6">
+<a class="text-sm font-medium text-on-surface/60 hover:text-primary transition-colors" href="#">Call Logs</a>
+<span class="text-outline-variant">/</span>
+<a class="text-sm font-bold text-primary border-b-2 border-primary pb-0.5" href="#">Trace Detail</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<button class="p-2 text-on-surface/70 hover:bg-surface-container-low rounded-full transition-all">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<button class="p-2 text-on-surface/70 hover:bg-surface-container-low rounded-full transition-all">
+<span class="material-symbols-outlined" data-icon="help">help</span>
+</button>
+<div class="w-8 h-8 rounded-full bg-secondary-container overflow-hidden">
+<img alt="User profile" class="w-full h-full object-cover" data-alt="Portrait of a young professional with glasses and a friendly expression in a minimalist vector style" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC6Au3pT8vT0p7nKT1hRHPCKuC9FTq7gD-BbDZUloOW4iafEakI9hOZwJiyyuzbQmllGgc6Me4qirSpQPJP88a4BNmTBiWGEUWEBW4Dab_nJAGycDcSJhWgA2No9FelUpPB2PXmqtmkW6W5wQPwdlHghuF9AHKnVmoxqXQDA62J6YtjrIXocv-4A1OqYI7dEnIynxxfPZmDBqpRFbxxBEMw4hFqpy5Gn_s25-kHeN4h1TfouNtNonCIRNhCB9iDNIBXCAKAHIlacj0"/>
+</div>
+</div>
+</header>
+<!-- Detail Screen Content -->
+<div class="p-8 space-y-8 max-w-[1400px]">
+<!-- Trace Header Section -->
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-6">
+<div class="space-y-2">
+<div class="flex items-center gap-3">
+<h2 class="text-3xl font-extrabold tracking-tight font-headline">trc_8f2a1b92</h2>
+<span class="px-3 py-1 bg-green-100 text-green-700 text-[10px] font-bold rounded-full border border-green-200">SUCCESS</span>
+</div>
+<div class="flex items-center gap-4 text-on-surface-variant/70 text-sm">
+<span class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-base" data-icon="calendar_today">calendar_today</span>
+                                Oct 24, 2023, 14:02:45.33
+                            </span>
+<span class="w-1 h-1 bg-outline-variant rounded-full"></span>
+<span class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-base" data-icon="timer">timer</span>
+                                112ms
+                            </span>
+</div>
+</div>
+<div class="flex gap-3">
+<button class="flex items-center gap-2 px-4 py-2 text-sm font-semibold bg-surface-container-low text-on-surface hover:bg-surface-container transition-all rounded-xl">
+<span class="material-symbols-outlined text-base" data-icon="content_copy">content_copy</span>
+                            Copy Trace ID
+                        </button>
+<button class="flex items-center gap-2 px-5 py-2 text-sm font-semibold bg-primary text-white hover:bg-primary-container transition-all rounded-xl shadow-lg shadow-primary/10">
+<span class="material-symbols-outlined text-base" data-icon="replay">replay</span>
+                            Re-run Trace
+                        </button>
+</div>
+</div>
+<!-- Stats Bento Row -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+<div class="bg-surface-container-lowest p-5 rounded-xl shadow-sm border border-transparent flex items-center gap-4 group hover:bg-primary/5 transition-all">
+<div class="w-12 h-12 rounded-full bg-surface-container flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-white transition-all">
+<span class="material-symbols-outlined" data-icon="smart_toy">smart_toy</span>
+</div>
+<div>
+<p class="text-[10px] uppercase tracking-widest text-on-surface-variant font-bold">Model</p>
+<p class="text-base font-bold text-on-surface">gpt-4-turbo</p>
+</div>
+</div>
+<div class="bg-surface-container-lowest p-5 rounded-xl shadow-sm border border-transparent flex items-center gap-4 group hover:bg-primary/5 transition-all">
+<div class="w-12 h-12 rounded-full bg-surface-container flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-white transition-all">
+<span class="material-symbols-outlined" data-icon="toll">toll</span>
+</div>
+<div>
+<p class="text-[10px] uppercase tracking-widest text-on-surface-variant font-bold">Tokens</p>
+<p class="text-base font-bold text-on-surface">1,240</p>
+</div>
+</div>
+<div class="bg-surface-container-lowest p-5 rounded-xl shadow-sm border border-transparent flex items-center gap-4 group hover:bg-primary/5 transition-all">
+<div class="w-12 h-12 rounded-full bg-surface-container flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-white transition-all">
+<span class="material-symbols-outlined" data-icon="payments">payments</span>
+</div>
+<div>
+<p class="text-[10px] uppercase tracking-widest text-on-surface-variant font-bold">Cost</p>
+<p class="text-base font-bold text-on-surface">$0.032</p>
+</div>
+</div>
+<div class="bg-surface-container-lowest p-5 rounded-xl shadow-sm border border-transparent flex items-center gap-4 group hover:bg-primary/5 transition-all">
+<div class="w-12 h-12 rounded-full bg-surface-container flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-white transition-all">
+<span class="material-symbols-outlined" data-icon="speed">speed</span>
+</div>
+<div>
+<p class="text-[10px] uppercase tracking-widest text-on-surface-variant font-bold">Throughput</p>
+<p class="text-base font-bold text-on-surface">147.2 t/s</p>
+</div>
+</div>
+</div>
+<!-- Main Layout Grid -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+<!-- Left Column: Content Flow -->
+<div class="lg:col-span-8 space-y-8">
+<!-- Prompt Messages -->
+<section class="space-y-4">
+<div class="flex items-center justify-between">
+<h3 class="text-lg font-bold flex items-center gap-2">
+<span class="material-symbols-outlined text-primary" data-icon="chat_bubble">chat_bubble</span>
+                                    Prompt Messages
+                                </h3>
+<span class="text-xs font-medium text-on-surface-variant bg-surface-container px-2 py-1 rounded">2 Messages</span>
+</div>
+<div class="space-y-6">
+<!-- System Message -->
+<div class="bg-surface-container-low/50 p-6 rounded-2xl space-y-3 relative overflow-hidden">
+<div class="absolute left-0 top-0 bottom-0 w-1 bg-secondary/30"></div>
+<div class="flex items-center gap-2">
+<span class="text-[10px] font-black uppercase text-secondary tracking-widest">SYSTEM</span>
+</div>
+<p class="text-sm leading-relaxed text-on-surface/90 font-medium italic">
+                                        "You are an expert financial analyst. Your goal is to provide concise, data-driven summaries of corporate earnings reports with a focus on SaaS metrics."
+                                    </p>
+</div>
+<!-- User Message -->
+<div class="bg-surface-container-lowest p-6 rounded-2xl shadow-sm space-y-3 relative overflow-hidden border-l-4 border-primary">
+<div class="flex items-center gap-2">
+<span class="text-[10px] font-black uppercase text-primary tracking-widest">USER</span>
+</div>
+<p class="text-sm leading-relaxed text-on-surface">
+                                        "Please analyze the provided quarterly report and summarize the key revenue drivers, including specific mentions of new logos and churn reduction initiatives for the APAC region."
+                                    </p>
+</div>
+</div>
+</section>
+<!-- Response Content -->
+<section class="space-y-4">
+<h3 class="text-lg font-bold flex items-center gap-2">
+<span class="material-symbols-outlined text-primary" data-icon="auto_awesome">auto_awesome</span>
+                                Response Content
+                            </h3>
+<div class="bg-surface-container-lowest p-8 rounded-2xl shadow-sm prose prose-slate max-w-none">
+<div class="text-sm leading-7 text-on-surface/80 space-y-4">
+<p class="font-semibold text-on-surface">Summary of Q3 Financial Performance (APAC Focus)</p>
+<p>Based on the analysis of the quarterly data, the APAC region has shown significant resilience and growth despite global macroeconomic headwinds. The primary drivers are as follows:</p>
+<ul class="list-disc list-inside space-y-2 ml-4">
+<li><strong class="text-on-surface">Revenue Growth:</strong> A 14% YoY increase in subscription revenue driven by high-touch enterprise accounts.</li>
+<li><strong class="text-on-surface">New Logos:</strong> Secured 42 new enterprise logos, notably in the FinTech and Retail sectors in Singapore and Australia.</li>
+<li><strong class="text-on-surface">Churn Reduction:</strong> Gross revenue retention improved to 92%, credited to the new automated 'Success Health' workflows launched in August.</li>
+<li><strong class="text-on-surface">Operating Margin:</strong> Maintained a healthy 22% margin due to optimized cloud infrastructure spend.</li>
+</ul>
+<p class="pt-4 border-t border-outline-variant/10 text-xs italic text-on-surface-variant">Analysis complete. No significant downside risks were identified for the upcoming fiscal quarter based on current pipeline visibility.</p>
+</div>
+</div>
+</section>
+</div>
+<!-- Right Column: Technical Details -->
+<div class="lg:col-span-4 space-y-8">
+<!-- Request Parameters -->
+<section class="space-y-4">
+<h3 class="text-sm font-bold uppercase tracking-wider text-on-surface-variant flex items-center gap-2">
+<span class="material-symbols-outlined text-base" data-icon="code">code</span>
+                                Request Parameters
+                            </h3>
+<div class="bg-slate-900 rounded-2xl p-5 font-mono text-[11px] leading-relaxed overflow-hidden">
+<div class="flex justify-between items-center mb-4 text-slate-400">
+<span>JSON Configuration</span>
+<span class="material-symbols-outlined text-sm cursor-pointer hover:text-white" data-icon="content_copy">content_copy</span>
+</div>
+<div class="space-y-1">
+<div><span class="text-indigo-400">"model"</span>: <span class="text-emerald-400">"gpt-4-turbo"</span>,</div>
+<div><span class="text-indigo-400">"temperature"</span>: <span class="text-orange-400">0.7</span>,</div>
+<div><span class="text-indigo-400">"max_tokens"</span>: <span class="text-orange-400">1000</span>,</div>
+<div><span class="text-indigo-400">"top_p"</span>: <span class="text-orange-400">1.0</span>,</div>
+<div><span class="text-indigo-400">"frequency_penalty"</span>: <span class="text-orange-400">0.0</span>,</div>
+<div><span class="text-indigo-400">"presence_penalty"</span>: <span class="text-orange-400">0.0</span>,</div>
+<div><span class="text-indigo-400">"stream"</span>: <span class="text-emerald-400">false</span>,</div>
+<div><span class="text-indigo-400">"stop"</span>: <span class="text-emerald-400">null</span></div>
+</div>
+</div>
+</section>
+<!-- Metadata Table -->
+<section class="space-y-4">
+<h3 class="text-sm font-bold uppercase tracking-wider text-on-surface-variant flex items-center gap-2">
+<span class="material-symbols-outlined text-base" data-icon="info">info</span>
+                                Metadata
+                            </h3>
+<div class="bg-surface-container-low rounded-2xl p-6 space-y-4">
+<div class="flex justify-between items-center pb-3 border-b border-outline-variant/10">
+<span class="text-xs font-medium text-on-surface-variant">Provider</span>
+<span class="text-xs font-bold text-on-surface">OpenAI</span>
+</div>
+<div class="flex justify-between items-center pb-3 border-b border-outline-variant/10">
+<span class="text-xs font-medium text-on-surface-variant">API Version</span>
+<span class="text-xs font-bold text-on-surface">2024-05-13</span>
+</div>
+<div class="flex justify-between items-center pb-3 border-b border-outline-variant/10">
+<span class="text-xs font-medium text-on-surface-variant">IP Address</span>
+<span class="text-xs font-bold text-on-surface">192.168.1.1</span>
+</div>
+<div class="flex justify-between items-center pb-3 border-b border-outline-variant/10">
+<span class="text-xs font-medium text-on-surface-variant">Org ID</span>
+<span class="text-xs font-bold text-on-surface">org_9yXz...</span>
+</div>
+<div class="flex justify-between items-center">
+<span class="text-xs font-medium text-on-surface-variant">Request ID</span>
+<span class="text-xs font-bold text-on-surface">req_f29...</span>
+</div>
+</div>
+</section>
+<!-- Visual Anchor -->
+<div class="h-48 rounded-2xl relative overflow-hidden shadow-2xl">
+<img alt="Abstract Art" class="w-full h-full object-cover" data-alt="Sophisticated abstract 3D render of flowing silk waves in deep violet and indigo tones with soft cinematic lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDTwktl_UMkxatVMbO0vCQOXqMdjAnCm3vXMlKuqerooHX_PJglqnUNSsNg1myxJ1zFPCLYLkxbXUvZpf1Etxhosc5N8T8VxOygW3b1tQjVMN3txeTRrlCglzFFLrtgutuasz8-tJTLBuQUHulkca97Z6JCeB3-EVwfTjvlCBJl5ySNwxwNAhJOdgr5NrcpumIJj4A62u142mtFUesC-PqRW6a7zoW4KL8-rNCZIpjlxwsVRbcADL5PVYE7xfm6KfflL5OMpMETDSU"/>
+<div class="absolute inset-0 bg-gradient-to-t from-primary/60 to-transparent flex flex-col justify-end p-5">
+<p class="text-white text-[10px] font-black uppercase tracking-widest opacity-80 mb-1">Infrastructure Insights</p>
+<p class="text-white text-xs font-medium leading-tight">Optimized routing active for high-priority traces.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Footer Spacing -->
+<footer class="mt-auto p-8 text-center text-on-surface-variant/40 text-[10px] font-medium tracking-widest uppercase">
+                AIGC Gateway • Trace Detail Ledger • Build 2.4.0
+            </footer>
+</main>
+</div>
+</body></html>

@@ -6,18 +6,18 @@ type: project
 
 ## 当前批次
 
-**R1-design-system-foundation** — 设计系统基础对齐 + Dashboard 试点还原
-- Status: `done`（13/13 PASS，0 轮修复，Reviewer 签收通过）
-- 交付物：Button/Input/Card/Dialog/Table 对齐设计系统、Sidebar/TopAppBar Layout 对齐、useAsyncData+SearchBar+Pagination 公共组件、Dashboard 试点还原
+**R2A-user-pages-keys-logs-models** — 用户侧页面还原：Keys + Logs + Models
+- Status: `building`（0/9，8 generator + 1 codex）
+- Spec: `docs/specs/R2A-user-pages-keys-logs-models-spec.md`
+- 设计稿整理完成，新路径 `design-draft/{kebab-case}/code.html`，旧版归档至 `_archive/`
 
 ## UI 重构全局计划
 
-三阶段推进，每阶段完成后用户确认再进下一阶段：
 - **阶段一 R1（已完成）：** 基础组件 + Layout Shell + Dashboard 试点
-- **阶段二（待启动，2-3 批次）：** 用户侧页面 — keys/logs/models → actions 系列 → templates/balance/usage/settings
-- **阶段三（1-2 批次）：** 管理侧 admin/* + login/quickstart/mcp-setup
-
-Action/Template v2 设计稿缺 code.html，开工前需确认是否补稿。
+- **阶段二 R2A（进行中）：** Keys(列表+创建+设置) + Logs(列表+详情) + Models
+- **阶段二 R2B（待启动）：** Balance + Usage + Settings
+- **暂缓：** Keys Insights（需 CallLog schema 加 apiKeyId）、Templates（设计稿与数据模型冲突）、Actions（缺设计稿）
+- **阶段三：** 管理侧 admin/* + login/quickstart/mcp-setup
 
 ## Backlog（1 条）
 
@@ -25,6 +25,5 @@ Action/Template v2 设计稿缺 code.html，开工前需确认是否补稿。
 
 ## 已知遗留
 
-- 白名单重构后需在生产部署并触发 sync，然后在 Admin 白名单页启用所需模型
+- 白名单重构后需在生产部署并触发 sync
 - 同步耗时偏高（~264s）
-- 表单字段建议补充 id/name（浏览器 issue 级别，不影响功能）

@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>AIGC Gateway - Enterprise LLM Gateway</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;family=Inter:wght@300;400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "tertiary-fixed-dim": "#ffb964",
+                      "primary": "#5443b9",
+                      "primary-container": "#6d5dd3",
+                      "secondary-container": "#d0c9fe",
+                      "background": "#faf8ff",
+                      "tertiary-container": "#9d6100",
+                      "primary-fixed": "#e5deff",
+                      "on-error": "#ffffff",
+                      "on-surface": "#131b2e",
+                      "tertiary-fixed": "#ffddba",
+                      "secondary-fixed": "#e5deff",
+                      "outline-variant": "#c9c4d5",
+                      "on-surface-variant": "#474553",
+                      "tertiary": "#7c4b00",
+                      "on-tertiary": "#ffffff",
+                      "inverse-on-surface": "#eef0ff",
+                      "surface-variant": "#dae2fd",
+                      "surface-container-low": "#f2f3ff",
+                      "on-tertiary-container": "#fff0e4",
+                      "surface-container-high": "#e2e7ff",
+                      "surface-container-lowest": "#ffffff",
+                      "on-primary-fixed": "#190064",
+                      "on-error-container": "#93000a",
+                      "surface-container-highest": "#dae2fd",
+                      "on-secondary-fixed-variant": "#47416e",
+                      "on-tertiary-fixed": "#2b1700",
+                      "on-secondary-fixed": "#1b153f",
+                      "on-secondary": "#ffffff",
+                      "error-container": "#ffdad6",
+                      "surface-bright": "#faf8ff",
+                      "on-primary-container": "#f6f1ff",
+                      "outline": "#787584",
+                      "on-secondary-container": "#585280",
+                      "surface": "#faf8ff",
+                      "inverse-primary": "#c8bfff",
+                      "on-background": "#131b2e",
+                      "error": "#ba1a1a",
+                      "secondary": "#5f5987",
+                      "on-tertiary-fixed-variant": "#663e00",
+                      "on-primary-fixed-variant": "#4431a8",
+                      "primary-fixed-dim": "#c8bfff",
+                      "inverse-surface": "#283044",
+                      "secondary-fixed-dim": "#c8c0f5",
+                      "surface-dim": "#d2d9f4",
+                      "on-primary": "#ffffff",
+                      "surface-tint": "#5c4cc1",
+                      "surface-container": "#eaedff"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.125rem",
+                      "lg": "0.25rem",
+                      "xl": "0.5rem",
+                      "full": "0.75rem"
+              },
+              "fontFamily": {
+                      "headline": ["Manrope"],
+                      "body": ["Inter"],
+                      "label": ["Inter"]
+              }
+            },
+          }
+        }
+      </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+        .font-headline { font-family: 'Manrope', sans-serif; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+      </style>
+</head>
+<body class="bg-surface text-on-surface">
+<!-- TopNavBar Implementation -->
+<nav class="bg-slate-50/80 dark:bg-slate-900/80 backdrop-blur-xl border-b border-slate-200/15 dark:border-slate-800/15 font-['Manrope'] tracking-tight flex justify-between items-center w-full px-6 py-3 fixed top-0 sticky z-50">
+<div class="flex items-center gap-8">
+<span class="text-xl font-bold text-[#131b2e] dark:text-slate-100">AIGC Gateway</span>
+<div class="hidden md:flex items-center gap-6">
+<a class="text-slate-500 dark:text-slate-400 font-medium hover:text-[#6d5dd3] transition-colors" href="#">Dashboard</a>
+<a class="text-[#5443b9] dark:text-[#6d5dd3] font-bold border-b-2 border-[#5443b9] pb-1" href="#">Templates</a>
+<a class="text-slate-500 dark:text-slate-400 font-medium hover:text-[#6d5dd3] transition-colors" href="#">Logs</a>
+<a class="text-slate-500 dark:text-slate-400 font-medium hover:text-[#6d5dd3] transition-colors" href="#">Deployments</a>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<div class="bg-surface-container px-3 py-1.5 rounded-xl flex items-center gap-2">
+<span class="material-symbols-outlined text-outline text-lg" data-icon="search">search</span>
+<input class="bg-transparent border-none text-sm focus:ring-0 placeholder-outline-variant" placeholder="Search templates..." type="text"/>
+</div>
+<button class="text-slate-500 hover:text-[#6d5dd3] transition-all active:opacity-80 scale-95"><span class="material-symbols-outlined" data-icon="notifications">notifications</span></button>
+<button class="text-slate-500 hover:text-[#6d5dd3] transition-all active:opacity-80 scale-95"><span class="material-symbols-outlined" data-icon="settings">settings</span></button>
+<div class="h-8 w-8 rounded-full overflow-hidden bg-primary/10 border border-primary/20">
+<img alt="User Profile Avatar" class="w-full h-full object-cover" data-alt="professional headshot of a software engineer in a modern workspace with soft daylight" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDLUwBM_9gcp6SH0ij6dn6JTe4BqJ4I_13eE26YChKg1dgUb2EZRI5YfEB5W1D8v0nGSf37uP5S9vI_3Kg9CkmZGX1gIxmkPTUpdjzr4gMzPnRxKmrs9_VyiDRTqWpOR1Ur9QX00fa68CKdf7kHB1j0856rJg9qhftD4H-xAjYg73FekC4hAE9ktcSm_vb8fRWzVmpZDSMVIGeMIznIel3Oj0nariQzPeWpMp2QxJmzd_z11xacH9DTtLlBdqa0UCkxfcPo-EeiPd5G"/>
+</div>
+</div>
+</nav>
+<div class="flex min-h-[calc(100vh-64px)]">
+<!-- SideNavBar Implementation -->
+<aside class="hidden lg:flex flex-col h-screen w-64 fixed left-0 top-[64px] bg-slate-100 dark:bg-slate-950 font-['Manrope'] text-sm font-semibold py-6 tonal-layering-no-borders z-40">
+<div class="px-6 mb-8">
+<div class="flex items-center gap-3 mb-2">
+<div class="w-10 h-10 rounded-xl bg-[#5443b9]/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-[#5443b9]" data-icon="edit_note">edit_note</span>
+</div>
+<div>
+<div class="text-lg font-black text-[#5443b9]">Prompt Studio</div>
+<div class="text-[10px] text-slate-500 font-medium">v2.4.0</div>
+</div>
+</div>
+<button class="w-full mt-4 bg-[#5443b9] text-white py-2.5 rounded-xl flex items-center justify-center gap-2 transition-all duration-200 ease-in-out hover:opacity-90">
+<span class="material-symbols-outlined text-sm" data-icon="add">add</span>
+                    New Template
+                </button>
+</div>
+<nav class="flex-1">
+<a class="text-slate-600 dark:text-slate-400 flex items-center gap-3 px-6 py-3 hover:bg-slate-200/50 dark:hover:bg-slate-800/50 transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+                    Overview
+                </a>
+<a class="bg-slate-200 dark:bg-slate-800 text-[#5443b9] border-l-4 border-[#5443b9] flex items-center gap-3 px-6 py-3 transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="edit_note">edit_note</span>
+                    Prompt Editor
+                </a>
+<a class="text-slate-600 dark:text-slate-400 flex items-center gap-3 px-6 py-3 hover:bg-slate-200/50 dark:hover:bg-slate-800/50 transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="variable">variables</span>
+                    Variables
+                </a>
+<a class="text-slate-600 dark:text-slate-400 flex items-center gap-3 px-6 py-3 hover:bg-slate-200/50 dark:hover:bg-slate-800/50 transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="history">history</span>
+                    History
+                </a>
+<a class="text-slate-600 dark:text-slate-400 flex items-center gap-3 px-6 py-3 hover:bg-slate-200/50 dark:hover:bg-slate-800/50 transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="tune">tune</span>
+                    Settings
+                </a>
+</nav>
+<div class="px-6 py-4 border-t border-slate-200/20">
+<a class="text-slate-600 dark:text-slate-400 flex items-center gap-3 py-3 hover:bg-slate-200/50 transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="help">help</span>
+                    Help Center
+                </a>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="flex-1 lg:ml-64 p-8 bg-surface">
+<!-- Header Section -->
+<section class="mb-10 animate-fade-in">
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-6">
+<div class="max-w-3xl">
+<div class="flex items-center gap-3 mb-4">
+<span class="bg-secondary-container text-on-secondary-container px-3 py-1 rounded-full text-xs font-bold font-headline tracking-wider uppercase">Infrastructure</span>
+<span class="text-outline text-xs font-medium">Created Oct 12, 2023</span>
+</div>
+<h1 class="text-4xl font-extrabold font-headline text-on-surface tracking-tight mb-3">Enterprise LLM Gateway</h1>
+<p class="text-on-surface-variant text-lg leading-relaxed">Advanced routing logic for multi-modal model ensembles with built-in PII filtering. Optimizes cost and performance dynamically based on input complexity.</p>
+<div class="flex items-center gap-6 mt-6">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary" data-icon="verified">verified</span>
+<span class="font-headline font-bold text-sm">v4.2.0-stable</span>
+</div>
+<div class="h-4 w-px bg-outline-variant/30"></div>
+<div class="flex items-center gap-2 text-outline">
+<span class="material-symbols-outlined text-sm" data-icon="account_tree">account_tree</span>
+<span class="text-sm">Main Branch</span>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-3">
+<button class="px-6 py-2.5 border border-outline-variant text-primary font-bold rounded-xl hover:bg-primary/5 transition-all">Edit Template</button>
+<button class="px-6 py-2.5 bg-gradient-to-r from-primary to-primary-container text-white font-bold rounded-xl shadow-lg shadow-primary/20 hover:opacity-90 transition-all">Deploy Template</button>
+</div>
+</div>
+</section>
+<!-- Grid Layout -->
+<div class="grid grid-cols-1 xl:grid-cols-12 gap-8">
+<!-- Prompt Content Section (Bento Style) -->
+<div class="xl:col-span-8 space-y-8">
+<div class="bg-surface-container-lowest rounded-xl p-6 shadow-sm">
+<div class="flex items-center justify-between mb-6">
+<h2 class="font-headline text-xl font-bold flex items-center gap-2">
+<span class="material-symbols-outlined text-primary" data-icon="chat_bubble">chat_bubble</span>
+                                Prompt Content
+                            </h2>
+<div class="flex gap-2">
+<span class="text-[10px] font-bold bg-surface-container text-on-surface-variant px-2 py-1 rounded uppercase tracking-tighter">Messages: 2</span>
+</div>
+</div>
+<div class="space-y-6">
+<!-- System Message -->
+<div class="group">
+<div class="flex items-center gap-3 mb-2 px-2">
+<div class="w-2 h-2 rounded-full bg-primary"></div>
+<span class="text-xs font-black font-headline uppercase tracking-widest text-primary">System</span>
+</div>
+<div class="bg-surface-container-low rounded-xl p-5 border-l-4 border-primary/20 transition-all hover:bg-surface-container-high/50">
+<p class="font-body text-sm leading-relaxed text-on-surface">
+                                        You are a highly efficient customer support agent specializing in <span class="bg-secondary-container/40 text-primary-container px-1.5 py-0.5 rounded font-mono font-bold">{{product_category}}</span>. Your primary goal is to resolve issues while maintaining a tone that is <span class="bg-secondary-container/40 text-primary-container px-1.5 py-0.5 rounded font-mono font-bold">{{tone}}</span>. Ensure all PII data is treated with enterprise-grade security protocols.
+                                    </p>
+</div>
+</div>
+<!-- User Message -->
+<div class="group">
+<div class="flex items-center gap-3 mb-2 px-2">
+<div class="w-2 h-2 rounded-full bg-secondary"></div>
+<span class="text-xs font-black font-headline uppercase tracking-widest text-secondary">User</span>
+</div>
+<div class="bg-surface-container-low rounded-xl p-5 border-l-4 border-secondary/20 transition-all hover:bg-surface-container-high/50">
+<p class="font-body text-sm leading-relaxed text-on-surface">
+                                        I have a question about my <span class="bg-secondary-container/40 text-primary-container px-1.5 py-0.5 rounded font-mono font-bold">{{order_id}}</span>. It seems to be delayed in the <span class="bg-secondary-container/40 text-primary-container px-1.5 py-0.5 rounded font-mono font-bold">{{product_category}}</span> department. Can you provide an update on when I should expect delivery?
+                                    </p>
+</div>
+</div>
+</div>
+</div>
+<!-- Example Outputs Section -->
+<div class="space-y-4">
+<h2 class="font-headline text-xl font-bold flex items-center gap-2 px-1">
+<span class="material-symbols-outlined text-primary" data-icon="analytics">analytics</span>
+                            Example Outputs
+                        </h2>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<!-- Card 1 -->
+<div class="bg-surface-container-lowest p-5 rounded-xl border border-outline-variant/10 hover:shadow-md transition-all">
+<div class="flex justify-between items-start mb-4">
+<h3 class="font-headline font-bold text-on-surface">Professional &amp; Helpful</h3>
+<span class="text-[10px] bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full font-bold">Latency: 142ms</span>
+</div>
+<p class="text-sm text-on-surface-variant font-body line-clamp-3">"Thank you for reaching out regarding order #XJ992. I've reviewed your shipment in the Logistics department and can confirm it is scheduled for..."</p>
+<div class="mt-4 pt-4 border-t border-outline-variant/5 flex items-center justify-between text-[10px] text-outline font-bold">
+<span>Model: GPT-4o</span>
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[12px]" data-icon="thumb_up" style="font-variation-settings: 'FILL' 1;">thumb_up</span> 98% Rating</span>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="bg-surface-container-lowest p-5 rounded-xl border border-outline-variant/10 hover:shadow-md transition-all">
+<div class="flex justify-between items-start mb-4">
+<h3 class="font-headline font-bold text-on-surface">Concise &amp; Fast</h3>
+<span class="text-[10px] bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full font-bold">Latency: 89ms</span>
+</div>
+<p class="text-sm text-on-surface-variant font-body line-clamp-3">"Order #XJ992 is currently in transit. Expected arrival is Wednesday by 5 PM. Is there anything else I can assist you with today?"</p>
+<div class="mt-4 pt-4 border-t border-outline-variant/5 flex items-center justify-between text-[10px] text-outline font-bold">
+<span>Model: Claude-3-Haiku</span>
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[12px]" data-icon="thumb_up" style="font-variation-settings: 'FILL' 1;">thumb_up</span> 94% Rating</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Parameters Section (Sidebar style) -->
+<div class="xl:col-span-4 space-y-8">
+<div class="bg-surface-container-low rounded-xl p-6 h-fit">
+<h2 class="font-headline text-xl font-bold mb-6 flex items-center gap-2">
+<span class="material-symbols-outlined text-primary" data-icon="settings_input_component">settings_input_component</span>
+                            Parameters
+                        </h2>
+<div class="space-y-4">
+<!-- Param 1 -->
+<div class="bg-surface-container-lowest p-4 rounded-lg">
+<div class="flex items-center justify-between mb-2">
+<code class="text-primary-container font-bold text-sm">{{product_category}}</code>
+<span class="text-[10px] bg-red-100 text-red-700 px-2 py-0.5 rounded font-black uppercase">Required</span>
+</div>
+<div class="flex items-center gap-2 text-xs text-outline font-medium">
+<span class="material-symbols-outlined text-sm" data-icon="abc">abc</span>
+                                    Type: String
+                                </div>
+</div>
+<!-- Param 2 -->
+<div class="bg-surface-container-lowest p-4 rounded-lg">
+<div class="flex items-center justify-between mb-2">
+<code class="text-primary-container font-bold text-sm">{{order_id}}</code>
+<span class="text-[10px] bg-red-100 text-red-700 px-2 py-0.5 rounded font-black uppercase">Required</span>
+</div>
+<div class="flex items-center gap-2 text-xs text-outline font-medium">
+<span class="material-symbols-outlined text-sm" data-icon="fingerprint">fingerprint</span>
+                                    Type: ID
+                                </div>
+</div>
+<!-- Param 3 -->
+<div class="bg-surface-container-lowest p-4 rounded-lg">
+<div class="flex items-center justify-between mb-2">
+<code class="text-primary-container font-bold text-sm">{{tone}}</code>
+<span class="text-[10px] bg-slate-200 text-slate-700 px-2 py-0.5 rounded font-black uppercase">Optional</span>
+</div>
+<div class="flex items-center gap-2 text-xs text-outline font-medium">
+<span class="material-symbols-outlined text-sm" data-icon="list">list</span>
+                                    Type: Enum [Formal, Casual, Urgent]
+                                </div>
+</div>
+</div>
+<div class="mt-8 pt-6 border-t border-outline-variant/20">
+<h3 class="text-xs font-black font-headline uppercase tracking-widest text-outline mb-4">Quick Stats</h3>
+<div class="grid grid-cols-2 gap-4">
+<div>
+<div class="text-2xl font-extrabold font-headline text-on-surface">2.4k</div>
+<div class="text-[10px] text-outline font-bold uppercase">Calls / Day</div>
+</div>
+<div>
+<div class="text-2xl font-extrabold font-headline text-on-surface">99.8%</div>
+<div class="text-[10px] text-outline font-bold uppercase">Success Rate</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Decorative/Visual Sidebar Card -->
+<div class="relative overflow-hidden rounded-xl h-48 bg-primary">
+<img alt="Technical Visualization" class="absolute inset-0 w-full h-full object-cover mix-blend-overlay opacity-50" data-alt="abstract digital visualization of data nodes connecting in a neural network pattern with purple and blue light" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB8t8JqgkSX56DquzYKZ_pEXckIeF7WoaqtptEwqC-ydtU3nlxwo4eF4j-IkkqlDi4mLUssiLIVukITtPXr0B_b7OF-imxp8-bHcUOUSCLTh4pLrFRFrKlQghHRrBLoTN9ljcOSo8WH_CqTkZbfr6OXHzMf3fYInAtLGDX5SmjeFTsPe3BC86klUJPkxZwLyqIMDCrisKhCdrsCXJEoeJTvLd7-tJ9MYz0iGLZ-ePtgO-DzPvT3LnQ_Ki6pbRzlBKVMd3Bzbw6kASQ6"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent p-6 flex flex-col justify-end">
+<h4 class="text-white font-headline font-bold text-lg">New Models Available</h4>
+<p class="text-white/80 text-xs font-body">Llama 3.1 and GPT-4o mini are now ready for testing in this template.</p>
+<button class="mt-4 text-xs font-bold text-white bg-white/20 backdrop-blur-md px-4 py-2 rounded-lg self-start hover:bg-white/30 transition-all">Explore Models</button>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+<!-- Mobile Navigation (BottomNavBar) -->
+<nav class="md:hidden fixed bottom-0 left-0 right-0 bg-slate-50/95 backdrop-blur-xl border-t border-slate-200/15 flex justify-around items-center py-3 z-50">
+<button class="flex flex-col items-center gap-1 text-slate-500">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="text-[10px] font-bold">Home</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-[#5443b9]">
+<span class="material-symbols-outlined" data-icon="edit_note" style="font-variation-settings: 'FILL' 1;">edit_note</span>
+<span class="text-[10px] font-bold">Templates</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-slate-500">
+<span class="material-symbols-outlined" data-icon="history">history</span>
+<span class="text-[10px] font-bold">Logs</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-slate-500">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+<span class="text-[10px] font-bold">Account</span>
+</button>
+</nav>
+</body></html>

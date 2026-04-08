@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>User Detail - AIGC Gateway</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;family=Inter:wght@300;400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "surface-container-highest": "#dae2fd",
+              "background": "#faf8ff",
+              "secondary-container": "#d0c9fe",
+              "on-tertiary-fixed": "#2b1700",
+              "on-primary-fixed": "#190064",
+              "on-tertiary-fixed-variant": "#663e00",
+              "primary-container": "#6d5dd3",
+              "surface-bright": "#faf8ff",
+              "surface-container-high": "#e2e7ff",
+              "on-tertiary-container": "#fff0e4",
+              "on-tertiary": "#ffffff",
+              "tertiary-container": "#9d6100",
+              "tertiary-fixed": "#ffddba",
+              "primary-fixed": "#e5deff",
+              "on-primary": "#ffffff",
+              "tertiary-fixed-dim": "#ffb964",
+              "surface-container-lowest": "#ffffff",
+              "tertiary": "#7c4b00",
+              "surface": "#faf8ff",
+              "inverse-primary": "#c8bfff",
+              "on-primary-fixed-variant": "#4431a8",
+              "surface-variant": "#dae2fd",
+              "surface-dim": "#d2d9f4",
+              "outline": "#787584",
+              "secondary-fixed-dim": "#c8c0f5",
+              "on-secondary": "#ffffff",
+              "on-error": "#ffffff",
+              "on-secondary-fixed-variant": "#47416e",
+              "on-primary-container": "#f6f1ff",
+              "secondary-fixed": "#e5deff",
+              "outline-variant": "#c9c4d5",
+              "primary-fixed-dim": "#c8bfff",
+              "on-surface": "#131b2e",
+              "secondary": "#5f5987",
+              "inverse-on-surface": "#eef0ff",
+              "on-background": "#131b2e",
+              "surface-container": "#eaedff",
+              "on-secondary-container": "#585280",
+              "on-error-container": "#93000a",
+              "surface-container-low": "#f2f3ff",
+              "on-secondary-fixed": "#1b153f",
+              "error-container": "#ffdad6",
+              "surface-tint": "#5c4cc1",
+              "error": "#ba1a1a",
+              "primary": "#5443b9",
+              "on-surface-variant": "#474553",
+              "inverse-surface": "#283044"
+            },
+            fontFamily: {
+              "headline": ["Manrope", "sans-serif"],
+              "body": ["Inter", "sans-serif"],
+              "label": ["Inter", "sans-serif"]
+            },
+            borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+          },
+        },
+      }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+        .font-headline { font-family: 'Manrope', sans-serif; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+    </style>
+</head>
+<body class="bg-surface text-on-surface antialiased">
+<!-- Sidebar Overlay for Mobile -->
+<div class="fixed left-0 top-0 h-full w-64 bg-[#f2f3ff] z-50 hidden md:flex flex-col gap-2 p-4 shadow-none border-none">
+<div class="flex items-center gap-3 mb-8 px-2">
+<div class="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-primary-container flex items-center justify-center text-white">
+<span class="material-symbols-outlined" data-icon="cloud_done">cloud_done</span>
+</div>
+<div>
+<h1 class="font-headline text-lg font-bold text-[#5443b9]">AIGC Gateway</h1>
+<p class="font-label text-[10px] uppercase tracking-wider text-slate-500">Algorithmic Atelier</p>
+</div>
+</div>
+<nav class="flex flex-col gap-1 flex-1">
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 hover:bg-slate-100 transition-all rounded-lg" href="#">
+<span class="material-symbols-outlined text-xl" data-icon="dashboard">dashboard</span>
+<span class="font-label text-sm uppercase tracking-widest">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 bg-white text-[#5443b9] border-l-4 border-[#5443b9] rounded-r-lg shadow-sm" href="#">
+<span class="material-symbols-outlined text-xl" data-icon="person">person</span>
+<span class="font-label text-sm uppercase tracking-widest font-bold">Users</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 hover:bg-slate-100 transition-all rounded-lg" href="#">
+<span class="material-symbols-outlined text-xl" data-icon="Model_Training">model_training</span>
+<span class="font-label text-sm uppercase tracking-widest">Models</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 hover:bg-slate-100 transition-all rounded-lg" href="#">
+<span class="material-symbols-outlined text-xl" data-icon="vpn_key">vpn_key</span>
+<span class="font-label text-sm uppercase tracking-widest">API Keys</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 hover:bg-slate-100 transition-all rounded-lg" href="#">
+<span class="material-symbols-outlined text-xl" data-icon="bar_chart">bar_chart</span>
+<span class="font-label text-sm uppercase tracking-widest">Usage</span>
+</a>
+</nav>
+<div class="mt-auto pt-4 border-t border-slate-200/50">
+<a class="flex items-center gap-3 px-4 py-2 text-slate-500 hover:text-[#5443b9] transition-all" href="#">
+<span class="material-symbols-outlined text-xl" data-icon="description">description</span>
+<span class="font-label text-xs uppercase tracking-widest">Documentation</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-2 text-slate-500 hover:text-[#5443b9] transition-all" href="#">
+<span class="material-symbols-outlined text-xl" data-icon="help">help</span>
+<span class="font-label text-xs uppercase tracking-widest">Support</span>
+</a>
+</div>
+</div>
+<!-- Main Content Canvas -->
+<main class="md:ml-64 min-h-screen">
+<!-- Top Bar -->
+<header class="sticky top-0 z-30 bg-slate-50/80 backdrop-blur-md flex justify-between items-center px-8 py-4 w-full">
+<div class="flex items-center gap-4">
+<button class="md:hidden p-2 text-slate-600">
+<span class="material-symbols-outlined">menu</span>
+</button>
+<div class="flex items-center gap-2">
+<span class="text-slate-400 font-label text-sm">Users</span>
+<span class="material-symbols-outlined text-xs text-slate-400">chevron_right</span>
+<span class="text-on-surface font-semibold font-headline tracking-tight">Detail: Julianna Arquette</span>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<div class="flex items-center gap-2">
+<button class="p-2 text-slate-600 hover:bg-slate-200 rounded-full transition-colors">
+<span class="material-symbols-outlined" data-icon="language">language</span>
+</button>
+<button class="p-2 text-slate-600 hover:bg-slate-200 rounded-full transition-colors">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<button class="p-2 text-slate-600 hover:bg-slate-200 rounded-full transition-colors">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+</button>
+</div>
+<div class="h-8 w-8 rounded-full overflow-hidden border-2 border-primary/20">
+<img alt="Profile" data-alt="close-up portrait of a professional woman with a clean minimalist background, soft studio lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAEQVvrKFszN09H3eZPBoEOwgdqGu9kGsSshc7-oYU5nel2pFhpOSd5DeMoSiOgvbhvtgUuZ2YsuNDXkQTVlfQ_ipG2usvYmTssZEBN7cgPPsc6QXvhm81IlLC1FDl_xUM5UlRMmyB6H3OTLM6umJzmXFEKapRDzD2xRXgkzlvI9Ag7_abS4Cp9IxwAcpdUpIUXOR9CgzfDdds1UIZLpjIp0uAje46REECD2Rbu13uoCbMwg3WbJATyy2heiecyBT11KL79Ft4KpIM"/>
+</div>
+</div>
+</header>
+<div class="px-8 py-8 flex flex-col gap-8">
+<!-- User Hero Bento Grid -->
+<section class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+<!-- Profile Identity Card -->
+<div class="lg:col-span-4 bg-surface-container-lowest p-8 rounded-xl shadow-sm relative overflow-hidden group">
+<div class="absolute top-0 right-0 p-4">
+<span class="bg-secondary-container text-on-secondary-container px-3 py-1 rounded-full text-[10px] font-bold tracking-widest uppercase">Premium</span>
+</div>
+<div class="flex flex-col items-center text-center">
+<div class="relative mb-6">
+<div class="w-24 h-24 rounded-2xl overflow-hidden shadow-xl ring-4 ring-primary-fixed">
+<img alt="User Avatar" class="w-full h-full object-cover" data-alt="profile avatar of a young creative professional with modern digital art style" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBVm9xNBe3d9oFzN_gDyryTxdL9Ha7pbbLEKs-hScjE-BoZyG81eOR9v-ZAougm4kIrPkaPOzDk4r33Z0gx0oHbHG5GRWimMmG7XZuxTvqw-O6aQEAlYz-npueYxWYPLmq7renTEECP1drdm030prozFS72TQSeJp2L0Ipmh2cnWhS7blCf0LtsO9_vepG-q8ELEqsvy0xyVDdZNdnMZxLhJvwt7T5vIqgWUkRKPpQflpKrkvieIEDIaDqyHbKIcVH7hI9HFb-K33c"/>
+</div>
+<div class="absolute -bottom-2 -right-2 bg-white p-1.5 rounded-lg shadow-lg">
+<span class="material-symbols-outlined text-green-500" style="font-variation-settings: 'FILL' 1;">verified</span>
+</div>
+</div>
+<h2 class="font-headline text-2xl font-extrabold tracking-tight text-on-surface mb-1">Julianna Arquette</h2>
+<p class="text-slate-500 font-label text-sm mb-6">j.arquette@atelier-labs.io</p>
+<div class="grid grid-cols-2 w-full gap-4 pt-6 border-t border-slate-50">
+<div>
+<p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Joined</p>
+<p class="text-sm font-semibold text-on-surface">Oct 12, 2023</p>
+</div>
+<div>
+<p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Last Active</p>
+<p class="text-sm font-semibold text-on-surface">2 mins ago</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Usage Summary Stats -->
+<div class="lg:col-span-8 grid grid-cols-1 md:grid-cols-3 gap-6">
+<div class="bg-surface-container-low p-6 rounded-xl flex flex-col justify-between">
+<div class="flex justify-between items-start">
+<div class="p-3 bg-white rounded-lg text-primary">
+<span class="material-symbols-outlined" data-icon="account_balance_wallet">account_balance_wallet</span>
+</div>
+<span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Balance</span>
+</div>
+<div>
+<p class="text-3xl font-headline font-extrabold text-on-surface mb-1">$2,450.00</p>
+<div class="flex items-center gap-1 text-green-600 text-xs font-bold">
+<span class="material-symbols-outlined text-sm">trending_up</span>
+<span>+12% vs last month</span>
+</div>
+</div>
+</div>
+<div class="bg-surface-container-low p-6 rounded-xl flex flex-col justify-between">
+<div class="flex justify-between items-start">
+<div class="p-3 bg-white rounded-lg text-secondary">
+<span class="material-symbols-outlined" data-icon="bolt">bolt</span>
+</div>
+<span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">API Calls</span>
+</div>
+<div>
+<p class="text-3xl font-headline font-extrabold text-on-surface mb-1">142.8k</p>
+<p class="text-slate-500 text-xs">92% success rate</p>
+</div>
+</div>
+<div class="bg-surface-container-low p-6 rounded-xl flex flex-col justify-between">
+<div class="flex justify-between items-start">
+<div class="p-3 bg-white rounded-lg text-tertiary">
+<span class="material-symbols-outlined" data-icon="folder_managed">folder_managed</span>
+</div>
+<span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Projects</span>
+</div>
+<div>
+<p class="text-3xl font-headline font-extrabold text-on-surface mb-1">08</p>
+<p class="text-slate-500 text-xs">03 active production</p>
+</div>
+</div>
+<!-- Usage Chart Area (Simulation) -->
+<div class="md:col-span-3 bg-white p-6 rounded-xl shadow-sm">
+<div class="flex justify-between items-center mb-6">
+<h3 class="font-headline font-bold text-on-surface">Compute Usage Trend</h3>
+<div class="flex gap-2">
+<span class="px-3 py-1 bg-surface-container-low text-[10px] font-bold rounded-lg cursor-pointer hover:bg-surface-container-high transition-colors">7D</span>
+<span class="px-3 py-1 bg-primary text-white text-[10px] font-bold rounded-lg cursor-pointer">30D</span>
+</div>
+</div>
+<div class="h-32 w-full flex items-end gap-2 px-2">
+<!-- Mock Bar Chart -->
+<div class="flex-1 bg-slate-100 rounded-t-sm h-[40%] hover:bg-primary/20 transition-all"></div>
+<div class="flex-1 bg-slate-100 rounded-t-sm h-[60%] hover:bg-primary/20 transition-all"></div>
+<div class="flex-1 bg-slate-100 rounded-t-sm h-[55%] hover:bg-primary/20 transition-all"></div>
+<div class="flex-1 bg-slate-100 rounded-t-sm h-[70%] hover:bg-primary/20 transition-all"></div>
+<div class="flex-1 bg-slate-100 rounded-t-sm h-[85%] hover:bg-primary/20 transition-all"></div>
+<div class="flex-1 bg-primary rounded-t-sm h-[95%]"></div>
+<div class="flex-1 bg-slate-100 rounded-t-sm h-[75%] hover:bg-primary/20 transition-all"></div>
+<div class="flex-1 bg-slate-100 rounded-t-sm h-[65%] hover:bg-primary/20 transition-all"></div>
+<div class="flex-1 bg-slate-100 rounded-t-sm h-[50%] hover:bg-primary/20 transition-all"></div>
+<div class="flex-1 bg-slate-100 rounded-t-sm h-[40%] hover:bg-primary/20 transition-all"></div>
+<div class="flex-1 bg-slate-100 rounded-t-sm h-[55%] hover:bg-primary/20 transition-all"></div>
+<div class="flex-1 bg-slate-100 rounded-t-sm h-[60%] hover:bg-primary/20 transition-all"></div>
+</div>
+<div class="flex justify-between mt-2 px-1">
+<span class="text-[9px] font-bold text-slate-400 uppercase">Oct 1</span>
+<span class="text-[9px] font-bold text-slate-400 uppercase">Oct 15</span>
+<span class="text-[9px] font-bold text-slate-400 uppercase">Oct 30</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Bottom Content: Projects and Transaction History -->
+<section class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+<!-- Project List -->
+<div class="lg:col-span-7 flex flex-col gap-4">
+<div class="flex justify-between items-center">
+<h3 class="font-headline text-lg font-bold text-on-surface">Registered Projects</h3>
+<button class="text-primary text-xs font-bold uppercase tracking-widest hover:underline">View All</button>
+</div>
+<div class="flex flex-col gap-3">
+<!-- Project Card 1 -->
+<div class="bg-white p-4 rounded-xl flex items-center gap-4 group hover:bg-surface-container-low transition-colors cursor-pointer">
+<div class="w-12 h-12 rounded-lg bg-indigo-50 flex items-center justify-center text-indigo-600 group-hover:bg-white transition-colors">
+<span class="material-symbols-outlined" data-icon="rocket_launch">rocket_launch</span>
+</div>
+<div class="flex-1">
+<h4 class="text-sm font-bold text-on-surface">Nexus-Prime-Gen</h4>
+<p class="text-xs text-slate-500">Last used: 4 hours ago • GPT-4 Turbo</p>
+</div>
+<div class="flex flex-col items-end">
+<span class="text-xs font-bold text-on-surface">$124.50</span>
+<span class="text-[9px] uppercase tracking-tighter text-slate-400">Total Spend</span>
+</div>
+<span class="material-symbols-outlined text-slate-300 group-hover:text-primary transition-colors">chevron_right</span>
+</div>
+<!-- Project Card 2 -->
+<div class="bg-white p-4 rounded-xl flex items-center gap-4 group hover:bg-surface-container-low transition-colors cursor-pointer">
+<div class="w-12 h-12 rounded-lg bg-emerald-50 flex items-center justify-center text-emerald-600 group-hover:bg-white transition-colors">
+<span class="material-symbols-outlined" data-icon="auto_awesome">auto_awesome</span>
+</div>
+<div class="flex-1">
+<h4 class="text-sm font-bold text-on-surface">Creative-Canvas-API</h4>
+<p class="text-xs text-slate-500">Last used: 1 day ago • Stable Diffusion XL</p>
+</div>
+<div class="flex flex-col items-end">
+<span class="text-xs font-bold text-on-surface">$89.12</span>
+<span class="text-[9px] uppercase tracking-tighter text-slate-400">Total Spend</span>
+</div>
+<span class="material-symbols-outlined text-slate-300 group-hover:text-primary transition-colors">chevron_right</span>
+</div>
+<!-- Project Card 3 -->
+<div class="bg-white p-4 rounded-xl flex items-center gap-4 group hover:bg-surface-container-low transition-colors cursor-pointer opacity-80">
+<div class="w-12 h-12 rounded-lg bg-slate-100 flex items-center justify-center text-slate-600 group-hover:bg-white transition-colors">
+<span class="material-symbols-outlined" data-icon="folder">folder</span>
+</div>
+<div class="flex-1">
+<h4 class="text-sm font-bold text-on-surface">Legacy-Data-Bot</h4>
+<p class="text-xs text-slate-500">Archived • Claude 2.1</p>
+</div>
+<div class="flex flex-col items-end">
+<span class="text-xs font-bold text-on-surface">$455.00</span>
+<span class="text-[9px] uppercase tracking-tighter text-slate-400">Total Spend</span>
+</div>
+<span class="material-symbols-outlined text-slate-300 group-hover:text-primary transition-colors">chevron_right</span>
+</div>
+</div>
+</div>
+<!-- Balance History -->
+<div class="lg:col-span-5 flex flex-col gap-4">
+<h3 class="font-headline text-lg font-bold text-on-surface">Balance History</h3>
+<div class="bg-white rounded-xl overflow-hidden">
+<table class="w-full text-left border-collapse">
+<thead class="bg-surface-container-low">
+<tr>
+<th class="px-4 py-3 font-label text-[10px] font-bold uppercase tracking-widest text-slate-500">Date</th>
+<th class="px-4 py-3 font-label text-[10px] font-bold uppercase tracking-widest text-slate-500">Type</th>
+<th class="px-4 py-3 font-label text-[10px] font-bold uppercase tracking-widest text-slate-500 text-right">Amount</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-slate-50">
+<tr class="hover:bg-slate-50/50 transition-colors">
+<td class="px-4 py-4 text-xs font-medium text-slate-600">Oct 28, 2023</td>
+<td class="px-4 py-4">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-green-500"></span>
+<span class="text-xs font-bold text-on-surface">Auto-Refill</span>
+</div>
+</td>
+<td class="px-4 py-4 text-xs font-extrabold text-green-600 text-right">+$500.00</td>
+</tr>
+<tr class="hover:bg-slate-50/50 transition-colors">
+<td class="px-4 py-4 text-xs font-medium text-slate-600">Oct 25, 2023</td>
+<td class="px-4 py-4">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-slate-300"></span>
+<span class="text-xs font-bold text-on-surface">Monthly Fee</span>
+</div>
+</td>
+<td class="px-4 py-4 text-xs font-extrabold text-on-surface text-right">-$29.00</td>
+</tr>
+<tr class="hover:bg-slate-50/50 transition-colors">
+<td class="px-4 py-4 text-xs font-medium text-slate-600">Oct 20, 2023</td>
+<td class="px-4 py-4">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-amber-500"></span>
+<span class="text-xs font-bold text-on-surface">API Usage</span>
+</div>
+</td>
+<td class="px-4 py-4 text-xs font-extrabold text-on-surface text-right">-$142.50</td>
+</tr>
+<tr class="hover:bg-slate-50/50 transition-colors">
+<td class="px-4 py-4 text-xs font-medium text-slate-600">Oct 01, 2023</td>
+<td class="px-4 py-4">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-green-500"></span>
+<span class="text-xs font-bold text-on-surface">Deposit</span>
+</div>
+</td>
+<td class="px-4 py-4 text-xs font-extrabold text-green-600 text-right">+$1,000.00</td>
+</tr>
+</tbody>
+</table>
+<div class="p-4 bg-slate-50 flex justify-center">
+<button class="text-primary font-bold text-[10px] uppercase tracking-widest flex items-center gap-1 hover:gap-2 transition-all">
+                                View Full Transaction Log
+                                <span class="material-symbols-outlined text-xs">arrow_forward</span>
+</button>
+</div>
+</div>
+</div>
+</section>
+</div>
+<!-- Footer / Danger Zone -->
+<footer class="px-8 py-12 mb-12">
+<div class="bg-error-container/20 border border-error/10 rounded-2xl p-8 flex flex-col md:flex-row justify-between items-center gap-6">
+<div>
+<h4 class="font-headline font-bold text-error text-lg mb-1">Administrative Controls</h4>
+<p class="text-slate-500 text-sm">Suspension or deletion will immediately revoke all active API tokens for this user.</p>
+</div>
+<div class="flex gap-4">
+<button class="px-6 py-2 bg-white border border-slate-200 rounded-lg text-slate-600 font-bold text-xs uppercase tracking-widest hover:bg-slate-50 transition-colors">
+                        Suspend Account
+                    </button>
+<button class="px-6 py-2 bg-error text-white rounded-lg font-bold text-xs uppercase tracking-widest hover:opacity-90 transition-opacity">
+                        Delete Profile
+                    </button>
+</div>
+</div>
+</footer>
+</main>
+<!-- FAB Only for Dashboard/Home equivalent, but requested shell logic - keeping context -->
+<div class="fixed bottom-8 right-8 hidden">
+<button class="w-14 h-14 bg-gradient-to-tr from-primary to-primary-container text-white rounded-full shadow-2xl flex items-center justify-center hover:scale-105 active:scale-95 transition-all">
+<span class="material-symbols-outlined" style="font-variation-settings: 'wght' 600;">add</span>
+</button>
+</div>
+</body></html>

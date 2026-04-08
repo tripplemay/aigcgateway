@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>AIGC Gateway - Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "on-primary-fixed-variant": "#4431a8",
+                        "surface-container-high": "#e2e7ff",
+                        "on-primary-container": "#f6f1ff",
+                        "background": "#faf8ff",
+                        "on-tertiary": "#ffffff",
+                        "tertiary-fixed": "#ffddba",
+                        "primary-fixed-dim": "#c8bfff",
+                        "surface-bright": "#faf8ff",
+                        "inverse-on-surface": "#eef0ff",
+                        "on-background": "#131b2e",
+                        "tertiary-container": "#9d6100",
+                        "on-secondary-fixed-variant": "#47416e",
+                        "outline-variant": "#c9c4d5",
+                        "primary-container": "#6d5dd3",
+                        "on-error-container": "#93000a",
+                        "inverse-surface": "#283044",
+                        "tertiary-fixed-dim": "#ffb964",
+                        "primary-fixed": "#e5deff",
+                        "on-tertiary-fixed": "#2b1700",
+                        "tertiary": "#7c4b00",
+                        "surface-container-highest": "#dae2fd",
+                        "on-tertiary-container": "#fff0e4",
+                        "on-surface": "#131b2e",
+                        "error": "#ba1a1a",
+                        "secondary-fixed": "#e5deff",
+                        "inverse-primary": "#c8bfff",
+                        "surface-variant": "#dae2fd",
+                        "on-secondary": "#ffffff",
+                        "surface-container": "#eaedff",
+                        "outline": "#787584",
+                        "secondary": "#5f5987",
+                        "on-primary": "#ffffff",
+                        "secondary-fixed-dim": "#c8c0f5",
+                        "on-surface-variant": "#474553",
+                        "surface-container-low": "#f2f3ff",
+                        "secondary-container": "#d0c9fe",
+                        "primary": "#5443b9",
+                        "surface-container-lowest": "#ffffff",
+                        "on-tertiary-fixed-variant": "#663e00",
+                        "error-container": "#ffdad6",
+                        "surface": "#faf8ff",
+                        "on-secondary-container": "#585280",
+                        "on-error": "#ffffff",
+                        "on-secondary-fixed": "#1b153f",
+                        "on-primary-fixed": "#190064",
+                        "surface-tint": "#5c4cc1",
+                        "surface-dim": "#d2d9f4"
+                    },
+                    fontFamily: {
+                        "headline": ["Manrope"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    },
+                    borderRadius: { "DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem" },
+                },
+            },
+        }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+        h1, h2, h3, .font-headline { font-family: 'Manrope', sans-serif; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+    </style>
+</head>
+<body class="bg-background text-on-background selection:bg-primary-fixed">
+<!-- Sidebar Navigation -->
+<aside class="fixed h-full w-64 left-0 top-0 bg-slate-50 dark:bg-slate-900 flex flex-col py-6 px-4 z-50">
+<div class="mb-8 px-2">
+<h1 class="text-xl font-bold tracking-tight text-indigo-700 dark:text-indigo-300">AIGC Gateway</h1>
+<p class="text-xs font-medium text-slate-500 uppercase tracking-widest mt-1">Algorithmic Atelier</p>
+</div>
+<nav class="flex-1 space-y-2">
+<!-- Active: Dashboard -->
+<a class="relative bg-indigo-50 dark:bg-indigo-900/20 text-indigo-700 dark:text-indigo-300 before:absolute before:left-0 before:w-1 before:h-6 before:bg-indigo-600 before:rounded-r-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors duration-200" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">dashboard</span>
+<span class="font-semibold">Dashboard</span>
+</a>
+<a class="text-slate-600 dark:text-slate-400 font-medium hover:bg-slate-200 dark:hover:bg-slate-800 flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors duration-200" href="#">
+<span class="material-symbols-outlined">model_training</span>
+<span>Models</span>
+</a>
+<a class="text-slate-600 dark:text-slate-400 font-medium hover:bg-slate-200 dark:hover:bg-slate-800 flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors duration-200" href="#">
+<span class="material-symbols-outlined">vpn_key</span>
+<span>API Keys</span>
+</a>
+<a class="text-slate-600 dark:text-slate-400 font-medium hover:bg-slate-200 dark:hover:bg-slate-800 flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors duration-200" href="#">
+<span class="material-symbols-outlined">terminal</span>
+<span>Usage Logs</span>
+</a>
+<a class="text-slate-600 dark:text-slate-400 font-medium hover:bg-slate-200 dark:hover:bg-slate-800 flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors duration-200" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span>Settings</span>
+</a>
+</nav>
+<div class="mt-auto pt-6 border-t border-slate-200/50 dark:border-slate-800/50 space-y-2">
+<button class="w-full bg-gradient-to-r from-primary to-primary-container text-white font-bold py-3 px-4 rounded-xl shadow-lg shadow-primary/20 flex items-center justify-center gap-2 mb-4 hover:opacity-90 transition-opacity">
+<span class="material-symbols-outlined">add</span>
+                New Project
+            </button>
+<a class="text-slate-600 dark:text-slate-400 font-medium hover:bg-slate-200 dark:hover:bg-slate-800 flex items-center gap-3 px-3 py-2 rounded-lg transition-colors duration-200" href="#">
+<span class="material-symbols-outlined">menu_book</span>
+<span>Documentation</span>
+</a>
+<a class="text-slate-600 dark:text-slate-400 font-medium hover:bg-slate-200 dark:hover:bg-slate-800 flex items-center gap-3 px-3 py-2 rounded-lg transition-colors duration-200" href="#">
+<span class="material-symbols-outlined">support_agent</span>
+<span>Support</span>
+</a>
+</div>
+</aside>
+<!-- Top Navigation -->
+<header class="sticky top-0 w-full z-40 bg-white/80 dark:bg-slate-950/80 backdrop-blur-xl flex items-center justify-between h-16 px-8 ml-64">
+<div class="flex items-center gap-8">
+<div class="relative w-64 group">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-lg">search</span>
+<input class="w-full bg-surface-container-low border-none rounded-full pl-10 pr-4 py-2 text-sm focus:ring-2 focus:ring-primary/20 transition-all" placeholder="Search resources..." type="text"/>
+</div>
+<nav class="hidden md:flex items-center gap-6">
+<a class="text-indigo-600 dark:text-indigo-400 border-b-2 border-indigo-600 font-semibold px-1 py-4" href="#">Global View</a>
+<a class="text-slate-500 dark:text-slate-400 hover:text-indigo-500 transition-all px-1 py-4" href="#">Endpoints</a>
+<a class="text-slate-500 dark:text-slate-400 hover:text-indigo-500 transition-all px-1 py-4" href="#">Security</a>
+</nav>
+</div>
+<div class="flex items-center gap-4 pr-64">
+<button class="p-2 text-slate-500 hover:bg-slate-100 rounded-full transition-colors relative">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-2 right-2 w-2 h-2 bg-error rounded-full border-2 border-white"></span>
+</button>
+<button class="p-2 text-slate-500 hover:bg-slate-100 rounded-full transition-colors">
+<span class="material-symbols-outlined">help_outline</span>
+</button>
+<div class="h-8 w-[1px] bg-slate-200 mx-2"></div>
+<div class="flex items-center gap-3">
+<img class="h-8 w-8 rounded-full border border-slate-200 object-cover" data-alt="Close-up portrait of a professional woman with a clean, tech-focused aesthetic and soft studio lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB-qJgxfBKDpiArWfQfAr7Bjd7NxhVHVibSPETq1UfY0fmvlW-6BTRFubeZWv2Mt5cIFXepa_jajHVvZiY52r9kqesPG6LnonhXw3EIUVNfRnA8ERRtqn3cX0juf4v84yJH7dgWoIqjURuLGFTpfxHHf91iYu30JpLVCRfCutAwMBIAkS8B09SPFwNf3oJWUSXJFWBMubW6_UktrTI_CUEzRcR-wX47VpU62v741GzWIyEnbNIpWWOPiojx-3XUUBOM7LNjU8wkS7Y"/>
+<button class="bg-primary text-white text-sm font-bold px-4 py-2 rounded-lg hover:opacity-90 transition-opacity">
+                    Deploy Model
+                </button>
+</div>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="ml-64 p-8">
+<!-- Low Balance Warning -->
+<div class="mb-8 bg-error-container text-on-error-container px-6 py-3 rounded-2xl flex items-center justify-between border-l-4 border-error">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-error">warning</span>
+<p class="font-medium">Critical: Your balance is below $10.00. Automatic model rotation may be disabled soon.</p>
+</div>
+<button class="text-sm font-bold underline underline-offset-4 hover:opacity-80">Recharge Credits</button>
+</div>
+<!-- Header Section -->
+<div class="flex justify-between items-end mb-10">
+<div>
+<h2 class="text-3xl font-extrabold tracking-tight text-on-surface">System Overview</h2>
+<p class="text-on-surface-variant font-medium mt-1">Real-time performance metrics for AIGC nodes.</p>
+</div>
+<div class="flex gap-2">
+<button class="bg-surface-container-lowest px-4 py-2 rounded-xl text-sm font-bold border border-outline-variant/20 shadow-sm flex items-center gap-2">
+<span class="material-symbols-outlined text-lg">calendar_today</span>
+                    Last 14 Days
+                </button>
+<button class="bg-surface-container-lowest px-4 py-2 rounded-xl text-sm font-bold border border-outline-variant/20 shadow-sm flex items-center gap-2">
+<span class="material-symbols-outlined text-lg">filter_list</span>
+                    Filter
+                </button>
+</div>
+</div>
+<!-- Bento Grid: Stats & Balance -->
+<div class="grid grid-cols-12 gap-6 mb-8">
+<!-- Summary Cards Cluster -->
+<div class="col-span-12 lg:col-span-8 grid grid-cols-2 md:grid-cols-4 gap-4">
+<div class="bg-surface-container-lowest p-5 rounded-xl border border-outline-variant/10 flex flex-col justify-between h-32 group hover:shadow-xl hover:shadow-primary/5 transition-all">
+<span class="text-label-sm font-bold text-slate-500 uppercase tracking-widest text-[10px]">Total Calls</span>
+<div class="flex items-end justify-between">
+<span class="text-2xl font-extrabold font-headline">1.2M</span>
+<span class="text-success text-xs font-bold bg-secondary-container/30 px-2 py-0.5 rounded-full flex items-center gap-1">
+<span class="material-symbols-outlined text-sm">trending_up</span> 12%
+                        </span>
+</div>
+</div>
+<div class="bg-surface-container-lowest p-5 rounded-xl border border-outline-variant/10 flex flex-col justify-between h-32 group hover:shadow-xl hover:shadow-primary/5 transition-all">
+<span class="text-label-sm font-bold text-slate-500 uppercase tracking-widest text-[10px]">Avg Cost</span>
+<div class="flex items-end justify-between">
+<span class="text-2xl font-extrabold font-headline">$0.042</span>
+<span class="text-error text-xs font-bold bg-error-container/30 px-2 py-0.5 rounded-full flex items-center gap-1">
+<span class="material-symbols-outlined text-sm">trending_up</span> 4%
+                        </span>
+</div>
+</div>
+<div class="bg-surface-container-lowest p-5 rounded-xl border border-outline-variant/10 flex flex-col justify-between h-32 group hover:shadow-xl hover:shadow-primary/5 transition-all">
+<span class="text-label-sm font-bold text-slate-500 uppercase tracking-widest text-[10px]">Latency</span>
+<div class="flex items-end justify-between">
+<span class="text-2xl font-extrabold font-headline">482ms</span>
+<span class="text-success text-xs font-bold bg-secondary-container/30 px-2 py-0.5 rounded-full flex items-center gap-1">
+<span class="material-symbols-outlined text-sm">trending_down</span> 24ms
+                        </span>
+</div>
+</div>
+<div class="bg-surface-container-lowest p-5 rounded-xl border border-outline-variant/10 flex flex-col justify-between h-32 group hover:shadow-xl hover:shadow-primary/5 transition-all">
+<span class="text-label-sm font-bold text-slate-500 uppercase tracking-widest text-[10px]">Success Rate</span>
+<div class="flex items-end justify-between">
+<span class="text-2xl font-extrabold font-headline">99.98%</span>
+<span class="text-slate-400 text-xs font-bold px-2 py-0.5 rounded-full flex items-center gap-1 italic">
+                            Stable
+                        </span>
+</div>
+</div>
+</div>
+<!-- Balance Card -->
+<div class="col-span-12 lg:col-span-4 bg-gradient-to-br from-indigo-700 to-indigo-900 p-6 rounded-2xl relative overflow-hidden text-white shadow-2xl shadow-indigo-900/20">
+<div class="relative z-10 flex flex-col h-full justify-between">
+<div>
+<div class="flex justify-between items-start">
+<span class="text-indigo-200 text-sm font-medium uppercase tracking-widest">Account Balance</span>
+<span class="material-symbols-outlined text-indigo-300">account_balance_wallet</span>
+</div>
+<h3 class="text-4xl font-extrabold mt-2">$8.42</h3>
+<p class="text-indigo-200 text-xs mt-1">Est. 4 days of usage remaining</p>
+</div>
+<button class="mt-4 w-full bg-white text-indigo-900 font-extrabold py-3 rounded-xl hover:bg-indigo-50 transition-colors">
+                        Recharge Now
+                    </button>
+</div>
+<!-- Abstract Glass decoration -->
+<div class="absolute -bottom-10 -right-10 w-40 h-40 bg-white/10 rounded-full blur-3xl"></div>
+<div class="absolute -top-10 -left-10 w-32 h-32 bg-primary-container/20 rounded-full blur-2xl"></div>
+</div>
+</div>
+<!-- Charts Row -->
+<div class="grid grid-cols-12 gap-6 mb-8">
+<!-- Area Chart: 14-day Calls -->
+<div class="col-span-12 xl:col-span-8 bg-surface-container-lowest p-6 rounded-2xl border border-outline-variant/10">
+<div class="flex justify-between items-start mb-6">
+<div>
+<h4 class="font-headline font-bold text-lg">Daily Request Volume</h4>
+<p class="text-sm text-on-surface-variant">Last 14 days activity logs</p>
+</div>
+<div class="flex items-center gap-4 text-xs font-bold text-slate-400">
+<span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-primary"></span> Successful</span>
+<span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-error/40"></span> Errors</span>
+</div>
+</div>
+<div class="h-64 flex items-end gap-1 px-2">
+<!-- Faux Area Chart Bars -->
+<div class="flex-1 bg-primary/10 relative h-3/4 rounded-t-sm group cursor-pointer">
+<div class="absolute bottom-0 w-full bg-primary h-4/5 rounded-t-sm group-hover:bg-primary-container transition-colors"></div>
+</div>
+<div class="flex-1 bg-primary/10 relative h-4/5 rounded-t-sm group cursor-pointer">
+<div class="absolute bottom-0 w-full bg-primary h-3/5 rounded-t-sm group-hover:bg-primary-container transition-colors"></div>
+</div>
+<div class="flex-1 bg-primary/10 relative h-1/2 rounded-t-sm group cursor-pointer">
+<div class="absolute bottom-0 w-full bg-primary h-4/5 rounded-t-sm group-hover:bg-primary-container transition-colors"></div>
+</div>
+<div class="flex-1 bg-primary/10 relative h-2/3 rounded-t-sm group cursor-pointer">
+<div class="absolute bottom-0 w-full bg-primary h-5/6 rounded-t-sm group-hover:bg-primary-container transition-colors"></div>
+</div>
+<div class="flex-1 bg-primary/10 relative h-5/6 rounded-t-sm group cursor-pointer">
+<div class="absolute bottom-0 w-full bg-primary h-2/3 rounded-t-sm group-hover:bg-primary-container transition-colors"></div>
+</div>
+<div class="flex-1 bg-primary/10 relative h-3/4 rounded-t-sm group cursor-pointer">
+<div class="absolute bottom-0 w-full bg-primary h-1/2 rounded-t-sm group-hover:bg-primary-container transition-colors"></div>
+</div>
+<div class="flex-1 bg-primary/10 relative h-4/5 rounded-t-sm group cursor-pointer">
+<div class="absolute bottom-0 w-full bg-primary h-3/4 rounded-t-sm group-hover:bg-primary-container transition-colors"></div>
+</div>
+<div class="flex-1 bg-primary/10 relative h-full rounded-t-sm group cursor-pointer">
+<div class="absolute bottom-0 w-full bg-primary h-5/6 rounded-t-sm group-hover:bg-primary-container transition-colors"></div>
+</div>
+<div class="flex-1 bg-primary/10 relative h-2/3 rounded-t-sm group cursor-pointer">
+<div class="absolute bottom-0 w-full bg-primary h-2/5 rounded-t-sm group-hover:bg-primary-container transition-colors"></div>
+</div>
+<div class="flex-1 bg-primary/10 relative h-3/4 rounded-t-sm group cursor-pointer">
+<div class="absolute bottom-0 w-full bg-primary h-4/5 rounded-t-sm group-hover:bg-primary-container transition-colors"></div>
+</div>
+<div class="flex-1 bg-primary/10 relative h-1/2 rounded-t-sm group cursor-pointer">
+<div class="absolute bottom-0 w-full bg-primary h-3/5 rounded-t-sm group-hover:bg-primary-container transition-colors"></div>
+</div>
+<div class="flex-1 bg-primary/10 relative h-2/3 rounded-t-sm group cursor-pointer">
+<div class="absolute bottom-0 w-full bg-primary h-5/6 rounded-t-sm group-hover:bg-primary-container transition-colors"></div>
+</div>
+<div class="flex-1 bg-primary/10 relative h-4/5 rounded-t-sm group cursor-pointer">
+<div class="absolute bottom-0 w-full bg-primary h-3/4 rounded-t-sm group-hover:bg-primary-container transition-colors"></div>
+</div>
+<div class="flex-1 bg-primary/10 relative h-5/6 rounded-t-sm group cursor-pointer">
+<div class="absolute bottom-0 w-full bg-primary h-full rounded-t-sm group-hover:bg-primary-container transition-colors shadow-[0_-4px_12px_rgba(84,67,185,0.2)]"></div>
+</div>
+</div>
+<div class="flex justify-between mt-4 text-[10px] font-bold text-slate-400 uppercase tracking-tighter">
+<span>Oct 10</span>
+<span>Oct 14</span>
+<span>Oct 18</span>
+<span>Today</span>
+</div>
+</div>
+<!-- Model Distribution Pie -->
+<div class="col-span-12 xl:col-span-4 bg-surface-container-lowest p-6 rounded-2xl border border-outline-variant/10">
+<h4 class="font-headline font-bold text-lg mb-6">Model Distribution</h4>
+<div class="relative h-48 w-48 mx-auto flex items-center justify-center">
+<!-- Faux SVG Pie Chart -->
+<svg class="w-full h-full transform -rotate-90" viewbox="0 0 36 36">
+<circle cx="18" cy="18" fill="transparent" r="15.9" stroke="#eaedff" stroke-width="3.8"></circle>
+<circle cx="18" cy="18" fill="transparent" r="15.9" stroke="#5443b9" stroke-dasharray="45 100" stroke-dashoffset="0" stroke-width="4.2"></circle>
+<circle cx="18" cy="18" fill="transparent" r="15.9" stroke="#7c4b00" stroke-dasharray="25 100" stroke-dashoffset="-45" stroke-width="4.2"></circle>
+<circle cx="18" cy="18" fill="transparent" r="15.9" stroke="#5f5987" stroke-dasharray="30 100" stroke-dashoffset="-70" stroke-width="4.2"></circle>
+</svg>
+<div class="absolute text-center">
+<span class="block text-2xl font-extrabold text-on-surface">34.2K</span>
+<span class="text-[10px] font-bold text-slate-500 uppercase">Requests</span>
+</div>
+</div>
+<div class="mt-8 space-y-3">
+<div class="flex items-center justify-between text-sm">
+<div class="flex items-center gap-2">
+<span class="w-2.5 h-2.5 rounded-full bg-primary"></span>
+<span class="font-medium">GPT-4o</span>
+</div>
+<span class="font-bold text-slate-600">45%</span>
+</div>
+<div class="flex items-center justify-between text-sm">
+<div class="flex items-center gap-2">
+<span class="w-2.5 h-2.5 rounded-full bg-secondary"></span>
+<span class="font-medium">Claude 3.5 Sonnet</span>
+</div>
+<span class="font-bold text-slate-600">30%</span>
+</div>
+<div class="flex items-center justify-between text-sm">
+<div class="flex items-center gap-2">
+<span class="w-2.5 h-2.5 rounded-full bg-tertiary"></span>
+<span class="font-medium">Gemini 1.5 Pro</span>
+</div>
+<span class="font-bold text-slate-600">25%</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Lower Section: Cost & Distribution + Table -->
+<div class="grid grid-cols-12 gap-6">
+<!-- 24h Distribution & Cost -->
+<div class="col-span-12 xl:col-span-4 space-y-6">
+<div class="bg-surface-container-lowest p-6 rounded-2xl border border-outline-variant/10">
+<h4 class="font-headline font-bold text-lg mb-4">24h Load Distribution</h4>
+<div class="h-32 flex items-end gap-1">
+<!-- Tiny load bars -->
+<div class="flex-1 bg-primary/20 h-1/4 rounded-t-sm"></div>
+<div class="flex-1 bg-primary/20 h-1/3 rounded-t-sm"></div>
+<div class="flex-1 bg-primary/20 h-1/2 rounded-t-sm"></div>
+<div class="flex-1 bg-primary/40 h-2/3 rounded-t-sm"></div>
+<div class="flex-1 bg-primary h-full rounded-t-sm"></div>
+<div class="flex-1 bg-primary h-5/6 rounded-t-sm"></div>
+<div class="flex-1 bg-primary/60 h-2/3 rounded-t-sm"></div>
+<div class="flex-1 bg-primary/30 h-1/2 rounded-t-sm"></div>
+<div class="flex-1 bg-primary/20 h-1/4 rounded-t-sm"></div>
+<div class="flex-1 bg-primary/20 h-1/4 rounded-t-sm"></div>
+<div class="flex-1 bg-primary/30 h-1/2 rounded-t-sm"></div>
+<div class="flex-1 bg-primary/50 h-3/4 rounded-t-sm"></div>
+</div>
+</div>
+<div class="bg-surface-container-lowest p-6 rounded-2xl border border-outline-variant/10">
+<div class="flex justify-between items-center mb-4">
+<h4 class="font-headline font-bold text-lg">Daily Spend</h4>
+<span class="text-sm font-bold text-primary">$124.80 Total</span>
+</div>
+<div class="space-y-4">
+<div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden flex">
+<div class="bg-primary h-full w-[45%]"></div>
+<div class="bg-secondary h-full w-[30%]"></div>
+<div class="bg-tertiary h-full w-[25%]"></div>
+</div>
+<div class="grid grid-cols-2 gap-4">
+<div class="p-3 rounded-lg bg-surface-container-low">
+<span class="text-[10px] uppercase font-bold text-slate-500">Peak Hour Cost</span>
+<p class="text-lg font-extrabold text-on-surface">$12.45</p>
+</div>
+<div class="p-3 rounded-lg bg-surface-container-low">
+<span class="text-[10px] uppercase font-bold text-slate-500">Min Hour Cost</span>
+<p class="text-lg font-extrabold text-on-surface">$0.82</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Recent Calls Table -->
+<div class="col-span-12 xl:col-span-8 bg-surface-container-lowest p-6 rounded-2xl border border-outline-variant/10">
+<div class="flex justify-between items-center mb-6">
+<h4 class="font-headline font-bold text-lg">Recent Calls</h4>
+<a class="text-sm font-bold text-primary hover:underline underline-offset-4 flex items-center gap-1" href="/logs">
+                        View All logs <span class="material-symbols-outlined text-sm">arrow_forward</span>
+</a>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left">
+<thead>
+<tr class="text-[10px] font-bold text-slate-500 uppercase tracking-widest border-b border-outline-variant/10">
+<th class="pb-4">Trace ID</th>
+<th class="pb-4">Model</th>
+<th class="pb-4 text-center">Status</th>
+<th class="pb-4 text-right">Cost</th>
+<th class="pb-4 text-right">Latency</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-slate-50">
+<tr class="group hover:bg-surface-container-high/30 transition-colors">
+<td class="py-4 text-sm font-mono text-indigo-600">tr_9a2f...18e</td>
+<td class="py-4">
+<div class="flex items-center gap-2">
+<div class="w-6 h-6 rounded bg-indigo-50 flex items-center justify-center">
+<span class="material-symbols-outlined text-indigo-600 text-xs">bolt</span>
+</div>
+<span class="text-sm font-medium">gpt-4o-latest</span>
+</div>
+</td>
+<td class="py-4 text-center">
+<span class="text-[10px] font-bold px-2 py-1 rounded bg-secondary-container/50 text-secondary border border-secondary/10">200 OK</span>
+</td>
+<td class="py-4 text-right text-sm font-bold">$0.012</td>
+<td class="py-4 text-right text-sm text-slate-500 font-medium">324ms</td>
+</tr>
+<tr class="group hover:bg-surface-container-high/30 transition-colors">
+<td class="py-4 text-sm font-mono text-indigo-600">tr_5c1d...44b</td>
+<td class="py-4">
+<div class="flex items-center gap-2">
+<div class="w-6 h-6 rounded bg-slate-50 flex items-center justify-center">
+<span class="material-symbols-outlined text-slate-400 text-xs">auto_awesome</span>
+</div>
+<span class="text-sm font-medium">claude-3.5-sonnet</span>
+</div>
+</td>
+<td class="py-4 text-center">
+<span class="text-[10px] font-bold px-2 py-1 rounded bg-secondary-container/50 text-secondary border border-secondary/10">200 OK</span>
+</td>
+<td class="py-4 text-right text-sm font-bold">$0.008</td>
+<td class="py-4 text-right text-sm text-slate-500 font-medium">412ms</td>
+</tr>
+<tr class="group hover:bg-surface-container-high/30 transition-colors">
+<td class="py-4 text-sm font-mono text-indigo-600">tr_bb88...91z</td>
+<td class="py-4">
+<div class="flex items-center gap-2">
+<div class="w-6 h-6 rounded bg-indigo-50 flex items-center justify-center">
+<span class="material-symbols-outlined text-indigo-600 text-xs">bolt</span>
+</div>
+<span class="text-sm font-medium">gpt-4o-latest</span>
+</div>
+</td>
+<td class="py-4 text-center">
+<span class="text-[10px] font-bold px-2 py-1 rounded bg-error-container/50 text-error border border-error/10">504 TIMEOUT</span>
+</td>
+<td class="py-4 text-right text-sm font-bold">$0.000</td>
+<td class="py-4 text-right text-sm text-slate-500 font-medium">30,000ms</td>
+</tr>
+<tr class="group hover:bg-surface-container-high/30 transition-colors">
+<td class="py-4 text-sm font-mono text-indigo-600">tr_0x4e...22s</td>
+<td class="py-4">
+<div class="flex items-center gap-2">
+<div class="w-6 h-6 rounded bg-amber-50 flex items-center justify-center">
+<span class="material-symbols-outlined text-amber-600 text-xs">diamond</span>
+</div>
+<span class="text-sm font-medium">gemini-1.5-pro</span>
+</div>
+</td>
+<td class="py-4 text-center">
+<span class="text-[10px] font-bold px-2 py-1 rounded bg-secondary-container/50 text-secondary border border-secondary/10">200 OK</span>
+</td>
+<td class="py-4 text-right text-sm font-bold">$0.005</td>
+<td class="py-4 text-right text-sm text-slate-500 font-medium">580ms</td>
+</tr>
+<tr class="group hover:bg-surface-container-high/30 transition-colors">
+<td class="py-4 text-sm font-mono text-indigo-600">tr_kk22...66x</td>
+<td class="py-4">
+<div class="flex items-center gap-2">
+<div class="w-6 h-6 rounded bg-indigo-50 flex items-center justify-center">
+<span class="material-symbols-outlined text-indigo-600 text-xs">bolt</span>
+</div>
+<span class="text-sm font-medium">gpt-4o-latest</span>
+</div>
+</td>
+<td class="py-4 text-center">
+<span class="text-[10px] font-bold px-2 py-1 rounded bg-secondary-container/50 text-secondary border border-secondary/10">200 OK</span>
+</td>
+<td class="py-4 text-right text-sm font-bold">$0.014</td>
+<td class="py-4 text-right text-sm text-slate-500 font-medium">298ms</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</main>
+</body></html>

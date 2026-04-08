@@ -1,110 +1,84 @@
 {
-  "batch": "R1-design-system-foundation",
+  "batch": "R2A-user-pages-keys-logs-models",
   "created_at": "2026-04-08",
   "features": [
     {
-      "id": "F-R1-01",
-      "title": "Button 组件对齐设计系统",
+      "id": "F-R2A-01",
+      "title": "Keys 列表页还原",
       "priority": "high",
       "executor": "generator",
-      "status": "done",
-      "acceptance": "1) default variant 使用 bg-gradient-to-r from-ds-primary to-ds-primary-container；2) 其他 variant 不变；3) 页面中 21 处手写渐变按钮删除内联样式，改用 Button 组件；4) npm run lint + tsc 通过"
+      "status": "pending",
+      "acceptance": "1) 使用 useAsyncData + Table + SearchBar + Pagination 替换旧代码；2) 表格列：名称、masked key（可复制）、创建日期、最后使用、状态 badge；3) 行操作：编辑（跳转 /keys/[keyId]）、吊销（弹 RevokeKeyDialog）；4) 对齐 design-draft/keys/code.html 视觉；5) 文本走 next-intl；6) npm run lint + tsc 通过",
+      "design_ref": "design-draft/keys/code.html"
     },
     {
-      "id": "F-R1-02",
-      "title": "Input 组件对齐设计系统",
+      "id": "F-R2A-02",
+      "title": "CreateKeyDialog 组件",
       "priority": "high",
       "executor": "generator",
-      "status": "done",
-      "acceptance": "1) 默认样式改为底线风格：border-b-2 border-ds-outline-variant，无其他 border；2) bg 改为 bg-ds-surface-container-low；3) focus 时底线变 ds-primary；4) 现有使用 Input 的页面不报错；5) npm run lint + tsc 通过"
+      "status": "pending",
+      "acceptance": "1) 独立组件 src/components/keys/create-key-dialog.tsx；2) 使用 Dialog 组件；3) 表单：名称、描述、过期选项（Never/30d/60d/90d）、权限开关；4) 创建成功后显示完整 key + 复制按钮；5) 对齐 design-draft/keys-create-modal/code.html；6) npm run lint + tsc 通过",
+      "design_ref": "design-draft/keys-create-modal/code.html"
     },
     {
-      "id": "F-R1-03",
-      "title": "Card 组件对齐设计系统",
-      "priority": "high",
-      "executor": "generator",
-      "status": "done",
-      "acceptance": "1) 去掉 ring-1 ring-foreground/10；2) CardFooter 去掉 border-t；3) 依赖 tonal layering 制造层级感；4) 现有使用 Card 的页面视觉正常；5) npm run lint + tsc 通过"
-    },
-    {
-      "id": "F-R1-04",
-      "title": "Dialog 组件对齐设计系统（Glassmorphism）",
-      "priority": "high",
-      "executor": "generator",
-      "status": "done",
-      "acceptance": "1) DialogOverlay 改为 backdrop-blur-lg + bg-black/20；2) DialogContent 去掉 ring-1，加 shadow-xl shadow-ds-on-surface/6；3) DialogFooter 去掉 border-t；4) 打开任意 dialog 视觉正确；5) npm run lint + tsc 通过"
-    },
-    {
-      "id": "F-R1-05",
-      "title": "Table 组件对齐设计系统",
-      "priority": "high",
-      "executor": "generator",
-      "status": "done",
-      "acceptance": "1) TableHeader 去掉 [&_tr]:border-b；2) TableRow 去掉 box-shadow 分割线，hover 改为 bg-ds-surface-container-high/30；3) TableHead 加 uppercase tracking-widest font-bold text-[10px]；4) npm run lint + tsc 通过"
-    },
-    {
-      "id": "F-R1-06",
-      "title": "Sidebar 对齐设计系统",
-      "priority": "high",
-      "executor": "generator",
-      "status": "done",
-      "acceptance": "1) aside bg 改为 bg-ds-surface-container-low（去掉 bg-slate-50）；2) active 导航项改为 before 伪元素 3px accent pill（去掉 border-l-4）；3) Project Switcher 去掉 border；4) dropdown 去掉 border，加 shadow + backdrop-blur；5) nav item 间距改为 space-y-2；6) 参照 design-draft/Layout Shell code.html；7) npm run lint + tsc 通过"
-    },
-    {
-      "id": "F-R1-07",
-      "title": "TopAppBar 对齐设计系统",
+      "id": "F-R2A-03",
+      "title": "RevokeKeyDialog 组件",
       "priority": "medium",
       "executor": "generator",
-      "status": "done",
-      "acceptance": "1) 去掉 border-b，保持 backdrop-blur-xl + shadow-sm；2) Deploy 按钮改用 Button 组件或渐变样式；3) 参照 design-draft/Layout Shell code.html；4) npm run lint + tsc 通过"
+      "status": "pending",
+      "acceptance": "1) 独立组件 src/components/keys/revoke-key-dialog.tsx；2) 使用 Dialog 组件；3) 显示 key 名称 + 警告文本 + 确认/取消按钮；4) 确认后调用 DELETE API 并触发列表刷新；5) npm run lint + tsc 通过"
     },
     {
-      "id": "F-R1-08",
-      "title": "useAsyncData hook 抽取",
-      "priority": "medium",
-      "executor": "generator",
-      "status": "done",
-      "acceptance": "1) 创建 src/hooks/use-async-data.ts；2) 接口：useAsyncData<T>(fetcher, deps) → { data, loading, error, refetch }；3) 内部使用 apiFetch，自动处理 loading/error 状态；4) 支持依赖项变化自动 refetch；5) 导出类型正确；6) npm run lint + tsc 通过"
-    },
-    {
-      "id": "F-R1-09",
-      "title": "SearchBar 公共组件抽取",
-      "priority": "medium",
-      "executor": "generator",
-      "status": "done",
-      "acceptance": "1) 创建 src/components/search-bar.tsx；2) props: placeholder, value, onChange, onKeyDown?, className?；3) 使用 Material icon search，rounded-full，bg-ds-surface-container-low；4) 样式与设计系统一致；5) npm run lint + tsc 通过"
-    },
-    {
-      "id": "F-R1-10",
-      "title": "Pagination 公共组件抽取",
-      "priority": "medium",
-      "executor": "generator",
-      "status": "done",
-      "acceptance": "1) 创建 src/components/pagination.tsx；2) props: page, totalPages, onPageChange, total?, pageSize?；3) 支持简单模式（Previous/Next）和完整模式（带页码）；4) 样式与设计系统一致（无 border，tonal layering）；5) npm run lint + tsc 通过"
-    },
-    {
-      "id": "F-R1-11",
-      "title": "Dashboard 页面试点还原",
+      "id": "F-R2A-04",
+      "title": "Keys 设置页还原",
       "priority": "high",
       "executor": "generator",
-      "status": "done",
-      "acceptance": "1) 统计卡片去掉 border，用 tonal layering；2) Recent Calls 表格去掉 divide-y，用 hover 高亮；3) 所有颜色使用 ds-* token（无硬编码 slate/indigo）；4) 使用 useAsyncData hook 替代手写 useEffect + useState；5) 对照 design-draft/Dashboard (Full Redesign) v2/code.html 视觉一致；6) npm run lint + tsc 通过"
+      "status": "pending",
+      "acceptance": "1) 使用 useAsyncData + Card + Input + Switch；2) 基本信息区（名称、描述可编辑，masked key 可复制）；3) Permissions 开关组；4) Rate Limit (RPM) 输入；5) IP 白名单 textarea；6) 保存按钮调用 PATCH API；7) Danger Zone 吊销按钮（弹 RevokeKeyDialog）；8) 对齐 design-draft/keys-settings/code.html；9) npm run lint + tsc 通过",
+      "design_ref": "design-draft/keys-settings/code.html"
     },
     {
-      "id": "F-R1-12",
-      "title": "全局 No-Line 清理（Dashboard + Layout 范围）",
+      "id": "F-R2A-05",
+      "title": "Logs 列表页还原",
+      "priority": "high",
+      "executor": "generator",
+      "status": "pending",
+      "acceptance": "1) 使用 useAsyncData + Table + SearchBar + Pagination；2) 表格列：时间、Trace ID（可复制）、模型、预览、状态 badge、Tokens、费用、延迟；3) 状态筛选 tab（All/Success/Error）；4) 模型筛选下拉；5) 搜索走 /logs/search；6) 行点击跳转详情页；7) 对齐 design-draft/logs/code.html；8) npm run lint + tsc 通过",
+      "design_ref": "design-draft/logs/code.html"
+    },
+    {
+      "id": "F-R2A-06",
+      "title": "Logs 详情页还原",
+      "priority": "high",
+      "executor": "generator",
+      "status": "pending",
+      "acceptance": "1) 使用 useAsyncData + Card；2) 头部：traceId（可复制）、状态 badge、时间、延迟；3) 统计卡片：模型、Tokens、费用、吞吐量；4) Prompt Messages 面板（system/user 消息列表）；5) Response Content 面板（支持文本展示）；6) Request Parameters（JSON 折叠）；7) 质量评分按钮（POST quality API）；8) 对齐 design-draft/logs-detail/code.html；9) npm run lint + tsc 通过",
+      "design_ref": "design-draft/logs-detail/code.html"
+    },
+    {
+      "id": "F-R2A-07",
+      "title": "Models 列表页还原",
+      "priority": "high",
+      "executor": "generator",
+      "status": "pending",
+      "acceptance": "1) 使用 useAsyncData；2) 按 provider_name 客户端分组，Provider 组头显示名称 + 模型数量；3) Modality tab 切换（All/Text/Image）；4) 每行：模型 ID、Modality badge、Context Window、定价；5) 分组可折叠/展开；6) 统计卡片：Total Models；7) 对齐 design-draft/models/code.html；8) npm run lint + tsc 通过",
+      "design_ref": "design-draft/models/code.html"
+    },
+    {
+      "id": "F-R2A-08",
+      "title": "i18n 补全（keys/logs/models）",
       "priority": "medium",
       "executor": "generator",
-      "status": "done",
-      "acceptance": "1) Dashboard 页面和 Layout 相关组件中无 border-b/border-t/divide-y 用于分隔（border-l 的 accent pill 除外）；2) 其他页面不改动（留给后续批次）；3) npm run lint + tsc 通过"
+      "status": "pending",
+      "acceptance": "1) messages/en.json 和 messages/zh.json 中 keys/logs/models 相关 key 齐全；2) 所有用户可见文本无硬编码英文；3) 切换语言后页面正常显示；4) npm run lint + tsc 通过"
     },
     {
-      "id": "F-R1-13",
-      "title": "E2E 验证：基础组件 + Dashboard 视觉回归",
+      "id": "F-R2A-09",
+      "title": "R2A 视觉回归验收",
       "priority": "high",
       "executor": "codex",
-      "status": "done",
-      "acceptance": "1) 登录后 Dashboard 页面正常加载，无控制台报错；2) Button/Input/Card/Dialog/Table 组件样式与设计系统一致；3) Sidebar active 状态显示 accent pill 而非 border-l-4；4) 搜索和分页组件可正常 import 并渲染；5) 签收报告生成"
+      "status": "pending",
+      "acceptance": "1) 登录后 /keys、/keys/[keyId]、/logs、/logs/[traceId]、/models 页面正常加载，无控制台报错；2) DS 组件使用正确（Table/SearchBar/Pagination/Dialog/Card）；3) 视觉与设计稿基本一致；4) CRUD 操作正常（创建 key、吊销 key、查看日志详情）；5) 签收报告生成"
     }
   ]
 }

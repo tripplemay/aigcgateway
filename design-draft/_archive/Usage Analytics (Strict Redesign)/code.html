@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary-container": "#6d5dd3",
+                        "surface-bright": "#faf8ff",
+                        "surface": "#faf8ff",
+                        "on-primary-fixed": "#190064",
+                        "secondary-fixed": "#e5deff",
+                        "on-tertiary-container": "#fff0e4",
+                        "tertiary-fixed": "#ffddba",
+                        "on-secondary-container": "#585280",
+                        "on-primary-fixed-variant": "#4431a8",
+                        "on-tertiary-fixed-variant": "#663e00",
+                        "secondary": "#5f5987",
+                        "on-error": "#ffffff",
+                        "surface-container": "#eaedff",
+                        "inverse-primary": "#c8bfff",
+                        "primary-fixed": "#e5deff",
+                        "outline": "#787584",
+                        "surface-tint": "#5c4cc1",
+                        "on-error-container": "#93000a",
+                        "on-primary": "#ffffff",
+                        "error-container": "#ffdad6",
+                        "secondary-container": "#d0c9fe",
+                        "on-tertiary-fixed": "#2b1700",
+                        "surface-dim": "#d2d9f4",
+                        "on-tertiary": "#ffffff",
+                        "inverse-on-surface": "#eef0ff",
+                        "surface-container-highest": "#dae2fd",
+                        "on-surface": "#131b2e",
+                        "on-secondary-fixed-variant": "#47416e",
+                        "surface-variant": "#dae2fd",
+                        "on-background": "#131b2e",
+                        "error": "#ba1a1a",
+                        "inverse-surface": "#283044",
+                        "tertiary-fixed-dim": "#ffb964",
+                        "tertiary-container": "#9d6100",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container-low": "#f2f3ff",
+                        "primary-fixed-dim": "#c8bfff",
+                        "on-secondary": "#ffffff",
+                        "outline-variant": "#c9c4d5",
+                        "tertiary": "#7c4b00",
+                        "secondary-fixed-dim": "#c8c0f5",
+                        "primary": "#5443b9",
+                        "on-secondary-fixed": "#1b153f",
+                        "on-surface-variant": "#474553",
+                        "surface-container-high": "#e2e7ff",
+                        "on-primary-container": "#f6f1ff",
+                        "background": "#faf8ff"
+                    },
+                    fontFamily: {
+                        "headline": ["Manrope"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    },
+                    borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(12px);
+        }
+    </style>
+</head>
+<body class="bg-surface font-body text-on-surface">
+<aside class="h-screen w-64 fixed left-0 top-0 bg-[#f2f3ff] dark:bg-slate-900 font-['Manrope'] antialiased text-sm flex flex-col py-6">
+<div class="px-6 mb-8">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
+<span class="material-symbols-outlined text-white text-sm" style="font-variation-settings: 'FILL' 1;">neurology</span>
+</div>
+<div>
+<h1 class="text-xl font-bold tracking-tight text-[#131b2e] dark:text-slate-100">AIGC Gateway</h1>
+<p class="text-[10px] text-primary/70 font-semibold uppercase tracking-widest">Algorithmic Atelier</p>
+</div>
+</div>
+</div>
+<nav class="flex-1 px-4 space-y-1">
+<a class="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:bg-slate-200/50 dark:hover:bg-slate-800/50 transition-colors" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+                Dashboard
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 bg-white dark:bg-slate-800 text-[#5443b9] dark:text-[#6d5dd3] font-semibold border-l-4 border-[#5443b9]" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">analytics</span>
+                Analytics
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:bg-slate-200/50 dark:hover:bg-slate-800/50 transition-colors" href="#">
+<span class="material-symbols-outlined">neurology</span>
+                Models
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:bg-slate-200/50 dark:hover:bg-slate-800/50 transition-colors" href="#">
+<span class="material-symbols-outlined">rocket_launch</span>
+                Deployments
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:bg-slate-200/50 dark:hover:bg-slate-800/50 transition-colors" href="#">
+<span class="material-symbols-outlined">settings</span>
+                Settings
+            </a>
+</nav>
+<div class="px-6 py-4 mt-auto space-y-4">
+<button class="w-full bg-gradient-to-r from-primary to-primary-container text-white py-2.5 rounded-xl font-semibold shadow-lg shadow-indigo-200 text-sm">
+                New Project
+            </button>
+<div class="pt-4 border-t border-slate-200/50 flex flex-col gap-2">
+<a class="flex items-center gap-2 text-slate-500 hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined text-sm">description</span>
+                    Documentation
+                </a>
+<a class="flex items-center gap-2 text-slate-500 hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined text-sm">help_outline</span>
+                    Support
+                </a>
+</div>
+</div>
+</aside>
+<header class="fixed top-0 right-0 w-[calc(100%-16rem)] z-40 bg-[#faf8ff]/80 dark:bg-slate-950/80 backdrop-blur-xl flex justify-between items-center h-16 px-8 ml-64 shadow-sm shadow-indigo-100/20 dark:shadow-none">
+<div class="flex items-center gap-8">
+<h2 class="text-lg font-black tracking-tighter text-[#131b2e] dark:text-white font-headline">Analytics Dashboard</h2>
+<nav class="flex gap-6 font-['Manrope'] font-medium text-sm">
+<a class="text-[#5443b9] dark:text-[#6d5dd3] border-b-2 border-[#5443b9] pb-1" href="#">Usage</a>
+<a class="text-slate-500 dark:text-slate-400 hover:text-[#5443b9] dark:hover:text-[#6d5dd3]" href="#">Logs</a>
+<a class="text-slate-500 dark:text-slate-400 hover:text-[#5443b9] dark:hover:text-[#6d5dd3]" href="#">Cost Analysis</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<button class="bg-surface-container text-primary font-bold px-4 py-1.5 rounded-full text-xs hover:bg-primary-container hover:text-white transition-all scale-95 active:scale-100">
+                Export Data
+            </button>
+<div class="flex items-center gap-2 text-slate-400">
+<span class="material-symbols-outlined cursor-pointer hover:text-primary">notifications</span>
+<span class="material-symbols-outlined cursor-pointer hover:text-primary">account_circle</span>
+</div>
+</div>
+</header>
+<main class="ml-64 mt-16 p-8 bg-surface min-h-screen">
+<div class="max-w-7xl mx-auto space-y-8">
+<section class="flex justify-between items-center">
+<div>
+<h3 class="text-2xl font-extrabold font-headline text-on-surface tracking-tight">Usage Statistics</h3>
+<p class="text-on-surface-variant text-sm">Review your model consumption and performance metrics.</p>
+</div>
+<div class="bg-surface-container-low p-1 rounded-full flex gap-1">
+<button class="px-5 py-1.5 rounded-full text-xs font-bold transition-all text-on-surface-variant hover:text-primary">today</button>
+<button class="px-5 py-1.5 rounded-full text-xs font-bold transition-all bg-white text-primary shadow-sm">7d</button>
+<button class="px-5 py-1.5 rounded-full text-xs font-bold transition-all text-on-surface-variant hover:text-primary">30d</button>
+</div>
+</section>
+<section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+<div class="bg-surface-container-lowest p-6 rounded-xl shadow-sm border-none">
+<div class="flex items-center justify-between mb-4">
+<span class="text-xs font-bold text-outline uppercase tracking-widest font-label">Total Calls</span>
+<span class="material-symbols-outlined text-primary-container text-lg">call</span>
+</div>
+<div class="text-3xl font-black font-headline text-on-surface">1,284,092</div>
+<div class="mt-2 text-[10px] font-bold text-green-600 flex items-center gap-1">
+<span class="material-symbols-outlined text-[12px]">trending_up</span>
+                        +12.4% vs last week
+                    </div>
+</div>
+<div class="bg-surface-container-lowest p-6 rounded-xl shadow-sm border-none">
+<div class="flex items-center justify-between mb-4">
+<span class="text-xs font-bold text-outline uppercase tracking-widest font-label">Total Cost</span>
+<span class="material-symbols-outlined text-primary-container text-lg">payments</span>
+</div>
+<div class="text-3xl font-black font-headline text-on-surface">$4,520.12</div>
+<div class="mt-2 text-[10px] font-bold text-green-600 flex items-center gap-1">
+<span class="material-symbols-outlined text-[12px]">trending_up</span>
+                        +8.2% vs last week
+                    </div>
+</div>
+<div class="bg-surface-container-lowest p-6 rounded-xl shadow-sm border-none">
+<div class="flex items-center justify-between mb-4">
+<span class="text-xs font-bold text-outline uppercase tracking-widest font-label">Total Tokens</span>
+<span class="material-symbols-outlined text-primary-container text-lg">generating_tokens</span>
+</div>
+<div class="text-3xl font-black font-headline text-on-surface">42.8B</div>
+<div class="mt-2 text-[10px] font-bold text-primary flex items-center gap-1">
+<span class="material-symbols-outlined text-[12px]">horizontal_rule</span>
+                        Stable activity
+                    </div>
+</div>
+<div class="bg-surface-container-lowest p-6 rounded-xl shadow-sm border-none">
+<div class="flex items-center justify-between mb-4">
+<span class="text-xs font-bold text-outline uppercase tracking-widest font-label">Average Latency</span>
+<span class="material-symbols-outlined text-primary-container text-lg">speed</span>
+</div>
+<div class="text-3xl font-black font-headline text-on-surface">342ms</div>
+<div class="mt-2 text-[10px] font-bold text-red-600 flex items-center gap-1">
+<span class="material-symbols-outlined text-[12px]">trending_down</span>
+                        -4.1% slower
+                    </div>
+</div>
+</section>
+<section class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+<div class="lg:col-span-2 bg-surface-container-lowest p-8 rounded-xl shadow-sm space-y-8">
+<div>
+<h4 class="text-sm font-bold uppercase tracking-widest text-outline mb-1 font-label">Daily Performance</h4>
+<p class="text-lg font-extrabold font-headline">Daily Calls &amp; Cost</p>
+</div>
+<div class="h-64 w-full relative">
+<div class="absolute inset-0 flex items-end gap-2 px-2">
+<div class="flex-1 flex flex-col items-center gap-2 group">
+<div class="w-full bg-primary/20 rounded-t-lg transition-all group-hover:bg-primary/40" style="height: 40%"></div>
+<div class="w-2/3 bg-primary rounded-t-sm" style="height: 20%"></div>
+<span class="text-[10px] font-bold text-outline">Mon</span>
+</div>
+<div class="flex-1 flex flex-col items-center gap-2 group">
+<div class="w-full bg-primary/20 rounded-t-lg transition-all group-hover:bg-primary/40" style="height: 60%"></div>
+<div class="w-2/3 bg-primary rounded-t-sm" style="height: 35%"></div>
+<span class="text-[10px] font-bold text-outline">Tue</span>
+</div>
+<div class="flex-1 flex flex-col items-center gap-2 group">
+<div class="w-full bg-primary/20 rounded-t-lg transition-all group-hover:bg-primary/40" style="height: 55%"></div>
+<div class="w-2/3 bg-primary rounded-t-sm" style="height: 30%"></div>
+<span class="text-[10px] font-bold text-outline">Wed</span>
+</div>
+<div class="flex-1 flex flex-col items-center gap-2 group">
+<div class="w-full bg-primary/20 rounded-t-lg transition-all group-hover:bg-primary/40" style="height: 85%"></div>
+<div class="w-2/3 bg-primary rounded-t-sm" style="height: 50%"></div>
+<span class="text-[10px] font-bold text-outline">Thu</span>
+</div>
+<div class="flex-1 flex flex-col items-center gap-2 group">
+<div class="w-full bg-primary/20 rounded-t-lg transition-all group-hover:bg-primary/40" style="height: 70%"></div>
+<div class="w-2/3 bg-primary rounded-t-sm" style="height: 40%"></div>
+<span class="text-[10px] font-bold text-outline">Fri</span>
+</div>
+<div class="flex-1 flex flex-col items-center gap-2 group">
+<div class="w-full bg-primary/20 rounded-t-lg transition-all group-hover:bg-primary/40" style="height: 45%"></div>
+<div class="w-2/3 bg-primary rounded-t-sm" style="height: 25%"></div>
+<span class="text-[10px] font-bold text-outline">Sat</span>
+</div>
+<div class="flex-1 flex flex-col items-center gap-2 group">
+<div class="w-full bg-primary/20 rounded-t-lg transition-all group-hover:bg-primary/40" style="height: 35%"></div>
+<div class="w-2/3 bg-primary rounded-t-sm" style="height: 15%"></div>
+<span class="text-[10px] font-bold text-outline">Sun</span>
+</div>
+</div>
+</div>
+<div class="flex justify-center gap-8 pt-4">
+<div class="flex items-center gap-2">
+<span class="w-3 h-3 rounded-full bg-primary/20"></span>
+<span class="text-xs font-bold text-on-surface">Daily Calls</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="w-3 h-3 rounded-full bg-primary"></span>
+<span class="text-xs font-bold text-on-surface">Daily Cost</span>
+</div>
+</div>
+</div>
+<div class="bg-surface-container-lowest p-8 rounded-xl shadow-sm flex flex-col">
+<h4 class="text-sm font-bold uppercase tracking-widest text-outline mb-1 font-label">Workload</h4>
+<p class="text-lg font-extrabold font-headline mb-8">Model Distribution</p>
+<div class="relative flex-1 flex items-center justify-center">
+<div class="w-48 h-48 rounded-full border-[16px] border-primary-container relative flex items-center justify-center">
+<div class="absolute inset-[-16px] w-48 h-48 rounded-full border-[16px] border-secondary border-t-transparent border-l-transparent rotate-45"></div>
+<div class="absolute inset-[-16px] w-48 h-48 rounded-full border-[16px] border-tertiary-fixed border-t-transparent border-r-transparent border-b-transparent -rotate-12"></div>
+<div class="text-center">
+<div class="text-2xl font-black font-headline">100%</div>
+<div class="text-[10px] font-bold text-outline uppercase">Utilized</div>
+</div>
+</div>
+</div>
+<div class="mt-8 space-y-3">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-primary-container"></span>
+<span class="text-xs font-medium">GPT-4o</span>
+</div>
+<span class="text-xs font-bold">54%</span>
+</div>
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-secondary"></span>
+<span class="text-xs font-medium">Claude 3.5 Sonnet</span>
+</div>
+<span class="text-xs font-bold">32%</span>
+</div>
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-tertiary-fixed"></span>
+<span class="text-xs font-medium">Llama 3 70B</span>
+</div>
+<span class="text-xs font-bold">14%</span>
+</div>
+</div>
+</div>
+</section>
+<section class="bg-surface-container-lowest rounded-xl shadow-sm overflow-hidden">
+<div class="p-8 pb-4">
+<h4 class="text-sm font-bold uppercase tracking-widest text-outline mb-1 font-label">Leaderboard</h4>
+<p class="text-lg font-extrabold font-headline">Model Ranking</p>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left">
+<thead>
+<tr class="bg-surface-container-low border-none">
+<th class="px-8 py-4 text-[10px] font-bold text-outline uppercase tracking-widest font-label">Model</th>
+<th class="px-8 py-4 text-[10px] font-bold text-outline uppercase tracking-widest font-label">Calls</th>
+<th class="px-8 py-4 text-[10px] font-bold text-outline uppercase tracking-widest font-label">Tokens</th>
+<th class="px-8 py-4 text-[10px] font-bold text-outline uppercase tracking-widest font-label">Cost</th>
+<th class="px-8 py-4 text-[10px] font-bold text-outline uppercase tracking-widest font-label">Avg Latency</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-surface-container-low">
+<tr class="hover:bg-surface-container-high/30 transition-colors">
+<td class="px-8 py-5">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-lg bg-primary-container/10 flex items-center justify-center text-primary-container">
+<span class="material-symbols-outlined text-lg" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
+</div>
+<span class="text-sm font-bold">GPT-4o</span>
+</div>
+</td>
+<td class="px-8 py-5 text-sm font-medium">692,402</td>
+<td class="px-8 py-5 text-sm font-medium">28.4B</td>
+<td class="px-8 py-5 text-sm font-bold text-primary">$3,240.50</td>
+<td class="px-8 py-5 text-sm font-medium">280ms</td>
+</tr>
+<tr class="hover:bg-surface-container-high/30 transition-colors">
+<td class="px-8 py-5">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-lg bg-secondary/10 flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined text-lg">psychology</span>
+</div>
+<span class="text-sm font-bold">Claude 3.5 Sonnet</span>
+</div>
+</td>
+<td class="px-8 py-5 text-sm font-medium">410,210</td>
+<td class="px-8 py-5 text-sm font-medium">10.2B</td>
+<td class="px-8 py-5 text-sm font-bold text-primary">$1,120.10</td>
+<td class="px-8 py-5 text-sm font-medium">420ms</td>
+</tr>
+<tr class="hover:bg-surface-container-high/30 transition-colors">
+<td class="px-8 py-5">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-lg bg-tertiary-fixed-dim/20 flex items-center justify-center text-tertiary">
+<span class="material-symbols-outlined text-lg">token</span>
+</div>
+<span class="text-sm font-bold">Llama 3 70B</span>
+</div>
+</td>
+<td class="px-8 py-5 text-sm font-medium">181,480</td>
+<td class="px-8 py-5 text-sm font-medium">4.2B</td>
+<td class="px-8 py-5 text-sm font-bold text-primary">$159.52</td>
+<td class="px-8 py-5 text-sm font-medium">510ms</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="p-6 text-center border-t border-surface-container-low">
+<button class="text-xs font-bold text-primary hover:underline">View All Active Models</button>
+</div>
+</section>
+</div>
+</main>
+</body></html>
