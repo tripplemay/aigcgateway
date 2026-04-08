@@ -1,20 +1,4 @@
 {
   "description": "需求池：已与用户确认但尚未开发的功能，等待下一批次启动时统一安排",
-  "items": [
-    {
-      "id": "BL-060",
-      "title": "Admin 模型能力管理页面（capabilities + supportedSizes）",
-      "description": "新增独立的 Admin 页面管理模型能力，与白名单页面职责分离。白名单管渠道/价格，能力页管 capabilities/supportedSizes。页面展示与用户侧 list_models 完全一致。capabilities 6 种标签：streaming/json_mode/function_calling/vision/reasoning/search。image 模型额外编辑 supportedSizes。编辑后直接写入 Model 表 capabilities/supportedSizes 字段，废弃代码中的 CAPABILITIES_MAP 静态映射。来源：用户产品设计（2026-04-08）。",
-      "decisions": [
-        "与白名单页面分离：白名单管 Channel（渠道/价格），能力页管 Model（capabilities/sizes）",
-        "展示内容与用户侧 list_models 完全一致",
-        "6 种 capability toggle：streaming / json_mode / function_calling / vision / reasoning / search",
-        "image 模型额外编辑 supportedSizes 数组",
-        "编辑即时保存到 DB，废弃 CAPABILITIES_MAP 静态 fallback",
-        "空值语义改为'未设置'而非'不支持'"
-      ],
-      "confirmed_at": "2026-04-08",
-      "priority": "high"
-    }
-  ]
+  "items": []
 }

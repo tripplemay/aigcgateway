@@ -12,11 +12,14 @@ AIGC Gateway — AI 服务商管理中台。统一 API 调用抽象（兼容 Ope
 
 ## 当前开发状态（截至 2026-04-08）
 
-**最新完成批次：** `user-profile-center`（6/6 PASS，fix_rounds=0，Generator=Johnsong）
+**最新完成批次：** `bugfix-template-api`（3/3 PASS，fix_rounds=0，Generator=Johnsong）
 **Harness 状态：** done
-**签收报告：** `docs/test-reports/user-profile-center-signoff-2026-04-08.md`
+**签收报告：** `docs/test-reports/bugfix-template-api-signoff-2026-04-08.md`
 
 ### 近期完成批次（2026-04-08 ~ 2026-04-06）
+
+- `bugfix-template-api`（3/3 PASS）— Template 创建 API 500 修复（输入验证 + 错误处理）
+- `user-profile-center`（6/6 PASS）— Sidebar 用户信息 + 个人中心入口 + 登录历史
 
 - `user-profile-center`（6/6 PASS）— Sidebar 用户信息 + 个人中心入口 + LoginHistory 表 + 安全日志展示
 - `balance-user-level-backend`（8/8 PASS）— 余额从 Project 级改为 User 级全链路
@@ -74,9 +77,9 @@ Action 相关权威设计稿（3 个，已更新确认）：
 
 | ID | 优先级 | 标题 |
 |---|---|---|
-| BL-059 | high | Template 创建 API 返回 500（生产环境） |
+| BL-060 | high | Admin 模型能力管理页面（capabilities + supportedSizes，废弃静态映射） |
 
-BL-024~058 已完成。
+BL-024~059 已完成。
 
 ## 已知遗留问题
 

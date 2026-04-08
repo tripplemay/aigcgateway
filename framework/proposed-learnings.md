@@ -146,4 +146,4 @@
 
 **建议写入：** `framework/harness/evaluator.md`（测试脚本自检章节：运行前先检查余额存储层级；如迁移到 User，需要更新脚本中的充值逻辑）。
 
-**状态：** 待确认
+**状态：** 已关闭（2026-04-08）— 属于项目特有知识（余额从 Project 迁到 User），不纳入通用框架。Codex 测试脚本 codex-setup.sh 已由 Mark 更新。
