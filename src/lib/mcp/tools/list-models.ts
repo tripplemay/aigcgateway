@@ -63,7 +63,7 @@ export function registerListModels(server: McpServer, opts: McpServerOptions): v
       });
 
       // Filter out models whose only ACTIVE channels all have latest health check FAIL
-      type ModelRow = typeof allModels[number];
+      type ModelRow = (typeof allModels)[number];
       type ChannelRow = ModelRow["channels"][number];
       const models: ModelRow[] = allModels.filter((m: ModelRow) => {
         const healthy = m.channels.filter((ch: ChannelRow) => {
@@ -89,9 +89,10 @@ export function registerListModels(server: McpServer, opts: McpServerOptions): v
 
         // Fallback: if DB capabilities is empty, resolve from static map
         const dbCaps = model.capabilities as Record<string, unknown> | null;
-        const capabilities = (dbCaps && Object.keys(dbCaps).length > 0)
-          ? dbCaps
-          : resolveCapabilities(model.name);
+        const capabilities =
+          dbCaps && Object.keys(dbCaps).length > 0
+            ? dbCaps
+            : resolveCapabilities(model.name.split("/").pop() || model.name);
 
         const result: Record<string, unknown> = {
           name: model.name,
@@ -104,7 +105,7 @@ export function registerListModels(server: McpServer, opts: McpServerOptions): v
 
         // Add supportedSizes for image models
         if (model.modality === "IMAGE") {
-          const sizes = resolveSupportedSizes(model.name);
+          const sizes = resolveSupportedSizes(model.name.split("/").pop() || model.name);
           if (sizes) result.supportedSizes = sizes;
         }
 

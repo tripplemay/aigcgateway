@@ -57,7 +57,7 @@ async function queryModelsJSON(modalityFilter: string | undefined): Promise<stri
   });
 
   // Filter out models whose only ACTIVE channels all have latest health check FAIL
-  type ModelRow = typeof allModels[number];
+  type ModelRow = (typeof allModels)[number];
   type ChannelRow = ModelRow["channels"][number];
   const models: ModelRow[] = allModels.filter((m: ModelRow) => {
     const healthyChannels = m.channels.filter((ch: ChannelRow) => {
@@ -72,9 +72,10 @@ async function queryModelsJSON(modalityFilter: string | undefined): Promise<stri
     const sellPrice = channel?.sellPrice as Record<string, unknown> | undefined;
     const providerName = channel?.provider?.displayName ?? null;
     const dbCaps = model.capabilities as Record<string, unknown> | null;
-    const capabilities = (dbCaps && Object.keys(dbCaps).length > 0)
-      ? dbCaps
-      : resolveCapabilities(model.name);
+    const capabilities =
+      dbCaps && Object.keys(dbCaps).length > 0
+        ? dbCaps
+        : resolveCapabilities(model.name.split("/").pop() || model.name);
 
     const pricing: Record<string, unknown> = {};
     if (sellPrice) {
@@ -91,7 +92,7 @@ async function queryModelsJSON(modalityFilter: string | undefined): Promise<stri
     }
 
     const isImage = model.modality === "IMAGE";
-    const sizes = isImage ? resolveSupportedSizes(model.name) : null;
+    const sizes = isImage ? resolveSupportedSizes(model.name.split("/").pop() || model.name) : null;
 
     return {
       id: model.name,
