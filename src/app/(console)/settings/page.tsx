@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import { toast } from "sonner";
 import { apiFetch } from "@/lib/api-client";
@@ -54,20 +54,23 @@ export default function SettingsPage() {
   const { loading: projLoading } = useProject();
 
   const [name, setName] = useState("");
-  const [nameLoaded, setNameLoaded] = useState(false);
+  const [nameInitialized, setNameInitialized] = useState(false);
   const [oldPassword, setOldPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
   // ── Data: profile ──
-  const { data: profile } = useAsyncData<Profile>(async () => {
-    const p = await apiFetch<Profile>("/api/auth/profile");
-    if (!nameLoaded) {
-      setName(p.name ?? "");
-      setNameLoaded(true);
-    }
-    return p;
+  const { data: profile, refetch: refetchProfile } = useAsyncData<Profile>(async () => {
+    return apiFetch<Profile>("/api/auth/profile");
   }, []);
+
+  // Sync name from profile data only once on initial load
+  useEffect(() => {
+    if (profile && !nameInitialized) {
+      setName(profile.name ?? "");
+      setNameInitialized(true);
+    }
+  }, [profile, nameInitialized]);
 
   // ── Data: login history ──
   const { data: historyData } = useAsyncData<{ data: LoginRecord[] }>(async () => {
@@ -80,6 +83,7 @@ export default function SettingsPage() {
     try {
       await apiFetch("/api/auth/profile", { method: "PATCH", body: JSON.stringify({ name }) });
       toast.success(t("nameUpdated"));
+      refetchProfile();
     } catch (e) {
       toast.error((e as Error).message);
     }
@@ -143,9 +147,7 @@ export default function SettingsPage() {
                 </span>
               </div>
               <div>
-                <h2 className="text-xl font-bold font-[var(--font-heading)]">
-                  {t("profileInfo")}
-                </h2>
+                <h2 className="text-xl font-bold font-[var(--font-heading)]">{t("profileInfo")}</h2>
                 <p className="text-sm text-ds-on-surface-variant">{t("profileDesc")}</p>
               </div>
             </div>
@@ -249,9 +251,7 @@ export default function SettingsPage() {
           {/* Change Password — code.html lines 248-269 */}
           <section className="bg-ds-surface-container-lowest rounded-xl p-8 shadow-sm">
             <div className="mb-8">
-              <h2 className="text-xl font-bold font-[var(--font-heading)] mb-1">
-                {t("security")}
-              </h2>
+              <h2 className="text-xl font-bold font-[var(--font-heading)] mb-1">{t("security")}</h2>
               <p className="text-sm text-ds-on-surface-variant">{t("securityDesc")}</p>
             </div>
             <div className="space-y-5">

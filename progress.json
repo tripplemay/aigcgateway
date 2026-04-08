@@ -1,11 +1,11 @@
 {
-  "status": "fixing",
+  "status": "reverifying",
   "user_goal": "R2B — 用户侧页面还原（Balance + Usage + Settings）：3 个页面从旧代码模式还原为 R1 设计系统，对齐 Stitch 设计稿",
   "total_features": 6,
   "completed_features": 4,
-  "fix_rounds": 0,
+  "fix_rounds": 1,
   "current_sprint": null,
-  "last_updated": "2026-04-09T00:42:00Z",
+  "last_updated": "2026-04-09T01:00:00Z",
   "reference_docs": [
     "docs/specs/R2B-user-pages-balance-usage-settings-spec.md",
     "design-draft/balance/code.html",
@@ -47,7 +47,7 @@
   "generator_handoff": "R2B building 完成。5/5 generator 功能已实现：Balance 页（useAsyncData+DS Table/Pagination+类型筛选）、RechargeDialog 独立组件、Usage 页（recharts BarChart/PieChart+DS Table）、Settings 页（profile+password+login history DS Table）、i18n 全面补全。Notifications 和 System Status 按 DESIGN.md 标注已移除。tsc+lint 通过。",
   "session_notes": {
     "Richard": "R2B planning 完成。6 条功能（5 generator + 1 codex）。balance 页+充值弹窗、usage 页（含 recharts 图表）、settings 页 + i18n。spec 中特别加了 i18n 自检清单（R2A 教训）。recharts 已在项目中。",
-    "Johnsong": "R2B building 一轮完成。Balance: useAsyncData 替代 useEffect+useCallback、DS Table/Pagination 替代原生 table、新增交易类型筛选、i18n 全部补齐。Usage: 移除了 prevSummary 环比逻辑（DESIGN.md ignore）、typed interfaces 替代 Record、DS Table 替代原生。Settings: 移除 Notifications 和 System Status（DESIGN.md ignore）、login history 改用 DS Table、全部硬编码英文转 i18n。RechargeDialog 抽为独立组件 src/components/balance/。",
+    "Johnsong": "Fix round 1: Settings saveName 修复。问题：useAsyncData 的 fetcher 内直接 setState 可能导致闭包捕获旧值或与 useCallback 冲突。修复：将 name 初始化从 fetcher 内提取到独立 useEffect，仅在 profile 数据首次到达时同步 name；saveName 后调用 refetchProfile 刷新数据。",
     "Mark": null,
     "Reviewer": "R2B verifying 完成（L1）：/balance、/usage、i18n 与充值流程可用；/settings 个人信息保存失败（无更新请求，刷新回退），据此判定 F-R2B-04 与 F-R2B-06 为 FAIL，状态切换至 fixing。报告：docs/test-reports/R2B-user-pages-balance-usage-settings-verifying-2026-04-09.md"
   }
