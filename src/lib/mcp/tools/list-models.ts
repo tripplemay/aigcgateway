@@ -11,7 +11,7 @@ import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { prisma } from "@/lib/prisma";
 import { checkMcpPermission } from "@/lib/mcp/auth";
 import type { McpServerOptions } from "@/lib/mcp/server";
-import type { ModelCapabilities } from "@/lib/sync/model-capabilities-fallback";
+import { resolveCapabilities, resolveSupportedSizes, type ModelCapabilities } from "@/lib/sync/model-capabilities-fallback";
 
 export function registerListModels(server: McpServer, opts: McpServerOptions): void {
   const { permissions } = opts;
@@ -87,7 +87,11 @@ export function registerListModels(server: McpServer, opts: McpServerOptions): v
           }
         }
 
-        const capabilities = (model.capabilities as ModelCapabilities | null) ?? {};
+        const dbCaps = model.capabilities as ModelCapabilities | null;
+        const capabilities =
+          dbCaps && Object.keys(dbCaps).length > 0
+            ? dbCaps
+            : resolveCapabilities(model.name.split("/").pop() || model.name);
 
         const result: Record<string, unknown> = {
           name: model.name,
@@ -98,10 +102,13 @@ export function registerListModels(server: McpServer, opts: McpServerOptions): v
           capabilities,
         };
 
-        // Add supportedSizes for image models from DB
+        // Add supportedSizes for image models (DB first, fallback to static map)
         if (model.modality === "IMAGE") {
-          const sizes = model.supportedSizes as string[] | null;
-          if (sizes && sizes.length > 0) result.supportedSizes = sizes;
+          const dbSizes = model.supportedSizes as string[] | null;
+          const sizes = dbSizes && dbSizes.length > 0
+            ? dbSizes
+            : resolveSupportedSizes(model.name.split("/").pop() || model.name);
+          if (sizes) result.supportedSizes = sizes;
         }
 
         if (show_all_channels) {
