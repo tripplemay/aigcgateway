@@ -19,6 +19,20 @@
       "decisions": [],
       "confirmed_at": "2026-04-08",
       "priority": "high"
+    },
+    {
+      "id": "BL-067",
+      "title": "跨服务商模型聚合 — 回归 PRD 设计原则",
+      "description": "当前同一个底层模型（如 gpt-4o）通过不同服务商接入后，在系统中是独立的 Model 记录（openai/gpt-4o、openrouter/openai/gpt-4o），用户需要知道渠道信息，违背 PRD 核心原则'服务商对开发者完全透明'。需要架构改造：1) 路由层改为按 canonicalName 查找，跨 Model 合并 channel 按优先级选优；2) list_models 按 canonicalName 去重，用户只看到 gpt-4o 而非 openai/gpt-4o；3) API 契约变更：model 参数去掉 provider 前缀；4) capabilities/supportedSizes 按 canonicalName 共享一份，不需要每个服务商分别设置；5) 向后兼容：旧的带前缀名仍可调用。涉及：路由层、list_models、/v1/models、MCP、Action 绑定、模型能力管理页面。来源：PRD §1.3 + 用户产品讨论（2026-04-08）。",
+      "decisions": [
+        "用户侧模型名去掉 provider 前缀（gpt-4o 而非 openai/gpt-4o）",
+        "路由按 canonicalName 查找，自动选优跨服务商 channel",
+        "capabilities 按 canonicalName 共享，一次设置所有渠道生效",
+        "向后兼容旧的带前缀名",
+        "建议作为独立架构优化批次，改动面大"
+      ],
+      "confirmed_at": "2026-04-08",
+      "priority": "high"
     }
   ]
 }
