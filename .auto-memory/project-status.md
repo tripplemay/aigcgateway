@@ -7,11 +7,11 @@ type: project
 ## 当前批次
 
 **R2B-user-pages-balance-usage-settings** — 用户侧页面还原：Balance + Usage + Settings
-- Status: `fixing`（reverifying round1 仍失败，继续修复）
+- Status: `fixing`（reverifying round2 仍失败，继续修复）
 - 复验结论：/balance、/usage、充值流程可用；/settings 个人信息保存仍失败
-- 阻断缺陷：点击“保存更改”后仍无 profile 更新请求（仅 GET /api/auth/profile），刷新后姓名回退
-- 报告：`docs/test-reports/R2B-user-pages-balance-usage-settings-reverifying-2026-04-09.md`
-- 变更背景：generator 已提交 fix round1（name 初始化/刷新逻辑），但未覆盖提交链路问题
+- 阻断缺陷：点击 Save Changes 后仍无 profile 更新请求（仅 GET /api/auth/profile），刷新后姓名回退
+- 报告：`docs/test-reports/R2B-user-pages-balance-usage-settings-reverifying-round2-2026-04-09.md`
+- 变更背景：generator 已提交 fix round2（按钮 type + 同步 handler），但提交链路问题仍在
 - 已移除：Notifications/System Status（DESIGN.md ignore）
 
 ## UI 重构全局计划
