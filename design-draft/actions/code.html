@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Action List - AIGC Gateway</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "primary-fixed": "#e5deff",
+                        "on-tertiary-fixed": "#2b1700",
+                        "on-tertiary-container": "#fff0e4",
+                        "background": "#faf8ff",
+                        "on-primary": "#ffffff",
+                        "tertiary": "#7c4b00",
+                        "on-secondary-fixed-variant": "#47416e",
+                        "on-secondary-fixed": "#1b153f",
+                        "secondary-container": "#d0c9fe",
+                        "on-primary-fixed-variant": "#4431a8",
+                        "tertiary-container": "#9d6100",
+                        "surface-container-high": "#e2e7ff",
+                        "secondary-fixed-dim": "#c8c0f5",
+                        "outline": "#787584",
+                        "on-error-container": "#93000a",
+                        "surface-tint": "#5c4cc1",
+                        "surface-container-highest": "#dae2fd",
+                        "tertiary-fixed-dim": "#ffb964",
+                        "primary-fixed-dim": "#c8bfff",
+                        "on-tertiary": "#ffffff",
+                        "on-tertiary-fixed-variant": "#663e00",
+                        "on-surface-variant": "#474553",
+                        "secondary": "#5f5987",
+                        "error": "#ba1a1a",
+                        "surface-container": "#eaedff",
+                        "surface": "#faf8ff",
+                        "inverse-surface": "#283044",
+                        "inverse-primary": "#c8bfff",
+                        "on-primary-container": "#f6f1ff",
+                        "surface-bright": "#faf8ff",
+                        "on-secondary": "#ffffff",
+                        "error-container": "#ffdad6",
+                        "secondary-fixed": "#e5deff",
+                        "surface-container-lowest": "#ffffff",
+                        "on-secondary-container": "#585280",
+                        "on-surface": "#131b2e",
+                        "on-error": "#ffffff",
+                        "primary-container": "#6d5dd3",
+                        "surface-variant": "#dae2fd",
+                        "primary": "#5443b9",
+                        "tertiary-fixed": "#ffddba",
+                        "on-primary-fixed": "#190064",
+                        "inverse-on-surface": "#eef0ff",
+                        "surface-dim": "#d2d9f4",
+                        "surface-container-low": "#f2f3ff",
+                        "outline-variant": "#c9c4d5",
+                        "on-background": "#131b2e"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "fontFamily": {
+                        "headline": ["Manrope"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+        h1, h2, h3, .headline { font-family: 'Manrope', sans-serif; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="bg-surface text-on-surface">
+<!-- SideNavBar (Authority: JSON & Design System) -->
+<aside class="w-64 h-screen fixed left-0 top-0 overflow-y-auto bg-slate-100 dark:bg-slate-900 flex flex-col h-full py-6 px-4 font-['Manrope'] tracking-tight">
+<div class="mb-10 px-4">
+<h1 class="text-xl font-bold text-slate-900 dark:text-slate-50">AIGC Gateway</h1>
+<p class="text-xs text-slate-500 uppercase tracking-widest font-semibold">Algorithmic Atelier</p>
+</div>
+<nav class="flex-grow space-y-2">
+<!-- Dashboard -->
+<a class="flex items-center gap-3 px-4 py-2 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span>Dashboard</span>
+</a>
+<!-- Models -->
+<a class="flex items-center gap-3 px-4 py-2 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="model_training">model_training</span>
+<span>Models</span>
+</a>
+<!-- API Keys -->
+<a class="flex items-center gap-3 px-4 py-2 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="vpn_key">vpn_key</span>
+<span>API Keys</span>
+</a>
+<!-- Actions (ACTIVE STATE) -->
+<a class="flex items-center gap-3 px-4 py-2 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 rounded-lg border-l-4 border-indigo-600" href="#">
+<span class="material-symbols-outlined" data-icon="bolt">bolt</span>
+<span>Actions</span>
+</a>
+<!-- Templates -->
+<a class="flex items-center gap-3 px-4 py-2 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="auto_awesome_motion">auto_awesome_motion</span>
+<span>Templates</span>
+</a>
+<!-- Logs -->
+<a class="flex items-center gap-3 px-4 py-2 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="history">history</span>
+<span>Logs</span>
+</a>
+<!-- Balance -->
+<a class="flex items-center gap-3 px-4 py-2 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="account_balance_wallet">account_balance_wallet</span>
+<span>Balance</span>
+</a>
+<!-- Settings -->
+<a class="flex items-center gap-3 px-4 py-2 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span>Settings</span>
+</a>
+</nav>
+<div class="mt-auto px-4 py-6">
+<div class="bg-indigo-600 rounded-xl p-4 text-white">
+<p class="text-xs font-bold opacity-80 uppercase mb-1">Current Plan</p>
+<p class="font-bold text-lg mb-3">Enterprise</p>
+<button class="w-full py-2 bg-white/20 hover:bg-white/30 backdrop-blur rounded-lg text-sm font-semibold transition-all active:scale-95">Upgrade Plan</button>
+</div>
+<div class="mt-6 flex items-center gap-3 px-1">
+<img alt="User Profile Avatar" class="w-10 h-10 rounded-full object-cover" data-alt="Close-up professional portrait of a tech professional in a modern studio with cool lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAU71zHjFFS_ly5Gn_CdKeRt-jq7LWfJr6NRwQiDtP_FNaNOuihlzXjOPFgGtPO_Nm8g-rHMm8xlwmw8VcroL_jLekKZJ429UMYk2_8E37VdrejVrhlJY9r9WCt9QhyvbKLtyHersIp65lO4IGAyKwX9uJVe_-l9VtdFlBVSzmlzvRS0S9yK44xzTIIIceTI186AvIOwjsGnik2ZP_2Hs0MYQigKpTu6gjkswKLC9hoteTG5HeZMn6_4nR_S6rv23tdZoBwd67qLI8v"/>
+<div class="overflow-hidden">
+<p class="text-sm font-bold text-slate-900 dark:text-slate-100 truncate">Julian Thorne</p>
+<p class="text-xs text-slate-500 truncate">Architect</p>
+</div>
+</div>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="ml-64 min-h-screen flex flex-col">
+<!-- TopAppBar (Authority: JSON & Design System) -->
+<header class="sticky top-0 z-40 w-full bg-white/80 dark:bg-slate-950/80 backdrop-blur-xl flex justify-between items-center px-8 py-4 shadow-sm font-['Manrope'] font-semibold">
+<div class="flex flex-col">
+<h2 class="text-2xl font-black text-slate-900 dark:text-white">Actions</h2>
+<span class="text-xs font-medium text-slate-500 tracking-tight">Reusable atomic prompt operations.</span>
+</div>
+<div class="flex items-center gap-6">
+<div class="relative group">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-500 transition-colors">search</span>
+<input class="pl-10 pr-4 py-2 w-72 bg-slate-100 dark:bg-slate-800 border-none rounded-full text-sm focus:ring-2 focus:ring-indigo-500/20 transition-all outline-none" placeholder="Search actions..." type="text"/>
+</div>
+<button class="px-6 py-2 bg-gradient-to-r from-primary to-primary-container text-white rounded-full text-sm font-bold shadow-lg shadow-indigo-500/20 active:scale-95 duration-200">
+                    + Create Action
+                </button>
+<img alt="User Avatar" class="w-9 h-9 rounded-full object-cover" data-alt="User profile avatar of a developer in high-tech studio setting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBVoYSc6TqGgrFAVDEYreMRzpvo_8jl0Ctu1oznh6UdQcfnHDPvEcM7jYaFi_wxLTpL7VnnzuTeENiJCA8xlBjsFXV_cDbwRJnRGKou4AOjUsa_j49ReHjfDLTz2CAG0xFSpvZRFbTH1UD9oC0lj42UaCKPBgcprKh0XV0G0XWlMMbf7dI9QY9v69xP5SrZgqlT_VcmT9QE3S0Sw1qmTOrSsqL-C-JhKbJniSSeSJHRmH9LUtNziEVRQ1xDt8OOEgh25h7A-4CS2X0B"/>
+</div>
+</header>
+<!-- Page Content -->
+<div class="p-8 space-y-8 flex-grow">
+<!-- Actions Table Container -->
+<div class="bg-surface-container-lowest rounded-xl overflow-hidden">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container-low">
+<th class="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-500">Action Name</th>
+<th class="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-500">Model</th>
+<th class="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-500">Version</th>
+<th class="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-500">Variables</th>
+<th class="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-500">Description</th>
+<th class="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-500">Updated</th>
+<th class="px-6 py-4 w-10"></th>
+</tr>
+</thead>
+<tbody class="divide-y divide-slate-50 dark:divide-slate-900/50">
+<!-- Row 1 -->
+<tr class="group hover:bg-surface-container-high transition-colors cursor-pointer">
+<td class="px-6 py-5 font-bold text-primary">Intent Classifier</td>
+<td class="px-6 py-5 text-sm font-medium text-on-surface-variant">GPT-4o</td>
+<td class="px-6 py-5">
+<span class="px-2 py-1 bg-indigo-50 text-indigo-600 rounded text-[10px] font-black tracking-wider uppercase">v2.4.1</span>
+</td>
+<td class="px-6 py-5 text-sm font-medium text-on-surface-variant">3</td>
+<td class="px-6 py-5 text-sm text-slate-500">Categorizes inbound user prompts into pre-defined intents.</td>
+<td class="px-6 py-5 text-xs text-slate-400">2h ago</td>
+<td class="px-6 py-5 text-slate-300 group-hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-xl">chevron_right</span>
+</td>
+</tr>
+<!-- Row 2 -->
+<tr class="group hover:bg-surface-container-high transition-colors cursor-pointer">
+<td class="px-6 py-5 font-bold text-primary">Response Generator</td>
+<td class="px-6 py-5 text-sm font-medium text-on-surface-variant">Claude 3.5 Sonnet</td>
+<td class="px-6 py-5">
+<span class="px-2 py-1 bg-indigo-50 text-indigo-600 rounded text-[10px] font-black tracking-wider uppercase">v1.1.0</span>
+</td>
+<td class="px-6 py-5 text-sm font-medium text-on-surface-variant">5</td>
+<td class="px-6 py-5 text-sm text-slate-500">Main drafting engine for customer support inquiries.</td>
+<td class="px-6 py-5 text-xs text-slate-400">5h ago</td>
+<td class="px-6 py-5 text-slate-300 group-hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-xl">chevron_right</span>
+</td>
+</tr>
+<!-- Row 3 -->
+<tr class="group hover:bg-surface-container-high transition-colors cursor-pointer">
+<td class="px-6 py-5 font-bold text-primary">Quality Checker</td>
+<td class="px-6 py-5 text-sm font-medium text-on-surface-variant">Gemini 1.5 Pro</td>
+<td class="px-6 py-5">
+<span class="px-2 py-1 bg-indigo-50 text-indigo-600 rounded text-[10px] font-black tracking-wider uppercase">v4.2.0</span>
+</td>
+<td class="px-6 py-5 text-sm font-medium text-on-surface-variant">2</td>
+<td class="px-6 py-5 text-sm text-slate-500">Validation logic for ensuring brand voice compliance.</td>
+<td class="px-6 py-5 text-xs text-slate-400">Yesterday</td>
+<td class="px-6 py-5 text-slate-300 group-hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-xl">chevron_right</span>
+</td>
+</tr>
+<!-- Row 4 -->
+<tr class="group hover:bg-surface-container-high transition-colors cursor-pointer">
+<td class="px-6 py-5 font-bold text-primary">Sentiment Analyzer</td>
+<td class="px-6 py-5 text-sm font-medium text-on-surface-variant">Llama 3 70B</td>
+<td class="px-6 py-5">
+<span class="px-2 py-1 bg-indigo-50 text-indigo-600 rounded text-[10px] font-black tracking-wider uppercase">v0.9.8</span>
+</td>
+<td class="px-6 py-5 text-sm font-medium text-on-surface-variant">1</td>
+<td class="px-6 py-5 text-sm text-slate-500">Extracts emotional tone from long-form documents.</td>
+<td class="px-6 py-5 text-xs text-slate-400">Oct 12</td>
+<td class="px-6 py-5 text-slate-300 group-hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-xl">chevron_right</span>
+</td>
+</tr>
+<!-- Row 5 -->
+<tr class="group hover:bg-surface-container-high transition-colors cursor-pointer">
+<td class="px-6 py-5 font-bold text-primary">Content Moderator</td>
+<td class="px-6 py-5 text-sm font-medium text-on-surface-variant">GPT-4o mini</td>
+<td class="px-6 py-5">
+<span class="px-2 py-1 bg-indigo-50 text-indigo-600 rounded text-[10px] font-black tracking-wider uppercase">v3.0.1</span>
+</td>
+<td class="px-6 py-5 text-sm font-medium text-on-surface-variant">0</td>
+<td class="px-6 py-5 text-sm text-slate-500">Safety filter for screening prohibited content types.</td>
+<td class="px-6 py-5 text-xs text-slate-400">Oct 10</td>
+<td class="px-6 py-5 text-slate-300 group-hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-xl">chevron_right</span>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="px-6 py-4 bg-surface-container-low flex justify-between items-center text-sm font-medium text-slate-500">
+<p>Showing 5 of 24 actions</p>
+<div class="flex gap-2">
+<button class="px-3 py-1 bg-white border border-slate-200 rounded text-slate-400 cursor-not-allowed">Previous</button>
+<button class="px-3 py-1 bg-white border border-slate-200 rounded hover:bg-indigo-50 hover:text-indigo-600 transition-colors">Next</button>
+</div>
+</div>
+</div>
+<!-- CTA Banner (Bottom) -->
+<section class="relative rounded-2xl overflow-hidden p-10 flex flex-col md:flex-row items-center justify-between gap-8 bg-[#131b2e] text-white">
+<!-- Background Decorative Element -->
+<div class="absolute inset-0 opacity-20 pointer-events-none" data-alt="Deep indigo abstract gradient with soft glowing purple orb in the upper corner" style="background-image: radial-gradient(circle at 80% 20%, #6d5dd3 0%, transparent 40%);"></div>
+<div class="relative z-10 max-w-xl">
+<h3 class="text-3xl font-extrabold mb-4 tracking-tight">Build Multi-Step Workflows</h3>
+<p class="text-slate-300 text-lg leading-relaxed">Combine your actions into powerful templates for complex AI pipelines. Orchestrate entire business processes with drag-and-drop ease.</p>
+</div>
+<div class="relative z-10">
+<button class="px-8 py-4 border-2 border-indigo-500/30 hover:border-indigo-500 hover:bg-indigo-500/10 text-indigo-400 font-bold rounded-xl transition-all active:scale-95">
+                        Explore Templates
+                    </button>
+</div>
+</section>
+</div>
+<!-- Footer Visual Buffer -->
+<footer class="p-8 text-center text-xs text-slate-400 font-medium tracking-widest uppercase mt-auto">
+            © 2024 Algorithmic Atelier • AIGC Gateway Core
+        </footer>
+</main>
+</body></html>
