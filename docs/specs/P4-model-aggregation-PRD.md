@@ -281,61 +281,159 @@ export async function routeByModelName(modelName: string): Promise<RouteResult> 
 
 ---
 
-## 8. 分期实施
+## 8. 模型别名管理
 
-### P4-1（核心重构）
+### 8.1 数据模型
+
+新增 `ModelAlias` 表：
+
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| id | String | 主键 |
+| alias | String (unique) | Provider 返回的 modelId（如 `deepseek-chat`） |
+| modelName | String | 对应的 canonical Model.name（如 `deepseek/v3`） |
+| createdAt | DateTime | 创建时间 |
+
+### 8.2 Sync 流程中的作用
+
+```
+Provider sync 返回 modelId = "deepseek-chat"
+  → 查 ModelAlias 表：alias = "deepseek-chat" → modelName = "deepseek/v3"
+  → Model.upsert(name = "deepseek/v3")
+  → Channel.upsert(modelId = model.id, providerId = provider.id, realModelId = "deepseek-chat")
+```
+
+如果 ModelAlias 表没有匹配：
+  → 按默认规则计算 canonical name（modelId 本身）
+  → 创建新 Model（enabled = false）
+  → 管理员在 UI 中看到未识别模型，手动归类
+
+### 8.3 Admin UI — 模型别名管理页
+
+独立页面 `/admin/model-aliases`，Sidebar Admin 导航增加入口。
+
+**页面布局：**
+
+```
+┌─────────────────────────────────────────────────────────┐
+│  模型别名管理                                    [+ 新增别名] │
+├─────────────────────────────────────────────────────────┤
+│                                                         │
+│  deepseek/v3                                            │
+│    ├── deepseek-chat            （来源：DeepSeek 直连）    │
+│    ├── deepseek/deepseek-chat   （来源：OpenRouter）      │
+│    └── [+ 添加别名]                                      │
+│                                                         │
+│  gpt-4o                                                 │
+│    ├── gpt-4o-2024-11-20        （来源：chatanywhere）    │
+│    ├── gpt-4o-2024-08-06        （来源：chatanywhere）    │
+│    └── [+ 添加别名]                                      │
+│                                                         │
+│  claude-sonnet-4                                        │
+│    ├── anthropic/claude-sonnet-4      （来源：OpenRouter） │
+│    ├── claude-sonnet-4-20250514       （来源：chatanywhere）│
+│    └── [+ 添加别名]                                      │
+│                                                         │
+│  ── 未归类的模型（sync 后未匹配别名的新 modelId）──         │
+│    ○ gemini-3-pro-image-preview   [归入已有模型 ▾] [创建新模型] │
+│    ○ qwen3.5-plus                 [归入已有模型 ▾] [创建新模型] │
+│                                                         │
+└─────────────────────────────────────────────────────────┘
+```
+
+**交互：**
+- **查看：** 按 canonical model 分组，展示所有别名
+- **新增别名：** 输入 alias + 选择归属的 canonical model
+- **删除别名：** 移除映射关系
+- **未归类处理：** sync 发现新 modelId 且无匹配别名时，创建临时 Model（enabled=false）。管理员在"未归类"区域决定：
+  - "归入已有模型"→ 创建 alias 记录 + 迁移 Channel 到目标 Model + 删除临时 Model
+  - "创建新模型"→ 保持当前 Model，确认为新的 canonical model
+
+### 8.4 初始数据
+
+首次部署时，把已知的别名映射写入 ModelAlias 表：
+
+```sql
+INSERT INTO model_aliases (alias, "modelName") VALUES
+  ('deepseek-chat', 'deepseek/v3'),
+  ('deepseek-reasoner', 'deepseek/reasoner'),
+  ('deepseek/deepseek-chat', 'deepseek/v3'),
+  ('deepseek/deepseek-r1', 'deepseek/reasoner'),
+  ('anthropic/claude-sonnet-4', 'claude-sonnet-4'),
+  ('anthropic/claude-3.5-haiku', 'claude-3.5-haiku'),
+  ('google/gemini-2.5-pro', 'gemini-2.5-pro'),
+  ('google/gemini-2.5-flash', 'gemini-2.5-flash'),
+  ('google/gemini-2.0-flash-001', 'gemini-2.0-flash'),
+  ('x-ai/grok-3', 'grok-3'),
+  ('x-ai/grok-3-mini', 'grok-3-mini'),
+  ('qwen/qwen-max', 'qwen-max'),
+  ('qwen/qwen-plus', 'qwen-plus'),
+  ('minimax/minimax-01', 'minimax-01'),
+  ('moonshotai/kimi-k2', 'kimi-k2'),
+  ('perplexity/sonar', 'perplexity-sonar'),
+  ('perplexity/sonar-pro', 'perplexity-sonar-pro'),
+  -- 版本变体
+  ('gpt-4o-2024-11-20', 'gpt-4o'),
+  ('gpt-4o-2024-08-06', 'gpt-4o'),
+  ('gpt-4o-2024-05-13', 'gpt-4o'),
+  ('gpt-4o-mini-2024-07-18', 'gpt-4o-mini')
+;
+```
+
+---
+
+## 9. 分期实施
+
+### P4-1（核心重构 + 别名管理）
 
 | 功能 | 说明 |
 |------|------|
-| Schema migration | 清空 + 删除 canonicalName/isVariant |
-| computeCanonicalName 新规则 | 别名映射 + 去掉 provider 前缀 |
-| sync 去重 | BL-066 |
-| sync 改为 canonical Model + 多 Channel | 核心改造 |
-| router.ts 无需大改 | Model.name 已是 canonical，逻辑几乎不变 |
-| list_models / /v1/models 去重 | 不再需要去重（Model 本身已唯一） |
+| Schema migration | 清空 Model/Channel + 删除 canonicalName/isVariant + 新增 ModelAlias 表 |
+| ModelAlias 初始数据 | 已知别名写入 DB |
+| sync 改造 | 查 ModelAlias → upsert canonical Model → upsert Channel + sync 前去重 |
+| 路由层 | 几乎不改（Model.name 已是 canonical） |
+| list_models / /v1/models | 去掉旧的去重/fallback 逻辑 |
+| Admin 模型别名管理页 | 别名 CRUD + 未归类模型归入/创建 |
+| Admin 白名单页面改造 | 按 canonical model 展示，展开显示各通道 |
 
-### P4-2（管理员页面）
-
-| 功能 | 说明 |
-|------|------|
-| 白名单页面改造 | 展开显示各通道，优先级/价格编辑 |
-| 模型能力页面 | 无需大改（Model 已唯一） |
-
-### P4-3（收尾）
+### P4-2（收尾 + 文档）
 
 | 功能 | 说明 |
 |------|------|
 | SDK 文档更新 | model 参数去掉前缀 |
 | MCP SERVER_INSTRUCTIONS 更新 | 模型名格式变更说明 |
 | Action/Template 重建指引 | 文档 |
+| 模型能力管理页对齐 | 确认与新 Model 结构兼容 |
 
 ---
 
-## 9. 决策点
+## 10. 决策点
 
-| # | 决策点 | 建议 | 状态 |
+| # | 决策点 | 决策 | 状态 |
 |---|--------|------|------|
-| 1 | 版本变体合并（`gpt-4o` 和 `gpt-4o-2024-11-20`） | 合并，用户不关心版本后缀 | 待确认 |
-| 2 | 模型名中是否保留厂商前缀 | 按厂商决定：OpenAI 的不加（`gpt-4o`），DeepSeek 的加（`deepseek/v3`），Anthropic 的加（`claude-sonnet-4` 不需要前缀因为名字自带品牌） | 待确认 |
-| 3 | 清空重建时 Action/Template 怎么处理 | 手动重建（生产上数量少） | 待确认 |
-| 4 | 模型别名映射表由谁维护 | 代码中静态维护，后续可迁移到 Admin UI | 待确认 |
+| 1 | 版本变体合并 | 合并，版本后缀作为别名 | **已确认** |
+| 2 | 模型名格式 | 按厂商决定：`gpt-4o` / `deepseek/v3` / `claude-sonnet-4` | **已确认** |
+| 3 | Action/Template 处理 | 手动重建 | **已确认** |
+| 4 | 别名映射表维护 | Admin UI 管理，P4-1 包含 | **已确认** |
 
 ---
 
-## 10. 影响范围
+## 11. 影响范围
 
 ### 需要改动
 
 | 文件 | 改动 | 复杂度 |
 |------|------|--------|
-| `prisma/schema.prisma` | 删除 canonicalName/isVariant + migration | 低 |
-| `src/lib/sync/model-sync.ts` | computeCanonicalName 新规则 + upsert 改为 canonical name | 中 |
+| `prisma/schema.prisma` | 删除 canonicalName/isVariant + 新增 ModelAlias 表 + migration | 中 |
+| `src/lib/sync/model-sync.ts` | 查 ModelAlias → canonical name + upsert 改造 + sync 前去重 | 高 |
 | `src/lib/sync/adapters/*.ts` | sync 前去重 | 低 |
-| `src/lib/engine/router.ts` | 几乎不改（Model.name 已是 canonical） | 低 |
-| `src/lib/mcp/tools/list-models.ts` | 去掉去重逻辑（不再需要） | 低 |
+| `src/lib/engine/router.ts` | 几乎不改 | 低 |
+| `src/lib/mcp/tools/list-models.ts` | 去掉旧的去重/fallback 逻辑 | 低 |
 | `src/app/api/v1/models/route.ts` | 同上 | 低 |
+| `src/app/(console)/admin/model-aliases/` | **新增**：别名管理页面 | 中 |
+| `src/app/api/admin/model-aliases/` | **新增**：别名 CRUD API | 中 |
 | `src/app/(console)/admin/model-whitelist/` | 展示改造（展开多通道） | 中 |
-| `src/lib/sync/model-capabilities-fallback.ts` | 可能废弃（Admin UI 已管理） | 低 |
+| `src/lib/sync/model-capabilities-fallback.ts` | 废弃（已迁移到 Admin UI + DB） | 低 |
 
 ### 不需要改动
 
