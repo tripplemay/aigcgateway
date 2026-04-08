@@ -79,14 +79,15 @@ export default function SettingsPage() {
 
   const loginHistory = historyData?.data ?? [];
 
-  const saveName = async () => {
-    try {
-      await apiFetch("/api/auth/profile", { method: "PATCH", body: JSON.stringify({ name }) });
-      toast.success(t("nameUpdated"));
-      refetchProfile();
-    } catch (e) {
-      toast.error((e as Error).message);
-    }
+  const handleSaveName = () => {
+    apiFetch("/api/auth/profile", { method: "PATCH", body: JSON.stringify({ name }) })
+      .then(() => {
+        toast.success(t("nameUpdated"));
+        refetchProfile();
+      })
+      .catch((e: unknown) => {
+        toast.error((e as Error).message);
+      });
   };
 
   const changePassword = async () => {
@@ -182,7 +183,8 @@ export default function SettingsPage() {
               </div>
               <div className="flex justify-end pt-4">
                 <button
-                  onClick={saveName}
+                  type="button"
+                  onClick={handleSaveName}
                   className="px-6 py-2.5 bg-ds-primary text-white font-semibold rounded-lg hover:bg-ds-primary-container transition-all active:scale-95 shadow-lg shadow-ds-primary/10"
                 >
                   {t("saveChanges")}
@@ -274,6 +276,7 @@ export default function SettingsPage() {
                 </div>
               ))}
               <button
+                type="button"
                 onClick={changePassword}
                 className="w-full mt-4 py-3 border-2 border-ds-primary text-ds-primary font-bold rounded-lg hover:bg-ds-primary hover:text-white transition-all active:scale-[0.98]"
               >

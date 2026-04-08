@@ -1,9 +1,9 @@
 {
-  "status": "fixing",
+  "status": "reverifying",
   "user_goal": "R2B — 用户侧页面还原（Balance + Usage + Settings）：3 个页面从旧代码模式还原为 R1 设计系统，对齐 Stitch 设计稿",
   "total_features": 6,
   "completed_features": 4,
-  "fix_rounds": 1,
+  "fix_rounds": 2,
   "current_sprint": null,
   "last_updated": "2026-04-09T01:08:00Z",
   "reference_docs": [
@@ -47,7 +47,7 @@
   "generator_handoff": "R2B building 完成。5/5 generator 功能已实现：Balance 页（useAsyncData+DS Table/Pagination+类型筛选）、RechargeDialog 独立组件、Usage 页（recharts BarChart/PieChart+DS Table）、Settings 页（profile+password+login history DS Table）、i18n 全面补全。Notifications 和 System Status 按 DESIGN.md 标注已移除。tsc+lint 通过。",
   "session_notes": {
     "Richard": "R2B planning 完成。6 条功能（5 generator + 1 codex）。balance 页+充值弹窗、usage 页（含 recharts 图表）、settings 页 + i18n。spec 中特别加了 i18n 自检清单（R2A 教训）。recharts 已在项目中。",
-    "Johnsong": "Fix round 1: Settings saveName 修复。问题：useAsyncData 的 fetcher 内直接 setState 可能导致闭包捕获旧值或与 useCallback 冲突。修复：将 name 初始化从 fetcher 内提取到独立 useEffect，仅在 profile 数据首次到达时同步 name；saveName 后调用 refetchProfile 刷新数据。",
+    "Johnsong": "Fix round 2: saveName 改为同步函数 handleSaveName + .then()/.catch()（排除 async onClick 问题）；所有 button 添加 type=button（排除 form submit 干扰）；refetchProfile 保留。",
     "Mark": null,
     "Reviewer": "R2B reverifying round1 完成（L1）：fix round1 后 /settings 保存问题仍未修复（无 profile 更新请求，刷新回退）。F-R2B-04 与 F-R2B-06 继续 FAIL，状态退回 fixing。报告：docs/test-reports/R2B-user-pages-balance-usage-settings-reverifying-2026-04-09.md"
   }
