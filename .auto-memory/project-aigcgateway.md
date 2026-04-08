@@ -12,11 +12,10 @@ AIGC Gateway — AI 服务商管理中台。统一 API 调用抽象（兼容 Ope
 
 ## 当前开发状态（截至 2026-04-08）
 
-**当前批次：** `security-and-robustness`（verifying 结果 1 PASS / 3 FAIL，已回退 fixing）
-**关键失败项：** `F-SR-05` — AC1 `/v1/actions/run` 权限校验未生效（返回 402 非 403）；AC2 MCP IP 白名单未生效；AC3 Keys 创建按钮请求中未 disabled
-**最新完成批次：** `admin-model-capabilities`（7/7 PASS，fix_rounds=3，Generator=Johnsong）
-**Harness 状态：** fixing
-**签收报告（上一批次）：** `docs/test-reports/admin-model-capabilities-signoff-2026-04-08.md`
+**最新完成批次：** `security-and-robustness`（5/5 完成，fix_rounds=1）
+**验证结论：** `F-SR-05` 在 reverifying 4/4 PASS（AC1~AC4 全通过）
+**Harness 状态：** done
+**签收报告：** `docs/test-reports/security-and-robustness-signoff-2026-04-08.md`
 
 ### 近期完成批次（2026-04-08 ~ 2026-04-06）
 

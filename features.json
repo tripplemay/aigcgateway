@@ -39,7 +39,7 @@
       "title": "E2E 验证",
       "priority": "high",
       "executor": "codex",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "1) chatCompletion=false 的 Key 调用 /v1/actions/run 返回 403；2) IP 白名单 Key 通过 MCP 从非白名单 IP 调用被拒绝；3) API Key 创建按钮在请求中 disabled；4) dashboard API 失败时不卡在 loading"
     }
   ]
