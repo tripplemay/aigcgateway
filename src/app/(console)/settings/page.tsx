@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import { toast } from "sonner";
 import { apiFetch } from "@/lib/api-client";
@@ -78,31 +78,43 @@ export default function SettingsPage() {
   }, []);
 
   const loginHistory = historyData?.data ?? [];
+  const nameRef = useRef(name);
+  nameRef.current = name;
 
-  const handleSaveName = async () => {
-    toast.info(`Saving name: ${name}`);
-    try {
-      const payload = { name };
-      const res = await fetch("/api/auth/profile", {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-          ...(typeof window !== "undefined" && localStorage.getItem("token")
-            ? { Authorization: `Bearer ${localStorage.getItem("token")}` }
-            : {}),
-        },
-        body: JSON.stringify(payload),
+  const saveBtnRef = useRef<HTMLButtonElement>(null);
+
+  const doSaveName = useCallback(() => {
+    const currentName = nameRef.current;
+    const token = localStorage.getItem("token");
+    fetch("/api/auth/profile", {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+      body: JSON.stringify({ name: currentName }),
+    })
+      .then((res) => {
+        if (!res.ok) throw new Error(`Request failed: ${res.status}`);
+        toast.success(t("nameUpdated"));
+        refetchProfile();
+      })
+      .catch((e: unknown) => {
+        toast.error((e as Error).message);
       });
-      if (!res.ok) {
-        const body = await res.json().catch(() => ({}));
-        throw new Error(body.error?.message ?? `Request failed: ${res.status}`);
-      }
-      toast.success(t("nameUpdated"));
-      refetchProfile();
-    } catch (e) {
-      toast.error((e as Error).message);
-    }
-  };
+  }, [t, refetchProfile]);
+
+  // Attach native DOM click listener to bypass React synthetic events
+  useEffect(() => {
+    const btn = saveBtnRef.current;
+    if (!btn) return;
+    const handler = (e: Event) => {
+      e.preventDefault();
+      doSaveName();
+    };
+    btn.addEventListener("click", handler);
+    return () => btn.removeEventListener("click", handler);
+  }, [doSaveName]);
 
   const changePassword = async () => {
     if (newPassword.length < 8) {
@@ -166,13 +178,7 @@ export default function SettingsPage() {
                 <p className="text-sm text-ds-on-surface-variant">{t("profileDesc")}</p>
               </div>
             </div>
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                handleSaveName();
-              }}
-              className="space-y-6"
-            >
+            <div className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
                   <label className="text-xs font-bold uppercase tracking-wider text-ds-on-surface-variant ml-1">
@@ -203,14 +209,15 @@ export default function SettingsPage() {
               </div>
               <div className="flex justify-end pt-4">
                 <button
-                  type="submit"
+                  ref={saveBtnRef}
+                  type="button"
                   data-testid="save-profile-btn"
                   className="px-6 py-2.5 bg-ds-primary text-white font-semibold rounded-lg hover:bg-ds-primary-container transition-all active:scale-95 shadow-lg shadow-ds-primary/10"
                 >
                   {t("saveChanges")}
                 </button>
               </div>
-            </form>
+            </div>
           </section>
 
           {/* Login History — Table component */}
