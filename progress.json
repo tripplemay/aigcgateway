@@ -12,11 +12,7 @@
     "design-draft/logs/code.html",
     "design-draft/models/code.html"
   ],
-  "role_assignments": {
-    "planner": "Richard",
-    "generator": "Johnsong",
-    "evaluator": "Reviewer"
-  },
+  "role_assignments": null,
   "docs": {
     "spec": "docs/specs/R2A-user-pages-keys-logs-models-spec.md",
     "test_cases": "docs/test-reports/R2A-user-pages-keys-logs-models-reverifying-round4-2026-04-08.md",
