@@ -60,7 +60,11 @@ git pull --ff-only origin main
 - `progress.json` — 当前阶段和进度
 - `features.json` — 功能列表和状态
 - `harness-rules.md` — 本文件自身
-- `.auto-memory/MEMORY.md` — 项目记忆索引（**所有 agent 必读**，读完后按需加载 `project-aigcgateway.md` 等记忆文件）
+
+**第三：按分层规则加载共享记忆：**
+- **T0（必读）：** `.auto-memory/MEMORY.md`（索引）+ `project-status.md` + `environment.md`
+- **T1（按角色）：** 确定当前角色后，加载 `.auto-memory/role-context/{角色}.md`
+- **T2（按需）：** 仅当 MEMORY.md 索引中标注的触发条件命中时加载对应文件
 
 ### 第一步：识别身份与角色
 
@@ -155,14 +159,24 @@ git push origin main
 每个阶段结束后必须更新 progress.json 中的 status 字段，再结束会话。
 
 ### 第五步：会话结束时更新共享记忆（所有角色通用）
-每次会话结束前（包括上下文不足 20% 被迫结束时），检查本会话是否产生了以下变更：
-- 项目状态变化（批次完成、阶段推进、重要 bug 发现）
-- 架构或框架规则变更
-- 新增外部资源引用（新的 Stitch 设计稿、新的 Provider 配置等）
-- 生产环境变化
+每次会话结束前（包括上下文不足 20% 被迫结束时），执行以下两项：
 
-**有变更 → 更新 `.auto-memory/project-aigcgateway.md`，commit 并 push。**
+**5a. 更新 project-status.md（如有变更）：**
+检查本会话是否产生项目状态变化（批次完成、阶段推进、遗留问题变更等）。
+有变更 → **覆盖写** `.auto-memory/project-status.md`（保持 ≤30 行），commit 并 push。
 无变更 → 跳过。
+
+**5b. 写入 session_notes（推荐）：**
+在 progress.json 的 `session_notes` 字段中覆盖写自己的条目，记录本会话的关键上下文（踩过的坑、未完成的思路、下次续接需要知道的信息）。
+
+```json
+{
+  "session_notes": {
+    "Mark": "本次会话的叙事性上下文...",
+    "Reviewer": null
+  }
+}
+```
 
 这条规则适用于所有角色（Planner / Generator / Evaluator），不仅限于 done 阶段。
 
@@ -199,14 +213,37 @@ docs/
 
 ## 记忆分层
 
-项目使用两层记忆系统，按用途分开存储：
+### 存储层级
 
-| 层 | 位置 | 共享范围 | 存储内容 | 谁写 |
-|---|---|---|---|---|
-| **共享层** | `.auto-memory/`（git-tracked） | 所有 agent | 项目状态、生产环境信息、参考资源、架构决策 | 所有角色均可写 |
-| **本机层** | `~/.claude/projects/.../memory/`（本地） | 仅本机 agent | 用户偏好、沟通风格、行为反馈 | 本机 agent 自动维护 |
+| 层 | 位置 | 共享范围 | 存储内容 |
+|---|---|---|---|
+| **共享层** | `.auto-memory/`（git-tracked） | 所有 agent | 项目状态、环境信息、角色行为规范、参考资源 |
+| **本机层** | `~/.claude/projects/.../memory/`（本地） | 仅本机 agent | 用户偏好、沟通风格 |
 
-**原则：** 如果一条信息对远端 agent 有用 → 写入 `.auto-memory/`（共享层）。如果只跟当前用户的交互习惯有关 → 写入本机层。
+### 共享层加载规则（确定性，不再"按需"）
+
+| 层级 | 何时加载 | 文件 | 大小限制 |
+|---|---|---|---|
+| **T0** | 每次启动必读 | `MEMORY.md`（索引）+ `project-status.md` + `environment.md` | 各 ≤30 行 |
+| **T1** | 按当前角色加载 | `role-context/{当前角色}.md` | ≤50 行 |
+| **T2** | MEMORY.md 索引标注触发条件命中时 | `feedback-*.md` / `reference-*.md` / `user-role.md` | 按需 |
+
+### 写入职责
+
+| 文件 | 谁写 | 规则 |
+|---|---|---|
+| `project-status.md` | **所有角色** | 谁产生变更谁更新，**覆盖写**（不追加），≤30 行 |
+| `environment.md` | **Planner** | 环境变更由 Planner 统一维护 |
+| `role-context/*.md` | **Planner** | 行为规范由 Planner 统一制定 |
+| `session_notes`（progress.json） | **各写各的** | 会话结束时覆盖写自己的条目 |
+| `feedback-*.md` / `reference-*.md` | **所有角色** | 谁发现谁写 |
+
+### 内容边界铁律
+
+- **project-status.md = WHAT**（当前批次、计划、决策、遗留问题）— 会变的事实
+- **role-context/*.md = HOW**（角色行为规范）— 不常变的规范
+- **role-context 禁止写计划、决策、进度**等会变的内容
+- **每条信息只存一处**，project-status.md 不重复 progress.json 已有的结构化数据
 
 ## 需求池（backlog.json）
 

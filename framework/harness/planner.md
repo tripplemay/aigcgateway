@@ -46,6 +46,12 @@
 
 **不做此检查会导致设计稿与代码架构脱节，后续需要额外的重构轮修复。**
 
+**功能改造批次的设计稿一致性要求：** 即使批次不是 UI 重构，只要修改了 `design-draft/` 目录下有原型的页面（如清理假数据、补全交互），其 acceptance 必须包含以下条目之一：
+- 「变更后页面布局与设计稿一致」（改动未影响布局结构时）
+- 「设计稿已同步更新以反映本次变更」（改动涉及布局变更时，需追加更新设计稿的功能条目）
+
+缺少此条目 = 验收时无法检查视觉一致性，可能导致设计稿与代码脱节。
+
 ### 3. 生成功能列表
 将需求展开为 5-30 条具体功能，写入 features.json。
 
@@ -151,14 +157,13 @@ executor:codex 的典型场景：压力测试执行、code review、安全审计
 
 当 Codex 将 progress.json 置为 `done` 后，Claude CLI 接手执行以下步骤（**必须按顺序**）：
 
-### 1. 更新项目记忆（强制）
-更新 `.auto-memory/project-aigcgateway.md`，内容覆盖：
-- 当前开发状态（本批次完成了什么）
-- 最近一批次改动（关键文件和变更）
-- Harness 状态（status=done，N/M PASS）
-- 已知遗留问题（如有新增）
+### 1. 校验并整合 project-status.md
+读取 `.auto-memory/project-status.md`，检查 Generator 和 Evaluator 在过程中写入的内容是否准确完整：
+- 当前批次状态是否反映 done
+- 遗留问题是否有新增或解决
+- 如有不一致，**覆盖写**为最终一致的版本（≤30 行）
 
-**这是唯一记忆源，不更新则下次会话（包括所有 agent）将读到过期信息。**
+**注意：** 不再从头重写，Generator/Evaluator 已在过程中各自更新。Planner 只做最终校验和整合。
 
 ### 2. 处理 proposed-learnings（如有）
 读取 `framework/proposed-learnings.md`，逐条提交用户确认，确认后写入对应 framework 文件。

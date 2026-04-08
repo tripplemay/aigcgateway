@@ -127,6 +127,36 @@ docs/specs/ → docs/test-cases/ → docs/test-reports/ → docs/archive/ → do
 
 ---
 
+## v0.5.0 — 2026-04-08（共享记忆分层加载）
+
+**来源批次：** R1-design-system-foundation planning 阶段，用户主动要求改进记忆系统
+**触发原因：** agent 重启后加载全部记忆文件导致 context 浪费；project-aigcgateway.md 不断膨胀无人清理
+
+**变更内容：**
+
+- `.auto-memory/` 文件结构重组：
+  - 新增 `project-status.md`（T0，≤30 行，覆盖写）— 替代膨胀的 `project-aigcgateway.md`
+  - 新增 `environment.md`（T0）— 从 project-aigcgateway.md 拆出环境信息
+  - 新增 `role-context/generator.md`、`evaluator.md`、`planner.md`（T1）— 角色行为规范
+  - 删除 `project-aigcgateway.md`（拆分为 project-status + environment）
+  - 删除 `feedback-testing-strategy.md`（合入 role-context/evaluator.md）
+  - 删除 `feedback-harness-system.md`（已被 harness-rules.md 覆盖）
+  - 删除 `project-ui-refactor-plan.md`（合入 project-status.md）
+- `MEMORY.md` 索引改为分层格式（T0/T1/T2），T1 带触发条件标注
+- `harness-rules.md` §记忆分层：全面重写为分层加载规则 + 写入职责 + 内容边界铁律
+- `harness-rules.md` §启动流程第零步：加载指令改为 T0→T1→T2 分层
+- `harness-rules.md` §第五步：更新 project-status.md（覆盖写）+ session_notes
+- `planner.md` §done 收尾步骤 1：从"重写记忆"改为"校验整合 project-status.md"
+- `progress.json` 新增 `session_notes` 字段：同角色跨会话叙事上下文
+
+**设计原则：**
+- project-status.md = WHAT（会变的事实），role-context = HOW（稳定的规范），不混放
+- role-context 禁止写计划/决策/进度，避免与 project-status 冲突
+- 每条信息只存一处，不重复 progress.json 已有的结构化数据
+- 启动加载量上限 ~120 行（索引 + 状态 + 环境 + 角色文件）
+
+---
+
 ## v0.4.0 — 2026-04-08（框架同步 + 工具角色修正）
 
 **来源批次：** R1-design-system-foundation planning 阶段框架检查
