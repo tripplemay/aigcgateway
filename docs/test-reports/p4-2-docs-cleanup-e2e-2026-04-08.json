@@ -1,14 +1,14 @@
 {
   "baseUrl": "http://localhost:3099",
   "mockBase": "http://127.0.0.1:3323",
-  "projectId": "cmnpq37c800qw9ybuyhe64lqq",
-  "passCount": 2,
-  "failCount": 1,
+  "projectId": "cmnpqj6di00ra9ybuo5mebdau",
+  "passCount": 3,
+  "failCount": 0,
   "steps": [
     {
       "name": "AC1 SDK README examples use canonical model names",
-      "ok": false,
-      "detail": "modelLiterals=[\"deepseek-v3\",\"gpt-4o\",\"deepseek/v3\",\"cogview-3-flash\",\"gpt-4o\"], slashModels=[\"deepseek/v3\"]"
+      "ok": true,
+      "detail": "modelLiterals=[\"deepseek-v3\",\"gpt-4o\",\"deepseek-v3\",\"cogview-3-flash\",\"gpt-4o\"], slashModels=[]"
     },
     {
       "name": "AC2 model-capabilities data has unique canonical models",

@@ -7,7 +7,7 @@
       "title": "SDK 文档更新",
       "priority": "medium",
       "executor": "generator",
-      "status": "done",
+      "status": "completed",
       "acceptance": "1) sdk/README.md 更新 model 参数说明：传 canonical name（如 gpt-4o），不再需要 provider 前缀；2) 示例代码中的 model 字段全部改为 canonical name；3) cd sdk && npm run typecheck 通过"
     },
     {
@@ -31,7 +31,7 @@
       "title": "E2E 验证",
       "priority": "high",
       "executor": "codex",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "1) SDK README 示例使用 canonical name；2) 模型能力管理页每个模型唯一；3) 完整链路验证：list_models → 选模型 → chat 调用 → 成功（使用 canonical name）"
     }
   ]

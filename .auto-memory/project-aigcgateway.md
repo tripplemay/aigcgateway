@@ -12,14 +12,14 @@ AIGC Gateway — AI 服务商管理中台。统一 API 调用抽象（兼容 Ope
 
 ## 当前开发状态（截至 2026-04-08）
 
-**最新完成批次：** `P4-1c-admin-pages`（6/6 完成，verifying 5/5 PASS）
-**验证结论：** Admin 模型别名管理与白名单多通道展示链路通过；别名 CRUD/merge、非 Admin 访问限制均通过。
-**当前批次：** `P4-2-docs-cleanup`（verifying 发现 1 个文档问题，已进入 fixing）
-**Harness 状态：** fixing
-**签收报告：** `docs/test-reports/p4-1c-admin-pages-signoff-2026-04-08.md`
+**最新完成批次：** `P4-2-docs-cleanup`（4/4 完成，reverifying 3/3 PASS）
+**验证结论：** SDK README canonical 命名修复完成；模型能力唯一性与 canonical 调用链路通过。
+**Harness 状态：** done
+**签收报告：** `docs/test-reports/p4-2-docs-cleanup-signoff-2026-04-08.md`
 
 ### 近期完成批次（2026-04-08 ~ 2026-04-06）
 
+- `P4-2-docs-cleanup`（3/3 PASS）— SDK 文档 canonical 命名修复 + 能力页对齐复验 + PRD 收尾
 - `P4-1c-admin-pages`（5/5 PASS）— Admin 别名管理页 + 别名 CRUD/merge API + 白名单多通道展开
 - `bugfix-template-api`（3/3 PASS）— Template 创建 API 500 修复（输入验证 + 错误处理）
 - `user-profile-center`（6/6 PASS）— Sidebar 用户信息 + 个人中心入口 + 登录历史
