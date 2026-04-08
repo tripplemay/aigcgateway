@@ -37,13 +37,12 @@ type Endpoint = "chat" | "image" | "log" | "model" | "unknown";
 
 /** 从请求路径推断 endpoint 类型 */
 function detectEndpoint(request: Request): Endpoint {
-  const url = new URL(request.url);
-  const path = url.pathname;
-  if (path.includes("/chat/completions")) return "chat";
-  if (path.includes("/actions/run")) return "chat";
-  if (path.includes("/templates/run")) return "chat";
-  if (path.includes("/images/generations")) return "image";
-  if (path.includes("/models")) return "model";
+  const raw = request.url;
+  if (raw.includes("/chat/completions")) return "chat";
+  if (raw.includes("/actions/run")) return "chat";
+  if (raw.includes("/templates/run")) return "chat";
+  if (raw.includes("/images/generations")) return "image";
+  if (raw.includes("/models")) return "model";
   return "unknown";
 }
 

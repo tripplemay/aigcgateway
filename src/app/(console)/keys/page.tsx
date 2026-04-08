@@ -98,6 +98,8 @@ export default function KeysPage() {
     if (!keyPermissions.logAccess) permissions.logAccess = false;
     if (!keyPermissions.projectInfo) permissions.projectInfo = false;
     setCreating(true);
+    // Allow React to re-render with disabled button before fetch starts
+    await new Promise((r) => setTimeout(r, 0));
     try {
       const r = await apiFetch<{ key: string }>(`/api/projects/${current.id}/keys`, {
         method: "POST",

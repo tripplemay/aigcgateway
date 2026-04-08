@@ -7,7 +7,7 @@ export const dynamic = "force-dynamic";
  */
 
 import { prisma } from "@/lib/prisma";
-import { authenticateApiKey } from "@/lib/api/auth-middleware";
+import { authenticateApiKey, type ApiKeyPermissions } from "@/lib/api/auth-middleware";
 import { checkBalance } from "@/lib/api/balance-middleware";
 import { checkRateLimit } from "@/lib/api/rate-limit";
 import { errorResponse } from "@/lib/api/errors";
@@ -21,6 +21,12 @@ export async function POST(request: Request) {
   const auth = await authenticateApiKey(request);
   if (!auth.ok) return auth.error;
   const { project, apiKey } = auth.ctx;
+
+  // 1b. Explicit chatCompletion permission check (defense-in-depth)
+  const perms = (apiKey.permissions ?? {}) as Partial<ApiKeyPermissions>;
+  if (perms.chatCompletion === false) {
+    return errorResponse(403, "forbidden", "API key lacks chatCompletion permission");
+  }
 
   // 2. Balance
   const balanceCheck = checkBalance(project.user);
