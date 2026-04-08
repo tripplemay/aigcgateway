@@ -87,7 +87,7 @@
       "title": "Dashboard 页面试点还原",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) 统计卡片去掉 border，用 tonal layering；2) Recent Calls 表格去掉 divide-y，用 hover 高亮；3) 所有颜色使用 ds-* token（无硬编码 slate/indigo）；4) 使用 useAsyncData hook 替代手写 useEffect + useState；5) 对照 design-draft/Dashboard (Full Redesign) v2/code.html 视觉一致；6) npm run lint + tsc 通过"
     },
     {
@@ -95,7 +95,7 @@
       "title": "全局 No-Line 清理（Dashboard + Layout 范围）",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) Dashboard 页面和 Layout 相关组件中无 border-b/border-t/divide-y 用于分隔（border-l 的 accent pill 除外）；2) 其他页面不改动（留给后续批次）；3) npm run lint + tsc 通过"
     },
     {

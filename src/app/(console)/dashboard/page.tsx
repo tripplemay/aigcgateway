@@ -1,10 +1,9 @@
 "use client";
-import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { apiFetch } from "@/lib/api-client";
 import { useProject } from "@/hooks/use-project";
+import { useAsyncData } from "@/hooks/use-async-data";
 import { formatCurrency, timeAgo } from "@/lib/utils";
-import { toast } from "sonner";
 import {
   AreaChart,
   Area,
@@ -64,45 +63,49 @@ export default function DashboardPage() {
   const t = useTranslations("dashboard");
   const tc = useTranslations("common");
   const { current, loading: projLoading } = useProject();
-  const [usage, setUsage] = useState<UsageSummary | null>(null);
-  const [daily, setDaily] = useState<DailyData[]>([]);
-  const [logs, setLogs] = useState<LogEntry[]>([]);
-  const [models, setModels] = useState<ModelData[]>([]);
-  const [hourly, setHourly] = useState<Array<{ hour: number; calls: number }>>([]);
-  const [balanceInfo, setBalanceInfo] = useState<{
-    balance: number;
-    alertThreshold: number | null;
-  } | null>(null);
+  interface DashboardData {
+    usage: UsageSummary;
+    daily: DailyData[];
+    logs: LogEntry[];
+    models: ModelData[];
+    hourly: Array<{ hour: number; calls: number }>;
+    balanceInfo: { balance: number; alertThreshold: number | null };
+  }
 
-  useEffect(() => {
-    if (!current) return;
-    const pid = current.id;
-    apiFetch<{ balance: number; alertThreshold: number | null }>(`/api/projects/${pid}/balance`)
-      .then(setBalanceInfo)
-      .catch((err) => toast.error((err as Error).message));
-    Promise.all([
-      apiFetch<UsageSummary>(`/api/projects/${pid}/usage?period=today`),
-      apiFetch<{ data: DailyData[] }>(`/api/projects/${pid}/usage/daily?days=14`),
-      apiFetch<{ data: LogEntry[] }>(`/api/projects/${pid}/logs?pageSize=5`),
-      apiFetch<{ data: ModelData[] }>(`/api/projects/${pid}/usage/by-model`),
-    ])
-      .then(([u, d, l, m]) => {
-        setUsage(u);
-        setDaily(d.data);
-        setLogs(l.data);
-        setModels(m.data);
-        apiFetch<{ data: Array<{ createdAt: string }> }>(`/api/projects/${pid}/logs?pageSize=100`)
-          .then((r) => {
-            const counts = Array.from({ length: 24 }, (_, i) => ({ hour: i, calls: 0 }));
-            for (const log of r.data) {
-              counts[new Date(log.createdAt).getHours()].calls++;
-            }
-            setHourly(counts);
-          })
-          .catch(() => {});
-      })
-      .catch((err) => toast.error((err as Error).message));
-  }, [current]);
+  const { data: dashData, loading: dataLoading } = useAsyncData<DashboardData | null>(
+    async () => {
+      if (!current) return null;
+      const pid = current.id;
+      const [bal, u, d, l, m, h] = await Promise.all([
+        apiFetch<{ balance: number; alertThreshold: number | null }>(`/api/projects/${pid}/balance`),
+        apiFetch<UsageSummary>(`/api/projects/${pid}/usage?period=today`),
+        apiFetch<{ data: DailyData[] }>(`/api/projects/${pid}/usage/daily?days=14`),
+        apiFetch<{ data: LogEntry[] }>(`/api/projects/${pid}/logs?pageSize=5`),
+        apiFetch<{ data: ModelData[] }>(`/api/projects/${pid}/usage/by-model`),
+        apiFetch<{ data: Array<{ createdAt: string }> }>(`/api/projects/${pid}/logs?pageSize=100`),
+      ]);
+      const counts = Array.from({ length: 24 }, (_, i) => ({ hour: i, calls: 0 }));
+      for (const log of h.data) {
+        counts[new Date(log.createdAt).getHours()].calls++;
+      }
+      return {
+        usage: u,
+        daily: d.data,
+        logs: l.data,
+        models: m.data,
+        hourly: counts,
+        balanceInfo: bal,
+      };
+    },
+    [current],
+  );
+
+  const usage = dashData?.usage ?? null;
+  const daily = dashData?.daily ?? [];
+  const logs = dashData?.logs ?? [];
+  const models = dashData?.models ?? [];
+  const hourly = dashData?.hourly ?? [];
+  const balanceInfo = dashData?.balanceInfo ?? null;
 
   if (projLoading)
     return (
@@ -158,8 +161,8 @@ export default function DashboardPage() {
           {/* Summary Cards Cluster — code.html lines 189-226 */}
           <div className="col-span-12 lg:col-span-8 grid grid-cols-2 md:grid-cols-4 gap-4">
             {/* Total Calls */}
-            <div className="bg-ds-surface-container-lowest p-5 rounded-xl border border-ds-outline-variant/10 flex flex-col justify-between h-32 group hover:shadow-xl hover:shadow-ds-primary/5 transition-all">
-              <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">
+            <div className="bg-ds-surface-container-lowest p-5 rounded-xl flex flex-col justify-between h-32 group hover:shadow-xl hover:shadow-ds-primary/5 transition-all">
+              <span className="text-[10px] font-bold text-ds-on-surface-variant uppercase tracking-widest">
                 {t("todayCalls")}
               </span>
               <div className="flex items-end justify-between">
@@ -169,8 +172,8 @@ export default function DashboardPage() {
               </div>
             </div>
             {/* Avg Cost */}
-            <div className="bg-ds-surface-container-lowest p-5 rounded-xl border border-ds-outline-variant/10 flex flex-col justify-between h-32 group hover:shadow-xl hover:shadow-ds-primary/5 transition-all">
-              <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">
+            <div className="bg-ds-surface-container-lowest p-5 rounded-xl flex flex-col justify-between h-32 group hover:shadow-xl hover:shadow-ds-primary/5 transition-all">
+              <span className="text-[10px] font-bold text-ds-on-surface-variant uppercase tracking-widest">
                 {t("todayCost")}
               </span>
               <div className="flex items-end justify-between">
@@ -180,8 +183,8 @@ export default function DashboardPage() {
               </div>
             </div>
             {/* Latency */}
-            <div className="bg-ds-surface-container-lowest p-5 rounded-xl border border-ds-outline-variant/10 flex flex-col justify-between h-32 group hover:shadow-xl hover:shadow-ds-primary/5 transition-all">
-              <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">
+            <div className="bg-ds-surface-container-lowest p-5 rounded-xl flex flex-col justify-between h-32 group hover:shadow-xl hover:shadow-ds-primary/5 transition-all">
+              <span className="text-[10px] font-bold text-ds-on-surface-variant uppercase tracking-widest">
                 {t("avgLatency")}
               </span>
               <div className="flex items-end justify-between">
@@ -191,8 +194,8 @@ export default function DashboardPage() {
               </div>
             </div>
             {/* Success Rate */}
-            <div className="bg-ds-surface-container-lowest p-5 rounded-xl border border-ds-outline-variant/10 flex flex-col justify-between h-32 group hover:shadow-xl hover:shadow-ds-primary/5 transition-all">
-              <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">
+            <div className="bg-ds-surface-container-lowest p-5 rounded-xl flex flex-col justify-between h-32 group hover:shadow-xl hover:shadow-ds-primary/5 transition-all">
+              <span className="text-[10px] font-bold text-ds-on-surface-variant uppercase tracking-widest">
                 {t("successRate")}
               </span>
               <div className="flex items-end justify-between">
@@ -238,7 +241,7 @@ export default function DashboardPage() {
       {/* ═══ Charts Row — code.html lines 248-352 ═══ */}
       <div className="grid grid-cols-12 gap-6 mb-8">
         {/* Area Chart: 14-day Calls — code.html lines 250-311 */}
-        <div className="col-span-12 xl:col-span-8 bg-ds-surface-container-lowest p-6 rounded-2xl border border-ds-outline-variant/10">
+        <div className="col-span-12 xl:col-span-8 bg-ds-surface-container-lowest p-6 rounded-2xl ">
           <div className="flex justify-between items-start mb-6">
             <div>
               <h4 className="font-[var(--font-heading)] font-bold text-lg">{t("callsTrend")}</h4>
@@ -272,7 +275,7 @@ export default function DashboardPage() {
         </div>
 
         {/* Model Distribution Pie — code.html lines 314-352 */}
-        <div className="col-span-12 xl:col-span-4 bg-ds-surface-container-lowest p-6 rounded-2xl border border-ds-outline-variant/10">
+        <div className="col-span-12 xl:col-span-4 bg-ds-surface-container-lowest p-6 rounded-2xl ">
           <h4 className="font-[var(--font-heading)] font-bold text-lg mb-6">{t("modelDist")}</h4>
           <div className="relative h-48 w-48 mx-auto flex items-center justify-center">
             <ResponsiveContainer width="100%" height="100%">
@@ -337,7 +340,7 @@ export default function DashboardPage() {
         {/* 24h Distribution & Cost — code.html lines 357-399 */}
         <div className="col-span-12 xl:col-span-4 space-y-6">
           {/* 24h Load Distribution */}
-          <div className="bg-ds-surface-container-lowest p-6 rounded-2xl border border-ds-outline-variant/10">
+          <div className="bg-ds-surface-container-lowest p-6 rounded-2xl ">
             <h4 className="font-[var(--font-heading)] font-bold text-lg mb-4">{t("hourlyDist")}</h4>
             <div className="h-32">
               <ResponsiveContainer width="100%" height="100%">
@@ -365,7 +368,7 @@ export default function DashboardPage() {
           </div>
 
           {/* Daily Spend — code.html lines 376-398 */}
-          <div className="bg-ds-surface-container-lowest p-6 rounded-2xl border border-ds-outline-variant/10">
+          <div className="bg-ds-surface-container-lowest p-6 rounded-2xl ">
             <div className="flex justify-between items-center mb-4">
               <h4 className="font-[var(--font-heading)] font-bold text-lg">{t("costTrend")}</h4>
               <span className="text-sm font-bold text-ds-primary">
@@ -394,7 +397,7 @@ export default function DashboardPage() {
         </div>
 
         {/* Recent Calls Table — code.html lines 401-503 */}
-        <div className="col-span-12 xl:col-span-8 bg-ds-surface-container-lowest p-6 rounded-2xl border border-ds-outline-variant/10">
+        <div className="col-span-12 xl:col-span-8 bg-ds-surface-container-lowest p-6 rounded-2xl ">
           <div className="flex justify-between items-center mb-6">
             <h4 className="font-[var(--font-heading)] font-bold text-lg">{t("recentCalls")}</h4>
             <Link
@@ -408,7 +411,7 @@ export default function DashboardPage() {
           <div className="overflow-x-auto">
             <table className="w-full text-left">
               <thead>
-                <tr className="text-[10px] font-bold text-slate-500 uppercase tracking-widest border-b border-ds-outline-variant/10">
+                <tr className="text-[10px] font-bold text-ds-on-surface-variant uppercase tracking-widest">
                   <th className="pb-4">{t("trace")}</th>
                   <th className="pb-4">{t("model")}</th>
                   <th className="pb-4 text-center">{tc("status")}</th>
@@ -416,7 +419,7 @@ export default function DashboardPage() {
                   <th className="pb-4 text-right">{t("latency")}</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-50">
+              <tbody>
                 {logs.map((l) => (
                   <tr
                     key={l.traceId}
