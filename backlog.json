@@ -8,6 +8,14 @@
       "decisions": [],
       "confirmed_at": "2026-04-08",
       "priority": "medium"
+    },
+    {
+      "id": "BL-068",
+      "title": "Per-Key 使用分析（Keys Insights 页面）",
+      "description": "需 schema 迁移：CallLog 加 apiKeyId 外键 + 3 个 per-key 统计 API（汇总、每日分布、模型分布）。设计稿在 design-draft/_needs-redesign/keys-insights/。",
+      "decisions": [],
+      "confirmed_at": "2026-04-09",
+      "priority": "low"
     }
   ]
 }
