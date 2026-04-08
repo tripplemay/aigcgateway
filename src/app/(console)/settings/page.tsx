@@ -165,7 +165,13 @@ export default function SettingsPage() {
                 <p className="text-sm text-ds-on-surface-variant">{t("profileDesc")}</p>
               </div>
             </div>
-            <div className="space-y-6">
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                handleSaveName();
+              }}
+              className="space-y-6"
+            >
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
                   <label className="text-xs font-bold uppercase tracking-wider text-ds-on-surface-variant ml-1">
@@ -196,14 +202,13 @@ export default function SettingsPage() {
               </div>
               <div className="flex justify-end pt-4">
                 <button
-                  type="button"
-                  onClick={handleSaveName}
+                  type="submit"
                   className="px-6 py-2.5 bg-ds-primary text-white font-semibold rounded-lg hover:bg-ds-primary-container transition-all active:scale-95 shadow-lg shadow-ds-primary/10"
                 >
                   {t("saveChanges")}
                 </button>
               </div>
-            </div>
+            </form>
           </section>
 
           {/* Login History — Table component */}

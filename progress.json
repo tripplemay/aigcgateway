@@ -1,9 +1,9 @@
 {
-  "status": "fixing",
+  "status": "reverifying",
   "user_goal": "R2B — 用户侧页面还原（Balance + Usage + Settings）：3 个页面从旧代码模式还原为 R1 设计系统，对齐 Stitch 设计稿",
   "total_features": 6,
   "completed_features": 4,
-  "fix_rounds": 3,
+  "fix_rounds": 4,
   "current_sprint": null,
   "last_updated": "2026-04-09T01:31:00Z",
   "reference_docs": [
@@ -47,7 +47,7 @@
   "generator_handoff": "R2B building 完成。5/5 generator 功能已实现：Balance 页（useAsyncData+DS Table/Pagination+类型筛选）、RechargeDialog 独立组件、Usage 页（recharts BarChart/PieChart+DS Table）、Settings 页（profile+password+login history DS Table）、i18n 全面补全。Notifications 和 System Status 按 DESIGN.md 标注已移除。tsc+lint 通过。",
   "session_notes": {
     "Richard": "R2B planning 完成。6 条功能（5 generator + 1 codex）。balance 页+充值弹窗、usage 页（含 recharts 图表）、settings 页 + i18n。spec 中特别加了 i18n 自检清单（R2A 教训）。recharts 已在项目中。",
-    "Johnsong": "Fix round 3: 彻底绕开 apiFetch，直接在 handleSaveName 中调用原生 fetch（method: PATCH, headers 手动构建, body: JSON.stringify({name})）。排除 apiFetch 封装层可能的干扰。如仍失败，问题可能在 Codex 测试环境的 .next 缓存或 Playwright 点击时序。",
+    "Johnsong": "Fix round 4: Profile 区域改用 form+onSubmit 替代 button onClick。按钮改为 type=submit，form onSubmit 中 preventDefault+handleSaveName。这是完全不同的事件路径，排除 onClick 事件绑定/冒泡/Playwright 兼容性问题。如仍失败，需要 Codex 确认 rm -rf .next 后重启测试。",
     "Mark": null,
     "Reviewer": "R2B reverifying round3 完成（L1）：fix round3 后 /settings 保存问题仍未修复（仍无 profile 更新请求，刷新回退）。F-R2B-04 与 F-R2B-06 持续 FAIL，状态退回 fixing。报告：docs/test-reports/R2B-user-pages-balance-usage-settings-reverifying-round3-2026-04-09.md"
   }
