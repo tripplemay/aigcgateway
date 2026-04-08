@@ -24,7 +24,7 @@ export function TopAppBar({ userName }: TopAppBarProps) {
 
   return (
     /* code.html line 146 */
-    <header className="sticky top-0 z-50 w-full bg-white/80 dark:bg-slate-950/80 backdrop-blur-xl border-b border-slate-200/15 dark:border-slate-800/15 flex justify-between items-center h-16 px-8 shadow-sm dark:shadow-none">
+    <header className="sticky top-0 z-50 w-full bg-white/80 dark:bg-slate-950/80 backdrop-blur-xl flex justify-between items-center h-16 px-8 shadow-sm dark:shadow-none">
       {/* Left: Search + Nav Links — code.html lines 147-156 */}
       <div className="flex items-center gap-6 flex-1">
         {/* Search — code.html lines 148-151 */}
@@ -104,7 +104,7 @@ export function TopAppBar({ userName }: TopAppBarProps) {
         <div className="h-8 w-px bg-slate-200/50 mx-2" />
 
         {/* Deploy Button — code.html lines 175-177 */}
-        <button className="px-4 py-1.5 bg-ds-primary text-white rounded-lg text-sm font-bold font-[var(--font-heading)] hover:bg-ds-primary-container transition-all">
+        <button className="px-4 py-1.5 bg-gradient-to-r from-ds-primary to-ds-primary-container text-white rounded-lg text-sm font-bold font-[var(--font-heading)] hover:opacity-90 transition-all shadow-lg shadow-ds-primary/20">
           {t("deploy")}
         </button>
 

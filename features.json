@@ -47,7 +47,7 @@
       "title": "Sidebar 对齐设计系统",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) aside bg 改为 bg-ds-surface-container-low（去掉 bg-slate-50）；2) active 导航项改为 before 伪元素 3px accent pill（去掉 border-l-4）；3) Project Switcher 去掉 border；4) dropdown 去掉 border，加 shadow + backdrop-blur；5) nav item 间距改为 space-y-2；6) 参照 design-draft/Layout Shell code.html；7) npm run lint + tsc 通过"
     },
     {
@@ -55,7 +55,7 @@
       "title": "TopAppBar 对齐设计系统",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) 去掉 border-b，保持 backdrop-blur-xl + shadow-sm；2) Deploy 按钮改用 Button 组件或渐变样式；3) 参照 design-draft/Layout Shell code.html；4) npm run lint + tsc 通过"
     },
     {
