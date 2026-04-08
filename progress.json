@@ -11,11 +11,7 @@
     "design-draft/Layout Shell - AIGC Gateway/DESIGN.md",
     "design-draft/Dashboard (Full Redesign) v2/code.html"
   ],
-  "role_assignments": {
-    "planner": "Richard",
-    "generator": "Mark",
-    "evaluator": "Reviewer"
-  },
+  "role_assignments": null,
   "docs": {
     "spec": "docs/specs/R1-design-system-foundation-spec.md",
     "test_cases": "docs/test-cases/r1-design-system-foundation-e2e-2026-04-08.md",

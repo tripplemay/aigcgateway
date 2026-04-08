@@ -7,15 +7,14 @@ type: project
 ## 当前批次
 
 **R1-design-system-foundation** — 设计系统基础对齐 + Dashboard 试点还原
-- Status: `verifying`（Generator Mark 完成 12/12，等待 Reviewer 验收 F-R1-13）
-- Spec: `docs/specs/R1-design-system-foundation-spec.md`
-- Role: Planner=Richard, Generator=Mark, Evaluator=Reviewer
+- Status: `done`（13/13 PASS，0 轮修复，Reviewer 签收通过）
+- 交付物：Button/Input/Card/Dialog/Table 对齐设计系统、Sidebar/TopAppBar Layout 对齐、useAsyncData+SearchBar+Pagination 公共组件、Dashboard 试点还原
 
 ## UI 重构全局计划
 
 三阶段推进，每阶段完成后用户确认再进下一阶段：
-- **阶段一 R1（当前）：** 基础组件 + Layout Shell + Dashboard 试点
-- **阶段二（2-3 批次）：** 用户侧页面 — keys/logs/models → actions 系列 → templates/balance/usage/settings
+- **阶段一 R1（已完成）：** 基础组件 + Layout Shell + Dashboard 试点
+- **阶段二（待启动，2-3 批次）：** 用户侧页面 — keys/logs/models → actions 系列 → templates/balance/usage/settings
 - **阶段三（1-2 批次）：** 管理侧 admin/* + login/quickstart/mcp-setup
 
 Action/Template v2 设计稿缺 code.html，开工前需确认是否补稿。
@@ -28,4 +27,4 @@ Action/Template v2 设计稿缺 code.html，开工前需确认是否补稿。
 
 - 白名单重构后需在生产部署并触发 sync，然后在 Admin 白名单页启用所需模型
 - 同步耗时偏高（~264s）
-- API Keys 搜索框 Chrome MCP 程序化设值不触发浏览器事件（仅影响自动化测试）
+- 表单字段建议补充 id/name（浏览器 issue 级别，不影响功能）
