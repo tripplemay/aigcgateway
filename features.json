@@ -47,7 +47,7 @@
       "title": "E2E 验证",
       "priority": "high",
       "executor": "codex",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "1) 别名 CRUD API 正常工作；2) merge API 归入后 Channel 迁移正确、源 Model 删除；3) 别名管理页显示分组别名 + 未归类模型；4) 白名单页展开显示多通道；5) 非 Admin 无法访问别名管理页"
     }
   ]

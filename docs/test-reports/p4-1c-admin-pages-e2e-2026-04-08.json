@@ -1,0 +1,41 @@
+{
+  "baseUrl": "http://localhost:3099",
+  "runId": 1775628867827,
+  "fixtures": {
+    "targetModelName": "p4c-target-1775628867827",
+    "sourceModelName": "p4c-source-1775628867827",
+    "unclassifiedModelName": "p4c-unclassified-1775628867827",
+    "multiModelName": "p4c-multi-1775628867827",
+    "createdAlias": "p4c-alias-1775628867827"
+  },
+  "adminTokenHint": "eyJhbGciOi...",
+  "passCount": 5,
+  "failCount": 0,
+  "steps": [
+    {
+      "name": "AC1 alias CRUD API works",
+      "ok": true,
+      "detail": "aliasId=cmnpnkz4b00r09yskfo3w9pio, createdVisible=true, deletedInvisible=true"
+    },
+    {
+      "name": "AC2 merge API migrates channels and deletes source model",
+      "ok": true,
+      "detail": "apiMigrated=1, sourceDeleted=true, targetChannels=1/1, aliasMapped=true"
+    },
+    {
+      "name": "AC3 alias data and unclassified model are available for admin page",
+      "ok": true,
+      "detail": "mergeAliasVisible=true, unclassifiedVisible=true"
+    },
+    {
+      "name": "AC4 whitelist data contains multi-channel entries with priority and price",
+      "ok": true,
+      "detail": "multiFound=true, channelCount=2, channelsHavePriorityAndPrice=true"
+    },
+    {
+      "name": "AC5 non-admin cannot access /admin/model-aliases",
+      "ok": true,
+      "detail": "status=307, location=/dashboard"
+    }
+  ]
+}
