@@ -1,13 +1,13 @@
 {
   "baseUrl": "http://localhost:3099",
   "adminEmail": "admin@aigc-gateway.local",
-  "devEmail": "model-cap-dev-1775613267707@test.local",
+  "devEmail": "model-cap-dev-1775613822865@test.local",
   "targetModels": {
     "text": "deepseek/v3",
     "image": "openrouter/google/gemini-2.5-flash-image"
   },
-  "passCount": 4,
-  "failCount": 1,
+  "passCount": 5,
+  "failCount": 0,
   "steps": [
     {
       "name": "AC1 admin page access",
@@ -31,8 +31,8 @@
     },
     {
       "name": "AC5 gpt-4o capabilities non-empty",
-      "ok": false,
-      "detail": "capabilityKeys="
+      "ok": true,
+      "detail": "capabilityKeys=vision,json_mode,streaming,function_calling"
     }
   ]
 }

@@ -55,7 +55,7 @@
       "title": "E2E 验证",
       "priority": "high",
       "executor": "codex",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "1) Admin 模型能力页面可查看所有启用模型；2) 修改 capabilities toggle 后 list_models 返回更新值；3) image 模型修改 supportedSizes 后 list_models 返回更新值；4) 非 Admin 无法访问此页面；5) gpt-4o 的 capabilities 不再为空"
     }
   ]
