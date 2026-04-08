@@ -1,14 +1,14 @@
 {
-  "status": "done",
-  "user_goal": "security-and-robustness: 权限绕过修复(P0) + MCP IP白名单 + 防重复提交 + 异步错误处理",
-  "total_features": 5,
-  "completed_features": 5,
-  "fix_rounds": 1,
+  "status": "building",
+  "user_goal": "P4-1a-schema-sync: 模型聚合核心重构 — Schema 清空重建 + ModelAlias + Sync 改造",
+  "total_features": 6,
+  "completed_features": 0,
+  "fix_rounds": 0,
   "current_sprint": null,
-  "last_updated": "2026-04-08T04:20:00Z",
+  "last_updated": "2026-04-08T15:00:00Z",
   "reference_docs": [
-    "docs/audits/backend-static-review-2026-04-08.md",
-    "docs/audits/frontend-full-code-review-2026-04-08.md"
+    "docs/specs/P4-model-aggregation-PRD.md",
+    "docs/specs/P4-model-aggregation-spec.md"
   ],
   "role_assignments": {
     "planner": "Kimi",
@@ -16,35 +16,11 @@
     "evaluator": "Reviewer"
   },
   "docs": {
-    "spec": null,
-    "test_cases": "docs/test-cases/security-and-robustness-e2e-2026-04-08.md",
-    "signoff": "docs/test-reports/security-and-robustness-signoff-2026-04-08.md",
+    "spec": "docs/specs/P4-model-aggregation-spec.md",
+    "test_cases": null,
+    "signoff": null,
     "framework_reviewed": false
   },
-  "evaluator_feedback": {
-    "summary": "reverifying（fix round 1）复验 4/4 全通过，F-SR-05 签收完成。",
-    "pass_count": 4,
-    "partial_count": 0,
-    "fail_count": 0,
-    "issues": []
-  },
-  "generator_handoff": {
-    "completed": [
-      "F-SR-01",
-      "F-SR-02",
-      "F-SR-03",
-      "F-SR-04"
-    ],
-    "codex_tasks": [
-      "F-SR-05: E2E 验证"
-    ],
-    "notes": [
-      "F-SR-01: detectEndpoint() 新增 /actions/run + /templates/run → chat endpoint，触发 chatCompletion 权限检查",
-      "F-SR-02: mcp/auth.ts authenticateMcp() 新增 IP 白名单检查（复用 ip-utils 的 getClientIp + isIpInWhitelist）",
-      "F-SR-03: keys/page.tsx create/revoke 增加 creating/revoking loading 状态 + try-catch + disabled 按钮",
-      "F-SR-04: admin/users + admin/usage + dashboard 页面的 load 函数全部 catch + finally/toast.error",
-      "Fix round 1: AC1 — actions/run + templates/run 路由内新增显式 chatCompletion 检查（defense-in-depth），不再仅依赖 detectEndpoint",
-      "Fix round 1: AC3 — create 函数在 setCreating(true) 后增加 setTimeout(0) 确保 React 重渲染后再发起请求"
-    ]
-  }
+  "evaluator_feedback": null,
+  "generator_handoff": null
 }
