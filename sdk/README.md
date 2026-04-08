@@ -23,7 +23,7 @@ const gw = new Gateway({
 
 ```typescript
 const res = await gw.chat({
-  model: 'deepseek/v3',
+  model: 'deepseek-v3',
   messages: [
     { role: 'system', content: 'You are a helpful assistant.' },
     { role: 'user', content: 'What is quantum computing?' },
@@ -42,7 +42,7 @@ console.log(res.finishReason)  // 'stop' | 'length' | 'tool_calls' | 'content_fi
 
 ```typescript
 const stream = await gw.chat({
-  model: 'openai/gpt-4o',
+  model: 'gpt-4o',
   messages: [{ role: 'user', content: 'Write a poem' }],
   stream: true,
 })
@@ -74,7 +74,7 @@ setTimeout(() => stream.abort(), 5000)
 
 ```typescript
 const img = await gw.image({
-  model: 'zhipu/cogview-3-flash',
+  model: 'cogview-3-flash',
   prompt: 'A robot teaching children to paint',
   size: '1024x1024',
 })
@@ -121,7 +121,7 @@ if (res.toolCalls) {
 
 | Parameter | Type | Description |
 |---|---|---|
-| `model` | string | Model name (required) |
+| `model` | string | Canonical model name, e.g. `gpt-4o`, `claude-sonnet-4` (required) |
 | `messages` | Message[] | Chat messages (required) |
 | `temperature` | number | Sampling temperature (0-2) |
 | `top_p` | number | Nucleus sampling (0-1) |

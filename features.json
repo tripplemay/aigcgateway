@@ -7,7 +7,7 @@
       "title": "SDK 文档更新",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "1) sdk/README.md 更新 model 参数说明：传 canonical name（如 gpt-4o），不再需要 provider 前缀；2) 示例代码中的 model 字段全部改为 canonical name；3) cd sdk && npm run typecheck 通过"
     },
     {
@@ -15,7 +15,7 @@
       "title": "模型能力管理页对齐验证",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "1) /admin/model-capabilities 页面与新 Model 结构兼容（Model.name 是 canonical name）；2) 每个模型只出现一次（不再有 openai/gpt-4o 和 openrouter/openai/gpt-4o 重复）；3) 设置 capabilities 后 list_models 正确返回；4) npm run lint + tsc 通过"
     },
     {
@@ -23,7 +23,7 @@
       "title": "PRD 更新 P4 完成状态",
       "priority": "low",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "1) docs/AIGC-Gateway-Full-PRD.md §14 版本路线图更新 P4 为已完成；2) §2.2 模型命名规范更新为 canonical name；3) §2.3 路由策略更新为跨服务商选优"
     },
     {
