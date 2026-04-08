@@ -7,7 +7,7 @@
       "title": "Admin API — model-aliases CRUD",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "1) GET /api/admin/model-aliases 返回所有别名（按 modelName 分组）；2) POST /api/admin/model-aliases 创建别名 { alias, modelName }，alias 唯一；3) DELETE /api/admin/model-aliases/:id 删除别名；4) Admin 鉴权；5) npm run lint + tsc 通过"
     },
     {
@@ -15,7 +15,7 @@
       "title": "Admin API — model-aliases merge（归入已有模型）",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "1) POST /api/admin/model-aliases/merge { sourceModelId, targetModelName }；2) 创建 alias 记录（sourceModel.name → targetModelName）；3) 迁移 sourceModel 的 Channel 到 targetModel；4) 删除 sourceModel；5) npm run lint + tsc 通过"
     },
     {
@@ -23,7 +23,7 @@
       "title": "Admin UI — 模型别名管理页",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "1) 新增 /admin/model-aliases 页面；2) 上半部分：按 canonical model 分组展示别名，每组可添加/删除别名；3) 下半部分：未归类模型列表（enabled=false 且无别名的 Model），每条可'归入已有模型'或'保留为新模型'；4) Sidebar Admin 导航增加入口；5) npm run lint + tsc 通过"
     },
     {
@@ -31,7 +31,7 @@
       "title": "Admin UI — 白名单页面改造（展开多通道）",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "1) 白名单页按 canonical model 展示，每个模型可展开显示来自不同 Provider 的 Channel；2) 展开后显示：Provider 名、priority、sellPrice、健康状态；3) 可编辑通道优先级和价格；4) 启用/禁用仍按 Model 粒度；5) npm run lint + tsc 通过"
     },
     {
@@ -39,7 +39,7 @@
       "title": "i18n + SERVER_INSTRUCTIONS 更新",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "1) 模型别名管理页所有文案通过 useTranslations；2) en.json 和 zh-CN.json 同步更新；3) SERVER_INSTRUCTIONS 更新模型名格式说明（用户传 canonical name 如 gpt-4o）；4) npm run lint + tsc 通过"
     },
     {

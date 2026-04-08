@@ -1,11 +1,11 @@
 {
-  "status": "building",
+  "status": "verifying",
   "user_goal": "P4-1c-admin-pages: Admin 别名管理页 + 白名单多通道展开 + API",
   "total_features": 6,
-  "completed_features": 0,
+  "completed_features": 5,
   "fix_rounds": 0,
   "current_sprint": null,
-  "last_updated": "2026-04-08T17:00:00Z",
+  "last_updated": "2026-04-08T17:30:00Z",
   "reference_docs": [
     "docs/specs/P4-model-aggregation-PRD.md",
     "docs/specs/P4-model-aggregation-spec.md"
@@ -22,5 +22,17 @@
     "framework_reviewed": false
   },
   "evaluator_feedback": null,
-  "generator_handoff": null
+  "generator_handoff": {
+    "completed": ["F-P4C-01", "F-P4C-02", "F-P4C-03", "F-P4C-04", "F-P4C-05"],
+    "codex_tasks": ["F-P4C-06: E2E 验证"],
+    "notes": [
+      "F-P4C-01: GET/POST /api/admin/model-aliases + DELETE /api/admin/model-aliases/:id",
+      "F-P4C-02: POST /api/admin/model-aliases/merge — 创建别名 + 迁移 Channel + 删除源 Model",
+      "F-P4C-03: /admin/model-aliases 页面 — 上部分组别名展示（增删）+ 下部未归类模型（归入/保留）",
+      "F-P4C-04: 白名单页改为通道展开模式 — 每个 Model 可展开显示多个 Channel，每 Channel 可编辑 priority + sellPrice",
+      "F-P4C-05: modelAliases i18n (en+zh-CN) + SERVER_INSTRUCTIONS 更新 canonical name 说明",
+      "通道编辑调用现有 PATCH /api/admin/channels/:id，支持 priority + sellPrice",
+      "需要 prisma migrate deploy 应用 P4-1a migration 后才有 ModelAlias 表"
+    ]
+  }
 }

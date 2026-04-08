@@ -42,13 +42,14 @@ const SERVER_INSTRUCTIONS = `# AIGC Gateway — AI 服务商聚合平台
 - 结构化 JSON：chat(model, messages, response_format={type:"json_object"})
 - 采样控制：top_p (0-1), frequency_penalty (-2~2), temperature (0-2)
 - Function Calling：chat(model, messages, tools=[...], tool_choice="auto") — 响应中包含 tool_calls
-- **必须先 list_models 获取可用模型名，再调用 chat**（模型名因部署而异）
+- **必须先 list_models 获取可用模型名，再调用 chat**
+- 模型名使用 canonical name（如 gpt-4o、claude-sonnet-4、gemini-2.5-pro），不含服务商前缀
 
 ## 图片生成（generate_image）
 - generate_image(model, prompt, size?) — 支持多种图片模型
 - **必须先 list_models(modality='image') 获取可用图片模型名**
 - list_models 返回的 image 模型包含 **supportedSizes** 字段（如 ["1024x1024","1024x1792"]），generate_image 的 size 参数必须从中选择
-- 每个模型的 **capabilities** 已预填充（function_calling、vision、json_mode、streaming 等）
+- 每个模型的 **capabilities** 由管理员配置（function_calling、vision、json_mode、streaming 等）
 
 ## Action（原子执行单元）
 Action 绑定一个模型 + 提示词 + 变量定义，可复用。
