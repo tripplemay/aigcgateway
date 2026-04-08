@@ -1,6 +1,8 @@
 "use client";
-import { useEffect, useState, useMemo } from "react";
+import { useState, useMemo } from "react";
 import { useTranslations } from "next-intl";
+import { useAsyncData } from "@/hooks/use-async-data";
+import { SearchBar } from "@/components/search-bar";
 import { formatContext } from "@/lib/utils";
 
 // ============================================================
@@ -65,19 +67,20 @@ function getProviderKey(modelId: string): string {
 export default function ModelsPage() {
   const t = useTranslations("models");
   const tc = useTranslations("common");
-  const [models, setModels] = useState<ModelItem[]>([]);
   const [search, setSearch] = useState("");
   const [modality, setModality] = useState("");
   const [expandedProviders, setExpandedProviders] = useState<Set<string>>(new Set());
   const [showAllModels, setShowAllModels] = useState<Set<string>>(new Set());
 
-  useEffect(() => {
-    const q = modality ? `?modality=${modality}` : "";
-    fetch(`/v1/models${q}`)
-      .then((r) => r.json())
-      .then((r) => setModels(r.data ?? []))
-      .catch(() => setModels([]));
-  }, [modality]);
+  const { data: modelsData } = useAsyncData<{ data: ModelItem[] }>(
+    async () => {
+      const q = modality ? `?modality=${modality}` : "";
+      const res = await fetch(`/v1/models${q}`);
+      return res.json();
+    },
+    [modality],
+  );
+  const models = modelsData?.data ?? [];
 
   const grouped = useMemo(() => {
     const filtered = models.filter(
@@ -95,7 +98,8 @@ export default function ModelsPage() {
     for (const [name, val] of map)
       groups.push({ name, displayName: val.displayName, models: val.models });
     return groups.sort((a, b) => a.name.localeCompare(b.name));
-  }, [models, search]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [modelsData, search]);
 
   const toggle = (set: Set<string>, id: string) => {
     const next = new Set(set);
@@ -123,18 +127,12 @@ export default function ModelsPage() {
         </div>
         <div className="flex items-center gap-3">
           {/* Search */}
-          <div className="relative">
-            <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">
-              search
-            </span>
-            <input
-              className="pl-9 pr-4 py-2 text-sm rounded-full bg-ds-surface-container-low border-none focus:ring-2 focus:ring-ds-primary/20 w-56 transition-all placeholder:text-slate-400 outline-none"
-              type="text"
-              placeholder={t("searchPlaceholder")}
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
-          </div>
+          <SearchBar
+            placeholder={t("searchPlaceholder")}
+            value={search}
+            onChange={setSearch}
+            className="w-56"
+          />
           {/* Modality filter */}
           <div className="flex bg-ds-surface-container-low p-1 rounded-xl">
             {[

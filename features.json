@@ -7,7 +7,7 @@
       "title": "Keys 列表页还原",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "1) 使用 useAsyncData + Table + SearchBar + Pagination 替换旧代码；2) 表格列：名称、masked key（可复制）、创建日期、最后使用、状态 badge；3) 行操作：编辑（跳转 /keys/[keyId]）、吊销（弹 RevokeKeyDialog）；4) 对齐 design-draft/keys/code.html 视觉；5) 文本走 next-intl；6) npm run lint + tsc 通过",
       "design_ref": "design-draft/keys/code.html"
     },
@@ -16,7 +16,7 @@
       "title": "CreateKeyDialog 组件",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "1) 独立组件 src/components/keys/create-key-dialog.tsx；2) 使用 Dialog 组件；3) 表单：名称、描述、过期选项（Never/30d/60d/90d）、权限开关；4) 创建成功后显示完整 key + 复制按钮；5) 对齐 design-draft/keys-create-modal/code.html；6) npm run lint + tsc 通过",
       "design_ref": "design-draft/keys-create-modal/code.html"
     },
@@ -25,7 +25,7 @@
       "title": "RevokeKeyDialog 组件",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "1) 独立组件 src/components/keys/revoke-key-dialog.tsx；2) 使用 Dialog 组件；3) 显示 key 名称 + 警告文本 + 确认/取消按钮；4) 确认后调用 DELETE API 并触发列表刷新；5) npm run lint + tsc 通过"
     },
     {
@@ -33,7 +33,7 @@
       "title": "Keys 设置页还原",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "1) 使用 useAsyncData + Card + Input + Switch；2) 基本信息区（名称、描述可编辑，masked key 可复制）；3) Permissions 开关组；4) Rate Limit (RPM) 输入；5) IP 白名单 textarea；6) 保存按钮调用 PATCH API；7) Danger Zone 吊销按钮（弹 RevokeKeyDialog）；8) 对齐 design-draft/keys-settings/code.html；9) npm run lint + tsc 通过",
       "design_ref": "design-draft/keys-settings/code.html"
     },
@@ -42,7 +42,7 @@
       "title": "Logs 列表页还原",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "1) 使用 useAsyncData + Table + SearchBar + Pagination；2) 表格列：时间、Trace ID（可复制）、模型、预览、状态 badge、Tokens、费用、延迟；3) 状态筛选 tab（All/Success/Error）；4) 模型筛选下拉；5) 搜索走 /logs/search；6) 行点击跳转详情页；7) 对齐 design-draft/logs/code.html；8) npm run lint + tsc 通过",
       "design_ref": "design-draft/logs/code.html"
     },
@@ -51,7 +51,7 @@
       "title": "Logs 详情页还原",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "1) 使用 useAsyncData + Card；2) 头部：traceId（可复制）、状态 badge、时间、延迟；3) 统计卡片：模型、Tokens、费用、吞吐量；4) Prompt Messages 面板（system/user 消息列表）；5) Response Content 面板（支持文本展示）；6) Request Parameters（JSON 折叠）；7) 质量评分按钮（POST quality API）；8) 对齐 design-draft/logs-detail/code.html；9) npm run lint + tsc 通过",
       "design_ref": "design-draft/logs-detail/code.html"
     },
@@ -60,7 +60,7 @@
       "title": "Models 列表页还原",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "1) 使用 useAsyncData；2) 按 provider_name 客户端分组，Provider 组头显示名称 + 模型数量；3) Modality tab 切换（All/Text/Image）；4) 每行：模型 ID、Modality badge、Context Window、定价；5) 分组可折叠/展开；6) 统计卡片：Total Models；7) 对齐 design-draft/models/code.html；8) npm run lint + tsc 通过",
       "design_ref": "design-draft/models/code.html"
     },
@@ -69,7 +69,7 @@
       "title": "i18n 补全（keys/logs/models）",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "1) messages/en.json 和 messages/zh.json 中 keys/logs/models 相关 key 齐全；2) 所有用户可见文本无硬编码英文；3) 切换语言后页面正常显示；4) npm run lint + tsc 通过"
     },
     {

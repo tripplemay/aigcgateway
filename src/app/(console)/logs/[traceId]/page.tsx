@@ -1,8 +1,8 @@
 "use client";
-import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { apiFetch } from "@/lib/api-client";
 import { useProject } from "@/hooks/use-project";
+import { useAsyncData } from "@/hooks/use-async-data";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -40,17 +40,14 @@ export default function LogDetailPage() {
   const t = useTranslations("logs");
   const { current, loading: projLoading } = useProject();
   const params = useParams<{ traceId: string }>();
-  const [detail, setDetail] = useState<LogDetail | null>(null);
-  const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    if (!current || !params.traceId) return;
-    setLoading(true);
-    apiFetch<LogDetail>(`/api/projects/${current.id}/logs/${params.traceId}`)
-      .then(setDetail)
-      .catch(() => {})
-      .finally(() => setLoading(false));
-  }, [current, params.traceId]);
+  const { data: detail, loading } = useAsyncData<LogDetail | null>(
+    async () => {
+      if (!current || !params.traceId) return null;
+      return apiFetch<LogDetail>(`/api/projects/${current.id}/logs/${params.traceId}`);
+    },
+    [current, params.traceId],
+  );
 
   if (projLoading || loading)
     return (
