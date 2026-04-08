@@ -37,7 +37,7 @@ export function Pagination({
     >
       {total != null && showingFrom != null && showingTo != null ? (
         <p>
-          {showingFrom}–{showingTo} of {total}
+          {showingFrom}–{showingTo} {tc("of")} {total}
         </p>
       ) : (
         <p>

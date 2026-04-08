@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState, useRef } from "react";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { apiFetch } from "@/lib/api-client";
 import { useProject } from "@/hooks/use-project";
 import { useAsyncData } from "@/hooks/use-async-data";
@@ -43,6 +43,7 @@ const PAGE_SIZE = 20;
 export default function LogsPage() {
   const t = useTranslations("logs");
   const tc = useTranslations("common");
+  const locale = useLocale();
   const { current, loading: projLoading } = useProject();
 
   const router = useRouter();
@@ -198,7 +199,7 @@ export default function LogsPage() {
                 >
                   <TableCell className="px-6 py-4">
                     <span className="text-xs font-semibold text-slate-400" title={l.createdAt}>
-                      {timeAgo(l.createdAt)}
+                      {timeAgo(l.createdAt, locale)}
                     </span>
                   </TableCell>
                   <TableCell className="px-6 py-4">
@@ -274,11 +275,15 @@ export default function LogsPage() {
             <div className="flex gap-4">
               <div className="flex items-center gap-2">
                 <span className="w-3 h-3 rounded-full bg-indigo-500" />
-                <span className="text-[10px] font-bold text-slate-400 uppercase">{t("avgP95")}</span>
+                <span className="text-[10px] font-bold text-slate-400 uppercase">
+                  {t("avgP95")}
+                </span>
               </div>
               <div className="flex items-center gap-2">
                 <span className="w-3 h-3 rounded-full bg-emerald-400" />
-                <span className="text-[10px] font-bold text-slate-400 uppercase">{t("median")}</span>
+                <span className="text-[10px] font-bold text-slate-400 uppercase">
+                  {t("median")}
+                </span>
               </div>
             </div>
           </div>

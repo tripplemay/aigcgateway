@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { apiFetch } from "@/lib/api-client";
 import { useProject } from "@/hooks/use-project";
 import { useAsyncData } from "@/hooks/use-async-data";
@@ -45,6 +45,7 @@ const PAGE_SIZE = 5;
 export default function KeysPage() {
   const t = useTranslations("keys");
   const tc = useTranslations("common");
+  const locale = useLocale();
   const { current, loading: projLoading } = useProject();
 
   const [search, setSearch] = useState("");
@@ -262,7 +263,7 @@ export default function KeysPage() {
                     </TableCell>
                     {/* Last Used */}
                     <TableCell className="px-6 py-5 text-xs text-slate-500 font-medium">
-                      {k.lastUsedAt ? timeAgo(k.lastUsedAt) : tc("never")}
+                      {k.lastUsedAt ? timeAgo(k.lastUsedAt, locale) : tc("never")}
                     </TableCell>
                     {/* Status */}
                     <TableCell className="px-6 py-5 text-center">
