@@ -1,0 +1,29 @@
+{
+  "baseUrl": "http://localhost:3099",
+  "userEmail": "sr_1775619995511@test.local",
+  "projectId": "cmnpiat4p00sp9ytpkkt71eor",
+  "passCount": 1,
+  "failCount": 3,
+  "steps": [
+    {
+      "name": "AC1 chatCompletion=false key is blocked on /v1/actions/run",
+      "ok": false,
+      "detail": "status=402, body={\"error\":{\"type\":\"billing_error\",\"code\":\"insufficient_balance\",\"message\":\"Insufficient balance. Current balance: $0.000000. Please recharge.\",\"balance\":0}}"
+    },
+    {
+      "name": "AC2 MCP request is rejected from non-whitelisted IP",
+      "ok": false,
+      "detail": "blocked=200, allowed=200, blockedBody=event: message\ndata: {\"result\":{\"tools\":[{\"name\":\"list_models\",\"description\":\"List available AI models on AIGC Gateway w, allowedBody=event: message\ndata: {\"result\":{\"tools\":[{\"name\":\"list_models\",\"description\":\"List available AI models on AIGC Gateway w"
+    },
+    {
+      "name": "AC3 create key button is disabled while request is in-flight",
+      "ok": false,
+      "detail": "sawCreateRequest=true, disabledDuringRequest=false"
+    },
+    {
+      "name": "AC4 dashboard is not stuck in loading when APIs fail",
+      "ok": true,
+      "detail": "failedReqCount=5, h2Visible=true, skeletonCount=0"
+    }
+  ]
+}
