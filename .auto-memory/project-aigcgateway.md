@@ -12,8 +12,8 @@ AIGC Gateway — AI 服务商管理中台。统一 API 调用抽象（兼容 Ope
 
 ## 当前开发状态（截至 2026-04-08）
 
-**当前批次：** `admin-model-capabilities`（reverifying 结果仍 4 PASS / 1 FAIL，已再次回退 fixing）
-**失败项：** `F-MC-07` AC5 — `/v1/models` 中 `openai/gpt-4o` 的 `capabilities` 仍为空 `{}`；DB 中相关记录存在 `capabilities = null`（证据：`docs/test-reports/admin-model-capabilities-e2e-2026-04-08.json`、`docs/test-reports/admin-model-capabilities-reverifying-2026-04-08.md`）
+**当前批次：** `admin-model-capabilities`（reverifying round 2 仍 4 PASS / 1 FAIL，继续处于 fixing）
+**失败项：** `F-MC-07` AC5 — `/v1/models` 中 `openai/gpt-4o` 的 `capabilities` 仍为空 `{}`；fix round 2（broad match migration）后复验仍未通过（证据：`docs/test-reports/admin-model-capabilities-e2e-2026-04-08.json`、`docs/test-reports/admin-model-capabilities-reverifying-round2-2026-04-08.md`）
 **最新完成批次：** `bugfix-template-api`（3/3 PASS，fix_rounds=0，Generator=Johnsong）
 **Harness 状态：** fixing
 **签收报告（上一批次）：** `docs/test-reports/bugfix-template-api-signoff-2026-04-08.md`
