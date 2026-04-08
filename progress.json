@@ -1,11 +1,11 @@
 {
-  "status": "reverifying",
+  "status": "fixing",
   "user_goal": "R2B — 用户侧页面还原（Balance + Usage + Settings）：3 个页面从旧代码模式还原为 R1 设计系统，对齐 Stitch 设计稿",
   "total_features": 6,
   "completed_features": 4,
   "fix_rounds": 5,
   "current_sprint": null,
-  "last_updated": "2026-04-09T01:42:00Z",
+  "last_updated": "2026-04-09T01:55:00Z",
   "reference_docs": [
     "docs/specs/R2B-user-pages-balance-usage-settings-spec.md",
     "design-draft/balance/code.html",
@@ -24,7 +24,7 @@
     "framework_reviewed": false
   },
   "evaluator_feedback": {
-    "summary": "R2B 复验 round4 未通过：即使 rm -rf .next 后，/settings 保存链路仍未触发更新请求。",
+    "summary": "R2B 复验 round5 未通过：toast 诊断轮显示常规点击无 toast 且无 PATCH，但 requestSubmit 可触发 PATCH。",
     "pass_count": 4,
     "partial_count": 0,
     "fail_count": 2,
@@ -32,8 +32,8 @@
       {
         "feature_id": "F-R2B-04",
         "result": "FAIL",
-        "description": "设置页个人信息保存仍无效：在 form onSubmit 路径下，修改姓名并点击 Save Changes 后仍未触发 profile 更新请求，刷新后回退。",
-        "steps_to_reproduce": "1) 先执行 rm -rf .next 并重启服务 2) 进入 /settings 3) 姓名改为 Admin FormSubmit 4) 点击 Save Changes 5) Network 仅见 GET /api/auth/profile（reqid=738/740）无更新请求 6) 刷新后姓名恢复 Admin"
+        "description": "设置页保存在常规点击路径下仍不稳定：未观察到 Saving name toast，且无 PATCH 请求；但脚本 requestSubmit 可触发 PATCH。",
+        "steps_to_reproduce": "1) 登录后进入 /settings 2) 修改姓名并点击 Save Changes 3) 未见 Saving name toast，Network 无 PATCH（至 reqid=853）4) 执行 form.requestSubmit 后出现 PATCH /api/auth/profile（reqid=807）"
       },
       {
         "feature_id": "F-R2B-06",
@@ -42,13 +42,13 @@
         "steps_to_reproduce": "复现 F-R2B-04 后，整体验收应继续判 FAIL。"
       }
     ],
-    "report": "docs/test-reports/R2B-user-pages-balance-usage-settings-reverifying-round4-2026-04-09.md"
+    "report": "docs/test-reports/R2B-user-pages-balance-usage-settings-reverifying-round5-2026-04-09.md"
   },
   "generator_handoff": "R2B building 完成。5/5 generator 功能已实现：Balance 页（useAsyncData+DS Table/Pagination+类型筛选）、RechargeDialog 独立组件、Usage 页（recharts BarChart/PieChart+DS Table）、Settings 页（profile+password+login history DS Table）、i18n 全面补全。Notifications 和 System Status 按 DESIGN.md 标注已移除。tsc+lint 通过。",
   "session_notes": {
     "Richard": "R2B planning 完成。6 条功能（5 generator + 1 codex）。balance 页+充值弹窗、usage 页（含 recharts 图表）、settings 页 + i18n。spec 中特别加了 i18n 自检清单（R2A 教训）。recharts 已在项目中。",
     "Johnsong": "Fix round 5: 诊断轮。在 handleSaveName 入口添加 toast.info 作为诊断信号（fetch 之前），按钮添加 data-testid=save-profile-btn。如 Codex 看到 toast 但无 PATCH → fetch 被阻；如无 toast → handler 未被调用（事件未到达）。请 Codex 在报告中明确记录是否看到了 Saving name: xxx 的 toast。",
     "Mark": null,
-    "Reviewer": "R2B reverifying round4 完成（L1）：已按要求执行 rm -rf .next 并重启后复验，/settings 保存问题仍未修复（form onSubmit 路径下仍无 profile 更新请求，刷新回退）。F-R2B-04 与 F-R2B-06 持续 FAIL，状态退回 fixing。报告：docs/test-reports/R2B-user-pages-balance-usage-settings-reverifying-round4-2026-04-09.md"
+    "Reviewer": "R2B reverifying round5（诊断轮）完成：按要求记录 toast 信号。结果为常规点击无 Saving name toast 且无 PATCH；但强制 form.requestSubmit 可触发 PATCH（reqid=807）并持久化。F-R2B-04/F-R2B-06 继续 FAIL，状态退回 fixing。报告：docs/test-reports/R2B-user-pages-balance-usage-settings-reverifying-round5-2026-04-09.md"
   }
 }

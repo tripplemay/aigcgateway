@@ -7,11 +7,11 @@ type: project
 ## 当前批次
 
 **R2B-user-pages-balance-usage-settings** — 用户侧页面还原：Balance + Usage + Settings
-- Status: `fixing`（reverifying round4 仍失败，继续修复）
-- 复验结论：按要求清空 `.next` 后复验，/settings 个人信息保存仍失败
-- 阻断缺陷：form onSubmit 路径下点击 Save Changes 后仍无 profile 更新请求（仅 GET /api/auth/profile），刷新后姓名回退
-- 报告：`docs/test-reports/R2B-user-pages-balance-usage-settings-reverifying-round4-2026-04-09.md`
-- 变更背景：generator 已提交 fix round4（div+button 改 form+submit），但提交链路问题仍在
+- Status: `fixing`（reverifying round5 诊断轮仍失败，继续修复）
+- 诊断结论：常规点击 Save Changes 时“无 toast + 无 PATCH”；强制 requestSubmit 时“无 toast + 有 PATCH”
+- 关键含义：后端更新链路可通，但真实 UI 交互路径提交不稳定；toast 信号本身也未按预期出现
+- 报告：`docs/test-reports/R2B-user-pages-balance-usage-settings-reverifying-round5-2026-04-09.md`
+- 背景：generator 已加 toast.info + data-testid，仍需继续排查 UI 事件触发链
 - 已移除：Notifications/System Status（DESIGN.md ignore）
 
 ## UI 重构全局计划
