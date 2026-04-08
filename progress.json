@@ -1,11 +1,11 @@
 {
-  "status": "reverifying",
+  "status": "fixing",
   "user_goal": "R2B — 用户侧页面还原（Balance + Usage + Settings）：3 个页面从旧代码模式还原为 R1 设计系统，对齐 Stitch 设计稿",
   "total_features": 6,
   "completed_features": 4,
   "fix_rounds": 4,
   "current_sprint": null,
-  "last_updated": "2026-04-09T01:31:00Z",
+  "last_updated": "2026-04-09T01:42:00Z",
   "reference_docs": [
     "docs/specs/R2B-user-pages-balance-usage-settings-spec.md",
     "design-draft/balance/code.html",
@@ -24,7 +24,7 @@
     "framework_reviewed": false
   },
   "evaluator_feedback": {
-    "summary": "R2B 复验 round3 未通过：/settings 保存链路仍未触发更新请求。",
+    "summary": "R2B 复验 round4 未通过：即使 rm -rf .next 后，/settings 保存链路仍未触发更新请求。",
     "pass_count": 4,
     "partial_count": 0,
     "fail_count": 2,
@@ -32,8 +32,8 @@
       {
         "feature_id": "F-R2B-04",
         "result": "FAIL",
-        "description": "设置页个人信息保存仍无效：修改姓名并点击 Save Changes 后未触发 profile 更新请求，刷新后回退。",
-        "steps_to_reproduce": "1) 进入 /settings 2) 姓名改为 Admin Round3 3) 点击 Save Changes 4) Network 仅见 GET /api/auth/profile（reqid=656/658）无更新请求 5) 刷新后姓名恢复 Admin"
+        "description": "设置页个人信息保存仍无效：在 form onSubmit 路径下，修改姓名并点击 Save Changes 后仍未触发 profile 更新请求，刷新后回退。",
+        "steps_to_reproduce": "1) 先执行 rm -rf .next 并重启服务 2) 进入 /settings 3) 姓名改为 Admin FormSubmit 4) 点击 Save Changes 5) Network 仅见 GET /api/auth/profile（reqid=738/740）无更新请求 6) 刷新后姓名恢复 Admin"
       },
       {
         "feature_id": "F-R2B-06",
@@ -42,13 +42,13 @@
         "steps_to_reproduce": "复现 F-R2B-04 后，整体验收应继续判 FAIL。"
       }
     ],
-    "report": "docs/test-reports/R2B-user-pages-balance-usage-settings-reverifying-round3-2026-04-09.md"
+    "report": "docs/test-reports/R2B-user-pages-balance-usage-settings-reverifying-round4-2026-04-09.md"
   },
   "generator_handoff": "R2B building 完成。5/5 generator 功能已实现：Balance 页（useAsyncData+DS Table/Pagination+类型筛选）、RechargeDialog 独立组件、Usage 页（recharts BarChart/PieChart+DS Table）、Settings 页（profile+password+login history DS Table）、i18n 全面补全。Notifications 和 System Status 按 DESIGN.md 标注已移除。tsc+lint 通过。",
   "session_notes": {
     "Richard": "R2B planning 完成。6 条功能（5 generator + 1 codex）。balance 页+充值弹窗、usage 页（含 recharts 图表）、settings 页 + i18n。spec 中特别加了 i18n 自检清单（R2A 教训）。recharts 已在项目中。",
     "Johnsong": "Fix round 4: Profile 区域改用 form+onSubmit 替代 button onClick。按钮改为 type=submit，form onSubmit 中 preventDefault+handleSaveName。这是完全不同的事件路径，排除 onClick 事件绑定/冒泡/Playwright 兼容性问题。如仍失败，需要 Codex 确认 rm -rf .next 后重启测试。",
     "Mark": null,
-    "Reviewer": "R2B reverifying round3 完成（L1）：fix round3 后 /settings 保存问题仍未修复（仍无 profile 更新请求，刷新回退）。F-R2B-04 与 F-R2B-06 持续 FAIL，状态退回 fixing。报告：docs/test-reports/R2B-user-pages-balance-usage-settings-reverifying-round3-2026-04-09.md"
+    "Reviewer": "R2B reverifying round4 完成（L1）：已按要求执行 rm -rf .next 并重启后复验，/settings 保存问题仍未修复（form onSubmit 路径下仍无 profile 更新请求，刷新回退）。F-R2B-04 与 F-R2B-06 持续 FAIL，状态退回 fixing。报告：docs/test-reports/R2B-user-pages-balance-usage-settings-reverifying-round4-2026-04-09.md"
   }
 }
