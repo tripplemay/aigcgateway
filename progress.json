@@ -1,11 +1,11 @@
 {
-  "status": "reverifying",
+  "status": "fixing",
   "user_goal": "R2A — 用户侧页面还原（Keys + Logs + Models）：6 个页面从旧代码模式还原为 R1 设计系统，对齐 Stitch 设计稿",
   "total_features": 9,
-  "completed_features": 8,
+  "completed_features": 7,
   "fix_rounds": 2,
   "current_sprint": null,
-  "last_updated": "2026-04-08T14:45:00Z",
+  "last_updated": "2026-04-08T15:02:50Z",
   "reference_docs": [
     "docs/specs/R2A-user-pages-keys-logs-models-spec.md",
     "design-draft/keys/code.html",
@@ -19,11 +19,31 @@
   },
   "docs": {
     "spec": "docs/specs/R2A-user-pages-keys-logs-models-spec.md",
-    "test_cases": "docs/test-reports/R2A-user-pages-keys-logs-models-reverifying-2026-04-08.md",
+    "test_cases": "docs/test-reports/R2A-user-pages-keys-logs-models-reverifying-round2-2026-04-08.md",
     "signoff": null,
     "framework_reviewed": false
   },
-  "evaluator_feedback": null,
+  "evaluator_feedback": {
+    "summary": "R2A 复验 round 2 未通过：7 PASS / 1 PARTIAL / 1 FAIL。阻塞点仍为 F-R2A-08（共享层 i18n 硬编码）。",
+    "pass_count": 7,
+    "partial_count": 1,
+    "fail_count": 1,
+    "issues": [
+      {
+        "feature_id": "F-R2A-08",
+        "result": "FAIL",
+        "description": "CN 语言下 /logs 仍出现英文硬编码（timeAgo 与分页 of）。",
+        "steps_to_reproduce": "切换到 CN 后访问 /logs，观察时间列显示 10s ago/1m ago，分页显示 OF。"
+      },
+      {
+        "feature_id": "F-R2A-09",
+        "result": "PARTIAL",
+        "description": "目标页面可加载且关键链路可用，但受 F-R2A-08 影响不能签收。",
+        "steps_to_reproduce": "登录后复验 /keys、/logs、/logs/{traceId}、/models；CN 模式下检查文案。"
+      }
+    ],
+    "report": "docs/test-reports/R2A-user-pages-keys-logs-models-reverifying-round2-2026-04-08.md"
+  },
   "_prev_feedback_round1": {
     "summary": "R2A 复验未完全通过：7 PASS / 1 PARTIAL / 1 FAIL。唯一阻塞为 F-R2A-08（仍有硬编码英文文案）。",
     "pass_count": 7,
@@ -101,6 +121,6 @@
     "Richard": "R2A planning 完成。9 条功能（8 generator + 1 codex）。keys 3 页 + create/revoke dialog、logs 2 页、models 1 页 + i18n。所有页面当前都是旧模式，需完全重写。设计稿已整理到 design-draft/ 新结构。",
     "Johnsong": "R2A fixing round 2 完成。仅剩 F-R2A-08 硬编码英文问题。修复：models 页（subtitle/stats 卡片 6 处）、logs 列表页（Avg P95/Median/Save up to/Apply Savings 4 处）、logs 详情页（Model/Tokens/Cost/Throughput 统计标签 + Messages count 5 处）。所有 i18n key 已加到 en.json + zh-CN.json。",
     "Mark": null,
-    "Reviewer": "reverifying round 1 完成：F-R2A-02/04/05/06/07 已通过，F-R2A-08 仍失败（硬编码英文文案），F-R2A-09 因此仅 PARTIAL。状态回退 fixing，报告见 docs/test-reports/R2A-user-pages-keys-logs-models-reverifying-2026-04-08.md。"
+    "Reviewer": "reverifying round 2 完成：F-R2A-08 仍失败（/logs CN 下 timeAgo 与 Pagination 出现英文），F-R2A-09 因此 PARTIAL。状态回退 fixing，报告见 docs/test-reports/R2A-user-pages-keys-logs-models-reverifying-round2-2026-04-08.md。"
   }
 }
