@@ -10,6 +10,8 @@ export interface ModelCapabilities {
   json_mode?: boolean;
   streaming?: boolean;
   function_calling?: boolean;
+  reasoning?: boolean;
+  search?: boolean;
 }
 
 const CAPABILITIES_MAP: Record<string, ModelCapabilities> = {
@@ -43,15 +45,15 @@ const CAPABILITIES_MAP: Record<string, ModelCapabilities> = {
   "doubao-pro-256k": { streaming: true },
 
   // ── 推理 ──
-  o3: { json_mode: true, streaming: true },
-  "o4-mini": { json_mode: true, streaming: true },
-  "deepseek-reasoner": { streaming: true },
-  "deepseek-r1": { streaming: true },
-  "deepseek/deepseek-r1": { streaming: true },
+  o3: { json_mode: true, streaming: true, reasoning: true },
+  "o4-mini": { json_mode: true, streaming: true, reasoning: true },
+  "deepseek-reasoner": { streaming: true, reasoning: true },
+  "deepseek-r1": { streaming: true, reasoning: true },
+  "deepseek/deepseek-r1": { streaming: true, reasoning: true },
 
   // ── 搜索增强 ──
-  "perplexity/sonar": { streaming: true },
-  "perplexity/sonar-pro": { streaming: true },
+  "perplexity/sonar": { streaming: true, search: true },
+  "perplexity/sonar-pro": { streaming: true, search: true },
 
   // ── 阿里旗舰 ──
   "qwen-max": { json_mode: true, streaming: true, function_calling: true },
@@ -125,6 +127,7 @@ const CONTEXT_WINDOW_MAP: Record<string, number> = {
 };
 
 /**
+ * @deprecated Use DB capabilities field directly. This fallback is kept for model-sync initial seeding only.
  * Resolve capabilities for a model by matching its ID against known keys.
  * Tries exact match first, then prefix match (longest prefix wins).
  * Returns {} if no match found.
@@ -174,12 +177,13 @@ const SUPPORTED_SIZES_MAP: Record<string, string[]> = {
   "dall-e": ["256x256", "512x512", "1024x1024"],
   "gpt-image-1": ["1024x1024", "1024x1536", "1536x1024", "auto"],
   "seedream-4.5": ["1024x1024", "960x1280", "1280x960", "720x1440", "1440x720"],
-  "seedream": ["1024x1024", "960x1280", "1280x960"],
+  seedream: ["1024x1024", "960x1280", "1280x960"],
   cogview: ["1024x1024"],
   "Qwen/Wanx": ["1024x1024", "720x1280", "1280x720"],
 };
 
 /**
+ * @deprecated Use DB supportedSizes field directly. Kept for model-sync initial seeding only.
  * Resolve supported image sizes for a model. Returns null if not an image model.
  */
 export function resolveSupportedSizes(modelId: string): string[] | null {

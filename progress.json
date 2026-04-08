@@ -1,11 +1,11 @@
 {
-  "status": "building",
+  "status": "verifying",
   "user_goal": "admin-model-capabilities: Admin 模型能力管理页面，capabilities/supportedSizes 从代码迁移到 DB",
   "total_features": 7,
-  "completed_features": 0,
+  "completed_features": 6,
   "fix_rounds": 0,
   "current_sprint": null,
-  "last_updated": "2026-04-08T05:00:00Z",
+  "last_updated": "2026-04-08T08:00:00Z",
   "reference_docs": [],
   "role_assignments": {
     "planner": "Kimi",
@@ -19,5 +19,25 @@
     "framework_reviewed": false
   },
   "evaluator_feedback": null,
-  "generator_handoff": null
+  "generator_handoff": {
+    "completed": [
+      "F-MC-01",
+      "F-MC-02",
+      "F-MC-03",
+      "F-MC-04",
+      "F-MC-05",
+      "F-MC-06"
+    ],
+    "codex_tasks": [
+      "F-MC-07: E2E 验证"
+    ],
+    "notes": [
+      "F-MC-01: Prisma schema Model 表新增 supportedSizes Json? + migration",
+      "F-MC-02: /admin/model-capabilities 页面 — 6 个 capability toggle + supportedSizes 编辑器（image 模型）",
+      "F-MC-03: PATCH /api/admin/models/:id 新增 capabilities/supportedSizes 字段支持，含 key 白名单验证",
+      "F-MC-04: list_models MCP + /v1/models REST 直接读 DB，不再 fallback 到静态 map。model-sync 仍用 fallback 做初始 seeding。数据迁移 SQL 将 CAPABILITIES_MAP + SUPPORTED_SIZES_MAP 写入 DB",
+      "F-MC-05: ModelCapabilities 接口增加 reasoning + search，CAPABILITIES_MAP 中推理/搜索模型已标注",
+      "F-MC-06: en.json + zh-CN.json 新增 modelCapabilities namespace + sidebar 入口"
+    ]
+  }
 }

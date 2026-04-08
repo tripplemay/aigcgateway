@@ -4,12 +4,23 @@ import { NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/api/admin-guard";
 import { errorResponse } from "@/lib/api/errors";
 
+const VALID_CAPABILITY_KEYS = new Set([
+  "streaming",
+  "json_mode",
+  "function_calling",
+  "vision",
+  "reasoning",
+  "search",
+]);
+
 /**
  * PATCH /api/admin/models/:id
  *
  * 支持字段：
- *   enabled: boolean      — 启用/禁用模型
- *   sellPrice: object      — 编辑售价（更新该模型所有 ACTIVE channel 的 sellPrice）
+ *   enabled: boolean          — 启用/禁用模型
+ *   sellPrice: object         — 编辑售价（更新该模型所有 ACTIVE channel 的 sellPrice）
+ *   capabilities: object      — 更新 capabilities（仅允许合法 key）
+ *   supportedSizes: string[]  — 更新 supportedSizes（image 模型用）
  */
 export async function PATCH(request: Request, { params }: { params: { id: string } }) {
   const auth = requireAdmin(request);
@@ -21,6 +32,40 @@ export async function PATCH(request: Request, { params }: { params: { id: string
   const modelUpdate: Record<string, unknown> = {};
   if (typeof body.enabled === "boolean") {
     modelUpdate.enabled = body.enabled;
+  }
+
+  // Capabilities update
+  if (body.capabilities !== undefined) {
+    if (
+      typeof body.capabilities !== "object" ||
+      body.capabilities === null ||
+      Array.isArray(body.capabilities)
+    ) {
+      return errorResponse(400, "invalid_parameter", "capabilities must be a valid object");
+    }
+    const invalidKeys = Object.keys(body.capabilities).filter((k) => !VALID_CAPABILITY_KEYS.has(k));
+    if (invalidKeys.length > 0) {
+      return errorResponse(
+        400,
+        "invalid_parameter",
+        `Invalid capability keys: ${invalidKeys.join(", ")}`,
+      );
+    }
+    modelUpdate.capabilities = body.capabilities;
+  }
+
+  // SupportedSizes update
+  if (body.supportedSizes !== undefined) {
+    if (body.supportedSizes !== null && !Array.isArray(body.supportedSizes)) {
+      return errorResponse(400, "invalid_parameter", "supportedSizes must be an array or null");
+    }
+    if (
+      Array.isArray(body.supportedSizes) &&
+      !body.supportedSizes.every((s: unknown) => typeof s === "string")
+    ) {
+      return errorResponse(400, "invalid_parameter", "supportedSizes must be an array of strings");
+    }
+    modelUpdate.supportedSizes = body.supportedSizes;
   }
 
   // Update model if there are model-level changes

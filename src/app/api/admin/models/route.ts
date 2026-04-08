@@ -60,6 +60,7 @@ export async function GET(request: Request) {
       maxTokens: m.maxTokens,
       contextWindow: m.contextWindow,
       capabilities: m.capabilities,
+      supportedSizes: m.supportedSizes,
       createdAt: m.createdAt,
       channelCount: m.channels.length,
       activeChannelCount: activeChannels.length,

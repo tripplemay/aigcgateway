@@ -236,8 +236,9 @@ model Model {
   isVariant     Boolean       @default(false)
   maxTokens     Int?
   contextWindow Int?
-  capabilities  Json?
-  description   String?
+  capabilities   Json?
+  supportedSizes Json?
+  description    String?
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
 

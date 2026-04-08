@@ -14,7 +14,11 @@
 
 import { prisma } from "@/lib/prisma";
 import { getConfigNumber } from "@/lib/config";
-import { resolveCapabilities, resolveContextWindow } from "./model-capabilities-fallback";
+import {
+  resolveCapabilities,
+  resolveContextWindow,
+  resolveSupportedSizes,
+} from "./model-capabilities-fallback";
 import type {
   SyncAdapter,
   SyncedModel,
@@ -240,9 +244,14 @@ async function reconcile(
 
     // 新模型 — model upsert 必须串行（有依赖关系）
     const modelName = resolveModelName(remoteModel, provider.name);
-    const hasCapabilities = remoteModel.capabilities != null && Object.keys(remoteModel.capabilities).length > 0;
-    const capabilities = hasCapabilities ? remoteModel.capabilities : resolveCapabilities(remoteModel.modelId);
+    const hasCapabilities =
+      remoteModel.capabilities != null && Object.keys(remoteModel.capabilities).length > 0;
+    const capabilities = hasCapabilities
+      ? remoteModel.capabilities
+      : resolveCapabilities(remoteModel.modelId);
     const contextWindow = remoteModel.contextWindow ?? resolveContextWindow(remoteModel.modelId);
+    const isImage = remoteModel.modality === "IMAGE";
+    const supportedSizes = isImage ? resolveSupportedSizes(remoteModel.modelId) : null;
     const canonicalName = computeCanonicalName(modelName);
     const model = await prisma.model.upsert({
       where: { name: modelName },
@@ -250,6 +259,9 @@ async function reconcile(
         contextWindow: contextWindow ?? undefined,
         maxTokens: remoteModel.maxOutputTokens ?? undefined,
         capabilities: capabilities as unknown as Prisma.InputJsonValue,
+        ...(supportedSizes
+          ? { supportedSizes: supportedSizes as unknown as Prisma.InputJsonValue }
+          : {}),
         canonicalName,
       },
       create: {
@@ -259,6 +271,7 @@ async function reconcile(
         contextWindow: contextWindow ?? null,
         maxTokens: remoteModel.maxOutputTokens ?? null,
         capabilities: capabilities as unknown as Prisma.InputJsonValue,
+        supportedSizes: supportedSizes as unknown as Prisma.InputJsonValue,
         enabled: false,
         canonicalName,
       },
