@@ -1,54 +1,38 @@
 {
-  "batch": "P4-1c-admin-pages",
+  "batch": "P4-2-docs-cleanup",
   "created_at": "2026-04-08",
   "features": [
     {
-      "id": "F-P4C-01",
-      "title": "Admin API — model-aliases CRUD",
-      "priority": "high",
-      "executor": "generator",
-      "status": "completed",
-      "acceptance": "1) GET /api/admin/model-aliases 返回所有别名（按 modelName 分组）；2) POST /api/admin/model-aliases 创建别名 { alias, modelName }，alias 唯一；3) DELETE /api/admin/model-aliases/:id 删除别名；4) Admin 鉴权；5) npm run lint + tsc 通过"
-    },
-    {
-      "id": "F-P4C-02",
-      "title": "Admin API — model-aliases merge（归入已有模型）",
-      "priority": "high",
-      "executor": "generator",
-      "status": "completed",
-      "acceptance": "1) POST /api/admin/model-aliases/merge { sourceModelId, targetModelName }；2) 创建 alias 记录（sourceModel.name → targetModelName）；3) 迁移 sourceModel 的 Channel 到 targetModel；4) 删除 sourceModel；5) npm run lint + tsc 通过"
-    },
-    {
-      "id": "F-P4C-03",
-      "title": "Admin UI — 模型别名管理页",
-      "priority": "high",
-      "executor": "generator",
-      "status": "completed",
-      "acceptance": "1) 新增 /admin/model-aliases 页面；2) 上半部分：按 canonical model 分组展示别名，每组可添加/删除别名；3) 下半部分：未归类模型列表（enabled=false 且无别名的 Model），每条可'归入已有模型'或'保留为新模型'；4) Sidebar Admin 导航增加入口；5) npm run lint + tsc 通过"
-    },
-    {
-      "id": "F-P4C-04",
-      "title": "Admin UI — 白名单页面改造（展开多通道）",
-      "priority": "high",
-      "executor": "generator",
-      "status": "completed",
-      "acceptance": "1) 白名单页按 canonical model 展示，每个模型可展开显示来自不同 Provider 的 Channel；2) 展开后显示：Provider 名、priority、sellPrice、健康状态；3) 可编辑通道优先级和价格；4) 启用/禁用仍按 Model 粒度；5) npm run lint + tsc 通过"
-    },
-    {
-      "id": "F-P4C-05",
-      "title": "i18n + SERVER_INSTRUCTIONS 更新",
+      "id": "F-P4D-01",
+      "title": "SDK 文档更新",
       "priority": "medium",
       "executor": "generator",
-      "status": "completed",
-      "acceptance": "1) 模型别名管理页所有文案通过 useTranslations；2) en.json 和 zh-CN.json 同步更新；3) SERVER_INSTRUCTIONS 更新模型名格式说明（用户传 canonical name 如 gpt-4o）；4) npm run lint + tsc 通过"
+      "status": "pending",
+      "acceptance": "1) sdk/README.md 更新 model 参数说明：传 canonical name（如 gpt-4o），不再需要 provider 前缀；2) 示例代码中的 model 字段全部改为 canonical name；3) cd sdk && npm run typecheck 通过"
     },
     {
-      "id": "F-P4C-06",
+      "id": "F-P4D-02",
+      "title": "模型能力管理页对齐验证",
+      "priority": "medium",
+      "executor": "generator",
+      "status": "pending",
+      "acceptance": "1) /admin/model-capabilities 页面与新 Model 结构兼容（Model.name 是 canonical name）；2) 每个模型只出现一次（不再有 openai/gpt-4o 和 openrouter/openai/gpt-4o 重复）；3) 设置 capabilities 后 list_models 正确返回；4) npm run lint + tsc 通过"
+    },
+    {
+      "id": "F-P4D-03",
+      "title": "PRD 更新 P4 完成状态",
+      "priority": "low",
+      "executor": "generator",
+      "status": "pending",
+      "acceptance": "1) docs/AIGC-Gateway-Full-PRD.md §14 版本路线图更新 P4 为已完成；2) §2.2 模型命名规范更新为 canonical name；3) §2.3 路由策略更新为跨服务商选优"
+    },
+    {
+      "id": "F-P4D-04",
       "title": "E2E 验证",
       "priority": "high",
       "executor": "codex",
-      "status": "completed",
-      "acceptance": "1) 别名 CRUD API 正常工作；2) merge API 归入后 Channel 迁移正确、源 Model 删除；3) 别名管理页显示分组别名 + 未归类模型；4) 白名单页展开显示多通道；5) 非 Admin 无法访问别名管理页"
+      "status": "pending",
+      "acceptance": "1) SDK README 示例使用 canonical name；2) 模型能力管理页每个模型唯一；3) 完整链路验证：list_models → 选模型 → chat 调用 → 成功（使用 canonical name）"
     }
   ]
 }
