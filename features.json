@@ -63,7 +63,7 @@
       "title": "useAsyncData hook 抽取",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) 创建 src/hooks/use-async-data.ts；2) 接口：useAsyncData<T>(fetcher, deps) → { data, loading, error, refetch }；3) 内部使用 apiFetch，自动处理 loading/error 状态；4) 支持依赖项变化自动 refetch；5) 导出类型正确；6) npm run lint + tsc 通过"
     },
     {
@@ -71,7 +71,7 @@
       "title": "SearchBar 公共组件抽取",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) 创建 src/components/search-bar.tsx；2) props: placeholder, value, onChange, onKeyDown?, className?；3) 使用 Material icon search，rounded-full，bg-ds-surface-container-low；4) 样式与设计系统一致；5) npm run lint + tsc 通过"
     },
     {
@@ -79,7 +79,7 @@
       "title": "Pagination 公共组件抽取",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) 创建 src/components/pagination.tsx；2) props: page, totalPages, onPageChange, total?, pageSize?；3) 支持简单模式（Previous/Next）和完整模式（带页码）；4) 样式与设计系统一致（无 border，tonal layering）；5) npm run lint + tsc 通过"
     },
     {
