@@ -1,7 +1,7 @@
 {
   "baseUrl": "http://localhost:3099",
   "adminEmail": "admin@aigc-gateway.local",
-  "devEmail": "model-cap-dev-1775612073777@test.local",
+  "devEmail": "model-cap-dev-1775612793208@test.local",
   "targetModels": {
     "text": "deepseek/v3",
     "image": "openrouter/google/gemini-2.5-flash-image"
