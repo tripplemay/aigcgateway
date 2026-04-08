@@ -7,11 +7,11 @@ type: project
 ## 当前批次
 
 **R2B-user-pages-balance-usage-settings** — 用户侧页面还原：Balance + Usage + Settings
-- Status: `fixing`（reverifying round7 仍失败，继续修复）
-- 诊断结论：常规点击 Save Changes 时“无 toast + 无 PATCH”；脚本触发 save-profile-btn.click 时“出现双 PATCH + 持久化”
-- 关键含义：后端更新链路可通，但常规点击路径仍未稳定；`Saving name` 诊断 toast 仍未观察到
-- 报告：`docs/test-reports/R2B-user-pages-balance-usage-settings-reverifying-round7-2026-04-09.md`
-- 背景：generator round7 改为 React onClick + 原生 addEventListener 双绑定，常规点击仍未触发 PATCH
+- Status: `fixing`（收口复验未通过）
+- 收口结论：常规点击 Save Changes 仍“无 PATCH”；脚本触发 save-profile-btn.click 仍“出现双 PATCH”
+- 关键含义：后端链路可通，但自动化常规点击路径仍不稳定，暂不可 signoff
+- 报告：`docs/test-reports/R2B-user-pages-balance-usage-settings-close-attempt-2026-04-09.md`
+- 背景：当前实现是 React onClick + 原生 addEventListener 双绑定
 - 已移除：Notifications/System Status（DESIGN.md ignore）
 
 ## UI 重构全局计划
