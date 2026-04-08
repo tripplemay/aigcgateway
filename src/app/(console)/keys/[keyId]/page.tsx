@@ -119,7 +119,7 @@ export default function KeySettingsPage() {
       </div>
     );
   if (!current) return <EmptyState onCreated={() => window.location.reload()} />;
-  if (!detail) return <div className="text-center py-20 text-ds-outline">Key not found</div>;
+  if (!detail) return <div className="text-center py-20 text-ds-outline">{t("noKeysFound")}</div>;
 
   const isRevoked = detail.status === "REVOKED";
 
@@ -133,7 +133,7 @@ export default function KeySettingsPage() {
             href="/keys"
             className="text-ds-on-surface-variant/60 hover:text-ds-primary transition-colors"
           >
-            API Keys
+            {t("title")}
           </Link>
           <span className="text-ds-outline-variant">/</span>
           <span className="text-ds-primary/80 font-medium">{detail.name ?? detail.maskedKey}</span>
@@ -160,7 +160,7 @@ export default function KeySettingsPage() {
                   </label>
                   <input
                     className="w-full bg-ds-surface-container-low border-0 border-b-2 border-ds-outline-variant/30 focus:border-ds-primary focus:ring-0 px-0 py-3 text-ds-on-surface font-medium transition-all outline-none"
-                    placeholder="Enter key name..."
+                    placeholder={t("keyNamePlaceholder")}
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     disabled={isRevoked}
@@ -173,7 +173,7 @@ export default function KeySettingsPage() {
                   <textarea
                     className="w-full bg-ds-surface-container-low border-0 border-b-2 border-ds-outline-variant/30 focus:border-ds-primary focus:ring-0 px-0 py-3 text-ds-on-surface font-medium transition-all resize-none outline-none"
                     rows={3}
-                    placeholder="Describe this key's usage..."
+                    placeholder={t("descriptionPlaceholder")}
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
                     disabled={isRevoked}
@@ -255,41 +255,41 @@ export default function KeySettingsPage() {
                 </div>
                 {/* Rate Limit & IP Whitelist */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-ds-on-surface-variant/60 mb-2">
-                    {t("rateLimit")}
-                  </label>
-                  <div className="flex items-center gap-4">
-                    <input
-                      className="flex-1 bg-ds-surface-container-low border-0 border-b-2 border-ds-outline-variant/30 focus:border-ds-primary focus:ring-0 px-0 py-3 text-ds-on-surface font-medium transition-all outline-none"
-                      type="number"
-                      value={rateLimit}
-                      onChange={(e) => setRateLimit(e.target.value)}
-                      placeholder="—"
+                  <div>
+                    <label className="block text-xs font-bold uppercase tracking-wider text-ds-on-surface-variant/60 mb-2">
+                      {t("rateLimit")}
+                    </label>
+                    <div className="flex items-center gap-4">
+                      <input
+                        className="flex-1 bg-ds-surface-container-low border-0 border-b-2 border-ds-outline-variant/30 focus:border-ds-primary focus:ring-0 px-0 py-3 text-ds-on-surface font-medium transition-all outline-none"
+                        type="number"
+                        value={rateLimit}
+                        onChange={(e) => setRateLimit(e.target.value)}
+                        placeholder="—"
+                        disabled={isRevoked}
+                      />
+                      <span className="text-xs text-ds-on-surface-variant/60 font-semibold italic">
+                        {t("reqPerMin")}
+                      </span>
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold uppercase tracking-wider text-ds-on-surface-variant/60 mb-2">
+                      {t("ipWhitelist")}
+                    </label>
+                    <textarea
+                      className="w-full text-sm font-mono bg-ds-surface-container-low border-0 border-b-2 border-ds-outline-variant/30 focus:border-ds-primary focus:ring-0 px-2 py-3 text-ds-on-surface transition-all resize-none outline-none"
+                      rows={4}
+                      placeholder={"192.168.1.1\n10.0.0.1"}
+                      value={ipWhitelist}
+                      onChange={(e) => setIpWhitelist(e.target.value)}
                       disabled={isRevoked}
                     />
-                    <span className="text-xs text-ds-on-surface-variant/60 font-semibold italic">
-                      {t("reqPerMin")}
-                    </span>
+                    <p className="mt-2 text-[10px] text-ds-on-surface-variant/50">
+                      {t("ipWhitelistHint")}
+                    </p>
                   </div>
                 </div>
-                <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-ds-on-surface-variant/60 mb-2">
-                    {t("ipWhitelist")}
-                  </label>
-                  <textarea
-                    className="w-full text-sm font-mono bg-ds-surface-container-low border-0 border-b-2 border-ds-outline-variant/30 focus:border-ds-primary focus:ring-0 px-2 py-3 text-ds-on-surface transition-all resize-none outline-none"
-                    rows={4}
-                    placeholder={"192.168.1.1\n10.0.0.1"}
-                    value={ipWhitelist}
-                    onChange={(e) => setIpWhitelist(e.target.value)}
-                    disabled={isRevoked}
-                  />
-                  <p className="mt-2 text-[10px] text-ds-on-surface-variant/50">
-                    {t("ipWhitelistHint")}
-                  </p>
-                </div>
-              </div>
               </div>
             </section>
           </div>
@@ -314,7 +314,7 @@ export default function KeySettingsPage() {
                   <span
                     className={`text-sm font-bold uppercase tracking-tighter ${isRevoked ? "text-ds-error" : "text-ds-primary"}`}
                   >
-                    {detail.status}
+                    {isRevoked ? t("revoked") : t("active")}
                   </span>
                   <span className="text-[11px] text-ds-on-surface-variant/70">
                     {isRevoked ? t("permanentlyRevoked") : t("readyForRequests")}

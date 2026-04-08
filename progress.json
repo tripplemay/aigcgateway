@@ -1,9 +1,9 @@
 {
-  "status": "fixing",
+  "status": "reverifying",
   "user_goal": "R2A — 用户侧页面还原（Keys + Logs + Models）：6 个页面从旧代码模式还原为 R1 设计系统，对齐 Stitch 设计稿",
   "total_features": 9,
-  "completed_features": 7,
-  "fix_rounds": 3,
+  "completed_features": 8,
+  "fix_rounds": 4,
   "current_sprint": null,
   "last_updated": "2026-04-08T15:24:15Z",
   "reference_docs": [
@@ -23,7 +23,8 @@
     "signoff": null,
     "framework_reviewed": false
   },
-  "evaluator_feedback": {
+  "evaluator_feedback": null,
+  "_prev_feedback_round3": {
     "summary": "R2A 复验 round 3 未通过：7 PASS / 1 PARTIAL / 1 FAIL。/logs i18n 已修复，但 /keys/[keyId] 仍有英文硬编码。",
     "pass_count": 7,
     "partial_count": 1,

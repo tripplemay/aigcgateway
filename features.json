@@ -69,7 +69,7 @@
       "title": "i18n 补全（keys/logs/models）",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "1) messages/en.json 和 messages/zh.json 中 keys/logs/models 相关 key 齐全；2) 所有用户可见文本无硬编码英文；3) 切换语言后页面正常显示；4) npm run lint + tsc 通过"
     },
     {
