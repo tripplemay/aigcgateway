@@ -1,46 +1,54 @@
 {
-  "batch": "P4-1b-output-routing",
+  "batch": "P4-1c-admin-pages",
   "created_at": "2026-04-08",
   "features": [
     {
-      "id": "F-P4B-01",
-      "title": "list_models MCP Tool 简化",
+      "id": "F-P4C-01",
+      "title": "Admin API — model-aliases CRUD",
       "priority": "high",
       "executor": "generator",
-      "status": "completed",
-      "acceptance": "1) 去掉 resolveCapabilities/resolveSupportedSizes fallback 逻辑，直接读 DB capabilities 和 supportedSizes；2) 返回的模型 id 是 canonical name（如 gpt-4o）；3) 不再需要去重（Model 已唯一）；4) npm run lint + tsc 通过"
+      "status": "pending",
+      "acceptance": "1) GET /api/admin/model-aliases 返回所有别名（按 modelName 分组）；2) POST /api/admin/model-aliases 创建别名 { alias, modelName }，alias 唯一；3) DELETE /api/admin/model-aliases/:id 删除别名；4) Admin 鉴权；5) npm run lint + tsc 通过"
     },
     {
-      "id": "F-P4B-02",
-      "title": "/v1/models REST API 简化",
+      "id": "F-P4C-02",
+      "title": "Admin API — model-aliases merge（归入已有模型）",
       "priority": "high",
       "executor": "generator",
-      "status": "completed",
-      "acceptance": "1) 同 F-P4B-01，去掉 fallback，直接读 DB；2) 返回的 id 是 canonical name；3) npm run lint + tsc 通过"
+      "status": "pending",
+      "acceptance": "1) POST /api/admin/model-aliases/merge { sourceModelId, targetModelName }；2) 创建 alias 记录（sourceModel.name → targetModelName）；3) 迁移 sourceModel 的 Channel 到 targetModel；4) 删除 sourceModel；5) npm run lint + tsc 通过"
     },
     {
-      "id": "F-P4B-03",
-      "title": "路由层验证（model='gpt-4o' 正确路由）",
+      "id": "F-P4C-03",
+      "title": "Admin UI — 模型别名管理页",
       "priority": "high",
       "executor": "generator",
-      "status": "completed",
-      "acceptance": "1) routeByModelName('gpt-4o') 正确找到 Model 并选取优先级最高的 ACTIVE Channel；2) 同一 Model 多个 Provider Channel 时按 priority ASC 选优；3) 确认 router.ts 无需代码改动（或做必要微调）；4) npm run lint + tsc 通过"
+      "status": "pending",
+      "acceptance": "1) 新增 /admin/model-aliases 页面；2) 上半部分：按 canonical model 分组展示别名，每组可添加/删除别名；3) 下半部分：未归类模型列表（enabled=false 且无别名的 Model），每条可'归入已有模型'或'保留为新模型'；4) Sidebar Admin 导航增加入口；5) npm run lint + tsc 通过"
     },
     {
-      "id": "F-P4B-04",
-      "title": "废弃 model-capabilities-fallback.ts 中的 resolve 函数",
+      "id": "F-P4C-04",
+      "title": "Admin UI — 白名单页面改造（展开多通道）",
+      "priority": "high",
+      "executor": "generator",
+      "status": "pending",
+      "acceptance": "1) 白名单页按 canonical model 展示，每个模型可展开显示来自不同 Provider 的 Channel；2) 展开后显示：Provider 名、priority、sellPrice、健康状态；3) 可编辑通道优先级和价格；4) 启用/禁用仍按 Model 粒度；5) npm run lint + tsc 通过"
+    },
+    {
+      "id": "F-P4C-05",
+      "title": "i18n + SERVER_INSTRUCTIONS 更新",
       "priority": "medium",
       "executor": "generator",
-      "status": "completed",
-      "acceptance": "1) 删除或标记废弃 resolveCapabilities/resolveContextWindow/resolveSupportedSizes 函数及其映射表（CAPABILITIES_MAP/CONTEXT_WINDOW_MAP/SUPPORTED_SIZES_MAP）；2) 确认无其他文件引用这些函数（sync 已改为查 ModelAlias）；3) npm run lint + tsc 通过"
+      "status": "pending",
+      "acceptance": "1) 模型别名管理页所有文案通过 useTranslations；2) en.json 和 zh-CN.json 同步更新；3) SERVER_INSTRUCTIONS 更新模型名格式说明（用户传 canonical name 如 gpt-4o）；4) npm run lint + tsc 通过"
     },
     {
-      "id": "F-P4B-05",
+      "id": "F-P4C-06",
       "title": "E2E 验证",
       "priority": "high",
       "executor": "codex",
       "status": "pending",
-      "acceptance": "1) list_models MCP 返回 canonical name（gpt-4o 而非 openai/gpt-4o）；2) /v1/models REST 返回 canonical name；3) POST /v1/chat/completions model='gpt-4o' 正确路由到最优 Channel；4) model-capabilities-fallback.ts 中 resolve 函数已废弃/删除"
+      "acceptance": "1) 别名 CRUD API 正常工作；2) merge API 归入后 Channel 迁移正确、源 Model 删除；3) 别名管理页显示分组别名 + 未归类模型；4) 白名单页展开显示多通道；5) 非 Admin 无法访问别名管理页"
     }
   ]
 }

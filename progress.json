@@ -1,11 +1,11 @@
 {
-  "status": "verifying",
-  "user_goal": "P4-1b-output-routing: 输出层简化 + 路由验证 + 废弃旧 fallback 代码",
-  "total_features": 5,
-  "completed_features": 4,
+  "status": "building",
+  "user_goal": "P4-1c-admin-pages: Admin 别名管理页 + 白名单多通道展开 + API",
+  "total_features": 6,
+  "completed_features": 0,
   "fix_rounds": 0,
   "current_sprint": null,
-  "last_updated": "2026-04-08T16:30:00Z",
+  "last_updated": "2026-04-08T17:00:00Z",
   "reference_docs": [
     "docs/specs/P4-model-aggregation-PRD.md",
     "docs/specs/P4-model-aggregation-spec.md"
@@ -22,14 +22,5 @@
     "framework_reviewed": false
   },
   "evaluator_feedback": null,
-  "generator_handoff": {
-    "completed": ["F-P4B-01", "F-P4B-02", "F-P4B-03", "F-P4B-04"],
-    "codex_tasks": ["F-P4B-05: E2E 验证"],
-    "notes": [
-      "F-P4B-01/02: P4-1a 已完成 fallback 移除，list_models 和 /v1/models 直接读 DB capabilities/supportedSizes",
-      "F-P4B-03: router.ts 无需改动，routeByModelName 已按 Model.name findUnique + Channel priority ASC 选优",
-      "F-P4B-04: 删除 model-capabilities-fallback.ts 整个文件（resolveCapabilities/resolveContextWindow/resolveSupportedSizes 及映射表）",
-      "验证需要 prisma migrate deploy 应用 P4-1a 的 2 个 migration + sync 后才有数据"
-    ]
-  }
+  "generator_handoff": null
 }
