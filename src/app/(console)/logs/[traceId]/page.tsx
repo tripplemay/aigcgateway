@@ -146,7 +146,7 @@ export default function LogDetailPage() {
           </div>
           <div>
             <p className="text-[10px] uppercase tracking-widest text-ds-on-surface-variant font-bold">
-              Model
+              {t("model")}
             </p>
             <p className="text-base font-bold text-ds-on-surface">{detail.modelName}</p>
           </div>
@@ -157,7 +157,7 @@ export default function LogDetailPage() {
           </div>
           <div>
             <p className="text-[10px] uppercase tracking-widest text-ds-on-surface-variant font-bold">
-              Tokens
+              {t("tokens")}
             </p>
             <p className="text-base font-bold text-ds-on-surface">
               {detail.totalTokens?.toLocaleString() ?? "—"}
@@ -170,7 +170,7 @@ export default function LogDetailPage() {
           </div>
           <div>
             <p className="text-[10px] uppercase tracking-widest text-ds-on-surface-variant font-bold">
-              Cost
+              {t("cost")}
             </p>
             <p className="text-base font-bold text-ds-on-surface">
               {detail.sellPrice != null ? `$${detail.sellPrice.toFixed(4)}` : "—"}
@@ -183,7 +183,7 @@ export default function LogDetailPage() {
           </div>
           <div>
             <p className="text-[10px] uppercase tracking-widest text-ds-on-surface-variant font-bold">
-              Throughput
+              {t("throughput")}
             </p>
             <p className="text-base font-bold text-ds-on-surface">
               {detail.tokensPerSecond ? `${detail.tokensPerSecond} t/s` : "—"}
@@ -204,7 +204,7 @@ export default function LogDetailPage() {
                 {t("promptMessages")}
               </h3>
               <span className="text-xs font-medium text-ds-on-surface-variant bg-ds-surface-container px-2 py-1 rounded">
-                {promptCount} Messages
+                {t("messagesCount", { count: promptCount })}
               </span>
             </div>
             <div className="space-y-6">
@@ -288,7 +288,15 @@ export default function LogDetailPage() {
                         : "bg-ds-surface-container-low text-ds-on-surface hover:bg-ds-surface-container-high"
                     } disabled:opacity-50`}
                   >
-                    {score === 0 ? "0" : score === 0.25 ? "0.25" : score === 0.5 ? "0.5" : score === 0.75 ? "0.75" : "1.0"}
+                    {score === 0
+                      ? "0"
+                      : score === 0.25
+                        ? "0.25"
+                        : score === 0.5
+                          ? "0.5"
+                          : score === 0.75
+                            ? "0.75"
+                            : "1.0"}
                   </button>
                 ))}
               </div>
@@ -330,13 +338,17 @@ export default function LogDetailPage() {
                 <span className="text-xs font-bold text-ds-on-surface">{detail.modelName}</span>
               </div>
               <div className="flex justify-between items-center pb-3 border-b border-ds-outline-variant/10">
-                <span className="text-xs font-medium text-ds-on-surface-variant">{t("promptTokens")}</span>
+                <span className="text-xs font-medium text-ds-on-surface-variant">
+                  {t("promptTokens")}
+                </span>
                 <span className="text-xs font-bold text-ds-on-surface">
                   {detail.promptTokens?.toLocaleString() ?? "—"}
                 </span>
               </div>
               <div className="flex justify-between items-center pb-3 border-b border-ds-outline-variant/10">
-                <span className="text-xs font-medium text-ds-on-surface-variant">{t("completionTokens")}</span>
+                <span className="text-xs font-medium text-ds-on-surface-variant">
+                  {t("completionTokens")}
+                </span>
                 <span className="text-xs font-bold text-ds-on-surface">
                   {detail.completionTokens?.toLocaleString() ?? "—"}
                 </span>

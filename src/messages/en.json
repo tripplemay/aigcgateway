@@ -223,7 +223,14 @@
     "text": "Text",
     "image": "Image",
     "showAll": "Show all {count} models",
-    "noModelsFound": "No models found"
+    "noModelsFound": "No models found",
+    "subtitle": "Browse available models and pricing across all providers.",
+    "activeInfrastructure": "Active Infrastructure",
+    "totalModels": "Total Models",
+    "optimization": "Optimization",
+    "avgLatencyOverhead": "Avg. Latency Overhead",
+    "activeProviders": "Active Providers",
+    "providerGroups": "Provider groups"
   },
   "logs": {
     "title": "Audit Logs",
@@ -268,7 +275,13 @@
     "qualityScoreDesc": "Rate the quality of this response (0.0 = poor, 1.0 = excellent).",
     "qualityScored": "Score submitted",
     "traceNotFound": "Trace not found",
-    "copied": "Copied!"
+    "copied": "Copied!",
+    "avgP95": "Avg P95",
+    "median": "Median",
+    "saveUpTo": "Save up to 32%",
+    "costOptimizationDesc": "Switching your frequent queries to {model} could significantly reduce your infra costs based on last 7 days of traffic.",
+    "applySavings": "Apply Savings",
+    "messagesCount": "{count} Messages"
   },
   "usage": {
     "title": "Usage",

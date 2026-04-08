@@ -119,7 +119,7 @@ export default function ModelsPage() {
             {t("title")}
           </h2>
           <p className="text-ds-on-surface-variant font-medium mt-1">
-            Browse available models and pricing across all providers.
+            {t("subtitle")}
           </p>
         </div>
         <div className="flex items-center gap-3">
@@ -159,10 +159,10 @@ export default function ModelsPage() {
         <div className="col-span-1 md:col-span-2 bg-ds-surface-container-lowest p-6 rounded-xl shadow-[0px_20px_40px_rgba(19,27,46,0.04)] flex flex-col justify-between overflow-hidden relative">
           <div className="relative z-10">
             <span className="text-[10px] font-bold text-ds-primary uppercase tracking-widest">
-              Active Infrastructure
+              {t("activeInfrastructure")}
             </span>
             <h3 className="text-3xl font-extrabold mt-2 font-[var(--font-heading)]">
-              {totalModels} Total Models
+              {totalModels} {t("totalModels")}
             </h3>
           </div>
           {/* Mini bar chart — lines 177-182 */}
@@ -178,20 +178,20 @@ export default function ModelsPage() {
         {/* Optimization card — lines 186-190 */}
         <div className="bg-ds-surface-container-lowest p-6 rounded-xl shadow-[0px_20px_40px_rgba(19,27,46,0.04)]">
           <span className="text-[10px] font-bold text-ds-tertiary uppercase tracking-widest">
-            Optimization
+            {t("optimization")}
           </span>
           <h3 className="text-3xl font-extrabold mt-2 font-[var(--font-heading)]">—</h3>
-          <p className="text-xs text-ds-on-surface-variant mt-2">Avg. Latency Overhead</p>
+          <p className="text-xs text-ds-on-surface-variant mt-2">{t("avgLatencyOverhead")}</p>
         </div>
         {/* Active Providers card — lines 191-195 */}
         <div className="bg-ds-surface-container-lowest p-6 rounded-xl shadow-[0px_20px_40px_rgba(19,27,46,0.04)]">
           <span className="text-[10px] font-bold text-ds-secondary uppercase tracking-widest">
-            Active Providers
+            {t("activeProviders")}
           </span>
           <h3 className="text-3xl font-extrabold mt-2 font-[var(--font-heading)]">
             {grouped.length}
           </h3>
-          <p className="text-xs text-ds-on-surface-variant mt-2">Provider groups</p>
+          <p className="text-xs text-ds-on-surface-variant mt-2">{t("providerGroups")}</p>
         </div>
       </div>
 

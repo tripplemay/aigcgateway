@@ -223,7 +223,14 @@
     "text": "文本",
     "image": "图片",
     "showAll": "显示全部 {count} 个模型",
-    "noModelsFound": "未找到模型"
+    "noModelsFound": "未找到模型",
+    "subtitle": "浏览所有服务商的可用模型和定价。",
+    "activeInfrastructure": "活跃基础设施",
+    "totalModels": "总模型数",
+    "optimization": "优化",
+    "avgLatencyOverhead": "平均延迟开销",
+    "activeProviders": "活跃服务商",
+    "providerGroups": "服务商组"
   },
   "logs": {
     "title": "审计日志",
@@ -268,7 +275,13 @@
     "qualityScoreDesc": "评价此响应的质量（0.0 = 差，1.0 = 优秀）。",
     "qualityScored": "评分已提交",
     "traceNotFound": "追踪记录未找到",
-    "copied": "已复制！"
+    "copied": "已复制！",
+    "avgP95": "P95 均值",
+    "median": "中位数",
+    "saveUpTo": "最多节省 32%",
+    "costOptimizationDesc": "将高频查询切换到 {model} 可以显著降低基础设施成本（基于最近 7 天流量数据）。",
+    "applySavings": "应用优化",
+    "messagesCount": "{count} 条消息"
   },
   "usage": {
     "title": "用量统计",

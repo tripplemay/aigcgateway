@@ -105,9 +105,7 @@ export default function LogsPage() {
           <h2 className="text-3xl font-extrabold tracking-tight font-[var(--font-heading)] text-ds-on-surface">
             {t("title")}
           </h2>
-          <p className="text-slate-500 font-medium mt-1">
-            {t("subtitle")}
-          </p>
+          <p className="text-slate-500 font-medium mt-1">{t("subtitle")}</p>
         </div>
         <div className="flex flex-wrap items-center gap-3">
           {/* Status filter chips */}
@@ -132,12 +130,19 @@ export default function LogsPage() {
           {/* Model filter dropdown */}
           <select
             value={modelFilter}
-            onChange={(e) => { setModelFilter(e.target.value); setPage(1); }}
+            onChange={(e) => {
+              setModelFilter(e.target.value);
+              setPage(1);
+            }}
             className="bg-ds-surface-container-low px-4 py-2 rounded-xl text-sm font-semibold text-slate-600 border-none outline-none appearance-none cursor-pointer"
           >
-            <option value="">{t("model")} ({tc("all")})</option>
+            <option value="">
+              {t("model")} ({tc("all")})
+            </option>
             {modelNames.map((m) => (
-              <option key={m} value={m}>{m}</option>
+              <option key={m} value={m}>
+                {m}
+              </option>
             ))}
           </select>
         </div>
@@ -186,61 +191,61 @@ export default function LogsPage() {
               </TableRow>
             ) : (
               logs.map((l) => (
-                  <TableRow
-                    key={l.traceId}
-                    onClick={() => router.push(`/logs/${l.traceId}`)}
-                    className="cursor-pointer"
-                  >
-                    <TableCell className="px-6 py-4">
-                      <span className="text-xs font-semibold text-slate-400" title={l.createdAt}>
-                        {timeAgo(l.createdAt)}
+                <TableRow
+                  key={l.traceId}
+                  onClick={() => router.push(`/logs/${l.traceId}`)}
+                  className="cursor-pointer"
+                >
+                  <TableCell className="px-6 py-4">
+                    <span className="text-xs font-semibold text-slate-400" title={l.createdAt}>
+                      {timeAgo(l.createdAt)}
+                    </span>
+                  </TableCell>
+                  <TableCell className="px-6 py-4">
+                    <span className="text-sm font-mono text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded">
+                      {l.traceId.slice(0, 12)}
+                    </span>
+                  </TableCell>
+                  <TableCell className="px-6 py-4">
+                    <div className="flex items-center gap-2">
+                      <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                      <span className="text-xs font-bold text-slate-700">{l.modelName}</span>
+                    </div>
+                  </TableCell>
+                  <TableCell className="px-6 py-4 max-w-[240px]">
+                    <p className="text-xs text-slate-500 truncate">{l.promptPreview || "—"}</p>
+                  </TableCell>
+                  <TableCell className="px-6 py-4">
+                    {l.status === "SUCCESS" ? (
+                      <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-tight bg-green-100 text-green-700">
+                        200 OK
                       </span>
-                    </TableCell>
-                    <TableCell className="px-6 py-4">
-                      <span className="text-sm font-mono text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded">
-                        {l.traceId.slice(0, 12)}
+                    ) : l.status === "FILTERED" ? (
+                      <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-tight bg-amber-100 text-amber-700">
+                        FILTERED
                       </span>
-                    </TableCell>
-                    <TableCell className="px-6 py-4">
-                      <div className="flex items-center gap-2">
-                        <span className="w-2 h-2 rounded-full bg-emerald-500" />
-                        <span className="text-xs font-bold text-slate-700">{l.modelName}</span>
-                      </div>
-                    </TableCell>
-                    <TableCell className="px-6 py-4 max-w-[240px]">
-                      <p className="text-xs text-slate-500 truncate">{l.promptPreview || "—"}</p>
-                    </TableCell>
-                    <TableCell className="px-6 py-4">
-                      {l.status === "SUCCESS" ? (
-                        <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-tight bg-green-100 text-green-700">
-                          200 OK
-                        </span>
-                      ) : l.status === "FILTERED" ? (
-                        <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-tight bg-amber-100 text-amber-700">
-                          FILTERED
-                        </span>
-                      ) : (
-                        <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-tight bg-red-100 text-red-700">
-                          ERROR
-                        </span>
-                      )}
-                    </TableCell>
-                    <TableCell className="px-6 py-4">
-                      <span className="text-xs font-medium text-slate-600">
-                        {l.totalTokens ? l.totalTokens.toLocaleString() : "—"}
+                    ) : (
+                      <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-tight bg-red-100 text-red-700">
+                        ERROR
                       </span>
-                    </TableCell>
-                    <TableCell className="px-6 py-4 text-right">
-                      <span className="text-xs font-medium text-slate-600">
-                        {l.sellPrice != null ? `$${l.sellPrice.toFixed(4)}` : "—"}
-                      </span>
-                    </TableCell>
-                    <TableCell className="px-6 py-4 text-right">
-                      <span className="text-xs font-medium text-slate-600">
-                        {l.latencyMs != null ? `${l.latencyMs}ms` : "—"}
-                      </span>
-                    </TableCell>
-                  </TableRow>
+                    )}
+                  </TableCell>
+                  <TableCell className="px-6 py-4">
+                    <span className="text-xs font-medium text-slate-600">
+                      {l.totalTokens ? l.totalTokens.toLocaleString() : "—"}
+                    </span>
+                  </TableCell>
+                  <TableCell className="px-6 py-4 text-right">
+                    <span className="text-xs font-medium text-slate-600">
+                      {l.sellPrice != null ? `$${l.sellPrice.toFixed(4)}` : "—"}
+                    </span>
+                  </TableCell>
+                  <TableCell className="px-6 py-4 text-right">
+                    <span className="text-xs font-medium text-slate-600">
+                      {l.latencyMs != null ? `${l.latencyMs}ms` : "—"}
+                    </span>
+                  </TableCell>
+                </TableRow>
               ))
             )}
           </TableBody>
@@ -269,11 +274,11 @@ export default function LogsPage() {
             <div className="flex gap-4">
               <div className="flex items-center gap-2">
                 <span className="w-3 h-3 rounded-full bg-indigo-500" />
-                <span className="text-[10px] font-bold text-slate-400 uppercase">Avg P95</span>
+                <span className="text-[10px] font-bold text-slate-400 uppercase">{t("avgP95")}</span>
               </div>
               <div className="flex items-center gap-2">
                 <span className="w-3 h-3 rounded-full bg-emerald-400" />
-                <span className="text-[10px] font-bold text-slate-400 uppercase">Median</span>
+                <span className="text-[10px] font-bold text-slate-400 uppercase">{t("median")}</span>
               </div>
             </div>
           </div>
@@ -293,15 +298,13 @@ export default function LogsPage() {
               {t("costOptimization")}
             </h4>
             <p className="text-2xl font-extrabold font-[var(--font-heading)] mb-4">
-              Save up to 32%
+              {t("saveUpTo")}
             </p>
             <p className="text-xs opacity-90 leading-relaxed mb-6">
-              Switching your frequent queries to{" "}
-              <span className="font-bold underline">gpt-4o-mini</span> could significantly reduce
-              your infra costs based on last 7 days of traffic.
+              {t("costOptimizationDesc", { model: "gpt-4o-mini" })}
             </p>
             <button className="w-full py-2 bg-white/20 hover:bg-white/30 backdrop-blur-md rounded-xl text-xs font-bold transition-colors">
-              Apply Savings
+              {t("applySavings")}
             </button>
           </div>
           <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
