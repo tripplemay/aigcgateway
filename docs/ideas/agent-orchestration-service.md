@@ -113,6 +113,215 @@ Codex-only 批次（全部 executor:codex）：
 
 **空白点：一个 agent-agnostic 的托管编排服务，支持异构 AI 工具按状态机规则自动协作。**
 
+## 核心能力：质量智能 + 决策审计链 + 人类决策点
+
+> 来源：2026-04-08~09 讨论，优先级排序后确认的三项核心差异化能力
+
+### 三者关系
+
+```
+审计链（底层）— 所有事件记录在这里
+  ↓
+质量智能（分析层）— 从审计链中提取模式、生成洞察、注入检查项
+  ↓
+人类决策点（交互层）— 带着质量洞察通知用户，用户决策后写入审计链
+```
+
+### 决策审计链
+
+不可变事件流，只增不改。
+
+**数据模型：**
+
+```sql
+CREATE TABLE audit_events (
+  id          SERIAL PRIMARY KEY,
+  batch_id    TEXT NOT NULL,
+  timestamp   TIMESTAMPTZ NOT NULL DEFAULT now(),
+  actor_type  TEXT NOT NULL,  -- 'agent' | 'human' | 'system'
+  actor_id    TEXT NOT NULL,
+  event_type  TEXT NOT NULL,
+  payload     JSONB NOT NULL
+);
+```
+
+**事件类型：**
+
+| event_type | actor | payload |
+|---|---|---|
+| `batch.created` | human | {goal, features_count} |
+| `batch.transition` | system | {from, to} |
+| `feature.claimed` | agent | {feature_id, agent_id} |
+| `feature.completed` | agent | {feature_id, files_changed} |
+| `review.submitted` | agent/human | {round, pass_count, fail_count, issues} |
+| `fix.submitted` | agent | {round, fixes} |
+| `batch.approved` | human | {comment} |
+| `batch.done` | system | {total_rounds, duration_hours} |
+
+**API：**
+
+```
+GET /api/batches/:id/audit?actor=X&event_type=review.*&from=T
+```
+
+### 质量智能
+
+**数据采集 — 验收时结构化记录失败原因：**
+
+Evaluator（agent 或人类）提交 FAIL 时必须带分类：
+
+| category | 含义 |
+|---|---|
+| `i18n` | 国际化问题 |
+| `missing_feature` | 功能缺失 |
+| `visual_mismatch` | 视觉不一致 |
+| `api_error` | API 调用错误 |
+| `type_error` | 类型/编译错误 |
+| `regression` | 回归 bug |
+
+| root_cause | 含义 |
+|---|---|
+| `hardcoded_string` | 硬编码文本 |
+| `spec_misread` | 误读规格 |
+| `design_ignored` | 未看 DESIGN.md |
+| `edge_case` | 边界情况遗漏 |
+| `dependency_issue` | 依赖问题 |
+
+**分析输出 — agent 质量报告：**
+
+```
+=== Generator "Johnsong" 质量报告 ===
+参与批次: 8 | 平均修复轮次: 2.1 | 首轮通过率: 38%
+Top 失败原因: i18n/hardcoded_string (45%), missing_feature/spec_misread (26%)
+趋势: i18n 失败率从 batch 5 起下降（加入自检清单后）
+```
+
+**前置注入 — 发任务时自动增强 acceptance：**
+
+服务端检查历史失败模式，自动追加检查项到 feature：
+
+```json
+{
+  "auto_injected_checks": [
+    "⚠️ 历史高频失败项：确认所有 placeholder/breadcrumb/状态标签走 i18n（来源：R2A 连续 3 轮 FAIL）"
+  ]
+}
+```
+
+### 人类决策点
+
+**在 workflow 中声明式定义：**
+
+```json
+{
+  "planning": {
+    "on_complete": {
+      "human_gate": {
+        "required": true,
+        "action": "approve_spec",
+        "prompt": "请确认 spec 和 features 拆分是否合理",
+        "timeout_hours": 24,
+        "notify_via": ["webhook"]
+      }
+    }
+  },
+  "building": {
+    "on_complete": { "auto_transition": "verifying" }
+  },
+  "done": {
+    "on_complete": {
+      "human_gate": {
+        "required": true,
+        "action": "confirm_next_batch",
+        "prompt": "R2A 已完成（9/9 PASS，4 轮修复）。是否启动 R2B？",
+        "options": ["start_next", "pause", "custom"],
+        "notify_via": ["webhook", "email"]
+      }
+    }
+  }
+}
+```
+
+**通知内容带质量洞察：**
+
+```json
+{
+  "type": "human_gate_reached",
+  "batch_id": "R2A",
+  "context": {
+    "result": "9/9 PASS",
+    "fix_rounds": 4,
+    "quality_insights": ["i18n 硬编码导致 3 轮额外修复，建议下批次前置自检"]
+  },
+  "actions": [
+    {"id": "start_next", "label": "启动下一批"},
+    {"id": "pause", "label": "暂停"}
+  ],
+  "respond_url": "https://api.orchestrator.io/batches/R2A/human-decision"
+}
+```
+
+### 其他能力（中优先级）
+
+| 能力 | 说明 |
+|---|---|
+| **Artifact 管理** | Batch → Spec → Features → Artifacts（设计稿、测试报告、签收报告），每个 artifact 有来源和关联 |
+| **成本可见性** | 每个 agent 每次运行消耗的 token，按批次/轮次聚合。量化"减少一轮修复能省多少钱" |
+| **Agent 能力画像** | 历史表现统计（首轮通过率、擅长/薄弱领域），支持 Planner 智能分配 |
+
+## 人类参与者支持
+
+> 来源：2026-04-09 讨论，解决"人类 Evaluator 加入是否影响链路可靠性"
+
+### 核心问题
+
+Agent 和人类的工作方式有本质差异：
+
+| | Agent Evaluator | 人类 Evaluator |
+|---|---|---|
+| 输出格式 | 结构化 JSON | 自然语言、截图、口头反馈 |
+| 粒度 | 逐条 acceptance 机械检查 | 整体感觉，可能跳过项 |
+| 一致性 | 每次同样标准 | 受主观因素影响 |
+| 强项 | 功能正确性、i18n、API | 视觉、体验、"这里不对劲" |
+
+### 解决方案：翻译层 + 混合验收
+
+**原则：不要求人类适应系统，让系统适应人类。**
+
+**1. 翻译层 — 人类自由反馈 → 结构化数据**
+
+```
+人类输入: "balance 页面充值弹窗的金额按钮间距太大了，settings 密码修改成功没提示"
+
+翻译层输出:
+[
+  { feature_id: "F-R2B-02", result: "FAIL", category: "visual_mismatch", confidence: 0.9 },
+  { feature_id: "F-R2B-04", result: "FAIL", category: "missing_feature", confidence: 0.85 }
+]
+→ 回给人类确认后提交到状态机
+```
+
+**2. 混合验收 — agent 和人类各管各的 scope**
+
+```yaml
+verifying:
+  evaluators:
+    - agent: "Reviewer"
+      scope: ["functional", "i18n", "api_correctness"]
+    - human: true
+      scope: ["visual", "ux", "business_logic"]
+      timeout_hours: 48
+  merge_strategy: "all_must_pass"
+```
+
+**3. 可靠性保障机制：**
+
+| 风险 | 应对 |
+|---|---|
+| 人类反馈不完整 → 修后又冒新问题 | 引导式 checklist 审查（设计稿 vs 实际截图逐项对比） |
+| 人类标准不一致 → 同类问题时 PASS 时 FAIL | 审计链检测历史不一致，提醒确认 |
+| 人类响应慢 → 链路阻塞 | timeout + 升级通知；可先按 agent 结果流转，人类异步补充 |
+
 ## 待讨论
 
 - MVP 范围：先支持哪些状态机模式？
