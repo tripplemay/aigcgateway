@@ -80,6 +80,7 @@ export default function SettingsPage() {
   const loginHistory = historyData?.data ?? [];
 
   const handleSaveName = async () => {
+    toast.info(`Saving name: ${name}`);
     try {
       const payload = { name };
       const res = await fetch("/api/auth/profile", {
@@ -203,6 +204,7 @@ export default function SettingsPage() {
               <div className="flex justify-end pt-4">
                 <button
                   type="submit"
+                  data-testid="save-profile-btn"
                   className="px-6 py-2.5 bg-ds-primary text-white font-semibold rounded-lg hover:bg-ds-primary-container transition-all active:scale-95 shadow-lg shadow-ds-primary/10"
                 >
                   {t("saveChanges")}
