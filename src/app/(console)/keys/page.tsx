@@ -60,13 +60,20 @@ export default function KeysPage() {
 
   // Revoke confirm state
   const [revokeId, setRevokeId] = useState<string | null>(null);
+  const [creating, setCreating] = useState(false);
+  const [revoking, setRevoking] = useState(false);
 
   const load = useCallback(async () => {
     if (!current) return;
     setLoading(true);
-    const r = await apiFetch<{ data: ApiKeyRow[] }>(`/api/projects/${current.id}/keys`);
-    setKeys(r.data);
-    setLoading(false);
+    try {
+      const r = await apiFetch<{ data: ApiKeyRow[] }>(`/api/projects/${current.id}/keys`);
+      setKeys(r.data);
+    } catch (err) {
+      toast.error((err as Error).message);
+    } finally {
+      setLoading(false);
+    }
   }, [current]);
 
   useEffect(() => {
@@ -74,7 +81,7 @@ export default function KeysPage() {
   }, [load]);
 
   const create = async () => {
-    if (!current) return;
+    if (!current || creating) return;
     const expiresAt =
       keyExpiration === "never"
         ? null
@@ -90,26 +97,40 @@ export default function KeysPage() {
     if (!keyPermissions.imageGeneration) permissions.imageGeneration = false;
     if (!keyPermissions.logAccess) permissions.logAccess = false;
     if (!keyPermissions.projectInfo) permissions.projectInfo = false;
-    const r = await apiFetch<{ key: string }>(`/api/projects/${current.id}/keys`, {
-      method: "POST",
-      body: JSON.stringify({
-        name: keyName || undefined,
-        description: keyDescription || undefined,
-        expiresAt,
-        permissions: Object.keys(permissions).length > 0 ? permissions : undefined,
-      }),
-    });
-    setNewKey(r.key);
-    toast.success(t("created_toast"));
-    load();
+    setCreating(true);
+    try {
+      const r = await apiFetch<{ key: string }>(`/api/projects/${current.id}/keys`, {
+        method: "POST",
+        body: JSON.stringify({
+          name: keyName || undefined,
+          description: keyDescription || undefined,
+          expiresAt,
+          permissions: Object.keys(permissions).length > 0 ? permissions : undefined,
+        }),
+      });
+      setNewKey(r.key);
+      toast.success(t("created_toast"));
+      load();
+    } catch (err) {
+      toast.error((err as Error).message);
+    } finally {
+      setCreating(false);
+    }
   };
 
   const revoke = async () => {
-    if (!current || !revokeId) return;
-    await apiFetch(`/api/projects/${current.id}/keys/${revokeId}`, { method: "DELETE" });
-    toast.success(t("revoked_toast"));
-    setRevokeId(null);
-    load();
+    if (!current || !revokeId || revoking) return;
+    setRevoking(true);
+    try {
+      await apiFetch(`/api/projects/${current.id}/keys/${revokeId}`, { method: "DELETE" });
+      toast.success(t("revoked_toast"));
+      setRevokeId(null);
+      load();
+    } catch (err) {
+      toast.error((err as Error).message);
+    } finally {
+      setRevoking(false);
+    }
   };
 
   const copyKey = (key: string) => {
@@ -474,13 +495,22 @@ export default function KeysPage() {
               <span>AIGC Gateway Security v4.2.1-stable</span>
             </div>
             <div className="flex gap-8">
-              <button className="hover:text-ds-primary transition-colors" onClick={() => toast.info(t("comingSoon"))}>
+              <button
+                className="hover:text-ds-primary transition-colors"
+                onClick={() => toast.info(t("comingSoon"))}
+              >
                 Privacy Policy
               </button>
-              <button className="hover:text-ds-primary transition-colors" onClick={() => toast.info(t("comingSoon"))}>
+              <button
+                className="hover:text-ds-primary transition-colors"
+                onClick={() => toast.info(t("comingSoon"))}
+              >
                 Terms of Service
               </button>
-              <button className="hover:text-ds-primary transition-colors" onClick={() => toast.info(t("comingSoon"))}>
+              <button
+                className="hover:text-ds-primary transition-colors"
+                onClick={() => toast.info(t("comingSoon"))}
+              >
                 System Status
               </button>
             </div>
@@ -679,9 +709,10 @@ export default function KeysPage() {
                   </button>
                   <button
                     onClick={create}
-                    className="bg-ds-primary-container text-ds-on-primary-container px-8 py-3 rounded-xl font-bold text-sm flex items-center gap-2 shadow-lg shadow-ds-primary/20 hover:scale-[1.02] active:scale-95 transition-transform"
+                    disabled={creating}
+                    className="bg-ds-primary-container text-ds-on-primary-container px-8 py-3 rounded-xl font-bold text-sm flex items-center gap-2 shadow-lg shadow-ds-primary/20 hover:scale-[1.02] active:scale-95 transition-transform disabled:opacity-50 disabled:pointer-events-none"
                   >
-                    {t("createKey")}
+                    {creating ? tc("loading") : t("createKey")}
                     <span className="material-symbols-outlined text-sm">rocket_launch</span>
                   </button>
                 </div>
@@ -717,9 +748,10 @@ export default function KeysPage() {
               </button>
               <button
                 onClick={revoke}
-                className="bg-ds-error text-white px-8 py-3 rounded-xl font-bold text-sm flex items-center gap-2 shadow-lg shadow-ds-error/20 hover:scale-[1.02] active:scale-95 transition-transform"
+                disabled={revoking}
+                className="bg-ds-error text-white px-8 py-3 rounded-xl font-bold text-sm flex items-center gap-2 shadow-lg shadow-ds-error/20 hover:scale-[1.02] active:scale-95 transition-transform disabled:opacity-50 disabled:pointer-events-none"
               >
-                {t("revoke")}
+                {revoking ? tc("loading") : t("revoke")}
                 <span className="material-symbols-outlined text-sm">block</span>
               </button>
             </div>

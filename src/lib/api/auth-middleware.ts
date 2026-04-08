@@ -40,6 +40,8 @@ function detectEndpoint(request: Request): Endpoint {
   const url = new URL(request.url);
   const path = url.pathname;
   if (path.includes("/chat/completions")) return "chat";
+  if (path.includes("/actions/run")) return "chat";
+  if (path.includes("/templates/run")) return "chat";
   if (path.includes("/images/generations")) return "image";
   if (path.includes("/models")) return "model";
   return "unknown";

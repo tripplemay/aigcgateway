@@ -11,7 +11,11 @@ import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { prisma } from "@/lib/prisma";
 import { checkMcpPermission } from "@/lib/mcp/auth";
 import type { McpServerOptions } from "@/lib/mcp/server";
-import { resolveCapabilities, resolveSupportedSizes, type ModelCapabilities } from "@/lib/sync/model-capabilities-fallback";
+import {
+  resolveCapabilities,
+  resolveSupportedSizes,
+  type ModelCapabilities,
+} from "@/lib/sync/model-capabilities-fallback";
 
 export function registerListModels(server: McpServer, opts: McpServerOptions): void {
   const { permissions } = opts;
@@ -105,9 +109,10 @@ export function registerListModels(server: McpServer, opts: McpServerOptions): v
         // Add supportedSizes for image models (DB first, fallback to static map)
         if (model.modality === "IMAGE") {
           const dbSizes = model.supportedSizes as string[] | null;
-          const sizes = dbSizes && dbSizes.length > 0
-            ? dbSizes
-            : resolveSupportedSizes(model.name.split("/").pop() || model.name);
+          const sizes =
+            dbSizes && dbSizes.length > 0
+              ? dbSizes
+              : resolveSupportedSizes(model.name.split("/").pop() || model.name);
           if (sizes) result.supportedSizes = sizes;
         }
 

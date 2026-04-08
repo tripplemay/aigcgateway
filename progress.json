@@ -1,11 +1,11 @@
 {
-  "status": "building",
+  "status": "verifying",
   "user_goal": "security-and-robustness: 权限绕过修复(P0) + MCP IP白名单 + 防重复提交 + 异步错误处理",
   "total_features": 5,
-  "completed_features": 0,
+  "completed_features": 4,
   "fix_rounds": 0,
   "current_sprint": null,
-  "last_updated": "2026-04-08T10:00:00Z",
+  "last_updated": "2026-04-08T12:00:00Z",
   "reference_docs": [
     "docs/audits/backend-static-review-2026-04-08.md",
     "docs/audits/frontend-full-code-review-2026-04-08.md"
@@ -22,5 +22,21 @@
     "framework_reviewed": false
   },
   "evaluator_feedback": null,
-  "generator_handoff": null
+  "generator_handoff": {
+    "completed": [
+      "F-SR-01",
+      "F-SR-02",
+      "F-SR-03",
+      "F-SR-04"
+    ],
+    "codex_tasks": [
+      "F-SR-05: E2E 验证"
+    ],
+    "notes": [
+      "F-SR-01: detectEndpoint() 新增 /actions/run + /templates/run → chat endpoint，触发 chatCompletion 权限检查",
+      "F-SR-02: mcp/auth.ts authenticateMcp() 新增 IP 白名单检查（复用 ip-utils 的 getClientIp + isIpInWhitelist）",
+      "F-SR-03: keys/page.tsx create/revoke 增加 creating/revoking loading 状态 + try-catch + disabled 按钮",
+      "F-SR-04: admin/users + admin/usage + dashboard 页面的 load 函数全部 catch + finally/toast.error"
+    ]
+  }
 }

@@ -11,6 +11,7 @@ import { createHash } from "crypto";
 import { prisma } from "@/lib/prisma";
 import type { Project, ApiKey } from "@prisma/client";
 import type { ApiKeyPermissions } from "@/lib/api/auth-middleware";
+import { getClientIp, isIpInWhitelist } from "@/lib/api/ip-utils";
 
 export interface McpAuthContext {
   project: Project;
@@ -45,11 +46,19 @@ export async function authenticateMcp(request: Request): Promise<McpAuthContext 
 
   // 过期兜底检查
   if (apiKey.expiresAt && new Date(apiKey.expiresAt) < new Date()) {
-    prisma.apiKey
-      .update({ where: { id: apiKey.id }, data: { status: "REVOKED" } })
-      .catch(() => {});
+    prisma.apiKey.update({ where: { id: apiKey.id }, data: { status: "REVOKED" } }).catch(() => {});
     console.warn(`[mcp] Expired key: ${keyPrefix}...`);
     return null;
+  }
+
+  // IP 白名单检查（与 auth-middleware 一致）
+  const whitelist = apiKey.ipWhitelist as string[] | null;
+  if (Array.isArray(whitelist)) {
+    const clientIp = getClientIp(request);
+    if (whitelist.length === 0 || !isIpInWhitelist(clientIp, whitelist)) {
+      console.warn(`[mcp] IP ${clientIp} not in whitelist for key: ${keyPrefix}...`);
+      return null;
+    }
   }
 
   // 更新 lastUsedAt（异步，不阻塞）

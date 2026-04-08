@@ -15,7 +15,11 @@ import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import { authenticateApiKey } from "@/lib/api/auth-middleware";
 import { getRedis } from "@/lib/redis";
-import { resolveCapabilities, resolveSupportedSizes, type ModelCapabilities } from "@/lib/sync/model-capabilities-fallback";
+import {
+  resolveCapabilities,
+  resolveSupportedSizes,
+  type ModelCapabilities,
+} from "@/lib/sync/model-capabilities-fallback";
 
 const CACHE_TTL = 120; // seconds
 const LOCK_TTL = 10; // seconds
@@ -94,9 +98,12 @@ async function queryModelsJSON(modalityFilter: string | undefined): Promise<stri
 
     const isImage = model.modality === "IMAGE";
     const dbSizes = isImage ? (model.supportedSizes as string[] | null) : null;
-    const sizes = dbSizes && dbSizes.length > 0
-      ? dbSizes
-      : isImage ? resolveSupportedSizes(model.name.split("/").pop() || model.name) : null;
+    const sizes =
+      dbSizes && dbSizes.length > 0
+        ? dbSizes
+        : isImage
+          ? resolveSupportedSizes(model.name.split("/").pop() || model.name)
+          : null;
 
     return {
       id: model.name,

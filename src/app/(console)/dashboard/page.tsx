@@ -4,6 +4,7 @@ import { useTranslations } from "next-intl";
 import { apiFetch } from "@/lib/api-client";
 import { useProject } from "@/hooks/use-project";
 import { formatCurrency, timeAgo } from "@/lib/utils";
+import { toast } from "sonner";
 import {
   AreaChart,
   Area,
@@ -78,27 +79,29 @@ export default function DashboardPage() {
     const pid = current.id;
     apiFetch<{ balance: number; alertThreshold: number | null }>(`/api/projects/${pid}/balance`)
       .then(setBalanceInfo)
-      .catch(() => {});
+      .catch((err) => toast.error((err as Error).message));
     Promise.all([
       apiFetch<UsageSummary>(`/api/projects/${pid}/usage?period=today`),
       apiFetch<{ data: DailyData[] }>(`/api/projects/${pid}/usage/daily?days=14`),
       apiFetch<{ data: LogEntry[] }>(`/api/projects/${pid}/logs?pageSize=5`),
       apiFetch<{ data: ModelData[] }>(`/api/projects/${pid}/usage/by-model`),
-    ]).then(([u, d, l, m]) => {
-      setUsage(u);
-      setDaily(d.data);
-      setLogs(l.data);
-      setModels(m.data);
-      apiFetch<{ data: Array<{ createdAt: string }> }>(
-        `/api/projects/${pid}/logs?pageSize=100`,
-      ).then((r) => {
-        const counts = Array.from({ length: 24 }, (_, i) => ({ hour: i, calls: 0 }));
-        for (const log of r.data) {
-          counts[new Date(log.createdAt).getHours()].calls++;
-        }
-        setHourly(counts);
-      });
-    });
+    ])
+      .then(([u, d, l, m]) => {
+        setUsage(u);
+        setDaily(d.data);
+        setLogs(l.data);
+        setModels(m.data);
+        apiFetch<{ data: Array<{ createdAt: string }> }>(`/api/projects/${pid}/logs?pageSize=100`)
+          .then((r) => {
+            const counts = Array.from({ length: 24 }, (_, i) => ({ hour: i, calls: 0 }));
+            for (const log of r.data) {
+              counts[new Date(log.createdAt).getHours()].calls++;
+            }
+            setHourly(counts);
+          })
+          .catch(() => {});
+      })
+      .catch((err) => toast.error((err as Error).message));
   }, [current]);
 
   if (projLoading)
