@@ -6,15 +6,16 @@ type: project
 
 ## 当前批次
 
-**R2A-user-pages-keys-logs-models** — 用户侧页面还原：Keys + Logs + Models
-- Status: `done`（9/9 PASS，4 轮修复，Reviewer 签收通过）
-- 修复重点：i18n 硬编码（timeAgo、分页 of、breadcrumb、placeholder、状态标签）
+**R2B-user-pages-balance-usage-settings** — 用户侧页面还原：Balance + Usage + Settings
+- Status: `verifying`（5/5 generator 功能完成，等待 Codex 验收）
+- 变更：useAsyncData + DS Table/Pagination + i18n 全面补齐
+- 已移除：Notifications/System Status（DESIGN.md ignore）
 
 ## UI 重构全局计划
 
 - **阶段一 R1（已完成）：** 基础组件 + Layout Shell + Dashboard 试点
 - **阶段二 R2A（已完成）：** Keys(列表+创建+设置) + Logs(列表+详情) + Models
-- **阶段二 R2B（待启动）：** Balance + Usage + Settings
+- **阶段二 R2B（verifying）：** Balance + Usage + Settings
 - **暂缓：** Keys Insights（需 CallLog schema 加 apiKeyId）、Actions、Templates
 - **阶段三：** 管理侧 admin/* + login/quickstart/mcp-setup
 - 全部设计稿已加 DESIGN.md 标注 API 匹配度
