@@ -34,7 +34,7 @@
       "title": "Settings 页面还原",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) 使用 useAsyncData + Card + Input；2) 个人信息区（邮箱只读、显示名称可编辑、保存）；3) 密码修改区（旧密码+新密码+确认+提交）；4) 登录历史表格（Table 组件：IP、UA、时间）；5) 退出登录按钮；6) 对齐 design-draft/settings/code.html（忽略 DESIGN.md 标注项）；7) npm run lint + tsc 通过",
       "design_ref": "design-draft/settings/code.html"
     },
@@ -51,7 +51,7 @@
       "title": "R2B 视觉回归验收",
       "priority": "high",
       "executor": "codex",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) /balance、/usage、/settings 页面正常加载，无控制台报错；2) DS 组件使用正确；3) 视觉与设计稿基本一致；4) 充值下单流程正常；5) 图表正常渲染；6) 中英文切换无残留；7) 签收报告生成"
     }
   ]
