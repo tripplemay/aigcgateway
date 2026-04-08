@@ -91,6 +91,25 @@ git push origin main
 
 **注意：** 此步骤仅做追加，不删除已有条目。移除不再使用的 agent 由用户手动编辑。
 
+### 第 1.5 步：检查用户是否直接指派了独立任务
+
+**在进入状态机角色判断之前，先检查用户在当前对话中是否已经给出了明确的独立任务指令。**
+
+独立任务的典型特征：
+- 用户明确描述了一个与当前批次无关的工作（如"请做代码审核"、"请评估安全风险"、"请分析 XXX"）
+- 任务性质是研究、审查、分析、评估等支持性工作，而非功能开发
+- 用户可能在对话开头就给出了任务，而非让 agent 自行判断角色
+
+**如果用户已经给出了独立任务指令：**
+- 跳过第二步的 role_assignments 匹配和状态机角色判断
+- 直接执行用户指派的任务
+- 不修改 progress.json / features.json 等状态机文件
+- 产出物（如审核报告）存放在 `docs/` 对应目录，可以提交推送
+- 完成后向用户报告结果，不触发状态机流转
+
+**如果用户没有给出独立任务（如只说"启动"或无特定指令）：**
+- 正常进入第二步，按状态机流程执行
+
 ### 第二步：判断阶段与角色
 
 读取 progress.json（已确认为最新版本），获取 `status` 和 `role_assignments`。
@@ -220,6 +239,16 @@ git commit -m "..."
 git push origin main         # 触发 CI，不触发部署
 ```
 
+**推送前遗漏检查（所有角色必须执行）：**
+
+每次 `git push` 之前，必须检查测试产物目录是否有未提交文件：
+
+```bash
+git status --short docs/test-reports/ docs/test-cases/ .auto-memory/
+```
+
+如果有未追踪文件（`??` 开头），必须一并加入当前 commit 或追加一个 commit 再推送。**不得留下未推送的测试产物，否则其他 agent 在远端看不到这些证据。**
+
 进度类文件（progress.json / features.json / .auto-memory/ 等）推 `main` 不触发 CI（paths-ignore 已配置）。
 
 ## 角色动态分配（role_assignments）
@@ -257,6 +286,7 @@ git push origin main         # 触发 CI，不触发部署
 6. Generator 不得执行 `executor:codex` 的功能；Codex 不得实现 `executor:generator` 的功能
 7. 压测执行、code review、安全审计等"产出报告"类任务，必须标注 `executor:codex`
 8. `role_assignments` 存在时，agent 只执行分配给自己的角色，不越界
+9. 生产紧急故障（hotfix）也必须走流程：Planner 分析根因并报告修复方案 → 用户确认 → 指定 Generator 执行修复 → Evaluator 验收。Planner 不得直接修改产品代码，即使是一行代码
 
 ## 框架提案规则
 

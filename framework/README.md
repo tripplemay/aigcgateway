@@ -1,6 +1,6 @@
 # Cowork + Harness 工程化框架
 
-沉淀自 AIGC Gateway 项目完整实施过程。适用于任何使用 Cowork（Claude 桌面端）+ Codex（Claude Code CLI）协同开发的项目。
+沉淀自 AIGC Gateway 项目完整实施过程。适用于任何使用 Claude CLI（Claude Code）+ Codex 协同开发的项目。
 
 ---
 
@@ -107,30 +107,32 @@ git push
 ### 开启新需求批次
 
 1. 将 `progress.json` 的 `status` 改为 `"new"`
-2. 打开 Cowork，告诉 Claude："根据 harness 规则，我们要开发 [需求描述]"
-3. Claude 进入 Planner 模式，生成 features.json
+2. 启动 Claude CLI，告诉 Claude："根据 harness 规则，我们要开发 [需求描述]"
+3. Claude CLI 进入 Planner 模式，生成 features.json，读取 `.agents-registry` 分配角色
 
 ### 开发中（Generator）
 
-- Codex 读取 `progress.json` → 状态为 `planning` → 自动进入 Generator 模式
-- 每完成一个功能，Codex 更新 `progress.json`（completed_features + current_sprint）
-- 上下文不足 20% 时，Codex 保存进度并提示重新启动
+- Claude CLI 读取 `progress.json` → 状态为 `building` → 进入 Generator 模式
+- 每完成一个功能，更新 `progress.json`（completed_features + current_sprint）
+- 上下文不足 20% 时，保存进度并提示重新启动
+- 所有 `executor:generator` 功能完成后 → status 改为 `verifying`
 
 ### 验收（Evaluator）
 
-- Codex 读取 `progress.json` → 状态为 `building` → 自动进入 Evaluator 模式
-- 逐条验证 features.json，输出 PASS / PARTIAL / FAIL
-- 写入 `progress.json.evaluator_feedback`，状态改为 `reviewing`
+- Codex 读取 `progress.json` → 状态为 `verifying` → 进入 Evaluator 模式
+- 设计测试用例，执行 `executor:codex` 功能，逐条验证所有功能
+- 输出 PASS / PARTIAL / FAIL，写入 `evaluator_feedback`
+- 有问题 → status 改为 `fixing`；全部 PASS → 写 signoff，status 改为 `done`
 
-### 修复（Generator 复验）
+### 修复（Generator → Evaluator 复验）
 
-- Codex 读取状态为 `reviewing` → 针对 evaluator_feedback 修复
-- 修复后 Evaluator 复验，直至全部 PASS → `status: "done"`
+- Claude CLI 读取状态为 `fixing` → 针对 evaluator_feedback 修复
+- 修复完成 → status 改为 `reverifying`，fix_rounds +1
+- Codex 复验，直至全部 PASS → `status: "done"`
 
-### 会话结束（Cowork）
+### 会话结束
 
-每次会话结束，在 Cowork 中说：「更新项目共享记忆」
-Claude 更新 `.auto-memory/project.md`，然后 commit + push。
+每次会话结束前，所有角色检查是否有项目状态变更，有则更新 `.auto-memory/project.md`，commit + push。
 
 ---
 
@@ -176,8 +178,8 @@ docs/test-reports/[批次名称]-signoff-YYYY-MM-DD.md
 以下是项目实施过程中积累的关键教训，新项目直接继承：
 
 **Harness 纪律**
-- Cowork（Claude）做规划和记忆，Codex（Claude Code）做代码实现 — 职责不要混淆
-- 直接在 Cowork 改代码属于绕过 Harness，必须事后补录进 progress.json 并由 Evaluator 复验
+- Claude CLI 做规划（Planner）和实现（Generator），Codex 做验收（Evaluator）— 职责不要混淆
+- Planner 不得直接修改产品代码，即使是紧急修复也必须走流程（铁律第 9 条）
 - evaluator_feedback 中的 PARTIAL 必须修复并写明"数量与描述一致"等可量化的验收条件
 
 **成本控制**

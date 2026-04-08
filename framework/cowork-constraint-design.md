@@ -1,5 +1,7 @@
 # Cowork 行为约束设计
 
+> **历史文档（2026-04-04）：** 本文基于早期使用 Cowork（Claude Desktop）作为 Planner 工具时编写。项目后续已统一使用 Claude CLI 承担 Planner + Generator 角色，Cowork 不再参与。本文作为设计决策记录保留，约束原则（角色分离、禁止越界改代码）仍适用于所有 Planner 角色的 agent。
+
 ## 问题背景
 
 在项目实施过程中，Cowork（Claude Desktop）曾直接修改产品代码（绕过 Harness 流程），事后才补录进 progress.json。这说明 Cowork 缺乏等价于 Claude Code CLI 的硬性约束机制。

@@ -127,6 +127,23 @@ docs/specs/ → docs/test-cases/ → docs/test-reports/ → docs/archive/ → do
 
 ---
 
+## v0.4.0 — 2026-04-08（框架同步 + 工具角色修正）
+
+**来源批次：** R1-design-system-foundation planning 阶段框架检查
+**触发原因：** 框架模板与项目根目录实际运行的规则长期脱节，README 中工具角色映射仍写 Cowork
+
+**变更内容：**
+
+- `framework/harness/harness-rules.md`：从项目根目录全量同步，补齐第 1.2 步（agent 自动注册）、第 1.5 步（独立任务检查）、backlog.json 规则、推送前遗漏检查、分支规则、角色动态分配、铁律第 8-9 条
+- `framework/README.md`：
+  - 工具角色映射：Cowork → Claude CLI（Planner + Generator），Codex（Evaluator）
+  - 日常使用流程：修正状态名（reviewing → fixing/reverifying）、工具分工（Codex 不做 Generator）、会话结束流程（所有角色通用）
+  - 经验教训·Harness 纪律：更新为当前工具分工，补充铁律第 9 条
+- `framework/cowork-constraint-design.md`：加历史标注，说明 Cowork 已不参与，设计原则仍适用
+- `framework/CHANGELOG.md`：补记 v0.3.0 后所有变更
+
+---
+
 <!-- 后续条目格式：
 
 ## v0.x.0 — YYYY-MM-DD
