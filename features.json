@@ -1,54 +1,46 @@
 {
-  "batch": "P4-1a-schema-sync",
+  "batch": "P4-1b-output-routing",
   "created_at": "2026-04-08",
   "features": [
     {
-      "id": "F-P4A-01",
-      "title": "Schema migration（清空 + ModelAlias 表 + 删除废弃字段）",
+      "id": "F-P4B-01",
+      "title": "list_models MCP Tool 简化",
       "priority": "high",
       "executor": "generator",
-      "status": "completed",
-      "acceptance": "1) Model/Channel 表清空；2) Model 表删除 canonicalName 和 isVariant 字段；3) 新增 ModelAlias 表（id, alias UNIQUE, modelName, createdAt）；4) Channel 唯一约束改为 (providerId, modelId)；5) prisma migrate dev 通过；6) npm run lint + tsc 通过"
+      "status": "pending",
+      "acceptance": "1) 去掉 resolveCapabilities/resolveSupportedSizes fallback 逻辑，直接读 DB capabilities 和 supportedSizes；2) 返回的模型 id 是 canonical name（如 gpt-4o）；3) 不再需要去重（Model 已唯一）；4) npm run lint + tsc 通过"
     },
     {
-      "id": "F-P4A-02",
-      "title": "ModelAlias 初始数据写入",
+      "id": "F-P4B-02",
+      "title": "/v1/models REST API 简化",
       "priority": "high",
       "executor": "generator",
-      "status": "completed",
-      "acceptance": "1) migration 或 seed 中写入 25+ 条已知别名映射（参考规格文档 §1.4）；2) 包括 deepseek/openai/anthropic/google/x-ai/qwen/minimax/moonshot/perplexity 的别名 + 版本变体合并；3) npm run lint + tsc 通过"
+      "status": "pending",
+      "acceptance": "1) 同 F-P4B-01，去掉 fallback，直接读 DB；2) 返回的 id 是 canonical name；3) npm run lint + tsc 通过"
     },
     {
-      "id": "F-P4A-03",
-      "title": "Sync 去重逻辑",
+      "id": "F-P4B-03",
+      "title": "路由层验证（model='gpt-4o' 正确路由）",
       "priority": "high",
       "executor": "generator",
-      "status": "completed",
-      "acceptance": "1) reconcile 函数入口对 Provider 返回的模型列表按 modelId 去重；2) 去重后打印日志（deduped N duplicate modelIds）；3) chatanywhere 的 193 个模型去重后不再触发唯一约束冲突；4) npm run lint + tsc 通过"
+      "status": "pending",
+      "acceptance": "1) routeByModelName('gpt-4o') 正确找到 Model 并选取优先级最高的 ACTIVE Channel；2) 同一 Model 多个 Provider Channel 时按 priority ASC 选优；3) 确认 router.ts 无需代码改动（或做必要微调）；4) npm run lint + tsc 通过"
     },
     {
-      "id": "F-P4A-04",
-      "title": "resolveCanonicalName（查 ModelAlias 表）",
-      "priority": "high",
+      "id": "F-P4B-04",
+      "title": "废弃 model-capabilities-fallback.ts 中的 resolve 函数",
+      "priority": "medium",
       "executor": "generator",
-      "status": "completed",
-      "acceptance": "1) 新函数 resolveCanonicalName(modelId) 先查 ModelAlias 表精确匹配，未匹配则返回 modelId 本身；2) 替代原来的 resolveModelName + computeCanonicalName；3) npm run lint + tsc 通过"
+      "status": "pending",
+      "acceptance": "1) 删除或标记废弃 resolveCapabilities/resolveContextWindow/resolveSupportedSizes 函数及其映射表（CAPABILITIES_MAP/CONTEXT_WINDOW_MAP/SUPPORTED_SIZES_MAP）；2) 确认无其他文件引用这些函数（sync 已改为查 ModelAlias）；3) npm run lint + tsc 通过"
     },
     {
-      "id": "F-P4A-05",
-      "title": "Sync reconcile 改造（canonical Model + 多 Channel）",
-      "priority": "high",
-      "executor": "generator",
-      "status": "completed",
-      "acceptance": "1) Model.upsert 按 canonical name（不再拼接 provider 前缀）；2) Channel.upsert 按 (providerId, modelId) 唯一约束；3) 新 Model 默认 enabled=false、capabilities={}；4) 同一模型多个 Provider sync 后共享一条 Model 记录；5) sync 不再写入 capabilities（由 Admin UI 管理）；6) 触发 sync 后日志正常，无报错；7) npm run lint + tsc 通过"
-    },
-    {
-      "id": "F-P4A-06",
+      "id": "F-P4B-05",
       "title": "E2E 验证",
       "priority": "high",
       "executor": "codex",
-      "status": "completed",
-      "acceptance": "1) sync 后 Model.name 是 canonical name（如 gpt-4o 而非 openai/gpt-4o）；2) 同一模型（如 gpt-4o）通过多个 Provider sync 后只有一条 Model 记录；3) 该 Model 下有多个 Channel（来自不同 Provider）；4) ModelAlias 表有初始数据；5) Provider 返回重复 modelId 不报错"
+      "status": "pending",
+      "acceptance": "1) list_models MCP 返回 canonical name（gpt-4o 而非 openai/gpt-4o）；2) /v1/models REST 返回 canonical name；3) POST /v1/chat/completions model='gpt-4o' 正确路由到最优 Channel；4) model-capabilities-fallback.ts 中 resolve 函数已废弃/删除"
     }
   ]
 }
