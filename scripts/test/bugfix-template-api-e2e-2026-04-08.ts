@@ -36,6 +36,41 @@ async function login(email: string, password: string) {
   return res.body;
 }
 
+async function ensureProject(headers: Record<string, string>) {
+  const listRes = await api("/api/projects", { headers, expect: 200 });
+  const existing = listRes.body?.data?.[0]?.id;
+  if (existing) return existing;
+
+  const created = await api("/api/projects", {
+    method: "POST",
+    headers,
+    expect: 201,
+    body: JSON.stringify({ name: `Codex Project ${Date.now()}` }),
+  });
+  return created.body?.id as string;
+}
+
+async function createAction(
+  projectId: string,
+  headers: Record<string, string>,
+  input: { name: string; content: string; model?: string },
+) {
+  const res = await api(`/api/projects/${projectId}/actions`, {
+    method: "POST",
+    headers,
+    expect: 201,
+    body: JSON.stringify({
+      name: input.name,
+      description: input.name,
+      model: input.model ?? "openrouter/google/gemma-4-26b-a4b-it",
+      messages: [{ role: "user", content: input.content }],
+      variables: [],
+      changelog: "init",
+    }),
+  });
+  return res.body;
+}
+
 async function main() {
   const steps: StepResult[] = [];
   const email = process.env.TEST_EMAIL ?? "codex-admin@aigc-gateway.local";
@@ -44,17 +79,25 @@ async function main() {
   const token = auth.token as string;
   const headers = { "Content-Type": "application/json", Authorization: `Bearer ${token}` };
 
-  const projects = await api("/api/projects", { headers, expect: 200 });
-  const projectId = projects.body?.data?.[0]?.id;
+  const projectId = await ensureProject(headers);
   if (!projectId) throw new Error("no project found");
+
+  const actionA = await createAction(projectId, headers, {
+    name: "codex-step-one",
+    content: "step one output",
+  });
+  const actionB = await createAction(projectId, headers, {
+    name: "codex-step-two",
+    content: "step two output",
+  });
 
   // create valid template
   const createBody = {
     name: "Codex Template",
     actionId: null,
     steps: [
-      { order: 1, actionId: null, prompt: "foo" },
-      { order: 2, actionId: null, prompt: "bar" },
+      { order: 1, actionId: actionA.id },
+      { order: 2, actionId: actionB.id },
     ],
   };
   const created = await api(`/api/projects/${projectId}/templates`, {
@@ -72,7 +115,7 @@ async function main() {
       method: "POST",
       headers,
       expect: 400,
-      body: JSON.stringify({ name: "Bad", steps: [{ prompt: "missing" }] }),
+      body: JSON.stringify({ name: "Bad", steps: [{ actionId: actionA.id }] }),
     });
     steps.push({ name: "missing order validation", ok: true });
   } catch (error) {
@@ -85,7 +128,12 @@ async function main() {
       method: "PUT",
       headers,
       expect: 400,
-      body: JSON.stringify({ steps: [{ order: 1, prompt: "a" }, { order: 1, prompt: "b" }] }),
+      body: JSON.stringify({
+        steps: [
+          { order: 1, actionId: actionA.id },
+          { order: 1, actionId: actionB.id },
+        ],
+      }),
     });
     steps.push({ name: "duplicate order update", ok: true });
   } catch (error) {

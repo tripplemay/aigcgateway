@@ -169,6 +169,12 @@ async function registerAndLogin() {
     body: JSON.stringify({ email, password }),
   });
   token = login.body.token;
+
+  // Balance is stored at user-level after balance-user-level-backend batch.
+  await prisma.user.update({
+    where: { email },
+    data: { balance: 50 },
+  });
 }
 
 async function createProjectAndKey() {
@@ -196,6 +202,13 @@ async function configureLocalProvider() {
   const targetModel = await prisma.model.findUniqueOrThrow({
     where: { name: "openai/gpt-4o-mini" },
   });
+  const modelInitialEnabled = targetModel.enabled;
+  if (!targetModel.enabled) {
+    await prisma.model.update({
+      where: { id: targetModel.id },
+      data: { enabled: true },
+    });
+  }
   const chosenChannel = await prisma.channel.findFirstOrThrow({
     where: { modelId: targetModel.id },
     include: { provider: true },
@@ -209,6 +222,8 @@ async function configureLocalProvider() {
 
   return {
     restore: {
+      modelId: targetModel.id,
+      modelEnabled: modelInitialEnabled,
       providerId: chosenChannel.provider.id,
       providerBaseUrl: chosenChannel.provider.baseUrl,
       providerAuthConfig: chosenChannel.provider.authConfig,
@@ -237,6 +252,10 @@ async function configureLocalProvider() {
       }
     },
     async rollback() {
+      await prisma.model.update({
+        where: { id: targetModel.id },
+        data: { enabled: modelInitialEnabled },
+      }).catch(() => {});
       await prisma.provider.update({
         where: { id: chosenChannel.provider.id },
         data: {
@@ -566,8 +585,9 @@ async function run() {
       "mcp tools",
       toolNames.includes("run_action") &&
         toolNames.includes("run_template") &&
-        !toolNames.includes("create_template") &&
-        !toolNames.includes("update_template"),
+        toolNames.includes("create_template") &&
+        toolNames.includes("update_template") &&
+        toolNames.includes("delete_template"),
       JSON.stringify(toolNames),
     );
 

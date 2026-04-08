@@ -1,11 +1,11 @@
 {
-  "status": "reverifying",
+  "status": "done",
   "user_goal": "bugfix-template-api: Template 创建 API 500 修复",
   "total_features": 3,
-  "completed_features": 2,
+  "completed_features": 3,
   "fix_rounds": 0,
   "current_sprint": null,
-  "last_updated": "2026-04-08T07:00:00Z",
+  "last_updated": "2026-04-08T15:58:00Z",
   "reference_docs": [],
   "role_assignments": {
     "planner": "Kimi",
@@ -15,26 +15,19 @@
   "docs": {
     "spec": null,
     "test_cases": "docs/test-cases/bugfix-template-api-local-test-cases-2026-04-08.md",
-    "signoff": null,
+    "signoff": "docs/test-reports/bugfix-template-api-signoff-2026-04-08.md",
     "framework_reviewed": false
   },
   "evaluator_feedback": {
-    "summary": "/api/auth/login 持续 401/502，无法启动模板 API 验证，需先修复登录接口。",
-    "pass_count": 0,
+    "summary": "模板 REST/MCP/run_template 全链路在 L1 本地通过，登录改为新注册账号后测试顺畅。",
+    "pass_count": 3,
     "partial_count": 0,
-    "fail_count": 1,
-    "issues": [
-      {
-        "feature_id": "F-BT-03",
-        "result": "FAIL",
-        "description": "本地 L1 环境调用 /api/auth/login (admin/dev 账号) 均返回 401 或 502，无法获取 token 继续模板 API/MCP 测试。",
-        "steps_to_reproduce": "curl -X POST http://localhost:3099/api/auth/login -H 'Content-Type: application/json' -d '{"email":"codex-admin@aigc-gateway.local","password":"Codex@2026!"}'"
-      }
-    ]
+    "fail_count": 0,
+    "issues": []
   },
   "generator_handoff": {
     "completed": ["F-BT-01", "F-BT-02"],
-    "codex_tasks": ["F-BT-03: E2E 验证"],
+    "codex_tasks": [],
     "notes": [
       "F-BT-01: REST API POST/PUT /templates 增加 step 字段验证（actionId/order 必填、order 唯一性）+ try-catch Prisma 错误处理 + 改用 actionId 直接赋值（不再用 action:{connect}）",
       "F-BT-02: MCP create_template/update_template/delete_template 三个 Tool 均添加 try-catch 错误处理，返回 [internal_error] 格式",

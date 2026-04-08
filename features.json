@@ -23,7 +23,7 @@
       "title": "E2E 验证",
       "priority": "high",
       "executor": "codex",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "1) REST API 创建 Template 成功（含多步骤）；2) MCP create_template 成功；3) run_template 返回步骤明细；4) Template 列表页显示已创建的 Template；5) 删除 Template 后级联清理 steps"
     }
   ]

@@ -1,0 +1,24 @@
+{
+  "projectId": "cmnp9veg300qr9yil6n88mqug",
+  "templateId": "cmnp9z7qn00r59yil7r6utqb3",
+  "steps": [
+    {
+      "name": "create baseline template",
+      "ok": true,
+      "detail": "cmnp9z7qn00r59yil7r6utqb3"
+    },
+    {
+      "name": "missing order validation",
+      "ok": true
+    },
+    {
+      "name": "duplicate order update",
+      "ok": true
+    },
+    {
+      "name": "mcp create_template error",
+      "ok": true,
+      "detail": "event: message\ndata: {\"result\":{\"content\":[{\"type\":\"text\",\"text\":\"MCP error -32602: Input validation error: Invalid arguments for tool create_template: [\\n  {\\n    \\\"code\\\": \\\"invalid_type\\\",\\n    \\\"expected\\\": \\\"string\\\",\\n    \\\"received\\\": \\\"undefined\\\",\\n    \\\"path\\\": [\\n      \\\"steps\\\",\\n      0,\\n      \\\"action_id\\\"\\n    ],\\n    \\\"message\\\": \\\"Required\\\"\\n  }\\n]\"}],\"isError\":true},\"jsonrpc\":\"2.0\",\"id\":1775606017789}\n\n"
+    }
+  ]
+}

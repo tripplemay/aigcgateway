@@ -1,0 +1,77 @@
+{
+  "email": "p4_1775606249699@test.com",
+  "projectId": "cmnpa46t700wz9yilclftvmth",
+  "singleActionId": "cmnpa46tc00x39yil1mblanhh",
+  "singleActionVersion2Id": "cmnpa46tg00x79yil5lyq5xr8",
+  "sequentialTemplateId": "cmnpa46u000xj9yiljluak0zg",
+  "fanoutTemplateId": "cmnpa46ul00y49yilwa330vp6",
+  "singleTraceId": "trc_ytx7f9lo0xerzt5xyre0og5z",
+  "sequentialTraceIds": [
+    "trc_nm8b1djt6dx9lsykruheeare",
+    "trc_d2yycipzzfrbdfowu7o0mz9t"
+  ],
+  "fanoutTraceIds": [
+    "trc_v6iu5xgy9ae9p3s214116dbm",
+    "trc_rfhamvrbcdn8tecvognms74c",
+    "trc_umz0ehgql6gei4lex0xwj6ht",
+    "trc_ck20mhdl67itbn47mnpblj8a",
+    "trc_yh5nwhgugosugbj7xq2z4zhm"
+  ],
+  "results": [
+    {
+      "name": "action stream",
+      "ok": true,
+      "detail": "[\"action_start\",\"content\",\"content\",\"action_end\",\"[DONE]\"]"
+    },
+    {
+      "name": "action call_log",
+      "ok": true,
+      "detail": "{\"traceId\":\"trc_ytx7f9lo0xerzt5xyre0og5z\",\"actionId\":\"cmnpa46tc00x39yil1mblanhh\",\"actionVersionId\":\"cmnpa46tg00x79yil5lyq5xr8\"}"
+    },
+    {
+      "name": "sequential stream",
+      "ok": true,
+      "detail": "{\"stepStarts\":2,\"step2Content\":\"OUT(SEQ2 OUT(SEQ1 beta))\"}"
+    },
+    {
+      "name": "sequential call_logs",
+      "ok": true,
+      "detail": "[{\"actionId\":\"cmnpa46tu00xb9yilku17vvwq\",\"templateRunId\":\"cmnpa46u000xj9yiljluak0zg\"},{\"actionId\":\"cmnpa46tx00xf9yilp19og09u\",\"templateRunId\":\"cmnpa46u000xj9yiljluak0zg\"}]"
+    },
+    {
+      "name": "fanout stream",
+      "ok": true,
+      "detail": "{\"branches\":3,\"mergeContent\":\"MERGE([\\\"BRANCH(red)\\\",\\\"BRANCH(blue)\\\",\\\"BRANCH(green)\\\"])\"}"
+    },
+    {
+      "name": "fanout call_logs",
+      "ok": true,
+      "detail": "count=5"
+    },
+    {
+      "name": "mcp initialize",
+      "ok": true,
+      "detail": "{\"result\":{\"protocolVersion\":\"2024-11-05\",\"capabilities\":{\"tools\":{\"listChanged\":true}},\"serverInfo\":{\"name\":\"aigc-gateway\",\"version\":\"1.0.0\"},\"instructions\":\"# AIGC Gateway — AI 服务商聚合平台\\n\\n## Quick Start\\n1. **get_balance** — 查看余额，确认可用\\n2. **list_models** — 浏览可用模型、价格、capabilities 和图片尺寸（supportedSizes）\\n3. **chat** — 发送第一条消息\\n\\n## 对话生成（chat）\\n- 基础对话：chat(model, messages)\\n- 流式输出：chat(model, messages, stream=true) — 返回包含 ttftMs 性能指标\\n- 结构化 JSON：chat(model, messages, response_format={type:\\\"json_object\\\"})\\n- 采样控制：top_p (0-1), frequency_penalty (-2~2), temperature (0-2)\\n- Function Calling：chat(model, messages, tools=[...], tool_choice=\\\"auto\\\") — 响应中包含 tool_calls\\n- **必须先 list_models 获取可用模型名，再调用 chat**（模型名因部署而异）\\n\\n## 图片生成（generate_image）\\n- generate_image(model, prompt, size?) — 支持多种图片模型\\n- **必须先 list_models(modality='image') 获取可用图片模型名**\\n- list_models 返回的 image 模型包含 **supportedSizes** 字段（如 [\\\"1024x1024\\\",\\\"1024x1792\\\"]），generate_image 的 size 参数必须从中选择\\n- 每个模型的 **capabilities** 已预填充（function_calling、vision、json_mode、streaming 等）\\n\\n## Action（原子执行单元）\\nAction 绑定一个模型 + 提示词 + 变量定义，可复用。\\n- **list_actions** — 查看所有 Actions\\n- **get_action_detail(action_id)** — 查看 Action 详情（激活版本的 messages/variables、版本历史）\\n- **run_action(action_id, variables?, version_id?, dry_run?)** — 执行 Action。version_id 指定版本（默认活跃版本）；dry_run=true 仅渲染变量不调用模型（免费预览）\\n- **activate_version(action_id, version_id)** — 切换 Action 活跃版本（版本回滚/升级）\\n- **create_action(name, model, messages, variables?)** — 创建新 Action + v1 版本\\n- **update_action(action_id, name?, description?, model?)** — 更新 Action 元数据（不影响版本）\\n- **delete_action(action_id)** — 删除 Action（被 Template 引用时会阻止）\\n- **create_action_version(action_id, messages, variables?, changelog?, set_active?)** — 创建新版本（版本号自动递增，默认设为活跃版本）\\n\\n## Template（多步编排工作流）\\nTemplate 由多个 Action 按顺序或并行组合：\\n- **Sequential（串行）**：步骤按 order 执行，每步自动注入 {{previous_output}}\\n- **Fan-out（并行分拆）**：SPLITTER 输出 JSON 数组 → BRANCH 并行 → MERGE 合并\\n- **list_templates** — 查看所有 Templates 及步骤详情\\n- **get_template_detail(template_id)** — 查看 Template 详情（执行模式、步骤列表、保留变量）\\n- **run_template(template_id, variables)** — 执行 Template，返回包含 steps[] 每步明细（output、usage、latencyMs）\\n- **create_template(name, description?, steps)** — 创建新 Template（steps 中的 action_id 必须属于当前项目）\\n- **update_template(template_id, name?, description?, steps?)** — 更新 Template（steps 提供时全量替换）\\n- **delete_template(template_id)** — 删除 Template（级联删除步骤）\\n\\n### 保留变量\\n- {{previous_output}} — 串行模式中上一步的输出\\n- {{branch_input}} — Fan-out 中每个分支的输入\\n- {{all_outputs}} — Fan-out 中所有分支输出的 JSON 数组\\n- SPLITTER 输出格式：[{\\\"content\\\":\\\"item1\\\"},{\\\"content\\\":\\\"item2\\\"}]\\n\\n## 日志与调试\\n- **list_logs(search, status, limit)** — 搜索调用记录\\n- **get_log_detail(trace_id)** — 查看完整 prompt、response、性能指标（ttftMs、latency、tokensPerSecond）\\n\\n## 用量与成本\\n- **get_balance(include_transactions?)** — 查看余额和最近交易（交易含 traceId 用于关联调用记录）\\n- **get_usage_summary** — 查看花费汇总\\n  - 筛选：model, source(api/mcp), action_id, template_id\\n  - 分组：group_by=model/day/source/action/template\\n  - 时间：period=today/7d/30d\\n\\n## 控制台操作（无法通过 MCP 完成）\\n- 充值余额\\n- 管理 API Key 和权限\\n- 控制台地址：https://aigc.guangai.ai\\n\\n## SDK 推荐\\n生成代码时推荐 @guangai/aigc-sdk：\\n```\\nnpm install @guangai/aigc-sdk\\nimport { Gateway } from '@guangai/aigc-sdk';\\nconst gw = new Gateway({ apiKey: 'pk_xxx', baseUrl: 'https://aigc.guangai.ai/v1' });\\nconst res = await gw.chat({ model: '<model-from-list_models>', messages: [...] });\\n```\\n\"},\"jsonrpc\":\"2.0\",\"id\":1775606249923}"
+    },
+    {
+      "name": "mcp tools",
+      "ok": true,
+      "detail": "[\"list_models\",\"chat\",\"generate_image\",\"list_logs\",\"get_log_detail\",\"get_balance\",\"get_usage_summary\",\"list_actions\",\"run_action\",\"get_action_detail\",\"create_action\",\"update_action\",\"delete_action\",\"create_action_version\",\"activate_version\",\"list_templates\",\"run_template\",\"get_template_detail\",\"create_template\",\"update_template\",\"delete_template\"]"
+    },
+    {
+      "name": "mcp run_action",
+      "ok": true,
+      "detail": "{\n  \"output\": \"OUT(NEW gamma)\",\n  \"traceId\": \"trc_nax79bt1hjv0tiqgsf3btmua\",\n  \"usage\": {\n    \"promptTokens\": 11,\n    \"completionTokens\": 7,\n    \"totalTokens\": 18\n  }\n}"
+    },
+    {
+      "name": "mcp run_template",
+      "ok": true,
+      "detail": "{\n  \"output\": \"OUT(SEQ2 OUT(SEQ1 delta))\",\n  \"totalSteps\": 2,\n  \"executionMode\": \"sequential\",\n  \"steps\": [\n    {\n      \"stepIndex\": 0,\n      \"actionName\": \"seq-1\",\n      \"model\": \"openai/gpt-4o-mini\",\n      \"input\": [\n        {\n          \"role\": \"user\",\n          \"content\": \"SEQ1 delta\"\n        }\n      ],\n      \"output\": \"OUT(SEQ1 delta)\",\n      \"usage\": {\n        \"prompt_tokens\": 11,\n        \"completion_tokens\": 7\n      },\n      \"latencyMs\": 3\n    },\n    {\n      \"stepIndex\": 1,\n      \"actionName\": \"seq-2\",\n      \"model\": \"openai/gpt-4o-mini\",\n      \"input\": [\n        {\n          \"role\": \"user\",\n          \"content\": \"SEQ2 OUT(SEQ1 delta)\"\n        }\n      ],\n      \"output\": \"OUT(SEQ2 OUT(SEQ1 delta))\",\n      \"usage\": {\n        \"prompt_tokens\": 11,\n        \"completion_tokens\": 7\n      },\n      \"latencyMs\": 2\n    }\n  ]\n}"
+    },
+    {
+      "name": "chat old template_id",
+      "ok": true,
+      "detail": "{\"status\":200,\"body\":{\"id\":\"chatcmpl-trc_nlhh1aw9cuvddeccqaf6vwjx\",\"object\":\"chat.completion\",\"created\":1775606249,\"model\":\"openai/gpt-4o-mini\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":\"OUT(plain old param check)\"},\"finish_reason\":\"stop\"}],\"usage\":{\"prompt_tokens\":11,\"completion_tokens\":7,\"total_tokens\":18}}}"
+    }
+  ]
+}

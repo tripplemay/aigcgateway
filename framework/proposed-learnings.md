@@ -135,3 +135,15 @@
 **建议写入：** `harness-rules.md` 铁律 — 新增第 9 条："生产紧急故障（hotfix）流程：Planner 分析根因并报告修复方案 → 用户确认 → 指定 Generator 执行修复 → Evaluator 验收。Planner 不得直接修改产品代码，即使是一行代码。"
 
 **状态：** 已写入（2026-04-07）— harness-rules.md 铁律第 9 条
+
+---
+
+## [2026-04-08] Codex — 来源：F-BT-03
+
+**类型：** 新规律
+
+**内容：** balance-user-level-backend 之后，测试脚本若仍直接修改 `project.balance` 会导致充值逻辑失效（Prisma 更新报 P2025）。补测/复验前应先确认余额归属（User vs Project）并更新脚本，否则所有调用都会触发 `insufficient_balance`。
+
+**建议写入：** `framework/harness/evaluator.md`（测试脚本自检章节：运行前先检查余额存储层级；如迁移到 User，需要更新脚本中的充值逻辑）。
+
+**状态：** 待确认
