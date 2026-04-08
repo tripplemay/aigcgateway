@@ -1,0 +1,24 @@
+{
+  "baseUrl": "http://localhost:3099",
+  "mockBase": "http://127.0.0.1:3323",
+  "projectId": "cmnpq37c800qw9ybuyhe64lqq",
+  "passCount": 2,
+  "failCount": 1,
+  "steps": [
+    {
+      "name": "AC1 SDK README examples use canonical model names",
+      "ok": false,
+      "detail": "modelLiterals=[\"deepseek-v3\",\"gpt-4o\",\"deepseek/v3\",\"cogview-3-flash\",\"gpt-4o\"], slashModels=[\"deepseek/v3\"]"
+    },
+    {
+      "name": "AC2 model-capabilities data has unique canonical models",
+      "ok": true,
+      "detail": "visible=1, unique=1, gpt4oCount=1"
+    },
+    {
+      "name": "AC3 end-to-end works with canonical name (list_models -> chat)",
+      "ok": true,
+      "detail": "mcpStatus=200, hasGpt4o=true, prefixed=, chatContent=provider:openrouter"
+    }
+  ]
+}

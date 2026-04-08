@@ -1,11 +1,11 @@
 {
-  "status": "verifying",
+  "status": "fixing",
   "user_goal": "P4-2-docs-cleanup: P4 收尾 — SDK 文档 + 能力页对齐 + PRD 更新",
   "total_features": 4,
-  "completed_features": 3,
+  "completed_features": 2,
   "fix_rounds": 0,
   "current_sprint": null,
-  "last_updated": "2026-04-08T19:30:00Z",
+  "last_updated": "2026-04-08T20:10:00Z",
   "reference_docs": [
     "docs/specs/P4-model-aggregation-PRD.md",
     "docs/specs/P4-model-aggregation-spec.md"
@@ -17,11 +17,24 @@
   },
   "docs": {
     "spec": "docs/specs/P4-model-aggregation-spec.md",
-    "test_cases": null,
+    "test_cases": "docs/test-cases/p4-2-docs-cleanup-e2e-2026-04-08.md",
     "signoff": null,
     "framework_reviewed": false
   },
-  "evaluator_feedback": null,
+  "evaluator_feedback": {
+    "summary": "verifying 结果 2 PASS / 1 FAIL：SDK README 仍有非 canonical 示例 model='deepseek/v3'。",
+    "pass_count": 2,
+    "partial_count": 0,
+    "fail_count": 1,
+    "issues": [
+      {
+        "feature_id": "F-P4D-01",
+        "result": "FAIL",
+        "description": "sdk/README.md 在 Collect Stream 示例仍使用 slash 模型名 deepseek/v3，不符合 canonical 命名要求。",
+        "steps_to_reproduce": "1) 打开 sdk/README.md 2) 定位 Collect Stream into Full Response 代码块 3) 查看 model 字段为 deepseek/v3"
+      }
+    ]
+  },
   "generator_handoff": {
     "completed": ["F-P4D-01", "F-P4D-02", "F-P4D-03"],
     "codex_tasks": ["F-P4D-04: E2E 验证"],

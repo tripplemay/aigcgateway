@@ -14,7 +14,8 @@ AIGC Gateway — AI 服务商管理中台。统一 API 调用抽象（兼容 Ope
 
 **最新完成批次：** `P4-1c-admin-pages`（6/6 完成，verifying 5/5 PASS）
 **验证结论：** Admin 模型别名管理与白名单多通道展示链路通过；别名 CRUD/merge、非 Admin 访问限制均通过。
-**Harness 状态：** done
+**当前批次：** `P4-2-docs-cleanup`（verifying 发现 1 个文档问题，已进入 fixing）
+**Harness 状态：** fixing
 **签收报告：** `docs/test-reports/p4-1c-admin-pages-signoff-2026-04-08.md`
 
 ### 近期完成批次（2026-04-08 ~ 2026-04-06）

@@ -1,0 +1,29 @@
+{
+  "baseUrl": "http://localhost:3099",
+  "mockBase": "http://127.0.0.1:3322",
+  "projectId": "cmnpmfy3j00r49ymt3tvxsoz1",
+  "passCount": 4,
+  "failCount": 0,
+  "steps": [
+    {
+      "name": "AC1 list_models returns canonical names",
+      "ok": true,
+      "detail": "status=200, parsed=true, includes_gpt4o=true, prefixed_present=false, raw=[\n  {\n    \"name\": \"gpt-4o\",\n    \"displayName\": \"gpt-4o\",\n    \"modality\": \"text\",\n    \"contextWindow\": 128000,\n    \"price"
+    },
+    {
+      "name": "AC2 /v1/models returns canonical IDs",
+      "ok": true,
+      "detail": "ids_has_gpt4o=true, ids_prefixed="
+    },
+    {
+      "name": "AC3 chat route picks highest-priority ACTIVE channel",
+      "ok": true,
+      "detail": "content=provider:openrouter"
+    },
+    {
+      "name": "AC4 legacy fallback file is removed",
+      "ok": true,
+      "detail": "file_exists=false"
+    }
+  ]
+}
