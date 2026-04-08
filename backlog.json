@@ -16,6 +16,33 @@
       "decisions": [],
       "confirmed_at": "2026-04-08",
       "priority": "high"
+    },
+    {
+      "id": "BL-063",
+      "title": "API Key 权限绕过修复 — actions/run + templates/run 未检查 chatCompletion 权限",
+      "description": "chatCompletion=false 的 Key 可通过 /v1/actions/run 和 /v1/templates/run 间接调用模型并触发计费。auth-middleware.ts 的 detectEndpoint() 未覆盖 actions/templates 路径，权限分支未命中。需要：1) detectEndpoint 增加 actions/templates 路径识别；2) actions/run 和 templates/run 继承 chatCompletion 权限检查；3) MCP run_action/run_template 同步检查。来源：独立后端安全审查 + 全链路动态测试（2026-04-08），HIGH/P0。",
+      "decisions": [],
+      "confirmed_at": "2026-04-08",
+      "priority": "high"
+    },
+    {
+      "id": "BL-064",
+      "title": "MCP 鉴权增加 IP 白名单检查",
+      "description": "REST 侧 auth-middleware.ts 检查了 IP 白名单，但 MCP 侧 mcp/auth.ts 未检查。配置了 IP 白名单的 Key 在 MCP 入口仍可被非白名单来源使用。来源：独立后端安全审查 + 全链路动态测试（2026-04-08），MEDIUM/P1。",
+      "decisions": [],
+      "confirmed_at": "2026-04-08",
+      "priority": "medium"
+    },
+    {
+      "id": "BL-065",
+      "title": "支付回调验签（支付功能上线前必须修）",
+      "description": "alipay/wechat webhook 端点未验证签名，攻击者可伪造成功支付通知。当前无订单记录因此实际风险低，但支付功能接入前必须实现验签。来源：独立后端安全审查（2026-04-08），HIGH（延迟修复）。",
+      "decisions": [
+        "当前风险可控：DB 无 RechargeOrder 记录，伪造回调查不到订单不会入账",
+        "支付功能上线前必须修复，不可跳过"
+      ],
+      "confirmed_at": "2026-04-08",
+      "priority": "medium"
     }
   ]
 }
