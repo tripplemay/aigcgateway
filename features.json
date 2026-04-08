@@ -1,38 +1,110 @@
 {
-  "batch": "P4-2-docs-cleanup",
+  "batch": "R1-design-system-foundation",
   "created_at": "2026-04-08",
   "features": [
     {
-      "id": "F-P4D-01",
-      "title": "SDK 文档更新",
+      "id": "F-R1-01",
+      "title": "Button 组件对齐设计系统",
+      "priority": "high",
+      "executor": "generator",
+      "status": "pending",
+      "acceptance": "1) default variant 使用 bg-gradient-to-r from-ds-primary to-ds-primary-container；2) 其他 variant 不变；3) 页面中 21 处手写渐变按钮删除内联样式，改用 Button 组件；4) npm run lint + tsc 通过"
+    },
+    {
+      "id": "F-R1-02",
+      "title": "Input 组件对齐设计系统",
+      "priority": "high",
+      "executor": "generator",
+      "status": "pending",
+      "acceptance": "1) 默认样式改为底线风格：border-b-2 border-ds-outline-variant，无其他 border；2) bg 改为 bg-ds-surface-container-low；3) focus 时底线变 ds-primary；4) 现有使用 Input 的页面不报错；5) npm run lint + tsc 通过"
+    },
+    {
+      "id": "F-R1-03",
+      "title": "Card 组件对齐设计系统",
+      "priority": "high",
+      "executor": "generator",
+      "status": "pending",
+      "acceptance": "1) 去掉 ring-1 ring-foreground/10；2) CardFooter 去掉 border-t；3) 依赖 tonal layering 制造层级感；4) 现有使用 Card 的页面视觉正常；5) npm run lint + tsc 通过"
+    },
+    {
+      "id": "F-R1-04",
+      "title": "Dialog 组件对齐设计系统（Glassmorphism）",
+      "priority": "high",
+      "executor": "generator",
+      "status": "pending",
+      "acceptance": "1) DialogOverlay 改为 backdrop-blur-lg + bg-black/20；2) DialogContent 去掉 ring-1，加 shadow-xl shadow-ds-on-surface/6；3) DialogFooter 去掉 border-t；4) 打开任意 dialog 视觉正确；5) npm run lint + tsc 通过"
+    },
+    {
+      "id": "F-R1-05",
+      "title": "Table 组件对齐设计系统",
+      "priority": "high",
+      "executor": "generator",
+      "status": "pending",
+      "acceptance": "1) TableHeader 去掉 [&_tr]:border-b；2) TableRow 去掉 box-shadow 分割线，hover 改为 bg-ds-surface-container-high/30；3) TableHead 加 uppercase tracking-widest font-bold text-[10px]；4) npm run lint + tsc 通过"
+    },
+    {
+      "id": "F-R1-06",
+      "title": "Sidebar 对齐设计系统",
+      "priority": "high",
+      "executor": "generator",
+      "status": "pending",
+      "acceptance": "1) aside bg 改为 bg-ds-surface-container-low（去掉 bg-slate-50）；2) active 导航项改为 before 伪元素 3px accent pill（去掉 border-l-4）；3) Project Switcher 去掉 border；4) dropdown 去掉 border，加 shadow + backdrop-blur；5) nav item 间距改为 space-y-2；6) 参照 design-draft/Layout Shell code.html；7) npm run lint + tsc 通过"
+    },
+    {
+      "id": "F-R1-07",
+      "title": "TopAppBar 对齐设计系统",
       "priority": "medium",
       "executor": "generator",
-      "status": "completed",
-      "acceptance": "1) sdk/README.md 更新 model 参数说明：传 canonical name（如 gpt-4o），不再需要 provider 前缀；2) 示例代码中的 model 字段全部改为 canonical name；3) cd sdk && npm run typecheck 通过"
+      "status": "pending",
+      "acceptance": "1) 去掉 border-b，保持 backdrop-blur-xl + shadow-sm；2) Deploy 按钮改用 Button 组件或渐变样式；3) 参照 design-draft/Layout Shell code.html；4) npm run lint + tsc 通过"
     },
     {
-      "id": "F-P4D-02",
-      "title": "模型能力管理页对齐验证",
+      "id": "F-R1-08",
+      "title": "useAsyncData hook 抽取",
       "priority": "medium",
       "executor": "generator",
-      "status": "completed",
-      "acceptance": "1) /admin/model-capabilities 页面与新 Model 结构兼容（Model.name 是 canonical name）；2) 每个模型只出现一次（不再有 openai/gpt-4o 和 openrouter/openai/gpt-4o 重复）；3) 设置 capabilities 后 list_models 正确返回；4) npm run lint + tsc 通过"
+      "status": "pending",
+      "acceptance": "1) 创建 src/hooks/use-async-data.ts；2) 接口：useAsyncData<T>(fetcher, deps) → { data, loading, error, refetch }；3) 内部使用 apiFetch，自动处理 loading/error 状态；4) 支持依赖项变化自动 refetch；5) 导出类型正确；6) npm run lint + tsc 通过"
     },
     {
-      "id": "F-P4D-03",
-      "title": "PRD 更新 P4 完成状态",
-      "priority": "low",
+      "id": "F-R1-09",
+      "title": "SearchBar 公共组件抽取",
+      "priority": "medium",
       "executor": "generator",
-      "status": "completed",
-      "acceptance": "1) docs/AIGC-Gateway-Full-PRD.md §14 版本路线图更新 P4 为已完成；2) §2.2 模型命名规范更新为 canonical name；3) §2.3 路由策略更新为跨服务商选优"
+      "status": "pending",
+      "acceptance": "1) 创建 src/components/search-bar.tsx；2) props: placeholder, value, onChange, onKeyDown?, className?；3) 使用 Material icon search，rounded-full，bg-ds-surface-container-low；4) 样式与设计系统一致；5) npm run lint + tsc 通过"
     },
     {
-      "id": "F-P4D-04",
-      "title": "E2E 验证",
+      "id": "F-R1-10",
+      "title": "Pagination 公共组件抽取",
+      "priority": "medium",
+      "executor": "generator",
+      "status": "pending",
+      "acceptance": "1) 创建 src/components/pagination.tsx；2) props: page, totalPages, onPageChange, total?, pageSize?；3) 支持简单模式（Previous/Next）和完整模式（带页码）；4) 样式与设计系统一致（无 border，tonal layering）；5) npm run lint + tsc 通过"
+    },
+    {
+      "id": "F-R1-11",
+      "title": "Dashboard 页面试点还原",
+      "priority": "high",
+      "executor": "generator",
+      "status": "pending",
+      "acceptance": "1) 统计卡片去掉 border，用 tonal layering；2) Recent Calls 表格去掉 divide-y，用 hover 高亮；3) 所有颜色使用 ds-* token（无硬编码 slate/indigo）；4) 使用 useAsyncData hook 替代手写 useEffect + useState；5) 对照 design-draft/Dashboard (Full Redesign) v2/code.html 视觉一致；6) npm run lint + tsc 通过"
+    },
+    {
+      "id": "F-R1-12",
+      "title": "全局 No-Line 清理（Dashboard + Layout 范围）",
+      "priority": "medium",
+      "executor": "generator",
+      "status": "pending",
+      "acceptance": "1) Dashboard 页面和 Layout 相关组件中无 border-b/border-t/divide-y 用于分隔（border-l 的 accent pill 除外）；2) 其他页面不改动（留给后续批次）；3) npm run lint + tsc 通过"
+    },
+    {
+      "id": "F-R1-13",
+      "title": "E2E 验证：基础组件 + Dashboard 视觉回归",
       "priority": "high",
       "executor": "codex",
-      "status": "completed",
-      "acceptance": "1) SDK README 示例使用 canonical name；2) 模型能力管理页每个模型唯一；3) 完整链路验证：list_models → 选模型 → chat 调用 → 成功（使用 canonical name）"
+      "status": "pending",
+      "acceptance": "1) 登录后 Dashboard 页面正常加载，无控制台报错；2) Button/Input/Card/Dialog/Table 组件样式与设计系统一致；3) Sidebar active 状态显示 accent pill 而非 border-l-4；4) 搜索和分页组件可正常 import 并渲染；5) 签收报告生成"
     }
   ]
 }
