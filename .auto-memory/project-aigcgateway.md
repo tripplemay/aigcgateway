@@ -12,8 +12,7 @@ AIGC Gateway — AI 服务商管理中台。统一 API 调用抽象（兼容 Ope
 
 ## 当前开发状态（截至 2026-04-08）
 
-**当前批次：** `admin-model-capabilities` 已完成（reverifying round 3：5/5 PASS，fix_rounds=3）
-**最新完成批次：** `admin-model-capabilities`（7/7 完成；关键项 F-MC-07 通过）
+**最新完成批次：** `admin-model-capabilities`（7/7 PASS，fix_rounds=3，Generator=Johnsong）
 **Harness 状态：** done
 **签收报告：** `docs/test-reports/admin-model-capabilities-signoff-2026-04-08.md`
 
@@ -74,13 +73,17 @@ Action 相关权威设计稿（3 个，已更新确认）：
 
 状态：3 页设计稿还原已完成并通过验收（`action-pages-design-restore` 5/5 PASS）
 
-## Backlog（1 条待处理）
+## Backlog（5 条待处理）
 
-| ID | 优先级 | 标题 |
-|---|---|---|
-| BL-060 | high | Admin 模型能力管理页面（capabilities + supportedSizes，废弃静态映射） |
+| ID | 优先级 | 标题 | 来源 |
+|---|---|---|---|
+| BL-063 | **high/P0** | API Key 权限绕过 actions/templates（立即有影响） | 后端安全审查 |
+| BL-061 | high | API Key 创建/吊销防重复提交 | 前端审查 |
+| BL-062 | high | 异步加载缺 catch/finally | 前端审查 |
+| BL-064 | medium | MCP IP 白名单缺失 | 后端安全审查 |
+| BL-065 | medium | 支付回调验签（支付上线前必修） | 后端安全审查 |
 
-BL-024~059 已完成。
+BL-024~060 已完成。
 
 ## 已知遗留问题
 

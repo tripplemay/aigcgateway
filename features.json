@@ -1,62 +1,46 @@
 {
-  "batch": "admin-model-capabilities",
+  "batch": "security-and-robustness",
   "created_at": "2026-04-08",
   "features": [
     {
-      "id": "F-MC-01",
-      "title": "Model 表增加 supportedSizes 字段",
+      "id": "F-SR-01",
+      "title": "API Key 权限绕过修复 — actions/run + templates/run",
       "priority": "high",
       "executor": "generator",
-      "status": "completed",
-      "acceptance": "1) Prisma schema Model 表新增 supportedSizes Json?（字符串数组）；2) migration 只包含此变更；3) npm run lint + tsc 通过"
+      "status": "pending",
+      "acceptance": "1) auth-middleware.ts 的 detectEndpoint() 覆盖 /v1/actions/run 和 /v1/templates/run 路径；2) chatCompletion=false 的 Key 调用 actions/run 和 templates/run 返回 403；3) MCP run_action/run_template 同步检查 chatCompletion 权限；4) npm run lint + tsc 通过"
     },
     {
-      "id": "F-MC-02",
-      "title": "Admin 模型能力管理页面",
-      "priority": "high",
-      "executor": "generator",
-      "status": "completed",
-      "acceptance": "1) 新增 /admin/model-capabilities 页面；2) 列出所有 enabled=true 且有 ACTIVE channel 的模型（与用户侧 list_models 一致）；3) 每个模型显示 6 个 capability toggle（streaming/json_mode/function_calling/vision/reasoning/search）；4) image 模型额外显示 supportedSizes 编辑（可添加/删除尺寸）；5) 编辑即时保存到 Model 表；6) Sidebar Admin 导航增加入口；7) npm run lint + tsc 通过"
-    },
-    {
-      "id": "F-MC-03",
-      "title": "Admin API — capabilities/supportedSizes 更新",
-      "priority": "high",
-      "executor": "generator",
-      "status": "completed",
-      "acceptance": "1) PATCH /api/admin/models/:id/capabilities 接受 { capabilities, supportedSizes }；2) 验证 capabilities 只含合法 key；3) 更新 Model 表对应字段；4) npm run lint + tsc 通过"
-    },
-    {
-      "id": "F-MC-04",
-      "title": "废弃 CAPABILITIES_MAP 静态 fallback",
-      "priority": "high",
-      "executor": "generator",
-      "status": "completed",
-      "acceptance": "1) list_models MCP Tool 和 /v1/models REST API 直接读 DB capabilities，不再 fallback 到 resolveCapabilities；2) supportedSizes 直接读 DB，不再 fallback 到 resolveSupportedSizes；3) 将 CAPABILITIES_MAP 现有数据作为初始 migration 写入 DB（一次性数据迁移）；4) 删除或标记废弃 resolveCapabilities/resolveSupportedSizes 函数；5) npm run lint + tsc 通过"
-    },
-    {
-      "id": "F-MC-05",
-      "title": "capabilities 增加 reasoning + search 标签",
+      "id": "F-SR-02",
+      "title": "MCP 鉴权增加 IP 白名单检查",
       "priority": "medium",
       "executor": "generator",
-      "status": "completed",
-      "acceptance": "1) ModelCapabilities 接口增加 reasoning?: boolean 和 search?: boolean；2) 初始 migration 中 o3/o4-mini/deepseek-reasoner/deepseek-r1 标注 reasoning: true；3) perplexity/sonar/sonar-pro 标注 search: true；4) npm run lint + tsc 通过"
+      "status": "pending",
+      "acceptance": "1) mcp/auth.ts 增加 IP 白名单检查逻辑（复用 auth-middleware 的 IP 检查函数）；2) 配置了 IP 白名单的 Key 从非白名单 IP 调 MCP 返回错误；3) npm run lint + tsc 通过"
     },
     {
-      "id": "F-MC-06",
-      "title": "i18n 补全",
-      "priority": "low",
+      "id": "F-SR-03",
+      "title": "API Key 创建/吊销防重复提交",
+      "priority": "high",
       "executor": "generator",
-      "status": "completed",
-      "acceptance": "1) 模型能力管理页面所有文案通过 useTranslations；2) en.json 和 zh-CN.json 同步更新；3) npm run lint + tsc 通过"
+      "status": "pending",
+      "acceptance": "1) keys/page.tsx create() 和 revoke() 增加 creating/revoking loading 状态；2) 请求中按钮 disabled；3) 失败时 modal 不关闭，显示错误；4) npm run lint + tsc 通过"
     },
     {
-      "id": "F-MC-07",
+      "id": "F-SR-04",
+      "title": "异步加载缺 catch/finally 修复",
+      "priority": "high",
+      "executor": "generator",
+      "status": "pending",
+      "acceptance": "1) admin/users、keys、admin/usage、dashboard 页面的 load 函数全部 try/catch/finally；2) finally 保证 loading=false；3) 失败时显示错误提示而非空白；4) npm run lint + tsc 通过"
+    },
+    {
+      "id": "F-SR-05",
       "title": "E2E 验证",
       "priority": "high",
       "executor": "codex",
-      "status": "completed",
-      "acceptance": "1) Admin 模型能力页面可查看所有启用模型；2) 修改 capabilities toggle 后 list_models 返回更新值；3) image 模型修改 supportedSizes 后 list_models 返回更新值；4) 非 Admin 无法访问此页面；5) gpt-4o 的 capabilities 不再为空"
+      "status": "pending",
+      "acceptance": "1) chatCompletion=false 的 Key 调用 /v1/actions/run 返回 403；2) IP 白名单 Key 通过 MCP 从非白名单 IP 调用被拒绝；3) API Key 创建按钮在请求中 disabled；4) dashboard API 失败时不卡在 loading"
     }
   ]
 }

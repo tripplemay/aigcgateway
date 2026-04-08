@@ -2,38 +2,6 @@
   "description": "需求池：已与用户确认但尚未开发的功能，等待下一批次启动时统一安排",
   "items": [
     {
-      "id": "BL-061",
-      "title": "API Key 创建/吊销防重复提交",
-      "description": "keys/page.tsx 的 create() 和 revoke() 无 in-flight guard，按钮在请求期间仍可点击，双击可产生重复写入。需要：1) 增加 creating/revoking loading 状态；2) 请求中按钮 disabled；3) 失败时 modal 不关闭。来源：独立前端代码审查（2026-04-08），HIGH 级别。",
-      "decisions": [],
-      "confirmed_at": "2026-04-08",
-      "priority": "high"
-    },
-    {
-      "id": "BL-062",
-      "title": "异步加载缺 catch/finally 修复",
-      "description": "多处页面的异步加载路径缺少 catch/finally，API 失败后 spinner 永转或静默空白。涉及：admin/users/page.tsx:25、keys/page.tsx:64、admin/usage/page.tsx:23、dashboard/page.tsx:82。需要：1) 所有 load 函数 try/catch/finally；2) finally 中保证 loading=false；3) 失败时显示错误提示而非空白。来源：独立前端代码审查（2026-04-08），MEDIUM 级别。",
-      "decisions": [],
-      "confirmed_at": "2026-04-08",
-      "priority": "high"
-    },
-    {
-      "id": "BL-063",
-      "title": "API Key 权限绕过修复 — actions/run + templates/run 未检查 chatCompletion 权限",
-      "description": "chatCompletion=false 的 Key 可通过 /v1/actions/run 和 /v1/templates/run 间接调用模型并触发计费。auth-middleware.ts 的 detectEndpoint() 未覆盖 actions/templates 路径，权限分支未命中。需要：1) detectEndpoint 增加 actions/templates 路径识别；2) actions/run 和 templates/run 继承 chatCompletion 权限检查；3) MCP run_action/run_template 同步检查。来源：独立后端安全审查 + 全链路动态测试（2026-04-08），HIGH/P0。",
-      "decisions": [],
-      "confirmed_at": "2026-04-08",
-      "priority": "high"
-    },
-    {
-      "id": "BL-064",
-      "title": "MCP 鉴权增加 IP 白名单检查",
-      "description": "REST 侧 auth-middleware.ts 检查了 IP 白名单，但 MCP 侧 mcp/auth.ts 未检查。配置了 IP 白名单的 Key 在 MCP 入口仍可被非白名单来源使用。来源：独立后端安全审查 + 全链路动态测试（2026-04-08），MEDIUM/P1。",
-      "decisions": [],
-      "confirmed_at": "2026-04-08",
-      "priority": "medium"
-    },
-    {
       "id": "BL-065",
       "title": "支付回调验签（支付功能上线前必须修）",
       "description": "alipay/wechat webhook 端点未验证签名，攻击者可伪造成功支付通知。当前无订单记录因此实际风险低，但支付功能接入前必须实现验签。来源：独立后端安全审查（2026-04-08），HIGH（延迟修复）。",

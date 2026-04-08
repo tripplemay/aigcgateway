@@ -1,12 +1,15 @@
 {
-  "status": "done",
-  "user_goal": "admin-model-capabilities: Admin 模型能力管理页面，capabilities/supportedSizes 从代码迁移到 DB",
-  "total_features": 7,
-  "completed_features": 7,
-  "fix_rounds": 3,
+  "status": "building",
+  "user_goal": "security-and-robustness: 权限绕过修复(P0) + MCP IP白名单 + 防重复提交 + 异步错误处理",
+  "total_features": 5,
+  "completed_features": 0,
+  "fix_rounds": 0,
   "current_sprint": null,
-  "last_updated": "2026-04-08T11:12:00Z",
-  "reference_docs": [],
+  "last_updated": "2026-04-08T10:00:00Z",
+  "reference_docs": [
+    "docs/audits/backend-static-review-2026-04-08.md",
+    "docs/audits/frontend-full-code-review-2026-04-08.md"
+  ],
   "role_assignments": {
     "planner": "Kimi",
     "generator": "Johnsong",
@@ -14,39 +17,10 @@
   },
   "docs": {
     "spec": null,
-    "test_cases": "docs/test-cases/admin-model-capabilities-e2e-2026-04-08.md",
-    "signoff": "docs/test-reports/admin-model-capabilities-signoff-2026-04-08.md",
+    "test_cases": null,
+    "signoff": null,
     "framework_reviewed": false
   },
-  "evaluator_feedback": {
-    "summary": "reverifying（fix round 3）复验 5/5 全通过，F-MC-07 签收完成。",
-    "pass_count": 5,
-    "partial_count": 0,
-    "fail_count": 0,
-    "issues": []
-  },
-  "generator_handoff": {
-    "completed": [
-      "F-MC-01",
-      "F-MC-02",
-      "F-MC-03",
-      "F-MC-04",
-      "F-MC-05",
-      "F-MC-06"
-    ],
-    "codex_tasks": [
-      "F-MC-07: E2E 验证"
-    ],
-    "notes": [
-      "F-MC-01: Prisma schema Model 表新增 supportedSizes Json? + migration",
-      "F-MC-02: /admin/model-capabilities 页面 — 6 个 capability toggle + supportedSizes 编辑器（image 模型）",
-      "F-MC-03: PATCH /api/admin/models/:id 新增 capabilities/supportedSizes 字段支持，含 key 白名单验证",
-      "F-MC-04: list_models MCP + /v1/models REST 直接读 DB，不再 fallback 到静态 map。model-sync 仍用 fallback 做初始 seeding。数据迁移 SQL 将 CAPABILITIES_MAP + SUPPORTED_SIZES_MAP 写入 DB",
-      "F-MC-05: ModelCapabilities 接口增加 reasoning + search，CAPABILITIES_MAP 中推理/搜索模型已标注",
-      "F-MC-06: en.json + zh-CN.json 新增 modelCapabilities namespace + sidebar 入口",
-      "Fix round 1: 新增补丁 migration 20260408090000_fix_capabilities_prefix_match — 覆盖带 provider 前缀的模型名（如 openai/gpt-4o）。原 migration 仅匹配 gpt-4o%，未覆盖 %/gpt-4o% 模式。",
-      "Fix round 2: 新增 migration 20260408100000 — 使用 %gpt-4o% 宽泛匹配 + 显式 ::jsonb cast 确保比较正确",
-      "Fix round 3: 恢复 DB→静态 map 的 fallback 链。DB 是主数据源，仅当 DB capabilities 为空时 fallback 到 resolveCapabilities。这确保即使 migration 未覆盖某些模型名，API 仍返回正确 capabilities。"
-    ]
-  }
+  "evaluator_feedback": null,
+  "generator_handoff": null
 }
