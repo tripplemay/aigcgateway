@@ -1,15 +1,27 @@
 "use client";
-import { useCallback, useEffect, useState } from "react";
-import { useTranslations } from "next-intl";
+import { useState } from "react";
+import { useTranslations, useLocale } from "next-intl";
 import { apiFetch } from "@/lib/api-client";
 import { useProject } from "@/hooks/use-project";
+import { useAsyncData } from "@/hooks/use-async-data";
 import { toast } from "sonner";
 import { formatCurrency, timeAgo } from "@/lib/utils";
+
 import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState } from "@/components/empty-state";
+import {
+  Table,
+  TableHeader,
+  TableBody,
+  TableHead,
+  TableRow,
+  TableCell,
+} from "@/components/ui/table";
+import { Pagination } from "@/components/pagination";
+import { RechargeDialog } from "@/components/balance/recharge-dialog";
 
 // ============================================================
-// Types (unchanged)
+// Types
 // ============================================================
 
 interface BalanceInfo {
@@ -26,13 +38,25 @@ interface TxnRow {
   description: string | null;
   createdAt: string;
 }
+interface TxnResponse {
+  data: TxnRow[];
+  pagination: { page: number; pageSize: number; total: number; totalPages: number };
+}
 
-const AMOUNTS = [10, 50, 100, 200, 500];
+const PAGE_SIZE = 20;
+const TXN_TYPES = ["", "RECHARGE", "DEDUCTION", "REFUND", "ADJUSTMENT"] as const;
 const TYPE_STYLE: Record<string, string> = {
   RECHARGE: "bg-ds-secondary-container text-ds-on-secondary-container",
   DEDUCTION: "bg-ds-primary/10 text-ds-primary",
   REFUND: "bg-ds-tertiary-fixed/50 text-ds-tertiary",
   ADJUSTMENT: "bg-slate-100 text-slate-600",
+};
+const TYPE_I18N: Record<string, string> = {
+  "": "allTypes",
+  RECHARGE: "typeRecharge",
+  DEDUCTION: "typeDeduction",
+  REFUND: "typeRefund",
+  ADJUSTMENT: "typeAdjustment",
 };
 
 // ============================================================
@@ -42,59 +66,52 @@ const TYPE_STYLE: Record<string, string> = {
 export default function BalancePage() {
   const t = useTranslations("balance");
   const tc = useTranslations("common");
+  const locale = useLocale();
   const { current, loading: projLoading } = useProject();
-  const [info, setInfo] = useState<BalanceInfo | null>(null);
-  const [txns, setTxns] = useState<TxnRow[]>([]);
+
   const [page, setPage] = useState(1);
-  const [total, setTotal] = useState(0);
+  const [typeFilter, setTypeFilter] = useState("");
   const [rechargeOpen, setRechargeOpen] = useState(false);
-  const [amount, setAmount] = useState(50);
-  const [customAmount, setCustomAmount] = useState("");
-  const [payMethod, setPayMethod] = useState("alipay");
   const [threshold, setThreshold] = useState("");
+  const [thresholdLoaded, setThresholdLoaded] = useState(false);
 
-  const load = useCallback(async () => {
-    if (!current) return;
-    const [b, tx] = await Promise.all([
-      apiFetch<BalanceInfo>(`/api/projects/${current.id}/balance`),
-      apiFetch<{ data: TxnRow[]; pagination: { total: number } }>(
-        `/api/projects/${current.id}/transactions?page=${page}`,
-      ),
-    ]);
-    setInfo(b);
-    setTxns(tx.data);
-    setTotal(tx.pagination.total);
-    if (b.alertThreshold != null) setThreshold(String(b.alertThreshold));
-  }, [current, page]);
-  useEffect(() => {
-    load();
-  }, [load]);
+  // ── Data: balance info ──
+  const {
+    data: info,
+    loading: infoLoading,
+    refetch: refetchInfo,
+  } = useAsyncData<BalanceInfo>(async () => {
+    if (!current) return null as unknown as BalanceInfo;
+    const b = await apiFetch<BalanceInfo>(`/api/projects/${current.id}/balance`);
+    if (!thresholdLoaded && b.alertThreshold != null) {
+      setThreshold(String(b.alertThreshold));
+      setThresholdLoaded(true);
+    }
+    return b;
+  }, [current]);
 
-  const doRecharge = async () => {
-    if (!current) return;
-    const amt = customAmount ? Number(customAmount) : amount;
-    if (amt < 1 || amt > 10000) {
-      toast.error(t("amountError"));
-      return;
-    }
-    try {
-      const res = await apiFetch<{ paymentUrl?: string }>(`/api/projects/${current.id}/recharge`, {
-        method: "POST",
-        body: JSON.stringify({ amount: amt, paymentMethod: payMethod }),
-      });
-      setRechargeOpen(false);
-      if (res.paymentUrl) {
-        toast.success(t("redirecting"));
-        window.open(res.paymentUrl, "_blank");
-      } else {
-        toast.success(t("orderCreated"));
-      }
-      load();
-    } catch (e) {
-      toast.error((e as Error).message);
-    }
+  // ── Data: transactions (server-side pagination) ──
+  const typeParam = typeFilter ? `&type=${typeFilter}` : "";
+  const {
+    data: txnData,
+    loading: txnLoading,
+  } = useAsyncData<TxnResponse>(async () => {
+    if (!current) return { data: [], pagination: { page: 1, pageSize: PAGE_SIZE, total: 0, totalPages: 1 } };
+    return apiFetch<TxnResponse>(
+      `/api/projects/${current.id}/transactions?page=${page}&pageSize=${PAGE_SIZE}${typeParam}`,
+    );
+  }, [current, page, typeFilter]);
+
+  const txns = txnData?.data ?? [];
+  const totalPages = txnData?.pagination.totalPages ?? 1;
+  const total = txnData?.pagination.total ?? 0;
+
+  const handleTypeChange = (type: string) => {
+    setTypeFilter(type);
+    setPage(1);
   };
 
+  // ── Loading & empty states ──
   if (projLoading)
     return (
       <div className="space-y-4 pt-4">
@@ -104,13 +121,10 @@ export default function BalancePage() {
       </div>
     );
   if (!current) return <EmptyState onCreated={() => window.location.reload()} />;
-  if (!info) return null;
 
-  const isLow = info.alertThreshold != null && info.balance <= info.alertThreshold;
-  const totalPages = Math.max(1, Math.ceil(total / 20));
-  const effectiveAmount = customAmount ? Number(customAmount) : amount;
+  const isLow = info?.alertThreshold != null && info.balance <= info.alertThreshold;
 
-  // ── Render — 1:1 replica of Balance (Full Redesign) code.html lines 153-365 ──
+  // ── Render — 1:1 replica of design-draft/balance/code.html lines 153-365 ──
   return (
     <>
       <div className="max-w-7xl mx-auto space-y-8">
@@ -137,34 +151,40 @@ export default function BalancePage() {
               <p className="text-sm font-semibold text-slate-500 uppercase tracking-widest mb-4">
                 {t("currentBalance")}
               </p>
-              <div className="flex items-baseline gap-2">
-                <span
-                  className={`text-5xl font-extrabold font-[var(--font-heading)] ${isLow ? "text-ds-error" : "text-ds-on-surface"}`}
-                >
-                  {formatCurrency(info.balance, 2)}
-                </span>
-                <span className="text-slate-400 font-medium">USD</span>
-              </div>
-              <div className="mt-8 flex flex-wrap items-center gap-8">
-                {info.lastRecharge && (
-                  <div>
-                    <p className="text-xs text-slate-400 uppercase tracking-wider mb-1">
-                      {t("lastRecharge")}
-                    </p>
-                    <p className="font-semibold text-ds-on-background">
-                      {timeAgo(info.lastRecharge.createdAt)} ·{" "}
-                      {formatCurrency(info.lastRecharge.amount, 2)}
-                    </p>
+              {infoLoading || !info ? (
+                <Skeleton className="h-12 w-48" />
+              ) : (
+                <>
+                  <div className="flex items-baseline gap-2">
+                    <span
+                      className={`text-5xl font-extrabold font-[var(--font-heading)] ${isLow ? "text-ds-error" : "text-ds-on-surface"}`}
+                    >
+                      {formatCurrency(info.balance, 2)}
+                    </span>
+                    <span className="text-slate-400 font-medium">USD</span>
                   </div>
-                )}
-                <button
-                  onClick={() => setRechargeOpen(true)}
-                  className="ml-auto bg-gradient-to-br from-ds-primary to-ds-primary-container text-white px-6 py-3 rounded-xl font-bold flex items-center gap-2 shadow-lg shadow-ds-primary/30 hover:scale-[1.02] transition-transform"
-                >
-                  <span className="material-symbols-outlined">add_circle</span>
-                  {t("recharge")}
-                </button>
-              </div>
+                  <div className="mt-8 flex flex-wrap items-center gap-8">
+                    {info.lastRecharge && (
+                      <div>
+                        <p className="text-xs text-slate-400 uppercase tracking-wider mb-1">
+                          {t("lastRecharge")}
+                        </p>
+                        <p className="font-semibold text-ds-on-background">
+                          {timeAgo(info.lastRecharge.createdAt, locale)} ·{" "}
+                          {formatCurrency(info.lastRecharge.amount, 2)}
+                        </p>
+                      </div>
+                    )}
+                    <button
+                      onClick={() => setRechargeOpen(true)}
+                      className="ml-auto bg-gradient-to-br from-ds-primary to-ds-primary-container text-white px-6 py-3 rounded-xl font-bold flex items-center gap-2 shadow-lg shadow-ds-primary/30 hover:scale-[1.02] transition-transform"
+                    >
+                      <span className="material-symbols-outlined">add_circle</span>
+                      {t("recharge")}
+                    </button>
+                  </div>
+                </>
+              )}
             </div>
           </div>
 
@@ -180,8 +200,7 @@ export default function BalancePage() {
                 </h3>
               </div>
               <p className="text-sm text-slate-500 mb-6 leading-relaxed">
-                {t("alertDescription") ??
-                  "Notify me when my balance drops below this amount."}
+                {t("alertDescription")}
               </p>
               <div className="relative mb-6">
                 <span className="absolute inset-y-0 left-4 flex items-center text-slate-400 font-medium">
@@ -204,11 +223,11 @@ export default function BalancePage() {
                   body: JSON.stringify({ alertThreshold: Number(threshold) || null }),
                 });
                 toast.success(t("thresholdSaved"));
-                load();
+                refetchInfo();
               }}
               className="w-full bg-ds-on-background text-white py-3 rounded-xl font-bold text-sm hover:bg-slate-800 transition-colors"
             >
-              {tc("save")} Threshold
+              {t("saveThreshold")}
             </button>
           </div>
         </div>
@@ -217,237 +236,103 @@ export default function BalancePage() {
         <section className="bg-ds-surface-container-lowest rounded-xl shadow-[0px_20px_40px_rgba(19,27,46,0.04)] overflow-hidden">
           <div className="p-6 border-b border-slate-50 flex items-center justify-between">
             <h3 className="font-[var(--font-heading)] font-bold text-xl">{t("transactions")}</h3>
+            {/* Type filter */}
+            <div className="flex items-center gap-2">
+              {TXN_TYPES.map((type) => (
+                <button
+                  key={type}
+                  onClick={() => handleTypeChange(type)}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-colors ${
+                    typeFilter === type
+                      ? "bg-ds-primary text-white"
+                      : "bg-ds-surface-container-low text-slate-500 hover:bg-ds-surface-container-high"
+                  }`}
+                >
+                  {t(TYPE_I18N[type])}
+                </button>
+              ))}
+            </div>
           </div>
-          <div className="overflow-x-auto">
-            <table className="w-full text-left">
-              <thead>
-                <tr className="bg-ds-surface-container-low/50">
-                  <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest">
-                    {t("time")}
-                  </th>
-                  <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest">
-                    {t("type")}
-                  </th>
-                  <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest">
-                    {t("description")}
-                  </th>
-                  <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest">
-                    {t("amount")}
-                  </th>
-                  <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest">
-                    {t("balanceAfter")}
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-50">
-                {txns.map((tx) => (
-                  <tr key={tx.id} className="hover:bg-slate-50/80 transition-colors">
-                    <td className="px-6 py-4 whitespace-nowrap">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="px-6 py-4">{t("time")}</TableHead>
+                <TableHead className="px-6 py-4">{t("type")}</TableHead>
+                <TableHead className="px-6 py-4">{t("description")}</TableHead>
+                <TableHead className="px-6 py-4">{t("amount")}</TableHead>
+                <TableHead className="px-6 py-4">{t("balanceAfter")}</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody className="divide-y divide-ds-outline-variant/10">
+              {txnLoading ? (
+                <TableRow>
+                  <TableCell colSpan={5} className="px-6 py-12 text-center text-ds-outline">
+                    {tc("loading")}
+                  </TableCell>
+                </TableRow>
+              ) : txns.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={5} className="px-6 py-12 text-center text-ds-outline">
+                    {t("noTransactions")}
+                  </TableCell>
+                </TableRow>
+              ) : (
+                txns.map((tx) => (
+                  <TableRow key={tx.id}>
+                    <TableCell className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm font-medium text-ds-on-background">
-                        {new Date(tx.createdAt).toLocaleDateString()}
+                        {new Date(tx.createdAt).toLocaleDateString(locale)}
                       </div>
                       <div className="text-[10px] text-slate-400">
-                        {new Date(tx.createdAt).toLocaleTimeString()}
+                        {new Date(tx.createdAt).toLocaleTimeString(locale)}
                       </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    </TableCell>
+                    <TableCell className="px-6 py-4 whitespace-nowrap">
                       <span
                         className={`px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider ${TYPE_STYLE[tx.type] ?? TYPE_STYLE.ADJUSTMENT}`}
                       >
-                        {tx.type}
+                        {t(TYPE_I18N[tx.type] ?? "typeAdjustment")}
                       </span>
-                    </td>
-                    <td className="px-6 py-4">
+                    </TableCell>
+                    <TableCell className="px-6 py-4">
                       <div className="text-sm text-slate-600 truncate max-w-xs">
-                        {tx.description ?? "—"}
+                        {tx.description ?? "\u2014"}
                       </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap font-medium">
+                    </TableCell>
+                    <TableCell className="px-6 py-4 whitespace-nowrap font-medium">
                       <span className={tx.amount >= 0 ? "text-green-600 font-bold" : "text-slate-600"}>
                         {tx.amount >= 0 ? "+" : ""}
                         {formatCurrency(tx.amount, 6)}
                       </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap font-semibold text-ds-on-background">
+                    </TableCell>
+                    <TableCell className="px-6 py-4 whitespace-nowrap font-semibold text-ds-on-background">
                       {formatCurrency(tx.balanceAfter, 2)}
-                    </td>
-                  </tr>
-                ))}
-                {txns.length === 0 && (
-                  <tr>
-                    <td colSpan={5} className="px-6 py-12 text-center text-ds-outline">
-                      {t("noTransactions")}
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-
-          {/* Pagination — code.html lines 290-305 */}
-          <div className="px-6 py-6 border-t border-slate-50 flex items-center justify-between">
-            <p className="text-xs text-slate-500">
-              Showing {(page - 1) * 20 + 1} to {Math.min(page * 20, total)} of {total} transactions
-            </p>
-            <div className="flex gap-2">
-              <button
-                onClick={() => setPage((p) => Math.max(1, p - 1))}
-                disabled={page <= 1}
-                className="p-2 rounded-lg border border-slate-100 hover:bg-slate-50 disabled:opacity-30"
-              >
-                <span className="material-symbols-outlined text-lg">chevron_left</span>
-              </button>
-              {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                const pageNum = i + 1;
-                return (
-                  <button
-                    key={pageNum}
-                    onClick={() => setPage(pageNum)}
-                    className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors ${
-                      pageNum === page
-                        ? "bg-ds-primary text-white font-bold"
-                        : "hover:bg-slate-50 text-slate-600"
-                    }`}
-                  >
-                    {pageNum}
-                  </button>
-                );
-              })}
-              {totalPages > 5 && <span className="px-2 text-slate-300">...</span>}
-              <button
-                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                disabled={page >= totalPages}
-                className="p-2 rounded-lg border border-slate-100 hover:bg-slate-50 disabled:opacity-30"
-              >
-                <span className="material-symbols-outlined text-lg">chevron_right</span>
-              </button>
-            </div>
-          </div>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+          {/* Pagination */}
+          {total > 0 && (
+            <Pagination
+              page={page}
+              totalPages={totalPages}
+              onPageChange={setPage}
+              total={total}
+              pageSize={PAGE_SIZE}
+              className="px-6 py-4 bg-ds-surface-container-high/30 border-t border-ds-outline-variant/10"
+            />
+          )}
         </section>
       </div>
 
-      {/* ═══ Recharge Modal — code.html lines 310-364 ═══ */}
-      {rechargeOpen && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-ds-on-background/40 backdrop-blur-sm">
-          <div className="bg-ds-surface-container-lowest w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden ring-1 ring-white/20">
-            {/* Header */}
-            <div className="p-6 border-b border-slate-100 flex items-center justify-between">
-              <h2 className="text-xl font-bold font-[var(--font-heading)]">{t("rechargeTitle")}</h2>
-              <button
-                onClick={() => setRechargeOpen(false)}
-                className="text-slate-400 hover:text-ds-on-background"
-              >
-                <span className="material-symbols-outlined">close</span>
-              </button>
-            </div>
-            <div className="p-8">
-              <p className="text-sm text-slate-500 mb-6 font-medium">{t("selectAmount")}</p>
-
-              {/* Quick Amount Selection — code.html lines 321-328 */}
-              <div className="grid grid-cols-3 gap-3 mb-8">
-                {AMOUNTS.map((a) => (
-                  <button
-                    key={a}
-                    onClick={() => {
-                      setAmount(a);
-                      setCustomAmount("");
-                    }}
-                    className={`py-3 border-2 rounded-xl font-bold transition-colors ${
-                      amount === a && !customAmount
-                        ? "border-ds-primary text-ds-primary bg-ds-primary/5"
-                        : "border-slate-100 text-slate-600 hover:border-ds-primary/40"
-                    }`}
-                  >
-                    ${a}
-                  </button>
-                ))}
-              </div>
-
-              {/* Custom Input — code.html lines 330-335 */}
-              <div className="mb-8">
-                <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">
-                  {t("customAmount")} (USD)
-                </label>
-                <div className="relative">
-                  <span className="absolute inset-y-0 left-4 flex items-center text-slate-400 font-bold">
-                    $
-                  </span>
-                  <input
-                    className="w-full bg-ds-surface-container-low border-none rounded-xl py-4 pl-10 pr-4 text-lg font-bold focus:ring-2 focus:ring-ds-primary/20 outline-none"
-                    placeholder="Enter amount"
-                    type="number"
-                    value={customAmount}
-                    onChange={(e) => setCustomAmount(e.target.value)}
-                  />
-                </div>
-              </div>
-
-              {/* Payment Methods — code.html lines 338-354 */}
-              <div className="space-y-3 mb-10">
-                <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">
-                  {t("paymentMethod")}
-                </label>
-                <div
-                  onClick={() => setPayMethod("alipay")}
-                  className={`flex items-center justify-between p-4 rounded-xl border-2 cursor-pointer transition-colors ${
-                    payMethod === "alipay"
-                      ? "border-ds-primary bg-ds-primary/5"
-                      : "border-slate-100 hover:border-slate-200"
-                  }`}
-                >
-                  <div className="flex items-center gap-3">
-                    <span
-                      className={`material-symbols-outlined ${payMethod === "alipay" ? "text-ds-primary" : "text-slate-400"}`}
-                    >
-                      account_balance
-                    </span>
-                    <span className="font-bold text-ds-on-background">{t("alipay")}</span>
-                  </div>
-                  <div
-                    className={`w-5 h-5 rounded-full ${payMethod === "alipay" ? "border-4 border-ds-primary" : "border-2 border-slate-200"}`}
-                  />
-                </div>
-                <div
-                  onClick={() => setPayMethod("wechat")}
-                  className={`flex items-center justify-between p-4 rounded-xl border-2 cursor-pointer transition-colors ${
-                    payMethod === "wechat"
-                      ? "border-ds-primary bg-ds-primary/5"
-                      : "border-slate-100 hover:border-slate-200"
-                  }`}
-                >
-                  <div className="flex items-center gap-3">
-                    <span
-                      className={`material-symbols-outlined ${payMethod === "wechat" ? "text-ds-primary" : "text-slate-400"}`}
-                    >
-                      qr_code_2
-                    </span>
-                    <span className="font-bold text-slate-600">{t("wechatPay")}</span>
-                  </div>
-                  <div
-                    className={`w-5 h-5 rounded-full ${payMethod === "wechat" ? "border-4 border-ds-primary" : "border-2 border-slate-200"}`}
-                  />
-                </div>
-              </div>
-
-              {/* Actions — code.html lines 356-361 */}
-              <div className="flex gap-4">
-                <button
-                  onClick={() => setRechargeOpen(false)}
-                  className="flex-1 py-4 px-6 rounded-xl font-bold text-slate-500 hover:bg-slate-100 transition-colors"
-                >
-                  {tc("cancel")}
-                </button>
-                <button
-                  onClick={doRecharge}
-                  className="flex-[2] py-4 px-6 rounded-xl font-bold text-white bg-gradient-to-r from-ds-primary to-ds-primary-container shadow-xl shadow-ds-primary/30 active:scale-95 transition-transform"
-                >
-                  {t("confirmRecharge")} ${effectiveAmount.toFixed(2)}
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* ═══ Recharge Dialog ═══ */}
+      <RechargeDialog
+        open={rechargeOpen}
+        onOpenChange={setRechargeOpen}
+        onRecharged={refetchInfo}
+      />
     </>
   );
 }

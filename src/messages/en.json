@@ -295,7 +295,19 @@
     "modelRanking": "Model ranking",
     "calls": "Calls",
     "tokens": "Tokens",
-    "cost": "Cost"
+    "cost": "Cost",
+    "subtitle": "Review your model consumption and performance metrics.",
+    "dailyPerformance": "Daily Performance",
+    "workload": "Workload",
+    "leaderboard": "Leaderboard",
+    "model": "Model",
+    "utilized": "Utilized",
+    "noData": "No data",
+    "stableActivity": "Stable activity",
+    "vsLastPeriod": "vs last period",
+    "periodToday": "today",
+    "period7d": "7d",
+    "period30d": "30d"
   },
   "balance": {
     "title": "Balance",
@@ -323,7 +335,14 @@
     "redirecting": "Redirecting to payment...",
     "orderCreated": "Recharge order created",
     "thresholdSaved": "Alert threshold saved",
-    "noTransactions": "No transactions"
+    "saveThreshold": "Save Threshold",
+    "noTransactions": "No transactions",
+    "allTypes": "All",
+    "typeRecharge": "Recharge",
+    "typeDeduction": "Deduction",
+    "typeRefund": "Refund",
+    "typeAdjustment": "Adjustment",
+    "customAmountLabel": "Custom Amount (USD)"
   },
   "quickstart": {
     "title": "Quick Start",
@@ -356,7 +375,18 @@
     "passwordChanged": "Password changed",
     "securityLog": "Security Log",
     "securityLogDesc": "Recent login activity for your account.",
-    "noLoginHistory": "No login records yet."
+    "noLoginHistory": "No login records yet.",
+    "subtitle": "Configure your account and security preferences.",
+    "profileInfo": "Profile Information",
+    "profileDesc": "Update your public identity on the gateway.",
+    "saveChanges": "Save Changes",
+    "security": "Security",
+    "securityDesc": "Update your credentials.",
+    "sessionControl": "Session Control",
+    "ip": "IP",
+    "userAgent": "User Agent",
+    "time": "Time",
+    "unknown": "Unknown"
   },
   "adminProviders": {
     "title": "Providers",

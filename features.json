@@ -7,7 +7,7 @@
       "title": "Balance 页面还原",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) 使用 useAsyncData + Card + Table + Pagination 替换旧代码；2) 余额卡片：当前余额、最近充值金额+日期；3) 告警阈值显示；4) 交易历史表格（时间、类型 badge、描述、金额、余额变化）；5) 交易类型筛选；6) 分页；7) 'Recharge' 按钮弹出 RechargeDialog；8) 对齐 design-draft/balance/code.html（忽略 DESIGN.md 标注项）；9) npm run lint + tsc 通过",
       "design_ref": "design-draft/balance/code.html"
     },
@@ -16,7 +16,7 @@
       "title": "RechargeDialog 组件",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) 独立组件 src/components/balance/recharge-dialog.tsx；2) 使用 Dialog 组件；3) 预设金额快选 + 自定义金额输入；4) 支付方式选择（Alipay/WeChat）；5) 提交后调用 POST /recharge 返回 paymentUrl；6) 对齐 design-draft/balance-recharge-modal/code.html；7) npm run lint + tsc 通过",
       "design_ref": "design-draft/balance-recharge-modal/code.html"
     },
@@ -25,7 +25,7 @@
       "title": "Usage 页面还原",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) 使用 useAsyncData + Card；2) KPI 卡片（总调用、总费用、总 Tokens、平均延迟）；3) 周期选择器（today/7d/30d）；4) 每日趋势图（recharts BarChart）；5) 模型分布饼图（recharts PieChart）；6) 模型排名表格（Table 组件）；7) 对齐 design-draft/usage/code.html（忽略 DESIGN.md 标注项）；8) npm run lint + tsc 通过",
       "design_ref": "design-draft/usage/code.html"
     },
@@ -34,7 +34,7 @@
       "title": "Settings 页面还原",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) 使用 useAsyncData + Card + Input；2) 个人信息区（邮箱只读、显示名称可编辑、保存）；3) 密码修改区（旧密码+新密码+确认+提交）；4) 登录历史表格（Table 组件：IP、UA、时间）；5) 退出登录按钮；6) 对齐 design-draft/settings/code.html（忽略 DESIGN.md 标注项）；7) npm run lint + tsc 通过",
       "design_ref": "design-draft/settings/code.html"
     },
@@ -43,7 +43,7 @@
       "title": "i18n 补全（balance/usage/settings）",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) messages/en.json 和 messages/zh.json 中 balance/usage/settings 相关 key 齐全；2) 所有用户可见文本无硬编码（包括 placeholder、breadcrumb、状态标签、时间格式化、分页文案）；3) 切换中文后页面无英文残留；4) npm run lint + tsc 通过"
     },
     {

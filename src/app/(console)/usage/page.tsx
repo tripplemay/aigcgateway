@@ -1,8 +1,9 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { apiFetch } from "@/lib/api-client";
 import { useProject } from "@/hooks/use-project";
+import { useAsyncData } from "@/hooks/use-async-data";
 import { formatCurrency } from "@/lib/utils";
 import {
   BarChart,
@@ -17,13 +18,49 @@ import {
 } from "recharts";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState } from "@/components/empty-state";
+import {
+  Table,
+  TableHeader,
+  TableBody,
+  TableHead,
+  TableRow,
+  TableCell,
+} from "@/components/ui/table";
 
 // ============================================================
 // Types & constants
 // ============================================================
 
+interface UsageSummary {
+  totalCalls: number;
+  totalCost: number;
+  totalTokens: number;
+  avgLatencyMs: number;
+  successRate?: number;
+  errorCount?: number;
+}
+
+interface DailyRow {
+  date: string;
+  calls: number;
+  cost: number;
+}
+
+interface ModelRow {
+  model: string;
+  calls: number;
+  tokens: number;
+  cost: number;
+  avgLatency: number;
+}
+
 const PIE_COLORS = ["#6d5dd3", "#5f5987", "#ffb964", "#c8bfff", "#7c4b00"];
 const PERIODS = ["today", "7d", "30d"] as const;
+const PERIOD_I18N: Record<string, string> = {
+  today: "periodToday",
+  "7d": "period7d",
+  "30d": "period30d",
+};
 
 const tooltipStyle = {
   contentStyle: {
@@ -44,35 +81,34 @@ export default function UsagePage() {
   const t = useTranslations("usage");
   const { current, loading: projLoading } = useProject();
   const [period, setPeriod] = useState<string>("7d");
-  const [summary, setSummary] = useState<Record<string, number> | null>(null);
-  const [prevSummary, setPrevSummary] = useState<Record<string, number> | null>(null);
-  const [daily, setDaily] = useState<Array<Record<string, unknown>>>([]);
-  const [byModel, setByModel] = useState<Array<Record<string, unknown>>>([]);
 
-  useEffect(() => {
-    if (!current) return;
-    const pid = current.id;
-    const days = period === "today" ? 1 : period === "30d" ? 30 : 7;
-    // 当期 + 上期双请求（决策 C：前端计算环比）
-    const prevPeriod = period === "today" ? "today" : period;
-    const prevDays = days;
-    Promise.all([
-      apiFetch<Record<string, number>>(`/api/projects/${pid}/usage?period=${period}`),
-      apiFetch<Record<string, number>>(
-        `/api/projects/${pid}/usage?period=${prevPeriod}&offset=${prevDays}`,
-      ).catch(() => null),
-      apiFetch<{ data: Array<Record<string, unknown>> }>(
-        `/api/projects/${pid}/usage/daily?days=${days}`,
-      ),
-      apiFetch<{ data: Array<Record<string, unknown>> }>(`/api/projects/${pid}/usage/by-model`),
-    ]).then(([s, ps, d, m]) => {
-      setSummary(s);
-      setPrevSummary(ps);
-      setDaily(d.data);
-      setByModel(m.data);
-    });
+  const days = period === "today" ? 1 : period === "30d" ? 30 : 7;
+
+  // ── Data: usage summary ──
+  const { data: summary } = useAsyncData<UsageSummary>(async () => {
+    if (!current) return null as unknown as UsageSummary;
+    return apiFetch<UsageSummary>(`/api/projects/${current.id}/usage?period=${period}`);
   }, [current, period]);
 
+  // ── Data: daily trend ──
+  const { data: dailyData } = useAsyncData<{ data: DailyRow[] }>(async () => {
+    if (!current) return { data: [] };
+    return apiFetch<{ data: DailyRow[] }>(
+      `/api/projects/${current.id}/usage/daily?days=${days}`,
+    );
+  }, [current, days]);
+
+  // ── Data: model distribution ──
+  const { data: modelData } = useAsyncData<{ data: ModelRow[] }>(async () => {
+    if (!current) return { data: [] };
+    return apiFetch<{ data: ModelRow[] }>(`/api/projects/${current.id}/usage/by-model`);
+  }, [current]);
+
+  const daily = dailyData?.data ?? [];
+  const byModel = modelData?.data ?? [];
+  const totalModelCalls = byModel.reduce((s, x) => s + (x.calls ?? 0), 0);
+
+  // ── Loading & empty states ──
   if (projLoading)
     return (
       <div className="space-y-4 pt-4">
@@ -83,20 +119,7 @@ export default function UsagePage() {
     );
   if (!current) return <EmptyState onCreated={() => window.location.reload()} />;
 
-  const totalModelCalls = byModel.reduce((s, x) => s + ((x.calls as number) ?? 0), 0);
-
-  /** 计算环比趋势 */
-  const trend = (key: string, invert = false) => {
-    if (!summary || !prevSummary) return null;
-    const curr = summary[key] ?? 0;
-    const prev = prevSummary[key] ?? 0;
-    if (prev === 0) return null;
-    const pct = ((curr - prev) / prev) * 100;
-    const isUp = invert ? pct < 0 : pct > 0;
-    return { pct: Math.abs(pct).toFixed(1), isUp, isPositive: isUp };
-  };
-
-  // ── Render — 1:1 replica of Usage Analytics code.html lines 154-374 ──
+  // ── Render — 1:1 replica of design-draft/usage/code.html lines 154-374 ──
   return (
     <div className="max-w-7xl mx-auto space-y-8">
       {/* ═══ Header + Period Selector — code.html lines 156-165 ═══ */}
@@ -105,9 +128,7 @@ export default function UsagePage() {
           <h3 className="text-2xl font-extrabold font-[var(--font-heading)] text-ds-on-surface tracking-tight">
             {t("title")}
           </h3>
-          <p className="text-ds-on-surface-variant text-sm">
-            Review your model consumption and performance metrics.
-          </p>
+          <p className="text-ds-on-surface-variant text-sm">{t("subtitle")}</p>
         </div>
         <div className="bg-ds-surface-container-low p-1 rounded-full flex gap-1">
           {PERIODS.map((p) => (
@@ -120,7 +141,7 @@ export default function UsagePage() {
                   : "text-ds-on-surface-variant hover:text-ds-primary"
               }`}
             >
-              {p}
+              {t(PERIOD_I18N[p])}
             </button>
           ))}
         </div>
@@ -134,25 +155,21 @@ export default function UsagePage() {
               label: t("totalCalls"),
               value: (summary.totalCalls ?? 0).toLocaleString(),
               icon: "call",
-              trendData: trend("totalCalls"),
             },
             {
               label: t("totalCost"),
               value: formatCurrency(summary.totalCost ?? 0, 2),
               icon: "payments",
-              trendData: trend("totalCost"),
             },
             {
               label: t("totalTokens"),
               value: (summary.totalTokens ?? 0).toLocaleString(),
               icon: "generating_tokens",
-              trendData: null,
             },
             {
               label: t("avgLatency"),
               value: `${summary.avgLatencyMs ?? 0}ms`,
               icon: "speed",
-              trendData: trend("avgLatencyMs", true),
             },
           ].map((card) => (
             <div
@@ -170,24 +187,6 @@ export default function UsagePage() {
               <div className="text-3xl font-black font-[var(--font-heading)] text-ds-on-surface">
                 {card.value}
               </div>
-              {card.trendData ? (
-                <div
-                  className={`mt-2 text-[10px] font-bold flex items-center gap-1 ${card.trendData.isPositive ? "text-green-600" : "text-red-600"}`}
-                >
-                  <span className="material-symbols-outlined text-[12px]">
-                    {card.trendData.isPositive ? "trending_up" : "trending_down"}
-                  </span>
-                  {card.trendData.isPositive ? "+" : "-"}
-                  {card.trendData.pct}% vs last period
-                </div>
-              ) : summary && (summary.totalCalls ?? 0) > 0 ? (
-                <div className="mt-2 text-[10px] font-bold text-ds-primary flex items-center gap-1">
-                  <span className="material-symbols-outlined text-[12px]">horizontal_rule</span>
-                  Stable activity
-                </div>
-              ) : (
-                <div className="mt-2 text-[10px] font-bold text-slate-400">—</div>
-              )}
             </div>
           ))}
         </section>
@@ -199,7 +198,7 @@ export default function UsagePage() {
         <div className="lg:col-span-2 bg-ds-surface-container-lowest p-8 rounded-xl shadow-sm space-y-8">
           <div>
             <h4 className="text-sm font-bold uppercase tracking-widest text-ds-outline mb-1">
-              Daily Performance
+              {t("dailyPerformance")}
             </h4>
             <p className="text-lg font-extrabold font-[var(--font-heading)]">
               {t("dailyCalls")} & {t("dailyCost")}
@@ -236,7 +235,7 @@ export default function UsagePage() {
         {/* Model Distribution — code.html lines 269-305 */}
         <div className="bg-ds-surface-container-lowest p-8 rounded-xl shadow-sm flex flex-col">
           <h4 className="text-sm font-bold uppercase tracking-widest text-ds-outline mb-1">
-            Workload
+            {t("workload")}
           </h4>
           <p className="text-lg font-extrabold font-[var(--font-heading)] mb-8">{t("byModel")}</p>
           <div className="relative flex-1 flex items-center justify-center min-h-[200px]">
@@ -262,25 +261,25 @@ export default function UsagePage() {
             </ResponsiveContainer>
             <div className="absolute text-center">
               <div className="text-2xl font-black font-[var(--font-heading)]">
-                {totalModelCalls > 0 ? "100%" : "—"}
+                {totalModelCalls > 0 ? "100%" : "\u2014"}
               </div>
               <div className="text-[10px] font-bold text-ds-outline uppercase">
-                {totalModelCalls > 0 ? "Utilized" : "No data"}
+                {totalModelCalls > 0 ? t("utilized") : t("noData")}
               </div>
             </div>
           </div>
           <div className="mt-8 space-y-3">
             {byModel.slice(0, 5).map((m, i) => {
               const pct =
-                totalModelCalls > 0 ? Math.round(((m.calls as number) / totalModelCalls) * 100) : 0;
+                totalModelCalls > 0 ? Math.round((m.calls / totalModelCalls) * 100) : 0;
               return (
-                <div key={m.model as string} className="flex items-center justify-between">
+                <div key={m.model} className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <span
                       className="w-2 h-2 rounded-full"
                       style={{ background: PIE_COLORS[i % PIE_COLORS.length] }}
                     />
-                    <span className="text-xs font-medium">{m.model as string}</span>
+                    <span className="text-xs font-medium">{m.model}</span>
                   </div>
                   <span className="text-xs font-bold">{pct}%</span>
                 </div>
@@ -294,38 +293,31 @@ export default function UsagePage() {
       <section className="bg-ds-surface-container-lowest rounded-xl shadow-sm overflow-hidden">
         <div className="p-8 pb-4">
           <h4 className="text-sm font-bold uppercase tracking-widest text-ds-outline mb-1">
-            Leaderboard
+            {t("leaderboard")}
           </h4>
           <p className="text-lg font-extrabold font-[var(--font-heading)]">{t("modelRanking")}</p>
         </div>
-        <div className="overflow-x-auto">
-          <table className="w-full text-left">
-            <thead>
-              <tr className="bg-ds-surface-container-low">
-                <th className="px-8 py-4 text-[10px] font-bold text-ds-outline uppercase tracking-widest">
-                  Model
-                </th>
-                <th className="px-8 py-4 text-[10px] font-bold text-ds-outline uppercase tracking-widest">
-                  {t("calls")}
-                </th>
-                <th className="px-8 py-4 text-[10px] font-bold text-ds-outline uppercase tracking-widest">
-                  {t("tokens")}
-                </th>
-                <th className="px-8 py-4 text-[10px] font-bold text-ds-outline uppercase tracking-widest">
-                  {t("cost")}
-                </th>
-                <th className="px-8 py-4 text-[10px] font-bold text-ds-outline uppercase tracking-widest">
-                  {t("avgLatency")}
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-ds-surface-container-low">
-              {byModel.map((m, i) => (
-                <tr
-                  key={m.model as string}
-                  className="hover:bg-ds-surface-container-high/30 transition-colors"
-                >
-                  <td className="px-8 py-5">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead className="px-8 py-4">{t("model")}</TableHead>
+              <TableHead className="px-8 py-4">{t("calls")}</TableHead>
+              <TableHead className="px-8 py-4">{t("tokens")}</TableHead>
+              <TableHead className="px-8 py-4">{t("cost")}</TableHead>
+              <TableHead className="px-8 py-4">{t("avgLatency")}</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody className="divide-y divide-ds-outline-variant/10">
+            {byModel.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={5} className="px-8 py-12 text-center text-ds-outline">
+                  {t("noData")}
+                </TableCell>
+              </TableRow>
+            ) : (
+              byModel.map((m, i) => (
+                <TableRow key={m.model}>
+                  <TableCell className="px-8 py-5">
                     <div className="flex items-center gap-3">
                       <div
                         className="w-8 h-8 rounded-lg flex items-center justify-center"
@@ -341,33 +333,26 @@ export default function UsagePage() {
                           auto_awesome
                         </span>
                       </div>
-                      <span className="text-sm font-bold">{m.model as string}</span>
+                      <span className="text-sm font-bold">{m.model}</span>
                     </div>
-                  </td>
-                  <td className="px-8 py-5 text-sm font-medium">
-                    {((m.calls as number) ?? 0).toLocaleString()}
-                  </td>
-                  <td className="px-8 py-5 text-sm font-medium">
-                    {((m.tokens as number) ?? 0).toLocaleString()}
-                  </td>
-                  <td className="px-8 py-5 text-sm font-bold text-ds-primary">
-                    {formatCurrency((m.cost as number) ?? 0, 2)}
-                  </td>
-                  <td className="px-8 py-5 text-sm font-medium">
-                    {(m.avgLatency as number) ?? 0}ms
-                  </td>
-                </tr>
-              ))}
-              {byModel.length === 0 && (
-                <tr>
-                  <td colSpan={5} className="px-8 py-12 text-center text-ds-outline">
-                    No data
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
+                  </TableCell>
+                  <TableCell className="px-8 py-5 text-sm font-medium">
+                    {(m.calls ?? 0).toLocaleString()}
+                  </TableCell>
+                  <TableCell className="px-8 py-5 text-sm font-medium">
+                    {(m.tokens ?? 0).toLocaleString()}
+                  </TableCell>
+                  <TableCell className="px-8 py-5 text-sm font-bold text-ds-primary">
+                    {formatCurrency(m.cost ?? 0, 2)}
+                  </TableCell>
+                  <TableCell className="px-8 py-5 text-sm font-medium">
+                    {m.avgLatency ?? 0}ms
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
+          </TableBody>
+        </Table>
       </section>
     </div>
   );

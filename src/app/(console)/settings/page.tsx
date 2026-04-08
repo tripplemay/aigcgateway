@@ -1,9 +1,29 @@
 "use client";
-import { useState, useEffect } from "react";
-import { useTranslations } from "next-intl";
+import { useState } from "react";
+import { useTranslations, useLocale } from "next-intl";
 import { toast } from "sonner";
 import { apiFetch } from "@/lib/api-client";
+import { useProject } from "@/hooks/use-project";
+import { useAsyncData } from "@/hooks/use-async-data";
 import { useRouter } from "next/navigation";
+import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Table,
+  TableHeader,
+  TableBody,
+  TableHead,
+  TableRow,
+  TableCell,
+} from "@/components/ui/table";
+
+// ============================================================
+// Types
+// ============================================================
+
+interface Profile {
+  email: string;
+  name: string | null;
+}
 
 interface LoginRecord {
   id: string;
@@ -13,7 +33,7 @@ interface LoginRecord {
 }
 
 function parseUserAgent(ua: string | null): string {
-  if (!ua) return "Unknown";
+  if (!ua) return "—";
   if (ua.includes("Chrome")) return "Chrome";
   if (ua.includes("Firefox")) return "Firefox";
   if (ua.includes("Safari")) return "Safari";
@@ -22,30 +42,39 @@ function parseUserAgent(ua: string | null): string {
   return ua.slice(0, 30);
 }
 
+// ============================================================
+// Component
+// ============================================================
+
 export default function SettingsPage() {
   const t = useTranslations("settings");
-  const tc = useTranslations("common");
   const ta = useTranslations("auth");
-  const [email, setEmail] = useState("");
+  const locale = useLocale();
+  const router = useRouter();
+  const { loading: projLoading } = useProject();
+
   const [name, setName] = useState("");
+  const [nameLoaded, setNameLoaded] = useState(false);
   const [oldPassword, setOldPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [alertEmail, setAlertEmail] = useState(true);
-  const [loginHistory, setLoginHistory] = useState<LoginRecord[]>([]);
-  const router = useRouter();
 
-  useEffect(() => {
-    apiFetch<{ email: string; name: string | null }>("/api/auth/profile")
-      .then((u) => {
-        setEmail(u.email);
-        setName(u.name ?? "");
-      })
-      .catch(() => {});
-    apiFetch<{ data: LoginRecord[] }>("/api/auth/login-history")
-      .then((r) => setLoginHistory(r.data))
-      .catch(() => {});
+  // ── Data: profile ──
+  const { data: profile } = useAsyncData<Profile>(async () => {
+    const p = await apiFetch<Profile>("/api/auth/profile");
+    if (!nameLoaded) {
+      setName(p.name ?? "");
+      setNameLoaded(true);
+    }
+    return p;
   }, []);
+
+  // ── Data: login history ──
+  const { data: historyData } = useAsyncData<{ data: LoginRecord[] }>(async () => {
+    return apiFetch<{ data: LoginRecord[] }>("/api/auth/login-history");
+  }, []);
+
+  const loginHistory = historyData?.data ?? [];
 
   const saveName = async () => {
     try {
@@ -79,25 +108,30 @@ export default function SettingsPage() {
     }
   };
 
-  // ── Render — code.html lines 181-296 ──
+  if (projLoading)
+    return (
+      <div className="space-y-4 pt-4">
+        <Skeleton className="h-8 w-48" />
+        <Skeleton className="h-64 w-full" />
+      </div>
+    );
+
+  // ── Render — 1:1 replica of design-draft/settings/code.html lines 181-296 ──
   return (
-    /* code.html line 181 */
     <div className="max-w-5xl mx-auto">
-      {/* Header — lines 182-185 */}
+      {/* Header — code.html lines 182-185 */}
       <header className="mb-12">
         <h1 className="text-4xl font-extrabold tracking-tight text-ds-on-surface mb-2 font-[var(--font-heading)]">
           {t("title")}
         </h1>
-        <p className="text-ds-on-surface-variant">
-          Configure your algorithmic environment and account preferences.
-        </p>
+        <p className="text-ds-on-surface-variant">{t("subtitle")}</p>
       </header>
 
       {/* code.html line 186: grid-cols-3 layout */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* ═══ Left Column (col-span-2) — lines 188-243 ═══ */}
+        {/* ═══ Left Column (col-span-2) ═══ */}
         <div className="lg:col-span-2 space-y-8">
-          {/* Profile Card — lines 189-218 */}
+          {/* Profile Card — code.html lines 189-218 */}
           <section className="bg-ds-surface-container-lowest rounded-xl p-8 shadow-sm">
             <div className="flex items-center gap-4 mb-8">
               <div className="w-12 h-12 rounded-xl bg-indigo-50 flex items-center justify-center text-ds-primary">
@@ -110,16 +144,12 @@ export default function SettingsPage() {
               </div>
               <div>
                 <h2 className="text-xl font-bold font-[var(--font-heading)]">
-                  Profile Information
+                  {t("profileInfo")}
                 </h2>
-                <p className="text-sm text-ds-on-surface-variant">
-                  Update your public identity on the gateway.
-                </p>
+                <p className="text-sm text-ds-on-surface-variant">{t("profileDesc")}</p>
               </div>
             </div>
-            {/* Form — lines 199-217 */}
             <div className="space-y-6">
-              {/* code.html line 200: grid-cols-2 for email + name */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
                   <label className="text-xs font-bold uppercase tracking-wider text-ds-on-surface-variant ml-1">
@@ -129,7 +159,7 @@ export default function SettingsPage() {
                     <input
                       className="w-full bg-ds-surface-container-low border-none rounded-lg px-4 py-3 text-ds-on-surface-variant cursor-not-allowed font-medium outline-none"
                       readOnly
-                      value={email}
+                      value={profile?.email ?? ""}
                     />
                     <span className="absolute right-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-slate-300 text-sm">
                       lock
@@ -153,111 +183,76 @@ export default function SettingsPage() {
                   onClick={saveName}
                   className="px-6 py-2.5 bg-ds-primary text-white font-semibold rounded-lg hover:bg-ds-primary-container transition-all active:scale-95 shadow-lg shadow-ds-primary/10"
                 >
-                  Save Changes
+                  {t("saveChanges")}
                 </button>
               </div>
             </div>
           </section>
 
-          {/* Notifications Card — lines 221-243 */}
-          <section className="bg-ds-surface-container-lowest rounded-xl p-8 shadow-sm">
-            <div className="flex items-center justify-between mb-8">
+          {/* Login History — Table component */}
+          <section className="bg-ds-surface-container-lowest rounded-xl shadow-sm overflow-hidden">
+            <div className="p-8 pb-4">
               <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-xl bg-ds-tertiary-fixed-dim/20 flex items-center justify-center text-ds-tertiary">
+                <div className="w-12 h-12 rounded-xl bg-ds-error-container/20 flex items-center justify-center text-ds-error">
                   <span
                     className="material-symbols-outlined"
                     style={{ fontVariationSettings: "'FILL' 1" }}
                   >
-                    notifications_active
+                    shield
                   </span>
                 </div>
                 <div>
                   <h2 className="text-xl font-bold font-[var(--font-heading)]">
-                    Notification Preferences
+                    {t("securityLog")}
                   </h2>
-                  <p className="text-sm text-ds-on-surface-variant">
-                    Control how you receive system alerts.
-                  </p>
+                  <p className="text-sm text-ds-on-surface-variant">{t("securityLogDesc")}</p>
                 </div>
               </div>
             </div>
-            {/* Toggle — lines 233-241 */}
-            <div className="flex items-start justify-between p-4 bg-ds-surface-container-low rounded-xl">
-              <div className="space-y-1">
-                <p className="font-semibold text-ds-on-surface">{t("lowBalanceAlert")}</p>
-                <p className="text-sm text-ds-on-surface-variant leading-relaxed">
-                  {t("lowBalanceDesc")}
-                </p>
-              </div>
-              {/* Custom toggle — lines 238-240 */}
-              <button
-                onClick={() => setAlertEmail(!alertEmail)}
-                className={`relative w-11 h-6 rounded-full transition-colors mt-1 ${alertEmail ? "bg-ds-primary" : "bg-slate-300"}`}
-              >
-                <span
-                  className={`absolute top-[2px] w-5 h-5 bg-white rounded-full transition-all ${alertEmail ? "left-[22px]" : "left-[2px]"}`}
-                />
-              </button>
-            </div>
-          </section>
-
-          {/* Security Log — Login History */}
-          <section className="bg-ds-surface-container-lowest rounded-xl p-8 shadow-sm">
-            <div className="flex items-center gap-4 mb-8">
-              <div className="w-12 h-12 rounded-xl bg-ds-error-container/20 flex items-center justify-center text-ds-error">
-                <span
-                  className="material-symbols-outlined"
-                  style={{ fontVariationSettings: "'FILL' 1" }}
-                >
-                  shield
-                </span>
-              </div>
-              <div>
-                <h2 className="text-xl font-bold font-[var(--font-heading)]">{t("securityLog")}</h2>
-                <p className="text-sm text-ds-on-surface-variant">{t("securityLogDesc")}</p>
-              </div>
-            </div>
-            {loginHistory.length === 0 ? (
-              <p className="text-sm text-ds-on-surface-variant text-center py-6">
-                {t("noLoginHistory")}
-              </p>
-            ) : (
-              <div className="space-y-3">
-                {loginHistory.map((record) => (
-                  <div
-                    key={record.id}
-                    className="flex items-center justify-between p-3 rounded-lg bg-ds-surface-container-low"
-                  >
-                    <div className="flex items-center gap-3">
-                      <span className="material-symbols-outlined text-ds-on-surface-variant text-lg">
-                        devices
-                      </span>
-                      <div>
-                        <p className="text-sm font-medium text-ds-on-surface">
-                          {parseUserAgent(record.userAgent)}
-                        </p>
-                        <p className="text-xs text-ds-on-surface-variant">
-                          IP: {record.ip || "Unknown"}
-                        </p>
-                      </div>
-                    </div>
-                    <span className="text-xs text-ds-on-surface-variant">
-                      {new Date(record.createdAt).toLocaleString()}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            )}
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="px-8 py-4">{t("ip")}</TableHead>
+                  <TableHead className="px-8 py-4">{t("userAgent")}</TableHead>
+                  <TableHead className="px-8 py-4">{t("time")}</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody className="divide-y divide-ds-outline-variant/10">
+                {loginHistory.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={3} className="px-8 py-12 text-center text-ds-outline">
+                      {t("noLoginHistory")}
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  loginHistory.map((record) => (
+                    <TableRow key={record.id}>
+                      <TableCell className="px-8 py-4 text-sm font-medium">
+                        {record.ip || t("unknown")}
+                      </TableCell>
+                      <TableCell className="px-8 py-4 text-sm text-slate-600">
+                        {parseUserAgent(record.userAgent)}
+                      </TableCell>
+                      <TableCell className="px-8 py-4 text-sm text-ds-on-surface-variant">
+                        {new Date(record.createdAt).toLocaleString(locale)}
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </Table>
           </section>
         </div>
 
-        {/* ═══ Right Column — lines 246-293 ═══ */}
+        {/* ═══ Right Column ═══ */}
         <div className="space-y-8">
-          {/* Change Password — lines 248-269 */}
+          {/* Change Password — code.html lines 248-269 */}
           <section className="bg-ds-surface-container-lowest rounded-xl p-8 shadow-sm">
             <div className="mb-8">
-              <h2 className="text-xl font-bold font-[var(--font-heading)] mb-1">Security</h2>
-              <p className="text-sm text-ds-on-surface-variant">Update your credentials.</p>
+              <h2 className="text-xl font-bold font-[var(--font-heading)] mb-1">
+                {t("security")}
+              </h2>
+              <p className="text-sm text-ds-on-surface-variant">{t("securityDesc")}</p>
             </div>
             <div className="space-y-5">
               {[
@@ -287,11 +282,11 @@ export default function SettingsPage() {
             </div>
           </section>
 
-          {/* Sign Out — lines 272-283 */}
+          {/* Sign Out — code.html lines 272-283 */}
           <section className="bg-ds-error-container/20 rounded-xl p-8 relative overflow-hidden">
             <div className="relative z-10">
               <h2 className="text-xl font-bold font-[var(--font-heading)] text-ds-on-error-container mb-2">
-                Session Control
+                {t("sessionControl")}
               </h2>
               <p className="text-sm text-ds-on-error-container/70 mb-6">{t("signOutDesc")}</p>
               <button
@@ -306,7 +301,6 @@ export default function SettingsPage() {
                 {t("signOut")}
               </button>
             </div>
-            {/* Decorative icon — lines 280-282 */}
             <div className="absolute -right-4 -bottom-4 opacity-5 pointer-events-none">
               <span
                 className="material-symbols-outlined text-8xl"
@@ -316,20 +310,6 @@ export default function SettingsPage() {
               </span>
             </div>
           </section>
-
-          {/* System Status Mini Card — lines 285-292 */}
-          <div className="bg-gradient-to-br from-ds-inverse-surface to-[#1a202c] rounded-xl p-6 text-white">
-            <div className="flex items-center gap-2 mb-4">
-              <span className="flex h-2 w-2 rounded-full bg-emerald-400" />
-              <span className="text-[10px] font-bold uppercase tracking-widest text-emerald-400">
-                System Status
-              </span>
-            </div>
-            <p className="text-sm font-medium mb-1">
-              API Latency: <span className="text-emerald-400">—</span>
-            </p>
-            <p className="text-xs text-slate-400">All regions operational</p>
-          </div>
         </div>
       </div>
     </div>

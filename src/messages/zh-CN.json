@@ -295,7 +295,19 @@
     "modelRanking": "模型排行",
     "calls": "调用数",
     "tokens": "Token 数",
-    "cost": "费用"
+    "cost": "费用",
+    "subtitle": "查看模型消耗和性能指标。",
+    "dailyPerformance": "每日表现",
+    "workload": "负载分布",
+    "leaderboard": "排行榜",
+    "model": "模型",
+    "utilized": "已使用",
+    "noData": "暂无数据",
+    "stableActivity": "活动稳定",
+    "vsLastPeriod": "环比上期",
+    "periodToday": "今天",
+    "period7d": "7天",
+    "period30d": "30天"
   },
   "balance": {
     "title": "余额",
@@ -323,7 +335,14 @@
     "redirecting": "正在跳转到支付页面...",
     "orderCreated": "充值订单已创建",
     "thresholdSaved": "预警阈值已保存",
-    "noTransactions": "暂无交易记录"
+    "saveThreshold": "保存阈值",
+    "noTransactions": "暂无交易记录",
+    "allTypes": "全部",
+    "typeRecharge": "充值",
+    "typeDeduction": "扣费",
+    "typeRefund": "退款",
+    "typeAdjustment": "调整",
+    "customAmountLabel": "自定义金额（USD）"
   },
   "quickstart": {
     "title": "快速开始",
@@ -356,7 +375,18 @@
     "passwordChanged": "密码已修改",
     "securityLog": "安全日志",
     "securityLogDesc": "您的账号近期登录记录。",
-    "noLoginHistory": "暂无登录记录。"
+    "noLoginHistory": "暂无登录记录。",
+    "subtitle": "配置您的账号和安全偏好。",
+    "profileInfo": "个人信息",
+    "profileDesc": "更新您在网关上的公开身份。",
+    "saveChanges": "保存更改",
+    "security": "安全",
+    "securityDesc": "更新您的登录凭证。",
+    "sessionControl": "会话控制",
+    "ip": "IP",
+    "userAgent": "客户端",
+    "time": "时间",
+    "unknown": "未知"
   },
   "adminProviders": {
     "title": "服务商",
