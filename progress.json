@@ -1,9 +1,9 @@
 {
-  "status": "fixing",
+  "status": "reverifying",
   "user_goal": "admin-model-capabilities: Admin 模型能力管理页面，capabilities/supportedSizes 从代码迁移到 DB",
   "total_features": 7,
   "completed_features": 6,
-  "fix_rounds": 0,
+  "fix_rounds": 1,
   "current_sprint": null,
   "last_updated": "2026-04-08T01:36:46Z",
   "reference_docs": [],
@@ -50,7 +50,8 @@
       "F-MC-03: PATCH /api/admin/models/:id 新增 capabilities/supportedSizes 字段支持，含 key 白名单验证",
       "F-MC-04: list_models MCP + /v1/models REST 直接读 DB，不再 fallback 到静态 map。model-sync 仍用 fallback 做初始 seeding。数据迁移 SQL 将 CAPABILITIES_MAP + SUPPORTED_SIZES_MAP 写入 DB",
       "F-MC-05: ModelCapabilities 接口增加 reasoning + search，CAPABILITIES_MAP 中推理/搜索模型已标注",
-      "F-MC-06: en.json + zh-CN.json 新增 modelCapabilities namespace + sidebar 入口"
+      "F-MC-06: en.json + zh-CN.json 新增 modelCapabilities namespace + sidebar 入口",
+      "Fix round 1: 新增补丁 migration 20260408090000_fix_capabilities_prefix_match — 覆盖带 provider 前缀的模型名（如 openai/gpt-4o）。原 migration 仅匹配 gpt-4o%，未覆盖 %/gpt-4o% 模式。"
     ]
   }
 }
