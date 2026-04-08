@@ -1,0 +1,38 @@
+{
+  "baseUrl": "http://localhost:3099",
+  "adminEmail": "admin@aigc-gateway.local",
+  "devEmail": "model-cap-dev-1775612073777@test.local",
+  "targetModels": {
+    "text": "deepseek/v3",
+    "image": "openrouter/google/gemini-2.5-flash-image"
+  },
+  "passCount": 4,
+  "failCount": 1,
+  "steps": [
+    {
+      "name": "AC1 admin page access",
+      "ok": true,
+      "detail": "status=200, visibleEnabledCount=3"
+    },
+    {
+      "name": "AC4 non-admin forbidden",
+      "ok": true,
+      "detail": "status=307, location=/dashboard"
+    },
+    {
+      "name": "AC2 capabilities reflected in /v1/models",
+      "ok": true,
+      "detail": "model=deepseek/v3, reasoning=true"
+    },
+    {
+      "name": "AC3 supportedSizes reflected in /v1/models",
+      "ok": true,
+      "detail": "model=openrouter/google/gemini-2.5-flash-image, expectedHas=true, actualHas=true"
+    },
+    {
+      "name": "AC5 gpt-4o capabilities non-empty",
+      "ok": false,
+      "detail": "capabilityKeys="
+    }
+  ]
+}

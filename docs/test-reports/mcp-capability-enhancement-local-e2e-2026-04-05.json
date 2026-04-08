@@ -1,6 +1,6 @@
 {
-  "passed": 17,
-  "failed": 1,
+  "passed": 6,
+  "failed": 12,
   "results": [
     {
       "name": "MCP initialize + SERVER_INSTRUCTIONS",
@@ -9,18 +9,18 @@
     },
     {
       "name": "tools/list includes 11 tools",
-      "ok": true,
-      "detail": "chat, generate_image, get_balance, get_log_detail, get_usage_summary, list_actions, list_logs, list_models, list_templates, run_action, run_template"
+      "ok": false,
+      "detail": "expected 11 tools, got 21"
     },
     {
       "name": "list_models returns capabilities + no case duplicates",
-      "ok": true,
-      "detail": "2 models"
+      "ok": false,
+      "detail": "list_models returned empty"
     },
     {
       "name": "get_balance",
       "ok": true,
-      "detail": "$20.0000"
+      "detail": "$20.00000000"
     },
     {
       "name": "list_actions empty guidance",
@@ -44,59 +44,59 @@
     },
     {
       "name": "run_action",
-      "ok": true,
-      "detail": "trc_kbrqs2owmke8r41fkrztnkk7"
+      "ok": false,
+      "detail": "Unexpected token 'a', \"[action_err\"... is not valid JSON"
     },
     {
       "name": "run_template",
-      "ok": true,
-      "detail": "trun_1775394023918_lwxri1"
+      "ok": false,
+      "detail": "Unexpected token 'e', \"[template_er\"... is not valid JSON"
     },
     {
       "name": "chat stream=true",
-      "ok": true,
-      "detail": "{\"traceId\":\"trc_yjha2xmyy0y6wxd5icyhcydd\",\"ttftMs\":1}"
+      "ok": false,
+      "detail": "Unexpected token 'm', \"[model_not_\"... is not valid JSON"
     },
     {
       "name": "get_log_detail includes ttftMs",
-      "ok": true,
-      "detail": "{\"ttftMs\":1,\"source\":\"mcp\"}"
+      "ok": false,
+      "detail": "Unexpected token 'C', \"Call log w\"... is not valid JSON"
     },
     {
       "name": "chat response_format=json_object",
-      "ok": true,
-      "detail": "{\"ok\":true,\"prompt\":\"MCE JSON HELLO\"}"
+      "ok": false,
+      "detail": "Unexpected token 'm', \"[model_not_\"... is not valid JSON"
     },
     {
       "name": "generate_image",
-      "ok": true,
-      "detail": "https://example.com/mock-image.png"
+      "ok": false,
+      "detail": "image result missing"
     },
     {
       "name": "list_logs",
-      "ok": true,
-      "detail": "5 logs"
+      "ok": false,
+      "detail": "list_logs empty"
     },
     {
       "name": "get_usage_summary source/day grouping",
-      "ok": true,
-      "detail": "{\"key\":\"mcp\",\"totalCalls\":6,\"totalCost\":\"$0.0120\",\"totalTokens\":100}"
+      "ok": false,
+      "detail": "missing mcp source group"
     },
     {
       "name": "get_usage_summary action_id + group_by=action",
-      "ok": true,
-      "detail": "{\"key\":\"cmnlrrg7o005v9yojq6tgmczw (mce-action)\",\"totalCalls\":2,\"totalCost\":\"$0.0000\",\"totalTokens\":40}"
+      "ok": false,
+      "detail": "missing action groups"
     },
     {
       "name": "get_usage_summary template_id + group_by=template",
       "ok": false,
-      "detail": "template name missing in group key: trun_1775394023918_lwxri1"
+      "detail": "missing template groups for template_id=cmnoo5oib00qv9y8hjdnsqhsl"
     }
   ],
-  "projectId": "cmnlrrg6z005r9yoj1tbwrlw9",
-  "apiKeyPrefix": "pk_c05e2",
-  "actionId": "cmnlrrg7o005v9yojq6tgmczw",
-  "templateId": "cmnlrrg7v00639yojc6em4xsd",
-  "templateRunId": "trun_1775394023918_lwxri1",
-  "streamTraceId": "trc_yjha2xmyy0y6wxd5icyhcydd"
+  "projectId": "cmnoo5ofn00qj9y8hmfguzl2p",
+  "apiKeyPrefix": "pk_583f6",
+  "actionId": "cmnoo5ohy00qn9y8hh3y9hh8k",
+  "templateId": "cmnoo5oib00qv9y8hjdnsqhsl",
+  "templateRunId": "",
+  "streamTraceId": ""
 }

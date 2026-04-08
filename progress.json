@@ -1,11 +1,11 @@
 {
-  "status": "verifying",
+  "status": "fixing",
   "user_goal": "admin-model-capabilities: Admin 模型能力管理页面，capabilities/supportedSizes 从代码迁移到 DB",
   "total_features": 7,
   "completed_features": 6,
   "fix_rounds": 0,
   "current_sprint": null,
-  "last_updated": "2026-04-08T08:00:00Z",
+  "last_updated": "2026-04-08T01:36:46Z",
   "reference_docs": [],
   "role_assignments": {
     "planner": "Kimi",
@@ -14,11 +14,24 @@
   },
   "docs": {
     "spec": null,
-    "test_cases": null,
+    "test_cases": "docs/test-cases/admin-model-capabilities-e2e-2026-04-08.md",
     "signoff": null,
     "framework_reviewed": false
   },
-  "evaluator_feedback": null,
+  "evaluator_feedback": {
+    "summary": "L1 验收 4/5 通过，发现 gpt-4o capabilities 迁移缺失问题，批次回退 fixing。",
+    "pass_count": 4,
+    "partial_count": 0,
+    "fail_count": 1,
+    "issues": [
+      {
+        "feature_id": "F-MC-07",
+        "result": "FAIL",
+        "description": "AC5 失败：/v1/models?modality=text 中 openai/gpt-4o 的 capabilities 为空对象 {}，未满足“gpt-4o capabilities 非空”。",
+        "steps_to_reproduce": "1) 启动本地环境 localhost:3099 2) GET /v1/models?modality=text 3) 查找 openai/gpt-4o 4) 观察 capabilities 为 {}"
+      }
+    ]
+  },
   "generator_handoff": {
     "completed": [
       "F-MC-01",
