@@ -12,19 +12,23 @@ AIGC Gateway — AI 服务商管理中台。统一 API 调用抽象（兼容 Ope
 
 ## 当前开发状态（截至 2026-04-08）
 
-**最新完成批次：** `P4-2-docs-cleanup`（4/4 完成，reverifying 3/3 PASS）
-**验证结论：** SDK README canonical 命名修复完成；模型能力唯一性与 canonical 调用链路通过。
+**P4 跨服务商模型聚合：全部完成（4 批次，21 features，1 轮修复）**
 **Harness 状态：** done
 **签收报告：** `docs/test-reports/p4-2-docs-cleanup-signoff-2026-04-08.md`
 
+### P4 完成清单
+
+- `P4-1a-schema-sync`（6/6 PASS）— Schema 清空重建 + ModelAlias 表 + Sync canonical 改造
+- `P4-1b-output-routing`（5/5 PASS）— 输出层简化 + 路由验证 + 废弃 fallback
+- `P4-1c-admin-pages`（6/6 PASS）— Admin 别名管理页 + 白名单多通道展开
+- `P4-2-docs-cleanup`（4/4 PASS）— SDK 文档 + 能力页对齐 + PRD 更新
+
 ### 近期完成批次（2026-04-08 ~ 2026-04-06）
 
-- `P4-2-docs-cleanup`（3/3 PASS）— SDK 文档 canonical 命名修复 + 能力页对齐复验 + PRD 收尾
-- `P4-1c-admin-pages`（5/5 PASS）— Admin 别名管理页 + 别名 CRUD/merge API + 白名单多通道展开
-- `bugfix-template-api`（3/3 PASS）— Template 创建 API 500 修复（输入验证 + 错误处理）
+- `security-and-robustness`（5/5 PASS）— 权限绕过修复 + MCP IP白名单 + 防重复提交 + 异步错误处理
+- `admin-model-capabilities`（7/7 PASS）— Admin 模型能力管理页 + capabilities DB 化
+- `bugfix-template-api`（3/3 PASS）— Template 创建 API 500 修复
 - `user-profile-center`（6/6 PASS）— Sidebar 用户信息 + 个人中心入口 + 登录历史
-
-- `user-profile-center`（6/6 PASS）— Sidebar 用户信息 + 个人中心入口 + LoginHistory 表 + 安全日志展示
 - `balance-user-level-backend`（8/8 PASS）— 余额从 Project 级改为 User 级全链路
 
 - `balance-user-level-backend`（8/8 PASS）— 余额从 Project 级改为 User 级：DB migration + SQL 函数重写 + post-process 对齐 + 充值 API + MCP/REST + Sidebar/Dashboard/Admin
@@ -76,17 +80,13 @@ Action 相关权威设计稿（3 个，已更新确认）：
 
 状态：3 页设计稿还原已完成并通过验收（`action-pages-design-restore` 5/5 PASS）
 
-## Backlog（5 条待处理）
+## Backlog（1 条待处理）
 
-| ID | 优先级 | 标题 | 来源 |
-|---|---|---|---|
-| BL-063 | **high/P0** | API Key 权限绕过 actions/templates（立即有影响） | 后端安全审查 |
-| BL-061 | high | API Key 创建/吊销防重复提交 | 前端审查 |
-| BL-062 | high | 异步加载缺 catch/finally | 前端审查 |
-| BL-064 | medium | MCP IP 白名单缺失 | 后端安全审查 |
-| BL-065 | medium | 支付回调验签（支付上线前必修） | 后端安全审查 |
+| ID | 优先级 | 标题 |
+|---|---|---|
+| BL-065 | medium | 支付回调验签（支付上线前必修） |
 
-BL-024~060 已完成。
+BL-024~064 + BL-066~067 已完成。
 
 ## 已知遗留问题
 

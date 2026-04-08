@@ -10,11 +10,7 @@
     "docs/specs/P4-model-aggregation-PRD.md",
     "docs/specs/P4-model-aggregation-spec.md"
   ],
-  "role_assignments": {
-    "planner": "Kimi",
-    "generator": "Johnsong",
-    "evaluator": "Reviewer"
-  },
+  "role_assignments": null,
   "docs": {
     "spec": "docs/specs/P4-model-aggregation-spec.md",
     "test_cases": "docs/test-cases/p4-2-docs-cleanup-e2e-2026-04-08.md",
