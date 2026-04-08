@@ -211,6 +211,7 @@ export default function SettingsPage() {
                 <button
                   ref={saveBtnRef}
                   type="button"
+                  onClick={doSaveName}
                   data-testid="save-profile-btn"
                   className="px-6 py-2.5 bg-ds-primary text-white font-semibold rounded-lg hover:bg-ds-primary-container transition-all active:scale-95 shadow-lg shadow-ds-primary/10"
                 >
