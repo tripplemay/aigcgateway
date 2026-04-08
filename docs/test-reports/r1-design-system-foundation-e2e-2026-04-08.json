@@ -1,0 +1,16 @@
+{
+  "passCount": 2,
+  "failCount": 0,
+  "steps": [
+    {
+      "name": "AC4 SearchBar can import and render",
+      "ok": true,
+      "detail": "htmlLength=608"
+    },
+    {
+      "name": "AC4 Pagination can import and render",
+      "ok": true,
+      "detail": "htmlLength=1140"
+    }
+  ]
+}

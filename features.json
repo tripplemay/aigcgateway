@@ -103,7 +103,7 @@
       "title": "E2E 验证：基础组件 + Dashboard 视觉回归",
       "priority": "high",
       "executor": "codex",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) 登录后 Dashboard 页面正常加载，无控制台报错；2) Button/Input/Card/Dialog/Table 组件样式与设计系统一致；3) Sidebar active 状态显示 accent pill 而非 border-l-4；4) 搜索和分页组件可正常 import 并渲染；5) 签收报告生成"
     }
   ]

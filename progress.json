@@ -1,11 +1,11 @@
 {
-  "status": "verifying",
+  "status": "done",
   "user_goal": "R1 — 设计系统基础对齐 + Dashboard 试点还原：修好基础组件（Button/Input/Card/Dialog/Table）、Layout Shell（Sidebar/TopAppBar），抽取公共组件（SearchBar/Pagination/useAsyncData），Dashboard 作为试点验证",
   "total_features": 13,
-  "completed_features": 12,
+  "completed_features": 13,
   "fix_rounds": 0,
   "current_sprint": null,
-  "last_updated": "2026-04-08T21:30:00Z",
+  "last_updated": "2026-04-08T09:40:43Z",
   "reference_docs": [
     "docs/specs/R1-design-system-foundation-spec.md",
     "design-draft/Layout Shell - AIGC Gateway/DESIGN.md",
@@ -18,11 +18,11 @@
   },
   "docs": {
     "spec": "docs/specs/R1-design-system-foundation-spec.md",
-    "test_cases": null,
-    "signoff": null,
+    "test_cases": "docs/test-cases/r1-design-system-foundation-e2e-2026-04-08.md",
+    "signoff": "docs/test-reports/r1-design-system-foundation-signoff-2026-04-08.md",
     "framework_reviewed": false
   },
-  "evaluator_feedback": null,
+  "evaluator_feedback": "Verifier: F-R1-13 本地 L1 验收通过（Dashboard 加载、Sidebar active accent pill、SearchBar/Pagination 渲染通过），签收通过。",
   "generator_handoff": "Mark: F-R1-01~12 全部完成。基础组件5个对齐设计系统、Sidebar/TopAppBar Layout 对齐、useAsyncData+SearchBar+Pagination 公共组件、Dashboard 试点还原（useAsyncData+no-border+ds-token）、No-Line 清理",
   "session_notes": {
     "Richard": "本会话完成 R1 planning + 共享记忆系统重构（分层加载 T0/T1/T2 + role-context + session_notes）。framework/ 已同步至 v0.4.0。Mark 已完成 12/12 generator 功能，等待 Reviewer 验收。",
