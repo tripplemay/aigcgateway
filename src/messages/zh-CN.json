@@ -161,6 +161,7 @@
     "expirationDate": "过期时间",
     "neverExpires": "永不过期",
     "days30": "30 天",
+    "days60": "60 天",
     "days90": "90 天",
     "customDate": "自定义日期",
     "permissions": "权限",
@@ -262,7 +263,12 @@
     "latencyTrends": "近期延迟趋势",
     "costOptimization": "成本优化",
     "totalLogsVolume": "日志总量",
-    "totalRecords": "总记录数"
+    "totalRecords": "总记录数",
+    "qualityScore": "质量评分",
+    "qualityScoreDesc": "评价此响应的质量（0.0 = 差，1.0 = 优秀）。",
+    "qualityScored": "评分已提交",
+    "traceNotFound": "追踪记录未找到",
+    "copied": "已复制！"
   },
   "usage": {
     "title": "用量统计",

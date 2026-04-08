@@ -5,10 +5,7 @@ import { useTranslations } from "next-intl";
 import { apiFetch } from "@/lib/api-client";
 import { useProject } from "@/hooks/use-project";
 import { toast } from "sonner";
-import {
-  Dialog,
-  DialogContent,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 
 interface CreateKeyDialogProps {
   open: boolean;
@@ -58,10 +55,10 @@ export function CreateKeyDialog({ open, onOpenChange, onCreated }: CreateKeyDial
         ? null
         : keyExpiration === "30d"
           ? new Date(Date.now() + 30 * 86400000).toISOString()
-          : keyExpiration === "90d"
-            ? new Date(Date.now() + 90 * 86400000).toISOString()
-            : keyExpiration === "1y"
-              ? new Date(Date.now() + 365 * 86400000).toISOString()
+          : keyExpiration === "60d"
+            ? new Date(Date.now() + 60 * 86400000).toISOString()
+            : keyExpiration === "90d"
+              ? new Date(Date.now() + 90 * 86400000).toISOString()
               : null;
     const permissions: Record<string, boolean> = {};
     if (!keyPermissions.chatCompletion) permissions.chatCompletion = false;
@@ -97,10 +94,7 @@ export function CreateKeyDialog({ open, onOpenChange, onCreated }: CreateKeyDial
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent
-        showCloseButton={false}
-        className="w-full max-w-lg p-0 gap-0 sm:max-w-lg"
-      >
+      <DialogContent showCloseButton={false} className="w-full max-w-lg p-0 gap-0 sm:max-w-lg">
         {newKey ? (
           /* ═══ Key created success state ═══ */
           <>
@@ -210,9 +204,9 @@ export function CreateKeyDialog({ open, onOpenChange, onCreated }: CreateKeyDial
                       onChange={(e) => setKeyExpiration(e.target.value)}
                     >
                       <option value="never">{t("neverExpires")}</option>
-                      <option value="30d">30 days</option>
-                      <option value="90d">90 days</option>
-                      <option value="1y">1 year</option>
+                      <option value="30d">{t("days30")}</option>
+                      <option value="60d">{t("days60")}</option>
+                      <option value="90d">{t("days90")}</option>
                     </select>
                     <span className="material-symbols-outlined absolute right-3 top-2.5 text-ds-on-surface-variant pointer-events-none">
                       expand_more

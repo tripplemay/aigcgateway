@@ -161,6 +161,7 @@
     "expirationDate": "Expiration Date",
     "neverExpires": "Never expires",
     "days30": "30 Days",
+    "days60": "60 Days",
     "days90": "90 Days",
     "customDate": "Custom Date",
     "permissions": "Permissions",
@@ -262,7 +263,12 @@
     "latencyTrends": "Recent Latency Trends",
     "costOptimization": "Cost Optimization",
     "totalLogsVolume": "Total Logs Volume",
-    "totalRecords": "Total records"
+    "totalRecords": "Total records",
+    "qualityScore": "Quality Score",
+    "qualityScoreDesc": "Rate the quality of this response (0.0 = poor, 1.0 = excellent).",
+    "qualityScored": "Score submitted",
+    "traceNotFound": "Trace not found",
+    "copied": "Copied!"
   },
   "usage": {
     "title": "Usage",

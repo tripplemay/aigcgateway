@@ -61,13 +61,10 @@ export default function KeysPage() {
     data: keysData,
     loading,
     refetch,
-  } = useAsyncData<{ data: ApiKeyRow[] }>(
-    async () => {
-      if (!current) return { data: [] };
-      return apiFetch<{ data: ApiKeyRow[] }>(`/api/projects/${current.id}/keys`);
-    },
-    [current],
-  );
+  } = useAsyncData<{ data: ApiKeyRow[] }>(async () => {
+    if (!current) return { data: [] };
+    return apiFetch<{ data: ApiKeyRow[] }>(`/api/projects/${current.id}/keys`);
+  }, [current]);
 
   const keys = keysData?.data ?? [];
 
@@ -426,11 +423,7 @@ export default function KeysPage() {
       </div>
 
       {/* ═══ Create API Key Dialog ═══ */}
-      <CreateKeyDialog
-        open={createOpen}
-        onOpenChange={setCreateOpen}
-        onCreated={refetch}
-      />
+      <CreateKeyDialog open={createOpen} onOpenChange={setCreateOpen} onCreated={refetch} />
 
       {/* ═══ Revoke Confirm Dialog ═══ */}
       <RevokeKeyDialog

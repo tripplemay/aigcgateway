@@ -9,6 +9,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState } from "@/components/empty-state";
 import { SearchBar } from "@/components/search-bar";
 import { Pagination } from "@/components/pagination";
+import { useRouter } from "next/navigation";
 import {
   Table,
   TableHeader,
@@ -26,20 +27,11 @@ interface LogEntry {
   traceId: string;
   modelName: string;
   status: string;
-  finishReason: string | null;
-  promptTokens: number | null;
-  completionTokens: number | null;
   totalTokens: number | null;
   sellPrice: number | null;
   latencyMs: number | null;
-  ttftMs: number | null;
-  tokensPerSecond: number | null;
   createdAt: string;
   promptPreview?: string;
-  promptSnapshot?: Array<{ role: string; content: string }>;
-  requestParams?: Record<string, unknown>;
-  responseContent?: string | null;
-  errorMessage?: string | null;
 }
 
 const PAGE_SIZE = 20;
@@ -53,13 +45,13 @@ export default function LogsPage() {
   const tc = useTranslations("common");
   const { current, loading: projLoading } = useProject();
 
+  const router = useRouter();
   const [page, setPage] = useState(1);
   const [statusFilter, setStatusFilter] = useState("");
+  const [modelFilter, setModelFilter] = useState("");
   const [searchQ, setSearchQ] = useState("");
   const [debouncedQ, setDebouncedQ] = useState("");
   const debounceRef = useRef<ReturnType<typeof setTimeout>>();
-  const [selectedTrace, setSelectedTrace] = useState<string | null>(null);
-  const [detail, setDetail] = useState<LogEntry | null>(null);
 
   useEffect(() => {
     debounceRef.current = setTimeout(() => setDebouncedQ(searchQ), 300);
@@ -70,40 +62,29 @@ export default function LogsPage() {
   const { data: logsData, loading } = useAsyncData<{
     data: LogEntry[];
     pagination?: { total: number };
-  }>(
-    async () => {
-      if (!current) return { data: [], pagination: { total: 0 } };
-      const params = new URLSearchParams({ page: String(page), pageSize: String(PAGE_SIZE) });
-      if (statusFilter) params.set("status", statusFilter);
-      const url = debouncedQ
-        ? `/api/projects/${current.id}/logs/search?q=${encodeURIComponent(debouncedQ)}&page=${page}`
-        : `/api/projects/${current.id}/logs?${params}`;
-      return apiFetch<{ data: LogEntry[]; pagination?: { total: number } }>(url);
-    },
-    [current, page, statusFilter, debouncedQ],
-  );
+  }>(async () => {
+    if (!current) return { data: [], pagination: { total: 0 } };
+    const params = new URLSearchParams({ page: String(page), pageSize: String(PAGE_SIZE) });
+    if (statusFilter) params.set("status", statusFilter);
+    if (modelFilter) params.set("model", modelFilter);
+    const url = debouncedQ
+      ? `/api/projects/${current.id}/logs/search?q=${encodeURIComponent(debouncedQ)}&page=${page}`
+      : `/api/projects/${current.id}/logs?${params}`;
+    return apiFetch<{ data: LogEntry[]; pagination?: { total: number } }>(url);
+  }, [current, page, statusFilter, modelFilter, debouncedQ]);
 
   const logs = logsData?.data ?? [];
   const total = logsData?.pagination?.total ?? logs.length;
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
 
-  const loadDetail = async (traceId: string) => {
-    if (!current) return;
-    if (selectedTrace === traceId) {
-      setSelectedTrace(null);
-      setDetail(null);
-      return;
-    }
-    const r = await apiFetch<LogEntry>(`/api/projects/${current.id}/logs/${traceId}`);
-    setDetail(r);
-    setSelectedTrace(traceId);
-  };
+  // Extract unique model names for the filter dropdown
+  const modelNames = [...new Set(logs.map((l) => l.modelName))].sort();
 
   const statusOptions = [
     { value: "", label: tc("all") },
-    { value: "SUCCESS", label: "Success" },
-    { value: "ERROR", label: "Errors" },
-    { value: "FILTERED", label: "Filtered" },
+    { value: "SUCCESS", label: t("success") },
+    { value: "ERROR", label: t("errors") },
+    { value: "FILTERED", label: t("filtered") },
   ];
 
   if (projLoading)
@@ -125,7 +106,7 @@ export default function LogsPage() {
             {t("title")}
           </h2>
           <p className="text-slate-500 font-medium mt-1">
-            Real-time observability and inference telemetry
+            {t("subtitle")}
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-3">
@@ -148,6 +129,17 @@ export default function LogsPage() {
               </button>
             ))}
           </div>
+          {/* Model filter dropdown */}
+          <select
+            value={modelFilter}
+            onChange={(e) => { setModelFilter(e.target.value); setPage(1); }}
+            className="bg-ds-surface-container-low px-4 py-2 rounded-xl text-sm font-semibold text-slate-600 border-none outline-none appearance-none cursor-pointer"
+          >
+            <option value="">{t("model")} ({tc("all")})</option>
+            {modelNames.map((m) => (
+              <option key={m} value={m}>{m}</option>
+            ))}
+          </select>
         </div>
       </div>
 
@@ -189,16 +181,14 @@ export default function LogsPage() {
             ) : logs.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={8} className="px-6 py-12 text-center text-ds-outline">
-                  No logs found
+                  {t("noLogsFound")}
                 </TableCell>
               </TableRow>
             ) : (
               logs.map((l) => (
-                <>
-                  {/* Log Row */}
                   <TableRow
                     key={l.traceId}
-                    onClick={() => loadDetail(l.traceId)}
+                    onClick={() => router.push(`/logs/${l.traceId}`)}
                     className="cursor-pointer"
                   >
                     <TableCell className="px-6 py-4">
@@ -251,100 +241,6 @@ export default function LogsPage() {
                       </span>
                     </TableCell>
                   </TableRow>
-
-                  {/* Expanded Detail */}
-                  {selectedTrace === l.traceId && detail && (
-                    <tr key={`${l.traceId}-detail`} className="bg-indigo-50/30">
-                      <td className="p-0" colSpan={8}>
-                        <div className="px-8 py-8 flex flex-col gap-8">
-                          {/* Metrics grid */}
-                          <div className="grid grid-cols-4 gap-6">
-                            <div className="bg-white p-4 rounded-xl shadow-sm border border-indigo-100/50">
-                              <p className="text-[10px] font-bold text-slate-400 uppercase mb-1">Trace ID</p>
-                              <p className="text-sm font-mono text-slate-800">{detail.traceId}</p>
-                            </div>
-                            <div className="bg-white p-4 rounded-xl shadow-sm border border-indigo-100/50">
-                              <p className="text-[10px] font-bold text-slate-400 uppercase mb-1">Timestamp</p>
-                              <p className="text-sm font-medium text-slate-800">
-                                {new Date(detail.createdAt).toLocaleString()}
-                              </p>
-                            </div>
-                            <div className="bg-white p-4 rounded-xl shadow-sm border border-indigo-100/50">
-                              <p className="text-[10px] font-bold text-slate-400 uppercase mb-1">Total Tokens</p>
-                              <p className="text-sm font-medium text-slate-800">
-                                {detail.totalTokens?.toLocaleString() ?? "—"}
-                                {detail.promptTokens ? ` (${detail.promptTokens} prompt)` : ""}
-                              </p>
-                            </div>
-                            <div className="bg-white p-4 rounded-xl shadow-sm border border-indigo-100/50">
-                              <p className="text-[10px] font-bold text-slate-400 uppercase mb-1">{t("latency")}</p>
-                              <p className="text-sm font-medium text-slate-800">
-                                {detail.latencyMs != null ? `${detail.latencyMs}ms` : "—"}
-                                {detail.ttftMs != null ? ` (TTFT ${detail.ttftMs}ms)` : ""}
-                              </p>
-                            </div>
-                          </div>
-
-                          {/* Prompt & Response */}
-                          <div className="grid grid-cols-2 gap-8">
-                            <div className="space-y-4">
-                              <h4 className="text-xs font-bold uppercase tracking-widest text-slate-500 flex items-center gap-2">
-                                <span className="material-symbols-outlined text-sm">input</span> {t("prompt")}
-                              </h4>
-                              <div className="space-y-3">
-                                {detail.promptSnapshot?.map((m, i) => (
-                                  <div
-                                    key={i}
-                                    className={m.role === "system" ? "bg-slate-100/80 p-4 rounded-xl" : "bg-white p-4 rounded-xl border border-slate-100"}
-                                  >
-                                    <div className="flex items-center justify-between mb-2">
-                                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded ${m.role === "system" ? "bg-slate-200 text-slate-600" : "bg-indigo-100 text-indigo-700"}`}>
-                                        {m.role.toUpperCase()}
-                                      </span>
-                                    </div>
-                                    <p className="text-sm text-slate-700 whitespace-pre-wrap">{m.content}</p>
-                                  </div>
-                                ))}
-                              </div>
-                            </div>
-                            <div className="space-y-4">
-                              <h4 className="text-xs font-bold uppercase tracking-widest text-slate-500 flex items-center gap-2">
-                                <span className="material-symbols-outlined text-sm">output</span> {t("response")}
-                              </h4>
-                              {detail.responseContent ? (
-                                <div className="bg-white p-6 rounded-xl border-l-4 border-indigo-500 shadow-sm relative">
-                                  <span className="absolute top-4 right-4 text-[10px] font-bold text-indigo-400 uppercase">Assistant</span>
-                                  <p className="text-sm text-slate-700 leading-relaxed whitespace-pre-wrap">{detail.responseContent}</p>
-                                  {detail.finishReason && (
-                                    <div className="mt-4 pt-4 border-t border-slate-50">
-                                      <span className="text-[10px] text-slate-400">Finish Reason: {detail.finishReason}</span>
-                                    </div>
-                                  )}
-                                </div>
-                              ) : detail.errorMessage ? (
-                                <div className="bg-red-50 p-6 rounded-xl border-l-4 border-red-500">
-                                  <p className="text-sm text-red-700 leading-relaxed whitespace-pre-wrap">{detail.errorMessage}</p>
-                                </div>
-                              ) : (
-                                <p className="text-sm text-slate-400 italic">No response content</p>
-                              )}
-                            </div>
-                          </div>
-
-                          {/* JSON Parameters */}
-                          {detail.requestParams && (
-                            <div className="space-y-4">
-                              <h4 className="text-xs font-bold uppercase tracking-widest text-slate-500">{t("parameters")}</h4>
-                              <div className="bg-[#1e1e2e] p-4 rounded-xl font-mono text-xs text-indigo-200 overflow-x-auto">
-                                <pre>{JSON.stringify(detail.requestParams, null, 2)}</pre>
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      </td>
-                    </tr>
-                  )}
-                </>
               ))
             )}
           </TableBody>
@@ -368,7 +264,7 @@ export default function LogsPage() {
         <div className="col-span-12 lg:col-span-8 bg-ds-surface-container-lowest p-6 rounded-2xl shadow-sm">
           <div className="flex items-center justify-between mb-6">
             <h3 className="font-[var(--font-heading)] font-bold text-ds-on-surface">
-              Recent Latency Trends
+              {t("latencyTrends")}
             </h3>
             <div className="flex gap-4">
               <div className="flex items-center gap-2">
@@ -393,10 +289,16 @@ export default function LogsPage() {
         </div>
         <div className="col-span-12 lg:col-span-4 flex flex-col gap-6">
           <div className="bg-indigo-600 p-6 rounded-2xl text-white shadow-xl shadow-indigo-200">
-            <h4 className="text-[10px] font-bold uppercase tracking-widest opacity-70 mb-1">Cost Optimization</h4>
-            <p className="text-2xl font-extrabold font-[var(--font-heading)] mb-4">Save up to 32%</p>
+            <h4 className="text-[10px] font-bold uppercase tracking-widest opacity-70 mb-1">
+              {t("costOptimization")}
+            </h4>
+            <p className="text-2xl font-extrabold font-[var(--font-heading)] mb-4">
+              Save up to 32%
+            </p>
             <p className="text-xs opacity-90 leading-relaxed mb-6">
-              Switching your frequent queries to <span className="font-bold underline">gpt-4o-mini</span> could significantly reduce your infra costs based on last 7 days of traffic.
+              Switching your frequent queries to{" "}
+              <span className="font-bold underline">gpt-4o-mini</span> could significantly reduce
+              your infra costs based on last 7 days of traffic.
             </p>
             <button className="w-full py-2 bg-white/20 hover:bg-white/30 backdrop-blur-md rounded-xl text-xs font-bold transition-colors">
               Apply Savings
@@ -404,13 +306,15 @@ export default function LogsPage() {
           </div>
           <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
             <div className="flex items-center justify-between mb-4">
-              <h4 className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Total Logs Volume</h4>
+              <h4 className="text-[10px] font-bold uppercase tracking-widest text-slate-400">
+                {t("totalLogsVolume")}
+              </h4>
               <span className="material-symbols-outlined text-slate-300">analytics</span>
             </div>
             <p className="text-3xl font-extrabold font-[var(--font-heading)] text-ds-on-surface">
               {total > 1000 ? `${(total / 1000).toFixed(1)}K` : total}
             </p>
-            <p className="text-[10px] font-bold text-emerald-600 mt-1">Total records</p>
+            <p className="text-[10px] font-bold text-emerald-600 mt-1">{t("totalRecords")}</p>
           </div>
         </div>
       </div>

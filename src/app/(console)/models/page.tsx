@@ -72,14 +72,11 @@ export default function ModelsPage() {
   const [expandedProviders, setExpandedProviders] = useState<Set<string>>(new Set());
   const [showAllModels, setShowAllModels] = useState<Set<string>>(new Set());
 
-  const { data: modelsData } = useAsyncData<{ data: ModelItem[] }>(
-    async () => {
-      const q = modality ? `?modality=${modality}` : "";
-      const res = await fetch(`/v1/models${q}`);
-      return res.json();
-    },
-    [modality],
-  );
+  const { data: modelsData } = useAsyncData<{ data: ModelItem[] }>(async () => {
+    const q = modality ? `?modality=${modality}` : "";
+    const res = await fetch(`/v1/models${q}`);
+    return res.json();
+  }, [modality]);
   const models = modelsData?.data ?? [];
 
   const grouped = useMemo(() => {
