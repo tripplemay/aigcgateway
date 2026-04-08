@@ -7,9 +7,8 @@ import { errorResponse } from "@/lib/api/errors";
 /**
  * GET /api/admin/models
  *
- * 返回全量模型（含 enabled/canonicalName/isVariant/channels/health 信息）
+ * 返回全量模型（含 enabled/channels/health 信息）
  * 支持 provider/modality/search 筛选
- * 按 canonicalName 分组，变体折叠返回
  */
 export async function GET(request: Request) {
   const auth = requireAdmin(request);
@@ -55,8 +54,6 @@ export async function GET(request: Request) {
       displayName: m.displayName,
       modality: m.modality,
       enabled: m.enabled,
-      canonicalName: m.canonicalName,
-      isVariant: m.isVariant,
       maxTokens: m.maxTokens,
       contextWindow: m.contextWindow,
       capabilities: m.capabilities,
@@ -81,36 +78,9 @@ export async function GET(request: Request) {
     };
   });
 
-  // Group by canonicalName for variant folding
-  const groupMap = new Map<string, { primary: (typeof items)[0]; variants: (typeof items)[0][] }>();
-
-  for (const item of items) {
-    const key = item.canonicalName || item.name;
-    const existing = groupMap.get(key);
-    if (!existing) {
-      groupMap.set(key, { primary: item, variants: [] });
-    } else if (item.isVariant) {
-      existing.variants.push(item);
-    } else {
-      // Current item is primary, move old primary to variants if it's a variant
-      if (existing.primary.isVariant) {
-        existing.variants.push(existing.primary);
-        existing.primary = item;
-      } else {
-        existing.variants.push(item);
-      }
-    }
-  }
-
-  const grouped = Array.from(groupMap.values()).map(({ primary, variants }) => ({
-    ...primary,
-    variants: variants.length > 0 ? variants : undefined,
-  }));
-
   return NextResponse.json({
-    data: grouped,
+    data: items,
     total: models.length,
-    groupCount: grouped.length,
   });
 }
 

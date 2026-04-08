@@ -14,11 +14,7 @@
 
 import { prisma } from "@/lib/prisma";
 import { getConfigNumber } from "@/lib/config";
-import {
-  resolveCapabilities,
-  resolveContextWindow,
-  resolveSupportedSizes,
-} from "./model-capabilities-fallback";
+// model-capabilities-fallback removed — capabilities now managed via Admin UI
 import type {
   SyncAdapter,
   SyncedModel,
@@ -158,37 +154,19 @@ function applyOverrides(
 }
 
 // ============================================================
-// 跨服务商同模型去重映射
+// Canonical name 解析（查 ModelAlias 表）
 // ============================================================
 
-const CROSS_PROVIDER_MAP: Record<string, string> = {
-  "openai/gpt-4o": "openai/gpt-4o",
-  "openai/gpt-4o-mini": "openai/gpt-4o-mini",
-  "openai/gpt-4.1": "openai/gpt-4.1",
-  "openai/gpt-4.1-mini": "openai/gpt-4.1-mini",
-  "openai/gpt-4.1-nano": "openai/gpt-4.1-nano",
-  "openai/o3": "openai/o3",
-  "openai/o3-mini": "openai/o3-mini",
-  "openai/o4-mini": "openai/o4-mini",
-  "anthropic/claude-opus-4-6": "anthropic/claude-opus-4-6",
-  "anthropic/claude-sonnet-4-6": "anthropic/claude-sonnet-4-6",
-  "anthropic/claude-haiku-4-5": "anthropic/claude-haiku-4-5",
-  "deepseek/deepseek-chat": "deepseek/v3",
-  "deepseek/deepseek-reasoner": "deepseek/reasoner",
-};
-
-/** Compute canonicalName by stripping provider routing prefix */
-function computeCanonicalName(modelName: string): string {
-  if (modelName.startsWith("openrouter/")) return modelName.slice(11);
-  return modelName;
-}
-
-function resolveModelName(syncedModel: SyncedModel, providerName: string): string {
-  if (providerName === "openrouter") {
-    const mapped = CROSS_PROVIDER_MAP[syncedModel.modelId];
-    if (mapped) return mapped;
-  }
-  return syncedModel.name.toLowerCase();
+/**
+ * 通过 ModelAlias 表将 Provider 返回的 modelId 映射到 canonical name。
+ * 优先级：1) ModelAlias 精确匹配  2) modelId 本身
+ */
+async function resolveCanonicalName(modelId: string): Promise<string> {
+  const alias = await prisma.modelAlias.findUnique({
+    where: { alias: modelId },
+  });
+  if (alias) return alias.modelName;
+  return modelId;
 }
 
 // ============================================================
@@ -204,123 +182,92 @@ async function reconcile(
   const newChannels: string[] = [];
   const disabledChannels: string[] = [];
 
+  // 去重：同一 Provider 返回的重复 modelId 只保留第一条
+  const seen = new Set<string>();
+  const dedupedModels = models.filter((m) => {
+    if (seen.has(m.modelId)) return false;
+    seen.add(m.modelId);
+    return true;
+  });
+  if (dedupedModels.length < models.length) {
+    console.log(
+      `[model-sync] ${provider.name}: deduped ${models.length - dedupedModels.length} duplicate modelIds`,
+    );
+  }
+
   const existingChannels = await prisma.channel.findMany({
     where: { providerId: provider.id },
     include: { model: true },
   });
 
-  const channelByRealModelId = new Map(existingChannels.map((ch) => [ch.realModelId, ch]));
-  const remoteRealModelIds = new Set(models.map((m) => m.modelId));
+  const remoteRealModelIds = new Set(dedupedModels.map((m) => m.modelId));
 
-  // 收集批量操作
-  const batchOps: Array<
-    ReturnType<typeof prisma.channel.update> | ReturnType<typeof prisma.channel.create>
-  > = [];
+  for (const remoteModel of dedupedModels) {
+    const canonicalName = await resolveCanonicalName(remoteModel.modelId);
 
-  for (const remoteModel of models) {
-    const existingChannel = channelByRealModelId.get(remoteModel.modelId);
-
-    if (existingChannel) {
-      const updateData: Record<string, unknown> = {};
-
-      if (existingChannel.status !== "ACTIVE") {
-        updateData.status = "ACTIVE";
-      }
-
-      if (!existingChannel.sellPriceLocked) {
-        const costPrice = buildCostPrice(remoteModel);
-        const sellPrice = applySellMarkup(costPrice, markupRatio);
-        updateData.costPrice = costPrice;
-        updateData.sellPrice = sellPrice;
-      }
-
-      if (Object.keys(updateData).length > 0) {
-        batchOps.push(
-          prisma.channel.update({ where: { id: existingChannel.id }, data: updateData }),
-        );
-      }
-      continue;
-    }
-
-    // 新模型 — model upsert 必须串行（有依赖关系）
-    const modelName = resolveModelName(remoteModel, provider.name);
-    const hasCapabilities =
-      remoteModel.capabilities != null && Object.keys(remoteModel.capabilities).length > 0;
-    const capabilities = hasCapabilities
-      ? remoteModel.capabilities
-      : resolveCapabilities(remoteModel.modelId);
-    const contextWindow = remoteModel.contextWindow ?? resolveContextWindow(remoteModel.modelId);
-    const isImage = remoteModel.modality === "IMAGE";
-    const supportedSizes = isImage ? resolveSupportedSizes(remoteModel.modelId) : null;
-    const canonicalName = computeCanonicalName(modelName);
+    // Model upsert — 按 canonical name，多 Provider 共享同一 Model
     const model = await prisma.model.upsert({
-      where: { name: modelName },
+      where: { name: canonicalName },
       update: {
-        contextWindow: contextWindow ?? undefined,
-        maxTokens: remoteModel.maxOutputTokens ?? undefined,
-        capabilities: capabilities as unknown as Prisma.InputJsonValue,
-        ...(supportedSizes
-          ? { supportedSizes: supportedSizes as unknown as Prisma.InputJsonValue }
-          : {}),
-        canonicalName,
+        // 只更新 contextWindow（如果 provider 返回了值）
+        ...(remoteModel.contextWindow ? { contextWindow: remoteModel.contextWindow } : {}),
       },
       create: {
-        name: modelName,
-        displayName: remoteModel.displayName,
+        name: canonicalName,
+        displayName: remoteModel.displayName ?? canonicalName,
         modality: remoteModel.modality as ModelModality,
-        contextWindow: contextWindow ?? null,
+        contextWindow: remoteModel.contextWindow ?? null,
         maxTokens: remoteModel.maxOutputTokens ?? null,
-        capabilities: capabilities as unknown as Prisma.InputJsonValue,
-        supportedSizes: supportedSizes as unknown as Prisma.InputJsonValue,
-        enabled: false,
-        canonicalName,
+        capabilities: {},  // 由管理员在 Admin UI 设置
+        enabled: false,     // 默认不启用
       },
     });
 
-    const existingByModel = existingChannels.find((ch) => ch.modelId === model.id);
-    if (existingByModel) {
-      const updateData: Record<string, unknown> = { realModelId: remoteModel.modelId };
-      if (existingByModel.status !== "ACTIVE") updateData.status = "ACTIVE";
-      if (!existingByModel.sellPriceLocked) {
-        updateData.costPrice = buildCostPrice(remoteModel);
-        updateData.sellPrice = applySellMarkup(
-          updateData.costPrice as Record<string, unknown>,
-          markupRatio,
-        );
-      }
-      batchOps.push(prisma.channel.update({ where: { id: existingByModel.id }, data: updateData }));
-      continue;
-    }
+    // Channel upsert — 按 (providerId, modelId) 唯一约束
+    const existingChannel = await prisma.channel.findUnique({
+      where: { providerId_modelId: { providerId: provider.id, modelId: model.id } },
+    });
 
     const costPrice = buildCostPrice(remoteModel);
     const sellPrice = applySellMarkup(costPrice, markupRatio);
 
-    // 可观测性：新 Channel sellPrice 全为 0 时打印告警
-    const sp = sellPrice as unknown as Record<string, number>;
-    if ((sp.inputPer1M === 0 && sp.outputPer1M === 0) || sp.perCall === 0) {
-      console.warn(
-        `[model-sync] WARNING: zero sellPrice for new channel ${provider.name}/${remoteModel.modelId}`,
-      );
-    }
+    if (existingChannel) {
+      const updateData: Record<string, unknown> = {
+        realModelId: remoteModel.modelId,
+      };
+      if (existingChannel.status !== "ACTIVE") updateData.status = "ACTIVE";
+      if (!existingChannel.sellPriceLocked) {
+        updateData.costPrice = costPrice;
+        updateData.sellPrice = sellPrice;
+      }
+      await prisma.channel.update({ where: { id: existingChannel.id }, data: updateData });
+    } else {
+      // 可观测性：新 Channel sellPrice 全为 0 时打印告警
+      const sp = sellPrice as unknown as Record<string, number>;
+      if ((sp.inputPer1M === 0 && sp.outputPer1M === 0) || sp.perCall === 0) {
+        console.warn(
+          `[model-sync] WARNING: zero sellPrice for new channel ${provider.name}/${remoteModel.modelId}`,
+        );
+      }
 
-    batchOps.push(
-      prisma.channel.create({
+      await prisma.channel.create({
         data: {
-          providerId: provider.id,
           modelId: model.id,
+          providerId: provider.id,
           realModelId: remoteModel.modelId,
-          priority: 1,
-          costPrice,
-          sellPrice,
           status: "ACTIVE",
+          priority: 10,  // 默认优先级，管理员可调
+          costPrice: costPrice as unknown as Prisma.InputJsonValue,
+          sellPrice: sellPrice as unknown as Prisma.InputJsonValue,
         },
-      }),
-    );
-
-    if (!existingChannels.some((ch) => ch.model.name === modelName)) {
-      newModels.push(modelName);
+      });
+      newChannels.push(`${provider.name}/${remoteModel.modelId} → ${canonicalName}`);
     }
-    newChannels.push(`${provider.name}/${remoteModel.modelId}`);
+
+    // 记录新 Model
+    if (!existingChannels.some((ch) => ch.model.name === canonicalName)) {
+      newModels.push(canonicalName);
+    }
   }
 
   // 下架：服务商不再返回的模型
@@ -328,20 +275,13 @@ async function reconcile(
     (ch) => ch.status !== "DISABLED" && !remoteRealModelIds.has(ch.realModelId),
   );
   if (toDisable.length > 0) {
-    batchOps.push(
-      prisma.channel.updateMany({
-        where: { id: { in: toDisable.map((ch) => ch.id) } },
-        data: { status: "DISABLED" },
-      }) as unknown as ReturnType<typeof prisma.channel.update>,
-    );
+    await prisma.channel.updateMany({
+      where: { id: { in: toDisable.map((ch) => ch.id) } },
+      data: { status: "DISABLED" },
+    });
     for (const ch of toDisable) {
       disabledChannels.push(`${provider.name}/${ch.realModelId}`);
     }
-  }
-
-  // 批量提交所有 channel 操作
-  if (batchOps.length > 0) {
-    await prisma.$transaction(batchOps);
   }
 
   return { newModels, newChannels, disabledChannels };
@@ -558,15 +498,6 @@ export async function runModelSync(): Promise<SyncResult> {
         totalFailedProviders: providerResults.filter((r) => !r.success).length,
       },
     };
-
-    // ── 后处理：更新 isVariant（同 canonicalName 多条 → isVariant=true）──
-    await prisma.$executeRaw`
-      UPDATE "models" SET "isVariant" = EXISTS (
-        SELECT 1 FROM "models" m2
-        WHERE m2."canonicalName" = "models"."canonicalName"
-          AND m2."id" != "models"."id"
-      )
-    `;
 
     // 保存同步结果到 SystemConfig
     const { setConfig } = await import("@/lib/config");

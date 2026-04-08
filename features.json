@@ -7,7 +7,7 @@
       "title": "Schema migration（清空 + ModelAlias 表 + 删除废弃字段）",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "1) Model/Channel 表清空；2) Model 表删除 canonicalName 和 isVariant 字段；3) 新增 ModelAlias 表（id, alias UNIQUE, modelName, createdAt）；4) Channel 唯一约束改为 (providerId, modelId)；5) prisma migrate dev 通过；6) npm run lint + tsc 通过"
     },
     {
@@ -15,7 +15,7 @@
       "title": "ModelAlias 初始数据写入",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "1) migration 或 seed 中写入 25+ 条已知别名映射（参考规格文档 §1.4）；2) 包括 deepseek/openai/anthropic/google/x-ai/qwen/minimax/moonshot/perplexity 的别名 + 版本变体合并；3) npm run lint + tsc 通过"
     },
     {
@@ -23,7 +23,7 @@
       "title": "Sync 去重逻辑",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "1) reconcile 函数入口对 Provider 返回的模型列表按 modelId 去重；2) 去重后打印日志（deduped N duplicate modelIds）；3) chatanywhere 的 193 个模型去重后不再触发唯一约束冲突；4) npm run lint + tsc 通过"
     },
     {
@@ -31,7 +31,7 @@
       "title": "resolveCanonicalName（查 ModelAlias 表）",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "1) 新函数 resolveCanonicalName(modelId) 先查 ModelAlias 表精确匹配，未匹配则返回 modelId 本身；2) 替代原来的 resolveModelName + computeCanonicalName；3) npm run lint + tsc 通过"
     },
     {
@@ -39,7 +39,7 @@
       "title": "Sync reconcile 改造（canonical Model + 多 Channel）",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "1) Model.upsert 按 canonical name（不再拼接 provider 前缀）；2) Channel.upsert 按 (providerId, modelId) 唯一约束；3) 新 Model 默认 enabled=false、capabilities={}；4) 同一模型多个 Provider sync 后共享一条 Model 记录；5) sync 不再写入 capabilities（由 Admin UI 管理）；6) 触发 sync 后日志正常，无报错；7) npm run lint + tsc 通过"
     },
     {

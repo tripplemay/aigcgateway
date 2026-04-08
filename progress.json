@@ -1,11 +1,11 @@
 {
-  "status": "building",
+  "status": "verifying",
   "user_goal": "P4-1a-schema-sync: 模型聚合核心重构 — Schema 清空重建 + ModelAlias + Sync 改造",
   "total_features": 6,
-  "completed_features": 0,
+  "completed_features": 5,
   "fix_rounds": 0,
   "current_sprint": null,
-  "last_updated": "2026-04-08T15:00:00Z",
+  "last_updated": "2026-04-08T16:00:00Z",
   "reference_docs": [
     "docs/specs/P4-model-aggregation-PRD.md",
     "docs/specs/P4-model-aggregation-spec.md"
@@ -22,5 +22,17 @@
     "framework_reviewed": false
   },
   "evaluator_feedback": null,
-  "generator_handoff": null
+  "generator_handoff": {
+    "completed": ["F-P4A-01", "F-P4A-02", "F-P4A-03", "F-P4A-04", "F-P4A-05"],
+    "codex_tasks": ["F-P4A-06: E2E 验证"],
+    "notes": [
+      "F-P4A-01: Prisma schema 删除 canonicalName/isVariant，新增 ModelAlias 表，Channel 唯一约束改为 (providerId, modelId)，migration 清空 models/channels 表",
+      "F-P4A-02: 28 条 ModelAlias 初始数据通过单独 migration 写入（deepseek/anthropic/google/x-ai/qwen/minimax/moonshot/perplexity + OpenAI 版本变体）",
+      "F-P4A-03: reconcile 入口新增 modelId 去重逻辑，去重日志 deduped N duplicate modelIds",
+      "F-P4A-04: resolveCanonicalName 查 ModelAlias 表替代旧的 CROSS_PROVIDER_MAP + resolveModelName + computeCanonicalName",
+      "F-P4A-05: reconcile 改为 canonical Model upsert + Channel 按 (providerId, modelId) upsert，sync 不再写入 capabilities，list_models 和 /v1/models 去掉 fallback",
+      "需要 prisma migrate deploy 应用 2 个新 migration 后才能测试",
+      "sync 后 Model.name 是 canonical name（如 gpt-4o 而非 openai/gpt-4o），同一模型多 Provider 共享一条 Model 记录"
+    ]
+  }
 }

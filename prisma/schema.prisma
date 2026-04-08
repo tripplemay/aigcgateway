@@ -232,8 +232,6 @@ model Model {
   displayName   String
   modality      ModelModality
   enabled       Boolean       @default(false)
-  canonicalName String        @default("")
-  isVariant     Boolean       @default(false)
   maxTokens     Int?
   contextWindow Int?
   capabilities   Json?
@@ -248,6 +246,16 @@ model Model {
   @@index([name])
   @@index([enabled])
   @@map("models")
+}
+
+model ModelAlias {
+  id        String   @id @default(cuid())
+  alias     String   @unique
+  modelName String
+  createdAt DateTime @default(now())
+
+  @@index([modelName])
+  @@map("model_aliases")
 }
 
 model Channel {
@@ -268,7 +276,7 @@ model Channel {
   callLogs     CallLog[]
   healthChecks HealthCheck[]
 
-  @@unique([providerId, modelId, realModelId])
+  @@unique([providerId, modelId])
   @@index([modelId, status, priority])
   @@index([providerId])
   @@map("channels")

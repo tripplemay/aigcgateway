@@ -27,8 +27,6 @@ interface ModelItem {
   displayName: string;
   modality: string;
   enabled: boolean;
-  canonicalName: string;
-  isVariant: boolean;
   maxTokens: number | null;
   contextWindow: number | null;
   capabilities: Record<string, unknown> | null;
@@ -162,7 +160,7 @@ export default function ModelWhitelistPage() {
     const result: ModelItem[] = [];
     for (const item of data) {
       result.push(item);
-      if (item.variants && expandedGroups.has(item.canonicalName || item.name)) {
+      if (item.variants && expandedGroups.has(item.name)) {
         result.push(...item.variants);
       }
     }
@@ -431,7 +429,7 @@ export default function ModelWhitelistPage() {
               </thead>
               <tbody className="divide-y divide-border/50">
                 {pageItems.map((item) => {
-                  const groupKey = item.canonicalName || item.name;
+                  const groupKey = item.name;
                   const hasVariants = !!(item.variants && item.variants.length > 0);
                   const isExpanded = expandedGroups.has(groupKey);
                   const providerDisplay = item.channels[0]?.provider ?? "\u2014";
@@ -453,11 +451,6 @@ export default function ModelWhitelistPage() {
                           {isNewModel(item.createdAt) && (
                             <span className="bg-orange-100 text-orange-800 text-[9px] font-black px-1.5 py-0.5 rounded uppercase tracking-tighter">
                               {t("newBadge")}
-                            </span>
-                          )}
-                          {item.isVariant && (
-                            <span className="text-[10px] text-muted-foreground">
-                              ({t("variant")})
                             </span>
                           )}
                         </div>
