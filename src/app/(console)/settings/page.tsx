@@ -79,15 +79,28 @@ export default function SettingsPage() {
 
   const loginHistory = historyData?.data ?? [];
 
-  const handleSaveName = () => {
-    apiFetch("/api/auth/profile", { method: "PATCH", body: JSON.stringify({ name }) })
-      .then(() => {
-        toast.success(t("nameUpdated"));
-        refetchProfile();
-      })
-      .catch((e: unknown) => {
-        toast.error((e as Error).message);
+  const handleSaveName = async () => {
+    try {
+      const payload = { name };
+      const res = await fetch("/api/auth/profile", {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          ...(typeof window !== "undefined" && localStorage.getItem("token")
+            ? { Authorization: `Bearer ${localStorage.getItem("token")}` }
+            : {}),
+        },
+        body: JSON.stringify(payload),
       });
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        throw new Error(body.error?.message ?? `Request failed: ${res.status}`);
+      }
+      toast.success(t("nameUpdated"));
+      refetchProfile();
+    } catch (e) {
+      toast.error((e as Error).message);
+    }
   };
 
   const changePassword = async () => {
