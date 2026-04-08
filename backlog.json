@@ -1,4 +1,21 @@
 {
   "description": "需求池：已与用户确认但尚未开发的功能，等待下一批次启动时统一安排",
-  "items": []
+  "items": [
+    {
+      "id": "BL-061",
+      "title": "API Key 创建/吊销防重复提交",
+      "description": "keys/page.tsx 的 create() 和 revoke() 无 in-flight guard，按钮在请求期间仍可点击，双击可产生重复写入。需要：1) 增加 creating/revoking loading 状态；2) 请求中按钮 disabled；3) 失败时 modal 不关闭。来源：独立前端代码审查（2026-04-08），HIGH 级别。",
+      "decisions": [],
+      "confirmed_at": "2026-04-08",
+      "priority": "high"
+    },
+    {
+      "id": "BL-062",
+      "title": "异步加载缺 catch/finally 修复",
+      "description": "多处页面的异步加载路径缺少 catch/finally，API 失败后 spinner 永转或静默空白。涉及：admin/users/page.tsx:25、keys/page.tsx:64、admin/usage/page.tsx:23、dashboard/page.tsx:82。需要：1) 所有 load 函数 try/catch/finally；2) finally 中保证 loading=false；3) 失败时显示错误提示而非空白。来源：独立前端代码审查（2026-04-08），MEDIUM 级别。",
+      "decisions": [],
+      "confirmed_at": "2026-04-08",
+      "priority": "high"
+    }
+  ]
 }
