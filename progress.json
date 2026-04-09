@@ -22,7 +22,7 @@
   "evaluator_feedback": null,
   "generator_handoff": null,
   "session_notes": {
-    "Kimi": "R3C planning 完成。9 条功能（8 generator + 1 codex）。分两组：DS token 修复 5 页（whitelist 50处/aliases 21处/capabilities 12处/docs 21处/layout 1处）+ Auth 重构 3 页（login 重度/register 中度/mcp-setup polish）。QuickStart 已核查 DS 正确，跳过。",
+    "Kimi": "R3C planning 完成，building 未开始。Token 映射表在 spec 中。分两组先后执行：先 DS token 修复（01~04 纯 CSS 替换，参照 spec token 映射表），后 Auth 重构（05 Login 重度/06 Register 中度/07 MCP polish）。Login 需读 design-draft/login/code.html 做 1:1 翻译，内嵌 Terminal 组件需决定保留还是抽离。Register 需读 design-draft/register/code.html 确认是否与 Login 统一左右分栏。QuickStart 已确认 DS 正确跳过。",
     "Reviewer": null
   }
 }
