@@ -7,16 +7,16 @@ type: project
 ## 当前批次
 
 **R2C-user-pages-actions-templates** — Actions + Templates 页面还原
-- Status: `fixing`（reverifying round1 未通过）
-- 复验结果：`/actions/new` 模型下拉仍无可选模型；`GET /v1/models` 仍返回 `data=[]`，阻断未解除
-- 报告：`docs/test-reports/R2C-user-pages-actions-templates-reverifying-round1-2026-04-09.md`
+- Status: `done`（用户确认签收）
+- 签收说明：剩余 `/v1/models` 空数据导致的 UI 创建阻断由用户确认为测试环境问题并豁免
+- Signoff：`docs/test-reports/R2C-user-pages-actions-templates-signoff-2026-04-09.md`
 
 ## UI 重构全局计划
 
 - **阶段一 R1（已完成）：** 基础组件 + Layout Shell + Dashboard
 - **阶段二 R2A（已完成）：** Keys + Logs + Models（4 轮修复）
 - **阶段二 R2B（已完成）：** Balance + Usage + Settings（7 轮修复）
-- **阶段二 R2C（fixing）：** Actions(3页) + Templates(3页)
+- **阶段二 R2C（done）：** Actions(3页) + Templates(3页)
 - **待做：** 管理侧 14 页 + 认证 2 页
 - 全部 30 个设计稿就绪
 

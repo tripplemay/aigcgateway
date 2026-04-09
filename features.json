@@ -69,7 +69,7 @@
       "title": "R2C 视觉回归验收",
       "priority": "high",
       "executor": "codex",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) /actions、/actions/[actionId]、/actions/new、/templates、/templates/[templateId]、/templates/new 正常加载无报错；2) DS 组件使用正确；3) CRUD 操作正常；4) 中英文切换无残留；5) 签收报告生成"
     }
   ]
