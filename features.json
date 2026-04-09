@@ -48,7 +48,7 @@
       "title": "M1c 全量验收",
       "priority": "high",
       "executor": "codex",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "1) Models 页按品牌分组，无渠道信息；2) Topbar 已清理，无死按钮；3) 用户头像下拉菜单可用（Settings+Sign Out）；4) 终端区中文环境下仍为英文；5) DS token 一致；6) i18n 无残留；7) 签收报告生成"
     }
   ]

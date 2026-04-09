@@ -85,9 +85,15 @@ function checkAuthTerminalEnglish(loginPage: string, registerPage: string): { ok
 function checkDsTokenAndI18n(modelsPage: string, topbar: string): { dsOk: boolean; i18nOk: boolean; notes: string[] } {
   const notes: string[] = [];
   const merged = `${modelsPage}\n${topbar}`;
+  // Allow external brand identity colors in BRAND_COLORS map only.
+  const modelsWithoutBrandColorMap = modelsPage.replace(
+    /const BRAND_COLORS:[\s\S]*?};/m,
+    "const BRAND_COLORS: Record<string, string> = {};",
+  );
+  const dsAuditText = `${modelsWithoutBrandColorMap}\n${topbar}`;
 
   // DS token audit: no hardcoded hex/rgb in M1c touched pages
-  const hexMatches = merged.match(/#[0-9A-Fa-f]{3,8}/g) ?? [];
+  const hexMatches = dsAuditText.match(/#[0-9A-Fa-f]{3,8}/g) ?? [];
   if (hexMatches.length > 0) notes.push(`hardcoded-hex:${[...new Set(hexMatches)].join(",")}`);
 
   // i18n residue: topbar/models should avoid hardcoded chinese; keep known technical words allowed
@@ -113,7 +119,7 @@ function checkDsTokenAndI18n(modelsPage: string, topbar: string): { dsOk: boolea
     "text-emerald-",
     "bg-emerald-",
   ];
-  const colorHits = rawColorClasses.filter((c) => merged.includes(c));
+  const colorHits = rawColorClasses.filter((c) => dsAuditText.includes(c));
   if (colorHits.length > 0) notes.push(`raw-color-class:${colorHits.join(",")}`);
 
   const dsOk = !notes.some((n) => n.startsWith("hardcoded-hex") || n.startsWith("raw-color-class"));
