@@ -408,16 +408,25 @@ export async function routeByAlias(aliasName: string): Promise<RouteResult> {
 - 列出有 Channel 但未挂载到任何别名的 Model
 - 快捷操作：创建新别名 / 挂载到已有别名
 
-### 8.3 白名单页面删除
+### 8.3 删除的 Admin 页面
 
-`/admin/model-whitelist` 页面删除。Model.enabled 变为派生状态：
+以下页面合并入别名管理页后删除：
 
+**`/admin/model-whitelist` — 白名单页面删除**
+
+Model.enabled 变为派生状态：
 - 模型被挂载到任意别名 → 自动 `enabled=true`（Channel 保持活跃、参与健康检查和价格同步）
 - 模型从所有别名移除 → 自动 `enabled=false`（Channel 停止维护）
+- 用户可见性唯一由 ModelAlias.enabled 控制
 
-**用户可见性唯一由 ModelAlias.enabled 控制。** Admin 在别名管理页一站完成所有操作。
+**`/admin/model-capabilities` — 模型能力页面删除**
 
-侧边栏导航中移除 "Model Whitelist" 入口。
+Capabilities 编辑合并到别名详情面板的元数据编辑区：
+- 别名详情中新增 Capabilities 开关组（function_calling / vision / json_mode / streaming 等）
+- 与 brand、contextWindow、description 同级编辑
+- 用户通过 /v1/models 看到的 capabilities 来自 ModelAlias.capabilities
+
+侧边栏导航中移除 "Model Whitelist" 和 "Model Capabilities" 两个入口。
 
 ## 9. MCP 影响
 
