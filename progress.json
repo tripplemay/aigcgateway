@@ -1,9 +1,9 @@
 {
-  "status": "fixing",
+  "status": "reverifying",
   "user_goal": "R2C — 用户侧页面还原（Actions + Templates）：6 个页面从旧代码模式还原为 R1 设计系统，对齐 Stitch 设计稿",
   "total_features": 8,
   "completed_features": 7,
-  "fix_rounds": 1,
+  "fix_rounds": 2,
   "current_sprint": null,
   "last_updated": "2026-04-09T01:05:00Z",
   "reference_docs": [
@@ -44,7 +44,7 @@
   "generator_handoff": "R2C building 完成。7/7 generator 功能已实现：Actions 3 页（列表+详情+编辑器）+ Templates 3 页（列表+详情+编辑器）+ i18n 补全。全部使用 useAsyncData + DS Table/Pagination/SearchBar + DS 色彩 token。移除 Developer Quick-Link（DESIGN.md ignore）、Variables 列（partial support）。tsc+lint 通过。",
   "session_notes": {
     "Richard": "R2C planning 完成。8 条功能（7 generator + 1 codex）。Actions 3 页 + Templates 3 页 + i18n。先做 Actions 再做 Templates（Templates 编辑器引用 Actions）。所有页面当前旧模式，共 2419 行需重写。",
-    "Johnsong": "R2C building 完成。Actions: 列表页 useAsyncData+DS Table+Pagination+SearchBar、详情页 useAsyncData+DS Table 变量表+版本历史卡片式+移除 devQuickLink、编辑器 DS tokens+i18n role labels。Templates: 列表页同 Actions 模式、详情页 useAsyncData+pipeline steps+metadata sidebar、编辑器 DS tokens+所有标签 i18n。i18n 新增约 30 个 key（en+zh）。",
+    "Johnsong": "Fix round 2（非代码修复）：/v1/models 返回空是测试环境数据问题（无 provider 或 provider 不健康），不是前端 bug。Round 1 已将模型字段从 <select> 改为 <input>+<datalist>，支持手动输入。请 Codex 在模型输入框手动输入模型名（如 gpt-4o）后再点击保存测试创建链路。",
     "Mark": null,
     "Reviewer": "R2C reverifying round1 完成：阻断缺陷仍在，/actions/new 模型下拉无可选项；GET /v1/models（reqid=74）返回 data=[]。F-R2C-08 继续 FAIL，状态回退 fixing。报告：docs/test-reports/R2C-user-pages-actions-templates-reverifying-round1-2026-04-09.md"
   }
