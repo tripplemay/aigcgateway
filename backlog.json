@@ -56,6 +56,46 @@
       "decisions": [],
       "confirmed_at": "2026-04-09",
       "priority": "low"
+    },
+    {
+      "id": "BL-081",
+      "title": "API Key 迁移到用户级 + 项目选择机制",
+      "description": "API Key 从项目级迁移到用户级，解决余额(用户级)+Key(项目级)的逻辑混乱。改动：1) ApiKey.projectId → userId；2) User 新增 defaultProjectId；3) 鉴权中间件改为从 Key 解析 userId，从 X-Project-Id header 或 defaultProjectId 取项目上下文；4) Transaction.projectId 改为可选；5) Keys 管理页移到用户 Settings；6) MCP 支持项目切换。不改的：Actions/Templates/CallLog 仍按项目隔离，项目切换器保留。",
+      "decisions": [
+        "Key = 用户身份，Project = 资源分组，Balance = 用户钱包",
+        "项目通过 X-Project-Id header 指定，不传则用 User.defaultProjectId",
+        "chat/generate_image 不强制需要项目上下文（计费在用户级）",
+        "Actions/Templates/Logs 操作必须有项目上下文"
+      ],
+      "confirmed_at": "2026-04-10",
+      "priority": "high"
+    },
+    {
+      "id": "BL-080",
+      "title": "项目文档全面更新（M1 别名架构 + P5 公共模板）",
+      "description": "M1 别名架构升级和 P5 公共模板完成后，多份文档过时。HIGH：API Spec（模型名示例）、Console Interaction Spec（Models 页分组方式）、SDK Spec（model 参数示例）、Database Design（缺 ModelAlias/AliasModelLink）、R2A Spec（Models 页）、R3A Spec（白名单/能力页已删除）。MEDIUM：Full PRD（缺 P5）、P4 Spec（缺 M1 字段）、architecture.md（路由逻辑）、Auto-Sync PRD（缺品牌推断）。共 10 个文件需更新。",
+      "decisions": [],
+      "confirmed_at": "2026-04-10",
+      "priority": "medium"
+    },
+    {
+      "id": "BL-079",
+      "title": "Settings 页增加 Project tab — 项目信息管理",
+      "description": "用户目前无法管理项目信息。在 /settings 页新增 Project tab，功能：1) 编辑项目名称/描述；2) 查看项目统计（API Key 数、调用数）；3) 删除项目（Danger Zone，需确认）。延续现有 Settings 页卡片式表单风格，无需单独设计稿。",
+      "decisions": ["合并到 Settings 页而非独立页面"],
+      "confirmed_at": "2026-04-10",
+      "priority": "medium"
+    },
+    {
+      "id": "BL-078",
+      "title": "Admin 用户详情页功能完善 + 余额模型适配",
+      "description": "1) 页面崩溃修复（API 未返回 balance）；2) 余额展示从项目级改为用户级（直接显示 User.balance，移除项目级余额拆分）；3) 充值交互改为给用户充值（移除 projectId 依赖，API 路径简化为 /api/admin/users/:id/recharge）；4) 用户列表 API totalBalance 改读 User.balance；5) 余额历史接真实 Transaction 记录；6) Danger Zone 的 Suspend/Delete 实现；7) lastActive 接真实数据（取最近 CallLog 时间）。",
+      "decisions": [
+        "余额已迁移到用户级，项目级余额展示和充值路径需全面适配",
+        "充值 API 路径从 /users/:id/projects/:projectId/recharge 简化为 /users/:id/recharge"
+      ],
+      "confirmed_at": "2026-04-10",
+      "priority": "high"
     }
   ]
 }

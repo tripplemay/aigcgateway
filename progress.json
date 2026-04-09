@@ -27,7 +27,7 @@
   "generator_handoff": null,
   "session_notes": {
     "Kimi": "M1c fixing 完成。AC5 DS token 一致性修复：models/page.tsx 的 MODALITY_STYLES 改用 ds-primary-fixed/ds-status-success/warning/error tokens；Vision badge 改用 ds-status-warning tokens；Free 标签改用 ds-status-success；装饰圆改用 ds-primary-fixed；fallback 品牌色改用 var(--ds-outline)。top-app-bar.tsx 全面替换：bg-white→ds-surface-container-lowest、slate→ds-on-surface-variant/ds-outline、hover:#5443b9→ds-primary、red→ds-error/ds-error-container。BRAND_COLORS 保留 hex（外部品牌标识，已注释说明）。",
-    "Planner": "M1b done 收尾 + M1c 启动。M1b 签收（8/8 PASS，1 fix round）。M1c 含 5 generator + 1 codex：Models 页重做、Topbar 清理（移除 Deploy/设置/搜索/暗色模式按钮）、用户头像下拉菜单、终端区英文固定、i18n。从 backlog 移除 BL-076/BL-077。",
+    "Planner": "M1 全部完成（M1a/M1b/M1c 签收）。本轮 Planner 产出：1) P5 spec + 设计稿确认；2) M1 spec（别名一等公民架构）+ 拆为三子批次；3) Topbar 审计（移除 4 个占位 + 用户头像菜单）；4) 用户详情页链路核查（发现 balance 崩溃 + 余额模型不一致）；5) MCP 工具审计（25 个工具，1 个需修复）；6) 新增 backlog：BL-078~081。关键待决：BL-081(Key 用户级) 和 BL-069(余额收敛) 有依赖关系。",
     "Reviewer": "2026-04-10 reverifying：已执行 scripts/test/m1c-models-topbar-verifying-e2e-2026-04-10.ts，结果 6 PASS / 0 FAIL。AC5 修复后通过；signoff 已写入 docs/test-reports/m1c-models-page-topbar-cleanup-signoff-2026-04-10.md，并将状态流转至 done。"
   }
 }
