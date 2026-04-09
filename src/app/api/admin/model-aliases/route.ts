@@ -6,27 +6,58 @@ import { errorResponse } from "@/lib/api/errors";
 
 /**
  * GET /api/admin/model-aliases
- * 返回所有别名（含关联模型数）
- * F-M1a-02 会增强为完整 CRUD + 模型挂载
+ * 返回所有别名（含关联模型详情 + 未归类模型列表）
  */
 export async function GET(request: Request) {
   const auth = requireAdmin(request);
   if (!auth.ok) return auth.error;
 
-  const aliases = await prisma.modelAlias.findMany({
-    orderBy: [{ alias: "asc" }],
-    include: {
-      models: {
-        include: {
-          model: {
-            include: {
-              channels: { where: { status: "ACTIVE" }, select: { id: true } },
+  const [aliases, allModels] = await Promise.all([
+    prisma.modelAlias.findMany({
+      orderBy: [{ alias: "asc" }],
+      include: {
+        models: {
+          include: {
+            model: {
+              include: {
+                channels: {
+                  where: { status: "ACTIVE" },
+                  orderBy: { priority: "asc" },
+                  select: {
+                    id: true,
+                    priority: true,
+                    status: true,
+                    realModelId: true,
+                    provider: { select: { name: true, displayName: true } },
+                  },
+                },
+              },
             },
           },
         },
       },
-    },
-  });
+    }),
+    prisma.model.findMany({
+      where: {
+        aliasLinks: { none: {} },
+        channels: { some: { status: "ACTIVE" } },
+      },
+      select: {
+        id: true,
+        name: true,
+        displayName: true,
+        modality: true,
+        channels: {
+          where: { status: "ACTIVE" },
+          select: {
+            id: true,
+            provider: { select: { name: true, displayName: true } },
+          },
+        },
+      },
+      orderBy: { name: "asc" },
+    }),
+  ]);
 
   const data = aliases.map((a) => ({
     id: a.id,
@@ -36,7 +67,18 @@ export async function GET(request: Request) {
     enabled: a.enabled,
     contextWindow: a.contextWindow,
     maxTokens: a.maxTokens,
+    capabilities: a.capabilities,
     description: a.description,
+    linkedModels: a.models.map((link) => ({
+      modelId: link.model.id,
+      modelName: link.model.name,
+      channels: link.model.channels.map((ch) => ({
+        id: ch.id,
+        priority: ch.priority,
+        status: ch.status,
+        providerName: ch.provider.displayName,
+      })),
+    })),
     linkedModelCount: a.models.length,
     activeChannelCount: a.models.reduce(
       (sum, link) => sum + link.model.channels.length,
@@ -46,7 +88,21 @@ export async function GET(request: Request) {
     updatedAt: a.updatedAt,
   }));
 
-  return NextResponse.json({ data, total: data.length });
+  const unlinkedModels = allModels.map((m) => ({
+    id: m.id,
+    name: m.name,
+    displayName: m.displayName,
+    modality: m.modality,
+    channelCount: m.channels.length,
+    providers: [...new Set(m.channels.map((ch) => ch.provider.displayName))],
+  }));
+
+  return NextResponse.json({
+    data,
+    total: data.length,
+    unlinkedModels,
+    unlinkedCount: unlinkedModels.length,
+  });
 }
 
 /**

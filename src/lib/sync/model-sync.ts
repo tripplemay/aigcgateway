@@ -501,6 +501,26 @@ export async function runModelSync(): Promise<SyncResult> {
     await setConfig("LAST_SYNC_RESULT", JSON.stringify(syncResult), "最近一次模型同步结果");
     await setConfig("LAST_SYNC_TIME", syncResult.finishedAt, "最近一次模型同步时间");
 
+    // 同步完成后自动分类未挂载模型到别名
+    try {
+      const { classifyNewModels, inferMissingBrands } = await import("./alias-classifier");
+      const classifyResult = await classifyNewModels();
+      if (classifyResult.classified > 0 || classifyResult.newAliases > 0) {
+        console.log(
+          `[model-sync] Alias classification: ${classifyResult.classified} classified, ${classifyResult.newAliases} new aliases`,
+        );
+      }
+      // 补推 brand 为空的别名
+      const brandResult = await inferMissingBrands();
+      if (brandResult.updated > 0) {
+        console.log(`[model-sync] Brand inference: ${brandResult.updated} updated`);
+      }
+    } catch (err) {
+      console.log(
+        `[model-sync] Alias classification failed (non-blocking): ${err instanceof Error ? err.message : String(err)}`,
+      );
+    }
+
     // 同步完成后 invalidate 所有相关缓存
     const { getRedis } = await import("@/lib/redis");
     const redis = getRedis();
