@@ -65,11 +65,16 @@ export default function AdminTemplatesPage() {
   }, [page, search, visibility]);
 
   const templates = data?.data ?? [];
-  const stats = data?.stats ?? { totalTemplates: 0, totalActions: 0, publicCount: 0, privateCount: 0 };
+  const stats = data?.stats ?? {
+    totalTemplates: 0,
+    totalActions: 0,
+    publicCount: 0,
+    privateCount: 0,
+  };
   const pagination = data?.pagination ?? { page: 1, pageSize: 20, total: 0, totalPages: 0 };
 
   const handleDelete = async (id: string, name: string) => {
-    if (!confirm(`Delete template "${name}"?`)) return;
+    if (!confirm(t("confirmDelete", { name }))) return;
     try {
       await apiFetch(`/api/admin/templates/${id}`, { method: "DELETE" });
       toast.success(t("deleted"));

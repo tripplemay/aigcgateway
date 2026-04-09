@@ -98,13 +98,13 @@ export default function AdminUsagePage() {
           {t("title")}
         </h2>
         <div className="bg-ds-surface-container-low p-1 rounded-full flex gap-1">
-          {["today", "7d", "30d"].map((p) => (
+          {(["today", "7d", "30d"] as const).map((p) => (
             <button
               key={p}
               onClick={() => setPeriod(p)}
               className={`px-5 py-1.5 rounded-full text-xs font-bold transition-all ${period === p ? "bg-white text-ds-primary shadow-sm" : "text-ds-on-surface-variant hover:text-ds-primary"}`}
             >
-              {p}
+              {t(`period_${p}`)}
             </button>
           ))}
         </div>

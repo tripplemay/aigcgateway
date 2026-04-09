@@ -638,7 +638,10 @@
     "colCost": "成本",
     "colRevenue": "收入",
     "colMargin": "利润",
-    "colMarginPct": "利润率"
+    "colMarginPct": "利润率",
+    "period_today": "今日",
+    "period_7d": "7天",
+    "period_30d": "30天"
   },
   "adminUsers": {
     "title": "开发者管理",
@@ -861,6 +864,7 @@
     "of": "/",
     "templates": "个模板",
     "deleted": "模板已删除",
+    "confirmDelete": "确认删除模板「{name}」？",
     "empty": "暂无模板",
     "publicToggled": "公开状态已更新"
   }

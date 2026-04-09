@@ -638,7 +638,10 @@
     "colCost": "Cost",
     "colRevenue": "Revenue",
     "colMargin": "Margin",
-    "colMarginPct": "Margin %"
+    "colMarginPct": "Margin %",
+    "period_today": "Today",
+    "period_7d": "7D",
+    "period_30d": "30D"
   },
   "adminUsers": {
     "title": "Developers",
@@ -861,6 +864,7 @@
     "of": "of",
     "templates": "templates",
     "deleted": "Template deleted",
+    "confirmDelete": "Delete template \"{name}\"?",
     "empty": "No templates found",
     "publicToggled": "Public status updated"
   }
