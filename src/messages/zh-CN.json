@@ -556,7 +556,9 @@
     "colModel": "模型",
     "colModality": "类型",
     "colChannels": "通道",
-    "colActions": "操作"
+    "colActions": "操作",
+    "text": "文本",
+    "image": "图片"
   },
   "modelCapabilities": {
     "title": "模型能力管理",

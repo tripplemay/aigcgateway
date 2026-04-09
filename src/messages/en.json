@@ -556,7 +556,9 @@
     "colModel": "Model",
     "colModality": "Modality",
     "colChannels": "Channels",
-    "colActions": "Actions"
+    "colActions": "Actions",
+    "text": "Text",
+    "image": "Image"
   },
   "modelCapabilities": {
     "title": "Model Capabilities",

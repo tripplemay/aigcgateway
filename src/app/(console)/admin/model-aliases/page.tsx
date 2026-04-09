@@ -221,7 +221,7 @@ export default function ModelAliasesPage() {
                     </td>
                     <td className="px-4 py-3">
                       <span className="text-[10px] font-bold px-2 py-1 rounded-md bg-primary/10 text-primary">
-                        {m.modality}
+                        {m.modality === "IMAGE" ? t("image") : t("text")}
                       </span>
                     </td>
                     <td className="px-4 py-3 text-xs">{m.channelCount}</td>

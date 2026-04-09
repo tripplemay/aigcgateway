@@ -93,7 +93,10 @@ export default function ModelWhitelistPage() {
   const [channelPriorityInput, setChannelPriorityInput] = useState("");
 
   // ── Data loading via useAsyncData ──
-  const { data: modelsResult, refetch: load } = useAsyncData<{ data: ModelItem[]; total: number }>(async () => {
+  const { data: modelsResult, refetch: load } = useAsyncData<{
+    data: ModelItem[];
+    total: number;
+  }>(async () => {
     const params = new URLSearchParams();
     if (search) params.set("search", search);
     if (providerFilter) params.set("provider", providerFilter);
@@ -402,7 +405,7 @@ export default function ModelWhitelistPage() {
                           <span
                             className={`text-[10px] font-bold px-2 py-1 rounded-md ${item.modality === "IMAGE" ? "bg-violet-100 text-violet-700" : "bg-primary/10 text-primary"}`}
                           >
-                            {item.modality}
+                            {item.modality === "IMAGE" ? t("image") : t("text")}
                           </span>
                         </td>
                         <td className="px-6 py-5 text-center">
