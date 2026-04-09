@@ -1,0 +1,45 @@
+{
+  "baseUrl": "http://localhost:3099",
+  "runId": 1775719024323,
+  "fixtures": {
+    "devEmail": "r3b_eval_1775719024323@test.local",
+    "devUserId": "cmnr59c9p00r99ygtlg4cvy2x",
+    "projectId": "cmnr59cbf00rd9ygtnd8f62g3",
+    "actionId": "cmnr59cbi00rf9ygtgv5rgelp",
+    "templateId": "cmnr59cbo00rj9ygtp6q12jj1"
+  },
+  "passCount": 6,
+  "failCount": 0,
+  "steps": [
+    {
+      "name": "AC1 smoke endpoint /api/v1/models ready",
+      "ok": true,
+      "detail": "status=200, models=0"
+    },
+    {
+      "name": "AC1 6 admin pages load with admin auth",
+      "ok": true,
+      "detail": "/admin/health:200/html, /admin/logs:200/html, /admin/usage:200/html, /admin/users:200/html, /admin/templates:200/html, /admin/users/[id]:200"
+    },
+    {
+      "name": "AC2 useAsyncData migration is present on all 6 pages",
+      "ok": true,
+      "detail": "src/app/(console)/admin/health/page.tsx:ok, src/app/(console)/admin/logs/page.tsx:ok, src/app/(console)/admin/usage/page.tsx:ok, src/app/(console)/admin/users/page.tsx:ok, src/app/(console)/admin/users/[id]/page.tsx:ok, src/app/(console)/admin/templates/page.tsx:ok"
+    },
+    {
+      "name": "AC3 CRUD and core APIs are functional",
+      "ok": true,
+      "detail": "health=320, logs=0, logsSearch=0, users=2, userProjects=1, templates=1, recharge=201, toggle=200, delete=200"
+    },
+    {
+      "name": "AC4 i18n keys exist and legacy hardcoded phrases are removed",
+      "ok": true,
+      "detail": "keys=true, legacyRemoved=true, hardcoded=none"
+    },
+    {
+      "name": "AC5 design-draft spot checks pass for 6 pages",
+      "ok": true,
+      "detail": "health=true, logs=true, usage=true, users=true, templates=true"
+    }
+  ]
+}

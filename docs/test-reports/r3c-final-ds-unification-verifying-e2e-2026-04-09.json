@@ -1,0 +1,33 @@
+{
+  "baseUrl": "http://localhost:3099",
+  "runId": 1775722604194,
+  "passCount": 5,
+  "failCount": 0,
+  "steps": [
+    {
+      "name": "AC1 smoke endpoint /api/v1/models ready",
+      "ok": true,
+      "detail": "status=200, models=0"
+    },
+    {
+      "name": "AC1 all R3C target pages load",
+      "ok": true,
+      "detail": "/login:200/html, /register:200/html, /admin/model-whitelist:200/html, /admin/model-aliases:200/html, /admin/model-capabilities:200/html, /docs:200/html, /mcp-setup:200/html"
+    },
+    {
+      "name": "AC2 DS token audit passes (no legacy tokens / no bg-indigo-*)",
+      "ok": true,
+      "detail": "legacy=none, bg-indigo=0"
+    },
+    {
+      "name": "AC3 i18n audit passes (translations wired and no known hardcoded English remnants)",
+      "ok": true,
+      "detail": "wired=true, keys=true, hardcoded=none"
+    },
+    {
+      "name": "AC4 design spot checks pass for login/register/mcp-setup",
+      "ok": true,
+      "detail": "loginTerminal=true, splitLayout=true, mcpClientConfig=true"
+    }
+  ]
+}
