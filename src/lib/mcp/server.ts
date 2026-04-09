@@ -27,6 +27,8 @@ import { registerActivateVersion } from "./tools/activate-version";
 import { registerCreateTemplate } from "./tools/create-template";
 import { registerUpdateTemplate } from "./tools/update-template";
 import { registerDeleteTemplate } from "./tools/delete-template";
+import { registerListPublicTemplates } from "./tools/list-public-templates";
+import { registerForkPublicTemplate } from "./tools/fork-public-template";
 import type { ApiKeyPermissions } from "@/lib/api/auth-middleware";
 
 const SERVER_INSTRUCTIONS = `# AIGC Gateway — AI 服务商聚合平台
@@ -78,6 +80,10 @@ Template 由多个 Action 按顺序或并行组合：
 - {{branch_input}} — Fan-out 中每个分支的输入
 - {{all_outputs}} — Fan-out 中所有分支输出的 JSON 数组
 - SPLITTER 输出格式：[{"content":"item1"},{"content":"item2"}]
+
+## 公共模板库（Public Templates）
+- **list_public_templates(search?, page?, pageSize?)** — 浏览管理员发布的公共模板，含质量评分和 fork 次数
+- **fork_public_template(templateId)** — Fork 公共模板到当前项目，深拷贝 Template + Steps + Actions。fork 后的模板是独立副本，可自由编辑，不影响原模板。
 
 ## 日志与调试
 - **list_logs(search, status, limit)** — 搜索调用记录
@@ -150,6 +156,10 @@ export function createMcpServer(opts: McpServerOptions): McpServer {
   registerCreateTemplate(server, opts);
   registerUpdateTemplate(server, opts);
   registerDeleteTemplate(server, opts);
+
+  // Public template tools (no billing, no audit)
+  registerListPublicTemplates(server, opts);
+  registerForkPublicTemplate(server, opts);
 
   return server;
 }

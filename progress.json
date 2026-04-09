@@ -1,10 +1,10 @@
 {
-  "status": "building",
+  "status": "verifying",
   "user_goal": "P5 — 系统预设模板（Public Templates）：公共模板库浏览、详情抽屉、一键 fork、MCP Tools",
   "total_features": 7,
-  "completed_features": 5,
+  "completed_features": 6,
   "fix_rounds": 0,
-  "current_sprint": "F-P5-05",
+  "current_sprint": "F-P5-07",
   "last_updated": "2026-04-09T22:45:00.000Z",
   "reference_docs": [
     "docs/specs/P5-public-templates-spec.md",
@@ -18,9 +18,9 @@
     "framework_reviewed": false
   },
   "evaluator_feedback": null,
-  "generator_handoff": null,
+  "generator_handoff": "P5 全部 6 个 generator 功能完成。F-P5-02 Schema 迁移（sourceTemplateId 自引用 + 索引）；F-P5-03 User API 三端点（GET public list/detail + POST fork 深拷贝）；F-P5-04 User UI（Tabs 切换 My/Library + 卡片网格 + 详情抽屉 Steps timeline + Fork 确认弹窗）；F-P5-05 MCP Tools（list_public_templates + fork_public_template + SERVER_INSTRUCTIONS 更新）；F-P5-06 i18n（en+zh-CN 各 ~20 key）。tsc 零错误。验收重点：公共模板标记→用户浏览→fork 全链路、fork 深拷贝完整性（Template+Steps+Actions）、MCP 工具正确性、DS token 一致性。",
   "session_notes": {
-    "Kimi": null,
+    "Kimi": "P5 building 全部完成。F-P5-02~06 按序实现：Schema 迁移→User API（3 端点）→UI（Tabs+卡片+抽屉+Fork 弹窗）→MCP（2 tools）→i18n（~20 key）。tsc 零错误。状态推进到 verifying。",
     "Planner": "P5 批次启动。F-P5-01（设计稿）已完成（design-draft/templates-global-library/code.html）。Spec 已就绪。从 backlog 移除 BL-074。Generator 从 F-P5-02（Schema 迁移）开始。",
     "Reviewer": null
   }

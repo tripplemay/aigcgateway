@@ -41,7 +41,7 @@
       "title": "MCP Tools — list_public_templates + fork_public_template",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) list_public_templates 返回公共模板列表；2) fork_public_template 成功 fork 并返回结果；3) SERVER_INSTRUCTIONS 已更新；4) tsc 通过"
     },
     {
