@@ -101,7 +101,20 @@
     "passwordMismatch": "两次输入的密码不一致",
     "loginFailed": "登录失败",
     "networkError": "网络错误",
-    "registered": "注册成功！"
+    "registered": "注册成功！",
+    "welcomeBack": "欢迎回来",
+    "enterDetails": "请输入您的信息以访问控制台。",
+    "emailAddress": "邮箱地址",
+    "emailInputPlaceholder": "name@company.com",
+    "forgotPassword": "忘记密码？",
+    "rememberMe": "记住我",
+    "orContinueWith": "或通过以下方式继续",
+    "tagline": "专业级可观测性。",
+    "taglineDesc": "为现代 AI 开发者打造的精工平台。",
+    "documentation": "文档",
+    "privacyPolicy": "隐私政策",
+    "support": "支持",
+    "copyright": "© 2024 AIGC Gateway. Professional Engineering."
   },
   "dashboard": {
     "title": "仪表盘",

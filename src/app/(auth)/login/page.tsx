@@ -3,6 +3,8 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import { Toaster } from "@/components/ui/sonner";
 
 // ============================================================
@@ -14,16 +16,16 @@ const sequences = [
     command: 'aigc chat --model deepseek/v3 --stream "Analyze efficiency"',
     responses: [
       { text: "[STREAM] Trace ID: trc_8f2a1b92 initializing...", color: "text-white/40" },
-      { text: "[SUCCESS] Connection established with deepseek/v3", color: "text-[#6d5dd3]" },
+      { text: "[SUCCESS] Connection established with deepseek/v3", color: "text-ds-primary-container" },
       { text: "[DATA] Tokens/sec: 142 | Latency: 18ms", color: "text-white/60" },
-      { text: "[BILLING] Cost: $0.032 | Model: deepseek-v3", color: "text-[#c8bfff]" },
+      { text: "[BILLING] Cost: $0.032 | Model: deepseek-v3", color: "text-ds-primary-fixed-dim" },
     ],
   },
   {
     command: "aigc health --check",
     responses: [
       { text: "[INFO] Querying global node cluster...", color: "text-white/40" },
-      { text: "[SUCCESS] 24/24 nodes responding. Status: 200 OK", color: "text-[#6d5dd3]" },
+      { text: "[SUCCESS] 24/24 nodes responding. Status: 200 OK", color: "text-ds-primary-container" },
       { text: "[INFO] Current Load: 12.4% | Uptime: 99.99%", color: "text-white/60" },
     ],
   },
@@ -32,7 +34,7 @@ const sequences = [
     responses: [
       { text: "[LOG] 14:02:31 - Request processed in 12ms", color: "text-white/40" },
       { text: "[INFO] Trace ID: trc_7b321x88 | Status: 200 OK", color: "text-white/60" },
-      { text: "[SUCCESS] Cache hit: hash_8a221fb", color: "text-[#6d5dd3]" },
+      { text: "[SUCCESS] Cache hit: hash_8a221fb", color: "text-ds-primary-container" },
     ],
   },
   {
@@ -40,7 +42,7 @@ const sequences = [
     responses: [
       { text: "[INFO] Fetching real-time quota data...", color: "text-white/40" },
       { text: "[DATA] Daily Spend: $142.05 | Monthly: $1,420.55", color: "text-white/90" },
-      { text: "[SUCCESS] Quota Remaining: 78.4%", color: "text-[#6d5dd3]" },
+      { text: "[SUCCESS] Quota Remaining: 78.4%", color: "text-ds-primary-container" },
     ],
   },
 ];
@@ -59,11 +61,9 @@ function Terminal() {
   const sleep = (ms: number) =>
     new Promise<void>((resolve) => {
       const id = setTimeout(resolve, ms);
-      // Allow cleanup to reject
       if (cancelledRef.current) clearTimeout(id);
     });
 
-  // code.html lines 325-331: typeText
   const typeText = useCallback(async (text: string) => {
     if (!commandRef.current) return;
     commandRef.current.textContent = "";
@@ -74,14 +74,13 @@ function Terminal() {
     }
   }, []);
 
-  // code.html lines 333-351: addHistoryLine
   const addHistoryLine = useCallback(
     (text: string, colorClass = "text-white/60", isCommand = false) => {
       if (!historyRef.current || !contentRef.current) return;
       const line = document.createElement("div");
       if (isCommand) {
         line.className = "text-white/90 font-bold";
-        line.innerHTML = `<span style="color:#6d5dd3;font-weight:bold">$ </span>${text}`;
+        line.innerHTML = `<span class="text-ds-primary-container font-bold">$ </span>${text}`;
       } else {
         line.className = `${colorClass} mt-1`;
         line.textContent = text;
@@ -95,7 +94,6 @@ function Terminal() {
     [],
   );
 
-  // code.html lines 353-375: runSequence
   const runSequence = useCallback(async () => {
     while (!cancelledRef.current) {
       const seq = sequences[seqIndexRef.current];
@@ -127,7 +125,6 @@ function Terminal() {
   }, [runSequence]);
 
   return (
-    /* code.html lines 151-169 */
     <div className="w-full bg-[#13141C] rounded-xl border border-white/10 shadow-2xl overflow-hidden">
       <div className="bg-[#1C1E26] px-4 py-3 flex items-center justify-between border-b border-white/5">
         <div className="flex gap-1.5">
@@ -146,9 +143,9 @@ function Terminal() {
       >
         <div ref={historyRef} className="space-y-4" />
         <div className="mt-4 flex items-center gap-2">
-          <span className="text-[#6d5dd3] font-bold">$ </span>
+          <span className="text-ds-primary-container font-bold">$ </span>
           <span ref={commandRef} className="text-white/90" />
-          <span className="inline-block w-2 h-[1.2em] bg-[#6d5dd3] animate-[blink_1s_step-end_infinite]" />
+          <span className="inline-block w-2 h-[1.2em] bg-ds-primary-container animate-[blink_1s_step-end_infinite]" />
         </div>
       </div>
     </div>
@@ -244,11 +241,10 @@ export default function LoginPage() {
           {/* Brand — lines 143-148 */}
           <div className="relative z-10">
             <div className="flex items-center gap-3">
-              <span className="text-[#6d5dd3] text-4xl font-bold">⬡</span>
-              <span
-                className="text-xl font-bold tracking-tighter text-white"
-                style={{ fontFamily: "Manrope, sans-serif" }}
-              >
+              <span className="material-symbols-outlined text-ds-primary-container text-4xl font-bold">
+                hub
+              </span>
+              <span className="text-xl font-bold tracking-tighter text-white font-[family-name:var(--font-heading)]">
                 AIGC Gateway
               </span>
             </div>
@@ -258,14 +254,11 @@ export default function LoginPage() {
           <div className="relative z-10 flex flex-col items-center justify-center h-full max-w-2xl mx-auto w-full">
             <Terminal />
             <div className="mt-12 text-center">
-              <h1
-                className="text-4xl font-extrabold tracking-tight text-white leading-[1.1] mb-4"
-                style={{ fontFamily: "Manrope, sans-serif" }}
-              >
-                Professional Observability.
+              <h1 className="text-4xl font-extrabold tracking-tight text-white leading-[1.1] mb-4 font-[family-name:var(--font-heading)]">
+                {t("tagline")}
               </h1>
-              <p className="text-lg text-white/40 font-medium tracking-wide">
-                The Algorithmic Atelier for modern AI developers.
+              <p className="text-lg text-ds-outline-variant/60 font-medium tracking-wide">
+                {t("taglineDesc")}
               </p>
             </div>
           </div>
@@ -274,18 +267,18 @@ export default function LoginPage() {
           <div className="relative z-10 flex justify-between items-end">
             <div className="flex gap-8">
               <div className="flex flex-col">
-                <span className="text-2xl font-bold text-white" style={{ fontFamily: "Manrope" }}>
+                <span className="text-2xl font-bold text-white font-[family-name:var(--font-heading)]">
                   99.9%
                 </span>
-                <span className="text-[10px] font-mono uppercase tracking-widest text-[#6d5dd3] font-semibold">
+                <span className="text-[10px] font-mono uppercase tracking-widest text-ds-primary-container font-semibold">
                   Uptime
                 </span>
               </div>
               <div className="flex flex-col">
-                <span className="text-2xl font-bold text-white" style={{ fontFamily: "Manrope" }}>
+                <span className="text-2xl font-bold text-white font-[family-name:var(--font-heading)]">
                   &lt;20ms
                 </span>
-                <span className="text-[10px] font-mono uppercase tracking-widest text-[#6d5dd3] font-semibold">
+                <span className="text-[10px] font-mono uppercase tracking-widest text-ds-primary-container font-semibold">
                   Latency
                 </span>
               </div>
@@ -297,16 +290,15 @@ export default function LoginPage() {
         </section>
 
         {/* ═══ Right Side: Auth Form — code.html lines 196-279 ═══ */}
-        <section className="w-full lg:w-1/2 flex flex-col justify-center items-center bg-white px-8 py-12 md:px-24">
+        <section className="w-full lg:w-1/2 flex flex-col justify-center items-center bg-ds-surface-container-lowest px-8 py-12 md:px-24">
           <div className="w-full max-w-md">
             {/* Mobile logo — lines 199-204 */}
             <div className="lg:hidden flex justify-center mb-12">
               <div className="flex items-center gap-2">
-                <span className="text-[#5443b9] text-3xl font-bold">⬡</span>
-                <span
-                  className="text-xl font-bold tracking-tighter"
-                  style={{ fontFamily: "Manrope", color: "#131b2e" }}
-                >
+                <span className="material-symbols-outlined text-ds-primary text-3xl font-bold">
+                  hub
+                </span>
+                <span className="text-xl font-bold tracking-tighter text-ds-on-surface font-[family-name:var(--font-heading)]">
                   AIGC Gateway
                 </span>
               </div>
@@ -314,23 +306,17 @@ export default function LoginPage() {
 
             {/* Header — lines 206-209 */}
             <div className="mb-10 text-center lg:text-left">
-              <h2
-                className="text-3xl font-extrabold tracking-tight mb-2"
-                style={{ fontFamily: "Manrope", color: "#131b2e" }}
-              >
-                Welcome Back
+              <h2 className="text-3xl font-extrabold tracking-tight mb-2 text-ds-on-surface font-[family-name:var(--font-heading)]">
+                {t("welcomeBack")}
               </h2>
-              <p className="text-sm font-medium" style={{ color: "#474553" }}>
-                Please enter your details to access your dashboard.
+              <p className="text-sm font-medium text-ds-on-surface-variant">
+                {t("enterDetails")}
               </p>
             </div>
 
             {/* Error */}
             {error && (
-              <div
-                className="mb-6 p-4 rounded-xl text-sm font-medium"
-                style={{ background: "#ffdad6", color: "#93000a" }}
-              >
+              <div className="mb-6 p-4 rounded-xl text-sm font-medium bg-ds-error-container text-ds-on-error-container">
                 {error}
               </div>
             )}
@@ -339,57 +325,45 @@ export default function LoginPage() {
             <div className="space-y-6">
               {/* Email — lines 212-215 */}
               <div className="space-y-1.5">
-                <label
-                  className="block text-[11px] font-bold uppercase tracking-widest ml-1"
-                  style={{ color: "rgba(71,69,83,0.8)" }}
-                >
-                  Email Address
+                <label className="block text-[11px] font-bold uppercase tracking-widest text-ds-on-surface-variant/80 ml-1">
+                  {t("emailAddress")}
                 </label>
-                <input
-                  className="w-full px-4 py-3.5 border-none rounded-xl text-sm focus:ring-2 focus:ring-[#6d5dd3]/20 transition-all duration-200 outline-none"
-                  style={{ background: "#f2f3ff", color: "#131b2e" }}
+                <Input
                   type="email"
-                  placeholder="name@company.com"
+                  placeholder={t("emailInputPlaceholder")}
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && submit()}
+                  className="w-full px-4 py-3.5 bg-ds-surface-container-low border-none rounded-xl text-ds-on-surface placeholder:text-ds-outline focus:ring-2 focus:ring-ds-primary-container transition-all duration-200"
                 />
               </div>
 
               {/* Password — lines 216-226 */}
               <div className="space-y-1.5">
                 <div className="flex justify-between items-center px-1">
-                  <label
-                    className="block text-[11px] font-bold uppercase tracking-widest"
-                    style={{ color: "rgba(71,69,83,0.8)" }}
-                  >
-                    Password
+                  <label className="block text-[11px] font-bold uppercase tracking-widest text-ds-on-surface-variant/80">
+                    {t("password")}
                   </label>
-                  {/* line 219: Forgot Password link */}
                   <a
-                    className="text-[11px] font-bold uppercase tracking-widest hover:text-[#5443b9] transition-colors"
-                    style={{ color: "#6d5dd3" }}
+                    className="text-[11px] font-bold uppercase tracking-widest text-ds-primary-container hover:text-ds-primary transition-colors"
                     href="#"
                   >
-                    Forgot Password?
+                    {t("forgotPassword")}
                   </a>
                 </div>
                 <div className="relative group">
-                  <input
-                    className="w-full px-4 py-3.5 border-none rounded-xl text-sm focus:ring-2 focus:ring-[#6d5dd3]/20 transition-all duration-200 outline-none"
-                    style={{ background: "#f2f3ff", color: "#131b2e" }}
+                  <Input
                     type={showPassword ? "text" : "password"}
                     placeholder="••••••••"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     onKeyDown={(e) => e.key === "Enter" && submit()}
+                    className="w-full px-4 py-3.5 bg-ds-surface-container-low border-none rounded-xl text-ds-on-surface placeholder:text-ds-outline focus:ring-2 focus:ring-ds-primary-container transition-all duration-200"
                   />
-                  {/* line 223-225: visibility toggle */}
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 transition-colors"
-                    style={{ color: "#787584" }}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-ds-outline hover:text-ds-on-surface transition-colors"
                   >
                     <span className="material-symbols-outlined text-xl">
                       {showPassword ? "visibility_off" : "visibility"}
@@ -401,56 +375,43 @@ export default function LoginPage() {
               {/* Remember Me — lines 228-231 */}
               <div className="flex items-center">
                 <input
-                  className="h-4 w-4 rounded text-[#5443b9] focus:ring-[#6d5dd3]"
-                  style={{ borderColor: "#c9c4d5", background: "#f2f3ff" }}
+                  className="h-4 w-4 rounded border-ds-outline-variant text-ds-primary focus:ring-ds-primary-container bg-ds-surface-container-low"
                   id="remember"
                   type="checkbox"
                 />
                 <label
-                  className="ml-2 block text-sm font-medium"
-                  style={{ color: "#474553" }}
+                  className="ml-2 block text-sm font-medium text-ds-on-surface-variant"
                   htmlFor="remember"
                 >
-                  Remember Me
+                  {t("rememberMe")}
                 </label>
               </div>
 
               {/* Submit — lines 232-234 */}
-              <button
+              <Button
                 disabled={loading}
                 onClick={submit}
-                className="w-full py-4 text-white font-bold rounded-xl shadow-lg active:scale-[0.98] transition-all duration-200 disabled:opacity-50"
-                style={{
-                  fontFamily: "Manrope",
-                  background: "linear-gradient(to right, #5443b9, #6d5dd3)",
-                  boxShadow: "0 10px 25px rgba(84,67,185,0.2)",
-                }}
+                className="w-full py-4 h-auto text-white font-bold rounded-xl shadow-lg shadow-ds-primary/20 hover:shadow-xl hover:shadow-ds-primary/30 active:scale-[0.98] transition-all duration-200 bg-gradient-to-r from-ds-primary to-ds-primary-container font-[family-name:var(--font-heading)]"
               >
-                {loading ? t("signingIn") : "Sign In"}
-              </button>
+                {loading ? t("signingIn") : t("signIn")}
+              </Button>
             </div>
 
             {/* Divider — lines 237-243 */}
             <div className="relative my-10">
               <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t" style={{ borderColor: "#e2e7ff" }} />
+                <div className="w-full border-t border-ds-surface-container-high" />
               </div>
               <div className="relative flex justify-center text-xs">
-                <span
-                  className="px-4 bg-white font-medium tracking-wide uppercase"
-                  style={{ color: "#787584" }}
-                >
-                  Or continue with
+                <span className="px-4 bg-ds-surface-container-lowest text-ds-outline font-medium tracking-wide uppercase">
+                  {t("orContinueWith")}
                 </span>
               </div>
             </div>
 
             {/* Social Logins — lines 246-262 */}
             <div className="flex gap-4">
-              <button
-                className="flex-1 flex justify-center items-center gap-3 py-3 px-4 rounded-xl border border-transparent hover:bg-[#e2e7ff] transition-colors active:scale-95 duration-150"
-                style={{ background: "#f2f3ff" }}
-              >
+              <button className="flex-1 flex justify-center items-center gap-3 py-3 px-4 bg-ds-surface-container-low border border-transparent rounded-xl hover:bg-ds-surface-container-high transition-colors active:scale-95 duration-150">
                 <svg className="w-5 h-5" viewBox="0 0 24 24">
                   <path
                     d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
@@ -469,35 +430,26 @@ export default function LoginPage() {
                     fill="#EA4335"
                   />
                 </svg>
-                <span className="text-sm font-semibold" style={{ color: "#131b2e" }}>
-                  Google
-                </span>
+                <span className="text-sm font-semibold text-ds-on-surface">Google</span>
               </button>
-              <button
-                className="flex-1 flex justify-center items-center gap-3 py-3 px-4 rounded-xl border border-transparent hover:bg-[#e2e7ff] transition-colors active:scale-95 duration-150"
-                style={{ background: "#f2f3ff" }}
-              >
+              <button className="flex-1 flex justify-center items-center gap-3 py-3 px-4 bg-ds-surface-container-low border border-transparent rounded-xl hover:bg-ds-surface-container-high transition-colors active:scale-95 duration-150">
                 <svg
-                  className="w-5 h-5 fill-current"
-                  style={{ color: "#131b2e" }}
+                  className="w-5 h-5 text-ds-on-surface fill-current"
                   viewBox="0 0 24 24"
                 >
                   <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.744.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
                 </svg>
-                <span className="text-sm font-semibold" style={{ color: "#131b2e" }}>
-                  GitHub
-                </span>
+                <span className="text-sm font-semibold text-ds-on-surface">GitHub</span>
               </button>
             </div>
 
             {/* Footer Link — lines 264-269 */}
             <div className="mt-12 text-center">
-              <p className="text-sm font-medium" style={{ color: "#474553" }}>
+              <p className="text-sm font-medium text-ds-on-surface-variant">
                 {t("noAccount")}{" "}
                 <Link
                   href="/register"
-                  className="font-bold hover:underline ml-1"
-                  style={{ color: "#6d5dd3" }}
+                  className="font-bold text-ds-primary-container hover:underline ml-1"
                 >
                   {t("signUpLink")}
                 </Link>
@@ -509,32 +461,26 @@ export default function LoginPage() {
           <footer className="mt-auto pt-12 flex flex-col items-center gap-4">
             <div className="flex gap-6">
               <a
-                className="text-[10px] font-bold uppercase tracking-widest hover:text-[#6d5dd3] transition-colors"
-                style={{ color: "#787584" }}
+                className="text-[10px] font-bold uppercase tracking-widest text-ds-outline hover:text-ds-primary-container transition-colors"
                 href="#"
               >
-                Documentation
+                {t("documentation")}
               </a>
               <a
-                className="text-[10px] font-bold uppercase tracking-widest hover:text-[#6d5dd3] transition-colors"
-                style={{ color: "#787584" }}
+                className="text-[10px] font-bold uppercase tracking-widest text-ds-outline hover:text-ds-primary-container transition-colors"
                 href="#"
               >
-                Privacy Policy
+                {t("privacyPolicy")}
               </a>
               <a
-                className="text-[10px] font-bold uppercase tracking-widest hover:text-[#6d5dd3] transition-colors"
-                style={{ color: "#787584" }}
+                className="text-[10px] font-bold uppercase tracking-widest text-ds-outline hover:text-ds-primary-container transition-colors"
                 href="#"
               >
-                Support
+                {t("support")}
               </a>
             </div>
-            <p
-              className="text-[9px] font-medium tracking-wide uppercase"
-              style={{ color: "rgba(201,196,213,0.6)" }}
-            >
-              © 2024 AIGC Gateway. Professional Engineering.
+            <p className="text-[9px] font-medium tracking-wide uppercase text-ds-outline-variant/60">
+              {t("copyright")}
             </p>
           </footer>
         </section>

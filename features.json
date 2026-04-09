@@ -39,7 +39,7 @@
       "title": "Login 页面全量重构",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) DS 组件（Input/Button）+ ds-* token；2) 硬编码英文全部走 i18n；3) Terminal 组件抽离或保留但文本 i18n 化；4) 对齐 design-draft/login/code.html；5) tsc + lint 通过",
       "design_ref": "design-draft/login/code.html"
     },

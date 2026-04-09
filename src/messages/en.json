@@ -101,7 +101,20 @@
     "passwordMismatch": "Passwords do not match",
     "loginFailed": "Login failed",
     "networkError": "Network error",
-    "registered": "Registration successful!"
+    "registered": "Registration successful!",
+    "welcomeBack": "Welcome Back",
+    "enterDetails": "Please enter your details to access your dashboard.",
+    "emailAddress": "Email Address",
+    "emailInputPlaceholder": "name@company.com",
+    "forgotPassword": "Forgot Password?",
+    "rememberMe": "Remember Me",
+    "orContinueWith": "Or continue with",
+    "tagline": "Professional Observability.",
+    "taglineDesc": "The Algorithmic Atelier for modern AI developers.",
+    "documentation": "Documentation",
+    "privacyPolicy": "Privacy Policy",
+    "support": "Support",
+    "copyright": "© 2024 AIGC Gateway. Professional Engineering."
   },
   "dashboard": {
     "title": "Dashboard",
