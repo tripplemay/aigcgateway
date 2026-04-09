@@ -49,7 +49,7 @@
       "title": "i18n — 中英文翻译同步",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) en.json + zh-CN.json 同步更新（~20 个 key）；2) 无硬编码字符串；3) UI 中英文切换正常"
     },
     {

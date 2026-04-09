@@ -24,7 +24,7 @@ export function TemplateDetailDrawer({ open, onOpenChange, template, onFork }: P
     };
     return (
       <span className="px-3 py-1 bg-ds-surface-container-high text-ds-on-surface-variant text-xs rounded font-bold uppercase">
-        {labels[mode] ?? mode} {t("modeLabel")}
+        {labels[mode] ?? mode}
       </span>
     );
   };
