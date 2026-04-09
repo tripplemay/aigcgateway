@@ -847,6 +847,8 @@
     "colQuality": "质量评分",
     "colCreated": "创建日期",
     "colActions": "操作",
+    "visibilityLabel": "可见性：",
+    "steps": "步",
     "visibilityAll": "全部模板",
     "visibilityPublic": "仅公开",
     "visibilityPrivate": "仅私有",

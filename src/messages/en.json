@@ -847,6 +847,8 @@
     "colQuality": "Quality Score",
     "colCreated": "Created Date",
     "colActions": "Actions",
+    "visibilityLabel": "Visibility:",
+    "steps": "steps",
     "visibilityAll": "All Templates",
     "visibilityPublic": "Public Only",
     "visibilityPrivate": "Private Only",
