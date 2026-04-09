@@ -79,7 +79,7 @@ export default function ConsoleLayout({ children }: { children: React.ReactNode 
           {/* code.html line 144 */}
           <div className="ml-64 flex flex-col h-screen">
             {/* code.html line 146 */}
-            <TopAppBar userName={user.name} />
+            <TopAppBar userName={user.name} userEmail={user.email} />
             {/* code.html line 184 */}
             <main className="flex-1 overflow-y-auto bg-ds-surface p-8">{children}</main>
           </div>

@@ -7,7 +7,7 @@
       "title": "用户 Models 页面重做 — 按品牌分组",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) 按 brand 分组展示别名列表（非渠道）；2) 每行展示别名名称、品牌、模态、Context Window、价格；3) brand 为空归入"其他"组；4) 不显示任何渠道/服务商信息；5) 布局与设计稿一致；6) tsc 通过",
       "design_ref": "design-draft/models/code.html"
     },
@@ -16,7 +16,7 @@
       "title": "Topbar 清理 — 移除未实现占位",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) 移除 Deploy 按钮；2) 移除 topbar 设置按钮；3) 移除搜索框；4) 移除暗色模式按钮；5) 保留通知按钮（占位不实现）；6) tsc 通过"
     },
     {
@@ -24,7 +24,7 @@
       "title": "用户头像下拉菜单",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) 点击头像弹出下拉菜单；2) 显示用户名/邮箱；3) Settings 链接跳转 /settings；4) Sign Out 按钮清空登录态并跳转 /login；5) tsc 通过"
     },
     {
@@ -32,7 +32,7 @@
       "title": "登录/注册页终端模拟区固定英文",
       "priority": "low",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) auth-terminal 组件终端文案在任何语言环境下均为英文；2) 不走 i18n 翻译；3) 中文环境下终端仍显示英文命令和输出；4) tsc 通过"
     },
     {
@@ -40,7 +40,7 @@
       "title": "i18n — Models 页 + Topbar 中英文",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) en.json + zh-CN.json 同步更新；2) 无硬编码字符串；3) UI 中英文切换正常"
     },
     {

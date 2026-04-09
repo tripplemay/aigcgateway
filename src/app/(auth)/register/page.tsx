@@ -9,47 +9,54 @@ import { toast } from "sonner";
 import { Toaster } from "@/components/ui/sonner";
 import { AuthLeftPanel, type TerminalSequence } from "@/components/auth-terminal";
 
-function useTerminalSequences(t: ReturnType<typeof useTranslations<"auth">>): TerminalSequence[] {
-  return [
-    {
-      command: t("termCmd1"),
-      responses: [
-        { text: t("termR1a"), color: "text-white/40" },
-        { text: t("termR1b"), color: "text-ds-primary-container" },
-        { text: t("termR1c"), color: "text-white/60" },
-        { text: t("termR1d"), color: "text-ds-primary-fixed-dim" },
-      ],
-    },
-    {
-      command: t("termCmd2"),
-      responses: [
-        { text: t("termR2a"), color: "text-white/40" },
-        { text: t("termR2b"), color: "text-ds-primary-container" },
-        { text: t("termR2c"), color: "text-white/60" },
-      ],
-    },
-    {
-      command: t("termCmd3"),
-      responses: [
-        { text: t("termR3a"), color: "text-white/40" },
-        { text: t("termR3b"), color: "text-white/60" },
-        { text: t("termR3c"), color: "text-ds-primary-container" },
-      ],
-    },
-    {
-      command: t("termCmd4"),
-      responses: [
-        { text: t("termR4a"), color: "text-white/40" },
-        { text: t("termR4b"), color: "text-white/90" },
-        { text: t("termR4c"), color: "text-ds-primary-container" },
-      ],
-    },
-  ];
-}
+/**
+ * Terminal sequences — always English regardless of locale.
+ * Terminal simulation area is a decorative CLI demo; not localized.
+ */
+const TERMINAL_SEQUENCES: TerminalSequence[] = [
+  {
+    command: 'aigc chat --model deepseek/v3 --stream "Analyze efficiency"',
+    responses: [
+      { text: "[STREAM] Trace ID: trc_8f2a1b92 initializing...", color: "text-white/40" },
+      {
+        text: "[SUCCESS] Connection established with deepseek/v3",
+        color: "text-ds-primary-container",
+      },
+      { text: "[DATA] Tokens/sec: 142 | Latency: 18ms", color: "text-white/60" },
+      { text: "[BILLING] Cost: $0.032 | Model: deepseek-v3", color: "text-ds-primary-fixed-dim" },
+    ],
+  },
+  {
+    command: "aigc health --check",
+    responses: [
+      { text: "[INFO] Querying global node cluster...", color: "text-white/40" },
+      {
+        text: "[SUCCESS] 24/24 nodes responding. Status: 200 OK",
+        color: "text-ds-primary-container",
+      },
+      { text: "[INFO] Current Load: 12.4% | Uptime: 99.99%", color: "text-white/60" },
+    ],
+  },
+  {
+    command: 'aigc logs --filter "error" --limit 2',
+    responses: [
+      { text: "[LOG] 14:02:31 - Request processed in 12ms", color: "text-white/40" },
+      { text: "[INFO] Trace ID: trc_7b321x88 | Status: 200 OK", color: "text-white/60" },
+      { text: "[SUCCESS] Cache hit: hash_8a221fb", color: "text-ds-primary-container" },
+    ],
+  },
+  {
+    command: "aigc billing --usage",
+    responses: [
+      { text: "[INFO] Fetching real-time quota data...", color: "text-white/40" },
+      { text: "[DATA] Daily Spend: $142.05 | Monthly: $1,420.55", color: "text-white/90" },
+      { text: "[SUCCESS] Quota Remaining: 78.4%", color: "text-ds-primary-container" },
+    ],
+  },
+];
 
 export default function RegisterPage() {
   const t = useTranslations("auth");
-  const sequences = useTerminalSequences(t);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
@@ -121,10 +128,10 @@ export default function RegisterPage() {
         <AuthLeftPanel
           tagline={t("tagline")}
           taglineDesc={t("taglineDesc")}
-          uptime={t("uptime")}
-          latency={t("latency")}
-          terminalTitle={t("terminalTitle")}
-          sequences={sequences}
+          uptime="Uptime"
+          latency="Latency"
+          terminalTitle="aigc-cli — bash"
+          sequences={TERMINAL_SEQUENCES}
         />
 
         {/* ═══ Right Side: Registration Form ═══ */}

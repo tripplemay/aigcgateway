@@ -1,10 +1,10 @@
 {
-  "status": "building",
+  "status": "verifying",
   "user_goal": "M1c — 用户 Models 页面重做 + Topbar 清理 + 终端区英文固定",
   "total_features": 6,
-  "completed_features": 0,
+  "completed_features": 5,
   "fix_rounds": 0,
-  "current_sprint": "F-M1c-01",
+  "current_sprint": "F-M1c-06",
   "last_updated": "2026-04-10T01:00:00.000Z",
   "reference_docs": [
     "docs/specs/M1-models-page-rework-spec.md",
@@ -20,7 +20,7 @@
   "evaluator_feedback": null,
   "generator_handoff": null,
   "session_notes": {
-    "Kimi": null,
+    "Kimi": "M1c building 全部完成（5/5 generator features done）。F-M1c-01 Models 页按 brand 分组重做（表格布局+设计稿还原）；F-M1c-02 Topbar 移除 Deploy/搜索/设置/暗色按钮；F-M1c-03 头像下拉菜单（用户名+邮箱+Settings+SignOut）；F-M1c-04 终端区固定英文（login+register 两页）；F-M1c-05 i18n 全量更新。topBar 的 deploy/searchPlaceholder key 已废弃但未删除（不影响运行）。",
     "Planner": "M1b done 收尾 + M1c 启动。M1b 签收（8/8 PASS，1 fix round）。M1c 含 5 generator + 1 codex：Models 页重做、Topbar 清理（移除 Deploy/设置/搜索/暗色模式按钮）、用户头像下拉菜单、终端区英文固定、i18n。从 backlog 移除 BL-076/BL-077。",
     "Reviewer": null
   }

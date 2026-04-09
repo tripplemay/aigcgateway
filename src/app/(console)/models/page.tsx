@@ -6,58 +6,71 @@ import { SearchBar } from "@/components/search-bar";
 import { formatContext } from "@/lib/utils";
 
 // ============================================================
-// Types & helpers (unchanged)
+// Types & helpers
 // ============================================================
 
 interface ModelItem {
   id: string;
-  display_name: string;
+  brand?: string;
   modality: string;
-  provider_name?: string;
   context_window?: number;
+  description?: string;
   pricing: Record<string, unknown>;
+  capabilities?: Record<string, boolean>;
 }
 
-interface ProviderGroup {
-  name: string;
-  displayName: string;
+interface BrandGroup {
+  brand: string;
   models: ModelItem[];
 }
 
-const PROVIDER_COLORS: Record<string, string> = {
-  openai: "#534AB7",
-  anthropic: "#D85A30",
-  deepseek: "#0F9D7A",
-  zhipu: "#185FA5",
-  volcengine: "#E24B4A",
-  siliconflow: "#0F9D7A",
-  openrouter: "#888780",
+/** Brand → icon background color */
+const BRAND_COLORS: Record<string, string> = {
+  OpenAI: "#000000",
+  Anthropic: "#D85A30",
+  Google: "#4285F4",
+  Meta: "#0668E1",
+  Mistral: "#F54E42",
+  DeepSeek: "#0F9D7A",
+  "智谱 AI": "#185FA5",
+  xAI: "#1D1D1F",
 };
-const PROVIDER_ABBR: Record<string, string> = {
-  openai: "OA",
-  anthropic: "An",
-  deepseek: "DS",
-  zhipu: "ZP",
-  volcengine: "VE",
-  siliconflow: "SF",
-  openrouter: "OR",
+
+/** Brand → 2-letter abbreviation */
+const BRAND_ABBR: Record<string, string> = {
+  OpenAI: "OA",
+  Anthropic: "An",
+  Google: "Go",
+  Meta: "Me",
+  Mistral: "Mi",
+  DeepSeek: "DS",
+  "智谱 AI": "ZP",
+  xAI: "xA",
 };
 
 const MODELS_PER_PAGE = 20;
 
-function fmtPrice(p: Record<string, unknown>) {
+const MODALITY_STYLES: Record<string, string> = {
+  text: "bg-indigo-50 text-indigo-600 border-indigo-100",
+  image: "bg-emerald-50 text-emerald-600 border-emerald-100",
+  audio: "bg-amber-50 text-amber-600 border-amber-100",
+  video: "bg-pink-50 text-pink-600 border-pink-100",
+};
+
+function fmtPriceSplit(p: Record<string, unknown>): { input: string; output: string } | null {
   if (p.unit === "call") {
     const v = Number(p.per_call ?? 0);
-    return v === 0 ? "Free" : `$${v}/img`;
+    if (v === 0) return null;
+    return { input: `$${v}`, output: "" };
   }
   const inp = Number(p.input_per_1m ?? 0);
   const out = Number(p.output_per_1m ?? 0);
-  return inp === 0 && out === 0 ? "Free" : `$${inp} / $${out} /M`;
+  if (inp === 0 && out === 0) return null;
+  return { input: `$${inp.toFixed(2)}`, output: `$${out.toFixed(2)}` };
 }
 
-function getProviderKey(modelId: string): string {
-  const slash = modelId.indexOf("/");
-  return slash > 0 ? modelId.substring(0, slash) : "other";
+function hasCapability(m: ModelItem, cap: string): boolean {
+  return !!(m.capabilities && m.capabilities[cap]);
 }
 
 // ============================================================
@@ -69,7 +82,7 @@ export default function ModelsPage() {
   const tc = useTranslations("common");
   const [search, setSearch] = useState("");
   const [modality, setModality] = useState("");
-  const [expandedProviders, setExpandedProviders] = useState<Set<string>>(new Set());
+  const [collapsedBrands, setCollapsedBrands] = useState<Set<string>>(new Set());
   const [showAllModels, setShowAllModels] = useState<Set<string>>(new Set());
 
   const { data: modelsData } = useAsyncData<{ data: ModelItem[] }>(async () => {
@@ -83,79 +96,74 @@ export default function ModelsPage() {
     const filtered = models.filter(
       (m) => !search || m.id.toLowerCase().includes(search.toLowerCase()),
     );
-    const map = new Map<string, { displayName: string; models: ModelItem[] }>();
+    const map = new Map<string, ModelItem[]>();
     for (const m of filtered) {
-      const key = getProviderKey(m.id);
-      if (!map.has(key)) map.set(key, { displayName: m.provider_name ?? key, models: [] });
-      const group = map.get(key)!;
-      if (m.provider_name && group.displayName === key) group.displayName = m.provider_name;
-      group.models.push(m);
+      const brand = m.brand || t("otherModels");
+      if (!map.has(brand)) map.set(brand, []);
+      map.get(brand)!.push(m);
     }
-    const groups: ProviderGroup[] = [];
-    for (const [name, val] of map)
-      groups.push({ name, displayName: val.displayName, models: val.models });
-    return groups.sort((a, b) => a.name.localeCompare(b.name));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [modelsData, search]);
+    const groups: BrandGroup[] = [];
+    const otherLabel = t("otherModels");
+    for (const [brand, brandModels] of map) {
+      groups.push({ brand, models: brandModels });
+    }
+    // Sort: named brands first alphabetically, "Other" last
+    return groups.sort((a, b) => {
+      if (a.brand === otherLabel) return 1;
+      if (b.brand === otherLabel) return -1;
+      return a.brand.localeCompare(b.brand);
+    });
+  }, [modelsData, search, t]);
 
-  const toggle = (set: Set<string>, id: string) => {
-    const next = new Set(set);
-    if (next.has(id)) next.delete(id);
-    else next.add(id);
-    return next;
+  const toggleCollapse = (brand: string) => {
+    setCollapsedBrands((prev) => {
+      const next = new Set(prev);
+      if (next.has(brand)) next.delete(brand);
+      else next.add(brand);
+      return next;
+    });
   };
 
   const totalModels = models.length;
-  const textModels = models.filter((m) => m.modality === "text").length;
-  const imageModels = models.filter((m) => m.modality === "image").length;
+  const brandCount = grouped.length;
 
-  // ── Render — 1:1 replica of Models (Full Redesign) code.html ──
+  // ── Render — 1:1 replica of design-draft/models/code.html ──
   return (
     <div className="max-w-7xl mx-auto space-y-8">
       {/* ═══ Page Header ═══ */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div>
-          <h2 className="text-3xl font-extrabold tracking-tight font-[var(--font-heading)] text-ds-on-surface">
+          <h1 className="text-4xl font-extrabold tracking-tight font-[var(--font-heading)] text-ds-on-surface">
             {t("title")}
-          </h2>
-          <p className="text-ds-on-surface-variant font-medium mt-1">
-            {t("subtitle")}
-          </p>
+          </h1>
+          <p className="text-ds-on-surface-variant font-medium mt-2">{t("subtitle")}</p>
         </div>
-        <div className="flex items-center gap-3">
-          {/* Search */}
-          <SearchBar
-            placeholder={t("searchPlaceholder")}
-            value={search}
-            onChange={setSearch}
-            className="w-56"
-          />
-          {/* Modality filter */}
-          <div className="flex bg-ds-surface-container-low p-1 rounded-xl">
-            {[
-              { val: "", label: tc("all") },
-              { val: "text", label: t("text") },
-              { val: "image", label: t("image") },
-            ].map((m) => (
-              <button
-                key={m.val}
-                onClick={() => setModality(m.val)}
-                className={`px-4 py-1.5 text-xs font-bold uppercase tracking-wider transition-all ${
-                  modality === m.val
-                    ? "text-indigo-700 bg-white rounded-lg shadow-sm"
-                    : "text-slate-500 hover:text-slate-700"
-                }`}
-              >
-                {m.label}
-              </button>
-            ))}
-          </div>
+        {/* Modality filter pills — code.html lines 163-168 */}
+        <div className="flex items-center bg-ds-surface-container-low p-1.5 rounded-xl">
+          {[
+            { val: "", label: tc("all") },
+            { val: "text", label: t("text") },
+            { val: "image", label: t("image") },
+            { val: "audio", label: t("audio") },
+          ].map((m) => (
+            <button
+              key={m.val}
+              onClick={() => setModality(m.val)}
+              className={`px-5 py-2 text-sm font-semibold transition-colors ${
+                modality === m.val
+                  ? "bg-white text-ds-primary rounded-lg shadow-sm font-bold"
+                  : "text-ds-on-surface-variant hover:text-ds-primary"
+              }`}
+            >
+              {m.label}
+            </button>
+          ))}
         </div>
       </div>
 
-      {/* ═══ Bento Grid Statistics — code.html lines 170-196 ═══ */}
+      {/* ═══ Bento Grid Statistics — code.html lines 171-196 ═══ */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
-        {/* First card: col-span-2 — lines 172-185 */}
+        {/* Total Models card (col-span-2) */}
         <div className="col-span-1 md:col-span-2 bg-ds-surface-container-lowest p-6 rounded-xl shadow-[0px_20px_40px_rgba(19,27,46,0.04)] flex flex-col justify-between overflow-hidden relative">
           <div className="relative z-10">
             <span className="text-[10px] font-bold text-ds-primary uppercase tracking-widest">
@@ -165,17 +173,15 @@ export default function ModelsPage() {
               {totalModels} {t("totalModels")}
             </h3>
           </div>
-          {/* Mini bar chart — lines 177-182 */}
           <div className="mt-8 flex items-end gap-2 relative z-10">
             <div className="w-1/4 h-12 bg-ds-primary/10 rounded-lg" />
             <div className="w-1/4 h-20 bg-ds-primary/20 rounded-lg" />
             <div className="w-1/4 h-16 bg-ds-primary/40 rounded-lg" />
             <div className="w-1/4 h-24 bg-ds-primary rounded-lg" />
           </div>
-          {/* Decorative — line 184 */}
           <div className="absolute -right-12 -top-12 w-48 h-48 bg-indigo-50 rounded-full blur-3xl opacity-50" />
         </div>
-        {/* Optimization card — lines 186-190 */}
+        {/* Optimization card */}
         <div className="bg-ds-surface-container-lowest p-6 rounded-xl shadow-[0px_20px_40px_rgba(19,27,46,0.04)]">
           <span className="text-[10px] font-bold text-ds-tertiary uppercase tracking-widest">
             {t("optimization")}
@@ -183,101 +189,180 @@ export default function ModelsPage() {
           <h3 className="text-3xl font-extrabold mt-2 font-[var(--font-heading)]">—</h3>
           <p className="text-xs text-ds-on-surface-variant mt-2">{t("avgLatencyOverhead")}</p>
         </div>
-        {/* Active Providers card — lines 191-195 */}
+        {/* Brand Groups card */}
         <div className="bg-ds-surface-container-lowest p-6 rounded-xl shadow-[0px_20px_40px_rgba(19,27,46,0.04)]">
           <span className="text-[10px] font-bold text-ds-secondary uppercase tracking-widest">
-            {t("activeProviders")}
+            {t("brandGroups")}
           </span>
-          <h3 className="text-3xl font-extrabold mt-2 font-[var(--font-heading)]">
-            {grouped.length}
-          </h3>
-          <p className="text-xs text-ds-on-surface-variant mt-2">{t("providerGroups")}</p>
+          <h3 className="text-3xl font-extrabold mt-2 font-[var(--font-heading)]">{brandCount}</h3>
+          <p className="text-xs text-ds-on-surface-variant mt-2">{t("activeBrands")}</p>
         </div>
       </div>
 
-      {/* ═══ Provider Groups ═══ */}
-      <div className="space-y-4">
+      {/* ═══ Search bar ═══ */}
+      <SearchBar
+        placeholder={t("searchPlaceholder")}
+        value={search}
+        onChange={setSearch}
+        className="max-w-xl"
+      />
+
+      {/* ═══ Brand Groups — code.html lines 199-387 ═══ */}
+      <div className="space-y-6">
         {grouped.map((group) => {
-          const expanded = expandedProviders.has(group.name);
-          const bgColor = PROVIDER_COLORS[group.name] ?? "#888780";
-          const abbr = PROVIDER_ABBR[group.name] ?? group.displayName.slice(0, 2);
-          const visibleModels = showAllModels.has(group.name)
+          const collapsed = collapsedBrands.has(group.brand);
+          const bgColor = BRAND_COLORS[group.brand] ?? "#888780";
+          const abbr = BRAND_ABBR[group.brand] ?? group.brand.slice(0, 2).toUpperCase();
+          const visibleModels = showAllModels.has(group.brand)
             ? group.models
             : group.models.slice(0, MODELS_PER_PAGE);
-          const hasMore = group.models.length > MODELS_PER_PAGE && !showAllModels.has(group.name);
+          const hasMore = group.models.length > MODELS_PER_PAGE && !showAllModels.has(group.brand);
 
           return (
-            <div
-              key={group.name}
-              className="bg-ds-surface-container-lowest rounded-xl shadow-sm overflow-hidden"
-            >
-              {/* Provider header */}
-              <div
-                onClick={() => setExpandedProviders((s) => toggle(s, group.name))}
-                className="flex items-center gap-3 px-6 py-4 cursor-pointer hover:bg-ds-surface-container-low transition-colors"
-              >
-                <div
-                  className="w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold text-white shrink-0"
-                  style={{ background: bgColor }}
-                >
-                  {abbr}
+            <div key={group.brand} className="group">
+              {/* Brand header — code.html lines 201-209 */}
+              <div className="flex items-center justify-between mb-4 px-2">
+                <div className="flex items-center gap-3">
+                  <div
+                    className="w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold text-white shrink-0"
+                    style={{ background: bgColor }}
+                  >
+                    {abbr}
+                  </div>
+                  <h2 className="text-xl font-bold tracking-tight">{group.brand}</h2>
+                  <span className="text-xs text-ds-outline ml-1">
+                    {group.models.length} {t("modelCount")}
+                  </span>
                 </div>
-                <span className="text-sm font-bold text-ds-on-surface">{group.displayName}</span>
-                <span className="text-xs text-slate-500 ml-1">
-                  {group.models.length} {t("modelCount")}
-                </span>
-                <span className="material-symbols-outlined text-slate-400 ml-auto text-sm">
-                  {expanded ? "expand_less" : "expand_more"}
-                </span>
+                <button
+                  onClick={() => toggleCollapse(group.brand)}
+                  className="text-sm font-semibold text-ds-primary hover:underline"
+                >
+                  {collapsed ? t("expand") : t("collapse")}
+                </button>
               </div>
 
-              {/* Model list */}
-              {expanded && (
-                <div className="px-6 pb-4">
-                  {visibleModels.map((m) => (
-                    <div
-                      key={m.id}
-                      className="flex items-center gap-4 px-4 py-3 rounded-lg hover:bg-ds-surface-container-low transition-colors"
-                    >
-                      <span className="text-sm font-medium font-mono flex-1 text-ds-on-surface">
-                        {m.id}
-                      </span>
-                      <span
-                        className={`text-[10px] font-bold px-2 py-0.5 rounded uppercase ${
-                          m.modality === "text"
-                            ? "bg-indigo-50 text-indigo-700"
-                            : "bg-pink-50 text-pink-700"
-                        }`}
-                      >
-                        {m.modality}
-                      </span>
-                      <span className="text-xs text-slate-500 w-20 text-right">
-                        {m.context_window ? formatContext(m.context_window) : "—"}
-                      </span>
-                      <span
-                        className={`text-xs font-mono w-32 text-right ${
-                          fmtPrice(m.pricing) === "Free"
-                            ? "text-green-600 font-bold"
-                            : "text-slate-600"
-                        }`}
-                      >
-                        {fmtPrice(m.pricing)}
-                      </span>
-                    </div>
-                  ))}
+              {/* Model table — code.html lines 211-300 */}
+              {!collapsed && (
+                <div className="bg-ds-surface-container-lowest rounded-xl overflow-hidden shadow-[0px_20px_40px_rgba(19,27,46,0.02)] border border-ds-outline-variant/10">
+                  <table className="w-full text-left border-collapse">
+                    <thead className="bg-ds-surface-container-low border-b border-ds-outline-variant/5">
+                      <tr>
+                        <th className="px-6 py-4 text-[10px] font-bold text-ds-outline uppercase tracking-widest">
+                          {t("modelId")}
+                        </th>
+                        <th className="px-6 py-4 text-[10px] font-bold text-ds-outline uppercase tracking-widest">
+                          {t("modality")}
+                        </th>
+                        <th className="px-6 py-4 text-[10px] font-bold text-ds-outline uppercase tracking-widest">
+                          {t("context")}
+                        </th>
+                        <th className="px-6 py-4 text-[10px] font-bold text-ds-outline uppercase tracking-widest">
+                          {t("price")}
+                        </th>
+                        <th className="px-6 py-4 text-[10px] font-bold text-ds-outline uppercase tracking-widest text-right">
+                          {t("actions")}
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-ds-outline-variant/5">
+                      {visibleModels.map((m) => {
+                        const priceSplit = fmtPriceSplit(m.pricing);
+                        const modalityStyle = MODALITY_STYLES[m.modality] ?? MODALITY_STYLES.text;
+                        return (
+                          <tr
+                            key={m.id}
+                            className="hover:bg-ds-surface-container-low transition-colors group/row"
+                          >
+                            <td className="px-6 py-4">
+                              <div className="flex flex-col">
+                                <span className="font-mono text-sm font-semibold text-ds-on-surface">
+                                  {m.id}
+                                </span>
+                                {m.description && (
+                                  <span className="text-[10px] text-ds-outline font-medium">
+                                    {m.description}
+                                  </span>
+                                )}
+                              </div>
+                            </td>
+                            <td className="px-6 py-4">
+                              <div className="flex items-center gap-2">
+                                <span
+                                  className={`px-2 py-1 rounded text-[10px] font-bold border uppercase ${modalityStyle}`}
+                                >
+                                  {m.modality}
+                                </span>
+                                {hasCapability(m, "vision") && (
+                                  <span className="px-2 py-1 bg-amber-50 text-amber-600 rounded text-[10px] font-bold border border-amber-100 uppercase">
+                                    {t("vision")}
+                                  </span>
+                                )}
+                              </div>
+                            </td>
+                            <td className="px-6 py-4">
+                              <span className="text-sm font-semibold text-ds-on-surface-variant">
+                                {m.context_window ? (
+                                  <>
+                                    {formatContext(m.context_window)}{" "}
+                                    <span className="text-ds-outline font-normal">
+                                      {t("tokens")}
+                                    </span>
+                                  </>
+                                ) : (
+                                  t("na")
+                                )}
+                              </span>
+                            </td>
+                            <td className="px-6 py-4">
+                              {priceSplit ? (
+                                <div className="flex flex-col">
+                                  <span className="text-xs font-bold text-ds-on-surface">
+                                    {priceSplit.input}{" "}
+                                    <span className="text-ds-outline font-normal">
+                                      {m.pricing.unit === "call" ? t("perImage") : t("per1mInput")}
+                                    </span>
+                                  </span>
+                                  {m.pricing.unit !== "call" && (
+                                    <span className="text-xs font-bold text-ds-on-surface">
+                                      {priceSplit.output}{" "}
+                                      <span className="text-ds-outline font-normal">
+                                        {t("per1mOutput")}
+                                      </span>
+                                    </span>
+                                  )}
+                                </div>
+                              ) : (
+                                <span className="text-xs font-bold text-green-600">
+                                  {t("free")}
+                                </span>
+                              )}
+                            </td>
+                            <td className="px-6 py-4 text-right">
+                              <button className="p-2 rounded-lg hover:bg-white text-ds-outline group-hover/row:text-ds-primary transition-colors">
+                                <span className="material-symbols-outlined">settings_ethernet</span>
+                              </button>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
                   {hasMore && (
-                    <button
-                      onClick={() =>
-                        setShowAllModels((s) => {
-                          const n = new Set(s);
-                          n.add(group.name);
-                          return n;
-                        })
-                      }
-                      className="w-full py-3 text-xs font-bold text-ds-primary hover:underline"
-                    >
-                      {t("showAll", { count: group.models.length })}
-                    </button>
+                    <div className="px-6 py-3 border-t border-ds-outline-variant/5">
+                      <button
+                        onClick={() =>
+                          setShowAllModels((prev) => {
+                            const next = new Set(prev);
+                            next.add(group.brand);
+                            return next;
+                          })
+                        }
+                        className="w-full py-2 text-xs font-bold text-ds-primary hover:underline"
+                      >
+                        {t("showAll", { count: group.models.length })}
+                      </button>
+                    </div>
                   )}
                 </div>
               )}
@@ -288,6 +373,16 @@ export default function ModelsPage() {
           <div className="text-center py-12 text-ds-outline">{t("noModelsFound")}</div>
         )}
       </div>
+
+      {/* ═══ Show All Button — code.html lines 382-387 ═══ */}
+      {totalModels > 0 && (
+        <div className="pt-8 flex justify-center">
+          <button className="flex items-center gap-2 px-10 py-3 bg-ds-surface-container-low text-ds-primary font-bold rounded-xl hover:bg-ds-surface-container-high transition-all border border-ds-primary/10">
+            {t("showAllTotal", { count: totalModels })}
+            <span className="material-symbols-outlined">expand_more</span>
+          </button>
+        </div>
+      )}
     </div>
   );
 }

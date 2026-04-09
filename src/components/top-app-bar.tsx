@@ -1,44 +1,54 @@
 "use client";
+import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useLocale } from "@/hooks/use-locale";
 
 /*
- * TopAppBar — strict 1:1 replica of Layout Shell code.html lines 146-182.
+ * TopAppBar — based on Layout Shell code.html lines 146-182.
  *
- * Substitutions:
- *   - static text → t() i18n calls
- *   - EN/CN buttons → toggleLocale hook
- *   - <img> avatar → initials fallback
- *   - Deploy button → placeholder (no action yet)
+ * M1c cleanup:
+ *   - Removed: search bar, Deploy button, settings button, dark mode button
+ *   - Kept: nav links, language switcher, notifications (placeholder), avatar
+ *   - Added: user avatar dropdown menu (Settings + Sign Out)
  */
 
 interface TopAppBarProps {
   userName?: string;
+  userEmail?: string;
 }
 
-export function TopAppBar({ userName }: TopAppBarProps) {
+export function TopAppBar({ userName, userEmail }: TopAppBarProps) {
   const t = useTranslations("topBar");
   const { locale, toggleLocale } = useLocale();
+  const router = useRouter();
   const initials = (userName ?? "U").slice(0, 2).toUpperCase();
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    if (!menuOpen) return;
+    const handler = (e: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setMenuOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [menuOpen]);
+
+  const handleSignOut = () => {
+    localStorage.removeItem("token");
+    document.cookie = "token=; path=/; max-age=0";
+    router.push("/login");
+  };
 
   return (
-    /* code.html line 146 */
     <header className="sticky top-0 z-50 w-full bg-white/80 dark:bg-slate-950/80 backdrop-blur-xl flex justify-between items-center h-16 px-8 shadow-sm dark:shadow-none">
-      {/* Left: Search + Nav Links — code.html lines 147-156 */}
+      {/* Left: Nav Links */}
       <div className="flex items-center gap-6 flex-1">
-        {/* Search — code.html lines 148-151 */}
-        <div className="relative w-full max-w-md">
-          <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-lg">
-            search
-          </span>
-          <input
-            className="w-full bg-ds-surface-container-low border-none rounded-full py-2 pl-10 pr-4 text-sm focus:ring-2 focus:ring-ds-primary/20 placeholder:text-slate-400 outline-none"
-            placeholder={t("searchPlaceholder")}
-            type="text"
-          />
-        </div>
-        {/* Nav Links — code.html lines 152-156 */}
         <nav className="hidden md:flex items-center gap-6">
           <Link
             href="/docs"
@@ -61,9 +71,9 @@ export function TopAppBar({ userName }: TopAppBarProps) {
         </nav>
       </div>
 
-      {/* Right: Controls — code.html lines 158-181 */}
+      {/* Right: Controls */}
       <div className="flex items-center gap-4">
-        {/* Language Switcher — code.html lines 159-162 */}
+        {/* Language Switcher */}
         <div className="flex items-center gap-2 bg-ds-surface-container-low p-1 rounded-lg">
           <button
             onClick={() => locale !== "en" && toggleLocale()}
@@ -87,32 +97,56 @@ export function TopAppBar({ userName }: TopAppBarProps) {
           </button>
         </div>
 
-        {/* Tool Buttons — code.html lines 163-173 */}
-        <div className="flex items-center gap-2">
-          <button className="p-2 text-slate-500 hover:bg-ds-surface-container-high rounded-full transition-colors opacity-80 hover:opacity-100">
-            <span className="material-symbols-outlined">notifications</span>
-          </button>
-          <button className="p-2 text-slate-500 hover:bg-ds-surface-container-high rounded-full transition-colors opacity-80 hover:opacity-100">
-            <span className="material-symbols-outlined">dark_mode</span>
-          </button>
-          <button className="p-2 text-slate-500 hover:bg-ds-surface-container-high rounded-full transition-colors opacity-80 hover:opacity-100">
-            <span className="material-symbols-outlined">settings</span>
-          </button>
-        </div>
-
-        {/* Divider — code.html line 174 */}
-        <div className="h-8 w-px bg-slate-200/50 mx-2" />
-
-        {/* Deploy Button — code.html lines 175-177 */}
-        <button className="px-4 py-1.5 bg-gradient-to-r from-ds-primary to-ds-primary-container text-white rounded-lg text-sm font-bold font-[var(--font-heading)] hover:opacity-90 transition-all shadow-lg shadow-ds-primary/20">
-          {t("deploy")}
+        {/* Notifications (placeholder) */}
+        <button className="p-2 text-slate-500 hover:bg-ds-surface-container-high rounded-full transition-colors opacity-80 hover:opacity-100">
+          <span className="material-symbols-outlined">notifications</span>
         </button>
 
-        {/* User Avatar — code.html lines 178-180 */}
-        <div className="flex items-center gap-3 ml-2 cursor-pointer group">
-          <div className="w-8 h-8 rounded-full bg-ds-primary-container flex items-center justify-center text-white text-xs font-bold ring-2 ring-ds-primary/20 group-hover:ring-ds-primary/50 transition-all">
-            {initials}
-          </div>
+        {/* Divider */}
+        <div className="h-8 w-px bg-slate-200/50 mx-2" />
+
+        {/* User Avatar + Dropdown */}
+        <div ref={menuRef} className="relative">
+          <button
+            onClick={() => setMenuOpen((prev) => !prev)}
+            className="flex items-center gap-3 cursor-pointer group"
+          >
+            <div className="w-8 h-8 rounded-full bg-ds-primary-container flex items-center justify-center text-white text-xs font-bold ring-2 ring-ds-primary/20 group-hover:ring-ds-primary/50 transition-all">
+              {initials}
+            </div>
+          </button>
+
+          {menuOpen && (
+            <div className="absolute right-0 top-12 w-56 bg-white rounded-xl shadow-lg border border-ds-outline-variant/20 py-2 z-50">
+              {/* User info */}
+              <div className="px-4 py-3 border-b border-ds-outline-variant/10">
+                {userName && (
+                  <p className="text-sm font-semibold text-ds-on-surface truncate">{userName}</p>
+                )}
+                {userEmail && (
+                  <p className="text-xs text-ds-outline truncate">{userEmail}</p>
+                )}
+              </div>
+              {/* Menu items */}
+              <div className="py-1">
+                <Link
+                  href="/settings"
+                  onClick={() => setMenuOpen(false)}
+                  className="flex items-center gap-3 px-4 py-2 text-sm text-ds-on-surface hover:bg-ds-surface-container-low transition-colors"
+                >
+                  <span className="material-symbols-outlined text-lg text-ds-outline">settings</span>
+                  {t("settings")}
+                </Link>
+                <button
+                  onClick={handleSignOut}
+                  className="flex items-center gap-3 px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors w-full text-left"
+                >
+                  <span className="material-symbols-outlined text-lg">logout</span>
+                  {t("signOut")}
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </header>

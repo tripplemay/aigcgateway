@@ -4,17 +4,17 @@ description: AIGC Gateway 当前状态快照（覆盖写，≤30 行）
 type: project
 ---
 ## 当前批次
-- M1c-models-page-topbar-cleanup：`building`
+- M1c-models-page-topbar-cleanup：`verifying`
 - spec：`docs/specs/M1-models-page-rework-spec.md`
 - 设计稿：`design-draft/models/code.html`
+- Generator 5/5 done，等待 Evaluator 验收
 
-## M1c 功能拆分（6 个）
-- F-M1c-01 用户 Models 页重做（按品牌分组）
-- F-M1c-02 Topbar 清理（移除 Deploy/设置/搜索/暗色模式按钮）
-- F-M1c-03 用户头像下拉菜单（用户名/Settings/Sign Out）
-- F-M1c-04 终端模拟区固定英文
-- F-M1c-05 i18n
-- F-M1c-06 全量验收（codex）
+## M1c 变更摘要
+- Models 页按 brand 分组（表格布局，设计稿还原）
+- Topbar 清理（移除 Deploy/搜索/设置/暗色按钮）
+- 头像下拉菜单（用户名/邮箱/Settings/Sign Out）
+- 终端模拟区固定英文（login + register）
+- i18n 全量中英文同步
 
 ## 已完成批次
 - R1~R4：UI 重构全部签收
