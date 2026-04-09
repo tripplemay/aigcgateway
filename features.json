@@ -7,7 +7,7 @@
       "title": "Model Whitelist DS token 统一",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) 零 shadcn 旧 token（bg-card/bg-muted/text-muted-foreground/bg-background/bg-primary/text-primary）；2) 全部替换为 ds-* 前缀；3) 页面视觉无变化；4) tsc 通过"
     },
     {
@@ -15,7 +15,7 @@
       "title": "Model Aliases DS token 统一",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) 零 shadcn 旧 token；2) 全部替换为 ds-* 前缀；3) 页面视觉无变化；4) tsc 通过"
     },
     {
@@ -23,7 +23,7 @@
       "title": "Model Capabilities DS token 统一",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) 零 text-slate-*/bg-slate-* 硬编码颜色（标签/描述类）；2) 替换为 ds-* token；3) tsc 通过"
     },
     {
@@ -31,7 +31,7 @@
       "title": "Docs + Layout DS token 统一",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) docs/page.tsx 零 shadcn 旧 token；2) layout.tsx text-muted-foreground 替换；3) tsc 通过"
     },
     {

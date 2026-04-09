@@ -45,7 +45,7 @@ export default function DocsPage() {
   return (
     <div className="max-w-4xl">
       <h1 className="text-2xl font-bold mb-2">{t("title")}</h1>
-      <p className="text-muted-foreground mb-6">{t("description")}</p>
+      <p className="text-ds-on-surface-variant mb-6">{t("description")}</p>
 
       <Section title="Authentication">
         <p className="text-sm mb-3">
@@ -69,24 +69,25 @@ export default function DocsPage() {
         <h4 className="font-medium mt-4 mb-2 text-sm">Parameters</h4>
         <div className="text-sm space-y-1">
           <p>
-            <code className="bg-muted px-1 rounded">model</code>{" "}
+            <code className="bg-ds-surface-container-low px-1 rounded">model</code>{" "}
             <Badge variant="secondary">required</Badge> — Platform model name, e.g.{" "}
             <code>openai/gpt-4o</code>
           </p>
           <p>
-            <code className="bg-muted px-1 rounded">messages</code>{" "}
+            <code className="bg-ds-surface-container-low px-1 rounded">messages</code>{" "}
             <Badge variant="secondary">required</Badge> — Array of message objects
           </p>
           <p>
-            <code className="bg-muted px-1 rounded">stream</code> — Enable SSE streaming (default:
-            false)
+            <code className="bg-ds-surface-container-low px-1 rounded">stream</code> — Enable SSE
+            streaming (default: false)
           </p>
           <p>
-            <code className="bg-muted px-1 rounded">temperature</code> — Sampling temperature
-            (auto-clamped per provider)
+            <code className="bg-ds-surface-container-low px-1 rounded">temperature</code> — Sampling
+            temperature (auto-clamped per provider)
           </p>
           <p>
-            <code className="bg-muted px-1 rounded">max_tokens</code> — Maximum output tokens
+            <code className="bg-ds-surface-container-low px-1 rounded">max_tokens</code> — Maximum
+            output tokens
           </p>
         </div>
       </Section>
@@ -113,18 +114,20 @@ curl /v1/models?modality=image`}</Code>
       <Section title="Response Headers">
         <div className="text-sm space-y-1">
           <p>
-            <code className="bg-muted px-1 rounded">X-Trace-Id</code> — Unique trace ID for audit
-            logs
+            <code className="bg-ds-surface-container-low px-1 rounded">X-Trace-Id</code> — Unique
+            trace ID for audit logs
           </p>
           <p>
-            <code className="bg-muted px-1 rounded">X-RateLimit-Limit</code> — Rate limit (RPM)
+            <code className="bg-ds-surface-container-low px-1 rounded">X-RateLimit-Limit</code> —
+            Rate limit (RPM)
           </p>
           <p>
-            <code className="bg-muted px-1 rounded">X-RateLimit-Remaining</code> — Remaining
-            requests
+            <code className="bg-ds-surface-container-low px-1 rounded">X-RateLimit-Remaining</code>{" "}
+            — Remaining requests
           </p>
           <p>
-            <code className="bg-muted px-1 rounded">X-RateLimit-Reset</code> — Reset timestamp
+            <code className="bg-ds-surface-container-low px-1 rounded">X-RateLimit-Reset</code> —
+            Reset timestamp
           </p>
         </div>
       </Section>
@@ -177,7 +180,9 @@ curl /v1/models?modality=image`}</Code>
           <p>
             <strong>Image RPM</strong>: 10 requests/minute
           </p>
-          <p className="text-muted-foreground">Limits can be customized per project by admin.</p>
+          <p className="text-ds-on-surface-variant">
+            Limits can be customized per project by admin.
+          </p>
         </div>
       </Section>
 
@@ -188,7 +193,9 @@ curl /v1/models?modality=image`}</Code>
         </p>
         <p className="text-sm mb-2">
           <strong>Endpoint:</strong>{" "}
-          <code className="bg-muted px-1 rounded">https://aigc.guangai.ai/mcp</code>
+          <code className="bg-ds-surface-container-low px-1 rounded">
+            https://aigc.guangai.ai/mcp
+          </code>
         </p>
         <p className="text-sm mb-3">
           <strong>Protocol:</strong> Streamable HTTP (stateless)
@@ -210,30 +217,37 @@ curl /v1/models?modality=image`}</Code>
         </p>
         <div className="text-sm space-y-1">
           <p>
-            <code className="bg-muted px-1 rounded">list_models</code> — List models with pricing
+            <code className="bg-ds-surface-container-low px-1 rounded">list_models</code> — List
+            models with pricing
           </p>
           <p>
-            <code className="bg-muted px-1 rounded">chat</code> — Text generation (non-streaming)
+            <code className="bg-ds-surface-container-low px-1 rounded">chat</code> — Text generation
+            (non-streaming)
           </p>
           <p>
-            <code className="bg-muted px-1 rounded">generate_image</code> — Image generation
+            <code className="bg-ds-surface-container-low px-1 rounded">generate_image</code> — Image
+            generation
           </p>
           <p>
-            <code className="bg-muted px-1 rounded">list_logs</code> — View call logs
+            <code className="bg-ds-surface-container-low px-1 rounded">list_logs</code> — View call
+            logs
           </p>
           <p>
-            <code className="bg-muted px-1 rounded">get_log_detail</code> — Full call details
+            <code className="bg-ds-surface-container-low px-1 rounded">get_log_detail</code> — Full
+            call details
           </p>
           <p>
-            <code className="bg-muted px-1 rounded">get_balance</code> — Check balance
+            <code className="bg-ds-surface-container-low px-1 rounded">get_balance</code> — Check
+            balance
           </p>
           <p>
-            <code className="bg-muted px-1 rounded">get_usage_summary</code> — Usage statistics
+            <code className="bg-ds-surface-container-low px-1 rounded">get_usage_summary</code> —
+            Usage statistics
           </p>
         </div>
-        <p className="text-sm text-muted-foreground mt-2">
+        <p className="text-sm text-ds-on-surface-variant mt-2">
           See{" "}
-          <a href="/mcp-setup" className="text-primary underline">
+          <a href="/mcp-setup" className="text-ds-primary underline">
             MCP Setup
           </a>{" "}
           page for full configuration guide.

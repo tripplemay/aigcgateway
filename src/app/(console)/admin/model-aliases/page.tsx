@@ -122,7 +122,7 @@ export default function ModelAliasesPage() {
   };
 
   if (loading) {
-    return <div className="p-12 text-center text-muted-foreground">{t("loading")}</div>;
+    return <div className="p-12 text-center text-ds-on-surface-variant">{t("loading")}</div>;
   }
 
   const groupEntries = Object.entries(grouped).sort(([a], [b]) => a.localeCompare(b));
@@ -132,29 +132,31 @@ export default function ModelAliasesPage() {
       {/* Header */}
       <section>
         <h1 className="text-4xl font-extrabold tracking-tight">{t("title")}</h1>
-        <p className="mt-2 text-muted-foreground text-lg">{t("subtitle")}</p>
+        <p className="mt-2 text-ds-on-surface-variant text-lg">{t("subtitle")}</p>
       </section>
 
       {/* Classified models */}
       <section>
         <h2 className="text-xl font-bold mb-4">{t("classifiedModels")}</h2>
         {groupEntries.length === 0 ? (
-          <p className="text-muted-foreground">{t("noAliases")}</p>
+          <p className="text-ds-on-surface-variant">{t("noAliases")}</p>
         ) : (
           <div className="space-y-4">
             {groupEntries.map(([modelName, aliases]) => (
-              <div key={modelName} className="bg-card rounded-xl border p-4">
+              <div key={modelName} className="bg-ds-surface-container-lowest rounded-xl border p-4">
                 <div className="flex items-center gap-2 mb-3">
-                  <span className="material-symbols-outlined text-primary text-lg">link</span>
+                  <span className="material-symbols-outlined text-ds-primary text-lg">link</span>
                   <span className="font-bold text-sm">{modelName}</span>
-                  <span className="text-xs text-muted-foreground">
+                  <span className="text-xs text-ds-on-surface-variant">
                     ({t("aliasCount", { count: aliases.length })})
                   </span>
                 </div>
                 <div className="space-y-1 ml-7">
                   {aliases.map((a) => (
                     <div key={a.id} className="flex items-center gap-2 text-sm">
-                      <code className="bg-muted px-2 py-0.5 rounded text-xs">{a.alias}</code>
+                      <code className="bg-ds-surface-container-low px-2 py-0.5 rounded text-xs">
+                        {a.alias}
+                      </code>
                       <button
                         className="text-red-500 hover:text-red-700 text-xs"
                         onClick={() => deleteAlias(a.id)}
@@ -174,7 +176,7 @@ export default function ModelAliasesPage() {
                       onKeyDown={(e) => e.key === "Enter" && addAlias(modelName)}
                     />
                     <button
-                      className="text-primary text-xs font-bold"
+                      className="text-ds-primary text-xs font-bold"
                       onClick={() => addAlias(modelName)}
                     >
                       {t("add")}
@@ -190,37 +192,39 @@ export default function ModelAliasesPage() {
       {/* Unclassified models */}
       <section>
         <h2 className="text-xl font-bold mb-2">{t("unclassifiedModels")}</h2>
-        <p className="text-sm text-muted-foreground mb-4">{t("unclassifiedDesc")}</p>
+        <p className="text-sm text-ds-on-surface-variant mb-4">{t("unclassifiedDesc")}</p>
         {unclassified.length === 0 ? (
-          <p className="text-muted-foreground">{t("noUnclassified")}</p>
+          <p className="text-ds-on-surface-variant">{t("noUnclassified")}</p>
         ) : (
-          <div className="bg-card rounded-xl border overflow-hidden">
+          <div className="bg-ds-surface-container-lowest rounded-xl border overflow-hidden">
             <table className="w-full text-left">
               <thead>
-                <tr className="bg-muted/30">
-                  <th className="px-4 py-3 text-[10px] font-black uppercase tracking-widest text-muted-foreground">
+                <tr className="bg-ds-surface-container-low/30">
+                  <th className="px-4 py-3 text-[10px] font-black uppercase tracking-widest text-ds-on-surface-variant">
                     {t("colModel")}
                   </th>
-                  <th className="px-4 py-3 text-[10px] font-black uppercase tracking-widest text-muted-foreground">
+                  <th className="px-4 py-3 text-[10px] font-black uppercase tracking-widest text-ds-on-surface-variant">
                     {t("colModality")}
                   </th>
-                  <th className="px-4 py-3 text-[10px] font-black uppercase tracking-widest text-muted-foreground">
+                  <th className="px-4 py-3 text-[10px] font-black uppercase tracking-widest text-ds-on-surface-variant">
                     {t("colChannels")}
                   </th>
-                  <th className="px-4 py-3 text-[10px] font-black uppercase tracking-widest text-muted-foreground text-right">
+                  <th className="px-4 py-3 text-[10px] font-black uppercase tracking-widest text-ds-on-surface-variant text-right">
                     {t("colActions")}
                   </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-border/50">
                 {unclassified.map((m) => (
-                  <tr key={m.id} className="hover:bg-muted/10">
+                  <tr key={m.id} className="hover:bg-ds-surface-container-low/10">
                     <td className="px-4 py-3">
                       <span className="font-bold text-sm">{m.name}</span>
-                      <span className="text-xs text-muted-foreground ml-2">{m.displayName}</span>
+                      <span className="text-xs text-ds-on-surface-variant ml-2">
+                        {m.displayName}
+                      </span>
                     </td>
                     <td className="px-4 py-3">
-                      <span className="text-[10px] font-bold px-2 py-1 rounded-md bg-primary/10 text-primary">
+                      <span className="text-[10px] font-bold px-2 py-1 rounded-md bg-ds-primary/10 text-ds-primary">
                         {m.modality === "IMAGE" ? t("image") : t("text")}
                       </span>
                     </td>
@@ -244,7 +248,7 @@ export default function ModelAliasesPage() {
                             ))}
                         </select>
                         <button
-                          className="text-primary text-xs font-bold disabled:opacity-50"
+                          className="text-ds-primary text-xs font-bold disabled:opacity-50"
                           disabled={!mergeTargets[m.id]}
                           onClick={() => mergeModel(m.id)}
                         >

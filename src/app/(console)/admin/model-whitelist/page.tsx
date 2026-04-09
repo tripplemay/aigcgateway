@@ -223,7 +223,7 @@ export default function ModelWhitelistPage() {
         </span>
       );
     return (
-      <span className="flex items-center gap-1 text-slate-400">
+      <span className="flex items-center gap-1 text-ds-outline">
         <span className="material-symbols-outlined text-sm">help</span>
         <span className="text-[10px] font-bold uppercase tracking-tight">{t("unknown")}</span>
       </span>
@@ -236,13 +236,13 @@ export default function ModelWhitelistPage() {
       {/* Page Header */}
       <section>
         <h1 className="text-4xl font-extrabold tracking-tight">{t("title")}</h1>
-        <p className="mt-2 text-muted-foreground text-lg">{t("subtitle")}</p>
+        <p className="mt-2 text-ds-on-surface-variant text-lg">{t("subtitle")}</p>
       </section>
 
       {/* Stats Row */}
       <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-card/60 backdrop-blur-lg rounded-xl p-6 shadow-sm border flex items-center gap-5">
-          <div className="w-14 h-14 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
+        <div className="bg-ds-surface-container-lowest/60 backdrop-blur-lg rounded-xl p-6 shadow-sm border flex items-center gap-5">
+          <div className="w-14 h-14 rounded-xl bg-ds-primary/10 flex items-center justify-center text-ds-primary">
             <span
               className="material-symbols-outlined text-3xl"
               style={{ fontVariationSettings: "'FILL' 1" }}
@@ -251,17 +251,17 @@ export default function ModelWhitelistPage() {
             </span>
           </div>
           <div>
-            <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
+            <p className="text-xs font-bold uppercase tracking-widest text-ds-on-surface-variant">
               {t("totalModels")}
             </p>
             <h3 className="text-3xl font-black">{stats.total}</h3>
-            <p className="text-xs text-muted-foreground font-medium mt-0.5">
+            <p className="text-xs text-ds-on-surface-variant font-medium mt-0.5">
               {t("allProvidersSynced")}
             </p>
           </div>
         </div>
-        <div className="bg-card/60 backdrop-blur-lg rounded-xl p-6 shadow-sm border flex items-center gap-5">
-          <div className="w-14 h-14 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
+        <div className="bg-ds-surface-container-lowest/60 backdrop-blur-lg rounded-xl p-6 shadow-sm border flex items-center gap-5">
+          <div className="w-14 h-14 rounded-xl bg-ds-primary/10 flex items-center justify-center text-ds-primary">
             <span
               className="material-symbols-outlined text-3xl"
               style={{ fontVariationSettings: "'FILL' 1" }}
@@ -270,16 +270,16 @@ export default function ModelWhitelistPage() {
             </span>
           </div>
           <div>
-            <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
+            <p className="text-xs font-bold uppercase tracking-widest text-ds-on-surface-variant">
               {t("enabled")}
             </p>
             <h3 className="text-3xl font-black">{stats.enabled}</h3>
-            <p className="text-xs text-muted-foreground font-medium mt-0.5">
+            <p className="text-xs text-ds-on-surface-variant font-medium mt-0.5">
               {t("whitelistedModels")}
             </p>
           </div>
         </div>
-        <div className="bg-card/60 backdrop-blur-lg rounded-xl p-6 shadow-sm border flex items-center gap-5">
+        <div className="bg-ds-surface-container-lowest/60 backdrop-blur-lg rounded-xl p-6 shadow-sm border flex items-center gap-5">
           <div className="w-14 h-14 rounded-xl bg-orange-100 flex items-center justify-center text-orange-600">
             <span
               className="material-symbols-outlined text-3xl"
@@ -289,11 +289,11 @@ export default function ModelWhitelistPage() {
             </span>
           </div>
           <div>
-            <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
+            <p className="text-xs font-bold uppercase tracking-widest text-ds-on-surface-variant">
               {t("providers")}
             </p>
             <h3 className="text-3xl font-black">{stats.providers}</h3>
-            <p className="text-xs text-muted-foreground font-medium mt-0.5">
+            <p className="text-xs text-ds-on-surface-variant font-medium mt-0.5">
               {t("activeUpstream")}
             </p>
           </div>
@@ -301,7 +301,7 @@ export default function ModelWhitelistPage() {
       </section>
 
       {/* Filter Bar */}
-      <section className="flex flex-wrap items-center gap-4 bg-muted/50 p-2 rounded-2xl">
+      <section className="flex flex-wrap items-center gap-4 bg-ds-surface-container-low/50 p-2 rounded-2xl">
         <div className="flex-1 min-w-[240px]">
           <Input
             placeholder={t("searchPlaceholder")}
@@ -310,12 +310,12 @@ export default function ModelWhitelistPage() {
               setSearch(e.target.value);
               setPage(0);
             }}
-            className="bg-background"
+            className="bg-ds-surface"
           />
         </div>
         <div className="flex items-center gap-3">
           <select
-            className="bg-background border rounded-xl px-4 py-2.5 text-sm font-medium min-w-[140px]"
+            className="bg-ds-surface border rounded-xl px-4 py-2.5 text-sm font-medium min-w-[140px]"
             value={providerFilter}
             onChange={(e) => {
               setProviderFilter(e.target.value);
@@ -330,7 +330,7 @@ export default function ModelWhitelistPage() {
             ))}
           </select>
           <select
-            className="bg-background border rounded-xl px-4 py-2.5 text-sm font-medium min-w-[140px]"
+            className="bg-ds-surface border rounded-xl px-4 py-2.5 text-sm font-medium min-w-[140px]"
             value={modalityFilter}
             onChange={(e) => {
               setModalityFilter(e.target.value);
@@ -345,33 +345,33 @@ export default function ModelWhitelistPage() {
       </section>
 
       {/* Data Table */}
-      <section className="bg-card rounded-2xl shadow-xl overflow-hidden border">
+      <section className="bg-ds-surface-container-lowest rounded-2xl shadow-xl overflow-hidden border">
         {loading ? (
-          <div className="p-12 text-center text-muted-foreground">{t("loading")}</div>
+          <div className="p-12 text-center text-ds-on-surface-variant">{t("loading")}</div>
         ) : (
           <>
             <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="bg-muted/30">
-                  <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground">
+                <tr className="bg-ds-surface-container-low/30">
+                  <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-ds-on-surface-variant">
                     {t("colEnable")}
                   </th>
-                  <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground">
+                  <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-ds-on-surface-variant">
                     {t("colModelName")}
                   </th>
-                  <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground">
+                  <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-ds-on-surface-variant">
                     {t("colModality")}
                   </th>
-                  <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground text-center">
+                  <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-ds-on-surface-variant text-center">
                     {t("colContext")}
                   </th>
-                  <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground">
+                  <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-ds-on-surface-variant">
                     {t("colChannels")}
                   </th>
-                  <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground">
+                  <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-ds-on-surface-variant">
                     {t("colHealth")}
                   </th>
-                  <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground text-right">
+                  <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-ds-on-surface-variant text-right">
                     {t("colActions")}
                   </th>
                 </tr>
@@ -384,7 +384,10 @@ export default function ModelWhitelistPage() {
                   return (
                     <>
                       {/* Model row */}
-                      <tr key={item.id} className="hover:bg-muted/10 transition-colors group">
+                      <tr
+                        key={item.id}
+                        className="hover:bg-ds-surface-container-low/10 transition-colors group"
+                      >
                         <td className="px-6 py-5">
                           <Switch
                             checked={item.enabled}
@@ -403,13 +406,13 @@ export default function ModelWhitelistPage() {
                         </td>
                         <td className="px-6 py-5">
                           <span
-                            className={`text-[10px] font-bold px-2 py-1 rounded-md ${item.modality === "IMAGE" ? "bg-violet-100 text-violet-700" : "bg-primary/10 text-primary"}`}
+                            className={`text-[10px] font-bold px-2 py-1 rounded-md ${item.modality === "IMAGE" ? "bg-violet-100 text-violet-700" : "bg-ds-primary/10 text-ds-primary"}`}
                           >
                             {item.modality === "IMAGE" ? t("image") : t("text")}
                           </span>
                         </td>
                         <td className="px-6 py-5 text-center">
-                          <span className="text-xs font-mono text-muted-foreground">
+                          <span className="text-xs font-mono text-ds-on-surface-variant">
                             {fmtContext(item.contextWindow)}
                           </span>
                         </td>
@@ -423,8 +426,8 @@ export default function ModelWhitelistPage() {
                             </div>
                           ) : (
                             <div className="flex items-center gap-1.5">
-                              <div className="w-2 h-2 rounded-full bg-slate-300" />
-                              <span className="text-xs font-bold text-muted-foreground">
+                              <div className="w-2 h-2 rounded-full bg-ds-outline" />
+                              <span className="text-xs font-bold text-ds-on-surface-variant">
                                 {t("noChannels")}
                               </span>
                             </div>
@@ -434,17 +437,17 @@ export default function ModelWhitelistPage() {
                         <td className="px-6 py-5 text-right">
                           {item.channels.length > 0 && (
                             <button
-                              className="p-1.5 hover:bg-muted rounded-lg transition-colors"
+                              className="p-1.5 hover:bg-ds-surface-container-low rounded-lg transition-colors"
                               onClick={() => toggleExpand(item.id)}
                               title={
                                 isExpanded ? t("hideVariants") : `${item.channels.length} channels`
                               }
                             >
-                              <span className="material-symbols-outlined text-muted-foreground">
+                              <span className="material-symbols-outlined text-ds-on-surface-variant">
                                 {isExpanded ? "unfold_less" : "unfold_more"}
                               </span>
                               {hasMultipleChannels && !isExpanded && (
-                                <span className="text-[10px] text-muted-foreground ml-1">
+                                <span className="text-[10px] text-ds-on-surface-variant ml-1">
                                   {item.channels.length}
                                 </span>
                               )}
@@ -456,11 +459,14 @@ export default function ModelWhitelistPage() {
                       {/* Expanded channel rows */}
                       {isExpanded &&
                         item.channels.map((ch) => (
-                          <tr key={ch.id} className="bg-muted/5 border-l-4 border-l-primary/20">
+                          <tr
+                            key={ch.id}
+                            className="bg-ds-surface-container-low/5 border-l-4 border-l-ds-primary/20"
+                          >
                             <td className="px-6 py-3" />
                             <td className="px-6 py-3" colSpan={2}>
                               <div className="flex items-center gap-2 ml-4">
-                                <span className="material-symbols-outlined text-sm text-muted-foreground">
+                                <span className="material-symbols-outlined text-sm text-ds-on-surface-variant">
                                   subdirectory_arrow_right
                                 </span>
                                 <span className="text-xs font-semibold">{ch.provider}</span>
@@ -472,21 +478,23 @@ export default function ModelWhitelistPage() {
                               </div>
                             </td>
                             <td className="px-6 py-3 text-center">
-                              <span className="text-[10px] text-muted-foreground">
+                              <span className="text-[10px] text-ds-on-surface-variant">
                                 P{ch.priority}
                               </span>
                             </td>
                             <td className="px-6 py-3" colSpan={2}>
                               {editingChannel === ch.id ? (
                                 <div className="flex items-center gap-1 flex-wrap">
-                                  <label className="text-[10px] text-muted-foreground">Pri:</label>
+                                  <label className="text-[10px] text-ds-on-surface-variant">
+                                    Pri:
+                                  </label>
                                   <input
                                     type="number"
                                     className="w-12 border rounded px-1 py-0.5 text-xs"
                                     value={channelPriorityInput}
                                     onChange={(e) => setChannelPriorityInput(e.target.value)}
                                   />
-                                  <label className="text-[10px] text-muted-foreground ml-1">
+                                  <label className="text-[10px] text-ds-on-surface-variant ml-1">
                                     Price:
                                   </label>
                                   <input
@@ -508,13 +516,13 @@ export default function ModelWhitelistPage() {
                                     />
                                   )}
                                   <button
-                                    className="text-primary text-xs font-bold"
+                                    className="text-ds-primary text-xs font-bold"
                                     onClick={() => saveChannel(ch, item.modality)}
                                   >
                                     {t("save")}
                                   </button>
                                   <button
-                                    className="text-muted-foreground text-xs"
+                                    className="text-ds-on-surface-variant text-xs"
                                     onClick={() => setEditingChannel(null)}
                                   >
                                     {t("cancel")}
@@ -544,8 +552,8 @@ export default function ModelWhitelistPage() {
             </table>
 
             {/* Pagination Footer */}
-            <footer className="px-6 py-4 flex items-center justify-between bg-muted/30">
-              <p className="text-sm text-muted-foreground font-medium">
+            <footer className="px-6 py-4 flex items-center justify-between bg-ds-surface-container-low/30">
+              <p className="text-sm text-ds-on-surface-variant font-medium">
                 {t("showing", {
                   from: data.length === 0 ? 0 : page * PAGE_SIZE + 1,
                   to: Math.min((page + 1) * PAGE_SIZE, data.length),
@@ -554,7 +562,7 @@ export default function ModelWhitelistPage() {
               </p>
               <div className="flex items-center gap-2">
                 <button
-                  className="p-2 border rounded-lg hover:bg-background transition-colors disabled:opacity-50"
+                  className="p-2 border rounded-lg hover:bg-ds-surface transition-colors disabled:opacity-50"
                   disabled={page === 0}
                   onClick={() => setPage((p) => Math.max(0, p - 1))}
                 >
@@ -567,7 +575,7 @@ export default function ModelWhitelistPage() {
                     return (
                       <button
                         key={pageNum}
-                        className={`w-8 h-8 rounded-lg text-xs font-bold transition-colors ${pageNum === page ? "bg-primary text-primary-foreground shadow-sm" : "hover:bg-background text-muted-foreground"}`}
+                        className={`w-8 h-8 rounded-lg text-xs font-bold transition-colors ${pageNum === page ? "bg-ds-primary text-ds-on-primary shadow-sm" : "hover:bg-ds-surface text-ds-on-surface-variant"}`}
                         onClick={() => setPage(pageNum)}
                       >
                         {pageNum + 1}
@@ -576,7 +584,7 @@ export default function ModelWhitelistPage() {
                   })}
                 </div>
                 <button
-                  className="p-2 border rounded-lg hover:bg-background transition-colors disabled:opacity-50"
+                  className="p-2 border rounded-lg hover:bg-ds-surface transition-colors disabled:opacity-50"
                   disabled={page >= totalPages - 1}
                   onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
                 >

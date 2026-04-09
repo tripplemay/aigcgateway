@@ -35,7 +35,9 @@ export default function ModelCapabilitiesPage() {
   const [page, setPage] = useState(1);
   const pageSize = 20;
 
-  const { data: modelsResult, refetch: fetchModels } = useAsyncData<{ data: ModelItem[] }>(async () => {
+  const { data: modelsResult, refetch: fetchModels } = useAsyncData<{
+    data: ModelItem[];
+  }>(async () => {
     const params = new URLSearchParams();
     if (search) params.set("search", search);
     if (modalityFilter) params.set("modality", modalityFilter);
@@ -96,7 +98,7 @@ export default function ModelCapabilitiesPage() {
         <h1 className="text-2xl font-black tracking-tight font-[var(--font-heading)]">
           {t("title")}
         </h1>
-        <p className="text-sm text-slate-500 mt-1">{t("subtitle")}</p>
+        <p className="text-sm text-ds-on-surface-variant mt-1">{t("subtitle")}</p>
       </div>
 
       {/* Filters */}
@@ -110,7 +112,7 @@ export default function ModelCapabilitiesPage() {
         <select
           value={modalityFilter}
           onChange={(e) => setModalityFilter(e.target.value)}
-          className="px-3 py-2 rounded-lg border text-sm bg-white dark:bg-slate-800"
+          className="px-3 py-2 rounded-lg border text-sm bg-ds-surface"
         >
           <option value="">{t("allModalities")}</option>
           <option value="TEXT">{t("text")}</option>
@@ -119,16 +121,16 @@ export default function ModelCapabilitiesPage() {
       </div>
 
       {loading ? (
-        <p className="text-slate-400 text-sm">{t("loading")}</p>
+        <p className="text-ds-outline text-sm">{t("loading")}</p>
       ) : models.length === 0 ? (
-        <p className="text-slate-400 text-sm">{t("noModels")}</p>
+        <p className="text-ds-outline text-sm">{t("noModels")}</p>
       ) : (
         <>
           {/* Table */}
-          <div className="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700">
+          <div className="overflow-x-auto rounded-xl border border-ds-outline-variant">
             <table className="w-full text-sm">
               <thead>
-                <tr className="bg-slate-50 dark:bg-slate-800/50 text-left">
+                <tr className="bg-ds-surface-container-low/30 text-left">
                   <th className="px-4 py-3 font-bold">{t("colModel")}</th>
                   <th className="px-4 py-3 font-bold">{t("colModality")}</th>
                   <th className="px-4 py-3 font-bold">{t("colCapabilities")}</th>
@@ -141,12 +143,12 @@ export default function ModelCapabilitiesPage() {
                 {paged.map((model) => (
                   <tr
                     key={model.id}
-                    className="border-t border-slate-100 dark:border-slate-800 hover:bg-slate-50/50 dark:hover:bg-slate-800/30"
+                    className="border-t border-ds-outline-variant/20 hover:bg-ds-surface-container-low/10"
                   >
                     {/* Model name */}
                     <td className="px-4 py-3">
                       <div className="font-bold text-ds-on-surface">{model.displayName}</div>
-                      <div className="text-xs text-slate-400 font-mono">{model.name}</div>
+                      <div className="text-xs text-ds-outline font-mono">{model.name}</div>
                     </td>
 
                     {/* Modality */}
@@ -175,7 +177,7 @@ export default function ModelCapabilitiesPage() {
                               onCheckedChange={(v) => toggleCapability(model, key, v)}
                               className="scale-75"
                             />
-                            <span className="text-slate-600 dark:text-slate-300">{t(key)}</span>
+                            <span className="text-ds-on-surface-variant">{t(key)}</span>
                           </label>
                         ))}
                       </div>
@@ -193,7 +195,7 @@ export default function ModelCapabilitiesPage() {
                             placeholder={t("sizePlaceholder")}
                           />
                         ) : (
-                          <span className="text-slate-300">—</span>
+                          <span className="text-ds-outline">—</span>
                         )}
                       </td>
                     )}
@@ -205,7 +207,7 @@ export default function ModelCapabilitiesPage() {
 
           {/* Pagination */}
           {totalPages > 1 && (
-            <div className="flex items-center justify-between mt-4 text-sm text-slate-500">
+            <div className="flex items-center justify-between mt-4 text-sm text-ds-on-surface-variant">
               <span>
                 {t("showing", {
                   from: (page - 1) * pageSize + 1,
@@ -258,12 +260,12 @@ function SizeEditor({
       {sizes.map((s, i) => (
         <span
           key={i}
-          className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-700 text-xs font-mono"
+          className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-ds-surface-container-low text-xs font-mono"
         >
           {s}
           <button
             onClick={() => onRemove(i)}
-            className="text-slate-400 hover:text-red-500 text-xs leading-none"
+            className="text-ds-outline hover:text-red-500 text-xs leading-none"
           >
             ×
           </button>
