@@ -611,8 +611,15 @@
   },
   "adminLogs": {
     "title": "全局审计日志",
+    "subtitle": "网关所有请求的实时审计追踪。",
     "project": "项目",
-    "channel": "通道"
+    "channel": "通道",
+    "sell": "售价",
+    "records": "条记录",
+    "trafficInsight": "流量洞察",
+    "trafficInsightDesc": "实时监控所有服务商的请求量趋势。",
+    "errorSpikeAlert": "错误激增告警",
+    "errorSpikeAlertDesc": "监控各服务商异常错误率，查看单个通道健康状态获取详情。"
   },
   "adminUsage": {
     "title": "全局用量",

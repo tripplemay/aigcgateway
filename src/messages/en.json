@@ -611,8 +611,15 @@
   },
   "adminLogs": {
     "title": "Global Audit Logs",
+    "subtitle": "Real-time audit trail of every request flowing through the Gateway.",
     "project": "Project",
-    "channel": "Channel"
+    "channel": "Channel",
+    "sell": "Sell",
+    "records": "records",
+    "trafficInsight": "Traffic Insight",
+    "trafficInsightDesc": "Monitor request volume trends across all providers in real-time.",
+    "errorSpikeAlert": "Error Spike Alert",
+    "errorSpikeAlertDesc": "Monitor elevated error rates across providers. Check individual channel health for details."
   },
   "adminUsage": {
     "title": "Global Usage",

@@ -1,8 +1,14 @@
 "use client";
-import { useCallback, useEffect, useState } from "react";
+import { useState, useMemo } from "react";
 import { useTranslations } from "next-intl";
 import { apiFetch } from "@/lib/api-client";
+import { useAsyncData } from "@/hooks/use-async-data";
+import { Skeleton } from "@/components/ui/skeleton";
 import { formatCurrency, timeAgo } from "@/lib/utils";
+
+// ============================================================
+// Types
+// ============================================================
 
 interface LogEntry {
   traceId: string;
@@ -20,50 +26,51 @@ interface LogEntry {
   createdAt: string;
 }
 
+interface LogsResponse {
+  data: LogEntry[];
+  pagination?: { total: number };
+}
+
+// ============================================================
+// Page
+// ============================================================
+
 export default function AdminLogsPage() {
   const t = useTranslations("adminLogs");
   const tl = useTranslations("logs");
   const tc = useTranslations("common");
-  const [logs, setLogs] = useState<LogEntry[]>([]);
-  const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
-  const [total, setTotal] = useState(0);
   const [statusFilter, setStatusFilter] = useState("");
   const [searchQ, setSearchQ] = useState("");
+  const [committedSearch, setCommittedSearch] = useState("");
 
-  const load = useCallback(async () => {
-    setLoading(true);
+  const { data, loading } = useAsyncData<LogsResponse>(() => {
     const params = new URLSearchParams({ page: String(page), pageSize: "20" });
     if (statusFilter) params.set("status", statusFilter);
-    const url = searchQ
-      ? `/api/admin/logs/search?q=${encodeURIComponent(searchQ)}&page=${page}`
+    const url = committedSearch
+      ? `/api/admin/logs/search?q=${encodeURIComponent(committedSearch)}&page=${page}`
       : `/api/admin/logs?${params}`;
-    const r = await apiFetch<{ data: LogEntry[]; pagination?: { total: number } }>(url);
-    setLogs(r.data);
-    setTotal(r.pagination?.total ?? r.data.length);
-    setLoading(false);
-  }, [page, statusFilter, searchQ]);
+    return apiFetch<LogsResponse>(url);
+  }, [page, statusFilter, committedSearch]);
 
-  useEffect(() => {
-    load();
-  }, [load]);
+  const logs = data?.data ?? [];
+  const total = data?.pagination?.total ?? logs.length;
+  const totalPages = Math.max(1, Math.ceil(total / 20));
 
   const doSearch = () => {
     setPage(1);
-    load();
+    setCommittedSearch(searchQ);
   };
-  const totalPages = Math.max(1, Math.ceil(total / 20));
 
   return (
     <div className="max-w-7xl mx-auto space-y-8">
+      {/* ═══ Page Header — code.html lines 179-203 ═══ */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div>
           <h2 className="text-3xl font-extrabold tracking-tight font-[var(--font-heading)] text-ds-on-surface">
             {t("title")}
           </h2>
-          <p className="text-ds-on-surface-variant font-medium mt-1">
-            System-wide audit logs across all projects.
-          </p>
+          <p className="text-ds-on-surface-variant font-medium mt-1">{t("subtitle")}</p>
         </div>
         <div className="flex flex-wrap items-center gap-3">
           <div className="flex bg-ds-surface-container-low p-1 rounded-xl">
@@ -83,7 +90,7 @@ export default function AdminLogsPage() {
         </div>
       </div>
 
-      {/* Search */}
+      {/* ═══ Search — code.html search area ═══ */}
       <div className="relative">
         <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-lg">
           search
@@ -97,7 +104,7 @@ export default function AdminLogsPage() {
         />
       </div>
 
-      {/* Table */}
+      {/* ═══ Table — code.html lines 232-435 ═══ */}
       <div className="bg-ds-surface-container-lowest rounded-2xl overflow-hidden shadow-sm">
         <table className="w-full text-left border-collapse">
           <thead className="bg-ds-surface-container-low/50">
@@ -111,7 +118,7 @@ export default function AdminLogsPage() {
                 tc("status"),
                 tl("tokens"),
                 tl("cost"),
-                "Sell",
+                t("sell"),
                 tl("latency"),
               ].map((h) => (
                 <th
@@ -124,7 +131,7 @@ export default function AdminLogsPage() {
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-50">
-            {loading ? (
+            {loading && logs.length === 0 ? (
               <tr>
                 <td colSpan={10} className="px-6 py-12 text-center text-ds-outline">
                   {tc("loading")}
@@ -180,9 +187,10 @@ export default function AdminLogsPage() {
             )}
           </tbody>
         </table>
+        {/* Pagination */}
         <div className="px-6 py-4 bg-ds-surface-container-low/30 flex items-center justify-between">
           <span className="text-xs font-medium text-slate-500">
-            {total.toLocaleString()} records
+            {total.toLocaleString()} {t("records")}
           </span>
           <div className="flex items-center gap-1">
             <button
@@ -208,7 +216,6 @@ export default function AdminLogsPage() {
 
       {/* ═══ Insight Section — code.html lines 436-456 ═══ */}
       <div className="flex flex-col md:flex-row gap-6">
-        {/* Traffic Insight — lines 438-446 */}
         <div className="flex-1 bg-ds-surface-container-low p-6 rounded-2xl flex items-center gap-6">
           <div className="w-14 h-14 bg-white rounded-xl shadow-sm flex items-center justify-center text-ds-primary">
             <span
@@ -220,15 +227,11 @@ export default function AdminLogsPage() {
           </div>
           <div>
             <h4 className="font-[var(--font-heading)] font-bold text-ds-on-surface">
-              Traffic Insight
+              {t("trafficInsight")}
             </h4>
-            <p className="text-sm text-slate-500 mt-1">
-              Requests have increased by <span className="text-ds-primary font-bold">12.4%</span> in
-              the last 3 hours. Capacity is currently at 45% nominal.
-            </p>
+            <p className="text-sm text-slate-500 mt-1">{t("trafficInsightDesc")}</p>
           </div>
         </div>
-        {/* Error Spike Alert — lines 447-455 */}
         <div className="flex-1 bg-ds-surface-container-low p-6 rounded-2xl flex items-center gap-6">
           <div className="w-14 h-14 bg-white rounded-xl shadow-sm flex items-center justify-center text-ds-error">
             <span
@@ -240,12 +243,9 @@ export default function AdminLogsPage() {
           </div>
           <div>
             <h4 className="font-[var(--font-heading)] font-bold text-ds-on-surface">
-              Error Spike Alert
+              {t("errorSpikeAlert")}
             </h4>
-            <p className="text-sm text-slate-500 mt-1">
-              Monitor elevated error rates across providers. Check individual channel health for
-              details.
-            </p>
+            <p className="text-sm text-slate-500 mt-1">{t("errorSpikeAlertDesc")}</p>
           </div>
         </div>
       </div>
