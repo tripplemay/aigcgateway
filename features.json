@@ -47,7 +47,7 @@
       "title": "M1a 全量验收",
       "priority": "high",
       "executor": "codex",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "1) Admin 创建别名 + 挂载模型 → GET /v1/models 可见；2) 用户用别名调 /v1/chat/completions → 成功路由到 Channel；3) 别名不存在 → 404；4) Model.enabled 随挂载/移除自动变化；5) MCP list_models + chat 正常；6) 签收报告生成"
     }
   ]

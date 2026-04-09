@@ -1,0 +1,46 @@
+{
+  "batch": "M1a-alias-backend-core",
+  "feature": "F-M1a-06",
+  "executedAt": "2026-04-09T16:06:45.169Z",
+  "baseUrl": "http://localhost:3099",
+  "passCount": 6,
+  "failCount": 0,
+  "steps": [
+    {
+      "id": "AC1",
+      "name": "Admin create alias + link model then /v1/models shows alias",
+      "ok": true,
+      "detail": "alias_found=true, provider_name_present=false, total=1"
+    },
+    {
+      "id": "AC2",
+      "name": "Alias chat completion routes successfully",
+      "ok": true,
+      "detail": "status=200, content=m1a-mock-ok"
+    },
+    {
+      "id": "AC3",
+      "name": "Unknown alias returns 404",
+      "ok": true,
+      "detail": "status=404, error_code=model_not_found"
+    },
+    {
+      "id": "AC4",
+      "name": "Model.enabled becomes true after link",
+      "ok": true,
+      "detail": "enabled=true"
+    },
+    {
+      "id": "AC5",
+      "name": "MCP list_models and chat work with alias",
+      "ok": true,
+      "detail": "list_status=200, has_alias=true, chat_status=200, chat_is_error=false, chat_contains_mock=true, chat_text=m1a-mock-ok"
+    },
+    {
+      "id": "AC6",
+      "name": "Model.enabled becomes false after unlink when no aliases remain",
+      "ok": true,
+      "detail": "enabled=false"
+    }
+  ]
+}
