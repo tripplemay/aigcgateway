@@ -963,6 +963,7 @@
     "resourcesUsed": "Resources Used",
     "pipelineStats": "Pipeline Stats",
     "stepsLabel": "Steps",
+    "stepLabel": "Step",
     "modeLabel": "Mode",
     "orderLabel": "Order",
     "actionEngine": "Action Engine",

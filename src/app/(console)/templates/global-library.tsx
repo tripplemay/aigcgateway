@@ -105,7 +105,7 @@ export function GlobalLibrary() {
     try {
       const res = await apiFetch<{ template: { id: string }; message: string }>(
         `/api/projects/${current.id}/templates/fork`,
-        { method: "POST", body: JSON.stringify({ sourceTemplateId: forkTarget.id }) }
+        { method: "POST", body: JSON.stringify({ sourceTemplateId: forkTarget.id }) },
       );
       toast.success(t("forkSuccess"));
       setForkTarget(null);
@@ -126,7 +126,7 @@ export function GlobalLibrary() {
         : "bg-ds-outline-variant/30 text-ds-on-surface-variant";
     return (
       <span className={`px-2 py-1 text-[10px] font-bold rounded uppercase tracking-wider ${style}`}>
-        Score: {score}
+        {t("qualityScore")}: {score}
       </span>
     );
   };
@@ -138,7 +138,9 @@ export function GlobalLibrary() {
       single: t("modeSingle"),
     };
     return (
-      <span className={`px-2 py-0.5 text-[10px] rounded font-bold uppercase ${MODE_STYLE[mode] ?? MODE_STYLE.single}`}>
+      <span
+        className={`px-2 py-0.5 text-[10px] rounded font-bold uppercase ${MODE_STYLE[mode] ?? MODE_STYLE.single}`}
+      >
         {labels[mode] ?? mode}
       </span>
     );
@@ -180,7 +182,9 @@ export function GlobalLibrary() {
             <div className="w-16 h-16 rounded-2xl bg-ds-surface-container-high flex items-center justify-center mb-6">
               <span className="material-symbols-outlined text-3xl text-ds-outline">public</span>
             </div>
-            <h2 className="text-xl font-bold font-[var(--font-heading)] mb-2">{t("noPublicTemplates")}</h2>
+            <h2 className="text-xl font-bold font-[var(--font-heading)] mb-2">
+              {t("noPublicTemplates")}
+            </h2>
             <p className="text-sm text-ds-on-surface-variant">{t("noPublicTemplatesDesc")}</p>
           </div>
         ) : (
@@ -207,7 +211,10 @@ export function GlobalLibrary() {
                   </div>
                   {modeBadge(tpl.executionMode)}
                   <div className="ml-auto flex items-center gap-1 text-[11px] font-bold text-ds-primary">
-                    <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>
+                    <span
+                      className="material-symbols-outlined text-sm"
+                      style={{ fontVariationSettings: "'FILL' 1" }}
+                    >
                       fork_right
                     </span>
                     {tpl.forkCount} {t("forksUnit")}
@@ -273,15 +280,21 @@ export function GlobalLibrary() {
       {/* ═══ Detail Drawer ═══ */}
       <TemplateDetailDrawer
         open={!!selectedId && !!detail}
-        onOpenChange={(open) => { if (!open) setSelectedId(null); }}
+        onOpenChange={(open) => {
+          if (!open) setSelectedId(null);
+        }}
         template={detail}
-        onFork={() => { if (detail) setForkTarget(detail); }}
+        onFork={() => {
+          if (detail) setForkTarget(detail);
+        }}
       />
 
       {/* ═══ Fork Dialog ═══ */}
       <ForkConfirmDialog
         open={!!forkTarget}
-        onOpenChange={(open) => { if (!open) setForkTarget(null); }}
+        onOpenChange={(open) => {
+          if (!open) setForkTarget(null);
+        }}
         template={forkTarget}
         loading={forking}
         onConfirm={handleFork}

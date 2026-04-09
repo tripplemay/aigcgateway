@@ -45,7 +45,7 @@ const PAGE_SIZE = 20;
 const MODE_STYLE: Record<string, string> = {
   sequential: "bg-ds-primary-container/10 text-ds-primary",
   "fan-out": "bg-ds-tertiary-container/10 text-ds-tertiary",
-  single: "bg-slate-100 text-slate-600",
+  single: "bg-ds-surface-container-high text-ds-on-surface-variant",
 };
 
 // ============================================================
@@ -156,10 +156,14 @@ export default function TemplatesPage() {
         {templates.length === 0 && !search && !loading ? (
           <div className="flex flex-col items-center justify-center py-24">
             <div className="w-16 h-16 rounded-2xl bg-ds-surface-container-high flex items-center justify-center mb-6">
-              <span className="material-symbols-outlined text-3xl text-slate-400">description</span>
+              <span className="material-symbols-outlined text-3xl text-ds-outline">
+                description
+              </span>
             </div>
             <h2 className="text-xl font-bold font-[var(--font-heading)] mb-2">{t("emptyTitle")}</h2>
-            <p className="text-sm text-slate-500 mb-6 max-w-md text-center">{t("emptyDesc")}</p>
+            <p className="text-sm text-ds-on-surface-variant mb-6 max-w-md text-center">
+              {t("emptyDesc")}
+            </p>
             <Link
               href="/templates/new"
               className="px-6 py-2 bg-gradient-to-r from-ds-primary to-ds-primary-container text-white rounded-full text-sm font-bold shadow-lg shadow-ds-primary/20 flex items-center gap-1"
@@ -224,13 +228,13 @@ export default function TemplatesPage() {
                           </span>
                         </TableCell>
                         <TableCell className="px-6 py-5">{modeBadge(tpl.executionMode)}</TableCell>
-                        <TableCell className="px-6 py-5 text-sm text-slate-500 max-w-[300px] truncate">
+                        <TableCell className="px-6 py-5 text-sm text-ds-on-surface-variant max-w-[300px] truncate">
                           {tpl.description || "\u2014"}
                         </TableCell>
-                        <TableCell className="px-6 py-5 text-xs text-slate-400">
+                        <TableCell className="px-6 py-5 text-xs text-ds-outline">
                           {timeAgo(tpl.updatedAt, locale)}
                         </TableCell>
-                        <TableCell className="px-6 py-5 text-slate-300 group-hover:text-ds-primary transition-colors">
+                        <TableCell className="px-6 py-5 text-ds-outline-variant group-hover:text-ds-primary transition-colors">
                           <span className="material-symbols-outlined text-xl">chevron_right</span>
                         </TableCell>
                       </TableRow>
@@ -258,11 +262,13 @@ export default function TemplatesPage() {
                   <h3 className="font-[var(--font-heading)] text-lg font-bold text-ds-on-surface mb-1">
                     {t("templateStats")}
                   </h3>
-                  <p className="text-xs text-slate-500 mb-4">{t("templateStatsDesc")}</p>
+                  <p className="text-xs text-ds-on-surface-variant mb-4">
+                    {t("templateStatsDesc")}
+                  </p>
                   <div className="flex items-end gap-4">
                     <div>
                       <span className="text-3xl font-black text-ds-primary">{total}</span>
-                      <span className="text-[10px] text-slate-500 font-bold block">
+                      <span className="text-[10px] text-ds-on-surface-variant font-bold block">
                         {t("totalTemplates")}
                       </span>
                     </div>
@@ -277,7 +283,7 @@ export default function TemplatesPage() {
                   </span>
                 </div>
               </div>
-              <div className="col-span-2 bg-gradient-to-br from-ds-primary to-indigo-800 p-6 rounded-xl text-white flex justify-between items-center relative overflow-hidden">
+              <div className="col-span-2 bg-gradient-to-br from-ds-primary to-ds-primary-container p-6 rounded-xl text-white flex justify-between items-center relative overflow-hidden">
                 <div className="relative z-10">
                   <h3 className="font-[var(--font-heading)] text-lg font-bold mb-1">
                     {t("ctaTitle")}
@@ -285,7 +291,7 @@ export default function TemplatesPage() {
                   <p className="text-xs text-white/70 mb-4 max-w-sm">{t("ctaDesc")}</p>
                   <Link
                     href="/templates/new"
-                    className="bg-white text-ds-primary px-4 py-2 rounded-lg text-xs font-bold hover:bg-slate-100 transition-colors inline-block"
+                    className="bg-white text-ds-primary px-4 py-2 rounded-lg text-xs font-bold hover:bg-ds-surface-container-low transition-colors inline-block"
                   >
                     {t("create")}
                   </Link>

@@ -963,6 +963,7 @@
     "resourcesUsed": "使用的资源",
     "pipelineStats": "流水线统计",
     "stepsLabel": "步骤",
+    "stepLabel": "步骤",
     "modeLabel": "模式",
     "orderLabel": "序号",
     "actionEngine": "动作引擎",

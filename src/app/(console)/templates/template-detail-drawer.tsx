@@ -1,13 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetFooter,
-} from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetFooter } from "@/components/ui/sheet";
 import type { PublicTemplateDetail } from "./global-library";
 
 interface Props {
@@ -30,7 +24,7 @@ export function TemplateDetailDrawer({ open, onOpenChange, template, onFork }: P
     };
     return (
       <span className="px-3 py-1 bg-ds-surface-container-high text-ds-on-surface-variant text-xs rounded font-bold uppercase">
-        {labels[mode] ?? mode} Mode
+        {labels[mode] ?? mode} {t("modeLabel")}
       </span>
     );
   };
@@ -49,11 +43,14 @@ export function TemplateDetailDrawer({ open, onOpenChange, template, onFork }: P
           <div className="flex items-center gap-4 flex-wrap">
             {template.qualityScore != null && (
               <span className="px-3 py-1 bg-ds-secondary-container text-ds-on-secondary-container text-xs font-bold rounded uppercase tracking-wider">
-                Score: {template.qualityScore}
+                {t("qualityScore")}: {template.qualityScore}
               </span>
             )}
             <div className="flex items-center gap-1 text-xs font-bold text-ds-primary">
-              <span className="material-symbols-outlined text-base" style={{ fontVariationSettings: "'FILL' 1" }}>
+              <span
+                className="material-symbols-outlined text-base"
+                style={{ fontVariationSettings: "'FILL' 1" }}
+              >
                 fork_right
               </span>
               {template.forkCount} {t("forksUnit")}
@@ -84,7 +81,7 @@ export function TemplateDetailDrawer({ open, onOpenChange, template, onFork }: P
                   <div className="absolute -left-[19px] top-1 w-2.5 h-2.5 rounded-full bg-ds-primary ring-4 ring-ds-primary/10 z-10" />
                   <div className="flex-1 bg-ds-surface-container-low p-4 rounded-xl">
                     <p className="text-xs font-bold text-ds-primary uppercase tracking-widest mb-1">
-                      Step {String(i + 1).padStart(2, "0")}
+                      {t("stepLabel")} {String(i + 1).padStart(2, "0")}
                     </p>
                     <p className="font-bold text-ds-on-surface">{step.actionName}</p>
                     <div className="mt-2 flex items-center gap-2 text-[11px] text-ds-on-surface-variant">
