@@ -23,7 +23,7 @@
       "title": "Admin 别名管理页重做",
       "priority": "high",
       "executor": "generator",
-      "status": "done",
+      "status": "pending",
       "acceptance": "1) 3 张统计卡片（Total/Active/Unlinked）；2) 别名卡片网格（名称+brand+modality+enabled 开关+关联数）；3) 卡片点击展开详情（元数据编辑+Capabilities 开关组+已挂载模型列表+添加/移除模型）；4) Add Model 弹窗（搜索+勾选+Link）；5) 底部未归类模型区域（Create Alias / Link to 快捷操作）；6) 布局与设计稿一致；7) tsc 通过",
       "design_ref": "design-draft/admin-model-aliases/code.html"
     },
@@ -40,7 +40,7 @@
       "title": "i18n — 别名管理页中英文",
       "priority": "medium",
       "executor": "generator",
-      "status": "done",
+      "status": "pending",
       "acceptance": "1) en.json + zh-CN.json 同步更新；2) 无硬编码字符串；3) UI 中英文切换正常"
     },
     {

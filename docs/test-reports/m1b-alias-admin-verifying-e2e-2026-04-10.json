@@ -1,0 +1,58 @@
+{
+  "batch": "M1b-alias-automation-admin-ui",
+  "feature": "F-M1b-06",
+  "executedAt": "2026-04-09T21:46:02.838Z",
+  "baseUrl": "http://localhost:3099",
+  "passCount": 5,
+  "failCount": 3,
+  "steps": [
+    {
+      "id": "AC1-A",
+      "name": "Sync job triggered and lastSyncAt advanced",
+      "ok": true,
+      "detail": "sync_advanced=true"
+    },
+    {
+      "id": "AC1-B",
+      "name": "LLM classification created alias and linked model",
+      "ok": true,
+      "detail": "alias_found=true, linkedModelCount=1"
+    },
+    {
+      "id": "AC1-C",
+      "name": "Brand inference persisted",
+      "ok": true,
+      "detail": "brand=DeepSeek"
+    },
+    {
+      "id": "AC2",
+      "name": "Admin alias management page exists",
+      "ok": true,
+      "detail": "exists=true"
+    },
+    {
+      "id": "AC3",
+      "name": "Whitelist/Capabilities pages removed and nav cleaned",
+      "ok": true,
+      "detail": "whitelist_exists=false, capabilities_exists=false, nav_clean=true"
+    },
+    {
+      "id": "AC4",
+      "name": "DS token consistency and zero hardcoded colors",
+      "ok": false,
+      "detail": "Design mismatch: 'Supported Sizes' section exists in design but missing in implementation. | i18n residue: Function Calling, Streaming, Vision, System Prompt, JSON Mode, Image Input, e.g. gpt-4o, e.g. OpenAI | DS token inconsistency: text-green-700, bg-green-100, hover:bg-slate-50, text-slate-400, bg-slate-200"
+    },
+    {
+      "id": "AC5",
+      "name": "i18n no residue",
+      "ok": false,
+      "detail": "Design mismatch: 'Supported Sizes' section exists in design but missing in implementation. | i18n residue: Function Calling, Streaming, Vision, System Prompt, JSON Mode, Image Input, e.g. gpt-4o, e.g. OpenAI | DS token inconsistency: text-green-700, bg-green-100, hover:bg-slate-50, text-slate-400, bg-slate-200"
+    },
+    {
+      "id": "AC2-design",
+      "name": "Design draft parity (key section checks)",
+      "ok": false,
+      "detail": "Design mismatch: 'Supported Sizes' section exists in design but missing in implementation. | i18n residue: Function Calling, Streaming, Vision, System Prompt, JSON Mode, Image Input, e.g. gpt-4o, e.g. OpenAI | DS token inconsistency: text-green-700, bg-green-100, hover:bg-slate-50, text-slate-400, bg-slate-200"
+    }
+  ]
+}
