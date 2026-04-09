@@ -24,7 +24,7 @@
       "title": "User API — 公共模板列表/详情/fork",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) GET /api/templates/public 返回公共模板列表，分页正确；2) GET /api/templates/public/:id 返回完整详情含 Steps；3) POST fork 深拷贝 Template+Steps+Actions，事务完整；4) 非公共模板不可被 fork（404）；5) tsc 通过"
     },
     {
