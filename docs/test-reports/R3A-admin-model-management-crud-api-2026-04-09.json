@@ -1,0 +1,50 @@
+[
+  {
+    "name": "model enabled toggle",
+    "ok": true,
+    "detail": {
+      "model": "ai21/jamba-large-1.7",
+      "before": false,
+      "after": true
+    }
+  },
+  {
+    "name": "provider status toggle",
+    "ok": true,
+    "detail": {
+      "provider": "anthropic",
+      "before": "ACTIVE",
+      "after": "DISABLED"
+    }
+  },
+  {
+    "name": "provider config PATCH",
+    "ok": true,
+    "detail": {
+      "provider": "anthropic",
+      "currency": "USD",
+      "quirks": [
+        "no_response_format",
+        "no_penalty_params",
+        "n_must_be_1",
+        "base_url_trailing_slash"
+      ]
+    }
+  },
+  {
+    "name": "alias create",
+    "ok": true,
+    "detail": {
+      "alias": "r3a-alias-1775700491892",
+      "aliasId": "cmnqu84fp00rl9yxd3rjzsc9y",
+      "model": "ai21/jamba-large-1.7"
+    }
+  },
+  {
+    "name": "alias delete",
+    "ok": true,
+    "detail": {
+      "alias": "r3a-alias-1775700491892"
+    }
+  }
+]

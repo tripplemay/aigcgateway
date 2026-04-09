@@ -1,41 +1,20 @@
 {
   "baseUrl": "http://localhost:3099",
-  "runId": 1775628867827,
+  "runId": 1775700185017,
   "fixtures": {
-    "targetModelName": "p4c-target-1775628867827",
-    "sourceModelName": "p4c-source-1775628867827",
-    "unclassifiedModelName": "p4c-unclassified-1775628867827",
-    "multiModelName": "p4c-multi-1775628867827",
-    "createdAlias": "p4c-alias-1775628867827"
+    "targetModelName": "p4c-target-1775700185017",
+    "sourceModelName": "p4c-source-1775700185017",
+    "unclassifiedModelName": "p4c-unclassified-1775700185017",
+    "multiModelName": "p4c-multi-1775700185017",
+    "createdAlias": "p4c-alias-1775700185017"
   },
-  "adminTokenHint": "eyJhbGciOi...",
-  "passCount": 5,
-  "failCount": 0,
+  "passCount": 0,
+  "failCount": 1,
   "steps": [
     {
-      "name": "AC1 alias CRUD API works",
-      "ok": true,
-      "detail": "aliasId=cmnpnkz4b00r09yskfo3w9pio, createdVisible=true, deletedInvisible=true"
-    },
-    {
-      "name": "AC2 merge API migrates channels and deletes source model",
-      "ok": true,
-      "detail": "apiMigrated=1, sourceDeleted=true, targetChannels=1/1, aliasMapped=true"
-    },
-    {
-      "name": "AC3 alias data and unclassified model are available for admin page",
-      "ok": true,
-      "detail": "mergeAliasVisible=true, unclassifiedVisible=true"
-    },
-    {
-      "name": "AC4 whitelist data contains multi-channel entries with priority and price",
-      "ok": true,
-      "detail": "multiFound=true, channelCount=2, channelsHavePriorityAndPrice=true"
-    },
-    {
-      "name": "AC5 non-admin cannot access /admin/model-aliases",
-      "ok": true,
-      "detail": "status=307, location=/dashboard"
+      "name": "script runtime",
+      "ok": false,
+      "detail": "PrismaClientKnownRequestError: \nInvalid `prisma.model.create()` invocation:\n\n\nThe column `models.supportedSizes` does not exist in the current database.\n    at ei.handleRequestError (/Users/yixingzhou/project/aigcgateway/node_modules/@prisma/client/runtime/library.js:121:7268)\n    at ei.handleAndLogRequestError (/Users/yixingzhou/project/aigcgateway/node_modules/@prisma/client/runtime/library.js:121:6593)\n    at ei.request (/Users/yixingzhou/project/aigcgateway/node_modules/@prisma/client/runtime/library.js:121:6300)\n    at async a (/Users/yixingzhou/project/aigcgateway/node_modules/@prisma/client/runtime/library.js:130:9551)\n    at async seedModelsAndChannels (file:///Users/yixingzhou/project/aigcgateway/scripts/test/p4-1c-admin-pages-e2e-2026-04-08.ts:85:18)\n    at async run (file:///Users/yixingzhou/project/aigcgateway/scripts/test/p4-1c-admin-pages-e2e-2026-04-08.ts:164:5)"
     }
   ]
 }
