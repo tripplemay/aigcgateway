@@ -4,12 +4,13 @@ description: AIGC Gateway 当前状态快照（覆盖写，≤30 行）
 type: project
 ---
 ## 当前批次
-- bugfix-fork-and-project-switch：`verifying`
-- Generator 2/2 done，等待 Evaluator 验收
+- bugfix-fork-and-project-switch：`done`（verifying 4 PASS / 0 FAIL）
+- signoff：`docs/test-reports/bugfix-fork-and-project-switch-signoff-2026-04-10.md`
 
 ## BF 变更摘要
 - F-BF-01: Fork 后 Action.activeVersionId 正确回写（MCP + REST 两处）
 - F-BF-02: 项目切换后 router.push('/dashboard')
+- F-BF-03: Codex 验收完成（fork activeVersionId + 项目切换跳转 + 回归冒烟）
 
 ## 已完成批次
 - R1~R4：UI 重构全部签收

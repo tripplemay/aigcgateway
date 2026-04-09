@@ -23,7 +23,7 @@
       "title": "Bug 修复批次验收",
       "priority": "high",
       "executor": "codex",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "1) Fork 公共模板后 Action 详情页正确展示活跃版本；2) 切换项目后页面跳转到 Dashboard，无残留数据；3) 现有功能不回退；4) 签收报告生成"
     }
   ]

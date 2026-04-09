@@ -1,0 +1,34 @@
+{
+  "batch": "bugfix-fork-and-project-switch",
+  "feature": "F-BF-03",
+  "executedAt": "2026-04-09T23:31:03.295Z",
+  "baseUrl": "http://localhost:3099",
+  "passCount": 4,
+  "failCount": 0,
+  "steps": [
+    {
+      "id": "AC1",
+      "name": "Fork 后 Action 正确设置 activeVersionId 且可解析活跃版本",
+      "ok": true,
+      "detail": "forkedTemplate=cmns41vxr00rl9ycm0evlyfg5, forkedActions=2, activeVersionAllSet=true, activeVersionAllResolvable=true, mismatches=none"
+    },
+    {
+      "id": "AC1-UI",
+      "name": "Action 详情页基于 activeVersionId 渲染活跃版本",
+      "ok": true,
+      "detail": "active-version render path exists"
+    },
+    {
+      "id": "AC2",
+      "name": "切换项目后跳转 Dashboard，且按 current project 重新拉取数据",
+      "ok": true,
+      "detail": "hasSelectAndPush=true, updatesProjectState=true, dashboardRefetchesByCurrent=true"
+    },
+    {
+      "id": "AC3",
+      "name": "回归冒烟：/v1/models 可用",
+      "ok": true,
+      "detail": "status=200"
+    }
+  ]
+}
