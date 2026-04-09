@@ -14,11 +14,7 @@
     "design-draft/admin-model-aliases/code.html",
     "design-draft/admin-providers/code.html"
   ],
-  "role_assignments": {
-    "planner": "Richard",
-    "generator": "Johnsong",
-    "evaluator": "Reviewer"
-  },
+  "role_assignments": null,
   "docs": {
     "spec": "docs/specs/R3A-admin-model-management-spec.md",
     "test_cases": null,
