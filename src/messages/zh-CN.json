@@ -630,7 +630,11 @@
     "colChannels": "通道",
     "colActions": "操作",
     "text": "文本",
-    "image": "图片"
+    "image": "图片",
+    "canonicalIdentifiers": "{count} 个规范标识",
+    "scanForNew": "扫描新模型",
+    "nChannels": "{count} 个通道",
+    "aliasPlaceholder": "别名..."
   },
   "modelCapabilities": {
     "title": "模型能力管理",

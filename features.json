@@ -16,7 +16,7 @@
       "title": "Aliases 设计稿结构还原",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) 3 列卡片网格 + 圆角 pill 标签（hover error + × 关闭）；2) 计数徽章；3) Unclassified 行首 icon；4) tsc 通过",
       "design_ref": "design-draft/admin-model-aliases/code.html"
     },

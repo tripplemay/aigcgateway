@@ -630,7 +630,11 @@
     "colChannels": "Channels",
     "colActions": "Actions",
     "text": "Text",
-    "image": "Image"
+    "image": "Image",
+    "canonicalIdentifiers": "{count} CANONICAL IDENTIFIERS",
+    "scanForNew": "Scan for new",
+    "nChannels": "{count, plural, one {# channel} other {# channels}}",
+    "aliasPlaceholder": "Alias name..."
   },
   "modelCapabilities": {
     "title": "Model Capabilities",

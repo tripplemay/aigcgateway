@@ -3,7 +3,6 @@ import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { apiFetch } from "@/lib/api-client";
 import { useAsyncData } from "@/hooks/use-async-data";
-import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 
 interface AliasItem {
@@ -137,51 +136,77 @@ export default function ModelAliasesPage() {
 
       {/* Classified models */}
       <section>
-        <h2 className="text-xl font-bold mb-4">{t("classifiedModels")}</h2>
+        <div className="flex items-center justify-between mb-6">
+          <h3 className="text-xs font-bold uppercase tracking-[0.15em] text-ds-primary flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-ds-primary" />
+            {t("classifiedModels")}
+          </h3>
+          <span className="text-[11px] font-semibold bg-ds-primary/10 text-ds-primary px-2.5 py-1 rounded-full">
+            {t("canonicalIdentifiers", { count: groupEntries.length })}
+          </span>
+        </div>
         {groupEntries.length === 0 ? (
           <p className="text-ds-on-surface-variant">{t("noAliases")}</p>
         ) : (
-          <div className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {groupEntries.map(([modelName, aliases]) => (
-              <div key={modelName} className="bg-ds-surface-container-lowest rounded-xl border p-4">
-                <div className="flex items-center gap-2 mb-3">
-                  <span className="material-symbols-outlined text-ds-primary text-lg">link</span>
-                  <span className="font-bold text-sm">{modelName}</span>
-                  <span className="text-xs text-ds-on-surface-variant">
-                    ({t("aliasCount", { count: aliases.length })})
-                  </span>
+              <div
+                key={modelName}
+                className="bg-ds-surface-container-lowest rounded-xl p-5 transition-all duration-200 hover:shadow-lg hover:shadow-ds-primary/5"
+              >
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-lg bg-ds-surface-container-low flex items-center justify-center text-ds-primary">
+                      <span
+                        className="material-symbols-outlined"
+                        style={{ fontVariationSettings: "'FILL' 1" }}
+                      >
+                        link
+                      </span>
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-lg leading-tight">{modelName}</h4>
+                      <p className="text-[10px] font-bold text-ds-on-surface-variant uppercase tracking-wider">
+                        {t("aliasCount", { count: aliases.length })}
+                      </p>
+                    </div>
+                  </div>
+                  <button className="text-ds-on-surface-variant hover:text-ds-primary transition-colors">
+                    <span className="material-symbols-outlined">more_vert</span>
+                  </button>
                 </div>
-                <div className="space-y-1 ml-7">
+                <div className="flex flex-wrap gap-2 mb-6">
                   {aliases.map((a) => (
-                    <div key={a.id} className="flex items-center gap-2 text-sm">
-                      <code className="bg-ds-surface-container-low px-2 py-0.5 rounded text-xs">
-                        {a.alias}
-                      </code>
-                      <button
-                        className="text-red-500 hover:text-red-700 text-xs"
+                    <span
+                      key={a.id}
+                      className="inline-flex items-center gap-1.5 px-3 py-1 bg-ds-surface-container-low text-ds-on-surface-variant rounded-full text-[11px] font-medium transition-colors hover:bg-ds-error-container hover:text-ds-on-error-container cursor-default"
+                    >
+                      {a.alias}
+                      <span
+                        className="material-symbols-outlined text-[14px] cursor-pointer"
                         onClick={() => deleteAlias(a.id)}
                       >
-                        {t("delete")}
-                      </button>
-                    </div>
+                        close
+                      </span>
+                    </span>
                   ))}
-                  <div className="flex items-center gap-2 mt-2">
-                    <Input
-                      placeholder={t("addAlias")}
-                      className="h-8 w-64 text-xs"
-                      value={newAliasInputs[modelName] ?? ""}
-                      onChange={(e) =>
-                        setNewAliasInputs((prev) => ({ ...prev, [modelName]: e.target.value }))
-                      }
-                      onKeyDown={(e) => e.key === "Enter" && addAlias(modelName)}
-                    />
-                    <button
-                      className="text-ds-primary text-xs font-bold"
-                      onClick={() => addAlias(modelName)}
-                    >
-                      {t("add")}
-                    </button>
-                  </div>
+                </div>
+                <div className="flex gap-2">
+                  <input
+                    className="flex-1 bg-ds-surface-container-low border-none rounded-lg py-2 px-3 text-xs focus:ring-2 focus:ring-ds-primary/20 placeholder:text-ds-on-surface-variant"
+                    placeholder={t("aliasPlaceholder")}
+                    value={newAliasInputs[modelName] ?? ""}
+                    onChange={(e) =>
+                      setNewAliasInputs((prev) => ({ ...prev, [modelName]: e.target.value }))
+                    }
+                    onKeyDown={(e) => e.key === "Enter" && addAlias(modelName)}
+                  />
+                  <button
+                    className="bg-ds-primary text-ds-on-primary text-xs font-bold px-4 py-2 rounded-lg hover:opacity-90 transition-all active:scale-95"
+                    onClick={() => addAlias(modelName)}
+                  >
+                    {t("add")}
+                  </button>
                 </div>
               </div>
             ))}
@@ -191,48 +216,67 @@ export default function ModelAliasesPage() {
 
       {/* Unclassified models */}
       <section>
-        <h2 className="text-xl font-bold mb-2">{t("unclassifiedModels")}</h2>
-        <p className="text-sm text-ds-on-surface-variant mb-4">{t("unclassifiedDesc")}</p>
+        <div className="flex items-center justify-between mb-6">
+          <h3 className="text-xs font-bold uppercase tracking-[0.15em] text-ds-tertiary flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-ds-tertiary" />
+            {t("unclassifiedModels")}
+          </h3>
+          <button className="text-[11px] font-bold text-ds-on-surface-variant hover:text-ds-primary transition-colors uppercase tracking-wider">
+            {t("scanForNew")}
+          </button>
+        </div>
         {unclassified.length === 0 ? (
           <p className="text-ds-on-surface-variant">{t("noUnclassified")}</p>
         ) : (
-          <div className="bg-ds-surface-container-lowest rounded-xl border overflow-hidden">
-            <table className="w-full text-left">
+          <div className="bg-ds-surface-container-lowest rounded-xl overflow-hidden shadow-sm">
+            <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="bg-ds-surface-container-low/30">
-                  <th className="px-4 py-3 text-[10px] font-black uppercase tracking-widest text-ds-on-surface-variant">
+                <tr className="bg-ds-surface-container-low/50">
+                  <th className="px-6 py-4 text-[11px] font-bold uppercase tracking-wider text-ds-on-surface-variant">
                     {t("colModel")}
                   </th>
-                  <th className="px-4 py-3 text-[10px] font-black uppercase tracking-widest text-ds-on-surface-variant">
+                  <th className="px-6 py-4 text-[11px] font-bold uppercase tracking-wider text-ds-on-surface-variant">
                     {t("colModality")}
                   </th>
-                  <th className="px-4 py-3 text-[10px] font-black uppercase tracking-widest text-ds-on-surface-variant">
+                  <th className="px-6 py-4 text-[11px] font-bold uppercase tracking-wider text-ds-on-surface-variant">
                     {t("colChannels")}
                   </th>
-                  <th className="px-4 py-3 text-[10px] font-black uppercase tracking-widest text-ds-on-surface-variant text-right">
+                  <th className="px-6 py-4 text-[11px] font-bold uppercase tracking-wider text-ds-on-surface-variant text-right">
                     {t("colActions")}
                   </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-border/50">
+              <tbody className="divide-y divide-ds-surface-container-low">
                 {unclassified.map((m) => (
-                  <tr key={m.id} className="hover:bg-ds-surface-container-low/10">
-                    <td className="px-4 py-3">
-                      <span className="font-bold text-sm">{m.name}</span>
-                      <span className="text-xs text-ds-on-surface-variant ml-2">
-                        {m.displayName}
-                      </span>
+                  <tr
+                    key={m.id}
+                    className="hover:bg-ds-surface-container-low transition-colors group"
+                  >
+                    <td className="px-6 py-5">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-lg bg-ds-surface-container-low flex items-center justify-center text-ds-on-surface-variant group-hover:text-ds-primary transition-colors">
+                          <span className="material-symbols-outlined text-lg">question_mark</span>
+                        </div>
+                        <span className="font-semibold text-sm">{m.name}</span>
+                      </div>
                     </td>
-                    <td className="px-4 py-3">
-                      <span className="text-[10px] font-bold px-2 py-1 rounded-md bg-ds-primary/10 text-ds-primary">
+                    <td className="px-6 py-5">
+                      <span
+                        className={`px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider ${m.modality === "IMAGE" ? "bg-ds-tertiary-fixed text-ds-on-tertiary-fixed-variant" : "bg-ds-secondary-fixed text-ds-on-secondary-fixed-variant"}`}
+                      >
                         {m.modality === "IMAGE" ? t("image") : t("text")}
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-xs">{m.channelCount}</td>
-                    <td className="px-4 py-3 text-right">
-                      <div className="flex items-center justify-end gap-2">
+                    <td className="px-6 py-5">
+                      <div className="flex items-center gap-1.5 text-xs text-ds-on-surface-variant font-medium">
+                        <span className="material-symbols-outlined text-sm">hub</span>
+                        {t("nChannels", { count: m.channelCount })}
+                      </div>
+                    </td>
+                    <td className="px-6 py-5">
+                      <div className="flex items-center justify-end gap-3">
                         <select
-                          className="border rounded px-2 py-1 text-xs min-w-[160px]"
+                          className="bg-ds-surface-container-low border-none rounded-lg py-1.5 px-3 text-[11px] font-semibold focus:ring-1 focus:ring-ds-primary/30 min-w-[160px]"
                           value={mergeTargets[m.id] ?? ""}
                           onChange={(e) =>
                             setMergeTargets((prev) => ({ ...prev, [m.id]: e.target.value }))
@@ -248,7 +292,7 @@ export default function ModelAliasesPage() {
                             ))}
                         </select>
                         <button
-                          className="text-ds-primary text-xs font-bold disabled:opacity-50"
+                          className="bg-ds-primary/10 text-ds-primary hover:bg-ds-primary hover:text-ds-on-primary transition-all px-4 py-1.5 rounded-lg text-xs font-bold disabled:opacity-50"
                           disabled={!mergeTargets[m.id]}
                           onClick={() => mergeModel(m.id)}
                         >
