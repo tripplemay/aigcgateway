@@ -58,11 +58,19 @@
     },
     {
       "id": "F-R4-07",
+      "title": "Register 左侧终端与 Login 统一",
+      "priority": "high",
+      "executor": "generator",
+      "status": "pending",
+      "acceptance": "1) Terminal 组件抽离为共享模块；2) Register 复用 Login 的 Terminal + 品牌头 + tagline + footer stats；3) Login ↔ Register 切换左侧视觉零变化；4) tsc 通过"
+    },
+    {
+      "id": "F-R4-08",
       "title": "R4 全量验收",
       "priority": "high",
       "executor": "codex",
       "status": "pending",
-      "acceptance": "1) 6 页面布局与设计稿一致；2) DS token 零旧 token；3) i18n 无残留；4) 现有功能不回退；5) 签收报告生成"
+      "acceptance": "1) 7 页面布局与设计稿一致；2) DS token 零旧 token；3) i18n 无残留；4) Login ↔ Register 左侧一致；5) 现有功能不回退；6) 签收报告生成"
     }
   ]
 }

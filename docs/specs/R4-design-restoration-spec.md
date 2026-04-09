@@ -1,8 +1,11 @@
-# R4 — 设计稿结构还原（6 页面）
+# R4 — 设计稿结构还原 + Register 终端统一（7 页面）
 
 ## 目标
 
-将 6 个未按 `design-draft/*/code.html` 做代码级还原的页面，重构为与设计稿 1:1 对齐的布局结构。仅涉及前端 TSX，不涉及 API / Schema / Migration。
+1. 将 6 个未按 `design-draft/*/code.html` 做代码级还原的页面，重构为与设计稿 1:1 对齐的布局结构
+2. Register 左侧终端区与 Login 完全统一（共享 Terminal 动画组件），用户切换 Login ↔ Register 时左侧零变化
+
+仅涉及前端 TSX，不涉及 API / Schema / Migration。
 
 ## 范围
 
@@ -14,6 +17,7 @@
 | 04 | Admin User Detail | admin-user-detail/ | MISMATCH | 重度 |
 | 05 | Admin Templates | admin-templates/ | PARTIAL | 中度 |
 | 06 | MCP Setup | mcp-setup/ | PARTIAL | 中度 |
+| 07 | Register 终端统一 | login/ (共享) | MISMATCH | 轻度 |
 
 ## 逐页差异与还原要求
 
@@ -98,6 +102,18 @@
 1. 主区域改为 `grid-cols-12`：左 5 col（API key 选择 + 工具徽章列表）+ 右 7 col（客户端选择 + config 代码块）
 2. 底部追加 3 列 feature showcase 卡片（Latency Optimization / E2E Encryption / Global Gateway）— 纯展示性内容
 3. 保留现有 10 客户端选择逻辑
+
+### F-R4-07: Register 终端统一
+
+**当前问题：**
+- Register 左侧用静态终端行（固定文本，无动画），Login 用动画 Terminal 组件（打字效果 + 滚动命令）
+- 用户从 Login 切换到 Register 时左侧内容明显变化，体验割裂
+
+**还原目标：**
+1. 将 Login 的 Terminal 组件 + sequences 数据抽离到共享模块（如 `components/auth-terminal.tsx`）
+2. Register 左侧完整复用该共享组件，替换现有静态终端行
+3. 左侧所有元素与 Login 完全一致：品牌头、Terminal 动画、tagline、footer stats
+4. 用户在 Login ↔ Register 切换时，左侧视觉零变化
 
 ## 通用约定
 
