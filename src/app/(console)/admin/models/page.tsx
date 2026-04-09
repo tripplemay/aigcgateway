@@ -1,7 +1,8 @@
 "use client";
-import { useEffect, useState, useCallback, useMemo } from "react";
+import { useState, useMemo } from "react";
 import { useTranslations } from "next-intl";
 import { apiFetch } from "@/lib/api-client";
+import { useAsyncData } from "@/hooks/use-async-data";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 
@@ -72,11 +73,8 @@ export default function ModelsChannelsPage() {
   const t = useTranslations("adminModels");
   const tc = useTranslations("common");
 
-  const [data, setData] = useState<ProviderGroup[]>([]);
-  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [syncing, setSyncing] = useState(false);
-  const [lastSyncTime, setLastSyncTime] = useState<string | null>(null);
   const [lastSyncResult, setLastSyncResult] = useState<{
     summary: {
       totalNewChannels: number;
@@ -95,41 +93,26 @@ export default function ModelsChannelsPage() {
   const [sellPriceValue, setSellPriceValue] = useState("");
   const [matrixPage, setMatrixPage] = useState(0);
 
-  // ── Data loading ──
-  const load = useCallback(async () => {
-    setLoading(true);
-    try {
-      const params = new URLSearchParams();
-      if (search) params.set("search", search);
-      const q = params.toString() ? `?${params}` : "";
-      const r = await apiFetch<{ data: ProviderGroup[] }>(`/api/admin/models-channels${q}`);
-      setData(r.data);
-    } catch {
-      setData([]);
-    } finally {
-      setLoading(false);
-    }
+  // ── Data loading via useAsyncData ──
+  const { data: channelData, refetch: load } = useAsyncData<{ data: ProviderGroup[] }>(async () => {
+    const params = new URLSearchParams();
+    if (search) params.set("search", search);
+    const q = params.toString() ? `?${params}` : "";
+    return apiFetch<{ data: ProviderGroup[] }>(`/api/admin/models-channels${q}`);
   }, [search]);
 
-  const loadSyncStatus = useCallback(async () => {
-    try {
-      const r = await apiFetch<{
-        data: {
-          lastSyncTime: string | null;
-          lastSyncResultDetail: typeof lastSyncResult;
-        };
-      }>("/api/admin/sync-status");
-      setLastSyncTime(r.data.lastSyncTime);
-      setLastSyncResult(r.data.lastSyncResultDetail ?? null);
-    } catch {
-      /* ignore */
-    }
+  const data = channelData?.data ?? [];
+  const loading = !channelData && search === "";
+
+  const { data: syncData, refetch: loadSyncStatus } = useAsyncData<{
+    data: { lastSyncTime: string | null; lastSyncResultDetail: typeof lastSyncResult };
+  }>(async () => {
+    return apiFetch<{
+      data: { lastSyncTime: string | null; lastSyncResultDetail: typeof lastSyncResult };
+    }>("/api/admin/sync-status");
   }, []);
 
-  useEffect(() => {
-    load();
-    loadSyncStatus();
-  }, [load, loadSyncStatus]);
+  const lastSyncTime = syncData?.data.lastSyncTime ?? null;
 
   // ── Aggregated stats ──
   const stats = useMemo(() => {

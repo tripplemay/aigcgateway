@@ -7,7 +7,7 @@
       "title": "Admin Models (Channel Management) 页面还原",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) useAsyncData + Table + SearchBar + Pagination；2) 按 Provider 分组展示 Models + Channels；3) Channel 编辑（sellPrice、优先级）；4) Model 启用/禁用；5) 对齐 design-draft/admin-models/code.html；6) npm run lint + tsc 通过",
       "design_ref": "design-draft/admin-models/code.html"
     },
@@ -16,7 +16,7 @@
       "title": "Admin Model Whitelist 页面还原",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) useAsyncData + Table + SearchBar；2) 统计卡片（Total/Enabled/Providers，客户端推算）；3) Enable 开关 + sellPrice 编辑；4) Provider/Modality 筛选；5) 客户端分页；6) 对齐设计稿（忽略 DESIGN.md 标注项）；7) npm run lint + tsc 通过",
       "design_ref": "design-draft/admin-model-whitelist/code.html"
     },
@@ -25,7 +25,7 @@
       "title": "Admin Model Capabilities 页面还原",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) useAsyncData + Table + Switch；2) 6 个 Capability 开关（streaming/json_mode/function_calling/vision/reasoning/search）；3) Image 模型 Supported Sizes chips（添加/删除）；4) 搜索+Modality 筛选+分页；5) 对齐设计稿（忽略 DESIGN.md 标注项）；6) npm run lint + tsc 通过",
       "design_ref": "design-draft/admin-model-capabilities/code.html"
     },
@@ -34,7 +34,7 @@
       "title": "Admin Model Aliases 页面还原",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) useAsyncData + Card；2) Classified Models 卡片组（别名 chips + 添加/删除）；3) Unclassified Models 表格（Table + Merge 操作）；4) 对齐设计稿（忽略 DESIGN.md 标注项）；5) npm run lint + tsc 通过",
       "design_ref": "design-draft/admin-model-aliases/code.html"
     },
@@ -43,7 +43,7 @@
       "title": "Admin Providers 页面还原",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) useAsyncData + Table + Card + Dialog；2) Provider 列表（名称、状态、模型数量）；3) 启用/禁用开关；4) 配置编辑弹窗（API Key/Base URL/Proxy）；5) 同步触发；6) 对齐设计稿；7) npm run lint + tsc 通过",
       "design_ref": "design-draft/admin-providers/code.html"
     },
@@ -52,7 +52,7 @@
       "title": "i18n 补全（admin model management）",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) messages/en.json 和 messages/zh.json 中 admin models/whitelist/capabilities/aliases/providers 相关 key 齐全；2) 所有用户可见文本无硬编码；3) 切换中文后无英文残留；4) npm run lint + tsc 通过"
     },
     {

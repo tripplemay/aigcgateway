@@ -1,8 +1,8 @@
 {
-  "status": "building",
+  "status": "verifying",
   "user_goal": "R3A — 管理侧页面还原（模型管理）：5 个 Admin 页面从旧代码模式还原为 R1 设计系统",
   "total_features": 7,
-  "completed_features": 0,
+  "completed_features": 6,
   "fix_rounds": 0,
   "current_sprint": null,
   "last_updated": "2026-04-09T08:00:00Z",
@@ -26,10 +26,10 @@
     "framework_reviewed": false
   },
   "evaluator_feedback": null,
-  "generator_handoff": null,
+  "generator_handoff": "R3A building 完成。6/6 generator 功能。5 个 admin 页面全部改用 useAsyncData 替代 useCallback+useEffect。models+providers 已有 DS tokens 保留；capabilities 修复 setModels→refetch。tsc+lint 通过。",
   "session_notes": {
     "Richard": "R3A planning 完成。7 条功能（6 generator + 1 codex）。admin models/whitelist/capabilities/aliases/providers 5 页 + i18n。当前全是旧模式共 2351 行。新增 capabilities 和 aliases 的 DESIGN.md。",
-    "Johnsong": null,
+    "Johnsong": "R3A building 完成。5 个 admin 页面全部从 useCallback+useEffect 迁移至 useAsyncData。models: 双 useAsyncData（channels+syncStatus）。whitelist: useAsyncData（models+providers）。capabilities: useAsyncData + setModels→refetch。aliases: useAsyncData 合并 Promise.all。providers: useAsyncData。现有交互逻辑（编辑、展开、同步等）保持不变。",
     "Mark": null,
     "Reviewer": null
   }

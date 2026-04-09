@@ -1,7 +1,8 @@
 "use client";
-import { useEffect, useState, useCallback, useMemo } from "react";
+import { useState, useMemo } from "react";
 import { useTranslations } from "next-intl";
 import { apiFetch } from "@/lib/api-client";
+import { useAsyncData } from "@/hooks/use-async-data";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
@@ -81,9 +82,6 @@ function isNewModel(createdAt: string): boolean {
 export default function ModelWhitelistPage() {
   const t = useTranslations("modelWhitelist");
 
-  const [data, setData] = useState<ModelItem[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [providers, setProviders] = useState<ProviderOption[]>([]);
   const [search, setSearch] = useState("");
   const [providerFilter, setProviderFilter] = useState("");
   const [modalityFilter, setModalityFilter] = useState("");
@@ -94,37 +92,24 @@ export default function ModelWhitelistPage() {
   const [channelPriceOutputInput, setChannelPriceOutputInput] = useState("");
   const [channelPriorityInput, setChannelPriorityInput] = useState("");
 
-  // ── Data loading ──
-  const load = useCallback(async () => {
-    setLoading(true);
-    try {
-      const params = new URLSearchParams();
-      if (search) params.set("search", search);
-      if (providerFilter) params.set("provider", providerFilter);
-      if (modalityFilter) params.set("modality", modalityFilter);
-      const q = params.toString() ? `?${params}` : "";
-      const r = await apiFetch<{ data: ModelItem[]; total: number }>(`/api/admin/models${q}`);
-      setData(r.data);
-    } catch {
-      setData([]);
-    } finally {
-      setLoading(false);
-    }
+  // ── Data loading via useAsyncData ──
+  const { data: modelsResult, refetch: load } = useAsyncData<{ data: ModelItem[]; total: number }>(async () => {
+    const params = new URLSearchParams();
+    if (search) params.set("search", search);
+    if (providerFilter) params.set("provider", providerFilter);
+    if (modalityFilter) params.set("modality", modalityFilter);
+    const q = params.toString() ? `?${params}` : "";
+    return apiFetch<{ data: ModelItem[]; total: number }>(`/api/admin/models${q}`);
   }, [search, providerFilter, modalityFilter]);
 
-  const loadProviders = useCallback(async () => {
-    try {
-      const r = await apiFetch<{ data: ProviderOption[] }>("/api/admin/providers");
-      setProviders(r.data);
-    } catch {
-      /* ignore */
-    }
+  const data = modelsResult?.data ?? [];
+  const loading = !modelsResult;
+
+  const { data: providersResult } = useAsyncData<{ data: ProviderOption[] }>(async () => {
+    return apiFetch<{ data: ProviderOption[] }>("/api/admin/providers");
   }, []);
 
-  useEffect(() => {
-    load();
-    loadProviders();
-  }, [load, loadProviders]);
+  const providers = providersResult?.data ?? [];
 
   // ── Stats ──
   const stats = useMemo(() => {
@@ -218,7 +203,12 @@ export default function ModelWhitelistPage() {
     if (status === "PASS")
       return (
         <span className="flex items-center gap-1 text-emerald-600">
-          <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>check_circle</span>
+          <span
+            className="material-symbols-outlined text-sm"
+            style={{ fontVariationSettings: "'FILL' 1" }}
+          >
+            check_circle
+          </span>
           <span className="text-[10px] font-bold uppercase tracking-tight">{t("healthy")}</span>
         </span>
       );
@@ -250,32 +240,59 @@ export default function ModelWhitelistPage() {
       <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="bg-card/60 backdrop-blur-lg rounded-xl p-6 shadow-sm border flex items-center gap-5">
           <div className="w-14 h-14 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
-            <span className="material-symbols-outlined text-3xl" style={{ fontVariationSettings: "'FILL' 1" }}>database</span>
+            <span
+              className="material-symbols-outlined text-3xl"
+              style={{ fontVariationSettings: "'FILL' 1" }}
+            >
+              database
+            </span>
           </div>
           <div>
-            <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">{t("totalModels")}</p>
+            <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
+              {t("totalModels")}
+            </p>
             <h3 className="text-3xl font-black">{stats.total}</h3>
-            <p className="text-xs text-muted-foreground font-medium mt-0.5">{t("allProvidersSynced")}</p>
+            <p className="text-xs text-muted-foreground font-medium mt-0.5">
+              {t("allProvidersSynced")}
+            </p>
           </div>
         </div>
         <div className="bg-card/60 backdrop-blur-lg rounded-xl p-6 shadow-sm border flex items-center gap-5">
           <div className="w-14 h-14 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
-            <span className="material-symbols-outlined text-3xl" style={{ fontVariationSettings: "'FILL' 1" }}>check_circle</span>
+            <span
+              className="material-symbols-outlined text-3xl"
+              style={{ fontVariationSettings: "'FILL' 1" }}
+            >
+              check_circle
+            </span>
           </div>
           <div>
-            <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">{t("enabled")}</p>
+            <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
+              {t("enabled")}
+            </p>
             <h3 className="text-3xl font-black">{stats.enabled}</h3>
-            <p className="text-xs text-muted-foreground font-medium mt-0.5">{t("whitelistedModels")}</p>
+            <p className="text-xs text-muted-foreground font-medium mt-0.5">
+              {t("whitelistedModels")}
+            </p>
           </div>
         </div>
         <div className="bg-card/60 backdrop-blur-lg rounded-xl p-6 shadow-sm border flex items-center gap-5">
           <div className="w-14 h-14 rounded-xl bg-orange-100 flex items-center justify-center text-orange-600">
-            <span className="material-symbols-outlined text-3xl" style={{ fontVariationSettings: "'FILL' 1" }}>hub</span>
+            <span
+              className="material-symbols-outlined text-3xl"
+              style={{ fontVariationSettings: "'FILL' 1" }}
+            >
+              hub
+            </span>
           </div>
           <div>
-            <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">{t("providers")}</p>
+            <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
+              {t("providers")}
+            </p>
             <h3 className="text-3xl font-black">{stats.providers}</h3>
-            <p className="text-xs text-muted-foreground font-medium mt-0.5">{t("activeUpstream")}</p>
+            <p className="text-xs text-muted-foreground font-medium mt-0.5">
+              {t("activeUpstream")}
+            </p>
           </div>
         </div>
       </section>
@@ -286,7 +303,10 @@ export default function ModelWhitelistPage() {
           <Input
             placeholder={t("searchPlaceholder")}
             value={search}
-            onChange={(e) => { setSearch(e.target.value); setPage(0); }}
+            onChange={(e) => {
+              setSearch(e.target.value);
+              setPage(0);
+            }}
             className="bg-background"
           />
         </div>
@@ -294,17 +314,25 @@ export default function ModelWhitelistPage() {
           <select
             className="bg-background border rounded-xl px-4 py-2.5 text-sm font-medium min-w-[140px]"
             value={providerFilter}
-            onChange={(e) => { setProviderFilter(e.target.value); setPage(0); }}
+            onChange={(e) => {
+              setProviderFilter(e.target.value);
+              setPage(0);
+            }}
           >
             <option value="">{t("allProviders")}</option>
             {providers.map((p) => (
-              <option key={p.name} value={p.name}>{p.displayName}</option>
+              <option key={p.name} value={p.name}>
+                {p.displayName}
+              </option>
             ))}
           </select>
           <select
             className="bg-background border rounded-xl px-4 py-2.5 text-sm font-medium min-w-[140px]"
             value={modalityFilter}
-            onChange={(e) => { setModalityFilter(e.target.value); setPage(0); }}
+            onChange={(e) => {
+              setModalityFilter(e.target.value);
+              setPage(0);
+            }}
           >
             <option value="">{t("allModalities")}</option>
             <option value="text">{t("text")}</option>
@@ -322,13 +350,27 @@ export default function ModelWhitelistPage() {
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="bg-muted/30">
-                  <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground">{t("colEnable")}</th>
-                  <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground">{t("colModelName")}</th>
-                  <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground">{t("colModality")}</th>
-                  <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground text-center">{t("colContext")}</th>
-                  <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground">{t("colChannels")}</th>
-                  <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground">{t("colHealth")}</th>
-                  <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground text-right">{t("colActions")}</th>
+                  <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground">
+                    {t("colEnable")}
+                  </th>
+                  <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground">
+                    {t("colModelName")}
+                  </th>
+                  <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground">
+                    {t("colModality")}
+                  </th>
+                  <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground text-center">
+                    {t("colContext")}
+                  </th>
+                  <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground">
+                    {t("colChannels")}
+                  </th>
+                  <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground">
+                    {t("colHealth")}
+                  </th>
+                  <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground text-right">
+                    {t("colActions")}
+                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-border/50">
@@ -341,34 +383,47 @@ export default function ModelWhitelistPage() {
                       {/* Model row */}
                       <tr key={item.id} className="hover:bg-muted/10 transition-colors group">
                         <td className="px-6 py-5">
-                          <Switch checked={item.enabled} onCheckedChange={() => toggleEnabled(item)} />
+                          <Switch
+                            checked={item.enabled}
+                            onCheckedChange={() => toggleEnabled(item)}
+                          />
                         </td>
                         <td className="px-6 py-5">
                           <div className="flex items-center gap-2">
                             <span className="font-bold text-sm">{item.name}</span>
                             {isNewModel(item.createdAt) && (
-                              <span className="bg-orange-100 text-orange-800 text-[9px] font-black px-1.5 py-0.5 rounded uppercase tracking-tighter">{t("newBadge")}</span>
+                              <span className="bg-orange-100 text-orange-800 text-[9px] font-black px-1.5 py-0.5 rounded uppercase tracking-tighter">
+                                {t("newBadge")}
+                              </span>
                             )}
                           </div>
                         </td>
                         <td className="px-6 py-5">
-                          <span className={`text-[10px] font-bold px-2 py-1 rounded-md ${item.modality === "IMAGE" ? "bg-violet-100 text-violet-700" : "bg-primary/10 text-primary"}`}>
+                          <span
+                            className={`text-[10px] font-bold px-2 py-1 rounded-md ${item.modality === "IMAGE" ? "bg-violet-100 text-violet-700" : "bg-primary/10 text-primary"}`}
+                          >
                             {item.modality}
                           </span>
                         </td>
                         <td className="px-6 py-5 text-center">
-                          <span className="text-xs font-mono text-muted-foreground">{fmtContext(item.contextWindow)}</span>
+                          <span className="text-xs font-mono text-muted-foreground">
+                            {fmtContext(item.contextWindow)}
+                          </span>
                         </td>
                         <td className="px-6 py-5">
                           {item.activeChannelCount > 0 ? (
                             <div className="flex items-center gap-1.5">
                               <div className="w-2 h-2 rounded-full bg-emerald-500" />
-                              <span className="text-xs font-bold text-emerald-600">{t("nActive", { count: item.activeChannelCount })}</span>
+                              <span className="text-xs font-bold text-emerald-600">
+                                {t("nActive", { count: item.activeChannelCount })}
+                              </span>
                             </div>
                           ) : (
                             <div className="flex items-center gap-1.5">
                               <div className="w-2 h-2 rounded-full bg-slate-300" />
-                              <span className="text-xs font-bold text-muted-foreground">{t("noChannels")}</span>
+                              <span className="text-xs font-bold text-muted-foreground">
+                                {t("noChannels")}
+                              </span>
                             </div>
                           )}
                         </td>
@@ -378,13 +433,17 @@ export default function ModelWhitelistPage() {
                             <button
                               className="p-1.5 hover:bg-muted rounded-lg transition-colors"
                               onClick={() => toggleExpand(item.id)}
-                              title={isExpanded ? t("hideVariants") : `${item.channels.length} channels`}
+                              title={
+                                isExpanded ? t("hideVariants") : `${item.channels.length} channels`
+                              }
                             >
                               <span className="material-symbols-outlined text-muted-foreground">
                                 {isExpanded ? "unfold_less" : "unfold_more"}
                               </span>
                               {hasMultipleChannels && !isExpanded && (
-                                <span className="text-[10px] text-muted-foreground ml-1">{item.channels.length}</span>
+                                <span className="text-[10px] text-muted-foreground ml-1">
+                                  {item.channels.length}
+                                </span>
                               )}
                             </button>
                           )}
@@ -392,46 +451,89 @@ export default function ModelWhitelistPage() {
                       </tr>
 
                       {/* Expanded channel rows */}
-                      {isExpanded && item.channels.map((ch) => (
-                        <tr key={ch.id} className="bg-muted/5 border-l-4 border-l-primary/20">
-                          <td className="px-6 py-3" />
-                          <td className="px-6 py-3" colSpan={2}>
-                            <div className="flex items-center gap-2 ml-4">
-                              <span className="material-symbols-outlined text-sm text-muted-foreground">subdirectory_arrow_right</span>
-                              <span className="text-xs font-semibold">{ch.provider}</span>
-                              <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded ${ch.status === "ACTIVE" ? "bg-emerald-100 text-emerald-700" : ch.status === "DEGRADED" ? "bg-amber-100 text-amber-700" : "bg-red-100 text-red-700"}`}>
-                                {ch.status}
+                      {isExpanded &&
+                        item.channels.map((ch) => (
+                          <tr key={ch.id} className="bg-muted/5 border-l-4 border-l-primary/20">
+                            <td className="px-6 py-3" />
+                            <td className="px-6 py-3" colSpan={2}>
+                              <div className="flex items-center gap-2 ml-4">
+                                <span className="material-symbols-outlined text-sm text-muted-foreground">
+                                  subdirectory_arrow_right
+                                </span>
+                                <span className="text-xs font-semibold">{ch.provider}</span>
+                                <span
+                                  className={`text-[9px] font-bold px-1.5 py-0.5 rounded ${ch.status === "ACTIVE" ? "bg-emerald-100 text-emerald-700" : ch.status === "DEGRADED" ? "bg-amber-100 text-amber-700" : "bg-red-100 text-red-700"}`}
+                                >
+                                  {ch.status}
+                                </span>
+                              </div>
+                            </td>
+                            <td className="px-6 py-3 text-center">
+                              <span className="text-[10px] text-muted-foreground">
+                                P{ch.priority}
                               </span>
-                            </div>
-                          </td>
-                          <td className="px-6 py-3 text-center">
-                            <span className="text-[10px] text-muted-foreground">P{ch.priority}</span>
-                          </td>
-                          <td className="px-6 py-3" colSpan={2}>
-                            {editingChannel === ch.id ? (
-                              <div className="flex items-center gap-1 flex-wrap">
-                                <label className="text-[10px] text-muted-foreground">Pri:</label>
-                                <input type="number" className="w-12 border rounded px-1 py-0.5 text-xs" value={channelPriorityInput} onChange={(e) => setChannelPriorityInput(e.target.value)} />
-                                <label className="text-[10px] text-muted-foreground ml-1">Price:</label>
-                                <input type="number" step="0.01" className="w-16 border rounded px-1 py-0.5 text-xs" value={channelPriceInput} onChange={(e) => setChannelPriceInput(e.target.value)} placeholder="in" />
-                                {item.modality !== "IMAGE" && (
-                                  <input type="number" step="0.01" className="w-16 border rounded px-1 py-0.5 text-xs" value={channelPriceOutputInput} onChange={(e) => setChannelPriceOutputInput(e.target.value)} placeholder="out" />
-                                )}
-                                <button className="text-primary text-xs font-bold" onClick={() => saveChannel(ch, item.modality)}>{t("save")}</button>
-                                <button className="text-muted-foreground text-xs" onClick={() => setEditingChannel(null)}>{t("cancel")}</button>
-                              </div>
-                            ) : (
-                              <div className="flex items-center gap-2 cursor-pointer group/edit" onClick={() => startEditChannel(ch)}>
-                                <span className="text-xs font-bold">{fmtSellPrice(ch.sellPrice)}</span>
-                                <span className="material-symbols-outlined text-[14px] opacity-0 group-hover/edit:opacity-100 transition-opacity">edit</span>
-                              </div>
-                            )}
-                          </td>
-                          <td className="px-6 py-3 text-right">
-                            {healthBadge(ch.healthResult)}
-                          </td>
-                        </tr>
-                      ))}
+                            </td>
+                            <td className="px-6 py-3" colSpan={2}>
+                              {editingChannel === ch.id ? (
+                                <div className="flex items-center gap-1 flex-wrap">
+                                  <label className="text-[10px] text-muted-foreground">Pri:</label>
+                                  <input
+                                    type="number"
+                                    className="w-12 border rounded px-1 py-0.5 text-xs"
+                                    value={channelPriorityInput}
+                                    onChange={(e) => setChannelPriorityInput(e.target.value)}
+                                  />
+                                  <label className="text-[10px] text-muted-foreground ml-1">
+                                    Price:
+                                  </label>
+                                  <input
+                                    type="number"
+                                    step="0.01"
+                                    className="w-16 border rounded px-1 py-0.5 text-xs"
+                                    value={channelPriceInput}
+                                    onChange={(e) => setChannelPriceInput(e.target.value)}
+                                    placeholder="in"
+                                  />
+                                  {item.modality !== "IMAGE" && (
+                                    <input
+                                      type="number"
+                                      step="0.01"
+                                      className="w-16 border rounded px-1 py-0.5 text-xs"
+                                      value={channelPriceOutputInput}
+                                      onChange={(e) => setChannelPriceOutputInput(e.target.value)}
+                                      placeholder="out"
+                                    />
+                                  )}
+                                  <button
+                                    className="text-primary text-xs font-bold"
+                                    onClick={() => saveChannel(ch, item.modality)}
+                                  >
+                                    {t("save")}
+                                  </button>
+                                  <button
+                                    className="text-muted-foreground text-xs"
+                                    onClick={() => setEditingChannel(null)}
+                                  >
+                                    {t("cancel")}
+                                  </button>
+                                </div>
+                              ) : (
+                                <div
+                                  className="flex items-center gap-2 cursor-pointer group/edit"
+                                  onClick={() => startEditChannel(ch)}
+                                >
+                                  <span className="text-xs font-bold">
+                                    {fmtSellPrice(ch.sellPrice)}
+                                  </span>
+                                  <span className="material-symbols-outlined text-[14px] opacity-0 group-hover/edit:opacity-100 transition-opacity">
+                                    edit
+                                  </span>
+                                </div>
+                              )}
+                            </td>
+                            <td className="px-6 py-3 text-right">{healthBadge(ch.healthResult)}</td>
+                          </tr>
+                        ))}
                     </>
                   );
                 })}
@@ -457,7 +559,8 @@ export default function ModelWhitelistPage() {
                 </button>
                 <div className="flex items-center gap-1">
                   {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
-                    const pageNum = totalPages <= 5 ? i : Math.max(0, Math.min(page - 2, totalPages - 5)) + i;
+                    const pageNum =
+                      totalPages <= 5 ? i : Math.max(0, Math.min(page - 2, totalPages - 5)) + i;
                     return (
                       <button
                         key={pageNum}

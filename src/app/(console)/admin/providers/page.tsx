@@ -1,7 +1,8 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { apiFetch } from "@/lib/api-client";
+import { useAsyncData } from "@/hooks/use-async-data";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 
@@ -38,8 +39,6 @@ interface ProviderConfig {
 export default function ProvidersPage() {
   const t = useTranslations("adminProviders");
   const tc = useTranslations("common");
-  const [providers, setProviders] = useState<Provider[]>([]);
-  const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [form, setForm] = useState<Record<string, string>>({});
   const [editId, setEditId] = useState<string | null>(null);
@@ -48,15 +47,11 @@ export default function ProvidersPage() {
   const [config, setConfig] = useState<ProviderConfig>({});
   const [quirksText, setQuirksText] = useState("");
 
-  const load = async () => {
-    setLoading(true);
-    const res = await apiFetch<{ data: Provider[] }>("/api/admin/providers");
-    setProviders(res.data);
-    setLoading(false);
-  };
-  useEffect(() => {
-    load();
+  const { data: providersResult, loading, refetch: load } = useAsyncData<{ data: Provider[] }>(async () => {
+    return apiFetch<{ data: Provider[] }>("/api/admin/providers");
   }, []);
+
+  const providers = providersResult?.data ?? [];
 
   const openCreate = () => {
     setForm({});

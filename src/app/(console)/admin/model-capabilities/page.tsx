@@ -1,7 +1,8 @@
 "use client";
-import { useEffect, useState, useCallback } from "react";
+import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { apiFetch } from "@/lib/api-client";
+import { useAsyncData } from "@/hooks/use-async-data";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
@@ -29,37 +30,22 @@ const CAP_KEYS = [
 
 export default function ModelCapabilitiesPage() {
   const t = useTranslations("modelCapabilities");
-  const [models, setModels] = useState<ModelItem[]>([]);
-  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [modalityFilter, setModalityFilter] = useState("");
   const [page, setPage] = useState(1);
   const pageSize = 20;
 
-  const fetchModels = useCallback(async () => {
-    setLoading(true);
-    try {
-      const params = new URLSearchParams();
-      if (search) params.set("search", search);
-      if (modalityFilter) params.set("modality", modalityFilter);
-      const q = params.toString() ? `?${params}` : "";
-      const r = await apiFetch<{ data: ModelItem[] }>(`/api/admin/models${q}`);
-      // Only show enabled models with active channels (same as list_models)
-      setModels(r.data.filter((m) => m.enabled && m.activeChannelCount > 0));
-    } catch {
-      toast.error("Failed to load models");
-    } finally {
-      setLoading(false);
-    }
+  const { data: modelsResult, refetch: fetchModels } = useAsyncData<{ data: ModelItem[] }>(async () => {
+    const params = new URLSearchParams();
+    if (search) params.set("search", search);
+    if (modalityFilter) params.set("modality", modalityFilter);
+    const q = params.toString() ? `?${params}` : "";
+    const r = await apiFetch<{ data: ModelItem[] }>(`/api/admin/models${q}`);
+    return { data: r.data.filter((m) => m.enabled && m.activeChannelCount > 0) };
   }, [search, modalityFilter]);
 
-  useEffect(() => {
-    fetchModels();
-  }, [fetchModels]);
-
-  useEffect(() => {
-    setPage(1);
-  }, [search, modalityFilter]);
+  const models = modelsResult?.data ?? [];
+  const loading = !modelsResult;
 
   const paged = models.slice((page - 1) * pageSize, page * pageSize);
   const totalPages = Math.ceil(models.length / pageSize);
@@ -71,10 +57,10 @@ export default function ModelCapabilitiesPage() {
         method: "PATCH",
         body: JSON.stringify({ capabilities: caps }),
       });
-      setModels((prev) => prev.map((m) => (m.id === model.id ? { ...m, capabilities: caps } : m)));
       toast.success(t("saved"));
+      fetchModels();
     } catch {
-      toast.error("Failed to save");
+      toast.error(t("saveFailed"));
     }
   };
 
@@ -84,12 +70,10 @@ export default function ModelCapabilitiesPage() {
         method: "PATCH",
         body: JSON.stringify({ supportedSizes: sizes }),
       });
-      setModels((prev) =>
-        prev.map((m) => (m.id === model.id ? { ...m, supportedSizes: sizes } : m)),
-      );
       toast.success(t("sizesSaved"));
+      fetchModels();
     } catch {
-      toast.error("Failed to save");
+      toast.error(t("saveFailed"));
     }
   };
 

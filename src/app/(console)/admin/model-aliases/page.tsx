@@ -1,7 +1,8 @@
 "use client";
-import { useEffect, useState, useCallback } from "react";
+import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { apiFetch } from "@/lib/api-client";
+import { useAsyncData } from "@/hooks/use-async-data";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 
@@ -22,58 +23,57 @@ interface UnclassifiedModel {
 export default function ModelAliasesPage() {
   const t = useTranslations("modelAliases");
 
-  const [grouped, setGrouped] = useState<Record<string, AliasItem[]>>({});
-  const [unclassified, setUnclassified] = useState<UnclassifiedModel[]>([]);
-  const [allModels, setAllModels] = useState<{ name: string }[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  // New alias input per group
   const [newAliasInputs, setNewAliasInputs] = useState<Record<string, string>>({});
-  // Merge target per unclassified model
   const [mergeTargets, setMergeTargets] = useState<Record<string, string>>({});
 
-  const load = useCallback(async () => {
-    setLoading(true);
-    try {
-      const [aliasRes, modelsRes] = await Promise.all([
-        apiFetch<{ data: Record<string, AliasItem[]> }>("/api/admin/model-aliases"),
-        apiFetch<{ data: Array<{ id: string; name: string; displayName: string; modality: string; enabled: boolean; channelCount: number; activeChannelCount: number }> }>("/api/admin/models"),
-      ]);
+  // ── Data loading via useAsyncData ──
+  interface AliasData {
+    grouped: Record<string, AliasItem[]>;
+    unclassified: UnclassifiedModel[];
+    allModels: { name: string }[];
+  }
 
-      setGrouped(aliasRes.data);
+  const { data: aliasData, loading, refetch: load } = useAsyncData<AliasData>(async () => {
+    const [aliasRes, modelsRes] = await Promise.all([
+      apiFetch<{ data: Record<string, AliasItem[]> }>("/api/admin/model-aliases"),
+      apiFetch<{
+        data: Array<{
+          id: string;
+          name: string;
+          displayName: string;
+          modality: string;
+          enabled: boolean;
+          channelCount: number;
+          activeChannelCount: number;
+        }>;
+      }>("/api/admin/models"),
+    ]);
 
-      // All model names for the merge dropdown
-      setAllModels(modelsRes.data.map((m) => ({ name: m.name })));
+    const grouped = aliasRes.data;
+    const allModels = modelsRes.data.map((m) => ({ name: m.name }));
 
-      // Unclassified: models not in alias groups that are disabled
-      const aliasModelNames = new Set(Object.keys(aliasRes.data));
-      // Also collect all aliases to exclude models that ARE aliases
-      const allAliasValues = new Set<string>();
-      for (const items of Object.values(aliasRes.data)) {
-        for (const item of items) {
-          allAliasValues.add(item.alias);
-        }
-      }
-
-      const uncl = modelsRes.data
-        .filter((m) => !m.enabled && !aliasModelNames.has(m.name) && !allAliasValues.has(m.name))
-        .map((m) => ({
-          id: m.id,
-          name: m.name,
-          displayName: m.displayName,
-          modality: m.modality,
-          channelCount: m.channelCount,
-        }));
-      setUnclassified(uncl);
-    } catch {
-      setGrouped({});
-      setUnclassified([]);
-    } finally {
-      setLoading(false);
+    const aliasModelNames = new Set(Object.keys(grouped));
+    const allAliasValues = new Set<string>();
+    for (const items of Object.values(grouped)) {
+      for (const item of items) allAliasValues.add(item.alias);
     }
+
+    const unclassified = modelsRes.data
+      .filter((m) => !m.enabled && !aliasModelNames.has(m.name) && !allAliasValues.has(m.name))
+      .map((m) => ({
+        id: m.id,
+        name: m.name,
+        displayName: m.displayName,
+        modality: m.modality,
+        channelCount: m.channelCount,
+      }));
+
+    return { grouped, unclassified, allModels };
   }, []);
 
-  useEffect(() => { load(); }, [load]);
+  const grouped = aliasData?.grouped ?? {};
+  const unclassified = aliasData?.unclassified ?? [];
+  const allModels = aliasData?.allModels ?? [];
 
   const addAlias = async (modelName: string) => {
     const alias = newAliasInputs[modelName]?.trim();
@@ -194,10 +194,18 @@ export default function ModelAliasesPage() {
             <table className="w-full text-left">
               <thead>
                 <tr className="bg-muted/30">
-                  <th className="px-4 py-3 text-[10px] font-black uppercase tracking-widest text-muted-foreground">Model</th>
-                  <th className="px-4 py-3 text-[10px] font-black uppercase tracking-widest text-muted-foreground">Modality</th>
-                  <th className="px-4 py-3 text-[10px] font-black uppercase tracking-widest text-muted-foreground">Channels</th>
-                  <th className="px-4 py-3 text-[10px] font-black uppercase tracking-widest text-muted-foreground text-right">Actions</th>
+                  <th className="px-4 py-3 text-[10px] font-black uppercase tracking-widest text-muted-foreground">
+                    Model
+                  </th>
+                  <th className="px-4 py-3 text-[10px] font-black uppercase tracking-widest text-muted-foreground">
+                    Modality
+                  </th>
+                  <th className="px-4 py-3 text-[10px] font-black uppercase tracking-widest text-muted-foreground">
+                    Channels
+                  </th>
+                  <th className="px-4 py-3 text-[10px] font-black uppercase tracking-widest text-muted-foreground text-right">
+                    Actions
+                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-border/50">
