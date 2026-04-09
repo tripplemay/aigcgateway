@@ -1,11 +1,11 @@
 {
-  "status": "reverifying",
+  "status": "fixing",
   "user_goal": "R3A — 管理侧页面还原（模型管理）：5 个 Admin 页面从旧代码模式还原为 R1 设计系统",
   "total_features": 7,
-  "completed_features": 6,
+  "completed_features": 5,
   "fix_rounds": 1,
   "current_sprint": null,
-  "last_updated": "2026-04-09T02:08:52.122Z",
+  "last_updated": "2026-04-09T02:27:35.609Z",
   "reference_docs": [
     "docs/specs/R3A-admin-model-management-spec.md",
     "design-draft/admin-models/code.html",
@@ -26,7 +26,7 @@
     "framework_reviewed": false
   },
   "evaluator_feedback": {
-    "summary": "R3A 首轮验收未通过：5 个 admin 页面可加载且 CRUD 主链路通过，但 /admin/providers 在 CN 模式下存在明显英文残留。",
+    "summary": "R3A 复验未通过：5 个 admin 页面加载与 CRUD 均通过，但 CN 模式仍存在多处英文残留。",
     "pass_count": 5,
     "partial_count": 0,
     "fail_count": 2,
@@ -34,14 +34,14 @@
       {
         "feature_id": "F-R3A-06",
         "result": "FAIL",
-        "description": "i18n 未达标：/admin/providers 切换中文后仍有硬编码英文文案（如副标题、CHANNELS、Operational Status 等）。",
-        "steps_to_reproduce": "1) 登录 admin 2) 打开 /admin/providers 3) 点击顶部 CN 4) 观察页面文案仍有英文残留。"
+        "description": "i18n 仍未达标。CN 下 `/admin/providers`、`/admin/models`、`/admin/model-aliases` 存在英文 UI 文案残留（如 TOTAL TOKENS IN (24H)、ALL CLEAR、aliases/MODEL 等）。",
+        "steps_to_reproduce": "登录 admin -> 切换 CN -> 打开上述页面并检查标题/表头/状态文案。"
       },
       {
         "feature_id": "F-R3A-07",
         "result": "FAIL",
-        "description": "R3A 验收未通过，阻塞项为 F-R3A-06 i18n 残留；其余加载与 CRUD 验证已通过。",
-        "steps_to_reproduce": "参考 docs/test-reports/R3A-admin-model-management-verifying-2026-04-09.md。"
+        "description": "R3A 复验未通过，阻塞项为 F-R3A-06 i18n 残留。页面加载与 CRUD 已通过。",
+        "steps_to_reproduce": "参考 docs/test-reports/R3A-admin-model-management-reverifying-2026-04-09.md。"
       }
     ]
   },
@@ -50,6 +50,6 @@
     "Richard": "R3A planning 完成。7 条功能（6 generator + 1 codex）。admin models/whitelist/capabilities/aliases/providers 5 页 + i18n。当前全是旧模式共 2351 行。新增 capabilities 和 aliases 的 DESIGN.md。",
     "Johnsong": "R3A building 完成。5 个 admin 页面全部从 useCallback+useEffect 迁移至 useAsyncData。models: 双 useAsyncData（channels+syncStatus）。whitelist: useAsyncData（models+providers）。capabilities: useAsyncData + setModels→refetch。aliases: useAsyncData 合并 Promise.all。providers: useAsyncData。现有交互逻辑（编辑、展开、同步等）保持不变。",
     "Mark": null,
-    "Reviewer": "R3A verifying 已执行：5 页加载通过，CRUD API 通过（证据见 R3A-admin-model-management-crud-api-2026-04-09.json）；发现 /admin/providers CN 模式英文残留，已置 fixing，待 generator 修复后进入 reverifying。"
+    "Reviewer": "R3A reverifying 执行完成：5 页加载通过，CRUD 通过；CN 下仍有英文残留（providers/models/aliases），状态回置 fixing。"
   }
 }
