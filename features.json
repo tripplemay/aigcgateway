@@ -32,7 +32,7 @@
       "title": "User UI — Global Library tab + 详情抽屉 + Fork",
       "priority": "high",
       "executor": "generator",
-      "status": "done",
+      "status": "pending",
       "acceptance": "1) Templates 页有 My Templates / Global Library 两个 tab；2) Global Library 展示 3 列卡片网格；3) 点击卡片打开右侧详情抽屉（含 Steps 流程链）；4) Fork 确认弹窗展示待拷贝内容；5) Fork 成功 toast + 跳转新模板；6) 布局与设计稿一致",
       "design_ref": "design-draft/templates-global-library/code.html"
     },
@@ -49,7 +49,7 @@
       "title": "i18n — 中英文翻译同步",
       "priority": "medium",
       "executor": "generator",
-      "status": "done",
+      "status": "pending",
       "acceptance": "1) en.json + zh-CN.json 同步更新（~20 个 key）；2) 无硬编码字符串；3) UI 中英文切换正常"
     },
     {

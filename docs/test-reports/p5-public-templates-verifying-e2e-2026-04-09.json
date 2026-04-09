@@ -1,0 +1,48 @@
+{
+  "baseUrl": "http://localhost:3099",
+  "passCount": 5,
+  "failCount": 2,
+  "context": {
+    "adminProjectId": "cmnrlnx7z00qw9yhvqlo5dz9e",
+    "userProjectId": "cmnrlnx8300qy9yhvvniypddr",
+    "sourceTemplateId": "cmnrlnx8j00r89yhvjlzmrgis",
+    "privateTemplateId": "cmnrlnx8s00rd9yhv8dy2wz17"
+  },
+  "steps": [
+    {
+      "name": "AC1 public template list/detail/fork chain",
+      "ok": true,
+      "detail": "found=true, detailId=cmnrlnx8j00r89yhvjlzmrgis, forked=cmnrlnx9d00rp9yhvs0vig6zp"
+    },
+    {
+      "name": "AC2 fork deep copy integrity (Template+Steps+Actions)",
+      "ok": true,
+      "detail": "sourceTemplateId=cmnrlnx8j00r89yhvjlzmrgis, forkedSteps=2, sourceSteps=2, forkedActionIds=cmnrlnx9a00rh9yhv2r99nqjv,cmnrlnx9c00rl9yhvj6vygj7m"
+    },
+    {
+      "name": "AC3 non-public template cannot be forked",
+      "ok": true,
+      "detail": "status=404, code=not_found"
+    },
+    {
+      "name": "AC4 MCP tools list_public_templates + fork_public_template",
+      "ok": true,
+      "detail": "init=200, hasListPublic=true, hasForkPublic=true, listCount=1, forked=cmnrlnxb900rx9yhvnz4y3qev"
+    },
+    {
+      "name": "AC5 UI structure spot checks (tab + grid + drawer + dialog)",
+      "ok": true,
+      "detail": "tabs=true, grid3col=true"
+    },
+    {
+      "name": "AC6 DS token audit (zero legacy token and zero hardcoded color)",
+      "ok": false,
+      "detail": "legacy=0, hardcodedColor=10"
+    },
+    {
+      "name": "AC7 i18n audit (key coverage + no known hardcoded residues)",
+      "ok": false,
+      "detail": "keys=true, hardcoded=templates.page.indigo-palette-hardcoded|global-library.score-prefix|detail-drawer.score-prefix|detail-drawer.mode-suffix|detail-drawer.step-prefix"
+    }
+  ]
+}
