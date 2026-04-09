@@ -629,7 +629,13 @@
     "margin": "Margin",
     "revenueByProvider": "Revenue by Provider",
     "callsByModel": "Calls by Model",
-    "providerCost": "Provider Cost Breakdown"
+    "providerCost": "Provider Cost Breakdown",
+    "colProvider": "Provider",
+    "colCalls": "Calls",
+    "colCost": "Cost",
+    "colRevenue": "Revenue",
+    "colMargin": "Margin",
+    "colMarginPct": "Margin %"
   },
   "adminUsers": {
     "title": "Developers",

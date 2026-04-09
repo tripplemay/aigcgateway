@@ -629,7 +629,13 @@
     "margin": "利润",
     "revenueByProvider": "服务商收入",
     "callsByModel": "模型调用量",
-    "providerCost": "服务商成本明细"
+    "providerCost": "服务商成本明细",
+    "colProvider": "服务商",
+    "colCalls": "调用量",
+    "colCost": "成本",
+    "colRevenue": "收入",
+    "colMargin": "利润",
+    "colMarginPct": "利润率"
   },
   "adminUsers": {
     "title": "开发者管理",

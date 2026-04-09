@@ -1,9 +1,10 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useState, useMemo } from "react";
 import { useTranslations } from "next-intl";
 import { apiFetch } from "@/lib/api-client";
+import { useAsyncData } from "@/hooks/use-async-data";
+import { Skeleton } from "@/components/ui/skeleton";
 import { formatCurrency } from "@/lib/utils";
-import { toast } from "sonner";
 import {
   BarChart,
   Bar,
@@ -15,6 +16,10 @@ import {
   Pie,
   Cell,
 } from "recharts";
+
+// ============================================================
+// Types
+// ============================================================
 
 interface UsageSummary {
   totalCalls: number;
@@ -39,6 +44,10 @@ interface ModelData {
   avgLatency: number;
 }
 
+// ============================================================
+// Constants
+// ============================================================
+
 const PIE_COLORS = ["#5443b9", "#5f5987", "#7c4b00", "#c8bfff", "#ffb964", "#9d6100", "#ba1a1a"];
 const tooltipStyle = {
   contentStyle: {
@@ -50,26 +59,31 @@ const tooltipStyle = {
   },
 };
 
+// ============================================================
+// Page
+// ============================================================
+
 export default function AdminUsagePage() {
   const t = useTranslations("adminUsage");
   const [period, setPeriod] = useState("7d");
-  const [summary, setSummary] = useState<UsageSummary | null>(null);
-  const [byProvider, setByProvider] = useState<ProviderData[]>([]);
-  const [byModel, setByModel] = useState<ModelData[]>([]);
 
-  useEffect(() => {
-    Promise.all([
-      apiFetch<UsageSummary>(`/api/admin/usage?period=${period}`),
-      apiFetch<{ data: ProviderData[] }>("/api/admin/usage/by-provider"),
-      apiFetch<{ data: ModelData[] }>("/api/admin/usage/by-model"),
-    ])
-      .then(([s, p, m]) => {
-        setSummary(s);
-        setByProvider(p.data);
-        setByModel(m.data);
-      })
-      .catch((err) => toast.error((err as Error).message));
-  }, [period]);
+  const { data: summary } = useAsyncData<UsageSummary>(
+    () => apiFetch<UsageSummary>(`/api/admin/usage?period=${period}`),
+    [period],
+  );
+
+  const { data: providerResp } = useAsyncData<{ data: ProviderData[] }>(
+    () => apiFetch<{ data: ProviderData[] }>("/api/admin/usage/by-provider"),
+    [],
+  );
+
+  const { data: modelResp } = useAsyncData<{ data: ModelData[] }>(
+    () => apiFetch<{ data: ModelData[] }>("/api/admin/usage/by-model"),
+    [],
+  );
+
+  const byProvider = providerResp?.data ?? [];
+  const byModel = modelResp?.data ?? [];
 
   const marginPct =
     summary && summary.totalRevenue > 0
@@ -78,6 +92,7 @@ export default function AdminUsagePage() {
 
   return (
     <div className="max-w-7xl mx-auto space-y-8">
+      {/* ═══ Header + Period Toggle ═══ */}
       <div className="flex justify-between items-center">
         <h2 className="text-3xl font-extrabold tracking-tight font-[var(--font-heading)] text-ds-on-surface">
           {t("title")}
@@ -95,6 +110,7 @@ export default function AdminUsagePage() {
         </div>
       </div>
 
+      {/* ═══ Summary Cards ═══ */}
       {summary && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {[
@@ -128,6 +144,7 @@ export default function AdminUsagePage() {
         </div>
       )}
 
+      {/* ═══ Charts ═══ */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Revenue by Provider Pie */}
         <div className="bg-ds-surface-container-lowest p-8 rounded-xl shadow-sm">
@@ -202,7 +219,7 @@ export default function AdminUsagePage() {
         </div>
       </div>
 
-      {/* Provider Cost Table */}
+      {/* ═══ Provider Cost Table ═══ */}
       <div className="bg-ds-surface-container-lowest rounded-xl shadow-sm overflow-hidden">
         <div className="p-6 border-b border-slate-50">
           <h3 className="font-[var(--font-heading)] font-bold text-lg">{t("providerCost")}</h3>
@@ -210,7 +227,14 @@ export default function AdminUsagePage() {
         <table className="w-full text-left">
           <thead className="bg-ds-surface-container-low/50">
             <tr>
-              {["Provider", "Calls", "Cost", "Revenue", "Margin", "Margin %"].map((h) => (
+              {[
+                t("colProvider"),
+                t("colCalls"),
+                t("colCost"),
+                t("colRevenue"),
+                t("colMargin"),
+                t("colMarginPct"),
+              ].map((h) => (
                 <th
                   key={h}
                   className="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest"
