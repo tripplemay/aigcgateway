@@ -766,7 +766,20 @@
     "totalSteps": "Total Steps",
     "pipelineSummary": "Pipeline Summary",
     "ctaTitle": "Scale your Automation",
-    "ctaDesc": "Connect your templates to our streaming API for millisecond latency response on multi-step workflows."
+    "ctaDesc": "Connect your templates to our streaming API for millisecond latency response on multi-step workflows.",
+    "loadFailed": "Failed to load template",
+    "action": "Action",
+    "addOrchestrationStep": "Add Orchestration Step",
+    "resourcesUsed": "Resources Used",
+    "pipelineStats": "Pipeline Stats",
+    "stepsLabel": "Steps",
+    "modeLabel": "Mode",
+    "orderLabel": "Order",
+    "actionEngine": "Action Engine",
+    "executionRole": "Execution Role",
+    "insertStep": "Insert Intermediate Step",
+    "readyToDeploy": "Ready to Deploy?",
+    "readyToDeployDesc": "Once saved, this template will be available as an API endpoint for your production environment immediately."
   },
   "adminTemplates": {
     "title": "Template Management",

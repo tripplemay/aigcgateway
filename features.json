@@ -34,7 +34,7 @@
       "title": "Templates 列表页还原",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) useAsyncData + Table + SearchBar + Pagination；2) 列：名称、Steps 数量 badge、Execution Mode、描述、更新时间；3) 搜索+分页；4) 行点击跳详情；5) Create Template 按钮跳 /templates/new；6) 对齐设计稿（忽略 DESIGN.md 标注项）；7) npm run lint + tsc 通过",
       "design_ref": "design-draft/templates/code.html"
     },
@@ -43,7 +43,7 @@
       "title": "Templates 详情页还原",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) useAsyncData + Card；2) 头部（名称+执行模式 badge+Edit/Delete）；3) 步骤流程列表（Action 名称+模型+角色 badge）；4) Template Info 卡片；5) Resources Used（客户端推算模型引用）；6) Delete 确认弹窗；7) 对齐设计稿（忽略 DESIGN.md 标注项）；8) npm run lint + tsc 通过",
       "design_ref": "design-draft/templates-detail/code.html"
     },
@@ -52,7 +52,7 @@
       "title": "Templates 编辑器还原（创建+编辑）",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) 名称+描述；2) 步骤编排（从 Actions 列表选择+指定 order+指定 role SEQUENTIAL/SPLITTER/BRANCH/MERGE）；3) 步骤可删除可调序；4) 创建调 POST，编辑调 PUT；5) 对齐设计稿（忽略 DESIGN.md 标注项）；6) npm run lint + tsc 通过",
       "design_ref": "design-draft/templates-editor/code.html"
     },
@@ -61,7 +61,7 @@
       "title": "i18n 补全（actions/templates）",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) messages/en.json 和 messages/zh.json 中 actions/templates 相关 key 齐全；2) 所有用户可见文本无硬编码；3) 切换中文后无英文残留；4) npm run lint + tsc 通过"
     },
     {

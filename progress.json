@@ -1,8 +1,8 @@
 {
-  "status": "building",
+  "status": "verifying",
   "user_goal": "R2C — 用户侧页面还原（Actions + Templates）：6 个页面从旧代码模式还原为 R1 设计系统，对齐 Stitch 设计稿",
   "total_features": 8,
-  "completed_features": 3,
+  "completed_features": 7,
   "fix_rounds": 0,
   "current_sprint": null,
   "last_updated": "2026-04-09T06:00:00Z",
@@ -27,10 +27,10 @@
     "framework_reviewed": false
   },
   "evaluator_feedback": null,
-  "generator_handoff": null,
+  "generator_handoff": "R2C building 完成。7/7 generator 功能已实现：Actions 3 页（列表+详情+编辑器）+ Templates 3 页（列表+详情+编辑器）+ i18n 补全。全部使用 useAsyncData + DS Table/Pagination/SearchBar + DS 色彩 token。移除 Developer Quick-Link（DESIGN.md ignore）、Variables 列（partial support）。tsc+lint 通过。",
   "session_notes": {
     "Richard": "R2C planning 完成。8 条功能（7 generator + 1 codex）。Actions 3 页 + Templates 3 页 + i18n。先做 Actions 再做 Templates（Templates 编辑器引用 Actions）。所有页面当前旧模式，共 2419 行需重写。",
-    "Johnsong": null,
+    "Johnsong": "R2C building 完成。Actions: 列表页 useAsyncData+DS Table+Pagination+SearchBar、详情页 useAsyncData+DS Table 变量表+版本历史卡片式+移除 devQuickLink、编辑器 DS tokens+i18n role labels。Templates: 列表页同 Actions 模式、详情页 useAsyncData+pipeline steps+metadata sidebar、编辑器 DS tokens+所有标签 i18n。i18n 新增约 30 个 key（en+zh）。",
     "Mark": null,
     "Reviewer": null
   }

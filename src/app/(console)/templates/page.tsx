@@ -1,17 +1,28 @@
 "use client";
-import { useEffect, useState } from "react";
-import { useTranslations } from "next-intl";
+import { useState } from "react";
+import { useTranslations, useLocale } from "next-intl";
 import { apiFetch } from "@/lib/api-client";
 import { useProject } from "@/hooks/use-project";
+import { useAsyncData } from "@/hooks/use-async-data";
 import { Skeleton } from "@/components/ui/skeleton";
+import { EmptyState } from "@/components/empty-state";
+import {
+  Table,
+  TableHeader,
+  TableBody,
+  TableHead,
+  TableRow,
+  TableCell,
+} from "@/components/ui/table";
+import { SearchBar } from "@/components/search-bar";
+import { Pagination } from "@/components/pagination";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { timeAgo } from "@/lib/utils";
 
-interface StepInfo {
-  role: string;
-  action: { name: string; model: string };
-}
+// ============================================================
+// Types
+// ============================================================
 
 interface TemplateRow {
   id: string;
@@ -19,51 +30,54 @@ interface TemplateRow {
   description: string | null;
   stepCount: number;
   executionMode: string;
-  steps: StepInfo[];
   updatedAt: string;
 }
 
+interface TemplatesResponse {
+  data: TemplateRow[];
+  pagination: { page: number; pageSize: number; total: number; totalPages: number };
+}
+
+const PAGE_SIZE = 20;
+
+const MODE_STYLE: Record<string, string> = {
+  sequential: "bg-ds-primary-container/10 text-ds-primary",
+  "fan-out": "bg-ds-tertiary-container/10 text-ds-tertiary",
+  single: "bg-slate-100 text-slate-600",
+};
+
+// ============================================================
+// Component
+// ============================================================
+
 export default function TemplatesPage() {
   const t = useTranslations("templates");
+  const tc = useTranslations("common");
+  const locale = useLocale();
   const { current, loading: projLoading } = useProject();
   const router = useRouter();
 
-  const [templates, setTemplates] = useState<TemplateRow[]>([]);
-  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
+  const [page, setPage] = useState(1);
 
-  useEffect(() => {
-    if (!current) return;
-    setLoading(true);
-    apiFetch<{ data: TemplateRow[] }>(`/api/projects/${current.id}/templates?pageSize=100`)
-      .then((d) => setTemplates(d.data))
-      .catch(() => setTemplates([]))
-      .finally(() => setLoading(false));
-  }, [current]);
+  // ── Data ──
+  const { data: result, loading } = useAsyncData<TemplatesResponse>(async () => {
+    if (!current) return { data: [], pagination: { page: 1, pageSize: PAGE_SIZE, total: 0, totalPages: 1 } };
+    const params = new URLSearchParams({ page: String(page), pageSize: String(PAGE_SIZE) });
+    if (search) params.set("search", search);
+    return apiFetch<TemplatesResponse>(`/api/projects/${current.id}/templates?${params}`);
+  }, [current, page, search]);
 
-  if (projLoading || loading) {
-    return (
-      <div className="p-8 space-y-6">
-        <Skeleton className="h-10 w-48" />
-        <Skeleton className="h-[400px] w-full rounded-xl" />
-      </div>
-    );
-  }
+  const templates = result?.data ?? [];
+  const totalPages = result?.pagination.totalPages ?? 1;
+  const total = result?.pagination.total ?? 0;
 
-  const filtered = search
-    ? templates.filter(
-        (tpl) =>
-          tpl.name.toLowerCase().includes(search.toLowerCase()) ||
-          tpl.description?.toLowerCase().includes(search.toLowerCase()),
-      )
-    : templates;
+  const handleSearchChange = (value: string) => {
+    setSearch(value);
+    setPage(1);
+  };
 
   const modeBadge = (mode: string) => {
-    const styles: Record<string, string> = {
-      sequential: "bg-indigo-100 text-indigo-700",
-      "fan-out": "bg-purple-100 text-purple-700",
-      single: "bg-slate-200 text-slate-700",
-    };
     const labels: Record<string, string> = {
       sequential: t("modeSequential"),
       "fan-out": t("modeFanout"),
@@ -71,148 +85,156 @@ export default function TemplatesPage() {
     };
     return (
       <span
-        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-tighter ${styles[mode] || styles.single}`}
+        className={`inline-flex items-center px-3 py-1 rounded-lg text-xs font-semibold uppercase tracking-wider ${MODE_STYLE[mode] ?? MODE_STYLE.single}`}
       >
-        {labels[mode] || mode}
+        {labels[mode] ?? mode}
       </span>
     );
   };
 
+  // ── Loading & empty states ──
+  if (projLoading)
+    return (
+      <div className="space-y-4 pt-4">
+        <Skeleton className="h-8 w-48" />
+        <Skeleton className="h-10 w-full" />
+        <Skeleton className="h-64 w-full" />
+      </div>
+    );
+  if (!current) return <EmptyState onCreated={() => window.location.reload()} />;
+
+  // ── Render ──
   return (
-    <section className="px-10 py-12">
-      {/* Page Header — design-draft line 172-180 */}
-      <div className="flex justify-between items-end mb-10">
+    <div className="max-w-7xl mx-auto space-y-8">
+      {/* ═══ Page Header ═══ */}
+      <div className="flex items-end justify-between">
         <div>
-          <h1 className="text-4xl font-extrabold tracking-tight text-on-surface mb-2 font-headline">
+          <h2 className="text-2xl font-extrabold font-[var(--font-heading)] text-ds-on-surface tracking-tight">
             {t("title")}
-          </h1>
-          <p className="text-slate-500 font-medium">{t("subtitle")}</p>
+          </h2>
+          <p className="text-ds-on-surface-variant text-sm mt-1">{t("subtitle")}</p>
         </div>
-        <div className="flex items-center gap-6">
-          {/* Search — design-draft line 155-158 */}
-          <div className="relative flex items-center">
-            <span className="material-symbols-outlined absolute left-3 text-slate-400 text-sm">
-              search
-            </span>
-            <input
-              className="bg-surface-container-low border-none rounded-full py-1.5 pl-9 pr-4 text-sm w-64 focus:ring-2 focus:ring-primary/20 placeholder-slate-400"
-              placeholder={t("searchPlaceholder")}
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
-          </div>
-          <Link
-            href="/templates/new"
-            className="bg-gradient-to-r from-primary to-primary-container text-white px-6 py-3 rounded-xl font-bold flex items-center gap-2 shadow-xl shadow-indigo-500/20 hover:scale-[0.98] transition-all"
-          >
-            <span className="material-symbols-outlined text-lg">add_circle</span>
-            {t("create")}
-          </Link>
-        </div>
+        <Link
+          href="/templates/new"
+          className="px-6 py-2 bg-gradient-to-r from-ds-primary to-ds-primary-container text-white rounded-full text-sm font-bold shadow-lg shadow-ds-primary/20 active:scale-95 duration-200 flex items-center gap-1"
+        >
+          <span className="material-symbols-outlined text-lg">add_circle</span>
+          {t("create")}
+        </Link>
       </div>
 
-      {templates.length === 0 ? (
+      {/* ═══ Table ═══ */}
+      {templates.length === 0 && !search && !loading ? (
         <div className="flex flex-col items-center justify-center py-24">
-          <div className="w-16 h-16 rounded-2xl bg-surface-container-high flex items-center justify-center mb-6">
+          <div className="w-16 h-16 rounded-2xl bg-ds-surface-container-high flex items-center justify-center mb-6">
             <span className="material-symbols-outlined text-3xl text-slate-400">description</span>
           </div>
-          <h2 className="text-xl font-bold font-headline mb-2">{t("emptyTitle")}</h2>
+          <h2 className="text-xl font-bold font-[var(--font-heading)] mb-2">{t("emptyTitle")}</h2>
           <p className="text-sm text-slate-500 mb-6 max-w-md text-center">{t("emptyDesc")}</p>
           <Link
             href="/templates/new"
-            className="bg-gradient-to-r from-[#5443b9] to-[#6d5dd3] text-white px-5 py-2.5 rounded-lg text-sm font-bold flex items-center gap-2 shadow-lg shadow-primary/20"
+            className="px-6 py-2 bg-gradient-to-r from-ds-primary to-ds-primary-container text-white rounded-full text-sm font-bold shadow-lg shadow-ds-primary/20 flex items-center gap-1"
           >
             <span className="material-symbols-outlined text-sm">add</span>
             {t("create")}
           </Link>
         </div>
       ) : (
-        <div className="space-y-8">
-          {/* Table Section — design-draft line 185-275 */}
-          <div className="bg-surface-container-lowest rounded-xl p-1 shadow-sm overflow-hidden">
-            <table className="w-full text-left border-collapse">
-              <thead>
-                <tr className="bg-surface-container-low">
-                  <th className="px-6 py-4 text-[10px] font-extrabold uppercase tracking-widest text-slate-500">
-                    {t("templateName")}
-                  </th>
-                  <th className="px-6 py-4 text-[10px] font-extrabold uppercase tracking-widest text-slate-500">
-                    {t("steps")}
-                  </th>
-                  <th className="px-6 py-4 text-[10px] font-extrabold uppercase tracking-widest text-slate-500">
-                    {t("executionMode")}
-                  </th>
-                  <th className="px-6 py-4 text-[10px] font-extrabold uppercase tracking-widest text-slate-500">
-                    {t("descriptionLabel")}
-                  </th>
-                  <th className="px-6 py-4 text-[10px] font-extrabold uppercase tracking-widest text-slate-500">
-                    {t("updated")}
-                  </th>
-                  <th className="px-6 py-4" />
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-transparent">
-                {filtered.map((tpl) => (
-                  <tr
-                    key={tpl.id}
-                    className="group hover:bg-surface-container-low transition-colors duration-150 cursor-pointer"
-                    onClick={() => router.push(`/templates/${tpl.id}`)}
-                  >
-                    <td className="px-6 py-5">
-                      <span className="text-primary font-bold text-sm tracking-tight hover:underline">
-                        {tpl.name}
-                      </span>
-                    </td>
-                    <td className="px-6 py-5">
-                      <span className="text-slate-600 text-xs font-medium">
-                        {tpl.stepCount} {t("stepsUnit")}
-                      </span>
-                    </td>
-                    <td className="px-6 py-5">{modeBadge(tpl.executionMode)}</td>
-                    <td className="px-6 py-5 max-w-xs">
-                      <p className="text-slate-500 text-xs truncate">{tpl.description || "—"}</p>
-                    </td>
-                    <td className="px-6 py-5">
-                      <span className="text-slate-400 text-xs">{timeAgo(tpl.updatedAt)}</span>
-                    </td>
-                    <td className="px-6 py-5 text-right">
-                      <span className="material-symbols-outlined text-slate-300 group-hover:text-primary transition-colors">
-                        chevron_right
-                      </span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-            <div className="px-6 py-4 flex items-center justify-between bg-surface-container-low/30">
-              <p className="text-xs text-slate-500 font-medium">
-                {t("showing")} <span className="text-on-surface">{filtered.length}</span> {t("of")}{" "}
-                <span className="text-on-surface">{templates.length}</span>
-              </p>
+        <>
+          <section className="bg-ds-surface-container-lowest rounded-2xl shadow-sm overflow-hidden">
+            {/* Table header bar */}
+            <div className="px-6 py-5 flex justify-between items-center border-b border-ds-outline-variant/10">
+              <h3 className="text-lg font-extrabold tracking-tight font-[var(--font-heading)]">
+                {t("title")}
+              </h3>
+              <SearchBar
+                placeholder={t("searchPlaceholder")}
+                value={search}
+                onChange={handleSearchChange}
+                className="w-64"
+              />
             </div>
-          </div>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="px-6 py-4">{t("templateName")}</TableHead>
+                  <TableHead className="px-6 py-4">{t("steps")}</TableHead>
+                  <TableHead className="px-6 py-4">{t("executionMode")}</TableHead>
+                  <TableHead className="px-6 py-4">{t("descriptionLabel")}</TableHead>
+                  <TableHead className="px-6 py-4">{t("updated")}</TableHead>
+                  <TableHead className="px-6 py-4 w-10" />
+                </TableRow>
+              </TableHeader>
+              <TableBody className="divide-y divide-ds-outline-variant/10">
+                {loading ? (
+                  <TableRow>
+                    <TableCell colSpan={6} className="px-6 py-12 text-center text-ds-outline">
+                      {tc("loading")}
+                    </TableCell>
+                  </TableRow>
+                ) : templates.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={6} className="px-6 py-12 text-center text-ds-outline">
+                      {t("emptyTitle")}
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  templates.map((tpl) => (
+                    <TableRow
+                      key={tpl.id}
+                      className="cursor-pointer"
+                      onClick={() => router.push(`/templates/${tpl.id}`)}
+                    >
+                      <TableCell className="px-6 py-5 font-bold text-ds-primary">
+                        {tpl.name}
+                      </TableCell>
+                      <TableCell className="px-6 py-5">
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-ds-secondary-container text-ds-on-secondary-container rounded-full text-xs font-semibold">
+                          <span className="material-symbols-outlined text-xs">reorder</span>
+                          {tpl.stepCount} {t("stepsUnit")}
+                        </span>
+                      </TableCell>
+                      <TableCell className="px-6 py-5">{modeBadge(tpl.executionMode)}</TableCell>
+                      <TableCell className="px-6 py-5 text-sm text-slate-500 max-w-[300px] truncate">
+                        {tpl.description || "\u2014"}
+                      </TableCell>
+                      <TableCell className="px-6 py-5 text-xs text-slate-400">
+                        {timeAgo(tpl.updatedAt, locale)}
+                      </TableCell>
+                      <TableCell className="px-6 py-5 text-slate-300 group-hover:text-ds-primary transition-colors">
+                        <span className="material-symbols-outlined text-xl">chevron_right</span>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </Table>
+            {/* Pagination */}
+            {total > 0 && (
+              <Pagination
+                page={page}
+                totalPages={totalPages}
+                onPageChange={setPage}
+                total={total}
+                pageSize={PAGE_SIZE}
+                className="px-6 py-4 bg-ds-surface-container-high/30 border-t border-ds-outline-variant/10"
+              />
+            )}
+          </section>
 
-          {/* Featured Section: Bento Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-6">
-            <div className="col-span-1 bg-surface-container-low p-6 rounded-xl relative overflow-hidden group">
+          {/* ═══ Stats + CTA Bento ═══ */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="col-span-1 bg-ds-surface-container-low p-6 rounded-xl relative overflow-hidden group">
               <div className="relative z-10">
-                <h3 className="font-headline text-lg font-bold text-on-surface mb-1">
+                <h3 className="font-[var(--font-heading)] text-lg font-bold text-ds-on-surface mb-1">
                   {t("templateStats")}
                 </h3>
                 <p className="text-xs text-slate-500 mb-4">{t("templateStatsDesc")}</p>
                 <div className="flex items-end gap-4">
                   <div>
-                    <span className="text-3xl font-black text-primary">{templates.length}</span>
+                    <span className="text-3xl font-black text-ds-primary">{total}</span>
                     <span className="text-[10px] text-slate-500 font-bold block">
                       {t("totalTemplates")}
-                    </span>
-                  </div>
-                  <div>
-                    <span className="text-3xl font-black text-secondary">
-                      {templates.reduce((sum, tpl) => sum + tpl.stepCount, 0)}
-                    </span>
-                    <span className="text-[10px] text-slate-500 font-bold block">
-                      {t("totalSteps")}
                     </span>
                   </div>
                 </div>
@@ -226,35 +248,22 @@ export default function TemplatesPage() {
                 </span>
               </div>
             </div>
-            <div className="col-span-2 bg-gradient-to-br from-primary to-indigo-800 p-6 rounded-xl text-white flex justify-between items-center relative overflow-hidden">
+            <div className="col-span-2 bg-gradient-to-br from-ds-primary to-indigo-800 p-6 rounded-xl text-white flex justify-between items-center relative overflow-hidden">
               <div className="relative z-10">
-                <h3 className="font-headline text-lg font-bold mb-1">{t("ctaTitle")}</h3>
+                <h3 className="font-[var(--font-heading)] text-lg font-bold mb-1">{t("ctaTitle")}</h3>
                 <p className="text-xs text-white/70 mb-4 max-w-sm">{t("ctaDesc")}</p>
                 <Link
                   href="/templates/new"
-                  className="bg-white text-primary px-4 py-2 rounded-lg text-xs font-bold hover:bg-slate-100 transition-colors inline-block"
+                  className="bg-white text-ds-primary px-4 py-2 rounded-lg text-xs font-bold hover:bg-slate-100 transition-colors inline-block"
                 >
                   {t("create")}
                 </Link>
               </div>
-              <div className="relative z-10 hidden lg:block">
-                <div className="flex -space-x-3">
-                  <div className="w-10 h-10 rounded-full border-2 border-white/20 bg-white/10 flex items-center justify-center backdrop-blur-md">
-                    <span className="material-symbols-outlined text-sm">bolt</span>
-                  </div>
-                  <div className="w-10 h-10 rounded-full border-2 border-white/20 bg-white/10 flex items-center justify-center backdrop-blur-md">
-                    <span className="material-symbols-outlined text-sm">api</span>
-                  </div>
-                  <div className="w-10 h-10 rounded-full border-2 border-white/20 bg-white/10 flex items-center justify-center backdrop-blur-md">
-                    <span className="material-symbols-outlined text-sm">auto_awesome</span>
-                  </div>
-                </div>
-              </div>
               <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -mr-20 -mt-20 blur-3xl" />
             </div>
           </div>
-        </div>
+        </>
       )}
-    </section>
+    </div>
   );
 }

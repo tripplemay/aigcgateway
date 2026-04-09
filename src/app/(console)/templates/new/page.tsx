@@ -41,7 +41,6 @@ export default function NewTemplatePage() {
       .catch(() => {});
   }, [current]);
 
-  // Load existing template data in edit mode
   useEffect(() => {
     if (!current || !editId) return;
     apiFetch<{
@@ -60,8 +59,8 @@ export default function NewTemplatePage() {
           })),
         );
       })
-      .catch(() => toast.error("Failed to load template"));
-  }, [current, editId]);
+      .catch(() => toast.error(t("loadFailed")));
+  }, [current, editId, t]);
 
   const addStep = () =>
     setSteps([...steps, { actionId: "", order: steps.length, role: "SEQUENTIAL" }]);
@@ -111,65 +110,69 @@ export default function NewTemplatePage() {
   };
 
   return (
-    <main className="p-8 md:p-12 lg:p-16 min-h-screen">
-      {/* Header — design-draft line 143-161 */}
-      <header className="mb-12 flex justify-between items-end">
+    <div className="max-w-7xl mx-auto space-y-8">
+      {/* ═══ Header ═══ */}
+      <div className="flex justify-between items-end">
         <div>
-          <nav className="flex items-center gap-2 text-outline mb-4 text-xs font-bold tracking-widest uppercase">
-            <Link href="/templates" className="hover:text-primary transition-colors">
+          <nav className="flex items-center gap-2 text-sm text-slate-500 mb-4">
+            <Link href="/templates" className="hover:text-ds-primary transition-colors">
               {t("title")}
             </Link>
-            <span className="material-symbols-outlined text-sm">chevron_right</span>
-            <span className="text-primary">{editId ? t("editTitle") : t("createTitle")}</span>
+            <span className="material-symbols-outlined text-xs">chevron_right</span>
+            <span className="text-ds-primary font-semibold">
+              {editId ? t("editTitle") : t("createTitle")}
+            </span>
           </nav>
-          <h2 className="font-headline font-extrabold text-4xl tracking-tight text-on-surface">
+          <h2 className="font-[var(--font-heading)] font-extrabold text-4xl tracking-tight text-ds-on-surface">
             {editId ? t("editTitle") : t("createTitle")}
           </h2>
-          <p className="text-on-surface-variant mt-2 max-w-xl">{t("createSubtitle")}</p>
+          <p className="text-ds-on-surface-variant mt-2 max-w-xl">{t("createSubtitle")}</p>
         </div>
         <div className="flex gap-4">
           <Link
             href="/templates"
-            className="px-6 py-2.5 text-sm font-bold text-outline hover:text-on-surface transition-colors"
+            className="px-6 py-2.5 text-sm font-bold text-ds-outline hover:text-ds-on-surface transition-colors"
           >
             {t("cancel")}
           </Link>
           <button
+            type="button"
             onClick={handleSubmit}
             disabled={saving}
-            className="px-8 py-2.5 bg-gradient-to-r from-primary to-primary-container text-white text-sm font-bold rounded-lg shadow-lg shadow-primary/20 hover:scale-105 active:scale-95 transition-all disabled:opacity-50"
+            className="px-8 py-2.5 bg-gradient-to-r from-ds-primary to-ds-primary-container text-white text-sm font-bold rounded-lg shadow-lg shadow-ds-primary/20 hover:scale-105 active:scale-95 transition-all disabled:opacity-50"
           >
             {saving ? "..." : t("saveTemplate")}
           </button>
         </div>
-      </header>
+      </div>
 
+      {/* ═══ Grid ═══ */}
       <div className="grid grid-cols-12 gap-8">
-        {/* Left Column: Basic Info — design-draft line 164-208 */}
+        {/* Left: Basic Info + Stats */}
         <div className="col-span-12 lg:col-span-4 space-y-8">
-          <section className="bg-surface-container-lowest rounded-xl p-6 shadow-sm">
-            <h3 className="font-headline font-bold text-lg mb-6 flex items-center gap-2">
-              <span className="material-symbols-outlined text-primary">info</span>
+          <section className="bg-ds-surface-container-lowest rounded-xl p-6 shadow-sm">
+            <h3 className="font-[var(--font-heading)] font-bold text-lg mb-6 flex items-center gap-2">
+              <span className="material-symbols-outlined text-ds-primary">info</span>
               {t("basicInfo")}
             </h3>
             <div className="space-y-6">
               <div>
-                <label className="block text-[10px] font-black uppercase tracking-widest text-outline mb-2">
+                <label className="block text-[10px] font-black uppercase tracking-widest text-ds-outline mb-2">
                   {t("templateName")}
                 </label>
                 <input
-                  className="w-full bg-surface-container-low border-none border-b-2 border-transparent focus:border-primary focus:ring-0 rounded-lg py-3 px-4 font-medium transition-all"
+                  className="w-full bg-ds-surface-container-low border-none rounded-lg py-3 px-4 font-medium transition-all outline-none focus:ring-2 focus:ring-ds-primary/20"
                   placeholder={t("namePlaceholder")}
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                 />
               </div>
               <div>
-                <label className="block text-[10px] font-black uppercase tracking-widest text-outline mb-2">
+                <label className="block text-[10px] font-black uppercase tracking-widest text-ds-outline mb-2">
                   {t("descriptionLabel")}
                 </label>
                 <textarea
-                  className="w-full bg-surface-container-low border-none border-b-2 border-transparent focus:border-primary focus:ring-0 rounded-lg py-3 px-4 font-medium transition-all resize-none"
+                  className="w-full bg-ds-surface-container-low border-none rounded-lg py-3 px-4 font-medium transition-all resize-none outline-none focus:ring-2 focus:ring-ds-primary/20"
                   placeholder={t("descriptionPlaceholder")}
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
@@ -179,40 +182,41 @@ export default function NewTemplatePage() {
             </div>
           </section>
 
-          {/* Pipeline Stats — design-draft line 196-208 */}
-          <section className="bg-surface-container-low rounded-xl p-6">
-            <p className="text-[10px] font-black uppercase tracking-widest text-outline mb-4">
-              Pipeline Stats
+          {/* Pipeline Stats */}
+          <section className="bg-ds-surface-container-low rounded-xl p-6">
+            <p className="text-[10px] font-black uppercase tracking-widest text-ds-outline mb-4">
+              {t("pipelineStats")}
             </p>
             <div className="grid grid-cols-2 gap-4">
               <div className="bg-white p-4 rounded-lg">
-                <p className="text-[10px] text-outline font-bold">STEPS</p>
-                <p className="text-xl font-headline font-bold text-primary">{steps.length}</p>
+                <p className="text-[10px] text-ds-outline font-bold">{t("stepsLabel")}</p>
+                <p className="text-xl font-[var(--font-heading)] font-bold text-ds-primary">{steps.length}</p>
               </div>
               <div className="bg-white p-4 rounded-lg">
-                <p className="text-[10px] text-outline font-bold">MODE</p>
-                <p className="text-xl font-headline font-bold text-primary">
+                <p className="text-[10px] text-ds-outline font-bold">{t("modeLabel")}</p>
+                <p className="text-xl font-[var(--font-heading)] font-bold text-ds-primary">
                   {steps.some((s) => s.role === "SPLITTER")
-                    ? "Fan-out"
+                    ? t("modeFanout")
                     : steps.length > 1
-                      ? "Seq"
-                      : "Single"}
+                      ? t("modeSequential")
+                      : t("modeSingle")}
                 </p>
               </div>
             </div>
           </section>
         </div>
 
-        {/* Right Column: Step Builder — design-draft line 210-332 */}
+        {/* Right: Step Builder */}
         <div className="col-span-12 lg:col-span-8 space-y-6">
           <div className="flex items-center justify-between mb-2">
-            <h3 className="font-headline font-bold text-lg flex items-center gap-2">
-              <span className="material-symbols-outlined text-primary">account_tree</span>
+            <h3 className="font-[var(--font-heading)] font-bold text-lg flex items-center gap-2">
+              <span className="material-symbols-outlined text-ds-primary">account_tree</span>
               {t("executionSequence")}
             </h3>
             <button
+              type="button"
               onClick={addStep}
-              className="flex items-center gap-2 bg-white px-4 py-2 rounded-lg text-sm font-bold text-primary shadow-sm hover:shadow-md hover:bg-primary hover:text-white transition-all group"
+              className="flex items-center gap-2 bg-white px-4 py-2 rounded-lg text-sm font-bold text-ds-primary shadow-sm hover:shadow-md hover:bg-ds-primary hover:text-white transition-all group"
             >
               <span className="material-symbols-outlined text-sm transition-transform group-hover:rotate-90">
                 add
@@ -221,34 +225,32 @@ export default function NewTemplatePage() {
             </button>
           </div>
 
-          {/* Steps List — design-draft line 223-312 */}
+          {/* Steps */}
           <div className="space-y-4">
             {steps.map((step, i) => (
               <div
                 key={i}
-                className="group relative flex items-start gap-4 p-5 rounded-xl border border-transparent hover:border-outline-variant/30 transition-all shadow-sm bg-white/70 backdrop-blur-xl"
+                className="group relative flex items-start gap-4 p-5 rounded-xl border border-transparent hover:border-ds-outline-variant/30 transition-all shadow-sm bg-white/70 backdrop-blur-xl"
               >
-                <div className="mt-2 cursor-grab active:cursor-grabbing text-outline opacity-40 group-hover:opacity-100 transition-opacity">
+                <div className="mt-2 cursor-grab active:cursor-grabbing text-ds-outline opacity-40 group-hover:opacity-100 transition-opacity">
                   <span className="material-symbols-outlined">drag_indicator</span>
                 </div>
                 <div className="flex-1 grid grid-cols-1 md:grid-cols-12 gap-4 items-end">
-                  {/* Order — design-draft line 230-232 */}
                   <div className="md:col-span-1">
-                    <label className="block text-[9px] font-black uppercase text-outline mb-1">
-                      Order
+                    <label className="block text-[9px] font-black uppercase text-ds-outline mb-1">
+                      {t("orderLabel")}
                     </label>
-                    <div className="bg-surface-container-high/50 w-full text-center py-2 rounded-md font-black text-primary">
+                    <div className="bg-ds-surface-container-high/50 w-full text-center py-2 rounded-md font-black text-ds-primary">
                       {i + 1}
                     </div>
                   </div>
-                  {/* Action — design-draft line 233-244 */}
                   <div className="md:col-span-6">
-                    <label className="block text-[9px] font-black uppercase text-outline mb-1">
-                      Action Engine
+                    <label className="block text-[9px] font-black uppercase text-ds-outline mb-1">
+                      {t("actionEngine")}
                     </label>
                     <div className="relative">
                       <select
-                        className="w-full bg-surface-container-low border-none rounded-lg py-2 px-3 text-sm font-semibold appearance-none focus:ring-2 focus:ring-primary/20"
+                        className="w-full bg-ds-surface-container-low border-none rounded-lg py-2 px-3 text-sm font-semibold appearance-none focus:ring-2 focus:ring-ds-primary/20 outline-none"
                         value={step.actionId}
                         onChange={(e) => updateStep(i, "actionId", e.target.value)}
                       >
@@ -264,14 +266,13 @@ export default function NewTemplatePage() {
                       </span>
                     </div>
                   </div>
-                  {/* Role — design-draft line 245-255 */}
                   <div className="md:col-span-4">
-                    <label className="block text-[9px] font-black uppercase text-outline mb-1">
-                      Execution Role
+                    <label className="block text-[9px] font-black uppercase text-ds-outline mb-1">
+                      {t("executionRole")}
                     </label>
                     <div className="relative">
                       <select
-                        className="w-full bg-surface-container-low border-none rounded-lg py-2 px-3 text-sm font-semibold appearance-none focus:ring-2 focus:ring-primary/20"
+                        className="w-full bg-ds-surface-container-low border-none rounded-lg py-2 px-3 text-sm font-semibold appearance-none focus:ring-2 focus:ring-ds-primary/20 outline-none"
                         value={step.role}
                         onChange={(e) => updateStep(i, "role", e.target.value)}
                       >
@@ -286,12 +287,12 @@ export default function NewTemplatePage() {
                       </span>
                     </div>
                   </div>
-                  {/* Delete — design-draft line 256-260 */}
                   <div className="md:col-span-1 flex justify-end">
                     {steps.length > 1 && (
                       <button
+                        type="button"
                         onClick={() => removeStep(i)}
-                        className="p-2 text-outline-variant hover:text-error transition-colors rounded-lg hover:bg-error/5"
+                        className="p-2 text-ds-outline-variant hover:text-ds-error transition-colors rounded-lg hover:bg-ds-error/5"
                       >
                         <span className="material-symbols-outlined">delete</span>
                       </button>
@@ -301,39 +302,40 @@ export default function NewTemplatePage() {
               </div>
             ))}
 
-            {/* Add Step Placeholder — design-draft line 307-312 */}
+            {/* Add Step Placeholder */}
             <button
+              type="button"
               onClick={addStep}
-              className="w-full py-8 rounded-xl border-2 border-dashed border-outline-variant/40 text-outline hover:border-primary/40 hover:text-primary transition-all flex flex-col items-center justify-center gap-2 group"
+              className="w-full py-8 rounded-xl border-2 border-dashed border-ds-outline-variant/40 text-ds-outline hover:border-ds-primary/40 hover:text-ds-primary transition-all flex flex-col items-center justify-center gap-2 group"
             >
-              <div className="w-10 h-10 rounded-full bg-surface-container-high flex items-center justify-center group-hover:bg-primary/10">
+              <div className="w-10 h-10 rounded-full bg-ds-surface-container-high flex items-center justify-center group-hover:bg-ds-primary/10">
                 <span className="material-symbols-outlined">add_circle</span>
               </div>
               <span className="text-xs font-bold tracking-widest uppercase">
-                Insert Intermediate Step
+                {t("insertStep")}
               </span>
             </button>
           </div>
 
-          {/* Reserved variable hints */}
+          {/* Reserved variables */}
           {steps.length > 1 && (
-            <div className="mt-6 p-4 bg-primary/5 rounded-xl border border-primary/10">
-              <p className="text-[10px] font-bold text-primary uppercase tracking-wider mb-2">
+            <div className="mt-6 p-4 bg-ds-primary/5 rounded-xl border border-ds-primary/10">
+              <p className="text-[10px] font-bold text-ds-primary uppercase tracking-wider mb-2">
                 {t("reservedVariables")}
               </p>
               <div className="space-y-1 text-xs text-slate-600">
                 <p>
-                  <code className="font-mono text-primary">{"{{previous_output}}"}</code> —{" "}
+                  <code className="font-mono text-ds-primary">{"{{previous_output}}"}</code> —{" "}
                   {t("reservedPreviousOutput")}
                 </p>
                 {steps.some((s) => s.role === "SPLITTER") && (
                   <>
                     <p>
-                      <code className="font-mono text-primary">{"{{branch_input}}"}</code> —{" "}
+                      <code className="font-mono text-ds-primary">{"{{branch_input}}"}</code> —{" "}
                       {t("reservedBranchInput")}
                     </p>
                     <p>
-                      <code className="font-mono text-primary">{"{{all_outputs}}"}</code> —{" "}
+                      <code className="font-mono text-ds-primary">{"{{all_outputs}}"}</code> —{" "}
                       {t("reservedAllOutputs")}
                     </p>
                   </>
@@ -342,16 +344,14 @@ export default function NewTemplatePage() {
             </div>
           )}
 
-          {/* Deploy CTA — design-draft line 315-331 */}
+          {/* Deploy CTA */}
           <div className="mt-12 p-8 rounded-2xl bg-indigo-900 text-indigo-50 relative overflow-hidden">
             <div className="relative z-10">
-              <h4 className="font-headline font-bold text-xl mb-2">Ready to Deploy?</h4>
-              <p className="text-indigo-200 text-sm max-w-md">
-                Once saved, this template will be available as an API endpoint for your production
-                environment immediately.
-              </p>
-              <div className="mt-6 flex gap-4">
+              <h4 className="font-[var(--font-heading)] font-bold text-xl mb-2">{t("readyToDeploy")}</h4>
+              <p className="text-indigo-200 text-sm max-w-md">{t("readyToDeployDesc")}</p>
+              <div className="mt-6">
                 <button
+                  type="button"
                   onClick={handleSubmit}
                   disabled={saving}
                   className="px-6 py-3 bg-white text-indigo-900 rounded-lg text-sm font-bold shadow-xl hover:scale-105 transition-transform disabled:opacity-50"
@@ -360,11 +360,10 @@ export default function NewTemplatePage() {
                 </button>
               </div>
             </div>
-            <div className="absolute -right-12 -bottom-12 w-64 h-64 bg-primary-container/20 blur-3xl rounded-full" />
-            <div className="absolute right-12 top-4 w-32 h-32 bg-indigo-400/10 blur-2xl rounded-full" />
+            <div className="absolute -right-12 -bottom-12 w-64 h-64 bg-ds-primary-container/20 blur-3xl rounded-full" />
           </div>
         </div>
       </div>
-    </main>
+    </div>
   );
 }

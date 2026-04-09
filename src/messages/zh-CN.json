@@ -766,7 +766,20 @@
     "totalSteps": "总步骤数",
     "pipelineSummary": "流水线摘要",
     "ctaTitle": "扩展自动化",
-    "ctaDesc": "将模板连接到流式 API，实现多步工作流的毫秒级延迟响应。"
+    "ctaDesc": "将模板连接到流式 API，实现多步工作流的毫秒级延迟响应。",
+    "loadFailed": "加载模板失败",
+    "action": "动作",
+    "addOrchestrationStep": "添加编排步骤",
+    "resourcesUsed": "使用的资源",
+    "pipelineStats": "流水线统计",
+    "stepsLabel": "步骤",
+    "modeLabel": "模式",
+    "orderLabel": "序号",
+    "actionEngine": "动作引擎",
+    "executionRole": "执行角色",
+    "insertStep": "插入中间步骤",
+    "readyToDeploy": "准备部署？",
+    "readyToDeployDesc": "保存后，此模板将作为 API 端点立即可用于生产环境。"
   },
   "adminTemplates": {
     "title": "模板管理",
