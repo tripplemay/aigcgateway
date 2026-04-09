@@ -16,7 +16,7 @@
       "title": "Schema 迁移 — sourceTemplateId",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) sourceTemplateId 字段添加成功；2) 自引用关系和索引正确；3) npx prisma generate + migrate dev 通过；4) tsc 通过"
     },
     {
