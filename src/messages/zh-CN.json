@@ -410,7 +410,14 @@
     "quirks": "特殊行为（逗号分隔）",
     "quirksPlaceholder": "例如：no_response_format, n_must_be_1",
     "saveConfig": "保存配置",
-    "configSaved": "配置已保存"
+    "configSaved": "配置已保存",
+    "subtitle": "管理 AI 服务商、端点和配置。",
+    "channels": "通道",
+    "operationalStatus": "运行状态",
+    "operationalDesc": "{active} / {total} 个服务商运行正常。",
+    "viewStatusPage": "查看状态页面",
+    "namePlaceholder": "例如：openai",
+    "displayNamePlaceholder": "例如：OpenAI"
   },
   "adminModels": {
     "title": "通道管理",

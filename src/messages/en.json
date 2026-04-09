@@ -410,7 +410,14 @@
     "quirks": "Quirks (comma separated)",
     "quirksPlaceholder": "e.g. no_response_format, n_must_be_1",
     "saveConfig": "Save Config",
-    "configSaved": "Config saved"
+    "configSaved": "Config saved",
+    "subtitle": "Manage AI service providers, endpoints, and configurations.",
+    "channels": "Channels",
+    "operationalStatus": "Operational Status",
+    "operationalDesc": "{active} / {total} total providers operational.",
+    "viewStatusPage": "View Status Page",
+    "namePlaceholder": "e.g. openai",
+    "displayNamePlaceholder": "e.g. OpenAI"
   },
   "adminModels": {
     "title": "Channel Management",

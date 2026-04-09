@@ -47,7 +47,11 @@ export default function ProvidersPage() {
   const [config, setConfig] = useState<ProviderConfig>({});
   const [quirksText, setQuirksText] = useState("");
 
-  const { data: providersResult, loading, refetch: load } = useAsyncData<{ data: Provider[] }>(async () => {
+  const {
+    data: providersResult,
+    loading,
+    refetch: load,
+  } = useAsyncData<{ data: Provider[] }>(async () => {
     return apiFetch<{ data: Provider[] }>("/api/admin/providers");
   }, []);
 
@@ -110,7 +114,7 @@ export default function ProvidersPage() {
               {t("title")}
             </h2>
             <p className="text-ds-on-surface-variant font-medium mt-1">
-              Manage AI service providers, endpoints, and configurations.
+              {t("subtitle")}
             </p>
           </div>
           <button
@@ -137,7 +141,7 @@ export default function ProvidersPage() {
                   {t("adapter")}
                 </th>
                 <th className="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest">
-                  Channels
+                  {t("channels")}
                 </th>
                 <th className="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest">
                   {tc("status")}
@@ -243,15 +247,14 @@ export default function ProvidersPage() {
           {/* Operational Status — lines 315-324 */}
           <div className="col-span-12 md:col-span-8 bg-indigo-600 p-8 rounded-xl shadow-xl shadow-indigo-100 flex items-center justify-between relative overflow-hidden">
             <div className="relative z-10">
-              <h3 className="text-white/70 font-bold text-sm mb-2">Operational Status</h3>
+              <h3 className="text-white/70 font-bold text-sm mb-2">{t("operationalStatus")}</h3>
               <p className="text-white text-2xl font-[var(--font-heading)] font-bold max-w-md">
-                {providers.filter((p) => p.status === "ACTIVE").length} active / {providers.length}{" "}
-                total providers operational.
+                {t("operationalDesc", { active: providers.filter((p) => p.status === "ACTIVE").length, total: providers.length })}
               </p>
             </div>
             <div className="absolute -right-10 -bottom-10 w-48 h-48 bg-white/10 rounded-full blur-3xl" />
             <button className="relative z-10 bg-white text-indigo-600 font-bold px-5 py-2 rounded-lg text-sm hover:bg-indigo-50 transition-colors">
-              View Status Page
+              {t("viewStatusPage")}
             </button>
           </div>
         </div>
@@ -274,8 +277,8 @@ export default function ProvidersPage() {
             </div>
             <div className="p-8 space-y-5">
               {[
-                { key: "name", label: tc("name"), placeholder: "e.g. openai" },
-                { key: "displayName", label: t("displayName"), placeholder: "e.g. OpenAI" },
+                { key: "name", label: tc("name"), placeholder: t("namePlaceholder") },
+                { key: "displayName", label: t("displayName"), placeholder: t("displayNamePlaceholder") },
                 { key: "baseUrl", label: t("baseUrl"), placeholder: "https://api.openai.com/v1" },
                 { key: "apiKey", label: t("apiKey"), placeholder: "sk-...", type: "password" },
               ].map((f) => (

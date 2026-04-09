@@ -1,9 +1,9 @@
 {
-  "status": "fixing",
+  "status": "reverifying",
   "user_goal": "R3A — 管理侧页面还原（模型管理）：5 个 Admin 页面从旧代码模式还原为 R1 设计系统",
   "total_features": 7,
-  "completed_features": 5,
-  "fix_rounds": 0,
+  "completed_features": 6,
+  "fix_rounds": 1,
   "current_sprint": null,
   "last_updated": "2026-04-09T02:08:52.122Z",
   "reference_docs": [

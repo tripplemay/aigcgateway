@@ -52,7 +52,7 @@
       "title": "i18n 补全（admin model management）",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) messages/en.json 和 messages/zh.json 中 admin models/whitelist/capabilities/aliases/providers 相关 key 齐全；2) 所有用户可见文本无硬编码；3) 切换中文后无英文残留；4) npm run lint + tsc 通过"
     },
     {
