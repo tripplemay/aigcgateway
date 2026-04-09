@@ -1,30 +1,55 @@
 {
-  "batch": "bugfix-fork-and-project-switch",
+  "batch": "M1d-alias-page-polish",
   "created_at": "2026-04-10",
   "features": [
     {
-      "id": "F-BF-01",
-      "title": "Fork 公共模板后 Action 设置 activeVersionId",
+      "id": "F-M1d-01",
+      "title": "别名卡片改单列列表布局",
       "priority": "high",
       "executor": "generator",
-      "status": "done",
-      "acceptance": "1) MCP fork_public_template 创建 ActionVersion 后回写 activeVersionId 到 Action；2) REST API POST /api/projects/:id/templates/fork 同样检查并修复；3) fork 后的 Action 详情页正常展示活跃版本内容（系统消息+用户提示+变量表）；4) tsc 通过"
+      "status": "pending",
+      "acceptance": "1) 已配置映射区域改为单列列表（每行一个别名）；2) 每行展示：别名名称、brand 标签、modality 标签、关联模型数、enabled 开关、删除/展开按钮；3) 展开详情面板在行下方 accordion 展开；4) 布局不错位、长名称不换行截断；5) tsc 通过",
+      "design_ref": "design-draft/admin-model-aliases/code.html"
     },
     {
-      "id": "F-BF-02",
-      "title": "切换项目后强制跳转 Dashboard",
+      "id": "F-M1d-02",
+      "title": "搜索 + 筛选 + 排序",
+      "priority": "high",
+      "executor": "generator",
+      "status": "pending",
+      "acceptance": "1) 搜索框过滤别名名称；2) 筛选按钮：brand / modality / enabled 状态；3) 默认排序 enabled=true 优先，其次按名称字母序；4) tsc 通过"
+    },
+    {
+      "id": "F-M1d-03",
+      "title": "Schema — ModelAlias 新增 sellPrice + 售价管理",
+      "priority": "high",
+      "executor": "generator",
+      "status": "pending",
+      "acceptance": "1) ModelAlias 新增 sellPrice 字段（Json，同 Channel.sellPrice 格式）；2) migrate dev 通过；3) 别名详情面板可编辑售价（input_per_1m / output_per_1m 或 per_call）；4) GET /v1/models 返回的 pricing 改读 ModelAlias.sellPrice；5) tsc 通过"
+    },
+    {
+      "id": "F-M1d-04",
+      "title": "LLM 推断 capabilities",
       "priority": "medium",
       "executor": "generator",
-      "status": "done",
-      "acceptance": "1) 侧边栏项目切换器 onChange 后 router.push('/dashboard')；2) 切换后不残留旧项目数据；3) tsc 通过"
+      "status": "pending",
+      "acceptance": "1) classifyNewModels prompt 扩展，同时返回 capabilities；2) 推断结果写入 ModelAlias.capabilities；3) 已有 capabilities 不覆盖（仅填充空值）；4) Admin 可手动修正；5) tsc 通过"
     },
     {
-      "id": "F-BF-03",
-      "title": "Bug 修复批次验收",
+      "id": "F-M1d-05",
+      "title": "i18n — 新增翻译",
+      "priority": "medium",
+      "executor": "generator",
+      "status": "pending",
+      "acceptance": "1) en.json + zh-CN.json 同步更新；2) 搜索/筛选/排序/售价相关文案无硬编码；3) UI 中英文切换正常"
+    },
+    {
+      "id": "F-M1d-06",
+      "title": "M1d 全量验收",
       "priority": "high",
       "executor": "codex",
-      "status": "completed",
-      "acceptance": "1) Fork 公共模板后 Action 详情页正确展示活跃版本；2) 切换项目后页面跳转到 Dashboard，无残留数据；3) 现有功能不回退；4) 签收报告生成"
+      "status": "pending",
+      "acceptance": "1) 单列列表布局无错位；2) 搜索/筛选/排序功能正确；3) 售价在别名层可编辑，/v1/models 返回正确 pricing；4) LLM 推断 capabilities 填充成功；5) DS token 一致；6) i18n 无残留；7) 签收报告生成"
     }
   ]
 }

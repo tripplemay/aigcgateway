@@ -58,6 +58,14 @@
       "priority": "low"
     },
     {
+      "id": "BL-085",
+      "title": "模板详情页步骤卡片展开预览 Action 内容",
+      "description": "模板详情页的步骤卡片当前只显示 Action 名称和模型。改为点击步骤卡片展开 accordion 预览 Action 内容（只读：系统消息摘要、变量列表、活跃版本号），点击跳转图标 ↗ 跳到 Action 详情页编辑。",
+      "decisions": [],
+      "confirmed_at": "2026-04-10",
+      "priority": "medium"
+    },
+    {
       "id": "BL-081",
       "title": "API Key 迁移到用户级 + 项目选择机制",
       "description": "API Key 从项目级迁移到用户级，解决余额(用户级)+Key(项目级)的逻辑混乱。改动：1) ApiKey.projectId → userId；2) User 新增 defaultProjectId；3) 鉴权中间件改为从 Key 解析 userId，从 X-Project-Id header 或 defaultProjectId 取项目上下文；4) Transaction.projectId 改为可选；5) Keys 管理页移到用户 Settings；6) MCP 支持项目切换。不改的：Actions/Templates/CallLog 仍按项目隔离，项目切换器保留。",
