@@ -6,26 +6,26 @@ type: project
 
 ## 当前批次
 
-**R2B-user-pages-balance-usage-settings** — done（6/6 PASS，7 轮修复，用户豁免签收）
+**R2C-user-pages-actions-templates** — Actions + Templates 页面还原
+- Status: `verifying`（7/7 generator 功能完成，等待 Codex 验收）
+- 变更：useAsyncData + DS Table/Pagination/SearchBar + DS tokens + i18n 全面补齐
 
 ## UI 重构全局计划
 
 - **阶段一 R1（已完成）：** 基础组件 + Layout Shell + Dashboard
 - **阶段二 R2A（已完成）：** Keys + Logs + Models（4 轮修复）
 - **阶段二 R2B（已完成）：** Balance + Usage + Settings（7 轮修复）
-- **待做：** Actions(3页) + Templates(3页) → 管理侧 14 页 + 认证 2 页
-- 全部 30 个设计稿就绪（含 DESIGN.md 标注）
+- **阶段二 R2C（verifying）：** Actions(3页) + Templates(3页)
+- **待做：** 管理侧 14 页 + 认证 2 页
+- 全部 30 个设计稿就绪
 
-## 已完成 15 页，待做 20 页
+## 已完成 21 页，待做 14 页
 
 ## Backlog（7 条）
 
 - BL-065 支付回调验签+幂等 [high]
 - BL-069 余额模型收敛 [high]
-- BL-070 邮箱验证可伪造 [medium]
-- BL-071 JWT 空密钥退化 [medium]
-- BL-072 限流回滚无效 [medium]
-- BL-073 高风险路径测试覆盖 [low]
+- BL-070~073 安全修复 [medium/low]
 - BL-068 Per-Key 使用分析 [low]
 
 ## 已知遗留
