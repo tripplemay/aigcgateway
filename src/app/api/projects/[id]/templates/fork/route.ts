@@ -91,7 +91,7 @@ export async function POST(request: Request, { params }: Params) {
 
           // Copy the latest version if exists
           if (latestVersion) {
-            await tx.actionVersion.create({
+            const newVersion = await tx.actionVersion.create({
               data: {
                 actionId: newAction.id,
                 versionNumber: 1,
@@ -102,7 +102,7 @@ export async function POST(request: Request, { params }: Params) {
             });
             await tx.action.update({
               where: { id: newAction.id },
-              data: { activeVersionId: newAction.id },
+              data: { activeVersionId: newVersion.id },
             });
           }
 

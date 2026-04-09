@@ -33,7 +33,9 @@ export function registerForkPublicTemplate(server: McpServer, opts: McpServerOpt
 
       if (!source) {
         return {
-          content: [{ type: "text" as const, text: JSON.stringify({ error: "Public template not found" }) }],
+          content: [
+            { type: "text" as const, text: JSON.stringify({ error: "Public template not found" }) },
+          ],
           isError: true,
         };
       }
@@ -70,7 +72,7 @@ export function registerForkPublicTemplate(server: McpServer, opts: McpServerOpt
             });
             const latestVersion = src.versions[0];
             if (latestVersion) {
-              await tx.actionVersion.create({
+              const newVersion = await tx.actionVersion.create({
                 data: {
                   actionId: newAction.id,
                   versionNumber: 1,
@@ -78,6 +80,10 @@ export function registerForkPublicTemplate(server: McpServer, opts: McpServerOpt
                   variables: latestVersion.variables as Prisma.InputJsonValue,
                   changelog: "Forked from public template",
                 },
+              });
+              await tx.action.update({
+                where: { id: newAction.id },
+                data: { activeVersionId: newVersion.id },
               });
             }
             actionIdMapping.set(srcId, newAction.id);

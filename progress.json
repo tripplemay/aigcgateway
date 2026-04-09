@@ -1,10 +1,10 @@
 {
-  "status": "building",
+  "status": "verifying",
   "user_goal": "Bug 修复 — Fork activeVersionId 缺失 + 项目切换跳转",
   "total_features": 3,
-  "completed_features": 0,
+  "completed_features": 2,
   "fix_rounds": 0,
-  "current_sprint": "F-BF-01",
+  "current_sprint": "F-BF-03",
   "last_updated": "2026-04-10T08:00:00.000Z",
   "reference_docs": [],
   "role_assignments": null,
@@ -17,7 +17,7 @@
   "evaluator_feedback": null,
   "generator_handoff": null,
   "session_notes": {
-    "Kimi": null,
+    "Kimi": "BF building 完成（2/2）。F-BF-01: MCP fork 缺 activeVersionId 回写 → 修复；REST fork 误用 newAction.id 作为 activeVersionId → 改用 newVersion.id。F-BF-02: sidebar select 后加 router.push('/dashboard')；顺带修复 sidebar 项目下拉 raw color → DS tokens。",
     "Planner": "批次 1 启动：2 个 bug 修复（BL-082 Fork activeVersionId + BL-083 项目切换跳转）。从 backlog 移除 BL-082/BL-083。无需 spec 和设计稿。",
     "Reviewer": null
   }

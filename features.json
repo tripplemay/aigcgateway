@@ -7,7 +7,7 @@
       "title": "Fork 公共模板后 Action 设置 activeVersionId",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) MCP fork_public_template 创建 ActionVersion 后回写 activeVersionId 到 Action；2) REST API POST /api/projects/:id/templates/fork 同样检查并修复；3) fork 后的 Action 详情页正常展示活跃版本内容（系统消息+用户提示+变量表）；4) tsc 通过"
     },
     {
@@ -15,7 +15,7 @@
       "title": "切换项目后强制跳转 Dashboard",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) 侧边栏项目切换器 onChange 后 router.push('/dashboard')；2) 切换后不残留旧项目数据；3) tsc 通过"
     },
     {

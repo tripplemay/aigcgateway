@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { useTranslations } from "next-intl";
@@ -58,6 +58,7 @@ interface SidebarProps {
 
 export function Sidebar({ role, userName, email }: SidebarProps) {
   const pathname = usePathname();
+  const router = useRouter();
   const t = useTranslations("sidebar");
   const { projects, current, select, refresh } = useProject();
   const [projectDropdownOpen, setProjectDropdownOpen] = useState(false);
@@ -108,12 +109,13 @@ export function Sidebar({ role, userName, email }: SidebarProps) {
                   onClick={() => {
                     select(p.id);
                     setProjectDropdownOpen(false);
+                    router.push("/dashboard");
                   }}
                   className={cn(
-                    "w-full flex items-center gap-2 px-3 py-2 text-sm hover:bg-indigo-50 dark:hover:bg-slate-700 transition-colors",
+                    "w-full flex items-center gap-2 px-3 py-2 text-sm hover:bg-ds-surface-container-low transition-colors",
                     current?.id === p.id
-                      ? "text-ds-primary font-bold bg-indigo-50/50 dark:bg-slate-700/50"
-                      : "text-slate-700 dark:text-slate-300",
+                      ? "text-ds-primary font-bold bg-ds-surface-container-low"
+                      : "text-ds-on-surface-variant",
                   )}
                 >
                   <span className="material-symbols-outlined text-lg">
