@@ -649,7 +649,10 @@
     "role": "Role:",
     "manualRecharge": "Manual Recharge",
     "amountUsd": "Amount (USD)",
-    "reason": "Reason for manual recharge"
+    "reason": "Reason for manual recharge",
+    "keys": "Keys",
+    "deactivateUser": "Deactivate User (Coming Soon)",
+    "resetBalance": "Reset Balance (Coming Soon)"
   },
   "mcpSetup": {
     "title": "MCP Setup",

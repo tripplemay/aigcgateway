@@ -649,7 +649,10 @@
     "role": "角色：",
     "manualRecharge": "手动充值",
     "amountUsd": "金额（USD）",
-    "reason": "手动充值原因"
+    "reason": "手动充值原因",
+    "keys": "密钥",
+    "deactivateUser": "停用用户（即将推出）",
+    "resetBalance": "重置余额（即将推出）"
   },
   "mcpSetup": {
     "title": "MCP 配置",
