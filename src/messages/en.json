@@ -745,7 +745,22 @@
     "reason": "Reason for manual recharge",
     "keys": "Keys",
     "deactivateUser": "Deactivate User (Coming Soon)",
-    "resetBalance": "Reset Balance (Coming Soon)"
+    "resetBalance": "Reset Balance (Coming Soon)",
+    "joined": "Joined",
+    "lastActive": "Last Active",
+    "apiCalls": "API Calls",
+    "registeredProjects": "Registered Projects",
+    "viewAll": "View All",
+    "balanceHistory": "Balance History",
+    "colDate": "Date",
+    "colType": "Type",
+    "colAmount": "Amount",
+    "noTransactions": "No transaction history available yet.",
+    "dangerZone": "Administrative Controls",
+    "dangerZoneDesc": "Suspension or deletion will immediately revoke all active API tokens for this user.",
+    "suspendAccount": "Suspend Account",
+    "deleteProfile": "Delete Profile",
+    "totalSpend": "Total Spend"
   },
   "mcpSetup": {
     "title": "MCP Setup",

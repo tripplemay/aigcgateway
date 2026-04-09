@@ -34,7 +34,7 @@
       "title": "User Detail 设计稿结构还原",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) Hero profile 布局（4+8 col）；2) Balance History 区域（或空状态）；3) Danger Zone 按钮；4) tsc 通过",
       "design_ref": "design-draft/admin-user-detail/code.html"
     },

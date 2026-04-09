@@ -72,9 +72,12 @@ export default function UserDetailPage() {
 
   if (!user) return null;
 
+  const totalBalance = user.projects.reduce((s, p) => s + p.balance, 0);
+  const totalCalls = user.projects.reduce((s, p) => s + p.callCount, 0);
+
   return (
     <>
-      <div className="max-w-5xl mx-auto space-y-8">
+      <div className="space-y-8">
         {/* Breadcrumb */}
         <nav className="flex items-center gap-2 text-sm">
           <Link
@@ -83,101 +86,197 @@ export default function UserDetailPage() {
           >
             {t("title")}
           </Link>
-          <span className="text-ds-outline-variant">/</span>
-          <span className="text-ds-primary font-medium">{user.name ?? user.email}</span>
+          <span className="material-symbols-outlined text-xs text-ds-on-surface-variant">
+            chevron_right
+          </span>
+          <span className="font-semibold">{user.name ?? user.email}</span>
         </nav>
 
-        <h2 className="text-3xl font-extrabold tracking-tight font-[var(--font-heading)] text-ds-on-surface">
-          {user.name ?? user.email}
-        </h2>
+        {/* Hero: Profile (4 col) + Stats (8 col) */}
+        <section className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          {/* Profile Identity Card */}
+          <div className="lg:col-span-4 bg-ds-surface-container-lowest p-8 rounded-xl shadow-sm relative overflow-hidden">
+            <div className="absolute top-0 right-0 p-4">
+              <span className="bg-ds-secondary-container text-ds-on-secondary-container px-3 py-1 rounded-full text-[10px] font-bold tracking-widest uppercase">
+                {user.role}
+              </span>
+            </div>
+            <div className="flex flex-col items-center text-center">
+              <div className="relative mb-6">
+                <div className="w-24 h-24 rounded-2xl overflow-hidden shadow-xl ring-4 ring-ds-primary-fixed bg-ds-surface-container-low flex items-center justify-center">
+                  <span className="material-symbols-outlined text-5xl text-ds-primary">person</span>
+                </div>
+              </div>
+              <h2 className="text-2xl font-extrabold tracking-tight mb-1">
+                {user.name ?? user.email}
+              </h2>
+              <p className="text-ds-on-surface-variant text-sm mb-6">{user.email}</p>
+              <div className="grid grid-cols-2 w-full gap-4 pt-6 border-t border-ds-surface-container-low">
+                <div>
+                  <p className="text-[10px] font-bold text-ds-on-surface-variant uppercase tracking-widest mb-1">
+                    {t("joined")}
+                  </p>
+                  <p className="text-sm font-semibold">
+                    {new Date(user.createdAt).toLocaleDateString()}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-[10px] font-bold text-ds-on-surface-variant uppercase tracking-widest mb-1">
+                    {t("lastActive")}
+                  </p>
+                  <p className="text-sm font-semibold">&mdash;</p>
+                </div>
+              </div>
+            </div>
+          </div>
 
-        {/* User Info Cards */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {[
-            { label: t("email"), value: user.email, icon: "email" },
-            { label: t("role"), value: user.role, icon: "admin_panel_settings" },
-            { label: t("projects"), value: String(user.projects.length), icon: "folder" },
-            {
-              label: t("registered"),
-              value: new Date(user.createdAt).toLocaleDateString(),
-              icon: "calendar_today",
-            },
-          ].map((c) => (
-            <div key={c.label} className="bg-ds-surface-container-lowest p-5 rounded-xl shadow-sm">
-              <div className="flex items-center gap-2 mb-2">
-                <span className="material-symbols-outlined text-ds-primary-container text-sm">
-                  {c.icon}
-                </span>
-                <span className="text-[10px] font-bold text-ds-outline uppercase tracking-widest">
-                  {c.label}
+          {/* Stats Cards */}
+          <div className="lg:col-span-8 grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="bg-ds-surface-container-low p-6 rounded-xl flex flex-col justify-between">
+              <div className="flex justify-between items-start">
+                <div className="p-3 bg-ds-surface rounded-lg text-ds-primary">
+                  <span className="material-symbols-outlined">account_balance_wallet</span>
+                </div>
+                <span className="text-[10px] font-bold text-ds-on-surface-variant uppercase tracking-widest">
+                  {t("balance")}
                 </span>
               </div>
-              <p className="text-sm font-bold text-ds-on-surface truncate">{c.value}</p>
+              <div className="mt-4">
+                <p className="text-3xl font-extrabold">{formatCurrency(totalBalance, 2)}</p>
+              </div>
             </div>
-          ))}
-        </div>
-
-        {/* Projects Table */}
-        <div className="bg-ds-surface-container-lowest rounded-xl shadow-sm overflow-hidden">
-          <div className="p-6 border-b border-slate-50">
-            <h3 className="font-[var(--font-heading)] font-bold text-lg">{t("projects")}</h3>
+            <div className="bg-ds-surface-container-low p-6 rounded-xl flex flex-col justify-between">
+              <div className="flex justify-between items-start">
+                <div className="p-3 bg-ds-surface rounded-lg text-ds-secondary">
+                  <span className="material-symbols-outlined">bolt</span>
+                </div>
+                <span className="text-[10px] font-bold text-ds-on-surface-variant uppercase tracking-widest">
+                  {t("apiCalls")}
+                </span>
+              </div>
+              <div className="mt-4">
+                <p className="text-3xl font-extrabold">{totalCalls.toLocaleString()}</p>
+              </div>
+            </div>
+            <div className="bg-ds-surface-container-low p-6 rounded-xl flex flex-col justify-between">
+              <div className="flex justify-between items-start">
+                <div className="p-3 bg-ds-surface rounded-lg text-ds-tertiary">
+                  <span className="material-symbols-outlined">folder_managed</span>
+                </div>
+                <span className="text-[10px] font-bold text-ds-on-surface-variant uppercase tracking-widest">
+                  {t("projects")}
+                </span>
+              </div>
+              <div className="mt-4">
+                <p className="text-3xl font-extrabold">
+                  {String(user.projects.length).padStart(2, "0")}
+                </p>
+              </div>
+            </div>
           </div>
-          <table className="w-full text-left">
-            <thead className="bg-ds-surface-container-low/50">
-              <tr>
-                {[tc("name"), t("balance"), t("calls"), t("keys"), tc("actions")].map((h) => (
-                  <th
-                    key={h}
-                    className="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest"
-                  >
-                    {h}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-50">
-              {user.projects.map((p) => (
-                <tr key={p.id} className="hover:bg-ds-surface-container-low transition-colors">
-                  <td className="px-6 py-4 text-sm font-bold text-ds-on-surface">{p.name}</td>
-                  <td className="px-6 py-4 text-sm font-mono">{formatCurrency(p.balance, 2)}</td>
-                  <td className="px-6 py-4 text-sm">{p.callCount.toLocaleString()}</td>
-                  <td className="px-6 py-4 text-sm">{p.keyCount}</td>
-                  <td className="px-6 py-4">
-                    <button
-                      onClick={() => {
-                        setRechargeProjectId(p.id);
-                        setAmount("");
-                        setDescription("");
-                        setRechargeOpen(true);
-                      }}
-                      className="text-xs font-bold text-ds-primary hover:underline"
-                    >
-                      {t("manualRecharge")}
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        </section>
 
-        {/* Admin actions — disabled per decision */}
-        <div className="grid grid-cols-2 gap-4">
-          <button
-            disabled
-            className="bg-ds-surface-container-low p-4 rounded-xl text-sm font-bold text-ds-on-surface-variant opacity-50 cursor-not-allowed flex items-center gap-2"
-          >
-            <span className="material-symbols-outlined">block</span>
-            {t("deactivateUser")}
-          </button>
-          <button
-            disabled
-            className="bg-ds-surface-container-low p-4 rounded-xl text-sm font-bold text-ds-on-surface-variant opacity-50 cursor-not-allowed flex items-center gap-2"
-          >
-            <span className="material-symbols-outlined">restart_alt</span>
-            {t("resetBalance")}
-          </button>
-        </div>
+        {/* Projects + Balance History */}
+        <section className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+          {/* Project Cards */}
+          <div className="lg:col-span-7 flex flex-col gap-4">
+            <div className="flex justify-between items-center">
+              <h3 className="text-lg font-bold">{t("registeredProjects")}</h3>
+              <Link
+                href="/admin/users"
+                className="text-ds-primary text-xs font-bold uppercase tracking-widest hover:underline"
+              >
+                {t("viewAll")}
+              </Link>
+            </div>
+            <div className="flex flex-col gap-3">
+              {user.projects.map((p) => (
+                <div
+                  key={p.id}
+                  className="bg-ds-surface p-4 rounded-xl flex items-center gap-4 group hover:bg-ds-surface-container-low transition-colors cursor-pointer"
+                >
+                  <div className="w-12 h-12 rounded-lg bg-ds-primary/10 flex items-center justify-center text-ds-primary group-hover:bg-ds-surface transition-colors">
+                    <span className="material-symbols-outlined">rocket_launch</span>
+                  </div>
+                  <div className="flex-1">
+                    <h4 className="text-sm font-bold">{p.name}</h4>
+                    <p className="text-xs text-ds-on-surface-variant">
+                      {p.callCount.toLocaleString()} {t("calls")} &bull; {p.keyCount} {t("keys")}
+                    </p>
+                  </div>
+                  <div className="flex flex-col items-end">
+                    <span className="text-xs font-bold">{formatCurrency(p.balance, 2)}</span>
+                    <span className="text-[9px] uppercase tracking-tighter text-ds-on-surface-variant">
+                      {t("balance")}
+                    </span>
+                  </div>
+                  <button
+                    onClick={() => {
+                      setRechargeProjectId(p.id);
+                      setAmount("");
+                      setDescription("");
+                      setRechargeOpen(true);
+                    }}
+                    className="text-ds-primary text-xs font-bold hover:underline"
+                  >
+                    {t("manualRecharge")}
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Balance History */}
+          <div className="lg:col-span-5 flex flex-col gap-4">
+            <h3 className="text-lg font-bold">{t("balanceHistory")}</h3>
+            <div className="bg-ds-surface rounded-xl overflow-hidden">
+              <table className="w-full text-left border-collapse">
+                <thead className="bg-ds-surface-container-low">
+                  <tr>
+                    <th className="px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-ds-on-surface-variant">
+                      {t("colDate")}
+                    </th>
+                    <th className="px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-ds-on-surface-variant">
+                      {t("colType")}
+                    </th>
+                    <th className="px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-ds-on-surface-variant text-right">
+                      {t("colAmount")}
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td colSpan={3} className="px-4 py-8 text-center text-sm text-ds-on-surface-variant">
+                      {t("noTransactions")}
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        {/* Danger Zone */}
+        <section className="bg-ds-error-container/20 border border-ds-error/10 rounded-2xl p-8 flex flex-col md:flex-row justify-between items-center gap-6">
+          <div>
+            <h4 className="font-bold text-ds-error text-lg mb-1">{t("dangerZone")}</h4>
+            <p className="text-ds-on-surface-variant text-sm">{t("dangerZoneDesc")}</p>
+          </div>
+          <div className="flex gap-4">
+            <button
+              disabled
+              className="px-6 py-2 bg-ds-surface border border-ds-outline-variant rounded-lg text-ds-on-surface-variant font-bold text-xs uppercase tracking-widest hover:bg-ds-surface-container-low transition-colors disabled:opacity-50"
+            >
+              {t("suspendAccount")}
+            </button>
+            <button
+              disabled
+              className="px-6 py-2 bg-ds-error text-ds-on-error rounded-lg font-bold text-xs uppercase tracking-widest hover:opacity-90 transition-opacity disabled:opacity-50"
+            >
+              {t("deleteProfile")}
+            </button>
+          </div>
+        </section>
       </div>
 
       {/* Recharge Modal */}
@@ -185,9 +284,7 @@ export default function UserDetailPage() {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-ds-on-background/40 backdrop-blur-sm">
           <div className="bg-ds-surface-container-lowest w-full max-w-md rounded-2xl shadow-2xl overflow-hidden">
             <div className="px-8 py-6 bg-ds-surface-container-low flex justify-between items-center">
-              <h2 className="text-xl font-extrabold tracking-tight font-[var(--font-heading)]">
-                {t("manualRecharge")}
-              </h2>
+              <h2 className="text-xl font-extrabold tracking-tight">{t("manualRecharge")}</h2>
               <button
                 onClick={() => setRechargeOpen(false)}
                 className="text-ds-on-surface-variant hover:text-ds-on-surface"

@@ -745,7 +745,22 @@
     "reason": "手动充值原因",
     "keys": "密钥",
     "deactivateUser": "停用用户（即将推出）",
-    "resetBalance": "重置余额（即将推出）"
+    "resetBalance": "重置余额（即将推出）",
+    "joined": "注册时间",
+    "lastActive": "最近活跃",
+    "apiCalls": "API 调用",
+    "registeredProjects": "注册项目",
+    "viewAll": "查看全部",
+    "balanceHistory": "余额记录",
+    "colDate": "日期",
+    "colType": "类型",
+    "colAmount": "金额",
+    "noTransactions": "暂无交易记录。",
+    "dangerZone": "管理操作",
+    "dangerZoneDesc": "暂停或删除将立即撤销该用户所有活跃的 API 令牌。",
+    "suspendAccount": "暂停账号",
+    "deleteProfile": "删除账号",
+    "totalSpend": "总消费"
   },
   "mcpSetup": {
     "title": "MCP 配置",
