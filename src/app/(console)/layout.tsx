@@ -56,7 +56,9 @@ export default function ConsoleLayout({ children }: { children: React.ReactNode 
   if (loading || !user) {
     return (
       <div className="flex items-center justify-center h-screen">
-        <div className="animate-pulse text-ds-on-surface-variant">Loading...</div>
+        <div className="animate-pulse text-ds-on-surface-variant" suppressHydrationWarning>
+          Loading…
+        </div>
       </div>
     );
   }

@@ -52,15 +52,15 @@ interface ProviderOption {
 
 const PAGE_SIZE = 20;
 
-function fmtSellPrice(p: Record<string, unknown> | null): string {
+function fmtSellPrice(p: Record<string, unknown> | null, freeLabel: string): string {
   if (!p) return "\u2014";
   if (p.unit === "call") {
     const v = Number(p.perCall ?? 0);
-    return v === 0 ? "Free" : `$${v}/img`;
+    return v === 0 ? freeLabel : `$${v}/img`;
   }
   const inp = Number(p.inputPer1M ?? 0);
   const out = Number(p.outputPer1M ?? 0);
-  return inp === 0 && out === 0 ? "Free" : `$${inp.toFixed(2)} / $${out.toFixed(2)}`;
+  return inp === 0 && out === 0 ? freeLabel : `$${inp.toFixed(2)} / $${out.toFixed(2)}`;
 }
 
 function fmtContext(n: number | null): string {
@@ -534,7 +534,7 @@ export default function ModelWhitelistPage() {
                                   onClick={() => startEditChannel(ch)}
                                 >
                                   <span className="text-xs font-bold">
-                                    {fmtSellPrice(ch.sellPrice)}
+                                    {fmtSellPrice(ch.sellPrice, t("free"))}
                                   </span>
                                   <span className="material-symbols-outlined text-[14px] opacity-0 group-hover/edit:opacity-100 transition-opacity">
                                     edit

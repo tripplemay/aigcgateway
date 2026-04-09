@@ -66,7 +66,7 @@
       "title": "i18n 最终审计",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) 全量扫描所有修改页面无硬编码英文；2) en.json + zh-CN.json key 齐全；3) 切换中文无英文残留"
     },
     {

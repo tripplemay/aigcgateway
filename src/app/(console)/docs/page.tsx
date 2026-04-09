@@ -47,15 +47,13 @@ export default function DocsPage() {
       <h1 className="text-2xl font-bold mb-2">{t("title")}</h1>
       <p className="text-ds-on-surface-variant mb-6">{t("description")}</p>
 
-      <Section title="Authentication">
-        <p className="text-sm mb-3">
-          All API requests require an API Key in the Authorization header:
-        </p>
+      <Section title={t("secAuth")}>
+        <p className="text-sm mb-3">{t("authDesc")}</p>
         <Code>{`Authorization: Bearer pk_your_api_key`}</Code>
       </Section>
 
-      <Section title="POST /v1/chat/completions">
-        <p className="text-sm mb-3">Generate text completions. Supports streaming.</p>
+      <Section title={t("secChat")}>
+        <p className="text-sm mb-3">{t("chatDesc")}</p>
         <Code>{`curl -X POST /v1/chat/completions \\
   -H "Authorization: Bearer pk_..." \\
   -H "Content-Type: application/json" \\
@@ -66,34 +64,34 @@ export default function DocsPage() {
     "max_tokens": 1024,
     "stream": false
   }'`}</Code>
-        <h4 className="font-medium mt-4 mb-2 text-sm">Parameters</h4>
+        <h4 className="font-medium mt-4 mb-2 text-sm">{t("parameters")}</h4>
         <div className="text-sm space-y-1">
           <p>
             <code className="bg-ds-surface-container-low px-1 rounded">model</code>{" "}
-            <Badge variant="secondary">required</Badge> — Platform model name, e.g.{" "}
+            <Badge variant="secondary">{t("required")}</Badge> — {t("paramModel")}{" "}
             <code>openai/gpt-4o</code>
           </p>
           <p>
             <code className="bg-ds-surface-container-low px-1 rounded">messages</code>{" "}
-            <Badge variant="secondary">required</Badge> — Array of message objects
+            <Badge variant="secondary">{t("required")}</Badge> — {t("paramMessages")}
           </p>
           <p>
-            <code className="bg-ds-surface-container-low px-1 rounded">stream</code> — Enable SSE
-            streaming (default: false)
+            <code className="bg-ds-surface-container-low px-1 rounded">stream</code> —{" "}
+            {t("paramStream")}
           </p>
           <p>
-            <code className="bg-ds-surface-container-low px-1 rounded">temperature</code> — Sampling
-            temperature (auto-clamped per provider)
+            <code className="bg-ds-surface-container-low px-1 rounded">temperature</code> —{" "}
+            {t("paramTemperature")}
           </p>
           <p>
-            <code className="bg-ds-surface-container-low px-1 rounded">max_tokens</code> — Maximum
-            output tokens
+            <code className="bg-ds-surface-container-low px-1 rounded">max_tokens</code> —{" "}
+            {t("paramMaxTokens")}
           </p>
         </div>
       </Section>
 
-      <Section title="POST /v1/images/generations">
-        <p className="text-sm mb-3">Generate images.</p>
+      <Section title={t("secImages")}>
+        <p className="text-sm mb-3">{t("imagesDesc")}</p>
         <Code>{`curl -X POST /v1/images/generations \\
   -H "Authorization: Bearer pk_..." \\
   -H "Content-Type: application/json" \\
@@ -104,59 +102,56 @@ export default function DocsPage() {
   }'`}</Code>
       </Section>
 
-      <Section title="GET /v1/models">
-        <p className="text-sm mb-3">List available models with pricing.</p>
+      <Section title={t("secModels")}>
+        <p className="text-sm mb-3">{t("modelsDesc")}</p>
         <Code>{`curl /v1/models
 curl /v1/models?modality=text
 curl /v1/models?modality=image`}</Code>
       </Section>
 
-      <Section title="Response Headers">
+      <Section title={t("secHeaders")}>
         <div className="text-sm space-y-1">
           <p>
-            <code className="bg-ds-surface-container-low px-1 rounded">X-Trace-Id</code> — Unique
-            trace ID for audit logs
+            <code className="bg-ds-surface-container-low px-1 rounded">X-Trace-Id</code> —{" "}
+            {t("headerTrace")}
           </p>
           <p>
-            <code className="bg-ds-surface-container-low px-1 rounded">X-RateLimit-Limit</code> —
-            Rate limit (RPM)
+            <code className="bg-ds-surface-container-low px-1 rounded">X-RateLimit-Limit</code> —{" "}
+            {t("headerLimit")}
           </p>
           <p>
             <code className="bg-ds-surface-container-low px-1 rounded">X-RateLimit-Remaining</code>{" "}
-            — Remaining requests
+            — {t("headerRemaining")}
           </p>
           <p>
-            <code className="bg-ds-surface-container-low px-1 rounded">X-RateLimit-Reset</code> —
-            Reset timestamp
+            <code className="bg-ds-surface-container-low px-1 rounded">X-RateLimit-Reset</code> —{" "}
+            {t("headerReset")}
           </p>
         </div>
       </Section>
 
-      <Section title="Error Codes">
+      <Section title={t("secErrors")}>
         <div className="text-sm space-y-1">
           <p>
-            <Badge variant="destructive">401</Badge> <code>invalid_api_key</code> — Invalid or
-            revoked API Key
+            <Badge variant="destructive">401</Badge> <code>invalid_api_key</code> — {t("err401")}
           </p>
           <p>
-            <Badge variant="destructive">402</Badge> <code>insufficient_balance</code> — Balance is
-            zero
+            <Badge variant="destructive">402</Badge> <code>insufficient_balance</code> —{" "}
+            {t("err402")}
           </p>
           <p>
-            <Badge variant="destructive">404</Badge> <code>model_not_found</code> — Model does not
-            exist
+            <Badge variant="destructive">404</Badge> <code>model_not_found</code> — {t("err404")}
           </p>
           <p>
-            <Badge variant="destructive">429</Badge> <code>rate_limit_exceeded</code> — Rate limit
-            hit (check Retry-After header)
+            <Badge variant="destructive">429</Badge> <code>rate_limit_exceeded</code> —{" "}
+            {t("err429")}
           </p>
           <p>
-            <Badge variant="destructive">502</Badge> <code>provider_error</code> — Upstream provider
-            error
+            <Badge variant="destructive">502</Badge> <code>provider_error</code> — {t("err502")}
           </p>
           <p>
-            <Badge variant="destructive">503</Badge> <code>channel_unavailable</code> — No active
-            channel for model
+            <Badge variant="destructive">503</Badge> <code>channel_unavailable</code> —{" "}
+            {t("err503")}
           </p>
         </div>
         <Code>{`{
@@ -169,36 +164,31 @@ curl /v1/models?modality=image`}</Code>
 }`}</Code>
       </Section>
 
-      <Section title="Rate Limits">
+      <Section title={t("secRateLimits")}>
         <div className="text-sm space-y-1">
           <p>
-            <strong>RPM</strong>: 60 requests/minute (all models combined)
+            <strong>RPM</strong>: {t("rpmDesc")}
           </p>
           <p>
-            <strong>TPM</strong>: 100,000 tokens/minute
+            <strong>TPM</strong>: {t("tpmDesc")}
           </p>
           <p>
-            <strong>Image RPM</strong>: 10 requests/minute
+            <strong>Image RPM</strong>: {t("imageRpmDesc")}
           </p>
-          <p className="text-ds-on-surface-variant">
-            Limits can be customized per project by admin.
-          </p>
+          <p className="text-ds-on-surface-variant">{t("limitsCustomizable")}</p>
         </div>
       </Section>
 
-      <Section title="MCP (Model Context Protocol)">
-        <p className="text-sm mb-3">
-          Connect AI editors (Claude Code, Cursor, Windsurf) to AIGC Gateway via MCP. Use the same
-          API Key for authentication.
-        </p>
+      <Section title={t("secMcp")}>
+        <p className="text-sm mb-3">{t("mcpDesc")}</p>
         <p className="text-sm mb-2">
-          <strong>Endpoint:</strong>{" "}
+          <strong>{t("endpoint")}</strong>{" "}
           <code className="bg-ds-surface-container-low px-1 rounded">
             https://aigc.guangai.ai/mcp
           </code>
         </p>
         <p className="text-sm mb-3">
-          <strong>Protocol:</strong> Streamable HTTP (stateless)
+          <strong>{t("protocol")}</strong> {t("protocolValue")}
         </p>
         <Code>{`// Claude Code: ~/.claude/claude_code_config.json
 {
@@ -213,44 +203,46 @@ curl /v1/models?modality=image`}</Code>
   }
 }`}</Code>
         <p className="text-sm mt-3 mb-2">
-          <strong>Available Tools:</strong>
+          <strong>{t("availableTools")}</strong>
         </p>
         <div className="text-sm space-y-1">
           <p>
-            <code className="bg-ds-surface-container-low px-1 rounded">list_models</code> — List
-            models with pricing
+            <code className="bg-ds-surface-container-low px-1 rounded">list_models</code> —{" "}
+            {t("toolListModels")}
           </p>
           <p>
-            <code className="bg-ds-surface-container-low px-1 rounded">chat</code> — Text generation
-            (non-streaming)
+            <code className="bg-ds-surface-container-low px-1 rounded">chat</code> —{" "}
+            {t("toolChat")}
           </p>
           <p>
-            <code className="bg-ds-surface-container-low px-1 rounded">generate_image</code> — Image
-            generation
+            <code className="bg-ds-surface-container-low px-1 rounded">generate_image</code> —{" "}
+            {t("toolGenImage")}
           </p>
           <p>
-            <code className="bg-ds-surface-container-low px-1 rounded">list_logs</code> — View call
-            logs
+            <code className="bg-ds-surface-container-low px-1 rounded">list_logs</code> —{" "}
+            {t("toolListLogs")}
           </p>
           <p>
-            <code className="bg-ds-surface-container-low px-1 rounded">get_log_detail</code> — Full
-            call details
+            <code className="bg-ds-surface-container-low px-1 rounded">get_log_detail</code> —{" "}
+            {t("toolLogDetail")}
           </p>
           <p>
-            <code className="bg-ds-surface-container-low px-1 rounded">get_balance</code> — Check
-            balance
+            <code className="bg-ds-surface-container-low px-1 rounded">get_balance</code> —{" "}
+            {t("toolBalance")}
           </p>
           <p>
-            <code className="bg-ds-surface-container-low px-1 rounded">get_usage_summary</code> —
-            Usage statistics
+            <code className="bg-ds-surface-container-low px-1 rounded">get_usage_summary</code> —{" "}
+            {t("toolUsage")}
           </p>
         </div>
         <p className="text-sm text-ds-on-surface-variant mt-2">
-          See{" "}
-          <a href="/mcp-setup" className="text-ds-primary underline">
-            MCP Setup
-          </a>{" "}
-          page for full configuration guide.
+          {t.rich("mcpSetupLink", {
+            link: (chunks) => (
+              <a href="/mcp-setup" className="text-ds-primary underline">
+                {chunks}
+              </a>
+            ),
+          })}
         </p>
       </Section>
     </div>
