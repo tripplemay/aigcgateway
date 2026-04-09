@@ -35,8 +35,8 @@
     "name": "alias create",
     "ok": true,
     "detail": {
-      "alias": "r3a-alias-1775700491892",
-      "aliasId": "cmnqu84fp00rl9yxd3rjzsc9y",
+      "alias": "r3a-alias-1775702549479",
+      "aliasId": "cmnqvg82w00qu9yd1yqj3chfy",
       "model": "ai21/jamba-large-1.7"
     }
   },
@@ -44,7 +44,7 @@
     "name": "alias delete",
     "ok": true,
     "detail": {
-      "alias": "r3a-alias-1775700491892"
+      "alias": "r3a-alias-1775702549479"
     }
   }
 ]
