@@ -1,11 +1,11 @@
 {
-  "status": "verifying",
+  "status": "reverifying",
   "user_goal": "R3C — 最终 DS 统一 + Auth/公共页面还原（whitelist/aliases/capabilities/docs/layout + login/register/mcp-setup）",
   "total_features": 9,
   "completed_features": 8,
-  "fix_rounds": 0,
+  "fix_rounds": 1,
   "current_sprint": "F-R3C-09",
-  "last_updated": "2026-04-09T17:30:00.000Z",
+  "last_updated": "2026-04-09T18:00:00.000Z",
   "reference_docs": [
     "docs/specs/R3C-final-ds-unification-spec.md",
     "design-draft/login/code.html",
@@ -15,14 +15,14 @@
   "role_assignments": null,
   "docs": {
     "spec": "docs/specs/R3C-final-ds-unification-spec.md",
-    "test_cases": null,
+    "test_cases": "docs/test-cases/r3c-final-ds-unification-verifying-e2e-2026-04-09.md",
     "signoff": null,
     "framework_reviewed": false
   },
   "evaluator_feedback": null,
-  "generator_handoff": "R3C building 完成（8/8 generator features done）。分组一（01~04）纯 DS token 替换：whitelist ~50 处、aliases ~21 处、capabilities ~12 处、docs+layout ~22 处，全部零旧 token。分组二（05~07）Auth 重构：Login 全量重写（DS 组件+i18n+Terminal 保留）、Register 从 Card 居中改为左右分栏统一风格、MCP Setup indigo/slate→ds-*。08 i18n 审计：docs 50+ 硬编码英文全量 i18n，whitelist Free 标签 i18n，layout Loading 修复。全部 tsc 通过。待 Codex 执行 F-R3C-09 全量验收。",
+  "generator_handoff": "Fix round 1: Login 终端标题 aigc-cli — bash 走 i18n（Terminal 组件接收 prop），footer Uptime/Latency 走 i18n。Register 左侧 6 行静态终端文本全部走 i18n（termSysInit/termFetchMetrics/termHeroLine/termTrace/termDebug/termInfo），footer 同步修复。新增 10 个 auth i18n key（en + zh-CN）。tsc 零错误。",
   "session_notes": {
-    "Kimi": "R3C building 全部完成（01~08 done）。提交 5 次：①DS token 统一 5 文件 ②Login 全量重写 ③Register 左右分栏重构 ④MCP Setup polish ⑤i18n 最终审计。docs 页面新增约 50 个 i18n key。Terminal 组件保留在 Login 中（dark theme hex color 是刻意设计，不属于 DS token）。code block 的 slate-950/indigo-100 同理保留。Register 左侧用静态终端行（非动画）与 Login 区分。",
-    "Reviewer": null
+    "Kimi": "Fix round 1 完成。Evaluator 反馈 3 个 FAIL：Login 终端标题、Register 终端区文本、i18n 审计。修复方案：Terminal 组件增加 terminalTitle prop，Register 6 行静态终端文本全部 t() 化，两页 footer Uptime/Latency 标签 i18n。新增 10 个 auth key。",
+    "Reviewer": "R3C verifying 已执行：页面加载与 DS token 审计通过；i18n 失败（login/register 仍有硬编码英文）。已转 fixing，回退 F-R3C-05/06/08/09。报告见 docs/test-reports/r3c-final-ds-unification-verifying-2026-04-09.md。"
   }
 }

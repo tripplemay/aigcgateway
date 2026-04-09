@@ -117,7 +117,16 @@
     "copyright": "© 2024 AIGC Gateway. Professional Engineering.",
     "joinAtelier": "加入工坊",
     "createAccountDesc": "创建您的账号，开始管理 AI 基础设施。",
-    "createPassword": "创建密码"
+    "createPassword": "创建密码",
+    "terminalTitle": "aigc-cli — bash",
+    "uptime": "正常运行",
+    "latency": "延迟",
+    "termSysInit": "[系统] 正在初始化安全握手...",
+    "termFetchMetrics": "# 正在获取 'AIGC-MAIN-CLUSTER' 基础设施指标",
+    "termHeroLine": "为现代 AI 开发者打造的专业可观测平台",
+    "termTrace": "TRACE: 已在边缘节点 LON-1 建立连接",
+    "termDebug": "DEBUG: 正在优化 token 传输路径...",
+    "termInfo": "INFO: 用户认证模块已加载。"
   },
   "dashboard": {
     "title": "仪表盘",

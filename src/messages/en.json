@@ -117,7 +117,16 @@
     "copyright": "© 2024 AIGC Gateway. Professional Engineering.",
     "joinAtelier": "Join the Atelier",
     "createAccountDesc": "Create your account to start managing your AI infrastructure.",
-    "createPassword": "Create Password"
+    "createPassword": "Create Password",
+    "terminalTitle": "aigc-cli — bash",
+    "uptime": "Uptime",
+    "latency": "Latency",
+    "termSysInit": "[SYSTEM] Initializing secure handshake...",
+    "termFetchMetrics": "# Fetching infrastructure metrics for 'AIGC-MAIN-CLUSTER'",
+    "termHeroLine": "Professional Observability for modern AI developers",
+    "termTrace": "TRACE: Connection established at edge node LON-1",
+    "termDebug": "DEBUG: Optimizing token delivery pathways...",
+    "termInfo": "INFO: User authentication module loaded."
   },
   "dashboard": {
     "title": "Dashboard",
