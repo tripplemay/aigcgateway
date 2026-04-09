@@ -619,7 +619,16 @@
     "unlinkedModelsDesc": "Provider models detected without a corresponding user-facing alias.",
     "createAliasAction": "CREATE ALIAS",
     "linkTo": "LINK TO...",
-    "aliasPlaceholder": "Alias name..."
+    "aliasPlaceholder": "Alias name...",
+    "cap_function_calling": "Function Calling",
+    "cap_streaming": "Streaming",
+    "cap_vision": "Vision",
+    "cap_system_prompt": "System Prompt",
+    "cap_json_mode": "JSON Mode",
+    "cap_image_input": "Image Input",
+    "supportedSizes": "Supported Sizes",
+    "sizePlaceholder": "e.g. 1024x1024",
+    "brandPlaceholder": "e.g. OpenAI"
   },
   "adminHealth": {
     "title": "Health Monitor",

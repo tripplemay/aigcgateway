@@ -619,7 +619,16 @@
     "unlinkedModelsDesc": "已检测到的无对应别名的服务商模型。",
     "createAliasAction": "创建别名",
     "linkTo": "关联到...",
-    "aliasPlaceholder": "别名..."
+    "aliasPlaceholder": "别名...",
+    "cap_function_calling": "函数调用",
+    "cap_streaming": "流式输出",
+    "cap_vision": "视觉理解",
+    "cap_system_prompt": "系统提示词",
+    "cap_json_mode": "JSON 模式",
+    "cap_image_input": "图片输入",
+    "supportedSizes": "支持尺寸",
+    "sizePlaceholder": "例如 1024x1024",
+    "brandPlaceholder": "例如 OpenAI"
   },
   "adminHealth": {
     "title": "健康监控",

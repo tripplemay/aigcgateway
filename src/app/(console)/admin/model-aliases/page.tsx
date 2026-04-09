@@ -58,14 +58,7 @@ const CAPABILITY_KEYS = [
   "image_input",
 ] as const;
 
-const CAPABILITY_LABELS: Record<string, string> = {
-  function_calling: "Function Calling",
-  streaming: "Streaming",
-  vision: "Vision",
-  system_prompt: "System Prompt",
-  json_mode: "JSON Mode",
-  image_input: "Image Input",
-};
+// Capability label keys mapped to i18n — see modelAliases.cap_*
 
 export default function ModelAliasesPage() {
   const t = useTranslations("modelAliases");
@@ -75,15 +68,13 @@ export default function ModelAliasesPage() {
   const [createForm, setCreateForm] = useState({ alias: "", brand: "", description: "" });
   const [addModelAliasId, setAddModelAliasId] = useState<string | null>(null);
   const [modelSearch, setModelSearch] = useState("");
+  const [newSizeInput, setNewSizeInput] = useState<Record<string, string>>({});
 
   const {
     data: apiData,
     loading,
     refetch: load,
-  } = useAsyncData<ApiResponse>(
-    () => apiFetch<ApiResponse>("/api/admin/model-aliases"),
-    [],
-  );
+  } = useAsyncData<ApiResponse>(() => apiFetch<ApiResponse>("/api/admin/model-aliases"), []);
 
   const aliases = apiData?.data ?? [];
   const unlinkedModels = apiData?.unlinkedModels ?? [];
@@ -99,15 +90,12 @@ export default function ModelAliasesPage() {
     [editState, aliases],
   );
 
-  const setEditField = useCallback(
-    (id: string, key: string, value: unknown) => {
-      setEditState((prev) => ({
-        ...prev,
-        [id]: { ...prev[id], [key]: value },
-      }));
-    },
-    [],
-  );
+  const setEditField = useCallback((id: string, key: string, value: unknown) => {
+    setEditState((prev) => ({
+      ...prev,
+      [id]: { ...prev[id], [key]: value },
+    }));
+  }, []);
 
   // ── API actions ──
 
@@ -232,9 +220,33 @@ export default function ModelAliasesPage() {
   };
 
   const toggleCapability = (id: string, key: string) => {
-    const current = (getEditValue(id, "capabilities") ?? {}) as Record<string, boolean>;
+    const current = (getEditValue(id, "capabilities") ?? {}) as Record<string, unknown>;
     const updated = { ...current, [key]: !current[key] };
     setEditField(id, "capabilities", updated);
+  };
+
+  const getSupportedSizes = (id: string): string[] => {
+    const caps = (getEditValue(id, "capabilities") ?? {}) as Record<string, unknown>;
+    const sizes = caps.supported_sizes;
+    return Array.isArray(sizes) ? sizes : [];
+  };
+
+  const addSize = (id: string) => {
+    const size = (newSizeInput[id] ?? "").trim();
+    if (!size) return;
+    const caps = (getEditValue(id, "capabilities") ?? {}) as Record<string, unknown>;
+    const sizes = Array.isArray(caps.supported_sizes) ? [...caps.supported_sizes] : [];
+    if (!sizes.includes(size)) sizes.push(size);
+    setEditField(id, "capabilities", { ...caps, supported_sizes: sizes });
+    setNewSizeInput((prev) => ({ ...prev, [id]: "" }));
+  };
+
+  const removeSize = (id: string, size: string) => {
+    const caps = (getEditValue(id, "capabilities") ?? {}) as Record<string, unknown>;
+    const sizes = Array.isArray(caps.supported_sizes)
+      ? caps.supported_sizes.filter((s: string) => s !== size)
+      : [];
+    setEditField(id, "capabilities", { ...caps, supported_sizes: sizes });
   };
 
   if (loading) {
@@ -281,7 +293,7 @@ export default function ModelAliasesPage() {
                   className="w-full bg-ds-surface-container-low border-none rounded-lg text-sm px-4 py-2 font-semibold focus:ring-2 focus:ring-ds-primary/20"
                   value={createForm.alias}
                   onChange={(e) => setCreateForm({ ...createForm, alias: e.target.value })}
-                  placeholder="e.g. gpt-4o"
+                  placeholder={t("aliasPlaceholder")}
                 />
               </div>
               <div className="space-y-1.5">
@@ -292,7 +304,7 @@ export default function ModelAliasesPage() {
                   className="w-full bg-ds-surface-container-low border-none rounded-lg text-sm px-4 py-2 font-semibold focus:ring-2 focus:ring-ds-primary/20"
                   value={createForm.brand}
                   onChange={(e) => setCreateForm({ ...createForm, brand: e.target.value })}
-                  placeholder="e.g. OpenAI"
+                  placeholder={t("brandPlaceholder")}
                 />
               </div>
               <div className="space-y-1.5">
@@ -419,13 +431,13 @@ export default function ModelAliasesPage() {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {aliases.map((alias) => {
               const isExpanded = expandedId === alias.id;
-              const caps = (getEditValue(alias.id, "capabilities") ?? {}) as Record<string, boolean>;
+              const caps = (getEditValue(alias.id, "capabilities") ?? {}) as Record<
+                string,
+                boolean
+              >;
 
               return (
-                <div
-                  key={alias.id}
-                  className={`${isExpanded ? "lg:col-span-3" : ""}`}
-                >
+                <div key={alias.id} className={`${isExpanded ? "lg:col-span-3" : ""}`}>
                   <div
                     className={`bg-ds-surface-container-lowest rounded-xl shadow-sm transition-all ${isExpanded ? "p-6 border-l-4 border-ds-primary" : "p-5 hover:shadow-md"}`}
                   >
@@ -481,15 +493,15 @@ export default function ModelAliasesPage() {
                           }}
                         >
                           <div
-                            className={`${isExpanded ? "w-10 h-5" : "w-8 h-4"} rounded-full transition-colors ${alias.enabled ? "bg-ds-primary" : "bg-slate-200"}`}
+                            className={`${isExpanded ? "w-10 h-5" : "w-8 h-4"} rounded-full transition-colors ${alias.enabled ? "bg-ds-primary" : "bg-ds-outline-variant/30"}`}
                           />
                           <div
-                            className={`absolute top-0.5 ${isExpanded ? "w-4 h-4 left-0.5" : "w-3 h-3 left-0.5"} bg-white rounded-full transition-transform ${alias.enabled ? (isExpanded ? "translate-x-5" : "translate-x-4") : ""}`}
+                            className={`absolute top-0.5 ${isExpanded ? "w-4 h-4 left-0.5" : "w-3 h-3 left-0.5"} bg-ds-surface-container-lowest rounded-full transition-transform ${alias.enabled ? (isExpanded ? "translate-x-5" : "translate-x-4") : ""}`}
                           />
                         </button>
                         {/* Delete */}
                         <button
-                          className="text-slate-400 hover:text-ds-error transition-colors p-1"
+                          className="text-ds-on-surface-variant hover:text-ds-error transition-colors p-1"
                           title={t("deleteAlias")}
                           onClick={(e) => {
                             e.stopPropagation();
@@ -501,9 +513,7 @@ export default function ModelAliasesPage() {
                         {/* Expand/Collapse */}
                         <button
                           className="text-ds-on-surface-variant hover:text-ds-primary transition-colors"
-                          onClick={() =>
-                            setExpandedId(isExpanded ? null : alias.id)
-                          }
+                          onClick={() => setExpandedId(isExpanded ? null : alias.id)}
                         >
                           <span className="material-symbols-outlined">
                             {isExpanded ? "keyboard_arrow_up" : "keyboard_arrow_down"}
@@ -596,21 +606,69 @@ export default function ModelAliasesPage() {
                             {CAPABILITY_KEYS.map((key) => (
                               <div key={key} className="flex items-center justify-between">
                                 <span className="text-sm font-semibold text-ds-on-surface-variant">
-                                  {CAPABILITY_LABELS[key]}
+                                  {t(`cap_${key}`)}
                                 </span>
                                 <button
                                   className="relative inline-block w-10 h-5"
                                   onClick={() => toggleCapability(alias.id, key)}
                                 >
                                   <div
-                                    className={`w-10 h-5 rounded-full transition-colors ${caps[key] ? "bg-ds-primary" : "bg-slate-200"}`}
+                                    className={`w-10 h-5 rounded-full transition-colors ${caps[key] ? "bg-ds-primary" : "bg-ds-outline-variant/30"}`}
                                   />
                                   <div
-                                    className={`absolute left-0.5 top-0.5 w-4 h-4 bg-white rounded-full transition-transform ${caps[key] ? "translate-x-5" : ""}`}
+                                    className={`absolute left-0.5 top-0.5 w-4 h-4 bg-ds-surface-container-lowest rounded-full transition-transform ${caps[key] ? "translate-x-5" : ""}`}
                                   />
                                 </button>
                               </div>
                             ))}
+                          </div>
+                        </div>
+
+                        {/* Supported Sizes */}
+                        <div className="flex flex-col gap-4">
+                          <h4 className="text-sm font-bold flex items-center gap-2">
+                            <span className="material-symbols-outlined text-base">
+                              aspect_ratio
+                            </span>{" "}
+                            {t("supportedSizes")}
+                          </h4>
+                          <div className="bg-ds-surface-container-low/30 p-4 rounded-xl flex flex-wrap gap-2 items-center">
+                            {getSupportedSizes(alias.id).map((size) => (
+                              <div
+                                key={size}
+                                className="flex items-center gap-1.5 px-3 py-1.5 bg-ds-surface-container-lowest rounded-lg border border-ds-outline-variant shadow-sm transition-all hover:border-ds-primary group"
+                              >
+                                <span className="text-xs font-bold">{size}</span>
+                                <button
+                                  className="text-ds-on-surface-variant hover:text-ds-error flex items-center"
+                                  onClick={() => removeSize(alias.id, size)}
+                                >
+                                  <span className="material-symbols-outlined text-sm">close</span>
+                                </button>
+                              </div>
+                            ))}
+                            <div className="relative flex-1 min-w-[200px]">
+                              <input
+                                className="w-full bg-ds-surface-container-lowest border-2 border-dashed border-ds-outline-variant rounded-lg text-xs px-3 py-1.5 font-bold focus:border-ds-primary focus:ring-0 placeholder:text-ds-on-surface-variant/50 transition-all"
+                                placeholder={t("sizePlaceholder")}
+                                value={newSizeInput[alias.id] ?? ""}
+                                onChange={(e) =>
+                                  setNewSizeInput((prev) => ({
+                                    ...prev,
+                                    [alias.id]: e.target.value,
+                                  }))
+                                }
+                                onKeyDown={(e) => e.key === "Enter" && addSize(alias.id)}
+                              />
+                              <button
+                                className="absolute right-2 top-1/2 -translate-y-1/2 text-ds-primary hover:scale-110 transition-transform flex items-center"
+                                onClick={() => addSize(alias.id)}
+                              >
+                                <span className="material-symbols-outlined text-xl">
+                                  add_circle
+                                </span>
+                              </button>
+                            </div>
                           </div>
                         </div>
 
@@ -645,7 +703,7 @@ export default function ModelAliasesPage() {
                                         {ch.providerName}
                                       </td>
                                       <td className="py-3">
-                                        <span className="inline-flex items-center gap-1.5 px-2 py-0.5 bg-green-100 text-green-700 text-[10px] font-bold rounded uppercase tracking-tighter">
+                                        <span className="inline-flex items-center gap-1.5 px-2 py-0.5 bg-ds-secondary-container text-ds-on-secondary-container text-[10px] font-bold rounded uppercase tracking-tighter">
                                           {ch.status}
                                         </span>
                                       </td>
@@ -673,9 +731,7 @@ export default function ModelAliasesPage() {
                               className="text-ds-primary text-xs font-bold flex items-center gap-1.5 hover:underline"
                               onClick={() => setAddModelAliasId(alias.id)}
                             >
-                              <span className="material-symbols-outlined text-sm">
-                                add_circle
-                              </span>{" "}
+                              <span className="material-symbols-outlined text-sm">add_circle</span>{" "}
                               {t("addModelMapping")}
                             </button>
                             {editState[alias.id] && Object.keys(editState[alias.id]).length > 0 && (
@@ -731,7 +787,7 @@ export default function ModelAliasesPage() {
               </thead>
               <tbody className="divide-y divide-ds-surface-variant/20">
                 {unlinkedModels.map((m) => (
-                  <tr key={m.id} className="hover:bg-slate-50 transition-colors">
+                  <tr key={m.id} className="hover:bg-ds-surface-container-low transition-colors">
                     <td className="py-4 px-6 text-xs font-mono font-medium">{m.name}</td>
                     <td className="py-4 text-xs font-semibold">{m.providers.join(", ")}</td>
                     <td className="py-4">

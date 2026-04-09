@@ -1,9 +1,9 @@
 {
-  "status": "fixing",
+  "status": "reverifying",
   "user_goal": "M1b — LLM 推断 + Admin 别名管理页重做 + 白名单/能力页删除",
   "total_features": 6,
-  "completed_features": 3,
-  "fix_rounds": 0,
+  "completed_features": 5,
+  "fix_rounds": 1,
   "current_sprint": "F-M1b-06",
   "last_updated": "2026-04-09T21:46:59.979Z",
   "reference_docs": [
@@ -45,7 +45,7 @@
   },
   "generator_handoff": null,
   "session_notes": {
-    "Kimi": "M1b 全部 5 个 generator 功能完成。alias-classifier.ts 新建，复用 DeepSeek callInternalAI 模式做 LLM 推断。model-sync.ts 在 reconcile 后调 classifyNewModels + inferMissingBrands。Admin 别名管理页按设计稿重做（卡片展开/收起、Capabilities 开关、模型表格、Add Model 弹窗、未归类区域）。白名单页+能力页已删除，侧边栏已清理。i18n 全量更新。",
+    "Kimi": "M1b fix round 1 完成。修复 3 个 FAIL：1) 新增 Supported Sizes 区块（存于 capabilities.supported_sizes）；2) 所有硬编码颜色替换为 DS token（green→ds-secondary-container, slate→ds-outline-variant/ds-on-surface-variant, white→ds-surface-container-lowest）；3) 能力标签+placeholder 全部 i18n 化（cap_* keys）。",
     "Planner": "M1a done 收尾 + M1b 启动。M1a 签收（6/6 PASS，0 fix rounds）。M1b 含 5 generator + 1 codex：LLM 推断、sync 自动挂载、Admin UI 重做、白名单+能力页删除、i18n。设计稿 design-draft/admin-model-aliases/code.html 已就绪。",
     "Reviewer": "M1b verifying 已执行：L1 脚本验证 sync+LLM 分类/brand 推断通过；页面删除与导航清理通过。发现 3 个 FAIL：设计稿缺少 Supported Sizes 区块、DS token 颜色硬编码残留、i18n 硬编码残留。状态已切 fixing，待 Generator 修复 F-M1b-03/F-M1b-05 后复验。"
   }
