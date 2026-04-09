@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;family=Inter:wght@400;500;600&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "primary-container": "#6d5dd3",
+                    "surface-tint": "#5c4cc1",
+                    "surface-container": "#eaedff",
+                    "surface-container-low": "#f2f3ff",
+                    "surface-variant": "#dae2fd",
+                    "primary-fixed": "#e5deff",
+                    "on-primary-fixed": "#190064",
+                    "tertiary": "#7c4b00",
+                    "tertiary-container": "#9d6100",
+                    "on-error-container": "#93000a",
+                    "primary-fixed-dim": "#c8bfff",
+                    "on-tertiary-fixed": "#2b1700",
+                    "on-secondary-fixed-variant": "#47416e",
+                    "on-primary": "#ffffff",
+                    "on-primary-container": "#f6f1ff",
+                    "surface-container-lowest": "#ffffff",
+                    "surface-bright": "#faf8ff",
+                    "on-primary-fixed-variant": "#4431a8",
+                    "on-error": "#ffffff",
+                    "outline-variant": "#c9c4d5",
+                    "on-secondary": "#ffffff",
+                    "on-tertiary-container": "#fff0e4",
+                    "inverse-surface": "#283044",
+                    "error-container": "#ffdad6",
+                    "surface-dim": "#d2d9f4",
+                    "tertiary-fixed-dim": "#ffb964",
+                    "surface": "#faf8ff",
+                    "inverse-on-surface": "#eef0ff",
+                    "outline": "#787584",
+                    "tertiary-fixed": "#ffddba",
+                    "secondary": "#5f5987",
+                    "secondary-fixed-dim": "#c8c0f5",
+                    "inverse-primary": "#c8bfff",
+                    "secondary-container": "#d0c9fe",
+                    "secondary-fixed": "#e5deff",
+                    "on-surface": "#131b2e",
+                    "surface-container-high": "#e2e7ff",
+                    "surface-container-highest": "#dae2fd",
+                    "on-tertiary": "#ffffff",
+                    "on-background": "#131b2e",
+                    "on-tertiary-fixed-variant": "#663e00",
+                    "on-secondary-fixed": "#1b153f",
+                    "on-surface-variant": "#474553",
+                    "on-secondary-container": "#585280",
+                    "background": "#faf8ff",
+                    "primary": "#5443b9",
+                    "error": "#ba1a1a"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "fontFamily": {
+                    "headline": ["Manrope"],
+                    "body": ["Inter"],
+                    "label": ["Inter"]
+            }
+          },
+        }
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body { font-family: 'Inter', sans-serif; }
+        h1, h2, h3, .font-headline { font-family: 'Manrope', sans-serif; }
+        .glass-panel {
+            background: rgba(250, 248, 255, 0.8);
+            backdrop-filter: blur(12px);
+        }
+    </style>
+</head>
+<body class="bg-surface text-on-surface min-h-screen">
+<!-- TopNavBar Component Mapping -->
+<header class="flex justify-between items-center px-8 py-3 w-full border-b border-slate-200 dark:border-slate-800 bg-[#faf8ff] dark:bg-slate-950 font-['Manrope'] tracking-tight sticky top-0 z-40">
+<div class="flex items-center gap-8">
+<span class="text-xl font-bold text-[#5443b9] dark:text-[#6d5dd3]">AIGC Gateway</span>
+<nav class="hidden md:flex gap-6">
+<a class="text-slate-500 dark:text-slate-400 font-medium hover:text-[#5443b9] transition-colors" href="#">Dashboard</a>
+<a class="text-[#5443b9] dark:text-[#6d5dd3] font-bold border-b-2 border-[#5443b9]" href="#">Templates</a>
+<a class="text-slate-500 dark:text-slate-400 font-medium hover:text-[#5443b9] transition-colors" href="#">Models</a>
+<a class="text-slate-500 dark:text-slate-400 font-medium hover:text-[#5443b9] transition-colors" href="#">API Keys</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-slate-500 cursor-pointer">notifications</span>
+<span class="material-symbols-outlined text-slate-500 cursor-pointer">settings</span>
+<div class="w-8 h-8 rounded-full bg-primary-container overflow-hidden">
+<img alt="User profile" class="w-full h-full object-cover" data-alt="professional male headshot with neutral expression and soft studio lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBNBa9sTJNIhxSNfx-qpF1DP-u4UgZPr-htm7in3Q2_IHLPM55VUyui9qc28psPraRSd5pvz2OxQM7cp4Of8-gC-4Twy2FQ_rLbbXibKD7ewiM0j16ZMEGlVBx0lFwbyg0X_X2AIdUtEsBnpsNHIWzmmKwWKS0hc2Fb3E3Nxn0FXXCvpr1u1bgCkTtzYFMQbRNn9mJjkMIrjVut1Me5SkBnyDaK2wF2RBCrOqZ3r1lLdx_6HfXybmff9rD5iJTta_HRiMMyofCGitFH"/>
+</div>
+</div>
+</header>
+<div class="flex">
+<!-- SideNavBar Component Mapping -->
+<aside class="fixed left-0 top-[57px] h-[calc(100vh-57px)] w-64 flex flex-col p-4 gap-2 bg-[#f2f3ff] dark:bg-slate-900 font-['Manrope'] text-sm z-30">
+<div class="mb-6 px-2 py-4 rounded-xl">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-primary-container flex items-center justify-center text-white">
+<span class="material-symbols-outlined">hub</span>
+</div>
+<div>
+<p class="text-lg font-black text-[#5443b9] dark:text-[#6d5dd3]">AIGC Gateway</p>
+<p class="text-xs text-slate-500">Developer Portal</p>
+</div>
+</div>
+</div>
+<button class="w-full mb-4 py-3 px-4 bg-primary text-white rounded-xl font-bold flex items-center justify-center gap-2 shadow-lg shadow-primary/20 hover:scale-[0.98] transition-all">
+<span class="material-symbols-outlined text-sm">add</span>
+                Create New Template
+            </button>
+<div class="flex flex-col gap-1">
+<a class="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:bg-slate-200/50 dark:hover:bg-slate-800/50 rounded-lg hover:translate-x-1 transition-transform" href="#">
+<span class="material-symbols-outlined">folder_shared</span> My Templates
+                </a>
+<a class="flex items-center gap-3 px-4 py-3 bg-[#ffffff] dark:bg-slate-800 text-[#5443b9] dark:text-[#6d5dd3] rounded-lg shadow-sm border-l-4 border-[#5443b9] transition-transform" href="#">
+<span class="material-symbols-outlined">public</span> Global Library
+                </a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:bg-slate-200/50 dark:hover:bg-slate-800/50 rounded-lg hover:translate-x-1 transition-transform" href="#">
+<span class="material-symbols-outlined">star</span> Featured
+                </a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:bg-slate-200/50 dark:hover:bg-slate-800/50 rounded-lg hover:translate-x-1 transition-transform" href="#">
+<span class="material-symbols-outlined">groups</span> Community
+                </a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:bg-slate-200/50 dark:hover:bg-slate-800/50 rounded-lg hover:translate-x-1 transition-transform" href="#">
+<span class="material-symbols-outlined">inventory_2</span> Archive
+                </a>
+</div>
+<div class="mt-auto pt-4 border-t border-slate-200/50">
+<a class="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:bg-slate-200/50 rounded-lg" href="#">
+<span class="material-symbols-outlined">description</span> Documentation
+                </a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:bg-slate-200/50 rounded-lg" href="#">
+<span class="material-symbols-outlined">help</span> Support
+                </a>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="ml-64 w-full p-10 min-h-screen">
+<!-- Header Section -->
+<div class="max-w-6xl mx-auto space-y-8">
+<div class="flex justify-between items-end">
+<div>
+<h1 class="text-4xl font-extrabold tracking-tight text-on-surface">Global Library</h1>
+<p class="text-on-surface-variant mt-2 text-lg">Discover and fork public templates shared by administrators</p>
+</div>
+<div class="w-full max-w-sm relative">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">search</span>
+<input class="w-full bg-surface-container-low border-none rounded-xl py-3 pl-12 pr-4 focus:ring-2 focus:ring-primary/20 text-sm" placeholder="Search templates..." type="text"/>
+</div>
+</div>
+<!-- Template Grid -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+<!-- Template Card 1: Travel Planner -->
+<div class="group bg-surface-container-lowest rounded-xl p-6 shadow-sm hover:shadow-xl transition-all cursor-pointer border border-transparent hover:border-primary-container/20 ring-1 ring-on-surface/5">
+<div class="flex justify-between items-start mb-4">
+<h3 class="text-xl font-bold font-headline group-hover:text-primary transition-colors">Travel Planner</h3>
+<span class="px-2 py-1 bg-secondary-container text-on-secondary-container text-[10px] font-bold rounded uppercase tracking-wider">Score: 92</span>
+</div>
+<p class="text-on-surface-variant text-sm line-clamp-2 mb-6">Create comprehensive travel itineraries based on destination preferences and duration...</p>
+<div class="flex flex-wrap items-center gap-3 pt-4 border-t border-surface-container-low">
+<div class="flex items-center gap-1 text-[11px] font-semibold text-slate-500">
+<span class="material-symbols-outlined text-sm">reorder</span> 3 Steps
+                            </div>
+<span class="px-2 py-0.5 bg-surface-container-high text-on-surface-variant text-[10px] rounded font-bold uppercase">Sequential</span>
+<div class="ml-auto flex items-center gap-1 text-[11px] font-bold text-primary">
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">fork_right</span> 24 forks
+                            </div>
+</div>
+</div>
+<!-- Template Card 2: Code Reviewer -->
+<div class="group bg-surface-container-lowest rounded-xl p-6 shadow-sm hover:shadow-xl transition-all cursor-pointer ring-1 ring-on-surface/5">
+<div class="flex justify-between items-start mb-4">
+<h3 class="text-xl font-bold font-headline">Code Reviewer</h3>
+<span class="px-2 py-1 bg-secondary-container text-on-secondary-container text-[10px] font-bold rounded uppercase tracking-wider">Score: 85</span>
+</div>
+<p class="text-on-surface-variant text-sm line-clamp-2 mb-6">Automated code analysis for performance bottlenecks and security vulnerabilities across multiple files...</p>
+<div class="flex flex-wrap items-center gap-3 pt-4 border-t border-surface-container-low">
+<div class="flex items-center gap-1 text-[11px] font-semibold text-slate-500">
+<span class="material-symbols-outlined text-sm">reorder</span> 5 Steps
+                            </div>
+<span class="px-2 py-0.5 bg-surface-container-high text-on-surface-variant text-[10px] rounded font-bold uppercase">Parallel</span>
+<div class="ml-auto flex items-center gap-1 text-[11px] font-bold text-primary">
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">fork_right</span> 18 forks
+                            </div>
+</div>
+</div>
+<!-- Template Card 3: Content Writer -->
+<div class="group bg-surface-container-lowest rounded-xl p-6 shadow-sm hover:shadow-xl transition-all cursor-pointer ring-1 ring-on-surface/5">
+<div class="flex justify-between items-start mb-4">
+<h3 class="text-xl font-bold font-headline">Content Writer</h3>
+<span class="px-2 py-1 bg-outline-variant/30 text-on-surface-variant text-[10px] font-bold rounded uppercase tracking-wider">Score: 78</span>
+</div>
+<p class="text-on-surface-variant text-sm line-clamp-2 mb-6">SEO-optimized blog post generation with keyword integration and semantic header structuring...</p>
+<div class="flex flex-wrap items-center gap-3 pt-4 border-t border-surface-container-low">
+<div class="flex items-center gap-1 text-[11px] font-semibold text-slate-500">
+<span class="material-symbols-outlined text-sm">reorder</span> 4 Steps
+                            </div>
+<span class="px-2 py-0.5 bg-surface-container-high text-on-surface-variant text-[10px] rounded font-bold uppercase">Sequential</span>
+<div class="ml-auto flex items-center gap-1 text-[11px] font-bold text-primary">
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">fork_right</span> 12 forks
+                            </div>
+</div>
+</div>
+<!-- Template Card 4: Data Analyzer -->
+<div class="group bg-surface-container-lowest rounded-xl p-6 shadow-sm hover:shadow-xl transition-all cursor-pointer ring-1 ring-on-surface/5">
+<div class="flex justify-between items-start mb-4">
+<h3 class="text-xl font-bold font-headline">Data Analyzer</h3>
+<span class="px-2 py-1 bg-secondary-container text-on-secondary-container text-[10px] font-bold rounded uppercase tracking-wider">Score: 88</span>
+</div>
+<p class="text-on-surface-variant text-sm line-clamp-2 mb-6">Process raw CSV data into insightful summaries with trend detection and visualization mapping...</p>
+<div class="flex flex-wrap items-center gap-3 pt-4 border-t border-surface-container-low">
+<div class="flex items-center gap-1 text-[11px] font-semibold text-slate-500">
+<span class="material-symbols-outlined text-sm">reorder</span> 6 Steps
+                            </div>
+<span class="px-2 py-0.5 bg-surface-container-high text-on-surface-variant text-[10px] rounded font-bold uppercase">Parallel</span>
+<div class="ml-auto flex items-center gap-1 text-[11px] font-bold text-primary">
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">fork_right</span> 31 forks
+                            </div>
+</div>
+</div>
+<!-- Template Card 5: Email Composer -->
+<div class="group bg-surface-container-lowest rounded-xl p-6 shadow-sm hover:shadow-xl transition-all cursor-pointer ring-1 ring-on-surface/5">
+<div class="flex justify-between items-start mb-4">
+<h3 class="text-xl font-bold font-headline">Email Composer</h3>
+<span class="px-2 py-1 bg-outline-variant/30 text-on-surface-variant text-[10px] font-bold rounded uppercase tracking-wider">Score: 65</span>
+</div>
+<p class="text-on-surface-variant text-sm line-clamp-2 mb-6">Generate professional outreach emails with customizable tones and automated follow-up sequences...</p>
+<div class="flex flex-wrap items-center gap-3 pt-4 border-t border-surface-container-low">
+<div class="flex items-center gap-1 text-[11px] font-semibold text-slate-500">
+<span class="material-symbols-outlined text-sm">reorder</span> 2 Steps
+                            </div>
+<span class="px-2 py-0.5 bg-surface-container-high text-on-surface-variant text-[10px] rounded font-bold uppercase">Sequential</span>
+<div class="ml-auto flex items-center gap-1 text-[11px] font-bold text-primary">
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">fork_right</span> 8 forks
+                            </div>
+</div>
+</div>
+<!-- Template Card 6: Meeting Summarizer -->
+<div class="group bg-surface-container-lowest rounded-xl p-6 shadow-sm hover:shadow-xl transition-all cursor-pointer ring-1 ring-on-surface/5">
+<div class="flex justify-between items-start mb-4">
+<h3 class="text-xl font-bold font-headline">Meeting Summarizer</h3>
+<span class="px-2 py-1 bg-secondary-container text-on-secondary-container text-[10px] font-bold rounded uppercase tracking-wider">Score: 95</span>
+</div>
+<p class="text-on-surface-variant text-sm line-clamp-2 mb-6">Convert long meeting transcripts into action items, key decisions, and executive summaries...</p>
+<div class="flex flex-wrap items-center gap-3 pt-4 border-t border-surface-container-low">
+<div class="flex items-center gap-1 text-[11px] font-semibold text-slate-500">
+<span class="material-symbols-outlined text-sm">reorder</span> 3 Steps
+                            </div>
+<span class="px-2 py-0.5 bg-surface-container-high text-on-surface-variant text-[10px] rounded font-bold uppercase">Sequential</span>
+<div class="ml-auto flex items-center gap-1 text-[11px] font-bold text-primary">
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">fork_right</span> 42 forks
+                            </div>
+</div>
+</div>
+</div>
+<!-- Bento Stats Area -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 pt-10">
+<div class="bg-surface-container-low p-8 rounded-xl flex flex-col justify-between min-h-[160px]">
+<span class="text-label-sm font-bold uppercase tracking-widest text-slate-500">Total Public Templates</span>
+<div class="text-5xl font-black text-primary mt-2">128</div>
+</div>
+<div class="bg-surface-container-low p-8 rounded-xl flex flex-col justify-between min-h-[160px]">
+<div class="flex justify-between items-start">
+<span class="text-label-sm font-bold uppercase tracking-widest text-slate-500">Most Forked This Month</span>
+<span class="material-symbols-outlined text-tertiary">trending_up</span>
+</div>
+<div>
+<div class="text-xl font-bold text-on-surface">Code Reviewer</div>
+<div class="text-sm font-bold text-secondary">1.2k forks</div>
+</div>
+</div>
+<div class="bg-primary p-8 rounded-xl flex flex-col justify-between min-h-[160px] group cursor-pointer hover:bg-primary-container transition-colors shadow-xl shadow-primary/10">
+<span class="text-label-sm font-bold uppercase tracking-widest text-on-primary/70">Ready to share?</span>
+<div class="flex items-center justify-between text-on-primary">
+<div class="text-xl font-bold">Create your own template</div>
+<span class="material-symbols-outlined group-hover:translate-x-1 transition-transform">arrow_forward</span>
+</div>
+</div>
+</div>
+<!-- Pagination -->
+<div class="flex items-center justify-center gap-4 pt-12">
+<button class="flex items-center gap-2 px-4 py-2 text-sm font-bold text-slate-500 hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-sm">chevron_left</span> Previous
+                    </button>
+<div class="flex gap-2">
+<button class="w-8 h-8 rounded-lg bg-primary text-white font-bold text-sm">1</button>
+<button class="w-8 h-8 rounded-lg text-slate-500 font-bold text-sm hover:bg-surface-container-high transition-colors">2</button>
+<button class="w-8 h-8 rounded-lg text-slate-500 font-bold text-sm hover:bg-surface-container-high transition-colors">3</button>
+</div>
+<button class="flex items-center gap-2 px-4 py-2 text-sm font-bold text-slate-500 hover:text-primary transition-colors">
+                        Next <span class="material-symbols-outlined text-sm">chevron_right</span>
+</button>
+</div>
+</div>
+</main>
+</div>
+<!-- Side Drawer (Travel Planner Details) -->
+<div class="fixed inset-0 z-50 pointer-events-none">
+<!-- Backdrop -->
+<div class="absolute inset-0 bg-on-surface/20 backdrop-blur-[2px] opacity-100 transition-opacity"></div>
+<!-- Drawer Panel -->
+<div class="absolute right-0 top-0 bottom-0 w-[480px] bg-surface shadow-2xl pointer-events-auto flex flex-col border-l border-outline-variant/30">
+<div class="p-8 space-y-6 flex-1 overflow-y-auto">
+<div class="flex justify-between items-start">
+<h2 class="text-3xl font-extrabold tracking-tight text-on-surface">Travel Planner</h2>
+<button class="p-2 hover:bg-surface-container-high rounded-full transition-colors">
+<span class="material-symbols-outlined">close</span>
+</button>
+</div>
+<div class="flex items-center gap-4">
+<span class="px-3 py-1 bg-secondary-container text-on-secondary-container text-xs font-bold rounded uppercase tracking-wider">Score: 92</span>
+<div class="flex items-center gap-1 text-xs font-bold text-primary">
+<span class="material-symbols-outlined text-base" style="font-variation-settings: 'FILL' 1;">fork_right</span> 24 forks
+                    </div>
+<span class="px-3 py-1 bg-surface-container-high text-on-surface-variant text-xs rounded font-bold uppercase">Sequential Mode</span>
+</div>
+<div class="space-y-4">
+<h3 class="text-sm font-bold uppercase tracking-widest text-slate-500">Description</h3>
+<p class="text-on-surface-variant leading-relaxed">
+                        A high-precision template designed for creating comprehensive travel itineraries. It intelligently analyzes destination preferences, group sizes, and time constraints to output a formatted schedule including estimated costs and logistical tips.
+                    </p>
+</div>
+<div class="space-y-6 pt-4">
+<h3 class="text-sm font-bold uppercase tracking-widest text-slate-500">Execution Steps</h3>
+<div class="relative pl-6 space-y-12">
+<!-- Connecting Line -->
+<div class="absolute left-[11px] top-4 bottom-4 w-0.5 bg-primary-container/20"></div>
+<!-- Step 1 -->
+<div class="relative flex items-start gap-4">
+<div class="absolute -left-[19px] top-1 w-2.5 h-2.5 rounded-full bg-primary ring-4 ring-primary/10 z-10"></div>
+<div class="flex-1 bg-surface-container-low p-4 rounded-xl">
+<p class="text-xs font-bold text-primary uppercase tracking-widest mb-1">Step 01</p>
+<p class="font-bold text-on-surface">Collect Preferences</p>
+<div class="mt-2 flex items-center gap-2 text-[11px] text-slate-500">
+<span class="material-symbols-outlined text-sm">terminal</span> Action: Input Parser
+                                </div>
+</div>
+</div>
+<!-- Step 2 -->
+<div class="relative flex items-start gap-4">
+<div class="absolute -left-[19px] top-1 w-2.5 h-2.5 rounded-full bg-primary ring-4 ring-primary/10 z-10"></div>
+<div class="flex-1 bg-surface-container-low p-4 rounded-xl">
+<p class="text-xs font-bold text-primary uppercase tracking-widest mb-1">Step 02</p>
+<p class="font-bold text-on-surface">Generate Itinerary</p>
+<div class="mt-2 flex items-center gap-2 text-[11px] text-slate-500">
+<span class="material-symbols-outlined text-sm">psychology</span> Action: LLM Reasoning
+                                </div>
+</div>
+</div>
+<!-- Step 3 -->
+<div class="relative flex items-start gap-4">
+<div class="absolute -left-[19px] top-1 w-2.5 h-2.5 rounded-full bg-primary ring-4 ring-primary/10 z-10"></div>
+<div class="flex-1 bg-surface-container-low p-4 rounded-xl">
+<p class="text-xs font-bold text-primary uppercase tracking-widest mb-1">Step 03</p>
+<p class="font-bold text-on-surface">Format Output</p>
+<div class="mt-2 flex items-center gap-2 text-[11px] text-slate-500">
+<span class="material-symbols-outlined text-sm">schema</span> Action: JSON Formatter
+                                </div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="p-8 border-t border-outline-variant/30 bg-surface">
+<button class="w-full py-4 bg-gradient-to-r from-primary to-primary-container text-white rounded-xl font-bold text-lg shadow-xl shadow-primary/20 hover:scale-[0.99] active:scale-[0.97] transition-all">
+                    Fork to Project
+                </button>
+</div>
+</div>
+</div>
+<!-- Fork Confirmation Dialog (Overlay) -->
+<div class="fixed inset-0 z-[60] flex items-center justify-center p-6 bg-on-surface/40 backdrop-blur-sm">
+<div class="bg-surface-container-lowest w-full max-w-md rounded-2xl p-8 shadow-2xl space-y-6 border border-white/20">
+<div class="space-y-2">
+<h2 class="text-2xl font-extrabold text-on-surface">Fork Template</h2>
+<p class="text-on-surface-variant">Are you sure you want to fork <span class="font-bold text-on-surface">Travel Planner</span> to your library?</p>
+</div>
+<div class="p-4 bg-surface-container-low rounded-xl space-y-3">
+<div class="flex justify-between text-sm">
+<span class="text-slate-500">Total Steps</span>
+<span class="font-bold text-on-surface">3 Steps</span>
+</div>
+<div class="flex justify-between text-sm">
+<span class="text-slate-500">Actions to be copied</span>
+<span class="font-bold text-on-surface">3</span>
+</div>
+<div class="flex justify-between text-sm">
+<span class="text-slate-500">Fork Destination</span>
+<span class="font-bold text-primary">My Templates</span>
+</div>
+</div>
+<div class="flex gap-4">
+<button class="flex-1 py-3 border border-outline-variant text-on-surface-variant rounded-xl font-bold hover:bg-surface-container-low transition-colors">
+                    Cancel
+                </button>
+<button class="flex-1 py-3 bg-primary text-white rounded-xl font-bold shadow-lg shadow-primary/10 hover:brightness-110 transition-all">
+                    Fork Now
+                </button>
+</div>
+</div>
+</div>
+<!-- Footer Component Mapping -->
+<footer class="ml-64 w-full py-6 px-8 flex justify-between items-center border-t border-slate-200 dark:border-slate-800 bg-[#faf8ff] dark:bg-slate-950 font-['Inter'] text-[10px] uppercase tracking-widest">
+<p class="text-slate-400 dark:text-slate-500">© 2024 AIGC Gateway. All rights reserved.</p>
+<div class="flex gap-6">
+<a class="text-slate-400 dark:text-slate-500 hover:text-slate-900 dark:hover:text-slate-100 transition-colors duration-200" href="#">Privacy Policy</a>
+<a class="text-slate-400 dark:text-slate-500 hover:text-slate-900 dark:hover:text-slate-100 transition-colors duration-200" href="#">Terms of Service</a>
+<a class="text-slate-400 dark:text-slate-500 hover:text-slate-900 dark:hover:text-slate-100 transition-colors duration-200" href="#">Changelog</a>
+<a class="text-slate-400 dark:text-slate-500 hover:text-slate-900 dark:hover:text-slate-100 transition-colors duration-200" href="#">Status</a>
+</div>
+</footer>
+</body></html>

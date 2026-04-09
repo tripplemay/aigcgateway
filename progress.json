@@ -1,38 +1,27 @@
 {
-  "status": "done",
-  "user_goal": "R4 — 6 页面设计稿结构还原（whitelist/aliases/capabilities/user-detail/admin-templates/mcp-setup）",
-  "total_features": 8,
-  "completed_features": 8,
-  "fix_rounds": 1,
-  "current_sprint": "F-R4-08",
-  "last_updated": "2026-04-09T22:30:00.000Z",
+  "status": "building",
+  "user_goal": "P5 — 系统预设模板（Public Templates）：公共模板库浏览、详情抽屉、一键 fork、MCP Tools",
+  "total_features": 7,
+  "completed_features": 1,
+  "fix_rounds": 0,
+  "current_sprint": "F-P5-02",
+  "last_updated": "2026-04-09T22:45:00.000Z",
   "reference_docs": [
-    "docs/specs/R4-design-restoration-spec.md",
-    "design-draft/admin-model-whitelist/code.html",
-    "design-draft/admin-model-aliases/code.html",
-    "design-draft/admin-model-capabilities/code.html",
-    "design-draft/admin-user-detail/code.html",
-    "design-draft/admin-templates/code.html",
-    "design-draft/mcp-setup/code.html"
+    "docs/specs/P5-public-templates-spec.md",
+    "design-draft/templates-global-library/code.html"
   ],
   "role_assignments": null,
   "docs": {
-    "spec": "docs/specs/R4-design-restoration-spec.md",
-    "test_cases": "docs/test-cases/r4-design-restoration-verifying-e2e-2026-04-09.md",
-    "signoff": "docs/test-reports/r4-design-restoration-signoff-2026-04-09.md",
+    "spec": "docs/specs/P5-public-templates-spec.md",
+    "test_cases": null,
+    "signoff": null,
     "framework_reviewed": false
   },
-  "evaluator_feedback": {
-    "summary": "R4 reverifying round2 全通过：结构还原、DS token 与 i18n 验收均通过，可签收。",
-    "pass_count": 5,
-    "partial_count": 0,
-    "fail_count": 0,
-    "issues": []
-  },
-  "generator_handoff": "Fix round 1 完成。仅剩的 8 处 Google 图标硬编码 fill 色值（#4285F4/#34A853/#FBBC05/#EA4335）已全部替换为 DS token（fill-ds-brand-google-blue/green/yellow/red）。globals.css 新增 4 个 brand token 定义 + @theme 注册。tsc 零错误，grep 确认 auth 目录零硬编码 fill。",
+  "evaluator_feedback": null,
+  "generator_handoff": null,
   "session_notes": {
-    "Kimi": "Fix round 1 二次修复完成。新增 4 个 DS brand token（ds-brand-google-blue/green/yellow/red）在 globals.css @theme + :root 中定义，login/register 页面 8 处 fill=\"#hex\" 全部替换为 className=\"fill-ds-brand-google-*\"。tsc 零错误。状态推进到 reverifying。",
-    "Planner": "Planner 会话：1) 确认 R4 已进入 verifying 阶段；2) 将 5 份核心项目文档同步到 Notion（PRD 摘要/系统架构/MCP 指南/开发规则/项目状态），根页面 ID: 33d1a2f7-699a-8110-885e-e7b35a919f2f，位于文档数据库类别\"项目文档\"下。",
-    "Reviewer": "R4 reverifying round2 已执行：AC1~AC4 全通过（legacy=0, hardcodedColor=0, hardcoded=none）。已生成 signoff 并将状态推进到 done。"
+    "Kimi": null,
+    "Planner": "P5 批次启动。F-P5-01（设计稿）已完成（design-draft/templates-global-library/code.html）。Spec 已就绪。从 backlog 移除 BL-074。Generator 从 F-P5-02（Schema 迁移）开始。",
+    "Reviewer": null
   }
 }

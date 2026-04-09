@@ -1,76 +1,64 @@
 {
-  "batch": "R4-design-restoration",
+  "batch": "P5-public-templates",
   "created_at": "2026-04-09",
   "features": [
     {
-      "id": "F-R4-01",
-      "title": "Whitelist 设计稿结构还原",
+      "id": "F-P5-01",
+      "title": "Stitch 设计稿确认与存档",
       "priority": "high",
       "executor": "generator",
       "status": "done",
-      "acceptance": "1) 9 列表格（含 Provider + Price 双行）；2) Stats 第三卡片 tertiary 配色 + hover；3) 搜索栏 search icon + filter 按钮；4) 分页省略号；5) tsc 通过",
-      "design_ref": "design-draft/admin-model-whitelist/code.html"
+      "acceptance": "1) Global Library tab 卡片网格设计稿已生成；2) 详情抽屉（Steps 流程）设计稿已生成；3) Fork 确认弹窗设计稿已生成；4) 存放于 design-draft/templates-global-library/",
+      "design_ref": "design-draft/templates-global-library/code.html"
     },
     {
-      "id": "F-R4-02",
-      "title": "Aliases 设计稿结构还原",
+      "id": "F-P5-02",
+      "title": "Schema 迁移 — sourceTemplateId",
       "priority": "high",
       "executor": "generator",
-      "status": "done",
-      "acceptance": "1) 3 列卡片网格 + 圆角 pill 标签（hover error + × 关闭）；2) 计数徽章；3) Unclassified 行首 icon；4) tsc 通过",
-      "design_ref": "design-draft/admin-model-aliases/code.html"
+      "status": "pending",
+      "acceptance": "1) sourceTemplateId 字段添加成功；2) 自引用关系和索引正确；3) npx prisma generate + migrate dev 通过；4) tsc 通过"
     },
     {
-      "id": "F-R4-03",
-      "title": "Capabilities 设计稿结构还原",
+      "id": "F-P5-03",
+      "title": "User API — 公共模板列表/详情/fork",
       "priority": "high",
       "executor": "generator",
-      "status": "done",
-      "acceptance": "1) grid-cols-12 布局（3+1+5+3）；2) 筛选栏 border-b 强调 + Bulk Update + Last sync；3) 底部 3 insight 卡片；4) IMAGE 模型 capabilities 灰化；5) tsc 通过",
-      "design_ref": "design-draft/admin-model-capabilities/code.html"
+      "status": "pending",
+      "acceptance": "1) GET /api/templates/public 返回公共模板列表，分页正确；2) GET /api/templates/public/:id 返回完整详情含 Steps；3) POST fork 深拷贝 Template+Steps+Actions，事务完整；4) 非公共模板不可被 fork（404）；5) tsc 通过"
     },
     {
-      "id": "F-R4-04",
-      "title": "User Detail 设计稿结构还原",
+      "id": "F-P5-04",
+      "title": "User UI — Global Library tab + 详情抽屉 + Fork",
       "priority": "high",
       "executor": "generator",
-      "status": "done",
-      "acceptance": "1) Hero profile 布局（4+8 col）；2) Balance History 区域（或空状态）；3) Danger Zone 按钮；4) tsc 通过",
-      "design_ref": "design-draft/admin-user-detail/code.html"
+      "status": "pending",
+      "acceptance": "1) Templates 页有 My Templates / Global Library 两个 tab；2) Global Library 展示 3 列卡片网格；3) 点击卡片打开右侧详情抽屉（含 Steps 流程链）；4) Fork 确认弹窗展示待拷贝内容；5) Fork 成功 toast + 跳转新模板；6) 布局与设计稿一致",
+      "design_ref": "design-draft/templates-global-library/code.html"
     },
     {
-      "id": "F-R4-05",
-      "title": "Admin Templates 卡片网格还原",
+      "id": "F-P5-05",
+      "title": "MCP Tools — list_public_templates + fork_public_template",
       "priority": "medium",
       "executor": "generator",
-      "status": "done",
-      "acceptance": "1) 表格改为 3 列卡片网格；2) 质量评分徽章；3) 保留搜索/筛选功能；4) tsc 通过",
-      "design_ref": "design-draft/admin-templates/code.html"
+      "status": "pending",
+      "acceptance": "1) list_public_templates 返回公共模板列表；2) fork_public_template 成功 fork 并返回结果；3) SERVER_INSTRUCTIONS 已更新；4) tsc 通过"
     },
     {
-      "id": "F-R4-06",
-      "title": "MCP Setup bento grid 还原",
+      "id": "F-P5-06",
+      "title": "i18n — 中英文翻译同步",
       "priority": "medium",
       "executor": "generator",
-      "status": "done",
-      "acceptance": "1) 5/7 bento grid 布局；2) 底部 3 列 feature showcase；3) 保留 10 客户端选择；4) tsc 通过",
-      "design_ref": "design-draft/mcp-setup/code.html"
+      "status": "pending",
+      "acceptance": "1) en.json + zh-CN.json 同步更新（~20 个 key）；2) 无硬编码字符串；3) UI 中英文切换正常"
     },
     {
-      "id": "F-R4-07",
-      "title": "Register 左侧终端与 Login 统一",
-      "priority": "high",
-      "executor": "generator",
-      "status": "done",
-      "acceptance": "1) Terminal 组件抽离为共享模块；2) Register 复用 Login 的 Terminal + 品牌头 + tagline + footer stats；3) Login ↔ Register 切换左侧视觉零变化；4) tsc 通过"
-    },
-    {
-      "id": "F-R4-08",
-      "title": "R4 全量验收",
+      "id": "F-P5-07",
+      "title": "P5 全量验收",
       "priority": "high",
       "executor": "codex",
-      "status": "done",
-      "acceptance": "1) 7 页面布局与设计稿一致；2) DS token 零旧 token；3) i18n 无残留；4) Login ↔ Register 左侧一致；5) 现有功能不回退；6) 签收报告生成"
+      "status": "pending",
+      "acceptance": "1) 公共模板从 Admin 标记到用户 fork 全链路通过；2) Fork 深拷贝完整性（Template+Steps+Actions）；3) MCP Tools 功能正确；4) DS token 一致，零旧 token；5) 现有 Templates 功能不回退；6) 签收报告生成"
     }
   ]
 }
