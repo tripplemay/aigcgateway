@@ -113,9 +113,7 @@ export default function ProvidersPage() {
             <h2 className="text-3xl font-extrabold tracking-tight font-[var(--font-heading)] text-ds-on-surface">
               {t("title")}
             </h2>
-            <p className="text-ds-on-surface-variant font-medium mt-1">
-              {t("subtitle")}
-            </p>
+            <p className="text-ds-on-surface-variant font-medium mt-1">{t("subtitle")}</p>
           </div>
           <button
             onClick={openCreate}
@@ -179,11 +177,11 @@ export default function ProvidersPage() {
                       <button onClick={() => toggleStatus(p)}>
                         {p.status === "ACTIVE" ? (
                           <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-green-100 text-green-700 border border-green-200">
-                            ACTIVE
+                            {t("statusActive")}
                           </span>
                         ) : (
                           <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-500 border border-slate-200">
-                            DISABLED
+                            {t("statusDisabled")}
                           </span>
                         )}
                       </button>
@@ -224,7 +222,7 @@ export default function ProvidersPage() {
           {/* Total Tokens In (24h) — lines 297-314 */}
           <div className="col-span-12 md:col-span-4 bg-ds-surface-container-lowest p-6 rounded-xl shadow-sm">
             <h3 className="text-[11px] uppercase tracking-widest text-slate-400 font-bold mb-4">
-              Total Tokens In (24h)
+              {t("totalTokens24h")}
             </h3>
             <div className="flex items-end gap-2">
               <span className="text-4xl font-extrabold font-[var(--font-heading)] text-ds-on-surface">
@@ -249,7 +247,10 @@ export default function ProvidersPage() {
             <div className="relative z-10">
               <h3 className="text-white/70 font-bold text-sm mb-2">{t("operationalStatus")}</h3>
               <p className="text-white text-2xl font-[var(--font-heading)] font-bold max-w-md">
-                {t("operationalDesc", { active: providers.filter((p) => p.status === "ACTIVE").length, total: providers.length })}
+                {t("operationalDesc", {
+                  active: providers.filter((p) => p.status === "ACTIVE").length,
+                  total: providers.length,
+                })}
               </p>
             </div>
             <div className="absolute -right-10 -bottom-10 w-48 h-48 bg-white/10 rounded-full blur-3xl" />
@@ -278,7 +279,11 @@ export default function ProvidersPage() {
             <div className="p-8 space-y-5">
               {[
                 { key: "name", label: tc("name"), placeholder: t("namePlaceholder") },
-                { key: "displayName", label: t("displayName"), placeholder: t("displayNamePlaceholder") },
+                {
+                  key: "displayName",
+                  label: t("displayName"),
+                  placeholder: t("displayNamePlaceholder"),
+                },
                 { key: "baseUrl", label: t("baseUrl"), placeholder: "https://api.openai.com/v1" },
                 { key: "apiKey", label: t("apiKey"), placeholder: "sk-...", type: "password" },
               ].map((f) => (
@@ -390,7 +395,7 @@ export default function ProvidersPage() {
                 </label>
                 <input
                   className="w-full bg-ds-surface-container-low border-none rounded-lg px-4 py-3 text-sm outline-none"
-                  placeholder="null = not supported"
+                  placeholder={t("imageEndpointPlaceholder")}
                   value={config.imageEndpoint ?? ""}
                   onChange={(e) => setConfig({ ...config, imageEndpoint: e.target.value || null })}
                 />

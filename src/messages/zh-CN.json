@@ -417,7 +417,11 @@
     "operationalDesc": "{active} / {total} 个服务商运行正常。",
     "viewStatusPage": "查看状态页面",
     "namePlaceholder": "例如：openai",
-    "displayNamePlaceholder": "例如：OpenAI"
+    "displayNamePlaceholder": "例如：OpenAI",
+    "totalTokens24h": "过去 24 小时 Token 总量",
+    "statusActive": "启用",
+    "statusDisabled": "禁用",
+    "imageEndpointPlaceholder": "null = 不支持"
   },
   "adminModels": {
     "title": "通道管理",
@@ -473,7 +477,11 @@
     "troubleshoot": "排查",
     "healthy": "健康",
     "total": "总计",
-    "level": "L{n}"
+    "level": "L{n}",
+    "allClear": "全部正常",
+    "modelsUnit": "个模型",
+    "highPriority": "高优先级",
+    "timedOut": "超时"
   },
   "modelWhitelist": {
     "title": "模型白名单",
@@ -543,7 +551,12 @@
     "aliasDeleted": "别名已删除",
     "mergeDone": "模型已归入（迁移了 {channels} 个通道）",
     "loading": "加载中...",
-    "selectTarget": "选择目标模型..."
+    "selectTarget": "选择目标模型...",
+    "aliasCount": "{count} 个别名",
+    "colModel": "模型",
+    "colModality": "类型",
+    "colChannels": "通道",
+    "colActions": "操作"
   },
   "modelCapabilities": {
     "title": "模型能力管理",

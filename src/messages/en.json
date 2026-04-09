@@ -417,7 +417,11 @@
     "operationalDesc": "{active} / {total} total providers operational.",
     "viewStatusPage": "View Status Page",
     "namePlaceholder": "e.g. openai",
-    "displayNamePlaceholder": "e.g. OpenAI"
+    "displayNamePlaceholder": "e.g. OpenAI",
+    "totalTokens24h": "Total Tokens In (24h)",
+    "statusActive": "Active",
+    "statusDisabled": "Disabled",
+    "imageEndpointPlaceholder": "null = not supported"
   },
   "adminModels": {
     "title": "Channel Management",
@@ -473,7 +477,11 @@
     "troubleshoot": "Troubleshoot",
     "healthy": "Healthy",
     "total": "Total",
-    "level": "L{n}"
+    "level": "L{n}",
+    "allClear": "All Clear",
+    "modelsUnit": "Models",
+    "highPriority": "High Priority",
+    "timedOut": "Timed Out"
   },
   "modelWhitelist": {
     "title": "Model Whitelist",
@@ -543,7 +551,12 @@
     "aliasDeleted": "Alias deleted",
     "mergeDone": "Model merged successfully ({channels} channels migrated)",
     "loading": "Loading...",
-    "selectTarget": "Select target model..."
+    "selectTarget": "Select target model...",
+    "aliasCount": "{count, plural, one {# alias} other {# aliases}}",
+    "colModel": "Model",
+    "colModality": "Modality",
+    "colChannels": "Channels",
+    "colActions": "Actions"
   },
   "modelCapabilities": {
     "title": "Model Capabilities",

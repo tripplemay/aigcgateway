@@ -33,7 +33,11 @@ export default function ModelAliasesPage() {
     allModels: { name: string }[];
   }
 
-  const { data: aliasData, loading, refetch: load } = useAsyncData<AliasData>(async () => {
+  const {
+    data: aliasData,
+    loading,
+    refetch: load,
+  } = useAsyncData<AliasData>(async () => {
     const [aliasRes, modelsRes] = await Promise.all([
       apiFetch<{ data: Record<string, AliasItem[]> }>("/api/admin/model-aliases"),
       apiFetch<{
@@ -144,7 +148,7 @@ export default function ModelAliasesPage() {
                   <span className="material-symbols-outlined text-primary text-lg">link</span>
                   <span className="font-bold text-sm">{modelName}</span>
                   <span className="text-xs text-muted-foreground">
-                    ({aliases.length} {aliases.length === 1 ? "alias" : "aliases"})
+                    ({t("aliasCount", { count: aliases.length })})
                   </span>
                 </div>
                 <div className="space-y-1 ml-7">
@@ -195,16 +199,16 @@ export default function ModelAliasesPage() {
               <thead>
                 <tr className="bg-muted/30">
                   <th className="px-4 py-3 text-[10px] font-black uppercase tracking-widest text-muted-foreground">
-                    Model
+                    {t("colModel")}
                   </th>
                   <th className="px-4 py-3 text-[10px] font-black uppercase tracking-widest text-muted-foreground">
-                    Modality
+                    {t("colModality")}
                   </th>
                   <th className="px-4 py-3 text-[10px] font-black uppercase tracking-widest text-muted-foreground">
-                    Channels
+                    {t("colChannels")}
                   </th>
                   <th className="px-4 py-3 text-[10px] font-black uppercase tracking-widest text-muted-foreground text-right">
-                    Actions
+                    {t("colActions")}
                   </th>
                 </tr>
               </thead>

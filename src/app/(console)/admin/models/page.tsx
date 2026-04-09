@@ -323,7 +323,7 @@ export default function ModelsChannelsPage() {
         <div className="flex items-center gap-1.5 px-3">
           <span className="w-2 h-2 rounded-full bg-ds-secondary" />
           <span className="text-[10px] font-bold text-ds-on-surface-variant uppercase tracking-wider">
-            All Clear
+            {t("allClear")}
           </span>
         </div>
         {/* Sync (functional addition, appended at end) */}
@@ -347,7 +347,7 @@ export default function ModelsChannelsPage() {
             const healthLabel =
               prov.summary.degradedChannels > 0 || prov.summary.disabledChannels > 0
                 ? "Degraded"
-                : "Healthy";
+                : t("healthy");
             const visibleModels = showAllModels.has(prov.id)
               ? prov.models
               : prov.models.slice(0, MODELS_PER_PAGE);
@@ -374,7 +374,7 @@ export default function ModelsChannelsPage() {
                       </h3>
                       <div className="flex items-center gap-3 mt-0.5">
                         <span className="text-xs text-ds-on-surface-variant font-bold">
-                          {prov.summary.modelCount} Models {t("active")}
+                          {prov.summary.modelCount} {t("modelsUnit")} {t("active")}
                         </span>
                         <span className="text-xs text-ds-secondary flex items-center gap-1">
                           <span className="w-1.5 h-1.5 rounded-full bg-ds-secondary" />
@@ -417,7 +417,7 @@ export default function ModelsChannelsPage() {
                               </span>
                               {model.channels.some((c) => c.priority <= 1) && (
                                 <span className="text-[10px] font-black bg-ds-primary/10 text-ds-primary px-2 py-0.5 rounded-md uppercase">
-                                  High Priority
+                                  {t("highPriority")}
                                 </span>
                               )}
                             </div>
@@ -698,7 +698,7 @@ export default function ModelsChannelsPage() {
                         className={`px-6 py-4 text-xs ${isTimedOut ? "text-ds-error font-bold" : "text-ds-on-surface-variant"}`}
                       >
                         {isTimedOut
-                          ? "Timed Out"
+                          ? t("timedOut")
                           : row.channel.latencyMs !== null
                             ? `${row.channel.latencyMs}ms`
                             : "\u2014"}
