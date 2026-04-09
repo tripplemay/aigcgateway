@@ -7,7 +7,7 @@
       "title": "Actions 列表页还原",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) useAsyncData + Table + SearchBar + Pagination；2) 列：名称、模型、版本号(v{n})、描述、更新时间；3) 搜索+分页；4) 行点击跳详情；5) Create Action 按钮跳 /actions/new；6) 对齐设计稿（忽略 DESIGN.md 标注项）；7) npm run lint + tsc 通过",
       "design_ref": "design-draft/actions/code.html"
     },
@@ -16,7 +16,7 @@
       "title": "Actions 详情页还原",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) useAsyncData + Card；2) 头部（名称+模型 badge+Delete/Edit/New Version）；3) Active Version 区（消息+变量高亮）；4) Variables Configuration 表格；5) Version History + 切换活跃版本；6) Delete 确认弹窗（Dialog）；7) 对齐设计稿（忽略 DESIGN.md 标注项）；8) npm run lint + tsc 通过",
       "design_ref": "design-draft/actions-detail/code.html"
     },

@@ -700,7 +700,12 @@
     "docsTeaser": "Need help scaling your custom LLM actions? Check our best practices for prompt engineering.",
     "viewDocs": "View Documentation",
     "previous": "Previous",
-    "next": "Next"
+    "next": "Next",
+    "systemMessage": "System Message",
+    "userPrompt": "User Prompt",
+    "assistant": "Assistant",
+    "totalVersions": "Total Versions",
+    "loadFailed": "Failed to load action"
   },
   "templates": {
     "title": "Templates",
