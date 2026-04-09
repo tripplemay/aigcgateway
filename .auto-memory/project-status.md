@@ -4,18 +4,22 @@ description: AIGC Gateway 当前状态快照（覆盖写，≤30 行）
 type: project
 ---
 ## 当前批次
-- P5-public-templates：`done`（reverifying round2 通过并签收）
-- spec：`docs/specs/P5-public-templates-spec.md`
-- signoff：`docs/test-reports/p5-public-templates-signoff-2026-04-09.md`
+- M1a-alias-backend-core：`building`
+- spec：`docs/specs/M1-models-page-rework-spec.md`
+- M1 拆为三批：M1a（后端核心）→ M1b（LLM推断+Admin UI）→ M1c（用户Models页）
 
-## 本轮签收结论（2026-04-09）
-- 自动化结果：`passCount=7, failCount=0`
-- 关键指标：`legacy=0`，`hardcodedColor=0`，`hardcoded=none`
-- 覆盖：公共模板链路、fork 深拷贝、MCP tools、DS token 审计、i18n 审计
+## M1a 功能拆分（6 个）
+- F-M1a-01 Schema 迁移（ModelAlias 升级 + AliasModelLink）
+- F-M1a-02 Admin CRUD API（别名管理 + 模型挂载 + Model.enabled 派生）
+- F-M1a-03 路由引擎（routeByAlias 替换 routeByModelName）
+- F-M1a-04 GET /v1/models 返回别名
+- F-M1a-05 MCP Tools 适配
+- F-M1a-06 全量验收（codex）
 
-## UI 重构进度
-- 已完成并签收：R1 / R2A / R2B / R2C / R3A / R3B / R3C / R4 / P5
+## 已完成批次
+- R1~R4：UI 重构全部签收
+- P5：公共模板库（签收）
 
-## 已知遗留
-- 无 P5 阻塞项
-- 下一批次由 Planner 根据 backlog 启动
+## Backlog
+- 6 条待处理（BL-065~073，含 2 条 high 安全修复）
+- M1b/M1c 待 M1a 完成后启动

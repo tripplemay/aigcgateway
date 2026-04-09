@@ -56,19 +56,6 @@
       "decisions": [],
       "confirmed_at": "2026-04-09",
       "priority": "low"
-    },
-    {
-      "id": "BL-075",
-      "title": "模型别名架构升级（M1）",
-      "description": "别名成为一等公民：用户只看到/调用别名，底层模型和渠道不可见。含：Schema 升级（AliasModelLink）、LLM 推断 brand + 自动分类挂载、路由引擎改 routeByAlias、/v1/models 返回别名、Models 页按品牌分组、白名单页合并入别名管理页。Spec: docs/specs/M1-models-page-rework-spec.md",
-      "decisions": [
-        "不兼容旧模式，旧数据清空重建",
-        "LLM 锚定已有别名做分类而非生成，保证确定性",
-        "Model.enabled 变为派生状态（挂载到别名=自动启用）",
-        "白名单页面删除，别名管理页成为唯一入口"
-      ],
-      "confirmed_at": "2026-04-09",
-      "priority": "high"
     }
   ]
 }

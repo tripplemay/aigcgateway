@@ -1,64 +1,54 @@
 {
-  "batch": "P5-public-templates",
+  "batch": "M1a-alias-backend-core",
   "created_at": "2026-04-09",
   "features": [
     {
-      "id": "F-P5-01",
-      "title": "Stitch 设计稿确认与存档",
+      "id": "F-M1a-01",
+      "title": "Schema 迁移 — ModelAlias 升级 + AliasModelLink",
       "priority": "high",
       "executor": "generator",
-      "status": "done",
-      "acceptance": "1) Global Library tab 卡片网格设计稿已生成；2) 详情抽屉（Steps 流程）设计稿已生成；3) Fork 确认弹窗设计稿已生成；4) 存放于 design-draft/templates-global-library/",
-      "design_ref": "design-draft/templates-global-library/code.html"
+      "status": "pending",
+      "acceptance": "1) ModelAlias 表新增 brand/modality/enabled/contextWindow/maxTokens/capabilities/description/updatedAt 列；2) 旧 modelName 列删除；3) alias_model_links 表创建（aliasId+modelId 联合唯一）；4) Model 表新增 aliasLinks 反向关联；5) 旧 ModelAlias 数据清空；6) prisma generate + migrate dev 通过；7) tsc 通过"
     },
     {
-      "id": "F-P5-02",
-      "title": "Schema 迁移 — sourceTemplateId",
+      "id": "F-M1a-02",
+      "title": "Admin CRUD API — 别名管理 + 模型挂载",
       "priority": "high",
       "executor": "generator",
-      "status": "done",
-      "acceptance": "1) sourceTemplateId 字段添加成功；2) 自引用关系和索引正确；3) npx prisma generate + migrate dev 通过；4) tsc 通过"
+      "status": "pending",
+      "acceptance": "1) GET /api/admin/model-aliases 返回别名列表（含关联模型数、渠道数）；2) POST 创建别名；3) PATCH /:id 编辑元数据（alias/brand/enabled/description 等）；4) DELETE /:id 删除别名；5) POST /:id/link 挂载模型（自动设 Model.enabled=true）；6) DELETE /:id/link/:modelId 移除模型（无别名时自动 Model.enabled=false）；7) tsc 通过"
     },
     {
-      "id": "F-P5-03",
-      "title": "User API — 公共模板列表/详情/fork",
+      "id": "F-M1a-03",
+      "title": "路由引擎 — routeByAlias 替换 routeByModelName",
       "priority": "high",
       "executor": "generator",
-      "status": "done",
-      "acceptance": "1) GET /api/templates/public 返回公共模板列表，分页正确；2) GET /api/templates/public/:id 返回完整详情含 Steps；3) POST fork 深拷贝 Template+Steps+Actions，事务完整；4) 非公共模板不可被 fork（404）；5) tsc 通过"
+      "status": "pending",
+      "acceptance": "1) 新增 routeByAlias：别名 → 关联 Models → 所有 ACTIVE Channel → 按 priority 选最优（跳过健康检查 FAIL 的）；2) 别名不存在直接 404；3) 替换 /v1/chat/completions 中的 routeByModelName 调用；4) 旧 routeByModelName 保留但不再被外部调用；5) tsc 通过"
     },
     {
-      "id": "F-P5-04",
-      "title": "User UI — Global Library tab + 详情抽屉 + Fork",
+      "id": "F-M1a-04",
+      "title": "GET /v1/models — 返回别名列表",
       "priority": "high",
       "executor": "generator",
-      "status": "done",
-      "acceptance": "1) Templates 页有 My Templates / Global Library 两个 tab；2) Global Library 展示 3 列卡片网格；3) 点击卡片打开右侧详情抽屉（含 Steps 流程链）；4) Fork 确认弹窗展示待拷贝内容；5) Fork 成功 toast + 跳转新模板；6) 布局与设计稿一致",
-      "design_ref": "design-draft/templates-global-library/code.html"
+      "status": "pending",
+      "acceptance": "1) 返回 ModelAlias（enabled=true）而非 Model；2) 响应含 id(别名)、brand、modality、context_window、pricing、capabilities；3) 不返回 provider_name；4) pricing 取关联 Channel 中 priority 最高的售价；5) Redis 缓存逻辑适配；6) tsc 通过"
     },
     {
-      "id": "F-P5-05",
-      "title": "MCP Tools — list_public_templates + fork_public_template",
+      "id": "F-M1a-05",
+      "title": "MCP Tools 适配",
       "priority": "medium",
       "executor": "generator",
-      "status": "done",
-      "acceptance": "1) list_public_templates 返回公共模板列表；2) fork_public_template 成功 fork 并返回结果；3) SERVER_INSTRUCTIONS 已更新；4) tsc 通过"
+      "status": "pending",
+      "acceptance": "1) list_models 返回别名（同 /v1/models）；2) chat tool 用别名调用（走 routeByAlias）；3) 其他 MCP tools 不受影响；4) tsc 通过"
     },
     {
-      "id": "F-P5-06",
-      "title": "i18n — 中英文翻译同步",
-      "priority": "medium",
-      "executor": "generator",
-      "status": "done",
-      "acceptance": "1) en.json + zh-CN.json 同步更新（~20 个 key）；2) 无硬编码字符串；3) UI 中英文切换正常"
-    },
-    {
-      "id": "F-P5-07",
-      "title": "P5 全量验收",
+      "id": "F-M1a-06",
+      "title": "M1a 全量验收",
       "priority": "high",
       "executor": "codex",
-      "status": "done",
-      "acceptance": "1) 公共模板从 Admin 标记到用户 fork 全链路通过；2) Fork 深拷贝完整性（Template+Steps+Actions）；3) MCP Tools 功能正确；4) DS token 一致，零旧 token；5) 现有 Templates 功能不回退；6) 签收报告生成"
+      "status": "pending",
+      "acceptance": "1) Admin 创建别名 + 挂载模型 → GET /v1/models 可见；2) 用户用别名调 /v1/chat/completions → 成功路由到 Channel；3) 别名不存在 → 404；4) Model.enabled 随挂载/移除自动变化；5) MCP list_models + chat 正常；6) 签收报告生成"
     }
   ]
 }
