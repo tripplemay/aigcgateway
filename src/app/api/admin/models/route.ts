@@ -71,6 +71,7 @@ export async function GET(request: Request) {
         providerName: ch.provider.name,
         status: ch.status,
         priority: ch.priority,
+        costPrice: ch.costPrice,
         sellPrice: ch.sellPrice,
         healthResult: ch.healthChecks[0]?.result ?? null,
         healthLatencyMs: ch.healthChecks[0]?.latencyMs ?? null,

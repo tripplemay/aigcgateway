@@ -17,6 +17,7 @@ interface ChannelInfo {
   providerName: string;
   status: string;
   priority: number;
+  costPrice: Record<string, unknown> | null;
   sellPrice: Record<string, unknown> | null;
   healthResult: string | null;
   healthLatencyMs: number | null;
@@ -61,6 +62,21 @@ function fmtSellPrice(p: Record<string, unknown> | null, freeLabel: string): str
   const inp = Number(p.inputPer1M ?? 0);
   const out = Number(p.outputPer1M ?? 0);
   return inp === 0 && out === 0 ? freeLabel : `$${inp.toFixed(2)} / $${out.toFixed(2)}`;
+}
+
+function fmtCostPrice(
+  p: Record<string, unknown> | null,
+  costLabel: string,
+  perImg: string,
+): string {
+  if (!p) return "";
+  if (p.unit === "call") {
+    const v = Number(p.perCall ?? 0);
+    return v === 0 ? "" : `$${v}${perImg} ${costLabel}`;
+  }
+  const inp = Number(p.inputPer1M ?? 0);
+  const out = Number(p.outputPer1M ?? 0);
+  return inp === 0 && out === 0 ? "" : `$${inp.toFixed(2)} / $${out.toFixed(2)} ${costLabel}`;
 }
 
 function fmtContext(n: number | null): string {
@@ -241,8 +257,8 @@ export default function ModelWhitelistPage() {
 
       {/* Stats Row */}
       <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-ds-surface-container-lowest/60 backdrop-blur-lg rounded-xl p-6 shadow-sm border flex items-center gap-5">
-          <div className="w-14 h-14 rounded-xl bg-ds-primary/10 flex items-center justify-center text-ds-primary">
+        <div className="bg-ds-surface-container-lowest/60 backdrop-blur-lg rounded-xl p-6 shadow-sm border flex items-center gap-5 group hover:shadow-md transition-all">
+          <div className="w-14 h-14 rounded-xl bg-ds-primary/10 flex items-center justify-center text-ds-primary group-hover:scale-110 transition-transform">
             <span
               className="material-symbols-outlined text-3xl"
               style={{ fontVariationSettings: "'FILL' 1" }}
@@ -260,8 +276,8 @@ export default function ModelWhitelistPage() {
             </p>
           </div>
         </div>
-        <div className="bg-ds-surface-container-lowest/60 backdrop-blur-lg rounded-xl p-6 shadow-sm border flex items-center gap-5">
-          <div className="w-14 h-14 rounded-xl bg-ds-primary/10 flex items-center justify-center text-ds-primary">
+        <div className="bg-ds-surface-container-lowest/60 backdrop-blur-lg rounded-xl p-6 shadow-sm border flex items-center gap-5 group hover:shadow-md transition-all">
+          <div className="w-14 h-14 rounded-xl bg-ds-primary/10 flex items-center justify-center text-ds-primary group-hover:scale-110 transition-transform">
             <span
               className="material-symbols-outlined text-3xl"
               style={{ fontVariationSettings: "'FILL' 1" }}
@@ -279,8 +295,8 @@ export default function ModelWhitelistPage() {
             </p>
           </div>
         </div>
-        <div className="bg-ds-surface-container-lowest/60 backdrop-blur-lg rounded-xl p-6 shadow-sm border flex items-center gap-5">
-          <div className="w-14 h-14 rounded-xl bg-orange-100 flex items-center justify-center text-orange-600">
+        <div className="bg-ds-surface-container-lowest/60 backdrop-blur-lg rounded-xl p-6 shadow-sm border flex items-center gap-5 group hover:shadow-md transition-all">
+          <div className="w-14 h-14 rounded-xl bg-ds-tertiary-fixed flex items-center justify-center text-ds-tertiary group-hover:scale-110 transition-transform">
             <span
               className="material-symbols-outlined text-3xl"
               style={{ fontVariationSettings: "'FILL' 1" }}
@@ -302,7 +318,10 @@ export default function ModelWhitelistPage() {
 
       {/* Filter Bar */}
       <section className="flex flex-wrap items-center gap-4 bg-ds-surface-container-low/50 p-2 rounded-2xl">
-        <div className="flex-1 min-w-[240px]">
+        <div className="flex-1 min-w-[240px] relative">
+          <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-ds-on-surface-variant text-lg">
+            search
+          </span>
           <Input
             placeholder={t("searchPlaceholder")}
             value={search}
@@ -310,7 +329,7 @@ export default function ModelWhitelistPage() {
               setSearch(e.target.value);
               setPage(0);
             }}
-            className="bg-ds-surface"
+            className="bg-ds-surface pl-11"
           />
         </div>
         <div className="flex items-center gap-3">
@@ -341,6 +360,9 @@ export default function ModelWhitelistPage() {
             <option value="text">{t("text")}</option>
             <option value="image">{t("image")}</option>
           </select>
+          <button className="bg-ds-surface p-3 rounded-xl shadow-sm text-ds-on-surface-variant hover:text-ds-primary transition-colors">
+            <span className="material-symbols-outlined">filter_list</span>
+          </button>
         </div>
       </section>
 
@@ -360,10 +382,16 @@ export default function ModelWhitelistPage() {
                     {t("colModelName")}
                   </th>
                   <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-ds-on-surface-variant">
+                    {t("colProvider")}
+                  </th>
+                  <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-ds-on-surface-variant">
                     {t("colModality")}
                   </th>
                   <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-ds-on-surface-variant text-center">
                     {t("colContext")}
+                  </th>
+                  <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-ds-on-surface-variant">
+                    {t("colPrice")}
                   </th>
                   <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-ds-on-surface-variant">
                     {t("colChannels")}
@@ -398,15 +426,20 @@ export default function ModelWhitelistPage() {
                           <div className="flex items-center gap-2">
                             <span className="font-bold text-sm">{item.name}</span>
                             {isNewModel(item.createdAt) && (
-                              <span className="bg-orange-100 text-orange-800 text-[9px] font-black px-1.5 py-0.5 rounded uppercase tracking-tighter">
+                              <span className="bg-ds-tertiary-fixed text-ds-on-tertiary-fixed text-[9px] font-black px-1.5 py-0.5 rounded uppercase tracking-tighter">
                                 {t("newBadge")}
                               </span>
                             )}
                           </div>
                         </td>
                         <td className="px-6 py-5">
+                          <span className="text-xs font-semibold text-ds-on-surface-variant">
+                            {item.channels[0]?.provider ?? "\u2014"}
+                          </span>
+                        </td>
+                        <td className="px-6 py-5">
                           <span
-                            className={`text-[10px] font-bold px-2 py-1 rounded-md ${item.modality === "IMAGE" ? "bg-violet-100 text-violet-700" : "bg-ds-primary/10 text-ds-primary"}`}
+                            className={`text-[10px] font-bold px-2 py-1 rounded-md ${item.modality === "IMAGE" ? "bg-ds-secondary-container text-ds-secondary" : "bg-ds-primary/10 text-ds-primary"}`}
                           >
                             {item.modality === "IMAGE" ? t("image") : t("text")}
                           </span>
@@ -415,6 +448,22 @@ export default function ModelWhitelistPage() {
                           <span className="text-xs font-mono text-ds-on-surface-variant">
                             {fmtContext(item.contextWindow)}
                           </span>
+                        </td>
+                        <td className="px-6 py-5">
+                          <div className="flex flex-col">
+                            <span className="text-xs font-bold">
+                              {fmtSellPrice(item.sellPrice, t("free"))}
+                            </span>
+                            {item.channels[0]?.costPrice && (
+                              <span className="text-[10px] text-ds-on-surface-variant font-medium">
+                                {fmtCostPrice(
+                                  item.channels[0].costPrice,
+                                  t("costLabel"),
+                                  t("perImg"),
+                                )}
+                              </span>
+                            )}
+                          </div>
                         </td>
                         <td className="px-6 py-5">
                           {item.activeChannelCount > 0 ? (
@@ -477,6 +526,7 @@ export default function ModelWhitelistPage() {
                                 </span>
                               </div>
                             </td>
+                            <td className="px-6 py-3" />
                             <td className="px-6 py-3 text-center">
                               <span className="text-[10px] text-ds-on-surface-variant">
                                 P{ch.priority}
@@ -569,19 +619,35 @@ export default function ModelWhitelistPage() {
                   <span className="material-symbols-outlined text-lg">chevron_left</span>
                 </button>
                 <div className="flex items-center gap-1">
-                  {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
-                    const pageNum =
-                      totalPages <= 5 ? i : Math.max(0, Math.min(page - 2, totalPages - 5)) + i;
-                    return (
-                      <button
-                        key={pageNum}
-                        className={`w-8 h-8 rounded-lg text-xs font-bold transition-colors ${pageNum === page ? "bg-ds-primary text-ds-on-primary shadow-sm" : "hover:bg-ds-surface text-ds-on-surface-variant"}`}
-                        onClick={() => setPage(pageNum)}
-                      >
-                        {pageNum + 1}
-                      </button>
+                  {(() => {
+                    const pages: (number | "ellipsis")[] = [];
+                    if (totalPages <= 5) {
+                      for (let i = 0; i < totalPages; i++) pages.push(i);
+                    } else {
+                      pages.push(0);
+                      if (page > 2) pages.push("ellipsis");
+                      const start = Math.max(1, page - 1);
+                      const end = Math.min(totalPages - 2, page + 1);
+                      for (let i = start; i <= end; i++) pages.push(i);
+                      if (page < totalPages - 3) pages.push("ellipsis");
+                      pages.push(totalPages - 1);
+                    }
+                    return pages.map((p, idx) =>
+                      p === "ellipsis" ? (
+                        <span key={`e${idx}`} className="px-1 text-ds-on-surface-variant">
+                          ...
+                        </span>
+                      ) : (
+                        <button
+                          key={p}
+                          className={`w-8 h-8 rounded-lg text-xs font-bold transition-colors ${p === page ? "bg-ds-primary text-ds-on-primary shadow-sm" : "hover:bg-ds-surface text-ds-on-surface-variant"}`}
+                          onClick={() => setPage(p)}
+                        >
+                          {p + 1}
+                        </button>
+                      ),
                     );
-                  })}
+                  })()}
                 </div>
                 <button
                   className="p-2 border rounded-lg hover:bg-ds-surface transition-colors disabled:opacity-50"

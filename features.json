@@ -7,7 +7,7 @@
       "title": "Whitelist 设计稿结构还原",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) 9 列表格（含 Provider + Price 双行）；2) Stats 第三卡片 tertiary 配色 + hover；3) 搜索栏 search icon + filter 按钮；4) 分页省略号；5) tsc 通过",
       "design_ref": "design-draft/admin-model-whitelist/code.html"
     },
