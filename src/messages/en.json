@@ -689,7 +689,8 @@
     "keyPlaceholder": "Paste your full API Key (pk_...)",
     "pasteFullKey": "Please paste your full API Key in the input field above",
     "enterKeyFirst": "Please enter your API Key first",
-    "noKey": "No API Key found. Create one first."
+    "noKey": "No API Key found. Create one first.",
+    "badge": "Setup Guide"
   },
   "actions": {
     "title": "Actions",

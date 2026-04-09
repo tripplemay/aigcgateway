@@ -689,7 +689,8 @@
     "keyPlaceholder": "粘贴完整 API Key (pk_...)",
     "pasteFullKey": "请在上方输入框中粘贴完整的 API Key",
     "enterKeyFirst": "请先输入 API Key",
-    "noKey": "未找到 API 密钥，请先创建。"
+    "noKey": "未找到 API 密钥，请先创建。",
+    "badge": "配置指南"
   },
   "actions": {
     "title": "动作",

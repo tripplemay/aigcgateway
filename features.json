@@ -57,7 +57,7 @@
       "title": "MCP Setup 页面 polish",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) 硬编码 bg-indigo-* 替换为 ds-* token；2) 手写 dropdown 改用项目标准模式；3) 对齐设计稿；4) tsc + lint 通过",
       "design_ref": "design-draft/mcp-setup/code.html"
     },
