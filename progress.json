@@ -1,8 +1,8 @@
 {
-  "status": "reverifying",
+  "status": "fixing",
   "user_goal": "R4 — 6 页面设计稿结构还原（whitelist/aliases/capabilities/user-detail/admin-templates/mcp-setup）",
   "total_features": 8,
-  "completed_features": 7,
+  "completed_features": 6,
   "fix_rounds": 1,
   "current_sprint": "F-R4-08",
   "last_updated": "2026-04-09T13:10:12.089Z",
@@ -23,34 +23,22 @@
     "framework_reviewed": false
   },
   "evaluator_feedback": {
-    "summary": "R4 首轮验收未通过：结构还原与可用性通过，但 DS 颜色规范与 i18n 审计失败。",
-    "pass_count": 3,
+    "summary": "R4 复验未通过：结构还原与 i18n 已通过，但 DS 颜色规范仍有 8 处硬编码（登录/注册 Google 图标 fill）。",
+    "pass_count": 4,
     "partial_count": 0,
-    "fail_count": 2,
+    "fail_count": 1,
     "issues": [
-      {
-        "feature_id": "F-R4-01",
-        "result": "FAIL",
-        "description": "Whitelist 页面仍存在硬编码颜色类（如 bg-emerald-100/bg-amber-100/bg-red-100），不满足零硬编码颜色标准。",
-        "steps_to_reproduce": "打开 src/app/(console)/admin/model-whitelist/page.tsx 并搜索 bg-emerald-100 / bg-amber-100 / bg-red-100"
-      },
-      {
-        "feature_id": "F-R4-05",
-        "result": "FAIL",
-        "description": "Admin Templates 页面仍存在 slate 系硬编码颜色（如 text-slate-500）。",
-        "steps_to_reproduce": "打开 src/app/(console)/admin/templates/page.tsx 并搜索 text-slate-"
-      },
-      {
-        "feature_id": "F-R4-06",
-        "result": "FAIL",
-        "description": "MCP Setup 页面存在硬编码颜色与硬编码英文工具描述（例如 bg-slate-950 / text-indigo-100 / Retrieves available models）。",
-        "steps_to_reproduce": "打开 src/app/(console)/mcp-setup/page.tsx，搜索 bg-slate-950、text-indigo-100、Retrieves available models"
-      },
       {
         "feature_id": "F-R4-07",
         "result": "FAIL",
-        "description": "共享 AuthLeftPanel/AuthTerminal 仍含多处硬编码英文终端文案与十六进制色值。",
-        "steps_to_reproduce": "打开 src/components/auth-terminal.tsx，查看 sequences 文案和 bg-[#...] 配色"
+        "description": "Login/Register 页仍存在 8 处硬编码十六进制颜色（Google 图标 fill），不满足“零硬编码颜色”标准。",
+        "steps_to_reproduce": "打开 src/app/(auth)/login/page.tsx 与 src/app/(auth)/register/page.tsx，搜索 fill=\"#4285F4\"/\"#34A853\"/\"#FBBC05\"/\"#EA4335\"。"
+      },
+      {
+        "feature_id": "F-R4-08",
+        "result": "FAIL",
+        "description": "R4 全量验收在 AC3 失败：hardcodedColor=8。",
+        "steps_to_reproduce": "运行 BASE_URL=http://localhost:3099 OUTPUT_FILE=docs/test-reports/r4-design-restoration-reverifying-e2e-2026-04-09.json npx tsx scripts/test/r4-design-restoration-verifying-e2e-2026-04-09.ts，查看 AC3。"
       }
     ]
   },
@@ -58,6 +46,6 @@
   "session_notes": {
     "Kimi": "R4 fix round 1 完成。修复 Evaluator 反馈的 4 个 FAIL：1) Whitelist emerald/amber/red → ds-status-success/warning/error tokens；2) Templates slate → ds-on-surface-variant/outline；3) MCP Setup slate-950/indigo-100 → ds-terminal-surface/inverse-on-surface + 7 个 tool desc 走 i18n；4) AuthTerminal hex 色值→ds-terminal-* tokens + 终端 sequences 文案全量 i18n（18 个 key）。新增 globals.css 语义状态 token（success/warning）和终端表面 token。tsc 零错误。",
     "Planner": "Planner 会话：1) 确认 R4 已进入 verifying 阶段；2) 将 5 份核心项目文档同步到 Notion（PRD 摘要/系统架构/MCP 指南/开发规则/项目状态），根页面 ID: 33d1a2f7-699a-8110-885e-e7b35a919f2f，位于文档数据库类别“项目文档”下。",
-    "Reviewer": "R4 verifying 已执行：页面可加载+结构 spot check 通过；DS 颜色规范与 i18n 审计未通过（hardcodedColor=35，硬编码英文残留于 auth-terminal/mcp tool desc）。已转 fixing，回退 F-R4-01/05/06/07/08。"
+    "Reviewer": "R4 reverifying 已执行：AC1/AC2/AC4 通过，AC3 失败（hardcodedColor=8）。失败定位为 login/register Google 图标 fill 十六进制色值。已回退 fixing，待 Generator 仅处理颜色 token 后再次复验。"
   }
 }
