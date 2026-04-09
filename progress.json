@@ -12,11 +12,7 @@
     "design-draft/usage/code.html",
     "design-draft/settings/code.html"
   ],
-  "role_assignments": {
-    "planner": "Richard",
-    "generator": "Johnsong",
-    "evaluator": "Reviewer"
-  },
+  "role_assignments": null,
   "docs": {
     "spec": "docs/specs/R2B-user-pages-balance-usage-settings-spec.md",
     "test_cases": null,
