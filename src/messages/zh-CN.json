@@ -114,7 +114,10 @@
     "documentation": "文档",
     "privacyPolicy": "隐私政策",
     "support": "支持",
-    "copyright": "© 2024 AIGC Gateway. Professional Engineering."
+    "copyright": "© 2024 AIGC Gateway. Professional Engineering.",
+    "joinAtelier": "加入工坊",
+    "createAccountDesc": "创建您的账号，开始管理 AI 基础设施。",
+    "createPassword": "创建密码"
   },
   "dashboard": {
     "title": "仪表盘",

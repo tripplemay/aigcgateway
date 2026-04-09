@@ -48,7 +48,7 @@
       "title": "Register 页面 DS 统一 + 风格对齐",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) 替换 shadcn 旧 token 为 ds-*；2) 与 Login 设计风格统一（左右分栏或居中卡片，参照设计稿）；3) 对齐 design-draft/register/code.html；4) tsc + lint 通过",
       "design_ref": "design-draft/register/code.html"
     },

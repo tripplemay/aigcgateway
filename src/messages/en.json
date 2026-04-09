@@ -114,7 +114,10 @@
     "documentation": "Documentation",
     "privacyPolicy": "Privacy Policy",
     "support": "Support",
-    "copyright": "© 2024 AIGC Gateway. Professional Engineering."
+    "copyright": "© 2024 AIGC Gateway. Professional Engineering.",
+    "joinAtelier": "Join the Atelier",
+    "createAccountDesc": "Create your account to start managing your AI infrastructure.",
+    "createPassword": "Create Password"
   },
   "dashboard": {
     "title": "Dashboard",
