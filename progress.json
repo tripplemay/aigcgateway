@@ -2,9 +2,9 @@
   "status": "building",
   "user_goal": "P5 — 系统预设模板（Public Templates）：公共模板库浏览、详情抽屉、一键 fork、MCP Tools",
   "total_features": 7,
-  "completed_features": 3,
+  "completed_features": 5,
   "fix_rounds": 0,
-  "current_sprint": "F-P5-04",
+  "current_sprint": "F-P5-05",
   "last_updated": "2026-04-09T22:45:00.000Z",
   "reference_docs": [
     "docs/specs/P5-public-templates-spec.md",
