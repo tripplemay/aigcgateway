@@ -1,56 +1,28 @@
 {
-  "status": "reverifying",
-  "user_goal": "R3B — Admin 剩余 6 页还原（Health/Logs/Usage/Users/UserDetail/Templates）",
-  "total_features": 8,
-  "completed_features": 7,
-  "fix_rounds": 1,
-  "current_sprint": null,
-  "last_updated": "2026-04-09T07:11:09.523Z",
+  "status": "building",
+  "user_goal": "R3C — 最终 DS 统一 + Auth/公共页面还原（whitelist/aliases/capabilities/docs/layout + login/register/mcp-setup）",
+  "total_features": 9,
+  "completed_features": 0,
+  "fix_rounds": 0,
+  "current_sprint": "F-R3C-01",
+  "last_updated": "2026-04-09T16:00:00.000Z",
   "reference_docs": [
-    "docs/specs/R3B-admin-remaining-spec.md",
-    "design-draft/admin-health/code.html",
-    "design-draft/admin-logs/code.html",
-    "design-draft/admin-usage/code.html",
-    "design-draft/admin-users/code.html",
-    "design-draft/admin-user-detail/code.html",
-    "design-draft/admin-templates/code.html"
+    "docs/specs/R3C-final-ds-unification-spec.md",
+    "design-draft/login/code.html",
+    "design-draft/register/code.html",
+    "design-draft/mcp-setup/code.html"
   ],
   "role_assignments": null,
   "docs": {
-    "spec": "docs/specs/R3B-admin-remaining-spec.md",
-    "test_cases": "docs/test-cases/r3b-admin-remaining-verifying-e2e-2026-04-09.md",
+    "spec": "docs/specs/R3C-final-ds-unification-spec.md",
+    "test_cases": null,
     "signoff": null,
     "framework_reviewed": false
   },
-  "evaluator_feedback": {
-    "summary": "R3B 首轮验收未通过：6页可加载、useAsyncData 与核心 CRUD 通过，但存在 i18n 残留英文。",
-    "pass_count": 5,
-    "partial_count": 0,
-    "fail_count": 1,
-    "issues": [
-      {
-        "feature_id": "F-R3B-06",
-        "result": "FAIL",
-        "description": "Admin Templates 页面存在硬编码英文删除确认文案：Delete template \"${name}\"?，未走 i18n。",
-        "steps_to_reproduce": "1. 进入 /admin/templates 2. 点击任一模板删除按钮 3. 弹窗显示英文确认文案"
-      },
-      {
-        "feature_id": "F-R3B-03",
-        "result": "FAIL",
-        "description": "Admin Usage 页面周期按钮包含硬编码英文 today（数组 [\"today\",\"7d\",\"30d\"]），不满足无英文残留标准。",
-        "steps_to_reproduce": "1. 进入 /admin/usage 2. 查看右上角周期切换 3. 可见 today 文本"
-      },
-      {
-        "feature_id": "F-R3B-07",
-        "result": "FAIL",
-        "description": "i18n 补全验收失败：至少两处用户可见文本未国际化（templates 删除确认、usage 周期 today）。",
-        "steps_to_reproduce": "执行 scripts/test/r3b-admin-remaining-verifying-e2e-2026-04-09.ts，AC4 返回 hardcoded=templates.delete-confirm|usage.period-today"
-      }
-    ]
-  },
-  "generator_handoff": "R3B building 完成。7/7 generator 功能。6 个 admin 页面全部改用 useAsyncData。Health: 富卡片布局+L1/L2/L3检查网格。Logs: committedSearch模式。Usage: 3个独立useAsyncData。Users/UserDetail: Skeleton+Input组件。Templates: Switch组件+DS token统一。tsc+lint通过。",
+  "evaluator_feedback": null,
+  "generator_handoff": null,
   "session_notes": {
-    "Kimi": "R3B fix round 1 完成。修复 Evaluator 反馈的 2 处 i18n 残留：Templates 删除确认 confirm()→t('confirmDelete',{name})；Usage 周期按钮 today→t('period_today') 等。tsc 通过。",
-    "Reviewer": "R3B verifying 已执行：L1 smoke/page load/useAsyncData/CRUD 通过；发现 i18n 残留（templates 删除确认、usage today）。已转 fixing，并将 F-R3B-03/06/07/08 置 pending。报告见 docs/test-reports/r3b-admin-remaining-verifying-2026-04-09.md 与 JSON 证据。"
+    "Kimi": "R3C planning 完成。9 条功能（8 generator + 1 codex）。分两组：DS token 修复 5 页（whitelist 50处/aliases 21处/capabilities 12处/docs 21处/layout 1处）+ Auth 重构 3 页（login 重度/register 中度/mcp-setup polish）。QuickStart 已核查 DS 正确，跳过。",
+    "Reviewer": null
   }
 }

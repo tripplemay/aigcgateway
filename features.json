@@ -1,76 +1,81 @@
 {
-  "batch": "R3B-admin-remaining",
+  "batch": "R3C-final-ds-unification",
   "created_at": "2026-04-09",
   "features": [
     {
-      "id": "F-R3B-01",
-      "title": "Admin Health 页面还原",
+      "id": "F-R3C-01",
+      "title": "Model Whitelist DS token 统一",
       "priority": "high",
       "executor": "generator",
-      "status": "done",
-      "acceptance": "1) useAsyncData 替代 useEffect+useState；2) 硬编码英文全部走 i18n（Real-time infrastructure...、Total Channels、Active Models、Degraded State、Disabled Nodes、HEALTHY/CHECKING/ALERT 等）；3) 对齐 design-draft/admin-health/code.html；4) npm run lint + tsc 通过",
-      "design_ref": "design-draft/admin-health/code.html"
+      "status": "pending",
+      "acceptance": "1) 零 shadcn 旧 token（bg-card/bg-muted/text-muted-foreground/bg-background/bg-primary/text-primary）；2) 全部替换为 ds-* 前缀；3) 页面视觉无变化；4) tsc 通过"
     },
     {
-      "id": "F-R3B-02",
-      "title": "Admin Logs 页面还原",
+      "id": "F-R3C-02",
+      "title": "Model Aliases DS token 统一",
       "priority": "high",
       "executor": "generator",
-      "status": "done",
-      "acceptance": "1) useAsyncData 替代 useCallback+useEffect；2) 硬编码英文走 i18n（System-wide audit logs...、Sell、records、Traffic Insight、Error Spike Alert 及其描述文本）；3) 对齐设计稿；4) npm run lint + tsc 通过",
-      "design_ref": "design-draft/admin-logs/code.html"
+      "status": "pending",
+      "acceptance": "1) 零 shadcn 旧 token；2) 全部替换为 ds-* 前缀；3) 页面视觉无变化；4) tsc 通过"
     },
     {
-      "id": "F-R3B-03",
-      "title": "Admin Usage 页面还原",
+      "id": "F-R3C-03",
+      "title": "Model Capabilities DS token 统一",
       "priority": "high",
       "executor": "generator",
-      "status": "done",
-      "acceptance": "1) useAsyncData 替代 useEffect+Promise.all；2) 表头硬编码英文走 i18n（Provider/Calls/Cost/Revenue/Margin/Margin %）；3) 对齐设计稿；4) npm run lint + tsc 通过",
-      "design_ref": "design-draft/admin-usage/code.html"
+      "status": "pending",
+      "acceptance": "1) 零 text-slate-*/bg-slate-* 硬编码颜色（标签/描述类）；2) 替换为 ds-* token；3) tsc 通过"
     },
     {
-      "id": "F-R3B-04",
-      "title": "Admin Users 页面还原",
+      "id": "F-R3C-04",
+      "title": "Docs + Layout DS token 统一",
       "priority": "medium",
       "executor": "generator",
-      "status": "done",
-      "acceptance": "1) useAsyncData 替代 useEffect；2) i18n 检查（当前基本完整，确认无遗漏）；3) 对齐设计稿；4) npm run lint + tsc 通过",
-      "design_ref": "design-draft/admin-users/code.html"
+      "status": "pending",
+      "acceptance": "1) docs/page.tsx 零 shadcn 旧 token；2) layout.tsx text-muted-foreground 替换；3) tsc 通过"
     },
     {
-      "id": "F-R3B-05",
-      "title": "Admin User Detail 页面还原",
-      "priority": "medium",
-      "executor": "generator",
-      "status": "done",
-      "acceptance": "1) useAsyncData 替代 useCallback+useEffect；2) 硬编码英文走 i18n（面包屑 Users、Projects 标题、Keys、Deactivate User (Coming Soon)、Reset Balance (Coming Soon)）；3) 对齐设计稿；4) npm run lint + tsc 通过",
-      "design_ref": "design-draft/admin-user-detail/code.html"
-    },
-    {
-      "id": "F-R3B-06",
-      "title": "Admin Templates 页面还原",
+      "id": "F-R3C-05",
+      "title": "Login 页面全量重构",
       "priority": "high",
       "executor": "generator",
-      "status": "done",
-      "acceptance": "1) useAsyncData 替代 useEffect+手动 load；2) DS token 统一（bg-surface→bg-ds-surface 等无前缀 token 全部加 ds- 前缀）；3) 硬编码英文走 i18n（Visibility:、steps）；4) 手写 toggle switch 改用 shadcn Switch；5) 对齐设计稿；6) npm run lint + tsc 通过",
-      "design_ref": "design-draft/admin-templates/code.html"
+      "status": "pending",
+      "acceptance": "1) DS 组件（Input/Button）+ ds-* token；2) 硬编码英文全部走 i18n；3) Terminal 组件抽离或保留但文本 i18n 化；4) 对齐 design-draft/login/code.html；5) tsc + lint 通过",
+      "design_ref": "design-draft/login/code.html"
     },
     {
-      "id": "F-R3B-07",
-      "title": "i18n 补全（admin remaining）",
+      "id": "F-R3C-06",
+      "title": "Register 页面 DS 统一 + 风格对齐",
+      "priority": "high",
+      "executor": "generator",
+      "status": "pending",
+      "acceptance": "1) 替换 shadcn 旧 token 为 ds-*；2) 与 Login 设计风格统一（左右分栏或居中卡片，参照设计稿）；3) 对齐 design-draft/register/code.html；4) tsc + lint 通过",
+      "design_ref": "design-draft/register/code.html"
+    },
+    {
+      "id": "F-R3C-07",
+      "title": "MCP Setup 页面 polish",
       "priority": "medium",
       "executor": "generator",
-      "status": "done",
-      "acceptance": "1) messages/en.json 和 messages/zh.json 中 admin health/logs/usage/users/templates 相关 key 齐全；2) 所有用户可见文本无硬编码；3) 切换中文后无英文残留；4) npm run lint + tsc 通过"
+      "status": "pending",
+      "acceptance": "1) 硬编码 bg-indigo-* 替换为 ds-* token；2) 手写 dropdown 改用项目标准模式；3) 对齐设计稿；4) tsc + lint 通过",
+      "design_ref": "design-draft/mcp-setup/code.html"
     },
     {
-      "id": "F-R3B-08",
-      "title": "R3B 视觉回归验收",
+      "id": "F-R3C-08",
+      "title": "i18n 最终审计",
+      "priority": "medium",
+      "executor": "generator",
+      "status": "pending",
+      "acceptance": "1) 全量扫描所有修改页面无硬编码英文；2) en.json + zh-CN.json key 齐全；3) 切换中文无英文残留"
+    },
+    {
+      "id": "F-R3C-09",
+      "title": "R3C 全量验收",
       "priority": "high",
       "executor": "codex",
       "status": "pending",
-      "acceptance": "1) 6 个 admin 页面正常加载无报错；2) useAsyncData 使用正确；3) CRUD 操作正常；4) 中英文切换无残留；5) 签收报告生成"
+      "acceptance": "1) 全部修改页面正常加载无报错；2) DS token 审计通过（零旧 token）；3) i18n 中英文切换无残留；4) 签收报告生成"
     }
   ]
 }
