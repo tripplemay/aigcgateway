@@ -1,40 +1,36 @@
 {
-  "status": "done",
-  "user_goal": "R2C — 用户侧页面还原（Actions + Templates）：6 个页面从旧代码模式还原为 R1 设计系统，对齐 Stitch 设计稿",
-  "total_features": 8,
-  "completed_features": 8,
-  "fix_rounds": 2,
+  "status": "building",
+  "user_goal": "R3A — 管理侧页面还原（模型管理）：5 个 Admin 页面从旧代码模式还原为 R1 设计系统",
+  "total_features": 7,
+  "completed_features": 0,
+  "fix_rounds": 0,
   "current_sprint": null,
-  "last_updated": "2026-04-09T01:11:22Z",
+  "last_updated": "2026-04-09T08:00:00Z",
   "reference_docs": [
-    "docs/specs/R2C-user-pages-actions-templates-spec.md",
-    "design-draft/actions/code.html",
-    "design-draft/actions-detail/code.html",
-    "design-draft/actions-editor/code.html",
-    "design-draft/templates/code.html",
-    "design-draft/templates-detail/code.html",
-    "design-draft/templates-editor/code.html"
+    "docs/specs/R3A-admin-model-management-spec.md",
+    "design-draft/admin-models/code.html",
+    "design-draft/admin-model-whitelist/code.html",
+    "design-draft/admin-model-capabilities/code.html",
+    "design-draft/admin-model-aliases/code.html",
+    "design-draft/admin-providers/code.html"
   ],
-  "role_assignments": null,
+  "role_assignments": {
+    "planner": "Richard",
+    "generator": "Johnsong",
+    "evaluator": "Reviewer"
+  },
   "docs": {
-    "spec": "docs/specs/R2C-user-pages-actions-templates-spec.md",
+    "spec": "docs/specs/R3A-admin-model-management-spec.md",
     "test_cases": null,
-    "signoff": "docs/test-reports/R2C-user-pages-actions-templates-signoff-2026-04-09.md",
+    "signoff": null,
     "framework_reviewed": false
   },
-  "evaluator_feedback": {
-    "summary": "R2C 按用户指令签收：剩余 /v1/models 空数据问题按测试环境问题豁免，批次收口。",
-    "pass_count": 8,
-    "partial_count": 0,
-    "fail_count": 0,
-    "issues": [],
-    "report": "docs/test-reports/R2C-user-pages-actions-templates-signoff-2026-04-09.md"
-  },
-  "generator_handoff": "R2C building 完成。7/7 generator 功能已实现：Actions 3 页（列表+详情+编辑器）+ Templates 3 页（列表+详情+编辑器）+ i18n 补全。全部使用 useAsyncData + DS Table/Pagination/SearchBar + DS 色彩 token。移除 Developer Quick-Link（DESIGN.md ignore）、Variables 列（partial support）。tsc+lint 通过。",
+  "evaluator_feedback": null,
+  "generator_handoff": null,
   "session_notes": {
-    "Richard": "R2C planning 完成。8 条功能（7 generator + 1 codex）。Actions 3 页 + Templates 3 页 + i18n。先做 Actions 再做 Templates（Templates 编辑器引用 Actions）。所有页面当前旧模式，共 2419 行需重写。",
-    "Johnsong": "Fix round 2（非代码修复）：/v1/models 返回空是测试环境数据问题（无 provider 或 provider 不健康），不是前端 bug。Round 1 已将模型字段从 <select> 改为 <input>+<datalist>，支持手动输入。请 Codex 在模型输入框手动输入模型名（如 gpt-4o）后再点击保存测试创建链路。",
+    "Richard": "R3A planning 完成。7 条功能（6 generator + 1 codex）。admin models/whitelist/capabilities/aliases/providers 5 页 + i18n。当前全是旧模式共 2351 行。新增 capabilities 和 aliases 的 DESIGN.md。",
+    "Johnsong": null,
     "Mark": null,
-    "Reviewer": "R2C 按用户指令完成签收：用户确认剩余问题属于测试环境（/v1/models 空数据）并接受豁免，批次状态置 done。signoff：docs/test-reports/R2C-user-pages-actions-templates-signoff-2026-04-09.md"
+    "Reviewer": null
   }
 }

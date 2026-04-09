@@ -1,76 +1,67 @@
 {
-  "batch": "R2C-user-pages-actions-templates",
+  "batch": "R3A-admin-model-management",
   "created_at": "2026-04-09",
   "features": [
     {
-      "id": "F-R2C-01",
-      "title": "Actions 列表页还原",
+      "id": "F-R3A-01",
+      "title": "Admin Models (Channel Management) 页面还原",
       "priority": "high",
       "executor": "generator",
-      "status": "done",
-      "acceptance": "1) useAsyncData + Table + SearchBar + Pagination；2) 列：名称、模型、版本号(v{n})、描述、更新时间；3) 搜索+分页；4) 行点击跳详情；5) Create Action 按钮跳 /actions/new；6) 对齐设计稿（忽略 DESIGN.md 标注项）；7) npm run lint + tsc 通过",
-      "design_ref": "design-draft/actions/code.html"
+      "status": "pending",
+      "acceptance": "1) useAsyncData + Table + SearchBar + Pagination；2) 按 Provider 分组展示 Models + Channels；3) Channel 编辑（sellPrice、优先级）；4) Model 启用/禁用；5) 对齐 design-draft/admin-models/code.html；6) npm run lint + tsc 通过",
+      "design_ref": "design-draft/admin-models/code.html"
     },
     {
-      "id": "F-R2C-02",
-      "title": "Actions 详情页还原",
+      "id": "F-R3A-02",
+      "title": "Admin Model Whitelist 页面还原",
       "priority": "high",
       "executor": "generator",
-      "status": "done",
-      "acceptance": "1) useAsyncData + Card；2) 头部（名称+模型 badge+Delete/Edit/New Version）；3) Active Version 区（消息+变量高亮）；4) Variables Configuration 表格；5) Version History + 切换活跃版本；6) Delete 确认弹窗（Dialog）；7) 对齐设计稿（忽略 DESIGN.md 标注项）；8) npm run lint + tsc 通过",
-      "design_ref": "design-draft/actions-detail/code.html"
+      "status": "pending",
+      "acceptance": "1) useAsyncData + Table + SearchBar；2) 统计卡片（Total/Enabled/Providers，客户端推算）；3) Enable 开关 + sellPrice 编辑；4) Provider/Modality 筛选；5) 客户端分页；6) 对齐设计稿（忽略 DESIGN.md 标注项）；7) npm run lint + tsc 通过",
+      "design_ref": "design-draft/admin-model-whitelist/code.html"
     },
     {
-      "id": "F-R2C-03",
-      "title": "Actions 编辑器还原（创建+编辑）",
+      "id": "F-R3A-03",
+      "title": "Admin Model Capabilities 页面还原",
       "priority": "high",
       "executor": "generator",
-      "status": "done",
-      "acceptance": "1) 基本信息（名称+模型下拉+描述）；2) Messages Editor（system/user 消息+Add Message+{{变量}}高亮）；3) Detected Variables 面板（自动提取+required+default）；4) Changelog 输入；5) 创建调 POST /actions，编辑调 PUT + POST versions；6) 对齐设计稿；7) npm run lint + tsc 通过",
-      "design_ref": "design-draft/actions-editor/code.html"
+      "status": "pending",
+      "acceptance": "1) useAsyncData + Table + Switch；2) 6 个 Capability 开关（streaming/json_mode/function_calling/vision/reasoning/search）；3) Image 模型 Supported Sizes chips（添加/删除）；4) 搜索+Modality 筛选+分页；5) 对齐设计稿（忽略 DESIGN.md 标注项）；6) npm run lint + tsc 通过",
+      "design_ref": "design-draft/admin-model-capabilities/code.html"
     },
     {
-      "id": "F-R2C-04",
-      "title": "Templates 列表页还原",
+      "id": "F-R3A-04",
+      "title": "Admin Model Aliases 页面还原",
       "priority": "high",
       "executor": "generator",
-      "status": "done",
-      "acceptance": "1) useAsyncData + Table + SearchBar + Pagination；2) 列：名称、Steps 数量 badge、Execution Mode、描述、更新时间；3) 搜索+分页；4) 行点击跳详情；5) Create Template 按钮跳 /templates/new；6) 对齐设计稿（忽略 DESIGN.md 标注项）；7) npm run lint + tsc 通过",
-      "design_ref": "design-draft/templates/code.html"
+      "status": "pending",
+      "acceptance": "1) useAsyncData + Card；2) Classified Models 卡片组（别名 chips + 添加/删除）；3) Unclassified Models 表格（Table + Merge 操作）；4) 对齐设计稿（忽略 DESIGN.md 标注项）；5) npm run lint + tsc 通过",
+      "design_ref": "design-draft/admin-model-aliases/code.html"
     },
     {
-      "id": "F-R2C-05",
-      "title": "Templates 详情页还原",
+      "id": "F-R3A-05",
+      "title": "Admin Providers 页面还原",
       "priority": "high",
       "executor": "generator",
-      "status": "done",
-      "acceptance": "1) useAsyncData + Card；2) 头部（名称+执行模式 badge+Edit/Delete）；3) 步骤流程列表（Action 名称+模型+角色 badge）；4) Template Info 卡片；5) Resources Used（客户端推算模型引用）；6) Delete 确认弹窗；7) 对齐设计稿（忽略 DESIGN.md 标注项）；8) npm run lint + tsc 通过",
-      "design_ref": "design-draft/templates-detail/code.html"
+      "status": "pending",
+      "acceptance": "1) useAsyncData + Table + Card + Dialog；2) Provider 列表（名称、状态、模型数量）；3) 启用/禁用开关；4) 配置编辑弹窗（API Key/Base URL/Proxy）；5) 同步触发；6) 对齐设计稿；7) npm run lint + tsc 通过",
+      "design_ref": "design-draft/admin-providers/code.html"
     },
     {
-      "id": "F-R2C-06",
-      "title": "Templates 编辑器还原（创建+编辑）",
-      "priority": "high",
-      "executor": "generator",
-      "status": "done",
-      "acceptance": "1) 名称+描述；2) 步骤编排（从 Actions 列表选择+指定 order+指定 role SEQUENTIAL/SPLITTER/BRANCH/MERGE）；3) 步骤可删除可调序；4) 创建调 POST，编辑调 PUT；5) 对齐设计稿（忽略 DESIGN.md 标注项）；6) npm run lint + tsc 通过",
-      "design_ref": "design-draft/templates-editor/code.html"
-    },
-    {
-      "id": "F-R2C-07",
-      "title": "i18n 补全（actions/templates）",
+      "id": "F-R3A-06",
+      "title": "i18n 补全（admin model management）",
       "priority": "medium",
       "executor": "generator",
-      "status": "done",
-      "acceptance": "1) messages/en.json 和 messages/zh.json 中 actions/templates 相关 key 齐全；2) 所有用户可见文本无硬编码；3) 切换中文后无英文残留；4) npm run lint + tsc 通过"
+      "status": "pending",
+      "acceptance": "1) messages/en.json 和 messages/zh.json 中 admin models/whitelist/capabilities/aliases/providers 相关 key 齐全；2) 所有用户可见文本无硬编码；3) 切换中文后无英文残留；4) npm run lint + tsc 通过"
     },
     {
-      "id": "F-R2C-08",
-      "title": "R2C 视觉回归验收",
+      "id": "F-R3A-07",
+      "title": "R3A 视觉回归验收",
       "priority": "high",
       "executor": "codex",
-      "status": "done",
-      "acceptance": "1) /actions、/actions/[actionId]、/actions/new、/templates、/templates/[templateId]、/templates/new 正常加载无报错；2) DS 组件使用正确；3) CRUD 操作正常；4) 中英文切换无残留；5) 签收报告生成"
+      "status": "pending",
+      "acceptance": "1) 5 个 admin 页面正常加载无报错；2) DS 组件使用正确；3) CRUD 操作正常（启用/禁用、编辑配置、添加/删除别名）；4) 中英文切换无残留；5) 签收报告生成"
     }
   ]
 }
