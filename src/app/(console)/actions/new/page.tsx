@@ -217,21 +217,18 @@ export default function NewActionPage() {
                   {t("modelSelection")}
                 </label>
                 <div className="relative">
-                  <select
-                    className="w-full bg-ds-surface-container-low border-none rounded-lg p-3 text-sm appearance-none transition-all outline-none focus:ring-2 focus:ring-ds-primary/20"
+                  <input
+                    className="w-full bg-ds-surface-container-low border-none rounded-lg p-3 text-sm transition-all outline-none focus:ring-2 focus:ring-ds-primary/20"
+                    placeholder={t("modelPlaceholder")}
+                    list="model-options"
                     value={model}
                     onChange={(e) => setModel(e.target.value)}
-                  >
-                    <option value="">{t("modelPlaceholder")}</option>
+                  />
+                  <datalist id="model-options">
                     {availableModels.map((m) => (
-                      <option key={m} value={m}>
-                        {m}
-                      </option>
+                      <option key={m} value={m} />
                     ))}
-                  </select>
-                  <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-ds-outline-variant">
-                    expand_more
-                  </span>
+                  </datalist>
                 </div>
               </div>
               <div className="col-span-2">
