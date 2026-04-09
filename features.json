@@ -52,7 +52,7 @@
       "title": "i18n 补全（admin model management）",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) messages/en.json 和 messages/zh.json 中 admin models/whitelist/capabilities/aliases/providers 相关 key 齐全；2) 所有用户可见文本无硬编码；3) 切换中文后无英文残留；4) npm run lint + tsc 通过"
     },
     {
@@ -60,7 +60,7 @@
       "title": "R3A 视觉回归验收",
       "priority": "high",
       "executor": "codex",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) 5 个 admin 页面正常加载无报错；2) DS 组件使用正确；3) CRUD 操作正常（启用/禁用、编辑配置、添加/删除别名）；4) 中英文切换无残留；5) 签收报告生成"
     }
   ]
