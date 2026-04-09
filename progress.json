@@ -1,8 +1,8 @@
 {
-  "status": "reverifying",
+  "status": "done",
   "user_goal": "R4 — 6 页面设计稿结构还原（whitelist/aliases/capabilities/user-detail/admin-templates/mcp-setup）",
   "total_features": 8,
-  "completed_features": 7,
+  "completed_features": 8,
   "fix_rounds": 1,
   "current_sprint": "F-R4-08",
   "last_updated": "2026-04-09T22:30:00.000Z",
@@ -19,33 +19,20 @@
   "docs": {
     "spec": "docs/specs/R4-design-restoration-spec.md",
     "test_cases": "docs/test-cases/r4-design-restoration-verifying-e2e-2026-04-09.md",
-    "signoff": null,
+    "signoff": "docs/test-reports/r4-design-restoration-signoff-2026-04-09.md",
     "framework_reviewed": false
   },
   "evaluator_feedback": {
-    "summary": "R4 复验未通过：结构还原与 i18n 已通过，但 DS 颜色规范仍有 8 处硬编码（登录/注册 Google 图标 fill）。",
-    "pass_count": 4,
+    "summary": "R4 reverifying round2 全通过：结构还原、DS token 与 i18n 验收均通过，可签收。",
+    "pass_count": 5,
     "partial_count": 0,
-    "fail_count": 1,
-    "issues": [
-      {
-        "feature_id": "F-R4-07",
-        "result": "FAIL",
-        "description": "Login/Register 页仍存在 8 处硬编码十六进制颜色（Google 图标 fill），不满足\"零硬编码颜色\"标准。",
-        "steps_to_reproduce": "打开 src/app/(auth)/login/page.tsx 与 src/app/(auth)/register/page.tsx，搜索 fill=\"#4285F4\"/\"#34A853\"/\"#FBBC05\"/\"#EA4335\"。"
-      },
-      {
-        "feature_id": "F-R4-08",
-        "result": "FAIL",
-        "description": "R4 全量验收在 AC3 失败：hardcodedColor=8。",
-        "steps_to_reproduce": "运行 BASE_URL=http://localhost:3099 OUTPUT_FILE=docs/test-reports/r4-design-restoration-reverifying-e2e-2026-04-09.json npx tsx scripts/test/r4-design-restoration-verifying-e2e-2026-04-09.ts，查看 AC3。"
-      }
-    ]
+    "fail_count": 0,
+    "issues": []
   },
   "generator_handoff": "Fix round 1 完成。仅剩的 8 处 Google 图标硬编码 fill 色值（#4285F4/#34A853/#FBBC05/#EA4335）已全部替换为 DS token（fill-ds-brand-google-blue/green/yellow/red）。globals.css 新增 4 个 brand token 定义 + @theme 注册。tsc 零错误，grep 确认 auth 目录零硬编码 fill。",
   "session_notes": {
     "Kimi": "Fix round 1 二次修复完成。新增 4 个 DS brand token（ds-brand-google-blue/green/yellow/red）在 globals.css @theme + :root 中定义，login/register 页面 8 处 fill=\"#hex\" 全部替换为 className=\"fill-ds-brand-google-*\"。tsc 零错误。状态推进到 reverifying。",
     "Planner": "Planner 会话：1) 确认 R4 已进入 verifying 阶段；2) 将 5 份核心项目文档同步到 Notion（PRD 摘要/系统架构/MCP 指南/开发规则/项目状态），根页面 ID: 33d1a2f7-699a-8110-885e-e7b35a919f2f，位于文档数据库类别\"项目文档\"下。",
-    "Reviewer": "R4 reverifying 已执行：AC1/AC2/AC4 通过，AC3 失败（hardcodedColor=8）。失败定位为 login/register Google 图标 fill 十六进制色值。已回退 fixing，待 Generator 仅处理颜色 token 后再次复验。"
+    "Reviewer": "R4 reverifying round2 已执行：AC1~AC4 全通过（legacy=0, hardcodedColor=0, hardcoded=none）。已生成 signoff 并将状态推进到 done。"
   }
 }
