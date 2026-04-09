@@ -206,100 +206,99 @@ export default function AdminTemplatesPage() {
         </div>
       </div>
 
-      {/* ═══ Table — design-draft line 254-478 ═══ */}
-      <div className="bg-ds-surface-container-lowest rounded-xl shadow-sm overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
-            <thead>
-              <tr className="bg-slate-50/50">
-                <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-400">
-                  {t("colName")}
-                </th>
-                <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-400">
-                  {t("colProject")}
-                </th>
-                <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-400">
-                  {t("colSteps")}
-                </th>
-                <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-400">
-                  {t("colPublic")}
-                </th>
-                <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-400">
-                  {t("colCreated")}
-                </th>
-                <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-400 text-right">
-                  {t("colActions")}
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100">
-              {templates.map((tpl) => (
-                <tr key={tpl.id} className="hover:bg-slate-50/80 transition-colors">
-                  <td className="px-6 py-4">
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-lg bg-indigo-50 flex items-center justify-center text-indigo-500">
-                        <span className="material-symbols-outlined text-xl">description</span>
-                      </div>
-                      <span className="font-semibold text-sm text-ds-on-surface">{tpl.name}</span>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 text-sm text-slate-600 font-medium">
-                    {tpl.projectName}
-                  </td>
-                  <td className="px-6 py-4">
-                    <span className="px-2.5 py-1 bg-slate-100 text-slate-600 rounded-md text-[11px] font-bold">
-                      {tpl.stepCount} {t("steps")}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4">
-                    <Switch
-                      checked={tpl.isPublic}
-                      onCheckedChange={() => handleTogglePublic(tpl.id, tpl.isPublic)}
-                    />
-                  </td>
-                  <td className="px-6 py-4 text-xs font-medium text-slate-500">
-                    {new Date(tpl.createdAt).toLocaleDateString()}
-                  </td>
-                  <td className="px-6 py-4 text-right space-x-2">
-                    <button
-                      onClick={() => router.push(`/templates/${tpl.id}`)}
-                      className="p-1.5 text-slate-400 hover:text-ds-primary hover:bg-ds-primary/5 rounded transition-all"
-                    >
-                      <span className="material-symbols-outlined text-xl">visibility</span>
-                    </button>
-                    <button
-                      onClick={() => handleDelete(tpl.id, tpl.name)}
-                      className="p-1.5 text-slate-400 hover:text-ds-error hover:bg-ds-error/5 rounded transition-all"
-                    >
-                      <span className="material-symbols-outlined text-xl">delete</span>
-                    </button>
-                  </td>
-                </tr>
-              ))}
-              {templates.length === 0 && (
-                <tr>
-                  <td colSpan={6} className="px-6 py-12 text-center text-slate-400">
-                    {t("empty")}
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
+      {/* ═══ Card Grid ═══ */}
+      {templates.length === 0 ? (
+        <div className="bg-ds-surface-container-lowest rounded-xl p-12 text-center text-ds-on-surface-variant">
+          {t("empty")}
         </div>
-        {/* ═══ Pagination — design-draft line 463-478 ═══ */}
-        <div className="px-6 py-4 bg-slate-50/50 flex items-center justify-between">
-          <p className="text-xs text-slate-500 font-medium">
+      ) : (
+        <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {templates.map((tpl) => (
+            <div
+              key={tpl.id}
+              className="group bg-ds-surface-container-lowest rounded-xl overflow-hidden hover:shadow-lg transition-all duration-300 flex flex-col border border-transparent hover:border-ds-primary/10"
+            >
+              <div className="p-6 flex-1 flex flex-col gap-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-lg bg-ds-primary/10 flex items-center justify-center text-ds-primary">
+                      <span className="material-symbols-outlined">description</span>
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-sm">{tpl.name}</h4>
+                      <p className="text-[10px] text-ds-on-surface-variant">{tpl.projectName}</p>
+                    </div>
+                  </div>
+                  {tpl.qualityScore != null && (
+                    <div className="flex items-center gap-1 bg-ds-tertiary-fixed px-2 py-1 rounded text-ds-on-tertiary-fixed text-xs font-bold">
+                      <span
+                        className="material-symbols-outlined text-xs"
+                        style={{ fontVariationSettings: "'FILL' 1" }}
+                      >
+                        star
+                      </span>
+                      {tpl.qualityScore.toFixed(1)}
+                    </div>
+                  )}
+                </div>
+                {tpl.description && (
+                  <p className="text-xs text-ds-on-surface-variant line-clamp-2 leading-relaxed">
+                    {tpl.description}
+                  </p>
+                )}
+                <div className="flex flex-wrap gap-2 mt-auto">
+                  <span className="px-2.5 py-1 bg-ds-surface-container-low text-ds-on-surface-variant rounded-md text-[11px] font-bold">
+                    {tpl.stepCount} {t("steps")}
+                  </span>
+                  <span className="px-2.5 py-1 bg-ds-surface-container-low text-ds-on-surface-variant rounded-md text-[11px] font-bold">
+                    {tpl.executionMode}
+                  </span>
+                </div>
+              </div>
+              <div className="px-6 py-4 border-t border-ds-surface-container-low flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Switch
+                    checked={tpl.isPublic}
+                    onCheckedChange={() => handleTogglePublic(tpl.id, tpl.isPublic)}
+                  />
+                  <span className="text-[10px] text-ds-on-surface-variant font-medium">
+                    {tpl.isPublic ? t("visibilityPublic") : t("visibilityPrivate")}
+                  </span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <button
+                    onClick={() => router.push(`/templates/${tpl.id}`)}
+                    className="p-1.5 text-ds-on-surface-variant hover:text-ds-primary hover:bg-ds-primary/5 rounded transition-all"
+                  >
+                    <span className="material-symbols-outlined text-lg">visibility</span>
+                  </button>
+                  <button
+                    onClick={() => handleDelete(tpl.id, tpl.name)}
+                    className="p-1.5 text-ds-on-surface-variant hover:text-ds-error hover:bg-ds-error/5 rounded transition-all"
+                  >
+                    <span className="material-symbols-outlined text-lg">delete</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          ))}
+        </section>
+      )}
+
+      {/* ═══ Pagination ═══ */}
+      {pagination.totalPages > 1 && (
+        <div className="flex items-center justify-between">
+          <p className="text-xs text-ds-on-surface-variant font-medium">
             {t("showing")}{" "}
-            <span className="text-ds-on-surface font-bold">
+            <span className="font-bold">
               {(pagination.page - 1) * pagination.pageSize + 1} -{" "}
               {Math.min(pagination.page * pagination.pageSize, pagination.total)}
             </span>{" "}
-            {t("of")} <span className="text-ds-on-surface font-bold">{pagination.total}</span>{" "}
-            {t("templates")}
+            {t("of")} <span className="font-bold">{pagination.total}</span> {t("templates")}
           </p>
           <div className="flex items-center gap-1">
             <button
-              className="p-2 text-slate-400 hover:text-ds-primary disabled:opacity-30"
+              className="p-2 text-ds-on-surface-variant hover:text-ds-primary disabled:opacity-30"
               disabled={pagination.page <= 1}
               onClick={() => setPage((p) => p - 1)}
             >
@@ -311,8 +310,8 @@ export default function AdminTemplatesPage() {
                   key={pg}
                   className={`w-8 h-8 flex items-center justify-center text-xs font-bold rounded-lg ${
                     pg === pagination.page
-                      ? "bg-ds-primary text-white"
-                      : "text-slate-600 hover:bg-slate-200"
+                      ? "bg-ds-primary text-ds-on-primary"
+                      : "text-ds-on-surface-variant hover:bg-ds-surface"
                   }`}
                   onClick={() => setPage(pg)}
                 >
@@ -322,9 +321,9 @@ export default function AdminTemplatesPage() {
             )}
             {pagination.totalPages > 5 && (
               <>
-                <span className="px-2 text-slate-400">...</span>
+                <span className="px-2 text-ds-on-surface-variant">...</span>
                 <button
-                  className="w-8 h-8 flex items-center justify-center text-xs font-bold text-slate-600 hover:bg-slate-200 rounded-lg"
+                  className="w-8 h-8 flex items-center justify-center text-xs font-bold text-ds-on-surface-variant hover:bg-ds-surface rounded-lg"
                   onClick={() => setPage(pagination.totalPages)}
                 >
                   {pagination.totalPages}
@@ -332,7 +331,7 @@ export default function AdminTemplatesPage() {
               </>
             )}
             <button
-              className="p-2 text-slate-400 hover:text-ds-primary disabled:opacity-30"
+              className="p-2 text-ds-on-surface-variant hover:text-ds-primary disabled:opacity-30"
               disabled={pagination.page >= pagination.totalPages}
               onClick={() => setPage((p) => p + 1)}
             >
@@ -340,7 +339,7 @@ export default function AdminTemplatesPage() {
             </button>
           </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }

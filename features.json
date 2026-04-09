@@ -43,7 +43,7 @@
       "title": "Admin Templates 卡片网格还原",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) 表格改为 3 列卡片网格；2) 质量评分徽章；3) 保留搜索/筛选功能；4) tsc 通过",
       "design_ref": "design-draft/admin-templates/code.html"
     },
