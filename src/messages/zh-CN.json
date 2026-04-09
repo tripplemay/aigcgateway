@@ -705,7 +705,10 @@
     "userPrompt": "用户提示",
     "assistant": "助手",
     "totalVersions": "版本总数",
-    "loadFailed": "加载动作失败"
+    "loadFailed": "加载动作失败",
+    "detectedVarsHint": "变量通过消息内容中的 {{variable}} 语法自动检测。",
+    "system": "系统",
+    "user": "用户"
   },
   "templates": {
     "title": "模板",

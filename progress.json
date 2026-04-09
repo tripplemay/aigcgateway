@@ -2,7 +2,7 @@
   "status": "building",
   "user_goal": "R2C — 用户侧页面还原（Actions + Templates）：6 个页面从旧代码模式还原为 R1 设计系统，对齐 Stitch 设计稿",
   "total_features": 8,
-  "completed_features": 2,
+  "completed_features": 3,
   "fix_rounds": 0,
   "current_sprint": null,
   "last_updated": "2026-04-09T06:00:00Z",

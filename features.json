@@ -25,7 +25,7 @@
       "title": "Actions 编辑器还原（创建+编辑）",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) 基本信息（名称+模型下拉+描述）；2) Messages Editor（system/user 消息+Add Message+{{变量}}高亮）；3) Detected Variables 面板（自动提取+required+default）；4) Changelog 输入；5) 创建调 POST /actions，编辑调 PUT + POST versions；6) 对齐设计稿；7) npm run lint + tsc 通过",
       "design_ref": "design-draft/actions-editor/code.html"
     },

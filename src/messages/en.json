@@ -705,7 +705,10 @@
     "userPrompt": "User Prompt",
     "assistant": "Assistant",
     "totalVersions": "Total Versions",
-    "loadFailed": "Failed to load action"
+    "loadFailed": "Failed to load action",
+    "detectedVarsHint": "Variables are automatically detected from message content using the {{variable}} syntax.",
+    "system": "System",
+    "user": "User"
   },
   "templates": {
     "title": "Templates",
