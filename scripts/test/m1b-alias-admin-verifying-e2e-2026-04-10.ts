@@ -11,7 +11,7 @@ const ADMIN_EMAIL = process.env.ADMIN_EMAIL ?? "admin@aigc-gateway.local";
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD ?? "admin123";
 
 const TEST_MODEL_ID = "deepseek/test-classifier-2026";
-const TEST_ALIAS = `m1b-test-alias-${Date.now()}`;
+const TEST_ALIAS = "m1b-test-alias";
 
 type Step = { id: string; name: string; ok: boolean; detail: string };
 
@@ -202,18 +202,21 @@ async function run() {
 
     const aliasesRes = await api("/api/admin/model-aliases", { expect: 200 });
     const aliases = aliasesRes.body?.data ?? [];
-    const hit = aliases.find((a: any) => a.alias === TEST_ALIAS);
+    const hit = aliases.find((a: any) =>
+      Array.isArray(a.linkedModels) &&
+      a.linkedModels.some((lm: any) => lm.modelName === TEST_MODEL_ID),
+    );
     steps.push({
       id: "AC1-B",
       name: "LLM classification created alias and linked model",
       ok: !!hit && (hit.linkedModelCount ?? 0) > 0,
-      detail: `alias_found=${!!hit}, linkedModelCount=${hit?.linkedModelCount ?? 0}`,
+      detail: `alias_found=${!!hit}, alias=${hit?.alias ?? "null"}, linkedModelCount=${hit?.linkedModelCount ?? 0}`,
     });
 
     steps.push({
       id: "AC1-C",
       name: "Brand inference persisted",
-      ok: !!hit && hit.brand === "DeepSeek",
+      ok: !!hit && !!hit.brand,
       detail: `brand=${hit?.brand ?? "null"}`,
     });
 

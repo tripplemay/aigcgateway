@@ -48,7 +48,7 @@
       "title": "M1b 全量验收",
       "priority": "high",
       "executor": "codex",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "1) Sync 后 LLM 自动推断 brand + 分类挂载；2) Admin 别名管理页完整可用（CRUD+挂载+capabilities+未归类）；3) 白名单页和能力页已删除、导航已清理；4) DS token 一致，零硬编码颜色；5) i18n 无残留；6) 签收报告生成"
     }
   ]

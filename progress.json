@@ -1,11 +1,11 @@
 {
-  "status": "reverifying",
+  "status": "done",
   "user_goal": "M1b — LLM 推断 + Admin 别名管理页重做 + 白名单/能力页删除",
   "total_features": 6,
-  "completed_features": 5,
+  "completed_features": 6,
   "fix_rounds": 1,
   "current_sprint": "F-M1b-06",
-  "last_updated": "2026-04-09T21:46:59.979Z",
+  "last_updated": "2026-04-09T21:59:14.888Z",
   "reference_docs": [
     "docs/specs/M1-models-page-rework-spec.md",
     "design-draft/admin-model-aliases/code.html"
@@ -14,39 +14,20 @@
   "docs": {
     "spec": "docs/specs/M1-models-page-rework-spec.md",
     "test_cases": "docs/test-cases/m1b-alias-admin-verifying-e2e-2026-04-10.md",
-    "signoff": null,
+    "signoff": "docs/test-reports/m1b-alias-automation-admin-ui-signoff-2026-04-10.md",
     "framework_reviewed": false
   },
   "evaluator_feedback": {
-    "summary": "M1b 首轮验收未通过：LLM 自动分类链路通过，但 Admin 页面存在设计稿差异、DS token 不一致与 i18n 残留。",
-    "pass_count": 3,
+    "summary": "M1b 复验通过（reverifying，8/8 PASS），已签收。",
+    "pass_count": 8,
     "partial_count": 0,
-    "fail_count": 3,
-    "issues": [
-      {
-        "feature_id": "F-M1b-03",
-        "result": "FAIL",
-        "description": "Admin 别名页与设计稿不一致：设计稿包含 Supported Sizes 区块，但实现缺失。",
-        "steps_to_reproduce": "对照 design-draft/admin-model-aliases/code.html 第 311/314 行与 src/app/(console)/admin/model-aliases/page.tsx。"
-      },
-      {
-        "feature_id": "F-M1b-03",
-        "result": "FAIL",
-        "description": "页面存在硬编码颜色类（green/slate），未完全使用 DS token。",
-        "steps_to_reproduce": "检查 src/app/(console)/admin/model-aliases/page.tsx 第 484/492/606/648/734 行附近样式类。"
-      },
-      {
-        "feature_id": "F-M1b-05",
-        "result": "FAIL",
-        "description": "i18n 残留：能力标签与输入 placeholder 仍为硬编码英文。",
-        "steps_to_reproduce": "检查 src/app/(console)/admin/model-aliases/page.tsx 第 61-67, 284, 295 行。"
-      }
-    ]
+    "fail_count": 0,
+    "issues": []
   },
   "generator_handoff": null,
   "session_notes": {
     "Kimi": "M1b fix round 1 完成。修复 3 个 FAIL：1) 新增 Supported Sizes 区块（存于 capabilities.supported_sizes）；2) 所有硬编码颜色替换为 DS token（green→ds-secondary-container, slate→ds-outline-variant/ds-on-surface-variant, white→ds-surface-container-lowest）；3) 能力标签+placeholder 全部 i18n 化（cap_* keys）。",
     "Planner": "M1a done 收尾 + M1b 启动。M1a 签收（6/6 PASS，0 fix rounds）。M1b 含 5 generator + 1 codex：LLM 推断、sync 自动挂载、Admin UI 重做、白名单+能力页删除、i18n。设计稿 design-draft/admin-model-aliases/code.html 已就绪。",
-    "Reviewer": "M1b verifying 已执行：L1 脚本验证 sync+LLM 分类/brand 推断通过；页面删除与导航清理通过。发现 3 个 FAIL：设计稿缺少 Supported Sizes 区块、DS token 颜色硬编码残留、i18n 硬编码残留。状态已切 fixing，待 Generator 修复 F-M1b-03/F-M1b-05 后复验。"
+    "Reviewer": "M1b reverifying 完成：L1 复验脚本 8/8 PASS。前轮失败项（设计稿 Supported Sizes、DS token 硬编码、i18n 残留）已关闭；Sync+LLM 分类/brand、导航清理均通过。已生成 signoff 并置 done。"
   }
 }
