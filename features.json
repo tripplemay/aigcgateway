@@ -7,7 +7,7 @@
       "title": "Admin Health 页面还原",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) useAsyncData 替代 useEffect+useState；2) 硬编码英文全部走 i18n（Real-time infrastructure...、Total Channels、Active Models、Degraded State、Disabled Nodes、HEALTHY/CHECKING/ALERT 等）；3) 对齐 design-draft/admin-health/code.html；4) npm run lint + tsc 通过",
       "design_ref": "design-draft/admin-health/code.html"
     },
@@ -16,7 +16,7 @@
       "title": "Admin Logs 页面还原",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) useAsyncData 替代 useCallback+useEffect；2) 硬编码英文走 i18n（System-wide audit logs...、Sell、records、Traffic Insight、Error Spike Alert 及其描述文本）；3) 对齐设计稿；4) npm run lint + tsc 通过",
       "design_ref": "design-draft/admin-logs/code.html"
     },
@@ -25,7 +25,7 @@
       "title": "Admin Usage 页面还原",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) useAsyncData 替代 useEffect+Promise.all；2) 表头硬编码英文走 i18n（Provider/Calls/Cost/Revenue/Margin/Margin %）；3) 对齐设计稿；4) npm run lint + tsc 通过",
       "design_ref": "design-draft/admin-usage/code.html"
     },
@@ -34,7 +34,7 @@
       "title": "Admin Users 页面还原",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) useAsyncData 替代 useEffect；2) i18n 检查（当前基本完整，确认无遗漏）；3) 对齐设计稿；4) npm run lint + tsc 通过",
       "design_ref": "design-draft/admin-users/code.html"
     },
@@ -43,7 +43,7 @@
       "title": "Admin User Detail 页面还原",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) useAsyncData 替代 useCallback+useEffect；2) 硬编码英文走 i18n（面包屑 Users、Projects 标题、Keys、Deactivate User (Coming Soon)、Reset Balance (Coming Soon)）；3) 对齐设计稿；4) npm run lint + tsc 通过",
       "design_ref": "design-draft/admin-user-detail/code.html"
     },
@@ -52,7 +52,7 @@
       "title": "Admin Templates 页面还原",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) useAsyncData 替代 useEffect+手动 load；2) DS token 统一（bg-surface→bg-ds-surface 等无前缀 token 全部加 ds- 前缀）；3) 硬编码英文走 i18n（Visibility:、steps）；4) 手写 toggle switch 改用 shadcn Switch；5) 对齐设计稿；6) npm run lint + tsc 通过",
       "design_ref": "design-draft/admin-templates/code.html"
     },
@@ -61,7 +61,7 @@
       "title": "i18n 补全（admin remaining）",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) messages/en.json 和 messages/zh.json 中 admin health/logs/usage/users/templates 相关 key 齐全；2) 所有用户可见文本无硬编码；3) 切换中文后无英文残留；4) npm run lint + tsc 通过"
     },
     {
