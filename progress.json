@@ -1,11 +1,11 @@
 {
-  "status": "fixing",
+  "status": "reverifying",
   "user_goal": "R4 — 6 页面设计稿结构还原（whitelist/aliases/capabilities/user-detail/admin-templates/mcp-setup）",
   "total_features": 8,
-  "completed_features": 6,
+  "completed_features": 7,
   "fix_rounds": 1,
   "current_sprint": "F-R4-08",
-  "last_updated": "2026-04-09T13:10:12.089Z",
+  "last_updated": "2026-04-09T22:30:00.000Z",
   "reference_docs": [
     "docs/specs/R4-design-restoration-spec.md",
     "design-draft/admin-model-whitelist/code.html",
@@ -31,7 +31,7 @@
       {
         "feature_id": "F-R4-07",
         "result": "FAIL",
-        "description": "Login/Register 页仍存在 8 处硬编码十六进制颜色（Google 图标 fill），不满足“零硬编码颜色”标准。",
+        "description": "Login/Register 页仍存在 8 处硬编码十六进制颜色（Google 图标 fill），不满足\"零硬编码颜色\"标准。",
         "steps_to_reproduce": "打开 src/app/(auth)/login/page.tsx 与 src/app/(auth)/register/page.tsx，搜索 fill=\"#4285F4\"/\"#34A853\"/\"#FBBC05\"/\"#EA4335\"。"
       },
       {
@@ -42,10 +42,10 @@
       }
     ]
   },
-  "generator_handoff": "R4 全部 7 个 generator 功能完成。F-R4-01~06 为 6 页面设计稿结构还原，F-R4-07 为 Register/Login 终端统一。所有变更仅前端 TSX + i18n + API 补 costPrice 字段。tsc 零错误。验收时请重点对比 design-draft/*/code.html 与实际布局（列数、网格比例、区块顺序），以及 DS token 使用（零 shadcn 旧 token、零硬编码颜色）。",
+  "generator_handoff": "Fix round 1 完成。仅剩的 8 处 Google 图标硬编码 fill 色值（#4285F4/#34A853/#FBBC05/#EA4335）已全部替换为 DS token（fill-ds-brand-google-blue/green/yellow/red）。globals.css 新增 4 个 brand token 定义 + @theme 注册。tsc 零错误，grep 确认 auth 目录零硬编码 fill。",
   "session_notes": {
-    "Kimi": "R4 fix round 1 完成。修复 Evaluator 反馈的 4 个 FAIL：1) Whitelist emerald/amber/red → ds-status-success/warning/error tokens；2) Templates slate → ds-on-surface-variant/outline；3) MCP Setup slate-950/indigo-100 → ds-terminal-surface/inverse-on-surface + 7 个 tool desc 走 i18n；4) AuthTerminal hex 色值→ds-terminal-* tokens + 终端 sequences 文案全量 i18n（18 个 key）。新增 globals.css 语义状态 token（success/warning）和终端表面 token。tsc 零错误。",
-    "Planner": "Planner 会话：1) 确认 R4 已进入 verifying 阶段；2) 将 5 份核心项目文档同步到 Notion（PRD 摘要/系统架构/MCP 指南/开发规则/项目状态），根页面 ID: 33d1a2f7-699a-8110-885e-e7b35a919f2f，位于文档数据库类别“项目文档”下。",
+    "Kimi": "Fix round 1 二次修复完成。新增 4 个 DS brand token（ds-brand-google-blue/green/yellow/red）在 globals.css @theme + :root 中定义，login/register 页面 8 处 fill=\"#hex\" 全部替换为 className=\"fill-ds-brand-google-*\"。tsc 零错误。状态推进到 reverifying。",
+    "Planner": "Planner 会话：1) 确认 R4 已进入 verifying 阶段；2) 将 5 份核心项目文档同步到 Notion（PRD 摘要/系统架构/MCP 指南/开发规则/项目状态），根页面 ID: 33d1a2f7-699a-8110-885e-e7b35a919f2f，位于文档数据库类别\"项目文档\"下。",
     "Reviewer": "R4 reverifying 已执行：AC1/AC2/AC4 通过，AC3 失败（hardcodedColor=8）。失败定位为 login/register Google 图标 fill 十六进制色值。已回退 fixing，待 Generator 仅处理颜色 token 后再次复验。"
   }
 }

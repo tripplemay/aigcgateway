@@ -143,6 +143,10 @@
     --color-ds-terminal-bg: var(--ds-terminal-bg);
     --color-ds-terminal-surface: var(--ds-terminal-surface);
     --color-ds-terminal-surface-high: var(--ds-terminal-surface-high);
+    --color-ds-brand-google-blue: var(--ds-brand-google-blue);
+    --color-ds-brand-google-green: var(--ds-brand-google-green);
+    --color-ds-brand-google-yellow: var(--ds-brand-google-yellow);
+    --color-ds-brand-google-red: var(--ds-brand-google-red);
 }
 
 :root {
@@ -284,6 +288,12 @@
     --ds-terminal-bg: #0a0a0c;
     --ds-terminal-surface: #13141c;
     --ds-terminal-surface-high: #1c1e26;
+
+    /* Brand: Google icon colors */
+    --ds-brand-google-blue: #4285F4;
+    --ds-brand-google-green: #34A853;
+    --ds-brand-google-yellow: #FBBC05;
+    --ds-brand-google-red: #EA4335;
 }
 
 .dark {
