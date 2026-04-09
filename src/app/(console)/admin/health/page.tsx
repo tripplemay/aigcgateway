@@ -1,9 +1,15 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { apiFetch } from "@/lib/api-client";
+import { useAsyncData } from "@/hooks/use-async-data";
+import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
 import { timeAgo } from "@/lib/utils";
+
+// ============================================================
+// Types
+// ============================================================
 
 interface HealthChannel {
   channelId: string;
@@ -14,68 +20,104 @@ interface HealthChannel {
   modality: string;
   lastChecks: Array<{ level: string; result: string; latencyMs: number | null; createdAt: string }>;
 }
-interface Summary {
-  active: number;
-  degraded: number;
-  disabled: number;
-  total: number;
+interface HealthResponse {
+  summary: { active: number; degraded: number; disabled: number; total: number };
+  data: HealthChannel[];
 }
 
+// ============================================================
+// Constants
+// ============================================================
+
 const STATUS_DOT: Record<string, string> = {
-  ACTIVE: "bg-green-500",
-  DEGRADED: "bg-yellow-500",
-  DISABLED: "bg-red-500",
+  ACTIVE: "bg-emerald-500",
+  DEGRADED: "bg-amber-500",
+  DISABLED: "bg-rose-500",
 };
-const STATUS_TEXT: Record<string, string> = {
-  ACTIVE: "text-green-600",
-  DEGRADED: "text-yellow-600",
-  DISABLED: "text-red-600",
-};
+
+const CHECK_LEVELS = ["CONNECTIVITY", "FORMAT", "QUALITY"] as const;
+const CHECK_LABELS = ["L1 Connect", "L2 Format", "L3 Quality"] as const;
+
+function checkStyle(result: string | undefined) {
+  if (result === "PASS")
+    return {
+      bg: "bg-emerald-50/50 border-emerald-100/30",
+      text: "text-emerald-700",
+      icon: "check_circle",
+      iconColor: "text-emerald-600",
+    };
+  if (result === "FAIL")
+    return {
+      bg: "bg-rose-50/50 border-rose-100/30",
+      text: "text-rose-700",
+      icon: "cancel",
+      iconColor: "text-rose-600",
+    };
+  return {
+    bg: "bg-slate-50 border-slate-200/30",
+    text: "text-slate-400",
+    icon: "pending",
+    iconColor: "text-slate-400",
+  };
+}
+
+function latencyColor(status: string) {
+  if (status === "ACTIVE") return "text-ds-primary";
+  if (status === "DEGRADED") return "text-amber-600";
+  return "text-rose-600";
+}
+
+// ============================================================
+// Page
+// ============================================================
 
 export default function HealthPage() {
   const t = useTranslations("adminHealth");
-  const [channels, setChannels] = useState<HealthChannel[]>([]);
-  const [summary, setSummary] = useState<Summary>({
-    active: 0,
-    degraded: 0,
-    disabled: 0,
-    total: 0,
-  });
   const [checking, setChecking] = useState<string | null>(null);
 
-  const load = async () => {
-    try {
-      const r = await apiFetch<{ summary: Summary; data: HealthChannel[] }>("/api/admin/health");
-      setSummary(r.summary);
-      setChannels(r.data);
-    } catch {
-      setSummary({ active: 0, degraded: 0, disabled: 0, total: 0 });
-      setChannels([]);
-    }
-  };
-  useEffect(() => {
-    load();
-  }, []);
+  const { data, loading, refetch } = useAsyncData<HealthResponse>(
+    () => apiFetch<HealthResponse>("/api/admin/health"),
+    [],
+  );
+
+  const summary = useMemo(
+    () => data?.summary ?? { active: 0, degraded: 0, disabled: 0, total: 0 },
+    [data],
+  );
+  const channels = data?.data ?? [];
 
   const runCheck = async (channelId: string) => {
     setChecking(channelId);
     try {
       await apiFetch(`/api/admin/health/${channelId}/check`, { method: "POST" });
       toast.success(t("check"));
-      load();
+      refetch();
     } catch (e) {
       toast.error((e as Error).message);
     }
     setChecking(null);
   };
 
+  if (loading && !data) {
+    return (
+      <div className="max-w-7xl mx-auto space-y-6 pt-4">
+        <Skeleton className="h-10 w-64" />
+        <div className="grid grid-cols-12 gap-6">
+          <Skeleton className="col-span-8 h-[180px] rounded-xl" />
+          <div className="col-span-4 space-y-4">
+            <Skeleton className="h-20 rounded-xl" />
+            <Skeleton className="h-20 rounded-xl" />
+            <Skeleton className="h-20 rounded-xl" />
+          </div>
+        </div>
+        <Skeleton className="h-[400px] rounded-xl" />
+      </div>
+    );
+  }
+
   return (
     <div className="max-w-7xl mx-auto space-y-8">
-      <h2 className="text-3xl font-extrabold tracking-tight font-[var(--font-heading)] text-ds-on-surface">
-        {t("title")}
-      </h2>
-
-      {/* ═══ Summary Dashboard (Bento) — code.html lines 161-218 ═══ */}
+      {/* ═══ Summary Dashboard (Bento) — code.html lines 161-220 ═══ */}
       <div className="grid grid-cols-12 gap-6 mb-8">
         {/* Main status card — lines 162-181 */}
         <div className="col-span-12 lg:col-span-8">
@@ -85,59 +127,53 @@ export default function HealthPage() {
               <h2 className="font-[var(--font-heading)] text-3xl font-extrabold tracking-tight mb-2">
                 {t("title")}
               </h2>
-              <p className="text-ds-on-surface-variant max-w-md">
-                Real-time infrastructure health monitoring with algorithmic check validation.
-              </p>
+              <p className="text-ds-on-surface-variant max-w-md">{t("subtitle")}</p>
             </div>
             <div className="flex items-center gap-8 mt-6">
               <div className="flex flex-col">
                 <span className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">
-                  Total Channels
+                  {t("totalChannels")}
                 </span>
-                <span className="text-2xl font-[var(--font-heading)] font-bold">
-                  {summary.total}
-                </span>
+                <span className="text-2xl font-[var(--font-heading)] font-bold">{summary.total}</span>
               </div>
               <div className="w-px h-8 bg-slate-100" />
               <div className="flex flex-col">
                 <span className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">
-                  Avg Latency
+                  {t("avgLatency")}
                 </span>
-                <span className="text-2xl font-[var(--font-heading)] font-bold text-ds-primary">
-                  —
-                </span>
+                <span className="text-2xl font-[var(--font-heading)] font-bold text-ds-primary">—</span>
               </div>
             </div>
           </div>
         </div>
-        {/* Quick Stats Column — lines 183-218 */}
+        {/* Quick Stats Column — lines 183-220 */}
         <div className="col-span-12 lg:col-span-4 grid grid-cols-1 gap-4">
           {[
             {
               value: summary.active,
-              label: "Active Models",
+              label: t("activeModels"),
               dotColor: "bg-emerald-50",
               textColor: "text-emerald-600",
               icon: "check_circle",
-              badge: "HEALTHY",
+              badge: t("badgeHealthy"),
               badgeColor: "text-emerald-500 bg-emerald-50",
             },
             {
               value: summary.degraded,
-              label: "Degraded State",
+              label: t("degradedState"),
               dotColor: "bg-amber-50",
               textColor: "text-amber-600",
               icon: "warning",
-              badge: "CHECKING",
+              badge: t("badgeChecking"),
               badgeColor: "text-amber-500 bg-amber-50",
             },
             {
               value: summary.disabled,
-              label: "Disabled Nodes",
+              label: t("disabledNodes"),
               dotColor: "bg-rose-50",
               textColor: "text-rose-600",
               icon: "cancel",
-              badge: "ALERT",
+              badge: t("badgeAlert"),
               badgeColor: "text-rose-500 bg-rose-50",
             },
           ].map((c) => (
@@ -169,57 +205,113 @@ export default function HealthPage() {
         </div>
       </div>
 
-      {/* Channel Cards Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {channels.map((ch) => (
-          <div
-            key={ch.channelId}
-            className="bg-ds-surface-container-lowest p-5 rounded-xl shadow-sm flex items-center justify-between group hover:shadow-md transition-all"
+      {/* ═══ Section Header — code.html lines 222-234 ═══ */}
+      <div className="flex items-center justify-between mb-6">
+        <h3 className="font-[var(--font-heading)] text-xl font-bold">{t("infrastructureNodes")}</h3>
+        <div className="flex gap-2">
+          <button
+            onClick={() => refetch()}
+            className="bg-ds-surface-container-lowest px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2 hover:bg-slate-50 transition-colors shadow-sm"
           >
-            <div className="flex items-center gap-3">
-              <div className={`w-3 h-3 rounded-full ${STATUS_DOT[ch.status] ?? "bg-gray-400"}`} />
-              <div>
-                <div className="font-bold text-sm text-ds-on-surface">{ch.model}</div>
-                <div className="text-[10px] text-ds-on-surface-variant">
-                  {ch.provider} · {t("priority")} {ch.priority} · {ch.modality}
-                </div>
-              </div>
-            </div>
-            <div className="flex items-center gap-4">
-              <div className="text-right">
-                {ch.lastChecks[0] && (
-                  <div className="text-[10px] text-slate-500">
-                    {timeAgo(ch.lastChecks[0].createdAt)} · {ch.lastChecks[0].latencyMs}ms
+            <span className="material-symbols-outlined text-[18px]">refresh</span>
+            {t("syncAll")}
+          </button>
+        </div>
+      </div>
+
+      {/* ═══ Channel Cards Grid — code.html lines 236-449 ═══ */}
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+        {channels.map((ch) => {
+          const latency = ch.lastChecks[0]?.latencyMs;
+          return (
+            <div
+              key={ch.channelId}
+              className="bg-ds-surface-container-lowest rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow group"
+            >
+              <div className="p-6">
+                {/* Header: model name + latency */}
+                <div className="flex items-start justify-between mb-4">
+                  <div className="flex items-center gap-3">
+                    <div
+                      className={`w-2.5 h-2.5 rounded-full ${STATUS_DOT[ch.status] ?? "bg-gray-400"} ${ch.status === "ACTIVE" ? "animate-pulse" : ""}`}
+                    />
+                    <div>
+                      <h4 className="font-[var(--font-heading)] font-bold text-lg leading-tight">
+                        {ch.model}
+                      </h4>
+                      <p className="text-xs text-slate-400 font-bold uppercase tracking-tight">
+                        {ch.provider}
+                      </p>
+                    </div>
                   </div>
-                )}
-                <div className="flex gap-2 mt-1 text-xs justify-end">
-                  {["CONNECTIVITY", "FORMAT", "QUALITY"].map((level, i) => {
+                  <div className="bg-slate-50 px-3 py-1 rounded-full flex items-center gap-2">
+                    <span
+                      className={`material-symbols-outlined text-[14px] ${latencyColor(ch.status)}`}
+                    >
+                      timer
+                    </span>
+                    <span className={`text-xs font-bold ${latencyColor(ch.status)}`}>
+                      {latency != null ? `${latency}ms` : "—"}
+                    </span>
+                  </div>
+                </div>
+
+                {/* L1/L2/L3 Check Grid */}
+                <div className="grid grid-cols-3 gap-2 mb-6">
+                  {CHECK_LEVELS.map((level, i) => {
                     const c = ch.lastChecks.find((x) => x.level === level);
+                    const s = checkStyle(c?.result);
                     return (
-                      <span key={level} className="font-bold">
-                        L{i + 1}:
-                        {c?.result === "PASS" ? (
-                          <span className="text-green-600">✓</span>
-                        ) : c?.result === "FAIL" ? (
-                          <span className="text-red-600">✗</span>
-                        ) : (
-                          <span className="text-slate-400">?</span>
-                        )}
-                      </span>
+                      <div
+                        key={level}
+                        className={`${s.bg} border p-2.5 rounded-lg flex flex-col items-center`}
+                      >
+                        <span className={`text-[10px] font-bold ${s.text} uppercase mb-1`}>
+                          {CHECK_LABELS[i]}
+                        </span>
+                        <span className={`material-symbols-outlined ${s.iconColor} text-[18px]`}>
+                          {s.icon}
+                        </span>
+                      </div>
                     );
                   })}
                 </div>
+
+                {/* Footer: priority + manual check */}
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-medium text-slate-500">
+                    {t("priority")} <span className="text-ds-on-surface font-bold">P{ch.priority}</span>
+                  </span>
+                  <button
+                    disabled={checking === ch.channelId}
+                    onClick={() => runCheck(ch.channelId)}
+                    className="text-xs font-bold text-ds-primary flex items-center gap-1 hover:underline disabled:opacity-50"
+                  >
+                    {checking === ch.channelId ? "..." : t("manualCheck")}
+                    <span className="material-symbols-outlined text-[14px]">arrow_forward</span>
+                  </button>
+                </div>
               </div>
-              <button
-                disabled={checking === ch.channelId}
-                onClick={() => runCheck(ch.channelId)}
-                className="px-3 py-1.5 text-xs font-bold text-ds-primary bg-ds-primary/5 hover:bg-ds-primary/10 rounded-lg transition-colors disabled:opacity-50"
-              >
-                {checking === ch.channelId ? "..." : t("check")}
-              </button>
+
+              {/* Card bottom bar */}
+              <div className="bg-slate-50/50 px-6 py-3 flex items-center justify-between">
+                {ch.lastChecks[0] && (
+                  <span className="text-[10px] font-bold text-slate-400">
+                    {timeAgo(ch.lastChecks[0].createdAt)}
+                  </span>
+                )}
+                <div className="flex -space-x-1">
+                  {ch.lastChecks.slice(0, 3).map((c, i) => (
+                    <div
+                      key={i}
+                      className={`w-4 h-4 rounded-full ${c.result === "PASS" ? "bg-emerald-400" : c.result === "FAIL" ? "bg-rose-400" : "bg-amber-400"}`}
+                    />
+                  ))}
+                </div>
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );
