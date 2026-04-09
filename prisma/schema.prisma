@@ -240,7 +240,8 @@ model Model {
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
 
-  channels Channel[]
+  channels   Channel[]
+  aliasLinks AliasModelLink[]
 
   @@index([modality])
   @@index([name])
@@ -249,13 +250,35 @@ model Model {
 }
 
 model ModelAlias {
-  id        String   @id @default(cuid())
-  alias     String   @unique
-  modelName String
-  createdAt DateTime @default(now())
+  id            String        @id @default(cuid())
+  alias         String        @unique
+  brand         String?
+  modality      ModelModality @default(TEXT)
+  enabled       Boolean       @default(false)
+  contextWindow Int?
+  maxTokens     Int?
+  capabilities  Json?
+  description   String?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
 
-  @@index([modelName])
+  models AliasModelLink[]
+
+  @@index([enabled])
+  @@index([brand])
   @@map("model_aliases")
+}
+
+model AliasModelLink {
+  id      String @id @default(cuid())
+  aliasId String
+  modelId String
+
+  alias ModelAlias @relation(fields: [aliasId], references: [id], onDelete: Cascade)
+  model Model     @relation(fields: [modelId], references: [id], onDelete: Cascade)
+
+  @@unique([aliasId, modelId])
+  @@map("alias_model_links")
 }
 
 model Channel {

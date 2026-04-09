@@ -1,4 +1,4 @@
-export { resolveEngine, routeByModelName, getAdapterForRoute } from "./router";
+export { resolveEngine, routeByAlias, routeByModelName, getAdapterForRoute } from "./router";
 export { OpenAICompatEngine } from "./openai-compat";
 export { VolcengineAdapter } from "./adapters/volcengine";
 export { SiliconFlowAdapter } from "./adapters/siliconflow";

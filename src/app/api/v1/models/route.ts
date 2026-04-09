@@ -20,91 +20,87 @@ type ModelCapabilities = Record<string, boolean | undefined>;
 const CACHE_TTL = 120; // seconds
 const LOCK_TTL = 10; // seconds
 
-/** 查 DB + 构造响应 JSON 字符串 */
+/** 查 DB + 构造响应 JSON 字符串（返回别名列表） */
 async function queryModelsJSON(modalityFilter: string | undefined): Promise<string> {
-  const allModels = await prisma.model.findMany({
+  const aliases = await prisma.modelAlias.findMany({
     where: {
       enabled: true,
-      channels: { some: { status: "ACTIVE" } },
       ...(modalityFilter
         ? { modality: modalityFilter as "TEXT" | "IMAGE" | "VIDEO" | "AUDIO" }
         : {}),
     },
-    select: {
-      name: true,
-      displayName: true,
-      modality: true,
-      maxTokens: true,
-      contextWindow: true,
-      capabilities: true,
-      supportedSizes: true,
-      description: true,
-      channels: {
-        where: { status: "ACTIVE" },
-        orderBy: { priority: "asc" },
-        take: 1,
-        select: {
-          sellPrice: true,
-          provider: { select: { displayName: true } },
-          healthChecks: {
-            orderBy: { createdAt: "desc" },
-            take: 1,
-            select: { result: true },
+    include: {
+      models: {
+        include: {
+          model: {
+            include: {
+              channels: {
+                where: { status: "ACTIVE" },
+                orderBy: { priority: "asc" },
+                select: {
+                  sellPrice: true,
+                  priority: true,
+                  healthChecks: {
+                    orderBy: { createdAt: "desc" },
+                    take: 1,
+                    select: { result: true },
+                  },
+                },
+              },
+            },
           },
         },
       },
     },
-    orderBy: { name: "asc" },
+    orderBy: { alias: "asc" },
   });
 
-  // Filter out models whose only ACTIVE channels all have latest health check FAIL
-  type ModelRow = (typeof allModels)[number];
-  type ChannelRow = ModelRow["channels"][number];
-  const models: ModelRow[] = allModels.filter((m: ModelRow) => {
-    const healthyChannels = m.channels.filter((ch: ChannelRow) => {
-      const lastCheck = ch.healthChecks[0];
-      return !lastCheck || lastCheck.result !== "FAIL";
-    });
-    return healthyChannels.length > 0;
-  });
+  const data = aliases
+    .map((alias) => {
+      // Collect all healthy channels across linked models
+      const allChannels = alias.models
+        .flatMap((link) => link.model.channels)
+        .filter((ch) => {
+          const lastCheck = ch.healthChecks[0];
+          return !lastCheck || lastCheck.result !== "FAIL";
+        })
+        .sort((a, b) => a.priority - b.priority);
 
-  const data = models.map((model: ModelRow) => {
-    const channel = model.channels[0];
-    const sellPrice = channel?.sellPrice as Record<string, unknown> | undefined;
-    const providerName = channel?.provider?.displayName ?? null;
-    const capabilities = (model.capabilities as ModelCapabilities | null) ?? {};
+      // Skip aliases with no healthy channels
+      if (allChannels.length === 0) return null;
 
-    const pricing: Record<string, unknown> = {};
-    if (sellPrice) {
-      if (sellPrice.unit === "token") {
-        pricing.input_per_1m = sellPrice.inputPer1M;
-        pricing.output_per_1m = sellPrice.outputPer1M;
-        pricing.unit = "token";
-        pricing.currency = "USD";
-      } else if (sellPrice.unit === "call") {
-        pricing.per_call = sellPrice.perCall;
-        pricing.unit = "call";
-        pricing.currency = "USD";
+      // Pricing from highest-priority (lowest number) channel
+      const bestChannel = allChannels[0];
+      const sellPrice = bestChannel?.sellPrice as Record<string, unknown> | undefined;
+      const capabilities = (alias.capabilities as ModelCapabilities | null) ?? {};
+
+      const pricing: Record<string, unknown> = {};
+      if (sellPrice) {
+        if (sellPrice.unit === "token") {
+          pricing.input_per_1m = sellPrice.inputPer1M;
+          pricing.output_per_1m = sellPrice.outputPer1M;
+          pricing.unit = "token";
+          pricing.currency = "USD";
+        } else if (sellPrice.unit === "call") {
+          pricing.per_call = sellPrice.perCall;
+          pricing.unit = "call";
+          pricing.currency = "USD";
+        }
       }
-    }
 
-    const isImage = model.modality === "IMAGE";
-    const sizes = isImage ? (model.supportedSizes as string[] | null) : null;
-
-    return {
-      id: model.name,
-      object: "model" as const,
-      display_name: model.displayName,
-      modality: model.modality.toLowerCase(),
-      ...(providerName ? { provider_name: providerName } : {}),
-      ...(!isImage && model.contextWindow ? { context_window: model.contextWindow } : {}),
-      ...(model.maxTokens ? { max_output_tokens: model.maxTokens } : {}),
-      pricing,
-      capabilities,
-      ...(sizes && sizes.length > 0 ? { supported_sizes: sizes } : {}),
-      ...(model.description ? { description: model.description } : {}),
-    };
-  });
+      return {
+        id: alias.alias,
+        object: "model" as const,
+        ...(alias.brand ? { brand: alias.brand } : {}),
+        modality: alias.modality.toLowerCase(),
+        ...(alias.contextWindow ? { context_window: alias.contextWindow } : {}),
+        ...(alias.maxTokens ? { max_output_tokens: alias.maxTokens } : {}),
+        pricing,
+        capabilities,
+        ...(alias.description ? { description: alias.description } : {}),
+      };
+    })
+    .filter(Boolean);
 
   return JSON.stringify({ object: "list", data });
 }

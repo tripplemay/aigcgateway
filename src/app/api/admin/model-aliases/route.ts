@@ -6,49 +6,78 @@ import { errorResponse } from "@/lib/api/errors";
 
 /**
  * GET /api/admin/model-aliases
- * 返回所有别名，按 modelName 分组
+ * 返回所有别名（含关联模型数）
+ * F-M1a-02 会增强为完整 CRUD + 模型挂载
  */
 export async function GET(request: Request) {
   const auth = requireAdmin(request);
   if (!auth.ok) return auth.error;
 
   const aliases = await prisma.modelAlias.findMany({
-    orderBy: [{ modelName: "asc" }, { alias: "asc" }],
+    orderBy: [{ alias: "asc" }],
+    include: {
+      models: {
+        include: {
+          model: {
+            include: {
+              channels: { where: { status: "ACTIVE" }, select: { id: true } },
+            },
+          },
+        },
+      },
+    },
   });
 
-  // Group by modelName
-  const grouped: Record<string, { id: string; alias: string; createdAt: Date }[]> = {};
-  for (const a of aliases) {
-    if (!grouped[a.modelName]) grouped[a.modelName] = [];
-    grouped[a.modelName].push({ id: a.id, alias: a.alias, createdAt: a.createdAt });
-  }
+  const data = aliases.map((a) => ({
+    id: a.id,
+    alias: a.alias,
+    brand: a.brand,
+    modality: a.modality,
+    enabled: a.enabled,
+    contextWindow: a.contextWindow,
+    maxTokens: a.maxTokens,
+    description: a.description,
+    linkedModelCount: a.models.length,
+    activeChannelCount: a.models.reduce(
+      (sum, link) => sum + link.model.channels.length,
+      0,
+    ),
+    createdAt: a.createdAt,
+    updatedAt: a.updatedAt,
+  }));
 
-  return NextResponse.json({ data: grouped, total: aliases.length });
+  return NextResponse.json({ data, total: data.length });
 }
 
 /**
  * POST /api/admin/model-aliases
- * 创建别名 { alias, modelName }
+ * 创建别名 { alias, brand?, modality?, description? }
  */
 export async function POST(request: Request) {
   const auth = requireAdmin(request);
   if (!auth.ok) return auth.error;
 
   const body = await request.json();
-  const { alias, modelName } = body;
+  const { alias, brand, modality, description, contextWindow, maxTokens } = body;
 
-  if (!alias || !modelName) {
-    return errorResponse(400, "invalid_parameter", "alias and modelName required");
+  if (!alias) {
+    return errorResponse(400, "invalid_parameter", "alias is required");
   }
 
-  // Check uniqueness
   const existing = await prisma.modelAlias.findUnique({ where: { alias } });
   if (existing) {
     return errorResponse(409, "conflict", `Alias "${alias}" already exists`);
   }
 
   const created = await prisma.modelAlias.create({
-    data: { alias, modelName },
+    data: {
+      alias,
+      ...(brand != null ? { brand } : {}),
+      ...(modality != null ? { modality } : {}),
+      ...(description != null ? { description } : {}),
+      ...(contextWindow != null ? { contextWindow } : {}),
+      ...(maxTokens != null ? { maxTokens } : {}),
+    },
   });
 
   return NextResponse.json(created, { status: 201 });

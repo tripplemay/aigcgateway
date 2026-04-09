@@ -1,7 +1,7 @@
 /**
  * 通道路由器
  *
- * modelName → Model → Channel(ACTIVE, priority ASC) → Provider + Config → Adapter 实例
+ * alias → ModelAlias → AliasModelLink[] → Model[] → Channel(ACTIVE, priority ASC) → Provider + Config → Adapter
  */
 
 import { prisma } from "@/lib/prisma";
@@ -37,10 +37,76 @@ function getAdapter(adapterType: string): EngineAdapter {
 }
 
 /**
- * 根据模型名路由到最优通道
+ * 通过别名路由到最优通道。
+ * 别名 → 关联 Models → 所有 ACTIVE Channel → 按 priority 选最优（跳过健康检查 FAIL 的）
+ */
+export async function routeByAlias(aliasName: string): Promise<RouteResult> {
+  const alias = await prisma.modelAlias.findUnique({
+    where: { alias: aliasName, enabled: true },
+    include: {
+      models: {
+        include: {
+          model: {
+            include: {
+              channels: {
+                where: { status: "ACTIVE" },
+                orderBy: { priority: "asc" },
+                include: {
+                  provider: { include: { config: true } },
+                  healthChecks: { orderBy: { createdAt: "desc" }, take: 1 },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  });
+
+  if (!alias) {
+    throw new EngineError(
+      `Model "${aliasName}" not found`,
+      ErrorCodes.MODEL_NOT_FOUND,
+      404,
+    );
+  }
+
+  // Collect all active channels across linked models, skip health-check FAIL
+  const candidateChannels = alias.models
+    .flatMap((link) =>
+      link.model.channels.map((ch) => ({
+        channel: ch,
+        provider: ch.provider,
+        config: ch.provider.config,
+        model: link.model,
+        healthFail:
+          ch.healthChecks.length > 0 && ch.healthChecks[0].result === "FAIL",
+      })),
+    )
+    .filter((c) => !c.healthFail && c.config != null)
+    .sort((a, b) => a.channel.priority - b.channel.priority);
+
+  if (candidateChannels.length === 0) {
+    throw new EngineError(
+      `No active channel available for "${aliasName}"`,
+      ErrorCodes.CHANNEL_UNAVAILABLE,
+      503,
+    );
+  }
+
+  const best = candidateChannels[0];
+  return {
+    channel: best.channel,
+    provider: best.provider,
+    config: best.config!,
+    model: best.model,
+  };
+}
+
+/**
+ * 根据底层模型名路由（保留供内部使用，如健康检查）
  */
 export async function routeByModelName(modelName: string): Promise<RouteResult> {
-  // 1. 查找模型
   const model = await prisma.model.findUnique({
     where: { name: modelName },
   });
@@ -57,7 +123,6 @@ export async function routeByModelName(modelName: string): Promise<RouteResult> 
     );
   }
 
-  // 2. 查找活跃通道（按 priority ASC）
   const channel = await prisma.channel.findFirst({
     where: {
       modelId: model.id,
@@ -101,13 +166,13 @@ export function getAdapterForRoute(route: RouteResult): EngineAdapter {
 }
 
 /**
- * 一步到位：路由 + 获取 Adapter
+ * 一步到位：路由（通过别名） + 获取 Adapter
  */
-export async function resolveEngine(modelName: string): Promise<{
+export async function resolveEngine(aliasName: string): Promise<{
   route: RouteResult;
   adapter: EngineAdapter;
 }> {
-  const route = await routeByModelName(modelName);
+  const route = await routeByAlias(aliasName);
   const adapter = getAdapterForRoute(route);
   return { route, adapter };
 }

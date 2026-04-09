@@ -158,14 +158,11 @@ function applyOverrides(
 // ============================================================
 
 /**
- * 通过 ModelAlias 表将 Provider 返回的 modelId 映射到 canonical name。
- * 优先级：1) ModelAlias 精确匹配  2) modelId 本身
+ * 将 Provider 返回的 modelId 映射到 canonical name。
+ * M1a 后 ModelAlias 不再持有 modelName，直接返回原始 modelId。
+ * 后续 M1b 的 LLM 分类推断会在 sync 后自动挂载模型到别名。
  */
 async function resolveCanonicalName(modelId: string): Promise<string> {
-  const alias = await prisma.modelAlias.findUnique({
-    where: { alias: modelId },
-  });
-  if (alias) return alias.modelName;
   return modelId;
 }
 

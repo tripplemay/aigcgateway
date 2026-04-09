@@ -168,13 +168,13 @@ export function registerChat(server: McpServer, opts: McpServerOptions): void {
           err instanceof EngineError &&
           (err.code === "model_not_found" || err.code === "model_not_available")
         ) {
-          const available = await prisma.model.findMany({
-            where: { enabled: true, channels: { some: { status: "ACTIVE" } }, modality: "TEXT" },
-            select: { name: true },
-            orderBy: { name: "asc" },
+          const available = await prisma.modelAlias.findMany({
+            where: { enabled: true, modality: "TEXT" },
+            select: { alias: true },
+            orderBy: { alias: "asc" },
             take: 10,
           });
-          const names = available.map((m) => m.name).join(", ");
+          const names = available.map((m) => m.alias).join(", ");
           const reason =
             err.code === "model_not_available"
               ? `Model "${model}" is not available (disabled by admin).`

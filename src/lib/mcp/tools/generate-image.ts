@@ -25,7 +25,12 @@ export function registerGenerateImage(server: McpServer, opts: McpServerOptions)
     {
       model: z.string().describe("Exact image model name from list_models output"),
       prompt: z.string().describe("Image description / prompt"),
-      size: z.string().optional().describe("Image size. Check supportedSizes in list_models(modality='image') for valid values per model. Example: 1024x1024"),
+      size: z
+        .string()
+        .optional()
+        .describe(
+          "Image size. Check supportedSizes in list_models(modality='image') for valid values per model. Example: 1024x1024",
+        ),
       n: z
         .number()
         .int()
@@ -78,13 +83,13 @@ export function registerGenerateImage(server: McpServer, opts: McpServerOptions)
           err instanceof EngineError &&
           (err.code === "model_not_found" || err.code === "model_not_available")
         ) {
-          const available = await prisma.model.findMany({
-            where: { enabled: true, channels: { some: { status: "ACTIVE" } }, modality: "IMAGE" },
-            select: { name: true },
-            orderBy: { name: "asc" },
+          const available = await prisma.modelAlias.findMany({
+            where: { enabled: true, modality: "IMAGE" },
+            select: { alias: true },
+            orderBy: { alias: "asc" },
             take: 10,
           });
-          const names = available.map((m) => m.name).join(", ");
+          const names = available.map((m) => m.alias).join(", ");
           const reason =
             err.code === "model_not_available"
               ? `Model "${model}" is not available (disabled by admin).`

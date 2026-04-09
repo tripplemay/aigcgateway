@@ -7,7 +7,7 @@
       "title": "Schema 迁移 — ModelAlias 升级 + AliasModelLink",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) ModelAlias 表新增 brand/modality/enabled/contextWindow/maxTokens/capabilities/description/updatedAt 列；2) 旧 modelName 列删除；3) alias_model_links 表创建（aliasId+modelId 联合唯一）；4) Model 表新增 aliasLinks 反向关联；5) 旧 ModelAlias 数据清空；6) prisma generate + migrate dev 通过；7) tsc 通过"
     },
     {
@@ -15,7 +15,7 @@
       "title": "Admin CRUD API — 别名管理 + 模型挂载",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) GET /api/admin/model-aliases 返回别名列表（含关联模型数、渠道数）；2) POST 创建别名；3) PATCH /:id 编辑元数据（alias/brand/enabled/description 等）；4) DELETE /:id 删除别名；5) POST /:id/link 挂载模型（自动设 Model.enabled=true）；6) DELETE /:id/link/:modelId 移除模型（无别名时自动 Model.enabled=false）；7) tsc 通过"
     },
     {
@@ -23,7 +23,7 @@
       "title": "路由引擎 — routeByAlias 替换 routeByModelName",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) 新增 routeByAlias：别名 → 关联 Models → 所有 ACTIVE Channel → 按 priority 选最优（跳过健康检查 FAIL 的）；2) 别名不存在直接 404；3) 替换 /v1/chat/completions 中的 routeByModelName 调用；4) 旧 routeByModelName 保留但不再被外部调用；5) tsc 通过"
     },
     {
@@ -31,7 +31,7 @@
       "title": "GET /v1/models — 返回别名列表",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) 返回 ModelAlias（enabled=true）而非 Model；2) 响应含 id(别名)、brand、modality、context_window、pricing、capabilities；3) 不返回 provider_name；4) pricing 取关联 Channel 中 priority 最高的售价；5) Redis 缓存逻辑适配；6) tsc 通过"
     },
     {
@@ -39,7 +39,7 @@
       "title": "MCP Tools 适配",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) list_models 返回别名（同 /v1/models）；2) chat tool 用别名调用（走 routeByAlias）；3) 其他 MCP tools 不受影响；4) tsc 通过"
     },
     {

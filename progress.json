@@ -1,10 +1,10 @@
 {
-  "status": "building",
+  "status": "verifying",
   "user_goal": "M1a — 模型别名后端核心（Schema + 路由引擎 + API），别名成为一等公民",
   "total_features": 6,
-  "completed_features": 0,
+  "completed_features": 5,
   "fix_rounds": 0,
-  "current_sprint": "F-M1a-01",
+  "current_sprint": "F-M1a-06",
   "last_updated": "2026-04-09T23:30:00.000Z",
   "reference_docs": [
     "docs/specs/M1-models-page-rework-spec.md"
@@ -19,7 +19,7 @@
   "evaluator_feedback": null,
   "generator_handoff": null,
   "session_notes": {
-    "Kimi": null,
+    "Kimi": "M1a 全部 5 个 generator 功能完成。Schema 迁移清空了旧 ModelAlias 28 行数据；手写 migration SQL 绕过 Prisma 非交互限制。routeByAlias 替换 routeByModelName 作为 resolveEngine 入口。/v1/models 和 MCP list_models 均改为返回别名。merge route 适配了新 AliasModelLink。Model.enabled 派生逻辑在 link/unlink API 中实现。待 Evaluator 验收。",
     "Planner": "M1a 批次启动。M1 拆为三个子批次：M1a（后端核心）→ M1b（LLM推断+Admin UI）→ M1c（用户Models页）。M1a 含 5 个 generator + 1 个 codex。从 backlog 移除 BL-075。Generator 从 F-M1a-01（Schema 迁移）开始。",
     "Reviewer": null
   }

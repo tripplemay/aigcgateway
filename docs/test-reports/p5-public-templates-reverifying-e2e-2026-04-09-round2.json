@@ -1,0 +1,48 @@
+{
+  "baseUrl": "http://localhost:3099",
+  "passCount": 6,
+  "failCount": 1,
+  "context": {
+    "adminProjectId": "cmnrmi1fm00qu9ymmbn15jo74",
+    "userProjectId": "cmnrmi1fp00qw9ymmhygb6835",
+    "sourceTemplateId": "cmnrmi1g600r69ymmtnnk7d02",
+    "privateTemplateId": "cmnrmi1gd00rb9ymmxvqhpcaz"
+  },
+  "steps": [
+    {
+      "name": "AC1 public template list/detail/fork chain",
+      "ok": true,
+      "detail": "found=true, detailId=cmnrmi1g600r69ymmtnnk7d02, forked=cmnrmi1gz00rn9ymmjd6lh22q"
+    },
+    {
+      "name": "AC2 fork deep copy integrity (Template+Steps+Actions)",
+      "ok": true,
+      "detail": "sourceTemplateId=cmnrmi1g600r69ymmtnnk7d02, forkedSteps=2, sourceSteps=2, forkedActionIds=cmnrmi1gv00rf9ymm7kbbrx11,cmnrmi1gy00rj9ymmqt7s25i0"
+    },
+    {
+      "name": "AC3 non-public template cannot be forked",
+      "ok": true,
+      "detail": "status=404, code=not_found"
+    },
+    {
+      "name": "AC4 MCP tools list_public_templates + fork_public_template",
+      "ok": true,
+      "detail": "init=200, hasListPublic=true, hasForkPublic=true, listCount=1, forked=cmnrmi1ir00rv9ymmzwf4r5ig"
+    },
+    {
+      "name": "AC5 UI structure spot checks (tab + grid + drawer + dialog)",
+      "ok": true,
+      "detail": "tabs=true, grid3col=true"
+    },
+    {
+      "name": "AC6 DS token audit (zero legacy token and zero hardcoded color)",
+      "ok": true,
+      "detail": "legacy=0, hardcodedColor=0"
+    },
+    {
+      "name": "AC7 i18n audit (key coverage + no known hardcoded residues)",
+      "ok": false,
+      "detail": "keys=true, hardcoded=detail-drawer.mode-suffix"
+    }
+  ]
+}

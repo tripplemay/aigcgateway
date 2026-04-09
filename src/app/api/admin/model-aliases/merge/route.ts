@@ -7,7 +7,7 @@ import { errorResponse } from "@/lib/api/errors";
 /**
  * POST /api/admin/model-aliases/merge
  * 归入已有模型：sourceModel → targetModel
- * 1. 创建 alias 记录（sourceModel.name → targetModelName）
+ * 1. 创建别名（sourceModel.name 作为 alias）并挂载到 targetModel
  * 2. 迁移 sourceModel 的 Channel 到 targetModel
  * 3. 删除 sourceModel
  */
@@ -41,11 +41,13 @@ export async function POST(request: Request) {
     return errorResponse(400, "invalid_parameter", "Cannot merge a model into itself");
   }
 
-  // Transaction: create alias + migrate channels + delete source
   await prisma.$transaction(async (tx) => {
-    // 1. Create alias (sourceModel.name → targetModelName)
-    await tx.modelAlias.create({
-      data: { alias: sourceModel.name, modelName: targetModelName },
+    // 1. Create alias for sourceModel.name and link to targetModel
+    const alias = await tx.modelAlias.create({
+      data: { alias: sourceModel.name },
+    });
+    await tx.aliasModelLink.create({
+      data: { aliasId: alias.id, modelId: targetModel.id },
     });
 
     // 2. Migrate channels from source to target
