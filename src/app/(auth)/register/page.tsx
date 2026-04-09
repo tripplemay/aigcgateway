@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { Toaster } from "@/components/ui/sonner";
+import { AuthLeftPanel } from "@/components/auth-terminal";
 
 export default function RegisterPage() {
   const t = useTranslations("auth");
@@ -78,98 +79,13 @@ export default function RegisterPage() {
       `}</style>
 
       <main className="flex min-h-screen w-full">
-        {/* ═══ Left Side: Terminal — mirrored from Login, static version ═══ */}
-        <section className="hidden lg:flex lg:w-1/2 relative flex-col justify-between p-16 overflow-hidden bg-[#0a0a0c]">
-          {/* Background Grid */}
-          <div
-            className="absolute inset-0 z-0 opacity-10"
-            style={{
-              backgroundImage: "radial-gradient(#6d5dd3 0.5px, transparent 0.5px)",
-              backgroundSize: "24px 24px",
-            }}
-          />
-          <div
-            className="w-full h-[100px] z-[5] opacity-10 absolute"
-            style={{
-              background:
-                "linear-gradient(0deg, rgba(0,0,0,0) 0%, rgba(109,93,211,0.05) 50%, rgba(0,0,0,0) 100%)",
-              animation: "scanline 6s linear infinite",
-              bottom: "100%",
-            }}
-          />
-
-          {/* Brand */}
-          <div className="relative z-10">
-            <div className="flex items-center gap-3">
-              <span className="material-symbols-outlined text-ds-primary-container text-4xl font-bold">
-                hub
-              </span>
-              <span className="text-xl font-bold tracking-tighter text-white font-[family-name:var(--font-heading)]">
-                AIGC Gateway
-              </span>
-            </div>
-          </div>
-
-          {/* Static terminal lines + Tagline */}
-          <div className="relative z-10 flex flex-col items-center justify-center h-full max-w-2xl mx-auto w-full">
-            <div className="w-full font-mono text-sm space-y-4 mb-12">
-              <div className="text-ds-primary-container">{t("termSysInit")}</div>
-              <div className="text-white/40">{t("termFetchMetrics")}</div>
-              <div className="text-white flex items-center gap-2">
-                <span>&gt;</span>
-                <span>{t("termHeroLine")}</span>
-                <span className="inline-block w-2 h-[1.2em] bg-ds-primary-container animate-[blink_1s_step-end_infinite]" />
-              </div>
-              <div className="space-y-1 pt-2">
-                <div className="text-white/40 flex items-center gap-3">
-                  <span className="text-ds-primary-container">09:41:02</span>
-                  <span>{t("termTrace")}</span>
-                </div>
-                <div className="text-white/40 flex items-center gap-3">
-                  <span className="text-ds-primary-container">09:41:03</span>
-                  <span>{t("termDebug")}</span>
-                </div>
-                <div className="text-white/40 flex items-center gap-3">
-                  <span className="text-ds-primary-container">09:41:05</span>
-                  <span>{t("termInfo")}</span>
-                </div>
-              </div>
-            </div>
-            <div className="text-center">
-              <h1 className="text-4xl font-extrabold tracking-tight text-white leading-[1.1] mb-4 font-[family-name:var(--font-heading)]">
-                {t("tagline")}
-              </h1>
-              <p className="text-lg text-ds-outline-variant/60 font-medium tracking-wide">
-                {t("taglineDesc")}
-              </p>
-            </div>
-          </div>
-
-          {/* Footer stats */}
-          <div className="relative z-10 flex justify-between items-end">
-            <div className="flex gap-8">
-              <div className="flex flex-col">
-                <span className="text-2xl font-bold text-white font-[family-name:var(--font-heading)]">
-                  99.9%
-                </span>
-                <span className="text-[10px] font-mono uppercase tracking-widest text-ds-primary-container font-semibold">
-                  {t("uptime")}
-                </span>
-              </div>
-              <div className="flex flex-col">
-                <span className="text-2xl font-bold text-white font-[family-name:var(--font-heading)]">
-                  &lt;20ms
-                </span>
-                <span className="text-[10px] font-mono uppercase tracking-widest text-ds-primary-container font-semibold">
-                  {t("latency")}
-                </span>
-              </div>
-            </div>
-            <span className="text-[10px] font-mono text-white/20 tracking-[0.2em] uppercase">
-              SYSTEMS_STABLE_V2.0.4
-            </span>
-          </div>
-        </section>
+        <AuthLeftPanel
+          tagline={t("tagline")}
+          taglineDesc={t("taglineDesc")}
+          uptime={t("uptime")}
+          latency={t("latency")}
+          terminalTitle={t("terminalTitle")}
+        />
 
         {/* ═══ Right Side: Registration Form ═══ */}
         <section className="w-full lg:w-1/2 flex flex-col justify-center items-center bg-ds-surface-container-lowest px-8 py-12 md:px-24 overflow-y-auto">

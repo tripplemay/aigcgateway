@@ -61,7 +61,7 @@
       "title": "Register 左侧终端与 Login 统一",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) Terminal 组件抽离为共享模块；2) Register 复用 Login 的 Terminal + 品牌头 + tagline + footer stats；3) Login ↔ Register 切换左侧视觉零变化；4) tsc 通过"
     },
     {
