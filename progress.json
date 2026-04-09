@@ -2,9 +2,9 @@
   "status": "building",
   "user_goal": "R4 — 6 页面设计稿结构还原（whitelist/aliases/capabilities/user-detail/admin-templates/mcp-setup）",
   "total_features": 8,
-  "completed_features": 5,
+  "completed_features": 6,
   "fix_rounds": 0,
-  "current_sprint": "F-R4-06",
+  "current_sprint": "F-R4-07",
   "last_updated": "2026-04-09T19:00:00.000Z",
   "reference_docs": [
     "docs/specs/R4-design-restoration-spec.md",

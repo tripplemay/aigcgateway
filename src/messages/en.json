@@ -776,7 +776,14 @@
     "pasteFullKey": "Please paste your full API Key in the input field above",
     "enterKeyFirst": "Please enter your API Key first",
     "noKey": "No API Key found. Create one first.",
-    "badge": "Setup Guide"
+    "badge": "Setup Guide",
+    "protocolTools": "Protocol Tools",
+    "latencyOptimization": "Latency Optimization",
+    "latencyDesc": "Edge-routing enabled for all MCP requests.",
+    "e2eEncryption": "End-to-End Encryption",
+    "e2eDesc": "Your local tools remain private and secure.",
+    "globalGateway": "Global Gateway",
+    "globalDesc": "Switch between 50+ providers seamlessly."
   },
   "actions": {
     "title": "Actions",

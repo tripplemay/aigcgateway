@@ -249,146 +249,218 @@ export default function McpSetupPage() {
   };
 
   return (
-    <div className="max-w-3xl mx-auto">
+    <div className="space-y-10">
       {/* Page Header */}
-      <header className="mb-10">
+      <header>
         <div className="flex items-center gap-3 mb-2">
           <span className="bg-ds-primary/10 text-ds-primary text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-widest">
             {t("badge")}
           </span>
+          <div className="h-px flex-1 bg-ds-surface-container-high" />
         </div>
-        <h2 className="text-4xl font-extrabold tracking-tight text-ds-on-surface mb-2 font-[var(--font-heading)]">
-          {t("title")}
-        </h2>
-        <p className="text-ds-on-surface-variant">{t("subtitle")}</p>
+        <h2 className="text-4xl font-extrabold tracking-tight mb-2">{t("title")}</h2>
+        <p className="text-ds-on-surface-variant max-w-2xl">{t("subtitle")}</p>
       </header>
 
-      <div className="space-y-8">
-        {/* ═══ Step 1: API Key ═══ */}
-        <section className="bg-ds-surface-container-lowest p-8 rounded-xl shadow-sm">
-          <div className="flex items-center gap-4 mb-6">
-            <div className="w-10 h-10 rounded-full bg-ds-primary flex items-center justify-center text-white font-bold text-sm">
-              1
-            </div>
-            <div>
-              <h3 className="text-lg font-bold font-[var(--font-heading)]">{t("step1")}</h3>
-              <p className="text-sm text-ds-on-surface-variant">{t("step1Desc")}</p>
-            </div>
-          </div>
-
-          {/* API Key input */}
-          <div className="space-y-3">
-            <input
-              type="text"
-              className="w-full bg-ds-surface-container-low border-none rounded-lg px-4 py-3 text-sm font-mono text-ds-on-surface outline-none focus:ring-2 focus:ring-ds-primary/20 transition-all placeholder:text-ds-outline"
-              placeholder={t("keyPlaceholder")}
-              value={apiKey}
-              onChange={(e) => setApiKey(e.target.value)}
-            />
-
-            {/* Key list shortcuts */}
-            {keys.length > 0 && (
-              <div className="flex flex-wrap gap-2">
-                {keys.map((k) => (
-                  <button
-                    key={k.id}
-                    onClick={() => selectKeyFromList(k.keyPrefix)}
-                    className="px-3 py-1.5 text-xs font-mono bg-ds-surface-container-low rounded-lg hover:bg-ds-surface-container transition-colors text-ds-on-surface-variant"
-                  >
-                    {k.keyPrefix}••••
-                    {k.name && <span className="ml-1 text-ds-outline font-sans">({k.name})</span>}
-                  </button>
-                ))}
+      {/* Bento Grid */}
+      <div className="grid grid-cols-12 gap-8">
+        {/* Left Column: Step 1 + Tool Badges */}
+        <div className="col-span-12 lg:col-span-5 flex flex-col gap-6">
+          {/* ═══ Step 1: API Key ═══ */}
+          <section className="bg-ds-surface-container-lowest p-8 rounded-xl shadow-sm relative overflow-hidden group">
+            <div className="flex items-center gap-4 mb-6">
+              <div className="w-10 h-10 rounded-full bg-ds-primary flex items-center justify-center text-white font-bold text-sm">
+                1
               </div>
-            )}
-
-            {keys.length === 0 && (
-              <div className="text-center py-2">
-                <Link href="/keys" className="text-sm font-bold text-ds-primary hover:underline">
-                  {t("goToKeys")}
-                </Link>
+              <div>
+                <h3 className="text-lg font-bold font-[var(--font-heading)]">{t("step1")}</h3>
+                <p className="text-sm text-ds-on-surface-variant">{t("step1Desc")}</p>
               </div>
-            )}
-          </div>
-        </section>
-
-        {/* ═══ Step 2: Client + Config ═══ */}
-        <section className="bg-ds-surface-container-lowest p-8 rounded-xl shadow-sm">
-          <div className="flex items-center gap-4 mb-6">
-            <div className="w-10 h-10 rounded-full bg-ds-primary-container flex items-center justify-center text-white font-bold text-sm">
-              2
             </div>
-            <div>
-              <h3 className="text-lg font-bold font-[var(--font-heading)]">{t("step2")}</h3>
-              <p className="text-sm text-ds-on-surface-variant">{t("step2Desc")}</p>
-            </div>
-          </div>
 
-          {/* Client dropdown */}
-          <div className="relative mb-6">
-            <button
-              onClick={() => setDropdownOpen(!dropdownOpen)}
-              className="w-full flex items-center justify-between px-4 py-3 bg-ds-surface-container-low rounded-lg text-sm font-bold text-ds-on-surface hover:bg-ds-surface-container transition-colors"
-            >
-              <div className="flex items-center gap-3">
-                <span className="material-symbols-outlined text-ds-primary">
-                  {selectedClient.icon}
+            {/* API Key input */}
+            <div className="space-y-3">
+              <input
+                type="text"
+                className="w-full bg-ds-surface-container-low border-none rounded-lg px-4 py-3 text-sm font-mono text-ds-on-surface outline-none focus:ring-2 focus:ring-ds-primary/20 transition-all placeholder:text-ds-outline"
+                placeholder={t("keyPlaceholder")}
+                value={apiKey}
+                onChange={(e) => setApiKey(e.target.value)}
+              />
+
+              {/* Key list shortcuts */}
+              {keys.length > 0 && (
+                <div className="flex flex-wrap gap-2">
+                  {keys.map((k) => (
+                    <button
+                      key={k.id}
+                      onClick={() => selectKeyFromList(k.keyPrefix)}
+                      className="px-3 py-1.5 text-xs font-mono bg-ds-surface-container-low rounded-lg hover:bg-ds-surface-container transition-colors text-ds-on-surface-variant"
+                    >
+                      {k.keyPrefix}••••
+                      {k.name && <span className="ml-1 text-ds-outline font-sans">({k.name})</span>}
+                    </button>
+                  ))}
+                </div>
+              )}
+
+              {keys.length === 0 && (
+                <div className="text-center py-2">
+                  <Link href="/keys" className="text-sm font-bold text-ds-primary hover:underline">
+                    {t("goToKeys")}
+                  </Link>
+                </div>
+              )}
+            </div>
+          </section>
+
+          {/* ═══ Tool Badges ═══ */}
+          <section className="bg-ds-surface-container-low p-8 rounded-xl">
+            <div className="flex items-center gap-4 mb-6">
+              <div className="w-10 h-10 rounded-full bg-ds-primary-container flex items-center justify-center text-white font-bold text-sm">
+                3
+              </div>
+              <h3 className="text-lg font-bold">{t("protocolTools")}</h3>
+            </div>
+            <div className="grid grid-cols-1 gap-3">
+              {[
+                { icon: "list_alt", name: "list_models", desc: "Retrieves available models" },
+                { icon: "forum", name: "chat_completion", desc: "Universal LLM interface" },
+                { icon: "image", name: "generate_image", desc: "Prompt-to-image conversion" },
+                { icon: "data_object", name: "get_context", desc: "Model state metadata" },
+                { icon: "memory", name: "token_count", desc: "Cost & context estimation" },
+                { icon: "analytics", name: "fetch_logs", desc: "Audit trail for sessions" },
+                { icon: "shield", name: "verify_key", desc: "Connection integrity check" },
+              ].map((tool) => (
+                <div
+                  key={tool.name}
+                  className="flex items-start gap-4 p-3 bg-ds-surface rounded-lg shadow-sm"
+                >
+                  <div className="p-2 bg-ds-primary/10 text-ds-primary rounded-lg">
+                    <span className="material-symbols-outlined">{tool.icon}</span>
+                  </div>
+                  <div>
+                    <p className="text-sm font-bold">{tool.name}</p>
+                    <p className="text-xs text-ds-on-surface-variant">{tool.desc}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+        </div>
+
+        {/* Right Column: Step 2 */}
+        <div className="col-span-12 lg:col-span-7">
+          {/* ═══ Step 2: Client + Config ═══ */}
+          <section className="bg-ds-surface-container-lowest p-8 rounded-xl shadow-sm h-full">
+            <div className="flex items-center gap-4 mb-6">
+              <div className="w-10 h-10 rounded-full bg-ds-primary-container flex items-center justify-center text-white font-bold text-sm">
+                2
+              </div>
+              <div>
+                <h3 className="text-lg font-bold font-[var(--font-heading)]">{t("step2")}</h3>
+                <p className="text-sm text-ds-on-surface-variant">{t("step2Desc")}</p>
+              </div>
+            </div>
+
+            {/* Client dropdown */}
+            <div className="relative mb-6">
+              <button
+                onClick={() => setDropdownOpen(!dropdownOpen)}
+                className="w-full flex items-center justify-between px-4 py-3 bg-ds-surface-container-low rounded-lg text-sm font-bold text-ds-on-surface hover:bg-ds-surface-container transition-colors"
+              >
+                <div className="flex items-center gap-3">
+                  <span className="material-symbols-outlined text-ds-primary">
+                    {selectedClient.icon}
+                  </span>
+                  <span>{selectedClient.label}</span>
+                </div>
+                <span className="material-symbols-outlined text-ds-outline">
+                  {dropdownOpen ? "expand_less" : "expand_more"}
                 </span>
-                <span>{selectedClient.label}</span>
-              </div>
-              <span className="material-symbols-outlined text-ds-outline">
-                {dropdownOpen ? "expand_less" : "expand_more"}
+              </button>
+              {dropdownOpen && (
+                <div className="absolute z-20 mt-1 w-full bg-ds-surface-container-lowest rounded-xl shadow-xl border border-ds-outline-variant/20 py-1 max-h-80 overflow-y-auto">
+                  {CLIENT_OPTIONS.map((opt) => (
+                    <button
+                      key={opt.value}
+                      onClick={() => {
+                        setClient(opt.value);
+                        setDropdownOpen(false);
+                      }}
+                      className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm hover:bg-ds-primary/10 transition-colors ${
+                        client === opt.value
+                          ? "text-ds-primary font-bold bg-ds-primary/5"
+                          : "text-ds-on-surface"
+                      }`}
+                    >
+                      <span className="material-symbols-outlined text-lg">{opt.icon}</span>
+                      <span>{opt.label}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Config path hint */}
+            <div className="flex items-center gap-2 mb-3 text-xs text-ds-outline">
+              <span className="material-symbols-outlined text-sm">folder</span>
+              <span className="font-mono">{getConfigPath(client)}</span>
+              <span className="px-1.5 py-0.5 bg-ds-surface-container-low rounded text-[10px] font-bold uppercase">
+                {getConfigLang(client)}
               </span>
+            </div>
+
+            {/* Config code block */}
+            <div className="bg-slate-950 rounded-2xl p-6 overflow-x-auto border border-slate-800">
+              <pre className="text-sm font-mono leading-relaxed text-indigo-100 whitespace-pre-wrap">
+                {configText}
+              </pre>
+            </div>
+
+            {/* Copy button */}
+            <button
+              onClick={copyConfig}
+              className="mt-6 w-full py-3.5 bg-ds-primary text-white font-bold rounded-xl flex items-center justify-center gap-2 shadow-lg shadow-ds-primary/20 hover:opacity-90 active:scale-[0.98] transition-all text-sm"
+            >
+              <span className="material-symbols-outlined">content_copy</span>
+              <span>{t("copyConfig")}</span>
             </button>
-            {dropdownOpen && (
-              <div className="absolute z-20 mt-1 w-full bg-ds-surface-container-lowest rounded-xl shadow-xl border border-ds-outline-variant/20 py-1 max-h-80 overflow-y-auto">
-                {CLIENT_OPTIONS.map((opt) => (
-                  <button
-                    key={opt.value}
-                    onClick={() => {
-                      setClient(opt.value);
-                      setDropdownOpen(false);
-                    }}
-                    className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm hover:bg-ds-primary/10 transition-colors ${
-                      client === opt.value
-                        ? "text-ds-primary font-bold bg-ds-primary/5"
-                        : "text-ds-on-surface"
-                    }`}
-                  >
-                    <span className="material-symbols-outlined text-lg">{opt.icon}</span>
-                    <span>{opt.label}</span>
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-
-          {/* Config path hint */}
-          <div className="flex items-center gap-2 mb-3 text-xs text-ds-outline">
-            <span className="material-symbols-outlined text-sm">folder</span>
-            <span className="font-mono">{getConfigPath(client)}</span>
-            <span className="px-1.5 py-0.5 bg-ds-surface-container-low rounded text-[10px] font-bold uppercase">
-              {getConfigLang(client)}
-            </span>
-          </div>
-
-          {/* Config code block */}
-          <div className="bg-slate-950 rounded-2xl p-6 overflow-x-auto border border-slate-800">
-            <pre className="text-sm font-mono leading-relaxed text-indigo-100 whitespace-pre-wrap">
-              {configText}
-            </pre>
-          </div>
-
-          {/* Copy button */}
-          <button
-            onClick={copyConfig}
-            className="mt-6 w-full py-3.5 bg-ds-primary text-white font-bold rounded-xl flex items-center justify-center gap-2 shadow-lg shadow-ds-primary/20 hover:opacity-90 active:scale-[0.98] transition-all text-sm"
-          >
-            <span className="material-symbols-outlined">content_copy</span>
-            <span>{t("copyConfig")}</span>
-          </button>
-        </section>
+          </section>
+        </div>
       </div>
+
+      {/* Feature Showcase */}
+      <section className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        {[
+          {
+            icon: "speed",
+            title: t("latencyOptimization"),
+            desc: t("latencyDesc"),
+          },
+          {
+            icon: "lock",
+            title: t("e2eEncryption"),
+            desc: t("e2eDesc"),
+          },
+          {
+            icon: "public",
+            title: t("globalGateway"),
+            desc: t("globalDesc"),
+          },
+        ].map((f) => (
+          <div
+            key={f.title}
+            className="bg-ds-surface-container-lowest p-6 rounded-xl shadow-sm group hover:shadow-md transition-all"
+          >
+            <div className="w-12 h-12 rounded-lg bg-ds-primary/10 flex items-center justify-center text-ds-primary mb-4 group-hover:scale-110 transition-transform">
+              <span className="material-symbols-outlined text-2xl">{f.icon}</span>
+            </div>
+            <h5 className="font-bold mb-1">{f.title}</h5>
+            <p className="text-xs text-ds-on-surface-variant">{f.desc}</p>
+          </div>
+        ))}
+      </section>
     </div>
   );
 }
