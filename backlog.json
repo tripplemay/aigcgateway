@@ -56,6 +56,14 @@
       "decisions": [],
       "confirmed_at": "2026-04-09",
       "priority": "low"
+    },
+    {
+      "id": "BL-074",
+      "title": "系统预设模板（公共模板库 + 用户导入）",
+      "description": "Schema 已有 isPublic/qualityScore，Admin API 可标记公共模板。缺：1) 用户侧公共模板列表 API (GET /api/templates/public)；2) Templates 页 Global Library tab；3) 一键 fork 公共模板到自己项目。",
+      "decisions": [],
+      "confirmed_at": "2026-04-09",
+      "priority": "medium"
     }
   ]
 }
