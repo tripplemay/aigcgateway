@@ -1,33 +1,27 @@
 {
-  "status": "done",
-  "user_goal": "M1b — LLM 推断 + Admin 别名管理页重做 + 白名单/能力页删除",
+  "status": "building",
+  "user_goal": "M1c — 用户 Models 页面重做 + Topbar 清理 + 终端区英文固定",
   "total_features": 6,
-  "completed_features": 6,
-  "fix_rounds": 1,
-  "current_sprint": "F-M1b-06",
-  "last_updated": "2026-04-09T21:59:14.888Z",
+  "completed_features": 0,
+  "fix_rounds": 0,
+  "current_sprint": "F-M1c-01",
+  "last_updated": "2026-04-10T01:00:00.000Z",
   "reference_docs": [
     "docs/specs/M1-models-page-rework-spec.md",
-    "design-draft/admin-model-aliases/code.html"
+    "design-draft/models/code.html"
   ],
   "role_assignments": null,
   "docs": {
     "spec": "docs/specs/M1-models-page-rework-spec.md",
-    "test_cases": "docs/test-cases/m1b-alias-admin-verifying-e2e-2026-04-10.md",
-    "signoff": "docs/test-reports/m1b-alias-automation-admin-ui-signoff-2026-04-10.md",
+    "test_cases": null,
+    "signoff": null,
     "framework_reviewed": false
   },
-  "evaluator_feedback": {
-    "summary": "M1b 复验通过（reverifying，8/8 PASS），已签收。",
-    "pass_count": 8,
-    "partial_count": 0,
-    "fail_count": 0,
-    "issues": []
-  },
+  "evaluator_feedback": null,
   "generator_handoff": null,
   "session_notes": {
-    "Kimi": "M1b fix round 1 完成。修复 3 个 FAIL：1) 新增 Supported Sizes 区块（存于 capabilities.supported_sizes）；2) 所有硬编码颜色替换为 DS token（green→ds-secondary-container, slate→ds-outline-variant/ds-on-surface-variant, white→ds-surface-container-lowest）；3) 能力标签+placeholder 全部 i18n 化（cap_* keys）。",
-    "Planner": "M1a done 收尾 + M1b 启动。M1a 签收（6/6 PASS，0 fix rounds）。M1b 含 5 generator + 1 codex：LLM 推断、sync 自动挂载、Admin UI 重做、白名单+能力页删除、i18n。设计稿 design-draft/admin-model-aliases/code.html 已就绪。",
-    "Reviewer": "M1b reverifying 完成：L1 复验脚本 8/8 PASS。前轮失败项（设计稿 Supported Sizes、DS token 硬编码、i18n 残留）已关闭；Sync+LLM 分类/brand、导航清理均通过。已生成 signoff 并置 done。"
+    "Kimi": null,
+    "Planner": "M1b done 收尾 + M1c 启动。M1b 签收（8/8 PASS，1 fix round）。M1c 含 5 generator + 1 codex：Models 页重做、Topbar 清理（移除 Deploy/设置/搜索/暗色模式按钮）、用户头像下拉菜单、终端区英文固定、i18n。从 backlog 移除 BL-076/BL-077。",
+    "Reviewer": null
   }
 }

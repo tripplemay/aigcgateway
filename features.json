@@ -1,55 +1,55 @@
 {
-  "batch": "M1b-alias-automation-admin-ui",
+  "batch": "M1c-models-page-topbar-cleanup",
   "created_at": "2026-04-10",
   "features": [
     {
-      "id": "F-M1b-01",
-      "title": "LLM Brand + 别名分类推断",
+      "id": "F-M1c-01",
+      "title": "用户 Models 页面重做 — 按品牌分组",
       "priority": "high",
       "executor": "generator",
-      "status": "done",
-      "acceptance": "1) sync 后对 brand 为空或未挂载别名的 Model 调用 LLM 批量推断；2) 已有别名列表作为锚定上下文（分类而非生成）；3) 冷启动模式（无已有别名时全量推断）；4) 推断结果持久化到 ModelAlias（brand + AliasModelLink）；5) LLM 失败不阻塞 sync；6) tsc 通过"
+      "status": "pending",
+      "acceptance": "1) 按 brand 分组展示别名列表（非渠道）；2) 每行展示别名名称、品牌、模态、Context Window、价格；3) brand 为空归入"其他"组；4) 不显示任何渠道/服务商信息；5) 布局与设计稿一致；6) tsc 通过",
+      "design_ref": "design-draft/models/code.html"
     },
     {
-      "id": "F-M1b-02",
-      "title": "Sync 后自动创建别名与挂载",
-      "priority": "high",
-      "executor": "generator",
-      "status": "done",
-      "acceptance": "1) sync 完成后自动触发 classifyNewModels；2) 归入已有别名的模型自动挂载（创建 AliasModelLink）；3) 新别名自动创建（enabled=false，需 admin 审核）；4) Model.enabled 随挂载自动更新；5) tsc 通过"
-    },
-    {
-      "id": "F-M1b-03",
-      "title": "Admin 别名管理页重做",
-      "priority": "high",
-      "executor": "generator",
-      "status": "done",
-      "acceptance": "1) 3 张统计卡片（Total/Active/Unlinked）；2) 别名卡片网格（名称+brand+modality+enabled 开关+关联数）；3) 卡片点击展开详情（元数据编辑+Capabilities 开关组+已挂载模型列表+添加/移除模型）；4) Add Model 弹窗（搜索+勾选+Link）；5) 底部未归类模型区域（Create Alias / Link to 快捷操作）；6) 布局与设计稿一致；7) tsc 通过",
-      "design_ref": "design-draft/admin-model-aliases/code.html"
-    },
-    {
-      "id": "F-M1b-04",
-      "title": "删除白名单页 + 模型能力页",
+      "id": "F-M1c-02",
+      "title": "Topbar 清理 — 移除未实现占位",
       "priority": "medium",
       "executor": "generator",
-      "status": "done",
-      "acceptance": "1) /admin/model-whitelist 页面删除；2) /admin/model-capabilities 页面删除；3) 侧边栏导航移除两个入口；4) 相关 API 路由保留（别名管理页复用）或清理；5) tsc 通过"
+      "status": "pending",
+      "acceptance": "1) 移除 Deploy 按钮；2) 移除 topbar 设置按钮；3) 移除搜索框；4) 移除暗色模式按钮；5) 保留通知按钮（占位不实现）；6) tsc 通过"
     },
     {
-      "id": "F-M1b-05",
-      "title": "i18n — 别名管理页中英文",
+      "id": "F-M1c-03",
+      "title": "用户头像下拉菜单",
       "priority": "medium",
       "executor": "generator",
-      "status": "done",
+      "status": "pending",
+      "acceptance": "1) 点击头像弹出下拉菜单；2) 显示用户名/邮箱；3) Settings 链接跳转 /settings；4) Sign Out 按钮清空登录态并跳转 /login；5) tsc 通过"
+    },
+    {
+      "id": "F-M1c-04",
+      "title": "登录/注册页终端模拟区固定英文",
+      "priority": "low",
+      "executor": "generator",
+      "status": "pending",
+      "acceptance": "1) auth-terminal 组件终端文案在任何语言环境下均为英文；2) 不走 i18n 翻译；3) 中文环境下终端仍显示英文命令和输出；4) tsc 通过"
+    },
+    {
+      "id": "F-M1c-05",
+      "title": "i18n — Models 页 + Topbar 中英文",
+      "priority": "medium",
+      "executor": "generator",
+      "status": "pending",
       "acceptance": "1) en.json + zh-CN.json 同步更新；2) 无硬编码字符串；3) UI 中英文切换正常"
     },
     {
-      "id": "F-M1b-06",
-      "title": "M1b 全量验收",
+      "id": "F-M1c-06",
+      "title": "M1c 全量验收",
       "priority": "high",
       "executor": "codex",
-      "status": "completed",
-      "acceptance": "1) Sync 后 LLM 自动推断 brand + 分类挂载；2) Admin 别名管理页完整可用（CRUD+挂载+capabilities+未归类）；3) 白名单页和能力页已删除、导航已清理；4) DS token 一致，零硬编码颜色；5) i18n 无残留；6) 签收报告生成"
+      "status": "pending",
+      "acceptance": "1) Models 页按品牌分组，无渠道信息；2) Topbar 已清理，无死按钮；3) 用户头像下拉菜单可用（Settings+Sign Out）；4) 终端区中文环境下仍为英文；5) DS token 一致；6) i18n 无残留；7) 签收报告生成"
     }
   ]
 }
