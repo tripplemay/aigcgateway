@@ -1,11 +1,11 @@
 {
-  "status": "building",
+  "status": "verifying",
   "user_goal": "R3C — 最终 DS 统一 + Auth/公共页面还原（whitelist/aliases/capabilities/docs/layout + login/register/mcp-setup）",
   "total_features": 9,
   "completed_features": 8,
   "fix_rounds": 0,
   "current_sprint": "F-R3C-09",
-  "last_updated": "2026-04-09T16:00:00.000Z",
+  "last_updated": "2026-04-09T17:30:00.000Z",
   "reference_docs": [
     "docs/specs/R3C-final-ds-unification-spec.md",
     "design-draft/login/code.html",
@@ -20,9 +20,9 @@
     "framework_reviewed": false
   },
   "evaluator_feedback": null,
-  "generator_handoff": null,
+  "generator_handoff": "R3C building 完成（8/8 generator features done）。分组一（01~04）纯 DS token 替换：whitelist ~50 处、aliases ~21 处、capabilities ~12 处、docs+layout ~22 处，全部零旧 token。分组二（05~07）Auth 重构：Login 全量重写（DS 组件+i18n+Terminal 保留）、Register 从 Card 居中改为左右分栏统一风格、MCP Setup indigo/slate→ds-*。08 i18n 审计：docs 50+ 硬编码英文全量 i18n，whitelist Free 标签 i18n，layout Loading 修复。全部 tsc 通过。待 Codex 执行 F-R3C-09 全量验收。",
   "session_notes": {
-    "Kimi": "R3C planning 完成，building 未开始。Token 映射表在 spec 中。分两组先后执行：先 DS token 修复（01~04 纯 CSS 替换，参照 spec token 映射表），后 Auth 重构（05 Login 重度/06 Register 中度/07 MCP polish）。Login 需读 design-draft/login/code.html 做 1:1 翻译，内嵌 Terminal 组件需决定保留还是抽离。Register 需读 design-draft/register/code.html 确认是否与 Login 统一左右分栏。QuickStart 已确认 DS 正确跳过。",
+    "Kimi": "R3C building 全部完成（01~08 done）。提交 5 次：①DS token 统一 5 文件 ②Login 全量重写 ③Register 左右分栏重构 ④MCP Setup polish ⑤i18n 最终审计。docs 页面新增约 50 个 i18n key。Terminal 组件保留在 Login 中（dark theme hex color 是刻意设计，不属于 DS token）。code block 的 slate-950/indigo-100 同理保留。Register 左侧用静态终端行（非动画）与 Login 区分。",
     "Reviewer": null
   }
 }
