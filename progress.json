@@ -1,28 +1,31 @@
 {
-  "status": "reverifying",
-  "user_goal": "R3C — 最终 DS 统一 + Auth/公共页面还原（whitelist/aliases/capabilities/docs/layout + login/register/mcp-setup）",
-  "total_features": 9,
-  "completed_features": 8,
-  "fix_rounds": 1,
-  "current_sprint": "F-R3C-09",
-  "last_updated": "2026-04-09T18:00:00.000Z",
+  "status": "building",
+  "user_goal": "R4 — 6 页面设计稿结构还原（whitelist/aliases/capabilities/user-detail/admin-templates/mcp-setup）",
+  "total_features": 7,
+  "completed_features": 0,
+  "fix_rounds": 0,
+  "current_sprint": "F-R4-01",
+  "last_updated": "2026-04-09T19:00:00.000Z",
   "reference_docs": [
-    "docs/specs/R3C-final-ds-unification-spec.md",
-    "design-draft/login/code.html",
-    "design-draft/register/code.html",
+    "docs/specs/R4-design-restoration-spec.md",
+    "design-draft/admin-model-whitelist/code.html",
+    "design-draft/admin-model-aliases/code.html",
+    "design-draft/admin-model-capabilities/code.html",
+    "design-draft/admin-user-detail/code.html",
+    "design-draft/admin-templates/code.html",
     "design-draft/mcp-setup/code.html"
   ],
   "role_assignments": null,
   "docs": {
-    "spec": "docs/specs/R3C-final-ds-unification-spec.md",
-    "test_cases": "docs/test-cases/r3c-final-ds-unification-verifying-e2e-2026-04-09.md",
+    "spec": "docs/specs/R4-design-restoration-spec.md",
+    "test_cases": null,
     "signoff": null,
     "framework_reviewed": false
   },
   "evaluator_feedback": null,
-  "generator_handoff": "Fix round 1: Login 终端标题 aigc-cli — bash 走 i18n（Terminal 组件接收 prop），footer Uptime/Latency 走 i18n。Register 左侧 6 行静态终端文本全部走 i18n（termSysInit/termFetchMetrics/termHeroLine/termTrace/termDebug/termInfo），footer 同步修复。新增 10 个 auth i18n key（en + zh-CN）。tsc 零错误。",
+  "generator_handoff": null,
   "session_notes": {
-    "Kimi": "Fix round 1 完成。Evaluator 反馈 3 个 FAIL：Login 终端标题、Register 终端区文本、i18n 审计。修复方案：Terminal 组件增加 terminalTitle prop，Register 6 行静态终端文本全部 t() 化，两页 footer Uptime/Latency 标签 i18n。新增 10 个 auth key。",
-    "Reviewer": "R3C verifying 已执行：页面加载与 DS token 审计通过；i18n 失败（login/register 仍有硬编码英文）。已转 fixing，回退 F-R3C-05/06/08/09。报告见 docs/test-reports/r3c-final-ds-unification-verifying-2026-04-09.md。"
+    "Kimi": "R4 planning 完成，直接进入 building。6 页面：4 个 MISMATCH（whitelist/aliases/capabilities/user-detail 重度）+ 2 个 PARTIAL（admin-templates/mcp-setup 中度）。Admin Models (Channels) 核查后确认为 MATCH 已排除。规格文档含逐页差异清单和还原要求。",
+    "Reviewer": null
   }
 }

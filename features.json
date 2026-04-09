@@ -1,81 +1,68 @@
 {
-  "batch": "R3C-final-ds-unification",
+  "batch": "R4-design-restoration",
   "created_at": "2026-04-09",
   "features": [
     {
-      "id": "F-R3C-01",
-      "title": "Model Whitelist DS token 统一",
+      "id": "F-R4-01",
+      "title": "Whitelist 设计稿结构还原",
       "priority": "high",
       "executor": "generator",
-      "status": "done",
-      "acceptance": "1) 零 shadcn 旧 token（bg-card/bg-muted/text-muted-foreground/bg-background/bg-primary/text-primary）；2) 全部替换为 ds-* 前缀；3) 页面视觉无变化；4) tsc 通过"
+      "status": "pending",
+      "acceptance": "1) 9 列表格（含 Provider + Price 双行）；2) Stats 第三卡片 tertiary 配色 + hover；3) 搜索栏 search icon + filter 按钮；4) 分页省略号；5) tsc 通过",
+      "design_ref": "design-draft/admin-model-whitelist/code.html"
     },
     {
-      "id": "F-R3C-02",
-      "title": "Model Aliases DS token 统一",
+      "id": "F-R4-02",
+      "title": "Aliases 设计稿结构还原",
       "priority": "high",
       "executor": "generator",
-      "status": "done",
-      "acceptance": "1) 零 shadcn 旧 token；2) 全部替换为 ds-* 前缀；3) 页面视觉无变化；4) tsc 通过"
+      "status": "pending",
+      "acceptance": "1) 3 列卡片网格 + 圆角 pill 标签（hover error + × 关闭）；2) 计数徽章；3) Unclassified 行首 icon；4) tsc 通过",
+      "design_ref": "design-draft/admin-model-aliases/code.html"
     },
     {
-      "id": "F-R3C-03",
-      "title": "Model Capabilities DS token 统一",
+      "id": "F-R4-03",
+      "title": "Capabilities 设计稿结构还原",
       "priority": "high",
       "executor": "generator",
-      "status": "done",
-      "acceptance": "1) 零 text-slate-*/bg-slate-* 硬编码颜色（标签/描述类）；2) 替换为 ds-* token；3) tsc 通过"
+      "status": "pending",
+      "acceptance": "1) grid-cols-12 布局（3+1+5+3）；2) 筛选栏 border-b 强调 + Bulk Update + Last sync；3) 底部 3 insight 卡片；4) IMAGE 模型 capabilities 灰化；5) tsc 通过",
+      "design_ref": "design-draft/admin-model-capabilities/code.html"
     },
     {
-      "id": "F-R3C-04",
-      "title": "Docs + Layout DS token 统一",
+      "id": "F-R4-04",
+      "title": "User Detail 设计稿结构还原",
+      "priority": "high",
+      "executor": "generator",
+      "status": "pending",
+      "acceptance": "1) Hero profile 布局（4+8 col）；2) Balance History 区域（或空状态）；3) Danger Zone 按钮；4) tsc 通过",
+      "design_ref": "design-draft/admin-user-detail/code.html"
+    },
+    {
+      "id": "F-R4-05",
+      "title": "Admin Templates 卡片网格还原",
       "priority": "medium",
       "executor": "generator",
-      "status": "done",
-      "acceptance": "1) docs/page.tsx 零 shadcn 旧 token；2) layout.tsx text-muted-foreground 替换；3) tsc 通过"
+      "status": "pending",
+      "acceptance": "1) 表格改为 3 列卡片网格；2) 质量评分徽章；3) 保留搜索/筛选功能；4) tsc 通过",
+      "design_ref": "design-draft/admin-templates/code.html"
     },
     {
-      "id": "F-R3C-05",
-      "title": "Login 页面全量重构",
-      "priority": "high",
-      "executor": "generator",
-      "status": "done",
-      "acceptance": "1) DS 组件（Input/Button）+ ds-* token；2) 硬编码英文全部走 i18n；3) Terminal 组件抽离或保留但文本 i18n 化；4) 对齐 design-draft/login/code.html；5) tsc + lint 通过",
-      "design_ref": "design-draft/login/code.html"
-    },
-    {
-      "id": "F-R3C-06",
-      "title": "Register 页面 DS 统一 + 风格对齐",
-      "priority": "high",
-      "executor": "generator",
-      "status": "done",
-      "acceptance": "1) 替换 shadcn 旧 token 为 ds-*；2) 与 Login 设计风格统一（左右分栏或居中卡片，参照设计稿）；3) 对齐 design-draft/register/code.html；4) tsc + lint 通过",
-      "design_ref": "design-draft/register/code.html"
-    },
-    {
-      "id": "F-R3C-07",
-      "title": "MCP Setup 页面 polish",
+      "id": "F-R4-06",
+      "title": "MCP Setup bento grid 还原",
       "priority": "medium",
       "executor": "generator",
-      "status": "done",
-      "acceptance": "1) 硬编码 bg-indigo-* 替换为 ds-* token；2) 手写 dropdown 改用项目标准模式；3) 对齐设计稿；4) tsc + lint 通过",
+      "status": "pending",
+      "acceptance": "1) 5/7 bento grid 布局；2) 底部 3 列 feature showcase；3) 保留 10 客户端选择；4) tsc 通过",
       "design_ref": "design-draft/mcp-setup/code.html"
     },
     {
-      "id": "F-R3C-08",
-      "title": "i18n 最终审计",
-      "priority": "medium",
-      "executor": "generator",
-      "status": "done",
-      "acceptance": "1) 全量扫描所有修改页面无硬编码英文；2) en.json + zh-CN.json key 齐全；3) 切换中文无英文残留"
-    },
-    {
-      "id": "F-R3C-09",
-      "title": "R3C 全量验收",
+      "id": "F-R4-07",
+      "title": "R4 全量验收",
       "priority": "high",
       "executor": "codex",
       "status": "pending",
-      "acceptance": "1) 全部修改页面正常加载无报错；2) DS token 审计通过（零旧 token）；3) i18n 中英文切换无残留；4) 签收报告生成"
+      "acceptance": "1) 6 页面布局与设计稿一致；2) DS token 零旧 token；3) i18n 无残留；4) 现有功能不回退；5) 签收报告生成"
     }
   ]
 }
