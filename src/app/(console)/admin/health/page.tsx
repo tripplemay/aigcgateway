@@ -36,7 +36,7 @@ const STATUS_DOT: Record<string, string> = {
 };
 
 const CHECK_LEVELS = ["CONNECTIVITY", "FORMAT", "QUALITY"] as const;
-const CHECK_LABELS = ["L1 Connect", "L2 Format", "L3 Quality"] as const;
+const CHECK_LABEL_KEYS = ["l1Connect", "l2Format", "l3Quality"] as const;
 
 function checkStyle(result: string | undefined) {
   if (result === "PASS")
@@ -134,14 +134,18 @@ export default function HealthPage() {
                 <span className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">
                   {t("totalChannels")}
                 </span>
-                <span className="text-2xl font-[var(--font-heading)] font-bold">{summary.total}</span>
+                <span className="text-2xl font-[var(--font-heading)] font-bold">
+                  {summary.total}
+                </span>
               </div>
               <div className="w-px h-8 bg-slate-100" />
               <div className="flex flex-col">
                 <span className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">
                   {t("avgLatency")}
                 </span>
-                <span className="text-2xl font-[var(--font-heading)] font-bold text-ds-primary">—</span>
+                <span className="text-2xl font-[var(--font-heading)] font-bold text-ds-primary">
+                  —
+                </span>
               </div>
             </div>
           </div>
@@ -267,7 +271,7 @@ export default function HealthPage() {
                         className={`${s.bg} border p-2.5 rounded-lg flex flex-col items-center`}
                       >
                         <span className={`text-[10px] font-bold ${s.text} uppercase mb-1`}>
-                          {CHECK_LABELS[i]}
+                          {t(CHECK_LABEL_KEYS[i])}
                         </span>
                         <span className={`material-symbols-outlined ${s.iconColor} text-[18px]`}>
                           {s.icon}
@@ -280,7 +284,8 @@ export default function HealthPage() {
                 {/* Footer: priority + manual check */}
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-medium text-slate-500">
-                    {t("priority")} <span className="text-ds-on-surface font-bold">P{ch.priority}</span>
+                    {t("priority")}{" "}
+                    <span className="text-ds-on-surface font-bold">P{ch.priority}</span>
                   </span>
                   <button
                     disabled={checking === ch.channelId}
