@@ -134,6 +134,15 @@
     --color-ds-primary-fixed: var(--ds-primary-fixed);
     --color-ds-primary-fixed-dim: var(--ds-primary-fixed-dim);
     --color-ds-background: var(--ds-background);
+    --color-ds-status-success: var(--ds-status-success);
+    --color-ds-status-success-container: var(--ds-status-success-container);
+    --color-ds-on-status-success: var(--ds-on-status-success);
+    --color-ds-status-warning: var(--ds-status-warning);
+    --color-ds-status-warning-container: var(--ds-status-warning-container);
+    --color-ds-on-status-warning: var(--ds-on-status-warning);
+    --color-ds-terminal-bg: var(--ds-terminal-bg);
+    --color-ds-terminal-surface: var(--ds-terminal-surface);
+    --color-ds-terminal-surface-high: var(--ds-terminal-surface-high);
 }
 
 :root {
@@ -262,6 +271,19 @@
     --ds-inverse-surface: #283044;
     --ds-inverse-on-surface: #eef0ff;
     --ds-inverse-primary: #c8bfff;
+
+    /* Semantic status tokens */
+    --ds-status-success: #16a34a;
+    --ds-status-success-container: #dcfce7;
+    --ds-on-status-success: #166534;
+    --ds-status-warning: #d97706;
+    --ds-status-warning-container: #fef3c7;
+    --ds-on-status-warning: #92400e;
+
+    /* Terminal surface tokens */
+    --ds-terminal-bg: #0a0a0c;
+    --ds-terminal-surface: #13141c;
+    --ds-terminal-surface-high: #1c1e26;
 }
 
 .dark {

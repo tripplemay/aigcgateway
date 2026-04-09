@@ -6,7 +6,45 @@ import Link from "next/link";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Toaster } from "@/components/ui/sonner";
-import { AuthLeftPanel } from "@/components/auth-terminal";
+import { AuthLeftPanel, type TerminalSequence } from "@/components/auth-terminal";
+
+function useTerminalSequences(t: ReturnType<typeof useTranslations<"auth">>): TerminalSequence[] {
+  return [
+    {
+      command: t("termCmd1"),
+      responses: [
+        { text: t("termR1a"), color: "text-white/40" },
+        { text: t("termR1b"), color: "text-ds-primary-container" },
+        { text: t("termR1c"), color: "text-white/60" },
+        { text: t("termR1d"), color: "text-ds-primary-fixed-dim" },
+      ],
+    },
+    {
+      command: t("termCmd2"),
+      responses: [
+        { text: t("termR2a"), color: "text-white/40" },
+        { text: t("termR2b"), color: "text-ds-primary-container" },
+        { text: t("termR2c"), color: "text-white/60" },
+      ],
+    },
+    {
+      command: t("termCmd3"),
+      responses: [
+        { text: t("termR3a"), color: "text-white/40" },
+        { text: t("termR3b"), color: "text-white/60" },
+        { text: t("termR3c"), color: "text-ds-primary-container" },
+      ],
+    },
+    {
+      command: t("termCmd4"),
+      responses: [
+        { text: t("termR4a"), color: "text-white/40" },
+        { text: t("termR4b"), color: "text-white/90" },
+        { text: t("termR4c"), color: "text-ds-primary-container" },
+      ],
+    },
+  ];
+}
 
 // ============================================================
 // Login Page
@@ -14,6 +52,7 @@ import { AuthLeftPanel } from "@/components/auth-terminal";
 
 export default function LoginPage() {
   const t = useTranslations("auth");
+  const sequences = useTerminalSequences(t);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -79,6 +118,7 @@ export default function LoginPage() {
           uptime={t("uptime")}
           latency={t("latency")}
           terminalTitle={t("terminalTitle")}
+          sequences={sequences}
         />
 
         {/* ═══ Right Side: Auth Form — code.html lines 196-279 ═══ */}

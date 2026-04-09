@@ -221,7 +221,7 @@ export default function ModelWhitelistPage() {
   const healthBadge = (status: string | null) => {
     if (status === "PASS")
       return (
-        <span className="flex items-center gap-1 text-emerald-600">
+        <span className="flex items-center gap-1 text-ds-status-success">
           <span
             className="material-symbols-outlined text-sm"
             style={{ fontVariationSettings: "'FILL' 1" }}
@@ -233,7 +233,7 @@ export default function ModelWhitelistPage() {
       );
     if (status === "FAIL")
       return (
-        <span className="flex items-center gap-1 text-red-500">
+        <span className="flex items-center gap-1 text-ds-error">
           <span className="material-symbols-outlined text-sm">error</span>
           <span className="text-[10px] font-bold uppercase tracking-tight">{t("unhealthy")}</span>
         </span>
@@ -468,8 +468,8 @@ export default function ModelWhitelistPage() {
                         <td className="px-6 py-5">
                           {item.activeChannelCount > 0 ? (
                             <div className="flex items-center gap-1.5">
-                              <div className="w-2 h-2 rounded-full bg-emerald-500" />
-                              <span className="text-xs font-bold text-emerald-600">
+                              <div className="w-2 h-2 rounded-full bg-ds-status-success" />
+                              <span className="text-xs font-bold text-ds-status-success">
                                 {t("nActive", { count: item.activeChannelCount })}
                               </span>
                             </div>
@@ -520,7 +520,7 @@ export default function ModelWhitelistPage() {
                                 </span>
                                 <span className="text-xs font-semibold">{ch.provider}</span>
                                 <span
-                                  className={`text-[9px] font-bold px-1.5 py-0.5 rounded ${ch.status === "ACTIVE" ? "bg-emerald-100 text-emerald-700" : ch.status === "DEGRADED" ? "bg-amber-100 text-amber-700" : "bg-red-100 text-red-700"}`}
+                                  className={`text-[9px] font-bold px-1.5 py-0.5 rounded ${ch.status === "ACTIVE" ? "bg-ds-status-success-container text-ds-on-status-success" : ch.status === "DEGRADED" ? "bg-ds-status-warning-container text-ds-on-status-warning" : "bg-ds-error-container text-ds-on-error-container"}`}
                                 >
                                   {ch.status}
                                 </span>

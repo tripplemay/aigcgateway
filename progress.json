@@ -1,9 +1,9 @@
 {
-  "status": "fixing",
+  "status": "reverifying",
   "user_goal": "R4 — 6 页面设计稿结构还原（whitelist/aliases/capabilities/user-detail/admin-templates/mcp-setup）",
   "total_features": 8,
-  "completed_features": 3,
-  "fix_rounds": 0,
+  "completed_features": 7,
+  "fix_rounds": 1,
   "current_sprint": "F-R4-08",
   "last_updated": "2026-04-09T13:10:12.089Z",
   "reference_docs": [
@@ -56,7 +56,7 @@
   },
   "generator_handoff": "R4 全部 7 个 generator 功能完成。F-R4-01~06 为 6 页面设计稿结构还原，F-R4-07 为 Register/Login 终端统一。所有变更仅前端 TSX + i18n + API 补 costPrice 字段。tsc 零错误。验收时请重点对比 design-draft/*/code.html 与实际布局（列数、网格比例、区块顺序），以及 DS token 使用（零 shadcn 旧 token、零硬编码颜色）。",
   "session_notes": {
-    "Kimi": "R4 building 全部完成（7/7 generator features done）。单会话从 F-R4-01 到 F-R4-07 连续实现。关键改动：Whitelist 加 Provider+Price 两列+API costPrice；Aliases 重构为 3 列卡片网格+pill 标签；Capabilities 改 grid-cols-12+insight 卡片；User Detail 改 hero profile 4+8 col+Danger Zone；Templates 表格改 3 列卡片；MCP Setup 改 5/7 bento+feature showcase；Register 终端与 Login 统一为 AuthLeftPanel 共享组件。",
+    "Kimi": "R4 fix round 1 完成。修复 Evaluator 反馈的 4 个 FAIL：1) Whitelist emerald/amber/red → ds-status-success/warning/error tokens；2) Templates slate → ds-on-surface-variant/outline；3) MCP Setup slate-950/indigo-100 → ds-terminal-surface/inverse-on-surface + 7 个 tool desc 走 i18n；4) AuthTerminal hex 色值→ds-terminal-* tokens + 终端 sequences 文案全量 i18n（18 个 key）。新增 globals.css 语义状态 token（success/warning）和终端表面 token。tsc 零错误。",
     "Planner": "Planner 会话：1) 确认 R4 已进入 verifying 阶段；2) 将 5 份核心项目文档同步到 Notion（PRD 摘要/系统架构/MCP 指南/开发规则/项目状态），根页面 ID: 33d1a2f7-699a-8110-885e-e7b35a919f2f，位于文档数据库类别“项目文档”下。",
     "Reviewer": "R4 verifying 已执行：页面可加载+结构 spot check 通过；DS 颜色规范与 i18n 审计未通过（hardcodedColor=35，硬编码英文残留于 auth-terminal/mcp tool desc）。已转 fixing，回退 F-R4-01/05/06/07/08。"
   }

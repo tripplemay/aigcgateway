@@ -324,13 +324,13 @@ export default function McpSetupPage() {
             </div>
             <div className="grid grid-cols-1 gap-3">
               {[
-                { icon: "list_alt", name: "list_models", desc: "Retrieves available models" },
-                { icon: "forum", name: "chat_completion", desc: "Universal LLM interface" },
-                { icon: "image", name: "generate_image", desc: "Prompt-to-image conversion" },
-                { icon: "data_object", name: "get_context", desc: "Model state metadata" },
-                { icon: "memory", name: "token_count", desc: "Cost & context estimation" },
-                { icon: "analytics", name: "fetch_logs", desc: "Audit trail for sessions" },
-                { icon: "shield", name: "verify_key", desc: "Connection integrity check" },
+                { icon: "list_alt", name: "list_models", descKey: "toolListModels" as const },
+                { icon: "forum", name: "chat_completion", descKey: "toolChatCompletion" as const },
+                { icon: "image", name: "generate_image", descKey: "toolGenerateImage" as const },
+                { icon: "data_object", name: "get_context", descKey: "toolGetContext" as const },
+                { icon: "memory", name: "token_count", descKey: "toolTokenCount" as const },
+                { icon: "analytics", name: "fetch_logs", descKey: "toolFetchLogs" as const },
+                { icon: "shield", name: "verify_key", descKey: "toolVerifyKey" as const },
               ].map((tool) => (
                 <div
                   key={tool.name}
@@ -341,7 +341,7 @@ export default function McpSetupPage() {
                   </div>
                   <div>
                     <p className="text-sm font-bold">{tool.name}</p>
-                    <p className="text-xs text-ds-on-surface-variant">{tool.desc}</p>
+                    <p className="text-xs text-ds-on-surface-variant">{t(tool.descKey)}</p>
                   </div>
                 </div>
               ))}
@@ -412,8 +412,8 @@ export default function McpSetupPage() {
             </div>
 
             {/* Config code block */}
-            <div className="bg-slate-950 rounded-2xl p-6 overflow-x-auto border border-slate-800">
-              <pre className="text-sm font-mono leading-relaxed text-indigo-100 whitespace-pre-wrap">
+            <div className="bg-ds-terminal-surface rounded-2xl p-6 overflow-x-auto border border-white/10">
+              <pre className="text-sm font-mono leading-relaxed text-ds-inverse-on-surface whitespace-pre-wrap">
                 {configText}
               </pre>
             </div>

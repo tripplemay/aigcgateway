@@ -126,7 +126,24 @@
     "termHeroLine": "为现代 AI 开发者打造的专业可观测平台",
     "termTrace": "TRACE: 已在边缘节点 LON-1 建立连接",
     "termDebug": "DEBUG: 正在优化 token 传输路径...",
-    "termInfo": "INFO: 用户认证模块已加载。"
+    "termInfo": "INFO: 用户认证模块已加载。",
+    "termCmd1": "aigc chat --model deepseek/v3 --stream \"分析效率\"",
+    "termR1a": "[流式] Trace ID: trc_8f2a1b92 初始化中...",
+    "termR1b": "[成功] 已连接 deepseek/v3",
+    "termR1c": "[数据] Tokens/秒: 142 | 延迟: 18ms",
+    "termR1d": "[计费] 费用: $0.032 | 模型: deepseek-v3",
+    "termCmd2": "aigc health --check",
+    "termR2a": "[信息] 正在查询全球节点集群...",
+    "termR2b": "[成功] 24/24 节点响应中。状态: 200 OK",
+    "termR2c": "[信息] 当前负载: 12.4% | 正常运行: 99.99%",
+    "termCmd3": "aigc logs --filter \"error\" --limit 2",
+    "termR3a": "[日志] 14:02:31 - 请求在 12ms 内处理完毕",
+    "termR3b": "[信息] Trace ID: trc_7b321x88 | 状态: 200 OK",
+    "termR3c": "[成功] 缓存命中: hash_8a221fb",
+    "termCmd4": "aigc billing --usage",
+    "termR4a": "[信息] 正在获取实时配额数据...",
+    "termR4b": "[数据] 日消费: $142.05 | 月消费: $1,420.55",
+    "termR4c": "[成功] 配额剩余: 78.4%"
   },
   "dashboard": {
     "title": "仪表盘",
@@ -783,7 +800,14 @@
     "e2eEncryption": "端到端加密",
     "e2eDesc": "本地工具保持私密安全。",
     "globalGateway": "全球网关",
-    "globalDesc": "无缝切换 50+ 服务商。"
+    "globalDesc": "无缝切换 50+ 服务商。",
+    "toolListModels": "获取可用模型列表",
+    "toolChatCompletion": "通用 LLM 对话接口",
+    "toolGenerateImage": "提示词转图片",
+    "toolGetContext": "模型状态元数据",
+    "toolTokenCount": "费用与上下文估算",
+    "toolFetchLogs": "会话审计日志",
+    "toolVerifyKey": "连接完整性检查"
   },
   "actions": {
     "title": "动作",

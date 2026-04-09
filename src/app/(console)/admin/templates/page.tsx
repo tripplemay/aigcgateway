@@ -143,7 +143,7 @@ export default function AdminTemplatesPage() {
             className="bg-ds-surface-container-lowest p-6 rounded-xl shadow-sm flex items-center justify-between group hover:shadow-md transition-shadow"
           >
             <div>
-              <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500 mb-1">
+              <p className="text-[10px] font-bold uppercase tracking-widest text-ds-on-surface-variant mb-1">
                 {c.label}
               </p>
               <h3 className="font-[var(--font-heading)] text-3xl font-extrabold text-ds-on-surface">
@@ -163,7 +163,7 @@ export default function AdminTemplatesPage() {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-ds-surface-container-lowest/70 backdrop-blur-xl p-4 rounded-xl">
         <div className="flex items-center gap-4 flex-1">
           <div className="relative flex-1 max-w-md">
-            <span className="absolute inset-y-0 left-3 flex items-center text-slate-400">
+            <span className="absolute inset-y-0 left-3 flex items-center text-ds-outline">
               <span className="material-symbols-outlined text-lg">filter_list</span>
             </span>
             <input
@@ -176,9 +176,9 @@ export default function AdminTemplatesPage() {
               }}
             />
           </div>
-          <div className="h-10 w-[1px] bg-slate-200 hidden md:block" />
+          <div className="h-10 w-[1px] bg-ds-outline-variant hidden md:block" />
           <div className="flex items-center gap-2">
-            <label className="text-xs font-bold uppercase text-slate-400 tracking-tighter">
+            <label className="text-xs font-bold uppercase text-ds-outline tracking-tighter">
               {t("visibilityLabel")}
             </label>
             <select
@@ -198,7 +198,7 @@ export default function AdminTemplatesPage() {
         <div className="flex items-center gap-2">
           <button
             onClick={() => refetch()}
-            className="px-4 py-2 bg-ds-surface text-slate-600 rounded-lg text-xs font-bold hover:bg-slate-50 transition-colors flex items-center gap-2"
+            className="px-4 py-2 bg-ds-surface text-ds-on-surface-variant rounded-lg text-xs font-bold hover:bg-ds-surface-container-low transition-colors flex items-center gap-2"
           >
             <span className="material-symbols-outlined text-base">refresh</span>
             {t("reload")}

@@ -2,56 +2,25 @@
 import { useEffect, useRef, useCallback } from "react";
 
 // ============================================================
-// Terminal animation data — shared between Login and Register
+// Types
 // ============================================================
 
-const sequences = [
-  {
-    command: 'aigc chat --model deepseek/v3 --stream "Analyze efficiency"',
-    responses: [
-      { text: "[STREAM] Trace ID: trc_8f2a1b92 initializing...", color: "text-white/40" },
-      {
-        text: "[SUCCESS] Connection established with deepseek/v3",
-        color: "text-ds-primary-container",
-      },
-      { text: "[DATA] Tokens/sec: 142 | Latency: 18ms", color: "text-white/60" },
-      { text: "[BILLING] Cost: $0.032 | Model: deepseek-v3", color: "text-ds-primary-fixed-dim" },
-    ],
-  },
-  {
-    command: "aigc health --check",
-    responses: [
-      { text: "[INFO] Querying global node cluster...", color: "text-white/40" },
-      {
-        text: "[SUCCESS] 24/24 nodes responding. Status: 200 OK",
-        color: "text-ds-primary-container",
-      },
-      { text: "[INFO] Current Load: 12.4% | Uptime: 99.99%", color: "text-white/60" },
-    ],
-  },
-  {
-    command: 'aigc logs --filter "error" --limit 2',
-    responses: [
-      { text: "[LOG] 14:02:31 - Request processed in 12ms", color: "text-white/40" },
-      { text: "[INFO] Trace ID: trc_7b321x88 | Status: 200 OK", color: "text-white/60" },
-      { text: "[SUCCESS] Cache hit: hash_8a221fb", color: "text-ds-primary-container" },
-    ],
-  },
-  {
-    command: "aigc billing --usage",
-    responses: [
-      { text: "[INFO] Fetching real-time quota data...", color: "text-white/40" },
-      { text: "[DATA] Daily Spend: $142.05 | Monthly: $1,420.55", color: "text-white/90" },
-      { text: "[SUCCESS] Quota Remaining: 78.4%", color: "text-ds-primary-container" },
-    ],
-  },
-];
+export interface TerminalSequence {
+  command: string;
+  responses: { text: string; color: string }[];
+}
 
 // ============================================================
 // Terminal component
 // ============================================================
 
-export function AuthTerminal({ terminalTitle }: { terminalTitle: string }) {
+export function AuthTerminal({
+  terminalTitle,
+  sequences,
+}: {
+  terminalTitle: string;
+  sequences: TerminalSequence[];
+}) {
   const historyRef = useRef<HTMLDivElement>(null);
   const commandRef = useRef<HTMLSpanElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
@@ -125,12 +94,12 @@ export function AuthTerminal({ terminalTitle }: { terminalTitle: string }) {
   }, [runSequence]);
 
   return (
-    <div className="w-full bg-[#13141C] rounded-xl border border-white/10 shadow-2xl overflow-hidden">
-      <div className="bg-[#1C1E26] px-4 py-3 flex items-center justify-between border-b border-white/5">
+    <div className="w-full bg-ds-terminal-surface rounded-xl border border-white/10 shadow-2xl overflow-hidden">
+      <div className="bg-ds-terminal-surface-high px-4 py-3 flex items-center justify-between border-b border-white/5">
         <div className="flex gap-1.5">
-          <div className="w-3 h-3 rounded-full bg-[#FF5F56]" />
-          <div className="w-3 h-3 rounded-full bg-[#FFBD2E]" />
-          <div className="w-3 h-3 rounded-full bg-[#27C93F]" />
+          <div className="w-3 h-3 rounded-full bg-ds-error" />
+          <div className="w-3 h-3 rounded-full bg-ds-tertiary-fixed-dim" />
+          <div className="w-3 h-3 rounded-full bg-ds-status-success" />
         </div>
         <div className="text-[10px] font-mono text-white/40 uppercase tracking-widest">
           {terminalTitle}
@@ -162,20 +131,22 @@ export function AuthLeftPanel({
   uptime,
   latency,
   terminalTitle,
+  sequences,
 }: {
   tagline: string;
   taglineDesc: string;
   uptime: string;
   latency: string;
   terminalTitle: string;
+  sequences: TerminalSequence[];
 }) {
   return (
-    <section className="hidden lg:flex lg:w-1/2 relative flex-col justify-between p-16 overflow-hidden bg-[#0a0a0c]">
+    <section className="hidden lg:flex lg:w-1/2 relative flex-col justify-between p-16 overflow-hidden bg-ds-terminal-bg">
       {/* Background Grid */}
       <div
         className="absolute inset-0 z-0 opacity-10"
         style={{
-          backgroundImage: "radial-gradient(#6d5dd3 0.5px, transparent 0.5px)",
+          backgroundImage: "radial-gradient(var(--ds-primary-container) 0.5px, transparent 0.5px)",
           backgroundSize: "24px 24px",
         }}
       />
@@ -204,7 +175,7 @@ export function AuthLeftPanel({
 
       {/* Terminal + Tagline */}
       <div className="relative z-10 flex flex-col items-center justify-center h-full max-w-2xl mx-auto w-full">
-        <AuthTerminal terminalTitle={terminalTitle} />
+        <AuthTerminal terminalTitle={terminalTitle} sequences={sequences} />
         <div className="mt-12 text-center">
           <h1 className="text-4xl font-extrabold tracking-tight text-white leading-[1.1] mb-4 font-[family-name:var(--font-heading)]">
             {tagline}

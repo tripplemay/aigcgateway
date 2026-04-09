@@ -126,7 +126,24 @@
     "termHeroLine": "Professional Observability for modern AI developers",
     "termTrace": "TRACE: Connection established at edge node LON-1",
     "termDebug": "DEBUG: Optimizing token delivery pathways...",
-    "termInfo": "INFO: User authentication module loaded."
+    "termInfo": "INFO: User authentication module loaded.",
+    "termCmd1": "aigc chat --model deepseek/v3 --stream \"Analyze efficiency\"",
+    "termR1a": "[STREAM] Trace ID: trc_8f2a1b92 initializing...",
+    "termR1b": "[SUCCESS] Connection established with deepseek/v3",
+    "termR1c": "[DATA] Tokens/sec: 142 | Latency: 18ms",
+    "termR1d": "[BILLING] Cost: $0.032 | Model: deepseek-v3",
+    "termCmd2": "aigc health --check",
+    "termR2a": "[INFO] Querying global node cluster...",
+    "termR2b": "[SUCCESS] 24/24 nodes responding. Status: 200 OK",
+    "termR2c": "[INFO] Current Load: 12.4% | Uptime: 99.99%",
+    "termCmd3": "aigc logs --filter \"error\" --limit 2",
+    "termR3a": "[LOG] 14:02:31 - Request processed in 12ms",
+    "termR3b": "[INFO] Trace ID: trc_7b321x88 | Status: 200 OK",
+    "termR3c": "[SUCCESS] Cache hit: hash_8a221fb",
+    "termCmd4": "aigc billing --usage",
+    "termR4a": "[INFO] Fetching real-time quota data...",
+    "termR4b": "[DATA] Daily Spend: $142.05 | Monthly: $1,420.55",
+    "termR4c": "[SUCCESS] Quota Remaining: 78.4%"
   },
   "dashboard": {
     "title": "Dashboard",
@@ -783,7 +800,14 @@
     "e2eEncryption": "End-to-End Encryption",
     "e2eDesc": "Your local tools remain private and secure.",
     "globalGateway": "Global Gateway",
-    "globalDesc": "Switch between 50+ providers seamlessly."
+    "globalDesc": "Switch between 50+ providers seamlessly.",
+    "toolListModels": "Retrieves available models",
+    "toolChatCompletion": "Universal LLM interface",
+    "toolGenerateImage": "Prompt-to-image conversion",
+    "toolGetContext": "Model state metadata",
+    "toolTokenCount": "Cost & context estimation",
+    "toolFetchLogs": "Audit trail for sessions",
+    "toolVerifyKey": "Connection integrity check"
   },
   "actions": {
     "title": "Actions",
