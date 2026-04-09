@@ -1,54 +1,55 @@
 {
-  "batch": "M1a-alias-backend-core",
-  "created_at": "2026-04-09",
+  "batch": "M1b-alias-automation-admin-ui",
+  "created_at": "2026-04-10",
   "features": [
     {
-      "id": "F-M1a-01",
-      "title": "Schema 迁移 — ModelAlias 升级 + AliasModelLink",
+      "id": "F-M1b-01",
+      "title": "LLM Brand + 别名分类推断",
       "priority": "high",
       "executor": "generator",
-      "status": "done",
-      "acceptance": "1) ModelAlias 表新增 brand/modality/enabled/contextWindow/maxTokens/capabilities/description/updatedAt 列；2) 旧 modelName 列删除；3) alias_model_links 表创建（aliasId+modelId 联合唯一）；4) Model 表新增 aliasLinks 反向关联；5) 旧 ModelAlias 数据清空；6) prisma generate + migrate dev 通过；7) tsc 通过"
+      "status": "pending",
+      "acceptance": "1) sync 后对 brand 为空或未挂载别名的 Model 调用 LLM 批量推断；2) 已有别名列表作为锚定上下文（分类而非生成）；3) 冷启动模式（无已有别名时全量推断）；4) 推断结果持久化到 ModelAlias（brand + AliasModelLink）；5) LLM 失败不阻塞 sync；6) tsc 通过"
     },
     {
-      "id": "F-M1a-02",
-      "title": "Admin CRUD API — 别名管理 + 模型挂载",
+      "id": "F-M1b-02",
+      "title": "Sync 后自动创建别名与挂载",
       "priority": "high",
       "executor": "generator",
-      "status": "done",
-      "acceptance": "1) GET /api/admin/model-aliases 返回别名列表（含关联模型数、渠道数）；2) POST 创建别名；3) PATCH /:id 编辑元数据（alias/brand/enabled/description 等）；4) DELETE /:id 删除别名；5) POST /:id/link 挂载模型（自动设 Model.enabled=true）；6) DELETE /:id/link/:modelId 移除模型（无别名时自动 Model.enabled=false）；7) tsc 通过"
+      "status": "pending",
+      "acceptance": "1) sync 完成后自动触发 classifyNewModels；2) 归入已有别名的模型自动挂载（创建 AliasModelLink）；3) 新别名自动创建（enabled=false，需 admin 审核）；4) Model.enabled 随挂载自动更新；5) tsc 通过"
     },
     {
-      "id": "F-M1a-03",
-      "title": "路由引擎 — routeByAlias 替换 routeByModelName",
+      "id": "F-M1b-03",
+      "title": "Admin 别名管理页重做",
       "priority": "high",
       "executor": "generator",
-      "status": "done",
-      "acceptance": "1) 新增 routeByAlias：别名 → 关联 Models → 所有 ACTIVE Channel → 按 priority 选最优（跳过健康检查 FAIL 的）；2) 别名不存在直接 404；3) 替换 /v1/chat/completions 中的 routeByModelName 调用；4) 旧 routeByModelName 保留但不再被外部调用；5) tsc 通过"
+      "status": "pending",
+      "acceptance": "1) 3 张统计卡片（Total/Active/Unlinked）；2) 别名卡片网格（名称+brand+modality+enabled 开关+关联数）；3) 卡片点击展开详情（元数据编辑+Capabilities 开关组+已挂载模型列表+添加/移除模型）；4) Add Model 弹窗（搜索+勾选+Link）；5) 底部未归类模型区域（Create Alias / Link to 快捷操作）；6) 布局与设计稿一致；7) tsc 通过",
+      "design_ref": "design-draft/admin-model-aliases/code.html"
     },
     {
-      "id": "F-M1a-04",
-      "title": "GET /v1/models — 返回别名列表",
-      "priority": "high",
-      "executor": "generator",
-      "status": "done",
-      "acceptance": "1) 返回 ModelAlias（enabled=true）而非 Model；2) 响应含 id(别名)、brand、modality、context_window、pricing、capabilities；3) 不返回 provider_name；4) pricing 取关联 Channel 中 priority 最高的售价；5) Redis 缓存逻辑适配；6) tsc 通过"
-    },
-    {
-      "id": "F-M1a-05",
-      "title": "MCP Tools 适配",
+      "id": "F-M1b-04",
+      "title": "删除白名单页 + 模型能力页",
       "priority": "medium",
       "executor": "generator",
-      "status": "done",
-      "acceptance": "1) list_models 返回别名（同 /v1/models）；2) chat tool 用别名调用（走 routeByAlias）；3) 其他 MCP tools 不受影响；4) tsc 通过"
+      "status": "pending",
+      "acceptance": "1) /admin/model-whitelist 页面删除；2) /admin/model-capabilities 页面删除；3) 侧边栏导航移除两个入口；4) 相关 API 路由保留（别名管理页复用）或清理；5) tsc 通过"
     },
     {
-      "id": "F-M1a-06",
-      "title": "M1a 全量验收",
+      "id": "F-M1b-05",
+      "title": "i18n — 别名管理页中英文",
+      "priority": "medium",
+      "executor": "generator",
+      "status": "pending",
+      "acceptance": "1) en.json + zh-CN.json 同步更新；2) 无硬编码字符串；3) UI 中英文切换正常"
+    },
+    {
+      "id": "F-M1b-06",
+      "title": "M1b 全量验收",
       "priority": "high",
       "executor": "codex",
-      "status": "completed",
-      "acceptance": "1) Admin 创建别名 + 挂载模型 → GET /v1/models 可见；2) 用户用别名调 /v1/chat/completions → 成功路由到 Channel；3) 别名不存在 → 404；4) Model.enabled 随挂载/移除自动变化；5) MCP list_models + chat 正常；6) 签收报告生成"
+      "status": "pending",
+      "acceptance": "1) Sync 后 LLM 自动推断 brand + 分类挂载；2) Admin 别名管理页完整可用（CRUD+挂载+capabilities+未归类）；3) 白名单页和能力页已删除、导航已清理；4) DS token 一致，零硬编码颜色；5) i18n 无残留；6) 签收报告生成"
     }
   ]
 }

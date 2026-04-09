@@ -4,24 +4,23 @@ description: AIGC Gateway 当前状态快照（覆盖写，≤30 行）
 type: project
 ---
 ## 当前批次
-- M1a-alias-backend-core：`done`（6/6 完成，Evaluator 已签收）
-- signoff：`docs/test-reports/m1a-alias-backend-signoff-2026-04-09.md`
+- M1b-alias-automation-admin-ui：`building`
 - spec：`docs/specs/M1-models-page-rework-spec.md`
-- M1 拆为三批：M1a（后端核心）→ M1b（LLM推断+Admin UI）→ M1c（用户Models页）
+- 设计稿：`design-draft/admin-model-aliases/code.html`
 
-## M1a 功能状态
-- F-M1a-01 Schema 迁移（done）
-- F-M1a-02 Admin CRUD API（done）
-- F-M1a-03 路由引擎 routeByAlias（done）
-- F-M1a-04 GET /v1/models 返回别名（done）
-- F-M1a-05 MCP Tools 适配（done）
-- F-M1a-06 全量验收（codex，completed）
+## M1b 功能拆分（6 个）
+- F-M1b-01 LLM Brand + 别名分类推断
+- F-M1b-02 Sync 后自动创建别名与挂载
+- F-M1b-03 Admin 别名管理页重做（含 Capabilities）
+- F-M1b-04 删除白名单页 + 模型能力页
+- F-M1b-05 i18n
+- F-M1b-06 全量验收（codex）
 
 ## 已完成批次
 - R1~R4：UI 重构全部签收
 - P5：公共模板库（签收）
-- M1a：模型别名后端核心（签收）
+- M1a：别名后端核心（签收，0 fix rounds）
 
-## Backlog
-- 6 条待处理（BL-065~073，含 2 条 high 安全修复）
-- 下一批次建议：M1b（LLM推断+Admin UI）
+## 后续
+- M1c（用户 Models 页）待 M1b 完成后启动
+- Backlog 6 条（BL-065~073，含 2 条 high 安全修复）

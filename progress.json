@@ -1,32 +1,27 @@
 {
-  "status": "done",
-  "user_goal": "M1a — 模型别名后端核心（Schema + 路由引擎 + API），别名成为一等公民",
+  "status": "building",
+  "user_goal": "M1b — LLM 推断 + Admin 别名管理页重做 + 白名单/能力页删除",
   "total_features": 6,
-  "completed_features": 6,
+  "completed_features": 0,
   "fix_rounds": 0,
-  "current_sprint": "F-M1a-06",
-  "last_updated": "2026-04-09T16:07:48.432Z",
+  "current_sprint": "F-M1b-01",
+  "last_updated": "2026-04-10T00:00:00.000Z",
   "reference_docs": [
-    "docs/specs/M1-models-page-rework-spec.md"
+    "docs/specs/M1-models-page-rework-spec.md",
+    "design-draft/admin-model-aliases/code.html"
   ],
   "role_assignments": null,
   "docs": {
     "spec": "docs/specs/M1-models-page-rework-spec.md",
-    "test_cases": "docs/test-cases/m1a-alias-backend-verifying-e2e-2026-04-09.md",
-    "signoff": "docs/test-reports/m1a-alias-backend-signoff-2026-04-09.md",
+    "test_cases": null,
+    "signoff": null,
     "framework_reviewed": false
   },
-  "evaluator_feedback": {
-    "summary": "M1a 全量验收通过（L1，6/6 PASS）。",
-    "pass_count": 6,
-    "partial_count": 0,
-    "fail_count": 0,
-    "issues": []
-  },
+  "evaluator_feedback": null,
   "generator_handoff": null,
   "session_notes": {
-    "Kimi": "M1a 全部 5 个 generator 功能完成。Schema 迁移清空了旧 ModelAlias 28 行数据；手写 migration SQL 绕过 Prisma 非交互限制。routeByAlias 替换 routeByModelName 作为 resolveEngine 入口。/v1/models 和 MCP list_models 均改为返回别名。merge route 适配了新 AliasModelLink。Model.enabled 派生逻辑在 link/unlink API 中实现。待 Evaluator 验收。",
-    "Planner": "M1a 批次启动。M1 拆为三个子批次：M1a（后端核心）→ M1b（LLM推断+Admin UI）→ M1c（用户Models页）。M1a 含 5 个 generator + 1 个 codex。从 backlog 移除 BL-075。Generator 从 F-M1a-01（Schema 迁移）开始。",
-    "Reviewer": "已完成 F-M1a-06 L1 验收：新增并执行 m1a 专项 e2e 脚本，AC1~AC6 全通过（含 Admin alias+link、/v1/models、/v1/chat 404/成功、Model.enabled 派生、MCP list_models/chat）。签收报告已写入 docs/test-reports/m1a-alias-backend-signoff-2026-04-09.md，状态置 done。"
+    "Kimi": null,
+    "Planner": "M1a done 收尾 + M1b 启动。M1a 签收（6/6 PASS，0 fix rounds）。M1b 含 5 generator + 1 codex：LLM 推断、sync 自动挂载、Admin UI 重做、白名单+能力页删除、i18n。设计稿 design-draft/admin-model-aliases/code.html 已就绪。",
+    "Reviewer": null
   }
 }
