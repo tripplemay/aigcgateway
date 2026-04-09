@@ -662,7 +662,18 @@
     "loading": "加载中...",
     "showing": "显示 {from}-{to}，共 {total} 个模型",
     "previous": "上一页",
-    "next": "下一页"
+    "next": "下一页",
+    "saveFailed": "保存失败",
+    "bulkUpdate": "批量更新",
+    "lastSync": "上次同步：{time}",
+    "colConfig": "支持尺寸 / 配置",
+    "capUtilization": "能力利用率",
+    "enabledFunctions": "已启用功能",
+    "acrossModels": "覆盖 {count} 个活跃模型",
+    "safetySync": "安全同步",
+    "safetySyncDesc": "所有能力开关当前已与全局安全参数同步。",
+    "viewSecurityLogs": "查看安全日志",
+    "fn_calling": "函数调用"
   },
   "adminHealth": {
     "title": "健康监控",

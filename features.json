@@ -25,7 +25,7 @@
       "title": "Capabilities 设计稿结构还原",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) grid-cols-12 布局（3+1+5+3）；2) 筛选栏 border-b 强调 + Bulk Update + Last sync；3) 底部 3 insight 卡片；4) IMAGE 模型 capabilities 灰化；5) tsc 通过",
       "design_ref": "design-draft/admin-model-capabilities/code.html"
     },

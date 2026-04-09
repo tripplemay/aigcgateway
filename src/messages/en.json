@@ -662,7 +662,18 @@
     "loading": "Loading...",
     "showing": "Showing {from}-{to} of {total} models",
     "previous": "Previous",
-    "next": "Next"
+    "next": "Next",
+    "saveFailed": "Failed to save",
+    "bulkUpdate": "Bulk Update",
+    "lastSync": "Last sync: {time}",
+    "colConfig": "Supported Sizes / Config",
+    "capUtilization": "Capability Utilization",
+    "enabledFunctions": "Enabled Functions",
+    "acrossModels": "Across {count} active models",
+    "safetySync": "Safety Sync",
+    "safetySyncDesc": "All capability toggles are currently synced with global safety parameters.",
+    "viewSecurityLogs": "View Security Logs",
+    "fn_calling": "Fn Calling"
   },
   "adminHealth": {
     "title": "Health Monitor",
