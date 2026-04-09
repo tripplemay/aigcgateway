@@ -1,0 +1,46 @@
+{
+  "batch": "M1c-models-page-topbar-cleanup",
+  "feature": "F-M1c-06",
+  "executedAt": "2026-04-09T22:25:16.801Z",
+  "baseUrl": "http://localhost:3099",
+  "passCount": 5,
+  "failCount": 1,
+  "steps": [
+    {
+      "id": "AC1",
+      "name": "Models API exposes alias list without provider info",
+      "ok": true,
+      "detail": "status=200, count=0, provider_name_leak=false, shape_valid=true"
+    },
+    {
+      "id": "AC1-design",
+      "name": "Models page brand grouping + table structure matches key design requirements",
+      "ok": true,
+      "detail": "matched"
+    },
+    {
+      "id": "AC2",
+      "name": "Topbar cleaned and avatar dropdown usable (settings + signout)",
+      "ok": true,
+      "detail": "clean"
+    },
+    {
+      "id": "AC4",
+      "name": "Auth terminal stays English under any locale",
+      "ok": true,
+      "detail": "english-fixed"
+    },
+    {
+      "id": "AC5",
+      "name": "DS token consistency",
+      "ok": false,
+      "detail": "hardcoded-hex:#000000,#D85A30,#4285F4,#0668E1,#F54E42,#0F9D7A,#185FA5,#1D1D1F,#888780,#5443b9 | raw-color-class:text-slate-,bg-slate-,text-amber-,bg-amber-,text-indigo-,bg-indigo-,text-emerald-,bg-emerald-"
+    },
+    {
+      "id": "AC6",
+      "name": "i18n residue audit",
+      "ok": true,
+      "detail": "clean"
+    }
+  ]
+}
