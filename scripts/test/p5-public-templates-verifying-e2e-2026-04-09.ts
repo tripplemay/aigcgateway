@@ -356,7 +356,7 @@ async function run() {
       templatesPage.includes("to-indigo-800") ? "templates.page.indigo-palette-hardcoded" : "",
       globalLibrary.includes("Score: {score}") ? "global-library.score-prefix" : "",
       detailDrawer.includes("Score: {template.qualityScore}") ? "detail-drawer.score-prefix" : "",
-      detailDrawer.includes("Mode") ? "detail-drawer.mode-suffix" : "",
+      detailDrawer.includes("{labels[mode] ?? mode} Mode") ? "detail-drawer.mode-suffix" : "",
       detailDrawer.includes("Step {String(i + 1).padStart(2, \"0\")}") ? "detail-drawer.step-prefix" : "",
     ].filter(Boolean);
     const i18nOk = i18nKeysOk && hardcodedResidues.length === 0;
@@ -407,4 +407,3 @@ async function run() {
 }
 
 void run();
-

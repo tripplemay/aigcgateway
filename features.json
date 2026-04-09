@@ -57,7 +57,7 @@
       "title": "P5 全量验收",
       "priority": "high",
       "executor": "codex",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) 公共模板从 Admin 标记到用户 fork 全链路通过；2) Fork 深拷贝完整性（Template+Steps+Actions）；3) MCP Tools 功能正确；4) DS token 一致，零旧 token；5) 现有 Templates 功能不回退；6) 签收报告生成"
     }
   ]
