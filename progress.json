@@ -1,11 +1,11 @@
 {
-  "status": "reverifying",
+  "status": "fixing",
   "user_goal": "R2C — 用户侧页面还原（Actions + Templates）：6 个页面从旧代码模式还原为 R1 设计系统，对齐 Stitch 设计稿",
   "total_features": 8,
   "completed_features": 7,
   "fix_rounds": 1,
   "current_sprint": null,
-  "last_updated": "2026-04-09T00:54:45Z",
+  "last_updated": "2026-04-09T01:05:00Z",
   "reference_docs": [
     "docs/specs/R2C-user-pages-actions-templates-spec.md",
     "design-draft/actions/code.html",
@@ -27,7 +27,7 @@
     "framework_reviewed": false
   },
   "evaluator_feedback": {
-    "summary": "R2C verifying 未通过：六个页面可加载且中英文切换正常，但 /actions/new 模型下拉无可选项（/v1/models 为空）导致 UI 创建链路阻断。",
+    "summary": "R2C reverifying round1 未通过：/actions/new 模型下拉仍无可选项，GET /v1/models 仍返回空数组。",
     "pass_count": 7,
     "partial_count": 0,
     "fail_count": 1,
@@ -39,13 +39,13 @@
         "steps_to_reproduce": "1) 进入 /actions/new 2) 填写名称/描述/消息 3) 模型下拉仅“选择模型...” 4) 点击保存动作，未发出 POST /api/projects/:id/actions；同时 GET /v1/models 返回 data=[]"
       }
     ],
-    "report": "docs/test-reports/R2C-user-pages-actions-templates-verifying-2026-04-09.md"
+    "report": "docs/test-reports/R2C-user-pages-actions-templates-reverifying-round1-2026-04-09.md"
   },
   "generator_handoff": "R2C building 完成。7/7 generator 功能已实现：Actions 3 页（列表+详情+编辑器）+ Templates 3 页（列表+详情+编辑器）+ i18n 补全。全部使用 useAsyncData + DS Table/Pagination/SearchBar + DS 色彩 token。移除 Developer Quick-Link（DESIGN.md ignore）、Variables 列（partial support）。tsc+lint 通过。",
   "session_notes": {
     "Richard": "R2C planning 完成。8 条功能（7 generator + 1 codex）。Actions 3 页 + Templates 3 页 + i18n。先做 Actions 再做 Templates（Templates 编辑器引用 Actions）。所有页面当前旧模式，共 2419 行需重写。",
     "Johnsong": "R2C building 完成。Actions: 列表页 useAsyncData+DS Table+Pagination+SearchBar、详情页 useAsyncData+DS Table 变量表+版本历史卡片式+移除 devQuickLink、编辑器 DS tokens+i18n role labels。Templates: 列表页同 Actions 模式、详情页 useAsyncData+pipeline steps+metadata sidebar、编辑器 DS tokens+所有标签 i18n。i18n 新增约 30 个 key（en+zh）。",
     "Mark": null,
-    "Reviewer": "R2C verifying 完成：/actions、/actions/[id]、/actions/new、/templates、/templates/[id]、/templates/new 均可加载且无 console 报错，i18n 切换正常；但 /actions/new 模型下拉无可选项（/v1/models 为空）导致 UI 创建链路阻断。F-R2C-08 FAIL，状态转 fixing。报告：docs/test-reports/R2C-user-pages-actions-templates-verifying-2026-04-09.md"
+    "Reviewer": "R2C reverifying round1 完成：阻断缺陷仍在，/actions/new 模型下拉无可选项；GET /v1/models（reqid=74）返回 data=[]。F-R2C-08 继续 FAIL，状态回退 fixing。报告：docs/test-reports/R2C-user-pages-actions-templates-reverifying-round1-2026-04-09.md"
   }
 }

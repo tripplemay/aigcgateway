@@ -7,9 +7,9 @@ type: project
 ## 当前批次
 
 **R2C-user-pages-actions-templates** — Actions + Templates 页面还原
-- Status: `fixing`（Codex 首轮验收未通过）
-- 验收结果：6 个页面加载与 i18n 切换通过；阻断点为 `/actions/new` 模型下拉无数据（`GET /v1/models -> []`），导致 UI 创建链路不可用
-- 报告：`docs/test-reports/R2C-user-pages-actions-templates-verifying-2026-04-09.md`
+- Status: `fixing`（reverifying round1 未通过）
+- 复验结果：`/actions/new` 模型下拉仍无可选模型；`GET /v1/models` 仍返回 `data=[]`，阻断未解除
+- 报告：`docs/test-reports/R2C-user-pages-actions-templates-reverifying-round1-2026-04-09.md`
 
 ## UI 重构全局计划
 
