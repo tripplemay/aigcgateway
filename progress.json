@@ -1,11 +1,11 @@
 {
-  "status": "verifying",
+  "status": "fixing",
   "user_goal": "M1d — 别名管理页优化（单列+搜索+排序+售价上提+LLM 推断 capabilities）",
   "total_features": 6,
   "completed_features": 5,
   "fix_rounds": 0,
   "current_sprint": "F-M1d-06",
-  "last_updated": "2026-04-10T09:00:00.000Z",
+  "last_updated": "2026-04-10T09:36:00.000Z",
   "reference_docs": [
     "docs/specs/M1-models-page-rework-spec.md",
     "design-draft/admin-model-aliases/code.html"
@@ -17,11 +17,24 @@
     "signoff": null,
     "framework_reviewed": false
   },
-  "evaluator_feedback": null,
+  "evaluator_feedback": {
+    "summary": "M1d 首轮验收阻塞：测试环境 migration 失败，无法完成动态验收，需先修复后再复验。",
+    "pass_count": 0,
+    "partial_count": 0,
+    "fail_count": 1,
+    "issues": [
+      {
+        "feature_id": "F-M1d-06",
+        "result": "FAIL",
+        "description": "执行 codex-setup 时 Prisma migrate deploy 失败：20260409234127_add_sell_price_to_model_alias 试图 ALTER COLUMN updatedAt，但该列在后续迁移才创建。",
+        "steps_to_reproduce": "1) bash scripts/test/codex-setup.sh 2) 观察 [3/5] migrate deploy 3) 报错 column \"updatedAt\" of relation \"model_aliases\" does not exist（42703）。"
+      }
+    ]
+  },
   "generator_handoff": null,
   "session_notes": {
     "Kimi": "M1d building 全部完成（5/5）。F-M1d-01 别名卡片改单列列表+accordion；F-M1d-02 搜索+brand/modality/enabled筛选+排序；F-M1d-03 Schema sellPrice+Admin PATCH+/v1/models优先读别名售价；F-M1d-04 LLM prompt扩展返回capabilities+inferMissingCapabilities新函数+仅填充空值不覆盖；F-M1d-05 i18n 16个新key中英文同步。",
     "Planner": "BF 批次 done 收尾 + M1d 启动。BL-084 拆为 5 generator + 1 codex。从 backlog 移除 BL-084。核心变更：卡片改单列、搜索筛选排序、sellPrice 上提到别名层、LLM 推断 capabilities。",
-    "Reviewer": null
+    "Reviewer": "2026-04-10 verifying：已拉取最新并按规则启动 3099，本地环境在 migration 阶段失败（20260409234127_add_sell_price_to_model_alias 依赖未创建的 updatedAt 列）。因此无法执行 M1d 动态验收，已输出阻塞报告 docs/test-reports/m1d-alias-page-polish-verifying-2026-04-10.md，并将状态流转至 fixing。"
   }
 }

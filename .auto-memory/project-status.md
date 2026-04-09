@@ -4,8 +4,8 @@ description: AIGC Gateway 当前状态快照（覆盖写，≤30 行）
 type: project
 ---
 ## 当前批次
-- M1d-alias-page-polish：`verifying`
-- Generator 5/5 done，等待 Evaluator 验收
+- M1d-alias-page-polish：`fixing`（verifying 阻塞）
+- 阻塞原因：`scripts/test/codex-setup.sh` 在 migration `20260409234127_add_sell_price_to_model_alias` 失败（`updatedAt` 列不存在）
 
 ## M1d 变更摘要
 - 别名管理页改单列列表 + accordion 展开
@@ -13,6 +13,7 @@ type: project
 - Schema: ModelAlias.sellPrice + Admin PATCH + /v1/models 优先读别名售价
 - LLM 推断 capabilities（prompt 扩展 + inferMissingCapabilities）
 - i18n 16 个新 key 中英文同步
+- 验收报告：`docs/test-reports/m1d-alias-page-polish-verifying-2026-04-10.md`（阻塞 FAIL）
 
 ## 已完成批次
 - R1~R4：UI 重构全部签收
