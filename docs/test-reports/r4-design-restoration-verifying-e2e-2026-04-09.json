@@ -1,0 +1,32 @@
+{
+  "baseUrl": "http://localhost:3099",
+  "passCount": 3,
+  "failCount": 2,
+  "steps": [
+    {
+      "name": "AC1 smoke endpoint ready",
+      "ok": true,
+      "detail": "status=200, models=0"
+    },
+    {
+      "name": "AC1 all R4 target pages load",
+      "ok": true,
+      "detail": "/login:200/html, /register:200/html, /admin/model-whitelist:200/html, /admin/model-aliases:200/html, /admin/model-capabilities:200/html, /admin/templates:200/html, /mcp-setup:200/html"
+    },
+    {
+      "name": "AC2 design structure spot checks pass",
+      "ok": true,
+      "detail": "whitelist9col=true, aliases3col=true, capabilities12=true, userDetailZones=true, templates3col=true, mcpBento=true, authShared=true"
+    },
+    {
+      "name": "AC3 DS token audit (zero legacy token and zero hardcoded color)",
+      "ok": false,
+      "detail": "legacy=0, hardcodedColor=35"
+    },
+    {
+      "name": "AC4 i18n audit (no known hardcoded English residues)",
+      "ok": false,
+      "detail": "wired=true, keys=true, hardcoded=auth-terminal.stream-line|auth-terminal.command|mcp.tool-desc"
+    }
+  ]
+}
