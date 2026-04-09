@@ -15,11 +15,7 @@
     "design-draft/templates-detail/code.html",
     "design-draft/templates-editor/code.html"
   ],
-  "role_assignments": {
-    "planner": "Richard",
-    "generator": "Johnsong",
-    "evaluator": "Reviewer"
-  },
+  "role_assignments": null,
   "docs": {
     "spec": "docs/specs/R2C-user-pages-actions-templates-spec.md",
     "test_cases": null,
