@@ -24,7 +24,7 @@ interface BrandGroup {
   models: ModelItem[];
 }
 
-/** Brand → icon background color */
+/** Brand → icon background color (external brand identity, not DS tokens) */
 const BRAND_COLORS: Record<string, string> = {
   OpenAI: "#000000",
   Anthropic: "#D85A30",
@@ -51,10 +51,10 @@ const BRAND_ABBR: Record<string, string> = {
 const MODELS_PER_PAGE = 20;
 
 const MODALITY_STYLES: Record<string, string> = {
-  text: "bg-indigo-50 text-indigo-600 border-indigo-100",
-  image: "bg-emerald-50 text-emerald-600 border-emerald-100",
-  audio: "bg-amber-50 text-amber-600 border-amber-100",
-  video: "bg-pink-50 text-pink-600 border-pink-100",
+  text: "bg-ds-primary-fixed text-ds-primary border-ds-primary-fixed-dim",
+  image: "bg-ds-status-success-container text-ds-status-success border-ds-status-success-container",
+  audio: "bg-ds-status-warning-container text-ds-status-warning border-ds-status-warning-container",
+  video: "bg-ds-error-container text-ds-error border-ds-error-container",
 };
 
 function fmtPriceSplit(p: Record<string, unknown>): { input: string; output: string } | null {
@@ -179,7 +179,7 @@ export default function ModelsPage() {
             <div className="w-1/4 h-16 bg-ds-primary/40 rounded-lg" />
             <div className="w-1/4 h-24 bg-ds-primary rounded-lg" />
           </div>
-          <div className="absolute -right-12 -top-12 w-48 h-48 bg-indigo-50 rounded-full blur-3xl opacity-50" />
+          <div className="absolute -right-12 -top-12 w-48 h-48 bg-ds-primary-fixed rounded-full blur-3xl opacity-50" />
         </div>
         {/* Optimization card */}
         <div className="bg-ds-surface-container-lowest p-6 rounded-xl shadow-[0px_20px_40px_rgba(19,27,46,0.04)]">
@@ -211,7 +211,7 @@ export default function ModelsPage() {
       <div className="space-y-6">
         {grouped.map((group) => {
           const collapsed = collapsedBrands.has(group.brand);
-          const bgColor = BRAND_COLORS[group.brand] ?? "#888780";
+          const bgColor = BRAND_COLORS[group.brand] ?? "var(--ds-outline)";
           const abbr = BRAND_ABBR[group.brand] ?? group.brand.slice(0, 2).toUpperCase();
           const visibleModels = showAllModels.has(group.brand)
             ? group.models
@@ -294,7 +294,7 @@ export default function ModelsPage() {
                                   {m.modality}
                                 </span>
                                 {hasCapability(m, "vision") && (
-                                  <span className="px-2 py-1 bg-amber-50 text-amber-600 rounded text-[10px] font-bold border border-amber-100 uppercase">
+                                  <span className="px-2 py-1 bg-ds-status-warning-container text-ds-status-warning rounded text-[10px] font-bold border border-ds-status-warning-container uppercase">
                                     {t("vision")}
                                   </span>
                                 )}
@@ -333,7 +333,7 @@ export default function ModelsPage() {
                                   )}
                                 </div>
                               ) : (
-                                <span className="text-xs font-bold text-green-600">
+                                <span className="text-xs font-bold text-ds-status-success">
                                   {t("free")}
                                 </span>
                               )}

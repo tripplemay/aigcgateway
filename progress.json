@@ -1,9 +1,9 @@
 {
-  "status": "fixing",
+  "status": "reverifying",
   "user_goal": "M1c — 用户 Models 页面重做 + Topbar 清理 + 终端区英文固定",
   "total_features": 6,
   "completed_features": 5,
-  "fix_rounds": 0,
+  "fix_rounds": 1,
   "current_sprint": "F-M1c-06",
   "last_updated": "2026-04-10T06:26:00.000Z",
   "reference_docs": [
@@ -33,7 +33,7 @@
   },
   "generator_handoff": null,
   "session_notes": {
-    "Kimi": "M1c building 全部完成（5/5 generator features done）。F-M1c-01 Models 页按 brand 分组重做（表格布局+设计稿还原）；F-M1c-02 Topbar 移除 Deploy/搜索/设置/暗色按钮；F-M1c-03 头像下拉菜单（用户名+邮箱+Settings+SignOut）；F-M1c-04 终端区固定英文（login+register 两页）；F-M1c-05 i18n 全量更新。topBar 的 deploy/searchPlaceholder key 已废弃但未删除（不影响运行）。",
+    "Kimi": "M1c fixing 完成。AC5 DS token 一致性修复：models/page.tsx 的 MODALITY_STYLES 改用 ds-primary-fixed/ds-status-success/warning/error tokens；Vision badge 改用 ds-status-warning tokens；Free 标签改用 ds-status-success；装饰圆改用 ds-primary-fixed；fallback 品牌色改用 var(--ds-outline)。top-app-bar.tsx 全面替换：bg-white→ds-surface-container-lowest、slate→ds-on-surface-variant/ds-outline、hover:#5443b9→ds-primary、red→ds-error/ds-error-container。BRAND_COLORS 保留 hex（外部品牌标识，已注释说明）。",
     "Planner": "M1b done 收尾 + M1c 启动。M1b 签收（8/8 PASS，1 fix round）。M1c 含 5 generator + 1 codex：Models 页重做、Topbar 清理（移除 Deploy/设置/搜索/暗色模式按钮）、用户头像下拉菜单、终端区英文固定、i18n。从 backlog 移除 BL-076/BL-077。",
     "Reviewer": "2026-04-10 verifying：已执行 scripts/test/m1c-models-topbar-verifying-e2e-2026-04-10.ts，结果 5 PASS / 1 FAIL。失败点为 AC5（DS token 一致性）：models/topbar 存在硬编码色值与 raw color class。已输出报告 docs/test-reports/m1c-models-topbar-verifying-2026-04-10.md，并将状态流转至 fixing。"
   }

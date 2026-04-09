@@ -46,25 +46,25 @@ export function TopAppBar({ userName, userEmail }: TopAppBarProps) {
   };
 
   return (
-    <header className="sticky top-0 z-50 w-full bg-white/80 dark:bg-slate-950/80 backdrop-blur-xl flex justify-between items-center h-16 px-8 shadow-sm dark:shadow-none">
+    <header className="sticky top-0 z-50 w-full bg-ds-surface-container-lowest/80 backdrop-blur-xl flex justify-between items-center h-16 px-8 shadow-sm">
       {/* Left: Nav Links */}
       <div className="flex items-center gap-6 flex-1">
         <nav className="hidden md:flex items-center gap-6">
           <Link
             href="/docs"
-            className="text-slate-600 dark:text-slate-400 hover:text-[#5443b9] transition-all font-[var(--font-heading)] text-sm font-medium"
+            className="text-ds-on-surface-variant hover:text-ds-primary transition-all font-[var(--font-heading)] text-sm font-medium"
           >
             {t("documentation")}
           </Link>
           <Link
             href="/docs"
-            className="text-slate-600 dark:text-slate-400 hover:text-[#5443b9] transition-all font-[var(--font-heading)] text-sm font-medium"
+            className="text-ds-on-surface-variant hover:text-ds-primary transition-all font-[var(--font-heading)] text-sm font-medium"
           >
             {t("apiReference")}
           </Link>
           <Link
             href="/docs"
-            className="text-slate-600 dark:text-slate-400 hover:text-[#5443b9] transition-all font-[var(--font-heading)] text-sm font-medium"
+            className="text-ds-on-surface-variant hover:text-ds-primary transition-all font-[var(--font-heading)] text-sm font-medium"
           >
             {t("support")}
           </Link>
@@ -79,8 +79,8 @@ export function TopAppBar({ userName, userEmail }: TopAppBarProps) {
             onClick={() => locale !== "en" && toggleLocale()}
             className={`px-2 py-1 text-[10px] font-black rounded-md transition-colors ${
               locale === "en"
-                ? "bg-white shadow-sm text-ds-primary"
-                : "text-slate-400"
+                ? "bg-ds-surface-container-lowest shadow-sm text-ds-primary"
+                : "text-ds-outline"
             }`}
           >
             EN
@@ -89,8 +89,8 @@ export function TopAppBar({ userName, userEmail }: TopAppBarProps) {
             onClick={() => locale !== "zh-CN" && toggleLocale()}
             className={`px-2 py-1 text-[10px] font-bold transition-colors ${
               locale === "zh-CN"
-                ? "bg-white shadow-sm text-ds-primary"
-                : "text-slate-400"
+                ? "bg-ds-surface-container-lowest shadow-sm text-ds-primary"
+                : "text-ds-outline"
             }`}
           >
             CN
@@ -98,12 +98,12 @@ export function TopAppBar({ userName, userEmail }: TopAppBarProps) {
         </div>
 
         {/* Notifications (placeholder) */}
-        <button className="p-2 text-slate-500 hover:bg-ds-surface-container-high rounded-full transition-colors opacity-80 hover:opacity-100">
+        <button className="p-2 text-ds-outline hover:bg-ds-surface-container-high rounded-full transition-colors opacity-80 hover:opacity-100">
           <span className="material-symbols-outlined">notifications</span>
         </button>
 
         {/* Divider */}
-        <div className="h-8 w-px bg-slate-200/50 mx-2" />
+        <div className="h-8 w-px bg-ds-outline-variant/50 mx-2" />
 
         {/* User Avatar + Dropdown */}
         <div ref={menuRef} className="relative">
@@ -111,13 +111,13 @@ export function TopAppBar({ userName, userEmail }: TopAppBarProps) {
             onClick={() => setMenuOpen((prev) => !prev)}
             className="flex items-center gap-3 cursor-pointer group"
           >
-            <div className="w-8 h-8 rounded-full bg-ds-primary-container flex items-center justify-center text-white text-xs font-bold ring-2 ring-ds-primary/20 group-hover:ring-ds-primary/50 transition-all">
+            <div className="w-8 h-8 rounded-full bg-ds-primary-container flex items-center justify-center text-ds-on-primary text-xs font-bold ring-2 ring-ds-primary/20 group-hover:ring-ds-primary/50 transition-all">
               {initials}
             </div>
           </button>
 
           {menuOpen && (
-            <div className="absolute right-0 top-12 w-56 bg-white rounded-xl shadow-lg border border-ds-outline-variant/20 py-2 z-50">
+            <div className="absolute right-0 top-12 w-56 bg-ds-surface-container-lowest rounded-xl shadow-lg border border-ds-outline-variant/20 py-2 z-50">
               {/* User info */}
               <div className="px-4 py-3 border-b border-ds-outline-variant/10">
                 {userName && (
@@ -139,7 +139,7 @@ export function TopAppBar({ userName, userEmail }: TopAppBarProps) {
                 </Link>
                 <button
                   onClick={handleSignOut}
-                  className="flex items-center gap-3 px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors w-full text-left"
+                  className="flex items-center gap-3 px-4 py-2 text-sm text-ds-error hover:bg-ds-error-container transition-colors w-full text-left"
                 >
                   <span className="material-symbols-outlined text-lg">logout</span>
                   {t("signOut")}
