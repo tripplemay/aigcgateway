@@ -1,55 +1,30 @@
 {
-  "batch": "M1c-models-page-topbar-cleanup",
+  "batch": "bugfix-fork-and-project-switch",
   "created_at": "2026-04-10",
   "features": [
     {
-      "id": "F-M1c-01",
-      "title": "用户 Models 页面重做 — 按品牌分组",
+      "id": "F-BF-01",
+      "title": "Fork 公共模板后 Action 设置 activeVersionId",
       "priority": "high",
       "executor": "generator",
-      "status": "done",
-      "acceptance": "1) 按 brand 分组展示别名列表（非渠道）；2) 每行展示别名名称、品牌、模态、Context Window、价格；3) brand 为空归入"其他"组；4) 不显示任何渠道/服务商信息；5) 布局与设计稿一致；6) tsc 通过",
-      "design_ref": "design-draft/models/code.html"
+      "status": "pending",
+      "acceptance": "1) MCP fork_public_template 创建 ActionVersion 后回写 activeVersionId 到 Action；2) REST API POST /api/projects/:id/templates/fork 同样检查并修复；3) fork 后的 Action 详情页正常展示活跃版本内容（系统消息+用户提示+变量表）；4) tsc 通过"
     },
     {
-      "id": "F-M1c-02",
-      "title": "Topbar 清理 — 移除未实现占位",
+      "id": "F-BF-02",
+      "title": "切换项目后强制跳转 Dashboard",
       "priority": "medium",
       "executor": "generator",
-      "status": "done",
-      "acceptance": "1) 移除 Deploy 按钮；2) 移除 topbar 设置按钮；3) 移除搜索框；4) 移除暗色模式按钮；5) 保留通知按钮（占位不实现）；6) tsc 通过"
+      "status": "pending",
+      "acceptance": "1) 侧边栏项目切换器 onChange 后 router.push('/dashboard')；2) 切换后不残留旧项目数据；3) tsc 通过"
     },
     {
-      "id": "F-M1c-03",
-      "title": "用户头像下拉菜单",
-      "priority": "medium",
-      "executor": "generator",
-      "status": "done",
-      "acceptance": "1) 点击头像弹出下拉菜单；2) 显示用户名/邮箱；3) Settings 链接跳转 /settings；4) Sign Out 按钮清空登录态并跳转 /login；5) tsc 通过"
-    },
-    {
-      "id": "F-M1c-04",
-      "title": "登录/注册页终端模拟区固定英文",
-      "priority": "low",
-      "executor": "generator",
-      "status": "done",
-      "acceptance": "1) auth-terminal 组件终端文案在任何语言环境下均为英文；2) 不走 i18n 翻译；3) 中文环境下终端仍显示英文命令和输出；4) tsc 通过"
-    },
-    {
-      "id": "F-M1c-05",
-      "title": "i18n — Models 页 + Topbar 中英文",
-      "priority": "medium",
-      "executor": "generator",
-      "status": "done",
-      "acceptance": "1) en.json + zh-CN.json 同步更新；2) 无硬编码字符串；3) UI 中英文切换正常"
-    },
-    {
-      "id": "F-M1c-06",
-      "title": "M1c 全量验收",
+      "id": "F-BF-03",
+      "title": "Bug 修复批次验收",
       "priority": "high",
       "executor": "codex",
-      "status": "completed",
-      "acceptance": "1) Models 页按品牌分组，无渠道信息；2) Topbar 已清理，无死按钮；3) 用户头像下拉菜单可用（Settings+Sign Out）；4) 终端区中文环境下仍为英文；5) DS token 一致；6) i18n 无残留；7) 签收报告生成"
+      "status": "pending",
+      "acceptance": "1) Fork 公共模板后 Action 详情页正确展示活跃版本；2) 切换项目后页面跳转到 Dashboard，无残留数据；3) 现有功能不回退；4) 签收报告生成"
     }
   ]
 }
