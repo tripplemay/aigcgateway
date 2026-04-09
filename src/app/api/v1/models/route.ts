@@ -69,9 +69,13 @@ async function queryModelsJSON(modalityFilter: string | undefined): Promise<stri
       // Skip aliases with no healthy channels
       if (allChannels.length === 0) return null;
 
-      // Pricing from highest-priority (lowest number) channel
+      // Pricing: prefer ModelAlias.sellPrice, fallback to best channel
       const bestChannel = allChannels[0];
-      const sellPrice = bestChannel?.sellPrice as Record<string, unknown> | undefined;
+      const aliasSellPrice = alias.sellPrice as Record<string, unknown> | null;
+      const sellPrice =
+        aliasSellPrice && Object.keys(aliasSellPrice).length > 0
+          ? aliasSellPrice
+          : (bestChannel?.sellPrice as Record<string, unknown> | undefined);
       const capabilities = (alias.capabilities as ModelCapabilities | null) ?? {};
 
       const pricing: Record<string, unknown> = {};

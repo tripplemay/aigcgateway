@@ -642,7 +642,21 @@
     "cap_image_input": "图片输入",
     "supportedSizes": "支持尺寸",
     "sizePlaceholder": "例如 1024x1024",
-    "brandPlaceholder": "例如 OpenAI"
+    "brandPlaceholder": "例如 OpenAI",
+    "searchAliases": "搜索别名...",
+    "allBrands": "品牌：全部",
+    "allModalities": "模态：全部",
+    "allStatus": "状态：全部",
+    "enabledOnly": "已启用",
+    "disabledOnly": "已禁用",
+    "sortEnabled": "排序：启用优先",
+    "sortName": "排序：名称",
+    "sortBrand": "排序：品牌",
+    "channels": "个通道",
+    "sellPrice": "售价",
+    "inputPer1M": "输入 / 1M tokens",
+    "outputPer1M": "输出 / 1M tokens",
+    "perCall": "单次调用"
   },
   "adminHealth": {
     "title": "健康监控",

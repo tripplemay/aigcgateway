@@ -69,6 +69,7 @@ export async function GET(request: Request) {
     maxTokens: a.maxTokens,
     capabilities: a.capabilities,
     description: a.description,
+    sellPrice: a.sellPrice,
     linkedModels: a.models.map((link) => ({
       modelId: link.model.id,
       modelName: link.model.name,
@@ -80,10 +81,7 @@ export async function GET(request: Request) {
       })),
     })),
     linkedModelCount: a.models.length,
-    activeChannelCount: a.models.reduce(
-      (sum, link) => sum + link.model.channels.length,
-      0,
-    ),
+    activeChannelCount: a.models.reduce((sum, link) => sum + link.model.channels.length, 0),
     createdAt: a.createdAt,
     updatedAt: a.updatedAt,
   }));

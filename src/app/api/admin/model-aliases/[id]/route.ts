@@ -29,6 +29,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     "maxTokens",
     "capabilities",
     "description",
+    "sellPrice",
   ] as const;
 
   const data: Record<string, unknown> = {};

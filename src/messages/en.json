@@ -642,7 +642,21 @@
     "cap_image_input": "Image Input",
     "supportedSizes": "Supported Sizes",
     "sizePlaceholder": "e.g. 1024x1024",
-    "brandPlaceholder": "e.g. OpenAI"
+    "brandPlaceholder": "e.g. OpenAI",
+    "searchAliases": "Search aliases...",
+    "allBrands": "Brand: All",
+    "allModalities": "Modality: All",
+    "allStatus": "Status: All",
+    "enabledOnly": "Enabled",
+    "disabledOnly": "Disabled",
+    "sortEnabled": "Sort: Enabled first",
+    "sortName": "Sort: Name",
+    "sortBrand": "Sort: Brand",
+    "channels": "channels",
+    "sellPrice": "Sell Price",
+    "inputPer1M": "Input / 1M tokens",
+    "outputPer1M": "Output / 1M tokens",
+    "perCall": "Per Call"
   },
   "adminHealth": {
     "title": "Health Monitor",

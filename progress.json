@@ -1,10 +1,10 @@
 {
-  "status": "building",
+  "status": "verifying",
   "user_goal": "M1d — 别名管理页优化（单列+搜索+排序+售价上提+LLM 推断 capabilities）",
   "total_features": 6,
-  "completed_features": 0,
+  "completed_features": 5,
   "fix_rounds": 0,
-  "current_sprint": "F-M1d-01",
+  "current_sprint": "F-M1d-06",
   "last_updated": "2026-04-10T09:00:00.000Z",
   "reference_docs": [
     "docs/specs/M1-models-page-rework-spec.md",
@@ -20,7 +20,7 @@
   "evaluator_feedback": null,
   "generator_handoff": null,
   "session_notes": {
-    "Kimi": null,
+    "Kimi": "M1d building 全部完成（5/5）。F-M1d-01 别名卡片改单列列表+accordion；F-M1d-02 搜索+brand/modality/enabled筛选+排序；F-M1d-03 Schema sellPrice+Admin PATCH+/v1/models优先读别名售价；F-M1d-04 LLM prompt扩展返回capabilities+inferMissingCapabilities新函数+仅填充空值不覆盖；F-M1d-05 i18n 16个新key中英文同步。",
     "Planner": "BF 批次 done 收尾 + M1d 启动。BL-084 拆为 5 generator + 1 codex。从 backlog 移除 BL-084。核心变更：卡片改单列、搜索筛选排序、sellPrice 上提到别名层、LLM 推断 capabilities。",
     "Reviewer": null
   }

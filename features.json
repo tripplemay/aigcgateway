@@ -7,7 +7,7 @@
       "title": "别名卡片改单列列表布局",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) 已配置映射区域改为单列列表（每行一个别名）；2) 每行展示：别名名称、brand 标签、modality 标签、关联模型数、enabled 开关、删除/展开按钮；3) 展开详情面板在行下方 accordion 展开；4) 布局不错位、长名称不换行截断；5) tsc 通过",
       "design_ref": "design-draft/admin-model-aliases/code.html"
     },
@@ -16,7 +16,7 @@
       "title": "搜索 + 筛选 + 排序",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) 搜索框过滤别名名称；2) 筛选按钮：brand / modality / enabled 状态；3) 默认排序 enabled=true 优先，其次按名称字母序；4) tsc 通过"
     },
     {
@@ -24,7 +24,7 @@
       "title": "Schema — ModelAlias 新增 sellPrice + 售价管理",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) ModelAlias 新增 sellPrice 字段（Json，同 Channel.sellPrice 格式）；2) migrate dev 通过；3) 别名详情面板可编辑售价（input_per_1m / output_per_1m 或 per_call）；4) GET /v1/models 返回的 pricing 改读 ModelAlias.sellPrice；5) tsc 通过"
     },
     {
@@ -32,7 +32,7 @@
       "title": "LLM 推断 capabilities",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) classifyNewModels prompt 扩展，同时返回 capabilities；2) 推断结果写入 ModelAlias.capabilities；3) 已有 capabilities 不覆盖（仅填充空值）；4) Admin 可手动修正；5) tsc 通过"
     },
     {
@@ -40,7 +40,7 @@
       "title": "i18n — 新增翻译",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) en.json + zh-CN.json 同步更新；2) 搜索/筛选/排序/售价相关文案无硬编码；3) UI 中英文切换正常"
     },
     {

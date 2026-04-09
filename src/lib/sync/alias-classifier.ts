@@ -8,6 +8,7 @@
  * LLM 失败不阻塞 sync，未分类模型在 Admin 页面手动处理。
  */
 
+import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { getApiKey, getBaseUrl } from "./adapters/base";
 
@@ -94,10 +95,7 @@ async function callInternalAI(prompt: string): Promise<string> {
 // Prompt 构建
 // ============================================================
 
-function buildClassificationPrompt(
-  existingAliases: string[],
-  modelNames: string[],
-): string {
+function buildClassificationPrompt(existingAliases: string[], modelNames: string[]): string {
   const aliasSection =
     existingAliases.length > 0
       ? `## 已有别名列表（已确认，优先归入这些）\n${JSON.stringify(existingAliases)}`
@@ -118,15 +116,16 @@ ${modelNames.map((n) => `- ${n}`).join("\n")}
 2. 如果没有匹配的已有别名，建议一个新别名（简短、用户友好、去掉服务商前缀和日期版本号）
 3. 同时推断品牌（OpenAI、Anthropic、Google、Meta、Mistral、DeepSeek、智谱 AI 等）
 4. 无法确定品牌则返回 null
+5. 推断模型的 capabilities（function_calling / streaming / vision / system_prompt / json_mode / image_input），返回为 true/false
 
 ## 返回 JSON
 返回一个对象，key 是模型 ID，value 是分类结果：
 
 归入已有别名：
-{ "existing_alias": "gpt-4o", "brand": "OpenAI" }
+{ "existing_alias": "gpt-4o", "brand": "OpenAI", "capabilities": { "function_calling": true, "streaming": true, "vision": true, "system_prompt": true, "json_mode": true, "image_input": true } }
 
 建议新别名：
-{ "new_alias": "mistral-large", "brand": "Mistral" }
+{ "new_alias": "mistral-large", "brand": "Mistral", "capabilities": { "function_calling": true, "streaming": true, "vision": false, "system_prompt": true, "json_mode": true, "image_input": false } }
 
 只返回 JSON 对象，不要其他文字。`;
 }
@@ -139,6 +138,7 @@ interface ClassificationResult {
   existing_alias?: string;
   new_alias?: string;
   brand?: string | null;
+  capabilities?: Record<string, boolean>;
 }
 
 // ============================================================
@@ -244,6 +244,7 @@ export async function classifyNewModels(): Promise<{
                     alias: inference.new_alias,
                     brand: inference.brand ?? null,
                     enabled: false,
+                    ...(inference.capabilities ? { capabilities: inference.capabilities } : {}),
                   },
                 });
                 aliasId = created.id;
@@ -265,19 +266,26 @@ export async function classifyNewModels(): Promise<{
               }
             }
 
-            // 更新 brand（如果别名 brand 为空且 LLM 给出了值）
-            if (inference.brand && inference.existing_alias) {
+            // 更新 brand + capabilities（仅填充空值，不覆盖已有）
+            if (inference.existing_alias) {
               const alias = existingAliases.find((a) => a.alias === inference.existing_alias);
               if (alias) {
                 const current = await prisma.modelAlias.findUnique({
                   where: { id: alias.id },
-                  select: { brand: true },
+                  select: { brand: true, capabilities: true },
                 });
-                if (current && !current.brand) {
-                  await prisma.modelAlias.update({
-                    where: { id: alias.id },
-                    data: { brand: inference.brand },
-                  });
+                if (current) {
+                  const updates: Record<string, unknown> = {};
+                  if (!current.brand && inference.brand) updates.brand = inference.brand;
+                  if (!current.capabilities && inference.capabilities) {
+                    updates.capabilities = inference.capabilities;
+                  }
+                  if (Object.keys(updates).length > 0) {
+                    await prisma.modelAlias.update({
+                      where: { id: alias.id },
+                      data: updates,
+                    });
+                  }
                 }
               }
             }
@@ -323,9 +331,7 @@ export async function inferMissingBrands(): Promise<{
       return { updated: 0, errors: [] };
     }
 
-    console.log(
-      `[alias-classifier] Inferring brands for ${aliasesWithoutBrand.length} aliases...`,
-    );
+    console.log(`[alias-classifier] Inferring brands for ${aliasesWithoutBrand.length} aliases...`);
 
     const prompt = `以下是 AI 模型的别名列表，请判断每个模型属于哪个厂商。
 返回 JSON 对象：key 是别名，value 是品牌名。
@@ -362,5 +368,76 @@ ${aliasesWithoutBrand.map((a) => `- ${a.alias}`).join("\n")}
   }
 
   console.log(`[alias-classifier] Brand inference done: updated=${updated}`);
+  return { updated, errors };
+}
+
+/**
+ * 对 capabilities 为空的别名执行批量推断。
+ * 仅填充空值，不覆盖已有 capabilities。
+ */
+export async function inferMissingCapabilities(): Promise<{
+  updated: number;
+  errors: string[];
+}> {
+  const errors: string[] = [];
+  let updated = 0;
+
+  try {
+    const aliasesWithoutCaps = await prisma.modelAlias.findMany({
+      where: { capabilities: { equals: Prisma.JsonNull } },
+      select: { id: true, alias: true },
+    });
+
+    if (aliasesWithoutCaps.length === 0) {
+      return { updated: 0, errors: [] };
+    }
+
+    console.log(
+      `[alias-classifier] Inferring capabilities for ${aliasesWithoutCaps.length} aliases...`,
+    );
+
+    const prompt = `以下是 AI 模型的别名列表，请推断每个模型的能力（capabilities）。
+
+返回 JSON 对象：key 是别名，value 是 capabilities 对象。
+每个 capability 为 true 或 false：
+- function_calling: 是否支持函数调用/工具使用
+- streaming: 是否支持流式输出
+- vision: 是否支持图片/视觉输入
+- system_prompt: 是否支持系统消息
+- json_mode: 是否支持 JSON 结构化输出
+- image_input: 是否支持图片输入（与 vision 类似但更广义）
+
+别名列表：
+${aliasesWithoutCaps.map((a) => `- ${a.alias}`).join("\n")}
+
+只返回 JSON 对象，不要其他文字。`;
+
+    const rawResponse = await callInternalAI(prompt);
+
+    let results: Record<string, Record<string, boolean>>;
+    try {
+      results = JSON.parse(rawResponse);
+    } catch {
+      errors.push("Failed to parse capabilities inference response");
+      return { updated: 0, errors };
+    }
+
+    for (const alias of aliasesWithoutCaps) {
+      const caps = results[alias.alias];
+      if (caps && typeof caps === "object") {
+        await prisma.modelAlias.update({
+          where: { id: alias.id },
+          data: { capabilities: caps },
+        });
+        updated++;
+      }
+    }
+  } catch (err) {
+    errors.push(
+      `Capabilities inference failed: ${err instanceof Error ? err.message : String(err)}`,
+    );
+  }
+
+  console.log(`[alias-classifier] Capabilities inference done: updated=${updated}`);
   return { updated, errors };
 }
