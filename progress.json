@@ -1,5 +1,5 @@
 {
-  "status": "building",
+  "status": "verifying",
   "user_goal": "R4 — 6 页面设计稿结构还原（whitelist/aliases/capabilities/user-detail/admin-templates/mcp-setup）",
   "total_features": 8,
   "completed_features": 7,
@@ -23,9 +23,9 @@
     "framework_reviewed": false
   },
   "evaluator_feedback": null,
-  "generator_handoff": null,
+  "generator_handoff": "R4 全部 7 个 generator 功能完成。F-R4-01~06 为 6 页面设计稿结构还原，F-R4-07 为 Register/Login 终端统一。所有变更仅前端 TSX + i18n + API 补 costPrice 字段。tsc 零错误。验收时请重点对比 design-draft/*/code.html 与实际布局（列数、网格比例、区块顺序），以及 DS token 使用（零 shadcn 旧 token、零硬编码颜色）。",
   "session_notes": {
-    "Kimi": "R4 planning 完成，直接进入 building。6 页面：4 个 MISMATCH（whitelist/aliases/capabilities/user-detail 重度）+ 2 个 PARTIAL（admin-templates/mcp-setup 中度）。Admin Models (Channels) 核查后确认为 MATCH 已排除。规格文档含逐页差异清单和还原要求。",
+    "Kimi": "R4 building 全部完成（7/7 generator features done）。单会话从 F-R4-01 到 F-R4-07 连续实现。关键改动：Whitelist 加 Provider+Price 两列+API costPrice；Aliases 重构为 3 列卡片网格+pill 标签；Capabilities 改 grid-cols-12+insight 卡片；User Detail 改 hero profile 4+8 col+Danger Zone；Templates 表格改 3 列卡片；MCP Setup 改 5/7 bento+feature showcase；Register 终端与 Login 统一为 AuthLeftPanel 共享组件。",
     "Reviewer": null
   }
 }

@@ -4,14 +4,13 @@ description: AIGC Gateway 当前状态快照（覆盖写，≤30 行）
 type: project
 ---
 ## 当前批次
-- R3C-final-ds-unification：`reverifying`（fix round 1 完成，待 Codex 复验）
-- 修复内容：Login/Register 终端区硬编码英文 → i18n
-- spec：`docs/specs/R3C-final-ds-unification-spec.md`
+- R4-design-restoration：`verifying`（7/7 generator features done，等待 Evaluator 验收）
+- spec：`docs/specs/R4-design-restoration-spec.md`
 
 ## UI 重构进度
-- 已完成：R1 / R2A / R2B / R2C / R3A / R3B
-- 当前：R3C（36/36 页 building 完成，reverifying 中）
-- 总计：全部页面 DS 统一 + i18n 完成
+- 已完成：R1 / R2A / R2B / R2C / R3A / R3B / R3C
+- 进行中：R4（6 页面设计稿还原 + Register 终端统一）— building 完成，进入 verifying
+- 总计：全部页面 DS 统一 + i18n + 设计稿结构还原
 
 ## Backlog（8 条）
 - BL-065 支付回调验签+幂等 [high]
