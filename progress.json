@@ -1,11 +1,11 @@
 {
-  "status": "fixing",
+  "status": "reverifying",
   "user_goal": "CI1 — 测试基础设施升级（Mock 复用 + 测试工厂 + Vitest + CI pipeline）",
   "total_features": 5,
   "completed_features": 4,
-  "fix_rounds": 7,
+  "fix_rounds": 8,
   "current_sprint": null,
-  "last_updated": "2026-04-10T23:02:06Z",
+  "last_updated": "2026-04-11T07:07:00.000Z",
   "reference_docs": [],
   "role_assignments": null,
   "docs": {
@@ -14,27 +14,14 @@
     "signoff": null,
     "framework_reviewed": false
   },
-  "evaluator_feedback": {
-    "round": 7,
-    "result": "FAIL",
-    "report": "docs/test-reports/CI1-test-infrastructure-reverifying-round7-2026-04-11.md",
-    "summary": "3 个 E2E 脚本均在 registerAndLogin 阶段失败：user not found in database。",
-    "blocking_issues": [
-      "脚本执行环境 DATABASE_URL 未对齐 codex-setup 服务环境，脚本进程未稳定连接测试库。",
-      "三个脚本共享同一前置失败点，导致 F-CI1-01/F-CI1-02 无法进入主体断言。"
-    ],
-    "required_fixes": [
-      "统一脚本与服务进程的 DATABASE_URL 来源，确保都指向 aigc_gateway_test。",
-      "在 registerAndLogin 前后增加显式环境与连接一致性校验，避免静默回落到 .env 开发库。"
-    ]
-  },
+  "evaluator_feedback": null,
   "generator_handoff": {
     "completed": ["F-CI1-01", "F-CI1-02", "F-CI1-03", "F-CI1-04"],
     "codex_pending": ["F-CI1-05"],
-    "notes": "Fix round 7: P2025 根因是工厂从 HTTP login response 取 userId，但脚本的 PrismaClient 可能连的是不同数据库（codex-env.sh 设置的测试库 vs .env 的开发库）。改为 K1 验收脚本模式：注册后用脚本自己的 prisma.user.findUnique({ where: { email } }) 获取 userId，确保 Prisma 查询和后续 update 用同一个连接/数据库。工厂 TestUserResult 移除 userId，只返回 email/password/token。"
+    "notes": "Fix round 8: 确认根因是脚本进程 DATABASE_URL 为空，Prisma 回落到 .env 的开发库。新增 tests/helpers/load-test-env.ts，在 PrismaClient 创建前解析 scripts/test/codex-env.sh 中的环境变量（仅当 DATABASE_URL 未指向 _test 库时）。3 个脚本顶部 import 此 helper。"
   },
   "session_notes": {
-    "Kimi": "Fix round 7: 分析 codex code review 报告，确认根因是脚本 PrismaClient 与 API 服务可能连不同数据库（.env vs codex-env.sh）。工厂从 login response 取的 userId 在 API 数据库存在但在脚本 Prisma 的数据库中不存在，导致 P2025。改为 K1 验收脚本的已验证模式：注册后用脚本自己的 prisma.user.findUnique({ where: { email } }) 查 userId，保证同库操作。",
+    "Kimi": "Fix round 8: Evaluator round7 报告明确证实 DATABASE_URL 不一致（脚本 shell 中为空，.env 指向 aigc_gateway，服务指向 aigc_gateway_test）。新增 tests/helpers/load-test-env.ts 在脚本启动时解析 codex-env.sh 并设置环境变量。3 个脚本顶部加 import 确保 PrismaClient 连正确的测试库。",
     "Planner": "本轮 Planner 长会话产出：1) P5 设计稿+启动；2) M1 spec+拆4子批次(M1a~M1d)全部签收；3) K1 spec(API Key 用户级)+启动+签收；4) U1 spec(用户详情页)+启动+签收；5) L1(LLM 健壮性)+MCP2(工具增强)+A1(数据质量)+T1(模板)+N1(UI导航)+O1(运维)+CI1(测试基础设施) 启动；6) 多次生产环境诊断（capabilities 超时、modality 全 TEXT、brand 重复）；7) 新增 backlog BL-099~105（删除服务商/Keys精简/运维提示/supportedSizes+capabilities统一/千位分隔符/项目切换/假内容清理）。CI1 当前 fixing round 4，问题是旧脚本未适配 K1 数据模型。",
     "Reviewer": "CI1 round7 复验完成：3 个 E2E 脚本统一在 registerAndLogin 失败（user not found in database）。本轮关键证据：脚本 shell 的 DATABASE_URL 为空，.env 指向开发库 aigc_gateway，而 codex-setup 服务使用测试库 aigc_gateway_test。报告：docs/test-reports/CI1-test-infrastructure-reverifying-round7-2026-04-11.md。状态回退 fixing。"
   }

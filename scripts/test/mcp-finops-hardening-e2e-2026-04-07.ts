@@ -1,3 +1,4 @@
+import "../../tests/helpers/load-test-env";
 import { writeFileSync } from "fs";
 import { PrismaClient } from "@prisma/client";
 import { startMockProvider, jsonResponse } from "../../tests/mocks/provider-server";
