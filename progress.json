@@ -1,33 +1,24 @@
 {
-  "status": "done",
-  "user_goal": "U1 — Admin 用户详情页功能完善（余额适配+交易记录+Suspend/Delete+lastActive）",
-  "total_features": 7,
-  "completed_features": 7,
-  "fix_rounds": 1,
-  "current_sprint": "F-U1-07",
-  "last_updated": "2026-04-10T13:34:04.000+08:00",
-  "reference_docs": [
-    "docs/specs/U1-admin-user-detail-spec.md",
-    "design-draft/admin-user-detail/code.html"
-  ],
+  "status": "building",
+  "user_goal": "L1 — LLM 推断链路健壮性升级（分批+即时持久化+重试）",
+  "total_features": 4,
+  "completed_features": 0,
+  "fix_rounds": 0,
+  "current_sprint": "F-L1-01",
+  "last_updated": "2026-04-10T15:00:00.000Z",
+  "reference_docs": [],
   "role_assignments": null,
   "docs": {
-    "spec": "docs/specs/U1-admin-user-detail-spec.md",
+    "spec": null,
     "test_cases": null,
-    "signoff": "docs/test-reports/u1-admin-user-detail-signoff-2026-04-10.md",
+    "signoff": null,
     "framework_reviewed": false
   },
-  "evaluator_feedback": {
-    "summary": "U1 第 1 轮复验全量通过。项目 keyCount 缺口已修复，Admin 用户详情页的余额、lastActive、交易记录分页、充值、暂停/恢复、删除与列表过滤全部满足验收标准。",
-    "pass_count": 5,
-    "partial_count": 0,
-    "fail_count": 0,
-    "issues": []
-  },
+  "evaluator_feedback": null,
   "generator_handoff": null,
   "session_notes": {
-    "Kimi": "U1 building 全部完成（6/6）。Schema: User +suspended/deletedAt。API: GET 详情含 balance/lastActive/keyCount、GET transactions 分页、POST suspend、DELETE 软删除。鉴权: API Key + JWT 登录检查 suspended/deletedAt。用户列表过滤已删除。前端: 余额卡充值按钮、真实交易记录表格+分页、Suspend/Delete 确认弹窗。i18n 22 个新 key。",
-    "Planner": "K1 done 收尾 + U1 启动。K1 签收（8/8 PASS，3 fix rounds）。U1 含 6 generator + 1 codex。从 backlog 移除 BL-078。Spec: docs/specs/U1-admin-user-detail-spec.md。",
-    "Reviewer": "2026-04-10 reverifying：U1 第 1 轮复验完成。重跑 scripts/test/u1-admin-user-detail-verifying-e2e-2026-04-10.ts，结果 5/5 PASS；上轮失败的 keyCount 缺口已修复。Admin 用户详情页的详情 API、项目卡片、交易记录分页、暂停/恢复、删除链路全部通过，已写 signoff 并将状态置 done。"
+    "Kimi": null,
+    "Planner": "U1 done 收尾 + L1 启动。BL-093 拆为 3 generator + 1 codex。三个函数（inferMissingCapabilities/classifyNewModels/inferMissingBrands）统一健壮性策略：分批30个+即时持久化+重试2次+跳过继续。从 backlog 移除 BL-093。",
+    "Reviewer": null
   }
 }

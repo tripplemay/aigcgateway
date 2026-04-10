@@ -112,18 +112,6 @@
       "priority": "low"
     },
     {
-      "id": "BL-093",
-      "title": "LLM 推断链路健壮性升级（分批+即时持久化+重试）",
-      "description": "生产环境 inferMissingCapabilities 一次性处理 144 个别名导致超时失败（updated=0）。修复：1) 分批处理（每批 30 个）；2) 每批成功立即写入 DB；3) 失败重试 2 次（间隔 3s/10s）；4) 重试仍失败则跳过继续下一批；5) 下次 sync 自动补处理上次跳过的。classifyNewModels 也统一采用相同策略（目前虽分批但缺重试和即时持久化）。",
-      "decisions": [
-        "宁可慢也要确保成功",
-        "每批成功立即落库，不攒到最后一起写",
-        "失败不阻塞后续批次"
-      ],
-      "confirmed_at": "2026-04-10",
-      "priority": "high"
-    },
-    {
       "id": "BL-092",
       "title": "测试基础设施升级",
       "description": "1) 提取 Mock Server 公共库（tests/mocks/），27 个脚本共享；2) 提取 Prisma 测试工厂（tests/factories/），user/project/apikey/channel 创建模式复用；3) CI pipeline 增加单元测试（Vitest），PR 时自动跑 tsc + lint + vitest；4) 先用 Vitest 覆盖计费、鉴权、路由三个核心模块；5) generator.md 新增规则：push 后检查 CI 状态，失败优先修复再继续。",
