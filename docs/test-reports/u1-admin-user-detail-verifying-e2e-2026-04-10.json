@@ -1,0 +1,40 @@
+{
+  "batch": "U1-admin-user-detail",
+  "feature": "F-U1-07",
+  "executedAt": "2026-04-10T05:25:08.032Z",
+  "baseUrl": "http://localhost:3099",
+  "passCount": 4,
+  "failCount": 1,
+  "steps": [
+    {
+      "id": "AC1",
+      "name": "Admin 用户详情 API 返回余额、lastActive、项目与分页交易",
+      "ok": true,
+      "detail": "balance=24.89, lastActive=2026-04-10T05:25:00.690Z, projects=2, tx_total=12"
+    },
+    {
+      "id": "AC2",
+      "name": "Admin 用户详情页展示余额、最近活跃、分页和危险操作入口",
+      "ok": true,
+      "detail": "detail page rendered with balance, lastActive, history pagination and danger controls"
+    },
+    {
+      "id": "AC3",
+      "name": "项目卡片包含调用数和 Key 数",
+      "ok": false,
+      "detail": "project detail missing keyCount"
+    },
+    {
+      "id": "AC4",
+      "name": "暂停用户后无法登录且现有 API Key 无法调用；恢复后重新正常",
+      "ok": true,
+      "detail": "keysAffected=1, suspended_login=403, restored_api=200"
+    },
+    {
+      "id": "AC5",
+      "name": "删除用户后从列表消失且无法登录",
+      "ok": true,
+      "detail": "deleted_login=403, list_contains=false"
+    }
+  ]
+}

@@ -1,11 +1,11 @@
 {
-  "status": "verifying",
+  "status": "fixing",
   "user_goal": "U1 — Admin 用户详情页功能完善（余额适配+交易记录+Suspend/Delete+lastActive）",
   "total_features": 7,
   "completed_features": 6,
   "fix_rounds": 0,
   "current_sprint": "F-U1-07",
-  "last_updated": "2026-04-10T14:00:00.000Z",
+  "last_updated": "2026-04-10T13:25:25.000+08:00",
   "reference_docs": [
     "docs/specs/U1-admin-user-detail-spec.md",
     "design-draft/admin-user-detail/code.html"
@@ -17,11 +17,24 @@
     "signoff": null,
     "framework_reviewed": false
   },
-  "evaluator_feedback": null,
+  "evaluator_feedback": {
+    "summary": "U1 首轮验收 4/5 通过。余额、lastActive、交易记录分页、充值、暂停/恢复、删除链路均通过，但用户详情 projects 返回项缺少 keyCount，导致项目卡片无法按规格展示“调用数 / Key 数”。",
+    "pass_count": 4,
+    "partial_count": 0,
+    "fail_count": 1,
+    "issues": [
+      {
+        "feature_id": "F-U1-04",
+        "result": "FAIL",
+        "description": "用户详情接口 GET /api/admin/users/:id 的 projects 返回项缺少 keyCount，前端项目卡片只能显示调用数，无法满足规格和设计稿要求的“调用数 / Key 数”。",
+        "steps_to_reproduce": "1) source scripts/test/codex-env.sh && npx tsx scripts/test/u1-admin-user-detail-verifying-e2e-2026-04-10.ts 2) 查看 GET /api/admin/users/:id 返回体 3) projects[] 仅含 id/name/callCount/createdAt，无 keyCount。"
+      }
+    ]
+  },
   "generator_handoff": null,
   "session_notes": {
     "Kimi": "U1 building 全部完成（6/6）。Schema: User +suspended/deletedAt。API: GET 详情含 balance/lastActive/keyCount、GET transactions 分页、POST suspend、DELETE 软删除。鉴权: API Key + JWT 登录检查 suspended/deletedAt。用户列表过滤已删除。前端: 余额卡充值按钮、真实交易记录表格+分页、Suspend/Delete 确认弹窗。i18n 22 个新 key。",
     "Planner": "K1 done 收尾 + U1 启动。K1 签收（8/8 PASS，3 fix rounds）。U1 含 6 generator + 1 codex。从 backlog 移除 BL-078。Spec: docs/specs/U1-admin-user-detail-spec.md。",
-    "Reviewer": null
+    "Reviewer": "2026-04-10 verifying：U1 首轮验收完成。新增 scripts/test/u1-admin-user-detail-verifying-e2e-2026-04-10.ts 并在 3099 环境执行，结果 4 PASS / 1 FAIL。通过项：详情 balance/lastActive、交易记录分页、暂停/恢复、删除链路。失败项：GET /api/admin/users/:id 的 projects 返回项缺少 keyCount，用户详情页项目卡片无法展示规格要求的 Key 数。状态回退 fixing。"
   }
 }
