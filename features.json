@@ -7,7 +7,7 @@
       "title": "别名创建时从 Model 继承 modality",
       "priority": "high",
       "executor": "generator",
-      "status": "done",
+      "status": "pending",
       "acceptance": "1) classifyNewModels 创建新别名时从关联 Model.modality 继承；2) 归入已有别名时检查 modality 一致性（IMAGE 模型不应归入 TEXT 别名）；3) 一次性修正现有别名 modality（从关联 Model 查，IMAGE 模型别名改为 IMAGE）；4) tsc 通过"
     },
     {
@@ -15,7 +15,7 @@
       "title": "contextWindow/maxTokens 继承 + LLM fallback",
       "priority": "high",
       "executor": "generator",
-      "status": "done",
+      "status": "pending",
       "acceptance": "1) 创建别名时从关联 Model 继承 contextWindow/maxTokens；2) 归入已有别名时，别名的 contextWindow 为空则从 Model 补充；3) LLM prompt 扩展加 context_window/max_tokens 字段；4) Model 有值用 Model 的，null 的用 LLM 推断补充；5) tsc 通过"
     },
     {
@@ -23,7 +23,7 @@
       "title": "brand 推断锚定已有品牌 + 历史数据清理",
       "priority": "high",
       "executor": "generator",
-      "status": "done",
+      "status": "pending",
       "acceptance": "1) inferMissingBrands prompt 传入已有品牌列表作为锚定；2) classifyNewModels prompt 同样锚定已有品牌；3) 清理现有脏数据（智谱 AI→智谱AI、Arcee AI→Arcee 等重复品牌合并）；4) 清理脚本或 migration 一次性执行；5) tsc 通过"
     },
     {

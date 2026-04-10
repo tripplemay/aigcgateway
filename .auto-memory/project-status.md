@@ -10,6 +10,8 @@ type: project
 - `verifying` 首轮签收通过，LLM 推断链路健壮性升级验收完成
 - MCP2-tools-enhancement：`done`
 - `verifying` 首轮签收通过，MCP 工具增强验收完成
+- A1-alias-data-quality：`fixing`
+- `verifying` 首轮失败：本地逻辑通过，但生产存量 alias 数据未修正
 
 ## U1 验收结论
 - 详情 API 返回真实 balance、lastActive、projects、transactions 分页
@@ -27,6 +29,12 @@ type: project
 - `stream=true` 场景会正确累积 `tool_calls` 并返回 `ttftMs`
 - `list_models(image)` 已返回聚合后的 `supportedSizes`
 - `list_api_keys/create_api_key/revoke_api_key/get_project_info/create_project` 全链路通过
+
+## A1 首轮结论
+- 本地 L1 已验证 alias-classifier 新逻辑与两个修复脚本在测试库可正常工作
+- 生产只读查询发现 `cogview-3/dall-e-2/seedream-3` 仍为 `TEXT`
+- `claude-3.5-sonnet/deepseek-r1/deepseek-v3` 的 `contextWindow` 仍为 `null`
+- 品牌重复变体 `Arcee AI/Arcee`、`智谱 AI/智谱AI` 仍并存；修复脚本未部署到 `/opt/aigc-gateway`
 
 ## 已完成批次
 - R1~R4 / P5 / M1a~M1d / BF / K1 / U1 / L1 / MCP2

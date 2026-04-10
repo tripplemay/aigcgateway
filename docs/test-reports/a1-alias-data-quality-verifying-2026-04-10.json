@@ -1,0 +1,59 @@
+{
+  "ok": true,
+  "executedAt": "2026-04-10T06:48:22.522Z",
+  "output": "docs/test-reports/a1-alias-data-quality-verifying-2026-04-10.json",
+  "steps": [
+    {
+      "id": "SMOKE-1",
+      "name": "GET /v1/models returns 200",
+      "ok": true,
+      "detail": "status=200"
+    },
+    {
+      "id": "SMOKE-2",
+      "name": "Admin login returns JWT",
+      "ok": true,
+      "detail": "token_length=197"
+    },
+    {
+      "id": "AC1",
+      "name": "classifyNewModels 继承 modality/contextWindow/maxTokens，mismatch 跳过",
+      "ok": true,
+      "detail": "result={\"classified\":3,\"newAliases\":2,\"skipped\":1,\"errors\":[]}, image_alias={\"id\":\"cmnsjo977000g9yrkerom7j1r\",\"alias\":\"a1-mnsjo91x-image-new\",\"brand\":\"OpenAI\",\"modality\":\"IMAGE\",\"enabled\":false,\"contextWindow\":16000,\"maxTokens\":2048,\"capabilities\":{\"vision\":true,\"json_mode\":false,\"streaming\":false,\"image_input\":true,\"system_prompt\":true,\"function_calling\":false},\"description\":null,\"sellPrice\":null,\"createdAt\":\"2026-04-10T06:48:21.140Z\",\"updatedAt\":\"2026-04-10T06:48:21.140Z\"}, text_fallback={\"id\":\"cmnsjo979000j9yrkxuo46cdo\",\"alias\":\"a1-mnsjo91x-text-fallback\",\"brand\":\"DeepSeek\",\"modality\":\"TEXT\",\"enabled\":false,\"contextWindow\":128000,\"maxTokens\":4096,\"capabilities\":{\"vision\":false,\"json_mode\":true,\"streaming\":true,\"image_input\":false,\"system_prompt\":true,\"function_calling\":true},\"description\":null,\"sellPrice\":null,\"createdAt\":\"2026-04-10T06:48:21.142Z\",\"updatedAt\":\"2026-04-10T06:48:21.142Z\"}, fill_existing={\"id\":\"cmnsjo96q000d9yrkmsm09zqf\",\"alias\":\"a1-mnsjo91x-fill-existing\",\"brand\":\"DeepSeek\",\"modality\":\"TEXT\",\"enabled\":true,\"contextWindow\":64000,\"maxTokens\":8192,\"capabilities\":{\"vision\":false,\"json_mode\":true,\"streaming\":true,\"image_input\":false,\"system_prompt\":true,\"function_calling\":true},\"description\":null,\"sellPrice\":null,\"createdAt\":\"2026-04-10T06:48:21.123Z\",\"updatedAt\":\"2026-04-10T06:48:21.139Z\"}, mismatch_link=false, prompt_has_brand_anchor=true"
+    },
+    {
+      "id": "AC2",
+      "name": "inferMissingBrands 使用已有品牌列表锚定",
+      "ok": true,
+      "detail": "result={\"updated\":1,\"skipped\":0,\"errors\":[]}, updated_brand=智谱AI, prompt_has_anchor=true"
+    },
+    {
+      "id": "AC3",
+      "name": "fix-alias-modality 支持 dry-run，实跑后修正 IMAGE alias",
+      "ok": true,
+      "detail": "dry_run=\"[dry-run] No changes will be written\\n\\na1-mnsjo91x-dirty-modality: TEXT → IMAGE (1 models)\\n\\nTotal: 1 aliases would be fixed\", final_modality=IMAGE"
+    },
+    {
+      "id": "AC4",
+      "name": "fix-brand-duplicates 支持 dry-run，实跑后合并重复品牌变体",
+      "ok": true,
+      "detail": "dry_run_contains_zhipu=true, final=[{\"alias\":\"a1-mnsjo91x-brand-arcee\",\"brand\":\"Arcee\"},{\"alias\":\"a1-mnsjo91x-brand-zhipu\",\"brand\":\"智谱AI\"}]"
+    },
+    {
+      "id": "AC5",
+      "name": "Admin alias API 可观察到修复后的 modality/contextWindow/brand",
+      "ok": true,
+      "detail": "image_alias={\"id\":\"cmnsjo977000g9yrkerom7j1r\",\"alias\":\"a1-mnsjo91x-image-new\",\"brand\":\"OpenAI\",\"modality\":\"IMAGE\",\"enabled\":false,\"contextWindow\":16000,\"maxTokens\":2048,\"capabilities\":{\"vision\":true,\"json_mode\":false,\"streaming\":false,\"image_input\":true,\"system_prompt\":true,\"function_calling\":false},\"description\":null,\"sellPrice\":null,\"linkedModels\":[{\"modelId\":\"cmnsjo96a00009yrkcyq5wsea\",\"modelName\":\"a1-mnsjo91x/image-new-model-2026\",\"channels\":[{\"id\":\"cmnsjo96j00079yrkjq13wfhx\",\"priority\":1,\"status\":\"ACTIVE\",\"providerName\":\"OpenAI\"}]}],\"linkedModelCount\":1,\"activeChannelCount\":1,\"createdAt\":\"2026-04-10T06:48:21.140Z\",\"updatedAt\":\"2026-04-10T06:48:21.140Z\"}, brand_alias={\"id\":\"cmnsjo9qn000s9yrkhd9up1kz\",\"alias\":\"a1-mnsjo91x-brand-zhipu\",\"brand\":\"智谱AI\",\"modality\":\"TEXT\",\"enabled\":true,\"contextWindow\":null,\"maxTokens\":null,\"capabilities\":null,\"description\":null,\"sellPrice\":null,\"linkedModels\":[],\"linkedModelCount\":0,\"activeChannelCount\":0,\"createdAt\":\"2026-04-10T06:48:21.840Z\",\"updatedAt\":\"2026-04-10T06:48:22.507Z\"}"
+    }
+  ],
+  "prompts": [
+    {
+      "scenario": "classification",
+      "prompt": "你是 AI 模型分类专家。\n\n## 任务\n将新入库的底层模型 ID 归类到已有别名，或建议新别名。\n\n## 已有别名列表（已确认，优先归入这些）\n[\"a1-mnsjo91x-text-existing\",\"a1-mnsjo91x-fill-existing\"]\n\n## 待分类的新模型 ID\n- a1-mnsjo91x/text-fill-existing-model-2026\n- a1-mnsjo91x/image-mismatch-model-2026\n- a1-mnsjo91x/image-new-model-2026\n- a1-mnsjo91x/text-fallback-model-2026\n\n## 已有品牌列表（优先使用这些名称，不要创造新的变体）\n[\"OpenAI\",\"DeepSeek\"]\n\n## 规则\n1. 如果模型明显属于某个已有别名（同一模型的不同版本/服务商命名），归入该别名\n2. 如果没有匹配的已有别名，建议一个新别名（简短、用户友好、去掉服务商前缀和日期版本号）\n3. 推断品牌时，必须优先使用已有品牌列表中的名称。只有当模型确实不属于任何已有品牌时，才建议新品牌名\n4. 无法确定品牌则返回 null\n5. 推断模型的 capabilities（function_calling / streaming / vision / system_prompt / json_mode / image_input），返回为 true/false\n6. 推断模型的 context_window（上下文窗口大小，整数，如 128000）和 max_tokens（最大输出 token 数，整数，如 4096）。不确定则返回 null\n\n## 返回 JSON\n返回一个对象，key 是模型 ID，value 是分类结果：\n\n归入已有别名：\n{ \"existing_alias\": \"gpt-4o\", \"brand\": \"OpenAI\", \"context_window\": 128000, \"max_tokens\": 16384, \"capabilities\": { \"function_calling\": true, \"streaming\": true, \"vision\": true, \"system_prompt\": true, \"json_mode\": true, \"image_input\": true } }\n\n建议新别名：\n{ \"new_alias\": \"mistral-large\", \"brand\": \"Mistral\", \"context_window\": 128000, \"max_tokens\": 8192, \"capabilities\": { \"function_calling\": true, \"streaming\": true, \"vision\": false, \"system_prompt\": true, \"json_mode\": true, \"image_input\": false } }\n\n只返回 JSON 对象，不要其他文字。"
+    },
+    {
+      "scenario": "brand",
+      "prompt": "以下是 AI 模型的别名列表，请判断每个模型属于哪个厂商。\n返回 JSON 对象：key 是别名，value 是品牌名。\n品牌名必须优先使用已有品牌列表中的名称，只有当模型确实不属于任何已有品牌时才建议新品牌名。\n无法确定则返回 null。\n\n已有品牌列表（优先使用这些名称，不要创造新的变体）：\n[\"OpenAI\",\"DeepSeek\",\"智谱AI\"]\n\n别名列表：\n- a1-mnsjo91x-brand-missing\n\n只返回 JSON 对象，不要其他文字。"
+    }
+  ]
+}
