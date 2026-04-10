@@ -77,7 +77,7 @@ export default function ConsoleLayout({ children }: { children: React.ReactNode 
         <div className="bg-ds-surface text-ds-on-surface antialiased overflow-hidden">
           <Sidebar role={user.role} userName={user.name} email={user.email} />
           {/* code.html line 144 */}
-          <div className="ml-64 flex flex-col h-screen">
+          <div className="ml-64 flex flex-col h-screen relative z-[41]">
             {/* code.html line 146 */}
             <TopAppBar userName={user.name} userEmail={user.email} />
             {/* code.html line 184 */}
