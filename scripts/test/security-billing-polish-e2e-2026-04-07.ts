@@ -215,10 +215,9 @@ async function prepareRouting(): Promise<RestoreState> {
   // tiny token price to force MIN_CHARGE path (1 token => 1e-9 < 1e-8)
   await prisma.channel.upsert({
     where: {
-      providerId_modelId_realModelId: {
+      providerId_modelId: {
         providerId: provider.id,
         modelId: textModel.id,
-        realModelId: "gpt-4o-mini",
       },
     },
     update: {
@@ -240,10 +239,9 @@ async function prepareRouting(): Promise<RestoreState> {
 
   await prisma.channel.upsert({
     where: {
-      providerId_modelId_realModelId: {
+      providerId_modelId: {
         providerId: provider.id,
         modelId: imageModel.id,
-        realModelId: "dall-e-3",
       },
     },
     update: {

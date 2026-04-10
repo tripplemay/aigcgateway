@@ -225,10 +225,9 @@ async function ensureLocalModels(): Promise<RestoreState> {
 
   await prisma.channel.upsert({
     where: {
-      providerId_modelId_realModelId: {
+      providerId_modelId: {
         providerId: provider.id,
         modelId: textModel.id,
-        realModelId: "gpt-4o-mini",
       },
     },
     update: {
@@ -250,10 +249,9 @@ async function ensureLocalModels(): Promise<RestoreState> {
 
   await prisma.channel.upsert({
     where: {
-      providerId_modelId_realModelId: {
+      providerId_modelId: {
         providerId: provider.id,
         modelId: imageModel.id,
-        realModelId: "dall-e-3",
       },
     },
     update: {
