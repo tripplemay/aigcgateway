@@ -168,6 +168,7 @@ export function registerGenerateImage(server: McpServer, opts: McpServerOptions)
         // Post-process: write CallLog (source='mcp') + deduct balance
         processImageResult({
           traceId,
+          userId,
           projectId,
           route,
           modelName: model,
@@ -200,6 +201,7 @@ export function registerGenerateImage(server: McpServer, opts: McpServerOptions)
       } catch (err) {
         processImageResult({
           traceId,
+          userId,
           projectId,
           route,
           modelName: model,

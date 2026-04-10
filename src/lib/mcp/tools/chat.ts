@@ -268,6 +268,7 @@ export function registerChat(server: McpServer, opts: McpServerOptions): void {
           const ttftMs = ttftTime ? ttftTime - startTime : null;
           processChatResult({
             traceId,
+            userId,
             projectId,
             route,
             modelName: model,
@@ -316,6 +317,7 @@ export function registerChat(server: McpServer, opts: McpServerOptions): void {
         // Post-process: write CallLog (source='mcp') + deduct balance
         processChatResult({
           traceId,
+          userId,
           projectId,
           route,
           modelName: model,
@@ -359,6 +361,7 @@ export function registerChat(server: McpServer, opts: McpServerOptions): void {
       } catch (err) {
         processChatResult({
           traceId,
+          userId,
           projectId,
           route,
           modelName: model,

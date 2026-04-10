@@ -74,6 +74,7 @@ export async function POST(request: Request) {
     // 异步后处理
     processImageResult({
       traceId,
+      userId: user.id,
       projectId: project?.id ?? user.defaultProjectId ?? "",
       route,
       modelName,
@@ -89,6 +90,7 @@ export async function POST(request: Request) {
 
     processImageResult({
       traceId,
+      userId: user.id,
       projectId: project?.id ?? user.defaultProjectId ?? "",
       route,
       modelName,

@@ -24,6 +24,7 @@ export { InjectionError };
 export interface ActionRunParams {
   actionId: string;
   projectId: string;
+  userId: string;
   variables: Record<string, string>;
   source?: string;
   templateRunId?: string;
@@ -46,7 +47,15 @@ export async function runAction(
   params: ActionRunParams,
   write: SSEWriter,
 ): Promise<ActionRunResult> {
-  const { actionId, projectId, variables, source = "api", templateRunId, versionId } = params;
+  const {
+    actionId,
+    projectId,
+    userId,
+    variables,
+    source = "api",
+    templateRunId,
+    versionId,
+  } = params;
 
   // 1. Load Action + version (specific or active)
   const action = await prisma.action.findFirst({
@@ -150,6 +159,7 @@ export async function runAction(
     // 7. Post-process: CallLog + billing
     processChatResult({
       traceId,
+      userId,
       projectId,
       route,
       modelName: action.model,
@@ -177,6 +187,7 @@ export async function runAction(
   } catch (err) {
     processChatResult({
       traceId,
+      userId,
       projectId,
       route,
       modelName: action.model,
@@ -200,7 +211,15 @@ export async function runAction(
  * Run an Action without streaming — returns full result
  */
 export async function runActionNonStream(params: ActionRunParams): Promise<ActionRunResult> {
-  const { actionId, projectId, variables, source = "api", templateRunId, versionId } = params;
+  const {
+    actionId,
+    projectId,
+    userId,
+    variables,
+    source = "api",
+    templateRunId,
+    versionId,
+  } = params;
 
   const action = await prisma.action.findFirst({
     where: { id: actionId, projectId },
@@ -247,6 +266,7 @@ export async function runActionNonStream(params: ActionRunParams): Promise<Actio
 
     processChatResult({
       traceId,
+      userId,
       projectId,
       route,
       modelName: action.model,
@@ -269,6 +289,7 @@ export async function runActionNonStream(params: ActionRunParams): Promise<Actio
   } catch (err) {
     processChatResult({
       traceId,
+      userId,
       projectId,
       route,
       modelName: action.model,

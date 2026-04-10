@@ -27,7 +27,7 @@ export async function POST(request: Request, { params }: { params: { id: string 
 
     const txn = await tx.transaction.create({
       data: {
-        projectId: user.defaultProjectId ?? "",
+        projectId: user.defaultProjectId ?? undefined,
         userId: params.id,
         type: "ADJUSTMENT",
         amount,

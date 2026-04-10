@@ -13,6 +13,7 @@ import type { SSEWriter } from "@/lib/action/runner";
 export interface FanoutRunParams {
   templateId: string;
   projectId: string;
+  userId: string;
   variables: Record<string, string>;
   source?: string;
 }
@@ -21,7 +22,7 @@ export async function runFanout(
   params: FanoutRunParams,
   write: SSEWriter,
 ): Promise<{ output: string; totalSteps: number; branches: number }> {
-  const { templateId, projectId, variables, source = "api" } = params;
+  const { templateId, projectId, userId, variables, source = "api" } = params;
 
   const template = await prisma.template.findFirst({
     where: { id: templateId, projectId },
@@ -56,7 +57,7 @@ export async function runFanout(
   );
 
   const splitterResult = await runAction(
-    { actionId: splitterStep.actionId, projectId, variables, source, templateRunId },
+    { actionId: splitterStep.actionId, projectId, userId, variables, source, templateRunId },
     (data) => {
       const parsed = JSON.parse(data);
       if (parsed.type === "content") {
@@ -109,7 +110,14 @@ export async function runFanout(
       };
 
       const result = await runAction(
-        { actionId: branchStep.actionId, projectId, variables: branchVars, source, templateRunId },
+        {
+          actionId: branchStep.actionId,
+          projectId,
+          userId,
+          variables: branchVars,
+          source,
+          templateRunId,
+        },
         (data) => {
           const parsed = JSON.parse(data);
           if (parsed.type === "content") {
@@ -143,7 +151,14 @@ export async function runFanout(
     };
 
     const mergeResult = await runAction(
-      { actionId: mergeStep.actionId, projectId, variables: mergeVars, source, templateRunId },
+      {
+        actionId: mergeStep.actionId,
+        projectId,
+        userId,
+        variables: mergeVars,
+        source,
+        templateRunId,
+      },
       (data) => {
         const parsed = JSON.parse(data);
         if (parsed.type === "content") {

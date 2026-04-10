@@ -59,6 +59,7 @@ export async function POST(request: Request) {
   const params = {
     actionId: body.action_id,
     projectId: project.id,
+    userId: user.id,
     variables: body.variables || {},
     source: "api",
   };

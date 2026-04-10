@@ -148,6 +148,7 @@ export function registerRunAction(server: McpServer, opts: McpServerOptions): vo
         const result = await runActionNonStream({
           actionId: action_id,
           projectId,
+          userId,
           variables,
           versionId: version_id,
           source: "mcp",

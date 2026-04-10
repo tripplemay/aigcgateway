@@ -75,6 +75,7 @@ export async function POST(request: Request) {
       adapter,
       traceId,
       project?.id ?? user.defaultProjectId ?? "",
+      user.id,
       modelName,
       startTime,
       rateLimitHeaders,
@@ -87,6 +88,7 @@ export async function POST(request: Request) {
     adapter,
     traceId,
     project?.id ?? user.defaultProjectId ?? "",
+    user.id,
     modelName,
     startTime,
     rateLimitHeaders,
@@ -103,6 +105,7 @@ async function handleNonStream(
   adapter: Awaited<ReturnType<typeof resolveEngine>>["adapter"],
   traceId: string,
   projectId: string,
+  userId: string,
   modelName: string,
   startTime: number,
   rateLimitHeaders: Record<string, string>,
@@ -120,6 +123,7 @@ async function handleNonStream(
     // 异步后处理
     processChatResult({
       traceId,
+      userId,
       projectId,
       route,
       modelName,
@@ -135,6 +139,7 @@ async function handleNonStream(
 
     processChatResult({
       traceId,
+      userId,
       projectId,
       route,
       modelName,
@@ -164,6 +169,7 @@ async function handleStream(
   adapter: Awaited<ReturnType<typeof resolveEngine>>["adapter"],
   traceId: string,
   projectId: string,
+  userId: string,
   modelName: string,
   startTime: number,
   rateLimitHeaders: Record<string, string>,
@@ -221,6 +227,7 @@ async function handleStream(
           // 异步后处理
           processChatResult({
             traceId,
+            userId,
             projectId,
             route,
             modelName,
@@ -239,6 +246,7 @@ async function handleStream(
 
           processChatResult({
             traceId,
+            userId,
             projectId,
             route,
             modelName,
@@ -260,6 +268,7 @@ async function handleStream(
 
     processChatResult({
       traceId,
+      userId,
       projectId,
       route,
       modelName,

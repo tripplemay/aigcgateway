@@ -359,7 +359,7 @@ model CallLog {
 
 model Transaction {
   id             String            @id @default(cuid())
-  projectId      String
+  projectId      String?
   userId         String?
   type           TransactionType
   amount         Decimal           @db.Decimal(16, 8)
@@ -373,8 +373,8 @@ model Transaction {
   description    String?
   createdAt      DateTime          @default(now())
 
-  project Project @relation(fields: [projectId], references: [id])
-  user    User?   @relation(fields: [userId], references: [id])
+  project Project? @relation(fields: [projectId], references: [id])
+  user    User?    @relation(fields: [userId], references: [id])
 
   @@index([projectId, createdAt(sort: Desc)])
   @@index([projectId, type])

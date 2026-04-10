@@ -140,6 +140,7 @@ Pass variables to inject into each step's Action prompts.`,
         const params = {
           templateId: template_id,
           projectId,
+          userId,
           variables,
           source: "mcp",
         };

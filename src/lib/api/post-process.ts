@@ -23,6 +23,7 @@ import { recordTokenUsage } from "./rate-limit";
 
 export interface PostProcessParams {
   traceId: string;
+  userId: string;
   projectId: string;
   route: RouteResult;
   modelName: string;
@@ -130,7 +131,7 @@ async function processChatResultAsync(params: ChatPostProcessParams): Promise<vo
 
   // 扣费（ERROR / TIMEOUT 不扣）
   if (sellUsd > 0 && (status === "SUCCESS" || status === "FILTERED")) {
-    await deductBalance(params.projectId, sellUsd, callLog.id, params.traceId);
+    await deductBalance(params.userId, params.projectId, sellUsd, callLog.id, params.traceId);
   }
 
   // 记录 TPM（用于限流检查）
@@ -174,7 +175,7 @@ async function processImageResultAsync(params: ImagePostProcessParams): Promise<
 
   // 图片失败不扣费
   if (sellUsd > 0 && status === "SUCCESS") {
-    await deductBalance(params.projectId, sellUsd, callLog.id, params.traceId);
+    await deductBalance(params.userId, params.projectId, sellUsd, callLog.id, params.traceId);
   }
 }
 
@@ -247,6 +248,7 @@ function calculateCallCost(
 // ============================================================
 
 async function deductBalance(
+  userId: string,
   projectId: string,
   amount: number,
   callLogId: string,
@@ -260,6 +262,7 @@ async function deductBalance(
 
   await prisma.$queryRaw`
     SELECT * FROM deduct_balance(
+      ${userId}::TEXT,
       ${projectId}::TEXT,
       ${finalAmount}::DECIMAL(16,8),
       ${callLogId}::TEXT,

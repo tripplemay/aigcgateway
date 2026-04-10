@@ -11,6 +11,7 @@ import type { SSEWriter } from "@/lib/action/runner";
 export interface SequentialRunParams {
   templateId: string;
   projectId: string;
+  userId: string;
   variables: Record<string, string>;
   source?: string;
 }
@@ -19,7 +20,7 @@ export async function runSequential(
   params: SequentialRunParams,
   write: SSEWriter,
 ): Promise<{ output: string; totalSteps: number }> {
-  const { templateId, projectId, variables, source = "api" } = params;
+  const { templateId, projectId, userId, variables, source = "api" } = params;
 
   const template = await prisma.template.findFirst({
     where: { id: templateId, projectId },
@@ -60,6 +61,7 @@ export async function runSequential(
         {
           actionId: step.actionId,
           projectId,
+          userId,
           variables: stepVars,
           source,
           templateRunId,
