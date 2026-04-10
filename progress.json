@@ -1,9 +1,9 @@
 {
-  "status": "fixing",
+  "status": "reverifying",
   "user_goal": "U1 — Admin 用户详情页功能完善（余额适配+交易记录+Suspend/Delete+lastActive）",
   "total_features": 7,
   "completed_features": 6,
-  "fix_rounds": 0,
+  "fix_rounds": 1,
   "current_sprint": "F-U1-07",
   "last_updated": "2026-04-10T13:25:25.000+08:00",
   "reference_docs": [

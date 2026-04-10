@@ -60,6 +60,7 @@ export async function GET(request: Request, { params }: { params: { id: string }
       id: p.id,
       name: p.name,
       callCount: p._count.callLogs,
+      keyCount: totalKeyCount,
       createdAt: p.createdAt,
     })),
   });

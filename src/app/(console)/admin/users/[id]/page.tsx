@@ -23,7 +23,13 @@ interface UserDetail {
   lastActive: string | null;
   keyCount: number;
   createdAt: string;
-  projects: Array<{ id: string; name: string; callCount: number; createdAt: string }>;
+  projects: Array<{
+    id: string;
+    name: string;
+    callCount: number;
+    keyCount: number;
+    createdAt: string;
+  }>;
 }
 
 interface TxnItem {
@@ -77,7 +83,10 @@ export default function UserDetailPage() {
   );
 
   const { data: txnData, refetch: refetchTxn } = useAsyncData<TxnResponse>(
-    () => apiFetch<TxnResponse>(`/api/admin/users/${params.id}/transactions?page=${txnPage}&pageSize=10`),
+    () =>
+      apiFetch<TxnResponse>(
+        `/api/admin/users/${params.id}/transactions?page=${txnPage}&pageSize=10`,
+      ),
     [params.id, txnPage],
   );
 
@@ -199,9 +208,7 @@ export default function UserDetailPage() {
                     {t("lastActive")}
                   </p>
                   <p className="text-sm font-semibold">
-                    {user.lastActive
-                      ? new Date(user.lastActive).toLocaleDateString()
-                      : "\u2014"}
+                    {user.lastActive ? new Date(user.lastActive).toLocaleDateString() : "\u2014"}
                   </p>
                 </div>
               </div>
@@ -275,9 +282,7 @@ export default function UserDetailPage() {
                 </span>
               </div>
               <div className="mt-4">
-                <p className="text-3xl font-extrabold">
-                  {String(user.keyCount).padStart(2, "0")}
-                </p>
+                <p className="text-3xl font-extrabold">{String(user.keyCount).padStart(2, "0")}</p>
               </div>
             </div>
           </div>
@@ -300,7 +305,7 @@ export default function UserDetailPage() {
                   <div className="flex-1">
                     <h4 className="text-sm font-bold">{p.name}</h4>
                     <p className="text-xs text-ds-on-surface-variant">
-                      {p.callCount.toLocaleString()} {t("calls")}
+                      {p.callCount.toLocaleString()} {t("calls")} &bull; {p.keyCount} {t("keys")}
                     </p>
                   </div>
                 </div>
@@ -334,13 +339,19 @@ export default function UserDetailPage() {
                 <tbody className="divide-y divide-ds-surface-container-low">
                   {txns.length === 0 ? (
                     <tr>
-                      <td colSpan={3} className="px-4 py-8 text-center text-sm text-ds-on-surface-variant">
+                      <td
+                        colSpan={3}
+                        className="px-4 py-8 text-center text-sm text-ds-on-surface-variant"
+                      >
                         {t("noTransactions")}
                       </td>
                     </tr>
                   ) : (
                     txns.map((tx) => (
-                      <tr key={tx.id} className="hover:bg-ds-surface-container-low/50 transition-colors">
+                      <tr
+                        key={tx.id}
+                        className="hover:bg-ds-surface-container-low/50 transition-colors"
+                      >
                         <td className="px-4 py-3 text-xs text-ds-on-surface-variant">
                           {new Date(tx.createdAt).toLocaleDateString()}
                         </td>
@@ -367,7 +378,10 @@ export default function UserDetailPage() {
               {txnPagination && txnPagination.total > txnPagination.pageSize && (
                 <div className="flex justify-between items-center px-4 py-3 border-t border-ds-surface-container-low">
                   <span className="text-[10px] text-ds-on-surface-variant">
-                    {t("showingPage", { page: txnPagination.page, total: Math.ceil(txnPagination.total / txnPagination.pageSize) })}
+                    {t("showingPage", {
+                      page: txnPagination.page,
+                      total: Math.ceil(txnPagination.total / txnPagination.pageSize),
+                    })}
                   </span>
                   <div className="flex gap-2">
                     <button
