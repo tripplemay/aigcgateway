@@ -5,6 +5,8 @@ type: project
 ---
 ## 当前批次
 - CI1-test-infrastructure：`fixing`
+- `reverifying` round 3 失败：3 个脚本统一在 `prisma.project.update({ balance })` 报错（Project 已无 balance 字段）
+- CI1-test-infrastructure：`fixing`
 - `reverifying` round 2 失败：3 个脚本统一在 createTestApiKey 阶段 404（`POST /api/projects/:id/keys` 路径不可用）
 - CI1-test-infrastructure：`fixing`
 - `reverifying` round 1 失败：3 个脚本统一报 Prisma `providerId_modelId_realModelId` 无效（upsert where 键名与当前 schema 不匹配）

@@ -1,11 +1,11 @@
 {
-  "status": "reverifying",
+  "status": "fixing",
   "user_goal": "CI1 — 测试基础设施升级（Mock 复用 + 测试工厂 + Vitest + CI pipeline）",
   "total_features": 5,
-  "completed_features": 4,
+  "completed_features": 2,
   "fix_rounds": 3,
-  "current_sprint": null,
-  "last_updated": "2026-04-10T23:42:00.000Z",
+  "current_sprint": "F-CI1-01",
+  "last_updated": "2026-04-10T15:47:13Z",
   "reference_docs": [],
   "role_assignments": null,
   "docs": {
@@ -14,7 +14,26 @@
     "signoff": null,
     "framework_reviewed": false
   },
-  "evaluator_feedback": null,
+  "evaluator_feedback": {
+    "summary": "CI1 round3 复验失败：key 创建 404 已修复，但 3 个脚本统一因写入已移除的 Project.balance 字段而中断。",
+    "pass_count": 2,
+    "partial_count": 0,
+    "fail_count": 2,
+    "issues": [
+      {
+        "feature_id": "F-CI1-01",
+        "result": "FAIL",
+        "description": "3 个脚本都在 prisma.project.update({ data: { balance } }) 处触发 Prisma 校验错误。",
+        "steps_to_reproduce": "1) bash scripts/test/codex-setup.sh && bash scripts/test/codex-wait.sh 2) npx tsx scripts/test/mcp-dx-round2-e2e-2026-04-06.ts 3) npx tsx scripts/test/mcp-finops-hardening-e2e-2026-04-07.ts 4) npx tsx scripts/test/security-billing-polish-e2e-2026-04-07.ts"
+      },
+      {
+        "feature_id": "F-CI1-02",
+        "result": "FAIL",
+        "description": "测试工厂接入后脚本仍未跑通，因脚本残留旧数据模型假设（Project.balance）导致运行失败。",
+        "steps_to_reproduce": "任一上述脚本均报 Unknown argument `balance`，报错点分别在 scripts/test/mcp-dx-round2-e2e-2026-04-06.ts:126、scripts/test/mcp-finops-hardening-e2e-2026-04-07.ts:154、scripts/test/security-billing-polish-e2e-2026-04-07.ts:164。"
+      }
+    ]
+  },
   "generator_handoff": {
     "completed": ["F-CI1-01", "F-CI1-02", "F-CI1-03", "F-CI1-04"],
     "codex_pending": ["F-CI1-05"],
@@ -23,6 +42,6 @@
   "session_notes": {
     "Kimi": "Fixing round 3: createTestApiKey 工厂路径修正为 /api/keys（用户级），去掉 projectId 参数。K1 批次后 API key 不再绑定项目。3 个脚本调用处同步更新。tsc + vitest 通过。",
     "Planner": "O1 done + CI1 启动。BL-092 拆为 4 generator + 1 codex。Mock 公共库+测试工厂+Vitest CI+generator 规则。从 backlog 移除 BL-092。",
-    "Reviewer": "CI1 round2 复验完成：vitest 11/11 通过；Prisma 复合键问题已消失，但 3 个脚本统一在 createTestApiKey 阶段 404。报告：docs/test-reports/CI1-test-infrastructure-reverifying-round2-2026-04-10.md。状态回退 fixing。"
+    "Reviewer": "CI1 round3 复验完成：vitest 11/11 通过；createTestApiKey 404 已修复，但 3 个脚本统一在 Project.balance 更新处失败（Unknown argument balance）。报告：docs/test-reports/CI1-test-infrastructure-reverifying-round3-2026-04-10.md。状态回退 fixing。"
   }
 }
