@@ -1,11 +1,11 @@
 {
-  "status": "building",
+  "status": "verifying",
   "user_goal": "A1 — 别名数据质量修复（modality 继承 + contextWindow 补充 + brand 去重）",
   "total_features": 4,
-  "completed_features": 0,
+  "completed_features": 3,
   "fix_rounds": 0,
-  "current_sprint": "F-A1-01",
-  "last_updated": "2026-04-10T17:00:00.000Z",
+  "current_sprint": "F-A1-04",
+  "last_updated": "2026-04-10T20:00:00.000Z",
   "reference_docs": [],
   "role_assignments": null,
   "docs": {
@@ -15,9 +15,9 @@
     "framework_reviewed": false
   },
   "evaluator_feedback": null,
-  "generator_handoff": null,
+  "generator_handoff": "F-A1-01~03 全部完成。变更文件：src/lib/sync/alias-classifier.ts（modality 继承+一致性检查、contextWindow/maxTokens 继承+LLM fallback、brand 锚定已有品牌列表）。新增脚本：scripts/fix-alias-modality.ts（一次性修正别名 modality）、scripts/fix-brand-duplicates.ts（合并重复品牌变体）。两个脚本需在生产环境执行（先 --dry-run 确认）。tsc 通过。",
   "session_notes": {
-    "Kimi": null,
+    "Kimi": "A1 building 完成。alias-classifier.ts 三处核心修改：(1) classifyNewModels 新建别名继承 Model.modality + contextWindow + maxTokens，归入已有别名检查 modality 一致性；(2) LLM prompt 增加 context_window/max_tokens 字段，Model 有值优先用 Model，null 用 LLM fallback；(3) classifyNewModels 和 inferMissingBrands 均传入已有品牌列表锚定 prompt。两个清理脚本待生产执行。",
     "Planner": "MCP2 done + A1 启动。BL-098 拆为 3 generator + 1 codex。三项修复：modality 从 Model 继承、contextWindow 先 Model 后 LLM fallback、brand 锚定已有列表+清理脏数据。从 backlog 移除 BL-098。后续批次：T1(模板) → N1(UI/导航) → O1(Admin 运维) → CI1(测试) → D1(文档)。",
     "Reviewer": null
   }

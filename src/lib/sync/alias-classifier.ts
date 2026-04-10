@@ -127,7 +127,11 @@ async function callInternalAI(prompt: string): Promise<string> {
 // Prompt 构建
 // ============================================================
 
-function buildClassificationPrompt(existingAliases: string[], modelNames: string[]): string {
+function buildClassificationPrompt(
+  existingAliases: string[],
+  modelNames: string[],
+  existingBrands: string[],
+): string {
   const aliasSection =
     existingAliases.length > 0
       ? `## 已有别名列表（已确认，优先归入这些）\n${JSON.stringify(existingAliases)}`
@@ -143,21 +147,25 @@ ${aliasSection}
 ## 待分类的新模型 ID
 ${modelNames.map((n) => `- ${n}`).join("\n")}
 
+## 已有品牌列表（优先使用这些名称，不要创造新的变体）
+${existingBrands.length > 0 ? JSON.stringify(existingBrands) : "(空)"}
+
 ## 规则
 1. 如果模型明显属于某个已有别名（同一模型的不同版本/服务商命名），归入该别名
 2. 如果没有匹配的已有别名，建议一个新别名（简短、用户友好、去掉服务商前缀和日期版本号）
-3. 同时推断品牌（OpenAI、Anthropic、Google、Meta、Mistral、DeepSeek、智谱 AI 等）
+3. 推断品牌时，必须优先使用已有品牌列表中的名称。只有当模型确实不属于任何已有品牌时，才建议新品牌名
 4. 无法确定品牌则返回 null
 5. 推断模型的 capabilities（function_calling / streaming / vision / system_prompt / json_mode / image_input），返回为 true/false
+6. 推断模型的 context_window（上下文窗口大小，整数，如 128000）和 max_tokens（最大输出 token 数，整数，如 4096）。不确定则返回 null
 
 ## 返回 JSON
 返回一个对象，key 是模型 ID，value 是分类结果：
 
 归入已有别名：
-{ "existing_alias": "gpt-4o", "brand": "OpenAI", "capabilities": { "function_calling": true, "streaming": true, "vision": true, "system_prompt": true, "json_mode": true, "image_input": true } }
+{ "existing_alias": "gpt-4o", "brand": "OpenAI", "context_window": 128000, "max_tokens": 16384, "capabilities": { "function_calling": true, "streaming": true, "vision": true, "system_prompt": true, "json_mode": true, "image_input": true } }
 
 建议新别名：
-{ "new_alias": "mistral-large", "brand": "Mistral", "capabilities": { "function_calling": true, "streaming": true, "vision": false, "system_prompt": true, "json_mode": true, "image_input": false } }
+{ "new_alias": "mistral-large", "brand": "Mistral", "context_window": 128000, "max_tokens": 8192, "capabilities": { "function_calling": true, "streaming": true, "vision": false, "system_prompt": true, "json_mode": true, "image_input": false } }
 
 只返回 JSON 对象，不要其他文字。`;
 }
@@ -170,6 +178,8 @@ interface ClassificationResult {
   existing_alias?: string;
   new_alias?: string;
   brand?: string | null;
+  context_window?: number | null;
+  max_tokens?: number | null;
   capabilities?: Record<string, boolean>;
 }
 
@@ -198,7 +208,7 @@ export async function classifyNewModels(): Promise<{
       aliasLinks: { none: {} },
       channels: { some: { status: "ACTIVE" } },
     },
-    select: { id: true, name: true },
+    select: { id: true, name: true, modality: true, contextWindow: true, maxTokens: true },
   });
 
   if (unlinkedModels.length === 0) {
@@ -208,11 +218,23 @@ export async function classifyNewModels(): Promise<{
 
   console.log(`[alias-classifier] Found ${unlinkedModels.length} unlinked models`);
 
-  // 2. 获取已有别名列表作为锚定
+  // 2. 获取已有别名列表和品牌列表作为锚定
   const existingAliases = await prisma.modelAlias.findMany({
-    select: { id: true, alias: true },
+    select: { id: true, alias: true, modality: true },
   });
   const aliasNames = existingAliases.map((a) => a.alias);
+  const existingBrands = [
+    ...new Set(
+      (
+        await prisma.modelAlias.findMany({
+          where: { brand: { not: null } },
+          select: { brand: true },
+        })
+      )
+        .map((a) => a.brand!)
+        .filter(Boolean),
+    ),
+  ];
 
   // 3. 分批处理（每批最多 30 个）
   const BATCH_SIZE = 30;
@@ -228,7 +250,7 @@ export async function classifyNewModels(): Promise<{
 
     try {
       // LLM 调用 + 重试
-      const prompt = buildClassificationPrompt(aliasNames, modelNames);
+      const prompt = buildClassificationPrompt(aliasNames, modelNames, existingBrands);
       const rawResponse = await retryWithBackoff(
         () => callInternalAI(prompt),
         `classification batch ${batchNum}`,
@@ -256,6 +278,14 @@ export async function classifyNewModels(): Promise<{
             // 归入已有别名
             const alias = existingAliases.find((a) => a.alias === inference.existing_alias);
             if (alias) {
+              // modality 一致性检查：IMAGE 模型不应归入 TEXT 别名，反之亦然
+              if (model.modality !== alias.modality) {
+                console.warn(
+                  `[alias-classifier] Modality mismatch: model "${model.name}" (${model.modality}) vs alias "${alias.alias}" (${alias.modality}), skipping`,
+                );
+                skipped++;
+                continue;
+              }
               const exists = await prisma.aliasModelLink.findUnique({
                 where: { aliasId_modelId: { aliasId: alias.id, modelId: model.id } },
               });
@@ -284,13 +314,20 @@ export async function classifyNewModels(): Promise<{
                 data: {
                   alias: inference.new_alias,
                   brand: inference.brand ?? null,
+                  modality: model.modality,
+                  contextWindow: model.contextWindow ?? inference.context_window ?? null,
+                  maxTokens: model.maxTokens ?? inference.max_tokens ?? null,
                   enabled: false,
                   ...(inference.capabilities ? { capabilities: inference.capabilities } : {}),
                 },
               });
               aliasId = created.id;
               newAliases++;
-              existingAliases.push({ id: aliasId, alias: inference.new_alias });
+              existingAliases.push({
+                id: aliasId,
+                alias: inference.new_alias,
+                modality: model.modality,
+              });
               aliasNames.push(inference.new_alias);
             }
 
@@ -305,19 +342,27 @@ export async function classifyNewModels(): Promise<{
             }
           }
 
-          // 更新 brand + capabilities（仅填充空值，不覆盖已有）
+          // 更新 brand + capabilities + contextWindow/maxTokens（仅填充空值，不覆盖已有）
           if (inference.existing_alias) {
             const alias = existingAliases.find((a) => a.alias === inference.existing_alias);
             if (alias) {
               const current = await prisma.modelAlias.findUnique({
                 where: { id: alias.id },
-                select: { brand: true, capabilities: true },
+                select: { brand: true, capabilities: true, contextWindow: true, maxTokens: true },
               });
               if (current) {
                 const updates: Record<string, unknown> = {};
                 if (!current.brand && inference.brand) updates.brand = inference.brand;
                 if (!current.capabilities && inference.capabilities) {
                   updates.capabilities = inference.capabilities;
+                }
+                if (current.contextWindow == null) {
+                  const cw = model.contextWindow ?? inference.context_window ?? null;
+                  if (cw != null) updates.contextWindow = cw;
+                }
+                if (current.maxTokens == null) {
+                  const mt = model.maxTokens ?? inference.max_tokens ?? null;
+                  if (mt != null) updates.maxTokens = mt;
                 }
                 if (Object.keys(updates).length > 0) {
                   await prisma.modelAlias.update({
@@ -374,6 +419,20 @@ export async function inferMissingBrands(): Promise<{
     return { updated: 0, skipped: 0, errors: [] };
   }
 
+  // 获取已有品牌列表作为锚定
+  const existingBrands = [
+    ...new Set(
+      (
+        await prisma.modelAlias.findMany({
+          where: { brand: { not: null } },
+          select: { brand: true },
+        })
+      )
+        .map((a) => a.brand!)
+        .filter(Boolean),
+    ),
+  ];
+
   console.log(`[alias-classifier] Inferring brands for ${aliasesWithoutBrand.length} aliases...`);
 
   const BATCH_SIZE = 30;
@@ -388,7 +447,13 @@ export async function inferMissingBrands(): Promise<{
 
     try {
       const rawResponse = await retryWithBackoff(
-        () => callInternalAI(buildBrandPrompt(batch.map((a) => a.alias))),
+        () =>
+          callInternalAI(
+            buildBrandPrompt(
+              batch.map((a) => a.alias),
+              existingBrands,
+            ),
+          ),
         `brand batch ${batchNum}`,
       );
 
@@ -430,12 +495,17 @@ export async function inferMissingBrands(): Promise<{
   return { updated, skipped, errors };
 }
 
-function buildBrandPrompt(aliasNames: string[]): string {
+function buildBrandPrompt(aliasNames: string[], existingBrands: string[]): string {
+  const brandAnchor =
+    existingBrands.length > 0
+      ? `\n已有品牌列表（优先使用这些名称，不要创造新的变体）：\n${JSON.stringify(existingBrands)}\n`
+      : "";
+
   return `以下是 AI 模型的别名列表，请判断每个模型属于哪个厂商。
 返回 JSON 对象：key 是别名，value 是品牌名。
-品牌名使用官方名称（OpenAI、Anthropic、Google、Meta、Mistral、DeepSeek、智谱 AI 等）。
+品牌名必须优先使用已有品牌列表中的名称，只有当模型确实不属于任何已有品牌时才建议新品牌名。
 无法确定则返回 null。
-
+${brandAnchor}
 别名列表：
 ${aliasNames.map((n) => `- ${n}`).join("\n")}
 
