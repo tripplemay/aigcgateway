@@ -22,7 +22,7 @@ type RestoreState = {
 };
 
 let token = "";
-let email = "";
+let userId = "";
 let projectId = "";
 let apiKey = "";
 let MOCK_BASE = "";
@@ -150,22 +150,23 @@ function assertNoLeak(text: string) {
 async function registerAndLogin() {
   const user = await createTestUser(BASE, { prefix: "sb", name: "SB Local Tester" });
   token = user.token;
-  email = user.email;
+  userId = user.userId;
 }
 
 async function createProjectAndKey() {
   const project = await createTestProject(BASE, token, { name: `SB Project ${Date.now()}` });
   projectId = project.id;
 
-  await prisma.user.updateMany({ where: { email }, data: { defaultProjectId: projectId } });
+  await prisma.user.update({
+    where: { id: userId },
+    data: { defaultProjectId: projectId, balance: 1 },
+  });
 
   const key = await createTestApiKey(BASE, token, {
     name: "sb-local-key",
     rateLimit: 120,
   });
   apiKey = key.key;
-
-  await prisma.user.updateMany({ where: { email }, data: { balance: 1 } });
 }
 
 async function prepareRouting(): Promise<RestoreState> {
@@ -349,8 +350,8 @@ async function main() {
     });
 
     await step("F-SB-02 MIN_CHARGE applied on 1-token call", checks, async () => {
-      const before = await prisma.user.findFirstOrThrow({
-        where: { email },
+      const before = await prisma.user.findUniqueOrThrow({
+        where: { id: userId },
         select: { balance: true },
       });
       const r = await callToolRaw("chat", {
@@ -362,8 +363,8 @@ async function main() {
 
       let delta = 0;
       for (let i = 0; i < 5; i++) {
-        const after = await prisma.user.findFirstOrThrow({
-          where: { email },
+        const after = await prisma.user.findUniqueOrThrow({
+          where: { id: userId },
           select: { balance: true },
         });
         delta = Number(before.balance) - Number(after.balance);

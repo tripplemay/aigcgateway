@@ -26,7 +26,7 @@ type RestoreState = {
 };
 
 let token = "";
-let email = "";
+let userId = "";
 let projectId = "";
 let apiKey = "";
 let MOCK_BASE = "";
@@ -140,22 +140,23 @@ async function callToolRaw(name: string, args: Record<string, unknown> = {}) {
 async function registerAndLogin() {
   const user = await createTestUser(BASE, { prefix: "mh", name: "MH Local Tester" });
   token = user.token;
-  email = user.email;
+  userId = user.userId;
 }
 
 async function createProjectAndKey() {
   const project = await createTestProject(BASE, token, { name: `MH Project ${Date.now()}` });
   projectId = project.id;
 
-  await prisma.user.updateMany({ where: { email }, data: { defaultProjectId: projectId } });
+  await prisma.user.update({
+    where: { id: userId },
+    data: { defaultProjectId: projectId, balance: 20 },
+  });
 
   const key = await createTestApiKey(BASE, token, {
     name: "mh-local-key",
     rateLimit: 120,
   });
   apiKey = key.key;
-
-  await prisma.user.updateMany({ where: { email }, data: { balance: 20 } });
 }
 
 async function ensureLocalModels(): Promise<RestoreState> {

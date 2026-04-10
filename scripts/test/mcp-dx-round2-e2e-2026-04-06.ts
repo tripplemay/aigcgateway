@@ -25,7 +25,7 @@ type RestoreState = {
 };
 
 let token = "";
-let email = "";
+let userId = "";
 let projectId = "";
 let apiKey = "";
 let MOCK_BASE = "";
@@ -115,19 +115,20 @@ function parseToolJson(result: any): any {
 async function registerAndLogin() {
   const user = await createTestUser(BASE, { prefix: "dx2", name: "DX2 Local Tester" });
   token = user.token;
-  email = user.email;
+  userId = user.userId;
 }
 
 async function createProjectAndKey() {
   const project = await createTestProject(BASE, token, { name: `DX2 Project ${Date.now()}` });
   projectId = project.id;
 
-  await prisma.user.updateMany({ where: { email }, data: { defaultProjectId: projectId } });
+  await prisma.user.update({
+    where: { id: userId },
+    data: { defaultProjectId: projectId, balance: 20 },
+  });
 
   const key = await createTestApiKey(BASE, token, { name: "dx2-local-key" });
   apiKey = key.key;
-
-  await prisma.user.updateMany({ where: { email }, data: { balance: 20 } });
 }
 
 async function ensureLocalModels(): Promise<RestoreState> {
@@ -309,7 +310,7 @@ async function createProjectAndKeyForRateLimit(): Promise<{ pid: string; rawKey:
   const rawKey = String(k.body?.key ?? "");
   if (!rawKey) throw new Error("rate-limit key missing");
 
-  await prisma.user.updateMany({ where: { email }, data: { balance: 20 } });
+  await prisma.user.update({ where: { id: userId }, data: { balance: 20 } });
   return { pid, rawKey };
 }
 
@@ -497,7 +498,7 @@ async function main() {
     });
 
     await step("error: insufficient balance", results, async () => {
-      await prisma.user.updateMany({ where: { email }, data: { balance: 0 } });
+      await prisma.user.update({ where: { id: userId }, data: { balance: 0 } });
       const msg = await callToolExpectError("chat", {
         model: "openai/gpt-4o-mini",
         messages: [{ role: "user", content: "balance check" }],
@@ -505,7 +506,7 @@ async function main() {
       if (!msg.toLowerCase().includes("insufficient balance")) {
         throw new Error(`unexpected message: ${msg}`);
       }
-      await prisma.user.updateMany({ where: { email }, data: { balance: 20 } });
+      await prisma.user.update({ where: { id: userId }, data: { balance: 20 } });
       return "insufficient balance message verified";
     });
 

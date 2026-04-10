@@ -18,6 +18,7 @@ import type { PrismaClient } from "@prisma/client";
 // ---------------------------------------------------------------------------
 
 export interface TestUserResult {
+  userId: string;
   email: string;
   password: string;
   token: string;
@@ -119,7 +120,10 @@ export async function createTestUser(
     );
   }
 
-  return { email, password, token: login.body.token };
+  const userId = String(login.body?.user?.id ?? "");
+  if (!userId) throw new Error("createTestUser: userId missing from login response");
+
+  return { userId, email, password, token: login.body.token };
 }
 
 // ---------------------------------------------------------------------------
