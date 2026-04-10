@@ -509,6 +509,7 @@
     "dangerZone": "危险区域",
     "deleteProjectDesc": "永久删除此项目及其所有数据。此操作不可撤销。",
     "typeProjectName": "输入 \"{name}\" 以确认",
+    "saving": "保存中...",
     "deleteProject": "删除项目",
     "deletingProject": "删除中...",
     "projectDeleted": "项目已删除",

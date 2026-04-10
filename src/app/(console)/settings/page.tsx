@@ -66,8 +66,11 @@ function ProjectTab() {
   const [projName, setProjName] = useState("");
   const [projDesc, setProjDesc] = useState("");
   const [initialized, setInitialized] = useState(false);
+  const [saving, setSaving] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState("");
   const [deleting, setDeleting] = useState(false);
+  const nameInputRef = useRef<HTMLInputElement>(null);
+  const descInputRef = useRef<HTMLTextAreaElement>(null);
 
   const { data: detail, refetch } = useAsyncData<ProjectDetail>(async () => {
     if (!current) return null as unknown as ProjectDetail;
@@ -89,16 +92,25 @@ function ProjectTab() {
 
   const saveProject = async () => {
     if (!current) return;
+    // Read directly from DOM refs as fallback (handles automated testing tools
+    // that set input.value without triggering React onChange)
+    const nameValue = nameInputRef.current?.value ?? projName;
+    const descValue = descInputRef.current?.value ?? projDesc;
+    setSaving(true);
     try {
       await apiFetch(`/api/projects/${current.id}`, {
         method: "PATCH",
-        body: JSON.stringify({ name: projName, description: projDesc }),
+        body: JSON.stringify({ name: nameValue, description: descValue }),
       });
       toast.success(t("projectUpdated"));
+      setProjName(nameValue);
+      setProjDesc(descValue);
       refresh();
       refetch();
     } catch (e) {
       toast.error((e as Error).message);
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -153,6 +165,7 @@ function ProjectTab() {
                 {t("projectName")}
               </label>
               <input
+                ref={nameInputRef}
                 className="w-full bg-white border-b-2 border-ds-outline-variant/30 focus:border-ds-primary px-1 py-3 transition-colors outline-none font-medium"
                 value={projName}
                 onChange={(e) => setProjName(e.target.value)}
@@ -163,6 +176,7 @@ function ProjectTab() {
                 {t("projectDescription")}
               </label>
               <textarea
+                ref={descInputRef}
                 className="w-full bg-white border-b-2 border-ds-outline-variant/30 focus:border-ds-primary px-1 py-3 transition-colors outline-none font-medium resize-none"
                 rows={3}
                 value={projDesc}
@@ -174,9 +188,11 @@ function ProjectTab() {
               <button
                 type="button"
                 onClick={saveProject}
-                className="px-6 py-2.5 bg-ds-primary text-white font-semibold rounded-lg hover:bg-ds-primary-container transition-all active:scale-95 shadow-lg shadow-ds-primary/10"
+                disabled={saving}
+                data-testid="save-project-btn"
+                className="px-6 py-2.5 bg-ds-primary text-white font-semibold rounded-lg hover:bg-ds-primary-container transition-all active:scale-95 shadow-lg shadow-ds-primary/10 disabled:opacity-60"
               >
-                {t("saveChanges")}
+                {saving ? t("saving") : t("saveChanges")}
               </button>
             </div>
           </div>

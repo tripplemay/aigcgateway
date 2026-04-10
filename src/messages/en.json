@@ -509,6 +509,7 @@
     "dangerZone": "Danger Zone",
     "deleteProjectDesc": "Permanently delete this project and all its data. This action cannot be undone.",
     "typeProjectName": "Type \"{name}\" to confirm",
+    "saving": "Saving...",
     "deleteProject": "Delete Project",
     "deletingProject": "Deleting...",
     "projectDeleted": "Project deleted",
