@@ -4,6 +4,8 @@ description: AIGC Gateway 当前状态快照（覆盖写，≤30 行）
 type: project
 ---
 ## 当前批次
+- CI1-test-infrastructure：`fixing`
+- `verifying` 首轮失败：3 个改造脚本均因 `MOCK_BASE is not defined` 报错，已回退 F-CI1-01/F-CI1-02 为 pending
 - O1-admin-ops-monitoring：`done`
 - `verifying` 首轮签收通过，健康页按别名分组、L3 简化/自动恢复、同步运维面板与 i18n 验收完成
 - N1-ui-navigation-polish：`done`

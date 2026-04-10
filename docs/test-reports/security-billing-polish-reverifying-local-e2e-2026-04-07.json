@@ -1,34 +1,9 @@
 {
   "batch": "security-billing-polish",
-  "generatedAt": "2026-04-07T00:46:40.819Z",
+  "generatedAt": "2026-04-10T15:21:44.510Z",
   "environment": "http://localhost:3099",
-  "checks": [
-    {
-      "name": "mcp initialize",
-      "ok": true,
-      "detail": "ok"
-    },
-    {
-      "name": "F-SB-01 MCP generate_image invalid size sanitized",
-      "ok": true,
-      "detail": "{\"code\":\"invalid_request\",\"message\":\"invalid size; [contact removed]; volcengine [infra removed]; [rid removed]\"}"
-    },
-    {
-      "name": "F-SB-01 REST generate_image empty prompt sanitized",
-      "ok": true,
-      "detail": "status=400"
-    },
-    {
-      "name": "F-SB-03 empty content blocked at gateway",
-      "ok": true,
-      "detail": "[invalid_request] messages[0].content is empty. All messages must have non-empty content."
-    },
-    {
-      "name": "F-SB-02 MIN_CHARGE applied on 1-token call",
-      "ok": true,
-      "detail": "delta=0.00000001"
-    }
-  ],
-  "pass": 5,
-  "fail": 0
+  "checks": [],
+  "fatal": "ReferenceError: MOCK_BASE is not defined\n    at prepareRouting (/Users/yixingzhou/project/aigcgateway/scripts/test/security-billing-polish-e2e-2026-04-07.ts:207:22)\n    at async main (/Users/yixingzhou/project/aigcgateway/scripts/test/security-billing-polish-e2e-2026-04-07.ts:297:19)",
+  "pass": 0,
+  "fail": 1
 }

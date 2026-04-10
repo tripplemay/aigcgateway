@@ -1,11 +1,11 @@
 {
-  "status": "verifying",
+  "status": "fixing",
   "user_goal": "CI1 — 测试基础设施升级（Mock 复用 + 测试工厂 + Vitest + CI pipeline）",
   "total_features": 5,
-  "completed_features": 4,
+  "completed_features": 2,
   "fix_rounds": 0,
-  "current_sprint": null,
-  "last_updated": "2026-04-10T23:15:00.000Z",
+  "current_sprint": "F-CI1-01",
+  "last_updated": "2026-04-10T15:22:08Z",
   "reference_docs": [],
   "role_assignments": null,
   "docs": {
@@ -14,7 +14,26 @@
     "signoff": null,
     "framework_reviewed": false
   },
-  "evaluator_feedback": null,
+  "evaluator_feedback": {
+    "summary": "CI1 首轮验收失败：vitest 通过，但 3 个改造脚本均因 MOCK_BASE 未定义崩溃，未满足“改造后仍通过”。",
+    "pass_count": 2,
+    "partial_count": 0,
+    "fail_count": 2,
+    "issues": [
+      {
+        "feature_id": "F-CI1-01",
+        "result": "FAIL",
+        "description": "改造后的 3 个 E2E 脚本无法运行，均抛出 ReferenceError: MOCK_BASE is not defined。",
+        "steps_to_reproduce": "1) bash scripts/test/codex-setup.sh && bash scripts/test/codex-wait.sh 2) npx tsx scripts/test/mcp-dx-round2-e2e-2026-04-06.ts 3) npx tsx scripts/test/mcp-finops-hardening-e2e-2026-04-07.ts 4) npx tsx scripts/test/security-billing-polish-e2e-2026-04-07.ts"
+      },
+      {
+        "feature_id": "F-CI1-02",
+        "result": "FAIL",
+        "description": "测试工厂已接入，但脚本在工厂逻辑执行前因未定义常量崩溃，无法证明“改造后仍通过”。",
+        "steps_to_reproduce": "同 F-CI1-01；报错点分别位于 scripts/test/mcp-dx-round2-e2e-2026-04-06.ts:189、scripts/test/mcp-finops-hardening-e2e-2026-04-07.ts:218、scripts/test/security-billing-polish-e2e-2026-04-07.ts:207。"
+      }
+    ]
+  },
   "generator_handoff": {
     "completed": ["F-CI1-01", "F-CI1-02", "F-CI1-03", "F-CI1-04"],
     "codex_pending": ["F-CI1-05"],
@@ -23,6 +42,6 @@
   "session_notes": {
     "Kimi": "CI1 building 全部完成。4 个 generator 功能实现：Mock 公共库(startMockProvider+onRequest 扩展)、测试工厂(baseUrl+fetch 自包含)、Vitest+11个鉴权单测、CI 检查规则。3 个脚本(mcp-dx-round2/mcp-finops-hardening/security-billing-polish)已改造。tsc 和 vitest 均通过。",
     "Planner": "O1 done + CI1 启动。BL-092 拆为 4 generator + 1 codex。Mock 公共库+测试工厂+Vitest CI+generator 规则。从 backlog 移除 BL-092。",
-    "Reviewer": null
+    "Reviewer": "CI1 首轮 verifying 已执行：vitest 11/11 通过，ci.yml 含 vitest run，generator.md 含 gh run list 规则；但 3 个改造脚本全部因 MOCK_BASE 未定义失败，已写报告 docs/test-reports/CI1-test-infrastructure-verifying-2026-04-10.md 并将状态切换到 fixing。"
   }
 }
