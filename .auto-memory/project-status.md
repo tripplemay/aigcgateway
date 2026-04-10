@@ -4,21 +4,19 @@ description: AIGC Gateway 当前状态快照（覆盖写，≤30 行）
 type: project
 ---
 ## 当前批次
-- CI1-test-infrastructure：`fixing`（6 轮复验失败）
-- round6 结果：vitest 通过，但 3 个 E2E 统一在 `prisma.user.update` 报 `P2025`（用户记录未命中）
-- 主要问题：脚本虽切换到 userId 路径，但 userId 传递/匹配链路仍未闭环
-- Generator 待第 7 轮修复，Evaluator 待下一轮复验
+- CI1-test-infrastructure：`fixing`（round 9 复验后回退）
+- round9 结果：`vitest 11/11 PASS`，`mcp-finops-hardening 9/9 PASS`
+- round9 阻塞：`mcp-dx-round2 4 失败`，`security-billing-polish 2 失败`
+- 主要问题：脚本断言与当前实现行为仍有偏差（工具描述/list_models 字段/空 prompt 路径/MIN_CHARGE 预期）
 
 ## 已完成批次
 - R1~R4 / P5 / M1a~M1d / BF / K1 / U1 / L1 / MCP2 / A1 / T1 / N1 / O1
 
 ## Backlog（16 条）
-- 本轮 Planner 新增：BL-099~105（删除服务商/Keys精简/运维提示/supportedSizes/千位分隔符/项目切换/假内容清理）
-- 待做批次排序：CI1完成 → BL-105(假内容清理) + BL-103(千位分隔符) + BL-102(数据质量二期) 可打包
-- 安全修复（BL-065/070/071/072）推迟到接支付
+- 新增需求 BL-099~105（删除服务商/Keys精简/运维提示/supportedSizes/千位分隔符/项目切换/假内容清理）
+- 待做排序建议：CI1完成后优先 BL-105 + BL-103 + BL-102
 
-## 关键上下文（新 PM 需知）
-- 本轮 Planner 与用户深度讨论了多个生产问题和需求，所有决策记录在 backlog.json 的 decisions 字段
-- U1 spec 已写：docs/specs/U1-admin-user-detail-spec.md
-- K1 spec 已写：docs/specs/K1-apikey-user-level-spec.md
-- M1 spec 已写：docs/specs/M1-models-page-rework-spec.md
+## 关键上下文
+- CI1 round8 已修复 DATABASE_URL 错位，本轮不再出现 user not found
+- round9 并发跑 E2E 会偶发 aliasModelLink upsert `P2002`，串行重跑可消除并发噪音
+- 下一步由 Generator 修脚本断言与预期，再进入 round10 复验

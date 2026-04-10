@@ -1,6 +1,6 @@
 {
   "batch": "security-billing-polish",
-  "generatedAt": "2026-04-10T23:10:33.777Z",
+  "generatedAt": "2026-04-10T23:24:47.720Z",
   "environment": "http://localhost:3099",
   "checks": [
     {
@@ -11,12 +11,12 @@
     {
       "name": "F-SB-01 MCP generate_image invalid size sanitized",
       "ok": true,
-      "detail": "{\"code\":\"model_not_found\",\"message\":\"Model \\\"openai/dall-e-3\\\" not found. Available image models: none. Use list_models with modality 'image' for full details.\"}"
+      "detail": "{\"code\":\"invalid_request\",\"message\":\"invalid_size; contact [contact removed]; docs: [URL removed] ; key=[key removed]\"}"
     },
     {
       "name": "F-SB-01 REST generate_image empty prompt sanitized",
-      "ok": true,
-      "detail": "status=404"
+      "ok": false,
+      "detail": "expected error, got 200"
     },
     {
       "name": "F-SB-03 empty content blocked at gateway",
@@ -26,9 +26,9 @@
     {
       "name": "F-SB-02 MIN_CHARGE applied on 1-token call",
       "ok": false,
-      "detail": "chat failed: [model_not_found] Model \"openai/gpt-4o-mini\" not found. Available text models: none. Use list_models for full details."
+      "detail": "expected MIN_CHARGE ~1e-8, got 0.000003360000000007801"
     }
   ],
-  "pass": 4,
-  "fail": 1
+  "pass": 3,
+  "fail": 2
 }

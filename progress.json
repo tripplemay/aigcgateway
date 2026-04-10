@@ -1,11 +1,11 @@
 {
-  "status": "reverifying",
+  "status": "fixing",
   "user_goal": "CI1 — 测试基础设施升级（Mock 复用 + 测试工厂 + Vitest + CI pipeline）",
   "total_features": 5,
   "completed_features": 4,
   "fix_rounds": 9,
   "current_sprint": null,
-  "last_updated": "2026-04-11T07:21:00.000Z",
+  "last_updated": "2026-04-10T23:24:57Z",
   "reference_docs": [],
   "role_assignments": null,
   "docs": {
@@ -14,7 +14,20 @@
     "signoff": null,
     "framework_reviewed": false
   },
-  "evaluator_feedback": null,
+  "evaluator_feedback": {
+    "round": 9,
+    "result": "FAIL",
+    "report": "docs/test-reports/CI1-test-infrastructure-reverifying-round9-2026-04-11.md",
+    "summary": "vitest 通过；mcp-finops-hardening 全通过；mcp-dx 与 security-billing-polish 仍有脚本断言失败，未达到整批签收标准。",
+    "blocking_issues": [
+      "mcp-dx-round2: 4 个失败（工具描述断言、list_models quality/show_all_channels、rate-limit 断言）。",
+      "security-billing-polish: 2 个失败（REST empty prompt 预期错误但实际 200；MIN_CHARGE 预期与实际扣费不一致）。"
+    ],
+    "required_fixes": [
+      "对齐 mcp-dx-round2 脚本断言与当前 MCP 工具描述/模型返回结构。",
+      "对齐 security-billing-polish 的空 prompt 路径与 MIN_CHARGE 预期，基于当前网关实际行为更新测试。"
+    ]
+  },
   "generator_handoff": {
     "completed": ["F-CI1-01", "F-CI1-02", "F-CI1-03", "F-CI1-04"],
     "codex_pending": ["F-CI1-05"],
@@ -23,6 +36,6 @@
   "session_notes": {
     "Kimi": "Fix round 9: round8 已解决 DATABASE_URL 问题（脚本进入主体执行）。本轮修复 2 个遗留断言问题：(1) tools/list 从精确 13 改为 >= 13 + required subset；(2) 3 个脚本 ensureLocalModels 增加 ModelAlias + AliasModelLink upsert（路由层 routeByAlias 通过 alias 查模型，不是直接查 Model）。mcp-dx-round2 补充 model enabled: true。",
     "Planner": "本轮 Planner 长会话产出：1) P5 设计稿+启动；2) M1 spec+拆4子批次(M1a~M1d)全部签收；3) K1 spec(API Key 用户级)+启动+签收；4) U1 spec(用户详情页)+启动+签收；5) L1(LLM 健壮性)+MCP2(工具增强)+A1(数据质量)+T1(模板)+N1(UI导航)+O1(运维)+CI1(测试基础设施) 启动；6) 多次生产环境诊断（capabilities 超时、modality 全 TEXT、brand 重复）；7) 新增 backlog BL-099~105（删除服务商/Keys精简/运维提示/supportedSizes+capabilities统一/千位分隔符/项目切换/假内容清理）。CI1 当前 fixing round 4，问题是旧脚本未适配 K1 数据模型。",
-    "Reviewer": "CI1 round8 复验完成：数据库连接错位问题已解除（registerAndLogin 不再失败），3 个脚本进入主体执行但仍 FAIL。主要阻塞为模型不可用（gpt-4o-mini/dall-e-3 model_not_found）和过时断言（tools/list 期望 13 实际 28）。状态回退 fixing。"
+    "Reviewer": "CI1 round9 复验完成：vitest 11/11 通过，mcp-finops-hardening 9/9 通过；mcp-dx-round2 仍 4 失败，security-billing-polish 仍 2 失败。并发跑脚本会触发 aliasModelLink P2002 噪音，串行后未复现。报告：docs/test-reports/CI1-test-infrastructure-reverifying-round9-2026-04-11.md。状态回退 fixing。"
   }
 }

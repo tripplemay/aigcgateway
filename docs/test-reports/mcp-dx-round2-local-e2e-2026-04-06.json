@@ -1,11 +1,11 @@
 {
-  "passed": 5,
-  "failed": 6,
+  "passed": 7,
+  "failed": 4,
   "results": [
     {
-      "name": "tools/list includes 13 tools",
-      "ok": false,
-      "detail": "expected 13 tools, got 28"
+      "name": "tools/list includes required tools",
+      "ok": true,
+      "detail": "activate_version, chat, create_action, create_action_version, create_api_key, create_project, create_template, delete_action, delete_template, fork_public_template, generate_image, get_action_detail, get_balance, get_log_detail, get_project_info, get_template_detail, get_usage_summary, list_actions, list_api_keys, list_logs, list_models, list_public_templates, list_templates, revoke_api_key, run_action, run_template, update_action, update_template"
     },
     {
       "name": "generate_image tool description contains size guidance",
@@ -15,17 +15,17 @@
     {
       "name": "list_models quality gate",
       "ok": false,
-      "detail": "empty model list"
+      "detail": "empty capabilities for openai/dall-e-3"
     },
     {
       "name": "list_models show_all_channels=true",
       "ok": false,
-      "detail": "empty model list"
+      "detail": "channels field missing under show_all_channels"
     },
     {
-      "name": "all 13 tools callable (smoke)",
-      "ok": false,
-      "detail": "[action_error] Engine error: Model \"openai/gpt-4o-mini\" not found"
+      "name": "core tools callable (smoke)",
+      "ok": true,
+      "detail": "traceId=trc_n16vkef42nx932u6filepdbh"
     },
     {
       "name": "get_action_detail returns messages and variables",
@@ -58,9 +58,9 @@
       "detail": "[rate_limited] Rate limit exceeded. Please retry after 60 seconds."
     }
   ],
-  "projectId": "cmntirdr200is9ysl1r7yz6yo",
-  "apiKeyPrefix": "pk_29d69",
-  "actionId": "cmntirdvx00jw9yslhvyqplap",
-  "templateId": "cmntirdwe00ks9ysl8p7m56kr",
-  "traceId": ""
+  "projectId": "cmntj9iv100s09yejj5d08f1i",
+  "apiKeyPrefix": "pk_09e94",
+  "actionId": "cmntj9ivv00s49yej450h2l0f",
+  "templateId": "cmntj9iw400sc9yejepg7hjxt",
+  "traceId": "trc_n16vkef42nx932u6filepdbh"
 }
