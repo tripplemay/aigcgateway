@@ -1,0 +1,195 @@
+{
+  "ok": true,
+  "executedAt": "2026-04-10T05:52:56.495Z",
+  "output": "docs/test-reports/l1-llm-inference-robustness-verifying-2026-04-10.json",
+  "steps": [
+    {
+      "id": "SMOKE-1",
+      "name": "GET /v1/models returns 200",
+      "ok": true,
+      "detail": "status=200"
+    },
+    {
+      "id": "SMOKE-2",
+      "name": "Admin login returns JWT",
+      "ok": true,
+      "detail": "token_length=197"
+    },
+    {
+      "id": "SMOKE-3",
+      "name": "DeepSeek provider patched to local mock",
+      "ok": true,
+      "detail": "provider_id=cmnshgocu00089yjdkg6yqo8c, mock_base=http://127.0.0.1:3344"
+    },
+    {
+      "id": "SMOKE-4",
+      "name": "Model/Alias tables reset for isolated L1 fixtures",
+      "ok": true,
+      "detail": "deleted existing Model/Channel/ModelAlias/AliasModelLink rows"
+    },
+    {
+      "id": "AC1",
+      "name": "classifyNewModels 跳过失败批次并在下次执行补处理",
+      "ok": true,
+      "detail": "first={\"classified\":35,\"newAliases\":35,\"skipped\":30,\"errors\":[\"Batch 2 failed after retries: DeepSeek API returned 500\"]}, after_first=35, second={\"classified\":30,\"newAliases\":30,\"skipped\":0,\"errors\":[]}, final=65"
+    },
+    {
+      "id": "AC2",
+      "name": "inferMissingBrands 跳过失败批次并在下次执行补处理",
+      "ok": true,
+      "detail": "first={\"updated\":35,\"skipped\":30,\"errors\":[\"Batch 2 failed after retries: DeepSeek API returned 500\"]}, after_first=35, second={\"updated\":30,\"skipped\":0,\"errors\":[]}, final=65"
+    },
+    {
+      "id": "AC3",
+      "name": "inferMissingCapabilities 对 100+ alias 按批完成且无超时",
+      "ok": true,
+      "detail": "result={\"updated\":105,\"skipped\":0,\"errors\":[]}, filled=105, requests=[30,30,30,15], duration_ms=42"
+    },
+    {
+      "id": "AC4",
+      "name": "inferMissingCapabilities 每批成功立即持久化，失败批次可在下次补处理",
+      "ok": true,
+      "detail": "first={\"updated\":35,\"skipped\":30,\"errors\":[\"Batch 2 failed after retries: DeepSeek API returned 500\"]}, after_first=35, second={\"updated\":30,\"skipped\":0,\"errors\":[]}, final=65"
+    },
+    {
+      "id": "AC5",
+      "name": "model-sync 每轮都会重新调用三条推断链路",
+      "ok": true,
+      "detail": "classify/brand/caps reinvoked after each sync"
+    }
+  ],
+  "requestLog": [
+    {
+      "scenario": "classification-first",
+      "kind": "classification",
+      "action": "ok",
+      "size": 30
+    },
+    {
+      "scenario": "classification-first",
+      "kind": "classification",
+      "action": "http500",
+      "size": 30
+    },
+    {
+      "scenario": "classification-first",
+      "kind": "classification",
+      "action": "http500",
+      "size": 30
+    },
+    {
+      "scenario": "classification-first",
+      "kind": "classification",
+      "action": "http500",
+      "size": 30
+    },
+    {
+      "scenario": "classification-first",
+      "kind": "classification",
+      "action": "ok",
+      "size": 5
+    },
+    {
+      "scenario": "classification-second",
+      "kind": "classification",
+      "action": "ok",
+      "size": 30
+    },
+    {
+      "scenario": "brand-first",
+      "kind": "brand",
+      "action": "ok",
+      "size": 30
+    },
+    {
+      "scenario": "brand-first",
+      "kind": "brand",
+      "action": "http500",
+      "size": 30
+    },
+    {
+      "scenario": "brand-first",
+      "kind": "brand",
+      "action": "http500",
+      "size": 30
+    },
+    {
+      "scenario": "brand-first",
+      "kind": "brand",
+      "action": "http500",
+      "size": 30
+    },
+    {
+      "scenario": "brand-first",
+      "kind": "brand",
+      "action": "ok",
+      "size": 5
+    },
+    {
+      "scenario": "brand-second",
+      "kind": "brand",
+      "action": "ok",
+      "size": 30
+    },
+    {
+      "scenario": "caps-bulk",
+      "kind": "capabilities",
+      "action": "ok",
+      "size": 30
+    },
+    {
+      "scenario": "caps-bulk",
+      "kind": "capabilities",
+      "action": "ok",
+      "size": 30
+    },
+    {
+      "scenario": "caps-bulk",
+      "kind": "capabilities",
+      "action": "ok",
+      "size": 30
+    },
+    {
+      "scenario": "caps-bulk",
+      "kind": "capabilities",
+      "action": "ok",
+      "size": 15
+    },
+    {
+      "scenario": "caps-first",
+      "kind": "capabilities",
+      "action": "ok",
+      "size": 30
+    },
+    {
+      "scenario": "caps-first",
+      "kind": "capabilities",
+      "action": "http500",
+      "size": 30
+    },
+    {
+      "scenario": "caps-first",
+      "kind": "capabilities",
+      "action": "http500",
+      "size": 30
+    },
+    {
+      "scenario": "caps-first",
+      "kind": "capabilities",
+      "action": "http500",
+      "size": 30
+    },
+    {
+      "scenario": "caps-first",
+      "kind": "capabilities",
+      "action": "ok",
+      "size": 5
+    },
+    {
+      "scenario": "caps-second",
+      "kind": "capabilities",
+      "action": "ok",
+      "size": 30
+    }
+  ]
+}

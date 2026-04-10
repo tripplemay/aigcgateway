@@ -1,24 +1,30 @@
 {
-  "status": "verifying",
+  "status": "done",
   "user_goal": "L1 — LLM 推断链路健壮性升级（分批+即时持久化+重试）",
   "total_features": 4,
-  "completed_features": 3,
+  "completed_features": 4,
   "fix_rounds": 0,
   "current_sprint": "F-L1-04",
-  "last_updated": "2026-04-10T15:00:00.000Z",
+  "last_updated": "2026-04-10T05:55:00.000Z",
   "reference_docs": [],
   "role_assignments": null,
   "docs": {
     "spec": null,
-    "test_cases": null,
-    "signoff": null,
+    "test_cases": "docs/test-cases/l1-llm-inference-robustness-verifying-2026-04-10.md",
+    "signoff": "docs/test-reports/l1-llm-inference-robustness-signoff-2026-04-10.md",
     "framework_reviewed": false
   },
-  "evaluator_feedback": null,
+  "evaluator_feedback": {
+    "summary": "L1 首轮验收全通过：三条 LLM 推断链路均验证了分批、即时持久化、失败跳过继续与下次补处理。",
+    "pass_count": 4,
+    "partial_count": 0,
+    "fail_count": 0,
+    "issues": []
+  },
   "generator_handoff": null,
   "session_notes": {
     "Kimi": "L1 building 完成。三个函数统一改造：retryWithBackoff 通用重试辅助（3s/10s 两次重试）、分批30个、每批成功立即写DB、失败跳过继续。返回值统一增加 skipped 字段。model-sync.ts 调用侧已适配。tsc 全通过。状态推进到 verifying，等待 Evaluator 验收 F-L1-04。",
     "Planner": "U1 done 收尾 + L1 启动。BL-093 拆为 3 generator + 1 codex。三个函数（inferMissingCapabilities/classifyNewModels/inferMissingBrands）统一健壮性策略：分批30个+即时持久化+重试2次+跳过继续。从 backlog 移除 BL-093。",
-    "Reviewer": null
+    "Reviewer": "已在 3099 本地完成 F-L1-04 首轮验收并签收。新增专用 L1 验收脚本与测试用例文档，使用 DeepSeek mock 验证 classify/brand/capabilities 三条链路的分批、即时持久化、失败跳过继续与二次补处理；105 alias capabilities 场景请求批次为 30/30/30/15，全部通过。progress 已推进到 done。"
   }
 }

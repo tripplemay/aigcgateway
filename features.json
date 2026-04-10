@@ -31,7 +31,7 @@
       "title": "L1 全量验收",
       "priority": "high",
       "executor": "codex",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "1) 模拟大批量（100+ 别名）capabilities 推断，分批执行无超时；2) 模拟 LLM 调用失败，确认跳过继续且下次补处理；3) 每批结果立即落库（中途中断不丢失已完成批次）；4) 签收报告生成"
     }
   ]
