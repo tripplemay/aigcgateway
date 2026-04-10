@@ -503,7 +503,8 @@ export async function runModelSync(): Promise<SyncResult> {
 
     // 同步完成后自动分类未挂载模型到别名
     try {
-      const { classifyNewModels, inferMissingBrands } = await import("./alias-classifier");
+      const { classifyNewModels, inferMissingBrands, inferMissingCapabilities } =
+        await import("./alias-classifier");
       const classifyResult = await classifyNewModels();
       if (classifyResult.classified > 0 || classifyResult.newAliases > 0) {
         console.log(
@@ -514,6 +515,11 @@ export async function runModelSync(): Promise<SyncResult> {
       const brandResult = await inferMissingBrands();
       if (brandResult.updated > 0) {
         console.log(`[model-sync] Brand inference: ${brandResult.updated} updated`);
+      }
+      // 补推 capabilities 为空的别名
+      const capsResult = await inferMissingCapabilities();
+      if (capsResult.updated > 0) {
+        console.log(`[model-sync] Capabilities inference: ${capsResult.updated} updated`);
       }
     } catch (err) {
       console.log(
