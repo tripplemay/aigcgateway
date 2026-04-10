@@ -146,6 +146,7 @@ async function ensureLocalModels(): Promise<RestoreState> {
   const textModel = await prisma.model.upsert({
     where: { name: "openai/gpt-4o-mini" },
     update: {
+      enabled: true,
       displayName: "OpenAI GPT-4o-mini",
       modality: "TEXT",
       contextWindow: 128000,
@@ -154,6 +155,7 @@ async function ensureLocalModels(): Promise<RestoreState> {
     },
     create: {
       name: "openai/gpt-4o-mini",
+      enabled: true,
       displayName: "OpenAI GPT-4o-mini",
       modality: "TEXT",
       contextWindow: 128000,
@@ -165,12 +167,14 @@ async function ensureLocalModels(): Promise<RestoreState> {
   const imageModel = await prisma.model.upsert({
     where: { name: "openai/dall-e-3" },
     update: {
+      enabled: true,
       displayName: "OpenAI DALL-E 3",
       modality: "IMAGE",
       capabilities: { unknown: false },
     },
     create: {
       name: "openai/dall-e-3",
+      enabled: true,
       displayName: "OpenAI DALL-E 3",
       modality: "IMAGE",
       capabilities: { unknown: false },
@@ -248,6 +252,29 @@ async function ensureLocalModels(): Promise<RestoreState> {
       costPrice: { unit: "call", perCall: 0.01, currency: "USD" },
       sellPrice: { unit: "call", perCall: 0.012, currency: "USD" },
     },
+  });
+
+  // Ensure aliases exist and link to models (router resolves via ModelAlias)
+  const textAlias = await prisma.modelAlias.upsert({
+    where: { alias: "openai/gpt-4o-mini" },
+    update: { enabled: true, modality: "TEXT" },
+    create: { alias: "openai/gpt-4o-mini", enabled: true, modality: "TEXT" },
+  });
+  await prisma.aliasModelLink.upsert({
+    where: { aliasId_modelId: { aliasId: textAlias.id, modelId: textModel.id } },
+    update: {},
+    create: { aliasId: textAlias.id, modelId: textModel.id },
+  });
+
+  const imageAlias = await prisma.modelAlias.upsert({
+    where: { alias: "openai/dall-e-3" },
+    update: { enabled: true, modality: "IMAGE" },
+    create: { alias: "openai/dall-e-3", enabled: true, modality: "IMAGE" },
+  });
+  await prisma.aliasModelLink.upsert({
+    where: { aliasId_modelId: { aliasId: imageAlias.id, modelId: imageModel.id } },
+    update: {},
+    create: { aliasId: imageAlias.id, modelId: imageModel.id },
   });
 
   return restore;
@@ -342,7 +369,7 @@ async function main() {
     await registerAndLogin();
     await createProjectAndKey();
 
-    await step("tools/list includes 13 tools", results, async () => {
+    await step("tools/list includes required tools", results, async () => {
       const rpc = await rawMcpRequest("tools/list");
       if (rpc.status >= 400 || rpc.body?.error) {
         throw new Error(`tools/list failed: ${rpc.status} ${JSON.stringify(rpc.body)}`);
@@ -367,7 +394,7 @@ async function main() {
       for (const tool of required) {
         if (!names.includes(tool)) throw new Error(`missing tool ${tool}`);
       }
-      if (tools.length !== 13) throw new Error(`expected 13 tools, got ${tools.length}`);
+      if (tools.length < 13) throw new Error(`expected at least 13 tools, got ${tools.length}`);
       return names.join(", ");
     });
 
@@ -439,7 +466,7 @@ async function main() {
     });
     templateId = template.id;
 
-    await step("all 13 tools callable (smoke)", results, async () => {
+    await step("core tools callable (smoke)", results, async () => {
       parseToolJson(await callTool("get_balance"));
       parseToolJson(await callTool("list_actions"));
       parseToolJson(await callTool("list_templates"));

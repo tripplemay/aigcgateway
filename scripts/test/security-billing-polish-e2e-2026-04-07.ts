@@ -272,6 +272,29 @@ async function prepareRouting(): Promise<RestoreState> {
     },
   });
 
+  // Ensure aliases exist and link to models (router resolves via ModelAlias)
+  const textAlias = await prisma.modelAlias.upsert({
+    where: { alias: "openai/gpt-4o-mini" },
+    update: { enabled: true, modality: "TEXT" },
+    create: { alias: "openai/gpt-4o-mini", enabled: true, modality: "TEXT" },
+  });
+  await prisma.aliasModelLink.upsert({
+    where: { aliasId_modelId: { aliasId: textAlias.id, modelId: textModel.id } },
+    update: {},
+    create: { aliasId: textAlias.id, modelId: textModel.id },
+  });
+
+  const imageAlias = await prisma.modelAlias.upsert({
+    where: { alias: "openai/dall-e-3" },
+    update: { enabled: true, modality: "IMAGE" },
+    create: { alias: "openai/dall-e-3", enabled: true, modality: "IMAGE" },
+  });
+  await prisma.aliasModelLink.upsert({
+    where: { aliasId_modelId: { aliasId: imageAlias.id, modelId: imageModel.id } },
+    update: {},
+    create: { aliasId: imageAlias.id, modelId: imageModel.id },
+  });
+
   return {
     providerId: provider.id,
     baseUrl: provider.baseUrl,
