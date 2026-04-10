@@ -21,10 +21,10 @@ export async function POST(request: Request) {
   // 1. 鉴权
   const auth = await authenticateApiKey(request);
   if (!auth.ok) return auth.error;
-  const { project, apiKey } = auth.ctx;
+  const { user, project, apiKey } = auth.ctx;
 
   // 2. 余额检查
-  const balanceCheck = checkBalance(project.user);
+  const balanceCheck = checkBalance(user);
   if (!balanceCheck.ok) return balanceCheck.error;
 
   // 3. 解析请求体
@@ -42,7 +42,11 @@ export async function POST(request: Request) {
   }
 
   // 4. 限流（Key 级 RPM 收紧）
-  const rateCheck = await checkRateLimit(project, "image", apiKey.rateLimit);
+  const rateCheck = await checkRateLimit(
+    project ?? { id: user.defaultProjectId ?? user.id, rateLimit: null },
+    "image",
+    apiKey.rateLimit,
+  );
   if (!rateCheck.ok) return rateCheck.error;
   const rateLimitHeaders = rateCheck.headers;
 
@@ -70,7 +74,7 @@ export async function POST(request: Request) {
     // 异步后处理
     processImageResult({
       traceId,
-      projectId: project.id,
+      projectId: project?.id ?? user.defaultProjectId ?? "",
       route,
       modelName,
       promptSnapshot: [{ role: "user", content: body.prompt }],
@@ -85,7 +89,7 @@ export async function POST(request: Request) {
 
     processImageResult({
       traceId,
-      projectId: project.id,
+      projectId: project?.id ?? user.defaultProjectId ?? "",
       route,
       modelName,
       promptSnapshot: [{ role: "user", content: body.prompt }],

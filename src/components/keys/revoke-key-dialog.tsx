@@ -5,10 +5,7 @@ import { useTranslations } from "next-intl";
 import { apiFetch } from "@/lib/api-client";
 import { useProject } from "@/hooks/use-project";
 import { toast } from "sonner";
-import {
-  Dialog,
-  DialogContent,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 
 interface RevokeKeyDialogProps {
   keyId: string | null;
@@ -23,10 +20,10 @@ export function RevokeKeyDialog({ keyId, onOpenChange, onRevoked }: RevokeKeyDia
   const [revoking, setRevoking] = useState(false);
 
   const revoke = async () => {
-    if (!current || !keyId || revoking) return;
+    if (!keyId || revoking) return;
     setRevoking(true);
     try {
-      await apiFetch(`/api/projects/${current.id}/keys/${keyId}`, { method: "DELETE" });
+      await apiFetch(`/api/keys/${keyId}`, { method: "DELETE" });
       toast.success(t("revoked_toast"));
       onOpenChange(false);
       onRevoked();
@@ -38,11 +35,13 @@ export function RevokeKeyDialog({ keyId, onOpenChange, onRevoked }: RevokeKeyDia
   };
 
   return (
-    <Dialog open={!!keyId} onOpenChange={(open) => { if (!open) onOpenChange(false); }}>
-      <DialogContent
-        showCloseButton={false}
-        className="w-full max-w-md p-0 gap-0 sm:max-w-md"
-      >
+    <Dialog
+      open={!!keyId}
+      onOpenChange={(open) => {
+        if (!open) onOpenChange(false);
+      }}
+    >
+      <DialogContent showCloseButton={false} className="w-full max-w-md p-0 gap-0 sm:max-w-md">
         <div className="px-8 py-6 bg-ds-surface-container-low">
           <h2 className="text-xl font-extrabold tracking-tight text-ds-on-surface font-[var(--font-heading)]">
             {t("revokeTitle")}

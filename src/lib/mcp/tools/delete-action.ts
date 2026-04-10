@@ -24,13 +24,21 @@ export function registerDeleteAction(server: McpServer, opts: McpServerOptions):
       if (permErr) {
         return { content: [{ type: "text" as const, text: permErr }], isError: true };
       }
+      if (!projectId) {
+        return {
+          content: [{ type: "text" as const, text: "[no_project] No default project configured." }],
+          isError: true,
+        };
+      }
 
       const action = await prisma.action.findFirst({
         where: { id: action_id, projectId },
       });
       if (!action) {
         return {
-          content: [{ type: "text" as const, text: `Action "${action_id}" not found in this project.` }],
+          content: [
+            { type: "text" as const, text: `Action "${action_id}" not found in this project.` },
+          ],
           isError: true,
         };
       }
@@ -52,7 +60,10 @@ export function registerDeleteAction(server: McpServer, opts: McpServerOptions):
 
       return {
         content: [
-          { type: "text" as const, text: JSON.stringify({ action_id, message: "Action deleted" }, null, 2) },
+          {
+            type: "text" as const,
+            text: JSON.stringify({ action_id, message: "Action deleted" }, null, 2),
+          },
         ],
       };
     },

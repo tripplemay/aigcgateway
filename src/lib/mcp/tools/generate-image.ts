@@ -18,7 +18,7 @@ import { checkMcpPermission } from "@/lib/mcp/auth";
 import type { McpServerOptions } from "@/lib/mcp/server";
 
 export function registerGenerateImage(server: McpServer, opts: McpServerOptions): void {
-  const { projectId, permissions, keyRateLimit } = opts;
+  const { userId, projectId, permissions, keyRateLimit } = opts;
   server.tool(
     "generate_image",
     `Generate images using an AI model via AIGC Gateway. Returns image URLs, trace ID, and cost. IMPORTANT: Call list_models(modality='image') first to get available image model names and supported sizes.`,
@@ -47,13 +47,25 @@ export function registerGenerateImage(server: McpServer, opts: McpServerOptions)
       }
 
       // Check balance
-      const project = await prisma.project.findUnique({ where: { id: projectId } });
-      if (!project || Number(project.balance) <= 0) {
+      const user = await prisma.user.findUnique({ where: { id: userId } });
+      if (!user || Number(user.balance) <= 0) {
         return {
           content: [
             {
               type: "text" as const,
-              text: `Insufficient balance. Current balance: $${Number(project?.balance ?? 0).toFixed(4)}. Please recharge at the console.`,
+              text: `Insufficient balance. Current balance: $${Number(user?.balance ?? 0).toFixed(4)}. Please recharge at the console.`,
+            },
+          ],
+          isError: true,
+        };
+      }
+
+      if (!projectId) {
+        return {
+          content: [
+            {
+              type: "text" as const,
+              text: `[no_project] No default project configured. Please set a default project in the console.`,
             },
           ],
           isError: true,
@@ -61,7 +73,12 @@ export function registerGenerateImage(server: McpServer, opts: McpServerOptions)
       }
 
       // Rate limit (image RPM)
-      const rateCheck = await checkRateLimit(project, "image", keyRateLimit);
+      const project = await prisma.project.findUnique({ where: { id: projectId } });
+      const rateCheck = await checkRateLimit(
+        project ?? { id: projectId, rateLimit: null },
+        "image",
+        keyRateLimit,
+      );
       if (!rateCheck.ok) {
         return {
           content: [

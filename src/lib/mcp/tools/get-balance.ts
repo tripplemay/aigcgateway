@@ -12,7 +12,7 @@ import { checkMcpPermission } from "@/lib/mcp/auth";
 import type { McpServerOptions } from "@/lib/mcp/server";
 
 export function registerGetBalance(server: McpServer, opts: McpServerOptions): void {
-  const { projectId, permissions } = opts;
+  const { userId, projectId, permissions } = opts;
 
   server.tool(
     "get_balance",
@@ -29,27 +29,26 @@ export function registerGetBalance(server: McpServer, opts: McpServerOptions): v
         return { content: [{ type: "text" as const, text: permErr }], isError: true };
       }
 
-      // Get user-level balance via project → user
-      const project = await prisma.project.findUnique({
-        where: { id: projectId },
-        select: { userId: true, user: { select: { balance: true } } },
+      // Get user-level balance
+      const user = await prisma.user.findUnique({
+        where: { id: userId },
+        select: { balance: true },
       });
 
-      if (!project) {
+      if (!user) {
         return {
-          content: [{ type: "text" as const, text: "Project not found." }],
+          content: [{ type: "text" as const, text: "User not found." }],
           isError: true,
         };
       }
 
       const result: Record<string, unknown> = {
-        balance: `$${Number(project.user.balance).toFixed(8)}`,
+        balance: `$${Number(user.balance).toFixed(8)}`,
       };
 
       if (include_transactions) {
-        // Transactions still filtered by projectId for per-project detail
         const transactions = await prisma.transaction.findMany({
-          where: { projectId },
+          where: { userId },
           orderBy: { createdAt: "desc" },
           take: 10,
           select: {

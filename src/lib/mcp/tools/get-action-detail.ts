@@ -20,6 +20,13 @@ export function registerGetActionDetail(server: McpServer, opts: McpServerOption
       action_id: z.string().describe("Action ID"),
     },
     async ({ action_id }) => {
+      if (!projectId) {
+        return {
+          content: [{ type: "text" as const, text: "[no_project] No default project configured." }],
+          isError: true,
+        };
+      }
+
       const action = await prisma.action.findFirst({
         where: { id: action_id, projectId },
         include: {

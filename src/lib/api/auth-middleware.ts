@@ -1,7 +1,7 @@
 /**
  * API Key 鉴权中间件
  *
- * Authorization: Bearer pk_xxx → sha256 → 查 api_keys.keyHash → 关联 Project
+ * Authorization: Bearer pk_xxx → sha256 → 查 api_keys.keyHash → 关联 User
  *
  * 鉴权流程:
  * 1. 解析 API Key → 查库
@@ -9,7 +9,8 @@
  * 3. 过期兜底检查（expiresAt）
  * 4. 权限检查（permissions, === false 才拒绝）
  * 5. IP 白名单检查（ipWhitelist）
- * 6. 更新 lastUsedAt
+ * 6. 项目上下文解析（X-Project-Id header 或 defaultProjectId）
+ * 7. 更新 lastUsedAt
  */
 
 import { createHash } from "crypto";
@@ -27,7 +28,8 @@ export interface ApiKeyPermissions {
 }
 
 export interface AuthContext {
-  project: Project & { user: User };
+  user: User;
+  project: Project | null;
   apiKey: ApiKey;
 }
 
@@ -73,7 +75,7 @@ export async function authenticateApiKey(request: Request): Promise<AuthResult> 
 
   const apiKey = await prisma.apiKey.findUnique({
     where: { keyHash },
-    include: { project: { include: { user: true } } },
+    include: { user: true },
   });
 
   if (!apiKey) {
@@ -123,7 +125,6 @@ export async function authenticateApiKey(request: Request): Promise<AuthResult> 
   }
 
   // IP 白名单检查
-  // null = 不限制; [] = 拒绝全部; ["1.2.3.4"] = 白名单
   const whitelist = apiKey.ipWhitelist as string[] | null;
   if (Array.isArray(whitelist)) {
     if (whitelist.length === 0) {
@@ -141,6 +142,17 @@ export async function authenticateApiKey(request: Request): Promise<AuthResult> 
     }
   }
 
+  // 项目上下文：从 X-Project-Id header 或 user.defaultProjectId
+  const requestedProjectId =
+    request.headers.get("x-project-id") ?? apiKey.user.defaultProjectId ?? null;
+
+  let project: Project | null = null;
+  if (requestedProjectId) {
+    project = await prisma.project.findFirst({
+      where: { id: requestedProjectId, userId: apiKey.user.id },
+    });
+  }
+
   // 更新 lastUsedAt（异步，不阻塞）
   prisma.apiKey
     .update({ where: { id: apiKey.id }, data: { lastUsedAt: new Date() } })
@@ -148,6 +160,6 @@ export async function authenticateApiKey(request: Request): Promise<AuthResult> 
 
   return {
     ok: true,
-    ctx: { project: apiKey.project, apiKey },
+    ctx: { user: apiKey.user, project, apiKey },
   };
 }

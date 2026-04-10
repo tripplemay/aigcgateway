@@ -56,10 +56,8 @@ export default function KeySettingsPage() {
 
   // ── Data loading via useAsyncData ──
   const { data: detail, loading } = useAsyncData<KeyDetail | null>(async () => {
-    if (!current || !params.keyId) return null;
-    const r = await apiFetch<{ data: KeyDetail }>(
-      `/api/projects/${current.id}/keys/${params.keyId}`,
-    );
+    if (!params.keyId) return null;
+    const r = await apiFetch<{ data: KeyDetail }>(`/api/keys/${params.keyId}`);
     const d = r.data;
     setName(d.name ?? "");
     setDescription(d.description ?? "");
@@ -71,7 +69,7 @@ export default function KeySettingsPage() {
   }, [current, params.keyId]);
 
   const save = async () => {
-    if (!current || !params.keyId) return;
+    if (!params.keyId) return;
     setSaving(true);
     try {
       const ipArr = ipWhitelist.trim()
@@ -80,7 +78,7 @@ export default function KeySettingsPage() {
             .map((s) => s.trim())
             .filter(Boolean)
         : null;
-      await apiFetch(`/api/projects/${current.id}/keys/${params.keyId}`, {
+      await apiFetch(`/api/keys/${params.keyId}`, {
         method: "PATCH",
         body: JSON.stringify({
           name: name || null,

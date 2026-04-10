@@ -15,7 +15,7 @@ import { injectVariables } from "@/lib/action/inject";
 import type { McpServerOptions } from "@/lib/mcp/server";
 
 export function registerRunAction(server: McpServer, opts: McpServerOptions): void {
-  const { projectId, permissions, keyRateLimit } = opts;
+  const { userId, projectId, permissions, keyRateLimit } = opts;
 
   server.tool(
     "run_action",
@@ -44,6 +44,18 @@ export function registerRunAction(server: McpServer, opts: McpServerOptions): vo
       const permErr = checkMcpPermission(permissions, "chatCompletion");
       if (permErr) {
         return { content: [{ type: "text" as const, text: permErr }], isError: true };
+      }
+
+      if (!projectId) {
+        return {
+          content: [
+            {
+              type: "text" as const,
+              text: `[no_project] No default project configured. Please set a default project in the console.`,
+            },
+          ],
+          isError: true,
+        };
       }
 
       // Dry run: render variables without calling model
@@ -105,13 +117,13 @@ export function registerRunAction(server: McpServer, opts: McpServerOptions): vo
       }
 
       // Balance check
-      const project = await prisma.project.findUnique({ where: { id: projectId } });
-      if (!project || Number(project.balance) <= 0) {
+      const user = await prisma.user.findUnique({ where: { id: userId } });
+      if (!user || Number(user.balance) <= 0) {
         return {
           content: [
             {
               type: "text" as const,
-              text: `Insufficient balance. Current: $${Number(project?.balance ?? 0).toFixed(4)}`,
+              text: `Insufficient balance. Current: $${Number(user?.balance ?? 0).toFixed(4)}`,
             },
           ],
           isError: true,
@@ -119,7 +131,12 @@ export function registerRunAction(server: McpServer, opts: McpServerOptions): vo
       }
 
       // Rate limit
-      const rateCheck = await checkRateLimit(project, "text", keyRateLimit);
+      const project = await prisma.project.findUnique({ where: { id: projectId } });
+      const rateCheck = await checkRateLimit(
+        project ?? { id: projectId, rateLimit: null },
+        "text",
+        keyRateLimit,
+      );
       if (!rateCheck.ok) {
         return {
           content: [{ type: "text" as const, text: "Rate limit exceeded. Retry after 60s." }],

@@ -7,7 +7,7 @@
       "title": "Schema 迁移 — ApiKey 用户级 + 字段清理",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) ApiKey 表清空旧数据，projectId 删除，新增 userId；2) User 新增 defaultProjectId（回填第一个项目）；3) Project.balance 字段删除；4) RechargeOrder.projectId 字段删除；5) deduct_balance 函数改为直接接收 userId；6) prisma generate + migrate dev 通过；7) tsc 通过"
     },
     {
@@ -15,7 +15,7 @@
       "title": "鉴权中间件重构",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) authenticateApiKey 从 Key 解析 userId；2) X-Project-Id header 或 defaultProjectId 获取项目上下文；3) 项目归属校验（用户只能访问自己的项目）；4) 无项目时 chat/image 仍可调用；5) 无项目时 Actions/Templates 返回 400；6) tsc 通过"
     },
     {
@@ -23,7 +23,7 @@
       "title": "API 端点适配 — chat/image/actions/templates",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) /v1/chat/completions 和 /v1/images/generations 正常工作；2) CallLog.projectId 仍正确记录；3) 计费扣费走 userId；4) Actions/Templates 路由按项目隔离；5) tsc 通过"
     },
     {
@@ -31,7 +31,7 @@
       "title": "Keys 管理 API 改为用户级",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) GET/POST /api/keys 正常工作；2) GET/PATCH/DELETE /api/keys/:keyId 正常工作；3) 旧 /api/projects/:id/keys/* 路径删除；4) 创建 Key 绑定 userId；5) tsc 通过"
     },
     {
@@ -39,7 +39,7 @@
       "title": "充值 API 简化 + 余额清理",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) POST /api/admin/users/:id/recharge 正常工作；2) 旧 /api/admin/users/:id/projects/:projectId/recharge 删除；3) 侧边栏余额显示 User.balance；4) Balance 页面查用户余额；5) tsc 通过"
     },
     {
@@ -47,7 +47,7 @@
       "title": "MCP 适配",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) MCP auth 返回 userId；2) McpServerOptions 含 userId + projectId（可空）；3) get_balance 直接查 User.balance；4) 无项目时需要项目的工具返回友好错误；5) tsc 通过"
     },
     {
@@ -55,7 +55,7 @@
       "title": "前端适配 — Keys 页 + Balance 页 + 侧边栏",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) Keys 页面列出用户所有 Key（非按项目）；2) 侧边栏余额显示 User.balance；3) Balance 页面查用户余额；4) tsc 通过"
     },
     {

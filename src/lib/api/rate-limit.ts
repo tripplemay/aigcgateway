@@ -34,7 +34,7 @@ type RateLimitResult =
  * @param keyRateLimit — Key 级 RPM 覆盖（只能收紧，不能超过项目级）
  */
 export async function checkRateLimit(
-  project: Project,
+  project: Pick<Project, "id" | "rateLimit">,
   type: "text" | "image",
   keyRateLimit?: number | null,
 ): Promise<RateLimitResult> {

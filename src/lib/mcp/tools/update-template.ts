@@ -35,6 +35,12 @@ export function registerUpdateTemplate(server: McpServer, opts: McpServerOptions
       if (permErr) {
         return { content: [{ type: "text" as const, text: permErr }], isError: true };
       }
+      if (!projectId) {
+        return {
+          content: [{ type: "text" as const, text: "[no_project] No default project configured." }],
+          isError: true,
+        };
+      }
 
       const template = await prisma.template.findFirst({
         where: { id: template_id, projectId },

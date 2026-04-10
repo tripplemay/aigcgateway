@@ -4,7 +4,6 @@ import { NextResponse } from "next/server";
 import { verifyJwt } from "@/lib/api/jwt-middleware";
 import { errorResponse } from "@/lib/api/errors";
 
-
 /** GET /api/projects — 当前用户的项目列表 */
 export async function GET(request: Request) {
   const auth = verifyJwt(request);
@@ -54,8 +53,12 @@ export async function POST(request: Request) {
       userId: auth.payload.userId,
       name: body.name,
       description: body.description ?? null,
-      balance: 0,
     },
+  });
+
+  const user = await prisma.user.findUnique({
+    where: { id: auth.payload.userId },
+    select: { balance: true },
   });
 
   return NextResponse.json(
@@ -63,7 +66,7 @@ export async function POST(request: Request) {
       id: project.id,
       name: project.name,
       description: project.description,
-      balance: Number(project.balance),
+      balance: user ? Number(user.balance) : 0,
       createdAt: project.createdAt,
     },
     { status: 201 },

@@ -4,11 +4,7 @@ import { NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/api/admin-guard";
 import { errorResponse } from "@/lib/api/errors";
 
-
-export async function GET(
-  request: Request,
-  { params }: { params: { id: string } },
-) {
+export async function GET(request: Request, { params }: { params: { id: string } }) {
   const auth = requireAdmin(request);
   if (!auth.ok) return auth.error;
 
@@ -19,9 +15,8 @@ export async function GET(
         select: {
           id: true,
           name: true,
-          balance: true,
           createdAt: true,
-          _count: { select: { callLogs: true, apiKeys: true } },
+          _count: { select: { callLogs: true } },
         },
       },
     },
@@ -41,7 +36,6 @@ export async function GET(
       id: p.id,
       name: p.name,
       callCount: p._count.callLogs,
-      keyCount: p._count.apiKeys,
       createdAt: p.createdAt,
     })),
   });

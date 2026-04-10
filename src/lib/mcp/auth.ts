@@ -9,12 +9,13 @@
 
 import { createHash } from "crypto";
 import { prisma } from "@/lib/prisma";
-import type { Project, ApiKey } from "@prisma/client";
+import type { User, ApiKey } from "@prisma/client";
 import type { ApiKeyPermissions } from "@/lib/api/auth-middleware";
 import { getClientIp, isIpInWhitelist } from "@/lib/api/ip-utils";
 
 export interface McpAuthContext {
-  project: Project;
+  user: User;
+  projectId: string | null;
   apiKey: ApiKey;
   permissions: Partial<ApiKeyPermissions>;
 }
@@ -36,7 +37,7 @@ export async function authenticateMcp(request: Request): Promise<McpAuthContext 
 
   const apiKey = await prisma.apiKey.findUnique({
     where: { keyHash },
-    include: { project: true },
+    include: { user: true },
   });
 
   if (!apiKey || apiKey.status === "REVOKED") {
@@ -67,8 +68,9 @@ export async function authenticateMcp(request: Request): Promise<McpAuthContext 
     .catch(() => {});
 
   const permissions = (apiKey.permissions ?? {}) as Partial<ApiKeyPermissions>;
+  const projectId = apiKey.user.defaultProjectId;
 
-  return { project: apiKey.project, apiKey, permissions };
+  return { user: apiKey.user, projectId, apiKey, permissions };
 }
 
 /**

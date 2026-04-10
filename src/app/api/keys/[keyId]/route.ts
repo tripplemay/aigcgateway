@@ -5,31 +5,24 @@ import { verifyJwt } from "@/lib/api/jwt-middleware";
 import { errorResponse } from "@/lib/api/errors";
 import { isValidIpOrCidr } from "@/lib/api/ip-utils";
 
-type Params = { params: { id: string; keyId: string } };
+type Params = { params: { keyId: string } };
 
-/** 项目归属校验 — 复用于 GET/PATCH/DELETE */
-async function verifyOwnership(request: Request, params: { id: string; keyId: string }) {
+async function verifyOwnership(request: Request, keyId: string) {
   const auth = verifyJwt(request);
   if (!auth.ok) return { ok: false as const, error: auth.error };
 
-  const project = await prisma.project.findFirst({
-    where: { id: params.id, userId: auth.payload.userId },
-  });
-  if (!project)
-    return { ok: false as const, error: errorResponse(404, "not_found", "Project not found") };
-
   const apiKey = await prisma.apiKey.findFirst({
-    where: { id: params.keyId, userId: auth.payload.userId },
+    where: { id: keyId, userId: auth.payload.userId },
   });
   if (!apiKey)
     return { ok: false as const, error: errorResponse(404, "not_found", "API Key not found") };
 
-  return { ok: true as const, project, apiKey };
+  return { ok: true as const, apiKey, userId: auth.payload.userId };
 }
 
-/** GET /api/projects/:id/keys/:keyId — Key 详情 */
+/** GET /api/keys/:keyId — Key 详情 */
 export async function GET(request: Request, { params }: Params) {
-  const result = await verifyOwnership(request, params);
+  const result = await verifyOwnership(request, params.keyId);
   if (!result.ok) return result.error;
 
   const k = result.apiKey;
@@ -52,9 +45,9 @@ export async function GET(request: Request, { params }: Params) {
   });
 }
 
-/** PATCH /api/projects/:id/keys/:keyId — 编辑 Key */
+/** PATCH /api/keys/:keyId — 编辑 Key */
 export async function PATCH(request: Request, { params }: Params) {
-  const result = await verifyOwnership(request, params);
+  const result = await verifyOwnership(request, params.keyId);
   if (!result.ok) return result.error;
 
   if (result.apiKey.status === "REVOKED") {
@@ -68,40 +61,27 @@ export async function PATCH(request: Request, { params }: Params) {
     return errorResponse(400, "invalid_input", "Invalid JSON body");
   }
 
-  // 不允许通过 PATCH 修改 status
   if ("status" in body) {
-    return errorResponse(
-      400,
-      "invalid_input",
-      "status cannot be changed via PATCH. Use DELETE to revoke.",
-    );
+    return errorResponse(400, "invalid_input", "status cannot be changed via PATCH. Use DELETE to revoke.");
   }
 
   const data: Record<string, unknown> = {};
 
-  // name
   if ("name" in body) {
     data.name = typeof body.name === "string" ? body.name : null;
   }
-
-  // description
   if ("description" in body) {
     data.description = typeof body.description === "string" ? body.description : null;
   }
-
-  // permissions — 空对象 {} 表示重置为全权限，非空则合并更新
   if ("permissions" in body && typeof body.permissions === "object" && body.permissions !== null) {
     const incoming = body.permissions as Record<string, boolean>;
     if (Object.keys(incoming).length === 0) {
-      // 空对象 = 重置为全权限（{} 等同于全放行）
       data.permissions = {};
     } else {
       const current = (result.apiKey.permissions ?? {}) as Record<string, boolean>;
       data.permissions = { ...current, ...incoming };
     }
   }
-
-  // expiresAt
   if ("expiresAt" in body) {
     if (body.expiresAt === null) {
       data.expiresAt = null;
@@ -116,8 +96,6 @@ export async function PATCH(request: Request, { params }: Params) {
       data.expiresAt = expires;
     }
   }
-
-  // rateLimit
   if ("rateLimit" in body) {
     if (body.rateLimit === null) {
       data.rateLimit = null;
@@ -127,8 +105,6 @@ export async function PATCH(request: Request, { params }: Params) {
       return errorResponse(400, "invalid_input", "rateLimit must be a positive number or null");
     }
   }
-
-  // ipWhitelist
   if ("ipWhitelist" in body) {
     if (body.ipWhitelist === null) {
       data.ipWhitelist = null;
@@ -140,11 +116,7 @@ export async function PATCH(request: Request, { params }: Params) {
       }
       data.ipWhitelist = body.ipWhitelist;
     } else {
-      return errorResponse(
-        400,
-        "invalid_input",
-        "ipWhitelist must be an array of IPs/CIDRs or null",
-      );
+      return errorResponse(400, "invalid_input", "ipWhitelist must be an array of IPs/CIDRs or null");
     }
   }
 
@@ -176,9 +148,9 @@ export async function PATCH(request: Request, { params }: Params) {
   });
 }
 
-/** DELETE /api/projects/:id/keys/:keyId — 吊销 Key（不可逆） */
+/** DELETE /api/keys/:keyId — 吊销 Key */
 export async function DELETE(request: Request, { params }: Params) {
-  const result = await verifyOwnership(request, params);
+  const result = await verifyOwnership(request, params.keyId);
   if (!result.ok) return result.error;
 
   if (result.apiKey.status === "REVOKED") {

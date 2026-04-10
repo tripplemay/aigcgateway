@@ -7,7 +7,6 @@
 
 import { prisma } from "@/lib/prisma";
 
-
 export interface ProcessPaymentResult {
   success: boolean;
   alreadyProcessed: boolean;
@@ -48,27 +47,38 @@ export async function processPaymentCallback(
       },
     });
 
-    // 2. 增加项目余额
-    await tx.project.update({
-      where: { id: order.projectId },
+    // 2. 增加用户余额
+    await tx.user.update({
+      where: { id: order.userId },
       data: {
         balance: { increment: order.amount },
       },
     });
 
-    // 3. 获取更新后的余额
-    const project = await tx.project.findUnique({
-      where: { id: order.projectId },
-      select: { balance: true },
+    // 3. 获取更新后的余额及默认项目
+    const user = await tx.user.findUnique({
+      where: { id: order.userId },
+      select: { balance: true, defaultProjectId: true },
     });
+
+    // 查找用于 Transaction 记录的 projectId
+    let projectId = user?.defaultProjectId;
+    if (!projectId) {
+      const firstProject = await tx.project.findFirst({
+        where: { userId: order.userId },
+        select: { id: true },
+      });
+      projectId = firstProject?.id ?? order.userId;
+    }
 
     // 4. 写入 Transaction
     const txnId = await tx.transaction.create({
       data: {
-        projectId: order.projectId,
+        projectId,
+        userId: order.userId,
         type: "RECHARGE",
         amount: order.amount,
-        balanceAfter: project!.balance,
+        balanceAfter: user!.balance,
         status: "COMPLETED",
         paymentMethod: order.paymentMethod,
         paymentOrderId: order.paymentOrderId,
@@ -90,10 +100,7 @@ export async function processPaymentCallback(
 /**
  * 标记订单失败
  */
-export async function markOrderFailed(
-  paymentOrderId: string,
-  paymentRaw: unknown,
-): Promise<void> {
+export async function markOrderFailed(paymentOrderId: string, paymentRaw: unknown): Promise<void> {
   await prisma.rechargeOrder.updateMany({
     where: { paymentOrderId, status: "PENDING" },
     data: {

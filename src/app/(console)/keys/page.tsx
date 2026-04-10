@@ -63,9 +63,8 @@ export default function KeysPage() {
     loading,
     refetch,
   } = useAsyncData<{ data: ApiKeyRow[] }>(async () => {
-    if (!current) return { data: [] };
-    return apiFetch<{ data: ApiKeyRow[] }>(`/api/projects/${current.id}/keys`);
-  }, [current]);
+    return apiFetch<{ data: ApiKeyRow[] }>("/api/keys");
+  }, []);
 
   const keys = keysData?.data ?? [];
 

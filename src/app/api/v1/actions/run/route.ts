@@ -17,7 +17,14 @@ export async function POST(request: Request) {
   // 1. Auth
   const auth = await authenticateApiKey(request);
   if (!auth.ok) return auth.error;
-  const { project, apiKey } = auth.ctx;
+  const { user, project, apiKey } = auth.ctx;
+  if (!project) {
+    return errorResponse(
+      400,
+      "project_required",
+      "A project context is required. Set X-Project-Id header or configure a default project.",
+    );
+  }
 
   // 1b. Explicit chatCompletion permission check (defense-in-depth)
   const perms = (apiKey.permissions ?? {}) as Partial<ApiKeyPermissions>;
@@ -26,7 +33,7 @@ export async function POST(request: Request) {
   }
 
   // 2. Balance
-  const balanceCheck = checkBalance(project.user);
+  const balanceCheck = checkBalance(user);
   if (!balanceCheck.ok) return balanceCheck.error;
 
   // 3. Parse body

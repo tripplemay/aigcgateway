@@ -33,15 +33,18 @@ export function registerCreateActionVersion(server: McpServer, opts: McpServerOp
         .optional()
         .describe("New version's variable definitions"),
       changelog: z.string().optional().describe("Version changelog description"),
-      set_active: z
-        .boolean()
-        .optional()
-        .describe("Set this version as active (default: true)"),
+      set_active: z.boolean().optional().describe("Set this version as active (default: true)"),
     },
     async ({ action_id, messages, variables, changelog, set_active }) => {
       const permErr = checkMcpPermission(permissions, "projectInfo");
       if (permErr) {
         return { content: [{ type: "text" as const, text: permErr }], isError: true };
+      }
+      if (!projectId) {
+        return {
+          content: [{ type: "text" as const, text: "[no_project] No default project configured." }],
+          isError: true,
+        };
       }
 
       const action = await prisma.action.findFirst({
@@ -49,7 +52,9 @@ export function registerCreateActionVersion(server: McpServer, opts: McpServerOp
       });
       if (!action) {
         return {
-          content: [{ type: "text" as const, text: `Action "${action_id}" not found in this project.` }],
+          content: [
+            { type: "text" as const, text: `Action "${action_id}" not found in this project.` },
+          ],
           isError: true,
         };
       }

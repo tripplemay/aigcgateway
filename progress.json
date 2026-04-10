@@ -1,10 +1,10 @@
 {
-  "status": "building",
+  "status": "verifying",
   "user_goal": "K1 — API Key 用户级迁移 + 余额模型收敛",
   "total_features": 8,
-  "completed_features": 0,
+  "completed_features": 7,
   "fix_rounds": 0,
-  "current_sprint": "F-K1-01",
+  "current_sprint": "F-K1-08",
   "last_updated": "2026-04-10T12:00:00.000Z",
   "reference_docs": [
     "docs/specs/K1-apikey-user-level-spec.md"
@@ -19,7 +19,7 @@
   "evaluator_feedback": null,
   "generator_handoff": null,
   "session_notes": {
-    "Kimi": null,
+    "Kimi": "K1 building 全部完成（7/7）。Schema 迁移（ApiKey userId + User defaultProjectId + Project.balance 删除 + RechargeOrder userId）、鉴权中间件重构（user+project nullable）、v1 API 适配（chat/image/actions/templates）、新建 /api/keys 用户级路由、MCP 全量适配（auth+21 tools null guard）、billing/payment 改 userId、前端 Keys 页+对话框改用 /api/keys。tsc 零错误。",
     "Planner": "M1d done 收尾 + K1 启动。K1 含 7 generator + 1 codex。核心变更：ApiKey 清空重建绑 userId、Project.balance 删除、RechargeOrder.projectId 删除、鉴权改 userId + X-Project-Id header、旧 API 路径直接删除。不兼容旧数据。从 backlog 移除 BL-081/BL-069。",
     "Reviewer": null
   }

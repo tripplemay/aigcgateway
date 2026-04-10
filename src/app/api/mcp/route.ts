@@ -74,7 +74,8 @@ async function handleMcpRequest(request: Request): Promise<Response> {
   });
 
   const server = createMcpServer({
-    projectId: auth.project.id,
+    userId: auth.user.id,
+    projectId: auth.projectId,
     permissions: auth.permissions,
     keyRateLimit: auth.apiKey.rateLimit,
   });

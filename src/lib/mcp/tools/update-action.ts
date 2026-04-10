@@ -27,13 +27,21 @@ export function registerUpdateAction(server: McpServer, opts: McpServerOptions):
       if (permErr) {
         return { content: [{ type: "text" as const, text: permErr }], isError: true };
       }
+      if (!projectId) {
+        return {
+          content: [{ type: "text" as const, text: "[no_project] No default project configured." }],
+          isError: true,
+        };
+      }
 
       const action = await prisma.action.findFirst({
         where: { id: action_id, projectId },
       });
       if (!action) {
         return {
-          content: [{ type: "text" as const, text: `Action "${action_id}" not found in this project.` }],
+          content: [
+            { type: "text" as const, text: `Action "${action_id}" not found in this project.` },
+          ],
           isError: true,
         };
       }
@@ -45,7 +53,12 @@ export function registerUpdateAction(server: McpServer, opts: McpServerOptions):
 
       if (Object.keys(data).length === 0) {
         return {
-          content: [{ type: "text" as const, text: "No fields to update. Provide at least one of: name, description, model." }],
+          content: [
+            {
+              type: "text" as const,
+              text: "No fields to update. Provide at least one of: name, description, model.",
+            },
+          ],
           isError: true,
         };
       }
@@ -57,7 +70,12 @@ export function registerUpdateAction(server: McpServer, opts: McpServerOptions):
           {
             type: "text" as const,
             text: JSON.stringify(
-              { action_id: updated.id, name: updated.name, model: updated.model, message: "Action updated" },
+              {
+                action_id: updated.id,
+                name: updated.name,
+                model: updated.model,
+                message: "Action updated",
+              },
               null,
               2,
             ),

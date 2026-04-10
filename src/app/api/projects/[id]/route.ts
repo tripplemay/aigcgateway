@@ -4,17 +4,14 @@ import { NextResponse } from "next/server";
 import { verifyJwt } from "@/lib/api/jwt-middleware";
 import { errorResponse } from "@/lib/api/errors";
 
-
 /** GET /api/projects/:id — 项目详情 */
-export async function GET(
-  request: Request,
-  { params }: { params: { id: string } },
-) {
+export async function GET(request: Request, { params }: { params: { id: string } }) {
   const auth = verifyJwt(request);
   if (!auth.ok) return auth.error;
 
   const project = await prisma.project.findFirst({
     where: { id: params.id, userId: auth.payload.userId },
+    include: { user: { select: { balance: true } } },
   });
 
   if (!project) {
@@ -25,7 +22,7 @@ export async function GET(
     id: project.id,
     name: project.name,
     description: project.description,
-    balance: Number(project.balance),
+    balance: Number(project.user.balance),
     alertThreshold: project.alertThreshold ? Number(project.alertThreshold) : null,
     rateLimit: project.rateLimit,
     createdAt: project.createdAt,
@@ -33,10 +30,7 @@ export async function GET(
 }
 
 /** PATCH /api/projects/:id — 更新项目 */
-export async function PATCH(
-  request: Request,
-  { params }: { params: { id: string } },
-) {
+export async function PATCH(request: Request, { params }: { params: { id: string } }) {
   const auth = verifyJwt(request);
   if (!auth.ok) return auth.error;
 
@@ -62,13 +56,14 @@ export async function PATCH(
       ...(body.description !== undefined ? { description: body.description } : {}),
       ...(body.alertThreshold !== undefined ? { alertThreshold: body.alertThreshold } : {}),
     },
+    include: { user: { select: { balance: true } } },
   });
 
   return NextResponse.json({
     id: project.id,
     name: project.name,
     description: project.description,
-    balance: Number(project.balance),
+    balance: Number(project.user.balance),
     alertThreshold: project.alertThreshold ? Number(project.alertThreshold) : null,
   });
 }

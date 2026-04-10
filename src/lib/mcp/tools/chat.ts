@@ -23,7 +23,7 @@ const messageSchema = z.object({
 });
 
 export function registerChat(server: McpServer, opts: McpServerOptions): void {
-  const { projectId, permissions, keyRateLimit } = opts;
+  const { userId, projectId, permissions, keyRateLimit } = opts;
   server.tool(
     "chat",
     `Send a chat completion request to an AI model via AIGC Gateway. Pass model name and messages array. Returns generated text, trace ID, and token usage. IMPORTANT: Call list_models first to get available model names.`,
@@ -101,13 +101,25 @@ export function registerChat(server: McpServer, opts: McpServerOptions): void {
       }
 
       // Check balance
-      const project = await prisma.project.findUnique({ where: { id: projectId } });
-      if (!project || Number(project.balance) <= 0) {
+      const user = await prisma.user.findUnique({ where: { id: userId } });
+      if (!user || Number(user.balance) <= 0) {
         return {
           content: [
             {
               type: "text" as const,
-              text: `[insufficient_balance] Insufficient balance. Current balance: $${Number(project?.balance ?? 0).toFixed(4)}. Please recharge at the console.`,
+              text: `[insufficient_balance] Insufficient balance. Current balance: $${Number(user?.balance ?? 0).toFixed(4)}. Please recharge at the console.`,
+            },
+          ],
+          isError: true,
+        };
+      }
+
+      if (!projectId) {
+        return {
+          content: [
+            {
+              type: "text" as const,
+              text: `[no_project] No default project configured. Please set a default project in the console.`,
             },
           ],
           isError: true,
@@ -115,7 +127,12 @@ export function registerChat(server: McpServer, opts: McpServerOptions): void {
       }
 
       // Rate limit
-      const rateCheck = await checkRateLimit(project, "text", keyRateLimit);
+      const project = await prisma.project.findUnique({ where: { id: projectId } });
+      const rateCheck = await checkRateLimit(
+        project ?? { id: projectId, rateLimit: null },
+        "text",
+        keyRateLimit,
+      );
       if (!rateCheck.ok) {
         return {
           content: [

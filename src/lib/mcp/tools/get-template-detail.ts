@@ -20,6 +20,13 @@ export function registerGetTemplateDetail(server: McpServer, opts: McpServerOpti
       template_id: z.string().describe("Template ID"),
     },
     async ({ template_id }) => {
+      if (!projectId) {
+        return {
+          content: [{ type: "text" as const, text: "[no_project] No default project configured." }],
+          isError: true,
+        };
+      }
+
       const template = await prisma.template.findFirst({
         where: { id: template_id, projectId },
         include: {

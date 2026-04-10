@@ -7,24 +7,29 @@
 
 import { prisma } from "@/lib/prisma";
 
-
 let expiredOrderTimer: ReturnType<typeof setInterval> | null = null;
 let balanceAlertTimer: ReturnType<typeof setInterval> | null = null;
 
 export function startBillingScheduler(): void {
   // 每 5 分钟关闭过期订单
-  expiredOrderTimer = setInterval(() => {
-    closeExpiredOrders().catch((err) => {
-      console.error("[billing-scheduler] close expired orders error:", err);
-    });
-  }, 5 * 60 * 1000);
+  expiredOrderTimer = setInterval(
+    () => {
+      closeExpiredOrders().catch((err) => {
+        console.error("[billing-scheduler] close expired orders error:", err);
+      });
+    },
+    5 * 60 * 1000,
+  );
 
   // 每小时检查余额告警
-  balanceAlertTimer = setInterval(() => {
-    checkBalanceAlerts().catch((err) => {
-      console.error("[billing-scheduler] balance alert error:", err);
-    });
-  }, 60 * 60 * 1000);
+  balanceAlertTimer = setInterval(
+    () => {
+      checkBalanceAlerts().catch((err) => {
+        console.error("[billing-scheduler] balance alert error:", err);
+      });
+    },
+    60 * 60 * 1000,
+  );
 
   console.log("[billing-scheduler] started");
 }
@@ -71,9 +76,8 @@ export async function checkBalanceAlerts(): Promise<number> {
     select: {
       id: true,
       name: true,
-      balance: true,
       alertThreshold: true,
-      user: { select: { email: true } },
+      user: { select: { email: true, balance: true } },
     },
   });
 
@@ -81,7 +85,7 @@ export async function checkBalanceAlerts(): Promise<number> {
   const webhookUrl = process.env.ALERT_WEBHOOK_URL;
 
   for (const project of projects) {
-    const balance = Number(project.balance);
+    const balance = Number(project.user.balance);
     const threshold = Number(project.alertThreshold);
 
     if (balance <= threshold) {

@@ -213,11 +213,10 @@ export default function McpSetupPage() {
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
   const loadKeys = useCallback(() => {
-    if (!current) return;
-    apiFetch<{ data: ApiKeyRow[] }>(`/api/projects/${current.id}/keys`).then((r) => {
+    apiFetch<{ data: ApiKeyRow[] }>("/api/keys").then((r) => {
       setKeys(r.data.filter((k) => k.status === "ACTIVE"));
     });
-  }, [current]);
+  }, []);
 
   useEffect(() => {
     loadKeys();

@@ -20,6 +20,13 @@ export function registerListTemplates(server: McpServer, opts: McpServerOptions)
       pageSize: z.number().int().min(1).max(100).optional().describe("Items per page (default 20)"),
     },
     async ({ page = 1, pageSize = 20 }) => {
+      if (!projectId) {
+        return {
+          content: [{ type: "text" as const, text: "[no_project] No default project configured." }],
+          isError: true,
+        };
+      }
+
       const templates = await prisma.template.findMany({
         where: { projectId },
         include: {

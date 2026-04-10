@@ -34,6 +34,12 @@ export function registerListLogs(server: McpServer, opts: McpServerOptions): voi
       if (permErr) {
         return { content: [{ type: "text" as const, text: permErr }], isError: true };
       }
+      if (!projectId) {
+        return {
+          content: [{ type: "text" as const, text: "[no_project] No default project configured." }],
+          isError: true,
+        };
+      }
       const take = limit ?? 10;
 
       // Full-text search path — extract text from JSONB promptSnapshot before matching

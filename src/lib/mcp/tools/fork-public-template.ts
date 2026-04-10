@@ -20,6 +20,13 @@ export function registerForkPublicTemplate(server: McpServer, opts: McpServerOpt
       templateId: z.string().describe("ID of the public template to fork"),
     },
     async ({ templateId }) => {
+      if (!projectId) {
+        return {
+          content: [{ type: "text" as const, text: "[no_project] No default project configured." }],
+          isError: true,
+        };
+      }
+
       // Load source
       const source = await prisma.template.findFirst({
         where: { id: templateId, isPublic: true },

@@ -68,7 +68,7 @@ export function CreateKeyDialog({ open, onOpenChange, onCreated }: CreateKeyDial
     setCreating(true);
     await new Promise((r) => setTimeout(r, 0));
     try {
-      const r = await apiFetch<{ key: string }>(`/api/projects/${current.id}/keys`, {
+      const r = await apiFetch<{ key: string }>("/api/keys", {
         method: "POST",
         body: JSON.stringify({
           name: keyName || undefined,
