@@ -8,7 +8,6 @@
  * LLM 失败不阻塞 sync，未分类模型在 Admin 页面手动处理。
  */
 
-import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { getApiKey, getBaseUrl } from "./adapters/base";
 
@@ -386,14 +385,15 @@ export async function inferMissingCapabilities(): Promise<{
   let updated = 0;
 
   try {
-    const aliasesWithoutCaps = await prisma.modelAlias.findMany({
-      where: {
-        OR: [
-          { capabilities: { equals: Prisma.DbNull } },
-          { capabilities: { equals: Prisma.JsonNull } },
-        ],
-      },
-      select: { id: true, alias: true },
+    // Fetch all aliases and filter in JS to avoid Prisma Json null filtering issues
+    const allAliases = await prisma.modelAlias.findMany({
+      select: { id: true, alias: true, capabilities: true },
+    });
+    const aliasesWithoutCaps = allAliases.filter((a) => {
+      if (a.capabilities === null) return true;
+      if (typeof a.capabilities === "object" && Object.keys(a.capabilities as object).length === 0)
+        return true;
+      return false;
     });
 
     if (aliasesWithoutCaps.length === 0) {
