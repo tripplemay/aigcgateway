@@ -7,7 +7,7 @@
       "title": "Admin 模板详情页（/admin/templates/:id）",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) 新增 /admin/templates/:id 页面；2) 用 admin API 查模板（不受项目限制）；3) 展示模板完整信息（名称、描述、Steps、关联 Actions、公共状态、质量评分）；4) Admin 模板列表页的详情链接指向 /admin/templates/:id（而非用户侧 /templates/:id）；5) tsc 通过"
     },
     {
@@ -15,7 +15,7 @@
       "title": "模板详情页步骤卡片展开预览 Action 内容",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) 用户侧模板详情页（/templates/:id）步骤卡片可点击展开 accordion；2) 展开后只读预览 Action 内容（系统消息摘要、变量列表、活跃版本号）；3) 点击跳转图标 ↗ 跳到 Action 详情页编辑；4) tsc 通过"
     },
     {
@@ -23,7 +23,7 @@
       "title": "i18n",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) en.json + zh-CN.json 同步更新；2) 无硬编码字符串"
     },
     {

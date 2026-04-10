@@ -6,6 +6,48 @@ import { requireAdmin } from "@/lib/api/admin-guard";
 
 type Params = { params: { templateId: string } };
 
+// GET /api/admin/templates/:templateId — Admin template detail (no project restriction)
+export async function GET(request: Request, { params }: Params) {
+  const auth = requireAdmin(request);
+  if (!auth.ok) return auth.error;
+
+  const template = await prisma.template.findUnique({
+    where: { id: params.templateId },
+    include: {
+      project: { select: { id: true, name: true } },
+      steps: {
+        orderBy: { order: "asc" },
+        include: {
+          action: {
+            select: {
+              id: true,
+              name: true,
+              model: true,
+              description: true,
+              activeVersionId: true,
+              versions: {
+                orderBy: { versionNumber: "desc" },
+                take: 1,
+                select: {
+                  versionNumber: true,
+                  messages: true,
+                  variables: true,
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  });
+
+  if (!template) {
+    return NextResponse.json({ error: "Template not found" }, { status: 404 });
+  }
+
+  return NextResponse.json(template);
+}
+
 // PATCH /api/admin/templates/:templateId — Admin update template (isPublic, qualityScore)
 export async function PATCH(request: Request, { params }: Params) {
   const auth = requireAdmin(request);

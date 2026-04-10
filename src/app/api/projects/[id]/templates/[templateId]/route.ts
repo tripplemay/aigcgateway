@@ -23,7 +23,22 @@ export async function GET(request: Request, { params }: Params) {
     include: {
       steps: {
         orderBy: { order: "asc" },
-        include: { action: { select: { id: true, name: true, model: true, description: true } } },
+        include: {
+          action: {
+            select: {
+              id: true,
+              name: true,
+              model: true,
+              description: true,
+              activeVersionId: true,
+              versions: {
+                orderBy: { versionNumber: "desc" },
+                take: 1,
+                select: { versionNumber: true, messages: true, variables: true },
+              },
+            },
+          },
+        },
       },
     },
   });

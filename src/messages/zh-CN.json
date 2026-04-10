@@ -976,7 +976,9 @@
     "mostPopular": "最多 Fork",
     "actionsWillBeCopied": "将复制的 Action 数",
     "noPublicTemplates": "暂无公共模板",
-    "noPublicTemplatesDesc": "还没有公共模板可用，请稍后再来查看。"
+    "noPublicTemplatesDesc": "还没有公共模板可用，请稍后再来查看。",
+    "systemMessage": "系统消息",
+    "variables": "变量"
   },
   "adminTemplates": {
     "title": "模板管理",

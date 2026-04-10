@@ -976,7 +976,9 @@
     "mostPopular": "Most Forked",
     "actionsWillBeCopied": "Actions to be copied",
     "noPublicTemplates": "No Public Templates",
-    "noPublicTemplatesDesc": "No public templates are available yet. Check back later."
+    "noPublicTemplatesDesc": "No public templates are available yet. Check back later.",
+    "systemMessage": "System Message",
+    "variables": "Variables"
   },
   "adminTemplates": {
     "title": "Template Management",

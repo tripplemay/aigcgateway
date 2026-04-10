@@ -267,7 +267,7 @@ export default function AdminTemplatesPage() {
                 </div>
                 <div className="flex items-center gap-1">
                   <button
-                    onClick={() => router.push(`/templates/${tpl.id}`)}
+                    onClick={() => router.push(`/admin/templates/${tpl.id}`)}
                     className="p-1.5 text-ds-on-surface-variant hover:text-ds-primary hover:bg-ds-primary/5 rounded transition-all"
                   >
                     <span className="material-symbols-outlined text-lg">visibility</span>
