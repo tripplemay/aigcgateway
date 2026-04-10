@@ -1,3 +1,66 @@
 {
-  "fatal": "\nInvalid `prisma.project.update()` invocation in\n/Users/yixingzhou/project/aigcgateway/scripts/test/mcp-dx-round2-e2e-2026-04-06.ts:126:24\n\n  123 const key = await createTestApiKey(BASE, token, { name: \"dx2-local-key\" });\n  124 apiKey = key.key;\n  125 \n→ 126 await prisma.project.update({\n        where: {\n          id: \"cmnt2wp4500qx9ykwcrmesfp7\"\n        },\n        data: {\n          balance: 20,\n          ~~~~~~~\n      ?   id?: String | StringFieldUpdateOperationsInput,\n      ?   name?: String | StringFieldUpdateOperationsInput,\n      ?   description?: String | NullableStringFieldUpdateOperationsInput | Null,\n      ?   alertThreshold?: Decimal | NullableDecimalFieldUpdateOperationsInput | Null,\n      ?   rateLimit?: NullableJsonNullValueInput | Json,\n      ?   createdAt?: DateTime | DateTimeFieldUpdateOperationsInput,\n      ?   updatedAt?: DateTime | DateTimeFieldUpdateOperationsInput,\n      ?   user?: UserUpdateOneRequiredWithoutProjectsNestedInput,\n      ?   callLogs?: CallLogUpdateManyWithoutProjectNestedInput,\n      ?   transactions?: TransactionUpdateManyWithoutProjectNestedInput,\n      ?   actions?: ActionUpdateManyWithoutProjectNestedInput,\n      ?   templates?: TemplateUpdateManyWithoutProjectNestedInput\n        }\n      })\n\nUnknown argument `balance`. Available options are marked with ?."
+  "passed": 2,
+  "failed": 9,
+  "results": [
+    {
+      "name": "tools/list includes 13 tools",
+      "ok": false,
+      "detail": "expected 13 tools, got 28"
+    },
+    {
+      "name": "generate_image tool description contains size guidance",
+      "ok": false,
+      "detail": "description missing openai/gpt-image-1"
+    },
+    {
+      "name": "list_models quality gate",
+      "ok": false,
+      "detail": "empty model list"
+    },
+    {
+      "name": "list_models show_all_channels=true",
+      "ok": false,
+      "detail": "empty model list"
+    },
+    {
+      "name": "all 13 tools callable (smoke)",
+      "ok": false,
+      "detail": "[no_project] No default project configured."
+    },
+    {
+      "name": "get_action_detail returns messages and variables",
+      "ok": false,
+      "detail": "[no_project] No default project configured."
+    },
+    {
+      "name": "get_template_detail returns orchestration steps",
+      "ok": false,
+      "detail": "[no_project] No default project configured."
+    },
+    {
+      "name": "error: insufficient balance",
+      "ok": true,
+      "detail": "insufficient balance message verified"
+    },
+    {
+      "name": "error: model not found",
+      "ok": false,
+      "detail": "unexpected message: [insufficient_balance] Insufficient balance. Current balance: $0.0000. Please recharge at the console."
+    },
+    {
+      "name": "error: invalid parameter type",
+      "ok": true,
+      "detail": "schema validation error verified"
+    },
+    {
+      "name": "error: rate limit exceeded",
+      "ok": false,
+      "detail": "[insufficient_balance] Insufficient balance. Current balance: $0.0000. Please recharge at the console."
+    }
+  ],
+  "projectId": "cmnt39oae00079yv430icv7dk",
+  "apiKeyPrefix": "pk_45db4",
+  "actionId": "cmnt39ocj000j9yv4logomv2h",
+  "templateId": "cmnt39ocv000x9yv418o6esfj",
+  "traceId": ""
 }

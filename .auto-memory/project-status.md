@@ -5,6 +5,8 @@ type: project
 ---
 ## 当前批次
 - CI1-test-infrastructure：`fixing`
+- `reverifying` round 4 失败：3 个脚本仍未跑通（`no_project` / `insufficient_balance`，且存在 `Project.balance` 残留访问）
+- CI1-test-infrastructure：`fixing`
 - `reverifying` round 3 失败：3 个脚本统一在 `prisma.project.update({ balance })` 报错（Project 已无 balance 字段）
 - CI1-test-infrastructure：`fixing`
 - `reverifying` round 2 失败：3 个脚本统一在 createTestApiKey 阶段 404（`POST /api/projects/:id/keys` 路径不可用）

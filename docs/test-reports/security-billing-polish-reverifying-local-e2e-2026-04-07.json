@@ -1,9 +1,34 @@
 {
   "batch": "security-billing-polish",
-  "generatedAt": "2026-04-10T15:46:52.047Z",
+  "generatedAt": "2026-04-10T15:56:56.609Z",
   "environment": "http://localhost:3099",
-  "checks": [],
-  "fatal": "PrismaClientValidationError: \nInvalid `prisma.project.update()` invocation in\n/Users/yixingzhou/project/aigcgateway/scripts/test/security-billing-polish-e2e-2026-04-07.ts:164:24\n\n  161 });\n  162 apiKey = key.key;\n  163 \n→ 164 await prisma.project.update({\n        where: {\n          id: \"cmnt2wsfy00r69ykw9djt8yzn\"\n        },\n        data: {\n          balance: 1,\n          ~~~~~~~\n      ?   id?: String | StringFieldUpdateOperationsInput,\n      ?   name?: String | StringFieldUpdateOperationsInput,\n      ?   description?: String | NullableStringFieldUpdateOperationsInput | Null,\n      ?   alertThreshold?: Decimal | NullableDecimalFieldUpdateOperationsInput | Null,\n      ?   rateLimit?: NullableJsonNullValueInput | Json,\n      ?   createdAt?: DateTime | DateTimeFieldUpdateOperationsInput,\n      ?   updatedAt?: DateTime | DateTimeFieldUpdateOperationsInput,\n      ?   user?: UserUpdateOneRequiredWithoutProjectsNestedInput,\n      ?   callLogs?: CallLogUpdateManyWithoutProjectNestedInput,\n      ?   transactions?: TransactionUpdateManyWithoutProjectNestedInput,\n      ?   actions?: ActionUpdateManyWithoutProjectNestedInput,\n      ?   templates?: TemplateUpdateManyWithoutProjectNestedInput\n        }\n      })\n\nUnknown argument `balance`. Available options are marked with ?.\n    at throwValidationException (/Users/yixingzhou/project/aigcgateway/node_modules/@prisma/client/src/runtime/core/errorRendering/throwValidationException.ts:45:9)\n    at ei.handleRequestError (/Users/yixingzhou/project/aigcgateway/node_modules/@prisma/client/src/runtime/RequestHandler.ts:202:7)\n    at ei.handleAndLogRequestError (/Users/yixingzhou/project/aigcgateway/node_modules/@prisma/client/src/runtime/RequestHandler.ts:174:12)\n    at ei.request (/Users/yixingzhou/project/aigcgateway/node_modules/@prisma/client/src/runtime/RequestHandler.ts:143:12)\n    at async a (/Users/yixingzhou/project/aigcgateway/node_modules/@prisma/client/src/runtime/getPrismaClient.ts:833:24)\n    at async createProjectAndKey (/Users/yixingzhou/project/aigcgateway/scripts/test/security-billing-polish-e2e-2026-04-07.ts:164:3)\n    at async main (/Users/yixingzhou/project/aigcgateway/scripts/test/security-billing-polish-e2e-2026-04-07.ts:300:5)",
-  "pass": 0,
-  "fail": 1
+  "checks": [
+    {
+      "name": "mcp initialize",
+      "ok": true,
+      "detail": "ok"
+    },
+    {
+      "name": "F-SB-01 MCP generate_image invalid size sanitized",
+      "ok": true,
+      "detail": "Insufficient balance. Current balance: $0.0000. Please recharge at the console."
+    },
+    {
+      "name": "F-SB-01 REST generate_image empty prompt sanitized",
+      "ok": true,
+      "detail": "status=402"
+    },
+    {
+      "name": "F-SB-03 empty content blocked at gateway",
+      "ok": false,
+      "detail": "unexpected error: [insufficient_balance] Insufficient balance. Current balance: $0.0000. Please recharge at the console."
+    },
+    {
+      "name": "F-SB-02 MIN_CHARGE applied on 1-token call",
+      "ok": false,
+      "detail": "\nInvalid `prisma.project.findUniqueOrThrow()` invocation in\n/Users/yixingzhou/project/aigcgateway/scripts/test/security-billing-polish-e2e-2026-04-07.ts:350:43\n\n  347 });\n  348 \n  349 await step(\"F-SB-02 MIN_CHARGE applied on 1-token call\", checks, async () => {\n→ 350   const before = await prisma.project.findUniqueOrThrow({\n          where: {\n            id: \"cmnt39qwt00s29yv40pfsrw87\"\n          },\n          select: {\n            balance: true,\n            ~~~~~~~\n        ?   id?: true,\n        ?   userId?: true,\n        ?   name?: true,\n        ?   description?: true,\n        ?   alertThreshold?: true,\n        ?   rateLimit?: true,\n        ?   createdAt?: true,\n        ?   updatedAt?: true,\n        ?   user?: true,\n        ?   callLogs?: true,\n        ?   transactions?: true,\n        ?   actions?: true,\n        ?   templates?: true,\n        ?   _count?: true\n          }\n        })\n\nUnknown field `balance` for select statement on model `Project`. Available options are marked with ?."
+    }
+  ],
+  "pass": 3,
+  "fail": 2
 }

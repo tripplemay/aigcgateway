@@ -1,11 +1,11 @@
 {
-  "status": "reverifying",
+  "status": "fixing",
   "user_goal": "CI1 — 测试基础设施升级（Mock 复用 + 测试工厂 + Vitest + CI pipeline）",
   "total_features": 5,
-  "completed_features": 4,
+  "completed_features": 2,
   "fix_rounds": 4,
-  "current_sprint": null,
-  "last_updated": "2026-04-10T23:52:00.000Z",
+  "current_sprint": "F-CI1-01",
+  "last_updated": "2026-04-10T15:57:21Z",
   "reference_docs": [],
   "role_assignments": null,
   "docs": {
@@ -14,7 +14,26 @@
     "signoff": null,
     "framework_reviewed": false
   },
-  "evaluator_feedback": null,
+  "evaluator_feedback": {
+    "summary": "CI1 round4 复验失败：vitest 通过，但 3 个 E2E 脚本仍大量失败（no_project/insufficient_balance，且残留 Project.balance 访问）。",
+    "pass_count": 2,
+    "partial_count": 0,
+    "fail_count": 2,
+    "issues": [
+      {
+        "feature_id": "F-CI1-01",
+        "result": "FAIL",
+        "description": "改造后的 3 个脚本仍未跑通，mcp-dx-round2 与 mcp-finops-hardening 出现 no_project 和 balance 相关失败。",
+        "steps_to_reproduce": "1) bash scripts/test/codex-setup.sh && bash scripts/test/codex-wait.sh 2) npx tsx scripts/test/mcp-dx-round2-e2e-2026-04-06.ts 3) npx tsx scripts/test/mcp-finops-hardening-e2e-2026-04-07.ts"
+      },
+      {
+        "feature_id": "F-CI1-02",
+        "result": "FAIL",
+        "description": "security-billing-polish 仍在 Project.balance 访问处失败，显示脚本/工厂未完全适配当前数据模型。",
+        "steps_to_reproduce": "执行 npx tsx scripts/test/security-billing-polish-e2e-2026-04-07.ts，报 Unknown field/argument `balance`（Project 模型）。"
+      }
+    ]
+  },
   "generator_handoff": {
     "completed": ["F-CI1-01", "F-CI1-02", "F-CI1-03", "F-CI1-04"],
     "codex_pending": ["F-CI1-05"],
@@ -23,6 +42,6 @@
   "session_notes": {
     "Kimi": "Fixing round 4: balance 从 project.update 改为 user.updateMany（User 模型有 balance，Project 没有）。3 个脚本增加 email 模块变量，从 createTestUser 结果中保存。mcp-dx-round2 额外修复 createProjectAndKeyForRateLimit 中的 /api/keys 路径。tsc + vitest 通过。",
     "Planner": "O1 done + CI1 启动。BL-092 拆为 4 generator + 1 codex。Mock 公共库+测试工厂+Vitest CI+generator 规则。从 backlog 移除 BL-092。",
-    "Reviewer": "CI1 round3 复验完成：vitest 11/11 通过；createTestApiKey 404 已修复，但 3 个脚本统一在 Project.balance 更新处失败（Unknown argument balance）。报告：docs/test-reports/CI1-test-infrastructure-reverifying-round3-2026-04-10.md。状态回退 fixing。"
+    "Reviewer": "CI1 round4 复验完成：vitest 11/11 通过；3 个 E2E 脚本仍失败（no_project/insufficient_balance，且 security-billing-polish 残留 Project.balance 访问）。报告：docs/test-reports/CI1-test-infrastructure-reverifying-round4-2026-04-10.md。状态回退 fixing。"
   }
 }

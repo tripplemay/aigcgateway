@@ -1,9 +1,54 @@
 {
   "batch": "mcp-finops-hardening",
-  "generatedAt": "2026-04-10T15:46:47.743Z",
+  "generatedAt": "2026-04-10T15:56:53.321Z",
   "environment": "http://localhost:3099",
-  "checks": [],
-  "fatal": "PrismaClientValidationError: \nInvalid `prisma.project.update()` invocation in\n/Users/yixingzhou/project/aigcgateway/scripts/test/mcp-finops-hardening-e2e-2026-04-07.ts:154:24\n\n  151 });\n  152 apiKey = key.key;\n  153 \n→ 154 await prisma.project.update({\n        where: {\n          id: \"cmnt2wp4400qv9ykwlk2j73wy\"\n        },\n        data: {\n          balance: 20,\n          ~~~~~~~\n      ?   id?: String | StringFieldUpdateOperationsInput,\n      ?   name?: String | StringFieldUpdateOperationsInput,\n      ?   description?: String | NullableStringFieldUpdateOperationsInput | Null,\n      ?   alertThreshold?: Decimal | NullableDecimalFieldUpdateOperationsInput | Null,\n      ?   rateLimit?: NullableJsonNullValueInput | Json,\n      ?   createdAt?: DateTime | DateTimeFieldUpdateOperationsInput,\n      ?   updatedAt?: DateTime | DateTimeFieldUpdateOperationsInput,\n      ?   user?: UserUpdateOneRequiredWithoutProjectsNestedInput,\n      ?   callLogs?: CallLogUpdateManyWithoutProjectNestedInput,\n      ?   transactions?: TransactionUpdateManyWithoutProjectNestedInput,\n      ?   actions?: ActionUpdateManyWithoutProjectNestedInput,\n      ?   templates?: TemplateUpdateManyWithoutProjectNestedInput\n        }\n      })\n\nUnknown argument `balance`. Available options are marked with ?.\n    at throwValidationException (/Users/yixingzhou/project/aigcgateway/node_modules/@prisma/client/src/runtime/core/errorRendering/throwValidationException.ts:45:9)\n    at ei.handleRequestError (/Users/yixingzhou/project/aigcgateway/node_modules/@prisma/client/src/runtime/RequestHandler.ts:202:7)\n    at ei.handleAndLogRequestError (/Users/yixingzhou/project/aigcgateway/node_modules/@prisma/client/src/runtime/RequestHandler.ts:174:12)\n    at ei.request (/Users/yixingzhou/project/aigcgateway/node_modules/@prisma/client/src/runtime/RequestHandler.ts:143:12)\n    at async a (/Users/yixingzhou/project/aigcgateway/node_modules/@prisma/client/src/runtime/getPrismaClient.ts:833:24)\n    at async createProjectAndKey (/Users/yixingzhou/project/aigcgateway/scripts/test/mcp-finops-hardening-e2e-2026-04-07.ts:154:3)\n    at async main (/Users/yixingzhou/project/aigcgateway/scripts/test/mcp-finops-hardening-e2e-2026-04-07.ts:349:5)",
-  "pass": 0,
-  "fail": 1
+  "checks": [
+    {
+      "name": "mcp initialize",
+      "ok": true,
+      "detail": "aigc-gateway"
+    },
+    {
+      "name": "F-MH-01 generate_image invalid size no upstream leak",
+      "ok": true,
+      "detail": "Insufficient balance. Current balance: $0.0000. Please recharge at the console."
+    },
+    {
+      "name": "F-MH-02 activate_version rollback",
+      "ok": false,
+      "detail": "[no_project] No default project configured."
+    },
+    {
+      "name": "F-MH-03 run_template returns detailed steps[]",
+      "ok": false,
+      "detail": "Insufficient balance. Current: $0.0000"
+    },
+    {
+      "name": "F-MH-04 get_balance transactions include traceId",
+      "ok": false,
+      "detail": "Insufficient balance. Current balance: $0.0000. Please recharge at the console."
+    },
+    {
+      "name": "F-MH-05 top_p=0 handled",
+      "ok": true,
+      "detail": "rejected: MCP error -32602: Input validation error: Invalid arguments for tool chat: [\n  {\n    \"code\": \"too_small\",\n    \"minimum\": 0,\n    \"type\": \"number\",\n    \"inclusive\": false,\n    \"exact\": false,\n    \"message\": \"Number must be greater than 0\",\n    \"path\": [\n      \"top_p\"\n    ]\n  }\n]"
+    },
+    {
+      "name": "F-MH-06 run_action supports version_id override",
+      "ok": false,
+      "detail": "[no_project] No default project configured. Please set a default project in the console."
+    },
+    {
+      "name": "F-MH-07 micro billing not truncated",
+      "ok": false,
+      "detail": "[no_project] No default project configured."
+    },
+    {
+      "name": "F-MH-08 usage drilldown Σ(single)≈aggregate",
+      "ok": false,
+      "detail": "[no_project] No default project configured."
+    }
+  ],
+  "pass": 3,
+  "fail": 6
 }
