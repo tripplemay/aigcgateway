@@ -4,19 +4,20 @@ description: AIGC Gateway 当前状态快照（覆盖写，≤30 行）
 type: project
 ---
 ## 当前批次
-- K1-apikey-user-level：`done`
-- 第 3 轮 `reverifying` 已签收，K1 用户级 API Key 与余额模型收敛验收完成
+- U1-admin-user-detail：`building`
+- spec：`docs/specs/U1-admin-user-detail-spec.md`
 
-## K1 验收结论
-- `/api/keys` 用户级 Key 管理通过，旧项目级 keys 路径已删除
-- Key 调 chat 成功且扣减 `User.balance`
-- 同一 Key 通过 `X-Project-Id` 可访问不同项目的 Actions
-- 无项目上下文时 chat 可用、actions 按预期返回 `400`
-- 用户级充值新路径通过，旧路径已删除
-- MCP initialize 与 tools/list 通过
+## U1 功能拆分（7 个）
+- F-U1-01 Schema + API（suspended/deletedAt/transactions/suspend/delete）
+- F-U1-02 用户列表 API 适配
+- F-U1-03 前端余额+充值+历史
+- F-U1-04 前端 lastActive + 项目卡片
+- F-U1-05 前端 Danger Zone（Suspend/Delete）
+- F-U1-06 i18n
+- F-U1-07 全量验收（codex）
 
 ## 已完成批次
-- R1~R4 / P5 / M1a~M1d / BF(bugfix) / K1
+- R1~R4 / P5 / M1a~M1d / BF / K1
 
 ## Backlog
-- 11 条（BL-065~092），含 2 条 high（BL-078 用户详情页, BL-086 MCP chat 参数）
+- 17 条（BL-065~096），含 2 条 high（BL-093 LLM 健壮性, BL-086 MCP chat 参数）

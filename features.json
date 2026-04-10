@@ -1,70 +1,62 @@
 {
-  "batch": "K1-apikey-user-level",
+  "batch": "U1-admin-user-detail",
   "created_at": "2026-04-10",
   "features": [
     {
-      "id": "F-K1-01",
-      "title": "Schema 迁移 — ApiKey 用户级 + 字段清理",
+      "id": "F-U1-01",
+      "title": "Schema + API 变更",
       "priority": "high",
       "executor": "generator",
-      "status": "done",
-      "acceptance": "1) ApiKey 表清空旧数据，projectId 删除，新增 userId；2) User 新增 defaultProjectId（回填第一个项目）；3) Project.balance 字段删除；4) RechargeOrder.projectId 字段删除；5) deduct_balance 函数改为直接接收 userId；6) prisma generate + migrate dev 通过；7) tsc 通过"
+      "status": "pending",
+      "acceptance": "1) User 新增 suspended/deletedAt 字段；2) GET /api/admin/users/:id 返回 balance+lastActive；3) GET /api/admin/users/:id/transactions 分页返回交易记录；4) POST /api/admin/users/:id/suspend 暂停/恢复用户；5) DELETE /api/admin/users/:id 软删除用户；6) 鉴权中间件检查 suspended+deletedAt；7) migrate dev + tsc 通过"
     },
     {
-      "id": "F-K1-02",
-      "title": "鉴权中间件重构",
+      "id": "F-U1-02",
+      "title": "用户列表 API 适配",
       "priority": "high",
       "executor": "generator",
-      "status": "done",
-      "acceptance": "1) authenticateApiKey 从 Key 解析 userId；2) X-Project-Id header 或 defaultProjectId 获取项目上下文；3) 项目归属校验（用户只能访问自己的项目）；4) 无项目时 chat/image 仍可调用；5) 无项目时 Actions/Templates 返回 400；6) tsc 通过"
+      "status": "pending",
+      "acceptance": "1) totalBalance 直接读 User.balance；2) 已删除用户不出现在列表；3) tsc 通过"
     },
     {
-      "id": "F-K1-03",
-      "title": "API 端点适配 — chat/image/actions/templates",
+      "id": "F-U1-03",
+      "title": "前端 — 余额 + 充值 + 历史",
       "priority": "high",
       "executor": "generator",
-      "status": "done",
-      "acceptance": "1) /v1/chat/completions 和 /v1/images/generations 正常工作；2) CallLog.projectId 仍正确记录；3) 计费扣费走 userId；4) Actions/Templates 路由按项目隔离；5) tsc 通过"
+      "status": "pending",
+      "acceptance": "1) 余额统计卡显示 User.balance；2) 充值弹窗无项目选择，直接充值到用户；3) 余额历史接真实 Transaction 数据，分页正常；4) tsc 通过"
     },
     {
-      "id": "F-K1-04",
-      "title": "Keys 管理 API 改为用户级",
-      "priority": "high",
+      "id": "F-U1-04",
+      "title": "前端 — lastActive + 项目卡片",
+      "priority": "medium",
       "executor": "generator",
-      "status": "done",
-      "acceptance": "1) GET/POST /api/keys 正常工作；2) GET/PATCH/DELETE /api/keys/:keyId 正常工作；3) 旧 /api/projects/:id/keys/* 路径删除；4) 创建 Key 绑定 userId；5) tsc 通过"
+      "status": "pending",
+      "acceptance": "1) lastActive 显示真实最后活跃时间；2) 项目卡片不显示余额，只显示调用数/Key 数；3) tsc 通过"
     },
     {
-      "id": "F-K1-05",
-      "title": "充值 API 简化 + 余额清理",
-      "priority": "high",
+      "id": "F-U1-05",
+      "title": "前端 — Danger Zone",
+      "priority": "medium",
       "executor": "generator",
-      "status": "done",
-      "acceptance": "1) POST /api/admin/users/:id/recharge 正常工作；2) 旧 /api/admin/users/:id/projects/:projectId/recharge 删除；3) 侧边栏余额显示 User.balance；4) Balance 页面查用户余额；5) tsc 通过"
+      "status": "pending",
+      "acceptance": "1) Suspend 按钮可用，暂停/恢复切换；2) Delete 按钮可用，需输入邮箱确认；3) 暂停后用户无法登录/调用 API；4) 删除后用户从列表消失；5) tsc 通过"
     },
     {
-      "id": "F-K1-06",
-      "title": "MCP 适配",
-      "priority": "high",
+      "id": "F-U1-06",
+      "title": "i18n",
+      "priority": "medium",
       "executor": "generator",
-      "status": "done",
-      "acceptance": "1) MCP auth 返回 userId；2) McpServerOptions 含 userId + projectId（可空）；3) get_balance 直接查 User.balance；4) 无项目时需要项目的工具返回友好错误；5) tsc 通过"
+      "status": "pending",
+      "acceptance": "1) en.json + zh-CN.json 同步更新；2) 无硬编码字符串"
     },
     {
-      "id": "F-K1-07",
-      "title": "前端适配 — Keys 页 + Balance 页 + 侧边栏",
-      "priority": "high",
-      "executor": "generator",
-      "status": "done",
-      "acceptance": "1) Keys 页面列出用户所有 Key（非按项目）；2) 侧边栏余额显示 User.balance；3) Balance 页面查用户余额；4) tsc 通过"
-    },
-    {
-      "id": "F-K1-08",
-      "title": "K1 全量验收",
+      "id": "F-U1-07",
+      "title": "U1 全量验收",
       "priority": "high",
       "executor": "codex",
       "status": "pending",
-      "acceptance": "1) 用户用 Key 调 chat → 成功，扣 User.balance；2) 同一 Key 切换项目（X-Project-Id）→ 访问不同项目 Actions；3) 无项目时 chat 可用、Actions 返回 400；4) Keys 管理列出所有 Key；5) Admin 充值到用户余额；6) MCP 连接正常；7) 签收报告生成"
+      "acceptance": "1) Admin 查看用户详情：余额、lastActive、项目、交易记录正确；2) Admin 充值：余额增加，交易记录新增；3) Admin 暂停用户：用户无法登录/调用 API，恢复后正常；4) Admin 删除用户：用户从列表消失，无法登录；5) 签收报告生成"
     }
   ]
 }
