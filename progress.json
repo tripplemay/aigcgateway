@@ -1,12 +1,12 @@
 {
-  "status": "reverifying",
+  "status": "fixing",
 
   "user_goal": "M1d — 别名管理页优化（单列+搜索+排序+售价上提+LLM 推断 capabilities）",
   "total_features": 6,
   "completed_features": 5,
   "fix_rounds": 3,
   "current_sprint": "F-M1d-06",
-  "last_updated": "2026-04-10T10:19:00.000Z",
+  "last_updated": "2026-04-10T10:34:00.000Z",
   "reference_docs": [
     "docs/specs/M1-models-page-rework-spec.md",
     "design-draft/admin-model-aliases/code.html"
@@ -36,6 +36,6 @@
   "session_notes": {
     "Kimi": "M1d fix round 3：根因是 inferMissingCapabilities 只定义了函数但没有调用入口。修复：1) model-sync.ts 在 sync 链中追加调用；2) 新增 POST /api/admin/model-aliases/infer-capabilities 端点供手动触发和测试。DbNull+JsonNull 查询条件保持不变。",
     "Planner": "BF 批次 done 收尾 + M1d 启动。BL-084 拆为 5 generator + 1 codex。从 backlog 移除 BL-084。核心变更：卡片改单列、搜索筛选排序、sellPrice 上提到别名层、LLM 推断 capabilities。",
-    "Reviewer": "2026-04-10 reverifying：按用户提示重新 pull 后复验，结果仍 5 PASS / 1 FAIL（AC4）。已确认代码包含 DbNull + JsonNull，但动态测试依旧 updated=0、fill_caps=null，说明修复未生效。已更新复验报告并保持 fixing。"
+    "Reviewer": "2026-04-10 reverifying：再次按用户要求 pull 最新并重建测试环境后复验（executedAt=2026-04-10T00:33:37.819Z），结果仍 5 PASS / 1 FAIL（AC4）。已确认最新 main 下 AC4 依旧 updated=0、fill_caps=null；已更新复验结果并回到 fixing。"
   }
 }

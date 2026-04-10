@@ -12,6 +12,7 @@
 - 启动：`bash scripts/test/codex-setup.sh` + `bash scripts/test/codex-wait.sh`
 - 复验脚本：`scripts/test/m1d-alias-page-polish-reverifying-e2e-2026-04-10.ts`
 - 结果文件：`docs/test-reports/m1d-alias-page-polish-reverifying-e2e-2026-04-10.json`
+- 本次执行时间：`2026-04-10T00:33:37.819Z`
 
 ## 结果概览
 - PASS：5
