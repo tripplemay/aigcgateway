@@ -1,11 +1,11 @@
 {
-  "status": "reverifying",
+  "status": "fixing",
   "user_goal": "K1 — API Key 用户级迁移 + 余额模型收敛",
   "total_features": 8,
   "completed_features": 7,
   "fix_rounds": 2,
   "current_sprint": "F-K1-08",
-  "last_updated": "2026-04-10T12:33:00.000+08:00",
+  "last_updated": "2026-04-10T12:51:05.000+08:00",
   "reference_docs": [
     "docs/specs/K1-apikey-user-level-spec.md"
   ],
@@ -17,22 +17,16 @@
     "framework_reviewed": false
   },
   "evaluator_feedback": {
-    "summary": "K1 复验 3/7 通过。旧 keys 路径已删除，但出现新阻断：chat/actions 返回 503，且新充值路径 /api/admin/users/:id/recharge 返回 500（Transaction.projectId 外键错误）。",
-    "pass_count": 3,
+    "summary": "K1 复验被本地环境阻断：codex-setup 在 Prisma migrate deploy 阶段失败，迁移 20260410043537_transaction_projectid_optional 尝试删除不存在的 api_keys_userId_fkey，服务未启动，业务复验未执行。",
+    "pass_count": 0,
     "partial_count": 0,
-    "fail_count": 4,
+    "fail_count": 1,
     "issues": [
       {
-        "feature_id": "F-K1-05",
+        "feature_id": "F-K1-08",
         "result": "FAIL",
-        "description": "新充值路径 /api/admin/users/:id/recharge 返回 500；日志显示 Transaction.projectId 外键约束失败（P2003）。",
-        "steps_to_reproduce": "1) 管理员登录获取 JWT 2) POST /api/admin/users/{userId}/recharge 3) 返回 500，服务日志出现 transactions_projectId_fkey 约束错误。"
-      },
-      {
-        "feature_id": "F-K1-03",
-        "result": "FAIL",
-        "description": "chat/actions 主链路在复验中返回 503（无可用通道）。",
-        "steps_to_reproduce": "1) 创建 key 并调用 /v1/chat/completions 2) 调用 /v1/actions/run 3) 两者返回 503。"
+        "description": "本地测试环境无法启动；Prisma 迁移 20260410043537_transaction_projectid_optional 删除不存在的 api_keys_userId_fkey，导致 codex-setup 在 migrate deploy 阶段失败，K1 业务复验无法执行。",
+        "steps_to_reproduce": "1) 执行 bash scripts/test/codex-setup.sh 2) 观察步骤 [3/5] Prisma generate + migrate deploy + seed 3) 迁移 20260410043537_transaction_projectid_optional 报 P3018，数据库错误 42704：constraint api_keys_userId_fkey does not exist。"
       }
     ]
   },
@@ -40,6 +34,6 @@
   "session_notes": {
     "Kimi": "K1 building 全部完成（7/7）。Schema 迁移（ApiKey userId + User defaultProjectId + Project.balance 删除 + RechargeOrder userId）、鉴权中间件重构（user+project nullable）、v1 API 适配（chat/image/actions/templates）、新建 /api/keys 用户级路由、MCP 全量适配（auth+21 tools null guard）、billing/payment 改 userId、前端 Keys 页+对话框改用 /api/keys。tsc 零错误。",
     "Planner": "M1d done 收尾 + K1 启动。K1 含 7 generator + 1 codex。核心变更：ApiKey 清空重建绑 userId、Project.balance 删除、RechargeOrder.projectId 删除、鉴权改 userId + X-Project-Id header、旧 API 路径直接删除。不兼容旧数据。从 backlog 移除 BL-081/BL-069。",
-    "Reviewer": "2026-04-10 reverifying：按最新代码重跑 K1 复验（executedAt=2026-04-10T04:32:12.290Z）。结果 3 PASS / 4 FAIL：旧 keys 路径删除已通过（404），但 chat/actions 返回 503，且新 recharge 路径返回 500（Transaction.projectId 外键约束错误）；旧 recharge 路径已 404。状态回到 fixing。"
+    "Reviewer": "2026-04-10 reverifying：重新执行 K1 复验时，按 AGENTS 规定先跑 codex-setup/codex-wait，但环境在 Prisma migrate deploy 阶段即失败。迁移 20260410043537_transaction_projectid_optional 尝试 DROP 不存在的 api_keys_userId_fkey，触发 P3018 / Postgres 42704，3099 服务未启动，业务验收未进入执行；状态回退 fixing。"
   }
 }
