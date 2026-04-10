@@ -4,6 +4,8 @@ description: AIGC Gateway 当前状态快照（覆盖写，≤30 行）
 type: project
 ---
 ## 当前批次
+- N1-ui-navigation-polish：`fixing`
+- `verifying` 首轮未通过，阻断项为 Settings Project tab 无法保存项目名称/描述
 - T1-template-experience：`done`
 - `verifying` 首轮签收通过，Admin 模板详情独立路由与用户侧步骤预览 Action 验收完成
 - U1-admin-user-detail：`done`
@@ -21,6 +23,12 @@ type: project
 - `/templates/:id` 步骤卡片支持 accordion 展开，只读预览系统消息摘要和变量
 - `open_in_new` 可跳转到 `/actions/:id`，Action 详情页正常展示活跃版本
 - EN/CN 切换下新增文案可正常翻译，页面沿用现有 DS token
+
+## N1 验收结论
+- Sidebar 已按 Core / Develop / Data / Model Mgmt / Operations / Users 分组，Docs 入口迁入 Sidebar，Top Bar 不再保留旧文档导航
+- Keys 页已移除旧统计卡与 FAB，创建按钮合并到表格 header
+- Settings 页已新增 Account / Project tab，Project tab 可展示项目统计并执行删除
+- 阻断问题：Project tab 点击保存后项目名称与描述未更新，API 复核仍返回旧值
 
 ## U1 验收结论
 - 详情 API 返回真实 balance、lastActive、projects、transactions 分页
