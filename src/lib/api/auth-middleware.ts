@@ -92,6 +92,20 @@ export async function authenticateApiKey(request: Request): Promise<AuthResult> 
     };
   }
 
+  // 用户状态检查
+  if (apiKey.user.deletedAt) {
+    return {
+      ok: false,
+      error: errorResponse(403, "account_deleted", "User account has been deleted"),
+    };
+  }
+  if (apiKey.user.suspended) {
+    return {
+      ok: false,
+      error: errorResponse(403, "account_suspended", "User account has been suspended"),
+    };
+  }
+
   // 过期兜底检查（定时任务是主力，这里是兜底）
   if (apiKey.expiresAt && new Date(apiKey.expiresAt) < new Date()) {
     prisma.apiKey.update({ where: { id: apiKey.id }, data: { status: "REVOKED" } }).catch(() => {});

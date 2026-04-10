@@ -7,7 +7,7 @@
       "title": "Schema + API 变更",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) User 新增 suspended/deletedAt 字段；2) GET /api/admin/users/:id 返回 balance+lastActive；3) GET /api/admin/users/:id/transactions 分页返回交易记录；4) POST /api/admin/users/:id/suspend 暂停/恢复用户；5) DELETE /api/admin/users/:id 软删除用户；6) 鉴权中间件检查 suspended+deletedAt；7) migrate dev + tsc 通过"
     },
     {
@@ -15,7 +15,7 @@
       "title": "用户列表 API 适配",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) totalBalance 直接读 User.balance；2) 已删除用户不出现在列表；3) tsc 通过"
     },
     {
@@ -23,7 +23,7 @@
       "title": "前端 — 余额 + 充值 + 历史",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) 余额统计卡显示 User.balance；2) 充值弹窗无项目选择，直接充值到用户；3) 余额历史接真实 Transaction 数据，分页正常；4) tsc 通过"
     },
     {
@@ -31,7 +31,7 @@
       "title": "前端 — lastActive + 项目卡片",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) lastActive 显示真实最后活跃时间；2) 项目卡片不显示余额，只显示调用数/Key 数；3) tsc 通过"
     },
     {
@@ -39,7 +39,7 @@
       "title": "前端 — Danger Zone",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) Suspend 按钮可用，暂停/恢复切换；2) Delete 按钮可用，需输入邮箱确认；3) 暂停后用户无法登录/调用 API；4) 删除后用户从列表消失；5) tsc 通过"
     },
     {
@@ -47,7 +47,7 @@
       "title": "i18n",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) en.json + zh-CN.json 同步更新；2) 无硬编码字符串"
     },
     {

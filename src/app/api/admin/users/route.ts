@@ -12,7 +12,7 @@ export async function GET(request: Request) {
   const pageSize = Math.min(100, Math.max(1, parseInt(url.searchParams.get("pageSize") ?? "20")));
   const skip = (page - 1) * pageSize;
 
-  const where = { role: "DEVELOPER" as const };
+  const where = { role: "DEVELOPER" as const, deletedAt: null };
 
   // 并行查询：分页用户 + 总数
   const [users, total] = await Promise.all([

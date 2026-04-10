@@ -29,6 +29,13 @@ export async function POST(request: Request) {
     return errorResponse(401, "invalid_credentials", "Invalid email or password");
   }
 
+  if (user.deletedAt) {
+    return errorResponse(403, "account_deleted", "User account has been deleted");
+  }
+  if (user.suspended) {
+    return errorResponse(403, "account_suspended", "User account has been suspended");
+  }
+
   // Rehash 存量 cost=12 的密码为 cost=10，降低后续登录延迟
   const currentRounds = bcrypt.getRounds(user.passwordHash);
   if (currentRounds !== 10) {

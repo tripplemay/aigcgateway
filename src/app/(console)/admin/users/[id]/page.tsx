@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { apiFetch } from "@/lib/api-client";
 import { useAsyncData } from "@/hooks/use-async-data";
@@ -10,46 +10,114 @@ import { formatCurrency } from "@/lib/utils";
 import { toast } from "sonner";
 import Link from "next/link";
 
-// ============================================================
-// Types
-// ============================================================
+// ── Types ──
 
 interface UserDetail {
   id: string;
   name: string | null;
   email: string;
   role: string;
+  balance: number;
+  suspended: boolean;
+  deletedAt: string | null;
+  lastActive: string | null;
+  keyCount: number;
   createdAt: string;
-  projects: Array<{ id: string; name: string; balance: number; callCount: number; keyCount: number }>;
+  projects: Array<{ id: string; name: string; callCount: number; createdAt: string }>;
 }
 
-// ============================================================
-// Page
-// ============================================================
+interface TxnItem {
+  id: string;
+  type: string;
+  amount: number;
+  balanceAfter: number;
+  description: string | null;
+  createdAt: string;
+}
+
+interface TxnResponse {
+  data: TxnItem[];
+  pagination: { page: number; pageSize: number; total: number };
+}
+
+const TXN_TYPE_STYLES: Record<string, string> = {
+  DEDUCTION: "bg-ds-surface-container-high text-ds-on-surface-variant",
+  ADJUSTMENT: "bg-ds-primary-fixed text-ds-primary",
+  RECHARGE: "bg-ds-status-success-container text-ds-status-success",
+};
+
+// ── Page ──
 
 export default function UserDetailPage() {
   const t = useTranslations("adminUsers");
   const tc = useTranslations("common");
   const params = useParams();
+  const router = useRouter();
+
+  // Recharge modal
   const [rechargeOpen, setRechargeOpen] = useState(false);
-  const [rechargeProjectId, setRechargeProjectId] = useState("");
   const [amount, setAmount] = useState("");
   const [description, setDescription] = useState("");
 
-  const { data: user, loading, refetch } = useAsyncData<UserDetail>(
+  // Danger zone modals
+  const [suspendConfirm, setSuspendConfirm] = useState(false);
+  const [deleteConfirm, setDeleteConfirm] = useState(false);
+  const [deleteEmail, setDeleteEmail] = useState("");
+
+  // Transactions page
+  const [txnPage, setTxnPage] = useState(1);
+
+  const {
+    data: user,
+    loading,
+    refetch,
+  } = useAsyncData<UserDetail>(
     () => apiFetch<UserDetail>(`/api/admin/users/${params.id}`),
     [params.id],
   );
 
+  const { data: txnData, refetch: refetchTxn } = useAsyncData<TxnResponse>(
+    () => apiFetch<TxnResponse>(`/api/admin/users/${params.id}/transactions?page=${txnPage}&pageSize=10`),
+    [params.id, txnPage],
+  );
+
   const doRecharge = async () => {
     try {
-      await apiFetch(`/api/admin/users/${params.id}/projects/${rechargeProjectId}/recharge`, {
+      await apiFetch(`/api/admin/users/${params.id}/recharge`, {
         method: "POST",
         body: JSON.stringify({ amount: Number(amount), description }),
       });
-      toast.success(t("manualRecharge"));
+      toast.success(t("recharged"));
       setRechargeOpen(false);
+      setAmount("");
+      setDescription("");
       refetch();
+      refetchTxn();
+    } catch (e) {
+      toast.error((e as Error).message);
+    }
+  };
+
+  const doSuspend = async (suspended: boolean) => {
+    try {
+      await apiFetch(`/api/admin/users/${params.id}/suspend`, {
+        method: "POST",
+        body: JSON.stringify({ suspended }),
+      });
+      toast.success(suspended ? t("userSuspended") : t("userUnsuspended"));
+      setSuspendConfirm(false);
+      refetch();
+    } catch (e) {
+      toast.error((e as Error).message);
+    }
+  };
+
+  const doDelete = async () => {
+    try {
+      await apiFetch(`/api/admin/users/${params.id}`, { method: "DELETE" });
+      toast.success(t("userDeleted"));
+      setDeleteConfirm(false);
+      router.push("/admin/users");
     } catch (e) {
       toast.error((e as Error).message);
     }
@@ -72,8 +140,9 @@ export default function UserDetailPage() {
 
   if (!user) return null;
 
-  const totalBalance = user.projects.reduce((s, p) => s + p.balance, 0);
   const totalCalls = user.projects.reduce((s, p) => s + p.callCount, 0);
+  const txns = txnData?.data ?? [];
+  const txnPagination = txnData?.pagination;
 
   return (
     <>
@@ -94,12 +163,17 @@ export default function UserDetailPage() {
 
         {/* Hero: Profile (4 col) + Stats (8 col) */}
         <section className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          {/* Profile Identity Card */}
+          {/* Profile Card */}
           <div className="lg:col-span-4 bg-ds-surface-container-lowest p-8 rounded-xl shadow-sm relative overflow-hidden">
-            <div className="absolute top-0 right-0 p-4">
+            <div className="absolute top-0 right-0 p-4 flex gap-2">
               <span className="bg-ds-secondary-container text-ds-on-secondary-container px-3 py-1 rounded-full text-[10px] font-bold tracking-widest uppercase">
                 {user.role}
               </span>
+              {user.suspended && (
+                <span className="bg-ds-error-container text-ds-error px-3 py-1 rounded-full text-[10px] font-bold tracking-widest uppercase">
+                  {t("suspended")}
+                </span>
+              )}
             </div>
             <div className="flex flex-col items-center text-center">
               <div className="relative mb-6">
@@ -124,14 +198,19 @@ export default function UserDetailPage() {
                   <p className="text-[10px] font-bold text-ds-on-surface-variant uppercase tracking-widest mb-1">
                     {t("lastActive")}
                   </p>
-                  <p className="text-sm font-semibold">&mdash;</p>
+                  <p className="text-sm font-semibold">
+                    {user.lastActive
+                      ? new Date(user.lastActive).toLocaleDateString()
+                      : "\u2014"}
+                  </p>
                 </div>
               </div>
             </div>
           </div>
 
           {/* Stats Cards */}
-          <div className="lg:col-span-8 grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="lg:col-span-8 grid grid-cols-2 md:grid-cols-4 gap-4">
+            {/* Balance */}
             <div className="bg-ds-surface-container-low p-6 rounded-xl flex flex-col justify-between">
               <div className="flex justify-between items-start">
                 <div className="p-3 bg-ds-surface rounded-lg text-ds-primary">
@@ -142,9 +221,20 @@ export default function UserDetailPage() {
                 </span>
               </div>
               <div className="mt-4">
-                <p className="text-3xl font-extrabold">{formatCurrency(totalBalance, 2)}</p>
+                <p className="text-3xl font-extrabold">{formatCurrency(user.balance, 2)}</p>
+                <button
+                  onClick={() => {
+                    setAmount("");
+                    setDescription("");
+                    setRechargeOpen(true);
+                  }}
+                  className="mt-2 text-ds-primary text-xs font-bold hover:underline"
+                >
+                  {t("recharge")}
+                </button>
               </div>
             </div>
+            {/* API Calls */}
             <div className="bg-ds-surface-container-low p-6 rounded-xl flex flex-col justify-between">
               <div className="flex justify-between items-start">
                 <div className="p-3 bg-ds-surface rounded-lg text-ds-secondary">
@@ -158,6 +248,7 @@ export default function UserDetailPage() {
                 <p className="text-3xl font-extrabold">{totalCalls.toLocaleString()}</p>
               </div>
             </div>
+            {/* Projects */}
             <div className="bg-ds-surface-container-low p-6 rounded-xl flex flex-col justify-between">
               <div className="flex justify-between items-start">
                 <div className="p-3 bg-ds-surface rounded-lg text-ds-tertiary">
@@ -173,6 +264,22 @@ export default function UserDetailPage() {
                 </p>
               </div>
             </div>
+            {/* API Keys */}
+            <div className="bg-ds-surface-container-low p-6 rounded-xl flex flex-col justify-between">
+              <div className="flex justify-between items-start">
+                <div className="p-3 bg-ds-surface rounded-lg text-ds-on-surface-variant">
+                  <span className="material-symbols-outlined">vpn_key</span>
+                </div>
+                <span className="text-[10px] font-bold text-ds-on-surface-variant uppercase tracking-widest">
+                  {t("apiKeys")}
+                </span>
+              </div>
+              <div className="mt-4">
+                <p className="text-3xl font-extrabold">
+                  {String(user.keyCount).padStart(2, "0")}
+                </p>
+              </div>
+            </div>
           </div>
         </section>
 
@@ -180,20 +287,12 @@ export default function UserDetailPage() {
         <section className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
           {/* Project Cards */}
           <div className="lg:col-span-7 flex flex-col gap-4">
-            <div className="flex justify-between items-center">
-              <h3 className="text-lg font-bold">{t("registeredProjects")}</h3>
-              <Link
-                href="/admin/users"
-                className="text-ds-primary text-xs font-bold uppercase tracking-widest hover:underline"
-              >
-                {t("viewAll")}
-              </Link>
-            </div>
+            <h3 className="text-lg font-bold">{t("registeredProjects")}</h3>
             <div className="flex flex-col gap-3">
               {user.projects.map((p) => (
                 <div
                   key={p.id}
-                  className="bg-ds-surface p-4 rounded-xl flex items-center gap-4 group hover:bg-ds-surface-container-low transition-colors cursor-pointer"
+                  className="bg-ds-surface p-4 rounded-xl flex items-center gap-4 group hover:bg-ds-surface-container-low transition-colors"
                 >
                   <div className="w-12 h-12 rounded-lg bg-ds-primary/10 flex items-center justify-center text-ds-primary group-hover:bg-ds-surface transition-colors">
                     <span className="material-symbols-outlined">rocket_launch</span>
@@ -201,28 +300,16 @@ export default function UserDetailPage() {
                   <div className="flex-1">
                     <h4 className="text-sm font-bold">{p.name}</h4>
                     <p className="text-xs text-ds-on-surface-variant">
-                      {p.callCount.toLocaleString()} {t("calls")} &bull; {p.keyCount} {t("keys")}
+                      {p.callCount.toLocaleString()} {t("calls")}
                     </p>
                   </div>
-                  <div className="flex flex-col items-end">
-                    <span className="text-xs font-bold">{formatCurrency(p.balance, 2)}</span>
-                    <span className="text-[9px] uppercase tracking-tighter text-ds-on-surface-variant">
-                      {t("balance")}
-                    </span>
-                  </div>
-                  <button
-                    onClick={() => {
-                      setRechargeProjectId(p.id);
-                      setAmount("");
-                      setDescription("");
-                      setRechargeOpen(true);
-                    }}
-                    className="text-ds-primary text-xs font-bold hover:underline"
-                  >
-                    {t("manualRecharge")}
-                  </button>
                 </div>
               ))}
+              {user.projects.length === 0 && (
+                <p className="text-sm text-ds-on-surface-variant text-center py-6">
+                  {t("noProjects")}
+                </p>
+              )}
             </div>
           </div>
 
@@ -244,14 +331,62 @@ export default function UserDetailPage() {
                     </th>
                   </tr>
                 </thead>
-                <tbody>
-                  <tr>
-                    <td colSpan={3} className="px-4 py-8 text-center text-sm text-ds-on-surface-variant">
-                      {t("noTransactions")}
-                    </td>
-                  </tr>
+                <tbody className="divide-y divide-ds-surface-container-low">
+                  {txns.length === 0 ? (
+                    <tr>
+                      <td colSpan={3} className="px-4 py-8 text-center text-sm text-ds-on-surface-variant">
+                        {t("noTransactions")}
+                      </td>
+                    </tr>
+                  ) : (
+                    txns.map((tx) => (
+                      <tr key={tx.id} className="hover:bg-ds-surface-container-low/50 transition-colors">
+                        <td className="px-4 py-3 text-xs text-ds-on-surface-variant">
+                          {new Date(tx.createdAt).toLocaleDateString()}
+                        </td>
+                        <td className="px-4 py-3">
+                          <span
+                            className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${TXN_TYPE_STYLES[tx.type] ?? TXN_TYPE_STYLES.DEDUCTION}`}
+                          >
+                            {tx.type}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3 text-right">
+                          <span
+                            className={`text-xs font-bold ${tx.amount >= 0 ? "text-ds-status-success" : "text-ds-on-surface-variant"}`}
+                          >
+                            {tx.amount >= 0 ? "+" : ""}
+                            {formatCurrency(tx.amount, 4)}
+                          </span>
+                        </td>
+                      </tr>
+                    ))
+                  )}
                 </tbody>
               </table>
+              {txnPagination && txnPagination.total > txnPagination.pageSize && (
+                <div className="flex justify-between items-center px-4 py-3 border-t border-ds-surface-container-low">
+                  <span className="text-[10px] text-ds-on-surface-variant">
+                    {t("showingPage", { page: txnPagination.page, total: Math.ceil(txnPagination.total / txnPagination.pageSize) })}
+                  </span>
+                  <div className="flex gap-2">
+                    <button
+                      disabled={txnPage <= 1}
+                      onClick={() => setTxnPage((p) => p - 1)}
+                      className="text-xs font-bold text-ds-primary disabled:opacity-40"
+                    >
+                      {t("prev")}
+                    </button>
+                    <button
+                      disabled={txnPage >= Math.ceil(txnPagination.total / txnPagination.pageSize)}
+                      onClick={() => setTxnPage((p) => p + 1)}
+                      className="text-xs font-bold text-ds-primary disabled:opacity-40"
+                    >
+                      {t("next")}
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </section>
@@ -264,14 +399,17 @@ export default function UserDetailPage() {
           </div>
           <div className="flex gap-4">
             <button
-              disabled
-              className="px-6 py-2 bg-ds-surface border border-ds-outline-variant rounded-lg text-ds-on-surface-variant font-bold text-xs uppercase tracking-widest hover:bg-ds-surface-container-low transition-colors disabled:opacity-50"
+              onClick={() => setSuspendConfirm(true)}
+              className="px-6 py-2 bg-ds-surface border border-ds-outline-variant rounded-lg text-ds-on-surface-variant font-bold text-xs uppercase tracking-widest hover:bg-ds-surface-container-low transition-colors"
             >
-              {t("suspendAccount")}
+              {user.suspended ? t("unsuspendAccount") : t("suspendAccount")}
             </button>
             <button
-              disabled
-              className="px-6 py-2 bg-ds-error text-ds-on-error rounded-lg font-bold text-xs uppercase tracking-widest hover:opacity-90 transition-opacity disabled:opacity-50"
+              onClick={() => {
+                setDeleteEmail("");
+                setDeleteConfirm(true);
+              }}
+              className="px-6 py-2 bg-ds-error text-ds-on-error rounded-lg font-bold text-xs uppercase tracking-widest hover:opacity-90 transition-opacity"
             >
               {t("deleteProfile")}
             </button>
@@ -284,7 +422,7 @@ export default function UserDetailPage() {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-ds-on-background/40 backdrop-blur-sm">
           <div className="bg-ds-surface-container-lowest w-full max-w-md rounded-2xl shadow-2xl overflow-hidden">
             <div className="px-8 py-6 bg-ds-surface-container-low flex justify-between items-center">
-              <h2 className="text-xl font-extrabold tracking-tight">{t("manualRecharge")}</h2>
+              <h2 className="text-xl font-extrabold tracking-tight">{t("recharge")}</h2>
               <button
                 onClick={() => setRechargeOpen(false)}
                 className="text-ds-on-surface-variant hover:text-ds-on-surface"
@@ -329,6 +467,69 @@ export default function UserDetailPage() {
                 className="bg-ds-primary-container text-ds-on-primary-container px-8 py-3 rounded-xl font-bold text-sm shadow-lg shadow-ds-primary/20"
               >
                 {tc("confirm")}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Suspend Confirm */}
+      {suspendConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-ds-on-background/40 backdrop-blur-sm">
+          <div className="bg-ds-surface-container-lowest w-full max-w-sm rounded-2xl shadow-2xl p-8 space-y-6">
+            <h2 className="text-lg font-extrabold">
+              {user.suspended ? t("unsuspendConfirmTitle") : t("suspendConfirmTitle")}
+            </h2>
+            <p className="text-sm text-ds-on-surface-variant">
+              {user.suspended ? t("unsuspendConfirmDesc") : t("suspendConfirmDesc")}
+            </p>
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => setSuspendConfirm(false)}
+                className="px-4 py-2 text-sm font-bold text-ds-on-surface-variant"
+              >
+                {tc("cancel")}
+              </button>
+              <button
+                onClick={() => doSuspend(!user.suspended)}
+                className="px-6 py-2 bg-ds-error text-ds-on-error rounded-lg text-sm font-bold"
+              >
+                {tc("confirm")}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirm */}
+      {deleteConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-ds-on-background/40 backdrop-blur-sm">
+          <div className="bg-ds-surface-container-lowest w-full max-w-sm rounded-2xl shadow-2xl p-8 space-y-6">
+            <h2 className="text-lg font-extrabold text-ds-error">{t("deleteConfirmTitle")}</h2>
+            <p className="text-sm text-ds-on-surface-variant">{t("deleteConfirmDesc")}</p>
+            <div className="space-y-1.5">
+              <label className="text-[10px] font-bold uppercase tracking-widest text-ds-on-surface-variant">
+                {t("typeEmailToConfirm")}
+              </label>
+              <Input
+                value={deleteEmail}
+                onChange={(e) => setDeleteEmail(e.target.value)}
+                placeholder={user.email}
+              />
+            </div>
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => setDeleteConfirm(false)}
+                className="px-4 py-2 text-sm font-bold text-ds-on-surface-variant"
+              >
+                {tc("cancel")}
+              </button>
+              <button
+                disabled={deleteEmail !== user.email}
+                onClick={doDelete}
+                className="px-6 py-2 bg-ds-error text-ds-on-error rounded-lg text-sm font-bold disabled:opacity-40"
+              >
+                {t("deleteProfile")}
               </button>
             </div>
           </div>
