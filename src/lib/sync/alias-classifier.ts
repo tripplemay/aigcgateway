@@ -36,7 +36,10 @@ async function callInternalAI(prompt: string): Promise<string> {
   const timeoutId = setTimeout(() => controller.abort(), 60_000);
 
   try {
-    const proxyUrl = deepseekProvider.proxyUrl ?? process.env.PROXY_URL_PRIMARY ?? null;
+    const rawProxy = deepseekProvider.proxyUrl ?? process.env.PROXY_URL_PRIMARY ?? null;
+    // Skip proxy for local addresses (mock servers in test)
+    const isLocal = /^https?:\/\/(127\.0\.0\.1|localhost)(:|\/|$)/.test(baseUrl);
+    const proxyUrl = isLocal ? null : rawProxy;
 
     const body = JSON.stringify({
       model: "deepseek-chat",

@@ -34,7 +34,7 @@
   },
   "generator_handoff": null,
   "session_notes": {
-    "Kimi": "M1d fix round 3：根因是 inferMissingCapabilities 只定义了函数但没有调用入口。修复：1) model-sync.ts 在 sync 链中追加调用；2) 新增 POST /api/admin/model-aliases/infer-capabilities 端点供手动触发和测试。DbNull+JsonNull 查询条件保持不变。",
+    "Kimi": "M1d fix round 4：callInternalAI 中当 baseUrl 为 localhost/127.0.0.1 时跳过 proxy（测试 mock server 场景）。之前 proxyUrl 未清空导致 mock 请求走了代理而非直连。",
     "Planner": "BF 批次 done 收尾 + M1d 启动。BL-084 拆为 5 generator + 1 codex。从 backlog 移除 BL-084。核心变更：卡片改单列、搜索筛选排序、sellPrice 上提到别名层、LLM 推断 capabilities。",
     "Reviewer": "2026-04-10 reverifying：再次按用户要求 pull 最新并重建测试环境后复验（executedAt=2026-04-10T00:33:37.819Z），结果仍 5 PASS / 1 FAIL（AC4）。已确认最新 main 下 AC4 依旧 updated=0、fill_caps=null；已更新复验结果并回到 fixing。"
   }
