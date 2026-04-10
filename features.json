@@ -7,7 +7,7 @@
       "title": "inferMissingCapabilities 分批 + 即时持久化 + 重试",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) 每批 30 个别名；2) 每批成功立即写入 DB；3) 失败重试 2 次（间隔 3s/10s）；4) 重试仍失败跳过继续下一批；5) 日志输出 updated/skipped/errors 统计；6) 下次 sync 自动补处理上次跳过的；7) tsc 通过"
     },
     {
@@ -15,7 +15,7 @@
       "title": "classifyNewModels 统一健壮性策略",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) 每批成功立即持久化（不攒到最后一起写）；2) 失败重试 2 次（间隔 3s/10s）；3) 重试仍失败跳过继续下一批；4) 日志输出每批结果；5) tsc 通过"
     },
     {
@@ -23,7 +23,7 @@
       "title": "inferMissingBrands 统一健壮性策略",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) 分批处理（每批 30 个）；2) 每批成功立即写入 DB；3) 失败重试 + 跳过；4) tsc 通过"
     },
     {

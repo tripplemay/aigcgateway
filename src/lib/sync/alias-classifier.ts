@@ -12,6 +12,32 @@ import { prisma } from "@/lib/prisma";
 import { getApiKey, getBaseUrl } from "./adapters/base";
 
 // ============================================================
+// 重试辅助
+// ============================================================
+
+const RETRY_DELAYS = [3_000, 10_000]; // 重试间隔：3s, 10s
+
+async function retryWithBackoff<T>(fn: () => Promise<T>, label: string): Promise<T> {
+  let lastError: unknown;
+  // 首次 + 2 次重试 = 共 3 次
+  for (let attempt = 0; attempt <= RETRY_DELAYS.length; attempt++) {
+    try {
+      return await fn();
+    } catch (err) {
+      lastError = err;
+      if (attempt < RETRY_DELAYS.length) {
+        const delay = RETRY_DELAYS[attempt];
+        console.warn(
+          `[alias-classifier] ${label} attempt ${attempt + 1} failed, retrying in ${delay / 1000}s: ${err instanceof Error ? err.message : String(err)}`,
+        );
+        await new Promise((r) => setTimeout(r, delay));
+      }
+    }
+  }
+  throw lastError;
+}
+
+// ============================================================
 // LLM 调用（复用 DeepSeek Provider 凭证）
 // ============================================================
 
@@ -158,223 +184,262 @@ interface ClassificationResult {
 export async function classifyNewModels(): Promise<{
   classified: number;
   newAliases: number;
+  skipped: number;
   errors: string[];
 }> {
   const errors: string[] = [];
   let classified = 0;
   let newAliases = 0;
+  let skipped = 0;
 
-  try {
-    // 1. 收集未挂载的 Model（有 ACTIVE Channel 的）
-    const unlinkedModels = await prisma.model.findMany({
-      where: {
-        aliasLinks: { none: {} },
-        channels: { some: { status: "ACTIVE" } },
-      },
-      select: { id: true, name: true },
-    });
+  // 1. 收集未挂载的 Model（有 ACTIVE Channel 的）
+  const unlinkedModels = await prisma.model.findMany({
+    where: {
+      aliasLinks: { none: {} },
+      channels: { some: { status: "ACTIVE" } },
+    },
+    select: { id: true, name: true },
+  });
 
-    if (unlinkedModels.length === 0) {
-      console.log("[alias-classifier] No unlinked models found, skipping");
-      return { classified: 0, newAliases: 0, errors: [] };
-    }
+  if (unlinkedModels.length === 0) {
+    console.log("[alias-classifier] No unlinked models found, skipping");
+    return { classified: 0, newAliases: 0, skipped: 0, errors: [] };
+  }
 
-    console.log(`[alias-classifier] Found ${unlinkedModels.length} unlinked models`);
+  console.log(`[alias-classifier] Found ${unlinkedModels.length} unlinked models`);
 
-    // 2. 获取已有别名列表作为锚定
-    const existingAliases = await prisma.modelAlias.findMany({
-      select: { id: true, alias: true },
-    });
-    const aliasNames = existingAliases.map((a) => a.alias);
+  // 2. 获取已有别名列表作为锚定
+  const existingAliases = await prisma.modelAlias.findMany({
+    select: { id: true, alias: true },
+  });
+  const aliasNames = existingAliases.map((a) => a.alias);
 
-    // 3. 分批处理（每批最多 50 个）
-    const BATCH_SIZE = 50;
-    for (let i = 0; i < unlinkedModels.length; i += BATCH_SIZE) {
-      const batch = unlinkedModels.slice(i, i + BATCH_SIZE);
-      const modelNames = batch.map((m) => m.name);
+  // 3. 分批处理（每批最多 30 个）
+  const BATCH_SIZE = 30;
+  for (let i = 0; i < unlinkedModels.length; i += BATCH_SIZE) {
+    const batch = unlinkedModels.slice(i, i + BATCH_SIZE);
+    const modelNames = batch.map((m) => m.name);
+    const batchNum = Math.floor(i / BATCH_SIZE) + 1;
+    const totalBatches = Math.ceil(unlinkedModels.length / BATCH_SIZE);
 
+    console.log(
+      `[alias-classifier] Classification batch ${batchNum}/${totalBatches} (${batch.length} models)...`,
+    );
+
+    try {
+      // LLM 调用 + 重试
+      const prompt = buildClassificationPrompt(aliasNames, modelNames);
+      const rawResponse = await retryWithBackoff(
+        () => callInternalAI(prompt),
+        `classification batch ${batchNum}`,
+      );
+
+      let results: Record<string, ClassificationResult>;
       try {
-        console.log(
-          `[alias-classifier] Processing batch ${Math.floor(i / BATCH_SIZE) + 1} (${batch.length} models)...`,
-        );
+        results = JSON.parse(rawResponse);
+      } catch {
+        errors.push(`Batch ${batchNum}: failed to parse LLM response`);
+        skipped += batch.length;
+        continue;
+      }
 
-        const prompt = buildClassificationPrompt(aliasNames, modelNames);
-        const rawResponse = await callInternalAI(prompt);
-
-        let results: Record<string, ClassificationResult>;
-        try {
-          results = JSON.parse(rawResponse);
-        } catch {
-          errors.push(`Failed to parse LLM response for batch ${Math.floor(i / BATCH_SIZE) + 1}`);
+      // 4. 即时持久化：逐模型写入 DB
+      for (const model of batch) {
+        const inference = results[model.name];
+        if (!inference) {
+          skipped++;
           continue;
         }
 
-        // 4. 处理分类结果
-        for (const model of batch) {
-          const inference = results[model.name];
-          if (!inference) continue;
-
-          try {
-            if (inference.existing_alias) {
-              // 归入已有别名
-              const alias = existingAliases.find((a) => a.alias === inference.existing_alias);
-              if (alias) {
-                // Check not already linked
-                const exists = await prisma.aliasModelLink.findUnique({
-                  where: { aliasId_modelId: { aliasId: alias.id, modelId: model.id } },
-                });
-                if (!exists) {
-                  await prisma.aliasModelLink.create({
-                    data: { aliasId: alias.id, modelId: model.id },
-                  });
-                  await prisma.model.update({
-                    where: { id: model.id },
-                    data: { enabled: true },
-                  });
-                  classified++;
-                }
-              }
-            } else if (inference.new_alias) {
-              // 创建新别名（enabled=false，需 admin 审核）
-              const existingAlias = await prisma.modelAlias.findUnique({
-                where: { alias: inference.new_alias },
-              });
-
-              let aliasId: string;
-              if (existingAlias) {
-                // 别名已存在（可能被前一个 batch 创建），直接挂载
-                aliasId = existingAlias.id;
-              } else {
-                const created = await prisma.modelAlias.create({
-                  data: {
-                    alias: inference.new_alias,
-                    brand: inference.brand ?? null,
-                    enabled: false,
-                    ...(inference.capabilities ? { capabilities: inference.capabilities } : {}),
-                  },
-                });
-                aliasId = created.id;
-                newAliases++;
-                // 加入锚定列表供后续 batch 使用
-                existingAliases.push({ id: aliasId, alias: inference.new_alias });
-                aliasNames.push(inference.new_alias);
-              }
-
+        try {
+          if (inference.existing_alias) {
+            // 归入已有别名
+            const alias = existingAliases.find((a) => a.alias === inference.existing_alias);
+            if (alias) {
               const exists = await prisma.aliasModelLink.findUnique({
-                where: { aliasId_modelId: { aliasId, modelId: model.id } },
+                where: { aliasId_modelId: { aliasId: alias.id, modelId: model.id } },
               });
               if (!exists) {
                 await prisma.aliasModelLink.create({
-                  data: { aliasId, modelId: model.id },
+                  data: { aliasId: alias.id, modelId: model.id },
                 });
-                // 新别名 enabled=false，Model.enabled 也不自动启用
+                await prisma.model.update({
+                  where: { id: model.id },
+                  data: { enabled: true },
+                });
                 classified++;
               }
             }
+          } else if (inference.new_alias) {
+            // 创建新别名（enabled=false，需 admin 审核）
+            const existingAlias = await prisma.modelAlias.findUnique({
+              where: { alias: inference.new_alias },
+            });
 
-            // 更新 brand + capabilities（仅填充空值，不覆盖已有）
-            if (inference.existing_alias) {
-              const alias = existingAliases.find((a) => a.alias === inference.existing_alias);
-              if (alias) {
-                const current = await prisma.modelAlias.findUnique({
-                  where: { id: alias.id },
-                  select: { brand: true, capabilities: true },
-                });
-                if (current) {
-                  const updates: Record<string, unknown> = {};
-                  if (!current.brand && inference.brand) updates.brand = inference.brand;
-                  if (!current.capabilities && inference.capabilities) {
-                    updates.capabilities = inference.capabilities;
-                  }
-                  if (Object.keys(updates).length > 0) {
-                    await prisma.modelAlias.update({
-                      where: { id: alias.id },
-                      data: updates,
-                    });
-                  }
+            let aliasId: string;
+            if (existingAlias) {
+              aliasId = existingAlias.id;
+            } else {
+              const created = await prisma.modelAlias.create({
+                data: {
+                  alias: inference.new_alias,
+                  brand: inference.brand ?? null,
+                  enabled: false,
+                  ...(inference.capabilities ? { capabilities: inference.capabilities } : {}),
+                },
+              });
+              aliasId = created.id;
+              newAliases++;
+              existingAliases.push({ id: aliasId, alias: inference.new_alias });
+              aliasNames.push(inference.new_alias);
+            }
+
+            const exists = await prisma.aliasModelLink.findUnique({
+              where: { aliasId_modelId: { aliasId, modelId: model.id } },
+            });
+            if (!exists) {
+              await prisma.aliasModelLink.create({
+                data: { aliasId, modelId: model.id },
+              });
+              classified++;
+            }
+          }
+
+          // 更新 brand + capabilities（仅填充空值，不覆盖已有）
+          if (inference.existing_alias) {
+            const alias = existingAliases.find((a) => a.alias === inference.existing_alias);
+            if (alias) {
+              const current = await prisma.modelAlias.findUnique({
+                where: { id: alias.id },
+                select: { brand: true, capabilities: true },
+              });
+              if (current) {
+                const updates: Record<string, unknown> = {};
+                if (!current.brand && inference.brand) updates.brand = inference.brand;
+                if (!current.capabilities && inference.capabilities) {
+                  updates.capabilities = inference.capabilities;
+                }
+                if (Object.keys(updates).length > 0) {
+                  await prisma.modelAlias.update({
+                    where: { id: alias.id },
+                    data: updates,
+                  });
                 }
               }
             }
-          } catch (err) {
-            errors.push(
-              `Failed to process model "${model.name}": ${err instanceof Error ? err.message : String(err)}`,
-            );
           }
+        } catch (err) {
+          errors.push(
+            `Failed to process model "${model.name}": ${err instanceof Error ? err.message : String(err)}`,
+          );
+          skipped++;
         }
-      } catch (err) {
-        errors.push(
-          `Batch ${Math.floor(i / BATCH_SIZE) + 1} LLM call failed: ${err instanceof Error ? err.message : String(err)}`,
-        );
       }
+
+      console.log(`[alias-classifier] Classification batch ${batchNum} persisted`);
+    } catch (err) {
+      // 重试仍失败 → 跳过本批，继续下一批
+      const msg = `Batch ${batchNum} failed after retries: ${err instanceof Error ? err.message : String(err)}`;
+      console.error(`[alias-classifier] ${msg}`);
+      errors.push(msg);
+      skipped += batch.length;
     }
-  } catch (err) {
-    errors.push(`Classification init failed: ${err instanceof Error ? err.message : String(err)}`);
   }
 
   console.log(
-    `[alias-classifier] Done: classified=${classified}, newAliases=${newAliases}, errors=${errors.length}`,
+    `[alias-classifier] Done: classified=${classified}, newAliases=${newAliases}, skipped=${skipped}, errors=${errors.length}`,
   );
-  return { classified, newAliases, errors };
+  return { classified, newAliases, skipped, errors };
 }
 
 /**
  * 对 brand 为空的别名执行批量 brand 推断。
+ * 分批 30 个 + 即时持久化 + 重试 2 次 + 失败跳过。
  */
 export async function inferMissingBrands(): Promise<{
   updated: number;
+  skipped: number;
   errors: string[];
 }> {
   const errors: string[] = [];
   let updated = 0;
+  let skipped = 0;
 
-  try {
-    const aliasesWithoutBrand = await prisma.modelAlias.findMany({
-      where: { brand: null },
-      select: { id: true, alias: true },
-    });
+  const aliasesWithoutBrand = await prisma.modelAlias.findMany({
+    where: { brand: null },
+    select: { id: true, alias: true },
+  });
 
-    if (aliasesWithoutBrand.length === 0) {
-      return { updated: 0, errors: [] };
+  if (aliasesWithoutBrand.length === 0) {
+    return { updated: 0, skipped: 0, errors: [] };
+  }
+
+  console.log(`[alias-classifier] Inferring brands for ${aliasesWithoutBrand.length} aliases...`);
+
+  const BATCH_SIZE = 30;
+  for (let i = 0; i < aliasesWithoutBrand.length; i += BATCH_SIZE) {
+    const batch = aliasesWithoutBrand.slice(i, i + BATCH_SIZE);
+    const batchNum = Math.floor(i / BATCH_SIZE) + 1;
+    const totalBatches = Math.ceil(aliasesWithoutBrand.length / BATCH_SIZE);
+
+    console.log(
+      `[alias-classifier] Brand batch ${batchNum}/${totalBatches} (${batch.length} aliases)...`,
+    );
+
+    try {
+      const rawResponse = await retryWithBackoff(
+        () => callInternalAI(buildBrandPrompt(batch.map((a) => a.alias))),
+        `brand batch ${batchNum}`,
+      );
+
+      let brands: Record<string, string | null>;
+      try {
+        brands = JSON.parse(rawResponse);
+      } catch {
+        errors.push(`Batch ${batchNum}: failed to parse LLM response`);
+        skipped += batch.length;
+        continue;
+      }
+
+      // 即时持久化
+      for (const alias of batch) {
+        const brand = brands[alias.alias];
+        if (brand) {
+          await prisma.modelAlias.update({
+            where: { id: alias.id },
+            data: { brand },
+          });
+          updated++;
+        } else {
+          skipped++;
+        }
+      }
+
+      console.log(`[alias-classifier] Brand batch ${batchNum} persisted`);
+    } catch (err) {
+      const msg = `Batch ${batchNum} failed after retries: ${err instanceof Error ? err.message : String(err)}`;
+      console.error(`[alias-classifier] ${msg}`);
+      errors.push(msg);
+      skipped += batch.length;
     }
+  }
 
-    console.log(`[alias-classifier] Inferring brands for ${aliasesWithoutBrand.length} aliases...`);
+  console.log(
+    `[alias-classifier] Brand inference done: updated=${updated}, skipped=${skipped}, errors=${errors.length}`,
+  );
+  return { updated, skipped, errors };
+}
 
-    const prompt = `以下是 AI 模型的别名列表，请判断每个模型属于哪个厂商。
+function buildBrandPrompt(aliasNames: string[]): string {
+  return `以下是 AI 模型的别名列表，请判断每个模型属于哪个厂商。
 返回 JSON 对象：key 是别名，value 是品牌名。
 品牌名使用官方名称（OpenAI、Anthropic、Google、Meta、Mistral、DeepSeek、智谱 AI 等）。
 无法确定则返回 null。
 
 别名列表：
-${aliasesWithoutBrand.map((a) => `- ${a.alias}`).join("\n")}
+${aliasNames.map((n) => `- ${n}`).join("\n")}
 
 只返回 JSON 对象，不要其他文字。`;
-
-    const rawResponse = await callInternalAI(prompt);
-
-    let brands: Record<string, string | null>;
-    try {
-      brands = JSON.parse(rawResponse);
-    } catch {
-      errors.push("Failed to parse brand inference response");
-      return { updated: 0, errors };
-    }
-
-    for (const alias of aliasesWithoutBrand) {
-      const brand = brands[alias.alias];
-      if (brand) {
-        await prisma.modelAlias.update({
-          where: { id: alias.id },
-          data: { brand },
-        });
-        updated++;
-      }
-    }
-  } catch (err) {
-    errors.push(`Brand inference failed: ${err instanceof Error ? err.message : String(err)}`);
-  }
-
-  console.log(`[alias-classifier] Brand inference done: updated=${updated}`);
-  return { updated, errors };
 }
 
 /**
@@ -383,36 +448,93 @@ ${aliasesWithoutBrand.map((a) => `- ${a.alias}`).join("\n")}
  */
 export async function inferMissingCapabilities(): Promise<{
   updated: number;
+  skipped: number;
   errors: string[];
 }> {
   const errors: string[] = [];
   let updated = 0;
+  let skipped = 0;
 
-  try {
-    // Fetch all aliases and filter in JS to avoid Prisma Json null filtering issues
-    const allAliases = await prisma.modelAlias.findMany({
-      select: { id: true, alias: true, capabilities: true },
-    });
-    const aliasesWithoutCaps = allAliases.filter((a) => {
-      if (a.capabilities === null) return true;
-      if (typeof a.capabilities === "object" && Object.keys(a.capabilities as object).length === 0)
-        return true;
-      return false;
-    });
+  // Fetch all aliases and filter in JS to avoid Prisma Json null filtering issues
+  const allAliases = await prisma.modelAlias.findMany({
+    select: { id: true, alias: true, capabilities: true },
+  });
+  const aliasesWithoutCaps = allAliases.filter((a) => {
+    if (a.capabilities === null) return true;
+    if (typeof a.capabilities === "object" && Object.keys(a.capabilities as object).length === 0)
+      return true;
+    return false;
+  });
+
+  console.log(
+    `[alias-classifier] Total aliases: ${allAliases.length}, without caps: ${aliasesWithoutCaps.length}`,
+  );
+
+  if (aliasesWithoutCaps.length === 0) {
+    return { updated: 0, skipped: 0, errors: [] };
+  }
+
+  // 分批处理，每批 30 个
+  const BATCH_SIZE = 30;
+  for (let i = 0; i < aliasesWithoutCaps.length; i += BATCH_SIZE) {
+    const batch = aliasesWithoutCaps.slice(i, i + BATCH_SIZE);
+    const batchNum = Math.floor(i / BATCH_SIZE) + 1;
+    const totalBatches = Math.ceil(aliasesWithoutCaps.length / BATCH_SIZE);
 
     console.log(
-      `[alias-classifier] Total aliases: ${allAliases.length}, without caps: ${aliasesWithoutCaps.length}`,
+      `[alias-classifier] Capabilities batch ${batchNum}/${totalBatches} (${batch.length} aliases)...`,
     );
 
-    if (aliasesWithoutCaps.length === 0) {
-      return { updated: 0, errors: [] };
+    try {
+      // LLM 调用 + 重试
+      const rawResponse = await retryWithBackoff(
+        () => callInternalAI(buildCapabilitiesPrompt(batch.map((a) => a.alias))),
+        `capabilities batch ${batchNum}`,
+      );
+
+      let results: Record<string, Record<string, boolean>>;
+      try {
+        results = JSON.parse(rawResponse);
+      } catch {
+        errors.push(`Batch ${batchNum}: failed to parse LLM response`);
+        skipped += batch.length;
+        continue;
+      }
+
+      // 即时持久化：每批成功立即写入 DB
+      for (const alias of batch) {
+        const caps = results[alias.alias];
+        if (caps && typeof caps === "object") {
+          await prisma.modelAlias.update({
+            where: { id: alias.id },
+            data: { capabilities: caps },
+          });
+          updated++;
+        } else {
+          skipped++;
+        }
+      }
+
+      console.log(
+        `[alias-classifier] Capabilities batch ${batchNum} persisted: ${batch.length} aliases processed`,
+      );
+    } catch (err) {
+      // 重试仍失败 → 跳过本批，继续下一批
+      const msg = `Batch ${batchNum} failed after retries: ${err instanceof Error ? err.message : String(err)}`;
+      console.error(`[alias-classifier] ${msg}`);
+      errors.push(msg);
+      skipped += batch.length;
     }
+  }
 
-    console.log(
-      `[alias-classifier] Inferring capabilities for: ${aliasesWithoutCaps.map((a) => a.alias).join(", ")}`,
-    );
+  console.log(
+    `[alias-classifier] Capabilities inference done: updated=${updated}, skipped=${skipped}, errors=${errors.length}${errors.length > 0 ? " — " + errors.join("; ") : ""}`,
+  );
+  return { updated, skipped, errors };
+}
 
-    const prompt = `以下是 AI 模型的别名列表，请推断每个模型的能力（capabilities）。
+function buildCapabilitiesPrompt(aliasNames: string[]): string {
+  return `以下是 AI 模型的别名列表，请推断每个模型的能力（capabilities）。
 
 返回 JSON 对象：key 是别名，value 是 capabilities 对象。
 每个 capability 为 true 或 false：
@@ -424,38 +546,7 @@ export async function inferMissingCapabilities(): Promise<{
 - image_input: 是否支持图片输入（与 vision 类似但更广义）
 
 别名列表：
-${aliasesWithoutCaps.map((a) => `- ${a.alias}`).join("\n")}
+${aliasNames.map((n) => `- ${n}`).join("\n")}
 
 只返回 JSON 对象，不要其他文字。`;
-
-    const rawResponse = await callInternalAI(prompt);
-
-    let results: Record<string, Record<string, boolean>>;
-    try {
-      results = JSON.parse(rawResponse);
-    } catch {
-      errors.push("Failed to parse capabilities inference response");
-      return { updated: 0, errors };
-    }
-
-    for (const alias of aliasesWithoutCaps) {
-      const caps = results[alias.alias];
-      if (caps && typeof caps === "object") {
-        await prisma.modelAlias.update({
-          where: { id: alias.id },
-          data: { capabilities: caps },
-        });
-        updated++;
-      }
-    }
-  } catch (err) {
-    const msg = `Capabilities inference failed: ${err instanceof Error ? err.message : String(err)}`;
-    console.error(`[alias-classifier] ${msg}`);
-    errors.push(msg);
-  }
-
-  console.log(
-    `[alias-classifier] Capabilities inference done: updated=${updated}, errors=${errors.length}${errors.length > 0 ? " — " + errors.join("; ") : ""}`,
-  );
-  return { updated, errors };
 }

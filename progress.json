@@ -1,10 +1,10 @@
 {
-  "status": "building",
+  "status": "verifying",
   "user_goal": "L1 — LLM 推断链路健壮性升级（分批+即时持久化+重试）",
   "total_features": 4,
-  "completed_features": 0,
+  "completed_features": 3,
   "fix_rounds": 0,
-  "current_sprint": "F-L1-01",
+  "current_sprint": "F-L1-04",
   "last_updated": "2026-04-10T15:00:00.000Z",
   "reference_docs": [],
   "role_assignments": null,
@@ -17,7 +17,7 @@
   "evaluator_feedback": null,
   "generator_handoff": null,
   "session_notes": {
-    "Kimi": null,
+    "Kimi": "L1 building 完成。三个函数统一改造：retryWithBackoff 通用重试辅助（3s/10s 两次重试）、分批30个、每批成功立即写DB、失败跳过继续。返回值统一增加 skipped 字段。model-sync.ts 调用侧已适配。tsc 全通过。状态推进到 verifying，等待 Evaluator 验收 F-L1-04。",
     "Planner": "U1 done 收尾 + L1 启动。BL-093 拆为 3 generator + 1 codex。三个函数（inferMissingCapabilities/classifyNewModels/inferMissingBrands）统一健壮性策略：分批30个+即时持久化+重试2次+跳过继续。从 backlog 移除 BL-093。",
     "Reviewer": null
   }

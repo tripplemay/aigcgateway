@@ -506,20 +506,28 @@ export async function runModelSync(): Promise<SyncResult> {
       const { classifyNewModels, inferMissingBrands, inferMissingCapabilities } =
         await import("./alias-classifier");
       const classifyResult = await classifyNewModels();
-      if (classifyResult.classified > 0 || classifyResult.newAliases > 0) {
+      if (
+        classifyResult.classified > 0 ||
+        classifyResult.newAliases > 0 ||
+        classifyResult.skipped > 0
+      ) {
         console.log(
-          `[model-sync] Alias classification: ${classifyResult.classified} classified, ${classifyResult.newAliases} new aliases`,
+          `[model-sync] Alias classification: classified=${classifyResult.classified}, newAliases=${classifyResult.newAliases}, skipped=${classifyResult.skipped}`,
         );
       }
       // 补推 brand 为空的别名
       const brandResult = await inferMissingBrands();
-      if (brandResult.updated > 0) {
-        console.log(`[model-sync] Brand inference: ${brandResult.updated} updated`);
+      if (brandResult.updated > 0 || brandResult.skipped > 0) {
+        console.log(
+          `[model-sync] Brand inference: updated=${brandResult.updated}, skipped=${brandResult.skipped}`,
+        );
       }
       // 补推 capabilities 为空的别名
       const capsResult = await inferMissingCapabilities();
-      if (capsResult.updated > 0) {
-        console.log(`[model-sync] Capabilities inference: ${capsResult.updated} updated`);
+      if (capsResult.updated > 0 || capsResult.skipped > 0) {
+        console.log(
+          `[model-sync] Capabilities inference: updated=${capsResult.updated}, skipped=${capsResult.skipped}`,
+        );
       }
     } catch (err) {
       console.log(
