@@ -120,7 +120,7 @@ async function createProjectAndKey() {
   const project = await createTestProject(BASE, token, { name: `DX2 Project ${Date.now()}` });
   projectId = project.id;
 
-  const key = await createTestApiKey(BASE, token, projectId, { name: "dx2-local-key" });
+  const key = await createTestApiKey(BASE, token, { name: "dx2-local-key" });
   apiKey = key.key;
 
   await prisma.project.update({

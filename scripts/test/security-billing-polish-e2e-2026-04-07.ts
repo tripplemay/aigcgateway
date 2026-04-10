@@ -155,7 +155,7 @@ async function createProjectAndKey() {
   const project = await createTestProject(BASE, token, { name: `SB Project ${Date.now()}` });
   projectId = project.id;
 
-  const key = await createTestApiKey(BASE, token, projectId, {
+  const key = await createTestApiKey(BASE, token, {
     name: "sb-local-key",
     rateLimit: 120,
   });

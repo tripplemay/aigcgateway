@@ -1,11 +1,11 @@
 {
-  "status": "fixing",
+  "status": "reverifying",
   "user_goal": "CI1 — 测试基础设施升级（Mock 复用 + 测试工厂 + Vitest + CI pipeline）",
   "total_features": 5,
-  "completed_features": 2,
-  "fix_rounds": 2,
-  "current_sprint": "F-CI1-01",
-  "last_updated": "2026-04-10T15:38:50Z",
+  "completed_features": 4,
+  "fix_rounds": 3,
+  "current_sprint": null,
+  "last_updated": "2026-04-10T23:42:00.000Z",
   "reference_docs": [],
   "role_assignments": null,
   "docs": {
@@ -14,33 +14,14 @@
     "signoff": null,
     "framework_reviewed": false
   },
-  "evaluator_feedback": {
-    "summary": "CI1 round2 复验失败：Prisma 键名问题已消失，但 createTestApiKey 工厂调用返回 404，3 个脚本均中断。",
-    "pass_count": 2,
-    "partial_count": 0,
-    "fail_count": 2,
-    "issues": [
-      {
-        "feature_id": "F-CI1-01",
-        "result": "FAIL",
-        "description": "3 个脚本在 createTestApiKey 阶段统一 404，无法完成改造后 E2E 跑通验证。",
-        "steps_to_reproduce": "1) bash scripts/test/codex-setup.sh && bash scripts/test/codex-wait.sh 2) npx tsx scripts/test/mcp-dx-round2-e2e-2026-04-06.ts 3) npx tsx scripts/test/mcp-finops-hardening-e2e-2026-04-07.ts 4) npx tsx scripts/test/security-billing-polish-e2e-2026-04-07.ts"
-      },
-      {
-        "feature_id": "F-CI1-02",
-        "result": "FAIL",
-        "description": "工厂 createTestApiKey 当前调用 POST /api/projects/${projectId}/keys 返回 404（tests/factories/index.ts:169-171）。",
-        "steps_to_reproduce": "执行任一上述脚本，均在 tests/factories/index.ts:171 抛出 createTestApiKey: failed (404)。"
-      }
-    ]
-  },
+  "evaluator_feedback": null,
   "generator_handoff": {
     "completed": ["F-CI1-01", "F-CI1-02", "F-CI1-03", "F-CI1-04"],
     "codex_pending": ["F-CI1-05"],
-    "notes": "Fix round 2: 3 个脚本的 channel.upsert where 键从旧的 providerId_modelId_realModelId（三字段复合键，已被 migration 20260408 删除）改为当前 schema 的 providerId_modelId（双字段复合键）。"
+    "notes": "Fix round 3: createTestApiKey 路径从 /api/projects/${projectId}/keys 改为 /api/keys（K1 重构后 key 为用户级而非项目级），去掉 projectId 参数。"
   },
   "session_notes": {
-    "Kimi": "Fixing round 2: 3 个脚本共 6 处 channel.upsert where 键从 providerId_modelId_realModelId 改为 providerId_modelId，匹配当前 schema @@unique([providerId, modelId])。这是 P4 migration 后遗留的脚本未更新问题。tsc + vitest 通过。",
+    "Kimi": "Fixing round 3: createTestApiKey 工厂路径修正为 /api/keys（用户级），去掉 projectId 参数。K1 批次后 API key 不再绑定项目。3 个脚本调用处同步更新。tsc + vitest 通过。",
     "Planner": "O1 done + CI1 启动。BL-092 拆为 4 generator + 1 codex。Mock 公共库+测试工厂+Vitest CI+generator 规则。从 backlog 移除 BL-092。",
     "Reviewer": "CI1 round2 复验完成：vitest 11/11 通过；Prisma 复合键问题已消失，但 3 个脚本统一在 createTestApiKey 阶段 404。报告：docs/test-reports/CI1-test-infrastructure-reverifying-round2-2026-04-10.md。状态回退 fixing。"
   }

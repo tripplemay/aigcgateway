@@ -8,7 +8,7 @@
  *   import { createTestUser, createTestProject, createTestApiKey, createTestChannel } from "../../tests/factories";
  *   const user = await createTestUser(BASE);
  *   const project = await createTestProject(BASE, user.token);
- *   const key = await createTestApiKey(BASE, user.token, project.id);
+ *   const key = await createTestApiKey(BASE, user.token);
  *   const channel = await createTestChannel(prisma, { providerId, modelId, realModelId });
  */
 import type { PrismaClient } from "@prisma/client";
@@ -114,7 +114,9 @@ export async function createTestUser(
 
   const login = await post(baseUrl, "/api/auth/login", { email, password });
   if (login.status !== 200) {
-    throw new Error(`createTestUser: login failed (${login.status}): ${JSON.stringify(login.body)}`);
+    throw new Error(
+      `createTestUser: login failed (${login.status}): ${JSON.stringify(login.body)}`,
+    );
   }
 
   return { email, password, token: login.body.token };
@@ -161,12 +163,11 @@ export interface CreateTestApiKeyOptions {
 export async function createTestApiKey(
   baseUrl: string,
   token: string,
-  projectId: string,
   options: CreateTestApiKeyOptions = {},
 ): Promise<TestApiKeyResult> {
   const { name = "test-key", rateLimit = 60 } = options;
 
-  const res = await post(baseUrl, `/api/projects/${projectId}/keys`, { name, rateLimit }, token);
+  const res = await post(baseUrl, "/api/keys", { name, rateLimit }, token);
   if (res.status !== 201) {
     throw new Error(`createTestApiKey: failed (${res.status}): ${JSON.stringify(res.body)}`);
   }
