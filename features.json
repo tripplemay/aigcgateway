@@ -1,55 +1,70 @@
 {
-  "batch": "M1d-alias-page-polish",
+  "batch": "K1-apikey-user-level",
   "created_at": "2026-04-10",
   "features": [
     {
-      "id": "F-M1d-01",
-      "title": "别名卡片改单列列表布局",
+      "id": "F-K1-01",
+      "title": "Schema 迁移 — ApiKey 用户级 + 字段清理",
       "priority": "high",
       "executor": "generator",
-      "status": "done",
-      "acceptance": "1) 已配置映射区域改为单列列表（每行一个别名）；2) 每行展示：别名名称、brand 标签、modality 标签、关联模型数、enabled 开关、删除/展开按钮；3) 展开详情面板在行下方 accordion 展开；4) 布局不错位、长名称不换行截断；5) tsc 通过",
-      "design_ref": "design-draft/admin-model-aliases/code.html"
+      "status": "pending",
+      "acceptance": "1) ApiKey 表清空旧数据，projectId 删除，新增 userId；2) User 新增 defaultProjectId（回填第一个项目）；3) Project.balance 字段删除；4) RechargeOrder.projectId 字段删除；5) deduct_balance 函数改为直接接收 userId；6) prisma generate + migrate dev 通过；7) tsc 通过"
     },
     {
-      "id": "F-M1d-02",
-      "title": "搜索 + 筛选 + 排序",
+      "id": "F-K1-02",
+      "title": "鉴权中间件重构",
       "priority": "high",
       "executor": "generator",
-      "status": "done",
-      "acceptance": "1) 搜索框过滤别名名称；2) 筛选按钮：brand / modality / enabled 状态；3) 默认排序 enabled=true 优先，其次按名称字母序；4) tsc 通过"
+      "status": "pending",
+      "acceptance": "1) authenticateApiKey 从 Key 解析 userId；2) X-Project-Id header 或 defaultProjectId 获取项目上下文；3) 项目归属校验（用户只能访问自己的项目）；4) 无项目时 chat/image 仍可调用；5) 无项目时 Actions/Templates 返回 400；6) tsc 通过"
     },
     {
-      "id": "F-M1d-03",
-      "title": "Schema — ModelAlias 新增 sellPrice + 售价管理",
+      "id": "F-K1-03",
+      "title": "API 端点适配 — chat/image/actions/templates",
       "priority": "high",
       "executor": "generator",
-      "status": "done",
-      "acceptance": "1) ModelAlias 新增 sellPrice 字段（Json，同 Channel.sellPrice 格式）；2) migrate dev 通过；3) 别名详情面板可编辑售价（input_per_1m / output_per_1m 或 per_call）；4) GET /v1/models 返回的 pricing 改读 ModelAlias.sellPrice；5) tsc 通过"
+      "status": "pending",
+      "acceptance": "1) /v1/chat/completions 和 /v1/images/generations 正常工作；2) CallLog.projectId 仍正确记录；3) 计费扣费走 userId；4) Actions/Templates 路由按项目隔离；5) tsc 通过"
     },
     {
-      "id": "F-M1d-04",
-      "title": "LLM 推断 capabilities",
-      "priority": "medium",
+      "id": "F-K1-04",
+      "title": "Keys 管理 API 改为用户级",
+      "priority": "high",
       "executor": "generator",
-      "status": "done",
-      "acceptance": "1) classifyNewModels prompt 扩展，同时返回 capabilities；2) 推断结果写入 ModelAlias.capabilities；3) 已有 capabilities 不覆盖（仅填充空值）；4) Admin 可手动修正；5) tsc 通过"
+      "status": "pending",
+      "acceptance": "1) GET/POST /api/keys 正常工作；2) GET/PATCH/DELETE /api/keys/:keyId 正常工作；3) 旧 /api/projects/:id/keys/* 路径删除；4) 创建 Key 绑定 userId；5) tsc 通过"
     },
     {
-      "id": "F-M1d-05",
-      "title": "i18n — 新增翻译",
-      "priority": "medium",
+      "id": "F-K1-05",
+      "title": "充值 API 简化 + 余额清理",
+      "priority": "high",
       "executor": "generator",
-      "status": "done",
-      "acceptance": "1) en.json + zh-CN.json 同步更新；2) 搜索/筛选/排序/售价相关文案无硬编码；3) UI 中英文切换正常"
+      "status": "pending",
+      "acceptance": "1) POST /api/admin/users/:id/recharge 正常工作；2) 旧 /api/admin/users/:id/projects/:projectId/recharge 删除；3) 侧边栏余额显示 User.balance；4) Balance 页面查用户余额；5) tsc 通过"
     },
     {
-      "id": "F-M1d-06",
-      "title": "M1d 全量验收",
+      "id": "F-K1-06",
+      "title": "MCP 适配",
+      "priority": "high",
+      "executor": "generator",
+      "status": "pending",
+      "acceptance": "1) MCP auth 返回 userId；2) McpServerOptions 含 userId + projectId（可空）；3) get_balance 直接查 User.balance；4) 无项目时需要项目的工具返回友好错误；5) tsc 通过"
+    },
+    {
+      "id": "F-K1-07",
+      "title": "前端适配 — Keys 页 + Balance 页 + 侧边栏",
+      "priority": "high",
+      "executor": "generator",
+      "status": "pending",
+      "acceptance": "1) Keys 页面列出用户所有 Key（非按项目）；2) 侧边栏余额显示 User.balance；3) Balance 页面查用户余额；4) tsc 通过"
+    },
+    {
+      "id": "F-K1-08",
+      "title": "K1 全量验收",
       "priority": "high",
       "executor": "codex",
       "status": "pending",
-      "acceptance": "1) 单列列表布局无错位；2) 搜索/筛选/排序功能正确；3) 售价在别名层可编辑，/v1/models 返回正确 pricing；4) LLM 推断 capabilities 填充成功；5) DS token 一致；6) i18n 无残留；7) 签收报告生成"
+      "acceptance": "1) 用户用 Key 调 chat → 成功，扣 User.balance；2) 同一 Key 切换项目（X-Project-Id）→ 访问不同项目 Actions；3) 无项目时 chat 可用、Actions 返回 400；4) Keys 管理列出所有 Key；5) Admin 充值到用户余额；6) MCP 连接正常；7) 签收报告生成"
     }
   ]
 }

@@ -4,24 +4,22 @@ description: AIGC Gateway 当前状态快照（覆盖写，≤30 行）
 type: project
 ---
 ## 当前批次
-- M1d-alias-page-polish：`fixing`（reverifying 5 PASS / 1 FAIL）
-- 失败点：AC4 capabilities 自动填充未生效（已在最新 main 复验，DbNull+JsonNull 变更仍未生效）
+- K1-apikey-user-level：`building`
+- spec：`docs/specs/K1-apikey-user-level-spec.md`
 
-## M1d 变更摘要
-- 别名管理页改单列列表 + accordion 展开
-- 搜索 + brand/modality/enabled 筛选 + 排序
-- Schema: ModelAlias.sellPrice + Admin PATCH + /v1/models 优先读别名售价
-- LLM 推断 capabilities（prompt 扩展 + inferMissingCapabilities）
-- i18n 16 个新 key 中英文同步
-- 验收报告（首轮）：`docs/test-reports/m1d-alias-page-polish-verifying-2026-04-10.md`（migration 阻塞）
-- 验收报告（复验）：`docs/test-reports/m1d-alias-page-polish-reverifying-2026-04-10.md`（AC4 FAIL）
+## K1 功能拆分（8 个）
+- F-K1-01 Schema 迁移（ApiKey→userId, 删 Project.balance/RechargeOrder.projectId）
+- F-K1-02 鉴权中间件重构（userId + X-Project-Id header）
+- F-K1-03 API 端点适配（chat/image/actions/templates）
+- F-K1-04 Keys API 用户级（/api/keys，删旧路径）
+- F-K1-05 充值 API 简化 + 余额清理
+- F-K1-06 MCP 适配
+- F-K1-07 前端适配（Keys 页 + Balance 页 + 侧边栏）
+- F-K1-08 全量验收（codex）
 
 ## 已完成批次
-- R1~R4：UI 重构全部签收
-- P5：公共模板库（签收）
-- M1a/M1b/M1c：模型别名架构升级全部签收
-- bugfix-fork-and-project-switch：签收
+- R1~R4 / P5 / M1a~M1d / BF(bugfix)
 
-## Backlog（10 条）
-- BL-081 [high] API Key 迁移到用户级
-- 其余 9 条 high/med/low
+## Backlog
+- 11 条（BL-065~092），含 2 条 high（BL-078 用户详情页, BL-086 MCP chat 参数）
+- BL-065 安全加固推迟到接支付时

@@ -1,34 +1,26 @@
 {
-  "status": "done",
-
-  "user_goal": "M1d — 别名管理页优化（单列+搜索+排序+售价上提+LLM 推断 capabilities）",
-  "total_features": 6,
-  "completed_features": 6,
-  "fix_rounds": 3,
-  "current_sprint": null,
-  "last_updated": "2026-04-10T11:02:00.000Z",
+  "status": "building",
+  "user_goal": "K1 — API Key 用户级迁移 + 余额模型收敛",
+  "total_features": 8,
+  "completed_features": 0,
+  "fix_rounds": 0,
+  "current_sprint": "F-K1-01",
+  "last_updated": "2026-04-10T12:00:00.000Z",
   "reference_docs": [
-    "docs/specs/M1-models-page-rework-spec.md",
-    "design-draft/admin-model-aliases/code.html"
+    "docs/specs/K1-apikey-user-level-spec.md"
   ],
   "role_assignments": null,
   "docs": {
-    "spec": "docs/specs/M1-models-page-rework-spec.md",
+    "spec": "docs/specs/K1-apikey-user-level-spec.md",
     "test_cases": null,
-    "signoff": "docs/test-reports/m1d-alias-page-polish-signoff-2026-04-10.md",
+    "signoff": null,
     "framework_reviewed": false
   },
-  "evaluator_feedback": {
-    "summary": "M1d 复验全量通过（6/6）。AC4 改为服务内 HTTP 端点链路验证后通过，进入 signoff。",
-    "pass_count": 6,
-    "partial_count": 0,
-    "fail_count": 0,
-    "issues": []
-  },
+  "evaluator_feedback": null,
   "generator_handoff": null,
   "session_notes": {
-    "Kimi": "M1d AC4 调试：怀疑根因是测试脚本直接 import inferMissingCapabilities 在 tsx 进程中调用，与 3099 服务进程隔离。建议 Reviewer 改用 HTTP: POST /api/admin/model-aliases/infer-capabilities（已有端点），响应包含 { updated, errors }。同时代码已加详细 console.log，请检查 tsx stdout 中的 [alias-classifier] 和 [callInternalAI] 日志行。",
-    "Planner": "BF 批次 done 收尾 + M1d 启动。BL-084 拆为 5 generator + 1 codex。从 backlog 移除 BL-084。核心变更：卡片改单列、搜索筛选排序、sellPrice 上提到别名层、LLM 推断 capabilities。",
-    "Reviewer": "2026-04-10 reverifying：按 Kimi 建议改为 HTTP 端点（POST /api/admin/model-aliases/infer-capabilities）进行 AC4 验证，并检查服务日志 [alias-classifier]/[callInternalAI]。executedAt=2026-04-10T01:01:52.808Z，结果 6 PASS / 0 FAIL，确认此前失败由测试进程隔离造成；已生成 signoff 并置为 done。"
+    "Kimi": null,
+    "Planner": "M1d done 收尾 + K1 启动。K1 含 7 generator + 1 codex。核心变更：ApiKey 清空重建绑 userId、Project.balance 删除、RechargeOrder.projectId 删除、鉴权改 userId + X-Project-Id header、旧 API 路径直接删除。不兼容旧数据。从 backlog 移除 BL-081/BL-069。",
+    "Reviewer": null
   }
 }
