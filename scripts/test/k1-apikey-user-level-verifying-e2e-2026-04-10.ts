@@ -338,14 +338,27 @@ async function run() {
     });
     apiKey = String(keyRes.body?.key ?? "");
 
-    // Test precondition: top up balance via currently available admin route.
-    // AC5 will separately assert whether new/old recharge routes match spec.
-    await api(`/api/admin/users/${userId}/projects/${projectA}/recharge`, {
+    // Test precondition: top up balance.
+    // Try new route first; if not available, fallback to legacy route so AC1/AC2 can execute.
+    let preflightRecharged = false;
+    const preflightNew = await api(`/api/admin/users/${userId}/recharge`, {
       method: "POST",
       auth: "admin",
-      expect: 201,
-      body: JSON.stringify({ amount: 20, description: "k1-preflight-recharge" }),
+      body: JSON.stringify({ amount: 20, description: "k1-preflight-recharge-new" }),
     });
+    if (preflightNew.status === 201) {
+      preflightRecharged = true;
+    } else {
+      const preflightOld = await api(`/api/admin/users/${userId}/projects/${projectA}/recharge`, {
+        method: "POST",
+        auth: "admin",
+        body: JSON.stringify({ amount: 20, description: "k1-preflight-recharge-old" }),
+      });
+      preflightRecharged = preflightOld.status === 201;
+    }
+    if (!preflightRecharged) {
+      throw new Error("preflight recharge failed on both new and old routes");
+    }
 
     const keysList = await api("/api/keys", { expect: 200 });
     const ownKeys = Array.isArray(keysList.body?.data) ? keysList.body.data : [];
@@ -390,7 +403,7 @@ async function run() {
       detail: `chat=${chatNoProject.status}, action=${actionNoProject.status}`,
     });
 
-    const oldKeysRoute = await api(`/api/projects/${projectA}/keys`, { expect: 200 });
+    const oldKeysRoute = await api(`/api/projects/${projectA}/keys`);
     steps.push({
       id: "AC4b",
       name: "旧 /api/projects/:id/keys 路径已删除",
