@@ -1,5 +1,5 @@
 {
-  "status": "fixing",
+  "status": "reverifying",
   "user_goal": "K1 — API Key 用户级迁移 + 余额模型收敛",
   "total_features": 8,
   "completed_features": 7,
