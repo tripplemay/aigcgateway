@@ -41,7 +41,7 @@
   },
   "session_notes": {
     "Kimi": "Fixing round 4: balance 从 project.update 改为 user.updateMany（User 模型有 balance，Project 没有）。3 个脚本增加 email 模块变量，从 createTestUser 结果中保存。mcp-dx-round2 额外修复 createProjectAndKeyForRateLimit 中的 /api/keys 路径。tsc + vitest 通过。",
-    "Planner": "O1 done + CI1 启动。BL-092 拆为 4 generator + 1 codex。Mock 公共库+测试工厂+Vitest CI+generator 规则。从 backlog 移除 BL-092。",
+    "Planner": "本轮 Planner 长会话产出：1) P5 设计稿+启动；2) M1 spec+拆4子批次(M1a~M1d)全部签收；3) K1 spec(API Key 用户级)+启动+签收；4) U1 spec(用户详情页)+启动+签收；5) L1(LLM 健壮性)+MCP2(工具增强)+A1(数据质量)+T1(模板)+N1(UI导航)+O1(运维)+CI1(测试基础设施) 启动；6) 多次生产环境诊断（capabilities 超时、modality 全 TEXT、brand 重复）；7) 新增 backlog BL-099~105（删除服务商/Keys精简/运维提示/supportedSizes+capabilities统一/千位分隔符/项目切换/假内容清理）。CI1 当前 fixing round 4，问题是旧脚本未适配 K1 数据模型。",
     "Reviewer": "CI1 round4 复验完成：vitest 11/11 通过；3 个 E2E 脚本仍失败（no_project/insufficient_balance，且 security-billing-polish 残留 Project.balance 访问）。报告：docs/test-reports/CI1-test-infrastructure-reverifying-round4-2026-04-10.md。状态回退 fixing。"
   }
 }

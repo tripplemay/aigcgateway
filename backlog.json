@@ -50,6 +50,49 @@
       "priority": "low"
     },
     {
+      "id": "BL-105",
+      "title": "全站清理假数据/无意义装饰内容",
+      "description": "6 个页面存在假数据或无功能装饰内容，需统一清理：1) Logs 底部：假延迟柱状图+Cost Optimization 假卡片 → 移除；2) Keys 底部：3 个 Coming Soon 按钮+硬编码版本号 → 移除；3) Admin Providers 底部：假 Token 统计+假柱状图+无链接 Status 按钮 → 移除；4) Quickstart 底部：空装饰占位框+营销文案 → 移除；5) MCP Setup 底部：Feature Showcase 营销卡片 → 移除；6) Models 顶部 Bento Grid：假柱状图+Optimization 显示—+装饰圆 → 简化为一行统计文字。",
+      "decisions": [],
+      "confirmed_at": "2026-04-10",
+      "priority": "medium"
+    },
+    {
+      "id": "BL-104",
+      "title": "Settings Project tab 增加项目切换下拉框",
+      "description": "Settings 的 Project tab 当前只能管理侧边栏选中的项目。增加一个项目下拉选择器，用户可以切换查看/编辑不同项目的信息（名称、描述、统计、删除）。",
+      "decisions": [],
+      "confirmed_at": "2026-04-10",
+      "priority": "low"
+    },
+    {
+      "id": "BL-103",
+      "title": "大数字统一加千位分隔符",
+      "description": "6 个页面 10+ 处大数字缺少千位分隔符：admin/model-aliases（contextWindow/maxTokens）、models（context_window）、dashboard（avgLatencyMs）、usage（avgLatencyMs 2处）、logs（latencyMs）、admin/logs（promptTokens/completionTokens）、admin/health（avgLatency 3处）、settings（callCount）。统一使用 toLocaleString() 格式化。",
+      "decisions": [],
+      "confirmed_at": "2026-04-10",
+      "priority": "low"
+    },
+    {
+      "id": "BL-102",
+      "title": "别名数据质量二期（supportedSizes + capabilities 字段统一）",
+      "description": "1) IMAGE 别名补充 supportedSizes（先 Model 继承，null 的 LLM 补充）；2) capabilities 字段统一：LLM prompt 补上 reasoning（推理/思维链）和 search（联网搜索），去掉重复的 image_input（与 vision 合并），保留 system_prompt；3) 一次性修正现有别名（重跑推断补充 reasoning/search）。",
+      "decisions": ["先 Model 继承，null 的 LLM 补充", "capabilities 统一为：streaming/json_mode/function_calling/vision/reasoning/search/system_prompt，去掉 image_input"],
+      "confirmed_at": "2026-04-10",
+      "priority": "medium"
+    },
+    {
+      "id": "BL-101",
+      "title": "运维推断结果提示 + 系统日志 tab",
+      "description": "1) 运维面板推断结果加状态提示条：全为 0 显示'数据已最新'，有更新显示成功摘要，有跳过显示警告，有错误显示红色提示；2) 新增 SystemLog 表记录运维操作（Sync/LLM 推断/健康检查状态变更/自动恢复）；3) /admin/logs 页面新增'系统日志' tab（与现有 API 调用 tab 并列）展示 SystemLog。",
+      "decisions": [
+        "系统日志不单独页面，在审计日志页加 tab",
+        "推断结果根据不同场景显示不同颜色提示条"
+      ],
+      "confirmed_at": "2026-04-10",
+      "priority": "medium"
+    },
+    {
       "id": "BL-099",
       "title": "删除服务商功能（硬删除 + 级联清理）",
       "description": "Admin 可硬删除 Provider。级联逻辑：1) 删除 Provider 下所有 Channel；2) HealthCheck 级联删除；3) CallLog.channelId 设 null（保留历史）；4) ProviderConfig 删除；5) 检查每个受影响 Model：无其他 Channel 则删除 AliasModelLink + Model.enabled=false；6) 检查每个受影响 Alias：无关联 Model 则 enabled=false；7) brand 不删除（保留元数据）但筛选下拉框只展示 enabled=true 别名的 distinct brand；8) 前端二次确认弹窗显示完整影响范围（X 渠道、Y 模型失去渠道、Z 别名将被禁用）。",
