@@ -7,7 +7,7 @@
       "title": "提取 Mock Server 公共库",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) tests/mocks/provider-server.ts 提供 startMockProvider() 函数；2) 支持 chat/image 两种 mock 响应；3) 至少 3 个现有 E2E 脚本改用公共 mock；4) tsc 通过"
     },
     {
@@ -15,7 +15,7 @@
       "title": "提取 Prisma 测试工厂",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) tests/factories/ 提供 createTestUser/createTestProject/createTestApiKey/createTestChannel 等工厂函数；2) 至少 3 个现有 E2E 脚本改用工厂；3) tsc 通过"
     },
     {

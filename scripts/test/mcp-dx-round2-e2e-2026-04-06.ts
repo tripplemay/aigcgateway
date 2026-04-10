@@ -115,7 +115,12 @@ function parseToolJson(result: any): any {
 async function registerAndLogin() {
   const user = await createTestUser(BASE, { prefix: "dx2", name: "DX2 Local Tester" });
   token = user.token;
-  userId = user.userId;
+  const dbUser = await prisma.user.findUnique({
+    where: { email: user.email },
+    select: { id: true },
+  });
+  userId = String(dbUser?.id ?? "");
+  if (!userId) throw new Error("registerAndLogin: user not found in database");
 }
 
 async function createProjectAndKey() {

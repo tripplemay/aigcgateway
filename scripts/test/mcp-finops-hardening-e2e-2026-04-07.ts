@@ -140,7 +140,12 @@ async function callToolRaw(name: string, args: Record<string, unknown> = {}) {
 async function registerAndLogin() {
   const user = await createTestUser(BASE, { prefix: "mh", name: "MH Local Tester" });
   token = user.token;
-  userId = user.userId;
+  const dbUser = await prisma.user.findUnique({
+    where: { email: user.email },
+    select: { id: true },
+  });
+  userId = String(dbUser?.id ?? "");
+  if (!userId) throw new Error("registerAndLogin: user not found in database");
 }
 
 async function createProjectAndKey() {

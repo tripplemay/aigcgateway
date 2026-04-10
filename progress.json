@@ -1,11 +1,11 @@
 {
-  "status": "fixing",
+  "status": "reverifying",
   "user_goal": "CI1 — 测试基础设施升级（Mock 复用 + 测试工厂 + Vitest + CI pipeline）",
   "total_features": 5,
-  "completed_features": 2,
-  "fix_rounds": 6,
-  "current_sprint": "F-CI1-01",
-  "last_updated": "2026-04-10T16:21:28Z",
+  "completed_features": 4,
+  "fix_rounds": 7,
+  "current_sprint": null,
+  "last_updated": "2026-04-11T00:32:00.000Z",
   "reference_docs": [],
   "role_assignments": null,
   "docs": {
@@ -14,33 +14,14 @@
     "signoff": null,
     "framework_reviewed": false
   },
-  "evaluator_feedback": {
-    "summary": "CI1 round6 复验失败：vitest 通过，但 3 个 E2E 脚本统一在 user.update 命中 P2025（目标用户记录未匹配）。",
-    "pass_count": 2,
-    "partial_count": 0,
-    "fail_count": 2,
-    "issues": [
-      {
-        "feature_id": "F-CI1-01",
-        "result": "FAIL",
-        "description": "mcp-dx-round2 与 mcp-finops-hardening 在 createProjectAndKey 阶段即失败，未进入主链路断言。",
-        "steps_to_reproduce": "1) bash scripts/test/codex-setup.sh && bash scripts/test/codex-wait.sh 2) npx tsx scripts/test/mcp-dx-round2-e2e-2026-04-06.ts 3) npx tsx scripts/test/mcp-finops-hardening-e2e-2026-04-07.ts"
-      },
-      {
-        "feature_id": "F-CI1-02",
-        "result": "FAIL",
-        "description": "security-billing-polish 同样在用户回填步骤失败，报 Prisma P2025。",
-        "steps_to_reproduce": "执行 npx tsx scripts/test/security-billing-polish-e2e-2026-04-07.ts，报 Invalid prisma.user.update invocation / P2025。"
-      }
-    ]
-  },
+  "evaluator_feedback": null,
   "generator_handoff": {
     "completed": ["F-CI1-01", "F-CI1-02", "F-CI1-03", "F-CI1-04"],
     "codex_pending": ["F-CI1-05"],
-    "notes": "Fix round 6（系统性 K1 适配）: 根因是 prisma.user.updateMany({ where: { email } }) 静默匹配 0 行。参照已通过的 K1 验收脚本模式，改为：(1) 工厂 createTestUser 新增 userId 返回值（从 login 响应 user.id 提取）；(2) 3 个脚本所有 Prisma 操作从 updateMany({ where: { email } }) 改为 update({ where: { id: userId } })；(3) balance 查询从 findFirstOrThrow({ where: { email } }) 改为 findUniqueOrThrow({ where: { id: userId } })；(4) defaultProjectId 和 balance 在同一次 update 中设置。"
+    "notes": "Fix round 7: P2025 根因是工厂从 HTTP login response 取 userId，但脚本的 PrismaClient 可能连的是不同数据库（codex-env.sh 设置的测试库 vs .env 的开发库）。改为 K1 验收脚本模式：注册后用脚本自己的 prisma.user.findUnique({ where: { email } }) 获取 userId，确保 Prisma 查询和后续 update 用同一个连接/数据库。工厂 TestUserResult 移除 userId，只返回 email/password/token。"
   },
   "session_notes": {
-    "Kimi": "Fix round 6: 系统性审计后发现根因——updateMany({ where: { email } }) 静默匹配 0 行导致 defaultProjectId 和 balance 未设置。对比 K1 验收脚本（k1-apikey-user-level-verifying），正确模式是注册后从 login 响应获取 userId，所有 Prisma 操作用 { where: { id: userId } }。工厂 TestUserResult 新增 userId 字段。3 个脚本全部改为 userId 模式，不再使用 email 做 Prisma 查询。",
+    "Kimi": "Fix round 7: 分析 codex code review 报告，确认根因是脚本 PrismaClient 与 API 服务可能连不同数据库（.env vs codex-env.sh）。工厂从 login response 取的 userId 在 API 数据库存在但在脚本 Prisma 的数据库中不存在，导致 P2025。改为 K1 验收脚本的已验证模式：注册后用脚本自己的 prisma.user.findUnique({ where: { email } }) 查 userId，保证同库操作。",
     "Planner": "本轮 Planner 长会话产出：1) P5 设计稿+启动；2) M1 spec+拆4子批次(M1a~M1d)全部签收；3) K1 spec(API Key 用户级)+启动+签收；4) U1 spec(用户详情页)+启动+签收；5) L1(LLM 健壮性)+MCP2(工具增强)+A1(数据质量)+T1(模板)+N1(UI导航)+O1(运维)+CI1(测试基础设施) 启动；6) 多次生产环境诊断（capabilities 超时、modality 全 TEXT、brand 重复）；7) 新增 backlog BL-099~105（删除服务商/Keys精简/运维提示/supportedSizes+capabilities统一/千位分隔符/项目切换/假内容清理）。CI1 当前 fixing round 4，问题是旧脚本未适配 K1 数据模型。",
     "Reviewer": "CI1 round6 复验完成：vitest 11/11 通过；3 个 E2E 脚本统一在 prisma.user.update 触发 P2025（userId 未命中）。报告：docs/test-reports/CI1-test-infrastructure-reverifying-round6-2026-04-11.md。状态回退 fixing。"
   }
