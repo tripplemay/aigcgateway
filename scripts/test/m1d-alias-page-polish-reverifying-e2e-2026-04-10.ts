@@ -231,7 +231,11 @@ async function run() {
       }),
     });
 
-    const modelsRes = await api("/v1/models", { expect: 200, auth: "none" });
+    const modalityParam = String(targetModel.modality ?? "TEXT").toLowerCase();
+    const modelsRes = await api(`/v1/models?modality=${encodeURIComponent(modalityParam)}`, {
+      expect: 200,
+      auth: "none",
+    });
     const models = Array.isArray(modelsRes.body?.data) ? modelsRes.body.data : [];
     const hit = models.find((m: any) => m?.id === aliasName);
     const pricing = hit?.pricing ?? {};
@@ -245,7 +249,7 @@ async function run() {
       id: "AC3",
       name: "别名层 sellPrice 可编辑，且 /v1/models 返回别名售价",
       ok: ac3Ok,
-      detail: `alias_found=${!!hit}, pricing=${JSON.stringify(pricing)}`,
+      detail: `modality=${modalityParam}, alias_found=${!!hit}, pricing=${JSON.stringify(pricing)}`,
     });
 
     // AC4: inferMissingCapabilities fills null only, does not override existing

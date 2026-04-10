@@ -21,7 +21,7 @@
 ## 通过项
 - AC1：单列列表 + accordion 展开结构存在
 - AC2：搜索/筛选/排序逻辑存在，enabled 优先排序实现存在
-- AC3：别名层 sellPrice 可编辑，`/v1/models` 返回 alias pricing 正确
+- AC3：别名层 sellPrice 可编辑，`/v1/models?modality=text` 返回 alias pricing 正确
 - AC5：未发现硬编码色值/原始色阶 class
 - AC6：页面走 i18n key，en/zh key 同步，无中文硬编码残留
 
@@ -31,14 +31,14 @@
 - 稳定复现：是
 
 现象：
-- 脚本创建了 `capabilities = null` 的别名（`m1d-cap-fill-*`），调用 `inferMissingCapabilities()` 后仍未被填充；
-- 同时已有 capabilities 的别名未被覆盖（这一半行为正确）。
+- 创建 `capabilities = null` 的别名后，调用 `inferMissingCapabilities()` 仍未被填充；
+- 已有 capabilities 的别名未被覆盖（该行为正确）。
 
 证据：
 - 动态结果：`infer_updated=0, fill_caps=null, keep_caps={"vision":false,"streaming":false}`
 - 实现定位：`src/lib/sync/alias-classifier.ts:386-389` 使用
   `where: { capabilities: { equals: Prisma.JsonNull } }`
-- 问题推断：新建别名的 `capabilities` 存储为数据库 `NULL`（DbNull），不匹配 `JsonNull` 条件，导致查询不到“空值别名”。
+- 问题推断：数据库 `NULL`（DbNull）不匹配 `JsonNull`，导致空值别名未被选中。
 
 ## 结论
 本轮复验未通过，建议 Generator 修复 `inferMissingCapabilities` 的空值匹配逻辑（覆盖 DbNull/NULL 场景）后再次进入 `reverifying`。

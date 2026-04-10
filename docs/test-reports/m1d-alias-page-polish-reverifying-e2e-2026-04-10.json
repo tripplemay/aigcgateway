@@ -1,7 +1,7 @@
 {
   "batch": "M1d-alias-page-polish",
   "feature": "F-M1d-06",
-  "executedAt": "2026-04-10T00:04:11.287Z",
+  "executedAt": "2026-04-10T00:12:09.816Z",
   "baseUrl": "http://localhost:3099",
   "passCount": 5,
   "failCount": 1,
@@ -22,7 +22,7 @@
       "id": "AC3",
       "name": "别名层 sellPrice 可编辑，且 /v1/models 返回别名售价",
       "ok": true,
-      "detail": "alias_found=true, pricing={\"input_per_1m\":1.23,\"output_per_1m\":4.56,\"unit\":\"token\",\"currency\":\"USD\"}"
+      "detail": "modality=text, alias_found=true, pricing={\"input_per_1m\":1.23,\"output_per_1m\":4.56,\"unit\":\"token\",\"currency\":\"USD\"}"
     },
     {
       "id": "AC4",
