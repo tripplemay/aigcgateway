@@ -1,30 +1,24 @@
 {
-  "status": "done",
-  "user_goal": "MCP2 — MCP 工具增强（chat 高级参数 + supportedSizes + Key 管理 + 项目管理）",
-  "total_features": 6,
-  "completed_features": 6,
+  "status": "building",
+  "user_goal": "A1 — 别名数据质量修复（modality 继承 + contextWindow 补充 + brand 去重）",
+  "total_features": 4,
+  "completed_features": 0,
   "fix_rounds": 0,
-  "current_sprint": "F-MCP2-06",
-  "last_updated": "2026-04-10T06:23:00.000Z",
+  "current_sprint": "F-A1-01",
+  "last_updated": "2026-04-10T17:00:00.000Z",
   "reference_docs": [],
   "role_assignments": null,
   "docs": {
     "spec": null,
-    "test_cases": "docs/test-cases/mcp2-tools-enhancement-verifying-2026-04-10.md",
-    "signoff": "docs/test-reports/mcp2-tools-enhancement-signoff-2026-04-10.md",
+    "test_cases": null,
+    "signoff": null,
     "framework_reviewed": false
   },
-  "evaluator_feedback": {
-    "summary": "MCP2 首轮验收全通过：chat 高级参数、supportedSizes、Key 管理、项目管理和 SERVER_INSTRUCTIONS 均完成 L1 动态验证。",
-    "pass_count": 6,
-    "partial_count": 0,
-    "fail_count": 0,
-    "issues": []
-  },
+  "evaluator_feedback": null,
   "generator_handoff": null,
   "session_notes": {
-    "Kimi": "MCP2 building 完成。5 条 generator 功能全部 done：(1) chat 补齐 presence_penalty+stop 参数，stream 模式补 tool_calls 累积；(2) list_models IMAGE 模态补 supportedSizes 聚合；(3) 新增 manage-api-keys.ts（list/create/revoke 三个工具），ApiKeyPermissions 增加 keyManagement；(4) 新增 manage-projects.ts（get_project_info/create_project）；(5) SERVER_INSTRUCTIONS 全面更新。ChatCompletionRequest 增加 stop 字段。tsc 全通过。状态推进到 verifying。",
-    "Planner": "L1 done 收尾 + MCP2 启动。BL-086/087/088/089 打包为 5 generator + 1 codex。chat 补齐 tools/top_p/penalties/stop、list_models 补 supportedSizes、新增 Key 管理和项目管理工具、SERVER_INSTRUCTIONS 同步更新。从 backlog 移除 4 条。",
-    "Reviewer": "已在 3099 本地完成 MCP2 首轮验收并签收。新增 MCP2 专用 E2E 脚本与测试用例文档，验证了 initialize/tools/list、新增 key/project 管理工具、image supportedSizes 聚合，以及 chat 的 tools/tool_choice、top_p/frequency_penalty/presence_penalty/stop 和 stream tool_calls 累积；原始结果全 PASS，progress 已推进到 done。"
+    "Kimi": null,
+    "Planner": "MCP2 done + A1 启动。BL-098 拆为 3 generator + 1 codex。三项修复：modality 从 Model 继承、contextWindow 先 Model 后 LLM fallback、brand 锚定已有列表+清理脏数据。从 backlog 移除 BL-098。后续批次：T1(模板) → N1(UI/导航) → O1(Admin 运维) → CI1(测试) → D1(文档)。",
+    "Reviewer": null
   }
 }

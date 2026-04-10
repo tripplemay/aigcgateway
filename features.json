@@ -1,54 +1,38 @@
 {
-  "batch": "MCP2-tools-enhancement",
+  "batch": "A1-alias-data-quality",
   "created_at": "2026-04-10",
   "features": [
     {
-      "id": "F-MCP2-01",
-      "title": "chat 工具补齐高级参数",
+      "id": "F-A1-01",
+      "title": "别名创建时从 Model 继承 modality",
       "priority": "high",
       "executor": "generator",
-      "status": "done",
-      "acceptance": "1) 新增 tools 参数（JSON 数组，function calling 定义）；2) 新增 tool_choice 参数（auto/none/required/指定函数）；3) 新增 top_p 参数（0-1）；4) 新增 frequency_penalty/presence_penalty 参数（-2~2）；5) 新增 stop 参数（字符串或字符串数组）；6) 参数透传到 /v1/chat/completions；7) 响应正确返回 tool_calls（如有）；8) tsc 通过"
+      "status": "pending",
+      "acceptance": "1) classifyNewModels 创建新别名时从关联 Model.modality 继承；2) 归入已有别名时检查 modality 一致性（IMAGE 模型不应归入 TEXT 别名）；3) 一次性修正现有别名 modality（从关联 Model 查，IMAGE 模型别名改为 IMAGE）；4) tsc 通过"
     },
     {
-      "id": "F-MCP2-02",
-      "title": "list_models 补 supportedSizes",
-      "priority": "medium",
+      "id": "F-A1-02",
+      "title": "contextWindow/maxTokens 继承 + LLM fallback",
+      "priority": "high",
       "executor": "generator",
-      "status": "done",
-      "acceptance": "1) image 模态别名返回 supportedSizes 字段；2) supportedSizes 从关联 Model 聚合；3) SERVER_INSTRUCTIONS 描述与实际一致；4) tsc 通过"
+      "status": "pending",
+      "acceptance": "1) 创建别名时从关联 Model 继承 contextWindow/maxTokens；2) 归入已有别名时，别名的 contextWindow 为空则从 Model 补充；3) LLM prompt 扩展加 context_window/max_tokens 字段；4) Model 有值用 Model 的，null 的用 LLM 推断补充；5) tsc 通过"
     },
     {
-      "id": "F-MCP2-03",
-      "title": "MCP API Key 管理工具",
-      "priority": "medium",
+      "id": "F-A1-03",
+      "title": "brand 推断锚定已有品牌 + 历史数据清理",
+      "priority": "high",
       "executor": "generator",
-      "status": "done",
-      "acceptance": "1) list_api_keys 返回当前用户所有 Key（maskedKey+name+status+createdAt）；2) create_api_key(name, description?) 创建新 Key 并返回完整 Key（仅一次可见）；3) revoke_api_key(keyId) 吊销 Key；4) tsc 通过"
+      "status": "pending",
+      "acceptance": "1) inferMissingBrands prompt 传入已有品牌列表作为锚定；2) classifyNewModels prompt 同样锚定已有品牌；3) 清理现有脏数据（智谱 AI→智谱AI、Arcee AI→Arcee 等重复品牌合并）；4) 清理脚本或 migration 一次性执行；5) tsc 通过"
     },
     {
-      "id": "F-MCP2-04",
-      "title": "MCP 项目管理工具",
-      "priority": "medium",
-      "executor": "generator",
-      "status": "done",
-      "acceptance": "1) get_project_info 返回当前项目名称、描述、创建时间、调用数、Key 数；2) 无项目时返回友好提示；3) create_project(name, description?) 创建项目并设为 defaultProjectId；4) tsc 通过"
-    },
-    {
-      "id": "F-MCP2-05",
-      "title": "SERVER_INSTRUCTIONS 更新",
-      "priority": "medium",
-      "executor": "generator",
-      "status": "done",
-      "acceptance": "1) chat 部分补充 tools/tool_choice/top_p/penalties/stop 说明；2) 新增 API Key 管理工具说明；3) 新增项目管理工具说明；4) list_models 的 supportedSizes 描述与实际一致；5) 新增 brand 字段说明；6) tsc 通过"
-    },
-    {
-      "id": "F-MCP2-06",
-      "title": "MCP2 全量验收",
+      "id": "F-A1-04",
+      "title": "A1 全量验收",
       "priority": "high",
       "executor": "codex",
-      "status": "completed",
-      "acceptance": "1) chat 传 tools 参数可触发 function calling；2) chat 传 top_p/penalties/stop 正常生效；3) list_models image 模型含 supportedSizes；4) list_api_keys/create_api_key/revoke_api_key 正常工作；5) get_project_info/create_project 正常工作；6) SERVER_INSTRUCTIONS 内容准确；7) 签收报告生成"
+      "status": "pending",
+      "acceptance": "1) dall-e/seedream/cogview 等图片模型别名 modality 为 IMAGE；2) 主流模型 contextWindow 已填充（非 null）；3) brand 无重复变体（智谱AI 只有一个）；4) 新 sync 后新模型自动继承正确 modality/contextWindow；5) 签收报告生成"
     }
   ]
 }
