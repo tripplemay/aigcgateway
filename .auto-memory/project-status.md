@@ -5,7 +5,8 @@ type: project
 ---
 ## 当前批次
 - N1-ui-navigation-polish：`fixing`
-- `verifying` 首轮未通过，阻断项为 Settings Project tab 无法保存项目名称/描述
+- `verifying` 首轮未通过，`reverifying` round 1 仍未通过
+- 阻断项未修复：Settings Project tab 点击保存未触发 PATCH，请求未发出
 - T1-template-experience：`done`
 - `verifying` 首轮签收通过，Admin 模板详情独立路由与用户侧步骤预览 Action 验收完成
 - U1-admin-user-detail：`done`
@@ -28,7 +29,7 @@ type: project
 - Sidebar 已按 Core / Develop / Data / Model Mgmt / Operations / Users 分组，Docs 入口迁入 Sidebar，Top Bar 不再保留旧文档导航
 - Keys 页已移除旧统计卡与 FAB，创建按钮合并到表格 header
 - Settings 页已新增 Account / Project tab，Project tab 可展示项目统计并执行删除
-- 阻断问题：Project tab 点击保存后项目名称与描述未更新，API 复核仍返回旧值
+- 阻断问题：Project tab 点击保存后项目名称与描述未更新，reverify 证据显示前端未发出 PATCH 请求
 
 ## U1 验收结论
 - 详情 API 返回真实 balance、lastActive、projects、transactions 分页
