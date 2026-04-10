@@ -1,30 +1,24 @@
 {
-  "status": "done",
-  "user_goal": "A1 — 别名数据质量修复（modality 继承 + contextWindow 补充 + brand 去重）",
+  "status": "building",
+  "user_goal": "T1 — 模板体验增强（Admin 详情页独立路由 + 步骤预览 Action）",
   "total_features": 4,
-  "completed_features": 4,
-  "fix_rounds": 1,
-  "current_sprint": "F-A1-04",
-  "last_updated": "2026-04-10T07:02:28.000Z",
+  "completed_features": 0,
+  "fix_rounds": 0,
+  "current_sprint": "F-T1-01",
+  "last_updated": "2026-04-10T18:00:00.000Z",
   "reference_docs": [],
   "role_assignments": null,
   "docs": {
     "spec": null,
-    "test_cases": "docs/test-cases/a1-alias-data-quality-verifying-2026-04-10.md",
-    "signoff": "docs/test-reports/a1-alias-data-quality-signoff-2026-04-10.md",
+    "test_cases": null,
+    "signoff": null,
     "framework_reviewed": false
   },
-  "evaluator_feedback": {
-    "summary": "A1 复验通过：本地 L1 逻辑已通过，生产只读复验确认图片 alias modality 已修正、主流 enabled 模型 contextWindow/maxTokens 已补齐、品牌重复变体已清理，三条修复脚本 dry-run 均为 0 待修正。",
-    "pass_count": 4,
-    "partial_count": 0,
-    "fail_count": 0,
-    "issues": []
-  },
-  "generator_handoff": "Fix round 1: 生产存量数据已修正。新增 scripts/fix-a1-all.ts 统一入口 + scripts/fix-alias-context-window.ts。已在生产执行：7 alias modality TEXT→IMAGE（含 dall-e-2/cogview-3/seedream-3）、143 contextWindow 补齐（含 claude-3.5-sonnet/deepseek-r1/deepseek-v3）、111 maxTokens 补齐、4 品牌去重（智谱 AI→智谱AI、Arcee AI→Arcee）。",
+  "evaluator_feedback": null,
+  "generator_handoff": null,
   "session_notes": {
-    "Kimi": "A1 fixing 完成。Evaluator 反馈核心问题：脚本未部署到生产，存量数据未修正。修复：新增 fix-alias-context-window.ts + fix-a1-all.ts 统一入口，推送后在生产执行。结果：7 modality 修正、143 contextWindow 补齐、111 maxTokens 补齐、4 品牌去重。已推进到 reverifying。",
-    "Planner": "MCP2 done + A1 启动。BL-098 拆为 3 generator + 1 codex。三项修复：modality 从 Model 继承、contextWindow 先 Model 后 LLM fallback、brand 锚定已有列表+清理脏数据。从 backlog 移除 BL-098。后续批次：T1(模板) → N1(UI/导航) → O1(Admin 运维) → CI1(测试) → D1(文档)。",
-    "Reviewer": "A1 生产复验已通过。远端 /opt/aigc-gateway 已部署 fix-a1-all、fix-alias-context-window、fix-alias-modality、fix-brand-duplicates；只读查询确认 cogview-3/dall-e-2/seedream-3 已为 IMAGE，claude-3.5-sonnet/deepseek-r1/deepseek-v3 的 contextWindow/maxTokens 已补齐，品牌重复变体仅剩标准名 Arcee/智谱AI。三条脚本在加载 PM2 环境后执行 --dry-run 均为 0 待修正，已写 signoff 并推进到 done。"
+    "Kimi": null,
+    "Planner": "A1 done + T1 启动。BL-097+BL-085 合并为 3 generator + 1 codex。Admin 模板详情独立路由 + 用户侧步骤预览 Action。从 backlog 移除 BL-097/BL-085。",
+    "Reviewer": null
   }
 }

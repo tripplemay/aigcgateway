@@ -1,38 +1,38 @@
 {
-  "batch": "A1-alias-data-quality",
+  "batch": "T1-template-experience",
   "created_at": "2026-04-10",
   "features": [
     {
-      "id": "F-A1-01",
-      "title": "别名创建时从 Model 继承 modality",
-      "priority": "high",
+      "id": "F-T1-01",
+      "title": "Admin 模板详情页（/admin/templates/:id）",
+      "priority": "medium",
       "executor": "generator",
-      "status": "done",
-      "acceptance": "1) classifyNewModels 创建新别名时从关联 Model.modality 继承；2) 归入已有别名时检查 modality 一致性（IMAGE 模型不应归入 TEXT 别名）；3) 一次性修正现有别名 modality（从关联 Model 查，IMAGE 模型别名改为 IMAGE）；4) tsc 通过"
+      "status": "pending",
+      "acceptance": "1) 新增 /admin/templates/:id 页面；2) 用 admin API 查模板（不受项目限制）；3) 展示模板完整信息（名称、描述、Steps、关联 Actions、公共状态、质量评分）；4) Admin 模板列表页的详情链接指向 /admin/templates/:id（而非用户侧 /templates/:id）；5) tsc 通过"
     },
     {
-      "id": "F-A1-02",
-      "title": "contextWindow/maxTokens 继承 + LLM fallback",
-      "priority": "high",
+      "id": "F-T1-02",
+      "title": "模板详情页步骤卡片展开预览 Action 内容",
+      "priority": "medium",
       "executor": "generator",
-      "status": "done",
-      "acceptance": "1) 创建别名时从关联 Model 继承 contextWindow/maxTokens；2) 归入已有别名时，别名的 contextWindow 为空则从 Model 补充；3) LLM prompt 扩展加 context_window/max_tokens 字段；4) Model 有值用 Model 的，null 的用 LLM 推断补充；5) tsc 通过"
+      "status": "pending",
+      "acceptance": "1) 用户侧模板详情页（/templates/:id）步骤卡片可点击展开 accordion；2) 展开后只读预览 Action 内容（系统消息摘要、变量列表、活跃版本号）；3) 点击跳转图标 ↗ 跳到 Action 详情页编辑；4) tsc 通过"
     },
     {
-      "id": "F-A1-03",
-      "title": "brand 推断锚定已有品牌 + 历史数据清理",
-      "priority": "high",
+      "id": "F-T1-03",
+      "title": "i18n",
+      "priority": "medium",
       "executor": "generator",
-      "status": "done",
-      "acceptance": "1) inferMissingBrands prompt 传入已有品牌列表作为锚定；2) classifyNewModels prompt 同样锚定已有品牌；3) 清理现有脏数据（智谱 AI→智谱AI、Arcee AI→Arcee 等重复品牌合并）；4) 清理脚本或 migration 一次性执行；5) tsc 通过"
+      "status": "pending",
+      "acceptance": "1) en.json + zh-CN.json 同步更新；2) 无硬编码字符串"
     },
     {
-      "id": "F-A1-04",
-      "title": "A1 全量验收",
+      "id": "F-T1-04",
+      "title": "T1 全量验收",
       "priority": "high",
       "executor": "codex",
-      "status": "completed",
-      "acceptance": "1) dall-e/seedream/cogview 等图片模型别名 modality 为 IMAGE；2) 主流模型 contextWindow 已填充（非 null）；3) brand 无重复变体（智谱AI 只有一个）；4) 新 sync 后新模型自动继承正确 modality/contextWindow；5) 签收报告生成"
+      "status": "pending",
+      "acceptance": "1) Admin 点击模板详情 → /admin/templates/:id 正常显示，不再空白；2) 用户侧步骤卡片点击展开 Action 预览；3) 跳转图标 ↗ 跳到 Action 详情页；4) DS token 一致；5) i18n 无残留；6) 签收报告生成"
     }
   ]
 }
