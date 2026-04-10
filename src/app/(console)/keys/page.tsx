@@ -81,8 +81,6 @@ export default function KeysPage() {
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const safePage = Math.min(page, totalPages);
   const pageKeys = filtered.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
-  const activeCount = keys.filter((k) => k.status === "ACTIVE").length;
-
   const copyKey = (key: string) => {
     navigator.clipboard.writeText(key);
     toast.success(tc("copied"));
@@ -123,81 +121,28 @@ export default function KeysPage() {
           </div>
         </div>
 
-        {/* ═══ Premium Stats Section — code.html lines 200-230 ═══ */}
-        <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {/* Card 1: Active Infrastructure */}
-          <div className="p-6 rounded-2xl bg-ds-surface-container-lowest border-l-4 border-ds-primary shadow-sm flex justify-between items-center group hover:bg-ds-surface-container transition-all duration-300">
-            <div>
-              <p className="text-[10px] uppercase tracking-widest text-slate-500 font-bold mb-1">
-                {t("activeInfrastructure")}
-              </p>
-              <h2 className="text-4xl font-black tracking-tighter text-ds-on-surface font-[var(--font-heading)]">
-                {activeCount}{" "}
-                <span className="text-slate-300 font-light text-2xl">/ {keys.length} keys</span>
-              </h2>
-            </div>
-            <div className="w-12 h-12 rounded-xl bg-ds-primary/5 flex items-center justify-center text-ds-primary">
-              <span
-                className="material-symbols-outlined text-3xl"
-                style={{ fontVariationSettings: "'FILL' 1" }}
-              >
-                developer_board
-              </span>
-            </div>
-          </div>
-          {/* Card 2: Daily Capacity */}
-          <div className="p-6 rounded-2xl bg-ds-surface-container-lowest border-l-4 border-ds-tertiary shadow-sm flex justify-between items-center group hover:bg-ds-surface-container transition-all duration-300">
-            <div>
-              <p className="text-[10px] uppercase tracking-widest text-slate-500 font-bold mb-1">
-                {t("dailyCapacity")}
-              </p>
-              <h2 className="text-4xl font-black tracking-tighter text-ds-on-surface font-[var(--font-heading)]">
-                1,000,000 <span className="text-slate-300 font-light text-2xl">req</span>
-              </h2>
-            </div>
-            <div className="w-12 h-12 rounded-xl bg-ds-tertiary/5 flex items-center justify-center text-ds-tertiary">
-              <span
-                className="material-symbols-outlined text-3xl"
-                style={{ fontVariationSettings: "'FILL' 1" }}
-              >
-                speed
-              </span>
-            </div>
-          </div>
-          {/* Card 3: Quick Action CTA */}
-          <div className="p-6 rounded-2xl bg-ds-primary text-ds-on-primary shadow-xl shadow-ds-primary/10 relative overflow-hidden flex flex-col justify-between">
-            <div className="absolute -right-4 -top-4 w-24 h-24 bg-white/10 rounded-full blur-2xl" />
-            <div>
-              <p className="text-[10px] uppercase tracking-widest opacity-80 font-bold">
-                {t("quickAction")}
-              </p>
-              <h3 className="text-xl font-bold mt-1 font-[var(--font-heading)]">
-                {t("generateNewKey")}
-              </h3>
-            </div>
-            <button
-              onClick={() => setCreateOpen(true)}
-              className="mt-4 w-full py-2.5 bg-white text-ds-primary font-bold rounded-xl flex items-center justify-center gap-2 hover:bg-indigo-50 transition-all scale-95 active:scale-100 duration-150"
-            >
-              <span className="material-symbols-outlined">add</span>
-              <span>{t("createKey")}</span>
-            </button>
-          </div>
-        </section>
-
-        {/* ═══ Key Management Table — code.html lines 232-355 ═══ */}
+        {/* ═══ Key Management Table ═══ */}
         <section className="bg-ds-surface-container-lowest rounded-2xl shadow-sm border border-slate-200/5 overflow-hidden">
           {/* Table header bar */}
           <div className="px-6 py-5 flex justify-between items-center border-b border-ds-outline-variant/10">
             <h3 className="text-lg font-extrabold tracking-tight font-[var(--font-heading)]">
               {t("activeKeys")}
             </h3>
-            <SearchBar
-              placeholder={t("searchKeys")}
-              value={search}
-              onChange={handleSearchChange}
-              className="w-64"
-            />
+            <div className="flex items-center gap-3">
+              <SearchBar
+                placeholder={t("searchKeys")}
+                value={search}
+                onChange={handleSearchChange}
+                className="w-64"
+              />
+              <button
+                onClick={() => setCreateOpen(true)}
+                className="flex items-center gap-2 px-4 py-2 bg-ds-primary text-white text-sm font-bold rounded-lg hover:bg-ds-primary-container transition-all active:scale-95 shadow-lg shadow-ds-primary/10"
+              >
+                <span className="material-symbols-outlined text-sm">add</span>
+                {t("createKey")}
+              </button>
+            </div>
           </div>
           {/* Table */}
           <Table>
@@ -405,21 +350,6 @@ export default function KeysPage() {
             <p>&copy; 2024 Algorithmic Atelier. All rights reserved.</p>
           </div>
         </footer>
-      </div>
-
-      {/* ═══ FAB — code.html lines 411-415 ═══ */}
-      <div className="fixed bottom-8 right-8 z-50">
-        <button
-          onClick={() => setCreateOpen(true)}
-          className="w-14 h-14 rounded-2xl bg-ds-primary text-white shadow-2xl shadow-ds-primary/30 flex items-center justify-center hover:scale-110 active:scale-95 transition-all duration-200"
-        >
-          <span
-            className="material-symbols-outlined text-3xl"
-            style={{ fontVariationSettings: "'FILL' 1" }}
-          >
-            add
-          </span>
-        </button>
       </div>
 
       {/* ═══ Create API Key Dialog ═══ */}

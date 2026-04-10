@@ -7,7 +7,7 @@
       "title": "Sidebar 分组整理",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "1) 用户侧分三组（核心：Dashboard/Models/Templates/Actions；开发：API Keys/Quick Start/MCP Setup/Docs；数据：Logs/Usage/Balance）；2) Admin 侧分三组（模型管理：Model Aliases/Models & Channels/Providers；运维：Health/Logs/Usage；用户：Users/Templates）；3) 分组有视觉分隔（间距或标题）；4) tsc 通过"
     },
     {
@@ -15,7 +15,7 @@
       "title": "Docs 入口从 topbar 移到 sidebar",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "1) topbar 移除 Documentation/API Reference/Support 三个链接；2) sidebar 开发组新增 Docs 入口指向 /docs；3) tsc 通过"
     },
     {
@@ -23,7 +23,7 @@
       "title": "Settings 增加 Project tab",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "1) /settings 页新增 Project tab；2) 编辑项目名称/描述；3) 查看项目统计（API Key 数、调用数）；4) 删除项目（Danger Zone，需确认）；5) 延续现有 Settings 页卡片式表单风格；6) tsc 通过"
     },
     {
@@ -31,7 +31,7 @@
       "title": "Keys 页面精简 — 移除顶部统计卡",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "1) 移除顶部三张统计卡（活跃基础设施/日请求容量/生成新密钥）；2) 创建按钮合并到表格区域标题旁；3) 页面结构：标题+创建按钮+Key 列表表格；4) tsc 通过"
     },
     {
@@ -39,7 +39,7 @@
       "title": "i18n",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "1) en.json + zh-CN.json 同步更新；2) sidebar 分组标题有翻译；3) 无硬编码字符串"
     },
     {

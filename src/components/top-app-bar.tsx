@@ -47,29 +47,8 @@ export function TopAppBar({ userName, userEmail }: TopAppBarProps) {
 
   return (
     <header className="sticky top-0 z-50 w-full bg-ds-surface-container-lowest/80 backdrop-blur-xl flex justify-between items-center h-16 px-8 shadow-sm">
-      {/* Left: Nav Links */}
-      <div className="flex items-center gap-6 flex-1">
-        <nav className="hidden md:flex items-center gap-6">
-          <Link
-            href="/docs"
-            className="text-ds-on-surface-variant hover:text-ds-primary transition-all font-[var(--font-heading)] text-sm font-medium"
-          >
-            {t("documentation")}
-          </Link>
-          <Link
-            href="/docs"
-            className="text-ds-on-surface-variant hover:text-ds-primary transition-all font-[var(--font-heading)] text-sm font-medium"
-          >
-            {t("apiReference")}
-          </Link>
-          <Link
-            href="/docs"
-            className="text-ds-on-surface-variant hover:text-ds-primary transition-all font-[var(--font-heading)] text-sm font-medium"
-          >
-            {t("support")}
-          </Link>
-        </nav>
-      </div>
+      {/* Left: spacer */}
+      <div className="flex-1" />
 
       {/* Right: Controls */}
       <div className="flex items-center gap-4">
@@ -123,9 +102,7 @@ export function TopAppBar({ userName, userEmail }: TopAppBarProps) {
                 {userName && (
                   <p className="text-sm font-semibold text-ds-on-surface truncate">{userName}</p>
                 )}
-                {userEmail && (
-                  <p className="text-xs text-ds-outline truncate">{userEmail}</p>
-                )}
+                {userEmail && <p className="text-xs text-ds-outline truncate">{userEmail}</p>}
               </div>
               {/* Menu items */}
               <div className="py-1">
@@ -134,7 +111,9 @@ export function TopAppBar({ userName, userEmail }: TopAppBarProps) {
                   onClick={() => setMenuOpen(false)}
                   className="flex items-center gap-3 px-4 py-2 text-sm text-ds-on-surface hover:bg-ds-surface-container-low transition-colors"
                 >
-                  <span className="material-symbols-outlined text-lg text-ds-outline">settings</span>
+                  <span className="material-symbols-outlined text-lg text-ds-outline">
+                    settings
+                  </span>
                   {t("settings")}
                 </Link>
                 <button

@@ -7,6 +7,7 @@ import { useProject } from "@/hooks/use-project";
 import { useAsyncData } from "@/hooks/use-async-data";
 import { useRouter } from "next/navigation";
 import { Skeleton } from "@/components/ui/skeleton";
+import { cn } from "@/lib/utils";
 import {
   Table,
   TableHeader,
@@ -46,12 +47,231 @@ function parseUserAgent(ua: string | null): string {
 // Component
 // ============================================================
 
+// ============================================================
+// Project Tab
+// ============================================================
+
+interface ProjectDetail {
+  id: string;
+  name: string;
+  description: string | null;
+  createdAt: string;
+  stats: { keyCount: number; callCount: number };
+}
+
+function ProjectTab() {
+  const t = useTranslations("settings");
+  const router = useRouter();
+  const { current, projects, select, refresh } = useProject();
+  const [projName, setProjName] = useState("");
+  const [projDesc, setProjDesc] = useState("");
+  const [initialized, setInitialized] = useState(false);
+  const [deleteConfirm, setDeleteConfirm] = useState("");
+  const [deleting, setDeleting] = useState(false);
+
+  const { data: detail, refetch } = useAsyncData<ProjectDetail>(async () => {
+    if (!current) return null as unknown as ProjectDetail;
+    return apiFetch<ProjectDetail>(`/api/projects/${current.id}`);
+  }, [current?.id]);
+
+  useEffect(() => {
+    if (detail && !initialized) {
+      setProjName(detail.name);
+      setProjDesc(detail.description ?? "");
+      setInitialized(true);
+    }
+  }, [detail, initialized]);
+
+  // Reset init flag when switching projects
+  useEffect(() => {
+    setInitialized(false);
+  }, [current?.id]);
+
+  const saveProject = async () => {
+    if (!current) return;
+    try {
+      await apiFetch(`/api/projects/${current.id}`, {
+        method: "PATCH",
+        body: JSON.stringify({ name: projName, description: projDesc }),
+      });
+      toast.success(t("projectUpdated"));
+      refresh();
+      refetch();
+    } catch (e) {
+      toast.error((e as Error).message);
+    }
+  };
+
+  const deleteProject = async () => {
+    if (!current || deleteConfirm !== current.name) return;
+    setDeleting(true);
+    try {
+      await apiFetch(`/api/projects/${current.id}`, { method: "DELETE" });
+      toast.success(t("projectDeleted"));
+      // Switch to another project or go to dashboard
+      const remaining = projects.filter((p) => p.id !== current.id);
+      if (remaining.length > 0) {
+        select(remaining[0].id);
+      }
+      refresh();
+      router.push("/dashboard");
+    } catch (e) {
+      toast.error((e as Error).message);
+    } finally {
+      setDeleting(false);
+    }
+  };
+
+  if (!current) {
+    return (
+      <div className="text-center py-20 text-ds-on-surface-variant">{t("noProjectSelected")}</div>
+    );
+  }
+
+  return (
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      {/* Left: Project Info */}
+      <div className="lg:col-span-2 space-y-8">
+        <section className="bg-ds-surface-container-lowest rounded-xl p-8 shadow-sm">
+          <div className="flex items-center gap-4 mb-8">
+            <div className="w-12 h-12 rounded-xl bg-indigo-50 flex items-center justify-center text-ds-primary">
+              <span
+                className="material-symbols-outlined"
+                style={{ fontVariationSettings: "'FILL' 1" }}
+              >
+                folder_managed
+              </span>
+            </div>
+            <div>
+              <h2 className="text-xl font-bold font-[var(--font-heading)]">{t("projectInfo")}</h2>
+              <p className="text-sm text-ds-on-surface-variant">{t("projectInfoDesc")}</p>
+            </div>
+          </div>
+          <div className="space-y-6">
+            <div className="space-y-2">
+              <label className="text-xs font-bold uppercase tracking-wider text-ds-on-surface-variant ml-1">
+                {t("projectName")}
+              </label>
+              <input
+                className="w-full bg-white border-b-2 border-ds-outline-variant/30 focus:border-ds-primary px-1 py-3 transition-colors outline-none font-medium"
+                value={projName}
+                onChange={(e) => setProjName(e.target.value)}
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-xs font-bold uppercase tracking-wider text-ds-on-surface-variant ml-1">
+                {t("projectDescription")}
+              </label>
+              <textarea
+                className="w-full bg-white border-b-2 border-ds-outline-variant/30 focus:border-ds-primary px-1 py-3 transition-colors outline-none font-medium resize-none"
+                rows={3}
+                value={projDesc}
+                onChange={(e) => setProjDesc(e.target.value)}
+                placeholder={t("projectDescPlaceholder")}
+              />
+            </div>
+            <div className="flex justify-end pt-4">
+              <button
+                type="button"
+                onClick={saveProject}
+                className="px-6 py-2.5 bg-ds-primary text-white font-semibold rounded-lg hover:bg-ds-primary-container transition-all active:scale-95 shadow-lg shadow-ds-primary/10"
+              >
+                {t("saveChanges")}
+              </button>
+            </div>
+          </div>
+        </section>
+
+        {/* Statistics */}
+        <section className="bg-ds-surface-container-lowest rounded-xl p-8 shadow-sm">
+          <div className="flex items-center gap-4 mb-8">
+            <div className="w-12 h-12 rounded-xl bg-ds-primary-container/20 flex items-center justify-center text-ds-primary">
+              <span
+                className="material-symbols-outlined"
+                style={{ fontVariationSettings: "'FILL' 1" }}
+              >
+                bar_chart
+              </span>
+            </div>
+            <div>
+              <h2 className="text-xl font-bold font-[var(--font-heading)]">{t("projectStats")}</h2>
+              <p className="text-sm text-ds-on-surface-variant">{t("projectStatsDesc")}</p>
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-6">
+            <div className="bg-ds-surface-container-low rounded-xl p-6">
+              <p className="text-xs font-bold uppercase tracking-wider text-ds-on-surface-variant mb-2">
+                {t("apiKeyCount")}
+              </p>
+              <p className="text-3xl font-black text-ds-on-surface font-[var(--font-heading)]">
+                {detail?.stats.keyCount ?? "—"}
+              </p>
+            </div>
+            <div className="bg-ds-surface-container-low rounded-xl p-6">
+              <p className="text-xs font-bold uppercase tracking-wider text-ds-on-surface-variant mb-2">
+                {t("callCount")}
+              </p>
+              <p className="text-3xl font-black text-ds-on-surface font-[var(--font-heading)]">
+                {detail?.stats.callCount ?? "—"}
+              </p>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      {/* Right: Danger Zone */}
+      <div className="space-y-8">
+        <section className="bg-ds-error-container/20 rounded-xl p-8 relative overflow-hidden">
+          <div className="relative z-10">
+            <h2 className="text-xl font-bold font-[var(--font-heading)] text-ds-on-error-container mb-2">
+              {t("dangerZone")}
+            </h2>
+            <p className="text-sm text-ds-on-error-container/70 mb-6">{t("deleteProjectDesc")}</p>
+            <div className="space-y-3">
+              <label className="text-xs font-bold uppercase tracking-wider text-ds-on-error-container/70">
+                {t("typeProjectName", { name: current.name })}
+              </label>
+              <input
+                className="w-full bg-white/80 border-2 border-ds-error/20 rounded-lg px-4 py-2.5 outline-none focus:border-ds-error text-sm"
+                value={deleteConfirm}
+                onChange={(e) => setDeleteConfirm(e.target.value)}
+                placeholder={current.name}
+              />
+              <button
+                type="button"
+                onClick={deleteProject}
+                disabled={deleteConfirm !== current.name || deleting}
+                className="w-full py-3 bg-ds-error text-white font-bold rounded-lg shadow-lg shadow-ds-error/20 hover:opacity-90 transition-opacity active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                {deleting ? t("deletingProject") : t("deleteProject")}
+              </button>
+            </div>
+          </div>
+          <div className="absolute -right-4 -bottom-4 opacity-5 pointer-events-none">
+            <span
+              className="material-symbols-outlined text-8xl"
+              style={{ fontVariationSettings: "'FILL' 1" }}
+            >
+              delete_forever
+            </span>
+          </div>
+        </section>
+      </div>
+    </div>
+  );
+}
+
+// ============================================================
+// Main Settings Page
+// ============================================================
+
 export default function SettingsPage() {
   const t = useTranslations("settings");
   const ta = useTranslations("auth");
   const locale = useLocale();
   const router = useRouter();
   const { loading: projLoading } = useProject();
+  const [activeTab, setActiveTab] = useState<"account" | "project">("account");
 
   const [name, setName] = useState("");
   const [nameInitialized, setNameInitialized] = useState(false);
@@ -150,199 +370,229 @@ export default function SettingsPage() {
   // ── Render — 1:1 replica of design-draft/settings/code.html lines 181-296 ──
   return (
     <div className="max-w-5xl mx-auto">
-      {/* Header — code.html lines 182-185 */}
-      <header className="mb-12">
+      {/* Header */}
+      <header className="mb-8">
         <h1 className="text-4xl font-extrabold tracking-tight text-ds-on-surface mb-2 font-[var(--font-heading)]">
           {t("title")}
         </h1>
         <p className="text-ds-on-surface-variant">{t("subtitle")}</p>
       </header>
 
-      {/* code.html line 186: grid-cols-3 layout */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* ═══ Left Column (col-span-2) ═══ */}
-        <div className="lg:col-span-2 space-y-8">
-          {/* Profile Card — code.html lines 189-218 */}
-          <section className="bg-ds-surface-container-lowest rounded-xl p-8 shadow-sm">
-            <div className="flex items-center gap-4 mb-8">
-              <div className="w-12 h-12 rounded-xl bg-indigo-50 flex items-center justify-center text-ds-primary">
-                <span
-                  className="material-symbols-outlined"
-                  style={{ fontVariationSettings: "'FILL' 1" }}
-                >
-                  person
-                </span>
-              </div>
-              <div>
-                <h2 className="text-xl font-bold font-[var(--font-heading)]">{t("profileInfo")}</h2>
-                <p className="text-sm text-ds-on-surface-variant">{t("profileDesc")}</p>
-              </div>
-            </div>
-            <div className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <label className="text-xs font-bold uppercase tracking-wider text-ds-on-surface-variant ml-1">
-                    {t("email")}
-                  </label>
-                  <div className="relative">
-                    <input
-                      className="w-full bg-ds-surface-container-low border-none rounded-lg px-4 py-3 text-ds-on-surface-variant cursor-not-allowed font-medium outline-none"
-                      readOnly
-                      value={profile?.email ?? ""}
-                    />
-                    <span className="absolute right-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-slate-300 text-sm">
-                      lock
-                    </span>
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <label className="text-xs font-bold uppercase tracking-wider text-ds-on-surface-variant ml-1">
-                    {t("name")}
-                  </label>
-                  <input
-                    className="w-full bg-white border-b-2 border-ds-outline-variant/30 focus:border-ds-primary px-1 py-3 transition-colors outline-none font-medium"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    placeholder={t("namePlaceholder")}
-                  />
-                </div>
-              </div>
-              <div className="flex justify-end pt-4">
-                <button
-                  ref={saveBtnRef}
-                  type="button"
-                  onClick={doSaveName}
-                  data-testid="save-profile-btn"
-                  className="px-6 py-2.5 bg-ds-primary text-white font-semibold rounded-lg hover:bg-ds-primary-container transition-all active:scale-95 shadow-lg shadow-ds-primary/10"
-                >
-                  {t("saveChanges")}
-                </button>
-              </div>
-            </div>
-          </section>
+      {/* Tab Bar */}
+      <div className="flex gap-1 mb-8 bg-ds-surface-container-low rounded-xl p-1 w-fit">
+        {(["account", "project"] as const).map((tab) => (
+          <button
+            key={tab}
+            onClick={() => setActiveTab(tab)}
+            className={cn(
+              "px-5 py-2 rounded-lg text-sm font-bold font-[var(--font-heading)] transition-all",
+              activeTab === tab
+                ? "bg-ds-surface-container-lowest shadow-sm text-ds-primary"
+                : "text-ds-on-surface-variant hover:text-ds-on-surface",
+            )}
+          >
+            {t(tab === "account" ? "tabAccount" : "tabProject")}
+          </button>
+        ))}
+      </div>
 
-          {/* Login History — Table component */}
-          <section className="bg-ds-surface-container-lowest rounded-xl shadow-sm overflow-hidden">
-            <div className="p-8 pb-4">
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-xl bg-ds-error-container/20 flex items-center justify-center text-ds-error">
+      {/* Account Tab */}
+      {activeTab === "project" ? (
+        <ProjectTab />
+      ) : (
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* ═══ Left Column (col-span-2) ═══ */}
+          <div className="lg:col-span-2 space-y-8">
+            {/* Profile Card — code.html lines 189-218 */}
+            <section className="bg-ds-surface-container-lowest rounded-xl p-8 shadow-sm">
+              <div className="flex items-center gap-4 mb-8">
+                <div className="w-12 h-12 rounded-xl bg-indigo-50 flex items-center justify-center text-ds-primary">
                   <span
                     className="material-symbols-outlined"
                     style={{ fontVariationSettings: "'FILL' 1" }}
                   >
-                    shield
+                    person
                   </span>
                 </div>
                 <div>
                   <h2 className="text-xl font-bold font-[var(--font-heading)]">
-                    {t("securityLog")}
+                    {t("profileInfo")}
                   </h2>
-                  <p className="text-sm text-ds-on-surface-variant">{t("securityLogDesc")}</p>
+                  <p className="text-sm text-ds-on-surface-variant">{t("profileDesc")}</p>
                 </div>
               </div>
-            </div>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="px-8 py-4">{t("ip")}</TableHead>
-                  <TableHead className="px-8 py-4">{t("userAgent")}</TableHead>
-                  <TableHead className="px-8 py-4">{t("time")}</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody className="divide-y divide-ds-outline-variant/10">
-                {loginHistory.length === 0 ? (
+              <div className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold uppercase tracking-wider text-ds-on-surface-variant ml-1">
+                      {t("email")}
+                    </label>
+                    <div className="relative">
+                      <input
+                        className="w-full bg-ds-surface-container-low border-none rounded-lg px-4 py-3 text-ds-on-surface-variant cursor-not-allowed font-medium outline-none"
+                        readOnly
+                        value={profile?.email ?? ""}
+                      />
+                      <span className="absolute right-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-slate-300 text-sm">
+                        lock
+                      </span>
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold uppercase tracking-wider text-ds-on-surface-variant ml-1">
+                      {t("name")}
+                    </label>
+                    <input
+                      className="w-full bg-white border-b-2 border-ds-outline-variant/30 focus:border-ds-primary px-1 py-3 transition-colors outline-none font-medium"
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      placeholder={t("namePlaceholder")}
+                    />
+                  </div>
+                </div>
+                <div className="flex justify-end pt-4">
+                  <button
+                    ref={saveBtnRef}
+                    type="button"
+                    onClick={doSaveName}
+                    data-testid="save-profile-btn"
+                    className="px-6 py-2.5 bg-ds-primary text-white font-semibold rounded-lg hover:bg-ds-primary-container transition-all active:scale-95 shadow-lg shadow-ds-primary/10"
+                  >
+                    {t("saveChanges")}
+                  </button>
+                </div>
+              </div>
+            </section>
+
+            {/* Login History — Table component */}
+            <section className="bg-ds-surface-container-lowest rounded-xl shadow-sm overflow-hidden">
+              <div className="p-8 pb-4">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-xl bg-ds-error-container/20 flex items-center justify-center text-ds-error">
+                    <span
+                      className="material-symbols-outlined"
+                      style={{ fontVariationSettings: "'FILL' 1" }}
+                    >
+                      shield
+                    </span>
+                  </div>
+                  <div>
+                    <h2 className="text-xl font-bold font-[var(--font-heading)]">
+                      {t("securityLog")}
+                    </h2>
+                    <p className="text-sm text-ds-on-surface-variant">{t("securityLogDesc")}</p>
+                  </div>
+                </div>
+              </div>
+              <Table>
+                <TableHeader>
                   <TableRow>
-                    <TableCell colSpan={3} className="px-8 py-12 text-center text-ds-outline">
-                      {t("noLoginHistory")}
-                    </TableCell>
+                    <TableHead className="px-8 py-4">{t("ip")}</TableHead>
+                    <TableHead className="px-8 py-4">{t("userAgent")}</TableHead>
+                    <TableHead className="px-8 py-4">{t("time")}</TableHead>
                   </TableRow>
-                ) : (
-                  loginHistory.map((record) => (
-                    <TableRow key={record.id}>
-                      <TableCell className="px-8 py-4 text-sm font-medium">
-                        {record.ip || t("unknown")}
-                      </TableCell>
-                      <TableCell className="px-8 py-4 text-sm text-slate-600">
-                        {parseUserAgent(record.userAgent)}
-                      </TableCell>
-                      <TableCell className="px-8 py-4 text-sm text-ds-on-surface-variant">
-                        {new Date(record.createdAt).toLocaleString(locale)}
+                </TableHeader>
+                <TableBody className="divide-y divide-ds-outline-variant/10">
+                  {loginHistory.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={3} className="px-8 py-12 text-center text-ds-outline">
+                        {t("noLoginHistory")}
                       </TableCell>
                     </TableRow>
-                  ))
-                )}
-              </TableBody>
-            </Table>
-          </section>
-        </div>
+                  ) : (
+                    loginHistory.map((record) => (
+                      <TableRow key={record.id}>
+                        <TableCell className="px-8 py-4 text-sm font-medium">
+                          {record.ip || t("unknown")}
+                        </TableCell>
+                        <TableCell className="px-8 py-4 text-sm text-slate-600">
+                          {parseUserAgent(record.userAgent)}
+                        </TableCell>
+                        <TableCell className="px-8 py-4 text-sm text-ds-on-surface-variant">
+                          {new Date(record.createdAt).toLocaleString(locale)}
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  )}
+                </TableBody>
+              </Table>
+            </section>
+          </div>
 
-        {/* ═══ Right Column ═══ */}
-        <div className="space-y-8">
-          {/* Change Password — code.html lines 248-269 */}
-          <section className="bg-ds-surface-container-lowest rounded-xl p-8 shadow-sm">
-            <div className="mb-8">
-              <h2 className="text-xl font-bold font-[var(--font-heading)] mb-1">{t("security")}</h2>
-              <p className="text-sm text-ds-on-surface-variant">{t("securityDesc")}</p>
-            </div>
-            <div className="space-y-5">
-              {[
-                { label: t("currentPassword"), value: oldPassword, set: setOldPassword },
-                { label: t("newPassword"), value: newPassword, set: setNewPassword },
-                { label: t("confirmNewPassword"), value: confirmPassword, set: setConfirmPassword },
-              ].map((f) => (
-                <div key={f.label} className="space-y-1.5">
-                  <label className="text-xs font-bold uppercase tracking-wider text-ds-on-surface-variant">
-                    {f.label}
-                  </label>
-                  <input
-                    type="password"
-                    className="w-full bg-ds-surface-container-low border-none rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-ds-primary/10 outline-none"
-                    placeholder="••••••••"
-                    value={f.value}
-                    onChange={(e) => f.set(e.target.value)}
-                  />
-                </div>
-              ))}
-              <button
-                type="button"
-                onClick={changePassword}
-                className="w-full mt-4 py-3 border-2 border-ds-primary text-ds-primary font-bold rounded-lg hover:bg-ds-primary hover:text-white transition-all active:scale-[0.98]"
-              >
-                {t("changePassword")}
-              </button>
-            </div>
-          </section>
+          {/* ═══ Right Column ═══ */}
+          <div className="space-y-8">
+            {/* Change Password — code.html lines 248-269 */}
+            <section className="bg-ds-surface-container-lowest rounded-xl p-8 shadow-sm">
+              <div className="mb-8">
+                <h2 className="text-xl font-bold font-[var(--font-heading)] mb-1">
+                  {t("security")}
+                </h2>
+                <p className="text-sm text-ds-on-surface-variant">{t("securityDesc")}</p>
+              </div>
+              <div className="space-y-5">
+                {[
+                  { label: t("currentPassword"), value: oldPassword, set: setOldPassword },
+                  { label: t("newPassword"), value: newPassword, set: setNewPassword },
+                  {
+                    label: t("confirmNewPassword"),
+                    value: confirmPassword,
+                    set: setConfirmPassword,
+                  },
+                ].map((f) => (
+                  <div key={f.label} className="space-y-1.5">
+                    <label className="text-xs font-bold uppercase tracking-wider text-ds-on-surface-variant">
+                      {f.label}
+                    </label>
+                    <input
+                      type="password"
+                      className="w-full bg-ds-surface-container-low border-none rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-ds-primary/10 outline-none"
+                      placeholder="••••••••"
+                      value={f.value}
+                      onChange={(e) => f.set(e.target.value)}
+                    />
+                  </div>
+                ))}
+                <button
+                  type="button"
+                  onClick={changePassword}
+                  className="w-full mt-4 py-3 border-2 border-ds-primary text-ds-primary font-bold rounded-lg hover:bg-ds-primary hover:text-white transition-all active:scale-[0.98]"
+                >
+                  {t("changePassword")}
+                </button>
+              </div>
+            </section>
 
-          {/* Sign Out — code.html lines 272-283 */}
-          <section className="bg-ds-error-container/20 rounded-xl p-8 relative overflow-hidden">
-            <div className="relative z-10">
-              <h2 className="text-xl font-bold font-[var(--font-heading)] text-ds-on-error-container mb-2">
-                {t("sessionControl")}
-              </h2>
-              <p className="text-sm text-ds-on-error-container/70 mb-6">{t("signOutDesc")}</p>
-              <button
-                onClick={() => {
-                  localStorage.removeItem("token");
-                  localStorage.removeItem("projectId");
-                  document.cookie = "token=; path=/; max-age=0";
-                  router.push("/login");
-                }}
-                className="w-full py-3 bg-ds-error text-white font-bold rounded-lg shadow-lg shadow-ds-error/20 hover:opacity-90 transition-opacity active:scale-[0.98]"
-              >
-                {t("signOut")}
-              </button>
-            </div>
-            <div className="absolute -right-4 -bottom-4 opacity-5 pointer-events-none">
-              <span
-                className="material-symbols-outlined text-8xl"
-                style={{ fontVariationSettings: "'FILL' 1" }}
-              >
-                logout
-              </span>
-            </div>
-          </section>
+            {/* Sign Out — code.html lines 272-283 */}
+            <section className="bg-ds-error-container/20 rounded-xl p-8 relative overflow-hidden">
+              <div className="relative z-10">
+                <h2 className="text-xl font-bold font-[var(--font-heading)] text-ds-on-error-container mb-2">
+                  {t("sessionControl")}
+                </h2>
+                <p className="text-sm text-ds-on-error-container/70 mb-6">{t("signOutDesc")}</p>
+                <button
+                  onClick={() => {
+                    localStorage.removeItem("token");
+                    localStorage.removeItem("projectId");
+                    document.cookie = "token=; path=/; max-age=0";
+                    router.push("/login");
+                  }}
+                  className="w-full py-3 bg-ds-error text-white font-bold rounded-lg shadow-lg shadow-ds-error/20 hover:opacity-90 transition-opacity active:scale-[0.98]"
+                >
+                  {t("signOut")}
+                </button>
+              </div>
+              <div className="absolute -right-4 -bottom-4 opacity-5 pointer-events-none">
+                <span
+                  className="material-symbols-outlined text-8xl"
+                  style={{ fontVariationSettings: "'FILL' 1" }}
+                >
+                  logout
+                </span>
+              </div>
+            </section>
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }

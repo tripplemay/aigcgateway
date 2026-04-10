@@ -25,29 +25,64 @@ interface NavItem {
   icon: string;
 }
 
-const mainNav: NavItem[] = [
-  { labelKey: "projects", href: "/dashboard", icon: "folder_managed" },
-  { labelKey: "apiKeys", href: "/keys", icon: "key" },
-  { labelKey: "actions", href: "/actions", icon: "bolt" },
-  { labelKey: "templates", href: "/templates", icon: "extension" },
-  { labelKey: "models", href: "/models", icon: "smart_toy" },
-  { labelKey: "logs", href: "/logs", icon: "terminal" },
-  { labelKey: "usage", href: "/usage", icon: "bar_chart" },
-  { labelKey: "billing", href: "/balance", icon: "payments" },
-  { labelKey: "quickStart", href: "/quickstart", icon: "rocket_launch" },
-  { labelKey: "mcpSetup", href: "/mcp-setup", icon: "electrical_services" },
-  { labelKey: "settings", href: "/settings", icon: "settings" },
+interface NavGroup {
+  titleKey: string;
+  items: NavItem[];
+}
+
+const mainNavGroups: NavGroup[] = [
+  {
+    titleKey: "groupCore",
+    items: [
+      { labelKey: "projects", href: "/dashboard", icon: "folder_managed" },
+      { labelKey: "models", href: "/models", icon: "smart_toy" },
+      { labelKey: "templates", href: "/templates", icon: "extension" },
+      { labelKey: "actions", href: "/actions", icon: "bolt" },
+    ],
+  },
+  {
+    titleKey: "groupDev",
+    items: [
+      { labelKey: "apiKeys", href: "/keys", icon: "key" },
+      { labelKey: "quickStart", href: "/quickstart", icon: "rocket_launch" },
+      { labelKey: "mcpSetup", href: "/mcp-setup", icon: "electrical_services" },
+      { labelKey: "docs", href: "/docs", icon: "menu_book" },
+    ],
+  },
+  {
+    titleKey: "groupData",
+    items: [
+      { labelKey: "logs", href: "/logs", icon: "terminal" },
+      { labelKey: "usage", href: "/usage", icon: "bar_chart" },
+      { labelKey: "billing", href: "/balance", icon: "payments" },
+    ],
+  },
 ];
 
-const adminNav: NavItem[] = [
-  { labelKey: "modelsChannels", href: "/admin/models", icon: "hub" },
-  { labelKey: "modelAliases", href: "/admin/model-aliases", icon: "link" },
-  { labelKey: "providers", href: "/admin/providers", icon: "settings_input_component" },
-  { labelKey: "health", href: "/admin/health", icon: "health_and_safety" },
-  { labelKey: "adminLogs", href: "/admin/logs", icon: "receipt_long" },
-  { labelKey: "adminUsage", href: "/admin/usage", icon: "monitoring" },
-  { labelKey: "users", href: "/admin/users", icon: "group" },
-  { labelKey: "adminTemplates", href: "/admin/templates", icon: "folder_copy" },
+const adminNavGroups: NavGroup[] = [
+  {
+    titleKey: "groupModels",
+    items: [
+      { labelKey: "modelAliases", href: "/admin/model-aliases", icon: "link" },
+      { labelKey: "modelsChannels", href: "/admin/models", icon: "hub" },
+      { labelKey: "providers", href: "/admin/providers", icon: "settings_input_component" },
+    ],
+  },
+  {
+    titleKey: "groupOps",
+    items: [
+      { labelKey: "health", href: "/admin/health", icon: "health_and_safety" },
+      { labelKey: "adminLogs", href: "/admin/logs", icon: "receipt_long" },
+      { labelKey: "adminUsage", href: "/admin/usage", icon: "monitoring" },
+    ],
+  },
+  {
+    titleKey: "groupUsers",
+    items: [
+      { labelKey: "users", href: "/admin/users", icon: "group" },
+      { labelKey: "adminTemplates", href: "/admin/templates", icon: "folder_copy" },
+    ],
+  },
 ];
 
 interface SidebarProps {
@@ -142,48 +177,85 @@ export function Sidebar({ role, userName, email }: SidebarProps) {
         />
       </div>
 
-      {/* Navigation — code.html lines 104-130 */}
-      <nav className="flex-1 space-y-2 overflow-y-auto px-2">
-        {mainNav.map((item) => {
-          const active = isActive(item.href);
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={cn(
-                /* code.html lines 110-129: inactive state */
-                "relative flex items-center gap-3 px-4 py-2 rounded-lg transition-colors font-[var(--font-heading)] tracking-tight font-bold text-sm",
-                active
-                  ? "text-ds-primary bg-ds-primary/5 before:absolute before:left-0 before:top-1/2 before:-translate-y-1/2 before:w-[3px] before:h-5 before:rounded-full before:bg-ds-primary"
-                  : "text-ds-on-surface-variant hover:bg-ds-surface-container-high/50",
-              )}
-            >
-              <span className="material-symbols-outlined">{item.icon}</span>
-              {t(item.labelKey)}
-            </Link>
-          );
-        })}
+      {/* Navigation — grouped layout */}
+      <nav className="flex-1 overflow-y-auto px-2">
+        {mainNavGroups.map((group, gi) => (
+          <div key={group.titleKey} className={cn(gi > 0 && "mt-4")}>
+            <p className="px-4 mb-1 text-[10px] font-bold uppercase tracking-widest text-ds-on-surface-variant/60">
+              {t(group.titleKey)}
+            </p>
+            <div className="space-y-0.5">
+              {group.items.map((item) => {
+                const active = isActive(item.href);
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className={cn(
+                      "relative flex items-center gap-3 px-4 py-2 rounded-lg transition-colors font-[var(--font-heading)] tracking-tight font-bold text-sm",
+                      active
+                        ? "text-ds-primary bg-ds-primary/5 before:absolute before:left-0 before:top-1/2 before:-translate-y-1/2 before:w-[3px] before:h-5 before:rounded-full before:bg-ds-primary"
+                        : "text-ds-on-surface-variant hover:bg-ds-surface-container-high/50",
+                    )}
+                  >
+                    <span className="material-symbols-outlined">{item.icon}</span>
+                    {t(item.labelKey)}
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+        ))}
 
-        {/* Admin items — same styling, conditional */}
-        {role === "ADMIN" &&
-          adminNav.map((item) => {
-            const active = isActive(item.href);
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={cn(
-                  "relative flex items-center gap-3 px-4 py-2 rounded-lg transition-colors font-[var(--font-heading)] tracking-tight font-bold text-sm",
-                  active
-                    ? "text-ds-primary bg-ds-primary/5 before:absolute before:left-0 before:top-1/2 before:-translate-y-1/2 before:w-[3px] before:h-5 before:rounded-full before:bg-ds-primary"
-                    : "text-ds-on-surface-variant hover:bg-ds-surface-container-high/50",
-                )}
-              >
-                <span className="material-symbols-outlined">{item.icon}</span>
-                {t(item.labelKey)}
-              </Link>
-            );
-          })}
+        {/* Settings — standalone, after all user groups */}
+        <div className="mt-4">
+          <Link
+            href="/settings"
+            className={cn(
+              "relative flex items-center gap-3 px-4 py-2 rounded-lg transition-colors font-[var(--font-heading)] tracking-tight font-bold text-sm",
+              isActive("/settings")
+                ? "text-ds-primary bg-ds-primary/5 before:absolute before:left-0 before:top-1/2 before:-translate-y-1/2 before:w-[3px] before:h-5 before:rounded-full before:bg-ds-primary"
+                : "text-ds-on-surface-variant hover:bg-ds-surface-container-high/50",
+            )}
+          >
+            <span className="material-symbols-outlined">settings</span>
+            {t("settings")}
+          </Link>
+        </div>
+
+        {/* Admin groups — conditional */}
+        {role === "ADMIN" && (
+          <>
+            <div className="my-4 mx-4 h-px bg-ds-outline-variant/20" />
+            {adminNavGroups.map((group, gi) => (
+              <div key={group.titleKey} className={cn(gi > 0 && "mt-4")}>
+                <p className="px-4 mb-1 text-[10px] font-bold uppercase tracking-widest text-ds-on-surface-variant/60">
+                  {t(group.titleKey)}
+                </p>
+                <div className="space-y-0.5">
+                  {group.items.map((item) => {
+                    const active = isActive(item.href);
+                    return (
+                      <Link
+                        key={item.href}
+                        href={item.href}
+                        className={cn(
+                          "relative flex items-center gap-3 px-4 py-2 rounded-lg transition-colors font-[var(--font-heading)] tracking-tight font-bold text-sm",
+                          active
+                            ? "text-ds-primary bg-ds-primary/5 before:absolute before:left-0 before:top-1/2 before:-translate-y-1/2 before:w-[3px] before:h-5 before:rounded-full before:bg-ds-primary"
+                            : "text-ds-on-surface-variant hover:bg-ds-surface-container-high/50",
+                        )}
+                      >
+                        <span className="material-symbols-outlined">{item.icon}</span>
+                        {t(item.labelKey)}
+                      </Link>
+                    );
+                  })}
+                </div>
+              </div>
+            ))}
+          </>
+        )}
       </nav>
 
       {/* User Info */}
