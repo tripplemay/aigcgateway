@@ -157,6 +157,8 @@ async function createProjectAndKey() {
   const project = await createTestProject(BASE, token, { name: `SB Project ${Date.now()}` });
   projectId = project.id;
 
+  await prisma.user.updateMany({ where: { email }, data: { defaultProjectId: projectId } });
+
   const key = await createTestApiKey(BASE, token, {
     name: "sb-local-key",
     rateLimit: 120,
@@ -347,8 +349,8 @@ async function main() {
     });
 
     await step("F-SB-02 MIN_CHARGE applied on 1-token call", checks, async () => {
-      const before = await prisma.project.findUniqueOrThrow({
-        where: { id: projectId },
+      const before = await prisma.user.findFirstOrThrow({
+        where: { email },
         select: { balance: true },
       });
       const r = await callToolRaw("chat", {
@@ -360,8 +362,8 @@ async function main() {
 
       let delta = 0;
       for (let i = 0; i < 5; i++) {
-        const after = await prisma.project.findUniqueOrThrow({
-          where: { id: projectId },
+        const after = await prisma.user.findFirstOrThrow({
+          where: { email },
           select: { balance: true },
         });
         delta = Number(before.balance) - Number(after.balance);

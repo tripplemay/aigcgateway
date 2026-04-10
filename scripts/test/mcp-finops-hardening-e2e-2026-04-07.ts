@@ -147,6 +147,8 @@ async function createProjectAndKey() {
   const project = await createTestProject(BASE, token, { name: `MH Project ${Date.now()}` });
   projectId = project.id;
 
+  await prisma.user.updateMany({ where: { email }, data: { defaultProjectId: projectId } });
+
   const key = await createTestApiKey(BASE, token, {
     name: "mh-local-key",
     rateLimit: 120,
