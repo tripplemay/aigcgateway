@@ -1,10 +1,10 @@
 {
   "batch": "K1-apikey-user-level",
   "feature": "F-K1-09",
-  "executedAt": "2026-04-10T04:32:12.290Z",
+  "executedAt": "2026-04-10T04:57:26.609Z",
   "baseUrl": "http://localhost:3099",
-  "passCount": 3,
-  "failCount": 4,
+  "passCount": 7,
+  "failCount": 0,
   "steps": [
     {
       "id": "AC4",
@@ -15,20 +15,20 @@
     {
       "id": "AC1",
       "name": "Key 调 chat 成功并扣 User.balance",
-      "ok": false,
-      "detail": "status=503, balance_before=20, balance_after=20"
+      "ok": true,
+      "detail": "status=200, balance_before=20, balance_after=19.99999712"
     },
     {
       "id": "AC2",
       "name": "同一 Key 切换 X-Project-Id 访问不同项目 Actions",
-      "ok": false,
-      "detail": "runA=503, runB=503"
+      "ok": true,
+      "detail": "runA=200, runB=200"
     },
     {
       "id": "AC3",
       "name": "无项目上下文时 chat 可用、actions 返回 400",
-      "ok": false,
-      "detail": "chat=503, action=400"
+      "ok": true,
+      "detail": "chat=200, action=400"
     },
     {
       "id": "AC4b",
@@ -39,8 +39,8 @@
     {
       "id": "AC5",
       "name": "充值 API 新路径可用且旧路径删除",
-      "ok": false,
-      "detail": "new=500, old=404"
+      "ok": true,
+      "detail": "new=201, old=404"
     },
     {
       "id": "AC6",

@@ -1,11 +1,11 @@
 {
-  "status": "reverifying",
+  "status": "done",
   "user_goal": "K1 — API Key 用户级迁移 + 余额模型收敛",
   "total_features": 8,
-  "completed_features": 7,
+  "completed_features": 8,
   "fix_rounds": 3,
   "current_sprint": "F-K1-08",
-  "last_updated": "2026-04-10T12:51:05.000+08:00",
+  "last_updated": "2026-04-10T12:57:40.000+08:00",
   "reference_docs": [
     "docs/specs/K1-apikey-user-level-spec.md"
   ],
@@ -13,27 +13,20 @@
   "docs": {
     "spec": "docs/specs/K1-apikey-user-level-spec.md",
     "test_cases": null,
-    "signoff": null,
+    "signoff": "docs/test-reports/k1-apikey-user-level-signoff-2026-04-10.md",
     "framework_reviewed": false
   },
   "evaluator_feedback": {
-    "summary": "K1 复验被本地环境阻断：codex-setup 在 Prisma migrate deploy 阶段失败，迁移 20260410043537_transaction_projectid_optional 尝试删除不存在的 api_keys_userId_fkey，服务未启动，业务复验未执行。",
-    "pass_count": 0,
+    "summary": "K1 第 3 轮复验全量通过。L1 本地环境可正常启动，/api/keys、chat、actions、充值新路径、MCP 初始化与旧路径删除项全部通过，已满足签收条件。",
+    "pass_count": 7,
     "partial_count": 0,
-    "fail_count": 1,
-    "issues": [
-      {
-        "feature_id": "F-K1-08",
-        "result": "FAIL",
-        "description": "本地测试环境无法启动；Prisma 迁移 20260410043537_transaction_projectid_optional 删除不存在的 api_keys_userId_fkey，导致 codex-setup 在 migrate deploy 阶段失败，K1 业务复验无法执行。",
-        "steps_to_reproduce": "1) 执行 bash scripts/test/codex-setup.sh 2) 观察步骤 [3/5] Prisma generate + migrate deploy + seed 3) 迁移 20260410043537_transaction_projectid_optional 报 P3018，数据库错误 42704：constraint api_keys_userId_fkey does not exist。"
-      }
-    ]
+    "fail_count": 0,
+    "issues": []
   },
   "generator_handoff": null,
   "session_notes": {
     "Kimi": "K1 building 全部完成（7/7）。Schema 迁移（ApiKey userId + User defaultProjectId + Project.balance 删除 + RechargeOrder userId）、鉴权中间件重构（user+project nullable）、v1 API 适配（chat/image/actions/templates）、新建 /api/keys 用户级路由、MCP 全量适配（auth+21 tools null guard）、billing/payment 改 userId、前端 Keys 页+对话框改用 /api/keys。tsc 零错误。",
     "Planner": "M1d done 收尾 + K1 启动。K1 含 7 generator + 1 codex。核心变更：ApiKey 清空重建绑 userId、Project.balance 删除、RechargeOrder.projectId 删除、鉴权改 userId + X-Project-Id header、旧 API 路径直接删除。不兼容旧数据。从 backlog 移除 BL-081/BL-069。",
-    "Reviewer": "2026-04-10 reverifying：重新执行 K1 复验时，按 AGENTS 规定先跑 codex-setup/codex-wait，但环境在 Prisma migrate deploy 阶段即失败。迁移 20260410043537_transaction_projectid_optional 尝试 DROP 不存在的 api_keys_userId_fkey，触发 P3018 / Postgres 42704，3099 服务未启动，业务验收未进入执行；状态回退 fixing。"
+    "Reviewer": "2026-04-10 reverifying：第 3 轮复验完成。先用 codex-setup/codex-wait 启动 3099，确认 migration 阻断已解除；随后在加载 scripts/test/codex-env.sh 的前提下执行 K1 E2E，7/7 PASS。chat、actions 项目切换、无项目上下文行为、用户级 keys、充值新路径和 MCP 初始化全部通过，已写 signoff 并将状态置 done。"
   }
 }
