@@ -5,7 +5,7 @@
   "completed_features": 5,
   "fix_rounds": 2,
   "current_sprint": "F-M1d-06",
-  "last_updated": "2026-04-10T10:12:00.000Z",
+  "last_updated": "2026-04-10T10:19:00.000Z",
   "reference_docs": [
     "docs/specs/M1-models-page-rework-spec.md",
     "design-draft/admin-model-aliases/code.html"
@@ -26,8 +26,8 @@
       {
         "feature_id": "F-M1d-06",
         "result": "FAIL",
-        "description": "inferMissingCapabilities 未填充 capabilities 为空的别名：查询条件仅匹配 Prisma.JsonNull，遗漏数据库 NULL/DbNull 场景。",
-        "steps_to_reproduce": "1) 创建 capabilities=null 的新别名 2) 调用 inferMissingCapabilities() 3) 观察 updated=0 且该别名 capabilities 仍为 null。"
+        "description": "inferMissingCapabilities 在最新代码（已包含 DbNull + JsonNull 过滤）下仍未填充 capabilities 为空的别名。",
+        "steps_to_reproduce": "1) 重新 pull main 并重建 3099 测试环境 2) 创建 capabilities=null 的新别名 3) 调用 inferMissingCapabilities() 4) 观察 updated=0 且该别名 capabilities 仍为 null。"
       }
     ]
   },
@@ -35,6 +35,6 @@
   "session_notes": {
     "Kimi": "M1d fix round 2 已在 commit 00ff74f 修复 DbNull 问题（OR [DbNull, JsonNull]）。Reviewer 的第二轮 FAIL 报告时间戳与 push 时间重叠，可能跑在旧代码上。修复已在 main，请 Reviewer 重新 git pull 后复验。",
     "Planner": "BF 批次 done 收尾 + M1d 启动。BL-084 拆为 5 generator + 1 codex。从 backlog 移除 BL-084。核心变更：卡片改单列、搜索筛选排序、sellPrice 上提到别名层、LLM 推断 capabilities。",
-    "Reviewer": "2026-04-10 reverifying：已重建测试环境并复验，结果 5 PASS / 1 FAIL（仅 AC4）。AC3 已确认通过（modality 维度查询避免缓存干扰）；AC4 仍稳定失败，原因是 inferMissingCapabilities 仅匹配 Prisma.JsonNull，未覆盖 DB NULL。已更新复验报告并将状态保持 fixing。"
+    "Reviewer": "2026-04-10 reverifying：按用户提示重新 pull 后复验，结果仍 5 PASS / 1 FAIL（AC4）。已确认代码包含 DbNull + JsonNull，但动态测试依旧 updated=0、fill_caps=null，说明修复未生效。已更新复验报告并保持 fixing。"
   }
 }

@@ -36,9 +36,8 @@
 
 证据：
 - 动态结果：`infer_updated=0, fill_caps=null, keep_caps={"vision":false,"streaming":false}`
-- 实现定位：`src/lib/sync/alias-classifier.ts:386-389` 使用
-  `where: { capabilities: { equals: Prisma.JsonNull } }`
-- 问题推断：数据库 `NULL`（DbNull）不匹配 `JsonNull`，导致空值别名未被选中。
+- 最新实现已包含 `DbNull + JsonNull`（`src/lib/sync/alias-classifier.ts:386-392`），但在本次复验中仍未命中空值别名。
+- 问题推断：空值匹配条件仍有遗漏（可能需要 `Prisma.AnyNull` 或进一步区分写入语义），当前实现仍无法覆盖实际数据。
 
 ## 结论
 本轮复验未通过，建议 Generator 修复 `inferMissingCapabilities` 的空值匹配逻辑（覆盖 DbNull/NULL 场景）后再次进入 `reverifying`。

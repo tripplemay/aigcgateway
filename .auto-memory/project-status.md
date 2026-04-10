@@ -5,7 +5,7 @@ type: project
 ---
 ## 当前批次
 - M1d-alias-page-polish：`fixing`（reverifying 5 PASS / 1 FAIL）
-- 失败点：AC4 capabilities 自动填充未生效（`inferMissingCapabilities` 未匹配 DB NULL）
+- 失败点：AC4 capabilities 自动填充未生效（已在最新 main 复验，DbNull+JsonNull 变更仍未生效）
 
 ## M1d 变更摘要
 - 别名管理页改单列列表 + accordion 展开
