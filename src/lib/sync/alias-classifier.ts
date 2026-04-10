@@ -384,7 +384,12 @@ export async function inferMissingCapabilities(): Promise<{
 
   try {
     const aliasesWithoutCaps = await prisma.modelAlias.findMany({
-      where: { capabilities: { equals: Prisma.JsonNull } },
+      where: {
+        OR: [
+          { capabilities: { equals: Prisma.DbNull } },
+          { capabilities: { equals: Prisma.JsonNull } },
+        ],
+      },
       select: { id: true, alias: true },
     });
 

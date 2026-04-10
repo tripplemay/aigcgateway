@@ -1,9 +1,9 @@
 {
-  "status": "fixing",
+  "status": "reverifying",
   "user_goal": "M1d — 别名管理页优化（单列+搜索+排序+售价上提+LLM 推断 capabilities）",
   "total_features": 6,
   "completed_features": 5,
-  "fix_rounds": 1,
+  "fix_rounds": 2,
   "current_sprint": "F-M1d-06",
   "last_updated": "2026-04-10T10:06:00.000Z",
   "reference_docs": [
