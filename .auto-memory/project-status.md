@@ -4,6 +4,8 @@ description: AIGC Gateway 当前状态快照（覆盖写，≤30 行）
 type: project
 ---
 ## 当前批次
+- T1-template-experience：`done`
+- `verifying` 首轮签收通过，Admin 模板详情独立路由与用户侧步骤预览 Action 验收完成
 - U1-admin-user-detail：`done`
 - 第 1 轮 `reverifying` 已签收，U1 Admin 用户详情页验收完成
 - L1-llm-inference-robustness：`done`
@@ -12,6 +14,13 @@ type: project
 - `verifying` 首轮签收通过，MCP 工具增强验收完成
 - A1-alias-data-quality：`done`
 - `reverifying` 通过签收，生产存量 alias 数据已修正并完成复验
+
+## T1 验收结论
+- `/admin/templates/:id` 已改为独立详情页，点击列表详情不再空白
+- Admin 详情页可展示项目、步骤、Action 活跃版本、公开状态、质量评分与资源统计
+- `/templates/:id` 步骤卡片支持 accordion 展开，只读预览系统消息摘要和变量
+- `open_in_new` 可跳转到 `/actions/:id`，Action 详情页正常展示活跃版本
+- EN/CN 切换下新增文案可正常翻译，页面沿用现有 DS token
 
 ## U1 验收结论
 - 详情 API 返回真实 balance、lastActive、projects、transactions 分页
@@ -38,7 +47,7 @@ type: project
 - `fix-alias-modality` / `fix-brand-duplicates` / `fix-alias-context-window` 在生产 `--dry-run` 均为 `0` 待修正
 
 ## 已完成批次
-- R1~R4 / P5 / M1a~M1d / BF / K1 / U1 / L1 / MCP2 / A1
+- R1~R4 / P5 / M1a~M1d / BF / K1 / U1 / L1 / MCP2 / A1 / T1
 
 ## Backlog
 - 17 条（BL-065~096），含 2 条 high

@@ -31,7 +31,7 @@
       "title": "T1 全量验收",
       "priority": "high",
       "executor": "codex",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) Admin 点击模板详情 → /admin/templates/:id 正常显示，不再空白；2) 用户侧步骤卡片点击展开 Action 预览；3) 跳转图标 ↗ 跳到 Action 详情页；4) DS token 一致；5) i18n 无残留；6) 签收报告生成"
     }
   ]
