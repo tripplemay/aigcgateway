@@ -1,3 +1,66 @@
 {
-  "fatal": "registerAndLogin: user not found in database"
+  "passed": 5,
+  "failed": 6,
+  "results": [
+    {
+      "name": "tools/list includes 13 tools",
+      "ok": false,
+      "detail": "expected 13 tools, got 28"
+    },
+    {
+      "name": "generate_image tool description contains size guidance",
+      "ok": false,
+      "detail": "description missing openai/gpt-image-1"
+    },
+    {
+      "name": "list_models quality gate",
+      "ok": false,
+      "detail": "empty model list"
+    },
+    {
+      "name": "list_models show_all_channels=true",
+      "ok": false,
+      "detail": "empty model list"
+    },
+    {
+      "name": "all 13 tools callable (smoke)",
+      "ok": false,
+      "detail": "[action_error] Engine error: Model \"openai/gpt-4o-mini\" not found"
+    },
+    {
+      "name": "get_action_detail returns messages and variables",
+      "ok": true,
+      "detail": "versions=1"
+    },
+    {
+      "name": "get_template_detail returns orchestration steps",
+      "ok": true,
+      "detail": "steps=2"
+    },
+    {
+      "name": "error: insufficient balance",
+      "ok": true,
+      "detail": "insufficient balance message verified"
+    },
+    {
+      "name": "error: model not found",
+      "ok": true,
+      "detail": "model_not_found message verified"
+    },
+    {
+      "name": "error: invalid parameter type",
+      "ok": true,
+      "detail": "schema validation error verified"
+    },
+    {
+      "name": "error: rate limit exceeded",
+      "ok": false,
+      "detail": "[rate_limited] Rate limit exceeded. Please retry after 60 seconds."
+    }
+  ],
+  "projectId": "cmntirdr200is9ysl1r7yz6yo",
+  "apiKeyPrefix": "pk_29d69",
+  "actionId": "cmntirdvx00jw9yslhvyqplap",
+  "templateId": "cmntirdwe00ks9ysl8p7m56kr",
+  "traceId": ""
 }

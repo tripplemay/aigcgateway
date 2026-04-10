@@ -1,9 +1,34 @@
 {
   "batch": "security-billing-polish",
-  "generatedAt": "2026-04-10T22:58:02.837Z",
+  "generatedAt": "2026-04-10T23:10:33.777Z",
   "environment": "http://localhost:3099",
-  "checks": [],
-  "fatal": "Error: registerAndLogin: user not found in database\n    at registerAndLogin (/Users/yixingzhou/project/aigcgateway/scripts/test/security-billing-polish-e2e-2026-04-07.ts:158:22)\n    at async main (/Users/yixingzhou/project/aigcgateway/scripts/test/security-billing-polish-e2e-2026-04-07.ts:309:5)",
-  "pass": 0,
+  "checks": [
+    {
+      "name": "mcp initialize",
+      "ok": true,
+      "detail": "ok"
+    },
+    {
+      "name": "F-SB-01 MCP generate_image invalid size sanitized",
+      "ok": true,
+      "detail": "{\"code\":\"model_not_found\",\"message\":\"Model \\\"openai/dall-e-3\\\" not found. Available image models: none. Use list_models with modality 'image' for full details.\"}"
+    },
+    {
+      "name": "F-SB-01 REST generate_image empty prompt sanitized",
+      "ok": true,
+      "detail": "status=404"
+    },
+    {
+      "name": "F-SB-03 empty content blocked at gateway",
+      "ok": true,
+      "detail": "[invalid_request] messages[0].content is empty. All messages must have non-empty content."
+    },
+    {
+      "name": "F-SB-02 MIN_CHARGE applied on 1-token call",
+      "ok": false,
+      "detail": "chat failed: [model_not_found] Model \"openai/gpt-4o-mini\" not found. Available text models: none. Use list_models for full details."
+    }
+  ],
+  "pass": 4,
   "fail": 1
 }
