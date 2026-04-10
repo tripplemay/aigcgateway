@@ -1,11 +1,11 @@
 {
-  "status": "reverifying",
+  "status": "fixing",
   "user_goal": "CI1 — 测试基础设施升级（Mock 复用 + 测试工厂 + Vitest + CI pipeline）",
   "total_features": 5,
   "completed_features": 4,
   "fix_rounds": 7,
   "current_sprint": null,
-  "last_updated": "2026-04-11T00:32:00.000Z",
+  "last_updated": "2026-04-10T23:02:06Z",
   "reference_docs": [],
   "role_assignments": null,
   "docs": {
@@ -14,7 +14,20 @@
     "signoff": null,
     "framework_reviewed": false
   },
-  "evaluator_feedback": null,
+  "evaluator_feedback": {
+    "round": 7,
+    "result": "FAIL",
+    "report": "docs/test-reports/CI1-test-infrastructure-reverifying-round7-2026-04-11.md",
+    "summary": "3 个 E2E 脚本均在 registerAndLogin 阶段失败：user not found in database。",
+    "blocking_issues": [
+      "脚本执行环境 DATABASE_URL 未对齐 codex-setup 服务环境，脚本进程未稳定连接测试库。",
+      "三个脚本共享同一前置失败点，导致 F-CI1-01/F-CI1-02 无法进入主体断言。"
+    ],
+    "required_fixes": [
+      "统一脚本与服务进程的 DATABASE_URL 来源，确保都指向 aigc_gateway_test。",
+      "在 registerAndLogin 前后增加显式环境与连接一致性校验，避免静默回落到 .env 开发库。"
+    ]
+  },
   "generator_handoff": {
     "completed": ["F-CI1-01", "F-CI1-02", "F-CI1-03", "F-CI1-04"],
     "codex_pending": ["F-CI1-05"],
@@ -23,6 +36,6 @@
   "session_notes": {
     "Kimi": "Fix round 7: 分析 codex code review 报告，确认根因是脚本 PrismaClient 与 API 服务可能连不同数据库（.env vs codex-env.sh）。工厂从 login response 取的 userId 在 API 数据库存在但在脚本 Prisma 的数据库中不存在，导致 P2025。改为 K1 验收脚本的已验证模式：注册后用脚本自己的 prisma.user.findUnique({ where: { email } }) 查 userId，保证同库操作。",
     "Planner": "本轮 Planner 长会话产出：1) P5 设计稿+启动；2) M1 spec+拆4子批次(M1a~M1d)全部签收；3) K1 spec(API Key 用户级)+启动+签收；4) U1 spec(用户详情页)+启动+签收；5) L1(LLM 健壮性)+MCP2(工具增强)+A1(数据质量)+T1(模板)+N1(UI导航)+O1(运维)+CI1(测试基础设施) 启动；6) 多次生产环境诊断（capabilities 超时、modality 全 TEXT、brand 重复）；7) 新增 backlog BL-099~105（删除服务商/Keys精简/运维提示/supportedSizes+capabilities统一/千位分隔符/项目切换/假内容清理）。CI1 当前 fixing round 4，问题是旧脚本未适配 K1 数据模型。",
-    "Reviewer": "CI1 round6 复验完成：vitest 11/11 通过；3 个 E2E 脚本统一在 prisma.user.update 触发 P2025（userId 未命中）。报告：docs/test-reports/CI1-test-infrastructure-reverifying-round6-2026-04-11.md。状态回退 fixing。"
+    "Reviewer": "CI1 round7 复验完成：3 个 E2E 脚本统一在 registerAndLogin 失败（user not found in database）。本轮关键证据：脚本 shell 的 DATABASE_URL 为空，.env 指向开发库 aigc_gateway，而 codex-setup 服务使用测试库 aigc_gateway_test。报告：docs/test-reports/CI1-test-infrastructure-reverifying-round7-2026-04-11.md。状态回退 fixing。"
   }
 }

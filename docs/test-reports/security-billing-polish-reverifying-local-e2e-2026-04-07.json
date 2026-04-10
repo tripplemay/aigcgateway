@@ -1,9 +1,9 @@
 {
   "batch": "security-billing-polish",
-  "generatedAt": "2026-04-10T16:21:14.820Z",
+  "generatedAt": "2026-04-10T22:58:02.837Z",
   "environment": "http://localhost:3099",
   "checks": [],
-  "fatal": "PrismaClientKnownRequestError: \nInvalid `prisma.user.update()` invocation in\n/Users/yixingzhou/project/aigcgateway/scripts/test/security-billing-polish-e2e-2026-04-07.ts:160:21\n\n  157 const project = await createTestProject(BASE, token, { name: `SB Project ${Date.now()}` });\n  158 projectId = project.id;\n  159 \n→ 160 await prisma.user.update(\nAn operation failed because it depends on one or more records that were required but not found. No record was found for an update.\n    at ei.handleRequestError (/Users/yixingzhou/project/aigcgateway/node_modules/@prisma/client/src/runtime/RequestHandler.ts:228:13)\n    at ei.handleAndLogRequestError (/Users/yixingzhou/project/aigcgateway/node_modules/@prisma/client/src/runtime/RequestHandler.ts:174:12)\n    at ei.request (/Users/yixingzhou/project/aigcgateway/node_modules/@prisma/client/src/runtime/RequestHandler.ts:143:12)\n    at async a (/Users/yixingzhou/project/aigcgateway/node_modules/@prisma/client/src/runtime/getPrismaClient.ts:833:24)\n    at async createProjectAndKey (/Users/yixingzhou/project/aigcgateway/scripts/test/security-billing-polish-e2e-2026-04-07.ts:160:3)\n    at async main (/Users/yixingzhou/project/aigcgateway/scripts/test/security-billing-polish-e2e-2026-04-07.ts:305:5)",
+  "fatal": "Error: registerAndLogin: user not found in database\n    at registerAndLogin (/Users/yixingzhou/project/aigcgateway/scripts/test/security-billing-polish-e2e-2026-04-07.ts:158:22)\n    at async main (/Users/yixingzhou/project/aigcgateway/scripts/test/security-billing-polish-e2e-2026-04-07.ts:309:5)",
   "pass": 0,
   "fail": 1
 }
