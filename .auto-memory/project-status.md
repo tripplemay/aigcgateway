@@ -4,10 +4,10 @@ description: AIGC Gateway 当前状态快照（覆盖写，≤30 行）
 type: project
 ---
 ## 当前批次
-- CI1-test-infrastructure：`fixing`（5 轮复验失败）
-- round5 结果：vitest 通过，但 3 个 E2E 仍失败（`no_project`/`insufficient_balance`，security-billing-polish 用户查询未命中）
-- 主要问题：旧 E2E 脚本未完全适配 K1 数据模型（用户级余额、默认项目语义、脚本前置数据准备）
-- Generator 待第 6 轮修复，Evaluator 待下一轮复验
+- CI1-test-infrastructure：`fixing`（6 轮复验失败）
+- round6 结果：vitest 通过，但 3 个 E2E 统一在 `prisma.user.update` 报 `P2025`（用户记录未命中）
+- 主要问题：脚本虽切换到 userId 路径，但 userId 传递/匹配链路仍未闭环
+- Generator 待第 7 轮修复，Evaluator 待下一轮复验
 
 ## 已完成批次
 - R1~R4 / P5 / M1a~M1d / BF / K1 / U1 / L1 / MCP2 / A1 / T1 / N1 / O1

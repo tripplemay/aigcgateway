@@ -1,54 +1,9 @@
 {
   "batch": "mcp-finops-hardening",
-  "generatedAt": "2026-04-10T16:07:02.914Z",
+  "generatedAt": "2026-04-10T16:21:08.697Z",
   "environment": "http://localhost:3099",
-  "checks": [
-    {
-      "name": "mcp initialize",
-      "ok": true,
-      "detail": "aigc-gateway"
-    },
-    {
-      "name": "F-MH-01 generate_image invalid size no upstream leak",
-      "ok": true,
-      "detail": "Insufficient balance. Current balance: $0.0000. Please recharge at the console."
-    },
-    {
-      "name": "F-MH-02 activate_version rollback",
-      "ok": false,
-      "detail": "[no_project] No default project configured."
-    },
-    {
-      "name": "F-MH-03 run_template returns detailed steps[]",
-      "ok": false,
-      "detail": "Insufficient balance. Current: $0.0000"
-    },
-    {
-      "name": "F-MH-04 get_balance transactions include traceId",
-      "ok": false,
-      "detail": "Insufficient balance. Current balance: $0.0000. Please recharge at the console."
-    },
-    {
-      "name": "F-MH-05 top_p=0 handled",
-      "ok": true,
-      "detail": "rejected: MCP error -32602: Input validation error: Invalid arguments for tool chat: [\n  {\n    \"code\": \"too_small\",\n    \"minimum\": 0,\n    \"type\": \"number\",\n    \"inclusive\": false,\n    \"exact\": false,\n    \"message\": \"Number must be greater than 0\",\n    \"path\": [\n      \"top_p\"\n    ]\n  }\n]"
-    },
-    {
-      "name": "F-MH-06 run_action supports version_id override",
-      "ok": false,
-      "detail": "[no_project] No default project configured. Please set a default project in the console."
-    },
-    {
-      "name": "F-MH-07 micro billing not truncated",
-      "ok": false,
-      "detail": "[no_project] No default project configured."
-    },
-    {
-      "name": "F-MH-08 usage drilldown Σ(single)≈aggregate",
-      "ok": false,
-      "detail": "[no_project] No default project configured."
-    }
-  ],
-  "pass": 3,
-  "fail": 6
+  "checks": [],
+  "fatal": "PrismaClientKnownRequestError: \nInvalid `prisma.user.update()` invocation in\n/Users/yixingzhou/project/aigcgateway/scripts/test/mcp-finops-hardening-e2e-2026-04-07.ts:150:21\n\n  147 const project = await createTestProject(BASE, token, { name: `MH Project ${Date.now()}` });\n  148 projectId = project.id;\n  149 \n→ 150 await prisma.user.update(\nAn operation failed because it depends on one or more records that were required but not found. No record was found for an update.\n    at ei.handleRequestError (/Users/yixingzhou/project/aigcgateway/node_modules/@prisma/client/src/runtime/RequestHandler.ts:228:13)\n    at ei.handleAndLogRequestError (/Users/yixingzhou/project/aigcgateway/node_modules/@prisma/client/src/runtime/RequestHandler.ts:174:12)\n    at ei.request (/Users/yixingzhou/project/aigcgateway/node_modules/@prisma/client/src/runtime/RequestHandler.ts:143:12)\n    at async a (/Users/yixingzhou/project/aigcgateway/node_modules/@prisma/client/src/runtime/getPrismaClient.ts:833:24)\n    at async createProjectAndKey (/Users/yixingzhou/project/aigcgateway/scripts/test/mcp-finops-hardening-e2e-2026-04-07.ts:150:3)\n    at async main (/Users/yixingzhou/project/aigcgateway/scripts/test/mcp-finops-hardening-e2e-2026-04-07.ts:354:5)",
+  "pass": 0,
+  "fail": 1
 }
