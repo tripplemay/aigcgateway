@@ -1,0 +1,113 @@
+{
+  "batch": "A1-alias-data-quality",
+  "stage": "reverifying",
+  "date": "2026-04-10",
+  "ok": true,
+  "environment": {
+    "type": "production-readonly",
+    "host": "34.180.93.185",
+    "path": "/opt/aigc-gateway"
+  },
+  "evidence": {
+    "scriptsPresent": [
+      "scripts/fix-a1-all.ts",
+      "scripts/fix-alias-context-window.ts",
+      "scripts/fix-alias-modality.ts",
+      "scripts/fix-brand-duplicates.ts"
+    ],
+    "targetAliases": [
+      {
+        "alias": "claude-3.5-sonnet",
+        "modality": "TEXT",
+        "brand": "Anthropic",
+        "contextWindow": 1000000,
+        "maxTokens": 128000,
+        "enabled": true
+      },
+      {
+        "alias": "cogview-3",
+        "modality": "IMAGE",
+        "brand": "智谱AI",
+        "contextWindow": 1000,
+        "maxTokens": null,
+        "enabled": false
+      },
+      {
+        "alias": "dall-e-2",
+        "modality": "IMAGE",
+        "brand": "OpenAI",
+        "contextWindow": null,
+        "maxTokens": null,
+        "enabled": false
+      },
+      {
+        "alias": "deepseek-r1",
+        "modality": "TEXT",
+        "brand": "DeepSeek",
+        "contextWindow": 163840,
+        "maxTokens": 163840,
+        "enabled": true
+      },
+      {
+        "alias": "deepseek-v3",
+        "modality": "TEXT",
+        "brand": "DeepSeek",
+        "contextWindow": 163840,
+        "maxTokens": 163840,
+        "enabled": true
+      },
+      {
+        "alias": "seedream-3",
+        "modality": "IMAGE",
+        "brand": null,
+        "contextWindow": null,
+        "maxTokens": null,
+        "enabled": false
+      }
+    ],
+    "brandCounts": [
+      {
+        "brand": "Arcee",
+        "count": 5
+      },
+      {
+        "brand": "智谱AI",
+        "count": 13
+      }
+    ],
+    "enabledNulls": [],
+    "imageTextMismatches": [],
+    "dryRun": {
+      "fixAliasModality": "Total: 0 aliases would be fixed",
+      "fixBrandDuplicates": "Total: 0 aliases would be fixed",
+      "fixAliasContextWindow": "Total: 0 contextWindow + 0 maxTokens would be fixed"
+    }
+  },
+  "checks": [
+    {
+      "id": "A1-PROD-SCRIPTS",
+      "result": "PASS",
+      "details": "生产目录已存在 fix-a1-all / fix-alias-context-window / fix-alias-modality / fix-brand-duplicates 四个脚本。"
+    },
+    {
+      "id": "A1-PROD-MODALITY",
+      "result": "PASS",
+      "details": "cogview-3、dall-e-2、seedream-3 均已为 IMAGE；TEXT image mismatch 查询为空。"
+    },
+    {
+      "id": "A1-PROD-CONTEXT",
+      "result": "PASS",
+      "details": "主流 enabled TEXT alias 的 contextWindow/maxTokens 空值查询为空；claude-3.5-sonnet、deepseek-r1、deepseek-v3 已补齐。"
+    },
+    {
+      "id": "A1-PROD-BRAND",
+      "result": "PASS",
+      "details": "品牌重复变体已消失，仅保留 Arcee 与 智谱AI 两个标准名。"
+    },
+    {
+      "id": "A1-PROD-DRYRUN",
+      "result": "PASS",
+      "details": "三条清理脚本在加载 PM2 环境后执行 --dry-run 均返回 0 待修正。"
+    }
+  ]
+}

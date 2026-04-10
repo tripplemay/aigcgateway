@@ -1,55 +1,30 @@
 {
-  "status": "reverifying",
+  "status": "done",
   "user_goal": "A1 — 别名数据质量修复（modality 继承 + contextWindow 补充 + brand 去重）",
   "total_features": 4,
-  "completed_features": 0,
+  "completed_features": 4,
   "fix_rounds": 1,
   "current_sprint": "F-A1-04",
-  "last_updated": "2026-04-10T06:55:00.000Z",
+  "last_updated": "2026-04-10T07:02:28.000Z",
   "reference_docs": [],
   "role_assignments": null,
   "docs": {
     "spec": null,
     "test_cases": "docs/test-cases/a1-alias-data-quality-verifying-2026-04-10.md",
-    "signoff": null,
+    "signoff": "docs/test-reports/a1-alias-data-quality-signoff-2026-04-10.md",
     "framework_reviewed": false
   },
   "evaluator_feedback": {
-    "summary": "A1 本地逻辑通过，但生产存量 alias 数据仍未修正：图片 alias modality 仍为 TEXT、主流模型 contextWindow 仍有 null、品牌重复变体仍存在。",
-    "pass_count": 0,
+    "summary": "A1 复验通过：本地 L1 逻辑已通过，生产只读复验确认图片 alias modality 已修正、主流 enabled 模型 contextWindow/maxTokens 已补齐、品牌重复变体已清理，三条修复脚本 dry-run 均为 0 待修正。",
+    "pass_count": 4,
     "partial_count": 0,
-    "fail_count": 4,
-    "issues": [
-      {
-        "feature_id": "F-A1-01",
-        "result": "FAIL",
-        "description": "生产只读查询显示 cogview-3、dall-e-2、seedream-3 仍为 TEXT，说明存量 alias modality 修正未落地；且远端部署目录缺少 fix-alias-modality.ts。",
-        "steps_to_reproduce": "1. SSH 到 /opt/aigc-gateway 2. 只读查询 model_aliases 中 alias 包含 dall-e/seedream/cogview 的记录 3. 观察 modality 仍为 TEXT"
-      },
-      {
-        "feature_id": "F-A1-02",
-        "result": "FAIL",
-        "description": "生产只读查询显示 claude-3.5-sonnet、deepseek-r1、deepseek-v3 的 contextWindow 仍为 null，存量数据未补齐。",
-        "steps_to_reproduce": "1. SSH 到 /opt/aigc-gateway 2. 只读查询 brand 属于 OpenAI/Anthropic/Google/DeepSeek/智谱AI 且 modality=TEXT 的 enabled alias 3. 观察部分 contextWindow 仍为 null"
-      },
-      {
-        "feature_id": "F-A1-03",
-        "result": "FAIL",
-        "description": "生产只读查询显示品牌重复变体仍并存：Arcee/Arcee AI、智谱AI/智谱 AI，说明品牌清理未执行。",
-        "steps_to_reproduce": "1. SSH 到 /opt/aigc-gateway 2. 只读统计品牌为 智谱 AI/智谱AI/Arcee AI/Arcee 的 alias 数量 3. 观察重复品牌仍存在"
-      },
-      {
-        "feature_id": "F-A1-04",
-        "result": "FAIL",
-        "description": "A1 整体验收失败。虽然本地 L1 逻辑通过，但生产存量数据仍不满足 alias data quality 的 1/2/3 项验收标准。",
-        "steps_to_reproduce": "1. 执行本地 A1 验收脚本 2. 执行生产只读查询 3. 对比本地通过与生产存量数据缺口"
-      }
-    ]
+    "fail_count": 0,
+    "issues": []
   },
   "generator_handoff": "Fix round 1: 生产存量数据已修正。新增 scripts/fix-a1-all.ts 统一入口 + scripts/fix-alias-context-window.ts。已在生产执行：7 alias modality TEXT→IMAGE（含 dall-e-2/cogview-3/seedream-3）、143 contextWindow 补齐（含 claude-3.5-sonnet/deepseek-r1/deepseek-v3）、111 maxTokens 补齐、4 品牌去重（智谱 AI→智谱AI、Arcee AI→Arcee）。",
   "session_notes": {
     "Kimi": "A1 fixing 完成。Evaluator 反馈核心问题：脚本未部署到生产，存量数据未修正。修复：新增 fix-alias-context-window.ts + fix-a1-all.ts 统一入口，推送后在生产执行。结果：7 modality 修正、143 contextWindow 补齐、111 maxTokens 补齐、4 品牌去重。已推进到 reverifying。",
     "Planner": "MCP2 done + A1 启动。BL-098 拆为 3 generator + 1 codex。三项修复：modality 从 Model 继承、contextWindow 先 Model 后 LLM fallback、brand 锚定已有列表+清理脏数据。从 backlog 移除 BL-098。后续批次：T1(模板) → N1(UI/导航) → O1(Admin 运维) → CI1(测试) → D1(文档)。",
-    "Reviewer": "A1 首轮验收失败。L1 本地脚本已验证 alias-classifier 新逻辑和两个清理脚本在测试库可正常工作；但生产只读查询发现存量数据仍不满足验收：cogview-3/dall-e-2/seedream-3 仍为 TEXT，claude-3.5-sonnet/deepseek-r1/deepseek-v3 contextWindow 仍为 null，品牌重复变体 Arcee AI/Arcee、智谱 AI/智谱AI 仍并存。另：远端 /opt/aigc-gateway 尚不存在 fix-alias-modality.ts / fix-brand-duplicates.ts，可见脚本未部署。状态已推进到 fixing。"
+    "Reviewer": "A1 生产复验已通过。远端 /opt/aigc-gateway 已部署 fix-a1-all、fix-alias-context-window、fix-alias-modality、fix-brand-duplicates；只读查询确认 cogview-3/dall-e-2/seedream-3 已为 IMAGE，claude-3.5-sonnet/deepseek-r1/deepseek-v3 的 contextWindow/maxTokens 已补齐，品牌重复变体仅剩标准名 Arcee/智谱AI。三条脚本在加载 PM2 环境后执行 --dry-run 均为 0 待修正，已写 signoff 并推进到 done。"
   }
 }
