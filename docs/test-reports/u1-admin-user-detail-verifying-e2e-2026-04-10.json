@@ -1,16 +1,16 @@
 {
   "batch": "U1-admin-user-detail",
   "feature": "F-U1-07",
-  "executedAt": "2026-04-10T05:25:08.032Z",
+  "executedAt": "2026-04-10T05:33:47.493Z",
   "baseUrl": "http://localhost:3099",
-  "passCount": 4,
-  "failCount": 1,
+  "passCount": 5,
+  "failCount": 0,
   "steps": [
     {
       "id": "AC1",
       "name": "Admin 用户详情 API 返回余额、lastActive、项目与分页交易",
       "ok": true,
-      "detail": "balance=24.89, lastActive=2026-04-10T05:25:00.690Z, projects=2, tx_total=12"
+      "detail": "balance=24.89, lastActive=2026-04-10T05:33:37.031Z, projects=2, tx_total=12"
     },
     {
       "id": "AC2",
@@ -21,8 +21,8 @@
     {
       "id": "AC3",
       "name": "项目卡片包含调用数和 Key 数",
-      "ok": false,
-      "detail": "project detail missing keyCount"
+      "ok": true,
+      "detail": "project keyCount=1"
     },
     {
       "id": "AC4",
