@@ -1,6 +1,5 @@
 import { createServer, type IncomingMessage, type ServerResponse } from "http";
 import { readFileSync, writeFileSync } from "fs";
-import { inferMissingCapabilities } from "@/lib/sync/alias-classifier";
 
 const BASE = process.env.BASE_URL ?? "http://localhost:3099";
 const OUTPUT =
@@ -278,7 +277,12 @@ async function run() {
       body: JSON.stringify({ capabilities: { streaming: false, vision: false } }),
     });
 
-    const inferResult = await inferMissingCapabilities();
+    const inferApi = await api("/api/admin/model-aliases/infer-capabilities", {
+      method: "POST",
+      expect: 200,
+      body: JSON.stringify({}),
+    });
+    const inferResult = inferApi.body ?? {};
 
     const listAfterInfer = await api("/api/admin/model-aliases", { expect: 200 });
     const dataAfterInfer = Array.isArray(listAfterInfer.body?.data) ? listAfterInfer.body.data : [];
@@ -298,7 +302,7 @@ async function run() {
       id: "AC4",
       name: "LLM 推断 capabilities：填充空值且不覆盖已有",
       ok: ac4Ok,
-      detail: `infer_updated=${inferResult.updated}, fill_caps=${JSON.stringify(fillCaps)}, keep_caps=${JSON.stringify(keepCaps)}`,
+      detail: `infer_updated=${inferResult.updated ?? "n/a"}, infer_errors=${JSON.stringify(inferResult.errors ?? [])}, fill_caps=${JSON.stringify(fillCaps)}, keep_caps=${JSON.stringify(keepCaps)}`,
     });
 
     // AC5: DS token consistency

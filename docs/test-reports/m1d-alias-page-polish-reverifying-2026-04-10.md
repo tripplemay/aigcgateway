@@ -12,12 +12,12 @@
 - 启动：`bash scripts/test/codex-setup.sh` + `bash scripts/test/codex-wait.sh`
 - 复验脚本：`scripts/test/m1d-alias-page-polish-reverifying-e2e-2026-04-10.ts`
 - 结果文件：`docs/test-reports/m1d-alias-page-polish-reverifying-e2e-2026-04-10.json`
-- 本次执行时间：`2026-04-10T00:54:25.901Z`
+- 本次执行时间：`2026-04-10T01:01:52.808Z`
 
 ## 结果概览
-- PASS：5
-- FAIL：1
-- 结论：未通过，回到 `fixing`
+- PASS：6
+- FAIL：0
+- 结论：通过，可进入 `signoff`
 
 ## 通过项
 - AC1：单列列表 + accordion 展开结构存在
@@ -26,19 +26,14 @@
 - AC5：未发现硬编码色值/原始色阶 class
 - AC6：页面走 i18n key，en/zh key 同步，无中文硬编码残留
 
-## 失败项
-### F-M1d-06 / AC4 — capabilities 推断未填充空值
-- 严重级别：High
-- 稳定复现：是
-
-现象：
-- 创建 `capabilities = null` 的别名后，调用 `inferMissingCapabilities()` 仍未被填充；
-- 已有 capabilities 的别名未被覆盖（该行为正确）。
-
-证据：
-- 动态结果：`infer_updated=0, fill_caps=null, keep_caps={"vision":false,"streaming":false}`
-- Kimi fix round 5 已将查询策略改为“拉全量后 JS 过滤（`capabilities === null` 或空对象）”，本次复验后仍未填充空值别名。
-- 问题推断：当前 `inferMissingCapabilities()` 的候选筛选或更新写入链路仍存在漏处理，导致空值别名未进入有效更新路径。
+## AC4 修复复验说明
+- 复验脚本已改为调用 HTTP 端点：`POST /api/admin/model-aliases/infer-capabilities`（admin JWT）。
+- 不再在 tsx 进程里直接 `import inferMissingCapabilities()`，避免与 3099 服务进程隔离导致的 mock/provider 配置不一致。
+- 动态结果：`infer_updated=2, infer_errors=[]`，`fill_caps` 已成功填充，`keep_caps` 保持原值（未覆盖）。
+- 服务日志证据：
+  - `[alias-classifier] Total aliases: 5, without caps: 2`
+  - `[callInternalAI] provider=deepseek, baseUrl=http://127.0.0.1:3343, hasKey=true, proxyUrl=none`
+  - `[alias-classifier] Capabilities inference done: updated=2, errors=0`
 
 ## 结论
-本轮复验未通过，建议 Generator 修复 `inferMissingCapabilities` 的空值匹配逻辑（覆盖 DbNull/NULL 场景）后再次进入 `reverifying`。
+本轮复验全 PASS（6/6），M1d 可进入签收。

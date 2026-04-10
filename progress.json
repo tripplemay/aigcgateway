@@ -1,12 +1,12 @@
 {
-  "status": "fixing",
+  "status": "done",
 
   "user_goal": "M1d — 别名管理页优化（单列+搜索+排序+售价上提+LLM 推断 capabilities）",
   "total_features": 6,
-  "completed_features": 5,
+  "completed_features": 6,
   "fix_rounds": 3,
-  "current_sprint": "F-M1d-06",
-  "last_updated": "2026-04-10T10:55:00.000Z",
+  "current_sprint": null,
+  "last_updated": "2026-04-10T11:02:00.000Z",
   "reference_docs": [
     "docs/specs/M1-models-page-rework-spec.md",
     "design-draft/admin-model-aliases/code.html"
@@ -15,27 +15,20 @@
   "docs": {
     "spec": "docs/specs/M1-models-page-rework-spec.md",
     "test_cases": null,
-    "signoff": null,
+    "signoff": "docs/test-reports/m1d-alias-page-polish-signoff-2026-04-10.md",
     "framework_reviewed": false
   },
   "evaluator_feedback": {
-    "summary": "M1d 复验 5/6 通过，AC4（capabilities 自动填充）失败，回到 fixing。",
-    "pass_count": 5,
+    "summary": "M1d 复验全量通过（6/6）。AC4 改为服务内 HTTP 端点链路验证后通过，进入 signoff。",
+    "pass_count": 6,
     "partial_count": 0,
-    "fail_count": 1,
-    "issues": [
-      {
-        "feature_id": "F-M1d-06",
-        "result": "FAIL",
-        "description": "inferMissingCapabilities 在最新代码（fix round 5 已改为 fetch all + JS 过滤）下仍未填充 capabilities 为空的别名。",
-        "steps_to_reproduce": "1) 重新 pull main 并重建 3099 测试环境 2) 创建 capabilities=null 的新别名 3) 调用 inferMissingCapabilities() 4) 观察 updated=0 且该别名 capabilities 仍为 null。"
-      }
-    ]
+    "fail_count": 0,
+    "issues": []
   },
   "generator_handoff": null,
   "session_notes": {
     "Kimi": "M1d AC4 调试：怀疑根因是测试脚本直接 import inferMissingCapabilities 在 tsx 进程中调用，与 3099 服务进程隔离。建议 Reviewer 改用 HTTP: POST /api/admin/model-aliases/infer-capabilities（已有端点），响应包含 { updated, errors }。同时代码已加详细 console.log，请检查 tsx stdout 中的 [alias-classifier] 和 [callInternalAI] 日志行。",
     "Planner": "BF 批次 done 收尾 + M1d 启动。BL-084 拆为 5 generator + 1 codex。从 backlog 移除 BL-084。核心变更：卡片改单列、搜索筛选排序、sellPrice 上提到别名层、LLM 推断 capabilities。",
-    "Reviewer": "2026-04-10 reverifying：再次按用户要求复验，受网络限制（GitHub 443 不可达）仍未完成远端 pull 校验，在本地现有代码重建 3099 后执行（executedAt=2026-04-10T00:54:25.901Z），结果仍 5 PASS / 1 FAIL（AC4）。已确认 Kimi fix round 5（fetch all + JS 过滤）后 AC4 仍 updated=0、fill_caps=null，状态保持 fixing。"
+    "Reviewer": "2026-04-10 reverifying：按 Kimi 建议改为 HTTP 端点（POST /api/admin/model-aliases/infer-capabilities）进行 AC4 验证，并检查服务日志 [alias-classifier]/[callInternalAI]。executedAt=2026-04-10T01:01:52.808Z，结果 6 PASS / 0 FAIL，确认此前失败由测试进程隔离造成；已生成 signoff 并置为 done。"
   }
 }
