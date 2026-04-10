@@ -6,7 +6,7 @@
   "completed_features": 5,
   "fix_rounds": 3,
   "current_sprint": "F-M1d-06",
-  "last_updated": "2026-04-10T10:48:00.000Z",
+  "last_updated": "2026-04-10T10:55:00.000Z",
   "reference_docs": [
     "docs/specs/M1-models-page-rework-spec.md",
     "design-draft/admin-model-aliases/code.html"
@@ -36,6 +36,6 @@
   "session_notes": {
     "Kimi": "M1d fix round 5：绕过 Prisma Json null 过滤问题。改为 fetch all + JS filter（capabilities === null 或空对象）。移除 Prisma.DbNull/JsonNull 依赖。",
     "Planner": "BF 批次 done 收尾 + M1d 启动。BL-084 拆为 5 generator + 1 codex。从 backlog 移除 BL-084。核心变更：卡片改单列、搜索筛选排序、sellPrice 上提到别名层、LLM 推断 capabilities。",
-    "Reviewer": "2026-04-10 reverifying：再次按用户要求复验，受网络限制（GitHub 443 不可达）未完成远端 pull 校验，在本地现有代码重建 3099 后执行（executedAt=2026-04-10T00:47:18.486Z），结果仍 5 PASS / 1 FAIL（AC4）。已确认 Kimi fix round 5（fetch all + JS 过滤）后 AC4 仍 updated=0、fill_caps=null，状态保持 fixing。"
+    "Reviewer": "2026-04-10 reverifying：再次按用户要求复验，受网络限制（GitHub 443 不可达）仍未完成远端 pull 校验，在本地现有代码重建 3099 后执行（executedAt=2026-04-10T00:54:25.901Z），结果仍 5 PASS / 1 FAIL（AC4）。已确认 Kimi fix round 5（fetch all + JS 过滤）后 AC4 仍 updated=0、fill_caps=null，状态保持 fixing。"
   }
 }
