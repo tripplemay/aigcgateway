@@ -50,34 +50,10 @@
       "priority": "low"
     },
     {
-      "id": "BL-086",
-      "title": "MCP chat 工具补齐高级参数",
-      "description": "chat 工具缺少常用参数，导致模型声明的能力用不了。需补齐：1) tools/tool_choice（function calling）；2) top_p；3) frequency_penalty/presence_penalty；4) stop（停止序列）。用户反馈两份报告均标为 P0/P1。",
-      "decisions": [],
-      "confirmed_at": "2026-04-10",
-      "priority": "high"
-    },
-    {
-      "id": "BL-087",
-      "title": "MCP list_models 补 supportedSizes",
-      "description": "SERVER_INSTRUCTIONS 承诺返回 supportedSizes（图片模型可用尺寸），但实际未返回。需在 list_models 查询中包含 supportedSizes 并返回给 image 模态别名。",
-      "decisions": [],
-      "confirmed_at": "2026-04-10",
-      "priority": "medium"
-    },
-    {
-      "id": "BL-088",
-      "title": "MCP API Key 管理工具（list/create/revoke）",
-      "description": "新用户通过 MCP 探索平台时不知道 Key 从哪来。新增 3 个工具：list_api_keys（列出当前用户/项目的 Key）、create_api_key（创建新 Key）、revoke_api_key（吊销 Key）。注意：BL-081（Key 用户级迁移）完成后工具的 scope 会从项目级变为用户级。",
-      "decisions": [],
-      "confirmed_at": "2026-04-10",
-      "priority": "medium"
-    },
-    {
-      "id": "BL-089",
-      "title": "MCP 项目管理工具（get_project_info + create_project）",
-      "description": "1) get_project_info：返回当前项目名称、描述、创建时间、API Key 数、调用数；2) create_project：新用户无项目时可直接创建，传入 name 和 description。解决新用户 MCP 入门断链问题。",
-      "decisions": ["create_project 需要，否则新用户 MCP 路径断裂"],
+      "id": "BL-097",
+      "title": "Admin 模板详情页（独立路由 /admin/templates/:id）",
+      "description": "Admin 公共模板页点击模板详情跳到用户侧 /templates/:id，但用户侧按当前项目查询，跨项目模板查不到导致空白。修复：新增 /admin/templates/:id 页面，用 admin API 查模板（不受项目限制），展示模板完整信息（Steps、Actions、公共状态、质量评分）。",
+      "decisions": ["Admin 模板详情走独立路由，不复用用户侧页面"],
       "confirmed_at": "2026-04-10",
       "priority": "medium"
     },

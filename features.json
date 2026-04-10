@@ -1,38 +1,54 @@
 {
-  "batch": "L1-llm-inference-robustness",
+  "batch": "MCP2-tools-enhancement",
   "created_at": "2026-04-10",
   "features": [
     {
-      "id": "F-L1-01",
-      "title": "inferMissingCapabilities 分批 + 即时持久化 + 重试",
+      "id": "F-MCP2-01",
+      "title": "chat 工具补齐高级参数",
       "priority": "high",
       "executor": "generator",
-      "status": "done",
-      "acceptance": "1) 每批 30 个别名；2) 每批成功立即写入 DB；3) 失败重试 2 次（间隔 3s/10s）；4) 重试仍失败跳过继续下一批；5) 日志输出 updated/skipped/errors 统计；6) 下次 sync 自动补处理上次跳过的；7) tsc 通过"
+      "status": "pending",
+      "acceptance": "1) 新增 tools 参数（JSON 数组，function calling 定义）；2) 新增 tool_choice 参数（auto/none/required/指定函数）；3) 新增 top_p 参数（0-1）；4) 新增 frequency_penalty/presence_penalty 参数（-2~2）；5) 新增 stop 参数（字符串或字符串数组）；6) 参数透传到 /v1/chat/completions；7) 响应正确返回 tool_calls（如有）；8) tsc 通过"
     },
     {
-      "id": "F-L1-02",
-      "title": "classifyNewModels 统一健壮性策略",
-      "priority": "high",
-      "executor": "generator",
-      "status": "done",
-      "acceptance": "1) 每批成功立即持久化（不攒到最后一起写）；2) 失败重试 2 次（间隔 3s/10s）；3) 重试仍失败跳过继续下一批；4) 日志输出每批结果；5) tsc 通过"
-    },
-    {
-      "id": "F-L1-03",
-      "title": "inferMissingBrands 统一健壮性策略",
+      "id": "F-MCP2-02",
+      "title": "list_models 补 supportedSizes",
       "priority": "medium",
       "executor": "generator",
-      "status": "done",
-      "acceptance": "1) 分批处理（每批 30 个）；2) 每批成功立即写入 DB；3) 失败重试 + 跳过；4) tsc 通过"
+      "status": "pending",
+      "acceptance": "1) image 模态别名返回 supportedSizes 字段；2) supportedSizes 从关联 Model 聚合；3) SERVER_INSTRUCTIONS 描述与实际一致；4) tsc 通过"
     },
     {
-      "id": "F-L1-04",
-      "title": "L1 全量验收",
+      "id": "F-MCP2-03",
+      "title": "MCP API Key 管理工具",
+      "priority": "medium",
+      "executor": "generator",
+      "status": "pending",
+      "acceptance": "1) list_api_keys 返回当前用户所有 Key（maskedKey+name+status+createdAt）；2) create_api_key(name, description?) 创建新 Key 并返回完整 Key（仅一次可见）；3) revoke_api_key(keyId) 吊销 Key；4) tsc 通过"
+    },
+    {
+      "id": "F-MCP2-04",
+      "title": "MCP 项目管理工具",
+      "priority": "medium",
+      "executor": "generator",
+      "status": "pending",
+      "acceptance": "1) get_project_info 返回当前项目名称、描述、创建时间、调用数、Key 数；2) 无项目时返回友好提示；3) create_project(name, description?) 创建项目并设为 defaultProjectId；4) tsc 通过"
+    },
+    {
+      "id": "F-MCP2-05",
+      "title": "SERVER_INSTRUCTIONS 更新",
+      "priority": "medium",
+      "executor": "generator",
+      "status": "pending",
+      "acceptance": "1) chat 部分补充 tools/tool_choice/top_p/penalties/stop 说明；2) 新增 API Key 管理工具说明；3) 新增项目管理工具说明；4) list_models 的 supportedSizes 描述与实际一致；5) 新增 brand 字段说明；6) tsc 通过"
+    },
+    {
+      "id": "F-MCP2-06",
+      "title": "MCP2 全量验收",
       "priority": "high",
       "executor": "codex",
-      "status": "completed",
-      "acceptance": "1) 模拟大批量（100+ 别名）capabilities 推断，分批执行无超时；2) 模拟 LLM 调用失败，确认跳过继续且下次补处理；3) 每批结果立即落库（中途中断不丢失已完成批次）；4) 签收报告生成"
+      "status": "pending",
+      "acceptance": "1) chat 传 tools 参数可触发 function calling；2) chat 传 top_p/penalties/stop 正常生效；3) list_models image 模型含 supportedSizes；4) list_api_keys/create_api_key/revoke_api_key 正常工作；5) get_project_info/create_project 正常工作；6) SERVER_INSTRUCTIONS 内容准确；7) 签收报告生成"
     }
   ]
 }

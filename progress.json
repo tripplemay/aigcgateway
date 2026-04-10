@@ -1,30 +1,24 @@
 {
-  "status": "done",
-  "user_goal": "L1 — LLM 推断链路健壮性升级（分批+即时持久化+重试）",
-  "total_features": 4,
-  "completed_features": 4,
+  "status": "building",
+  "user_goal": "MCP2 — MCP 工具增强（chat 高级参数 + supportedSizes + Key 管理 + 项目管理）",
+  "total_features": 6,
+  "completed_features": 0,
   "fix_rounds": 0,
-  "current_sprint": "F-L1-04",
-  "last_updated": "2026-04-10T05:55:00.000Z",
+  "current_sprint": "F-MCP2-01",
+  "last_updated": "2026-04-10T16:00:00.000Z",
   "reference_docs": [],
   "role_assignments": null,
   "docs": {
     "spec": null,
-    "test_cases": "docs/test-cases/l1-llm-inference-robustness-verifying-2026-04-10.md",
-    "signoff": "docs/test-reports/l1-llm-inference-robustness-signoff-2026-04-10.md",
+    "test_cases": null,
+    "signoff": null,
     "framework_reviewed": false
   },
-  "evaluator_feedback": {
-    "summary": "L1 首轮验收全通过：三条 LLM 推断链路均验证了分批、即时持久化、失败跳过继续与下次补处理。",
-    "pass_count": 4,
-    "partial_count": 0,
-    "fail_count": 0,
-    "issues": []
-  },
+  "evaluator_feedback": null,
   "generator_handoff": null,
   "session_notes": {
-    "Kimi": "L1 building 完成。三个函数统一改造：retryWithBackoff 通用重试辅助（3s/10s 两次重试）、分批30个、每批成功立即写DB、失败跳过继续。返回值统一增加 skipped 字段。model-sync.ts 调用侧已适配。tsc 全通过。状态推进到 verifying，等待 Evaluator 验收 F-L1-04。",
-    "Planner": "U1 done 收尾 + L1 启动。BL-093 拆为 3 generator + 1 codex。三个函数（inferMissingCapabilities/classifyNewModels/inferMissingBrands）统一健壮性策略：分批30个+即时持久化+重试2次+跳过继续。从 backlog 移除 BL-093。",
-    "Reviewer": "已在 3099 本地完成 F-L1-04 首轮验收并签收。新增专用 L1 验收脚本与测试用例文档，使用 DeepSeek mock 验证 classify/brand/capabilities 三条链路的分批、即时持久化、失败跳过继续与二次补处理；105 alias capabilities 场景请求批次为 30/30/30/15，全部通过。progress 已推进到 done。"
+    "Kimi": null,
+    "Planner": "L1 done 收尾 + MCP2 启动。BL-086/087/088/089 打包为 5 generator + 1 codex。chat 补齐 tools/top_p/penalties/stop、list_models 补 supportedSizes、新增 Key 管理和项目管理工具、SERVER_INSTRUCTIONS 同步更新。从 backlog 移除 4 条。",
+    "Reviewer": null
   }
 }
