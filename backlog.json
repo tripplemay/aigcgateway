@@ -63,28 +63,6 @@
       "priority": "medium"
     },
     {
-      "id": "BL-096",
-      "title": "健康监控页重做 — 按别名分组 + 影响关联 + 增强",
-      "description": "当前健康页按 Channel 平铺，M1 后应按别名分组展示（与别名管理页风格统一）。改动：1) 按别名分组，每个别名下展示其关联的 Channel 健康状态；2) 高亮高风险别名（仅 1 个活跃 Channel，无备用）；3) enabled 别名排最前面（同别名页排序逻辑）；4) 计算并显示平均延迟；5) FAIL 状态显示错误原因（tooltip 或展开）；6) 搜索/筛选（按 Provider/modality/状态）；7) L3 质量检查改为验证"返回非空且合理长度"（不做内容正确性验证）；8) 自动恢复：disabled 渠道检查通过后自动 re-enable。",
-      "decisions": [
-        "以别名为归类维度，和别名管理页统一风格",
-        "enabled 排最前面",
-        "L3 不验证内容正确性，只验证非空+合理长度",
-        "disabled 渠道通过检查后自动 re-enable",
-        "图片模型检查保持现状（只测连通性，不做真实生成）"
-      ],
-      "confirmed_at": "2026-04-10",
-      "priority": "medium"
-    },
-    {
-      "id": "BL-095",
-      "title": "Admin Sync/LLM 推断运维面板",
-      "description": "管理员无法在控制台查看模型同步和 LLM 推断的运行情况（目前只能 SSH 看 PM2 日志）。需增加 Admin 可观测性入口：1) 上次 Sync 时间、同步模型数；2) LLM 推断结果（分类数/brand 填充数/capabilities 成功/失败数）；3) 错误记录（哪些失败、原因）；4) 手动触发 Sync / 推断的按钮。可集成到现有别名管理页或独立运维页。",
-      "decisions": [],
-      "confirmed_at": "2026-04-10",
-      "priority": "medium"
-    },
-    {
       "id": "BL-094",
       "title": "项目创建重名校验",
       "description": "同一用户下可以创建多个同名项目（如 3 个 mytestproject），导致用户无法区分。创建项目时应校验同一用户下项目名唯一，重名返回 409。",
