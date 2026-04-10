@@ -1,9 +1,9 @@
 {
-  "status": "fixing",
+  "status": "reverifying",
   "user_goal": "K1 — API Key 用户级迁移 + 余额模型收敛",
   "total_features": 8,
   "completed_features": 7,
-  "fix_rounds": 2,
+  "fix_rounds": 3,
   "current_sprint": "F-K1-08",
   "last_updated": "2026-04-10T12:51:05.000+08:00",
   "reference_docs": [
