@@ -1,11 +1,11 @@
 {
-  "status": "fixing",
+  "status": "reverifying",
   "user_goal": "N1 — UI/导航打磨（Sidebar 分组 + Docs 入口 + Settings Project tab + Keys 精简）",
   "total_features": 6,
   "completed_features": 5,
-  "fix_rounds": 3,
+  "fix_rounds": 4,
   "current_sprint": null,
-  "last_updated": "2026-04-10T09:54:00Z",
+  "last_updated": "2026-04-10T23:50:00Z",
   "reference_docs": [],
   "role_assignments": null,
   "docs": {
@@ -14,27 +14,10 @@
     "signoff": null,
     "framework_reviewed": true
   },
-  "evaluator_feedback": {
-    "summary": "N1 Round 3 复验未通过。阻断问题仍存在：Settings -> Project 点击 Save Changes 后未触发 PATCH，请求未发出，项目名称与描述未更新。",
-    "report": "docs/test-reports/N1-ui-navigation-polish-reverifying-2026-04-10-round3.md",
-    "issues": [
-      {
-        "severity": "high",
-        "title": "Settings Project tab 保存未触发 PATCH /api/projects/:id",
-        "evidence": [
-          "/settings -> Project tab",
-          "修改名称/描述后点击保存，Network 无 PATCH /api/projects/cmnspl7zc00r59ydumaq0ve2o",
-          "GET /api/projects/cmnspl7zc00r59ydumaq0ve2o 仍为旧值 API Patch Name / API Patch Desc",
-          "直接 PATCH /api/projects/cmnspl7zc00r59ydumaq0ve2o 返回 200（后端接口正常）"
-        ],
-        "expected": "点击 Save Changes 后发出 PATCH 并更新项目名称/描述",
-        "actual": "未发出 PATCH 请求，项目信息保持旧值"
-      }
-    ]
-  },
+  "evaluator_feedback": null,
   "generator_handoff": "Generator completed F-N1-01~05. Changes: (1) sidebar.tsx — mainNav/adminNav refactored to grouped NavGroup[] with i18n group titles (groupCore/groupDev/groupData/groupModels/groupOps/groupUsers), Settings standalone below groups, admin groups separated by divider; (2) top-app-bar.tsx — removed Documentation/API Reference/Support nav links; (3) settings/page.tsx — added Account/Project tab switcher, new ProjectTab component with project name/description edit, stats (keyCount/callCount), and Danger Zone delete with confirmation; (4) api/projects/[id]/route.ts — added DELETE handler with deep cascade cleanup + stats in GET response; (5) keys/page.tsx — removed 3 stats cards + FAB, create button merged into table header bar; (6) en.json + zh-CN.json — all new keys synced (sidebar groups, settings project tab). Codex should verify F-N1-06 acceptance: sidebar grouping, docs entry, settings project tab CRUD, keys simplification, DS token consistency, i18n completeness.",
   "session_notes": {
-    "Kimi": "Fix round 3: 彻底重构——删除独立 ProjectTab 组件，所有 Project tab 逻辑内联到 SettingsPage。用 <form onSubmit> + type=submit 按钮替代 onClick/native listener。handleProjectSave 直接定义在父组件，用原生 fetch。消除组件边界、ref 作用域、useEffect 时序问题。",
+    "Kimi": "Fix round 4: 去掉 form 包裹，Save 按钮改为与 Delete 完全一致的 onClick={handleProjectSave} + type=button。handleProjectSave 用 apiFetch（与 deleteProject 一致），无 async/await（用 .then chain）。如果本轮仍 FAIL，说明问题不在前端代码，可能是 Codex 测试环境未 rebuild .next。",
     "Planner": "T1 done + N1 启动。BL-091+BL-079+BL-100 合并为 5 generator + 1 codex。Sidebar 分组、Docs 移入 sidebar、Settings Project tab、Keys 页精简。从 backlog 移除 3 条。",
     "Reviewer": "N1 Round 3 复验完成，结论仍为 FAIL。Sidebar/Docs/Topbar/Keys/i18n 回归通过；阻断问题仍是 /settings Project tab 点击 Save Changes 后未触发 PATCH /api/projects/:id。Network 无 PATCH，请求未发出；直接 API PATCH 同路径返回 200，后端正常。已写 round3 报告并回退 fixing。"
   }

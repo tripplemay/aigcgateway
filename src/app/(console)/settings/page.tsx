@@ -98,13 +98,10 @@ export default function SettingsPage() {
   const loginHistory = historyData?.data ?? [];
 
   // ── Data: project detail ──
-  const { data: projectDetail, refetch: refetchProject } = useAsyncData<ProjectDetail>(
-    async () => {
-      if (!current) return null as unknown as ProjectDetail;
-      return apiFetch<ProjectDetail>(`/api/projects/${current.id}`);
-    },
-    [current?.id],
-  );
+  const { data: projectDetail, refetch: refetchProject } = useAsyncData<ProjectDetail>(async () => {
+    if (!current) return null as unknown as ProjectDetail;
+    return apiFetch<ProjectDetail>(`/api/projects/${current.id}`);
+  }, [current?.id]);
 
   useEffect(() => {
     if (projectDetail && !projInitialized) {
@@ -155,24 +152,17 @@ export default function SettingsPage() {
     return () => btn.removeEventListener("click", handler);
   }, [doSaveName]);
 
-  // ── Project: save via form submit ──
-  const handleProjectSave = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!current || saving) return;
+  // ── Project: save (inline onClick — identical pattern to deleteProject) ──
+  const handleProjectSave = () => {
+    if (!current) {
+      toast.error("No project");
+      return;
+    }
     setSaving(true);
-    const token = localStorage.getItem("token");
-    fetch(`/api/projects/${current.id}`, {
+    apiFetch(`/api/projects/${current.id}`, {
       method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-        ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      },
       body: JSON.stringify({ name: projName, description: projDesc }),
     })
-      .then((res) => {
-        if (!res.ok) throw new Error(`Request failed: ${res.status}`);
-        return res.json();
-      })
       .then(() => {
         toast.success(t("projectUpdated"));
         refresh();
@@ -277,60 +267,59 @@ export default function SettingsPage() {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Left: Project Info */}
             <div className="lg:col-span-2 space-y-8">
-              <form onSubmit={handleProjectSave}>
-                <section className="bg-ds-surface-container-lowest rounded-xl p-8 shadow-sm">
-                  <div className="flex items-center gap-4 mb-8">
-                    <div className="w-12 h-12 rounded-xl bg-indigo-50 flex items-center justify-center text-ds-primary">
-                      <span
-                        className="material-symbols-outlined"
-                        style={{ fontVariationSettings: "'FILL' 1" }}
-                      >
-                        folder_managed
-                      </span>
-                    </div>
-                    <div>
-                      <h2 className="text-xl font-bold font-[var(--font-heading)]">
-                        {t("projectInfo")}
-                      </h2>
-                      <p className="text-sm text-ds-on-surface-variant">{t("projectInfoDesc")}</p>
-                    </div>
+              <section className="bg-ds-surface-container-lowest rounded-xl p-8 shadow-sm">
+                <div className="flex items-center gap-4 mb-8">
+                  <div className="w-12 h-12 rounded-xl bg-indigo-50 flex items-center justify-center text-ds-primary">
+                    <span
+                      className="material-symbols-outlined"
+                      style={{ fontVariationSettings: "'FILL' 1" }}
+                    >
+                      folder_managed
+                    </span>
                   </div>
-                  <div className="space-y-6">
-                    <div className="space-y-2">
-                      <label className="text-xs font-bold uppercase tracking-wider text-ds-on-surface-variant ml-1">
-                        {t("projectName")}
-                      </label>
-                      <input
-                        className="w-full bg-white border-b-2 border-ds-outline-variant/30 focus:border-ds-primary px-1 py-3 transition-colors outline-none font-medium"
-                        value={projName}
-                        onChange={(e) => setProjName(e.target.value)}
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-xs font-bold uppercase tracking-wider text-ds-on-surface-variant ml-1">
-                        {t("projectDescription")}
-                      </label>
-                      <textarea
-                        className="w-full bg-white border-b-2 border-ds-outline-variant/30 focus:border-ds-primary px-1 py-3 transition-colors outline-none font-medium resize-none"
-                        rows={3}
-                        value={projDesc}
-                        onChange={(e) => setProjDesc(e.target.value)}
-                        placeholder={t("projectDescPlaceholder")}
-                      />
-                    </div>
-                    <div className="flex justify-end pt-4">
-                      <button
-                        type="submit"
-                        disabled={saving}
-                        data-testid="save-project-btn"
-                        className="px-6 py-2.5 bg-ds-primary text-white font-semibold rounded-lg hover:bg-ds-primary-container transition-all active:scale-95 shadow-lg shadow-ds-primary/10 disabled:opacity-60"
-                      >
-                        {saving ? t("saving") : t("saveChanges")}
-                      </button>
-                    </div>
+                  <div>
+                    <h2 className="text-xl font-bold font-[var(--font-heading)]">
+                      {t("projectInfo")}
+                    </h2>
+                    <p className="text-sm text-ds-on-surface-variant">{t("projectInfoDesc")}</p>
                   </div>
-                </section>
-              </form>
+                </div>
+                <div className="space-y-6">
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold uppercase tracking-wider text-ds-on-surface-variant ml-1">
+                      {t("projectName")}
+                    </label>
+                    <input
+                      className="w-full bg-white border-b-2 border-ds-outline-variant/30 focus:border-ds-primary px-1 py-3 transition-colors outline-none font-medium"
+                      value={projName}
+                      onChange={(e) => setProjName(e.target.value)}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold uppercase tracking-wider text-ds-on-surface-variant ml-1">
+                      {t("projectDescription")}
+                    </label>
+                    <textarea
+                      className="w-full bg-white border-b-2 border-ds-outline-variant/30 focus:border-ds-primary px-1 py-3 transition-colors outline-none font-medium resize-none"
+                      rows={3}
+                      value={projDesc}
+                      onChange={(e) => setProjDesc(e.target.value)}
+                      placeholder={t("projectDescPlaceholder")}
+                    />
+                  </div>
+                  <div className="flex justify-end pt-4">
+                    <button
+                      type="button"
+                      onClick={handleProjectSave}
+                      disabled={saving}
+                      data-testid="save-project-btn"
+                      className="px-6 py-2.5 bg-ds-primary text-white font-semibold rounded-lg hover:bg-ds-primary-container transition-all active:scale-95 shadow-lg shadow-ds-primary/10 disabled:opacity-60"
+                    >
+                      {saving ? t("saving") : t("saveChanges")}
+                    </button>
+                  </div>
+                </div>
+              </section>
 
               {/* Statistics */}
               <section className="bg-ds-surface-container-lowest rounded-xl p-8 shadow-sm">
