@@ -16,7 +16,7 @@
       "priority": "medium",
       "executor": "generator",
       "status": "done",
-      "acceptance": "1) L3 质量检查改为验证"返回非空且合理长度"（不做内容正确性验证）；2) disabled 渠道检查通过后自动 re-enable（ACTIVE 状态）；3) tsc 通过"
+      "acceptance": "1) L3 质量检查改为验证「返回非空且合理长度」（不做内容正确性验证）；2) disabled 渠道检查通过后自动 re-enable（ACTIVE 状态）；3) tsc 通过"
     },
     {
       "id": "F-O1-03",
@@ -39,7 +39,7 @@
       "title": "O1 全量验收",
       "priority": "high",
       "executor": "codex",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) 健康页按别名分组，高风险别名高亮；2) L3 检查不再误判非英文回复；3) disabled 渠道通过检查后自动恢复；4) 运维面板展示 Sync/LLM 推断状态；5) 手动触发 Sync 可用；6) DS token 一致；7) i18n 无残留；8) 签收报告生成"
     }
   ]

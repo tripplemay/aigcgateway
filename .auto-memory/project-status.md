@@ -4,6 +4,8 @@ description: AIGC Gateway 当前状态快照（覆盖写，≤30 行）
 type: project
 ---
 ## 当前批次
+- O1-admin-ops-monitoring：`done`
+- `verifying` 首轮签收通过，健康页按别名分组、L3 简化/自动恢复、同步运维面板与 i18n 验收完成
 - N1-ui-navigation-polish：`done`
 - `reverifying` round 5 已签收通过（signoff 已生成）
 - T1-template-experience：`done`
@@ -29,6 +31,12 @@ type: project
 - Keys 页已移除旧统计卡与 FAB，创建按钮合并到表格 header
 - Settings 页已新增 Account / Project tab，Project tab 可展示项目统计并执行删除
 - 修复确认：执行 `scripts/test/n1-save-verify.ts` 为 PASS，已观察到 Save 后发出 PATCH 并成功落库
+
+## O1 验收结论
+- `/admin/health` 已切换为按别名聚合视图，包含 provider/modality/status 筛选、检查入口与高风险统计
+- L3 质量检查采用“非空文本”判定；调度器在最终检查通过后可自动恢复非 ACTIVE 通道
+- `/admin/operations` 已展示 Sync 与推断汇总、provider 明细与错误列表，手动“执行同步/执行推断”可触发后台任务
+- EN/CN 切换下运维页与 Sidebar 新增文案正常，无明显硬编码残留
 
 ## U1 验收结论
 - 详情 API 返回真实 balance、lastActive、projects、transactions 分页
