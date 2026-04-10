@@ -5,6 +5,8 @@ type: project
 ---
 ## 当前批次
 - CI1-test-infrastructure：`fixing`
+- `reverifying` round 1 失败：3 个脚本统一报 Prisma `providerId_modelId_realModelId` 无效（upsert where 键名与当前 schema 不匹配）
+- CI1-test-infrastructure：`fixing`
 - `verifying` 首轮失败：3 个改造脚本均因 `MOCK_BASE is not defined` 报错，已回退 F-CI1-01/F-CI1-02 为 pending
 - O1-admin-ops-monitoring：`done`
 - `verifying` 首轮签收通过，健康页按别名分组、L3 简化/自动恢复、同步运维面板与 i18n 验收完成
