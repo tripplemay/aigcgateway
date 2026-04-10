@@ -33,6 +33,14 @@ interface LoginRecord {
   createdAt: string;
 }
 
+interface ProjectDetail {
+  id: string;
+  name: string;
+  description: string | null;
+  createdAt: string;
+  stats: { keyCount: number; callCount: number };
+}
+
 function parseUserAgent(ua: string | null): string {
   if (!ua) return "—";
   if (ua.includes("Chrome")) return "Chrome";
@@ -47,291 +55,34 @@ function parseUserAgent(ua: string | null): string {
 // Component
 // ============================================================
 
-// ============================================================
-// Project Tab
-// ============================================================
-
-interface ProjectDetail {
-  id: string;
-  name: string;
-  description: string | null;
-  createdAt: string;
-  stats: { keyCount: number; callCount: number };
-}
-
-function ProjectTab() {
-  const t = useTranslations("settings");
-  const router = useRouter();
-  const { current, projects, select, refresh } = useProject();
-  const [projName, setProjName] = useState("");
-  const [projDesc, setProjDesc] = useState("");
-  const [initialized, setInitialized] = useState(false);
-  const [saving, setSaving] = useState(false);
-  const [deleteConfirm, setDeleteConfirm] = useState("");
-  const [deleting, setDeleting] = useState(false);
-  const nameInputRef = useRef<HTMLInputElement>(null);
-  const descInputRef = useRef<HTMLTextAreaElement>(null);
-  const saveBtnRef = useRef<HTMLButtonElement>(null);
-
-  const { data: detail, refetch } = useAsyncData<ProjectDetail>(async () => {
-    if (!current) return null as unknown as ProjectDetail;
-    return apiFetch<ProjectDetail>(`/api/projects/${current.id}`);
-  }, [current?.id]);
-
-  useEffect(() => {
-    if (detail && !initialized) {
-      setProjName(detail.name);
-      setProjDesc(detail.description ?? "");
-      setInitialized(true);
-    }
-  }, [detail, initialized]);
-
-  // Reset init flag when switching projects
-  useEffect(() => {
-    setInitialized(false);
-  }, [current?.id]);
-
-  // Use refs to always capture latest state for the native DOM listener
-  const currentRef = useRef(current);
-  currentRef.current = current;
-  const projNameRef = useRef(projName);
-  projNameRef.current = projName;
-  const projDescRef = useRef(projDesc);
-  projDescRef.current = projDesc;
-
-  const doSaveProject = useCallback(() => {
-    const proj = currentRef.current;
-    if (!proj) return;
-    const nameValue = nameInputRef.current?.value ?? projNameRef.current;
-    const descValue = descInputRef.current?.value ?? projDescRef.current;
-    setSaving(true);
-    const token = localStorage.getItem("token");
-    fetch(`/api/projects/${proj.id}`, {
-      method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-        ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      },
-      body: JSON.stringify({ name: nameValue, description: descValue }),
-    })
-      .then((res) => {
-        if (!res.ok) throw new Error(`Request failed: ${res.status}`);
-        return res.json();
-      })
-      .then(() => {
-        toast.success(t("projectUpdated"));
-        setProjName(nameValue);
-        setProjDesc(descValue);
-        refresh();
-        refetch();
-      })
-      .catch((e: unknown) => {
-        toast.error((e as Error).message);
-      })
-      .finally(() => {
-        setSaving(false);
-      });
-  }, [t, refresh, refetch]);
-
-  // Attach native DOM click listener — same proven pattern as Account tab
-  useEffect(() => {
-    const btn = saveBtnRef.current;
-    if (!btn) return;
-    const handler = (e: Event) => {
-      e.preventDefault();
-      doSaveProject();
-    };
-    btn.addEventListener("click", handler);
-    return () => btn.removeEventListener("click", handler);
-  }, [doSaveProject]);
-
-  const deleteProject = async () => {
-    if (!current || deleteConfirm !== current.name) return;
-    setDeleting(true);
-    try {
-      await apiFetch(`/api/projects/${current.id}`, { method: "DELETE" });
-      toast.success(t("projectDeleted"));
-      // Switch to another project or go to dashboard
-      const remaining = projects.filter((p) => p.id !== current.id);
-      if (remaining.length > 0) {
-        select(remaining[0].id);
-      }
-      refresh();
-      router.push("/dashboard");
-    } catch (e) {
-      toast.error((e as Error).message);
-    } finally {
-      setDeleting(false);
-    }
-  };
-
-  if (!current) {
-    return (
-      <div className="text-center py-20 text-ds-on-surface-variant">{t("noProjectSelected")}</div>
-    );
-  }
-
-  return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-      {/* Left: Project Info */}
-      <div className="lg:col-span-2 space-y-8">
-        <section className="bg-ds-surface-container-lowest rounded-xl p-8 shadow-sm">
-          <div className="flex items-center gap-4 mb-8">
-            <div className="w-12 h-12 rounded-xl bg-indigo-50 flex items-center justify-center text-ds-primary">
-              <span
-                className="material-symbols-outlined"
-                style={{ fontVariationSettings: "'FILL' 1" }}
-              >
-                folder_managed
-              </span>
-            </div>
-            <div>
-              <h2 className="text-xl font-bold font-[var(--font-heading)]">{t("projectInfo")}</h2>
-              <p className="text-sm text-ds-on-surface-variant">{t("projectInfoDesc")}</p>
-            </div>
-          </div>
-          <div className="space-y-6">
-            <div className="space-y-2">
-              <label className="text-xs font-bold uppercase tracking-wider text-ds-on-surface-variant ml-1">
-                {t("projectName")}
-              </label>
-              <input
-                ref={nameInputRef}
-                className="w-full bg-white border-b-2 border-ds-outline-variant/30 focus:border-ds-primary px-1 py-3 transition-colors outline-none font-medium"
-                value={projName}
-                onChange={(e) => setProjName(e.target.value)}
-              />
-            </div>
-            <div className="space-y-2">
-              <label className="text-xs font-bold uppercase tracking-wider text-ds-on-surface-variant ml-1">
-                {t("projectDescription")}
-              </label>
-              <textarea
-                ref={descInputRef}
-                className="w-full bg-white border-b-2 border-ds-outline-variant/30 focus:border-ds-primary px-1 py-3 transition-colors outline-none font-medium resize-none"
-                rows={3}
-                value={projDesc}
-                onChange={(e) => setProjDesc(e.target.value)}
-                placeholder={t("projectDescPlaceholder")}
-              />
-            </div>
-            <div className="flex justify-end pt-4">
-              <button
-                ref={saveBtnRef}
-                type="button"
-                disabled={saving}
-                data-testid="save-project-btn"
-                className="px-6 py-2.5 bg-ds-primary text-white font-semibold rounded-lg hover:bg-ds-primary-container transition-all active:scale-95 shadow-lg shadow-ds-primary/10 disabled:opacity-60"
-              >
-                {saving ? t("saving") : t("saveChanges")}
-              </button>
-            </div>
-          </div>
-        </section>
-
-        {/* Statistics */}
-        <section className="bg-ds-surface-container-lowest rounded-xl p-8 shadow-sm">
-          <div className="flex items-center gap-4 mb-8">
-            <div className="w-12 h-12 rounded-xl bg-ds-primary-container/20 flex items-center justify-center text-ds-primary">
-              <span
-                className="material-symbols-outlined"
-                style={{ fontVariationSettings: "'FILL' 1" }}
-              >
-                bar_chart
-              </span>
-            </div>
-            <div>
-              <h2 className="text-xl font-bold font-[var(--font-heading)]">{t("projectStats")}</h2>
-              <p className="text-sm text-ds-on-surface-variant">{t("projectStatsDesc")}</p>
-            </div>
-          </div>
-          <div className="grid grid-cols-2 gap-6">
-            <div className="bg-ds-surface-container-low rounded-xl p-6">
-              <p className="text-xs font-bold uppercase tracking-wider text-ds-on-surface-variant mb-2">
-                {t("apiKeyCount")}
-              </p>
-              <p className="text-3xl font-black text-ds-on-surface font-[var(--font-heading)]">
-                {detail?.stats.keyCount ?? "—"}
-              </p>
-            </div>
-            <div className="bg-ds-surface-container-low rounded-xl p-6">
-              <p className="text-xs font-bold uppercase tracking-wider text-ds-on-surface-variant mb-2">
-                {t("callCount")}
-              </p>
-              <p className="text-3xl font-black text-ds-on-surface font-[var(--font-heading)]">
-                {detail?.stats.callCount ?? "—"}
-              </p>
-            </div>
-          </div>
-        </section>
-      </div>
-
-      {/* Right: Danger Zone */}
-      <div className="space-y-8">
-        <section className="bg-ds-error-container/20 rounded-xl p-8 relative overflow-hidden">
-          <div className="relative z-10">
-            <h2 className="text-xl font-bold font-[var(--font-heading)] text-ds-on-error-container mb-2">
-              {t("dangerZone")}
-            </h2>
-            <p className="text-sm text-ds-on-error-container/70 mb-6">{t("deleteProjectDesc")}</p>
-            <div className="space-y-3">
-              <label className="text-xs font-bold uppercase tracking-wider text-ds-on-error-container/70">
-                {t("typeProjectName", { name: current.name })}
-              </label>
-              <input
-                className="w-full bg-white/80 border-2 border-ds-error/20 rounded-lg px-4 py-2.5 outline-none focus:border-ds-error text-sm"
-                value={deleteConfirm}
-                onChange={(e) => setDeleteConfirm(e.target.value)}
-                placeholder={current.name}
-              />
-              <button
-                type="button"
-                onClick={deleteProject}
-                disabled={deleteConfirm !== current.name || deleting}
-                className="w-full py-3 bg-ds-error text-white font-bold rounded-lg shadow-lg shadow-ds-error/20 hover:opacity-90 transition-opacity active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed"
-              >
-                {deleting ? t("deletingProject") : t("deleteProject")}
-              </button>
-            </div>
-          </div>
-          <div className="absolute -right-4 -bottom-4 opacity-5 pointer-events-none">
-            <span
-              className="material-symbols-outlined text-8xl"
-              style={{ fontVariationSettings: "'FILL' 1" }}
-            >
-              delete_forever
-            </span>
-          </div>
-        </section>
-      </div>
-    </div>
-  );
-}
-
-// ============================================================
-// Main Settings Page
-// ============================================================
-
 export default function SettingsPage() {
   const t = useTranslations("settings");
   const ta = useTranslations("auth");
   const locale = useLocale();
   const router = useRouter();
-  const { loading: projLoading } = useProject();
+  const { current, projects, select, refresh, loading: projLoading } = useProject();
   const [activeTab, setActiveTab] = useState<"account" | "project">("account");
 
+  // ── Account tab state ──
   const [name, setName] = useState("");
   const [nameInitialized, setNameInitialized] = useState(false);
   const [oldPassword, setOldPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
+  // ── Project tab state ──
+  const [projName, setProjName] = useState("");
+  const [projDesc, setProjDesc] = useState("");
+  const [projInitialized, setProjInitialized] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [deleteConfirm, setDeleteConfirm] = useState("");
+  const [deleting, setDeleting] = useState(false);
+
   // ── Data: profile ──
   const { data: profile, refetch: refetchProfile } = useAsyncData<Profile>(async () => {
     return apiFetch<Profile>("/api/auth/profile");
   }, []);
 
-  // Sync name from profile data only once on initial load
   useEffect(() => {
     if (profile && !nameInitialized) {
       setName(profile.name ?? "");
@@ -345,9 +96,31 @@ export default function SettingsPage() {
   }, []);
 
   const loginHistory = historyData?.data ?? [];
+
+  // ── Data: project detail ──
+  const { data: projectDetail, refetch: refetchProject } = useAsyncData<ProjectDetail>(
+    async () => {
+      if (!current) return null as unknown as ProjectDetail;
+      return apiFetch<ProjectDetail>(`/api/projects/${current.id}`);
+    },
+    [current?.id],
+  );
+
+  useEffect(() => {
+    if (projectDetail && !projInitialized) {
+      setProjName(projectDetail.name);
+      setProjDesc(projectDetail.description ?? "");
+      setProjInitialized(true);
+    }
+  }, [projectDetail, projInitialized]);
+
+  useEffect(() => {
+    setProjInitialized(false);
+  }, [current?.id]);
+
+  // ── Account: save name (native DOM listener — proven pattern) ──
   const nameRef = useRef(name);
   nameRef.current = name;
-
   const saveBtnRef = useRef<HTMLButtonElement>(null);
 
   const doSaveName = useCallback(() => {
@@ -371,7 +144,6 @@ export default function SettingsPage() {
       });
   }, [t, refetchProfile]);
 
-  // Attach native DOM click listener to bypass React synthetic events
   useEffect(() => {
     const btn = saveBtnRef.current;
     if (!btn) return;
@@ -383,6 +155,38 @@ export default function SettingsPage() {
     return () => btn.removeEventListener("click", handler);
   }, [doSaveName]);
 
+  // ── Project: save via form submit ──
+  const handleProjectSave = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!current || saving) return;
+    setSaving(true);
+    const token = localStorage.getItem("token");
+    fetch(`/api/projects/${current.id}`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+      body: JSON.stringify({ name: projName, description: projDesc }),
+    })
+      .then((res) => {
+        if (!res.ok) throw new Error(`Request failed: ${res.status}`);
+        return res.json();
+      })
+      .then(() => {
+        toast.success(t("projectUpdated"));
+        refresh();
+        refetchProject();
+      })
+      .catch((e: unknown) => {
+        toast.error((e as Error).message);
+      })
+      .finally(() => {
+        setSaving(false);
+      });
+  };
+
+  // ── Account: change password ──
   const changePassword = async () => {
     if (newPassword.length < 8) {
       toast.error(ta("passwordMin"));
@@ -406,6 +210,26 @@ export default function SettingsPage() {
     }
   };
 
+  // ── Project: delete ──
+  const deleteProject = async () => {
+    if (!current || deleteConfirm !== current.name) return;
+    setDeleting(true);
+    try {
+      await apiFetch(`/api/projects/${current.id}`, { method: "DELETE" });
+      toast.success(t("projectDeleted"));
+      const remaining = projects.filter((p) => p.id !== current.id);
+      if (remaining.length > 0) {
+        select(remaining[0].id);
+      }
+      refresh();
+      router.push("/dashboard");
+    } catch (e) {
+      toast.error((e as Error).message);
+    } finally {
+      setDeleting(false);
+    }
+  };
+
   if (projLoading)
     return (
       <div className="space-y-4 pt-4">
@@ -414,7 +238,7 @@ export default function SettingsPage() {
       </div>
     );
 
-  // ── Render — 1:1 replica of design-draft/settings/code.html lines 181-296 ──
+  // ── Render ──
   return (
     <div className="max-w-5xl mx-auto">
       {/* Header */}
@@ -443,14 +267,158 @@ export default function SettingsPage() {
         ))}
       </div>
 
-      {/* Account Tab */}
+      {/* ═══ Project Tab ═══ */}
       {activeTab === "project" ? (
-        <ProjectTab />
+        !current ? (
+          <div className="text-center py-20 text-ds-on-surface-variant">
+            {t("noProjectSelected")}
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            {/* Left: Project Info */}
+            <div className="lg:col-span-2 space-y-8">
+              <form onSubmit={handleProjectSave}>
+                <section className="bg-ds-surface-container-lowest rounded-xl p-8 shadow-sm">
+                  <div className="flex items-center gap-4 mb-8">
+                    <div className="w-12 h-12 rounded-xl bg-indigo-50 flex items-center justify-center text-ds-primary">
+                      <span
+                        className="material-symbols-outlined"
+                        style={{ fontVariationSettings: "'FILL' 1" }}
+                      >
+                        folder_managed
+                      </span>
+                    </div>
+                    <div>
+                      <h2 className="text-xl font-bold font-[var(--font-heading)]">
+                        {t("projectInfo")}
+                      </h2>
+                      <p className="text-sm text-ds-on-surface-variant">{t("projectInfoDesc")}</p>
+                    </div>
+                  </div>
+                  <div className="space-y-6">
+                    <div className="space-y-2">
+                      <label className="text-xs font-bold uppercase tracking-wider text-ds-on-surface-variant ml-1">
+                        {t("projectName")}
+                      </label>
+                      <input
+                        className="w-full bg-white border-b-2 border-ds-outline-variant/30 focus:border-ds-primary px-1 py-3 transition-colors outline-none font-medium"
+                        value={projName}
+                        onChange={(e) => setProjName(e.target.value)}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-xs font-bold uppercase tracking-wider text-ds-on-surface-variant ml-1">
+                        {t("projectDescription")}
+                      </label>
+                      <textarea
+                        className="w-full bg-white border-b-2 border-ds-outline-variant/30 focus:border-ds-primary px-1 py-3 transition-colors outline-none font-medium resize-none"
+                        rows={3}
+                        value={projDesc}
+                        onChange={(e) => setProjDesc(e.target.value)}
+                        placeholder={t("projectDescPlaceholder")}
+                      />
+                    </div>
+                    <div className="flex justify-end pt-4">
+                      <button
+                        type="submit"
+                        disabled={saving}
+                        data-testid="save-project-btn"
+                        className="px-6 py-2.5 bg-ds-primary text-white font-semibold rounded-lg hover:bg-ds-primary-container transition-all active:scale-95 shadow-lg shadow-ds-primary/10 disabled:opacity-60"
+                      >
+                        {saving ? t("saving") : t("saveChanges")}
+                      </button>
+                    </div>
+                  </div>
+                </section>
+              </form>
+
+              {/* Statistics */}
+              <section className="bg-ds-surface-container-lowest rounded-xl p-8 shadow-sm">
+                <div className="flex items-center gap-4 mb-8">
+                  <div className="w-12 h-12 rounded-xl bg-ds-primary-container/20 flex items-center justify-center text-ds-primary">
+                    <span
+                      className="material-symbols-outlined"
+                      style={{ fontVariationSettings: "'FILL' 1" }}
+                    >
+                      bar_chart
+                    </span>
+                  </div>
+                  <div>
+                    <h2 className="text-xl font-bold font-[var(--font-heading)]">
+                      {t("projectStats")}
+                    </h2>
+                    <p className="text-sm text-ds-on-surface-variant">{t("projectStatsDesc")}</p>
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-6">
+                  <div className="bg-ds-surface-container-low rounded-xl p-6">
+                    <p className="text-xs font-bold uppercase tracking-wider text-ds-on-surface-variant mb-2">
+                      {t("apiKeyCount")}
+                    </p>
+                    <p className="text-3xl font-black text-ds-on-surface font-[var(--font-heading)]">
+                      {projectDetail?.stats.keyCount ?? "—"}
+                    </p>
+                  </div>
+                  <div className="bg-ds-surface-container-low rounded-xl p-6">
+                    <p className="text-xs font-bold uppercase tracking-wider text-ds-on-surface-variant mb-2">
+                      {t("callCount")}
+                    </p>
+                    <p className="text-3xl font-black text-ds-on-surface font-[var(--font-heading)]">
+                      {projectDetail?.stats.callCount ?? "—"}
+                    </p>
+                  </div>
+                </div>
+              </section>
+            </div>
+
+            {/* Right: Danger Zone */}
+            <div className="space-y-8">
+              <section className="bg-ds-error-container/20 rounded-xl p-8 relative overflow-hidden">
+                <div className="relative z-10">
+                  <h2 className="text-xl font-bold font-[var(--font-heading)] text-ds-on-error-container mb-2">
+                    {t("dangerZone")}
+                  </h2>
+                  <p className="text-sm text-ds-on-error-container/70 mb-6">
+                    {t("deleteProjectDesc")}
+                  </p>
+                  <div className="space-y-3">
+                    <label className="text-xs font-bold uppercase tracking-wider text-ds-on-error-container/70">
+                      {t("typeProjectName", { name: current.name })}
+                    </label>
+                    <input
+                      className="w-full bg-white/80 border-2 border-ds-error/20 rounded-lg px-4 py-2.5 outline-none focus:border-ds-error text-sm"
+                      value={deleteConfirm}
+                      onChange={(e) => setDeleteConfirm(e.target.value)}
+                      placeholder={current.name}
+                    />
+                    <button
+                      type="button"
+                      onClick={deleteProject}
+                      disabled={deleteConfirm !== current.name || deleting}
+                      className="w-full py-3 bg-ds-error text-white font-bold rounded-lg shadow-lg shadow-ds-error/20 hover:opacity-90 transition-opacity active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed"
+                    >
+                      {deleting ? t("deletingProject") : t("deleteProject")}
+                    </button>
+                  </div>
+                </div>
+                <div className="absolute -right-4 -bottom-4 opacity-5 pointer-events-none">
+                  <span
+                    className="material-symbols-outlined text-8xl"
+                    style={{ fontVariationSettings: "'FILL' 1" }}
+                  >
+                    delete_forever
+                  </span>
+                </div>
+              </section>
+            </div>
+          </div>
+        )
       ) : (
+        /* ═══ Account Tab ═══ */
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* ═══ Left Column (col-span-2) ═══ */}
+          {/* Left Column */}
           <div className="lg:col-span-2 space-y-8">
-            {/* Profile Card — code.html lines 189-218 */}
+            {/* Profile Card */}
             <section className="bg-ds-surface-container-lowest rounded-xl p-8 shadow-sm">
               <div className="flex items-center gap-4 mb-8">
                 <div className="w-12 h-12 rounded-xl bg-indigo-50 flex items-center justify-center text-ds-primary">
@@ -511,7 +479,7 @@ export default function SettingsPage() {
               </div>
             </section>
 
-            {/* Login History — Table component */}
+            {/* Login History */}
             <section className="bg-ds-surface-container-lowest rounded-xl shadow-sm overflow-hidden">
               <div className="p-8 pb-4">
                 <div className="flex items-center gap-4">
@@ -566,9 +534,9 @@ export default function SettingsPage() {
             </section>
           </div>
 
-          {/* ═══ Right Column ═══ */}
+          {/* Right Column */}
           <div className="space-y-8">
-            {/* Change Password — code.html lines 248-269 */}
+            {/* Change Password */}
             <section className="bg-ds-surface-container-lowest rounded-xl p-8 shadow-sm">
               <div className="mb-8">
                 <h2 className="text-xl font-bold font-[var(--font-heading)] mb-1">
@@ -609,7 +577,7 @@ export default function SettingsPage() {
               </div>
             </section>
 
-            {/* Sign Out — code.html lines 272-283 */}
+            {/* Sign Out */}
             <section className="bg-ds-error-container/20 rounded-xl p-8 relative overflow-hidden">
               <div className="relative z-10">
                 <h2 className="text-xl font-bold font-[var(--font-heading)] text-ds-on-error-container mb-2">
