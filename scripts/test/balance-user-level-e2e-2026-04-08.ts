@@ -134,10 +134,9 @@ async function ensureMockProvider(): Promise<RestoreState> {
 
   await prisma.channel.upsert({
     where: {
-      providerId_modelId_realModelId: {
+      providerId_modelId: {
         providerId: provider.id,
         modelId: model.id,
-        realModelId: "gpt-4o-mini",
       },
     },
     update: {
