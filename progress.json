@@ -1,11 +1,11 @@
 {
-  "status": "reverifying",
+  "status": "fixing",
   "user_goal": "CI1 — 测试基础设施升级（Mock 复用 + 测试工厂 + Vitest + CI pipeline）",
   "total_features": 5,
   "completed_features": 4,
   "fix_rounds": 8,
   "current_sprint": null,
-  "last_updated": "2026-04-11T07:07:00.000Z",
+  "last_updated": "2026-04-10T23:14:00Z",
   "reference_docs": [],
   "role_assignments": null,
   "docs": {
@@ -14,7 +14,20 @@
     "signoff": null,
     "framework_reviewed": false
   },
-  "evaluator_feedback": null,
+  "evaluator_feedback": {
+    "round": 8,
+    "result": "FAIL",
+    "report": "docs/test-reports/mcp-dx-round2-local-e2e-2026-04-06.json, docs/test-reports/mcp-finops-hardening-verifying-local-e2e-2026-04-07.json, docs/test-reports/security-billing-polish-reverifying-local-e2e-2026-04-07.json",
+    "summary": "DATABASE_URL 对齐问题已修复（不再出现 user not found），但 3 个脚本仍因模型不可用与过时断言失败。",
+    "blocking_issues": [
+      "脚本断言与当前 MCP 实现不一致：tools/list 仍硬编码 13，实际为 28。",
+      "本地模型可用性前置不满足：openai/gpt-4o-mini 与 openai/dall-e-3 在执行中均出现 model_not_found，导致动作/模板/计费链路用例失败。"
+    ],
+    "required_fixes": [
+      "将 tools/list 断言改为 required subset 校验，避免数量硬编码。",
+      "在脚本前置阶段建立稳定模型条件（或改造断言以适配当前本地 mock/seed 行为），确保 list_models 非空并包含测试目标模型。"
+    ]
+  },
   "generator_handoff": {
     "completed": ["F-CI1-01", "F-CI1-02", "F-CI1-03", "F-CI1-04"],
     "codex_pending": ["F-CI1-05"],
@@ -23,6 +36,6 @@
   "session_notes": {
     "Kimi": "Fix round 8: Evaluator round7 报告明确证实 DATABASE_URL 不一致（脚本 shell 中为空，.env 指向 aigc_gateway，服务指向 aigc_gateway_test）。新增 tests/helpers/load-test-env.ts 在脚本启动时解析 codex-env.sh 并设置环境变量。3 个脚本顶部加 import 确保 PrismaClient 连正确的测试库。",
     "Planner": "本轮 Planner 长会话产出：1) P5 设计稿+启动；2) M1 spec+拆4子批次(M1a~M1d)全部签收；3) K1 spec(API Key 用户级)+启动+签收；4) U1 spec(用户详情页)+启动+签收；5) L1(LLM 健壮性)+MCP2(工具增强)+A1(数据质量)+T1(模板)+N1(UI导航)+O1(运维)+CI1(测试基础设施) 启动；6) 多次生产环境诊断（capabilities 超时、modality 全 TEXT、brand 重复）；7) 新增 backlog BL-099~105（删除服务商/Keys精简/运维提示/supportedSizes+capabilities统一/千位分隔符/项目切换/假内容清理）。CI1 当前 fixing round 4，问题是旧脚本未适配 K1 数据模型。",
-    "Reviewer": "CI1 round7 复验完成：3 个 E2E 脚本统一在 registerAndLogin 失败（user not found in database）。本轮关键证据：脚本 shell 的 DATABASE_URL 为空，.env 指向开发库 aigc_gateway，而 codex-setup 服务使用测试库 aigc_gateway_test。报告：docs/test-reports/CI1-test-infrastructure-reverifying-round7-2026-04-11.md。状态回退 fixing。"
+    "Reviewer": "CI1 round8 复验完成：数据库连接错位问题已解除（registerAndLogin 不再失败），3 个脚本进入主体执行但仍 FAIL。主要阻塞为模型不可用（gpt-4o-mini/dall-e-3 model_not_found）和过时断言（tools/list 期望 13 实际 28）。状态回退 fixing。"
   }
 }
