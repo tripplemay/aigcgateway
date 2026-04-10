@@ -1,11 +1,11 @@
 {
-  "status": "reverifying",
+  "status": "fixing",
   "user_goal": "CI1 — 测试基础设施升级（Mock 复用 + 测试工厂 + Vitest + CI pipeline）",
   "total_features": 5,
   "completed_features": 4,
   "fix_rounds": 10,
   "current_sprint": null,
-  "last_updated": "2026-04-11T07:40:00.000Z",
+  "last_updated": "2026-04-10T23:44:38Z",
   "reference_docs": [],
   "role_assignments": null,
   "docs": {
@@ -14,7 +14,20 @@
     "signoff": null,
     "framework_reviewed": false
   },
-  "evaluator_feedback": null,
+  "evaluator_feedback": {
+    "round": 10,
+    "result": "FAIL",
+    "report": "docs/test-reports/CI1-test-infrastructure-reverifying-round10-2026-04-11.md",
+    "summary": "vitest 与 mcp-finops-hardening 已通过，但 mcp-dx-round2 与 security-billing-polish 仍存在 provider_error 与断言失败。",
+    "blocking_issues": [
+      "mcp-dx-round2: core tools smoke 出现 provider_error(fetch failed)；rate-limit case 仍判失败。",
+      "security-billing-polish: generate_image invalid size case 未稳定命中错误分支；chat 扣费 case 出现 provider_error(fetch failed)。"
+    ],
+    "required_fixes": [
+      "排查并稳定本地 mock provider 路由链路，避免 chat/image 用例落到 provider_error。",
+      "修正 remaining 断言逻辑（尤其 rate-limit case），确保与实际返回一致。"
+    ]
+  },
   "generator_handoff": {
     "completed": ["F-CI1-01", "F-CI1-02", "F-CI1-03", "F-CI1-04"],
     "codex_pending": ["F-CI1-05"],
@@ -23,6 +36,6 @@
   "session_notes": {
     "Kimi": "Fix round 10: mcp-finops-hardening 已全通过。修复剩余 6 个断言漂移：tools description 改通用检查、list_models 不检查 capabilities/channels（当前实现无此字段）、rate limit 匹配放宽、empty prompt 不强制 4xx、MIN_CHARGE 只验证扣费发生。这些都是旧脚本与产品迭代的断言漂移，非 CI1 改造引入。",
     "Planner": "本轮 Planner 长会话产出：1) P5 设计稿+启动；2) M1 spec+拆4子批次(M1a~M1d)全部签收；3) K1 spec(API Key 用户级)+启动+签收；4) U1 spec(用户详情页)+启动+签收；5) L1(LLM 健壮性)+MCP2(工具增强)+A1(数据质量)+T1(模板)+N1(UI导航)+O1(运维)+CI1(测试基础设施) 启动；6) 多次生产环境诊断（capabilities 超时、modality 全 TEXT、brand 重复）；7) 新增 backlog BL-099~105（删除服务商/Keys精简/运维提示/supportedSizes+capabilities统一/千位分隔符/项目切换/假内容清理）。CI1 当前 fixing round 4，问题是旧脚本未适配 K1 数据模型。",
-    "Reviewer": "CI1 round9 复验完成：vitest 11/11 通过，mcp-finops-hardening 9/9 通过；mcp-dx-round2 仍 4 失败，security-billing-polish 仍 2 失败。并发跑脚本会触发 aliasModelLink P2002 噪音，串行后未复现。报告：docs/test-reports/CI1-test-infrastructure-reverifying-round9-2026-04-11.md。状态回退 fixing。"
+    "Reviewer": "CI1 round10 复验完成：vitest 11/11 通过，mcp-finops-hardening 9/9 通过；mcp-dx-round2 9/11、security-billing-polish 3/5，仍未签收。主要阻塞为 provider_error(fetch failed) 与剩余断言失败。报告：docs/test-reports/CI1-test-infrastructure-reverifying-round10-2026-04-11.md。状态回退 fixing。"
   }
 }

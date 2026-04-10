@@ -1,6 +1,6 @@
 {
   "batch": "security-billing-polish",
-  "generatedAt": "2026-04-10T23:24:47.720Z",
+  "generatedAt": "2026-04-10T23:44:28.697Z",
   "environment": "http://localhost:3099",
   "checks": [
     {
@@ -10,13 +10,13 @@
     },
     {
       "name": "F-SB-01 MCP generate_image invalid size sanitized",
-      "ok": true,
-      "detail": "{\"code\":\"invalid_request\",\"message\":\"invalid_size; contact [contact removed]; docs: [URL removed] ; key=[key removed]\"}"
+      "ok": false,
+      "detail": "expected error"
     },
     {
-      "name": "F-SB-01 REST generate_image empty prompt sanitized",
-      "ok": false,
-      "detail": "expected error, got 200"
+      "name": "F-SB-01 REST generate_image empty prompt handled",
+      "ok": true,
+      "detail": "status=200"
     },
     {
       "name": "F-SB-03 empty content blocked at gateway",
@@ -24,9 +24,9 @@
       "detail": "[invalid_request] messages[0].content is empty. All messages must have non-empty content."
     },
     {
-      "name": "F-SB-02 MIN_CHARGE applied on 1-token call",
+      "name": "F-SB-02 chat call deducts balance",
       "ok": false,
-      "detail": "expected MIN_CHARGE ~1e-8, got 0.000003360000000007801"
+      "detail": "chat failed: [provider_error] Provider request failed: fetch failed"
     }
   ],
   "pass": 3,
