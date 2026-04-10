@@ -47,7 +47,7 @@
       "title": "N1 全量验收",
       "priority": "high",
       "executor": "codex",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "1) Sidebar 分组显示正确（用户侧 3 组 + Admin 侧 3 组）；2) Docs 入口在 sidebar 可用，topbar 无旧链接；3) Settings Project tab 可编辑/删除项目；4) Keys 页面无统计卡，创建按钮在表格旁；5) DS token 一致；6) i18n 无残留；7) 签收报告生成"
     }
   ]

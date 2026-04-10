@@ -1,17 +1,17 @@
 {
-  "status": "reverifying",
+  "status": "done",
   "user_goal": "N1 — UI/导航打磨（Sidebar 分组 + Docs 入口 + Settings Project tab + Keys 精简）",
   "total_features": 6,
-  "completed_features": 5,
+  "completed_features": 6,
   "fix_rounds": 5,
   "current_sprint": null,
-  "last_updated": "2026-04-10T12:00:00Z",
+  "last_updated": "2026-04-10T10:20:00Z",
   "reference_docs": [],
   "role_assignments": null,
   "docs": {
     "spec": null,
     "test_cases": null,
-    "signoff": null,
+    "signoff": "docs/test-reports/N1-ui-navigation-polish-signoff-2026-04-10.md",
     "framework_reviewed": true
   },
   "evaluator_feedback": null,
@@ -19,6 +19,6 @@
   "session_notes": {
     "Kimi": "Fix round 5: 根因是 CSS z-index 层叠问题——sidebar fixed z-40 的 pointer events 拦截了内容区的点击。Playwright E2E 诊断确认了这一点。修复：layout.tsx 内容区 div 加 relative z-[41]，确保层叠高于 sidebar。本地 Playwright 测试 PASS（1280x720 视口，无 force，PATCH 成功发出并落库）。附 E2E 脚本 scripts/test/n1-save-verify.ts 供 Evaluator 运行。",
     "Planner": "T1 done + N1 启动。BL-091+BL-079+BL-100 合并为 5 generator + 1 codex。Sidebar 分组、Docs 移入 sidebar、Settings Project tab、Keys 页精简。从 backlog 移除 3 条。",
-    "Reviewer": "按用户指定严格流程完成 Round 4 复验（pull/log/clean/build/setup/wait），HEAD 实测为 a3cdf99。复测结论仍 FAIL：/settings Project tab 点击 Save Changes 后仍未触发 PATCH /api/projects/:id。Network 无 PATCH，请求未发出，GET 仍旧值。已新增 round4-rerun 报告并更新 fixing 反馈。"
+    "Reviewer": "N1 Round 5 复验通过并签收。按严格流程重建环境后，执行 scripts/test/n1-save-verify.ts 得到 PASS，确认 Save 点击会发出 PATCH 且数据落库；同时回归检查 Sidebar 分组、Docs 入口、Topbar 旧链接移除、Keys 页面精简与 CN/EN 文案均通过。已生成 signoff 报告并置 done。"
   }
 }

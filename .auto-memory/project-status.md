@@ -4,10 +4,8 @@ description: AIGC Gateway 当前状态快照（覆盖写，≤30 行）
 type: project
 ---
 ## 当前批次
-- N1-ui-navigation-polish：`fixing`
-- `verifying` 首轮未通过，`reverifying` round 1~4 均未通过
-- 阻断项未修复：Settings Project tab 点击保存未触发 PATCH，请求未发出
-- 已按用户指定严格流程（pull/log/clean/build/setup/wait）在 `a3cdf99` 再复验，仍复现
+- N1-ui-navigation-polish：`done`
+- `reverifying` round 5 已签收通过（signoff 已生成）
 - T1-template-experience：`done`
 - `verifying` 首轮签收通过，Admin 模板详情独立路由与用户侧步骤预览 Action 验收完成
 - U1-admin-user-detail：`done`
@@ -30,7 +28,7 @@ type: project
 - Sidebar 已按 Core / Develop / Data / Model Mgmt / Operations / Users 分组，Docs 入口迁入 Sidebar，Top Bar 不再保留旧文档导航
 - Keys 页已移除旧统计卡与 FAB，创建按钮合并到表格 header
 - Settings 页已新增 Account / Project tab，Project tab 可展示项目统计并执行删除
-- 阻断问题：Project tab 点击保存后项目名称与描述未更新，round 4 在清理 `.next` + 重建后仍显示前端未发出 PATCH 请求
+- 修复确认：执行 `scripts/test/n1-save-verify.ts` 为 PASS，已观察到 Save 后发出 PATCH 并成功落库
 
 ## U1 验收结论
 - 详情 API 返回真实 balance、lastActive、projects、transactions 分页
@@ -57,7 +55,7 @@ type: project
 - `fix-alias-modality` / `fix-brand-duplicates` / `fix-alias-context-window` 在生产 `--dry-run` 均为 `0` 待修正
 
 ## 已完成批次
-- R1~R4 / P5 / M1a~M1d / BF / K1 / U1 / L1 / MCP2 / A1 / T1
+- R1~R4 / P5 / M1a~M1d / BF / K1 / U1 / L1 / MCP2 / A1 / T1 / N1
 
 ## Backlog
 - 17 条（BL-065~096），含 2 条 high
