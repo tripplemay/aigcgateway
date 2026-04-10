@@ -12,7 +12,7 @@
 - 启动：`bash scripts/test/codex-setup.sh` + `bash scripts/test/codex-wait.sh`
 - 复验脚本：`scripts/test/m1d-alias-page-polish-reverifying-e2e-2026-04-10.ts`
 - 结果文件：`docs/test-reports/m1d-alias-page-polish-reverifying-e2e-2026-04-10.json`
-- 本次执行时间：`2026-04-10T00:39:32.042Z`
+- 本次执行时间：`2026-04-10T00:47:18.486Z`
 
 ## 结果概览
 - PASS：5
@@ -37,8 +37,8 @@
 
 证据：
 - 动态结果：`infer_updated=0, fill_caps=null, keep_caps={"vision":false,"streaming":false}`
-- 最新实现已包含 `DbNull + JsonNull`（`src/lib/sync/alias-classifier.ts:386-392`），但在本次复验中仍未命中空值别名。
-- 问题推断：空值匹配条件仍有遗漏（可能需要 `Prisma.AnyNull` 或进一步区分写入语义），当前实现仍无法覆盖实际数据。
+- Kimi fix round 5 已将查询策略改为“拉全量后 JS 过滤（`capabilities === null` 或空对象）”，本次复验后仍未填充空值别名。
+- 问题推断：当前 `inferMissingCapabilities()` 的候选筛选或更新写入链路仍存在漏处理，导致空值别名未进入有效更新路径。
 
 ## 结论
 本轮复验未通过，建议 Generator 修复 `inferMissingCapabilities` 的空值匹配逻辑（覆盖 DbNull/NULL 场景）后再次进入 `reverifying`。
