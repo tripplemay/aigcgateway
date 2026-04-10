@@ -7,7 +7,7 @@
       "title": "提取 Mock Server 公共库",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) tests/mocks/provider-server.ts 提供 startMockProvider() 函数；2) 支持 chat/image 两种 mock 响应；3) 至少 3 个现有 E2E 脚本改用公共 mock；4) tsc 通过"
     },
     {
@@ -15,7 +15,7 @@
       "title": "提取 Prisma 测试工厂",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) tests/factories/ 提供 createTestUser/createTestProject/createTestApiKey/createTestChannel 等工厂函数；2) 至少 3 个现有 E2E 脚本改用工厂；3) tsc 通过"
     },
     {
@@ -23,7 +23,7 @@
       "title": "CI pipeline 增加单元测试",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) 安装 Vitest；2) .github/workflows/ci.yml 增加 vitest run 步骤；3) 先覆盖鉴权模块（authenticateApiKey）编写至少 5 个单元测试；4) CI 跑通；5) tsc 通过"
     },
     {
@@ -31,7 +31,7 @@
       "title": "generator.md 新增 CI 检查规则",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) generator.md 新增规则：push 后检查 CI 状态（gh run list），失败优先修复再继续；2) 规则清晰可执行"
     },
     {

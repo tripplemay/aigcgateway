@@ -73,6 +73,27 @@
 - 新功能按 acceptance 标准工作
 - 没有破坏已有功能
 
+### 4.5 CI 检查（每次 push 后必须执行）
+
+每次 `git push origin main` 之后，**必须**检查 CI 运行状态：
+
+```bash
+# 等待 10 秒让 CI 启动，然后检查最新一次运行
+gh run list --limit 3 --branch main
+```
+
+**判断规则：**
+- 如果最新一次运行状态为 `completed / success` → 继续下一个功能
+- 如果状态为 `in_progress` → 等待完成后再检查（可用 `gh run watch`）
+- 如果状态为 `failure` → **立即停止新功能开发**，优先修复 CI 失败：
+  1. 查看失败详情：`gh run view <run-id> --log-failed`
+  2. 修复代码
+  3. 提交并推送修复
+  4. 再次检查 CI 直到通过
+  5. 通过后才继续下一个功能
+
+**铁律：不得在 CI 红色状态下继续开发新功能。CI 失败修复优先级高于一切。**
+
 ### 5. 更新记录
 将 features.json 中该功能的 status 改为 "completed"，更新 progress.json。
 

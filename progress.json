@@ -1,11 +1,11 @@
 {
-  "status": "building",
+  "status": "verifying",
   "user_goal": "CI1 — 测试基础设施升级（Mock 复用 + 测试工厂 + Vitest + CI pipeline）",
   "total_features": 5,
-  "completed_features": 0,
+  "completed_features": 4,
   "fix_rounds": 0,
-  "current_sprint": "F-CI1-01",
-  "last_updated": "2026-04-10T21:00:00.000Z",
+  "current_sprint": null,
+  "last_updated": "2026-04-10T23:15:00.000Z",
   "reference_docs": [],
   "role_assignments": null,
   "docs": {
@@ -15,9 +15,13 @@
     "framework_reviewed": false
   },
   "evaluator_feedback": null,
-  "generator_handoff": null,
+  "generator_handoff": {
+    "completed": ["F-CI1-01", "F-CI1-02", "F-CI1-03", "F-CI1-04"],
+    "codex_pending": ["F-CI1-05"],
+    "notes": "F-CI1-01: tests/mocks/provider-server.ts 提供 startMockProvider()，支持 chat/image/stream/models，3 个脚本已改用公共 mock（mcp-dx-round2, mcp-finops-hardening, security-billing-polish）。F-CI1-02: tests/factories/index.ts 提供 createTestUser/createTestProject/createTestApiKey/createTestChannel/createTestModel，同 3 个脚本已改用工厂。F-CI1-03: vitest 已安装，vitest.config.ts 已创建，CI yml 增加 vitest run 步骤，src/lib/api/auth-middleware.test.ts 含 11 个鉴权单元测试。F-CI1-04: generator.md 新增 4.5 CI 检查规则（push 后必须 gh run list 检查）。"
+  },
   "session_notes": {
-    "Kimi": null,
+    "Kimi": "CI1 building 全部完成。4 个 generator 功能实现：Mock 公共库(startMockProvider+onRequest 扩展)、测试工厂(baseUrl+fetch 自包含)、Vitest+11个鉴权单测、CI 检查规则。3 个脚本(mcp-dx-round2/mcp-finops-hardening/security-billing-polish)已改造。tsc 和 vitest 均通过。",
     "Planner": "O1 done + CI1 启动。BL-092 拆为 4 generator + 1 codex。Mock 公共库+测试工厂+Vitest CI+generator 规则。从 backlog 移除 BL-092。",
     "Reviewer": null
   }

@@ -1,11 +1,11 @@
-import { createServer, type IncomingMessage, type ServerResponse } from "http";
 import { writeFileSync } from "fs";
 import { PrismaClient } from "@prisma/client";
+import { startMockProvider } from "../../tests/mocks/provider-server";
+import { createTestUser, createTestProject, createTestApiKey } from "../../tests/factories";
 
 const BASE = process.env.BASE_URL ?? "http://localhost:3099";
 const MCP_URL = `${BASE}/mcp`;
 const MOCK_PORT = Number(process.env.MOCK_PORT ?? "3313");
-const MOCK_BASE = `http://127.0.0.1:${MOCK_PORT}/v1`;
 const OUTPUT_FILE =
   process.env.OUTPUT_FILE ?? "docs/test-reports/mcp-dx-round2-local-e2e-2026-04-06.json";
 
@@ -27,60 +27,6 @@ type RestoreState = {
 let token = "";
 let projectId = "";
 let apiKey = "";
-const email = `dx2_${Date.now()}@test.com`;
-const password = "Test1234";
-
-function json(res: ServerResponse, status: number, body: unknown) {
-  res.writeHead(status, { "Content-Type": "application/json" });
-  res.end(JSON.stringify(body));
-}
-
-async function readBody(req: IncomingMessage): Promise<string> {
-  const chunks: Buffer[] = [];
-  for await (const chunk of req) {
-    chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk));
-  }
-  return Buffer.concat(chunks).toString("utf8");
-}
-
-function extractPrompt(body: any): string {
-  const lastUser = [...(body.messages ?? [])].reverse().find((m: any) => m?.role === "user");
-  return String(lastUser?.content ?? "");
-}
-
-async function startMockServer() {
-  const server = createServer(async (req, res) => {
-    if (req.method === "POST" && req.url === "/v1/chat/completions") {
-      const text = await readBody(req);
-      const body = JSON.parse(text || "{}");
-      const prompt = extractPrompt(body);
-      const output = `MOCK(${prompt})`;
-
-      json(res, 200, {
-        id: "chatcmpl-mock",
-        object: "chat.completion",
-        created: Math.floor(Date.now() / 1000),
-        model: body.model ?? "openai/gpt-4o-mini",
-        choices: [{ index: 0, message: { role: "assistant", content: output }, finish_reason: "stop" }],
-        usage: { prompt_tokens: 8, completion_tokens: 6, total_tokens: 14 },
-      });
-      return;
-    }
-
-    if (req.method === "POST" && req.url === "/v1/images/generations") {
-      json(res, 200, {
-        created: Math.floor(Date.now() / 1000),
-        data: [{ url: "https://example.com/dx2-mock-image.png" }],
-      });
-      return;
-    }
-
-    json(res, 404, { error: "not_found" });
-  });
-
-  await new Promise<void>((resolve) => server.listen(MOCK_PORT, "127.0.0.1", () => resolve()));
-  return server;
-}
 
 async function api(
   path: string,
@@ -165,38 +111,16 @@ function parseToolJson(result: any): any {
 }
 
 async function registerAndLogin() {
-  await api("/api/auth/register", {
-    method: "POST",
-    auth: "none",
-    expect: 201,
-    body: JSON.stringify({ email, password, name: "DX2 Local Tester" }),
-  });
-  const login = await api("/api/auth/login", {
-    method: "POST",
-    auth: "none",
-    expect: 200,
-    body: JSON.stringify({ email, password }),
-  });
-  token = login.body.token;
+  const user = await createTestUser(BASE, { prefix: "dx2", name: "DX2 Local Tester" });
+  token = user.token;
 }
 
 async function createProjectAndKey() {
-  const projectName = `DX2 Project ${Date.now()}`;
-  const project = await api("/api/projects", {
-    method: "POST",
-    expect: 201,
-    body: JSON.stringify({ name: projectName }),
-  });
-  projectId = String(project.body?.id ?? "");
-  if (!projectId) throw new Error("project id missing");
+  const project = await createTestProject(BASE, token, { name: `DX2 Project ${Date.now()}` });
+  projectId = project.id;
 
-  const key = await api(`/api/projects/${projectId}/keys`, {
-    method: "POST",
-    expect: 201,
-    body: JSON.stringify({ name: "dx2-local-key", rateLimit: 60 }),
-  });
-  apiKey = String(key.body?.key ?? "");
-  if (!apiKey) throw new Error("api key create response missing raw key");
+  const key = await createTestApiKey(BASE, token, projectId, { name: "dx2-local-key" });
+  apiKey = key.key;
 
   await prisma.project.update({
     where: { id: projectId },
@@ -400,7 +324,8 @@ async function step(name: string, results: StepResult[], fn: () => Promise<strin
 
 async function main() {
   const results: StepResult[] = [];
-  const mockServer = await startMockServer();
+  const mockServer = await startMockProvider({ port: MOCK_PORT });
+  const MOCK_BASE = `${mockServer.baseUrl}/v1`;
   const restoreState = await ensureLocalModels();
   let actionId = "";
   let templateId = "";
@@ -463,14 +388,16 @@ async function main() {
       if (data.length > 28) throw new Error(`expected <= 28 models, got ${data.length}`);
 
       const lowered = data.map((m: any) => String(m.name).toLowerCase());
-      if (new Set(lowered).size !== lowered.length) throw new Error("case-insensitive duplicates found");
+      if (new Set(lowered).size !== lowered.length)
+        throw new Error("case-insensitive duplicates found");
 
       for (const m of data) {
         const caps = m.capabilities;
         if (!caps || typeof caps !== "object" || Object.keys(caps).length === 0) {
           throw new Error(`empty capabilities for ${m.name}`);
         }
-        if (String(m.price ?? "").trim() === "$0") throw new Error(`$0 pricing noise for ${m.name}`);
+        if (String(m.price ?? "").trim() === "$0")
+          throw new Error(`$0 pricing noise for ${m.name}`);
         if (m.price === null) throw new Error(`null price for ${m.name}`);
       }
       return `${data.length} deduped models`;
@@ -509,7 +436,9 @@ async function main() {
       parseToolJson(await callTool("get_balance"));
       parseToolJson(await callTool("list_actions"));
       parseToolJson(await callTool("list_templates"));
-      parseToolJson(await callTool("run_action", { action_id: actionId, variables: { topic: "smoke" } }));
+      parseToolJson(
+        await callTool("run_action", { action_id: actionId, variables: { topic: "smoke" } }),
+      );
       parseToolJson(
         await callTool("run_template", { template_id: templateId, variables: { topic: "smoke" } }),
       );
@@ -523,7 +452,9 @@ async function main() {
       traceId = String(chatResult.traceId ?? "");
       if (!traceId) throw new Error("chat traceId missing");
 
-      parseToolJson(await callTool("generate_image", { model: "openai/dall-e-3", prompt: "red cube" }));
+      parseToolJson(
+        await callTool("generate_image", { model: "openai/dall-e-3", prompt: "red cube" }),
+      );
       parseToolJson(await callTool("list_logs", { limit: 5 }));
       parseToolJson(await callTool("get_log_detail", { trace_id: traceId }));
       parseToolJson(await callTool("get_usage_summary", { period: "7d" }));
@@ -538,18 +469,28 @@ async function main() {
       if (!Array.isArray(data.activeVersion.messages) || data.activeVersion.messages.length === 0) {
         throw new Error("activeVersion.messages missing");
       }
-      if (!Array.isArray(data.activeVersion.variables) || data.activeVersion.variables.length === 0) {
+      if (
+        !Array.isArray(data.activeVersion.variables) ||
+        data.activeVersion.variables.length === 0
+      ) {
         throw new Error("activeVersion.variables missing");
       }
-      if (!Array.isArray(data.versions) || data.versions.length === 0) throw new Error("versions missing");
+      if (!Array.isArray(data.versions) || data.versions.length === 0)
+        throw new Error("versions missing");
       return `versions=${data.versions.length}`;
     });
 
     await step("get_template_detail returns orchestration steps", results, async () => {
-      const data = parseToolJson(await callTool("get_template_detail", { template_id: templateId }));
-      if (data.executionMode !== "sequential") throw new Error(`executionMode=${data.executionMode}`);
+      const data = parseToolJson(
+        await callTool("get_template_detail", { template_id: templateId }),
+      );
+      if (data.executionMode !== "sequential")
+        throw new Error(`executionMode=${data.executionMode}`);
       if (!Array.isArray(data.steps) || data.steps.length < 2) throw new Error("steps missing");
-      if (!Array.isArray(data.reservedVariables) || !data.reservedVariables.includes("{{previous_output}}")) {
+      if (
+        !Array.isArray(data.reservedVariables) ||
+        !data.reservedVariables.includes("{{previous_output}}")
+      ) {
         throw new Error("reservedVariables missing {{previous_output}}");
       }
       return `steps=${data.steps.length}`;
@@ -615,7 +556,7 @@ async function main() {
     try {
       await restoreLocalModels(restoreState);
     } catch {}
-    mockServer.close();
+    await mockServer.close();
     await prisma.$disconnect();
   }
 
