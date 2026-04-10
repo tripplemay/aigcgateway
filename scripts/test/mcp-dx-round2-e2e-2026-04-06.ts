@@ -25,6 +25,7 @@ type RestoreState = {
 };
 
 let token = "";
+let email = "";
 let projectId = "";
 let apiKey = "";
 let MOCK_BASE = "";
@@ -114,6 +115,7 @@ function parseToolJson(result: any): any {
 async function registerAndLogin() {
   const user = await createTestUser(BASE, { prefix: "dx2", name: "DX2 Local Tester" });
   token = user.token;
+  email = user.email;
 }
 
 async function createProjectAndKey() {
@@ -123,10 +125,7 @@ async function createProjectAndKey() {
   const key = await createTestApiKey(BASE, token, { name: "dx2-local-key" });
   apiKey = key.key;
 
-  await prisma.project.update({
-    where: { id: projectId },
-    data: { balance: 20 },
-  });
+  await prisma.user.updateMany({ where: { email }, data: { balance: 20 } });
 }
 
 async function ensureLocalModels(): Promise<RestoreState> {
@@ -300,7 +299,7 @@ async function createProjectAndKeyForRateLimit(): Promise<{ pid: string; rawKey:
   const pid = String(p.body?.id ?? "");
   if (!pid) throw new Error("rate-limit project id missing");
 
-  const k = await api(`/api/projects/${pid}/keys`, {
+  const k = await api("/api/keys", {
     method: "POST",
     expect: 201,
     body: JSON.stringify({ name: "dx2-rate-limit-key", rateLimit: 1 }),
@@ -308,7 +307,7 @@ async function createProjectAndKeyForRateLimit(): Promise<{ pid: string; rawKey:
   const rawKey = String(k.body?.key ?? "");
   if (!rawKey) throw new Error("rate-limit key missing");
 
-  await prisma.project.update({ where: { id: pid }, data: { balance: 20 } });
+  await prisma.user.updateMany({ where: { email }, data: { balance: 20 } });
   return { pid, rawKey };
 }
 
@@ -496,7 +495,7 @@ async function main() {
     });
 
     await step("error: insufficient balance", results, async () => {
-      await prisma.project.update({ where: { id: projectId }, data: { balance: 0 } });
+      await prisma.user.updateMany({ where: { email }, data: { balance: 0 } });
       const msg = await callToolExpectError("chat", {
         model: "openai/gpt-4o-mini",
         messages: [{ role: "user", content: "balance check" }],
@@ -504,7 +503,7 @@ async function main() {
       if (!msg.toLowerCase().includes("insufficient balance")) {
         throw new Error(`unexpected message: ${msg}`);
       }
-      await prisma.project.update({ where: { id: projectId }, data: { balance: 20 } });
+      await prisma.user.updateMany({ where: { email }, data: { balance: 20 } });
       return "insufficient balance message verified";
     });
 
