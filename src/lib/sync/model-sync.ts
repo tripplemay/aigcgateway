@@ -529,6 +529,18 @@ export async function runModelSync(): Promise<SyncResult> {
           `[model-sync] Capabilities inference: updated=${capsResult.updated}, skipped=${capsResult.skipped}`,
         );
       }
+
+      // 持久化推断结果到 SystemConfig
+      await setConfig(
+        "LAST_INFERENCE_RESULT",
+        JSON.stringify({
+          timestamp: new Date().toISOString(),
+          classify: classifyResult,
+          brand: brandResult,
+          capabilities: capsResult,
+        }),
+        "最近一次 LLM 推断结果（分类/品牌/能力）",
+      );
     } catch (err) {
       console.log(
         `[model-sync] Alias classification failed (non-blocking): ${err instanceof Error ? err.message : String(err)}`,

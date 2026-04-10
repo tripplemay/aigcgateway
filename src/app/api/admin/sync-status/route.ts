@@ -27,14 +27,15 @@ export async function GET(request: Request) {
     }
   }
 
-  // 合并两次 getConfig 为单次 findMany
+  // 合并多次 getConfig 为单次 findMany
   const configs = await prisma.systemConfig.findMany({
-    where: { key: { in: ["LAST_SYNC_TIME", "LAST_SYNC_RESULT"] } },
+    where: { key: { in: ["LAST_SYNC_TIME", "LAST_SYNC_RESULT", "LAST_INFERENCE_RESULT"] } },
   });
   const configMap = new Map(configs.map((c) => [c.key, c.value]));
 
   const lastSyncTime = configMap.get("LAST_SYNC_TIME") ?? null;
   const lastSyncResultRaw = configMap.get("LAST_SYNC_RESULT");
+  const lastInferenceResultRaw = configMap.get("LAST_INFERENCE_RESULT");
 
   let lastSyncResult = null;
   if (lastSyncResultRaw) {
@@ -78,6 +79,15 @@ export async function GET(request: Request) {
     }
   }
 
+  let lastInferenceResult = null;
+  if (lastInferenceResultRaw) {
+    try {
+      lastInferenceResult = JSON.parse(lastInferenceResultRaw);
+    } catch {
+      lastInferenceResult = null;
+    }
+  }
+
   const json = JSON.stringify({
     data: {
       lastSyncTime,
@@ -86,6 +96,7 @@ export async function GET(request: Request) {
       lastSyncAt,
       lastSyncDuration,
       lastSyncResult: lastSyncResultSummary,
+      lastInferenceResult,
     },
   });
 

@@ -7,7 +7,7 @@
       "title": "健康监控页重做 — 按别名分组",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) 按别名分组展示 Channel 健康状态（与别名管理页风格统一）；2) 高亮高风险别名（仅 1 个活跃 Channel，无备用）；3) enabled 别名排最前面；4) 计算并显示平均延迟；5) FAIL 状态显示错误原因（tooltip 或展开）；6) 搜索/筛选（按 Provider/modality/状态）；7) tsc 通过"
     },
     {
@@ -15,7 +15,7 @@
       "title": "健康检查逻辑优化 — L3 简化 + 自动恢复",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) L3 质量检查改为验证"返回非空且合理长度"（不做内容正确性验证）；2) disabled 渠道检查通过后自动 re-enable（ACTIVE 状态）；3) tsc 通过"
     },
     {
@@ -23,7 +23,7 @@
       "title": "Admin Sync/LLM 推断运维面板",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) 展示上次 Sync 时间、同步模型数；2) LLM 推断结果（分类数/brand 填充数/capabilities 成功/失败/跳过数）；3) 错误记录（哪些失败、原因）；4) 手动触发 Sync / 推断的按钮；5) 可集成到别名管理页或独立区域；6) tsc 通过"
     },
     {
@@ -31,7 +31,7 @@
       "title": "i18n",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) en.json + zh-CN.json 同步更新；2) 无硬编码字符串"
     },
     {

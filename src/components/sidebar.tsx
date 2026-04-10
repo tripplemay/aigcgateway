@@ -72,6 +72,7 @@ const adminNavGroups: NavGroup[] = [
     titleKey: "groupOps",
     items: [
       { labelKey: "health", href: "/admin/health", icon: "health_and_safety" },
+      { labelKey: "syncOps", href: "/admin/operations", icon: "sync" },
       { labelKey: "adminLogs", href: "/admin/logs", icon: "receipt_long" },
       { labelKey: "adminUsage", href: "/admin/usage", icon: "monitoring" },
     ],

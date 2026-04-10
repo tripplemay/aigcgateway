@@ -4,7 +4,7 @@
  * 文本通道：
  *   L1 连通性：HTTP 200 + 响应非空
  *   L2 格式一致性：choices[0].message.content + usage 完整 + finish_reason 有效
- *   L3 响应质量：固定 prompt → content 含 "2"
+ *   L3 响应质量：返回内容非空且长度合理（≥1 字符）
  *
  * 图片通道：
  *   L1 连通性：HTTP 200 + 响应非空
@@ -114,13 +114,14 @@ async function runTextCheck(route: RouteResult): Promise<CheckResult[]> {
       responseBody: null,
     });
 
-    // --- Level 3: 响应质量 ---
-    const hasTwo = (content ?? "").includes("2");
+    // --- Level 3: 响应质量（非空且合理长度） ---
+    const trimmed = (content ?? "").trim();
+    const qualityPass = trimmed.length >= 1;
     results.push({
       level: "QUALITY",
-      result: hasTwo ? "PASS" : "FAIL",
+      result: qualityPass ? "PASS" : "FAIL",
       latencyMs,
-      errorMessage: hasTwo ? null : `Expected content to contain "2", got: "${content}"`,
+      errorMessage: qualityPass ? null : "Response content is empty or whitespace-only",
       responseBody: null,
     });
 
