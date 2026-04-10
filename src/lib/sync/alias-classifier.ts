@@ -27,6 +27,10 @@ async function callInternalAI(prompt: string): Promise<string> {
   const apiKey = getApiKey(deepseekProvider);
   const baseUrl = getBaseUrl(deepseekProvider);
 
+  console.log(
+    `[callInternalAI] provider=${deepseekProvider.name}, baseUrl=${baseUrl}, hasKey=${!!apiKey && !apiKey.startsWith("PLACEHOLDER")}, proxyUrl=${deepseekProvider.proxyUrl ?? "none"}`,
+  );
+
   if (!apiKey || apiKey.startsWith("PLACEHOLDER")) {
     throw new Error("DeepSeek API key not configured");
   }
@@ -396,12 +400,16 @@ export async function inferMissingCapabilities(): Promise<{
       return false;
     });
 
+    console.log(
+      `[alias-classifier] Total aliases: ${allAliases.length}, without caps: ${aliasesWithoutCaps.length}`,
+    );
+
     if (aliasesWithoutCaps.length === 0) {
       return { updated: 0, errors: [] };
     }
 
     console.log(
-      `[alias-classifier] Inferring capabilities for ${aliasesWithoutCaps.length} aliases...`,
+      `[alias-classifier] Inferring capabilities for: ${aliasesWithoutCaps.map((a) => a.alias).join(", ")}`,
     );
 
     const prompt = `以下是 AI 模型的别名列表，请推断每个模型的能力（capabilities）。
@@ -441,11 +449,13 @@ ${aliasesWithoutCaps.map((a) => `- ${a.alias}`).join("\n")}
       }
     }
   } catch (err) {
-    errors.push(
-      `Capabilities inference failed: ${err instanceof Error ? err.message : String(err)}`,
-    );
+    const msg = `Capabilities inference failed: ${err instanceof Error ? err.message : String(err)}`;
+    console.error(`[alias-classifier] ${msg}`);
+    errors.push(msg);
   }
 
-  console.log(`[alias-classifier] Capabilities inference done: updated=${updated}`);
+  console.log(
+    `[alias-classifier] Capabilities inference done: updated=${updated}, errors=${errors.length}${errors.length > 0 ? " — " + errors.join("; ") : ""}`,
+  );
   return { updated, errors };
 }
