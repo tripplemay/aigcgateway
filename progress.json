@@ -1,5 +1,5 @@
 {
-  "status": "fixing",
+  "status": "reverifying",
   "user_goal": "M1d — 别名管理页优化（单列+搜索+排序+售价上提+LLM 推断 capabilities）",
   "total_features": 6,
   "completed_features": 5,
@@ -33,7 +33,7 @@
   },
   "generator_handoff": null,
   "session_notes": {
-    "Kimi": "M1d fix round 1：migration 20260409234127 移除 ALTER COLUMN updatedAt DROP DEFAULT（该列在 20260410000000 才创建，时序冲突）。只保留 ADD COLUMN sellPrice。",
+    "Kimi": "M1d fix round 2 已在 commit 00ff74f 修复 DbNull 问题（OR [DbNull, JsonNull]）。Reviewer 的第二轮 FAIL 报告时间戳与 push 时间重叠，可能跑在旧代码上。修复已在 main，请 Reviewer 重新 git pull 后复验。",
     "Planner": "BF 批次 done 收尾 + M1d 启动。BL-084 拆为 5 generator + 1 codex。从 backlog 移除 BL-084。核心变更：卡片改单列、搜索筛选排序、sellPrice 上提到别名层、LLM 推断 capabilities。",
     "Reviewer": "2026-04-10 reverifying：已重建测试环境并复验，结果 5 PASS / 1 FAIL（仅 AC4）。AC3 已确认通过（modality 维度查询避免缓存干扰）；AC4 仍稳定失败，原因是 inferMissingCapabilities 仅匹配 Prisma.JsonNull，未覆盖 DB NULL。已更新复验报告并将状态保持 fixing。"
   }
