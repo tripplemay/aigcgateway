@@ -1,24 +1,24 @@
 {
-  "status": "done",
-  "user_goal": "T1 — 模板体验增强（Admin 详情页独立路由 + 步骤预览 Action）",
-  "total_features": 4,
-  "completed_features": 4,
+  "status": "building",
+  "user_goal": "N1 — UI/导航打磨（Sidebar 分组 + Docs 入口 + Settings Project tab + Keys 精简）",
+  "total_features": 6,
+  "completed_features": 0,
   "fix_rounds": 0,
-  "current_sprint": "F-T1-04",
-  "last_updated": "2026-04-10T07:35:34Z",
+  "current_sprint": "F-N1-01",
+  "last_updated": "2026-04-10T19:00:00.000Z",
   "reference_docs": [],
   "role_assignments": null,
   "docs": {
     "spec": null,
     "test_cases": null,
-    "signoff": "docs/test-reports/T1-template-experience-signoff-2026-04-10.md",
-    "framework_reviewed": true
+    "signoff": null,
+    "framework_reviewed": false
   },
   "evaluator_feedback": null,
-  "generator_handoff": "F-T1-01~03 全部完成。新增 GET /api/admin/templates/:id（含 project/steps/action versions），新增 /admin/templates/[id] 详情页（展示完整模板信息+公开切换+质量评分+删除），列表页详情链接已改指 admin 路由。用户侧 /templates/:id 步骤卡片新增 accordion 展开预览（系统消息摘要+变量列表+版本号+跳转图标）。i18n en/zh-CN 已同步，tsc 通过。",
+  "generator_handoff": null,
   "session_notes": {
-    "Kimi": "T1 building 完成。API 层扩展了 admin 和 user-side template detail 端点以返回 action version 数据。Admin 详情页参照 users/[id] 模式，用户侧 accordion 用 useState<Set> 管理展开状态。i18n 补了 systemMessage/variables 两个 key。",
-    "Planner": "A1 done + T1 启动。BL-097+BL-085 合并为 3 generator + 1 codex。Admin 模板详情独立路由 + 用户侧步骤预览 Action。从 backlog 移除 BL-097/BL-085。",
-    "Reviewer": "T1 首轮验收完成并签收。L1 本地启动成功，使用 admin@aigc-gateway.local 在本地创建最小模板数据，验证了 /admin/templates/:id 独立详情页、/templates/:id 步骤 accordion 预览、open_in_new 跳转到 Action 详情，以及 EN/CN i18n 抽查。注意本地 seed 账号与 environment.md 共享账号不一致。"
+    "Kimi": null,
+    "Planner": "T1 done + N1 启动。BL-091+BL-079+BL-100 合并为 5 generator + 1 codex。Sidebar 分组、Docs 移入 sidebar、Settings Project tab、Keys 页精简。从 backlog 移除 3 条。",
+    "Reviewer": null
   }
 }

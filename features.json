@@ -1,38 +1,54 @@
 {
-  "batch": "T1-template-experience",
+  "batch": "N1-ui-navigation-polish",
   "created_at": "2026-04-10",
   "features": [
     {
-      "id": "F-T1-01",
-      "title": "Admin 模板详情页（/admin/templates/:id）",
+      "id": "F-N1-01",
+      "title": "Sidebar 分组整理",
       "priority": "medium",
       "executor": "generator",
-      "status": "done",
-      "acceptance": "1) 新增 /admin/templates/:id 页面；2) 用 admin API 查模板（不受项目限制）；3) 展示模板完整信息（名称、描述、Steps、关联 Actions、公共状态、质量评分）；4) Admin 模板列表页的详情链接指向 /admin/templates/:id（而非用户侧 /templates/:id）；5) tsc 通过"
+      "status": "pending",
+      "acceptance": "1) 用户侧分三组（核心：Dashboard/Models/Templates/Actions；开发：API Keys/Quick Start/MCP Setup/Docs；数据：Logs/Usage/Balance）；2) Admin 侧分三组（模型管理：Model Aliases/Models & Channels/Providers；运维：Health/Logs/Usage；用户：Users/Templates）；3) 分组有视觉分隔（间距或标题）；4) tsc 通过"
     },
     {
-      "id": "F-T1-02",
-      "title": "模板详情页步骤卡片展开预览 Action 内容",
+      "id": "F-N1-02",
+      "title": "Docs 入口从 topbar 移到 sidebar",
       "priority": "medium",
       "executor": "generator",
-      "status": "done",
-      "acceptance": "1) 用户侧模板详情页（/templates/:id）步骤卡片可点击展开 accordion；2) 展开后只读预览 Action 内容（系统消息摘要、变量列表、活跃版本号）；3) 点击跳转图标 ↗ 跳到 Action 详情页编辑；4) tsc 通过"
+      "status": "pending",
+      "acceptance": "1) topbar 移除 Documentation/API Reference/Support 三个链接；2) sidebar 开发组新增 Docs 入口指向 /docs；3) tsc 通过"
     },
     {
-      "id": "F-T1-03",
+      "id": "F-N1-03",
+      "title": "Settings 增加 Project tab",
+      "priority": "medium",
+      "executor": "generator",
+      "status": "pending",
+      "acceptance": "1) /settings 页新增 Project tab；2) 编辑项目名称/描述；3) 查看项目统计（API Key 数、调用数）；4) 删除项目（Danger Zone，需确认）；5) 延续现有 Settings 页卡片式表单风格；6) tsc 通过"
+    },
+    {
+      "id": "F-N1-04",
+      "title": "Keys 页面精简 — 移除顶部统计卡",
+      "priority": "medium",
+      "executor": "generator",
+      "status": "pending",
+      "acceptance": "1) 移除顶部三张统计卡（活跃基础设施/日请求容量/生成新密钥）；2) 创建按钮合并到表格区域标题旁；3) 页面结构：标题+创建按钮+Key 列表表格；4) tsc 通过"
+    },
+    {
+      "id": "F-N1-05",
       "title": "i18n",
       "priority": "medium",
       "executor": "generator",
-      "status": "done",
-      "acceptance": "1) en.json + zh-CN.json 同步更新；2) 无硬编码字符串"
+      "status": "pending",
+      "acceptance": "1) en.json + zh-CN.json 同步更新；2) sidebar 分组标题有翻译；3) 无硬编码字符串"
     },
     {
-      "id": "F-T1-04",
-      "title": "T1 全量验收",
+      "id": "F-N1-06",
+      "title": "N1 全量验收",
       "priority": "high",
       "executor": "codex",
-      "status": "done",
-      "acceptance": "1) Admin 点击模板详情 → /admin/templates/:id 正常显示，不再空白；2) 用户侧步骤卡片点击展开 Action 预览；3) 跳转图标 ↗ 跳到 Action 详情页；4) DS token 一致；5) i18n 无残留；6) 签收报告生成"
+      "status": "pending",
+      "acceptance": "1) Sidebar 分组显示正确（用户侧 3 组 + Admin 侧 3 组）；2) Docs 入口在 sidebar 可用，topbar 无旧链接；3) Settings Project tab 可编辑/删除项目；4) Keys 页面无统计卡，创建按钮在表格旁；5) DS token 一致；6) i18n 无残留；7) 签收报告生成"
     }
   ]
 }
