@@ -24,6 +24,7 @@ type RestoreState = {
 let token = "";
 let projectId = "";
 let apiKey = "";
+let MOCK_BASE = "";
 
 /** Custom image handler: validate prompt/size for error sanitization tests */
 function customImageHandler(
@@ -293,7 +294,7 @@ async function step(name: string, out: StepResult[], fn: () => Promise<string | 
 async function main() {
   const checks: StepResult[] = [];
   const mock = await startMockProvider({ port: MOCK_PORT, onRequest: customImageHandler });
-  const MOCK_BASE = `${mock.baseUrl}/v1`;
+  MOCK_BASE = `${mock.baseUrl}/v1`;
   const restore = await prepareRouting();
 
   try {

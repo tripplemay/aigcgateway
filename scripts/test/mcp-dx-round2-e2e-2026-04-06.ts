@@ -27,6 +27,7 @@ type RestoreState = {
 let token = "";
 let projectId = "";
 let apiKey = "";
+let MOCK_BASE = "";
 
 async function api(
   path: string,
@@ -325,7 +326,7 @@ async function step(name: string, results: StepResult[], fn: () => Promise<strin
 async function main() {
   const results: StepResult[] = [];
   const mockServer = await startMockProvider({ port: MOCK_PORT });
-  const MOCK_BASE = `${mockServer.baseUrl}/v1`;
+  MOCK_BASE = `${mockServer.baseUrl}/v1`;
   const restoreState = await ensureLocalModels();
   let actionId = "";
   let templateId = "";

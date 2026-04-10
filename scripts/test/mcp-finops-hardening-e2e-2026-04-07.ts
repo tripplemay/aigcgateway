@@ -28,6 +28,7 @@ type RestoreState = {
 let token = "";
 let projectId = "";
 let apiKey = "";
+let MOCK_BASE = "";
 
 /** Custom image handler: return 400 for size "999x999" to test error sanitization */
 function customImageHandler(
@@ -337,7 +338,7 @@ async function step(name: string, results: StepResult[], fn: () => Promise<strin
 async function main() {
   const results: StepResult[] = [];
   const mockServer = await startMockProvider({ port: MOCK_PORT, onRequest: customImageHandler });
-  const MOCK_BASE = `${mockServer.baseUrl}/v1`;
+  MOCK_BASE = `${mockServer.baseUrl}/v1`;
   const restoreState = await ensureLocalModels();
 
   let actionId = "";
