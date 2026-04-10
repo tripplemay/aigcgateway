@@ -8,6 +8,8 @@ type: project
 - 第 1 轮 `reverifying` 已签收，U1 Admin 用户详情页验收完成
 - L1-llm-inference-robustness：`done`
 - `verifying` 首轮签收通过，LLM 推断链路健壮性升级验收完成
+- MCP2-tools-enhancement：`done`
+- `verifying` 首轮签收通过，MCP 工具增强验收完成
 
 ## U1 验收结论
 - 详情 API 返回真实 balance、lastActive、projects、transactions 分页
@@ -20,8 +22,14 @@ type: project
 - 失败批次会跳过继续，已完成批次即时持久化不丢失
 - 下次执行可补处理上次跳过数据；105 alias capabilities 场景无超时
 
+## MCP2 验收结论
+- MCP `chat` 已验证 `tools/tool_choice/top_p/frequency_penalty/presence_penalty/stop`
+- `stream=true` 场景会正确累积 `tool_calls` 并返回 `ttftMs`
+- `list_models(image)` 已返回聚合后的 `supportedSizes`
+- `list_api_keys/create_api_key/revoke_api_key/get_project_info/create_project` 全链路通过
+
 ## 已完成批次
-- R1~R4 / P5 / M1a~M1d / BF / K1 / U1 / L1
+- R1~R4 / P5 / M1a~M1d / BF / K1 / U1 / L1 / MCP2
 
 ## Backlog
 - 17 条（BL-065~096），含 2 条 high

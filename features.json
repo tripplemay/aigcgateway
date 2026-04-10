@@ -47,7 +47,7 @@
       "title": "MCP2 全量验收",
       "priority": "high",
       "executor": "codex",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "1) chat 传 tools 参数可触发 function calling；2) chat 传 top_p/penalties/stop 正常生效；3) list_models image 模型含 supportedSizes；4) list_api_keys/create_api_key/revoke_api_key 正常工作；5) get_project_info/create_project 正常工作；6) SERVER_INSTRUCTIONS 内容准确；7) 签收报告生成"
     }
   ]

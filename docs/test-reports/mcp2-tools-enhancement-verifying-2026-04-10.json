@@ -1,0 +1,213 @@
+{
+  "ok": true,
+  "executedAt": "2026-04-10T06:20:14.002Z",
+  "output": "docs/test-reports/mcp2-tools-enhancement-verifying-2026-04-10.json",
+  "toolListNames": [
+    "list_models",
+    "chat",
+    "generate_image",
+    "list_logs",
+    "get_log_detail",
+    "get_balance",
+    "get_usage_summary",
+    "list_actions",
+    "run_action",
+    "get_action_detail",
+    "create_action",
+    "update_action",
+    "delete_action",
+    "create_action_version",
+    "activate_version",
+    "list_templates",
+    "run_template",
+    "get_template_detail",
+    "create_template",
+    "update_template",
+    "delete_template",
+    "list_public_templates",
+    "fork_public_template",
+    "list_api_keys",
+    "create_api_key",
+    "revoke_api_key",
+    "get_project_info",
+    "create_project"
+  ],
+  "steps": [
+    {
+      "id": "AC1",
+      "name": "MCP initialize 返回 SERVER_INSTRUCTIONS，内容覆盖 MCP2 新能力",
+      "ok": true,
+      "detail": "status=200, has_create_api_key=true, has_presence_penalty=true, has_supportedSizes=true, has_brand=true"
+    },
+    {
+      "id": "AC2",
+      "name": "tools/list 暴露 API Key 管理与项目管理工具",
+      "ok": true,
+      "detail": "tools=list_api_keys,create_api_key,revoke_api_key,get_project_info,create_project"
+    },
+    {
+      "id": "AC3",
+      "name": "无默认项目时 get_project_info 返回友好提示",
+      "ok": true,
+      "detail": "{\"message\":\"No default project configured. Use create_project to create one, or set a default project in the console.\"}"
+    },
+    {
+      "id": "AC4",
+      "name": "create_project 创建项目并设为 defaultProjectId",
+      "ok": true,
+      "detail": "project_id=cmnsio3bd00qw9yn3egk1i3sf, default_project_id=cmnsio3bd00qw9yn3egk1i3sf"
+    },
+    {
+      "id": "AC5",
+      "name": "list_models(image) 返回聚合后的 supportedSizes",
+      "ok": true,
+      "detail": "supportedSizes=[\"1024x1024\",\"1024x1792\",\"1792x1024\"]"
+    },
+    {
+      "id": "AC6",
+      "name": "list_api_keys 返回 maskedKey/name/status/createdAt",
+      "ok": true,
+      "detail": "count=1"
+    },
+    {
+      "id": "AC7",
+      "name": "create_api_key 返回完整 key，且仅一次可见",
+      "ok": true,
+      "detail": "id=cmnsio3ck00qy9yn399uwi3mr, key_prefix=pk_96b1f"
+    },
+    {
+      "id": "AC8",
+      "name": "新建 key 在 list_api_keys 中仅以 maskedKey 形式出现",
+      "ok": true,
+      "detail": "{\"id\":\"cmnsio3ck00qy9yn399uwi3mr\",\"maskedKey\":\"pk_96b1f...****\",\"name\":\"mcp2-extra-mnsio34f\",\"status\":\"active\",\"createdAt\":\"2026-04-10T06:20:13.940Z\",\"lastUsedAt\":null}"
+    },
+    {
+      "id": "AC9",
+      "name": "revoke_api_key 吊销后立即生效",
+      "ok": true,
+      "detail": "revoke={\"id\":\"cmnsio3ck00qy9yn399uwi3mr\",\"name\":\"mcp2-extra-mnsio34f\",\"status\":\"revoked\",\"message\":\"API key has been revoked and will no longer work.\"}, list_status=revoked"
+    },
+    {
+      "id": "AC10",
+      "name": "被吊销 key 再访问 MCP 认证失败",
+      "ok": true,
+      "detail": "status=401, body={\"error\":\"Unauthorized\",\"message\":\"Invalid or missing API key\"}"
+    },
+    {
+      "id": "AC11",
+      "name": "chat 传 tools/tool_choice 可触发 function calling",
+      "ok": true,
+      "detail": "tool_calls=[{\"id\":\"call_nonstream_1\",\"type\":\"function\",\"function\":{\"name\":\"lookupWeather\",\"arguments\":\"{\\\"city\\\":\\\"Shanghai\\\"}\"}}], request_has_tools=true"
+    },
+    {
+      "id": "AC12",
+      "name": "chat 传 top_p/penalties/stop 正常透传并返回 finishReason",
+      "ok": true,
+      "detail": "request={\"model\":\"gpt-4o-mini\",\"messages\":[{\"role\":\"user\",\"content\":\"Use params\"}],\"max_tokens\":20,\"top_p\":0.6,\"frequency_penalty\":0.4,\"presence_penalty\":0.7,\"stop\":[\"STOP1\",\"STOP2\"],\"stream\":false}, response={\"content\":\"top_p=0.6;freq=0.4;presence=0.7;stop=[\\\"STOP1\\\",\\\"STOP2\\\"]\",\"traceId\":\"trc_rn2c6d0wo5m3x8ezgcz9ux76\",\"model\":\"mcp2-chat-mnsio34f\",\"usage\":{\"promptTokens\":8,\"completionTokens\":5,\"totalTokens\":13},\"finishReason\":\"stop\"}"
+    },
+    {
+      "id": "AC13",
+      "name": "stream=true 时返回 ttftMs 并正确累积 tool_calls",
+      "ok": true,
+      "detail": "stream_result={\"content\":\"stream-hello done\",\"traceId\":\"trc_bhro6n12tdk6v477xemhzkef\",\"model\":\"mcp2-chat-mnsio34f\",\"ttftMs\":1,\"usage\":{\"promptTokens\":9,\"completionTokens\":6,\"totalTokens\":15},\"finishReason\":\"tool_calls\",\"tool_calls\":[{\"id\":\"call_stream_1\",\"type\":\"function\",\"function\":{\"name\":\"lookupWeather\",\"arguments\":\"{\\\"city\\\":\\\"Shanghai\\\"}\"}}]}, request_stream=true"
+    },
+    {
+      "id": "AC14",
+      "name": "get_project_info 返回当前项目名称、描述、创建时间、调用数、Key 数",
+      "ok": true,
+      "detail": "{\"id\":\"cmnsio3bd00qw9yn3egk1i3sf\",\"name\":\"MCP2 Project mnsio34f\",\"description\":\"MCP2 verification project\",\"createdAt\":\"2026-04-10T06:20:13.898Z\",\"callCount\":3,\"keyCount\":2}"
+    }
+  ],
+  "mockRequests": [
+    {
+      "model": "gpt-4o-mini",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Use tool"
+        }
+      ],
+      "max_tokens": 20,
+      "tools": [
+        {
+          "type": "function",
+          "function": {
+            "name": "lookupWeather",
+            "description": "Look up weather",
+            "parameters": {
+              "type": "object",
+              "properties": {
+                "city": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "city"
+              ]
+            }
+          }
+        }
+      ],
+      "tool_choice": {
+        "type": "function",
+        "function": {
+          "name": "lookupWeather"
+        }
+      },
+      "stream": false
+    },
+    {
+      "model": "gpt-4o-mini",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Use params"
+        }
+      ],
+      "max_tokens": 20,
+      "top_p": 0.6,
+      "frequency_penalty": 0.4,
+      "presence_penalty": 0.7,
+      "stop": [
+        "STOP1",
+        "STOP2"
+      ],
+      "stream": false
+    },
+    {
+      "model": "gpt-4o-mini",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Stream tool call"
+        }
+      ],
+      "max_tokens": 20,
+      "tools": [
+        {
+          "type": "function",
+          "function": {
+            "name": "lookupWeather",
+            "description": "Look up weather",
+            "parameters": {
+              "type": "object",
+              "properties": {
+                "city": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "city"
+              ]
+            }
+          }
+        }
+      ],
+      "tool_choice": "required",
+      "stream": true,
+      "stream_options": {
+        "include_usage": true
+      }
+    }
+  ]
+}
