@@ -1,10 +1,10 @@
 {
-  "status": "building",
+  "status": "verifying",
   "user_goal": "MCP2 — MCP 工具增强（chat 高级参数 + supportedSizes + Key 管理 + 项目管理）",
   "total_features": 6,
-  "completed_features": 0,
+  "completed_features": 5,
   "fix_rounds": 0,
-  "current_sprint": "F-MCP2-01",
+  "current_sprint": "F-MCP2-06",
   "last_updated": "2026-04-10T16:00:00.000Z",
   "reference_docs": [],
   "role_assignments": null,
@@ -17,7 +17,7 @@
   "evaluator_feedback": null,
   "generator_handoff": null,
   "session_notes": {
-    "Kimi": null,
+    "Kimi": "MCP2 building 完成。5 条 generator 功能全部 done：(1) chat 补齐 presence_penalty+stop 参数，stream 模式补 tool_calls 累积；(2) list_models IMAGE 模态补 supportedSizes 聚合；(3) 新增 manage-api-keys.ts（list/create/revoke 三个工具），ApiKeyPermissions 增加 keyManagement；(4) 新增 manage-projects.ts（get_project_info/create_project）；(5) SERVER_INSTRUCTIONS 全面更新。ChatCompletionRequest 增加 stop 字段。tsc 全通过。状态推进到 verifying。",
     "Planner": "L1 done 收尾 + MCP2 启动。BL-086/087/088/089 打包为 5 generator + 1 codex。chat 补齐 tools/top_p/penalties/stop、list_models 补 supportedSizes、新增 Key 管理和项目管理工具、SERVER_INSTRUCTIONS 同步更新。从 backlog 移除 4 条。",
     "Reviewer": null
   }

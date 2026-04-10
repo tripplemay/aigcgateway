@@ -54,6 +54,18 @@ export function registerChat(server: McpServer, opts: McpServerOptions): void {
         .max(2)
         .optional()
         .describe("Frequency penalty, -2 to 2. Positive values reduce repetition."),
+      presence_penalty: z
+        .number()
+        .min(-2)
+        .max(2)
+        .optional()
+        .describe("Presence penalty, -2 to 2. Positive values encourage new topics."),
+      stop: z
+        .union([z.string(), z.array(z.string()).max(4)])
+        .optional()
+        .describe(
+          "Stop sequence(s). Generation stops when encountered. String or array of up to 4 strings.",
+        ),
       tools: z
         .array(
           z.object({
@@ -91,6 +103,8 @@ export function registerChat(server: McpServer, opts: McpServerOptions): void {
       response_format,
       top_p,
       frequency_penalty,
+      presence_penalty,
+      stop,
       tools,
       tool_choice,
     }) => {
@@ -235,6 +249,8 @@ export function registerChat(server: McpServer, opts: McpServerOptions): void {
         ...(response_format ? { response_format } : {}),
         ...(top_p !== undefined ? { top_p } : {}),
         ...(frequency_penalty !== undefined ? { frequency_penalty } : {}),
+        ...(presence_penalty !== undefined ? { presence_penalty } : {}),
+        ...(stop !== undefined ? { stop } : {}),
         ...(tools ? { tools } : {}),
         ...(tool_choice ? { tool_choice } : {}),
         stream: !!stream,
@@ -249,21 +265,61 @@ export function registerChat(server: McpServer, opts: McpServerOptions): void {
           let lastUsage: import("@/lib/engine/types").Usage | null = null;
           let lastFinishReason: string | null = null;
           let ttftTime: number | undefined;
+          // Accumulate tool_calls from stream deltas
+          const toolCallsMap = new Map<
+            number,
+            { id: string; type: string; function: { name: string; arguments: string } }
+          >();
 
           while (true) {
             const { done, value } = await reader.read();
             if (done) break;
             const chunk = value as {
-              choices?: { delta?: { content?: string }; finish_reason?: string }[];
+              choices?: {
+                delta?: {
+                  content?: string;
+                  tool_calls?: {
+                    index: number;
+                    id?: string;
+                    type?: string;
+                    function?: { name?: string; arguments?: string };
+                  }[];
+                };
+                finish_reason?: string;
+              }[];
               usage?: import("@/lib/engine/types").Usage;
             };
             if (!ttftTime && chunk.choices?.[0]?.delta?.content) ttftTime = Date.now();
-            const delta = chunk.choices?.[0]?.delta?.content;
-            if (delta) fullContent += delta;
+            const delta = chunk.choices?.[0]?.delta;
+            if (delta?.content) fullContent += delta.content;
+            // Accumulate streamed tool_calls
+            if (delta?.tool_calls) {
+              for (const tc of delta.tool_calls) {
+                const existing = toolCallsMap.get(tc.index);
+                if (existing) {
+                  if (tc.function?.arguments) existing.function.arguments += tc.function.arguments;
+                } else {
+                  toolCallsMap.set(tc.index, {
+                    id: tc.id ?? "",
+                    type: tc.type ?? "function",
+                    function: {
+                      name: tc.function?.name ?? "",
+                      arguments: tc.function?.arguments ?? "",
+                    },
+                  });
+                }
+              }
+            }
             if (chunk.usage) lastUsage = chunk.usage;
             if (chunk.choices?.[0]?.finish_reason)
               lastFinishReason = chunk.choices[0].finish_reason;
           }
+          const streamToolCalls =
+            toolCallsMap.size > 0
+              ? Array.from(toolCallsMap.entries())
+                  .sort(([a], [b]) => a - b)
+                  .map(([, v]) => v)
+              : undefined;
 
           const ttftMs = ttftTime ? ttftTime - startTime : null;
           processChatResult({
@@ -302,6 +358,7 @@ export function registerChat(server: McpServer, opts: McpServerOptions): void {
                         }
                       : null,
                     finishReason: lastFinishReason,
+                    ...(streamToolCalls ? { tool_calls: streamToolCalls } : {}),
                   },
                   null,
                   2,

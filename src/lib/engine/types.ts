@@ -35,6 +35,7 @@ export interface ChatCompletionRequest {
   presence_penalty?: number;
   frequency_penalty?: number;
   response_format?: { type: string };
+  stop?: string | string[];
   tools?: unknown[];
   tool_choice?: unknown;
   stream_options?: { include_usage?: boolean };

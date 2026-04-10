@@ -29,6 +29,12 @@ import { registerUpdateTemplate } from "./tools/update-template";
 import { registerDeleteTemplate } from "./tools/delete-template";
 import { registerListPublicTemplates } from "./tools/list-public-templates";
 import { registerForkPublicTemplate } from "./tools/fork-public-template";
+import {
+  registerListApiKeys,
+  registerCreateApiKey,
+  registerRevokeApiKey,
+} from "./tools/manage-api-keys";
+import { registerGetProjectInfo, registerCreateProject } from "./tools/manage-projects";
 import type { ApiKeyPermissions } from "@/lib/api/auth-middleware";
 
 const SERVER_INSTRUCTIONS = `# AIGC Gateway — AI 服务商聚合平台
@@ -42,15 +48,20 @@ const SERVER_INSTRUCTIONS = `# AIGC Gateway — AI 服务商聚合平台
 - 基础对话：chat(model, messages)
 - 流式输出：chat(model, messages, stream=true) — 返回包含 ttftMs 性能指标
 - 结构化 JSON：chat(model, messages, response_format={type:"json_object"})
-- 采样控制：top_p (0-1), frequency_penalty (-2~2), temperature (0-2)
-- Function Calling：chat(model, messages, tools=[...], tool_choice="auto") — 响应中包含 tool_calls
+- 采样控制：temperature (0-2), top_p (0-1), frequency_penalty (-2~2), presence_penalty (-2~2)
+- 停止序列：stop — 字符串或最多 4 个字符串的数组，遇到时停止生成
+- Function Calling：chat(model, messages, tools=[...], tool_choice="auto"|"none"|"required"|{function:{name:"..."}}) — 响应中包含 tool_calls
 - **必须先 list_models 获取可用模型名，再调用 chat**
 - 模型名使用 canonical name（如 gpt-4o、claude-sonnet-4、gemini-2.5-pro），不含服务商前缀
+
+## 模型列表（list_models）
+- list_models(modality?) — 浏览可用模型，返回 name、brand、modality、price、capabilities
+- image 模型额外返回 **supportedSizes** 字段（如 ["1024x1024","1024x1792"]）
 
 ## 图片生成（generate_image）
 - generate_image(model, prompt, size?) — 支持多种图片模型
 - **必须先 list_models(modality='image') 获取可用图片模型名**
-- list_models 返回的 image 模型包含 **supportedSizes** 字段（如 ["1024x1024","1024x1792"]），generate_image 的 size 参数必须从中选择
+- generate_image 的 size 参数必须从 list_models 返回的 **supportedSizes** 中选择
 - 每个模型的 **capabilities** 由管理员配置（function_calling、vision、json_mode、streaming 等）
 
 ## Action（原子执行单元）
@@ -96,9 +107,17 @@ Template 由多个 Action 按顺序或并行组合：
   - 分组：group_by=model/day/source/action/template
   - 时间：period=today/7d/30d
 
+## API Key 管理
+- **list_api_keys** — 列出当前用户所有 API Key（masked key、名称、状态、创建时间）
+- **create_api_key(name, description?)** — 创建新 Key，返回完整 Key（仅一次可见，务必保存）
+- **revoke_api_key(keyId)** — 吊销 Key，立即失效
+
+## 项目管理
+- **get_project_info** — 查看当前项目名称、描述、调用数、Key 数
+- **create_project(name, description?)** — 创建新项目并设为默认项目
+
 ## 控制台操作（无法通过 MCP 完成）
 - 充值余额
-- 管理 API Key 和权限
 - 控制台地址：https://aigc.guangai.ai
 
 ## SDK 推荐
@@ -161,6 +180,15 @@ export function createMcpServer(opts: McpServerOptions): McpServer {
   // Public template tools (no billing, no audit)
   registerListPublicTemplates(server, opts);
   registerForkPublicTemplate(server, opts);
+
+  // API Key management tools
+  registerListApiKeys(server, opts);
+  registerCreateApiKey(server, opts);
+  registerRevokeApiKey(server, opts);
+
+  // Project management tools
+  registerGetProjectInfo(server, opts);
+  registerCreateProject(server, opts);
 
   return server;
 }

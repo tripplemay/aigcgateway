@@ -43,7 +43,8 @@ export function registerListModels(server: McpServer, opts: McpServerOptions): v
           models: {
             include: {
               model: {
-                include: {
+                select: {
+                  supportedSizes: true,
                   channels: {
                     where: { status: "ACTIVE" },
                     orderBy: { priority: "asc" },
@@ -101,6 +102,20 @@ export function registerListModels(server: McpServer, opts: McpServerOptions): v
             price,
             capabilities,
           };
+
+          // Aggregate supportedSizes from linked models for IMAGE aliases
+          if (alias.modality === "IMAGE") {
+            const sizesSet = new Set<string>();
+            for (const link of alias.models) {
+              const sizes = link.model.supportedSizes;
+              if (Array.isArray(sizes)) {
+                for (const s of sizes) sizesSet.add(String(s));
+              }
+            }
+            if (sizesSet.size > 0) {
+              result.supportedSizes = Array.from(sizesSet).sort();
+            }
+          }
 
           if (alias.description) result.description = alias.description;
 

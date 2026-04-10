@@ -25,6 +25,7 @@ export interface ApiKeyPermissions {
   imageGeneration?: boolean;
   logAccess?: boolean;
   projectInfo?: boolean;
+  keyManagement?: boolean;
 }
 
 export interface AuthContext {
