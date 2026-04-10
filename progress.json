@@ -1,11 +1,11 @@
 {
-  "status": "reverifying",
+  "status": "fixing",
   "user_goal": "M1d — 别名管理页优化（单列+搜索+排序+售价上提+LLM 推断 capabilities）",
   "total_features": 6,
   "completed_features": 5,
   "fix_rounds": 1,
   "current_sprint": "F-M1d-06",
-  "last_updated": "2026-04-10T09:36:00.000Z",
+  "last_updated": "2026-04-10T10:06:00.000Z",
   "reference_docs": [
     "docs/specs/M1-models-page-rework-spec.md",
     "design-draft/admin-model-aliases/code.html"
@@ -18,16 +18,16 @@
     "framework_reviewed": false
   },
   "evaluator_feedback": {
-    "summary": "M1d 首轮验收阻塞：测试环境 migration 失败，无法完成动态验收，需先修复后再复验。",
-    "pass_count": 0,
+    "summary": "M1d 复验 5/6 通过，AC4（capabilities 自动填充）失败，回到 fixing。",
+    "pass_count": 5,
     "partial_count": 0,
     "fail_count": 1,
     "issues": [
       {
         "feature_id": "F-M1d-06",
         "result": "FAIL",
-        "description": "执行 codex-setup 时 Prisma migrate deploy 失败：20260409234127_add_sell_price_to_model_alias 试图 ALTER COLUMN updatedAt，但该列在后续迁移才创建。",
-        "steps_to_reproduce": "1) bash scripts/test/codex-setup.sh 2) 观察 [3/5] migrate deploy 3) 报错 column \"updatedAt\" of relation \"model_aliases\" does not exist（42703）。"
+        "description": "inferMissingCapabilities 未填充 capabilities 为空的别名：查询条件仅匹配 Prisma.JsonNull，遗漏数据库 NULL/DbNull 场景。",
+        "steps_to_reproduce": "1) 创建 capabilities=null 的新别名 2) 调用 inferMissingCapabilities() 3) 观察 updated=0 且该别名 capabilities 仍为 null。"
       }
     ]
   },
@@ -35,6 +35,6 @@
   "session_notes": {
     "Kimi": "M1d fix round 1：migration 20260409234127 移除 ALTER COLUMN updatedAt DROP DEFAULT（该列在 20260410000000 才创建，时序冲突）。只保留 ADD COLUMN sellPrice。",
     "Planner": "BF 批次 done 收尾 + M1d 启动。BL-084 拆为 5 generator + 1 codex。从 backlog 移除 BL-084。核心变更：卡片改单列、搜索筛选排序、sellPrice 上提到别名层、LLM 推断 capabilities。",
-    "Reviewer": "2026-04-10 verifying：已拉取最新并按规则启动 3099，本地环境在 migration 阶段失败（20260409234127_add_sell_price_to_model_alias 依赖未创建的 updatedAt 列）。因此无法执行 M1d 动态验收，已输出阻塞报告 docs/test-reports/m1d-alias-page-polish-verifying-2026-04-10.md，并将状态流转至 fixing。"
+    "Reviewer": "2026-04-10 reverifying：迁移阻塞已修复，复验脚本运行通过 5/6。失败项 AC4：inferMissingCapabilities 仅按 Prisma.JsonNull 查询，未覆盖 DB NULL 导致空 capabilities 未被填充。已输出报告 docs/test-reports/m1d-alias-page-polish-reverifying-2026-04-10.md，并将状态流转回 fixing。"
   }
 }

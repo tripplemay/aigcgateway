@@ -1,0 +1,46 @@
+{
+  "batch": "M1d-alias-page-polish",
+  "feature": "F-M1d-06",
+  "executedAt": "2026-04-10T00:04:11.287Z",
+  "baseUrl": "http://localhost:3099",
+  "passCount": 5,
+  "failCount": 1,
+  "steps": [
+    {
+      "id": "AC1",
+      "name": "别名管理页为单列列表 + 行下 accordion 展开",
+      "ok": true,
+      "detail": "single-column + accordion present"
+    },
+    {
+      "id": "AC2",
+      "name": "搜索/筛选/排序逻辑齐全（enabled 优先，名称次序）",
+      "ok": true,
+      "detail": "search+filters+sort logic present"
+    },
+    {
+      "id": "AC3",
+      "name": "别名层 sellPrice 可编辑，且 /v1/models 返回别名售价",
+      "ok": true,
+      "detail": "alias_found=true, pricing={\"input_per_1m\":1.23,\"output_per_1m\":4.56,\"unit\":\"token\",\"currency\":\"USD\"}"
+    },
+    {
+      "id": "AC4",
+      "name": "LLM 推断 capabilities：填充空值且不覆盖已有",
+      "ok": false,
+      "detail": "infer_updated=0, fill_caps=null, keep_caps={\"vision\":false,\"streaming\":false}"
+    },
+    {
+      "id": "AC5",
+      "name": "DS token 一致性（无硬编码色值/原始色阶）",
+      "ok": true,
+      "detail": "clean"
+    },
+    {
+      "id": "AC6",
+      "name": "i18n 无残留（页面走 t()，中英文 key 同步）",
+      "ok": true,
+      "detail": "i18nPageOk=true, i18nMsgOk=true, hasHardcodedCn=false"
+    }
+  ]
+}
