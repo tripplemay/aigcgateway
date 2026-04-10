@@ -71,6 +71,7 @@ function ProjectTab() {
   const [deleting, setDeleting] = useState(false);
   const nameInputRef = useRef<HTMLInputElement>(null);
   const descInputRef = useRef<HTMLTextAreaElement>(null);
+  const saveBtnRef = useRef<HTMLButtonElement>(null);
 
   const { data: detail, refetch } = useAsyncData<ProjectDetail>(async () => {
     if (!current) return null as unknown as ProjectDetail;
@@ -90,29 +91,59 @@ function ProjectTab() {
     setInitialized(false);
   }, [current?.id]);
 
-  const saveProject = async () => {
-    if (!current) return;
-    // Read directly from DOM refs as fallback (handles automated testing tools
-    // that set input.value without triggering React onChange)
-    const nameValue = nameInputRef.current?.value ?? projName;
-    const descValue = descInputRef.current?.value ?? projDesc;
+  // Use refs to always capture latest state for the native DOM listener
+  const currentRef = useRef(current);
+  currentRef.current = current;
+  const projNameRef = useRef(projName);
+  projNameRef.current = projName;
+  const projDescRef = useRef(projDesc);
+  projDescRef.current = projDesc;
+
+  const doSaveProject = useCallback(() => {
+    const proj = currentRef.current;
+    if (!proj) return;
+    const nameValue = nameInputRef.current?.value ?? projNameRef.current;
+    const descValue = descInputRef.current?.value ?? projDescRef.current;
     setSaving(true);
-    try {
-      await apiFetch(`/api/projects/${current.id}`, {
-        method: "PATCH",
-        body: JSON.stringify({ name: nameValue, description: descValue }),
+    const token = localStorage.getItem("token");
+    fetch(`/api/projects/${proj.id}`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+      body: JSON.stringify({ name: nameValue, description: descValue }),
+    })
+      .then((res) => {
+        if (!res.ok) throw new Error(`Request failed: ${res.status}`);
+        return res.json();
+      })
+      .then(() => {
+        toast.success(t("projectUpdated"));
+        setProjName(nameValue);
+        setProjDesc(descValue);
+        refresh();
+        refetch();
+      })
+      .catch((e: unknown) => {
+        toast.error((e as Error).message);
+      })
+      .finally(() => {
+        setSaving(false);
       });
-      toast.success(t("projectUpdated"));
-      setProjName(nameValue);
-      setProjDesc(descValue);
-      refresh();
-      refetch();
-    } catch (e) {
-      toast.error((e as Error).message);
-    } finally {
-      setSaving(false);
-    }
-  };
+  }, [t, refresh, refetch]);
+
+  // Attach native DOM click listener — same proven pattern as Account tab
+  useEffect(() => {
+    const btn = saveBtnRef.current;
+    if (!btn) return;
+    const handler = (e: Event) => {
+      e.preventDefault();
+      doSaveProject();
+    };
+    btn.addEventListener("click", handler);
+    return () => btn.removeEventListener("click", handler);
+  }, [doSaveProject]);
 
   const deleteProject = async () => {
     if (!current || deleteConfirm !== current.name) return;
@@ -186,8 +217,8 @@ function ProjectTab() {
             </div>
             <div className="flex justify-end pt-4">
               <button
+                ref={saveBtnRef}
                 type="button"
-                onClick={saveProject}
                 disabled={saving}
                 data-testid="save-project-btn"
                 className="px-6 py-2.5 bg-ds-primary text-white font-semibold rounded-lg hover:bg-ds-primary-container transition-all active:scale-95 shadow-lg shadow-ds-primary/10 disabled:opacity-60"
