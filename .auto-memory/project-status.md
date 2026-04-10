@@ -7,6 +7,7 @@ type: project
 - N1-ui-navigation-polish：`fixing`
 - `verifying` 首轮未通过，`reverifying` round 1~4 均未通过
 - 阻断项未修复：Settings Project tab 点击保存未触发 PATCH，请求未发出
+- 已按用户指定严格流程（pull/log/clean/build/setup/wait）在 `a3cdf99` 再复验，仍复现
 - T1-template-experience：`done`
 - `verifying` 首轮签收通过，Admin 模板详情独立路由与用户侧步骤预览 Action 验收完成
 - U1-admin-user-detail：`done`
