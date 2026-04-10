@@ -1,6 +1,6 @@
 {
   "batch": "mcp-finops-hardening",
-  "generatedAt": "2026-04-10T15:56:53.321Z",
+  "generatedAt": "2026-04-10T16:07:02.914Z",
   "environment": "http://localhost:3099",
   "checks": [
     {

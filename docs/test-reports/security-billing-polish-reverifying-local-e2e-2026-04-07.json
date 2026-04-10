@@ -1,6 +1,6 @@
 {
   "batch": "security-billing-polish",
-  "generatedAt": "2026-04-10T15:56:56.609Z",
+  "generatedAt": "2026-04-10T16:07:06.966Z",
   "environment": "http://localhost:3099",
   "checks": [
     {
@@ -26,7 +26,7 @@
     {
       "name": "F-SB-02 MIN_CHARGE applied on 1-token call",
       "ok": false,
-      "detail": "\nInvalid `prisma.project.findUniqueOrThrow()` invocation in\n/Users/yixingzhou/project/aigcgateway/scripts/test/security-billing-polish-e2e-2026-04-07.ts:350:43\n\n  347 });\n  348 \n  349 await step(\"F-SB-02 MIN_CHARGE applied on 1-token call\", checks, async () => {\n→ 350   const before = await prisma.project.findUniqueOrThrow({\n          where: {\n            id: \"cmnt39qwt00s29yv40pfsrw87\"\n          },\n          select: {\n            balance: true,\n            ~~~~~~~\n        ?   id?: true,\n        ?   userId?: true,\n        ?   name?: true,\n        ?   description?: true,\n        ?   alertThreshold?: true,\n        ?   rateLimit?: true,\n        ?   createdAt?: true,\n        ?   updatedAt?: true,\n        ?   user?: true,\n        ?   callLogs?: true,\n        ?   transactions?: true,\n        ?   actions?: true,\n        ?   templates?: true,\n        ?   _count?: true\n          }\n        })\n\nUnknown field `balance` for select statement on model `Project`. Available options are marked with ?."
+      "detail": "\nInvalid `prisma.user.findFirstOrThrow()` invocation in\n/Users/yixingzhou/project/aigcgateway/scripts/test/security-billing-polish-e2e-2026-04-07.ts:352:40\n\n  349 });\n  350 \n  351 await step(\"F-SB-02 MIN_CHARGE applied on 1-token call\", checks, async () => {\n→ 352   const before = await prisma.user.findFirstOrThrow(\nAn operation failed because it depends on one or more records that were required but not found. No record was found for a query."
     }
   ],
   "pass": 3,
