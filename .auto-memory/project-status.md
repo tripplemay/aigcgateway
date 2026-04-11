@@ -4,9 +4,7 @@ description: AIGC Gateway 当前状态快照（覆盖写，≤30 行）
 type: project
 ---
 ## 当前批次
-- P6-providers-expansion：`done`（reverifying 全 PASS，已签收）
-- 4 家国产服务商：MiniMax / Moonshot / Qwen / StepFun
-- 签收文档：docs/test-reports/p6-providers-expansion-signoff-2026-04-11.md
+- 无（待启动下一批次）
 
 ## 已完成批次
 - R1~R4 / P5 / M1a~M1d / BF / K1 / U1 / L1 / MCP2 / A1 / T1 / N1 / O1 / CI1 / SUP1 / P6
