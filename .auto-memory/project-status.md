@@ -4,10 +4,9 @@ description: AIGC Gateway 当前状态快照（覆盖写，≤30 行）
 type: project
 ---
 ## 当前批次
-- DQ2-alias-quality-pricing：`building`（8 条功能，0/8 完成）
+- DQ2-alias-quality-pricing：`verifying`（8/8 generator done，待 Evaluator 验收）
 - BL-102: capabilities 统一 + supportedSizes + 一次性修正
-- BL-107: 参考定价（OpenRouter 映射）+ 全站人民币显示 + 汇率配置
-- Spec：docs/specs/DQ2-alias-quality-pricing-spec.md
+- BL-107: 参考定价 + 全站人民币显示 + 汇率配置 + 服务商预填充
 
 ## 已完成批次
 - R1~R4 / P5 / M1a~M1d / BF / K1 / U1 / L1 / MCP2 / A1 / T1 / N1 / O1 / CI1 / SUP1 / P6

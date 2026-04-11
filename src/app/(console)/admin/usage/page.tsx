@@ -4,7 +4,8 @@ import { useTranslations } from "next-intl";
 import { apiFetch } from "@/lib/api-client";
 import { useAsyncData } from "@/hooks/use-async-data";
 import { Skeleton } from "@/components/ui/skeleton";
-import { formatCurrency } from "@/lib/utils";
+import { formatCNY } from "@/lib/utils";
+import { useExchangeRate } from "@/hooks/use-exchange-rate";
 import {
   BarChart,
   Bar,
@@ -65,6 +66,7 @@ const tooltipStyle = {
 
 export default function AdminUsagePage() {
   const t = useTranslations("adminUsage");
+  const exchangeRate = useExchangeRate();
   const [period, setPeriod] = useState("7d");
 
   const { data: summary } = useAsyncData<UsageSummary>(
@@ -117,13 +119,17 @@ export default function AdminUsagePage() {
             { label: t("totalCalls"), value: summary.totalCalls.toLocaleString(), icon: "call" },
             {
               label: t("revenue"),
-              value: formatCurrency(summary.totalRevenue, 2),
+              value: formatCNY(summary.totalRevenue, exchangeRate, 2),
               icon: "trending_up",
             },
-            { label: t("cost"), value: formatCurrency(summary.totalCost, 2), icon: "payments" },
+            {
+              label: t("cost"),
+              value: formatCNY(summary.totalCost, exchangeRate, 2),
+              icon: "payments",
+            },
             {
               label: t("margin"),
-              value: `${formatCurrency(summary.margin, 2)} (${marginPct}%)`,
+              value: `${formatCNY(summary.margin, exchangeRate, 2)} (${marginPct}%)`,
               icon: "savings",
             },
           ].map((c) => (
@@ -169,7 +175,10 @@ export default function AdminUsagePage() {
                     <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />
                   ))}
                 </Pie>
-                <Tooltip {...tooltipStyle} formatter={(v) => formatCurrency(Number(v), 2)} />
+                <Tooltip
+                  {...tooltipStyle}
+                  formatter={(v) => formatCNY(Number(v), exchangeRate, 2)}
+                />
               </PieChart>
             </ResponsiveContainer>
           </div>
@@ -183,7 +192,7 @@ export default function AdminUsagePage() {
                   />
                   <span className="font-medium">{p.provider}</span>
                 </div>
-                <span className="font-bold">{formatCurrency(p.revenue, 2)}</span>
+                <span className="font-bold">{formatCNY(p.revenue, exchangeRate, 2)}</span>
               </div>
             ))}
           </div>
@@ -249,10 +258,14 @@ export default function AdminUsagePage() {
               <tr key={p.provider} className="hover:bg-ds-surface-container-low transition-colors">
                 <td className="px-6 py-4 text-sm font-bold">{p.provider}</td>
                 <td className="px-6 py-4 text-sm">{p.calls.toLocaleString()}</td>
-                <td className="px-6 py-4 text-sm font-mono">{formatCurrency(p.cost, 4)}</td>
-                <td className="px-6 py-4 text-sm font-mono">{formatCurrency(p.revenue, 4)}</td>
+                <td className="px-6 py-4 text-sm font-mono">
+                  {formatCNY(p.cost, exchangeRate, 4)}
+                </td>
+                <td className="px-6 py-4 text-sm font-mono">
+                  {formatCNY(p.revenue, exchangeRate, 4)}
+                </td>
                 <td className="px-6 py-4 text-sm font-mono font-bold text-ds-primary">
-                  {formatCurrency(p.margin, 4)}
+                  {formatCNY(p.margin, exchangeRate, 4)}
                 </td>
                 <td className="px-6 py-4 text-sm font-bold">{p.marginPercent.toFixed(1)}%</td>
               </tr>

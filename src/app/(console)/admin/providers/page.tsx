@@ -33,6 +33,82 @@ interface ProviderConfig {
 }
 
 // ============================================================
+// Adapter presets for auto-fill
+// ============================================================
+
+const ADAPTER_PRESETS: Record<
+  string,
+  { displayName: string; baseUrl: string; adapterType: string; supportsModelsApi: boolean }
+> = {
+  openai: {
+    displayName: "OpenAI",
+    baseUrl: "https://api.openai.com/v1",
+    adapterType: "openai-compat",
+    supportsModelsApi: true,
+  },
+  anthropic: {
+    displayName: "Anthropic Claude",
+    baseUrl: "https://api.anthropic.com/v1/",
+    adapterType: "openai-compat",
+    supportsModelsApi: true,
+  },
+  deepseek: {
+    displayName: "DeepSeek",
+    baseUrl: "https://api.deepseek.com/v1",
+    adapterType: "openai-compat",
+    supportsModelsApi: true,
+  },
+  zhipu: {
+    displayName: "智谱 GLM",
+    baseUrl: "https://open.bigmodel.cn/api/paas/v4",
+    adapterType: "openai-compat",
+    supportsModelsApi: true,
+  },
+  volcengine: {
+    displayName: "火山引擎",
+    baseUrl: "",
+    adapterType: "volcengine",
+    supportsModelsApi: false,
+  },
+  siliconflow: {
+    displayName: "硅基流动",
+    baseUrl: "https://api.siliconflow.cn/v1",
+    adapterType: "siliconflow",
+    supportsModelsApi: true,
+  },
+  openrouter: {
+    displayName: "OpenRouter",
+    baseUrl: "https://openrouter.ai/api/v1",
+    adapterType: "openai-compat",
+    supportsModelsApi: true,
+  },
+  minimax: {
+    displayName: "MiniMax",
+    baseUrl: "https://api.minimax.io/v1",
+    adapterType: "openai-compat",
+    supportsModelsApi: true,
+  },
+  moonshot: {
+    displayName: "Moonshot/Kimi",
+    baseUrl: "https://api.moonshot.cn/v1",
+    adapterType: "openai-compat",
+    supportsModelsApi: true,
+  },
+  qwen: {
+    displayName: "阿里云百炼/Qwen",
+    baseUrl: "https://dashscope.aliyuncs.com/compatible-mode/v1",
+    adapterType: "openai-compat",
+    supportsModelsApi: true,
+  },
+  stepfun: {
+    displayName: "阶跃星辰/StepFun",
+    baseUrl: "https://api.stepfun.com/v1",
+    adapterType: "openai-compat",
+    supportsModelsApi: true,
+  },
+};
+
+// ============================================================
 // Component
 // ============================================================
 
@@ -234,6 +310,36 @@ export default function ProvidersPage() {
               </button>
             </div>
             <div className="p-8 space-y-5">
+              {/* Adapter preset selector (create mode only) */}
+              {!editId && (
+                <div className="space-y-1.5">
+                  <label className="text-[11px] font-bold uppercase tracking-widest text-ds-primary block">
+                    {t("selectAdapter")}
+                  </label>
+                  <select
+                    className="w-full bg-ds-primary/5 border-2 border-ds-primary/20 rounded-lg px-4 py-3 text-sm font-bold focus:ring-2 focus:ring-ds-primary/20 outline-none"
+                    value={form.name ?? ""}
+                    onChange={(e) => {
+                      const preset = ADAPTER_PRESETS[e.target.value];
+                      if (preset) {
+                        setForm({
+                          name: e.target.value,
+                          displayName: preset.displayName,
+                          baseUrl: preset.baseUrl,
+                          adapterType: preset.adapterType,
+                        });
+                      }
+                    }}
+                  >
+                    <option value="">{t("chooseAdapter")}</option>
+                    {Object.entries(ADAPTER_PRESETS).map(([key, p]) => (
+                      <option key={key} value={key}>
+                        {p.displayName} ({key})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
               {[
                 { key: "name", label: tc("name"), placeholder: t("namePlaceholder") },
                 {

@@ -30,6 +30,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     "capabilities",
     "description",
     "sellPrice",
+    "openRouterModelId",
   ] as const;
 
   const data: Record<string, unknown> = {};

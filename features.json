@@ -39,7 +39,7 @@
       "title": "参考定价 API + 前端交互（BL-107）",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) GET /api/admin/model-aliases/[id]/suggest-price 端点实时查 OpenRouter 返回候选模型+定价；2) 别名管理页有「参考定价」按钮；3) 首次点击展示候选下拉框（支持手动搜索），选择后回填 CNY 定价；4) 已绑定的别名点击直接回填（跳过选择）；5) 可重新绑定（清除映射）；6) 保存时 openRouterModelId 正确存储；7) OpenRouter API 超时/不可用时显示友好提示；8) tsc 通过"
     },
     {
@@ -47,7 +47,7 @@
       "title": "全站人民币显示 — 定价+余额+充值（BL-107）",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) 提供统一的 formatCNY 工具函数（读取汇率配置 × 汇率）；2) 别名定价输入框显示/编辑 CNY，保存时 ÷ 汇率存 USD；3) 余额页显示 ¥ 而非 USD；4) 充值弹窗预设金额和自定义输入为 CNY，后端 ÷ 汇率存 USD；5) 交易记录 amount/balanceAfter 显示 CNY；6) tsc 通过"
     },
     {
@@ -55,7 +55,7 @@
       "title": "全站人民币显示 — 日志+Models+Admin（BL-107）",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) /logs 和 /admin/logs 中 costPrice/sellPrice 显示 CNY；2) /models 页定价显示 CNY；3) /admin/providers 和 /admin/models 定价相关字段显示 CNY；4) i18n 文案 USD→CNY 已更新（中英文）；5) tsc 通过"
     },
     {
@@ -63,7 +63,7 @@
       "title": "添加服务商体验优化（Adapter 预填充 + 布局调整）",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) 添加服务商弹窗布局调整：第一步选择适配器，选择后自动填充 displayName、baseUrl、authType、ProviderConfig（supportsModelsApi 等）；2) 管理员只需填写 API Key（唯一必填项）；3) 已填充字段可覆盖修改（高级用户场景）；4) 适配器下拉框包含所有 11 家已注册 adapter；5) 预填充数据覆盖：openai(api.openai.com/v1)/anthropic(api.anthropic.com/v1)/deepseek(api.deepseek.com/v1)/zhipu(open.bigmodel.cn/api/paas/v4)/volcengine(留空,需手动填)/siliconflow(api.siliconflow.cn/v1)/openrouter(openrouter.ai/api/v1)/minimax(api.minimax.io/v1)/moonshot(api.moonshot.cn/v1)/qwen(dashscope.aliyuncs.com/compatible-mode/v1)/stepfun(api.stepfun.com/v1)；6) tsc 通过"
     },
     {

@@ -3,7 +3,8 @@ import { useTranslations } from "next-intl";
 import { apiFetch } from "@/lib/api-client";
 import { useAsyncData } from "@/hooks/use-async-data";
 import { Skeleton } from "@/components/ui/skeleton";
-import { formatCurrency, timeAgo } from "@/lib/utils";
+import { formatCNY, timeAgo } from "@/lib/utils";
+import { useExchangeRate } from "@/hooks/use-exchange-rate";
 import Link from "next/link";
 
 // ============================================================
@@ -27,6 +28,7 @@ interface UserRow {
 export default function AdminUsersPage() {
   const t = useTranslations("adminUsers");
   const tc = useTranslations("common");
+  const exchangeRate = useExchangeRate();
 
   const { data, loading } = useAsyncData<{ data: UserRow[] }>(
     () => apiFetch<{ data: UserRow[] }>("/api/admin/users"),
@@ -75,13 +77,11 @@ export default function AdminUsersPage() {
           <tbody className="divide-y divide-slate-50">
             {users.map((u) => (
               <tr key={u.id} className="hover:bg-ds-surface-container-low transition-colors">
-                <td className="px-6 py-4 text-sm font-bold text-ds-on-surface">
-                  {u.name ?? "—"}
-                </td>
+                <td className="px-6 py-4 text-sm font-bold text-ds-on-surface">{u.name ?? "—"}</td>
                 <td className="px-6 py-4 text-sm text-slate-600">{u.email}</td>
                 <td className="px-6 py-4 text-sm font-medium">{u.projectCount}</td>
                 <td className="px-6 py-4 text-sm font-mono">
-                  {formatCurrency(u.totalBalance, 2)}
+                  {formatCNY(u.totalBalance, exchangeRate, 2)}
                 </td>
                 <td className="px-6 py-4 text-sm font-medium">{u.totalCalls.toLocaleString()}</td>
                 <td className="px-6 py-4 text-xs text-slate-500" title={u.createdAt}>

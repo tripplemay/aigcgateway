@@ -3,13 +3,14 @@ import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { apiFetch } from "@/lib/api-client";
 import { useProject } from "@/hooks/use-project";
+import { useExchangeRate } from "@/hooks/use-exchange-rate";
 import { toast } from "sonner";
 
 // ============================================================
 // Types & constants
 // ============================================================
 
-const AMOUNTS = [10, 50, 100, 200, 500];
+const AMOUNTS_CNY = [50, 100, 200, 500, 1000];
 
 interface RechargeDialogProps {
   open: boolean;
@@ -25,24 +26,26 @@ export function RechargeDialog({ open, onOpenChange, onRecharged }: RechargeDial
   const t = useTranslations("balance");
   const tc = useTranslations("common");
   const { current } = useProject();
+  const exchangeRate = useExchangeRate();
 
-  const [amount, setAmount] = useState(50);
+  const [amount, setAmount] = useState(100);
   const [customAmount, setCustomAmount] = useState("");
   const [payMethod, setPayMethod] = useState("alipay");
 
-  const effectiveAmount = customAmount ? Number(customAmount) : amount;
+  const effectiveAmountCNY = customAmount ? Number(customAmount) : amount;
 
   const doRecharge = async () => {
     if (!current) return;
-    const amt = effectiveAmount;
-    if (amt < 1 || amt > 10000) {
+    const amtCNY = effectiveAmountCNY;
+    if (amtCNY < 1 || amtCNY > 100000) {
       toast.error(t("amountError"));
       return;
     }
+    const amtUSD = amtCNY / exchangeRate;
     try {
       const res = await apiFetch<{ paymentUrl?: string }>(`/api/projects/${current.id}/recharge`, {
         method: "POST",
-        body: JSON.stringify({ amount: amt, paymentMethod: payMethod }),
+        body: JSON.stringify({ amount: amtUSD, paymentMethod: payMethod }),
       });
       onOpenChange(false);
       if (res.paymentUrl) {
@@ -77,7 +80,7 @@ export function RechargeDialog({ open, onOpenChange, onRecharged }: RechargeDial
 
           {/* Quick Amount Selection */}
           <div className="grid grid-cols-3 gap-3 mb-8">
-            {AMOUNTS.map((a) => (
+            {AMOUNTS_CNY.map((a) => (
               <button
                 key={a}
                 onClick={() => {
@@ -90,7 +93,7 @@ export function RechargeDialog({ open, onOpenChange, onRecharged }: RechargeDial
                     : "border-slate-100 text-slate-600 hover:border-ds-primary/40"
                 }`}
               >
-                ${a}
+                ¥{a}
               </button>
             ))}
           </div>
@@ -102,7 +105,7 @@ export function RechargeDialog({ open, onOpenChange, onRecharged }: RechargeDial
             </label>
             <div className="relative">
               <span className="absolute inset-y-0 left-4 flex items-center text-slate-400 font-bold">
-                $
+                ¥
               </span>
               <input
                 className="w-full bg-ds-surface-container-low border-none rounded-xl py-4 pl-10 pr-4 text-lg font-bold focus:ring-2 focus:ring-ds-primary/20 outline-none"
@@ -173,7 +176,7 @@ export function RechargeDialog({ open, onOpenChange, onRecharged }: RechargeDial
               onClick={doRecharge}
               className="flex-[2] py-4 px-6 rounded-xl font-bold text-white bg-gradient-to-r from-ds-primary to-ds-primary-container shadow-xl shadow-ds-primary/30 active:scale-95 transition-transform"
             >
-              {t("confirmRecharge")} ${effectiveAmount.toFixed(2)}
+              {t("confirmRecharge")} ¥{effectiveAmountCNY.toFixed(2)}
             </button>
           </div>
         </div>

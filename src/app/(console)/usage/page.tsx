@@ -4,7 +4,8 @@ import { useTranslations } from "next-intl";
 import { apiFetch } from "@/lib/api-client";
 import { useProject } from "@/hooks/use-project";
 import { useAsyncData } from "@/hooks/use-async-data";
-import { formatCurrency } from "@/lib/utils";
+import { formatCNY } from "@/lib/utils";
+import { useExchangeRate } from "@/hooks/use-exchange-rate";
 import {
   BarChart,
   Bar,
@@ -80,6 +81,7 @@ const tooltipStyle = {
 export default function UsagePage() {
   const t = useTranslations("usage");
   const { current, loading: projLoading } = useProject();
+  const exchangeRate = useExchangeRate();
   const [period, setPeriod] = useState<string>("7d");
 
   const days = period === "today" ? 1 : period === "30d" ? 30 : 7;
@@ -156,7 +158,7 @@ export default function UsagePage() {
             },
             {
               label: t("totalCost"),
-              value: formatCurrency(summary.totalCost ?? 0, 2),
+              value: formatCNY(summary.totalCost ?? 0, exchangeRate, 2),
               icon: "payments",
             },
             {
@@ -340,7 +342,7 @@ export default function UsagePage() {
                     {(m.tokens ?? 0).toLocaleString()}
                   </TableCell>
                   <TableCell className="px-8 py-5 text-sm font-bold text-ds-primary">
-                    {formatCurrency(m.cost ?? 0, 2)}
+                    {formatCNY(m.cost ?? 0, exchangeRate, 2)}
                   </TableCell>
                   <TableCell className="px-8 py-5 text-sm font-medium">
                     {m.avgLatency ?? 0}ms

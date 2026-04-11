@@ -5,6 +5,7 @@ import { apiFetch } from "@/lib/api-client";
 import { useAsyncData } from "@/hooks/use-async-data";
 import { SearchBar } from "@/components/search-bar";
 import { toast } from "sonner";
+import { useExchangeRate } from "@/hooks/use-exchange-rate";
 
 // ── Types ──
 
@@ -66,6 +67,7 @@ type FilterEnabled = "all" | "enabled" | "disabled";
 
 export default function ModelAliasesPage() {
   const t = useTranslations("modelAliases");
+  const exchangeRate = useExchangeRate();
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [editState, setEditState] = useState<Record<string, Partial<AliasItem>>>({});
   const [showCreateDialog, setShowCreateDialog] = useState(false);
@@ -162,8 +164,24 @@ export default function ModelAliasesPage() {
   };
 
   const saveChanges = async (id: string) => {
-    const changes = editState[id];
+    const changes = { ...editState[id] };
     if (!changes || Object.keys(changes).length === 0) return;
+    // CNY → USD conversion for sellPrice
+    if (changes.sellPrice) {
+      const sp = changes.sellPrice as Record<string, unknown>;
+      const converted: Record<string, unknown> = {};
+      for (const [k, v] of Object.entries(sp)) {
+        if (
+          (k === "inputPer1M" || k === "outputPer1M" || k === "perCall") &&
+          typeof v === "number"
+        ) {
+          converted[k] = v / exchangeRate;
+        } else {
+          converted[k] = v;
+        }
+      }
+      changes.sellPrice = converted;
+    }
     try {
       await apiFetch(`/api/admin/model-aliases/${id}`, {
         method: "PATCH",
@@ -302,7 +320,21 @@ export default function ModelAliasesPage() {
   // ── Sell Price helpers ──
 
   const getSellPrice = (id: string) => {
-    return (getEditValue(id, "sellPrice") ?? {}) as Record<string, unknown>;
+    // If user has edited sellPrice, return as-is (already CNY)
+    if (editState[id]?.sellPrice) {
+      return editState[id].sellPrice as Record<string, unknown>;
+    }
+    // Otherwise convert from USD (DB) to CNY for display
+    const raw = (aliases.find((a) => a.id === id)?.sellPrice ?? {}) as Record<string, unknown>;
+    const converted: Record<string, unknown> = {};
+    for (const [k, v] of Object.entries(raw)) {
+      if ((k === "inputPer1M" || k === "outputPer1M" || k === "perCall") && typeof v === "number") {
+        converted[k] = Math.round(v * exchangeRate * 100) / 100;
+      } else {
+        converted[k] = v;
+      }
+    }
+    return converted;
   };
 
   const setSellPriceField = (id: string, field: string, value: string) => {
@@ -700,10 +732,22 @@ export default function ModelAliasesPage() {
 
                       {/* Sell Price */}
                       <div className="flex flex-col gap-4">
-                        <h4 className="text-sm font-bold flex items-center gap-2">
-                          <span className="material-symbols-outlined text-base">payments</span>{" "}
-                          {t("sellPrice")}
-                        </h4>
+                        <div className="flex items-center justify-between">
+                          <h4 className="text-sm font-bold flex items-center gap-2">
+                            <span className="material-symbols-outlined text-base">payments</span>{" "}
+                            {t("sellPrice")} (¥ CNY)
+                          </h4>
+                          <SuggestPriceButton
+                            aliasId={alias.id}
+                            onApply={(input, output, orModelId) => {
+                              setSellPriceField(alias.id, "inputPer1M", String(input));
+                              setSellPriceField(alias.id, "outputPer1M", String(output));
+                              if (orModelId) {
+                                setEditField(alias.id, "openRouterModelId", orModelId);
+                              }
+                            }}
+                          />
+                        </div>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 bg-ds-surface-container-low/30 p-4 rounded-xl">
                           <div className="space-y-1.5">
                             <label className="text-[10px] font-bold text-ds-on-surface-variant uppercase tracking-widest ml-1">
@@ -980,6 +1024,117 @@ export default function ModelAliasesPage() {
             </table>
           </div>
         </section>
+      )}
+    </div>
+  );
+}
+
+// ============================================================
+// SuggestPriceButton — 参考定价按钮
+// ============================================================
+
+function SuggestPriceButton({
+  aliasId,
+  onApply,
+}: {
+  aliasId: string;
+  onApply: (inputPerM: number, outputPerM: number, orModelId?: string) => void;
+}) {
+  const t = useTranslations("modelAliases");
+  const [loading, setLoading] = useState(false);
+  const [candidates, setCandidates] = useState<
+    Array<{ id: string; name: string; inputPriceCNYPerM: number; outputPriceCNYPerM: number }>
+  >([]);
+  const [showDropdown, setShowDropdown] = useState(false);
+  const [searchQ, setSearchQ] = useState("");
+
+  const fetchSuggestions = async (q?: string) => {
+    setLoading(true);
+    try {
+      const params = q ? `?q=${encodeURIComponent(q)}` : "";
+      const res = await apiFetch<{
+        bound: boolean;
+        model?: { id: string; inputPriceCNYPerM: number; outputPriceCNYPerM: number };
+        candidates?: Array<{
+          id: string;
+          name: string;
+          inputPriceCNYPerM: number;
+          outputPriceCNYPerM: number;
+        }>;
+        openRouterModelId?: string;
+      }>(`/api/admin/model-aliases/${aliasId}/suggest-price${params}`);
+
+      if (res.bound && res.model) {
+        onApply(res.model.inputPriceCNYPerM, res.model.outputPriceCNYPerM, res.openRouterModelId);
+        toast.success(t("priceApplied"));
+        setShowDropdown(false);
+      } else if (res.candidates && res.candidates.length > 0) {
+        setCandidates(res.candidates);
+        setShowDropdown(true);
+      } else {
+        toast.info(t("noCandidates"));
+      }
+    } catch (e) {
+      toast.error((e as Error).message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const selectCandidate = (c: (typeof candidates)[0]) => {
+    onApply(c.inputPriceCNYPerM, c.outputPriceCNYPerM, c.id);
+    setShowDropdown(false);
+    setCandidates([]);
+    toast.success(t("priceApplied"));
+  };
+
+  return (
+    <div className="relative">
+      <button
+        onClick={() => fetchSuggestions()}
+        disabled={loading}
+        className="text-xs font-bold text-ds-primary hover:text-ds-primary/80 transition-colors flex items-center gap-1 disabled:opacity-50"
+      >
+        <span className="material-symbols-outlined text-sm">auto_fix_high</span>
+        {loading ? "..." : t("suggestPrice")}
+      </button>
+
+      {showDropdown && (
+        <div className="absolute right-0 top-8 z-50 w-80 bg-ds-surface-container-lowest rounded-xl shadow-2xl border border-ds-outline-variant/20 p-3">
+          <input
+            type="text"
+            className="w-full bg-ds-surface-container-low border-none rounded-lg text-xs px-3 py-2 mb-2 focus:ring-1 focus:ring-ds-primary/30"
+            placeholder={t("searchOpenRouter")}
+            value={searchQ}
+            onChange={(e) => setSearchQ(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") fetchSuggestions(searchQ);
+            }}
+          />
+          <div className="max-h-48 overflow-y-auto">
+            {candidates.map((c) => (
+              <button
+                key={c.id}
+                onClick={() => selectCandidate(c)}
+                className="w-full text-left px-3 py-2 rounded-lg hover:bg-ds-surface-container-low transition-colors text-xs"
+              >
+                <div className="font-bold truncate">{c.id}</div>
+                <div className="text-ds-on-surface-variant">
+                  ¥{c.inputPriceCNYPerM.toFixed(2)} / ¥{c.outputPriceCNYPerM.toFixed(2)} per 1M
+                </div>
+              </button>
+            ))}
+          </div>
+          <button
+            onClick={() => {
+              setShowDropdown(false);
+              setCandidates([]);
+            }}
+            className="mt-2 w-full text-center text-[10px] text-ds-on-surface-variant hover:text-ds-primary"
+          >
+            {t("close")}
+          </button>
+        </div>
       )}
     </div>
   );

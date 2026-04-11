@@ -525,6 +525,8 @@
     "adapter": "Adapter",
     "editProvider": "Edit Provider",
     "addProviderTitle": "Add Provider",
+    "selectAdapter": "Select Adapter (auto-fill)",
+    "chooseAdapter": "Choose an adapter...",
     "displayName": "Display Name",
     "apiKey": "API Key",
     "config": "Config",
@@ -687,7 +689,12 @@
     "sellPrice": "Sell Price",
     "inputPer1M": "Input / 1M tokens",
     "outputPer1M": "Output / 1M tokens",
-    "perCall": "Per Call"
+    "perCall": "Per Call",
+    "suggestPrice": "Suggest Price",
+    "priceApplied": "Price applied",
+    "noCandidates": "No matching models found on OpenRouter",
+    "searchOpenRouter": "Search OpenRouter models...",
+    "close": "Close"
   },
   "adminHealth": {
     "title": "Health Monitor",

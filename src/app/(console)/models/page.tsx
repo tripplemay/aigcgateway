@@ -3,6 +3,7 @@ import { useState, useMemo } from "react";
 import { useTranslations } from "next-intl";
 import { useAsyncData } from "@/hooks/use-async-data";
 import { SearchBar } from "@/components/search-bar";
+import { useExchangeRate } from "@/hooks/use-exchange-rate";
 
 // ============================================================
 // Types & helpers
@@ -56,16 +57,22 @@ const MODALITY_STYLES: Record<string, string> = {
   video: "bg-ds-error-container text-ds-error border-ds-error-container",
 };
 
-function fmtPriceSplit(p: Record<string, unknown>): { input: string; output: string } | null {
+function fmtPriceSplit(
+  p: Record<string, unknown>,
+  rate: number,
+): { input: string; output: string } | null {
   if (p.unit === "call") {
     const v = Number(p.per_call ?? 0);
     if (v === 0) return null;
-    return { input: `$${v}`, output: "" };
+    return { input: `¥${(v * rate).toFixed(2)}`, output: "" };
   }
   const inp = Number(p.input_per_1m ?? 0);
   const out = Number(p.output_per_1m ?? 0);
   if (inp === 0 && out === 0) return null;
-  return { input: `$${inp.toFixed(2)}`, output: `$${out.toFixed(2)}` };
+  return {
+    input: `¥${(inp * rate).toFixed(2)}`,
+    output: `¥${(out * rate).toFixed(2)}`,
+  };
 }
 
 function hasCapability(m: ModelItem, cap: string): boolean {
@@ -79,6 +86,7 @@ function hasCapability(m: ModelItem, cap: string): boolean {
 export default function ModelsPage() {
   const t = useTranslations("models");
   const tc = useTranslations("common");
+  const exchangeRate = useExchangeRate();
   const [search, setSearch] = useState("");
   const [modality, setModality] = useState("");
   const [collapsedBrands, setCollapsedBrands] = useState<Set<string>>(new Set());
@@ -247,7 +255,7 @@ export default function ModelsPage() {
                     </thead>
                     <tbody className="divide-y divide-ds-outline-variant/5">
                       {visibleModels.map((m) => {
-                        const priceSplit = fmtPriceSplit(m.pricing);
+                        const priceSplit = fmtPriceSplit(m.pricing, exchangeRate);
                         const modalityStyle = MODALITY_STYLES[m.modality] ?? MODALITY_STYLES.text;
                         return (
                           <tr

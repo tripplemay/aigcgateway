@@ -3,7 +3,8 @@ import { useTranslations } from "next-intl";
 import { apiFetch } from "@/lib/api-client";
 import { useProject } from "@/hooks/use-project";
 import { useAsyncData } from "@/hooks/use-async-data";
-import { formatCurrency, timeAgo } from "@/lib/utils";
+import { formatCNY, timeAgo } from "@/lib/utils";
+import { useExchangeRate } from "@/hooks/use-exchange-rate";
 import {
   AreaChart,
   Area,
@@ -63,6 +64,7 @@ export default function DashboardPage() {
   const t = useTranslations("dashboard");
   const tc = useTranslations("common");
   const { current, loading: projLoading } = useProject();
+  const exchangeRate = useExchangeRate();
   interface DashboardData {
     usage: UsageSummary;
     daily: DailyData[];
@@ -127,8 +129,8 @@ export default function DashboardPage() {
             <div className="flex items-center gap-3">
               <span className="material-symbols-outlined text-ds-error">warning</span>
               <p className="font-medium">
-                {t("lowBalance")} {t("balanceIs")} {formatCurrency(balanceInfo.balance, 2)},{" "}
-                {t("belowThreshold")} {formatCurrency(balanceInfo.alertThreshold, 2)}.
+                {t("lowBalance")} {t("balanceIs")} {formatCNY(balanceInfo.balance, exchangeRate, 2)}
+                , {t("belowThreshold")} {formatCNY(balanceInfo.alertThreshold, exchangeRate, 2)}.
               </p>
             </div>
             <Link
@@ -175,7 +177,7 @@ export default function DashboardPage() {
               </span>
               <div className="flex items-end justify-between">
                 <span className="text-2xl font-extrabold font-[var(--font-heading)]">
-                  {formatCurrency(usage.totalCost, 2)}
+                  {formatCNY(usage.totalCost, exchangeRate, 2)}
                 </span>
               </div>
             </div>
@@ -219,7 +221,7 @@ export default function DashboardPage() {
                   </span>
                 </div>
                 <h3 className="text-4xl font-extrabold mt-2">
-                  {balanceInfo ? formatCurrency(balanceInfo.balance, 2) : "$0.00"}
+                  {balanceInfo ? formatCNY(balanceInfo.balance, exchangeRate, 2) : "¥0.00"}
                 </h3>
               </div>
               <Link
@@ -369,7 +371,7 @@ export default function DashboardPage() {
             <div className="flex justify-between items-center mb-4">
               <h4 className="font-[var(--font-heading)] font-bold text-lg">{t("costTrend")}</h4>
               <span className="text-sm font-bold text-ds-primary">
-                {usage ? formatCurrency(usage.totalCost, 2) : "$0"} Total
+                {usage ? formatCNY(usage.totalCost, exchangeRate, 2) : "¥0"} Total
               </span>
             </div>
             <div className="h-24">

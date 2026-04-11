@@ -525,6 +525,8 @@
     "adapter": "适配器",
     "editProvider": "编辑服务商",
     "addProviderTitle": "添加服务商",
+    "selectAdapter": "选择适配器（自动填充）",
+    "chooseAdapter": "选择适配器...",
     "displayName": "显示名称",
     "apiKey": "API 密钥",
     "config": "配置",
@@ -687,7 +689,12 @@
     "sellPrice": "售价",
     "inputPer1M": "输入 / 1M tokens",
     "outputPer1M": "输出 / 1M tokens",
-    "perCall": "单次调用"
+    "perCall": "单次调用",
+    "suggestPrice": "参考定价",
+    "priceApplied": "定价已应用",
+    "noCandidates": "在 OpenRouter 未找到匹配模型",
+    "searchOpenRouter": "搜索 OpenRouter 模型...",
+    "close": "关闭"
   },
   "adminHealth": {
     "title": "健康监控",

@@ -6,7 +6,8 @@ import { apiFetch } from "@/lib/api-client";
 import { useAsyncData } from "@/hooks/use-async-data";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
-import { formatCurrency } from "@/lib/utils";
+import { formatCNY } from "@/lib/utils";
+import { useExchangeRate } from "@/hooks/use-exchange-rate";
 import { toast } from "sonner";
 import Link from "next/link";
 
@@ -57,6 +58,7 @@ const TXN_TYPE_STYLES: Record<string, string> = {
 export default function UserDetailPage() {
   const t = useTranslations("adminUsers");
   const tc = useTranslations("common");
+  const exchangeRate = useExchangeRate();
   const params = useParams();
   const router = useRouter();
 
@@ -228,7 +230,9 @@ export default function UserDetailPage() {
                 </span>
               </div>
               <div className="mt-4">
-                <p className="text-3xl font-extrabold">{formatCurrency(user.balance, 2)}</p>
+                <p className="text-3xl font-extrabold">
+                  {formatCNY(user.balance, exchangeRate, 2)}
+                </p>
                 <button
                   onClick={() => {
                     setAmount("");
@@ -367,7 +371,7 @@ export default function UserDetailPage() {
                             className={`text-xs font-bold ${tx.amount >= 0 ? "text-ds-status-success" : "text-ds-on-surface-variant"}`}
                           >
                             {tx.amount >= 0 ? "+" : ""}
-                            {formatCurrency(tx.amount, 4)}
+                            {formatCNY(tx.amount, exchangeRate, 4)}
                           </span>
                         </td>
                       </tr>

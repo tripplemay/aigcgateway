@@ -5,6 +5,7 @@ import { apiFetch } from "@/lib/api-client";
 import { useAsyncData } from "@/hooks/use-async-data";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
+import { useExchangeRate } from "@/hooks/use-exchange-rate";
 
 // ============================================================
 // Types
@@ -54,15 +55,17 @@ interface ProviderGroup {
 const MATRIX_PER_PAGE = 4;
 const MODELS_PER_PAGE = 20;
 
-function fmtPrice(p: Record<string, unknown> | null) {
+function fmtPrice(p: Record<string, unknown> | null, rate: number) {
   if (!p) return "\u2014";
   if (p.unit === "call") {
     const v = Number(p.perCall ?? 0);
-    return v === 0 ? "Free" : `$${v}/call`;
+    return v === 0 ? "Free" : `¥${(v * rate).toFixed(2)}/call`;
   }
   const inp = Number(p.inputPer1M ?? 0);
   const out = Number(p.outputPer1M ?? 0);
-  return inp === 0 && out === 0 ? "Free" : `$${inp.toFixed(2)} / $${out.toFixed(2)}`;
+  return inp === 0 && out === 0
+    ? "Free"
+    : `¥${(inp * rate).toFixed(2)} / ¥${(out * rate).toFixed(2)}`;
 }
 
 // ============================================================
@@ -72,6 +75,7 @@ function fmtPrice(p: Record<string, unknown> | null) {
 export default function ModelsChannelsPage() {
   const t = useTranslations("adminModels");
   const tc = useTranslations("common");
+  const exchangeRate = useExchangeRate();
 
   const [search, setSearch] = useState("");
   const [syncing, setSyncing] = useState(false);
@@ -509,7 +513,7 @@ export default function ModelsChannelsPage() {
                                             );
                                           }}
                                         >
-                                          {fmtPrice(ch.sellPrice)}
+                                          {fmtPrice(ch.sellPrice, exchangeRate)}
                                         </span>
                                       )}
                                     </div>
@@ -675,7 +679,7 @@ export default function ModelsChannelsPage() {
                         </div>
                       </td>
                       <td className="px-6 py-4 font-bold text-xs">
-                        {fmtPrice(row.channel.costPrice)}
+                        {fmtPrice(row.channel.costPrice, exchangeRate)}
                       </td>
                       <td
                         className={`px-6 py-4 text-xs ${isTimedOut ? "text-ds-error font-bold" : "text-ds-on-surface-variant"}`}

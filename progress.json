@@ -1,11 +1,11 @@
 {
-  "status": "building",
+  "status": "verifying",
   "user_goal": "DQ2 — 别名数据质量二期（capabilities/supportedSizes 统一）+ 定价体系（OpenRouter 参考定价 + 全站人民币显示）",
   "total_features": 9,
-  "completed_features": 4,
+  "completed_features": 8,
   "fix_rounds": 0,
   "current_sprint": null,
-  "last_updated": "2026-04-11T14:00:00Z",
+  "last_updated": "2026-04-11T16:00:00Z",
   "reference_docs": ["docs/specs/DQ2-alias-quality-pricing-spec.md"],
   "role_assignments": null,
   "docs": {
@@ -17,7 +17,7 @@
   "evaluator_feedback": null,
   "generator_handoff": null,
   "session_notes": {
-    "Kimi": "Planner 完成 DQ2 规划：BL-102（capabilities 统一 + supportedSizes + 一次性修正）+ BL-107（参考定价 + 全站人民币显示）。8 条功能，依赖顺序：F-DQ2-04(schema+汇率) → F-DQ2-05(参考定价) → F-DQ2-06/07(人民币显示)。BL-102 的 01-03 与 BL-107 独立可并行。充值金额输入 CNY，后端 ÷ 汇率存 USD。",
+    "Kimi": "Generator 完成 DQ2 全部 8 条功能。01: capabilities 去 image_input 加 reasoning/search。02: LLM prompt 推断 supported_sizes。03: reinferAllCapabilities() 迁移+重跑。04: openRouterModelId 字段+汇率配置+settings UI。05: suggest-price API+前端按钮+候选下拉。06: balance/recharge 全部 CNY，sellPrice 保存时÷汇率。07: 全站 formatCurrency→formatCNY（dashboard/usage/logs/admin-logs/admin-usage/admin-users/admin-models）。08: 添加服务商 adapter 预填充。tsc 通过。",
     "Reviewer": null
   }
 }

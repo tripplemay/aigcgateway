@@ -4,7 +4,8 @@ import { useTranslations, useLocale } from "next-intl";
 import { apiFetch } from "@/lib/api-client";
 import { useProject } from "@/hooks/use-project";
 import { useAsyncData } from "@/hooks/use-async-data";
-import { timeAgo } from "@/lib/utils";
+import { timeAgo, formatCNY } from "@/lib/utils";
+import { useExchangeRate } from "@/hooks/use-exchange-rate";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState } from "@/components/empty-state";
 import { SearchBar } from "@/components/search-bar";
@@ -44,6 +45,7 @@ export default function LogsPage() {
   const t = useTranslations("logs");
   const tc = useTranslations("common");
   const locale = useLocale();
+  const exchangeRate = useExchangeRate();
   const { current, loading: projLoading } = useProject();
 
   const router = useRouter();
@@ -238,7 +240,7 @@ export default function LogsPage() {
                   </TableCell>
                   <TableCell className="px-6 py-4 text-right">
                     <span className="text-xs font-medium text-slate-600">
-                      {l.sellPrice != null ? `$${l.sellPrice.toFixed(4)}` : "—"}
+                      {l.sellPrice != null ? formatCNY(l.sellPrice, exchangeRate) : "—"}
                     </span>
                   </TableCell>
                   <TableCell className="px-6 py-4 text-right">

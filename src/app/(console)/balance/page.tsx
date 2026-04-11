@@ -5,7 +5,8 @@ import { apiFetch } from "@/lib/api-client";
 import { useProject } from "@/hooks/use-project";
 import { useAsyncData } from "@/hooks/use-async-data";
 import { toast } from "sonner";
-import { formatCurrency, timeAgo } from "@/lib/utils";
+import { formatCNY, timeAgo } from "@/lib/utils";
+import { useExchangeRate } from "@/hooks/use-exchange-rate";
 
 import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState } from "@/components/empty-state";
@@ -68,6 +69,7 @@ export default function BalancePage() {
   const tc = useTranslations("common");
   const locale = useLocale();
   const { current, loading: projLoading } = useProject();
+  const exchangeRate = useExchangeRate();
 
   const [page, setPage] = useState(1);
   const [typeFilter, setTypeFilter] = useState("");
@@ -92,11 +94,9 @@ export default function BalancePage() {
 
   // ── Data: transactions (server-side pagination) ──
   const typeParam = typeFilter ? `&type=${typeFilter}` : "";
-  const {
-    data: txnData,
-    loading: txnLoading,
-  } = useAsyncData<TxnResponse>(async () => {
-    if (!current) return { data: [], pagination: { page: 1, pageSize: PAGE_SIZE, total: 0, totalPages: 1 } };
+  const { data: txnData, loading: txnLoading } = useAsyncData<TxnResponse>(async () => {
+    if (!current)
+      return { data: [], pagination: { page: 1, pageSize: PAGE_SIZE, total: 0, totalPages: 1 } };
     return apiFetch<TxnResponse>(
       `/api/projects/${current.id}/transactions?page=${page}&pageSize=${PAGE_SIZE}${typeParam}`,
     );
@@ -159,9 +159,8 @@ export default function BalancePage() {
                     <span
                       className={`text-5xl font-extrabold font-[var(--font-heading)] ${isLow ? "text-ds-error" : "text-ds-on-surface"}`}
                     >
-                      {formatCurrency(info.balance, 2)}
+                      {formatCNY(info.balance, exchangeRate, 2)}
                     </span>
-                    <span className="text-slate-400 font-medium">USD</span>
                   </div>
                   <div className="mt-8 flex flex-wrap items-center gap-8">
                     {info.lastRecharge && (
@@ -171,7 +170,7 @@ export default function BalancePage() {
                         </p>
                         <p className="font-semibold text-ds-on-background">
                           {timeAgo(info.lastRecharge.createdAt, locale)} ·{" "}
-                          {formatCurrency(info.lastRecharge.amount, 2)}
+                          {formatCNY(info.lastRecharge.amount, exchangeRate, 2)}
                         </p>
                       </div>
                     )}
@@ -199,9 +198,7 @@ export default function BalancePage() {
                   {t("alertThreshold")}
                 </h3>
               </div>
-              <p className="text-sm text-slate-500 mb-6 leading-relaxed">
-                {t("alertDescription")}
-              </p>
+              <p className="text-sm text-slate-500 mb-6 leading-relaxed">{t("alertDescription")}</p>
               <div className="relative mb-6">
                 <span className="absolute inset-y-0 left-4 flex items-center text-slate-400 font-medium">
                   $
@@ -300,13 +297,15 @@ export default function BalancePage() {
                       </div>
                     </TableCell>
                     <TableCell className="px-6 py-4 whitespace-nowrap font-medium">
-                      <span className={tx.amount >= 0 ? "text-green-600 font-bold" : "text-slate-600"}>
+                      <span
+                        className={tx.amount >= 0 ? "text-green-600 font-bold" : "text-slate-600"}
+                      >
                         {tx.amount >= 0 ? "+" : ""}
-                        {formatCurrency(tx.amount, 6)}
+                        {formatCNY(tx.amount, exchangeRate, 6)}
                       </span>
                     </TableCell>
                     <TableCell className="px-6 py-4 whitespace-nowrap font-semibold text-ds-on-background">
-                      {formatCurrency(tx.balanceAfter, 2)}
+                      {formatCNY(tx.balanceAfter, exchangeRate, 2)}
                     </TableCell>
                   </TableRow>
                 ))

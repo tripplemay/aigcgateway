@@ -4,7 +4,8 @@ import { useTranslations } from "next-intl";
 import { apiFetch } from "@/lib/api-client";
 import { useAsyncData } from "@/hooks/use-async-data";
 import { Skeleton } from "@/components/ui/skeleton";
-import { formatCurrency, timeAgo } from "@/lib/utils";
+import { formatCNY, timeAgo } from "@/lib/utils";
+import { useExchangeRate } from "@/hooks/use-exchange-rate";
 
 // ============================================================
 // Types
@@ -39,6 +40,7 @@ export default function AdminLogsPage() {
   const t = useTranslations("adminLogs");
   const tl = useTranslations("logs");
   const tc = useTranslations("common");
+  const exchangeRate = useExchangeRate();
   const [page, setPage] = useState(1);
   const [statusFilter, setStatusFilter] = useState("");
   const [searchQ, setSearchQ] = useState("");
@@ -175,10 +177,10 @@ export default function AdminLogsPage() {
                     {l.completionTokens?.toLocaleString() ?? "—"}
                   </td>
                   <td className="px-6 py-4 text-xs font-medium text-slate-600">
-                    {l.costPrice != null ? formatCurrency(l.costPrice) : "—"}
+                    {l.costPrice != null ? formatCNY(l.costPrice, exchangeRate) : "—"}
                   </td>
                   <td className="px-6 py-4 text-xs font-medium text-slate-600">
-                    {l.sellPrice != null ? formatCurrency(l.sellPrice) : "—"}
+                    {l.sellPrice != null ? formatCNY(l.sellPrice, exchangeRate) : "—"}
                   </td>
                   <td className="px-6 py-4 text-xs font-medium text-slate-600">
                     {l.latencyMs != null ? `${(l.latencyMs / 1000).toFixed(1)}s` : "—"}
