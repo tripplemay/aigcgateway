@@ -1,7 +1,7 @@
 {
   "status": "building",
   "user_goal": "DQ2 — 别名数据质量二期（capabilities/supportedSizes 统一）+ 定价体系（OpenRouter 参考定价 + 全站人民币显示）",
-  "total_features": 8,
+  "total_features": 9,
   "completed_features": 0,
   "fix_rounds": 0,
   "current_sprint": null,
