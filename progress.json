@@ -1,42 +1,29 @@
 {
-  "status": "reverifying",
+  "status": "done",
   "user_goal": "SUP1 — 后端安全加固（邮箱验证/JWT/限流）+ UI 打磨（假数据清理/千位分隔符/重名校验）",
   "total_features": 6,
   "completed_features": 6,
   "fix_rounds": 1,
   "current_sprint": null,
-  "last_updated": "2026-04-11T11:00:00Z",
+  "last_updated": "2026-04-11T02:06:00Z",
   "reference_docs": [],
   "role_assignments": null,
   "docs": {
     "spec": null,
     "test_cases": null,
-    "signoff": null,
+    "signoff": "docs/test-reports/sup1-security-ui-polish-signoff-2026-04-11.md",
     "framework_reviewed": false
   },
   "evaluator_feedback": {
-    "summary": "SUP1 首轮验收完成：4 PASS、1 PARTIAL、1 FAIL。关键问题为 templates/run 失败请求未正确回滚限流计数，以及两处页面未满足 toLocaleString 千位分隔符要求。",
-    "pass_count": 4,
-    "partial_count": 1,
-    "fail_count": 1,
-    "issues": [
-      {
-        "feature_id": "F-SUP1-03",
-        "result": "PARTIAL",
-        "description": "限流回滚在 chat/image/actions 路由验证通过，但 templates/run 失败场景未回滚，第二次同请求触发 429。",
-        "steps_to_reproduce": "1) 创建 rateLimit=1 的 API Key；2) 连续两次 POST /v1/templates/run，body: {\"template_id\":\"cm_fake_template_id\",\"stream\":false}；3) 第一次 404，第二次 429（期望非 429）。"
-      },
-      {
-        "feature_id": "F-SUP1-05",
-        "result": "FAIL",
-        "description": "千位分隔符验收缺口：admin/model-aliases 与 models 页面未满足 acceptance 中 toLocaleString() 要求。",
-        "steps_to_reproduce": "1) 检查 src/app/(console)/admin/model-aliases/page.tsx 与 src/app/(console)/models/page.tsx；2) 未找到对应字段使用 toLocaleString() 格式化。"
-      }
-    ]
+    "summary": "SUP1 复验通过：6 条功能全部 PASS，批次可签收。",
+    "pass_count": 6,
+    "partial_count": 0,
+    "fail_count": 0,
+    "issues": []
   },
   "generator_handoff": null,
   "session_notes": {
     "Kimi": "Fix round 1 完成。F-SUP1-03: templates/run 的 template-not-found 404 场景补充了 rollbackRateLimit 调用。F-SUP1-05: admin/model-aliases contextWindow/maxTokens 在 label 旁加格式化显示；models context_window 改为 toLocaleString() 替代 formatContext()。tsc 通过。",
-    "Reviewer": "verifying 首轮完成。按 harness 启动 3099 环境后执行 scripts/test/sup1-verifying-e2e-2026-04-11.ts（报告: docs/test-reports/sup1-verifying-e2e-2026-04-11.json）。F-SUP1-01/02/04/06 PASS；F-SUP1-03 PARTIAL（templates/run 回滚异常）；F-SUP1-05 FAIL（2 处 toLocaleString 缺口）。已将状态转 fixing，待 Generator 修复后进入 reverifying。"
+    "Reviewer": "reverifying 已完成。按 harness 复跑 scripts/test/sup1-verifying-e2e-2026-04-11.ts，结果 9/9 PASS（含 F-SUP1-03 模板回滚与 F-SUP1-05 千位分隔符修复验证）。已生成 signoff: docs/test-reports/sup1-security-ui-polish-signoff-2026-04-11.md，并将 progress status 更新为 done。"
   }
 }

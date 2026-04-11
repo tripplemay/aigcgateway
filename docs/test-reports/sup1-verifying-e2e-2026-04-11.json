@@ -1,9 +1,9 @@
 {
   "batch": "SUP1-security-ui-polish",
-  "executedAt": "2026-04-11T01:54:16.816Z",
+  "executedAt": "2026-04-11T02:05:15.387Z",
   "baseUrl": "http://localhost:3099",
-  "pass": 7,
-  "fail": 2,
+  "pass": 9,
+  "fail": 0,
   "steps": [
     {
       "id": "F-SUP1-06-duplicate-project-409",
@@ -37,8 +37,8 @@
     },
     {
       "id": "F-SUP1-03-rate-limit-rollback-template",
-      "ok": false,
-      "detail": "first=404 second=429"
+      "ok": true,
+      "detail": "first=404 second=404"
     },
     {
       "id": "F-SUP1-04-ui-cleanup-static-check",
@@ -47,8 +47,8 @@
     },
     {
       "id": "F-SUP1-05-thousand-separator-static-check",
-      "ok": false,
-      "detail": "src/app/(console)/admin/model-aliases/page.tsx missing 'toLocaleString()' | src/app/(console)/models/page.tsx missing 'toLocaleString()'"
+      "ok": true,
+      "detail": "all required toLocaleString checks present"
     }
   ]
 }

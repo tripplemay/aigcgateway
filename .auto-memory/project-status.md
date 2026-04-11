@@ -4,8 +4,8 @@ description: AIGC Gateway 当前状态快照（覆盖写，≤30 行）
 type: project
 ---
 ## 当前批次
-- SUP1-security-ui-polish：`reverifying`（fix round 1 完成，6/6 done，待复验）
-- 修复内容：templates/run 404 回滚 + model-aliases/models toLocaleString 补充
+- SUP1-security-ui-polish：`done`（reverifying 全 PASS，已签收）
+- 签收文档：docs/test-reports/sup1-security-ui-polish-signoff-2026-04-11.md
 
 ## 已完成批次
 - R1~R4 / P5 / M1a~M1d / BF / K1 / U1 / L1 / MCP2 / A1 / T1 / N1 / O1 / CI1
