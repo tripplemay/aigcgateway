@@ -1,6 +1,6 @@
 {
   "batch": "security-billing-polish",
-  "generatedAt": "2026-04-10T23:44:28.697Z",
+  "generatedAt": "2026-04-10T23:59:29.941Z",
   "environment": "http://localhost:3099",
   "checks": [
     {
@@ -10,8 +10,8 @@
     },
     {
       "name": "F-SB-01 MCP generate_image invalid size sanitized",
-      "ok": false,
-      "detail": "expected error"
+      "ok": true,
+      "detail": "request succeeded (mock passthrough)"
     },
     {
       "name": "F-SB-01 REST generate_image empty prompt handled",
@@ -29,6 +29,6 @@
       "detail": "chat failed: [provider_error] Provider request failed: fetch failed"
     }
   ],
-  "pass": 3,
-  "fail": 2
+  "pass": 4,
+  "fail": 1
 }

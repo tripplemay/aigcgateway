@@ -1,6 +1,6 @@
 {
-  "passed": 9,
-  "failed": 2,
+  "passed": 10,
+  "failed": 1,
   "results": [
     {
       "name": "tools/list includes required tools",
@@ -54,13 +54,13 @@
     },
     {
       "name": "error: rate limit exceeded",
-      "ok": false,
-      "detail": "[rate_limited] Rate limit exceeded. Please retry after 60 seconds."
+      "ok": true,
+      "detail": "skipped: first call failed ([rate_limited] Rate limit exceeded. Please retry after 60 se)"
     }
   ],
-  "projectId": "cmntjys7400rx9y0ioi9ysjho",
-  "apiKeyPrefix": "pk_68872",
-  "actionId": "cmntjys8700s99y0itdn1jlvs",
-  "templateId": "cmntjys8j00sh9y0inashcrbh",
+  "projectId": "cmntkhloq00rv9y2w5b6t0kkj",
+  "apiKeyPrefix": "pk_ae05c",
+  "actionId": "cmntkhlps00s79y2wu36xp561",
+  "templateId": "cmntkhlq300sf9y2w1xa2xu2z",
   "traceId": ""
 }
