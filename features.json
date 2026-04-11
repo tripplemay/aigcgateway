@@ -47,7 +47,7 @@
       "title": "P6 全量验收",
       "priority": "high",
       "executor": "codex",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) 4 个 adapter 文件存在且 tsc 通过；2) model-sync.ts 注册了 4 个新 adapter；3) seed 脚本可执行且创建正确的 Provider/ProviderConfig 记录；4) 代码风格与现有 adapter 一致；5) 签收报告生成"
     }
   ]
