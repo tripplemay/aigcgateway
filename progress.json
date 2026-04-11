@@ -1,9 +1,9 @@
 {
-  "status": "fixing",
+  "status": "reverifying",
   "user_goal": "P6 — 国产服务商扩展（MiniMax / Moonshot / Qwen / StepFun 4 家接入）",
   "total_features": 6,
-  "completed_features": 4,
-  "fix_rounds": 0,
+  "completed_features": 5,
+  "fix_rounds": 1,
   "current_sprint": null,
   "last_updated": "2026-04-11T02:31:00Z",
   "reference_docs": ["docs/specs/P6-providers-expansion-spec.md"],
@@ -30,7 +30,7 @@
   },
   "generator_handoff": null,
   "session_notes": {
-    "Kimi": "Generator 完成 P6 全部 5 条功能。4 个 sync adapter（minimax/moonshot/qwen/stepfun）按 zhipu 模式创建，已注册到 model-sync.ts ADAPTERS map。seed.ts 追加 4 家 Provider+ProviderConfig（upsert，API Key 留空）。tsc 通过。",
+    "Kimi": "Fix round 1: seed.ts authConfig.apiKey 从 PLACEHOLDER_*_KEY 改为空字符串。tsc 通过。",
     "Reviewer": "verifying 首轮完成。执行 scripts/test/p6-verifying-e2e-2026-04-11.ts，报告 docs/test-reports/p6-verifying-e2e-2026-04-11.json：adapter 文件与 ADAPTERS 注册、tsc、seed 幂等均通过；但 4 家 provider 的 authConfig.apiKey 均为 PLACEHOLDER_*_KEY，未满足“API key 留空”验收，已转 fixing。"
   }
 }

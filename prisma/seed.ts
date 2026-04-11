@@ -317,7 +317,7 @@ async function main() {
         baseUrl: providerDef.baseUrl,
         authType: providerDef.authType,
         authConfig: {
-          apiKey: `PLACEHOLDER_${providerDef.name.toUpperCase()}_KEY`,
+          apiKey: "",
         },
         adapterType: providerDef.adapterType,
       },
