@@ -61,14 +61,6 @@
       "priority": "medium"
     },
     {
-      "id": "BL-080",
-      "title": "项目文档全面更新（M1 别名架构 + P5 公共模板）",
-      "description": "M1 别名架构升级和 P5 公共模板完成后，多份文档过时。HIGH：API Spec（模型名示例）、Console Interaction Spec（Models 页分组方式）、SDK Spec（model 参数示例）、Database Design（缺 ModelAlias/AliasModelLink）、R2A Spec（Models 页）、R3A Spec（白名单/能力页已删除）。MEDIUM：Full PRD（缺 P5）、P4 Spec（缺 M1 字段）、architecture.md（路由逻辑）、Auto-Sync PRD（缺品牌推断）。共 10 个文件需更新。",
-      "decisions": [],
-      "confirmed_at": "2026-04-10",
-      "priority": "medium"
-    },
-    {
       "id": "BL-106",
       "title": "国产服务商扩展（4 家：MiniMax/Moonshot/Qwen/StepFun）— 已完成（P6）",
       "description": "已在 P6 批次完成。保留记录。",
