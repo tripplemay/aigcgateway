@@ -83,11 +83,12 @@
     },
     {
       "id": "BL-106",
-      "title": "国产服务商扩展（5 家：MiniMax/Moonshot/Qwen/StepFun/Hunyuan）",
-      "description": "新增 5 家国产 AI 服务商接入，全部 OpenAI 兼容，复用 openai-compat 引擎，仅需 Sync Adapter + 注册。Tier1: 1) MiniMax（api.minimax.io/v1，M2.7 等 7 模型）；2) 月之暗面 Moonshot/Kimi（api.moonshot.cn/v1，K2.5 等）；3) 阿里云百炼 Qwen（dashscope.aliyuncs.com/compatible-mode/v1，Qwen3 系列）。Tier2: 4) 阶跃星辰 StepFun（api.stepfun.com/v1，Step 3.5 等）；5) 腾讯混元 Hunyuan（OpenAI 兼容层）。每家约 35 行 adapter 代码，总计 ~170 行，互不依赖。",
+      "title": "国产服务商扩展（4 家：MiniMax/Moonshot/Qwen/StepFun）",
+      "description": "新增 4 家国产 AI 服务商接入，全部 OpenAI 兼容，复用 openai-compat 引擎，仅需 Sync Adapter + 注册。1) MiniMax（api.minimax.io/v1，M2.7 等）；2) 月之暗面 Moonshot/Kimi（api.moonshot.cn/v1，K2.5 等）；3) 阿里云百炼 Qwen（dashscope.aliyuncs.com/compatible-mode/v1，Qwen3 系列）；4) 阶跃星辰 StepFun（api.stepfun.com/v1，Step 3.5 等）。每家约 35 行 adapter 代码，总计 ~140 行，互不依赖。",
       "decisions": [
         "全部复用 openai-compat 引擎，不写自定义 Engine Adapter",
-        "Tier 1 + Tier 2 合为一个批次"
+        "腾讯混元取消，剩余 4 家",
+        "Generator 写 seed 脚本创建 Provider 记录"
       ],
       "confirmed_at": "2026-04-11",
       "priority": "medium"
