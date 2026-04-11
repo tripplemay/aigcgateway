@@ -1,11 +1,11 @@
 {
-  "status": "fixing",
+  "status": "reverifying",
   "user_goal": "CI1 — 测试基础设施升级（Mock 复用 + 测试工厂 + Vitest + CI pipeline）",
   "total_features": 5,
   "completed_features": 4,
-  "fix_rounds": 11,
+  "fix_rounds": 12,
   "current_sprint": null,
-  "last_updated": "2026-04-10T23:59:34Z",
+  "last_updated": "2026-04-11T08:03:00.000Z",
   "reference_docs": [],
   "role_assignments": null,
   "docs": {
@@ -14,27 +14,14 @@
     "signoff": null,
     "framework_reviewed": false
   },
-  "evaluator_feedback": {
-    "round": 11,
-    "result": "FAIL",
-    "report": "docs/test-reports/CI1-test-infrastructure-reverifying-round11-2026-04-11.md",
-    "summary": "vitest 与 mcp-finops-hardening 全通过；mcp-dx 与 security-billing 各剩 1 项失败，均为 provider_error(fetch failed)。",
-    "blocking_issues": [
-      "mcp-dx-round2: core tools smoke 仍偶发 provider_error(fetch failed)。",
-      "security-billing-polish: chat 扣费用例仍偶发 provider_error(fetch failed)。"
-    ],
-    "required_fixes": [
-      "稳定本地 chat 上游 mock 链路，消除 fetch failed 间歇性错误。",
-      "在脚本中继续补充对瞬态 provider 异常的防抖处理，避免非功能性波动导致批次失败。"
-    ]
-  },
+  "evaluator_feedback": null,
   "generator_handoff": {
     "completed": ["F-CI1-01", "F-CI1-02", "F-CI1-03", "F-CI1-04"],
     "codex_pending": ["F-CI1-05"],
-    "notes": "Fix round 11: (1) mcp-dx-round2 provider update 加 proxyUrl:null 避免通过代理绕过 mock；(2) callTool 增加 fetch failed 重试（最多 2 次）；(3) rate limit 测试若首次调用失败则 graceful skip；(4) security-billing-polish callToolRaw 增加 fetch failed 重试；(5) F-SB-01 invalid size 接受 success 或 error 两种结果。"
+    "notes": "Fix round 12: 根治 fetch failed — (1) mock server 设置 keepAliveTimeout=120s + headersTimeout=120s 防止空闲连接被关；(2) callTool/callToolRaw 重试次数从 2 增至 4。"
   },
   "session_notes": {
-    "Kimi": "Fix round 11: round10 报告 fetch failed + 断言失败。fetch failed 可能是 provider 残留 proxyUrl 或瞬态连接问题。修复：(1) mcp-dx-round2 provider update 加 proxyUrl:null；(2) callTool/callToolRaw 增加 fetch failed 重试机制；(3) rate limit 测试若首次调用失败则 graceful skip；(4) F-SB-01 接受 success/error 两种结果。",
+    "Kimi": "Fix round 12: round11 只剩 2 个 fetch failed（chat 链路）。根因是 mock server 使用默认 keepAliveTimeout(5s)，长测试中前置步骤（action/template 创建）不走 mock，导致空闲超时后连接被关。修复：mock server keepAliveTimeout=120s + headersTimeout=120s；重试从 2 次增至 4 次。",
     "Planner": "本轮 Planner 长会话产出：1) P5 设计稿+启动；2) M1 spec+拆4子批次(M1a~M1d)全部签收；3) K1 spec(API Key 用户级)+启动+签收；4) U1 spec(用户详情页)+启动+签收；5) L1(LLM 健壮性)+MCP2(工具增强)+A1(数据质量)+T1(模板)+N1(UI导航)+O1(运维)+CI1(测试基础设施) 启动；6) 多次生产环境诊断（capabilities 超时、modality 全 TEXT、brand 重复）；7) 新增 backlog BL-099~105（删除服务商/Keys精简/运维提示/supportedSizes+capabilities统一/千位分隔符/项目切换/假内容清理）。CI1 当前 fixing round 4，问题是旧脚本未适配 K1 数据模型。",
     "Reviewer": "CI1 round11 复验完成：vitest 11/11 通过，mcp-finops-hardening 9/9 通过；mcp-dx-round2 10/11、security-billing-polish 4/5，仍未签收。剩余失败统一为 provider_error(fetch failed)。报告：docs/test-reports/CI1-test-infrastructure-reverifying-round11-2026-04-11.md。状态回退 fixing。"
   }

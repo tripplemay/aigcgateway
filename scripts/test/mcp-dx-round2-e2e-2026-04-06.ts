@@ -87,7 +87,7 @@ async function rawMcpRequest(method: string, params?: Record<string, unknown>) {
   return { status: res.status, body, text };
 }
 
-async function callTool(name: string, args: Record<string, unknown> = {}, retries = 2) {
+async function callTool(name: string, args: Record<string, unknown> = {}, retries = 4) {
   for (let attempt = 0; attempt <= retries; attempt++) {
     const rpc = await rawMcpRequest("tools/call", { name, arguments: args });
     if (rpc.status >= 400) throw new Error(`HTTP ${rpc.status}: ${rpc.text}`);

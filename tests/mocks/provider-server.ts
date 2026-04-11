@@ -20,7 +20,11 @@ export interface MockProviderOptions {
   /** Port to listen on (default: 0 = random available port) */
   port?: number;
   /** Custom request handler — return true if handled, false to fall through to defaults */
-  onRequest?: (req: IncomingMessage, res: ServerResponse, body: string) => boolean | Promise<boolean>;
+  onRequest?: (
+    req: IncomingMessage,
+    res: ServerResponse,
+    body: string,
+  ) => boolean | Promise<boolean>;
 }
 
 export interface MockProviderHandle {
@@ -67,27 +71,19 @@ function buildChatCompletion(body: Record<string, unknown>) {
   return { model, created, content, usage };
 }
 
-function handleChatCompletionsNonStream(
-  res: ServerResponse,
-  body: Record<string, unknown>,
-): void {
+function handleChatCompletionsNonStream(res: ServerResponse, body: Record<string, unknown>): void {
   const { model, created, content, usage } = buildChatCompletion(body);
   jsonResponse(res, 200, {
     id: "chatcmpl-mock",
     object: "chat.completion",
     created,
     model,
-    choices: [
-      { index: 0, message: { role: "assistant", content }, finish_reason: "stop" },
-    ],
+    choices: [{ index: 0, message: { role: "assistant", content }, finish_reason: "stop" }],
     usage,
   });
 }
 
-function handleChatCompletionsStream(
-  res: ServerResponse,
-  body: Record<string, unknown>,
-): void {
+function handleChatCompletionsStream(res: ServerResponse, body: Record<string, unknown>): void {
   const { model, created, content, usage } = buildChatCompletion(body);
 
   res.writeHead(200, {
@@ -181,6 +177,10 @@ export async function startMockProvider(
     jsonResponse(res, 404, { error: "not_found" });
   });
 
+  // Prevent idle connection timeouts that cause "fetch failed" in long-running tests
+  server.keepAliveTimeout = 120_000;
+  server.headersTimeout = 120_000;
+
   const actualPort = await new Promise<number>((resolve) => {
     server.listen(port, "127.0.0.1", () => {
       const addr = server.address();
@@ -194,8 +194,9 @@ export async function startMockProvider(
     baseUrl,
     port: actualPort,
     server,
-    close: () => new Promise<void>((resolve, reject) => {
-      server.close((err) => (err ? reject(err) : resolve()));
-    }),
+    close: () =>
+      new Promise<void>((resolve, reject) => {
+        server.close((err) => (err ? reject(err) : resolve()));
+      }),
   };
 }
