@@ -39,7 +39,7 @@
       "title": "4 家服务商 Seed 脚本",
       "priority": "high",
       "executor": "generator",
-      "status": "done",
+      "status": "pending",
       "acceptance": "1) seed 脚本可为 4 家服务商创建 Provider + ProviderConfig 记录；2) API Key 留空（管理员在 UI 填入）；3) supportsModelsApi=true；4) 脚本可重复执行（upsert）；5) tsc 通过"
     },
     {

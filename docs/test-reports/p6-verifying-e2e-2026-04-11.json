@@ -1,0 +1,48 @@
+{
+  "batch": "P6-providers-expansion",
+  "executedAt": "2026-04-11T02:29:40.211Z",
+  "pass": 7,
+  "fail": 1,
+  "steps": [
+    {
+      "id": "adapter:src/lib/sync/adapters/minimax.ts",
+      "ok": true,
+      "detail": "exists=true filter=true chatFilter=true fetchModels=true"
+    },
+    {
+      "id": "adapter:src/lib/sync/adapters/moonshot.ts",
+      "ok": true,
+      "detail": "exists=true filter=true chatFilter=true fetchModels=true"
+    },
+    {
+      "id": "adapter:src/lib/sync/adapters/qwen.ts",
+      "ok": true,
+      "detail": "exists=true filter=true chatFilter=true fetchModels=true"
+    },
+    {
+      "id": "adapter:src/lib/sync/adapters/stepfun.ts",
+      "ok": true,
+      "detail": "exists=true filter=true chatFilter=true fetchModels=true"
+    },
+    {
+      "id": "F-P6-registration-in-model-sync",
+      "ok": true,
+      "detail": "all adapters registered"
+    },
+    {
+      "id": "F-P6-tsc",
+      "ok": true,
+      "detail": "exit=0 stderr="
+    },
+    {
+      "id": "F-P6-seed-rerun",
+      "ok": true,
+      "detail": "exit=0 stdout=  Provider: 硅基流动 ||   Provider: OpenRouter ||   Provider: MiniMax ||   Provider: Moonshot/Kimi ||   Provider: 阿里云百炼/Qwen ||   Provider: 阶跃星辰/StepFun || Seed completed! (Model/Channel will be created by model sync on startup) || 🌱  The seed command has been executed."
+    },
+    {
+      "id": "F-P6-seed-data",
+      "ok": false,
+      "detail": "minimax: display=true adapter=true config=true supportsModelsApi=true apiKeyEmpty=false | moonshot: display=true adapter=true config=true supportsModelsApi=true apiKeyEmpty=false | qwen: display=true adapter=true config=true supportsModelsApi=true apiKeyEmpty=false | stepfun: display=true adapter=true config=true supportsModelsApi=true apiKeyEmpty=false"
+    }
+  ]
+}

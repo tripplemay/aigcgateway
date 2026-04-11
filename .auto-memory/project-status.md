@@ -4,8 +4,9 @@ description: AIGC Gateway 当前状态快照（覆盖写，≤30 行）
 type: project
 ---
 ## 当前批次
-- P6-providers-expansion：`verifying`（5/5 generator done，待 Evaluator 验收）
+- P6-providers-expansion：`fixing`（首轮验收未通过）
 - 4 家国产服务商：MiniMax / Moonshot / Qwen / StepFun
+- 阻塞项：seed 未将 API Key 留空，当前写入 PLACEHOLDER_*_KEY（与验收标准冲突）
 
 ## 已完成批次
 - R1~R4 / P5 / M1a~M1d / BF / K1 / U1 / L1 / MCP2 / A1 / T1 / N1 / O1 / CI1 / SUP1
