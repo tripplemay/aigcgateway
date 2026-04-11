@@ -66,7 +66,10 @@ export async function POST(request: Request) {
     where: { id: body.template_id, projectId: project.id },
     include: { steps: { orderBy: { order: "asc" } } },
   });
-  if (!template) return errorResponse(404, "not_found", "Template not found");
+  if (!template) {
+    if (rlKey && rlMember) rollbackRateLimit(rlKey, rlMember).catch(() => {});
+    return errorResponse(404, "not_found", "Template not found");
+  }
 
   const hasSplitter = template.steps.some((s) => s.role === "SPLITTER");
 

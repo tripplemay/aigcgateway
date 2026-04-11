@@ -3,7 +3,6 @@ import { useState, useMemo } from "react";
 import { useTranslations } from "next-intl";
 import { useAsyncData } from "@/hooks/use-async-data";
 import { SearchBar } from "@/components/search-bar";
-import { formatContext } from "@/lib/utils";
 
 // ============================================================
 // Types & helpers
@@ -285,7 +284,7 @@ export default function ModelsPage() {
                               <span className="text-sm font-semibold text-ds-on-surface-variant">
                                 {m.context_window ? (
                                   <>
-                                    {formatContext(m.context_window)}{" "}
+                                    {m.context_window.toLocaleString()}{" "}
                                     <span className="text-ds-outline font-normal">
                                       {t("tokens")}
                                     </span>

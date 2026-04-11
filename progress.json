@@ -1,11 +1,11 @@
 {
-  "status": "fixing",
+  "status": "reverifying",
   "user_goal": "SUP1 — 后端安全加固（邮箱验证/JWT/限流）+ UI 打磨（假数据清理/千位分隔符/重名校验）",
   "total_features": 6,
-  "completed_features": 4,
-  "fix_rounds": 0,
+  "completed_features": 6,
+  "fix_rounds": 1,
   "current_sprint": null,
-  "last_updated": "2026-04-11T01:55:00Z",
+  "last_updated": "2026-04-11T11:00:00Z",
   "reference_docs": [],
   "role_assignments": null,
   "docs": {
@@ -36,7 +36,7 @@
   },
   "generator_handoff": null,
   "session_notes": {
-    "Kimi": "Generator 完成 SUP1 全部 6 条功能实现。BL-070: 新增 EmailVerificationToken 模型+注册时生成 token+verify-email 改为 token 校验。BL-071: jwt-middleware 改用 getEnv() 读 JWT_SECRET，缺失时通过 Zod 抛错。BL-072: 限流回滚修复三处（超限回滚用 zrem 精确删除、失败时回滚计数、覆盖 chat/image/actions/templates 4 个路由）。BL-105: 清理 10 处假数据（logs/keys/providers/quickstart/mcp-setup/models/login/admin-logs/admin-models）。BL-103: 7 处大数字加 toLocaleString。BL-094: projects API 加同用户重名 409 校验。全部 tsc 通过。",
+    "Kimi": "Fix round 1 完成。F-SUP1-03: templates/run 的 template-not-found 404 场景补充了 rollbackRateLimit 调用。F-SUP1-05: admin/model-aliases contextWindow/maxTokens 在 label 旁加格式化显示；models context_window 改为 toLocaleString() 替代 formatContext()。tsc 通过。",
     "Reviewer": "verifying 首轮完成。按 harness 启动 3099 环境后执行 scripts/test/sup1-verifying-e2e-2026-04-11.ts（报告: docs/test-reports/sup1-verifying-e2e-2026-04-11.json）。F-SUP1-01/02/04/06 PASS；F-SUP1-03 PARTIAL（templates/run 回滚异常）；F-SUP1-05 FAIL（2 处 toLocaleString 缺口）。已将状态转 fixing，待 Generator 修复后进入 reverifying。"
   }
 }

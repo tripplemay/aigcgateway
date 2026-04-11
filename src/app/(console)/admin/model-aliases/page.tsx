@@ -636,6 +636,14 @@ export default function ModelAliasesPage() {
                         <div className="space-y-1.5">
                           <label className="text-[10px] font-bold text-ds-on-surface-variant uppercase tracking-widest ml-1">
                             {t("contextWindow")}
+                            {(() => {
+                              const v = getEditValue(alias.id, "contextWindow");
+                              return v ? (
+                                <span className="ml-2 text-ds-on-surface-variant/60 normal-case tracking-normal">
+                                  ({Number(v).toLocaleString()})
+                                </span>
+                              ) : null;
+                            })()}
                           </label>
                           <input
                             className="w-full bg-ds-surface-container-low border-none rounded-lg text-sm px-4 py-2 font-semibold focus:ring-2 focus:ring-ds-primary/20"
@@ -653,6 +661,14 @@ export default function ModelAliasesPage() {
                         <div className="space-y-1.5">
                           <label className="text-[10px] font-bold text-ds-on-surface-variant uppercase tracking-widest ml-1">
                             {t("maxTokens")}
+                            {(() => {
+                              const v = getEditValue(alias.id, "maxTokens");
+                              return v ? (
+                                <span className="ml-2 text-ds-on-surface-variant/60 normal-case tracking-normal">
+                                  ({Number(v).toLocaleString()})
+                                </span>
+                              ) : null;
+                            })()}
                           </label>
                           <input
                             className="w-full bg-ds-surface-container-low border-none rounded-lg text-sm px-4 py-2 font-semibold focus:ring-2 focus:ring-ds-primary/20"
