@@ -7,7 +7,7 @@ export const dynamic = "force-dynamic";
 
 import { authenticateApiKey } from "@/lib/api/auth-middleware";
 import { checkBalance } from "@/lib/api/balance-middleware";
-import { checkRateLimit } from "@/lib/api/rate-limit";
+import { checkRateLimit, rollbackRateLimit } from "@/lib/api/rate-limit";
 import { errorResponse } from "@/lib/api/errors";
 import { generateTraceId, jsonResponse } from "@/lib/api/response";
 import { resolveEngine } from "@/lib/engine";
@@ -49,6 +49,8 @@ export async function POST(request: Request) {
   );
   if (!rateCheck.ok) return rateCheck.error;
   const rateLimitHeaders = rateCheck.headers;
+  const rlKey = rateCheck.rateLimitKey;
+  const rlMember = rateCheck.rateLimitMember;
 
   // 5. 路由
   let route;
@@ -58,6 +60,7 @@ export async function POST(request: Request) {
     route = resolved.route;
     adapter = resolved.adapter;
   } catch (err) {
+    if (rlKey && rlMember) rollbackRateLimit(rlKey, rlMember).catch(() => {});
     if (err instanceof EngineError) {
       return errorResponse(err.statusCode, err.code, sanitizeErrorMessage(err.message));
     }
@@ -86,6 +89,9 @@ export async function POST(request: Request) {
 
     return jsonResponse(response, 200, traceId, rateLimitHeaders);
   } catch (err) {
+    // 请求失败 → 回滚限流计数
+    if (rlKey && rlMember) rollbackRateLimit(rlKey, rlMember).catch(() => {});
+
     const engineErr = err instanceof EngineError ? err : null;
 
     processImageResult({

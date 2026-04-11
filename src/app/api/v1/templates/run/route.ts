@@ -9,7 +9,7 @@ export const dynamic = "force-dynamic";
 import { prisma } from "@/lib/prisma";
 import { authenticateApiKey, type ApiKeyPermissions } from "@/lib/api/auth-middleware";
 import { checkBalance } from "@/lib/api/balance-middleware";
-import { checkRateLimit } from "@/lib/api/rate-limit";
+import { checkRateLimit, rollbackRateLimit } from "@/lib/api/rate-limit";
 import { errorResponse } from "@/lib/api/errors";
 import { sseResponse, generateTraceId } from "@/lib/api/response";
 import { InjectionError } from "@/lib/action/runner";
@@ -58,6 +58,8 @@ export async function POST(request: Request) {
   // 4. Rate limit
   const rateCheck = await checkRateLimit(project, "text", apiKey.rateLimit);
   if (!rateCheck.ok) return rateCheck.error;
+  const rlKey = rateCheck.rateLimitKey;
+  const rlMember = rateCheck.rateLimitMember;
 
   // 5. Determine execution mode
   const template = await prisma.template.findFirst({
@@ -105,6 +107,7 @@ export async function POST(request: Request) {
         steps,
       });
     } catch (err) {
+      if (rlKey && rlMember) rollbackRateLimit(rlKey, rlMember).catch(() => {});
       if (err instanceof InjectionError) {
         return errorResponse(err.status, "template_error", err.message);
       }
@@ -129,6 +132,7 @@ export async function POST(request: Request) {
         controller.enqueue(encoder.encode("data: [DONE]\n\n"));
         controller.close();
       } catch (err) {
+        if (rlKey && rlMember) rollbackRateLimit(rlKey, rlMember).catch(() => {});
         if (!controller.desiredSize) return;
         controller.enqueue(
           encoder.encode(

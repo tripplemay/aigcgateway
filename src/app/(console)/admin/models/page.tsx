@@ -277,23 +277,6 @@ export default function ModelsChannelsPage() {
             )}
           </div>
         </div>
-        {/* Pricing Drift — lines 222-234 */}
-        <div className="bg-ds-surface-container-lowest p-6 rounded-2xl shadow-sm relative overflow-hidden group border border-slate-200/5">
-          <div className="absolute -right-4 -top-4 w-24 h-24 bg-ds-tertiary/5 rounded-full blur-2xl group-hover:bg-ds-tertiary/10 transition-colors" />
-          <div className="flex items-center gap-4 mb-4">
-            <div className="w-12 h-12 bg-ds-tertiary/10 rounded-2xl flex items-center justify-center text-ds-tertiary">
-              <span className="material-symbols-outlined text-3xl">trending_down</span>
-            </div>
-            <span className="font-[var(--font-heading)] font-bold text-ds-on-surface-variant uppercase tracking-widest text-[10px]">
-              {t("pricingDrift")}
-            </span>
-          </div>
-          <div className="flex items-baseline gap-2">
-            <span className="font-[var(--font-heading)] text-4xl font-extrabold text-ds-on-surface">
-              &mdash;
-            </span>
-          </div>
-        </div>
       </section>
 
       {/* ═══ Search and Filter Bar — code.html lines 237-255 ═══ */}

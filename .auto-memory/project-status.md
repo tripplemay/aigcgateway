@@ -4,10 +4,9 @@ description: AIGC Gateway 当前状态快照（覆盖写，≤30 行）
 type: project
 ---
 ## 当前批次
-- SUP1-security-ui-polish：`building`（6 条功能，0/6 完成）
+- SUP1-security-ui-polish：`verifying`（6 条功能，6/6 完成，待 Evaluator 验收）
 - 安全加固：BL-070 邮箱验证防伪造 / BL-071 JWT 启动拦截 / BL-072 限流回滚修复
 - UI 打磨：BL-105 假数据清理(10处) / BL-103 千位分隔符 / BL-094 重名校验
-- Generator: Kimi（另一会话），Planner: Kimi（本会话），Evaluator: 默认
 
 ## 已完成批次
 - R1~R4 / P5 / M1a~M1d / BF / K1 / U1 / L1 / MCP2 / A1 / T1 / N1 / O1 / CI1

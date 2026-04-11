@@ -428,38 +428,6 @@ export default function McpSetupPage() {
           </section>
         </div>
       </div>
-
-      {/* Feature Showcase */}
-      <section className="grid grid-cols-1 md:grid-cols-3 gap-8">
-        {[
-          {
-            icon: "speed",
-            title: t("latencyOptimization"),
-            desc: t("latencyDesc"),
-          },
-          {
-            icon: "lock",
-            title: t("e2eEncryption"),
-            desc: t("e2eDesc"),
-          },
-          {
-            icon: "public",
-            title: t("globalGateway"),
-            desc: t("globalDesc"),
-          },
-        ].map((f) => (
-          <div
-            key={f.title}
-            className="bg-ds-surface-container-lowest p-6 rounded-xl shadow-sm group hover:shadow-md transition-all"
-          >
-            <div className="w-12 h-12 rounded-lg bg-ds-primary/10 flex items-center justify-center text-ds-primary mb-4 group-hover:scale-110 transition-transform">
-              <span className="material-symbols-outlined text-2xl">{f.icon}</span>
-            </div>
-            <h5 className="font-bold mb-1">{f.title}</h5>
-            <p className="text-xs text-ds-on-surface-variant">{f.desc}</p>
-          </div>
-        ))}
-      </section>
     </div>
   );
 }

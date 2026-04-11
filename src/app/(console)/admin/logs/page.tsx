@@ -171,7 +171,8 @@ export default function AdminLogsPage() {
                     )}
                   </td>
                   <td className="px-6 py-4 text-xs font-medium text-slate-600">
-                    {l.promptTokens ?? "—"}/{l.completionTokens ?? "—"}
+                    {l.promptTokens?.toLocaleString() ?? "—"}/
+                    {l.completionTokens?.toLocaleString() ?? "—"}
                   </td>
                   <td className="px-6 py-4 text-xs font-medium text-slate-600">
                     {l.costPrice != null ? formatCurrency(l.costPrice) : "—"}
@@ -210,42 +211,6 @@ export default function AdminLogsPage() {
             >
               <span className="material-symbols-outlined text-lg">chevron_right</span>
             </button>
-          </div>
-        </div>
-      </div>
-
-      {/* ═══ Insight Section — code.html lines 436-456 ═══ */}
-      <div className="flex flex-col md:flex-row gap-6">
-        <div className="flex-1 bg-ds-surface-container-low p-6 rounded-2xl flex items-center gap-6">
-          <div className="w-14 h-14 bg-white rounded-xl shadow-sm flex items-center justify-center text-ds-primary">
-            <span
-              className="material-symbols-outlined text-3xl"
-              style={{ fontVariationSettings: "'FILL' 1" }}
-            >
-              insights
-            </span>
-          </div>
-          <div>
-            <h4 className="font-[var(--font-heading)] font-bold text-ds-on-surface">
-              {t("trafficInsight")}
-            </h4>
-            <p className="text-sm text-slate-500 mt-1">{t("trafficInsightDesc")}</p>
-          </div>
-        </div>
-        <div className="flex-1 bg-ds-surface-container-low p-6 rounded-2xl flex items-center gap-6">
-          <div className="w-14 h-14 bg-white rounded-xl shadow-sm flex items-center justify-center text-ds-error">
-            <span
-              className="material-symbols-outlined text-3xl"
-              style={{ fontVariationSettings: "'FILL' 1" }}
-            >
-              warning
-            </span>
-          </div>
-          <div>
-            <h4 className="font-[var(--font-heading)] font-bold text-ds-on-surface">
-              {t("errorSpikeAlert")}
-            </h4>
-            <p className="text-sm text-slate-500 mt-1">{t("errorSpikeAlertDesc")}</p>
           </div>
         </div>
       </div>

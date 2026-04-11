@@ -243,7 +243,7 @@ export default function LogsPage() {
                   </TableCell>
                   <TableCell className="px-6 py-4 text-right">
                     <span className="text-xs font-medium text-slate-600">
-                      {l.latencyMs != null ? `${l.latencyMs}ms` : "—"}
+                      {l.latencyMs != null ? `${l.latencyMs.toLocaleString()}ms` : "—"}
                     </span>
                   </TableCell>
                 </TableRow>
@@ -263,68 +263,6 @@ export default function LogsPage() {
             className="px-6 py-4 bg-ds-surface-container-low/30"
           />
         )}
-      </div>
-
-      {/* ═══ Metrics Grid (Asymmetric Insight Panel) ═══ */}
-      <div className="mt-8 grid grid-cols-12 gap-6">
-        <div className="col-span-12 lg:col-span-8 bg-ds-surface-container-lowest p-6 rounded-2xl shadow-sm">
-          <div className="flex items-center justify-between mb-6">
-            <h3 className="font-[var(--font-heading)] font-bold text-ds-on-surface">
-              {t("latencyTrends")}
-            </h3>
-            <div className="flex gap-4">
-              <div className="flex items-center gap-2">
-                <span className="w-3 h-3 rounded-full bg-indigo-500" />
-                <span className="text-[10px] font-bold text-slate-400 uppercase">
-                  {t("avgP95")}
-                </span>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="w-3 h-3 rounded-full bg-emerald-400" />
-                <span className="text-[10px] font-bold text-slate-400 uppercase">
-                  {t("median")}
-                </span>
-              </div>
-            </div>
-          </div>
-          <div className="h-48 w-full flex items-end justify-between gap-1">
-            {[60, 45, 70, 85, 40, 55, 65, 75, 30, 90, 50, 60, 40, 70, 85].map((h, i) => (
-              <div
-                key={i}
-                className={`w-full rounded-t-sm ${i === 4 || i === 11 ? "bg-indigo-600" : i === 3 ? "bg-indigo-200" : "bg-indigo-100"}`}
-                style={{ height: `${h}%` }}
-              />
-            ))}
-          </div>
-        </div>
-        <div className="col-span-12 lg:col-span-4 flex flex-col gap-6">
-          <div className="bg-indigo-600 p-6 rounded-2xl text-white shadow-xl shadow-indigo-200">
-            <h4 className="text-[10px] font-bold uppercase tracking-widest opacity-70 mb-1">
-              {t("costOptimization")}
-            </h4>
-            <p className="text-2xl font-extrabold font-[var(--font-heading)] mb-4">
-              {t("saveUpTo")}
-            </p>
-            <p className="text-xs opacity-90 leading-relaxed mb-6">
-              {t("costOptimizationDesc", { model: "gpt-4o-mini" })}
-            </p>
-            <button className="w-full py-2 bg-white/20 hover:bg-white/30 backdrop-blur-md rounded-xl text-xs font-bold transition-colors">
-              {t("applySavings")}
-            </button>
-          </div>
-          <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
-            <div className="flex items-center justify-between mb-4">
-              <h4 className="text-[10px] font-bold uppercase tracking-widest text-slate-400">
-                {t("totalLogsVolume")}
-              </h4>
-              <span className="material-symbols-outlined text-slate-300">analytics</span>
-            </div>
-            <p className="text-3xl font-extrabold font-[var(--font-heading)] text-ds-on-surface">
-              {total > 1000 ? `${(total / 1000).toFixed(1)}K` : total}
-            </p>
-            <p className="text-[10px] font-bold text-emerald-600 mt-1">{t("totalRecords")}</p>
-          </div>
-        </div>
       </div>
     </>
   );

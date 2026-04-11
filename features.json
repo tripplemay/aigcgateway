@@ -7,7 +7,7 @@
       "title": "邮箱验证接口防伪造（BL-070）",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) verify-email 接口需携带一次性 token 才能完成验证，仅知道 userId 无法伪造；2) token 有过期时间；3) 无效/过期 token 返回 4xx；4) tsc 通过"
     },
     {
@@ -15,7 +15,7 @@
       "title": "JWT 密钥缺失启动拦截（BL-071）",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) JWT_SECRET 未配置或为空字符串时，应用启动阶段抛出明确错误，不降级为空密钥；2) 不影响现有正常配置的启动流程；3) tsc 通过"
     },
     {
@@ -23,7 +23,7 @@
       "title": "限流回滚逻辑修复（BL-072）",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) 请求失败时限流计数正确回滚（不污染后续窗口）；2) 回滚不会误删同秒其他请求的计数；3) pipeline.exec() 调用完整；4) tsc 通过"
     },
     {
@@ -31,7 +31,7 @@
       "title": "全站清理假数据/装饰内容（BL-105，10 处）",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) Logs 底部假延迟柱状图+Cost Optimization 假卡片已移除；2) Keys 底部 Coming Soon 按钮已移除；3) Admin Providers 底部假 Token 统计+假柱状图+Status 按钮已移除；4) Quickstart 底部装饰占位框+营销文案已移除；5) MCP Setup 底部 Feature Showcase 营销卡片已移除；6) Models Bento Grid 假柱状图+Optimization+装饰圆已简化为统计文字；7) Models 操作列无功能按钮已移除；8) Login/Register 底部 href=# 死链已移除；9) Admin Logs 假洞察卡片已移除；10) Admin Models Pricing Drift 假统计已移除；11) 社交登录按钮保留；12) 页面无布局错位或空白异常；13) tsc 通过"
     },
     {
@@ -39,7 +39,7 @@
       "title": "大数字千位分隔符（BL-103）",
       "priority": "low",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) admin/model-aliases contextWindow/maxTokens、models context_window、dashboard avgLatencyMs、usage avgLatencyMs、logs latencyMs、admin/logs promptTokens/completionTokens、admin/health avgLatency、settings callCount 均使用 toLocaleString() 格式化；2) 不影响排序和筛选逻辑；3) tsc 通过"
     },
     {
@@ -47,7 +47,7 @@
       "title": "项目创建重名校验（BL-094）",
       "priority": "low",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) 同一用户下创建同名项目返回 409；2) 不同用户可有同名项目；3) 前端显示友好错误提示；4) tsc 通过"
     }
   ]

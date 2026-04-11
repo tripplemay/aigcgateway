@@ -1,7 +1,6 @@
 "use client";
 import { useState } from "react";
 import { useTranslations } from "next-intl";
-import Link from "next/link";
 
 // ============================================================
 // Step data — code.html lines 172-255
@@ -86,7 +85,10 @@ function CodeBlock({ code, fileName }: { code: string; fileName: string }) {
       {/* code.html lines 183-188: header with filename + copy */}
       <div className="flex items-center justify-between mb-2">
         <span className="text-slate-500">{fileName}</span>
-        <button onClick={copy} className="flex items-center gap-1.5 text-slate-400 hover:text-white transition-colors">
+        <button
+          onClick={copy}
+          className="flex items-center gap-1.5 text-slate-400 hover:text-white transition-colors"
+        >
           <span className="material-symbols-outlined text-sm">
             {copied ? "check" : "content_copy"}
           </span>
@@ -114,7 +116,8 @@ export default function QuickStartPage() {
           {t("title")}
         </h1>
         <p className="text-ds-on-surface-variant text-lg max-w-2xl">
-          Initialize your journey into automated creativity with our streamlined SDK integration. Four steps to production-ready AI.
+          Initialize your journey into automated creativity with our streamlined SDK integration.
+          Four steps to production-ready AI.
         </p>
       </div>
 
@@ -122,7 +125,10 @@ export default function QuickStartPage() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {STEPS.map((step) => (
           /* code.html lines 173-192 pattern */
-          <section key={step.num} className="group flex flex-col bg-ds-surface-container-lowest rounded-xl p-6 shadow-sm ring-1 ring-slate-100 hover:shadow-md transition-shadow">
+          <section
+            key={step.num}
+            className="group flex flex-col bg-ds-surface-container-lowest rounded-xl p-6 shadow-sm ring-1 ring-slate-100 hover:shadow-md transition-shadow"
+          >
             {/* Header — lines 174-179 */}
             <div className="flex items-start justify-between mb-4">
               <div className="flex items-center gap-4">
@@ -142,26 +148,6 @@ export default function QuickStartPage() {
             <CodeBlock code={step.code} fileName={step.fileName} />
           </section>
         ))}
-      </div>
-
-      {/* Footer Resources — code.html lines 258-270 */}
-      <div className="mt-16 bg-ds-surface-container rounded-3xl p-10 flex flex-col md:flex-row items-center gap-8 border border-white/40">
-        <div className="flex-1">
-          <h3 className="text-2xl font-bold font-[var(--font-heading)] mb-3">Ready for the deep dive?</h3>
-          <p className="text-ds-on-surface-variant mb-6">
-            Explore our exhaustive API documentation to master advanced routing, model fallback strategies, and token cost optimization.
-          </p>
-          <div className="flex flex-wrap gap-4">
-            <Link href="/mcp-setup" className="bg-ds-primary text-white px-6 py-2.5 rounded-xl font-semibold hover:shadow-lg transition-all active:scale-95">
-              Read Documentation
-            </Link>
-            <Link href="/models" className="bg-white text-ds-primary px-6 py-2.5 rounded-xl font-semibold border border-ds-primary/20 hover:bg-indigo-50 transition-all">
-              Explore Models
-            </Link>
-          </div>
-        </div>
-        {/* Decorative placeholder (original has image) */}
-        <div className="w-full md:w-1/3 aspect-video rounded-2xl overflow-hidden shadow-2xl bg-gradient-to-br from-ds-primary/20 to-ds-primary-container/20" />
       </div>
     </div>
   );

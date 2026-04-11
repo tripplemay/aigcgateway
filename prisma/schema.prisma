@@ -115,15 +115,31 @@ model User {
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
 
-  projects       Project[]
-  apiKeys        ApiKey[]
-  transactions   Transaction[]
-  rechargeOrders RechargeOrder[]
-  loginHistory   LoginHistory[]
+  projects                Project[]
+  apiKeys                 ApiKey[]
+  transactions            Transaction[]
+  rechargeOrders          RechargeOrder[]
+  loginHistory            LoginHistory[]
+  emailVerificationTokens EmailVerificationToken[]
 
   @@index([email])
   @@index([role, createdAt(sort: Desc)])
   @@map("users")
+}
+
+model EmailVerificationToken {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  userId    String
+  expiresAt DateTime
+  used      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([token])
+  @@index([userId])
+  @@map("email_verification_tokens")
 }
 
 model LoginHistory {

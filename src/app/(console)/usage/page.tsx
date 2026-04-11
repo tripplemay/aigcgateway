@@ -93,9 +93,7 @@ export default function UsagePage() {
   // ── Data: daily trend ──
   const { data: dailyData } = useAsyncData<{ data: DailyRow[] }>(async () => {
     if (!current) return { data: [] };
-    return apiFetch<{ data: DailyRow[] }>(
-      `/api/projects/${current.id}/usage/daily?days=${days}`,
-    );
+    return apiFetch<{ data: DailyRow[] }>(`/api/projects/${current.id}/usage/daily?days=${days}`);
   }, [current, days]);
 
   // ── Data: model distribution ──
@@ -168,7 +166,7 @@ export default function UsagePage() {
             },
             {
               label: t("avgLatency"),
-              value: `${summary.avgLatencyMs ?? 0}ms`,
+              value: `${(summary.avgLatencyMs ?? 0).toLocaleString()}ms`,
               icon: "speed",
             },
           ].map((card) => (
@@ -270,8 +268,7 @@ export default function UsagePage() {
           </div>
           <div className="mt-8 space-y-3">
             {byModel.slice(0, 5).map((m, i) => {
-              const pct =
-                totalModelCalls > 0 ? Math.round((m.calls / totalModelCalls) * 100) : 0;
+              const pct = totalModelCalls > 0 ? Math.round((m.calls / totalModelCalls) * 100) : 0;
               return (
                 <div key={m.model} className="flex items-center justify-between">
                   <div className="flex items-center gap-2">

@@ -216,49 +216,6 @@ export default function ProvidersPage() {
             </tbody>
           </table>
         </div>
-
-        {/* ═══ Bento Stats — code.html lines 295-325 ═══ */}
-        <div className="grid grid-cols-12 gap-6 mt-12">
-          {/* Total Tokens In (24h) — lines 297-314 */}
-          <div className="col-span-12 md:col-span-4 bg-ds-surface-container-lowest p-6 rounded-xl shadow-sm">
-            <h3 className="text-[11px] uppercase tracking-widest text-slate-400 font-bold mb-4">
-              {t("totalTokens24h")}
-            </h3>
-            <div className="flex items-end gap-2">
-              <span className="text-4xl font-extrabold font-[var(--font-heading)] text-ds-on-surface">
-                —
-              </span>
-            </div>
-            <div className="mt-6 h-12 w-full bg-ds-surface-container-low rounded-lg relative overflow-hidden">
-              <div className="absolute bottom-0 left-0 w-full h-full bg-gradient-to-t from-indigo-500/10 to-transparent" />
-              <div className="absolute inset-0 flex items-end gap-1 px-2 pb-2">
-                {[50, 75, 66, 100, 80].map((h, i) => (
-                  <div
-                    key={i}
-                    className={`flex-1 rounded-t-sm ${i === 3 ? "bg-indigo-400" : i === 1 || i === 4 ? "bg-indigo-300" : "bg-indigo-200"}`}
-                    style={{ height: `${h}%` }}
-                  />
-                ))}
-              </div>
-            </div>
-          </div>
-          {/* Operational Status — lines 315-324 */}
-          <div className="col-span-12 md:col-span-8 bg-indigo-600 p-8 rounded-xl shadow-xl shadow-indigo-100 flex items-center justify-between relative overflow-hidden">
-            <div className="relative z-10">
-              <h3 className="text-white/70 font-bold text-sm mb-2">{t("operationalStatus")}</h3>
-              <p className="text-white text-2xl font-[var(--font-heading)] font-bold max-w-md">
-                {t("operationalDesc", {
-                  active: providers.filter((p) => p.status === "ACTIVE").length,
-                  total: providers.length,
-                })}
-              </p>
-            </div>
-            <div className="absolute -right-10 -bottom-10 w-48 h-48 bg-white/10 rounded-full blur-3xl" />
-            <button className="relative z-10 bg-white text-indigo-600 font-bold px-5 py-2 rounded-lg text-sm hover:bg-indigo-50 transition-colors">
-              {t("viewStatusPage")}
-            </button>
-          </div>
-        </div>
       </div>
 
       {/* ═══ Create/Edit Modal ═══ */}

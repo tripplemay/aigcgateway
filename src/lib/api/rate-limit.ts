@@ -26,7 +26,7 @@ function getProjectLimits(project: Pick<Project, "rateLimit">): RateLimitConfig 
 }
 
 type RateLimitResult =
-  | { ok: true; headers: Record<string, string> }
+  | { ok: true; headers: Record<string, string>; rateLimitKey?: string; rateLimitMember?: string }
   | { ok: false; error: NextResponse };
 
 /**
@@ -60,10 +60,11 @@ export async function checkRateLimit(
 
   try {
     // 滑动窗口：ZREMRANGEBYSCORE + ZCARD + ZADD
+    const member = `${now}:${Math.random().toString(36).slice(2, 8)}`;
     const pipe = redis.pipeline();
     pipe.zremrangebyscore(key, 0, windowStart);
     pipe.zcard(key);
-    pipe.zadd(key, now.toString(), `${now}:${Math.random().toString(36).slice(2, 8)}`);
+    pipe.zadd(key, now.toString(), member);
     pipe.expire(key, 120);
 
     const results = await pipe.exec();
@@ -71,8 +72,8 @@ export async function checkRateLimit(
     const remaining = Math.max(0, limit - currentCount - 1);
 
     if (currentCount >= limit) {
-      // 移除刚加的
-      pipe.zremrangebyscore(key, now, now);
+      // 精确移除刚添加的成员（新 pipeline 执行）
+      await redis.zrem(key, member);
       const retryAfter = 60;
       return {
         ok: false,
@@ -93,6 +94,8 @@ export async function checkRateLimit(
     return {
       ok: true,
       headers: rateLimitHeaders(limit, remaining, resetAt),
+      rateLimitKey: key,
+      rateLimitMember: member,
     };
   } catch {
     // Redis 错误 → 降级放行
@@ -100,6 +103,23 @@ export async function checkRateLimit(
       ok: true,
       headers: rateLimitHeaders(limit, limit - 1, resetAt),
     };
+  }
+}
+
+/**
+ * 回滚限流计数（请求失败时调用，精确移除当次请求的成员）
+ */
+export async function rollbackRateLimit(
+  rateLimitKey: string,
+  rateLimitMember: string,
+): Promise<void> {
+  const redis = getRedis();
+  if (!redis) return;
+
+  try {
+    await redis.zrem(rateLimitKey, rateLimitMember);
+  } catch {
+    // Redis 错误忽略，不影响主流程
   }
 }
 

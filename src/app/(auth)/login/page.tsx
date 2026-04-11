@@ -182,12 +182,9 @@ export default function LoginPage() {
                   <label className="block text-[11px] font-bold uppercase tracking-widest text-ds-on-surface-variant/80">
                     {t("password")}
                   </label>
-                  <a
-                    className="text-[11px] font-bold uppercase tracking-widest text-ds-primary-container hover:text-ds-primary transition-colors"
-                    href="#"
-                  >
+                  <span className="text-[11px] font-bold uppercase tracking-widest text-ds-on-surface-variant/50">
                     {t("forgotPassword")}
-                  </a>
+                  </span>
                 </div>
                 <div className="relative group">
                   <Input
@@ -294,26 +291,6 @@ export default function LoginPage() {
 
           {/* Contextual Footer — lines 272-279 */}
           <footer className="mt-auto pt-12 flex flex-col items-center gap-4">
-            <div className="flex gap-6">
-              <a
-                className="text-[10px] font-bold uppercase tracking-widest text-ds-outline hover:text-ds-primary-container transition-colors"
-                href="#"
-              >
-                {t("documentation")}
-              </a>
-              <a
-                className="text-[10px] font-bold uppercase tracking-widest text-ds-outline hover:text-ds-primary-container transition-colors"
-                href="#"
-              >
-                {t("privacyPolicy")}
-              </a>
-              <a
-                className="text-[10px] font-bold uppercase tracking-widest text-ds-outline hover:text-ds-primary-container transition-colors"
-                href="#"
-              >
-                {t("support")}
-              </a>
-            </div>
             <p className="text-[9px] font-medium tracking-wide uppercase text-ds-outline-variant/60">
               {t("copyright")}
             </p>

@@ -8,7 +8,7 @@ export const dynamic = "force-dynamic";
 
 import { authenticateApiKey, type ApiKeyPermissions } from "@/lib/api/auth-middleware";
 import { checkBalance } from "@/lib/api/balance-middleware";
-import { checkRateLimit } from "@/lib/api/rate-limit";
+import { checkRateLimit, rollbackRateLimit } from "@/lib/api/rate-limit";
 import { errorResponse } from "@/lib/api/errors";
 import { sseResponse, generateTraceId } from "@/lib/api/response";
 import { runAction, runActionNonStream, InjectionError } from "@/lib/action/runner";
@@ -55,6 +55,8 @@ export async function POST(request: Request) {
   // 4. Rate limit
   const rateCheck = await checkRateLimit(project, "text", apiKey.rateLimit);
   if (!rateCheck.ok) return rateCheck.error;
+  const rlKey = rateCheck.rateLimitKey;
+  const rlMember = rateCheck.rateLimitMember;
 
   const params = {
     actionId: body.action_id,
@@ -74,6 +76,7 @@ export async function POST(request: Request) {
         usage: result.usage,
       });
     } catch (err) {
+      if (rlKey && rlMember) rollbackRateLimit(rlKey, rlMember).catch(() => {});
       if (err instanceof InjectionError) {
         return errorResponse(err.status, "action_error", err.message);
       }
@@ -92,6 +95,7 @@ export async function POST(request: Request) {
         controller.enqueue(encoder.encode("data: [DONE]\n\n"));
         controller.close();
       } catch (err) {
+        if (rlKey && rlMember) rollbackRateLimit(rlKey, rlMember).catch(() => {});
         if (!controller.desiredSize) return; // already closed
         controller.enqueue(
           encoder.encode(

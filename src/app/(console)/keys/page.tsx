@@ -319,37 +319,6 @@ export default function KeysPage() {
             </div>
           </div>
         </section>
-
-        {/* ═══ Footer — code.html lines 393-406 ═══ */}
-        <footer className="py-12 border-t border-ds-outline-variant/10">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-6 text-[10px] text-slate-400 font-bold uppercase tracking-widest">
-            <div className="flex items-center gap-2">
-              <span className="material-symbols-outlined text-sm">verified_user</span>
-              <span>AIGC Gateway Security v4.2.1-stable</span>
-            </div>
-            <div className="flex gap-8">
-              <button
-                className="hover:text-ds-primary transition-colors"
-                onClick={() => toast.info(t("comingSoon"))}
-              >
-                Privacy Policy
-              </button>
-              <button
-                className="hover:text-ds-primary transition-colors"
-                onClick={() => toast.info(t("comingSoon"))}
-              >
-                Terms of Service
-              </button>
-              <button
-                className="hover:text-ds-primary transition-colors"
-                onClick={() => toast.info(t("comingSoon"))}
-              >
-                System Status
-              </button>
-            </div>
-            <p>&copy; 2024 Algorithmic Atelier. All rights reserved.</p>
-          </div>
-        </footer>
       </div>
 
       {/* ═══ Create API Key Dialog ═══ */}

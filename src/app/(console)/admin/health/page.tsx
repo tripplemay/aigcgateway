@@ -175,8 +175,7 @@ export default function HealthPage() {
         const matchAlias = g.alias.toLowerCase().includes(q);
         const matchBrand = g.brand?.toLowerCase().includes(q);
         const matchChannel = g.channels.some(
-          (ch) =>
-            ch.provider.toLowerCase().includes(q) || ch.model.toLowerCase().includes(q),
+          (ch) => ch.provider.toLowerCase().includes(q) || ch.model.toLowerCase().includes(q),
         );
         if (!matchAlias && !matchBrand && !matchChannel) return false;
       }
@@ -203,10 +202,7 @@ export default function HealthPage() {
     return orphans.filter((ch) => {
       if (search) {
         const q = search.toLowerCase();
-        if (
-          !ch.provider.toLowerCase().includes(q) &&
-          !ch.model.toLowerCase().includes(q)
-        )
+        if (!ch.provider.toLowerCase().includes(q) && !ch.model.toLowerCase().includes(q))
           return false;
       }
       if (filterModality && ch.modality !== filterModality) return false;
@@ -298,7 +294,7 @@ export default function HealthPage() {
                 <span
                   className={`text-2xl font-[var(--font-heading)] font-bold ${latencyColor(summary.avgLatency)}`}
                 >
-                  {summary.avgLatency != null ? `${summary.avgLatency}ms` : "—"}
+                  {summary.avgLatency != null ? `${summary.avgLatency.toLocaleString()}ms` : "—"}
                 </span>
               </div>
             </div>
@@ -426,7 +422,11 @@ export default function HealthPage() {
             <div
               key={g.aliasId}
               className={`bg-ds-surface-container-lowest rounded-xl overflow-hidden shadow-sm transition-shadow ${
-                g.highRisk ? "border-l-4 border-rose-400" : isExpanded ? "border-l-4 border-ds-primary" : ""
+                g.highRisk
+                  ? "border-l-4 border-rose-400"
+                  : isExpanded
+                    ? "border-l-4 border-ds-primary"
+                    : ""
               }`}
             >
               {/* Collapsed row */}
@@ -471,7 +471,7 @@ export default function HealthPage() {
                     {g.activeCount}/{g.channelCount} {t("channelsActive")}
                   </span>
                   <span className={`text-xs font-bold ${latencyColor(g.avgLatency)}`}>
-                    {g.avgLatency != null ? `${g.avgLatency}ms` : "—"}
+                    {g.avgLatency != null ? `${g.avgLatency.toLocaleString()}ms` : "—"}
                   </span>
                   <span
                     className={`material-symbols-outlined text-[20px] text-ds-on-surface-variant transition-transform ${isExpanded ? "rotate-180" : ""}`}
@@ -507,9 +507,7 @@ export default function HealthPage() {
         <div className="mt-8">
           <div className="flex items-center gap-2 mb-4">
             <span className="material-symbols-outlined text-amber-500 text-[20px]">link_off</span>
-            <h3 className="font-[var(--font-heading)] text-lg font-bold">
-              {t("orphanChannels")}
-            </h3>
+            <h3 className="font-[var(--font-heading)] text-lg font-bold">{t("orphanChannels")}</h3>
             <span className="text-xs text-ds-on-surface-variant bg-ds-surface-container-low px-2 py-0.5 rounded-full">
               {filteredOrphans.length}
             </span>
@@ -567,9 +565,7 @@ function ChannelCard({
             </div>
           </div>
           <div className="bg-slate-50 px-2.5 py-0.5 rounded-full flex items-center gap-1.5">
-            <span
-              className={`material-symbols-outlined text-[13px] ${latencyColor(latency)}`}
-            >
+            <span className={`material-symbols-outlined text-[13px] ${latencyColor(latency)}`}>
               timer
             </span>
             <span className={`text-[11px] font-bold ${latencyColor(latency)}`}>

@@ -72,33 +72,30 @@ export default function DashboardPage() {
     balanceInfo: { balance: number; alertThreshold: number | null };
   }
 
-  const { data: dashData, loading: dataLoading } = useAsyncData<DashboardData | null>(
-    async () => {
-      if (!current) return null;
-      const pid = current.id;
-      const [bal, u, d, l, m, h] = await Promise.all([
-        apiFetch<{ balance: number; alertThreshold: number | null }>(`/api/projects/${pid}/balance`),
-        apiFetch<UsageSummary>(`/api/projects/${pid}/usage?period=today`),
-        apiFetch<{ data: DailyData[] }>(`/api/projects/${pid}/usage/daily?days=14`),
-        apiFetch<{ data: LogEntry[] }>(`/api/projects/${pid}/logs?pageSize=5`),
-        apiFetch<{ data: ModelData[] }>(`/api/projects/${pid}/usage/by-model`),
-        apiFetch<{ data: Array<{ createdAt: string }> }>(`/api/projects/${pid}/logs?pageSize=100`),
-      ]);
-      const counts = Array.from({ length: 24 }, (_, i) => ({ hour: i, calls: 0 }));
-      for (const log of h.data) {
-        counts[new Date(log.createdAt).getHours()].calls++;
-      }
-      return {
-        usage: u,
-        daily: d.data,
-        logs: l.data,
-        models: m.data,
-        hourly: counts,
-        balanceInfo: bal,
-      };
-    },
-    [current],
-  );
+  const { data: dashData, loading: dataLoading } = useAsyncData<DashboardData | null>(async () => {
+    if (!current) return null;
+    const pid = current.id;
+    const [bal, u, d, l, m, h] = await Promise.all([
+      apiFetch<{ balance: number; alertThreshold: number | null }>(`/api/projects/${pid}/balance`),
+      apiFetch<UsageSummary>(`/api/projects/${pid}/usage?period=today`),
+      apiFetch<{ data: DailyData[] }>(`/api/projects/${pid}/usage/daily?days=14`),
+      apiFetch<{ data: LogEntry[] }>(`/api/projects/${pid}/logs?pageSize=5`),
+      apiFetch<{ data: ModelData[] }>(`/api/projects/${pid}/usage/by-model`),
+      apiFetch<{ data: Array<{ createdAt: string }> }>(`/api/projects/${pid}/logs?pageSize=100`),
+    ]);
+    const counts = Array.from({ length: 24 }, (_, i) => ({ hour: i, calls: 0 }));
+    for (const log of h.data) {
+      counts[new Date(log.createdAt).getHours()].calls++;
+    }
+    return {
+      usage: u,
+      daily: d.data,
+      logs: l.data,
+      models: m.data,
+      hourly: counts,
+      balanceInfo: bal,
+    };
+  }, [current]);
 
   const usage = dashData?.usage ?? null;
   const daily = dashData?.daily ?? [];
@@ -189,7 +186,7 @@ export default function DashboardPage() {
               </span>
               <div className="flex items-end justify-between">
                 <span className="text-2xl font-extrabold font-[var(--font-heading)]">
-                  {usage.avgLatencyMs}ms
+                  {usage.avgLatencyMs?.toLocaleString()}ms
                 </span>
               </div>
             </div>

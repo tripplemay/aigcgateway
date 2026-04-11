@@ -48,6 +48,15 @@ export async function POST(request: Request) {
     return errorResponse(400, "invalid_parameter", "name is required", { param: "name" });
   }
 
+  const existing = await prisma.project.findFirst({
+    where: { userId: auth.payload.userId, name: body.name },
+  });
+  if (existing) {
+    return errorResponse(409, "conflict", "A project with this name already exists", {
+      param: "name",
+    });
+  }
+
   const project = await prisma.project.create({
     data: {
       userId: auth.payload.userId,

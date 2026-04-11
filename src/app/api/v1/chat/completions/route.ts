@@ -7,7 +7,7 @@ export const dynamic = "force-dynamic";
 
 import { authenticateApiKey } from "@/lib/api/auth-middleware";
 import { checkBalance } from "@/lib/api/balance-middleware";
-import { checkRateLimit } from "@/lib/api/rate-limit";
+import { checkRateLimit, rollbackRateLimit } from "@/lib/api/rate-limit";
 import { errorResponse } from "@/lib/api/errors";
 import { generateTraceId, jsonResponse, sseResponse } from "@/lib/api/response";
 import { resolveEngine } from "@/lib/engine";
@@ -49,6 +49,8 @@ export async function POST(request: Request) {
   );
   if (!rateCheck.ok) return rateCheck.error;
   const rateLimitHeaders = rateCheck.headers;
+  const rlKey = rateCheck.rateLimitKey;
+  const rlMember = rateCheck.rateLimitMember;
 
   // 5. 路由
   let route;
@@ -58,6 +60,7 @@ export async function POST(request: Request) {
     route = resolved.route;
     adapter = resolved.adapter;
   } catch (err) {
+    if (rlKey && rlMember) rollbackRateLimit(rlKey, rlMember).catch(() => {});
     if (err instanceof EngineError) {
       return errorResponse(err.statusCode, err.code, err.message);
     }
@@ -79,6 +82,8 @@ export async function POST(request: Request) {
       modelName,
       startTime,
       rateLimitHeaders,
+      rlKey,
+      rlMember,
     );
   }
 
@@ -92,6 +97,8 @@ export async function POST(request: Request) {
     modelName,
     startTime,
     rateLimitHeaders,
+    rlKey,
+    rlMember,
   );
 }
 
@@ -109,6 +116,8 @@ async function handleNonStream(
   modelName: string,
   startTime: number,
   rateLimitHeaders: Record<string, string>,
+  rlKey?: string,
+  rlMember?: string,
 ) {
   try {
     const response = await adapter.chatCompletions(body, route);
@@ -135,6 +144,9 @@ async function handleNonStream(
 
     return jsonResponse(result, 200, traceId, rateLimitHeaders);
   } catch (err) {
+    // 请求失败 → 回滚限流计数
+    if (rlKey && rlMember) rollbackRateLimit(rlKey, rlMember).catch(() => {});
+
     const engineErr = err instanceof EngineError ? err : null;
 
     processChatResult({
@@ -173,6 +185,8 @@ async function handleStream(
   modelName: string,
   startTime: number,
   rateLimitHeaders: Record<string, string>,
+  rlKey?: string,
+  rlMember?: string,
 ) {
   try {
     const stream = await adapter.chatCompletionsStream(body, route);
@@ -244,6 +258,9 @@ async function handleStream(
         } catch (err) {
           controller.error(err);
 
+          // 流式请求失败 → 回滚限流计数
+          if (rlKey && rlMember) rollbackRateLimit(rlKey, rlMember).catch(() => {});
+
           processChatResult({
             traceId,
             userId,
@@ -264,6 +281,9 @@ async function handleStream(
 
     return sseResponse(outputStream, traceId, rateLimitHeaders);
   } catch (err) {
+    // 流建立失败 → 回滚限流计数
+    if (rlKey && rlMember) rollbackRateLimit(rlKey, rlMember).catch(() => {});
+
     const engineErr = err instanceof EngineError ? err : null;
 
     processChatResult({

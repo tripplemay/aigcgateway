@@ -353,7 +353,7 @@ export default function SettingsPage() {
                       {t("callCount")}
                     </p>
                     <p className="text-3xl font-black text-ds-on-surface font-[var(--font-heading)]">
-                      {projectDetail?.stats.callCount ?? "—"}
+                      {projectDetail?.stats.callCount?.toLocaleString() ?? "—"}
                     </p>
                   </div>
                 </div>

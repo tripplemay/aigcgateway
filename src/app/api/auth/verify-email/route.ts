@@ -3,45 +3,57 @@ import { prisma } from "@/lib/prisma";
 import { errorResponse } from "@/lib/api/errors";
 import { NextResponse } from "next/server";
 
-
 /**
  * POST /api/auth/verify-email
  *
- * P1 简化实现：通过 userId 直接验证（生产环境应使用令牌）
+ * Verify email using a one-time token (generated at registration).
+ * Token must be valid and not expired.
  */
 export async function POST(request: Request) {
-  let body: { userId?: string; token?: string };
+  let body: { token?: string };
   try {
     body = await request.json();
   } catch {
     return errorResponse(400, "invalid_parameter", "Invalid JSON body");
   }
 
-  const { userId, token } = body;
+  const { token } = body;
 
-  if (!userId && !token) {
-    return errorResponse(400, "invalid_parameter", "userId or token is required");
+  if (!token) {
+    return errorResponse(400, "invalid_parameter", "token is required");
   }
 
-  // P1: 通过 userId 直接标记（P2 实现真正的邮件令牌验证）
-  const identifier = userId ?? token;
-
-  const user = await prisma.user.findFirst({
-    where: { id: identifier },
+  const record = await prisma.emailVerificationToken.findUnique({
+    where: { token },
+    include: { user: { select: { id: true, emailVerified: true } } },
   });
 
-  if (!user) {
-    return errorResponse(404, "not_found", "User not found");
+  if (!record) {
+    return errorResponse(400, "invalid_token", "Invalid verification token");
   }
 
-  if (user.emailVerified) {
+  if (record.used) {
+    return errorResponse(400, "token_used", "This verification token has already been used");
+  }
+
+  if (record.expiresAt < new Date()) {
+    return errorResponse(400, "token_expired", "Verification token has expired");
+  }
+
+  if (record.user.emailVerified) {
     return NextResponse.json({ message: "Email already verified" });
   }
 
-  await prisma.user.update({
-    where: { id: user.id },
-    data: { emailVerified: true },
-  });
+  await prisma.$transaction([
+    prisma.user.update({
+      where: { id: record.userId },
+      data: { emailVerified: true },
+    }),
+    prisma.emailVerificationToken.update({
+      where: { id: record.id },
+      data: { used: true },
+    }),
+  ]);
 
   return NextResponse.json({ message: "Email verified successfully" });
 }

@@ -161,35 +161,16 @@ export default function ModelsPage() {
         </div>
       </div>
 
-      {/* ═══ Bento Grid Statistics — code.html lines 171-196 ═══ */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
-        {/* Total Models card (col-span-2) */}
-        <div className="col-span-1 md:col-span-2 bg-ds-surface-container-lowest p-6 rounded-xl shadow-[0px_20px_40px_rgba(19,27,46,0.04)] flex flex-col justify-between overflow-hidden relative">
-          <div className="relative z-10">
-            <span className="text-[10px] font-bold text-ds-primary uppercase tracking-widest">
-              {t("activeInfrastructure")}
-            </span>
-            <h3 className="text-3xl font-extrabold mt-2 font-[var(--font-heading)]">
-              {totalModels} {t("totalModels")}
-            </h3>
-          </div>
-          <div className="mt-8 flex items-end gap-2 relative z-10">
-            <div className="w-1/4 h-12 bg-ds-primary/10 rounded-lg" />
-            <div className="w-1/4 h-20 bg-ds-primary/20 rounded-lg" />
-            <div className="w-1/4 h-16 bg-ds-primary/40 rounded-lg" />
-            <div className="w-1/4 h-24 bg-ds-primary rounded-lg" />
-          </div>
-          <div className="absolute -right-12 -top-12 w-48 h-48 bg-ds-primary-fixed rounded-full blur-3xl opacity-50" />
-        </div>
-        {/* Optimization card */}
+      {/* ═══ Statistics ═══ */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
         <div className="bg-ds-surface-container-lowest p-6 rounded-xl shadow-[0px_20px_40px_rgba(19,27,46,0.04)]">
-          <span className="text-[10px] font-bold text-ds-tertiary uppercase tracking-widest">
-            {t("optimization")}
+          <span className="text-[10px] font-bold text-ds-primary uppercase tracking-widest">
+            {t("activeInfrastructure")}
           </span>
-          <h3 className="text-3xl font-extrabold mt-2 font-[var(--font-heading)]">—</h3>
-          <p className="text-xs text-ds-on-surface-variant mt-2">{t("avgLatencyOverhead")}</p>
+          <h3 className="text-3xl font-extrabold mt-2 font-[var(--font-heading)]">
+            {totalModels} {t("totalModels")}
+          </h3>
         </div>
-        {/* Brand Groups card */}
         <div className="bg-ds-surface-container-lowest p-6 rounded-xl shadow-[0px_20px_40px_rgba(19,27,46,0.04)]">
           <span className="text-[10px] font-bold text-ds-secondary uppercase tracking-widest">
             {t("brandGroups")}
@@ -338,11 +319,7 @@ export default function ModelsPage() {
                                 </span>
                               )}
                             </td>
-                            <td className="px-6 py-4 text-right">
-                              <button className="p-2 rounded-lg hover:bg-white text-ds-outline group-hover/row:text-ds-primary transition-colors">
-                                <span className="material-symbols-outlined">settings_ethernet</span>
-                              </button>
-                            </td>
+                            <td className="px-6 py-4 text-right" />
                           </tr>
                         );
                       })}

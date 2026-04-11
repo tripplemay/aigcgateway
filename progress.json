@@ -1,11 +1,11 @@
 {
-  "status": "building",
+  "status": "verifying",
   "user_goal": "SUP1 — 后端安全加固（邮箱验证/JWT/限流）+ UI 打磨（假数据清理/千位分隔符/重名校验）",
   "total_features": 6,
-  "completed_features": 0,
+  "completed_features": 6,
   "fix_rounds": 0,
   "current_sprint": null,
-  "last_updated": "2026-04-11T09:30:00Z",
+  "last_updated": "2026-04-11T10:30:00Z",
   "reference_docs": [],
   "role_assignments": null,
   "docs": {
@@ -17,7 +17,7 @@
   "evaluator_feedback": null,
   "generator_handoff": null,
   "session_notes": {
-    "Kimi": "Planner 完成 SUP1 规划：合并 SEC2+UI-POLISH，6 条功能（BL-070/071/072/105/103/094）。BL-105 经全站审计扩展至 10 处（新增 Models 操作列、Login/Register 死链、Admin Logs 假洞察、Admin Models 假统计）。社交登录按钮保留（未来实现）。默认角色分配，无 spec（bug fix 批次）。",
+    "Kimi": "Generator 完成 SUP1 全部 6 条功能实现。BL-070: 新增 EmailVerificationToken 模型+注册时生成 token+verify-email 改为 token 校验。BL-071: jwt-middleware 改用 getEnv() 读 JWT_SECRET，缺失时通过 Zod 抛错。BL-072: 限流回滚修复三处（超限回滚用 zrem 精确删除、失败时回滚计数、覆盖 chat/image/actions/templates 4 个路由）。BL-105: 清理 10 处假数据（logs/keys/providers/quickstart/mcp-setup/models/login/admin-logs/admin-models）。BL-103: 7 处大数字加 toLocaleString。BL-094: projects API 加同用户重名 409 校验。全部 tsc 通过。",
     "Reviewer": null
   }
 }

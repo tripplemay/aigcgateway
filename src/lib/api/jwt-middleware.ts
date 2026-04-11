@@ -8,20 +8,20 @@ import jwt, { type SignOptions } from "jsonwebtoken";
 import type { UserRole } from "@prisma/client";
 import { errorResponse } from "./errors";
 import type { NextResponse } from "next/server";
-
-const JWT_SECRET = process.env.JWT_SECRET ?? "";
+import { getEnv } from "@/lib/env";
 
 export interface JwtPayload {
   userId: string;
   role: UserRole;
 }
 
-type JwtResult =
-  | { ok: true; payload: JwtPayload }
-  | { ok: false; error: NextResponse };
+type JwtResult = { ok: true; payload: JwtPayload } | { ok: false; error: NextResponse };
 
 export function signJwt(payload: JwtPayload): string {
-  const options: SignOptions = { expiresIn: (process.env.JWT_EXPIRES_IN ?? "7d") as string & SignOptions["expiresIn"] };
+  const { JWT_SECRET, JWT_EXPIRES_IN } = getEnv();
+  const options: SignOptions = {
+    expiresIn: JWT_EXPIRES_IN as string & SignOptions["expiresIn"],
+  };
   return jwt.sign(payload, JWT_SECRET, options);
 }
 
@@ -44,7 +44,7 @@ export function verifyJwt(request: Request): JwtResult {
   }
 
   try {
-    const decoded = jwt.verify(parts[1], JWT_SECRET) as JwtPayload;
+    const decoded = jwt.verify(parts[1], getEnv().JWT_SECRET) as JwtPayload;
     return { ok: true, payload: decoded };
   } catch {
     return {
@@ -54,10 +54,7 @@ export function verifyJwt(request: Request): JwtResult {
   }
 }
 
-export function requireRole(
-  payload: JwtPayload,
-  role: UserRole,
-): NextResponse | null {
+export function requireRole(payload: JwtPayload, role: UserRole): NextResponse | null {
   if (payload.role !== role) {
     return errorResponse(403, "forbidden", `Requires ${role} role`);
   }
