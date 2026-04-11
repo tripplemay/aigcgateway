@@ -25,7 +25,7 @@
     {
       "name": "core tools callable (smoke)",
       "ok": true,
-      "detail": "traceId=trc_tg55b4stq4ex78260x45daa4"
+      "detail": "traceId=trc_y5o2it8i5qn8isvdewxqlfbn"
     },
     {
       "name": "get_action_detail returns messages and variables",
@@ -58,9 +58,9 @@
       "detail": "skipped: first call failed ([rate_limited] Rate limit exceeded. Please retry after 60 se)"
     }
   ],
-  "projectId": "cmntkre8o000e9yctt7ras45v",
-  "apiKeyPrefix": "pk_f2721",
-  "actionId": "cmntkrebk00119yctok6owt9t",
-  "templateId": "cmntkrec0001w9yctqy9oziug",
-  "traceId": "trc_tg55b4stq4ex78260x45daa4"
+  "projectId": "cmntkznfi00sn9y2rvdxz4t4o",
+  "apiKeyPrefix": "pk_b6c76",
+  "actionId": "cmntkzng900sr9y2rolkvhy6s",
+  "templateId": "cmntkzngi00sz9y2rvifhzc1y",
+  "traceId": "trc_y5o2it8i5qn8isvdewxqlfbn"
 }

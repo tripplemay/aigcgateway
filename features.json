@@ -39,7 +39,7 @@
       "title": "CI1 全量验收",
       "priority": "high",
       "executor": "codex",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) Mock Server 公共库可用，现有脚本改用后仍通过；2) 测试工厂可用，现有脚本改用后仍通过；3) CI pipeline 含 tsc+lint+vitest，push 后自动跑；4) 鉴权模块单元测试覆盖基本场景；5) 签收报告生成"
     }
   ]

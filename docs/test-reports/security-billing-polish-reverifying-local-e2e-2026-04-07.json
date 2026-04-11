@@ -1,6 +1,6 @@
 {
   "batch": "security-billing-polish",
-  "generatedAt": "2026-04-11T00:06:34.581Z",
+  "generatedAt": "2026-04-11T00:13:07.115Z",
   "environment": "http://localhost:3099",
   "checks": [
     {
@@ -11,12 +11,12 @@
     {
       "name": "F-SB-01 MCP generate_image invalid size sanitized",
       "ok": true,
-      "detail": "request succeeded (mock passthrough)"
+      "detail": "error sanitized: {\"code\":\"invalid_request\",\"message\":\"invalid size; [contact removed]; volcengine"
     },
     {
       "name": "F-SB-01 REST generate_image empty prompt handled",
       "ok": true,
-      "detail": "status=200"
+      "detail": "status=400"
     },
     {
       "name": "F-SB-03 empty content blocked at gateway",
@@ -26,7 +26,7 @@
     {
       "name": "F-SB-02 chat call deducts balance",
       "ok": true,
-      "detail": "delta=0.00000336"
+      "detail": "delta=0.00000002"
     }
   ],
   "pass": 5,
