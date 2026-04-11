@@ -1,0 +1,59 @@
+{
+  "batch": "ADMIN-OPS-plus",
+  "executedAt": "2026-04-11T16:18:55.304Z",
+  "baseUrl": "http://localhost:3099",
+  "pass": 10,
+  "fail": 0,
+  "steps": [
+    {
+      "id": "F-AOP-01-inference-status-banner-variants",
+      "ok": true,
+      "detail": "branchesFound=true"
+    },
+    {
+      "id": "F-AOP-02-system-log-tab-api-pagination-filter",
+      "ok": true,
+      "detail": "tabFilters=true apiPagingFilter=true syncWarnHit=true inferErrorExcluded=true"
+    },
+    {
+      "id": "F-AOP-03-sync-inference-progress",
+      "ok": true,
+      "detail": "sharedBarAndPolling=true progressApiShape=true syncDataType=object inferDataType=object"
+    },
+    {
+      "id": "F-AOP-04-provider-auto-create-config",
+      "ok": true,
+      "detail": "providerId=cmnujhsz2000p9y527ywf4tc5 chatEndpoint=/chat/completions supportsModelsApi=false"
+    },
+    {
+      "id": "F-AOP-05-docs-content-updated",
+      "ok": true,
+      "detail": "docsUpdated=true"
+    },
+    {
+      "id": "F-AOP-06-settings-project-selector",
+      "ok": true,
+      "detail": "selectorAndSwitch=true"
+    },
+    {
+      "id": "F-AOP-07-model-name-lowercase-normalization",
+      "ok": true,
+      "detail": "pipeline=true lowerNameDuplicates=0 nonLowercaseModels=0"
+    },
+    {
+      "id": "F-AOP-08-classifier-batch-size-le-15",
+      "ok": true,
+      "detail": "batchSizes=15,15,15,15"
+    },
+    {
+      "id": "F-AOP-09-alias-update-invalidates-models-cache",
+      "ok": true,
+      "detail": "redisConnected=true cacheCleared=true"
+    },
+    {
+      "id": "F-AOP-tsc",
+      "ok": true,
+      "detail": "exit=0 stderr="
+    }
+  ]
+}

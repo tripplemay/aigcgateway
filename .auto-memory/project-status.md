@@ -4,8 +4,8 @@ description: AIGC Gateway 当前状态快照（覆盖写，≤30 行）
 type: project
 ---
 ## 当前批次
-- ADMIN-OPS-plus：`verifying`（10 条功能，9/10 完成，1 条 codex）
-- Generator 全部完成，等待 Evaluator 验收
+- ADMIN-OPS-plus：`done`（10/10 完成，已签收）
+- 签收文档：`docs/test-reports/ADMIN-OPS-plus-signoff-2026-04-12.md`
 
 ## 本批次功能
 - BL-101: 推断提示条 + SystemLog + 同步/推断进度 + 自动创建 ProviderConfig

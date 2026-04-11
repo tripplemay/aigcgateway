@@ -79,7 +79,7 @@
       "title": "ADMIN-OPS+ 全量验收",
       "priority": "high",
       "executor": "codex",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "1) 推断结果提示条显示正确；2) 系统日志 tab 可用；3) 同步+推断实时进度显示正确；4) 创建 Provider 自动创建 ProviderConfig；5) /docs 页内容已更新；6) Settings 项目切换可用；7) Model 名称统一小写，无大小写重复；8) classifier 批次 ≤15；9) 别名定价后 Redis 缓存立即失效；10) 签收报告生成"
     }
   ]

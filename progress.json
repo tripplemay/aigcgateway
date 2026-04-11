@@ -1,17 +1,17 @@
 {
-  "status": "verifying",
+  "status": "done",
   "user_goal": "ADMIN-OPS+ — 运维增强（进度显示/系统日志/ProviderConfig）+ 文档更新 + 项目切换 + 数据质量修复",
   "total_features": 10,
-  "completed_features": 9,
+  "completed_features": 10,
   "fix_rounds": 0,
   "current_sprint": null,
-  "last_updated": "2026-04-12T08:30:00Z",
+  "last_updated": "2026-04-11T16:20:00Z",
   "reference_docs": [],
   "role_assignments": null,
   "docs": {
     "spec": null,
     "test_cases": null,
-    "signoff": null,
+    "signoff": "docs/test-reports/ADMIN-OPS-plus-signoff-2026-04-12.md",
     "framework_reviewed": false
   },
   "evaluator_feedback": null,
@@ -25,6 +25,6 @@
   },
   "session_notes": {
     "Kimi": "Generator 完成全部 9 条 executor:generator 功能。F-AOP-01 推断提示条、F-AOP-02 SystemLog+系统日志tab、F-AOP-03 同步/推断实时进度（Redis轮询）、F-AOP-04 创建Provider自动创建ProviderConfig、F-AOP-05 文档页更新（别名格式+新参数+28个MCP工具）、F-AOP-06 Settings项目切换、F-AOP-07 Model名称小写归一化+清理脚本、F-AOP-08 classifier批次30→15、F-AOP-09 别名定价/启用后清Redis缓存。build通过。",
-    "Reviewer": null
+    "Reviewer": "已按 harness 完成 F-AOP-10 首轮验收：执行 scripts/test/admin-ops-plus-verifying-e2e-2026-04-12.ts，10/10 通过；签收文档 docs/test-reports/ADMIN-OPS-plus-signoff-2026-04-12.md；状态更新为 done。"
   }
 }
