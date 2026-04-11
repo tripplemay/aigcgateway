@@ -2,7 +2,7 @@
 
 ## 背景与目标
 
-当前已接入 7 家服务商（OpenAI / Anthropic / DeepSeek / Zhipu / Volcengine / SiliconFlow / OpenRouter），国产覆盖面不足。本批次新增 4 家国产 AI 服务商，扩大模型覆盖。
+当前已接入 7 家服务商（OpenAI / Anthropic / DeepSeek / Zhipu / Volcengine / SiliconFlow / OpenRouter），国产覆盖面不足。本批次新增 4 家国产 AI 服务商，扩展至 11 家。
 
 ## 功能范围
 

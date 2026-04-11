@@ -29,7 +29,7 @@ Request → auth (sha256 API Key → Project)
 
 - `server.ts` — McpServer instance + Server Instructions + Tool registration. Takes `projectId` to scope all operations.
 - `auth.ts` — API Key auth (sha256 lookup), returns project context or null.
-- `tools/` — 20 Tools: list-models, chat, generate-image, list-logs, get-log-detail, get-balance, get-usage-summary, list-actions, get-action-detail, create-action, update-action, delete-action, create-action-version, run-action, list-templates, get-template-detail, create-template, update-template, delete-template, run-template.
+- `tools/` — 25 Tools: AI 调用（chat, generate-image）、查询（list-models, list-logs, get-log-detail, get-balance, get-usage-summary）、Action 管理（list-actions, get-action-detail, create-action, update-action, delete-action, create-action-version, activate-version, run-action）、Template 管理（list-templates, get-template-detail, create-template, update-template, delete-template, run-template, list-public-templates, fork-public-template）、账户管理（manage-api-keys, manage-projects）。
 - `app/api/mcp/route.ts` — Streamable HTTP endpoint (POST/GET/DELETE), stateless mode, per-request auth + server creation.
 
 MCP is not a separate service — it's a route handler inside the same Next.js app that reuses all existing infrastructure (auth, engine, billing, audit).
