@@ -155,17 +155,18 @@ ${existingBrands.length > 0 ? JSON.stringify(existingBrands) : "(空)"}
 2. 如果没有匹配的已有别名，建议一个新别名（简短、用户友好、去掉服务商前缀和日期版本号）
 3. 推断品牌时，必须优先使用已有品牌列表中的名称。只有当模型确实不属于任何已有品牌时，才建议新品牌名
 4. 无法确定品牌则返回 null
-5. 推断模型的 capabilities（function_calling / streaming / vision / system_prompt / json_mode / image_input），返回为 true/false
+5. 推断模型的 capabilities（function_calling / streaming / vision / system_prompt / json_mode / reasoning / search），返回为 true/false
 6. 推断模型的 context_window（上下文窗口大小，整数，如 128000）和 max_tokens（最大输出 token 数，整数，如 4096）。不确定则返回 null
+7. 对于图片生成模型，在 capabilities 中额外包含 supported_sizes 字段（字符串数组），如 ["1024x1024", "1024x1792"]
 
 ## 返回 JSON
 返回一个对象，key 是模型 ID，value 是分类结果：
 
 归入已有别名：
-{ "existing_alias": "gpt-4o", "brand": "OpenAI", "context_window": 128000, "max_tokens": 16384, "capabilities": { "function_calling": true, "streaming": true, "vision": true, "system_prompt": true, "json_mode": true, "image_input": true } }
+{ "existing_alias": "gpt-4o", "brand": "OpenAI", "context_window": 128000, "max_tokens": 16384, "capabilities": { "function_calling": true, "streaming": true, "vision": true, "system_prompt": true, "json_mode": true, "reasoning": false, "search": false } }
 
 建议新别名：
-{ "new_alias": "mistral-large", "brand": "Mistral", "context_window": 128000, "max_tokens": 8192, "capabilities": { "function_calling": true, "streaming": true, "vision": false, "system_prompt": true, "json_mode": true, "image_input": false } }
+{ "new_alias": "mistral-large", "brand": "Mistral", "context_window": 128000, "max_tokens": 8192, "capabilities": { "function_calling": true, "streaming": true, "vision": false, "system_prompt": true, "json_mode": true, "reasoning": false, "search": false } }
 
 只返回 JSON 对象，不要其他文字。`;
 }
@@ -613,10 +614,90 @@ function buildCapabilitiesPrompt(aliasNames: string[]): string {
 - vision: 是否支持图片/视觉输入
 - system_prompt: 是否支持系统消息
 - json_mode: 是否支持 JSON 结构化输出
-- image_input: 是否支持图片输入（与 vision 类似但更广义）
+- reasoning: 是否支持推理/思维链（如 o1、DeepSeek-R1、QwQ 等推理模型）
+- search: 是否支持联网搜索（如 gpt-4o-search、kimi-search 等）
+
+对于图片生成模型（如 dall-e、cogview、flux、stable-diffusion 等），额外返回 supported_sizes 字段（字符串数组），列出支持的图片尺寸，如 ["1024x1024", "1024x1792", "1792x1024"]。非图片模型不需要此字段。
 
 别名列表：
 ${aliasNames.map((n) => `- ${n}`).join("\n")}
 
 只返回 JSON 对象，不要其他文字。`;
+}
+
+/**
+ * 一次性修正：迁移 image_input → vision，然后对所有别名重跑 capabilities 推断。
+ */
+export async function reinferAllCapabilities(): Promise<{
+  migrated: number;
+  updated: number;
+  skipped: number;
+  errors: string[];
+}> {
+  const allAliases = await prisma.modelAlias.findMany({
+    select: { id: true, alias: true, capabilities: true },
+  });
+
+  // Step 1: 迁移 image_input → vision
+  let migrated = 0;
+  for (const alias of allAliases) {
+    const caps = alias.capabilities as Record<string, unknown> | null;
+    if (caps && "image_input" in caps) {
+      const { image_input, ...rest } = caps;
+      await prisma.modelAlias.update({
+        where: { id: alias.id },
+        data: {
+          capabilities: { ...rest, vision: Boolean(caps.vision) || Boolean(image_input) },
+        },
+      });
+      migrated++;
+    }
+  }
+  console.log(`[alias-classifier] Migrated image_input → vision: ${migrated} aliases`);
+
+  // Step 2: 对所有别名重跑推断（覆盖现有 capabilities）
+  const refreshAliases = await prisma.modelAlias.findMany({
+    select: { id: true, alias: true },
+  });
+  const errors: string[] = [];
+  let updated = 0;
+  let skipped = 0;
+  const BATCH_SIZE = 30;
+
+  for (let i = 0; i < refreshAliases.length; i += BATCH_SIZE) {
+    const batch = refreshAliases.slice(i, i + BATCH_SIZE);
+    const batchNum = Math.floor(i / BATCH_SIZE) + 1;
+
+    try {
+      const rawResponse = await retryWithBackoff(
+        () => callInternalAI(buildCapabilitiesPrompt(batch.map((a) => a.alias))),
+        `reinfer batch ${batchNum}`,
+      );
+      let results: Record<string, Record<string, unknown>>;
+      try {
+        results = JSON.parse(rawResponse);
+      } catch {
+        errors.push(`Batch ${batchNum}: parse error`);
+        skipped += batch.length;
+        continue;
+      }
+      for (const alias of batch) {
+        const caps = results[alias.alias];
+        if (caps && typeof caps === "object") {
+          await prisma.modelAlias.update({
+            where: { id: alias.id },
+            data: { capabilities: caps as Record<string, boolean> },
+          });
+          updated++;
+        } else {
+          skipped++;
+        }
+      }
+    } catch (err) {
+      errors.push(`Batch ${batchNum}: ${err instanceof Error ? err.message : String(err)}`);
+      skipped += batch.length;
+    }
+  }
+
+  return { migrated, updated, skipped, errors };
 }

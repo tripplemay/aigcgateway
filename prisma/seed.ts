@@ -301,6 +301,17 @@ async function main() {
   });
   console.log("  SystemConfig: DEFAULT_MARKUP_RATIO = 1.2");
 
+  await prisma.systemConfig.upsert({
+    where: { key: "USD_TO_CNY_RATE" },
+    update: {},
+    create: {
+      key: "USD_TO_CNY_RATE",
+      value: "7.3",
+      description: "USD 转 CNY 汇率，用于全站人民币显示",
+    },
+  });
+  console.log("  SystemConfig: USD_TO_CNY_RATE = 7.3");
+
   // 3. 创建 Provider + ProviderConfig
   for (const providerDef of providers) {
     const provider = await prisma.provider.upsert({

@@ -277,9 +277,10 @@ model ModelAlias {
   maxTokens     Int?
   capabilities  Json?
   description   String?
-  sellPrice     Json?
-  createdAt     DateTime      @default(now())
-  updatedAt     DateTime      @updatedAt
+  sellPrice          Json?
+  openRouterModelId  String?
+  createdAt          DateTime      @default(now())
+  updatedAt          DateTime      @updatedAt
 
   models AliasModelLink[]
 

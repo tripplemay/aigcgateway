@@ -57,7 +57,8 @@ const CAPABILITY_KEYS = [
   "vision",
   "system_prompt",
   "json_mode",
-  "image_input",
+  "reasoning",
+  "search",
 ] as const;
 
 type SortKey = "name" | "enabled" | "brand";

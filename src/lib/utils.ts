@@ -1,12 +1,23 @@
-import { clsx, type ClassValue } from "clsx"
-import { twMerge } from "tailwind-merge"
+import { clsx, type ClassValue } from "clsx";
+import { twMerge } from "tailwind-merge";
 
 export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs))
+  return twMerge(clsx(inputs));
 }
 
 export function formatCurrency(value: number, decimals = 4): string {
   return `$${value.toFixed(decimals)}`;
+}
+
+/**
+ * 将 USD 金额转换为 CNY 显示。
+ * @param usdValue USD 金额
+ * @param rate 汇率（USD→CNY）
+ * @param decimals 小数位数
+ */
+export function formatCNY(usdValue: number, rate: number, decimals = 4): string {
+  const cny = usdValue * rate;
+  return `¥${cny.toFixed(decimals)}`;
 }
 
 export function formatTokens(value: number): string {

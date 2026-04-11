@@ -24,6 +24,7 @@ import {
 interface Profile {
   email: string;
   name: string | null;
+  role?: string;
 }
 
 interface LoginRecord {
@@ -566,6 +567,9 @@ export default function SettingsPage() {
               </div>
             </section>
 
+            {/* Admin: Exchange Rate */}
+            {profile?.role === "ADMIN" && <ExchangeRateSection />}
+
             {/* Sign Out */}
             <section className="bg-ds-error-container/20 rounded-xl p-8 relative overflow-hidden">
               <div className="relative z-10">
@@ -598,5 +602,72 @@ export default function SettingsPage() {
         </div>
       )}
     </div>
+  );
+}
+
+function ExchangeRateSection() {
+  const t = useTranslations("settings");
+  const [rate, setRate] = useState("");
+  const [loaded, setLoaded] = useState(false);
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    apiFetch<{ data: Array<{ key: string; value: string }> }>("/api/admin/config")
+      .then((res) => {
+        const item = res.data.find((c) => c.key === "USD_TO_CNY_RATE");
+        setRate(item?.value ?? "7.3");
+        setLoaded(true);
+      })
+      .catch(() => {
+        setRate("7.3");
+        setLoaded(true);
+      });
+  }, []);
+
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      await apiFetch("/api/admin/config", {
+        method: "PUT",
+        body: JSON.stringify({
+          key: "USD_TO_CNY_RATE",
+          value: rate,
+          description: "USD 转 CNY 汇率",
+        }),
+      });
+      toast.success(t("saved"));
+    } catch (e) {
+      toast.error((e as Error).message);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  if (!loaded) return null;
+
+  return (
+    <section className="bg-ds-surface-container-lowest rounded-xl p-8 shadow-sm">
+      <h2 className="text-xl font-bold font-[var(--font-heading)] mb-2">{t("exchangeRate")}</h2>
+      <p className="text-sm text-ds-on-surface-variant mb-6">{t("exchangeRateDesc")}</p>
+      <div className="flex items-center gap-4">
+        <span className="text-sm font-bold text-ds-on-surface-variant">1 USD =</span>
+        <input
+          type="number"
+          step="0.01"
+          min="0"
+          className="w-32 bg-ds-surface-container-low border-none rounded-lg text-sm px-4 py-2 font-semibold focus:ring-2 focus:ring-ds-primary/20"
+          value={rate}
+          onChange={(e) => setRate(e.target.value)}
+        />
+        <span className="text-sm font-bold text-ds-on-surface-variant">CNY</span>
+        <button
+          onClick={handleSave}
+          disabled={saving}
+          className="px-6 py-2 bg-ds-primary text-white font-bold rounded-lg text-sm hover:opacity-90 transition-opacity disabled:opacity-50"
+        >
+          {saving ? "..." : t("save")}
+        </button>
+      </div>
+    </section>
   );
 }

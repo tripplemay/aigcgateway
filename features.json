@@ -7,7 +7,7 @@
       "title": "capabilities 字段统一（BL-102）",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) capabilities 定义统一为 streaming/json_mode/function_calling/vision/reasoning/search/system_prompt；2) image_input 已移除，合并到 vision；3) LLM 推断 prompt 已更新，能判断 reasoning 和 search；4) 前端别名管理页 capability toggle 已更新；5) tsc 通过"
     },
     {
@@ -15,7 +15,7 @@
       "title": "IMAGE 别名补充 supportedSizes（BL-102）",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) IMAGE 模态别名优先从关联 Model 继承 supportedSizes；2) null 的通过 LLM 推断补充；3) tsc 通过"
     },
     {
@@ -23,15 +23,15 @@
       "title": "现有别名一次性修正（BL-102）",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) 提供运维入口或脚本，对所有现有别名重跑推断；2) 执行后别名补充了 reasoning/search/supportedSizes；3) 已有的 image_input 被迁移到 vision；4) 不影响已锁定的 sellPrice"
     },
     {
       "id": "F-DQ2-04",
-      "title": "Schema 变更 + 汇率配置（BL-107）",
+      "title": "Schema 变更 + 汇率配置（BL-107���",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) ModelAlias 新增 openRouterModelId 可空字段，migration 成功；2) 汇率配置存储可用（默认 7.3）；3) 管理员可在 Settings 页面查看和修改汇率；4) 提供 API 端点读取当前汇率；5) tsc 通过"
     },
     {
