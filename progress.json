@@ -1,28 +1,23 @@
 {
-  "status": "done",
-  "user_goal": "CI1 — 测试基础设施升级（Mock 复用 + 测试工厂 + Vitest + CI pipeline）",
-  "total_features": 5,
-  "completed_features": 5,
-  "fix_rounds": 13,
+  "status": "building",
+  "user_goal": "SUP1 — 后端安全加固（邮箱验证/JWT/限流）+ UI 打磨（假数据清理/千位分隔符/重名校验）",
+  "total_features": 6,
+  "completed_features": 0,
+  "fix_rounds": 0,
   "current_sprint": null,
-  "last_updated": "2026-04-11T00:13:20Z",
+  "last_updated": "2026-04-11T09:30:00Z",
   "reference_docs": [],
   "role_assignments": null,
   "docs": {
     "spec": null,
     "test_cases": null,
-    "signoff": "docs/test-reports/CI1-test-infrastructure-signoff-2026-04-11.md",
+    "signoff": null,
     "framework_reviewed": false
   },
   "evaluator_feedback": null,
-  "generator_handoff": {
-    "completed": ["F-CI1-01", "F-CI1-02", "F-CI1-03", "F-CI1-04"],
-    "codex_pending": ["F-CI1-05"],
-    "notes": "Fix round 13: mcp-finops-hardening F-MH-01 invalid size 断言容错（同 security-billing-polish F-SB-01 处理方式），接受 success/error 两种结果。"
-  },
+  "generator_handoff": null,
   "session_notes": {
-    "Kimi": "Fix round 13: 仅剩 mcp-finops-hardening F-MH-01 单点失败（invalid size 期望 error 但 mock passthrough 返回 success）。与 security-billing-polish F-SB-01 完全相同问题，同样改为容错处理。",
-    "Planner": "本轮 Planner 长会话产出：1) P5 设计稿+启动；2) M1 spec+拆4子批次(M1a~M1d)全部签收；3) K1 spec(API Key 用户级)+启动+签收；4) U1 spec(用户详情页)+启动+签收；5) L1(LLM 健壮性)+MCP2(工具增强)+A1(数据质量)+T1(模板)+N1(UI导航)+O1(运维)+CI1(测试基础设施) 启动；6) 多次生产环境诊断（capabilities 超时、modality 全 TEXT、brand 重复）；7) 新增 backlog BL-099~105（删除服务商/Keys精简/运维提示/supportedSizes+capabilities统一/千位分隔符/项目切换/假内容清理）。CI1 当前 fixing round 4，问题是旧脚本未适配 K1 数据模型。",
-    "Reviewer": "CI1 round13 复验完成：串行执行下 vitest 11/11、mcp-dx-round2 11/11、mcp-finops-hardening 9/9、security-billing-polish 5/5 全通过，已生成 signoff：docs/test-reports/CI1-test-infrastructure-signoff-2026-04-11.md，并将批次状态推进到 done。"
+    "Kimi": "Planner 完成 SUP1 规划：合并 SEC2+UI-POLISH，6 条功能（BL-070/071/072/105/103/094）。BL-105 经全站审计扩展至 10 处（新增 Models 操作列、Login/Register 死链、Admin Logs 假洞察、Admin Models 假统计）。社交登录按钮保留（未来实现）。默认角色分配，无 spec（bug fix 批次）。",
+    "Reviewer": null
   }
 }

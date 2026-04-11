@@ -4,17 +4,18 @@ description: AIGC Gateway 当前状态快照（覆盖写，≤30 行）
 type: project
 ---
 ## 当前批次
-- CI1-test-infrastructure：`done`（已签收）
-- 最终结果：`vitest 11/11 PASS`，`mcp-dx-round2 11/11 PASS`，`mcp-finops-hardening 9/9 PASS`，`security-billing-polish 5/5 PASS`
-- 签收报告：`docs/test-reports/CI1-test-infrastructure-signoff-2026-04-11.md`
+- SUP1-security-ui-polish：`building`（6 条功能，0/6 完成）
+- 安全加固：BL-070 邮箱验证防伪造 / BL-071 JWT 启动拦截 / BL-072 限流回滚修复
+- UI 打磨：BL-105 假数据清理(10处) / BL-103 千位分隔符 / BL-094 重名校验
+- Generator: Kimi（另一会话），Planner: Kimi（本会话），Evaluator: 默认
 
 ## 已完成批次
 - R1~R4 / P5 / M1a~M1d / BF / K1 / U1 / L1 / MCP2 / A1 / T1 / N1 / O1 / CI1
 
-## Backlog（16 条）
-- 新增需求 BL-099~105（删除服务商/Keys精简/运维提示/supportedSizes/千位分隔符/项目切换/假内容清理）
-- 后续建议优先：BL-105 + BL-103 + BL-102
+## Backlog（9 条）
+- BL-065(支付验签,延后) / BL-068(Keys Insights) / BL-073(高风险测试)
+- BL-104(项目切换) / BL-102(别名数据质量二期) / BL-101(运维提示+系统日志)
+- BL-099(删除服务商) / BL-090(用户文档更新) / BL-080(项目文档更新)
 
-## 关键上下文
-- round13 采用串行复验，规避并发下 aliasModelLink upsert `P2002` 噪音
-- CI1 已闭环，可进入下一批次规划
+## 后续批次规划
+- ADMIN-OPS(BL-099+101) → DQ2(BL-102) → DOCS(BL-090+080) → INSIGHTS(BL-068+104)

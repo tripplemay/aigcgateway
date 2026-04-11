@@ -18,30 +18,6 @@
       "priority": "low"
     },
     {
-      "id": "BL-070",
-      "title": "邮箱验证接口可伪造（无 token 校验）",
-      "description": "verify-email 接口知道 userId 即可将任意账号标记为 emailVerified=true。来源：backend-audit-2026-04-08.md [中]。",
-      "decisions": [],
-      "confirmed_at": "2026-04-09",
-      "priority": "medium"
-    },
-    {
-      "id": "BL-071",
-      "title": "JWT 密钥缺失时退化为空密钥",
-      "description": "JWT_SECRET 未配置时 fallback 为空字符串，安全性失效。来源：backend-audit-2026-04-08.md [中]。",
-      "decisions": [],
-      "confirmed_at": "2026-04-09",
-      "priority": "medium"
-    },
-    {
-      "id": "BL-072",
-      "title": "限流回滚逻辑无效（计数污染）",
-      "description": "pipeline.exec() 后的 zremrangebyscore 未再次 exec()，且按 score 删除会误删同秒请求。来源：backend-audit-2026-04-08.md [中]。",
-      "decisions": [],
-      "confirmed_at": "2026-04-09",
-      "priority": "medium"
-    },
-    {
       "id": "BL-073",
       "title": "高风险路径自动化测试覆盖",
       "description": "支付回调、限流边界、邮箱验证等缺少回归保障。来源：backend-audit-2026-04-08.md [低]。",
@@ -50,25 +26,9 @@
       "priority": "low"
     },
     {
-      "id": "BL-105",
-      "title": "全站清理假数据/无意义装饰内容",
-      "description": "6 个页面存在假数据或无功能装饰内容，需统一清理：1) Logs 底部：假延迟柱状图+Cost Optimization 假卡片 → 移除；2) Keys 底部：3 个 Coming Soon 按钮+硬编码版本号 → 移除；3) Admin Providers 底部：假 Token 统计+假柱状图+无链接 Status 按钮 → 移除；4) Quickstart 底部：空装饰占位框+营销文案 → 移除；5) MCP Setup 底部：Feature Showcase 营销卡片 → 移除；6) Models 顶部 Bento Grid：假柱状图+Optimization 显示—+装饰圆 → 简化为一行统计文字。",
-      "decisions": [],
-      "confirmed_at": "2026-04-10",
-      "priority": "medium"
-    },
-    {
       "id": "BL-104",
       "title": "Settings Project tab 增加项目切换下拉框",
       "description": "Settings 的 Project tab 当前只能管理侧边栏选中的项目。增加一个项目下拉选择器，用户可以切换查看/编辑不同项目的信息（名称、描述、统计、删除）。",
-      "decisions": [],
-      "confirmed_at": "2026-04-10",
-      "priority": "low"
-    },
-    {
-      "id": "BL-103",
-      "title": "大数字统一加千位分隔符",
-      "description": "6 个页面 10+ 处大数字缺少千位分隔符：admin/model-aliases（contextWindow/maxTokens）、models（context_window）、dashboard（avgLatencyMs）、usage（avgLatencyMs 2处）、logs（latencyMs）、admin/logs（promptTokens/completionTokens）、admin/health（avgLatency 3处）、settings（callCount）。统一使用 toLocaleString() 格式化。",
       "decisions": [],
       "confirmed_at": "2026-04-10",
       "priority": "low"
@@ -106,14 +66,6 @@
       "priority": "medium"
     },
     {
-      "id": "BL-094",
-      "title": "项目创建重名校验",
-      "description": "同一用户下可以创建多个同名项目（如 3 个 mytestproject），导致用户无法区分。创建项目时应校验同一用户下项目名唯一，重名返回 409。",
-      "decisions": [],
-      "confirmed_at": "2026-04-10",
-      "priority": "low"
-    },
-    {
       "id": "BL-090",
       "title": "用户文档页(/docs)内容更新 — 别名 + 公共模板 + chat 参数",
       "description": "用户可见的文档页面过时：1) 3 处模型名用旧 provider 前缀格式（deepseek/v3、openai/gpt-4o、zhipu/cogview-3-flash），应改为别名；2) chat 参数缺少 top_p/frequency_penalty/tools/tool_choice 说明；3) MCP 工具列表只列了 7 个，缺少 list_public_templates/fork_public_template 等；4) model 参数说明应改为"模型别名"。",
@@ -128,6 +80,6 @@
       "decisions": [],
       "confirmed_at": "2026-04-10",
       "priority": "medium"
-    },
+    }
   ]
 }
