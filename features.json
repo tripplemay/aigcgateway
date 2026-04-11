@@ -1,54 +1,70 @@
 {
-  "batch": "P6-providers-expansion",
+  "batch": "DQ2-alias-quality-pricing",
   "created_at": "2026-04-11",
   "features": [
     {
-      "id": "F-P6-01",
-      "title": "MiniMax Sync Adapter",
+      "id": "F-DQ2-01",
+      "title": "capabilities 字段统一（BL-102）",
       "priority": "high",
       "executor": "generator",
-      "status": "done",
-      "acceptance": "1) src/lib/sync/adapters/minimax.ts 存在，实现 SyncAdapter 接口；2) filterModel 过滤非 chat 模型；3) 已在 model-sync.ts ADAPTERS map 中注册；4) tsc 通过"
+      "status": "pending",
+      "acceptance": "1) capabilities 定义统一为 streaming/json_mode/function_calling/vision/reasoning/search/system_prompt；2) image_input 已移除，合并到 vision；3) LLM 推断 prompt 已更新，能判断 reasoning 和 search；4) 前端别名管理页 capability toggle 已更新；5) tsc 通过"
     },
     {
-      "id": "F-P6-02",
-      "title": "Moonshot/Kimi Sync Adapter",
+      "id": "F-DQ2-02",
+      "title": "IMAGE 别名补充 supportedSizes（BL-102）",
+      "priority": "medium",
+      "executor": "generator",
+      "status": "pending",
+      "acceptance": "1) IMAGE 模态别名优先从关联 Model 继承 supportedSizes；2) null 的通过 LLM 推断补充；3) tsc 通过"
+    },
+    {
+      "id": "F-DQ2-03",
+      "title": "现有别名一次性修正（BL-102）",
+      "priority": "medium",
+      "executor": "generator",
+      "status": "pending",
+      "acceptance": "1) 提供运维入口或脚本，对所有现有别名重跑推断；2) 执行后别名补充了 reasoning/search/supportedSizes；3) 已有的 image_input 被迁移到 vision；4) 不影响已锁定的 sellPrice"
+    },
+    {
+      "id": "F-DQ2-04",
+      "title": "Schema 变更 + 汇率配置（BL-107）",
       "priority": "high",
       "executor": "generator",
-      "status": "done",
-      "acceptance": "1) src/lib/sync/adapters/moonshot.ts 存在，实现 SyncAdapter 接口；2) filterModel 过滤非 chat 模型；3) 已在 model-sync.ts ADAPTERS map 中注册；4) tsc 通过"
+      "status": "pending",
+      "acceptance": "1) ModelAlias 新增 openRouterModelId 可空字段，migration 成功；2) 汇率配置存储可用（默认 7.3）；3) 管理员可在 Settings 页面查看和修改汇率；4) 提供 API 端点读取当前汇率；5) tsc 通过"
     },
     {
-      "id": "F-P6-03",
-      "title": "阿里云百炼/Qwen Sync Adapter",
+      "id": "F-DQ2-05",
+      "title": "参考定价 API + 前端交互（BL-107）",
       "priority": "high",
       "executor": "generator",
-      "status": "done",
-      "acceptance": "1) src/lib/sync/adapters/qwen.ts 存在，实现 SyncAdapter 接口；2) filterModel 过滤非 chat 模型；3) 已在 model-sync.ts ADAPTERS map 中注册；4) tsc 通过"
+      "status": "pending",
+      "acceptance": "1) GET /api/admin/model-aliases/[id]/suggest-price 端点实时查 OpenRouter 返回候选模型+定价；2) 别名管理页有「参考定价」按钮；3) 首次点击展示候选下拉框（支持手动搜索），选择后回填 CNY 定价；4) 已绑定的别名点击直接回填（跳过选择）；5) 可重新绑定（清除映射）；6) 保存时 openRouterModelId 正确存储；7) OpenRouter API 超时/不可用时显示友好提示；8) tsc 通过"
     },
     {
-      "id": "F-P6-04",
-      "title": "阶跃星辰/StepFun Sync Adapter",
+      "id": "F-DQ2-06",
+      "title": "全站人民币显示 — 定价+余额+充值（BL-107）",
       "priority": "high",
       "executor": "generator",
-      "status": "done",
-      "acceptance": "1) src/lib/sync/adapters/stepfun.ts 存在，实现 SyncAdapter 接口；2) filterModel 过滤非 chat 模型；3) 已在 model-sync.ts ADAPTERS map 中注册；4) tsc 通过"
+      "status": "pending",
+      "acceptance": "1) 提供统一的 formatCNY 工具函数（读取汇率配置 × 汇率）；2) 别名定价输入框显示/编辑 CNY，保存时 ÷ 汇率存 USD；3) 余额页显示 ¥ 而非 USD；4) 充值弹窗预设金额和自定义输入为 CNY，后端 ÷ 汇率存 USD；5) 交易记录 amount/balanceAfter 显示 CNY；6) tsc 通过"
     },
     {
-      "id": "F-P6-05",
-      "title": "4 家服务商 Seed 脚本",
-      "priority": "high",
+      "id": "F-DQ2-07",
+      "title": "全站人民币显示 — 日志+Models+Admin（BL-107）",
+      "priority": "medium",
       "executor": "generator",
-      "status": "done",
-      "acceptance": "1) seed 脚本可为 4 家服务商创建 Provider + ProviderConfig 记录；2) API Key 留空（管理员在 UI 填入）；3) supportsModelsApi=true；4) 脚本可重复执行（upsert）；5) tsc 通过"
+      "status": "pending",
+      "acceptance": "1) /logs 和 /admin/logs 中 costPrice/sellPrice 显示 CNY；2) /models 页定价显示 CNY；3) /admin/providers 和 /admin/models 定价相关字段显示 CNY；4) i18n 文案 USD→CNY 已更新（中英文）；5) tsc 通过"
     },
     {
-      "id": "F-P6-06",
-      "title": "P6 全量验收",
+      "id": "F-DQ2-08",
+      "title": "DQ2 全量验收",
       "priority": "high",
       "executor": "codex",
-      "status": "done",
-      "acceptance": "1) 4 个 adapter 文件存在且 tsc 通过；2) model-sync.ts 注册了 4 个新 adapter；3) seed 脚本可执行且创建正确的 Provider/ProviderConfig 记录；4) 代码风格与现有 adapter 一致；5) 签收报告生成"
+      "status": "pending",
+      "acceptance": "1) capabilities 统一验证（无 image_input，有 reasoning/search）；2) 参考定价按钮可用，回填 CNY 定价正确；3) 全站金额显示统一为 ¥，无遗漏的 USD 展示；4) 充值 CNY 输入后余额正确增加；5) 汇率配置可修改生效；6) 签收报告生成"
     }
   ]
 }

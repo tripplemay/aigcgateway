@@ -34,14 +34,6 @@
       "priority": "low"
     },
     {
-      "id": "BL-102",
-      "title": "别名数据质量二期（supportedSizes + capabilities 字段统一）",
-      "description": "1) IMAGE 别名补充 supportedSizes（先 Model 继承，null 的 LLM 补充）；2) capabilities 字段统一：LLM prompt 补上 reasoning（推理/思维链）和 search（联网搜索），去掉重复的 image_input（与 vision 合并），保留 system_prompt；3) 一次性修正现有别名（重跑推断补充 reasoning/search）。",
-      "decisions": ["先 Model 继承，null 的 LLM 补充", "capabilities 统一为：streaming/json_mode/function_calling/vision/reasoning/search/system_prompt，去掉 image_input"],
-      "confirmed_at": "2026-04-10",
-      "priority": "medium"
-    },
-    {
       "id": "BL-101",
       "title": "运维推断结果提示 + 系统日志 tab",
       "description": "1) 运维面板推断结果加状态提示条：全为 0 显示'数据已最新'，有更新显示成功摘要，有跳过显示警告，有错误显示红色提示；2) 新增 SystemLog 表记录运维操作（Sync/LLM 推断/健康检查状态变更/自动恢复）；3) /admin/logs 页面新增'系统日志' tab（与现有 API 调用 tab 并列）展示 SystemLog。",
@@ -83,30 +75,9 @@
     },
     {
       "id": "BL-106",
-      "title": "国产服务商扩展（4 家：MiniMax/Moonshot/Qwen/StepFun）",
-      "description": "新增 4 家国产 AI 服务商接入，全部 OpenAI 兼容，复用 openai-compat 引擎，仅需 Sync Adapter + 注册。1) MiniMax（api.minimax.io/v1，M2.7 等）；2) 月之暗面 Moonshot/Kimi（api.moonshot.cn/v1，K2.5 等）；3) 阿里云百炼 Qwen（dashscope.aliyuncs.com/compatible-mode/v1，Qwen3 系列）；4) 阶跃星辰 StepFun（api.stepfun.com/v1，Step 3.5 等）。每家约 35 行 adapter 代码，总计 ~140 行，互不依赖。",
-      "decisions": [
-        "全部复用 openai-compat 引擎，不写自定义 Engine Adapter",
-        "腾讯混元取消，剩余 4 家",
-        "Generator 写 seed 脚本创建 Provider 记录"
-      ],
-      "confirmed_at": "2026-04-11",
-      "priority": "medium"
-    },
-    {
-      "id": "BL-107",
-      "title": "别名参考定价 + 前端人民币显示（OpenRouter 映射 + 汇率配置）",
-      "description": "两部分功能：A) 参考定价——在别名管理页为每个别名增加「参考定价」按钮。流程：1) 点击按钮实时请求 OpenRouter 公开 API /api/v1/models；2) 按别名模糊搜索推荐 3-5 个候选模型（下拉框）；3) 管理员选择正确模型；4) 回填定价到输入框（USD→CNY 自动换算）；5) 管理员可调整后保存；6) 映射关系存入 ModelAlias.openRouterModelId，后续一键更新。B) 前端人民币显示——所有页面价格展示由 USD 改为 CNY（数据库仍存 USD，仅展示层换算）。汇率硬编码默认值 7.3，管理员可在 Settings 页面修改。",
-      "decisions": [
-        "不做全自动定价，管理员保持最终控制权",
-        "实时调 OpenRouter 公开 API（无需 API Key），不依赖本地 OpenRouter 渠道数据",
-        "首次需管理员选择匹配模型，存储映射后后续一键更新",
-        "需新增 ModelAlias.openRouterModelId 字段（schema 变更）",
-        "数据库存储仍为 USD，前端全程使用 CNY（展示和输入均为人民币）",
-        "定价输入框显示/编辑 CNY 值，保存时 ÷ 汇率存 USD，读取时 × 汇率显示 CNY",
-        "参考定价按钮回填时自动 USD→CNY 换算，管理员全程不接触美元数字",
-        "汇率硬编码默认 7.3，管理员可在 Settings 修改，不做实时汇率 API"
-      ],
+      "title": "国产服务商扩展（4 家：MiniMax/Moonshot/Qwen/StepFun）— 已完成（P6）",
+      "description": "已在 P6 批次完成。保留记录。",
+      "decisions": [],
       "confirmed_at": "2026-04-11",
       "priority": "medium"
     }
