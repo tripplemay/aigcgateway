@@ -24,7 +24,7 @@
     "notes": "1) SystemLog 表已通过 db push 应用，migration SQL 在 prisma/migrations/20260412_add_system_log/；2) 生产部署后需运行 fix-model-name-case.ts 清理已有大小写重复数据；3) 进度轮询依赖 Redis，无 Redis 时进度条不显示但不影响功能"
   },
   "session_notes": {
-    "Kimi": "Generator 完成全部 9 条 executor:generator 功能。F-AOP-01 推断提示条、F-AOP-02 SystemLog+系统日志tab、F-AOP-03 同步/推断实时进度（Redis轮询）、F-AOP-04 创建Provider自动创建ProviderConfig、F-AOP-05 文档页更新（别名格式+新参数+28个MCP工具）、F-AOP-06 Settings项目切换、F-AOP-07 Model名称小写归一化+清理脚本、F-AOP-08 classifier批次30→15、F-AOP-09 别名定价/启用后清Redis缓存。build通过。",
+    "Kimi": "Planner 完成 ADMIN-OPS+ 收尾。生产环境手动 SQL 合并 118 个大小写重复 Model（fix-model-name-case.ts 脚本因唯一约束冲突无法直接执行，改用手动 SQL 处理）。下一步：Planner 直接做 BL-080 项目文档更新。",
     "Reviewer": "已按 harness 完成 F-AOP-10 首轮验收：执行 scripts/test/admin-ops-plus-verifying-e2e-2026-04-12.ts，10/10 通过；签收文档 docs/test-reports/ADMIN-OPS-plus-signoff-2026-04-12.md；状态更新为 done。"
   }
 }

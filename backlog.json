@@ -151,6 +151,19 @@
       "notes": "ADMIN-UX 完成后统一安排修复轮"
     },
     {
+      "id": "BL-110",
+      "title": "快速开始页面整体重写",
+      "description": "当前 Quickstart 页面无法达到让新开发者快速上手的目的：SDK 包名不存在、模型名旧格式、缺少获取 API Key 引导、缺少 curl 示例、全英文未 i18n、缺少 MCP 接入介绍。需要整体重写内容结构：Step 1 获取 API Key（带链接到 Keys 页）→ Step 2 curl 零依赖首次请求 → Step 3 OpenAI SDK 集成（npm install openai，开发者最熟悉）→ Step 4 进阶（流式响应/图片生成/MCP 接入）。模型名用别名格式，baseURL 写死完整地址。设计系统对齐（去 ring、用 token 色）。",
+      "decisions": [
+        "不用自研 SDK，改为展示 OpenAI SDK 用法（API 是 OpenAI 兼容的）",
+        "第一步必须是获取 API Key，降低上手门槛",
+        "先 curl 再 SDK，零依赖最优先",
+        "文案全部走 i18n"
+      ],
+      "confirmed_at": "2026-04-12",
+      "priority": "medium"
+    },
+    {
       "id": "BL-109",
       "title": "Model 名称大小写归一化 + 重复模型合并",
       "description": "resolveCanonicalName 不做大小写归一化，导致同一服务商的同一模型因大小写不同（如 GLM-5 vs glm-5）创建了两个 Model 记录，各有独立 Channel 和不同定价。来源：生产环境 glm-5 别名下发现智谱 AI 的 GLM-5（Jina 推断，大写）和 glm-5（API sync，小写）两条记录。",
