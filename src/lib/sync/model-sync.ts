@@ -70,12 +70,14 @@ export interface SyncResult {
     totalNewChannels: number;
     totalDisabledChannels: number;
     totalFailedProviders: number;
+    totalWarningProviders: number;
   };
 }
 
 interface ProviderSyncResult {
   providerName: string;
   success: boolean;
+  warning?: string;
   error?: string;
   apiModels: number;
   aiEnriched: number;
@@ -355,7 +357,13 @@ async function syncProvider(
         `[model-sync] ${provider.name}: SKIPPED reconcile — 0 models from API+AI but DB has ${existingChannelCount} active channels`,
       );
       result.modelCount = 0;
-      result.success = true;
+      if (result.error) {
+        // Layer 1 failed but existing data preserved — mark as warning, not success
+        result.success = false;
+        result.warning = `fetchModels failed, existing ${existingChannelCount} channels preserved`;
+      } else {
+        result.success = true;
+      }
       return result;
     }
 
@@ -412,6 +420,7 @@ export async function runModelSync(): Promise<SyncResult> {
         totalNewChannels: 0,
         totalDisabledChannels: 0,
         totalFailedProviders: 0,
+        totalWarningProviders: 0,
       },
     };
   }
@@ -479,8 +488,9 @@ export async function runModelSync(): Promise<SyncResult> {
             : "";
       const overrideNote = result.overrides > 0 ? `, overrides: ${result.overrides}` : "";
 
+      const status = result.success ? "OK" : result.warning ? "WARNING" : "FAIL";
       console.log(
-        `[model-sync] ${provider.name}: ${result.success ? "OK" : "FAIL"} ` +
+        `[model-sync] ${provider.name}: ${status} ` +
           `${result.modelCount} models (API: ${result.apiModels}${aiNote}${overrideNote}) ` +
           `+${result.newChannels.length} new, -${result.disabledChannels.length} disabled` +
           (result.error ? ` error: ${result.error}` : ""),
@@ -501,6 +511,7 @@ export async function runModelSync(): Promise<SyncResult> {
           0,
         ),
         totalFailedProviders: providerResults.filter((r) => !r.success).length,
+        totalWarningProviders: providerResults.filter((r) => !!r.warning).length,
       },
     };
 

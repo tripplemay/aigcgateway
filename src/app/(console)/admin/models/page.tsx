@@ -82,8 +82,9 @@ export default function ModelsChannelsPage() {
       totalNewChannels: number;
       totalDisabledChannels: number;
       totalFailedProviders: number;
+      totalWarningProviders: number;
     };
-    providers: Array<{ providerName: string; success: boolean; error?: string }>;
+    providers: Array<{ providerName: string; success: boolean; warning?: string; error?: string }>;
   } | null>(null);
 
   const [expandedProviders, setExpandedProviders] = useState<Set<string>>(new Set());
@@ -552,6 +553,11 @@ export default function ModelsChannelsPage() {
               <span className="mx-2">
                 -{lastSyncResult.summary.totalDisabledChannels} {t("disabledLabel")}
               </span>
+              {lastSyncResult.summary.totalWarningProviders > 0 && (
+                <span className="text-amber-500 mx-2">
+                  {lastSyncResult.summary.totalWarningProviders} {t("warningLabel")}
+                </span>
+              )}
               {lastSyncResult.summary.totalFailedProviders > 0 && (
                 <span className="text-ds-error">
                   {lastSyncResult.summary.totalFailedProviders} {t("failedLabel")}

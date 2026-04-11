@@ -18,9 +18,16 @@ interface LinkedModel {
     priority: number;
     status: string;
     costPrice: Record<string, unknown> | null;
+    sellPrice: Record<string, unknown> | null;
     providerName: string;
     latencyMs: number | null;
   }[];
+}
+
+interface FallbackPrice {
+  inputPer1M: number | null;
+  outputPer1M: number | null;
+  unit: string;
 }
 
 interface AliasItem {
@@ -35,6 +42,7 @@ interface AliasItem {
   description: string | null;
   sellPrice: Record<string, unknown> | null;
   openRouterModelId: string | null;
+  fallbackPrice: FallbackPrice | null;
   linkedModels: LinkedModel[];
   linkedModelCount: number;
   activeChannelCount: number;
@@ -84,6 +92,7 @@ export default function ModelAliasesPage() {
   const [addModelAliasId, setAddModelAliasId] = useState<string | null>(null);
   const [modelSearch, setModelSearch] = useState("");
   const [newSizeInput, setNewSizeInput] = useState<Record<string, string>>({});
+  const [editingNumField, setEditingNumField] = useState<string | null>(null);
 
   // Search / Filter / Sort state
   const [search, setSearch] = useState("");
@@ -706,52 +715,72 @@ export default function ModelAliasesPage() {
                         <div className="space-y-1.5">
                           <label className="text-[10px] font-bold text-ds-on-surface-variant uppercase tracking-widest ml-1">
                             {t("contextWindow")}
-                            {(() => {
-                              const v = getEditValue(alias.id, "contextWindow");
-                              return v ? (
-                                <span className="ml-2 text-ds-on-surface-variant/60 normal-case tracking-normal">
-                                  ({Number(v).toLocaleString()})
-                                </span>
-                              ) : null;
-                            })()}
                           </label>
-                          <input
-                            className="w-full bg-ds-surface-container-low border-none rounded-lg text-sm px-4 py-2 font-semibold focus:ring-2 focus:ring-ds-primary/20"
-                            type="number"
-                            value={getEditValue(alias.id, "contextWindow") ?? ""}
-                            onChange={(e) =>
-                              setEditField(
-                                alias.id,
-                                "contextWindow",
-                                e.target.value ? parseInt(e.target.value) : null,
-                              )
-                            }
-                          />
+                          {editingNumField === `${alias.id}_contextWindow` ? (
+                            <input
+                              className="w-full bg-ds-surface-container-low border-none rounded-lg text-sm px-4 py-2 font-semibold focus:ring-2 focus:ring-ds-primary/20"
+                              type="number"
+                              autoFocus
+                              value={getEditValue(alias.id, "contextWindow") ?? ""}
+                              onChange={(e) =>
+                                setEditField(
+                                  alias.id,
+                                  "contextWindow",
+                                  e.target.value ? parseInt(e.target.value) : null,
+                                )
+                              }
+                              onBlur={() => setEditingNumField(null)}
+                              onKeyDown={(e) => {
+                                if (e.key === "Enter") setEditingNumField(null);
+                              }}
+                            />
+                          ) : (
+                            <div
+                              className="w-full bg-ds-surface-container-low rounded-lg text-sm px-4 py-2 font-semibold cursor-pointer hover:bg-ds-surface-container-low/60 transition-colors min-h-[36px] flex items-center"
+                              onClick={() => setEditingNumField(`${alias.id}_contextWindow`)}
+                            >
+                              {getEditValue(alias.id, "contextWindow") ? (
+                                Number(getEditValue(alias.id, "contextWindow")).toLocaleString()
+                              ) : (
+                                <span className="text-ds-on-surface-variant/40">—</span>
+                              )}
+                            </div>
+                          )}
                         </div>
                         <div className="space-y-1.5">
                           <label className="text-[10px] font-bold text-ds-on-surface-variant uppercase tracking-widest ml-1">
                             {t("maxTokens")}
-                            {(() => {
-                              const v = getEditValue(alias.id, "maxTokens");
-                              return v ? (
-                                <span className="ml-2 text-ds-on-surface-variant/60 normal-case tracking-normal">
-                                  ({Number(v).toLocaleString()})
-                                </span>
-                              ) : null;
-                            })()}
                           </label>
-                          <input
-                            className="w-full bg-ds-surface-container-low border-none rounded-lg text-sm px-4 py-2 font-semibold focus:ring-2 focus:ring-ds-primary/20"
-                            type="number"
-                            value={getEditValue(alias.id, "maxTokens") ?? ""}
-                            onChange={(e) =>
-                              setEditField(
-                                alias.id,
-                                "maxTokens",
-                                e.target.value ? parseInt(e.target.value) : null,
-                              )
-                            }
-                          />
+                          {editingNumField === `${alias.id}_maxTokens` ? (
+                            <input
+                              className="w-full bg-ds-surface-container-low border-none rounded-lg text-sm px-4 py-2 font-semibold focus:ring-2 focus:ring-ds-primary/20"
+                              type="number"
+                              autoFocus
+                              value={getEditValue(alias.id, "maxTokens") ?? ""}
+                              onChange={(e) =>
+                                setEditField(
+                                  alias.id,
+                                  "maxTokens",
+                                  e.target.value ? parseInt(e.target.value) : null,
+                                )
+                              }
+                              onBlur={() => setEditingNumField(null)}
+                              onKeyDown={(e) => {
+                                if (e.key === "Enter") setEditingNumField(null);
+                              }}
+                            />
+                          ) : (
+                            <div
+                              className="w-full bg-ds-surface-container-low rounded-lg text-sm px-4 py-2 font-semibold cursor-pointer hover:bg-ds-surface-container-low/60 transition-colors min-h-[36px] flex items-center"
+                              onClick={() => setEditingNumField(`${alias.id}_maxTokens`)}
+                            >
+                              {getEditValue(alias.id, "maxTokens") ? (
+                                Number(getEditValue(alias.id, "maxTokens")).toLocaleString()
+                              ) : (
+                                <span className="text-ds-on-surface-variant/40">—</span>
+                              )}
+                            </div>
+                          )}
                         </div>
                         <div className="space-y-1.5">
                           <label className="text-[10px] font-bold text-ds-on-surface-variant uppercase tracking-widest ml-1">
@@ -777,8 +806,13 @@ export default function ModelAliasesPage() {
                           <SuggestPriceButton
                             aliasId={alias.id}
                             onApply={(input, output, orModelId) => {
-                              setSellPriceField(alias.id, "inputPer1M", String(input));
-                              setSellPriceField(alias.id, "outputPer1M", String(output));
+                              const current = getSellPrice(alias.id);
+                              setEditField(alias.id, "sellPrice", {
+                                ...current,
+                                inputPer1M: input,
+                                outputPer1M: output,
+                                unit: "token",
+                              });
                               if (orModelId) {
                                 setEditField(alias.id, "openRouterModelId", orModelId);
                               }
@@ -798,7 +832,11 @@ export default function ModelAliasesPage() {
                               onChange={(e) =>
                                 setSellPriceField(alias.id, "inputPer1M", e.target.value)
                               }
-                              placeholder="0.00"
+                              placeholder={
+                                alias.fallbackPrice?.inputPer1M
+                                  ? `${(alias.fallbackPrice.inputPer1M * exchangeRate).toFixed(2)}`
+                                  : "0.00"
+                              }
                             />
                           </div>
                           <div className="space-y-1.5">
@@ -813,7 +851,11 @@ export default function ModelAliasesPage() {
                               onChange={(e) =>
                                 setSellPriceField(alias.id, "outputPer1M", e.target.value)
                               }
-                              placeholder="0.00"
+                              placeholder={
+                                alias.fallbackPrice?.outputPer1M
+                                  ? `${(alias.fallbackPrice.outputPer1M * exchangeRate).toFixed(2)}`
+                                  : "0.00"
+                              }
                             />
                           </div>
                           <div className="space-y-1.5">

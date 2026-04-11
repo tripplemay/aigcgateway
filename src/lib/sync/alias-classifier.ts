@@ -159,6 +159,17 @@ ${existingBrands.length > 0 ? JSON.stringify(existingBrands) : "(空)"}
 6. 推断模型的 context_window（上下文窗口大小，整数，如 128000）和 max_tokens（最大输出 token 数，整数，如 4096）。不确定则返回 null
 7. 对于图片生成模型，在 capabilities 中额外包含 supported_sizes 字段（字符串数组），如 ["1024x1024", "1024x1792"]
 
+## 版本号区分规则（严格执行）
+- 不同大版本号的模型必须为独立别名，绝不合并。例如：
+  - claude-3.5-sonnet 和 claude-3.7-sonnet 和 claude-4.5-sonnet 是不同别名
+  - gpt-3.5-turbo 和 gpt-4 和 gpt-4o 是不同别名
+  - deepseek-v2 和 deepseek-v3 是不同别名
+- 仅以下差异才视为"同一别名的变体"，可归入同一别名：
+  - 日期后缀差异：gpt-4o-2024-08-06 → gpt-4o
+  - 服务商前缀差异：openai/gpt-4o → gpt-4o
+  - 微小后缀差异：xxx-latest, xxx-preview → xxx
+- 判断依据是模型的"代际"，而非名称的字面相似度
+
 ## 返回 JSON
 返回一个对象，key 是模型 ID，value 是分类结果：
 

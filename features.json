@@ -7,7 +7,7 @@
       "title": "参考定价 onApply 修复（BUG-01 + BUG-01b）",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) onApply 回调改为一次性设置 sellPrice 对象 { ...current, inputPer1M, outputPer1M, unit: 'token' }，不再连续调用两次 setSellPriceField；2) 参考定价后 inputPer1M 和 outputPer1M 均正确回填；3) 保存后 Models 页正确显示定价（非'免费'）；4) 一次性数据修复脚本：为所有有 inputPer1M 但无 unit 的 ModelAlias.sellPrice 补上 unit: 'token'；5) tsc 通过"
     },
     {
@@ -15,7 +15,7 @@
       "title": "contextWindow/maxTokens 千位分隔符（BUG-02）",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) aliases 页 contextWindow/maxTokens 默认只读文本展示（带千位分隔符）；2) 点击时切换为可编辑 input；3) 编辑完成后恢复为只读展示；4) tsc 通过"
     },
     {
@@ -23,7 +23,7 @@
       "title": "定价输入框 placeholder 显示当前生效价格（BUG-03）",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) aliases 页定价输入框为空时，placeholder 显示当前生效的渠道价格（CNY）；2) 数据来源：关联 Channel 中最高优先级的 sellPrice × 汇率；3) API 返回 alias 数据时附带 fallbackPrice 字段；4) tsc 通过"
     },
     {
@@ -31,7 +31,7 @@
       "title": "LLM 别名分类 prompt 优化 + 数据清理（BUG-04）",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) alias-classifier.ts prompt 强化版本号区分规则：仅日期后缀和服务商前缀差异才归入同一别名，不同大版本号（如 3.5 vs 4.0 vs 4.5）必须为独立别名；2) 数据清理脚本：清理错误挂载的 AliasModelLink（如 claude-3.5-sonnet 下的 3.7/4.5/4.6 模型），移到正确别名；3) 清理后各别名关联的模型版本一致；4) tsc 通过"
     },
     {
@@ -39,7 +39,7 @@
       "title": "MiniMax sync 修复 + Layer 1 错误可见化（BUG-05）",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) 用有效 API Key 测试确认 MiniMax /models 端点正确 URL，如不支持则改为 staticModels 方式；2) MiniMax sync 后模型数 > 0；3) sync Layer 1 fetchModels 失败时，sync 结果状态显示 WARNING 而非 OK，错误信息可见；4) tsc 通过"
     },
     {
@@ -47,7 +47,7 @@
       "title": "添加服务商页面'适配器'标签改为'引擎类型'（BUG-06）",
       "priority": "low",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) 底部 adapterType 下拉框 label 从'适配器'改为'引擎类型'；2) 中英文 i18n 同步更新；3) tsc 通过"
     },
     {

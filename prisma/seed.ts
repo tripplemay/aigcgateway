@@ -196,7 +196,12 @@ const providers = [
       supportsSystemRole: true,
       currency: "CNY" as Currency,
       quirks: ["penalty_params_ignored"],
-      staticModels: null,
+      staticModels: [
+        { id: "MiniMax-Text-01", displayName: "MiniMax-Text-01" },
+        { id: "abab6.5s-chat", displayName: "abab6.5s-chat" },
+        { id: "abab6.5-chat", displayName: "abab6.5-chat" },
+        { id: "abab5.5-chat", displayName: "abab5.5-chat" },
+      ],
       pricingOverrides: null,
       docUrls: ["https://platform.minimaxi.com/document/Price"],
     },
