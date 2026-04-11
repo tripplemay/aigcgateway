@@ -119,12 +119,12 @@
         },
         {
           "id": "BUG-04",
-          "title": "LLM 别名分类过于激进，不同代际模型被归入同一别名",
-          "page": "alias-classifier（sync 后自动分类）",
-          "root_cause": "prompt 规则 '同一模型的不同版本归入同一别名' 过于宽泛，LLM 把不同大版本号的模型（如 3.5 vs 4.6）都归入同一别名。",
-          "fix": "1) prompt 优化：强化 '仅日期后缀和服务商前缀差异才归入同一别名，不同大版本号必须为独立别名'；2) 数据清理脚本：清理错误挂载的 AliasModelLink。",
-          "file": "src/lib/sync/alias-classifier.ts",
-          "lines": "130-171"
+          "title": "LLM 别名分类过于激进 + 大小写不一致导致重复模型",
+          "page": "alias-classifier + model-sync",
+          "root_cause": "两个问题：1) prompt 规则过于宽泛，LLM 把不同大版本号模型归入同一别名；2) resolveCanonicalName 不做大小写归一化，智谱 /models API 返回小写 glm-5 但 Jina/LLM 推断返回大写 GLM-5，创建了两个独立 Model 记录，各有独立 Channel 和不同定价。",
+          "fix": "1) prompt 优化：强化版本号区分规则；2) resolveCanonicalName 或 reconcile 阶段增加大小写归一化（统一小写）；3) 数据清理脚本：合并大小写重复模型（GLM-5→glm-5, GLM-5-Turbo→glm-5-turbo, GLM-5.1→glm-5.1），迁移 Channel 和 AliasModelLink 到小写 Model，删除大写 Model 记录；4) 清理跨代际错误挂载的 AliasModelLink。",
+          "file": "src/lib/sync/model-sync.ts(resolveCanonicalName) + src/lib/sync/alias-classifier.ts + 数据清理脚本",
+          "lines": "173-175, 130-171"
         },
         {
           "id": "BUG-05",
@@ -146,6 +146,19 @@
         }
       ],
       "notes": "ADMIN-UX 完成后统一安排修复轮"
+    },
+    {
+      "id": "BL-109",
+      "title": "Model 名称大小写归一化 + 重复模型合并",
+      "description": "resolveCanonicalName 不做大小写归一化，导致同一服务商的同一模型因大小写不同（如 GLM-5 vs glm-5）创建了两个 Model 记录，各有独立 Channel 和不同定价。来源：生产环境 glm-5 别名下发现智谱 AI 的 GLM-5（Jina 推断，大写）和 glm-5（API sync，小写）两条记录。",
+      "decisions": [],
+      "confirmed_at": "2026-04-11",
+      "priority": "high",
+      "fix_items": [
+        "resolveCanonicalName 或 reconcile 阶段增加大小写归一化（统一小写）",
+        "数据清理脚本：合并大小写重复模型（GLM-5→glm-5, GLM-5-Turbo→glm-5-turbo, GLM-5.1→glm-5.1 等），迁移 Channel 和 AliasModelLink 到小写 Model，删除大写 Model 记录",
+        "doc-enricher 返回的 modelId 也需要统一小写，防止后续再产生大写记录"
+      ]
     }
   ]
 }

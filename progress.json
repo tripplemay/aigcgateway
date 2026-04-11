@@ -23,7 +23,7 @@
   },
   "generator_handoff": "BF2 全部 6 个 generator 功能已实现完成，tsc 通过。数据修复脚本 2 个（fix-alias-sell-price-unit.ts, fix-alias-mislinked-models.ts）需在生产环境执行。MiniMax adapter 已加 staticModels fallback。",
   "session_notes": {
-    "Kimi": "BF2 building 完成。F-BF2-01: onApply 改为一次性 setEditField + 数据修复脚本。F-BF2-02: contextWindow/maxTokens 改为 click-to-edit 模式。F-BF2-03: API 返回 fallbackPrice，前端 placeholder 显示 CNY 转换后价格。F-BF2-04: prompt 加版本号区分规则 + 数据清理脚本。F-BF2-05: MiniMax adapter 加 staticModels fallback + sync warning 状态。F-BF2-06: i18n 适配器→引擎类型。",
+    "Kimi": "Planner 完成 BF2 收尾。注意：生产环境需执行 2 个数据修复脚本（fix-alias-sell-price-unit.ts, fix-alias-mislinked-models.ts）。BL-109（大小写归一化）未包含在 BF2 中，归入下一批次。",
     "Reviewer": "2026-04-11 BF2 verifying：执行 scripts/test/bf2-verifying-e2e-2026-04-12.ts，8/8 PASS，已生成 signoff 并置 done。"
   }
 }
