@@ -1,78 +1,94 @@
 {
-  "batch": "DQ2-alias-quality-pricing",
+  "batch": "ADMIN-UX-health-v2",
   "created_at": "2026-04-11",
   "features": [
     {
-      "id": "F-DQ2-01",
-      "title": "capabilities 字段统一（BL-102）",
+      "id": "F-AUX-01",
+      "title": "别名列表标题栏显示市场售价",
       "priority": "high",
       "executor": "generator",
-      "status": "done",
-      "acceptance": "1) capabilities 定义统一为 streaming/json_mode/function_calling/vision/reasoning/search/system_prompt；2) image_input 已移除，合并到 vision；3) LLM 推断 prompt 已更新，能判断 reasoning 和 search；4) 前端别名管理页 capability toggle 已更新；5) tsc 通过"
+      "status": "pending",
+      "acceptance": "1) 别名管理页每行标题栏，'X 个关联模型'右侧显示 OpenRouter 市场售价（CNY）；2) 数据源为 openRouterModelId 映射查询；3) 未绑定的显示'—'；4) tsc 通过"
     },
     {
-      "id": "F-DQ2-02",
-      "title": "IMAGE 别名补充 supportedSizes（BL-102）",
-      "priority": "medium",
-      "executor": "generator",
-      "status": "done",
-      "acceptance": "1) IMAGE 模态别名优先从关联 Model 继承 supportedSizes；2) null 的通过 LLM 推断补充；3) tsc 通过"
-    },
-    {
-      "id": "F-DQ2-03",
-      "title": "现有别名一次性修正（BL-102）",
-      "priority": "medium",
-      "executor": "generator",
-      "status": "done",
-      "acceptance": "1) 提供运维入口或脚本，对所有现有别名重跑推断；2) 执行后别名补充了 reasoning/search/supportedSizes；3) 已有的 image_input 被迁移到 vision；4) 不影响已锁定的 sellPrice"
-    },
-    {
-      "id": "F-DQ2-04",
-      "title": "Schema 变更 + 汇率配置（BL-107���",
+      "id": "F-AUX-02",
+      "title": "渠道列表显示各渠道成本价",
       "priority": "high",
       "executor": "generator",
-      "status": "done",
-      "acceptance": "1) ModelAlias 新增 openRouterModelId 可空字段，migration 成功；2) 汇率配置存储可用（默认 7.3）；3) 管理员可在 Settings 页面查看和修改汇率；4) 提供 API 端点读取当前汇率；5) tsc 通过"
+      "status": "pending",
+      "acceptance": "1) 展开别名后，Channel 列表每行在模型 ID 和服务商之间显示 Channel.costPrice（CNY）；2) 无成本价的显示'—'；3) tsc 通过"
     },
     {
-      "id": "F-DQ2-05",
-      "title": "参考定价 API + 前端交互（BL-107）",
-      "priority": "high",
-      "executor": "generator",
-      "status": "done",
-      "acceptance": "1) GET /api/admin/model-aliases/[id]/suggest-price 端点实时查 OpenRouter 返回候选模型+定价；2) 别名管理页有「参考定价」按钮；3) 首次点击展示候选下拉框（支持手动搜索），选择后回填 CNY 定价；4) 已绑定的别名点击直接回填（跳过选择）；5) 可重新绑定（清除映射）；6) 保存时 openRouterModelId 正确存储；7) OpenRouter API 超时/不可用时显示友好提示；8) tsc 通过"
-    },
-    {
-      "id": "F-DQ2-06",
-      "title": "全站人民币显示 — 定价+余额+充值（BL-107）",
-      "priority": "high",
-      "executor": "generator",
-      "status": "done",
-      "acceptance": "1) 提供统一的 formatCNY 工具函数（读取汇率配置 × 汇率）；2) 别名定价输入框显示/编辑 CNY，保存时 ÷ 汇率存 USD；3) 余额页显示 ¥ 而非 USD；4) 充值弹窗预设金额和自定义输入为 CNY，后端 ÷ 汇率存 USD；5) 交易记录 amount/balanceAfter 显示 CNY；6) tsc 通过"
-    },
-    {
-      "id": "F-DQ2-07",
-      "title": "全站人民币显示 — 日志+Models+Admin（BL-107）",
+      "id": "F-AUX-03",
+      "title": "Admin Models 页简化 — 移除展开卡片 + 标题栏显示成本价",
       "priority": "medium",
       "executor": "generator",
-      "status": "done",
-      "acceptance": "1) /logs 和 /admin/logs 中 costPrice/sellPrice 显示 CNY；2) /models 页定价显示 CNY；3) /admin/providers 和 /admin/models 定价相关字段显示 CNY；4) i18n 文案 USD→CNY 已更新（中英文）；5) tsc 通过"
+      "status": "pending",
+      "acceptance": "1) 移除 Channel 展开卡片，关键信息（成本价、状态）直接在标题栏展示；2) 不再有任何编辑操作（只读视图）；3) Channel 售价展示和编辑已移除；4) sellPriceLocked 相关 UI 已移除；5) tsc 通过"
     },
     {
-      "id": "F-DQ2-08",
-      "title": "添加服务商体验优化（Adapter 预填充 + 布局调整）",
+      "id": "F-AUX-04",
+      "title": "Channel 列表共享组件抽取",
       "priority": "medium",
       "executor": "generator",
-      "status": "done",
-      "acceptance": "1) 添加服务商弹窗布局调整：第一步选择适配器，选择后自动填充 displayName、baseUrl、authType、ProviderConfig（supportsModelsApi 等）；2) 管理员只需填写 API Key（唯一必填项）；3) 已填充字段可覆盖修改（高级用户场景）；4) 适配器下拉框包含所有 11 家已注册 adapter；5) 预填充数据覆盖：openai(api.openai.com/v1)/anthropic(api.anthropic.com/v1)/deepseek(api.deepseek.com/v1)/zhipu(open.bigmodel.cn/api/paas/v4)/volcengine(留空,需手动填)/siliconflow(api.siliconflow.cn/v1)/openrouter(openrouter.ai/api/v1)/minimax(api.minimax.io/v1)/moonshot(api.moonshot.cn/v1)/qwen(dashscope.aliyuncs.com/compatible-mode/v1)/stepfun(api.stepfun.com/v1)；6) tsc 通过"
+      "status": "pending",
+      "acceptance": "1) 抽取共享 ChannelRow/ChannelTable 组件；2) admin/models 使用只读模式（模型 ID、成本价、服务商、状态）；3) admin/model-aliases 使用可操作模式（+ 优先级、解除映射、健康摘要）；4) 两页面 Channel 展示风格一致；5) tsc 通过"
     },
     {
-      "id": "F-DQ2-09",
-      "title": "DQ2 全量验收",
+      "id": "F-AUX-05",
+      "title": "拖拽排序改 Channel 优先级",
+      "priority": "medium",
+      "executor": "generator",
+      "status": "pending",
+      "acceptance": "1) aliases 页展开后 Channel 列表支持拖拽排序（@dnd-kit/core 或类似库）；2) 列头或列尾有拖动把手图标，只有按住把手才能拖动；3) 松手即保存，自动按顺序生成 P1/P2/P3...（批量 PATCH）；4) tsc 通过"
+    },
+    {
+      "id": "F-AUX-06",
+      "title": "aliases 页 Channel 行增加健康状态摘要",
+      "priority": "medium",
+      "executor": "generator",
+      "status": "pending",
+      "acceptance": "1) Channel 行显示状态圆点（绿 ACTIVE / 黄 DEGRADED / 红 DISABLED）+ 最新延迟数字；2) 可点击跳转到 health 页对应别名；3) tsc 通过"
+    },
+    {
+      "id": "F-AUX-07",
+      "title": "Channel 售价清理（admin/channels API）",
+      "priority": "low",
+      "executor": "generator",
+      "status": "pending",
+      "acceptance": "1) PATCH /api/admin/channels/[id] 移除 sellPrice 手动编辑能力（或降级为只读）；2) admin/models 页不再有 sellPrice 编辑入口；3) 不影响 ModelAlias.sellPrice（保留）和 CallLog.sellPrice（保留）；4) tsc 通过"
+    },
+    {
+      "id": "F-AUX-08",
+      "title": "健康检查调度策略 V2（API_REACHABILITY + 别名感知）",
+      "priority": "high",
+      "executor": "generator",
+      "status": "pending",
+      "acceptance": "1) HealthCheckLevel 枚举新增 API_REACHABILITY，migration 成功；2) 已纳入已启用别名的文本通道：全三级检查 10min；3) 文本 DISABLED 通道：全三级 30min；4) 图片通道（任意状态）：API_REACHABILITY 10min；5) 未纳入别名的通道：API_REACHABILITY 10min；6) 通道被纳入已启用别名时立即触发检查（文本全三级，图片 API_REACHABILITY）；7) 图片通道原 L1 改为 API_REACHABILITY；8) tsc 通过"
+    },
+    {
+      "id": "F-AUX-09",
+      "title": "健康监控页 Bug 修复",
+      "priority": "medium",
+      "executor": "generator",
+      "status": "pending",
+      "acceptance": "1) 服务商下拉框显示 displayName 而非技术名 providerName；2) consecutiveFailures 按检查批次分组计算（同秒内多条记录为一批）；3) highRisk 判定：只有 1 个 Channel 且 ACTIVE 时不标红（改为 activeCount === 0 或 activeCount < totalCount && activeCount <= 1 但 totalCount > 1）；4) tsc 通过"
+    },
+    {
+      "id": "F-AUX-10",
+      "title": "健康监控页重构为新设计模式（V2 设计稿）",
+      "priority": "high",
+      "executor": "generator",
+      "status": "pending",
+      "acceptance": "1) 按 design-draft/admin-health-v2/code.html 1:1 还原（遵守 DESIGN.md 注意事项）；2) 仪表盘 4 列统计卡片；3) 筛选栏胶囊形容器；4) 按别名分组展开/折叠，Channel 为列表模式；5) L1/L2/L3 标签横排 + API_REACHABILITY 单标签展示；6) 孤儿通道区域含 Assign Alias 按钮；7) No-Line 修正（左侧 accent bar 替代 border）；8) tsc 通过"
+    },
+    {
+      "id": "F-AUX-11",
+      "title": "ADMIN-UX 全量验收",
       "priority": "high",
       "executor": "codex",
-      "status": "done",
-      "acceptance": "1) capabilities 统一验证（无 image_input，有 reasoning/search）；2) 参考定价按钮可用，回填 CNY 定价正确；3) 全站金额显示统一为 ¥，无遗漏的 USD 展示；4) 充值 CNY 输入后余额正确增加；5) 汇率配置可修改生效；6) 添加服务商选择 adapter 后自动填充信息正确，仅需填 API Key；7) 签收报告生成"
+      "status": "pending",
+      "acceptance": "1) 别名标题栏市场售价正确显示；2) Channel 成本价正确显示；3) Models 页只读无编辑；4) 拖拽排序优先级可用；5) 健康摘要圆点+延迟正确；6) 健康检查调度策略 V2 生效（别名感知 + API_REACHABILITY）；7) 健康监控页新设计稿还原；8) Bug 修复验证；9) 签收报告生成"
     }
   ]
 }

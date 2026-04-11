@@ -1,31 +1,23 @@
 {
-  "status": "done",
-  "user_goal": "DQ2 — 别名数据质量二期（capabilities/supportedSizes 统一）+ 定价体系（OpenRouter 参考定价 + 全站人民币显示）",
-  "total_features": 9,
-  "completed_features": 9,
-  "fix_rounds": 1,
+  "status": "building",
+  "user_goal": "ADMIN-UX — 别名定价透明化 + Models 页简化 + 健康监控重构（V2 设计稿 + 调度策略 V2）",
+  "total_features": 11,
+  "completed_features": 0,
+  "fix_rounds": 0,
   "current_sprint": null,
-  "last_updated": "2026-04-11T10:47:34.324Z",
-  "reference_docs": [
-    "docs/specs/DQ2-alias-quality-pricing-spec.md"
-  ],
+  "last_updated": "2026-04-11T19:00:00Z",
+  "reference_docs": ["docs/specs/health-check-strategy-v2-spec.md", "design-draft/admin-health-v2/DESIGN.md"],
   "role_assignments": null,
   "docs": {
-    "spec": "docs/specs/DQ2-alias-quality-pricing-spec.md",
+    "spec": "docs/specs/health-check-strategy-v2-spec.md",
     "test_cases": null,
-    "signoff": "docs/test-reports/dq2-alias-quality-pricing-signoff-2026-04-11.md",
+    "signoff": null,
     "framework_reviewed": false
   },
-  "evaluator_feedback": {
-    "summary": "DQ2 复验通过：7/7 PASS，准入 done。",
-    "pass_count": 7,
-    "partial_count": 0,
-    "fail_count": 0,
-    "issues": []
-  },
+  "evaluator_feedback": null,
   "generator_handoff": null,
   "session_notes": {
-    "Kimi": "Fix round 1: models/page.tsx 和 admin/models/page.tsx 的 fmtPriceSplit/fmtPrice 内部改为调用 formatCNY（import 补齐），不再手动拼接 ¥ 和乘汇率。tsc 通过。",
-    "Reviewer": "2026-04-11 reverifying：重跑 DQ2 验收脚本 7/7 PASS，已生成 signoff 并置 done。"
+    "Kimi": "Planner 完成 DQ2 收尾 + ADMIN-UX 规划。11 条功能：别名标题栏市场售价(1) + 渠道成本价(2) + Models 页简化(3) + ChannelRow 组件复用(4) + 拖拽排序优先级(5) + 健康摘要(6) + 售价清理(7) + 健康检查调度 V2(8) + health 页 bug 修复(9) + health 页新设计稿还原(10) + 验收(11)。Spec: health-check-strategy-v2-spec.md。设计稿: admin-health-v2/。",
+    "Reviewer": null
   }
 }
