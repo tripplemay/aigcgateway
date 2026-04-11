@@ -10,14 +10,6 @@
       "priority": "high"
     },
     {
-      "id": "BL-068",
-      "title": "Per-Key 使用分析（Keys Insights 页面）",
-      "description": "需 schema 迁移：CallLog 加 apiKeyId 外键 + 3 个 per-key 统计 API（汇总、每日分布、模型分布）。设计稿在 design-draft/_needs-redesign/keys-insights/。",
-      "decisions": [],
-      "confirmed_at": "2026-04-09",
-      "priority": "low"
-    },
-    {
       "id": "BL-073",
       "title": "高风险路径自动化测试覆盖",
       "description": "支付回调、限流边界、邮箱验证等缺少回归保障。来源：backend-audit-2026-04-08.md [低]。",
@@ -80,6 +72,80 @@
       "decisions": [],
       "confirmed_at": "2026-04-11",
       "priority": "medium"
+    },
+    {
+      "id": "BL-108",
+      "title": "Bug 修复轮（DQ2 + ADMIN-UX 后续）",
+      "description": "收集 DQ2 和 ADMIN-UX 批次完成后发现的生产 bug，统一修复。",
+      "decisions": [],
+      "confirmed_at": "2026-04-11",
+      "priority": "high",
+      "bugs": [
+        {
+          "id": "BUG-01",
+          "title": "参考定价只填入输出价格，输入价格未更改",
+          "page": "admin/model-aliases",
+          "root_cause": "setSellPriceField 在 onApply 回调中连续调用两次，第二次调用时 getSellPrice 读到的是 React state 更新前的旧值（stale closure），导致第二次 setEditField 的 spread 覆盖了第一次写入的 inputPer1M。",
+          "fix": "onApply 回调中改为一次性设置整个 sellPrice 对象：setEditField(alias.id, 'sellPrice', { ...current, inputPer1M: input, outputPer1M: output, unit: 'token' })。",
+          "file": "src/app/(console)/admin/model-aliases/page.tsx",
+          "lines": "779-781"
+        },
+        {
+          "id": "BUG-01b",
+          "title": "参考定价保存时缺少 unit 字段，导致 Models 页显示免费",
+          "page": "models + admin/model-aliases",
+          "root_cause": "onApply 回调只设置了 inputPer1M/outputPer1M，没有设置 unit: 'token'。API /v1/models 检查 sellPrice.unit === 'token' 失败 → 不输出 pricing → 显示'免费'。",
+          "fix": "与 BUG-01 合并修复。额外需一次性数据修复脚本：为所有有 inputPer1M 但无 unit 的 ModelAlias.sellPrice 补上 unit: 'token'。",
+          "file": "src/app/(console)/admin/model-aliases/page.tsx + 数据修复脚本",
+          "lines": "779-781"
+        },
+        {
+          "id": "BUG-02",
+          "title": "aliases 页 contextWindow/maxTokens 输入框无千位分隔符",
+          "page": "admin/model-aliases",
+          "root_cause": "input type=number 浏览器原生不支持格式化显示。",
+          "fix": "改为默认只读文本展示（带千位分隔符），点击时切换为可编辑 input。",
+          "file": "src/app/(console)/admin/model-aliases/page.tsx",
+          "lines": "689-737"
+        },
+        {
+          "id": "BUG-03",
+          "title": "aliases 页定价输入框未显示当前生效价格",
+          "page": "admin/model-aliases",
+          "root_cause": "定价输入框只读取 ModelAlias.sellPrice，为 null 时显示空。但用户端 /models 会 fallback 到 Channel.sellPrice，管理员看不到实际生效价格。",
+          "fix": "输入框为空时，用 placeholder 显示当前生效的渠道价格（从关联 Channel 中最高优先级的 sellPrice 取值，换算为 CNY）。需要 API 附带 fallbackPrice 字段。",
+          "file": "src/app/(console)/admin/model-aliases/page.tsx + API",
+          "lines": ""
+        },
+        {
+          "id": "BUG-04",
+          "title": "LLM 别名分类过于激进，不同代际模型被归入同一别名",
+          "page": "alias-classifier（sync 后自动分类）",
+          "root_cause": "prompt 规则 '同一模型的不同版本归入同一别名' 过于宽泛，LLM 把不同大版本号的模型（如 3.5 vs 4.6）都归入同一别名。",
+          "fix": "1) prompt 优化：强化 '仅日期后缀和服务商前缀差异才归入同一别名，不同大版本号必须为独立别名'；2) 数据清理脚本：清理错误挂载的 AliasModelLink。",
+          "file": "src/lib/sync/alias-classifier.ts",
+          "lines": "130-171"
+        },
+        {
+          "id": "BUG-05",
+          "title": "MiniMax sync 返回 0 模型（/models 端点 404）",
+          "page": "admin/operations（sync 面板）",
+          "root_cause": "两个问题：1) MiniMax 的 /v1/models 返回 404，端点可能不存在或需要有效 API Key 认证；2) sync 的 Layer 1 错误被 try-catch 静默吞掉，fetchModels 失败后 sync 仍显示 OK，管理员看不到错误。",
+          "fix": "1) 用有效 API Key 测试确认正确端点，如不支持 /models 则改为 staticModels；2) Layer 1 失败时状态应显示 WARNING 而非 OK，并展示错误信息。",
+          "file": "src/lib/sync/adapters/minimax.ts + src/lib/sync/model-sync.ts",
+          "lines": "316-326"
+        }
+        {
+          "id": "BUG-06",
+          "title": "添加服务商页面两个'适配器'标签混淆",
+          "page": "admin/providers",
+          "root_cause": "顶部'选择适配器'（服务商预设）和底部'适配器'（Engine adapterType）名称相同但含义不同，管理员容易困惑。",
+          "fix": "底部 adapterType 下拉框的 label 从'适配器'改为'引擎类型'。i18n 中英文同步更新。",
+          "file": "src/app/(console)/admin/providers/page.tsx + src/messages/zh-CN.json + src/messages/en.json",
+          "lines": ""
+        }
+      ],
+      "notes": "ADMIN-UX 完成后统一安排修复轮"
     }
   ]
 }
