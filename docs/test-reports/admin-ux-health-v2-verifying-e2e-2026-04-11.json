@@ -1,0 +1,64 @@
+{
+  "batch": "ADMIN-UX-health-v2",
+  "executedAt": "2026-04-11T12:32:26.907Z",
+  "baseUrl": "http://localhost:3099",
+  "pass": 11,
+  "fail": 0,
+  "steps": [
+    {
+      "id": "F-AUX-01-alias-market-price",
+      "ok": true,
+      "detail": "linkedCount=true marketExpr=true aliasFound=true apiOpenRouterModelId=true value=openai/gpt-4o-mini"
+    },
+    {
+      "id": "F-AUX-02-channel-cost-price",
+      "ok": true,
+      "detail": "channelTable=true passCostPrice=true apiCostPrice=true linkedModels=1"
+    },
+    {
+      "id": "F-AUX-03-models-readonly",
+      "ok": true,
+      "detail": "readonly=true noEditState=true noSellPriceField=true"
+    },
+    {
+      "id": "F-AUX-04-shared-channel-table",
+      "ok": true,
+      "detail": "aliasShared=true modelsShared=true modeUnion=true"
+    },
+    {
+      "id": "F-AUX-05-drag-priority",
+      "ok": true,
+      "detail": "dndKit=true reorderPatch=true priorityOk=true"
+    },
+    {
+      "id": "F-AUX-06-health-summary",
+      "ok": true,
+      "detail": "dotLatencyLink=true"
+    },
+    {
+      "id": "F-AUX-07-sellprice-cleanup",
+      "ok": true,
+      "detail": "sellPriceReadonly=true before={\"unit\":\"token\",\"inputPer1M\":0.6,\"outputPer1M\":1.2} after={\"unit\":\"token\",\"inputPer1M\":0.6,\"outputPer1M\":1.2} locked=false priority=3"
+    },
+    {
+      "id": "F-AUX-08-scheduler-v2",
+      "ok": true,
+      "detail": "enum=true aliasAware=true reachability=true instant=true apiOnly=true checks=[{\"level\":\"API_REACHABILITY\",\"result\":\"FAIL\",\"latencyMs\":808,\"errorMessage\":\"HTTP 401: {\\n  \\\"error\\\": {\\n    \\\"message\\\": \\\"Incorrect API key provided: ''. You can find your API key at https://platform.openai.com/account/api-keys.\\\",\\n    \\\"type\\\": \\\"invalid_request_error\\\",\\n    \\\"param\\\": null,\\n    \"}]"
+    },
+    {
+      "id": "F-AUX-09-health-bugfix",
+      "ok": true,
+      "detail": "providerDisplay=true groupedFailures=true consecutiveFailures=1 highRiskRule=true aliasStats={\"channelCount\":1,\"activeCount\":1,\"highRisk\":false}"
+    },
+    {
+      "id": "F-AUX-10-health-v2-design",
+      "ok": true,
+      "detail": "cards=true capsule=true grouped=true apiBadge=true assignAlias=true noForbiddenBorders=true"
+    },
+    {
+      "id": "F-AUX-tsc",
+      "ok": true,
+      "detail": "exit=0 stderr="
+    }
+  ]
+}

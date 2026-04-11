@@ -87,7 +87,7 @@
       "title": "ADMIN-UX 全量验收",
       "priority": "high",
       "executor": "codex",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) 别名标题栏市场售价正确显示；2) Channel 成本价正确显示；3) Models 页只读无编辑；4) 拖拽排序优先级可用；5) 健康摘要圆点+延迟正确；6) 健康检查调度策略 V2 生效（别名感知 + API_REACHABILITY）；7) 健康监控页新设计稿还原；8) Bug 修复验证；9) 签收报告生成"
     }
   ]

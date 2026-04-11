@@ -1,23 +1,32 @@
 {
-  "status": "verifying",
+  "status": "done",
   "user_goal": "ADMIN-UX — 别名定价透明化 + Models 页简化 + 健康监控重构（V2 设计稿 + 调度策略 V2）",
   "total_features": 11,
-  "completed_features": 10,
+  "completed_features": 11,
   "fix_rounds": 0,
   "current_sprint": null,
-  "last_updated": "2026-04-11T19:00:00Z",
-  "reference_docs": ["docs/specs/health-check-strategy-v2-spec.md", "design-draft/admin-health-v2/DESIGN.md"],
+  "last_updated": "2026-04-11T12:32:57.753Z",
+  "reference_docs": [
+    "docs/specs/health-check-strategy-v2-spec.md",
+    "design-draft/admin-health-v2/DESIGN.md"
+  ],
   "role_assignments": null,
   "docs": {
     "spec": "docs/specs/health-check-strategy-v2-spec.md",
     "test_cases": null,
-    "signoff": null,
+    "signoff": "docs/test-reports/admin-ux-health-v2-signoff-2026-04-11.md",
     "framework_reviewed": false
   },
-  "evaluator_feedback": null,
+  "evaluator_feedback": {
+    "summary": "ADMIN-UX 首轮验收通过：11/11 PASS，已签收。",
+    "pass_count": 11,
+    "partial_count": 0,
+    "fail_count": 0,
+    "issues": []
+  },
   "generator_handoff": null,
   "session_notes": {
     "Kimi": "Planner 完成 DQ2 收尾 + ADMIN-UX 规划。11 条功能：别名标题栏市场售价(1) + 渠道成本价(2) + Models 页简化(3) + ChannelRow 组件复用(4) + 拖拽排序优先级(5) + 健康摘要(6) + 售价清理(7) + 健康检查调度 V2(8) + health 页 bug 修复(9) + health 页新设计稿还原(10) + 验收(11)。Spec: health-check-strategy-v2-spec.md。设计稿: admin-health-v2/。",
-    "Reviewer": null
+    "Reviewer": "2026-04-11 ADMIN-UX verifying：执行 scripts/test/admin-ux-health-v2-verifying-e2e-2026-04-11.ts，11/11 PASS，已生成 signoff 并置 done。"
   }
 }
