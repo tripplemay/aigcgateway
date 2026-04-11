@@ -647,6 +647,7 @@
     "linkedInfrastructure": "Linked Infrastructure",
     "colModelId": "Model ID",
     "colProvider": "Provider",
+    "colCostPrice": "Cost Price",
     "colStatus": "Status",
     "colPriority": "Priority",
     "colActions": "Actions",
@@ -726,7 +727,19 @@
     "manualCheck": "Check",
     "checkDone": "Health check completed",
     "fail": "fail",
-    "orphanChannels": "Unlinked Channels"
+    "orphanChannels": "Orphan Channels",
+    "enabled": "Enabled",
+    "connectedInfra": "Connected Infrastructure",
+    "healthStatus": "Health Status",
+    "modelAliases": "Model Aliases",
+    "healthLabel": "Health",
+    "channelsLabel": "Channels",
+    "avgLatencyShort": "Avg Latency",
+    "unassigned": "Unassigned to any Alias",
+    "statusLabel": "Status",
+    "lastCheck": "Last Check",
+    "assignAlias": "Assign Alias",
+    "providerLabel": "Provider"
   },
   "adminOps": {
     "title": "Sync & Operations",
@@ -1095,5 +1108,14 @@
     "confirmDelete": "Delete template \"{name}\"?",
     "empty": "No templates found",
     "publicToggled": "Public status updated"
+  },
+  "channelTable": {
+    "colModelId": "Model ID",
+    "colProvider": "Provider",
+    "colCostPrice": "Cost Price",
+    "colStatus": "Status",
+    "colHealth": "Health",
+    "colPriority": "Priority",
+    "colActions": "Actions"
   }
 }

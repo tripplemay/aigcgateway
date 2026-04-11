@@ -21,14 +21,19 @@ export async function GET(request: Request) {
             model: {
               include: {
                 channels: {
-                  where: { status: "ACTIVE" },
                   orderBy: { priority: "asc" },
                   select: {
                     id: true,
                     priority: true,
                     status: true,
                     realModelId: true,
+                    costPrice: true,
                     provider: { select: { name: true, displayName: true } },
+                    healthChecks: {
+                      orderBy: { createdAt: "desc" },
+                      take: 1,
+                      select: { latencyMs: true },
+                    },
                   },
                 },
               },
@@ -70,6 +75,7 @@ export async function GET(request: Request) {
     capabilities: a.capabilities,
     description: a.description,
     sellPrice: a.sellPrice,
+    openRouterModelId: a.openRouterModelId ?? null,
     linkedModels: a.models.map((link) => ({
       modelId: link.model.id,
       modelName: link.model.name,
@@ -77,11 +83,16 @@ export async function GET(request: Request) {
         id: ch.id,
         priority: ch.priority,
         status: ch.status,
+        costPrice: ch.costPrice as Record<string, unknown> | null,
         providerName: ch.provider.displayName,
+        latencyMs: ch.healthChecks[0]?.latencyMs ?? null,
       })),
     })),
     linkedModelCount: a.models.length,
-    activeChannelCount: a.models.reduce((sum, link) => sum + link.model.channels.length, 0),
+    activeChannelCount: a.models.reduce(
+      (sum, link) => sum + link.model.channels.filter((ch) => ch.status === "ACTIVE").length,
+      0,
+    ),
     createdAt: a.createdAt,
     updatedAt: a.updatedAt,
   }));

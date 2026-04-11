@@ -68,6 +68,7 @@ enum TransactionStatus {
 }
 
 enum HealthCheckLevel {
+  API_REACHABILITY
   CONNECTIVITY
   FORMAT
   QUALITY

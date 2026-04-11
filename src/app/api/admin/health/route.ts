@@ -52,14 +52,21 @@ function buildChannelRow(ch: {
   const lastCheckedAt =
     ch.healthChecks.length > 0 ? ch.healthChecks[0].createdAt.toISOString() : null;
 
+  // Group by batch (same second) and count consecutive failed batches
   let consecutiveFailures = 0;
+  const batches: Array<{ hasFail: boolean }> = [];
+  let currentBatchTime = 0;
   for (const hc of ch.healthChecks) {
-    if (hc.result === "FAIL") {
-      consecutiveFailures++;
-    } else {
-      break;
+    const t = Math.floor(hc.createdAt.getTime() / 1000);
+    if (t !== currentBatchTime) {
+      batches.push({ hasFail: hc.result === "FAIL" });
+      currentBatchTime = t;
+    } else if (hc.result === "FAIL") {
+      batches[batches.length - 1].hasFail = true;
     }
   }
+  const firstPass = batches.findIndex((b) => !b.hasFail);
+  consecutiveFailures = firstPass === -1 ? batches.length : firstPass;
 
   return {
     channelId: ch.id,
@@ -163,7 +170,7 @@ export async function GET(request: Request) {
       degradedCount,
       disabledCount,
       avgLatency: computeAvgLatency(channels),
-      highRisk: a.enabled && activeCount <= 1,
+      highRisk: a.enabled && (activeCount === 0 || (activeCount <= 1 && channels.length > 1)),
       channels,
     };
   });

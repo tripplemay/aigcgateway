@@ -9,10 +9,9 @@ export async function PATCH(request: Request, { params }: { params: { id: string
   if (!auth.ok) return auth.error;
 
   const body = await request.json();
-  // Auto-lock sellPrice when manually modified
-  if (body.sellPrice !== undefined) {
-    body.sellPriceLocked = true;
-  }
+  // sellPrice is read-only on channels — managed by model-sync, not manual edits
+  delete body.sellPrice;
+  delete body.sellPriceLocked;
   const channel = await prisma.channel.update({ where: { id: params.id }, data: body });
   await invalidateChannelsCache();
   return NextResponse.json(channel);

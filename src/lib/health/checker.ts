@@ -1,15 +1,15 @@
 /**
- * 三级健康检查验证器
+ * 健康检查验证器 V2
  *
- * 文本通道：
- *   L1 连通性：HTTP 200 + 响应非空
- *   L2 格式一致性：choices[0].message.content + usage 完整 + finish_reason 有效
- *   L3 响应质量：返回内容非空且长度合理（≥1 字符）
+ * 检查级别：
+ *   API_REACHABILITY：GET /models 探测（零成本）
+ *   CONNECTIVITY (L1)：发真实 chat 请求验证
+ *   FORMAT (L2)：响应格式一致性
+ *   QUALITY (L3)：响应内容质量
  *
- * 图片通道：
- *   L1 连通性：HTTP 200 + 响应非空
- *   L2 格式一致性：data[0].url 或 data[0].b64_json 存在
- *   L3 响应质量：URL 可访问且 Content-Type 为 image/*
+ * 通道类型决定检查方式：
+ *   文本通道（已纳入已启用别名）：全三级 CONNECTIVITY → FORMAT → QUALITY
+ *   图片通道 / 未纳入别名通道：仅 API_REACHABILITY
  */
 
 import type { HealthCheckLevel, HealthCheckResult } from "@prisma/client";
@@ -26,19 +26,116 @@ export interface CheckResult {
 }
 
 /**
- * 对一个通道执行三级检查，返回每级结果
+ * 对一个通道执行全三级检查（文本通道）
  */
 export async function runHealthCheck(route: RouteResult): Promise<CheckResult[]> {
-  const isImage = route.model.modality === "IMAGE";
-
-  if (isImage) {
-    return runImageCheck(route);
-  }
   return runTextCheck(route);
 }
 
+/**
+ * 仅执行 API_REACHABILITY 检查（GET /models，零成本）
+ */
+export async function runApiReachabilityCheck(route: RouteResult): Promise<CheckResult[]> {
+  return runReachabilityCheck(route);
+}
+
 // ============================================================
-// 文本通道检查
+// API_REACHABILITY 检查（零成本）
+// ============================================================
+
+async function runReachabilityCheck(route: RouteResult): Promise<CheckResult[]> {
+  const start = Date.now();
+  const baseUrl = route.provider.baseUrl.replace(/\/+$/, "");
+  const authConfig = route.provider.authConfig as { apiKey?: string } | null;
+  const apiKey = authConfig?.apiKey ?? "";
+  const proxyUrl = route.provider.proxyUrl ?? process.env.PROXY_URL_PRIMARY ?? null;
+
+  try {
+    let response: Response;
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 15_000);
+
+    try {
+      if (proxyUrl) {
+        const { ProxyAgent, fetch: undiciFetch } = await import("undici");
+        const dispatcher = new ProxyAgent(proxyUrl);
+        response = await (undiciFetch as unknown as typeof fetch)(`${baseUrl}/models`, {
+          headers: { Authorization: `Bearer ${apiKey}` },
+          signal: controller.signal,
+          // @ts-expect-error undici dispatcher option
+          dispatcher,
+        });
+      } else {
+        response = await fetch(`${baseUrl}/models`, {
+          headers: { Authorization: `Bearer ${apiKey}` },
+          signal: controller.signal,
+        });
+      }
+    } finally {
+      clearTimeout(timeoutId);
+    }
+
+    const latencyMs = Date.now() - start;
+    const body = await response.text();
+
+    if (!response.ok || !body) {
+      return [
+        {
+          level: "API_REACHABILITY",
+          result: "FAIL",
+          latencyMs,
+          errorMessage: `HTTP ${response.status}${body ? `: ${body.slice(0, 200)}` : ""}`,
+          responseBody: body.slice(0, 2000),
+        },
+      ];
+    }
+
+    let parsed: { data?: unknown[] } | null = null;
+    try {
+      parsed = JSON.parse(body);
+    } catch {
+      /* not JSON */
+    }
+
+    if (!parsed || !Array.isArray(parsed.data)) {
+      return [
+        {
+          level: "API_REACHABILITY",
+          result: "FAIL",
+          latencyMs,
+          errorMessage: "Response missing data array",
+          responseBody: body.slice(0, 500),
+        },
+      ];
+    }
+
+    return [
+      {
+        level: "API_REACHABILITY",
+        result: "PASS",
+        latencyMs,
+        errorMessage: null,
+        responseBody: null,
+      },
+    ];
+  } catch (err) {
+    const latencyMs = Date.now() - start;
+    const message =
+      err instanceof EngineError ? `${err.code}: ${err.message}` : (err as Error).message;
+    return [
+      {
+        level: "API_REACHABILITY",
+        result: "FAIL",
+        latencyMs,
+        errorMessage: message,
+        responseBody: null,
+      },
+    ];
+  }
+}
+
+// ============================================================
+// 文本通道检查（三级）
 // ============================================================
 
 async function runTextCheck(route: RouteResult): Promise<CheckResult[]> {
@@ -46,7 +143,6 @@ async function runTextCheck(route: RouteResult): Promise<CheckResult[]> {
   const adapter = getAdapterForRoute(route);
 
   const start = Date.now();
-  let responseJson: Record<string, unknown> | null = null;
 
   // --- Level 1: 连通性 ---
   try {
@@ -60,7 +156,6 @@ async function runTextCheck(route: RouteResult): Promise<CheckResult[]> {
       route,
     );
 
-    responseJson = response as unknown as Record<string, unknown>;
     const latencyMs = Date.now() - start;
 
     // L1: HTTP 200 + 响应非空
@@ -125,115 +220,6 @@ async function runTextCheck(route: RouteResult): Promise<CheckResult[]> {
       responseBody: null,
     });
 
-    return results;
-  } catch (err) {
-    const latencyMs = Date.now() - start;
-    const message =
-      err instanceof EngineError ? `${err.code}: ${err.message}` : (err as Error).message;
-
-    results.push({
-      level: "CONNECTIVITY",
-      result: "FAIL",
-      latencyMs,
-      errorMessage: message,
-      responseBody: null,
-    });
-    return results;
-  }
-}
-
-// ============================================================
-// 图片通道检查
-// ============================================================
-
-async function runImageCheck(route: RouteResult): Promise<CheckResult[]> {
-  const results: CheckResult[] = [];
-  const start = Date.now();
-
-  // 图片通道改为 /models 轻量探测，不再调用 imageGenerations()
-  // 原因：imageGenerations 会真实生成图片并产生费用（单次 $0.04–$0.19）
-  // /models 为元数据接口，无计费，能验证 API Key 有效性和网络可达性
-  const baseUrl = route.provider.baseUrl.replace(/\/+$/, "");
-  const authConfig = route.provider.authConfig as { apiKey?: string } | null;
-  const apiKey = authConfig?.apiKey ?? "";
-  const proxyUrl = route.provider.proxyUrl ?? process.env.PROXY_URL_PRIMARY ?? null;
-
-  try {
-    let response: Response;
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 15_000);
-
-    try {
-      if (proxyUrl) {
-        const { ProxyAgent, fetch: undiciFetch } = await import("undici");
-        const dispatcher = new ProxyAgent(proxyUrl);
-        response = await (undiciFetch as unknown as typeof fetch)(`${baseUrl}/models`, {
-          headers: { Authorization: `Bearer ${apiKey}` },
-          signal: controller.signal,
-          // @ts-expect-error undici dispatcher option
-          dispatcher,
-        });
-      } else {
-        response = await fetch(`${baseUrl}/models`, {
-          headers: { Authorization: `Bearer ${apiKey}` },
-          signal: controller.signal,
-        });
-      }
-    } finally {
-      clearTimeout(timeoutId);
-    }
-
-    const latencyMs = Date.now() - start;
-    const body = await response.text();
-
-    // --- Level 1: 连通性 (HTTP 200 + 响应非空) ---
-    if (!response.ok || !body) {
-      results.push({
-        level: "CONNECTIVITY",
-        result: "FAIL",
-        latencyMs,
-        errorMessage: `HTTP ${response.status}${body ? `: ${body.slice(0, 200)}` : ""}`,
-        responseBody: body.slice(0, 2000),
-      });
-      return results;
-    }
-
-    results.push({
-      level: "CONNECTIVITY",
-      result: "PASS",
-      latencyMs,
-      errorMessage: null,
-      responseBody: body.slice(0, 500),
-    });
-
-    // --- Level 2: 格式 (响应包含 data 数组) ---
-    let parsed: { data?: unknown[] } | null = null;
-    try {
-      parsed = JSON.parse(body);
-    } catch {
-      /* not JSON */
-    }
-
-    if (!parsed || !Array.isArray(parsed.data)) {
-      results.push({
-        level: "FORMAT",
-        result: "FAIL",
-        latencyMs,
-        errorMessage: "Response missing data array",
-        responseBody: null,
-      });
-      return results;
-    }
-
-    results.push({
-      level: "FORMAT",
-      result: "PASS",
-      latencyMs,
-      errorMessage: null,
-      responseBody: null,
-    });
-
-    // 图片通道止步于 L2，不执行 L3
     return results;
   } catch (err) {
     const latencyMs = Date.now() - start;

@@ -1,8 +1,8 @@
 {
-  "status": "building",
+  "status": "verifying",
   "user_goal": "ADMIN-UX — 别名定价透明化 + Models 页简化 + 健康监控重构（V2 设计稿 + 调度策略 V2）",
   "total_features": 11,
-  "completed_features": 0,
+  "completed_features": 10,
   "fix_rounds": 0,
   "current_sprint": null,
   "last_updated": "2026-04-11T19:00:00Z",

@@ -1,31 +1,29 @@
 /**
- * 健康检查调度器
+ * 健康检查调度器 V2 — 别名感知
  *
- * 分级频率：
- *   活跃通道（1h 内有调用）→ 10min
- *   备用通道（priority > 1 且 ACTIVE）→ 30min
- *   冷门通道（24h 无调用）→ 2h
- *   DISABLED 通道 → 30min（降频恢复检查）
+ * 按业务价值分级：
+ *   已纳入已启用别名 · 文本 · ACTIVE/DEGRADED → 全三级 10min
+ *   已纳入已启用别名 · 文本 · DISABLED → 全三级 30min（恢复检查）
+ *   已纳入已启用别名 · 图片 · 任意状态 → API_REACHABILITY 10min
+ *   未纳入别名 / 别名未启用 · 任意模态 → API_REACHABILITY 10min
+ *
+ * 即时触发：通道被纳入已启用别名时立即检查
  *
  * 自动降级与恢复：
  *   单次失败 → 重试 → 仍失败 → DEGRADED
- *   连续 3 次失败 → DISABLED
- *   DISABLED 恢复三级通过 → ACTIVE
- *
- * 记录写入 HealthCheck 表 + 7 天清理
+ *   连续 3 批次失败 → DISABLED
+ *   DISABLED 通道检查通过 → ACTIVE
  */
 
 import { prisma } from "@/lib/prisma";
-import type { Channel, ChannelStatus } from "@prisma/client";
-import { runHealthCheck, type CheckResult } from "./checker";
+import type { ChannelStatus } from "@prisma/client";
+import { runHealthCheck, runApiReachabilityCheck, type CheckResult } from "./checker";
 import { sendAlert } from "./alert";
 import type { RouteResult } from "../engine/types";
 
 const FAIL_THRESHOLD = Number(process.env.HEALTH_CHECK_FAIL_THRESHOLD ?? 3);
-const ACTIVE_INTERVAL = Number(process.env.HEALTH_CHECK_ACTIVE_INTERVAL_MS ?? 600_000);
-const STANDBY_INTERVAL = Number(process.env.HEALTH_CHECK_STANDBY_INTERVAL_MS ?? 1_800_000);
-const COLD_INTERVAL = Number(process.env.HEALTH_CHECK_COLD_INTERVAL_MS ?? 7_200_000);
-const DISABLED_INTERVAL = 1_800_000; // 30min
+const ACTIVE_INTERVAL = Number(process.env.HEALTH_CHECK_ACTIVE_INTERVAL_MS ?? 600_000); // 10min
+const DISABLED_INTERVAL = Number(process.env.HEALTH_CHECK_DISABLED_INTERVAL_MS ?? 1_800_000); // 30min
 
 let schedulerTimer: ReturnType<typeof setInterval> | null = null;
 
@@ -40,7 +38,7 @@ export function startScheduler(): void {
       console.error("[health-scheduler] error:", err);
     });
   }, 60_000);
-  console.log("[health-scheduler] started");
+  console.log("[health-scheduler] started (V2 alias-aware)");
 }
 
 export function stopScheduler(): void {
@@ -52,7 +50,8 @@ export function stopScheduler(): void {
 }
 
 /**
- * 对单个通道执行完整检查（含重试、降级、记录、告警）
+ * 对单个通道执行检查（含重试、降级、记录、告警）
+ * 根据通道类型自动选择检查方式
  */
 export async function checkChannel(channelId: string): Promise<CheckResult[]> {
   const channel = await prisma.channel.findUnique({
@@ -74,7 +73,15 @@ export async function checkChannel(channelId: string): Promise<CheckResult[]> {
     model: channel.model,
   };
 
-  return executeCheckWithRetry(route);
+  const isImage = channel.model.modality === "IMAGE";
+  const isAliased = await isChannelInEnabledAlias(channelId);
+
+  // 文本通道 + 已纳入已启用别名 → 全三级
+  // 其他 → API_REACHABILITY
+  if (!isImage && isAliased) {
+    return executeCheckWithRetry(route, "full");
+  }
+  return executeCheckWithRetry(route, "reachability");
 }
 
 /**
@@ -89,10 +96,46 @@ export async function cleanupOldRecords(): Promise<number> {
 }
 
 // ============================================================
+// 别名查询
+// ============================================================
+
+async function isChannelInEnabledAlias(channelId: string): Promise<boolean> {
+  const count = await prisma.aliasModelLink.count({
+    where: {
+      model: {
+        channels: { some: { id: channelId } },
+      },
+      alias: { enabled: true },
+    },
+  });
+  return count > 0;
+}
+
+/** 批量查询：哪些 channel 被纳入已启用别名 */
+async function getAliasedChannelIds(): Promise<Set<string>> {
+  const links = await prisma.aliasModelLink.findMany({
+    where: { alias: { enabled: true } },
+    select: {
+      model: {
+        select: {
+          channels: { select: { id: true } },
+        },
+      },
+    },
+  });
+  const ids = new Set<string>();
+  for (const link of links) {
+    for (const ch of link.model.channels) {
+      ids.add(ch.id);
+    }
+  }
+  return ids;
+}
+
+// ============================================================
 // 调度逻辑
 // ============================================================
 
-/** 每轮最多同时检查的 channel 数，防止挤占连接池 */
 const MAX_CHECKS_PER_ROUND = 5;
 
 async function runScheduledChecks(): Promise<void> {
@@ -113,80 +156,77 @@ async function runScheduledChecks(): Promise<void> {
     },
   });
 
-  // 批量预查询：哪些 channel 在过去 1 小时 / 24 小时有调用
-  const oneHourAgo = new Date(now - 60 * 60 * 1000);
-  const oneDayAgo = new Date(now - 24 * 60 * 60 * 1000);
-  const [recentHour, recentDay] = await Promise.all([
-    prisma.callLog.groupBy({
-      by: ["channelId"],
-      where: { createdAt: { gte: oneHourAgo }, channelId: { not: undefined } },
-    }),
-    prisma.callLog.groupBy({
-      by: ["channelId"],
-      where: { createdAt: { gte: oneDayAgo }, channelId: { not: undefined } },
-    }),
-  ]);
-  const hourActive = new Set(recentHour.map((r) => r.channelId));
-  const dayActive = new Set(recentDay.map((r) => r.channelId));
+  const aliasedIds = await getAliasedChannelIds();
 
-  // 筛选本轮需要检查的 channel（限制数量）
-  const dueChannels: Array<{ channel: (typeof channels)[0]; route: RouteResult }> = [];
+  const dueChannels: Array<{
+    route: RouteResult;
+    checkMode: "full" | "reachability";
+  }> = [];
 
   for (const channel of channels) {
     if (!channel.provider.config) continue;
     if (dueChannels.length >= MAX_CHECKS_PER_ROUND) break;
 
     const lastCheckTime = channel.healthChecks[0]?.createdAt?.getTime() ?? 0;
-    const interval = getCheckIntervalFast(channel, hourActive, dayActive);
     const elapsed = now - lastCheckTime;
+
+    const isImage = channel.model.modality === "IMAGE";
+    const isAliased = aliasedIds.has(channel.id);
+
+    let interval: number;
+    let checkMode: "full" | "reachability";
+
+    if (isAliased && !isImage) {
+      // 文本通道，已纳入已启用别名
+      checkMode = "full";
+      interval = channel.status === "DISABLED" ? DISABLED_INTERVAL : ACTIVE_INTERVAL;
+    } else {
+      // 图片通道 or 未纳入别名 → API_REACHABILITY only
+      checkMode = "reachability";
+      interval = ACTIVE_INTERVAL;
+    }
 
     if (elapsed < interval) continue;
 
     dueChannels.push({
-      channel,
       route: {
         channel,
         provider: channel.provider,
         config: channel.provider.config,
         model: channel.model,
       },
+      checkMode,
     });
   }
 
-  // 逐个执行（不并发），避免连接池和事件循环压力
-  for (const { route } of dueChannels) {
+  for (const { route, checkMode } of dueChannels) {
     try {
-      await executeCheckWithRetry(route);
+      await executeCheckWithRetry(route, checkMode);
     } catch (err) {
       console.error(`[health-scheduler] check failed for ${route.channel.id}:`, err);
     }
   }
 }
 
-/** 纯内存版 — 不做 DB 查询，依赖批量预查询结果 */
-function getCheckIntervalFast(
-  channel: Channel,
-  hourActive: Set<string | null>,
-  dayActive: Set<string | null>,
-): number {
-  if (channel.status === "DISABLED") return DISABLED_INTERVAL;
-  if (hourActive.has(channel.id)) return ACTIVE_INTERVAL;
-  if (channel.priority > 1) return STANDBY_INTERVAL;
-  if (!dayActive.has(channel.id)) return COLD_INTERVAL;
-  return STANDBY_INTERVAL;
-}
-
 // ============================================================
 // 检查执行（含重试 + 降级 + 恢复）
 // ============================================================
 
-async function executeCheckWithRetry(route: RouteResult): Promise<CheckResult[]> {
-  let results = await runHealthCheck(route);
+async function executeCheckWithRetry(
+  route: RouteResult,
+  checkMode: "full" | "reachability",
+): Promise<CheckResult[]> {
+  const runCheck =
+    checkMode === "full"
+      ? () => runHealthCheck(route)
+      : () => runApiReachabilityCheck(route);
+
+  let results = await runCheck();
   const allPassed = results.every((r) => r.result === "PASS");
 
   // 失败 → 重试一次
   if (!allPassed) {
-    results = await runHealthCheck(route);
+    results = await runCheck();
   }
 
   // 写入 HealthCheck 记录

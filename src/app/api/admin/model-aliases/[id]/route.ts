@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/api/admin-guard";
 import { errorResponse } from "@/lib/api/errors";
+import { checkChannel } from "@/lib/health/scheduler";
 
 /**
  * PATCH /api/admin/model-aliases/:id
@@ -55,6 +56,21 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
   }
 
   const updated = await prisma.modelAlias.update({ where: { id }, data });
+
+  // Instant health check when alias is being enabled
+  if (data.enabled === true && !existing.enabled) {
+    const links = await prisma.aliasModelLink.findMany({
+      where: { aliasId: id },
+      select: { model: { select: { channels: { select: { id: true } } } } },
+    });
+    for (const link of links) {
+      for (const ch of link.model.channels) {
+        checkChannel(ch.id).catch((err) => {
+          console.error(`[health] instant check failed for channel ${ch.id}:`, err);
+        });
+      }
+    }
+  }
 
   return NextResponse.json(updated);
 }

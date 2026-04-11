@@ -647,6 +647,7 @@
     "linkedInfrastructure": "关联基础设施",
     "colModelId": "模型 ID",
     "colProvider": "服务商",
+    "colCostPrice": "成本价",
     "colStatus": "状态",
     "colPriority": "优先级",
     "colActions": "操作",
@@ -726,7 +727,19 @@
     "manualCheck": "检查",
     "checkDone": "健康检查完成",
     "fail": "失败",
-    "orphanChannels": "未关联通道"
+    "orphanChannels": "孤儿通道",
+    "enabled": "已启用",
+    "connectedInfra": "已连接基础设施",
+    "healthStatus": "健康状态",
+    "modelAliases": "模型别名",
+    "healthLabel": "健康",
+    "channelsLabel": "通道",
+    "avgLatencyShort": "平均延迟",
+    "unassigned": "未分配至任何别名",
+    "statusLabel": "状态",
+    "lastCheck": "上次检查",
+    "assignAlias": "分配别名",
+    "providerLabel": "服务商"
   },
   "adminOps": {
     "title": "同步运维",
@@ -1095,5 +1108,14 @@
     "confirmDelete": "确认删除模板「{name}」？",
     "empty": "暂无模板",
     "publicToggled": "公开状态已更新"
+  },
+  "channelTable": {
+    "colModelId": "模型 ID",
+    "colProvider": "服务商",
+    "colCostPrice": "成本价",
+    "colStatus": "状态",
+    "colHealth": "健康",
+    "colPriority": "优先级",
+    "colActions": "操作"
   }
 }

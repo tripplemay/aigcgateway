@@ -4,7 +4,6 @@ import { useTranslations } from "next-intl";
 import { apiFetch } from "@/lib/api-client";
 import { useAsyncData } from "@/hooks/use-async-data";
 import { Skeleton } from "@/components/ui/skeleton";
-import { SearchBar } from "@/components/search-bar";
 import { toast } from "sonner";
 import { timeAgo } from "@/lib/utils";
 
@@ -27,6 +26,7 @@ interface ChannelRow {
   model: string;
   modelDisplayName: string;
   modality: string;
+  realModelId: string;
   status: string;
   priority: number;
   lastChecks: HealthCheck[];
@@ -64,47 +64,20 @@ interface HealthResponse {
 }
 
 // ============================================================
-// Constants
+// Helpers
 // ============================================================
 
 const STATUS_DOT: Record<string, string> = {
-  ACTIVE: "bg-emerald-500",
-  DEGRADED: "bg-amber-500",
-  DISABLED: "bg-rose-500",
+  ACTIVE: "bg-ds-secondary",
+  DEGRADED: "bg-ds-tertiary",
+  DISABLED: "bg-ds-error",
 };
 
-const CHECK_LEVELS = ["CONNECTIVITY", "FORMAT", "QUALITY"] as const;
-const CHECK_LABEL_KEYS = ["l1Connect", "l2Format", "l3Quality"] as const;
-
-function checkStyle(result: string | undefined) {
-  if (result === "PASS")
-    return {
-      bg: "bg-emerald-50/50 border-emerald-100/30",
-      text: "text-emerald-700",
-      icon: "check_circle",
-      iconColor: "text-emerald-600",
-    };
-  if (result === "FAIL")
-    return {
-      bg: "bg-rose-50/50 border-rose-100/30",
-      text: "text-rose-700",
-      icon: "cancel",
-      iconColor: "text-rose-600",
-    };
-  return {
-    bg: "bg-slate-50 border-slate-200/30",
-    text: "text-slate-400",
-    icon: "pending",
-    iconColor: "text-slate-400",
-  };
-}
-
-function latencyColor(ms: number | null) {
-  if (ms == null) return "text-slate-400";
-  if (ms < 1000) return "text-emerald-600";
-  if (ms < 3000) return "text-amber-600";
-  return "text-rose-600";
-}
+const STATUS_TEXT: Record<string, string> = {
+  ACTIVE: "text-ds-secondary",
+  DEGRADED: "text-ds-tertiary",
+  DISABLED: "text-ds-error",
+};
 
 function aliasStatusSummary(g: AliasGroup) {
   if (g.disabledCount > 0) return "DISABLED";
@@ -112,6 +85,26 @@ function aliasStatusSummary(g: AliasGroup) {
   if (g.activeCount > 0) return "ACTIVE";
   return "NONE";
 }
+
+function fmtLatency(ms: number | null): string {
+  if (ms == null) return "\u2014";
+  return ms > 1000 ? `${(ms / 1000).toFixed(1)}s` : `${ms}ms`;
+}
+
+function checkBadge(level: string, result: string) {
+  if (result === "PASS")
+    return { bg: "bg-ds-secondary/10", text: "text-ds-secondary", icon: "check" };
+  if (result === "FAIL")
+    return { bg: "bg-ds-error/10", text: "text-ds-error", icon: "close" };
+  return { bg: "bg-ds-outline-variant/10", text: "text-ds-outline", icon: "help" };
+}
+
+const LEVEL_LABELS: Record<string, string> = {
+  API_REACHABILITY: "API",
+  CONNECTIVITY: "L1",
+  FORMAT: "L2",
+  QUALITY: "L3",
+};
 
 // ============================================================
 // Page
@@ -145,58 +138,45 @@ export default function HealthPage() {
     [data],
   );
 
-  // Collect unique providers and modalities for filters
   const { providers, modalities } = useMemo(() => {
     const pSet = new Set<string>();
     const mSet = new Set<string>();
     for (const g of data?.aliases ?? []) {
       mSet.add(g.modality);
       for (const ch of g.channels) {
-        pSet.add(ch.providerName);
+        pSet.add(ch.provider);
       }
     }
     for (const ch of data?.orphans ?? []) {
-      pSet.add(ch.providerName);
+      pSet.add(ch.provider);
       mSet.add(ch.modality);
     }
-    return {
-      providers: [...pSet].sort(),
-      modalities: [...mSet].sort(),
-    };
+    return { providers: [...pSet].sort(), modalities: [...mSet].sort() };
   }, [data]);
 
-  // Filter aliases
   const filteredAliases = useMemo(() => {
     const groups = data?.aliases ?? [];
     return groups.filter((g) => {
-      // search
       if (search) {
         const q = search.toLowerCase();
-        const matchAlias = g.alias.toLowerCase().includes(q);
-        const matchBrand = g.brand?.toLowerCase().includes(q);
-        const matchChannel = g.channels.some(
-          (ch) => ch.provider.toLowerCase().includes(q) || ch.model.toLowerCase().includes(q),
-        );
-        if (!matchAlias && !matchBrand && !matchChannel) return false;
+        const match =
+          g.alias.toLowerCase().includes(q) ||
+          g.brand?.toLowerCase().includes(q) ||
+          g.channels.some(
+            (ch) => ch.provider.toLowerCase().includes(q) || ch.model.toLowerCase().includes(q),
+          );
+        if (!match) return false;
       }
-      // modality
       if (filterModality && g.modality !== filterModality) return false;
-      // provider
-      if (filterProvider) {
-        const hasProvider = g.channels.some((ch) => ch.providerName === filterProvider);
-        if (!hasProvider) return false;
-      }
-      // status
+      if (filterProvider && !g.channels.some((ch) => ch.provider === filterProvider)) return false;
       if (filterStatus) {
         if (filterStatus === "HIGH_RISK") return g.highRisk;
-        const status = aliasStatusSummary(g);
-        if (filterStatus !== status) return false;
+        if (aliasStatusSummary(g) !== filterStatus) return false;
       }
       return true;
     });
   }, [data, search, filterModality, filterProvider, filterStatus]);
 
-  // Filter orphans
   const filteredOrphans = useMemo(() => {
     const orphans = data?.orphans ?? [];
     return orphans.filter((ch) => {
@@ -206,7 +186,7 @@ export default function HealthPage() {
           return false;
       }
       if (filterModality && ch.modality !== filterModality) return false;
-      if (filterProvider && ch.providerName !== filterProvider) return false;
+      if (filterProvider && ch.provider !== filterProvider) return false;
       if (filterStatus) {
         if (filterStatus === "HIGH_RISK") return false;
         if (ch.status !== filterStatus) return false;
@@ -236,304 +216,323 @@ export default function HealthPage() {
     setChecking(null);
   };
 
-  // ── Loading skeleton ──
   if (loading && !data) {
     return (
-      <div className="max-w-7xl mx-auto space-y-6 pt-4">
+      <div className="space-y-8 p-8">
         <Skeleton className="h-10 w-64" />
-        <div className="grid grid-cols-12 gap-6">
-          <Skeleton className="col-span-8 h-[180px] rounded-xl" />
-          <div className="col-span-4 space-y-4">
-            <Skeleton className="h-20 rounded-xl" />
-            <Skeleton className="h-20 rounded-xl" />
-            <Skeleton className="h-20 rounded-xl" />
-          </div>
+        <div className="grid grid-cols-4 gap-6">
+          {[1, 2, 3, 4].map((i) => (
+            <Skeleton key={i} className="h-28 rounded-xl" />
+          ))}
         </div>
+        <Skeleton className="h-14 rounded-full" />
         <Skeleton className="h-[400px] rounded-xl" />
       </div>
     );
   }
 
   return (
-    <div className="max-w-7xl mx-auto space-y-8">
-      {/* ═══ Summary Dashboard (Bento) ═══ */}
-      <div className="grid grid-cols-12 gap-6 mb-8">
-        {/* Main status card */}
-        <div className="col-span-12 lg:col-span-8">
-          <div className="bg-ds-surface-container-lowest rounded-xl p-8 flex flex-col justify-between min-h-[180px] shadow-sm relative overflow-hidden">
-            <div className="absolute -right-12 -top-12 w-48 h-48 bg-ds-primary/5 rounded-full blur-3xl" />
-            <div>
-              <h2 className="font-[var(--font-heading)] text-3xl font-extrabold tracking-tight mb-2">
-                {t("title")}
-              </h2>
-              <p className="text-ds-on-surface-variant max-w-md">{t("subtitle")}</p>
-            </div>
-            <div className="flex items-center gap-8 mt-6">
-              <div className="flex flex-col">
-                <span className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">
-                  {t("totalAliases")}
-                </span>
-                <span className="text-2xl font-[var(--font-heading)] font-bold">
-                  {summary.aliasCount}
-                </span>
-              </div>
-              <div className="w-px h-8 bg-slate-100" />
-              <div className="flex flex-col">
-                <span className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">
-                  {t("totalChannels")}
-                </span>
-                <span className="text-2xl font-[var(--font-heading)] font-bold">
-                  {summary.total}
-                </span>
-              </div>
-              <div className="w-px h-8 bg-slate-100" />
-              <div className="flex flex-col">
-                <span className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">
-                  {t("avgLatency")}
-                </span>
-                <span
-                  className={`text-2xl font-[var(--font-heading)] font-bold ${latencyColor(summary.avgLatency)}`}
-                >
-                  {summary.avgLatency != null ? `${summary.avgLatency.toLocaleString()}ms` : "—"}
-                </span>
-              </div>
-            </div>
+    <div className="p-8 space-y-8 bg-ds-surface">
+      {/* ═══ 1. Top Overview Bar — 4 column stats ═══ */}
+      <section className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        {/* Total Aliases */}
+        <div className="bg-ds-surface-container-lowest p-6 rounded-xl transition-transform hover:scale-[1.02] cursor-default">
+          <div className="text-ds-on-surface-variant font-medium mb-2 flex items-center justify-between text-xs">
+            {t("totalAliases")}
+            <span className="material-symbols-outlined text-ds-outline-variant text-sm">hub</span>
+          </div>
+          <div className="text-3xl font-black font-[var(--font-heading)] text-ds-on-surface">
+            {summary.aliasCount}
+          </div>
+          <div className="mt-2 text-[10px] text-ds-secondary font-bold uppercase tracking-wider">
+            {filteredAliases.filter((a) => a.enabled).length} {t("enabled")}
           </div>
         </div>
-        {/* Quick Stats Column */}
-        <div className="col-span-12 lg:col-span-4 grid grid-cols-1 gap-4">
-          {[
-            {
-              value: summary.active,
-              label: t("activeChannels"),
-              dotColor: "bg-emerald-50",
-              textColor: "text-emerald-600",
-              icon: "check_circle",
-              badge: t("badgeHealthy"),
-              badgeColor: "text-emerald-500 bg-emerald-50",
-            },
-            {
-              value: summary.degraded,
-              label: t("degradedState"),
-              dotColor: "bg-amber-50",
-              textColor: "text-amber-600",
-              icon: "warning",
-              badge: t("badgeChecking"),
-              badgeColor: "text-amber-500 bg-amber-50",
-            },
-            {
-              value: summary.highRiskCount,
-              label: t("highRisk"),
-              dotColor: "bg-rose-50",
-              textColor: "text-rose-600",
-              icon: "error",
-              badge: t("badgeAlert"),
-              badgeColor: "text-rose-500 bg-rose-50",
-            },
-          ].map((c) => (
-            <div
-              key={c.label}
-              className="bg-ds-surface-container-lowest rounded-xl p-5 flex items-center gap-4 shadow-sm"
-            >
-              <div
-                className={`w-12 h-12 rounded-full ${c.dotColor} ${c.textColor} flex items-center justify-center`}
-              >
-                <span
-                  className="material-symbols-outlined"
-                  style={{ fontVariationSettings: "'FILL' 1" }}
-                >
-                  {c.icon}
-                </span>
-              </div>
-              <div>
-                <div className="text-2xl font-[var(--font-heading)] font-bold">{c.value}</div>
-                <div className="text-xs font-bold text-slate-400 uppercase">{c.label}</div>
-              </div>
-              <div className="ml-auto">
-                <span className={`text-xs font-bold px-2 py-1 rounded ${c.badgeColor}`}>
-                  {c.badge}
-                </span>
-              </div>
-            </div>
-          ))}
+        {/* Total Channels */}
+        <div className="bg-ds-surface-container-lowest p-6 rounded-xl transition-transform hover:scale-[1.02] cursor-default">
+          <div className="text-ds-on-surface-variant font-medium mb-2 flex items-center justify-between text-xs">
+            {t("totalChannels")}
+            <span className="material-symbols-outlined text-ds-outline-variant text-sm">lan</span>
+          </div>
+          <div className="text-3xl font-black font-[var(--font-heading)] text-ds-on-surface">
+            {summary.total}
+          </div>
+          <div className="mt-2 text-[10px] text-ds-secondary font-bold uppercase tracking-wider">
+            {t("connectedInfra")}
+          </div>
         </div>
-      </div>
+        {/* Health Status */}
+        <div className="bg-ds-surface-container-lowest p-6 rounded-xl transition-transform hover:scale-[1.02] cursor-default">
+          <div className="text-ds-on-surface-variant font-medium mb-2 flex items-center justify-between text-xs">
+            {t("healthStatus")}
+            <span className="material-symbols-outlined text-ds-outline-variant text-sm">
+              health_metrics
+            </span>
+          </div>
+          <div className="flex items-baseline space-x-2">
+            <span className="text-2xl font-black font-[var(--font-heading)] text-ds-secondary">
+              {summary.active}
+            </span>
+            <span className="text-xs text-ds-on-surface-variant font-bold">
+              / {summary.degraded} / {summary.disabled}
+            </span>
+          </div>
+          <div className="mt-2 flex space-x-2">
+            <span className="w-2 h-2 rounded-full bg-ds-secondary" />
+            <span className="w-2 h-2 rounded-full bg-ds-tertiary" />
+            <span className="w-2 h-2 rounded-full bg-ds-outline-variant" />
+          </div>
+        </div>
+        {/* Avg Latency */}
+        <div className="bg-ds-surface-container-lowest p-6 rounded-xl transition-transform hover:scale-[1.02] cursor-default">
+          <div className="text-ds-on-surface-variant font-medium mb-2 flex items-center justify-between text-xs">
+            {t("avgLatency")}
+            <span className="material-symbols-outlined text-ds-outline-variant text-sm">
+              speed
+            </span>
+          </div>
+          <div className="text-3xl font-black font-[var(--font-heading)] text-ds-primary">
+            {summary.avgLatency != null ? (
+              <>
+                {summary.avgLatency}
+                <span className="text-sm font-bold ml-1">ms</span>
+              </>
+            ) : (
+              "\u2014"
+            )}
+          </div>
+        </div>
+      </section>
 
-      {/* ═══ Search & Filters ═══ */}
-      <div className="flex flex-wrap items-center gap-3">
-        <SearchBar
-          placeholder={t("searchPlaceholder")}
-          value={search}
-          onChange={setSearch}
-          className="w-64"
-        />
-        <select
-          value={filterProvider}
-          onChange={(e) => setFilterProvider(e.target.value)}
-          className="text-sm rounded-lg bg-ds-surface-container-low border-none py-2 px-3 outline-none focus:ring-2 focus:ring-ds-primary/20"
-        >
-          <option value="">{t("allProviders")}</option>
-          {providers.map((p) => (
-            <option key={p} value={p}>
-              {p}
-            </option>
-          ))}
-        </select>
-        <select
-          value={filterModality}
-          onChange={(e) => setFilterModality(e.target.value)}
-          className="text-sm rounded-lg bg-ds-surface-container-low border-none py-2 px-3 outline-none focus:ring-2 focus:ring-ds-primary/20"
-        >
-          <option value="">{t("allModalities")}</option>
-          {modalities.map((m) => (
-            <option key={m} value={m}>
-              {m}
-            </option>
-          ))}
-        </select>
-        <select
-          value={filterStatus}
-          onChange={(e) => setFilterStatus(e.target.value)}
-          className="text-sm rounded-lg bg-ds-surface-container-low border-none py-2 px-3 outline-none focus:ring-2 focus:ring-ds-primary/20"
-        >
-          <option value="">{t("allStatuses")}</option>
-          <option value="ACTIVE">{t("active")}</option>
-          <option value="DEGRADED">{t("degraded")}</option>
-          <option value="DISABLED">{t("disabled")}</option>
-          <option value="HIGH_RISK">{t("highRiskOnly")}</option>
-        </select>
-        <div className="ml-auto">
+      {/* ═══ 2. Filter Bar — capsule container ═══ */}
+      <section className="bg-ds-surface-container-low p-3 rounded-full flex items-center gap-4">
+        <div className="flex-1 relative">
+          <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-ds-outline text-lg">
+            search
+          </span>
+          <input
+            className="w-full bg-ds-surface-container-lowest border-none rounded-full py-2.5 pl-12 pr-4 text-sm focus:ring-2 focus:ring-ds-primary/20 text-ds-on-surface placeholder:text-ds-outline outline-none"
+            placeholder={t("searchPlaceholder")}
+            type="text"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+        </div>
+        <div className="flex items-center space-x-2">
+          <select
+            value={filterProvider}
+            onChange={(e) => setFilterProvider(e.target.value)}
+            className="bg-ds-surface-container-lowest border-none rounded-full py-2 px-4 text-xs font-semibold text-ds-on-surface-variant focus:ring-0 cursor-pointer hover:bg-ds-surface-container-high outline-none"
+          >
+            <option value="">{t("allProviders")}</option>
+            {providers.map((p) => (
+              <option key={p} value={p}>
+                {p}
+              </option>
+            ))}
+          </select>
+          <select
+            value={filterModality}
+            onChange={(e) => setFilterModality(e.target.value)}
+            className="bg-ds-surface-container-lowest border-none rounded-full py-2 px-4 text-xs font-semibold text-ds-on-surface-variant focus:ring-0 cursor-pointer hover:bg-ds-surface-container-high outline-none"
+          >
+            <option value="">{t("allModalities")}</option>
+            {modalities.map((m) => (
+              <option key={m} value={m}>
+                {m}
+              </option>
+            ))}
+          </select>
+          <select
+            value={filterStatus}
+            onChange={(e) => setFilterStatus(e.target.value)}
+            className="bg-ds-surface-container-lowest border-none rounded-full py-2 px-4 text-xs font-semibold text-ds-on-surface-variant focus:ring-0 cursor-pointer hover:bg-ds-surface-container-high outline-none"
+          >
+            <option value="">{t("allStatuses")}</option>
+            <option value="ACTIVE">{t("active")}</option>
+            <option value="DEGRADED">{t("degraded")}</option>
+            <option value="DISABLED">{t("disabled")}</option>
+            <option value="HIGH_RISK">{t("highRiskOnly")}</option>
+          </select>
           <button
             onClick={() => refetch()}
-            className="bg-ds-surface-container-lowest px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2 hover:bg-slate-50 transition-colors shadow-sm"
+            className="w-10 h-10 flex items-center justify-center bg-ds-surface-container-lowest rounded-full hover:bg-ds-surface-container-high text-ds-on-surface-variant transition-transform active:rotate-180 duration-500"
           >
-            <span className="material-symbols-outlined text-[18px]">refresh</span>
-            {t("syncAll")}
+            <span className="material-symbols-outlined text-lg">refresh</span>
           </button>
         </div>
-      </div>
+      </section>
 
-      {/* ═══ Alias Groups ═══ */}
-      <div className="space-y-3">
+      {/* ═══ 3. Alias Grouped List ═══ */}
+      <section className="space-y-4">
+        <div className="flex items-center justify-between px-4">
+          <h2 className="text-sm font-black uppercase tracking-widest text-ds-on-surface-variant">
+            {t("modelAliases")}
+          </h2>
+        </div>
+
         {filteredAliases.map((g) => {
           const isExpanded = expanded.has(g.aliasId);
           const overallStatus = aliasStatusSummary(g);
+          const statusDot = STATUS_DOT[overallStatus] ?? "bg-ds-outline-variant";
+          const statusText = STATUS_TEXT[overallStatus] ?? "text-ds-outline-variant";
+
           return (
             <div
               key={g.aliasId}
-              className={`bg-ds-surface-container-lowest rounded-xl overflow-hidden shadow-sm transition-shadow ${
-                g.highRisk
-                  ? "border-l-4 border-rose-400"
-                  : isExpanded
-                    ? "border-l-4 border-ds-primary"
-                    : ""
+              className={`bg-ds-surface-container-lowest rounded-xl overflow-hidden transition-all ${
+                isExpanded ? "border-l-4 border-ds-primary" : ""
               }`}
             >
-              {/* Collapsed row */}
+              {/* Alias Header */}
               <button
                 onClick={() => toggleExpand(g.aliasId)}
-                className="w-full text-left px-6 py-4 flex items-center gap-4 hover:bg-slate-50/50 transition-colors"
+                className="w-full text-left flex items-center p-5 gap-6 hover:bg-ds-surface-container-low/30 transition-colors group"
               >
-                {/* Status dot */}
-                <div
-                  className={`w-2.5 h-2.5 rounded-full flex-shrink-0 ${STATUS_DOT[overallStatus] ?? "bg-gray-400"} ${overallStatus === "ACTIVE" ? "animate-pulse" : ""}`}
-                />
-                {/* Alias name */}
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-center gap-2">
-                    <span className="font-[var(--font-heading)] font-bold text-base truncate">
-                      {g.alias}
-                    </span>
-                    {g.brand && (
-                      <span className="text-xs text-ds-on-surface-variant bg-ds-surface-container-low px-2 py-0.5 rounded-full">
-                        {g.brand}
-                      </span>
-                    )}
-                    <span className="text-xs text-ds-on-surface-variant bg-ds-surface-container-low px-2 py-0.5 rounded-full">
-                      {g.modality}
-                    </span>
+                <div className="w-10 h-10 rounded-full bg-ds-surface-container-low flex items-center justify-center flex-shrink-0">
+                  <span className="material-symbols-outlined text-ds-primary">model_training</span>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="text-base font-bold font-[var(--font-heading)] truncate">
+                    {g.alias}
+                  </div>
+                  <div className="text-xs text-ds-on-surface-variant">
+                    {g.brand ?? g.modality}
                     {!g.enabled && (
-                      <span className="text-xs text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full">
-                        {t("disabledAlias")}
-                      </span>
-                    )}
-                    {g.highRisk && (
-                      <span className="text-xs font-bold text-rose-600 bg-rose-50 px-2 py-0.5 rounded-full flex items-center gap-0.5">
-                        <span className="material-symbols-outlined text-[12px]">warning</span>
-                        {t("highRiskLabel")}
-                      </span>
+                      <span className="ml-2 text-ds-outline">({t("disabledAlias")})</span>
                     )}
                   </div>
                 </div>
-                {/* Stats */}
-                <div className="flex items-center gap-4 flex-shrink-0">
-                  <span className="text-xs text-ds-on-surface-variant">
-                    {g.activeCount}/{g.channelCount} {t("channelsActive")}
+                {/* Health badge */}
+                <div className="text-center px-4 flex-shrink-0">
+                  <div className="text-[9px] text-ds-on-surface-variant uppercase font-bold tracking-tighter mb-1">
+                    {t("healthLabel")}
+                  </div>
+                  <div className="flex items-center justify-center space-x-1.5">
+                    <span className={`w-2 h-2 rounded-full ${statusDot}`} />
+                    <span className={`text-xs font-bold ${statusText}`}>{overallStatus}</span>
+                  </div>
+                </div>
+                {/* Channels count */}
+                <div className="text-center px-4 flex-shrink-0">
+                  <div className="text-[9px] text-ds-on-surface-variant uppercase font-bold tracking-tighter mb-1">
+                    {t("channelsLabel")}
+                  </div>
+                  <div className="text-sm font-bold text-ds-on-surface">
+                    {g.activeCount}/{g.channelCount}
+                  </div>
+                </div>
+                {/* Avg Latency */}
+                <div className="text-center px-4 flex-shrink-0">
+                  <div className="text-[9px] text-ds-on-surface-variant uppercase font-bold tracking-tighter mb-1">
+                    {t("avgLatencyShort")}
+                  </div>
+                  <div className="text-sm font-bold text-ds-on-surface">
+                    {fmtLatency(g.avgLatency)}
+                  </div>
+                </div>
+                {/* High risk */}
+                {g.highRisk && (
+                  <span className="text-xs font-bold text-ds-error bg-ds-error/10 px-2 py-0.5 rounded flex items-center gap-0.5 flex-shrink-0">
+                    <span className="material-symbols-outlined text-xs">warning</span>
+                    {t("highRiskLabel")}
                   </span>
-                  <span className={`text-xs font-bold ${latencyColor(g.avgLatency)}`}>
-                    {g.avgLatency != null ? `${g.avgLatency.toLocaleString()}ms` : "—"}
-                  </span>
+                )}
+                {/* Expand arrow */}
+                <div className="ml-4 flex-shrink-0">
                   <span
-                    className={`material-symbols-outlined text-[20px] text-ds-on-surface-variant transition-transform ${isExpanded ? "rotate-180" : ""}`}
+                    className={`material-symbols-outlined text-ds-on-surface-variant group-hover:text-ds-primary transition-all ${isExpanded ? "rotate-180" : ""}`}
                   >
                     expand_more
                   </span>
                 </div>
               </button>
 
-              {/* Expanded channels */}
+              {/* Expanded Channel Rows */}
               {isExpanded && (
-                <div className="px-6 pb-5 pt-1 border-t border-slate-100/60">
-                  <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 mt-3">
-                    {g.channels.map((ch) => (
-                      <ChannelCard
-                        key={ch.channelId}
-                        ch={ch}
-                        checking={checking}
-                        onCheck={runCheck}
-                        t={t}
-                      />
-                    ))}
-                  </div>
+                <div className="bg-ds-surface-container-low/30 px-6 py-2 space-y-2">
+                  {g.channels.map((ch) => (
+                    <ChannelListRow
+                      key={ch.channelId}
+                      ch={ch}
+                      checking={checking}
+                      onCheck={runCheck}
+                      t={t}
+                    />
+                  ))}
                 </div>
               )}
             </div>
           );
         })}
-      </div>
+      </section>
 
-      {/* ═══ Orphan Channels ═══ */}
+      {/* ═══ 4. Orphan Channels ═══ */}
       {filteredOrphans.length > 0 && (
-        <div className="mt-8">
-          <div className="flex items-center gap-2 mb-4">
-            <span className="material-symbols-outlined text-amber-500 text-[20px]">link_off</span>
-            <h3 className="font-[var(--font-heading)] text-lg font-bold">{t("orphanChannels")}</h3>
-            <span className="text-xs text-ds-on-surface-variant bg-ds-surface-container-low px-2 py-0.5 rounded-full">
-              {filteredOrphans.length}
-            </span>
+        <section className="space-y-4 pt-4">
+          <div className="flex items-center gap-2 px-4">
+            <span className="material-symbols-outlined text-ds-on-surface-variant">link_off</span>
+            <h2 className="text-sm font-black uppercase tracking-widest text-ds-on-surface-variant">
+              {t("orphanChannels")}
+            </h2>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-            {filteredOrphans.map((ch) => (
-              <ChannelCard
-                key={ch.channelId}
-                ch={ch}
-                checking={checking}
-                onCheck={runCheck}
-                t={t}
-              />
-            ))}
-          </div>
-        </div>
+          {filteredOrphans.map((ch) => (
+            <div
+              key={ch.channelId}
+              className="bg-ds-surface-container-lowest rounded-xl p-5 hover:ring-1 hover:ring-ds-error/10 transition-all"
+            >
+              <div className="flex items-center gap-6">
+                <div className="flex-1">
+                  <div className="font-mono text-sm text-ds-on-surface-variant bg-ds-surface-container-low inline-block px-3 py-1 rounded">
+                    {ch.realModelId}
+                  </div>
+                  <div className="text-xs text-ds-on-surface-variant mt-1">
+                    {ch.provider} &middot; {t("unassigned")}
+                  </div>
+                </div>
+                <div className="text-center px-4 flex-shrink-0">
+                  <div className="text-[9px] text-ds-on-surface-variant uppercase font-bold tracking-tighter mb-1">
+                    {t("statusLabel")}
+                  </div>
+                  <div className="flex items-center justify-center space-x-1.5">
+                    <span
+                      className={`w-2 h-2 rounded-full ${STATUS_DOT[ch.status] ?? "bg-ds-outline-variant"}`}
+                    />
+                    <span className="text-xs font-bold text-ds-on-surface-variant">
+                      {ch.status}
+                    </span>
+                  </div>
+                </div>
+                <div className="text-center px-4 flex-shrink-0">
+                  <div className="text-[9px] text-ds-on-surface-variant uppercase font-bold tracking-tighter mb-1">
+                    {t("lastCheck")}
+                  </div>
+                  <div className="text-sm font-bold">
+                    {ch.lastCheckedAt ? timeAgo(ch.lastCheckedAt) : "\u2014"}
+                  </div>
+                </div>
+                <div className="ml-4 flex-shrink-0">
+                  <a
+                    href="/admin/model-aliases"
+                    className="text-ds-primary text-xs font-bold bg-ds-primary-container/20 px-4 py-2 rounded-full hover:bg-ds-primary-container/30 transition-colors"
+                  >
+                    {t("assignAlias")}
+                  </a>
+                </div>
+              </div>
+            </div>
+          ))}
+        </section>
       )}
     </div>
   );
 }
 
 // ============================================================
-// Channel Card (extracted for reuse in alias groups + orphans)
+// Channel List Row (design draft: inline row, not card)
 // ============================================================
 
-function ChannelCard({
+function ChannelListRow({
   ch,
   checking,
   onCheck,
@@ -546,101 +545,75 @@ function ChannelCard({
 }) {
   const latency = ch.lastChecks[0]?.latencyMs ?? null;
 
+  // Determine if this channel only has API_REACHABILITY checks
+  const hasReachability = ch.lastChecks.some((c) => c.level === "API_REACHABILITY");
+  const hasFullChecks = ch.lastChecks.some(
+    (c) => c.level === "CONNECTIVITY" || c.level === "FORMAT" || c.level === "QUALITY",
+  );
+
   return (
-    <div className="bg-ds-surface-container-lowest rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow border border-slate-100/40">
-      <div className="p-5">
-        {/* Header: model name + latency */}
-        <div className="flex items-start justify-between mb-3">
-          <div className="flex items-center gap-2.5">
-            <div
-              className={`w-2 h-2 rounded-full ${STATUS_DOT[ch.status] ?? "bg-gray-400"} ${ch.status === "ACTIVE" ? "animate-pulse" : ""}`}
-            />
-            <div>
-              <h4 className="font-[var(--font-heading)] font-bold text-sm leading-tight">
-                {ch.model}
-              </h4>
-              <p className="text-[11px] text-slate-400 font-bold uppercase tracking-tight">
-                {ch.provider}
-              </p>
-            </div>
-          </div>
-          <div className="bg-slate-50 px-2.5 py-0.5 rounded-full flex items-center gap-1.5">
-            <span className={`material-symbols-outlined text-[13px] ${latencyColor(latency)}`}>
-              timer
-            </span>
-            <span className={`text-[11px] font-bold ${latencyColor(latency)}`}>
-              {latency != null ? `${latency}ms` : "—"}
-            </span>
-          </div>
+    <div className="flex items-center py-4 gap-6 hover:bg-white/50 rounded-lg px-2 transition-colors">
+      {/* Model ID */}
+      <div className="flex-1 min-w-0">
+        <div className="font-mono text-xs text-ds-on-surface-variant bg-white inline-block px-2 py-1 rounded">
+          {ch.realModelId}
         </div>
-
-        {/* L1/L2/L3 Check Grid */}
-        <div className="grid grid-cols-3 gap-1.5 mb-4">
-          {CHECK_LEVELS.map((level, i) => {
-            const c = ch.lastChecks.find((x) => x.level === level);
-            const s = checkStyle(c?.result);
-            const hasError = c?.result === "FAIL" && c?.errorMessage;
-            return (
-              <div
-                key={level}
-                className={`${s.bg} border p-2 rounded-lg flex flex-col items-center relative group`}
-              >
-                <span className={`text-[9px] font-bold ${s.text} uppercase mb-0.5`}>
-                  {t(CHECK_LABEL_KEYS[i])}
-                </span>
-                <span className={`material-symbols-outlined ${s.iconColor} text-[16px]`}>
-                  {s.icon}
-                </span>
-                {/* Error tooltip */}
-                {hasError && (
-                  <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block z-10">
-                    <div className="bg-slate-800 text-white text-[10px] rounded-lg px-3 py-2 max-w-[200px] whitespace-normal shadow-lg">
-                      {c.errorMessage}
-                      <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-slate-800" />
-                    </div>
-                  </div>
-                )}
-              </div>
-            );
-          })}
-        </div>
-
-        {/* Footer: priority + manual check */}
-        <div className="flex items-center justify-between">
-          <span className="text-[11px] font-medium text-slate-500">
-            P{ch.priority}
-            {ch.consecutiveFailures > 0 && (
-              <span className="text-rose-500 ml-2">
-                {ch.consecutiveFailures}x {t("fail")}
-              </span>
-            )}
-          </span>
-          <button
-            disabled={checking === ch.channelId}
-            onClick={() => onCheck(ch.channelId)}
-            className="text-[11px] font-bold text-ds-primary flex items-center gap-0.5 hover:underline disabled:opacity-50"
-          >
-            {checking === ch.channelId ? "..." : t("manualCheck")}
-            <span className="material-symbols-outlined text-[13px]">arrow_forward</span>
-          </button>
+        <div className="text-[10px] text-ds-on-surface-variant mt-1">
+          {t("providerLabel")}: {ch.provider}
         </div>
       </div>
 
-      {/* Card bottom bar */}
-      <div className="bg-slate-50/50 px-5 py-2 flex items-center justify-between">
-        {ch.lastChecks[0] && (
-          <span className="text-[10px] font-bold text-slate-400">
-            {timeAgo(ch.lastChecks[0].createdAt)}
-          </span>
+      {/* Check level badges */}
+      <div className="flex items-center gap-3 flex-shrink-0">
+        {hasReachability && !hasFullChecks ? (
+          // API_REACHABILITY only — single badge
+          (() => {
+            const c = ch.lastChecks.find((x) => x.level === "API_REACHABILITY");
+            const badge = checkBadge("API_REACHABILITY", c?.result ?? "");
+            return (
+              <div
+                className={`flex items-center space-x-1 ${badge.bg} ${badge.text} text-[10px] font-bold px-2 py-0.5 rounded`}
+              >
+                <span>{LEVEL_LABELS.API_REACHABILITY}</span>
+                <span className="material-symbols-outlined text-xs">{badge.icon}</span>
+              </div>
+            );
+          })()
+        ) : (
+          // Full L1/L2/L3 badges
+          (["CONNECTIVITY", "FORMAT", "QUALITY"] as const).map((level) => {
+            const c = ch.lastChecks.find((x) => x.level === level);
+            const badge = checkBadge(level, c?.result ?? "");
+            return (
+              <div
+                key={level}
+                className={`flex items-center space-x-1 ${badge.bg} ${badge.text} text-[10px] font-bold px-2 py-0.5 rounded`}
+              >
+                <span>{LEVEL_LABELS[level]}</span>
+                <span className="material-symbols-outlined text-xs">{badge.icon}</span>
+              </div>
+            );
+          })
         )}
-        <div className="flex -space-x-1">
-          {ch.lastChecks.slice(0, 3).map((c, i) => (
-            <div
-              key={i}
-              className={`w-3.5 h-3.5 rounded-full ${c.result === "PASS" ? "bg-emerald-400" : c.result === "FAIL" ? "bg-rose-400" : "bg-amber-400"}`}
-            />
-          ))}
+      </div>
+
+      {/* Latency + time */}
+      <div className="text-center w-24 flex-shrink-0">
+        <div className="text-sm font-bold">{fmtLatency(latency)}</div>
+        <div className="text-[10px] text-ds-on-surface-variant">
+          {ch.lastCheckedAt ? timeAgo(ch.lastCheckedAt) : "\u2014"}
         </div>
+      </div>
+
+      {/* Run Check */}
+      <div className="w-24 flex justify-end flex-shrink-0">
+        <button
+          disabled={checking === ch.channelId}
+          onClick={() => onCheck(ch.channelId)}
+          className="text-ds-primary text-[11px] font-bold hover:underline disabled:opacity-50"
+        >
+          {checking === ch.channelId ? "..." : t("manualCheck")}
+        </button>
       </div>
     </div>
   );

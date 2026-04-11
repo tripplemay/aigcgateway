@@ -6,6 +6,7 @@ import { useAsyncData } from "@/hooks/use-async-data";
 import { SearchBar } from "@/components/search-bar";
 import { toast } from "sonner";
 import { useExchangeRate } from "@/hooks/use-exchange-rate";
+import { ChannelTable, type ChannelRowData } from "@/components/admin/channel-table";
 
 // ── Types ──
 
@@ -16,7 +17,9 @@ interface LinkedModel {
     id: string;
     priority: number;
     status: string;
+    costPrice: Record<string, unknown> | null;
     providerName: string;
+    latencyMs: number | null;
   }[];
 }
 
@@ -31,9 +34,15 @@ interface AliasItem {
   capabilities: Record<string, boolean> | null;
   description: string | null;
   sellPrice: Record<string, unknown> | null;
+  openRouterModelId: string | null;
   linkedModels: LinkedModel[];
   linkedModelCount: number;
   activeChannelCount: number;
+}
+
+interface OpenRouterPrices {
+  prices: Record<string, { inputPer1M: number; outputPer1M: number }>;
+  rate: number;
 }
 
 interface UnlinkedModel {
@@ -89,7 +98,13 @@ export default function ModelAliasesPage() {
     refetch: load,
   } = useAsyncData<ApiResponse>(() => apiFetch<ApiResponse>("/api/admin/model-aliases"), []);
 
+  const { data: priceData } = useAsyncData<OpenRouterPrices>(
+    () => apiFetch<OpenRouterPrices>("/api/admin/openrouter-prices"),
+    [],
+  );
+
   const aliases = apiData?.data ?? [];
+  const orPrices = priceData?.prices ?? {};
   const unlinkedModels = apiData?.unlinkedModels ?? [];
   const totalAliases = apiData?.total ?? 0;
   const activeAliases = aliases.filter((a) => a.enabled).length;
@@ -260,6 +275,22 @@ export default function ModelAliasesPage() {
         method: "DELETE",
       });
       toast.success(t("modelUnlinked"));
+      load();
+    } catch (err) {
+      toast.error((err as Error).message);
+    }
+  };
+
+  const reorderChannels = async (orderedIds: string[]) => {
+    try {
+      await Promise.all(
+        orderedIds.map((id, i) =>
+          apiFetch(`/api/admin/channels/${id}`, {
+            method: "PATCH",
+            body: JSON.stringify({ priority: i + 1 }),
+          }),
+        ),
+      );
       load();
     } catch (err) {
       toast.error((err as Error).message);
@@ -615,6 +646,12 @@ export default function ModelAliasesPage() {
                     <span className="text-xs text-ds-on-surface-variant flex-shrink-0">
                       {alias.linkedModelCount} {t("linkedModels")}
                     </span>
+                    {/* Market price (OpenRouter) */}
+                    <span className="text-xs text-ds-on-surface-variant flex-shrink-0 font-mono">
+                      {alias.openRouterModelId && orPrices[alias.openRouterModelId]
+                        ? `¥${orPrices[alias.openRouterModelId].inputPer1M.toFixed(2)} / ¥${orPrices[alias.openRouterModelId].outputPer1M.toFixed(2)}`
+                        : "—"}
+                    </span>
                     {/* Spacer */}
                     <div className="flex-1" />
                     {/* Enabled toggle */}
@@ -875,54 +912,30 @@ export default function ModelAliasesPage() {
                           <span className="material-symbols-outlined text-base">link</span>{" "}
                           {t("linkedInfrastructure")}
                         </h4>
-                        <div className="overflow-x-auto">
-                          <table className="w-full text-left border-separate border-spacing-y-2">
-                            <thead>
-                              <tr className="text-[10px] font-bold text-ds-on-surface-variant uppercase tracking-widest">
-                                <th className="pb-2 pl-4">{t("colModelId")}</th>
-                                <th className="pb-2">{t("colProvider")}</th>
-                                <th className="pb-2">{t("colStatus")}</th>
-                                <th className="pb-2 text-center">{t("colPriority")}</th>
-                                <th className="pb-2 pr-4 text-right">{t("colActions")}</th>
-                              </tr>
-                            </thead>
-                            <tbody>
-                              {alias.linkedModels.flatMap((lm) =>
-                                lm.channels.map((ch) => (
-                                  <tr
-                                    key={ch.id}
-                                    className="bg-ds-surface-container-low group hover:bg-ds-surface-container-high transition-colors"
-                                  >
-                                    <td className="py-3 px-4 rounded-l-xl font-mono text-xs font-medium">
-                                      {lm.modelName}
-                                    </td>
-                                    <td className="py-3 text-xs font-semibold">
-                                      {ch.providerName}
-                                    </td>
-                                    <td className="py-3">
-                                      <span className="inline-flex items-center gap-1.5 px-2 py-0.5 bg-ds-secondary-container text-ds-on-secondary-container text-[10px] font-bold rounded uppercase tracking-tighter">
-                                        {ch.status}
-                                      </span>
-                                    </td>
-                                    <td className="py-3 text-center text-xs font-bold text-ds-primary">
-                                      P{ch.priority}
-                                    </td>
-                                    <td className="py-3 px-4 rounded-r-xl text-right">
-                                      <button
-                                        className="text-ds-on-surface-variant hover:text-ds-error transition-colors p-1"
-                                        onClick={() => unlinkModel(alias.id, lm.modelId)}
-                                      >
-                                        <span className="material-symbols-outlined text-sm">
-                                          close
-                                        </span>
-                                      </button>
-                                    </td>
-                                  </tr>
-                                )),
-                              )}
-                            </tbody>
-                          </table>
-                        </div>
+                        <ChannelTable
+                          channels={alias.linkedModels.flatMap((lm) =>
+                            lm.channels.map(
+                              (ch): ChannelRowData => ({
+                                id: ch.id,
+                                modelName: lm.modelName,
+                                providerName: ch.providerName,
+                                costPrice: ch.costPrice,
+                                status: ch.status,
+                                priority: ch.priority,
+                                latencyMs: ch.latencyMs,
+                              }),
+                            ),
+                          )}
+                          exchangeRate={exchangeRate}
+                          mode="editable"
+                          onUnlink={(_channelId, modelId) => unlinkModel(alias.id, modelId)}
+                          onReorder={reorderChannels}
+                          channelModelMap={Object.fromEntries(
+                            alias.linkedModels.flatMap((lm) =>
+                              lm.channels.map((ch) => [ch.id, lm.modelId]),
+                            ),
+                          )}
+                        />
                         <div className="flex justify-between items-center mt-2">
                           <button
                             className="text-ds-primary text-xs font-bold flex items-center gap-1.5 hover:underline"
