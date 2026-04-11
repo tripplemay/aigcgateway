@@ -1,9 +1,9 @@
 {
-  "status": "fixing",
+  "status": "reverifying",
   "user_goal": "DQ2 — 别名数据质量二期（capabilities/supportedSizes 统一）+ 定价体系（OpenRouter 参考定价 + 全站人民币显示）",
   "total_features": 9,
   "completed_features": 8,
-  "fix_rounds": 0,
+  "fix_rounds": 1,
   "current_sprint": null,
   "last_updated": "2026-04-11T10:36:24.973Z",
   "reference_docs": [
@@ -32,7 +32,7 @@
   },
   "generator_handoff": null,
   "session_notes": {
-    "Kimi": "Generator 完成 DQ2 全部 8 条功能。01: capabilities 去 image_input 加 reasoning/search。02: LLM prompt 推断 supported_sizes。03: reinferAllCapabilities() 迁移+重跑。04: openRouterModelId 字段+汇率配置+settings UI。05: suggest-price API+前端按钮+候选下拉。06: balance/recharge 全部 CNY，sellPrice 保存时÷汇率。07: 全站 formatCurrency→formatCNY（dashboard/usage/logs/admin-logs/admin-usage/admin-users/admin-models）。08: 添加服务商 adapter 预填充。tsc 通过。",
+    "Kimi": "Fix round 1: models/page.tsx 和 admin/models/page.tsx 的 fmtPriceSplit/fmtPrice 内部改为调用 formatCNY（import 补齐），不再手动拼接 ¥ 和乘汇率。tsc 通过。",
     "Reviewer": "2026-04-11 首轮 DQ2 验收：执行 scripts/test/dq2-verifying-e2e-2026-04-11.ts，7 项中 6 PASS、1 FAIL（F-DQ2-07：models/admin-models 未统一 formatCNY）。已将状态置为 fixing，等待 generator 修复后 reverifying。"
   }
 }

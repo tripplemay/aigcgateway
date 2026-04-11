@@ -4,9 +4,7 @@ description: AIGC Gateway 当前状态快照（覆盖写，≤30 行）
 type: project
 ---
 ## 当前批次
-- DQ2-alias-quality-pricing：`fixing`（verifying: 6 PASS / 1 FAIL）
-- 待修复：F-DQ2-07（`/models`、`/admin/models` 未统一使用 `formatCNY`）
-- 复验入口：修复后由 Codex 执行 `reverifying`（F-DQ2-09）
+- DQ2-alias-quality-pricing：`reverifying`（fix round 1 完成，fmtPrice/fmtPriceSplit 改用 formatCNY）
 
 ## 已完成批次
 - R1~R4 / P5 / M1a~M1d / BF / K1 / U1 / L1 / MCP2 / A1 / T1 / N1 / O1 / CI1 / SUP1 / P6

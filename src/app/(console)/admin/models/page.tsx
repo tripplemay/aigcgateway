@@ -6,6 +6,7 @@ import { useAsyncData } from "@/hooks/use-async-data";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { useExchangeRate } from "@/hooks/use-exchange-rate";
+import { formatCNY } from "@/lib/utils";
 
 // ============================================================
 // Types
@@ -59,13 +60,13 @@ function fmtPrice(p: Record<string, unknown> | null, rate: number) {
   if (!p) return "\u2014";
   if (p.unit === "call") {
     const v = Number(p.perCall ?? 0);
-    return v === 0 ? "Free" : `¥${(v * rate).toFixed(2)}/call`;
+    return v === 0 ? "Free" : `${formatCNY(v, rate, 2)}/call`;
   }
   const inp = Number(p.inputPer1M ?? 0);
   const out = Number(p.outputPer1M ?? 0);
   return inp === 0 && out === 0
     ? "Free"
-    : `¥${(inp * rate).toFixed(2)} / ¥${(out * rate).toFixed(2)}`;
+    : `${formatCNY(inp, rate, 2)} / ${formatCNY(out, rate, 2)}`;
 }
 
 // ============================================================

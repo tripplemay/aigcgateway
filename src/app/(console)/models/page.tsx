@@ -4,6 +4,7 @@ import { useTranslations } from "next-intl";
 import { useAsyncData } from "@/hooks/use-async-data";
 import { SearchBar } from "@/components/search-bar";
 import { useExchangeRate } from "@/hooks/use-exchange-rate";
+import { formatCNY } from "@/lib/utils";
 
 // ============================================================
 // Types & helpers
@@ -64,14 +65,14 @@ function fmtPriceSplit(
   if (p.unit === "call") {
     const v = Number(p.per_call ?? 0);
     if (v === 0) return null;
-    return { input: `¥${(v * rate).toFixed(2)}`, output: "" };
+    return { input: formatCNY(v, rate, 2), output: "" };
   }
   const inp = Number(p.input_per_1m ?? 0);
   const out = Number(p.output_per_1m ?? 0);
   if (inp === 0 && out === 0) return null;
   return {
-    input: `¥${(inp * rate).toFixed(2)}`,
-    output: `¥${(out * rate).toFixed(2)}`,
+    input: formatCNY(inp, rate, 2),
+    output: formatCNY(out, rate, 2),
   };
 }
 
