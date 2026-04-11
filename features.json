@@ -60,11 +60,11 @@
     },
     {
       "id": "F-DQ2-08",
-      "title": "Admin 服务商 Adapter 下拉框补全",
-      "priority": "low",
+      "title": "添加服务商体验优化（Adapter 预填充 + 布局调整）",
+      "priority": "medium",
       "executor": "generator",
       "status": "pending",
-      "acceptance": "1) /admin/providers 创建/编辑服务商时，adapter 类型下拉框包含所有已注册的 adapter（从 ADAPTERS map 或硬编码完整列表）；2) 至少包含 openai-compat/volcengine/siliconflow/openai/anthropic/deepseek/zhipu/openrouter/minimax/moonshot/qwen/stepfun；3) tsc 通过"
+      "acceptance": "1) 添加服务商弹窗布局调整：第一步选择适配器，选择后自动填充 displayName、baseUrl、authType、ProviderConfig（supportsModelsApi 等）；2) 管理员只需填写 API Key（唯一必填项）；3) 已填充字段可覆盖修改（高级用户场景）；4) 适配器下拉框包含所有 11 家已注册 adapter；5) 预填充数据覆盖：openai(api.openai.com/v1)/anthropic(api.anthropic.com/v1)/deepseek(api.deepseek.com/v1)/zhipu(open.bigmodel.cn/api/paas/v4)/volcengine(留空,需手动填)/siliconflow(api.siliconflow.cn/v1)/openrouter(openrouter.ai/api/v1)/minimax(api.minimax.io/v1)/moonshot(api.moonshot.cn/v1)/qwen(dashscope.aliyuncs.com/compatible-mode/v1)/stepfun(api.stepfun.com/v1)；6) tsc 通过"
     },
     {
       "id": "F-DQ2-09",
@@ -72,7 +72,7 @@
       "priority": "high",
       "executor": "codex",
       "status": "pending",
-      "acceptance": "1) capabilities 统一验证（无 image_input，有 reasoning/search）；2) 参考定价按钮可用，回填 CNY 定价正确；3) 全站金额显示统一为 ¥，无遗漏的 USD 展示；4) 充值 CNY 输入后余额正确增加；5) 汇率配置可修改生效；6) 签收报告生成"
+      "acceptance": "1) capabilities 统一验证（无 image_input，有 reasoning/search）；2) 参考定价按钮可用，回填 CNY 定价正确；3) 全站金额显示统一为 ¥，无遗漏的 USD 展示；4) 充值 CNY 输入后余额正确增加；5) 汇率配置可修改生效；6) 添加服务商选择 adapter 后自动填充信息正确，仅需填 API Key；7) 签收报告生成"
     }
   ]
 }
