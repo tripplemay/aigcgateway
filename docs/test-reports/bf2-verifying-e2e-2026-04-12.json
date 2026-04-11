@@ -1,0 +1,49 @@
+{
+  "batch": "BF2-bugfix-round",
+  "executedAt": "2026-04-11T13:50:26.137Z",
+  "baseUrl": "http://localhost:3099",
+  "pass": 8,
+  "fail": 0,
+  "steps": [
+    {
+      "id": "F-BF2-01-suggest-apply-and-model-price",
+      "ok": true,
+      "detail": "singleSet=true noDoubleSet=true v1PriceOk=true"
+    },
+    {
+      "id": "F-BF2-02-thousand-separator-click-edit",
+      "ok": true,
+      "detail": "clickEditWithLocale=true"
+    },
+    {
+      "id": "F-BF2-03-fallback-placeholder",
+      "ok": true,
+      "detail": "fallbackApi=true placeholder=true fallbackData=true"
+    },
+    {
+      "id": "F-BF2-04-classifier-version-rule",
+      "ok": true,
+      "detail": "generationRule=true cleanupScript=true"
+    },
+    {
+      "id": "F-BF2-05-minimax-sync",
+      "ok": true,
+      "detail": "minimaxModelCount=4 minimaxApiModels=4"
+    },
+    {
+      "id": "F-BF2-06-layer1-warning-visible",
+      "ok": true,
+      "detail": "warningInData=true warningUi=true errorVisibleUi=true badProvider={\"providerName\":\"openai\",\"success\":false,\"apiModels\":0,\"aiEnriched\":0,\"overrides\":0,\"newModels\":[],\"newChannels\":[],\"disabledChannels\":[],\"modelCount\":0,\"error\":\"API fetch failed: OpenAI /models returned 401\",\"warning\":\"fetchModels failed, existing 1 channels preserved\"}"
+    },
+    {
+      "id": "F-BF2-07-engine-type-label",
+      "ok": true,
+      "detail": "labelBinding=true zh=true en=true"
+    },
+    {
+      "id": "F-BF2-tsc",
+      "ok": true,
+      "detail": "exit=0 stderr="
+    }
+  ]
+}

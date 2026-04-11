@@ -55,7 +55,7 @@
       "title": "BF2 全量验收",
       "priority": "high",
       "executor": "codex",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) 参考定价 input+output 均正确回填且 Models 页显示定价；2) contextWindow/maxTokens 显示千位分隔符；3) 定价输入框 placeholder 显示渠道生效价格；4) LLM 分类不再将不同代际归入同一别名；5) MiniMax sync 返回模型；6) Layer 1 失败时 sync 面板显示 WARNING；7) '引擎类型'标签正确；8) 签收报告生成"
     }
   ]
