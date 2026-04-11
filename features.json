@@ -7,7 +7,7 @@
       "title": "MiniMax Sync Adapter",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) src/lib/sync/adapters/minimax.ts 存在，实现 SyncAdapter 接口；2) filterModel 过滤非 chat 模型；3) 已在 model-sync.ts ADAPTERS map 中注册；4) tsc 通过"
     },
     {
@@ -15,7 +15,7 @@
       "title": "Moonshot/Kimi Sync Adapter",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) src/lib/sync/adapters/moonshot.ts 存在，实现 SyncAdapter 接口；2) filterModel 过滤非 chat 模型；3) 已在 model-sync.ts ADAPTERS map 中注册；4) tsc 通过"
     },
     {
@@ -23,7 +23,7 @@
       "title": "阿里云百炼/Qwen Sync Adapter",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) src/lib/sync/adapters/qwen.ts 存在，实现 SyncAdapter 接口；2) filterModel 过滤非 chat 模型；3) 已在 model-sync.ts ADAPTERS map 中注册；4) tsc 通过"
     },
     {
@@ -31,7 +31,7 @@
       "title": "阶跃星辰/StepFun Sync Adapter",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) src/lib/sync/adapters/stepfun.ts 存在，实现 SyncAdapter 接口；2) filterModel 过滤非 chat 模型；3) 已在 model-sync.ts ADAPTERS map 中注册；4) tsc 通过"
     },
     {
@@ -39,7 +39,7 @@
       "title": "4 家服务商 Seed 脚本",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) seed 脚本可为 4 家服务商创建 Provider + ProviderConfig 记录；2) API Key 留空（管理员在 UI 填入）；3) supportsModelsApi=true；4) 脚本可重复执行（upsert）；5) tsc 通过"
     },
     {

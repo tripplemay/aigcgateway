@@ -1,11 +1,11 @@
 {
-  "status": "building",
+  "status": "verifying",
   "user_goal": "P6 — 国产服务商扩展（MiniMax / Moonshot / Qwen / StepFun 4 家接入）",
   "total_features": 6,
-  "completed_features": 0,
+  "completed_features": 5,
   "fix_rounds": 0,
   "current_sprint": null,
-  "last_updated": "2026-04-11T11:00:00Z",
+  "last_updated": "2026-04-11T12:00:00Z",
   "reference_docs": ["docs/specs/P6-providers-expansion-spec.md"],
   "role_assignments": null,
   "docs": {
@@ -17,7 +17,7 @@
   "evaluator_feedback": null,
   "generator_handoff": null,
   "session_notes": {
-    "Kimi": "Planner 完成 P6 规划：4 家国产服务商（腾讯混元取消），6 条功能（4 adapter + 1 seed + 1 验收）。全部 OpenAI 兼容，复用 openai-compat 引擎。Generator 需写 seed 脚本创建 Provider 记录。",
+    "Kimi": "Generator 完成 P6 全部 5 条功能。4 个 sync adapter（minimax/moonshot/qwen/stepfun）按 zhipu 模式创建，已注册到 model-sync.ts ADAPTERS map。seed.ts 追加 4 家 Provider+ProviderConfig（upsert，API Key 留空）。tsc 通过。",
     "Reviewer": null
   }
 }

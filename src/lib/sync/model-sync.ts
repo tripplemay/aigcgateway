@@ -33,6 +33,10 @@ import { zhipuAdapter } from "./adapters/zhipu";
 import { volcengineAdapter } from "./adapters/volcengine";
 import { siliconflowAdapter } from "./adapters/siliconflow";
 import { openrouterAdapter } from "./adapters/openrouter";
+import { minimaxAdapter } from "./adapters/minimax";
+import { moonshotAdapter } from "./adapters/moonshot";
+import { qwenAdapter } from "./adapters/qwen";
+import { stepfunAdapter } from "./adapters/stepfun";
 // model-whitelist.ts removed — whitelist now managed via Model.enabled in DB
 
 // ── 并发保护 ──
@@ -46,6 +50,10 @@ const ADAPTERS: Record<string, SyncAdapter> = {
   volcengine: volcengineAdapter,
   siliconflow: siliconflowAdapter,
   openrouter: openrouterAdapter,
+  minimax: minimaxAdapter,
+  moonshot: moonshotAdapter,
+  qwen: qwenAdapter,
+  stepfun: stepfunAdapter,
 };
 
 // ============================================================
