@@ -31,7 +31,10 @@
       "description": "1) 运维面板推断结果加状态提示条：全为 0 显示'数据已最新'，有更新显示成功摘要，有跳过显示警告，有错误显示红色提示；2) 新增 SystemLog 表记录运维操作（Sync/LLM 推断/健康检查状态变更/自动恢复）；3) /admin/logs 页面新增'系统日志' tab（与现有 API 调用 tab 并列）展示 SystemLog。",
       "decisions": [
         "系统日志不单独页面，在审计日志页加 tab",
-        "推断结果根据不同场景显示不同颜色提示条"
+        "推断结果根据不同场景显示不同颜色提示条",
+        "推断进度实时反馈：方案 A 轮询（进度写 Redis，前端每 3 秒轮询）",
+        "模型同步也增加前台进度显示（逐服务商报告，和推断进度共用同一套组件）",
+        "创建 Provider 时自动创建 ProviderConfig（当前 POST API 不会创建，导致 staticModels 无处配置）"
       ],
       "confirmed_at": "2026-04-10",
       "priority": "medium"
@@ -157,7 +160,9 @@
       "fix_items": [
         "resolveCanonicalName 或 reconcile 阶段增加大小写归一化（统一小写）",
         "数据清理脚本：合并大小写重复模型（GLM-5→glm-5, GLM-5-Turbo→glm-5-turbo, GLM-5.1→glm-5.1 等），迁移 Channel 和 AliasModelLink 到小写 Model，删除大写 Model 记录",
-        "doc-enricher 返回的 modelId 也需要统一小写，防止后续再产生大写记录"
+        "doc-enricher 返回的 modelId 也需要统一小写，防止后续再产生大写记录",
+        "alias-classifier 批次大小从 30 减小到 15（生产验证 30 个模型的 prompt 导致 DeepSeek 60 秒超时）",
+        "管理员修改别名定价或切换 enabled 状态后，主动清除 /api/v1/models 的 Redis 缓存（当前 TTL 120 秒，导致更新延迟 2 分钟才生效）"
       ]
     }
   ]

@@ -1,29 +1,23 @@
 {
-  "status": "done",
-  "user_goal": "BF2 — Bug 修复轮（参考定价/千位分隔符/生效价格/LLM分类/MiniMax sync/标签混淆）",
-  "total_features": 7,
-  "completed_features": 7,
+  "status": "building",
+  "user_goal": "ADMIN-OPS+ — 运维增强（进度显示/系统日志/ProviderConfig）+ 文档更新 + 项目切换 + 数据质量修复",
+  "total_features": 10,
+  "completed_features": 0,
   "fix_rounds": 0,
   "current_sprint": null,
-  "last_updated": "2026-04-11T13:50:50.793Z",
+  "last_updated": "2026-04-12T10:00:00Z",
   "reference_docs": [],
   "role_assignments": null,
   "docs": {
     "spec": null,
     "test_cases": null,
-    "signoff": "docs/test-reports/bf2-bugfix-round-signoff-2026-04-11.md",
+    "signoff": null,
     "framework_reviewed": false
   },
-  "evaluator_feedback": {
-    "summary": "BF2 首轮验收通过：8/8 PASS（含 tsc），已签收。",
-    "pass_count": 8,
-    "partial_count": 0,
-    "fail_count": 0,
-    "issues": []
-  },
-  "generator_handoff": "BF2 全部 6 个 generator 功能已实现完成，tsc 通过。数据修复脚本 2 个（fix-alias-sell-price-unit.ts, fix-alias-mislinked-models.ts）需在生产环境执行。MiniMax adapter 已加 staticModels fallback。",
+  "evaluator_feedback": null,
+  "generator_handoff": null,
   "session_notes": {
-    "Kimi": "Planner 完成 BF2 收尾。注意：生产环境需执行 2 个数据修复脚本（fix-alias-sell-price-unit.ts, fix-alias-mislinked-models.ts）。BL-109（大小写归一化）未包含在 BF2 中，归入下一批次。",
-    "Reviewer": "2026-04-11 BF2 verifying：执行 scripts/test/bf2-verifying-e2e-2026-04-12.ts，8/8 PASS，已生成 signoff 并置 done。"
+    "Kimi": "Planner 启动 ADMIN-OPS+：10 条功能。BL-101 运维增强（4 条：提示条+SystemLog+进度显示+自动创建 ProviderConfig）+ BL-090 文档更新（1 条）+ BL-104 项目切换（1 条）+ BL-109 数据质量（3 条：大小写归一化+classifier 批次减小+Redis 缓存清除）+ 验收（1 条）。BL-099 延后。",
+    "Reviewer": null
   }
 }
