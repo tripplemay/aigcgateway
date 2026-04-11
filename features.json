@@ -23,7 +23,7 @@
       "title": "限流回滚逻辑修复（BL-072）",
       "priority": "medium",
       "executor": "generator",
-      "status": "done",
+      "status": "pending",
       "acceptance": "1) 请求失败时限流计数正确回滚（不污染后续窗口）；2) 回滚不会误删同秒其他请求的计数；3) pipeline.exec() 调用完整；4) tsc 通过"
     },
     {
@@ -39,7 +39,7 @@
       "title": "大数字千位分隔符（BL-103）",
       "priority": "low",
       "executor": "generator",
-      "status": "done",
+      "status": "pending",
       "acceptance": "1) admin/model-aliases contextWindow/maxTokens、models context_window、dashboard avgLatencyMs、usage avgLatencyMs、logs latencyMs、admin/logs promptTokens/completionTokens、admin/health avgLatency、settings callCount 均使用 toLocaleString() 格式化；2) 不影响排序和筛选逻辑；3) tsc 通过"
     },
     {

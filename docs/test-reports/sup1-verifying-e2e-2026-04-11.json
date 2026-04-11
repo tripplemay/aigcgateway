@@ -1,0 +1,54 @@
+{
+  "batch": "SUP1-security-ui-polish",
+  "executedAt": "2026-04-11T01:54:16.816Z",
+  "baseUrl": "http://localhost:3099",
+  "pass": 7,
+  "fail": 2,
+  "steps": [
+    {
+      "id": "F-SUP1-06-duplicate-project-409",
+      "ok": true,
+      "detail": "first=201, second=409, code=conflict"
+    },
+    {
+      "id": "F-SUP1-01-email-token-validation",
+      "ok": true,
+      "detail": "missing=400, invalid=400, valid=200, reused=400, expired=400"
+    },
+    {
+      "id": "F-SUP1-02-jwt-secret-guard",
+      "ok": true,
+      "detail": "short=[exit=7 output=ERR:Environment variable validation failed:\n  JWT_SECRET: JWT_SECRET must be at least 16 characters] normal=[exit=0 output=OK:eyJhbGciOiJI]"
+    },
+    {
+      "id": "F-SUP1-03-rate-limit-rollback-chat",
+      "ok": true,
+      "detail": "first=404 second=404"
+    },
+    {
+      "id": "F-SUP1-03-rate-limit-rollback-image",
+      "ok": true,
+      "detail": "first=404 second=404 (image)"
+    },
+    {
+      "id": "F-SUP1-03-rate-limit-rollback-action",
+      "ok": true,
+      "detail": "first=404 second=404"
+    },
+    {
+      "id": "F-SUP1-03-rate-limit-rollback-template",
+      "ok": false,
+      "detail": "first=404 second=429"
+    },
+    {
+      "id": "F-SUP1-04-ui-cleanup-static-check",
+      "ok": true,
+      "detail": "all static checks passed"
+    },
+    {
+      "id": "F-SUP1-05-thousand-separator-static-check",
+      "ok": false,
+      "detail": "src/app/(console)/admin/model-aliases/page.tsx missing 'toLocaleString()' | src/app/(console)/models/page.tsx missing 'toLocaleString()'"
+    }
+  ]
+}

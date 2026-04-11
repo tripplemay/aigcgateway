@@ -4,7 +4,7 @@
 
 export DATABASE_URL="postgresql://test:test@localhost:5432/aigc_gateway_test"
 export REDIS_URL="redis://localhost:6379/0"
-export JWT_SECRET="test-jwt-secret"
+export JWT_SECRET="test-jwt-secret-2026"
 export JWT_EXPIRES_IN="7d"
 export EXCHANGE_RATE_CNY_TO_USD="0.137"
 export DEFAULT_MARKUP_RATIO="1.2"
