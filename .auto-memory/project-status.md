@@ -4,9 +4,9 @@ description: AIGC Gateway 当前状态快照（覆盖写，≤30 行）
 type: project
 ---
 ## 当前批次
-- DQ2-alias-quality-pricing：`verifying`（8/8 generator done，待 Evaluator 验收）
-- BL-102: capabilities 统一 + supportedSizes + 一次性修正
-- BL-107: 参考定价 + 全站人民币显示 + 汇率配置 + 服务商预填充
+- DQ2-alias-quality-pricing：`fixing`（verifying: 6 PASS / 1 FAIL）
+- 待修复：F-DQ2-07（`/models`、`/admin/models` 未统一使用 `formatCNY`）
+- 复验入口：修复后由 Codex 执行 `reverifying`（F-DQ2-09）
 
 ## 已完成批次
 - R1~R4 / P5 / M1a~M1d / BF / K1 / U1 / L1 / MCP2 / A1 / T1 / N1 / O1 / CI1 / SUP1 / P6

@@ -55,7 +55,7 @@
       "title": "全站人民币显示 — 日志+Models+Admin（BL-107）",
       "priority": "medium",
       "executor": "generator",
-      "status": "done",
+      "status": "pending",
       "acceptance": "1) /logs 和 /admin/logs 中 costPrice/sellPrice 显示 CNY；2) /models 页定价显示 CNY；3) /admin/providers 和 /admin/models 定价相关字段显示 CNY；4) i18n 文案 USD→CNY 已更新（中英文）；5) tsc 通过"
     },
     {

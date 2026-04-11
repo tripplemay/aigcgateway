@@ -1,0 +1,44 @@
+{
+  "batch": "DQ2-alias-quality-pricing",
+  "executedAt": "2026-04-11T10:34:26.515Z",
+  "baseUrl": "http://localhost:3099",
+  "pass": 6,
+  "fail": 1,
+  "steps": [
+    {
+      "id": "F-DQ2-01-capabilities-unified-static",
+      "ok": true,
+      "detail": "reasoning=true search=true image_input_in_keys=false"
+    },
+    {
+      "id": "F-DQ2-05-suggest-price-endpoint",
+      "ok": true,
+      "detail": "first=200 candidates=5 second=200 bound=true"
+    },
+    {
+      "id": "F-DQ2-04-exchange-rate-config",
+      "ok": true,
+      "detail": "set=6.6604 got=6.6604"
+    },
+    {
+      "id": "F-DQ2-06-recharge-cny-conversion",
+      "ok": true,
+      "detail": "cny_to_usd=true yen_ui=true stored_usd=10.5"
+    },
+    {
+      "id": "F-DQ2-07-cny-display-static",
+      "ok": false,
+      "detail": "src/app/(console)/models/page.tsx:missing formatCNY | src/app/(console)/admin/models/page.tsx:missing formatCNY"
+    },
+    {
+      "id": "F-DQ2-08-provider-prefill",
+      "ok": true,
+      "detail": "missingAdapters=none baseUrlsOk=true"
+    },
+    {
+      "id": "F-DQ2-tsc",
+      "ok": true,
+      "detail": "exit=0 stderr="
+    }
+  ]
+}
