@@ -78,13 +78,13 @@ P1 月度基础设施成本估算：**¥1,900-2,500/月**
 
 ## 3. 代理架构
 
-7家首批服务商中，3家需要代理（OpenAI、Claude、OpenRouter），4家国内直连。
+11家服务商中，3家需要代理（OpenAI、Claude、OpenRouter），8家国内直连。
 
 ### 3.1 代理方案
 
 ```
 API 实例 ──→ 代理节点（香港） ──→ OpenAI / Claude / OpenRouter
-         └─→ 直连 ────────────→ DeepSeek / 智谱 / 火山 / 硅基
+         └─→ 直连 ────────────→ DeepSeek / 智谱 / 火山 / 硅基 / MiniMax / Moonshot / Qwen / StepFun
 ```
 
 **代理实现方式：**

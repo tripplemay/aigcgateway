@@ -40,8 +40,18 @@ MCP is not a separate service — it's a route handler inside the same Next.js a
 - `config-overlay.ts` — Runtime parameter adjustment per ProviderConfig (temperature clamp, quirks-based param removal)
 - `adapters/volcengine.ts` — Image via chat fallback + multi-size retry
 - `adapters/siliconflow.ts` — Image response format conversion
-- `router.ts` — Model name → best ACTIVE channel (priority ASC)
+- `router.ts` — Alias name → ModelAlias → linked Models → best ACTIVE channel (priority ASC)
 - `sse-parser.ts` — SSE stream parsing with buffer, comment ignoring, [DONE]
+
+## Model Alias Architecture (`ModelAlias` + `AliasModelLink`)
+
+Users access models through aliases (e.g. `gpt-4o`, `deepseek-v3`), not raw provider model names.
+
+- `ModelAlias` holds: alias name, brand, modality, capabilities, sellPrice (user-facing pricing in USD), contextWindow, openRouterModelId (reference pricing mapping)
+- `AliasModelLink` — M:N join between aliases and models. One alias can have multiple models from different providers (routing/fallback). One model can belong to multiple aliases.
+- Pricing priority: `ModelAlias.sellPrice` (if set) → fallback to best Channel's `sellPrice`
+- `alias-classifier.ts` — LLM-powered auto-classification of new models into aliases after sync
+- Frontend displays all prices in CNY (converted from USD via configurable exchange rate)
 
 ## Auth: Two Systems
 
@@ -49,11 +59,14 @@ MCP is not a separate service — it's a route handler inside the same Next.js a
 2. **JWT auth** (`jwt-middleware.ts`) — For `/api/projects/*` and `/api/admin/*`. `Authorization: Bearer <JWT>` with `{ userId, role }`
 3. **Admin guard** (`admin-guard.ts`) — JWT + `role === "ADMIN"` check
 
-## Health Check System (`src/lib/health/`)
+## Health Check System V2 (`src/lib/health/`)
 
-- Three-level verification: L1 (connectivity) → L2 (format) → L3 (quality)
+- Four check levels: `API_REACHABILITY` (zero-cost /models probe) → `CONNECTIVITY` (real chat request) → `FORMAT` → `QUALITY`
+- **Alias-aware scheduling**: channels in enabled aliases get full 3-level checks (10min); channels not in any alias get API_REACHABILITY only (10min); DISABLED channels check every 30min
+- Image channels always use API_REACHABILITY only (real image generation too costly)
+- **Instant trigger**: when a channel is linked to an enabled alias, check fires immediately
 - Auto-degradation: fail → retry → DEGRADED → 3 consecutive fails → DISABLED
-- Recovery: DISABLED channel passes all 3 levels → back to ACTIVE
+- Recovery: DISABLED channel passes check → back to ACTIVE
 - Started via `src/instrumentation.ts` (Next.js instrumentation hook)
 
 ## i18n (`src/messages/` + `src/hooks/use-locale.ts`)
