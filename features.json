@@ -71,7 +71,7 @@
       "title": "DQ2 全量验收",
       "priority": "high",
       "executor": "codex",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) capabilities 统一验证（无 image_input，有 reasoning/search）；2) 参考定价按钮可用，回填 CNY 定价正确；3) 全站金额显示统一为 ¥，无遗漏的 USD 展示；4) 充值 CNY 输入后余额正确增加；5) 汇率配置可修改生效；6) 添加服务商选择 adapter 后自动填充信息正确，仅需填 API Key；7) 签收报告生成"
     }
   ]

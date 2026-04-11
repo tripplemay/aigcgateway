@@ -1,9 +1,9 @@
 {
   "batch": "DQ2-alias-quality-pricing",
-  "executedAt": "2026-04-11T10:34:26.515Z",
+  "executedAt": "2026-04-11T10:47:07.138Z",
   "baseUrl": "http://localhost:3099",
-  "pass": 6,
-  "fail": 1,
+  "pass": 7,
+  "fail": 0,
   "steps": [
     {
       "id": "F-DQ2-01-capabilities-unified-static",
@@ -18,7 +18,7 @@
     {
       "id": "F-DQ2-04-exchange-rate-config",
       "ok": true,
-      "detail": "set=6.6604 got=6.6604"
+      "detail": "set=6.8425 got=6.8425"
     },
     {
       "id": "F-DQ2-06-recharge-cny-conversion",
@@ -27,8 +27,8 @@
     },
     {
       "id": "F-DQ2-07-cny-display-static",
-      "ok": false,
-      "detail": "src/app/(console)/models/page.tsx:missing formatCNY | src/app/(console)/admin/models/page.tsx:missing formatCNY"
+      "ok": true,
+      "detail": "target pages use formatCNY"
     },
     {
       "id": "F-DQ2-08-provider-prefill",

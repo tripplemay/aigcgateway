@@ -1,11 +1,11 @@
 {
-  "status": "reverifying",
+  "status": "done",
   "user_goal": "DQ2 — 别名数据质量二期（capabilities/supportedSizes 统一）+ 定价体系（OpenRouter 参考定价 + 全站人民币显示）",
   "total_features": 9,
-  "completed_features": 8,
+  "completed_features": 9,
   "fix_rounds": 1,
   "current_sprint": null,
-  "last_updated": "2026-04-11T10:36:24.973Z",
+  "last_updated": "2026-04-11T10:47:34.324Z",
   "reference_docs": [
     "docs/specs/DQ2-alias-quality-pricing-spec.md"
   ],
@@ -13,26 +13,19 @@
   "docs": {
     "spec": "docs/specs/DQ2-alias-quality-pricing-spec.md",
     "test_cases": null,
-    "signoff": null,
+    "signoff": "docs/test-reports/dq2-alias-quality-pricing-signoff-2026-04-11.md",
     "framework_reviewed": false
   },
   "evaluator_feedback": {
-    "summary": "DQ2 首轮验收 7 项中 6 项通过，1 项失败：/models 与 /admin/models 未统一使用 formatCNY，存在定价展示实现不一致。",
-    "pass_count": 6,
+    "summary": "DQ2 复验通过：7/7 PASS，准入 done。",
+    "pass_count": 7,
     "partial_count": 0,
-    "fail_count": 1,
-    "issues": [
-      {
-        "feature_id": "F-DQ2-07",
-        "result": "FAIL",
-        "description": "全站人民币显示未完全统一：`src/app/(console)/models/page.tsx` 与 `src/app/(console)/admin/models/page.tsx` 仍为页面内自定义汇率换算格式化，未落到统一 `formatCNY`。",
-        "steps_to_reproduce": "1. 打开上述两个页面源码；2. 搜索 `formatCNY` 为空；3. 观察价格由 `fmtPriceSplit/fmtPrice` 本地拼接 `¥` 与乘汇率实现。"
-      }
-    ]
+    "fail_count": 0,
+    "issues": []
   },
   "generator_handoff": null,
   "session_notes": {
     "Kimi": "Fix round 1: models/page.tsx 和 admin/models/page.tsx 的 fmtPriceSplit/fmtPrice 内部改为调用 formatCNY（import 补齐），不再手动拼接 ¥ 和乘汇率。tsc 通过。",
-    "Reviewer": "2026-04-11 首轮 DQ2 验收：执行 scripts/test/dq2-verifying-e2e-2026-04-11.ts，7 项中 6 PASS、1 FAIL（F-DQ2-07：models/admin-models 未统一 formatCNY）。已将状态置为 fixing，等待 generator 修复后 reverifying。"
+    "Reviewer": "2026-04-11 reverifying：重跑 DQ2 验收脚本 7/7 PASS，已生成 signoff 并置 done。"
   }
 }
