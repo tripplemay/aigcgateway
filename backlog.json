@@ -80,6 +80,34 @@
       "decisions": [],
       "confirmed_at": "2026-04-10",
       "priority": "medium"
+    },
+    {
+      "id": "BL-106",
+      "title": "国产服务商扩展（5 家：MiniMax/Moonshot/Qwen/StepFun/Hunyuan）",
+      "description": "新增 5 家国产 AI 服务商接入，全部 OpenAI 兼容，复用 openai-compat 引擎，仅需 Sync Adapter + 注册。Tier1: 1) MiniMax（api.minimax.io/v1，M2.7 等 7 模型）；2) 月之暗面 Moonshot/Kimi（api.moonshot.cn/v1，K2.5 等）；3) 阿里云百炼 Qwen（dashscope.aliyuncs.com/compatible-mode/v1，Qwen3 系列）。Tier2: 4) 阶跃星辰 StepFun（api.stepfun.com/v1，Step 3.5 等）；5) 腾讯混元 Hunyuan（OpenAI 兼容层）。每家约 35 行 adapter 代码，总计 ~170 行，互不依赖。",
+      "decisions": [
+        "全部复用 openai-compat 引擎，不写自定义 Engine Adapter",
+        "Tier 1 + Tier 2 合为一个批次"
+      ],
+      "confirmed_at": "2026-04-11",
+      "priority": "medium"
+    },
+    {
+      "id": "BL-107",
+      "title": "别名参考定价 + 前端人民币显示（OpenRouter 映射 + 汇率配置）",
+      "description": "两部分功能：A) 参考定价——在别名管理页为每个别名增加「参考定价」按钮。流程：1) 点击按钮实时请求 OpenRouter 公开 API /api/v1/models；2) 按别名模糊搜索推荐 3-5 个候选模型（下拉框）；3) 管理员选择正确模型；4) 回填定价到输入框（USD→CNY 自动换算）；5) 管理员可调整后保存；6) 映射关系存入 ModelAlias.openRouterModelId，后续一键更新。B) 前端人民币显示——所有页面价格展示由 USD 改为 CNY（数据库仍存 USD，仅展示层换算）。汇率硬编码默认值 7.3，管理员可在 Settings 页面修改。",
+      "decisions": [
+        "不做全自动定价，管理员保持最终控制权",
+        "实时调 OpenRouter 公开 API（无需 API Key），不依赖本地 OpenRouter 渠道数据",
+        "首次需管理员选择匹配模型，存储映射后后续一键更新",
+        "需新增 ModelAlias.openRouterModelId 字段（schema 变更）",
+        "数据库存储仍为 USD，前端全程使用 CNY（展示和输入均为人民币）",
+        "定价输入框显示/编辑 CNY 值，保存时 ÷ 汇率存 USD，读取时 × 汇率显示 CNY",
+        "参考定价按钮回填时自动 USD→CNY 换算，管理员全程不接触美元数字",
+        "汇率硬编码默认 7.3，管理员可在 Settings 修改，不做实时汇率 API"
+      ],
+      "confirmed_at": "2026-04-11",
+      "priority": "medium"
     }
   ]
 }

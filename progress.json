@@ -23,7 +23,7 @@
   },
   "generator_handoff": null,
   "session_notes": {
-    "Kimi": "Fix round 1 完成。F-SUP1-03: templates/run 的 template-not-found 404 场景补充了 rollbackRateLimit 调用。F-SUP1-05: admin/model-aliases contextWindow/maxTokens 在 label 旁加格式化显示；models context_window 改为 toLocaleString() 替代 formatContext()。tsc 通过。",
+    "Kimi": "Planner 完成 SUP1 收尾。本会话还完成：1) 全站前端审计扩展 BL-105 至 10 处；2) 国产服务商调研，新增 BL-106（5家：MiniMax/Moonshot/Qwen/StepFun/Hunyuan）；3) 设计 BL-107 别名参考定价+人民币显示方案（OpenRouter 映射+管理员手动触发+输入框全程CNY+汇率可配置）。后续批次规划：P6→ADMIN-OPS→DQ2→DOCS→INSIGHTS。",
     "Reviewer": "reverifying 已完成。按 harness 复跑 scripts/test/sup1-verifying-e2e-2026-04-11.ts，结果 9/9 PASS（含 F-SUP1-03 模板回滚与 F-SUP1-05 千位分隔符修复验证）。已生成 signoff: docs/test-reports/sup1-security-ui-polish-signoff-2026-04-11.md，并将 progress status 更新为 done。"
   }
 }
