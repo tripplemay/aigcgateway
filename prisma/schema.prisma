@@ -527,6 +527,36 @@ model TemplateStep {
 }
 
 // ============================================================
+// 系统日志
+// ============================================================
+
+enum SystemLogCategory {
+  SYNC
+  INFERENCE
+  HEALTH_CHECK
+  AUTO_RECOVERY
+}
+
+enum SystemLogLevel {
+  INFO
+  WARN
+  ERROR
+}
+
+model SystemLog {
+  id        String            @id @default(cuid())
+  category  SystemLogCategory
+  level     SystemLogLevel    @default(INFO)
+  message   String
+  detail    Json?
+  createdAt DateTime          @default(now())
+
+  @@index([category])
+  @@index([createdAt])
+  @@map("system_logs")
+}
+
+// ============================================================
 // 系统配置
 // ============================================================
 

@@ -268,6 +268,29 @@ export default function SettingsPage() {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Left: Project Info */}
             <div className="lg:col-span-2 space-y-8">
+              {/* Project Selector */}
+              {projects.length > 1 && (
+                <div className="flex items-center gap-3">
+                  <label className="text-xs font-bold uppercase tracking-wider text-ds-on-surface-variant">
+                    {t("selectProject")}
+                  </label>
+                  <select
+                    value={current.id}
+                    onChange={(e) => {
+                      select(e.target.value);
+                      setProjInitialized(false);
+                    }}
+                    className="bg-ds-surface-container-low border-none rounded-lg px-4 py-2 text-sm font-medium focus:ring-2 focus:ring-ds-primary/20 outline-none"
+                  >
+                    {projects.map((p) => (
+                      <option key={p.id} value={p.id}>
+                        {p.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
+
               <section className="bg-ds-surface-container-lowest rounded-xl p-8 shadow-sm">
                 <div className="flex items-center gap-4 mb-8">
                   <div className="w-12 h-12 rounded-xl bg-indigo-50 flex items-center justify-center text-ds-primary">

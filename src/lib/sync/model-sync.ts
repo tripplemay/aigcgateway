@@ -23,6 +23,7 @@ import type {
 } from "./adapters/base";
 
 import { enrichFromDocs } from "./doc-enricher";
+import { getRedis } from "@/lib/redis";
 import type { ModelModality, Prisma } from "@prisma/client";
 
 // ── 适配器注册表 ──
@@ -173,7 +174,7 @@ function applyOverrides(
  * 后续 M1b 的 LLM 分类推断会在 sync 后自动挂载模型到别名。
  */
 async function resolveCanonicalName(modelId: string): Promise<string> {
-  return modelId;
+  return modelId.toLowerCase();
 }
 
 // ============================================================
@@ -436,11 +437,35 @@ export async function runModelSync(): Promise<SyncResult> {
       include: { config: true },
     });
 
+    // Write initial sync progress to Redis
+    const progressRedis = getRedis();
+    const totalProviders = providers.length;
+    if (progressRedis) {
+      await progressRedis
+        .set(
+          "sync:progress",
+          JSON.stringify({
+            status: "running",
+            total: totalProviders,
+            completed: 0,
+            providers: providers.map((p) => ({
+              name: p.name,
+              status: "pending",
+            })),
+          }),
+          "EX",
+          300,
+        )
+        .catch(() => {});
+    }
+
+    let completedCount = 0;
+
     // 并行同步所有 provider（各 provider 独立，互不阻塞）
     const syncTasks = providers.map((provider) => {
       const adapter = ADAPTERS[provider.name];
       if (!adapter) {
-        return Promise.resolve({
+        const noAdapterResult: ProviderSyncResult = {
           providerName: provider.name,
           success: false,
           error: `No sync adapter found for provider "${provider.name}"`,
@@ -451,9 +476,48 @@ export async function runModelSync(): Promise<SyncResult> {
           newChannels: [],
           disabledChannels: [],
           modelCount: 0,
-        } as ProviderSyncResult);
+        };
+        completedCount++;
+        if (progressRedis) {
+          progressRedis
+            .set(
+              "sync:progress",
+              JSON.stringify({
+                status: "running",
+                total: totalProviders,
+                completed: completedCount,
+                providers: providers.map((p) => ({
+                  name: p.name,
+                  status:
+                    p.name === provider.name ? "error" : completedCount > 0 ? "done" : "pending",
+                })),
+              }),
+              "EX",
+              300,
+            )
+            .catch(() => {});
+        }
+        return Promise.resolve(noAdapterResult);
       }
-      return syncProvider(provider, adapter, markupRatio);
+      return syncProvider(provider, adapter, markupRatio).then((res) => {
+        completedCount++;
+        if (progressRedis) {
+          progressRedis
+            .set(
+              "sync:progress",
+              JSON.stringify({
+                status: "running",
+                total: totalProviders,
+                completed: completedCount,
+                currentProvider: provider.name,
+              }),
+              "EX",
+              300,
+            )
+            .catch(() => {});
+        }
+        return res;
+      });
     });
 
     const settled = await Promise.allSettled(syncTasks);
@@ -515,6 +579,18 @@ export async function runModelSync(): Promise<SyncResult> {
       },
     };
 
+    // Mark sync progress as done
+    if (progressRedis) {
+      await progressRedis
+        .set(
+          "sync:progress",
+          JSON.stringify({ status: "done", total: totalProviders, completed: totalProviders }),
+          "EX",
+          60,
+        )
+        .catch(() => {});
+    }
+
     // 保存同步结果到 SystemConfig
     const { setConfig } = await import("@/lib/config");
     await setConfig("LAST_SYNC_RESULT", JSON.stringify(syncResult), "最近一次模型同步结果");
@@ -567,10 +643,9 @@ export async function runModelSync(): Promise<SyncResult> {
     }
 
     // 同步完成后 invalidate 所有相关缓存
-    const { getRedis } = await import("@/lib/redis");
-    const redis = getRedis();
-    if (redis) {
-      await redis
+    const cacheRedis = getRedis();
+    if (cacheRedis) {
+      await cacheRedis
         .del(
           "models:list",
           "models:list:TEXT",

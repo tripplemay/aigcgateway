@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useTranslations } from "next-intl";
 import { apiFetch } from "@/lib/api-client";
 import { useAsyncData } from "@/hooks/use-async-data";
@@ -60,10 +60,28 @@ interface SyncStatusResponse {
 // Page
 // ============================================================
 
+interface SyncProgress {
+  status: "running" | "done";
+  total: number;
+  completed: number;
+  currentProvider?: string;
+}
+
+interface InferenceProgress {
+  status: "running" | "done";
+  phase?: string;
+  step: number;
+  total: number;
+}
+
 export default function OperationsPage() {
   const t = useTranslations("adminOps");
   const [syncing, setSyncing] = useState(false);
   const [inferring, setInferring] = useState(false);
+  const [syncProgress, setSyncProgress] = useState<SyncProgress | null>(null);
+  const [inferProgress, setInferProgress] = useState<InferenceProgress | null>(null);
+  const syncPollRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const inferPollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const { data, loading, refetch } = useAsyncData<SyncStatusResponse>(
     () => apiFetch<SyncStatusResponse>("/api/admin/sync-status"),
@@ -74,21 +92,67 @@ export default function OperationsPage() {
   const syncResult = status?.lastSyncResultDetail ?? null;
   const inferResult = status?.lastInferenceResult ?? null;
 
+  // Cleanup polling on unmount
+  useEffect(() => {
+    return () => {
+      if (syncPollRef.current) clearInterval(syncPollRef.current);
+      if (inferPollRef.current) clearInterval(inferPollRef.current);
+    };
+  }, []);
+
+  const pollSyncProgress = () => {
+    if (syncPollRef.current) clearInterval(syncPollRef.current);
+    syncPollRef.current = setInterval(async () => {
+      try {
+        const res = await apiFetch<{ data: SyncProgress | null }>("/api/admin/sync/status");
+        setSyncProgress(res.data);
+        if (!res.data || res.data.status === "done") {
+          if (syncPollRef.current) clearInterval(syncPollRef.current);
+          syncPollRef.current = null;
+          setSyncing(false);
+          setSyncProgress(null);
+          refetch();
+        }
+      } catch {
+        // ignore polling errors
+      }
+    }, 3000);
+  };
+
   const triggerSync = async () => {
     setSyncing(true);
     try {
       await apiFetch("/api/admin/sync-models", { method: "POST" });
       toast.success(t("syncStarted"));
-      // Poll after a delay for updated status
-      setTimeout(() => refetch(), 5000);
+      pollSyncProgress();
     } catch (e) {
       toast.error((e as Error).message);
+      setSyncing(false);
     }
-    setSyncing(false);
+  };
+
+  const pollInferProgress = () => {
+    if (inferPollRef.current) clearInterval(inferPollRef.current);
+    inferPollRef.current = setInterval(async () => {
+      try {
+        const res = await apiFetch<{ data: InferenceProgress | null }>(
+          "/api/admin/inference/status",
+        );
+        setInferProgress(res.data);
+        if (!res.data || res.data.status === "done") {
+          if (inferPollRef.current) clearInterval(inferPollRef.current);
+          inferPollRef.current = null;
+          setInferProgress(null);
+        }
+      } catch {
+        // ignore polling errors
+      }
+    }, 3000);
   };
 
   const triggerInference = async () => {
     setInferring(true);
+    pollInferProgress();
     try {
       await apiFetch("/api/admin/run-inference", { method: "POST" });
       toast.success(t("inferenceComplete"));
@@ -97,6 +161,9 @@ export default function OperationsPage() {
       toast.error((e as Error).message);
     }
     setInferring(false);
+    if (inferPollRef.current) clearInterval(inferPollRef.current);
+    inferPollRef.current = null;
+    setInferProgress(null);
   };
 
   if (loading && !data) {
@@ -130,7 +197,10 @@ export default function OperationsPage() {
           <div className="px-6 py-5 flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center">
-                <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>
+                <span
+                  className="material-symbols-outlined"
+                  style={{ fontVariationSettings: "'FILL' 1" }}
+                >
                   sync
                 </span>
               </div>
@@ -150,6 +220,19 @@ export default function OperationsPage() {
           </div>
 
           <div className="px-6 pb-5 space-y-4">
+            {/* Sync Progress */}
+            {syncing && syncProgress && (
+              <ProgressBar
+                label={
+                  syncProgress.currentProvider
+                    ? t("syncProgressProvider", { provider: syncProgress.currentProvider })
+                    : t("syncProgressGeneral")
+                }
+                completed={syncProgress.completed}
+                total={syncProgress.total}
+              />
+            )}
+
             {/* Last sync info */}
             <div className="grid grid-cols-3 gap-3">
               <StatCard
@@ -193,7 +276,9 @@ export default function OperationsPage() {
                 <StatCard
                   label={t("failedProviders")}
                   value={String(syncResult.summary.totalFailedProviders)}
-                  valueColor={syncResult.summary.totalFailedProviders > 0 ? "text-rose-600" : undefined}
+                  valueColor={
+                    syncResult.summary.totalFailedProviders > 0 ? "text-rose-600" : undefined
+                  }
                 />
               </div>
             )}
@@ -251,7 +336,10 @@ export default function OperationsPage() {
           <div className="px-6 py-5 flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-full bg-violet-50 text-violet-600 flex items-center justify-center">
-                <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>
+                <span
+                  className="material-symbols-outlined"
+                  style={{ fontVariationSettings: "'FILL' 1" }}
+                >
                   psychology
                 </span>
               </div>
@@ -271,11 +359,27 @@ export default function OperationsPage() {
           </div>
 
           <div className="px-6 pb-5 space-y-4">
+            {/* Inference Progress */}
+            {inferring && inferProgress && (
+              <ProgressBar
+                label={
+                  inferProgress.phase
+                    ? t("inferProgressPhase", { phase: inferProgress.phase })
+                    : t("inferProgressGeneral")
+                }
+                completed={inferProgress.step}
+                total={inferProgress.total}
+              />
+            )}
+
             {/* Last inference time */}
             <StatCard
               label={t("lastInference")}
               value={inferResult?.timestamp ? timeAgo(inferResult.timestamp) : "—"}
             />
+
+            {/* ── Status Banner ── */}
+            {inferResult && <InferenceStatusBanner result={inferResult} t={t} />}
 
             {inferResult && (
               <>
@@ -296,10 +400,7 @@ export default function OperationsPage() {
                       label={t("newAliases")}
                       value={String(inferResult.classify.newAliases)}
                     />
-                    <StatCard
-                      label={t("skipped")}
-                      value={String(inferResult.classify.skipped)}
-                    />
+                    <StatCard label={t("skipped")} value={String(inferResult.classify.skipped)} />
                   </div>
                   {inferResult.classify.errors.length > 0 && (
                     <ErrorList errors={inferResult.classify.errors} t={t} />
@@ -315,14 +416,8 @@ export default function OperationsPage() {
                     <span className="text-sm font-bold">{t("brand")}</span>
                   </div>
                   <div className="grid grid-cols-2 gap-3">
-                    <StatCard
-                      label={t("updated")}
-                      value={String(inferResult.brand.updated)}
-                    />
-                    <StatCard
-                      label={t("skipped")}
-                      value={String(inferResult.brand.skipped)}
-                    />
+                    <StatCard label={t("updated")} value={String(inferResult.brand.updated)} />
+                    <StatCard label={t("skipped")} value={String(inferResult.brand.skipped)} />
                   </div>
                   {inferResult.brand.errors.length > 0 && (
                     <ErrorList errors={inferResult.brand.errors} t={t} />
@@ -391,13 +486,95 @@ function StatCard({
   );
 }
 
-function ErrorList({
-  errors,
+function InferenceStatusBanner({
+  result,
   t,
 }: {
-  errors: string[];
+  result: InferenceResult;
   t: ReturnType<typeof useTranslations>;
 }) {
+  const totalErrors =
+    result.classify.errors.length + result.brand.errors.length + result.capabilities.errors.length;
+  const totalUpdated =
+    result.classify.classified + result.brand.updated + result.capabilities.updated;
+  const totalNewAliases = result.classify.newAliases;
+  const totalSkipped = result.classify.skipped + result.brand.skipped + result.capabilities.skipped;
+
+  // Determine banner variant
+  if (totalErrors > 0) {
+    return (
+      <div className="flex items-center gap-2 text-rose-700 bg-rose-50 px-4 py-2.5 rounded-lg text-xs font-semibold">
+        <span className="material-symbols-outlined text-[16px]">error</span>
+        {t("inferBannerError", { errors: totalErrors })}
+      </div>
+    );
+  }
+
+  if (totalUpdated === 0 && totalNewAliases === 0 && totalSkipped === 0) {
+    return (
+      <div className="flex items-center gap-2 text-blue-700 bg-blue-50 px-4 py-2.5 rounded-lg text-xs font-semibold">
+        <span className="material-symbols-outlined text-[16px]">check_circle</span>
+        {t("inferBannerUpToDate")}
+      </div>
+    );
+  }
+
+  if (totalUpdated > 0 || totalNewAliases > 0) {
+    const parts: string[] = [];
+    if (result.classify.classified > 0)
+      parts.push(t("inferBannerClassified", { count: result.classify.classified }));
+    if (totalNewAliases > 0) parts.push(t("inferBannerNewAliases", { count: totalNewAliases }));
+    if (result.brand.updated > 0)
+      parts.push(t("inferBannerBrandUpdated", { count: result.brand.updated }));
+    if (result.capabilities.updated > 0)
+      parts.push(t("inferBannerCapUpdated", { count: result.capabilities.updated }));
+
+    return (
+      <div className="flex items-center gap-2 text-emerald-700 bg-emerald-50 px-4 py-2.5 rounded-lg text-xs font-semibold">
+        <span className="material-symbols-outlined text-[16px]">task_alt</span>
+        {parts.join(", ")}
+      </div>
+    );
+  }
+
+  // Only skipped items, no updates
+  return (
+    <div className="flex items-center gap-2 text-amber-700 bg-amber-50 px-4 py-2.5 rounded-lg text-xs font-semibold">
+      <span className="material-symbols-outlined text-[16px]">warning</span>
+      {t("inferBannerSkipped", { count: totalSkipped })}
+    </div>
+  );
+}
+
+function ProgressBar({
+  label,
+  completed,
+  total,
+}: {
+  label: string;
+  completed: number;
+  total: number;
+}) {
+  const pct = total > 0 ? Math.round((completed / total) * 100) : 0;
+  return (
+    <div className="bg-slate-50/80 rounded-lg p-3 space-y-1.5">
+      <div className="flex items-center justify-between text-xs">
+        <span className="font-semibold text-slate-600">{label}</span>
+        <span className="font-bold text-ds-primary">
+          {completed}/{total}
+        </span>
+      </div>
+      <div className="h-2 bg-slate-200 rounded-full overflow-hidden">
+        <div
+          className="h-full bg-gradient-to-r from-ds-primary to-ds-primary/70 rounded-full transition-all duration-500"
+          style={{ width: `${pct}%` }}
+        />
+      </div>
+    </div>
+  );
+}
+
+function ErrorList({ errors, t }: { errors: string[]; t: ReturnType<typeof useTranslations> }) {
   const [expanded, setExpanded] = useState(false);
   const shown = expanded ? errors : errors.slice(0, 3);
 

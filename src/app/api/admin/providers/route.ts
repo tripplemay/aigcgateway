@@ -4,7 +4,6 @@ import { NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/api/admin-guard";
 import { errorResponse } from "@/lib/api/errors";
 
-
 export async function GET(request: Request) {
   const auth = requireAdmin(request);
   if (!auth.ok) return auth.error;
@@ -40,6 +39,20 @@ export async function POST(request: Request) {
     return errorResponse(400, "invalid_parameter", "name, displayName, baseUrl are required");
   }
 
+  // Adapters that support /v1/models API
+  const MODELS_API_ADAPTERS = new Set([
+    "openai",
+    "anthropic",
+    "deepseek",
+    "zhipu",
+    "siliconflow",
+    "openrouter",
+    "minimax",
+    "moonshot",
+    "qwen",
+    "stepfun",
+  ]);
+
   const provider = await prisma.provider.create({
     data: {
       name,
@@ -50,7 +63,14 @@ export async function POST(request: Request) {
       adapterType: adapterType ?? "openai-compat",
       proxyUrl: proxyUrl ?? null,
       rateLimit: rateLimit ?? null,
+      config: {
+        create: {
+          chatEndpoint: "/chat/completions",
+          supportsModelsApi: MODELS_API_ADAPTERS.has(name.toLowerCase()),
+        },
+      },
     },
+    include: { config: true },
   });
 
   return NextResponse.json(provider, { status: 201 });

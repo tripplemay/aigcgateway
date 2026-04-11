@@ -248,8 +248,8 @@ export async function classifyNewModels(): Promise<{
     ),
   ];
 
-  // 3. 分批处理（每批最多 30 个）
-  const BATCH_SIZE = 30;
+  // 3. 分批处理（每批最多 15 个，避免 prompt 过长导致 DeepSeek 超时）
+  const BATCH_SIZE = 15;
   for (let i = 0; i < unlinkedModels.length; i += BATCH_SIZE) {
     const batch = unlinkedModels.slice(i, i + BATCH_SIZE);
     const modelNames = batch.map((m) => m.name);
@@ -447,7 +447,7 @@ export async function inferMissingBrands(): Promise<{
 
   console.log(`[alias-classifier] Inferring brands for ${aliasesWithoutBrand.length} aliases...`);
 
-  const BATCH_SIZE = 30;
+  const BATCH_SIZE = 15;
   for (let i = 0; i < aliasesWithoutBrand.length; i += BATCH_SIZE) {
     const batch = aliasesWithoutBrand.slice(i, i + BATCH_SIZE);
     const batchNum = Math.floor(i / BATCH_SIZE) + 1;
@@ -556,8 +556,8 @@ export async function inferMissingCapabilities(): Promise<{
     return { updated: 0, skipped: 0, errors: [] };
   }
 
-  // 分批处理，每批 30 个
-  const BATCH_SIZE = 30;
+  // 分批处理，每批 15 个
+  const BATCH_SIZE = 15;
   for (let i = 0; i < aliasesWithoutCaps.length; i += BATCH_SIZE) {
     const batch = aliasesWithoutCaps.slice(i, i + BATCH_SIZE);
     const batchNum = Math.floor(i / BATCH_SIZE) + 1;
@@ -673,7 +673,7 @@ export async function reinferAllCapabilities(): Promise<{
   const errors: string[] = [];
   let updated = 0;
   let skipped = 0;
-  const BATCH_SIZE = 30;
+  const BATCH_SIZE = 15;
 
   for (let i = 0; i < refreshAliases.length; i += BATCH_SIZE) {
     const batch = refreshAliases.slice(i, i + BATCH_SIZE);

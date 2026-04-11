@@ -188,7 +188,7 @@ function parseAIResponse(raw: string, providerName: string): SyncedModel[] {
   return parsed
     .filter((m) => m.model_id)
     .map((m) => {
-      const modelId = m.model_id!;
+      const modelId = m.model_id!.toLowerCase();
       const isCNY = m.price_unit?.includes("CNY") || m.price_unit?.includes("元");
 
       let inputPricePerM: number | undefined;

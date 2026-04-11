@@ -4,6 +4,7 @@ import { NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/api/admin-guard";
 import { errorResponse } from "@/lib/api/errors";
 import { checkChannel } from "@/lib/health/scheduler";
+import { getRedis } from "@/lib/redis";
 
 /**
  * PATCH /api/admin/model-aliases/:id
@@ -56,6 +57,22 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
   }
 
   const updated = await prisma.modelAlias.update({ where: { id }, data });
+
+  // Invalidate models list cache when sellPrice or enabled changes
+  if (data.sellPrice !== undefined || data.enabled !== undefined) {
+    const redis = getRedis();
+    if (redis) {
+      await redis
+        .del(
+          "models:list",
+          "models:list:TEXT",
+          "models:list:IMAGE",
+          "models:list:VIDEO",
+          "models:list:AUDIO",
+        )
+        .catch(() => {});
+    }
+  }
 
   // Instant health check when alias is being enabled
   if (data.enabled === true && !existing.enabled) {

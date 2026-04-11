@@ -1,11 +1,11 @@
 {
-  "status": "building",
+  "status": "verifying",
   "user_goal": "ADMIN-OPS+ — 运维增强（进度显示/系统日志/ProviderConfig）+ 文档更新 + 项目切换 + 数据质量修复",
   "total_features": 10,
-  "completed_features": 0,
+  "completed_features": 9,
   "fix_rounds": 0,
   "current_sprint": null,
-  "last_updated": "2026-04-12T10:00:00Z",
+  "last_updated": "2026-04-12T08:30:00Z",
   "reference_docs": [],
   "role_assignments": null,
   "docs": {
@@ -15,9 +15,16 @@
     "framework_reviewed": false
   },
   "evaluator_feedback": null,
-  "generator_handoff": null,
+  "generator_handoff": {
+    "completed_features": ["F-AOP-01","F-AOP-02","F-AOP-03","F-AOP-04","F-AOP-05","F-AOP-06","F-AOP-07","F-AOP-08","F-AOP-09"],
+    "codex_features": ["F-AOP-10"],
+    "scripts": {
+      "fix-model-name-case.ts": "npx tsx scripts/fix-model-name-case.ts [--dry-run] — 合并大小写重复 Model，迁移 Channel/AliasModelLink 到小写版本"
+    },
+    "notes": "1) SystemLog 表已通过 db push 应用，migration SQL 在 prisma/migrations/20260412_add_system_log/；2) 生产部署后需运行 fix-model-name-case.ts 清理已有大小写重复数据；3) 进度轮询依赖 Redis，无 Redis 时进度条不显示但不影响功能"
+  },
   "session_notes": {
-    "Kimi": "Planner 启动 ADMIN-OPS+：10 条功能。BL-101 运维增强（4 条：提示条+SystemLog+进度显示+自动创建 ProviderConfig）+ BL-090 文档更新（1 条）+ BL-104 项目切换（1 条）+ BL-109 数据质量（3 条：大小写归一化+classifier 批次减小+Redis 缓存清除）+ 验收（1 条）。BL-099 延后。",
+    "Kimi": "Generator 完成全部 9 条 executor:generator 功能。F-AOP-01 推断提示条、F-AOP-02 SystemLog+系统日志tab、F-AOP-03 同步/推断实时进度（Redis轮询）、F-AOP-04 创建Provider自动创建ProviderConfig、F-AOP-05 文档页更新（别名格式+新参数+28个MCP工具）、F-AOP-06 Settings项目切换、F-AOP-07 Model名称小写归一化+清理脚本、F-AOP-08 classifier批次30→15、F-AOP-09 别名定价/启用后清Redis缓存。build通过。",
     "Reviewer": null
   }
 }

@@ -58,7 +58,7 @@ export default function DocsPage() {
   -H "Authorization: Bearer pk_..." \\
   -H "Content-Type: application/json" \\
   -d '{
-    "model": "deepseek/v3",
+    "model": "deepseek-v3",
     "messages": [{"role": "user", "content": "Hello"}],
     "temperature": 0.7,
     "max_tokens": 1024,
@@ -69,7 +69,7 @@ export default function DocsPage() {
           <p>
             <code className="bg-ds-surface-container-low px-1 rounded">model</code>{" "}
             <Badge variant="secondary">{t("required")}</Badge> — {t("paramModel")}{" "}
-            <code>openai/gpt-4o</code>
+            <code>gpt-4o</code>
           </p>
           <p>
             <code className="bg-ds-surface-container-low px-1 rounded">messages</code>{" "}
@@ -87,6 +87,22 @@ export default function DocsPage() {
             <code className="bg-ds-surface-container-low px-1 rounded">max_tokens</code> —{" "}
             {t("paramMaxTokens")}
           </p>
+          <p>
+            <code className="bg-ds-surface-container-low px-1 rounded">top_p</code> —{" "}
+            {t("paramTopP")}
+          </p>
+          <p>
+            <code className="bg-ds-surface-container-low px-1 rounded">frequency_penalty</code> —{" "}
+            {t("paramFrequencyPenalty")}
+          </p>
+          <p>
+            <code className="bg-ds-surface-container-low px-1 rounded">tools</code> —{" "}
+            {t("paramTools")}
+          </p>
+          <p>
+            <code className="bg-ds-surface-container-low px-1 rounded">tool_choice</code> —{" "}
+            {t("paramToolChoice")}
+          </p>
         </div>
       </Section>
 
@@ -96,7 +112,7 @@ export default function DocsPage() {
   -H "Authorization: Bearer pk_..." \\
   -H "Content-Type: application/json" \\
   -d '{
-    "model": "zhipu/cogview-3-flash",
+    "model": "cogview-3-flash",
     "prompt": "A friendly robot",
     "size": "1024x1024"
   }'`}</Code>
@@ -203,37 +219,72 @@ curl /v1/models?modality=image`}</Code>
   }
 }`}</Code>
         <p className="text-sm mt-3 mb-2">
-          <strong>{t("availableTools")}</strong>
+          <strong>{t("availableTools")} (28)</strong>
         </p>
-        <div className="text-sm space-y-1">
-          <p>
-            <code className="bg-ds-surface-container-low px-1 rounded">list_models</code> —{" "}
-            {t("toolListModels")}
-          </p>
-          <p>
-            <code className="bg-ds-surface-container-low px-1 rounded">chat</code> —{" "}
-            {t("toolChat")}
-          </p>
-          <p>
-            <code className="bg-ds-surface-container-low px-1 rounded">generate_image</code> —{" "}
-            {t("toolGenImage")}
-          </p>
-          <p>
-            <code className="bg-ds-surface-container-low px-1 rounded">list_logs</code> —{" "}
-            {t("toolListLogs")}
-          </p>
-          <p>
-            <code className="bg-ds-surface-container-low px-1 rounded">get_log_detail</code> —{" "}
-            {t("toolLogDetail")}
-          </p>
-          <p>
-            <code className="bg-ds-surface-container-low px-1 rounded">get_balance</code> —{" "}
-            {t("toolBalance")}
-          </p>
-          <p>
-            <code className="bg-ds-surface-container-low px-1 rounded">get_usage_summary</code> —{" "}
-            {t("toolUsage")}
-          </p>
+        <div className="text-sm space-y-3">
+          <div>
+            <p className="font-semibold text-xs text-ds-on-surface-variant uppercase tracking-wider mb-1">
+              {t("toolGroupCore")}
+            </p>
+            <div className="space-y-0.5">
+              <ToolItem name="list_models" desc={t("toolListModels")} />
+              <ToolItem name="chat" desc={t("toolChat")} />
+              <ToolItem name="generate_image" desc={t("toolGenImage")} />
+            </div>
+          </div>
+          <div>
+            <p className="font-semibold text-xs text-ds-on-surface-variant uppercase tracking-wider mb-1">
+              {t("toolGroupAccount")}
+            </p>
+            <div className="space-y-0.5">
+              <ToolItem name="get_balance" desc={t("toolBalance")} />
+              <ToolItem name="get_usage_summary" desc={t("toolUsage")} />
+              <ToolItem name="get_project_info" desc={t("toolProjectInfo")} />
+              <ToolItem name="create_project" desc={t("toolCreateProject")} />
+              <ToolItem name="list_api_keys" desc={t("toolListApiKeys")} />
+              <ToolItem name="create_api_key" desc={t("toolCreateApiKey")} />
+              <ToolItem name="revoke_api_key" desc={t("toolRevokeApiKey")} />
+            </div>
+          </div>
+          <div>
+            <p className="font-semibold text-xs text-ds-on-surface-variant uppercase tracking-wider mb-1">
+              {t("toolGroupLogs")}
+            </p>
+            <div className="space-y-0.5">
+              <ToolItem name="list_logs" desc={t("toolListLogs")} />
+              <ToolItem name="get_log_detail" desc={t("toolLogDetail")} />
+            </div>
+          </div>
+          <div>
+            <p className="font-semibold text-xs text-ds-on-surface-variant uppercase tracking-wider mb-1">
+              {t("toolGroupActions")}
+            </p>
+            <div className="space-y-0.5">
+              <ToolItem name="list_actions" desc={t("toolListActions")} />
+              <ToolItem name="create_action" desc={t("toolCreateAction")} />
+              <ToolItem name="get_action_detail" desc={t("toolGetActionDetail")} />
+              <ToolItem name="update_action" desc={t("toolUpdateAction")} />
+              <ToolItem name="delete_action" desc={t("toolDeleteAction")} />
+              <ToolItem name="create_action_version" desc={t("toolCreateActionVersion")} />
+              <ToolItem name="activate_version" desc={t("toolActivateVersion")} />
+              <ToolItem name="run_action" desc={t("toolRunAction")} />
+            </div>
+          </div>
+          <div>
+            <p className="font-semibold text-xs text-ds-on-surface-variant uppercase tracking-wider mb-1">
+              {t("toolGroupTemplates")}
+            </p>
+            <div className="space-y-0.5">
+              <ToolItem name="list_templates" desc={t("toolListTemplates")} />
+              <ToolItem name="create_template" desc={t("toolCreateTemplate")} />
+              <ToolItem name="get_template_detail" desc={t("toolGetTemplateDetail")} />
+              <ToolItem name="update_template" desc={t("toolUpdateTemplate")} />
+              <ToolItem name="delete_template" desc={t("toolDeleteTemplate")} />
+              <ToolItem name="run_template" desc={t("toolRunTemplate")} />
+              <ToolItem name="list_public_templates" desc={t("toolListPublicTemplates")} />
+              <ToolItem name="fork_public_template" desc={t("toolForkPublicTemplate")} />
+            </div>
+          </div>
         </div>
         <p className="text-sm text-ds-on-surface-variant mt-2">
           {t.rich("mcpSetupLink", {
@@ -246,5 +297,13 @@ curl /v1/models?modality=image`}</Code>
         </p>
       </Section>
     </div>
+  );
+}
+
+function ToolItem({ name, desc }: { name: string; desc: string }) {
+  return (
+    <p>
+      <code className="bg-ds-surface-container-low px-1 rounded">{name}</code> — {desc}
+    </p>
   );
 }
