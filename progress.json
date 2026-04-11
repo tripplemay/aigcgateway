@@ -1,11 +1,11 @@
 {
-  "status": "reverifying",
+  "status": "fixing",
   "user_goal": "CI1 — 测试基础设施升级（Mock 复用 + 测试工厂 + Vitest + CI pipeline）",
   "total_features": 5,
   "completed_features": 4,
   "fix_rounds": 12,
   "current_sprint": null,
-  "last_updated": "2026-04-11T08:03:00.000Z",
+  "last_updated": "2026-04-11T00:06:47Z",
   "reference_docs": [],
   "role_assignments": null,
   "docs": {
@@ -14,7 +14,18 @@
     "signoff": null,
     "framework_reviewed": false
   },
-  "evaluator_feedback": null,
+  "evaluator_feedback": {
+    "round": 12,
+    "result": "FAIL",
+    "report": "docs/test-reports/CI1-test-infrastructure-reverifying-round12-2026-04-11.md",
+    "summary": "vitest、mcp-dx-round2、security-billing-polish 已全通过；仅 mcp-finops-hardening 剩 1 个失败。",
+    "blocking_issues": [
+      "mcp-finops-hardening: F-MH-01 期望 invalid size 返回 error，但当前实际返回 mock success。"
+    ],
+    "required_fixes": [
+      "对齐 F-MH-01 断言与当前 mock 行为，或调整 mock handler 让 invalid size 稳定进入错误分支。"
+    ]
+  },
   "generator_handoff": {
     "completed": ["F-CI1-01", "F-CI1-02", "F-CI1-03", "F-CI1-04"],
     "codex_pending": ["F-CI1-05"],
@@ -23,6 +34,6 @@
   "session_notes": {
     "Kimi": "Fix round 12: round11 只剩 2 个 fetch failed（chat 链路）。根因是 mock server 使用默认 keepAliveTimeout(5s)，长测试中前置步骤（action/template 创建）不走 mock，导致空闲超时后连接被关。修复：mock server keepAliveTimeout=120s + headersTimeout=120s；重试从 2 次增至 4 次。",
     "Planner": "本轮 Planner 长会话产出：1) P5 设计稿+启动；2) M1 spec+拆4子批次(M1a~M1d)全部签收；3) K1 spec(API Key 用户级)+启动+签收；4) U1 spec(用户详情页)+启动+签收；5) L1(LLM 健壮性)+MCP2(工具增强)+A1(数据质量)+T1(模板)+N1(UI导航)+O1(运维)+CI1(测试基础设施) 启动；6) 多次生产环境诊断（capabilities 超时、modality 全 TEXT、brand 重复）；7) 新增 backlog BL-099~105（删除服务商/Keys精简/运维提示/supportedSizes+capabilities统一/千位分隔符/项目切换/假内容清理）。CI1 当前 fixing round 4，问题是旧脚本未适配 K1 数据模型。",
-    "Reviewer": "CI1 round11 复验完成：vitest 11/11 通过，mcp-finops-hardening 9/9 通过；mcp-dx-round2 10/11、security-billing-polish 4/5，仍未签收。剩余失败统一为 provider_error(fetch failed)。报告：docs/test-reports/CI1-test-infrastructure-reverifying-round11-2026-04-11.md。状态回退 fixing。"
+    "Reviewer": "CI1 round12 复验完成：vitest 11/11、mcp-dx-round2 11/11、security-billing-polish 5/5 通过；mcp-finops-hardening 8/9，剩余 F-MH-01 单点失败（invalid size 预期 error 但实际 success）。报告：docs/test-reports/CI1-test-infrastructure-reverifying-round12-2026-04-11.md。状态回退 fixing。"
   }
 }

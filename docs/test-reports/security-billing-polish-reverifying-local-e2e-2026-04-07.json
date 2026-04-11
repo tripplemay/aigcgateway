@@ -1,6 +1,6 @@
 {
   "batch": "security-billing-polish",
-  "generatedAt": "2026-04-10T23:59:29.941Z",
+  "generatedAt": "2026-04-11T00:06:34.581Z",
   "environment": "http://localhost:3099",
   "checks": [
     {
@@ -25,10 +25,10 @@
     },
     {
       "name": "F-SB-02 chat call deducts balance",
-      "ok": false,
-      "detail": "chat failed: [provider_error] Provider request failed: fetch failed"
+      "ok": true,
+      "detail": "delta=0.00000336"
     }
   ],
-  "pass": 4,
-  "fail": 1
+  "pass": 5,
+  "fail": 0
 }

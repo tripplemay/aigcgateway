@@ -1,6 +1,6 @@
 {
   "batch": "mcp-finops-hardening",
-  "generatedAt": "2026-04-10T23:58:56.572Z",
+  "generatedAt": "2026-04-11T00:06:33.654Z",
   "environment": "http://localhost:3099",
   "checks": [
     {
@@ -10,13 +10,13 @@
     },
     {
       "name": "F-MH-01 generate_image invalid size no upstream leak",
-      "ok": true,
-      "detail": "{\"code\":\"invalid_request\",\"message\":\"invalid_size; contact [contact removed]; docs: [URL removed] ; key=[key removed]\"}"
+      "ok": false,
+      "detail": "expected error, got success: {\"images\":[\"https://example.com/mock-image.png\"],\"traceId\":\"trc_icfvpa5mbak7op4zl38p38ts\",\"model\":\"openai/dall-e-3\",\"count\":1}"
     },
     {
       "name": "F-MH-02 activate_version rollback",
       "ok": true,
-      "detail": "v2=cmntkhlew00r09y2wv2zynami -> v1=cmntkhleo00qy9y2wx9yuelxb"
+      "detail": "v2=cmntkrebh000w9yctch3w6k4n -> v1=cmntkreb0000o9yct3lzagskl"
     },
     {
       "name": "F-MH-03 run_template returns detailed steps[]",
@@ -26,7 +26,7 @@
     {
       "name": "F-MH-04 get_balance transactions include traceId",
       "ok": true,
-      "detail": "tx=5, traceId=trc_rlsujl7o0569nppoiburwefh, imageTraceId=trc_rlsujl7o0569nppoiburwefh"
+      "detail": "tx=6, traceId=trc_orlzgyof02sz6iltzt5p88wi, imageTraceId=trc_orlzgyof02sz6iltzt5p88wi"
     },
     {
       "name": "F-MH-05 top_p=0 handled",
@@ -46,9 +46,9 @@
     {
       "name": "F-MH-08 usage drilldown Σ(single)≈aggregate",
       "ok": true,
-      "detail": "sum4=0.0120 agg=0.0120"
+      "detail": "sum4=0.0240 agg=0.0240"
     }
   ],
-  "pass": 9,
-  "fail": 0
+  "pass": 8,
+  "fail": 1
 }

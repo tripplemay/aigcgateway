@@ -1,6 +1,6 @@
 {
-  "passed": 10,
-  "failed": 1,
+  "passed": 11,
+  "failed": 0,
   "results": [
     {
       "name": "tools/list includes required tools",
@@ -24,8 +24,8 @@
     },
     {
       "name": "core tools callable (smoke)",
-      "ok": false,
-      "detail": "[provider_error] Provider request failed: fetch failed"
+      "ok": true,
+      "detail": "traceId=trc_tg55b4stq4ex78260x45daa4"
     },
     {
       "name": "get_action_detail returns messages and variables",
@@ -58,9 +58,9 @@
       "detail": "skipped: first call failed ([rate_limited] Rate limit exceeded. Please retry after 60 se)"
     }
   ],
-  "projectId": "cmntkhloq00rv9y2w5b6t0kkj",
-  "apiKeyPrefix": "pk_ae05c",
-  "actionId": "cmntkhlps00s79y2wu36xp561",
-  "templateId": "cmntkhlq300sf9y2w1xa2xu2z",
-  "traceId": ""
+  "projectId": "cmntkre8o000e9yctt7ras45v",
+  "apiKeyPrefix": "pk_f2721",
+  "actionId": "cmntkrebk00119yctok6owt9t",
+  "templateId": "cmntkrec0001w9yctqy9oziug",
+  "traceId": "trc_tg55b4stq4ex78260x45daa4"
 }
