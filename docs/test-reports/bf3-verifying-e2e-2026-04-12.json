@@ -1,0 +1,39 @@
+{
+  "batch": "BF3-tech-fixes",
+  "executedAt": "2026-04-12T00:20:20.859Z",
+  "baseUrl": "http://localhost:3099",
+  "pass": 6,
+  "fail": 0,
+  "steps": [
+    {
+      "id": "F-BF3-01-minimax-base-url",
+      "ok": true,
+      "detail": "preset=true seed=true db=true"
+    },
+    {
+      "id": "F-BF3-02-healthcheck-skip-and-anthropic-auth",
+      "ok": true,
+      "detail": "skipProviders=true skipLogic=true anthropicHeader=true minimaxSkip=true anthropicSkip=true"
+    },
+    {
+      "id": "F-BF3-03-model-name-lowercase",
+      "ok": true,
+      "detail": "pipeline=true"
+    },
+    {
+      "id": "F-BF3-04-classifier-batch-size-le-15",
+      "ok": true,
+      "detail": "batchSizes=15,15,15,15"
+    },
+    {
+      "id": "F-BF3-05-alias-cache-invalidation",
+      "ok": true,
+      "detail": "redisConnected=true cacheCleared=true"
+    },
+    {
+      "id": "F-BF3-tsc",
+      "ok": true,
+      "detail": "exit=0 stderr="
+    }
+  ]
+}

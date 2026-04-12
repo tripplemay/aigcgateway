@@ -1,23 +1,23 @@
 {
-  "status": "verifying",
+  "status": "done",
   "user_goal": "BF3 — 技术修复（MiniMax URL + API_REACHABILITY 适配 + 大小写归一化 + classifier 批次 + Redis 缓存）",
   "total_features": 6,
-  "completed_features": 5,
+  "completed_features": 6,
   "fix_rounds": 0,
   "current_sprint": null,
-  "last_updated": "2026-04-12T15:00:00Z",
+  "last_updated": "2026-04-12T00:22:00Z",
   "reference_docs": [],
   "role_assignments": null,
   "docs": {
     "spec": null,
     "test_cases": null,
-    "signoff": null,
+    "signoff": "docs/test-reports/BF3-tech-fixes-signoff-2026-04-12.md",
     "framework_reviewed": false
   },
   "evaluator_feedback": null,
   "generator_handoff": "F-BF3-01~05 全部完成。实际代码变更：MiniMax URL 修正（ADAPTER_PRESETS + seed.ts）、新增 healthCheckEndpoint 字段（schema + migration + seed + checker skip 逻辑 + providers POST 自动填充）。F-BF3-03/04/05 代码在上一会话已到位，本次确认无需额外修改。",
   "session_notes": {
     "Kimi": "Generator 完成 BF3 全部 5 条 generator 功能。实际变更：MiniMax URL 修正 + ProviderConfig.healthCheckEndpoint 新字段（schema/migration/seed/checker/providers-POST）。F-BF3-03/04/05 代码在 ADMIN-OPS+ 会话已到位。状态已推进到 verifying��",
-    "Reviewer": null
+    "Reviewer": "已完成 BF3 首轮验收：执行 scripts/test/bf3-verifying-e2e-2026-04-12.ts，6/6 通过；签收文档 docs/test-reports/BF3-tech-fixes-signoff-2026-04-12.md；状态更新为 done。"
   }
 }

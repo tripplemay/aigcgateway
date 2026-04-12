@@ -4,12 +4,13 @@ description: AIGC Gateway 当前状态快照（覆盖写，≤30 行）
 type: project
 ---
 ## 当前批次
-- BF3-tech-fixes：`verifying`（5/5 generator 功能完成，等待 Codex 验收）
+- BF3-tech-fixes：`done`（6/6 完成，已签收）
+- 签收文档：`docs/test-reports/BF3-tech-fixes-signoff-2026-04-12.md`
 - BL-112: MiniMax URL 修正 + healthCheckEndpoint skip 适配
 - BL-109: 大小写归一化 + classifier 批次 15 + Redis 缓��清除
 
 ## 已完成批次
-- R1~R4 / P5 / M1a~M1d / BF / K1 / U1 / L1 / MCP2 / A1 / T1 / N1 / O1 / CI1 / SUP1 / P6 / DQ2 / ADMIN-UX / BF2 / ADMIN-OPS+ / BL-080
+- R1~R4 / P5 / M1a~M1d / BF / K1 / U1 / L1 / MCP2 / A1 / T1 / N1 / O1 / CI1 / SUP1 / P6 / DQ2 / ADMIN-UX / BF2 / ADMIN-OPS+ / BL-080 / BF3-tech-fixes
 
 ## 生产手动修正（已完成）
 - MiniMax baseUrl → api.minimaxi.com ✅

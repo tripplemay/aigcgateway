@@ -47,7 +47,7 @@
       "title": "BF3 全量验收",
       "priority": "high",
       "executor": "codex",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "1) MiniMax ADAPTER_PRESETS baseUrl 为 api.minimaxi.com；2) healthCheckEndpoint skip 配置后 MiniMax/Anthropic 不被 API_REACHABILITY 降级；3) resolveCanonicalName 返回小写；4) classifier 批次 ≤15；5) 别名定价后 Redis 缓存立即失效；6) 签收报告生成"
     }
   ]
