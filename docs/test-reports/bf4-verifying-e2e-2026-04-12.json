@@ -1,0 +1,49 @@
+{
+  "batch": "BF4-dx-feedback",
+  "executedAt": "2026-04-12T03:02:49.789Z",
+  "baseUrl": "http://localhost:3099",
+  "pass": 8,
+  "fail": 0,
+  "steps": [
+    {
+      "id": "F-BF4-01-register-default-project",
+      "ok": true,
+      "detail": "defaultProjectExists=true projectName=My Project"
+    },
+    {
+      "id": "F-BF4-02-mcp-auth-fallback-project",
+      "ok": true,
+      "detail": "status=200 hasResult=true hasError=false"
+    },
+    {
+      "id": "F-BF4-03-supported-sizes-unified",
+      "ok": true,
+      "detail": "v1SizesOk=true mcpSizesOk=true"
+    },
+    {
+      "id": "F-BF4-04-public-template-preview",
+      "ok": true,
+      "detail": "status=200 isPublicPreview=true stepCount=1"
+    },
+    {
+      "id": "F-BF4-05-mcp-pricing-structured",
+      "ok": true,
+      "detail": "hasPriceString=true hasPricingObject=true currency=USD"
+    },
+    {
+      "id": "F-BF4-06-capability-free-filters",
+      "ok": true,
+      "detail": "v1FilterOk=true mcpFilterOk=true"
+    },
+    {
+      "id": "F-BF4-07-mcp-dx-improvements",
+      "ok": true,
+      "detail": "dxStaticOk=true dxRuntimeOk=true"
+    },
+    {
+      "id": "F-BF4-tsc",
+      "ok": true,
+      "detail": "exit=0 stderr="
+    }
+  ]
+}

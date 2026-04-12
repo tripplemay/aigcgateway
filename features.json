@@ -63,7 +63,7 @@
       "title": "BF4 全量验收",
       "priority": "high",
       "executor": "codex",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "1) 新注册用户自动有默认项目；2) MCP 绑定无效项目时不报 500；3) IMAGE 模型 supportedSizes 统一无矛盾；4) 公共模板可预览；5) list_models 返回结构化价格；6) capability/free 过滤可用；7) MCP DX 改进到位；8) 签收报告生成"
     }
   ]
