@@ -1,23 +1,23 @@
 {
-  "status": "done",
-  "user_goal": "BF4 — DX 反馈修复（注册自动项目 + MCP 校验 + supportedSizes + 公共模板预览 + 价格结构化 + 过滤 + DX 小改进）",
-  "total_features": 8,
-  "completed_features": 8,
+  "status": "building",
+  "user_goal": "BILLING-REFACTOR — 计费架构重构：sellPrice 统一由 ModelAlias 管理，消除 Channel.sellPrice 扣费逻辑，展示价=扣费价",
+  "total_features": 7,
+  "completed_features": 0,
   "fix_rounds": 0,
   "current_sprint": null,
-  "last_updated": "2026-04-12T03:05:00Z",
-  "reference_docs": ["docs/test-reports/user_report/aigc-gateway-dx-audit-2026-04-12.md"],
+  "last_updated": "2026-04-12T04:35:00Z",
+  "reference_docs": ["tests/mcp-test/reports-20260412/all-assertions-20260412.json"],
   "role_assignments": null,
   "docs": {
     "spec": null,
     "test_cases": null,
-    "signoff": "docs/test-reports/BF4-dx-feedback-signoff-2026-04-12.md",
+    "signoff": null,
     "framework_reviewed": false
   },
   "evaluator_feedback": null,
   "generator_handoff": null,
   "session_notes": {
-    "Kimi": "Generator 完成 BF4 全部 7 个 generator 功能。F-BF4-01: register 时 $transaction 创建默认项目; F-BF4-02: mcp/auth.ts 校验 defaultProjectId 存在性+fallback; F-BF4-03: capabilities 中 supported_sizes 已剥离到顶层 supportedSizes（v1/models + MCP list_models + alias-classifier 三处）; F-BF4-04: get_template_detail 支持跨项目预览公共模板; F-BF4-05: MCP list_models 新增 pricing 结构化对象; F-BF4-06: v1/models + MCP 均支持 capability/free_only 过滤; F-BF4-07: chat model 参数加示例、list_logs/get_usage_summary 空结果引导、update_template steps WARNING。进入 verifying 等 Evaluator。",
-    "Reviewer": "已完成 BF4 首轮验收：执行 scripts/test/bf4-verifying-e2e-2026-04-12.ts，8/8 通过；签收文档 docs/test-reports/BF4-dx-feedback-signoff-2026-04-12.md；状态更新为 done。"
+    "Kimi": "Planner 启动 BILLING-REFACTOR 批次。来源：MCP 8 角色审计发现 FIN-001（扣费比展示价高 20%）。根因：扣费读 Channel.sellPrice（含 markup），展示读 Alias.sellPrice（管理员设定），二者不一致。方案：统一为 alias.sellPrice 作为唯一定价源。后续还有 AUDIT-SEC 和 DX-POLISH 两个批次。backlog 中 BL-114(unit 4层防护)、BL-116~119(BF4已完成) 需清理。",
+    "Reviewer": null
   }
 }
