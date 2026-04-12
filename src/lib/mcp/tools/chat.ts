@@ -28,7 +28,11 @@ export function registerChat(server: McpServer, opts: McpServerOptions): void {
     "chat",
     `Send a chat completion request to an AI model via AIGC Gateway. Pass model name and messages array. Returns generated text, trace ID, and token usage. IMPORTANT: Call list_models first to get available model names.`,
     {
-      model: z.string().describe("Exact model name from list_models output"),
+      model: z
+        .string()
+        .describe(
+          "Exact model name from list_models output (e.g. gpt-4o-mini, claude-sonnet-4.6, deepseek-v3, gemini-3-flash)",
+        ),
       messages: z.array(messageSchema).describe("Message array [{role, content}]."),
       temperature: z.number().min(0).max(2).optional().describe("Sampling temperature, 0-2"),
       max_tokens: z.number().int().positive().optional().describe("Maximum output tokens"),
@@ -133,7 +137,7 @@ export function registerChat(server: McpServer, opts: McpServerOptions): void {
           content: [
             {
               type: "text" as const,
-              text: `[no_project] No default project configured. Please set a default project in the console.`,
+              text: `[no_project] No project found. Use create_project to create one.`,
             },
           ],
           isError: true,

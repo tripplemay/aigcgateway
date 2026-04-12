@@ -22,7 +22,7 @@ export function registerListTemplates(server: McpServer, opts: McpServerOptions)
     async ({ page = 1, pageSize = 20 }) => {
       if (!projectId) {
         return {
-          content: [{ type: "text" as const, text: "[no_project] No default project configured." }],
+          content: [{ type: "text" as const, text: "[no_project] No project found. Use create_project to create one." }],
           isError: true,
         };
       }

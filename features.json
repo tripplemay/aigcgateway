@@ -7,7 +7,7 @@
       "title": "注册时自动创建默认项目（BL-115）",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) 用户注册成功后自动创建 'My Project' 并设为 defaultProjectId；2) 新用户无需手动创建项目即可创建 API Key；3) 不影响已有用户；4) tsc 通过"
     },
     {
@@ -15,7 +15,7 @@
       "title": "MCP auth 项目校验兜底（BL-115）",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) MCP 认证时校验 defaultProjectId 对应的项目是否存在；2) 不存在则 fallback 到用户第一个可用项目；3) 用户无项目时返回引导信息（如'请先创建项目'）而非 500；4) tsc 通过"
     },
     {
@@ -23,7 +23,7 @@
       "title": "supportedSizes 字段统一（BL-116）",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) /api/v1/models 返回的 IMAGE 模型统一为单一 supportedSizes 字段（顶层），废弃 capabilities.supported_sizes；2) 所有 IMAGE 模型一致返回，无矛盾数据；3) MCP server instructions 与实际字段一致；4) tsc 通过"
     },
     {
@@ -31,7 +31,7 @@
       "title": "公共模板支持预览（BL-117）",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) get_template_detail 支持查看公共模板详情（只读，跨项目）；2) 用户 Fork 前可查看步骤组成、Action 引用、变量定义；3) 非公共模板的跨项目访问仍返回 404；4) tsc 通过"
     },
     {
@@ -39,7 +39,7 @@
       "title": "MCP 价格返回结构化字段（BL-118）",
       "priority": "low",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) list_models 返回增加结构化 pricing 对象（inputPerMillion/outputPerMillion/perCall/currency），保留人类可读 price 字符串；2) Agent 可直接解析数值做成本预估；3) tsc 通过"
     },
     {
@@ -47,7 +47,7 @@
       "title": "list_models 增加 capability 和 free 过滤（BL-118）",
       "priority": "low",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) list_models 支持 ?capability=function_calling 等过滤参数；2) 支持 ?free_only=true 只返回免费模型；3) 多条件可组合；4) tsc 通过"
     },
     {
@@ -55,7 +55,7 @@
       "title": "MCP DX 小改进（BL-119）",
       "priority": "low",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) chat 工具 model 参数 description 增加典型模型名示例；2) list_logs/get_usage_summary 空结果时增加引导 message；3) update_template steps 参数增加全量替换 WARNING 提示；4) tsc 通过"
     },
     {

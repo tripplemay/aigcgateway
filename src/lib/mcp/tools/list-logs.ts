@@ -36,7 +36,12 @@ export function registerListLogs(server: McpServer, opts: McpServerOptions): voi
       }
       if (!projectId) {
         return {
-          content: [{ type: "text" as const, text: "[no_project] No default project configured." }],
+          content: [
+            {
+              type: "text" as const,
+              text: "[no_project] No project found. Use create_project to create one.",
+            },
+          ],
           isError: true,
         };
       }
@@ -72,11 +77,23 @@ export function registerListLogs(server: McpServer, opts: McpServerOptions): voi
           ORDER BY "createdAt" DESC LIMIT ${take}
         `;
 
+        const formatted = results.map(formatLog);
         return {
           content: [
             {
               type: "text" as const,
-              text: JSON.stringify(results.map(formatLog), null, 2),
+              text:
+                formatted.length === 0
+                  ? JSON.stringify(
+                      {
+                        message:
+                          "No logs found matching your search. Try using chat or generate_image first to create some call logs.",
+                        results: [],
+                      },
+                      null,
+                      2,
+                    )
+                  : JSON.stringify(formatted, null, 2),
             },
           ],
         };
@@ -105,11 +122,23 @@ export function registerListLogs(server: McpServer, opts: McpServerOptions): voi
         },
       });
 
+      const formatted = logs.map(formatLog);
       return {
         content: [
           {
             type: "text" as const,
-            text: JSON.stringify(logs.map(formatLog), null, 2),
+            text:
+              formatted.length === 0
+                ? JSON.stringify(
+                    {
+                      message:
+                        "No call logs yet. Use chat or generate_image to make your first API call, then check back here.",
+                      results: [],
+                    },
+                    null,
+                    2,
+                  )
+                : JSON.stringify(formatted, null, 2),
           },
         ],
       };

@@ -38,7 +38,12 @@ export function registerGetUsageSummary(server: McpServer, opts: McpServerOption
       }
       if (!projectId) {
         return {
-          content: [{ type: "text" as const, text: "[no_project] No default project configured." }],
+          content: [
+            {
+              type: "text" as const,
+              text: "[no_project] No project found. Use create_project to create one.",
+            },
+          ],
           isError: true,
         };
       }
@@ -60,11 +65,21 @@ export function registerGetUsageSummary(server: McpServer, opts: McpServerOption
       // Grouped query
       if (group_by) {
         const groups = await buildGroupedQuery(where, group_by);
+        const payload =
+          groups.length === 0
+            ? {
+                period: p,
+                group_by,
+                groups,
+                message:
+                  "No usage data found for this period. Make some API calls first using chat or generate_image, then check back.",
+              }
+            : { period: p, group_by, groups };
         return {
           content: [
             {
               type: "text" as const,
-              text: JSON.stringify({ period: p, group_by, groups }, null, 2),
+              text: JSON.stringify(payload, null, 2),
             },
           ],
         };
@@ -112,6 +127,12 @@ export function registerGetUsageSummary(server: McpServer, opts: McpServerOption
           cost: `$${Number(m._sum.sellPrice ?? 0).toFixed(8)}`,
           ...(!activeSet.has(m.modelName) ? { deprecated: true } : {}),
         })),
+        ...(agg._count === 0
+          ? {
+              message:
+                "No usage data found for this period. Make some API calls first using chat or generate_image, then check back.",
+            }
+          : {}),
       };
 
       return {

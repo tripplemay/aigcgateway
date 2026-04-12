@@ -1,8 +1,8 @@
 {
-  "status": "building",
+  "status": "verifying",
   "user_goal": "BF4 — DX 反馈修复（注册自动项目 + MCP 校验 + supportedSizes + 公共模板预览 + 价格结构化 + 过滤 + DX 小改进）",
   "total_features": 8,
-  "completed_features": 0,
+  "completed_features": 7,
   "fix_rounds": 0,
   "current_sprint": null,
   "last_updated": "2026-04-12T16:00:00Z",
@@ -17,7 +17,7 @@
   "evaluator_feedback": null,
   "generator_handoff": null,
   "session_notes": {
-    "Kimi": "Planner 完成 PRICE-FIX 收尾 + BF4 启动。BF4 覆盖 DX 审查报告全部 8 个问题：BL-115(注册自动项目+MCP校验) + BL-116(supportedSizes统一) + BL-117(公共模板预览) + BL-118(价格结构化+过滤) + BL-119(DX小改进)。",
+    "Kimi": "Generator 完成 BF4 全部 7 个 generator 功能。F-BF4-01: register 时 $transaction 创建默认项目; F-BF4-02: mcp/auth.ts 校验 defaultProjectId 存在性+fallback; F-BF4-03: capabilities 中 supported_sizes 已剥离到顶层 supportedSizes（v1/models + MCP list_models + alias-classifier 三处）; F-BF4-04: get_template_detail 支持跨项目预览公共模板; F-BF4-05: MCP list_models 新增 pricing 结构化对象; F-BF4-06: v1/models + MCP 均支持 capability/free_only 过滤; F-BF4-07: chat model 参数加示例、list_logs/get_usage_summary 空结果引导、update_template steps WARNING。进入 verifying 等 Evaluator。",
     "Reviewer": null
   }
 }

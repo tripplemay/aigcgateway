@@ -51,7 +51,7 @@ export function registerRunAction(server: McpServer, opts: McpServerOptions): vo
           content: [
             {
               type: "text" as const,
-              text: `[no_project] No default project configured. Please set a default project in the console.`,
+              text: `[no_project] No project found. Use create_project to create one.`,
             },
           ],
           isError: true,

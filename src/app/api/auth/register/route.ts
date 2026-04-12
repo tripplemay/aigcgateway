@@ -35,20 +35,35 @@ export async function POST(request: Request) {
   const verificationToken = randomBytes(32).toString("hex");
   const tokenExpiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24h
 
-  const user = await prisma.user.create({
-    data: {
-      email,
-      passwordHash,
-      name: name ?? null,
-      role: "DEVELOPER",
-      emailVerified: false,
-      emailVerificationTokens: {
-        create: {
-          token: verificationToken,
-          expiresAt: tokenExpiresAt,
+  const user = await prisma.$transaction(async (tx) => {
+    const newUser = await tx.user.create({
+      data: {
+        email,
+        passwordHash,
+        name: name ?? null,
+        role: "DEVELOPER",
+        emailVerified: false,
+        emailVerificationTokens: {
+          create: {
+            token: verificationToken,
+            expiresAt: tokenExpiresAt,
+          },
         },
       },
-    },
+    });
+
+    const defaultProject = await tx.project.create({
+      data: {
+        userId: newUser.id,
+        name: "My Project",
+        description: "Auto-created default project",
+      },
+    });
+
+    return tx.user.update({
+      where: { id: newUser.id },
+      data: { defaultProjectId: defaultProject.id },
+    });
   });
 
   return NextResponse.json(
@@ -57,6 +72,7 @@ export async function POST(request: Request) {
       email: user.email,
       name: user.name,
       emailVerified: user.emailVerified,
+      defaultProjectId: user.defaultProjectId,
       verificationToken,
     },
     { status: 201 },

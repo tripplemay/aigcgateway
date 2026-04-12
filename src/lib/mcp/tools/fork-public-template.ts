@@ -22,7 +22,7 @@ export function registerForkPublicTemplate(server: McpServer, opts: McpServerOpt
     async ({ templateId }) => {
       if (!projectId) {
         return {
-          content: [{ type: "text" as const, text: "[no_project] No default project configured." }],
+          content: [{ type: "text" as const, text: "[no_project] No project found. Use create_project to create one." }],
           isError: true,
         };
       }

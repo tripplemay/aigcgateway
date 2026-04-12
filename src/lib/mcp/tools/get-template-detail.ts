@@ -15,29 +15,37 @@ export function registerGetTemplateDetail(server: McpServer, opts: McpServerOpti
 
   server.tool(
     "get_template_detail",
-    "Get full details of a Template including execution mode, step list with Action info, and reserved variables.",
+    "Get full details of a Template including execution mode, step list with Action info, and reserved variables. Also supports previewing public templates (read-only, cross-project).",
     {
       template_id: z.string().describe("Template ID"),
     },
     async ({ template_id }) => {
-      if (!projectId) {
-        return {
-          content: [{ type: "text" as const, text: "[no_project] No default project configured." }],
-          isError: true,
-        };
-      }
-
-      const template = await prisma.template.findFirst({
-        where: { id: template_id, projectId },
-        include: {
-          steps: {
-            orderBy: { order: "asc" },
-            include: {
-              action: { select: { id: true, name: true, model: true, description: true } },
-            },
+      const templateInclude = {
+        steps: {
+          orderBy: { order: "asc" as const },
+          include: {
+            action: { select: { id: true, name: true, model: true, description: true } },
           },
         },
-      });
+      };
+
+      // First try own project, then fall back to public templates (read-only preview)
+      let template = projectId
+        ? await prisma.template.findFirst({
+            where: { id: template_id, projectId },
+            include: templateInclude,
+          })
+        : null;
+
+      let isPublicPreview = false;
+      if (!template) {
+        // Check if it's a public template (cross-project read-only)
+        template = await prisma.template.findFirst({
+          where: { id: template_id, isPublic: true },
+          include: templateInclude,
+        });
+        if (template) isPublicPreview = true;
+      }
 
       if (!template) {
         return {
@@ -54,6 +62,12 @@ export function registerGetTemplateDetail(server: McpServer, opts: McpServerOpti
         id: template.id,
         name: template.name,
         description: template.description,
+        ...(isPublicPreview
+          ? {
+              isPublicPreview: true,
+              hint: "Use fork_public_template to fork this template into your project.",
+            }
+          : {}),
         executionMode,
         stepCount: template.steps.length,
         steps: template.steps.map((s) => ({

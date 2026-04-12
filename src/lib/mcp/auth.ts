@@ -68,7 +68,32 @@ export async function authenticateMcp(request: Request): Promise<McpAuthContext 
     .catch(() => {});
 
   const permissions = (apiKey.permissions ?? {}) as Partial<ApiKeyPermissions>;
-  const projectId = apiKey.user.defaultProjectId;
+
+  // 校验 defaultProjectId 对应的项目是否存在
+  let projectId = apiKey.user.defaultProjectId;
+  if (projectId) {
+    const projectExists = await prisma.project.findUnique({
+      where: { id: projectId },
+      select: { id: true },
+    });
+    if (!projectExists) {
+      // defaultProject 不存在，fallback 到用户第一个可用项目
+      const fallback = await prisma.project.findFirst({
+        where: { userId: apiKey.user.id },
+        orderBy: { createdAt: "asc" },
+        select: { id: true },
+      });
+      projectId = fallback?.id ?? null;
+    }
+  } else {
+    // defaultProjectId 为 null，尝试 fallback
+    const fallback = await prisma.project.findFirst({
+      where: { userId: apiKey.user.id },
+      orderBy: { createdAt: "asc" },
+      select: { id: true },
+    });
+    projectId = fallback?.id ?? null;
+  }
 
   return { user: apiKey.user, projectId, apiKey, permissions };
 }

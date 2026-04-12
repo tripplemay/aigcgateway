@@ -33,7 +33,8 @@ async function queryModelsJSON(modalityFilter: string | undefined): Promise<stri
       models: {
         include: {
           model: {
-            include: {
+            select: {
+              supportedSizes: true,
               channels: {
                 where: { status: "ACTIVE" },
                 orderBy: { priority: "asc" },
@@ -76,7 +77,9 @@ async function queryModelsJSON(modalityFilter: string | undefined): Promise<stri
         aliasSellPrice && Object.keys(aliasSellPrice).length > 0
           ? aliasSellPrice
           : (bestChannel?.sellPrice as Record<string, unknown> | undefined);
-      const capabilities = (alias.capabilities as ModelCapabilities | null) ?? {};
+      // Strip supported_sizes from capabilities (moved to top-level supportedSizes)
+      const rawCapabilities = (alias.capabilities as ModelCapabilities | null) ?? {};
+      const { supported_sizes: _stripSizes, ...capabilities } = rawCapabilities;
 
       const pricing: Record<string, unknown> = {};
       if (sellPrice) {
@@ -101,6 +104,21 @@ async function queryModelsJSON(modalityFilter: string | undefined): Promise<stri
         }
       }
 
+      // Aggregate supportedSizes from linked models for IMAGE aliases
+      let supportedSizes: string[] | undefined;
+      if (alias.modality === "IMAGE") {
+        const sizesSet = new Set<string>();
+        for (const link of alias.models) {
+          const sizes = link.model.supportedSizes;
+          if (Array.isArray(sizes)) {
+            for (const s of sizes) sizesSet.add(String(s));
+          }
+        }
+        if (sizesSet.size > 0) {
+          supportedSizes = Array.from(sizesSet).sort();
+        }
+      }
+
       return {
         id: alias.alias,
         object: "model" as const,
@@ -110,6 +128,7 @@ async function queryModelsJSON(modalityFilter: string | undefined): Promise<stri
         ...(alias.maxTokens ? { max_output_tokens: alias.maxTokens } : {}),
         pricing,
         capabilities,
+        ...(supportedSizes ? { supportedSizes } : {}),
         ...(alias.description ? { description: alias.description } : {}),
       };
     })
@@ -180,9 +199,34 @@ export async function GET(request: Request) {
 
   const url = new URL(request.url);
   const modalityFilter = url.searchParams.get("modality")?.toUpperCase();
+  const capabilityFilter = url.searchParams.get("capability");
+  const freeOnly = url.searchParams.get("free_only") === "true";
   const cacheKey = modalityFilter ? `models:list:${modalityFilter}` : "models:list";
 
-  const json = await getModelsWithCache(cacheKey, modalityFilter);
+  let json = await getModelsWithCache(cacheKey, modalityFilter);
+
+  // Post-filter by capability and free_only (applied after cache to avoid key explosion)
+  if (capabilityFilter || freeOnly) {
+    const parsed = JSON.parse(json) as { object: string; data: Record<string, unknown>[] };
+    parsed.data = parsed.data.filter((item) => {
+      if (capabilityFilter) {
+        const caps = item.capabilities as Record<string, unknown> | undefined;
+        if (!caps || caps[capabilityFilter] !== true) return false;
+      }
+      if (freeOnly) {
+        const p = item.pricing as Record<string, unknown> | undefined;
+        if (!p) return false;
+        if (p.per_call !== undefined) {
+          if (Number(p.per_call) !== 0) return false;
+        } else {
+          if (Number(p.input_per_1m) !== 0 || Number(p.output_per_1m) !== 0) return false;
+        }
+      }
+      return true;
+    });
+    json = JSON.stringify(parsed);
+  }
+
   return new NextResponse(json, {
     status: 200,
     headers: { "content-type": "application/json" },

@@ -42,7 +42,7 @@ export function registerCreateActionVersion(server: McpServer, opts: McpServerOp
       }
       if (!projectId) {
         return {
-          content: [{ type: "text" as const, text: "[no_project] No default project configured." }],
+          content: [{ type: "text" as const, text: "[no_project] No project found. Use create_project to create one." }],
           isError: true,
         };
       }

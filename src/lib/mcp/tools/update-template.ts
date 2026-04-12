@@ -28,7 +28,9 @@ export function registerUpdateTemplate(server: McpServer, opts: McpServerOptions
           }),
         )
         .optional()
-        .describe("New steps (full replacement). Omit to keep existing steps."),
+        .describe(
+          "New steps (WARNING: full replacement — omitting a step removes it. Use get_template_detail first to retrieve existing steps, then modify and submit the complete list). Omit entirely to keep existing steps.",
+        ),
     },
     async ({ template_id, name, description, steps }) => {
       const permErr = checkMcpPermission(permissions, "projectInfo");
@@ -37,7 +39,12 @@ export function registerUpdateTemplate(server: McpServer, opts: McpServerOptions
       }
       if (!projectId) {
         return {
-          content: [{ type: "text" as const, text: "[no_project] No default project configured." }],
+          content: [
+            {
+              type: "text" as const,
+              text: "[no_project] No project found. Use create_project to create one.",
+            },
+          ],
           isError: true,
         };
       }

@@ -157,7 +157,7 @@ ${existingBrands.length > 0 ? JSON.stringify(existingBrands) : "(空)"}
 4. 无法确定品牌则返回 null
 5. 推断模型的 capabilities（function_calling / streaming / vision / system_prompt / json_mode / reasoning / search），返回为 true/false
 6. 推断模型的 context_window（上下文窗口大小，整数，如 128000）和 max_tokens（最大输出 token 数，整数，如 4096）。不确定则返回 null
-7. 对于图片生成模型，在 capabilities 中额外包含 supported_sizes 字段（字符串数组），如 ["1024x1024", "1024x1792"]
+7. 对于图片生成模型，在顶层返回 supported_sizes 字段（字符串数组，与 capabilities 平级），如 ["1024x1024", "1024x1792"]。注意：不要把 supported_sizes 放在 capabilities 内部
 
 ## 版本号区分规则（严格执行）
 - 不同大版本号的模型必须为独立别名，绝不合并。例如：
@@ -628,7 +628,7 @@ function buildCapabilitiesPrompt(aliasNames: string[]): string {
 - reasoning: 是否支持推理/思维链（如 o1、DeepSeek-R1、QwQ 等推理模型）
 - search: 是否支持联网搜索（如 gpt-4o-search、kimi-search 等）
 
-对于图片生成模型（如 dall-e、cogview、flux、stable-diffusion 等），额外返回 supported_sizes 字段（字符串数组），列出支持的图片尺寸，如 ["1024x1024", "1024x1792", "1792x1024"]。非图片模型不需要此字段。
+对于图片生成模型（如 dall-e、cogview、flux、stable-diffusion 等），在顶层（与 capabilities 平级）额外返回 supported_sizes 字段（字符串数组），列出支持的图片尺寸，如 ["1024x1024", "1024x1792", "1792x1024"]。注意：不要把 supported_sizes 放在 capabilities 内部。非图片模型不需要此字段。
 
 别名列表：
 ${aliasNames.map((n) => `- ${n}`).join("\n")}
