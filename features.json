@@ -15,7 +15,7 @@
       "title": "不可用模型从 list_models 过滤",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "1) list_models 不返回所有 channel 均健康检查 FAIL 的模型；2) list_models 不返回所有 channel 均被禁用的模型；3) 现有正常模型不受影响；4) tsc 通过"
     },
     {

@@ -31,6 +31,7 @@ async function queryModelsJSON(modalityFilter: string | undefined): Promise<stri
     },
     include: {
       models: {
+        where: { model: { enabled: true } },
         include: {
           model: {
             select: {

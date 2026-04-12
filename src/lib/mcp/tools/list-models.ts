@@ -51,6 +51,7 @@ export function registerListModels(server: McpServer, opts: McpServerOptions): v
         },
         include: {
           models: {
+            where: { model: { enabled: true } },
             include: {
               model: {
                 select: {
