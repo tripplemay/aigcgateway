@@ -726,6 +726,7 @@
     "suggestPrice": "Suggest Price",
     "priceApplied": "Price applied",
     "noCandidates": "No matching models found on OpenRouter",
+    "noImagePricing": "No image pricing available for this model on OpenRouter",
     "searchOpenRouter": "Search OpenRouter models...",
     "close": "Close"
   },

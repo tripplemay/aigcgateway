@@ -726,6 +726,7 @@
     "suggestPrice": "参考定价",
     "priceApplied": "定价已应用",
     "noCandidates": "在 OpenRouter 未找到匹配模型",
+    "noImagePricing": "该模型在 OpenRouter 无图片定价数据",
     "searchOpenRouter": "搜索 OpenRouter 模型...",
     "close": "关闭"
   },

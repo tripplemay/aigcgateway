@@ -1,8 +1,8 @@
 {
-  "status": "building",
+  "status": "verifying",
   "user_goal": "PRICE-FIX — sellPrice unit 4 层防护 + IMAGE 模型参考定价适配",
   "total_features": 6,
-  "completed_features": 0,
+  "completed_features": 5,
   "fix_rounds": 0,
   "current_sprint": null,
   "last_updated": "2026-04-12T15:00:00Z",
@@ -15,9 +15,9 @@
     "framework_reviewed": false
   },
   "evaluator_feedback": null,
-  "generator_handoff": null,
+  "generator_handoff": "F-PF-01~05 全部完成。Layer 1: PATCH API 自动补 unit（缺 unit 时推断 token/call，无价格字段返回 400）。Layer 2: 前端 saveChanges CNY→USD 转换后自动补 unit。Layer 3: Prisma $extends query hook 在 ModelAlias create/update 时补 unit。Layer 4: /v1/models 读取时缺 unit 自动推断。F-PF-05: suggest-price API 支持 IMAGE perCall 定价（OpenRouter pricing.image 字段），前端回填 perCall+unit:call。",
   "session_notes": {
-    "Kimi": "Planner 启动 PRICE-FIX：6 条功能。BL-114（4 层防护：API 保底 + 前端补全 + Prisma middleware + 读取兼容）+ BL-113（IMAGE 参考定价 perCall 适配）。BL-114 先于 BL-113，否则 IMAGE 回填仍缺 unit。",
+    "Kimi": "Generator 完成 PRICE-FIX 全部 5 条功能。4 层 sellPrice.unit 防护 + IMAGE 参考定价 perCall 适配。Prisma 层用 $extends query hook（非 $use，v5 已移除）。状态推进到 verifying。",
     "Reviewer": null
   }
 }

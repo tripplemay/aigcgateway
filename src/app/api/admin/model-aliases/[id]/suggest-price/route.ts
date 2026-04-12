@@ -7,7 +7,7 @@ import { errorResponse } from "@/lib/api/errors";
 interface OpenRouterModel {
   id: string;
   name: string;
-  pricing: { prompt: string; completion: string } | null;
+  pricing: { prompt: string; completion: string; image?: string; request?: string } | null;
 }
 
 /**
@@ -16,17 +16,14 @@ interface OpenRouterModel {
  * If alias has openRouterModelId → fetch that model's pricing directly.
  * Otherwise → search OpenRouter models by alias name, return top 5 candidates.
  */
-export async function GET(
-  request: Request,
-  { params }: { params: Promise<{ id: string }> },
-) {
+export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const auth = requireAdmin(request);
   if (!auth.ok) return auth.error;
 
   const { id } = await params;
   const alias = await prisma.modelAlias.findUnique({
     where: { id },
-    select: { alias: true, openRouterModelId: true },
+    select: { alias: true, openRouterModelId: true, modality: true },
   });
   if (!alias) return errorResponse(404, "not_found", "Alias not found");
 
@@ -55,21 +52,37 @@ export async function GET(
     const json = await res.json();
     const allModels = (json.data ?? []) as OpenRouterModel[];
 
+    const isImage = alias.modality === "IMAGE";
+
+    /** Build pricing fields for a single OpenRouter model */
+    function buildPricing(m: OpenRouterModel) {
+      if (isImage) {
+        // IMAGE: prefer pricing.image (per-image USD), fallback to pricing.request
+        const imagePrice = parseFloat(m.pricing?.image ?? m.pricing?.request ?? "0");
+        if (imagePrice <= 0) return null; // no image pricing available
+        return { perCallCNY: imagePrice * rate, unit: "call" as const };
+      }
+      const inputUsd = parseFloat(m.pricing!.prompt) * 1_000_000;
+      const outputUsd = parseFloat(m.pricing!.completion) * 1_000_000;
+      return {
+        inputPriceCNYPerM: inputUsd * rate,
+        outputPriceCNYPerM: outputUsd * rate,
+        unit: "token" as const,
+      };
+    }
+
     // If alias already has a mapping, return that model directly
     if (alias.openRouterModelId) {
       const mapped = allModels.find((m) => m.id === alias.openRouterModelId);
       if (mapped && mapped.pricing) {
-        const inputUsd = parseFloat(mapped.pricing.prompt) * 1_000_000;
-        const outputUsd = parseFloat(mapped.pricing.completion) * 1_000_000;
+        const pricing = buildPricing(mapped);
+        if (!pricing) {
+          return NextResponse.json({ bound: true, noImagePricing: true, rate });
+        }
         return NextResponse.json({
           bound: true,
           openRouterModelId: alias.openRouterModelId,
-          model: {
-            id: mapped.id,
-            name: mapped.name,
-            inputPriceCNYPerM: inputUsd * rate,
-            outputPriceCNYPerM: outputUsd * rate,
-          },
+          model: { id: mapped.id, name: mapped.name, ...pricing },
           rate,
         });
       }
@@ -79,17 +92,13 @@ export async function GET(
     const lowerQuery = query.toLowerCase();
     const candidates = allModels
       .filter((m) => m.pricing && m.id.toLowerCase().includes(lowerQuery))
-      .slice(0, 5)
       .map((m) => {
-        const inputUsd = parseFloat(m.pricing!.prompt) * 1_000_000;
-        const outputUsd = parseFloat(m.pricing!.completion) * 1_000_000;
-        return {
-          id: m.id,
-          name: m.name,
-          inputPriceCNYPerM: inputUsd * rate,
-          outputPriceCNYPerM: outputUsd * rate,
-        };
-      });
+        const pricing = buildPricing(m);
+        if (!pricing) return null;
+        return { id: m.id, name: m.name, ...pricing };
+      })
+      .filter(Boolean)
+      .slice(0, 5);
 
     return NextResponse.json({
       bound: false,

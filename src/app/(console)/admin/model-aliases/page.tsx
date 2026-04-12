@@ -204,6 +204,14 @@ export default function ModelAliasesPage() {
           converted[k] = v;
         }
       }
+      // Auto-fill unit if missing (Layer 2 — frontend guard)
+      if (!converted.unit) {
+        if (converted.inputPer1M !== undefined || converted.outputPer1M !== undefined) {
+          converted.unit = "token";
+        } else if (converted.perCall !== undefined) {
+          converted.unit = "call";
+        }
+      }
       changes.sellPrice = converted;
     }
     try {
@@ -805,14 +813,22 @@ export default function ModelAliasesPage() {
                           </h4>
                           <SuggestPriceButton
                             aliasId={alias.id}
-                            onApply={(input, output, orModelId) => {
+                            onApply={(pricing, orModelId) => {
                               const current = getSellPrice(alias.id);
-                              setEditField(alias.id, "sellPrice", {
-                                ...current,
-                                inputPer1M: input,
-                                outputPer1M: output,
-                                unit: "token",
-                              });
+                              if (pricing.unit === "call") {
+                                setEditField(alias.id, "sellPrice", {
+                                  ...current,
+                                  perCall: pricing.perCallCNY,
+                                  unit: "call",
+                                });
+                              } else {
+                                setEditField(alias.id, "sellPrice", {
+                                  ...current,
+                                  inputPer1M: pricing.inputPriceCNYPerM,
+                                  outputPer1M: pricing.outputPriceCNYPerM,
+                                  unit: "token",
+                                });
+                              }
                               if (orModelId) {
                                 setEditField(alias.id, "openRouterModelId", orModelId);
                               }
@@ -1088,18 +1104,22 @@ export default function ModelAliasesPage() {
 // SuggestPriceButton — 参考定价按钮
 // ============================================================
 
+type SuggestPricing =
+  | { unit: "token"; inputPriceCNYPerM: number; outputPriceCNYPerM: number }
+  | { unit: "call"; perCallCNY: number };
+
+type SuggestCandidate = { id: string; name: string } & SuggestPricing;
+
 function SuggestPriceButton({
   aliasId,
   onApply,
 }: {
   aliasId: string;
-  onApply: (inputPerM: number, outputPerM: number, orModelId?: string) => void;
+  onApply: (pricing: SuggestPricing, orModelId?: string) => void;
 }) {
   const t = useTranslations("modelAliases");
   const [loading, setLoading] = useState(false);
-  const [candidates, setCandidates] = useState<
-    Array<{ id: string; name: string; inputPriceCNYPerM: number; outputPriceCNYPerM: number }>
-  >([]);
+  const [candidates, setCandidates] = useState<SuggestCandidate[]>([]);
   const [showDropdown, setShowDropdown] = useState(false);
   const [searchQ, setSearchQ] = useState("");
 
@@ -1109,18 +1129,18 @@ function SuggestPriceButton({
       const params = q ? `?q=${encodeURIComponent(q)}` : "";
       const res = await apiFetch<{
         bound: boolean;
-        model?: { id: string; inputPriceCNYPerM: number; outputPriceCNYPerM: number };
-        candidates?: Array<{
-          id: string;
-          name: string;
-          inputPriceCNYPerM: number;
-          outputPriceCNYPerM: number;
-        }>;
+        noImagePricing?: boolean;
+        model?: SuggestCandidate;
+        candidates?: SuggestCandidate[];
         openRouterModelId?: string;
       }>(`/api/admin/model-aliases/${aliasId}/suggest-price${params}`);
 
-      if (res.bound && res.model) {
-        onApply(res.model.inputPriceCNYPerM, res.model.outputPriceCNYPerM, res.openRouterModelId);
+      if (res.bound && res.noImagePricing) {
+        toast.info(t("noImagePricing"));
+        setShowDropdown(false);
+      } else if (res.bound && res.model) {
+        const { id: _id, name: _name, ...pricing } = res.model;
+        onApply(pricing as SuggestPricing, res.openRouterModelId);
         toast.success(t("priceApplied"));
         setShowDropdown(false);
       } else if (res.candidates && res.candidates.length > 0) {
@@ -1136,11 +1156,17 @@ function SuggestPriceButton({
     }
   };
 
-  const selectCandidate = (c: (typeof candidates)[0]) => {
-    onApply(c.inputPriceCNYPerM, c.outputPriceCNYPerM, c.id);
+  const selectCandidate = (c: SuggestCandidate) => {
+    const { id, name: _name, ...pricing } = c;
+    onApply(pricing as SuggestPricing, id);
     setShowDropdown(false);
     setCandidates([]);
     toast.success(t("priceApplied"));
+  };
+
+  const formatPrice = (c: SuggestCandidate) => {
+    if (c.unit === "call") return `¥${c.perCallCNY.toFixed(4)} / call`;
+    return `¥${c.inputPriceCNYPerM.toFixed(2)} / ¥${c.outputPriceCNYPerM.toFixed(2)} per 1M`;
   };
 
   return (
@@ -1174,9 +1200,7 @@ function SuggestPriceButton({
                 className="w-full text-left px-3 py-2 rounded-lg hover:bg-ds-surface-container-low transition-colors text-xs"
               >
                 <div className="font-bold truncate">{c.id}</div>
-                <div className="text-ds-on-surface-variant">
-                  ¥{c.inputPriceCNYPerM.toFixed(2)} / ¥{c.outputPriceCNYPerM.toFixed(2)} per 1M
-                </div>
+                <div className="text-ds-on-surface-variant">{formatPrice(c)}</div>
               </button>
             ))}
           </div>

@@ -10,8 +10,41 @@ import { PrismaClient } from "@prisma/client";
  *   connection_limit=5  — 1GB VPS 适用，不宜过大
  *   pool_timeout=2      — 等待可用连接超时 2 秒，快速失败
  */
-const globalForPrisma = globalThis as unknown as { prisma: PrismaClient };
 
-export const prisma = globalForPrisma.prisma ?? new PrismaClient();
+function ensureSellPriceUnit(data: Record<string, unknown> | undefined) {
+  if (!data?.sellPrice || typeof data.sellPrice !== "object" || Array.isArray(data.sellPrice))
+    return;
+  const sp = data.sellPrice as Record<string, unknown>;
+  if (sp.unit) return;
+  if (sp.inputPer1M !== undefined || sp.outputPer1M !== undefined) {
+    sp.unit = "token";
+  } else if (sp.perCall !== undefined) {
+    sp.unit = "call";
+  }
+}
+
+function createExtendedClient() {
+  const base = new PrismaClient();
+  return base.$extends({
+    query: {
+      modelAlias: {
+        async create({ args, query }) {
+          ensureSellPriceUnit(args.data as Record<string, unknown>);
+          return query(args);
+        },
+        async update({ args, query }) {
+          ensureSellPriceUnit(args.data as Record<string, unknown>);
+          return query(args);
+        },
+      },
+    },
+  });
+}
+
+type ExtendedPrismaClient = ReturnType<typeof createExtendedClient>;
+
+const globalForPrisma = globalThis as unknown as { prisma: ExtendedPrismaClient };
+
+export const prisma = globalForPrisma.prisma ?? createExtendedClient();
 
 globalForPrisma.prisma = prisma;

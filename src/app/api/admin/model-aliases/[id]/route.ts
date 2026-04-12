@@ -46,6 +46,25 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     return errorResponse(400, "invalid_parameter", "No valid fields to update");
   }
 
+  // Auto-fill sellPrice.unit if missing (Layer 1 — API guard)
+  if (data.sellPrice && typeof data.sellPrice === "object") {
+    const sp = data.sellPrice as Record<string, unknown>;
+    if (!sp.unit) {
+      if (sp.inputPer1M !== undefined || sp.outputPer1M !== undefined) {
+        sp.unit = "token";
+      } else if (sp.perCall !== undefined) {
+        sp.unit = "call";
+      } else {
+        return errorResponse(
+          400,
+          "invalid_parameter",
+          "sellPrice must contain price fields (inputPer1M/outputPer1M or perCall)",
+        );
+      }
+      data.sellPrice = sp;
+    }
+  }
+
   // If alias is being changed, check uniqueness
   if (data.alias && data.alias !== existing.alias) {
     const conflict = await prisma.modelAlias.findUnique({

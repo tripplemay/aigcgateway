@@ -80,12 +80,21 @@ async function queryModelsJSON(modalityFilter: string | undefined): Promise<stri
 
       const pricing: Record<string, unknown> = {};
       if (sellPrice) {
-        if (sellPrice.unit === "token") {
+        // Infer unit for legacy data missing it (Layer 4 — read-time compat)
+        const unit =
+          sellPrice.unit ??
+          (sellPrice.inputPer1M !== undefined || sellPrice.outputPer1M !== undefined
+            ? "token"
+            : sellPrice.perCall !== undefined
+              ? "call"
+              : undefined);
+
+        if (unit === "token") {
           pricing.input_per_1m = sellPrice.inputPer1M;
           pricing.output_per_1m = sellPrice.outputPer1M;
           pricing.unit = "token";
           pricing.currency = "USD";
-        } else if (sellPrice.unit === "call") {
+        } else if (unit === "call") {
           pricing.per_call = sellPrice.perCall;
           pricing.unit = "call";
           pricing.currency = "USD";
