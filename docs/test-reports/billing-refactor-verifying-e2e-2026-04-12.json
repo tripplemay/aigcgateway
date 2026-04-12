@@ -1,0 +1,36 @@
+{
+  "batch": "BILLING-REFACTOR",
+  "feature": "F-BR-07",
+  "executedAt": "2026-04-12T05:35:11.665Z",
+  "baseUrl": "http://localhost:3099",
+  "mcpUrl": "http://localhost:3099/api/mcp",
+  "pass": 5,
+  "fail": 0,
+  "steps": [
+    {
+      "id": "SMOKE-01-service-ready",
+      "ok": true,
+      "detail": "status=200 models=1"
+    },
+    {
+      "id": "SMOKE-02-mcp-initialize",
+      "ok": true,
+      "detail": "server=aigc-gateway"
+    },
+    {
+      "id": "F-BR-AC1-AC4-cost-equals-list-price-and-ignore-channel-sellPrice",
+      "ok": true,
+      "detail": "trace1=trc_vas4k9bx5l4oat6awdsudbzp trace2=trc_e0p28u3ooxk0a2tefv0uigs8 price=0.333333/0.666667 cost=0.00000933"
+    },
+    {
+      "id": "F-BR-AC2-no-enabled-model-pricing-empty",
+      "ok": true,
+      "detail": "checked=1"
+    },
+    {
+      "id": "F-BR-AC3-pricing-decimals-max-6",
+      "ok": true,
+      "detail": "checked=1"
+    }
+  ]
+}
