@@ -47,7 +47,7 @@
       "title": "日志 XSS 转义（prompt 存储/展示安全化）",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "1) get_log_detail 返回的 prompt/response 内容中 HTML 特殊字符已转义（<>&\"'）；2) 控制台日志页面不触发 XSS；3) 原始数据库存储不变（只在展示层转义）；4) tsc 通过"
     },
     {

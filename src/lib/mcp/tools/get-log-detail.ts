@@ -10,6 +10,7 @@ import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { prisma } from "@/lib/prisma";
 import { checkMcpPermission } from "@/lib/mcp/auth";
 import type { McpServerOptions } from "@/lib/mcp/server";
+import { escapeJsonStrings } from "@/lib/api/sanitize-html";
 
 export function registerGetLogDetail(server: McpServer, opts: McpServerOptions): void {
   const { projectId, permissions } = opts;
@@ -27,7 +28,12 @@ export function registerGetLogDetail(server: McpServer, opts: McpServerOptions):
       }
       if (!projectId) {
         return {
-          content: [{ type: "text" as const, text: "[no_project] No project found. Use create_project to create one." }],
+          content: [
+            {
+              type: "text" as const,
+              text: "[no_project] No project found. Use create_project to create one.",
+            },
+          ],
           isError: true,
         };
       }
@@ -82,9 +88,9 @@ export function registerGetLogDetail(server: McpServer, opts: McpServerOptions):
         model: log.modelName,
         status: log.status.toLowerCase(),
         source: log.source,
-        prompt: log.promptSnapshot,
+        prompt: escapeJsonStrings(log.promptSnapshot),
         parameters: log.requestParams,
-        response: log.responseContent,
+        response: escapeJsonStrings(log.responseContent),
         finishReason: log.finishReason,
         usage: {
           promptTokens: log.promptTokens,

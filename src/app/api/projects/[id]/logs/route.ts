@@ -3,13 +3,15 @@ import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import { verifyJwt } from "@/lib/api/jwt-middleware";
 import { errorResponse } from "@/lib/api/errors";
-
+import { escapeHtml } from "@/lib/api/sanitize-html";
 
 export async function GET(request: Request, { params }: { params: { id: string } }) {
   const auth = verifyJwt(request);
   if (!auth.ok) return auth.error;
 
-  const project = await prisma.project.findFirst({ where: { id: params.id, userId: auth.payload.userId } });
+  const project = await prisma.project.findFirst({
+    where: { id: params.id, userId: auth.payload.userId },
+  });
   if (!project) return errorResponse(404, "not_found", "Project not found");
 
   const url = new URL(request.url);
@@ -26,18 +28,27 @@ export async function GET(request: Request, { params }: { params: { id: string }
 
   const [data, total] = await Promise.all([
     prisma.callLog.findMany({
-      where, orderBy: { createdAt: "desc" }, skip: (page - 1) * pageSize, take: pageSize,
+      where,
+      orderBy: { createdAt: "desc" },
+      skip: (page - 1) * pageSize,
+      take: pageSize,
     }),
     prisma.callLog.count({ where }),
   ]);
 
   return NextResponse.json({
     data: data.map((l) => ({
-      traceId: l.traceId, modelName: l.modelName, status: l.status,
-      finishReason: l.finishReason, promptTokens: l.promptTokens,
-      completionTokens: l.completionTokens, totalTokens: l.totalTokens,
+      traceId: l.traceId,
+      modelName: l.modelName,
+      status: l.status,
+      finishReason: l.finishReason,
+      promptTokens: l.promptTokens,
+      completionTokens: l.completionTokens,
+      totalTokens: l.totalTokens,
       sellPrice: l.sellPrice ? Number(l.sellPrice) : null,
-      latencyMs: l.latencyMs, ttftMs: l.ttftMs, tokensPerSecond: l.tokensPerSecond,
+      latencyMs: l.latencyMs,
+      ttftMs: l.ttftMs,
+      tokensPerSecond: l.tokensPerSecond,
       createdAt: l.createdAt,
       promptPreview: extractPreview(l.promptSnapshot),
     })),
@@ -49,6 +60,6 @@ function extractPreview(snapshot: unknown): string {
   if (!Array.isArray(snapshot)) return "";
   const last = snapshot.findLast((m: Record<string, unknown>) => m.role === "user");
   const content = last?.content;
-  if (typeof content === "string") return content.slice(0, 100);
+  if (typeof content === "string") return escapeHtml(content.slice(0, 100));
   return "";
 }
