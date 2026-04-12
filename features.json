@@ -23,7 +23,7 @@
       "title": "image 模型 supportedSizes 数据回填",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "1) list_models(modality='image') 返回的每个模型都有顶层 supportedSizes 字段；2) gemini-3-pro-image/gpt-image/qwen-image 已补全；3) 回填脚本可重复执行（幂等）；4) tsc 通过"
     },
     {
