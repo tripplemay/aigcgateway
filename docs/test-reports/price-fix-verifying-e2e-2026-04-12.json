@@ -1,0 +1,44 @@
+{
+  "batch": "PRICE-FIX-sellprice-image",
+  "executedAt": "2026-04-12T02:10:00.453Z",
+  "baseUrl": "http://localhost:3099",
+  "pass": 7,
+  "fail": 0,
+  "steps": [
+    {
+      "id": "F-PF-01-api-guard-sellprice-unit",
+      "ok": true,
+      "detail": "textUnit=token imageUnit=call badPatchCode=invalid_parameter"
+    },
+    {
+      "id": "F-PF-02-frontend-save-layer2",
+      "ok": true,
+      "detail": "layer2CodePresent=true"
+    },
+    {
+      "id": "F-PF-03-prisma-layer3-guard",
+      "ok": true,
+      "detail": "layer3Code=true layer3Unit=call"
+    },
+    {
+      "id": "F-PF-04-v1-models-read-time-unit-infer",
+      "ok": true,
+      "detail": "pricingUnit=call perCallType=number"
+    },
+    {
+      "id": "F-PF-05-image-suggest-price",
+      "ok": true,
+      "detail": "candidates=2 hasImageCandidate=true backfillCode=true"
+    },
+    {
+      "id": "F-PF-cache-invalidate-on-sellprice-update",
+      "ok": true,
+      "detail": "redisConnected=true cacheCleared=true"
+    },
+    {
+      "id": "F-PF-tsc",
+      "ok": true,
+      "detail": "exit=0 stderr="
+    }
+  ]
+}

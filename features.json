@@ -47,7 +47,7 @@
       "title": "PRICE-FIX 全量验收",
       "priority": "high",
       "executor": "codex",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "1) 手动编辑 TEXT 别名定价保存后 unit=token 正确；2) 手动编辑 IMAGE 别名定价保存后 unit=call 正确；3) 历史缺 unit 数据在 /models 页不再显示免费；4) IMAGE 别名参考定价可用，回填 perCall 正确；5) API 层拦截无 unit 的写入；6) 签收报告生成"
     }
   ]
