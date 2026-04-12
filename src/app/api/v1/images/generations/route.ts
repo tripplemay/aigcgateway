@@ -13,7 +13,7 @@ import { generateTraceId, jsonResponse } from "@/lib/api/response";
 import { resolveEngine } from "@/lib/engine";
 import { processImageResult } from "@/lib/api/post-process";
 import type { ImageGenerationRequest } from "@/lib/engine/types";
-import { EngineError, sanitizeErrorMessage } from "@/lib/engine/types";
+import { EngineError, ErrorCodes, sanitizeErrorMessage } from "@/lib/engine/types";
 
 export async function POST(request: Request) {
   const traceId = generateTraceId();
@@ -65,6 +65,20 @@ export async function POST(request: Request) {
       return errorResponse(err.statusCode, err.code, sanitizeErrorMessage(err.message));
     }
     return errorResponse(502, "provider_error", sanitizeErrorMessage((err as Error).message));
+  }
+
+  // 5.5 Size 预校验
+  if (body.size) {
+    const supportedSizes = route.model.supportedSizes as string[] | null;
+    if (supportedSizes && supportedSizes.length > 0 && !supportedSizes.includes(body.size)) {
+      if (rlKey && rlMember) rollbackRateLimit(rlKey, rlMember).catch(() => {});
+      return errorResponse(
+        400,
+        ErrorCodes.INVALID_SIZE,
+        `Invalid size "${body.size}" for model "${body.model}". Supported sizes: ${supportedSizes.join(", ")}`,
+        { param: "size" },
+      );
+    }
   }
 
   const startTime = Date.now();

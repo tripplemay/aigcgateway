@@ -173,6 +173,7 @@ export function sanitizeErrorMessage(message: string): string {
 
 export const ErrorCodes = {
   INVALID_REQUEST: "invalid_request",
+  INVALID_SIZE: "invalid_size",
   AUTH_FAILED: "auth_failed",
   RATE_LIMITED: "rate_limited",
   MODEL_NOT_FOUND: "model_not_found",

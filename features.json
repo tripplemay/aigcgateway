@@ -55,7 +55,7 @@
       "title": "generate_image size 预校验",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "1) generate_image 传入无效 size 时返回明确的 invalid_size 错误码；2) 错误消息包含该模型的 supportedSizes 列表；3) 不透传上游模糊错误；4) tsc 通过"
     },
     {

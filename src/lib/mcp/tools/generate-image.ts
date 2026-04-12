@@ -152,6 +152,26 @@ export function registerGenerateImage(server: McpServer, opts: McpServerOptions)
         };
       }
 
+      // Size 预校验
+      if (size) {
+        const supportedSizes = route.model.supportedSizes as string[] | null;
+        if (supportedSizes && supportedSizes.length > 0 && !supportedSizes.includes(size)) {
+          return {
+            content: [
+              {
+                type: "text" as const,
+                text: JSON.stringify({
+                  code: "invalid_size",
+                  message: `Invalid size "${size}" for model "${model}". Supported sizes: ${supportedSizes.join(", ")}`,
+                  supportedSizes,
+                }),
+              },
+            ],
+            isError: true,
+          };
+        }
+      }
+
       const traceId = generateTraceId();
       const startTime = Date.now();
 
