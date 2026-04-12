@@ -4,10 +4,11 @@ description: AIGC Gateway 当前状态快照（覆盖写，≤30 行）
 type: project
 ---
 ## 当前批次
-- AUDIT-SEC：`building`（8 条功能，0/8 完成）
-- 安全：上游错误脱敏（QQ 群号 + 内部术语）、日志 XSS 转义
-- 数据：不可用模型过滤、supportedSizes 回填、image 计费 $0 修复
-- DX：free_only 过滤修复、generate_image size 预校验
+- AUDIT-SEC：`verifying`（7/7 generator 完成，等待 Evaluator 验收）
+- 安全：上游错误脱敏增强、日志 XSS 转义
+- 数据：不可用模型过滤、supportedSizes 回填脚本、image 计费 perCall fallback
+- DX：free_only 验证通过、generate_image size 预校验
+- **待执行**：生产环境执行 `npx tsx scripts/backfill-supported-sizes.ts --apply`
 
 ## 后续批次
 - DX-POLISH：DX 改进（deprecated 标记、enum、错误消息统一等）

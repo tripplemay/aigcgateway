@@ -1,11 +1,11 @@
 {
-  "status": "building",
+  "status": "verifying",
   "user_goal": "AUDIT-SEC — 安全 + 数据修补：上游错误脱敏、不可用模型过滤、supportedSizes 回填、image 计费修复、free_only 修复、XSS 转义、size 预校验",
   "total_features": 8,
   "completed_features": 7,
   "fix_rounds": 0,
   "current_sprint": null,
-  "last_updated": "2026-04-13T02:00:00Z",
+  "last_updated": "2026-04-13T02:30:00Z",
   "reference_docs": ["tests/mcp-test/reports-20260412/all-assertions-20260412.json"],
   "role_assignments": null,
   "docs": {
@@ -15,9 +15,24 @@
     "framework_reviewed": false
   },
   "evaluator_feedback": null,
-  "generator_handoff": null,
+  "generator_handoff": {
+    "completed_features": ["F-AS-01", "F-AS-02", "F-AS-03", "F-AS-04", "F-AS-05", "F-AS-06", "F-AS-07"],
+    "pending_codex": ["F-AS-08"],
+    "scripts": {
+      "backfill-supported-sizes": "npx tsx scripts/backfill-supported-sizes.ts --apply（需在生产环境执行，为 image 模型回填 supportedSizes）"
+    },
+    "notes": [
+      "F-AS-01: sanitizeErrorMessage 增强 + chat/completions/templates/actions 路由全面覆盖",
+      "F-AS-02: list_models 已过滤 disabled model + 全 FAIL/禁用 channel 的别名",
+      "F-AS-03: 回填脚本 scripts/backfill-supported-sizes.ts 已创建，需部署后执行 --apply",
+      "F-AS-04: calculateCallCost 修复 perCall fallback 逻辑，alias 无 perCall 时回退到 channel",
+      "F-AS-05: free_only 逻辑已验证正确，空结果是因为当前无零定价模型（非代码问题）",
+      "F-AS-06: 新增 sanitize-html.ts，日志 API 展示层转义 HTML 特殊字符",
+      "F-AS-07: size 预校验在 /v1/images/generations 和 MCP generate_image 中实现"
+    ]
+  },
   "session_notes": {
-    "Kimi": "Planner 启动 AUDIT-SEC 批次（8 条功能，7 generator + 1 codex）。来源：MCP 8 角色审计的 critical/high 发现。BILLING-REFACTOR 已完成并部署（含 backfill）。后续还有 DX-POLISH 批次。",
+    "Kimi": "Generator 完成 AUDIT-SEC 全部 7 个 generator 功能。关键变更：sanitizeErrorMessage 增强（WeChat/电话/术语）、chat/completions 补充 sanitize、list_models 过滤 disabled model、image 计费 perCall fallback、XSS 转义、size 预校验。需在生产执行 backfill-supported-sizes.ts --apply。",
     "Reviewer": null
   }
 }
