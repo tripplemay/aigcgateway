@@ -1,23 +1,23 @@
 {
-  "status": "done",
-  "user_goal": "BF3 — 技术修复（MiniMax URL + API_REACHABILITY 适配 + 大小写归一化 + classifier 批次 + Redis 缓存）",
+  "status": "building",
+  "user_goal": "PRICE-FIX — sellPrice unit 4 层防护 + IMAGE 模型参考定价适配",
   "total_features": 6,
-  "completed_features": 6,
+  "completed_features": 0,
   "fix_rounds": 0,
   "current_sprint": null,
-  "last_updated": "2026-04-12T00:22:00Z",
+  "last_updated": "2026-04-12T15:00:00Z",
   "reference_docs": [],
   "role_assignments": null,
   "docs": {
     "spec": null,
     "test_cases": null,
-    "signoff": "docs/test-reports/BF3-tech-fixes-signoff-2026-04-12.md",
+    "signoff": null,
     "framework_reviewed": false
   },
   "evaluator_feedback": null,
-  "generator_handoff": "F-BF3-01~05 全部完成。实际代码变更：MiniMax URL 修正（ADAPTER_PRESETS + seed.ts）、新增 healthCheckEndpoint 字段（schema + migration + seed + checker skip 逻辑 + providers POST 自动填充）。F-BF3-03/04/05 代码在上一会话已到位，本次确认无需额外修改。",
+  "generator_handoff": null,
   "session_notes": {
-    "Kimi": "Planner 完成 BF3 收尾。本会话大量生产运维：模型别名配置调整（22 个别名启用/关闭）、capabilities 修正（官网验证 9 处）、渠道清理（62+11+20 条错误挂载）、数据修复（大小写合并 118 模型、sellPrice unit 补全）。新增 backlog: BL-110~114。",
-    "Reviewer": "已完成 BF3 首轮验收：执行 scripts/test/bf3-verifying-e2e-2026-04-12.ts，6/6 通过；签收文档 docs/test-reports/BF3-tech-fixes-signoff-2026-04-12.md；状态更新为 done。"
+    "Kimi": "Planner 启动 PRICE-FIX：6 条功能。BL-114（4 层防护：API 保底 + 前端补全 + Prisma middleware + 读取兼容）+ BL-113（IMAGE 参考定价 perCall 适配）。BL-114 先于 BL-113，否则 IMAGE 回填仍缺 unit。",
+    "Reviewer": null
   }
 }

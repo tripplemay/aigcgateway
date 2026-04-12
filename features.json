@@ -1,54 +1,54 @@
 {
-  "batch": "BF3-tech-fixes",
+  "batch": "PRICE-FIX-sellprice-image",
   "created_at": "2026-04-12",
   "features": [
     {
-      "id": "F-BF3-01",
-      "title": "MiniMax Base URL 修正（BL-112）",
+      "id": "F-PF-01",
+      "title": "sellPrice unit API 层保底（BL-114 Layer 1）",
       "priority": "high",
       "executor": "generator",
-      "status": "done",
-      "acceptance": "1) ADAPTER_PRESETS 中 MiniMax baseUrl 改为 https://api.minimaxi.com/v1；2) seed.ts 中 MiniMax baseUrl 同步更新；3) tsc 通过"
+      "status": "pending",
+      "acceptance": "1) PATCH /api/admin/model-aliases/[id] 收到 sellPrice 时自动补 unit：有 inputPer1M/outputPer1M→unit:'token'，有 perCall→unit:'call'，两者都没有→返回 400；2) 已有 unit 的不覆盖；3) tsc 通过"
     },
     {
-      "id": "F-BF3-02",
-      "title": "API_REACHABILITY 适配不支持 /models 的服务商（BL-112）",
+      "id": "F-PF-02",
+      "title": "sellPrice unit 前端保存补全（BL-114 Layer 2）",
       "priority": "high",
       "executor": "generator",
-      "status": "done",
-      "acceptance": "1) ProviderConfig 新增可选字段 healthCheckEndpoint（默认 null 即 /models）；2) ADAPTER_PRESETS 对 MiniMax 和 Anthropic 预设 healthCheckEndpoint: 'skip'；3) 创建 Provider 自动填充到 ProviderConfig；4) 健康检查逻辑：healthCheckEndpoint 为 skip 时跳过 API_REACHABILITY 不降级；5) Anthropic adapter 的 API_REACHABILITY 使用 x-api-key header 而非 Bearer（如不 skip）；6) tsc 通过"
+      "status": "pending",
+      "acceptance": "1) saveChanges 中 sellPrice 保存前自动补 unit（有 inputPer1M/outputPer1M→token，有 perCall→call）；2) 所有手动编辑定价路径（inputPer1M/outputPer1M/perCall 输入框）保存后 unit 正确；3) tsc 通过"
     },
     {
-      "id": "F-BF3-03",
-      "title": "Model 名称大小写归一化代码修复（BL-109）",
+      "id": "F-PF-03",
+      "title": "sellPrice unit Prisma middleware 校验（BL-114 Layer 3）",
+      "priority": "medium",
+      "executor": "generator",
+      "status": "pending",
+      "acceptance": "1) Prisma middleware 在 ModelAlias 写入时校验 sellPrice 结构：有价格字段但缺 unit 时自动补全；2) 覆盖 create 和 update 操作；3) 不影响其他表的写入性能；4) tsc 通过"
+    },
+    {
+      "id": "F-PF-04",
+      "title": "sellPrice unit 读取兼容（BL-114 Layer 4）",
       "priority": "high",
       "executor": "generator",
-      "status": "done",
-      "acceptance": "1) resolveCanonicalName 统一返回小写；2) doc-enricher 返回的 modelId 统一小写；3) tsc 通过"
+      "status": "pending",
+      "acceptance": "1) /api/v1/models 读 sellPrice 时，缺 unit 则自动推断（有 inputPer1M→token，有 perCall→call）；2) 历史数据缺 unit 不再显示'免费'；3) tsc 通过"
     },
     {
-      "id": "F-BF3-04",
-      "title": "alias-classifier 批次大小减小（BL-109）",
-      "priority": "high",
+      "id": "F-PF-05",
+      "title": "IMAGE 模型参考定价适配（BL-113）",
+      "priority": "medium",
       "executor": "generator",
-      "status": "done",
-      "acceptance": "1) alias-classifier 每批模型数从 30 改为 15；2) tsc 通过"
+      "status": "pending",
+      "acceptance": "1) suggest-price API 对 IMAGE 模态别名返回 per-call 参考价格（优先使用 OpenRouter pricing.image 字段）；2) 前端回填时使用 perCall 单位（而非 inputPer1M/outputPer1M）；3) 回填后 sellPrice 包含 unit:'call'；4) OpenRouter 无 image 定价的模型提示'暂无参考价'；5) tsc 通过"
     },
     {
-      "id": "F-BF3-05",
-      "title": "别名定价/启用后清除 Redis 缓存（BL-109）",
-      "priority": "high",
-      "executor": "generator",
-      "status": "done",
-      "acceptance": "1) PATCH /api/admin/model-aliases/[id] 修改 sellPrice 或 enabled 后，主动删除 Redis 中 models:list 相关缓存；2) 修改后用户端 /api/v1/models 立即返回最新数据；3) tsc 通过"
-    },
-    {
-      "id": "F-BF3-06",
-      "title": "BF3 全量验收",
+      "id": "F-PF-06",
+      "title": "PRICE-FIX 全量验收",
       "priority": "high",
       "executor": "codex",
-      "status": "completed",
-      "acceptance": "1) MiniMax ADAPTER_PRESETS baseUrl 为 api.minimaxi.com；2) healthCheckEndpoint skip 配置后 MiniMax/Anthropic 不被 API_REACHABILITY 降级；3) resolveCanonicalName 返回小写；4) classifier 批次 ≤15；5) 别名定价后 Redis 缓存立即失效；6) 签收报告生成"
+      "status": "pending",
+      "acceptance": "1) 手动编辑 TEXT 别名定价保存后 unit=token 正确；2) 手动编辑 IMAGE 别名定价保存后 unit=call 正确；3) 历史缺 unit 数据在 /models 页不再显示免费；4) IMAGE 别名参考定价可用，回填 perCall 正确；5) API 层拦截无 unit 的写入；6) 签收报告生成"
     }
   ]
 }
