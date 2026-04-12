@@ -55,7 +55,7 @@
       "title": "BILLING-REFACTOR 全量验收",
       "priority": "high",
       "executor": "codex",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "1) 调用任意模型，get_log_detail.cost = list_models.pricing 计算值，误差 0%；2) list_models 无任何模型的 pricing 为空（enabled alias 都有价格）；3) pricing 数值无浮点尾噪（≤6 位小数）；4) channel sellPrice 不再影响扣费；5) 签收报告生成"
     }
   ]

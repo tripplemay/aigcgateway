@@ -47,11 +47,14 @@ npx tsc --noEmit         # Full project type check
 cd sdk && npm run typecheck  # SDK type check
 cd sdk && npm run build      # Build CJS + ESM + .d.ts
 
-# Test Scripts
+# Test Scripts (deterministic regression)
 BASE_URL=http://localhost:3099 npx tsx scripts/e2e-test.ts           # Full E2E
 BASE_URL=http://localhost:3099 npx tsx scripts/e2e-errors.ts         # Error scenarios
 BASE_URL=http://localhost:3099 API_KEY=pk_xxx npx tsx scripts/test-mcp.ts       # MCP full journey
 BASE_URL=http://localhost:3099 API_KEY=pk_xxx npx tsx scripts/test-mcp-errors.ts # MCP error scenarios
+
+# MCP Exploratory Audit (discovers new issues)
+cd tests/mcp-test && ./run_all_audits.sh    # 8-role audit, outputs reports + assertions JSON
 ```
 
 **Important:** `npm run build` and `npx next dev` share `.next` directory. Always `rm -rf .next` when switching between them.
@@ -62,6 +65,7 @@ BASE_URL=http://localhost:3099 API_KEY=pk_xxx npx tsx scripts/test-mcp-errors.ts
 
 - **架构详情：** → `docs/dev/architecture.md`（四层 API、请求管道、MCP Server、引擎、认证、健康检查、i18n、数据库、SDK）
 - **开发规则：** → `docs/dev/rules.md`（Migration 规则、MCP 开发规则、i18n 规则、设计决策、CI/CD）
+- **测试流程：** → `docs/dev/test-lifecycle.md`（探索审计 → 断言沉淀 → 确定性回归，两层测试闭环）
 - **规格文档：** → `docs/specs/`（开发时优先查阅）
 - **服务商接入：** → `docs/provider/`（新增服务商时参考）
 - **设计稿：** → `design-draft/`（UI 页面还原时参考）
