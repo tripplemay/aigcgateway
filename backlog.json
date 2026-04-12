@@ -188,6 +188,49 @@
       ]
     },
     {
+      "id": "BL-116",
+      "title": "supportedSizes 字段统一（消除 capabilities 内外矛盾）",
+      "description": "IMAGE 模型同时存在 capabilities.supported_sizes 和顶层 supportedSizes 两个字段，数据不一致（如 seedream-3 一个返回 1024x1024/2048x2048，另一个返回 1024x1024/1280x960/960x1280）。MCP instruction 指向顶层字段但多数模型只有 capabilities 内字段。需统一为单一字段，所有模型一致返回。来源：DX 审查报告 2026-04-12 #1。",
+      "decisions": [],
+      "confirmed_at": "2026-04-12",
+      "priority": "medium"
+    },
+    {
+      "id": "BL-117",
+      "title": "公共模板支持预览（Fork 前可查看内容）",
+      "description": "get_template_detail 查询公共模板 ID 返回 Template not found。用户在 Fork 前无法查看公共模板的步骤、Action、变量定义，只能'盲 Fork'。需要让 get_template_detail 支持跨项目查看公共模板（只读），或在 list_public_templates 返回中内联步骤摘要。来源：DX 审查报告 2026-04-12 #2。",
+      "decisions": [],
+      "confirmed_at": "2026-04-12",
+      "priority": "medium"
+    },
+    {
+      "id": "BL-118",
+      "title": "MCP 价格返回结构化字段 + list_models 增加 capability 过滤",
+      "description": "两个 MCP DX 改进：1) 模型价格当前以人类可读字符串返回（如'$0.84 in / $3 out per 1M tokens'），Agent 无法解析。需增加结构化 pricing 对象（inputPerMillion/outputPerMillion/currency）。2) list_models 当前只支持按 modality 过滤，缺少 capability 过滤（如 ?capability=function_calling）和 free_only 过滤。来源：DX 审查报告 2026-04-12 #4 #5。",
+      "decisions": [],
+      "confirmed_at": "2026-04-12",
+      "priority": "low"
+    },
+    {
+      "id": "BL-119",
+      "title": "MCP DX 小改进（enum 示例 + 空结果一致性 + Template 更新警告）",
+      "description": "三个 MCP DX 小改进：1) chat 工具的 model 参数 description 中增加 2-3 个典型模型名示例，帮助 Agent 不用先调 list_models；2) 空结果行为统一——list_logs 和 get_usage_summary 空结果时增加引导 message（与 list_actions/list_templates 一致）；3) update_template 的 steps 参数 description 增加 WARNING 提示全量替换风险。来源：DX 审查报告 2026-04-12 #6 #7 #8。",
+      "decisions": [],
+      "confirmed_at": "2026-04-12",
+      "priority": "low"
+    },
+    {
+      "id": "BL-115",
+      "title": "注册时自动创建默认项目 + MCP 项目校验兜底",
+      "description": "两个关联问题：1) K1 后 API Key 已是用户级，但创建 Key 前仍需手动创建项目，新用户上手门槛不合理。修复：注册时自动创建一个'My Project'并设为 defaultProjectId，用户无感。2) MCP 会话通过 user.defaultProjectId 绑定项目，但 defaultProjectId 可能指向已删除的项目。修复：MCP auth 时校验 defaultProjectId 有效性，无效则 fallback 到用户第一个可用项目。",
+      "decisions": [
+        "注册时自动创建默认项目（方向 2），不让用户感知到项目前置依赖",
+        "MCP auth 校验兜底（方案 A），defaultProjectId 无效时 fallback 到用户第一个可用项目"
+      ],
+      "confirmed_at": "2026-04-12",
+      "priority": "medium"
+    },
+    {
       "id": "BL-113",
       "title": "参考定价功能适配 IMAGE 模型（per-call 定价）",
       "description": "当前参考定价功能只支持 TEXT 模型（inputPer1M/outputPer1M token 定价）。IMAGE 模型使用 perCall 定价单位，OpenRouter 上图片模型有 image 字段（per-image 价格）和 prompt/completion 字段（token 价格）。需要：1) suggest-price API 对 IMAGE 模态返回 per-call 参考价格；2) 前端回填时使用 perCall 单位而非 inputPer1M/outputPer1M；3) OpenRouter 的 pricing.image 字段可作为 per-call 参考价格来源。",
