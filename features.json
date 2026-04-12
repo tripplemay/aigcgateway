@@ -7,7 +7,7 @@
       "title": "MiniMax Base URL 修正（BL-112）",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) ADAPTER_PRESETS 中 MiniMax baseUrl 改为 https://api.minimaxi.com/v1；2) seed.ts 中 MiniMax baseUrl 同步更新；3) tsc 通过"
     },
     {
@@ -15,7 +15,7 @@
       "title": "API_REACHABILITY 适配不支持 /models 的服务商（BL-112）",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) ProviderConfig 新增可选字段 healthCheckEndpoint（默认 null 即 /models）；2) ADAPTER_PRESETS 对 MiniMax 和 Anthropic 预设 healthCheckEndpoint: 'skip'；3) 创建 Provider 自动填充到 ProviderConfig；4) 健康检查逻辑：healthCheckEndpoint 为 skip 时跳过 API_REACHABILITY 不降级；5) Anthropic adapter 的 API_REACHABILITY 使用 x-api-key header 而非 Bearer（如不 skip）；6) tsc 通过"
     },
     {
@@ -23,7 +23,7 @@
       "title": "Model 名称大小写归一化代码修复（BL-109）",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) resolveCanonicalName 统一返回小写；2) doc-enricher 返回的 modelId 统一小写；3) tsc 通过"
     },
     {
@@ -31,7 +31,7 @@
       "title": "alias-classifier 批次大小减小（BL-109）",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) alias-classifier 每批模型数从 30 改为 15；2) tsc 通过"
     },
     {
@@ -39,7 +39,7 @@
       "title": "别名定价/启用后清除 Redis 缓存（BL-109）",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) PATCH /api/admin/model-aliases/[id] 修改 sellPrice 或 enabled 后，主动删除 Redis 中 models:list 相关缓存；2) 修改后用户端 /api/v1/models 立即返回最新数据；3) tsc 通过"
     },
     {

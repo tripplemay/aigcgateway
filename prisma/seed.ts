@@ -54,6 +54,7 @@ const providers = [
       imageEndpoint: null,
       imageViaChat: false,
       supportsModelsApi: true,
+      healthCheckEndpoint: "skip",
       supportsSystemRole: true,
       currency: "USD" as Currency,
       quirks: ["no_response_format", "no_penalty_params", "n_must_be_1", "base_url_trailing_slash"],
@@ -183,7 +184,7 @@ const providers = [
   {
     name: "minimax",
     displayName: "MiniMax",
-    baseUrl: "https://api.minimax.io/v1",
+    baseUrl: "https://api.minimaxi.com/v1",
     authType: "bearer",
     adapterType: "openai-compat",
     config: {
@@ -193,6 +194,7 @@ const providers = [
       imageEndpoint: null,
       imageViaChat: false,
       supportsModelsApi: true,
+      healthCheckEndpoint: "skip",
       supportsSystemRole: true,
       currency: "CNY" as Currency,
       quirks: ["penalty_params_ignored"],

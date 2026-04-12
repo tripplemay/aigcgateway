@@ -38,7 +38,13 @@ interface ProviderConfig {
 
 const ADAPTER_PRESETS: Record<
   string,
-  { displayName: string; baseUrl: string; adapterType: string; supportsModelsApi: boolean }
+  {
+    displayName: string;
+    baseUrl: string;
+    adapterType: string;
+    supportsModelsApi: boolean;
+    healthCheckEndpoint?: string;
+  }
 > = {
   openai: {
     displayName: "OpenAI",
@@ -51,6 +57,7 @@ const ADAPTER_PRESETS: Record<
     baseUrl: "https://api.anthropic.com/v1/",
     adapterType: "openai-compat",
     supportsModelsApi: true,
+    healthCheckEndpoint: "skip",
   },
   deepseek: {
     displayName: "DeepSeek",
@@ -84,9 +91,10 @@ const ADAPTER_PRESETS: Record<
   },
   minimax: {
     displayName: "MiniMax",
-    baseUrl: "https://api.minimax.io/v1",
+    baseUrl: "https://api.minimaxi.com/v1",
     adapterType: "openai-compat",
     supportsModelsApi: true,
+    healthCheckEndpoint: "skip",
   },
   moonshot: {
     displayName: "Moonshot/Kimi",

@@ -34,8 +34,20 @@ export async function runHealthCheck(route: RouteResult): Promise<CheckResult[]>
 
 /**
  * 仅执行 API_REACHABILITY 检查（GET /models，零成本）
+ * healthCheckEndpoint 为 "skip" 时直接返回 PASS，不发请求
  */
 export async function runApiReachabilityCheck(route: RouteResult): Promise<CheckResult[]> {
+  if (route.config.healthCheckEndpoint === "skip") {
+    return [
+      {
+        level: "API_REACHABILITY",
+        result: "PASS",
+        latencyMs: 0,
+        errorMessage: null,
+        responseBody: null,
+      },
+    ];
+  }
   return runReachabilityCheck(route);
 }
 

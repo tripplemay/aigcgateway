@@ -231,8 +231,9 @@ model ProviderConfig {
   chatEndpoint       String?  @default("/chat/completions")
   imageEndpoint      String?  @default("/images/generations")
   imageViaChat       Boolean  @default(false)
-  supportsModelsApi  Boolean  @default(false)
-  supportsSystemRole Boolean  @default(true)
+  supportsModelsApi    Boolean  @default(false)
+  healthCheckEndpoint  String?  @map("health_check_endpoint")
+  supportsSystemRole   Boolean  @default(true)
   currency           Currency @default(USD)
   quirks             Json?
   staticModels       Json?

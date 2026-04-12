@@ -53,6 +53,9 @@ export async function POST(request: Request) {
     "stepfun",
   ]);
 
+  // Providers whose /models endpoint is unavailable or non-standard
+  const SKIP_HEALTH_CHECK_PROVIDERS = new Set(["minimax", "anthropic"]);
+
   const provider = await prisma.provider.create({
     data: {
       name,
@@ -67,6 +70,7 @@ export async function POST(request: Request) {
         create: {
           chatEndpoint: "/chat/completions",
           supportsModelsApi: MODELS_API_ADAPTERS.has(name.toLowerCase()),
+          healthCheckEndpoint: SKIP_HEALTH_CHECK_PROVIDERS.has(name.toLowerCase()) ? "skip" : null,
         },
       },
     },
