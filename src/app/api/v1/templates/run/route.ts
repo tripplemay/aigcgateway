@@ -13,6 +13,7 @@ import { checkRateLimit, rollbackRateLimit } from "@/lib/api/rate-limit";
 import { errorResponse } from "@/lib/api/errors";
 import { sseResponse, generateTraceId } from "@/lib/api/response";
 import { InjectionError } from "@/lib/action/runner";
+import { sanitizeErrorMessage } from "@/lib/engine/types";
 import { runSequential } from "@/lib/template/sequential";
 import { runFanout } from "@/lib/template/fanout";
 
@@ -112,9 +113,9 @@ export async function POST(request: Request) {
     } catch (err) {
       if (rlKey && rlMember) rollbackRateLimit(rlKey, rlMember).catch(() => {});
       if (err instanceof InjectionError) {
-        return errorResponse(err.status, "template_error", err.message);
+        return errorResponse(err.status, "template_error", sanitizeErrorMessage(err.message));
       }
-      return errorResponse(500, "internal_error", (err as Error).message);
+      return errorResponse(500, "internal_error", sanitizeErrorMessage((err as Error).message));
     }
   }
 
@@ -139,7 +140,7 @@ export async function POST(request: Request) {
         if (!controller.desiredSize) return;
         controller.enqueue(
           encoder.encode(
-            `data: ${JSON.stringify({ type: "error", message: (err as Error).message })}\n\n`,
+            `data: ${JSON.stringify({ type: "error", message: sanitizeErrorMessage((err as Error).message) })}\n\n`,
           ),
         );
         controller.close();

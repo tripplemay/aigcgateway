@@ -122,8 +122,11 @@ export class EngineError extends Error {
  * - URLs (http/https)
  * - API Key fragments (sk-*, pk-*, key_*, Bearer tokens)
  * - QQ group numbers (QQ群:xxx / 加群xxx)
+ * - WeChat groups (微信群 / 加微信 / wx:xxx)
+ * - Phone numbers (Chinese mobile / customer service hotlines)
  * - Email addresses
  * - IP addresses
+ * - Upstream-specific terminology (plugin names, internal features)
  */
 export function sanitizeErrorMessage(message: string): string {
   let sanitized = message;
@@ -132,8 +135,22 @@ export function sanitizeErrorMessage(message: string): string {
   // Remove API Key fragments (sk-xxx, sk_xxx, pk-xxx, pk_xxx, key_xxx, Bearer xxx)
   sanitized = sanitized.replace(/\b(sk[-_]|pk[-_]|key[-_])[a-zA-Z0-9_-]{4,}/gi, "[key removed]");
   sanitized = sanitized.replace(/Bearer\s+[a-zA-Z0-9_.-]{8,}/gi, "Bearer [redacted]");
-  // Remove QQ group numbers
+  // Remove QQ group numbers (QQ群:836739524, 加群836739524, 群号 836739524)
   sanitized = sanitized.replace(/(QQ群?|加群|群号)[：:\s]*\d{5,}/gi, "[contact removed]");
+  // Remove WeChat contact info (微信群, 加微信, wx:xxx, WeChat:xxx)
+  sanitized = sanitized.replace(
+    /(微信群?|加微信|wx|wechat)[：:\s]*[a-zA-Z0-9_-]*/gi,
+    "[contact removed]",
+  );
+  // Remove phone numbers (Chinese mobile: 1xx-xxxx-xxxx, service hotlines: 400/800-xxx-xxxx)
+  sanitized = sanitized.replace(/\b1[3-9]\d[\s-]?\d{4}[\s-]?\d{4}\b/g, "[contact removed]");
+  sanitized = sanitized.replace(/\b[48]00[\s-]?\d{3,4}[\s-]?\d{4}\b/g, "[contact removed]");
+  // Remove customer service / contact invitation sentences (如果您遇到问题...加入...咨询)
+  sanitized = sanitized.replace(/【[^】]*(?:客服|咨询|加入|联系|群)[^】]*】/g, "[contact removed]");
+  sanitized = sanitized.replace(
+    /(?:如果您?|若您?)(?:遇到|有)[^。.]*(?:咨询|联系|加入)[^。.]*/g,
+    "[contact removed]",
+  );
   // Remove email addresses
   sanitized = sanitized.replace(
     /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g,
@@ -147,6 +164,10 @@ export function sanitizeErrorMessage(message: string): string {
   // Remove provider endpoint/region info (endpoint xxx/region, cn-xxx, us-xxx-N)
   sanitized = sanitized.replace(/endpoint\s+[a-zA-Z0-9/._-]+/gi, "[infra removed]");
   sanitized = sanitized.replace(/\b[a-z]{2}-[a-z]+-\d+\b/g, "[infra removed]");
+  // Remove upstream-specific terminology (plugin names, internal feature names)
+  sanitized = sanitized.replace(/\bcontext[- ]?compression\s+plugin\b/gi, "[upstream feature]");
+  sanitized = sanitized.replace(/\bweb[- ]?search\s+plugin\b/gi, "[upstream feature]");
+  sanitized = sanitized.replace(/\blong[- ]?context\s+plugin\b/gi, "[upstream feature]");
   return sanitized;
 }
 

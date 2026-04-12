@@ -13,7 +13,7 @@ import { generateTraceId, jsonResponse, sseResponse } from "@/lib/api/response";
 import { resolveEngine } from "@/lib/engine";
 import { processChatResult } from "@/lib/api/post-process";
 import type { ChatCompletionRequest, ChatCompletionChunk, Usage } from "@/lib/engine/types";
-import { EngineError } from "@/lib/engine/types";
+import { EngineError, sanitizeErrorMessage } from "@/lib/engine/types";
 
 export async function POST(request: Request) {
   const traceId = generateTraceId();
@@ -62,9 +62,9 @@ export async function POST(request: Request) {
   } catch (err) {
     if (rlKey && rlMember) rollbackRateLimit(rlKey, rlMember).catch(() => {});
     if (err instanceof EngineError) {
-      return errorResponse(err.statusCode, err.code, err.message);
+      return errorResponse(err.statusCode, err.code, sanitizeErrorMessage(err.message));
     }
-    return errorResponse(502, "provider_error", (err as Error).message);
+    return errorResponse(502, "provider_error", sanitizeErrorMessage((err as Error).message));
   }
 
   const startTime = Date.now();
@@ -165,9 +165,13 @@ async function handleNonStream(
     });
 
     if (engineErr) {
-      return errorResponse(engineErr.statusCode, engineErr.code, engineErr.message);
+      return errorResponse(
+        engineErr.statusCode,
+        engineErr.code,
+        sanitizeErrorMessage(engineErr.message),
+      );
     }
-    return errorResponse(502, "provider_error", (err as Error).message);
+    return errorResponse(502, "provider_error", sanitizeErrorMessage((err as Error).message));
   }
 }
 
@@ -302,9 +306,13 @@ async function handleStream(
     });
 
     if (engineErr) {
-      return errorResponse(engineErr.statusCode, engineErr.code, engineErr.message);
+      return errorResponse(
+        engineErr.statusCode,
+        engineErr.code,
+        sanitizeErrorMessage(engineErr.message),
+      );
     }
-    return errorResponse(502, "provider_error", (err as Error).message);
+    return errorResponse(502, "provider_error", sanitizeErrorMessage((err as Error).message));
   }
 }
 

@@ -7,7 +7,7 @@
       "title": "上游错误脱敏增强（QQ 群号 + 内部术语过滤）",
       "priority": "critical",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "1) chat 任何模型的错误返回中不含 QQ 群号、微信群、上游客服联系方式或非本平台域名 URL；2) 不含上游特有术语（如 'context-compression plugin'）；3) 脱敏后错误消息仍有自解释性；4) tsc 通过"
     },
     {
