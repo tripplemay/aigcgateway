@@ -156,6 +156,32 @@
       "priority": "medium"
     },
     {
+      "id": "BL-111",
+      "title": "别名分类管理员确认机制（classifier 审批队列）",
+      "description": "alias-classifier 推断后不直接写入 AliasModelLink，进入待确认队列。高置信结果自动挂载，低置信/新别名进队列等管理员确认。管理员在运维面板看到待确认列表，可确认/拒绝/改分配。解决 LLM 分类不精确导致的反复数据污染问题（开源参数模型归入商业产品别名、distill 归入基础模型、功能变体混入等）。",
+      "decisions": [
+        "高置信（名称高度匹配已有别名）→ 自动挂载",
+        "低置信（名称差异大或归入已有别名）→ 进待确认队列",
+        "建议新别名 → 进待确认队列",
+        "需要新增 PendingClassification 表（或类似 schema）+ 运维面板 UI",
+        "先做路径 A（prompt 优化）快速止血，再做路径 B（审批队列）根治"
+      ],
+      "confirmed_at": "2026-04-12",
+      "priority": "medium"
+    },
+    {
+      "id": "BL-112",
+      "title": "MiniMax Base URL 修正 + API_REACHABILITY 适配不支持 /models 的服务商",
+      "description": "两个问题：1) MiniMax baseUrl 应为 api.minimaxi.com/v1（国内域名），api.minimax.io 对中国区 Key 返回 invalid api key。更新 ADAPTER_PRESETS、seed.ts、docs。2) API_REACHABILITY 健康检查硬编码 /models 端点，但 MiniMax 和 Anthropic 不支持。在 adapter 预设中增加 healthCheckEndpoint 字段（默认 /models，可配 skip），ProviderConfig 保留可选覆盖。Anthropic 还需处理 x-api-key header（非 Bearer）。",
+      "decisions": [
+        "healthCheckEndpoint 优先从 adapter 预设自动填充，ProviderConfig 可覆盖",
+        "值为 skip 时跳过 API_REACHABILITY，不降级",
+        "受影响服务商：MiniMax(skip)、Anthropic(skip 或适配 x-api-key header)"
+      ],
+      "confirmed_at": "2026-04-12",
+      "priority": "high"
+    },
+    {
       "id": "BL-109",
       "title": "Model 名称大小写归一化 + 重复模型合并",
       "description": "resolveCanonicalName 不做大小写归一化，导致同一服务商的同一模型因大小写不同（如 GLM-5 vs glm-5）创建了两个 Model 记录，各有独立 Channel 和不同定价。来源：生产环境 glm-5 别名下发现智谱 AI 的 GLM-5（Jina 推断，大写）和 glm-5（API sync，小写）两条记录。",

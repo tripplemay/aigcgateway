@@ -1,30 +1,23 @@
 {
-  "status": "done",
-  "user_goal": "ADMIN-OPS+ — 运维增强（进度显示/系统日志/ProviderConfig）+ 文档更新 + 项目切换 + 数据质量修复",
-  "total_features": 10,
-  "completed_features": 10,
+  "status": "building",
+  "user_goal": "BF3 — 技术修复（MiniMax URL + API_REACHABILITY 适配 + 大小写归一化 + classifier 批次 + Redis 缓存）",
+  "total_features": 6,
+  "completed_features": 0,
   "fix_rounds": 0,
   "current_sprint": null,
-  "last_updated": "2026-04-11T16:20:00Z",
+  "last_updated": "2026-04-12T12:00:00Z",
   "reference_docs": [],
   "role_assignments": null,
   "docs": {
     "spec": null,
     "test_cases": null,
-    "signoff": "docs/test-reports/ADMIN-OPS-plus-signoff-2026-04-12.md",
+    "signoff": null,
     "framework_reviewed": false
   },
   "evaluator_feedback": null,
-  "generator_handoff": {
-    "completed_features": ["F-AOP-01","F-AOP-02","F-AOP-03","F-AOP-04","F-AOP-05","F-AOP-06","F-AOP-07","F-AOP-08","F-AOP-09"],
-    "codex_features": ["F-AOP-10"],
-    "scripts": {
-      "fix-model-name-case.ts": "npx tsx scripts/fix-model-name-case.ts [--dry-run] — 合并大小写重复 Model，迁移 Channel/AliasModelLink 到小写版本"
-    },
-    "notes": "1) SystemLog 表已通过 db push 应用，migration SQL 在 prisma/migrations/20260412_add_system_log/；2) 生产部署后需运行 fix-model-name-case.ts 清理已有大小写重复数据；3) 进度轮询依赖 Redis，无 Redis 时进度条不显示但不影响功能"
-  },
+  "generator_handoff": null,
   "session_notes": {
-    "Kimi": "Planner 完成 ADMIN-OPS+ 收尾。生产环境手动 SQL 合并 118 个大小写重复 Model（fix-model-name-case.ts 脚本因唯一约束冲突无法直接执行，改用手动 SQL 处理）。下一步：Planner 直接做 BL-080 项目文档更新。",
-    "Reviewer": "已按 harness 完成 F-AOP-10 首轮验收：执行 scripts/test/admin-ops-plus-verifying-e2e-2026-04-12.ts，10/10 通过；签收文档 docs/test-reports/ADMIN-OPS-plus-signoff-2026-04-12.md；状态更新为 done。"
+    "Kimi": "Planner 启动 BF3：6 条功能。BL-112（MiniMax URL + healthCheckEndpoint skip）+ BL-109（大小写归一化 + classifier 批次 15 + Redis 缓存清除）。生产环境已手动修正 MiniMax baseUrl 和恢复 DEGRADED 渠道，代码修正在本批次。",
+    "Reviewer": null
   }
 }
