@@ -1,29 +1,23 @@
 {
-  "status": "done",
-  "user_goal": "BILLING-REFACTOR — 计费架构重构：sellPrice 统一由 ModelAlias 管理，消除 Channel.sellPrice 扣费逻辑，展示价=扣费价",
-  "total_features": 7,
-  "completed_features": 7,
+  "status": "building",
+  "user_goal": "AUDIT-SEC — 安全 + 数据修补：上游错误脱敏、不可用模型过滤、supportedSizes 回填、image 计费修复、free_only 修复、XSS 转义、size 预校验",
+  "total_features": 8,
+  "completed_features": 0,
   "fix_rounds": 0,
   "current_sprint": null,
-  "last_updated": "2026-04-12T05:36:00Z",
+  "last_updated": "2026-04-13T00:00:00Z",
   "reference_docs": ["tests/mcp-test/reports-20260412/all-assertions-20260412.json"],
   "role_assignments": null,
   "docs": {
     "spec": null,
     "test_cases": null,
-    "signoff": "docs/test-reports/BILLING-REFACTOR-signoff-2026-04-12.md",
+    "signoff": null,
     "framework_reviewed": false
   },
-  "evaluator_feedback": {
-    "summary": "BILLING-REFACTOR 本地 L1 验收通过，计费口径已与 alias 展示价对齐，channel sellPrice 不再驱动扣费。",
-    "pass_count": 5,
-    "partial_count": 0,
-    "fail_count": 0,
-    "issues": []
-  },
-  "generator_handoff": "F-BR-01~06 全部完成。核心变更：(1) RouteResult 新增 alias 字段，router.ts routeByAlias 自动填充；(2) post-process.ts 扣费改读 alias.sellPrice（fallback channel.sellPrice）；(3) applySellMarkup/markupRatio/sellPriceLocked 已删除；(4) Channel.sellPrice 改 optional；(5) list_models + /v1/models 去掉 channel fallback；(6) 管理端 API 去掉 channel sellPrice 编辑和 fallback；(7) backfill 脚本在 prisma/migrations/20260412_billing_refactor_channel_cleanup/backfill-alias-sell-price.ts，部署前需在生产运行：npx tsx prisma/migrations/20260412_billing_refactor_channel_cleanup/backfill-alias-sell-price.ts。F-BR-07 全量验收由 Codex 执行。",
+  "evaluator_feedback": null,
+  "generator_handoff": null,
   "session_notes": {
-    "Kimi": "Generator 完成 BILLING-REFACTOR F-BR-01~06。关键设计决策：(1) alias 在 RouteResult 中为 optional（健康检查等内部路由不需要 alias）；(2) post-process 中 alias.sellPrice 优先，channel.sellPrice 作 fallback（防止 alias 无价时扣费为 0）；(3) channel.sellPrice 保留字段（optional）但不再由 sync 写入，仅存历史参考；(4) 前端 model-aliases 页面移除了 fallbackPrice 逻辑和 FallbackPrice 类型。部署注意：先跑 migration SQL 再跑 backfill 脚本。",
-    "Reviewer": "已按 harness 执行 L1 verifying：新增脚本 scripts/test/billing-refactor-verifying-e2e-2026-04-12.ts，在 mock provider 下完成 5 项断言（smoke、MCP initialize、cost=list_models pricing、channel.sellPrice 不影响扣费、pricing 非空与小数精度）。结果 5/5 通过，报告 docs/test-reports/billing-refactor-verifying-e2e-2026-04-12.json，签收 docs/test-reports/BILLING-REFACTOR-signoff-2026-04-12.md。"
+    "Kimi": "Planner 启动 AUDIT-SEC 批次（8 条功能，7 generator + 1 codex）。来源：MCP 8 角色审计的 critical/high 发现。BILLING-REFACTOR 已完成并部署（含 backfill）。后续还有 DX-POLISH 批次。",
+    "Reviewer": null
   }
 }

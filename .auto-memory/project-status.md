@@ -4,12 +4,12 @@ description: AIGC Gateway 当前状态快照（覆盖写，≤30 行）
 type: project
 ---
 ## 当前批次
-- BILLING-REFACTOR：`done`（7 条功能，7/7 完成）
-- 核心：sellPrice 统一由 ModelAlias 管理，消除 Channel.sellPrice 扣费逻辑
-- 来源：MCP 8 角色审计 FIN-001（扣费比展示价高 20%）
+- AUDIT-SEC：`building`（8 条功能，0/8 完成）
+- 安全：上游错误脱敏（QQ 群号 + 内部术语）、日志 XSS 转义
+- 数据：不可用模型过滤、supportedSizes 回填、image 计费 $0 修复
+- DX：free_only 过滤修复、generate_image size 预校验
 
-## 后续批次（已规划）
-- AUDIT-SEC：安全 + 数据修补（上游错误脱敏、不可用模型过滤、XSS 转义等）
+## 后续批次
 - DX-POLISH：DX 改进（deprecated 标记、enum、错误消息统一等）
 
 ## 已完成批次
