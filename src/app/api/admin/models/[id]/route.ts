@@ -18,7 +18,6 @@ const VALID_CAPABILITY_KEYS = new Set([
  *
  * 支持字段：
  *   enabled: boolean          — 启用/禁用模型
- *   sellPrice: object         — 编辑售价（更新该模型所有 ACTIVE channel 的 sellPrice）
  *   capabilities: object      — 更新 capabilities（仅允许合法 key）
  *   supportedSizes: string[]  — 更新 supportedSizes（image 模型用）
  */
@@ -73,17 +72,6 @@ export async function PATCH(request: Request, { params }: { params: { id: string
     await prisma.model.update({
       where: { id: params.id },
       data: modelUpdate,
-    });
-  }
-
-  // Update sellPrice on all channels of this model if provided
-  if (body.sellPrice !== undefined) {
-    if (typeof body.sellPrice !== "object" || body.sellPrice === null) {
-      return errorResponse(400, "invalid_parameter", "sellPrice must be a valid object");
-    }
-    await prisma.channel.updateMany({
-      where: { modelId: params.id, sellPriceLocked: false },
-      data: { sellPrice: body.sellPrice },
     });
   }
 

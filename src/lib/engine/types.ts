@@ -1,4 +1,4 @@
-import type { Provider, ProviderConfig, Channel, Model } from "@prisma/client";
+import type { Provider, ProviderConfig, Channel, Model, ModelAlias } from "@prisma/client";
 
 // ============================================================
 // 请求类型
@@ -172,6 +172,7 @@ export interface RouteResult {
   provider: Provider;
   config: ProviderConfig;
   model: Model;
+  alias?: ModelAlias | null;
 }
 
 // ============================================================

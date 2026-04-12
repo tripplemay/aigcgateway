@@ -9,9 +9,8 @@ export async function PATCH(request: Request, { params }: { params: { id: string
   if (!auth.ok) return auth.error;
 
   const body = await request.json();
-  // sellPrice is read-only on channels — managed by model-sync, not manual edits
+  // sellPrice is read-only on channels — pricing managed via alias.sellPrice
   delete body.sellPrice;
-  delete body.sellPriceLocked;
   const channel = await prisma.channel.update({ where: { id: params.id }, data: body });
   await invalidateChannelsCache();
   return NextResponse.json(channel);

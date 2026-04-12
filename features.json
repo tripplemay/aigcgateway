@@ -7,7 +7,7 @@
       "title": "RouteResult 增加 alias 引用，扣费改读 alias.sellPrice",
       "priority": "critical",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "1) RouteResult 新增 alias 字段；2) post-process.ts 的 calculateTokenCost / calculateCallCost 从 alias.sellPrice 取价；3) 扣费金额 = list_models 展示价格，零误差；4) tsc 通过"
     },
     {
@@ -15,7 +15,7 @@
       "title": "删除 applySellMarkup + markupRatio + Channel.sellPrice 写入逻辑",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "1) model-sync.ts 删除 applySellMarkup 函数；2) reconcile 不再计算/写入 channel sellPrice；3) syncProvider 不再传递 markupRatio；4) SystemConfig DEFAULT_MARKUP_RATIO 不再被读取；5) tsc 通过"
     },
     {
@@ -23,7 +23,7 @@
       "title": "Schema 清理：Channel.sellPrice 改可选 + 移除 sellPriceLocked",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "1) Channel.sellPrice 从必填改为可选（保留字段存历史成本参考，但不再用于扣费）；2) Channel.sellPriceLocked 字段移除；3) migration 正常执行；4) tsc 通过"
     },
     {
@@ -31,7 +31,7 @@
       "title": "list_models 展示只读 alias.sellPrice，去掉 channel fallback",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "1) MCP list_models 和 /api/v1/models 只从 alias.sellPrice 取价；2) alias.sellPrice 为空时 price 显示 'Not priced'；3) 不再 fallback 到 channel.sellPrice；4) tsc 通过"
     },
     {
@@ -39,7 +39,7 @@
       "title": "管理端 API 清理：删除 channel sellPrice 编辑 + alias 列表去 fallback",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "1) PATCH /api/admin/models/[id] 的 sellPrice 参数移除（不再通过 Model 页改 channel sellPrice）；2) GET /api/admin/model-aliases 去掉 channel sellPrice fallback；3) GET /api/admin/models 去掉 channel sellPrice 展示；4) tsc 通过"
     },
     {
@@ -47,7 +47,7 @@
       "title": "数据迁移：确保所有 alias 有完整的 sellPrice（含 unit）",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "1) 迁移脚本检查所有 enabled alias，sellPrice 为空的从关联 channel 最高优先级回填；2) sellPrice 缺 unit 的自动补全（有 inputPer1M→token，有 perCall→call）；3) 迁移后 100% enabled alias 有完整 sellPrice；4) pricing 数值 round 到 6 位小数消除浮点尾噪"
     },
     {

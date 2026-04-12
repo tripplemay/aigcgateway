@@ -39,7 +39,6 @@ async function queryModelsJSON(modalityFilter: string | undefined): Promise<stri
                 where: { status: "ACTIVE" },
                 orderBy: { priority: "asc" },
                 select: {
-                  sellPrice: true,
                   priority: true,
                   healthChecks: {
                     orderBy: { createdAt: "desc" },
@@ -70,19 +69,14 @@ async function queryModelsJSON(modalityFilter: string | undefined): Promise<stri
       // Skip aliases with no healthy channels
       if (allChannels.length === 0) return null;
 
-      // Pricing: prefer ModelAlias.sellPrice, fallback to best channel
-      const bestChannel = allChannels[0];
-      const aliasSellPrice = alias.sellPrice as Record<string, unknown> | null;
-      const sellPrice =
-        aliasSellPrice && Object.keys(aliasSellPrice).length > 0
-          ? aliasSellPrice
-          : (bestChannel?.sellPrice as Record<string, unknown> | undefined);
+      // Only use alias.sellPrice — no channel fallback
+      const sellPrice = alias.sellPrice as Record<string, unknown> | null;
       // Strip supported_sizes from capabilities (moved to top-level supportedSizes)
       const rawCapabilities = (alias.capabilities as ModelCapabilities | null) ?? {};
       const { supported_sizes: _stripSizes, ...capabilities } = rawCapabilities;
 
       const pricing: Record<string, unknown> = {};
-      if (sellPrice) {
+      if (sellPrice && Object.keys(sellPrice).length > 0) {
         // Infer unit for legacy data missing it (Layer 4 — read-time compat)
         const unit =
           sellPrice.unit ??

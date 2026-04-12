@@ -40,13 +40,6 @@ async function main() {
       continue;
     }
 
-    // 如果 sellPriceLocked，跳过
-    if (ch.sellPriceLocked) {
-      console.log(`  LOCKED ${ch.model.name} — 跳过`);
-      skipCount++;
-      continue;
-    }
-
     // 用 costPrice 重算 sellPrice
     let newSellPrice: Record<string, unknown>;
     if (cp && cp.unit === "call") {

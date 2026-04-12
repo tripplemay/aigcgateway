@@ -59,7 +59,6 @@ export function registerListModels(server: McpServer, opts: McpServerOptions): v
                     where: { status: "ACTIVE" },
                     orderBy: { priority: "asc" },
                     select: {
-                      sellPrice: true,
                       priority: true,
                       healthChecks: {
                         orderBy: { createdAt: "desc" },
@@ -89,17 +88,12 @@ export function registerListModels(server: McpServer, opts: McpServerOptions): v
 
           if (allChannels.length === 0) return null;
 
-          const bestChannel = allChannels[0];
-          // Prefer alias-level sellPrice, fallback to best channel
-          const aliasSellPrice = alias.sellPrice as Record<string, unknown> | null;
-          const sellPrice =
-            aliasSellPrice && Object.keys(aliasSellPrice).length > 0
-              ? aliasSellPrice
-              : (bestChannel?.sellPrice as Record<string, unknown> | undefined);
+          // Only use alias.sellPrice — no channel fallback
+          const sellPrice = alias.sellPrice as Record<string, unknown> | null;
 
-          let price = "N/A";
+          let price = "Not priced";
           const pricing: Record<string, unknown> = {};
-          if (sellPrice) {
+          if (sellPrice && Object.keys(sellPrice).length > 0) {
             // Infer unit for legacy data
             const unit =
               sellPrice.unit ??

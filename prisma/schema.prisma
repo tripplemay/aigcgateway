@@ -310,8 +310,7 @@ model Channel {
   realModelId String
   priority    Int           @default(1)
   costPrice       Json
-  sellPrice       Json
-  sellPriceLocked Boolean       @default(false)
+  sellPrice       Json?
   status          ChannelStatus @default(ACTIVE)
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt

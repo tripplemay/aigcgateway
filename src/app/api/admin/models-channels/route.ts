@@ -109,7 +109,6 @@ export async function GET(request: Request) {
       priority: ch.priority,
       costPrice: ch.costPrice,
       sellPrice: ch.sellPrice,
-      sellPriceLocked: ch.sellPriceLocked,
       status: ch.status,
       latencyMs,
       successRate,

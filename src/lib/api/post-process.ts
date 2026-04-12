@@ -89,10 +89,10 @@ async function processChatResultAsync(params: ChatPostProcessParams): Promise<vo
   // 计算成本
   const { costUsd, sellUsd } = calculateTokenCost(usage, params.route, status);
 
-  // 定价缺失告警：成功调用但 sellPrice 为 0，说明 channel 未配置定价
+  // 定价缺失告警：成功调用但 sellPrice 为 0，说明 alias 未配置定价
   if (status === "SUCCESS" && usage && usage.total_tokens > 0 && sellUsd === 0) {
     console.warn(
-      `[post-process] WARNING: zero sell price for channel=${params.route.channel.id} model=${params.modelName} tokens=${usage.total_tokens}. Check channel sellPrice config.`,
+      `[post-process] WARNING: zero sell price for alias=${params.route.alias?.alias ?? "unknown"} model=${params.modelName} tokens=${usage.total_tokens}. Check alias sellPrice config.`,
     );
   }
 
@@ -197,7 +197,8 @@ function calculateTokenCost(
     outputPer1M?: number;
     unit?: string;
   };
-  const sellPrice = route.channel.sellPrice as {
+  // 扣费价从 alias.sellPrice 取（统一定价源），fallback 到 channel.sellPrice 兜底
+  const sellPrice = (route.alias?.sellPrice ?? route.channel.sellPrice) as {
     inputPer1M?: number;
     outputPer1M?: number;
     unit?: string;
@@ -231,7 +232,8 @@ function calculateCallCost(
   if (status !== "SUCCESS") return { costUsd: 0, sellUsd: 0 };
 
   const costPrice = route.channel.costPrice as { perCall?: number };
-  const sellPrice = route.channel.sellPrice as { perCall?: number };
+  // 扣费价从 alias.sellPrice 取（统一定价源），fallback 到 channel.sellPrice 兜底
+  const sellPrice = (route.alias?.sellPrice ?? route.channel.sellPrice) as { perCall?: number };
 
   const cnyToUsd = Number(process.env.EXCHANGE_RATE_CNY_TO_USD ?? 0.137);
   const isCny = route.config.currency === "CNY";

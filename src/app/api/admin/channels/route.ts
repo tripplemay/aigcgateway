@@ -59,7 +59,6 @@ async function queryChannelsJSON(
       priority: ch.priority,
       costPrice: ch.costPrice,
       sellPrice: ch.sellPrice,
-      sellPriceLocked: ch.sellPriceLocked,
       status: ch.status,
       lastHealthResult: healthMap.get(ch.id) ?? null,
     })),

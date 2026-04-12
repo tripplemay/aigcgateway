@@ -64,11 +64,7 @@ export async function routeByAlias(aliasName: string): Promise<RouteResult> {
   });
 
   if (!alias) {
-    throw new EngineError(
-      `Model "${aliasName}" not found`,
-      ErrorCodes.MODEL_NOT_FOUND,
-      404,
-    );
+    throw new EngineError(`Model "${aliasName}" not found`, ErrorCodes.MODEL_NOT_FOUND, 404);
   }
 
   // Collect all active channels across linked models, skip health-check FAIL
@@ -79,8 +75,7 @@ export async function routeByAlias(aliasName: string): Promise<RouteResult> {
         provider: ch.provider,
         config: ch.provider.config,
         model: link.model,
-        healthFail:
-          ch.healthChecks.length > 0 && ch.healthChecks[0].result === "FAIL",
+        healthFail: ch.healthChecks.length > 0 && ch.healthChecks[0].result === "FAIL",
       })),
     )
     .filter((c) => !c.healthFail && c.config != null)
@@ -100,6 +95,7 @@ export async function routeByAlias(aliasName: string): Promise<RouteResult> {
     provider: best.provider,
     config: best.config!,
     model: best.model,
+    alias,
   };
 }
 

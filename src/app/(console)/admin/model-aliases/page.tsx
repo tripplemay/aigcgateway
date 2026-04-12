@@ -24,12 +24,6 @@ interface LinkedModel {
   }[];
 }
 
-interface FallbackPrice {
-  inputPer1M: number | null;
-  outputPer1M: number | null;
-  unit: string;
-}
-
 interface AliasItem {
   id: string;
   alias: string;
@@ -42,7 +36,6 @@ interface AliasItem {
   description: string | null;
   sellPrice: Record<string, unknown> | null;
   openRouterModelId: string | null;
-  fallbackPrice: FallbackPrice | null;
   linkedModels: LinkedModel[];
   linkedModelCount: number;
   activeChannelCount: number;
@@ -848,11 +841,7 @@ export default function ModelAliasesPage() {
                               onChange={(e) =>
                                 setSellPriceField(alias.id, "inputPer1M", e.target.value)
                               }
-                              placeholder={
-                                alias.fallbackPrice?.inputPer1M
-                                  ? `${(alias.fallbackPrice.inputPer1M * exchangeRate).toFixed(2)}`
-                                  : "0.00"
-                              }
+                              placeholder="0.00"
                             />
                           </div>
                           <div className="space-y-1.5">
@@ -867,11 +856,7 @@ export default function ModelAliasesPage() {
                               onChange={(e) =>
                                 setSellPriceField(alias.id, "outputPer1M", e.target.value)
                               }
-                              placeholder={
-                                alias.fallbackPrice?.outputPer1M
-                                  ? `${(alias.fallbackPrice.outputPer1M * exchangeRate).toFixed(2)}`
-                                  : "0.00"
-                              }
+                              placeholder="0.00"
                             />
                           </div>
                           <div className="space-y-1.5">

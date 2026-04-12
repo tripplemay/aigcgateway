@@ -8,12 +8,12 @@
  * 1. /models API 返回 → 直接用
  * 2. AI 从文档提取 → 只补不覆盖
  * 3. 运营手动 pricingOverrides → 最高优先级
- * 4. sellPriceLocked=true → 永远不被覆盖
- * 5. 全都没有 → costPrice = 0
+ * 4. 全都没有 → costPrice = 0
+ *
+ * 注意：sellPrice 不再由 sync 管理，统一在 ModelAlias.sellPrice 设置
  */
 
 import { prisma } from "@/lib/prisma";
-import { getConfigNumber } from "@/lib/config";
 // model-capabilities-fallback removed — capabilities now managed via Admin UI
 import type {
   SyncAdapter,
@@ -104,23 +104,6 @@ function buildCostPrice(model: SyncedModel) {
   };
 }
 
-function applySellMarkup(costPrice: Record<string, unknown>, markupRatio: number) {
-  if (costPrice.unit === "call") {
-    const perCall = (costPrice.perCall as number) ?? 0;
-    return {
-      perCall: +(perCall * markupRatio).toFixed(4),
-      unit: "call",
-    };
-  }
-  const inputPer1M = (costPrice.inputPer1M as number) ?? 0;
-  const outputPer1M = (costPrice.outputPer1M as number) ?? 0;
-  return {
-    inputPer1M: +(inputPer1M * markupRatio).toFixed(4),
-    outputPer1M: +(outputPer1M * markupRatio).toFixed(4),
-    unit: "token",
-  };
-}
-
 // ============================================================
 // 运营手动覆盖应用
 // ============================================================
@@ -184,7 +167,6 @@ async function resolveCanonicalName(modelId: string): Promise<string> {
 async function reconcile(
   provider: ProviderWithConfig,
   models: SyncedModel[],
-  markupRatio: number,
 ): Promise<{ newModels: string[]; newChannels: string[]; disabledChannels: string[] }> {
   const newModels: string[] = [];
   const newChannels: string[] = [];
@@ -237,27 +219,15 @@ async function reconcile(
     });
 
     const costPrice = buildCostPrice(remoteModel);
-    const sellPrice = applySellMarkup(costPrice, markupRatio);
 
     if (existingChannel) {
       const updateData: Record<string, unknown> = {
         realModelId: remoteModel.modelId,
+        costPrice,
       };
       if (existingChannel.status !== "ACTIVE") updateData.status = "ACTIVE";
-      if (!existingChannel.sellPriceLocked) {
-        updateData.costPrice = costPrice;
-        updateData.sellPrice = sellPrice;
-      }
       await prisma.channel.update({ where: { id: existingChannel.id }, data: updateData });
     } else {
-      // 可观测性：新 Channel sellPrice 全为 0 时打印告警
-      const sp = sellPrice as unknown as Record<string, number>;
-      if ((sp.inputPer1M === 0 && sp.outputPer1M === 0) || sp.perCall === 0) {
-        console.warn(
-          `[model-sync] WARNING: zero sellPrice for new channel ${provider.name}/${remoteModel.modelId}`,
-        );
-      }
-
       await prisma.channel.create({
         data: {
           modelId: model.id,
@@ -266,7 +236,6 @@ async function reconcile(
           status: "ACTIVE",
           priority: 10, // 默认优先级，管理员可调
           costPrice: costPrice as unknown as Prisma.InputJsonValue,
-          sellPrice: sellPrice as unknown as Prisma.InputJsonValue,
         },
       });
       newChannels.push(`${provider.name}/${remoteModel.modelId} → ${canonicalName}`);
@@ -302,7 +271,6 @@ async function reconcile(
 async function syncProvider(
   provider: ProviderWithConfig,
   adapter: SyncAdapter,
-  markupRatio: number,
 ): Promise<ProviderSyncResult> {
   const result: ProviderSyncResult = {
     providerName: provider.name,
@@ -391,7 +359,7 @@ async function syncProvider(
     result.modelCount = models.length;
 
     // ── reconcile 入库 ──
-    const dbResult = await reconcile(provider, models, markupRatio);
+    const dbResult = await reconcile(provider, models);
     result.newModels = dbResult.newModels;
     result.newChannels = dbResult.newChannels;
     result.disabledChannels = dbResult.disabledChannels;
@@ -430,8 +398,6 @@ export async function runModelSync(): Promise<SyncResult> {
   const startedAt = new Date();
 
   try {
-    const markupRatio = await getConfigNumber("DEFAULT_MARKUP_RATIO", 1.2);
-
     const providers = await prisma.provider.findMany({
       where: { status: "ACTIVE" },
       include: { config: true },
@@ -499,7 +465,7 @@ export async function runModelSync(): Promise<SyncResult> {
         }
         return Promise.resolve(noAdapterResult);
       }
-      return syncProvider(provider, adapter, markupRatio).then((res) => {
+      return syncProvider(provider, adapter).then((res) => {
         completedCount++;
         if (progressRedis) {
           progressRedis

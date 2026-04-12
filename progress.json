@@ -1,11 +1,11 @@
 {
-  "status": "building",
+  "status": "verifying",
   "user_goal": "BILLING-REFACTOR — 计费架构重构：sellPrice 统一由 ModelAlias 管理，消除 Channel.sellPrice 扣费逻辑，展示价=扣费价",
   "total_features": 7,
-  "completed_features": 0,
+  "completed_features": 6,
   "fix_rounds": 0,
   "current_sprint": null,
-  "last_updated": "2026-04-12T04:35:00Z",
+  "last_updated": "2026-04-12T12:50:00Z",
   "reference_docs": ["tests/mcp-test/reports-20260412/all-assertions-20260412.json"],
   "role_assignments": null,
   "docs": {
@@ -15,9 +15,9 @@
     "framework_reviewed": false
   },
   "evaluator_feedback": null,
-  "generator_handoff": null,
+  "generator_handoff": "F-BR-01~06 全部完成。核心变更：(1) RouteResult 新增 alias 字段，router.ts routeByAlias 自动填充；(2) post-process.ts 扣费改读 alias.sellPrice（fallback channel.sellPrice）；(3) applySellMarkup/markupRatio/sellPriceLocked 已删除；(4) Channel.sellPrice 改 optional；(5) list_models + /v1/models 去掉 channel fallback；(6) 管理端 API 去掉 channel sellPrice 编辑和 fallback；(7) backfill 脚本在 prisma/migrations/20260412_billing_refactor_channel_cleanup/backfill-alias-sell-price.ts，部署前需在生产运行：npx tsx prisma/migrations/20260412_billing_refactor_channel_cleanup/backfill-alias-sell-price.ts。F-BR-07 全量验收由 Codex 执行。",
   "session_notes": {
-    "Kimi": "Planner 启动 BILLING-REFACTOR 批次。来源：MCP 8 角色审计发现 FIN-001（扣费比展示价高 20%）。根因：扣费读 Channel.sellPrice（含 markup），展示读 Alias.sellPrice（管理员设定），二者不一致。方案：统一为 alias.sellPrice 作为唯一定价源。后续还有 AUDIT-SEC 和 DX-POLISH 两个批次。backlog 中 BL-114(unit 4层防护)、BL-116~119(BF4已完成) 需清理。",
+    "Kimi": "Generator 完成 BILLING-REFACTOR F-BR-01~06。关键设计决策：(1) alias 在 RouteResult 中为 optional（健康检查等内部路由不需要 alias）；(2) post-process 中 alias.sellPrice 优先，channel.sellPrice 作 fallback（防止 alias 无价时扣费为 0）；(3) channel.sellPrice 保留字段（optional）但不再由 sync 写入，仅存历史参考；(4) 前端 model-aliases 页面移除了 fallbackPrice 逻辑和 FallbackPrice 类型。部署注意：先跑 migration SQL 再跑 backfill 脚本。",
     "Reviewer": null
   }
 }

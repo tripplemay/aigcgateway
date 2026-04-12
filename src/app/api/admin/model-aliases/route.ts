@@ -28,7 +28,6 @@ export async function GET(request: Request) {
                     status: true,
                     realModelId: true,
                     costPrice: true,
-                    sellPrice: true,
                     provider: { select: { name: true, displayName: true } },
                     healthChecks: {
                       orderBy: { createdAt: "desc" },
@@ -66,25 +65,6 @@ export async function GET(request: Request) {
   ]);
 
   const data = aliases.map((a) => {
-    // Find the highest-priority ACTIVE channel's sellPrice as fallback
-    const allChannels = a.models.flatMap((link) =>
-      link.model.channels
-        .filter((ch) => ch.status === "ACTIVE")
-        .map((ch) => ({
-          priority: ch.priority,
-          sellPrice: ch.sellPrice as Record<string, unknown> | null,
-        })),
-    );
-    allChannels.sort((x, y) => x.priority - y.priority);
-    const topChannelSp = allChannels[0]?.sellPrice ?? null;
-    const fallbackPrice = topChannelSp
-      ? {
-          inputPer1M: (topChannelSp.inputPer1M as number) ?? null,
-          outputPer1M: (topChannelSp.outputPer1M as number) ?? null,
-          unit: (topChannelSp.unit as string) ?? "token",
-        }
-      : null;
-
     return {
       id: a.id,
       alias: a.alias,
@@ -97,7 +77,6 @@ export async function GET(request: Request) {
       description: a.description,
       sellPrice: a.sellPrice,
       openRouterModelId: a.openRouterModelId ?? null,
-      fallbackPrice,
       linkedModels: a.models.map((link) => ({
         modelId: link.model.id,
         modelName: link.model.name,
@@ -106,7 +85,6 @@ export async function GET(request: Request) {
           priority: ch.priority,
           status: ch.status,
           costPrice: ch.costPrice as Record<string, unknown> | null,
-          sellPrice: ch.sellPrice as Record<string, unknown> | null,
           providerName: ch.provider.displayName,
           latencyMs: ch.healthChecks[0]?.latencyMs ?? null,
         })),
