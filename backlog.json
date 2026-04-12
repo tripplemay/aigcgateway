@@ -170,6 +170,32 @@
       "priority": "medium"
     },
     {
+      "id": "BL-114",
+      "title": "sellPrice unit 字段缺失彻底修复（4 层防护）",
+      "description": "sellPrice 是 JSON 字段，unit 是必需的但没有任何层面做强制校验，导致管理员定价后模型页显示'免费'。需要 4 层防护彻底杜绝：Layer 1（API 层保底）PATCH /api/admin/model-aliases/[id] 收到 sellPrice 时强制补 unit（有 inputPer1M/outputPer1M→token，有 perCall→call，都没有→返回 400）；Layer 2（前端保存补全）saveChanges 中自动补 unit；Layer 3（Prisma middleware）写入 ModelAlias 时校验 sellPrice 结构完整性；Layer 4（读取兼容）/api/v1/models 读 sellPrice 时缺 unit 则自动推断（有 inputPer1M→token，有 perCall→call），不再忽略显示免费。",
+      "decisions": [
+        "最关键：Layer 1（API 层）+ Layer 4（读取兼容），这两层加起来彻底杜绝",
+        "Layer 2（前端）提升用户体验，Layer 3（Prisma middleware）终极防线",
+        "所有写入路径统一覆盖：手动编辑保存、参考定价回填、未来批量定价"
+      ],
+      "confirmed_at": "2026-04-12",
+      "priority": "high",
+      "files": [
+        "src/app/api/admin/model-aliases/[id]/route.ts (Layer 1)",
+        "src/app/(console)/admin/model-aliases/page.tsx (Layer 2)",
+        "src/lib/prisma.ts 或 middleware (Layer 3)",
+        "src/app/api/v1/models/route.ts (Layer 4)"
+      ]
+    },
+    {
+      "id": "BL-113",
+      "title": "参考定价功能适配 IMAGE 模型（per-call 定价）",
+      "description": "当前参考定价功能只支持 TEXT 模型（inputPer1M/outputPer1M token 定价）。IMAGE 模型使用 perCall 定价单位，OpenRouter 上图片模型有 image 字段（per-image 价格）和 prompt/completion 字段（token 价格）。需要：1) suggest-price API 对 IMAGE 模态返回 per-call 参考价格；2) 前端回填时使用 perCall 单位而非 inputPer1M/outputPer1M；3) OpenRouter 的 pricing.image 字段可作为 per-call 参考价格来源。",
+      "decisions": [],
+      "confirmed_at": "2026-04-12",
+      "priority": "medium"
+    },
+    {
       "id": "BL-112",
       "title": "MiniMax Base URL 修正 + API_REACHABILITY 适配不支持 /models 的服务商",
       "description": "两个问题：1) MiniMax baseUrl 应为 api.minimaxi.com/v1（国内域名），api.minimax.io 对中国区 Key 返回 invalid api key。更新 ADAPTER_PRESETS、seed.ts、docs。2) API_REACHABILITY 健康检查硬编码 /models 端点，但 MiniMax 和 Anthropic 不支持。在 adapter 预设中增加 healthCheckEndpoint 字段（默认 /models，可配 skip），ProviderConfig 保留可选覆盖。Anthropic 还需处理 x-api-key header（非 Bearer）。",
