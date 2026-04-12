@@ -154,6 +154,13 @@ async function processImageResultAsync(params: ImagePostProcessParams): Promise<
   // 图片成本：按次计价
   const { costUsd, sellUsd } = calculateCallCost(params.route, status);
 
+  // 定价缺失告警：成功调用但 sellPrice 为 0，说明 alias 未配置 perCall 定价
+  if (status === "SUCCESS" && sellUsd === 0) {
+    console.warn(
+      `[post-process] WARNING: zero sell price for image call alias=${params.route.alias?.alias ?? "unknown"} model=${params.modelName}. Check alias sellPrice.perCall config.`,
+    );
+  }
+
   const callLog = await prisma.callLog.create({
     data: {
       traceId: params.traceId,
@@ -232,8 +239,11 @@ function calculateCallCost(
   if (status !== "SUCCESS") return { costUsd: 0, sellUsd: 0 };
 
   const costPrice = route.channel.costPrice as { perCall?: number };
-  // 扣费价从 alias.sellPrice 取（统一定价源），fallback 到 channel.sellPrice 兜底
-  const sellPrice = (route.alias?.sellPrice ?? route.channel.sellPrice) as { perCall?: number };
+  // 扣费价从 alias.sellPrice 取（统一定价源）
+  // 如果 alias.sellPrice 存在但没有 perCall（例如误配为 token 计价），fallback 到 channel.sellPrice
+  const aliasSp = route.alias?.sellPrice as { perCall?: number } | null;
+  const channelSp = route.channel.sellPrice as { perCall?: number } | null;
+  const sellPrice = (aliasSp?.perCall !== undefined ? aliasSp : channelSp) ?? { perCall: 0 };
 
   const cnyToUsd = Number(process.env.EXCHANGE_RATE_CNY_TO_USD ?? 0.137);
   const isCny = route.config.currency === "CNY";

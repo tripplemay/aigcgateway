@@ -31,7 +31,7 @@
       "title": "image 模型计费 $0 修复",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "1) generate_image 成功调用后 get_log_detail.cost > 0（按 alias.sellPrice.perCall 扣费）；2) get_balance 余额正确扣减；3) tsc 通过"
     },
     {
