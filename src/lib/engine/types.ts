@@ -30,6 +30,13 @@ export interface ChatCompletionRequest {
   temperature?: number;
   top_p?: number;
   max_tokens?: number;
+  /**
+   * 独立控制 reasoning 模型的 thinking token 上限。
+   * - OpenAI o1/o3 会映射为 `reasoning_effort` + 内部 budget
+   * - Anthropic extended thinking 映射为 `thinking.budget_tokens`
+   * - DeepSeek R1 / Zhipu GLM-4 Thinking 映射为 `reasoning.max_tokens`
+   */
+  max_reasoning_tokens?: number;
   stream?: boolean;
   n?: number;
   presence_penalty?: number;
@@ -73,6 +80,12 @@ export interface Usage {
   prompt_tokens: number;
   completion_tokens: number;
   total_tokens: number;
+  /**
+   * 仅 reasoning 模型返回。thinking/reasoning 阶段消耗的 token 数。
+   * 与 completion_tokens 分开计量，便于用户理解成本构成。
+   * 来源：上游 usage.completion_tokens_details.reasoning_tokens
+   */
+  reasoning_tokens?: number;
 }
 
 export interface ChatCompletionChunk {

@@ -61,7 +61,7 @@
       "title": "reasoning 模型 max_tokens 独立计量 + max_reasoning_tokens 参数",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "source": "FIN-002",
       "acceptance": "1) chat response 的 usage 中增加 reasoning_tokens 字段（与 completion_tokens 分开）；2) chat 参数增加 max_reasoning_tokens（zod schema）；3) reasoning 模型的实际 completion_tokens 受 max_tokens 约束；4) 非 reasoning 模型行为不变；5) tsc 通过"
     },

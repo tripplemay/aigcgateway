@@ -74,8 +74,12 @@ export class OpenAICompatEngine implements EngineAdapter {
     const chunkStream = new TransformStream<{ data: string; event?: string }, ChatCompletionChunk>({
       transform(sseEvent, controller) {
         try {
-          const chunk = JSON.parse(sseEvent.data) as ChatCompletionChunk;
-          controller.enqueue(chunk);
+          const raw = JSON.parse(sseEvent.data) as Record<string, unknown>;
+          // 标准化 usage 字段（提取 reasoning_tokens）
+          if (raw.usage && typeof raw.usage === "object") {
+            raw.usage = extractUsage(raw.usage as Record<string, unknown>);
+          }
+          controller.enqueue(raw as unknown as ChatCompletionChunk);
         } catch {
           // 跳过无法解析的 chunk（如服务商 debug 信息）
         }
@@ -133,7 +137,20 @@ export class OpenAICompatEngine implements EngineAdapter {
     // 1. 替换为真实模型 ID
     const req = { ...request, model: route.channel.realModelId };
     // 2. 应用配置覆盖
-    return applyConfigOverlay(req, route.config);
+    const overlaid = applyConfigOverlay(req, route.config);
+    // 3. 提取 max_reasoning_tokens（不让它原样透传到上游，避免 OpenAI 400）
+    //    转为上游惯用字段：OpenAI 系列 → reasoning.max_tokens；
+    //    DeepSeek R1 → thinking.budget_tokens；Anthropic → thinking.budget_tokens（由专属 adapter 处理）
+    const { max_reasoning_tokens, ...rest } = overlaid as ChatCompletionRequest & {
+      max_reasoning_tokens?: number;
+      reasoning?: { max_tokens?: number };
+    };
+    if (max_reasoning_tokens !== undefined) {
+      (rest as ChatCompletionRequest & { reasoning?: { max_tokens: number } }).reasoning = {
+        max_tokens: max_reasoning_tokens,
+      };
+    }
+    return rest as ChatCompletionRequest;
   }
 
   protected buildUrl(route: RouteResult, type: "chat" | "image"): string {
@@ -229,7 +246,7 @@ export class OpenAICompatEngine implements EngineAdapter {
 
   protected normalizeChatResponse(json: Record<string, unknown>): ChatCompletionResponse {
     const choices = (json.choices as Record<string, unknown>[]) ?? [];
-    const usage = json.usage as Record<string, number> | undefined;
+    const usage = json.usage as Record<string, unknown> | undefined;
 
     return {
       id: (json.id as string) ?? "",
@@ -249,13 +266,7 @@ export class OpenAICompatEngine implements EngineAdapter {
           finish_reason: this.normalizeFinishReason(c.finish_reason as string | null),
         };
       }),
-      usage: usage
-        ? {
-            prompt_tokens: usage.prompt_tokens ?? 0,
-            completion_tokens: usage.completion_tokens ?? 0,
-            total_tokens: usage.total_tokens ?? 0,
-          }
-        : null,
+      usage: usage ? extractUsage(usage) : null,
     };
   }
 
@@ -462,4 +473,43 @@ export class OpenAICompatEngine implements EngineAdapter {
     }
     return null;
   }
+}
+
+/**
+ * 从上游 usage 中提取标准化 Usage，包含 reasoning_tokens（若有）。
+ *
+ * 支持的上游字段位置：
+ * - OpenAI o1/o3: usage.completion_tokens_details.reasoning_tokens
+ * - DeepSeek R1 / Zhipu GLM Thinking: usage.reasoning_tokens（扁平）
+ * - Anthropic extended thinking: usage.thinking_tokens（通过 adapter 转换后亦可落到 reasoning_tokens）
+ */
+export function extractUsage(raw: Record<string, unknown>): Usage {
+  const promptTokens = toNumber(raw.prompt_tokens) ?? 0;
+  const completionTokens = toNumber(raw.completion_tokens) ?? 0;
+  const totalTokens = toNumber(raw.total_tokens) ?? promptTokens + completionTokens;
+
+  const details = raw.completion_tokens_details as Record<string, unknown> | undefined;
+  const reasoningTokens =
+    toNumber(details?.reasoning_tokens) ??
+    toNumber(raw.reasoning_tokens) ??
+    toNumber(raw.thinking_tokens);
+
+  const usage: Usage = {
+    prompt_tokens: promptTokens,
+    completion_tokens: completionTokens,
+    total_tokens: totalTokens,
+  };
+  if (reasoningTokens !== undefined && reasoningTokens > 0) {
+    usage.reasoning_tokens = reasoningTokens;
+  }
+  return usage;
+}
+
+function toNumber(value: unknown): number | undefined {
+  if (typeof value === "number" && Number.isFinite(value)) return value;
+  if (typeof value === "string") {
+    const n = Number(value);
+    if (Number.isFinite(n)) return n;
+  }
+  return undefined;
 }

@@ -35,7 +35,22 @@ export function registerChat(server: McpServer, opts: McpServerOptions): void {
         ),
       messages: z.array(messageSchema).describe("Message array [{role, content}]."),
       temperature: z.number().min(0).max(2).optional().describe("Sampling temperature, 0-2"),
-      max_tokens: z.number().int().positive().optional().describe("Maximum output tokens"),
+      max_tokens: z
+        .number()
+        .int()
+        .positive()
+        .optional()
+        .describe(
+          "Maximum completion (answer) tokens. For reasoning models, this limits the visible answer length only; reasoning/thinking tokens are controlled separately via max_reasoning_tokens.",
+        ),
+      max_reasoning_tokens: z
+        .number()
+        .int()
+        .positive()
+        .optional()
+        .describe(
+          "Maximum reasoning/thinking tokens for reasoning models (OpenAI o-series, DeepSeek R1, Zhipu GLM Thinking, Anthropic extended thinking). Ignored by non-reasoning models.",
+        ),
       stream: z
         .boolean()
         .optional()
@@ -103,6 +118,7 @@ export function registerChat(server: McpServer, opts: McpServerOptions): void {
       messages,
       temperature,
       max_tokens,
+      max_reasoning_tokens,
       stream,
       response_format,
       top_p,
@@ -250,6 +266,7 @@ export function registerChat(server: McpServer, opts: McpServerOptions): void {
         messages: messages,
         ...(temperature !== undefined ? { temperature } : {}),
         ...(max_tokens !== undefined ? { max_tokens } : {}),
+        ...(max_reasoning_tokens !== undefined ? { max_reasoning_tokens } : {}),
         ...(response_format ? { response_format } : {}),
         ...(top_p !== undefined ? { top_p } : {}),
         ...(frequency_penalty !== undefined ? { frequency_penalty } : {}),
@@ -359,6 +376,9 @@ export function registerChat(server: McpServer, opts: McpServerOptions): void {
                           promptTokens: lastUsage.prompt_tokens,
                           completionTokens: lastUsage.completion_tokens,
                           totalTokens: lastUsage.total_tokens,
+                          ...(lastUsage.reasoning_tokens !== undefined
+                            ? { reasoningTokens: lastUsage.reasoning_tokens }
+                            : {}),
                         }
                       : null,
                     finishReason: lastFinishReason,
@@ -408,6 +428,9 @@ export function registerChat(server: McpServer, opts: McpServerOptions): void {
                         promptTokens: usage.prompt_tokens,
                         completionTokens: usage.completion_tokens,
                         totalTokens: usage.total_tokens,
+                        ...(usage.reasoning_tokens !== undefined
+                          ? { reasoningTokens: usage.reasoning_tokens }
+                          : {}),
                       }
                     : null,
                   finishReason: choice?.finish_reason ?? null,
