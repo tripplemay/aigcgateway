@@ -1,11 +1,11 @@
 {
-  "status": "reverifying",
+  "status": "done",
   "user_goal": "UI-UNIFY-FIX — UI-UNIFY 收尾批次：修正 PageContainer size、移除 badge、统一 section heading 工具类、主按钮 gradient variant 普及",
   "total_features": 6,
-  "completed_features": 5,
+  "completed_features": 6,
   "fix_rounds": 1,
   "current_sprint": "F-UF-06",
-  "last_updated": "2026-04-14T09:00:00Z",
+  "last_updated": "2026-04-14T01:15:00Z",
   "reference_docs": [
     "docs/specs/UI-UNIFY-FIX-spec.md"
   ],
@@ -13,13 +13,13 @@
   "docs": {
     "spec": "docs/specs/UI-UNIFY-FIX-spec.md",
     "test_cases": null,
-    "signoff": null,
+    "signoff": "docs/test-reports/ui-unify-fix-signoff-2026-04-14.md",
     "framework_reviewed": false
   },
-  "evaluator_feedback": "F-UF-06 首轮验收 FAIL（5/6）。失败项：AC4 section 标题统一未完成，balance 页面仍有手写 h3 样式（src/app/(console)/balance/page.tsx:194 使用 font-bold text-lg；:232 使用 font-bold text-xl），未改为 .heading-2/.heading-3。其余 AC1/2/3/5/6 通过。请 generator 修复后进入 reverifying。",
+  "evaluator_feedback": "F-UF-06 复验 PASS（6/6）。AC4 已修复：balance 页面 section 标题已统一 heading 工具类；其余 AC1/2/3/5/6 持续通过。批次已满足签收条件并完成。",
   "generator_handoff": null,
   "session_notes": {
     "Kimi": "Fix round 1 完成：balance/page.tsx 两处 h3 已改用 heading 工具类（alertThreshold → .heading-3，transactions → .heading-2）。遗留 text-xl font-bold 一处在 input 元素上（line 202），非 heading，按规则不在 grep 目标内。tsc clean。交 Codex Reviewer 复验。",
-    "Reviewer": "已完成 UI-UNIFY-FIX 的 F-UF-06 首轮验收。结果 5/6，通过项：size、PageHeader badge、keys 按钮位置、gradient-primary、12 页面运行态。失败项：balance 两处 h3 仍为手写 font-bold text-(lg/xl)，未使用 heading 工具类。已出具 verifying 报告与 JSON 证据，状态流转 fixing。"
+    "Reviewer": "已完成 UI-UNIFY-FIX 的 F-UF-06 复验。结果 6/6 全通过：size、badge、keys PageHeader.actions、heading 工具类、gradient-primary 主按钮、12 页面运行态均通过。已输出 reverifying+signoff 报告，状态置为 done。"
   }
 }

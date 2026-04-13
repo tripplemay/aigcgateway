@@ -47,7 +47,7 @@
       "title": "UI-UNIFY-FIX 全量验收",
       "priority": "high",
       "executor": "codex",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "1) 12 个 console 页面 size 选择正确（settings=default, mcp-setup=narrow, 其他保持）；2) PageHeader 无 badge 残留；3) keys 主按钮在 PageHeader.actions；4) 所有 section h2/h3 使用 .heading-2/.heading-3 工具类（grep 验证返回 0）；5) 所有主按钮使用 gradient-primary variant（grep 验证返回 0）；6) 视觉验证 12 个页面整体一致；7) 签收报告生成"
     }
   ]

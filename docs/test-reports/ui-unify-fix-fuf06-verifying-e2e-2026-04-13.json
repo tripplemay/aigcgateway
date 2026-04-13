@@ -2,11 +2,11 @@
   "feature": "F-UF-06",
   "batch": "UI-UNIFY-FIX",
   "env": "L1-local-3099",
-  "startedAt": "2026-04-13T10:22:12.106Z",
-  "finishedAt": "2026-04-13T10:22:12.106Z",
-  "pass": false,
-  "passCount": 5,
-  "failCount": 1,
+  "startedAt": "2026-04-13T19:13:40.207Z",
+  "finishedAt": "2026-04-13T19:13:40.208Z",
+  "pass": true,
+  "passCount": 6,
+  "failCount": 0,
   "steps": [
     {
       "id": "F-UF-06-AC1-page-container-size",
@@ -25,8 +25,8 @@
     },
     {
       "id": "F-UF-06-AC4-heading-tool-classes",
-      "ok": false,
-      "detail": "badHeadingMatches=0, missingHeadingPages=1:balance"
+      "ok": true,
+      "detail": "badHeadingMatches=0, missingHeadingPages=0"
     },
     {
       "id": "F-UF-06-AC5-gradient-primary-buttons",
