@@ -4,14 +4,11 @@ description: AIGC Gateway 当前状态快照（覆盖写，≤30 行）
 type: project
 ---
 ## 当前批次
-- UI-UNIFY-FIX：`building`（6 条功能，0/6 完成，5 generator + 1 codex）
+- UI-UNIFY-FIX：`fixing`（F-UF-06 首轮验收 5/6，待修复后复验）
 - 规格：`docs/specs/UI-UNIFY-FIX-spec.md`
-- F-UF-01: PageContainer size 修正（settings→default, mcp-setup→narrow）
-- F-UF-02: 移除 PageHeader badge（keys/mcp-setup）
-- F-UF-03: keys 创建按钮提到 PageHeader.actions
-- F-UF-04: section h2/h3 改用 .heading-2/.heading-3 工具类
-- F-UF-05: 主按钮统一 Button gradient-primary variant
-- F-UF-06: codex 验收（grep 机械化检查）
+- 失败点：`balance/page.tsx` 两处 `h3` 仍用手写 `font-bold text-(lg/xl)`，未统一 `.heading-2/.heading-3`
+- 验收报告：`docs/test-reports/ui-unify-fix-verifying-2026-04-13.md`
+- 证据：`docs/test-reports/ui-unify-fix-fuf06-verifying-e2e-2026-04-13.json`
 
 ## 已知 gap
 - 5 个图片模型 supportedSizes 规则不匹配：openai/gpt-5-image、wan2.7-image、wan2.7-image-pro、z-image-turbo、glm-4v
