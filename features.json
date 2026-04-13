@@ -1,70 +1,113 @@
 {
-  "batch": "AUDIT-SEC",
+  "batch": "DX-POLISH",
   "created_at": "2026-04-13",
   "features": [
     {
-      "id": "F-AS-01",
-      "title": "上游错误脱敏增强（QQ 群号 + 内部术语过滤）",
-      "priority": "critical",
-      "executor": "generator",
-      "status": "completed",
-      "acceptance": "1) chat 任何模型的错误返回中不含 QQ 群号、微信群、上游客服联系方式或非本平台域名 URL；2) 不含上游特有术语（如 'context-compression plugin'）；3) 脱敏后错误消息仍有自解释性；4) tsc 通过"
-    },
-    {
-      "id": "F-AS-02",
-      "title": "不可用模型从 list_models 过滤",
-      "priority": "high",
-      "executor": "generator",
-      "status": "completed",
-      "acceptance": "1) list_models 不返回所有 channel 均健康检查 FAIL 的模型；2) list_models 不返回所有 channel 均被禁用的模型；3) 现有正常模型不受影响；4) tsc 通过"
-    },
-    {
-      "id": "F-AS-03",
-      "title": "image 模型 supportedSizes 数据回填",
-      "priority": "high",
-      "executor": "generator",
-      "status": "completed",
-      "acceptance": "1) list_models(modality='image') 返回的每个模型都有顶层 supportedSizes 字段；2) gemini-3-pro-image/gpt-image/qwen-image 已补全；3) 回填脚本可重复执行（幂等）；4) tsc 通过"
-    },
-    {
-      "id": "F-AS-04",
-      "title": "image 模型计费 $0 修复",
-      "priority": "high",
-      "executor": "generator",
-      "status": "completed",
-      "acceptance": "1) generate_image 成功调用后 get_log_detail.cost > 0（按 alias.sellPrice.perCall 扣费）；2) get_balance 余额正确扣减；3) tsc 通过"
-    },
-    {
-      "id": "F-AS-05",
-      "title": "free_only 过滤逻辑修复",
+      "id": "F-DP-01",
+      "title": "sellPrice 写入路径加精度保障（round 到 6 位小数）",
       "priority": "medium",
       "executor": "generator",
-      "status": "completed",
-      "acceptance": "1) list_models(free_only=true) 返回所有价格为 0 的模型（inputPerMillion=0 且 outputPerMillion=0，或 perCall=0）；2) 非免费模型不出现在结果中；3) MCP 和 /api/v1/models 行为一致；4) tsc 通过"
+      "status": "pending",
+      "source": "FIN-003/CHAOS-009/DX-004",
+      "acceptance": "1) 管理端保存 sellPrice 时数值 round 到 6 位小数；2) Prisma middleware 或 API 层统一处理，所有写入路径覆盖；3) 不依赖一次性 backfill；4) tsc 通过"
     },
     {
-      "id": "F-AS-06",
-      "title": "日志 XSS 转义（prompt 存储/展示安全化）",
-      "priority": "high",
-      "executor": "generator",
-      "status": "completed",
-      "acceptance": "1) get_log_detail 返回的 prompt/response 内容中 HTML 特殊字符已转义（<>&\"'）；2) 控制台日志页面不触发 XSS；3) 原始数据库存储不变（只在展示层转义）；4) tsc 通过"
-    },
-    {
-      "id": "F-AS-07",
-      "title": "generate_image size 预校验",
+      "id": "F-DP-02",
+      "title": "deprecated 标记同步到 list_models",
       "priority": "medium",
       "executor": "generator",
-      "status": "completed",
-      "acceptance": "1) generate_image 传入无效 size 时返回明确的 invalid_size 错误码；2) 错误消息包含该模型的 supportedSizes 列表；3) 不透传上游模糊错误；4) tsc 通过"
+      "status": "pending",
+      "source": "FIN-004/DX-006",
+      "acceptance": "1) get_usage_summary 中 deprecated=true 的模型，list_models 返回时也带 deprecated 字段；2) ModelAlias 增加 deprecated 布尔字段（migration）；3) MCP 和 REST 行为一致；4) tsc 通过"
     },
     {
-      "id": "F-AS-08",
-      "title": "AUDIT-SEC 全量验收",
+      "id": "F-DP-03",
+      "title": "list_models capability 参数加 enum 约束",
+      "priority": "low",
+      "executor": "generator",
+      "status": "pending",
+      "source": "DX-005",
+      "acceptance": "1) capability 参数 zod schema 从 z.string() 改为 z.enum([...])，包含 function_calling/vision/json_mode/reasoning/search/streaming/system_prompt；2) 无效 capability 值返回明确错误；3) tsc 通过"
+    },
+    {
+      "id": "F-DP-04",
+      "title": "list_logs model 参数示例修正",
+      "priority": "low",
+      "executor": "generator",
+      "status": "pending",
+      "source": "DX-007",
+      "acceptance": "1) list_logs 的 model 参数 description 中示例从 'openai/gpt-4o' 改为 canonical name 格式（如 'gpt-4o-mini'）；2) 与 list_models 返回的模型名格式一致；3) tsc 通过"
+    },
+    {
+      "id": "F-DP-05",
+      "title": "MCP 错误消息措辞统一（not found in this project）",
+      "priority": "low",
+      "executor": "generator",
+      "status": "pending",
+      "source": "IDOR-001/002",
+      "acceptance": "1) get_action_detail/delete_action/get_template_detail/delete_template 的 not found 错误统一为 'not found in this project' 措辞；2) 明确租户隔离语义；3) tsc 通过"
+    },
+    {
+      "id": "F-DP-06",
+      "title": "数据修正：deepseek-r1 capabilities + grok-4.1-fast/minimax-m2.5 contextWindow",
+      "priority": "medium",
+      "executor": "generator",
+      "status": "pending",
+      "source": "MC-001/MC-004/DX-003/DX-011",
+      "acceptance": "1) deepseek-r1 的 capabilities.function_calling 根据实际行为修正；2) grok-4.1-fast 和 minimax-m2.5 的 contextWindow 填入准确值；3) 通过一次性数据修复脚本或管理端编辑完成；4) tsc 通过"
+    },
+    {
+      "id": "F-DP-07",
+      "title": "reasoning 模型 max_tokens 独立计量 + max_reasoning_tokens 参数",
+      "priority": "high",
+      "executor": "generator",
+      "status": "pending",
+      "source": "FIN-002",
+      "acceptance": "1) chat response 的 usage 中增加 reasoning_tokens 字段（与 completion_tokens 分开）；2) chat 参数增加 max_reasoning_tokens（zod schema）；3) reasoning 模型的实际 completion_tokens 受 max_tokens 约束；4) 非 reasoning 模型行为不变；5) tsc 通过"
+    },
+    {
+      "id": "F-DP-08",
+      "title": "json_mode 返回自动剥离 markdown code fence",
+      "priority": "medium",
+      "executor": "generator",
+      "status": "pending",
+      "source": "CHAOS-008",
+      "acceptance": "1) chat(response_format={type:'json_object'}) 的 response content 为裸 JSON 字符串；2) 自动剥离 ```json ... ``` 或 ``` ... ``` 包裹；3) 剥离后可直接 JSON.parse；4) tsc 通过"
+    },
+    {
+      "id": "F-DP-09",
+      "title": "chat 增加 modality 校验，拒绝 image 模型作 text chat",
+      "priority": "medium",
+      "executor": "generator",
+      "status": "pending",
+      "source": "CHAOS-006",
+      "acceptance": "1) chat(model=<image_modality_alias>) 返回 400 invalid_model_modality 错误；2) 错误消息提示使用 generate_image；3) 不扣费；4) tsc 通过"
+    },
+    {
+      "id": "F-DP-10",
+      "title": "ttftMs 字段在非流式调用时省略或标 N/A",
+      "priority": "low",
+      "executor": "generator",
+      "status": "pending",
+      "source": "FIN-006",
+      "acceptance": "1) get_log_detail 对 stream=false 的调用不返回 ttftMs/ttft 字段；2) stream=true 时始终返回有效数值；3) 不出现 null 语义歧义；4) tsc 通过"
+    },
+    {
+      "id": "F-DP-11",
+      "title": "capability 过滤按 modality 隔离，统一 capabilities schema",
+      "priority": "medium",
+      "executor": "generator",
+      "status": "pending",
+      "source": "DX-012",
+      "acceptance": "1) list_models(capability='vision') 在 text/image 两个 modality 下行为一致且语义明确；2) capabilities schema 在 text/image 中统一或按 modality 拆分；3) 文档更新说明字段含义；4) tsc 通过"
+    },
+    {
+      "id": "F-DP-12",
+      "title": "DX-POLISH 全量验收",
       "priority": "high",
       "executor": "codex",
-      "status": "completed",
-      "acceptance": "1) 错误消息无上游信息泄露；2) list_models 不含不可用模型；3) 所有 image 模型有 supportedSizes；4) image 调用正确扣费；5) free_only 过滤正常；6) 日志无 XSS 风险；7) 无效 size 返回 invalid_size + 列表；8) 签收报告生成"
+      "status": "pending",
+      "acceptance": "1) 11 个 generator 功能全部符合各自 acceptance；2) 与 AUDIT-SEC 已修复问题无回归；3) list_models / chat / list_logs 全链路验证；4) 签收报告生成"
     }
   ]
 }

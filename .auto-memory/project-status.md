@@ -4,14 +4,13 @@ description: AIGC Gateway 当前状态快照（覆盖写，≤30 行）
 type: project
 ---
 ## 当前批次
-- AUDIT-SEC：`done`（reverifying 10/10 PASS，已签收）
-- 安全：上游错误脱敏增强、日志 XSS 转义
-- 数据：不可用模型过滤、supportedSizes 回填脚本、image 计费 perCall fallback
-- DX：generate_image size 预校验、free_only 修复（fix round 1）
-- **待执行**：生产环境执行 `npx tsx scripts/backfill-supported-sizes.ts --apply`
+- DX-POLISH：`building`（12 条功能，0/12 完成，11 generator + 1 codex）
+- 高优：F-DP-07 reasoning max_tokens 独立计量 + max_reasoning_tokens
+- 中优：精度保障、deprecated 同步、数据修正、json_mode 剥离、modality 校验、capability schema
+- 低优：enum 约束、model 参数示例、错误消息统一、ttftMs 省略
 
-## 后续批次
-- DX-POLISH：DX 改进（deprecated 标记、enum、错误消息统一等）
+## 已知 gap
+- 5 个图片模型 supportedSizes 规则不匹配：openai/gpt-5-image、wan2.7-image、wan2.7-image-pro、z-image-turbo、glm-4v
 
 ## 已完成批次
 - R1~R4 / P5 / M1a~M1d / BF / K1 / U1 / L1 / MCP2 / A1 / T1 / N1 / O1 / CI1 / SUP1 / P6 / DQ2 / ADMIN-UX / BF2 / ADMIN-OPS+ / BL-080 / BF3 / PRICE-FIX / BF4 / BILLING-REFACTOR / AUDIT-SEC
