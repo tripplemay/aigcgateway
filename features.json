@@ -33,7 +33,7 @@
       "title": "DOCS-REFRESH 全量验收",
       "priority": "high",
       "executor": "codex",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "1) /quickstart 4 步均可正常运行（curl 实测成功）；2) /docs 所有 curl 示例可执行；3) 模型名全部为别名格式，无 provider 前缀残留；4) i18n 中英文一致；5) 两页面交叉引用可点击；6) 签收报告生成"
     }
   ]

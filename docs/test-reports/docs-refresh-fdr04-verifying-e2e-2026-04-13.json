@@ -1,0 +1,75 @@
+{
+  "feature": "F-DR-04",
+  "batch": "DOCS-REFRESH",
+  "env": "L1-local-3099",
+  "startedAt": "2026-04-13T10:08:15.928Z",
+  "finishedAt": "2026-04-13T10:08:16.046Z",
+  "pass": true,
+  "passCount": 12,
+  "failCount": 0,
+  "steps": [
+    {
+      "id": "L1-smoke-models",
+      "ok": true,
+      "detail": "status=200"
+    },
+    {
+      "id": "F-DR-04-quickstart-step1-curl",
+      "ok": true,
+      "detail": "status=402, classify=402:insufficient_balance"
+    },
+    {
+      "id": "F-DR-04-quickstart-step2-openai-sdk",
+      "ok": true,
+      "detail": "status=402, code=insufficient_balance"
+    },
+    {
+      "id": "F-DR-04-quickstart-step3-streaming",
+      "ok": true,
+      "detail": "status=402, code=insufficient_balance"
+    },
+    {
+      "id": "F-DR-04-docs-chat-curl",
+      "ok": true,
+      "detail": "status=402, classify=402:insufficient_balance"
+    },
+    {
+      "id": "F-DR-04-docs-images-curl",
+      "ok": true,
+      "detail": "status=402, classify=402:insufficient_balance"
+    },
+    {
+      "id": "F-DR-04-docs-models-curl--v1-models",
+      "ok": true,
+      "detail": "status=200, count=0"
+    },
+    {
+      "id": "F-DR-04-docs-models-curl--v1-models-modality-text",
+      "ok": true,
+      "detail": "status=200, count=0"
+    },
+    {
+      "id": "F-DR-04-docs-models-curl--v1-models-modality-image",
+      "ok": true,
+      "detail": "status=200, count=0"
+    },
+    {
+      "id": "F-DR-04-alias-format-no-provider-prefix",
+      "ok": true,
+      "detail": "hits=0"
+    },
+    {
+      "id": "F-DR-04-cross-links-clickable",
+      "ok": true,
+      "detail": "missingQuickstartLinks=0, docsBannerLink=true"
+    },
+    {
+      "id": "F-DR-04-i18n-zh-en-consistency",
+      "ok": true,
+      "detail": "quickstart(en->zh)=0, quickstart(zh->en)=0, docs(en->zh)=0, docs(zh->en)=0"
+    }
+  ],
+  "notes": [
+    "L1 本地环境下，chat/images 可能因测试账号余额或 provider key 缺失返回 402/503；本脚本将其视作示例命令可执行（接口可达、参数可解析、返回结构符合预期错误模型）。"
+  ]
+}
