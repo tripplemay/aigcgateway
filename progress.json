@@ -2,10 +2,10 @@
   "status": "building",
   "user_goal": "UI-UNIFY — 抽取 9 个缺失的公共组件 + 改造 12 个 console 页面 + 统一 heading scale + 合并 BL-121/122/123 bug 修复",
   "total_features": 13,
-  "completed_features": 0,
+  "completed_features": 6,
   "fix_rounds": 0,
-  "current_sprint": null,
-  "last_updated": "2026-04-13T03:00:00Z",
+  "current_sprint": "F-UU-07",
+  "last_updated": "2026-04-13T10:50:00Z",
   "reference_docs": [
     "docs/specs/UI-UNIFY-spec.md"
   ],
