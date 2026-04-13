@@ -179,7 +179,6 @@
   },
   "keys": {
     "title": "API 密钥",
-    "infrastructureSecurity": "基础设施 / 安全",
     "subtitle": "为你的 AIGC Gateway 基础设施生成和管理访问令牌。",
     "activeInfrastructure": "活跃基础设施",
     "dailyCapacity": "日请求容量",
@@ -958,7 +957,6 @@
     "pasteFullKey": "请在上方输入框中粘贴完整的 API Key",
     "enterKeyFirst": "请先输入 API Key",
     "noKey": "未找到 API 密钥，请先创建。",
-    "badge": "配置指南",
     "protocolTools": "协议工具",
     "latencyOptimization": "延迟优化",
     "latencyDesc": "所有 MCP 请求启用边缘路由。",

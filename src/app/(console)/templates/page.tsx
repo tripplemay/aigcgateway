@@ -279,9 +279,7 @@ export default function TemplatesPage() {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div className="col-span-1 bg-ds-surface-container-low p-6 rounded-xl relative overflow-hidden group">
                   <div className="relative z-10">
-                    <h3 className="font-[var(--font-heading)] text-lg font-bold text-ds-on-surface mb-1">
-                      {t("templateStats")}
-                    </h3>
+                    <h3 className="heading-3 mb-1">{t("templateStats")}</h3>
                     <p className="text-xs text-ds-on-surface-variant mb-4">
                       {t("templateStatsDesc")}
                     </p>
@@ -305,9 +303,7 @@ export default function TemplatesPage() {
                 </div>
                 <div className="col-span-2 bg-gradient-to-br from-ds-primary to-ds-primary-container p-6 rounded-xl text-white flex justify-between items-center relative overflow-hidden">
                   <div className="relative z-10">
-                    <h3 className="font-[var(--font-heading)] text-lg font-bold mb-1">
-                      {t("ctaTitle")}
-                    </h3>
+                    <h3 className="heading-3 mb-1 text-white">{t("ctaTitle")}</h3>
                     <p className="text-xs text-white/70 mb-4 max-w-sm">{t("ctaDesc")}</p>
                     <Link
                       href="/templates/new"

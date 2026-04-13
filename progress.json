@@ -1,11 +1,11 @@
 {
-  "status": "building",
+  "status": "verifying",
   "user_goal": "UI-UNIFY-FIX — UI-UNIFY 收尾批次：修正 PageContainer size、移除 badge、统一 section heading 工具类、主按钮 gradient variant 普及",
   "total_features": 6,
-  "completed_features": 0,
+  "completed_features": 5,
   "fix_rounds": 0,
-  "current_sprint": null,
-  "last_updated": "2026-04-13T15:00:00Z",
+  "current_sprint": "F-UF-06",
+  "last_updated": "2026-04-13T15:30:00Z",
   "reference_docs": [
     "docs/specs/UI-UNIFY-FIX-spec.md"
   ],
@@ -19,7 +19,7 @@
   "evaluator_feedback": null,
   "generator_handoff": null,
   "session_notes": {
-    "Kimi": "Planner 启动 UI-UNIFY-FIX 批次（5 generator + 1 codex = 6 条）。来源：UI-UNIFY 签收后生产验证发现 5 处不彻底执行（size/badge/keys 按钮位置/heading 工具类/gradient variant）。属于 UI-UNIFY 收尾批次，不是新需求。Evaluator 验收使用 grep 机械化检查。DOCS-REFRESH 已签收，UI-UNIFY 已部署。",
+    "Kimi": "Generator 完成 UI-UNIFY-FIX 全部 5 条。F-UF-01: settings → default、mcp-setup → narrow。F-UF-02: 移除 keys/mcp-setup badge + 删除 i18n key infrastructureSecurity / mcpSetup.badge。F-UF-03: keys 创建按钮上提到 PageHeader.actions 并用 gradient-primary。F-UF-04: settings 8 个 h2、models 1 个 h2、quickstart 1 个 h2 改 .heading-2；mcp-setup 3 个 h3、templates 2 个 h3 改 .heading-3。F-UF-05: keys/balance/settings(3)/mcp-setup 共 6 个主按钮改用 Button variant=gradient-primary。Grep 验证：<h2 text-xl/lg font-bold/extrabold> 0 行、bg-ds-primary text-white 仅余 1 行（balance txn 类型 filter 胶囊，非主按钮，可接受）。tsc clean。交 Codex Reviewer 做 F-UF-06 全量验收。",
     "Reviewer": null
   }
 }

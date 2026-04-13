@@ -13,6 +13,7 @@ import { PageLoader } from "@/components/page-loader";
 import { TableCard } from "@/components/table-card";
 import { TableLoader } from "@/components/table-loader";
 import { StatusChip } from "@/components/status-chip";
+import { Button } from "@/components/ui/button";
 import {
   Table,
   TableHeader,
@@ -110,10 +111,11 @@ export default function KeysPage() {
         <PageHeader
           title={t("title")}
           subtitle={t("subtitle")}
-          badge={
-            <span className="px-2 py-0.5 bg-ds-primary-fixed text-ds-on-primary-fixed-variant text-[10px] font-black rounded uppercase tracking-tighter">
-              {t("infrastructureSecurity")}
-            </span>
+          actions={
+            <Button variant="gradient-primary" size="lg" onClick={() => setCreateOpen(true)}>
+              <span className="material-symbols-outlined text-base">add</span>
+              {t("createKey")}
+            </Button>
           }
         />
 
@@ -126,15 +128,6 @@ export default function KeysPage() {
               onChange={handleSearchChange}
               className="w-64"
             />
-          }
-          actions={
-            <button
-              onClick={() => setCreateOpen(true)}
-              className="flex items-center gap-2 px-4 py-2 bg-ds-primary text-white text-sm font-bold rounded-lg hover:bg-ds-primary-container transition-all active:scale-95 shadow-lg shadow-ds-primary/10"
-            >
-              <span className="material-symbols-outlined text-sm">add</span>
-              {t("createKey")}
-            </button>
           }
         >
           <Table>

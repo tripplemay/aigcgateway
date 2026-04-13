@@ -179,7 +179,6 @@
   },
   "keys": {
     "title": "API Keys",
-    "infrastructureSecurity": "Infrastructure / Security",
     "subtitle": "Generate and manage access tokens for your AIGC Gateway infrastructure.",
     "activeInfrastructure": "Active Infrastructure",
     "dailyCapacity": "Daily Capacity",
@@ -958,7 +957,6 @@
     "pasteFullKey": "Please paste your full API Key in the input field above",
     "enterKeyFirst": "Please enter your API Key first",
     "noKey": "No API Key found. Create one first.",
-    "badge": "Setup Guide",
     "protocolTools": "Protocol Tools",
     "latencyOptimization": "Latency Optimization",
     "latencyDesc": "Edge-routing enabled for all MCP requests.",

@@ -8,6 +8,7 @@ import Link from "next/link";
 import { PageContainer } from "@/components/page-container";
 import { PageHeader } from "@/components/page-header";
 import { PageLoader } from "@/components/page-loader";
+import { Button } from "@/components/ui/button";
 
 // ============================================================
 // Types & config
@@ -226,7 +227,7 @@ export default function McpSetupPage() {
 
   if (projLoading)
     return (
-      <PageContainer data-testid="mcp-setup-loading">
+      <PageContainer size="narrow" data-testid="mcp-setup-loading">
         <PageLoader />
       </PageContainer>
     );
@@ -249,16 +250,8 @@ export default function McpSetupPage() {
   };
 
   return (
-    <PageContainer data-testid="mcp-setup-page">
-      <PageHeader
-        title={t("title")}
-        subtitle={t("subtitle")}
-        badge={
-          <span className="bg-ds-primary/10 text-ds-primary text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-widest">
-            {t("badge")}
-          </span>
-        }
-      />
+    <PageContainer size="narrow" data-testid="mcp-setup-page">
+      <PageHeader title={t("title")} subtitle={t("subtitle")} />
 
       {/* Bento Grid */}
       <div className="grid grid-cols-12 gap-8">
@@ -271,7 +264,7 @@ export default function McpSetupPage() {
                 1
               </div>
               <div>
-                <h3 className="text-lg font-bold font-[var(--font-heading)]">{t("step1")}</h3>
+                <h3 className="heading-3">{t("step1")}</h3>
                 <p className="text-sm text-ds-on-surface-variant">{t("step1Desc")}</p>
               </div>
             </div>
@@ -318,7 +311,7 @@ export default function McpSetupPage() {
               <div className="w-10 h-10 rounded-full bg-ds-primary-container flex items-center justify-center text-white font-bold text-sm">
                 3
               </div>
-              <h3 className="text-lg font-bold">{t("protocolTools")}</h3>
+              <h3 className="heading-3">{t("protocolTools")}</h3>
             </div>
             <div className="grid grid-cols-1 gap-3">
               {[
@@ -356,7 +349,7 @@ export default function McpSetupPage() {
                 2
               </div>
               <div>
-                <h3 className="text-lg font-bold font-[var(--font-heading)]">{t("step2")}</h3>
+                <h3 className="heading-3">{t("step2")}</h3>
                 <p className="text-sm text-ds-on-surface-variant">{t("step2Desc")}</p>
               </div>
             </div>
@@ -417,13 +410,15 @@ export default function McpSetupPage() {
             </div>
 
             {/* Copy button */}
-            <button
+            <Button
+              variant="gradient-primary"
+              size="lg"
               onClick={copyConfig}
-              className="mt-6 w-full py-3.5 bg-ds-primary text-white font-bold rounded-xl flex items-center justify-center gap-2 shadow-lg shadow-ds-primary/20 hover:opacity-90 active:scale-[0.98] transition-all text-sm"
+              className="mt-6 w-full"
             >
-              <span className="material-symbols-outlined">content_copy</span>
+              <span className="material-symbols-outlined text-base">content_copy</span>
               <span>{t("copyConfig")}</span>
-            </button>
+            </Button>
           </section>
         </div>
       </div>

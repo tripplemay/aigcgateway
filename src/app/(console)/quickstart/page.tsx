@@ -114,7 +114,7 @@ function StepCard({ num, title, tag, desc, children }: StepCardProps) {
           <div className="flex items-center justify-center w-10 h-10 rounded-full bg-indigo-50 text-indigo-600 font-[var(--font-heading)] font-extrabold text-lg">
             {num}
           </div>
-          <h2 className="text-xl font-bold font-[var(--font-heading)]">{title}</h2>
+          <h2 className="heading-2">{title}</h2>
         </div>
         <span className="text-xs font-bold uppercase tracking-widest text-slate-400 bg-slate-50 px-2.5 py-1 rounded-full">
           {tag}

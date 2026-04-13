@@ -227,7 +227,7 @@ export default function ModelsPage() {
                   >
                     {abbr}
                   </div>
-                  <h2 className="text-xl font-bold tracking-tight">{group.brand}</h2>
+                  <h2 className="heading-2">{group.brand}</h2>
                   <span className="text-xs text-ds-outline ml-1">
                     {group.models.length} {t("modelCount")}
                   </span>

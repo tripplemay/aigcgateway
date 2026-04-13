@@ -14,6 +14,7 @@ import { PageContainer } from "@/components/page-container";
 import { PageHeader } from "@/components/page-header";
 import { PageLoader } from "@/components/page-loader";
 import { TableLoader } from "@/components/table-loader";
+import { Button } from "@/components/ui/button";
 import {
   Table,
   TableHeader,
@@ -168,13 +169,15 @@ export default function BalancePage() {
                         </p>
                       </div>
                     )}
-                    <button
+                    <Button
+                      variant="gradient-primary"
+                      size="lg"
                       onClick={() => setRechargeOpen(true)}
-                      className="ml-auto bg-gradient-to-br from-ds-primary to-ds-primary-container text-white px-6 py-3 rounded-xl font-bold flex items-center gap-2 shadow-lg shadow-ds-primary/30 hover:scale-[1.02] transition-transform"
+                      className="ml-auto"
                     >
-                      <span className="material-symbols-outlined">add_circle</span>
+                      <span className="material-symbols-outlined text-base">add_circle</span>
                       {t("recharge")}
-                    </button>
+                    </Button>
                   </div>
                 </>
               )}

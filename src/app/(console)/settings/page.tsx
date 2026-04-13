@@ -8,6 +8,7 @@ import { useAsyncData } from "@/hooks/use-async-data";
 import { useRouter } from "next/navigation";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 import { PageContainer } from "@/components/page-container";
 import { PageHeader } from "@/components/page-header";
 import { PageLoader } from "@/components/page-loader";
@@ -226,13 +227,13 @@ export default function SettingsPage() {
 
   if (projLoading)
     return (
-      <PageContainer size="narrow" data-testid="settings-loading">
+      <PageContainer data-testid="settings-loading">
         <PageLoader />
       </PageContainer>
     );
 
   return (
-    <PageContainer size="narrow" data-testid="settings-page">
+    <PageContainer data-testid="settings-page">
       <PageHeader title={t("title")} subtitle={t("subtitle")} />
 
       {/* Tab Bar */}
@@ -297,9 +298,7 @@ export default function SettingsPage() {
                     </span>
                   </div>
                   <div>
-                    <h2 className="text-xl font-bold font-[var(--font-heading)]">
-                      {t("projectInfo")}
-                    </h2>
+                    <h2 className="heading-2">{t("projectInfo")}</h2>
                     <p className="text-sm text-ds-on-surface-variant">{t("projectInfoDesc")}</p>
                   </div>
                 </div>
@@ -327,15 +326,16 @@ export default function SettingsPage() {
                     />
                   </div>
                   <div className="flex justify-end pt-4">
-                    <button
+                    <Button
+                      variant="gradient-primary"
+                      size="lg"
                       type="button"
                       onClick={handleProjectSave}
                       disabled={saving}
                       data-testid="save-project-btn"
-                      className="px-6 py-2.5 bg-ds-primary text-white font-semibold rounded-lg hover:bg-ds-primary-container transition-all active:scale-95 shadow-lg shadow-ds-primary/10 disabled:opacity-60"
                     >
                       {saving ? t("saving") : t("saveChanges")}
-                    </button>
+                    </Button>
                   </div>
                 </div>
               </section>
@@ -352,9 +352,7 @@ export default function SettingsPage() {
                     </span>
                   </div>
                   <div>
-                    <h2 className="text-xl font-bold font-[var(--font-heading)]">
-                      {t("projectStats")}
-                    </h2>
+                    <h2 className="heading-2">{t("projectStats")}</h2>
                     <p className="text-sm text-ds-on-surface-variant">{t("projectStatsDesc")}</p>
                   </div>
                 </div>
@@ -383,9 +381,7 @@ export default function SettingsPage() {
             <div className="space-y-8">
               <section className="bg-ds-error-container/20 rounded-xl p-8 relative overflow-hidden">
                 <div className="relative z-10">
-                  <h2 className="text-xl font-bold font-[var(--font-heading)] text-ds-on-error-container mb-2">
-                    {t("dangerZone")}
-                  </h2>
+                  <h2 className="heading-2 text-ds-on-error-container mb-2">{t("dangerZone")}</h2>
                   <p className="text-sm text-ds-on-error-container/70 mb-6">
                     {t("deleteProjectDesc")}
                   </p>
@@ -438,9 +434,7 @@ export default function SettingsPage() {
                   </span>
                 </div>
                 <div>
-                  <h2 className="text-xl font-bold font-[var(--font-heading)]">
-                    {t("profileInfo")}
-                  </h2>
+                  <h2 className="heading-2">{t("profileInfo")}</h2>
                   <p className="text-sm text-ds-on-surface-variant">{t("profileDesc")}</p>
                 </div>
               </div>
@@ -474,15 +468,16 @@ export default function SettingsPage() {
                   </div>
                 </div>
                 <div className="flex justify-end pt-4">
-                  <button
+                  <Button
                     ref={saveBtnRef}
+                    variant="gradient-primary"
+                    size="lg"
                     type="button"
                     onClick={doSaveName}
                     data-testid="save-profile-btn"
-                    className="px-6 py-2.5 bg-ds-primary text-white font-semibold rounded-lg hover:bg-ds-primary-container transition-all active:scale-95 shadow-lg shadow-ds-primary/10"
                   >
                     {t("saveChanges")}
-                  </button>
+                  </Button>
                 </div>
               </div>
             </section>
@@ -500,9 +495,7 @@ export default function SettingsPage() {
                     </span>
                   </div>
                   <div>
-                    <h2 className="text-xl font-bold font-[var(--font-heading)]">
-                      {t("securityLog")}
-                    </h2>
+                    <h2 className="heading-2">{t("securityLog")}</h2>
                     <p className="text-sm text-ds-on-surface-variant">{t("securityLogDesc")}</p>
                   </div>
                 </div>
@@ -547,9 +540,7 @@ export default function SettingsPage() {
             {/* Change Password */}
             <section className="bg-ds-surface-container-lowest rounded-xl p-8 shadow-sm">
               <div className="mb-8">
-                <h2 className="text-xl font-bold font-[var(--font-heading)] mb-1">
-                  {t("security")}
-                </h2>
+                <h2 className="heading-2 mb-1">{t("security")}</h2>
                 <p className="text-sm text-ds-on-surface-variant">{t("securityDesc")}</p>
               </div>
               <div className="space-y-5">
@@ -591,9 +582,7 @@ export default function SettingsPage() {
             {/* Sign Out */}
             <section className="bg-ds-error-container/20 rounded-xl p-8 relative overflow-hidden">
               <div className="relative z-10">
-                <h2 className="text-xl font-bold font-[var(--font-heading)] text-ds-on-error-container mb-2">
-                  {t("sessionControl")}
-                </h2>
+                <h2 className="heading-2 text-ds-on-error-container mb-2">{t("sessionControl")}</h2>
                 <p className="text-sm text-ds-on-error-container/70 mb-6">{t("signOutDesc")}</p>
                 <button
                   onClick={() => {
@@ -665,7 +654,7 @@ function ExchangeRateSection() {
 
   return (
     <section className="bg-ds-surface-container-lowest rounded-xl p-8 shadow-sm">
-      <h2 className="text-xl font-bold font-[var(--font-heading)] mb-2">{t("exchangeRate")}</h2>
+      <h2 className="heading-2 mb-2">{t("exchangeRate")}</h2>
       <p className="text-sm text-ds-on-surface-variant mb-6">{t("exchangeRateDesc")}</p>
       <div className="flex items-center gap-4">
         <span className="text-sm font-bold text-ds-on-surface-variant">1 USD =</span>
@@ -678,13 +667,9 @@ function ExchangeRateSection() {
           onChange={(e) => setRate(e.target.value)}
         />
         <span className="text-sm font-bold text-ds-on-surface-variant">CNY</span>
-        <button
-          onClick={handleSave}
-          disabled={saving}
-          className="px-6 py-2 bg-ds-primary text-white font-bold rounded-lg text-sm hover:opacity-90 transition-opacity disabled:opacity-50"
-        >
+        <Button variant="gradient-primary" size="lg" onClick={handleSave} disabled={saving}>
           {saving ? "..." : t("save")}
-        </button>
+        </Button>
       </div>
     </section>
   );
