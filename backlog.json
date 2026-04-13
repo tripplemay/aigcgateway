@@ -122,6 +122,20 @@
       "confirmed_at": "2026-04-13",
       "priority": "high",
       "spec": "docs/specs/UI-UNIFY-spec.md"
+    },
+    {
+      "id": "BL-125",
+      "title": "UI-UNIFY-FIX — UI-UNIFY 收尾批次（PageContainer size / badge / heading scale / 按钮统一）",
+      "description": "生产验证发现 UI-UNIFY 完成签收后仍有视觉不一致：(1) settings 用 narrow 但同样有表格的 keys 用 default；(2) mcp-setup 用 default 但应该 narrow；(3) keys/mcp-setup 单独带 PageHeader badge，其他 10 个页面都不带；(4) keys 的'创建按钮'埋在 TableCard 而非 PageHeader.actions；(5) F-UU-12 的 .heading-1/2/3 工具类几乎没人用，section h2 仍手写至少 3 种字号；(6) F-UU-06 的 Button gradient-primary variant 只有 2 个页面用，其他 4 个页面仍手写 plain bg-ds-primary。详细规格见 docs/specs/UI-UNIFY-FIX-spec.md。",
+      "decisions": [
+        "等 DOCS-REFRESH 签收后立即启动",
+        "5 个 generator + 1 个 codex 验收 = 6 条 features",
+        "属于 UI-UNIFY 的执行不彻底，作为收尾批次而非新需求",
+        "Evaluator 验收通过 grep 命令机械化验证（badge=0、heading-N 替换、gradient variant 替换）"
+      ],
+      "confirmed_at": "2026-04-13",
+      "priority": "high",
+      "spec": "docs/specs/UI-UNIFY-FIX-spec.md"
     }
   ]
 }
