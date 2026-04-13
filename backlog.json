@@ -136,6 +136,35 @@
       "confirmed_at": "2026-04-13",
       "priority": "high",
       "spec": "docs/specs/UI-UNIFY-FIX-spec.md"
+    },
+    {
+      "id": "BL-126",
+      "title": "AUDIT-CRITICAL-FIX — 修复 reports-20260413 审计的 critical/high 问题",
+      "description": "一个批次修复 2026-04-13 MCP 审计发现的全部 critical/high 问题（除限流外独立）。3 个系统性根因：(1) gpt-image 零图交付仍扣费导致资金损失（CHAOS-001/007）；(2) router.ts 不过滤 model.enabled 导致 list_models 和实际路由不一致（claude-sonnet-4.6/qwen-image 幽灵模型）；(3) 健康检查只探 /models 端点，GET /models 成功 ≠ 实际调用成功。另含 run_template 版本 bug、图片 URL 供应商泄露、XSS 转义不完整、错误脱敏不彻底等。详细规格见 docs/specs/AUDIT-CRITICAL-FIX-spec.md。",
+      "decisions": [
+        "合并为一个批次处理（12 generator + 1 codex = 13 条）",
+        "限流（RL-001/RL-005）不纳入本批次，独立为 RATE-LIMIT 批次",
+        "等 UI-UNIFY-FIX 签收后立即启动",
+        "历史受害用户通过 refund-zero-image-audit.ts 脚本批量退款",
+        "健康检查分层（API_REACHABILITY + CALL_PROBE）是本批次最大工程量，可能影响进度"
+      ],
+      "confirmed_at": "2026-04-14",
+      "priority": "critical",
+      "spec": "docs/specs/AUDIT-CRITICAL-FIX-spec.md"
+    },
+    {
+      "id": "BL-127",
+      "title": "RATE-LIMIT — 全局限流 + 突发消费保护",
+      "description": "为网关增加全局限流和突发消费保护。来源：RL-001/RL-005（2026-04-13 MCP 审计）。15 个并发请求全部通过网关无任何限流，支付上线后可能被恶意刷爆余额。需要 Redis token bucket + per API key / per user / per project 配额 + X-RateLimit-* 响应头 + 每分钟消费阈值 + 突发熔断。规模大，独立批次做。支付（BL-065）上线前必须完成。",
+      "decisions": [
+        "Redis token bucket 实现",
+        "三层限流：per API key、per user、per project",
+        "响应头增加 X-RateLimit-Limit / X-RateLimit-Remaining / X-RateLimit-Reset（/docs 已有文档字段但未实施）",
+        "每分钟消费阈值 + 5 秒内 N 次连续熔断（可配置）",
+        "必须在 BL-065 支付验签之前完成"
+      ],
+      "confirmed_at": "2026-04-14",
+      "priority": "high"
     }
   ]
 }
