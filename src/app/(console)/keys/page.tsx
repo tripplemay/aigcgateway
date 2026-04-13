@@ -7,7 +7,12 @@ import { useAsyncData } from "@/hooks/use-async-data";
 import { toast } from "sonner";
 import { timeAgo } from "@/lib/utils";
 import { EmptyState } from "@/components/empty-state";
-import { Skeleton } from "@/components/ui/skeleton";
+import { PageContainer } from "@/components/page-container";
+import { PageHeader } from "@/components/page-header";
+import { PageLoader } from "@/components/page-loader";
+import { TableCard } from "@/components/table-card";
+import { TableLoader } from "@/components/table-loader";
+import { StatusChip } from "@/components/status-chip";
 import {
   Table,
   TableHeader,
@@ -91,60 +96,47 @@ export default function KeysPage() {
     setPage(1);
   };
 
-  // ── Loading & empty states ──
   if (projLoading)
     return (
-      <div className="space-y-4 pt-4">
-        <Skeleton className="h-8 w-48" />
-        <Skeleton className="h-10 w-full" />
-        <Skeleton className="h-64 w-full" />
-      </div>
+      <PageContainer data-testid="keys-loading">
+        <PageLoader />
+      </PageContainer>
     );
   if (!current) return <EmptyState onCreated={() => window.location.reload()} />;
 
-  // ── Render — 1:1 replica of design-draft/keys/code.html lines 187-415 ──
   return (
     <>
-      <div className="max-w-7xl mx-auto space-y-8">
-        {/* ═══ Page Header — code.html lines 190-198 ═══ */}
-        <div className="flex items-end justify-between">
-          <div>
-            <div className="flex items-center gap-2 mb-2">
-              <span className="px-2 py-0.5 bg-ds-primary-fixed text-ds-on-primary-fixed-variant text-[10px] font-black rounded uppercase tracking-tighter">
-                {t("infrastructureSecurity")}
-              </span>
-            </div>
-            <h1 className="text-4xl font-extrabold tracking-tighter text-ds-on-surface font-[var(--font-heading)]">
-              {t("title")}
-            </h1>
-            <p className="text-ds-on-surface-variant text-sm mt-1">{t("subtitle")}</p>
-          </div>
-        </div>
+      <PageContainer data-testid="keys-page">
+        <PageHeader
+          title={t("title")}
+          subtitle={t("subtitle")}
+          badge={
+            <span className="px-2 py-0.5 bg-ds-primary-fixed text-ds-on-primary-fixed-variant text-[10px] font-black rounded uppercase tracking-tighter">
+              {t("infrastructureSecurity")}
+            </span>
+          }
+        />
 
-        {/* ═══ Key Management Table ═══ */}
-        <section className="bg-ds-surface-container-lowest rounded-2xl shadow-sm border border-slate-200/5 overflow-hidden">
-          {/* Table header bar */}
-          <div className="px-6 py-5 flex justify-between items-center border-b border-ds-outline-variant/10">
-            <h3 className="text-lg font-extrabold tracking-tight font-[var(--font-heading)]">
-              {t("activeKeys")}
-            </h3>
-            <div className="flex items-center gap-3">
-              <SearchBar
-                placeholder={t("searchKeys")}
-                value={search}
-                onChange={handleSearchChange}
-                className="w-64"
-              />
-              <button
-                onClick={() => setCreateOpen(true)}
-                className="flex items-center gap-2 px-4 py-2 bg-ds-primary text-white text-sm font-bold rounded-lg hover:bg-ds-primary-container transition-all active:scale-95 shadow-lg shadow-ds-primary/10"
-              >
-                <span className="material-symbols-outlined text-sm">add</span>
-                {t("createKey")}
-              </button>
-            </div>
-          </div>
-          {/* Table */}
+        <TableCard
+          title={t("activeKeys")}
+          search={
+            <SearchBar
+              placeholder={t("searchKeys")}
+              value={search}
+              onChange={handleSearchChange}
+              className="w-64"
+            />
+          }
+          actions={
+            <button
+              onClick={() => setCreateOpen(true)}
+              className="flex items-center gap-2 px-4 py-2 bg-ds-primary text-white text-sm font-bold rounded-lg hover:bg-ds-primary-container transition-all active:scale-95 shadow-lg shadow-ds-primary/10"
+            >
+              <span className="material-symbols-outlined text-sm">add</span>
+              {t("createKey")}
+            </button>
+          }
+        >
           <Table>
             <TableHeader>
               <TableRow>
@@ -158,11 +150,7 @@ export default function KeysPage() {
             </TableHeader>
             <TableBody className="divide-y divide-ds-outline-variant/10">
               {loading ? (
-                <TableRow>
-                  <TableCell colSpan={6} className="px-6 py-12 text-center text-ds-outline">
-                    {tc("loading")}
-                  </TableCell>
-                </TableRow>
+                <TableLoader colSpan={6} />
               ) : pageKeys.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={6} className="px-6 py-12 text-center text-ds-outline">
@@ -211,15 +199,9 @@ export default function KeysPage() {
                     </TableCell>
                     {/* Status */}
                     <TableCell className="px-6 py-5 text-center">
-                      {k.status === "ACTIVE" ? (
-                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-black bg-green-50 text-green-700 border border-green-200 uppercase tracking-tighter">
-                          {t("active")}
-                        </span>
-                      ) : (
-                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-black bg-slate-100 text-slate-500 border border-slate-200 uppercase tracking-tighter">
-                          {t("revoked")}
-                        </span>
-                      )}
+                      <StatusChip variant={k.status === "ACTIVE" ? "success" : "neutral"}>
+                        {k.status === "ACTIVE" ? t("active") : t("revoked")}
+                      </StatusChip>
                     </TableCell>
                     {/* Actions */}
                     <TableCell className="px-6 py-5 text-right">
@@ -267,7 +249,7 @@ export default function KeysPage() {
               className="px-6 py-4 bg-ds-surface-container-high/30 border-t border-ds-outline-variant/10"
             />
           )}
-        </section>
+        </TableCard>
 
         {/* ═══ Security Best Practices — code.html lines 357-391 ═══ */}
         <section className="space-y-6 pt-4">
@@ -319,7 +301,7 @@ export default function KeysPage() {
             </div>
           </div>
         </section>
-      </div>
+      </PageContainer>
 
       {/* ═══ Create API Key Dialog ═══ */}
       <CreateKeyDialog open={createOpen} onOpenChange={setCreateOpen} onCreated={refetch} />

@@ -16,7 +16,10 @@ let failed = 0;
 
 async function api(path: string, opts?: RequestInit & { expectStatus?: number }) {
   const { expectStatus, ...init } = opts ?? {};
-  const headers: Record<string, string> = { "Content-Type": "application/json", ...(init.headers as Record<string, string> ?? {}) };
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+    ...((init.headers as Record<string, string>) ?? {}),
+  };
   if (token) headers.Authorization = `Bearer ${token}`;
   const res = await fetch(`${BASE}${path}`, { ...init, headers });
   const body = await res.json().catch(() => null);
@@ -137,7 +140,11 @@ async function main() {
     const res = await fetch(`${BASE}/v1/chat/completions`, {
       method: "POST",
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
-      body: JSON.stringify({ model: "deepseek/v3", messages: [{ role: "user", content: "Say hi" }], max_tokens: 5 }),
+      body: JSON.stringify({
+        model: "deepseek/v3",
+        messages: [{ role: "user", content: "Say hi" }],
+        max_tokens: 5,
+      }),
     });
     if (res.status !== 200) throw new Error(`Status: ${res.status}`);
     const body = await res.json();
@@ -151,7 +158,12 @@ async function main() {
     const res = await fetch(`${BASE}/v1/chat/completions`, {
       method: "POST",
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
-      body: JSON.stringify({ model: "deepseek/v3", messages: [{ role: "user", content: "Hi" }], max_tokens: 5, stream: true }),
+      body: JSON.stringify({
+        model: "deepseek/v3",
+        messages: [{ role: "user", content: "Hi" }],
+        max_tokens: 5,
+        stream: true,
+      }),
     });
     if (res.status !== 200) throw new Error(`Status: ${res.status}`);
     const text = await res.text();
@@ -206,10 +218,45 @@ async function main() {
     if (!body.data?.length) throw new Error("No models");
   });
 
+  // 16. BL-122 regression — actions list endpoint returns a pagination envelope
+  // The UI relies on `data` + `pagination.total` being present in the first response
+  // so that the loading guard can switch off cleanly without flashing the CTA banner.
+  await step("16. BL-122 actions list envelope", async () => {
+    const { body } = await api(`/api/projects/${projectId}/actions?page=1&pageSize=20`);
+    if (!Array.isArray(body.data)) throw new Error("No data array");
+    if (!body.pagination || typeof body.pagination.total !== "number")
+      throw new Error("Missing pagination.total");
+  });
+
+  // 17. BL-122 regression — templates list endpoint returns a pagination envelope
+  await step("17. BL-122 templates list envelope", async () => {
+    const { body } = await api(`/api/projects/${projectId}/templates?page=1&pageSize=20`);
+    if (!Array.isArray(body.data)) throw new Error("No data array");
+    if (!body.pagination || typeof body.pagination.total !== "number")
+      throw new Error("Missing pagination.total");
+  });
+
+  // 18. BL-121 regression — /v1/models must return brand-qualified entries so
+  // the models page can group them; the "show all" button's expand logic
+  // depends on every entry carrying a `brand` field.
+  await step("18. BL-121 models brand field", async () => {
+    const res = await fetch(`${BASE}/v1/models`);
+    const body = await res.json();
+    if (!Array.isArray(body.data) || body.data.length === 0)
+      throw new Error("No models in /v1/models");
+    const brandedCount = body.data.filter(
+      (m: { brand?: string }) => typeof m.brand === "string" && m.brand.length > 0,
+    ).length;
+    if (brandedCount === 0) throw new Error("No models expose a `brand` field");
+  });
+
   console.log("\n" + "=".repeat(60));
   console.log(`Results: ${passed} PASS | ${failed} FAIL | ${passed + failed} total`);
   console.log("=".repeat(60));
   process.exit(failed > 0 ? 1 : 0);
 }
 
-main().catch((e) => { console.error("Fatal:", e); process.exit(1); });
+main().catch((e) => {
+  console.error("Fatal:", e);
+  process.exit(1);
+});

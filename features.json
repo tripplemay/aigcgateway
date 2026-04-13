@@ -55,7 +55,7 @@
       "title": "改造 actions + templates 页面",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "1) 两个页面使用 PageContainer + PageHeader + TableCard + TableLoader + EmptyState + CTABanner + Button gradient variant；2) 修复 BL-122 加载闪烁（loading 最外层判断优先，不显示假表格+CTA Banner）；3) 外层容器统一 PageContainer default；4) tsc 通过；5) scripts/e2e-test.ts 或 scripts/test-mcp.ts 增加 regression test 覆盖 BL-122"
     },
     {
@@ -63,7 +63,7 @@
       "title": "改造 keys + models 页面",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "1) keys 使用 PageContainer + PageHeader + TableCard + StatusChip；2) models 使用 PageContainer + PageHeader，修复 BL-121（底部'显示全部 N 个模型'按钮补 onClick，一次性展开所有品牌 + 全部展开时隐藏按钮）；3) 标题字号统一 text-4xl；4) tsc 通过；5) 增加 regression test 覆盖 BL-121"
     },
     {

@@ -3,6 +3,8 @@ import { useState, useMemo } from "react";
 import { useTranslations } from "next-intl";
 import { useAsyncData } from "@/hooks/use-async-data";
 import { SearchBar } from "@/components/search-bar";
+import { PageContainer } from "@/components/page-container";
+import { PageHeader } from "@/components/page-header";
 import { useExchangeRate } from "@/hooks/use-exchange-rate";
 import { formatCNY } from "@/lib/utils";
 
@@ -135,39 +137,46 @@ export default function ModelsPage() {
   const totalModels = models.length;
   const brandCount = grouped.length;
 
-  // ── Render — 1:1 replica of design-draft/models/code.html ──
+  // BL-121: the bottom "show all" button should expand every brand at once
+  // and disappear when nothing is left to expand.
+  const allBrandsFullyExpanded = grouped.every(
+    (g) => g.models.length <= MODELS_PER_PAGE || showAllModels.has(g.brand),
+  );
+  const hasExpandableBrands = grouped.some(
+    (g) => g.models.length > MODELS_PER_PAGE && !showAllModels.has(g.brand),
+  );
+  const expandAllBrands = () => {
+    setShowAllModels(new Set(grouped.map((g) => g.brand)));
+  };
+
   return (
-    <div className="max-w-7xl mx-auto space-y-8">
-      {/* ═══ Page Header ═══ */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-        <div>
-          <h1 className="text-4xl font-extrabold tracking-tight font-[var(--font-heading)] text-ds-on-surface">
-            {t("title")}
-          </h1>
-          <p className="text-ds-on-surface-variant font-medium mt-2">{t("subtitle")}</p>
-        </div>
-        {/* Modality filter pills — code.html lines 163-168 */}
-        <div className="flex items-center bg-ds-surface-container-low p-1.5 rounded-xl">
-          {[
-            { val: "", label: tc("all") },
-            { val: "text", label: t("text") },
-            { val: "image", label: t("image") },
-            { val: "audio", label: t("audio") },
-          ].map((m) => (
-            <button
-              key={m.val}
-              onClick={() => setModality(m.val)}
-              className={`px-5 py-2 text-sm font-semibold transition-colors ${
-                modality === m.val
-                  ? "bg-white text-ds-primary rounded-lg shadow-sm font-bold"
-                  : "text-ds-on-surface-variant hover:text-ds-primary"
-              }`}
-            >
-              {m.label}
-            </button>
-          ))}
-        </div>
-      </div>
+    <PageContainer data-testid="models-page">
+      <PageHeader
+        title={t("title")}
+        subtitle={t("subtitle")}
+        actions={
+          <div className="flex items-center bg-ds-surface-container-low p-1.5 rounded-xl">
+            {[
+              { val: "", label: tc("all") },
+              { val: "text", label: t("text") },
+              { val: "image", label: t("image") },
+              { val: "audio", label: t("audio") },
+            ].map((m) => (
+              <button
+                key={m.val}
+                onClick={() => setModality(m.val)}
+                className={`px-5 py-2 text-sm font-semibold transition-colors ${
+                  modality === m.val
+                    ? "bg-white text-ds-primary rounded-lg shadow-sm font-bold"
+                    : "text-ds-on-surface-variant hover:text-ds-primary"
+                }`}
+              >
+                {m.label}
+              </button>
+            ))}
+          </div>
+        }
+      />
 
       {/* ═══ Statistics ═══ */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
@@ -359,15 +368,20 @@ export default function ModelsPage() {
         )}
       </div>
 
-      {/* ═══ Show All Button — code.html lines 382-387 ═══ */}
-      {totalModels > 0 && (
+      {/* BL-121: "show all" button expands every brand at once; hidden when fully expanded. */}
+      {totalModels > 0 && hasExpandableBrands && !allBrandsFullyExpanded && (
         <div className="pt-8 flex justify-center">
-          <button className="flex items-center gap-2 px-10 py-3 bg-ds-surface-container-low text-ds-primary font-bold rounded-xl hover:bg-ds-surface-container-high transition-all border border-ds-primary/10">
+          <button
+            type="button"
+            onClick={expandAllBrands}
+            data-testid="models-show-all"
+            className="flex items-center gap-2 px-10 py-3 bg-ds-surface-container-low text-ds-primary font-bold rounded-xl hover:bg-ds-surface-container-high transition-all border border-ds-primary/10"
+          >
             {t("showAllTotal", { count: totalModels })}
             <span className="material-symbols-outlined">expand_more</span>
           </button>
         </div>
       )}
-    </div>
+    </PageContainer>
   );
 }
