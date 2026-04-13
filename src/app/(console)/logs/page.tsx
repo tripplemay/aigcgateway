@@ -6,8 +6,13 @@ import { useProject } from "@/hooks/use-project";
 import { useAsyncData } from "@/hooks/use-async-data";
 import { timeAgo, formatCNY } from "@/lib/utils";
 import { useExchangeRate } from "@/hooks/use-exchange-rate";
-import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState } from "@/components/empty-state";
+import { PageContainer } from "@/components/page-container";
+import { PageHeader } from "@/components/page-header";
+import { PageLoader } from "@/components/page-loader";
+import { TableCard } from "@/components/table-card";
+import { TableLoader } from "@/components/table-loader";
+import { StatusChip } from "@/components/status-chip";
 import { SearchBar } from "@/components/search-bar";
 import { Pagination } from "@/components/pagination";
 import { useRouter } from "next/navigation";
@@ -92,80 +97,69 @@ export default function LogsPage() {
 
   if (projLoading)
     return (
-      <div className="space-y-4 pt-4">
-        <Skeleton className="h-8 w-48" />
-        <Skeleton className="h-10 w-full" />
-        <Skeleton className="h-64 w-full" />
-      </div>
+      <PageContainer data-testid="logs-loading">
+        <PageLoader />
+      </PageContainer>
     );
   if (!current) return <EmptyState onCreated={() => window.location.reload()} />;
 
   return (
-    <>
-      {/* ═══ Page Header & Filters — design-draft/logs/code.html lines 155-175 ═══ */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8">
-        <div>
-          <h2 className="text-3xl font-extrabold tracking-tight font-[var(--font-heading)] text-ds-on-surface">
-            {t("title")}
-          </h2>
-          <p className="text-slate-500 font-medium mt-1">{t("subtitle")}</p>
-        </div>
-        <div className="flex flex-wrap items-center gap-3">
-          {/* Status filter chips */}
-          <div className="flex bg-ds-surface-container-low p-1 rounded-xl">
-            {statusOptions.map((s) => (
-              <button
-                key={s.value}
-                onClick={() => {
-                  setStatusFilter(s.value);
-                  setPage(1);
-                }}
-                className={`px-4 py-1.5 text-xs font-bold uppercase tracking-wider transition-all ${
-                  statusFilter === s.value
-                    ? "text-indigo-700 bg-white rounded-lg shadow-sm"
-                    : "text-slate-500 hover:text-slate-700"
-                }`}
-              >
-                {s.label}
-              </button>
-            ))}
-          </div>
-          {/* Model filter dropdown */}
-          <select
-            value={modelFilter}
-            onChange={(e) => {
-              setModelFilter(e.target.value);
-              setPage(1);
-            }}
-            className="bg-ds-surface-container-low px-4 py-2 rounded-xl text-sm font-semibold text-slate-600 border-none outline-none appearance-none cursor-pointer"
-          >
-            <option value="">
-              {t("model")} ({tc("all")})
-            </option>
-            {modelNames.map((m) => (
-              <option key={m} value={m}>
-                {m}
+    <PageContainer data-testid="logs-page">
+      <PageHeader
+        title={t("title")}
+        subtitle={t("subtitle")}
+        actions={
+          <div className="flex flex-wrap items-center gap-3">
+            <div className="flex bg-ds-surface-container-low p-1 rounded-xl">
+              {statusOptions.map((s) => (
+                <button
+                  key={s.value}
+                  onClick={() => {
+                    setStatusFilter(s.value);
+                    setPage(1);
+                  }}
+                  className={`px-4 py-1.5 text-xs font-bold uppercase tracking-wider transition-all ${
+                    statusFilter === s.value
+                      ? "text-indigo-700 bg-white rounded-lg shadow-sm"
+                      : "text-slate-500 hover:text-slate-700"
+                  }`}
+                >
+                  {s.label}
+                </button>
+              ))}
+            </div>
+            <select
+              value={modelFilter}
+              onChange={(e) => {
+                setModelFilter(e.target.value);
+                setPage(1);
+              }}
+              className="bg-ds-surface-container-low px-4 py-2 rounded-xl text-sm font-semibold text-slate-600 border-none outline-none appearance-none cursor-pointer"
+            >
+              <option value="">
+                {t("model")} ({tc("all")})
               </option>
-            ))}
-          </select>
-        </div>
-      </div>
+              {modelNames.map((m) => (
+                <option key={m} value={m}>
+                  {m}
+                </option>
+              ))}
+            </select>
+          </div>
+        }
+      />
 
-      {/* ═══ Search bar ═══ */}
-      <div className="mb-6">
-        <SearchBar
-          placeholder={t("searchPlaceholder")}
-          value={searchQ}
-          onChange={(v) => {
-            setSearchQ(v);
-            setPage(1);
-          }}
-          className="w-full"
-        />
-      </div>
+      <SearchBar
+        placeholder={t("searchPlaceholder")}
+        value={searchQ}
+        onChange={(v) => {
+          setSearchQ(v);
+          setPage(1);
+        }}
+        className="w-full"
+      />
 
-      {/* ═══ Logs Table ═══ */}
-      <div className="bg-ds-surface-container-lowest rounded-2xl overflow-hidden shadow-sm">
+      <TableCard>
         <Table>
           <TableHeader>
             <TableRow>
@@ -181,11 +175,7 @@ export default function LogsPage() {
           </TableHeader>
           <TableBody className="divide-y divide-slate-50">
             {loading ? (
-              <TableRow>
-                <TableCell colSpan={8} className="px-6 py-12 text-center text-ds-outline">
-                  {tc("loading")}
-                </TableCell>
-              </TableRow>
+              <TableLoader colSpan={8} />
             ) : logs.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={8} className="px-6 py-12 text-center text-ds-outline">
@@ -220,17 +210,11 @@ export default function LogsPage() {
                   </TableCell>
                   <TableCell className="px-6 py-4">
                     {l.status === "SUCCESS" ? (
-                      <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-tight bg-green-100 text-green-700">
-                        200 OK
-                      </span>
+                      <StatusChip variant="success">200 OK</StatusChip>
                     ) : l.status === "FILTERED" ? (
-                      <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-tight bg-amber-100 text-amber-700">
-                        FILTERED
-                      </span>
+                      <StatusChip variant="warning">FILTERED</StatusChip>
                     ) : (
-                      <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-tight bg-red-100 text-red-700">
-                        ERROR
-                      </span>
+                      <StatusChip variant="error">ERROR</StatusChip>
                     )}
                   </TableCell>
                   <TableCell className="px-6 py-4">
@@ -254,7 +238,6 @@ export default function LogsPage() {
           </TableBody>
         </Table>
 
-        {/* Pagination */}
         {total > 0 && (
           <Pagination
             page={page}
@@ -265,7 +248,7 @@ export default function LogsPage() {
             className="px-6 py-4 bg-ds-surface-container-low/30"
           />
         )}
-      </div>
-    </>
+      </TableCard>
+    </PageContainer>
   );
 }

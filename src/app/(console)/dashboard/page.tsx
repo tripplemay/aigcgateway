@@ -20,7 +20,11 @@ import {
 } from "recharts";
 import Link from "next/link";
 import { EmptyState } from "@/components/empty-state";
-import { Skeleton } from "@/components/ui/skeleton";
+import { PageContainer } from "@/components/page-container";
+import { PageHeader } from "@/components/page-header";
+import { PageLoader } from "@/components/page-loader";
+import { KPICard } from "@/components/kpi-card";
+import { StatusChip } from "@/components/status-chip";
 
 // ============================================================
 // Types (unchanged)
@@ -108,24 +112,20 @@ export default function DashboardPage() {
 
   if (projLoading)
     return (
-      <div className="space-y-4 pt-4">
-        <Skeleton className="h-8 w-48" />
-        <Skeleton className="h-10 w-full" />
-        <Skeleton className="h-64 w-full" />
-      </div>
+      <PageContainer data-testid="dashboard-loading">
+        <PageLoader />
+      </PageContainer>
     );
   if (!current) return <EmptyState onCreated={() => window.location.reload()} />;
 
   const totalModelCalls = models.reduce((s, x) => s + x.calls, 0);
 
-  // ── Render — 1:1 replica of Dashboard (Full Redesign) code.html lines 160-504 ──
   return (
-    <>
-      {/* ═══ Low Balance Warning — code.html lines 162-168 ═══ */}
+    <PageContainer data-testid="dashboard-page">
       {balanceInfo &&
         balanceInfo.alertThreshold != null &&
         balanceInfo.balance <= balanceInfo.alertThreshold && (
-          <div className="mb-8 bg-ds-error-container text-ds-on-error-container px-6 py-3 rounded-2xl flex items-center justify-between border-l-4 border-ds-error">
+          <div className="bg-ds-error-container text-ds-on-error-container px-6 py-3 rounded-2xl flex items-center justify-between border-l-4 border-ds-error">
             <div className="flex items-center gap-3">
               <span className="material-symbols-outlined text-ds-error">warning</span>
               <p className="font-medium">
@@ -142,70 +142,24 @@ export default function DashboardPage() {
           </div>
         )}
 
-      {/* ═══ Header Section — code.html lines 170-185 ═══ */}
-      <div className="flex justify-between items-end mb-10">
-        <div>
-          <h2 className="text-3xl font-extrabold tracking-tight text-ds-on-surface font-[var(--font-heading)]">
-            {t("title")}
-          </h2>
-          <p className="text-ds-on-surface-variant font-medium mt-1">
-            {t("subtitle") ?? "Real-time performance metrics"}
-          </p>
-        </div>
-      </div>
+      <PageHeader title={t("title")} subtitle={t("subtitle") ?? "Real-time performance metrics"} />
 
-      {/* ═══ Bento Grid: Stats & Balance — code.html lines 187-246 ═══ */}
       {usage && (
-        <div className="grid grid-cols-12 gap-6 mb-8">
-          {/* Summary Cards Cluster — code.html lines 189-226 */}
+        <div className="grid grid-cols-12 gap-6">
           <div className="col-span-12 lg:col-span-8 grid grid-cols-2 md:grid-cols-4 gap-4">
-            {/* Total Calls */}
-            <div className="bg-ds-surface-container-lowest p-5 rounded-xl flex flex-col justify-between h-32 group hover:shadow-xl hover:shadow-ds-primary/5 transition-all">
-              <span className="text-[10px] font-bold text-ds-on-surface-variant uppercase tracking-widest">
-                {t("todayCalls")}
-              </span>
-              <div className="flex items-end justify-between">
-                <span className="text-2xl font-extrabold font-[var(--font-heading)]">
-                  {usage.totalCalls.toLocaleString()}
-                </span>
-              </div>
-            </div>
-            {/* Avg Cost */}
-            <div className="bg-ds-surface-container-lowest p-5 rounded-xl flex flex-col justify-between h-32 group hover:shadow-xl hover:shadow-ds-primary/5 transition-all">
-              <span className="text-[10px] font-bold text-ds-on-surface-variant uppercase tracking-widest">
-                {t("todayCost")}
-              </span>
-              <div className="flex items-end justify-between">
-                <span className="text-2xl font-extrabold font-[var(--font-heading)]">
-                  {formatCNY(usage.totalCost, exchangeRate, 2)}
-                </span>
-              </div>
-            </div>
-            {/* Latency */}
-            <div className="bg-ds-surface-container-lowest p-5 rounded-xl flex flex-col justify-between h-32 group hover:shadow-xl hover:shadow-ds-primary/5 transition-all">
-              <span className="text-[10px] font-bold text-ds-on-surface-variant uppercase tracking-widest">
-                {t("avgLatency")}
-              </span>
-              <div className="flex items-end justify-between">
-                <span className="text-2xl font-extrabold font-[var(--font-heading)]">
-                  {usage.avgLatencyMs?.toLocaleString()}ms
-                </span>
-              </div>
-            </div>
-            {/* Success Rate */}
-            <div className="bg-ds-surface-container-lowest p-5 rounded-xl flex flex-col justify-between h-32 group hover:shadow-xl hover:shadow-ds-primary/5 transition-all">
-              <span className="text-[10px] font-bold text-ds-on-surface-variant uppercase tracking-widest">
-                {t("successRate")}
-              </span>
-              <div className="flex items-end justify-between">
-                <span className="text-2xl font-extrabold font-[var(--font-heading)]">
-                  {(usage.successRate * 100).toFixed(1)}%
-                </span>
-                <span className="text-slate-400 text-xs font-bold px-2 py-0.5 rounded-full italic">
-                  {t("errorsToday", { count: usage.errorCount })}
-                </span>
-              </div>
-            </div>
+            <KPICard label={t("todayCalls")} value={usage.totalCalls.toLocaleString()} />
+            <KPICard label={t("todayCost")} value={formatCNY(usage.totalCost, exchangeRate, 2)} />
+            <KPICard
+              label={t("avgLatency")}
+              value={`${usage.avgLatencyMs?.toLocaleString() ?? 0}ms`}
+            />
+            <KPICard
+              label={t("successRate")}
+              value={`${(usage.successRate * 100).toFixed(1)}%`}
+              trend={
+                <span className="italic">{t("errorsToday", { count: usage.errorCount })}</span>
+              }
+            />
           </div>
 
           {/* Balance Card — code.html lines 228-245 */}
@@ -439,17 +393,11 @@ export default function DashboardPage() {
                     </td>
                     <td className="py-4 text-center">
                       {l.status === "SUCCESS" ? (
-                        <span className="text-[10px] font-bold px-2 py-1 rounded bg-ds-secondary-container/50 text-ds-secondary border border-ds-secondary/10">
-                          200 OK
-                        </span>
+                        <StatusChip variant="success">200 OK</StatusChip>
                       ) : l.status === "FILTERED" ? (
-                        <span className="text-[10px] font-bold px-2 py-1 rounded bg-ds-tertiary-fixed/50 text-ds-tertiary border border-ds-tertiary/10">
-                          FILTERED
-                        </span>
+                        <StatusChip variant="warning">FILTERED</StatusChip>
                       ) : (
-                        <span className="text-[10px] font-bold px-2 py-1 rounded bg-ds-error-container/50 text-ds-error border border-ds-error/10">
-                          ERROR
-                        </span>
+                        <StatusChip variant="error">ERROR</StatusChip>
                       )}
                     </td>
                     <td className="py-4 text-right text-sm font-bold">
@@ -472,6 +420,6 @@ export default function DashboardPage() {
           </div>
         </div>
       </div>
-    </>
+    </PageContainer>
   );
 }

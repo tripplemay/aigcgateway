@@ -8,6 +8,9 @@ import { useAsyncData } from "@/hooks/use-async-data";
 import { useRouter } from "next/navigation";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
+import { PageContainer } from "@/components/page-container";
+import { PageHeader } from "@/components/page-header";
+import { PageLoader } from "@/components/page-loader";
 import {
   Table,
   TableHeader,
@@ -223,22 +226,14 @@ export default function SettingsPage() {
 
   if (projLoading)
     return (
-      <div className="space-y-4 pt-4">
-        <Skeleton className="h-8 w-48" />
-        <Skeleton className="h-64 w-full" />
-      </div>
+      <PageContainer size="narrow" data-testid="settings-loading">
+        <PageLoader />
+      </PageContainer>
     );
 
-  // ── Render ──
   return (
-    <div className="max-w-5xl mx-auto">
-      {/* Header */}
-      <header className="mb-8">
-        <h1 className="text-4xl font-extrabold tracking-tight text-ds-on-surface mb-2 font-[var(--font-heading)]">
-          {t("title")}
-        </h1>
-        <p className="text-ds-on-surface-variant">{t("subtitle")}</p>
-      </header>
+    <PageContainer size="narrow" data-testid="settings-page">
+      <PageHeader title={t("title")} subtitle={t("subtitle")} />
 
       {/* Tab Bar */}
       <div className="flex gap-1 mb-8 bg-ds-surface-container-low rounded-xl p-1 w-fit">
@@ -624,7 +619,7 @@ export default function SettingsPage() {
           </div>
         </div>
       )}
-    </div>
+    </PageContainer>
   );
 }
 

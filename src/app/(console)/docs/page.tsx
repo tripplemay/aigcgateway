@@ -5,6 +5,8 @@ import { useTranslations } from "next-intl";
 import { Copy, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { PageContainer } from "@/components/page-container";
+import { PageHeader } from "@/components/page-header";
 
 function Code({ children }: { children: string }) {
   const [copied, setCopied] = useState(false);
@@ -43,9 +45,8 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 export default function DocsPage() {
   const t = useTranslations("docs");
   return (
-    <div className="max-w-4xl">
-      <h1 className="text-2xl font-bold mb-2">{t("title")}</h1>
-      <p className="text-ds-on-surface-variant mb-6">{t("description")}</p>
+    <PageContainer size="narrow" data-testid="docs-page">
+      <PageHeader title={t("title")} subtitle={t("description")} />
 
       <Section title={t("secAuth")}>
         <p className="text-sm mb-3">{t("authDesc")}</p>
@@ -296,7 +297,7 @@ curl /v1/models?modality=image`}</Code>
           })}
         </p>
       </Section>
-    </div>
+    </PageContainer>
   );
 }
 

@@ -71,7 +71,7 @@
       "title": "改造 logs + usage + balance + dashboard 页面",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "1) 4 个页面统一使用 PageContainer default + PageHeader；2) logs/dashboard 补上 max-w-7xl（之前是 Fragment 无 container）；3) KPI 卡全部使用 KPICard；4) 状态标签统一使用 StatusChip；5) tsc 通过"
     },
     {
@@ -79,7 +79,7 @@
       "title": "改造 settings + docs + quickstart 页面",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "1) settings/docs/quickstart 使用 PageContainer size='narrow' (max-w-5xl)；2) docs 修复缺 mx-auto 的 bug（内容贴左）；3) settings 的手写 pill tabs 样式保留或抽取为 PillTabs 组件；4) tsc 通过"
     },
     {
@@ -87,7 +87,7 @@
       "title": "改造 mcp-setup 页面 + templates tab 统一（BL-123）",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "1) mcp-setup 使用 PageContainer；2) templates 页面的'我的模板/公共模板库' tab 改为与 settings 一致的手写 pill 样式（参照 settings/page.tsx:244-259）；3) 保留 URL searchParams ?tab=library 同步逻辑；4) 不改 shadcn ui/tabs.tsx 全局组件；5) tsc 通过；6) 增加 regression test 覆盖 BL-123"
     },
     {
@@ -95,7 +95,7 @@
       "title": "字体 / heading scale 统一 + 设计系统文档",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "1) tailwind.config 或 globals.css 定义统一的 heading 工具类或 font-size 规范；2) 所有 PageHeader / section h2 / subsection h3 使用统一规则；3) 消除 font-extrabold / font-black / font-bold 在同类元素上的混乱；4) 新建 design-draft/Layout Shell - AIGC Gateway/PAGE-LAYOUT.md 记录 PageHeader/PageContainer/TableCard 等组件规范；5) tsc 通过"
     },
     {

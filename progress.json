@@ -1,11 +1,11 @@
 {
-  "status": "building",
+  "status": "verifying",
   "user_goal": "UI-UNIFY — 抽取 9 个缺失的公共组件 + 改造 12 个 console 页面 + 统一 heading scale + 合并 BL-121/122/123 bug 修复",
   "total_features": 13,
-  "completed_features": 8,
+  "completed_features": 12,
   "fix_rounds": 0,
-  "current_sprint": "F-UU-09",
-  "last_updated": "2026-04-13T11:20:00Z",
+  "current_sprint": "F-UU-13",
+  "last_updated": "2026-04-13T12:00:00Z",
   "reference_docs": [
     "docs/specs/UI-UNIFY-spec.md"
   ],
@@ -19,7 +19,7 @@
   "evaluator_feedback": null,
   "generator_handoff": null,
   "session_notes": {
-    "Kimi": "Planner 启动 UI-UNIFY 批次（12 generator + 1 codex = 13 条）。来源：生产 UI 一致性审查，根因是重构到新设计系统时没有抽取公共组件。第一阶段 F-UU-01~06 建立组件基础设施（PageContainer/PageHeader/TableCard/KPICard/StatusChip/CTABanner/SectionCard/TableLoader/PageLoader/EmptyState/Button gradient variant）；第二阶段 F-UU-07~12 改造页面并修复 BL-121/122/123；第三阶段 F-UU-13 全量验收。所有页面改造必须按 test-lifecycle.md 规则同 commit 补 regression test。DX-POLISH 生产待执行 fix-dp-06-model-data.ts --apply。",
+    "Kimi": "Generator 完成 UI-UNIFY 全部 12 条（F-UU-01~12），tsc 全程 clean。Commits: Phase1 d7dbf58（9 组件 + EmptyState 升级 + Button gradient-primary），Phase2-part1 d275877（actions/templates/keys/models + BL-121/122 + e2e step 16~18），Phase2-part2 待提交（logs/usage/balance/dashboard/settings/docs/quickstart/mcp-setup + BL-123 templates pill tabs + heading scale + PAGE-LAYOUT.md + e2e step 19）。BL-123 用手写 pill 替换 shadcn Tabs，保留 ?tab=library URL 同步。globals.css 新增 .heading-1/2/3 utilities。交 Codex Reviewer 做 F-UU-13 全量验收。DX-POLISH 生产 fix-dp-06-model-data.ts --apply 仍未执行。",
     "Reviewer": null
   }
 }

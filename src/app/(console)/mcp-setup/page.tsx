@@ -3,9 +3,11 @@ import { useCallback, useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { apiFetch } from "@/lib/api-client";
 import { useProject } from "@/hooks/use-project";
-import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
 import Link from "next/link";
+import { PageContainer } from "@/components/page-container";
+import { PageHeader } from "@/components/page-header";
+import { PageLoader } from "@/components/page-loader";
 
 // ============================================================
 // Types & config
@@ -224,10 +226,9 @@ export default function McpSetupPage() {
 
   if (projLoading)
     return (
-      <div className="space-y-4 pt-4">
-        <Skeleton className="h-8 w-48" />
-        <Skeleton className="h-64 w-full" />
-      </div>
+      <PageContainer data-testid="mcp-setup-loading">
+        <PageLoader />
+      </PageContainer>
     );
 
   const selectKeyFromList = (prefix: string) => {
@@ -248,18 +249,16 @@ export default function McpSetupPage() {
   };
 
   return (
-    <div className="space-y-10">
-      {/* Page Header */}
-      <header>
-        <div className="flex items-center gap-3 mb-2">
+    <PageContainer data-testid="mcp-setup-page">
+      <PageHeader
+        title={t("title")}
+        subtitle={t("subtitle")}
+        badge={
           <span className="bg-ds-primary/10 text-ds-primary text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-widest">
             {t("badge")}
           </span>
-          <div className="h-px flex-1 bg-ds-surface-container-high" />
-        </div>
-        <h2 className="text-4xl font-extrabold tracking-tight mb-2">{t("title")}</h2>
-        <p className="text-ds-on-surface-variant max-w-2xl">{t("subtitle")}</p>
-      </header>
+        }
+      />
 
       {/* Bento Grid */}
       <div className="grid grid-cols-12 gap-8">
@@ -428,6 +427,6 @@ export default function McpSetupPage() {
           </section>
         </div>
       </div>
-    </div>
+    </PageContainer>
   );
 }

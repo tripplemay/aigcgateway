@@ -250,6 +250,18 @@ async function main() {
     if (brandedCount === 0) throw new Error("No models expose a `brand` field");
   });
 
+  // 19. BL-123 regression — both data sources behind the templates pill tabs
+  // must stay healthy: my-templates list (private) + public templates list.
+  await step("19. BL-123 templates tab sources", async () => {
+    const my = await api(`/api/projects/${projectId}/templates?page=1&pageSize=20`);
+    if (!Array.isArray(my.body.data)) throw new Error("My templates: no data array");
+    const pub = await fetch(`${BASE}/api/templates/public`);
+    if (!pub.ok) throw new Error(`Public templates HTTP ${pub.status}`);
+    const pubBody = await pub.json();
+    if (!Array.isArray(pubBody.data) && !Array.isArray(pubBody))
+      throw new Error("Public templates: missing data array");
+  });
+
   console.log("\n" + "=".repeat(60));
   console.log(`Results: ${passed} PASS | ${failed} FAIL | ${passed + failed} total`);
   console.log("=".repeat(60));

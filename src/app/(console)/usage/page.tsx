@@ -17,8 +17,11 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
-import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState } from "@/components/empty-state";
+import { PageContainer } from "@/components/page-container";
+import { PageHeader } from "@/components/page-header";
+import { PageLoader } from "@/components/page-loader";
+import { KPICard } from "@/components/kpi-card";
 import {
   Table,
   TableHeader,
@@ -108,87 +111,50 @@ export default function UsagePage() {
   const byModel = modelData?.data ?? [];
   const totalModelCalls = byModel.reduce((s, x) => s + (x.calls ?? 0), 0);
 
-  // ── Loading & empty states ──
   if (projLoading)
     return (
-      <div className="space-y-4 pt-4">
-        <Skeleton className="h-8 w-48" />
-        <Skeleton className="h-10 w-full" />
-        <Skeleton className="h-64 w-full" />
-      </div>
+      <PageContainer data-testid="usage-loading">
+        <PageLoader />
+      </PageContainer>
     );
   if (!current) return <EmptyState onCreated={() => window.location.reload()} />;
 
-  // ── Render — 1:1 replica of design-draft/usage/code.html lines 154-374 ──
   return (
-    <div className="max-w-7xl mx-auto space-y-8">
-      {/* ═══ Header + Period Selector — code.html lines 156-165 ═══ */}
-      <section className="flex justify-between items-center">
-        <div>
-          <h3 className="text-2xl font-extrabold font-[var(--font-heading)] text-ds-on-surface tracking-tight">
-            {t("title")}
-          </h3>
-          <p className="text-ds-on-surface-variant text-sm">{t("subtitle")}</p>
-        </div>
-        <div className="bg-ds-surface-container-low p-1 rounded-full flex gap-1">
-          {PERIODS.map((p) => (
-            <button
-              key={p}
-              onClick={() => setPeriod(p)}
-              className={`px-5 py-1.5 rounded-full text-xs font-bold transition-all ${
-                period === p
-                  ? "bg-white text-ds-primary shadow-sm"
-                  : "text-ds-on-surface-variant hover:text-ds-primary"
-              }`}
-            >
-              {t(PERIOD_I18N[p])}
-            </button>
-          ))}
-        </div>
-      </section>
+    <PageContainer data-testid="usage-page">
+      <PageHeader
+        title={t("title")}
+        subtitle={t("subtitle")}
+        actions={
+          <div className="bg-ds-surface-container-low p-1 rounded-full flex gap-1">
+            {PERIODS.map((p) => (
+              <button
+                key={p}
+                onClick={() => setPeriod(p)}
+                className={`px-5 py-1.5 rounded-full text-xs font-bold transition-all ${
+                  period === p
+                    ? "bg-white text-ds-primary shadow-sm"
+                    : "text-ds-on-surface-variant hover:text-ds-primary"
+                }`}
+              >
+                {t(PERIOD_I18N[p])}
+              </button>
+            ))}
+          </div>
+        }
+      />
 
-      {/* ═══ Stats Cards — code.html lines 167-212 ═══ */}
       {summary && (
         <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {[
-            {
-              label: t("totalCalls"),
-              value: (summary.totalCalls ?? 0).toLocaleString(),
-              icon: "call",
-            },
-            {
-              label: t("totalCost"),
-              value: formatCNY(summary.totalCost ?? 0, exchangeRate, 2),
-              icon: "payments",
-            },
-            {
-              label: t("totalTokens"),
-              value: (summary.totalTokens ?? 0).toLocaleString(),
-              icon: "generating_tokens",
-            },
-            {
-              label: t("avgLatency"),
-              value: `${(summary.avgLatencyMs ?? 0).toLocaleString()}ms`,
-              icon: "speed",
-            },
-          ].map((card) => (
-            <div
-              key={card.label}
-              className="bg-ds-surface-container-lowest p-6 rounded-xl shadow-sm"
-            >
-              <div className="flex items-center justify-between mb-4">
-                <span className="text-xs font-bold text-ds-outline uppercase tracking-widest">
-                  {card.label}
-                </span>
-                <span className="material-symbols-outlined text-ds-primary-container text-lg">
-                  {card.icon}
-                </span>
-              </div>
-              <div className="text-3xl font-black font-[var(--font-heading)] text-ds-on-surface">
-                {card.value}
-              </div>
-            </div>
-          ))}
+          <KPICard label={t("totalCalls")} value={(summary.totalCalls ?? 0).toLocaleString()} />
+          <KPICard
+            label={t("totalCost")}
+            value={formatCNY(summary.totalCost ?? 0, exchangeRate, 2)}
+          />
+          <KPICard label={t("totalTokens")} value={(summary.totalTokens ?? 0).toLocaleString()} />
+          <KPICard
+            label={t("avgLatency")}
+            value={`${(summary.avgLatencyMs ?? 0).toLocaleString()}ms`}
+          />
         </section>
       )}
 
@@ -353,6 +319,6 @@ export default function UsagePage() {
           </TableBody>
         </Table>
       </section>
-    </div>
+    </PageContainer>
   );
 }

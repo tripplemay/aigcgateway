@@ -10,6 +10,10 @@ import { useExchangeRate } from "@/hooks/use-exchange-rate";
 
 import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState } from "@/components/empty-state";
+import { PageContainer } from "@/components/page-container";
+import { PageHeader } from "@/components/page-header";
+import { PageLoader } from "@/components/page-loader";
+import { TableLoader } from "@/components/table-loader";
 import {
   Table,
   TableHeader,
@@ -66,7 +70,6 @@ const TYPE_I18N: Record<string, string> = {
 
 export default function BalancePage() {
   const t = useTranslations("balance");
-  const tc = useTranslations("common");
   const locale = useLocale();
   const { current, loading: projLoading } = useProject();
   const exchangeRate = useExchangeRate();
@@ -111,29 +114,20 @@ export default function BalancePage() {
     setPage(1);
   };
 
-  // ── Loading & empty states ──
   if (projLoading)
     return (
-      <div className="space-y-4 pt-4">
-        <Skeleton className="h-8 w-48" />
-        <Skeleton className="h-10 w-full" />
-        <Skeleton className="h-64 w-full" />
-      </div>
+      <PageContainer data-testid="balance-loading">
+        <PageLoader />
+      </PageContainer>
     );
   if (!current) return <EmptyState onCreated={() => window.location.reload()} />;
 
   const isLow = info?.alertThreshold != null && info.balance <= info.alertThreshold;
 
-  // ── Render — 1:1 replica of design-draft/balance/code.html lines 153-365 ──
   return (
     <>
-      <div className="max-w-7xl mx-auto space-y-8">
-        {/* ═══ Page Heading — code.html lines 156-163 ═══ */}
-        <div>
-          <h2 className="text-3xl font-extrabold tracking-tight font-[var(--font-heading)]">
-            {t("title")}
-          </h2>
-        </div>
+      <PageContainer data-testid="balance-page">
+        <PageHeader title={t("title")} />
 
         {/* ═══ Bento Grid: Balance + Threshold — code.html lines 165-211 ═══ */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -262,11 +256,7 @@ export default function BalancePage() {
             </TableHeader>
             <TableBody className="divide-y divide-ds-outline-variant/10">
               {txnLoading ? (
-                <TableRow>
-                  <TableCell colSpan={5} className="px-6 py-12 text-center text-ds-outline">
-                    {tc("loading")}
-                  </TableCell>
-                </TableRow>
+                <TableLoader colSpan={5} />
               ) : txns.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={5} className="px-6 py-12 text-center text-ds-outline">
@@ -324,7 +314,7 @@ export default function BalancePage() {
             />
           )}
         </section>
-      </div>
+      </PageContainer>
 
       {/* ═══ Recharge Dialog ═══ */}
       <RechargeDialog

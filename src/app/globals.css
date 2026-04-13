@@ -350,3 +350,28 @@
     @apply font-sans;
     }
 }
+
+/*
+ * UI-UNIFY heading scale (F-UU-12)
+ *
+ * Canonical rules for console headings — see
+ * design-draft/Layout Shell - AIGC Gateway/PAGE-LAYOUT.md
+ *
+ *  .heading-1 → page title (used by <PageHeader>)
+ *  .heading-2 → section title inside a card (e.g. TableCard / SectionCard)
+ *  .heading-3 → subsection title within a section
+ */
+@layer components {
+  .heading-1 {
+    @apply text-4xl font-extrabold tracking-tight text-ds-on-surface;
+    font-family: var(--font-heading);
+  }
+  .heading-2 {
+    @apply text-lg font-extrabold tracking-tight text-ds-on-surface;
+    font-family: var(--font-heading);
+  }
+  .heading-3 {
+    @apply text-base font-bold tracking-tight text-ds-on-surface;
+    font-family: var(--font-heading);
+  }
+}

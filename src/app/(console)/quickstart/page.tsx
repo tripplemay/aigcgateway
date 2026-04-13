@@ -1,6 +1,8 @@
 "use client";
 import { useState } from "react";
 import { useTranslations } from "next-intl";
+import { PageContainer } from "@/components/page-container";
+import { PageHeader } from "@/components/page-header";
 
 // ============================================================
 // Step data — code.html lines 172-255
@@ -108,18 +110,11 @@ export default function QuickStartPage() {
   const t = useTranslations("quickstart");
 
   return (
-    /* code.html line 163 */
-    <div className="max-w-6xl mx-auto">
-      {/* Hero — code.html lines 166-169 */}
-      <div className="mb-12">
-        <h1 className="text-4xl font-extrabold tracking-tight font-[var(--font-heading)] text-ds-on-surface mb-2">
-          {t("title")}
-        </h1>
-        <p className="text-ds-on-surface-variant text-lg max-w-2xl">
-          Initialize your journey into automated creativity with our streamlined SDK integration.
-          Four steps to production-ready AI.
-        </p>
-      </div>
+    <PageContainer size="narrow" data-testid="quickstart-page">
+      <PageHeader
+        title={t("title")}
+        subtitle="Initialize your journey into automated creativity with our streamlined SDK integration. Four steps to production-ready AI."
+      />
 
       {/* Steps Grid — code.html lines 171-256 */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -149,6 +144,6 @@ export default function QuickStartPage() {
           </section>
         ))}
       </div>
-    </div>
+    </PageContainer>
   );
 }

@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/table";
 import { SearchBar } from "@/components/search-bar";
 import { Pagination } from "@/components/pagination";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { timeAgo } from "@/lib/utils";
@@ -128,22 +128,38 @@ export default function TemplatesPage() {
     />
   );
 
+  // BL-123: hand-rolled pill tabs aligned with settings/page.tsx visual.
+  const TabPills = (
+    <div
+      className="flex gap-1 bg-ds-surface-container-low rounded-xl p-1 w-fit"
+      data-testid="templates-pill-tabs"
+    >
+      {(["my", "library"] as const).map((tab) => (
+        <button
+          key={tab}
+          onClick={() => handleTabChange(tab)}
+          className={cn(
+            "px-5 py-2 rounded-lg text-sm font-bold font-[var(--font-heading)] transition-all flex items-center",
+            activeTab === tab
+              ? "bg-ds-surface-container-lowest shadow-sm text-ds-primary"
+              : "text-ds-on-surface-variant hover:text-ds-on-surface",
+          )}
+        >
+          <span className="material-symbols-outlined text-base mr-1.5">
+            {tab === "my" ? "folder_shared" : "public"}
+          </span>
+          {t(tab === "my" ? "tabMyTemplates" : "tabGlobalLibrary")}
+        </button>
+      ))}
+    </div>
+  );
+
   return (
     <PageContainer data-testid="templates-page">
       {header}
-      <Tabs value={activeTab} onValueChange={handleTabChange} className="space-y-8">
-        <TabsList>
-          <TabsTrigger value="my">
-            <span className="material-symbols-outlined text-base mr-1.5">folder_shared</span>
-            {t("tabMyTemplates")}
-          </TabsTrigger>
-          <TabsTrigger value="library">
-            <span className="material-symbols-outlined text-base mr-1.5">public</span>
-            {t("tabGlobalLibrary")}
-          </TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="my" className="space-y-8">
+      {TabPills}
+      {activeTab === "my" ? (
+        <div className="space-y-8">
           {/* BL-122: while fetching list, show TableLoader only — no CTA bento flash */}
           {loading && !result ? (
             <TableCard title={t("title")}>
@@ -207,7 +223,10 @@ export default function TemplatesPage() {
                       <TableLoader colSpan={COLS} />
                     ) : templates.length === 0 ? (
                       <TableRow>
-                        <TableCell colSpan={COLS} className="px-6 py-12 text-center text-ds-outline">
+                        <TableCell
+                          colSpan={COLS}
+                          className="px-6 py-12 text-center text-ds-outline"
+                        >
                           {t("emptyTitle")}
                         </TableCell>
                       </TableRow>
@@ -227,7 +246,9 @@ export default function TemplatesPage() {
                               {tpl.stepCount} {t("stepsUnit")}
                             </span>
                           </TableCell>
-                          <TableCell className="px-6 py-5">{modeBadge(tpl.executionMode)}</TableCell>
+                          <TableCell className="px-6 py-5">
+                            {modeBadge(tpl.executionMode)}
+                          </TableCell>
                           <TableCell className="px-6 py-5 text-sm text-ds-on-surface-variant max-w-[300px] truncate">
                             {tpl.description || "\u2014"}
                           </TableCell>
@@ -300,12 +321,10 @@ export default function TemplatesPage() {
               </div>
             </>
           )}
-        </TabsContent>
-
-        <TabsContent value="library">
-          <GlobalLibrary />
-        </TabsContent>
-      </Tabs>
+        </div>
+      ) : (
+        <GlobalLibrary />
+      )}
     </PageContainer>
   );
 }
