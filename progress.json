@@ -2,7 +2,7 @@
   "status": "building",
   "user_goal": "DX-POLISH — DX 改进：精度保障、deprecated 标记、enum 约束、错误消息统一、reasoning token、json_mode、modality 校验等",
   "total_features": 12,
-  "completed_features": 6,
+  "completed_features": 7,
   "fix_rounds": 0,
   "current_sprint": null,
   "last_updated": "2026-04-13T02:00:00Z",

@@ -52,7 +52,7 @@
       "title": "数据修正：deepseek-r1 capabilities + grok-4.1-fast/minimax-m2.5 contextWindow",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "source": "MC-001/MC-004/DX-003/DX-011",
       "acceptance": "1) deepseek-r1 的 capabilities.function_calling 根据实际行为修正；2) grok-4.1-fast 和 minimax-m2.5 的 contextWindow 填入准确值；3) 通过一次性数据修复脚本或管理端编辑完成；4) tsc 通过"
     },
