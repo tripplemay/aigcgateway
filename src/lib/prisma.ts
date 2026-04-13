@@ -12,16 +12,49 @@ import { invalidateModelsListCache } from "@/lib/cache/models-cache";
  *   pool_timeout=2      — 等待可用连接超时 2 秒，快速失败
  */
 
-function ensureSellPriceUnit(data: Record<string, unknown> | undefined) {
-  if (!data?.sellPrice || typeof data.sellPrice !== "object" || Array.isArray(data.sellPrice))
-    return;
-  const sp = data.sellPrice as Record<string, unknown>;
-  if (sp.unit) return;
-  if (sp.inputPer1M !== undefined || sp.outputPer1M !== undefined) {
-    sp.unit = "token";
-  } else if (sp.perCall !== undefined) {
-    sp.unit = "call";
+const PRICE_DECIMALS = 6;
+
+function roundTo6(value: unknown): unknown {
+  if (typeof value === "number" && Number.isFinite(value)) {
+    const factor = 10 ** PRICE_DECIMALS;
+    return Math.round(value * factor) / factor;
   }
+  if (typeof value === "string") {
+    const n = Number(value);
+    if (Number.isFinite(n)) {
+      const factor = 10 ** PRICE_DECIMALS;
+      return Math.round(n * factor) / factor;
+    }
+  }
+  return value;
+}
+
+function normalizePriceObject(price: unknown): void {
+  if (!price || typeof price !== "object" || Array.isArray(price)) return;
+  const p = price as Record<string, unknown>;
+  // Infer unit if missing
+  if (!p.unit) {
+    if (p.inputPer1M !== undefined || p.outputPer1M !== undefined) {
+      p.unit = "token";
+    } else if (p.perCall !== undefined) {
+      p.unit = "call";
+    }
+  }
+  // Round numeric price fields to 6 decimals (F-DP-01: 精度保障)
+  if (p.inputPer1M !== undefined) p.inputPer1M = roundTo6(p.inputPer1M);
+  if (p.outputPer1M !== undefined) p.outputPer1M = roundTo6(p.outputPer1M);
+  if (p.perCall !== undefined) p.perCall = roundTo6(p.perCall);
+}
+
+/**
+ * 统一处理 ModelAlias / Channel 写入时的 sellPrice/costPrice：
+ * 1) 自动推断 unit 字段
+ * 2) 数值 round 到 6 位小数，避免浮点尾噪
+ */
+function ensureSellPriceUnit(data: Record<string, unknown> | undefined) {
+  if (!data) return;
+  normalizePriceObject(data.sellPrice);
+  normalizePriceObject(data.costPrice);
 }
 
 function createExtendedClient() {
@@ -67,6 +100,7 @@ function createExtendedClient() {
           return res;
         },
         async updateMany({ args, query }) {
+          ensureSellPriceUnit(args.data as Record<string, unknown>);
           const res = await query(args);
           invalidateModelsListCache();
           return res;
@@ -101,16 +135,28 @@ function createExtendedClient() {
       },
       channel: {
         async create({ args, query }) {
+          ensureSellPriceUnit(args.data as Record<string, unknown>);
           const res = await query(args);
           invalidateModelsListCache();
           return res;
         },
         async update({ args, query }) {
+          ensureSellPriceUnit(args.data as Record<string, unknown>);
           const res = await query(args);
           invalidateModelsListCache();
           return res;
         },
         async upsert({ args, query }) {
+          ensureSellPriceUnit(
+            (args as { update?: Record<string, unknown> }).update as
+              | Record<string, unknown>
+              | undefined,
+          );
+          ensureSellPriceUnit(
+            (args as { create?: Record<string, unknown> }).create as
+              | Record<string, unknown>
+              | undefined,
+          );
           const res = await query(args);
           invalidateModelsListCache();
           return res;
@@ -121,6 +167,7 @@ function createExtendedClient() {
           return res;
         },
         async updateMany({ args, query }) {
+          ensureSellPriceUnit(args.data as Record<string, unknown>);
           const res = await query(args);
           invalidateModelsListCache();
           return res;

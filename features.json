@@ -7,7 +7,7 @@
       "title": "sellPrice 写入路径加精度保障（round 到 6 位小数）",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "source": "FIN-003/CHAOS-009/DX-004",
       "acceptance": "1) 管理端保存 sellPrice 时数值 round 到 6 位小数；2) Prisma middleware 或 API 层统一处理，所有写入路径覆盖；3) 不依赖一次性 backfill；4) tsc 通过"
     },
