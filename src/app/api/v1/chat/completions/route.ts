@@ -67,6 +67,17 @@ export async function POST(request: Request) {
     return errorResponse(502, "provider_error", sanitizeErrorMessage((err as Error).message));
   }
 
+  // F-DP-09: modality 校验——image 模型不允许 text chat
+  if (route.alias?.modality === "IMAGE") {
+    if (rlKey && rlMember) rollbackRateLimit(rlKey, rlMember).catch(() => {});
+    return errorResponse(
+      400,
+      "invalid_model_modality",
+      `Model "${body.model}" is an image generation model and cannot be used for text chat. Use /v1/images/generations instead.`,
+      { param: "model" },
+    );
+  }
+
   const startTime = Date.now();
   const modelName = body.model;
 

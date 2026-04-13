@@ -4,10 +4,14 @@ description: AIGC Gateway 当前状态快照（覆盖写，≤30 行）
 type: project
 ---
 ## 当前批次
-- DX-POLISH：`building`（12 条功能，0/12 完成，11 generator + 1 codex）
-- 高优：F-DP-07 reasoning max_tokens 独立计量 + max_reasoning_tokens
-- 中优：精度保障、deprecated 同步、数据修正、json_mode 剥离、modality 校验、capability schema
-- 低优：enum 约束、model 参数示例、错误消息统一、ttftMs 省略
+- DX-POLISH：`verifying`（11/11 generator 完成，等待 Evaluator）
+- 核心：reasoning_tokens 独立计量 + max_reasoning_tokens 参数
+- 数据/精度：sellPrice 6 位精度、deprecated 字段、数据修正脚本
+- DX：capability enum、not-found 措辞、json_mode 剥离、modality 校验
+
+## 待生产执行
+- `npx tsx scripts/fix-dp-06-model-data.ts --apply`（数据修正）
+- `20260413_dx_polish_alias_deprecated` migration
 
 ## 已知 gap
 - 5 个图片模型 supportedSizes 规则不匹配：openai/gpt-5-image、wan2.7-image、wan2.7-image-pro、z-image-turbo、glm-4v

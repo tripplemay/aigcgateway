@@ -83,6 +83,10 @@ export function registerGetLogDetail(server: McpServer, opts: McpServerOptions):
         };
       }
 
+      // F-DP-10: 非 stream 调用不返回 ttftMs/ttft（避免 null 歧义）
+      const params = log.requestParams as Record<string, unknown> | null;
+      const isStreamCall = params?.stream === true;
+
       const result = {
         traceId: log.traceId,
         model: log.modelName,
@@ -99,8 +103,12 @@ export function registerGetLogDetail(server: McpServer, opts: McpServerOptions):
         },
         cost: log.sellPrice != null ? `$${Number(log.sellPrice).toFixed(8)}` : null,
         latency: log.latencyMs != null ? `${(log.latencyMs / 1000).toFixed(1)}s` : null,
-        ttftMs: log.ttftMs,
-        ttft: log.ttftMs != null ? `${(log.ttftMs / 1000).toFixed(2)}s` : null,
+        ...(isStreamCall
+          ? {
+              ttftMs: log.ttftMs,
+              ttft: log.ttftMs != null ? `${(log.ttftMs / 1000).toFixed(2)}s` : null,
+            }
+          : {}),
         tokensPerSecond: log.tokensPerSecond ? Math.round(log.tokensPerSecond) : null,
         error: log.errorMessage,
         createdAt: log.createdAt,

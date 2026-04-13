@@ -38,7 +38,7 @@ export function registerListModels(server: McpServer, opts: McpServerOptions): v
         ])
         .optional()
         .describe(
-          "Filter by capability (enum). Only models with this capability set to true are returned.",
+          "Filter by capability (enum). Capabilities are modality-specific: function_calling/json_mode/streaming/system_prompt/reasoning/search apply to TEXT models; vision applies to TEXT models that accept image input. When capability is specified without modality, TEXT modality is assumed for text-specific capabilities.",
         ),
       free_only: z
         .boolean()
@@ -50,7 +50,18 @@ export function registerListModels(server: McpServer, opts: McpServerOptions): v
       if (permErr) {
         return { content: [{ type: "text" as const, text: permErr }], isError: true };
       }
-      const modalityFilter = modality?.toUpperCase();
+      // F-DP-11: text-specific capabilities 在没有显式 modality 时自动收敛到 TEXT
+      const TEXT_ONLY_CAPS = new Set([
+        "function_calling",
+        "json_mode",
+        "streaming",
+        "system_prompt",
+        "reasoning",
+        "search",
+      ]);
+      const effectiveModality =
+        modality ?? (capability && TEXT_ONLY_CAPS.has(capability) ? "text" : undefined);
+      const modalityFilter = effectiveModality?.toUpperCase();
 
       const aliases = await prisma.modelAlias.findMany({
         where: {

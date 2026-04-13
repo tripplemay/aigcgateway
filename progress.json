@@ -1,11 +1,11 @@
 {
-  "status": "building",
+  "status": "verifying",
   "user_goal": "DX-POLISH — DX 改进：精度保障、deprecated 标记、enum 约束、错误消息统一、reasoning token、json_mode、modality 校验等",
   "total_features": 12,
-  "completed_features": 7,
+  "completed_features": 11,
   "fix_rounds": 0,
   "current_sprint": null,
-  "last_updated": "2026-04-13T02:00:00Z",
+  "last_updated": "2026-04-13T04:00:00Z",
   "reference_docs": [
     "tests/mcp-test/reports-20260412/all-assertions-20260412.json",
     "docs/specs/DX-POLISH-draft.md"
@@ -18,9 +18,43 @@
     "framework_reviewed": false
   },
   "evaluator_feedback": null,
-  "generator_handoff": null,
+  "generator_handoff": {
+    "completed_features": [
+      "F-DP-01",
+      "F-DP-02",
+      "F-DP-03",
+      "F-DP-04",
+      "F-DP-05",
+      "F-DP-06",
+      "F-DP-07",
+      "F-DP-08",
+      "F-DP-09",
+      "F-DP-10",
+      "F-DP-11"
+    ],
+    "pending_codex": ["F-DP-12"],
+    "scripts": {
+      "fix-dp-06-model-data": "npx tsx scripts/fix-dp-06-model-data.ts --apply（生产环境执行，修正 deepseek-r1/grok-4.1-fast/minimax-m2.5 数据）"
+    },
+    "migrations": [
+      "20260413_dx_polish_alias_deprecated — ALTER TABLE model_aliases ADD COLUMN deprecated BOOLEAN DEFAULT false"
+    ],
+    "notes": [
+      "F-DP-01: prisma 扩展层增加 sellPrice/costPrice round 到 6 位小数，ModelAlias + Channel 全路径覆盖",
+      "F-DP-02: ModelAlias 增加 deprecated 字段，list_models 和 /v1/models 均带出（仅 true 时出现，保持向后兼容）",
+      "F-DP-03: list_models.capability 从 z.string() 改为 z.enum([...])",
+      "F-DP-04: list_logs.model 描述示例从 openai/gpt-4o 改为 gpt-4o-mini",
+      "F-DP-05: get_action_detail/get_template_detail not-found 措辞统一为 'not found in this project'",
+      "F-DP-06: 数据修正脚本 scripts/fix-dp-06-model-data.ts，需在生产执行 --apply",
+      "F-DP-07: Usage 新增 reasoning_tokens，ChatCompletionRequest 新增 max_reasoning_tokens。extractUsage helper 覆盖 OpenAI o-series/DeepSeek R1/Zhipu GLM Thinking/Anthropic。prepareRequest 将 max_reasoning_tokens 转为上游 reasoning.max_tokens",
+      "F-DP-08: json_mode 响应自动剥离 markdown code fence（stripJsonCodeFence helper）",
+      "F-DP-09: chat 前置 modality 校验，image 模型调 chat 返回 invalid_model_modality",
+      "F-DP-10: get_log_detail 对非流式调用不返回 ttftMs/ttft 字段",
+      "F-DP-11: list_models TEXT-only capabilities (function_calling/json_mode/streaming/system_prompt/reasoning/search) 在无 modality 时自动收敛到 TEXT"
+    ]
+  },
   "session_notes": {
-    "Kimi": "Planner 启动 DX-POLISH 批次（11 generator + 1 codex = 12 条）。来源：MCP 8 角色审计 2026-04-12 未被 AUDIT-SEC 覆盖的 medium/low + 补漏的 high (F-DP-07)。草案在 docs/specs/DX-POLISH-draft.md。BILLING-REFACTOR 和 AUDIT-SEC 均已部署并执行对应 backfill 脚本。5 个图片模型 supportedSizes 未识别作为已知 gap 记录。",
+    "Kimi": "Generator 完成 DX-POLISH 全部 11 个 generator 功能。新增 Prisma migration 20260413_dx_polish_alias_deprecated（alias.deprecated 字段）。生产环境需执行 fix-dp-06-model-data.ts --apply。核心变更：reasoning_tokens/max_reasoning_tokens（F-DP-07）、sellPrice 6 位精度（F-DP-01）、json_mode code fence 剥离（F-DP-08）、chat modality 校验（F-DP-09）。",
     "Reviewer": null
   }
 }

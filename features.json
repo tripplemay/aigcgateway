@@ -70,7 +70,7 @@
       "title": "json_mode 返回自动剥离 markdown code fence",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "source": "CHAOS-008",
       "acceptance": "1) chat(response_format={type:'json_object'}) 的 response content 为裸 JSON 字符串；2) 自动剥离 ```json ... ``` 或 ``` ... ``` 包裹；3) 剥离后可直接 JSON.parse；4) tsc 通过"
     },
@@ -79,7 +79,7 @@
       "title": "chat 增加 modality 校验，拒绝 image 模型作 text chat",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "source": "CHAOS-006",
       "acceptance": "1) chat(model=<image_modality_alias>) 返回 400 invalid_model_modality 错误；2) 错误消息提示使用 generate_image；3) 不扣费；4) tsc 通过"
     },
@@ -88,7 +88,7 @@
       "title": "ttftMs 字段在非流式调用时省略或标 N/A",
       "priority": "low",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "source": "FIN-006",
       "acceptance": "1) get_log_detail 对 stream=false 的调用不返回 ttftMs/ttft 字段；2) stream=true 时始终返回有效数值；3) 不出现 null 语义歧义；4) tsc 通过"
     },
@@ -97,7 +97,7 @@
       "title": "capability 过滤按 modality 隔离，统一 capabilities schema",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "source": "DX-012",
       "acceptance": "1) list_models(capability='vision') 在 text/image 两个 modality 下行为一致且语义明确；2) capabilities schema 在 text/image 中统一或按 modality 拆分；3) 文档更新说明字段含义；4) tsc 通过"
     },

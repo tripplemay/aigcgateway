@@ -258,6 +258,19 @@ export function registerChat(server: McpServer, opts: McpServerOptions): void {
         };
       }
 
+      // F-DP-09: modality 校验——拒绝使用 image 模型进行 text chat
+      if (route.alias?.modality === "IMAGE") {
+        return {
+          content: [
+            {
+              type: "text" as const,
+              text: `[invalid_model_modality] Model "${model}" is an image generation model and cannot be used for text chat. Use the generate_image tool instead.`,
+            },
+          ],
+          isError: true,
+        };
+      }
+
       const traceId = generateTraceId();
       const startTime = Date.now();
 

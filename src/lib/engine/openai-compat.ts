@@ -43,7 +43,16 @@ export class OpenAICompatEngine implements EngineAdapter {
     );
 
     const json = await response.json();
-    return this.normalizeChatResponse(json);
+    const normalized = this.normalizeChatResponse(json);
+    // F-DP-08: 当 json_object 模式时自动剥离 markdown code fence
+    if (request.response_format?.type === "json_object") {
+      for (const choice of normalized.choices) {
+        if (typeof choice.message.content === "string") {
+          choice.message.content = stripJsonCodeFence(choice.message.content);
+        }
+      }
+    }
+    return normalized;
   }
 
   async chatCompletionsStream(
@@ -503,6 +512,25 @@ export function extractUsage(raw: Record<string, unknown>): Usage {
     usage.reasoning_tokens = reasoningTokens;
   }
   return usage;
+}
+
+/**
+ * 剥离 markdown 代码围栏，返回裸 JSON 字符串。
+ *
+ * 支持格式：
+ *   ```json\n{...}\n```
+ *   ```\n{...}\n```
+ *   前后空白自动 trim
+ * 无围栏时原样返回（不影响已经是裸 JSON 的响应）
+ */
+export function stripJsonCodeFence(content: string): string {
+  const trimmed = content.trim();
+  // 匹配 ```json 或 ``` 开头 + 可选换行 + 内容 + 可选换行 + ``` 结尾
+  const fenceMatch = trimmed.match(/^```(?:json)?\s*\n?([\s\S]*?)\n?```$/i);
+  if (fenceMatch) {
+    return fenceMatch[1].trim();
+  }
+  return trimmed;
 }
 
 function toNumber(value: unknown): number | undefined {
