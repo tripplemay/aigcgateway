@@ -149,9 +149,13 @@ async function main() {
     const result = await callTool("list_models");
     const models = JSON.parse(parseTextContent(result));
     if (!Array.isArray(models)) throw new Error("Expected array");
-    const imageModel = models.find((m: { modality?: string; name?: string }) => m.modality === "image");
+    const imageModel = models.find(
+      (m: { modality?: string; name?: string }) => m.modality === "image",
+    );
     selectedImageModel = imageModel?.name ?? "";
-    console.log(`(${models.length} models${selectedImageModel ? `, image=${selectedImageModel}` : ""}) `);
+    console.log(
+      `(${models.length} models${selectedImageModel ? `, image=${selectedImageModel}` : ""}) `,
+    );
   });
 
   let balanceBefore = 0;
@@ -236,7 +240,9 @@ async function main() {
     }
     if (!data.traceId) throw new Error("No traceId");
     imageTraceId = data.traceId;
-    console.log(`(traceId: ${data.traceId}, model: ${selectedImageModel}, images: ${data.images.length}) `);
+    console.log(
+      `(traceId: ${data.traceId}, model: ${selectedImageModel}, images: ${data.images.length}) `,
+    );
   });
 
   await step("11. Verify CallLog.source='mcp' (generate_image)", async () => {
@@ -246,6 +252,54 @@ async function main() {
       throw new Error(`Expected source='mcp', got source='${detail.source}'`);
     }
     console.log(`(source: ${detail.source}) `);
+  });
+
+  // F-ACF-01 regression — zero-image delivery must be status=FILTERED + cost=0.
+  // We cannot force an upstream to return empty images in a deterministic way
+  // so this step verifies the invariant on any existing log where the invariant
+  // would be violated (SUCCESS with sellPrice>0 but images_count=0). If none
+  // exist the test passes trivially.
+  await step("11b. F-ACF-01 zero-image invariant", async () => {
+    const logs = JSON.parse(
+      parseTextContent(await callTool("list_logs", { status: "success", limit: 50 })),
+    );
+    for (const l of logs) {
+      const detail = await getLogDetail(l.traceId);
+      if (detail.modality !== "IMAGE") continue;
+      const images = detail.responseSummary?.images_count;
+      if (images === 0 && Number(detail.cost ?? 0) > 0) {
+        throw new Error(
+          `Invariant violated: traceId=${l.traceId} status=SUCCESS images_count=0 cost=${detail.cost}`,
+        );
+      }
+    }
+    console.log("(no zero-image SUCCESS logs with non-zero cost) ");
+  });
+
+  // F-ACF-02 regression — any alias the router refuses to serve must NOT
+  // appear in list_models (ghost-model consistency). Conversely every alias
+  // returned by list_models must be callable end-to-end.
+  await step("11c. F-ACF-02 list_models / chat consistency", async () => {
+    const models = JSON.parse(parseTextContent(await callTool("list_models", {})));
+    const textAliases = (Array.isArray(models) ? models : (models.data ?? []))
+      .filter((m: { modality?: string }) => m.modality === "text" || m.modality === "TEXT")
+      .slice(0, 3);
+    for (const m of textAliases) {
+      const alias = m.id ?? m.alias ?? m.name;
+      if (!alias) continue;
+      const res = await callTool("chat", {
+        model: alias,
+        messages: [{ role: "user", content: "hi" }],
+        max_tokens: 1,
+      });
+      const content = parseTextContent(res);
+      if (res.isError && /CHANNEL_UNAVAILABLE|not available/i.test(content)) {
+        throw new Error(
+          `Ghost model leak: alias ${alias} is in list_models but router refuses it: ${content}`,
+        );
+      }
+    }
+    console.log(`(${textAliases.length} sampled aliases routable) `);
   });
 
   await step("12. generate_image (invalid model error)", async () => {

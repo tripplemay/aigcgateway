@@ -67,8 +67,10 @@ export async function routeByAlias(aliasName: string): Promise<RouteResult> {
     throw new EngineError(`Model "${aliasName}" not found`, ErrorCodes.MODEL_NOT_FOUND, 404);
   }
 
-  // Collect all active channels across linked models, skip health-check FAIL
+  // F-ACF-02: filter out links whose underlying Model.enabled=false to keep
+  // alias-routing in lockstep with list_models (ghost model elimination).
   const candidateChannels = alias.models
+    .filter((link) => link.model.enabled === true)
     .flatMap((link) =>
       link.model.channels.map((ch) => ({
         channel: ch,

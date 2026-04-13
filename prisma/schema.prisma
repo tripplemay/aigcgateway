@@ -340,6 +340,7 @@ model CallLog {
   promptSnapshot   Json
   requestParams    Json?
   responseContent  String?       @db.Text
+  responseSummary  Json?
   finishReason     FinishReason?
   status           CallStatus
   promptTokens     Int?

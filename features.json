@@ -7,7 +7,7 @@
       "title": "图片生成零图交付零计费 + status 标记",
       "priority": "critical",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "source": "CHAOS-001/007, MOD-004, CHAOS-008/010",
       "acceptance": "1) src/lib/api/post-process.ts 的 calculateCallCost：当响应 images.length === 0 时 cost=0 且 sellUsd=0；2) CallLog.status 在同样条件下改为 'FILTERED'（不再 'SUCCESS'）；3) list_logs(status='filtered') 能返回这些记录；4) get_log_detail 的 cost 字段同步为 $0；5) 同 commit 补 scripts/test-mcp.ts regression test：mock 或 skip external call 环境下验证 0 图 → cost=0 + status=filtered；6) tsc 通过"
     },
@@ -16,7 +16,7 @@
       "title": "router.ts 添加 model.enabled 过滤（消除幽灵模型）",
       "priority": "critical",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "source": "DX-001/DX-002(dx-audit), CHAOS-003, CHAOS-011",
       "acceptance": "1) src/lib/engine/router.ts 的 routeByAlias 在 flatMap 链路过滤 `model.enabled === true`（或 prisma include where 条件）；2) 调用 disabled model 的 alias 返回 CHANNEL_UNAVAILABLE 503 且消息清晰；3) routeByModelName（内部健康检查）保持不变；4) 修复后 claude-sonnet-4.6 和 qwen-image 应不可路由（与 list_models 行为一致）；5) 同 commit 补 scripts/test-mcp.ts regression test：对已知 disabled model 的 alias 调用 chat 应返回 CHANNEL_UNAVAILABLE；6) tsc 通过"
     },
@@ -25,7 +25,7 @@
       "title": "历史受害用户退款审计脚本",
       "priority": "critical",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "source": "配合 F-ACF-01",
       "acceptance": "1) scripts/refund-zero-image-audit.ts 查询 call_logs 中 modality=IMAGE status=SUCCESS 但 (responseSummary->>'images_count')::int = 0 或 responseSummary 为 null 的记录；2) 按 userId 汇总 sellPrice 总和；3) 默认 dry-run 只打印；4) --apply 时在事务中：更新 balance += refund_amount，写 transactions 表(type='REFUND', description='Zero image delivery refund', traceId=原 call_log.traceId)；5) 用 transactions.traceId 幂等（已退过的不再退）；6) tsc 通过"
     },

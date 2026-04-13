@@ -149,9 +149,19 @@ async function processChatResultAsync(params: ChatPostProcessParams): Promise<vo
 async function processImageResultAsync(params: ImagePostProcessParams): Promise<void> {
   const latencyMs = Date.now() - params.startTime;
   const isError = !!params.error;
-  const status: CallStatus = isError ? "ERROR" : "SUCCESS";
 
-  // 图片成本：按次计价
+  // F-ACF-01: zero-image delivery → status=FILTERED, cost=0, no deduction.
+  // If upstream returned no images we treat the call as a failed delivery and
+  // never charge the user, regardless of HTTP 200.
+  const imagesCount = params.response?.data?.length ?? 0;
+  const zeroImageDelivery = !isError && imagesCount === 0;
+
+  let status: CallStatus;
+  if (isError) status = "ERROR";
+  else if (zeroImageDelivery) status = "FILTERED";
+  else status = "SUCCESS";
+
+  // 图片成本：按次计价 — FILTERED/ERROR 都返回 0
   const { costUsd, sellUsd } = calculateCallCost(params.route, status);
 
   // 定价缺失告警：成功调用但 sellPrice 为 0，说明 alias 未配置 perCall 定价
@@ -160,6 +170,12 @@ async function processImageResultAsync(params: ImagePostProcessParams): Promise<
       `[post-process] WARNING: zero sell price for image call alias=${params.route.alias?.alias ?? "unknown"} model=${params.modelName}. Check alias sellPrice.perCall config.`,
     );
   }
+
+  // 持久化 images_count 到 responseSummary 以便历史回溯 + 退款脚本查询
+  const responseSummary: Prisma.InputJsonValue = {
+    images_count: imagesCount,
+    ...(zeroImageDelivery ? { zero_image_delivery: true } : {}),
+  };
 
   const callLog = await prisma.callLog.create({
     data: {
@@ -170,17 +186,20 @@ async function processImageResultAsync(params: ImagePostProcessParams): Promise<
       promptSnapshot: [{ role: "user", content: params.requestParams.prompt }] as unknown as object,
       requestParams: params.requestParams as Prisma.InputJsonValue,
       responseContent: params.response?.data?.[0]?.url ?? null,
+      responseSummary,
       status,
       latencyMs,
       costPrice: costUsd,
       sellPrice: sellUsd,
-      errorMessage: params.error?.message ?? null,
-      errorCode: params.error?.code ?? null,
+      errorMessage:
+        params.error?.message ??
+        (zeroImageDelivery ? "Image generation failed, model did not return a valid image" : null),
+      errorCode: params.error?.code ?? (zeroImageDelivery ? "zero_image_delivery" : null),
       source: params.source ?? "api",
     },
   });
 
-  // 图片失败不扣费
+  // 图片失败（含零图）不扣费
   if (sellUsd > 0 && status === "SUCCESS") {
     await deductBalance(params.userId, params.projectId, sellUsd, callLog.id, params.traceId);
   }
