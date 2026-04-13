@@ -88,13 +88,32 @@ tests/mcp-test/reports-YYYYMMDD/
 
 按正常批次流程（Planner → Generator → Evaluator）修复。
 
-### Step 3：沉淀
+### Step 3：沉淀（硬性规则）
 
-修复完成后，将对应断言转化为确定性测试用例：
+**触发时机：** 修复该 feature 的同一个 commit 中必须同步补充测试
+**责任人：** Generator（由 Evaluator 在 verifying 阶段强制检查）
+**硬性要求：** 每条来自审计的 critical/high 断言修复时，必须在对应测试脚本中增加回归用例作为 acceptance 的最后一项。medium/low 建议沉淀但非强制。
+
+**位置判断规则：**
 
 - **计费 / 数据一致性类** → 写入 `test-mcp.ts`（MCP 协议层可验证）
 - **API 行为类** → 写入 `e2e-test.ts` 或 `e2e-errors.ts`
 - **安全 / 错误信息类** → 写入 `e2e-errors.ts` 或 `test-mcp-errors.ts`
+
+**Planner 写 features.json 时的模板：** 每条来自审计的 feature 的 acceptance 最后一项固定为：
+
+> X) 在 `scripts/<脚本>` 中增加 regression test，覆盖来源断言 [断言 ID]，对比修复前应失败、修复后通过
+
+**示例（以 deprecated 标记同步为例）：**
+
+```
+1) get_usage_summary 中 deprecated=true 的模型，list_models 返回时也带 deprecated 字段；
+2) ModelAlias 增加 deprecated 布尔字段；
+3) MCP 和 REST 行为一致；
+4) tsc 通过；
+5) scripts/test-mcp.ts 增加 step "deprecated flag sync"，
+   断言 list_models 返回中 deprecated=true 的模型数量 ≥ get_usage_summary 中 deprecated 模型数量
+```
 
 示例：审计发现 `FIN-001`（扣费比展示价高 20%），修复后在 `test-mcp.ts` 中增加：
 
