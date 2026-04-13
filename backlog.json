@@ -277,6 +277,21 @@
       ],
       "confirmed_at": "2026-04-13",
       "priority": "medium"
+    },
+    {
+      "id": "BL-121",
+      "title": "Models 页面底部「显示全部 N 个模型」按钮无效",
+      "description": "生产环境 /models 页面底部的「显示全部 20 个模型」按钮无 onClick 绑定，点击无响应。位置：src/app/(console)/models/page.tsx:365-369。",
+      "root_cause": "button 元素只有 className，缺少 onClick handler，是纯装饰元素",
+      "fix": "1) onClick 设置为 () => setShowAllModels(new Set(grouped.map(g => g.brand)))，一次性展开所有品牌分组；2) 加显示条件 grouped.some(g => g.models.length > MODELS_PER_PAGE && !showAllModels.has(g.brand))，所有品牌已展开时隐藏按钮，避免视觉欺骗",
+      "file": "src/app/(console)/models/page.tsx",
+      "lines": "363-370",
+      "decisions": [
+        "作为新 bug 单独修，不插入 DX-POLISH（已 building 中）",
+        "DX-POLISH 签收后作为 bug 修复批次或下个批次增补"
+      ],
+      "confirmed_at": "2026-04-13",
+      "priority": "medium"
     }
   ]
 }
