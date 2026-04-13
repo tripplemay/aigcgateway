@@ -1,60 +1,25 @@
 {
-  "status": "verifying",
-  "user_goal": "DX-POLISH — DX 改进：精度保障、deprecated 标记、enum 约束、错误消息统一、reasoning token、json_mode、modality 校验等",
-  "total_features": 12,
-  "completed_features": 11,
+  "status": "building",
+  "user_goal": "UI-UNIFY — 抽取 9 个缺失的公共组件 + 改造 12 个 console 页面 + 统一 heading scale + 合并 BL-121/122/123 bug 修复",
+  "total_features": 13,
+  "completed_features": 0,
   "fix_rounds": 0,
   "current_sprint": null,
-  "last_updated": "2026-04-13T04:00:00Z",
+  "last_updated": "2026-04-13T03:00:00Z",
   "reference_docs": [
-    "tests/mcp-test/reports-20260412/all-assertions-20260412.json",
-    "docs/specs/DX-POLISH-draft.md"
+    "docs/specs/UI-UNIFY-spec.md"
   ],
   "role_assignments": null,
   "docs": {
-    "spec": "docs/specs/DX-POLISH-draft.md",
+    "spec": "docs/specs/UI-UNIFY-spec.md",
     "test_cases": null,
     "signoff": null,
     "framework_reviewed": false
   },
   "evaluator_feedback": null,
-  "generator_handoff": {
-    "completed_features": [
-      "F-DP-01",
-      "F-DP-02",
-      "F-DP-03",
-      "F-DP-04",
-      "F-DP-05",
-      "F-DP-06",
-      "F-DP-07",
-      "F-DP-08",
-      "F-DP-09",
-      "F-DP-10",
-      "F-DP-11"
-    ],
-    "pending_codex": ["F-DP-12"],
-    "scripts": {
-      "fix-dp-06-model-data": "npx tsx scripts/fix-dp-06-model-data.ts --apply（生产环境执行，修正 deepseek-r1/grok-4.1-fast/minimax-m2.5 数据）"
-    },
-    "migrations": [
-      "20260413_dx_polish_alias_deprecated — ALTER TABLE model_aliases ADD COLUMN deprecated BOOLEAN DEFAULT false"
-    ],
-    "notes": [
-      "F-DP-01: prisma 扩展层增加 sellPrice/costPrice round 到 6 位小数，ModelAlias + Channel 全路径覆盖",
-      "F-DP-02: ModelAlias 增加 deprecated 字段，list_models 和 /v1/models 均带出（仅 true 时出现，保持向后兼容）",
-      "F-DP-03: list_models.capability 从 z.string() 改为 z.enum([...])",
-      "F-DP-04: list_logs.model 描述示例从 openai/gpt-4o 改为 gpt-4o-mini",
-      "F-DP-05: get_action_detail/get_template_detail not-found 措辞统一为 'not found in this project'",
-      "F-DP-06: 数据修正脚本 scripts/fix-dp-06-model-data.ts，需在生产执行 --apply",
-      "F-DP-07: Usage 新增 reasoning_tokens，ChatCompletionRequest 新增 max_reasoning_tokens。extractUsage helper 覆盖 OpenAI o-series/DeepSeek R1/Zhipu GLM Thinking/Anthropic。prepareRequest 将 max_reasoning_tokens 转为上游 reasoning.max_tokens",
-      "F-DP-08: json_mode 响应自动剥离 markdown code fence（stripJsonCodeFence helper）",
-      "F-DP-09: chat 前置 modality 校验，image 模型调 chat 返回 invalid_model_modality",
-      "F-DP-10: get_log_detail 对非流式调用不返回 ttftMs/ttft 字段",
-      "F-DP-11: list_models TEXT-only capabilities (function_calling/json_mode/streaming/system_prompt/reasoning/search) 在无 modality 时自动收敛到 TEXT"
-    ]
-  },
+  "generator_handoff": null,
   "session_notes": {
-    "Kimi": "Generator 完成 DX-POLISH 全部 11 个 generator 功能。新增 Prisma migration 20260413_dx_polish_alias_deprecated（alias.deprecated 字段）。生产环境需执行 fix-dp-06-model-data.ts --apply。核心变更：reasoning_tokens/max_reasoning_tokens（F-DP-07）、sellPrice 6 位精度（F-DP-01）、json_mode code fence 剥离（F-DP-08）、chat modality 校验（F-DP-09）。",
+    "Kimi": "Planner 启动 UI-UNIFY 批次（12 generator + 1 codex = 13 条）。来源：生产 UI 一致性审查，根因是重构到新设计系统时没有抽取公共组件。第一阶段 F-UU-01~06 建立组件基础设施（PageContainer/PageHeader/TableCard/KPICard/StatusChip/CTABanner/SectionCard/TableLoader/PageLoader/EmptyState/Button gradient variant）；第二阶段 F-UU-07~12 改造页面并修复 BL-121/122/123；第三阶段 F-UU-13 全量验收。所有页面改造必须按 test-lifecycle.md 规则同 commit 补 regression test。DX-POLISH 生产待执行 fix-dp-06-model-data.ts --apply。",
     "Reviewer": null
   }
 }
