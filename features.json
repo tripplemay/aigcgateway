@@ -16,7 +16,7 @@
       "title": "deprecated 标记同步到 list_models",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "source": "FIN-004/DX-006",
       "acceptance": "1) get_usage_summary 中 deprecated=true 的模型，list_models 返回时也带 deprecated 字段；2) ModelAlias 增加 deprecated 布尔字段（migration）；3) MCP 和 REST 行为一致；4) tsc 通过"
     },

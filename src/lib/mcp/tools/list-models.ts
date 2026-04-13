@@ -136,6 +136,7 @@ export function registerListModels(server: McpServer, opts: McpServerOptions): v
             price,
             pricing,
             capabilities,
+            ...(alias.deprecated ? { deprecated: true } : {}),
           };
 
           // Aggregate supportedSizes from linked models for IMAGE aliases

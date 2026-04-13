@@ -125,6 +125,7 @@ async function queryModelsJSON(modalityFilter: string | undefined): Promise<stri
         capabilities,
         ...(supportedSizes ? { supportedSizes } : {}),
         ...(alias.description ? { description: alias.description } : {}),
+        ...(alias.deprecated ? { deprecated: true } : {}),
       };
     })
     .filter(Boolean);
