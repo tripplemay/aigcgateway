@@ -112,6 +112,10 @@ export default function DocsPage() {
             {t("paramMaxTokens")}
           </p>
           <p>
+            <code className="bg-ds-surface-container-low px-1 rounded">max_reasoning_tokens</code> —{" "}
+            {t("paramMaxReasoningTokens")}
+          </p>
+          <p>
             <code className="bg-ds-surface-container-low px-1 rounded">top_p</code> —{" "}
             {t("paramTopP")}
           </p>

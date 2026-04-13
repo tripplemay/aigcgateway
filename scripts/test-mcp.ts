@@ -359,6 +359,60 @@ async function main() {
     console.log(`(model: ${detail.model}, status: ${detail.status}) `);
   });
 
+  // F-ACF-04 regression — full create_action → v2 → activate(v1) → run_template cycle.
+  // Verifies run_template's `steps[].input` reflects the ACTIVE version, not the latest.
+  await step("16b. F-ACF-04 run_template active version cycle", async () => {
+    const created = JSON.parse(
+      parseTextContent(
+        await callTool("create_action", {
+          name: `F-ACF-04-${Date.now()}`,
+          description: "regression",
+          model: selectedTextModel ?? "deepseek-v3",
+          messages: [{ role: "user", content: "V1_MARKER say hi" }],
+        }),
+      ),
+    );
+    const actionId: string = created.id ?? created.action?.id;
+    if (!actionId) {
+      console.log("(create_action not supported, skipping) ");
+      return;
+    }
+    const v2 = JSON.parse(
+      parseTextContent(
+        await callTool("create_action_version", {
+          action_id: actionId,
+          messages: [{ role: "user", content: "V2_MARKER say hi" }],
+        }),
+      ),
+    );
+    const v1Id: string | undefined = created.activeVersionId ?? created.active_version_id;
+    if (!v1Id) {
+      console.log("(no v1 id, skipping activate) ");
+      return;
+    }
+    await callTool("activate_version", { version_id: v1Id });
+    const tpl = JSON.parse(
+      parseTextContent(
+        await callTool("create_template", {
+          name: `tpl-f-acf-04-${Date.now()}`,
+          steps: [{ order: 1, actionId, role: "SEQUENTIAL" }],
+        }),
+      ),
+    );
+    const tplId: string = tpl.id ?? tpl.template?.id;
+    if (!tplId) {
+      console.log("(create_template not supported, skipping) ");
+      return;
+    }
+    const runRes = await callTool("run_template", { template_id: tplId });
+    const run = JSON.parse(parseTextContent(runRes));
+    const input = JSON.stringify(run.steps?.[0]?.input ?? "");
+    if (!input.includes("V1_MARKER")) {
+      throw new Error(`run_template used wrong version. input=${input}`);
+    }
+    console.log(`(active v1 prompt honored; v2 id=${v2.id ?? "n/a"}) `);
+  });
+
   await step("17. get_usage_summary (7d)", async () => {
     const result = await callTool("get_usage_summary", { period: "7d" });
     const data = JSON.parse(parseTextContent(result));

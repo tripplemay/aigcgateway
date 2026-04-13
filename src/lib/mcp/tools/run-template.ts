@@ -149,19 +149,32 @@ Pass variables to inject into each step's Action prompts.`,
           ? await runFanout(params, collectWriter)
           : await runSequential(params, collectWriter);
 
-        // Build steps with input (rendered messages)
+        // Build steps with input (rendered messages).
+        // F-ACF-04: read each action's ACTIVE version, not the latest. The
+        // runner already executes the active version; the MCP response must
+        // agree so users see the prompt they actually ran.
         const actionIds = template.steps.map((s) => s.actionId);
         const actions = await prisma.action.findMany({
           where: { id: { in: actionIds } },
-          include: { versions: { orderBy: { versionNumber: "desc" }, take: 1 } },
+          select: { id: true, name: true, model: true, activeVersionId: true },
         });
         const actionMap = new Map(actions.map((a) => [a.id, a]));
+
+        const activeVersionIds = actions
+          .map((a) => a.activeVersionId)
+          .filter((v): v is string => typeof v === "string");
+        const activeVersions = activeVersionIds.length
+          ? await prisma.actionVersion.findMany({
+              where: { id: { in: activeVersionIds } },
+            })
+          : [];
+        const versionMap = new Map(activeVersions.map((v) => [v.id, v]));
 
         let prevOutput: string | null = null;
         const steps = template.steps.map((ts, i) => {
           const se = stepEvents[i];
           const act = actionMap.get(ts.actionId);
-          const ver = act?.versions[0];
+          const ver = act?.activeVersionId ? versionMap.get(act.activeVersionId) : undefined;
           let input: unknown[] | undefined;
           if (ver) {
             const msgs = ver.messages as { role: string; content: string }[];

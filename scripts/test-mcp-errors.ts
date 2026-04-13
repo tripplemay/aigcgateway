@@ -125,10 +125,14 @@ async function main() {
   await step("3. Invalid model → isError + available models", async () => {
     const { body } = await rawMcpRequest(
       "tools/call",
-      { name: "chat", arguments: { model: "nonexistent/model", messages: [{ role: "user", content: "hi" }] } },
+      {
+        name: "chat",
+        arguments: { model: "nonexistent/model", messages: [{ role: "user", content: "hi" }] },
+      },
       API_KEY,
     );
-    const result = (body as { result?: { isError?: boolean; content?: Array<{ text?: string }> } })?.result;
+    const result = (body as { result?: { isError?: boolean; content?: Array<{ text?: string }> } })
+      ?.result;
     if (!result?.isError) throw new Error("Expected isError=true");
     const text = result.content?.[0]?.text ?? "";
     if (!text.includes("not found")) throw new Error(`Unexpected error text: ${text}`);
@@ -144,7 +148,8 @@ async function main() {
       { name: "get_log_detail", arguments: { trace_id: "trc_nonexistent_fake_id" } },
       API_KEY,
     );
-    const result = (body as { result?: { isError?: boolean; content?: Array<{ text?: string }> } })?.result;
+    const result = (body as { result?: { isError?: boolean; content?: Array<{ text?: string }> } })
+      ?.result;
     if (!result?.isError) throw new Error("Expected isError=true");
     const text = result.content?.[0]?.text ?? "";
     if (!text.includes("not found")) throw new Error(`Unexpected: ${text}`);
@@ -165,7 +170,9 @@ async function main() {
         },
         ZERO_BALANCE_API_KEY,
       );
-      const result = (body as { result?: { isError?: boolean; content?: Array<{ text?: string }> } })?.result;
+      const result = (
+        body as { result?: { isError?: boolean; content?: Array<{ text?: string }> } }
+      )?.result;
       if (!result?.isError) throw new Error("Expected isError=true for zero balance");
       const text = result.content?.[0]?.text ?? "";
       if (!text.toLowerCase().includes("balance") && !text.toLowerCase().includes("insufficient")) {
@@ -176,6 +183,31 @@ async function main() {
   } else {
     console.log("  5. Chat with insufficient balance → SKIPPED (set ZERO_BALANCE_API_KEY env var)");
   }
+
+  // F-ACF-06 regression — max_tokens over model context window is rejected 400.
+  await step("6. F-ACF-06 max_tokens > contextWindow → invalid_parameter", async () => {
+    if (!API_KEY) throw new Error("API_KEY not set");
+    const { body } = await rawMcpRequest(
+      "tools/call",
+      {
+        name: "chat",
+        arguments: {
+          model: "deepseek-v3",
+          messages: [{ role: "user", content: "hi" }],
+          max_tokens: 10_000_000,
+        },
+      },
+      API_KEY,
+    );
+    const result = (body as { result?: { isError?: boolean; content?: Array<{ text?: string }> } })
+      ?.result;
+    if (!result?.isError) throw new Error("Expected isError=true for oversized max_tokens");
+    const text = result.content?.[0]?.text ?? "";
+    if (!/invalid_parameter|exceeds|context window/i.test(text)) {
+      throw new Error(`Expected invalid_parameter error, got: ${text}`);
+    }
+    console.log("(oversized max_tokens rejected) ");
+  });
 
   console.log("\n" + "=".repeat(60));
   console.log(`Results: ${passed} PASS | ${failed} FAIL`);

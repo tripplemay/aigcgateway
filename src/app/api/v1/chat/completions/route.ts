@@ -78,6 +78,35 @@ export async function POST(request: Request) {
     );
   }
 
+  // F-ACF-06: max_tokens upper bound — never let a client-requested value
+  // exceed the model's advertised context window. Fail fast with 400 rather
+  // than letting the upstream reject the call after we've billed its input.
+  const modelContextWindow = route.model?.contextWindow ?? null;
+  if (
+    typeof body.max_tokens === "number" &&
+    modelContextWindow !== null &&
+    body.max_tokens > modelContextWindow
+  ) {
+    if (rlKey && rlMember) rollbackRateLimit(rlKey, rlMember).catch(() => {});
+    return errorResponse(
+      400,
+      "invalid_parameter",
+      `max_tokens (${body.max_tokens}) exceeds the context window of model "${body.model}" (${modelContextWindow}).`,
+      { param: "max_tokens" },
+    );
+  }
+
+  // F-ACF-05: default max_reasoning_tokens cap for reasoning models so a tiny
+  // max_tokens doesn't cause an open-ended reasoning burn.
+  const modelCapabilities = (route.model?.capabilities ?? null) as { reasoning?: boolean } | null;
+  if (
+    modelCapabilities?.reasoning === true &&
+    body.max_reasoning_tokens === undefined &&
+    modelContextWindow !== null
+  ) {
+    body.max_reasoning_tokens = Math.min(Math.floor(modelContextWindow * 0.5), 32000);
+  }
+
   const startTime = Date.now();
   const modelName = body.model;
 

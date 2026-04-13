@@ -271,6 +271,35 @@ export function registerChat(server: McpServer, opts: McpServerOptions): void {
         };
       }
 
+      // F-ACF-06: max_tokens must not exceed the routed model's context window.
+      const modelContextWindow = route.model?.contextWindow ?? null;
+      if (
+        typeof max_tokens === "number" &&
+        modelContextWindow !== null &&
+        max_tokens > modelContextWindow
+      ) {
+        return {
+          content: [
+            {
+              type: "text" as const,
+              text: `[invalid_parameter] max_tokens (${max_tokens}) exceeds the context window of model "${model}" (${modelContextWindow}).`,
+            },
+          ],
+          isError: true,
+        };
+      }
+
+      // F-ACF-05: default max_reasoning_tokens cap for reasoning models.
+      const mcpCapabilities = (route.model?.capabilities ?? null) as { reasoning?: boolean } | null;
+      let effectiveMaxReasoningTokens = max_reasoning_tokens;
+      if (
+        mcpCapabilities?.reasoning === true &&
+        effectiveMaxReasoningTokens === undefined &&
+        modelContextWindow !== null
+      ) {
+        effectiveMaxReasoningTokens = Math.min(Math.floor(modelContextWindow * 0.5), 32000);
+      }
+
       const traceId = generateTraceId();
       const startTime = Date.now();
 
@@ -279,7 +308,9 @@ export function registerChat(server: McpServer, opts: McpServerOptions): void {
         messages: messages,
         ...(temperature !== undefined ? { temperature } : {}),
         ...(max_tokens !== undefined ? { max_tokens } : {}),
-        ...(max_reasoning_tokens !== undefined ? { max_reasoning_tokens } : {}),
+        ...(effectiveMaxReasoningTokens !== undefined
+          ? { max_reasoning_tokens: effectiveMaxReasoningTokens }
+          : {}),
         ...(response_format ? { response_format } : {}),
         ...(top_p !== undefined ? { top_p } : {}),
         ...(frequency_penalty !== undefined ? { frequency_penalty } : {}),

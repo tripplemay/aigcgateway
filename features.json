@@ -34,7 +34,7 @@
       "title": "run_template 使用 Action 的活跃版本",
       "priority": "critical",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "source": "Workflow DX-001",
       "acceptance": "1) 定位 run_template 执行代码中读取 action messages 的位置（可能在 src/lib/template/executor.ts 或 run-template MCP tool）；2) 改为通过 action.activeVersionId 读取 ActionVersion.messages/variables（当前代码可能直接读 action.messages 或默认取最新版本）；3) sequential 和 fan-out 两种执行模式都覆盖；4) 同 commit 补 scripts/test-mcp.ts regression test：create_action → create_action_version (v2 不同 prompt) → activate_version(v1) → run_template，断言返回内容体现 v1 的 prompt 特征；5) tsc 通过"
     },
@@ -43,7 +43,7 @@
       "title": "reasoning 模型默认 max_reasoning_tokens 上限",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "source": "RL-002, DX-006(dx-audit)",
       "acceptance": "1) chat completions 处理层：当 model.capabilities.reasoning === true 且用户未传 max_reasoning_tokens 时，默认值为 Math.min(Math.floor(contextWindow * 0.5), 32000)；2) 非 reasoning 模型不受影响；3) DOCS-REFRESH 更新的 /docs 页面 chat 参数 Section 补充 max_reasoning_tokens 独立计费说明；4) MCP chat tool description 同步补充；5) 同 commit 补 regression test：reasoning 模型 max_tokens=3 不再出现 completionTokens > 32000；6) tsc 通过"
     },
@@ -52,7 +52,7 @@
       "title": "max_tokens schema maximum 校验",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "source": "RL-003, DX-008(dx-audit)",
       "acceptance": "1) REST /v1/chat/completions 在进入路由前校验 max_tokens <= model.contextWindow；2) MCP chat 工具同样前置校验；3) 超出时返回 400 invalid_parameter，错误消息包含 model 名称和实际 contextWindow 值，不再透传给上游；4) 同 commit 补 regression test（MCP 和 REST 两侧）；5) tsc 通过"
     },
