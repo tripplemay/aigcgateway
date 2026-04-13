@@ -1,12 +1,14 @@
 {
-  "status": "verifying",
+  "status": "fixing",
   "user_goal": "AUDIT-SEC — 安全 + 数据修补：上游错误脱敏、不可用模型过滤、supportedSizes 回填、image 计费修复、free_only 修复、XSS 转义、size 预校验",
   "total_features": 8,
-  "completed_features": 7,
+  "completed_features": 6,
   "fix_rounds": 0,
   "current_sprint": null,
-  "last_updated": "2026-04-13T02:30:00Z",
-  "reference_docs": ["tests/mcp-test/reports-20260412/all-assertions-20260412.json"],
+  "last_updated": "2026-04-13T00:52:00Z",
+  "reference_docs": [
+    "tests/mcp-test/reports-20260412/all-assertions-20260412.json"
+  ],
   "role_assignments": null,
   "docs": {
     "spec": null,
@@ -14,10 +16,34 @@
     "signoff": null,
     "framework_reviewed": false
   },
-  "evaluator_feedback": null,
+  "evaluator_feedback": {
+    "summary": "AUDIT-SEC 首轮验收：9/10 通过，free_only(perCall=0) 过滤失败，需修复后复验",
+    "pass_count": 9,
+    "partial_count": 0,
+    "fail_count": 1,
+    "issues": [
+      {
+        "feature_id": "F-AS-05",
+        "result": "FAIL",
+        "description": "free_only=true 未返回 perCall=0 的 image alias；REST 与 MCP 均缺失",
+        "steps_to_reproduce": "1) 创建 image alias 并设置 alias/channel sellPrice.perCall=0 2) 调用 /api/v1/models?modality=image&free_only=true 与 MCP list_models(free_only=true,modality=image) 3) 观察该 alias 均未出现",
+        "evidence": "docs/test-reports/audit-sec-verifying-local-e2e-2026-04-13.json (F-AS-05)"
+      }
+    ]
+  },
   "generator_handoff": {
-    "completed_features": ["F-AS-01", "F-AS-02", "F-AS-03", "F-AS-04", "F-AS-05", "F-AS-06", "F-AS-07"],
-    "pending_codex": ["F-AS-08"],
+    "completed_features": [
+      "F-AS-01",
+      "F-AS-02",
+      "F-AS-03",
+      "F-AS-04",
+      "F-AS-05",
+      "F-AS-06",
+      "F-AS-07"
+    ],
+    "pending_codex": [
+      "F-AS-08"
+    ],
     "scripts": {
       "backfill-supported-sizes": "npx tsx scripts/backfill-supported-sizes.ts --apply（需在生产环境执行，为 image 模型回填 supportedSizes）"
     },
@@ -33,6 +59,6 @@
   },
   "session_notes": {
     "Kimi": "Generator 完成 AUDIT-SEC 全部 7 个 generator 功能。关键变更：sanitizeErrorMessage 增强（WeChat/电话/术语）、chat/completions 补充 sanitize、list_models 过滤 disabled model、image 计费 perCall fallback、XSS 转义、size 预校验。需在生产执行 backfill-supported-sizes.ts --apply。",
-    "Reviewer": null
+    "Reviewer": "verifying 完成：L1 本地 AUDIT-SEC 共 10 项断言，9 PASS/1 FAIL。失败集中在 free_only 对 perCall=0 图片模型过滤遗漏（REST/MCP 一致缺失）。已生成报告 docs/test-reports/AUDIT-SEC-verifying-2026-04-13.md 与原始证据 JSON，状态已转 fixing。"
   }
 }

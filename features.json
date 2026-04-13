@@ -39,7 +39,7 @@
       "title": "free_only 过滤逻辑修复",
       "priority": "medium",
       "executor": "generator",
-      "status": "completed",
+      "status": "pending",
       "acceptance": "1) list_models(free_only=true) 返回所有价格为 0 的模型（inputPerMillion=0 且 outputPerMillion=0，或 perCall=0）；2) 非免费模型不出现在结果中；3) MCP 和 /api/v1/models 行为一致；4) tsc 通过"
     },
     {

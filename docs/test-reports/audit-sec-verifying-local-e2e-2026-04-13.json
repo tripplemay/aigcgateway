@@ -1,0 +1,59 @@
+{
+  "batch": "AUDIT-SEC",
+  "generatedAt": "2026-04-13T00:51:44.052Z",
+  "environment": "http://localhost:3099",
+  "pass": 9,
+  "fail": 1,
+  "checks": [
+    {
+      "id": "F-AS-00-smoke-mcp-initialize",
+      "ok": true,
+      "detail": "server=aigc-gateway"
+    },
+    {
+      "id": "F-AS-01-upstream-error-sanitized-rest-chat",
+      "ok": true,
+      "detail": "{\"error\":{\"type\":\"invalid_request_error\",\"code\":\"invalid_request\",\"message\":\"[upstream feature] failed. contact [contact"
+    },
+    {
+      "id": "F-AS-01-upstream-error-sanitized-mcp-chat",
+      "ok": true,
+      "detail": "[invalid_request] [upstream feature] failed. contact [contact removed] and [contact removed]. docs: [URL removed] key=[k"
+    },
+    {
+      "id": "F-AS-02-list_models-filter-unavailable",
+      "ok": true,
+      "detail": "visible=7"
+    },
+    {
+      "id": "F-AS-03-image-model-supportedSizes-present",
+      "ok": true,
+      "detail": "models=7"
+    },
+    {
+      "id": "F-AS-04-image-billing-cost-and-balance",
+      "ok": true,
+      "detail": "traceId=trc_b43b90lmm96bgc8tid12b4oe cost=$0.50000000 balanceDelta=0.50000000"
+    },
+    {
+      "id": "F-AS-05-free_only-filter",
+      "ok": false,
+      "detail": "free alias missing: rest=false mcp=false alias=auditsec_free_alias_1776041503798_75w2td"
+    },
+    {
+      "id": "F-AS-06-log-xss-escaped",
+      "ok": true,
+      "detail": "traceId=trc_b43b90lmm96bgc8tid12b4oe"
+    },
+    {
+      "id": "F-AS-07-invalid-size-precheck-rest",
+      "ok": true,
+      "detail": "{\"error\":{\"type\":\"invalid_request_error\",\"code\":\"invalid_size\",\"message\":\"Invalid size \\\"999x999\\\" for model \\\"auditsec_"
+    },
+    {
+      "id": "F-AS-07-invalid-size-precheck-mcp",
+      "ok": true,
+      "detail": "{\"code\":\"invalid_size\",\"message\":\"Invalid size \\\"999x999\\\" for model \\\"auditsec_image_alias_1776041503798_zev80r\\\". Supp"
+    }
+  ]
+}
