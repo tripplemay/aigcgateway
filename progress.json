@@ -1,11 +1,11 @@
 {
-  "status": "fixing",
+  "status": "reverifying",
   "user_goal": "AUDIT-SEC — 安全 + 数据修补：上游错误脱敏、不可用模型过滤、supportedSizes 回填、image 计费修复、free_only 修复、XSS 转义、size 预校验",
   "total_features": 8,
-  "completed_features": 6,
-  "fix_rounds": 0,
+  "completed_features": 7,
+  "fix_rounds": 1,
   "current_sprint": null,
-  "last_updated": "2026-04-13T00:52:00Z",
+  "last_updated": "2026-04-13T03:00:00Z",
   "reference_docs": [
     "tests/mcp-test/reports-20260412/all-assertions-20260412.json"
   ],
@@ -16,21 +16,7 @@
     "signoff": null,
     "framework_reviewed": false
   },
-  "evaluator_feedback": {
-    "summary": "AUDIT-SEC 首轮验收：9/10 通过，free_only(perCall=0) 过滤失败，需修复后复验",
-    "pass_count": 9,
-    "partial_count": 0,
-    "fail_count": 1,
-    "issues": [
-      {
-        "feature_id": "F-AS-05",
-        "result": "FAIL",
-        "description": "free_only=true 未返回 perCall=0 的 image alias；REST 与 MCP 均缺失",
-        "steps_to_reproduce": "1) 创建 image alias 并设置 alias/channel sellPrice.perCall=0 2) 调用 /api/v1/models?modality=image&free_only=true 与 MCP list_models(free_only=true,modality=image) 3) 观察该 alias 均未出现",
-        "evidence": "docs/test-reports/audit-sec-verifying-local-e2e-2026-04-13.json (F-AS-05)"
-      }
-    ]
-  },
+  "evaluator_feedback": null,
   "generator_handoff": {
     "completed_features": [
       "F-AS-01",
@@ -52,13 +38,13 @@
       "F-AS-02: list_models 已过滤 disabled model + 全 FAIL/禁用 channel 的别名",
       "F-AS-03: 回填脚本 scripts/backfill-supported-sizes.ts 已创建，需部署后执行 --apply",
       "F-AS-04: calculateCallCost 修复 perCall fallback 逻辑，alias 无 perCall 时回退到 channel",
-      "F-AS-05: free_only 逻辑已验证正确，空结果是因为当前无零定价模型（非代码问题）",
+      "F-AS-05 (fix round 1): MCP list_models 输出补 id 字段与 REST 对齐；/v1/models 非 production 绕过 Redis 缓存，避免本地 E2E 被陈旧缓存挡住；Prisma 扩展新增 Model/ModelAlias/Channel/AliasModelLink 写入时自动失效 models:list 缓存",
       "F-AS-06: 新增 sanitize-html.ts，日志 API 展示层转义 HTML 特殊字符",
       "F-AS-07: size 预校验在 /v1/images/generations 和 MCP generate_image 中实现"
     ]
   },
   "session_notes": {
-    "Kimi": "Generator 完成 AUDIT-SEC 全部 7 个 generator 功能。关键变更：sanitizeErrorMessage 增强（WeChat/电话/术语）、chat/completions 补充 sanitize、list_models 过滤 disabled model、image 计费 perCall fallback、XSS 转义、size 预校验。需在生产执行 backfill-supported-sizes.ts --apply。",
+    "Kimi": "Fixing round 1: F-AS-05 补丁。根因是 (1) MCP list_models 输出 name 字段但测试读 m.id，(2) REST /v1/models Redis 120s 缓存让新建别名无法在 L1 测试中立即可见，(3) 其他 admin 路径缺少缓存失效。三处都已修复。",
     "Reviewer": "verifying 完成：L1 本地 AUDIT-SEC 共 10 项断言，9 PASS/1 FAIL。失败集中在 free_only 对 perCall=0 图片模型过滤遗漏（REST/MCP 一致缺失）。已生成报告 docs/test-reports/AUDIT-SEC-verifying-2026-04-13.md 与原始证据 JSON，状态已转 fixing。"
   }
 }

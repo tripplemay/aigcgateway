@@ -1,4 +1,5 @@
 import { PrismaClient } from "@prisma/client";
+import { invalidateModelsListCache } from "@/lib/cache/models-cache";
 
 /**
  * 生产和开发都将实例挂到 globalThis，防止：
@@ -30,11 +31,116 @@ function createExtendedClient() {
       modelAlias: {
         async create({ args, query }) {
           ensureSellPriceUnit(args.data as Record<string, unknown>);
-          return query(args);
+          const res = await query(args);
+          invalidateModelsListCache();
+          return res;
         },
         async update({ args, query }) {
           ensureSellPriceUnit(args.data as Record<string, unknown>);
-          return query(args);
+          const res = await query(args);
+          invalidateModelsListCache();
+          return res;
+        },
+        async upsert({ args, query }) {
+          ensureSellPriceUnit(
+            (args as { update?: Record<string, unknown> }).update as
+              | Record<string, unknown>
+              | undefined,
+          );
+          ensureSellPriceUnit(
+            (args as { create?: Record<string, unknown> }).create as
+              | Record<string, unknown>
+              | undefined,
+          );
+          const res = await query(args);
+          invalidateModelsListCache();
+          return res;
+        },
+        async delete({ args, query }) {
+          const res = await query(args);
+          invalidateModelsListCache();
+          return res;
+        },
+        async deleteMany({ args, query }) {
+          const res = await query(args);
+          invalidateModelsListCache();
+          return res;
+        },
+        async updateMany({ args, query }) {
+          const res = await query(args);
+          invalidateModelsListCache();
+          return res;
+        },
+      },
+      model: {
+        async create({ args, query }) {
+          const res = await query(args);
+          invalidateModelsListCache();
+          return res;
+        },
+        async update({ args, query }) {
+          const res = await query(args);
+          invalidateModelsListCache();
+          return res;
+        },
+        async upsert({ args, query }) {
+          const res = await query(args);
+          invalidateModelsListCache();
+          return res;
+        },
+        async delete({ args, query }) {
+          const res = await query(args);
+          invalidateModelsListCache();
+          return res;
+        },
+        async updateMany({ args, query }) {
+          const res = await query(args);
+          invalidateModelsListCache();
+          return res;
+        },
+      },
+      channel: {
+        async create({ args, query }) {
+          const res = await query(args);
+          invalidateModelsListCache();
+          return res;
+        },
+        async update({ args, query }) {
+          const res = await query(args);
+          invalidateModelsListCache();
+          return res;
+        },
+        async upsert({ args, query }) {
+          const res = await query(args);
+          invalidateModelsListCache();
+          return res;
+        },
+        async delete({ args, query }) {
+          const res = await query(args);
+          invalidateModelsListCache();
+          return res;
+        },
+        async updateMany({ args, query }) {
+          const res = await query(args);
+          invalidateModelsListCache();
+          return res;
+        },
+      },
+      aliasModelLink: {
+        async create({ args, query }) {
+          const res = await query(args);
+          invalidateModelsListCache();
+          return res;
+        },
+        async delete({ args, query }) {
+          const res = await query(args);
+          invalidateModelsListCache();
+          return res;
+        },
+        async deleteMany({ args, query }) {
+          const res = await query(args);
+          invalidateModelsListCache();
+          return res;
         },
       },
     },

@@ -128,6 +128,7 @@ export function registerListModels(server: McpServer, opts: McpServerOptions): v
           const { supported_sizes: _stripSizes, ...capabilities } = rawCapabilities;
 
           const result: Record<string, unknown> = {
+            id: alias.alias,
             name: alias.alias,
             brand: alias.brand ?? "Unknown",
             modality: alias.modality.toLowerCase(),

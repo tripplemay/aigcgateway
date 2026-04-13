@@ -198,7 +198,11 @@ export async function GET(request: Request) {
   const freeOnly = url.searchParams.get("free_only") === "true";
   const cacheKey = modalityFilter ? `models:list:${modalityFilter}` : "models:list";
 
-  let json = await getModelsWithCache(cacheKey, modalityFilter);
+  // 非生产环境直接查询 DB，避免本地测试 / L1 E2E 被 120s 缓存挡住
+  let json =
+    process.env.NODE_ENV === "production"
+      ? await getModelsWithCache(cacheKey, modalityFilter)
+      : await queryModelsJSON(modalityFilter);
 
   // Post-filter by capability and free_only (applied after cache to avoid key explosion)
   if (capabilityFilter || freeOnly) {

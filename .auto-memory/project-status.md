@@ -4,11 +4,16 @@ description: AIGC Gateway 当前状态快照（覆盖写，≤30 行）
 type: project
 ---
 ## 当前批次
-- AUDIT-SEC：`fixing`（L1 验收 9/10 PASS，free_only/perCall=0 过滤失败待修复）
+- AUDIT-SEC：`reverifying`（fix round 1 完成，7/7 generator 完成）
 - 安全：上游错误脱敏增强、日志 XSS 转义
 - 数据：不可用模型过滤、supportedSizes 回填脚本、image 计费 perCall fallback
-- DX：generate_image size 预校验通过；free_only 仍需修复后复验
+- DX：generate_image size 预校验、free_only 修复（fix round 1）
 - **待执行**：生产环境执行 `npx tsx scripts/backfill-supported-sizes.ts --apply`
+
+## F-AS-05 修复（fix round 1）
+- MCP list_models 补 id 字段与 REST 对齐
+- /v1/models 非 production 环境绕过 Redis 缓存（避免本地 E2E 被 120s 陈旧缓存挡住）
+- Prisma 扩展新增 Model/ModelAlias/Channel/AliasModelLink 写入时自动 invalidateModelsListCache
 
 ## 后续批次
 - DX-POLISH：DX 改进（deprecated 标记、enum、错误消息统一等）
