@@ -292,6 +292,21 @@
       ],
       "confirmed_at": "2026-04-13",
       "priority": "medium"
+    },
+    {
+      "id": "BL-122",
+      "title": "Actions / Templates 页面加载时闪现错误中间态",
+      "description": "生产环境 /actions 和 /templates 页面在无数据时，进入页面会先瞬间显示 '加载中' 的表格+CTA Banner，然后才切换到 '暂无...' 空态，体验不好。根因是条件判断顺序错误：空状态判断里带了 `!loading`，加载期间走到数据分支，显示了假的表格结构和 CTA Banner。",
+      "root_cause": "src/app/(console)/actions/page.tsx:106 和 src/app/(console)/templates/page.tsx:156 的条件都是 `items.length === 0 && !search && !loading`，加载中时 !loading 为 false，fall through 到数据分支显示 '加载中' 行 + 外围的 CTA Banner 和表格头。",
+      "fix": "把 loading 作为最外层判断，优先于空态和数据态：`{loading ? <Skeleton/> : items.length === 0 && !search ? <EmptyState/> : <DataView/>}`。确保加载期间不显示假数据结构（表格头、CTA Banner 等装饰元素）。两个页面同样修复。",
+      "file": "src/app/(console)/actions/page.tsx + src/app/(console)/templates/page.tsx",
+      "lines": "actions:106-207, templates:156-~260",
+      "decisions": [
+        "同 BL-121 一起，作为 DX-POLISH 签收后的 UI bug 修复批次执行",
+        "两个页面的修复方式相同，可在同一个 feature 中一起改"
+      ],
+      "confirmed_at": "2026-04-13",
+      "priority": "medium"
     }
   ]
 }
