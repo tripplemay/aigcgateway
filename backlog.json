@@ -279,50 +279,19 @@
       "priority": "medium"
     },
     {
-      "id": "BL-121",
-      "title": "Models 页面底部「显示全部 N 个模型」按钮无效",
-      "description": "生产环境 /models 页面底部的「显示全部 20 个模型」按钮无 onClick 绑定，点击无响应。位置：src/app/(console)/models/page.tsx:365-369。",
-      "root_cause": "button 元素只有 className，缺少 onClick handler，是纯装饰元素",
-      "fix": "1) onClick 设置为 () => setShowAllModels(new Set(grouped.map(g => g.brand)))，一次性展开所有品牌分组；2) 加显示条件 grouped.some(g => g.models.length > MODELS_PER_PAGE && !showAllModels.has(g.brand))，所有品牌已展开时隐藏按钮，避免视觉欺骗",
-      "file": "src/app/(console)/models/page.tsx",
-      "lines": "363-370",
+      "id": "BL-124",
+      "title": "UI-UNIFY 批次 — 公共组件抽取 + 页面改造 + 设计系统规范",
+      "description": "全面统一 console 12 个页面的视觉/布局/交互。抽取 9 个缺失的公共组件（PageContainer、PageHeader、TableCard、KPICard、StatusChip、CTABanner、SectionCard、TableLoader、PageLoader），升级 EmptyState 和 Button，改造全部页面使用新组件，统一 heading scale。详细规格见 docs/specs/UI-UNIFY-spec.md。包含 13 个 generator + 1 个 codex 验收 = 14 条 features。",
       "decisions": [
-        "作为新 bug 单独修，不插入 DX-POLISH（已 building 中）",
-        "DX-POLISH 签收后作为 bug 修复批次或下个批次增补"
+        "等 DX-POLISH 签收部署后立即启动",
+        "合并并关闭 BL-121 (Models '显示全部' 按钮无效)、BL-122 (Actions/Templates 加载闪烁)、BL-123 (Templates tab 样式)",
+        "第一阶段先做组件基础设施，第二阶段改造页面，第三阶段验收",
+        "所有页面改造必须按 test-lifecycle.md 规则同 commit 补 regression test",
+        "PageContainer 支持 default (max-w-7xl) 和 narrow (max-w-5xl) 两种模式"
       ],
       "confirmed_at": "2026-04-13",
-      "priority": "medium"
-    },
-    {
-      "id": "BL-122",
-      "title": "Actions / Templates 页面加载时闪现错误中间态",
-      "description": "生产环境 /actions 和 /templates 页面在无数据时，进入页面会先瞬间显示 '加载中' 的表格+CTA Banner，然后才切换到 '暂无...' 空态，体验不好。根因是条件判断顺序错误：空状态判断里带了 `!loading`，加载期间走到数据分支，显示了假的表格结构和 CTA Banner。",
-      "root_cause": "src/app/(console)/actions/page.tsx:106 和 src/app/(console)/templates/page.tsx:156 的条件都是 `items.length === 0 && !search && !loading`，加载中时 !loading 为 false，fall through 到数据分支显示 '加载中' 行 + 外围的 CTA Banner 和表格头。",
-      "fix": "把 loading 作为最外层判断，优先于空态和数据态：`{loading ? <Skeleton/> : items.length === 0 && !search ? <EmptyState/> : <DataView/>}`。确保加载期间不显示假数据结构（表格头、CTA Banner 等装饰元素）。两个页面同样修复。",
-      "file": "src/app/(console)/actions/page.tsx + src/app/(console)/templates/page.tsx",
-      "lines": "actions:106-207, templates:156-~260",
-      "decisions": [
-        "同 BL-121 一起，作为 DX-POLISH 签收后的 UI bug 修复批次执行",
-        "两个页面的修复方式相同，可在同一个 feature 中一起改"
-      ],
-      "confirmed_at": "2026-04-13",
-      "priority": "medium"
-    },
-    {
-      "id": "BL-123",
-      "title": "Templates 页面 tab 样式不符合设计系统（与 settings 页面统一）",
-      "description": "生产环境 /templates 页面的「我的模板 / 公共模板库」tab 使用了 shadcn ui/tabs.tsx 默认组件，视觉风格（bg-muted/text-foreground/60）与设计系统 The Algorithmic Atelier 不一致。应与 /settings 页面的 tab 样式统一（pill 容器 + shadow-sm 激活态 + ds-* token）。",
-      "root_cause": "src/app/(console)/templates/page.tsx:141-151 使用 @/components/ui/tabs 的默认组件，其样式基于 shadcn 语义色，与项目设计系统 token 不匹配",
-      "fix": "参照 src/app/(console)/settings/page.tsx:244-259 的手写 pill 样式：外层 flex gap-1 bg-ds-surface-container-low rounded-xl p-1 w-fit；按钮 base px-5 py-2 rounded-lg text-sm font-bold；激活态 bg-ds-surface-container-lowest shadow-sm text-ds-primary；非激活 text-ds-on-surface-variant。保留 URL searchParams 同步逻辑（activeTab 从 useSearchParams 读写 ?tab=library）。不改 ui/tabs.tsx 全局组件，避免影响其他页面。",
-      "file": "src/app/(console)/templates/page.tsx",
-      "lines": "141-151 (Tab Bar only)",
-      "decisions": [
-        "本地手写样式对齐 settings 页面，不改全局 shadcn 组件",
-        "保留现有的 URL searchParams tab 同步逻辑",
-        "同 BL-121/BL-122 一起，作为 DX-POLISH 签收后的 UI bug 修复批次执行"
-      ],
-      "confirmed_at": "2026-04-13",
-      "priority": "medium"
+      "priority": "high",
+      "spec": "docs/specs/UI-UNIFY-spec.md"
     }
   ]
 }
