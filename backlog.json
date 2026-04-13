@@ -307,6 +307,22 @@
       ],
       "confirmed_at": "2026-04-13",
       "priority": "medium"
+    },
+    {
+      "id": "BL-123",
+      "title": "Templates 页面 tab 样式不符合设计系统（与 settings 页面统一）",
+      "description": "生产环境 /templates 页面的「我的模板 / 公共模板库」tab 使用了 shadcn ui/tabs.tsx 默认组件，视觉风格（bg-muted/text-foreground/60）与设计系统 The Algorithmic Atelier 不一致。应与 /settings 页面的 tab 样式统一（pill 容器 + shadow-sm 激活态 + ds-* token）。",
+      "root_cause": "src/app/(console)/templates/page.tsx:141-151 使用 @/components/ui/tabs 的默认组件，其样式基于 shadcn 语义色，与项目设计系统 token 不匹配",
+      "fix": "参照 src/app/(console)/settings/page.tsx:244-259 的手写 pill 样式：外层 flex gap-1 bg-ds-surface-container-low rounded-xl p-1 w-fit；按钮 base px-5 py-2 rounded-lg text-sm font-bold；激活态 bg-ds-surface-container-lowest shadow-sm text-ds-primary；非激活 text-ds-on-surface-variant。保留 URL searchParams 同步逻辑（activeTab 从 useSearchParams 读写 ?tab=library）。不改 ui/tabs.tsx 全局组件，避免影响其他页面。",
+      "file": "src/app/(console)/templates/page.tsx",
+      "lines": "141-151 (Tab Bar only)",
+      "decisions": [
+        "本地手写样式对齐 settings 页面，不改全局 shadcn 组件",
+        "保留现有的 URL searchParams tab 同步逻辑",
+        "同 BL-121/BL-122 一起，作为 DX-POLISH 签收后的 UI bug 修复批次执行"
+      ],
+      "confirmed_at": "2026-04-13",
+      "priority": "medium"
     }
   ]
 }
