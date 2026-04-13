@@ -7,7 +7,7 @@
       "title": "quickstart 整体重写（5 分钟跑通新手向导）",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "source": "BL-110",
       "acceptance": "1) 增加 Step 0：获取 API Key（带链接到 /keys 页）；2) Step 1: curl 零依赖第一次调用；3) Step 2: OpenAI SDK 集成（npm install openai，因为 API 是 OpenAI 兼容的，不再用不存在的 @guangai/aigc-sdk）；4) Step 3: 流式响应；5) Step 4: 进阶能力索引（链接到 /docs 各章节、/mcp-setup）；6) 模型名全部使用别名格式（如 gpt-4o-mini, claude-sonnet-4.6, deepseek-v3，不带 provider 前缀）；7) baseUrl 写死完整地址（https://aigc.guangai.ai/v1）；8) 全部文案走 i18n（zh-CN + en）；9) 使用 PageContainer + PageHeader 公共组件；10) tsc 通过"
     },
@@ -16,7 +16,7 @@
       "title": "docs 内容更新（参考手册定位）",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "source": "BL-090",
       "acceptance": "1) 所有模型名从 provider 前缀格式（deepseek/v3、openai/gpt-4o、zhipu/cogview-3-flash）改为别名格式（deepseek-v3、gpt-4o-mini、cogview-3）；2) chat 参数 Section 校对 top_p/frequency_penalty/tools/tool_choice 的实际描述（i18n key 已存在但需校对内容）；3) MCP tools 列表更新为最新 28 个（按 Account/Model/Action/Template/Logs 分组）；4) MCP Section 末尾保留链接到 /mcp-setup；5) tsc 通过"
     },
@@ -25,7 +25,7 @@
       "title": "两个页面交叉引用",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "1) quickstart 末尾 Step 4 链接到 docs 各 Section（chat/images/models/errors/limits/MCP）；2) docs 顶部增加提示 banner：'首次使用？先看 → /quickstart'；3) 链接走 next/Link 不是 a 标签；4) 中英文都走 i18n；5) tsc 通过"
     },
     {

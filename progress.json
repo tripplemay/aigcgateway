@@ -1,11 +1,11 @@
 {
-  "status": "building",
+  "status": "verifying",
   "user_goal": "DOCS-REFRESH — 重新定位 quickstart（5 分钟新手向导）和 docs（参考手册），更新模型名/i18n/MCP 工具列表，合并 BL-090 + BL-110",
   "total_features": 4,
-  "completed_features": 0,
+  "completed_features": 3,
   "fix_rounds": 0,
-  "current_sprint": null,
-  "last_updated": "2026-04-13T10:00:00Z",
+  "current_sprint": "F-DR-04",
+  "last_updated": "2026-04-13T13:30:00Z",
   "reference_docs": [
     "docs/specs/DOCS-REFRESH-spec.md"
   ],
@@ -19,7 +19,7 @@
   "evaluator_feedback": null,
   "generator_handoff": null,
   "session_notes": {
-    "Kimi": "Planner 启动 DOCS-REFRESH 批次（3 generator + 1 codex）。合并 BL-090（docs 内容更新）+ BL-110（quickstart 重写）。核心定位：quickstart = 5 分钟新手向导（curl + OpenAI SDK），docs = 完整参考手册。两页面交叉引用。UI-UNIFY 已签收。生产环境的 fix-dp-06-model-data.ts --apply 已执行。",
+    "Kimi": "Generator 完成 DOCS-REFRESH 全部 3 条（F-DR-01~03）。F-DR-01: quickstart 整体重写为 5 步（Step 0 获取 Key + curl + OpenAI SDK + 流式 + 进阶卡片网格），全部 i18n（zh-CN+en），用 PageContainer narrow + PageHeader，模型名用 deepseek-v3/gpt-4o-mini/claude-sonnet-4-6 别名，baseUrl 写死 https://aigc.guangai.ai/v1，删除自研 SDK，改用官方 openai 包。F-DR-02: docs 校对 — 给 Section 加 id（chat/images/models/errors/rate-limits/mcp）+ scroll-mt-20，curl 例子加 https://aigc.guangai.ai 完整前缀，model 例子改 gpt-4o-mini/claude-sonnet-4-6/deepseek-v3。MCP 28 个工具列表已正确（之前 UI-UNIFY 阶段已对齐），无需改动。F-DR-03: docs 顶部加 quickstart banner（next/Link, i18n），quickstart Step 4 已用 next/Link 链接到 /docs#chat 等。tsc clean。交 Codex Reviewer 做 F-DR-04 全量验收。",
     "Reviewer": null
   }
 }

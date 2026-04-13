@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { Copy, Check } from "lucide-react";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { PageContainer } from "@/components/page-container";
@@ -31,9 +32,17 @@ function Code({ children }: { children: string }) {
   );
 }
 
-function Section({ title, children }: { title: string; children: React.ReactNode }) {
+function Section({
+  title,
+  id,
+  children,
+}: {
+  title: string;
+  id?: string;
+  children: React.ReactNode;
+}) {
   return (
-    <Card className="mb-6">
+    <Card className="mb-6 scroll-mt-20" id={id}>
       <CardHeader>
         <CardTitle className="text-base">{title}</CardTitle>
       </CardHeader>
@@ -48,15 +57,29 @@ export default function DocsPage() {
     <PageContainer size="narrow" data-testid="docs-page">
       <PageHeader title={t("title")} subtitle={t("description")} />
 
+      <Link
+        href="/quickstart"
+        data-testid="docs-quickstart-banner"
+        className="flex items-center justify-between gap-4 px-5 py-4 rounded-xl bg-gradient-to-r from-ds-primary/5 to-ds-primary-container/10 border border-ds-primary/15 hover:from-ds-primary/10 hover:to-ds-primary-container/20 transition-colors"
+      >
+        <div className="flex items-center gap-3 min-w-0">
+          <span className="material-symbols-outlined text-ds-primary">rocket_launch</span>
+          <span className="text-sm font-bold text-ds-on-surface">{t("quickstartBannerText")}</span>
+        </div>
+        <span className="text-sm font-bold text-ds-primary flex-shrink-0">
+          {t("quickstartBannerCta")}
+        </span>
+      </Link>
+
       <Section title={t("secAuth")}>
         <p className="text-sm mb-3">{t("authDesc")}</p>
         <Code>{`Authorization: Bearer pk_your_api_key`}</Code>
       </Section>
 
-      <Section title={t("secChat")}>
+      <Section title={t("secChat")} id="chat">
         <p className="text-sm mb-3">{t("chatDesc")}</p>
-        <Code>{`curl -X POST /v1/chat/completions \\
-  -H "Authorization: Bearer pk_..." \\
+        <Code>{`curl https://aigc.guangai.ai/v1/chat/completions \\
+  -H "Authorization: Bearer pk_your_api_key" \\
   -H "Content-Type: application/json" \\
   -d '{
     "model": "deepseek-v3",
@@ -70,7 +93,7 @@ export default function DocsPage() {
           <p>
             <code className="bg-ds-surface-container-low px-1 rounded">model</code>{" "}
             <Badge variant="secondary">{t("required")}</Badge> — {t("paramModel")}{" "}
-            <code>gpt-4o</code>
+            <code>gpt-4o-mini</code>, <code>claude-sonnet-4-6</code>, <code>deepseek-v3</code>
           </p>
           <p>
             <code className="bg-ds-surface-container-low px-1 rounded">messages</code>{" "}
@@ -107,10 +130,10 @@ export default function DocsPage() {
         </div>
       </Section>
 
-      <Section title={t("secImages")}>
+      <Section title={t("secImages")} id="images">
         <p className="text-sm mb-3">{t("imagesDesc")}</p>
-        <Code>{`curl -X POST /v1/images/generations \\
-  -H "Authorization: Bearer pk_..." \\
+        <Code>{`curl https://aigc.guangai.ai/v1/images/generations \\
+  -H "Authorization: Bearer pk_your_api_key" \\
   -H "Content-Type: application/json" \\
   -d '{
     "model": "cogview-3-flash",
@@ -119,11 +142,11 @@ export default function DocsPage() {
   }'`}</Code>
       </Section>
 
-      <Section title={t("secModels")}>
+      <Section title={t("secModels")} id="models">
         <p className="text-sm mb-3">{t("modelsDesc")}</p>
-        <Code>{`curl /v1/models
-curl /v1/models?modality=text
-curl /v1/models?modality=image`}</Code>
+        <Code>{`curl https://aigc.guangai.ai/v1/models
+curl https://aigc.guangai.ai/v1/models?modality=text
+curl https://aigc.guangai.ai/v1/models?modality=image`}</Code>
       </Section>
 
       <Section title={t("secHeaders")}>
@@ -147,7 +170,7 @@ curl /v1/models?modality=image`}</Code>
         </div>
       </Section>
 
-      <Section title={t("secErrors")}>
+      <Section title={t("secErrors")} id="errors">
         <div className="text-sm space-y-1">
           <p>
             <Badge variant="destructive">401</Badge> <code>invalid_api_key</code> — {t("err401")}
@@ -181,7 +204,7 @@ curl /v1/models?modality=image`}</Code>
 }`}</Code>
       </Section>
 
-      <Section title={t("secRateLimits")}>
+      <Section title={t("secRateLimits")} id="rate-limits">
         <div className="text-sm space-y-1">
           <p>
             <strong>RPM</strong>: {t("rpmDesc")}
@@ -196,7 +219,7 @@ curl /v1/models?modality=image`}</Code>
         </div>
       </Section>
 
-      <Section title={t("secMcp")}>
+      <Section title={t("secMcp")} id="mcp">
         <p className="text-sm mb-3">{t("mcpDesc")}</p>
         <p className="text-sm mb-2">
           <strong>{t("endpoint")}</strong>{" "}
