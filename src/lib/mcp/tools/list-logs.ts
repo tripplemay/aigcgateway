@@ -25,7 +25,12 @@ export function registerListLogs(server: McpServer, opts: McpServerOptions): voi
         .max(50)
         .optional()
         .describe("Number of logs to return, default 10, max 50"),
-      model: z.string().optional().describe("Filter by model name, e.g. openai/gpt-4o"),
+      model: z
+        .string()
+        .optional()
+        .describe(
+          "Filter by model name (canonical alias from list_models), e.g. gpt-4o-mini, claude-sonnet-4.6, deepseek-v3",
+        ),
       status: z.enum(["success", "error", "filtered"]).optional().describe("Filter by status"),
       search: z.string().optional().describe("Full-text search in prompt content"),
     },

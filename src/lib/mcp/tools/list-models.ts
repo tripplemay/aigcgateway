@@ -27,10 +27,18 @@ export function registerListModels(server: McpServer, opts: McpServerOptions): v
         .optional()
         .describe("Filter by modality: text or image. Omit to return all models."),
       capability: z
-        .string()
+        .enum([
+          "function_calling",
+          "vision",
+          "reasoning",
+          "search",
+          "json_mode",
+          "streaming",
+          "system_prompt",
+        ])
         .optional()
         .describe(
-          "Filter by capability: function_calling, vision, reasoning, search, json_mode, streaming. Only models with this capability set to true are returned.",
+          "Filter by capability (enum). Only models with this capability set to true are returned.",
         ),
       free_only: z
         .boolean()

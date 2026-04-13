@@ -49,7 +49,9 @@ export function registerGetTemplateDetail(server: McpServer, opts: McpServerOpti
 
       if (!template) {
         return {
-          content: [{ type: "text" as const, text: `Template "${template_id}" not found.` }],
+          content: [
+            { type: "text" as const, text: `Template "${template_id}" not found in this project.` },
+          ],
           isError: true,
         };
       }

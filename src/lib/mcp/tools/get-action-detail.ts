@@ -22,7 +22,12 @@ export function registerGetActionDetail(server: McpServer, opts: McpServerOption
     async ({ action_id }) => {
       if (!projectId) {
         return {
-          content: [{ type: "text" as const, text: "[no_project] No project found. Use create_project to create one." }],
+          content: [
+            {
+              type: "text" as const,
+              text: "[no_project] No project found. Use create_project to create one.",
+            },
+          ],
           isError: true,
         };
       }
@@ -36,7 +41,9 @@ export function registerGetActionDetail(server: McpServer, opts: McpServerOption
 
       if (!action) {
         return {
-          content: [{ type: "text" as const, text: `Action "${action_id}" not found.` }],
+          content: [
+            { type: "text" as const, text: `Action "${action_id}" not found in this project.` },
+          ],
           isError: true,
         };
       }
