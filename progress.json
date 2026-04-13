@@ -1,17 +1,17 @@
 {
-  "status": "verifying",
-  "user_goal": "UI-UNIFY — 抽取 9 个缺失的公共组件 + 改造 12 个 console 页面 + 统一 heading scale + 合并 BL-121/122/123 bug 修复",
-  "total_features": 13,
-  "completed_features": 12,
+  "status": "building",
+  "user_goal": "DOCS-REFRESH — 重新定位 quickstart（5 分钟新手向导）和 docs（参考手册），更新模型名/i18n/MCP 工具列表，合并 BL-090 + BL-110",
+  "total_features": 4,
+  "completed_features": 0,
   "fix_rounds": 0,
-  "current_sprint": "F-UU-13",
-  "last_updated": "2026-04-13T12:00:00Z",
+  "current_sprint": null,
+  "last_updated": "2026-04-13T10:00:00Z",
   "reference_docs": [
-    "docs/specs/UI-UNIFY-spec.md"
+    "docs/specs/DOCS-REFRESH-spec.md"
   ],
   "role_assignments": null,
   "docs": {
-    "spec": "docs/specs/UI-UNIFY-spec.md",
+    "spec": "docs/specs/DOCS-REFRESH-spec.md",
     "test_cases": null,
     "signoff": null,
     "framework_reviewed": false
@@ -19,7 +19,7 @@
   "evaluator_feedback": null,
   "generator_handoff": null,
   "session_notes": {
-    "Kimi": "Generator 完成 UI-UNIFY 全部 12 条（F-UU-01~12），tsc 全程 clean。Commits: Phase1 d7dbf58（9 组件 + EmptyState 升级 + Button gradient-primary），Phase2-part1 d275877（actions/templates/keys/models + BL-121/122 + e2e step 16~18），Phase2-part2 待提交（logs/usage/balance/dashboard/settings/docs/quickstart/mcp-setup + BL-123 templates pill tabs + heading scale + PAGE-LAYOUT.md + e2e step 19）。BL-123 用手写 pill 替换 shadcn Tabs，保留 ?tab=library URL 同步。globals.css 新增 .heading-1/2/3 utilities。交 Codex Reviewer 做 F-UU-13 全量验收。DX-POLISH 生产 fix-dp-06-model-data.ts --apply 仍未执行。",
+    "Kimi": "Planner 启动 DOCS-REFRESH 批次（3 generator + 1 codex）。合并 BL-090（docs 内容更新）+ BL-110（quickstart 重写）。核心定位：quickstart = 5 分钟新手向导（curl + OpenAI SDK），docs = 完整参考手册。两页面交叉引用。UI-UNIFY 已签收。生产环境的 fix-dp-06-model-data.ts --apply 已执行。",
     "Reviewer": null
   }
 }

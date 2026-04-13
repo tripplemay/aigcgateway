@@ -1,110 +1,40 @@
 {
-  "batch": "UI-UNIFY",
+  "batch": "DOCS-REFRESH",
   "created_at": "2026-04-13",
   "features": [
     {
-      "id": "F-UU-01",
-      "title": "新建 PageContainer + PageHeader 组件",
+      "id": "F-DR-01",
+      "title": "quickstart 整体重写（5 分钟跑通新手向导）",
       "priority": "high",
       "executor": "generator",
-      "status": "completed",
-      "acceptance": "1) src/components/page-container.tsx 支持 size='default'(max-w-7xl) | 'narrow'(max-w-5xl)，统一 mx-auto space-y-8；2) src/components/page-header.tsx 支持 title/subtitle/badge/actions 四个 props；3) h1 统一为 'text-4xl font-extrabold tracking-tight font-[var(--font-heading)] text-ds-on-surface'；4) 组件自身有 JSDoc；5) tsc 通过"
+      "status": "pending",
+      "source": "BL-110",
+      "acceptance": "1) 增加 Step 0：获取 API Key（带链接到 /keys 页）；2) Step 1: curl 零依赖第一次调用；3) Step 2: OpenAI SDK 集成（npm install openai，因为 API 是 OpenAI 兼容的，不再用不存在的 @guangai/aigc-sdk）；4) Step 3: 流式响应；5) Step 4: 进阶能力索引（链接到 /docs 各章节、/mcp-setup）；6) 模型名全部使用别名格式（如 gpt-4o-mini, claude-sonnet-4.6, deepseek-v3，不带 provider 前缀）；7) baseUrl 写死完整地址（https://aigc.guangai.ai/v1）；8) 全部文案走 i18n（zh-CN + en）；9) 使用 PageContainer + PageHeader 公共组件；10) tsc 通过"
     },
     {
-      "id": "F-UU-02",
-      "title": "新建 TableCard + TableLoader 组件",
+      "id": "F-DR-02",
+      "title": "docs 内容更新（参考手册定位）",
       "priority": "high",
       "executor": "generator",
-      "status": "completed",
-      "acceptance": "1) src/components/table-card.tsx 提供 title + optional search slot + children（表格内容）；2) 外壳样式统一为 rounded-2xl shadow-sm，表头栏 px-6 py-5 border-b；3) src/components/table-loader.tsx 支持 rows 和 colSpan props，返回 Skeleton 行；4) tsc 通过"
+      "status": "pending",
+      "source": "BL-090",
+      "acceptance": "1) 所有模型名从 provider 前缀格式（deepseek/v3、openai/gpt-4o、zhipu/cogview-3-flash）改为别名格式（deepseek-v3、gpt-4o-mini、cogview-3）；2) chat 参数 Section 校对 top_p/frequency_penalty/tools/tool_choice 的实际描述（i18n key 已存在但需校对内容）；3) MCP tools 列表更新为最新 28 个（按 Account/Model/Action/Template/Logs 分组）；4) MCP Section 末尾保留链接到 /mcp-setup；5) tsc 通过"
     },
     {
-      "id": "F-UU-03",
-      "title": "新建 KPICard + StatusChip 组件",
+      "id": "F-DR-03",
+      "title": "两个页面交叉引用",
       "priority": "medium",
       "executor": "generator",
-      "status": "completed",
-      "acceptance": "1) src/components/kpi-card.tsx 支持 label/value/trend props，视觉匹配 dashboard/usage/balance 现有实现的中位值；2) src/components/status-chip.tsx 支持 variant='success'|'error'|'warning'|'info'，统一 rounded text-[10px] font-bold uppercase tracking-tight 风格；3) tsc 通过"
+      "status": "pending",
+      "acceptance": "1) quickstart 末尾 Step 4 链接到 docs 各 Section（chat/images/models/errors/limits/MCP）；2) docs 顶部增加提示 banner：'首次使用？先看 → /quickstart'；3) 链接走 next/Link 不是 a 标签；4) 中英文都走 i18n；5) tsc 通过"
     },
     {
-      "id": "F-UU-04",
-      "title": "新建 CTABanner + SectionCard + PageLoader 组件",
-      "priority": "medium",
-      "executor": "generator",
-      "status": "completed",
-      "acceptance": "1) src/components/cta-banner.tsx 从 actions/templates 页面提取（深色背景+radial-gradient+右侧 action）；2) src/components/section-card.tsx 简单 rounded-2xl 容器包装器；3) src/components/page-loader.tsx 页面级加载占位；4) tsc 通过"
-    },
-    {
-      "id": "F-UU-05",
-      "title": "升级 EmptyState 为通用组件",
-      "priority": "medium",
-      "executor": "generator",
-      "status": "completed",
-      "acceptance": "1) 升级 src/components/empty-state.tsx 为通用 API：icon/title/description/action props；2) 保留现有 project-empty 使用方式（向后兼容或迁移现有调用点）；3) actions/templates/keys 的空态可直接复用；4) tsc 通过"
-    },
-    {
-      "id": "F-UU-06",
-      "title": "Button 扩展 gradient-primary variant",
-      "priority": "low",
-      "executor": "generator",
-      "status": "completed",
-      "acceptance": "1) src/components/ui/button.tsx 增加 variant='gradient-primary'，匹配 'bg-gradient-to-r from-ds-primary to-ds-primary-container text-white rounded-full shadow-lg shadow-ds-primary/20 active:scale-95' 样式；2) 不破坏现有 button 的其他 variant；3) tsc 通过"
-    },
-    {
-      "id": "F-UU-07",
-      "title": "改造 actions + templates 页面",
-      "priority": "high",
-      "executor": "generator",
-      "status": "completed",
-      "acceptance": "1) 两个页面使用 PageContainer + PageHeader + TableCard + TableLoader + EmptyState + CTABanner + Button gradient variant；2) 修复 BL-122 加载闪烁（loading 最外层判断优先，不显示假表格+CTA Banner）；3) 外层容器统一 PageContainer default；4) tsc 通过；5) scripts/e2e-test.ts 或 scripts/test-mcp.ts 增加 regression test 覆盖 BL-122"
-    },
-    {
-      "id": "F-UU-08",
-      "title": "改造 keys + models 页面",
-      "priority": "high",
-      "executor": "generator",
-      "status": "completed",
-      "acceptance": "1) keys 使用 PageContainer + PageHeader + TableCard + StatusChip；2) models 使用 PageContainer + PageHeader，修复 BL-121（底部'显示全部 N 个模型'按钮补 onClick，一次性展开所有品牌 + 全部展开时隐藏按钮）；3) 标题字号统一 text-4xl；4) tsc 通过；5) 增加 regression test 覆盖 BL-121"
-    },
-    {
-      "id": "F-UU-09",
-      "title": "改造 logs + usage + balance + dashboard 页面",
-      "priority": "high",
-      "executor": "generator",
-      "status": "completed",
-      "acceptance": "1) 4 个页面统一使用 PageContainer default + PageHeader；2) logs/dashboard 补上 max-w-7xl（之前是 Fragment 无 container）；3) KPI 卡全部使用 KPICard；4) 状态标签统一使用 StatusChip；5) tsc 通过"
-    },
-    {
-      "id": "F-UU-10",
-      "title": "改造 settings + docs + quickstart 页面",
-      "priority": "medium",
-      "executor": "generator",
-      "status": "completed",
-      "acceptance": "1) settings/docs/quickstart 使用 PageContainer size='narrow' (max-w-5xl)；2) docs 修复缺 mx-auto 的 bug（内容贴左）；3) settings 的手写 pill tabs 样式保留或抽取为 PillTabs 组件；4) tsc 通过"
-    },
-    {
-      "id": "F-UU-11",
-      "title": "改造 mcp-setup 页面 + templates tab 统一（BL-123）",
-      "priority": "medium",
-      "executor": "generator",
-      "status": "completed",
-      "acceptance": "1) mcp-setup 使用 PageContainer；2) templates 页面的'我的模板/公共模板库' tab 改为与 settings 一致的手写 pill 样式（参照 settings/page.tsx:244-259）；3) 保留 URL searchParams ?tab=library 同步逻辑；4) 不改 shadcn ui/tabs.tsx 全局组件；5) tsc 通过；6) 增加 regression test 覆盖 BL-123"
-    },
-    {
-      "id": "F-UU-12",
-      "title": "字体 / heading scale 统一 + 设计系统文档",
-      "priority": "medium",
-      "executor": "generator",
-      "status": "completed",
-      "acceptance": "1) tailwind.config 或 globals.css 定义统一的 heading 工具类或 font-size 规范；2) 所有 PageHeader / section h2 / subsection h3 使用统一规则；3) 消除 font-extrabold / font-black / font-bold 在同类元素上的混乱；4) 新建 design-draft/Layout Shell - AIGC Gateway/PAGE-LAYOUT.md 记录 PageHeader/PageContainer/TableCard 等组件规范；5) tsc 通过"
-    },
-    {
-      "id": "F-UU-13",
-      "title": "UI-UNIFY 全量验收",
+      "id": "F-DR-04",
+      "title": "DOCS-REFRESH 全量验收",
       "priority": "high",
       "executor": "codex",
       "status": "pending",
-      "acceptance": "1) 12 个 console 页面视觉一致（标题字号、外层容器宽度、对齐方式）；2) BL-121/122/123 已修复且有 regression test 覆盖；3) 新增的 9 个公共组件在各页面正确使用；4) 签收报告生成"
+      "acceptance": "1) /quickstart 4 步均可正常运行（curl 实测成功）；2) /docs 所有 curl 示例可执行；3) 模型名全部为别名格式，无 provider 前缀残留；4) i18n 中英文一致；5) 两页面交叉引用可点击；6) 签收报告生成"
     }
   ]
 }
