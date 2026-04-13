@@ -1,9 +1,9 @@
 {
   "batch": "AUDIT-SEC",
-  "generatedAt": "2026-04-13T00:51:44.052Z",
+  "generatedAt": "2026-04-13T01:06:48.519Z",
   "environment": "http://localhost:3099",
-  "pass": 9,
-  "fail": 1,
+  "pass": 10,
+  "fail": 0,
   "checks": [
     {
       "id": "F-AS-00-smoke-mcp-initialize",
@@ -23,27 +23,27 @@
     {
       "id": "F-AS-02-list_models-filter-unavailable",
       "ok": true,
-      "detail": "visible=7"
+      "detail": "visible=2"
     },
     {
       "id": "F-AS-03-image-model-supportedSizes-present",
       "ok": true,
-      "detail": "models=7"
+      "detail": "models=2"
     },
     {
       "id": "F-AS-04-image-billing-cost-and-balance",
       "ok": true,
-      "detail": "traceId=trc_b43b90lmm96bgc8tid12b4oe cost=$0.50000000 balanceDelta=0.50000000"
+      "detail": "traceId=trc_vam11hbdces0iaaq1bvypqfn cost=$0.50000000 balanceDelta=0.50000000"
     },
     {
       "id": "F-AS-05-free_only-filter",
-      "ok": false,
-      "detail": "free alias missing: rest=false mcp=false alias=auditsec_free_alias_1776041503798_75w2td"
+      "ok": true,
+      "detail": "restFreeCount=1 mcpFreeCount=1"
     },
     {
       "id": "F-AS-06-log-xss-escaped",
       "ok": true,
-      "detail": "traceId=trc_b43b90lmm96bgc8tid12b4oe"
+      "detail": "traceId=trc_vam11hbdces0iaaq1bvypqfn"
     },
     {
       "id": "F-AS-07-invalid-size-precheck-rest",
@@ -53,7 +53,7 @@
     {
       "id": "F-AS-07-invalid-size-precheck-mcp",
       "ok": true,
-      "detail": "{\"code\":\"invalid_size\",\"message\":\"Invalid size \\\"999x999\\\" for model \\\"auditsec_image_alias_1776041503798_zev80r\\\". Supp"
+      "detail": "{\"code\":\"invalid_size\",\"message\":\"Invalid size \\\"999x999\\\" for model \\\"auditsec_image_alias_1776042408132_yisakd\\\". Supp"
     }
   ]
 }

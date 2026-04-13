@@ -1,11 +1,11 @@
 {
-  "status": "reverifying",
+  "status": "done",
   "user_goal": "AUDIT-SEC — 安全 + 数据修补：上游错误脱敏、不可用模型过滤、supportedSizes 回填、image 计费修复、free_only 修复、XSS 转义、size 预校验",
   "total_features": 8,
-  "completed_features": 7,
+  "completed_features": 8,
   "fix_rounds": 1,
   "current_sprint": null,
-  "last_updated": "2026-04-13T03:00:00Z",
+  "last_updated": "2026-04-13T01:07:30Z",
   "reference_docs": [
     "tests/mcp-test/reports-20260412/all-assertions-20260412.json"
   ],
@@ -13,10 +13,16 @@
   "docs": {
     "spec": null,
     "test_cases": null,
-    "signoff": null,
+    "signoff": "docs/test-reports/AUDIT-SEC-signoff-2026-04-13.md",
     "framework_reviewed": false
   },
-  "evaluator_feedback": null,
+  "evaluator_feedback": {
+    "summary": "AUDIT-SEC 复验通过：10/10 PASS（含 F-AS-05）",
+    "pass_count": 10,
+    "partial_count": 0,
+    "fail_count": 0,
+    "issues": []
+  },
   "generator_handoff": {
     "completed_features": [
       "F-AS-01",
@@ -45,6 +51,6 @@
   },
   "session_notes": {
     "Kimi": "Fixing round 1: F-AS-05 补丁。根因是 (1) MCP list_models 输出 name 字段但测试读 m.id，(2) REST /v1/models Redis 120s 缓存让新建别名无法在 L1 测试中立即可见，(3) 其他 admin 路径缺少缓存失效。三处都已修复。",
-    "Reviewer": "verifying 完成：L1 本地 AUDIT-SEC 共 10 项断言，9 PASS/1 FAIL。失败集中在 free_only 对 perCall=0 图片模型过滤遗漏（REST/MCP 一致缺失）。已生成报告 docs/test-reports/AUDIT-SEC-verifying-2026-04-13.md 与原始证据 JSON，状态已转 fixing。"
+    "Reviewer": "reverifying 完成：F-AS-05 复验通过（REST/MCP free_only 均返回 perCall=0 image）。全量回归 10/10 PASS，已生成 signoff 并置 done。"
   }
 }

@@ -63,7 +63,7 @@
       "title": "AUDIT-SEC 全量验收",
       "priority": "high",
       "executor": "codex",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "1) 错误消息无上游信息泄露；2) list_models 不含不可用模型；3) 所有 image 模型有 supportedSizes；4) image 调用正确扣费；5) free_only 过滤正常；6) 日志无 XSS 风险；7) 无效 size 返回 invalid_size + 列表；8) 签收报告生成"
     }
   ]
