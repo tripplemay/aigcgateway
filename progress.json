@@ -1,25 +1,25 @@
 {
-  "status": "done",
-  "user_goal": "DOCS-REFRESH — 重新定位 quickstart（5 分钟新手向导）和 docs（参考手册），更新模型名/i18n/MCP 工具列表，合并 BL-090 + BL-110",
-  "total_features": 4,
-  "completed_features": 4,
+  "status": "building",
+  "user_goal": "UI-UNIFY-FIX — UI-UNIFY 收尾批次：修正 PageContainer size、移除 badge、统一 section heading 工具类、主按钮 gradient variant 普及",
+  "total_features": 6,
+  "completed_features": 0,
   "fix_rounds": 0,
-  "current_sprint": "F-DR-04",
-  "last_updated": "2026-04-13T10:10:00Z",
+  "current_sprint": null,
+  "last_updated": "2026-04-13T15:00:00Z",
   "reference_docs": [
-    "docs/specs/DOCS-REFRESH-spec.md"
+    "docs/specs/UI-UNIFY-FIX-spec.md"
   ],
   "role_assignments": null,
   "docs": {
-    "spec": "docs/specs/DOCS-REFRESH-spec.md",
+    "spec": "docs/specs/UI-UNIFY-FIX-spec.md",
     "test_cases": null,
-    "signoff": "docs/test-reports/docs-refresh-signoff-2026-04-13.md",
+    "signoff": null,
     "framework_reviewed": false
   },
-  "evaluator_feedback": "F-DR-04 L1 本地验收通过（12/12）。quickstart/docs 示例命令均可执行；chat/images 在本地返回 402 insufficient_balance（符合 L1 无真实 provider/余额扣费场景）；模型名无 provider 前缀残留；quickstart/docs 交叉链接存在且可点击；docs/quickstart zh/en i18n key 集一致。详见 docs/test-reports/docs-refresh-fdr04-verifying-e2e-2026-04-13.json 与 signoff 报告。",
+  "evaluator_feedback": null,
   "generator_handoff": null,
   "session_notes": {
-    "Kimi": "Generator 完成 DOCS-REFRESH 全部 3 条（F-DR-01~03）。F-DR-01: quickstart 整体重写为 5 步（Step 0 获取 Key + curl + OpenAI SDK + 流式 + 进阶卡片网格），全部 i18n（zh-CN+en），用 PageContainer narrow + PageHeader，模型名用 deepseek-v3/gpt-4o-mini/claude-sonnet-4-6 别名，baseUrl 写死 https://aigc.guangai.ai/v1，删除自研 SDK，改用官方 openai 包。F-DR-02: docs 校对 — 给 Section 加 id（chat/images/models/errors/rate-limits/mcp）+ scroll-mt-20，curl 例子加 https://aigc.guangai.ai 完整前缀，model 例子改 gpt-4o-mini/claude-sonnet-4-6/deepseek-v3。MCP 28 个工具列表已正确（之前 UI-UNIFY 阶段已对齐），无需改动。F-DR-03: docs 顶部加 quickstart banner（next/Link, i18n），quickstart Step 4 已用 next/Link 链接到 /docs#chat 等。tsc clean。交 Codex Reviewer 做 F-DR-04 全量验收。",
-    "Reviewer": "已完成 DOCS-REFRESH 的 F-DR-04 全量验收。L1（localhost:3099）执行 quickstart/docs 命令链与静态一致性核验，总计 12 项全部通过。chat/images 在本地受余额与 provider 条件限制返回 402，但请求链路、参数与错误结构符合预期；models 三条 curl 均 200。已输出 JSON 证据与签收报告，状态更新为 done。"
+    "Kimi": "Planner 启动 UI-UNIFY-FIX 批次（5 generator + 1 codex = 6 条）。来源：UI-UNIFY 签收后生产验证发现 5 处不彻底执行（size/badge/keys 按钮位置/heading 工具类/gradient variant）。属于 UI-UNIFY 收尾批次，不是新需求。Evaluator 验收使用 grep 机械化检查。DOCS-REFRESH 已签收，UI-UNIFY 已部署。",
+    "Reviewer": null
   }
 }

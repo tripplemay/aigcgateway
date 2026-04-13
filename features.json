@@ -1,40 +1,54 @@
 {
-  "batch": "DOCS-REFRESH",
+  "batch": "UI-UNIFY-FIX",
   "created_at": "2026-04-13",
   "features": [
     {
-      "id": "F-DR-01",
-      "title": "quickstart 整体重写（5 分钟跑通新手向导）",
+      "id": "F-UF-01",
+      "title": "PageContainer size 选择修正",
       "priority": "high",
       "executor": "generator",
-      "status": "completed",
-      "source": "BL-110",
-      "acceptance": "1) 增加 Step 0：获取 API Key（带链接到 /keys 页）；2) Step 1: curl 零依赖第一次调用；3) Step 2: OpenAI SDK 集成（npm install openai，因为 API 是 OpenAI 兼容的，不再用不存在的 @guangai/aigc-sdk）；4) Step 3: 流式响应；5) Step 4: 进阶能力索引（链接到 /docs 各章节、/mcp-setup）；6) 模型名全部使用别名格式（如 gpt-4o-mini, claude-sonnet-4.6, deepseek-v3，不带 provider 前缀）；7) baseUrl 写死完整地址（https://aigc.guangai.ai/v1）；8) 全部文案走 i18n（zh-CN + en）；9) 使用 PageContainer + PageHeader 公共组件；10) tsc 通过"
+      "status": "pending",
+      "acceptance": "1) settings/page.tsx 从 size='narrow' 改为默认 default（max-w-7xl）；2) mcp-setup/page.tsx 从默认 default 改为 size='narrow'（max-w-5xl）；3) 其他页面 size 不变；4) tsc 通过"
     },
     {
-      "id": "F-DR-02",
-      "title": "docs 内容更新（参考手册定位）",
-      "priority": "high",
-      "executor": "generator",
-      "status": "completed",
-      "source": "BL-090",
-      "acceptance": "1) 所有模型名从 provider 前缀格式（deepseek/v3、openai/gpt-4o、zhipu/cogview-3-flash）改为别名格式（deepseek-v3、gpt-4o-mini、cogview-3）；2) chat 参数 Section 校对 top_p/frequency_penalty/tools/tool_choice 的实际描述（i18n key 已存在但需校对内容）；3) MCP tools 列表更新为最新 28 个（按 Account/Model/Action/Template/Logs 分组）；4) MCP Section 末尾保留链接到 /mcp-setup；5) tsc 通过"
-    },
-    {
-      "id": "F-DR-03",
-      "title": "两个页面交叉引用",
+      "id": "F-UF-02",
+      "title": "统一 PageHeader badge 规则（移除 keys/mcp-setup badge）",
       "priority": "medium",
       "executor": "generator",
-      "status": "completed",
-      "acceptance": "1) quickstart 末尾 Step 4 链接到 docs 各 Section（chat/images/models/errors/limits/MCP）；2) docs 顶部增加提示 banner：'首次使用？先看 → /quickstart'；3) 链接走 next/Link 不是 a 标签；4) 中英文都走 i18n；5) tsc 通过"
+      "status": "pending",
+      "acceptance": "1) 移除 keys 的 'infrastructureSecurity' badge；2) 移除 mcp-setup 的 badge；3) 所有 12 个 console 页面 PageHeader 不再使用 badge prop（保留组件 API 供未来按需用）；4) 删除相关 i18n key（infrastructureSecurity 等）；5) tsc 通过"
     },
     {
-      "id": "F-DR-04",
-      "title": "DOCS-REFRESH 全量验收",
+      "id": "F-UF-03",
+      "title": "keys 创建按钮提到 PageHeader.actions",
+      "priority": "medium",
+      "executor": "generator",
+      "status": "pending",
+      "acceptance": "1) keys/page.tsx 把当前埋在 TableCard 内的'创建 API Key'按钮移到 PageHeader 的 actions prop；2) 与 actions/templates/models 等使用 PageHeader.actions 的页面布局一致；3) 按钮使用 Button variant='gradient-primary'（由 F-UF-05 提供）；4) tsc 通过"
+    },
+    {
+      "id": "F-UF-04",
+      "title": "section h2/h3 改用 .heading-2 / .heading-3 工具类",
+      "priority": "high",
+      "executor": "generator",
+      "status": "pending",
+      "acceptance": "1) settings 8 处 text-xl font-bold 的 section h2 改为 .heading-2；2) templates/balance/quickstart 各 1 处 text-lg font-extrabold 的 h3 改为 .heading-3；3) mcp-setup 3 处 text-lg font-bold 改为 .heading-2 或 .heading-3；4) models 1 处 text-xl 改为 .heading-2；5) 全 console 不允许出现手写 text-xl/text-lg + font-bold/font-extrabold 在 section 标题上；6) grep 验证：grep -rnE '<h2[^>]*text-(xl|lg)[^>]*font-(bold|extrabold)' src/app/(console)/*/page.tsx 应返回 0 行；7) tsc 通过"
+    },
+    {
+      "id": "F-UF-05",
+      "title": "主按钮统一为 Button variant='gradient-primary'",
+      "priority": "medium",
+      "executor": "generator",
+      "status": "pending",
+      "acceptance": "1) keys 'create key' 按钮、balance 'recharge' 按钮、settings 3 处主按钮、mcp-setup 'copy config' 按钮全部改用 Button variant='gradient-primary'；2) 移除手写的 'bg-ds-primary text-white rounded-lg' 等内联样式；3) 不破坏现有交互（onClick/disabled/loading 状态）；4) grep 验证：grep -rn 'bg-ds-primary text-white' src/app/(console)/*/page.tsx 在主按钮场景应为 0 行；5) tsc 通过"
+    },
+    {
+      "id": "F-UF-06",
+      "title": "UI-UNIFY-FIX 全量验收",
       "priority": "high",
       "executor": "codex",
-      "status": "completed",
-      "acceptance": "1) /quickstart 4 步均可正常运行（curl 实测成功）；2) /docs 所有 curl 示例可执行；3) 模型名全部为别名格式，无 provider 前缀残留；4) i18n 中英文一致；5) 两页面交叉引用可点击；6) 签收报告生成"
+      "status": "pending",
+      "acceptance": "1) 12 个 console 页面 size 选择正确（settings=default, mcp-setup=narrow, 其他保持）；2) PageHeader 无 badge 残留；3) keys 主按钮在 PageHeader.actions；4) 所有 section h2/h3 使用 .heading-2/.heading-3 工具类（grep 验证返回 0）；5) 所有主按钮使用 gradient-primary variant（grep 验证返回 0）；6) 视觉验证 12 个页面整体一致；7) 签收报告生成"
     }
   ]
 }
