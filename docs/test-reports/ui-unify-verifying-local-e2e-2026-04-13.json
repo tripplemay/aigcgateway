@@ -1,0 +1,59 @@
+{
+  "batch": "UI-UNIFY",
+  "generatedAt": "2026-04-13T09:40:35.872Z",
+  "environment": "http://localhost:3099",
+  "pass": 10,
+  "fail": 0,
+  "checks": [
+    {
+      "id": "F-UU-01~06-components-exist",
+      "ok": true,
+      "detail": "components=10, gradient-primary=ok"
+    },
+    {
+      "id": "F-UU-12-heading-scale-docs",
+      "ok": true,
+      "detail": "heading utilities + PAGE-LAYOUT present"
+    },
+    {
+      "id": "F-UU-07~11-12-pages-use-shell",
+      "ok": true,
+      "detail": "checked=12"
+    },
+    {
+      "id": "BL-121-models-show-all-button-onClick",
+      "ok": true,
+      "detail": "show-all toggle wiring present"
+    },
+    {
+      "id": "BL-122-actions-templates-loading-guard",
+      "ok": true,
+      "detail": "actions/templates loading guards present"
+    },
+    {
+      "id": "BL-123-templates-pill-tabs",
+      "ok": true,
+      "detail": "pill tabs + URL sync present"
+    },
+    {
+      "id": "regression-tests-covered-in-scripts-e2e-test",
+      "ok": true,
+      "detail": "steps 16~19 present"
+    },
+    {
+      "id": "BL-122-api-actions-templates-envelope-runtime",
+      "ok": true,
+      "detail": "actions.total=0, templates.total=0"
+    },
+    {
+      "id": "BL-121-runtime-v1-models-brand",
+      "ok": true,
+      "detail": "models=0 (accepted in L1); brand regression covered by scripts/e2e-test.ts step18"
+    },
+    {
+      "id": "BL-123-runtime-public-templates-source",
+      "ok": true,
+      "detail": "public templates endpoint ok"
+    }
+  ]
+}
