@@ -191,9 +191,7 @@ export default function BalancePage() {
                 <span className="material-symbols-outlined text-ds-tertiary">
                   notifications_active
                 </span>
-                <h3 className="font-[var(--font-heading)] font-bold text-lg">
-                  {t("alertThreshold")}
-                </h3>
+                <h3 className="heading-3">{t("alertThreshold")}</h3>
               </div>
               <p className="text-sm text-slate-500 mb-6 leading-relaxed">{t("alertDescription")}</p>
               <div className="relative mb-6">
@@ -229,7 +227,7 @@ export default function BalancePage() {
         {/* ═══ Transaction History — code.html lines 213-306 ═══ */}
         <section className="bg-ds-surface-container-lowest rounded-xl shadow-[0px_20px_40px_rgba(19,27,46,0.04)] overflow-hidden">
           <div className="p-6 border-b border-slate-50 flex items-center justify-between">
-            <h3 className="font-[var(--font-heading)] font-bold text-xl">{t("transactions")}</h3>
+            <h3 className="heading-2">{t("transactions")}</h3>
             {/* Type filter */}
             <div className="flex items-center gap-2">
               {TXN_TYPES.map((type) => (
