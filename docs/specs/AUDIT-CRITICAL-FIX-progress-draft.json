@@ -1,0 +1,26 @@
+{
+  "status": "building",
+  "user_goal": "AUDIT-CRITICAL-FIX — 修复 reports-20260413 审计发现的全部 critical/high 问题（除限流外）。核心根因：gpt-image 资金损失 + router 幽灵模型 + 健康检查失效 + run_template 版本 bug + 上游信息泄露",
+  "total_features": 13,
+  "completed_features": 0,
+  "fix_rounds": 0,
+  "current_sprint": null,
+  "last_updated": "__TO_BE_REPLACED__",
+  "reference_docs": [
+    "docs/specs/AUDIT-CRITICAL-FIX-spec.md",
+    "docs/test-reports/user_report/reports-20260413/all-assertions-20260413.json"
+  ],
+  "role_assignments": null,
+  "docs": {
+    "spec": "docs/specs/AUDIT-CRITICAL-FIX-spec.md",
+    "test_cases": null,
+    "signoff": null,
+    "framework_reviewed": false
+  },
+  "evaluator_feedback": null,
+  "generator_handoff": null,
+  "session_notes": {
+    "Kimi": "Planner 启动 AUDIT-CRITICAL-FIX 批次（12 generator + 1 codex = 13 条）。合并 reports-20260413 审计的所有 critical/high 问题（除限流外）。Phase 1 止血（F-ACF-01/02/03 gpt-image 零图零计费 + router 幽灵模型 + 退款脚本）；Phase 2 核心功能（F-ACF-04/05/06 run_template 活跃版本 + reasoning 默认上限 + max_tokens schema）；Phase 3 安全（F-ACF-07/08/09 图片 URL 代理 + 错误脱敏扩展 + XSS parameters 转义）；Phase 4 数据质量（F-ACF-10/11/12 CALL_PROBE 健康检查 + invalid_modality + 提取脚本健壮性）。RL-001/005 限流独立为 BL-127 RATE-LIMIT 批次，不在本批次。所有 bug 修复必须按 test-lifecycle.md 规则同 commit 补 regression test。UI-UNIFY-FIX 刚刚签收。",
+    "Reviewer": null
+  }
+}
