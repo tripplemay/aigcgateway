@@ -1,0 +1,82 @@
+{
+  "feature": "F-ACF-13",
+  "batch": "AUDIT-CRITICAL-FIX",
+  "env": "L1-local-3099",
+  "startedAt": "2026-04-14T06:58:18.179Z",
+  "finishedAt": "2026-04-14T06:58:19.067Z",
+  "pass": true,
+  "passCount": 14,
+  "failCount": 0,
+  "checks": [
+    {
+      "id": "F-ACF-00-smoke-init",
+      "ok": true,
+      "detail": "mcp initialize ok"
+    },
+    {
+      "id": "F-ACF-01-zero-image-cost-zero",
+      "ok": true,
+      "detail": "trace=trc_qufpuwz7h2e4m3tqfue2avyw, status=FILTERED, sell=0"
+    },
+    {
+      "id": "F-ACF-02-list-chat-consistency",
+      "ok": true,
+      "detail": "list_has_disabled=false, chat_denied=[channel_unavailable] No available channel for model \"claude-sonnet-4.6\". The mo"
+    },
+    {
+      "id": "F-ACF-04-run-template-active-version",
+      "ok": true,
+      "detail": "active version respected"
+    },
+    {
+      "id": "F-ACF-05-reasoning-default-cap",
+      "ok": true,
+      "detail": "max_reasoning_tokens=32000"
+    },
+    {
+      "id": "F-ACF-06-max-tokens-guard",
+      "ok": true,
+      "detail": "[invalid_parameter] max_tokens (99999999) exceeds the context window of model \"qwen3.5-flash\" (64000)."
+    },
+    {
+      "id": "F-ACF-07-image-url-proxy",
+      "ok": true,
+      "detail": "https://aigc.guangai.ai/v1/images/proxy/trc_izul7qos4b1w2bxvef2x370f/0?exp=1776153498&sig=ef0dfea34c9c05b26e9bb0b22c65afc4a9e02dc72be50de6754430e3a926e793"
+    },
+    {
+      "id": "F-ACF-08-sanitize-upstream-error",
+      "ok": true,
+      "detail": "[invalid_request] [upstream [infra removed] removed].[upstream preview removed] see [URL removed] [key removed]"
+    },
+    {
+      "id": "F-ACF-09-xss-escape-parameters",
+      "ok": true,
+      "detail": "trace=trc_are0nx2rvwsyuyg7g981lfw7"
+    },
+    {
+      "id": "F-ACF-10-call-probe-auto-disable",
+      "ok": true,
+      "detail": "channel=cmny9fas200119yyytuddrbnt disabled"
+    },
+    {
+      "id": "F-ACF-11-invalid-model-modality",
+      "ok": true,
+      "detail": "{\"code\":\"invalid_model_modality\",\"message\":\"Model \\\"deepseek-v3\\\" is a text model and cannot be used for image generatio"
+    },
+    {
+      "id": "F-ACF-12-idor-wording",
+      "ok": true,
+      "detail": "Call log with traceId \"trc_1776149898495_missing\" not found in this project."
+    },
+    {
+      "id": "F-ACF-12-run-all-audits-extract-logic",
+      "ok": true,
+      "detail": "sleep/by_role/warning checks passed"
+    },
+    {
+      "id": "F-ACF-13-regression-tests",
+      "ok": true,
+      "detail": "vitest sanitize-error + checker passed"
+    }
+  ]
+}

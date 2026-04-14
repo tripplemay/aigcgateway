@@ -115,7 +115,7 @@
       "title": "AUDIT-CRITICAL-FIX 全量验收",
       "priority": "high",
       "executor": "codex",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "codex 执行：1) gpt-image 零图不再扣费（CallLog 实测）；2) claude-sonnet-4.6 和 qwen-image 在 list_models 和 chat/generate_image 行为一致（均不可用或均可用）；3) run_template 执行活跃版本（实测 activate_version 前后对比）；4) reasoning 模型有默认 max_reasoning_tokens 保护（max_tokens=3 时 completionTokens 不超过 32000）；5) max_tokens 超限返回 400；6) 图片 URL 不含 bizyair/aliyuncs/ComfyUI/openai.com 等上游标识；7) 错误脱敏覆盖英文术语和内容预览；8) XSS 在 parameters 字段已转义；9) CALL_PROBE 可运行且连续失败后 channel disable；10) generate_image 对 text 模型返回 invalid_modality；11) IDOR-001 措辞统一；12) run_all_audits 提取脚本能抓到 Chaos json block；13) 回归验证 F-ACF-01~12 新增的 regression test 全部通过；14) 签收报告生成"
     }
   ]
