@@ -1,122 +1,74 @@
 {
-  "batch": "AUDIT-CRITICAL-FIX",
+  "batch": "RATE-LIMIT",
   "created_at": "2026-04-14",
   "features": [
     {
-      "id": "F-ACF-01",
-      "title": "图片生成零图交付零计费 + status 标记",
-      "priority": "critical",
-      "executor": "generator",
-      "status": "completed",
-      "source": "CHAOS-001/007, MOD-004, CHAOS-008/010",
-      "acceptance": "1) src/lib/api/post-process.ts 的 calculateCallCost：当响应 images.length === 0 时 cost=0 且 sellUsd=0；2) CallLog.status 在同样条件下改为 'FILTERED'（不再 'SUCCESS'）；3) list_logs(status='filtered') 能返回这些记录；4) get_log_detail 的 cost 字段同步为 $0；5) 同 commit 补 scripts/test-mcp.ts regression test：mock 或 skip external call 环境下验证 0 图 → cost=0 + status=filtered；6) tsc 通过"
-    },
-    {
-      "id": "F-ACF-02",
-      "title": "router.ts 添加 model.enabled 过滤（消除幽灵模型）",
-      "priority": "critical",
-      "executor": "generator",
-      "status": "completed",
-      "source": "DX-001/DX-002(dx-audit), CHAOS-003, CHAOS-011",
-      "acceptance": "1) src/lib/engine/router.ts 的 routeByAlias 在 flatMap 链路过滤 `model.enabled === true`（或 prisma include where 条件）；2) 调用 disabled model 的 alias 返回 CHANNEL_UNAVAILABLE 503 且消息清晰；3) routeByModelName（内部健康检查）保持不变；4) 修复后 claude-sonnet-4.6 和 qwen-image 应不可路由（与 list_models 行为一致）；5) 同 commit 补 scripts/test-mcp.ts regression test：对已知 disabled model 的 alias 调用 chat 应返回 CHANNEL_UNAVAILABLE；6) tsc 通过"
-    },
-    {
-      "id": "F-ACF-03",
-      "title": "历史受害用户退款审计脚本",
-      "priority": "critical",
-      "executor": "generator",
-      "status": "completed",
-      "source": "配合 F-ACF-01",
-      "acceptance": "1) scripts/refund-zero-image-audit.ts 查询 call_logs 中 modality=IMAGE status=SUCCESS 但 (responseSummary->>'images_count')::int = 0 或 responseSummary 为 null 的记录；2) 按 userId 汇总 sellPrice 总和；3) 默认 dry-run 只打印；4) --apply 时在事务中：更新 balance += refund_amount，写 transactions 表(type='REFUND', description='Zero image delivery refund', traceId=原 call_log.traceId)；5) 用 transactions.traceId 幂等（已退过的不再退）；6) tsc 通过"
-    },
-    {
-      "id": "F-ACF-04",
-      "title": "run_template 使用 Action 的活跃版本",
-      "priority": "critical",
-      "executor": "generator",
-      "status": "completed",
-      "source": "Workflow DX-001",
-      "acceptance": "1) 定位 run_template 执行代码中读取 action messages 的位置（可能在 src/lib/template/executor.ts 或 run-template MCP tool）；2) 改为通过 action.activeVersionId 读取 ActionVersion.messages/variables（当前代码可能直接读 action.messages 或默认取最新版本）；3) sequential 和 fan-out 两种执行模式都覆盖；4) 同 commit 补 scripts/test-mcp.ts regression test：create_action → create_action_version (v2 不同 prompt) → activate_version(v1) → run_template，断言返回内容体现 v1 的 prompt 特征；5) tsc 通过"
-    },
-    {
-      "id": "F-ACF-05",
-      "title": "reasoning 模型默认 max_reasoning_tokens 上限",
+      "id": "F-RL-01",
+      "title": "TPM 检查启用（从只写改为写读）",
       "priority": "high",
       "executor": "generator",
-      "status": "completed",
-      "source": "RL-002, DX-006(dx-audit)",
-      "acceptance": "1) chat completions 处理层：当 model.capabilities.reasoning === true 且用户未传 max_reasoning_tokens 时，默认值为 Math.min(Math.floor(contextWindow * 0.5), 32000)；2) 非 reasoning 模型不受影响；3) DOCS-REFRESH 更新的 /docs 页面 chat 参数 Section 补充 max_reasoning_tokens 独立计费说明；4) MCP chat tool description 同步补充；5) 同 commit 补 regression test：reasoning 模型 max_tokens=3 不再出现 completionTokens > 32000；6) tsc 通过"
+      "status": "pending",
+      "source": "RL-001",
+      "acceptance": "1) src/lib/api/rate-limit.ts 新增 checkTokenLimit(project) 返回 ok/error；2) chat/completions/actions/templates 入口在请求前检查 TPM（读取过去 60 秒累计 tokens）；3) 超限返回 429 code='token_rate_limit_exceeded'，含 tokens_used / tpm_limit 字段；4) 同 commit 补 scripts/test-mcp.ts regression test：连续发送请求累计 > TPM 后下次请求 429；5) tsc 通过"
     },
     {
-      "id": "F-ACF-06",
-      "title": "max_tokens schema maximum 校验",
+      "id": "F-RL-02",
+      "title": "多维度限流：API Key + User + Project 三层",
       "priority": "high",
       "executor": "generator",
-      "status": "completed",
-      "source": "RL-003, DX-008(dx-audit)",
-      "acceptance": "1) REST /v1/chat/completions 在进入路由前校验 max_tokens <= model.contextWindow；2) MCP chat 工具同样前置校验；3) 超出时返回 400 invalid_parameter，错误消息包含 model 名称和实际 contextWindow 值，不再透传给上游；4) 同 commit 补 regression test（MCP 和 REST 两侧）；5) tsc 通过"
+      "status": "pending",
+      "source": "RL-001",
+      "acceptance": "1) checkRateLimit 签名扩展：入参 apiKeyId / userId / projectId，依次检查三层；2) 任一维度超限即 429，错误消息包含触发的维度名；3) 默认配置：key 级 30 RPM、user 级 60 RPM、project 级沿用当前默认；4) Redis key 命名 rl:rpm:key:${keyId} / rl:rpm:user:${userId} / rl:rpm:project:${projectId}；5) rollbackRateLimit 同步支持三层；6) 同 commit 补 regression test；7) tsc 通过"
     },
     {
-      "id": "F-ACF-07",
-      "title": "图片 URL 代理（隐藏上游供应商）",
-      "priority": "critical",
-      "executor": "generator",
-      "status": "completed",
-      "source": "CHAOS-002",
-      "acceptance": "1) 新增 /v1/images/proxy/:traceId/:idx 路由，签名验证后反向代理上游 URL 并流式返回图片；2) 签名使用 HMAC(secret, traceId+idx+exp)，有效期 1 小时；3) generate_image 和 MCP generate_image 的返回体替换 URL 为本平台代理 URL；4) 上游 URL 存入 call_logs.responseSummary 用于代理查找（或单独 Redis 缓存 1h）；5) 用户层无感知，访问图片自动走代理；6) 同 commit 补 regression test：generate_image 返回 URL 不含 bizyair/aliyuncs/ComfyUI/openai.com 等字样；7) tsc 通过"
-    },
-    {
-      "id": "F-ACF-08",
-      "title": "上游错误脱敏增强（英文术语 + via chat + 预览内容）",
+      "id": "F-RL-03",
+      "title": "突发熔断（burst protection）",
       "priority": "high",
       "executor": "generator",
-      "status": "completed",
-      "source": "RL-004, CHAOS-006, MOD-005",
-      "acceptance": "1) src/lib/api/error-sanitizer.ts（或 AUDIT-SEC F-AS-01 创建的 sanitizeErrorMessage）增加规则：匹配并剥离 'This endpoint', 'upstream feature', 'via chat', 'via completions', 'endpoint's maximum', 'Content preview: \"..\"' 等片段；2) 含 'Content preview' 的整句剥离，替换为统一描述；3) gemini-3-pro-image 的 'via chat returned no extractable image' 改为 'Image generation failed, model did not return a valid image'；4) 同 commit 补 regression test 覆盖至少 3 个已知上游错误样本；5) tsc 通过"
+      "status": "pending",
+      "source": "RL-001",
+      "acceptance": "1) src/lib/api/rate-limit.ts 新增 checkBurst(identifier, windowSec=5, maxCount=20)；2) 5 秒内超过 20 次同 identifier → 429 code='burst_limit_exceeded'，Retry-After=30；3) 与 RPM 限流并行（RPM 慢速滑窗，burst 快速防御）；4) 环境变量 BURST_PROTECTION_ENABLED 可关闭（默认开）；5) 同 commit 补 regression test（短时间批量请求应触发）；6) tsc 通过"
     },
     {
-      "id": "F-ACF-09",
-      "title": "get_log_detail XSS 转义扩展（parameters 字段）",
+      "id": "F-RL-04",
+      "title": "消费速率保护（spending rate protection）",
       "priority": "high",
       "executor": "generator",
-      "status": "completed",
-      "source": "CHAOS-009, DX-013(dx-audit)",
-      "acceptance": "1) src/lib/api/sanitize-html.ts 的 sanitizeLogForDisplay 改为递归处理所有 string 字段，不再限定于 prompt[].content；2) parameters、parameters.prompt、image.url、任何嵌套 string 都通过 HTML 转义；3) 数据库存储保持原样（只在读取 API 输出时转义，确保历史日志也受益）；4) 同 commit 补 regression test：注入 <img src=x onerror=alert(1)> 的 generate_image 调用 → get_log_detail 查询返回内容中 < 已变成 &lt;；5) tsc 通过"
+      "status": "pending",
+      "source": "RL-005",
+      "acceptance": "1) src/lib/api/rate-limit.ts 新增 recordSpending(userId, amountUsd) 和 checkSpendingRate(userId)；2) 扣费成功后记录到 Redis spend:${userId}:${minute_epoch}；3) 每分钟消费 > $DEFAULT_SPEND_LIMIT_PER_MIN（默认 $1）→ 下次请求 429 code='spend_rate_exceeded'；4) 错误消息包含 spentThisMinute 和 limit 字段；5) User 级别可配置覆盖（users.rateLimit JSON 扩展，不加新字段）；6) 同 commit 补 regression test；7) tsc 通过"
     },
     {
-      "id": "F-ACF-10",
-      "title": "健康检查分层：增加 CALL_PROBE 层",
-      "priority": "high",
-      "executor": "generator",
-      "status": "completed",
-      "source": "CHAOS-001/005/006, MOD-001, DX-002(dx-audit)",
-      "acceptance": "1) src/lib/health/checker.ts 增加 runCallProbe(channel)：TEXT 模型调用 chat({messages:[{role:'user',content:'hi'}], max_tokens:1})，IMAGE 模型调用 generate_image({prompt:'a dot', size:smallest})；2) CALL_PROBE 结果写入 health_checks 表（增加 level='CALL_PROBE'）；3) 连续 3 次 CALL_PROBE 返回 FAIL → 自动将 channel.status 设为 INACTIVE 并记录 systemLog；4) 触发频率：每 30 分钟（cron 或 setInterval）；5) API_REACHABILITY 失败时跳过 CALL_PROBE（省成本）；6) 可通过 env CALL_PROBE_ENABLED=false 禁用（生产初期慢启动）；7) 同 commit 补单元测试；8) tsc 通过"
-    },
-    {
-      "id": "F-ACF-11",
-      "title": "generate_image 对 text 模型返回 invalid_modality",
+      "id": "F-RL-05",
+      "title": "Project Settings 增加限流配置 UI",
       "priority": "medium",
       "executor": "generator",
-      "status": "completed",
-      "source": "MOD-002",
-      "acceptance": "1) /v1/images/generations 和 MCP generate_image 在路由前增加 modality 校验；2) 传入 text modality 的模型返回 400 invalid_model_modality，消息 'Model xxx is a text model and cannot be used for image generation. Use the chat tool instead.'；3) 与 F-DP-09（chat 拒绝 image 模型）对称；4) 同 commit 补 regression test；5) tsc 通过"
+      "status": "pending",
+      "acceptance": "1) Settings Project tab 增加'限流配置'卡片：RPM / TPM / imageRPM / spendLimitPerMin 输入框；2) 保存到 projects.rateLimit JSON 字段；3) 空字段表示使用系统默认，占位文本显示当前默认值；4) 配置生效无需重启（每次请求都读取最新值）；5) i18n 中英文；6) 使用 PageContainer + Button gradient-primary 保持 UI 一致性；7) tsc 通过"
     },
     {
-      "id": "F-ACF-12",
-      "title": "get_log_detail 错误措辞统一 + audit 提取脚本健壮性",
+      "id": "F-RL-06",
+      "title": "Admin 全局限流默认值配置",
       "priority": "medium",
       "executor": "generator",
-      "status": "completed",
-      "source": "IDOR-001 + 运维工具 bug",
-      "acceptance": "1) src/lib/mcp/tools/get-log-detail.ts not-found 消息改为 'Call log with traceId \"xxx\" not found in this project.'；2) tests/mcp-test/run_all_audits.sh 的 python aggregate 脚本改写：aggregate 前 sleep 2 秒刷盘；每个 report 的 count 单独打印；对无 json block 的报告发 warning；生成的 all-assertions-*.json 增加 by_role 字段记录每个角色抓到的断言数；3) 手动 grep 验证本次 reports-20260413 能抓到 49 条（之前漏抓 12 条 Chaos）；4) tsc 通过"
+      "status": "pending",
+      "acceptance": "1) SystemConfig 表增加 GLOBAL_DEFAULT_RPM / TPM / IMAGE_RPM / BURST_COUNT / BURST_WINDOW_SEC / SPEND_PER_MIN 键；2) /admin/operations 页面增加'限流默认值'卡片可编辑；3) rate-limit.ts 从 SystemConfig 读取（fallback 到 env，再 fallback 到硬编码）；4) 修改后立即生效；5) i18n；6) tsc 通过"
     },
     {
-      "id": "F-ACF-13",
-      "title": "AUDIT-CRITICAL-FIX 全量验收",
+      "id": "F-RL-07",
+      "title": "限流事件审计日志 + 429 指标统计",
+      "priority": "medium",
+      "executor": "generator",
+      "status": "pending",
+      "acceptance": "1) 所有限流触发（RPM/TPM/burst/spend）写入 SystemLog 表 type='RATE_LIMIT'，details 含触发维度和实际值；2) /admin/logs 页面增加系统日志 tab（也是 BL-101 的一部分，可合并实现）；3) get_usage_summary 增加 rateLimitedCount 字段统计；4) tsc 通过"
+    },
+    {
+      "id": "F-RL-08",
+      "title": "RATE-LIMIT 全量验收",
       "priority": "high",
       "executor": "codex",
-      "status": "completed",
-      "acceptance": "codex 执行：1) gpt-image 零图不再扣费（CallLog 实测）；2) claude-sonnet-4.6 和 qwen-image 在 list_models 和 chat/generate_image 行为一致（均不可用或均可用）；3) run_template 执行活跃版本（实测 activate_version 前后对比）；4) reasoning 模型有默认 max_reasoning_tokens 保护（max_tokens=3 时 completionTokens 不超过 32000）；5) max_tokens 超限返回 400；6) 图片 URL 不含 bizyair/aliyuncs/ComfyUI/openai.com 等上游标识；7) 错误脱敏覆盖英文术语和内容预览；8) XSS 在 parameters 字段已转义；9) CALL_PROBE 可运行且连续失败后 channel disable；10) generate_image 对 text 模型返回 invalid_modality；11) IDOR-001 措辞统一；12) run_all_audits 提取脚本能抓到 Chaos json block；13) 回归验证 F-ACF-01~12 新增的 regression test 全部通过；14) 签收报告生成"
+      "status": "pending",
+      "acceptance": "codex 执行：1) 15 并发 burst 测试触发 burst_limit_exceeded；2) 连续 40 次请求超 RPM 限制 → 429；3) 累计 tokens 超 TPM → token_rate_limit_exceeded；4) 单分钟消费超 $1 → spend_rate_exceeded；5) API Key / User / Project 三维度各测试一次；6) 管理端 Project Settings 修改限流后立即生效；7) Admin 全局默认值修改后立即生效；8) SystemLog 正确记录所有 RATE_LIMIT 事件；9) usage_summary 统计准确；10) 签收报告生成"
     }
   ]
 }

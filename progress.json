@@ -1,32 +1,26 @@
 {
-  "status": "done",
-  "user_goal": "AUDIT-CRITICAL-FIX — 修复 reports-20260413 审计发现的全部 critical/high 问题（除限流外）。核心根因：gpt-image 资金损失 + router 幽灵模型 + 健康检查失效 + run_template 版本 bug + 上游信息泄露",
-  "total_features": 13,
-  "completed_features": 13,
+  "status": "building",
+  "user_goal": "RATE-LIMIT — 补齐限流体系：启用 TPM 检查、三层维度（key/user/project）、突发熔断、消费速率保护、管理端配置、审计日志",
+  "total_features": 8,
+  "completed_features": 0,
   "fix_rounds": 0,
-  "current_sprint": "F-ACF-13",
-  "last_updated": "2026-04-14T07:00:00Z",
+  "current_sprint": null,
+  "last_updated": "2026-04-14T00:00:00Z",
   "reference_docs": [
-    "docs/specs/AUDIT-CRITICAL-FIX-spec.md",
+    "docs/specs/RATE-LIMIT-spec.md",
     "docs/test-reports/user_report/reports-20260413/all-assertions-20260413.json"
   ],
   "role_assignments": null,
   "docs": {
-    "spec": "docs/specs/AUDIT-CRITICAL-FIX-spec.md",
+    "spec": "docs/specs/RATE-LIMIT-spec.md",
     "test_cases": null,
-    "signoff": "docs/test-reports/AUDIT-CRITICAL-FIX-signoff-2026-04-14.md",
+    "signoff": null,
     "framework_reviewed": false
   },
-  "evaluator_feedback": {
-    "summary": "AUDIT-CRITICAL-FIX 本地 L1 全量验收通过，F-ACF-13 14/14 检查项全部 PASS。",
-    "pass_count": 14,
-    "partial_count": 0,
-    "fail_count": 0,
-    "issues": []
-  },
+  "evaluator_feedback": null,
   "generator_handoff": null,
   "session_notes": {
-    "Kimi": "Generator 完成 AUDIT-CRITICAL-FIX 全部 12 条。Phase 1 (b9657e0) 止血: F-ACF-01 零图 FILTERED + responseSummary migration; F-ACF-02 router 过滤 model.enabled; F-ACF-03 refund-zero-image-audit.ts. Phase 2 (7b83175) 核心: F-ACF-04 run_template 报告 active version; F-ACF-05 reasoning 默认 max_reasoning_tokens cap; F-ACF-06 max_tokens schema 校验. Phase 3+4 (待提交) 安全+数据: F-ACF-07 图片 HMAC 代理 + responseSummary.original_urls; F-ACF-08 sanitizer 增加 via chat / endpoint preview / gemini 措辞; F-ACF-09 get-log-detail 与 REST 路由对 requestParams 递归转义; F-ACF-10 CALL_PROBE 层 + runCallProbeForChannel 自动 disable + checker.test.ts; F-ACF-11 generate-image text 模型拒绝; F-ACF-12 IDOR 措辞统一 + run_all_audits.sh 增加 sleep/by_role/警告输出. 单元测试 sanitize-error.test.ts 4 pass + checker.test.ts 2 pass. 集成测试 test-mcp.ts 16b/16c/16d/16e + test-mcp-errors.ts 5b/6 共 6 条新 step. 交 Codex Reviewer F-ACF-13 全量验收 + 历史退款 dry-run/apply 决策。",
-    "Reviewer": "执行 F-ACF-13 验收脚本 scripts/test/audit-critical-fix-f-acf-13-verifying-e2e-2026-04-14.ts。通过隔离 alias link/清理历史健康检查，避免历史数据污染导致 channel_unavailable 误判。最终报告 docs/test-reports/audit-critical-fix-f-acf-13-verifying-e2e-2026-04-14.json 为 pass=true（14/14）。已生成 signoff：docs/test-reports/AUDIT-CRITICAL-FIX-signoff-2026-04-14.md，并将批次置 done。"
+    "Kimi": "Planner 启动 RATE-LIMIT 批次（7 generator + 1 codex = 8 条）。重要发现：src/lib/api/rate-limit.ts 已存在且 REST + MCP 共 8 个计费入口都调用了 checkRateLimit，默认 60 RPM。真正的 gap：TPM 只写不读、只有项目级维度、无突发熔断、无消费速率保护、默认值不可在管理端配置。历史退款已执行（1 用户 7 条共 $0.347）。Generator 需要复用现有 rate-limit.ts 扩展，不要重写。",
+    "Reviewer": null
   }
 }
