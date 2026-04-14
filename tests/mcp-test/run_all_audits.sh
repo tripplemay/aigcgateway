@@ -91,36 +91,53 @@ echo -e "${BLUE}==================================================${NC}"
 
 ASSERTIONS_FILE="$REPORT_DIR/all-assertions-${CURRENT_DATE}.json"
 
+# F-ACF-12: pause to let any buffered report writes hit disk before aggregation.
+sleep 2
+
 # 用 python3 从所有报告中提取 JSON 代码块中的 assertions
 python3 -c "
 import json, re, glob, sys
 
 all_assertions = []
+by_role = {}
 report_dir = sys.argv[1]
 
-for report_path in sorted(glob.glob(f'{report_dir}/*-Report-*.md')):
+reports = sorted(glob.glob(f'{report_dir}/*-Report-*.md'))
+if not reports:
+    sys.stderr.write(f'WARNING: no reports in {report_dir}\n')
+
+for report_path in reports:
     with open(report_path, 'r') as f:
         content = f.read()
 
-    # 从报告文件名提取审计角色
     role = report_path.rsplit('/', 1)[-1].split('-Report-')[0]
+    role_count = 0
 
-    # 匹配 JSON 代码块
-    for match in re.finditer(r'\`\`\`json\s*\n(.*?)\n\`\`\`', content, re.DOTALL):
+    blocks = list(re.finditer(r'\`\`\`json\s*\n(.*?)\n\`\`\`', content, re.DOTALL))
+    if not blocks:
+        sys.stderr.write(f'WARNING: no json block in {report_path}\n')
+
+    for match in blocks:
         try:
             data = json.loads(match.group(1))
-            if 'assertions' in data and isinstance(data['assertions'], list):
-                for a in data['assertions']:
-                    a['source_role'] = role
-                all_assertions.extend(data['assertions'])
-        except json.JSONDecodeError:
+        except json.JSONDecodeError as e:
+            sys.stderr.write(f'WARNING: json parse error in {report_path}: {e}\n')
             continue
+        if 'assertions' in data and isinstance(data['assertions'], list):
+            for a in data['assertions']:
+                a['source_role'] = role
+            all_assertions.extend(data['assertions'])
+            role_count += len(data['assertions'])
+
+    by_role[role] = role_count
+    print(f'  {role}: {role_count} 条断言')
 
 output = {
     'extracted_at': '$(date -u +"%Y-%m-%dT%H:%M:%SZ")',
     'total': len(all_assertions),
     'by_severity': {},
-    'assertions': all_assertions
+    'by_role': by_role,
+    'assertions': all_assertions,
 }
 
 for a in all_assertions:

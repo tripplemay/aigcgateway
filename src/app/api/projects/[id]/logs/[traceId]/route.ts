@@ -29,7 +29,9 @@ export async function GET(
     status: log.status,
     finishReason: log.finishReason,
     promptSnapshot: escapeJsonStrings(log.promptSnapshot),
-    requestParams: log.requestParams,
+    // F-ACF-09: recursively escape requestParams so crafted prompt/URL fields
+    // never reach the console renderer verbatim.
+    requestParams: escapeJsonStrings(log.requestParams),
     responseContent:
       typeof log.responseContent === "string"
         ? escapeJsonStrings(log.responseContent)

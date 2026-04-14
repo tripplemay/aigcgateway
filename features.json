@@ -61,7 +61,7 @@
       "title": "图片 URL 代理（隐藏上游供应商）",
       "priority": "critical",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "source": "CHAOS-002",
       "acceptance": "1) 新增 /v1/images/proxy/:traceId/:idx 路由，签名验证后反向代理上游 URL 并流式返回图片；2) 签名使用 HMAC(secret, traceId+idx+exp)，有效期 1 小时；3) generate_image 和 MCP generate_image 的返回体替换 URL 为本平台代理 URL；4) 上游 URL 存入 call_logs.responseSummary 用于代理查找（或单独 Redis 缓存 1h）；5) 用户层无感知，访问图片自动走代理；6) 同 commit 补 regression test：generate_image 返回 URL 不含 bizyair/aliyuncs/ComfyUI/openai.com 等字样；7) tsc 通过"
     },
@@ -70,7 +70,7 @@
       "title": "上游错误脱敏增强（英文术语 + via chat + 预览内容）",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "source": "RL-004, CHAOS-006, MOD-005",
       "acceptance": "1) src/lib/api/error-sanitizer.ts（或 AUDIT-SEC F-AS-01 创建的 sanitizeErrorMessage）增加规则：匹配并剥离 'This endpoint', 'upstream feature', 'via chat', 'via completions', 'endpoint's maximum', 'Content preview: \"..\"' 等片段；2) 含 'Content preview' 的整句剥离，替换为统一描述；3) gemini-3-pro-image 的 'via chat returned no extractable image' 改为 'Image generation failed, model did not return a valid image'；4) 同 commit 补 regression test 覆盖至少 3 个已知上游错误样本；5) tsc 通过"
     },
@@ -79,7 +79,7 @@
       "title": "get_log_detail XSS 转义扩展（parameters 字段）",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "source": "CHAOS-009, DX-013(dx-audit)",
       "acceptance": "1) src/lib/api/sanitize-html.ts 的 sanitizeLogForDisplay 改为递归处理所有 string 字段，不再限定于 prompt[].content；2) parameters、parameters.prompt、image.url、任何嵌套 string 都通过 HTML 转义；3) 数据库存储保持原样（只在读取 API 输出时转义，确保历史日志也受益）；4) 同 commit 补 regression test：注入 <img src=x onerror=alert(1)> 的 generate_image 调用 → get_log_detail 查询返回内容中 < 已变成 &lt;；5) tsc 通过"
     },
@@ -88,7 +88,7 @@
       "title": "健康检查分层：增加 CALL_PROBE 层",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "source": "CHAOS-001/005/006, MOD-001, DX-002(dx-audit)",
       "acceptance": "1) src/lib/health/checker.ts 增加 runCallProbe(channel)：TEXT 模型调用 chat({messages:[{role:'user',content:'hi'}], max_tokens:1})，IMAGE 模型调用 generate_image({prompt:'a dot', size:smallest})；2) CALL_PROBE 结果写入 health_checks 表（增加 level='CALL_PROBE'）；3) 连续 3 次 CALL_PROBE 返回 FAIL → 自动将 channel.status 设为 INACTIVE 并记录 systemLog；4) 触发频率：每 30 分钟（cron 或 setInterval）；5) API_REACHABILITY 失败时跳过 CALL_PROBE（省成本）；6) 可通过 env CALL_PROBE_ENABLED=false 禁用（生产初期慢启动）；7) 同 commit 补单元测试；8) tsc 通过"
     },
@@ -97,7 +97,7 @@
       "title": "generate_image 对 text 模型返回 invalid_modality",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "source": "MOD-002",
       "acceptance": "1) /v1/images/generations 和 MCP generate_image 在路由前增加 modality 校验；2) 传入 text modality 的模型返回 400 invalid_model_modality，消息 'Model xxx is a text model and cannot be used for image generation. Use the chat tool instead.'；3) 与 F-DP-09（chat 拒绝 image 模型）对称；4) 同 commit 补 regression test；5) tsc 通过"
     },
@@ -106,7 +106,7 @@
       "title": "get_log_detail 错误措辞统一 + audit 提取脚本健壮性",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "source": "IDOR-001 + 运维工具 bug",
       "acceptance": "1) src/lib/mcp/tools/get-log-detail.ts not-found 消息改为 'Call log with traceId \"xxx\" not found in this project.'；2) tests/mcp-test/run_all_audits.sh 的 python aggregate 脚本改写：aggregate 前 sleep 2 秒刷盘；每个 report 的 count 单独打印；对无 json block 的报告发 warning；生成的 all-assertions-*.json 增加 by_role 字段记录每个角色抓到的断言数；3) 手动 grep 验证本次 reports-20260413 能抓到 49 条（之前漏抓 12 条 Chaos）；4) tsc 通过"
     },

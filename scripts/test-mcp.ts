@@ -413,6 +413,67 @@ async function main() {
     console.log(`(active v1 prompt honored; v2 id=${v2.id ?? "n/a"}) `);
   });
 
+  // F-ACF-07 regression — returned image URLs must be proxy URLs, never upstream hosts.
+  await step("16c. F-ACF-07 image URLs are proxied", async () => {
+    if (!selectedImageModel) {
+      console.log("(no image model, skipping) ");
+      return;
+    }
+    const res = await callTool("generate_image", {
+      model: selectedImageModel,
+      prompt: "a tiny red dot",
+      size: "1024x1024",
+    });
+    const data = JSON.parse(parseTextContent(res));
+    const urls: string[] = data.images ?? [];
+    for (const u of urls) {
+      if (/bizyair|aliyuncs|comfyui|openai\.com|cloudfront|googleapis/i.test(u)) {
+        throw new Error(`Upstream host leaked in image URL: ${u}`);
+      }
+      if (!/\/v1\/images\/proxy\//.test(u)) {
+        throw new Error(`Image URL not routed through proxy: ${u}`);
+      }
+    }
+    console.log(`(${urls.length} proxied image URLs) `);
+  });
+
+  // F-ACF-09 regression — XSS in requestParams.prompt must be escaped on read.
+  await step("16d. F-ACF-09 XSS recursive escape", async () => {
+    if (!selectedImageModel) {
+      console.log("(no image model, skipping) ");
+      return;
+    }
+    const payload = "<img src=x onerror=alert(1)>";
+    const res = await callTool("generate_image", {
+      model: selectedImageModel,
+      prompt: payload,
+      size: "1024x1024",
+    });
+    const gen = JSON.parse(parseTextContent(res));
+    const traceId = gen.traceId;
+    if (!traceId) throw new Error("No traceId from generate_image");
+    await new Promise((r) => setTimeout(r, 500));
+    const detail = await getLogDetail(traceId);
+    const serialized = JSON.stringify(detail.parameters);
+    if (serialized.includes("<img") || serialized.includes("onerror")) {
+      throw new Error(`XSS payload not escaped in parameters: ${serialized}`);
+    }
+    if (!serialized.includes("&lt;img")) {
+      throw new Error(`Expected escaped &lt;img, got: ${serialized}`);
+    }
+    console.log("(XSS payload escaped) ");
+  });
+
+  // F-ACF-12 regression — IDOR-safe not-found message for cross-project probes.
+  await step("16e. F-ACF-12 unified not-found message", async () => {
+    const res = await callTool("get_log_detail", { trace_id: "does-not-exist-xyz" });
+    const text = parseTextContent(res);
+    if (!/not found in this project/i.test(text)) {
+      throw new Error(`Unexpected not-found text: ${text}`);
+    }
+    console.log("(unified wording) ");
+  });
+
   await step("17. get_usage_summary (7d)", async () => {
     const result = await callTool("get_usage_summary", { period: "7d" });
     const data = JSON.parse(parseTextContent(result));

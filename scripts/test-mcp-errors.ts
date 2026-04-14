@@ -184,6 +184,31 @@ async function main() {
     console.log("  5. Chat with insufficient balance → SKIPPED (set ZERO_BALANCE_API_KEY env var)");
   }
 
+  // F-ACF-11 regression — generate_image with a TEXT model is rejected.
+  await step("5b. F-ACF-11 generate_image on text model → invalid_modality", async () => {
+    if (!API_KEY) throw new Error("API_KEY not set");
+    const { body } = await rawMcpRequest(
+      "tools/call",
+      {
+        name: "generate_image",
+        arguments: {
+          model: "deepseek-v3",
+          prompt: "a tiny dot",
+          size: "1024x1024",
+        },
+      },
+      API_KEY,
+    );
+    const result = (body as { result?: { isError?: boolean; content?: Array<{ text?: string }> } })
+      ?.result;
+    if (!result?.isError) throw new Error("Expected isError=true for text model on image gen");
+    const text = result.content?.[0]?.text ?? "";
+    if (!/invalid_model_modality|text model|cannot be used/i.test(text)) {
+      throw new Error(`Expected modality error, got: ${text}`);
+    }
+    console.log("(text model rejected) ");
+  });
+
   // F-ACF-06 regression — max_tokens over model context window is rejected 400.
   await step("6. F-ACF-06 max_tokens > contextWindow → invalid_parameter", async () => {
     if (!API_KEY) throw new Error("API_KEY not set");

@@ -181,6 +181,34 @@ export function sanitizeErrorMessage(message: string): string {
   sanitized = sanitized.replace(/\bcontext[- ]?compression\s+plugin\b/gi, "[upstream feature]");
   sanitized = sanitized.replace(/\bweb[- ]?search\s+plugin\b/gi, "[upstream feature]");
   sanitized = sanitized.replace(/\blong[- ]?context\s+plugin\b/gi, "[upstream feature]");
+
+  // F-ACF-08 — strip English leakage terms and upstream routing hints.
+  // Rewrite unfriendly phrasing FIRST so subsequent "via chat" stripping
+  // doesn't eat the helpful replacement sentence.
+  sanitized = sanitized.replace(
+    /via (?:chat|completions|responses)\s+returned no extractable image/gi,
+    "did not return a valid image",
+  );
+  sanitized = sanitized.replace(/returned no extractable image/gi, "did not return a valid image");
+  sanitized = sanitized.replace(/\bupstream feature\b/gi, "[feature removed]");
+  // Drop any remaining "via chat|completions|responses" routing hints.
+  sanitized = sanitized.replace(
+    /\bvia (?:chat|completions|responses)\b[^.]*\./gi,
+    "[upstream call removed].",
+  );
+  sanitized = sanitized.replace(
+    /\bvia (?:chat|completions|responses)\b[^,.]*/gi,
+    "[upstream call removed]",
+  );
+  sanitized = sanitized.replace(
+    /\bThis endpoint\b[^.]*\./gi,
+    "[upstream endpoint description removed].",
+  );
+  sanitized = sanitized.replace(/\bendpoint'?s? maximum\b[^.]*\./gi, "[upstream limit removed].");
+  // Content preview sentences — drop the whole sentence containing the preview.
+  sanitized = sanitized.replace(/[^.]*Content preview[^.]*\.?/gi, "[upstream preview removed]");
+  // Collapse consecutive whitespace the substitutions may have introduced.
+  sanitized = sanitized.replace(/\s{2,}/g, " ").trim();
   return sanitized;
 }
 

@@ -12,6 +12,7 @@ import { errorResponse } from "@/lib/api/errors";
 import { generateTraceId, jsonResponse } from "@/lib/api/response";
 import { resolveEngine } from "@/lib/engine";
 import { processImageResult } from "@/lib/api/post-process";
+import { buildProxyUrl } from "@/lib/api/image-proxy";
 import type { ImageGenerationRequest } from "@/lib/engine/types";
 import { EngineError, ErrorCodes, sanitizeErrorMessage } from "@/lib/engine/types";
 
@@ -67,6 +68,17 @@ export async function POST(request: Request) {
     return errorResponse(502, "provider_error", sanitizeErrorMessage((err as Error).message));
   }
 
+  // F-ACF-11: modality 校验——text 模型不允许用于图片生成
+  if (route.alias?.modality === "TEXT") {
+    if (rlKey && rlMember) rollbackRateLimit(rlKey, rlMember).catch(() => {});
+    return errorResponse(
+      400,
+      "invalid_model_modality",
+      `Model "${body.model}" is a text model and cannot be used for image generation. Use the chat tool instead.`,
+      { param: "model" },
+    );
+  }
+
   // 5.5 Size 预校验
   if (body.size) {
     const supportedSizes = route.model.supportedSizes as string[] | null;
@@ -88,7 +100,7 @@ export async function POST(request: Request) {
   try {
     const response = await adapter.imageGenerations(body, route);
 
-    // 异步后处理
+    // 异步后处理（持久化原始 URL 到 responseSummary 供代理查找）
     processImageResult({
       traceId,
       userId: user.id,
@@ -101,7 +113,18 @@ export async function POST(request: Request) {
       response,
     });
 
-    return jsonResponse(response, 200, traceId, rateLimitHeaders);
+    // F-ACF-07: rewrite each upstream URL into a signed proxy URL so callers
+    // never see bizyair/aliyuncs/ComfyUI/openai.com hostnames.
+    const origin = new URL(request.url).origin;
+    const proxied = {
+      ...response,
+      data: (response.data ?? []).map((d, i) => ({
+        ...d,
+        url: d?.url ? buildProxyUrl(traceId, i, origin) : d?.url,
+      })),
+    };
+
+    return jsonResponse(proxied, 200, traceId, rateLimitHeaders);
   } catch (err) {
     // 请求失败 → 回滚限流计数
     if (rlKey && rlMember) rollbackRateLimit(rlKey, rlMember).catch(() => {});

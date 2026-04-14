@@ -10,6 +10,7 @@ import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { resolveEngine } from "@/lib/engine";
 import { generateTraceId } from "@/lib/api/response";
 import { processImageResult } from "@/lib/api/post-process";
+import { buildProxyUrl } from "@/lib/api/image-proxy";
 import { prisma } from "@/lib/prisma";
 import { checkRateLimit } from "@/lib/api/rate-limit";
 import { EngineError, sanitizeErrorMessage } from "@/lib/engine/types";
@@ -152,6 +153,22 @@ export function registerGenerateImage(server: McpServer, opts: McpServerOptions)
         };
       }
 
+      // F-ACF-11: modality 校验——text 模型不允许用于图片生成
+      if (route.alias?.modality === "TEXT") {
+        return {
+          content: [
+            {
+              type: "text" as const,
+              text: JSON.stringify({
+                code: "invalid_model_modality",
+                message: `Model "${model}" is a text model and cannot be used for image generation. Use the chat tool instead.`,
+              }),
+            },
+          ],
+          isError: true,
+        };
+      }
+
       // Size 预校验
       if (size) {
         const supportedSizes = route.model.supportedSizes as string[] | null;
@@ -199,7 +216,12 @@ export function registerGenerateImage(server: McpServer, opts: McpServerOptions)
           source: "mcp",
         });
 
-        const urls = response.data.map((d) => d.url).filter(Boolean);
+        // F-ACF-07: swap upstream URLs for signed proxy URLs so the client
+        // never sees bizyair/aliyuncs/ComfyUI/openai.com hostnames.
+        const baseOrigin = process.env.NEXT_PUBLIC_GATEWAY_ORIGIN ?? "https://aigc.guangai.ai";
+        const urls = response.data
+          .map((d, i) => (d?.url ? buildProxyUrl(traceId, i, baseOrigin) : null))
+          .filter((u): u is string => typeof u === "string");
 
         return {
           content: [

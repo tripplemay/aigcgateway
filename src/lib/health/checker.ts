@@ -33,6 +33,62 @@ export async function runHealthCheck(route: RouteResult): Promise<CheckResult[]>
 }
 
 /**
+ * F-ACF-10 — minimal real-call probe. TEXT models call chat({max_tokens:1}),
+ * IMAGE models call generate_image with the smallest supported size. Use the
+ * result to drive auto-disable on three consecutive failures.
+ */
+export async function runCallProbe(route: RouteResult): Promise<CheckResult> {
+  const start = Date.now();
+  const adapter = getAdapterForRoute(route);
+  const isImage = route.alias?.modality === "IMAGE" || route.model.modality === "IMAGE";
+  try {
+    if (isImage) {
+      const supported = (route.model.supportedSizes as string[] | null) ?? [];
+      const size = supported[0] ?? "1024x1024";
+      const res = await adapter.imageGenerations(
+        { model: route.model.name, prompt: "a dot", size },
+        route,
+      );
+      const ok = (res.data ?? []).length > 0;
+      return {
+        level: "CALL_PROBE",
+        result: ok ? "PASS" : "FAIL",
+        latencyMs: Date.now() - start,
+        errorMessage: ok ? null : "Probe returned zero images",
+        responseBody: null,
+      };
+    }
+    const res = await adapter.chatCompletions(
+      {
+        model: route.model.name,
+        messages: [{ role: "user", content: "hi" }],
+        max_tokens: 1,
+        temperature: 0,
+      },
+      route,
+    );
+    const ok = !!res.choices?.length;
+    return {
+      level: "CALL_PROBE",
+      result: ok ? "PASS" : "FAIL",
+      latencyMs: Date.now() - start,
+      errorMessage: ok ? null : "Probe returned no choices",
+      responseBody: null,
+    };
+  } catch (err) {
+    const message =
+      err instanceof EngineError ? `${err.code}: ${err.message}` : (err as Error).message;
+    return {
+      level: "CALL_PROBE",
+      result: "FAIL",
+      latencyMs: Date.now() - start,
+      errorMessage: message,
+      responseBody: null,
+    };
+  }
+}
+
+/**
  * 仅执行 API_REACHABILITY 检查（GET /models，零成本）
  * healthCheckEndpoint 为 "skip" 时直接返回 PASS，不发请求
  */

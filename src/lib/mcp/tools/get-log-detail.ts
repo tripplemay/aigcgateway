@@ -62,21 +62,27 @@ export function registerGetLogDetail(server: McpServer, opts: McpServerOptions):
       });
 
       if (!log) {
+        // F-ACF-12: unified wording so IDOR probes get the same message as genuine misses.
         return {
           content: [
-            { type: "text" as const, text: `Call log with traceId "${trace_id}" not found.` },
+            {
+              type: "text" as const,
+              text: `Call log with traceId "${trace_id}" not found in this project.`,
+            },
           ],
           isError: true,
         };
       }
 
-      // Cross-project access check
+      // F-ACF-12: do not reveal cross-project existence. Collapse to the
+      // same "not found in this project" message so IDOR scans see nothing
+      // distinct from genuine misses.
       if (log.projectId !== projectId) {
         return {
           content: [
             {
               type: "text" as const,
-              text: `Access denied: this call log belongs to a different project.`,
+              text: `Call log with traceId "${trace_id}" not found in this project.`,
             },
           ],
           isError: true,
@@ -93,7 +99,10 @@ export function registerGetLogDetail(server: McpServer, opts: McpServerOptions):
         status: log.status.toLowerCase(),
         source: log.source,
         prompt: escapeJsonStrings(log.promptSnapshot),
-        parameters: log.requestParams,
+        // F-ACF-09: parameters used to be handed through untouched, so a
+        // prompt/filename crafted as `<img src=x onerror=alert(1)>` made it
+        // into console rendering verbatim. Escape recursively on output.
+        parameters: escapeJsonStrings(log.requestParams),
         response: escapeJsonStrings(log.responseContent),
         finishReason: log.finishReason,
         usage: {

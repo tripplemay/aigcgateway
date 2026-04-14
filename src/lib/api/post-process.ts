@@ -171,9 +171,13 @@ async function processImageResultAsync(params: ImagePostProcessParams): Promise<
     );
   }
 
-  // 持久化 images_count 到 responseSummary 以便历史回溯 + 退款脚本查询
+  // 持久化 images_count + 上游原始 URL 列表（F-ACF-07 代理查找源）
+  const originalUrls = (params.response?.data ?? [])
+    .map((d) => d?.url)
+    .filter((u): u is string => typeof u === "string" && u.length > 0);
   const responseSummary: Prisma.InputJsonValue = {
     images_count: imagesCount,
+    ...(originalUrls.length > 0 ? { original_urls: originalUrls } : {}),
     ...(zeroImageDelivery ? { zero_image_delivery: true } : {}),
   };
 

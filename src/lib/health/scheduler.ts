@@ -17,7 +17,7 @@
 
 import { prisma } from "@/lib/prisma";
 import type { ChannelStatus } from "@prisma/client";
-import { runHealthCheck, runApiReachabilityCheck, type CheckResult } from "./checker";
+import { runHealthCheck, runApiReachabilityCheck, runCallProbe, type CheckResult } from "./checker";
 import { sendAlert } from "./alert";
 import type { RouteResult } from "../engine/types";
 
@@ -82,6 +82,59 @@ export async function checkChannel(channelId: string): Promise<CheckResult[]> {
     return executeCheckWithRetry(route, "full");
   }
   return executeCheckWithRetry(route, "reachability");
+}
+
+/**
+ * F-ACF-10 — CALL_PROBE driver. Runs a minimum-cost real call against one
+ * channel, persists the result, and disables the channel after three
+ * consecutive CALL_PROBE failures. Skipped when API_REACHABILITY for the
+ * same channel is FAIL (cost-savings) or when CALL_PROBE_ENABLED=false.
+ */
+export async function runCallProbeForChannel(channelId: string): Promise<CheckResult | null> {
+  if ((process.env.CALL_PROBE_ENABLED ?? "true").toLowerCase() === "false") {
+    return null;
+  }
+
+  const channel = await prisma.channel.findUnique({
+    where: { id: channelId },
+    include: {
+      provider: { include: { config: true } },
+      model: true,
+    },
+  });
+  if (!channel || !channel.provider.config) return null;
+
+  // Cost guard: if the most recent API_REACHABILITY check is FAIL, skip.
+  const lastReach = await prisma.healthCheck.findFirst({
+    where: { channelId, level: "API_REACHABILITY" },
+    orderBy: { createdAt: "desc" },
+  });
+  if (lastReach && lastReach.result === "FAIL") return null;
+
+  const route: RouteResult = {
+    channel,
+    provider: channel.provider,
+    config: channel.provider.config,
+    model: channel.model,
+  };
+
+  const result = await runCallProbe(route);
+  await writeHealthRecords(channelId, [result]);
+
+  if (result.result === "FAIL") {
+    const recent = await prisma.healthCheck.findMany({
+      where: { channelId, level: "CALL_PROBE" },
+      orderBy: { createdAt: "desc" },
+      take: 3,
+    });
+    if (recent.length === 3 && recent.every((r) => r.result === "FAIL")) {
+      if (channel.status !== "DISABLED") {
+        await updateChannelStatus(route, "DISABLED");
+      }
+    }
+  }
+
+  return result;
 }
 
 /**
@@ -217,9 +270,7 @@ async function executeCheckWithRetry(
   checkMode: "full" | "reachability",
 ): Promise<CheckResult[]> {
   const runCheck =
-    checkMode === "full"
-      ? () => runHealthCheck(route)
-      : () => runApiReachabilityCheck(route);
+    checkMode === "full" ? () => runHealthCheck(route) : () => runApiReachabilityCheck(route);
 
   let results = await runCheck();
   const allPassed = results.every((r) => r.result === "PASS");
