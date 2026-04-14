@@ -457,6 +457,9 @@ export default function OperationsPage() {
           </div>
         </div>
       </div>
+
+      {/* F-RL-06: rate-limit global defaults */}
+      <RateLimitDefaultsCard t={t} />
     </div>
   );
 }
@@ -606,3 +609,97 @@ function ErrorList({ errors, t }: { errors: string[]; t: ReturnType<typeof useTr
     </div>
   );
 }
+
+
+// ============================================================
+// F-RL-06: RateLimitDefaultsCard
+// ============================================================
+
+const RL_KEYS = [
+  { key: "GLOBAL_DEFAULT_RPM", label: "Default RPM" },
+  { key: "GLOBAL_DEFAULT_TPM", label: "Default TPM" },
+  { key: "GLOBAL_DEFAULT_IMAGE_RPM", label: "Image RPM" },
+  { key: "GLOBAL_DEFAULT_BURST_COUNT", label: "Burst count" },
+  { key: "GLOBAL_DEFAULT_BURST_WINDOW_SEC", label: "Burst window (s)" },
+  { key: "GLOBAL_DEFAULT_SPEND_PER_MIN", label: "Spend / min (USD)" },
+  { key: "GLOBAL_DEFAULT_KEY_RPM", label: "Key RPM cap" },
+  { key: "GLOBAL_DEFAULT_USER_RPM", label: "User RPM cap" },
+] as const;
+
+function RateLimitDefaultsCard({ t }: { t: ReturnType<typeof useTranslations> }) {
+  const [values, setValues] = useState<Record<string, string>>({});
+  const [loaded, setLoaded] = useState(false);
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    apiFetch<{ data: { key: string; value: string }[] }>("/api/admin/config")
+      .then((res) => {
+        const map: Record<string, string> = {};
+        for (const row of res.data ?? []) map[row.key] = row.value;
+        setValues(map);
+        setLoaded(true);
+      })
+      .catch(() => setLoaded(true));
+  }, []);
+
+  const save = async () => {
+    setSaving(true);
+    try {
+      for (const k of RL_KEYS) {
+        const v = values[k.key]?.trim();
+        if (!v) continue;
+        await apiFetch("/api/admin/config", {
+          method: "PUT",
+          body: JSON.stringify({ key: k.key, value: v }),
+        });
+      }
+      toast.success(t("rlDefaultsSaved"));
+    } catch (err) {
+      toast.error((err as Error).message);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div className="bg-ds-surface-container-lowest rounded-xl p-8 shadow-sm" data-testid="rl-defaults">
+      <div className="flex items-center gap-3 mb-6">
+        <div className="w-10 h-10 rounded-full bg-indigo-50 text-indigo-600 flex items-center justify-center">
+          <span className="material-symbols-outlined">speed</span>
+        </div>
+        <div>
+          <h3 className="heading-2">{t("rlDefaultsTitle")}</h3>
+          <p className="text-xs text-ds-on-surface-variant">{t("rlDefaultsDesc")}</p>
+        </div>
+      </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {RL_KEYS.map((k) => (
+          <div key={k.key}>
+            <label className="text-[10px] font-bold uppercase tracking-wider text-ds-on-surface-variant">
+              {k.label}
+            </label>
+            <input
+              type="number"
+              min={0}
+              value={values[k.key] ?? ""}
+              onChange={(e) => setValues((prev) => ({ ...prev, [k.key]: e.target.value }))}
+              disabled={!loaded}
+              className="mt-1 w-full bg-ds-surface-container-low rounded-lg px-3 py-2 text-sm"
+            />
+          </div>
+        ))}
+      </div>
+      <div className="flex justify-end pt-6">
+        <button
+          type="button"
+          onClick={save}
+          disabled={saving || !loaded}
+          className="px-5 py-2 bg-gradient-to-r from-ds-primary to-ds-primary-container text-white text-sm font-bold rounded-full shadow-lg shadow-ds-primary/20 hover:opacity-90 active:scale-95 disabled:opacity-50"
+        >
+          {saving ? t("saving") : t("saveChanges")}
+        </button>
+      </div>
+    </div>
+  );
+}
+

@@ -11,7 +11,7 @@ import { resolveEngine } from "@/lib/engine";
 import { generateTraceId } from "@/lib/api/response";
 import { processChatResult } from "@/lib/api/post-process";
 import { prisma } from "@/lib/prisma";
-import { checkRateLimit } from "@/lib/api/rate-limit";
+import { checkRateLimit, checkTokenLimit, checkSpendingRate } from "@/lib/api/rate-limit";
 import { EngineError, sanitizeErrorMessage } from "@/lib/engine/types";
 import type { ChatCompletionRequest } from "@/lib/engine/types";
 import { checkMcpPermission } from "@/lib/mcp/auth";
@@ -23,7 +23,7 @@ const messageSchema = z.object({
 });
 
 export function registerChat(server: McpServer, opts: McpServerOptions): void {
-  const { userId, projectId, permissions, keyRateLimit } = opts;
+  const { userId, projectId, apiKeyId, permissions, keyRateLimit } = opts;
   server.tool(
     "chat",
     `Send a chat completion request to an AI model via AIGC Gateway. Pass model name and messages array. Returns generated text, trace ID, and token usage. IMPORTANT: Call list_models first to get available model names.`,
@@ -160,19 +160,44 @@ export function registerChat(server: McpServer, opts: McpServerOptions): void {
         };
       }
 
-      // Rate limit
+      // Rate limit (三维度 + TPM + 消费速率)
       const project = await prisma.project.findUnique({ where: { id: projectId } });
-      const rateCheck = await checkRateLimit(
-        project ?? { id: projectId, rateLimit: null },
-        "text",
-        keyRateLimit,
-      );
+      const projectForLimits = project ?? { id: projectId, rateLimit: null };
+      const rateCheck = await checkRateLimit(projectForLimits, "text", keyRateLimit, {
+        apiKeyId: apiKeyId ?? null,
+        userId,
+      });
       if (!rateCheck.ok) {
         return {
           content: [
             {
               type: "text" as const,
               text: `[rate_limited] Rate limit exceeded. Please retry after 60 seconds.`,
+            },
+          ],
+          isError: true,
+        };
+      }
+      const tpmCheck = await checkTokenLimit(projectForLimits);
+      if (!tpmCheck.ok) {
+        return {
+          content: [
+            {
+              type: "text" as const,
+              text: `[token_rate_limit_exceeded] Token rate limit exceeded. Please retry after 60 seconds.`,
+            },
+          ],
+          isError: true,
+        };
+      }
+      const userRateLimit = (user.rateLimit as { spendPerMin?: number } | null) ?? null;
+      const spendCheck = await checkSpendingRate(userId, userRateLimit?.spendPerMin ?? null);
+      if (!spendCheck.ok) {
+        return {
+          content: [
+            {
+              type: "text" as const,
+              text: `[spend_rate_exceeded] Spending rate limit exceeded. Please retry after 60 seconds.`,
             },
           ],
           isError: true,

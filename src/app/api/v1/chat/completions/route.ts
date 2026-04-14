@@ -7,7 +7,12 @@ export const dynamic = "force-dynamic";
 
 import { authenticateApiKey } from "@/lib/api/auth-middleware";
 import { checkBalance } from "@/lib/api/balance-middleware";
-import { checkRateLimit, rollbackRateLimit } from "@/lib/api/rate-limit";
+import {
+  checkRateLimit,
+  checkTokenLimit,
+  checkSpendingRate,
+  rollbackRateLimit,
+} from "@/lib/api/rate-limit";
 import { errorResponse } from "@/lib/api/errors";
 import { generateTraceId, jsonResponse, sseResponse } from "@/lib/api/response";
 import { resolveEngine } from "@/lib/engine";
@@ -41,13 +46,18 @@ export async function POST(request: Request) {
     });
   }
 
-  // 4. 限流（Key 级 RPM 收紧）
-  const rateCheck = await checkRateLimit(
-    project ?? { id: user.defaultProjectId ?? user.id, rateLimit: null },
-    "text",
-    apiKey.rateLimit,
-  );
+  // 4. 限流：RPM (三维度) + TPM + 消费速率
+  const projectForLimits = project ?? { id: user.defaultProjectId ?? user.id, rateLimit: null };
+  const rateCheck = await checkRateLimit(projectForLimits, "text", apiKey.rateLimit, {
+    apiKeyId: apiKey.id,
+    userId: user.id,
+  });
   if (!rateCheck.ok) return rateCheck.error;
+  const tpmCheck = await checkTokenLimit(projectForLimits);
+  if (!tpmCheck.ok) return tpmCheck.error;
+  const userRateLimit = (user.rateLimit as { spendPerMin?: number } | null) ?? null;
+  const spendCheck = await checkSpendingRate(user.id, userRateLimit?.spendPerMin ?? null);
+  if (!spendCheck.ok) return spendCheck.error;
   const rateLimitHeaders = rateCheck.headers;
   const rlKey = rateCheck.rateLimitKey;
   const rlMember = rateCheck.rateLimitMember;

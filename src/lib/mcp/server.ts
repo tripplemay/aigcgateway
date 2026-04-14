@@ -133,6 +133,7 @@ const res = await gw.chat({ model: '<model-from-list_models>', messages: [...] }
 export interface McpServerOptions {
   userId: string;
   projectId: string | null;
+  apiKeyId?: string | null;
   permissions: Partial<ApiKeyPermissions>;
   keyRateLimit?: number | null;
 }

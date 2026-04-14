@@ -86,7 +86,8 @@ export function registerGetUsageSummary(server: McpServer, opts: McpServerOption
       }
 
       // Aggregate query (default)
-      const [agg, topModels] = await Promise.all([
+      // F-RL-07: rateLimitedCount from SystemLog(RATE_LIMIT) — project-scoped.
+      const [agg, topModels, rateLimitedCount] = await Promise.all([
         prisma.callLog.aggregate({
           where,
           _count: true,
@@ -100,6 +101,16 @@ export function registerGetUsageSummary(server: McpServer, opts: McpServerOption
           _sum: { sellPrice: true },
           orderBy: { _count: { modelName: "desc" } },
           take: 5,
+        }),
+        prisma.systemLog.count({
+          where: {
+            category: "RATE_LIMIT",
+            createdAt: { gte: (where.createdAt as { gte?: Date })?.gte ?? new Date(0) },
+            detail: {
+              path: ["identifier"],
+              equals: projectId,
+            },
+          },
         }),
       ]);
 
@@ -119,6 +130,7 @@ export function registerGetUsageSummary(server: McpServer, opts: McpServerOption
         totalCalls: agg._count,
         totalCost: `$${Number(agg._sum.sellPrice ?? 0).toFixed(8)}`,
         totalTokens: agg._sum.totalTokens ?? 0,
+        rateLimitedCount,
         avgLatency:
           agg._avg.latencyMs != null ? `${(agg._avg.latencyMs / 1000).toFixed(1)}s` : null,
         topModels: topModels.map((m) => ({

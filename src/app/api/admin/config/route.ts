@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/api/admin-guard";
 import { errorResponse } from "@/lib/api/errors";
+import { clearRateLimitDefaultsCache } from "@/lib/api/rate-limit";
 
 export async function GET(request: Request) {
   const auth = requireAdmin(request);
@@ -28,9 +29,7 @@ export async function PUT(request: Request) {
     where: { key: body.key },
     update: {
       value: String(body.value),
-      ...(body.description !== undefined
-        ? { description: body.description }
-        : {}),
+      ...(body.description !== undefined ? { description: body.description } : {}),
     },
     create: {
       key: body.key,
@@ -38,6 +37,12 @@ export async function PUT(request: Request) {
       description: body.description,
     },
   });
+
+  // F-RL-06: rate-limit defaults changed → drop the in-process cache so the
+  // next request reads the new value immediately.
+  if (typeof body.key === "string" && body.key.startsWith("GLOBAL_DEFAULT_")) {
+    clearRateLimitDefaultsCache();
+  }
 
   return NextResponse.json({ data: config });
 }

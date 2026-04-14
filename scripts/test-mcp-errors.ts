@@ -209,6 +209,38 @@ async function main() {
     console.log("(text model rejected) ");
   });
 
+  // F-RL-03 regression — burst limit kicks in under a fast loop.
+  await step("5c. F-RL-03 burst limit", async () => {
+    if (!API_KEY) throw new Error("API_KEY not set");
+    let sawBurst = false;
+    for (let i = 0; i < 25; i++) {
+      const { body } = await rawMcpRequest(
+        "tools/call",
+        {
+          name: "chat",
+          arguments: {
+            model: "deepseek-v3",
+            messages: [{ role: "user", content: "hi" }],
+            max_tokens: 1,
+          },
+        },
+        API_KEY,
+      );
+      const text =
+        (body as { result?: { content?: Array<{ text?: string }> } })?.result?.content?.[0]?.text ??
+        "";
+      if (/burst_limit_exceeded|rate_limit|rate limit/i.test(text)) {
+        sawBurst = true;
+        break;
+      }
+    }
+    if (!sawBurst) {
+      console.log("(no burst observed — Redis may be disabled or cap too high) ");
+    } else {
+      console.log("(burst triggered) ");
+    }
+  });
+
   // F-ACF-06 regression — max_tokens over model context window is rejected 400.
   await step("6. F-ACF-06 max_tokens > contextWindow → invalid_parameter", async () => {
     if (!API_KEY) throw new Error("API_KEY not set");

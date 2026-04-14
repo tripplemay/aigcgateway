@@ -1,11 +1,11 @@
 {
-  "status": "building",
+  "status": "verifying",
   "user_goal": "RATE-LIMIT — 补齐限流体系：启用 TPM 检查、三层维度（key/user/project）、突发熔断、消费速率保护、管理端配置、审计日志",
   "total_features": 8,
-  "completed_features": 0,
+  "completed_features": 7,
   "fix_rounds": 0,
-  "current_sprint": null,
-  "last_updated": "2026-04-14T00:00:00Z",
+  "current_sprint": "F-RL-08",
+  "last_updated": "2026-04-14T12:00:00Z",
   "reference_docs": [
     "docs/specs/RATE-LIMIT-spec.md",
     "docs/test-reports/user_report/reports-20260413/all-assertions-20260413.json"
@@ -20,7 +20,7 @@
   "evaluator_feedback": null,
   "generator_handoff": null,
   "session_notes": {
-    "Kimi": "Planner 启动 RATE-LIMIT 批次（7 generator + 1 codex = 8 条）。重要发现：src/lib/api/rate-limit.ts 已存在且 REST + MCP 共 8 个计费入口都调用了 checkRateLimit，默认 60 RPM。真正的 gap：TPM 只写不读、只有项目级维度、无突发熔断、无消费速率保护、默认值不可在管理端配置。历史退款已执行（1 用户 7 条共 $0.347）。Generator 需要复用现有 rate-limit.ts 扩展，不要重写。",
+    "Kimi": "Generator 完成 RATE-LIMIT 全部 7 条。F-RL-01 checkTokenLimit（TPM 读）；F-RL-02 checkRateLimit ctx={apiKeyId,userId} 三层 rpmCheck，project→user→key 依次检查并精确回滚；F-RL-03 burst protection 5s/20 默认，env BURST_PROTECTION_ENABLED；F-RL-04 recordSpending/checkSpendingRate，post-process.ts 扣费后立即 feed，User.rateLimit JSON 覆盖；F-RL-05 Settings Project tab 限流卡 + PATCH /api/projects/[id] 接受 rateLimit；F-RL-06 SystemConfig GLOBAL_DEFAULT_* 8 键 + admin/operations RateLimitDefaultsCard + clearRateLimitDefaultsCache on PUT；F-RL-07 logRateLimitEvent 写 SystemLog(RATE_LIMIT) + get_usage_summary.rateLimitedCount。新增 migration：response_summary_call_probe 外再加 system_log_category + user_rate_limit。全部 8 个计费入口（REST chat/images/actions/templates + MCP chat/generate-image/run-action/run-template）都透传 apiKeyId/userId。tsc clean。新增 step 5c burst 回归测试。交 Codex Reviewer F-RL-08 全量验收。",
     "Reviewer": null
   }
 }

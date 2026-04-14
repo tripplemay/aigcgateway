@@ -7,7 +7,7 @@
       "title": "TPM 检查启用（从只写改为写读）",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "source": "RL-001",
       "acceptance": "1) src/lib/api/rate-limit.ts 新增 checkTokenLimit(project) 返回 ok/error；2) chat/completions/actions/templates 入口在请求前检查 TPM（读取过去 60 秒累计 tokens）；3) 超限返回 429 code='token_rate_limit_exceeded'，含 tokens_used / tpm_limit 字段；4) 同 commit 补 scripts/test-mcp.ts regression test：连续发送请求累计 > TPM 后下次请求 429；5) tsc 通过"
     },
@@ -16,7 +16,7 @@
       "title": "多维度限流：API Key + User + Project 三层",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "source": "RL-001",
       "acceptance": "1) checkRateLimit 签名扩展：入参 apiKeyId / userId / projectId，依次检查三层；2) 任一维度超限即 429，错误消息包含触发的维度名；3) 默认配置：key 级 30 RPM、user 级 60 RPM、project 级沿用当前默认；4) Redis key 命名 rl:rpm:key:${keyId} / rl:rpm:user:${userId} / rl:rpm:project:${projectId}；5) rollbackRateLimit 同步支持三层；6) 同 commit 补 regression test；7) tsc 通过"
     },
@@ -25,7 +25,7 @@
       "title": "突发熔断（burst protection）",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "source": "RL-001",
       "acceptance": "1) src/lib/api/rate-limit.ts 新增 checkBurst(identifier, windowSec=5, maxCount=20)；2) 5 秒内超过 20 次同 identifier → 429 code='burst_limit_exceeded'，Retry-After=30；3) 与 RPM 限流并行（RPM 慢速滑窗，burst 快速防御）；4) 环境变量 BURST_PROTECTION_ENABLED 可关闭（默认开）；5) 同 commit 补 regression test（短时间批量请求应触发）；6) tsc 通过"
     },
@@ -34,7 +34,7 @@
       "title": "消费速率保护（spending rate protection）",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "source": "RL-005",
       "acceptance": "1) src/lib/api/rate-limit.ts 新增 recordSpending(userId, amountUsd) 和 checkSpendingRate(userId)；2) 扣费成功后记录到 Redis spend:${userId}:${minute_epoch}；3) 每分钟消费 > $DEFAULT_SPEND_LIMIT_PER_MIN（默认 $1）→ 下次请求 429 code='spend_rate_exceeded'；4) 错误消息包含 spentThisMinute 和 limit 字段；5) User 级别可配置覆盖（users.rateLimit JSON 扩展，不加新字段）；6) 同 commit 补 regression test；7) tsc 通过"
     },
@@ -43,7 +43,7 @@
       "title": "Project Settings 增加限流配置 UI",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "1) Settings Project tab 增加'限流配置'卡片：RPM / TPM / imageRPM / spendLimitPerMin 输入框；2) 保存到 projects.rateLimit JSON 字段；3) 空字段表示使用系统默认，占位文本显示当前默认值；4) 配置生效无需重启（每次请求都读取最新值）；5) i18n 中英文；6) 使用 PageContainer + Button gradient-primary 保持 UI 一致性；7) tsc 通过"
     },
     {
@@ -51,7 +51,7 @@
       "title": "Admin 全局限流默认值配置",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "1) SystemConfig 表增加 GLOBAL_DEFAULT_RPM / TPM / IMAGE_RPM / BURST_COUNT / BURST_WINDOW_SEC / SPEND_PER_MIN 键；2) /admin/operations 页面增加'限流默认值'卡片可编辑；3) rate-limit.ts 从 SystemConfig 读取（fallback 到 env，再 fallback 到硬编码）；4) 修改后立即生效；5) i18n；6) tsc 通过"
     },
     {
@@ -59,7 +59,7 @@
       "title": "限流事件审计日志 + 429 指标统计",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "1) 所有限流触发（RPM/TPM/burst/spend）写入 SystemLog 表 type='RATE_LIMIT'，details 含触发维度和实际值；2) /admin/logs 页面增加系统日志 tab（也是 BL-101 的一部分，可合并实现）；3) get_usage_summary 增加 rateLimitedCount 字段统计；4) tsc 通过"
     },
     {

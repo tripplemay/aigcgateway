@@ -8,7 +8,12 @@ export const dynamic = "force-dynamic";
 
 import { authenticateApiKey, type ApiKeyPermissions } from "@/lib/api/auth-middleware";
 import { checkBalance } from "@/lib/api/balance-middleware";
-import { checkRateLimit, rollbackRateLimit } from "@/lib/api/rate-limit";
+import {
+  checkRateLimit,
+  checkTokenLimit,
+  checkSpendingRate,
+  rollbackRateLimit,
+} from "@/lib/api/rate-limit";
 import { errorResponse } from "@/lib/api/errors";
 import { sseResponse, generateTraceId } from "@/lib/api/response";
 import { runAction, runActionNonStream, InjectionError } from "@/lib/action/runner";
@@ -53,9 +58,17 @@ export async function POST(request: Request) {
     return errorResponse(400, "invalid_parameter", "action_id is required");
   }
 
-  // 4. Rate limit
-  const rateCheck = await checkRateLimit(project, "text", apiKey.rateLimit);
+  // 4. Rate limit (三维度 + TPM + 消费速率)
+  const rateCheck = await checkRateLimit(project, "text", apiKey.rateLimit, {
+    apiKeyId: apiKey.id,
+    userId: user.id,
+  });
   if (!rateCheck.ok) return rateCheck.error;
+  const tpmCheck = await checkTokenLimit(project);
+  if (!tpmCheck.ok) return tpmCheck.error;
+  const userRateLimit = (user.rateLimit as { spendPerMin?: number } | null) ?? null;
+  const spendCheck = await checkSpendingRate(user.id, userRateLimit?.spendPerMin ?? null);
+  if (!spendCheck.ok) return spendCheck.error;
   const rlKey = rateCheck.rateLimitKey;
   const rlMember = rateCheck.rateLimitMember;
 

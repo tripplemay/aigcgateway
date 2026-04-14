@@ -19,7 +19,7 @@ import type {
   ChatCompletionResponse,
   ImageGenerationResponse,
 } from "../engine/types";
-import { recordTokenUsage } from "./rate-limit";
+import { recordTokenUsage, recordSpending } from "./rate-limit";
 
 export interface PostProcessParams {
   traceId: string;
@@ -132,6 +132,9 @@ async function processChatResultAsync(params: ChatPostProcessParams): Promise<vo
   // 扣费（ERROR / TIMEOUT 不扣）
   if (sellUsd > 0 && (status === "SUCCESS" || status === "FILTERED")) {
     await deductBalance(params.userId, params.projectId, sellUsd, callLog.id, params.traceId);
+    // F-RL-04: feed the spending rate limiter immediately so the next
+    // incoming request sees the accurate per-minute tally.
+    recordSpending(params.userId, sellUsd).catch(() => {});
   }
 
   // 记录 TPM（用于限流检查）
@@ -206,6 +209,7 @@ async function processImageResultAsync(params: ImagePostProcessParams): Promise<
   // 图片失败（含零图）不扣费
   if (sellUsd > 0 && status === "SUCCESS") {
     await deductBalance(params.userId, params.projectId, sellUsd, callLog.id, params.traceId);
+    recordSpending(params.userId, sellUsd).catch(() => {});
   }
 }
 

@@ -9,7 +9,7 @@
 import { z } from "zod";
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { prisma } from "@/lib/prisma";
-import { checkRateLimit } from "@/lib/api/rate-limit";
+import { checkRateLimit, checkTokenLimit, checkSpendingRate } from "@/lib/api/rate-limit";
 import { checkMcpPermission } from "@/lib/mcp/auth";
 import { InjectionError } from "@/lib/action/runner";
 import { injectVariables } from "@/lib/action/inject";
@@ -18,7 +18,7 @@ import { runFanout } from "@/lib/template/fanout";
 import type { McpServerOptions } from "@/lib/mcp/server";
 
 export function registerRunTemplate(server: McpServer, opts: McpServerOptions): void {
-  const { userId, projectId, permissions, keyRateLimit } = opts;
+  const { userId, projectId, apiKeyId, permissions, keyRateLimit } = opts;
 
   server.tool(
     "run_template",
@@ -66,16 +66,41 @@ Pass variables to inject into each step's Action prompts.`,
         };
       }
 
-      // Rate limit
+      // Rate limit (三维度 + TPM + 消费速率)
       const project = await prisma.project.findUnique({ where: { id: projectId } });
-      const rateCheck = await checkRateLimit(
-        project ?? { id: projectId, rateLimit: null },
-        "text",
-        keyRateLimit,
-      );
+      const projectForLimits = project ?? { id: projectId, rateLimit: null };
+      const rateCheck = await checkRateLimit(projectForLimits, "text", keyRateLimit, {
+        apiKeyId: apiKeyId ?? null,
+        userId,
+      });
       if (!rateCheck.ok) {
         return {
           content: [{ type: "text" as const, text: "Rate limit exceeded. Retry after 60s." }],
+          isError: true,
+        };
+      }
+      const tpmCheck = await checkTokenLimit(projectForLimits);
+      if (!tpmCheck.ok) {
+        return {
+          content: [
+            {
+              type: "text" as const,
+              text: "[token_rate_limit_exceeded] Token rate limit exceeded. Retry after 60s.",
+            },
+          ],
+          isError: true,
+        };
+      }
+      const userRateLimit = (user.rateLimit as { spendPerMin?: number } | null) ?? null;
+      const spendCheck = await checkSpendingRate(userId, userRateLimit?.spendPerMin ?? null);
+      if (!spendCheck.ok) {
+        return {
+          content: [
+            {
+              type: "text" as const,
+              text: "[spend_rate_exceeded] Spending rate limit exceeded. Retry after 60s.",
+            },
+          ],
           isError: true,
         };
       }

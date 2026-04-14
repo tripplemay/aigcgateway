@@ -90,7 +90,12 @@ export async function PATCH(request: Request, { params }: { params: { id: string
     return errorResponse(404, "not_found", "Project not found");
   }
 
-  let body: { name?: string; description?: string; alertThreshold?: number };
+  let body: {
+    name?: string;
+    description?: string;
+    alertThreshold?: number;
+    rateLimit?: Record<string, number> | null;
+  };
   try {
     body = await request.json();
   } catch {
@@ -103,6 +108,7 @@ export async function PATCH(request: Request, { params }: { params: { id: string
       ...(body.name !== undefined ? { name: body.name } : {}),
       ...(body.description !== undefined ? { description: body.description } : {}),
       ...(body.alertThreshold !== undefined ? { alertThreshold: body.alertThreshold } : {}),
+      ...(body.rateLimit !== undefined ? { rateLimit: body.rateLimit ?? undefined } : {}),
     },
     include: { user: { select: { balance: true } } },
   });

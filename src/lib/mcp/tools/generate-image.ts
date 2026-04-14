@@ -12,14 +12,14 @@ import { generateTraceId } from "@/lib/api/response";
 import { processImageResult } from "@/lib/api/post-process";
 import { buildProxyUrl } from "@/lib/api/image-proxy";
 import { prisma } from "@/lib/prisma";
-import { checkRateLimit } from "@/lib/api/rate-limit";
+import { checkRateLimit, checkSpendingRate } from "@/lib/api/rate-limit";
 import { EngineError, sanitizeErrorMessage } from "@/lib/engine/types";
 import type { ImageGenerationRequest } from "@/lib/engine/types";
 import { checkMcpPermission } from "@/lib/mcp/auth";
 import type { McpServerOptions } from "@/lib/mcp/server";
 
 export function registerGenerateImage(server: McpServer, opts: McpServerOptions): void {
-  const { userId, projectId, permissions, keyRateLimit } = opts;
+  const { userId, projectId, apiKeyId, permissions, keyRateLimit } = opts;
   server.tool(
     "generate_image",
     `Generate images using an AI model via AIGC Gateway. Returns image URLs, trace ID, and cost. IMPORTANT: Call list_models(modality='image') first to get available image model names and supported sizes.`,
@@ -73,17 +73,30 @@ export function registerGenerateImage(server: McpServer, opts: McpServerOptions)
         };
       }
 
-      // Rate limit (image RPM)
+      // Rate limit (image RPM — three-layer + spend guard)
       const project = await prisma.project.findUnique({ where: { id: projectId } });
-      const rateCheck = await checkRateLimit(
-        project ?? { id: projectId, rateLimit: null },
-        "image",
-        keyRateLimit,
-      );
+      const projectForLimits = project ?? { id: projectId, rateLimit: null };
+      const rateCheck = await checkRateLimit(projectForLimits, "image", keyRateLimit, {
+        apiKeyId: apiKeyId ?? null,
+        userId,
+      });
       if (!rateCheck.ok) {
         return {
           content: [
             { type: "text" as const, text: "Rate limit exceeded. Please retry after 60 seconds." },
+          ],
+          isError: true,
+        };
+      }
+      const userRateLimit = (user.rateLimit as { spendPerMin?: number } | null) ?? null;
+      const spendCheck = await checkSpendingRate(userId, userRateLimit?.spendPerMin ?? null);
+      if (!spendCheck.ok) {
+        return {
+          content: [
+            {
+              type: "text" as const,
+              text: "[spend_rate_exceeded] Spending rate limit exceeded. Please retry after 60 seconds.",
+            },
           ],
           isError: true,
         };

@@ -43,6 +43,12 @@ interface ProjectDetail {
   name: string;
   description: string | null;
   createdAt: string;
+  rateLimit: {
+    rpm?: number;
+    tpm?: number;
+    imageRpm?: number;
+    spendPerMin?: number;
+  } | null;
   stats: { keyCount: number; callCount: number };
 }
 
@@ -82,6 +88,12 @@ export default function SettingsPage() {
   const [saving, setSaving] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState("");
   const [deleting, setDeleting] = useState(false);
+  // F-RL-05: rate limit overrides (blank = use system default)
+  const [rlRpm, setRlRpm] = useState("");
+  const [rlTpm, setRlTpm] = useState("");
+  const [rlImageRpm, setRlImageRpm] = useState("");
+  const [rlSpend, setRlSpend] = useState("");
+  const [savingRateLimit, setSavingRateLimit] = useState(false);
 
   // ── Data: profile ──
   const { data: profile, refetch: refetchProfile } = useAsyncData<Profile>(async () => {
@@ -112,9 +124,36 @@ export default function SettingsPage() {
     if (projectDetail && !projInitialized) {
       setProjName(projectDetail.name);
       setProjDesc(projectDetail.description ?? "");
+      const rl = projectDetail.rateLimit ?? {};
+      setRlRpm(rl.rpm != null ? String(rl.rpm) : "");
+      setRlTpm(rl.tpm != null ? String(rl.tpm) : "");
+      setRlImageRpm(rl.imageRpm != null ? String(rl.imageRpm) : "");
+      setRlSpend(rl.spendPerMin != null ? String(rl.spendPerMin) : "");
       setProjInitialized(true);
     }
   }, [projectDetail, projInitialized]);
+
+  const handleRateLimitSave = async () => {
+    if (!current) return;
+    setSavingRateLimit(true);
+    try {
+      const rateLimit: Record<string, number> = {};
+      if (rlRpm.trim()) rateLimit.rpm = Number(rlRpm);
+      if (rlTpm.trim()) rateLimit.tpm = Number(rlTpm);
+      if (rlImageRpm.trim()) rateLimit.imageRpm = Number(rlImageRpm);
+      if (rlSpend.trim()) rateLimit.spendPerMin = Number(rlSpend);
+      await apiFetch(`/api/projects/${current.id}`, {
+        method: "PATCH",
+        body: JSON.stringify({ rateLimit: Object.keys(rateLimit).length ? rateLimit : null }),
+      });
+      toast.success(t("rateLimitSaved"));
+      refetchProject();
+    } catch (err) {
+      toast.error((err as Error).message);
+    } finally {
+      setSavingRateLimit(false);
+    }
+  };
 
   useEffect(() => {
     setProjInitialized(false);
@@ -373,6 +412,88 @@ export default function SettingsPage() {
                       {projectDetail?.stats.callCount?.toLocaleString() ?? "—"}
                     </p>
                   </div>
+                </div>
+              </section>
+
+              {/* F-RL-05: rate limit overrides */}
+              <section
+                className="bg-ds-surface-container-lowest rounded-xl p-8 shadow-sm"
+                data-testid="project-rate-limit"
+              >
+                <div className="flex items-center gap-4 mb-6">
+                  <div className="w-12 h-12 rounded-xl bg-ds-primary-container/20 flex items-center justify-center text-ds-primary">
+                    <span className="material-symbols-outlined">speed</span>
+                  </div>
+                  <div>
+                    <h2 className="heading-2">{t("rateLimitTitle")}</h2>
+                    <p className="text-sm text-ds-on-surface-variant">{t("rateLimitDesc")}</p>
+                  </div>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-xs font-bold uppercase tracking-wider text-ds-on-surface-variant">
+                      {t("rateLimitRpm")}
+                    </label>
+                    <input
+                      type="number"
+                      min="0"
+                      value={rlRpm}
+                      onChange={(e) => setRlRpm(e.target.value)}
+                      placeholder={t("rateLimitDefault")}
+                      className="mt-1 w-full bg-ds-surface-container-low rounded-lg px-4 py-2 text-sm"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs font-bold uppercase tracking-wider text-ds-on-surface-variant">
+                      {t("rateLimitTpm")}
+                    </label>
+                    <input
+                      type="number"
+                      min="0"
+                      value={rlTpm}
+                      onChange={(e) => setRlTpm(e.target.value)}
+                      placeholder={t("rateLimitDefault")}
+                      className="mt-1 w-full bg-ds-surface-container-low rounded-lg px-4 py-2 text-sm"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs font-bold uppercase tracking-wider text-ds-on-surface-variant">
+                      {t("rateLimitImageRpm")}
+                    </label>
+                    <input
+                      type="number"
+                      min="0"
+                      value={rlImageRpm}
+                      onChange={(e) => setRlImageRpm(e.target.value)}
+                      placeholder={t("rateLimitDefault")}
+                      className="mt-1 w-full bg-ds-surface-container-low rounded-lg px-4 py-2 text-sm"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs font-bold uppercase tracking-wider text-ds-on-surface-variant">
+                      {t("rateLimitSpend")}
+                    </label>
+                    <input
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      value={rlSpend}
+                      onChange={(e) => setRlSpend(e.target.value)}
+                      placeholder={t("rateLimitDefault")}
+                      className="mt-1 w-full bg-ds-surface-container-low rounded-lg px-4 py-2 text-sm"
+                    />
+                  </div>
+                </div>
+                <div className="flex justify-end pt-6">
+                  <Button
+                    variant="gradient-primary"
+                    size="lg"
+                    type="button"
+                    onClick={handleRateLimitSave}
+                    disabled={savingRateLimit}
+                  >
+                    {savingRateLimit ? t("saving") : t("saveChanges")}
+                  </Button>
                 </div>
               </section>
             </div>
