@@ -53,27 +53,6 @@
       "priority": "medium"
     },
     {
-      "id": "BL-090",
-      "title": "用户文档页(/docs)内容更新 — 别名 + 公共模板 + chat 参数",
-      "description": "用户可见的文档页面过时：1) 3 处模型名用旧 provider 前缀格式（deepseek/v3、openai/gpt-4o、zhipu/cogview-3-flash），应改为别名；2) chat 参数缺少 top_p/frequency_penalty/tools/tool_choice 说明；3) MCP 工具列表只列了 7 个，缺少 list_public_templates/fork_public_template 等；4) model 参数说明应改为「模型别名」。",
-      "decisions": [],
-      "confirmed_at": "2026-04-10",
-      "priority": "medium"
-    },
-    {
-      "id": "BL-110",
-      "title": "快速开始页面整体重写",
-      "description": "当前 Quickstart 页面无法达到让新开发者快速上手的目的：SDK 包名不存在、模型名旧格式、缺少获取 API Key 引导、缺少 curl 示例、全英文未 i18n、缺少 MCP 接入介绍。需要整体重写内容结构：Step 1 获取 API Key（带链接到 Keys 页）→ Step 2 curl 零依赖首次请求 → Step 3 OpenAI SDK 集成（npm install openai，开发者最熟悉）→ Step 4 进阶（流式响应/图片生成/MCP 接入）。模型名用别名格式，baseURL 写死完整地址。设计系统对齐（去 ring、用 token 色）。",
-      "decisions": [
-        "不用自研 SDK，改为展示 OpenAI SDK 用法（API 是 OpenAI 兼容的）",
-        "第一步必须是获取 API Key，降低上手门槛",
-        "先 curl 再 SDK，零依赖最优先",
-        "文案全部走 i18n"
-      ],
-      "confirmed_at": "2026-04-12",
-      "priority": "medium"
-    },
-    {
       "id": "BL-111",
       "title": "别名分类管理员确认机制（classifier 审批队列）",
       "description": "alias-classifier 推断后不直接写入 AliasModelLink，进入待确认队列。高置信结果自动挂载，低置信/新别名进队列等管理员确认。管理员在运维面板看到待确认列表，可确认/拒绝/改分配。解决 LLM 分类不精确导致的反复数据污染问题（开源参数模型归入商业产品别名、distill 归入基础模型、功能变体混入等）。",
@@ -107,35 +86,6 @@
       ],
       "confirmed_at": "2026-04-13",
       "priority": "medium"
-    },
-    {
-      "id": "BL-124",
-      "title": "UI-UNIFY 批次 — 公共组件抽取 + 页面改造 + 设计系统规范",
-      "description": "全面统一 console 12 个页面的视觉/布局/交互。抽取 9 个缺失的公共组件（PageContainer、PageHeader、TableCard、KPICard、StatusChip、CTABanner、SectionCard、TableLoader、PageLoader），升级 EmptyState 和 Button，改造全部页面使用新组件，统一 heading scale。详细规格见 docs/specs/UI-UNIFY-spec.md。包含 13 个 generator + 1 个 codex 验收 = 14 条 features。",
-      "decisions": [
-        "等 DX-POLISH 签收部署后立即启动",
-        "合并并关闭 BL-121 (Models '显示全部' 按钮无效)、BL-122 (Actions/Templates 加载闪烁)、BL-123 (Templates tab 样式)",
-        "第一阶段先做组件基础设施，第二阶段改造页面，第三阶段验收",
-        "所有页面改造必须按 test-lifecycle.md 规则同 commit 补 regression test",
-        "PageContainer 支持 default (max-w-7xl) 和 narrow (max-w-5xl) 两种模式"
-      ],
-      "confirmed_at": "2026-04-13",
-      "priority": "high",
-      "spec": "docs/specs/UI-UNIFY-spec.md"
-    },
-    {
-      "id": "BL-125",
-      "title": "UI-UNIFY-FIX — UI-UNIFY 收尾批次（PageContainer size / badge / heading scale / 按钮统一）",
-      "description": "生产验证发现 UI-UNIFY 完成签收后仍有视觉不一致：(1) settings 用 narrow 但同样有表格的 keys 用 default；(2) mcp-setup 用 default 但应该 narrow；(3) keys/mcp-setup 单独带 PageHeader badge，其他 10 个页面都不带；(4) keys 的'创建按钮'埋在 TableCard 而非 PageHeader.actions；(5) F-UU-12 的 .heading-1/2/3 工具类几乎没人用，section h2 仍手写至少 3 种字号；(6) F-UU-06 的 Button gradient-primary variant 只有 2 个页面用，其他 4 个页面仍手写 plain bg-ds-primary。详细规格见 docs/specs/UI-UNIFY-FIX-spec.md。",
-      "decisions": [
-        "等 DOCS-REFRESH 签收后立即启动",
-        "5 个 generator + 1 个 codex 验收 = 6 条 features",
-        "属于 UI-UNIFY 的执行不彻底，作为收尾批次而非新需求",
-        "Evaluator 验收通过 grep 命令机械化验证（badge=0、heading-N 替换、gradient variant 替换）"
-      ],
-      "confirmed_at": "2026-04-13",
-      "priority": "high",
-      "spec": "docs/specs/UI-UNIFY-FIX-spec.md"
     },
     {
       "id": "BL-126",
