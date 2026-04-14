@@ -1,0 +1,62 @@
+{
+  "feature": "F-RL-08",
+  "batch": "RATE-LIMIT",
+  "env": "L1-local-3099",
+  "startedAt": "2026-04-14T19:45:09.508Z",
+  "finishedAt": "2026-04-14T19:45:09.835Z",
+  "pass": true,
+  "passCount": 10,
+  "failCount": 0,
+  "checks": [
+    {
+      "id": "F-RL-08-01-burst-parallel",
+      "ok": true,
+      "detail": "burst_429=10/15"
+    },
+    {
+      "id": "F-RL-08-02-rpm-limit",
+      "ok": true,
+      "detail": "RPM limit exceeded on key (limit=2). Please retry after 60 seconds."
+    },
+    {
+      "id": "F-RL-08-03-tpm-limit",
+      "ok": true,
+      "detail": "Token rate limit exceeded (80 / 60 tokens/min). Please retry after 60 seconds."
+    },
+    {
+      "id": "F-RL-08-04-spend-rate-limit",
+      "ok": true,
+      "detail": "Spending rate limit exceeded (spent $1.2000 of $1.00/min). Please retry after 60 seconds."
+    },
+    {
+      "id": "F-RL-08-05-user-dimension",
+      "ok": true,
+      "detail": "RPM limit exceeded on user (limit=1). Please retry after 60 seconds."
+    },
+    {
+      "id": "F-RL-08-06-project-settings-immediate",
+      "ok": true,
+      "detail": "RPM limit exceeded on project (limit=1). Please retry after 60 seconds."
+    },
+    {
+      "id": "F-RL-08-07-admin-default-immediate",
+      "ok": true,
+      "detail": "RPM limit exceeded on key (limit=1). Please retry after 60 seconds."
+    },
+    {
+      "id": "F-RL-08-08-systemlog-rate-limit",
+      "ok": true,
+      "detail": "logs=16, scopes=burst,rpm,spend,tpm"
+    },
+    {
+      "id": "F-RL-08-09-usage-summary-rate-limited-count",
+      "ok": true,
+      "detail": "rateLimitedCount=12"
+    },
+    {
+      "id": "F-RL-08-10-smoke-ok",
+      "ok": true,
+      "detail": "chat ok under non-limited config"
+    }
+  ]
+}

@@ -67,7 +67,7 @@
       "title": "RATE-LIMIT 全量验收",
       "priority": "high",
       "executor": "codex",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "codex 执行：1) 15 并发 burst 测试触发 burst_limit_exceeded；2) 连续 40 次请求超 RPM 限制 → 429；3) 累计 tokens 超 TPM → token_rate_limit_exceeded；4) 单分钟消费超 $1 → spend_rate_exceeded；5) API Key / User / Project 三维度各测试一次；6) 管理端 Project Settings 修改限流后立即生效；7) Admin 全局默认值修改后立即生效；8) SystemLog 正确记录所有 RATE_LIMIT 事件；9) usage_summary 统计准确；10) 签收报告生成"
     }
   ]
