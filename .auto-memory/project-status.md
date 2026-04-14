@@ -4,11 +4,12 @@ description: AIGC Gateway 当前状态快照（覆盖写，≤30 行）
 type: project
 ---
 ## 当前批次
-- RATE-LIMIT：`done`（8/8 完成，含 F-RL-08 验收与签收）
-- 规格：`docs/specs/RATE-LIMIT-spec.md`
-- 验收报告：`docs/test-reports/rate-limit-f-rl-08-verifying-e2e-2026-04-15.json`（10/10 PASS）
-- 签收报告：`docs/test-reports/RATE-LIMIT-signoff-2026-04-15.md`
-- 覆盖：burst/rpm/tpm/spend + key/user/project 三维度 + 配置即时生效 + 审计统计一致性
+- WORKFLOW-POLISH：`building`（10 条功能，0/10 完成，9 generator + 1 codex）
+- 规格：`docs/specs/WORKFLOW-POLISH-spec.md`
+- Phase 1 Template 增强：F-WP-01 usage 拆分 / F-WP-02 步骤变量 / F-WP-03 step version 锁定 / F-WP-04 展示版本号
+- Phase 2 输入校验：F-WP-05 minLength + 二进制 prompt 检测
+- Phase 3 DX 细节：F-WP-06 capability vision / F-WP-07 usage success/error / F-WP-08 transactions 内联 / F-WP-09 错别字
+- 来源：reports-20260413 审计剩余的 medium/low 断言
 
 ## 已知 gap
 - 5 个图片模型 supportedSizes 规则不匹配：openai/gpt-5-image、wan2.7-image、wan2.7-image-pro、z-image-turbo、glm-4v

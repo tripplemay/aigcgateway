@@ -1,32 +1,26 @@
 {
-  "status": "done",
-  "user_goal": "RATE-LIMIT — 补齐限流体系：启用 TPM 检查、三层维度（key/user/project）、突发熔断、消费速率保护、管理端配置、审计日志",
-  "total_features": 8,
-  "completed_features": 8,
+  "status": "building",
+  "user_goal": "WORKFLOW-POLISH — 收尾 reports-20260413 审计剩余断言：Template 执行增强（usage 拆分/步骤变量/版本锁定）+ 输入校验 + DX 细节打磨",
+  "total_features": 10,
+  "completed_features": 0,
   "fix_rounds": 0,
-  "current_sprint": "F-RL-08",
-  "last_updated": "2026-04-14T19:47:00Z",
+  "current_sprint": null,
+  "last_updated": "2026-04-15T00:00:00Z",
   "reference_docs": [
-    "docs/specs/RATE-LIMIT-spec.md",
+    "docs/specs/WORKFLOW-POLISH-spec.md",
     "docs/test-reports/user_report/reports-20260413/all-assertions-20260413.json"
   ],
   "role_assignments": null,
   "docs": {
-    "spec": "docs/specs/RATE-LIMIT-spec.md",
+    "spec": "docs/specs/WORKFLOW-POLISH-spec.md",
     "test_cases": null,
-    "signoff": "docs/test-reports/RATE-LIMIT-signoff-2026-04-15.md",
+    "signoff": null,
     "framework_reviewed": false
   },
-  "evaluator_feedback": {
-    "summary": "RATE-LIMIT 本地 L1 全量验收通过，F-RL-08 共 10/10 检查项 PASS。",
-    "pass_count": 10,
-    "partial_count": 0,
-    "fail_count": 0,
-    "issues": []
-  },
+  "evaluator_feedback": null,
   "generator_handoff": null,
   "session_notes": {
-    "Kimi": "Generator 完成 RATE-LIMIT 全部 7 条。F-RL-01 checkTokenLimit（TPM 读）；F-RL-02 checkRateLimit ctx={apiKeyId,userId} 三层 rpmCheck，project→user→key 依次检查并精确回滚；F-RL-03 burst protection 5s/20 默认，env BURST_PROTECTION_ENABLED；F-RL-04 recordSpending/checkSpendingRate，post-process.ts 扣费后立即 feed，User.rateLimit JSON 覆盖；F-RL-05 Settings Project tab 限流卡 + PATCH /api/projects/[id] 接受 rateLimit；F-RL-06 SystemConfig GLOBAL_DEFAULT_* 8 键 + admin/operations RateLimitDefaultsCard + clearRateLimitDefaultsCache on PUT；F-RL-07 logRateLimitEvent 写 SystemLog(RATE_LIMIT) + get_usage_summary.rateLimitedCount。新增 migration：response_summary_call_probe 外再加 system_log_category + user_rate_limit。全部 8 个计费入口（REST chat/images/actions/templates + MCP chat/generate-image/run-action/run-template）都透传 apiKeyId/userId。tsc clean。新增 step 5c burst 回归测试。交 Codex Reviewer F-RL-08 全量验收。",
-    "Reviewer": "执行 F-RL-08 验收脚本 scripts/test/rate-limit-f-rl-08-verifying-e2e-2026-04-15.ts。先按 harness 重建 3099 测试环境（migrate 到 20260414_rate_limit_user_rate_limit）后完成验证。报告 docs/test-reports/rate-limit-f-rl-08-verifying-e2e-2026-04-15.json：10/10 PASS，覆盖 burst/rpm/tpm/spend、key/user/project 三维度、Project Settings 与 Admin 默认值即时生效、SystemLog(RATE_LIMIT) 与 usage_summary.rateLimitedCount 一致性。已生成 signoff 并将批次置 done。"
+    "Kimi": "Planner 启动 WORKFLOW-POLISH 批次（9 generator + 1 codex = 10 条）。处理 reports-20260413 审计剩余 medium/low 断言。Phase1 Template 增强（F-WP-01 usage 拆分 / F-WP-02 步骤变量 / F-WP-03 step version 锁定 / F-WP-04 展示版本号）；Phase2 输入校验（F-WP-05 minLength + 二进制 prompt 检测）；Phase3 DX 细节（F-WP-06 capability vision / F-WP-07 usage success/error / F-WP-08 transactions 内联 / F-WP-09 错别字 + qualityScore）。F-WP-03 涉及 schema 变更。RATE-LIMIT 已签收。",
+    "Reviewer": null
   }
 }
