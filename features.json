@@ -1,55 +1,62 @@
 {
-  "batch": "AUDIT-FOLLOWUP",
+  "batch": "UI-UNIFY-FIX-2",
   "created_at": "2026-04-15",
   "features": [
     {
-      "id": "F-AF-01",
-      "title": "API Key 前缀脱敏规则扩展（API + 日志层双重过滤）",
-      "priority": "critical",
-      "executor": "generator",
-      "status": "done",
-      "source": "RL-002, IDOR-006",
-      "acceptance": "1) src/lib/api/error-sanitizer.ts（或等价脱敏函数）增加正则 /sk-[a-zA-Z0-9*\\-]{8,}/g → [key removed]（覆盖 OpenAI / OpenRouter / Anthropic 格式）；2) 错误消息写入 call_logs 前也要脱敏（CallLog.error 字段），避免历史数据污染；3) get_log_detail 读取层再次脱敏（防止历史已污染数据泄露）；4) 同 commit 补 regression test：注入含 'sk-testABC123xyzDEF456' 的上游错误，API 响应和 get_log_detail 均不含该字符串；5) tsc 通过",
-      "completed_at": "2026-04-15T10:26:00Z"
-    },
-    {
-      "id": "F-AF-02",
-      "title": "get_log_detail.usage 补 reasoningTokens 字段",
+      "id": "F-UF2-01",
+      "title": "SectionCard 替换全部手写内容卡片",
       "priority": "high",
       "executor": "generator",
-      "status": "done",
-      "completed_at": "2026-04-15T10:35:00Z",
-      "source": "FIN-002",
-      "acceptance": "1) CallLog 表增加 reasoningTokens 列（migration），或在 responseSummary JSON 字段里存储；2) post-process.ts 写入 CallLog 时提取 usage.reasoningTokens；3) get_log_detail / list_logs 返回的 usage 对象包含 reasoningTokens（仅在 > 0 时返回）；4) 历史数据保持 null，不做 backfill；5) 同 commit 补 regression test：reasoning 模型调用后 get_log_detail.usage.reasoningTokens = chat 响应里的值；6) tsc 通过"
+      "status": "pending",
+      "acceptance": "1) dashboard/models/balance/usage/settings/mcp-setup/quickstart/templates 全部改用 <SectionCard> 作为内容卡壳；2) 保留每个页面的独特内部布局（mcp-setup bento / quickstart 编号圆圈 / dashboard 多 section）；3) 消除自定义 'shadow-[0px_20px_40px...]' 阴影，统一为 SectionCard 的 shadow-sm；4) 消除 'ring-1 ring-slate-100'，统一为 'border-slate-200/5'；5) grep 验证：grep -rnE 'bg-ds-surface-container-lowest[^\"]*rounded-(xl|2xl)' src/app/(console)/*/page.tsx 应返回 0 行；6) tsc 通过；7) 关键页面回归测试覆盖渲染"
     },
     {
-      "id": "F-AF-03",
-      "title": "MCP DX 三合一改进（baseUrl + messages 错误友好 + list_logs 时间范围）",
+      "id": "F-UF2-02",
+      "title": "balance / settings / usage 3 页改用 TableCard",
+      "priority": "high",
+      "executor": "generator",
+      "status": "pending",
+      "acceptance": "1) balance 交易流水 / settings 模型日志 / usage 按模型用量 三个表格改用 <TableCard>；2) 保留现有 Table 列定义和数据源；3) 搜索、分页、header 操作区用 TableCard 的 slot；4) grep 验证：三个文件中 <Table 父级必须是 TableCard；5) tsc 通过"
+    },
+    {
+      "id": "F-UF2-03",
+      "title": "KPICard 替换手写指标卡",
       "priority": "medium",
       "executor": "generator",
-      "status": "done",
-      "completed_at": "2026-04-15T10:45:00Z",
-      "source": "DX-001/004/005 onboarding",
-      "acceptance": "1) get_project_info 返回体增加 apiBaseUrl 字段（从 NEXT_PUBLIC_BASE_URL 或 request origin 推导）；2) MCP chat 的 messages 参数：传字符串时 zod preprocess 尝试 JSON.parse，失败返回 'messages must be an array of {role, content} objects, received a string'（替代 Zod 原始 Expected array received string）；3) list_logs 参数 schema 增加 since (ISO string) 和 until (ISO string) 可选参数，后端 where clause 按 createdAt 过滤；4) 同 commit 补 regression test 覆盖三项；5) tsc 通过"
+      "status": "pending",
+      "acceptance": "1) dashboard（5 个）/ balance（余额大卡 + 告警阈值）/ usage（4 个指标）全部改用 <KPICard>；2) 保留原有 label/value/trend 数据；3) 若 KPICard API 不足（如缺 trend 子组件），允许扩展组件 API 但保持向后兼容；4) grep 验证：各页面不应再出现 'text-xs.*uppercase.*tracking-widest' 手写 label 模式；5) tsc 通过"
     },
     {
-      "id": "F-AF-04",
-      "title": "run_all_audits.sh 稳定性：MCP 预检 + 失败重试",
+      "id": "F-UF2-04",
+      "title": "StatusChip 替换 5 处手写状态胶囊",
       "priority": "medium",
       "executor": "generator",
-      "status": "done",
-      "completed_at": "2026-04-15T11:05:00Z",
-      "source": "Chaos audit socket error, Workflow audit MCP 初始化失败",
-      "acceptance": "1) aggregate 阶段之前增加 MCP 健康预检：启动时 cd CLEAN_CWD && claude -p 'Call list_models, only return count' 调用，若失败（非 0 退出或输出不含数字）则整批次 abort 并提示用户；2) 每个 prompt 执行失败（claude -p 非 0 退出）时最多重试 2 次（指数退避 5s/15s）；3) aggregate JSON 增加 failed_roles 数组记录跳过的角色和重试次数；4) 新增 --dry-run-retry 参数用于本地测试重试逻辑；5) 不破坏现有 --allowedTools 和 assertion-footer 拼接逻辑"
+      "status": "pending",
+      "acceptance": "1) actions:195（v1 版本胶囊）/ balance:280（交易类型）/ mcp-setup:400（工具标签）/ models:290/295（modality + warning）全部改用 <StatusChip>；2) 如果 variant 不足（如缺 info 变体），扩展组件；3) grep 验证：'px-.*py-.*rounded.*text-\\[10px\\].*font-(bold|black).*uppercase' 手写模式应为 0 处；4) tsc 通过"
     },
     {
-      "id": "F-AF-05",
-      "title": "AUDIT-FOLLOWUP 全量验收 + 回归审计",
+      "id": "F-UF2-05",
+      "title": "templates CTA 改用 CTABanner",
+      "priority": "medium",
+      "executor": "generator",
+      "status": "pending",
+      "acceptance": "1) templates/page.tsx:304-316 手写的 'from-ds-primary to-ds-primary-container' 渐变 CTA 改用 <CTABanner>；2) actions 和 templates 两个页面的 CTA 视觉统一为深色 #131b2e 设计系统标准；3) tsc 通过"
+    },
+    {
+      "id": "F-UF2-06",
+      "title": "quickstart 剩余手写按钮改 Button gradient-primary",
+      "priority": "low",
+      "executor": "generator",
+      "status": "pending",
+      "acceptance": "1) quickstart/page.tsx:143 手写的 'bg-gradient-to-r from-ds-primary to-ds-primary-container text-white text-sm font-bold rounded-full shadow-lg' 按钮改为 <Button variant='gradient-primary'>；2) 保留 Link 包裹；3) tsc 通过"
+    },
+    {
+      "id": "F-UF2-07",
+      "title": "UI-UNIFY-FIX-2 全量验收",
       "priority": "high",
       "executor": "codex",
-      "status": "done",
-      "completed_at": "2026-04-15T11:30:00Z",
-      "acceptance": "codex 执行：1) 注入 'sk-testABC123xyzDEF456' 到上游错误模拟，API 响应和 get_log_detail 均返回 [key removed]；2) 调用 reasoning 模型（如 deepseek-r1 或 qwen3.5-flash）后 get_log_detail.usage.reasoningTokens 非空且等于 chat 响应值；3) get_project_info 返回 apiBaseUrl；4) chat(messages='[...]') 返回友好错误消息；5) list_logs(since='2026-04-14T00:00:00Z') 过滤正确；6) run_all_audits.sh 手动制造失败（如修改 prompt 路径）后能重试并在 failed_roles 中标注；7) 跑一次完整 reports-20260415 审计作为回归基线（对比 20260414：RL-001/002/003/004/005/006/007、FIN-001、RL-001~007、DX-002/003/006 onboarding、MOD-003/004 全部消失）；8) 签收报告生成"
+      "status": "pending",
+      "acceptance": "codex 执行：1) SectionCard 在 dashboard/models/balance/usage/settings/mcp-setup/quickstart/templates 8 个页面采用（grep 验证 hand-written bg+rounded 归零）；2) TableCard 在 balance/settings/usage 3 个新增页面采用；3) KPICard / StatusChip / CTABanner 全部替换完毕；4) Button gradient-primary variant 手写归零；5) grep 机械化验证（具体命令见 spec）；6) 12 个用户端页面视觉一致性人工复核；7) 签收报告生成"
     }
   ]
 }

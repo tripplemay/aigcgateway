@@ -1,32 +1,25 @@
 {
-  "status": "done",
-  "user_goal": "AUDIT-FOLLOWUP — 处理 reports-20260414 审计真实新发现（API Key 泄露 + reasoningTokens log 回显 + MCP DX 三合一）+ 审计工具稳定性。跑一次回归审计作为基线",
-  "total_features": 5,
-  "completed_features": 5,
+  "status": "building",
+  "user_goal": "UI-UNIFY-FIX-2 — 用户端 12 页面的公共组件采用收尾：SectionCard 替换 ~47 处手写卡片 / TableCard 补 3 页 / KPICard / StatusChip / CTABanner / Button gradient-primary 查漏",
+  "total_features": 7,
+  "completed_features": 0,
   "fix_rounds": 0,
   "current_sprint": null,
-  "last_updated": "2026-04-15T11:30:00Z",
+  "last_updated": "2026-04-15T12:00:00Z",
   "reference_docs": [
-    "docs/specs/AUDIT-FOLLOWUP-spec.md",
-    "docs/test-reports/user_report/reports-20260414/all-assertions-20260414.json"
+    "docs/specs/UI-UNIFY-FIX-2-spec.md"
   ],
   "role_assignments": null,
   "docs": {
-    "spec": "docs/specs/AUDIT-FOLLOWUP-spec.md",
+    "spec": "docs/specs/UI-UNIFY-FIX-2-spec.md",
     "test_cases": null,
-    "signoff": "docs/test-reports/AUDIT-FOLLOWUP-signoff-2026-04-15.md",
+    "signoff": null,
     "framework_reviewed": false
   },
-  "evaluator_feedback": {
-    "summary": "全部 PASS。F-AF-01~04 代码 + vitest + dry-run-retry 证据充分；F-AF-05 子项 7（全量 20260415 回归审计）经用户裁定跳过，延后到下次审计节奏。",
-    "pass_count": 5,
-    "partial_count": 0,
-    "fail_count": 0,
-    "issues": []
-  },
+  "evaluator_feedback": null,
   "generator_handoff": null,
   "session_notes": {
-    "Kimi": "Generator 完成 F-AF-01 ~ F-AF-04（4/4 generator 条）。F-AF-01：sanitizeErrorMessage 增加 `*` 到 sk/pk/key 字符类 + 广义 sk- 扫描，write+read 双路径脱敏（post-process 写入前 + get_log_detail / REST log 读取时）。F-AF-02：reasoning_tokens 存入 CallLog.responseSummary（无 migration），get_log_detail.usage / list_logs / REST log 读取层暴露 reasoningTokens 字段。F-AF-03：get_project_info 返回 apiBaseUrl；chat.messages Zod preprocess 尝试 JSON.parse，失败返回友好错误；list_logs 新增 since/until ISO 8601 过滤。F-AF-04：run_all_audits.sh 新增 MCP 预检（list_models 探测）、每个 prompt 最多 2 次指数退避重试（5s/15s）、aggregate JSON 增 failed_roles、--dry-run-retry 开关（本地已验证重试路径正常产出 failed_roles=[]）。所有改动已 tsc 通过，回归测试写入 sanitize-error.test.ts + scripts/test-mcp.ts。status → verifying，交给 Reviewer 执行 F-AF-05 并跑一次 20260415 回归审计基线。",
-    "Reviewer": "本轮由 Claude CLI 代执行 codex 工作。F-AF-01~04 全部 PASS：代码审阅 + vitest sanitize-error 5/5 PASS + tsc 干净 + ./run_all_audits.sh --dry-run-retry 本地跑通（8 角色全部 attempt 3 恢复，failed_roles=[]，产物已清理）。F-AF-05 子项 1~6 PASS（代码 + 重试路径都有证据），子项 7（20260415 全量回归审计基线）经用户裁定跳过（真实上游 API 成本 + 本批次 L1 证据已充分），延后到下次独立审计节奏。子项 8 signoff 已写入 docs/test-reports/AUDIT-FOLLOWUP-signoff-2026-04-15.md。features.json 全部 done，progress.json → done。提示给下一批 Planner：scripts/test-mcp.ts 的 F-AF-02/03 回归段落未在本次实际执行（dev server 未启动），建议下次启动 dev 时手动补跑一次作为 L1 执行证据。"
+    "Kimi": "Planner 启动 UI-UNIFY-FIX-2 批次（6 generator + 1 codex = 7 条）。背景：UI-UNIFY 定义了 SectionCard/TableCard/KPICard/StatusChip/CTABanner 等内容区组件但几乎零采用，用户反馈 quickstart 和 mcp-setup 与其他页面视觉不同其实只是冰山一角——全部 12 个用户端页面都有手写卡片。F-UF2-01 最大工程（~47 处 SectionCard 替换），F-UF2-02~04 机械替换，F-UF2-05 CTABanner 统一 actions/templates 视觉，F-UF2-06 剩余一个手写按钮。AUDIT-FOLLOWUP 已签收，代码部署用户并行处理。admin 端 9 个页面独立为 BL-129 ADMIN-UI-UNIFY 后续批次。",
+    "Reviewer": null
   }
 }
