@@ -7,6 +7,11 @@ import { toast } from "sonner";
 import { useExchangeRate } from "@/hooks/use-exchange-rate";
 import { formatCNY } from "@/lib/utils";
 import { ChannelTable, type ChannelRowData } from "@/components/admin/channel-table";
+import { PageContainer } from "@/components/page-container";
+import { PageHeader } from "@/components/page-header";
+import { SectionCard } from "@/components/section-card";
+import { TableCard } from "@/components/table-card";
+import { Button } from "@/components/ui/button";
 
 // ============================================================
 // Types
@@ -181,20 +186,12 @@ export default function ModelsChannelsPage() {
 
   // ── Render ──
   return (
-    <div className="max-w-7xl mx-auto">
-      {/* Page Header */}
-      <div className="mb-10 flex justify-between items-end">
-        <div>
-          <h1 className="font-[var(--font-heading)] text-4xl font-extrabold tracking-tight text-ds-on-surface mb-2">
-            {t("title")}
-          </h1>
-          <p className="text-ds-on-surface-variant text-sm max-w-2xl">{t("pageDescription")}</p>
-        </div>
-      </div>
+    <PageContainer>
+      <PageHeader title={t("title")} subtitle={t("pageDescription")} />
 
       {/* Stats Section */}
       <section className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
-        <div className="bg-ds-surface-container-lowest p-6 rounded-2xl shadow-sm relative overflow-hidden group">
+        <SectionCard className="relative overflow-hidden group">
           <div className="absolute -right-4 -top-4 w-24 h-24 bg-ds-primary/5 rounded-full blur-2xl group-hover:bg-ds-primary/10 transition-colors" />
           <div className="flex items-center gap-4 mb-4">
             <div className="w-12 h-12 bg-ds-primary/10 rounded-2xl flex items-center justify-center text-ds-primary">
@@ -209,8 +206,8 @@ export default function ModelsChannelsPage() {
               {stats.efficiency}%
             </span>
           </div>
-        </div>
-        <div className="bg-ds-surface-container-lowest p-6 rounded-2xl shadow-sm relative overflow-hidden group">
+        </SectionCard>
+        <SectionCard className="relative overflow-hidden group">
           <div className="absolute -right-4 -top-4 w-24 h-24 bg-ds-secondary/5 rounded-full blur-2xl group-hover:bg-ds-secondary/10 transition-colors" />
           <div className="flex items-center gap-4 mb-4">
             <div className="w-12 h-12 bg-ds-secondary/10 rounded-2xl flex items-center justify-center text-ds-secondary">
@@ -235,7 +232,7 @@ export default function ModelsChannelsPage() {
               </span>
             )}
           </div>
-        </div>
+        </SectionCard>
       </section>
 
       {/* Search and Filter Bar */}
@@ -267,14 +264,10 @@ export default function ModelsChannelsPage() {
             {t("allClear")}
           </span>
         </div>
-        <button
-          onClick={handleSync}
-          disabled={syncing}
-          className="bg-gradient-to-r from-ds-primary to-ds-primary-container text-white px-4 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2 hover:scale-[1.02] transition-transform disabled:opacity-50 font-[var(--font-heading)]"
-        >
+        <Button variant="gradient-primary" size="lg" onClick={handleSync} disabled={syncing}>
           <span className="material-symbols-outlined text-lg">sync</span>
           {syncing ? t("syncing") : t("syncModels")}
-        </button>
+        </Button>
       </div>
 
       {/* Hierarchical Channel Manager — read-only, no expansion */}
@@ -342,7 +335,7 @@ export default function ModelsChannelsPage() {
                       return (
                         <div
                           key={model.id}
-                          className="bg-ds-surface-container-lowest rounded-xl p-4"
+                          className="bg-ds-surface-container-lowest rounded-lg p-4"
                         >
                           <div className="flex items-center gap-3 mb-3">
                             <span className="material-symbols-outlined text-ds-primary/60">
@@ -409,7 +402,7 @@ export default function ModelsChannelsPage() {
             </div>
           </div>
 
-          <div className="bg-ds-surface-container-lowest rounded-3xl shadow-sm overflow-hidden">
+          <TableCard>
             <table className="w-full text-left border-collapse font-[var(--font-heading)]">
               <thead>
                 <tr className="bg-ds-surface-container-low/50">
@@ -536,7 +529,7 @@ export default function ModelsChannelsPage() {
                 </div>
               </div>
             )}
-          </div>
+          </TableCard>
         </div>
       )}
 
@@ -567,6 +560,6 @@ export default function ModelsChannelsPage() {
           )}
         </div>
       )}
-    </div>
+    </PageContainer>
   );
 }

@@ -7,7 +7,8 @@
       "title": "admin/models 页面改造",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
+      "completed_at": "2026-04-15T15:20:00Z",
       "acceptance": "1) 使用 PageContainer (default) + PageHeader；2) 模型列表改用 TableCard；3) 状态 chip 改用 StatusChip；4) 主按钮用 Button variant='gradient-primary'；5) 手写 rounded-xl section → SectionCard；6) 不改动业务逻辑；7) tsc 通过"
     },
     {
