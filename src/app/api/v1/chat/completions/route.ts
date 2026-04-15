@@ -46,6 +46,20 @@ export async function POST(request: Request) {
     });
   }
 
+  // F-WP-05: every message must have non-empty string content. The MCP
+  // surface enforces this via zod; the REST surface was missing the check.
+  for (let i = 0; i < body.messages.length; i++) {
+    const m = body.messages[i] as { role?: string; content?: unknown };
+    if (typeof m.content !== "string" || m.content.length === 0) {
+      return errorResponse(
+        400,
+        "invalid_parameter",
+        `messages[${i}].content must be a non-empty string`,
+        { param: `messages[${i}].content` },
+      );
+    }
+  }
+
   // 4. 限流：RPM (三维度) + TPM + 消费速率
   const projectForLimits = project ?? { id: user.defaultProjectId ?? user.id, rateLimit: null };
   const rateCheck = await checkRateLimit(projectForLimits, "text", apiKey.rateLimit, {

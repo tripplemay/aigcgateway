@@ -194,9 +194,15 @@ export async function GET(request: Request) {
   }
 
   const url = new URL(request.url);
-  const modalityFilter = url.searchParams.get("modality")?.toUpperCase();
+  let modalityFilter = url.searchParams.get("modality")?.toUpperCase();
   const capabilityFilter = url.searchParams.get("capability");
   const freeOnly = url.searchParams.get("free_only") === "true";
+  // F-WP-06: capability=vision means a TEXT model that accepts image input;
+  // IMAGE-generation models must not leak through this filter. Force modality
+  // when the caller hasn't already constrained it.
+  if (!modalityFilter && capabilityFilter === "vision") {
+    modalityFilter = "TEXT";
+  }
   const cacheKey = modalityFilter ? `models:list:${modalityFilter}` : "models:list";
 
   // 非生产环境直接查询 DB，避免本地测试 / L1 E2E 被 120s 缓存挡住
@@ -210,6 +216,12 @@ export async function GET(request: Request) {
     const parsed = JSON.parse(json) as { object: string; data: Record<string, unknown>[] };
     parsed.data = parsed.data.filter((item) => {
       if (capabilityFilter) {
+        // F-WP-06: belt-and-braces — even if an image alias somehow carries
+        // `vision: true` capability metadata, drop it at the response layer.
+        if (capabilityFilter === "vision") {
+          const modality = typeof item.modality === "string" ? item.modality : "";
+          if (modality !== "text") return false;
+        }
         const caps = item.capabilities as Record<string, unknown> | undefined;
         if (!caps || caps[capabilityFilter] !== true) return false;
       }
