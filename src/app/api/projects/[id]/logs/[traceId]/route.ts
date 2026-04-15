@@ -4,6 +4,7 @@ import { NextResponse } from "next/server";
 import { verifyJwt } from "@/lib/api/jwt-middleware";
 import { errorResponse } from "@/lib/api/errors";
 import { escapeJsonStrings } from "@/lib/api/sanitize-html";
+import { sanitizeErrorMessage } from "@/lib/engine/types";
 
 export async function GET(
   request: Request,
@@ -43,7 +44,7 @@ export async function GET(
     latencyMs: log.latencyMs,
     ttftMs: log.ttftMs,
     tokensPerSecond: log.tokensPerSecond,
-    errorMessage: log.errorMessage,
+    errorMessage: log.errorMessage ? sanitizeErrorMessage(log.errorMessage) : null,
     createdAt: log.createdAt,
   });
 }

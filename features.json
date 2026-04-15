@@ -7,9 +7,10 @@
       "title": "API Key 前缀脱敏规则扩展（API + 日志层双重过滤）",
       "priority": "critical",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "source": "RL-002, IDOR-006",
-      "acceptance": "1) src/lib/api/error-sanitizer.ts（或等价脱敏函数）增加正则 /sk-[a-zA-Z0-9*\\-]{8,}/g → [key removed]（覆盖 OpenAI / OpenRouter / Anthropic 格式）；2) 错误消息写入 call_logs 前也要脱敏（CallLog.error 字段），避免历史数据污染；3) get_log_detail 读取层再次脱敏（防止历史已污染数据泄露）；4) 同 commit 补 regression test：注入含 'sk-testABC123xyzDEF456' 的上游错误，API 响应和 get_log_detail 均不含该字符串；5) tsc 通过"
+      "acceptance": "1) src/lib/api/error-sanitizer.ts（或等价脱敏函数）增加正则 /sk-[a-zA-Z0-9*\\-]{8,}/g → [key removed]（覆盖 OpenAI / OpenRouter / Anthropic 格式）；2) 错误消息写入 call_logs 前也要脱敏（CallLog.error 字段），避免历史数据污染；3) get_log_detail 读取层再次脱敏（防止历史已污染数据泄露）；4) 同 commit 补 regression test：注入含 'sk-testABC123xyzDEF456' 的上游错误，API 响应和 get_log_detail 均不含该字符串；5) tsc 通过",
+      "completed_at": "2026-04-15T10:26:00Z"
     },
     {
       "id": "F-AF-02",

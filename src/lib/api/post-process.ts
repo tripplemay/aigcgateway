@@ -13,11 +13,12 @@
 import { prisma } from "@/lib/prisma";
 import { Prisma } from "@prisma/client";
 import type { CallStatus, FinishReason } from "@prisma/client";
-import type {
-  RouteResult,
-  Usage,
-  ChatCompletionResponse,
-  ImageGenerationResponse,
+import {
+  sanitizeErrorMessage,
+  type RouteResult,
+  type Usage,
+  type ChatCompletionResponse,
+  type ImageGenerationResponse,
 } from "../engine/types";
 import { recordTokenUsage, recordSpending } from "./rate-limit";
 
@@ -120,7 +121,7 @@ async function processChatResultAsync(params: ChatPostProcessParams): Promise<vo
       latencyMs,
       ttftMs,
       tokensPerSecond,
-      errorMessage: params.error?.message ?? null,
+      errorMessage: params.error?.message ? sanitizeErrorMessage(params.error.message) : null,
       errorCode: params.error?.code ?? null,
       actionId: params.actionId ?? null,
       actionVersionId: params.actionVersionId ?? null,
@@ -198,9 +199,11 @@ async function processImageResultAsync(params: ImagePostProcessParams): Promise<
       latencyMs,
       costPrice: costUsd,
       sellPrice: sellUsd,
-      errorMessage:
-        params.error?.message ??
-        (zeroImageDelivery ? "Image generation failed, model did not return a valid image" : null),
+      errorMessage: params.error?.message
+        ? sanitizeErrorMessage(params.error.message)
+        : zeroImageDelivery
+          ? "Image generation failed, model did not return a valid image"
+          : null,
       errorCode: params.error?.code ?? (zeroImageDelivery ? "zero_image_delivery" : null),
       source: params.source ?? "api",
     },

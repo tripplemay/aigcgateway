@@ -146,8 +146,15 @@ export function sanitizeErrorMessage(message: string): string {
   // Remove URLs
   sanitized = sanitized.replace(/https?:\/\/[^\s"'<>,;)}\]]+/gi, "[URL removed]");
   // Remove API Key fragments (sk-xxx, sk_xxx, pk-xxx, pk_xxx, key_xxx, Bearer xxx)
-  sanitized = sanitized.replace(/\b(sk[-_]|pk[-_]|key[-_])[a-zA-Z0-9_-]{4,}/gi, "[key removed]");
-  sanitized = sanitized.replace(/Bearer\s+[a-zA-Z0-9_.-]{8,}/gi, "Bearer [redacted]");
+  // F-AF-01: include `*` in the char class so masked leaks like `sk-B2n****zjvw`
+  // (mid-key asterisks left by upstream providers) are also redacted. We also
+  // drop the {4,} floor for the mask variant — any sk-/pk-/key- followed by
+  // mixed alphanum/mask chars must go.
+  sanitized = sanitized.replace(/\b(sk[-_]|pk[-_]|key[-_])[a-zA-Z0-9*_-]{3,}/gi, "[key removed]");
+  // Catch OpenAI/OpenRouter/Anthropic style prefixes that survived the first
+  // pass (e.g. `sk-proj-`, `sk-or-v1-`, `sk-ant-`) regardless of word boundary.
+  sanitized = sanitized.replace(/sk-[a-zA-Z0-9*_-]{6,}/gi, "[key removed]");
+  sanitized = sanitized.replace(/Bearer\s+[a-zA-Z0-9_.*-]{6,}/gi, "Bearer [redacted]");
   // Remove QQ group numbers (QQ群:836739524, 加群836739524, 群号 836739524)
   sanitized = sanitized.replace(/(QQ群?|加群|群号)[：:\s]*\d{5,}/gi, "[contact removed]");
   // Remove WeChat contact info (微信群, 加微信, wx:xxx, WeChat:xxx)

@@ -11,6 +11,7 @@ import { prisma } from "@/lib/prisma";
 import { checkMcpPermission } from "@/lib/mcp/auth";
 import type { McpServerOptions } from "@/lib/mcp/server";
 import { escapeJsonStrings } from "@/lib/api/sanitize-html";
+import { sanitizeErrorMessage } from "@/lib/engine/types";
 
 export function registerGetLogDetail(server: McpServer, opts: McpServerOptions): void {
   const { projectId, permissions } = opts;
@@ -119,7 +120,10 @@ export function registerGetLogDetail(server: McpServer, opts: McpServerOptions):
             }
           : {}),
         tokensPerSecond: log.tokensPerSecond ? Math.round(log.tokensPerSecond) : null,
-        error: log.errorMessage,
+        // F-AF-01: defense-in-depth — sanitize on read so any historical row
+        // that was stored before the write-side sanitization still redacts
+        // API key leakage and other sensitive upstream content.
+        error: log.errorMessage ? sanitizeErrorMessage(log.errorMessage) : null,
         createdAt: log.createdAt,
       };
 
