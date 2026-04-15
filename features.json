@@ -7,7 +7,8 @@
       "title": "删除服务商后端：级联清理 API",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
+      "completed_at": "2026-04-15T17:05:00Z",
       "source": "BL-099",
       "acceptance": "1) DELETE /api/admin/providers/[id] 在事务中执行：删除 Provider 下所有 Channel、级联 HealthCheck、CallLog.channelId 置 null、删除 ProviderConfig；2) 检查每个受影响 Model：无其他 Channel 则 enabled=false 并清理 AliasModelLink；3) 检查每个受影响 ModelAlias：无关联 enabled Model 则 enabled=false；4) 支持 ?dry_run=true 返回影响统计不执行；5) 返回 deletedChannels/affectedModels/affectedAliases/nulledCallLogs；6) tsc 通过"
     },
