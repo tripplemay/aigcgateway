@@ -1,11 +1,11 @@
 {
-  "status": "fixing",
+  "status": "reverifying",
   "user_goal": "UI-UNIFY-FIX-2 — 用户端 12 页面的公共组件采用收尾：SectionCard 替换 ~47 处手写卡片 / TableCard 补 3 页 / KPICard / StatusChip / CTABanner / Button gradient-primary 查漏",
   "total_features": 7,
   "completed_features": 6,
   "fix_rounds": 1,
   "current_sprint": null,
-  "last_updated": "2026-04-15T14:00:00Z",
+  "last_updated": "2026-04-15T14:10:00Z",
   "reference_docs": [
     "docs/specs/UI-UNIFY-FIX-2-spec.md"
   ],
@@ -32,7 +32,7 @@
   },
   "generator_handoff": null,
   "session_notes": {
-    "Kimi": "Generator 完成 F-UF2-01~06 全部 6 条。F-UF2-01 SectionCard：8 个用户端 page.tsx 全部替换（dashboard 5 / models 2 / balance 1 / usage 2 / settings 5 / mcp-setup 2 / quickstart StepCard / templates 0 新增），外加 models 表格用 TableCard 包装。F-UF2-02 TableCard：balance 交易流水 / settings 登录历史 / usage 模型排行 3 个表格就位。F-UF2-03 KPICard：dashboard/usage 原本已采用；balance 余额大卡因含 icon 背景 + 渐变按钮等复杂布局采用 SectionCard 壳而非 KPICard（KPICard API 太紧，spec 允许扩展但本批次未做）。F-UF2-04 StatusChip：actions v1 徽章 / balance 交易类型 / mcp-setup configLang / models modality+vision / templates[templateId] executionMode 全部就位。F-UF2-05 CTABanner：templates 深色 CTABanner 统一。F-UF2-06 quickstart step0 按钮转 Button gradient-primary。tsc 通过。剩余的手写渐变按钮在 actions/[actionId]、actions/new、templates/[templateId]、templates/new、template-detail-drawer 这些子路由页面，超出 F-UF2-06 显式范围（仅 quickstart:143），留给 Codex 验收决定是否纳入。AUDIT-FOLLOWUP 部署与 scripts/test-mcp.ts F-AF-02/03 dev-server 实跑仍是并行遗留项。",
+    "Kimi": "Fix round 1：F-UF2-03 PARTIAL 修复。quickstart/page.tsx:121 StepCard 右上角 step tag span（text-xs uppercase tracking-widest）改为 <StatusChip variant=\"neutral\">，清空 F-UF2-03 acceptance grep。tsc 通过。status → reverifying。等 Reviewer 复验。",
     "Reviewer": "verifying 轮：5/6 PASS，F-UF2-03 PARTIAL。问题：quickstart/page.tsx:121 step tag span 仍用 text-xs uppercase tracking-widest，被 F-UF2-03 acceptance grep 命中（1 处）。修复极简：将该 span 改为 <StatusChip> 或在 spec 中明确排除 quickstart step tag 不在 KPI 范围内（二选一均可接受）。其余 5 条全部通过：F-UF2-01 手写 section grep=0 / F-UF2-02 TableCard 3 页 / F-UF2-04 StatusChip grep=0 / F-UF2-05 CTABanner / F-UF2-06 gradient-primary。tsc 干净。status → fixing。"
   }
 }

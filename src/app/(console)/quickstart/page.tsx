@@ -5,6 +5,7 @@ import Link from "next/link";
 import { PageContainer } from "@/components/page-container";
 import { PageHeader } from "@/components/page-header";
 import { SectionCard } from "@/components/section-card";
+import { StatusChip } from "@/components/status-chip";
 import { Button } from "@/components/ui/button";
 
 const BASE_URL = "https://aigc.guangai.ai/v1";
@@ -118,9 +119,7 @@ function StepCard({ num, title, tag, desc, children }: StepCardProps) {
           </div>
           <h2 className="heading-2">{title}</h2>
         </div>
-        <span className="text-xs font-bold uppercase tracking-widest text-slate-400 bg-slate-50 px-2.5 py-1 rounded-full">
-          {tag}
-        </span>
+        <StatusChip variant="neutral">{tag}</StatusChip>
       </div>
       <p className="text-ds-on-surface-variant text-sm mb-5 leading-relaxed">{desc}</p>
       {children}
