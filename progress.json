@@ -19,7 +19,7 @@
   "evaluator_feedback": null,
   "generator_handoff": null,
   "session_notes": {
-    "Kimi": "Planner 启动 ADMIN-OPS++ 批次（8 generator + 1 codex = 9 条）。合并 BL-099/101/111/113。已有基础设施：SystemLog 表和 5 个分类 enum 已在 schema 中（F-RL-07 写入 RATE_LIMIT，本批次补齐 SYNC/INFERENCE/HEALTH_CHECK/AUTO_RECOVERY），admin/logs 系统日志 tab 壳已存在（F-AUU-06）。关键约束：不改 ADMIN-UI-UNIFY 的 UI 成果，所有新 UI 继续使用公共组件（SectionCard/TableCard/StatusChip/Button gradient-primary）。执行顺序：IMAGE 定价（最小独立）→ 删除服务商 → SystemLog 写入 → 状态提示 → Redis 进度 → classifier 队列。",
+    "Kimi": "Generator 本会话完成 F-AO2-08/01/02/03（4/9）。F-AO2-08：model-aliases sellPrice 编辑器按 modality 分流，IMAGE 显示 perCall 单输入，TEXT/AUDIO/VIDEO 显示 input/output per 1M；setSellPriceField 同步写 unit 字段；suggest-price API 本来就 already 支持 IMAGE pricing.image，不需要改。F-AO2-01：DELETE /api/admin/providers/[id] 事务级联删 Channel+HealthCheck(auto cascade)+ProviderConfig，CallLog.channelId 置 null，无渠道 Model 停用+清 AliasModelLink，无启用 Model 的 Alias 停用；支持 ?dry_run=true（sentinel 异常回滚）。F-AO2-02：admin/providers 每行 delete 按钮→先 dry_run 取影响→modal 展示 deletedChannels/disabledModels/disabledAliases/nulledCallLogs→确认执行；完整中英文 i18n。F-AO2-03：scheduler.updateChannelStatus 每次状态变更 writeSystemLog，DISABLED→ACTIVE 分类为 AUTO_RECOVERY，其余为 HEALTH_CHECK，level 映射 INFO/WARN/ERROR。SYNC 和 INFERENCE 写入点早已存在。剩余 4 条（F-AO2-04 状态提示条 / F-AO2-05 Redis 进度轮询 / F-AO2-06 PendingClassification schema+migration / F-AO2-07 待确认队列 UI）需新会话继续，涉及 prisma migrate + Redis + 两个新 UI。",
     "Reviewer": null
   }
 }
