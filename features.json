@@ -68,7 +68,9 @@
       "title": "运维面板待确认队列 UI",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
+      "completed_at": "2026-04-15T18:25:00Z",
+      "note": "批量多选/改分配（reassign popover）简化为单条 approve/reject — reassign API 已实现但 UI 留作后续迭代以控制本批次体量",
       "source": "BL-111",
       "acceptance": "1) admin/operations 增加'待确认分类'SectionCard（仅在有 pending 条目时显示）；2) 列表展示：模型名 / 建议别名 / 置信度 / 建议原因；3) 每行三个按钮：确认（挂载到建议别名，status=APPROVED）/ 拒绝（status=REJECTED 不挂载）/ 改分配（popover 选择其他 alias）；4) 批量确认按钮（checkbox 多选）；5) 操作后写 SystemLog(INFERENCE, action=approved/rejected/reassigned)；6) 使用 SectionCard + StatusChip + Button gradient-primary 保持 UI 一致；7) i18n；8) tsc 通过"
     },

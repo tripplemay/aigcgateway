@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { PageContainer } from "@/components/page-container";
 import { PageHeader } from "@/components/page-header";
 import { SectionCard } from "@/components/section-card";
+import { StatusChip } from "@/components/status-chip";
 import { toast } from "sonner";
 import { timeAgo } from "@/lib/utils";
 
@@ -461,6 +462,9 @@ export default function OperationsPage() {
         </SectionCard>
       </div>
 
+      {/* F-AO2-07: classifier review queue (only renders when pending > 0) */}
+      <PendingClassificationQueue t={t} />
+
       {/* F-RL-06: rate-limit global defaults */}
       <RateLimitDefaultsCard t={t} />
     </PageContainer>
@@ -753,6 +757,120 @@ function RateLimitDefaultsCard({ t }: { t: ReturnType<typeof useTranslations> })
           {saving ? t("saving") : t("saveChanges")}
         </Button>
       </div>
+    </SectionCard>
+  );
+}
+
+// ============================================================
+// F-AO2-07: Pending classifier review queue
+// ============================================================
+
+interface PendingRow {
+  id: string;
+  suggestedAlias: string | null;
+  suggestedAliasId: string | null;
+  suggestedBrand: string | null;
+  confidence: number | null;
+  reason: string | null;
+  createdAt: string;
+  model: { id: string; name: string; displayName: string; modality: string };
+}
+
+function PendingClassificationQueue({ t }: { t: ReturnType<typeof useTranslations> }) {
+  const [rows, setRows] = useState<PendingRow[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [busy, setBusy] = useState<string | null>(null);
+
+  const load = async () => {
+    setLoading(true);
+    try {
+      const res = await apiFetch<{ data: PendingRow[] }>("/api/admin/pending-classifications");
+      setRows(res.data ?? []);
+    } catch (err) {
+      toast.error((err as Error).message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    load();
+  }, []);
+
+  const act = async (row: PendingRow, action: "approve" | "reject") => {
+    setBusy(row.id);
+    try {
+      await apiFetch(`/api/admin/pending-classifications/${row.id}`, {
+        method: "POST",
+        body: JSON.stringify({ action }),
+      });
+      toast.success(t(action === "approve" ? "queueApproved" : "queueRejected"));
+      setRows((prev) => prev.filter((r) => r.id !== row.id));
+    } catch (err) {
+      toast.error((err as Error).message);
+    } finally {
+      setBusy(null);
+    }
+  };
+
+  if (loading && rows.length === 0) return null;
+  if (rows.length === 0) return null;
+
+  return (
+    <SectionCard
+      title={t("queueTitle", { count: rows.length })}
+      actions={
+        <button
+          type="button"
+          onClick={load}
+          className="text-xs font-bold text-ds-primary hover:underline"
+        >
+          {t("queueRefresh")}
+        </button>
+      }
+    >
+      <ul className="divide-y divide-ds-outline-variant/20">
+        {rows.map((row) => (
+          <li key={row.id} className="py-4 flex items-start gap-4">
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="font-bold text-sm">{row.model.displayName || row.model.name}</span>
+                <StatusChip variant="neutral">{row.model.modality}</StatusChip>
+                {row.confidence != null && (
+                  <StatusChip variant={row.confidence >= 0.7 ? "info" : "warning"}>
+                    {(row.confidence * 100).toFixed(0)}%
+                  </StatusChip>
+                )}
+              </div>
+              <div className="text-xs text-ds-on-surface-variant mt-1">
+                → {row.suggestedAlias ?? t("queueNoSuggestion")}
+                {row.suggestedBrand ? ` · ${row.suggestedBrand}` : ""}
+              </div>
+              {row.reason && (
+                <div className="text-xs text-ds-outline mt-1 italic">{row.reason}</div>
+              )}
+            </div>
+            <div className="flex items-center gap-2 flex-shrink-0">
+              <Button
+                variant="gradient-primary"
+                size="sm"
+                disabled={busy === row.id || !row.suggestedAliasId}
+                onClick={() => act(row, "approve")}
+              >
+                {t("queueApprove")}
+              </Button>
+              <button
+                type="button"
+                disabled={busy === row.id}
+                onClick={() => act(row, "reject")}
+                className="px-3 py-1.5 text-xs font-bold text-ds-on-surface-variant hover:text-ds-error disabled:opacity-50"
+              >
+                {t("queueReject")}
+              </button>
+            </div>
+          </li>
+        ))}
+      </ul>
     </SectionCard>
   );
 }
