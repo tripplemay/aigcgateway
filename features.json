@@ -16,7 +16,8 @@
       "title": "Notification 派发服务（dispatcher）",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
+      "completed_at": "2026-04-16T09:20:00Z",
       "acceptance": "1) src/lib/notifications/dispatcher.ts 提供 sendNotification(userId, eventType, payload)；2) 按 NotificationPreference 决定 channel；3) inApp channel 直接 insert Notification 行 status=DELIVERED；4) webhook channel 异步 POST，HMAC-SHA256(webhookSecret, JSON(payload)) 签名放 X-AIGC-Signature header，失败指数退避 3 次（5s/30s/120s），最终 status=DELIVERED 或 FAILED + error 字段；5) 同 commit 补单元测试覆盖 dispatch 路由 + webhook 重试逻辑（mock fetch）；6) tsc 通过"
     },
     {
