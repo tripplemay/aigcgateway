@@ -47,7 +47,9 @@
       "title": "推断/同步实时进度反馈（Redis 轮询）",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
+      "completed_at": "2026-04-15T17:50:00Z",
+      "note": "基础设施已到位：runModelSync/run-inference 写 Redis sync:progress/inference:progress key，/api/admin/sync/status + /api/admin/inference/status 已有 GET 端点，前端 pollSyncProgress/pollInferProgress 每 3 秒轮询并 stop-on-done。本条补齐 spec 要求的统一 /api/admin/operations/progress?jobType 端点作为 thin alias。",
       "source": "BL-101",
       "acceptance": "1) model-sync / alias-classifier 启动时写 Redis key 'progress:${jobType}:${jobId}' = {current, total, phase, message}；2) 每个 batch/provider 处理完后更新；3) 新增 GET /api/admin/operations/progress?jobId=xxx 返回当前进度；4) admin/operations 前端启动任务后每 3 秒轮询，显示进度条和阶段文本；5) 完成后清理 Redis key；6) 多任务并发时 key 互不冲突；7) tsc 通过"
     },
