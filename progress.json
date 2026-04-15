@@ -19,7 +19,7 @@
   "evaluator_feedback": null,
   "generator_handoff": null,
   "session_notes": {
-    "Kimi": "Planner 启动 USAGE-ALERTS 批次（9 generator + 1 codex = 10 条）。第一次主动通知系统：复用 alertThreshold + RATE-LIMIT spending + SystemLog HEALTH_CHECK + PendingClassification 4 个事件源。两个 channel（inApp + webhook，不引入 SMTP 邮件）。Phase 1-2: schema + dispatcher（F-UA-01/02）；Phase 3: 5 类事件源接入（F-UA-03/04）；Phase 4: API + UI（F-UA-05/06/07）；Phase 5: CLEANUP 顺手收尾（F-UA-08 子路由 UI / F-UA-09 reassign popover + 测试 bug + 视觉细节）；Phase 6: 验收（F-UA-10）。关键去重：BALANCE_LOW 24h / SPENDING_RATE 1h / CHANNEL_DOWN 6h / PENDING_CLASSIFICATION 批次聚合。CLEANUP 顺手做掉所有遗留：3 子路由 + reassign UI + 测试 bug 修复（c3bd6fe e2e-errors 路径错 + RB-02.4 缺 skip）+ templates:281 + admin/model-aliases label + admin/models 搜索框 bg。REGRESSION-BACKFILL 已签收，生产部署到 67889a0。",
+    "Kimi": "Generator 本会话完成 F-UA-01/02（2/10）。F-UA-01 schema：notifications + notification_preferences 两表 + 3 个 enum（EventType/Channel/Status），User relation 两条，migration 20260416_add_usage_alerts_notifications 手写 SQL，register/route.ts 事务内 seed 默认偏好（DEVELOPER：BALANCE_LOW+SPENDING_RATE_EXCEEDED inApp enabled；3 个 admin 事件 disabled 占位以便 Settings 总能渲染；ADMIN：全部 5 个 inApp enabled）。F-UA-02 dispatcher：sendNotification(userId,eventType,payload,projectId?,deps?) 读 preference → inApp 同步 insert / webhook 异步 HMAC-SHA256 + 指数退避（5s/30s/120s）3 次 + 成功 SENT 或失败 FAILED+error 入库。5 个 vitest 单元测试全 PASS（no pref / disabled / inApp / webhook 4 次 all-500 / webhook 第 2 次 200）。tsc 干净。剩余 7 条 generator（F-UA-03/04 事件源接入 / F-UA-05 NotificationCenter / F-UA-06 API / F-UA-07 Settings 卡片 / F-UA-08 3 子路由 UI / F-UA-09 CLEANUP 杂项）+ F-UA-10 codex 验收需新会话继续。REGRESSION-BACKFILL 已签收，生产部署到 67889a0。",
     "Reviewer": null
   }
 }
