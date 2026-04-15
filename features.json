@@ -7,7 +7,8 @@
       "title": "Notification + NotificationPreference schema",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
+      "completed_at": "2026-04-16T09:00:00Z",
       "acceptance": "1) Migration 新增 notifications 表（id/userId/projectId?/eventType/channel/status/payload(JSON)/sentAt/error/readAt/createdAt + 索引 userId+createdAt + status）；2) Migration 新增 notification_preferences 表（id/userId/eventType/channels(JSON)/webhookUrl?/webhookSecret?/enabled + UNIQUE userId+eventType）；3) 注册新用户时自动创建默认 NotificationPreference 行（BALANCE_LOW + SPENDING_RATE_EXCEEDED 默认 inApp，CHANNEL_DOWN/RECOVERED + PENDING_CLASSIFICATION 仅 admin 默认 inApp）；4) NotificationEventType enum：BALANCE_LOW / SPENDING_RATE_EXCEEDED / CHANNEL_DOWN / CHANNEL_RECOVERED / PENDING_CLASSIFICATION；5) tsc 通过"
     },
     {

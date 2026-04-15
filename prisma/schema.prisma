@@ -124,6 +124,8 @@ model User {
   rechargeOrders          RechargeOrder[]
   loginHistory            LoginHistory[]
   emailVerificationTokens EmailVerificationToken[]
+  notifications           Notification[]
+  notificationPrefs       NotificationPreference[]
 
   @@index([email])
   @@index([role, createdAt(sort: Desc)])
@@ -610,4 +612,68 @@ model SystemConfig {
   updatedAt   DateTime @updatedAt
 
   @@map("system_configs")
+}
+
+// ============================================================
+// F-UA-01: USAGE-ALERTS notification system
+// Events raised by balance/rate-limit/health/classifier fan out
+// through NotificationPreference and land as Notification rows
+// (inApp) or POST bodies (webhook).
+// ============================================================
+
+enum NotificationEventType {
+  BALANCE_LOW
+  SPENDING_RATE_EXCEEDED
+  CHANNEL_DOWN
+  CHANNEL_RECOVERED
+  PENDING_CLASSIFICATION
+}
+
+enum NotificationChannel {
+  INAPP
+  WEBHOOK
+}
+
+enum NotificationStatus {
+  PENDING
+  SENT
+  FAILED
+}
+
+model Notification {
+  id        String                @id @default(cuid())
+  userId    String
+  projectId String?
+  eventType NotificationEventType
+  channel   NotificationChannel   @default(INAPP)
+  status    NotificationStatus    @default(SENT)
+  payload   Json
+  error     String?               @db.Text
+  readAt    DateTime?
+  sentAt    DateTime              @default(now())
+  createdAt DateTime              @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, readAt, createdAt(sort: Desc)])
+  @@index([userId, eventType, createdAt(sort: Desc)])
+  @@index([status, createdAt])
+  @@map("notifications")
+}
+
+model NotificationPreference {
+  id            String                @id @default(cuid())
+  userId        String
+  eventType     NotificationEventType
+  channels      Json                  @default("[\"inApp\"]")
+  webhookUrl    String?
+  webhookSecret String?
+  enabled       Boolean               @default(true)
+  createdAt     DateTime              @default(now())
+  updatedAt     DateTime              @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, eventType])
+  @@map("notification_preferences")
 }

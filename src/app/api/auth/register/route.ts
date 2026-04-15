@@ -4,6 +4,7 @@ import bcrypt from "bcryptjs";
 import { NextResponse } from "next/server";
 import { errorResponse } from "@/lib/api/errors";
 import { randomBytes } from "crypto";
+import { seedDefaultNotificationPreferences } from "@/lib/notifications/defaults";
 
 export async function POST(request: Request) {
   let body: { email?: string; password?: string; name?: string };
@@ -59,6 +60,11 @@ export async function POST(request: Request) {
         description: "Auto-created default project",
       },
     });
+
+    // F-UA-01: seed notification preferences so the user can start
+    // receiving balance/rate-limit alerts immediately without having
+    // to visit Settings first.
+    await seedDefaultNotificationPreferences(tx, newUser.id, newUser.role);
 
     return tx.user.update({
       where: { id: newUser.id },
