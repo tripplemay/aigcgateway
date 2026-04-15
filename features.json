@@ -7,7 +7,8 @@
       "title": "SectionCard 替换全部手写内容卡片",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
+      "completed_at": "2026-04-15T12:40:00Z",
       "acceptance": "1) dashboard/models/balance/usage/settings/mcp-setup/quickstart/templates 全部改用 <SectionCard> 作为内容卡壳；2) 保留每个页面的独特内部布局（mcp-setup bento / quickstart 编号圆圈 / dashboard 多 section）；3) 消除自定义 'shadow-[0px_20px_40px...]' 阴影，统一为 SectionCard 的 shadow-sm；4) 消除 'ring-1 ring-slate-100'，统一为 'border-slate-200/5'；5) grep 验证：grep -rnE 'bg-ds-surface-container-lowest[^\"]*rounded-(xl|2xl)' src/app/(console)/*/page.tsx 应返回 0 行；6) tsc 通过；7) 关键页面回归测试覆盖渲染"
     },
     {
@@ -15,7 +16,8 @@
       "title": "balance / settings / usage 3 页改用 TableCard",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
+      "completed_at": "2026-04-15T12:40:00Z",
       "acceptance": "1) balance 交易流水 / settings 模型日志 / usage 按模型用量 三个表格改用 <TableCard>；2) 保留现有 Table 列定义和数据源；3) 搜索、分页、header 操作区用 TableCard 的 slot；4) grep 验证：三个文件中 <Table 父级必须是 TableCard；5) tsc 通过"
     },
     {

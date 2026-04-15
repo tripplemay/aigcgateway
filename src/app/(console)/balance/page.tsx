@@ -14,6 +14,8 @@ import { PageContainer } from "@/components/page-container";
 import { PageHeader } from "@/components/page-header";
 import { PageLoader } from "@/components/page-loader";
 import { TableLoader } from "@/components/table-loader";
+import { TableCard } from "@/components/table-card";
+import { SectionCard } from "@/components/section-card";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -133,7 +135,7 @@ export default function BalancePage() {
         {/* ═══ Bento Grid: Balance + Threshold — code.html lines 165-211 ═══ */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {/* Balance Card — code.html lines 167-193 */}
-          <div className="md:col-span-2 bg-ds-surface-container-lowest p-8 rounded-xl shadow-[0px_20px_40px_rgba(19,27,46,0.04)] relative overflow-hidden group">
+          <SectionCard className="md:col-span-2 relative overflow-hidden group">
             <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-10 transition-opacity">
               <span
                 className="material-symbols-outlined text-[120px]"
@@ -182,7 +184,7 @@ export default function BalancePage() {
                 </>
               )}
             </div>
-          </div>
+          </SectionCard>
 
           {/* Alert Threshold Card — code.html lines 195-210 */}
           <div className="bg-ds-surface-container-low p-8 rounded-xl flex flex-col justify-between">
@@ -199,7 +201,7 @@ export default function BalancePage() {
                   $
                 </span>
                 <input
-                  className="w-full bg-ds-surface-container-lowest border-none rounded-xl py-4 pl-10 pr-4 text-xl font-bold focus:ring-2 focus:ring-ds-primary/20 shadow-inner outline-none"
+                  className="w-full bg-ds-surface-container-low border-none rounded-xl py-4 pl-10 pr-4 text-xl font-bold focus:ring-2 focus:ring-ds-primary/20 shadow-inner outline-none"
                   type="number"
                   value={threshold}
                   onChange={(e) => setThreshold(e.target.value)}
@@ -225,7 +227,7 @@ export default function BalancePage() {
         </div>
 
         {/* ═══ Transaction History — code.html lines 213-306 ═══ */}
-        <section className="bg-ds-surface-container-lowest rounded-xl shadow-[0px_20px_40px_rgba(19,27,46,0.04)] overflow-hidden">
+        <TableCard>
           <div className="p-6 border-b border-slate-50 flex items-center justify-between">
             <h3 className="heading-2">{t("transactions")}</h3>
             {/* Type filter */}
@@ -314,7 +316,7 @@ export default function BalancePage() {
               className="px-6 py-4 bg-ds-surface-container-high/30 border-t border-ds-outline-variant/10"
             />
           )}
-        </section>
+        </TableCard>
       </PageContainer>
 
       {/* ═══ Recharge Dialog ═══ */}

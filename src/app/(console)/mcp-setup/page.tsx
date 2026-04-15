@@ -8,6 +8,7 @@ import Link from "next/link";
 import { PageContainer } from "@/components/page-container";
 import { PageHeader } from "@/components/page-header";
 import { PageLoader } from "@/components/page-loader";
+import { SectionCard } from "@/components/section-card";
 import { Button } from "@/components/ui/button";
 
 // ============================================================
@@ -258,7 +259,7 @@ export default function McpSetupPage() {
         {/* Left Column: Step 1 + Tool Badges */}
         <div className="col-span-12 lg:col-span-5 flex flex-col gap-6">
           {/* ═══ Step 1: API Key ═══ */}
-          <section className="bg-ds-surface-container-lowest p-8 rounded-xl shadow-sm relative overflow-hidden group">
+          <SectionCard className="relative overflow-hidden group">
             <div className="flex items-center gap-4 mb-6">
               <div className="w-10 h-10 rounded-full bg-ds-primary flex items-center justify-center text-white font-bold text-sm">
                 1
@@ -303,7 +304,7 @@ export default function McpSetupPage() {
                 </div>
               )}
             </div>
-          </section>
+          </SectionCard>
 
           {/* ═══ Tool Badges ═══ */}
           <section className="bg-ds-surface-container-low p-8 rounded-xl">
@@ -343,7 +344,7 @@ export default function McpSetupPage() {
         {/* Right Column: Step 2 */}
         <div className="col-span-12 lg:col-span-7">
           {/* ═══ Step 2: Client + Config ═══ */}
-          <section className="bg-ds-surface-container-lowest p-8 rounded-xl shadow-sm h-full">
+          <SectionCard className="h-full">
             <div className="flex items-center gap-4 mb-6">
               <div className="w-10 h-10 rounded-full bg-ds-primary-container flex items-center justify-center text-white font-bold text-sm">
                 2
@@ -371,7 +372,7 @@ export default function McpSetupPage() {
                 </span>
               </button>
               {dropdownOpen && (
-                <div className="absolute z-20 mt-1 w-full bg-ds-surface-container-lowest rounded-xl shadow-xl border border-ds-outline-variant/20 py-1 max-h-80 overflow-y-auto">
+                <div className="absolute z-20 mt-1 w-full bg-ds-surface rounded-xl shadow-xl border border-ds-outline-variant/20 py-1 max-h-80 overflow-y-auto">
                   {CLIENT_OPTIONS.map((opt) => (
                     <button
                       key={opt.value}
@@ -419,7 +420,7 @@ export default function McpSetupPage() {
               <span className="material-symbols-outlined text-base">content_copy</span>
               <span>{t("copyConfig")}</span>
             </Button>
-          </section>
+          </SectionCard>
         </div>
       </div>
     </PageContainer>

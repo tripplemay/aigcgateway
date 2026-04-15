@@ -2,10 +2,10 @@
   "status": "building",
   "user_goal": "UI-UNIFY-FIX-2 — 用户端 12 页面的公共组件采用收尾：SectionCard 替换 ~47 处手写卡片 / TableCard 补 3 页 / KPICard / StatusChip / CTABanner / Button gradient-primary 查漏",
   "total_features": 7,
-  "completed_features": 0,
+  "completed_features": 2,
   "fix_rounds": 0,
   "current_sprint": null,
-  "last_updated": "2026-04-15T12:00:00Z",
+  "last_updated": "2026-04-15T12:40:00Z",
   "reference_docs": [
     "docs/specs/UI-UNIFY-FIX-2-spec.md"
   ],

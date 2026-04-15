@@ -22,6 +22,8 @@ import { PageContainer } from "@/components/page-container";
 import { PageHeader } from "@/components/page-header";
 import { PageLoader } from "@/components/page-loader";
 import { KPICard } from "@/components/kpi-card";
+import { SectionCard } from "@/components/section-card";
+import { TableCard } from "@/components/table-card";
 import {
   Table,
   TableHeader,
@@ -161,7 +163,7 @@ export default function UsagePage() {
       {/* ═══ Charts Row — code.html lines 213-306 ═══ */}
       <section className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Daily Performance Chart — code.html lines 214-268 */}
-        <div className="lg:col-span-2 bg-ds-surface-container-lowest p-8 rounded-xl shadow-sm space-y-8">
+        <SectionCard className="lg:col-span-2 [&>div]:space-y-8">
           <div>
             <h4 className="text-sm font-bold uppercase tracking-widest text-ds-outline mb-1">
               {t("dailyPerformance")}
@@ -196,10 +198,10 @@ export default function UsagePage() {
               <span className="text-xs font-bold text-ds-on-surface">{t("dailyCost")}</span>
             </div>
           </div>
-        </div>
+        </SectionCard>
 
         {/* Model Distribution — code.html lines 269-305 */}
-        <div className="bg-ds-surface-container-lowest p-8 rounded-xl shadow-sm flex flex-col">
+        <SectionCard className="[&>div]:flex [&>div]:flex-col [&>div]:h-full">
           <h4 className="text-sm font-bold uppercase tracking-widest text-ds-outline mb-1">
             {t("workload")}
           </h4>
@@ -251,11 +253,11 @@ export default function UsagePage() {
               );
             })}
           </div>
-        </div>
+        </SectionCard>
       </section>
 
       {/* ═══ Model Ranking Table — code.html lines 307-372 ═══ */}
-      <section className="bg-ds-surface-container-lowest rounded-xl shadow-sm overflow-hidden">
+      <TableCard>
         <div className="p-8 pb-4">
           <h4 className="text-sm font-bold uppercase tracking-widest text-ds-outline mb-1">
             {t("leaderboard")}
@@ -318,7 +320,7 @@ export default function UsagePage() {
             )}
           </TableBody>
         </Table>
-      </section>
+      </TableCard>
     </PageContainer>
   );
 }

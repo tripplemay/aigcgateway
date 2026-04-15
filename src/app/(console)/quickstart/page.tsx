@@ -4,6 +4,7 @@ import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { PageContainer } from "@/components/page-container";
 import { PageHeader } from "@/components/page-header";
+import { SectionCard } from "@/components/section-card";
 
 const BASE_URL = "https://aigc.guangai.ai/v1";
 
@@ -108,7 +109,7 @@ interface StepCardProps {
 
 function StepCard({ num, title, tag, desc, children }: StepCardProps) {
   return (
-    <section className="flex flex-col bg-ds-surface-container-lowest rounded-xl p-6 shadow-sm ring-1 ring-slate-100">
+    <SectionCard className="[&>div]:flex [&>div]:flex-col">
       <div className="flex items-start justify-between mb-4">
         <div className="flex items-center gap-4">
           <div className="flex items-center justify-center w-10 h-10 rounded-full bg-indigo-50 text-indigo-600 font-[var(--font-heading)] font-extrabold text-lg">
@@ -122,7 +123,7 @@ function StepCard({ num, title, tag, desc, children }: StepCardProps) {
       </div>
       <p className="text-ds-on-surface-variant text-sm mb-5 leading-relaxed">{desc}</p>
       {children}
-    </section>
+    </SectionCard>
   );
 }
 

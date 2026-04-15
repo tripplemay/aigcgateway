@@ -24,6 +24,7 @@ import { PageContainer } from "@/components/page-container";
 import { PageHeader } from "@/components/page-header";
 import { PageLoader } from "@/components/page-loader";
 import { KPICard } from "@/components/kpi-card";
+import { SectionCard } from "@/components/section-card";
 import { StatusChip } from "@/components/status-chip";
 
 // ============================================================
@@ -194,7 +195,7 @@ export default function DashboardPage() {
       {/* ═══ Charts Row — code.html lines 248-352 ═══ */}
       <div className="grid grid-cols-12 gap-6 mb-8">
         {/* Area Chart: 14-day Calls — code.html lines 250-311 */}
-        <div className="col-span-12 xl:col-span-8 bg-ds-surface-container-lowest p-6 rounded-2xl ">
+        <SectionCard className="col-span-12 xl:col-span-8">
           <div className="flex justify-between items-start mb-6">
             <div>
               <h4 className="font-[var(--font-heading)] font-bold text-lg">{t("callsTrend")}</h4>
@@ -225,10 +226,10 @@ export default function DashboardPage() {
               </BarChart>
             </ResponsiveContainer>
           </div>
-        </div>
+        </SectionCard>
 
         {/* Model Distribution Pie — code.html lines 314-352 */}
-        <div className="col-span-12 xl:col-span-4 bg-ds-surface-container-lowest p-6 rounded-2xl ">
+        <SectionCard className="col-span-12 xl:col-span-4">
           <h4 className="font-[var(--font-heading)] font-bold text-lg mb-6">{t("modelDist")}</h4>
           <div className="relative h-48 w-48 mx-auto flex items-center justify-center">
             <ResponsiveContainer width="100%" height="100%">
@@ -285,7 +286,7 @@ export default function DashboardPage() {
               );
             })}
           </div>
-        </div>
+        </SectionCard>
       </div>
 
       {/* ═══ Lower Section — code.html lines 355-503 ═══ */}
@@ -293,7 +294,7 @@ export default function DashboardPage() {
         {/* 24h Distribution & Cost — code.html lines 357-399 */}
         <div className="col-span-12 xl:col-span-4 space-y-6">
           {/* 24h Load Distribution */}
-          <div className="bg-ds-surface-container-lowest p-6 rounded-2xl ">
+          <SectionCard>
             <h4 className="font-[var(--font-heading)] font-bold text-lg mb-4">{t("hourlyDist")}</h4>
             <div className="h-32">
               <ResponsiveContainer width="100%" height="100%">
@@ -318,10 +319,10 @@ export default function DashboardPage() {
                 </BarChart>
               </ResponsiveContainer>
             </div>
-          </div>
+          </SectionCard>
 
           {/* Daily Spend — code.html lines 376-398 */}
-          <div className="bg-ds-surface-container-lowest p-6 rounded-2xl ">
+          <SectionCard>
             <div className="flex justify-between items-center mb-4">
               <h4 className="font-[var(--font-heading)] font-bold text-lg">{t("costTrend")}</h4>
               <span className="text-sm font-bold text-ds-primary">
@@ -346,11 +347,11 @@ export default function DashboardPage() {
                 </BarChart>
               </ResponsiveContainer>
             </div>
-          </div>
+          </SectionCard>
         </div>
 
         {/* Recent Calls Table — code.html lines 401-503 */}
-        <div className="col-span-12 xl:col-span-8 bg-ds-surface-container-lowest p-6 rounded-2xl ">
+        <SectionCard className="col-span-12 xl:col-span-8">
           <div className="flex justify-between items-center mb-6">
             <h4 className="font-[var(--font-heading)] font-bold text-lg">{t("recentCalls")}</h4>
             <Link
@@ -418,7 +419,7 @@ export default function DashboardPage() {
               </tbody>
             </table>
           </div>
-        </div>
+        </SectionCard>
       </div>
     </PageContainer>
   );

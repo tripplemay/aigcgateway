@@ -5,6 +5,8 @@ import { useAsyncData } from "@/hooks/use-async-data";
 import { SearchBar } from "@/components/search-bar";
 import { PageContainer } from "@/components/page-container";
 import { PageHeader } from "@/components/page-header";
+import { SectionCard } from "@/components/section-card";
+import { TableCard } from "@/components/table-card";
 import { useExchangeRate } from "@/hooks/use-exchange-rate";
 import { formatCNY } from "@/lib/utils";
 
@@ -180,21 +182,21 @@ export default function ModelsPage() {
 
       {/* ═══ Statistics ═══ */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
-        <div className="bg-ds-surface-container-lowest p-6 rounded-xl shadow-[0px_20px_40px_rgba(19,27,46,0.04)]">
+        <SectionCard>
           <span className="text-[10px] font-bold text-ds-primary uppercase tracking-widest">
             {t("activeInfrastructure")}
           </span>
           <h3 className="text-3xl font-extrabold mt-2 font-[var(--font-heading)]">
             {totalModels} {t("totalModels")}
           </h3>
-        </div>
-        <div className="bg-ds-surface-container-lowest p-6 rounded-xl shadow-[0px_20px_40px_rgba(19,27,46,0.04)]">
+        </SectionCard>
+        <SectionCard>
           <span className="text-[10px] font-bold text-ds-secondary uppercase tracking-widest">
             {t("brandGroups")}
           </span>
           <h3 className="text-3xl font-extrabold mt-2 font-[var(--font-heading)]">{brandCount}</h3>
           <p className="text-xs text-ds-on-surface-variant mt-2">{t("activeBrands")}</p>
-        </div>
+        </SectionCard>
       </div>
 
       {/* ═══ Search bar ═══ */}
@@ -242,7 +244,7 @@ export default function ModelsPage() {
 
               {/* Model table — code.html lines 211-300 */}
               {!collapsed && (
-                <div className="bg-ds-surface-container-lowest rounded-xl overflow-hidden shadow-[0px_20px_40px_rgba(19,27,46,0.02)] border border-ds-outline-variant/10">
+                <TableCard>
                   <table className="w-full text-left border-collapse">
                     <thead className="bg-ds-surface-container-low border-b border-ds-outline-variant/5">
                       <tr>
@@ -358,7 +360,7 @@ export default function ModelsPage() {
                       </button>
                     </div>
                   )}
-                </div>
+                </TableCard>
               )}
             </div>
           );

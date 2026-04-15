@@ -12,6 +12,8 @@ import { Button } from "@/components/ui/button";
 import { PageContainer } from "@/components/page-container";
 import { PageHeader } from "@/components/page-header";
 import { PageLoader } from "@/components/page-loader";
+import { SectionCard } from "@/components/section-card";
+import { TableCard } from "@/components/table-card";
 import {
   Table,
   TableHeader,
@@ -326,7 +328,7 @@ export default function SettingsPage() {
                 </div>
               )}
 
-              <section className="bg-ds-surface-container-lowest rounded-xl p-8 shadow-sm">
+              <SectionCard>
                 <div className="flex items-center gap-4 mb-8">
                   <div className="w-12 h-12 rounded-xl bg-indigo-50 flex items-center justify-center text-ds-primary">
                     <span
@@ -377,10 +379,10 @@ export default function SettingsPage() {
                     </Button>
                   </div>
                 </div>
-              </section>
+              </SectionCard>
 
               {/* Statistics */}
-              <section className="bg-ds-surface-container-lowest rounded-xl p-8 shadow-sm">
+              <SectionCard>
                 <div className="flex items-center gap-4 mb-8">
                   <div className="w-12 h-12 rounded-xl bg-ds-primary-container/20 flex items-center justify-center text-ds-primary">
                     <span
@@ -413,13 +415,10 @@ export default function SettingsPage() {
                     </p>
                   </div>
                 </div>
-              </section>
+              </SectionCard>
 
               {/* F-RL-05: rate limit overrides */}
-              <section
-                className="bg-ds-surface-container-lowest rounded-xl p-8 shadow-sm"
-                data-testid="project-rate-limit"
-              >
+              <SectionCard data-testid="project-rate-limit">
                 <div className="flex items-center gap-4 mb-6">
                   <div className="w-12 h-12 rounded-xl bg-ds-primary-container/20 flex items-center justify-center text-ds-primary">
                     <span className="material-symbols-outlined">speed</span>
@@ -495,7 +494,7 @@ export default function SettingsPage() {
                     {savingRateLimit ? t("saving") : t("saveChanges")}
                   </Button>
                 </div>
-              </section>
+              </SectionCard>
             </div>
 
             {/* Right: Danger Zone */}
@@ -544,7 +543,7 @@ export default function SettingsPage() {
           {/* Left Column */}
           <div className="lg:col-span-2 space-y-8">
             {/* Profile Card */}
-            <section className="bg-ds-surface-container-lowest rounded-xl p-8 shadow-sm">
+            <SectionCard>
               <div className="flex items-center gap-4 mb-8">
                 <div className="w-12 h-12 rounded-xl bg-indigo-50 flex items-center justify-center text-ds-primary">
                   <span
@@ -601,10 +600,10 @@ export default function SettingsPage() {
                   </Button>
                 </div>
               </div>
-            </section>
+            </SectionCard>
 
             {/* Login History */}
-            <section className="bg-ds-surface-container-lowest rounded-xl shadow-sm overflow-hidden">
+            <TableCard>
               <div className="p-8 pb-4">
                 <div className="flex items-center gap-4">
                   <div className="w-12 h-12 rounded-xl bg-ds-error-container/20 flex items-center justify-center text-ds-error">
@@ -653,13 +652,13 @@ export default function SettingsPage() {
                   )}
                 </TableBody>
               </Table>
-            </section>
+            </TableCard>
           </div>
 
           {/* Right Column */}
           <div className="space-y-8">
             {/* Change Password */}
-            <section className="bg-ds-surface-container-lowest rounded-xl p-8 shadow-sm">
+            <SectionCard>
               <div className="mb-8">
                 <h2 className="heading-2 mb-1">{t("security")}</h2>
                 <p className="text-sm text-ds-on-surface-variant">{t("securityDesc")}</p>
@@ -695,7 +694,7 @@ export default function SettingsPage() {
                   {t("changePassword")}
                 </button>
               </div>
-            </section>
+            </SectionCard>
 
             {/* Admin: Exchange Rate */}
             {profile?.role === "ADMIN" && <ExchangeRateSection />}
@@ -774,7 +773,7 @@ function ExchangeRateSection() {
   if (!loaded) return null;
 
   return (
-    <section className="bg-ds-surface-container-lowest rounded-xl p-8 shadow-sm">
+    <SectionCard>
       <h2 className="heading-2 mb-2">{t("exchangeRate")}</h2>
       <p className="text-sm text-ds-on-surface-variant mb-6">{t("exchangeRateDesc")}</p>
       <div className="flex items-center gap-4">
@@ -792,6 +791,6 @@ function ExchangeRateSection() {
           {saving ? "..." : t("save")}
         </Button>
       </div>
-    </section>
+    </SectionCard>
   );
 }
