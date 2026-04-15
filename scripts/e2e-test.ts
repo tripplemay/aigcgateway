@@ -4,6 +4,8 @@
  * 用法：BASE_URL=http://localhost:3099 npx tsx scripts/e2e-test.ts
  */
 
+import { prisma } from "@/lib/prisma";
+
 const BASE = process.env.BASE_URL ?? "http://localhost:3099";
 let token = "";
 let projectId = "";
@@ -55,6 +57,48 @@ async function main() {
       expectStatus: 201,
     });
     if (!body.id) throw new Error("No user id");
+  });
+
+  // BL-073
+  // Full email-verify happy path: register → unverified → read token
+  // directly from DB → POST /verify-email → login still works. We do
+  // NOT depend on real email delivery; the test reaches into the
+  // emailVerificationToken table for the token the register handler
+  // just minted.
+  await step("1b. BL-073 email-verify: unverified after register", async () => {
+    const user = await prisma.user.findUnique({ where: { email } });
+    if (!user) throw new Error("user row missing after register");
+    if (user.emailVerified) throw new Error("register unexpectedly flipped emailVerified=true");
+  });
+
+  await step("1c. BL-073 email-verify: token → verify → login OK", async () => {
+    const user = await prisma.user.findUnique({ where: { email } });
+    if (!user) throw new Error("user row missing");
+    const tokenRow = await prisma.emailVerificationToken.findFirst({
+      where: { userId: user.id, used: false },
+      orderBy: { createdAt: "desc" },
+    });
+    if (!tokenRow) throw new Error("no unused verification token in DB");
+
+    const verifyRes = await api("/api/auth/verify-email", {
+      method: "POST",
+      body: JSON.stringify({ token: tokenRow.token }),
+      expectStatus: 200,
+    });
+    if (!/verified/i.test(verifyRes.body?.message ?? "")) {
+      throw new Error(`Unexpected verify-email body: ${JSON.stringify(verifyRes.body)}`);
+    }
+
+    const after = await prisma.user.findUnique({ where: { id: user.id } });
+    if (!after?.emailVerified) throw new Error("emailVerified still false after verify");
+
+    // Login path is still happy with the verified account.
+    const login = await api("/api/auth/login", {
+      method: "POST",
+      body: JSON.stringify({ email, password }),
+      expectStatus: 200,
+    });
+    if (!login.body?.token) throw new Error("login refused after verify");
   });
 
   // 2. Login
@@ -264,6 +308,7 @@ async function main() {
 
   console.log("\n" + "=".repeat(60));
   console.log(`Results: ${passed} PASS | ${failed} FAIL | ${passed + failed} total`);
+  await prisma.$disconnect().catch(() => {});
   console.log("=".repeat(60));
   process.exit(failed > 0 ? 1 : 0);
 }

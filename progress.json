@@ -1,11 +1,11 @@
 {
-  "status": "building",
+  "status": "verifying",
   "user_goal": "REGRESSION-BACKFILL — 回溯补 BILLING-REFACTOR / AUDIT-SEC / DX-POLISH 三批的 regression test + 邮箱验证高风险路径 + 脚本基础设施升级",
   "total_features": 6,
-  "completed_features": 4,
+  "completed_features": 5,
   "fix_rounds": 0,
   "current_sprint": null,
-  "last_updated": "2026-04-15T19:20:00Z",
+  "last_updated": "2026-04-15T19:40:00Z",
   "reference_docs": [
     "docs/specs/REGRESSION-BACKFILL-spec.md"
   ],
@@ -19,7 +19,7 @@
   "evaluator_feedback": null,
   "generator_handoff": null,
   "session_notes": {
-    "Kimi": "Planner 启动 REGRESSION-BACKFILL 批次（5 generator + 1 codex = 6 条）。目的：test-lifecycle.md 的回归沉淀规则在 BILLING-REFACTOR 之后才固化，三个早期批次（BILLING-REFACTOR / AUDIT-SEC / DX-POLISH）没有 regression test 覆盖。本批次回溯补齐关键断言到 scripts/test-*.ts 4 个脚本，合入 BL-073 可做的邮箱验证路径，并升级 scripts/test-all.sh 作为统一入口。关键约束：不改产品代码，每条新增断言必须在本地 L1 环境可实际跑通（不是 dead code）。执行顺序：先 F-RB-05 基础设施，再 F-RB-01~03 三批回溯，再 F-RB-04 邮箱验证，最后 F-RB-06 验收。Codex 验收需要做至少 1 次 mutation test 证明断言不是空壳。ADMIN-OPS++ 已签收并部署到 67889a0。",
+    "Kimi": "Generator 完成 F-RB-01~05 全部 5 条。F-RB-05 test-all.sh 一键入口（BASE_URL/API_KEY 透传，逐个执行 4 脚本并汇总 pass/fail）。F-RB-01 BILLING-REFACTOR 3 断言（list_models pricing = 扣费金额 / 图片 perCall 一致 / pricing 小数位 ≤6）。F-RB-02 AUDIT-SEC 4 断言（deprecated 不泄露 / image 必有 supportedSizes / free_only 全零 / 无效尺寸含 supportedSizes 提示）。F-RB-03 DX-POLISH 4 断言（chat 拒绝 image modality / vision 只返 text / json_mode 无 markdown 围栏 / get_action_detail 统一 not-found 文案），reasoning_tokens 已由 F-AF-02 16f 覆盖不重复。F-RB-04 邮箱验证 4 步骤（e2e-test 注册后 unverified + DB 读 token 通过验证 / e2e-errors 无效 token 400 / 过期 token 400 / 重复验证幂等）。新增断言均 // BL-120 或 // BL-073 标注。tsc 干净。所有新测试依赖 dev server 运行，本地跑验证留给 Reviewer F-RB-06（含至少 1 次 mutation test）。status → verifying。",
     "Reviewer": null
   }
 }

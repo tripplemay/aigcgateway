@@ -39,7 +39,8 @@
       "title": "邮箱验证高风险路径 regression",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
+      "completed_at": "2026-04-15T19:40:00Z",
       "source": "BL-073（部分）",
       "acceptance": "1) scripts/e2e-test.ts 增加 'email-verify: register → unverified → verify token → login OK' 全链路步骤，不依赖真实发邮件（直接从 DB 读 emailVerificationToken）；2) scripts/e2e-errors.ts 增加 'email-verify: invalid token rejected'；3) scripts/e2e-errors.ts 增加 'email-verify: expired token rejected'（构造一个过期的 token row）；4) scripts/e2e-errors.ts 增加 'email-verify: already-verified repeat call 幂等'；5) 断言 register 后 user.emailVerified=false；6) 每条测试注释 // BL-073 来源；7) tsc 通过"
     },
