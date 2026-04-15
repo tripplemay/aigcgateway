@@ -2,10 +2,10 @@
   "status": "building",
   "user_goal": "REGRESSION-BACKFILL — 回溯补 BILLING-REFACTOR / AUDIT-SEC / DX-POLISH 三批的 regression test + 邮箱验证高风险路径 + 脚本基础设施升级",
   "total_features": 6,
-  "completed_features": 1,
+  "completed_features": 4,
   "fix_rounds": 0,
   "current_sprint": null,
-  "last_updated": "2026-04-15T19:00:00Z",
+  "last_updated": "2026-04-15T19:20:00Z",
   "reference_docs": [
     "docs/specs/REGRESSION-BACKFILL-spec.md"
   ],

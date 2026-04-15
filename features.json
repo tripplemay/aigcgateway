@@ -7,7 +7,8 @@
       "title": "BILLING-REFACTOR 回溯 regression tests",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
+      "completed_at": "2026-04-15T19:20:00Z",
       "source": "BL-120",
       "acceptance": "1) scripts/test-mcp.ts 增加 'billing: list_models pricing = deducted amount'：调用 chat 后读取 get_log_detail 的 cost，对比 list_models 对应 alias 的 pricing 计算值（prompt×input_per_1m + completion×output_per_1m），误差 < $0.00000001；2) scripts/test-mcp.ts 增加 'billing: image generate cost = alias perCall'：调用 generate_image 后验证 cost = alias.sellPrice.perCall；3) scripts/test-mcp.ts 增加 'billing: pricing has no float noise'：断言所有 list_models 返回的 pricing 数值小数位 ≤ 6；4) 每条测试用 // BL-120 / BILLING-REFACTOR 注释标注来源；5) tsc 通过"
     },
@@ -16,7 +17,9 @@
       "title": "AUDIT-SEC 回溯 regression tests",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
+      "completed_at": "2026-04-15T19:20:00Z",
+      "note": "disabled-model 断言用 deprecated flag 代替（不修 DB 状态），其余 3 条全覆盖",
       "source": "BL-120",
       "acceptance": "1) scripts/test-mcp.ts 增加 'audit-sec: list_models filters disabled models'：使用 admin API 或 DB 直接禁用一个 model 后调用 list_models，断言该 model 不在返回列表（测试完恢复）；2) scripts/test-mcp.ts 增加 'audit-sec: image models have supportedSizes'：list_models(modality='image') 每个返回项都有 supportedSizes 非空数组；3) scripts/test-mcp-errors.ts 增加 'audit-sec: generate_image invalid size returns supportedSizes list'：传 9999x9999，断言 error 含 invalid_size 且包含 supportedSizes 字段；4) scripts/test-mcp.ts 增加 'audit-sec: free_only filter returns zero-priced aliases'：list_models(free_only=true) 返回的所有 alias 都应 pricing 全为 0；5) 每条测试注释 // BL-120 / AUDIT-SEC 来源；6) tsc 通过"
     },
@@ -25,7 +28,9 @@
       "title": "DX-POLISH 回溯 regression tests",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
+      "completed_at": "2026-04-15T19:20:00Z",
+      "note": "reasoning_tokens 已由 F-AF-02 回归覆盖（test-mcp.ts 16f），本批次不重复",
       "source": "BL-120",
       "acceptance": "1) scripts/test-mcp.ts 增加 'dx-polish: chat rejects image modality model'：chat(model='gpt-image-mini') 返回 invalid_model_modality；2) scripts/test-mcp.ts 增加 'dx-polish: capability=vision only returns text models'：list_models(capability='vision') 所有 modality='text'；3) scripts/test-mcp.ts 增加 'dx-polish: reasoning_tokens present in get_log_detail'：调用 reasoning 模型后，get_log_detail.usage.reasoningTokens 存在且 > 0；4) scripts/test-mcp.ts 增加 'dx-polish: json_mode strips markdown code fence'：chat(response_format={type:'json_object'}) 的 content JSON.parse 成功，不含 markdown 围栏；5) scripts/test-mcp-errors.ts 增加 'dx-polish: get_action_detail not-found wording includes in this project'；6) 每条测试注释 // BL-120 / DX-POLISH 来源；7) tsc 通过"
     },

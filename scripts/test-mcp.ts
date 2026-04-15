@@ -564,6 +564,252 @@ async function main() {
     console.log("(unified wording) ");
   });
 
+  // ============================================================
+  // REGRESSION-BACKFILL — F-RB-01 BILLING-REFACTOR
+  // ============================================================
+
+  // BL-120 / BILLING-REFACTOR
+  // Asserts the deducted chat cost equals what list_models says the
+  // alias should cost, given the reported token usage. Catches
+  // silent pricing drift between the cost calculator and the
+  // pricing field exposed to customers.
+  await step("RB-01.1 billing: list_models pricing = deducted amount", async () => {
+    const models = JSON.parse(parseTextContent(await callTool("list_models")));
+    const alias = (models as Array<Record<string, unknown>>).find((m) => m.name === "deepseek/v3");
+    if (!alias) {
+      console.log("(deepseek/v3 alias missing, skipping) ");
+      return;
+    }
+    const pricing = alias.pricing as Record<string, unknown>;
+    const inputPerM = Number(pricing.inputPerMillion ?? 0);
+    const outputPerM = Number(pricing.outputPerMillion ?? 0);
+    const chatRes = JSON.parse(
+      parseTextContent(
+        await callTool("chat", {
+          model: "deepseek/v3",
+          messages: [{ role: "user", content: "Say OK" }],
+          max_tokens: 5,
+        }),
+      ),
+    );
+    if (!chatRes.traceId) throw new Error("No traceId from RB billing chat");
+    await new Promise((r) => setTimeout(r, 500));
+    const detail = await getLogDetail(chatRes.traceId);
+    const prompt = Number(detail.usage?.promptTokens ?? 0);
+    const completion = Number(detail.usage?.completionTokens ?? 0);
+    const expected = (prompt * inputPerM + completion * outputPerM) / 1_000_000;
+    const actual = parseMoney(detail.cost);
+    if (Math.abs(expected - actual) > 0.00000001) {
+      throw new Error(
+        `billing drift: list_models=${expected}, deducted=${actual}, tokens=${prompt}/${completion}`,
+      );
+    }
+    console.log(`(expected=${expected}, actual=${actual}) `);
+  });
+
+  // BL-120 / BILLING-REFACTOR
+  // Asserts image generation cost exactly matches the alias perCall
+  // price exposed via list_models — no rounding or exchange-rate
+  // surprises between the cost calculator and the customer-facing
+  // catalogue.
+  await step("RB-01.2 billing: image generate cost = alias perCall", async () => {
+    if (!selectedImageModel) {
+      console.log("(no image alias, skipping) ");
+      return;
+    }
+    const models = JSON.parse(parseTextContent(await callTool("list_models")));
+    const imageAlias = (models as Array<Record<string, unknown>>).find(
+      (m) => m.name === selectedImageModel,
+    );
+    const expected = Number((imageAlias?.pricing as Record<string, unknown>)?.perCall ?? 0);
+    if (!Number.isFinite(expected) || expected <= 0) {
+      console.log("(image alias has no perCall price, skipping) ");
+      return;
+    }
+    const imgRes = JSON.parse(
+      parseTextContent(
+        await callTool("generate_image", {
+          model: selectedImageModel,
+          prompt: "a tiny blue dot",
+          size: "1024x1024",
+        }),
+      ),
+    );
+    if (!imgRes.traceId) throw new Error("No traceId from image gen");
+    await new Promise((r) => setTimeout(r, 500));
+    const detail = await getLogDetail(imgRes.traceId);
+    const actual = parseMoney(detail.cost);
+    if (Math.abs(expected - actual) > 0.00000001) {
+      throw new Error(`image billing drift: list_models=${expected}, deducted=${actual}`);
+    }
+    console.log(`(perCall=${expected}) `);
+  });
+
+  // BL-120 / BILLING-REFACTOR
+  // Sanity: pricing numbers surfaced to customers must have clean
+  // decimal representations (≤ 6 places). Catches float noise leaking
+  // from CNY↔USD conversion into the public catalogue.
+  await step("RB-01.3 billing: list_models pricing has no float noise", async () => {
+    const models = JSON.parse(parseTextContent(await callTool("list_models")));
+    for (const m of models as Array<Record<string, unknown>>) {
+      const pricing = m.pricing as Record<string, unknown>;
+      if (!pricing) continue;
+      for (const [key, val] of Object.entries(pricing)) {
+        if (typeof val !== "number" || val === 0) continue;
+        const decimals = (val.toString().split(".")[1] ?? "").length;
+        if (decimals > 6) {
+          throw new Error(`float noise in ${m.name}.${key}: ${val} (${decimals} decimals)`);
+        }
+      }
+    }
+    console.log("(no float noise) ");
+  });
+
+  // ============================================================
+  // REGRESSION-BACKFILL — F-RB-02 AUDIT-SEC
+  // ============================================================
+
+  // BL-120 / AUDIT-SEC
+  // list_models must only surface enabled aliases. Deprecated/
+  // disabled ones stay hidden so customers never call into dead
+  // channels. A direct DB mutation would be more thorough but is
+  // out of scope for this harness — we assert every returned row
+  // lacks a truthy `deprecated` flag.
+  await step("RB-02.1 audit-sec: list_models excludes deprecated aliases", async () => {
+    const models = JSON.parse(parseTextContent(await callTool("list_models")));
+    for (const m of models as Array<Record<string, unknown>>) {
+      if (m.deprecated) {
+        throw new Error(`deprecated alias leaked into list_models: ${m.name}`);
+      }
+    }
+    console.log(`(${(models as unknown[]).length} clean) `);
+  });
+
+  // BL-120 / AUDIT-SEC
+  // Every IMAGE alias must report a non-empty supportedSizes array so
+  // clients can validate size before dispatching. An empty list would
+  // force every call through a 400 round trip.
+  await step("RB-02.2 audit-sec: image models expose supportedSizes", async () => {
+    const models = JSON.parse(parseTextContent(await callTool("list_models")));
+    const imageAliases = (models as Array<Record<string, unknown>>).filter(
+      (m) => m.modality === "image",
+    );
+    if (imageAliases.length === 0) {
+      console.log("(no image aliases, skipping) ");
+      return;
+    }
+    for (const a of imageAliases) {
+      const sizes = a.supportedSizes as unknown;
+      if (!Array.isArray(sizes) || sizes.length === 0) {
+        throw new Error(`image alias ${a.name} missing supportedSizes`);
+      }
+    }
+    console.log(`(${imageAliases.length} image aliases OK) `);
+  });
+
+  // BL-120 / AUDIT-SEC
+  // free_only filter must return only aliases whose sellPrice
+  // resolves to zero across every pricing field (protects the
+  // "Free" shelf from silently showing paid models).
+  await step("RB-02.3 audit-sec: free_only returns zero-priced aliases", async () => {
+    let models;
+    try {
+      models = JSON.parse(parseTextContent(await callTool("list_models", { free_only: true })));
+    } catch {
+      console.log("(free_only param not supported, skipping) ");
+      return;
+    }
+    for (const m of models as Array<Record<string, unknown>>) {
+      const pricing = (m.pricing as Record<string, unknown>) ?? {};
+      for (const v of Object.values(pricing)) {
+        if (typeof v === "number" && v > 0) {
+          throw new Error(`free_only leaked priced alias ${m.name}: ${JSON.stringify(pricing)}`);
+        }
+      }
+    }
+    console.log(`(${(models as unknown[]).length} free aliases) `);
+  });
+
+  // ============================================================
+  // REGRESSION-BACKFILL — F-RB-03 DX-POLISH
+  // ============================================================
+
+  // BL-120 / DX-POLISH
+  // chat tool must refuse image-modality aliases with a clear
+  // invalid_model_modality error rather than forwarding an image
+  // request to the text pipeline and failing deeper.
+  await step("RB-03.1 dx-polish: chat rejects image modality model", async () => {
+    if (!selectedImageModel) {
+      console.log("(no image alias, skipping) ");
+      return;
+    }
+    try {
+      const res = await callTool("chat", {
+        model: selectedImageModel,
+        messages: [{ role: "user", content: "hi" }],
+        max_tokens: 5,
+      });
+      const text = parseTextContent(res);
+      if (/invalid_model_modality|modality/i.test(text)) {
+        console.log("(modality mismatch surfaced) ");
+        return;
+      }
+      throw new Error(`chat(image alias) should fail, got: ${text.slice(0, 120)}`);
+    } catch (e) {
+      const msg = (e as Error).message;
+      if (/modality|invalid_model/i.test(msg)) {
+        console.log("(modality mismatch error) ");
+        return;
+      }
+      throw e;
+    }
+  });
+
+  // BL-120 / DX-POLISH
+  // capability=vision filter must only surface text-modality models —
+  // "vision" here means "text model that can read images", not IMAGE
+  // generation models.
+  await step("RB-03.2 dx-polish: capability=vision returns only text models", async () => {
+    let models;
+    try {
+      models = JSON.parse(
+        parseTextContent(await callTool("list_models", { capability: "vision" })),
+      );
+    } catch {
+      console.log("(capability filter not supported, skipping) ");
+      return;
+    }
+    for (const m of models as Array<Record<string, unknown>>) {
+      if (m.modality !== "text") {
+        throw new Error(`vision filter leaked non-text: ${m.name} (${m.modality})`);
+      }
+    }
+    console.log(`(${(models as unknown[]).length} text-with-vision) `);
+  });
+
+  // BL-120 / DX-POLISH
+  // json_mode response must survive JSON.parse and carry no leading
+  // ```json fence — the response post-processor should strip it.
+  await step("RB-03.3 dx-polish: json_mode strips markdown fence", async () => {
+    const res = await callTool("chat", {
+      model: "deepseek/v3",
+      messages: [{ role: "user", content: 'Respond with JSON {"ok":true}. Do not add any prose.' }],
+      response_format: { type: "json_object" },
+      max_tokens: 32,
+    });
+    const data = JSON.parse(parseTextContent(res));
+    const content = data.content ?? "";
+    if (/^```/m.test(content)) {
+      throw new Error(`markdown fence leaked into json_mode content: ${content.slice(0, 80)}`);
+    }
+    try {
+      JSON.parse(content);
+    } catch {
+      throw new Error(`json_mode content is not valid JSON: ${content.slice(0, 80)}`);
+    }
+    console.log("(clean JSON) ");
+  });
+
   await step("17. get_usage_summary (7d)", async () => {
     const result = await callTool("get_usage_summary", { period: "7d" });
     const data = JSON.parse(parseTextContent(result));

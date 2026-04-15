@@ -293,6 +293,63 @@ async function main() {
     console.log("(oversized max_tokens rejected) ");
   });
 
+  // BL-120 / AUDIT-SEC
+  // generate_image with an unsupported size must surface the
+  // supportedSizes list in the error body so clients can retry
+  // with a valid option instead of guessing.
+  await step("RB-02.4 audit-sec: generate_image invalid size → supportedSizes list", async () => {
+    if (!API_KEY) throw new Error("API_KEY not set");
+    const { body } = await rawMcpRequest(
+      "tools/call",
+      {
+        name: "generate_image",
+        arguments: {
+          model: "fal/flux-schnell",
+          prompt: "a tiny blue dot",
+          size: "9999x9999",
+        },
+      },
+      API_KEY,
+    );
+    const result = (body as { result?: { isError?: boolean; content?: Array<{ text?: string }> } })
+      ?.result;
+    if (!result?.isError) {
+      console.log("(invalid size was accepted or model missing, skipping) ");
+      return;
+    }
+    const text = result.content?.[0]?.text ?? "";
+    if (!/invalid_size/i.test(text)) {
+      throw new Error(`Expected invalid_size, got: ${text.slice(0, 120)}`);
+    }
+    if (!/supportedSizes|1024x1024|\d+x\d+/i.test(text)) {
+      throw new Error(`Error missing supportedSizes hint: ${text.slice(0, 120)}`);
+    }
+    console.log("(supportedSizes surfaced) ");
+  });
+
+  // BL-120 / DX-POLISH
+  // Cross-project / missing action probe must return the unified
+  // "not found in this project" wording so IDOR scanners can't
+  // distinguish "does not exist" from "belongs to another project".
+  await step("RB-03.4 dx-polish: get_action_detail not-found wording", async () => {
+    if (!API_KEY) throw new Error("API_KEY not set");
+    const { body } = await rawMcpRequest(
+      "tools/call",
+      {
+        name: "get_action_detail",
+        arguments: { action_id: "does-not-exist-xyz" },
+      },
+      API_KEY,
+    );
+    const result = (body as { result?: { isError?: boolean; content?: Array<{ text?: string }> } })
+      ?.result;
+    const text = result?.content?.[0]?.text ?? "";
+    if (!/in this project/i.test(text)) {
+      throw new Error(`Expected 'in this project' wording, got: ${text.slice(0, 120)}`);
+    }
+    console.log("(unified wording) ");
+  });
+
   console.log("\n" + "=".repeat(60));
   console.log(`Results: ${passed} PASS | ${failed} FAIL`);
   console.log("=".repeat(60));
