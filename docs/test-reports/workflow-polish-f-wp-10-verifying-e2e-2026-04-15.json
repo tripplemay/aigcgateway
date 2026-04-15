@@ -1,0 +1,72 @@
+{
+  "feature": "F-WP-10",
+  "batch": "WORKFLOW-POLISH",
+  "env": "L1-local-3099",
+  "startedAt": "2026-04-15T01:16:27.412Z",
+  "finishedAt": "2026-04-15T01:16:27.760Z",
+  "pass": false,
+  "passCount": 10,
+  "failCount": 2,
+  "checks": [
+    {
+      "id": "F-WP-10-00-smoke-init",
+      "ok": true,
+      "detail": "mcp initialize ok"
+    },
+    {
+      "id": "F-WP-10-01-usage-thinking-tokens",
+      "ok": true,
+      "detail": "usage={\"prompt_tokens\":30,\"output_tokens\":13,\"total_tokens\":50,\"thinking_tokens\":7}"
+    },
+    {
+      "id": "F-WP-10-02-step-variables-override",
+      "ok": true,
+      "detail": "ok:S1 STEP0 | ok:S2 GLOBAL ok:S1 STEP0"
+    },
+    {
+      "id": "F-WP-10-03-step-version-lock",
+      "ok": true,
+      "detail": "ok:LOCK_V1 XYZ"
+    },
+    {
+      "id": "F-WP-10-04-get-template-detail-version-fields",
+      "ok": true,
+      "detail": "active=2, locked=1"
+    },
+    {
+      "id": "F-WP-10-05-empty-message-invalid",
+      "ok": false,
+      "detail": "expected 400 invalid_parameter, got 200: {\"id\":\"chatcmpl-trc_sfe4jzn7y8b04der2k6t5pna\",\"object\":\"chat.completion\",\"created\":1776215787,\"model\":\"deepseek-v3\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":\"ok:\"},\"finish_reason\":\"stop\"}],\"usage\":{\"prompt_tokens\":12,\"completion_tokens\":6,\"total_tokens\":18}}"
+    },
+    {
+      "id": "F-WP-10-06-binary-prompt-invalid",
+      "ok": true,
+      "detail": "prompt appears to contain binary data and cannot be processed as text"
+    },
+    {
+      "id": "F-WP-10-07-capability-vision-is-text-only",
+      "ok": false,
+      "detail": "rest contains non-text vision model: [{\"id\":\"vision-image\",\"object\":\"model\",\"modality\":\"image\",\"pricing\":{},\"capabilities\":{\"vision\":true,\"image_input\":true},\"supportedSizes\":[\"1024x1024\"]},{\"id\":\"vision-text\",\"object\":\"model\",\"modality\":\"text\",\"pricing\":{},\"capabilities\":{\"vision\":true,\"streaming\":true}}]"
+    },
+    {
+      "id": "F-WP-10-08-usage-summary-success-error",
+      "ok": true,
+      "detail": "mcp_groups=2, rest_success=6, rest_error=1"
+    },
+    {
+      "id": "F-WP-10-09-get-balance-transaction-model-source",
+      "ok": true,
+      "detail": "model=deepseek-v3, source=mcp"
+    },
+    {
+      "id": "F-WP-10-10-typo-fix",
+      "ok": true,
+      "detail": "Model \"deepseek-v3\" is a text model and cannot be used for image generation. Use the chat tool instead."
+    },
+    {
+      "id": "F-WP-10-11-qualityscore-cleanup",
+      "ok": true,
+      "detail": "templates=6, qualityScore_omitted=true"
+    }
+  ]
+}

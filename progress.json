@@ -1,11 +1,11 @@
 {
-  "status": "verifying",
+  "status": "fixing",
   "user_goal": "WORKFLOW-POLISH — 收尾 reports-20260413 审计剩余断言：Template 执行增强（usage 拆分/步骤变量/版本锁定）+ 输入校验 + DX 细节打磨",
   "total_features": 10,
-  "completed_features": 9,
+  "completed_features": 7,
   "fix_rounds": 0,
   "current_sprint": "F-WP-10",
-  "last_updated": "2026-04-15T09:10:00Z",
+  "last_updated": "2026-04-15T01:18:00Z",
   "reference_docs": [
     "docs/specs/WORKFLOW-POLISH-spec.md",
     "docs/test-reports/user_report/reports-20260413/all-assertions-20260413.json"
@@ -17,10 +17,29 @@
     "signoff": null,
     "framework_reviewed": false
   },
-  "evaluator_feedback": null,
+  "evaluator_feedback": {
+    "summary": "WORKFLOW-POLISH 首轮验收 10/12 通过，存在 2 个 FAIL：REST chat 空 content 未拦截、REST /v1/models capability=vision 仍返回 image 模型。",
+    "pass_count": 10,
+    "partial_count": 0,
+    "fail_count": 2,
+    "issues": [
+      {
+        "feature_id": "F-WP-05",
+        "result": "FAIL",
+        "description": "REST /v1/chat/completions 对 messages[0].content='' 仍返回 200，未触发 invalid_parameter。",
+        "steps_to_reproduce": "POST /v1/chat/completions with model=deepseek-v3 and messages=[{role:'user',content:''}]，Authorization=Bearer <apiKey>。"
+      },
+      {
+        "feature_id": "F-WP-06",
+        "result": "FAIL",
+        "description": "REST /v1/models?capability=vision 仍包含 modality=image 项，未与 MCP 口径一致。",
+        "steps_to_reproduce": "创建一个 TEXT+vision 别名和一个 IMAGE+vision 别名后，调用 GET /v1/models?capability=vision，返回同时含 image 与 text。"
+      }
+    ]
+  },
   "generator_handoff": null,
   "session_notes": {
     "Kimi": "Generator 完成 WORKFLOW-POLISH 全部 9 条，tsc clean。F-WP-01 sequential runner 传 reasoning_tokens + total_tokens；run_template 输出 prompt_tokens/output_tokens/thinking_tokens/total_tokens。F-WP-02 normalizeTemplateVariables helper（flat | __global/__step_N）导出复用，sequential/fanout runner 按 stepIndex 合入 override，REST + MCP 均走同一路径。F-WP-03 TemplateStep.lockedVersionId JSON 字段 + migration 20260415_workflow_polish_step_locked_version；create/update_template 接受 version_id 并校验所属 action；sequential/fanout runner 通过 versionId 参数给 runAction。F-WP-04 get_template_detail 拉 ActionVersion 映射表，每 step 吐 activeVersionId/activeVersionNumber 和可选 locked*. F-WP-05 messageSchema.content.min(1)，generate_image prompt .min(1).max(4000) 加 validatePrompt 二进制检测（>30% 非打印 ASCII），REST + MCP 双端。F-WP-06 list_models capability=vision 进入 TEXT_ONLY_CAPS 只保 TEXT 模型。F-WP-07 get_usage_summary 顶层 + group_by='model' 增加 successCalls/errorCalls；/v1/usage 同步。F-WP-08 get_balance.include_transactions 通过 traceId 联 CallLog 为 DEDUCTION 补 model/source。F-WP-09 list_public_templates 当 qualityScore 全 null 时整字段隐藏。单元测试 normalize-template-variables.test.ts 4 pass + prompt-validation.test.ts 4 pass；集成测试 test-mcp-errors.ts step 5d 空 content 拒绝。交 Codex Reviewer F-WP-10 全量验收。",
-    "Reviewer": null
+    "Reviewer": "执行 F-WP-10 验收脚本 scripts/test/workflow-polish-f-wp-10-verifying-e2e-2026-04-15.ts（L1, 3099）。先重建最新 harness 环境后复跑，最终 10/12 PASS、2 FAIL。通过项：F-WP-01/02/03/04/07(usage split)/08/09/10/11；失败项：F-WP-05（REST chat 空 content 未被拒绝）、F-WP-06（REST capability=vision 未做 text-only 隔离）。报告：docs/test-reports/workflow-polish-f-wp-10-verifying-e2e-2026-04-15.json。已将状态置 fixing 并将 F-WP-05/F-WP-06 回退 pending。"
   }
 }

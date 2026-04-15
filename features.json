@@ -43,7 +43,7 @@
       "title": "chat messages schema minLength + generate_image prompt 基本校验",
       "priority": "medium",
       "executor": "generator",
-      "status": "completed",
+      "status": "pending",
       "source": "CHAOS-012, MOD-003",
       "acceptance": "1) chat zod schema：messages[].content 添加 .min(1)；2) generate_image prompt 添加 .min(1).max(4000)；3) 二进制 payload 检测：prompt 中 non-printable 字符比例 > 30% 返回 invalid_prompt 错误；4) 错误 code='invalid_prompt'；5) 同 commit 补 regression test；6) tsc 通过"
     },
@@ -52,7 +52,7 @@
       "title": "capability=vision 按 modality 隔离",
       "priority": "medium",
       "executor": "generator",
-      "status": "completed",
+      "status": "pending",
       "source": "DX-011",
       "acceptance": "1) list_models(capability='vision') 仅返回 modality='text' 的模型（vision 语义 = 接受图片输入）；2) IMAGE 模型的 image_input 字段继续存在但不通过 vision capability 过滤；3) MCP list_models.ts 和 /api/v1/models/route.ts 的 capability 过滤逻辑同步；4) tsc 通过"
     },

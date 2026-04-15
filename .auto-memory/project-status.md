@@ -4,11 +4,13 @@ description: AIGC Gateway 当前状态快照（覆盖写，≤30 行）
 type: project
 ---
 ## 当前批次
-- WORKFLOW-POLISH：`building`（10 条功能，0/10 完成，9 generator + 1 codex）
+- WORKFLOW-POLISH：`fixing`（F-WP-10 首轮验收 10/12 PASS，2 FAIL 待修复）
 - 规格：`docs/specs/WORKFLOW-POLISH-spec.md`
 - Phase 1 Template 增强：F-WP-01 usage 拆分 / F-WP-02 步骤变量 / F-WP-03 step version 锁定 / F-WP-04 展示版本号
 - Phase 2 输入校验：F-WP-05 minLength + 二进制 prompt 检测
 - Phase 3 DX 细节：F-WP-06 capability vision / F-WP-07 usage success/error / F-WP-08 transactions 内联 / F-WP-09 错别字
+- 验收报告：`docs/test-reports/workflow-polish-f-wp-10-verifying-e2e-2026-04-15.json`
+- 当前失败：F-WP-05（REST chat 空 content 未拦截）/ F-WP-06（REST vision 过滤含 image）
 - 来源：reports-20260413 审计剩余的 medium/low 断言
 
 ## 已知 gap
