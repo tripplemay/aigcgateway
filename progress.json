@@ -1,11 +1,11 @@
 {
-  "status": "reverifying",
+  "status": "done",
   "user_goal": "UI-UNIFY-FIX-2 — 用户端 12 页面的公共组件采用收尾：SectionCard 替换 ~47 处手写卡片 / TableCard 补 3 页 / KPICard / StatusChip / CTABanner / Button gradient-primary 查漏",
   "total_features": 7,
-  "completed_features": 6,
+  "completed_features": 7,
   "fix_rounds": 1,
   "current_sprint": null,
-  "last_updated": "2026-04-15T14:10:00Z",
+  "last_updated": "2026-04-15T14:20:00Z",
   "reference_docs": [
     "docs/specs/UI-UNIFY-FIX-2-spec.md"
   ],
@@ -13,26 +13,19 @@
   "docs": {
     "spec": "docs/specs/UI-UNIFY-FIX-2-spec.md",
     "test_cases": null,
-    "signoff": null,
+    "signoff": "docs/test-reports/UI-UNIFY-FIX-2-signoff-2026-04-15.md",
     "framework_reviewed": false
   },
   "evaluator_feedback": {
-    "summary": "5/6 generator 条 PASS，F-UF2-03 PARTIAL（quickstart:121 step tag 仍有手写 text-xs uppercase tracking-widest，被 acceptance grep 命中）",
-    "pass_count": 5,
-    "partial_count": 1,
+    "summary": "全部 PASS（fix round 1 后）。F-UF2-03 quickstart step tag → StatusChip neutral，acceptance grep 归零。",
+    "pass_count": 6,
+    "partial_count": 0,
     "fail_count": 0,
-    "issues": [
-      {
-        "feature_id": "F-UF2-03",
-        "result": "PARTIAL",
-        "description": "quickstart/page.tsx:121 仍有 `text-xs font-bold uppercase tracking-widest text-slate-400 bg-slate-50 px-2.5 py-1 rounded-full` 手写 step tag span，被 F-UF2-03 acceptance grep `text-xs.*uppercase.*tracking-widest` 命中（1 处残留）",
-        "steps_to_reproduce": "grep -rnE 'text-xs.*uppercase.*tracking-widest' src/app/(console)/*/page.tsx"
-      }
-    ]
+    "issues": []
   },
   "generator_handoff": null,
   "session_notes": {
     "Kimi": "Fix round 1：F-UF2-03 PARTIAL 修复。quickstart/page.tsx:121 StepCard 右上角 step tag span（text-xs uppercase tracking-widest）改为 <StatusChip variant=\"neutral\">，清空 F-UF2-03 acceptance grep。tsc 通过。status → reverifying。等 Reviewer 复验。",
-    "Reviewer": "verifying 轮：5/6 PASS，F-UF2-03 PARTIAL。问题：quickstart/page.tsx:121 step tag span 仍用 text-xs uppercase tracking-widest，被 F-UF2-03 acceptance grep 命中（1 处）。修复极简：将该 span 改为 <StatusChip> 或在 spec 中明确排除 quickstart step tag 不在 KPI 范围内（二选一均可接受）。其余 5 条全部通过：F-UF2-01 手写 section grep=0 / F-UF2-02 TableCard 3 页 / F-UF2-04 StatusChip grep=0 / F-UF2-05 CTABanner / F-UF2-06 gradient-primary。tsc 干净。status → fixing。"
+    "Reviewer": "reverifying 轮：F-UF2-03 grep = 0（quickstart:121 已改 StatusChip neutral），tsc 干净。全部 PASS。signoff 写入 docs/test-reports/UI-UNIFY-FIX-2-signoff-2026-04-15.md。status → done。遗留：templates:281 hand-written container-low 卡片 + templates/[templateId] 子路由 text-[10px] chips（均超出本批次 grep 范围，不阻塞签收）。"
   }
 }

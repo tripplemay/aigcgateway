@@ -62,7 +62,8 @@
       "title": "UI-UNIFY-FIX-2 全量验收",
       "priority": "high",
       "executor": "codex",
-      "status": "pending",
+      "status": "done",
+      "completed_at": "2026-04-15T14:20:00Z",
       "acceptance": "codex 执行：1) SectionCard 在 dashboard/models/balance/usage/settings/mcp-setup/quickstart/templates 8 个页面采用（grep 验证 hand-written bg+rounded 归零）；2) TableCard 在 balance/settings/usage 3 个新增页面采用；3) KPICard / StatusChip / CTABanner 全部替换完毕；4) Button gradient-primary variant 手写归零；5) grep 机械化验证（具体命令见 spec）；6) 12 个用户端页面视觉一致性人工复核；7) 签收报告生成"
     }
   ]
