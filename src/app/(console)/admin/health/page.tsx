@@ -4,6 +4,9 @@ import { useTranslations } from "next-intl";
 import { apiFetch } from "@/lib/api-client";
 import { useAsyncData } from "@/hooks/use-async-data";
 import { Skeleton } from "@/components/ui/skeleton";
+import { PageContainer } from "@/components/page-container";
+import { PageHeader } from "@/components/page-header";
+import { SectionCard } from "@/components/section-card";
 import { toast } from "sonner";
 import { timeAgo } from "@/lib/utils";
 
@@ -94,8 +97,7 @@ function fmtLatency(ms: number | null): string {
 function checkBadge(level: string, result: string) {
   if (result === "PASS")
     return { bg: "bg-ds-secondary/10", text: "text-ds-secondary", icon: "check" };
-  if (result === "FAIL")
-    return { bg: "bg-ds-error/10", text: "text-ds-error", icon: "close" };
+  if (result === "FAIL") return { bg: "bg-ds-error/10", text: "text-ds-error", icon: "close" };
   return { bg: "bg-ds-outline-variant/10", text: "text-ds-outline", icon: "help" };
 }
 
@@ -218,7 +220,7 @@ export default function HealthPage() {
 
   if (loading && !data) {
     return (
-      <div className="space-y-8 p-8">
+      <PageContainer>
         <Skeleton className="h-10 w-64" />
         <div className="grid grid-cols-4 gap-6">
           {[1, 2, 3, 4].map((i) => (
@@ -227,16 +229,17 @@ export default function HealthPage() {
         </div>
         <Skeleton className="h-14 rounded-full" />
         <Skeleton className="h-[400px] rounded-xl" />
-      </div>
+      </PageContainer>
     );
   }
 
   return (
-    <div className="p-8 space-y-8 bg-ds-surface">
+    <PageContainer>
+      <PageHeader title={t("title")} subtitle={t("subtitle")} />
       {/* ═══ 1. Top Overview Bar — 4 column stats ═══ */}
       <section className="grid grid-cols-1 md:grid-cols-4 gap-6">
         {/* Total Aliases */}
-        <div className="bg-ds-surface-container-lowest p-6 rounded-xl transition-transform hover:scale-[1.02] cursor-default">
+        <SectionCard className="transition-transform hover:scale-[1.02] cursor-default">
           <div className="text-ds-on-surface-variant font-medium mb-2 flex items-center justify-between text-xs">
             {t("totalAliases")}
             <span className="material-symbols-outlined text-ds-outline-variant text-sm">hub</span>
@@ -247,9 +250,9 @@ export default function HealthPage() {
           <div className="mt-2 text-[10px] text-ds-secondary font-bold uppercase tracking-wider">
             {filteredAliases.filter((a) => a.enabled).length} {t("enabled")}
           </div>
-        </div>
+        </SectionCard>
         {/* Total Channels */}
-        <div className="bg-ds-surface-container-lowest p-6 rounded-xl transition-transform hover:scale-[1.02] cursor-default">
+        <SectionCard className="transition-transform hover:scale-[1.02] cursor-default">
           <div className="text-ds-on-surface-variant font-medium mb-2 flex items-center justify-between text-xs">
             {t("totalChannels")}
             <span className="material-symbols-outlined text-ds-outline-variant text-sm">lan</span>
@@ -260,9 +263,9 @@ export default function HealthPage() {
           <div className="mt-2 text-[10px] text-ds-secondary font-bold uppercase tracking-wider">
             {t("connectedInfra")}
           </div>
-        </div>
+        </SectionCard>
         {/* Health Status */}
-        <div className="bg-ds-surface-container-lowest p-6 rounded-xl transition-transform hover:scale-[1.02] cursor-default">
+        <SectionCard className="transition-transform hover:scale-[1.02] cursor-default">
           <div className="text-ds-on-surface-variant font-medium mb-2 flex items-center justify-between text-xs">
             {t("healthStatus")}
             <span className="material-symbols-outlined text-ds-outline-variant text-sm">
@@ -282,14 +285,12 @@ export default function HealthPage() {
             <span className="w-2 h-2 rounded-full bg-ds-tertiary" />
             <span className="w-2 h-2 rounded-full bg-ds-outline-variant" />
           </div>
-        </div>
+        </SectionCard>
         {/* Avg Latency */}
-        <div className="bg-ds-surface-container-lowest p-6 rounded-xl transition-transform hover:scale-[1.02] cursor-default">
+        <SectionCard className="transition-transform hover:scale-[1.02] cursor-default">
           <div className="text-ds-on-surface-variant font-medium mb-2 flex items-center justify-between text-xs">
             {t("avgLatency")}
-            <span className="material-symbols-outlined text-ds-outline-variant text-sm">
-              speed
-            </span>
+            <span className="material-symbols-outlined text-ds-outline-variant text-sm">speed</span>
           </div>
           <div className="text-3xl font-black font-[var(--font-heading)] text-ds-primary">
             {summary.avgLatency != null ? (
@@ -301,7 +302,7 @@ export default function HealthPage() {
               "\u2014"
             )}
           </div>
-        </div>
+        </SectionCard>
       </section>
 
       {/* ═══ 2. Filter Bar — capsule container ═══ */}
@@ -378,9 +379,9 @@ export default function HealthPage() {
           const statusText = STATUS_TEXT[overallStatus] ?? "text-ds-outline-variant";
 
           return (
-            <div
+            <SectionCard
               key={g.aliasId}
-              className={`bg-ds-surface-container-lowest rounded-xl overflow-hidden transition-all ${
+              className={`overflow-hidden transition-all [&>div]:p-0 ${
                 isExpanded ? "border-l-4 border-ds-primary" : ""
               }`}
             >
@@ -462,7 +463,7 @@ export default function HealthPage() {
                   ))}
                 </div>
               )}
-            </div>
+            </SectionCard>
           );
         })}
       </section>
@@ -477,9 +478,9 @@ export default function HealthPage() {
             </h2>
           </div>
           {filteredOrphans.map((ch) => (
-            <div
+            <SectionCard
               key={ch.channelId}
-              className="bg-ds-surface-container-lowest rounded-xl p-5 hover:ring-1 hover:ring-ds-error/10 transition-all"
+              className="hover:ring-1 hover:ring-ds-error/10 transition-all"
             >
               <div className="flex items-center gap-6">
                 <div className="flex-1">
@@ -520,11 +521,11 @@ export default function HealthPage() {
                   </a>
                 </div>
               </div>
-            </div>
+            </SectionCard>
           ))}
         </section>
       )}
-    </div>
+    </PageContainer>
   );
 }
 
@@ -565,36 +566,34 @@ function ChannelListRow({
 
       {/* Check level badges */}
       <div className="flex items-center gap-3 flex-shrink-0">
-        {hasReachability && !hasFullChecks ? (
-          // API_REACHABILITY only — single badge
-          (() => {
-            const c = ch.lastChecks.find((x) => x.level === "API_REACHABILITY");
-            const badge = checkBadge("API_REACHABILITY", c?.result ?? "");
-            return (
-              <div
-                className={`flex items-center space-x-1 ${badge.bg} ${badge.text} text-[10px] font-bold px-2 py-0.5 rounded`}
-              >
-                <span>{LEVEL_LABELS.API_REACHABILITY}</span>
-                <span className="material-symbols-outlined text-xs">{badge.icon}</span>
-              </div>
-            );
-          })()
-        ) : (
-          // Full L1/L2/L3 badges
-          (["CONNECTIVITY", "FORMAT", "QUALITY"] as const).map((level) => {
-            const c = ch.lastChecks.find((x) => x.level === level);
-            const badge = checkBadge(level, c?.result ?? "");
-            return (
-              <div
-                key={level}
-                className={`flex items-center space-x-1 ${badge.bg} ${badge.text} text-[10px] font-bold px-2 py-0.5 rounded`}
-              >
-                <span>{LEVEL_LABELS[level]}</span>
-                <span className="material-symbols-outlined text-xs">{badge.icon}</span>
-              </div>
-            );
-          })
-        )}
+        {hasReachability && !hasFullChecks
+          ? // API_REACHABILITY only — single badge
+            (() => {
+              const c = ch.lastChecks.find((x) => x.level === "API_REACHABILITY");
+              const badge = checkBadge("API_REACHABILITY", c?.result ?? "");
+              return (
+                <div
+                  className={`flex items-center space-x-1 ${badge.bg} ${badge.text} text-[10px] font-bold px-2 py-0.5 rounded`}
+                >
+                  <span>{LEVEL_LABELS.API_REACHABILITY}</span>
+                  <span className="material-symbols-outlined text-xs">{badge.icon}</span>
+                </div>
+              );
+            })()
+          : // Full L1/L2/L3 badges
+            (["CONNECTIVITY", "FORMAT", "QUALITY"] as const).map((level) => {
+              const c = ch.lastChecks.find((x) => x.level === level);
+              const badge = checkBadge(level, c?.result ?? "");
+              return (
+                <div
+                  key={level}
+                  className={`flex items-center space-x-1 ${badge.bg} ${badge.text} text-[10px] font-bold px-2 py-0.5 rounded`}
+                >
+                  <span>{LEVEL_LABELS[level]}</span>
+                  <span className="material-symbols-outlined text-xs">{badge.icon}</span>
+                </div>
+              );
+            })}
       </div>
 
       {/* Latency + time */}

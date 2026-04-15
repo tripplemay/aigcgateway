@@ -4,6 +4,10 @@ import { useTranslations } from "next-intl";
 import { apiFetch } from "@/lib/api-client";
 import { useAsyncData } from "@/hooks/use-async-data";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Button } from "@/components/ui/button";
+import { PageContainer } from "@/components/page-container";
+import { PageHeader } from "@/components/page-header";
+import { SectionCard } from "@/components/section-card";
 import { toast } from "sonner";
 import { timeAgo } from "@/lib/utils";
 
@@ -168,32 +172,25 @@ export default function OperationsPage() {
 
   if (loading && !data) {
     return (
-      <div className="max-w-7xl mx-auto space-y-6 pt-4">
+      <PageContainer>
         <Skeleton className="h-10 w-64" />
         <div className="grid grid-cols-2 gap-6">
           <Skeleton className="h-[300px] rounded-xl" />
           <Skeleton className="h-[300px] rounded-xl" />
         </div>
         <Skeleton className="h-[200px] rounded-xl" />
-      </div>
+      </PageContainer>
     );
   }
 
   return (
-    <div className="max-w-7xl mx-auto space-y-8">
-      {/* ═══ Header ═══ */}
-      <div className="bg-ds-surface-container-lowest rounded-xl p-8 shadow-sm relative overflow-hidden">
-        <div className="absolute -right-12 -top-12 w-48 h-48 bg-ds-primary/5 rounded-full blur-3xl" />
-        <h2 className="font-[var(--font-heading)] text-3xl font-extrabold tracking-tight mb-2">
-          {t("title")}
-        </h2>
-        <p className="text-ds-on-surface-variant max-w-lg">{t("subtitle")}</p>
-      </div>
+    <PageContainer>
+      <PageHeader title={t("title")} subtitle={t("subtitle")} />
 
       {/* ═══ Two-column: Sync + Inference ═══ */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* ── Sync Panel ── */}
-        <div className="bg-ds-surface-container-lowest rounded-xl shadow-sm overflow-hidden">
+        <SectionCard className="[&>div]:p-0">
           <div className="px-6 py-5 flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center">
@@ -209,14 +206,10 @@ export default function OperationsPage() {
                 <p className="text-xs text-ds-on-surface-variant">{t("syncDesc")}</p>
               </div>
             </div>
-            <button
-              onClick={triggerSync}
-              disabled={syncing}
-              className="bg-gradient-to-r from-ds-primary to-ds-primary/80 text-white px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2 hover:opacity-90 transition-opacity disabled:opacity-50"
-            >
+            <Button variant="gradient-primary" onClick={triggerSync} disabled={syncing}>
               <span className="material-symbols-outlined text-[18px]">play_arrow</span>
               {syncing ? t("syncing") : t("runSync")}
-            </button>
+            </Button>
           </div>
 
           <div className="px-6 pb-5 space-y-4">
@@ -329,10 +322,10 @@ export default function OperationsPage() {
               </div>
             )}
           </div>
-        </div>
+        </SectionCard>
 
         {/* ── Inference Panel ── */}
-        <div className="bg-ds-surface-container-lowest rounded-xl shadow-sm overflow-hidden">
+        <SectionCard className="[&>div]:p-0">
           <div className="px-6 py-5 flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-full bg-violet-50 text-violet-600 flex items-center justify-center">
@@ -455,12 +448,12 @@ export default function OperationsPage() {
               </div>
             )}
           </div>
-        </div>
+        </SectionCard>
       </div>
 
       {/* F-RL-06: rate-limit global defaults */}
       <RateLimitDefaultsCard t={t} />
-    </div>
+    </PageContainer>
   );
 }
 
@@ -610,7 +603,6 @@ function ErrorList({ errors, t }: { errors: string[]; t: ReturnType<typeof useTr
   );
 }
 
-
 // ============================================================
 // F-RL-06: RateLimitDefaultsCard
 // ============================================================
@@ -662,7 +654,7 @@ function RateLimitDefaultsCard({ t }: { t: ReturnType<typeof useTranslations> })
   };
 
   return (
-    <div className="bg-ds-surface-container-lowest rounded-xl p-8 shadow-sm" data-testid="rl-defaults">
+    <SectionCard data-testid="rl-defaults">
       <div className="flex items-center gap-3 mb-6">
         <div className="w-10 h-10 rounded-full bg-indigo-50 text-indigo-600 flex items-center justify-center">
           <span className="material-symbols-outlined">speed</span>
@@ -690,16 +682,15 @@ function RateLimitDefaultsCard({ t }: { t: ReturnType<typeof useTranslations> })
         ))}
       </div>
       <div className="flex justify-end pt-6">
-        <button
+        <Button
+          variant="gradient-primary"
           type="button"
           onClick={save}
           disabled={saving || !loaded}
-          className="px-5 py-2 bg-gradient-to-r from-ds-primary to-ds-primary-container text-white text-sm font-bold rounded-full shadow-lg shadow-ds-primary/20 hover:opacity-90 active:scale-95 disabled:opacity-50"
         >
           {saving ? t("saving") : t("saveChanges")}
-        </button>
+        </Button>
       </div>
-    </div>
+    </SectionCard>
   );
 }
-

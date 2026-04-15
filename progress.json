@@ -2,7 +2,7 @@
   "status": "building",
   "user_goal": "ADMIN-UI-UNIFY — admin 端 9 个管理员页面全面对齐设计系统：PageContainer + PageHeader + TableCard + SectionCard + KPICard + StatusChip + Button gradient-primary",
   "total_features": 7,
-  "completed_features": 4,
+  "completed_features": 5,
   "fix_rounds": 0,
   "current_sprint": null,
   "last_updated": "2026-04-15T15:00:00Z",
