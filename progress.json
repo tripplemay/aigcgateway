@@ -1,32 +1,26 @@
 {
-  "status": "done",
-  "user_goal": "WORKFLOW-POLISH — 收尾 reports-20260413 审计剩余断言：Template 执行增强（usage 拆分/步骤变量/版本锁定）+ 输入校验 + DX 细节打磨",
-  "total_features": 10,
-  "completed_features": 10,
-  "fix_rounds": 1,
-  "current_sprint": "F-WP-10",
-  "last_updated": "2026-04-15T01:37:30Z",
+  "status": "building",
+  "user_goal": "AUDIT-FOLLOWUP — 处理 reports-20260414 审计真实新发现（API Key 泄露 + reasoningTokens log 回显 + MCP DX 三合一）+ 审计工具稳定性。跑一次回归审计作为基线",
+  "total_features": 5,
+  "completed_features": 0,
+  "fix_rounds": 0,
+  "current_sprint": null,
+  "last_updated": "2026-04-15T10:00:00Z",
   "reference_docs": [
-    "docs/specs/WORKFLOW-POLISH-spec.md",
-    "docs/test-reports/user_report/reports-20260413/all-assertions-20260413.json"
+    "docs/specs/AUDIT-FOLLOWUP-spec.md",
+    "docs/test-reports/user_report/reports-20260414/all-assertions-20260414.json"
   ],
   "role_assignments": null,
   "docs": {
-    "spec": "docs/specs/WORKFLOW-POLISH-spec.md",
+    "spec": "docs/specs/AUDIT-FOLLOWUP-spec.md",
     "test_cases": null,
-    "signoff": "docs/test-reports/WORKFLOW-POLISH-signoff-2026-04-15.md",
+    "signoff": null,
     "framework_reviewed": false
   },
-  "evaluator_feedback": {
-    "summary": "WORKFLOW-POLISH 复验通过，F-WP-10 全量 12/12 PASS。",
-    "pass_count": 12,
-    "partial_count": 0,
-    "fail_count": 0,
-    "issues": []
-  },
+  "evaluator_feedback": null,
   "generator_handoff": null,
   "session_notes": {
-    "Kimi": "Fix round 1：Codex 首轮指出两处 REST 口径缺失。F-WP-05 REST /v1/chat/completions 在 parse body 后新增遍历校验 messages[i].content 必须是非空字符串，与 MCP zod schema 一致。F-WP-06 REST /v1/models?capability=vision 在参数阶段强制 modalityFilter='TEXT'（未显式指定 modality 时），并在 post-filter 阶段增加 belt-and-braces 校验丢弃 modality!=text 的条目。tsc clean。交 Codex Reviewer 复验。",
-    "Reviewer": "执行 F-WP-10 复验脚本 scripts/test/workflow-polish-f-wp-10-verifying-e2e-2026-04-15.ts（L1, 3099）并在重建最新 harness 环境后复跑。结果 12/12 PASS，首轮失败项 F-WP-05（REST chat 空 content 校验）与 F-WP-06（REST capability=vision text-only）均已通过。报告：docs/test-reports/workflow-polish-f-wp-10-verifying-e2e-2026-04-15.json；签收：docs/test-reports/WORKFLOW-POLISH-signoff-2026-04-15.md。"
+    "Kimi": "Planner 启动 AUDIT-FOLLOWUP 批次（4 generator + 1 codex = 5 条）。时效性分析：reports-20260414 大部分严重问题是 AUDIT-CRITICAL-FIX 部署前 43 分钟的旧状态（审计 06:20 UTC 开始，部署 07:03 UTC）。真实新发现仅 2 条：(1) API Key 前缀 sk-B2n****zjvw 泄露到错误响应和日志（F-AF-01）；(2) get_log_detail.usage 缺 reasoningTokens（F-AF-02）。3 个 DX 小改进合并为 F-AF-03。审计工具 Chaos socket error + Workflow MCP 初始化失败导致 7 条假阳性 → F-AF-04 增加 MCP 预检和重试。F-AF-05 验收 + 跑一次 20260415 回归审计作为基线，验证前面 5 个批次的累积效果。",
+    "Reviewer": null
   }
 }

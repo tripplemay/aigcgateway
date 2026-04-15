@@ -4,14 +4,14 @@ description: AIGC Gateway 当前状态快照（覆盖写，≤30 行）
 type: project
 ---
 ## 当前批次
-- WORKFLOW-POLISH：`done`（F-WP-10 复验 12/12 PASS，已签收）
-- 规格：`docs/specs/WORKFLOW-POLISH-spec.md`
-- Phase 1 Template 增强：F-WP-01 usage 拆分 / F-WP-02 步骤变量 / F-WP-03 step version 锁定 / F-WP-04 展示版本号
-- Phase 2 输入校验：F-WP-05 minLength + 二进制 prompt 检测
-- Phase 3 DX 细节：F-WP-06 capability vision / F-WP-07 usage success/error / F-WP-08 transactions 内联 / F-WP-09 错别字
-- 验收报告：`docs/test-reports/workflow-polish-f-wp-10-verifying-e2e-2026-04-15.json`
-- 签收报告：`docs/test-reports/WORKFLOW-POLISH-signoff-2026-04-15.md`
-- 来源：reports-20260413 审计剩余的 medium/low 断言
+- AUDIT-FOLLOWUP：`building`（5 条功能，0/5 完成，4 generator + 1 codex）
+- 规格：`docs/specs/AUDIT-FOLLOWUP-spec.md`
+- F-AF-01: API Key 前缀脱敏（API + 日志层双重过滤）— critical
+- F-AF-02: get_log_detail.usage 补 reasoningTokens 字段 — high
+- F-AF-03: MCP DX 三合一（baseUrl + messages 友好错误 + list_logs 时间范围）
+- F-AF-04: run_all_audits.sh MCP 预检 + 失败重试
+- F-AF-05: codex 验收 + 跑 20260415 回归审计作为基线
+- 背景：reports-20260414 大部分"严重"是 AUDIT-CRITICAL-FIX 部署前 43 分钟的旧状态
 
 ## 已知 gap
 - 5 个图片模型 supportedSizes 规则不匹配：openai/gpt-5-image、wan2.7-image、wan2.7-image-pro、z-image-turbo、glm-4v

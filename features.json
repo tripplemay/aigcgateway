@@ -1,95 +1,50 @@
 {
-  "batch": "WORKFLOW-POLISH",
+  "batch": "AUDIT-FOLLOWUP",
   "created_at": "2026-04-15",
   "features": [
     {
-      "id": "F-WP-01",
-      "title": "run_template usage 拆分 reasoning/output tokens",
-      "priority": "medium",
+      "id": "F-AF-01",
+      "title": "API Key 前缀脱敏规则扩展（API + 日志层双重过滤）",
+      "priority": "critical",
       "executor": "generator",
-      "status": "completed",
-      "source": "Workflow DX-002",
-      "acceptance": "1) run_template 返回的 steps 数组中每个 step.usage 拆分为 prompt_tokens / thinking_tokens / output_tokens / total_tokens；2) 仅 capabilities.reasoning=true 的模型显示 thinking_tokens，其他模型省略该字段；3) total_tokens = 三者之和；4) 同 commit 补 scripts/test-mcp.ts regression test；5) tsc 通过"
+      "status": "pending",
+      "source": "RL-002, IDOR-006",
+      "acceptance": "1) src/lib/api/error-sanitizer.ts（或等价脱敏函数）增加正则 /sk-[a-zA-Z0-9*\\-]{8,}/g → [key removed]（覆盖 OpenAI / OpenRouter / Anthropic 格式）；2) 错误消息写入 call_logs 前也要脱敏（CallLog.error 字段），避免历史数据污染；3) get_log_detail 读取层再次脱敏（防止历史已污染数据泄露）；4) 同 commit 补 regression test：注入含 'sk-testABC123xyzDEF456' 的上游错误，API 响应和 get_log_detail 均不含该字符串；5) tsc 通过"
     },
     {
-      "id": "F-WP-02",
-      "title": "run_template 支持按步骤覆盖 variables",
-      "priority": "medium",
+      "id": "F-AF-02",
+      "title": "get_log_detail.usage 补 reasoningTokens 字段",
+      "priority": "high",
       "executor": "generator",
-      "status": "completed",
-      "source": "Workflow DX-003",
-      "acceptance": "1) run_template variables 参数 schema 扩展：支持扁平 {var: val}（全局，向后兼容）和 {__global: {...}, __step_0: {...}, __step_1: {...}} 两种格式；2) 步骤级变量优先于全局变量；3) 文档更新说明两种用法；4) 同 commit 补 regression test；5) tsc 通过"
-    },
-    {
-      "id": "F-WP-03",
-      "title": "create_template + update_template 支持 step version_id 锁定",
-      "priority": "medium",
-      "executor": "generator",
-      "status": "completed",
-      "source": "Workflow DX-004",
-      "acceptance": "1) steps 数组元素增加可选 version_id 字段；2) 未指定则运行时取活跃版本，指定则锁定该 ActionVersion；3) 支持的 role 包含所有现有（SEQUENTIAL/SPLITTER/BRANCH/MERGE）；4) schema 变更同步到 migration（templates.steps JSON 字段结构）；5) 同 commit 补 regression test：create_template 锁定 v1 后 activate_version(v2) 不影响已锁定步骤；6) tsc 通过"
-    },
-    {
-      "id": "F-WP-04",
-      "title": "get_template_detail 展示步骤活跃版本号",
-      "priority": "low",
-      "executor": "generator",
-      "status": "completed",
-      "source": "Workflow DX-005",
-      "acceptance": "1) get_template_detail 返回的每个 step 增加 activeVersionNumber 和 activeVersionId 字段；2) 若 step 有 version_id（F-WP-03 锁定）则额外显示 lockedVersionNumber 和 lockedVersionId；3) MCP + REST API 同步；4) tsc 通过"
-    },
-    {
-      "id": "F-WP-05",
-      "title": "chat messages schema minLength + generate_image prompt 基本校验",
-      "priority": "medium",
-      "executor": "generator",
-      "status": "completed",
-      "source": "CHAOS-012, MOD-003",
-      "acceptance": "1) chat zod schema：messages[].content 添加 .min(1)；2) generate_image prompt 添加 .min(1).max(4000)；3) 二进制 payload 检测：prompt 中 non-printable 字符比例 > 30% 返回 invalid_prompt 错误；4) 错误 code='invalid_prompt'；5) 同 commit 补 regression test；6) tsc 通过"
-    },
-    {
-      "id": "F-WP-06",
-      "title": "capability=vision 按 modality 隔离",
-      "priority": "medium",
-      "executor": "generator",
-      "status": "completed",
-      "source": "DX-011",
-      "acceptance": "1) list_models(capability='vision') 仅返回 modality='text' 的模型（vision 语义 = 接受图片输入）；2) IMAGE 模型的 image_input 字段继续存在但不通过 vision capability 过滤；3) MCP list_models.ts 和 /api/v1/models/route.ts 的 capability 过滤逻辑同步；4) tsc 通过"
-    },
-    {
-      "id": "F-WP-07",
-      "title": "usage_summary 拆分 successCalls/errorCalls",
-      "priority": "medium",
-      "executor": "generator",
-      "status": "completed",
+      "status": "pending",
       "source": "FIN-002",
-      "acceptance": "1) get_usage_summary 和 /v1/usage 返回增加 successCalls / errorCalls 字段；2) group_by='model' 时每个分组都包含拆分；3) 兼容现有 totalCalls = successCalls + errorCalls；4) 同 commit 补 regression test；5) tsc 通过"
+      "acceptance": "1) CallLog 表增加 reasoningTokens 列（migration），或在 responseSummary JSON 字段里存储；2) post-process.ts 写入 CallLog 时提取 usage.reasoningTokens；3) get_log_detail / list_logs 返回的 usage 对象包含 reasoningTokens（仅在 > 0 时返回）；4) 历史数据保持 null，不做 backfill；5) 同 commit 补 regression test：reasoning 模型调用后 get_log_detail.usage.reasoningTokens = chat 响应里的值；6) tsc 通过"
     },
     {
-      "id": "F-WP-08",
-      "title": "get_balance transactions 内联 model 和 source 字段",
-      "priority": "low",
+      "id": "F-AF-03",
+      "title": "MCP DX 三合一改进（baseUrl + messages 错误友好 + list_logs 时间范围）",
+      "priority": "medium",
       "executor": "generator",
-      "status": "completed",
-      "source": "DX-009",
-      "acceptance": "1) get_balance(include_transactions=true) 返回的每条 deduction 类型 transaction 增加 model 和 source（api/mcp） 字段；2) 通过 traceId 关联 CallLog 获取，或在创建 transaction 时直接写入；3) REFUND/RECHARGE 类型不带这两个字段；4) tsc 通过"
+      "status": "pending",
+      "source": "DX-001/004/005 onboarding",
+      "acceptance": "1) get_project_info 返回体增加 apiBaseUrl 字段（从 NEXT_PUBLIC_BASE_URL 或 request origin 推导）；2) MCP chat 的 messages 参数：传字符串时 zod preprocess 尝试 JSON.parse，失败返回 'messages must be an array of {role, content} objects, received a string'（替代 Zod 原始 Expected array received string）；3) list_logs 参数 schema 增加 since (ISO string) 和 until (ISO string) 可选参数，后端 where clause 按 createdAt 过滤；4) 同 commit 补 regression test 覆盖三项；5) tsc 通过"
     },
     {
-      "id": "F-WP-09",
-      "title": "错别字修复 + list_public_templates qualityScore 字段清理",
-      "priority": "low",
+      "id": "F-AF-04",
+      "title": "run_all_audits.sh 稳定性：MCP 预检 + 失败重试",
+      "priority": "medium",
       "executor": "generator",
-      "status": "completed",
-      "source": "DX-007, DX-012",
-      "acceptance": "1) generate_image 对 text 模型错误消息中的 '该接口接口' 修复为 '该接口'；2) list_public_templates 当所有公共模板 qualityScore 全部为 null 时不返回该字段（仅在有评分时返回）；3) 扫描其他错误消息中的中文重复用词；4) tsc 通过"
+      "status": "pending",
+      "source": "Chaos audit socket error, Workflow audit MCP 初始化失败",
+      "acceptance": "1) aggregate 阶段之前增加 MCP 健康预检：启动时 cd CLEAN_CWD && claude -p 'Call list_models, only return count' 调用，若失败（非 0 退出或输出不含数字）则整批次 abort 并提示用户；2) 每个 prompt 执行失败（claude -p 非 0 退出）时最多重试 2 次（指数退避 5s/15s）；3) aggregate JSON 增加 failed_roles 数组记录跳过的角色和重试次数；4) 新增 --dry-run-retry 参数用于本地测试重试逻辑；5) 不破坏现有 --allowedTools 和 assertion-footer 拼接逻辑"
     },
     {
-      "id": "F-WP-10",
-      "title": "WORKFLOW-POLISH 全量验收",
+      "id": "F-AF-05",
+      "title": "AUDIT-FOLLOWUP 全量验收 + 回归审计",
       "priority": "high",
       "executor": "codex",
-      "status": "completed",
-      "acceptance": "codex 执行：1) run_template 返回 usage 拆分正确（reasoning 模型显示 thinking_tokens）；2) 步骤级变量覆盖生效；3) step version_id 锁定后版本切换不影响；4) get_template_detail 展示版本号；5) messages 空字符串返回 400 invalid_param；6) 二进制 prompt 返回 invalid_prompt；7) capability=vision 不再混入 image 模型；8) usage_summary 拆分 success/error；9) transactions 含 model/source；10) 错别字修复；11) qualityScore 条件清理；12) 签收报告生成"
+      "status": "pending",
+      "acceptance": "codex 执行：1) 注入 'sk-testABC123xyzDEF456' 到上游错误模拟，API 响应和 get_log_detail 均返回 [key removed]；2) 调用 reasoning 模型（如 deepseek-r1 或 qwen3.5-flash）后 get_log_detail.usage.reasoningTokens 非空且等于 chat 响应值；3) get_project_info 返回 apiBaseUrl；4) chat(messages='[...]') 返回友好错误消息；5) list_logs(since='2026-04-14T00:00:00Z') 过滤正确；6) run_all_audits.sh 手动制造失败（如修改 prompt 路径）后能重试并在 failed_roles 中标注；7) 跑一次完整 reports-20260415 审计作为回归基线（对比 20260414：RL-001/002/003/004/005/006/007、FIN-001、RL-001~007、DX-002/003/006 onboarding、MOD-003/004 全部消失）；8) 签收报告生成"
     }
   ]
 }
