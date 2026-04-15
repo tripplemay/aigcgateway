@@ -16,7 +16,8 @@
       "title": "admin/model-aliases 页面改造",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
+      "completed_at": "2026-04-15T15:30:00Z",
       "acceptance": "1) max-w-md → PageContainer default；2) PageHeader；3) 所有手写 rounded-xl section → SectionCard；4) 定价编辑器内部结构保留（只做外壳替换）；5) StatusChip 替换手写胶囊；6) 主按钮 gradient-primary variant；7) tsc 通过"
     },
     {

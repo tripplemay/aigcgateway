@@ -7,6 +7,11 @@ import { SearchBar } from "@/components/search-bar";
 import { toast } from "sonner";
 import { useExchangeRate } from "@/hooks/use-exchange-rate";
 import { ChannelTable, type ChannelRowData } from "@/components/admin/channel-table";
+import { PageContainer } from "@/components/page-container";
+import { PageHeader } from "@/components/page-header";
+import { SectionCard } from "@/components/section-card";
+import { TableCard } from "@/components/table-card";
+import { Button } from "@/components/ui/button";
 
 // ── Types ──
 
@@ -399,25 +404,21 @@ export default function ModelAliasesPage() {
   );
 
   return (
-    <div className="space-y-10">
-      {/* Page Header */}
-      <section className="flex justify-between items-end">
-        <div>
-          <h1 className="text-3xl font-extrabold tracking-tight">{t("title")}</h1>
-          <p className="text-ds-on-surface-variant mt-1 text-sm">{t("subtitle")}</p>
-        </div>
-        <button
-          className="bg-gradient-to-r from-ds-primary to-ds-primary-container text-ds-on-primary px-6 py-2.5 rounded-xl font-bold flex items-center gap-2 shadow-lg shadow-ds-primary/20 hover:opacity-90 active:scale-95 transition-all"
-          onClick={() => setShowCreateDialog(true)}
-        >
-          <span className="material-symbols-outlined text-xl">add</span> {t("createAlias")}
-        </button>
-      </section>
+    <PageContainer>
+      <PageHeader
+        title={t("title")}
+        subtitle={t("subtitle")}
+        actions={
+          <Button variant="gradient-primary" size="lg" onClick={() => setShowCreateDialog(true)}>
+            <span className="material-symbols-outlined text-xl">add</span> {t("createAlias")}
+          </Button>
+        }
+      />
 
       {/* Create Dialog */}
       {showCreateDialog && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm">
-          <div className="bg-ds-surface-container-lowest rounded-2xl p-8 w-full max-w-md shadow-2xl space-y-6">
+          <div className="bg-ds-surface rounded-2xl p-8 w-full max-w-md shadow-2xl space-y-6">
             <h2 className="text-xl font-extrabold">{t("createAlias")}</h2>
             <div className="space-y-4">
               <div className="space-y-1.5">
@@ -474,7 +475,7 @@ export default function ModelAliasesPage() {
       {/* Add Model Dialog */}
       {addModelAliasId && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm">
-          <div className="bg-ds-surface-container-lowest rounded-2xl p-8 w-full max-w-lg shadow-2xl space-y-6 max-h-[80vh] flex flex-col">
+          <div className="bg-ds-surface rounded-2xl p-8 w-full max-w-lg shadow-2xl space-y-6 max-h-[80vh] flex flex-col">
             <h2 className="text-xl font-extrabold">{t("addModel")}</h2>
             <input
               className="w-full bg-ds-surface-container-low border-none rounded-lg text-sm px-4 py-2 font-semibold focus:ring-2 focus:ring-ds-primary/20"
@@ -526,19 +527,19 @@ export default function ModelAliasesPage() {
 
       {/* Stats Row */}
       <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-ds-surface-container-lowest p-6 rounded-xl flex flex-col gap-1 shadow-sm">
+        <SectionCard className="[&>div]:flex [&>div]:flex-col [&>div]:gap-1">
           <span className="text-ds-on-surface-variant uppercase text-[10px] font-bold tracking-widest">
             {t("totalAliases")}
           </span>
           <div className="text-4xl font-extrabold">{totalAliases}</div>
-        </div>
-        <div className="bg-ds-surface-container-lowest p-6 rounded-xl flex flex-col gap-1 shadow-sm">
+        </SectionCard>
+        <SectionCard className="[&>div]:flex [&>div]:flex-col [&>div]:gap-1">
           <span className="text-ds-on-surface-variant uppercase text-[10px] font-bold tracking-widest">
             {t("activeAliases")}
           </span>
           <div className="text-4xl font-extrabold">{activeAliases}</div>
-        </div>
-        <div className="bg-ds-surface-container-lowest p-6 rounded-xl flex flex-col gap-1 shadow-sm">
+        </SectionCard>
+        <SectionCard className="[&>div]:flex [&>div]:flex-col [&>div]:gap-1">
           <span className="text-ds-on-surface-variant uppercase text-[10px] font-bold tracking-widest">
             {t("unlinkedModels")}
           </span>
@@ -551,7 +552,7 @@ export default function ModelAliasesPage() {
               {t("requiresMapping")}
             </div>
           )}
-        </div>
+        </SectionCard>
       </section>
 
       {/* ═══ Alias List (single-column) ═══ */}
@@ -629,9 +630,9 @@ export default function ModelAliasesPage() {
               const sp = getSellPrice(alias.id);
 
               return (
-                <div
+                <SectionCard
                   key={alias.id}
-                  className={`bg-ds-surface-container-lowest rounded-xl shadow-sm transition-all ${isExpanded ? "border-l-4 border-ds-primary" : ""}`}
+                  className={`transition-all ${isExpanded ? "border-l-4 border-ds-primary" : ""}`}
                 >
                   {/* Row header */}
                   <div
@@ -1007,7 +1008,7 @@ export default function ModelAliasesPage() {
                       </div>
                     </div>
                   )}
-                </div>
+                </SectionCard>
               );
             })}
           </div>
@@ -1026,7 +1027,7 @@ export default function ModelAliasesPage() {
               <p className="text-xs text-ds-on-surface-variant">{t("unlinkedModelsDesc")}</p>
             </div>
           </div>
-          <div className="bg-ds-surface-container-lowest rounded-xl overflow-hidden shadow-sm">
+          <TableCard>
             <table className="w-full text-left">
               <thead className="bg-ds-surface-container-high/30">
                 <tr className="text-[10px] font-bold text-ds-on-surface-variant uppercase tracking-widest">
@@ -1078,10 +1079,10 @@ export default function ModelAliasesPage() {
                 ))}
               </tbody>
             </table>
-          </div>
+          </TableCard>
         </section>
       )}
-    </div>
+    </PageContainer>
   );
 }
 
@@ -1166,7 +1167,7 @@ function SuggestPriceButton({
       </button>
 
       {showDropdown && (
-        <div className="absolute right-0 top-8 z-50 w-80 bg-ds-surface-container-lowest rounded-xl shadow-2xl border border-ds-outline-variant/20 p-3">
+        <div className="absolute right-0 top-8 z-50 w-80 bg-ds-surface rounded-xl shadow-2xl border border-ds-outline-variant/20 p-3">
           <input
             type="text"
             className="w-full bg-ds-surface-container-low border-none rounded-lg text-xs px-3 py-2 mb-2 focus:ring-1 focus:ring-ds-primary/30"
