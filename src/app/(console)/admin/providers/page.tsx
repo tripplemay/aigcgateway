@@ -4,6 +4,11 @@ import { useTranslations } from "next-intl";
 import { apiFetch } from "@/lib/api-client";
 import { useAsyncData } from "@/hooks/use-async-data";
 import { Switch } from "@/components/ui/switch";
+import { Button } from "@/components/ui/button";
+import { PageContainer } from "@/components/page-container";
+import { PageHeader } from "@/components/page-header";
+import { TableCard } from "@/components/table-card";
+import { StatusChip } from "@/components/status-chip";
 import { toast } from "sonner";
 
 // ============================================================
@@ -190,26 +195,20 @@ export default function ProvidersPage() {
   // ── Render — 1:1 replica of Admin Providers code.html ──
   return (
     <>
-      <div className="max-w-7xl mx-auto space-y-8">
-        {/* Header */}
-        <div className="flex justify-between items-end">
-          <div>
-            <h2 className="text-3xl font-extrabold tracking-tight font-[var(--font-heading)] text-ds-on-surface">
-              {t("title")}
-            </h2>
-            <p className="text-ds-on-surface-variant font-medium mt-1">{t("subtitle")}</p>
-          </div>
-          <button
-            onClick={openCreate}
-            className="bg-gradient-to-r from-ds-primary to-ds-primary-container text-white px-6 py-3 rounded-xl font-bold flex items-center gap-2 shadow-lg shadow-ds-primary/20 hover:scale-[1.02] transition-transform"
-          >
-            <span className="material-symbols-outlined">add</span>
-            {t("addProvider")}
-          </button>
-        </div>
+      <PageContainer>
+        <PageHeader
+          title={t("title")}
+          subtitle={t("subtitle")}
+          actions={
+            <Button variant="gradient-primary" size="lg" onClick={openCreate}>
+              <span className="material-symbols-outlined">add</span>
+              {t("addProvider")}
+            </Button>
+          }
+        />
 
         {/* Table */}
-        <div className="bg-ds-surface-container-lowest rounded-xl shadow-sm overflow-hidden">
+        <TableCard>
           <table className="w-full text-left">
             <thead className="bg-ds-surface-container-low/50">
               <tr>
@@ -250,24 +249,16 @@ export default function ProvidersPage() {
                       <span className="text-xs font-mono text-slate-500">{p.baseUrl}</span>
                     </td>
                     <td className="px-6 py-4">
-                      <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-tight bg-ds-surface-container text-ds-on-surface-variant">
-                        {p.adapterType}
-                      </span>
+                      <StatusChip variant="neutral">{p.adapterType}</StatusChip>
                     </td>
                     <td className="px-6 py-4 text-sm font-medium text-slate-600">
                       {p.channelCount}
                     </td>
                     <td className="px-6 py-4">
                       <button onClick={() => toggleStatus(p)}>
-                        {p.status === "ACTIVE" ? (
-                          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-green-100 text-green-700 border border-green-200">
-                            {t("statusActive")}
-                          </span>
-                        ) : (
-                          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-500 border border-slate-200">
-                            {t("statusDisabled")}
-                          </span>
-                        )}
+                        <StatusChip variant={p.status === "ACTIVE" ? "success" : "neutral"}>
+                          {p.status === "ACTIVE" ? t("statusActive") : t("statusDisabled")}
+                        </StatusChip>
                       </button>
                     </td>
                     <td className="px-6 py-4 text-right">
@@ -299,13 +290,13 @@ export default function ProvidersPage() {
               )}
             </tbody>
           </table>
-        </div>
-      </div>
+        </TableCard>
+      </PageContainer>
 
       {/* ═══ Create/Edit Modal ═══ */}
       {dialogOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-ds-on-background/40 backdrop-blur-sm">
-          <div className="bg-ds-surface-container-lowest w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden">
+          <div className="bg-ds-surface w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden">
             <div className="px-8 py-6 bg-ds-surface-container-low flex justify-between items-center">
               <h2 className="text-xl font-extrabold tracking-tight font-[var(--font-heading)]">
                 {editId ? t("editProvider") : t("addProviderTitle")}
@@ -407,7 +398,7 @@ export default function ProvidersPage() {
       {/* ═══ Config Override Modal ═══ */}
       {configOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-ds-on-background/40 backdrop-blur-sm">
-          <div className="bg-ds-surface-container-lowest w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden">
+          <div className="bg-ds-surface w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden">
             <div className="px-8 py-6 bg-ds-surface-container-low flex justify-between items-center">
               <h2 className="text-xl font-extrabold tracking-tight font-[var(--font-heading)]">
                 {t("configOverride")}
