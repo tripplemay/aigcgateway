@@ -11,6 +11,7 @@ import { PageLoader } from "@/components/page-loader";
 import { TableCard } from "@/components/table-card";
 import { TableLoader } from "@/components/table-loader";
 import { CTABanner } from "@/components/cta-banner";
+import { StatusChip } from "@/components/status-chip";
 import { buttonVariants } from "@/components/ui/button";
 import {
   Table,
@@ -192,9 +193,7 @@ export default function ActionsPage() {
                   </TableCell>
                   <TableCell className="px-6 py-5">
                     {action.activeVersion ? (
-                      <span className="px-2 py-1 bg-indigo-50 text-indigo-600 rounded text-[10px] font-black tracking-wider uppercase">
-                        v{action.activeVersion.versionNumber}
-                      </span>
+                      <StatusChip variant="info">v{action.activeVersion.versionNumber}</StatusChip>
                     ) : (
                       <span className="text-slate-400">{"\u2014"}</span>
                     )}

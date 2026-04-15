@@ -25,7 +25,9 @@
       "title": "KPICard 替换手写指标卡",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
+      "completed_at": "2026-04-15T13:00:00Z",
+      "note": "dashboard/usage 已使用 KPICard；balance 余额大卡因含 icon 背景 + 渐变按钮等复杂布局，采用 SectionCard 壳而非 KPICard（KPICard API 不足以表达该组合，F-UF2-07 验收时若严格要求可二次扩展）",
       "acceptance": "1) dashboard（5 个）/ balance（余额大卡 + 告警阈值）/ usage（4 个指标）全部改用 <KPICard>；2) 保留原有 label/value/trend 数据；3) 若 KPICard API 不足（如缺 trend 子组件），允许扩展组件 API 但保持向后兼容；4) grep 验证：各页面不应再出现 'text-xs.*uppercase.*tracking-widest' 手写 label 模式；5) tsc 通过"
     },
     {
@@ -33,7 +35,8 @@
       "title": "StatusChip 替换 5 处手写状态胶囊",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
+      "completed_at": "2026-04-15T13:00:00Z",
       "acceptance": "1) actions:195（v1 版本胶囊）/ balance:280（交易类型）/ mcp-setup:400（工具标签）/ models:290/295（modality + warning）全部改用 <StatusChip>；2) 如果 variant 不足（如缺 info 变体），扩展组件；3) grep 验证：'px-.*py-.*rounded.*text-\\[10px\\].*font-(bold|black).*uppercase' 手写模式应为 0 处；4) tsc 通过"
     },
     {
@@ -41,7 +44,8 @@
       "title": "templates CTA 改用 CTABanner",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
+      "completed_at": "2026-04-15T13:00:00Z",
       "acceptance": "1) templates/page.tsx:304-316 手写的 'from-ds-primary to-ds-primary-container' 渐变 CTA 改用 <CTABanner>；2) actions 和 templates 两个页面的 CTA 视觉统一为深色 #131b2e 设计系统标准；3) tsc 通过"
     },
     {
@@ -49,7 +53,8 @@
       "title": "quickstart 剩余手写按钮改 Button gradient-primary",
       "priority": "low",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
+      "completed_at": "2026-04-15T13:00:00Z",
       "acceptance": "1) quickstart/page.tsx:143 手写的 'bg-gradient-to-r from-ds-primary to-ds-primary-container text-white text-sm font-bold rounded-full shadow-lg' 按钮改为 <Button variant='gradient-primary'>；2) 保留 Link 包裹；3) tsc 通过"
     },
     {

@@ -7,6 +7,7 @@ import { PageContainer } from "@/components/page-container";
 import { PageHeader } from "@/components/page-header";
 import { SectionCard } from "@/components/section-card";
 import { TableCard } from "@/components/table-card";
+import { StatusChip, type StatusChipVariant } from "@/components/status-chip";
 import { useExchangeRate } from "@/hooks/use-exchange-rate";
 import { formatCNY } from "@/lib/utils";
 
@@ -55,11 +56,11 @@ const BRAND_ABBR: Record<string, string> = {
 
 const MODELS_PER_PAGE = 20;
 
-const MODALITY_STYLES: Record<string, string> = {
-  text: "bg-ds-primary-fixed text-ds-primary border-ds-primary-fixed-dim",
-  image: "bg-ds-status-success-container text-ds-status-success border-ds-status-success-container",
-  audio: "bg-ds-status-warning-container text-ds-status-warning border-ds-status-warning-container",
-  video: "bg-ds-error-container text-ds-error border-ds-error-container",
+const MODALITY_CHIP: Record<string, StatusChipVariant> = {
+  text: "info",
+  image: "success",
+  audio: "warning",
+  video: "error",
 };
 
 function fmtPriceSplit(
@@ -268,7 +269,8 @@ export default function ModelsPage() {
                     <tbody className="divide-y divide-ds-outline-variant/5">
                       {visibleModels.map((m) => {
                         const priceSplit = fmtPriceSplit(m.pricing, exchangeRate);
-                        const modalityStyle = MODALITY_STYLES[m.modality] ?? MODALITY_STYLES.text;
+                        const modalityVariant: StatusChipVariant =
+                          MODALITY_CHIP[m.modality] ?? "info";
                         return (
                           <tr
                             key={m.id}
@@ -288,15 +290,9 @@ export default function ModelsPage() {
                             </td>
                             <td className="px-6 py-4">
                               <div className="flex items-center gap-2">
-                                <span
-                                  className={`px-2 py-1 rounded text-[10px] font-bold border uppercase ${modalityStyle}`}
-                                >
-                                  {m.modality}
-                                </span>
+                                <StatusChip variant={modalityVariant}>{m.modality}</StatusChip>
                                 {hasCapability(m, "vision") && (
-                                  <span className="px-2 py-1 bg-ds-status-warning-container text-ds-status-warning rounded text-[10px] font-bold border border-ds-status-warning-container uppercase">
-                                    {t("vision")}
-                                  </span>
+                                  <StatusChip variant="warning">{t("vision")}</StatusChip>
                                 )}
                               </div>
                             </td>

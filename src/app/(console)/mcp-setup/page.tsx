@@ -9,6 +9,7 @@ import { PageContainer } from "@/components/page-container";
 import { PageHeader } from "@/components/page-header";
 import { PageLoader } from "@/components/page-loader";
 import { SectionCard } from "@/components/section-card";
+import { StatusChip } from "@/components/status-chip";
 import { Button } from "@/components/ui/button";
 
 // ============================================================
@@ -398,9 +399,7 @@ export default function McpSetupPage() {
             <div className="flex items-center gap-2 mb-3 text-xs text-ds-outline">
               <span className="material-symbols-outlined text-sm">folder</span>
               <span className="font-mono">{getConfigPath(client)}</span>
-              <span className="px-1.5 py-0.5 bg-ds-surface-container-low rounded text-[10px] font-bold uppercase">
-                {getConfigLang(client)}
-              </span>
+              <StatusChip variant="neutral">{getConfigLang(client)}</StatusChip>
             </div>
 
             {/* Config code block */}

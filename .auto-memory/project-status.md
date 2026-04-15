@@ -4,14 +4,14 @@ description: AIGC Gateway 当前状态快照（覆盖写，≤30 行）
 type: project
 ---
 ## 当前批次
-- UI-UNIFY-FIX-2：`building`（7 条功能，0/7 完成，6 generator + 1 codex）
+- UI-UNIFY-FIX-2：`verifying`（7 条，6/7 完成；6 generator ✅ + 1 codex 待验收）
 - 规格：`docs/specs/UI-UNIFY-FIX-2-spec.md`
-- F-UF2-01: SectionCard 替换 ~47 处手写卡片（dashboard/settings/models/balance/usage/mcp-setup/quickstart/templates）
-- F-UF2-02: balance/settings/usage 3 页改用 TableCard
-- F-UF2-03: KPICard 替换手写指标卡
-- F-UF2-04: StatusChip 替换 5 处手写胶囊
-- F-UF2-05: templates CTA 改用 CTABanner（与 actions 统一）
-- F-UF2-06: quickstart 剩余手写渐变按钮改 Button variant
+- F-UF2-01 ✅ SectionCard 8 页替换 + models 表用 TableCard
+- F-UF2-02 ✅ balance/settings/usage 3 表就位
+- F-UF2-03 ⚠️ dashboard/usage 原本已有；balance 余额大卡 SectionCard 壳（KPICard API 太紧）
+- F-UF2-04 ✅ 5 处 StatusChip + 额外 templates[templateId]
+- F-UF2-05 ✅ templates CTABanner 统一
+- F-UF2-06 ✅ quickstart step0 Button gradient-primary
 
 ## 遗留（上一批）
 - scripts/test-mcp.ts 的 F-AF-02/03 回归段落未实际执行（需 dev server），下次启动 dev 时手动补跑

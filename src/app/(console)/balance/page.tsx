@@ -16,6 +16,7 @@ import { PageLoader } from "@/components/page-loader";
 import { TableLoader } from "@/components/table-loader";
 import { TableCard } from "@/components/table-card";
 import { SectionCard } from "@/components/section-card";
+import { StatusChip, type StatusChipVariant } from "@/components/status-chip";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -53,11 +54,11 @@ interface TxnResponse {
 
 const PAGE_SIZE = 20;
 const TXN_TYPES = ["", "RECHARGE", "DEDUCTION", "REFUND", "ADJUSTMENT"] as const;
-const TYPE_STYLE: Record<string, string> = {
-  RECHARGE: "bg-ds-secondary-container text-ds-on-secondary-container",
-  DEDUCTION: "bg-ds-primary/10 text-ds-primary",
-  REFUND: "bg-ds-tertiary-fixed/50 text-ds-tertiary",
-  ADJUSTMENT: "bg-slate-100 text-slate-600",
+const TYPE_CHIP: Record<string, StatusChipVariant> = {
+  RECHARGE: "success",
+  DEDUCTION: "info",
+  REFUND: "warning",
+  ADJUSTMENT: "neutral",
 };
 const TYPE_I18N: Record<string, string> = {
   "": "allTypes",
@@ -278,11 +279,9 @@ export default function BalancePage() {
                       </div>
                     </TableCell>
                     <TableCell className="px-6 py-4 whitespace-nowrap">
-                      <span
-                        className={`px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider ${TYPE_STYLE[tx.type] ?? TYPE_STYLE.ADJUSTMENT}`}
-                      >
+                      <StatusChip variant={TYPE_CHIP[tx.type] ?? "neutral"}>
                         {t(TYPE_I18N[tx.type] ?? "typeAdjustment")}
-                      </span>
+                      </StatusChip>
                     </TableCell>
                     <TableCell className="px-6 py-4">
                       <div className="text-sm text-slate-600 truncate max-w-xs">

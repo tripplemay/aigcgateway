@@ -7,6 +7,7 @@ import { useAsyncData } from "@/hooks/use-async-data";
 import { useParams, useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Skeleton } from "@/components/ui/skeleton";
+import { StatusChip } from "@/components/status-chip";
 import Link from "next/link";
 import { timeAgo } from "@/lib/utils";
 
@@ -121,9 +122,7 @@ export default function TemplateDetailPage() {
             <h1 className="text-4xl font-extrabold font-[var(--font-heading)] tracking-tight text-ds-on-surface">
               {template.name}
             </h1>
-            <span className="px-3 py-1 bg-ds-primary/10 text-ds-primary rounded-full text-[10px] font-bold tracking-widest uppercase">
-              {executionMode}
-            </span>
+            <StatusChip variant="info">{executionMode}</StatusChip>
           </div>
           <p className="text-ds-on-surface-variant text-lg leading-relaxed">
             {template.description || "\u2014"}

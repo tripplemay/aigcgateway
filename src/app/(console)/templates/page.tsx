@@ -10,7 +10,8 @@ import { PageHeader } from "@/components/page-header";
 import { PageLoader } from "@/components/page-loader";
 import { TableCard } from "@/components/table-card";
 import { TableLoader } from "@/components/table-loader";
-import { buttonVariants } from "@/components/ui/button";
+import { CTABanner } from "@/components/cta-banner";
+import { Button, buttonVariants } from "@/components/ui/button";
 import {
   Table,
   TableHeader,
@@ -301,18 +302,18 @@ export default function TemplatesPage() {
                     </span>
                   </div>
                 </div>
-                <div className="col-span-2 bg-gradient-to-br from-ds-primary to-ds-primary-container p-6 rounded-xl text-white flex justify-between items-center relative overflow-hidden">
-                  <div className="relative z-10">
-                    <h3 className="heading-3 mb-1 text-white">{t("ctaTitle")}</h3>
-                    <p className="text-xs text-white/70 mb-4 max-w-sm">{t("ctaDesc")}</p>
-                    <Link
-                      href="/templates/new"
-                      className="bg-white text-ds-primary px-4 py-2 rounded-lg text-xs font-bold hover:bg-ds-surface-container-low transition-colors inline-block"
-                    >
-                      {t("create")}
-                    </Link>
-                  </div>
-                  <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -mr-20 -mt-20 blur-3xl" />
+                <div className="col-span-2">
+                  <CTABanner
+                    title={t("ctaTitle")}
+                    description={t("ctaDesc")}
+                    action={
+                      <Link href="/templates/new">
+                        <Button variant="gradient-primary" size="lg">
+                          {t("create")}
+                        </Button>
+                      </Link>
+                    }
+                  />
                 </div>
               </div>
             </>

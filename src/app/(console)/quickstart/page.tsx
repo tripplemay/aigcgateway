@@ -5,6 +5,7 @@ import Link from "next/link";
 import { PageContainer } from "@/components/page-container";
 import { PageHeader } from "@/components/page-header";
 import { SectionCard } from "@/components/section-card";
+import { Button } from "@/components/ui/button";
 
 const BASE_URL = "https://aigc.guangai.ai/v1";
 
@@ -139,12 +140,11 @@ export default function QuickStartPage() {
         <StepCard num={0} title={t("step0Title")} tag={t("step0Tag")} desc={t("step0Desc")}>
           <div className="flex items-center justify-between gap-4 bg-ds-surface-container-low rounded-lg px-4 py-3">
             <p className="text-xs text-ds-on-surface-variant font-mono">{t("step0Note")}</p>
-            <Link
-              href="/keys"
-              className="flex-shrink-0 inline-flex items-center gap-1 px-4 py-2 bg-gradient-to-r from-ds-primary to-ds-primary-container text-white text-sm font-bold rounded-full shadow-lg shadow-ds-primary/20 hover:opacity-90 active:scale-95 transition-all"
-            >
-              {t("step0CtaText")}
-              <span className="material-symbols-outlined text-base">arrow_forward</span>
+            <Link href="/keys" className="flex-shrink-0">
+              <Button variant="gradient-primary" size="sm">
+                {t("step0CtaText")}
+                <span className="material-symbols-outlined text-base">arrow_forward</span>
+              </Button>
             </Link>
           </div>
         </StepCard>
