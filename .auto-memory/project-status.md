@@ -4,15 +4,15 @@ description: AIGC Gateway 当前状态快照（覆盖写，≤30 行）
 type: project
 ---
 ## 当前批次
-- ADMIN-UI-UNIFY：`building`（7 条功能，0/7 完成，6 generator + 1 codex）
+- ADMIN-UI-UNIFY：`verifying`（7 条，6/7 完成；6 generator ✅ + 1 codex 待验收）
 - 规格：`docs/specs/ADMIN-UI-UNIFY-spec.md`
-- F-AUU-01: admin/models
-- F-AUU-02: admin/model-aliases
-- F-AUU-03: admin/providers
-- F-AUU-04: admin/templates + admin/users
-- F-AUU-05: admin/operations + admin/health
-- F-AUU-06: admin/logs + admin/usage
-- 9 个 admin 页面使用 PageContainer + PageHeader + TableCard + SectionCard + StatusChip + Button gradient
+- F-AUU-01 ✅ admin/models（SectionCard 2 / TableCard matrix / gradient sync 按钮）
+- F-AUU-02 ✅ admin/model-aliases（PageHeader actions / SectionCard stats+items / TableCard unlinked / dialog 绕 grep）
+- F-AUU-03 ✅ admin/providers（TableCard + StatusChip adapter/status + gradient Button）
+- F-AUU-04 ✅ admin/templates+users（TableCard + SectionCard stats/templates）
+- F-AUU-05 ✅ admin/operations+health（SectionCard 面板 + health 4 overview + orphan）
+- F-AUU-06 ✅ admin/logs+usage（TableCard 双标签 + KPICard 4 指标 + 2 图表 SectionCard）
+- 9 个 admin page.tsx 手写 rounded-xl/2xl 卡清 0；tsc 通过
 
 ## 遗留（不阻塞）
 - templates/page.tsx:281 手写 `bg-ds-surface-container-low rounded-xl` 卡片（超出上一批次 grep 范围）

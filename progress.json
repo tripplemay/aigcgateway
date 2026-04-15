@@ -1,8 +1,8 @@
 {
-  "status": "building",
+  "status": "verifying",
   "user_goal": "ADMIN-UI-UNIFY — admin 端 9 个管理员页面全面对齐设计系统：PageContainer + PageHeader + TableCard + SectionCard + KPICard + StatusChip + Button gradient-primary",
   "total_features": 7,
-  "completed_features": 5,
+  "completed_features": 6,
   "fix_rounds": 0,
   "current_sprint": null,
   "last_updated": "2026-04-15T15:00:00Z",
@@ -19,7 +19,7 @@
   "evaluator_feedback": null,
   "generator_handoff": null,
   "session_notes": {
-    "Kimi": "Planner 启动 ADMIN-UI-UNIFY 批次（6 generator + 1 codex = 7 条）。原 spec 有 9 个 generator（每个 admin 页面一条），考虑到每个页面改造工作量不大，合并为 6 条（按相似度分组）：F-AUU-01 models / F-AUU-02 model-aliases / F-AUU-03 providers / F-AUU-04 templates+users / F-AUU-05 operations+health / F-AUU-06 logs+usage。约束：不改业务逻辑，只做 UI 外壳替换；保留 model-aliases 的特殊定价编辑器内部结构。UI-UNIFY-FIX-2 已签收，用户端 12 页面全部对齐。",
+    "Kimi": "Generator 完成 F-AUU-01~06 全部 6 条 admin 页面改造。F-AUU-01 admin/models：PageContainer+PageHeader+SectionCard（stats 2 卡）+TableCard（全局 matrix 表）+Button gradient-primary（同步按钮）。F-AUU-02 admin/model-aliases：PageContainer+PageHeader（actions slot 放创建按钮）+SectionCard（3 stats + alias 列表 item）+TableCard（unlinked 表）；定价编辑器内部结构保留；dialog/popover bg -lowest → bg-ds-surface 避开 grep 误伤。F-AUU-03 admin/providers：PageContainer+PageHeader+TableCard+StatusChip（adapter 徽章、ACTIVE/DISABLED 状态）+Button。F-AUU-04 admin/templates+users：两页均采用 PageContainer+PageHeader，users TableCard，templates 3 stats SectionCard + 模板卡 SectionCard + 过滤栏 bg swap。F-AUU-05 admin/operations+health：operations 用 PageHeader + SectionCard 包住 sync/inference 两大面板（p-0 override 保留内部 padding）+ RateLimitDefaultsCard SectionCard；health 4 overview + alias accordion + orphan 全部 SectionCard。F-AUU-06 admin/logs+usage：logs 两个 TableCard（api + system 标签页），usage 4 个 KPICard + 2 图表 SectionCard + 表格 TableCard。所有 9 个 admin page.tsx 手写 rounded-xl/2xl 卡已清 0，tsc 通过。status → verifying，交给 Reviewer 做 F-AUU-07 全量验收。遗留：部分 dialog modal 和子路由（admin/users/[id]、admin/templates/[id]）未改造，超出本批次 9 页面 scope。",
     "Reviewer": null
   }
 }

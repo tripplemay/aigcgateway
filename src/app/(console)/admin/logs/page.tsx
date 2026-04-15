@@ -5,6 +5,9 @@ import { apiFetch } from "@/lib/api-client";
 import { useAsyncData } from "@/hooks/use-async-data";
 import { formatCNY, timeAgo } from "@/lib/utils";
 import { useExchangeRate } from "@/hooks/use-exchange-rate";
+import { PageContainer } from "@/components/page-container";
+import { PageHeader } from "@/components/page-header";
+import { TableCard } from "@/components/table-card";
 
 // ============================================================
 // Types
@@ -57,16 +60,8 @@ export default function AdminLogsPage() {
   const [activeTab, setActiveTab] = useState<TabKey>("api");
 
   return (
-    <div className="max-w-7xl mx-auto space-y-8">
-      {/* ═══ Page Header ═══ */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-        <div>
-          <h2 className="text-3xl font-extrabold tracking-tight font-[var(--font-heading)] text-ds-on-surface">
-            {t("title")}
-          </h2>
-          <p className="text-ds-on-surface-variant font-medium mt-1">{t("subtitle")}</p>
-        </div>
-      </div>
+    <PageContainer>
+      <PageHeader title={t("title")} subtitle={t("subtitle")} />
 
       {/* ═══ Tab Switcher ═══ */}
       <div className="flex bg-ds-surface-container-low p-1 rounded-xl w-fit">
@@ -86,7 +81,7 @@ export default function AdminLogsPage() {
       </div>
 
       {activeTab === "api" ? <ApiCallsTab /> : <SystemLogsTab />}
-    </div>
+    </PageContainer>
   );
 }
 
@@ -157,7 +152,7 @@ function ApiCallsTab() {
       </div>
 
       {/* Table */}
-      <div className="bg-ds-surface-container-lowest rounded-2xl overflow-hidden shadow-sm">
+      <TableCard>
         <table className="w-full text-left border-collapse">
           <thead className="bg-ds-surface-container-low/50">
             <tr>
@@ -241,13 +236,8 @@ function ApiCallsTab() {
           </tbody>
         </table>
         {/* Pagination */}
-        <Pagination
-          total={total}
-          page={page}
-          totalPages={totalPages}
-          onPageChange={setPage}
-        />
-      </div>
+        <Pagination total={total} page={page} totalPages={totalPages} onPageChange={setPage} />
+      </TableCard>
     </>
   );
 }
@@ -311,23 +301,20 @@ function SystemLogsTab() {
       </div>
 
       {/* Table */}
-      <div className="bg-ds-surface-container-lowest rounded-2xl overflow-hidden shadow-sm">
+      <TableCard>
         <table className="w-full text-left border-collapse">
           <thead className="bg-ds-surface-container-low/50">
             <tr>
-              {[
-                t("syslogTime"),
-                t("syslogCategory"),
-                t("syslogLevel"),
-                t("syslogMessage"),
-              ].map((h) => (
-                <th
-                  key={h}
-                  className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-400"
-                >
-                  {h}
-                </th>
-              ))}
+              {[t("syslogTime"), t("syslogCategory"), t("syslogLevel"), t("syslogMessage")].map(
+                (h) => (
+                  <th
+                    key={h}
+                    className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-400"
+                  >
+                    {h}
+                  </th>
+                ),
+              )}
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-50">
@@ -374,13 +361,8 @@ function SystemLogsTab() {
             )}
           </tbody>
         </table>
-        <Pagination
-          total={total}
-          page={page}
-          totalPages={totalPages}
-          onPageChange={setPage}
-        />
-      </div>
+        <Pagination total={total} page={page} totalPages={totalPages} onPageChange={setPage} />
+      </TableCard>
     </>
   );
 }

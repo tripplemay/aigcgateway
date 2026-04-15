@@ -6,6 +6,11 @@ import { useAsyncData } from "@/hooks/use-async-data";
 import { Skeleton } from "@/components/ui/skeleton";
 import { formatCNY } from "@/lib/utils";
 import { useExchangeRate } from "@/hooks/use-exchange-rate";
+import { PageContainer } from "@/components/page-container";
+import { PageHeader } from "@/components/page-header";
+import { SectionCard } from "@/components/section-card";
+import { TableCard } from "@/components/table-card";
+import { KPICard } from "@/components/kpi-card";
 import {
   BarChart,
   Bar,
@@ -93,24 +98,23 @@ export default function AdminUsagePage() {
       : "0";
 
   return (
-    <div className="max-w-7xl mx-auto space-y-8">
-      {/* ═══ Header + Period Toggle ═══ */}
-      <div className="flex justify-between items-center">
-        <h2 className="text-3xl font-extrabold tracking-tight font-[var(--font-heading)] text-ds-on-surface">
-          {t("title")}
-        </h2>
-        <div className="bg-ds-surface-container-low p-1 rounded-full flex gap-1">
-          {(["today", "7d", "30d"] as const).map((p) => (
-            <button
-              key={p}
-              onClick={() => setPeriod(p)}
-              className={`px-5 py-1.5 rounded-full text-xs font-bold transition-all ${period === p ? "bg-white text-ds-primary shadow-sm" : "text-ds-on-surface-variant hover:text-ds-primary"}`}
-            >
-              {t(`period_${p}`)}
-            </button>
-          ))}
-        </div>
-      </div>
+    <PageContainer>
+      <PageHeader
+        title={t("title")}
+        actions={
+          <div className="bg-ds-surface-container-low p-1 rounded-full flex gap-1">
+            {(["today", "7d", "30d"] as const).map((p) => (
+              <button
+                key={p}
+                onClick={() => setPeriod(p)}
+                className={`px-5 py-1.5 rounded-full text-xs font-bold transition-all ${period === p ? "bg-white text-ds-primary shadow-sm" : "text-ds-on-surface-variant hover:text-ds-primary"}`}
+              >
+                {t(`period_${p}`)}
+              </button>
+            ))}
+          </div>
+        }
+      />
 
       {/* ═══ Summary Cards ═══ */}
       {summary && (
@@ -133,19 +137,7 @@ export default function AdminUsagePage() {
               icon: "savings",
             },
           ].map((c) => (
-            <div key={c.label} className="bg-ds-surface-container-lowest p-6 rounded-xl shadow-sm">
-              <div className="flex items-center justify-between mb-4">
-                <span className="text-xs font-bold text-ds-outline uppercase tracking-widest">
-                  {c.label}
-                </span>
-                <span className="material-symbols-outlined text-ds-primary-container text-lg">
-                  {c.icon}
-                </span>
-              </div>
-              <div className="text-2xl font-black font-[var(--font-heading)] text-ds-on-surface">
-                {c.value}
-              </div>
-            </div>
+            <KPICard key={c.label} label={c.label} value={c.value} />
           ))}
         </div>
       )}
@@ -153,7 +145,7 @@ export default function AdminUsagePage() {
       {/* ═══ Charts ═══ */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Revenue by Provider Pie */}
-        <div className="bg-ds-surface-container-lowest p-8 rounded-xl shadow-sm">
+        <SectionCard>
           <h4 className="text-sm font-bold uppercase tracking-widest text-ds-outline mb-1">
             {t("revenueByProvider")}
           </h4>
@@ -196,10 +188,10 @@ export default function AdminUsagePage() {
               </div>
             ))}
           </div>
-        </div>
+        </SectionCard>
 
         {/* Calls by Model Bar */}
-        <div className="bg-ds-surface-container-lowest p-8 rounded-xl shadow-sm">
+        <SectionCard>
           <h4 className="text-sm font-bold uppercase tracking-widest text-ds-outline mb-1">
             {t("callsByModel")}
           </h4>
@@ -225,14 +217,11 @@ export default function AdminUsagePage() {
               </BarChart>
             </ResponsiveContainer>
           </div>
-        </div>
+        </SectionCard>
       </div>
 
       {/* ═══ Provider Cost Table ═══ */}
-      <div className="bg-ds-surface-container-lowest rounded-xl shadow-sm overflow-hidden">
-        <div className="p-6 border-b border-slate-50">
-          <h3 className="font-[var(--font-heading)] font-bold text-lg">{t("providerCost")}</h3>
-        </div>
+      <TableCard title={t("providerCost")}>
         <table className="w-full text-left">
           <thead className="bg-ds-surface-container-low/50">
             <tr>
@@ -272,7 +261,7 @@ export default function AdminUsagePage() {
             ))}
           </tbody>
         </table>
-      </div>
-    </div>
+      </TableCard>
+    </PageContainer>
   );
 }
