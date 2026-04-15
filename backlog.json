@@ -115,6 +115,36 @@
       ],
       "confirmed_at": "2026-04-14",
       "priority": "high"
+    },
+    {
+      "id": "BL-128",
+      "title": "UI-UNIFY-FIX-2 — 用户端公共组件采用收尾（SectionCard/TableCard/KPICard/StatusChip/CTABanner）",
+      "description": "UI-UNIFY 定义了 10 个公共组件，UI-UNIFY-FIX 只修了 PageContainer/PageHeader/heading/gradient button。审查发现内容区组件几乎零采用：SectionCard 0/12 页面、TableCard 漏 3 个表格页面、KPICard 手写 10+ 处、StatusChip 手写 5 处、CTABanner actions/templates 两种视觉、quickstart 1 个手写渐变按钮。用户看到 quickstart/mcp-setup 与其他页面不同只是冰山一角，其实 settings/dashboard/models/balance/usage 也都有 ~47 处手写 rounded-xl section。详见 docs/specs/UI-UNIFY-FIX-2-spec.md。",
+      "decisions": [
+        "6 generator + 1 codex = 7 条 features",
+        "等 AUDIT-FOLLOWUP 签收后启动",
+        "机械化 grep 验证卡片/胶囊/按钮的手写数量应归零",
+        "templates 的 CTA 改用 CTABanner 统一视觉",
+        "不涉及 admin 端（独立为 BL-129）"
+      ],
+      "confirmed_at": "2026-04-15",
+      "priority": "high",
+      "spec": "docs/specs/UI-UNIFY-FIX-2-spec.md"
+    },
+    {
+      "id": "BL-129",
+      "title": "ADMIN-UI-UNIFY — admin 端 9 个管理员页面全面对齐设计系统",
+      "description": "审查发现 admin 端 9 个页面（health/logs/model-aliases/models/operations/providers/templates/usage/users）完全零采用任何公共组件。UI-UNIFY 及所有后续批次只改造了 (console) 下非 admin 的 12 个用户端页面。admin 页面全部手写 Table / card / chip / button，max-w 混用 max-w-md/max-w-7xl/none，h1 vs h2 混用。详见 docs/specs/ADMIN-UI-UNIFY-spec.md。",
+      "decisions": [
+        "9 generator + 1 codex = 10 条 features",
+        "在 BL-128 之后启动（先用户可见页面再管理端）",
+        "不改业务逻辑，只做 UI 外壳替换",
+        "保留 model-aliases 的特殊定价编辑器内部结构",
+        "与 BL-099/101/111/113（管理端功能增强）是独立批次"
+      ],
+      "confirmed_at": "2026-04-15",
+      "priority": "medium",
+      "spec": "docs/specs/ADMIN-UI-UNIFY-spec.md"
     }
   ]
 }
