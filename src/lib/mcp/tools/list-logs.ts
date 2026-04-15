@@ -33,8 +33,19 @@ export function registerListLogs(server: McpServer, opts: McpServerOptions): voi
         ),
       status: z.enum(["success", "error", "filtered"]).optional().describe("Filter by status"),
       search: z.string().optional().describe("Full-text search in prompt content"),
+      // F-AF-03 (DX-005): optional ISO 8601 time bounds for log filtering.
+      since: z
+        .string()
+        .datetime({ offset: true })
+        .optional()
+        .describe("Only return logs created at or after this ISO 8601 timestamp"),
+      until: z
+        .string()
+        .datetime({ offset: true })
+        .optional()
+        .describe("Only return logs created strictly before this ISO 8601 timestamp"),
     },
-    async ({ limit, model, status, search }) => {
+    async ({ limit, model, status, search, since, until }) => {
       const permErr = checkMcpPermission(permissions, "logAccess");
       if (permErr) {
         return { content: [{ type: "text" as const, text: permErr }], isError: true };
@@ -51,6 +62,11 @@ export function registerListLogs(server: McpServer, opts: McpServerOptions): voi
         };
       }
       const take = limit ?? 10;
+
+      // F-AF-03 (DX-005): parse optional time-range bounds. Zod already
+      // enforced ISO 8601 shape so new Date() is safe.
+      const sinceDate = since ? new Date(since) : null;
+      const untilDate = until ? new Date(until) : null;
 
       // Full-text search path — extract text from JSONB promptSnapshot before matching
       if (search) {
@@ -71,6 +87,8 @@ export function registerListLogs(server: McpServer, opts: McpServerOptions): voi
           SELECT "traceId", "modelName", status, "sellPrice"::float, "latencyMs", "totalTokens", "responseSummary", "createdAt", "promptSnapshot"
           FROM call_logs
           WHERE "projectId" = ${projectId}
+            AND (${sinceDate}::timestamptz IS NULL OR "createdAt" >= ${sinceDate}::timestamptz)
+            AND (${untilDate}::timestamptz IS NULL OR "createdAt" < ${untilDate}::timestamptz)
             AND (
               -- Extract text content from JSONB array elements for reliable matching
               EXISTS (
@@ -106,10 +124,14 @@ export function registerListLogs(server: McpServer, opts: McpServerOptions): voi
       }
 
       // Standard query
+      const createdAtFilter: { gte?: Date; lt?: Date } = {};
+      if (sinceDate) createdAtFilter.gte = sinceDate;
+      if (untilDate) createdAtFilter.lt = untilDate;
       const where = {
         projectId,
         ...(status ? { status: status.toUpperCase() as "SUCCESS" | "ERROR" | "FILTERED" } : {}),
         ...(model ? { modelName: model } : {}),
+        ...(sinceDate || untilDate ? { createdAt: createdAtFilter } : {}),
       };
 
       const logs = await prisma.callLog.findMany({

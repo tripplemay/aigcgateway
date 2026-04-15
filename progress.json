@@ -2,10 +2,10 @@
   "status": "building",
   "user_goal": "AUDIT-FOLLOWUP — 处理 reports-20260414 审计真实新发现（API Key 泄露 + reasoningTokens log 回显 + MCP DX 三合一）+ 审计工具稳定性。跑一次回归审计作为基线",
   "total_features": 5,
-  "completed_features": 2,
+  "completed_features": 3,
   "fix_rounds": 0,
   "current_sprint": null,
-  "last_updated": "2026-04-15T10:35:00Z",
+  "last_updated": "2026-04-15T10:45:00Z",
   "reference_docs": [
     "docs/specs/AUDIT-FOLLOWUP-spec.md",
     "docs/test-reports/user_report/reports-20260414/all-assertions-20260414.json"

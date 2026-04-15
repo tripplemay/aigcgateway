@@ -506,6 +506,54 @@ async function main() {
     console.log(`(reasoningTokens: ${chatReasoning}) `);
   });
 
+  // F-AF-03 regression — MCP DX three-in-one improvements.
+  await step("16g. F-AF-03 get_project_info exposes apiBaseUrl", async () => {
+    const res = await callTool("get_project_info");
+    const info = JSON.parse(parseTextContent(res));
+    if (!info.apiBaseUrl || typeof info.apiBaseUrl !== "string") {
+      throw new Error(`apiBaseUrl missing: ${JSON.stringify(info)}`);
+    }
+    if (!/\/v1$/.test(info.apiBaseUrl)) {
+      throw new Error(`apiBaseUrl should end with /v1, got ${info.apiBaseUrl}`);
+    }
+    console.log(`(apiBaseUrl: ${info.apiBaseUrl}) `);
+  });
+
+  await step("16h. F-AF-03 chat messages-as-string tolerated or friendly error", async () => {
+    try {
+      const res = await callTool("chat", {
+        model: "deepseek/v3",
+        messages: '[{"role":"user","content":"Say OK"}]' as unknown as object,
+        max_tokens: 5,
+      });
+      const text = parseTextContent(res);
+      // success path — JSON.parse coerced the string to a valid messages array.
+      if (!text) throw new Error("empty chat response");
+      console.log("(string JSON parsed into messages) ");
+    } catch (e) {
+      const msg = (e as Error).message;
+      if (/Expected array, received string/.test(msg)) {
+        throw new Error(`raw Zod error leaked: ${msg}`);
+      }
+      if (!/messages must be an array/.test(msg)) {
+        throw new Error(`unexpected error: ${msg}`);
+      }
+      console.log("(friendly error surfaced) ");
+    }
+  });
+
+  await step("16i. F-AF-03 list_logs since filter", async () => {
+    const future = new Date(Date.now() + 60 * 60 * 1000).toISOString();
+    const res = await callTool("list_logs", { since: future, limit: 10 });
+    const text = parseTextContent(res);
+    const parsed = JSON.parse(text);
+    const results = Array.isArray(parsed) ? parsed : parsed.results;
+    if (!Array.isArray(results) || results.length !== 0) {
+      throw new Error(`Expected 0 logs with since in future, got ${JSON.stringify(results)}`);
+    }
+    console.log("(future since returned 0 rows) ");
+  });
+
   // F-ACF-12 regression — IDOR-safe not-found message for cross-project probes.
   await step("16e. F-ACF-12 unified not-found message", async () => {
     const res = await callTool("get_log_detail", { trace_id: "does-not-exist-xyz" });

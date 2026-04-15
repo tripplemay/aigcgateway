@@ -27,7 +27,8 @@
       "title": "MCP DX 三合一改进（baseUrl + messages 错误友好 + list_logs 时间范围）",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
+      "completed_at": "2026-04-15T10:45:00Z",
       "source": "DX-001/004/005 onboarding",
       "acceptance": "1) get_project_info 返回体增加 apiBaseUrl 字段（从 NEXT_PUBLIC_BASE_URL 或 request origin 推导）；2) MCP chat 的 messages 参数：传字符串时 zod preprocess 尝试 JSON.parse，失败返回 'messages must be an array of {role, content} objects, received a string'（替代 Zod 原始 Expected array received string）；3) list_logs 参数 schema 增加 since (ISO string) 和 until (ISO string) 可选参数，后端 where clause 按 createdAt 过滤；4) 同 commit 补 regression test 覆盖三项；5) tsc 通过"
     },

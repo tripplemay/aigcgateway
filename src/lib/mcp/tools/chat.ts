@@ -23,6 +23,27 @@ const messageSchema = z.object({
   content: z.string().min(1, "content must be non-empty"),
 });
 
+// F-AF-03 (DX-004): tolerate clients that pass `messages` as a JSON string by
+// attempting a JSON.parse pre-step. If it can't be coerced into an array of
+// messages, emit a friendly error instead of the raw Zod
+// "Expected array, received string".
+const messagesSchema = z.preprocess(
+  (val) => {
+    if (typeof val === "string") {
+      try {
+        return JSON.parse(val);
+      } catch {
+        return val;
+      }
+    }
+    return val;
+  },
+  z.array(messageSchema, {
+    invalid_type_error: "messages must be an array of {role, content} objects, received a string",
+    required_error: "messages is required",
+  }),
+);
+
 export function registerChat(server: McpServer, opts: McpServerOptions): void {
   const { userId, projectId, apiKeyId, permissions, keyRateLimit } = opts;
   server.tool(
@@ -34,7 +55,7 @@ export function registerChat(server: McpServer, opts: McpServerOptions): void {
         .describe(
           "Exact model name from list_models output (e.g. gpt-4o-mini, claude-sonnet-4.6, deepseek-v3, gemini-3-flash)",
         ),
-      messages: z.array(messageSchema).describe("Message array [{role, content}]."),
+      messages: messagesSchema.describe("Message array [{role, content}]."),
       temperature: z.number().min(0).max(2).optional().describe("Sampling temperature, 0-2"),
       max_tokens: z
         .number()

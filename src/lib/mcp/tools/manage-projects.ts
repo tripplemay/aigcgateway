@@ -74,6 +74,12 @@ export function registerGetProjectInfo(server: McpServer, opts: McpServerOptions
         where: { userId },
       });
 
+      // F-AF-03 (DX-001): surface the REST base URL so MCP-first onboarding
+      // flows know where to POST /v1/chat/completions etc. without a separate
+      // console visit.
+      const rawBase = process.env.NEXT_PUBLIC_BASE_URL || "https://aigc.guangai.ai";
+      const apiBaseUrl = `${rawBase.replace(/\/$/, "")}/v1`;
+
       return {
         content: [
           {
@@ -86,6 +92,7 @@ export function registerGetProjectInfo(server: McpServer, opts: McpServerOptions
                 createdAt: project.createdAt.toISOString(),
                 callCount: project._count.callLogs,
                 keyCount,
+                apiBaseUrl,
               },
               null,
               2,
