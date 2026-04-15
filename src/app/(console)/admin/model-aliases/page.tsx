@@ -386,7 +386,10 @@ export default function ModelAliasesPage() {
   const setSellPriceField = (id: string, field: string, value: string) => {
     const current = getSellPrice(id);
     const num = value === "" ? undefined : parseFloat(value);
-    setEditField(id, "sellPrice", { ...current, [field]: num });
+    // F-AO2-08: keep the unit discriminator in sync with the field being
+    // edited so backend cost calculators pick the right branch.
+    const unit = field === "perCall" ? "call" : "token";
+    setEditField(id, "sellPrice", { ...current, [field]: num, unit });
   };
 
   if (loading) {
@@ -829,53 +832,63 @@ export default function ModelAliasesPage() {
                             }}
                           />
                         </div>
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 bg-ds-surface-container-low/30 p-4 rounded-xl">
-                          <div className="space-y-1.5">
-                            <label className="text-[10px] font-bold text-ds-on-surface-variant uppercase tracking-widest ml-1">
-                              {t("inputPer1M")}
-                            </label>
-                            <input
-                              className="w-full bg-ds-surface-container-lowest border-none rounded-lg text-sm px-4 py-2 font-semibold focus:ring-2 focus:ring-ds-primary/20"
-                              type="number"
-                              step="0.01"
-                              value={(sp.inputPer1M as number) ?? ""}
-                              onChange={(e) =>
-                                setSellPriceField(alias.id, "inputPer1M", e.target.value)
-                              }
-                              placeholder="0.00"
-                            />
+                        {/* F-AO2-08: modality-aware pricing inputs.
+                            IMAGE aliases are priced per-call; TEXT/AUDIO/VIDEO
+                            use input/output tokens per 1M. Rendering only the
+                            relevant row prevents admins from filling the wrong
+                            unit and failing the alias.sellPrice shape. */}
+                        {alias.modality === "IMAGE" ? (
+                          <div className="bg-ds-surface-container-low/30 p-4 rounded-xl">
+                            <div className="space-y-1.5 max-w-xs">
+                              <label className="text-[10px] font-bold text-ds-on-surface-variant uppercase tracking-widest ml-1">
+                                {t("perCall")} (¥ / image)
+                              </label>
+                              <input
+                                className="w-full bg-ds-surface-container-lowest border-none rounded-lg text-sm px-4 py-2 font-semibold focus:ring-2 focus:ring-ds-primary/20"
+                                type="number"
+                                step="0.001"
+                                value={(sp.perCall as number) ?? ""}
+                                onChange={(e) =>
+                                  setSellPriceField(alias.id, "perCall", e.target.value)
+                                }
+                                placeholder="0.000"
+                              />
+                            </div>
                           </div>
-                          <div className="space-y-1.5">
-                            <label className="text-[10px] font-bold text-ds-on-surface-variant uppercase tracking-widest ml-1">
-                              {t("outputPer1M")}
-                            </label>
-                            <input
-                              className="w-full bg-ds-surface-container-lowest border-none rounded-lg text-sm px-4 py-2 font-semibold focus:ring-2 focus:ring-ds-primary/20"
-                              type="number"
-                              step="0.01"
-                              value={(sp.outputPer1M as number) ?? ""}
-                              onChange={(e) =>
-                                setSellPriceField(alias.id, "outputPer1M", e.target.value)
-                              }
-                              placeholder="0.00"
-                            />
+                        ) : (
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-ds-surface-container-low/30 p-4 rounded-xl">
+                            <div className="space-y-1.5">
+                              <label className="text-[10px] font-bold text-ds-on-surface-variant uppercase tracking-widest ml-1">
+                                {t("inputPer1M")}
+                              </label>
+                              <input
+                                className="w-full bg-ds-surface-container-lowest border-none rounded-lg text-sm px-4 py-2 font-semibold focus:ring-2 focus:ring-ds-primary/20"
+                                type="number"
+                                step="0.01"
+                                value={(sp.inputPer1M as number) ?? ""}
+                                onChange={(e) =>
+                                  setSellPriceField(alias.id, "inputPer1M", e.target.value)
+                                }
+                                placeholder="0.00"
+                              />
+                            </div>
+                            <div className="space-y-1.5">
+                              <label className="text-[10px] font-bold text-ds-on-surface-variant uppercase tracking-widest ml-1">
+                                {t("outputPer1M")}
+                              </label>
+                              <input
+                                className="w-full bg-ds-surface-container-lowest border-none rounded-lg text-sm px-4 py-2 font-semibold focus:ring-2 focus:ring-ds-primary/20"
+                                type="number"
+                                step="0.01"
+                                value={(sp.outputPer1M as number) ?? ""}
+                                onChange={(e) =>
+                                  setSellPriceField(alias.id, "outputPer1M", e.target.value)
+                                }
+                                placeholder="0.00"
+                              />
+                            </div>
                           </div>
-                          <div className="space-y-1.5">
-                            <label className="text-[10px] font-bold text-ds-on-surface-variant uppercase tracking-widest ml-1">
-                              {t("perCall")}
-                            </label>
-                            <input
-                              className="w-full bg-ds-surface-container-lowest border-none rounded-lg text-sm px-4 py-2 font-semibold focus:ring-2 focus:ring-ds-primary/20"
-                              type="number"
-                              step="0.001"
-                              value={(sp.perCall as number) ?? ""}
-                              onChange={(e) =>
-                                setSellPriceField(alias.id, "perCall", e.target.value)
-                              }
-                              placeholder="0.000"
-                            />
-                          </div>
-                        </div>
+                        )}
                       </div>
 
                       {/* Capabilities */}

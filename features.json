@@ -70,7 +70,8 @@
       "title": "suggest-price API + 前端适配 IMAGE 模型",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
+      "completed_at": "2026-04-15T16:50:00Z",
       "source": "BL-113",
       "acceptance": "1) GET /api/admin/model-aliases/[id]/suggest-price 对 modality=IMAGE 别名从 OpenRouter pricing.image 字段提取 per-call 参考价格；2) 返回 {suggestedPrice: {unit:'call', perCall:X}, source:'openrouter'}；3) 前端参考定价按钮对 IMAGE 别名显示 perCall 单位的输入框；4) 回填时写 sellPrice={unit:'call', perCall:X}；5) TEXT 模型行为保持不变；6) tsc 通过"
     },
