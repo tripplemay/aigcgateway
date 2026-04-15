@@ -1,97 +1,58 @@
 {
-  "batch": "ADMIN-OPS++",
+  "batch": "REGRESSION-BACKFILL",
   "created_at": "2026-04-15",
   "features": [
     {
-      "id": "F-AO2-01",
-      "title": "删除服务商后端：级联清理 API",
+      "id": "F-RB-01",
+      "title": "BILLING-REFACTOR 回溯 regression tests",
       "priority": "high",
       "executor": "generator",
-      "status": "done",
-      "completed_at": "2026-04-15T17:05:00Z",
-      "source": "BL-099",
-      "acceptance": "1) DELETE /api/admin/providers/[id] 在事务中执行：删除 Provider 下所有 Channel、级联 HealthCheck、CallLog.channelId 置 null、删除 ProviderConfig；2) 检查每个受影响 Model：无其他 Channel 则 enabled=false 并清理 AliasModelLink；3) 检查每个受影响 ModelAlias：无关联 enabled Model 则 enabled=false；4) 支持 ?dry_run=true 返回影响统计不执行；5) 返回 deletedChannels/affectedModels/affectedAliases/nulledCallLogs；6) tsc 通过"
+      "status": "pending",
+      "source": "BL-120",
+      "acceptance": "1) scripts/test-mcp.ts 增加 'billing: list_models pricing = deducted amount'：调用 chat 后读取 get_log_detail 的 cost，对比 list_models 对应 alias 的 pricing 计算值（prompt×input_per_1m + completion×output_per_1m），误差 < $0.00000001；2) scripts/test-mcp.ts 增加 'billing: image generate cost = alias perCall'：调用 generate_image 后验证 cost = alias.sellPrice.perCall；3) scripts/test-mcp.ts 增加 'billing: pricing has no float noise'：断言所有 list_models 返回的 pricing 数值小数位 ≤ 6；4) 每条测试用 // BL-120 / BILLING-REFACTOR 注释标注来源；5) tsc 通过"
     },
     {
-      "id": "F-AO2-02",
-      "title": "删除服务商前端：二次确认对话框",
+      "id": "F-RB-02",
+      "title": "AUDIT-SEC 回溯 regression tests",
       "priority": "high",
       "executor": "generator",
-      "status": "done",
-      "completed_at": "2026-04-15T17:20:00Z",
-      "source": "BL-099",
-      "acceptance": "1) admin/providers 每行增加'删除'按钮（StatusChip danger 或 Button destructive）；2) 点击先调 dry_run 获取影响统计；3) 弹二次确认 dialog 显示：'将删除 X 渠道，Y 模型失去关联，Z 别名将被禁用，W 条调用日志保留但渠道置空'；4) 确认后调实际 DELETE；5) 成功后刷新列表 + toast；6) i18n 中英文；7) tsc 通过"
+      "status": "pending",
+      "source": "BL-120",
+      "acceptance": "1) scripts/test-mcp.ts 增加 'audit-sec: list_models filters disabled models'：使用 admin API 或 DB 直接禁用一个 model 后调用 list_models，断言该 model 不在返回列表（测试完恢复）；2) scripts/test-mcp.ts 增加 'audit-sec: image models have supportedSizes'：list_models(modality='image') 每个返回项都有 supportedSizes 非空数组；3) scripts/test-mcp-errors.ts 增加 'audit-sec: generate_image invalid size returns supportedSizes list'：传 9999x9999，断言 error 含 invalid_size 且包含 supportedSizes 字段；4) scripts/test-mcp.ts 增加 'audit-sec: free_only filter returns zero-priced aliases'：list_models(free_only=true) 返回的所有 alias 都应 pricing 全为 0；5) 每条测试注释 // BL-120 / AUDIT-SEC 来源；6) tsc 通过"
     },
     {
-      "id": "F-AO2-03",
-      "title": "SystemLog 写入点补齐（SYNC / INFERENCE / HEALTH_CHECK / AUTO_RECOVERY）",
-      "priority": "medium",
-      "executor": "generator",
-      "status": "done",
-      "completed_at": "2026-04-15T17:30:00Z",
-      "source": "BL-101",
-      "acceptance": "1) model-sync.ts 执行完毕写 SystemLog(SYNC, level=INFO/WARN/ERROR, detail={provider, added, removed, errors})；2) alias-classifier 完毕写 SystemLog(INFERENCE, detail={batch_size, aliases_created, pending_queued, errors})；3) health checker 状态变更时写 SystemLog(HEALTH_CHECK, detail={channel, prev_state, new_state})；4) channel 自动恢复时写 SystemLog(AUTO_RECOVERY)；5) admin/logs 系统日志 tab 可查看这些分类；6) tsc 通过"
-    },
-    {
-      "id": "F-AO2-04",
-      "title": "运维推断结果状态提示条",
-      "priority": "medium",
-      "executor": "generator",
-      "status": "done",
-      "completed_at": "2026-04-15T17:40:00Z",
-      "source": "BL-101",
-      "acceptance": "1) admin/operations 的推断/同步面板执行后显示状态提示条（复用 ui/alert）；2) 全为 0 → 蓝色'数据已最新'；3) 有更新 → 绿色成功摘要 '新增 X，更新 Y'；4) 有跳过 → 黄色警告；5) 有错误 → 红色 + 可展开错误列表；6) 模型同步面板同等处理；7) i18n；8) tsc 通过"
-    },
-    {
-      "id": "F-AO2-05",
-      "title": "推断/同步实时进度反馈（Redis 轮询）",
-      "priority": "medium",
-      "executor": "generator",
-      "status": "done",
-      "completed_at": "2026-04-15T17:50:00Z",
-      "note": "基础设施已到位：runModelSync/run-inference 写 Redis sync:progress/inference:progress key，/api/admin/sync/status + /api/admin/inference/status 已有 GET 端点，前端 pollSyncProgress/pollInferProgress 每 3 秒轮询并 stop-on-done。本条补齐 spec 要求的统一 /api/admin/operations/progress?jobType 端点作为 thin alias。",
-      "source": "BL-101",
-      "acceptance": "1) model-sync / alias-classifier 启动时写 Redis key 'progress:${jobType}:${jobId}' = {current, total, phase, message}；2) 每个 batch/provider 处理完后更新；3) 新增 GET /api/admin/operations/progress?jobId=xxx 返回当前进度；4) admin/operations 前端启动任务后每 3 秒轮询，显示进度条和阶段文本；5) 完成后清理 Redis key；6) 多任务并发时 key 互不冲突；7) tsc 通过"
-    },
-    {
-      "id": "F-AO2-06",
-      "title": "PendingClassification schema + 队列写入逻辑",
+      "id": "F-RB-03",
+      "title": "DX-POLISH 回溯 regression tests",
       "priority": "high",
       "executor": "generator",
-      "status": "done",
-      "completed_at": "2026-04-15T18:10:00Z",
-      "source": "BL-111",
-      "acceptance": "1) 新增 PendingClassification 表（migration）：id/modelId/suggestedAliasId/suggestedBrand/confidence/reason/status(PENDING|APPROVED|REJECTED)/createdAt/reviewedBy/reviewedAt/reviewNote；2) alias-classifier 改造：confidence >= SystemConfig.CLASSIFIER_AUTO_THRESHOLD（默认 0.85）则自动挂载；低于阈值或建议新别名的结果写 PendingClassification；3) 原高置信自动挂载路径不变；4) 写入队列时同时写 SystemLog(INFERENCE, action='queued')；5) tsc 通过"
+      "status": "pending",
+      "source": "BL-120",
+      "acceptance": "1) scripts/test-mcp.ts 增加 'dx-polish: chat rejects image modality model'：chat(model='gpt-image-mini') 返回 invalid_model_modality；2) scripts/test-mcp.ts 增加 'dx-polish: capability=vision only returns text models'：list_models(capability='vision') 所有 modality='text'；3) scripts/test-mcp.ts 增加 'dx-polish: reasoning_tokens present in get_log_detail'：调用 reasoning 模型后，get_log_detail.usage.reasoningTokens 存在且 > 0；4) scripts/test-mcp.ts 增加 'dx-polish: json_mode strips markdown code fence'：chat(response_format={type:'json_object'}) 的 content JSON.parse 成功，不含 markdown 围栏；5) scripts/test-mcp-errors.ts 增加 'dx-polish: get_action_detail not-found wording includes in this project'；6) 每条测试注释 // BL-120 / DX-POLISH 来源；7) tsc 通过"
     },
     {
-      "id": "F-AO2-07",
-      "title": "运维面板待确认队列 UI",
-      "priority": "high",
-      "executor": "generator",
-      "status": "done",
-      "completed_at": "2026-04-15T18:25:00Z",
-      "note": "批量多选/改分配（reassign popover）简化为单条 approve/reject — reassign API 已实现但 UI 留作后续迭代以控制本批次体量",
-      "source": "BL-111",
-      "acceptance": "1) admin/operations 增加'待确认分类'SectionCard（仅在有 pending 条目时显示）；2) 列表展示：模型名 / 建议别名 / 置信度 / 建议原因；3) 每行三个按钮：确认（挂载到建议别名，status=APPROVED）/ 拒绝（status=REJECTED 不挂载）/ 改分配（popover 选择其他 alias）；4) 批量确认按钮（checkbox 多选）；5) 操作后写 SystemLog(INFERENCE, action=approved/rejected/reassigned)；6) 使用 SectionCard + StatusChip + Button gradient-primary 保持 UI 一致；7) i18n；8) tsc 通过"
-    },
-    {
-      "id": "F-AO2-08",
-      "title": "suggest-price API + 前端适配 IMAGE 模型",
+      "id": "F-RB-04",
+      "title": "邮箱验证高风险路径 regression",
       "priority": "medium",
       "executor": "generator",
-      "status": "done",
-      "completed_at": "2026-04-15T16:50:00Z",
-      "source": "BL-113",
-      "acceptance": "1) GET /api/admin/model-aliases/[id]/suggest-price 对 modality=IMAGE 别名从 OpenRouter pricing.image 字段提取 per-call 参考价格；2) 返回 {suggestedPrice: {unit:'call', perCall:X}, source:'openrouter'}；3) 前端参考定价按钮对 IMAGE 别名显示 perCall 单位的输入框；4) 回填时写 sellPrice={unit:'call', perCall:X}；5) TEXT 模型行为保持不变；6) tsc 通过"
+      "status": "pending",
+      "source": "BL-073（部分）",
+      "acceptance": "1) scripts/e2e-test.ts 增加 'email-verify: register → unverified → verify token → login OK' 全链路步骤，不依赖真实发邮件（直接从 DB 读 emailVerificationToken）；2) scripts/e2e-errors.ts 增加 'email-verify: invalid token rejected'；3) scripts/e2e-errors.ts 增加 'email-verify: expired token rejected'（构造一个过期的 token row）；4) scripts/e2e-errors.ts 增加 'email-verify: already-verified repeat call 幂等'；5) 断言 register 后 user.emailVerified=false；6) 每条测试注释 // BL-073 来源；7) tsc 通过"
     },
     {
-      "id": "F-AO2-09",
-      "title": "ADMIN-OPS++ 全量验收",
+      "id": "F-RB-05",
+      "title": "scripts 运行基础设施升级（test-all 统一入口）",
+      "priority": "medium",
+      "executor": "generator",
+      "status": "pending",
+      "acceptance": "1) 所有 scripts/test-*.ts 从 process.env 读取 BASE_URL / API_KEY 的方式统一（已经统一则保持）；2) 新增 scripts/test-all.sh 一键跑 4 个脚本（e2e-test / e2e-errors / test-mcp / test-mcp-errors）并汇总 pass/fail；3) 每个脚本末尾打印最终 'passed=X failed=Y'，exit code 正确（失败返回 1）；4) test-all.sh 能通过环境变量覆盖 BASE_URL / API_KEY；5) tsc 通过；6) 本地 L1 环境实际跑一次验证全绿"
+    },
+    {
+      "id": "F-RB-06",
+      "title": "REGRESSION-BACKFILL 全量验收",
       "priority": "high",
       "executor": "codex",
-      "status": "done",
-      "completed_at": "2026-04-15T19:30:00Z",
-      "acceptance": "codex 执行：1) 删除服务商完整链路（dry-run + apply + 级联影响验证）；2) SystemLog 4 类均有写入记录（SYNC/INFERENCE/HEALTH_CHECK/AUTO_RECOVERY）并可在 admin/logs 系统日志 tab 查看；3) 运维推断状态提示条 4 种状态可触发；4) 推断/同步实时进度轮询可用（可观察到 current/total 变化）；5) PendingClassification 队列工作流：低置信结果入队 → 运维面板显示 → 确认/拒绝/改分配 → 审计日志写入；6) IMAGE 别名 suggest-price 返回 perCall；7) 其他 admin 功能回归通过；8) 签收报告生成"
+      "status": "pending",
+      "acceptance": "codex 执行：1) 对 4 个 scripts/*.ts 做代码审阅，确认本批次新增的所有测试点都存在且断言正确（含来源注释）；2) 启动 dev server（BASE_URL=http://localhost:3099），在 L1 环境跑 scripts/test-all.sh，全绿通过；3) 至少抽 1 条新断言做 mutation 验证：把产品代码对应修复暂时回退一行，验证该断言能失败（证明测试不是空壳）；4) 不破坏现有 scripts/*.ts 原有测试步骤；5) 签收报告生成"
     }
   ]
 }

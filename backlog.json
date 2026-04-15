@@ -10,33 +10,12 @@
       "priority": "high"
     },
     {
-      "id": "BL-073",
-      "title": "高风险路径自动化测试覆盖",
-      "description": "支付回调、限流边界、邮箱验证等缺少回归保障。来源：backend-audit-2026-04-08.md [低]。",
-      "decisions": [],
-      "confirmed_at": "2026-04-09",
-      "priority": "low"
-    },
-    {
       "id": "BL-104",
       "title": "Settings Project tab 增加项目切换下拉框",
       "description": "Settings 的 Project tab 当前只能管理侧边栏选中的项目。增加一个项目下拉选择器，用户可以切换查看/编辑不同项目的信息（名称、描述、统计、删除）。",
       "decisions": [],
       "confirmed_at": "2026-04-10",
       "priority": "low"
-    },
-    {
-      "id": "BL-120",
-      "title": "DX-POLISH / AUDIT-SEC / BILLING-REFACTOR 回溯补 regression test",
-      "description": "三个批次的 bug 修复已完成但未在同 commit 补 regression test。需要回溯检查：DX-POLISH 完成后对照 all-assertions-20260412.json 中对应的 critical/high 断言，在 scripts/test-mcp.ts / scripts/e2e-test.ts / scripts/test-mcp-errors.ts / scripts/e2e-errors.ts 中补充回归用例，形成 CI 可执行的回归基线。此规则已固化到 docs/dev/test-lifecycle.md + generator.md，下个批次起 Generator 必须同 commit 补测试。",
-      "decisions": [
-        "由于三个批次开发时回归测试规则尚未固化，先统一在一个专项批次中补齐",
-        "优先级 critical/high 断言必须补，medium/low 选补",
-        "补完后作为 CI 回归基线，每次部署前必跑",
-        "未来批次 Generator 必须在实现 commit 中同步补测试（规则已入 generator.md）"
-      ],
-      "confirmed_at": "2026-04-13",
-      "priority": "medium"
     },
     {
       "id": "BL-126",
