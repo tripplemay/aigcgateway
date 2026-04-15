@@ -1,70 +1,62 @@
 {
-  "batch": "UI-UNIFY-FIX-2",
+  "batch": "ADMIN-UI-UNIFY",
   "created_at": "2026-04-15",
   "features": [
     {
-      "id": "F-UF2-01",
-      "title": "SectionCard 替换全部手写内容卡片",
+      "id": "F-AUU-01",
+      "title": "admin/models 页面改造",
       "priority": "high",
       "executor": "generator",
-      "status": "done",
-      "completed_at": "2026-04-15T12:40:00Z",
-      "acceptance": "1) dashboard/models/balance/usage/settings/mcp-setup/quickstart/templates 全部改用 <SectionCard> 作为内容卡壳；2) 保留每个页面的独特内部布局（mcp-setup bento / quickstart 编号圆圈 / dashboard 多 section）；3) 消除自定义 'shadow-[0px_20px_40px...]' 阴影，统一为 SectionCard 的 shadow-sm；4) 消除 'ring-1 ring-slate-100'，统一为 'border-slate-200/5'；5) grep 验证：grep -rnE 'bg-ds-surface-container-lowest[^\"]*rounded-(xl|2xl)' src/app/(console)/*/page.tsx 应返回 0 行；6) tsc 通过；7) 关键页面回归测试覆盖渲染"
+      "status": "pending",
+      "acceptance": "1) 使用 PageContainer (default) + PageHeader；2) 模型列表改用 TableCard；3) 状态 chip 改用 StatusChip；4) 主按钮用 Button variant='gradient-primary'；5) 手写 rounded-xl section → SectionCard；6) 不改动业务逻辑；7) tsc 通过"
     },
     {
-      "id": "F-UF2-02",
-      "title": "balance / settings / usage 3 页改用 TableCard",
+      "id": "F-AUU-02",
+      "title": "admin/model-aliases 页面改造",
       "priority": "high",
       "executor": "generator",
-      "status": "done",
-      "completed_at": "2026-04-15T12:40:00Z",
-      "acceptance": "1) balance 交易流水 / settings 模型日志 / usage 按模型用量 三个表格改用 <TableCard>；2) 保留现有 Table 列定义和数据源；3) 搜索、分页、header 操作区用 TableCard 的 slot；4) grep 验证：三个文件中 <Table 父级必须是 TableCard；5) tsc 通过"
+      "status": "pending",
+      "acceptance": "1) max-w-md → PageContainer default；2) PageHeader；3) 所有手写 rounded-xl section → SectionCard；4) 定价编辑器内部结构保留（只做外壳替换）；5) StatusChip 替换手写胶囊；6) 主按钮 gradient-primary variant；7) tsc 通过"
     },
     {
-      "id": "F-UF2-03",
-      "title": "KPICard 替换手写指标卡",
+      "id": "F-AUU-03",
+      "title": "admin/providers 页面改造",
+      "priority": "high",
+      "executor": "generator",
+      "status": "pending",
+      "acceptance": "1) PageContainer + PageHeader；2) 服务商列表 TableCard 或 SectionCard 集合；3) 状态 chip 用 StatusChip；4) 主按钮 gradient-primary；5) tsc 通过"
+    },
+    {
+      "id": "F-AUU-04",
+      "title": "admin/templates + admin/users 改造",
       "priority": "medium",
       "executor": "generator",
-      "status": "done",
-      "completed_at": "2026-04-15T14:10:00Z",
-      "note": "dashboard/usage 已使用 KPICard；balance 余额大卡因含 icon 背景 + 渐变按钮等复杂布局，采用 SectionCard 壳而非 KPICard。Fix round 1：quickstart StepCard step tag span 改为 StatusChip neutral 以清空 text-xs uppercase tracking-widest grep。",
-      "acceptance": "1) dashboard（5 个）/ balance（余额大卡 + 告警阈值）/ usage（4 个指标）全部改用 <KPICard>；2) 保留原有 label/value/trend 数据；3) 若 KPICard API 不足（如缺 trend 子组件），允许扩展组件 API 但保持向后兼容；4) grep 验证：各页面不应再出现 'text-xs.*uppercase.*tracking-widest' 手写 label 模式；5) tsc 通过"
+      "status": "pending",
+      "acceptance": "1) 两个页面统一使用 PageContainer + PageHeader；2) 列表类内容使用 TableCard；3) admin/templates 的 max-w-md → default；4) StatusChip 替换手写胶囊；5) 主按钮 gradient-primary；6) tsc 通过"
     },
     {
-      "id": "F-UF2-04",
-      "title": "StatusChip 替换 5 处手写状态胶囊",
+      "id": "F-AUU-05",
+      "title": "admin/operations + admin/health 改造",
       "priority": "medium",
       "executor": "generator",
-      "status": "done",
-      "completed_at": "2026-04-15T13:00:00Z",
-      "acceptance": "1) actions:195（v1 版本胶囊）/ balance:280（交易类型）/ mcp-setup:400（工具标签）/ models:290/295（modality + warning）全部改用 <StatusChip>；2) 如果 variant 不足（如缺 info 变体），扩展组件；3) grep 验证：'px-.*py-.*rounded.*text-\\[10px\\].*font-(bold|black).*uppercase' 手写模式应为 0 处；4) tsc 通过"
+      "status": "pending",
+      "acceptance": "1) 两个页面统一使用 PageContainer + PageHeader；2) 运维/健康卡片用 SectionCard；3) 状态 chip 用 StatusChip；4) 主按钮 gradient-primary；5) tsc 通过"
     },
     {
-      "id": "F-UF2-05",
-      "title": "templates CTA 改用 CTABanner",
+      "id": "F-AUU-06",
+      "title": "admin/logs + admin/usage 改造",
       "priority": "medium",
       "executor": "generator",
-      "status": "done",
-      "completed_at": "2026-04-15T13:00:00Z",
-      "acceptance": "1) templates/page.tsx:304-316 手写的 'from-ds-primary to-ds-primary-container' 渐变 CTA 改用 <CTABanner>；2) actions 和 templates 两个页面的 CTA 视觉统一为深色 #131b2e 设计系统标准；3) tsc 通过"
+      "status": "pending",
+      "acceptance": "1) 两个页面统一使用 PageContainer + PageHeader；2) admin/logs 列表 TableCard；3) admin/usage 的 KPI 用 KPICard；4) 状态 chip 用 StatusChip；5) 主按钮 gradient-primary；6) tsc 通过"
     },
     {
-      "id": "F-UF2-06",
-      "title": "quickstart 剩余手写按钮改 Button gradient-primary",
-      "priority": "low",
-      "executor": "generator",
-      "status": "done",
-      "completed_at": "2026-04-15T13:00:00Z",
-      "acceptance": "1) quickstart/page.tsx:143 手写的 'bg-gradient-to-r from-ds-primary to-ds-primary-container text-white text-sm font-bold rounded-full shadow-lg' 按钮改为 <Button variant='gradient-primary'>；2) 保留 Link 包裹；3) tsc 通过"
-    },
-    {
-      "id": "F-UF2-07",
-      "title": "UI-UNIFY-FIX-2 全量验收",
+      "id": "F-AUU-07",
+      "title": "ADMIN-UI-UNIFY 全量验收",
       "priority": "high",
       "executor": "codex",
-      "status": "done",
-      "completed_at": "2026-04-15T14:20:00Z",
-      "acceptance": "codex 执行：1) SectionCard 在 dashboard/models/balance/usage/settings/mcp-setup/quickstart/templates 8 个页面采用（grep 验证 hand-written bg+rounded 归零）；2) TableCard 在 balance/settings/usage 3 个新增页面采用；3) KPICard / StatusChip / CTABanner 全部替换完毕；4) Button gradient-primary variant 手写归零；5) grep 机械化验证（具体命令见 spec）；6) 12 个用户端页面视觉一致性人工复核；7) 签收报告生成"
+      "status": "pending",
+      "acceptance": "codex 执行：1) 9 个 admin 页面都使用 PageContainer + PageHeader（grep 验证）；2) 所有 Table 使用 TableCard 壳；3) 所有手写 'bg-ds-surface-container-lowest.*rounded-(xl|2xl)' section 消失（SectionCard 采用）；4) 所有手写 'rounded.*text-[10px].*font-(bold|black).*uppercase' 状态 chip 消失（StatusChip 采用）；5) 所有手写渐变主按钮消失（gradient-primary variant 采用）；6) 9 个页面视觉一致性人工复核；7) 业务逻辑不受影响（搜索 / 编辑 / dialog 等）；8) 签收报告生成"
     }
   ]
 }

@@ -1,31 +1,25 @@
 {
-  "status": "done",
-  "user_goal": "UI-UNIFY-FIX-2 — 用户端 12 页面的公共组件采用收尾：SectionCard 替换 ~47 处手写卡片 / TableCard 补 3 页 / KPICard / StatusChip / CTABanner / Button gradient-primary 查漏",
+  "status": "building",
+  "user_goal": "ADMIN-UI-UNIFY — admin 端 9 个管理员页面全面对齐设计系统：PageContainer + PageHeader + TableCard + SectionCard + KPICard + StatusChip + Button gradient-primary",
   "total_features": 7,
-  "completed_features": 7,
-  "fix_rounds": 1,
+  "completed_features": 0,
+  "fix_rounds": 0,
   "current_sprint": null,
-  "last_updated": "2026-04-15T14:20:00Z",
+  "last_updated": "2026-04-15T15:00:00Z",
   "reference_docs": [
-    "docs/specs/UI-UNIFY-FIX-2-spec.md"
+    "docs/specs/ADMIN-UI-UNIFY-spec.md"
   ],
   "role_assignments": null,
   "docs": {
-    "spec": "docs/specs/UI-UNIFY-FIX-2-spec.md",
+    "spec": "docs/specs/ADMIN-UI-UNIFY-spec.md",
     "test_cases": null,
-    "signoff": "docs/test-reports/UI-UNIFY-FIX-2-signoff-2026-04-15.md",
+    "signoff": null,
     "framework_reviewed": false
   },
-  "evaluator_feedback": {
-    "summary": "全部 PASS（fix round 1 后）。F-UF2-03 quickstart step tag → StatusChip neutral，acceptance grep 归零。",
-    "pass_count": 6,
-    "partial_count": 0,
-    "fail_count": 0,
-    "issues": []
-  },
+  "evaluator_feedback": null,
   "generator_handoff": null,
   "session_notes": {
-    "Kimi": "Fix round 1：F-UF2-03 PARTIAL 修复。quickstart/page.tsx:121 StepCard 右上角 step tag span（text-xs uppercase tracking-widest）改为 <StatusChip variant=\"neutral\">，清空 F-UF2-03 acceptance grep。tsc 通过。status → reverifying。等 Reviewer 复验。",
-    "Reviewer": "reverifying 轮：F-UF2-03 grep = 0（quickstart:121 已改 StatusChip neutral），tsc 干净。全部 PASS。signoff 写入 docs/test-reports/UI-UNIFY-FIX-2-signoff-2026-04-15.md。status → done。遗留：templates:281 hand-written container-low 卡片 + templates/[templateId] 子路由 text-[10px] chips（均超出本批次 grep 范围，不阻塞签收）。"
+    "Kimi": "Planner 启动 ADMIN-UI-UNIFY 批次（6 generator + 1 codex = 7 条）。原 spec 有 9 个 generator（每个 admin 页面一条），考虑到每个页面改造工作量不大，合并为 6 条（按相似度分组）：F-AUU-01 models / F-AUU-02 model-aliases / F-AUU-03 providers / F-AUU-04 templates+users / F-AUU-05 operations+health / F-AUU-06 logs+usage。约束：不改业务逻辑，只做 UI 外壳替换；保留 model-aliases 的特殊定价编辑器内部结构。UI-UNIFY-FIX-2 已签收，用户端 12 页面全部对齐。",
+    "Reviewer": null
   }
 }
