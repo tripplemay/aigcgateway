@@ -251,6 +251,10 @@ export default function OperationsPage() {
               />
             </div>
 
+            {/* F-AO2-04: sync status banner — same 4-state treatment as
+                inference so operators get a colored one-liner summary. */}
+            {syncResult && <SyncStatusBanner result={syncResult} t={t} />}
+
             {/* Sync summary */}
             {syncResult && (
               <div className="grid grid-cols-4 gap-3">
@@ -538,6 +542,58 @@ function InferenceStatusBanner({
     <div className="flex items-center gap-2 text-amber-700 bg-amber-50 px-4 py-2.5 rounded-lg text-xs font-semibold">
       <span className="material-symbols-outlined text-[16px]">warning</span>
       {t("inferBannerSkipped", { count: totalSkipped })}
+    </div>
+  );
+}
+
+// F-AO2-04: 4-state summary banner for model-sync runs. Mirrors
+// InferenceStatusBanner's look so operators see the same visual
+// grammar for both pipelines.
+function SyncStatusBanner({
+  result,
+  t,
+}: {
+  result: SyncResult;
+  t: ReturnType<typeof useTranslations>;
+}) {
+  const { totalNewModels, totalNewChannels, totalDisabledChannels, totalFailedProviders } =
+    result.summary;
+
+  if (totalFailedProviders > 0) {
+    return (
+      <div className="flex items-center gap-2 text-rose-700 bg-rose-50 px-4 py-2.5 rounded-lg text-xs font-semibold">
+        <span className="material-symbols-outlined text-[16px]">error</span>
+        {t("syncBannerError", { failed: totalFailedProviders })}
+      </div>
+    );
+  }
+
+  if (totalNewModels === 0 && totalNewChannels === 0 && totalDisabledChannels === 0) {
+    return (
+      <div className="flex items-center gap-2 text-blue-700 bg-blue-50 px-4 py-2.5 rounded-lg text-xs font-semibold">
+        <span className="material-symbols-outlined text-[16px]">check_circle</span>
+        {t("syncBannerUpToDate")}
+      </div>
+    );
+  }
+
+  if (totalNewModels > 0 || totalNewChannels > 0) {
+    const parts: string[] = [];
+    if (totalNewModels > 0) parts.push(t("syncBannerNewModels", { count: totalNewModels }));
+    if (totalNewChannels > 0) parts.push(t("syncBannerNewChannels", { count: totalNewChannels }));
+    return (
+      <div className="flex items-center gap-2 text-emerald-700 bg-emerald-50 px-4 py-2.5 rounded-lg text-xs font-semibold">
+        <span className="material-symbols-outlined text-[16px]">task_alt</span>
+        {parts.join(", ")}
+      </div>
+    );
+  }
+
+  // Only disabled channels, no additions
+  return (
+    <div className="flex items-center gap-2 text-amber-700 bg-amber-50 px-4 py-2.5 rounded-lg text-xs font-semibold">
+      <span className="material-symbols-outlined text-[16px]">warning</span>
+      {t("syncBannerDisabled", { count: totalDisabledChannels })}
     </div>
   );
 }

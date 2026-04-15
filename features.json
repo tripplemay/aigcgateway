@@ -37,7 +37,8 @@
       "title": "运维推断结果状态提示条",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
+      "completed_at": "2026-04-15T17:40:00Z",
       "source": "BL-101",
       "acceptance": "1) admin/operations 的推断/同步面板执行后显示状态提示条（复用 ui/alert）；2) 全为 0 → 蓝色'数据已最新'；3) 有更新 → 绿色成功摘要 '新增 X，更新 Y'；4) 有跳过 → 黄色警告；5) 有错误 → 红色 + 可展开错误列表；6) 模型同步面板同等处理；7) i18n；8) tsc 通过"
     },
