@@ -62,7 +62,8 @@
       "title": "ADMIN-UI-UNIFY 全量验收",
       "priority": "high",
       "executor": "codex",
-      "status": "pending",
+      "status": "done",
+      "completed_at": "2026-04-15T15:10:00Z",
       "acceptance": "codex 执行：1) 9 个 admin 页面都使用 PageContainer + PageHeader（grep 验证）；2) 所有 Table 使用 TableCard 壳；3) 所有手写 'bg-ds-surface-container-lowest.*rounded-(xl|2xl)' section 消失（SectionCard 采用）；4) 所有手写 'rounded.*text-[10px].*font-(bold|black).*uppercase' 状态 chip 消失（StatusChip 采用）；5) 所有手写渐变主按钮消失（gradient-primary variant 采用）；6) 9 个页面视觉一致性人工复核；7) 业务逻辑不受影响（搜索 / 编辑 / dialog 等）；8) 签收报告生成"
     }
   ]

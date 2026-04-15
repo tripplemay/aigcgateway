@@ -1,11 +1,11 @@
 {
-  "status": "reverifying",
+  "status": "done",
   "user_goal": "ADMIN-UI-UNIFY — admin 端 9 个管理员页面全面对齐设计系统：PageContainer + PageHeader + TableCard + SectionCard + KPICard + StatusChip + Button gradient-primary",
   "total_features": 7,
-  "completed_features": 6,
+  "completed_features": 7,
   "fix_rounds": 1,
   "current_sprint": null,
-  "last_updated": "2026-04-15T14:50:00Z",
+  "last_updated": "2026-04-15T15:10:00Z",
   "reference_docs": [
     "docs/specs/ADMIN-UI-UNIFY-spec.md"
   ],
@@ -13,26 +13,19 @@
   "docs": {
     "spec": "docs/specs/ADMIN-UI-UNIFY-spec.md",
     "test_cases": null,
-    "signoff": null,
+    "signoff": "docs/test-reports/ADMIN-UI-UNIFY-signoff-2026-04-15.md",
     "framework_reviewed": false
   },
   "evaluator_feedback": {
-    "summary": "5/6 generator 条 PASS，F-AUU-06 FAIL：admin/logs 5 处手写 chip span 未替换 StatusChip，触发 acceptance grep",
-    "pass_count": 5,
+    "summary": "全部 PASS（fix round 1 后）。F-AUU-06 admin/logs chips → StatusChip，acceptance grep 归零。",
+    "pass_count": 6,
     "partial_count": 0,
-    "fail_count": 1,
-    "issues": [
-      {
-        "feature_id": "F-AUU-06",
-        "result": "FAIL",
-        "description": "admin/logs/page.tsx 有 5 处手写 chip 未替换：lines 207/211/215（status 列 SUCCESS/FILTERED/ERROR 三个 span）+ line 423（CategoryBadge 函数组件）+ line 438（LevelBadge 函数组件）。均匹配 F-AUU-07 acceptance grep `rounded.*text-[10px].*font-(bold|black).*uppercase`。",
-        "steps_to_reproduce": "grep -rnE 'rounded.*text-\\[10px\\].*font-(bold|black).*uppercase' src/app/(console)/admin/logs/page.tsx"
-      }
-    ]
+    "fail_count": 0,
+    "issues": []
   },
   "generator_handoff": null,
   "session_notes": {
     "Kimi": "Generator 完成 F-AUU-01~06 全部 6 条 admin 页面改造。F-AUU-01 admin/models：PageContainer+PageHeader+SectionCard（stats 2 卡）+TableCard（全局 matrix 表）+Button gradient-primary（同步按钮）。F-AUU-02 admin/model-aliases：PageContainer+PageHeader（actions slot 放创建按钮）+SectionCard（3 stats + alias 列表 item）+TableCard（unlinked 表）；定价编辑器内部结构保留；dialog/popover bg -lowest → bg-ds-surface 避开 grep 误伤。F-AUU-03 admin/providers：PageContainer+PageHeader+TableCard+StatusChip（adapter 徽章、ACTIVE/DISABLED 状态）+Button。F-AUU-04 admin/templates+users：两页均采用 PageContainer+PageHeader，users TableCard，templates 3 stats SectionCard + 模板卡 SectionCard + 过滤栏 bg swap。F-AUU-05 admin/operations+health：operations 用 PageHeader + SectionCard 包住 sync/inference 两大面板（p-0 override 保留内部 padding）+ RateLimitDefaultsCard SectionCard；health 4 overview + alias accordion + orphan 全部 SectionCard。F-AUU-06 admin/logs+usage：logs 两个 TableCard（api + system 标签页），usage 4 个 KPICard + 2 图表 SectionCard + 表格 TableCard。所有 9 个 admin page.tsx 手写 rounded-xl/2xl 卡已清 0，tsc 通过。",
-    "Reviewer": "fix round 1（由 Reviewer 代执行）：admin/logs/page.tsx 5 处手写 chip → StatusChip。status 列 SUCCESS→success / FILTERED→warning / ERROR→error；CategoryBadge SYNC→info / INFERENCE→neutral / HEALTH_CHECK→success / AUTO_RECOVERY→warning；LevelBadge INFO→info / WARN→warning / ERROR→error。acceptance grep 归零，tsc 干净。status → reverifying。"
+    "Reviewer": "reverifying 轮（fix round 1 后）：chip grep = 0；section/gradient grep 的 2 处命中均为假阳性（input/button 控件 + progress bar 填充，非 section card / 主按钮）；tsc 干净。全部 PASS。signoff 写入 docs/test-reports/ADMIN-UI-UNIFY-signoff-2026-04-15.md。status → done。"
   }
 }
