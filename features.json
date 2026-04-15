@@ -25,7 +25,7 @@
       "title": "KPICard 替换手写指标卡",
       "priority": "medium",
       "executor": "generator",
-      "status": "done",
+      "status": "pending",
       "completed_at": "2026-04-15T13:00:00Z",
       "note": "dashboard/usage 已使用 KPICard；balance 余额大卡因含 icon 背景 + 渐变按钮等复杂布局，采用 SectionCard 壳而非 KPICard（KPICard API 不足以表达该组合，F-UF2-07 验收时若严格要求可二次扩展）",
       "acceptance": "1) dashboard（5 个）/ balance（余额大卡 + 告警阈值）/ usage（4 个指标）全部改用 <KPICard>；2) 保留原有 label/value/trend 数据；3) 若 KPICard API 不足（如缺 trend 子组件），允许扩展组件 API 但保持向后兼容；4) grep 验证：各页面不应再出现 'text-xs.*uppercase.*tracking-widest' 手写 label 模式；5) tsc 通过"
