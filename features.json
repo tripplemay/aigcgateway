@@ -58,7 +58,8 @@
       "title": "PendingClassification schema + 队列写入逻辑",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
+      "completed_at": "2026-04-15T18:10:00Z",
       "source": "BL-111",
       "acceptance": "1) 新增 PendingClassification 表（migration）：id/modelId/suggestedAliasId/suggestedBrand/confidence/reason/status(PENDING|APPROVED|REJECTED)/createdAt/reviewedBy/reviewedAt/reviewNote；2) alias-classifier 改造：confidence >= SystemConfig.CLASSIFIER_AUTO_THRESHOLD（默认 0.85）则自动挂载；低于阈值或建议新别名的结果写 PendingClassification；3) 原高置信自动挂载路径不变；4) 写入队列时同时写 SystemLog(INFERENCE, action='queued')；5) tsc 通过"
     },

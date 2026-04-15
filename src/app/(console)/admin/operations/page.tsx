@@ -43,7 +43,13 @@ interface SyncResult {
 
 interface InferenceResult {
   timestamp: string;
-  classify: { classified: number; newAliases: number; skipped: number; errors: string[] };
+  classify: {
+    classified: number;
+    newAliases: number;
+    skipped: number;
+    pendingQueued?: number;
+    errors: string[];
+  };
   brand: { updated: number; skipped: number; errors: string[] };
   capabilities: { updated: number; skipped: number; errors: string[] };
 }

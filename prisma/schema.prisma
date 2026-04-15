@@ -262,8 +262,9 @@ model Model {
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
 
-  channels   Channel[]
-  aliasLinks AliasModelLink[]
+  channels             Channel[]
+  aliasLinks           AliasModelLink[]
+  pendingClassification PendingClassification?
 
   @@index([modality])
   @@index([name])
@@ -304,6 +305,39 @@ model AliasModelLink {
 
   @@unique([aliasId, modelId])
   @@map("alias_model_links")
+}
+
+// ============================================================
+// F-AO2-06: LLM classifier review queue
+// Low-confidence classifier suggestions land here instead of auto
+// attaching to an alias, so admins can approve / reject / reassign.
+// ============================================================
+
+enum PendingClassificationStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model PendingClassification {
+  id                String                      @id @default(cuid())
+  modelId           String                      @unique
+  suggestedAliasId  String?
+  suggestedAlias    String?
+  suggestedBrand    String?
+  confidence        Float?
+  reason            String?                     @db.Text
+  status            PendingClassificationStatus @default(PENDING)
+  reviewedBy        String?
+  reviewedAt        DateTime?
+  reviewNote        String?                     @db.Text
+  createdAt         DateTime                    @default(now())
+  updatedAt         DateTime                    @updatedAt
+
+  model Model @relation(fields: [modelId], references: [id], onDelete: Cascade)
+
+  @@index([status, createdAt])
+  @@map("pending_classifications")
 }
 
 model Channel {

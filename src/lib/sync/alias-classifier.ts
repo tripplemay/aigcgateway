@@ -179,6 +179,9 @@ ${existingBrands.length > 0 ? JSON.stringify(existingBrands) : "(空)"}
 建议新别名：
 { "new_alias": "mistral-large", "brand": "Mistral", "context_window": 128000, "max_tokens": 8192, "capabilities": { "function_calling": true, "streaming": true, "vision": false, "system_prompt": true, "json_mode": true, "reasoning": false, "search": false } }
 
+每条结果还可以附加 "confidence"（0–1 小数）与 "reason"（一句话说明为什么这样归类）。
+置信度低于 0.85 的条目会被送入管理员复审队列而不是直接挂载。
+
 只返回 JSON 对象，不要其他文字。`;
 }
 
@@ -193,6 +196,29 @@ interface ClassificationResult {
   context_window?: number | null;
   max_tokens?: number | null;
   capabilities?: Record<string, boolean>;
+  // F-AO2-06: optional self-reported confidence + reason. When the
+  // LLM response omits these we treat missing confidence as 1.0 for
+  // backward compatibility with the old prompt.
+  confidence?: number;
+  reason?: string;
+}
+
+// F-AO2-06: default auto-link threshold. Reading from SystemConfig at
+// call-time keeps the knob live-tunable without a redeploy; the fallback
+// mirrors the spec's default of 0.85.
+async function getClassifierThreshold(): Promise<number> {
+  try {
+    const row = await prisma.systemConfig.findUnique({
+      where: { key: "CLASSIFIER_AUTO_THRESHOLD" },
+    });
+    if (row) {
+      const n = Number(row.value);
+      if (Number.isFinite(n) && n > 0 && n <= 1) return n;
+    }
+  } catch {
+    // ignore – fall through to default
+  }
+  return 0.85;
 }
 
 // ============================================================
@@ -207,12 +233,16 @@ export async function classifyNewModels(): Promise<{
   classified: number;
   newAliases: number;
   skipped: number;
+  pendingQueued: number;
   errors: string[];
 }> {
   const errors: string[] = [];
   let classified = 0;
   let newAliases = 0;
   let skipped = 0;
+  // F-AO2-06: look up the auto-link threshold once per run.
+  const autoThreshold = await getClassifierThreshold();
+  let pendingQueued = 0;
 
   // 1. 收集未挂载的 Model（有 ACTIVE Channel 的）
   const unlinkedModels = await prisma.model.findMany({
@@ -225,7 +255,7 @@ export async function classifyNewModels(): Promise<{
 
   if (unlinkedModels.length === 0) {
     console.log("[alias-classifier] No unlinked models found, skipping");
-    return { classified: 0, newAliases: 0, skipped: 0, errors: [] };
+    return { classified: 0, newAliases: 0, skipped: 0, pendingQueued: 0, errors: [] };
   }
 
   console.log(`[alias-classifier] Found ${unlinkedModels.length} unlinked models`);
@@ -282,6 +312,45 @@ export async function classifyNewModels(): Promise<{
         const inference = results[model.name];
         if (!inference) {
           skipped++;
+          continue;
+        }
+
+        // F-AO2-06: route low-confidence suggestions to the review queue
+        // instead of auto-attaching. Missing confidence = trust (back-compat).
+        const confidence = typeof inference.confidence === "number" ? inference.confidence : 1.0;
+        if (confidence < autoThreshold) {
+          const suggestedAliasName = inference.existing_alias ?? inference.new_alias ?? null;
+          const suggestedAliasId = suggestedAliasName
+            ? (existingAliases.find((a) => a.alias === suggestedAliasName)?.id ?? null)
+            : null;
+          try {
+            await prisma.pendingClassification.upsert({
+              where: { modelId: model.id },
+              create: {
+                modelId: model.id,
+                suggestedAliasId,
+                suggestedAlias: suggestedAliasName,
+                suggestedBrand: inference.brand ?? null,
+                confidence,
+                reason: inference.reason ?? null,
+                status: "PENDING",
+              },
+              update: {
+                suggestedAliasId,
+                suggestedAlias: suggestedAliasName,
+                suggestedBrand: inference.brand ?? null,
+                confidence,
+                reason: inference.reason ?? null,
+                status: "PENDING",
+                reviewedAt: null,
+                reviewedBy: null,
+                reviewNote: null,
+              },
+            });
+            pendingQueued++;
+          } catch (err) {
+            errors.push(`Queue failed for ${model.name}: ${(err as Error).message}`);
+          }
           continue;
         }
 
@@ -406,7 +475,7 @@ export async function classifyNewModels(): Promise<{
   console.log(
     `[alias-classifier] Done: classified=${classified}, newAliases=${newAliases}, skipped=${skipped}, errors=${errors.length}`,
   );
-  return { classified, newAliases, skipped, errors };
+  return { classified, newAliases, skipped, pendingQueued, errors };
 }
 
 /**
