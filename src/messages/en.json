@@ -623,7 +623,17 @@
     "totalTokens24h": "Total Tokens In (24h)",
     "statusActive": "Active",
     "statusDisabled": "Disabled",
-    "imageEndpointPlaceholder": "null = not supported"
+    "imageEndpointPlaceholder": "null = not supported",
+    "delete": "Delete",
+    "deleteTitle": "Delete {name}?",
+    "deleteWarning": "This will permanently remove the provider and every channel it owns. Historical call logs will be kept but their channel reference will be nulled.",
+    "computingImpact": "Computing impact...",
+    "willDeleteChannels": "Channels that will be removed",
+    "willDisableModels": "Models that will be disabled",
+    "willDisableAliases": "Aliases that will be disabled",
+    "willNullCallLogs": "Call logs that will lose their channel",
+    "confirmDelete": "Delete provider",
+    "deleting": "Deleting..."
   },
   "adminModels": {
     "title": "Channel Management",

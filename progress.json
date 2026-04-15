@@ -2,10 +2,10 @@
   "status": "building",
   "user_goal": "ADMIN-OPS++ — 管理端功能增强合并批次：BL-099 删除服务商 + BL-101 SystemLog 写入/进度/状态提示 + BL-111 classifier 审批队列 + BL-113 IMAGE 参考定价",
   "total_features": 9,
-  "completed_features": 2,
+  "completed_features": 3,
   "fix_rounds": 0,
   "current_sprint": null,
-  "last_updated": "2026-04-15T17:05:00Z",
+  "last_updated": "2026-04-15T17:20:00Z",
   "reference_docs": [
     "docs/specs/ADMIN-OPS-PLUS-PLUS-spec.md"
   ],

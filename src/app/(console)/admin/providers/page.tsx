@@ -135,6 +135,17 @@ export default function ProvidersPage() {
   const [configProviderId, setConfigProviderId] = useState<string | null>(null);
   const [config, setConfig] = useState<ProviderConfig>({});
   const [quirksText, setQuirksText] = useState("");
+  // F-AO2-02: delete confirmation dialog state
+  const [deleteTarget, setDeleteTarget] = useState<Provider | null>(null);
+  const [deleteImpact, setDeleteImpact] = useState<{
+    deletedChannels: number;
+    nulledCallLogs: number;
+    affectedModels: number;
+    disabledModels: number;
+    affectedAliases: number;
+    disabledAliases: number;
+  } | null>(null);
+  const [deleteLoading, setDeleteLoading] = useState(false);
 
   const {
     data: providersResult,
@@ -191,6 +202,46 @@ export default function ProvidersPage() {
   };
 
   const set = (k: string, v: string) => setForm((prev) => ({ ...prev, [k]: v }));
+
+  // F-AO2-02: open delete confirm dialog. Runs a dry-run on the backend
+  // so the user sees the exact blast radius before committing.
+  const openDelete = async (p: Provider) => {
+    setDeleteTarget(p);
+    setDeleteImpact(null);
+    setDeleteLoading(true);
+    try {
+      const impact = await apiFetch<{
+        deletedChannels: number;
+        nulledCallLogs: number;
+        affectedModels: number;
+        disabledModels: number;
+        affectedAliases: number;
+        disabledAliases: number;
+      }>(`/api/admin/providers/${p.id}?dry_run=true`, { method: "DELETE" });
+      setDeleteImpact(impact);
+    } catch (e) {
+      toast.error((e as Error).message);
+      setDeleteTarget(null);
+    } finally {
+      setDeleteLoading(false);
+    }
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteTarget) return;
+    setDeleteLoading(true);
+    try {
+      await apiFetch(`/api/admin/providers/${deleteTarget.id}`, { method: "DELETE" });
+      toast.success(`${deleteTarget.displayName} deleted`);
+      setDeleteTarget(null);
+      setDeleteImpact(null);
+      load();
+    } catch (e) {
+      toast.error((e as Error).message);
+    } finally {
+      setDeleteLoading(false);
+    }
+  };
 
   // ── Render — 1:1 replica of Admin Providers code.html ──
   return (
@@ -282,6 +333,13 @@ export default function ProvidersPage() {
                           className="p-2 text-slate-400 hover:text-ds-primary hover:bg-ds-primary/5 rounded-lg transition-all"
                         >
                           <span className="material-symbols-outlined text-lg">settings</span>
+                        </button>
+                        <button
+                          onClick={() => openDelete(p)}
+                          className="p-2 text-slate-400 hover:text-ds-error hover:bg-ds-error/5 rounded-lg transition-all"
+                          title={t("delete")}
+                        >
+                          <span className="material-symbols-outlined text-lg">delete</span>
                         </button>
                       </div>
                     </td>
@@ -547,6 +605,65 @@ export default function ProvidersPage() {
               >
                 {t("saveConfig")}
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* F-AO2-02: Delete confirmation modal */}
+      {deleteTarget && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-ds-on-background/40 backdrop-blur-sm">
+          <div className="bg-ds-surface w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden">
+            <div className="px-8 py-6 bg-ds-error/5 flex items-center gap-3 border-b border-ds-error/10">
+              <span className="material-symbols-outlined text-ds-error">warning</span>
+              <h2 className="text-xl font-extrabold tracking-tight font-[var(--font-heading)]">
+                {t("deleteTitle", { name: deleteTarget.displayName })}
+              </h2>
+            </div>
+            <div className="p-8 space-y-4">
+              <p className="text-sm text-ds-on-surface-variant">{t("deleteWarning")}</p>
+              {deleteLoading && !deleteImpact ? (
+                <div className="py-8 text-center text-ds-on-surface-variant text-sm">
+                  {t("computingImpact")}
+                </div>
+              ) : deleteImpact ? (
+                <ul className="text-sm space-y-2 bg-ds-surface-container-low/50 p-4 rounded-xl">
+                  <li className="flex justify-between">
+                    <span>{t("willDeleteChannels")}</span>
+                    <span className="font-bold">{deleteImpact.deletedChannels}</span>
+                  </li>
+                  <li className="flex justify-between">
+                    <span>{t("willDisableModels")}</span>
+                    <span className="font-bold">{deleteImpact.disabledModels}</span>
+                  </li>
+                  <li className="flex justify-between">
+                    <span>{t("willDisableAliases")}</span>
+                    <span className="font-bold">{deleteImpact.disabledAliases}</span>
+                  </li>
+                  <li className="flex justify-between">
+                    <span>{t("willNullCallLogs")}</span>
+                    <span className="font-bold">{deleteImpact.nulledCallLogs}</span>
+                  </li>
+                </ul>
+              ) : null}
+              <div className="flex justify-end gap-3 pt-2">
+                <button
+                  onClick={() => {
+                    setDeleteTarget(null);
+                    setDeleteImpact(null);
+                  }}
+                  className="px-5 py-2 text-sm font-bold text-ds-on-surface-variant hover:text-ds-on-surface"
+                >
+                  {tc("cancel")}
+                </button>
+                <button
+                  onClick={confirmDelete}
+                  disabled={deleteLoading || !deleteImpact}
+                  className="px-6 py-2.5 bg-ds-error text-white rounded-xl font-bold text-sm shadow-lg shadow-ds-error/20 hover:opacity-90 active:scale-95 transition-all disabled:opacity-50"
+                >
+                  {deleteLoading && deleteImpact ? t("deleting") : t("confirmDelete")}
+                </button>
+              </div>
             </div>
           </div>
         </div>

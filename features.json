@@ -17,7 +17,8 @@
       "title": "删除服务商前端：二次确认对话框",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
+      "completed_at": "2026-04-15T17:20:00Z",
       "source": "BL-099",
       "acceptance": "1) admin/providers 每行增加'删除'按钮（StatusChip danger 或 Button destructive）；2) 点击先调 dry_run 获取影响统计；3) 弹二次确认 dialog 显示：'将删除 X 渠道，Y 模型失去关联，Z 别名将被禁用，W 条调用日志保留但渠道置空'；4) 确认后调实际 DELETE；5) 成功后刷新列表 + toast；6) i18n 中英文；7) tsc 通过"
     },
