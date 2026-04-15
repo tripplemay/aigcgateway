@@ -52,7 +52,8 @@
       "title": "admin/logs + admin/usage 改造",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
+      "completed_at": "2026-04-15T14:50:00Z",
       "completed_at": "2026-04-15T16:30:00Z",
       "acceptance": "1) 两个页面统一使用 PageContainer + PageHeader；2) admin/logs 列表 TableCard；3) admin/usage 的 KPI 用 KPICard；4) 状态 chip 用 StatusChip；5) 主按钮 gradient-primary；6) tsc 通过"
     },

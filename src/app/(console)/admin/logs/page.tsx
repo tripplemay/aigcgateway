@@ -8,6 +8,7 @@ import { useExchangeRate } from "@/hooks/use-exchange-rate";
 import { PageContainer } from "@/components/page-container";
 import { PageHeader } from "@/components/page-header";
 import { TableCard } from "@/components/table-card";
+import { StatusChip } from "@/components/status-chip";
 
 // ============================================================
 // Types
@@ -204,17 +205,11 @@ function ApiCallsTab() {
                   </td>
                   <td className="px-6 py-4">
                     {l.status === "SUCCESS" ? (
-                      <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-green-100 text-green-700">
-                        OK
-                      </span>
+                      <StatusChip variant="success">OK</StatusChip>
                     ) : l.status === "FILTERED" ? (
-                      <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-amber-100 text-amber-700">
-                        FILTERED
-                      </span>
+                      <StatusChip variant="warning">FILTERED</StatusChip>
                     ) : (
-                      <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-red-100 text-red-700">
-                        {l.status}
-                      </span>
+                      <StatusChip variant="error">{l.status}</StatusChip>
                     )}
                   </td>
                   <td className="px-6 py-4 text-xs font-medium text-slate-600">
@@ -412,32 +407,20 @@ function Pagination({
 }
 
 function CategoryBadge({ category }: { category: string }) {
-  const colorMap: Record<string, string> = {
-    SYNC: "text-blue-700 bg-blue-50",
-    INFERENCE: "text-violet-700 bg-violet-50",
-    HEALTH_CHECK: "text-emerald-700 bg-emerald-50",
-    AUTO_RECOVERY: "text-amber-700 bg-amber-50",
+  const variantMap: Record<string, "info" | "neutral" | "success" | "warning"> = {
+    SYNC: "info",
+    INFERENCE: "neutral",
+    HEALTH_CHECK: "success",
+    AUTO_RECOVERY: "warning",
   };
-  return (
-    <span
-      className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase ${colorMap[category] ?? "text-slate-600 bg-slate-100"}`}
-    >
-      {category}
-    </span>
-  );
+  return <StatusChip variant={variantMap[category] ?? "neutral"}>{category}</StatusChip>;
 }
 
 function LevelBadge({ level }: { level: string }) {
-  const colorMap: Record<string, string> = {
-    INFO: "text-blue-600 bg-blue-50",
-    WARN: "text-amber-600 bg-amber-50",
-    ERROR: "text-rose-600 bg-rose-50",
+  const variantMap: Record<string, "info" | "warning" | "error" | "neutral"> = {
+    INFO: "info",
+    WARN: "warning",
+    ERROR: "error",
   };
-  return (
-    <span
-      className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase ${colorMap[level] ?? "text-slate-600 bg-slate-100"}`}
-    >
-      {level}
-    </span>
-  );
+  return <StatusChip variant={variantMap[level] ?? "neutral"}>{level}</StatusChip>;
 }
