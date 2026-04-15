@@ -34,7 +34,8 @@
       "title": "admin/templates + admin/users 改造",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
+      "completed_at": "2026-04-15T15:55:00Z",
       "acceptance": "1) 两个页面统一使用 PageContainer + PageHeader；2) 列表类内容使用 TableCard；3) admin/templates 的 max-w-md → default；4) StatusChip 替换手写胶囊；5) 主按钮 gradient-primary；6) tsc 通过"
     },
     {

@@ -6,6 +6,9 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { formatCNY, timeAgo } from "@/lib/utils";
 import { useExchangeRate } from "@/hooks/use-exchange-rate";
 import Link from "next/link";
+import { PageContainer } from "@/components/page-container";
+import { PageHeader } from "@/components/page-header";
+import { TableCard } from "@/components/table-card";
 
 // ============================================================
 // Types
@@ -39,20 +42,18 @@ export default function AdminUsersPage() {
 
   if (loading && !data) {
     return (
-      <div className="max-w-7xl mx-auto space-y-6 pt-4">
+      <PageContainer>
         <Skeleton className="h-10 w-48" />
         <Skeleton className="h-[400px] w-full rounded-xl" />
-      </div>
+      </PageContainer>
     );
   }
 
   return (
-    <div className="max-w-7xl mx-auto space-y-8">
-      <h2 className="text-3xl font-extrabold tracking-tight font-[var(--font-heading)] text-ds-on-surface">
-        {t("title")}
-      </h2>
+    <PageContainer>
+      <PageHeader title={t("title")} />
 
-      <div className="bg-ds-surface-container-lowest rounded-xl shadow-sm overflow-hidden">
+      <TableCard>
         <table className="w-full text-left">
           <thead className="bg-ds-surface-container-low/50">
             <tr>
@@ -100,7 +101,7 @@ export default function AdminUsersPage() {
             ))}
           </tbody>
         </table>
-      </div>
-    </div>
+      </TableCard>
+    </PageContainer>
   );
 }

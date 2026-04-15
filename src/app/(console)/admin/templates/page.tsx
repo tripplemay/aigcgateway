@@ -5,6 +5,9 @@ import { apiFetch } from "@/lib/api-client";
 import { useAsyncData } from "@/hooks/use-async-data";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Switch } from "@/components/ui/switch";
+import { PageContainer } from "@/components/page-container";
+import { PageHeader } from "@/components/page-header";
+import { SectionCard } from "@/components/section-card";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 
@@ -99,22 +102,16 @@ export default function AdminTemplatesPage() {
 
   if (loading && !data) {
     return (
-      <div className="p-8 space-y-6">
+      <PageContainer>
         <Skeleton className="h-10 w-64" />
         <Skeleton className="h-[400px] w-full rounded-xl" />
-      </div>
+      </PageContainer>
     );
   }
 
   return (
-    <div className="p-8 space-y-8">
-      {/* ═══ Header — design-draft line 191-194 ═══ */}
-      <div className="flex flex-col gap-1">
-        <h1 className="font-[var(--font-heading)] text-3xl font-extrabold tracking-tight text-ds-on-surface">
-          {t("title")}
-        </h1>
-        <p className="text-ds-on-surface-variant font-medium opacity-70">{t("subtitle")}</p>
-      </div>
+    <PageContainer>
+      <PageHeader title={t("title")} subtitle={t("subtitle")} />
 
       {/* ═══ Bento Stats — design-draft line 196-224 ═══ */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -138,9 +135,9 @@ export default function AdminTemplatesPage() {
             color: "bg-ds-tertiary/5 text-ds-tertiary",
           },
         ].map((c) => (
-          <div
+          <SectionCard
             key={c.label}
-            className="bg-ds-surface-container-lowest p-6 rounded-xl shadow-sm flex items-center justify-between group hover:shadow-md transition-shadow"
+            className="group [&>div]:flex [&>div]:items-center [&>div]:justify-between"
           >
             <div>
               <p className="text-[10px] font-bold uppercase tracking-widest text-ds-on-surface-variant mb-1">
@@ -155,12 +152,12 @@ export default function AdminTemplatesPage() {
             >
               <span className="material-symbols-outlined text-3xl">{c.icon}</span>
             </div>
-          </div>
+          </SectionCard>
         ))}
       </div>
 
       {/* ═══ Table Controls — design-draft line 226-252 ═══ */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-ds-surface-container-lowest/70 backdrop-blur-xl p-4 rounded-xl">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-ds-surface/70 backdrop-blur-xl p-4 rounded-xl">
         <div className="flex items-center gap-4 flex-1">
           <div className="relative flex-1 max-w-md">
             <span className="absolute inset-y-0 left-3 flex items-center text-ds-outline">
@@ -208,17 +205,15 @@ export default function AdminTemplatesPage() {
 
       {/* ═══ Card Grid ═══ */}
       {templates.length === 0 ? (
-        <div className="bg-ds-surface-container-lowest rounded-xl p-12 text-center text-ds-on-surface-variant">
-          {t("empty")}
-        </div>
+        <SectionCard className="text-center text-ds-on-surface-variant">{t("empty")}</SectionCard>
       ) : (
         <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {templates.map((tpl) => (
-            <div
+            <SectionCard
               key={tpl.id}
-              className="group bg-ds-surface-container-lowest rounded-xl overflow-hidden hover:shadow-lg transition-all duration-300 flex flex-col border border-transparent hover:border-ds-primary/10"
+              className="group hover:shadow-lg hover:border-ds-primary/10 transition-all duration-300 [&>div]:flex [&>div]:flex-col"
             >
-              <div className="p-6 flex-1 flex flex-col gap-4">
+              <div className="flex-1 flex flex-col gap-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-lg bg-ds-primary/10 flex items-center justify-center text-ds-primary">
@@ -280,7 +275,7 @@ export default function AdminTemplatesPage() {
                   </button>
                 </div>
               </div>
-            </div>
+            </SectionCard>
           ))}
         </section>
       )}
@@ -340,6 +335,6 @@ export default function AdminTemplatesPage() {
           </div>
         </div>
       )}
-    </div>
+    </PageContainer>
   );
 }
