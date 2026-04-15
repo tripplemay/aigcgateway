@@ -88,7 +88,7 @@
       "title": "WORKFLOW-POLISH 全量验收",
       "priority": "high",
       "executor": "codex",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "codex 执行：1) run_template 返回 usage 拆分正确（reasoning 模型显示 thinking_tokens）；2) 步骤级变量覆盖生效；3) step version_id 锁定后版本切换不影响；4) get_template_detail 展示版本号；5) messages 空字符串返回 400 invalid_param；6) 二进制 prompt 返回 invalid_prompt；7) capability=vision 不再混入 image 模型；8) usage_summary 拆分 success/error；9) transactions 含 model/source；10) 错别字修复；11) qualityScore 条件清理；12) 签收报告生成"
     }
   ]

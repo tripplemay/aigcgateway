@@ -2,11 +2,11 @@
   "feature": "F-WP-10",
   "batch": "WORKFLOW-POLISH",
   "env": "L1-local-3099",
-  "startedAt": "2026-04-15T01:16:27.412Z",
-  "finishedAt": "2026-04-15T01:16:27.760Z",
-  "pass": false,
-  "passCount": 10,
-  "failCount": 2,
+  "startedAt": "2026-04-15T01:36:46.624Z",
+  "finishedAt": "2026-04-15T01:36:47.201Z",
+  "pass": true,
+  "passCount": 12,
+  "failCount": 0,
   "checks": [
     {
       "id": "F-WP-10-00-smoke-init",
@@ -35,8 +35,8 @@
     },
     {
       "id": "F-WP-10-05-empty-message-invalid",
-      "ok": false,
-      "detail": "expected 400 invalid_parameter, got 200: {\"id\":\"chatcmpl-trc_sfe4jzn7y8b04der2k6t5pna\",\"object\":\"chat.completion\",\"created\":1776215787,\"model\":\"deepseek-v3\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":\"ok:\"},\"finish_reason\":\"stop\"}],\"usage\":{\"prompt_tokens\":12,\"completion_tokens\":6,\"total_tokens\":18}}"
+      "ok": true,
+      "detail": "messages[0].content must be a non-empty string"
     },
     {
       "id": "F-WP-10-06-binary-prompt-invalid",
@@ -45,13 +45,13 @@
     },
     {
       "id": "F-WP-10-07-capability-vision-is-text-only",
-      "ok": false,
-      "detail": "rest contains non-text vision model: [{\"id\":\"vision-image\",\"object\":\"model\",\"modality\":\"image\",\"pricing\":{},\"capabilities\":{\"vision\":true,\"image_input\":true},\"supportedSizes\":[\"1024x1024\"]},{\"id\":\"vision-text\",\"object\":\"model\",\"modality\":\"text\",\"pricing\":{},\"capabilities\":{\"vision\":true,\"streaming\":true}}]"
+      "ok": true,
+      "detail": "mcp=1, rest=1"
     },
     {
       "id": "F-WP-10-08-usage-summary-success-error",
       "ok": true,
-      "detail": "mcp_groups=2, rest_success=6, rest_error=1"
+      "detail": "mcp_groups=2, rest_success=5, rest_error=1"
     },
     {
       "id": "F-WP-10-09-get-balance-transaction-model-source",
@@ -66,7 +66,7 @@
     {
       "id": "F-WP-10-11-qualityscore-cleanup",
       "ok": true,
-      "detail": "templates=6, qualityScore_omitted=true"
+      "detail": "templates=3, qualityScore_omitted=true"
     }
   ]
 }
