@@ -27,7 +27,8 @@
       "title": "SystemLog 写入点补齐（SYNC / INFERENCE / HEALTH_CHECK / AUTO_RECOVERY）",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
+      "completed_at": "2026-04-15T17:30:00Z",
       "source": "BL-101",
       "acceptance": "1) model-sync.ts 执行完毕写 SystemLog(SYNC, level=INFO/WARN/ERROR, detail={provider, added, removed, errors})；2) alias-classifier 完毕写 SystemLog(INFERENCE, detail={batch_size, aliases_created, pending_queued, errors})；3) health checker 状态变更时写 SystemLog(HEALTH_CHECK, detail={channel, prev_state, new_state})；4) channel 自动恢复时写 SystemLog(AUTO_RECOVERY)；5) admin/logs 系统日志 tab 可查看这些分类；6) tsc 通过"
     },

@@ -17,6 +17,7 @@
 
 import { prisma } from "@/lib/prisma";
 import type { ChannelStatus } from "@prisma/client";
+import { writeSystemLog } from "@/lib/system-logger";
 import { runHealthCheck, runApiReachabilityCheck, runCallProbe, type CheckResult } from "./checker";
 import { sendAlert } from "./alert";
 import type { RouteResult } from "../engine/types";
@@ -359,6 +360,26 @@ async function updateChannelStatus(route: RouteResult, newStatus: ChannelStatus)
   });
 
   console.log(`[health] ${route.provider.name}/${route.model.name} ${oldStatus} → ${newStatus}`);
+
+  // F-AO2-03: persist every state transition to SystemLog. A DISABLED →
+  // ACTIVE flip is classified as AUTO_RECOVERY so operators can filter
+  // the admin/logs tab by recovery events; every other transition lands
+  // in the HEALTH_CHECK bucket.
+  const isRecovery = oldStatus === "DISABLED" && newStatus === "ACTIVE";
+  const level: "INFO" | "WARN" | "ERROR" =
+    newStatus === "DISABLED" ? "ERROR" : newStatus === "DEGRADED" ? "WARN" : "INFO";
+  await writeSystemLog(
+    isRecovery ? "AUTO_RECOVERY" : "HEALTH_CHECK",
+    level,
+    `${route.provider.name}/${route.model.name}: ${oldStatus} → ${newStatus}`,
+    {
+      channelId: route.channel.id,
+      providerName: route.provider.name,
+      modelName: route.model.name,
+      prevStatus: oldStatus,
+      newStatus,
+    },
+  ).catch((err) => console.error("[health] writeSystemLog failed:", err));
 
   await sendAlert({
     event: "channel_status_changed",
