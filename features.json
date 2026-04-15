@@ -43,7 +43,9 @@
       "title": "scripts 运行基础设施升级（test-all 统一入口）",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
+      "completed_at": "2026-04-15T19:00:00Z",
+      "note": "4 个 scripts/*.ts 的 BASE_URL/API_KEY 约定和结尾 pass/fail 打印+exit code 已经一致，无需改动。test-all.sh 新增一键入口，支持 BASE_URL/API_KEY/ZERO_BALANCE_API_KEY 透传，逐个执行并汇总。bash -n 语法通过。本地实跑留给 Reviewer 在 F-RB-06 验证。",
       "acceptance": "1) 所有 scripts/test-*.ts 从 process.env 读取 BASE_URL / API_KEY 的方式统一（已经统一则保持）；2) 新增 scripts/test-all.sh 一键跑 4 个脚本（e2e-test / e2e-errors / test-mcp / test-mcp-errors）并汇总 pass/fail；3) 每个脚本末尾打印最终 'passed=X failed=Y'，exit code 正确（失败返回 1）；4) test-all.sh 能通过环境变量覆盖 BASE_URL / API_KEY；5) tsc 通过；6) 本地 L1 环境实际跑一次验证全绿"
     },
     {
