@@ -1,68 +1,88 @@
 {
-  "batch": "REGRESSION-BACKFILL",
-  "created_at": "2026-04-15",
+  "batch": "USAGE-ALERTS",
+  "created_at": "2026-04-16",
   "features": [
     {
-      "id": "F-RB-01",
-      "title": "BILLING-REFACTOR 回溯 regression tests",
+      "id": "F-UA-01",
+      "title": "Notification + NotificationPreference schema",
       "priority": "high",
       "executor": "generator",
-      "status": "done",
-      "completed_at": "2026-04-15T19:20:00Z",
-      "source": "BL-120",
-      "acceptance": "1) scripts/test-mcp.ts 增加 'billing: list_models pricing = deducted amount'：调用 chat 后读取 get_log_detail 的 cost，对比 list_models 对应 alias 的 pricing 计算值（prompt×input_per_1m + completion×output_per_1m），误差 < $0.00000001；2) scripts/test-mcp.ts 增加 'billing: image generate cost = alias perCall'：调用 generate_image 后验证 cost = alias.sellPrice.perCall；3) scripts/test-mcp.ts 增加 'billing: pricing has no float noise'：断言所有 list_models 返回的 pricing 数值小数位 ≤ 6；4) 每条测试用 // BL-120 / BILLING-REFACTOR 注释标注来源；5) tsc 通过"
+      "status": "pending",
+      "acceptance": "1) Migration 新增 notifications 表（id/userId/projectId?/eventType/channel/status/payload(JSON)/sentAt/error/readAt/createdAt + 索引 userId+createdAt + status）；2) Migration 新增 notification_preferences 表（id/userId/eventType/channels(JSON)/webhookUrl?/webhookSecret?/enabled + UNIQUE userId+eventType）；3) 注册新用户时自动创建默认 NotificationPreference 行（BALANCE_LOW + SPENDING_RATE_EXCEEDED 默认 inApp，CHANNEL_DOWN/RECOVERED + PENDING_CLASSIFICATION 仅 admin 默认 inApp）；4) NotificationEventType enum：BALANCE_LOW / SPENDING_RATE_EXCEEDED / CHANNEL_DOWN / CHANNEL_RECOVERED / PENDING_CLASSIFICATION；5) tsc 通过"
     },
     {
-      "id": "F-RB-02",
-      "title": "AUDIT-SEC 回溯 regression tests",
+      "id": "F-UA-02",
+      "title": "Notification 派发服务（dispatcher）",
       "priority": "high",
       "executor": "generator",
-      "status": "done",
-      "completed_at": "2026-04-15T19:20:00Z",
-      "note": "disabled-model 断言用 deprecated flag 代替（不修 DB 状态），其余 3 条全覆盖",
-      "source": "BL-120",
-      "acceptance": "1) scripts/test-mcp.ts 增加 'audit-sec: list_models filters disabled models'：使用 admin API 或 DB 直接禁用一个 model 后调用 list_models，断言该 model 不在返回列表（测试完恢复）；2) scripts/test-mcp.ts 增加 'audit-sec: image models have supportedSizes'：list_models(modality='image') 每个返回项都有 supportedSizes 非空数组；3) scripts/test-mcp-errors.ts 增加 'audit-sec: generate_image invalid size returns supportedSizes list'：传 9999x9999，断言 error 含 invalid_size 且包含 supportedSizes 字段；4) scripts/test-mcp.ts 增加 'audit-sec: free_only filter returns zero-priced aliases'：list_models(free_only=true) 返回的所有 alias 都应 pricing 全为 0；5) 每条测试注释 // BL-120 / AUDIT-SEC 来源；6) tsc 通过"
+      "status": "pending",
+      "acceptance": "1) src/lib/notifications/dispatcher.ts 提供 sendNotification(userId, eventType, payload)；2) 按 NotificationPreference 决定 channel；3) inApp channel 直接 insert Notification 行 status=DELIVERED；4) webhook channel 异步 POST，HMAC-SHA256(webhookSecret, JSON(payload)) 签名放 X-AIGC-Signature header，失败指数退避 3 次（5s/30s/120s），最终 status=DELIVERED 或 FAILED + error 字段；5) 同 commit 补单元测试覆盖 dispatch 路由 + webhook 重试逻辑（mock fetch）；6) tsc 通过"
     },
     {
-      "id": "F-RB-03",
-      "title": "DX-POLISH 回溯 regression tests",
+      "id": "F-UA-03",
+      "title": "BALANCE_LOW + SPENDING_RATE_EXCEEDED 事件触发",
       "priority": "high",
       "executor": "generator",
-      "status": "done",
-      "completed_at": "2026-04-15T19:20:00Z",
-      "note": "reasoning_tokens 已由 F-AF-02 回归覆盖（test-mcp.ts 16f），本批次不重复",
-      "source": "BL-120",
-      "acceptance": "1) scripts/test-mcp.ts 增加 'dx-polish: chat rejects image modality model'：chat(model='gpt-image-mini') 返回 invalid_model_modality；2) scripts/test-mcp.ts 增加 'dx-polish: capability=vision only returns text models'：list_models(capability='vision') 所有 modality='text'；3) scripts/test-mcp.ts 增加 'dx-polish: reasoning_tokens present in get_log_detail'：调用 reasoning 模型后，get_log_detail.usage.reasoningTokens 存在且 > 0；4) scripts/test-mcp.ts 增加 'dx-polish: json_mode strips markdown code fence'：chat(response_format={type:'json_object'}) 的 content JSON.parse 成功，不含 markdown 围栏；5) scripts/test-mcp-errors.ts 增加 'dx-polish: get_action_detail not-found wording includes in this project'；6) 每条测试注释 // BL-120 / DX-POLISH 来源；7) tsc 通过"
+      "status": "pending",
+      "acceptance": "1) src/lib/api/post-process.ts 扣费完成后检查 oldBalance >= alertThreshold && newBalance < alertThreshold 跨越瞬间触发 BALANCE_LOW；2) 24 小时去重：Redis key alert:balance_low:{userId}:{thresholdValue} TTL 86400；3) F-RL-04 的 checkSpendingRate 命中时调 sendNotification(userId, SPENDING_RATE_EXCEEDED, {spent, limit, windowMinutes})，1 小时 Redis 去重；4) payload 含 currentBalance/threshold/projectId（BALANCE_LOW）和 spentAmount/limit/blockedAt（SPENDING_RATE_EXCEEDED）；5) 同 commit 补 regression test；6) tsc 通过"
     },
     {
-      "id": "F-RB-04",
-      "title": "邮箱验证高风险路径 regression",
+      "id": "F-UA-04",
+      "title": "CHANNEL_DOWN + CHANNEL_RECOVERED + PENDING_CLASSIFICATION 触发",
       "priority": "medium",
       "executor": "generator",
-      "status": "done",
-      "completed_at": "2026-04-15T19:40:00Z",
-      "source": "BL-073（部分）",
-      "acceptance": "1) scripts/e2e-test.ts 增加 'email-verify: register → unverified → verify token → login OK' 全链路步骤，不依赖真实发邮件（直接从 DB 读 emailVerificationToken）；2) scripts/e2e-errors.ts 增加 'email-verify: invalid token rejected'；3) scripts/e2e-errors.ts 增加 'email-verify: expired token rejected'（构造一个过期的 token row）；4) scripts/e2e-errors.ts 增加 'email-verify: already-verified repeat call 幂等'；5) 断言 register 后 user.emailVerified=false；6) 每条测试注释 // BL-073 来源；7) tsc 通过"
+      "status": "pending",
+      "acceptance": "1) src/lib/health/checker.ts 状态从 PASS 转 FAIL 时给所有 admin 发 CHANNEL_DOWN，payload={channelId, providerName, modelName, lastError}；2) 6 小时 Redis 去重；3) AUTO_RECOVERY 触发时发 CHANNEL_RECOVERED（不去重）；4) src/lib/sync/alias-classifier.ts 一批写完后聚合发一条 PENDING_CLASSIFICATION 给所有 admin，payload={count, examples:[{modelName, suggestedAlias, confidence}]}（最多 5 个例子）；5) tsc 通过"
     },
     {
-      "id": "F-RB-05",
-      "title": "scripts 运行基础设施升级（test-all 统一入口）",
+      "id": "F-UA-05",
+      "title": "NotificationCenter 组件 + 顶栏铃铛",
+      "priority": "high",
+      "executor": "generator",
+      "status": "pending",
+      "acceptance": "1) src/components/notification-center.tsx：顶栏铃铛 + 未读 badge（最多 99+）+ 下拉列表（最近 20 条）；2) 集成到 src/components/top-app-bar.tsx 右侧；3) 列表项显示 eventType 图标+颜色 + 时间(time-ago) + 摘要文本 + 标记已读按钮；4) '全部已读' 按钮调 mark-all-read；5) 点击未读项自动 PATCH readAt；6) 30 秒自动轮询 GET /api/notifications；7) 使用 SectionCard / StatusChip 公共组件保持 UI 一致；8) i18n 中英文；9) tsc 通过"
+    },
+    {
+      "id": "F-UA-06",
+      "title": "GET/PATCH /api/notifications API + preferences API",
+      "priority": "high",
+      "executor": "generator",
+      "status": "pending",
+      "acceptance": "1) GET /api/notifications?unread_only=true&limit=20 返回当前用户的通知列表 + unreadCount；2) PATCH /api/notifications/[id] 标记单条已读；3) PATCH /api/notifications/mark-all-read 批量标记；4) GET/PATCH /api/notifications/preferences 读写 NotificationPreference；5) POST /api/notifications/test-webhook 用于偏好设置页的测试按钮；6) 严格按 user.id 隔离，跨用户 404；7) 同 commit 补 regression test；8) tsc 通过"
+    },
+    {
+      "id": "F-UA-07",
+      "title": "Settings 页面增加通知偏好卡片",
       "priority": "medium",
       "executor": "generator",
-      "status": "done",
-      "completed_at": "2026-04-15T19:00:00Z",
-      "note": "4 个 scripts/*.ts 的 BASE_URL/API_KEY 约定和结尾 pass/fail 打印+exit code 已经一致，无需改动。test-all.sh 新增一键入口，支持 BASE_URL/API_KEY/ZERO_BALANCE_API_KEY 透传，逐个执行并汇总。bash -n 语法通过。本地实跑留给 Reviewer 在 F-RB-06 验证。",
-      "acceptance": "1) 所有 scripts/test-*.ts 从 process.env 读取 BASE_URL / API_KEY 的方式统一（已经统一则保持）；2) 新增 scripts/test-all.sh 一键跑 4 个脚本（e2e-test / e2e-errors / test-mcp / test-mcp-errors）并汇总 pass/fail；3) 每个脚本末尾打印最终 'passed=X failed=Y'，exit code 正确（失败返回 1）；4) test-all.sh 能通过环境变量覆盖 BASE_URL / API_KEY；5) tsc 通过；6) 本地 L1 环境实际跑一次验证全绿"
+      "status": "pending",
+      "acceptance": "1) Settings Account tab 增加 '通知偏好' SectionCard；2) 列出 5 种 eventType，每行复选框 inApp / webhook；3) webhook 启用时显示 webhookUrl + webhookSecret 输入框（secret 默认遮罩，'重新生成' 按钮重置）；4) '测试 webhook' 按钮调 POST /api/notifications/test-webhook；5) 保存调用 PATCH /api/notifications/preferences；6) i18n；7) 使用 SectionCard / Button gradient-primary 公共组件；8) tsc 通过"
     },
     {
-      "id": "F-RB-06",
-      "title": "REGRESSION-BACKFILL 全量验收",
+      "id": "F-UA-08",
+      "title": "CLEANUP：3 个详情子路由 UI 改造",
+      "priority": "medium",
+      "executor": "generator",
+      "status": "pending",
+      "source": "遗留",
+      "acceptance": "1) templates/[templateId]/page.tsx 使用 PageContainer + PageHeader + SectionCard，与父页面视觉一致；2) admin/users/[id]/page.tsx 同样改造；3) admin/templates/[id]/page.tsx 同样改造；4) 子路由内的 text-[10px] chip 改用 StatusChip；5) 子路由的 max-w 与父页面（admin default / templates default）一致；6) tsc 通过"
+    },
+    {
+      "id": "F-UA-09",
+      "title": "CLEANUP：reassign popover + 测试 bug + 视觉细节杂项",
+      "priority": "medium",
+      "executor": "generator",
+      "status": "pending",
+      "source": "遗留",
+      "acceptance": "1) ADMIN-OPS++ 待确认队列实现 reassign popover UI（API 已就绪），允许管理员把 pending 改分配到其他 alias；2) scripts/e2e-errors.ts setup 把 /api/projects/{id}/keys 改为 /api/keys（c3bd6fe pre-existing bug）；3) scripts/test-mcp-errors.ts RB-02.4 增加 model_not_found skip 条件（本地 fal/flux-schnell 不存在时跳过）；4) templates/page.tsx:281 手写 container-low 卡片改 SectionCard 或匹配父级风格；5) admin/model-aliases 定价编辑器 text-[10px] label 改用统一 typography（small-caps utility 或 StatusChip variant）；6) admin/models 搜索框 bg-lowest → bg-ds-surface-container-low 与其他页面一致；7) tsc 通过"
+    },
+    {
+      "id": "F-UA-10",
+      "title": "USAGE-ALERTS + CLEANUP 全量验收",
       "priority": "high",
       "executor": "codex",
-      "status": "done",
-      "completed_at": "2026-04-15T21:30:00Z",
-      "note": "代码审阅 16/16 测试点全覆盖；BL-073 e2e 4 路径实跑全通过；结构性 MCP 断言 7/10 通过（3 条 skip 因无 provider key，符合预期）；mutation 测试有效（invalid_token guard）；pre-existing setup bug（c3bd6fe）不计入本批次。",
-      "acceptance": "codex 执行：1) 对 4 个 scripts/*.ts 做代码审阅，确认本批次新增的所有测试点都存在且断言正确（含来源注释）；2) 启动 dev server（BASE_URL=http://localhost:3099），在 L1 环境跑 scripts/test-all.sh，全绿通过；3) 至少抽 1 条新断言做 mutation 验证：把产品代码对应修复暂时回退一行，验证该断言能失败（证明测试不是空壳）；4) 不破坏现有 scripts/*.ts 原有测试步骤；5) 签收报告生成"
+      "status": "pending",
+      "acceptance": "codex 执行：1) 5 类事件触发后 dispatcher 正确派发到对应 channel；2) inApp 通知能在 NotificationCenter 看到；3) webhook 失败时进入退避重试，最终标 error 状态；4) 偏好设置修改后立即生效；5) 跨用户隔离：A 用户事件不会出现在 B 用户的通知列表；6) BALANCE_LOW 24 小时去重生效；7) Webhook test 按钮可正常发送；8) CLEANUP 验证：3 个子路由 UI 一致 / reassign popover 可用 / 2 个测试 bug 修复后 scripts/test-all.sh 不再有 pre-existing 失败 / 视觉细节 grep 通过；9) 签收报告生成"
     }
   ]
 }
