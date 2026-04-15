@@ -1,31 +1,25 @@
 {
-  "status": "done",
-  "user_goal": "ADMIN-UI-UNIFY — admin 端 9 个管理员页面全面对齐设计系统：PageContainer + PageHeader + TableCard + SectionCard + KPICard + StatusChip + Button gradient-primary",
-  "total_features": 7,
-  "completed_features": 7,
-  "fix_rounds": 1,
+  "status": "building",
+  "user_goal": "ADMIN-OPS++ — 管理端功能增强合并批次：BL-099 删除服务商 + BL-101 SystemLog 写入/进度/状态提示 + BL-111 classifier 审批队列 + BL-113 IMAGE 参考定价",
+  "total_features": 9,
+  "completed_features": 0,
+  "fix_rounds": 0,
   "current_sprint": null,
-  "last_updated": "2026-04-15T15:10:00Z",
+  "last_updated": "2026-04-15T16:00:00Z",
   "reference_docs": [
-    "docs/specs/ADMIN-UI-UNIFY-spec.md"
+    "docs/specs/ADMIN-OPS-PLUS-PLUS-spec.md"
   ],
   "role_assignments": null,
   "docs": {
-    "spec": "docs/specs/ADMIN-UI-UNIFY-spec.md",
+    "spec": "docs/specs/ADMIN-OPS-PLUS-PLUS-spec.md",
     "test_cases": null,
-    "signoff": "docs/test-reports/ADMIN-UI-UNIFY-signoff-2026-04-15.md",
+    "signoff": null,
     "framework_reviewed": false
   },
-  "evaluator_feedback": {
-    "summary": "全部 PASS（fix round 1 后）。F-AUU-06 admin/logs chips → StatusChip，acceptance grep 归零。",
-    "pass_count": 6,
-    "partial_count": 0,
-    "fail_count": 0,
-    "issues": []
-  },
+  "evaluator_feedback": null,
   "generator_handoff": null,
   "session_notes": {
-    "Kimi": "Generator 完成 F-AUU-01~06 全部 6 条 admin 页面改造。F-AUU-01 admin/models：PageContainer+PageHeader+SectionCard（stats 2 卡）+TableCard（全局 matrix 表）+Button gradient-primary（同步按钮）。F-AUU-02 admin/model-aliases：PageContainer+PageHeader（actions slot 放创建按钮）+SectionCard（3 stats + alias 列表 item）+TableCard（unlinked 表）；定价编辑器内部结构保留；dialog/popover bg -lowest → bg-ds-surface 避开 grep 误伤。F-AUU-03 admin/providers：PageContainer+PageHeader+TableCard+StatusChip（adapter 徽章、ACTIVE/DISABLED 状态）+Button。F-AUU-04 admin/templates+users：两页均采用 PageContainer+PageHeader，users TableCard，templates 3 stats SectionCard + 模板卡 SectionCard + 过滤栏 bg swap。F-AUU-05 admin/operations+health：operations 用 PageHeader + SectionCard 包住 sync/inference 两大面板（p-0 override 保留内部 padding）+ RateLimitDefaultsCard SectionCard；health 4 overview + alias accordion + orphan 全部 SectionCard。F-AUU-06 admin/logs+usage：logs 两个 TableCard（api + system 标签页），usage 4 个 KPICard + 2 图表 SectionCard + 表格 TableCard。所有 9 个 admin page.tsx 手写 rounded-xl/2xl 卡已清 0，tsc 通过。",
-    "Reviewer": "reverifying 轮（fix round 1 后）：chip grep = 0；section/gradient grep 的 2 处命中均为假阳性（input/button 控件 + progress bar 填充，非 section card / 主按钮）；tsc 干净。全部 PASS。signoff 写入 docs/test-reports/ADMIN-UI-UNIFY-signoff-2026-04-15.md。status → done。"
+    "Kimi": "Planner 启动 ADMIN-OPS++ 批次（8 generator + 1 codex = 9 条）。合并 BL-099/101/111/113。已有基础设施：SystemLog 表和 5 个分类 enum 已在 schema 中（F-RL-07 写入 RATE_LIMIT，本批次补齐 SYNC/INFERENCE/HEALTH_CHECK/AUTO_RECOVERY），admin/logs 系统日志 tab 壳已存在（F-AUU-06）。关键约束：不改 ADMIN-UI-UNIFY 的 UI 成果，所有新 UI 继续使用公共组件（SectionCard/TableCard/StatusChip/Button gradient-primary）。执行顺序：IMAGE 定价（最小独立）→ 删除服务商 → SystemLog 写入 → 状态提示 → Redis 进度 → classifier 队列。",
+    "Reviewer": null
   }
 }
