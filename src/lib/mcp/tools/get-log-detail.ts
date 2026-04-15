@@ -52,6 +52,7 @@ export function registerGetLogDetail(server: McpServer, opts: McpServerOptions):
           promptTokens: true,
           completionTokens: true,
           totalTokens: true,
+          responseSummary: true,
           sellPrice: true,
           latencyMs: true,
           ttftMs: true,
@@ -94,6 +95,15 @@ export function registerGetLogDetail(server: McpServer, opts: McpServerOptions):
       const params = log.requestParams as Record<string, unknown> | null;
       const isStreamCall = params?.stream === true;
 
+      // F-AF-02: surface reasoning_tokens from responseSummary (we store it
+      // there because CallLog has no dedicated column).
+      const summary = log.responseSummary as Record<string, unknown> | null;
+      const reasoningTokensRaw = summary?.reasoning_tokens;
+      const reasoningTokens =
+        typeof reasoningTokensRaw === "number" && reasoningTokensRaw > 0
+          ? reasoningTokensRaw
+          : null;
+
       const result = {
         traceId: log.traceId,
         model: log.modelName,
@@ -110,6 +120,7 @@ export function registerGetLogDetail(server: McpServer, opts: McpServerOptions):
           promptTokens: log.promptTokens,
           completionTokens: log.completionTokens,
           totalTokens: log.totalTokens,
+          ...(reasoningTokens !== null ? { reasoningTokens } : {}),
         },
         cost: log.sellPrice != null ? `$${Number(log.sellPrice).toFixed(8)}` : null,
         latency: log.latencyMs != null ? `${(log.latencyMs / 1000).toFixed(1)}s` : null,

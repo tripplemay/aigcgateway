@@ -101,6 +101,16 @@ async function processChatResultAsync(params: ChatPostProcessParams): Promise<vo
   const tokensPerSecond =
     usage && latencyMs > 0 ? usage.completion_tokens / (latencyMs / 1000) : null;
 
+  // F-AF-02: persist reasoning_tokens alongside the regular usage columns.
+  // CallLog has no dedicated column for it, so we stash it inside
+  // responseSummary as `reasoning_tokens` only when the upstream usage
+  // reports a positive value. Historical rows stay null (no backfill).
+  const reasoningTokens = usage?.reasoning_tokens;
+  const responseSummary: Prisma.InputJsonValue | undefined =
+    reasoningTokens !== undefined && reasoningTokens > 0
+      ? { reasoning_tokens: reasoningTokens }
+      : undefined;
+
   // 写入 CallLog
   const callLog = await prisma.callLog.create({
     data: {
@@ -111,6 +121,7 @@ async function processChatResultAsync(params: ChatPostProcessParams): Promise<vo
       promptSnapshot: params.promptSnapshot as unknown as object,
       requestParams: params.requestParams as Prisma.InputJsonValue,
       responseContent,
+      ...(responseSummary ? { responseSummary } : {}),
       finishReason,
       status,
       promptTokens: usage?.prompt_tokens ?? null,

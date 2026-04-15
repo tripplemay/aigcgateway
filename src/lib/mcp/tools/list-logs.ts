@@ -63,11 +63,12 @@ export function registerListLogs(server: McpServer, opts: McpServerOptions): voi
             sellPrice: number | null;
             latencyMs: number | null;
             totalTokens: number | null;
+            responseSummary: unknown;
             createdAt: Date;
             promptSnapshot: unknown;
           }>
         >`
-          SELECT "traceId", "modelName", status, "sellPrice"::float, "latencyMs", "totalTokens", "createdAt", "promptSnapshot"
+          SELECT "traceId", "modelName", status, "sellPrice"::float, "latencyMs", "totalTokens", "responseSummary", "createdAt", "promptSnapshot"
           FROM call_logs
           WHERE "projectId" = ${projectId}
             AND (
@@ -123,6 +124,7 @@ export function registerListLogs(server: McpServer, opts: McpServerOptions): voi
           sellPrice: true,
           latencyMs: true,
           totalTokens: true,
+          responseSummary: true,
           createdAt: true,
         },
       });
@@ -159,6 +161,7 @@ function formatLog(log: {
   sellPrice: unknown;
   latencyMs: number | null;
   totalTokens?: number | null;
+  responseSummary?: unknown;
   createdAt: Date | string;
 }) {
   const snapshot = log.promptSnapshot as Array<{ content?: string }> | null;
@@ -168,6 +171,13 @@ function formatLog(log: {
       ? lastUserMsg.content.slice(0, 100) + (lastUserMsg.content.length > 100 ? "..." : "")
       : null;
 
+  // F-AF-02: bubble reasoning_tokens from responseSummary into a reasoningTokens
+  // field, matching the usage object shape returned by get_log_detail.
+  const summary = log.responseSummary as Record<string, unknown> | null;
+  const reasoningRaw = summary?.reasoning_tokens;
+  const reasoningTokens =
+    typeof reasoningRaw === "number" && reasoningRaw > 0 ? reasoningRaw : null;
+
   return {
     traceId: log.traceId,
     model: log.modelName,
@@ -176,6 +186,7 @@ function formatLog(log: {
     cost: log.sellPrice != null ? `$${Number(log.sellPrice).toFixed(8)}` : null,
     latency: log.latencyMs != null ? `${(log.latencyMs / 1000).toFixed(1)}s` : null,
     tokens: log.totalTokens ?? null,
+    ...(reasoningTokens !== null ? { reasoningTokens } : {}),
     createdAt: log.createdAt,
   };
 }

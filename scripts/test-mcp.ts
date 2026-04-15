@@ -464,6 +464,48 @@ async function main() {
     console.log("(XSS payload escaped) ");
   });
 
+  // F-AF-02 regression — reasoning models must surface reasoning_tokens
+  // through get_log_detail.usage and list_logs entries.
+  await step("16f. F-AF-02 reasoning_tokens roundtrip", async () => {
+    const listRes = await callTool("list_models");
+    const models: Array<{ name?: string; capabilities?: Record<string, unknown> }> = JSON.parse(
+      parseTextContent(listRes),
+    );
+    const reasoningModel = models.find(
+      (m) =>
+        typeof m.name === "string" &&
+        (m.name.includes("r1") ||
+          m.name.includes("reason") ||
+          m.name.includes("thinking") ||
+          m.name.includes("o1") ||
+          m.name.includes("o3")),
+    );
+    if (!reasoningModel?.name) {
+      console.log("(no reasoning model available, skipping) ");
+      return;
+    }
+    const chatRes = await callTool("chat", {
+      model: reasoningModel.name,
+      messages: [{ role: "user", content: "Solve 17 * 23 and reply with only the number." }],
+      max_tokens: 64,
+    });
+    const chat = JSON.parse(parseTextContent(chatRes));
+    if (!chat.traceId) throw new Error("No traceId from reasoning chat");
+    const chatReasoning = chat.usage?.reasoningTokens ?? chat.usage?.reasoning_tokens;
+    if (typeof chatReasoning !== "number" || chatReasoning <= 0) {
+      console.log("(model returned no reasoning_tokens, skipping) ");
+      return;
+    }
+    await new Promise((r) => setTimeout(r, 500));
+    const detail = await getLogDetail(chat.traceId);
+    if (detail.usage?.reasoningTokens !== chatReasoning) {
+      throw new Error(
+        `get_log_detail.usage.reasoningTokens mismatch: chat=${chatReasoning}, log=${detail.usage?.reasoningTokens}`,
+      );
+    }
+    console.log(`(reasoningTokens: ${chatReasoning}) `);
+  });
+
   // F-ACF-12 regression — IDOR-safe not-found message for cross-project probes.
   await step("16e. F-ACF-12 unified not-found message", async () => {
     const res = await callTool("get_log_detail", { trace_id: "does-not-exist-xyz" });

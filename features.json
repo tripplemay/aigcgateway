@@ -17,7 +17,8 @@
       "title": "get_log_detail.usage 补 reasoningTokens 字段",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
+      "completed_at": "2026-04-15T10:35:00Z",
       "source": "FIN-002",
       "acceptance": "1) CallLog 表增加 reasoningTokens 列（migration），或在 responseSummary JSON 字段里存储；2) post-process.ts 写入 CallLog 时提取 usage.reasoningTokens；3) get_log_detail / list_logs 返回的 usage 对象包含 reasoningTokens（仅在 > 0 时返回）；4) 历史数据保持 null，不做 backfill；5) 同 commit 补 regression test：reasoning 模型调用后 get_log_detail.usage.reasoningTokens = chat 响应里的值；6) tsc 通过"
     },

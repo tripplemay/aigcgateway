@@ -24,6 +24,12 @@ export async function GET(
 
   if (!log) return errorResponse(404, "not_found", "Log not found");
 
+  // F-AF-02: surface reasoning_tokens stored in responseSummary.
+  const summary = log.responseSummary as Record<string, unknown> | null;
+  const reasoningRaw = summary?.reasoning_tokens;
+  const reasoningTokens =
+    typeof reasoningRaw === "number" && reasoningRaw > 0 ? reasoningRaw : null;
+
   return NextResponse.json({
     traceId: log.traceId,
     modelName: log.modelName,
@@ -40,6 +46,7 @@ export async function GET(
     promptTokens: log.promptTokens,
     completionTokens: log.completionTokens,
     totalTokens: log.totalTokens,
+    reasoningTokens,
     sellPrice: log.sellPrice ? Number(log.sellPrice) : null,
     latencyMs: log.latencyMs,
     ttftMs: log.ttftMs,
