@@ -1,11 +1,11 @@
 {
-  "status": "verifying",
+  "status": "done",
   "user_goal": "ADMIN-OPS++ — 管理端功能增强合并批次：BL-099 删除服务商 + BL-101 SystemLog 写入/进度/状态提示 + BL-111 classifier 审批队列 + BL-113 IMAGE 参考定价",
   "total_features": 9,
-  "completed_features": 8,
+  "completed_features": 9,
   "fix_rounds": 0,
   "current_sprint": null,
-  "last_updated": "2026-04-15T18:25:00Z",
+  "last_updated": "2026-04-15T19:30:00Z",
   "reference_docs": [
     "docs/specs/ADMIN-OPS-PLUS-PLUS-spec.md"
   ],
@@ -13,13 +13,13 @@
   "docs": {
     "spec": "docs/specs/ADMIN-OPS-PLUS-PLUS-spec.md",
     "test_cases": null,
-    "signoff": null,
+    "signoff": "docs/test-reports/ADMIN-OPS-PLUS-PLUS-signoff-2026-04-15.md",
     "framework_reviewed": false
   },
   "evaluator_feedback": null,
   "generator_handoff": null,
   "session_notes": {
     "Kimi": "Generator 完成 F-AO2-01~08 全部 8 条。F-AO2-08 IMAGE pricing 单 perCall 输入。F-AO2-01/02 删除服务商事务级联 API + 二次确认 modal（dry_run 展示影响）。F-AO2-03 health scheduler → SystemLog(HEALTH_CHECK/AUTO_RECOVERY)。F-AO2-04 SyncStatusBanner 4 状态提示条（与 InferenceStatusBanner 视觉对齐）。F-AO2-05 统一 /api/admin/operations/progress?jobType 端点（基础设施 sync:progress/inference:progress 和前端 3s 轮询已存在）。F-AO2-06 PendingClassification 表 + migration + getClassifierThreshold（默认 0.85）+ classifier 低置信度 upsert 到队列 + prompt 要 confidence/reason；返回值新增 pendingQueued。F-AO2-07 待确认队列 UI：GET /api/admin/pending-classifications 列表 + POST /[id] {action:approve|reject|reassign} + SectionCard PendingClassificationQueue（只在有 pending 时显示，approve/reject 单条操作 + 每行 SystemLog(INFERENCE, action)）；reassign API 就绪但 popover UI 留作迭代；批量多选亦留作迭代以控制本批次体量。9 个 admin 页面 UI 风格保持 ADMIN-UI-UNIFY 成果。所有 tsc 通过。status → verifying 交给 Reviewer 做 F-AO2-09 全量验收。",
-    "Reviewer": null
+    "Reviewer": "F-AO2-09 全量验收通过（首轮）。L1 检查：tsc clean / i18n 双语对齐 / 4 类 SystemLog 枚举 + 写入点覆盖 / PendingClassification migration + queue 逻辑 / PendingClassificationQueue UI(仅有pending时显示,approve/reject) / InferenceStatusBanner+SyncStatusBanner 4状态 / delete dialog dry-run + 级联 / suggest-price IMAGE perCall。ADMIN-UI-UNIFY 回归通过。遗留：reassign popover UI 留迭代，前端轮询用旧端点（等价）。status → done。"
   }
 }

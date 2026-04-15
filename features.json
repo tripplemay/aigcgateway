@@ -89,7 +89,8 @@
       "title": "ADMIN-OPS++ 全量验收",
       "priority": "high",
       "executor": "codex",
-      "status": "pending",
+      "status": "done",
+      "completed_at": "2026-04-15T19:30:00Z",
       "acceptance": "codex 执行：1) 删除服务商完整链路（dry-run + apply + 级联影响验证）；2) SystemLog 4 类均有写入记录（SYNC/INFERENCE/HEALTH_CHECK/AUTO_RECOVERY）并可在 admin/logs 系统日志 tab 查看；3) 运维推断状态提示条 4 种状态可触发；4) 推断/同步实时进度轮询可用（可观察到 current/total 变化）；5) PendingClassification 队列工作流：低置信结果入队 → 运维面板显示 → 确认/拒绝/改分配 → 审计日志写入；6) IMAGE 别名 suggest-price 返回 perCall；7) 其他 admin 功能回归通过；8) 签收报告生成"
     }
   ]
