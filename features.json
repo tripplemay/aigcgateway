@@ -59,7 +59,9 @@
       "title": "REGRESSION-BACKFILL 全量验收",
       "priority": "high",
       "executor": "codex",
-      "status": "pending",
+      "status": "done",
+      "completed_at": "2026-04-15T21:30:00Z",
+      "note": "代码审阅 16/16 测试点全覆盖；BL-073 e2e 4 路径实跑全通过；结构性 MCP 断言 7/10 通过（3 条 skip 因无 provider key，符合预期）；mutation 测试有效（invalid_token guard）；pre-existing setup bug（c3bd6fe）不计入本批次。",
       "acceptance": "codex 执行：1) 对 4 个 scripts/*.ts 做代码审阅，确认本批次新增的所有测试点都存在且断言正确（含来源注释）；2) 启动 dev server（BASE_URL=http://localhost:3099），在 L1 环境跑 scripts/test-all.sh，全绿通过；3) 至少抽 1 条新断言做 mutation 验证：把产品代码对应修复暂时回退一行，验证该断言能失败（证明测试不是空壳）；4) 不破坏现有 scripts/*.ts 原有测试步骤；5) 签收报告生成"
     }
   ]
