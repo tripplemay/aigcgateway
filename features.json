@@ -37,7 +37,8 @@
       "title": "run_all_audits.sh 稳定性：MCP 预检 + 失败重试",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
+      "completed_at": "2026-04-15T11:05:00Z",
       "source": "Chaos audit socket error, Workflow audit MCP 初始化失败",
       "acceptance": "1) aggregate 阶段之前增加 MCP 健康预检：启动时 cd CLEAN_CWD && claude -p 'Call list_models, only return count' 调用，若失败（非 0 退出或输出不含数字）则整批次 abort 并提示用户；2) 每个 prompt 执行失败（claude -p 非 0 退出）时最多重试 2 次（指数退避 5s/15s）；3) aggregate JSON 增加 failed_roles 数组记录跳过的角色和重试次数；4) 新增 --dry-run-retry 参数用于本地测试重试逻辑；5) 不破坏现有 --allowedTools 和 assertion-footer 拼接逻辑"
     },

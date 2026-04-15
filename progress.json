@@ -1,11 +1,11 @@
 {
-  "status": "building",
+  "status": "verifying",
   "user_goal": "AUDIT-FOLLOWUP — 处理 reports-20260414 审计真实新发现（API Key 泄露 + reasoningTokens log 回显 + MCP DX 三合一）+ 审计工具稳定性。跑一次回归审计作为基线",
   "total_features": 5,
-  "completed_features": 3,
+  "completed_features": 4,
   "fix_rounds": 0,
   "current_sprint": null,
-  "last_updated": "2026-04-15T10:45:00Z",
+  "last_updated": "2026-04-15T11:05:00Z",
   "reference_docs": [
     "docs/specs/AUDIT-FOLLOWUP-spec.md",
     "docs/test-reports/user_report/reports-20260414/all-assertions-20260414.json"
@@ -20,7 +20,7 @@
   "evaluator_feedback": null,
   "generator_handoff": null,
   "session_notes": {
-    "Kimi": "Planner 启动 AUDIT-FOLLOWUP 批次（4 generator + 1 codex = 5 条）。时效性分析：reports-20260414 大部分严重问题是 AUDIT-CRITICAL-FIX 部署前 43 分钟的旧状态（审计 06:20 UTC 开始，部署 07:03 UTC）。真实新发现仅 2 条：(1) API Key 前缀 sk-B2n****zjvw 泄露到错误响应和日志（F-AF-01）；(2) get_log_detail.usage 缺 reasoningTokens（F-AF-02）。3 个 DX 小改进合并为 F-AF-03。审计工具 Chaos socket error + Workflow MCP 初始化失败导致 7 条假阳性 → F-AF-04 增加 MCP 预检和重试。F-AF-05 验收 + 跑一次 20260415 回归审计作为基线，验证前面 5 个批次的累积效果。",
+    "Kimi": "Generator 完成 F-AF-01 ~ F-AF-04（4/4 generator 条）。F-AF-01：sanitizeErrorMessage 增加 `*` 到 sk/pk/key 字符类 + 广义 sk- 扫描，write+read 双路径脱敏（post-process 写入前 + get_log_detail / REST log 读取时）。F-AF-02：reasoning_tokens 存入 CallLog.responseSummary（无 migration），get_log_detail.usage / list_logs / REST log 读取层暴露 reasoningTokens 字段。F-AF-03：get_project_info 返回 apiBaseUrl；chat.messages Zod preprocess 尝试 JSON.parse，失败返回友好错误；list_logs 新增 since/until ISO 8601 过滤。F-AF-04：run_all_audits.sh 新增 MCP 预检（list_models 探测）、每个 prompt 最多 2 次指数退避重试（5s/15s）、aggregate JSON 增 failed_roles、--dry-run-retry 开关（本地已验证重试路径正常产出 failed_roles=[]）。所有改动已 tsc 通过，回归测试写入 sanitize-error.test.ts + scripts/test-mcp.ts。status → verifying，交给 Reviewer 执行 F-AF-05 并跑一次 20260415 回归审计基线。",
     "Reviewer": null
   }
 }

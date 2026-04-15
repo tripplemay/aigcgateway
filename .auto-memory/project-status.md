@@ -4,14 +4,13 @@ description: AIGC Gateway 当前状态快照（覆盖写，≤30 行）
 type: project
 ---
 ## 当前批次
-- AUDIT-FOLLOWUP：`building`（5 条功能，0/5 完成，4 generator + 1 codex）
+- AUDIT-FOLLOWUP：`verifying`（5 条，4/5 完成；4 generator ✅ + 1 codex 待验收）
 - 规格：`docs/specs/AUDIT-FOLLOWUP-spec.md`
-- F-AF-01: API Key 前缀脱敏（API + 日志层双重过滤）— critical
-- F-AF-02: get_log_detail.usage 补 reasoningTokens 字段 — high
-- F-AF-03: MCP DX 三合一（baseUrl + messages 友好错误 + list_logs 时间范围）
-- F-AF-04: run_all_audits.sh MCP 预检 + 失败重试
-- F-AF-05: codex 验收 + 跑 20260415 回归审计作为基线
-- 背景：reports-20260414 大部分"严重"是 AUDIT-CRITICAL-FIX 部署前 43 分钟的旧状态
+- F-AF-01 ✅ sanitizeErrorMessage 扩 `*` 字符类 + 写入/读取双路径脱敏
+- F-AF-02 ✅ reasoning_tokens 落 CallLog.responseSummary，MCP+REST 读取层暴露
+- F-AF-03 ✅ get_project_info.apiBaseUrl + chat.messages 友好错误 + list_logs since/until
+- F-AF-04 ✅ run_all_audits.sh MCP 预检 + 指数退避重试 + failed_roles + --dry-run-retry
+- F-AF-05 ⏳ Codex 验收 + 跑 reports-20260415 回归审计基线
 
 ## 已知 gap
 - 5 个图片模型 supportedSizes 规则不匹配：openai/gpt-5-image、wan2.7-image、wan2.7-image-pro、z-image-turbo、glm-4v

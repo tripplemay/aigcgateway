@@ -9,6 +9,21 @@ NC='\033[0m' # No Color
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 
+# F-AF-04: --dry-run-retry strips real claude calls and forces the first
+# attempt of each prompt to fail so we can verify the retry/backoff path
+# without spending a real audit run.
+DRY_RUN_RETRY=0
+for arg in "$@"; do
+  case "$arg" in
+    --dry-run-retry) DRY_RUN_RETRY=1 ;;
+  esac
+done
+
+# Track roles that exhausted retries so they can be surfaced in the aggregate
+# JSON and flagged in the summary.
+FAILED_ROLES=()
+FAILED_RETRIES=()
+
 echo -e "${BLUE}==================================================${NC}"
 echo -e "${BLUE}  AIGC Gateway 饱和式并发审计程序已启动...${NC}"
 echo -e "${BLUE}==================================================${NC}"
@@ -42,6 +57,25 @@ mkdir -p "$REPORT_DIR"
 CLEAN_CWD="/tmp/mcp-audit-$$"
 mkdir -p "$CLEAN_CWD"
 
+# F-AF-04: MCP health preflight. Fire a trivial list_models call and abort
+# the whole batch if it doesn't come back cleanly — previously the entire
+# Chaos/Workflow runs would complete with hallucinated assertions when the
+# MCP session failed to initialize at all.
+if [ "$DRY_RUN_RETRY" -eq 0 ]; then
+  echo -e "${YELLOW}>> MCP preflight: list_models...${NC}"
+  PREFLIGHT_OUT=$(cd "$CLEAN_CWD" && claude -p "Call the list_models MCP tool and respond with only the integer number of models returned." --allowedTools "mcp__aigc-gateway__list_models" 2>&1)
+  PREFLIGHT_RC=$?
+  if [ $PREFLIGHT_RC -ne 0 ] || ! echo "$PREFLIGHT_OUT" | grep -qE '[0-9]+'; then
+    echo -e "${RED}  MCP preflight failed (rc=$PREFLIGHT_RC). Aborting batch.${NC}"
+    echo -e "${RED}  Output: $PREFLIGHT_OUT${NC}"
+    rm -rf "$CLEAN_CWD"
+    exit 2
+  fi
+  echo -e "${GREEN}  MCP preflight OK.${NC}"
+else
+  echo -e "${YELLOW}>> --dry-run-retry: skipping preflight.${NC}"
+fi
+
 PROMPTS=(
   "FinOps-Audit-Prompt.md"
   "Chaos-Audit-Prompt.md"
@@ -72,10 +106,51 @@ $(cat "$SCRIPT_DIR/$prompt_file")
 
 ${ASSERTION_FOOTER}"
 
-    # 在干净目录执行，避免加载项目上下文（CLAUDE.md / hooks / rules）
-    (cd "$CLEAN_CWD" && claude -p "$FULL_PROMPT" --allowedTools "mcp__aigc-gateway__*") | tee -a "$REPORT_FILE"
+    # F-AF-04: run each prompt with up to two retries and exponential
+    # backoff (5s, 15s). Under --dry-run-retry we swap the real claude
+    # invocation for a deterministic failure that recovers on attempt 3
+    # so the retry path can be validated offline.
+    ROLE_NAME="${prompt_file%-Prompt.md}"
+    BACKOFFS=(5 15)
+    MAX_ATTEMPTS=3
+    ATTEMPT=1
+    ROLE_OK=0
+    while [ $ATTEMPT -le $MAX_ATTEMPTS ]; do
+      if [ "$DRY_RUN_RETRY" -eq 1 ]; then
+        if [ $ATTEMPT -lt $MAX_ATTEMPTS ]; then
+          echo "[dry-run-retry] simulated failure attempt $ATTEMPT" | tee -a "$REPORT_FILE"
+          RC=1
+        else
+          echo '```json' >> "$REPORT_FILE"
+          echo '{"assertions": [{"id":"DRY-RUN","severity":"info","description":"dry-run-retry recovery","assertion":"ok","actual":"ok","expected":"ok"}]}' >> "$REPORT_FILE"
+          echo '```' >> "$REPORT_FILE"
+          RC=0
+        fi
+      else
+        (cd "$CLEAN_CWD" && claude -p "$FULL_PROMPT" --allowedTools "mcp__aigc-gateway__*") | tee -a "$REPORT_FILE"
+        RC=${PIPESTATUS[0]}
+      fi
 
-    echo -e "\n${GREEN}  任务 ${prompt_file} 已完成。报告: ${REPORT_FILE}${NC}\n"
+      if [ $RC -eq 0 ]; then
+        ROLE_OK=1
+        break
+      fi
+
+      if [ $ATTEMPT -lt $MAX_ATTEMPTS ]; then
+        SLEEP_S=${BACKOFFS[$((ATTEMPT - 1))]}
+        echo -e "${YELLOW}  ${ROLE_NAME} attempt ${ATTEMPT} failed (rc=$RC), retrying in ${SLEEP_S}s...${NC}" | tee -a "$REPORT_FILE"
+        sleep "$SLEEP_S"
+      fi
+      ATTEMPT=$((ATTEMPT + 1))
+    done
+
+    if [ $ROLE_OK -eq 0 ]; then
+      echo -e "${RED}  ${ROLE_NAME} exhausted retries, marking as failed.${NC}"
+      FAILED_ROLES+=("$ROLE_NAME")
+      FAILED_RETRIES+=("$((ATTEMPT - 1))")
+    else
+      echo -e "\n${GREEN}  任务 ${prompt_file} 已完成 (attempts=$ATTEMPT)。报告: ${REPORT_FILE}${NC}\n"
+    fi
     echo -e "${BLUE}--------------------------------------------------${NC}"
   else
     echo -e "${RED}  找不到文件: $prompt_file，跳过。${NC}"
@@ -93,6 +168,20 @@ ASSERTIONS_FILE="$REPORT_DIR/all-assertions-${CURRENT_DATE}.json"
 
 # F-ACF-12: pause to let any buffered report writes hit disk before aggregation.
 sleep 2
+
+# F-AF-04: serialize the failed-role list into a JSON array so the python
+# aggregator can embed it into the final output without extra plumbing.
+FAILED_ROLES_JSON="[]"
+if [ ${#FAILED_ROLES[@]} -gt 0 ]; then
+  FAILED_ROLES_JSON="["
+  for i in "${!FAILED_ROLES[@]}"; do
+    sep=","
+    [ $i -eq 0 ] && sep=""
+    FAILED_ROLES_JSON+="${sep}{\"role\":\"${FAILED_ROLES[$i]}\",\"retries\":${FAILED_RETRIES[$i]}}"
+  done
+  FAILED_ROLES_JSON+="]"
+fi
+export FAILED_ROLES_JSON
 
 # 用 python3 从所有报告中提取 JSON 代码块中的 assertions
 python3 -c "
@@ -132,11 +221,18 @@ for report_path in reports:
     by_role[role] = role_count
     print(f'  {role}: {role_count} 条断言')
 
+import os
+try:
+    failed_roles = json.loads(os.environ.get('FAILED_ROLES_JSON', '[]'))
+except Exception:
+    failed_roles = []
+
 output = {
     'extracted_at': '$(date -u +"%Y-%m-%dT%H:%M:%SZ")',
     'total': len(all_assertions),
     'by_severity': {},
     'by_role': by_role,
+    'failed_roles': failed_roles,
     'assertions': all_assertions,
 }
 
