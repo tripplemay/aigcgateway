@@ -24,6 +24,8 @@ export function registerUpdateTemplate(server: McpServer, opts: McpServerOptions
         .array(
           z.object({
             action_id: z.string(),
+            // F-WP-03: optional version pin, matching create_template.
+            version_id: z.string().optional(),
             role: z.enum(["SEQUENTIAL", "SPLITTER", "BRANCH", "MERGE"]).optional(),
           }),
         )
@@ -86,6 +88,31 @@ export function registerUpdateTemplate(server: McpServer, opts: McpServerOptions
             isError: true,
           };
         }
+        // F-WP-03: verify pinned version_ids belong to their step's action.
+        const pinnedPairs = steps
+          .filter((s) => typeof s.version_id === "string" && s.version_id.length > 0)
+          .map((s) => ({ actionId: s.action_id, versionId: s.version_id as string }));
+        if (pinnedPairs.length > 0) {
+          const versions = await prisma.actionVersion.findMany({
+            where: { id: { in: pinnedPairs.map((p) => p.versionId) } },
+            select: { id: true, actionId: true },
+          });
+          const vMap = new Map(versions.map((v) => [v.id, v.actionId]));
+          const mismatches = pinnedPairs.filter((p) => vMap.get(p.versionId) !== p.actionId);
+          if (mismatches.length > 0) {
+            return {
+              content: [
+                {
+                  type: "text" as const,
+                  text: `Invalid version_id lock: ${mismatches
+                    .map((m) => `${m.versionId}→${m.actionId}`)
+                    .join(", ")}`,
+                },
+              ],
+              isError: true,
+            };
+          }
+        }
       }
 
       try {
@@ -99,6 +126,7 @@ export function registerUpdateTemplate(server: McpServer, opts: McpServerOptions
             data: steps.map((s, i) => ({
               templateId: template_id,
               actionId: s.action_id,
+              lockedVersionId: s.version_id ?? null,
               order: i + 1,
               role: s.role || "SEQUENTIAL",
             })),

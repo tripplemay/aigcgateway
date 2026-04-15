@@ -15,6 +15,8 @@ export interface FanoutRunParams {
   projectId: string;
   userId: string;
   variables: Record<string, string>;
+  /** F-WP-02: per-step overrides keyed by 0-based step index. */
+  stepVariables?: Record<number, Record<string, string>>;
   source?: string;
 }
 
@@ -22,7 +24,7 @@ export async function runFanout(
   params: FanoutRunParams,
   write: SSEWriter,
 ): Promise<{ output: string; totalSteps: number; branches: number }> {
-  const { templateId, projectId, userId, variables, source = "api" } = params;
+  const { templateId, projectId, userId, variables, stepVariables = {}, source = "api" } = params;
 
   const template = await prisma.template.findFirst({
     where: { id: templateId, projectId },
@@ -42,6 +44,14 @@ export async function runFanout(
   if (!splitterStep) throw new InjectionError("Fan-out template must have a SPLITTER step", 400);
   if (!branchStep) throw new InjectionError("Fan-out template must have a BRANCH step", 400);
 
+  // F-WP-02: resolve step index by id so the caller can target each step with
+  // a 0-based override key (__step_0, __step_1, …).
+  const stepIndex = (stepId: string) => template.steps.findIndex((s) => s.id === stepId);
+  const overrideFor = (stepId: string): Record<string, string> => {
+    const idx = stepIndex(stepId);
+    return idx >= 0 ? (stepVariables[idx] ?? {}) : {};
+  };
+
   const templateRunId = templateId;
 
   // ── Step 0: SPLITTER ──
@@ -57,7 +67,16 @@ export async function runFanout(
   );
 
   const splitterResult = await runAction(
-    { actionId: splitterStep.actionId, projectId, userId, variables, source, templateRunId },
+    {
+      actionId: splitterStep.actionId,
+      // F-WP-03: honor per-step version lock.
+      versionId: splitterStep.lockedVersionId ?? undefined,
+      projectId,
+      userId,
+      variables: { ...variables, ...overrideFor(splitterStep.id) },
+      source,
+      templateRunId,
+    },
     (data) => {
       const parsed = JSON.parse(data);
       if (parsed.type === "content") {
@@ -106,12 +125,14 @@ export async function runFanout(
 
       const branchVars: Record<string, string> = {
         ...variables,
+        ...overrideFor(branchStep.id),
         branch_input: part.content,
       };
 
       const result = await runAction(
         {
           actionId: branchStep.actionId,
+          versionId: branchStep.lockedVersionId ?? undefined,
           projectId,
           userId,
           variables: branchVars,
@@ -147,12 +168,14 @@ export async function runFanout(
 
     const mergeVars: Record<string, string> = {
       ...variables,
+      ...overrideFor(mergeStep.id),
       all_outputs: JSON.stringify(branchOutputs),
     };
 
     const mergeResult = await runAction(
       {
         actionId: mergeStep.actionId,
+        versionId: mergeStep.lockedVersionId ?? undefined,
         projectId,
         userId,
         variables: mergeVars,

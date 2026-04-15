@@ -23,6 +23,14 @@ export function registerCreateTemplate(server: McpServer, opts: McpServerOptions
         .array(
           z.object({
             action_id: z.string().describe("Action ID for this step"),
+            // F-WP-03: optional lock to a specific ActionVersion. If omitted,
+            // run_template uses whichever version is active at runtime.
+            version_id: z
+              .string()
+              .optional()
+              .describe(
+                "Pin this step to a specific ActionVersion id. Omit to follow the action's active version.",
+              ),
             role: z
               .enum(["SEQUENTIAL", "SPLITTER", "BRANCH", "MERGE"])
               .optional()
@@ -38,7 +46,12 @@ export function registerCreateTemplate(server: McpServer, opts: McpServerOptions
       }
       if (!projectId) {
         return {
-          content: [{ type: "text" as const, text: "[no_project] No project found. Use create_project to create one." }],
+          content: [
+            {
+              type: "text" as const,
+              text: "[no_project] No project found. Use create_project to create one.",
+            },
+          ],
           isError: true,
         };
       }
@@ -63,6 +76,32 @@ export function registerCreateTemplate(server: McpServer, opts: McpServerOptions
         };
       }
 
+      // F-WP-03: validate any pinned version_ids actually belong to their step's action.
+      const pinnedPairs = steps
+        .filter((s) => typeof s.version_id === "string" && s.version_id.length > 0)
+        .map((s) => ({ actionId: s.action_id, versionId: s.version_id as string }));
+      if (pinnedPairs.length > 0) {
+        const versions = await prisma.actionVersion.findMany({
+          where: { id: { in: pinnedPairs.map((p) => p.versionId) } },
+          select: { id: true, actionId: true },
+        });
+        const vMap = new Map(versions.map((v) => [v.id, v.actionId]));
+        const mismatches = pinnedPairs.filter((p) => vMap.get(p.versionId) !== p.actionId);
+        if (mismatches.length > 0) {
+          return {
+            content: [
+              {
+                type: "text" as const,
+                text: `Invalid version_id lock: ${mismatches
+                  .map((m) => `${m.versionId}→${m.actionId}`)
+                  .join(", ")}`,
+              },
+            ],
+            isError: true,
+          };
+        }
+      }
+
       try {
         const template = await prisma.template.create({
           data: {
@@ -72,6 +111,7 @@ export function registerCreateTemplate(server: McpServer, opts: McpServerOptions
             steps: {
               create: steps.map((s, i) => ({
                 actionId: s.action_id,
+                lockedVersionId: s.version_id ?? null,
                 order: i + 1,
                 role: s.role || "SEQUENTIAL",
               })),

@@ -13,6 +13,7 @@ import { generateTraceId, jsonResponse } from "@/lib/api/response";
 import { resolveEngine } from "@/lib/engine";
 import { processImageResult } from "@/lib/api/post-process";
 import { buildProxyUrl } from "@/lib/api/image-proxy";
+import { validatePrompt } from "@/lib/api/prompt-validation";
 import type { ImageGenerationRequest } from "@/lib/engine/types";
 import { EngineError, ErrorCodes, sanitizeErrorMessage } from "@/lib/engine/types";
 
@@ -39,6 +40,14 @@ export async function POST(request: Request) {
   if (!body.model || !body.prompt) {
     return errorResponse(400, "invalid_parameter", "model and prompt are required", {
       param: !body.model ? "model" : "prompt",
+    });
+  }
+
+  // F-WP-05: reject empty / oversized / binary prompts before routing.
+  const promptCheck = validatePrompt(String(body.prompt), { maxLength: 4000 });
+  if (!promptCheck.ok) {
+    return errorResponse(400, "invalid_prompt", promptCheck.message ?? "invalid prompt", {
+      param: "prompt",
     });
   }
 

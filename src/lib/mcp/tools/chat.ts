@@ -19,7 +19,8 @@ import type { McpServerOptions } from "@/lib/mcp/server";
 
 const messageSchema = z.object({
   role: z.enum(["system", "user", "assistant"]),
-  content: z.string(),
+  // F-WP-05: reject empty message content at the schema layer.
+  content: z.string().min(1, "content must be non-empty"),
 });
 
 export function registerChat(server: McpServer, opts: McpServerOptions): void {

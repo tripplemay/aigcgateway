@@ -209,6 +209,33 @@ async function main() {
     console.log("(text model rejected) ");
   });
 
+  // F-WP-05 regression — empty content / binary prompt rejected client-side.
+  await step("5d. F-WP-05 empty chat content → invalid_request", async () => {
+    if (!API_KEY) throw new Error("API_KEY not set");
+    const { body } = await rawMcpRequest(
+      "tools/call",
+      {
+        name: "chat",
+        arguments: {
+          model: "deepseek-v3",
+          messages: [{ role: "user", content: "" }],
+          max_tokens: 10,
+        },
+      },
+      API_KEY,
+    );
+    const result =
+      (body as {
+        result?: { isError?: boolean; content?: Array<{ text?: string }> };
+        error?: { message?: string };
+      }) ?? {};
+    const text = result.result?.content?.[0]?.text ?? result.error?.message ?? JSON.stringify(body);
+    if (!/invalid|empty|non-empty|content/i.test(text)) {
+      throw new Error(`Expected validation error for empty content, got: ${text}`);
+    }
+    console.log("(empty content rejected) ");
+  });
+
   // F-RL-03 regression — burst limit kicks in under a fast loop.
   await step("5c. F-RL-03 burst limit", async () => {
     if (!API_KEY) throw new Error("API_KEY not set");

@@ -61,14 +61,30 @@ export function registerGetBalance(server: McpServer, opts: McpServerOptions): v
           },
         });
 
-        result.transactions = transactions.map((t) => ({
-          type: t.type.toLowerCase(),
-          amount: `$${Number(t.amount).toFixed(8)}`,
-          balanceAfter: `$${Number(t.balanceAfter).toFixed(8)}`,
-          traceId: t.traceId ?? null,
-          description: t.description,
-          createdAt: t.createdAt,
-        }));
+        // F-WP-08: inline model + source by joining CallLog on traceId.
+        const traceIds = transactions
+          .map((t) => t.traceId)
+          .filter((id): id is string => typeof id === "string" && id.length > 0);
+        const logs = traceIds.length
+          ? await prisma.callLog.findMany({
+              where: { traceId: { in: traceIds } },
+              select: { traceId: true, modelName: true, source: true },
+            })
+          : [];
+        const logMap = new Map(logs.map((l) => [l.traceId, l]));
+
+        result.transactions = transactions.map((t) => {
+          const log = t.traceId ? logMap.get(t.traceId) : undefined;
+          return {
+            type: t.type.toLowerCase(),
+            amount: `$${Number(t.amount).toFixed(8)}`,
+            balanceAfter: `$${Number(t.balanceAfter).toFixed(8)}`,
+            traceId: t.traceId ?? null,
+            description: t.description,
+            createdAt: t.createdAt,
+            ...(t.type === "DEDUCTION" && log ? { model: log.modelName, source: log.source } : {}),
+          };
+        });
       }
 
       return {

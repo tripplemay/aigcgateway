@@ -87,7 +87,8 @@ export function registerGetUsageSummary(server: McpServer, opts: McpServerOption
 
       // Aggregate query (default)
       // F-RL-07: rateLimitedCount from SystemLog(RATE_LIMIT) — project-scoped.
-      const [agg, topModels, rateLimitedCount] = await Promise.all([
+      // F-WP-07: successCalls / errorCalls split.
+      const [agg, topModels, successAgg, rateLimitedCount] = await Promise.all([
         prisma.callLog.aggregate({
           where,
           _count: true,
@@ -102,6 +103,7 @@ export function registerGetUsageSummary(server: McpServer, opts: McpServerOption
           orderBy: { _count: { modelName: "desc" } },
           take: 5,
         }),
+        prisma.callLog.count({ where: { ...where, status: "SUCCESS" } }),
         prisma.systemLog.count({
           where: {
             category: "RATE_LIMIT",
@@ -113,6 +115,7 @@ export function registerGetUsageSummary(server: McpServer, opts: McpServerOption
           },
         }),
       ]);
+      const errorAgg = Math.max(0, agg._count - successAgg);
 
       // Check which top models are still enabled (available in list_models)
       const topModelNames = topModels.map((m) => m.modelName);
@@ -128,6 +131,8 @@ export function registerGetUsageSummary(server: McpServer, opts: McpServerOption
       const result = {
         period: p,
         totalCalls: agg._count,
+        successCalls: successAgg,
+        errorCalls: errorAgg,
         totalCost: `$${Number(agg._sum.sellPrice ?? 0).toFixed(8)}`,
         totalTokens: agg._sum.totalTokens ?? 0,
         rateLimitedCount,
@@ -157,7 +162,16 @@ export function registerGetUsageSummary(server: McpServer, opts: McpServerOption
 async function buildGroupedQuery(
   where: Record<string, unknown>,
   groupBy: string,
-): Promise<{ key: string; totalCalls: number; totalCost: string; totalTokens: number }[]> {
+): Promise<
+  {
+    key: string;
+    totalCalls: number;
+    successCalls?: number;
+    errorCalls?: number;
+    totalCost: string;
+    totalTokens: number;
+  }[]
+> {
   if (groupBy === "model") {
     const groups = await prisma.callLog.groupBy({
       by: ["modelName"],
@@ -166,12 +180,24 @@ async function buildGroupedQuery(
       _sum: { totalTokens: true, sellPrice: true },
       orderBy: { _count: { modelName: "desc" } },
     });
-    return groups.map((g) => ({
-      key: g.modelName,
-      totalCalls: g._count,
-      totalCost: `$${Number(g._sum.sellPrice ?? 0).toFixed(8)}`,
-      totalTokens: g._sum.totalTokens ?? 0,
-    }));
+    // F-WP-07: model-level success/error split.
+    const successByModel = await prisma.callLog.groupBy({
+      by: ["modelName"],
+      where: { ...where, status: "SUCCESS" },
+      _count: true,
+    });
+    const successMap = new Map(successByModel.map((s) => [s.modelName, s._count]));
+    return groups.map((g) => {
+      const successCalls = successMap.get(g.modelName) ?? 0;
+      return {
+        key: g.modelName,
+        totalCalls: g._count,
+        successCalls,
+        errorCalls: Math.max(0, g._count - successCalls),
+        totalCost: `$${Number(g._sum.sellPrice ?? 0).toFixed(8)}`,
+        totalTokens: g._sum.totalTokens ?? 0,
+      };
+    });
   }
 
   if (groupBy === "source") {

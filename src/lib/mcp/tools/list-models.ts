@@ -58,6 +58,10 @@ export function registerListModels(server: McpServer, opts: McpServerOptions): v
         "system_prompt",
         "reasoning",
         "search",
+        // F-WP-06: vision capability = TEXT model that accepts image input.
+        // IMAGE-generation models have their own image_input field and must
+        // not appear under this capability filter.
+        "vision",
       ]);
       const effectiveModality =
         modality ?? (capability && TEXT_ONLY_CAPS.has(capability) ? "text" : undefined);

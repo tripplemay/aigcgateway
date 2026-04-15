@@ -25,13 +25,21 @@ export function registerRunTemplate(server: McpServer, opts: McpServerOptions): 
     `Run a Template workflow. Automatically detects execution mode:
 - Single/Sequential: steps run in order, each receiving {{previous_output}} from the prior step.
 - Fan-out: SPLITTER outputs JSON array → BRANCH runs in parallel → optional MERGE combines results.
-Pass variables to inject into each step's Action prompts.`,
+Pass variables to inject into each step's Action prompts.
+
+Two formats are supported:
+  - Flat \`{var: value}\` — applies globally to every step (backward compatible).
+  - Per-step override \`{__global: {...}, __step_0: {...}, __step_1: {...}}\` —
+    step-level overrides win over the global block for the corresponding step
+    (0-based index). Unknown \`__step_N\` keys are ignored.`,
     {
       template_id: z.string().describe("Template ID to run"),
       variables: z
-        .record(z.string())
+        .record(z.any())
         .optional()
-        .describe("Variables to inject into the template steps"),
+        .describe(
+          "Variables to inject. Accepts flat {var:value} or {__global:{...}, __step_0:{...}, __step_1:{...}}.",
+        ),
     },
     async ({ template_id, variables = {} }) => {
       // Permission check
@@ -121,16 +129,24 @@ Pass variables to inject into each step's Action prompts.`,
 
       try {
         // Collect per-step details from SSE events
+        // F-WP-01: capture reasoning_tokens + total_tokens so the response
+        // can surface thinking vs. output cost separately.
+        interface RawUsage {
+          prompt_tokens: number;
+          completion_tokens: number;
+          reasoning_tokens?: number;
+          total_tokens?: number;
+        }
         interface StepEvent {
           actionName?: string;
           model?: string;
           output: string;
-          usage: { prompt_tokens: number; completion_tokens: number } | null;
+          usage: RawUsage | null;
           latencyMs: number;
         }
         const stepEvents: StepEvent[] = [];
         let curOutput = "";
-        let curUsage: { prompt_tokens: number; completion_tokens: number } | null = null;
+        let curUsage: RawUsage | null = null;
         let curActionName: string | undefined;
         let curModel: string | undefined;
         let stepStart = 0;
@@ -162,11 +178,14 @@ Pass variables to inject into each step's Action prompts.`,
           }
         };
 
+        // F-WP-02: normalise the variables argument into { global, stepVariables }.
+        const normalized = normalizeTemplateVariables(variables);
         const params = {
           templateId: template_id,
           projectId,
           userId,
-          variables,
+          variables: normalized.global,
+          stepVariables: normalized.stepVariables,
           source: "mcp",
         };
 
@@ -209,7 +228,10 @@ Pass variables to inject into each step's Action prompts.`,
               required: boolean;
               defaultValue?: string;
             }[];
-            const stepVars: Record<string, string> = { ...variables };
+            const stepVars: Record<string, string> = {
+              ...normalized.global,
+              ...(normalized.stepVariables[i] ?? {}),
+            };
             if (prevOutput !== null) stepVars.previous_output = prevOutput;
             try {
               input = injectVariables(msgs, varDefs, stepVars);
@@ -219,13 +241,30 @@ Pass variables to inject into each step's Action prompts.`,
           }
           const stepOutput = se?.output ?? "";
           prevOutput = stepOutput;
+          // F-WP-01: split usage into prompt / thinking / output / total.
+          const rawUsage = se?.usage ?? null;
+          const promptTokens = rawUsage?.prompt_tokens ?? 0;
+          const completionTokens = rawUsage?.completion_tokens ?? 0;
+          const reasoningTokens = rawUsage?.reasoning_tokens;
+          const outputTokens =
+            reasoningTokens !== undefined
+              ? Math.max(0, completionTokens - reasoningTokens)
+              : completionTokens;
+          const totalTokens =
+            rawUsage?.total_tokens ?? promptTokens + completionTokens + (reasoningTokens ?? 0);
+          const usagePayload: Record<string, number> = {
+            prompt_tokens: promptTokens,
+            output_tokens: outputTokens,
+            total_tokens: totalTokens,
+          };
+          if (reasoningTokens !== undefined) usagePayload.thinking_tokens = reasoningTokens;
           return {
             stepIndex: i,
             actionName: se?.actionName ?? act?.name ?? null,
             model: se?.model ?? act?.model ?? null,
             input,
             output: stepOutput,
-            usage: se?.usage ?? { prompt_tokens: 0, completion_tokens: 0 },
+            usage: usagePayload,
             latencyMs: se?.latencyMs ?? null,
           };
         });
@@ -262,4 +301,39 @@ Pass variables to inject into each step's Action prompts.`,
       }
     },
   );
+}
+
+// F-WP-02: variables input may be a flat map (legacy) or a keyed object with
+// __global / __step_N entries. Returns { global, stepVariables } always.
+export function normalizeTemplateVariables(input: Record<string, unknown> | undefined): {
+  global: Record<string, string>;
+  stepVariables: Record<number, Record<string, string>>;
+} {
+  const global: Record<string, string> = {};
+  const stepVariables: Record<number, Record<string, string>> = {};
+  if (!input || typeof input !== "object") return { global, stepVariables };
+
+  const looksKeyed = Object.keys(input).some((k) => k === "__global" || /^__step_\d+$/.test(k));
+
+  if (!looksKeyed) {
+    for (const [k, v] of Object.entries(input)) {
+      if (typeof v === "string") global[k] = v;
+    }
+    return { global, stepVariables };
+  }
+
+  for (const [key, raw] of Object.entries(input)) {
+    if (raw === null || typeof raw !== "object") continue;
+    const bag: Record<string, string> = {};
+    for (const [k, v] of Object.entries(raw as Record<string, unknown>)) {
+      if (typeof v === "string") bag[k] = v;
+    }
+    if (key === "__global") {
+      Object.assign(global, bag);
+    } else {
+      const m = /^__step_(\d+)$/.exec(key);
+      if (m) stepVariables[Number(m[1])] = bag;
+    }
+  }
+  return { global, stepVariables };
 }

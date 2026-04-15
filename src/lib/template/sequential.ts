@@ -13,6 +13,8 @@ export interface SequentialRunParams {
   projectId: string;
   userId: string;
   variables: Record<string, string>;
+  /** F-WP-02: per-step overrides keyed by 0-based step index. */
+  stepVariables?: Record<number, Record<string, string>>;
   source?: string;
 }
 
@@ -20,7 +22,7 @@ export async function runSequential(
   params: SequentialRunParams,
   write: SSEWriter,
 ): Promise<{ output: string; totalSteps: number }> {
-  const { templateId, projectId, userId, variables, source = "api" } = params;
+  const { templateId, projectId, userId, variables, stepVariables = {}, source = "api" } = params;
 
   const template = await prisma.template.findFirst({
     where: { id: templateId, projectId },
@@ -37,7 +39,8 @@ export async function runSequential(
   const templateRunId = templateId;
   let previousOutput: string | null = null;
 
-  for (const step of template.steps) {
+  for (let stepIndex = 0; stepIndex < template.steps.length; stepIndex++) {
+    const step = template.steps[stepIndex];
     // SSE: step_start
     write(
       JSON.stringify({
@@ -50,8 +53,11 @@ export async function runSequential(
       }),
     );
 
-    // Build variables with previous_output injection
-    const stepVars: Record<string, string> = { ...variables };
+    // F-WP-02: merge global variables with the per-step override (override wins).
+    const stepVars: Record<string, string> = {
+      ...variables,
+      ...(stepVariables[stepIndex] ?? {}),
+    };
     if (previousOutput !== null) {
       stepVars.previous_output = previousOutput;
     }
@@ -60,6 +66,8 @@ export async function runSequential(
       const result = await runAction(
         {
           actionId: step.actionId,
+          // F-WP-03: honor per-step version lock when present.
+          versionId: step.lockedVersionId ?? undefined,
           projectId,
           userId,
           variables: stepVars,
@@ -88,6 +96,10 @@ export async function runSequential(
             ? {
                 prompt_tokens: result.usage.prompt_tokens,
                 completion_tokens: result.usage.completion_tokens,
+                ...(result.usage.reasoning_tokens !== undefined
+                  ? { reasoning_tokens: result.usage.reasoning_tokens }
+                  : {}),
+                total_tokens: result.usage.total_tokens,
               }
             : null,
         }),

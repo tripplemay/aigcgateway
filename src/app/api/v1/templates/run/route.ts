@@ -21,6 +21,7 @@ import { InjectionError } from "@/lib/action/runner";
 import { sanitizeErrorMessage } from "@/lib/engine/types";
 import { runSequential } from "@/lib/template/sequential";
 import { runFanout } from "@/lib/template/fanout";
+import { normalizeTemplateVariables } from "@/lib/mcp/tools/run-template";
 
 export async function POST(request: Request) {
   // 1. Auth
@@ -48,7 +49,7 @@ export async function POST(request: Request) {
   // 3. Parse body
   let body: {
     template_id: string;
-    variables?: Record<string, string>;
+    variables?: Record<string, unknown>;
     stream?: boolean;
   };
   try {
@@ -87,11 +88,14 @@ export async function POST(request: Request) {
 
   const hasSplitter = template.steps.some((s) => s.role === "SPLITTER");
 
+  // F-WP-02: accept flat or keyed variable input (same contract as MCP).
+  const normalized = normalizeTemplateVariables(body.variables);
   const params = {
     templateId: body.template_id,
     projectId: project.id,
     userId: user.id,
-    variables: body.variables || {},
+    variables: normalized.global,
+    stepVariables: normalized.stepVariables,
     source: "api",
   };
 

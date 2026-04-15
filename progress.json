@@ -1,11 +1,11 @@
 {
-  "status": "building",
+  "status": "verifying",
   "user_goal": "WORKFLOW-POLISH — 收尾 reports-20260413 审计剩余断言：Template 执行增强（usage 拆分/步骤变量/版本锁定）+ 输入校验 + DX 细节打磨",
   "total_features": 10,
-  "completed_features": 0,
+  "completed_features": 9,
   "fix_rounds": 0,
-  "current_sprint": null,
-  "last_updated": "2026-04-15T00:00:00Z",
+  "current_sprint": "F-WP-10",
+  "last_updated": "2026-04-15T09:10:00Z",
   "reference_docs": [
     "docs/specs/WORKFLOW-POLISH-spec.md",
     "docs/test-reports/user_report/reports-20260413/all-assertions-20260413.json"
@@ -20,7 +20,7 @@
   "evaluator_feedback": null,
   "generator_handoff": null,
   "session_notes": {
-    "Kimi": "Planner 启动 WORKFLOW-POLISH 批次（9 generator + 1 codex = 10 条）。处理 reports-20260413 审计剩余 medium/low 断言。Phase1 Template 增强（F-WP-01 usage 拆分 / F-WP-02 步骤变量 / F-WP-03 step version 锁定 / F-WP-04 展示版本号）；Phase2 输入校验（F-WP-05 minLength + 二进制 prompt 检测）；Phase3 DX 细节（F-WP-06 capability vision / F-WP-07 usage success/error / F-WP-08 transactions 内联 / F-WP-09 错别字 + qualityScore）。F-WP-03 涉及 schema 变更。RATE-LIMIT 已签收。",
+    "Kimi": "Generator 完成 WORKFLOW-POLISH 全部 9 条，tsc clean。F-WP-01 sequential runner 传 reasoning_tokens + total_tokens；run_template 输出 prompt_tokens/output_tokens/thinking_tokens/total_tokens。F-WP-02 normalizeTemplateVariables helper（flat | __global/__step_N）导出复用，sequential/fanout runner 按 stepIndex 合入 override，REST + MCP 均走同一路径。F-WP-03 TemplateStep.lockedVersionId JSON 字段 + migration 20260415_workflow_polish_step_locked_version；create/update_template 接受 version_id 并校验所属 action；sequential/fanout runner 通过 versionId 参数给 runAction。F-WP-04 get_template_detail 拉 ActionVersion 映射表，每 step 吐 activeVersionId/activeVersionNumber 和可选 locked*. F-WP-05 messageSchema.content.min(1)，generate_image prompt .min(1).max(4000) 加 validatePrompt 二进制检测（>30% 非打印 ASCII），REST + MCP 双端。F-WP-06 list_models capability=vision 进入 TEXT_ONLY_CAPS 只保 TEXT 模型。F-WP-07 get_usage_summary 顶层 + group_by='model' 增加 successCalls/errorCalls；/v1/usage 同步。F-WP-08 get_balance.include_transactions 通过 traceId 联 CallLog 为 DEDUCTION 补 model/source。F-WP-09 list_public_templates 当 qualityScore 全 null 时整字段隐藏。单元测试 normalize-template-variables.test.ts 4 pass + prompt-validation.test.ts 4 pass；集成测试 test-mcp-errors.ts step 5d 空 content 拒绝。交 Codex Reviewer F-WP-10 全量验收。",
     "Reviewer": null
   }
 }

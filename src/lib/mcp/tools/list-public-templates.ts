@@ -46,11 +46,15 @@ export function registerListPublicTemplates(server: McpServer, _opts: McpServerO
         prisma.template.count({ where }),
       ]);
 
+      // F-WP-09: only expose qualityScore when at least one template in the
+      // current page has a non-null score. Prevents noisy `null` fields on
+      // brand-new libraries without any human ratings yet.
+      const anyScored = templates.some((t) => t.qualityScore != null);
       const data = templates.map((t) => ({
         id: t.id,
         name: t.name,
         description: t.description,
-        qualityScore: t.qualityScore,
+        ...(anyScored ? { qualityScore: t.qualityScore } : {}),
         forkCount: t._count.forks,
         stepCount: t.steps.length,
         executionMode: t.steps.some((s) => s.role === "SPLITTER")
@@ -64,7 +68,11 @@ export function registerListPublicTemplates(server: McpServer, _opts: McpServerO
         content: [
           {
             type: "text" as const,
-            text: JSON.stringify({ templates: data, pagination: { page, pageSize, total } }, null, 2),
+            text: JSON.stringify(
+              { templates: data, pagination: { page, pageSize, total } },
+              null,
+              2,
+            ),
           },
         ],
       };

@@ -515,12 +515,15 @@ model Template {
 }
 
 model TemplateStep {
-  id         String   @id @default(cuid())
-  templateId String
-  actionId   String
-  order      Int
-  role       StepRole @default(SEQUENTIAL)
-  createdAt  DateTime @default(now())
+  id             String   @id @default(cuid())
+  templateId     String
+  actionId       String
+  /// F-WP-03: optional pinned version. When set, run_template uses this
+  /// ActionVersion instead of the action's active version.
+  lockedVersionId String?
+  order          Int
+  role           StepRole @default(SEQUENTIAL)
+  createdAt      DateTime @default(now())
 
   template Template @relation(fields: [templateId], references: [id], onDelete: Cascade)
   action   Action   @relation(fields: [actionId], references: [id])

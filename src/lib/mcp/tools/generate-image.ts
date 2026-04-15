@@ -11,6 +11,7 @@ import { resolveEngine } from "@/lib/engine";
 import { generateTraceId } from "@/lib/api/response";
 import { processImageResult } from "@/lib/api/post-process";
 import { buildProxyUrl } from "@/lib/api/image-proxy";
+import { validatePrompt } from "@/lib/api/prompt-validation";
 import { prisma } from "@/lib/prisma";
 import { checkRateLimit, checkSpendingRate } from "@/lib/api/rate-limit";
 import { EngineError, sanitizeErrorMessage } from "@/lib/engine/types";
@@ -25,7 +26,11 @@ export function registerGenerateImage(server: McpServer, opts: McpServerOptions)
     `Generate images using an AI model via AIGC Gateway. Returns image URLs, trace ID, and cost. IMPORTANT: Call list_models(modality='image') first to get available image model names and supported sizes.`,
     {
       model: z.string().describe("Exact image model name from list_models output"),
-      prompt: z.string().describe("Image description / prompt"),
+      prompt: z
+        .string()
+        .min(1, "prompt must be non-empty")
+        .max(4000, "prompt must be at most 4000 characters")
+        .describe("Image description / prompt"),
       size: z
         .string()
         .optional()
@@ -45,6 +50,20 @@ export function registerGenerateImage(server: McpServer, opts: McpServerOptions)
       const permErr = checkMcpPermission(permissions, "imageGeneration");
       if (permErr) {
         return { content: [{ type: "text" as const, text: permErr }], isError: true };
+      }
+
+      // F-WP-05: binary payload detection on top of schema-level min/max.
+      const promptCheck = validatePrompt(prompt, { maxLength: 4000 });
+      if (!promptCheck.ok) {
+        return {
+          content: [
+            {
+              type: "text" as const,
+              text: `[invalid_prompt] ${promptCheck.message}`,
+            },
+          ],
+          isError: true,
+        };
       }
 
       // Check balance

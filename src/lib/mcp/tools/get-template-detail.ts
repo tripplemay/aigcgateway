@@ -24,7 +24,15 @@ export function registerGetTemplateDetail(server: McpServer, opts: McpServerOpti
         steps: {
           orderBy: { order: "asc" as const },
           include: {
-            action: { select: { id: true, name: true, model: true, description: true } },
+            action: {
+              select: {
+                id: true,
+                name: true,
+                model: true,
+                description: true,
+                activeVersionId: true,
+              },
+            },
           },
         },
       };
@@ -60,6 +68,24 @@ export function registerGetTemplateDetail(server: McpServer, opts: McpServerOpti
       const executionMode =
         template.steps.length <= 1 ? "single" : hasSplitter ? "fan-out" : "sequential";
 
+      // F-WP-04: resolve active and locked ActionVersion numbers for each step.
+      const versionIds = Array.from(
+        new Set(
+          template.steps.flatMap((s) =>
+            [s.action.activeVersionId, s.lockedVersionId].filter(
+              (v): v is string => typeof v === "string",
+            ),
+          ),
+        ),
+      );
+      const versionRows = versionIds.length
+        ? await prisma.actionVersion.findMany({
+            where: { id: { in: versionIds } },
+            select: { id: true, versionNumber: true },
+          })
+        : [];
+      const versionNumberMap = new Map(versionRows.map((v) => [v.id, v.versionNumber]));
+
       const result = {
         id: template.id,
         name: template.name,
@@ -79,6 +105,16 @@ export function registerGetTemplateDetail(server: McpServer, opts: McpServerOpti
           actionName: s.action.name,
           model: s.action.model,
           actionDescription: s.action.description,
+          activeVersionId: s.action.activeVersionId ?? null,
+          activeVersionNumber: s.action.activeVersionId
+            ? (versionNumberMap.get(s.action.activeVersionId) ?? null)
+            : null,
+          ...(s.lockedVersionId
+            ? {
+                lockedVersionId: s.lockedVersionId,
+                lockedVersionNumber: versionNumberMap.get(s.lockedVersionId) ?? null,
+              }
+            : {}),
         })),
         reservedVariables:
           executionMode === "single"

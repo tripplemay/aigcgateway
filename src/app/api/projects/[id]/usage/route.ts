@@ -4,12 +4,13 @@ import { NextResponse } from "next/server";
 import { verifyJwt } from "@/lib/api/jwt-middleware";
 import { errorResponse } from "@/lib/api/errors";
 
-
 export async function GET(request: Request, { params }: { params: { id: string } }) {
   const auth = verifyJwt(request);
   if (!auth.ok) return auth.error;
 
-  const project = await prisma.project.findFirst({ where: { id: params.id, userId: auth.payload.userId } });
+  const project = await prisma.project.findFirst({
+    where: { id: params.id, userId: auth.payload.userId },
+  });
   if (!project) return errorResponse(404, "not_found", "Project not found");
 
   const url = new URL(request.url);
@@ -28,12 +29,18 @@ export async function GET(request: Request, { params }: { params: { id: string }
     where: { projectId: params.id, createdAt: { gte: since }, status: "SUCCESS" },
   });
   const errorCount = await prisma.callLog.count({
-    where: { projectId: params.id, createdAt: { gte: since }, status: { in: ["ERROR", "TIMEOUT"] } },
+    where: {
+      projectId: params.id,
+      createdAt: { gte: since },
+      status: { in: ["ERROR", "TIMEOUT"] },
+    },
   });
 
   return NextResponse.json({
     period,
     totalCalls: agg._count,
+    successCalls: successCount,
+    errorCalls: errorCount,
     totalTokens: agg._sum.totalTokens ?? 0,
     totalCost: Number(agg._sum.sellPrice ?? 0),
     avgLatencyMs: Math.round(agg._avg.latencyMs ?? 0),
