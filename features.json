@@ -61,7 +61,8 @@
       "title": "Settings 页面增加通知偏好卡片",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
+      "completed_at": "2026-04-16T09:10:00Z",
       "acceptance": "1) Settings Account tab 增加 '通知偏好' SectionCard；2) 列出 5 种 eventType，每行复选框 inApp / webhook；3) webhook 启用时显示 webhookUrl + webhookSecret 输入框（secret 默认遮罩，'重新生成' 按钮重置）；4) '测试 webhook' 按钮调 POST /api/notifications/test-webhook；5) 保存调用 PATCH /api/notifications/preferences；6) i18n；7) 使用 SectionCard / Button gradient-primary 公共组件；8) tsc 通过"
     },
     {
@@ -69,7 +70,8 @@
       "title": "CLEANUP：3 个详情子路由 UI 改造",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
+      "completed_at": "2026-04-16T10:00:00Z",
       "source": "遗留",
       "acceptance": "1) templates/[templateId]/page.tsx 使用 PageContainer + PageHeader + SectionCard，与父页面视觉一致；2) admin/users/[id]/page.tsx 同样改造；3) admin/templates/[id]/page.tsx 同样改造；4) 子路由内的 text-[10px] chip 改用 StatusChip；5) 子路由的 max-w 与父页面（admin default / templates default）一致；6) tsc 通过"
     },
@@ -78,7 +80,8 @@
       "title": "CLEANUP：reassign popover + 测试 bug + 视觉细节杂项",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
+      "completed_at": "2026-04-16T10:30:00Z",
       "source": "遗留",
       "acceptance": "1) ADMIN-OPS++ 待确认队列实现 reassign popover UI（API 已就绪），允许管理员把 pending 改分配到其他 alias；2) scripts/e2e-errors.ts setup 把 /api/projects/{id}/keys 改为 /api/keys（c3bd6fe pre-existing bug）；3) scripts/test-mcp-errors.ts RB-02.4 增加 model_not_found skip 条件（本地 fal/flux-schnell 不存在时跳过）；4) templates/page.tsx:281 手写 container-low 卡片改 SectionCard 或匹配父级风格；5) admin/model-aliases 定价编辑器 text-[10px] label 改用统一 typography（small-caps utility 或 StatusChip variant）；6) admin/models 搜索框 bg-lowest → bg-ds-surface-container-low 与其他页面一致；7) tsc 通过"
     },

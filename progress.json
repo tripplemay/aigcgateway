@@ -1,8 +1,8 @@
 {
-  "status": "building",
+  "status": "verifying",
   "user_goal": "USAGE-ALERTS — 主动通知系统（Webhook + In-App）：5 类事件源 + dispatcher + NotificationCenter + Settings 偏好。顺手收尾 CLEANUP 遗留：3 个子路由 UI / reassign popover / 2 个测试 bug / 视觉细节",
   "total_features": 10,
-  "completed_features": 6,
+  "completed_features": 9,
   "fix_rounds": 0,
   "current_sprint": null,
   "last_updated": "2026-04-16T09:20:00Z",
@@ -19,7 +19,7 @@
   "evaluator_feedback": null,
   "generator_handoff": null,
   "session_notes": {
-    "Kimi": "Generator 本会话完成 F-UA-01/02（2/10）。F-UA-01 schema：notifications + notification_preferences 两表 + 3 个 enum（EventType/Channel/Status），User relation 两条，migration 20260416_add_usage_alerts_notifications 手写 SQL，register/route.ts 事务内 seed 默认偏好（DEVELOPER：BALANCE_LOW+SPENDING_RATE_EXCEEDED inApp enabled；3 个 admin 事件 disabled 占位以便 Settings 总能渲染；ADMIN：全部 5 个 inApp enabled）。F-UA-02 dispatcher：sendNotification(userId,eventType,payload,projectId?,deps?) 读 preference → inApp 同步 insert / webhook 异步 HMAC-SHA256 + 指数退避（5s/30s/120s）3 次 + 成功 SENT 或失败 FAILED+error 入库。5 个 vitest 单元测试全 PASS（no pref / disabled / inApp / webhook 4 次 all-500 / webhook 第 2 次 200）。tsc 干净。剩余 7 条 generator（F-UA-03/04 事件源接入 / F-UA-05 NotificationCenter / F-UA-06 API / F-UA-07 Settings 卡片 / F-UA-08 3 子路由 UI / F-UA-09 CLEANUP 杂项）+ F-UA-10 codex 验收需新会话继续。REGRESSION-BACKFILL 已签收，生产部署到 67889a0。",
+    "Kimi": "Generator 全部 9 条 executor:generator 功能已完成（F-UA-01~09）。状态推进到 verifying，等待 Codex 执行 F-UA-10 验收。关键坑：ioredis v5 SET NX 参数顺序为 (key, val, 'EX', ttl, 'NX')；StatusChip 用 children 而非 label prop；SectionCard 替换时 </div> 要同步改为 </SectionCard>。admin/operations reassign popover 调 /api/admin/model-aliases?modality= 接口，需确认该接口的 modality filter 参数名正确（当前写法）。",
     "Reviewer": null
   }
 }
