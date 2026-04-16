@@ -25,7 +25,7 @@
       "title": "list_actions 增加 totalVersions 字段",
       "priority": "low",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "source": "DX-013",
       "acceptance": "1) list_actions 返回每个 Action 增加 totalVersions 字段（COUNT ActionVersion）；2) 无需进入 get_action_detail 即可感知版本数量；3) MCP list_actions 和 REST API 同步；4) tsc 通过"
     },
