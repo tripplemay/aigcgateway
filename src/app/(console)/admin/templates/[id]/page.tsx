@@ -4,6 +4,7 @@ import { apiFetch } from "@/lib/api-client";
 import { useAsyncData } from "@/hooks/use-async-data";
 import { useParams, useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { useEffect, useState } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Switch } from "@/components/ui/switch";
 import Link from "next/link";
@@ -45,10 +46,18 @@ interface AdminTemplateDetail {
   description: string | null;
   isPublic: boolean;
   qualityScore: number | null;
+  category: string | null;
   createdAt: string;
   updatedAt: string;
   project: { id: string; name: string };
   steps: StepDetail[];
+}
+
+interface TemplateCategoryItem {
+  id: string;
+  label: string;
+  labelEn: string;
+  icon: string;
 }
 
 // ============================================================
@@ -73,14 +82,41 @@ export default function AdminTemplateDetailPage() {
     [templateId],
   );
 
+  const [categories, setCategories] = useState<TemplateCategoryItem[]>([]);
+
+  useEffect(() => {
+    apiFetch<{ data: TemplateCategoryItem[] }>("/api/template-categories")
+      .then((res) => setCategories(res.data ?? []))
+      .catch(() => setCategories([]));
+  }, []);
+
   const handleTogglePublic = async () => {
+    if (!template) return;
+    try {
+      const payload: Record<string, unknown> = { isPublic: !template.isPublic };
+      // Publishing for the first time without a category → default to 'other'
+      if (!template.isPublic && !template.category) {
+        payload.category = "other";
+      }
+      await apiFetch(`/api/admin/templates/${templateId}`, {
+        method: "PATCH",
+        body: JSON.stringify(payload),
+      });
+      toast.success(t("publicToggled"));
+      refetch();
+    } catch (err) {
+      toast.error((err as Error).message);
+    }
+  };
+
+  const handleCategoryChange = async (nextId: string) => {
     if (!template) return;
     try {
       await apiFetch(`/api/admin/templates/${templateId}`, {
         method: "PATCH",
-        body: JSON.stringify({ isPublic: !template.isPublic }),
+        body: JSON.stringify({ category: nextId }),
       });
-      toast.success(t("publicToggled"));
+      toast.success(t("categoryUpdated"));
       refetch();
     } catch (err) {
       toast.error((err as Error).message);
@@ -267,7 +303,7 @@ export default function AdminTemplateDetailPage() {
             </div>
           </SectionCard>
 
-          {/* Public toggle */}
+          {/* Public toggle + category selector */}
           <SectionCard>
             <div className="flex items-center justify-between">
               <div>
@@ -280,6 +316,35 @@ export default function AdminTemplateDetailPage() {
               </div>
               <Switch checked={template.isPublic} onCheckedChange={handleTogglePublic} />
             </div>
+
+            {template.isPublic && (
+              <div className="mt-5 pt-5 border-t border-ds-outline-variant/20">
+                <label className="text-xs font-bold text-ds-on-surface uppercase tracking-widest mb-2 block">
+                  {t("categoryLabel")}
+                </label>
+                <div className="flex items-center gap-3">
+                  <span
+                    className="material-symbols-outlined text-ds-primary text-[20px]"
+                    aria-hidden="true"
+                  >
+                    {categories.find((c) => c.id === template.category)?.icon ?? "category"}
+                  </span>
+                  <select
+                    value={template.category ?? "other"}
+                    onChange={(e) => handleCategoryChange(e.target.value)}
+                    disabled={categories.length === 0}
+                    className="flex-1 bg-ds-surface-container-low rounded-lg px-3 py-2 text-sm"
+                  >
+                    {categories.map((c) => (
+                      <option key={c.id} value={c.id}>
+                        {locale === "zh-CN" ? c.label : c.labelEn}
+                      </option>
+                    ))}
+                    {categories.length === 0 && <option value="other">other</option>}
+                  </select>
+                </div>
+              </div>
+            )}
           </SectionCard>
 
           {/* Quality Score */}

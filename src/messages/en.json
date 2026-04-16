@@ -1266,7 +1266,10 @@
     "deleted": "Template deleted",
     "confirmDelete": "Delete template \"{name}\"?",
     "empty": "No templates found",
-    "publicToggled": "Public status updated"
+    "publicToggled": "Public status updated",
+    "categoryLabel": "Category",
+    "categoryUpdated": "Category updated",
+    "categoryFilterAll": "All categories"
   },
   "channelTable": {
     "colModelId": "Model ID",

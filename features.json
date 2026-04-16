@@ -23,7 +23,7 @@
       "title": "管理端发布公共模板时选择分类",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) admin/templates 页面的设为公开操作增加分类下拉选择（从 SystemConfig 读取分类列表）；2) 选择后写入 Template.category；3) 未选择分类时默认 other；4) i18n；5) tsc 通过"
     },
     {

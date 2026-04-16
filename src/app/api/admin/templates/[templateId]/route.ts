@@ -3,6 +3,7 @@ export const dynamic = "force-dynamic";
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/api/admin-guard";
+import { getTemplateCategories, validateCategoryId } from "@/lib/template-categories";
 
 type Params = { params: { templateId: string } };
 
@@ -48,15 +49,38 @@ export async function GET(request: Request, { params }: Params) {
   return NextResponse.json(template);
 }
 
-// PATCH /api/admin/templates/:templateId — Admin update template (isPublic, qualityScore)
+// PATCH /api/admin/templates/:templateId — Admin update template
+// Accepts isPublic, qualityScore, category. When publishing (isPublic=true)
+// without an explicit category, falls back to 'other'.
 export async function PATCH(request: Request, { params }: Params) {
   const auth = requireAdmin(request);
   if (!auth.ok) return auth.error;
 
   const body = await request.json();
   const update: Record<string, unknown> = {};
+
   if (typeof body.isPublic === "boolean") update.isPublic = body.isPublic;
   if (typeof body.qualityScore === "number") update.qualityScore = body.qualityScore;
+
+  const wantsCategory = typeof body.category === "string" || body.category === null;
+  const goingPublic = body.isPublic === true;
+
+  if (wantsCategory || goingPublic) {
+    const cats = await getTemplateCategories();
+    if (body.category === null) {
+      update.category = null;
+    } else if (typeof body.category === "string") {
+      update.category = validateCategoryId(cats, body.category);
+    } else if (goingPublic) {
+      const current = await prisma.template.findUnique({
+        where: { id: params.templateId },
+        select: { category: true },
+      });
+      if (!current?.category) {
+        update.category = "other";
+      }
+    }
+  }
 
   const template = await prisma.template.update({
     where: { id: params.templateId },

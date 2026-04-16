@@ -1266,7 +1266,10 @@
     "deleted": "模板已删除",
     "confirmDelete": "确认删除模板「{name}」？",
     "empty": "暂无模板",
-    "publicToggled": "公开状态已更新"
+    "publicToggled": "公开状态已更新",
+    "categoryLabel": "分类",
+    "categoryUpdated": "分类已更新",
+    "categoryFilterAll": "全部分类"
   },
   "channelTable": {
     "colModelId": "模型 ID",
