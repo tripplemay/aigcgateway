@@ -1,11 +1,11 @@
 {
-  "status": "reverifying",
+  "status": "done",
   "user_goal": "AUDIT-FOLLOWUP-2 — 修复 reports-20260416 审计的 critical/high：客户端超时退款 + 零图路径 + CALL_PROBE + 脱敏占位符 + reasoningTokens 过滤 + HTML 编码修复 + run_action 对齐 + update_action 版本 + 模板 order + chat cost 字段",
   "total_features": 10,
-  "completed_features": 9,
+  "completed_features": 10,
   "fix_rounds": 1,
   "current_sprint": null,
-  "last_updated": "2026-04-16T14:00:00Z",
+  "last_updated": "2026-04-16T16:00:00Z",
   "reference_docs": [
     "docs/specs/AUDIT-FOLLOWUP-2-spec.md",
     "docs/test-reports/user_report/reports-20260416/all-assertions-20260416.json"
@@ -14,15 +14,15 @@
   "docs": {
     "spec": "docs/specs/AUDIT-FOLLOWUP-2-spec.md",
     "test_cases": null,
-    "signoff": null,
+    "signoff": "docs/test-reports/AUDIT-FOLLOWUP-2-signoff-2026-04-16.md",
     "framework_reviewed": false
   },
   "evaluator_feedback": {
-    "summary": "7 PASS / 1 PARTIAL / 1 FAIL / 1 NOT_VERIFIED。F-AF2-04 有 tsc 编译错误（list-logs.ts + get-log-detail.ts 的 Prisma capabilities 查询路径错误），F-AF2-09 缺少 batchId 实现。F-AF2-10 因生产 API key 失效 + 本地 DB 空无法执行 L2 真实调用。",
-    "pass_count": 7,
-    "partial_count": 1,
-    "fail_count": 1,
-    "not_verified_count": 1,
+    "summary": "复验全部 PASS（10/10）。F-AF2-04 tsc 修复确认。F-AF2-09 batchId 补齐确认。L2 生产验证 8 项全部通过。",
+    "pass_count": 10,
+    "partial_count": 0,
+    "fail_count": 0,
+    "not_verified_count": 0,
     "issues": [
       {
         "feature_id": "F-AF2-04",
@@ -50,6 +50,6 @@
   "session_notes": {
     "Kimi": "Planner 启动 AUDIT-FOLLOWUP-2 批次（9 generator + 1 codex = 10 条）。来源：reports-20260416 审计 60 条断言。今天已通过运维操作修复了最紧急的火山引擎 realModelId 问题（deepseek-v3/doubao-pro 恢复）。本批次处理剩余的 critical/high：(1) 客户端超时扣费（reasoning 模型非流式 + gpt-image 60s timeout）；(2) 零图先扣后退路径 + CALL_PROBE 运行化；(3) 脱敏占位符 [infra removed] 整段替换；(4) reasoningTokens 按 capabilities 过滤（glm-4.7-flash 误暴露）；(5) API 响应 HTML 实体编码修复（F-AF-01 副作用）；(6) run_action 与 run_template 字段命名/thinking_tokens 对齐；(7) update_action 改 model 自动创版本；(8) 公共模板 order 基数统一 + 跨租户 actionId 脱敏；(9) chat 响应补 cost + refund 补 batchId。F-AF2-10 强制 L2 真实调用验收。USAGE-ALERTS 已签收 10/10。",
     "Richard": "Fix round 1: (1) F-AF2-04 修复 list-logs.ts+get-log-detail.ts capabilities 查询路径，改为直接从 ModelAlias.capabilities 取而非经 AliasModelLink；(2) F-AF2-09 补 batchId：schema 加字段 + migration + get-balance 暴露。prisma generate 后 tsc 0 errors。",
-    "Reviewer": "首轮 verifying（由 CLI 代行）：7 PASS / 1 PARTIAL(F-AF2-09 缺 batchId) / 1 FAIL(F-AF2-04 tsc 编译错误 — capabilities Prisma 查询路径)。F-AF2-10 L2 无法执行（生产 key 401 + 本地 DB 空）。关键修复点：list-logs.ts:241 和 get-log-detail.ts:104 应直接从 ModelAlias 取 capabilities，不经 AliasModelLink。Migration 20260416_fix_template_step_order_base 在本地有幂等性问题（constraint 已存在导致失败），已手动 resolve。"
+    "Reviewer": "复验 PASS 10/10。L2 生产验证：list_models 20 模型 / glm-4.7-flash 日志无 reasoningTokens / deepseek-r1 有 reasoningTokens=1532 / 脱敏无占位符 / chat cost=$0.00000252 / get_log_detail 无 HTML 实体 / run_action snake_case+thinking_tokens / get_balance model+source 字段 / 模板 order=[1,2]。F-AF2-04 tsc 0 errors，F-AF2-09 batchId schema+代码确认。signoff 写入 docs/test-reports/。"
   }
 }

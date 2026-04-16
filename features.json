@@ -79,7 +79,7 @@
       "title": "AUDIT-FOLLOWUP-2 全量验收（L2 真实调用）",
       "priority": "high",
       "executor": "codex",
-      "status": "pending",
+      "status": "done",
       "acceptance": "codex 执行 L2 真实调用验收：1) deepseek-v3 chat 成功（火山引擎 ep-ID 持续有效）；2) glm-4.7-flash 调用后 reasoningTokens 不出现（reasoning=false）；3) 制造 model_not_found 错误 → 消息中无 [infra removed] 等占位符；4) get_log_detail.response 无 HTML 实体编码（&#x27; 等）；5) run_action usage 字段与 run_template 一致（snake_case + thinking_tokens）；6) 公共模板 steps order 统一从 1 + 跨租户 actionId 已脱敏；7) chat 响应含 cost 字段；8) 非流式 reasoning 模型客户端超时场景不扣费；9) 签收报告生成"
     }
   ]
