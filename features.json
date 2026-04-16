@@ -88,7 +88,7 @@
       "title": "quickstart / mcp-setup / docs 三个页面统一宽度（删除 narrow variant）",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "source": "用户反馈",
       "acceptance": "1) quickstart / mcp-setup / docs 三个文件的 size='narrow' 删除（默认 = max-w-7xl）；2) 与其他 9 个用户端页面宽度统一；3) PageContainer 组件删除 narrow variant（不再有任何页面使用）；4) admin 页面也确认无 narrow 使用；5) tsc 通过"
     },
