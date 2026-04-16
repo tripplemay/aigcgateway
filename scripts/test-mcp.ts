@@ -827,6 +827,33 @@ async function main() {
     }
   });
 
+  // 19. F-AF2-04 regression — non-reasoning model logs must not expose reasoningTokens
+  await step("19. F-AF2-04 reasoningTokens filtered for non-reasoning models", async () => {
+    // Use the trace from earlier chat call (lastTraceId) — likely a non-reasoning model
+    if (!lastTraceId) {
+      console.log("(skipped — no prior chat trace) ");
+      return;
+    }
+    const result = await callTool("get_log_detail", { trace_id: lastTraceId });
+    const data = JSON.parse(parseTextContent(result));
+    // If the model is non-reasoning, reasoningTokens should not appear
+    // We can't know for sure which model was used, but if reasoningTokens IS present
+    // on a non-reasoning model, that's the bug we're catching
+    if (data.usage?.reasoningTokens !== undefined) {
+      // Verify it's actually a reasoning model by checking list_models
+      const modelsResult = await callTool("list_models", {});
+      const models = JSON.parse(parseTextContent(modelsResult));
+      const modelInfo = models.find(
+        (m: { name: string; reasoning?: boolean }) => m.name === data.model,
+      );
+      if (modelInfo && !modelInfo.reasoning) {
+        throw new Error(
+          `Non-reasoning model ${data.model} exposed reasoningTokens=${data.usage.reasoningTokens}`,
+        );
+      }
+    }
+  });
+
   console.log("\n" + "=".repeat(60));
   console.log(`Results: ${passed} PASS | ${failed} FAIL | ${passed + failed} total`);
   console.log("=".repeat(60));

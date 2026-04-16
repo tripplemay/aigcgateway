@@ -95,10 +95,20 @@ export function registerGetLogDetail(server: McpServer, opts: McpServerOptions):
       const params = log.requestParams as Record<string, unknown> | null;
       const isStreamCall = params?.stream === true;
 
-      // F-AF-02: surface reasoning_tokens from responseSummary (we store it
-      // there because CallLog has no dedicated column).
+      // F-AF-02 + F-AF2-04: only expose reasoning_tokens for reasoning models.
+      // Look up model capabilities to suppress historical data pollution.
       const summary = log.responseSummary as Record<string, unknown> | null;
-      const reasoningTokensRaw = summary?.reasoning_tokens;
+      const alias = await prisma.modelAlias.findFirst({
+        where: { alias: log.modelName },
+        select: {
+          models: { select: { capabilities: true }, take: 1 },
+        },
+      });
+      const logModelCaps = (alias?.models?.[0]?.capabilities ?? null) as {
+        reasoning?: boolean;
+      } | null;
+      const reasoningTokensRaw =
+        logModelCaps?.reasoning === true ? summary?.reasoning_tokens : undefined;
       const reasoningTokens =
         typeof reasoningTokensRaw === "number" && reasoningTokensRaw > 0
           ? reasoningTokensRaw

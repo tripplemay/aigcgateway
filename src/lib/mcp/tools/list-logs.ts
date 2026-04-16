@@ -104,7 +104,9 @@ export function registerListLogs(server: McpServer, opts: McpServerOptions): voi
           ORDER BY "createdAt" DESC LIMIT ${take}
         `;
 
-        const formatted = results.map(formatLog);
+        // F-AF2-04: look up which models support reasoning to filter historical data
+        const reasoningModels = await getReasoningModelNames(results.map((r) => r.modelName));
+        const formatted = results.map((r) => formatLog(r, reasoningModels));
         return {
           content: [
             {
@@ -156,7 +158,9 @@ export function registerListLogs(server: McpServer, opts: McpServerOptions): voi
         },
       });
 
-      const formatted = logs.map(formatLog);
+      // F-AF2-04: filter reasoning_tokens for non-reasoning models (historical data)
+      const reasoningModels2 = await getReasoningModelNames(logs.map((l) => l.modelName));
+      const formatted = logs.map((l) => formatLog(l, reasoningModels2));
       return {
         content: [
           {
@@ -180,17 +184,20 @@ export function registerListLogs(server: McpServer, opts: McpServerOptions): voi
   );
 }
 
-function formatLog(log: {
-  traceId: string;
-  modelName: string;
-  status: string;
-  promptSnapshot: unknown;
-  sellPrice: unknown;
-  latencyMs: number | null;
-  totalTokens?: number | null;
-  responseSummary?: unknown;
-  createdAt: Date | string;
-}) {
+function formatLog(
+  log: {
+    traceId: string;
+    modelName: string;
+    status: string;
+    promptSnapshot: unknown;
+    sellPrice: unknown;
+    latencyMs: number | null;
+    totalTokens?: number | null;
+    responseSummary?: unknown;
+    createdAt: Date | string;
+  },
+  reasoningModels?: Set<string>,
+) {
   const snapshot = log.promptSnapshot as Array<{ content?: string }> | null;
   const lastUserMsg = snapshot?.filter((m) => (m as { role?: string }).role === "user").pop();
   const preview =
@@ -198,10 +205,11 @@ function formatLog(log: {
       ? lastUserMsg.content.slice(0, 100) + (lastUserMsg.content.length > 100 ? "..." : "")
       : null;
 
-  // F-AF-02: bubble reasoning_tokens from responseSummary into a reasoningTokens
-  // field, matching the usage object shape returned by get_log_detail.
+  // F-AF-02 + F-AF2-04: only expose reasoning_tokens for models with
+  // capabilities.reasoning === true, suppressing historical data pollution.
+  const isReasoning = reasoningModels?.has(log.modelName) ?? false;
   const summary = log.responseSummary as Record<string, unknown> | null;
-  const reasoningRaw = summary?.reasoning_tokens;
+  const reasoningRaw = isReasoning ? summary?.reasoning_tokens : undefined;
   const reasoningTokens =
     typeof reasoningRaw === "number" && reasoningRaw > 0 ? reasoningRaw : null;
 
@@ -216,4 +224,31 @@ function formatLog(log: {
     ...(reasoningTokens !== null ? { reasoningTokens } : {}),
     createdAt: log.createdAt,
   };
+}
+
+/**
+ * F-AF2-04: batch lookup which model names have capabilities.reasoning === true.
+ * Used to filter reasoning_tokens from historical logs of non-reasoning models.
+ */
+async function getReasoningModelNames(modelNames: string[]): Promise<Set<string>> {
+  const unique = [...new Set(modelNames)];
+  if (unique.length === 0) return new Set();
+
+  const aliases = await prisma.modelAlias.findMany({
+    where: { alias: { in: unique } },
+    select: {
+      alias: true,
+      models: {
+        select: { capabilities: true },
+        take: 1,
+      },
+    },
+  });
+
+  const result = new Set<string>();
+  for (const a of aliases) {
+    const caps = (a.models?.[0]?.capabilities ?? null) as { reasoning?: boolean } | null;
+    if (caps?.reasoning === true) result.add(a.alias);
+  }
+  return result;
 }

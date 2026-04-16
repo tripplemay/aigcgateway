@@ -467,7 +467,9 @@ export function registerChat(server: McpServer, opts: McpServerOptions): void {
                           promptTokens: lastUsage.prompt_tokens,
                           completionTokens: lastUsage.completion_tokens,
                           totalTokens: lastUsage.total_tokens,
-                          ...(lastUsage.reasoning_tokens !== undefined
+                          // F-AF2-04: only expose reasoningTokens for reasoning models
+                          ...(mcpCapabilities?.reasoning === true &&
+                          lastUsage.reasoning_tokens !== undefined
                             ? { reasoningTokens: lastUsage.reasoning_tokens }
                             : {}),
                         }
@@ -519,7 +521,9 @@ export function registerChat(server: McpServer, opts: McpServerOptions): void {
                         promptTokens: usage.prompt_tokens,
                         completionTokens: usage.completion_tokens,
                         totalTokens: usage.total_tokens,
-                        ...(usage.reasoning_tokens !== undefined
+                        // F-AF2-04: only expose reasoningTokens for reasoning models
+                        ...(mcpCapabilities?.reasoning === true &&
+                        usage.reasoning_tokens !== undefined
                           ? { reasoningTokens: usage.reasoning_tokens }
                           : {}),
                       }
