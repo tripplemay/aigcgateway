@@ -169,7 +169,8 @@ async function buildGroupedQuery(
     successCalls?: number;
     errorCalls?: number;
     totalCost: string;
-    totalTokens: number;
+    totalTokens?: number;
+    totalImages?: number;
   }[]
 > {
   if (groupBy === "model") {
@@ -187,15 +188,28 @@ async function buildGroupedQuery(
       _count: true,
     });
     const successMap = new Map(successByModel.map((s) => [s.modelName, s._count]));
+
+    // F-AP-06: look up modality to suppress totalTokens for IMAGE models
+    const modelNames = groups.map((g) => g.modelName);
+    const aliases = modelNames.length
+      ? await prisma.modelAlias.findMany({
+          where: { alias: { in: modelNames } },
+          select: { alias: true, modality: true },
+        })
+      : [];
+    const modalityMap = new Map(aliases.map((a) => [a.alias, a.modality]));
+
     return groups.map((g) => {
       const successCalls = successMap.get(g.modelName) ?? 0;
+      const isImage = modalityMap.get(g.modelName) === "IMAGE";
       return {
         key: g.modelName,
         totalCalls: g._count,
         successCalls,
         errorCalls: Math.max(0, g._count - successCalls),
         totalCost: `$${Number(g._sum.sellPrice ?? 0).toFixed(8)}`,
-        totalTokens: g._sum.totalTokens ?? 0,
+        // F-AP-06: IMAGE models use per-call pricing, tokens are meaningless
+        ...(isImage ? { totalImages: successCalls } : { totalTokens: g._sum.totalTokens ?? 0 }),
       };
     });
   }
