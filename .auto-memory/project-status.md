@@ -4,11 +4,13 @@ description: AIGC Gateway 当前状态快照（覆盖写，≤30 行）
 type: project
 ---
 ## 当前批次
-- TEMPLATE-LIBRARY-UPGRADE：`building`（8 条功能，0/8 完成，7 generator + 1 codex）
+- TEMPLATE-LIBRARY-UPGRADE：`verifying`（7/8 完成，F-TL-08 待 Codex 验收）
 - 规格：`docs/specs/TEMPLATE-LIBRARY-UPGRADE-spec.md`
-- 第一个纯新功能批次：公共模板分类 + 评分 + 多维排序
-- F-TL-01 schema / F-TL-02 分类管理 / F-TL-03 发布选分类 / F-TL-04 评分 API
-- F-TL-05 list_public_templates 改造 / F-TL-06 前端分类+排序+评分 / F-TL-07 评分弹窗
+- Generator 交付：schema(ratings 表 + category) / SystemConfig 分类管理 / 管理端发布选分类 /
+  rate upsert API / list_public_templates 加 category+sort_by+averageScore /
+  global-library 分类 Tab + 排序下拉 + 星评徽章 / fork 成功后评分 Dialog
+- 共享 helper：`src/lib/public-templates.ts`（DTO + 推荐打分 averageScore*0.7 + log2(forkCount+1)*0.3）
+- 验收测试脚本：`scripts/test/template-library-upgrade-verifying-e2e-2026-04-17.ts`
 
 ## 生产状态
 - ROUTING-RESILIENCE + endpointMap 已部署（doubao-pro 恢复验证 OK）

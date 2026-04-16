@@ -55,7 +55,7 @@
       "title": "前端：Fork 后评分弹窗",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) fork_public_template 成功后弹出评分 Dialog；2) 5 颗星可点击选分（hover 预览效果）；3) 跳过按钮关闭不提交；4) 提交按钮调 POST /api/templates/[id]/rate；5) 已评过的模板再次 fork 时显示已评分数可修改；6) i18n；7) tsc 通过"
     },
     {

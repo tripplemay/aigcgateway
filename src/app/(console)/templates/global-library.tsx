@@ -19,6 +19,7 @@ import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { TemplateDetailDrawer } from "./template-detail-drawer";
 import { ForkConfirmDialog } from "./fork-confirm-dialog";
+import { RateTemplateDialog } from "./rate-template-dialog";
 
 // ============================================================
 // Types
@@ -104,6 +105,11 @@ export function GlobalLibrary() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [forkTarget, setForkTarget] = useState<PublicTemplateDetail | null>(null);
   const [forking, setForking] = useState(false);
+  const [ratingTarget, setRatingTarget] = useState<{
+    sourceTemplateId: string;
+    sourceName: string;
+    newTemplateId: string;
+  } | null>(null);
 
   // ── Load categories ──
   useEffect(() => {
@@ -164,14 +170,27 @@ export function GlobalLibrary() {
         { method: "POST", body: JSON.stringify({ sourceTemplateId: forkTarget.id }) },
       );
       toast.success(t("forkSuccess"));
+      const sourceId = forkTarget.id;
+      const sourceName = forkTarget.name;
       setForkTarget(null);
       setSelectedId(null);
-      router.push(`/templates/${res.template.id}`);
+      setRatingTarget({
+        sourceTemplateId: sourceId,
+        sourceName,
+        newTemplateId: res.template.id,
+      });
     } catch {
       toast.error(t("forkError"));
     } finally {
       setForking(false);
     }
+  };
+
+  const handleRatingDialogChange = (open: boolean) => {
+    if (open || !ratingTarget) return;
+    const destinationId = ratingTarget.newTemplateId;
+    setRatingTarget(null);
+    router.push(`/templates/${destinationId}`);
   };
 
   const categoryLabel = (cat: TemplateCategory) => (locale === "zh-CN" ? cat.label : cat.labelEn);
@@ -429,6 +448,14 @@ export function GlobalLibrary() {
         template={forkTarget}
         loading={forking}
         onConfirm={handleFork}
+      />
+
+      {/* ═══ Rating Dialog (after successful fork) ═══ */}
+      <RateTemplateDialog
+        open={!!ratingTarget}
+        onOpenChange={handleRatingDialogChange}
+        templateId={ratingTarget?.sourceTemplateId ?? null}
+        templateName={ratingTarget?.sourceName ?? ""}
       />
     </>
   );
