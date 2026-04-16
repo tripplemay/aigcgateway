@@ -1006,6 +1006,27 @@ async function main() {
     }
   });
 
+  // 27. F-AP-04 regression — create_api_key accepts expires_at param
+  await step("27. F-AP-04 create_api_key with expiresAt", async () => {
+    const future = new Date(Date.now() + 86400000).toISOString(); // +1 day
+    const result = await callTool("create_api_key", {
+      name: `F-AP-04-test-${Date.now()}`,
+      expires_at: future,
+    });
+    const data = JSON.parse(parseTextContent(result));
+    if (!data.key) throw new Error("Missing key in response");
+    if (!data.expiresAt) throw new Error("Missing expiresAt in response");
+    // Verify past date is rejected
+    const pastResult = await callTool("create_api_key", {
+      name: `F-AP-04-past-${Date.now()}`,
+      expires_at: "2020-01-01T00:00:00Z",
+    });
+    const pastText = parseTextContent(pastResult);
+    if (!pastText.includes("invalid_parameter")) {
+      throw new Error("Past expiresAt should be rejected");
+    }
+  });
+
   console.log("\n" + "=".repeat(60));
   console.log(`Results: ${passed} PASS | ${failed} FAIL | ${passed + failed} total`);
   console.log("=".repeat(60));

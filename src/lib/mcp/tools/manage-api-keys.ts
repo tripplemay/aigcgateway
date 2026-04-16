@@ -63,11 +63,30 @@ export function registerCreateApiKey(server: McpServer, opts: McpServerOptions):
     {
       name: z.string().describe("A name for the API key (e.g. 'Production', 'Dev')"),
       description: z.string().optional().describe("Optional description"),
+      expires_at: z
+        .string()
+        .datetime({ offset: true })
+        .optional()
+        .describe("Optional expiration date (ISO 8601). Omit for never-expiring key."),
     },
-    async ({ name, description }) => {
+    async ({ name, description, expires_at }) => {
       const permErr = checkMcpPermission(permissions, "keyManagement");
       if (permErr) {
         return { content: [{ type: "text" as const, text: permErr }], isError: true };
+      }
+
+      // F-AP-04: validate expiresAt is in the future
+      const expiresAtDate = expires_at ? new Date(expires_at) : null;
+      if (expiresAtDate && expiresAtDate <= new Date()) {
+        return {
+          content: [
+            {
+              type: "text" as const,
+              text: "[invalid_parameter] expires_at must be in the future.",
+            },
+          ],
+          isError: true,
+        };
       }
 
       const rawKey = `pk_${randomBytes(32).toString("hex")}`;
@@ -83,6 +102,7 @@ export function registerCreateApiKey(server: McpServer, opts: McpServerOptions):
           description: description ?? null,
           status: "ACTIVE",
           permissions: {},
+          expiresAt: expiresAtDate,
         },
       });
 
@@ -96,6 +116,7 @@ export function registerCreateApiKey(server: McpServer, opts: McpServerOptions):
                 key: rawKey,
                 name: apiKey.name,
                 status: "active",
+                expiresAt: apiKey.expiresAt?.toISOString() ?? null,
                 createdAt: apiKey.createdAt.toISOString(),
                 warning: "Save this key now — it will NOT be shown again.",
               },
