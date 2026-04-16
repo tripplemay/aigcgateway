@@ -45,6 +45,22 @@
       ],
       "confirmed_at": "2026-04-14",
       "priority": "high"
+    },
+    {
+      "id": "BL-130",
+      "title": "AUDIT-FOLLOWUP-2 — reports-20260416 审计发现的 4 critical + 修复未生效项",
+      "description": "reports-20260416 审计（60 条断言）在 8 个批次全部部署后跑出，揭露两类问题：(A) 4 个批次的修复未完全生效：F-ACF-02/10 的 enabled 过滤/CALL_PROBE 没让 deepseek-v3 等不可用模型从 list_models 消失；F-ACF-08 脱敏只删术语没删占位符；F-AF-01 过度脱敏导致 API 响应 HTML 实体编码；F-AF-02 无条件暴露 reasoning_tokens；F-WP-03 导致 public vs user template order 基数不一致。(B) 新发现：reasoning 模型非流式调用客户端超时但服务端继续扣费（真实资金损失）；零图退款路径未完全覆盖；update_action 改 model 不创新版本；官方公共模板绑定 deepseek-v3（100% 失败）。详细规格见 docs/specs/AUDIT-FOLLOWUP-2-spec.md。",
+      "decisions": [
+        "9 generator + 1 codex = 10 条 features",
+        "等 USAGE-ALERTS 签收后立即启动（不暂停 USAGE-ALERTS）",
+        "F-AF2-10 必须做 L2 真实调用验收，不再只靠 tsc+grep",
+        "Phase 1 止血：客户端超时退款 + CALL_PROBE 启用",
+        "Phase 2 修 AUDIT-CRITICAL-FIX 和 AUDIT-FOLLOWUP 的副作用",
+        "Phase 3-4 修 Workflow 副作用 + DX 增强"
+      ],
+      "confirmed_at": "2026-04-16",
+      "priority": "critical",
+      "spec": "docs/specs/AUDIT-FOLLOWUP-2-spec.md"
     }
   ]
 }
