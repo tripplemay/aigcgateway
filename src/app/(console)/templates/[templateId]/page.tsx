@@ -8,6 +8,9 @@ import { useParams, useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Skeleton } from "@/components/ui/skeleton";
 import { StatusChip } from "@/components/status-chip";
+import { PageContainer } from "@/components/page-container";
+import { PageHeader } from "@/components/page-header";
+import { SectionCard } from "@/components/section-card";
 import Link from "next/link";
 import { timeAgo } from "@/lib/utils";
 
@@ -107,45 +110,40 @@ export default function TemplateDetailPage() {
   });
 
   return (
-    <div className="max-w-7xl mx-auto space-y-8">
-      {/* ═══ Header ═══ */}
-      <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6">
-        <div className="max-w-2xl">
-          <nav className="flex items-center gap-2 text-sm text-slate-500 mb-4">
-            <Link href="/templates" className="hover:text-ds-primary transition-colors">
-              {t("title")}
+    <PageContainer>
+      {/* Breadcrumb */}
+      <nav className="flex items-center gap-2 text-sm text-ds-on-surface-variant/60">
+        <Link href="/templates" className="hover:text-ds-primary transition-colors">
+          {t("title")}
+        </Link>
+        <span className="material-symbols-outlined text-xs">chevron_right</span>
+        <span className="text-ds-on-surface font-medium">{template.name}</span>
+      </nav>
+
+      <PageHeader
+        title={template.name}
+        subtitle={template.description ?? undefined}
+        badge={<StatusChip variant="info">{executionMode}</StatusChip>}
+        actions={
+          <>
+            <button
+              type="button"
+              onClick={handleDelete}
+              className="px-6 py-3 bg-ds-surface-container-highest text-ds-on-surface-variant font-semibold rounded-xl hover:bg-ds-surface-container-high transition-colors flex items-center gap-2"
+            >
+              <span className="material-symbols-outlined scale-90">delete</span>
+              {t("delete")}
+            </button>
+            <Link
+              href={`/templates/new?edit=${templateId}`}
+              className="px-6 py-3 bg-gradient-to-r from-ds-primary to-ds-primary-container text-white font-bold rounded-xl shadow-lg shadow-ds-primary/20 hover:opacity-90 transition-opacity flex items-center gap-2"
+            >
+              <span className="material-symbols-outlined scale-90">edit</span>
+              {t("edit")}
             </Link>
-            <span className="material-symbols-outlined text-xs">chevron_right</span>
-            <span className="text-ds-primary font-medium">{template.name}</span>
-          </nav>
-          <div className="flex items-center gap-3 mb-3">
-            <h1 className="text-4xl font-extrabold font-[var(--font-heading)] tracking-tight text-ds-on-surface">
-              {template.name}
-            </h1>
-            <StatusChip variant="info">{executionMode}</StatusChip>
-          </div>
-          <p className="text-ds-on-surface-variant text-lg leading-relaxed">
-            {template.description || "\u2014"}
-          </p>
-        </div>
-        <div className="flex gap-3">
-          <button
-            type="button"
-            onClick={handleDelete}
-            className="px-6 py-3 bg-ds-surface-container-highest text-ds-on-surface-variant font-semibold rounded-xl hover:bg-ds-surface-container-high transition-colors flex items-center gap-2"
-          >
-            <span className="material-symbols-outlined scale-90">delete</span>
-            {t("delete")}
-          </button>
-          <Link
-            href={`/templates/new?edit=${templateId}`}
-            className="px-6 py-3 bg-gradient-to-r from-ds-primary to-ds-primary-container text-white font-bold rounded-xl shadow-lg shadow-ds-primary/20 hover:opacity-90 transition-opacity flex items-center gap-2"
-          >
-            <span className="material-symbols-outlined scale-90">edit</span>
-            {t("edit")}
-          </Link>
-        </div>
-      </div>
+          </>
+        }
+      />
 
       {/* ═══ Grid ═══ */}
       <div className="grid grid-cols-12 gap-10">
@@ -209,9 +207,7 @@ export default function TemplateDetailPage() {
                       </span>
                     </div>
                   </div>
-                  <span className="px-3 py-1 bg-ds-surface-container-high text-ds-on-secondary-container text-[10px] font-bold tracking-wider rounded uppercase">
-                    {step.role}
-                  </span>
+                  <StatusChip variant="neutral">{step.role}</StatusChip>
 
                   {/* Accordion content */}
                   {expanded && (systemMsgPreview || variables.length > 0) && (
@@ -267,13 +263,7 @@ export default function TemplateDetailPage() {
         {/* Right: Metadata */}
         <div className="col-span-12 lg:col-span-4 space-y-6">
           {/* Template Info */}
-          <div className="bg-ds-surface-container-lowest p-8 rounded-xl shadow-sm">
-            <div className="flex items-center gap-3 mb-8">
-              <span className="material-symbols-outlined text-ds-primary">info</span>
-              <h2 className="font-[var(--font-heading)] font-bold text-lg tracking-tight">
-                {t("templateInfo")}
-              </h2>
-            </div>
+          <SectionCard title={t("templateInfo")}>
             <div className="space-y-6">
               {[
                 {
@@ -300,13 +290,10 @@ export default function TemplateDetailPage() {
                 </div>
               ))}
             </div>
-          </div>
+          </SectionCard>
 
           {/* Resources Used */}
-          <div className="bg-ds-surface-container p-6 rounded-xl">
-            <h4 className="text-xs font-bold text-ds-on-secondary-container uppercase tracking-widest mb-4">
-              {t("resourcesUsed")}
-            </h4>
+          <SectionCard title={t("resourcesUsed")}>
             <div className="space-y-4">
               {[...modelCounts.entries()].map(([model, count]) => (
                 <div key={model} className="flex items-center gap-3">
@@ -317,7 +304,7 @@ export default function TemplateDetailPage() {
                 </div>
               ))}
             </div>
-          </div>
+          </SectionCard>
 
           {/* Reserved variables */}
           {template.steps.length > 1 && (
@@ -355,6 +342,6 @@ export default function TemplateDetailPage() {
           )}
         </div>
       </div>
-    </div>
+    </PageContainer>
   );
 }

@@ -10,6 +10,8 @@ import { formatCNY } from "@/lib/utils";
 import { useExchangeRate } from "@/hooks/use-exchange-rate";
 import { toast } from "sonner";
 import Link from "next/link";
+import { PageContainer } from "@/components/page-container";
+import { StatusChip } from "@/components/status-chip";
 
 // ── Types ──
 
@@ -157,7 +159,7 @@ export default function UserDetailPage() {
 
   return (
     <>
-      <div className="space-y-8">
+      <PageContainer>
         {/* Breadcrumb */}
         <nav className="flex items-center gap-2 text-sm">
           <Link
@@ -177,14 +179,8 @@ export default function UserDetailPage() {
           {/* Profile Card */}
           <div className="lg:col-span-4 bg-ds-surface-container-lowest p-8 rounded-xl shadow-sm relative overflow-hidden">
             <div className="absolute top-0 right-0 p-4 flex gap-2">
-              <span className="bg-ds-secondary-container text-ds-on-secondary-container px-3 py-1 rounded-full text-[10px] font-bold tracking-widest uppercase">
-                {user.role}
-              </span>
-              {user.suspended && (
-                <span className="bg-ds-error-container text-ds-error px-3 py-1 rounded-full text-[10px] font-bold tracking-widest uppercase">
-                  {t("suspended")}
-                </span>
-              )}
+              <StatusChip variant="info">{user.role}</StatusChip>
+              {user.suspended && <StatusChip variant="error">{t("suspended")}</StatusChip>}
             </div>
             <div className="flex flex-col items-center text-center">
               <div className="relative mb-6">
@@ -360,11 +356,17 @@ export default function UserDetailPage() {
                           {new Date(tx.createdAt).toLocaleDateString()}
                         </td>
                         <td className="px-4 py-3">
-                          <span
-                            className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${TXN_TYPE_STYLES[tx.type] ?? TXN_TYPE_STYLES.DEDUCTION}`}
+                          <StatusChip
+                            variant={
+                              tx.type === "RECHARGE"
+                                ? "success"
+                                : tx.type === "ADJUSTMENT"
+                                  ? "info"
+                                  : "neutral"
+                            }
                           >
                             {tx.type}
-                          </span>
+                          </StatusChip>
                         </td>
                         <td className="px-4 py-3 text-right">
                           <span
@@ -433,7 +435,7 @@ export default function UserDetailPage() {
             </button>
           </div>
         </section>
-      </div>
+      </PageContainer>
 
       {/* Recharge Modal */}
       {rechargeOpen && (

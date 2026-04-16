@@ -8,6 +8,10 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Switch } from "@/components/ui/switch";
 import Link from "next/link";
 import { timeAgo } from "@/lib/utils";
+import { PageContainer } from "@/components/page-container";
+import { PageHeader } from "@/components/page-header";
+import { SectionCard } from "@/components/section-card";
+import { StatusChip } from "@/components/status-chip";
 
 // ============================================================
 // Types
@@ -127,32 +131,21 @@ export default function AdminTemplateDetailPage() {
   });
 
   return (
-    <div className="p-8 max-w-7xl mx-auto space-y-8">
-      {/* ═══ Breadcrumb ═══ */}
-      <nav className="flex items-center gap-2 text-sm text-slate-500">
+    <PageContainer>
+      {/* Breadcrumb */}
+      <nav className="flex items-center gap-2 text-sm text-ds-on-surface-variant/60">
         <Link href="/admin/templates" className="hover:text-ds-primary transition-colors">
           {t("title")}
         </Link>
         <span className="material-symbols-outlined text-xs">chevron_right</span>
-        <span className="text-ds-primary font-medium">{template.name}</span>
+        <span className="text-ds-on-surface font-medium">{template.name}</span>
       </nav>
 
-      {/* ═══ Header ═══ */}
-      <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6">
-        <div className="max-w-2xl">
-          <div className="flex items-center gap-3 mb-3">
-            <h1 className="text-4xl font-extrabold font-[var(--font-heading)] tracking-tight text-ds-on-surface">
-              {template.name}
-            </h1>
-            <span className="px-3 py-1 bg-ds-primary/10 text-ds-primary rounded-full text-[10px] font-bold tracking-widest uppercase">
-              {executionMode}
-            </span>
-          </div>
-          <p className="text-ds-on-surface-variant text-lg leading-relaxed">
-            {template.description || "\u2014"}
-          </p>
-        </div>
-        <div className="flex gap-3">
+      <PageHeader
+        title={template.name}
+        subtitle={template.description ?? undefined}
+        badge={<StatusChip variant="info">{executionMode}</StatusChip>}
+        actions={
           <button
             type="button"
             onClick={handleDelete}
@@ -161,8 +154,8 @@ export default function AdminTemplateDetailPage() {
             <span className="material-symbols-outlined scale-90">delete</span>
             {tc("delete")}
           </button>
-        </div>
-      </div>
+        }
+      />
 
       {/* ═══ Grid ═══ */}
       <div className="grid grid-cols-12 gap-10">
@@ -207,9 +200,7 @@ export default function AdminTemplateDetailPage() {
                         )}
                       </div>
                     </div>
-                    <span className="px-3 py-1 bg-ds-surface-container-high text-ds-on-secondary-container text-[10px] font-bold tracking-wider rounded uppercase">
-                      {step.role}
-                    </span>
+                    <StatusChip variant="neutral">{step.role}</StatusChip>
                   </div>
 
                   {/* Action preview: system message + variables */}
@@ -243,13 +234,7 @@ export default function AdminTemplateDetailPage() {
         {/* Right: Metadata */}
         <div className="col-span-12 lg:col-span-4 space-y-6">
           {/* Template Info */}
-          <div className="bg-ds-surface-container-lowest p-8 rounded-xl shadow-sm">
-            <div className="flex items-center gap-3 mb-8">
-              <span className="material-symbols-outlined text-ds-primary">info</span>
-              <h2 className="font-[var(--font-heading)] font-bold text-lg tracking-tight">
-                {tTpl("templateInfo")}
-              </h2>
-            </div>
+          <SectionCard title={tTpl("templateInfo")}>
             <div className="space-y-6">
               {[
                 { label: t("colProject"), value: template.project.name },
@@ -280,10 +265,10 @@ export default function AdminTemplateDetailPage() {
                 </div>
               ))}
             </div>
-          </div>
+          </SectionCard>
 
           {/* Public toggle */}
-          <div className="bg-ds-surface-container-lowest p-6 rounded-xl shadow-sm">
+          <SectionCard>
             <div className="flex items-center justify-between">
               <div>
                 <h4 className="text-xs font-bold text-ds-on-surface uppercase tracking-widest mb-1">
@@ -295,10 +280,10 @@ export default function AdminTemplateDetailPage() {
               </div>
               <Switch checked={template.isPublic} onCheckedChange={handleTogglePublic} />
             </div>
-          </div>
+          </SectionCard>
 
           {/* Quality Score */}
-          <div className="bg-ds-surface-container-lowest p-6 rounded-xl shadow-sm">
+          <SectionCard>
             <h4 className="text-xs font-bold text-ds-on-surface uppercase tracking-widest mb-3">
               {t("colQuality")}
             </h4>
@@ -319,7 +304,7 @@ export default function AdminTemplateDetailPage() {
                 <span className="text-sm text-ds-on-surface-variant">{"\u2014"}</span>
               )}
             </div>
-          </div>
+          </SectionCard>
 
           {/* Resources Used */}
           {modelCounts.size > 0 && (
@@ -376,6 +361,6 @@ export default function AdminTemplateDetailPage() {
           )}
         </div>
       </div>
-    </div>
+    </PageContainer>
   );
 }
