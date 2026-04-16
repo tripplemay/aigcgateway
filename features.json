@@ -7,7 +7,7 @@
       "title": "Schema：Template 加 category + TemplateRating 表",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) Template 表新增 category String? 字段（migration）；2) 新增 template_ratings 表（id/userId/templateId/score(1-5)/createdAt + UNIQUE userId+templateId）；3) Template 表新增 ratingCount Int @default(0) + ratingSum Int @default(0)；4) 现有 3 个公共模板补 category='dev-review'；5) tsc 通过"
     },
     {

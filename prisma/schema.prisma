@@ -126,6 +126,7 @@ model User {
   emailVerificationTokens EmailVerificationToken[]
   notifications           Notification[]
   notificationPrefs       NotificationPreference[]
+  templateRatings         TemplateRating[]
 
   @@index([email])
   @@index([role, createdAt(sort: Desc)])
@@ -538,6 +539,9 @@ model Template {
   description      String?
   isPublic         Boolean  @default(false)
   qualityScore     Int?
+  category         String?
+  ratingCount      Int      @default(0)
+  ratingSum        Int      @default(0)
   sourceTemplateId String?
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
@@ -546,10 +550,28 @@ model Template {
   sourceTemplate Template?     @relation("TemplateFork", fields: [sourceTemplateId], references: [id], onDelete: SetNull)
   forks          Template[]    @relation("TemplateFork")
   steps          TemplateStep[]
+  ratings        TemplateRating[]
 
   @@index([projectId])
   @@index([sourceTemplateId])
+  @@index([category])
   @@map("templates")
+}
+
+model TemplateRating {
+  id         String   @id @default(cuid())
+  userId     String
+  templateId String
+  score      Int
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  template Template @relation(fields: [templateId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, templateId])
+  @@index([templateId])
+  @@map("template_ratings")
 }
 
 model TemplateStep {

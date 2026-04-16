@@ -2,10 +2,10 @@
   "status": "building",
   "user_goal": "TEMPLATE-LIBRARY-UPGRADE — 公共模板库体验升级：分类筛选（SystemConfig 管理员预置）+ 评分系统（fork 后打分）+ 多维排序（推荐/热门/最高评分/最新）",
   "total_features": 8,
-  "completed_features": 0,
+  "completed_features": 1,
   "fix_rounds": 0,
-  "current_sprint": null,
-  "last_updated": "2026-04-17T06:00:00Z",
+  "current_sprint": "F-TL-01 done, starting F-TL-02",
+  "last_updated": "2026-04-17T06:20:00Z",
   "reference_docs": [
     "docs/specs/TEMPLATE-LIBRARY-UPGRADE-spec.md"
   ],
