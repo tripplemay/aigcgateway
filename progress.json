@@ -1,17 +1,17 @@
 {
-  "status": "verifying",
-  "user_goal": "TEMPLATE-LIBRARY-UPGRADE — 公共模板库体验升级：分类筛选（SystemConfig 管理员预置）+ 评分系统（fork 后打分）+ 多维排序（推荐/热门/最高评分/最新）",
+  "status": "building",
+  "user_goal": "TEMPLATE-TESTING — 模板测试工作台：独立测试页面 + dry_run 预览（免费）+ 真实执行 + 步骤级结果展示 + 测试历史（持久化最近 20 次）",
   "total_features": 8,
-  "completed_features": 7,
+  "completed_features": 0,
   "fix_rounds": 0,
-  "current_sprint": "all 7 generator features done, handing off F-TL-08 to Codex for verifying",
-  "last_updated": "2026-04-17T09:00:00Z",
+  "current_sprint": null,
+  "last_updated": "2026-04-17T08:00:00Z",
   "reference_docs": [
-    "docs/specs/TEMPLATE-LIBRARY-UPGRADE-spec.md"
+    "docs/specs/TEMPLATE-TESTING-spec.md"
   ],
   "role_assignments": null,
   "docs": {
-    "spec": "docs/specs/TEMPLATE-LIBRARY-UPGRADE-spec.md",
+    "spec": "docs/specs/TEMPLATE-TESTING-spec.md",
     "test_cases": null,
     "signoff": null,
     "framework_reviewed": false
@@ -19,7 +19,7 @@
   "evaluator_feedback": null,
   "generator_handoff": null,
   "session_notes": {
-    "Kimi": "Generator 阶段完成 7/7：F-TL-01 schema + backfill、F-TL-02 SystemConfig + 分类卡片、F-TL-03 管理端发布选分类（未选默认 other）、F-TL-04 rate upsert + 原子 ratingSum/Count、F-TL-05 list_public_templates + category/sort_by + 评分字段（DTO 共享 helper src/lib/public-templates.ts；in-memory 排序公式 qualityScore 旧逻辑已切换成 averageScore*0.7 + log2(forkCount+1)*0.3）、F-TL-06 global-library 分类 Tab + 排序下拉 + 星评徽章、F-TL-07 RateTemplateDialog fork 成功后弹出（pre-fetch userScore，跳过直接跳转到新模板详情，提交后 toast 成功再跳转）。所有提交已 tsc 通过。F-TL-08 交给 Codex 按 scripts/test/template-library-upgrade-verifying-e2e-2026-04-17.ts 验收。评分 route 的 PATCH 请求体兼容：PATCH /api/admin/templates/[id] 支持 {isPublic, category, qualityScore} 同传；未选 category 转公开时自动默认 other。",
+    "Kimi": "Planner 启动 TEMPLATE-TESTING 批次（7 generator + 1 codex = 8 条）。紧接 TEMPLATE-LIBRARY-UPGRADE（分类+评分）之后的第二个模板功能批次。核心：/templates/[id]/test 独立测试页面，两步流程（预览 dry_run 免费 → 执行 execute 扣费），步骤级结果展示（input/output/tokens/cost/latency），测试历史持久化 TemplateTestRun 表（per user+template 最多 20 条自动清理），变量预设从历史加载。MCP run_template 增加 test_mode 参数。TEMPLATE-LIBRARY-UPGRADE 已签收 8/8。",
     "Reviewer": null
   }
 }

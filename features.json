@@ -1,70 +1,70 @@
 {
-  "batch": "TEMPLATE-LIBRARY-UPGRADE",
+  "batch": "TEMPLATE-TESTING",
   "created_at": "2026-04-17",
   "features": [
     {
-      "id": "F-TL-01",
-      "title": "Schema：Template 加 category + TemplateRating 表",
+      "id": "F-TT-01",
+      "title": "Schema：TemplateTestRun 表 + migration",
       "priority": "high",
       "executor": "generator",
-      "status": "done",
-      "acceptance": "1) Template 表新增 category String? 字段（migration）；2) 新增 template_ratings 表（id/userId/templateId/score(1-5)/createdAt + UNIQUE userId+templateId）；3) Template 表新增 ratingCount Int @default(0) + ratingSum Int @default(0)；4) 现有 3 个公共模板补 category='dev-review'；5) tsc 通过"
+      "status": "pending",
+      "acceptance": "1) 新增 template_test_runs 表（id/templateId/userId/variables(JSON)/mode/status/steps(JSON)/totalTokens/totalCost/totalLatency/createdAt）；2) Template 和 User 增加 relation；3) 索引 templateId+createdAt DESC 和 userId+createdAt DESC；4) tsc 通过"
     },
     {
-      "id": "F-TL-02",
-      "title": "SystemConfig 预置分类 + 管理端分类管理卡片",
+      "id": "F-TT-02",
+      "title": "测试执行 API：POST /api/templates/[id]/test",
       "priority": "high",
       "executor": "generator",
-      "status": "done",
-      "acceptance": "1) seed 或 migration 写入 SystemConfig key=TEMPLATE_CATEGORIES 包含初始 6 个分类（dev-review/writing/translation/analysis/customer-service/other）；2) admin/operations 页面增加模板分类管理 SectionCard（列出所有分类 id/label/labelEn/icon，支持增删改）；3) 修改后写入 SystemConfig；4) i18n；5) tsc 通过"
+      "status": "pending",
+      "acceptance": "1) body: {variables, mode: 'dry_run' | 'execute'}；2) dry_run 模式：对每步 run_action(dry_run=true) 返回渲染后 prompt，cost=0；3) execute 模式：真实执行每步，收集 input/output/tokens/cost/latencyMs；4) 写入 TemplateTestRun 表；5) 自动清理：同 user+template 超过 20 条时删最旧的；6) 部分步骤失败时 status=partial，已执行步骤结果保留；7) 鉴权：只能测试自己项目的模板；8) tsc 通过"
     },
     {
-      "id": "F-TL-03",
-      "title": "管理端发布公共模板时选择分类",
+      "id": "F-TT-03",
+      "title": "测试历史 API：GET test-runs + GET test-runs/[runId]",
       "priority": "medium",
       "executor": "generator",
-      "status": "done",
-      "acceptance": "1) admin/templates 页面的设为公开操作增加分类下拉选择（从 SystemConfig 读取分类列表）；2) 选择后写入 Template.category；3) 未选择分类时默认 other；4) i18n；5) tsc 通过"
+      "status": "pending",
+      "acceptance": "1) GET /api/templates/[id]/test-runs 返回最近 20 条记录摘要（id/mode/status/totalTokens/totalCost/createdAt）；2) GET /api/templates/[id]/test-runs/[runId] 返回完整 steps 详情；3) 鉴权：只能查看自己的测试记录；4) tsc 通过"
     },
     {
-      "id": "F-TL-04",
-      "title": "评分 API：POST /api/templates/[id]/rate",
-      "priority": "high",
-      "executor": "generator",
-      "status": "done",
-      "acceptance": "1) POST /api/templates/[id]/rate body={score:1-5} upsert TemplateRating（同用户同模板只能一个评分，可修改）；2) 写入后原子更新 Template.ratingCount 和 ratingSum；3) 只能对 isPublic=true 的模板打分；4) 返回 {averageScore, ratingCount}；5) tsc 通过"
-    },
-    {
-      "id": "F-TL-05",
-      "title": "API/MCP：list_public_templates 增加 category + sort_by + 评分字段",
-      "priority": "high",
-      "executor": "generator",
-      "status": "done",
-      "acceptance": "1) list_public_templates 新增可选参数 category（筛选）和 sort_by（recommended/popular/top_rated/latest，默认 recommended）；2) 返回体每个模板增加 category/categoryIcon/averageScore/ratingCount 字段；3) 推荐排序：qualityScore * 0.7 + log2(forkCount + 1) * 0.3；4) REST API + MCP 同步支持；5) tsc 通过"
-    },
-    {
-      "id": "F-TL-06",
-      "title": "前端：global-library 分类 Tab + 排序 + 评分展示",
-      "priority": "high",
-      "executor": "generator",
-      "status": "done",
-      "acceptance": "1) 顶部从 SystemConfig 动态读取分类列表渲染为 Tab 按钮（全部 + 各分类含 icon）；2) 点击分类筛选模板列表；3) 搜索栏旁增加排序下拉（推荐/热门/最高评分/最新）；4) 模板卡片展示 ★ averageScore (ratingCount) + Fork 数；5) 无评分时显示暂无评分；6) 使用 SectionCard / StatusChip / Button gradient-primary 公共组件；7) i18n；8) tsc 通过"
-    },
-    {
-      "id": "F-TL-07",
-      "title": "前端：Fork 后评分弹窗",
+      "id": "F-TT-04",
+      "title": "MCP 扩展：run_template 增加 test_mode 参数",
       "priority": "medium",
       "executor": "generator",
-      "status": "done",
-      "acceptance": "1) fork_public_template 成功后弹出评分 Dialog；2) 5 颗星可点击选分（hover 预览效果）；3) 跳过按钮关闭不提交；4) 提交按钮调 POST /api/templates/[id]/rate；5) 已评过的模板再次 fork 时显示已评分数可修改；6) i18n；7) tsc 通过"
+      "status": "pending",
+      "acceptance": "1) MCP run_template 新增可选参数 test_mode: 'dry_run' | 'execute'；2) test_mode='dry_run' 免费渲染变量不调模型；3) test_mode='execute' 真实执行并写 TemplateTestRun；4) 不传 test_mode 时行为不变（正常执行不记录）；5) tsc 通过"
     },
     {
-      "id": "F-TL-08",
-      "title": "TEMPLATE-LIBRARY-UPGRADE 全量验收",
+      "id": "F-TT-05",
+      "title": "前端：测试页面左侧（模板信息 + 变量输入 + 操作按钮）",
+      "priority": "high",
+      "executor": "generator",
+      "status": "pending",
+      "acceptance": "1) 新增 /templates/[id]/test/page.tsx；2) 左侧面板展示模板名、步骤列表（每步 Action 名 + Model）；3) 变量输入表单从 steps 的 Action variables 聚合（短文本 Input，长文本 Textarea）；4) '从历史加载'下拉读取 test-runs 的 variables 作为预设；5) '预览（免费）'按钮调 POST mode=dry_run；6) '执行测试'按钮调 POST mode=execute（执行中 loading）；7) 使用 PageContainer + PageHeader + SectionCard 公共组件；8) i18n；9) tsc 通过"
+    },
+    {
+      "id": "F-TT-06",
+      "title": "前端：测试页面右侧（步骤结果 + 汇总 + 历史）",
+      "priority": "high",
+      "executor": "generator",
+      "status": "pending",
+      "acceptance": "1) 右侧面板按步骤展示结果：每步一个可折叠 SectionCard（输入/输出/tokens/cost/耗时）；2) dry_run 只展示渲染后 prompt，输出显示'预览模式，未调用模型'；3) 汇总区：总 tokens / 总 cost / 总耗时；4) 底部测试历史列表：最近 20 条，显示时间+状态（✅/❌）+cost，点击加载该次结果；5) 失败步骤红色高亮+错误信息；6) i18n；7) tsc 通过"
+    },
+    {
+      "id": "F-TT-07",
+      "title": "模板详情页 + 列表页增加'测试'入口",
+      "priority": "medium",
+      "executor": "generator",
+      "status": "pending",
+      "acceptance": "1) /templates/[id] 详情页增加'测试'按钮跳转 /templates/[id]/test；2) /templates 列表页每行增加'测试'图标按钮（science icon）；3) 公共模板未 fork 时提示'请先 Fork 到项目'；4) i18n；5) tsc 通过"
+    },
+    {
+      "id": "F-TT-08",
+      "title": "TEMPLATE-TESTING 全量验收",
       "priority": "high",
       "executor": "codex",
       "status": "pending",
-      "acceptance": "codex 执行：1) SystemConfig 分类列表可 CRUD 且前端动态刷新；2) 公共模板带 category 标签展示；3) 分类 Tab 筛选生效；4) 4 种排序均可切换且结果正确；5) Fork 后弹出评分弹窗，提交后 averageScore 更新；6) 同用户再次评分覆盖旧分；7) MCP list_public_templates 的 category + sort_by 参数生效；8) 签收报告生成"
+      "acceptance": "codex 执行：1) dry_run 返回渲染后变量且 cost=0；2) execute 真实调用每步并返回结果；3) 部分失败 status=partial 已执行步骤保留；4) 测试历史持久化且自动清理到 20 条；5) 历史预设可加载变量；6) 前端左右分栏正确展示；7) MCP test_mode 生效；8) 未 fork 公共模板不能测试；9) 签收报告生成"
     }
   ]
 }
