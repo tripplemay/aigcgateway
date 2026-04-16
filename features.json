@@ -71,7 +71,7 @@
       "title": "chat 响应补 cost + refund 交易补 model/source/batchId",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) chat completions / MCP chat 返回体顶层新增 cost 字段（如 '$0.00000504'，与 get_log_detail 一致）；2) refund 交易除 description 外，单独暴露 model/source 字段（与 deduction 对齐）；3) 同一业务事件的多笔 refund 共享 batchId（如 'refund-batch-20260416-xxx'）；4) get_balance 返回的 transactions 数据结构相应更新；5) 同 commit 补 regression test；6) tsc 通过"
     },
     {

@@ -4,12 +4,14 @@ description: AIGC Gateway 当前状态快照（覆盖写，≤30 行）
 type: project
 ---
 ## 当前批次
-- AUDIT-FOLLOWUP-2：`building`（10 条功能，0/10 完成，9 generator + 1 codex）
+- AUDIT-FOLLOWUP-2：`verifying`（10 条功能，9/9 generator done，等 codex F-AF2-10）
 - 规格：`docs/specs/AUDIT-FOLLOWUP-2-spec.md`
-- Phase 1 止血：F-AF2-01 超时退款 / F-AF2-02 零图路径 + CALL_PROBE
-- Phase 2 副作用修复：F-AF2-03 脱敏占位符 / F-AF2-04 reasoningTokens / F-AF2-05 HTML 编码
-- Phase 3 Workflow：F-AF2-06 run_action 对齐 / F-AF2-07 update_action 版本 / F-AF2-08 模板 order
-- Phase 4：F-AF2-09 chat cost + refund batchId / F-AF2-10 **L2 真实调用**验收
+- Generator: Richard 完成 F-AF2-01~09 全部，含 migration + 回归测试
+- 待验收：F-AF2-10 codex L2 真实调用验收
+
+## 部署前注意
+- 新增 migration: `20260416_fix_template_step_order_base`（template step order 0→1）
+- 需执行 `npx prisma migrate deploy && npx prisma generate`
 
 ## 生产状态
 - 2026-04-16 运维修复：火山引擎 7 channel realModelId → ep-ID + 8 旧模型 disabled
