@@ -868,6 +868,43 @@ async function main() {
     }
   });
 
+  // 21. F-AF2-06 regression — run_action usage must use snake_case matching run_template
+  await step("21. F-AF2-06 run_action usage format alignment", async () => {
+    // Create a quick action and run it
+    const created = JSON.parse(
+      parseTextContent(
+        await callTool("create_action", {
+          name: `F-AF2-06-${Date.now()}`,
+          description: "usage format test",
+          model: selectedTextModel ?? "gpt-4o-mini",
+          messages: [{ role: "user", content: "say ok" }],
+        }),
+      ),
+    );
+    const actionId: string = created.id ?? created.action?.id;
+    if (!actionId) {
+      console.log("(create_action unavailable, skipping) ");
+      return;
+    }
+    const runRes = await callTool("run_action", { action_id: actionId });
+    const data = JSON.parse(parseTextContent(runRes));
+    if (!data.usage) throw new Error("run_action missing usage");
+    // Must use snake_case keys matching run_template
+    if (data.usage.prompt_tokens === undefined) {
+      throw new Error("run_action usage missing prompt_tokens (snake_case)");
+    }
+    if (data.usage.output_tokens === undefined) {
+      throw new Error("run_action usage missing output_tokens (snake_case)");
+    }
+    if (data.usage.total_tokens === undefined) {
+      throw new Error("run_action usage missing total_tokens (snake_case)");
+    }
+    // Must NOT use old camelCase format
+    if (data.usage.promptTokens !== undefined) {
+      throw new Error("run_action usage still uses camelCase promptTokens");
+    }
+  });
+
   console.log("\n" + "=".repeat(60));
   console.log(`Results: ${passed} PASS | ${failed} FAIL | ${passed + failed} total`);
   console.log("=".repeat(60));

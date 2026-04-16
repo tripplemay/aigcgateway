@@ -19,7 +19,7 @@ export function registerRunAction(server: McpServer, opts: McpServerOptions): vo
 
   server.tool(
     "run_action",
-    "Run a single Action by its ID. Pass variables to inject into the Action's prompt template. Returns the complete text output, trace ID, and token usage.",
+    "Run a single Action by its ID. Pass variables to inject into the Action's prompt template. Returns the complete text output, trace ID, and token usage (prompt_tokens, output_tokens, total_tokens, thinking_tokens for reasoning models).",
     {
       action_id: z.string().describe("Action ID to run"),
       variables: z
@@ -179,6 +179,27 @@ export function registerRunAction(server: McpServer, opts: McpServerOptions): vo
           source: "mcp",
         });
 
+        // F-AF2-06: align usage format with run_template (snake_case + thinking_tokens)
+        const rawUsage = result.usage;
+        let usagePayload: Record<string, number> | null = null;
+        if (rawUsage) {
+          const promptTokens = rawUsage.prompt_tokens ?? 0;
+          const completionTokens = rawUsage.completion_tokens ?? 0;
+          const reasoningTokens = rawUsage.reasoning_tokens;
+          const outputTokens =
+            reasoningTokens !== undefined
+              ? Math.max(0, completionTokens - reasoningTokens)
+              : completionTokens;
+          const totalTokens =
+            rawUsage.total_tokens ?? promptTokens + completionTokens + (reasoningTokens ?? 0);
+          usagePayload = {
+            prompt_tokens: promptTokens,
+            output_tokens: outputTokens,
+            total_tokens: totalTokens,
+          };
+          if (reasoningTokens !== undefined) usagePayload.thinking_tokens = reasoningTokens;
+        }
+
         return {
           content: [
             {
@@ -187,13 +208,7 @@ export function registerRunAction(server: McpServer, opts: McpServerOptions): vo
                 {
                   output: result.output,
                   traceId: result.traceId,
-                  usage: result.usage
-                    ? {
-                        promptTokens: result.usage.prompt_tokens,
-                        completionTokens: result.usage.completion_tokens,
-                        totalTokens: result.usage.total_tokens,
-                      }
-                    : null,
+                  usage: usagePayload,
                 },
                 null,
                 2,
