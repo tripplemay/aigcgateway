@@ -905,6 +905,47 @@ async function main() {
     }
   });
 
+  // 22. F-AF2-07 regression — update_action model change auto-creates version
+  await step("22. F-AF2-07 update_action model change → new version", async () => {
+    // Create a fresh action
+    const created = JSON.parse(
+      parseTextContent(
+        await callTool("create_action", {
+          name: `F-AF2-07-${Date.now()}`,
+          description: "version test",
+          model: selectedTextModel ?? "gpt-4o-mini",
+          messages: [{ role: "user", content: "say ok" }],
+        }),
+      ),
+    );
+    const actionId: string = created.id ?? created.action?.id;
+    if (!actionId) {
+      console.log("(create_action unavailable, skipping) ");
+      return;
+    }
+    // Update model → should auto-create a new version
+    const updateRes = await callTool("update_action", {
+      action_id: actionId,
+      model: "deepseek-v3",
+    });
+    const updateData = JSON.parse(parseTextContent(updateRes));
+    if (!updateData.version_id) {
+      throw new Error("update_action model change did not create new version");
+    }
+    if (!updateData.message.includes("version")) {
+      throw new Error(`Expected version creation message, got: ${updateData.message}`);
+    }
+    // Update name only → should NOT create a new version
+    const nameRes = await callTool("update_action", {
+      action_id: actionId,
+      name: "renamed",
+    });
+    const nameData = JSON.parse(parseTextContent(nameRes));
+    if (nameData.version_id) {
+      throw new Error("Name-only update should not create a version");
+    }
+  });
+
   console.log("\n" + "=".repeat(60));
   console.log(`Results: ${passed} PASS | ${failed} FAIL | ${passed + failed} total`);
   console.log("=".repeat(60));

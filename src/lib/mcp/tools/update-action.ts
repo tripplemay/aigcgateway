@@ -15,7 +15,7 @@ export function registerUpdateAction(server: McpServer, opts: McpServerOptions):
 
   server.tool(
     "update_action",
-    "Update an Action's metadata (name, description, model). Does not create a new version — use create_action_version for that.",
+    "Update an Action's metadata (name, description, model). When the model is changed, a new version is automatically created to preserve history.",
     {
       action_id: z.string().describe("Action ID to update"),
       name: z.string().optional().describe("New action name"),
@@ -29,7 +29,12 @@ export function registerUpdateAction(server: McpServer, opts: McpServerOptions):
       }
       if (!projectId) {
         return {
-          content: [{ type: "text" as const, text: "[no_project] No project found. Use create_project to create one." }],
+          content: [
+            {
+              type: "text" as const,
+              text: "[no_project] No project found. Use create_project to create one.",
+            },
+          ],
           isError: true,
         };
       }
@@ -63,6 +68,35 @@ export function registerUpdateAction(server: McpServer, opts: McpServerOptions):
         };
       }
 
+      // F-AF2-07: when model changes, auto-create a new version to preserve history
+      let newVersionInfo: { version_id: string; version_number: number } | null = null;
+      if (model !== undefined && model !== action.model && action.activeVersionId) {
+        const activeVersion = await prisma.actionVersion.findFirst({
+          where: { id: action.activeVersionId, actionId: action_id },
+        });
+        if (activeVersion) {
+          const lastVersion = await prisma.actionVersion.findFirst({
+            where: { actionId: action_id },
+            orderBy: { versionNumber: "desc" },
+          });
+          const nextVersion = (lastVersion?.versionNumber ?? 0) + 1;
+          const newVersion = await prisma.actionVersion.create({
+            data: {
+              actionId: action_id,
+              versionNumber: nextVersion,
+              messages: activeVersion.messages as object,
+              variables: (activeVersion.variables as object) ?? [],
+              changelog: `Model changed from ${action.model} to ${model}`,
+            },
+          });
+          data.activeVersionId = newVersion.id;
+          newVersionInfo = {
+            version_id: newVersion.id,
+            version_number: newVersion.versionNumber,
+          };
+        }
+      }
+
       const updated = await prisma.action.update({ where: { id: action_id }, data });
 
       return {
@@ -74,7 +108,10 @@ export function registerUpdateAction(server: McpServer, opts: McpServerOptions):
                 action_id: updated.id,
                 name: updated.name,
                 model: updated.model,
-                message: "Action updated",
+                message: newVersionInfo
+                  ? `Action updated. New version v${newVersionInfo.version_number} created (model changed).`
+                  : "Action updated",
+                ...(newVersionInfo ?? {}),
               },
               null,
               2,
