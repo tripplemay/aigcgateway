@@ -996,6 +996,16 @@ async function main() {
     if (data.transactions.length > 2) throw new Error("limit=2 returned more than 2");
   });
 
+  // 26. F-AP-02 regression — list_logs accepts action_id/template_id params
+  await step("26. F-AP-02 list_logs action_id filter", async () => {
+    // Just verify the param is accepted (no validation error)
+    const result = await callTool("list_logs", { action_id: "nonexistent", limit: 1 });
+    const text = parseTextContent(result);
+    if (text.includes("invalid_enum_value") || text.includes("Unrecognized key")) {
+      throw new Error("list_logs rejected action_id param");
+    }
+  });
+
   console.log("\n" + "=".repeat(60));
   console.log(`Results: ${passed} PASS | ${failed} FAIL | ${passed + failed} total`);
   console.log("=".repeat(60));

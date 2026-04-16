@@ -47,8 +47,10 @@ export function registerListLogs(server: McpServer, opts: McpServerOptions): voi
         .datetime({ offset: true })
         .optional()
         .describe("Only return logs created strictly before this ISO 8601 timestamp"),
+      action_id: z.string().optional().describe("Filter by Action ID"),
+      template_id: z.string().optional().describe("Filter by Template Run ID"),
     },
-    async ({ limit, model, status, search, since, until }) => {
+    async ({ limit, model, status, search, since, until, action_id, template_id }) => {
       const permErr = checkMcpPermission(permissions, "logAccess");
       if (permErr) {
         return { content: [{ type: "text" as const, text: permErr }], isError: true };
@@ -92,6 +94,8 @@ export function registerListLogs(server: McpServer, opts: McpServerOptions): voi
           WHERE "projectId" = ${projectId}
             AND (${sinceDate}::timestamptz IS NULL OR "createdAt" >= ${sinceDate}::timestamptz)
             AND (${untilDate}::timestamptz IS NULL OR "createdAt" < ${untilDate}::timestamptz)
+            AND (${action_id ?? null}::text IS NULL OR "actionId" = ${action_id ?? null}::text)
+            AND (${template_id ?? null}::text IS NULL OR "templateRunId" = ${template_id ?? null}::text)
             AND (
               -- Extract text content from JSONB array elements for reliable matching
               EXISTS (
@@ -139,6 +143,8 @@ export function registerListLogs(server: McpServer, opts: McpServerOptions): voi
           : {}),
         ...(model ? { modelName: model } : {}),
         ...(sinceDate || untilDate ? { createdAt: createdAtFilter } : {}),
+        ...(action_id ? { actionId: action_id } : {}),
+        ...(template_id ? { templateRunId: template_id } : {}),
       };
 
       const logs = await prisma.callLog.findMany({
