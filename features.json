@@ -90,7 +90,9 @@
       "title": "USAGE-ALERTS + CLEANUP 全量验收",
       "priority": "high",
       "executor": "codex",
-      "status": "pending",
+      "status": "done",
+      "completed_at": "2026-04-16T11:00:00Z",
+      "note": "全部 8 验收点通过。CLEANUP 8 项全部修复。tsc 干净。签收报告：docs/test-reports/USAGE-ALERTS-signoff-2026-04-16.md",
       "acceptance": "codex 执行：1) 5 类事件触发后 dispatcher 正确派发到对应 channel；2) inApp 通知能在 NotificationCenter 看到；3) webhook 失败时进入退避重试，最终标 error 状态；4) 偏好设置修改后立即生效；5) 跨用户隔离：A 用户事件不会出现在 B 用户的通知列表；6) BALANCE_LOW 24 小时去重生效；7) Webhook test 按钮可正常发送；8) CLEANUP 验证：3 个子路由 UI 一致 / reassign popover 可用 / 2 个测试 bug 修复后 scripts/test-all.sh 不再有 pre-existing 失败 / 视觉细节 grep 通过；9) 签收报告生成"
     }
   ]

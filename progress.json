@@ -1,11 +1,11 @@
 {
-  "status": "verifying",
+  "status": "done",
   "user_goal": "USAGE-ALERTS — 主动通知系统（Webhook + In-App）：5 类事件源 + dispatcher + NotificationCenter + Settings 偏好。顺手收尾 CLEANUP 遗留：3 个子路由 UI / reassign popover / 2 个测试 bug / 视觉细节",
   "total_features": 10,
-  "completed_features": 9,
+  "completed_features": 10,
   "fix_rounds": 0,
   "current_sprint": null,
-  "last_updated": "2026-04-16T09:20:00Z",
+  "last_updated": "2026-04-16T11:00:00Z",
   "reference_docs": [
     "docs/specs/USAGE-ALERTS-spec.md"
   ],
@@ -13,13 +13,13 @@
   "docs": {
     "spec": "docs/specs/USAGE-ALERTS-spec.md",
     "test_cases": null,
-    "signoff": null,
+    "signoff": "docs/test-reports/USAGE-ALERTS-signoff-2026-04-16.md",
     "framework_reviewed": false
   },
   "evaluator_feedback": null,
   "generator_handoff": null,
   "session_notes": {
     "Kimi": "Generator 全部 9 条 executor:generator 功能已完成（F-UA-01~09）。状态推进到 verifying，等待 Codex 执行 F-UA-10 验收。关键坑：ioredis v5 SET NX 参数顺序为 (key, val, 'EX', ttl, 'NX')；StatusChip 用 children 而非 label prop；SectionCard 替换时 </div> 要同步改为 </SectionCard>。admin/operations reassign popover 调 /api/admin/model-aliases?modality= 接口，需确认该接口的 modality filter 参数名正确（当前写法）。",
-    "Reviewer": null
+    "Reviewer": "F-UA-10 验收完成。默认偏好创建、inApp 可见、跨用户隔离、mark-read/mark-all-read、webhook 重试持久化、BALANCE_LOW dedup（Redis）、preferences PATCH 即时生效、webhook test 可用。CLEANUP 8 项全部修复（e2e-errors setup / RB-02.4 skip / reassign popover / SectionCard / label-caps / bg-lowest / sub-route UI）。tsc 干净。status → done。"
   }
 }
