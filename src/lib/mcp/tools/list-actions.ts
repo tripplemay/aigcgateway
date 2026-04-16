@@ -35,7 +35,7 @@ export function registerListActions(server: McpServer, opts: McpServerOptions): 
       const actions = await prisma.action.findMany({
         where: { projectId },
         include: {
-          versions: { orderBy: { versionNumber: "desc" }, take: 1 },
+          versions: { orderBy: { versionNumber: "desc" } },
           _count: { select: { versions: true } },
         },
         orderBy: { updatedAt: "desc" },
