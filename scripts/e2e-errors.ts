@@ -6,6 +6,7 @@
 
 import { prisma } from "@/lib/prisma";
 import { randomBytes } from "node:crypto";
+import { sanitizeErrorMessage } from "@/lib/engine/types";
 
 const BASE = process.env.BASE_URL ?? "http://localhost:3099";
 let passed = 0;
@@ -295,6 +296,47 @@ async function main() {
     });
     if (repeat.status !== 200) {
       throw new Error(`repeat verify status=${repeat.status}, expected 200`);
+    }
+  });
+
+  // F-AF2-03 regression — sanitizeErrorMessage must not leak internal placeholders
+  await step("F-AF2-03 sanitize: [infra removed] → user-friendly message", async () => {
+    const result = sanitizeErrorMessage("Model error at endpoint us-east-1: connection refused");
+    if (result.includes("[infra removed]")) {
+      throw new Error(`Placeholder leaked: ${result}`);
+    }
+    if (!result.includes("list_models")) {
+      throw new Error(`Expected user-friendly message with list_models, got: ${result}`);
+    }
+  });
+
+  await step("F-AF2-03 sanitize: [contact removed] stripped clean", async () => {
+    const result = sanitizeErrorMessage("Error occurred. QQ群:836739524 for help.");
+    if (result.includes("[contact removed]")) {
+      throw new Error(`Placeholder leaked: ${result}`);
+    }
+    if (result.includes("836739524")) {
+      throw new Error(`Contact info leaked: ${result}`);
+    }
+  });
+
+  await step("F-AF2-03 sanitize: [rid removed] stripped clean", async () => {
+    const result = sanitizeErrorMessage("Failed with Request ID: req-abc123def456.");
+    if (result.includes("[rid removed]")) {
+      throw new Error(`Placeholder leaked: ${result}`);
+    }
+    if (result.includes("req-abc123def456")) {
+      throw new Error(`Request ID leaked: ${result}`);
+    }
+  });
+
+  await step("F-AF2-03 sanitize: [upstream preview removed] stripped clean", async () => {
+    const result = sanitizeErrorMessage("Bad request. Content preview: some data here.");
+    if (result.includes("[upstream preview removed]")) {
+      throw new Error(`Placeholder leaked: ${result}`);
+    }
+    if (result.includes("Content preview")) {
+      throw new Error(`Preview leaked: ${result}`);
     }
   });
 

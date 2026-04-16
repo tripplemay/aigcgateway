@@ -213,10 +213,32 @@ export function sanitizeErrorMessage(message: string): string {
   );
   sanitized = sanitized.replace(/\bendpoint'?s? maximum\b[^.]*\./gi, "[upstream limit removed].");
   // Content preview sentences — drop the whole sentence containing the preview.
-  sanitized = sanitized.replace(/[^.]*Content preview[^.]*\.?/gi, "[upstream preview removed]");
-  // Collapse consecutive whitespace the substitutions may have introduced.
+  sanitized = sanitized.replace(/[^.]*Content preview[^.]*\.?/gi, "");
+
+  // F-AF2-03: clean up internal placeholder tokens so they never leak to users.
+  // If the message contains [infra removed], the whole sentence is replaced with
+  // a user-friendly message since the infrastructure detail was the key info.
+  if (sanitized.includes("[infra removed]")) {
+    sanitized = "Model unavailable, please try list_models to find alternatives";
+  } else {
+    // Remove other placeholders that don't carry essential meaning
+    sanitized = sanitized.replace(/\[contact removed\]/g, "");
+    sanitized = sanitized.replace(/\[upstream preview removed\]/g, "");
+    sanitized = sanitized.replace(/\[rid removed\]/g, "");
+    sanitized = sanitized.replace(/\[upstream endpoint description removed\]\.?/g, "");
+    sanitized = sanitized.replace(/\[upstream limit removed\]\.?/g, "");
+    sanitized = sanitized.replace(/\[upstream call removed\]\.?/g, "");
+    sanitized = sanitized.replace(/\[upstream feature\]/g, "");
+    sanitized = sanitized.replace(/\[feature removed\]/g, "");
+  }
+
+  // Collapse consecutive whitespace / punctuation the substitutions may have introduced.
+  sanitized = sanitized.replace(/[,;]\s*[,.;]/g, "."); // ",." → "."
+  sanitized = sanitized.replace(/\.\s*\./g, "."); // ".." → "."
   sanitized = sanitized.replace(/\s{2,}/g, " ").trim();
-  return sanitized;
+  // Remove leading/trailing punctuation
+  sanitized = sanitized.replace(/^[,;.\s]+/, "").replace(/[,;\s]+$/, "");
+  return sanitized || "An error occurred";
 }
 
 export const ErrorCodes = {
