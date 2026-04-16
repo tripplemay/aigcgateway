@@ -229,7 +229,7 @@ export default function McpSetupPage() {
 
   if (projLoading)
     return (
-      <PageContainer size="narrow" data-testid="mcp-setup-loading">
+      <PageContainer data-testid="mcp-setup-loading">
         <PageLoader />
       </PageContainer>
     );
@@ -252,7 +252,7 @@ export default function McpSetupPage() {
   };
 
   return (
-    <PageContainer size="narrow" data-testid="mcp-setup-page">
+    <PageContainer data-testid="mcp-setup-page">
       <PageHeader title={t("title")} subtitle={t("subtitle")} />
 
       {/* Bento Grid */}

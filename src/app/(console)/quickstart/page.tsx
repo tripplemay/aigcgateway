@@ -131,7 +131,7 @@ export default function QuickStartPage() {
   const t = useTranslations("quickstart");
 
   return (
-    <PageContainer size="narrow" data-testid="quickstart-page">
+    <PageContainer data-testid="quickstart-page">
       <PageHeader title={t("title")} subtitle={t("subtitle")} />
 
       <div className="space-y-6">

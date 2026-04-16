@@ -1,28 +1,16 @@
 import * as React from "react";
 import { cn } from "@/lib/utils";
 
-export type PageContainerSize = "default" | "narrow";
-
-interface PageContainerProps extends React.HTMLAttributes<HTMLDivElement> {
-  /** "default" → max-w-7xl, "narrow" → max-w-5xl */
-  size?: PageContainerSize;
-}
+interface PageContainerProps extends React.HTMLAttributes<HTMLDivElement> {}
 
 /**
  * PageContainer — unified outer width/centering wrapper for all console pages.
  *
- * Replaces per-page hand-written `max-w-*` + `mx-auto` + `space-y-*`. All console
- * pages must wrap their content in this component so heading widths stay in sync.
+ * All pages use max-w-7xl. The narrow variant was removed in F-AP-10.
  */
-export function PageContainer({
-  size = "default",
-  className,
-  children,
-  ...rest
-}: PageContainerProps) {
-  const maxW = size === "narrow" ? "max-w-5xl" : "max-w-7xl";
+export function PageContainer({ className, children, ...rest }: PageContainerProps) {
   return (
-    <div className={cn(maxW, "mx-auto w-full space-y-8", className)} {...rest}>
+    <div className={cn("max-w-7xl mx-auto w-full space-y-8", className)} {...rest}>
       {children}
     </div>
   );

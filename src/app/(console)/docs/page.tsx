@@ -54,7 +54,7 @@ function Section({
 export default function DocsPage() {
   const t = useTranslations("docs");
   return (
-    <PageContainer size="narrow" data-testid="docs-page">
+    <PageContainer data-testid="docs-page">
       <PageHeader title={t("title")} subtitle={t("description")} />
 
       <Link
