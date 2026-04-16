@@ -102,20 +102,23 @@ export async function POST(request: Request) {
     );
   }
 
-  // F-ACF-06: max_tokens upper bound — never let a client-requested value
-  // exceed the model's advertised context window. Fail fast with 400 rather
-  // than letting the upstream reject the call after we've billed its input.
+  // F-ACF-06 + F-AP-07: max_tokens upper bound — prefer maxTokens (max output),
+  // fallback to contextWindow. Fail fast with 400 rather than letting the
+  // upstream reject the call after we've billed its input.
   const modelContextWindow = route.model?.contextWindow ?? null;
+  const modelMaxOutput = route.model?.maxTokens ?? null;
+  const maxTokensLimit = modelMaxOutput ?? modelContextWindow;
+  const maxTokensLimitLabel = modelMaxOutput ? "max output limit" : "context window";
   if (
     typeof body.max_tokens === "number" &&
-    modelContextWindow !== null &&
-    body.max_tokens > modelContextWindow
+    maxTokensLimit !== null &&
+    body.max_tokens > maxTokensLimit
   ) {
     if (rlKey && rlMember) rollbackRateLimit(rlKey, rlMember).catch(() => {});
     return errorResponse(
       400,
       "invalid_parameter",
-      `max_tokens (${body.max_tokens}) exceeds the context window of model "${body.model}" (${modelContextWindow}).`,
+      `max_tokens (${body.max_tokens}) exceeds the ${maxTokensLimitLabel} of model "${body.model}" (${maxTokensLimit}).`,
       { param: "max_tokens" },
     );
   }

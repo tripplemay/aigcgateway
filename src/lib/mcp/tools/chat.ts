@@ -318,18 +318,21 @@ export function registerChat(server: McpServer, opts: McpServerOptions): void {
         };
       }
 
-      // F-ACF-06: max_tokens must not exceed the routed model's context window.
+      // F-ACF-06 + F-AP-07: prefer maxTokens (max output), fallback to contextWindow.
       const modelContextWindow = route.model?.contextWindow ?? null;
+      const modelMaxOutput = route.model?.maxTokens ?? null;
+      const maxTokensLimit = modelMaxOutput ?? modelContextWindow;
+      const maxTokensLimitLabel = modelMaxOutput ? "max output limit" : "context window";
       if (
         typeof max_tokens === "number" &&
-        modelContextWindow !== null &&
-        max_tokens > modelContextWindow
+        maxTokensLimit !== null &&
+        max_tokens > maxTokensLimit
       ) {
         return {
           content: [
             {
               type: "text" as const,
-              text: `[invalid_parameter] max_tokens (${max_tokens}) exceeds the context window of model "${model}" (${modelContextWindow}).`,
+              text: `[invalid_parameter] max_tokens (${max_tokens}) exceeds the ${maxTokensLimitLabel} of model "${model}" (${maxTokensLimit}).`,
             },
           ],
           isError: true,
