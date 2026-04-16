@@ -19,7 +19,8 @@
 | F-AP-07 | max_tokens 校验引用 maxOutputTokens + 错误语言统一 | RL-007 + DX-014 | max_tokens 超限时引用 model.maxTokens（而非 contextWindow）；所有错误消息统一为英文 + error_code 枚举 |
 | F-AP-08 | generate_image size 参数增加 enum 提示 | DX-008 | generate_image schema 的 size 字段 description 列出常见合法值；或运行时对传入 size 与 supportedSizes 做交叉校验（已有 invalid_size 逻辑，本条确认 schema 层面也有提示） |
 | F-AP-09 | 余额显示从 USD 转换为 CNY | 用户反馈 | 侧边栏/dashboard/balance 页面的余额显示从 `$49.93` 改为 `¥364.49`（按 SystemConfig USD_TO_CNY_RATE 或 env EXCHANGE_RATE 换算）；所有前端 `$` 前缀替换为 `¥`；API 层 balance 字段仍返回 USD 原值（不改后端），前端展示层做转换 |
-| F-AP-10 | API-POLISH 全量验收 | — | codex 执行全部 9 项验证 + 签收报告 |
+| F-AP-10 | quickstart / mcp-setup / docs 三个页面 PageContainer 从 narrow 改 default | 用户反馈 | 3 个文件的 `size="narrow"` 删除（默认 = max-w-7xl），与其他 9 个页面宽度统一；同时删除 PageContainer 的 narrow variant（不再需要） |
+| F-AP-11 | API-POLISH 全量验收 | — | codex 执行全部 10 项验证 + 签收报告 |
 
 ## 不在本批次
 
