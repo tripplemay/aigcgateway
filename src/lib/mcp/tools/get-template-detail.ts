@@ -101,20 +101,25 @@ export function registerGetTemplateDetail(server: McpServer, opts: McpServerOpti
         steps: template.steps.map((s) => ({
           order: s.order,
           role: s.role,
-          actionId: s.action.id,
+          // F-AF2-08: redact cross-tenant actionId/versionId for public previews
+          ...(isPublicPreview ? { actionId: "(public-preview)" } : { actionId: s.action.id }),
           actionName: s.action.name,
           model: s.action.model,
           actionDescription: s.action.description,
-          activeVersionId: s.action.activeVersionId ?? null,
-          activeVersionNumber: s.action.activeVersionId
-            ? (versionNumberMap.get(s.action.activeVersionId) ?? null)
-            : null,
-          ...(s.lockedVersionId
-            ? {
-                lockedVersionId: s.lockedVersionId,
-                lockedVersionNumber: versionNumberMap.get(s.lockedVersionId) ?? null,
-              }
-            : {}),
+          ...(isPublicPreview
+            ? {}
+            : {
+                activeVersionId: s.action.activeVersionId ?? null,
+                activeVersionNumber: s.action.activeVersionId
+                  ? (versionNumberMap.get(s.action.activeVersionId) ?? null)
+                  : null,
+                ...(s.lockedVersionId
+                  ? {
+                      lockedVersionId: s.lockedVersionId,
+                      lockedVersionNumber: versionNumberMap.get(s.lockedVersionId) ?? null,
+                    }
+                  : {}),
+              }),
         })),
         reservedVariables:
           executionMode === "single"

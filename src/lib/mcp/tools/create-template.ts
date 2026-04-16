@@ -60,7 +60,7 @@ export function registerCreateTemplate(server: McpServer, opts: McpServerOptions
       const actionIds = steps.map((s) => s.action_id);
       const actions = await prisma.action.findMany({
         where: { id: { in: actionIds }, projectId },
-        select: { id: true },
+        select: { id: true, model: true },
       });
       const validIds = new Set(actions.map((a) => a.id));
       const invalidIds = actionIds.filter((id) => !validIds.has(id));
@@ -102,6 +102,19 @@ export function registerCreateTemplate(server: McpServer, opts: McpServerOptions
         }
       }
 
+      // F-AF2-08: warn if any bound action model is unavailable
+      const actionModels = actions.map((a) => a.model);
+      const availableAliases = await prisma.modelAlias.findMany({
+        where: { alias: { in: actionModels }, enabled: true },
+        select: { alias: true },
+      });
+      const availableSet = new Set(availableAliases.map((a) => a.alias));
+      const unavailableModels = actionModels.filter((m) => !availableSet.has(m));
+      const modelWarning =
+        unavailableModels.length > 0
+          ? `Warning: ${unavailableModels.join(", ")} not currently available in list_models. Template will still be created.`
+          : null;
+
       try {
         const template = await prisma.template.create({
           data: {
@@ -130,6 +143,7 @@ export function registerCreateTemplate(server: McpServer, opts: McpServerOptions
                   name: template.name,
                   step_count: template.steps.length,
                   message: "Template created successfully",
+                  ...(modelWarning ? { warning: modelWarning } : {}),
                 },
                 null,
                 2,

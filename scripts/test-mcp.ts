@@ -946,6 +946,31 @@ async function main() {
     }
   });
 
+  // 23. F-AF2-08 regression — public template detail must not expose actionId
+  await step("23. F-AF2-08 public template actionId redacted", async () => {
+    const listRes = await callTool("list_public_templates", {});
+    const templates = JSON.parse(parseTextContent(listRes));
+    if (!Array.isArray(templates) || templates.length === 0) {
+      console.log("(no public templates, skipping) ");
+      return;
+    }
+    const tplId = templates[0].id;
+    const detailRes = await callTool("get_template_detail", { template_id: tplId });
+    const detail = JSON.parse(parseTextContent(detailRes));
+    if (!detail.isPublicPreview) {
+      console.log("(template is owned, not public preview — skipping) ");
+      return;
+    }
+    for (const step of detail.steps ?? []) {
+      if (step.actionId && step.actionId !== "(public-preview)") {
+        throw new Error(`Public preview leaks actionId: ${step.actionId}`);
+      }
+      if (step.activeVersionId) {
+        throw new Error(`Public preview leaks activeVersionId: ${step.activeVersionId}`);
+      }
+    }
+  });
+
   console.log("\n" + "=".repeat(60));
   console.log(`Results: ${passed} PASS | ${failed} FAIL | ${passed + failed} total`);
   console.log("=".repeat(60));

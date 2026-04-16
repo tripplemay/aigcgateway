@@ -43,11 +43,11 @@ export async function GET(request: Request, { params }: Params) {
     forkCount: template._count.forks,
     executionMode: inferExecutionMode(template.steps),
     updatedAt: template.updatedAt,
+    // F-AF2-08: redact cross-tenant actionId for public templates
     steps: template.steps.map((s) => ({
       id: s.id,
       order: s.order,
       role: s.role,
-      actionId: s.action.id,
       actionName: s.action.name,
       actionModel: s.action.model,
       actionDescription: s.action.description,
