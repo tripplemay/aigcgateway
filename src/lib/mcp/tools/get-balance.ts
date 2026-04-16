@@ -56,6 +56,7 @@ export function registerGetBalance(server: McpServer, opts: McpServerOptions): v
             amount: true,
             balanceAfter: true,
             traceId: true,
+            batchId: true,
             description: true,
             createdAt: true,
           },
@@ -82,10 +83,11 @@ export function registerGetBalance(server: McpServer, opts: McpServerOptions): v
             traceId: t.traceId ?? null,
             description: t.description,
             createdAt: t.createdAt,
-            // F-AF2-09: expose model/source for both DEDUCTION and REFUND
+            // F-AF2-09: expose model/source/batchId for DEDUCTION and REFUND
             ...((t.type === "DEDUCTION" || t.type === "REFUND") && log
               ? { model: log.modelName, source: log.source }
               : {}),
+            ...(t.batchId ? { batchId: t.batchId } : {}),
           };
         });
       }

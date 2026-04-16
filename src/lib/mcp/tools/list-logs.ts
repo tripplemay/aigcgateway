@@ -236,18 +236,12 @@ async function getReasoningModelNames(modelNames: string[]): Promise<Set<string>
 
   const aliases = await prisma.modelAlias.findMany({
     where: { alias: { in: unique } },
-    select: {
-      alias: true,
-      models: {
-        select: { capabilities: true },
-        take: 1,
-      },
-    },
+    select: { alias: true, capabilities: true },
   });
 
   const result = new Set<string>();
   for (const a of aliases) {
-    const caps = (a.models?.[0]?.capabilities ?? null) as { reasoning?: boolean } | null;
+    const caps = (a.capabilities ?? null) as { reasoning?: boolean } | null;
     if (caps?.reasoning === true) result.add(a.alias);
   }
   return result;

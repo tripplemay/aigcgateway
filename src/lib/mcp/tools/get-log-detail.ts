@@ -100,11 +100,9 @@ export function registerGetLogDetail(server: McpServer, opts: McpServerOptions):
       const summary = log.responseSummary as Record<string, unknown> | null;
       const alias = await prisma.modelAlias.findFirst({
         where: { alias: log.modelName },
-        select: {
-          models: { select: { capabilities: true }, take: 1 },
-        },
+        select: { capabilities: true },
       });
-      const logModelCaps = (alias?.models?.[0]?.capabilities ?? null) as {
+      const logModelCaps = (alias?.capabilities ?? null) as {
         reasoning?: boolean;
       } | null;
       const reasoningTokensRaw =

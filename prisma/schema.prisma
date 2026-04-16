@@ -430,6 +430,7 @@ model Transaction {
   paymentRaw     Json?
   callLogId      String?
   traceId        String?
+  batchId        String?
   description    String?
   createdAt      DateTime          @default(now())
 
@@ -440,6 +441,7 @@ model Transaction {
   @@index([projectId, type])
   @@index([userId, createdAt(sort: Desc)])
   @@index([paymentOrderId])
+  @@index([batchId])
   @@map("transactions")
 }
 
