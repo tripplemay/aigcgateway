@@ -47,7 +47,7 @@
       "title": "前端：global-library 分类 Tab + 排序 + 评分展示",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) 顶部从 SystemConfig 动态读取分类列表渲染为 Tab 按钮（全部 + 各分类含 icon）；2) 点击分类筛选模板列表；3) 搜索栏旁增加排序下拉（推荐/热门/最高评分/最新）；4) 模板卡片展示 ★ averageScore (ratingCount) + Fork 数；5) 无评分时显示暂无评分；6) 使用 SectionCard / StatusChip / Button gradient-primary 公共组件；7) i18n；8) tsc 通过"
     },
     {
