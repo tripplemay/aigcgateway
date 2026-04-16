@@ -1,25 +1,26 @@
 {
-  "status": "done",
-  "user_goal": "USAGE-ALERTS — 主动通知系统（Webhook + In-App）：5 类事件源 + dispatcher + NotificationCenter + Settings 偏好。顺手收尾 CLEANUP 遗留：3 个子路由 UI / reassign popover / 2 个测试 bug / 视觉细节",
+  "status": "building",
+  "user_goal": "AUDIT-FOLLOWUP-2 — 修复 reports-20260416 审计的 critical/high：客户端超时退款 + 零图路径 + CALL_PROBE + 脱敏占位符 + reasoningTokens 过滤 + HTML 编码修复 + run_action 对齐 + update_action 版本 + 模板 order + chat cost 字段",
   "total_features": 10,
-  "completed_features": 10,
+  "completed_features": 0,
   "fix_rounds": 0,
   "current_sprint": null,
-  "last_updated": "2026-04-16T11:00:00Z",
+  "last_updated": "2026-04-16T10:00:00Z",
   "reference_docs": [
-    "docs/specs/USAGE-ALERTS-spec.md"
+    "docs/specs/AUDIT-FOLLOWUP-2-spec.md",
+    "docs/test-reports/user_report/reports-20260416/all-assertions-20260416.json"
   ],
   "role_assignments": null,
   "docs": {
-    "spec": "docs/specs/USAGE-ALERTS-spec.md",
+    "spec": "docs/specs/AUDIT-FOLLOWUP-2-spec.md",
     "test_cases": null,
-    "signoff": "docs/test-reports/USAGE-ALERTS-signoff-2026-04-16.md",
+    "signoff": null,
     "framework_reviewed": false
   },
   "evaluator_feedback": null,
   "generator_handoff": null,
   "session_notes": {
-    "Kimi": "Generator 全部 9 条 executor:generator 功能已完成（F-UA-01~09）。状态推进到 verifying，等待 Codex 执行 F-UA-10 验收。关键坑：ioredis v5 SET NX 参数顺序为 (key, val, 'EX', ttl, 'NX')；StatusChip 用 children 而非 label prop；SectionCard 替换时 </div> 要同步改为 </SectionCard>。admin/operations reassign popover 调 /api/admin/model-aliases?modality= 接口，需确认该接口的 modality filter 参数名正确（当前写法）。",
-    "Reviewer": "F-UA-10 验收完成。默认偏好创建、inApp 可见、跨用户隔离、mark-read/mark-all-read、webhook 重试持久化、BALANCE_LOW dedup（Redis）、preferences PATCH 即时生效、webhook test 可用。CLEANUP 8 项全部修复（e2e-errors setup / RB-02.4 skip / reassign popover / SectionCard / label-caps / bg-lowest / sub-route UI）。tsc 干净。status → done。"
+    "Kimi": "Planner 启动 AUDIT-FOLLOWUP-2 批次（9 generator + 1 codex = 10 条）。来源：reports-20260416 审计 60 条断言。今天已通过运维操作修复了最紧急的火山引擎 realModelId 问题（deepseek-v3/doubao-pro 恢复）。本批次处理剩余的 critical/high：(1) 客户端超时扣费（reasoning 模型非流式 + gpt-image 60s timeout）；(2) 零图先扣后退路径 + CALL_PROBE 运行化；(3) 脱敏占位符 [infra removed] 整段替换；(4) reasoningTokens 按 capabilities 过滤（glm-4.7-flash 误暴露）；(5) API 响应 HTML 实体编码修复（F-AF-01 副作用）；(6) run_action 与 run_template 字段命名/thinking_tokens 对齐；(7) update_action 改 model 自动创版本；(8) 公共模板 order 基数统一 + 跨租户 actionId 脱敏；(9) chat 响应补 cost + refund 补 batchId。F-AF2-10 强制 L2 真实调用验收。USAGE-ALERTS 已签收 10/10。",
+    "Reviewer": null
   }
 }
