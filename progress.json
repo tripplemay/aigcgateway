@@ -1,11 +1,11 @@
 {
-  "status": "verifying",
+  "status": "done",
   "user_goal": "ROUTING-RESILIENCE — 路由韧性：健康检查只覆盖 aliased channel + 调用失败自动 failover 到下一个 channel，从根本上消除幽灵模型问题",
   "total_features": 5,
-  "completed_features": 4,
+  "completed_features": 5,
   "fix_rounds": 0,
   "current_sprint": null,
-  "last_updated": "2026-04-16T18:00:00Z",
+  "last_updated": "2026-04-16T20:00:00Z",
   "reference_docs": [
     "docs/specs/ROUTING-RESILIENCE-spec.md"
   ],
@@ -13,13 +13,13 @@
   "docs": {
     "spec": "docs/specs/ROUTING-RESILIENCE-spec.md",
     "test_cases": null,
-    "signoff": null,
+    "signoff": "docs/test-reports/ROUTING-RESILIENCE-signoff-2026-04-16.md",
     "framework_reviewed": false
   },
   "evaluator_feedback": null,
   "generator_handoff": null,
   "session_notes": {
     "Kimi": "Planner 启动 ROUTING-RESILIENCE 批次（4 generator + 1 codex = 5 条）。来源：生产渠道健康度诊断发现 (1) scheduler 每轮只检查 5 个 channel 但 DB 有 ~400 个（330 个孤儿挤占名额），(2) router 选中 channel 后调用失败不会 failover 到下一个。F-RR-01 scheduler 只检查 aliased + 提高上限（5→20, 2→5）；F-RR-02 请求级 failover（可重试错误自动换 channel，确定性错误不重试）；F-RR-03 RouteResult 返回候选列表（F-RR-02 依赖）；F-RR-04 孤儿清理脚本。这是解决'幽灵模型'问题的根本方案——有了 failover，即使 health 数据过期，用户调用也能自动兜底。",
-    "Reviewer": null
+    "Reviewer": "F-RR-05 验收完成。withFailover 单元测试：failover OK / non-retryable OK / max-retry OK。routeByAlias candidates 排序验证通过。channel DISABLED failover + restore 验证通过。scheduler 过滤 315/319 孤儿 channel。孤儿清理脚本 dry-run 正常。全 6 调用点 failover 接线代码审阅确认。pre-existing tsc 错误 get-balance.ts 不属本批次。status → done。"
   }
 }

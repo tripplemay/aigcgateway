@@ -39,7 +39,9 @@
       "title": "ROUTING-RESILIENCE 全量验收",
       "priority": "high",
       "executor": "codex",
-      "status": "pending",
+      "status": "done",
+      "completed_at": "2026-04-16T20:00:00Z",
+      "note": "withFailover unit tests PASS。routeByAlias candidates 排序验证。channel DISABLE/RESTORE failover 验证。scheduler 315/319 孤儿跳过。清理脚本 dry-run 正常。6 调用点全覆盖确认。",
       "acceptance": "codex 执行：1) 制造一个 channel 故障（临时 DISABLE priority 最高的 channel），调用该别名应自动 failover 到下一个 channel 并成功返回；2) 恢复 channel 后调用仍正常；3) scheduler 日志确认只检查 aliased channel；4) 孤儿清理脚本 dry-run 输出合理数量（~300）；5) 签收报告生成"
     }
   ]
