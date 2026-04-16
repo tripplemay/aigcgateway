@@ -11,8 +11,15 @@ import type { ProviderConfig } from "@prisma/client";
 import type { ChatCompletionRequest, ChatMessage, Quirk } from "./types";
 
 export function getQuirks(config: ProviderConfig): Set<Quirk> {
-  const raw = (config.quirks as Quirk[] | null) ?? [];
-  return new Set(raw);
+  const quirks = config.quirks;
+  // Support both legacy array format and new object format { flags: [...], endpointMap: {...} }
+  if (Array.isArray(quirks)) {
+    return new Set(quirks as Quirk[]);
+  }
+  if (quirks && typeof quirks === "object" && "flags" in quirks) {
+    return new Set((quirks as { flags: Quirk[] }).flags ?? []);
+  }
+  return new Set();
 }
 
 /**
@@ -88,8 +95,7 @@ function mergeSystemMessages(messages: ChatMessage[]): ChatMessage[] {
   const firstUserIdx = rest.findIndex((m) => m.role === "user");
   if (firstUserIdx >= 0) {
     const original = rest[firstUserIdx];
-    const originalContent =
-      typeof original.content === "string" ? original.content : "";
+    const originalContent = typeof original.content === "string" ? original.content : "";
     rest[firstUserIdx] = {
       ...original,
       content: `${merged}\n\n${originalContent}`,

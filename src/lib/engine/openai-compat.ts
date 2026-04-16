@@ -21,6 +21,18 @@ import { createSSEParser, createTextDecoderStream } from "./sse-parser";
 
 export class OpenAICompatEngine implements EngineAdapter {
   // ------------------------------------------------------------------
+  // Model ID resolution — translates canonical model name to provider-
+  // specific endpoint ID when a mapping exists in ProviderConfig.quirks.
+  // This is the root fix for volcengine ep-ID being overwritten by sync.
+  // ------------------------------------------------------------------
+
+  protected resolveModelId(route: RouteResult): string {
+    const quirks = route.config.quirks as Record<string, unknown> | null;
+    const endpointMap = quirks?.endpointMap as Record<string, string> | undefined;
+    return endpointMap?.[route.channel.realModelId] ?? route.channel.realModelId;
+  }
+
+  // ------------------------------------------------------------------
   // 公共方法
   // ------------------------------------------------------------------
 
@@ -113,7 +125,7 @@ export class OpenAICompatEngine implements EngineAdapter {
     const headers = this.buildHeaders(route);
 
     const body = {
-      model: route.channel.realModelId,
+      model: this.resolveModelId(route),
       prompt: request.prompt,
       n: request.n ?? 1,
       size: request.size ?? "1024x1024",
@@ -143,8 +155,8 @@ export class OpenAICompatEngine implements EngineAdapter {
     request: ChatCompletionRequest,
     route: RouteResult,
   ): ChatCompletionRequest {
-    // 1. 替换为真实模型 ID
-    const req = { ...request, model: route.channel.realModelId };
+    // 1. 替换为真实模型 ID（通过 resolveModelId 做 endpoint 映射）
+    const req = { ...request, model: this.resolveModelId(route) };
     // 2. 应用配置覆盖
     const overlaid = applyConfigOverlay(req, route.config);
     // 3. 提取 max_reasoning_tokens（不让它原样透传到上游，避免 OpenAI 400）
@@ -307,7 +319,7 @@ export class OpenAICompatEngine implements EngineAdapter {
     route: RouteResult,
   ): Promise<ImageGenerationResponse> {
     const chatReq: ChatCompletionRequest = {
-      model: route.channel.realModelId,
+      model: this.resolveModelId(route),
       messages: [{ role: "user", content: request.prompt }],
     };
 

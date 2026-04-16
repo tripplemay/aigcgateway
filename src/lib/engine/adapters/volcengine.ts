@@ -9,11 +9,7 @@
  */
 
 import { OpenAICompatEngine } from "../openai-compat";
-import type {
-  ImageGenerationRequest,
-  ImageGenerationResponse,
-  RouteResult,
-} from "../types";
+import type { ImageGenerationRequest, ImageGenerationResponse, RouteResult } from "../types";
 import { EngineError, ErrorCodes } from "../types";
 
 export class VolcengineAdapter extends OpenAICompatEngine {
@@ -48,11 +44,7 @@ export class VolcengineAdapter extends OpenAICompatEngine {
     }
 
     // 不应到达这里
-    throw new EngineError(
-      "All image generation attempts failed",
-      ErrorCodes.PROVIDER_ERROR,
-      502,
-    );
+    throw new EngineError("All image generation attempts failed", ErrorCodes.PROVIDER_ERROR, 502);
   }
 
   /**
@@ -66,15 +58,19 @@ export class VolcengineAdapter extends OpenAICompatEngine {
     const headers = this.buildHeaders(route);
 
     const body = {
-      model: route.channel.realModelId,
+      model: this.resolveModelId(route),
       messages: [{ role: "user", content: request.prompt }],
     };
 
-    const response = await this.fetchWithProxy(url, {
-      method: "POST",
-      headers,
-      body: JSON.stringify(body),
-    }, route);
+    const response = await this.fetchWithProxy(
+      url,
+      {
+        method: "POST",
+        headers,
+        body: JSON.stringify(body),
+      },
+      route,
+    );
 
     const json = (await response.json()) as Record<string, unknown>;
     return this.extractImageFromChatResponse(json);
@@ -91,17 +87,21 @@ export class VolcengineAdapter extends OpenAICompatEngine {
     const headers = this.buildHeaders(route);
 
     const body = {
-      model: route.channel.realModelId,
+      model: this.resolveModelId(route),
       prompt: request.prompt,
       n: request.n ?? 1,
       ...(request.size ? { size: request.size } : {}),
     };
 
-    const response = await this.fetchWithProxy(url, {
-      method: "POST",
-      headers,
-      body: JSON.stringify(body),
-    }, route);
+    const response = await this.fetchWithProxy(
+      url,
+      {
+        method: "POST",
+        headers,
+        body: JSON.stringify(body),
+      },
+      route,
+    );
 
     const json = (await response.json()) as Record<string, unknown>;
     return this.normalizeImageResponse(json);
@@ -110,17 +110,13 @@ export class VolcengineAdapter extends OpenAICompatEngine {
   /**
    * 从 chat 响应提取图片
    */
-  private extractImageFromChatResponse(
-    json: Record<string, unknown>,
-  ): ImageGenerationResponse {
+  private extractImageFromChatResponse(json: Record<string, unknown>): ImageGenerationResponse {
     const choices = (json.choices as Record<string, unknown>[]) ?? [];
     const msg = choices[0]?.message as Record<string, unknown> | undefined;
     const content = (msg?.content as string) ?? "";
 
     // 尝试提取 URL
-    const urlMatch = content.match(
-      /https?:\/\/[^\s"'<>]+\.(png|jpg|jpeg|webp|gif|bmp)/i,
-    );
+    const urlMatch = content.match(/https?:\/\/[^\s"'<>]+\.(png|jpg|jpeg|webp|gif|bmp)/i);
 
     if (urlMatch) {
       return {

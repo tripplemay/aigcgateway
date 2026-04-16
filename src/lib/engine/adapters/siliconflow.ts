@@ -7,11 +7,7 @@
  */
 
 import { OpenAICompatEngine } from "../openai-compat";
-import type {
-  ImageGenerationRequest,
-  ImageGenerationResponse,
-  RouteResult,
-} from "../types";
+import type { ImageGenerationRequest, ImageGenerationResponse, RouteResult } from "../types";
 
 export class SiliconFlowAdapter extends OpenAICompatEngine {
   /**
@@ -25,17 +21,21 @@ export class SiliconFlowAdapter extends OpenAICompatEngine {
     const headers = this.buildHeaders(route);
 
     const body = {
-      model: route.channel.realModelId,
+      model: this.resolveModelId(route),
       prompt: request.prompt,
       n: request.n ?? 1,
       ...(request.size ? { size: request.size } : {}),
     };
 
-    const response = await this.fetchWithProxy(url, {
-      method: "POST",
-      headers,
-      body: JSON.stringify(body),
-    }, route);
+    const response = await this.fetchWithProxy(
+      url,
+      {
+        method: "POST",
+        headers,
+        body: JSON.stringify(body),
+      },
+      route,
+    );
 
     const json = (await response.json()) as Record<string, unknown>;
 
