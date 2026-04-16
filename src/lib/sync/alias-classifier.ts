@@ -10,6 +10,7 @@
 
 import { prisma } from "@/lib/prisma";
 import { getApiKey, getBaseUrl } from "./adapters/base";
+import { sendPendingClassificationToAdmins } from "@/lib/notifications/triggers";
 
 // ============================================================
 // 重试辅助
@@ -475,6 +476,12 @@ export async function classifyNewModels(): Promise<{
   console.log(
     `[alias-classifier] Done: classified=${classified}, newAliases=${newAliases}, skipped=${skipped}, errors=${errors.length}`,
   );
+
+  // F-UA-04: notify admins about newly queued pending classifications
+  if (pendingQueued > 0) {
+    sendPendingClassificationToAdmins(pendingQueued).catch(() => {});
+  }
+
   return { classified, newAliases, skipped, pendingQueued, errors };
 }
 

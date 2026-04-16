@@ -25,7 +25,8 @@
       "title": "BALANCE_LOW + SPENDING_RATE_EXCEEDED 事件触发",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
+      "completed_at": "2026-04-16T08:40:00Z",
       "acceptance": "1) src/lib/api/post-process.ts 扣费完成后检查 oldBalance >= alertThreshold && newBalance < alertThreshold 跨越瞬间触发 BALANCE_LOW；2) 24 小时去重：Redis key alert:balance_low:{userId}:{thresholdValue} TTL 86400；3) F-RL-04 的 checkSpendingRate 命中时调 sendNotification(userId, SPENDING_RATE_EXCEEDED, {spent, limit, windowMinutes})，1 小时 Redis 去重；4) payload 含 currentBalance/threshold/projectId（BALANCE_LOW）和 spentAmount/limit/blockedAt（SPENDING_RATE_EXCEEDED）；5) 同 commit 补 regression test；6) tsc 通过"
     },
     {

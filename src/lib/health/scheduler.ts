@@ -21,6 +21,10 @@ import { writeSystemLog } from "@/lib/system-logger";
 import { runHealthCheck, runApiReachabilityCheck, runCallProbe, type CheckResult } from "./checker";
 import { sendAlert } from "./alert";
 import type { RouteResult } from "../engine/types";
+import {
+  sendChannelDownToAdmins,
+  sendChannelRecoveredToAdmins,
+} from "@/lib/notifications/triggers";
 
 const FAIL_THRESHOLD = Number(process.env.HEALTH_CHECK_FAIL_THRESHOLD ?? 3);
 const ACTIVE_INTERVAL = Number(process.env.HEALTH_CHECK_ACTIVE_INTERVAL_MS ?? 600_000); // 10min
@@ -391,4 +395,19 @@ async function updateChannelStatus(route: RouteResult, newStatus: ChannelStatus)
     errorMessage: null,
     timestamp: new Date().toISOString(),
   });
+
+  // F-UA-04: notify admins on PASS→FAIL (→DISABLED) and AUTO_RECOVERY
+  if (newStatus === "DISABLED") {
+    sendChannelDownToAdmins({
+      channelId: route.channel.id,
+      providerName: route.provider.name,
+      modelName: route.model.name,
+    }).catch(() => {});
+  } else if (isRecovery) {
+    sendChannelRecoveredToAdmins({
+      channelId: route.channel.id,
+      providerName: route.provider.name,
+      modelName: route.model.name,
+    }).catch(() => {});
+  }
 }
