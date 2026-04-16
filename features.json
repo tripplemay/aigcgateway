@@ -1,48 +1,70 @@
 {
-  "batch": "ROUTING-RESILIENCE",
-  "created_at": "2026-04-16",
+  "batch": "TEMPLATE-LIBRARY-UPGRADE",
+  "created_at": "2026-04-17",
   "features": [
     {
-      "id": "F-RR-01",
-      "title": "Scheduler 只检查 aliased channel + 提高每轮上限",
+      "id": "F-TL-01",
+      "title": "Schema：Template 加 category + TemplateRating 表",
       "priority": "high",
       "executor": "generator",
-      "status": "done",
-      "acceptance": "1) runScheduledChecks 的 channel 查询增加 WHERE EXISTS (alias_model_links → enabled alias) 过滤，跳过孤儿 channel；2) MAX_CHECKS_PER_ROUND 从 5 提高到 20；3) MAX_PROBES_PER_ROUND 从 2 提高到 5；4) 全覆盖时间从 ~15 分钟降到 ~4 分钟；5) 孤儿 channel 不再占用检查名额；6) tsc 通过"
+      "status": "pending",
+      "acceptance": "1) Template 表新增 category String? 字段（migration）；2) 新增 template_ratings 表（id/userId/templateId/score(1-5)/createdAt + UNIQUE userId+templateId）；3) Template 表新增 ratingCount Int @default(0) + ratingSum Int @default(0)；4) 现有 3 个公共模板补 category='dev-review'；5) tsc 通过"
     },
     {
-      "id": "F-RR-02",
-      "title": "请求级 channel failover（调用失败自动重试下一个 channel）",
+      "id": "F-TL-02",
+      "title": "SystemConfig 预置分类 + 管理端分类管理卡片",
       "priority": "high",
       "executor": "generator",
-      "status": "done",
-      "acceptance": "1) 调用层（chat/completions、images/generations、MCP chat/generate_image/run_action/run_template）在收到可重试错误时（model_not_found / provider_error / timeout / 5xx），自动尝试下一个候选 channel；2) 最多重试 min(候选数, 3) 次；3) 不重试的确定性错误：400 参数错误 / 402 余额不足 / 429 限流；4) 重试时回滚已计入的 rate limit 计数（rollbackRateLimit）；5) 每次重试记录 console.warn 日志；6) 最终全部失败才返回错误给用户；7) 同 commit 补 regression test（模拟第一个 channel 失败、第二个成功）；8) tsc 通过"
+      "status": "pending",
+      "acceptance": "1) seed 或 migration 写入 SystemConfig key=TEMPLATE_CATEGORIES 包含初始 6 个分类（dev-review/writing/translation/analysis/customer-service/other）；2) admin/operations 页面增加模板分类管理 SectionCard（列出所有分类 id/label/labelEn/icon，支持增删改）；3) 修改后写入 SystemConfig；4) i18n；5) tsc 通过"
     },
     {
-      "id": "F-RR-03",
-      "title": "RouteResult 改为返回候选列表",
+      "id": "F-TL-03",
+      "title": "管理端发布公共模板时选择分类",
+      "priority": "medium",
+      "executor": "generator",
+      "status": "pending",
+      "acceptance": "1) admin/templates 页面的设为公开操作增加分类下拉选择（从 SystemConfig 读取分类列表）；2) 选择后写入 Template.category；3) 未选择分类时默认 other；4) i18n；5) tsc 通过"
+    },
+    {
+      "id": "F-TL-04",
+      "title": "评分 API：POST /api/templates/[id]/rate",
       "priority": "high",
       "executor": "generator",
-      "status": "done",
-      "acceptance": "1) routeByAlias 返回排序后的全部候选 channel 列表（新增 candidates 字段或修改返回类型）；2) 现有调用方默认用 candidates[0]（向后兼容）；3) 候选按 priority ASC 排序，health=PASS 优先于 health=NULL（FAIL 已被过滤）；4) failover 逻辑使用 candidates 迭代；5) RouteResult 类型更新，types.ts 同步修改；6) tsc 通过"
+      "status": "pending",
+      "acceptance": "1) POST /api/templates/[id]/rate body={score:1-5} upsert TemplateRating（同用户同模板只能一个评分，可修改）；2) 写入后原子更新 Template.ratingCount 和 ratingSum；3) 只能对 isPublic=true 的模板打分；4) 返回 {averageScore, ratingCount}；5) tsc 通过"
     },
     {
-      "id": "F-RR-04",
-      "title": "孤儿 channel 批量清理脚本",
-      "priority": "low",
+      "id": "F-TL-05",
+      "title": "API/MCP：list_public_templates 增加 category + sort_by + 评分字段",
+      "priority": "high",
       "executor": "generator",
-      "status": "done",
-      "acceptance": "1) scripts/cleanup-orphan-channels.ts：找出所有未挂到任何 enabled alias 的 model（is_aliased=false），输出列表；2) --apply 时将这些 model.enabled 设为 false；3) 幂等可重复执行；4) dry-run 默认；5) 不删除任何数据（保留历史参考）；6) tsc 通过"
+      "status": "pending",
+      "acceptance": "1) list_public_templates 新增可选参数 category（筛选）和 sort_by（recommended/popular/top_rated/latest，默认 recommended）；2) 返回体每个模板增加 category/categoryIcon/averageScore/ratingCount 字段；3) 推荐排序：qualityScore * 0.7 + log2(forkCount + 1) * 0.3；4) REST API + MCP 同步支持；5) tsc 通过"
     },
     {
-      "id": "F-RR-05",
-      "title": "ROUTING-RESILIENCE 全量验收",
+      "id": "F-TL-06",
+      "title": "前端：global-library 分类 Tab + 排序 + 评分展示",
+      "priority": "high",
+      "executor": "generator",
+      "status": "pending",
+      "acceptance": "1) 顶部从 SystemConfig 动态读取分类列表渲染为 Tab 按钮（全部 + 各分类含 icon）；2) 点击分类筛选模板列表；3) 搜索栏旁增加排序下拉（推荐/热门/最高评分/最新）；4) 模板卡片展示 ★ averageScore (ratingCount) + Fork 数；5) 无评分时显示暂无评分；6) 使用 SectionCard / StatusChip / Button gradient-primary 公共组件；7) i18n；8) tsc 通过"
+    },
+    {
+      "id": "F-TL-07",
+      "title": "前端：Fork 后评分弹窗",
+      "priority": "medium",
+      "executor": "generator",
+      "status": "pending",
+      "acceptance": "1) fork_public_template 成功后弹出评分 Dialog；2) 5 颗星可点击选分（hover 预览效果）；3) 跳过按钮关闭不提交；4) 提交按钮调 POST /api/templates/[id]/rate；5) 已评过的模板再次 fork 时显示已评分数可修改；6) i18n；7) tsc 通过"
+    },
+    {
+      "id": "F-TL-08",
+      "title": "TEMPLATE-LIBRARY-UPGRADE 全量验收",
       "priority": "high",
       "executor": "codex",
-      "status": "done",
-      "completed_at": "2026-04-16T20:00:00Z",
-      "note": "withFailover unit tests PASS。routeByAlias candidates 排序验证。channel DISABLE/RESTORE failover 验证。scheduler 315/319 孤儿跳过。清理脚本 dry-run 正常。6 调用点全覆盖确认。",
-      "acceptance": "codex 执行：1) 制造一个 channel 故障（临时 DISABLE priority 最高的 channel），调用该别名应自动 failover 到下一个 channel 并成功返回；2) 恢复 channel 后调用仍正常；3) scheduler 日志确认只检查 aliased channel；4) 孤儿清理脚本 dry-run 输出合理数量（~300）；5) 签收报告生成"
+      "status": "pending",
+      "acceptance": "codex 执行：1) SystemConfig 分类列表可 CRUD 且前端动态刷新；2) 公共模板带 category 标签展示；3) 分类 Tab 筛选生效；4) 4 种排序均可切换且结果正确；5) Fork 后弹出评分弹窗，提交后 averageScore 更新；6) 同用户再次评分覆盖旧分；7) MCP list_public_templates 的 category + sort_by 参数生效；8) 签收报告生成"
     }
   ]
 }
