@@ -79,7 +79,7 @@
       "title": "余额显示从 USD 转换为 CNY",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "source": "用户反馈",
       "acceptance": "1) 侧边栏 / dashboard / balance 页面的余额显示从 $X.XX 改为 ¥X.XX（按 SystemConfig USD_TO_CNY_RATE 或 env 汇率换算）；2) 交易流水金额同步转换显示；3) API 层 balance 字段仍返回 USD 原值（后端不改）；4) 前端展示层统一做转换，汇率从 /api/projects/[id]/balance 返回或从 SystemConfig 读取；5) i18n 中英文（中文显示 ¥，英文显示 $）；6) tsc 通过"
     },
