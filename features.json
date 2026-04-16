@@ -63,7 +63,7 @@
       "title": "公共模板 order 基数统一 + 绑定模型可用性校验",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) 统一所有 Template.steps 的 order 字段从 1 开始（migration 修正历史 order=0 的数据）；2) create_template / fork_public_template 时校验绑定的 action model 是否在 list_models 中可用，不可用则返回警告；3) 公共模板泄露跨租户 actionId 的问题：get_template_detail isPublicPreview=true 时 steps 中的 actionId/activeVersionId 替换为不可操作的只读标识（或脱敏）；4) 同 commit 补 regression test；5) tsc 通过"
     },
     {
