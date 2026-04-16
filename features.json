@@ -1,86 +1,104 @@
 {
-  "batch": "AUDIT-FOLLOWUP-2",
+  "batch": "API-POLISH",
   "created_at": "2026-04-16",
   "features": [
     {
-      "id": "F-AF2-01",
-      "title": "客户端超时退款：non-stream reasoning 模型",
-      "priority": "critical",
-      "executor": "generator",
-      "status": "done",
-      "acceptance": "1) post-process.ts：当客户端 abort/timeout 时（AbortController 触发），CallLog.status 改为 'TIMEOUT' 且 cost=0；2) 已扣费的情况自动 refund（写 transactions 表 type=REFUND）；3) list_logs 支持 status='timeout' 过滤；4) gpt-image 60s 超时场景同样覆盖（generate_image 也有 timeout 风险）；5) 同 commit 补 regression test；6) tsc 通过"
-    },
-    {
-      "id": "F-AF2-02",
-      "title": "零图退款路径补全 + CALL_PROBE 运行化 + 火山引擎 adapter 适配",
-      "priority": "critical",
-      "executor": "generator",
-      "status": "done",
-      "acceptance": "1) 审查 generate_image 所有 provider_error 分支，确保 0 图时 cost=0 直接标 FILTERED（不再先扣后退）；2) F-ACF-10 CALL_PROBE 确认有 cron 或定时触发机制在跑（若无则补）；3) volcengine sync adapter 的 fetchModels 返回的 model name 加注释说明需要在 admin 手动映射 endpoint ID；4) 同 commit 补 regression test；5) tsc 通过"
-    },
-    {
-      "id": "F-AF2-03",
-      "title": "错误脱敏占位符整段替换",
-      "priority": "high",
-      "executor": "generator",
-      "status": "done",
-      "acceptance": "1) sanitizeErrorMessage 对含 '[infra removed]' 的整句替换为 'Model unavailable, please check list_models for alternatives'；2) '[contact removed]' 替换为空；3) '[upstream preview removed]' 替换为空；4) '[rid removed]' 替换为空；5) 替换后不留占位符痕迹，错误消息仍可读通顺；6) 同 commit 补 regression test 覆盖 4 种占位符场景；7) tsc 通过"
-    },
-    {
-      "id": "F-AF2-04",
-      "title": "reasoningTokens 按 capabilities 过滤",
-      "priority": "high",
-      "executor": "generator",
-      "status": "done",
-      "acceptance": "1) CallLog 写入时如果 model.capabilities.reasoning !== true，强制将 reasoning_tokens 置为 null；2) get_log_detail / list_logs 读取层同样过滤（防止历史数据污染）；3) glm-4.7-flash（reasoning=false）调用后 usage.reasoningTokens 为 null 或缺省；4) reasoning=true 的模型（如 deepseek-r1 / qwen3.5-flash）不受影响；5) 同 commit 补 regression test；6) tsc 通过"
-    },
-    {
-      "id": "F-AF2-05",
-      "title": "API 响应不做 HTML 实体编码（修 F-AF-01 副作用）",
-      "priority": "high",
-      "executor": "generator",
-      "status": "done",
-      "acceptance": "1) 检查 F-AF-01 引入的 sanitize 路径，明确只对前端页面渲染层做 HTML 转义，API JSON 响应保持原始字符串；2) get_log_detail.response 返回 \"The user's\" 而非 \"The user&#x27;s\"；3) get_log_detail.error 同样恢复原始可读字符（脱敏后的通用文案，不是 HTML 转义后的）；4) 同 commit 补 regression test；5) tsc 通过"
-    },
-    {
-      "id": "F-AF2-06",
-      "title": "run_action 对齐 run_template 字段命名 + thinking_tokens 拆分",
-      "priority": "high",
-      "executor": "generator",
-      "status": "done",
-      "acceptance": "1) run_action 返回的 usage 与 run_template steps[].usage 使用统一命名风格（统一 snake_case 或 camelCase，选一种并全局一致）；2) reasoning 模型的 run_action 返回独立的 thinking_tokens 字段（与 run_template 一致）；3) MCP tool description 同步更新；4) 同 commit 补 regression test；5) tsc 通过"
-    },
-    {
-      "id": "F-AF2-07",
-      "title": "update_action 改 model 自动创建新版本",
+      "id": "F-AP-01",
+      "title": "get_balance transactions 分页（limit/offset/hasMore）",
       "priority": "medium",
       "executor": "generator",
-      "status": "done",
-      "acceptance": "1) update_action(model=X) 时自动调用 create_action_version，changelog 自动填 'Model changed from X to Y'；2) 原有版本保持 model 不变（历史可追溯）；3) 仅 name/description 变更不触发新版本；4) 同 commit 补 regression test；5) tsc 通过"
+      "status": "pending",
+      "source": "FIN-006",
+      "acceptance": "1) get_balance(include_transactions=true) 新增 limit（默认 10，最大 100）和 offset（默认 0）参数；2) 返回体增加 hasMore 布尔字段；3) MCP get_balance tool schema 同步更新；4) 向后兼容：不传 limit/offset 时行为不变；5) 同 commit 补 regression test；6) tsc 通过"
     },
     {
-      "id": "F-AF2-08",
-      "title": "公共模板 order 基数统一 + 绑定模型可用性校验",
+      "id": "F-AP-02",
+      "title": "list_logs 增加 action_id / template_id 过滤参数",
       "priority": "medium",
       "executor": "generator",
-      "status": "done",
-      "acceptance": "1) 统一所有 Template.steps 的 order 字段从 1 开始（migration 修正历史 order=0 的数据）；2) create_template / fork_public_template 时校验绑定的 action model 是否在 list_models 中可用，不可用则返回警告；3) 公共模板泄露跨租户 actionId 的问题：get_template_detail isPublicPreview=true 时 steps 中的 actionId/activeVersionId 替换为不可操作的只读标识（或脱敏）；4) 同 commit 补 regression test；5) tsc 通过"
+      "status": "pending",
+      "source": "DX-012",
+      "acceptance": "1) list_logs 新增可选 action_id 和 template_id 参数；2) 后端 where clause 按 CallLog.actionId / CallLog.templateRunId 过滤；3) 与 get_usage_summary 的 action_id/template_id 过滤维度对齐；4) MCP list_logs tool schema 同步更新；5) 同 commit 补 regression test；6) tsc 通过"
     },
     {
-      "id": "F-AF2-09",
-      "title": "chat 响应补 cost + refund 交易补 model/source/batchId",
+      "id": "F-AP-03",
+      "title": "list_actions 增加 totalVersions 字段",
+      "priority": "low",
+      "executor": "generator",
+      "status": "pending",
+      "source": "DX-013",
+      "acceptance": "1) list_actions 返回每个 Action 增加 totalVersions 字段（COUNT ActionVersion）；2) 无需进入 get_action_detail 即可感知版本数量；3) MCP list_actions 和 REST API 同步；4) tsc 通过"
+    },
+    {
+      "id": "F-AP-04",
+      "title": "create_api_key 增加 expiresAt 参数",
       "priority": "medium",
       "executor": "generator",
-      "status": "done",
-      "acceptance": "1) chat completions / MCP chat 返回体顶层新增 cost 字段（如 '$0.00000504'，与 get_log_detail 一致）；2) refund 交易除 description 外，单独暴露 model/source 字段（与 deduction 对齐）；3) 同一业务事件的多笔 refund 共享 batchId（如 'refund-batch-20260416-xxx'）；4) get_balance 返回的 transactions 数据结构相应更新；5) 同 commit 补 regression test；6) tsc 通过"
+      "status": "pending",
+      "source": "DX-015",
+      "acceptance": "1) create_api_key 新增可选 expiresAt 参数（ISO 8601 字符串）；2) 过期后 Key 在 auth-middleware 认证时返回 401 expired_api_key；3) MCP create_api_key tool schema 同步更新；4) /keys 前端页面创建 Key dialog 增加可选过期时间输入；5) 现有 Key 不受影响（expiresAt=null 表示永不过期）；6) 同 commit 补 regression test；7) tsc 通过"
     },
     {
-      "id": "F-AF2-10",
-      "title": "AUDIT-FOLLOWUP-2 全量验收（L2 真实调用）",
+      "id": "F-AP-05",
+      "title": "rate_limit 错误增加 retryAfterSeconds 字段",
+      "priority": "medium",
+      "executor": "generator",
+      "status": "pending",
+      "source": "RL-001",
+      "acceptance": "1) 429 错误响应体增加 retryAfterSeconds 数值字段（RPM → 60，burst → 30，spend → 60）；2) 同时保留现有 Retry-After 响应头（与 body 值一致）；3) MCP 端 429 文本也包含重试时间提示；4) 同 commit 补 regression test；5) tsc 通过"
+    },
+    {
+      "id": "F-AP-06",
+      "title": "image 模型 usage_summary totalTokens 修正",
+      "priority": "low",
+      "executor": "generator",
+      "status": "pending",
+      "source": "DX-009",
+      "acceptance": "1) get_usage_summary group_by='model' 时，modality=IMAGE 的模型 totalTokens 显示为 0（不统计 token 计量）；2) 或在返回中省略 totalTokens 字段改用 totalImages 字段（image 模型按调用次数计量）；3) TEXT 模型不受影响；4) tsc 通过"
+    },
+    {
+      "id": "F-AP-07",
+      "title": "max_tokens 校验引用 maxOutputTokens + 错误语言统一",
+      "priority": "medium",
+      "executor": "generator",
+      "status": "pending",
+      "source": "RL-007 + DX-014",
+      "acceptance": "1) max_tokens 超限校验：优先引用 model.maxTokens（最大输出 token），fallback 到 contextWindow；2) 错误消息明确区分 'max_tokens exceeds model max output limit (X)' 而非引用 contextWindow；3) 所有 MCP tool 和 REST API 的错误消息统一为英文 + error_code 枚举（如 RATE_LIMITED / INVALID_PARAMETER / MODEL_NOT_FOUND）；4) 不再出现中英文混合错误；5) tsc 通过"
+    },
+    {
+      "id": "F-AP-08",
+      "title": "generate_image size 参数增加 enum 提示",
+      "priority": "low",
+      "executor": "generator",
+      "status": "pending",
+      "source": "DX-008",
+      "acceptance": "1) MCP generate_image 的 size 参数 description 列出常见合法值（如 '1024x1024, 1024x1792, 1792x1024, auto. Check supportedSizes in list_models for valid values per model.'）；2) 已有的 invalid_size 运行时校验保留；3) tsc 通过"
+    },
+    {
+      "id": "F-AP-09",
+      "title": "余额显示从 USD 转换为 CNY",
+      "priority": "medium",
+      "executor": "generator",
+      "status": "pending",
+      "source": "用户反馈",
+      "acceptance": "1) 侧边栏 / dashboard / balance 页面的余额显示从 $X.XX 改为 ¥X.XX（按 SystemConfig USD_TO_CNY_RATE 或 env 汇率换算）；2) 交易流水金额同步转换显示；3) API 层 balance 字段仍返回 USD 原值（后端不改）；4) 前端展示层统一做转换，汇率从 /api/projects/[id]/balance 返回或从 SystemConfig 读取；5) i18n 中英文（中文显示 ¥，英文显示 $）；6) tsc 通过"
+    },
+    {
+      "id": "F-AP-10",
+      "title": "quickstart / mcp-setup / docs 三个页面统一宽度（删除 narrow variant）",
+      "priority": "medium",
+      "executor": "generator",
+      "status": "pending",
+      "source": "用户反馈",
+      "acceptance": "1) quickstart / mcp-setup / docs 三个文件的 size='narrow' 删除（默认 = max-w-7xl）；2) 与其他 9 个用户端页面宽度统一；3) PageContainer 组件删除 narrow variant（不再有任何页面使用）；4) admin 页面也确认无 narrow 使用；5) tsc 通过"
+    },
+    {
+      "id": "F-AP-11",
+      "title": "API-POLISH 全量验收",
       "priority": "high",
       "executor": "codex",
-      "status": "done",
-      "acceptance": "codex 执行 L2 真实调用验收：1) deepseek-v3 chat 成功（火山引擎 ep-ID 持续有效）；2) glm-4.7-flash 调用后 reasoningTokens 不出现（reasoning=false）；3) 制造 model_not_found 错误 → 消息中无 [infra removed] 等占位符；4) get_log_detail.response 无 HTML 实体编码（&#x27; 等）；5) run_action usage 字段与 run_template 一致（snake_case + thinking_tokens）；6) 公共模板 steps order 统一从 1 + 跨租户 actionId 已脱敏；7) chat 响应含 cost 字段；8) 非流式 reasoning 模型客户端超时场景不扣费；9) 签收报告生成"
+      "status": "pending",
+      "acceptance": "codex 执行：1) get_balance 分页 limit/offset/hasMore 生效；2) list_logs action_id/template_id 过滤正确；3) list_actions 含 totalVersions；4) create_api_key expiresAt 过期后 401；5) 429 错误含 retryAfterSeconds；6) image 模型 usage_summary 无 token 噪声；7) max_tokens 校验引用 maxOutputTokens；8) generate_image size 描述含常见值；9) 余额显示为 ¥（CNY）；10) quickstart/mcp-setup/docs 与其他页面等宽；11) 签收报告生成"
     }
   ]
 }

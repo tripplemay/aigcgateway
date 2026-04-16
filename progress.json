@@ -1,55 +1,26 @@
 {
-  "status": "done",
-  "user_goal": "AUDIT-FOLLOWUP-2 — 修复 reports-20260416 审计的 critical/high：客户端超时退款 + 零图路径 + CALL_PROBE + 脱敏占位符 + reasoningTokens 过滤 + HTML 编码修复 + run_action 对齐 + update_action 版本 + 模板 order + chat cost 字段",
-  "total_features": 10,
-  "completed_features": 10,
-  "fix_rounds": 1,
+  "status": "building",
+  "user_goal": "API-POLISH — 最终打磨：transactions 分页 / list_logs 过滤 / totalVersions / expiresAt / retryAfterSeconds / image token 修正 / maxOutputTokens / size enum / CNY 余额 / 页面宽度统一",
+  "total_features": 11,
+  "completed_features": 0,
+  "fix_rounds": 0,
   "current_sprint": null,
-  "last_updated": "2026-04-16T16:00:00Z",
+  "last_updated": "2026-04-16T12:00:00Z",
   "reference_docs": [
-    "docs/specs/AUDIT-FOLLOWUP-2-spec.md",
+    "docs/specs/API-POLISH-draft.md",
     "docs/test-reports/user_report/reports-20260416/all-assertions-20260416.json"
   ],
   "role_assignments": null,
   "docs": {
-    "spec": "docs/specs/AUDIT-FOLLOWUP-2-spec.md",
+    "spec": "docs/specs/API-POLISH-draft.md",
     "test_cases": null,
-    "signoff": "docs/test-reports/AUDIT-FOLLOWUP-2-signoff-2026-04-16.md",
+    "signoff": null,
     "framework_reviewed": false
   },
-  "evaluator_feedback": {
-    "summary": "复验全部 PASS（10/10）。F-AF2-04 tsc 修复确认。F-AF2-09 batchId 补齐确认。L2 生产验证 8 项全部通过。",
-    "pass_count": 10,
-    "partial_count": 0,
-    "fail_count": 0,
-    "not_verified_count": 0,
-    "issues": [
-      {
-        "feature_id": "F-AF2-04",
-        "result": "FAIL",
-        "description": "读取层 capabilities 查询路径错误导致 tsc 编译失败。list-logs.ts:241 和 get-log-detail.ts:104 都使用 `models: { select: { capabilities: true } }` 查询 ModelAlias，但 `models` 关联的是 AliasModelLink（没有 capabilities 字段）。应直接从 ModelAlias.capabilities 读取，不需要通过 models 关联。写入层（post-process.ts:116 使用 route.model.capabilities）正确。",
-        "steps_to_reproduce": "1) 运行 npx tsc --noEmit 2) 可见错误：Property 'models' does not exist on type（list-logs.ts:250）和 Property 'capabilities' does not exist（get-log-detail.ts 隐含）",
-        "fix_suggestion": "将 list-logs.ts:237-246 和 get-log-detail.ts:101-106 改为直接 select capabilities 从 ModelAlias：`select: { alias: true, capabilities: true }`，然后直接用 `a.capabilities` 而非 `a.models?.[0]?.capabilities`"
-      },
-      {
-        "feature_id": "F-AF2-09",
-        "result": "PARTIAL",
-        "description": "acceptance 第 3 条要求 '同一业务事件的多笔 refund 共享 batchId'，但代码中未实现 batchId 字段。chat cost 字段（REST + MCP）和 refund 的 model/source 字段（通过 log 关联查询）已实现。",
-        "steps_to_reproduce": "1) 搜索 batchId 在 src/ 下无结果 2) Transaction schema 无 batchId 字段 3) get-balance.ts 返回的 refund 交易无 batchId",
-        "fix_suggestion": "如果当前系统不会产生同一事件多笔 refund 的场景（目前 TIMEOUT 直接不扣费而非退款），可以在 acceptance 中说明并标记为不适用；否则需在 Transaction 表加 batchId 字段"
-      },
-      {
-        "feature_id": "F-AF2-10",
-        "result": "NOT_VERIFIED",
-        "description": "L2 真实调用验收未执行。生产 API key（pk_aa6b13... / pk_1ec762...）返回 401 Invalid API key，本地数据库为空（仅 seed 的 1 admin + 11 providers，无模型/channel/API key）。需要有效的生产凭据或部署新代码后重新验收。",
-        "steps_to_reproduce": "1) curl -H 'Authorization: Bearer pk_aa6b13...' https://aigc.guangai.ai/v1/models → 401"
-      }
-    ]
-  },
-  "generator_handoff": "Richard 完成 9/9 generator features。每条都有回归测试。新增 migration: 20260416_fix_template_step_order_base。关键变更：(1) post-process 通过 clientSignal 检测客户端断开→TIMEOUT 不扣费；(2) CALL_PROBE 接入调度器每 30min 运行；(3) sanitizeErrorMessage 清除所有占位符；(4) reasoningTokens 写入和读取都按 capabilities 过滤；(5) escapeJsonStrings 从 API 层移除；(6) run_action usage 对齐 run_template snake_case + thinking_tokens；(7) update_action 改 model 自动创版本；(8) 公共模板 actionId 脱敏 + order 1-based migration；(9) chat 响应补 cost 字段。部署前需 prisma migrate deploy + prisma generate。",
+  "evaluator_feedback": null,
+  "generator_handoff": null,
   "session_notes": {
-    "Kimi": "Planner 启动 AUDIT-FOLLOWUP-2 批次（9 generator + 1 codex = 10 条）。来源：reports-20260416 审计 60 条断言。今天已通过运维操作修复了最紧急的火山引擎 realModelId 问题（deepseek-v3/doubao-pro 恢复）。本批次处理剩余的 critical/high：(1) 客户端超时扣费（reasoning 模型非流式 + gpt-image 60s timeout）；(2) 零图先扣后退路径 + CALL_PROBE 运行化；(3) 脱敏占位符 [infra removed] 整段替换；(4) reasoningTokens 按 capabilities 过滤（glm-4.7-flash 误暴露）；(5) API 响应 HTML 实体编码修复（F-AF-01 副作用）；(6) run_action 与 run_template 字段命名/thinking_tokens 对齐；(7) update_action 改 model 自动创版本；(8) 公共模板 order 基数统一 + 跨租户 actionId 脱敏；(9) chat 响应补 cost + refund 补 batchId。F-AF2-10 强制 L2 真实调用验收。USAGE-ALERTS 已签收 10/10。",
-    "Richard": "Fix round 1: (1) F-AF2-04 修复 list-logs.ts+get-log-detail.ts capabilities 查询路径，改为直接从 ModelAlias.capabilities 取而非经 AliasModelLink；(2) F-AF2-09 补 batchId：schema 加字段 + migration + get-balance 暴露。prisma generate 后 tsc 0 errors。",
-    "Reviewer": "复验 PASS 10/10。L2 生产验证：list_models 20 模型 / glm-4.7-flash 日志无 reasoningTokens / deepseek-r1 有 reasoningTokens=1532 / 脱敏无占位符 / chat cost=$0.00000252 / get_log_detail 无 HTML 实体 / run_action snake_case+thinking_tokens / get_balance model+source 字段 / 模板 order=[1,2]。F-AF2-04 tsc 0 errors，F-AF2-09 batchId schema+代码确认。signoff 写入 docs/test-reports/。"
+    "Kimi": "Planner 启动 API-POLISH 批次（10 generator + 1 codex = 11 条）。这是当前规划的最后一个批次，收尾 reports-20260416 剩余 medium/low 断言 + 两个用户反馈（CNY 余额显示 + 页面宽度统一）。AUDIT-FOLLOWUP-2 已签收 10/10。火山引擎运维修复已生效（deepseek-v3/doubao-pro 恢复）。F-AP-01~08 来自审计 medium/low，F-AP-09 余额 CNY 显示，F-AP-10 删除 PageContainer narrow variant 统一 max-w-7xl。",
+    "Reviewer": null
   }
 }

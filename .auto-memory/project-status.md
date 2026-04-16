@@ -4,17 +4,21 @@ description: AIGC Gateway 当前状态快照（覆盖写，≤30 行）
 type: project
 ---
 ## 当前批次
-- AUDIT-FOLLOWUP-2：`done`（10/10 全部 PASS，L2 生产验证通过）
-- signoff：`docs/test-reports/AUDIT-FOLLOWUP-2-signoff-2026-04-16.md`
+- API-POLISH：`building`（11 条功能，0/11 完成，10 generator + 1 codex）
+- 规格：`docs/specs/API-POLISH-draft.md`
+- F-AP-01~08：审计剩余 medium/low（分页/过滤/版本数/expiresAt/retryAfter/image token/maxOutputTokens/size enum）
+- F-AP-09：余额显示 USD → CNY（用户反馈）
+- F-AP-10：quickstart/mcp-setup/docs 宽度统一 + 删除 narrow variant（用户反馈）
+- **这是当前规划的最后一个批次**
 
 ## 生产状态
-- 2026-04-16 部署完成，AUDIT-FOLLOWUP-2 全量修复已上线
-- deepseek-v3 / doubao-pro channels 可能仍有路由问题（list_models 可见但 chat 返回 unavailable）
+- AUDIT-FOLLOWUP-2 已部署（L2 验证通过）
 - USAGE-ALERTS 已部署
+- 火山引擎 realModelId → ep-ID 已修复（deepseek-v3/doubao-pro 恢复）
 
 ## 已知 gap
-- deepseek-v3 / doubao-pro chat 返回 "Model unavailable"（channels 可能全部 disabled）
 - 5 个图片模型 supportedSizes 规则不匹配
+- deepseek-r1 / seedream-3 火山引擎 endpoint 即将下线
 - glm-4.7-flash rate limit 较严
 
 ## 已完成批次
