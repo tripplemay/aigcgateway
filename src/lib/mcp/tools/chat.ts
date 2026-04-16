@@ -7,7 +7,7 @@
 
 import { z } from "zod";
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import { resolveEngine } from "@/lib/engine";
+import { resolveEngine, withFailover } from "@/lib/engine";
 import { generateTraceId } from "@/lib/api/response";
 import { processChatResult, calculateTokenCost } from "@/lib/api/post-process";
 import { prisma } from "@/lib/prisma";
@@ -254,13 +254,15 @@ export function registerChat(server: McpServer, opts: McpServerOptions): void {
         };
       }
 
-      // Resolve engine
+      // Resolve engine (F-RR-02: candidates for failover)
       let route;
       let adapter;
+      let candidates: import("@/lib/engine/types").RouteResult[] = [];
       try {
         const resolved = await resolveEngine(model);
         route = resolved.route;
         adapter = resolved.adapter;
+        candidates = resolved.candidates;
       } catch (err) {
         if (
           err instanceof EngineError &&
@@ -374,7 +376,12 @@ export function registerChat(server: McpServer, opts: McpServerOptions): void {
       try {
         // Stream mode: consume server-side, return with ttftMs
         if (stream) {
-          const streamResult = await adapter.chatCompletionsStream(request, route);
+          // F-RR-02: failover for stream connection phase
+          const { result: streamResult, route: usedRoute } = await withFailover(
+            candidates.length > 0 ? candidates : [route],
+            (r, a) => a.chatCompletionsStream(request, r),
+          );
+          route = usedRoute;
           const reader = streamResult.getReader();
           let fullContent = "";
           let lastUsage: import("@/lib/engine/types").Usage | null = null;
@@ -492,8 +499,12 @@ export function registerChat(server: McpServer, opts: McpServerOptions): void {
           };
         }
 
-        // Non-stream mode (default)
-        const response = await adapter.chatCompletions(request, route);
+        // Non-stream mode (default) — F-RR-02: failover
+        const { result: response, route: usedRouteNs } = await withFailover(
+          candidates.length > 0 ? candidates : [route],
+          (r, a) => a.chatCompletions(request, r),
+        );
+        route = usedRouteNs;
 
         // Post-process: write CallLog (source='mcp') + deduct balance
         processChatResult({

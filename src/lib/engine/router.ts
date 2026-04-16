@@ -5,7 +5,7 @@
  */
 
 import { prisma } from "@/lib/prisma";
-import type { EngineAdapter, RouteResult } from "./types";
+import type { EngineAdapter, RouteResult, RouteResultWithCandidates } from "./types";
 import { EngineError, ErrorCodes } from "./types";
 import { OpenAICompatEngine } from "./openai-compat";
 import { VolcengineAdapter } from "./adapters/volcengine";
@@ -40,7 +40,7 @@ function getAdapter(adapterType: string): EngineAdapter {
  * 通过别名路由到最优通道。
  * 别名 → 关联 Models → 所有 ACTIVE Channel → 按 priority 选最优（跳过健康检查 FAIL 的）
  */
-export async function routeByAlias(aliasName: string): Promise<RouteResult> {
+export async function routeByAlias(aliasName: string): Promise<RouteResultWithCandidates> {
   const alias = await prisma.modelAlias.findUnique({
     where: { alias: aliasName, enabled: true },
     include: {
@@ -91,14 +91,26 @@ export async function routeByAlias(aliasName: string): Promise<RouteResult> {
     );
   }
 
-  const best = candidateChannels[0];
-  return {
-    channel: best.channel,
-    provider: best.provider,
-    config: best.config!,
-    model: best.model,
+  // Sort: health PASS first, then NULL (never checked), within same priority.
+  // FAIL channels are already filtered out above.
+  candidateChannels.sort((a, b) => {
+    if (a.channel.priority !== b.channel.priority) return a.channel.priority - b.channel.priority;
+    const aPass = a.channel.healthChecks.length > 0 && a.channel.healthChecks[0].result === "PASS";
+    const bPass = b.channel.healthChecks.length > 0 && b.channel.healthChecks[0].result === "PASS";
+    if (aPass && !bPass) return -1;
+    if (!aPass && bPass) return 1;
+    return 0;
+  });
+
+  const candidates = candidateChannels.map((c) => ({
+    channel: c.channel,
+    provider: c.provider,
+    config: c.config!,
+    model: c.model,
     alias,
-  };
+  }));
+
+  return { best: candidates[0], candidates };
 }
 
 /**
@@ -169,8 +181,9 @@ export function getAdapterForRoute(route: RouteResult): EngineAdapter {
 export async function resolveEngine(aliasName: string): Promise<{
   route: RouteResult;
   adapter: EngineAdapter;
+  candidates: RouteResult[];
 }> {
-  const route = await routeByAlias(aliasName);
-  const adapter = getAdapterForRoute(route);
-  return { route, adapter };
+  const { best, candidates } = await routeByAlias(aliasName);
+  const adapter = getAdapterForRoute(best);
+  return { route: best, adapter, candidates };
 }

@@ -267,6 +267,16 @@ export interface RouteResult {
   alias?: ModelAlias | null;
 }
 
+/**
+ * Extended routing result that includes the full candidate list for failover.
+ * `best` is candidates[0] — the primary choice. On retryable failure the
+ * caller walks through `candidates` in order.
+ */
+export interface RouteResultWithCandidates {
+  best: RouteResult;
+  candidates: RouteResult[];
+}
+
 // ============================================================
 // Adapter 接口
 // ============================================================

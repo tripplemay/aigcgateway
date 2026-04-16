@@ -15,7 +15,7 @@ import {
 } from "@/lib/api/rate-limit";
 import { errorResponse } from "@/lib/api/errors";
 import { generateTraceId, jsonResponse, sseResponse } from "@/lib/api/response";
-import { resolveEngine } from "@/lib/engine";
+import { resolveEngine, withFailover, getAdapterForRoute } from "@/lib/engine";
 import { processChatResult, calculateTokenCost } from "@/lib/api/post-process";
 import type { ChatCompletionRequest, ChatCompletionChunk, Usage } from "@/lib/engine/types";
 import { EngineError, sanitizeErrorMessage } from "@/lib/engine/types";
@@ -76,13 +76,15 @@ export async function POST(request: Request) {
   const rlKey = rateCheck.rateLimitKey;
   const rlMember = rateCheck.rateLimitMember;
 
-  // 5. 路由
+  // 5. 路由（F-RR-02: resolveEngine now returns candidates for failover）
   let route;
   let adapter;
+  let candidates: import("@/lib/engine/types").RouteResult[] = [];
   try {
     const resolved = await resolveEngine(body.model);
     route = resolved.route;
     adapter = resolved.adapter;
+    candidates = resolved.candidates;
   } catch (err) {
     if (rlKey && rlMember) rollbackRateLimit(rlKey, rlMember).catch(() => {});
     if (err instanceof EngineError) {
@@ -137,7 +139,7 @@ export async function POST(request: Request) {
   const startTime = Date.now();
   const modelName = body.model;
 
-  // 6. 执行请求
+  // 6. 执行请求（F-RR-02: pass candidates for failover）
   if (body.stream) {
     return handleStream(
       body,
@@ -152,6 +154,7 @@ export async function POST(request: Request) {
       request.signal,
       rlKey,
       rlMember,
+      candidates,
     );
   }
 
@@ -168,6 +171,7 @@ export async function POST(request: Request) {
     request.signal,
     rlKey,
     rlMember,
+    candidates,
   );
 }
 
@@ -188,9 +192,16 @@ async function handleNonStream(
   clientSignal: AbortSignal,
   rlKey?: string,
   rlMember?: string,
+  candidates: import("@/lib/engine/types").RouteResult[] = [],
 ) {
   try {
-    const response = await adapter.chatCompletions(body, route);
+    // F-RR-02: failover — on retryable error, try next candidate channel
+    const { result: response, route: usedRoute } = await withFailover(
+      candidates.length > 0 ? candidates : [route],
+      (r, a) => a.chatCompletions(body, r),
+    );
+    // Use the route that actually succeeded (may differ from initial `route` after failover)
+    route = usedRoute;
 
     // F-AF2-09: compute cost inline for the response
     const { sellUsd } = calculateTokenCost(response.usage ?? null, route, "SUCCESS");
@@ -268,9 +279,17 @@ async function handleStream(
   clientSignal: AbortSignal,
   rlKey?: string,
   rlMember?: string,
+  candidates: import("@/lib/engine/types").RouteResult[] = [],
 ) {
   try {
-    const stream = await adapter.chatCompletionsStream(body, route);
+    // F-RR-02: failover for the initial stream connection. If the upstream
+    // rejects before streaming starts (model_not_found, connection error),
+    // we try the next candidate. Once streaming begins we're committed.
+    const { result: stream, route: usedRoute } = await withFailover(
+      candidates.length > 0 ? candidates : [route],
+      (r, a) => a.chatCompletionsStream(body, r),
+    );
+    route = usedRoute;
 
     let fullContent = "";
     let lastUsage: Usage | null = null;

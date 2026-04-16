@@ -7,7 +7,7 @@
       "title": "Scheduler 只检查 aliased channel + 提高每轮上限",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) runScheduledChecks 的 channel 查询增加 WHERE EXISTS (alias_model_links → enabled alias) 过滤，跳过孤儿 channel；2) MAX_CHECKS_PER_ROUND 从 5 提高到 20；3) MAX_PROBES_PER_ROUND 从 2 提高到 5；4) 全覆盖时间从 ~15 分钟降到 ~4 分钟；5) 孤儿 channel 不再占用检查名额；6) tsc 通过"
     },
     {
@@ -15,7 +15,7 @@
       "title": "请求级 channel failover（调用失败自动重试下一个 channel）",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) 调用层（chat/completions、images/generations、MCP chat/generate_image/run_action/run_template）在收到可重试错误时（model_not_found / provider_error / timeout / 5xx），自动尝试下一个候选 channel；2) 最多重试 min(候选数, 3) 次；3) 不重试的确定性错误：400 参数错误 / 402 余额不足 / 429 限流；4) 重试时回滚已计入的 rate limit 计数（rollbackRateLimit）；5) 每次重试记录 console.warn 日志；6) 最终全部失败才返回错误给用户；7) 同 commit 补 regression test（模拟第一个 channel 失败、第二个成功）；8) tsc 通过"
     },
     {
@@ -23,7 +23,7 @@
       "title": "RouteResult 改为返回候选列表",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) routeByAlias 返回排序后的全部候选 channel 列表（新增 candidates 字段或修改返回类型）；2) 现有调用方默认用 candidates[0]（向后兼容）；3) 候选按 priority ASC 排序，health=PASS 优先于 health=NULL（FAIL 已被过滤）；4) failover 逻辑使用 candidates 迭代；5) RouteResult 类型更新，types.ts 同步修改；6) tsc 通过"
     },
     {
@@ -31,7 +31,7 @@
       "title": "孤儿 channel 批量清理脚本",
       "priority": "low",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) scripts/cleanup-orphan-channels.ts：找出所有未挂到任何 enabled alias 的 model（is_aliased=false），输出列表；2) --apply 时将这些 model.enabled 设为 false；3) 幂等可重复执行；4) dry-run 默认；5) 不删除任何数据（保留历史参考）；6) tsc 通过"
     },
     {

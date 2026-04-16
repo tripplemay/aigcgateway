@@ -7,7 +7,7 @@
 
 import { z } from "zod";
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import { resolveEngine } from "@/lib/engine";
+import { resolveEngine, withFailover } from "@/lib/engine";
 import { generateTraceId } from "@/lib/api/response";
 import { processImageResult } from "@/lib/api/post-process";
 import { buildProxyUrl } from "@/lib/api/image-proxy";
@@ -124,10 +124,12 @@ export function registerGenerateImage(server: McpServer, opts: McpServerOptions)
       // Resolve engine
       let route;
       let adapter;
+      let candidates: import("@/lib/engine/types").RouteResult[] = [];
       try {
         const resolved = await resolveEngine(model);
         route = resolved.route;
         adapter = resolved.adapter;
+        candidates = resolved.candidates;
       } catch (err) {
         if (
           err instanceof EngineError &&
@@ -232,7 +234,12 @@ export function registerGenerateImage(server: McpServer, opts: McpServerOptions)
       };
 
       try {
-        const response = await adapter.imageGenerations(request, route);
+        // F-RR-02: failover
+        const { result: response, route: usedRoute } = await withFailover(
+          candidates.length > 0 ? candidates : [route],
+          (r, a) => a.imageGenerations(request, r),
+        );
+        route = usedRoute;
 
         // Post-process: write CallLog (source='mcp') + deduct balance
         processImageResult({

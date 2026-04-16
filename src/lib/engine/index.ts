@@ -1,4 +1,5 @@
 export { resolveEngine, routeByAlias, routeByModelName, getAdapterForRoute } from "./router";
+export { withFailover } from "./failover";
 export { OpenAICompatEngine } from "./openai-compat";
 export { VolcengineAdapter } from "./adapters/volcengine";
 export { SiliconFlowAdapter } from "./adapters/siliconflow";
@@ -12,6 +13,7 @@ export type {
   ImageGenerationRequest,
   ImageGenerationResponse,
   RouteResult,
+  RouteResultWithCandidates,
   ChatMessage,
   Usage,
 } from "./types";

@@ -10,7 +10,7 @@ import { checkBalance } from "@/lib/api/balance-middleware";
 import { checkRateLimit, checkSpendingRate, rollbackRateLimit } from "@/lib/api/rate-limit";
 import { errorResponse } from "@/lib/api/errors";
 import { generateTraceId, jsonResponse } from "@/lib/api/response";
-import { resolveEngine } from "@/lib/engine";
+import { resolveEngine, withFailover } from "@/lib/engine";
 import { processImageResult } from "@/lib/api/post-process";
 import { buildProxyUrl } from "@/lib/api/image-proxy";
 import { validatePrompt } from "@/lib/api/prompt-validation";
@@ -65,13 +65,15 @@ export async function POST(request: Request) {
   const rlKey = rateCheck.rateLimitKey;
   const rlMember = rateCheck.rateLimitMember;
 
-  // 5. 路由
+  // 5. 路由（F-RR-02: candidates for failover）
   let route;
   let adapter;
+  let candidates: import("@/lib/engine/types").RouteResult[] = [];
   try {
     const resolved = await resolveEngine(body.model);
     route = resolved.route;
     adapter = resolved.adapter;
+    candidates = resolved.candidates;
   } catch (err) {
     if (rlKey && rlMember) rollbackRateLimit(rlKey, rlMember).catch(() => {});
     if (err instanceof EngineError) {
@@ -108,9 +110,13 @@ export async function POST(request: Request) {
   const startTime = Date.now();
   const modelName = body.model;
 
-  // 6. 执行请求
+  // 6. 执行请求（F-RR-02: failover on retryable errors）
   try {
-    const response = await adapter.imageGenerations(body, route);
+    const { result: response, route: usedRoute } = await withFailover(
+      candidates.length > 0 ? candidates : [route],
+      (r, a) => a.imageGenerations(body, r),
+    );
+    route = usedRoute;
 
     // F-AF2-01: pass clientSignal for disconnect detection
     processImageResult({

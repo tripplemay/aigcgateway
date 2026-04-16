@@ -195,14 +195,20 @@ async function getAliasedChannelIds(): Promise<Set<string>> {
 // 调度逻辑
 // ============================================================
 
-const MAX_CHECKS_PER_ROUND = 5;
+const MAX_CHECKS_PER_ROUND = 20;
 
 async function runScheduledChecks(): Promise<void> {
   const now = Date.now();
 
+  // F-RR-01: Only check channels that belong to models linked to an enabled
+  // alias. Orphan channels (synced but never aliased) are skipped to avoid
+  // wasting check budget (~330 orphans vs ~71 aliased).
+  const aliasedIds = await getAliasedChannelIds();
+
   const channels = await prisma.channel.findMany({
     where: {
       model: { enabled: true },
+      id: { in: [...aliasedIds] },
     },
     include: {
       provider: { include: { config: true } },
@@ -214,8 +220,6 @@ async function runScheduledChecks(): Promise<void> {
       },
     },
   });
-
-  const aliasedIds = await getAliasedChannelIds();
 
   const dueChannels: Array<{
     route: RouteResult;
@@ -272,7 +276,7 @@ async function runScheduledChecks(): Promise<void> {
   await runScheduledCallProbes(now, channels, aliasedIds);
 }
 
-const MAX_PROBES_PER_ROUND = 2;
+const MAX_PROBES_PER_ROUND = 5;
 
 async function runScheduledCallProbes(
   now: number,
