@@ -16,7 +16,7 @@
       "title": "list_logs 增加 action_id / template_id 过滤参数",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "source": "DX-012",
       "acceptance": "1) list_logs 新增可选 action_id 和 template_id 参数；2) 后端 where clause 按 CallLog.actionId / CallLog.templateRunId 过滤；3) 与 get_usage_summary 的 action_id/template_id 过滤维度对齐；4) MCP list_logs tool schema 同步更新；5) 同 commit 补 regression test；6) tsc 通过"
     },

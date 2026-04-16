@@ -2,7 +2,7 @@
   "status": "building",
   "user_goal": "API-POLISH — 最终打磨：transactions 分页 / list_logs 过滤 / totalVersions / expiresAt / retryAfterSeconds / image token 修正 / maxOutputTokens / size enum / CNY 余额 / 页面宽度统一",
   "total_features": 11,
-  "completed_features": 1,
+  "completed_features": 2,
   "fix_rounds": 0,
   "current_sprint": null,
   "last_updated": "2026-04-16T12:00:00Z",
