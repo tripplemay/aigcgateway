@@ -97,7 +97,7 @@
       "title": "API-POLISH 全量验收",
       "priority": "high",
       "executor": "codex",
-      "status": "pending",
+      "status": "done",
       "acceptance": "codex 执行：1) get_balance 分页 limit/offset/hasMore 生效；2) list_logs action_id/template_id 过滤正确；3) list_actions 含 totalVersions；4) create_api_key expiresAt 过期后 401；5) 429 错误含 retryAfterSeconds；6) image 模型 usage_summary 无 token 噪声；7) max_tokens 校验引用 maxOutputTokens；8) generate_image size 描述含常见值；9) 余额显示为 ¥（CNY）；10) quickstart/mcp-setup/docs 与其他页面等宽；11) 签收报告生成"
     }
   ]

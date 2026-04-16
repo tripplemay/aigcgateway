@@ -1,11 +1,11 @@
 {
-  "status": "verifying",
+  "status": "done",
   "user_goal": "API-POLISH — 最终打磨：transactions 分页 / list_logs 过滤 / totalVersions / expiresAt / retryAfterSeconds / image token 修正 / maxOutputTokens / size enum / CNY 余额 / 页面宽度统一",
   "total_features": 11,
-  "completed_features": 10,
+  "completed_features": 11,
   "fix_rounds": 0,
   "current_sprint": null,
-  "last_updated": "2026-04-16T12:00:00Z",
+  "last_updated": "2026-04-16T17:00:00Z",
   "reference_docs": [
     "docs/specs/API-POLISH-draft.md",
     "docs/test-reports/user_report/reports-20260416/all-assertions-20260416.json"
@@ -14,14 +14,21 @@
   "docs": {
     "spec": "docs/specs/API-POLISH-draft.md",
     "test_cases": null,
-    "signoff": null,
+    "signoff": "docs/test-reports/API-POLISH-signoff-2026-04-16.md",
     "framework_reviewed": false
   },
-  "evaluator_feedback": null,
+  "evaluator_feedback": {
+    "summary": "全部 PASS（11/11）。首轮即通过，无 fix round。L2 生产验证 8 项 + 代码审查 2 项 + MCP schema 1 项。",
+    "pass_count": 11,
+    "partial_count": 0,
+    "fail_count": 0,
+    "not_verified_count": 0,
+    "issues": []
+  },
   "generator_handoff": "Richard 完成 10/10 generator features。无 schema 变更。tsc 0 errors。关键改动：(1) get_balance 分页 limit/offset/hasMore；(2) list_logs action_id/template_id 过滤；(3) list_actions totalVersions；(4) create_api_key expiresAt；(5) 429 错误体增 retryAfterSeconds；(6) image 模型 usage_summary 用 totalImages 替代 totalTokens；(7) max_tokens 校验优先 maxOutputTokens；(8) generate_image size 描述列出常见值；(9) 前端剩余 USD→CNY（sidebar/dashboard/notifications）；(10) 删除 PageContainer narrow variant。",
   "session_notes": {
     "Kimi": "Planner 启动 API-POLISH 批次（10 generator + 1 codex = 11 条）。这是当前规划的最后一个批次，收尾 reports-20260416 剩余 medium/low 断言 + 两个用户反馈（CNY 余额显示 + 页面宽度统一）。AUDIT-FOLLOWUP-2 已签收 10/10。火山引擎运维修复已生效（deepseek-v3/doubao-pro 恢复）。F-AP-01~08 来自审计 medium/low，F-AP-09 余额 CNY 显示，F-AP-10 删除 PageContainer narrow variant 统一 max-w-7xl。",
     "Richard": "Generator 完成 F-AP-01~10 全部 10 条。无 schema 变更无 migration。tsc 0 errors。回归测试补充 3 条（get_balance 分页 / list_logs action_id / create_api_key expiresAt）。状态推进到 verifying。",
-    "Reviewer": null
+    "Reviewer": "首轮 verifying 全部 PASS 11/11。L2 生产验证：get_balance limit=2 hasMore=true / list_logs action_id 过滤 / totalVersions=1,3 / create_api_key expires_at schema / image totalImages / max_tokens 校验引用 maxOutputTokens(65535) / size 描述含常见值 / exchange-rate=7.3。429 retryAfterSeconds 代码审查确认。F-AP-09 CNY + F-AP-10 宽度代码审查确认。"
   }
 }
