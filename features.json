@@ -23,7 +23,7 @@
       "title": "错误脱敏占位符整段替换",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) sanitizeErrorMessage 对含 '[infra removed]' 的整句替换为 'Model unavailable, please check list_models for alternatives'；2) '[contact removed]' 替换为空；3) '[upstream preview removed]' 替换为空；4) '[rid removed]' 替换为空；5) 替换后不留占位符痕迹，错误消息仍可读通顺；6) 同 commit 补 regression test 覆盖 4 种占位符场景；7) tsc 通过"
     },
     {
