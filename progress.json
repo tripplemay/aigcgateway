@@ -2,7 +2,7 @@
   "status": "building",
   "user_goal": "AUDIT-FOLLOWUP-2 — 修复 reports-20260416 审计的 critical/high：客户端超时退款 + 零图路径 + CALL_PROBE + 脱敏占位符 + reasoningTokens 过滤 + HTML 编码修复 + run_action 对齐 + update_action 版本 + 模板 order + chat cost 字段",
   "total_features": 10,
-  "completed_features": 6,
+  "completed_features": 7,
   "fix_rounds": 0,
   "current_sprint": null,
   "last_updated": "2026-04-16T10:00:00Z",

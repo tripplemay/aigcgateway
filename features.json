@@ -55,7 +55,7 @@
       "title": "update_action 改 model 自动创建新版本",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) update_action(model=X) 时自动调用 create_action_version，changelog 自动填 'Model changed from X to Y'；2) 原有版本保持 model 不变（历史可追溯）；3) 仅 name/description 变更不触发新版本；4) 同 commit 补 regression test；5) tsc 通过"
     },
     {
