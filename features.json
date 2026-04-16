@@ -34,7 +34,7 @@
       "title": "create_api_key 增加 expiresAt 参数",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "source": "DX-015",
       "acceptance": "1) create_api_key 新增可选 expiresAt 参数（ISO 8601 字符串）；2) 过期后 Key 在 auth-middleware 认证时返回 401 expired_api_key；3) MCP create_api_key tool schema 同步更新；4) /keys 前端页面创建 Key dialog 增加可选过期时间输入；5) 现有 Key 不受影响（expiresAt=null 表示永不过期）；6) 同 commit 补 regression test；7) tsc 通过"
     },
