@@ -112,7 +112,7 @@ export async function POST(request: Request) {
   try {
     const response = await adapter.imageGenerations(body, route);
 
-    // 异步后处理（持久化原始 URL 到 responseSummary 供代理查找）
+    // F-AF2-01: pass clientSignal for disconnect detection
     processImageResult({
       traceId,
       userId: user.id,
@@ -123,6 +123,7 @@ export async function POST(request: Request) {
       requestParams: body as unknown as Record<string, unknown>,
       startTime,
       response,
+      clientSignal: request.signal,
     });
 
     // F-ACF-07: rewrite each upstream URL into a signed proxy URL so callers
@@ -156,6 +157,7 @@ export async function POST(request: Request) {
         message: (err as Error).message,
         code: engineErr?.code,
       },
+      clientSignal: request.signal,
     });
 
     if (engineErr) {

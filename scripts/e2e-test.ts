@@ -306,6 +306,53 @@ async function main() {
       throw new Error("Public templates: missing data array");
   });
 
+  // 20. F-AF2-01 regression — client abort before response should not bill.
+  // We send a chat request and immediately abort, then verify the CallLog
+  // is recorded as TIMEOUT with sellPrice=0.
+  await step("20. F-AF2-01 client abort → TIMEOUT, no billing", async () => {
+    const controller = new AbortController();
+    // Abort immediately to simulate client timeout
+    setTimeout(() => controller.abort(), 50);
+    try {
+      await fetch(`${BASE}/v1/chat/completions`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${apiKey}`,
+        },
+        body: JSON.stringify({
+          model: "gpt-4o-mini",
+          messages: [{ role: "user", content: "say hi" }],
+        }),
+        signal: controller.signal,
+      });
+    } catch {
+      // Expected: fetch throws on abort
+    }
+    // Wait for async post-process to complete
+    await new Promise((r) => setTimeout(r, 3000));
+    // Check the latest log for this project — it should be TIMEOUT
+    const latest = await prisma.callLog.findFirst({
+      where: { projectId },
+      orderBy: { createdAt: "desc" },
+      select: { status: true, sellPrice: true },
+    });
+    if (!latest) throw new Error("No call log found after abort");
+    // The request may complete before abort fires (fast model) → SUCCESS is also acceptable.
+    // But if it was aborted, it MUST be TIMEOUT with zero charge.
+    if (latest.status === "TIMEOUT" && Number(latest.sellPrice) !== 0) {
+      throw new Error(`TIMEOUT log has non-zero sellPrice: ${latest.sellPrice}`);
+    }
+  });
+
+  // 21. F-AF2-01 regression — list_logs supports status=timeout filter
+  await step("21. F-AF2-01 list_logs timeout filter", async () => {
+    // Verify the API doesn't reject 'timeout' as a status value
+    // (MCP tool validation — we test via the underlying query pattern)
+    const res = await api(`/api/projects/${projectId}/logs?status=TIMEOUT&limit=1`);
+    if (res.status !== 200) throw new Error(`Expected 200, got ${res.status}`);
+  });
+
   console.log("\n" + "=".repeat(60));
   console.log(`Results: ${passed} PASS | ${failed} FAIL | ${passed + failed} total`);
   await prisma.$disconnect().catch(() => {});

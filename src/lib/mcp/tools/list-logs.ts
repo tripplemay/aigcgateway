@@ -31,7 +31,10 @@ export function registerListLogs(server: McpServer, opts: McpServerOptions): voi
         .describe(
           "Filter by model name (canonical alias from list_models), e.g. gpt-4o-mini, claude-sonnet-4.6, deepseek-v3",
         ),
-      status: z.enum(["success", "error", "filtered"]).optional().describe("Filter by status"),
+      status: z
+        .enum(["success", "error", "filtered", "timeout"])
+        .optional()
+        .describe("Filter by status"),
       search: z.string().optional().describe("Full-text search in prompt content"),
       // F-AF-03 (DX-005): optional ISO 8601 time bounds for log filtering.
       since: z
@@ -129,7 +132,9 @@ export function registerListLogs(server: McpServer, opts: McpServerOptions): voi
       if (untilDate) createdAtFilter.lt = untilDate;
       const where = {
         projectId,
-        ...(status ? { status: status.toUpperCase() as "SUCCESS" | "ERROR" | "FILTERED" } : {}),
+        ...(status
+          ? { status: status.toUpperCase() as "SUCCESS" | "ERROR" | "FILTERED" | "TIMEOUT" }
+          : {}),
         ...(model ? { modelName: model } : {}),
         ...(sinceDate || untilDate ? { createdAt: createdAtFilter } : {}),
       };

@@ -37,6 +37,8 @@ export interface PostProcessParams {
   actionId?: string;
   actionVersionId?: string;
   templateRunId?: string;
+  /** HTTP request abort signal — used to detect client disconnect before billing */
+  clientSignal?: AbortSignal;
 }
 
 export interface ChatPostProcessParams extends PostProcessParams {
@@ -85,10 +87,16 @@ async function processChatResultAsync(params: ChatPostProcessParams): Promise<vo
   const responseContent =
     params.response?.choices?.[0]?.message?.content ?? params.streamChunks?.content ?? null;
 
-  const status = mapCallStatus(finishReasonRaw, isError);
-  const finishReason = mapFinishReason(finishReasonRaw);
+  // F-AF2-01: if the client disconnected (abort signal fired) but the upstream
+  // call completed successfully, treat it as TIMEOUT — the user never received
+  // the response, so we must not charge them.
+  const clientAborted = params.clientSignal?.aborted === true;
+  const status =
+    clientAborted && !isError ? ("TIMEOUT" as CallStatus) : mapCallStatus(finishReasonRaw, isError);
+  const finishReason =
+    clientAborted && !isError ? ("TIMEOUT" as FinishReason) : mapFinishReason(finishReasonRaw);
 
-  // 计算成本
+  // 计算成本（TIMEOUT → costUsd=0, sellUsd=0）
   const { costUsd, sellUsd } = calculateTokenCost(usage, params.route, status);
 
   // 定价缺失告警：成功调用但 sellPrice 为 0，说明 alias 未配置定价
@@ -174,12 +182,16 @@ async function processImageResultAsync(params: ImagePostProcessParams): Promise<
   const imagesCount = params.response?.data?.length ?? 0;
   const zeroImageDelivery = !isError && imagesCount === 0;
 
+  // F-AF2-01: client disconnect → TIMEOUT, no charge (same logic as chat)
+  const clientAborted = params.clientSignal?.aborted === true;
+
   let status: CallStatus;
-  if (isError) status = "ERROR";
+  if (clientAborted && !isError) status = "TIMEOUT";
+  else if (isError) status = "ERROR";
   else if (zeroImageDelivery) status = "FILTERED";
   else status = "SUCCESS";
 
-  // 图片成本：按次计价 — FILTERED/ERROR 都返回 0
+  // 图片成本：按次计价 — FILTERED/ERROR/TIMEOUT 都返回 0
   const { costUsd, sellUsd } = calculateCallCost(params.route, status);
 
   // 定价缺失告警：成功调用但 sellPrice 为 0，说明 alias 未配置 perCall 定价

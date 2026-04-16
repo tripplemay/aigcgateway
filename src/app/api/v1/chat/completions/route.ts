@@ -146,6 +146,7 @@ export async function POST(request: Request) {
       modelName,
       startTime,
       rateLimitHeaders,
+      request.signal,
       rlKey,
       rlMember,
     );
@@ -161,6 +162,7 @@ export async function POST(request: Request) {
     modelName,
     startTime,
     rateLimitHeaders,
+    request.signal,
     rlKey,
     rlMember,
   );
@@ -180,6 +182,7 @@ async function handleNonStream(
   modelName: string,
   startTime: number,
   rateLimitHeaders: Record<string, string>,
+  clientSignal: AbortSignal,
   rlKey?: string,
   rlMember?: string,
 ) {
@@ -193,7 +196,7 @@ async function handleNonStream(
       model: modelName,
     };
 
-    // 异步后处理
+    // F-AF2-01: pass clientSignal so post-process can detect client disconnect
     processChatResult({
       traceId,
       userId,
@@ -204,6 +207,7 @@ async function handleNonStream(
       requestParams: extractRequestParams(body),
       startTime,
       response,
+      clientSignal,
     });
 
     return jsonResponse(result, 200, traceId, rateLimitHeaders);
@@ -226,6 +230,7 @@ async function handleNonStream(
         message: (err as Error).message,
         code: engineErr?.code,
       },
+      clientSignal,
     });
 
     if (engineErr) {
@@ -253,6 +258,7 @@ async function handleStream(
   modelName: string,
   startTime: number,
   rateLimitHeaders: Record<string, string>,
+  clientSignal: AbortSignal,
   rlKey?: string,
   rlMember?: string,
 ) {
@@ -322,6 +328,7 @@ async function handleStream(
               usage: lastUsage,
               finishReason: lastFinishReason,
             },
+            clientSignal,
           });
         } catch (err) {
           controller.error(err);
@@ -342,6 +349,7 @@ async function handleStream(
             error: {
               message: (err as Error).message,
             },
+            clientSignal,
           });
         }
       },
@@ -367,6 +375,7 @@ async function handleStream(
         message: (err as Error).message,
         code: engineErr?.code,
       },
+      clientSignal,
     });
 
     if (engineErr) {
