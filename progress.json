@@ -2,10 +2,10 @@
   "status": "building",
   "user_goal": "TEMPLATE-LIBRARY-UPGRADE — 公共模板库体验升级：分类筛选（SystemConfig 管理员预置）+ 评分系统（fork 后打分）+ 多维排序（推荐/热门/最高评分/最新）",
   "total_features": 8,
-  "completed_features": 3,
+  "completed_features": 4,
   "fix_rounds": 0,
-  "current_sprint": "F-TL-04 done, starting F-TL-05 list_public_templates",
-  "last_updated": "2026-04-17T07:00:00Z",
+  "current_sprint": "F-TL-05 done, starting F-TL-03 admin category selector",
+  "last_updated": "2026-04-17T07:20:00Z",
   "reference_docs": [
     "docs/specs/TEMPLATE-LIBRARY-UPGRADE-spec.md"
   ],

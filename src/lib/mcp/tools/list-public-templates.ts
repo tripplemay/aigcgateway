@@ -2,66 +2,62 @@
  * MCP Tool: list_public_templates
  *
  * 浏览公共模板库，返回管理员标记为公共的模板列表。
+ * F-TL-05: 新增 category 过滤 + sort_by 参数 + averageScore / ratingCount 字段。
  */
 
 import { z } from "zod";
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import { prisma } from "@/lib/prisma";
 import type { McpServerOptions } from "@/lib/mcp/server";
+import {
+  listPublicTemplates,
+  PUBLIC_TEMPLATE_SORT_VALUES,
+} from "@/lib/public-templates";
 
 export function registerListPublicTemplates(server: McpServer, _opts: McpServerOptions): void {
   server.tool(
     "list_public_templates",
-    "Browse public template library. Returns templates marked as public by administrators, with quality scores and fork counts.",
+    "Browse public template library. Supports category filter, sort_by (recommended/popular/top_rated/latest), averageScore + ratingCount + categoryIcon per item.",
     {
       search: z.string().optional().describe("Search by name or description"),
+      category: z.string().optional().describe("Filter by category id (e.g. 'dev-review')"),
+      sort_by: z
+        .enum(PUBLIC_TEMPLATE_SORT_VALUES as [string, ...string[]])
+        .optional()
+        .describe("Sort order: recommended (default) / popular / top_rated / latest"),
       page: z.number().int().positive().optional().describe("Page number (default 1)"),
-      pageSize: z.number().int().min(1).max(100).optional().describe("Items per page (default 20)"),
+      pageSize: z
+        .number()
+        .int()
+        .min(1)
+        .max(100)
+        .optional()
+        .describe("Items per page (default 20)"),
     },
-    async ({ search, page = 1, pageSize = 20 }) => {
-      const where: Record<string, unknown> = { isPublic: true };
-      if (search) {
-        where.OR = [
-          { name: { contains: search, mode: "insensitive" } },
-          { description: { contains: search, mode: "insensitive" } },
-        ];
-      }
+    async ({ search, category, sort_by, page = 1, pageSize = 20 }) => {
+      const { templates, pagination } = await listPublicTemplates({
+        search,
+        category,
+        sortBy: sort_by as
+          | "recommended"
+          | "popular"
+          | "top_rated"
+          | "latest"
+          | undefined,
+        page,
+        pageSize,
+      });
 
-      const [templates, total] = await Promise.all([
-        prisma.template.findMany({
-          where,
-          select: {
-            id: true,
-            name: true,
-            description: true,
-            qualityScore: true,
-            updatedAt: true,
-            steps: { orderBy: { order: "asc" }, select: { role: true } },
-            _count: { select: { forks: true } },
-          },
-          orderBy: { qualityScore: "desc" },
-          skip: (page - 1) * pageSize,
-          take: pageSize,
-        }),
-        prisma.template.count({ where }),
-      ]);
-
-      // F-WP-09: only expose qualityScore when at least one template in the
-      // current page has a non-null score. Prevents noisy `null` fields on
-      // brand-new libraries without any human ratings yet.
-      const anyScored = templates.some((t) => t.qualityScore != null);
       const data = templates.map((t) => ({
         id: t.id,
         name: t.name,
         description: t.description,
-        ...(anyScored ? { qualityScore: t.qualityScore } : {}),
-        forkCount: t._count.forks,
-        stepCount: t.steps.length,
-        executionMode: t.steps.some((s) => s.role === "SPLITTER")
-          ? "fan-out"
-          : t.steps.length > 1
-            ? "sequential"
-            : "single",
+        category: t.category,
+        categoryIcon: t.categoryIcon,
+        averageScore: t.averageScore,
+        ratingCount: t.ratingCount,
+        forkCount: t.forkCount,
+        stepCount: t.stepCount,
+        executionMode: t.executionMode,
       }));
 
       return {
@@ -69,7 +65,16 @@ export function registerListPublicTemplates(server: McpServer, _opts: McpServerO
           {
             type: "text" as const,
             text: JSON.stringify(
-              { templates: data, pagination: { page, pageSize, total } },
+              {
+                templates: data,
+                pagination: {
+                  page: pagination.page,
+                  pageSize: pagination.pageSize,
+                  total: pagination.total,
+                },
+                sortBy: sort_by ?? "recommended",
+                category: category ?? null,
+              },
               null,
               2,
             ),

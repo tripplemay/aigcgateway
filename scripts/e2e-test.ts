@@ -422,6 +422,86 @@ async function main() {
     }
   });
 
+  // 23. F-TL-05 regression — category filter + sort_by against /api/templates/public
+  await step("23. F-TL-05 list_public_templates category + sort_by", async () => {
+    // Seed two categorised public templates with different fork counts
+    const [alpha, beta] = await Promise.all([
+      prisma.template.create({
+        data: {
+          projectId,
+          name: `tl05-alpha-${Date.now()}`,
+          description: "alpha",
+          isPublic: true,
+          category: "writing",
+          ratingCount: 1,
+          ratingSum: 5,
+        },
+      }),
+      prisma.template.create({
+        data: {
+          projectId,
+          name: `tl05-beta-${Date.now()}`,
+          description: "beta",
+          isPublic: true,
+          category: "dev-review",
+          ratingCount: 1,
+          ratingSum: 2,
+        },
+      }),
+    ]);
+    // Fake a fork on alpha so popular sort is meaningful
+    const fork = await prisma.template.create({
+      data: {
+        projectId,
+        name: `tl05-fork-${Date.now()}`,
+        description: "fork",
+        isPublic: false,
+        sourceTemplateId: alpha.id,
+      },
+    });
+    try {
+      const filtered = await api(`/api/templates/public?category=writing&pageSize=50`);
+      if (filtered.status !== 200) throw new Error(`filter HTTP ${filtered.status}`);
+      const rows = filtered.body.data as Array<{ id: string; category: string | null }>;
+      if (!rows.some((r) => r.id === alpha.id))
+        throw new Error("writing filter missing alpha template");
+      if (rows.some((r) => r.id === beta.id))
+        throw new Error("writing filter leaks dev-review template");
+
+      // Returns new fields averageScore + ratingCount + categoryIcon
+      const match = rows.find((r) => r.id === alpha.id) as unknown as {
+        averageScore: number;
+        ratingCount: number;
+        categoryIcon: string;
+        forkCount: number;
+      };
+      if (match.ratingCount !== 1) throw new Error(`ratingCount missing: ${match.ratingCount}`);
+      if (match.averageScore !== 5) throw new Error(`averageScore wrong: ${match.averageScore}`);
+      if (!match.categoryIcon) throw new Error("categoryIcon missing");
+      if (match.forkCount < 1) throw new Error(`forkCount wrong: ${match.forkCount}`);
+
+      // sort_by=popular → alpha before beta since alpha has a fork
+      const popular = await api(`/api/templates/public?sort_by=popular&pageSize=100`);
+      const pRows = popular.body.data as Array<{ id: string }>;
+      const aIdx = pRows.findIndex((r) => r.id === alpha.id);
+      const bIdx = pRows.findIndex((r) => r.id === beta.id);
+      if (aIdx < 0 || bIdx < 0) throw new Error("popular sort missing seeded rows");
+      if (aIdx >= bIdx) throw new Error("popular sort did not rank alpha above beta");
+
+      // sort_by=top_rated → alpha (avg 5) before beta (avg 2)
+      const top = await api(`/api/templates/public?sort_by=top_rated&pageSize=100`);
+      const tRows = top.body.data as Array<{ id: string }>;
+      const atIdx = tRows.findIndex((r) => r.id === alpha.id);
+      const btIdx = tRows.findIndex((r) => r.id === beta.id);
+      if (atIdx >= btIdx)
+        throw new Error("top_rated sort did not rank higher-avg alpha above beta");
+    } finally {
+      await prisma.template.delete({ where: { id: fork.id } }).catch(() => {});
+      await prisma.template.delete({ where: { id: alpha.id } }).catch(() => {});
+      await prisma.template.delete({ where: { id: beta.id } }).catch(() => {});
+    }
+  });
+
   console.log("\n" + "=".repeat(60));
   console.log(`Results: ${passed} PASS | ${failed} FAIL | ${passed + failed} total`);
   await prisma.$disconnect().catch(() => {});

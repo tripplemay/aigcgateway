@@ -39,7 +39,7 @@
       "title": "API/MCP：list_public_templates 增加 category + sort_by + 评分字段",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) list_public_templates 新增可选参数 category（筛选）和 sort_by（recommended/popular/top_rated/latest，默认 recommended）；2) 返回体每个模板增加 category/categoryIcon/averageScore/ratingCount 字段；3) 推荐排序：qualityScore * 0.7 + log2(forkCount + 1) * 0.3；4) REST API + MCP 同步支持；5) tsc 通过"
     },
     {

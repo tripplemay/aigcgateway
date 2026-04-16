@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import { verifyJwt } from "@/lib/api/jwt-middleware";
 import { errorResponse } from "@/lib/api/errors";
+import { getTemplateCategories, getCategoryIcon } from "@/lib/template-categories";
 
 type Params = { params: { templateId: string } };
 
@@ -19,6 +20,9 @@ export async function GET(request: Request, { params }: Params) {
       name: true,
       description: true,
       qualityScore: true,
+      category: true,
+      ratingCount: true,
+      ratingSum: true,
       updatedAt: true,
       steps: {
         orderBy: { order: "asc" },
@@ -35,11 +39,18 @@ export async function GET(request: Request, { params }: Params) {
 
   if (!template) return errorResponse(404, "not_found", "Public template not found");
 
+  const cats = await getTemplateCategories();
+  const averageScore = template.ratingCount > 0 ? template.ratingSum / template.ratingCount : 0;
+
   const data = {
     id: template.id,
     name: template.name,
     description: template.description,
     qualityScore: template.qualityScore,
+    category: template.category,
+    categoryIcon: getCategoryIcon(cats, template.category),
+    averageScore,
+    ratingCount: template.ratingCount,
     forkCount: template._count.forks,
     executionMode: inferExecutionMode(template.steps),
     updatedAt: template.updatedAt,
