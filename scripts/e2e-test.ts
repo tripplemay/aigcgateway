@@ -353,6 +353,75 @@ async function main() {
     if (res.status !== 200) throw new Error(`Expected 200, got ${res.status}`);
   });
 
+  // 22. F-TL-04 regression — template rating upsert + averageScore math
+  await step("22. F-TL-04 template rating upsert + aggregate", async () => {
+    // Seed a public template owned by some project
+    const seeded = await prisma.template.create({
+      data: {
+        projectId,
+        name: `rate-probe-${Date.now()}`,
+        description: "F-TL-04 regression",
+        isPublic: true,
+        category: "dev-review",
+      },
+    });
+    try {
+      // First rating → 4
+      const first = await api(`/api/templates/${seeded.id}/rate`, {
+        method: "POST",
+        body: JSON.stringify({ score: 4 }),
+      });
+      if (first.status !== 200) throw new Error(`rate#1 HTTP ${first.status}`);
+      if (first.body.data.ratingCount !== 1 || first.body.data.averageScore !== 4) {
+        throw new Error(`rate#1 bad aggregate: ${JSON.stringify(first.body.data)}`);
+      }
+
+      // Same user re-rates → 2 (upsert, not duplicate)
+      const second = await api(`/api/templates/${seeded.id}/rate`, {
+        method: "POST",
+        body: JSON.stringify({ score: 2 }),
+      });
+      if (second.status !== 200) throw new Error(`rate#2 HTTP ${second.status}`);
+      if (second.body.data.ratingCount !== 1 || second.body.data.averageScore !== 2) {
+        throw new Error(`rate#2 bad aggregate: ${JSON.stringify(second.body.data)}`);
+      }
+
+      // Only one TemplateRating row for this (user, template)
+      const count = await prisma.templateRating.count({
+        where: { templateId: seeded.id },
+      });
+      if (count !== 1) throw new Error(`Expected 1 rating row, got ${count}`);
+
+      // Out-of-range score → 400
+      const invalid = await api(`/api/templates/${seeded.id}/rate`, {
+        method: "POST",
+        body: JSON.stringify({ score: 7 }),
+      });
+      if (invalid.status !== 400)
+        throw new Error(`expected 400 for score=7, got ${invalid.status}`);
+
+      // GET returns current user score
+      const current = await api(`/api/templates/${seeded.id}/rate`);
+      if (current.body.data.userScore !== 2)
+        throw new Error(`GET userScore wrong: ${JSON.stringify(current.body.data)}`);
+
+      // Non-public template → 404
+      const privateTpl = await prisma.template.create({
+        data: { projectId, name: `private-${Date.now()}`, isPublic: false },
+      });
+      const blocked = await api(`/api/templates/${privateTpl.id}/rate`, {
+        method: "POST",
+        body: JSON.stringify({ score: 3 }),
+      });
+      if (blocked.status !== 404)
+        throw new Error(`non-public rate: expected 404, got ${blocked.status}`);
+      await prisma.template.delete({ where: { id: privateTpl.id } });
+    } finally {
+      await prisma.templateRating.deleteMany({ where: { templateId: seeded.id } }).catch(() => {});
+      await prisma.template.delete({ where: { id: seeded.id } }).catch(() => {});
+    }
+  });
+
   console.log("\n" + "=".repeat(60));
   console.log(`Results: ${passed} PASS | ${failed} FAIL | ${passed + failed} total`);
   await prisma.$disconnect().catch(() => {});

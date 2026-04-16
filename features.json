@@ -31,7 +31,7 @@
       "title": "评分 API：POST /api/templates/[id]/rate",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) POST /api/templates/[id]/rate body={score:1-5} upsert TemplateRating（同用户同模板只能一个评分，可修改）；2) 写入后原子更新 Template.ratingCount 和 ratingSum；3) 只能对 isPublic=true 的模板打分；4) 返回 {averageScore, ratingCount}；5) tsc 通过"
     },
     {
