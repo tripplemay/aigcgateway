@@ -18,7 +18,8 @@
 | F-AP-06 | image 模型 usage_summary totalTokens 修正 | DX-009 | modality=image 的模型在 get_usage_summary 中 totalTokens 显示为 0（不展示 token 计量）|
 | F-AP-07 | max_tokens 校验引用 maxOutputTokens + 错误语言统一 | RL-007 + DX-014 | max_tokens 超限时引用 model.maxTokens（而非 contextWindow）；所有错误消息统一为英文 + error_code 枚举 |
 | F-AP-08 | generate_image size 参数增加 enum 提示 | DX-008 | generate_image schema 的 size 字段 description 列出常见合法值；或运行时对传入 size 与 supportedSizes 做交叉校验（已有 invalid_size 逻辑，本条确认 schema 层面也有提示） |
-| F-AP-09 | API-POLISH 全量验收 | — | codex 执行全部 8 项验证 + 签收报告 |
+| F-AP-09 | 余额显示从 USD 转换为 CNY | 用户反馈 | 侧边栏/dashboard/balance 页面的余额显示从 `$49.93` 改为 `¥364.49`（按 SystemConfig USD_TO_CNY_RATE 或 env EXCHANGE_RATE 换算）；所有前端 `$` 前缀替换为 `¥`；API 层 balance 字段仍返回 USD 原值（不改后端），前端展示层做转换 |
+| F-AP-10 | API-POLISH 全量验收 | — | codex 执行全部 9 项验证 + 签收报告 |
 
 ## 不在本批次
 
