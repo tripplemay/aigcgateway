@@ -15,11 +15,22 @@
  */
 import type { NotificationEventType, Prisma, UserRole } from "@prisma/client";
 
-// Accept any Prisma client surface that exposes
-// notificationPreference.createMany — Prisma.TransactionClient and the
-// extended singleton from @/lib/prisma otherwise refuse to unify.
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type TxLike = any;
+// Minimal interface covering the subset of Prisma client used here.
+// Using a structural type avoids coupling to Prisma.TransactionClient
+// vs. the extended singleton from @/lib/prisma.
+type TxLike = {
+  notificationPreference: {
+    createMany: (args: {
+      data: {
+        userId: string;
+        eventType: NotificationEventType;
+        channels: Prisma.InputJsonValue;
+        enabled: boolean;
+      }[];
+      skipDuplicates?: boolean;
+    }) => Promise<unknown>;
+  };
+};
 
 export interface PrefSeed {
   eventType: NotificationEventType;
