@@ -344,11 +344,11 @@ export function GlobalLibrary() {
                 onClick={() => setSelectedId(tpl.id)}
                 className="group bg-ds-surface-container-lowest rounded-xl p-6 shadow-sm hover:shadow-xl transition-all cursor-pointer ring-1 ring-ds-on-surface/5 hover:ring-ds-primary-container/20"
               >
-                <div className="flex justify-between items-start mb-4 gap-2">
-                  <h3 className="text-xl font-bold font-[var(--font-heading)] group-hover:text-ds-primary transition-colors flex-1 min-w-0">
+                <div className="mb-4">
+                  <div className="mb-2">{categoryBadge(tpl.category, tpl.categoryIcon)}</div>
+                  <h3 className="text-xl font-bold font-[var(--font-heading)] group-hover:text-ds-primary transition-colors line-clamp-2">
                     {tpl.name}
                   </h3>
-                  {categoryBadge(tpl.category, tpl.categoryIcon)}
                 </div>
                 <p className="text-ds-on-surface-variant text-sm line-clamp-2 mb-6">
                   {tpl.description || "\u2014"}
