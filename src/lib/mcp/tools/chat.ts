@@ -9,7 +9,7 @@ import { z } from "zod";
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { resolveEngine } from "@/lib/engine";
 import { generateTraceId } from "@/lib/api/response";
-import { processChatResult } from "@/lib/api/post-process";
+import { processChatResult, calculateTokenCost } from "@/lib/api/post-process";
 import { prisma } from "@/lib/prisma";
 import { checkRateLimit, checkTokenLimit, checkSpendingRate } from "@/lib/api/rate-limit";
 import { EngineError, sanitizeErrorMessage } from "@/lib/engine/types";
@@ -452,6 +452,9 @@ export function registerChat(server: McpServer, opts: McpServerOptions): void {
             source: "mcp",
           });
 
+          // F-AF2-09: compute cost for the response
+          const streamCost = calculateTokenCost(lastUsage, route, "SUCCESS");
+
           return {
             content: [
               {
@@ -462,6 +465,7 @@ export function registerChat(server: McpServer, opts: McpServerOptions): void {
                     traceId,
                     model,
                     ttftMs,
+                    cost: `$${streamCost.sellUsd.toFixed(8)}`,
                     usage: lastUsage
                       ? {
                           promptTokens: lastUsage.prompt_tokens,
@@ -506,6 +510,8 @@ export function registerChat(server: McpServer, opts: McpServerOptions): void {
         const content = choice?.message?.content ?? "";
         const toolCalls = choice?.message?.tool_calls ?? undefined;
         const usage = response.usage;
+        // F-AF2-09: compute cost for the response
+        const chatCost = calculateTokenCost(usage ?? null, route, "SUCCESS");
 
         return {
           content: [
@@ -516,6 +522,7 @@ export function registerChat(server: McpServer, opts: McpServerOptions): void {
                   content,
                   traceId,
                   model,
+                  cost: `$${chatCost.sellUsd.toFixed(8)}`,
                   usage: usage
                     ? {
                         promptTokens: usage.prompt_tokens,

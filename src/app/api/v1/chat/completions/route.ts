@@ -16,7 +16,7 @@ import {
 import { errorResponse } from "@/lib/api/errors";
 import { generateTraceId, jsonResponse, sseResponse } from "@/lib/api/response";
 import { resolveEngine } from "@/lib/engine";
-import { processChatResult } from "@/lib/api/post-process";
+import { processChatResult, calculateTokenCost } from "@/lib/api/post-process";
 import type { ChatCompletionRequest, ChatCompletionChunk, Usage } from "@/lib/engine/types";
 import { EngineError, sanitizeErrorMessage } from "@/lib/engine/types";
 
@@ -189,11 +189,15 @@ async function handleNonStream(
   try {
     const response = await adapter.chatCompletions(body, route);
 
-    // 覆盖 id 和 model
+    // F-AF2-09: compute cost inline for the response
+    const { sellUsd } = calculateTokenCost(response.usage ?? null, route, "SUCCESS");
+
+    // 覆盖 id 和 model, 补 cost
     const result = {
       ...response,
       id: `chatcmpl-${traceId}`,
       model: modelName,
+      cost: `$${sellUsd.toFixed(8)}`,
     };
 
     // F-AF2-01: pass clientSignal so post-process can detect client disconnect

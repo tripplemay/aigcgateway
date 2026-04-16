@@ -971,6 +971,17 @@ async function main() {
     }
   });
 
+  // 24. F-AF2-09 regression — chat response must include cost field
+  await step("24. F-AF2-09 chat response includes cost", async () => {
+    const result = await callTool("chat", {
+      model: selectedTextModel ?? "gpt-4o-mini",
+      messages: [{ role: "user", content: "say ok" }],
+    });
+    const data = JSON.parse(parseTextContent(result));
+    if (!data.cost) throw new Error("chat response missing cost field");
+    if (!data.cost.startsWith("$")) throw new Error(`cost format wrong: ${data.cost}`);
+  });
+
   console.log("\n" + "=".repeat(60));
   console.log(`Results: ${passed} PASS | ${failed} FAIL | ${passed + failed} total`);
   console.log("=".repeat(60));

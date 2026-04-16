@@ -251,7 +251,7 @@ async function processImageResultAsync(params: ImagePostProcessParams): Promise<
 // 成本计算
 // ============================================================
 
-function calculateTokenCost(
+export function calculateTokenCost(
   usage: Usage | null,
   route: RouteResult,
   status: CallStatus,

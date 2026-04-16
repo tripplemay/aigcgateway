@@ -82,7 +82,10 @@ export function registerGetBalance(server: McpServer, opts: McpServerOptions): v
             traceId: t.traceId ?? null,
             description: t.description,
             createdAt: t.createdAt,
-            ...(t.type === "DEDUCTION" && log ? { model: log.modelName, source: log.source } : {}),
+            // F-AF2-09: expose model/source for both DEDUCTION and REFUND
+            ...((t.type === "DEDUCTION" || t.type === "REFUND") && log
+              ? { model: log.modelName, source: log.source }
+              : {}),
           };
         });
       }
