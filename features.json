@@ -61,7 +61,7 @@
       "title": "max_tokens 校验引用 maxOutputTokens + 错误语言统一",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "source": "RL-007 + DX-014",
       "acceptance": "1) max_tokens 超限校验：优先引用 model.maxTokens（最大输出 token），fallback 到 contextWindow；2) 错误消息明确区分 'max_tokens exceeds model max output limit (X)' 而非引用 contextWindow；3) 所有 MCP tool 和 REST API 的错误消息统一为英文 + error_code 枚举（如 RATE_LIMITED / INVALID_PARAMETER / MODEL_NOT_FOUND）；4) 不再出现中英文混合错误；5) tsc 通过"
     },
