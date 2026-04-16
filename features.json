@@ -15,7 +15,7 @@
       "title": "零图退款路径补全 + CALL_PROBE 运行化 + 火山引擎 adapter 适配",
       "priority": "critical",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) 审查 generate_image 所有 provider_error 分支，确保 0 图时 cost=0 直接标 FILTERED（不再先扣后退）；2) F-ACF-10 CALL_PROBE 确认有 cron 或定时触发机制在跑（若无则补）；3) volcengine sync adapter 的 fetchModels 返回的 model name 加注释说明需要在 admin 手动映射 endpoint ID；4) 同 commit 补 regression test；5) tsc 通过"
     },
     {
