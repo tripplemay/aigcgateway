@@ -34,7 +34,8 @@
       "title": "CHANNEL_DOWN + CHANNEL_RECOVERED + PENDING_CLASSIFICATION 触发",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
+      "completed_at": "2026-04-16T08:43:00Z",
       "acceptance": "1) src/lib/health/checker.ts 状态从 PASS 转 FAIL 时给所有 admin 发 CHANNEL_DOWN，payload={channelId, providerName, modelName, lastError}；2) 6 小时 Redis 去重；3) AUTO_RECOVERY 触发时发 CHANNEL_RECOVERED（不去重）；4) src/lib/sync/alias-classifier.ts 一批写完后聚合发一条 PENDING_CLASSIFICATION 给所有 admin，payload={count, examples:[{modelName, suggestedAlias, confidence}]}（最多 5 个例子）；5) tsc 通过"
     },
     {
