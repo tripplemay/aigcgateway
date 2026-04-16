@@ -43,6 +43,10 @@ jobs:
             echo "=== Prisma generate + migrate ==="
             npx prisma generate
             set -a && source .env.production && set +a
+
+            echo "=== Resolve failed migration (if any) ==="
+            npx prisma migrate resolve --applied 20260416_fix_template_step_order_base 2>/dev/null || true
+
             npx prisma migrate deploy
 
             echo "=== Build ==="
