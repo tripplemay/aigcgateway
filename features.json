@@ -43,7 +43,8 @@
       "title": "NotificationCenter 组件 + 顶栏铃铛",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
+      "completed_at": "2026-04-16T08:55:00Z",
       "acceptance": "1) src/components/notification-center.tsx：顶栏铃铛 + 未读 badge（最多 99+）+ 下拉列表（最近 20 条）；2) 集成到 src/components/top-app-bar.tsx 右侧；3) 列表项显示 eventType 图标+颜色 + 时间(time-ago) + 摘要文本 + 标记已读按钮；4) '全部已读' 按钮调 mark-all-read；5) 点击未读项自动 PATCH readAt；6) 30 秒自动轮询 GET /api/notifications；7) 使用 SectionCard / StatusChip 公共组件保持 UI 一致；8) i18n 中英文；9) tsc 通过"
     },
     {

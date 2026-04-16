@@ -653,6 +653,9 @@ export default function SettingsPage() {
                 </TableBody>
               </Table>
             </TableCard>
+
+            {/* Notification Preferences */}
+            <NotificationPreferencesCard />
           </div>
 
           {/* Right Column */}
@@ -789,6 +792,302 @@ function ExchangeRateSection() {
         <span className="text-sm font-bold text-ds-on-surface-variant">CNY</span>
         <Button variant="gradient-primary" size="lg" onClick={handleSave} disabled={saving}>
           {saving ? "..." : t("save")}
+        </Button>
+      </div>
+    </SectionCard>
+  );
+}
+
+// ============================================================
+// F-UA-07: Notification Preferences Card
+// ============================================================
+
+type EventType =
+  | "BALANCE_LOW"
+  | "SPENDING_RATE_EXCEEDED"
+  | "CHANNEL_DOWN"
+  | "CHANNEL_RECOVERED"
+  | "PENDING_CLASSIFICATION";
+
+const ALL_EVENT_TYPES: EventType[] = [
+  "BALANCE_LOW",
+  "SPENDING_RATE_EXCEEDED",
+  "CHANNEL_DOWN",
+  "CHANNEL_RECOVERED",
+  "PENDING_CLASSIFICATION",
+];
+
+interface PrefRow {
+  eventType: EventType;
+  channels: string[];
+  enabled: boolean;
+  webhookUrl: string | null;
+  webhookSecret: string | null;
+}
+
+function NotificationPreferencesCard() {
+  const t = useTranslations("settings");
+  const [prefs, setPrefs] = useState<Record<EventType, PrefRow>>(
+    () =>
+      Object.fromEntries(
+        ALL_EVENT_TYPES.map((et) => [
+          et,
+          {
+            eventType: et,
+            channels: ["inApp"],
+            enabled: true,
+            webhookUrl: null,
+            webhookSecret: null,
+          },
+        ]),
+      ) as Record<EventType, PrefRow>,
+  );
+  const [webhookUrl, setWebhookUrl] = useState("");
+  const [webhookSecret, setWebhookSecret] = useState("");
+  const [showSecret, setShowSecret] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [testing, setTesting] = useState(false);
+
+  const hasWebhookEnabled = ALL_EVENT_TYPES.some((et) => prefs[et].channels.includes("webhook"));
+
+  useEffect(() => {
+    apiFetch<{ data: PrefRow[] }>("/api/notifications/preferences")
+      .then((res) => {
+        const map = Object.fromEntries(
+          ALL_EVENT_TYPES.map((et) => [
+            et,
+            {
+              eventType: et,
+              channels: ["inApp"],
+              enabled: true,
+              webhookUrl: null,
+              webhookSecret: null,
+            },
+          ]),
+        ) as Record<EventType, PrefRow>;
+        for (const row of res.data) {
+          if (ALL_EVENT_TYPES.includes(row.eventType)) {
+            map[row.eventType] = row;
+          }
+        }
+        setPrefs(map);
+        // Use the first non-null webhook URL/secret across all prefs
+        const firstWithUrl = res.data.find((r) => r.webhookUrl);
+        if (firstWithUrl) {
+          setWebhookUrl(firstWithUrl.webhookUrl ?? "");
+          setWebhookSecret(firstWithUrl.webhookSecret ?? "");
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  const toggleChannel = (et: EventType, channel: "inApp" | "webhook") => {
+    setPrefs((prev) => {
+      const row = prev[et];
+      const channels = row.channels.includes(channel)
+        ? row.channels.filter((c) => c !== channel)
+        : [...row.channels, channel];
+      return { ...prev, [et]: { ...row, channels } };
+    });
+  };
+
+  const toggleEnabled = (et: EventType) => {
+    setPrefs((prev) => ({
+      ...prev,
+      [et]: { ...prev[et], enabled: !prev[et].enabled },
+    }));
+  };
+
+  const regenerateSecret = () => {
+    const secret = Array.from(crypto.getRandomValues(new Uint8Array(24)))
+      .map((b) => b.toString(16).padStart(2, "0"))
+      .join("");
+    setWebhookSecret(secret);
+  };
+
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      const payload = ALL_EVENT_TYPES.map((et) => ({
+        eventType: et,
+        channels: prefs[et].channels,
+        enabled: prefs[et].enabled,
+        webhookUrl: prefs[et].channels.includes("webhook") ? webhookUrl || null : null,
+        webhookSecret: prefs[et].channels.includes("webhook") ? webhookSecret || null : null,
+      }));
+      await apiFetch("/api/notifications/preferences", {
+        method: "PATCH",
+        body: JSON.stringify(payload),
+      });
+      toast.success(t("saved"));
+    } catch (e) {
+      toast.error((e as Error).message);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleTestWebhook = async () => {
+    setTesting(true);
+    try {
+      const res = await apiFetch<{ success: boolean; message?: string }>(
+        "/api/notifications/test-webhook",
+        { method: "POST" },
+      );
+      if (res.success) toast.success(t("notifTestOk"));
+      else toast.error(res.message ?? t("notifTestFail"));
+    } catch (e) {
+      toast.error((e as Error).message);
+    } finally {
+      setTesting(false);
+    }
+  };
+
+  return (
+    <SectionCard>
+      <div className="flex items-center gap-4 mb-6">
+        <div className="w-12 h-12 rounded-xl bg-ds-primary-container/30 flex items-center justify-center text-ds-primary">
+          <span className="material-symbols-outlined">notifications_active</span>
+        </div>
+        <div>
+          <h2 className="heading-2">{t("notifPrefsTitle")}</h2>
+          <p className="text-sm text-ds-on-surface-variant">{t("notifPrefsDesc")}</p>
+        </div>
+      </div>
+
+      {/* Event type table */}
+      <div className="space-y-2 mb-6">
+        {/* Header */}
+        <div className="grid grid-cols-[1fr_auto_auto_auto] gap-4 px-2 pb-1 border-b border-ds-outline-variant/10">
+          <span className="text-xs font-bold uppercase tracking-wider text-ds-outline">
+            {t("notifEvent")}
+          </span>
+          <span className="text-xs font-bold uppercase tracking-wider text-ds-outline w-16 text-center">
+            {t("notifEnabled")}
+          </span>
+          <span className="text-xs font-bold uppercase tracking-wider text-ds-outline w-16 text-center">
+            In-App
+          </span>
+          <span className="text-xs font-bold uppercase tracking-wider text-ds-outline w-16 text-center">
+            Webhook
+          </span>
+        </div>
+
+        {ALL_EVENT_TYPES.map((et) => {
+          const row = prefs[et];
+          const labelKey = `notifEvent_${et}`;
+          return (
+            <div
+              key={et}
+              className="grid grid-cols-[1fr_auto_auto_auto] gap-4 items-center px-2 py-2 rounded-lg hover:bg-ds-surface-container-low transition-colors"
+            >
+              <span className="text-sm text-ds-on-surface font-medium">{t(labelKey)}</span>
+              {/* Enabled toggle */}
+              <div className="w-16 flex justify-center">
+                <button
+                  role="switch"
+                  aria-checked={row.enabled}
+                  onClick={() => toggleEnabled(et)}
+                  className={`w-9 h-5 rounded-full transition-colors relative ${row.enabled ? "bg-ds-primary" : "bg-ds-outline-variant"}`}
+                >
+                  <span
+                    className={`absolute top-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform ${row.enabled ? "translate-x-4" : "translate-x-0.5"}`}
+                  />
+                </button>
+              </div>
+              {/* inApp checkbox */}
+              <div className="w-16 flex justify-center">
+                <input
+                  type="checkbox"
+                  checked={row.channels.includes("inApp")}
+                  onChange={() => toggleChannel(et, "inApp")}
+                  className="w-4 h-4 accent-ds-primary cursor-pointer"
+                />
+              </div>
+              {/* webhook checkbox */}
+              <div className="w-16 flex justify-center">
+                <input
+                  type="checkbox"
+                  checked={row.channels.includes("webhook")}
+                  onChange={() => toggleChannel(et, "webhook")}
+                  className="w-4 h-4 accent-ds-primary cursor-pointer"
+                />
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Webhook config (shown when any row has webhook enabled) */}
+      {hasWebhookEnabled && (
+        <div className="space-y-4 mb-6 p-4 bg-ds-surface-container-low rounded-xl">
+          <p className="text-xs font-bold uppercase tracking-wider text-ds-outline">
+            {t("notifWebhookConfig")}
+          </p>
+
+          <div className="space-y-1.5">
+            <label className="text-xs font-semibold text-ds-on-surface-variant">
+              {t("notifWebhookUrl")}
+            </label>
+            <input
+              type="url"
+              value={webhookUrl}
+              onChange={(e) => setWebhookUrl(e.target.value)}
+              placeholder="https://example.com/webhook"
+              className="w-full bg-white border-b-2 border-ds-outline-variant/30 focus:border-ds-primary px-1 py-2 transition-colors outline-none text-sm font-medium"
+            />
+          </div>
+
+          <div className="space-y-1.5">
+            <label className="text-xs font-semibold text-ds-on-surface-variant">
+              {t("notifWebhookSecret")}
+            </label>
+            <div className="flex gap-2">
+              <div className="relative flex-1">
+                <input
+                  type={showSecret ? "text" : "password"}
+                  value={webhookSecret}
+                  onChange={(e) => setWebhookSecret(e.target.value)}
+                  placeholder={t("notifSecretPlaceholder")}
+                  className="w-full bg-white border-b-2 border-ds-outline-variant/30 focus:border-ds-primary px-1 py-2 pr-8 transition-colors outline-none text-sm font-mono"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowSecret((v) => !v)}
+                  className="absolute right-1 top-1/2 -translate-y-1/2 text-ds-outline hover:text-ds-on-surface"
+                >
+                  <span className="material-symbols-outlined text-sm">
+                    {showSecret ? "visibility_off" : "visibility"}
+                  </span>
+                </button>
+              </div>
+              <Button variant="outline" size="sm" onClick={regenerateSecret} type="button">
+                {t("notifRegenerate")}
+              </Button>
+            </div>
+          </div>
+
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => void handleTestWebhook()}
+            disabled={testing || !webhookUrl}
+            type="button"
+          >
+            <span className="material-symbols-outlined text-sm mr-1">send</span>
+            {testing ? "..." : t("notifTestWebhook")}
+          </Button>
+        </div>
+      )}
+
+      <div className="flex justify-end">
+        <Button
+          variant="gradient-primary"
+          size="lg"
+          onClick={() => void handleSave()}
+          disabled={saving}
+        >
+          {saving ? "..." : t("saveChanges")}
         </Button>
       </div>
     </SectionCard>

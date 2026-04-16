@@ -2,7 +2,7 @@
   "status": "building",
   "user_goal": "USAGE-ALERTS — 主动通知系统（Webhook + In-App）：5 类事件源 + dispatcher + NotificationCenter + Settings 偏好。顺手收尾 CLEANUP 遗留：3 个子路由 UI / reassign popover / 2 个测试 bug / 视觉细节",
   "total_features": 10,
-  "completed_features": 5,
+  "completed_features": 6,
   "fix_rounds": 0,
   "current_sprint": null,
   "last_updated": "2026-04-16T09:20:00Z",
