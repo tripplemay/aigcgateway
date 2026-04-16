@@ -982,6 +982,20 @@ async function main() {
     if (!data.cost.startsWith("$")) throw new Error(`cost format wrong: ${data.cost}`);
   });
 
+  // 25. F-AP-01 regression — get_balance pagination (limit/offset/hasMore)
+  await step("25. F-AP-01 get_balance pagination", async () => {
+    const result = await callTool("get_balance", {
+      include_transactions: true,
+      limit: 2,
+      offset: 0,
+    });
+    const data = JSON.parse(parseTextContent(result));
+    if (!data.balance) throw new Error("Missing balance");
+    if (data.hasMore === undefined) throw new Error("Missing hasMore field");
+    if (!Array.isArray(data.transactions)) throw new Error("Missing transactions array");
+    if (data.transactions.length > 2) throw new Error("limit=2 returned more than 2");
+  });
+
   console.log("\n" + "=".repeat(60));
   console.log(`Results: ${passed} PASS | ${failed} FAIL | ${passed + failed} total`);
   console.log("=".repeat(60));

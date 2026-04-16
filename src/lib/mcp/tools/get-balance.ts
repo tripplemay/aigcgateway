@@ -16,14 +16,26 @@ export function registerGetBalance(server: McpServer, opts: McpServerOptions): v
 
   server.tool(
     "get_balance",
-    `Check your current balance (user-level, shared across all projects) and optionally view recent transactions. Set include_transactions to true to see the last 10 charges, top-ups, and adjustments.`,
+    `Check your current balance (user-level, shared across all projects) and optionally view recent transactions. Set include_transactions to true to see charges, top-ups, and adjustments. Supports pagination via limit/offset.`,
     {
-      include_transactions: z
-        .boolean()
+      include_transactions: z.boolean().optional().describe("Include transactions, default false"),
+      limit: z
+        .number()
+        .int()
+        .min(1)
+        .max(100)
         .optional()
-        .describe("Include last 10 transactions, default false"),
+        .describe(
+          "Number of transactions to return (default 10, max 100). Only used when include_transactions=true.",
+        ),
+      offset: z
+        .number()
+        .int()
+        .min(0)
+        .optional()
+        .describe("Offset for pagination (default 0). Only used when include_transactions=true."),
     },
-    async ({ include_transactions }) => {
+    async ({ include_transactions, limit, offset }) => {
       const permErr = checkMcpPermission(permissions, "projectInfo");
       if (permErr) {
         return { content: [{ type: "text" as const, text: permErr }], isError: true };
@@ -47,10 +59,13 @@ export function registerGetBalance(server: McpServer, opts: McpServerOptions): v
       };
 
       if (include_transactions) {
+        const take = limit ?? 10;
+        const skip = offset ?? 0;
         const transactions = await prisma.transaction.findMany({
           where: { userId },
           orderBy: { createdAt: "desc" },
-          take: 10,
+          take: take + 1, // fetch one extra to determine hasMore
+          skip,
           select: {
             type: true,
             amount: true,
@@ -61,6 +76,10 @@ export function registerGetBalance(server: McpServer, opts: McpServerOptions): v
             createdAt: true,
           },
         });
+
+        // F-AP-01: pagination — trim extra record and set hasMore
+        const hasMore = transactions.length > take;
+        if (hasMore) transactions.pop();
 
         // F-WP-08: inline model + source by joining CallLog on traceId.
         const traceIds = transactions
@@ -90,6 +109,7 @@ export function registerGetBalance(server: McpServer, opts: McpServerOptions): v
             ...(t.batchId ? { batchId: t.batchId } : {}),
           };
         });
+        result.hasMore = hasMore;
       }
 
       return {
