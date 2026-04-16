@@ -19,6 +19,7 @@ import { errorResponse } from "./errors";
 import { prisma } from "@/lib/prisma";
 import type { Project } from "@prisma/client";
 import type { NextResponse } from "next/server";
+import { sendNotification } from "@/lib/notifications/dispatcher";
 
 // ============================================================
 // Defaults (with SystemConfig override)
@@ -105,13 +106,14 @@ interface ProjectLimits {
   spendPerMin: number | null;
 }
 
-async function getProjectLimits(
-  project: Pick<Project, "rateLimit">,
-): Promise<ProjectLimits> {
+async function getProjectLimits(project: Pick<Project, "rateLimit">): Promise<ProjectLimits> {
   const defaults = await loadGlobalDefaults();
-  const custom = project.rateLimit as
-    | { rpm?: number; tpm?: number; imageRpm?: number; spendPerMin?: number }
-    | null;
+  const custom = project.rateLimit as {
+    rpm?: number;
+    tpm?: number;
+    imageRpm?: number;
+    spendPerMin?: number;
+  } | null;
   return {
     rpm: custom?.rpm ?? defaults.rpm,
     tpm: custom?.tpm ?? defaults.tpm,
@@ -173,7 +175,9 @@ async function rpmCheck(
   redisKey: string,
   limit: number,
   now: number,
-): Promise<{ ok: true; member: string; currentCount: number } | { ok: false; currentCount: number }> {
+): Promise<
+  { ok: true; member: string; currentCount: number } | { ok: false; currentCount: number }
+> {
   const redis = getRedis();
   if (!redis) return { ok: true, member: "", currentCount: 0 };
   const windowStart = now - 60;
@@ -211,7 +215,9 @@ export async function checkRateLimit(
   const defaults = await loadGlobalDefaults();
   const projectLimit = type === "image" ? limits.imageRpm : limits.rpm;
   const resolvedKeyLimit =
-    keyRateLimit != null ? Math.min(keyRateLimit, projectLimit) : Math.min(defaults.keyRpm, projectLimit);
+    keyRateLimit != null
+      ? Math.min(keyRateLimit, projectLimit)
+      : Math.min(defaults.keyRpm, projectLimit);
 
   const now = Math.floor(Date.now() / 1000);
   const resetAt = now + 60;
@@ -235,7 +241,9 @@ export async function checkRateLimit(
     return { ok: false, error: buildRateLimitError("rpm", "project", projectLimit, resetAt) };
   }
 
-  const userCommit: { key: string; member: string }[] = [{ key: projectKey, member: projectResult.member }];
+  const userCommit: { key: string; member: string }[] = [
+    { key: projectKey, member: projectResult.member },
+  ];
 
   if (ctx?.userId) {
     const userKey = `rl:rpm:user:${ctx.userId}`;
@@ -315,7 +323,11 @@ export async function checkRateLimit(
   // rollbackRateLimit() callers behave the same as before.
   return {
     ok: true,
-    headers: rateLimitHeaders(projectLimit, Math.max(0, projectLimit - projectResult.currentCount - 1), resetAt),
+    headers: rateLimitHeaders(
+      projectLimit,
+      Math.max(0, projectLimit - projectResult.currentCount - 1),
+      resetAt,
+    ),
     rateLimitKey: projectKey,
     rateLimitMember: projectResult.member,
   };
@@ -409,6 +421,23 @@ export async function checkSpendingRate(
         limit,
         actual: spent,
       });
+      // F-UA-03: fire SPENDING_RATE_EXCEEDED notification, 1-hour dedup
+      void (async () => {
+        try {
+          const dedupKey = `alert:spend_rate:${userId}`;
+          const set = await redis.set(dedupKey, "1", "EX", 3600, "NX");
+          if (set) {
+            await sendNotification(userId, "SPENDING_RATE_EXCEEDED", {
+              spent,
+              limit,
+              windowMinutes: 1,
+              blockedAt: new Date().toISOString(),
+            });
+          }
+        } catch {
+          /* best-effort */
+        }
+      })();
       return {
         ok: false,
         error: errorResponse(
@@ -463,11 +492,7 @@ export async function recordTokenUsage(
   }
 }
 
-function rateLimitHeaders(
-  limit: number,
-  remaining: number,
-  reset: number,
-): Record<string, string> {
+function rateLimitHeaders(limit: number, remaining: number, reset: number): Record<string, string> {
   return {
     "X-RateLimit-Limit": String(limit),
     "X-RateLimit-Remaining": String(remaining),

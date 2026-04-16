@@ -21,6 +21,7 @@ import {
   type ImageGenerationResponse,
 } from "../engine/types";
 import { recordTokenUsage, recordSpending } from "./rate-limit";
+import { checkAndSendBalanceLowAlert } from "@/lib/notifications/triggers";
 
 export interface PostProcessParams {
   traceId: string;
@@ -147,6 +148,8 @@ async function processChatResultAsync(params: ChatPostProcessParams): Promise<vo
     // F-RL-04: feed the spending rate limiter immediately so the next
     // incoming request sees the accurate per-minute tally.
     recordSpending(params.userId, sellUsd).catch(() => {});
+    // F-UA-03: check if balance dropped below alertThreshold
+    checkAndSendBalanceLowAlert(params.userId, params.projectId).catch(() => {});
   }
 
   // 记录 TPM（用于限流检查）
@@ -224,6 +227,8 @@ async function processImageResultAsync(params: ImagePostProcessParams): Promise<
   if (sellUsd > 0 && status === "SUCCESS") {
     await deductBalance(params.userId, params.projectId, sellUsd, callLog.id, params.traceId);
     recordSpending(params.userId, sellUsd).catch(() => {});
+    // F-UA-03: check if balance dropped below alertThreshold
+    checkAndSendBalanceLowAlert(params.userId, params.projectId).catch(() => {});
   }
 }
 
