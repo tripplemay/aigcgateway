@@ -1,0 +1,74 @@
+{
+  "batch": "DX-POLISH",
+  "generatedAt": "2026-04-13T02:03:23.034Z",
+  "environment": "http://localhost:3099",
+  "pass": 13,
+  "fail": 0,
+  "checks": [
+    {
+      "id": "F-DP-00-smoke-mcp-initialize",
+      "ok": true,
+      "detail": "server=aigc-gateway"
+    },
+    {
+      "id": "F-DP-01-sellprice-round-6-decimals",
+      "ok": true,
+      "detail": "rounded=1.234568/9.876543"
+    },
+    {
+      "id": "F-DP-02-deprecated-propagates-to-list_models",
+      "ok": true,
+      "detail": "deprecatedAlias=dp_deprecated_alias_1776045802388_im2qb"
+    },
+    {
+      "id": "F-DP-03-capability-enum-enforced",
+      "ok": true,
+      "detail": "invalid rejected + valid accepted"
+    },
+    {
+      "id": "F-DP-04-list_logs-model-description-canonical",
+      "ok": true,
+      "detail": "description uses canonical model name"
+    },
+    {
+      "id": "F-DP-05-not-found-message-unified",
+      "ok": true,
+      "detail": "4 endpoints use unified wording"
+    },
+    {
+      "id": "F-DP-06-fix-script-applies-target-data",
+      "ok": true,
+      "detail": "deepseek-r1/grok-4.1-fast/minimax-m2.5 patched"
+    },
+    {
+      "id": "F-DP-07-reasoning-usage-and-max_reasoning_tokens",
+      "ok": true,
+      "detail": "reasoningTokens=3, reasoning.max_tokens=13"
+    },
+    {
+      "id": "F-DP-08-json_mode-strip-code-fence",
+      "ok": true,
+      "detail": "{\"ok\":true,\"n\":1}"
+    },
+    {
+      "id": "F-DP-09-chat-modality-validation",
+      "ok": true,
+      "detail": "[invalid_model_modality] Model \"dp_image_alias_1776045802388_ub8a7\" is an image generation model and cannot be used for "
+    },
+    {
+      "id": "F-DP-10-nonstream-log-detail-no-ttft",
+      "ok": true,
+      "detail": "traceId=trc_saqytbyzqcz12yn4oyj8m9r2"
+    },
+    {
+      "id": "F-DP-11-capability-modality-isolation",
+      "ok": true,
+      "detail": "count=5"
+    },
+    {
+      "id": "F-DP-12-chain-smoke-list_models-chat-list_logs",
+      "ok": true,
+      "detail": "traceId=trc_r8w4uimulqzcm0j3v93urzic"
+    }
+  ]
+}
