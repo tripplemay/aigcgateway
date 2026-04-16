@@ -22,7 +22,12 @@ export function registerListActions(server: McpServer, opts: McpServerOptions): 
     async ({ page = 1, pageSize = 20 }) => {
       if (!projectId) {
         return {
-          content: [{ type: "text" as const, text: "[no_project] No project found. Use create_project to create one." }],
+          content: [
+            {
+              type: "text" as const,
+              text: "[no_project] No project found. Use create_project to create one.",
+            },
+          ],
           isError: true,
         };
       }
@@ -31,6 +36,7 @@ export function registerListActions(server: McpServer, opts: McpServerOptions): 
         where: { projectId },
         include: {
           versions: { orderBy: { versionNumber: "desc" }, take: 1 },
+          _count: { select: { versions: true } },
         },
         orderBy: { updatedAt: "desc" },
         skip: (page - 1) * pageSize,
@@ -46,6 +52,7 @@ export function registerListActions(server: McpServer, opts: McpServerOptions): 
           name: a.name,
           description: a.description,
           model: a.model,
+          totalVersions: a._count.versions,
           activeVersion: activeVer
             ? {
                 versionNumber: activeVer.versionNumber,

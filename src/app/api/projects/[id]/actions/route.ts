@@ -38,6 +38,7 @@ export async function GET(request: Request, { params }: Params) {
           orderBy: { versionNumber: "desc" },
           take: 1,
         },
+        _count: { select: { versions: true } },
       },
       orderBy: { updatedAt: "desc" },
       skip: (page - 1) * pageSize,
@@ -55,6 +56,7 @@ export async function GET(request: Request, { params }: Params) {
       description: a.description,
       model: a.model,
       activeVersionId: a.activeVersionId,
+      totalVersions: a._count.versions,
       activeVersion: activeVersion
         ? { id: activeVersion.id, versionNumber: activeVersion.versionNumber }
         : null,
