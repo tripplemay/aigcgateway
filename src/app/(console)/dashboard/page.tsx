@@ -402,7 +402,7 @@ export default function DashboardPage() {
                       )}
                     </td>
                     <td className="py-4 text-right text-sm font-bold">
-                      {l.sellPrice != null ? `$${l.sellPrice.toFixed(3)}` : "—"}
+                      {l.sellPrice != null ? formatCNY(l.sellPrice, exchangeRate, 3) : "—"}
                     </td>
                     <td className="py-4 text-right text-sm text-slate-500 font-medium">
                       {l.latencyMs != null ? `${l.latencyMs}ms` : "—"}

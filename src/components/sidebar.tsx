@@ -2,8 +2,9 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
-import { cn } from "@/lib/utils";
+import { cn, formatCNY } from "@/lib/utils";
 import { useTranslations } from "next-intl";
+import { useExchangeRate } from "@/hooks/use-exchange-rate";
 import { CreateProjectDialog } from "@/components/create-project-dialog";
 import { useProject } from "@/hooks/use-project";
 
@@ -98,9 +99,10 @@ export function Sidebar({ role, userName, email }: SidebarProps) {
   const t = useTranslations("sidebar");
   const { projects, current, select, refresh } = useProject();
   const [projectDropdownOpen, setProjectDropdownOpen] = useState(false);
+  const exchangeRate = useExchangeRate();
 
   const isActive = (href: string) => pathname === href || pathname.startsWith(href + "/");
-  const walletBalance = current ? `$${Number(current.balance).toFixed(2)}` : "$0.00";
+  const walletBalance = current ? formatCNY(Number(current.balance), exchangeRate, 2) : "¥0.00";
 
   return (
     /* code.html line 86 */

@@ -49,12 +49,16 @@ function timeAgo(iso: string): string {
 
 // ── Summary text ─────────────────────────────────────────────
 
+// F-AP-09: approximate CNY for notification summaries (no hook available here)
+const NOTIF_CNY_RATE = 7.3;
+const fmtCny = (usd: number, d = 2) => `¥${(usd * NOTIF_CNY_RATE).toFixed(d)}`;
+
 function buildSummary(eventType: EventType, payload: Record<string, unknown>): string {
   switch (eventType) {
     case "BALANCE_LOW":
-      return `Balance $${Number(payload.currentBalance ?? 0).toFixed(2)} below threshold $${Number(payload.threshold ?? 0).toFixed(2)}`;
+      return `Balance ${fmtCny(Number(payload.currentBalance ?? 0))} below threshold ${fmtCny(Number(payload.threshold ?? 0))}`;
     case "SPENDING_RATE_EXCEEDED":
-      return `Spent $${Number(payload.spent ?? 0).toFixed(4)} / $${Number(payload.limit ?? 0).toFixed(2)} per min`;
+      return `Spent ${fmtCny(Number(payload.spent ?? 0), 4)} / ${fmtCny(Number(payload.limit ?? 0))} per min`;
     case "CHANNEL_DOWN":
       return `${payload.providerName ?? ""}/${payload.modelName ?? ""} went down`;
     case "CHANNEL_RECOVERED":
