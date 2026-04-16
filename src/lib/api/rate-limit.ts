@@ -309,6 +309,7 @@ export async function checkRateLimit(
             "burst_limit_exceeded",
             `Burst limit exceeded (${count} / ${burstCount} in ${burstWindow}s). Please retry after 30 seconds.`,
             {
+              retryAfterSeconds: 30,
               headers: { "Retry-After": "30" },
             },
           ),
@@ -369,6 +370,7 @@ export async function checkTokenLimit(
           "token_rate_limit_exceeded",
           `Token rate limit exceeded (${tokensUsed} / ${limits.tpm} tokens/min). Please retry after 60 seconds.`,
           {
+            retryAfterSeconds: 60,
             headers: { "Retry-After": "60" },
           },
         ),
@@ -445,6 +447,7 @@ export async function checkSpendingRate(
           "spend_rate_exceeded",
           `Spending rate limit exceeded (spent $${spent.toFixed(4)} of $${limit.toFixed(2)}/min). Please retry after 60 seconds.`,
           {
+            retryAfterSeconds: 60,
             headers: { "Retry-After": "60" },
           },
         ),
@@ -506,12 +509,13 @@ function buildRateLimitError(
   limit: number,
   resetAt: number,
 ): NextResponse {
-  const retryAfter = 60;
+  const retryAfter = scope === "burst" ? 30 : 60;
   return errorResponse(
     429,
     "rate_limit_exceeded",
     `${scope.toUpperCase()} limit exceeded on ${dimension} (limit=${limit}). Please retry after ${retryAfter} seconds.`,
     {
+      retryAfterSeconds: retryAfter,
       headers: {
         ...rateLimitHeaders(limit, 0, resetAt),
         "Retry-After": String(retryAfter),

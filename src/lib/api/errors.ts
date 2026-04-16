@@ -12,6 +12,7 @@ export interface ApiErrorBody {
   message: string;
   param?: string;
   balance?: number;
+  retryAfterSeconds?: number;
 }
 
 const ERROR_TYPE_MAP: Record<number, string> = {
@@ -32,7 +33,12 @@ export function errorResponse(
   status: number,
   code: string,
   message: string,
-  extra?: { param?: string; balance?: number; headers?: Record<string, string> },
+  extra?: {
+    param?: string;
+    balance?: number;
+    retryAfterSeconds?: number;
+    headers?: Record<string, string>;
+  },
 ): NextResponse {
   const body: { error: ApiErrorBody } = {
     error: {
@@ -41,6 +47,9 @@ export function errorResponse(
       message,
       ...(extra?.param ? { param: extra.param } : {}),
       ...(extra?.balance !== undefined ? { balance: extra.balance } : {}),
+      ...(extra?.retryAfterSeconds !== undefined
+        ? { retryAfterSeconds: extra.retryAfterSeconds }
+        : {}),
     },
   };
 
