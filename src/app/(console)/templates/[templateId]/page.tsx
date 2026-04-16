@@ -135,6 +135,13 @@ export default function TemplateDetailPage() {
               {t("delete")}
             </button>
             <Link
+              href={`/templates/${templateId}/test`}
+              className="px-6 py-3 bg-ds-surface-container-highest text-ds-on-surface-variant font-semibold rounded-xl hover:bg-ds-surface-container-high transition-colors flex items-center gap-2"
+            >
+              <span className="material-symbols-outlined scale-90">science</span>
+              {t("test")}
+            </Link>
+            <Link
               href={`/templates/new?edit=${templateId}`}
               className="px-6 py-3 bg-gradient-to-r from-ds-primary to-ds-primary-container text-white font-bold rounded-xl shadow-lg shadow-ds-primary/20 hover:opacity-90 transition-opacity flex items-center gap-2"
             >

@@ -257,8 +257,20 @@ export default function TemplatesPage() {
                           <TableCell className="px-6 py-5 text-xs text-ds-outline">
                             {timeAgo(tpl.updatedAt, locale)}
                           </TableCell>
-                          <TableCell className="px-6 py-5 text-ds-outline-variant group-hover:text-ds-primary transition-colors">
-                            <span className="material-symbols-outlined text-xl">chevron_right</span>
+                          <TableCell className="px-6 py-5 text-ds-outline-variant">
+                            <div className="flex items-center gap-2">
+                              <Link
+                                href={`/templates/${tpl.id}/test`}
+                                title={t("test")}
+                                onClick={(e) => e.stopPropagation()}
+                                className="inline-flex items-center justify-center size-8 rounded-lg hover:bg-ds-primary/10 hover:text-ds-primary transition-colors"
+                              >
+                                <span className="material-symbols-outlined text-lg">science</span>
+                              </Link>
+                              <span className="material-symbols-outlined text-xl">
+                                chevron_right
+                              </span>
+                            </div>
                           </TableCell>
                         </TableRow>
                       ))
