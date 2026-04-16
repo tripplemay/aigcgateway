@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useLocale } from "@/hooks/use-locale";
+import { NotificationCenter } from "./notification-center";
 
 /*
  * TopAppBar — based on Layout Shell code.html lines 146-182.
@@ -76,10 +77,8 @@ export function TopAppBar({ userName, userEmail }: TopAppBarProps) {
           </button>
         </div>
 
-        {/* Notifications (placeholder) */}
-        <button className="p-2 text-ds-outline hover:bg-ds-surface-container-high rounded-full transition-colors opacity-80 hover:opacity-100">
-          <span className="material-symbols-outlined">notifications</span>
-        </button>
+        {/* Notifications */}
+        <NotificationCenter />
 
         {/* Divider */}
         <div className="h-8 w-px bg-ds-outline-variant/50 mx-2" />

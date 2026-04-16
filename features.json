@@ -51,7 +51,8 @@
       "title": "GET/PATCH /api/notifications API + preferences API",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
+      "completed_at": "2026-04-16T08:47:00Z",
       "acceptance": "1) GET /api/notifications?unread_only=true&limit=20 返回当前用户的通知列表 + unreadCount；2) PATCH /api/notifications/[id] 标记单条已读；3) PATCH /api/notifications/mark-all-read 批量标记；4) GET/PATCH /api/notifications/preferences 读写 NotificationPreference；5) POST /api/notifications/test-webhook 用于偏好设置页的测试按钮；6) 严格按 user.id 隔离，跨用户 404；7) 同 commit 补 regression test；8) tsc 通过"
     },
     {

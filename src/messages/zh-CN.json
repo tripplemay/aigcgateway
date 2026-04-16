@@ -71,6 +71,18 @@
     "settings": "设置",
     "signOut": "退出登录"
   },
+  "notifications": {
+    "toggle": "通知",
+    "title": "通知",
+    "markAllRead": "全部已读",
+    "markRead": "标记已读",
+    "empty": "暂无通知",
+    "balanceLow": "余额不足",
+    "spendingRate": "消费超速",
+    "channelDown": "通道故障",
+    "channelRecovered": "通道恢复",
+    "pendingClass": "待审批"
+  },
   "emptyState": {
     "title": "暂无项目",
     "description": "创建你的第一个项目以开始使用。",

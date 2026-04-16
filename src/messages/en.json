@@ -71,6 +71,18 @@
     "settings": "Settings",
     "signOut": "Sign Out"
   },
+  "notifications": {
+    "toggle": "Toggle notifications",
+    "title": "Notifications",
+    "markAllRead": "Mark all read",
+    "markRead": "Mark as read",
+    "empty": "No notifications",
+    "balanceLow": "Balance Low",
+    "spendingRate": "Spend Rate",
+    "channelDown": "Channel Down",
+    "channelRecovered": "Recovered",
+    "pendingClass": "Pending Review"
+  },
   "emptyState": {
     "title": "No project yet",
     "description": "Create your first project to get started.",
