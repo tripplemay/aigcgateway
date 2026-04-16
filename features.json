@@ -60,11 +60,19 @@
     },
     {
       "id": "F-TT-08",
+      "title": "修正 global-library.tsx 对齐设计系统公共组件",
+      "priority": "high",
+      "executor": "generator",
+      "status": "pending",
+      "acceptance": "1) 模板卡片从手写 rounded-xl p-6 shadow-sm ring-1 改为 SectionCard；2) 分类 Tab 按钮样式与 settings pill tabs 统一（或使用统一的 Tab 组件）；3) mode/category badge 改用 StatusChip；4) Fork 按钮改用 Button variant='gradient-primary'；5) 加载骨架使用 PageLoader 或 TableLoader；6) grep 验证：global-library.tsx 中无手写 rounded-xl shadow-sm ring-1 卡片；7) 不改变现有功能（分类/排序/评分/fork/搜索行为不变）；8) tsc 通过"
+    },
+    {
+      "id": "F-TT-09",
       "title": "TEMPLATE-TESTING 全量验收",
       "priority": "high",
       "executor": "codex",
       "status": "pending",
-      "acceptance": "codex 执行：1) dry_run 返回渲染后变量且 cost=0；2) execute 真实调用每步并返回结果；3) 部分失败 status=partial 已执行步骤保留；4) 测试历史持久化且自动清理到 20 条；5) 历史预设可加载变量；6) 前端左右分栏正确展示；7) MCP test_mode 生效；8) 未 fork 公共模板不能测试；9) 签收报告生成"
+      "acceptance": "codex 执行：1) dry_run 返回渲染后变量且 cost=0；2) execute 真实调用每步并返回结果；3) 部分失败 status=partial 已执行步骤保留；4) 测试历史持久化且自动清理到 20 条；5) 历史预设可加载变量；6) 前端左右分栏正确展示；7) MCP test_mode 生效；8) 未 fork 公共模板不能测试；9) global-library.tsx 全部使用公共组件（SectionCard/StatusChip/Button gradient-primary），无手写卡片；10) 测试页面（/templates/[id]/test）全部使用公共组件，禁止手写样式；11) grep 验证手写卡片/按钮归零；12) 签收报告生成"
     }
   ]
 }

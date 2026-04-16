@@ -1,7 +1,7 @@
 {
   "status": "building",
   "user_goal": "TEMPLATE-TESTING — 模板测试工作台：独立测试页面 + dry_run 预览（免费）+ 真实执行 + 步骤级结果展示 + 测试历史（持久化最近 20 次）",
-  "total_features": 8,
+  "total_features": 9,
   "completed_features": 0,
   "fix_rounds": 0,
   "current_sprint": null,
