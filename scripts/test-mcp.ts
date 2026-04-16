@@ -817,6 +817,16 @@ async function main() {
     console.log(`(calls: ${data.totalCalls}, cost: ${data.totalCost}) `);
   });
 
+  // 18. F-AF2-02 regression — list_logs supports status=timeout filter
+  await step("18. F-AF2-02 list_logs timeout filter via MCP", async () => {
+    const result = await callTool("list_logs", { status: "timeout", limit: 1 });
+    const text = parseTextContent(result);
+    // Should not throw a validation error — "timeout" is a valid status
+    if (text.includes("invalid_enum_value") || text.includes("Invalid enum value")) {
+      throw new Error("list_logs rejected 'timeout' as status value");
+    }
+  });
+
   console.log("\n" + "=".repeat(60));
   console.log(`Results: ${passed} PASS | ${failed} FAIL | ${passed + failed} total`);
   console.log("=".repeat(60));

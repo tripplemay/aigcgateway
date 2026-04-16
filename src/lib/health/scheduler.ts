@@ -29,6 +29,7 @@ import {
 const FAIL_THRESHOLD = Number(process.env.HEALTH_CHECK_FAIL_THRESHOLD ?? 3);
 const ACTIVE_INTERVAL = Number(process.env.HEALTH_CHECK_ACTIVE_INTERVAL_MS ?? 600_000); // 10min
 const DISABLED_INTERVAL = Number(process.env.HEALTH_CHECK_DISABLED_INTERVAL_MS ?? 1_800_000); // 30min
+const CALL_PROBE_INTERVAL = Number(process.env.CALL_PROBE_INTERVAL_MS ?? 1_800_000); // 30min
 
 let schedulerTimer: ReturnType<typeof setInterval> | null = null;
 
@@ -262,6 +263,62 @@ async function runScheduledChecks(): Promise<void> {
       await executeCheckWithRetry(route, checkMode);
     } catch (err) {
       console.error(`[health-scheduler] check failed for ${route.channel.id}:`, err);
+    }
+  }
+
+  // F-AF2-02: run CALL_PROBE for aliased text channels on a longer interval.
+  // CALL_PROBE makes a real (minimum-cost) API call to verify end-to-end
+  // availability, so it runs less frequently than the zero-cost checks above.
+  await runScheduledCallProbes(now, channels, aliasedIds);
+}
+
+const MAX_PROBES_PER_ROUND = 2;
+
+async function runScheduledCallProbes(
+  now: number,
+  channels: Array<{
+    id: string;
+    status: string;
+    model: { modality: string; enabled: boolean };
+    healthChecks: Array<{ createdAt: Date }>;
+  }>,
+  aliasedIds: Set<string>,
+): Promise<void> {
+  if ((process.env.CALL_PROBE_ENABLED ?? "true").toLowerCase() === "false") return;
+
+  // Find aliased text channels due for a CALL_PROBE
+  const probeChannelIds: string[] = [];
+  for (const ch of channels) {
+    if (probeChannelIds.length >= MAX_PROBES_PER_ROUND) break;
+    if (ch.model.modality === "IMAGE") continue;
+    if (!aliasedIds.has(ch.id)) continue;
+
+    // Check last CALL_PROBE time from DB
+    probeChannelIds.push(ch.id);
+  }
+
+  if (probeChannelIds.length === 0) return;
+
+  // Query last CALL_PROBE timestamps in batch
+  const lastProbes = await prisma.healthCheck.findMany({
+    where: {
+      channelId: { in: probeChannelIds },
+      level: "CALL_PROBE",
+    },
+    orderBy: { createdAt: "desc" },
+    distinct: ["channelId"],
+    select: { channelId: true, createdAt: true },
+  });
+  const lastProbeMap = new Map(lastProbes.map((p) => [p.channelId, p.createdAt.getTime()]));
+
+  for (const channelId of probeChannelIds) {
+    const lastTime = lastProbeMap.get(channelId) ?? 0;
+    if (now - lastTime < CALL_PROBE_INTERVAL) continue;
+
+    try {
+      await runCallProbeForChannel(channelId);
+    } catch (err) {
+      console.error(`[health-scheduler] CALL_PROBE failed for ${channelId}:`, err);
     }
   }
 }
