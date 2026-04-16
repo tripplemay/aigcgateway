@@ -47,7 +47,7 @@
       "title": "run_action 对齐 run_template 字段命名 + thinking_tokens 拆分",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) run_action 返回的 usage 与 run_template steps[].usage 使用统一命名风格（统一 snake_case 或 camelCase，选一种并全局一致）；2) reasoning 模型的 run_action 返回独立的 thinking_tokens 字段（与 run_template 一致）；3) MCP tool description 同步更新；4) 同 commit 补 regression test；5) tsc 通过"
     },
     {
