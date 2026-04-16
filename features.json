@@ -70,7 +70,7 @@
       "title": "generate_image size 参数增加 enum 提示",
       "priority": "low",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "source": "DX-008",
       "acceptance": "1) MCP generate_image 的 size 参数 description 列出常见合法值（如 '1024x1024, 1024x1792, 1792x1024, auto. Check supportedSizes in list_models for valid values per model.'）；2) 已有的 invalid_size 运行时校验保留；3) tsc 通过"
     },
