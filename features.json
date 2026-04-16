@@ -43,7 +43,7 @@
       "title": "rate_limit 错误增加 retryAfterSeconds 字段",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "source": "RL-001",
       "acceptance": "1) 429 错误响应体增加 retryAfterSeconds 数值字段（RPM → 60，burst → 30，spend → 60）；2) 同时保留现有 Retry-After 响应头（与 body 值一致）；3) MCP 端 429 文本也包含重试时间提示；4) 同 commit 补 regression test；5) tsc 通过"
     },
