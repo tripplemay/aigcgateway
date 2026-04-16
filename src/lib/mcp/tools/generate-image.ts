@@ -35,7 +35,7 @@ export function registerGenerateImage(server: McpServer, opts: McpServerOptions)
         .string()
         .optional()
         .describe(
-          "Image size. Check supportedSizes in list_models(modality='image') for valid values per model. Example: 1024x1024",
+          "Image size. Common values: 1024x1024, 1024x1792, 1792x1024, auto. Check supportedSizes in list_models(modality='image') for valid values per model.",
         ),
       n: z
         .number()
