@@ -15,6 +15,7 @@ import { InjectionError } from "@/lib/action/runner";
 import { injectVariables } from "@/lib/action/inject";
 import { runSequential } from "@/lib/template/sequential";
 import { runFanout } from "@/lib/template/fanout";
+import { runTemplateTest, TemplateTestError } from "@/lib/template/test-runner";
 import type { McpServerOptions } from "@/lib/mcp/server";
 
 export function registerRunTemplate(server: McpServer, opts: McpServerOptions): void {
@@ -40,8 +41,14 @@ Two formats are supported:
         .describe(
           "Variables to inject. Accepts flat {var:value} or {__global:{...}, __step_0:{...}, __step_1:{...}}.",
         ),
+      test_mode: z
+        .enum(["dry_run", "execute"])
+        .optional()
+        .describe(
+          "Optional test harness mode: 'dry_run' renders variables without calling models (free). 'execute' runs each step and records the run under template_test_runs (latest 20 per user+template). Omit for normal execution (no test record).",
+        ),
     },
-    async ({ template_id, variables = {} }) => {
+    async ({ template_id, variables = {}, test_mode }) => {
       // Permission check
       const permErr = checkMcpPermission(permissions, "chatCompletion");
       if (permErr) {
@@ -72,6 +79,43 @@ Two formats are supported:
           ],
           isError: true,
         };
+      }
+
+      // F-TT-04: test harness branch — routes through the same runner as the
+      // console /templates/[id]/test page so API + MCP share behavior.
+      if (test_mode) {
+        const flatVars: Record<string, string> = {};
+        for (const [k, v] of Object.entries(variables as Record<string, unknown>)) {
+          if (typeof v === "string") flatVars[k] = v;
+        }
+        try {
+          const result = await runTemplateTest({
+            templateId: template_id,
+            userId,
+            variables: flatVars,
+            mode: test_mode,
+          });
+          return {
+            content: [
+              {
+                type: "text" as const,
+                text: JSON.stringify(result, null, 2),
+              },
+            ],
+          };
+        } catch (err) {
+          if (err instanceof TemplateTestError) {
+            return {
+              content: [{ type: "text" as const, text: `[${err.code}] ${err.message}` }],
+              isError: true,
+            };
+          }
+          const code = (err as { code?: string }).code ?? "template_test_error";
+          return {
+            content: [{ type: "text" as const, text: `[${code}] ${(err as Error).message}` }],
+            isError: true,
+          };
+        }
       }
 
       // Rate limit (三维度 + TPM + 消费速率)
