@@ -425,9 +425,7 @@ export default function ModelAliasesPage() {
             <h2 className="text-xl font-extrabold">{t("createAlias")}</h2>
             <div className="space-y-4">
               <div className="space-y-1.5">
-                <label className="text-[10px] font-bold text-ds-on-surface-variant uppercase tracking-widest ml-1">
-                  {t("aliasName")}
-                </label>
+                <label className="label-caps ml-1">{t("aliasName")}</label>
                 <input
                   className="w-full bg-ds-surface-container-low border-none rounded-lg text-sm px-4 py-2 font-semibold focus:ring-2 focus:ring-ds-primary/20"
                   value={createForm.alias}
@@ -436,9 +434,7 @@ export default function ModelAliasesPage() {
                 />
               </div>
               <div className="space-y-1.5">
-                <label className="text-[10px] font-bold text-ds-on-surface-variant uppercase tracking-widest ml-1">
-                  {t("brand")}
-                </label>
+                <label className="label-caps ml-1">{t("brand")}</label>
                 <input
                   className="w-full bg-ds-surface-container-low border-none rounded-lg text-sm px-4 py-2 font-semibold focus:ring-2 focus:ring-ds-primary/20"
                   value={createForm.brand}
@@ -447,9 +443,7 @@ export default function ModelAliasesPage() {
                 />
               </div>
               <div className="space-y-1.5">
-                <label className="text-[10px] font-bold text-ds-on-surface-variant uppercase tracking-widest ml-1">
-                  {t("description")}
-                </label>
+                <label className="label-caps ml-1">{t("description")}</label>
                 <input
                   className="w-full bg-ds-surface-container-low border-none rounded-lg text-sm px-4 py-2 font-semibold focus:ring-2 focus:ring-ds-primary/20"
                   value={createForm.description}
@@ -706,9 +700,7 @@ export default function ModelAliasesPage() {
                       {/* Metadata Fields */}
                       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 pt-6">
                         <div className="space-y-1.5">
-                          <label className="text-[10px] font-bold text-ds-on-surface-variant uppercase tracking-widest ml-1">
-                            {t("brand")}
-                          </label>
+                          <label className="label-caps ml-1">{t("brand")}</label>
                           <input
                             className="w-full bg-ds-surface-container-low border-none rounded-lg text-sm px-4 py-2 font-semibold focus:ring-2 focus:ring-ds-primary/20"
                             value={(getEditValue(alias.id, "brand") as string) ?? ""}
@@ -718,9 +710,7 @@ export default function ModelAliasesPage() {
                           />
                         </div>
                         <div className="space-y-1.5">
-                          <label className="text-[10px] font-bold text-ds-on-surface-variant uppercase tracking-widest ml-1">
-                            {t("contextWindow")}
-                          </label>
+                          <label className="label-caps ml-1">{t("contextWindow")}</label>
                           {editingNumField === `${alias.id}_contextWindow` ? (
                             <input
                               className="w-full bg-ds-surface-container-low border-none rounded-lg text-sm px-4 py-2 font-semibold focus:ring-2 focus:ring-ds-primary/20"
@@ -753,9 +743,7 @@ export default function ModelAliasesPage() {
                           )}
                         </div>
                         <div className="space-y-1.5">
-                          <label className="text-[10px] font-bold text-ds-on-surface-variant uppercase tracking-widest ml-1">
-                            {t("maxTokens")}
-                          </label>
+                          <label className="label-caps ml-1">{t("maxTokens")}</label>
                           {editingNumField === `${alias.id}_maxTokens` ? (
                             <input
                               className="w-full bg-ds-surface-container-low border-none rounded-lg text-sm px-4 py-2 font-semibold focus:ring-2 focus:ring-ds-primary/20"
@@ -788,9 +776,7 @@ export default function ModelAliasesPage() {
                           )}
                         </div>
                         <div className="space-y-1.5">
-                          <label className="text-[10px] font-bold text-ds-on-surface-variant uppercase tracking-widest ml-1">
-                            {t("description")}
-                          </label>
+                          <label className="label-caps ml-1">{t("description")}</label>
                           <input
                             className="w-full bg-ds-surface-container-low border-none rounded-lg text-sm px-4 py-2 font-semibold focus:ring-2 focus:ring-ds-primary/20"
                             value={(getEditValue(alias.id, "description") as string) ?? ""}
@@ -840,9 +826,7 @@ export default function ModelAliasesPage() {
                         {alias.modality === "IMAGE" ? (
                           <div className="bg-ds-surface-container-low/30 p-4 rounded-xl">
                             <div className="space-y-1.5 max-w-xs">
-                              <label className="text-[10px] font-bold text-ds-on-surface-variant uppercase tracking-widest ml-1">
-                                {t("perCall")} (¥ / image)
-                              </label>
+                              <label className="label-caps ml-1">{t("perCall")} (¥ / image)</label>
                               <input
                                 className="w-full bg-ds-surface-container-lowest border-none rounded-lg text-sm px-4 py-2 font-semibold focus:ring-2 focus:ring-ds-primary/20"
                                 type="number"
@@ -858,9 +842,7 @@ export default function ModelAliasesPage() {
                         ) : (
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-ds-surface-container-low/30 p-4 rounded-xl">
                             <div className="space-y-1.5">
-                              <label className="text-[10px] font-bold text-ds-on-surface-variant uppercase tracking-widest ml-1">
-                                {t("inputPer1M")}
-                              </label>
+                              <label className="label-caps ml-1">{t("inputPer1M")}</label>
                               <input
                                 className="w-full bg-ds-surface-container-lowest border-none rounded-lg text-sm px-4 py-2 font-semibold focus:ring-2 focus:ring-ds-primary/20"
                                 type="number"
@@ -873,9 +855,7 @@ export default function ModelAliasesPage() {
                               />
                             </div>
                             <div className="space-y-1.5">
-                              <label className="text-[10px] font-bold text-ds-on-surface-variant uppercase tracking-widest ml-1">
-                                {t("outputPer1M")}
-                              </label>
+                              <label className="label-caps ml-1">{t("outputPer1M")}</label>
                               <input
                                 className="w-full bg-ds-surface-container-lowest border-none rounded-lg text-sm px-4 py-2 font-semibold focus:ring-2 focus:ring-ds-primary/20"
                                 type="number"

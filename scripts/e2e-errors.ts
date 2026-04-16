@@ -58,7 +58,7 @@ async function main() {
   const proj = await projRes.json();
   projectId = proj.id;
 
-  const keyRes = await fetch(`${BASE}/api/projects/${projectId}/keys`, {
+  const keyRes = await fetch(`${BASE}/api/keys`, {
     method: "POST",
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
     body: JSON.stringify({ name: "err-key" }),
@@ -92,7 +92,7 @@ async function main() {
   // 3. Revoked Key → 401
   await step("3. Revoke Key then call → 401", async () => {
     // Revoke
-    await fetch(`${BASE}/api/projects/${projectId}/keys/${keyId}`, {
+    await fetch(`${BASE}/api/keys/${keyId}`, {
       method: "DELETE",
       headers: { Authorization: `Bearer ${token}` },
     });
@@ -108,7 +108,7 @@ async function main() {
   // 4. Non-existent model → 404
   await step("4. Non-existent model → 404", async () => {
     // Create a new key since previous one was revoked
-    const newKeyRes = await fetch(`${BASE}/api/projects/${projectId}/keys`, {
+    const newKeyRes = await fetch(`${BASE}/api/keys`, {
       method: "POST",
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
       body: JSON.stringify({ name: "err-key-2" }),
@@ -148,7 +148,7 @@ async function main() {
       body: JSON.stringify({ name: "Concurrent Test" }),
     });
     const proj2 = await projRes2.json();
-    const keyRes2 = await fetch(`${BASE}/api/projects/${proj2.id}/keys`, {
+    const keyRes2 = await fetch(`${BASE}/api/keys`, {
       method: "POST",
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
       body: JSON.stringify({ name: "concurrent" }),

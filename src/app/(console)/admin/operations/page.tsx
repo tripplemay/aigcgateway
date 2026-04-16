@@ -776,6 +776,98 @@ interface PendingRow {
   model: { id: string; name: string; displayName: string; modality: string };
 }
 
+interface AliasOption {
+  id: string;
+  name: string;
+  modality: string;
+}
+
+function ReassignPopover({
+  row,
+  onReassign,
+  disabled,
+}: {
+  row: PendingRow;
+  onReassign: (aliasId: string) => void;
+  disabled: boolean;
+}) {
+  const [open, setOpen] = useState(false);
+  const [search, setSearch] = useState("");
+  const [aliases, setAliases] = useState<AliasOption[]>([]);
+  const [loadingAliases, setLoadingAliases] = useState(false);
+  const popoverRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    setLoadingAliases(true);
+    apiFetch<{ data: AliasOption[] }>(
+      `/api/admin/model-aliases?modality=${encodeURIComponent(row.model.modality)}&limit=200`,
+    )
+      .then((res) => setAliases(res.data ?? []))
+      .catch(() => {})
+      .finally(() => setLoadingAliases(false));
+  }, [open, row.model.modality]);
+
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (popoverRef.current && !popoverRef.current.contains(e.target as Node)) {
+        setOpen(false);
+      }
+    };
+    if (open) document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [open]);
+
+  const filtered = aliases.filter((a) => a.name.toLowerCase().includes(search.toLowerCase()));
+
+  return (
+    <div className="relative" ref={popoverRef}>
+      <button
+        type="button"
+        disabled={disabled}
+        onClick={() => setOpen((v) => !v)}
+        className="px-3 py-1.5 text-xs font-bold text-ds-primary border border-ds-primary/30 rounded-lg hover:bg-ds-primary/5 disabled:opacity-50 transition-colors"
+      >
+        Reassign
+      </button>
+      {open && (
+        <div className="absolute right-0 top-full mt-1 z-50 w-64 bg-ds-surface-container-lowest rounded-xl shadow-xl border border-ds-outline-variant/20 overflow-hidden">
+          <div className="p-2 border-b border-ds-outline-variant/10">
+            <input
+              autoFocus
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search aliases..."
+              className="w-full text-xs bg-ds-surface-container-low rounded-lg px-3 py-1.5 outline-none focus:ring-1 focus:ring-ds-primary/30"
+            />
+          </div>
+          <div className="max-h-48 overflow-y-auto">
+            {loadingAliases ? (
+              <div className="py-4 text-center text-xs text-ds-on-surface-variant">Loading…</div>
+            ) : filtered.length === 0 ? (
+              <div className="py-4 text-center text-xs text-ds-on-surface-variant">No aliases</div>
+            ) : (
+              filtered.map((a) => (
+                <button
+                  key={a.id}
+                  type="button"
+                  className="w-full text-left px-4 py-2 text-xs hover:bg-ds-primary/5 transition-colors"
+                  onClick={() => {
+                    setOpen(false);
+                    onReassign(a.id);
+                  }}
+                >
+                  {a.name}
+                </button>
+              ))
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function PendingClassificationQueue({ t }: { t: ReturnType<typeof useTranslations> }) {
   const [rows, setRows] = useState<PendingRow[]>([]);
   const [loading, setLoading] = useState(false);
@@ -797,14 +889,24 @@ function PendingClassificationQueue({ t }: { t: ReturnType<typeof useTranslation
     load();
   }, []);
 
-  const act = async (row: PendingRow, action: "approve" | "reject") => {
+  const act = async (
+    row: PendingRow,
+    action: "approve" | "reject" | "reassign",
+    aliasId?: string,
+  ) => {
     setBusy(row.id);
     try {
       await apiFetch(`/api/admin/pending-classifications/${row.id}`, {
         method: "POST",
-        body: JSON.stringify({ action }),
+        body: JSON.stringify(action === "reassign" ? { action, aliasId } : { action }),
       });
-      toast.success(t(action === "approve" ? "queueApproved" : "queueRejected"));
+      toast.success(
+        action === "approve"
+          ? t("queueApproved")
+          : action === "reassign"
+            ? "Reassigned"
+            : t("queueRejected"),
+      );
       setRows((prev) => prev.filter((r) => r.id !== row.id));
     } catch (err) {
       toast.error((err as Error).message);
@@ -859,6 +961,11 @@ function PendingClassificationQueue({ t }: { t: ReturnType<typeof useTranslation
               >
                 {t("queueApprove")}
               </Button>
+              <ReassignPopover
+                row={row}
+                disabled={busy === row.id}
+                onReassign={(aliasId) => act(row, "reassign", aliasId)}
+              />
               <button
                 type="button"
                 disabled={busy === row.id}

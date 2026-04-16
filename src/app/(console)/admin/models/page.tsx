@@ -242,7 +242,7 @@ export default function ModelsChannelsPage() {
             search
           </span>
           <input
-            className="w-full bg-ds-surface-container-lowest border-none rounded-xl pl-10 pr-4 py-2.5 text-sm focus:ring-2 focus:ring-ds-primary/20 placeholder:text-ds-outline/60 font-[var(--font-heading)] outline-none"
+            className="w-full bg-ds-surface-container-low border-none rounded-xl pl-10 pr-4 py-2.5 text-sm focus:ring-2 focus:ring-ds-primary/20 placeholder:text-ds-outline/60 font-[var(--font-heading)] outline-none"
             placeholder={t("searchPlaceholder")}
             type="text"
             value={search}
@@ -250,10 +250,10 @@ export default function ModelsChannelsPage() {
           />
         </div>
         <div className="flex items-center gap-2">
-          <button className="bg-ds-surface-container-lowest px-4 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2 text-ds-on-surface-variant hover:bg-white transition-colors font-[var(--font-heading)]">
+          <button className="bg-ds-surface-container-low px-4 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2 text-ds-on-surface-variant hover:bg-white transition-colors font-[var(--font-heading)]">
             <span className="material-symbols-outlined text-lg">filter_list</span> {t("filter")}
           </button>
-          <button className="bg-ds-surface-container-lowest px-4 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2 text-ds-on-surface-variant hover:bg-white transition-colors font-[var(--font-heading)]">
+          <button className="bg-ds-surface-container-low px-4 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2 text-ds-on-surface-variant hover:bg-white transition-colors font-[var(--font-heading)]">
             <span className="material-symbols-outlined text-lg">sort</span> {t("sortBy")}
           </button>
         </div>

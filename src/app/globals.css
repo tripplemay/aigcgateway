@@ -374,4 +374,8 @@
     @apply text-base font-bold tracking-tight text-ds-on-surface;
     font-family: var(--font-heading);
   }
+  /* Field label in pricing editors / settings panels */
+  .label-caps {
+    @apply text-[10px] font-bold text-ds-on-surface-variant uppercase tracking-widest;
+  }
 }

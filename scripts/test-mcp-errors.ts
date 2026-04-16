@@ -318,6 +318,11 @@ async function main() {
       return;
     }
     const text = result.content?.[0]?.text ?? "";
+    // Skip when model is not available in this environment
+    if (/model_not_found|not found|no route/i.test(text)) {
+      console.log("(model_not_found — fal/flux-schnell not configured locally, skipping) ");
+      return;
+    }
     if (!/invalid_size/i.test(text)) {
       throw new Error(`Expected invalid_size, got: ${text.slice(0, 120)}`);
     }

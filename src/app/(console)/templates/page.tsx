@@ -11,6 +11,7 @@ import { PageLoader } from "@/components/page-loader";
 import { TableCard } from "@/components/table-card";
 import { TableLoader } from "@/components/table-loader";
 import { CTABanner } from "@/components/cta-banner";
+import { SectionCard } from "@/components/section-card";
 import { Button, buttonVariants } from "@/components/ui/button";
 import {
   Table,
@@ -278,7 +279,7 @@ export default function TemplatesPage() {
 
               {/* Stats + CTA bento — rendered only after data is loaded (BL-122). */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="col-span-1 bg-ds-surface-container-low p-6 rounded-xl relative overflow-hidden group">
+                <SectionCard className="col-span-1 relative overflow-hidden group">
                   <div className="relative z-10">
                     <h3 className="heading-3 mb-1">{t("templateStats")}</h3>
                     <p className="text-xs text-ds-on-surface-variant mb-4">
@@ -301,7 +302,7 @@ export default function TemplatesPage() {
                       account_tree
                     </span>
                   </div>
-                </div>
+                </SectionCard>
                 <div className="col-span-2">
                   <CTABanner
                     title={t("ctaTitle")}
