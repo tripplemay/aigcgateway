@@ -7,7 +7,7 @@
       "title": "get_balance transactions 分页（limit/offset/hasMore）",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "source": "FIN-006",
       "acceptance": "1) get_balance(include_transactions=true) 新增 limit（默认 10，最大 100）和 offset（默认 0）参数；2) 返回体增加 hasMore 布尔字段；3) MCP get_balance tool schema 同步更新；4) 向后兼容：不传 limit/offset 时行为不变；5) 同 commit 补 regression test；6) tsc 通过"
     },
