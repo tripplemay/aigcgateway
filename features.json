@@ -15,7 +15,7 @@
       "title": "SystemConfig 预置分类 + 管理端分类管理卡片",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) seed 或 migration 写入 SystemConfig key=TEMPLATE_CATEGORIES 包含初始 6 个分类（dev-review/writing/translation/analysis/customer-service/other）；2) admin/operations 页面增加模板分类管理 SectionCard（列出所有分类 id/label/labelEn/icon，支持增删改）；3) 修改后写入 SystemConfig；4) i18n；5) tsc 通过"
     },
     {

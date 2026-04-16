@@ -917,7 +917,21 @@
     "syncProgressProvider": "正在同步 {provider}...",
     "syncProgressGeneral": "正在同步服务商...",
     "inferProgressPhase": "正在执行 {phase}...",
-    "inferProgressGeneral": "正在执行推断..."
+    "inferProgressGeneral": "正在执行推断...",
+    "tplCatTitle": "公共模板分类",
+    "tplCatDesc": "维护公共模板库展示的分类列表（Fork 和筛选使用的归类）。",
+    "tplCatId": "标识（slug）",
+    "tplCatLabel": "中文名称",
+    "tplCatLabelEn": "英文名称",
+    "tplCatIcon": "Material 图标",
+    "tplCatAdd": "新增分类",
+    "tplCatRemove": "删除",
+    "tplCatSaved": "模板分类已保存",
+    "tplCatRequireOther": "必须保留兜底分类 'other'，不能删除。",
+    "tplCatInvalidId": "分类标识必须是小写字母数字及 '-' 组成的 slug。",
+    "tplCatDuplicateId": "分类标识重复：{id}",
+    "tplCatMissingFields": "每行都需要填写 id、中文、英文和图标。",
+    "tplCatResetDefaults": "重置为默认值"
   },
   "adminLogs": {
     "title": "全局审计日志",

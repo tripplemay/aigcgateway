@@ -917,7 +917,21 @@
     "syncProgressProvider": "Syncing {provider}...",
     "syncProgressGeneral": "Syncing providers...",
     "inferProgressPhase": "Running {phase}...",
-    "inferProgressGeneral": "Running inference..."
+    "inferProgressGeneral": "Running inference...",
+    "tplCatTitle": "Public Template Categories",
+    "tplCatDesc": "Curate the category list shown on the public template library (classification for Fork and filter).",
+    "tplCatId": "ID (slug)",
+    "tplCatLabel": "Label (中文)",
+    "tplCatLabelEn": "Label (English)",
+    "tplCatIcon": "Material icon",
+    "tplCatAdd": "Add category",
+    "tplCatRemove": "Remove",
+    "tplCatSaved": "Template categories saved",
+    "tplCatRequireOther": "The 'other' fallback category is required and cannot be removed.",
+    "tplCatInvalidId": "Category id must be a lowercase slug (a-z, 0-9, '-').",
+    "tplCatDuplicateId": "Duplicate category id: {id}",
+    "tplCatMissingFields": "All fields (id, label, labelEn, icon) are required for every row.",
+    "tplCatResetDefaults": "Reset to defaults"
   },
   "adminLogs": {
     "title": "Global Audit Logs",

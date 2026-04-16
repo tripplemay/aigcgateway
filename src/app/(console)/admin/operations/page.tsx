@@ -467,6 +467,9 @@ export default function OperationsPage() {
 
       {/* F-RL-06: rate-limit global defaults */}
       <RateLimitDefaultsCard t={t} />
+
+      {/* F-TL-02: template categories CRUD */}
+      <TemplateCategoriesCard t={t} />
     </PageContainer>
   );
 }
@@ -978,6 +981,218 @@ function PendingClassificationQueue({ t }: { t: ReturnType<typeof useTranslation
           </li>
         ))}
       </ul>
+    </SectionCard>
+  );
+}
+
+// ============================================================
+// F-TL-02: Template categories CRUD card
+// ============================================================
+
+interface TemplateCategory {
+  id: string;
+  label: string;
+  labelEn: string;
+  icon: string;
+}
+
+const DEFAULT_CATS: TemplateCategory[] = [
+  { id: "dev-review", label: "开发审查", labelEn: "Dev Review", icon: "code_review" },
+  { id: "writing", label: "内容创作", labelEn: "Writing", icon: "edit_note" },
+  { id: "translation", label: "翻译", labelEn: "Translation", icon: "translate" },
+  { id: "analysis", label: "数据分析", labelEn: "Analysis", icon: "analytics" },
+  { id: "customer-service", label: "客服", labelEn: "Customer Service", icon: "support_agent" },
+  { id: "other", label: "其他", labelEn: "Other", icon: "category" },
+];
+
+const SLUG_RE = /^[a-z0-9][a-z0-9-]{0,31}$/;
+
+function TemplateCategoriesCard({ t }: { t: ReturnType<typeof useTranslations> }) {
+  const [rows, setRows] = useState<TemplateCategory[]>([]);
+  const [loaded, setLoaded] = useState(false);
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    apiFetch<{ data: TemplateCategory[] }>("/api/admin/template-categories")
+      .then((res) => {
+        setRows(res.data?.length ? res.data : DEFAULT_CATS);
+        setLoaded(true);
+      })
+      .catch(() => {
+        setRows(DEFAULT_CATS);
+        setLoaded(true);
+      });
+  }, []);
+
+  const updateRow = (idx: number, patch: Partial<TemplateCategory>) => {
+    setRows((prev) => prev.map((r, i) => (i === idx ? { ...r, ...patch } : r)));
+  };
+
+  const addRow = () => {
+    setRows((prev) => [...prev, { id: "", label: "", labelEn: "", icon: "category" }]);
+  };
+
+  const removeRow = (idx: number) => {
+    const target = rows[idx];
+    if (target?.id === "other") {
+      toast.error(t("tplCatRequireOther"));
+      return;
+    }
+    setRows((prev) => prev.filter((_, i) => i !== idx));
+  };
+
+  const resetDefaults = () => {
+    setRows(DEFAULT_CATS);
+  };
+
+  const save = async () => {
+    const trimmed = rows.map((r) => ({
+      id: r.id.trim(),
+      label: r.label.trim(),
+      labelEn: r.labelEn.trim(),
+      icon: r.icon.trim(),
+    }));
+
+    for (const r of trimmed) {
+      if (!r.id || !r.label || !r.labelEn || !r.icon) {
+        toast.error(t("tplCatMissingFields"));
+        return;
+      }
+      if (!SLUG_RE.test(r.id)) {
+        toast.error(t("tplCatInvalidId"));
+        return;
+      }
+    }
+
+    const seen = new Set<string>();
+    for (const r of trimmed) {
+      if (seen.has(r.id)) {
+        toast.error(t("tplCatDuplicateId", { id: r.id }));
+        return;
+      }
+      seen.add(r.id);
+    }
+
+    if (!trimmed.some((r) => r.id === "other")) {
+      toast.error(t("tplCatRequireOther"));
+      return;
+    }
+
+    setSaving(true);
+    try {
+      const res = await apiFetch<{ data: TemplateCategory[] }>("/api/admin/template-categories", {
+        method: "PUT",
+        body: JSON.stringify({ categories: trimmed }),
+      });
+      setRows(res.data);
+      toast.success(t("tplCatSaved"));
+    } catch (err) {
+      toast.error((err as Error).message);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <SectionCard data-testid="template-categories">
+      <div className="flex items-center gap-3 mb-6">
+        <div className="w-10 h-10 rounded-full bg-teal-50 text-teal-600 flex items-center justify-center">
+          <span className="material-symbols-outlined">category</span>
+        </div>
+        <div>
+          <h3 className="heading-2">{t("tplCatTitle")}</h3>
+          <p className="text-xs text-ds-on-surface-variant">{t("tplCatDesc")}</p>
+        </div>
+      </div>
+
+      <div className="space-y-2">
+        <div className="grid grid-cols-12 gap-2 px-1 text-[10px] font-bold uppercase tracking-wider text-ds-on-surface-variant">
+          <div className="col-span-3">{t("tplCatId")}</div>
+          <div className="col-span-3">{t("tplCatLabel")}</div>
+          <div className="col-span-3">{t("tplCatLabelEn")}</div>
+          <div className="col-span-2">{t("tplCatIcon")}</div>
+          <div className="col-span-1" />
+        </div>
+
+        {rows.map((row, idx) => (
+          <div key={`${row.id}-${idx}`} className="grid grid-cols-12 gap-2 items-center">
+            <input
+              className="col-span-3 bg-ds-surface-container-low rounded-lg px-3 py-2 text-sm font-mono"
+              placeholder="slug"
+              value={row.id}
+              onChange={(e) => updateRow(idx, { id: e.target.value })}
+              disabled={!loaded}
+            />
+            <input
+              className="col-span-3 bg-ds-surface-container-low rounded-lg px-3 py-2 text-sm"
+              placeholder="中文名"
+              value={row.label}
+              onChange={(e) => updateRow(idx, { label: e.target.value })}
+              disabled={!loaded}
+            />
+            <input
+              className="col-span-3 bg-ds-surface-container-low rounded-lg px-3 py-2 text-sm"
+              placeholder="English"
+              value={row.labelEn}
+              onChange={(e) => updateRow(idx, { labelEn: e.target.value })}
+              disabled={!loaded}
+            />
+            <div className="col-span-2 flex items-center gap-2">
+              <span
+                className="material-symbols-outlined text-[18px] text-ds-primary"
+                aria-hidden="true"
+              >
+                {row.icon || "category"}
+              </span>
+              <input
+                className="flex-1 bg-ds-surface-container-low rounded-lg px-2 py-2 text-xs font-mono"
+                placeholder="icon_name"
+                value={row.icon}
+                onChange={(e) => updateRow(idx, { icon: e.target.value })}
+                disabled={!loaded}
+              />
+            </div>
+            <button
+              type="button"
+              className="col-span-1 text-xs font-bold text-ds-on-surface-variant hover:text-ds-error disabled:opacity-30"
+              onClick={() => removeRow(idx)}
+              disabled={!loaded || row.id === "other"}
+              title={t("tplCatRemove")}
+            >
+              <span className="material-symbols-outlined text-[18px]">delete</span>
+            </button>
+          </div>
+        ))}
+      </div>
+
+      <div className="flex items-center justify-between pt-6 gap-2 flex-wrap">
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={addRow}
+            disabled={!loaded}
+            className="text-xs font-bold text-ds-primary border border-ds-primary/30 rounded-lg px-3 py-1.5 hover:bg-ds-primary/5 disabled:opacity-50"
+          >
+            + {t("tplCatAdd")}
+          </button>
+          <button
+            type="button"
+            onClick={resetDefaults}
+            disabled={!loaded}
+            className="text-xs font-semibold text-ds-on-surface-variant hover:text-ds-primary disabled:opacity-50"
+          >
+            {t("tplCatResetDefaults")}
+          </button>
+        </div>
+        <Button
+          variant="gradient-primary"
+          type="button"
+          onClick={save}
+          disabled={saving || !loaded}
+        >
+          {saving ? t("saving") : t("saveChanges")}
+        </Button>
+      </div>
     </SectionCard>
   );
 }
