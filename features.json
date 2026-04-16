@@ -52,7 +52,7 @@
       "title": "image 模型 usage_summary totalTokens 修正",
       "priority": "low",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "source": "DX-009",
       "acceptance": "1) get_usage_summary group_by='model' 时，modality=IMAGE 的模型 totalTokens 显示为 0（不统计 token 计量）；2) 或在返回中省略 totalTokens 字段改用 totalImages 字段（image 模型按调用次数计量）；3) TEXT 模型不受影响；4) tsc 通过"
     },
