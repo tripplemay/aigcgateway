@@ -39,7 +39,7 @@
       "title": "API 响应不做 HTML 实体编码（修 F-AF-01 副作用）",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) 检查 F-AF-01 引入的 sanitize 路径，明确只对前端页面渲染层做 HTML 转义，API JSON 响应保持原始字符串；2) get_log_detail.response 返回 \"The user's\" 而非 \"The user&#x27;s\"；3) get_log_detail.error 同样恢复原始可读字符（脱敏后的通用文案，不是 HTML 转义后的）；4) 同 commit 补 regression test；5) tsc 通过"
     },
     {
