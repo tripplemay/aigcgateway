@@ -1,11 +1,11 @@
 {
-  "status": "building",
+  "status": "verifying",
   "user_goal": "TEMPLATE-TESTING — 模板测试工作台：独立测试页面 + dry_run 预览（免费）+ 真实执行 + 步骤级结果展示 + 测试历史（持久化最近 20 次）",
   "total_features": 9,
-  "completed_features": 0,
+  "completed_features": 8,
   "fix_rounds": 0,
   "current_sprint": null,
-  "last_updated": "2026-04-17T08:00:00Z",
+  "last_updated": "2026-04-17T10:30:00Z",
   "reference_docs": [
     "docs/specs/TEMPLATE-TESTING-spec.md"
   ],
@@ -17,9 +17,9 @@
     "framework_reviewed": false
   },
   "evaluator_feedback": null,
-  "generator_handoff": null,
+  "generator_handoff": "Generator 已完成 F-TT-01~F-TT-08 八条功能。关键交付物：1) 新增 TemplateTestRun 表（prisma/schema.prisma + migration 20260417_template_test_runs），已在本地 DB 应用；2) 核心 lib src/lib/template/test-runner.ts 复用于 API + MCP，支持 dry_run（免费渲染变量）/ execute（真实调用每步，写 CallLog、扣费、收集 cost 通过 traceId 查询 CallLog），partial 状态处理首步失败 vs 中途失败；3) REST API: POST /api/templates/[id]/test, GET /api/templates/[id]/test-runs（最多 20 条摘要）, GET /api/templates/[id]/test-runs/[runId]（完整 steps）；自动清理同 user+template 超过 20 条；鉴权均经 project.userId 校验；4) MCP run_template 新增 test_mode 可选参数（不传则行为完全不变）；5) /templates/[id]/test 独立页面（grid 左 5/右 7），左：模板步骤列表 + 变量输入（长文本 Textarea，短文本 Input）+ 从历史加载下拉 + 预览/执行按钮；右：步骤级结果（可折叠输入/输出，失败红色）+ 汇总（tokens/cost/latency）+ 历史列表；6) 模板详情页 PageHeader 和 templates 列表每行增加 test 入口图标；7) global-library.tsx 全面换用 SectionCard + StatusChip + Button gradient-primary（原手写 rounded-xl shadow-sm ring-1 卡片已清零，grep 验证通过），分类 Tab 与 settings pill-tabs 风格统一，公共模板卡片新增 test 按钮点击提示先 Fork；8) i18n 键（en.json + zh-CN.json）已同步，约 30 个新键位于 templates 命名空间下。tsc --noEmit 通过，lint 对新增路径零告警。Evaluator 关注点：a) execute 模式 cost 依赖 CallLog 写入（post-process 异步），test-runner 用 traceId 轮询最多 3s 拿 sellPrice，线上高负载下可能读不到；b) dry_run 模式 previous_output 用 `[role]\ncontent` 拼接的渲染文本，不是真实模型输出；c) MCP test_mode 分支使用 MCP userId（已签发的 API Key 对应），projectId 不用（复用 template.projectId）；d) 公共模板未 fork 时无法直接测试，卡片 test 按钮仅做提示。",
   "session_notes": {
-    "Kimi": "Planner 启动 TEMPLATE-TESTING 批次（7 generator + 1 codex = 8 条）。紧接 TEMPLATE-LIBRARY-UPGRADE（分类+评分）之后的第二个模板功能批次。核心：/templates/[id]/test 独立测试页面，两步流程（预览 dry_run 免费 → 执行 execute 扣费），步骤级结果展示（input/output/tokens/cost/latency），测试历史持久化 TemplateTestRun 表（per user+template 最多 20 条自动清理），变量预设从历史加载。MCP run_template 增加 test_mode 参数。TEMPLATE-LIBRARY-UPGRADE 已签收 8/8。",
+    "Kimi": "完成 TEMPLATE-TESTING 全部 8 条 generator 功能，状态推到 verifying 等 Codex 验收。批次结构：F-TT-01 schema / F-TT-02 执行 API / F-TT-03 历史 API / F-TT-04 MCP test_mode / F-TT-05+06 测试页左右面板 / F-TT-07 入口按钮 / F-TT-08 global-library 对齐公共组件。核心共享逻辑在 src/lib/template/test-runner.ts，API 和 MCP 共用；cost 通过 waitForCallLog(traceId) 轮询读 CallLog 写入结果。未 commit/push，等用户确认。features.json 和 progress.json 计数已更正为 total 9（含 codex 验收），之前 session_notes 的 8 是旧数。pre-existing issue：scripts/ 目录下 dump.rdb 等未追踪文件与本批次无关。",
     "Reviewer": null
   }
 }

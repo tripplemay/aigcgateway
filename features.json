@@ -7,7 +7,7 @@
       "title": "Schema：TemplateTestRun 表 + migration",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) 新增 template_test_runs 表（id/templateId/userId/variables(JSON)/mode/status/steps(JSON)/totalTokens/totalCost/totalLatency/createdAt）；2) Template 和 User 增加 relation；3) 索引 templateId+createdAt DESC 和 userId+createdAt DESC；4) tsc 通过"
     },
     {
@@ -15,7 +15,7 @@
       "title": "测试执行 API：POST /api/templates/[id]/test",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) body: {variables, mode: 'dry_run' | 'execute'}；2) dry_run 模式：对每步 run_action(dry_run=true) 返回渲染后 prompt，cost=0；3) execute 模式：真实执行每步，收集 input/output/tokens/cost/latencyMs；4) 写入 TemplateTestRun 表；5) 自动清理：同 user+template 超过 20 条时删最旧的；6) 部分步骤失败时 status=partial，已执行步骤结果保留；7) 鉴权：只能测试自己项目的模板；8) tsc 通过"
     },
     {
@@ -23,7 +23,7 @@
       "title": "测试历史 API：GET test-runs + GET test-runs/[runId]",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) GET /api/templates/[id]/test-runs 返回最近 20 条记录摘要（id/mode/status/totalTokens/totalCost/createdAt）；2) GET /api/templates/[id]/test-runs/[runId] 返回完整 steps 详情；3) 鉴权：只能查看自己的测试记录；4) tsc 通过"
     },
     {
@@ -31,7 +31,7 @@
       "title": "MCP 扩展：run_template 增加 test_mode 参数",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) MCP run_template 新增可选参数 test_mode: 'dry_run' | 'execute'；2) test_mode='dry_run' 免费渲染变量不调模型；3) test_mode='execute' 真实执行并写 TemplateTestRun；4) 不传 test_mode 时行为不变（正常执行不记录）；5) tsc 通过"
     },
     {
@@ -39,7 +39,7 @@
       "title": "前端：测试页面左侧（模板信息 + 变量输入 + 操作按钮）",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) 新增 /templates/[id]/test/page.tsx；2) 左侧面板展示模板名、步骤列表（每步 Action 名 + Model）；3) 变量输入表单从 steps 的 Action variables 聚合（短文本 Input，长文本 Textarea）；4) '从历史加载'下拉读取 test-runs 的 variables 作为预设；5) '预览（免费）'按钮调 POST mode=dry_run；6) '执行测试'按钮调 POST mode=execute（执行中 loading）；7) 使用 PageContainer + PageHeader + SectionCard 公共组件；8) i18n；9) tsc 通过"
     },
     {
@@ -47,7 +47,7 @@
       "title": "前端：测试页面右侧（步骤结果 + 汇总 + 历史）",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) 右侧面板按步骤展示结果：每步一个可折叠 SectionCard（输入/输出/tokens/cost/耗时）；2) dry_run 只展示渲染后 prompt，输出显示'预览模式，未调用模型'；3) 汇总区：总 tokens / 总 cost / 总耗时；4) 底部测试历史列表：最近 20 条，显示时间+状态（✅/❌）+cost，点击加载该次结果；5) 失败步骤红色高亮+错误信息；6) i18n；7) tsc 通过"
     },
     {
@@ -55,7 +55,7 @@
       "title": "模板详情页 + 列表页增加'测试'入口",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) /templates/[id] 详情页增加'测试'按钮跳转 /templates/[id]/test；2) /templates 列表页每行增加'测试'图标按钮（science icon）；3) 公共模板未 fork 时提示'请先 Fork 到项目'；4) i18n；5) tsc 通过"
     },
     {
@@ -63,7 +63,7 @@
       "title": "修正 global-library.tsx 对齐设计系统公共组件",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) 模板卡片从手写 rounded-xl p-6 shadow-sm ring-1 改为 SectionCard；2) 分类 Tab 按钮样式与 settings pill tabs 统一（或使用统一的 Tab 组件）；3) mode/category badge 改用 StatusChip；4) Fork 按钮改用 Button variant='gradient-primary'；5) 加载骨架使用 PageLoader 或 TableLoader；6) grep 验证：global-library.tsx 中无手写 rounded-xl shadow-sm ring-1 卡片；7) 不改变现有功能（分类/排序/评分/fork/搜索行为不变）；8) tsc 通过"
     },
     {
