@@ -7,7 +7,7 @@
       "title": "客户端超时退款：non-stream reasoning 模型",
       "priority": "critical",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) post-process.ts：当客户端 abort/timeout 时（AbortController 触发），CallLog.status 改为 'TIMEOUT' 且 cost=0；2) 已扣费的情况自动 refund（写 transactions 表 type=REFUND）；3) list_logs 支持 status='timeout' 过滤；4) gpt-image 60s 超时场景同样覆盖（generate_image 也有 timeout 风险）；5) 同 commit 补 regression test；6) tsc 通过"
     },
     {
