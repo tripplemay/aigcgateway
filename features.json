@@ -31,7 +31,7 @@
       "title": "reasoningTokens 按 capabilities 过滤",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) CallLog 写入时如果 model.capabilities.reasoning !== true，强制将 reasoning_tokens 置为 null；2) get_log_detail / list_logs 读取层同样过滤（防止历史数据污染）；3) glm-4.7-flash（reasoning=false）调用后 usage.reasoningTokens 为 null 或缺省；4) reasoning=true 的模型（如 deepseek-r1 / qwen3.5-flash）不受影响；5) 同 commit 补 regression test；6) tsc 通过"
     },
     {
@@ -71,7 +71,7 @@
       "title": "chat 响应补 cost + refund 交易补 model/source/batchId",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "acceptance": "1) chat completions / MCP chat 返回体顶层新增 cost 字段（如 '$0.00000504'，与 get_log_detail 一致）；2) refund 交易除 description 外，单独暴露 model/source 字段（与 deduction 对齐）；3) 同一业务事件的多笔 refund 共享 batchId（如 'refund-batch-20260416-xxx'）；4) get_balance 返回的 transactions 数据结构相应更新；5) 同 commit 补 regression test；6) tsc 通过"
     },
     {
