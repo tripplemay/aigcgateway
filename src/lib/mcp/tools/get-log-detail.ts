@@ -10,7 +10,7 @@ import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { prisma } from "@/lib/prisma";
 import { checkMcpPermission } from "@/lib/mcp/auth";
 import type { McpServerOptions } from "@/lib/mcp/server";
-import { escapeJsonStrings } from "@/lib/api/sanitize-html";
+// F-AF2-05: escapeJsonStrings removed — API responses must return raw strings
 import { sanitizeErrorMessage } from "@/lib/engine/types";
 
 export function registerGetLogDetail(server: McpServer, opts: McpServerOptions): void {
@@ -119,12 +119,12 @@ export function registerGetLogDetail(server: McpServer, opts: McpServerOptions):
         model: log.modelName,
         status: log.status.toLowerCase(),
         source: log.source,
-        prompt: escapeJsonStrings(log.promptSnapshot),
-        // F-ACF-09: parameters used to be handed through untouched, so a
-        // prompt/filename crafted as `<img src=x onerror=alert(1)>` made it
-        // into console rendering verbatim. Escape recursively on output.
-        parameters: escapeJsonStrings(log.requestParams),
-        response: escapeJsonStrings(log.responseContent),
+        // F-AF2-05: return raw strings in API/MCP responses — HTML entity
+        // encoding (&#x27; etc.) is a rendering concern handled by the frontend
+        // (React auto-escapes). Applying it here corrupts programmatic output.
+        prompt: log.promptSnapshot,
+        parameters: log.requestParams,
+        response: log.responseContent,
         finishReason: log.finishReason,
         usage: {
           promptTokens: log.promptTokens,

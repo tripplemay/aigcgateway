@@ -3,7 +3,6 @@ import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import { verifyJwt } from "@/lib/api/jwt-middleware";
 import { errorResponse } from "@/lib/api/errors";
-import { escapeJsonStrings } from "@/lib/api/sanitize-html";
 import { sanitizeErrorMessage } from "@/lib/engine/types";
 
 export async function GET(
@@ -35,14 +34,11 @@ export async function GET(
     modelName: log.modelName,
     status: log.status,
     finishReason: log.finishReason,
-    promptSnapshot: escapeJsonStrings(log.promptSnapshot),
-    // F-ACF-09: recursively escape requestParams so crafted prompt/URL fields
-    // never reach the console renderer verbatim.
-    requestParams: escapeJsonStrings(log.requestParams),
-    responseContent:
-      typeof log.responseContent === "string"
-        ? escapeJsonStrings(log.responseContent)
-        : escapeJsonStrings(log.responseContent),
+    // F-AF2-05: return raw strings — React auto-escapes in the frontend.
+    // HTML entity encoding here corrupts API responses (&#x27; instead of ').
+    promptSnapshot: log.promptSnapshot,
+    requestParams: log.requestParams,
+    responseContent: log.responseContent,
     promptTokens: log.promptTokens,
     completionTokens: log.completionTokens,
     totalTokens: log.totalTokens,

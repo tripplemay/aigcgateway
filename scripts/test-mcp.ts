@@ -854,6 +854,20 @@ async function main() {
     }
   });
 
+  // 20. F-AF2-05 regression — get_log_detail must not HTML-encode response strings
+  await step("20. F-AF2-05 no HTML entity encoding in get_log_detail", async () => {
+    if (!lastTraceId) {
+      console.log("(skipped — no prior chat trace) ");
+      return;
+    }
+    const result = await callTool("get_log_detail", { trace_id: lastTraceId });
+    const text = parseTextContent(result);
+    // Check that common HTML entities are NOT present in the raw JSON
+    if (text.includes("&#x27;") || text.includes("&amp;") || text.includes("&lt;")) {
+      throw new Error("get_log_detail contains HTML entity encoding in response");
+    }
+  });
+
   console.log("\n" + "=".repeat(60));
   console.log(`Results: ${passed} PASS | ${failed} FAIL | ${passed + failed} total`);
   console.log("=".repeat(60));
