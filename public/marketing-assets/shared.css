@@ -1,0 +1,174 @@
+/* AIGC Gateway 推介素材共享样式 */
+/* 设计系统：与项目控制台 brand token 对齐 */
+
+:root {
+  /* Brand */
+  --brand: #6D5DD3;
+  --brand-light: #EEEDFE;
+  --brand-dark: #3C3489;
+
+  /* 三层能力色 */
+  --layer-access: #6D5DD3;   /* 紫 - 接入层 */
+  --layer-monitor: #0EA5A4;  /* 青 - 监测层 */
+  --layer-optimize: #F59E0B; /* 琥珀 - 优化层 */
+
+  /* 语义色 */
+  --success: #10B981;
+  --warning: #F59E0B;
+  --danger:  #EF4444;
+  --info:    #3B82F6;
+
+  /* 中性色 */
+  --bg:          #FAFAFB;
+  --bg-subtle:   #F4F4F7;
+  --surface:     #FFFFFF;
+  --border:      #E5E7EB;
+  --text:        #111827;
+  --text-muted:  #6B7280;
+  --text-subtle: #9CA3AF;
+
+  /* 阴影 */
+  --shadow-sm: 0 1px 2px rgba(17, 24, 39, 0.04), 0 1px 3px rgba(17, 24, 39, 0.06);
+  --shadow-md: 0 4px 6px rgba(17, 24, 39, 0.04), 0 2px 4px rgba(17, 24, 39, 0.06);
+  --shadow-lg: 0 10px 20px rgba(17, 24, 39, 0.05), 0 6px 6px rgba(17, 24, 39, 0.04);
+  --shadow-brand: 0 20px 40px rgba(109, 93, 211, 0.15);
+
+  /* 圆角 */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+  --radius-2xl: 32px;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  font-family: 'PingFang SC', 'Manrope', -apple-system, 'Helvetica Neue', 'Microsoft YaHei', sans-serif;
+  color: var(--text);
+  background: var(--bg);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3, h4 {
+  font-family: 'Manrope', 'PingFang SC', sans-serif;
+  font-weight: 700;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+}
+
+a { color: var(--brand); text-decoration: none; }
+a:hover { color: var(--brand-dark); }
+
+/* ---------- 通用组件 ---------- */
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 32px;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 24px;
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  font-size: 15px;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  border: 1px solid transparent;
+  white-space: nowrap;
+}
+
+.btn-primary {
+  background: var(--brand);
+  color: #fff;
+  box-shadow: var(--shadow-brand);
+}
+.btn-primary:hover { transform: translateY(-1px); color: #fff; background: var(--brand-dark); }
+
+.btn-ghost {
+  background: #fff;
+  color: var(--text);
+  border-color: var(--border);
+}
+.btn-ghost:hover { border-color: var(--brand); color: var(--brand); }
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  background: var(--brand-light);
+  color: var(--brand-dark);
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  box-shadow: var(--shadow-sm);
+}
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 12px;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text);
+}
+
+.kbd {
+  display: inline-block;
+  padding: 2px 8px;
+  background: var(--bg-subtle);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-family: 'SFMono-Regular', 'JetBrains Mono', Consolas, monospace;
+  font-size: 13px;
+  color: var(--text);
+}
+
+.grid { display: grid; gap: 24px; }
+.grid-2 { grid-template-columns: repeat(2, 1fr); }
+.grid-3 { grid-template-columns: repeat(3, 1fr); }
+.grid-4 { grid-template-columns: repeat(4, 1fr); }
+
+@media (max-width: 960px) {
+  .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+  .container { padding: 0 20px; }
+}
+
+/* ---------- 工具类 ---------- */
+
+.text-center { text-align: center; }
+.text-muted  { color: var(--text-muted); }
+.text-brand  { color: var(--brand); }
+.mt-8  { margin-top: 32px; }
+.mt-12 { margin-top: 48px; }
+.mt-16 { margin-top: 64px; }
+.mb-4  { margin-bottom: 16px; }
+.mb-8  { margin-bottom: 32px; }
+
+/* ---------- 三层配色辅助 ---------- */
+
+.chip-access   { background: rgba(109, 93, 211, 0.1);  color: #4338CA; border: 1px solid rgba(109, 93, 211, 0.25); }
+.chip-monitor  { background: rgba(14, 165, 164, 0.1);  color: #0F766E; border: 1px solid rgba(14, 165, 164, 0.25); }
+.chip-optimize { background: rgba(245, 158, 11, 0.1);  color: #B45309; border: 1px solid rgba(245, 158, 11, 0.25); }

@@ -8,7 +8,7 @@ export default function Home() {
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) {
-      router.replace("/login");
+      window.location.replace("/landing.html");
       return;
     }
     try {
@@ -17,14 +17,14 @@ export default function Home() {
       if (payload.exp && payload.exp * 1000 < Date.now()) {
         localStorage.removeItem("token");
         document.cookie = "token=; path=/; max-age=0";
-        router.replace("/login");
+        window.location.replace("/landing.html");
         return;
       }
       router.replace("/dashboard");
     } catch {
       localStorage.removeItem("token");
       document.cookie = "token=; path=/; max-age=0";
-      router.replace("/login");
+      window.location.replace("/landing.html");
     }
   }, [router]);
 
