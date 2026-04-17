@@ -1,50 +1,50 @@
 {
   "batch": "TEMPLATE-TESTING",
-  "generatedAt": "2026-04-17T03:52:16.078Z",
+  "generatedAt": "2026-04-17T04:32:50.451Z",
   "baseUrl": "http://localhost:3099",
-  "passCount": 8,
-  "failCount": 3,
+  "passCount": 11,
+  "failCount": 0,
   "context": {
     "adminEmail": "admin@aigc-gateway.local",
-    "user1": "tt1_mo2dgr7s@test.local",
-    "user2": "tt2_mo2dgr7s@test.local",
-    "model": "deepseek/deepseek-chat-v3.1",
-    "actionModel": "deepseek/v3",
+    "user1": "tt1_mo2ewq8x@test.local",
+    "user2": "tt2_mo2ewq8x@test.local",
+    "model": "minimax-text-01",
+    "actionModel": "minimax-text-01",
     "projects": {
-      "adminProjectId": "cmo2dgrns000p9y2in6n5amgy",
-      "u1ProjectId": "cmo2dgrnv000r9y2iac5za7wz",
-      "u2ProjectId": "cmo2dgrny000t9y2imceqjffw"
+      "adminProjectId": "cmo2ewqq600139ywbslgmh3y7",
+      "u1ProjectId": "cmo2ewqq900159ywbyeae6znj",
+      "u2ProjectId": "cmo2ewqqc00179ywbglun57gp"
     },
     "templates": {
-      "templateOk": "cmo2dgrog00139y2idx8fo916",
-      "templatePartial": "cmo2dgron00179y2ie8igbisl"
+      "templateOk": "cmo2ewqqx001h9ywb1odwwcus",
+      "templatePartial": "cmo2ewqr4001l9ywbtnp43zmw"
     }
   },
   "steps": [
     {
       "id": "AC1-dry-run-rendered-input-cost-zero",
       "ok": true,
-      "detail": "path=/api/templates/cmo2dgrog00139y2idx8fo916/test mode=dry_run status=success steps=1 totalCost=0"
+      "detail": "path=/api/templates/cmo2ewqqx001h9ywb1odwwcus/test mode=dry_run status=success steps=1 totalCost=0"
     },
     {
       "id": "AC2-execute-real-step-results",
-      "ok": false,
-      "detail": "path=/api/templates/cmo2dgrog00139y2idx8fo916/test status=error steps=1 totalTokens=0"
+      "ok": true,
+      "detail": "path=/api/templates/cmo2ewqqx001h9ywb1odwwcus/test status=success steps=1 totalTokens=26"
     },
     {
       "id": "AC3-partial-preserve-executed-steps",
-      "ok": false,
-      "detail": "path=/api/templates/cmo2dgron00179y2ie8igbisl/test status=error steps=1"
+      "ok": true,
+      "detail": "path=/api/templates/cmo2ewqr4001l9ywbtnp43zmw/test status=partial steps=2"
     },
     {
       "id": "AC4-test-runs-retention-20",
       "ok": true,
-      "detail": "path=/api/templates/cmo2dgrog00139y2idx8fo916/test-runs count=20"
+      "detail": "path=/api/templates/cmo2ewqqx001h9ywb1odwwcus/test-runs count=20"
     },
     {
       "id": "AC5-history-preset-load-readiness",
       "ok": true,
-      "detail": "detailPath=/api/templates/cmo2dgrog00139y2idx8fo916/test-runs/cmo2dgrr0002o9y2i4usfiiip detailVariables=true uiMarkers=true"
+      "detail": "detailPath=/api/templates/cmo2ewqqx001h9ywb1odwwcus/test-runs/cmo2ewvor00329ywbob9owea6 detailVariables=true uiMarkers=true"
     },
     {
       "id": "AC6-test-page-left-right-layout",
@@ -53,13 +53,13 @@
     },
     {
       "id": "AC7-mcp-run-template-test-mode",
-      "ok": false,
-      "detail": "mcpPath=/mcp init=200 hasTestMode=true callError=Error: MCP tool run_template returned isError\n    at callMcpTool (/Users/yixingzhou/project/aigcgateway/scripts/test/template-testing-verifying-e2e-2026-04-17.ts:441:30)\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at async run (/Users/yixingzhou/project/aigcgateway/scripts/test/template-testing-verifying-e2e-2026-04-17.ts:707:11)"
+      "ok": true,
+      "detail": "mcpPath=/mcp init=200 hasTestMode=true drySteps=1 execSteps=1"
     },
     {
       "id": "AC8-unforked-public-template-cannot-test",
       "ok": true,
-      "detail": "path=/api/templates/cmo2dgrsz002w9y2iturlzug9/test status=403"
+      "detail": "path=/api/templates/cmo2ewy67003e9ywb894mzhkt/test status=403"
     },
     {
       "id": "AC9-global-library-public-components-only",

@@ -71,7 +71,7 @@
       "title": "TEMPLATE-TESTING 全量验收",
       "priority": "high",
       "executor": "codex",
-      "status": "pending",
+      "status": "done",
       "acceptance": "codex 执行：1) dry_run 返回渲染后变量且 cost=0；2) execute 真实调用每步并返回结果；3) 部分失败 status=partial 已执行步骤保留；4) 测试历史持久化且自动清理到 20 条；5) 历史预设可加载变量；6) 前端左右分栏正确展示；7) MCP test_mode 生效；8) 未 fork 公共模板不能测试；9) global-library.tsx 全部使用公共组件（SectionCard/StatusChip/Button gradient-primary），无手写卡片；10) 测试页面（/templates/[id]/test）全部使用公共组件，禁止手写样式；11) grep 验证手写卡片/按钮归零；12) 签收报告生成"
     }
   ]

@@ -4,16 +4,15 @@ description: AIGC Gateway 当前状态快照（覆盖写，≤30 行）
 type: project
 ---
 ## 当前批次
-- TEMPLATE-TESTING：`reverifying` fix round 3（9 条功能，8/8 generator 已修，待 Codex 复验 F-TT-09）
+- TEMPLATE-TESTING：`done`（reverifying 11/11 PASS，已签收）
 - 规格：`docs/specs/TEMPLATE-TESTING-spec.md`
-- 真根因：verifier PrismaClient 默认从 .env 载入 DATABASE_URL（dev 库），与 server（test 库）不同步
-- 修复：verifier 脚本显式 datasourceUrl pin 到 test 库
-- 证据：`docs/test-reports/template-testing-fixing-r3-local-e2e-2026-04-17.json`
+- 验收报告：`docs/test-reports/template-testing-verifying-local-e2e-2026-04-17.json`
+- Signoff：`docs/test-reports/TEMPLATE-TESTING-signoff-2026-04-17.md`
 
 ## 生产状态
 - ROUTING-RESILIENCE + endpointMap 已部署
 - TEMPLATE-LIBRARY-UPGRADE 待部署
-- TEMPLATE-TESTING round 3 本地完成，未 push
+- TEMPLATE-TESTING 已本地签收，等待后续部署流程
 
 ## 已知 gap
 - 5 个图片模型 supportedSizes 规则不匹配
