@@ -14,6 +14,7 @@ vi.mock("@/lib/redis", () => ({
 import {
   markChannelCooldown,
   getCooldownChannelIds,
+  isTransientFailureReason,
   __testing,
 } from "./cooldown";
 
@@ -110,5 +111,33 @@ describe("getCooldownChannelIds (F-RR2-02)", () => {
     const result = await getCooldownChannelIds([]);
     expect(result.size).toBe(0);
     expect(redis.mget).not.toHaveBeenCalled();
+  });
+});
+
+describe("isTransientFailureReason (F-RR2-05)", () => {
+  it("flags rate-limit / 429 / 限流 messages as transient", () => {
+    expect(isTransientFailureReason("rate_limited: 您的账户已达到速率限制")).toBe(true);
+    expect(isTransientFailureReason("HTTP 429: Too Many Requests")).toBe(true);
+    expect(isTransientFailureReason("请求被限流，请稍后重试")).toBe(true);
+    expect(isTransientFailureReason("quota exceeded for this minute")).toBe(true);
+  });
+
+  it("flags timeout / network failures as transient", () => {
+    expect(isTransientFailureReason("Request timeout after 60s")).toBe(true);
+    expect(isTransientFailureReason("fetch failed")).toBe(true);
+    expect(isTransientFailureReason("ECONNREFUSED 127.0.0.1")).toBe(true);
+  });
+
+  it("does NOT flag permanent errors (auth, 5xx, invalid request) as transient", () => {
+    expect(isTransientFailureReason("auth_failed: invalid api key")).toBe(false);
+    expect(isTransientFailureReason("provider_error: upstream 503")).toBe(false);
+    expect(isTransientFailureReason("invalid_request: messages missing")).toBe(false);
+    expect(isTransientFailureReason("HTTP 500: Internal Server Error")).toBe(false);
+  });
+
+  it("handles null / empty / whitespace safely", () => {
+    expect(isTransientFailureReason(null)).toBe(false);
+    expect(isTransientFailureReason(undefined)).toBe(false);
+    expect(isTransientFailureReason("")).toBe(false);
   });
 });

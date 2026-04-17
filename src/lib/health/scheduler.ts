@@ -21,6 +21,7 @@ import { writeSystemLog } from "@/lib/system-logger";
 import { runHealthCheck, runApiReachabilityCheck, runCallProbe, type CheckResult } from "./checker";
 import { sendAlert } from "./alert";
 import type { RouteResult } from "../engine/types";
+import { isTransientFailureReason, markChannelCooldown } from "../engine/cooldown";
 import {
   sendChannelDownToAdmins,
   sendChannelRecoveredToAdmins,
@@ -128,13 +129,22 @@ export async function runCallProbeForChannel(channelId: string): Promise<CheckRe
   await writeHealthRecords(channelId, [result]);
 
   if (result.result === "FAIL") {
-    const recent = await prisma.healthCheck.findMany({
-      where: { channelId, level: "CALL_PROBE" },
-      orderBy: { createdAt: "desc" },
-      take: 3,
-    });
-    if (recent.length === 3 && recent.every((r) => r.result === "FAIL")) {
-      if (channel.status !== "DISABLED") {
+    // F-RR2-05: skip the 3-consecutive-fail DISABLE escalation when the
+    // failures are transient (429 / timeout / 限流). Write a cooldown
+    // instead so routeByAlias de-prioritizes but still keeps the
+    // channel discoverable.
+    if (isTransientFailureReason(result.errorMessage)) {
+      void markChannelCooldown(channelId, "call_probe_transient");
+    } else {
+      const recent = await prisma.healthCheck.findMany({
+        where: { channelId, level: "CALL_PROBE" },
+        orderBy: { createdAt: "desc" },
+        take: 3,
+      });
+      const allPermanentFail =
+        recent.length === 3 &&
+        recent.every((r) => r.result === "FAIL" && !isTransientFailureReason(r.errorMessage));
+      if (allPermanentFail && channel.status !== "DISABLED") {
         await updateChannelStatus(route, "DISABLED");
       }
     }
@@ -357,37 +367,65 @@ async function executeCheckWithRetry(
       await updateChannelStatus(route, "ACTIVE");
     }
   } else {
-    await handleFailure(route);
+    await handleFailure(route, results);
   }
 
   return results;
 }
 
-async function handleFailure(route: RouteResult): Promise<void> {
+async function handleFailure(route: RouteResult, results: CheckResult[]): Promise<void> {
+  // F-RR2-05: transient failures (429, timeout, 限流) must NOT trip the
+  // 3-batch auto-DISABLE path — they're handled by the 300 s Redis
+  // cooldown instead. Permanent failures (401 with bad key, 5xx that
+  // don't resolve) keep the existing escalation. If *any* probe in
+  // this batch surfaced a non-transient reason, treat the batch as
+  // permanent.
+  const failedReasons = results.filter((r) => r.result === "FAIL").map((r) => r.errorMessage);
+  const allTransient =
+    failedReasons.length > 0 && failedReasons.every((msg) => isTransientFailureReason(msg));
+
+  if (allTransient) {
+    // Mark a cooldown so routeByAlias de-prioritizes this channel for the
+    // next 5 minutes. Written whether the channel is ACTIVE or DEGRADED;
+    // the health scheduler is the only detection path for idle periods.
+    void markChannelCooldown(route.channel.id, "health_transient");
+    if (route.channel.status === "ACTIVE") {
+      await updateChannelStatus(route, "DEGRADED");
+    }
+    return;
+  }
+
   const recentChecks = await prisma.healthCheck.findMany({
     where: { channelId: route.channel.id },
     orderBy: { createdAt: "desc" },
     take: FAIL_THRESHOLD * 3,
-    select: { result: true, createdAt: true },
+    select: { result: true, errorMessage: true, createdAt: true },
   });
 
-  // 按检查批次分组（同一秒内的为一批）
-  const batches: Array<{ hasFail: boolean }> = [];
+  // 按检查批次分组（同一秒内的为一批）— 只有"非 transient"失败批次才计入
+  // DISABLE 阈值，避免连续 429 把一个临时被限流的通道永久 DISABLE。
+  const batches: Array<{ hasFail: boolean; allTransient: boolean }> = [];
   let currentBatchTime = 0;
   for (const check of recentChecks) {
     const t = Math.floor(check.createdAt.getTime() / 1000);
     if (t !== currentBatchTime) {
-      batches.push({ hasFail: check.result === "FAIL" });
+      batches.push({
+        hasFail: check.result === "FAIL",
+        allTransient: check.result === "FAIL" ? isTransientFailureReason(check.errorMessage) : true,
+      });
       currentBatchTime = t;
     } else if (check.result === "FAIL") {
       batches[batches.length - 1].hasFail = true;
+      if (!isTransientFailureReason(check.errorMessage)) {
+        batches[batches.length - 1].allTransient = false;
+      }
     }
   }
 
-  const consecutiveFailures = batches.findIndex((b) => !b.hasFail);
-  const failCount = consecutiveFailures === -1 ? batches.length : consecutiveFailures;
+  const consecutivePermFailures = batches.findIndex((b) => !b.hasFail || b.allTransient);
+  const permFailCount = consecutivePermFailures === -1 ? batches.length : consecutivePermFailures;
 
-  if (failCount >= FAIL_THRESHOLD && route.channel.status !== "DISABLED") {
+  if (permFailCount >= FAIL_THRESHOLD && route.channel.status !== "DISABLED") {
     await updateChannelStatus(route, "DISABLED");
   } else if (route.channel.status === "ACTIVE") {
     await updateChannelStatus(route, "DEGRADED");

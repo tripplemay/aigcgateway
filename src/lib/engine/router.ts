@@ -10,7 +10,7 @@ import { EngineError, ErrorCodes } from "./types";
 import { OpenAICompatEngine } from "./openai-compat";
 import { VolcengineAdapter } from "./adapters/volcengine";
 import { SiliconFlowAdapter } from "./adapters/siliconflow";
-import { getCooldownChannelIds } from "./cooldown";
+import { getCooldownChannelIds, isTransientFailureReason } from "./cooldown";
 
 // Adapter 单例缓存
 const adapterCache = new Map<string, EngineAdapter>();
@@ -70,18 +70,31 @@ export async function routeByAlias(aliasName: string): Promise<RouteResultWithCa
 
   // F-ACF-02: filter out links whose underlying Model.enabled=false to keep
   // alias-routing in lockstep with list_models (ghost model elimination).
+  //
+  // F-RR2-05: a FAIL health check is treated differently depending on whether
+  // the failure was transient (429 / 限流 / timeout) or permanent (auth,
+  // persistent 5xx). Transient FAILs stay in the candidate list so failover
+  // can try them again once the cooldown window passes — the Redis cooldown
+  // below handles the short-term de-prioritization. Permanent FAILs are
+  // filtered out to avoid burning request budget on a known-bad channel.
   const candidateChannels = alias.models
     .filter((link) => link.model.enabled === true)
     .flatMap((link) =>
-      link.model.channels.map((ch) => ({
-        channel: ch,
-        provider: ch.provider,
-        config: ch.provider.config,
-        model: link.model,
-        healthFail: ch.healthChecks.length > 0 && ch.healthChecks[0].result === "FAIL",
-      })),
+      link.model.channels.map((ch) => {
+        const lastCheck = ch.healthChecks[0];
+        const healthFail = !!lastCheck && lastCheck.result === "FAIL";
+        const transientFail = healthFail && isTransientFailureReason(lastCheck.errorMessage);
+        return {
+          channel: ch,
+          provider: ch.provider,
+          config: ch.provider.config,
+          model: link.model,
+          healthFail,
+          transientFail,
+        };
+      }),
     )
-    .filter((c) => !c.healthFail && c.config != null)
+    .filter((c) => c.config != null && (!c.healthFail || c.transientFail))
     .sort((a, b) => a.channel.priority - b.channel.priority);
 
   if (candidateChannels.length === 0) {
@@ -98,12 +111,13 @@ export async function routeByAlias(aliasName: string): Promise<RouteResultWithCa
   // are exhausted.
   const cooldownIds = await getCooldownChannelIds(candidateChannels.map((c) => c.channel.id));
 
-  // Sort: priority ASC → non-cooldown first → health PASS first → NULL last.
-  // FAIL channels are already filtered out above.
+  // Sort priority ASC → non-cooldown first → transient-FAIL last → health
+  // PASS first → NULL last. Transient-FAIL candidates stay reachable but
+  // sink to the bottom of their priority band so healthy peers go first.
   candidateChannels.sort((a, b) => {
     if (a.channel.priority !== b.channel.priority) return a.channel.priority - b.channel.priority;
-    const aCool = cooldownIds.has(a.channel.id);
-    const bCool = cooldownIds.has(b.channel.id);
+    const aCool = cooldownIds.has(a.channel.id) || a.transientFail;
+    const bCool = cooldownIds.has(b.channel.id) || b.transientFail;
     if (aCool !== bCool) return aCool ? 1 : -1;
     const aPass = a.channel.healthChecks.length > 0 && a.channel.healthChecks[0].result === "PASS";
     const bPass = b.channel.healthChecks.length > 0 && b.channel.healthChecks[0].result === "PASS";
