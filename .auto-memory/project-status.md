@@ -4,16 +4,16 @@ description: AIGC Gateway 当前状态快照（覆盖写，≤30 行）
 type: project
 ---
 ## 当前批次
-- TEMPLATE-TESTING：`reverifying` fix round 2（9 条功能，8/8 generator 已修，等 Codex 复验 F-TT-09）
+- TEMPLATE-TESTING：`fixing`（reverifying 实测 8/11 通过，仍卡 AC2/AC3/AC7）
 - 规格：`docs/specs/TEMPLATE-TESTING-spec.md`
-- Fix round 2：验证 resolveEngine fallback 覆盖 alias-linked 与无 alias 两种场景
-- 证据：`docs/test-reports/template-testing-fixing-r2-local-e2e-2026-04-17.json`（11/11）
-- Reviewer 注意：reverifying 请执行 `scripts/test/codex-setup.sh` 完整流程（rm -rf .next + rebuild），避免 stale build
+- 本轮通过：AC1/4/5/6/8/9/10/11（样式相关已全通过）
+- 本轮失败：AC2 execute status=error、AC3 partial 场景仍 error、AC7 MCP run_template(test_mode) isError
+- 复验证据：`docs/test-reports/template-testing-verifying-local-e2e-2026-04-17.json`
 
 ## 生产状态
 - ROUTING-RESILIENCE + endpointMap 已部署
 - TEMPLATE-LIBRARY-UPGRADE 待部署
-- TEMPLATE-TESTING 本地 round 2 完成，未 push
+- TEMPLATE-TESTING 修复进行中，未 push
 
 ## 已知 gap
 - 5 个图片模型 supportedSizes 规则不匹配

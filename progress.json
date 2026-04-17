@@ -1,11 +1,11 @@
 {
-  "status": "reverifying",
+  "status": "fixing",
   "user_goal": "TEMPLATE-TESTING — 模板测试工作台：独立测试页面 + dry_run 预览（免费）+ 真实执行 + 步骤级结果展示 + 测试历史（持久化最近 20 次）",
   "total_features": 9,
-  "completed_features": 8,
+  "completed_features": 6,
   "fix_rounds": 2,
   "current_sprint": null,
-  "last_updated": "2026-04-17T11:45:00Z",
+  "last_updated": "2026-04-17T03:55:00Z",
   "reference_docs": [
     "docs/specs/TEMPLATE-TESTING-spec.md"
   ],
@@ -16,10 +16,35 @@
     "signoff": null,
     "framework_reviewed": false
   },
-  "evaluator_feedback": null,
+  "evaluator_feedback": {
+    "summary": "reverifying 未通过：11 项中 8 项通过，execute/partial 与 MCP test_mode 仍失败。",
+    "pass_count": 8,
+    "partial_count": 0,
+    "fail_count": 3,
+    "issues": [
+      {
+        "feature_id": "F-TT-02",
+        "result": "FAIL",
+        "description": "POST /api/templates/[id]/test 在 execute 模式仍返回 status=error。",
+        "steps_to_reproduce": "运行 scripts/test/template-testing-verifying-e2e-2026-04-17.ts，查看 AC2。报告：docs/test-reports/template-testing-verifying-local-e2e-2026-04-17.json。"
+      },
+      {
+        "feature_id": "F-TT-04",
+        "result": "FAIL",
+        "description": "MCP run_template 携带 test_mode 仍返回 isError。",
+        "steps_to_reproduce": "运行同一脚本，查看 AC7。"
+      },
+      {
+        "feature_id": "F-TT-09",
+        "result": "FAIL",
+        "description": "全量验收未通过，当前不可签收。",
+        "steps_to_reproduce": "查看 docs/test-reports/template-testing-verifying-local-e2e-2026-04-17.json（pass=8, fail=3）。"
+      }
+    ]
+  },
   "generator_handoff": "Fix round 2：在全新 codex-setup + alias 场景（aigc_gateway_test 手动 INSERT model_aliases 模拟 Reviewer 命中 aliased model 的环境）重跑 verifier，11/11 PASS（证据 docs/test-reports/template-testing-fixing-r2-local-e2e-2026-04-17.json）。Fix round 1 已有的 src/lib/engine/router.ts resolveEngine fallback 既覆盖'无 alias 直接传 model name'（minimax 场景）也覆盖'alias 与 action.model 名不匹配'（deepseek/v3 vs deepseek/deepseek-chat-v3.1 这种 Reviewer 环境）—— 二者都走 routeByModelName 回退到 routeByModelName 成功。本轮新增：1) test-runner.ts step-catch 错误字符串改为 errAny?.message ?? String(err) 防御非 Error 抛出；2) 归档本轮 11/11 证据文件。代码行为与 Reviewer 上次失败时 remote 上的代码等价（fallback 已经存在），故**强烈建议 Reviewer 本次 reverifying 时严格执行 codex-setup.sh（rm -rf .next + 全量 rebuild）排除 stale build**。如果 Reviewer 再次看到 AC2/3/7 fail，请把 /var/log 或 /tmp/aigc-server.log 里 `[template-test]` 诊断行一并回传（我这轮仅本地留存，未 push）。",
   "session_notes": {
     "Kimi": "fix round 2 → reverifying。我在一个 INSERT 了 model_aliases 行的 test DB 上验证 11/11 通过，证实 router.ts 的 fallback 同时覆盖 alias-linked 模型（Reviewer 场景）和无 alias 模型（我先前的 minimax 场景）。因此 remote 上 Reviewer 再次看到失败大概率来自 stale build（未 rm -rf .next 就 exec node .next/standalone/server.js）。",
-    "Reviewer": "已执行 reverifying：按 harness 在 3099 环境重跑验收脚本。结果 8 通过 / 3 失败（AC2/AC3/AC7）。已将状态回退 fixing，待 generator 继续修复 execute 与 MCP test_mode。证据：docs/test-reports/template-testing-verifying-local-e2e-2026-04-17.json。"
+    "Reviewer": "已执行 reverifying（严格 codex-setup 全量重建）并重跑模板验收脚本；结果仍为 8 通过/3 失败（AC2/AC3/AC7）。已回退 fixing，等待下一轮修复。证据：docs/test-reports/template-testing-verifying-local-e2e-2026-04-17.json。"
   }
 }
