@@ -1,12 +1,30 @@
 "use client";
-import { useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Toaster } from "@/components/ui/sonner";
 import { AuthLeftPanel, type TerminalSequence } from "@/components/auth-terminal";
+import { sanitizeRedirect } from "@/lib/safe-redirect";
+
+function hasLiveToken(): boolean {
+  if (typeof window === "undefined") return false;
+  try {
+    const token = window.localStorage.getItem("token");
+    if (!token) return false;
+    const parts = token.split(".");
+    if (parts.length !== 3) return false;
+    const payload = JSON.parse(atob(parts[1].replace(/-/g, "+").replace(/_/g, "/"))) as {
+      exp?: number;
+    };
+    if (typeof payload.exp === "number" && payload.exp * 1000 <= Date.now()) return false;
+    return true;
+  } catch {
+    return false;
+  }
+}
 
 /**
  * Terminal sequences — always English regardless of locale.
@@ -59,14 +77,36 @@ const TERMINAL_SEQUENCES: TerminalSequence[] = [
 // ============================================================
 
 export default function LoginPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-ds-surface-container-lowest" />}>
+      <LoginPageInner />
+    </Suspense>
+  );
+}
+
+function LoginPageInner() {
   const t = useTranslations("auth");
+  const searchParams = useSearchParams();
+  const redirectTarget = sanitizeRedirect(searchParams.get("redirect"));
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [authChecked, setAuthChecked] = useState(false);
   const router = useRouter();
+
+  // F-LL-02: if the user already has a live token, skip the form
+  // entirely and hop to the redirect target. authChecked gates the
+  // first render so the form doesn't flash before the replace fires.
+  useEffect(() => {
+    if (hasLiveToken()) {
+      router.replace(redirectTarget);
+      return;
+    }
+    setAuthChecked(true);
+  }, [router, redirectTarget]);
 
   const submit = async () => {
     if (!email || !password) {
@@ -89,12 +129,16 @@ export default function LoginPage() {
       }
       localStorage.setItem("token", data.token);
       document.cookie = `token=${data.token}; path=/; max-age=${7 * 24 * 3600}; SameSite=Lax`;
-      router.push("/dashboard");
+      router.push(redirectTarget);
     } catch {
       setError(t("networkError"));
     }
     setLoading(false);
   };
+
+  if (!authChecked) {
+    return <div className="min-h-screen bg-ds-surface-container-lowest" />;
+  }
 
   return (
     <>

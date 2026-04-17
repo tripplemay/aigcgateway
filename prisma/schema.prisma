@@ -59,6 +59,7 @@ enum TransactionType {
   DEDUCTION
   REFUND
   ADJUSTMENT
+  BONUS
 }
 
 enum TransactionStatus {

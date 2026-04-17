@@ -468,6 +468,9 @@ export default function OperationsPage() {
       {/* F-RL-06: rate-limit global defaults */}
       <RateLimitDefaultsCard t={t} />
 
+      {/* F-OE-03: welcome bonus amount (USD) */}
+      <WelcomeBonusCard t={t} />
+
       {/* F-TL-02: template categories CRUD */}
       <TemplateCategoriesCard t={t} />
     </PageContainer>
@@ -981,6 +984,90 @@ function PendingClassificationQueue({ t }: { t: ReturnType<typeof useTranslation
           </li>
         ))}
       </ul>
+    </SectionCard>
+  );
+}
+
+// ============================================================
+// F-OE-03: Welcome bonus amount (USD) card
+// ============================================================
+
+const WELCOME_BONUS_KEY = "WELCOME_BONUS_USD";
+
+function WelcomeBonusCard({ t }: { t: ReturnType<typeof useTranslations> }) {
+  const [value, setValue] = useState<string>("");
+  const [loaded, setLoaded] = useState(false);
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    apiFetch<{ data: { key: string; value: string }[] }>("/api/admin/config")
+      .then((res) => {
+        const row = (res.data ?? []).find((r) => r.key === WELCOME_BONUS_KEY);
+        setValue(row?.value ?? "1.00");
+        setLoaded(true);
+      })
+      .catch(() => {
+        setValue("1.00");
+        setLoaded(true);
+      });
+  }, []);
+
+  const save = async () => {
+    const trimmed = value.trim();
+    const num = Number(trimmed);
+    if (!trimmed || !Number.isFinite(num) || num < 0) {
+      toast.error(t("welcomeBonusInvalid"));
+      return;
+    }
+    setSaving(true);
+    try {
+      await apiFetch("/api/admin/config", {
+        method: "PUT",
+        body: JSON.stringify({ key: WELCOME_BONUS_KEY, value: trimmed }),
+      });
+      toast.success(t("welcomeBonusSaved"));
+    } catch (err) {
+      toast.error((err as Error).message);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <SectionCard data-testid="welcome-bonus">
+      <div className="flex items-center gap-3 mb-6">
+        <div className="w-10 h-10 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center">
+          <span className="material-symbols-outlined">redeem</span>
+        </div>
+        <div>
+          <h3 className="heading-2">{t("welcomeBonusTitle")}</h3>
+          <p className="text-xs text-ds-on-surface-variant">{t("welcomeBonusDesc")}</p>
+        </div>
+      </div>
+      <div className="flex items-end gap-4">
+        <div className="flex-1 max-w-xs">
+          <label className="text-[10px] font-bold uppercase tracking-wider text-ds-on-surface-variant">
+            {t("welcomeBonusLabel")}
+          </label>
+          <input
+            type="number"
+            min={0}
+            step="0.01"
+            value={value}
+            onChange={(e) => setValue(e.target.value)}
+            disabled={!loaded}
+            className="mt-1 w-full bg-ds-surface-container-low rounded-lg px-3 py-2 text-sm"
+          />
+        </div>
+        <Button
+          variant="gradient-primary"
+          type="button"
+          onClick={save}
+          disabled={saving || !loaded}
+        >
+          {saving ? t("saving") : t("saveChanges")}
+        </Button>
+      </div>
     </SectionCard>
   );
 }

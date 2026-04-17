@@ -415,6 +415,7 @@
     "typeDeduction": "扣费",
     "typeRefund": "退款",
     "typeAdjustment": "调整",
+    "typeBonus": "赠送",
     "customAmountLabel": "自定义金额（USD）"
   },
   "quickstart": {
@@ -931,7 +932,12 @@
     "tplCatInvalidId": "分类标识必须是小写字母数字及 '-' 组成的 slug。",
     "tplCatDuplicateId": "分类标识重复：{id}",
     "tplCatMissingFields": "每行都需要填写 id、中文、英文和图标。",
-    "tplCatResetDefaults": "重置为默认值"
+    "tplCatResetDefaults": "重置为默认值",
+    "welcomeBonusTitle": "注册赠送",
+    "welcomeBonusDesc": "新用户注册时赠送到余额的金额（USD），设为 0 即关闭赠送。",
+    "welcomeBonusLabel": "赠送金额（USD）",
+    "welcomeBonusSaved": "注册赠送金额已更新",
+    "welcomeBonusInvalid": "金额必须是非负数字。"
   },
   "adminLogs": {
     "title": "全局审计日志",

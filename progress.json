@@ -1,11 +1,11 @@
 {
-  "status": "building",
+  "status": "verifying",
   "user_goal": "ONBOARDING-ENHANCE — 注册赠送（WELCOME-BONUS）+ 模板分类扩展（BL-128a）+ LANDING-LINKS-FIX（landing 私有页链接改 /login?redirect=<path> + login 页 redirect 白名单支持）",
   "total_features": 7,
-  "completed_features": 0,
+  "completed_features": 6,
   "fix_rounds": 0,
   "current_sprint": "ONBOARDING-ENHANCE",
-  "last_updated": "2026-04-17T05:05:00Z",
+  "last_updated": "2026-04-17T13:25:00Z",
   "reference_docs": [
     "docs/specs/WELCOME-BONUS-draft.md",
     "docs/specs/LANDING-LINKS-FIX-spec.md"
@@ -18,9 +18,9 @@
     "framework_reviewed": false
   },
   "evaluator_feedback": null,
-  "generator_handoff": null,
+  "generator_handoff": "所有 6 条 generator 功能已实现。Migrations：(1) 20260417_add_transaction_type_bonus（BONUS enum，IF NOT EXISTS 幂等）；(2) 20260417_welcome_bonus_seed（默认 WELCOME_BONUS_USD=1.00，ON CONFLICT DO NOTHING）；(3) 20260417_template_categories_marketing（4 个营销分类，jsonb 合并幂等）。代码：register/route.ts 事务内注入 BONUS（key 缺失或 ≤ 0 不赠送）、admin/operations 页新增 WelcomeBonusCard（PUT /api/admin/config）、balance 页 TXN_TYPES/TYPE_CHIP/TYPE_I18N 新增 BONUS→success→typeBonus、admin/users/[id] 补 BONUS 绿色 chip、transactions route type filter 加 BONUS、landing.html 4 处改 /login?redirect=、新建 src/lib/safe-redirect.ts + 9 条 vitest 单测全过、login/page.tsx 用 Suspense 包裹 LoginPageInner + useSearchParams 读 redirect + hasLiveToken 自动跳 + authChecked 防首帧闪烁。验证：tsc 通过，npm run build 通过。i18n：balance.typeBonus、adminOps.welcomeBonus* 双语全补。注意：代码里 isSafeRedirect 拒绝了一个 acceptance 未明确但安全的 tab/换行控制字符（\\x00-\\x1f、\\x7f）——判断为增强项，与 spec 'javascript:'/''/'//' 拦截的精神一致。验收建议：Evaluator 侧重 (a) 注册新 dev 账号看 balance +1.00 USD + BONUS 一条绿标交易；(b) admin 改 0 后新注册无赠送；(c) curl /login?redirect=https://evil.com 确认跳 /dashboard；(d) /login?redirect=/docs 登录后跳 /docs；(e) 公共模板库 10 个分类 tab；(f) 已登录 /login?redirect=/docs 不显表单直接跳。",
   "session_notes": {
-    "Kimi": "Planner 追加产出：将 LANDING-LINKS-FIX 合并进既有 ONBOARDING-ENHANCE 批次（5 → 7 条：新增 F-LL-01 landing.html 链接改 redirect、F-LL-02 login 页支持 redirect + 白名单；F-OE-05 验收合并 landing 部分）。顺带处理生产 P0：deploy.yml 漏 cp public/* 到 standalone 导致 /landing.html 404，已手动 cp + pm2 restart 恢复外网，commit d8d8190 防回归下次 deploy。关键决策：Q1 register 不改；Q2 合并而非分批；Q3 默认映射（Kimi=generator, Reviewer=evaluator）；Q4 用户手动部署。Generator 注意：(a) F-LL-02 redirect 白名单是安全核心，必须拒 //、javascript:、非 / 开头、反斜杠/控制字符、>256 字符；(b) useSearchParams 在 Next 14 App Router 可能需要 Suspense 边界；(c) 已登录自动跳转的首帧闪烁要处理 loading 态；(d) register 页不改动（维持注册后 → dashboard）；(e) 4 个 href='#' 占位（landing.html:2315-2318）不动。spec: docs/specs/LANDING-LINKS-FIX-spec.md。",
+    "Kimi": "Generator 完成 6 条：schema+migration（BONUS enum + welcome_bonus seed）、register 事务内赠送、admin/operations welcome bonus 卡片、balance BONUS chip + i18n + admin/users[id] 补 chip + transactions route type filter 扩 BONUS、landing.html 4 链接改 redirect、login 页 Suspense+safe-redirect util+auto-redirect。关键决策：(1) 单独抽 src/lib/safe-redirect.ts + vitest 单测（9 用例：相对路径接受、protocol-relative 拒、javascript:/data: 拒、backslash/控制字符拒、非字符串/空/>256 拒）；(2) hasLiveToken 用 JWT exp 校验而非仅存在性（避免过期 token 循环 replace）；(3) authChecked 门控首次渲染防闪烁；(4) admin 配置走现有 /api/admin/config PUT（零新 API）；(5) template_categories migration 用 jsonb DO $$...$$ 合并幂等保护管理员手工编辑；(6) SystemConfig findUnique 用结构化 TxLike 类型避开 Prisma 扩展类型冲突。遗留：F-OE-05 由 Reviewer 验收；migration 文件需在部署前在目标环境运行（dev/prod 均需）。",
     "Reviewer": null
   }
 }

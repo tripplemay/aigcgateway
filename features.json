@@ -7,7 +7,7 @@
       "title": "Schema：TransactionType 新增 BONUS + migration",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "source": "WELCOME-BONUS",
       "acceptance": "1) TransactionType enum 新增 BONUS（migration）；2) 不影响现有 RECHARGE/DEDUCTION/REFUND 类型；3) tsc 通过"
     },
@@ -16,7 +16,7 @@
       "title": "注册赠送逻辑 + SystemConfig 配置",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "source": "WELCOME-BONUS",
       "acceptance": "1) SystemConfig 新增 WELCOME_BONUS_USD（默认 1.00）；2) register/route.ts 注册事务中：读取 WELCOME_BONUS_USD，> 0 时 insert transaction(type=BONUS, amount=X, description='Welcome bonus') + increment user.balance；3) 金额为 0 或 key 不存在时不赠送；4) 赠送在 defaultProject 创建和 notificationPreference seed 之后（事务内）；5) tsc 通过"
     },
@@ -25,7 +25,7 @@
       "title": "管理端 WELCOME_BONUS_USD 配置 + 前端 BONUS 类型展示",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "source": "WELCOME-BONUS",
       "acceptance": "1) admin/operations SystemConfig 管理区可编辑 WELCOME_BONUS_USD（数字输入框，0=关闭）；2) balance 页面交易列表对 BONUS 类型显示绿色标签 '赠送'/'Welcome Bonus'（使用 StatusChip variant='success'）；3) get_balance transactions 返回中 type=BONUS 正常展示；4) i18n 中英文；5) tsc 通过"
     },
@@ -34,7 +34,7 @@
       "title": "模板分类扩展：seed migration 新增 4 个分类",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "source": "BL-128a",
       "acceptance": "1) seed migration 向 SystemConfig TEMPLATE_CATEGORIES 追加 4 个分类：social-content（社交内容/icon:tag）、short-video（短视频脚本/icon:movie）、ip-persona（IP与人设/icon:person）、marketing-strategy（营销策略/icon:trending_up）；2) 如果 TEMPLATE_CATEGORIES 已存在，merge 新分类到数组末尾（不覆盖已有分类）；3) 如果 key 不存在，创建完整列表（原 6 个 + 新 4 个）；4) 幂等可重复执行；5) tsc 通过"
     },
@@ -43,7 +43,7 @@
       "title": "landing.html 4 处 console 链接改 /login?redirect=<path>",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "source": "LANDING-LINKS-FIX",
       "acceptance": "1) public/landing.html 第 2273/2306/2307/2308 行 4 处链接改为 /login?redirect=<path> 形式（/docs × 2 处、/mcp-setup、/models）；2) 同页锚点（#layer-access 等 6 个）保持不变；3) /login、/register 直链保持不变；4) 4 个 href='#' 占位（2315-2318）不动；5) 页面 HTML 结构/其他样式无改动"
     },
@@ -52,7 +52,7 @@
       "title": "login 页支持 redirect 参数 + 白名单 + 已登录自动跳",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "source": "LANDING-LINKS-FIX",
       "acceptance": "1) src/app/(auth)/login/page.tsx 新增 isSafeRedirect 白名单函数（拒绝 //、非 / 开头、反斜杠/控制字符、>256 字符、非相对路径）；2) 通过 useSearchParams 读 redirect，submit 成功后 router.push(safeRedirect ?? '/dashboard')；3) 页面加载时检测 localStorage.token 未过期则 router.replace(safeRedirect ?? '/dashboard') 自动跳转；4) 如需 Suspense 边界则正确包装；5) 首帧闪烁（loading 态）处理妥当；6) 可选：抽 isSafeRedirect 为独立 util 便于单元测试；7) register 页不改动；8) tsc 通过；9) npm run build 通过"
     },

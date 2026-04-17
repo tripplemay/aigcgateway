@@ -53,12 +53,13 @@ interface TxnResponse {
 }
 
 const PAGE_SIZE = 20;
-const TXN_TYPES = ["", "RECHARGE", "DEDUCTION", "REFUND", "ADJUSTMENT"] as const;
+const TXN_TYPES = ["", "RECHARGE", "DEDUCTION", "REFUND", "ADJUSTMENT", "BONUS"] as const;
 const TYPE_CHIP: Record<string, StatusChipVariant> = {
   RECHARGE: "success",
   DEDUCTION: "info",
   REFUND: "warning",
   ADJUSTMENT: "neutral",
+  BONUS: "success",
 };
 const TYPE_I18N: Record<string, string> = {
   "": "allTypes",
@@ -66,6 +67,7 @@ const TYPE_I18N: Record<string, string> = {
   DEDUCTION: "typeDeduction",
   REFUND: "typeRefund",
   ADJUSTMENT: "typeAdjustment",
+  BONUS: "typeBonus",
 };
 
 // ============================================================

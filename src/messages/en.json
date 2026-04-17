@@ -415,6 +415,7 @@
     "typeDeduction": "Deduction",
     "typeRefund": "Refund",
     "typeAdjustment": "Adjustment",
+    "typeBonus": "Welcome Bonus",
     "customAmountLabel": "Custom Amount (USD)"
   },
   "quickstart": {
@@ -931,7 +932,12 @@
     "tplCatInvalidId": "Category id must be a lowercase slug (a-z, 0-9, '-').",
     "tplCatDuplicateId": "Duplicate category id: {id}",
     "tplCatMissingFields": "All fields (id, label, labelEn, icon) are required for every row.",
-    "tplCatResetDefaults": "Reset to defaults"
+    "tplCatResetDefaults": "Reset to defaults",
+    "welcomeBonusTitle": "Welcome Bonus",
+    "welcomeBonusDesc": "USD credited to a new user's balance on registration. Set to 0 to disable.",
+    "welcomeBonusLabel": "Bonus amount (USD)",
+    "welcomeBonusSaved": "Welcome bonus updated",
+    "welcomeBonusInvalid": "Amount must be a non-negative number."
   },
   "adminLogs": {
     "title": "Global Audit Logs",

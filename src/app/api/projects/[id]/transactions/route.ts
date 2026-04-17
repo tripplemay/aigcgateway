@@ -4,12 +4,8 @@ import { NextResponse } from "next/server";
 import { verifyJwt } from "@/lib/api/jwt-middleware";
 import { errorResponse } from "@/lib/api/errors";
 
-
 /** GET /api/projects/:id/transactions — 交易记录（分页） */
-export async function GET(
-  request: Request,
-  { params }: { params: { id: string } },
-) {
+export async function GET(request: Request, { params }: { params: { id: string } }) {
   const auth = verifyJwt(request);
   if (!auth.ok) return auth.error;
 
@@ -25,7 +21,7 @@ export async function GET(
 
   const where = {
     projectId: params.id,
-    ...(type ? { type: type as "RECHARGE" | "DEDUCTION" | "REFUND" | "ADJUSTMENT" } : {}),
+    ...(type ? { type: type as "RECHARGE" | "DEDUCTION" | "REFUND" | "ADJUSTMENT" | "BONUS" } : {}),
   };
 
   const [data, total] = await Promise.all([

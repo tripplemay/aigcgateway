@@ -53,6 +53,7 @@ const TXN_TYPE_STYLES: Record<string, string> = {
   DEDUCTION: "bg-ds-surface-container-high text-ds-on-surface-variant",
   ADJUSTMENT: "bg-ds-primary-fixed text-ds-primary",
   RECHARGE: "bg-ds-status-success-container text-ds-status-success",
+  BONUS: "bg-ds-status-success-container text-ds-status-success",
 };
 
 // ── Page ──
@@ -358,7 +359,7 @@ export default function UserDetailPage() {
                         <td className="px-4 py-3">
                           <StatusChip
                             variant={
-                              tx.type === "RECHARGE"
+                              tx.type === "RECHARGE" || tx.type === "BONUS"
                                 ? "success"
                                 : tx.type === "ADJUSTMENT"
                                   ? "info"
