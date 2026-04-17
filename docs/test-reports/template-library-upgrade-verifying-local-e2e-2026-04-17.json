@@ -1,0 +1,60 @@
+{
+  "batch": "TEMPLATE-LIBRARY-UPGRADE",
+  "baseUrl": "http://localhost:3099",
+  "generatedAt": "2026-04-16T22:54:29.314Z",
+  "passCount": 8,
+  "failCount": 0,
+  "context": {
+    "adminEmail": "admin@aigc-gateway.local",
+    "userEmail": "tl_mo22ttg9@test.local",
+    "adminProjectId": "cmo22ttlu004u9yi28tvr1lyt",
+    "userProjectId": "cmo22ttlx004w9yi2md5sew8e",
+    "templates": {
+      "tplA": "cmo22ttmf00589yi2rf4pgrit",
+      "tplB": "cmo22ttmk005c9yi2vacgw9h8",
+      "tplC": "cmo22ttmo005h9yi2xsf5q4ny"
+    }
+  },
+  "steps": [
+    {
+      "id": "AC1-systemconfig-categories-crud",
+      "ok": true,
+      "detail": "count=7 hasAppended=true shape=true"
+    },
+    {
+      "id": "AC2-public-template-category-rating-payload",
+      "ok": true,
+      "detail": "api=/api/templates/public found=true category=dev-review categoryIcon=code_review avg=0 count=0"
+    },
+    {
+      "id": "AC3-category-filter",
+      "ok": true,
+      "detail": "matchPath=/api/templates/public mismatchPath=/api/templates/public inMatch=true outMismatch=true"
+    },
+    {
+      "id": "AC4-sort-by-four-modes",
+      "ok": true,
+      "detail": "sortAccepted=true popularSorted=true topRatedSorted=true latestSorted=true"
+    },
+    {
+      "id": "AC5-rate-api-aggregate-update",
+      "ok": true,
+      "detail": "status1=200 avg1=4 count1=1"
+    },
+    {
+      "id": "AC6-rerate-overwrite",
+      "ok": true,
+      "detail": "status2=200 avg1=4 avg2=2 count1=1 count2=1"
+    },
+    {
+      "id": "AC7-mcp-list-public-templates-category-sort",
+      "ok": true,
+      "detail": "mcpPath=/mcp init=200 hasCategoryArg=true hasSortByArg=true found=true"
+    },
+    {
+      "id": "AC8-ui-static-readiness",
+      "ok": true,
+      "detail": "category=true sortModes=true rating=true forkRateFlow=true"
+    }
+  ]
+}
