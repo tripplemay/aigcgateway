@@ -15,7 +15,7 @@
       "title": "测试执行 API：POST /api/templates/[id]/test",
       "priority": "high",
       "executor": "generator",
-      "status": "done",
+      "status": "pending",
       "acceptance": "1) body: {variables, mode: 'dry_run' | 'execute'}；2) dry_run 模式：对每步 run_action(dry_run=true) 返回渲染后 prompt，cost=0；3) execute 模式：真实执行每步，收集 input/output/tokens/cost/latencyMs；4) 写入 TemplateTestRun 表；5) 自动清理：同 user+template 超过 20 条时删最旧的；6) 部分步骤失败时 status=partial，已执行步骤结果保留；7) 鉴权：只能测试自己项目的模板；8) tsc 通过"
     },
     {
@@ -31,7 +31,7 @@
       "title": "MCP 扩展：run_template 增加 test_mode 参数",
       "priority": "medium",
       "executor": "generator",
-      "status": "done",
+      "status": "pending",
       "acceptance": "1) MCP run_template 新增可选参数 test_mode: 'dry_run' | 'execute'；2) test_mode='dry_run' 免费渲染变量不调模型；3) test_mode='execute' 真实执行并写 TemplateTestRun；4) 不传 test_mode 时行为不变（正常执行不记录）；5) tsc 通过"
     },
     {

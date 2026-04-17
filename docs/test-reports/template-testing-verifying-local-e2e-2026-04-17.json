@@ -1,50 +1,50 @@
 {
   "batch": "TEMPLATE-TESTING",
-  "generatedAt": "2026-04-17T01:12:39.136Z",
+  "generatedAt": "2026-04-17T03:24:50.283Z",
   "baseUrl": "http://localhost:3099",
-  "passCount": 5,
-  "failCount": 6,
+  "passCount": 8,
+  "failCount": 3,
   "context": {
     "adminEmail": "admin@aigc-gateway.local",
-    "user1": "tt1_mo27rhn1@test.local",
-    "user2": "tt2_mo27rhn1@test.local",
+    "user1": "tt1_mo2chhb9@test.local",
+    "user2": "tt2_mo2chhb9@test.local",
     "model": "deepseek/deepseek-chat-v3.1",
     "actionModel": "deepseek/v3",
     "projects": {
-      "adminProjectId": "cmo27ri2800139y09dp2od5dg",
-      "u1ProjectId": "cmo27ri2b00159y09h3t4f9ie",
-      "u2ProjectId": "cmo27ri2d00179y098d97vlcj"
+      "adminProjectId": "cmo2chhr000139ymeg8iv04io",
+      "u1ProjectId": "cmo2chhr300159ymeir3zazih",
+      "u2ProjectId": "cmo2chhr600179ymeu072tjid"
     },
     "templates": {
-      "templateOk": "cmo27ri2w001h9y09cydj0uq2",
-      "templatePartial": "cmo27ri33001l9y094lc9pqao"
+      "templateOk": "cmo2chhrq001h9ymebgav5m2j",
+      "templatePartial": "cmo2chhrz001l9ymerrttqmps"
     }
   },
   "steps": [
     {
       "id": "AC1-dry-run-rendered-input-cost-zero",
       "ok": true,
-      "detail": "path=/api/templates/cmo27ri2w001h9y09cydj0uq2/test mode=dry_run status=success steps=1 totalCost=0"
+      "detail": "path=/api/templates/cmo2chhrq001h9ymebgav5m2j/test mode=dry_run status=success steps=1 totalCost=0"
     },
     {
       "id": "AC2-execute-real-step-results",
       "ok": false,
-      "detail": "path=/api/templates/cmo27ri2w001h9y09cydj0uq2/test status=error steps=1 totalTokens=0"
+      "detail": "path=/api/templates/cmo2chhrq001h9ymebgav5m2j/test status=error steps=1 totalTokens=0"
     },
     {
       "id": "AC3-partial-preserve-executed-steps",
       "ok": false,
-      "detail": "path=/api/templates/cmo27ri33001l9y094lc9pqao/test status=error steps=1"
+      "detail": "path=/api/templates/cmo2chhrz001l9ymerrttqmps/test status=error steps=1"
     },
     {
       "id": "AC4-test-runs-retention-20",
       "ok": true,
-      "detail": "path=/api/templates/cmo27ri2w001h9y09cydj0uq2/test-runs count=20"
+      "detail": "path=/api/templates/cmo2chhrq001h9ymebgav5m2j/test-runs count=20"
     },
     {
       "id": "AC5-history-preset-load-readiness",
       "ok": true,
-      "detail": "detailPath=/api/templates/cmo27ri2w001h9y09cydj0uq2/test-runs/cmo27ri5500329y09g1e85al0 detailVariables=true uiMarkers=true"
+      "detail": "detailPath=/api/templates/cmo2chhrq001h9ymebgav5m2j/test-runs/cmo2chhuj00329ymefeepccpm detailVariables=true uiMarkers=true"
     },
     {
       "id": "AC6-test-page-left-right-layout",
@@ -59,22 +59,22 @@
     {
       "id": "AC8-unforked-public-template-cannot-test",
       "ok": true,
-      "detail": "path=/api/templates/cmo27ri6t003a9y096u5mnk79/test status=403"
+      "detail": "path=/api/templates/cmo2chhwf003a9ymee0ckflue/test status=403"
     },
     {
       "id": "AC9-global-library-public-components-only",
-      "ok": false,
-      "detail": "exists=true ds=false noLegacy=false"
+      "ok": true,
+      "detail": "exists=true ds=true noLegacy=true"
     },
     {
       "id": "AC10-test-page-public-components-only",
-      "ok": false,
-      "detail": "exists=true ds=true noLegacy=false"
+      "ok": true,
+      "detail": "exists=true ds=true noLegacy=true"
     },
     {
       "id": "AC11-grep-handwritten-card-button-zero",
-      "ok": false,
-      "detail": "deniedHits=7"
+      "ok": true,
+      "detail": "deniedHits=0"
     }
   ]
 }
