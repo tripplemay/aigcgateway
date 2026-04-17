@@ -176,14 +176,26 @@ export function getAdapterForRoute(route: RouteResult): EngineAdapter {
 }
 
 /**
- * 一步到位：路由（通过别名） + 获取 Adapter
+ * 一步到位：路由 + 获取 Adapter。
+ *
+ * 优先按别名解析；若别名不存在但传入字符串命中一个底层 Model.name，则
+ * 退回到 routeByModelName，避免测试/脚本直接传模型名时触发 404。
  */
 export async function resolveEngine(aliasName: string): Promise<{
   route: RouteResult;
   adapter: EngineAdapter;
   candidates: RouteResult[];
 }> {
-  const { best, candidates } = await routeByAlias(aliasName);
-  const adapter = getAdapterForRoute(best);
-  return { route: best, adapter, candidates };
+  try {
+    const { best, candidates } = await routeByAlias(aliasName);
+    const adapter = getAdapterForRoute(best);
+    return { route: best, adapter, candidates };
+  } catch (err) {
+    if (!(err instanceof EngineError) || err.code !== ErrorCodes.MODEL_NOT_FOUND) {
+      throw err;
+    }
+    const route = await routeByModelName(aliasName);
+    const adapter = getAdapterForRoute(route);
+    return { route, adapter, candidates: [route] };
+  }
 }

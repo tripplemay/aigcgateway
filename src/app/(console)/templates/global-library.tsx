@@ -253,7 +253,7 @@ export function GlobalLibrary() {
     cn(
       "inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-bold font-[var(--font-heading)] transition-all",
       active
-        ? "bg-ds-surface-container-lowest shadow-sm text-ds-primary"
+        ? "bg-ds-surface-container-lowest shadow text-ds-primary"
         : "text-ds-on-surface-variant hover:text-ds-on-surface",
     );
 
@@ -289,7 +289,7 @@ export function GlobalLibrary() {
         </div>
 
         <div
-          className="flex gap-1 bg-ds-surface-container-low rounded-xl p-1 w-fit flex-wrap"
+          className="flex gap-1 bg-ds-surface-container-low rounded-2xl p-1 w-fit flex-wrap"
           role="tablist"
           aria-label={t("categoryTabs")}
         >
@@ -376,7 +376,25 @@ export function GlobalLibrary() {
                   </div>
                   {modeBadge(tpl.executionMode)}
                   {ratingBadge(tpl.averageScore, tpl.ratingCount)}
-                  <div className="ml-auto flex items-center gap-1 text-[11px] font-bold text-ds-primary">
+                  <Button
+                    type="button"
+                    variant="gradient-primary"
+                    size="sm"
+                    className="ml-auto"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setSelectedId(tpl.id);
+                    }}
+                  >
+                    <span
+                      className="material-symbols-outlined text-sm"
+                      style={{ fontVariationSettings: "'FILL' 1" }}
+                    >
+                      fork_right
+                    </span>
+                    {t("forkToProject")}
+                  </Button>
+                  <div className="flex items-center gap-1 text-[11px] font-bold text-ds-primary">
                     <span
                       className="material-symbols-outlined text-sm"
                       style={{ fontVariationSettings: "'FILL' 1" }}
@@ -424,7 +442,7 @@ export function GlobalLibrary() {
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="text-white hover:bg-white/10"
+                  className="text-white hover:bg-ds-on-surface/10"
                   aria-label={t("ctaTitle")}
                 >
                   <span className="material-symbols-outlined">arrow_forward</span>

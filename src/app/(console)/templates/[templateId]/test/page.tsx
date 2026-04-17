@@ -259,10 +259,7 @@ export default function TemplateTestPage() {
           {t("title")}
         </Link>
         <span className="material-symbols-outlined text-xs">chevron_right</span>
-        <Link
-          href={`/templates/${templateId}`}
-          className="hover:text-ds-primary transition-colors"
-        >
+        <Link href={`/templates/${templateId}`} className="hover:text-ds-primary transition-colors">
           {template.name}
         </Link>
         <span className="material-symbols-outlined text-xs">chevron_right</span>
@@ -291,7 +288,7 @@ export default function TemplateTestPage() {
               {template.steps.map((step) => (
                 <div
                   key={step.id}
-                  className="flex items-center gap-3 p-3 bg-ds-surface-container-low rounded-xl"
+                  className="flex items-center gap-3 p-3 bg-ds-surface-container-low rounded-2xl"
                 >
                   <div className="w-8 h-8 rounded-lg bg-ds-primary/10 text-ds-primary flex items-center justify-center text-sm font-bold">
                     {step.order + 1}
@@ -324,9 +321,7 @@ export default function TemplateTestPage() {
             }
           >
             {variableDefs.length === 0 ? (
-              <p className="text-sm text-ds-on-surface-variant italic">
-                {t("testVariablesEmpty")}
-              </p>
+              <p className="text-sm text-ds-on-surface-variant italic">{t("testVariablesEmpty")}</p>
             ) : (
               <div className="space-y-4">
                 {variableDefs.map((def) => {
@@ -459,7 +454,7 @@ function HistoryPresetDropdown({
         <span className="material-symbols-outlined text-sm">expand_more</span>
       </Button>
       {open && history.length > 0 && (
-        <div className="absolute right-0 top-full mt-1 w-72 bg-ds-surface-container-lowest rounded-xl shadow-lg border border-ds-outline-variant/10 z-10 max-h-80 overflow-y-auto">
+        <div className="absolute right-0 top-full mt-1 w-72 bg-ds-surface-container-lowest rounded-2xl shadow-lg border border-ds-outline-variant/10 z-10 max-h-80 overflow-y-auto">
           {history.map((run) => (
             <button
               key={run.id}
@@ -489,8 +484,7 @@ function HistoryPresetDropdown({
 }
 
 function StatusForRun({ status }: { status: string }) {
-  const variant =
-    status === "success" ? "success" : status === "partial" ? "warning" : "error";
+  const variant = status === "success" ? "success" : status === "partial" ? "warning" : "error";
   const icon = status === "success" ? "check" : status === "partial" ? "warning" : "close";
   return (
     <StatusChip variant={variant}>
@@ -590,7 +584,7 @@ function ResultsPanel({
               <div
                 key={step.order}
                 className={cn(
-                  "rounded-xl border overflow-hidden",
+                  "rounded-2xl border overflow-hidden",
                   isError
                     ? "border-red-300 bg-red-50/40"
                     : "border-ds-outline-variant/10 bg-ds-surface-container-low",
@@ -648,9 +642,8 @@ function ResultsPanel({
                         {t("testStepInput")}
                       </p>
                       <pre className="p-3 rounded-lg bg-ds-surface-container-lowest text-[11px] font-mono whitespace-pre-wrap break-words max-h-60 overflow-auto">
-                        {step.input
-                          .map((m) => `[${m.role}]\n${m.content}`)
-                          .join("\n\n---\n\n") || "—"}
+                        {step.input.map((m) => `[${m.role}]\n${m.content}`).join("\n\n---\n\n") ||
+                          "—"}
                       </pre>
                     </div>
                     <div>
@@ -686,10 +679,7 @@ function ResultsPanel({
               label={t("testSummaryCost")}
               value={`$${Number(result.totalCost).toFixed(6)}`}
             />
-            <SummaryCell
-              label={t("testSummaryLatency")}
-              value={`${result.totalLatency}ms`}
-            />
+            <SummaryCell label={t("testSummaryLatency")} value={`${result.totalLatency}ms`} />
           </div>
         </SectionCard>
       )}
@@ -707,7 +697,7 @@ function ResultsPanel({
 
 function SummaryCell({ label, value }: { label: string; value: string }) {
   return (
-    <div className="p-4 bg-ds-surface-container-low rounded-xl">
+    <div className="p-4 bg-ds-surface-container-low rounded-2xl">
       <div className="text-[10px] font-bold uppercase tracking-widest text-ds-on-surface-variant mb-1">
         {label}
       </div>
