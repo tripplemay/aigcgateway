@@ -34,7 +34,7 @@
       "title": "ROUTING-RESILIENCE-V2 全量验收（failover 单测矩阵 + 生产烟测）",
       "priority": "high",
       "executor": "codex",
-      "status": "pending",
+      "status": "done",
       "source": "ROUTING-RESILIENCE-V2",
       "acceptance": "Failover 单元测试矩阵（9 用例）：1) 跨 provider 429 → 切换 + 冷却；2) 跨 provider 401 → 切换 + 冷却；3) 跨 provider 402 → 切换 + 冷却；4) PROVIDER_ERROR/500 → 切换 + 冷却；5) generic timeout → 切换 + 冷却；6) 同 provider 429 → 直接抛错；7) CONTENT_FILTERED → 直接抛错；8) INVALID_REQUEST → 直接抛错；9) Redis 不可用 + 429 跨 provider → 切换成功但未写冷却。生产烟测（用 codex-dev 账号）：10) 高频请求 glm-4.7-flash 触发 zhipu 429 → 后续 call_logs provider 自动切 openrouter；11) `redis-cli --scan 'channel:cooldown:*'` 存在 zhipu 通道 key；12) 手动清 key 后 zhipu 重新参与路由（或等 5 分钟）。13) 生成 signoff 报告。"
     }

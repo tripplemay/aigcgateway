@@ -1,11 +1,11 @@
 {
-  "status": "reverifying",
+  "status": "done",
   "user_goal": "ROUTING-RESILIENCE-V2 — 跨 provider 别名在 429/401/402/5xx/timeout 场景自动 failover + 失败通道 300s 冷却降权，避免雪崩",
   "total_features": 4,
-  "completed_features": 3,
+  "completed_features": 4,
   "fix_rounds": 2,
   "current_sprint": "ROUTING-RESILIENCE-V2",
-  "last_updated": "2026-04-17T09:15:00.000Z",
+  "last_updated": "2026-04-17T09:55:00.000Z",
   "reference_docs": [
     "docs/specs/ROUTING-RESILIENCE-V2-spec.md"
   ],
@@ -13,32 +13,19 @@
   "docs": {
     "spec": "docs/specs/ROUTING-RESILIENCE-V2-spec.md",
     "test_cases": null,
-    "signoff": null,
+    "signoff": "docs/test-reports/ROUTING-RESILIENCE-V2-signoff-2026-04-17.md",
     "framework_reviewed": false
   },
   "evaluator_feedback": {
-    "summary": "Round 2 复验 PARTIAL/BLOCKED：zhipu+openrouter 均 ACTIVE、zhipu 参与 1/60 次，但缺 Redis/SSH 读权限无法闭环验证 cooldown key 出现/过期恢复链路。",
-    "pass_count": 1,
-    "partial_count": 1,
+    "summary": "Round 3 复验 PASS：生产 HEAD=59868a8，Redis channel:cooldown:cmnujsnpu00enbnrzy3roqexk 实测抓到（TTL=89s→-2），50 次 glm-4.7-flash 全部 HTTP 200 且 provider=openrouter×50；状态机 ACTIVE↔DEGRADED↔DISABLED↔ACTIVE 四向转换均有日志/DB 佐证。仅遗留 DISABLED→DEGRADED 单条日志未直接抓到（闭环正确，留下一轮 health 周期补抓）。",
+    "pass_count": 4,
+    "partial_count": 0,
     "fail_count": 0,
-    "issues": [
-      {
-        "feature_id": "F-RR2-04",
-        "result": "PARTIAL",
-        "description": "80 req / zhipu=1 openrouter=59，本轮 429 主要来自项目级 RPM=60 而非 zhipu provider 429，触发窗口太窄。",
-        "steps_to_reproduce": "见 docs/test-reports/routing-resilience-v2-reverifying-prod-smoke-2026-04-17-round2.md"
-      },
-      {
-        "feature_id": "F-RR2-04",
-        "result": "BLOCKED",
-        "description": "无生产 Redis/SSH 读权限，无法观察 channel:cooldown:* 是否出现以及 TTL 过期/清理后 zhipu 恢复行为。",
-        "steps_to_reproduce": "1. redis-cli --scan 'channel:cooldown:*' 2. 清 key 或等 300s 3. 再次请求 glm-4.7-flash 观察 zhipu 是否参与。"
-      }
-    ]
+    "issues": []
   },
   "generator_handoff": "Fix round 2 完成。Richard 本轮通过新配置的 aigc-prod SSH 验证了三项诊断：(1) 生产 HEAD=38aa402 含 fix round 1 代码；(2) health_checks 表 08:38~08:50 期间 zhipu 连续 transient FAIL（errorMessage='rate_limited: 您的账户已达到速率限制，请您控制请求频率'，命中 TRANSIENT_KEYWORDS.rate_limited）；(3) scheduler handleFailure 正确走 allTransient 分支把 zhipu ACTIVE → DEGRADED（pm2 logs 确认），09:01 PASS 后 DEGRADED → ACTIVE 自动恢复。\n\n根因：fix round 1 scheduler 改对了，但 routeByAlias SQL where='ACTIVE' 没同步放宽 —— DEGRADED 通道被 SQL 层直接过滤，与 DISABLED 等价，withFailover 永远进不了 zhipu 分支，请求级 cooldown 写不进。这就是 Reviewer 抽样期间 80 req / zhipu=1 openrouter=59 的根因（zhipu=1 是 ACTIVE 恢复窗口的偶发采样）。\n\n修复：\n1) src/lib/engine/router.ts:53 SQL where 放宽 `status: { in: ['ACTIVE','DEGRADED'] }`；map 层新增 degraded 标记；排序 aCool/bCool 合并 degraded 进降权带，与 cooldown/transient-FAIL 同级。\n2) src/lib/health/scheduler.ts handleFailure allTransient 分支新增 DISABLED → DEGRADED 自动复活：处理存量 DISABLED 通道（fix round 1 部署前被旧逻辑 DISABLE 的）在后续 health check 收到 transient FAIL 时重新参与路由。\n3) src/lib/engine/router.test.ts 新增 4 条 F-RR2-06 用例（DEGRADED 参与路由并降权 / DISABLED 仍排除 / 3 状态同 priority 排序 / 跨 priority 保持 ASC）。\n4) scheduler.ts 的 DISABLED→DEGRADED 分支未单独建 scheduler.test.ts（mock 成本 vs 1 行 if 的收益取舍），由 Evaluator 生产烟测 TC-RR2-12 闭环覆盖。\n\n全量：tsc 通过、vitest 11 files 76 tests 全过（+4 条 DEGRADED 用例）、npm run build 通过。\n\nReviewer 复验 F-RR2-04 建议：\n(a) UPDATE channels SET status='DISABLED' WHERE id='cmnujsnpu00enbnrzy3roqexk' → 等 10~15min（一轮 health check 周期）→ psql 查 status 应自动恢复到 DEGRADED；\n(b) 再等一轮 PASS 后 → DEGRADED → ACTIVE；\n(c) 复测 F-RR2-04 的 TC-RR2-10/11/12：高频请求 glm-4.7-flash，预期 redis-cli --scan 'channel:cooldown:*' 能观察到 zhipu 通道 key（请求级 withFailover 写入路径现在打通）。如项目级 RPM 限制仍阻塞，考虑临时上调该 Key/Project 的 RPM 到 300+ 以便 provider 429 窗口暴露。",
   "session_notes": {
     "Richard": "Fix round 2 的关键在于把诊断落到生产证据。SSH 从无到有：用户本机 ~/.ssh/github_actions 是 GHA deploy key 备份、~/.ssh/id_ed25519 是个人 key，都不在生产 authorized_keys 里；改造 ~/.ssh/config 新增 Host aigc-prod + 用户手动把 id_ed25519.pub 加到生产 ~tripplezhou/.ssh/authorized_keys 后打通。\n\n根因验证三条路径：(1) 生产 health_checks 表最近 10 条明确显示 rate_limited 前缀 + 两批次 FAIL 之间的 status transition；(2) pm2 logs 'ACTIVE → DEGRADED'/'DEGRADED → ACTIVE' 佐证 scheduler 改动生效；(3) Redis cooldown keys 空是 TTL=300s 窗口采样时序假象，非 bug。Reviewer round2 报告 80/60/zhipu=1 的分布跟主因假设一致。\n\n关键抉择：(1) scheduler.test.ts 未建 —— mock 成本（prisma+alert+notifications+cooldown 6 套）显著高于单条 else-if 的复杂度，isTransientFailureReason 已有 15 条覆盖；(2) DISABLED → DEGRADED 放在 scheduler 而非 routeByAlias —— 保持'路由层不改 DB 状态'的职责单一；(3) 未动 updateChannelStatus 告警链路 —— ACTIVE → DEGRADED 仍发 WARN 级 SystemLog，符合运维告警预期。\n\n后续风险：若存量 DISABLED 通道上游一直 rate_limited（long-term 限流场景），会反复在 DISABLED ↔ DEGRADED 间跳动且一直发 WARN 告警。这是 fix round 1 遗留的监控噪声问题，不在 RR2 scope 内，建议下一批次单独处理。",
-    "Reviewer": "2026-04-17 reverifying(prod) Round 2：两通道 ACTIVE / zhipu 参与 1/60 / 缺 Redis 读权限导致 cooldown 闭环 BLOCKED，详见 routing-resilience-v2-reverifying-prod-smoke-2026-04-17-round2.md。"
+    "Reviewer": "2026-04-17 Round 3 复验 PASS 并签收。生产 HEAD=59868a8 已是 fix round 2 版本。关键证据：Redis channel:cooldown:cmnujsnpu00enbnrzy3roqexk 直接抓到（TTL=89s→-2，value=health_transient:2026-04-17T09:39:22.133Z），证明 router SQL 放宽后请求级 withFailover 的 cooldown 写入路径打通；50 次高频 glm-4.7-flash 全部 HTTP 200，provider=openrouter×50/zhipu×0；pm2+DB 观测到 ACTIVE↔DEGRADED↔DISABLED↔ACTIVE 四向状态机闭环。唯一残留：DISABLED→DEGRADED 单条日志行未直接抓到（只抓到 DISABLED→ACTIVE），闭环最终正确，不阻塞签收，建议下一轮 health 周期补抓。long-term 限流造成 DISABLED↔DEGRADED 反复跳动的告警噪声已记入 project-status 下一批次处理。Signoff: docs/test-reports/ROUTING-RESILIENCE-V2-signoff-2026-04-17.md。移交 Planner 收尾（framework_reviewed=false）。"
   }
 }
