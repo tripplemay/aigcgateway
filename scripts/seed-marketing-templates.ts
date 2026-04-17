@@ -302,8 +302,7 @@ const TEMPLATE_SHORT_VIDEO: TemplateDef = {
         {
           name: "video_type",
           required: true,
-          description:
-            "视频类型。可选值：种草 / 教程 / 故事 / 观点 / 测评。决定整体叙事节奏。",
+          description: "视频类型。可选值：种草 / 教程 / 故事 / 观点 / 测评。决定整体叙事节奏。",
           defaultValue: "种草",
         },
         {
@@ -314,7 +313,8 @@ const TEMPLATE_SHORT_VIDEO: TemplateDef = {
         {
           name: "duration_sec",
           required: false,
-          description: "视频时长（秒）。留空默认 30 秒。beat 数量按时长分配（15s=2，30s=3，60s=4-5）。",
+          description:
+            "视频时长（秒）。留空默认 30 秒。beat 数量按时长分配（15s=2，30s=3，60s=4-5）。",
           defaultValue: "30",
         },
         {
@@ -473,14 +473,14 @@ const TEMPLATE_PRIVATE_DOMAIN: TemplateDef = {
         {
           name: "biz_stage",
           required: true,
-          description: "业务阶段。可选值：0-1（从 0 到 1 起步） / 1-10（验证扩规模） / 10-100（成熟扩张）。",
+          description:
+            "业务阶段。可选值：0-1（从 0 到 1 起步） / 1-10（验证扩规模） / 10-100（成熟扩张）。",
           defaultValue: "1-10",
         },
         {
           name: "user_segment",
           required: true,
-          description:
-            "用户分层。可选值：新客 / 老客 / 沉睡 / 高价值。决定触点内容和节奏。",
+          description: "用户分层。可选值：新客 / 老客 / 沉睡 / 高价值。决定触点内容和节奏。",
           defaultValue: "老客",
         },
         {
@@ -586,7 +586,9 @@ async function seedAction(def: ActionDef): Promise<string> {
     data: { activeVersionId: version.id },
   });
 
-  console.log(`  [create] action: ${def.name} (id=${action.id}, model=${def.model}, v1=${version.id})`);
+  console.log(
+    `  [create] action: ${def.name} (id=${action.id}, model=${def.model}, v1=${version.id})`,
+  );
   return action.id;
 }
 
@@ -650,7 +652,14 @@ async function main() {
     where: { key: "TEMPLATE_CATEGORIES" },
   });
   if (categoryCfg) {
-    const cats = (categoryCfg.value as Array<{ id: string }>).map((c) => c.id);
+    let parsed: Array<{ id: string }> = [];
+    try {
+      parsed = JSON.parse(categoryCfg.value) as Array<{ id: string }>;
+    } catch (e) {
+      console.error(`[fatal] TEMPLATE_CATEGORIES value is not valid JSON: ${(e as Error).message}`);
+      process.exit(1);
+    }
+    const cats = parsed.map((c) => c.id);
     const required = ["social-content", "ip-persona", "short-video", "marketing-strategy"];
     const missing = required.filter((r) => !cats.includes(r));
     if (missing.length > 0) {
@@ -675,7 +684,9 @@ async function main() {
   const draftCount = await prisma.template.count({
     where: { projectId: PROJECT_ID, isPublic: false },
   });
-  console.log(`\n[done] System Templates 项目现状：isPublic=true ${publicCount} 条，isPublic=false ${draftCount} 条`);
+  console.log(
+    `\n[done] System Templates 项目现状：isPublic=true ${publicCount} 条，isPublic=false ${draftCount} 条`,
+  );
   console.log(`[next] 冒烟测试通过后批量发布：`);
   console.log(
     `  UPDATE templates SET "isPublic"=true WHERE "projectId"='${PROJECT_ID}' AND name IN (${TEMPLATES.map((t) => `'${t.name}'`).join(",")});`,
