@@ -1,17 +1,18 @@
 {
   "status": "building",
-  "user_goal": "ONBOARDING-ENHANCE — 注册赠送（WELCOME-BONUS：SystemConfig 可配 + BONUS 交易类型）+ 模板分类扩展（BL-128a：新增 4 个营销类分类）",
-  "total_features": 5,
+  "user_goal": "ONBOARDING-ENHANCE — 注册赠送（WELCOME-BONUS）+ 模板分类扩展（BL-128a）+ LANDING-LINKS-FIX（landing 私有页链接改 /login?redirect=<path> + login 页 redirect 白名单支持）",
+  "total_features": 7,
   "completed_features": 0,
   "fix_rounds": 0,
-  "current_sprint": null,
-  "last_updated": "2026-04-17T10:00:00Z",
+  "current_sprint": "ONBOARDING-ENHANCE",
+  "last_updated": "2026-04-17T05:05:00Z",
   "reference_docs": [
-    "docs/specs/WELCOME-BONUS-draft.md"
+    "docs/specs/WELCOME-BONUS-draft.md",
+    "docs/specs/LANDING-LINKS-FIX-spec.md"
   ],
   "role_assignments": null,
   "docs": {
-    "spec": "docs/specs/WELCOME-BONUS-draft.md",
+    "spec": "docs/specs/LANDING-LINKS-FIX-spec.md",
     "test_cases": null,
     "signoff": null,
     "framework_reviewed": false
@@ -19,7 +20,7 @@
   "evaluator_feedback": null,
   "generator_handoff": null,
   "session_notes": {
-    "Kimi": "Planner 启动 ONBOARDING-ENHANCE 批次（4 generator + 1 codex = 5 条）。合并 WELCOME-BONUS（注册赠送 $1 可配 + BONUS 交易类型 + 管理端配置 + 前端展示）+ BL-128a（模板分类扩展 seed migration 新增 4 个营销类分类）。backlog 清理：BL-126/127 已完成删除，BL-128a 合并进本批次。本轮只负责 Planner 工作，不做 Generator。",
+    "Kimi": "Planner 追加产出：将 LANDING-LINKS-FIX 合并进既有 ONBOARDING-ENHANCE 批次（5 → 7 条：新增 F-LL-01 landing.html 链接改 redirect、F-LL-02 login 页支持 redirect + 白名单；F-OE-05 验收合并 landing 部分）。顺带处理生产 P0：deploy.yml 漏 cp public/* 到 standalone 导致 /landing.html 404，已手动 cp + pm2 restart 恢复外网，commit d8d8190 防回归下次 deploy。关键决策：Q1 register 不改；Q2 合并而非分批；Q3 默认映射（Kimi=generator, Reviewer=evaluator）；Q4 用户手动部署。Generator 注意：(a) F-LL-02 redirect 白名单是安全核心，必须拒 //、javascript:、非 / 开头、反斜杠/控制字符、>256 字符；(b) useSearchParams 在 Next 14 App Router 可能需要 Suspense 边界；(c) 已登录自动跳转的首帧闪烁要处理 loading 态；(d) register 页不改动（维持注册后 → dashboard）；(e) 4 个 href='#' 占位（landing.html:2315-2318）不动。spec: docs/specs/LANDING-LINKS-FIX-spec.md。",
     "Reviewer": null
   }
 }
