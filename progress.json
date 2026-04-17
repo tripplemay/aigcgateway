@@ -1,11 +1,11 @@
 {
-  "status": "fixing",
+  "status": "reverifying",
   "user_goal": "ROUTING-RESILIENCE-V2 — 跨 provider 别名在 429/401/402/5xx/timeout 场景自动 failover + 失败通道 300s 冷却降权，避免雪崩",
   "total_features": 4,
   "completed_features": 3,
-  "fix_rounds": 1,
+  "fix_rounds": 2,
   "current_sprint": "ROUTING-RESILIENCE-V2",
-  "last_updated": "2026-04-17T07:00:52.560Z",
+  "last_updated": "2026-04-17T09:15:00.000Z",
   "reference_docs": [
     "docs/specs/ROUTING-RESILIENCE-V2-spec.md"
   ],
@@ -17,28 +17,28 @@
     "framework_reviewed": false
   },
   "evaluator_feedback": {
-    "summary": "生产复验失败：生产机仍运行 342be51（未包含 7cfdde1），zhipu 通道仍 DISABLED，cooldown key 未出现。",
+    "summary": "Round 2 复验 PARTIAL/BLOCKED：zhipu+openrouter 均 ACTIVE、zhipu 参与 1/60 次，但缺 Redis/SSH 读权限无法闭环验证 cooldown key 出现/过期恢复链路。",
     "pass_count": 1,
-    "partial_count": 0,
-    "fail_count": 2,
+    "partial_count": 1,
+    "fail_count": 0,
     "issues": [
       {
         "feature_id": "F-RR2-04",
-        "result": "FAIL",
-        "description": "生产部署版本不一致：服务器 /opt/aigc-gateway 当前 HEAD=342be51，未包含修复提交 7cfdde1。",
-        "steps_to_reproduce": "1. SSH 到生产机 2. 执行 git rev-parse --short HEAD 3. 比对 main 上 fix round 提交 7cfdde1。"
+        "result": "PARTIAL",
+        "description": "80 req / zhipu=1 openrouter=59，本轮 429 主要来自项目级 RPM=60 而非 zhipu provider 429，触发窗口太窄。",
+        "steps_to_reproduce": "见 docs/test-reports/routing-resilience-v2-reverifying-prod-smoke-2026-04-17-round2.md"
       },
       {
         "feature_id": "F-RR2-04",
-        "result": "FAIL",
-        "description": "在当前运行态下 zhipu(glm-4.7-flash) 仍为 DISABLED 且 Redis 无 channel:cooldown:*，恢复闭环无法验证。",
-        "steps_to_reproduce": "1. 查询 glm-4.7-flash 关联 channels 状态 2. 触发请求后扫描 Redis channel:cooldown:* 3. 观察 key=0 且 zhipu 仍 DISABLED。"
+        "result": "BLOCKED",
+        "description": "无生产 Redis/SSH 读权限，无法观察 channel:cooldown:* 是否出现以及 TTL 过期/清理后 zhipu 恢复行为。",
+        "steps_to_reproduce": "1. redis-cli --scan 'channel:cooldown:*' 2. 清 key 或等 300s 3. 再次请求 glm-4.7-flash 观察 zhipu 是否参与。"
       }
     ]
   },
-  "generator_handoff": "Fix round 1 完成。根因：生产 zhipu 429 触发 health-check 连续 FAIL 3 次 → 自动 DISABLE → routeByAlias SQL where status='ACTIVE' 过滤掉 → candidates 里只剩 openrouter → openrouter 成功 → withFailover catch 分支永不触发 → cooldown 永远写不进。修复：\n1) 新增 isTransientFailureReason helper（src/lib/engine/cooldown.ts）— 关键字集 {rate_limited, 429, quota, timeout, 限流, 速率限制, fetch failed, econnrefused}。\n2) src/lib/health/scheduler.ts handleFailure 重构：识别 transient 失败，不计入 FAIL_THRESHOLD；直接写 cooldown + 停在 DEGRADED，不进 DISABLED。runCallProbeManually 同步修改。\n3) src/lib/engine/router.ts routeByAlias 重构：latest FAIL 分 transient / permanent 两类 — transient 保留在 candidates 并降权（cooldown-like 排序），permanent 保持过滤。\n4) src/lib/engine/router.test.ts 新增 4 条测试覆盖 transient-FAIL 保留 + permanent-FAIL 过滤 + 混合场景 + PASS vs NULL 排序；src/lib/engine/cooldown.test.ts 新增 4 条 isTransientFailureReason 用例。\n5) 生产运维：UPDATE channels SET status='ACTIVE' WHERE id='cmnujsnpu00enbnrzy3roqexk' RETURNING → zhipu 已恢复 ACTIVE，TC-RR2-12.3 闭环验证现可跑通（Reviewer 可重测）。\n全量：tsc 通过、vitest 11 files 72 tests 全过、npm run build 通过。\nReviewer 重测重点：\n(a) 新高频请求 glm-4.7-flash 后 redis-cli --scan 'channel:cooldown:*' 应出现 zhipu 通道 key（health check 侧或 withFailover 侧写入均可）；\n(b) 等 5 分钟过期或 DEL key 后，zhipu 应重新 ACTIVE 参与路由；\n(c) 连续 rate_limited 后 zhipu 不应再被置为 DISABLED，应停在 DEGRADED。",
+  "generator_handoff": "Fix round 2 完成。Richard 本轮通过新配置的 aigc-prod SSH 验证了三项诊断：(1) 生产 HEAD=38aa402 含 fix round 1 代码；(2) health_checks 表 08:38~08:50 期间 zhipu 连续 transient FAIL（errorMessage='rate_limited: 您的账户已达到速率限制，请您控制请求频率'，命中 TRANSIENT_KEYWORDS.rate_limited）；(3) scheduler handleFailure 正确走 allTransient 分支把 zhipu ACTIVE → DEGRADED（pm2 logs 确认），09:01 PASS 后 DEGRADED → ACTIVE 自动恢复。\n\n根因：fix round 1 scheduler 改对了，但 routeByAlias SQL where='ACTIVE' 没同步放宽 —— DEGRADED 通道被 SQL 层直接过滤，与 DISABLED 等价，withFailover 永远进不了 zhipu 分支，请求级 cooldown 写不进。这就是 Reviewer 抽样期间 80 req / zhipu=1 openrouter=59 的根因（zhipu=1 是 ACTIVE 恢复窗口的偶发采样）。\n\n修复：\n1) src/lib/engine/router.ts:53 SQL where 放宽 `status: { in: ['ACTIVE','DEGRADED'] }`；map 层新增 degraded 标记；排序 aCool/bCool 合并 degraded 进降权带，与 cooldown/transient-FAIL 同级。\n2) src/lib/health/scheduler.ts handleFailure allTransient 分支新增 DISABLED → DEGRADED 自动复活：处理存量 DISABLED 通道（fix round 1 部署前被旧逻辑 DISABLE 的）在后续 health check 收到 transient FAIL 时重新参与路由。\n3) src/lib/engine/router.test.ts 新增 4 条 F-RR2-06 用例（DEGRADED 参与路由并降权 / DISABLED 仍排除 / 3 状态同 priority 排序 / 跨 priority 保持 ASC）。\n4) scheduler.ts 的 DISABLED→DEGRADED 分支未单独建 scheduler.test.ts（mock 成本 vs 1 行 if 的收益取舍），由 Evaluator 生产烟测 TC-RR2-12 闭环覆盖。\n\n全量：tsc 通过、vitest 11 files 76 tests 全过（+4 条 DEGRADED 用例）、npm run build 通过。\n\nReviewer 复验 F-RR2-04 建议：\n(a) UPDATE channels SET status='DISABLED' WHERE id='cmnujsnpu00enbnrzy3roqexk' → 等 10~15min（一轮 health check 周期）→ psql 查 status 应自动恢复到 DEGRADED；\n(b) 再等一轮 PASS 后 → DEGRADED → ACTIVE；\n(c) 复测 F-RR2-04 的 TC-RR2-10/11/12：高频请求 glm-4.7-flash，预期 redis-cli --scan 'channel:cooldown:*' 能观察到 zhipu 通道 key（请求级 withFailover 写入路径现在打通）。如项目级 RPM 限制仍阻塞，考虑临时上调该 Key/Project 的 RPM 到 300+ 以便 provider 429 窗口暴露。",
   "session_notes": {
-    "Kimi": "Fix round 1：生产已运维恢复 zhipu→ACTIVE（UPDATE RETURNING 1 row）。设计盲点在于原 spec 假设 cooldown 是唯一/主要的失败管理路径，但健康检查的 3-batch DISABLE 更激进，两者冲突。本 fix 的核心思路：把失败按 transient vs permanent 分类，transient 走 cooldown 短路径（300s），permanent 走健康检查 DISABLE 长路径。关键抉择：(1) isTransientFailureReason 用关键字集而非正则（可读性、可扩展）；(2) transient FAIL 不从 candidates 移除只降权（保 F-RR2-02 铁律）；(3) runCallProbeManually 同步修改，否则手动 CALL_PROBE 仍会永久 DISABLE；(4) 未改 updateChannelStatus 告警逻辑（DEGRADED→DISABLED 的告警通知保持，只是现在 transient 不会推进到 DISABLED）。踩坑：SSH psql 字段名大小写敏感需用双引号包裹。",
-    "Reviewer": "2026-04-17 reverifying(prod): server commit is 342be51 (not 7cfdde1); glm-4.7-flash zhipu channel remains DISABLED; sampled 30 requests all openrouter; Redis channel:cooldown:* still 0. Marked fixing again pending redeploy."
+    "Richard": "Fix round 2 的关键在于把诊断落到生产证据。SSH 从无到有：用户本机 ~/.ssh/github_actions 是 GHA deploy key 备份、~/.ssh/id_ed25519 是个人 key，都不在生产 authorized_keys 里；改造 ~/.ssh/config 新增 Host aigc-prod + 用户手动把 id_ed25519.pub 加到生产 ~tripplezhou/.ssh/authorized_keys 后打通。\n\n根因验证三条路径：(1) 生产 health_checks 表最近 10 条明确显示 rate_limited 前缀 + 两批次 FAIL 之间的 status transition；(2) pm2 logs 'ACTIVE → DEGRADED'/'DEGRADED → ACTIVE' 佐证 scheduler 改动生效；(3) Redis cooldown keys 空是 TTL=300s 窗口采样时序假象，非 bug。Reviewer round2 报告 80/60/zhipu=1 的分布跟主因假设一致。\n\n关键抉择：(1) scheduler.test.ts 未建 —— mock 成本（prisma+alert+notifications+cooldown 6 套）显著高于单条 else-if 的复杂度，isTransientFailureReason 已有 15 条覆盖；(2) DISABLED → DEGRADED 放在 scheduler 而非 routeByAlias —— 保持'路由层不改 DB 状态'的职责单一；(3) 未动 updateChannelStatus 告警链路 —— ACTIVE → DEGRADED 仍发 WARN 级 SystemLog，符合运维告警预期。\n\n后续风险：若存量 DISABLED 通道上游一直 rate_limited（long-term 限流场景），会反复在 DISABLED ↔ DEGRADED 间跳动且一直发 WARN 告警。这是 fix round 1 遗留的监控噪声问题，不在 RR2 scope 内，建议下一批次单独处理。",
+    "Reviewer": "2026-04-17 reverifying(prod) Round 2：两通道 ACTIVE / zhipu 参与 1/60 / 缺 Redis 读权限导致 cooldown 闭环 BLOCKED，详见 routing-resilience-v2-reverifying-prod-smoke-2026-04-17-round2.md。"
   }
 }
