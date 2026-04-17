@@ -1,68 +1,42 @@
 {
-  "batch": "ONBOARDING-ENHANCE",
+  "batch": "ROUTING-RESILIENCE-V2",
   "created_at": "2026-04-17",
   "features": [
     {
-      "id": "F-OE-01",
-      "title": "Schema：TransactionType 新增 BONUS + migration",
+      "id": "F-RR2-01",
+      "title": "Provider-aware failover：429/401/402 跨 provider 放行",
       "priority": "high",
       "executor": "generator",
-      "status": "done",
-      "source": "WELCOME-BONUS",
-      "acceptance": "1) TransactionType enum 新增 BONUS（migration）；2) 不影响现有 RECHARGE/DEDUCTION/REFUND 类型；3) tsc 通过"
+      "status": "pending",
+      "source": "ROUTING-RESILIENCE-V2",
+      "acceptance": "1) `src/lib/engine/failover.ts` 重构 isRetryable(err, currentRoute, nextRoute)：新增 NEVER_RETRY 集合（CONTENT_FILTERED + INVALID_REQUEST + INVALID_SIZE，永不重试）+ CROSS_PROVIDER_ONLY 集合（AUTH_FAILED + RATE_LIMITED + INSUFFICIENT_BALANCE，仅下一候选 provider.id 不同时重试）；2) withFailover 循环每轮调用 isRetryable 传入 candidates[i] 和 candidates[i+1] ?? null；3) 同 provider 429 不重试（即使有下一候选，若同 provider 也不切）；4) 跨 provider 429/401/402 自动切换；5) CONTENT_FILTERED/INVALID_REQUEST 任何情况不重试；6) tsc 通过"
     },
     {
-      "id": "F-OE-02",
-      "title": "注册赠送逻辑 + SystemConfig 配置",
+      "id": "F-RR2-02",
+      "title": "Redis 失败通道冷却池（300s） + routeByAlias 降权",
       "priority": "high",
       "executor": "generator",
-      "status": "done",
-      "source": "WELCOME-BONUS",
-      "acceptance": "1) SystemConfig 新增 WELCOME_BONUS_USD（默认 1.00）；2) register/route.ts 注册事务中：读取 WELCOME_BONUS_USD，> 0 时 insert transaction(type=BONUS, amount=X, description='Welcome bonus') + increment user.balance；3) 金额为 0 或 key 不存在时不赠送；4) 赠送在 defaultProject 创建和 notificationPreference seed 之后（事务内）；5) tsc 通过"
+      "status": "pending",
+      "source": "ROUTING-RESILIENCE-V2",
+      "acceptance": "1) 新建 `src/lib/engine/cooldown.ts`：markChannelCooldown(channelId, reason) 写 `channel:cooldown:<id>` TTL=300s + getCooldownChannelIds(channelIds[]) 批查；2) Redis 不可用时 markChannelCooldown 仅 console.warn 不抛，getCooldownChannelIds 返回空 Set；3) withFailover 内置 onRetry 默认写冷却（不依赖调用方显式传入），保证三处调用全覆盖；4) routeByAlias 修改排序：同 priority 内，非冷却优先于冷却中，再按 health PASS/NULL 排序；5) 冷却中的 channel 不从候选移除（只降权）；6) 单测覆盖 cooldown 读写 + Redis 不可用降级；7) tsc 通过"
     },
     {
-      "id": "F-OE-03",
-      "title": "管理端 WELCOME_BONUS_USD 配置 + 前端 BONUS 类型展示",
+      "id": "F-RR2-03",
+      "title": "Adapter HTTP 200 + body.error 映射审计 + 修复",
       "priority": "medium",
       "executor": "generator",
-      "status": "done",
-      "source": "WELCOME-BONUS",
-      "acceptance": "1) admin/operations SystemConfig 管理区可编辑 WELCOME_BONUS_USD（数字输入框，0=关闭）；2) balance 页面交易列表对 BONUS 类型显示绿色标签 '赠送'/'Welcome Bonus'（使用 StatusChip variant='success'）；3) get_balance transactions 返回中 type=BONUS 正常展示；4) i18n 中英文；5) tsc 通过"
+      "status": "pending",
+      "source": "ROUTING-RESILIENCE-V2",
+      "acceptance": "1) 审计 `src/lib/engine/openai-compat.ts`、`adapters/volcengine.ts`、`adapters/siliconflow.ts` 非流响应处理分支：HTTP 200 但 body 含 error 字段时，是否抛 EngineError + 正确 code；2) 缺失则补（复用 mapProviderError 或等效逻辑），code 应对应 upstream 语义（429/401/400/其他 → PROVIDER_ERROR）；3) 为每个被修的 adapter 补单测：mock upstream 返回 200 + {error:{message,code}}，断言抛出 EngineError 且 code 正确；4) tsc 通过"
     },
     {
-      "id": "F-OE-04",
-      "title": "模板分类扩展：seed migration 新增 4 个分类",
-      "priority": "medium",
-      "executor": "generator",
-      "status": "done",
-      "source": "BL-128a",
-      "acceptance": "1) seed migration 向 SystemConfig TEMPLATE_CATEGORIES 追加 4 个分类：social-content（社交内容/icon:tag）、short-video（短视频脚本/icon:movie）、ip-persona（IP与人设/icon:person）、marketing-strategy（营销策略/icon:trending_up）；2) 如果 TEMPLATE_CATEGORIES 已存在，merge 新分类到数组末尾（不覆盖已有分类）；3) 如果 key 不存在，创建完整列表（原 6 个 + 新 4 个）；4) 幂等可重复执行；5) tsc 通过"
-    },
-    {
-      "id": "F-LL-01",
-      "title": "landing.html 4 处 console 链接改 /login?redirect=<path>",
-      "priority": "high",
-      "executor": "generator",
-      "status": "done",
-      "source": "LANDING-LINKS-FIX",
-      "acceptance": "1) public/landing.html 第 2273/2306/2307/2308 行 4 处链接改为 /login?redirect=<path> 形式（/docs × 2 处、/mcp-setup、/models）；2) 同页锚点（#layer-access 等 6 个）保持不变；3) /login、/register 直链保持不变；4) 4 个 href='#' 占位（2315-2318）不动；5) 页面 HTML 结构/其他样式无改动"
-    },
-    {
-      "id": "F-LL-02",
-      "title": "login 页支持 redirect 参数 + 白名单 + 已登录自动跳",
-      "priority": "high",
-      "executor": "generator",
-      "status": "done",
-      "source": "LANDING-LINKS-FIX",
-      "acceptance": "1) src/app/(auth)/login/page.tsx 新增 isSafeRedirect 白名单函数（拒绝 //、非 / 开头、反斜杠/控制字符、>256 字符、非相对路径）；2) 通过 useSearchParams 读 redirect，submit 成功后 router.push(safeRedirect ?? '/dashboard')；3) 页面加载时检测 localStorage.token 未过期则 router.replace(safeRedirect ?? '/dashboard') 自动跳转；4) 如需 Suspense 边界则正确包装；5) 首帧闪烁（loading 态）处理妥当；6) 可选：抽 isSafeRedirect 为独立 util 便于单元测试；7) register 页不改动；8) tsc 通过；9) npm run build 通过"
-    },
-    {
-      "id": "F-OE-05",
-      "title": "ONBOARDING-ENHANCE 全量验收（含 landing-links）",
+      "id": "F-RR2-04",
+      "title": "ROUTING-RESILIENCE-V2 全量验收（failover 单测矩阵 + 生产烟测）",
       "priority": "high",
       "executor": "codex",
-      "status": "done",
-      "acceptance": "Welcome Bonus 部分：1) 注册新用户后余额 = WELCOME_BONUS_USD 值；2) 交易列表含 type=BONUS 一条（绿色标签）；3) 管理端改金额为 0 后新注册无赠送。模板分类：4) SystemConfig TEMPLATE_CATEGORIES 包含 10 个分类（原 6 + 新 4）；5) 公共模板库分类 Tab 展示新增 4 个分类（icon 正确渲染）。Landing Links：6) 未登录访问 https://aigc.guangai.ai/landing.html 点击 '文档'/'MCP 接入'/'模型清单'/CTA '查看文档' → URL 正确变为 /login?redirect=<path>；7) 输入有效账号登录后跳转到该路径（非 /dashboard）；8) 恶意 redirect 全部被拒跳默认 dashboard：?redirect=https://evil.com、?redirect=//evil.com、?redirect=javascript:alert(1)、?redirect=\\admin；9) 已登录访问 /login?redirect=/docs 直接跳 /docs 不显示表单；10) 同页锚点仍正常；11) register 页行为保持（注册成功跳 dashboard）。12) 生成 signoff 报告"
+      "status": "pending",
+      "source": "ROUTING-RESILIENCE-V2",
+      "acceptance": "Failover 单元测试矩阵（9 用例）：1) 跨 provider 429 → 切换 + 冷却；2) 跨 provider 401 → 切换 + 冷却；3) 跨 provider 402 → 切换 + 冷却；4) PROVIDER_ERROR/500 → 切换 + 冷却；5) generic timeout → 切换 + 冷却；6) 同 provider 429 → 直接抛错；7) CONTENT_FILTERED → 直接抛错；8) INVALID_REQUEST → 直接抛错；9) Redis 不可用 + 429 跨 provider → 切换成功但未写冷却。生产烟测（用 codex-dev 账号）：10) 高频请求 glm-4.7-flash 触发 zhipu 429 → 后续 call_logs provider 自动切 openrouter；11) `redis-cli --scan 'channel:cooldown:*'` 存在 zhipu 通道 key；12) 手动清 key 后 zhipu 重新参与路由（或等 5 分钟）。13) 生成 signoff 报告。"
     }
   ]
 }

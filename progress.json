@@ -1,32 +1,25 @@
 {
-  "status": "done",
-  "user_goal": "ONBOARDING-ENHANCE — 注册赠送（WELCOME-BONUS）+ 模板分类扩展（BL-128a）+ LANDING-LINKS-FIX（landing 私有页链接改 /login?redirect=<path> + login 页 redirect 白名单支持）",
-  "total_features": 7,
-  "completed_features": 7,
+  "status": "building",
+  "user_goal": "ROUTING-RESILIENCE-V2 — 跨 provider 别名在 429/401/402/5xx/timeout 场景自动 failover + 失败通道 300s 冷却降权，避免雪崩",
+  "total_features": 4,
+  "completed_features": 0,
   "fix_rounds": 0,
-  "current_sprint": "ONBOARDING-ENHANCE",
-  "last_updated": "2026-04-17T05:36:00Z",
+  "current_sprint": "ROUTING-RESILIENCE-V2",
+  "last_updated": "2026-04-17T14:10:00Z",
   "reference_docs": [
-    "docs/specs/WELCOME-BONUS-draft.md",
-    "docs/specs/LANDING-LINKS-FIX-spec.md"
+    "docs/specs/ROUTING-RESILIENCE-V2-spec.md"
   ],
   "role_assignments": null,
   "docs": {
-    "spec": "docs/specs/LANDING-LINKS-FIX-spec.md",
-    "test_cases": "docs/test-cases/onboarding-enhance-verifying-cases-2026-04-17.md",
-    "signoff": "docs/test-reports/ONBOARDING-ENHANCE-signoff-2026-04-17.md",
+    "spec": "docs/specs/ROUTING-RESILIENCE-V2-spec.md",
+    "test_cases": null,
+    "signoff": null,
     "framework_reviewed": false
   },
-  "evaluator_feedback": {
-    "summary": "ONBOARDING-ENHANCE 本地 L1 验收通过，全部检查项 PASS。",
-    "pass_count": 10,
-    "partial_count": 0,
-    "fail_count": 0,
-    "issues": []
-  },
-  "generator_handoff": "所有 6 条 generator 功能已实现。Migrations：(1) 20260417_add_transaction_type_bonus（BONUS enum，IF NOT EXISTS 幂等）；(2) 20260417_welcome_bonus_seed（默认 WELCOME_BONUS_USD=1.00，ON CONFLICT DO NOTHING）；(3) 20260417_template_categories_marketing（4 个营销分类，jsonb 合并幂等）。代码：register/route.ts 事务内注入 BONUS（key 缺失或 ≤ 0 不赠送）、admin/operations 页新增 WelcomeBonusCard（PUT /api/admin/config）、balance 页 TXN_TYPES/TYPE_CHIP/TYPE_I18N 新增 BONUS→success→typeBonus、admin/users/[id] 补 BONUS 绿色 chip、transactions route type filter 加 BONUS、landing.html 4 处改 /login?redirect=、新建 src/lib/safe-redirect.ts + 9 条 vitest 单测全过、login/page.tsx 用 Suspense 包裹 LoginPageInner + useSearchParams 读 redirect + hasLiveToken 自动跳 + authChecked 防首帧闪烁。验证：tsc 通过，npm run build 通过。i18n：balance.typeBonus、adminOps.welcomeBonus* 双语全补。注意：代码里 isSafeRedirect 拒绝了一个 acceptance 未明确但安全的 tab/换行控制字符（\\x00-\\x1f、\\x7f）——判断为增强项，与 spec 'javascript:'/''/'//' 拦截的精神一致。验收建议：Evaluator 侧重 (a) 注册新 dev 账号看 balance +1.00 USD + BONUS 一条绿标交易；(b) admin 改 0 后新注册无赠送；(c) curl /login?redirect=https://evil.com 确认跳 /dashboard；(d) /login?redirect=/docs 登录后跳 /docs；(e) 公共模板库 10 个分类 tab；(f) 已登录 /login?redirect=/docs 不显表单直接跳。",
+  "evaluator_feedback": null,
+  "generator_handoff": null,
   "session_notes": {
-    "Kimi": "Generator 完成 6 条：schema+migration（BONUS enum + welcome_bonus seed）、register 事务内赠送、admin/operations welcome bonus 卡片、balance BONUS chip + i18n + admin/users[id] 补 chip + transactions route type filter 扩 BONUS、landing.html 4 链接改 redirect、login 页 Suspense+safe-redirect util+auto-redirect。关键决策：(1) 单独抽 src/lib/safe-redirect.ts + vitest 单测（9 用例：相对路径接受、protocol-relative 拒、javascript:/data: 拒、backslash/控制字符拒、非字符串/空/>256 拒）；(2) hasLiveToken 用 JWT exp 校验而非仅存在性（避免过期 token 循环 replace）；(3) authChecked 门控首次渲染防闪烁；(4) admin 配置走现有 /api/admin/config PUT（零新 API）；(5) template_categories migration 用 jsonb DO $$...$$ 合并幂等保护管理员手工编辑；(6) SystemConfig findUnique 用结构化 TxLike 类型避开 Prisma 扩展类型冲突。遗留：F-OE-05 由 Reviewer 验收；migration 文件需在部署前在目标环境运行（dev/prod 均需）。",
-    "Reviewer": "按用户要求仅执行本地验收（未做生产验证）。新增并执行 ONBOARDING 验收脚本，结果 10/10 PASS；已生成 signoff 并将状态置 done。"
+    "Kimi": "Planner 完成 ROUTING-RESILIENCE-V2 批次初始化。源起：2026-04-17 生产故障 glm-4.7-flash zhipu 429 未切 openrouter。根因 failover.ts:22 将 429/401/402 列入 NON_RETRYABLE。本批次 4 条：F-RR2-01 provider-aware failover（NEVER_RETRY + CROSS_PROVIDER_ONLY 双集合）、F-RR2-02 Redis 冷却池 300s + routeByAlias 降权（不移除保证铁律）、F-RR2-03 adapter 200+error 映射审计（openai-compat/volcengine/siliconflow 三家）、F-RR2-04 codex 9 单测矩阵 + 生产烟测。混合批次（3 generator + 1 codex），状态 planning→building。Generator 可直接开始 F-RR2-01。",
+    "Reviewer": null
   }
 }
