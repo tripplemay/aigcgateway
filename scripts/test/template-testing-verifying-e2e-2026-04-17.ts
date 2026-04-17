@@ -184,8 +184,6 @@ async function registerAndLoginUser(tag: string, prefix: string): Promise<{ emai
   const token = await login(email, password);
   if (!token) throw new Error(`login failed for ${email}`);
 
-  await prisma.user.update({ where: { email }, data: { balance: 100 } }).catch(() => {});
-
   return { email, token };
 }
 
@@ -451,9 +449,31 @@ function parseMcpToolJson(result: any) {
 }
 
 async function configureLocalProvider() {
-  const model =
-    (await prisma.model.findFirst({ where: { name: "openai/gpt-4o-mini" } })) ??
-    (await prisma.model.findFirst({ orderBy: { createdAt: "asc" } }));
+  // Prefer an enabled text alias linked to a model that has channels.
+  const aliasWithLink = await prisma.modelAlias.findFirst({
+    where: {
+      enabled: true,
+      modality: "TEXT",
+      models: { some: {} },
+    },
+    include: {
+      models: {
+        include: { model: true },
+        orderBy: { id: "asc" },
+      },
+    },
+    orderBy: { createdAt: "asc" },
+  });
+
+  let model = aliasWithLink?.models[0]?.model ?? null;
+  let aliasName = aliasWithLink?.alias ?? null;
+
+  if (!model) {
+    model =
+      (await prisma.model.findFirst({ where: { name: "openai/gpt-4o-mini" } })) ??
+      (await prisma.model.findFirst({ orderBy: { createdAt: "asc" } }));
+    aliasName = null;
+  }
   if (!model) throw new Error("no model available in DB for provider fixture");
 
   const channels = await prisma.channel.findMany({
@@ -476,11 +496,13 @@ async function configureLocalProvider() {
     chosenChannelStatus: chosen.status,
     siblings: siblings.map((s) => ({ id: s.id, status: s.status })),
     modelName: model.name,
+    actionModel: aliasName ?? model.name,
   };
 
   return {
     restore,
     modelName: model.name,
+    actionModel: restore.actionModel,
     async apply() {
       if (!model.enabled) {
         await prisma.model.update({ where: { id: model.id }, data: { enabled: true } });
@@ -535,10 +557,16 @@ async function run() {
     const u1ProjectId = await createProject(u1.token, `TT User1 ${tag}`);
     const u2ProjectId = await createProject(u2.token, `TT User2 ${tag}`);
 
+    const u1Project = await prisma.project.findUnique({ where: { id: u1ProjectId }, select: { userId: true } });
+    const u2Project = await prisma.project.findUnique({ where: { id: u2ProjectId }, select: { userId: true } });
+    if (u1Project?.userId) await prisma.user.update({ where: { id: u1Project.userId }, data: { balance: 100 } });
+    if (u2Project?.userId) await prisma.user.update({ where: { id: u2Project.userId }, data: { balance: 100 } });
+
     context.adminEmail = admin.email;
     context.user1 = u1.email;
     context.user2 = u2.email;
     context.model = fixture.modelName;
+    context.actionModel = fixture.actionModel;
     context.projects = { adminProjectId, u1ProjectId, u2ProjectId };
 
     const model = String(fixture.modelName);
@@ -590,7 +618,10 @@ async function run() {
       target_language: "Chinese",
     });
     const exeOutput = stringify(exe.result.steps);
-    const exeOk = exe.result.steps.length >= 1 && /output|MOCK_OUT|usage|tokens/i.test(exeOutput);
+    const exeOk =
+      (exe.result.status === "success" || exe.result.status === "partial") &&
+      exe.result.steps.length >= 1 &&
+      /output|MOCK_OUT|usage|tokens/i.test(exeOutput);
     push(
       "AC2-execute-real-step-results",
       exeOk,
@@ -654,6 +685,9 @@ async function run() {
     push("AC6-test-page-left-right-layout", layoutOk, `fileExists=${existsSync(testPagePath)} markers=${layoutOk}`);
 
     // AC7 MCP test_mode
+    if (u1Project?.userId) {
+      await prisma.user.update({ where: { id: u1Project.userId }, data: { balance: 100 } });
+    }
     const key = await createApiKey(u1.token, u1ProjectId, `tt-mcp-${tag}`);
     const init = await rawMcpWithFallback(key, "initialize", {
       protocolVersion: "2025-03-26",
