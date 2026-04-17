@@ -1,11 +1,11 @@
 {
-  "status": "verifying",
+  "status": "fixing",
   "user_goal": "ROUTING-RESILIENCE-V2 — 跨 provider 别名在 429/401/402/5xx/timeout 场景自动 failover + 失败通道 300s 冷却降权，避免雪崩",
   "total_features": 4,
   "completed_features": 3,
   "fix_rounds": 0,
   "current_sprint": "ROUTING-RESILIENCE-V2",
-  "last_updated": "2026-04-17T13:55:00Z",
+  "last_updated": "2026-04-17T06:22:29.089Z",
   "reference_docs": [
     "docs/specs/ROUTING-RESILIENCE-V2-spec.md"
   ],
@@ -16,10 +16,29 @@
     "signoff": null,
     "framework_reviewed": false
   },
-  "evaluator_feedback": null,
+  "evaluator_feedback": {
+    "summary": "生产烟测未通过：已观测 openrouter 接管，但未观测到 cooldown key，且 zhipu 通道处于 DISABLED 导致恢复验证阻塞。",
+    "pass_count": 1,
+    "partial_count": 0,
+    "fail_count": 2,
+    "issues": [
+      {
+        "feature_id": "F-RR2-04",
+        "result": "FAIL",
+        "description": "未观测到 Redis channel:cooldown:* 键，无法证明失败通道 300s 冷却写入在生产生效。",
+        "steps_to_reproduce": "1. 生产高频请求 glm-4.7-flash 2. 读取 call_logs 与 health_checks 3. 扫描 Redis channel:cooldown:*，结果为 0。"
+      },
+      {
+        "feature_id": "F-RR2-04",
+        "result": "FAIL",
+        "description": "zhipu glm-4.7-flash 通道已被置为 DISABLED，导致“清 key/过期后恢复参与路由”验收项无法完成。",
+        "steps_to_reproduce": "1. 查询 glm-4.7-flash 别名候选通道 2. zhipu channel=DISABLED 3. Redis 无对应 cooldown key，无法执行恢复闭环验证。"
+      }
+    ]
+  },
   "generator_handoff": "3 条 generator 已完成。F-RR2-01: failover.ts 重构 isRetryable(err, current, next) + NEVER_RETRY{CONTENT_FILTERED,INVALID_REQUEST,INVALID_SIZE} + CROSS_PROVIDER_ONLY{AUTH_FAILED,INSUFFICIENT_BALANCE,RATE_LIMITED}；同 provider 429 不切，跨 provider 切。F-RR2-02: 新建 src/lib/engine/cooldown.ts（markChannelCooldown + getCooldownChannelIds，Redis 不可用 warn 不抛）；withFailover 内置 void markChannelCooldown(route.channel.id, cooldownReason(err))，不依赖调用方传 onRetry；router.ts routeByAlias 排序改为 priority ASC → 非冷却优先 → health PASS 优先，**不移除冷却中候选**（保铁律）；7 条 cooldown 单测全过（mock @/lib/redis，覆盖 set+mget+unavailable+error+empty）。F-RR2-03: openai-compat.ts 新增 mapBodyError 纯函数（map rate/auth/balance/invalid/timeout 关键字 → 语义 ErrorCodes）+ OpenAICompatEngine.throwIfBodyError protected 方法；call sites 补全：chatCompletions、imageGenerations、imageViaChat、volcengine.imageViaChat/imageFallback、siliconflow.imageGenerations 六处；11 条单测全过（7 语义 matcher + 4 adapter 集成）。全量：tsc 通过、vitest 10 files 64 tests 全过、npm run build 通过。验证建议：Evaluator 侧重（a）mock 上游 429 确认跨 provider 切到 openrouter + channel:cooldown:<id> 300s key 写入；（b）mock 同 provider 多 channel 429 → 直接抛不切；（c）生产烟测用 codex-dev 账号高频触发 zhipu 429 看 call_logs provider 切换 + redis-cli --scan channel:cooldown:*。",
   "session_notes": {
     "Kimi": "Generator 完成 3 条。关键决策：(1) failover 内置默认 cooldown 写入（不依赖调用方），否则 chat-stream/chat-ns/images 三处全需手传 onRetry，容易漏；(2) cooldown 写入 void fire-and-forget，不阻塞 retry；(3) routeByAlias 冷却中不移除只降权，避免全冷却时 alias 整挂；(4) mapBodyError 用关键字正则而非严格状态码匹配，兼容各 provider 非标准 error.code（zhipu/volcengine 差异大）；(5) throwIfBodyError 做 instance method 方便子类 this. 访问，mapBodyError 做 exported 纯函数方便单测。踩坑：failover.ts 本会话启动时工作树已有一版 F-RR2-01 代码（未提交），重新 Read 后又是原始版本（可能被 linter/hook 还原）——最终以我此次写入为准。",
-    "Reviewer": null
+    "Reviewer": "2026-04-17 production smoke: 58 requests all success routed to openrouter; zhipu channel for glm-4.7-flash is DISABLED after rate_limited health checks; redis channel:cooldown:* observed 0 keys, so F-RR2-04 remains pending and status moved to fixing."
   }
 }

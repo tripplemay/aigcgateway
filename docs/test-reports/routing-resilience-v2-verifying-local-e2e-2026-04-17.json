@@ -1,0 +1,63 @@
+{
+  "batch": "ROUTING-RESILIENCE-V2",
+  "generatedAt": "2026-04-17T06:03:06.857Z",
+  "passCount": 10,
+  "failCount": 0,
+  "context": {
+    "redisUrl": "redis://localhost:6379/0",
+    "redisReady": true,
+    "appRedisConfigured": false
+  },
+  "steps": [
+    {
+      "id": "AC0-unit-tests-cooldown-and-adapter-body-error",
+      "ok": true,
+      "detail": "exit=0 stdout_tail=/yixingzhou/project/aigcgateway\n\n\n Test Files  2 passed (2)\n      Tests  18 passed (18)\n   Start at  14:02:58\n   Duration  184ms (transform 67ms, setup 0ms, import 88ms, tests 32ms, environment 0ms)\n\n stderr_tail="
+    },
+    {
+      "id": "AC1-429-cross-provider-retry-and-cooldown",
+      "ok": true,
+      "detail": "expectRetry=true retrySucceeded=true attempts=2 cooldownExists=false err=none"
+    },
+    {
+      "id": "AC2-401-cross-provider-retry-and-cooldown",
+      "ok": true,
+      "detail": "expectRetry=true retrySucceeded=true attempts=2 cooldownExists=false err=none"
+    },
+    {
+      "id": "AC3-402-cross-provider-retry-and-cooldown",
+      "ok": true,
+      "detail": "expectRetry=true retrySucceeded=true attempts=2 cooldownExists=false err=none"
+    },
+    {
+      "id": "AC4-provider-error-retry-and-cooldown",
+      "ok": true,
+      "detail": "expectRetry=true retrySucceeded=true attempts=2 cooldownExists=false err=none"
+    },
+    {
+      "id": "AC5-timeout-retry-and-cooldown",
+      "ok": true,
+      "detail": "expectRetry=true retrySucceeded=true attempts=2 cooldownExists=false err=none"
+    },
+    {
+      "id": "AC6-429-same-provider-no-retry",
+      "ok": true,
+      "detail": "expectRetry=false retrySucceeded=false attempts=1 cooldownExists=false err=case-AC6-429-same-provider-no-retry"
+    },
+    {
+      "id": "AC7-content-filtered-no-retry",
+      "ok": true,
+      "detail": "expectRetry=false retrySucceeded=false attempts=1 cooldownExists=false err=case-AC7-content-filtered-no-retry"
+    },
+    {
+      "id": "AC8-invalid-request-no-retry",
+      "ok": true,
+      "detail": "expectRetry=false retrySucceeded=false attempts=1 cooldownExists=false err=case-AC8-invalid-request-no-retry"
+    },
+    {
+      "id": "AC9-redis-unavailable-429-cross-provider-still-failover",
+      "ok": true,
+      "detail": "appRedisConfigured=false; environment without REDIS_URL already exercised failover under cooldown degradation in AC1-AC5"
+    }
+  ]
+}
