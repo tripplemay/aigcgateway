@@ -4,7 +4,7 @@ description: AIGC Gateway 当前状态快照（覆盖写，≤30 行）
 type: project
 ---
 ## 当前批次
-- ONBOARDING-ENHANCE：`verifying`（7 条，6/7 generator 已完成，F-OE-05 待 Reviewer）
+- ONBOARDING-ENHANCE：`done`（7/7 完成，L1 本地验收通过并签收）
 - 合并 WELCOME-BONUS + BL-128a + LANDING-LINKS-FIX
 
 ## 本批次产物
@@ -15,11 +15,13 @@ type: project
 - src/lib/safe-redirect.ts + 9 条 vitest 单测（/ 开头、拒 //、javascript:、backslash、控制字符、>256）
 - login 页 Suspense + useSearchParams + JWT exp 校验 hasLiveToken 自动跳 + authChecked 防闪烁
 - landing.html 4 链接改 /login?redirect=<path>
+- 验收报告：`docs/test-reports/onboarding-enhance-verifying-local-e2e-2026-04-17.json`
+- Signoff：`docs/test-reports/ONBOARDING-ENHANCE-signoff-2026-04-17.md`
 
 ## 生产状态
 - 生产 /landing.html 404 已 hotfix（手动 cp + pm2 restart）+ deploy.yml 补 cp 防回归
 - TEMPLATE-LIBRARY-UPGRADE + TEMPLATE-TESTING 待部署
-- 本批次 3 个 migration 未部署（dev/prod 均需）
+- 用户要求本轮仅做本地验收，生产新代码尚未部署验收
 
 ## 已知 gap
 - 5 个图片模型 supportedSizes 规则不匹配

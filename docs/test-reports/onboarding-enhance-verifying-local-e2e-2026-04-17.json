@@ -1,0 +1,63 @@
+{
+  "batch": "ONBOARDING-ENHANCE",
+  "generatedAt": "2026-04-17T05:32:37.419Z",
+  "baseUrl": "http://localhost:3099",
+  "passCount": 10,
+  "failCount": 0,
+  "context": {
+    "adminEmail": "admin@aigc-gateway.local",
+    "welcomeBonusOriginal": "0"
+  },
+  "steps": [
+    {
+      "id": "AC1-register-bonus-balance-and-transaction",
+      "ok": true,
+      "detail": "email=oe_u1_mo2h1t8w_yygc@test.local cfg=1 balance=1 bonusTxn=1"
+    },
+    {
+      "id": "AC2-admin-set-zero-disable-bonus",
+      "ok": true,
+      "detail": "email=oe_u2_mo2h1tci_l3t8@test.local balance=0 hasBonusTxn=false"
+    },
+    {
+      "id": "AC3-template-categories-contains-10-and-4-marketing",
+      "ok": true,
+      "detail": "count=10 hasAllNew=true"
+    },
+    {
+      "id": "AC4-template-library-tab-markers-present",
+      "ok": true,
+      "detail": "apiCount=10 iconMappingOk=true"
+    },
+    {
+      "id": "AC5-landing-private-links-to-login-redirect",
+      "ok": true,
+      "detail": "linksOk=true"
+    },
+    {
+      "id": "AC6-landing-anchors-still-present",
+      "ok": true,
+      "detail": "anchorsOk=true"
+    },
+    {
+      "id": "AC7-login-redirect-flow-implemented",
+      "ok": true,
+      "detail": "flowMarkers=true"
+    },
+    {
+      "id": "AC8-register-page-behavior-unchanged",
+      "ok": true,
+      "detail": "unchanged=true"
+    },
+    {
+      "id": "AC9-malicious-redirect-blocked-unit",
+      "ok": true,
+      "detail": "exit=0 stdout_tail=st Files  1 passed (1)\n      Tests  9 passed (9)\n   Start at  13:32:37\n   Duration  176ms (transform 17ms, setup 0ms, import 23ms, tests 2ms, environment 0ms)\n\n stderr_tail="
+    },
+    {
+      "id": "AC10-balance-page-bonus-green-chip",
+      "ok": true,
+      "detail": "bonusChipMarkers=true"
+    }
+  ]
+}

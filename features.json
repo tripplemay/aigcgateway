@@ -61,7 +61,7 @@
       "title": "ONBOARDING-ENHANCE 全量验收（含 landing-links）",
       "priority": "high",
       "executor": "codex",
-      "status": "pending",
+      "status": "done",
       "acceptance": "Welcome Bonus 部分：1) 注册新用户后余额 = WELCOME_BONUS_USD 值；2) 交易列表含 type=BONUS 一条（绿色标签）；3) 管理端改金额为 0 后新注册无赠送。模板分类：4) SystemConfig TEMPLATE_CATEGORIES 包含 10 个分类（原 6 + 新 4）；5) 公共模板库分类 Tab 展示新增 4 个分类（icon 正确渲染）。Landing Links：6) 未登录访问 https://aigc.guangai.ai/landing.html 点击 '文档'/'MCP 接入'/'模型清单'/CTA '查看文档' → URL 正确变为 /login?redirect=<path>；7) 输入有效账号登录后跳转到该路径（非 /dashboard）；8) 恶意 redirect 全部被拒跳默认 dashboard：?redirect=https://evil.com、?redirect=//evil.com、?redirect=javascript:alert(1)、?redirect=\\admin；9) 已登录访问 /login?redirect=/docs 直接跳 /docs 不显示表单；10) 同页锚点仍正常；11) register 页行为保持（注册成功跳 dashboard）。12) 生成 signoff 报告"
     }
   ]
