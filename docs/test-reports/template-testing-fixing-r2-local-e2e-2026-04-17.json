@@ -1,0 +1,80 @@
+{
+  "batch": "TEMPLATE-TESTING",
+  "generatedAt": "2026-04-17T03:43:50.823Z",
+  "baseUrl": "http://localhost:3099",
+  "passCount": 11,
+  "failCount": 0,
+  "context": {
+    "adminEmail": "admin@aigc-gateway.local",
+    "user1": "tt1_mo2d5qbl@test.local",
+    "user2": "tt2_mo2d5qbl@test.local",
+    "model": "minimax-text-01",
+    "actionModel": "minimax/abab",
+    "projects": {
+      "adminProjectId": "cmo2d5qm2000v9ygoro6e3m3a",
+      "u1ProjectId": "cmo2d5qm4000x9ygo4pdi1bhz",
+      "u2ProjectId": "cmo2d5qm7000z9ygogh7v8skd"
+    },
+    "templates": {
+      "templateOk": "cmo2d5qmq00199ygoba5jvnav",
+      "templatePartial": "cmo2d5qmw001d9ygo8vovuxhn"
+    }
+  },
+  "steps": [
+    {
+      "id": "AC1-dry-run-rendered-input-cost-zero",
+      "ok": true,
+      "detail": "path=/api/templates/cmo2d5qmq00199ygoba5jvnav/test mode=dry_run status=success steps=1 totalCost=0"
+    },
+    {
+      "id": "AC2-execute-real-step-results",
+      "ok": true,
+      "detail": "path=/api/templates/cmo2d5qmq00199ygoba5jvnav/test status=success steps=1 totalTokens=26"
+    },
+    {
+      "id": "AC3-partial-preserve-executed-steps",
+      "ok": true,
+      "detail": "path=/api/templates/cmo2d5qmw001d9ygo8vovuxhn/test status=partial steps=2"
+    },
+    {
+      "id": "AC4-test-runs-retention-20",
+      "ok": true,
+      "detail": "path=/api/templates/cmo2d5qmq00199ygoba5jvnav/test-runs count=20"
+    },
+    {
+      "id": "AC5-history-preset-load-readiness",
+      "ok": true,
+      "detail": "detailPath=/api/templates/cmo2d5qmq00199ygoba5jvnav/test-runs/cmo2d5vh4002v9ygovl945nrf detailVariables=true uiMarkers=true"
+    },
+    {
+      "id": "AC6-test-page-left-right-layout",
+      "ok": true,
+      "detail": "fileExists=true markers=true"
+    },
+    {
+      "id": "AC7-mcp-run-template-test-mode",
+      "ok": true,
+      "detail": "mcpPath=/mcp init=200 hasTestMode=true drySteps=1 execSteps=1"
+    },
+    {
+      "id": "AC8-unforked-public-template-cannot-test",
+      "ok": true,
+      "detail": "path=/api/templates/cmo2d5xy000379ygok5hddd6d/test status=403"
+    },
+    {
+      "id": "AC9-global-library-public-components-only",
+      "ok": true,
+      "detail": "exists=true ds=true noLegacy=true"
+    },
+    {
+      "id": "AC10-test-page-public-components-only",
+      "ok": true,
+      "detail": "exists=true ds=true noLegacy=true"
+    },
+    {
+      "id": "AC11-grep-handwritten-card-button-zero",
+      "ok": true,
+      "detail": "deniedHits=0"
+    }
+  ]
+}

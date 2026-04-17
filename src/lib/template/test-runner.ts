@@ -207,6 +207,7 @@ export async function runTemplateTest(
     } catch (err) {
       const elapsed = Date.now() - startedAt;
       totalLatency += elapsed;
+      const errAny = err as { message?: string };
       steps.push({
         order: step.order,
         actionId: step.action.id,
@@ -220,7 +221,7 @@ export async function runTemplateTest(
         cost: null,
         latencyMs: elapsed,
         status: "error",
-        error: (err as Error).message,
+        error: errAny?.message ?? String(err),
       });
       runStatus = i === 0 ? "error" : "partial";
       break;
