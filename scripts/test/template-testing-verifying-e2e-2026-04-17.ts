@@ -2,11 +2,21 @@ import { createServer, type IncomingMessage, type ServerResponse } from "http";
 import { PrismaClient } from "@prisma/client";
 import { readFileSync, existsSync } from "fs";
 
-const prisma = new PrismaClient();
+// Pin the Prisma client to the same DB the server on :3099 is using. Without
+// this, @prisma/client auto-loads .env (dev DATABASE_URL = aigc_gateway)
+// whenever scripts/test/codex-env.sh is not sourced in the shell running the
+// verifier — the fixture then mocks providers in the dev DB, but the server
+// (configured via codex-env to aigc_gateway_test) looks up a different DB and
+// cannot find the model the Action references, so execute mode 100% throws
+// MODEL_NOT_FOUND on machines where dev DB has seeded aliases/models.
+const TEST_DATABASE_URL =
+  process.env.TEST_DATABASE_URL ?? "postgresql://test:test@localhost:5432/aigc_gateway_test";
+const prisma = new PrismaClient({ datasourceUrl: TEST_DATABASE_URL });
 
 const BASE = process.env.BASE_URL ?? "http://localhost:3099";
 const OUTPUT =
-  process.env.OUTPUT_FILE ?? "docs/test-reports/template-testing-verifying-local-e2e-2026-04-17.json";
+  process.env.OUTPUT_FILE ??
+  "docs/test-reports/template-testing-verifying-local-e2e-2026-04-17.json";
 
 const MCP_PATH = process.env.MCP_PATH ?? "/mcp";
 const MCP_FALLBACK_PATH = process.env.MCP_FALLBACK_PATH ?? "/api/mcp";
@@ -118,7 +128,9 @@ async function startMockServer() {
       object: "chat.completion",
       created: Math.floor(Date.now() / 1000),
       model: body.model ?? "openai/gpt-4o-mini",
-      choices: [{ index: 0, message: { role: "assistant", content: output }, finish_reason: "stop" }],
+      choices: [
+        { index: 0, message: { role: "assistant", content: output }, finish_reason: "stop" },
+      ],
       usage: { prompt_tokens: 17, completion_tokens: 9, total_tokens: 26 },
     });
   });
@@ -127,7 +139,10 @@ async function startMockServer() {
   return server;
 }
 
-async function api(pathname: string, init?: RequestInit & { expect?: number | number[] }): Promise<ApiResult> {
+async function api(
+  pathname: string,
+  init?: RequestInit & { expect?: number | number[] },
+): Promise<ApiResult> {
   const { expect, ...rest } = init ?? {};
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
@@ -171,7 +186,10 @@ async function loginAdmin(): Promise<{ email: string; token: string }> {
   throw new Error("admin login failed for all candidates");
 }
 
-async function registerAndLoginUser(tag: string, prefix: string): Promise<{ email: string; token: string }> {
+async function registerAndLoginUser(
+  tag: string,
+  prefix: string,
+): Promise<{ email: string; token: string }> {
   const email = `${prefix}_${tag}@test.local`;
   const password = "TT_Test_1234";
 
@@ -206,7 +224,12 @@ async function createAction(
     name: string;
     model: string;
     prompt: string;
-    variables: Array<{ name: string; description?: string; required?: boolean; defaultValue?: string }>;
+    variables: Array<{
+      name: string;
+      description?: string;
+      required?: boolean;
+      defaultValue?: string;
+    }>;
   },
 ): Promise<string> {
   const r = await api(`/api/projects/${projectId}/actions`, {
@@ -309,7 +332,13 @@ function parseRun(body: any): RunView {
   };
 }
 
-async function postTemplateTest(token: string, projectId: string, templateId: string, mode: "dry_run" | "execute", variables: Record<string, unknown>) {
+async function postTemplateTest(
+  token: string,
+  projectId: string,
+  templateId: string,
+  mode: "dry_run" | "execute",
+  variables: Record<string, unknown>,
+) {
   let lastErr = "";
   for (const p of TEST_RUN_POST_PATHS) {
     const path = fillPath(p, { projectId, templateId });
@@ -352,7 +381,12 @@ async function listTemplateRuns(token: string, projectId: string, templateId: st
   throw new Error(`template test-runs list failed: ${lastErr}`);
 }
 
-async function getTemplateRunDetail(token: string, projectId: string, templateId: string, runId: string) {
+async function getTemplateRunDetail(
+  token: string,
+  projectId: string,
+  templateId: string,
+  runId: string,
+) {
   let lastErr = "";
   for (const p of TEST_RUN_DETAIL_PATHS) {
     const path = fillPath(p, { projectId, templateId, runId });
@@ -369,7 +403,11 @@ async function getTemplateRunDetail(token: string, projectId: string, templateId
   throw new Error(`template test-runs detail failed: ${lastErr}`);
 }
 
-async function tryPostTemplateTestExpectDenied(token: string, projectId: string, templateId: string) {
+async function tryPostTemplateTestExpectDenied(
+  token: string,
+  projectId: string,
+  templateId: string,
+) {
   const denied = new Set([401, 403, 404]);
   for (const p of TEST_RUN_POST_PATHS) {
     const path = fillPath(p, { projectId, templateId });
@@ -389,9 +427,7 @@ function parseSseEvents(text: string): any[] {
     .map((x) => x.trim())
     .filter(Boolean)
     .flatMap((block) => {
-      const line = block
-        .split("\n")
-        .find((l) => l.startsWith("data: "));
+      const line = block.split("\n").find((l) => l.startsWith("data: "));
       if (!line) return [];
       const payload = line.slice(6);
       if (payload === "[DONE]") return [{ type: "[DONE]" }];
@@ -403,7 +439,12 @@ function parseSseEvents(text: string): any[] {
     });
 }
 
-async function rawMcp(apiKey: string, method: string, params?: Record<string, unknown>, fallback = false) {
+async function rawMcp(
+  apiKey: string,
+  method: string,
+  params?: Record<string, unknown>,
+  fallback = false,
+) {
   const path = fallback ? MCP_FALLBACK_PATH : MCP_PATH;
   const r = await fetch(`${BASE}${path}`, {
     method: "POST",
@@ -427,7 +468,11 @@ async function rawMcp(apiKey: string, method: string, params?: Record<string, un
   return { status: r.status, text, body, path };
 }
 
-async function rawMcpWithFallback(apiKey: string, method: string, params?: Record<string, unknown>) {
+async function rawMcpWithFallback(
+  apiKey: string,
+  method: string,
+  params?: Record<string, unknown>,
+) {
   const primary = await rawMcp(apiKey, method, params, false);
   if (primary.status !== 404) return primary;
   return rawMcp(apiKey, method, params, true);
@@ -517,16 +562,22 @@ async function configureLocalProvider() {
       }
     },
     async rollback() {
-      await prisma.model.update({ where: { id: model.id }, data: { enabled: restore.modelEnabled } }).catch(() => {});
+      await prisma.model
+        .update({ where: { id: model.id }, data: { enabled: restore.modelEnabled } })
+        .catch(() => {});
       await prisma.provider
         .update({
           where: { id: chosen.provider.id },
           data: { baseUrl: restore.providerBaseUrl, authConfig: restore.providerAuthConfig },
         })
         .catch(() => {});
-      await prisma.channel.update({ where: { id: chosen.id }, data: { status: restore.chosenChannelStatus } }).catch(() => {});
+      await prisma.channel
+        .update({ where: { id: chosen.id }, data: { status: restore.chosenChannelStatus } })
+        .catch(() => {});
       for (const s of restore.siblings) {
-        await prisma.channel.update({ where: { id: s.id }, data: { status: s.status } }).catch(() => {});
+        await prisma.channel
+          .update({ where: { id: s.id }, data: { status: s.status } })
+          .catch(() => {});
       }
     },
   };
@@ -557,10 +608,18 @@ async function run() {
     const u1ProjectId = await createProject(u1.token, `TT User1 ${tag}`);
     const u2ProjectId = await createProject(u2.token, `TT User2 ${tag}`);
 
-    const u1Project = await prisma.project.findUnique({ where: { id: u1ProjectId }, select: { userId: true } });
-    const u2Project = await prisma.project.findUnique({ where: { id: u2ProjectId }, select: { userId: true } });
-    if (u1Project?.userId) await prisma.user.update({ where: { id: u1Project.userId }, data: { balance: 100 } });
-    if (u2Project?.userId) await prisma.user.update({ where: { id: u2Project.userId }, data: { balance: 100 } });
+    const u1Project = await prisma.project.findUnique({
+      where: { id: u1ProjectId },
+      select: { userId: true },
+    });
+    const u2Project = await prisma.project.findUnique({
+      where: { id: u2ProjectId },
+      select: { userId: true },
+    });
+    if (u1Project?.userId)
+      await prisma.user.update({ where: { id: u1Project.userId }, data: { balance: 100 } });
+    if (u2Project?.userId)
+      await prisma.user.update({ where: { id: u2Project.userId }, data: { balance: 100 } });
 
     context.adminEmail = admin.email;
     context.user1 = u1.email;
@@ -605,7 +664,9 @@ async function run() {
     });
     const dryInput = stringify(dry.result.steps);
     const dryCost = dry.result.totalCost;
-    const dryOk = /Hello world/.test(dryInput) && (dryCost === 0 || dryCost === null || dryCost === undefined || Math.abs(dryCost) < 1e-9);
+    const dryOk =
+      /Hello world/.test(dryInput) &&
+      (dryCost === 0 || dryCost === null || dryCost === undefined || Math.abs(dryCost) < 1e-9);
     push(
       "AC1-dry-run-rendered-input-cost-zero",
       dryOk,
@@ -634,7 +695,10 @@ async function run() {
       target_language: "Chinese",
     });
     const partialStepText = stringify(partial.result.steps);
-    const partialOk = partial.result.status === "partial" && partial.result.steps.length >= 1 && /MOCK_OUT|output/i.test(partialStepText);
+    const partialOk =
+      partial.result.status === "partial" &&
+      partial.result.steps.length >= 1 &&
+      /MOCK_OUT|output/i.test(partialStepText);
     push(
       "AC3-partial-preserve-executed-steps",
       partialOk,
@@ -663,13 +727,16 @@ async function run() {
     if (latestRunId) {
       const detail = await getTemplateRunDetail(u1.token, u1ProjectId, templateOk, latestRunId);
       detailPath = detail.path;
-      detailOk = Boolean(detail.result.variables && Object.keys(detail.result.variables).length > 0);
+      detailOk = Boolean(
+        detail.result.variables && Object.keys(detail.result.variables).length > 0,
+      );
     }
 
     const testPagePath = "src/app/(console)/templates/[templateId]/test/page.tsx";
     const testPageText = existsSync(testPagePath) ? readFileSync(testPagePath, "utf8") : "";
     const historyPresetMarkers =
-      /history|test-runs|preset|load/i.test(testPageText) && /variables|set.*variable|onChange/i.test(testPageText);
+      /history|test-runs|preset|load/i.test(testPageText) &&
+      /variables|set.*variable|onChange/i.test(testPageText);
 
     push(
       "AC5-history-preset-load-readiness",
@@ -680,9 +747,17 @@ async function run() {
     // AC6 left/right layout structure
     const layoutOk =
       existsSync(testPagePath) &&
-      checkContains(testPageText, [/PageContainer|page-container/i, /PageHeader|page-header/i, /SectionCard/i]) &&
+      checkContains(testPageText, [
+        /PageContainer|page-container/i,
+        /PageHeader|page-header/i,
+        /SectionCard/i,
+      ]) &&
       /left|right|grid-cols-|w-\[|basis-|split/i.test(testPageText);
-    push("AC6-test-page-left-right-layout", layoutOk, `fileExists=${existsSync(testPagePath)} markers=${layoutOk}`);
+    push(
+      "AC6-test-page-left-right-layout",
+      layoutOk,
+      `fileExists=${existsSync(testPagePath)} markers=${layoutOk}`,
+    );
 
     // AC7 MCP test_mode
     if (u1Project?.userId) {
@@ -756,10 +831,14 @@ async function run() {
 
     // AC9 global-library DS components + no handcrafted card styles
     const globalLibraryPath = "src/app/(console)/templates/global-library.tsx";
-    const globalLibraryText = existsSync(globalLibraryPath) ? readFileSync(globalLibraryPath, "utf8") : "";
+    const globalLibraryText = existsSync(globalLibraryPath)
+      ? readFileSync(globalLibraryPath, "utf8")
+      : "";
 
     const hasDsGlobal =
-      /SectionCard/.test(globalLibraryText) && /StatusChip/.test(globalLibraryText) && /gradient-primary/.test(globalLibraryText);
+      /SectionCard/.test(globalLibraryText) &&
+      /StatusChip/.test(globalLibraryText) &&
+      /gradient-primary/.test(globalLibraryText);
     const noLegacyCardGlobal = !/(rounded-xl|shadow-sm|ring-1\b)/.test(globalLibraryText);
     push(
       "AC9-global-library-public-components-only",
@@ -768,7 +847,10 @@ async function run() {
     );
 
     // AC10 test page DS components + no handcrafted styles
-    const hasDsTestPage = /PageContainer|page-container/i.test(testPageText) && /PageHeader|page-header/i.test(testPageText) && /SectionCard/.test(testPageText);
+    const hasDsTestPage =
+      /PageContainer|page-container/i.test(testPageText) &&
+      /PageHeader|page-header/i.test(testPageText) &&
+      /SectionCard/.test(testPageText);
     const noLegacyTestPage = !/(rounded-xl|shadow-sm|ring-1\b)/.test(testPageText);
     push(
       "AC10-test-page-public-components-only",
@@ -786,7 +868,10 @@ async function run() {
       /\btext-indigo-\d{2,3}\b/g,
       /\bfrom-indigo-\d{2,3}\b/g,
     ];
-    const deniedHitCount = deniedPatterns.reduce((acc, re) => acc + ((grepTargets.match(re) ?? []).length), 0);
+    const deniedHitCount = deniedPatterns.reduce(
+      (acc, re) => acc + (grepTargets.match(re) ?? []).length,
+      0,
+    );
     push(
       "AC11-grep-handwritten-card-button-zero",
       deniedHitCount === 0,
