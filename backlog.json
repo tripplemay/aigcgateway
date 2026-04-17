@@ -53,6 +53,88 @@
       "priority": "medium",
       "spec": "docs/specs/template-library-content-batch-02-spec.md",
       "depends_on": "BL-128b"
+    },
+    {
+      "id": "BL-SEC-CRED-HARDEN",
+      "title": "凭证硬化 — 移除硬编码密码 + 图片代理 HMAC fallback",
+      "description": "来源 docs/code-review/ 2026-04-17 全量审查 CRIT-5 + CRIT-6。(1) CRIT-5: prisma/seed.ts + scripts/admin-auth.ts + scripts/stress-test.ts + 10+ 个 scripts/test/*.ts 硬编码 admin 密码（admin123 / Codex@2026! 已进 git 历史）。(2) CRIT-6: src/lib/api/image-proxy.ts:13-19 getSecret() 有硬编码字符串 fallback 'aigc-gateway-image-proxy-dev-secret'。(3) L5: E2E 测试脚本 'Test1234' 硬编码。2026-04-17 已为生产 env 注入 IMAGE_PROXY_SECRET/AUTH_SECRET/NEXTAUTH_SECRET 关闭即时曝光，但代码 fallback 仍需移除；admin 密码由用户自行轮换。",
+      "decisions": [
+        "用户自行轮换生产 admin@aigc-gateway.local 和 codex-admin@aigc-gateway.local 密码（2026-04-17 同步确认）",
+        "CRIT-6 生产 env 已注入随机 secret，本批次负责删除 src/lib/api/image-proxy.ts 的 fallback 字符串 + 启动时 assert env 存在",
+        "脚本改为 process.env.X ?? throw，无 fallback 值",
+        "seed.ts 改读 process.env.ADMIN_SEED_PASSWORD，保留幂等性",
+        "不做 git filter-repo 清理历史（视为已知泄漏，依赖密码轮换闭环）",
+        "顺带把 Info/Low 级的 E2E 测试密码（Test1234）移到 env"
+      ],
+      "confirmed_at": "2026-04-17",
+      "priority": "critical",
+      "source": "docs/code-review/backend-fullscan-2026-04-17.md CRIT-5 + CRIT-6 + L5",
+      "estimated_effort": "0.5 day"
+    },
+    {
+      "id": "BL-SEC-AUTH-SESSION",
+      "title": "会话硬化 — JWT 改 HttpOnly cookie + middleware 真正验签",
+      "description": "来源 docs/code-review/ CRIT-7 + H-8。(1) CRIT-7: src/app/(auth)/login/page.tsx:131 + layout.tsx:50 + settings/page.tsx:711-714 + top-app-bar.tsx:45 四处 document.cookie + localStorage 明文存 JWT，无 HttpOnly、无 Secure，任一 XSS 即全站会话劫持。(2) H-8: src/middleware.ts decodeJwtPayload 仅 base64 解码不验签，admin 路由保护可绕过。修复方案：后端 /api/auth/login 直接 Set-Cookie HttpOnly+Secure+SameSite；前端停止直接读写 cookie；middleware 改 jose 做 Edge 兼容的签名验证。",
+      "decisions": [
+        "后端签 cookie：/api/auth/login 响应头 Set-Cookie httpOnly+secure+sameSite=lax+max-age 7d",
+        "前端改造 4 个写入点：login/page + console/layout + settings signout + top-app-bar signout",
+        "localStorage 可保留用于 fetch Authorization header（过渡期），但最终目标移除（P3）",
+        "middleware 用 jose.jwtVerify + JWT_SECRET 做 Edge Runtime 兼容验签",
+        "顺便补：console/layout 拆出 server layout 做 SSR 鉴权守卫（HIGH-01），消除未授权内容闪现"
+      ],
+      "confirmed_at": "2026-04-17",
+      "priority": "critical",
+      "source": "docs/code-review/backend-fullscan-2026-04-17.md CRIT-7 + H-8",
+      "estimated_effort": "1 day"
+    },
+    {
+      "id": "BL-SEC-BILLING-AI",
+      "title": "AI 调用扣费原子性 — deduct_balance 行锁 + CallLog+deduct 事务化",
+      "description": "来源 docs/code-review/ CRIT-2 + CRIT-4 + H-16。与支付模块无关，每次 AI API 调用都走这条链路。(1) CRIT-2: prisma/migrations/20260410120000_apikey_to_user_level/migration.sql:40-80 deduct_balance PL/pgSQL 函数缺 SELECT ... FOR UPDATE，高并发下两个事务都通过 balance >= amount 检查 → 余额可透支为负。(2) CRIT-4: src/lib/api/post-process.ts:127-158 callLog.create + deductBalance 两次顺序 DB 调用无事务保证，若进程在两者之间崩溃 → 服务已消费但无扣费记录。(3) H-16: Transaction.amount 无 CHECK 约束，符号与类型无 DB 层保证。",
+      "decisions": [
+        "deduct_balance 函数重写：先 SELECT balance INTO v_balance FOR UPDATE，再条件判断后 UPDATE",
+        "CallLog + deduct 改用 prisma.$transaction interactive 事务包裹；或把 CallLog 写入合并进 deduct_balance 函数内以保证单个 plpgsql 原子",
+        "Transaction.amount 加 CHECK: DEDUCTION/REFUND < 0, RECHARGE/BONUS/ADJUSTMENT >= 0",
+        "Evaluator 设计并发测试：10 并发请求同一用户 + 余额卡阈值，断言最终余额 >= 0 且 call_logs 与 transactions 条数一致",
+        "migration 需新写一个覆盖 deduct_balance（不是原位改）；回滚通过运行旧版 migration"
+      ],
+      "confirmed_at": "2026-04-17",
+      "priority": "critical",
+      "source": "docs/code-review/backend-fullscan-2026-04-17.md CRIT-2 + CRIT-4 + H-16",
+      "estimated_effort": "2 days"
+    },
+    {
+      "id": "BL-SEC-INFRA-GUARD",
+      "title": "基建硬化 — admin 白名单 + 分布式锁 + shell 注入 + 依赖升级",
+      "description": "来源 docs/code-review/ CRIT-8 + CRIT-9 + CRIT-10 + H-11 + H-12 + H-30。(1) CRIT-8/H-11/H-12: admin PATCH 三处 mass assignment（ProviderConfig/Channel/Model）直接 data: body 透传，可覆盖 apiKey 劫持上游。(2) CRIT-9: src/lib/health/scheduler.ts + model-sync.ts + instrumentation.ts 仅进程内锁，Docker 多副本部署下 NODE_APP_INSTANCE 均 undefined → 所有副本并发执行健康检查与同步。(3) CRIT-10: scripts/stress-test.ts:34-40 execSync 字符串拼接 BASE_URL/headers，可被 CI 污染 RCE。(4) H-30: Next.js 版本落后，npm audit 报 8 High (HTTP smuggling/DoS) + defu Prototype Pollution + glob CLI 注入。",
+      "decisions": [
+        "admin PATCH 字段白名单统一走 zod schema，ProviderConfig/Channel/Model 三处同批修",
+        "scheduler/model-sync 加 Redis SET NX EX 70 分布式选主锁；Docker 单副本部署临时缓解但长期走锁",
+        "stress-test.ts 改 spawn 数组形式，移除所有 execSync 字符串拼接",
+        "Next.js 版本升级到最新稳定版（兼容 App Router 14.x），defu 和 glob 一并升级；回归测试覆盖全 API 路由",
+        "升级前先 snapshot 当前 package-lock，失败可回滚"
+      ],
+      "confirmed_at": "2026-04-17",
+      "priority": "critical",
+      "source": "docs/code-review/backend-fullscan-2026-04-17.md CRIT-8 + CRIT-9 + CRIT-10 + H-11 + H-12 + H-30",
+      "estimated_effort": "2 days"
+    },
+    {
+      "id": "BL-SEC-PAY-DEFERRED",
+      "title": "支付 webhook 验签 + 幂等 CAS（支付接入前启动）",
+      "description": "来源 docs/code-review/ CRIT-1 + CRIT-3。两者仅在支付功能上线后才会真正触发，故延后到支付接入批次前启动。(1) CRIT-1: src/app/api/webhooks/alipay/route.ts:32 + wechat/route.ts:31 签名验证被注释掉，微信 webhook 甚至直接按明文 JSON 解析 ciphertext。任意 POST 伪造回调即可触发 processPaymentCallback，业务破产级资金风险。(2) CRIT-3: src/lib/billing/payment.ts:20-98 先 findUnique 读订单状态再进事务，两并发回调读到同一 PENDING 状态 → 余额被充两次。",
+      "decisions": [
+        "超越早期 BL-065（本条目取代之，BL-065 可移除）",
+        "支付宝用 alipay-sdk 的 AlipaySignature.rsaCheckV1/V2；微信用 Wechatpay-Node-V3 做 WECHATPAY2-SHA256-RSA2048 验签 + AEAD-AES-256-GCM 解密",
+        "支付回调事务内 updateMany CAS: where id+status=PENDING, data status=COMPLETED，count===0 则幂等跳过",
+        "开发前准备：支付宝和微信支付沙箱账号 + 官方 SDK 引入",
+        "启动时机：支付接入批次启动前 1 周，作为支付上线的前置条件"
+      ],
+      "confirmed_at": "2026-04-17",
+      "priority": "critical-deferred",
+      "source": "docs/code-review/backend-fullscan-2026-04-17.md CRIT-1 + CRIT-3",
+      "estimated_effort": "1-2 days",
+      "supersedes": "BL-065"
     }
   ]
 }
