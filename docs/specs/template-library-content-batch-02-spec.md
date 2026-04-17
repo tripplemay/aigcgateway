@@ -4,7 +4,7 @@
 **依赖：** BL-128b 首发 6 模板已生产（2026-04-17 seed + `isPublic=true`）
 **创建：** 2026-04-17
 **情报源：** `docs/research/stableisland/flow-catalog.md` 第 D/F 节 + `docs/specs/template-library-content-batch-01-spec.md` 冒烟瑕疵
-**原则：** Prompt 全部原创。新模板覆盖 Batch 01 未触及的"爆款逆向 / 长访谈消化 / 线下探访"三条独立强需求。同步修两处首轮冒烟瑕疵。
+**原则：** Prompt 全部原创。新模板覆盖 Batch 01 未触及的"爆款逆向 / 长访谈消化 / 线下探访"三条独立强需求。同步修两处首轮冒烟瑕疵。**所有 Action name 必须中文**（用户规则，2026-04-17 起强制）。
 
 ## 一、范围总览
 
@@ -15,8 +15,17 @@
 | P3 | 新模板 | 抖音爆款链接仿写 | seed 脚本追加 |
 | P4 | 新模板 | 访谈切片（2-step） | seed 脚本追加 |
 | P5 | 新模板 | 线下探访内容策划 | seed 脚本追加 |
+| P6 | 数据整改 | BL-128b 8 个 action 英文名改中文 | `UPDATE actions SET name='<中文>' WHERE name='<英文>'` |
 
-所有 5 子项均属"纯运维"范围，不改产品代码、不新增 Action 或 Template 字段。
+所有 6 子项均属"纯运维"范围，不改产品代码、不新增 Action 或 Template 字段。
+
+### 1.1 Action 命名规则（本批次开始强制）
+
+所有 `actions.name` 必须为中文，且：
+- 单 Action 模板：action 名 = template 名（例："抖音爆款链接仿写"）
+- 多 Step 模板：action 名 = "模板名-步骤名"（例："访谈切片-选题大纲"、"访谈切片-成片脚本"）
+- 长度控制在 20 字以内
+- 不使用下划线/横线之外的符号
 
 ---
 
@@ -125,7 +134,7 @@
 | 项 | 值 |
 |---|---|
 | Template 名 | 抖音爆款链接仿写 |
-| slug/key | `marketing-douyin-viral-copy` |
+| Action name | `抖音爆款链接仿写`（单 Action，同 Template 名） |
 | category | `short-video` |
 | 结构 | Sequential（1 Action） |
 | 推荐模型 | `deepseek-v3`（中文语感 + 长文本遵从） |
@@ -200,8 +209,8 @@ user:
 ### 5.2 结构（2-step）
 | Step | Action 名 | 模型 | 作用 |
 |---|---|---|---|
-| 1 | `marketing-interview-slice-outline` | `qwen3.5-flash` | 从长文本里挑 3-5 个切片选题（JSON） |
-| 2 | `marketing-interview-slice-script` | `deepseek-v3` | 为每个切片生成成片脚本（Markdown） |
+| 1 | `访谈切片-选题大纲` | `qwen3.5-flash` | 从长文本里挑 3-5 个切片选题（JSON） |
+| 2 | `访谈切片-成片脚本` | `deepseek-v3` | 为每个切片生成成片脚本（Markdown） |
 
 ### 5.3 Template 级变量
 
@@ -318,7 +327,7 @@ user:
 | 项 | 值 |
 |---|---|
 | Template 名 | 线下探访内容策划 |
-| slug | `marketing-on-site-visit-plan` |
+| Action name | `线下探访内容策划`（单 Action，同 Template 名） |
 | category | `short-video` |
 | 结构 | Sequential（1 Action） |
 | 模型 | `deepseek-v3` |
@@ -396,7 +405,71 @@ user:
 
 ---
 
-## 七、分类与归属
+## 七、P6 — BL-128b 的 8 个英文 action 改中文
+
+### 7.1 背景
+BL-128b 的 8 个 action 均使用英文 slug 命名（违反本批次起强制的"Action name 必须中文"规则）。
+
+### 7.2 改名映射（权威表，seed 脚本与数据整改必须一致）
+
+| 当前英文 name | 目标中文 name | 所属模板 |
+|---|---|---|
+| `marketing-wechat-moment` | `朋友圈文案六型生成` | #1 朋友圈（单 Action） |
+| `marketing-comment-reply-classify` | `评论回复-意图分类` | #2 评论回复 Step 1 |
+| `marketing-comment-reply-generate` | `评论回复-候选生成` | #2 评论回复 Step 2 |
+| `marketing-ip-persona` | `IP 人设画像生成` | #3 IP 人设（单 Action） |
+| `marketing-short-video-outline` | `短视频脚本-三幕大纲` | #4 短视频 Step 1 |
+| `marketing-short-video-script` | `短视频脚本-成片脚本` | #4 短视频 Step 2 |
+| `marketing-product-showcase` | `产品力可视化脚本` | #5 产品力（单 Action） |
+| `marketing-private-domain` | `私域营销策略方案` | #6 私域（单 Action） |
+
+### 7.3 执行方式
+
+在 seed 脚本的 patch 模式里追加一段 rename 操作：
+
+```ts
+// 伪代码
+const RENAME_MAP = [
+  { from: "marketing-wechat-moment", to: "朋友圈文案六型生成" },
+  // ...其余 7 条
+];
+for (const { from, to } of RENAME_MAP) {
+  await prisma.action.updateMany({
+    where: { projectId: PROJECT_ID, name: from },
+    data: { name: to },
+  });
+}
+```
+
+### 7.4 影响分析
+
+| 引用方 | 是否受影响 | 说明 |
+|---|---|---|
+| `TemplateStep.actionId` | ✗ 不受影响 | 用 id 外键，不按 name 引用 |
+| `ActionVersion.actionId` | ✗ 不受影响 | 同上 |
+| MCP `list-templates` / `get-template-detail` | ✓ 展示变化 | 返回值里 actionName 从英文变中文，前端/用户直接看到更清晰 |
+| 外部集成 / 硬编码引用 | ✓ 需排查 | seed 脚本自身是 dedup by name，改名后重跑会把 rename 后的视为新 action 再次创建 → **必须在 seed 脚本的 "已存在则跳过" 逻辑之前执行 rename** |
+| 数据库 unique 约束 | ✓ 需确认 | `@@unique([projectId, name])` 存在，如存在同名冲突会失败（本批次新增的 3 个模板 name 与改后的 8 条无冲突，已核对） |
+
+### 7.5 seed 脚本执行顺序（严格）
+
+```
+1. RENAME 阶段：先把 BL-128b 的 8 个 English→Chinese
+2. UPSERT 阶段：再 seed BL-128c 的 3 个新模板（4 个新 action）
+3. VERSION 阶段：最后为重命名后的 "评论回复-候选生成" 和 "短视频脚本-成片脚本" 创建新 ActionVersion（P1/P2）
+4. ACTIVATE 阶段：UPDATE activeVersionId 切换到新 version
+```
+
+### 7.6 回滚
+
+若改名后发现某外部依赖硬编码英文，回滚动作：
+```sql
+UPDATE actions SET name = '<原英文>' WHERE name = '<中文>' AND "projectId" = 'cmnrcbgvm0007bn5ajdyybs2u';
+```
+
+---
+
+## 八、分类与归属
 
 | 模板 | category | 来源分类 |
 |---|---|---|
@@ -408,27 +481,30 @@ user:
 
 ---
 
-## 八、实施步骤
+## 九、实施步骤
 
-### 8.1 代码侧（Planner 起草，Generator/运维执行）
-1. **扩展** `scripts/seed-marketing-templates.ts`：
-   - 在 Template 常量区追加 `TEMPLATE_DOUYIN_VIRAL_COPY` / `TEMPLATE_INTERVIEW_SLICE` / `TEMPLATE_ON_SITE_VISIT`
-   - 在 `TEMPLATES_TO_SEED` 数组追加三条
-   - 现有幂等逻辑（skip if exists）保证重跑安全
-2. **新增** `scripts/patch-marketing-template-prompts.ts`（可选，或直接在 seed 脚本加 `--patch-versions` 模式）：
-   - 为 `marketing-comment-reply-generate` + `marketing-short-video-script` 各创建一个新的 ActionVersion
-   - UPDATE `actions.activeVersionId` 指向新 version
-   - 操作前备份旧 activeVersionId 到日志文件
+### 9.1 代码侧（Planner 起草，Generator/运维执行）
+统一扩展 `scripts/seed-marketing-templates.ts`（或拆成 `scripts/seed-marketing-templates-batch-02.ts`），按严格顺序执行 4 个阶段：
 
-### 8.2 运维侧（用户执行）
-1. 本地 dev：`npx tsx scripts/seed-marketing-templates.ts` 确认 3 个新模板落库
-2. 本地 dev：跑 patch 脚本切 activeVersion，冒烟 #2 #4 旧样例确认瑕疵修复
-3. push main → CI 通过
-4. 生产：SSH → 跑 seed 脚本 + patch 脚本
-5. 3 个新模板跑冒烟（用 MCP `run_template`），通过后 UPDATE `isPublic=true`
-6. #2/#4 的新 version 是原地替换，activeVersion 切换后立即生效，无需单独 publish
+1. **RENAME 阶段（P6）**：先 rename BL-128b 8 个英文 action → 中文（映射见第七章 7.2）
+   - `UPDATE actions SET name = <中文> WHERE projectId = '<SYSTEM_TEMPLATES>' AND name = <英文>`
+   - 必须在 UPSERT 之前，否则幂等 dedup 会按英文名找不到而重复创建
+2. **UPSERT 阶段（P3-P5）**：追加 3 个 Template 常量 + 4 个新 Action
+   - 新 action name 全中文（第四/五/六章已定义）
+   - 现有幂等逻辑 (projectId, name) dedup 保证重跑安全
+3. **VERSION 阶段（P1/P2）**：为 `评论回复-候选生成` 和 `短视频脚本-成片脚本`（改名后的新 name）各创建一个新 ActionVersion（messages = 新 prompt）
+   - 操作前读取并记录旧 `activeVersionId` 到日志文件（为回滚留证据）
+4. **ACTIVATE 阶段（P1/P2）**：UPDATE `actions.activeVersionId = <新 version.id>`
 
-### 8.3 冒烟检查点
+### 9.2 运维侧（用户执行）
+1. 本地 dev：先备份 actions 表快照 `pg_dump ... -t actions > backup.sql`
+2. 本地 dev：`npx tsx scripts/seed-marketing-templates.ts` — 4 阶段一次跑完
+3. 本地 dev：用 MCP `run_template` 跑冒烟（见 9.3 检查点）
+4. push main → CI 通过
+5. 生产：SSH → 备份 actions → 跑 seed 脚本
+6. 生产冒烟 3 新 + 2 补丁，通过后 `UPDATE templates SET "isPublic"=true WHERE name IN (...)`
+
+### 9.3 冒烟检查点
 
 | 子项 | 检查 |
 |---|---|
@@ -437,31 +513,36 @@ user:
 | P3 | 输出三段分节（拆解 / 仿写 / 备注），仿写不含参考文案原句 |
 | P4 | Step1 JSON 解析成功、slices 数 == slice_count；Step2 全文无 ``` |
 | P5 | 输出严格四章节，不多不少；每个必填子项齐全 |
+| P6 | `SELECT name FROM actions WHERE "projectId"='<SYSTEM_TEMPLATES>'` 返回全中文，无英文 slug 残留 |
 
 ---
 
-## 九、验收标准
+## 十、验收标准
 
+- [ ] BL-128b 8 个 action name 全部变更为中文，SQL 查询验证 0 条残留英文
 - [ ] 3 个新模板全部 seed 到 `Template` 表（`isPublic=true`，`status=ACTIVE`，`category=short-video`）
+- [ ] 3 个新模板的 action name 均为中文，长度 ≤ 20 字
 - [ ] 3 个新模板冒烟测试通过，输出贴至 session 供人工复核
 - [ ] #2 / #4 新 ActionVersion 已创建，`actions.activeVersionId` 已切换
 - [ ] MCP `list_public_templates(category="short-video")` 返回 4 条（原 1 + 新 3）
-- [ ] 运维日志记录：旧 activeVersionId（方便回滚）+ 新 activeVersionId + 切换时间
+- [ ] MCP `get-template-detail` 返回的 actionName 均为中文
+- [ ] 运维日志记录：rename 前后映射 + 旧 activeVersionId（方便回滚）+ 新 activeVersionId + 切换时间
 - [ ] 本规格 + seed 脚本 diff 进入同一 commit，commit 信息带 `BL-128c`
 
 ---
 
-## 十、回滚方案
+## 十一、回滚方案
 
 | 场景 | 动作 |
 |---|---|
 | 某个新模板冒烟不通过 | `UPDATE templates SET "isPublic"=false WHERE name='<name>'` 软下线，prompt 迭代后重新切 activeVersion |
-| P1/P2 新 version 输出变差 | `UPDATE actions SET "activeVersionId"='<old_id>' WHERE name IN ('marketing-comment-reply-generate','marketing-short-video-script')` 一键回退 |
-| 整批次回滚 | 同上两条合并执行 |
+| P1/P2 新 version 输出变差 | `UPDATE actions SET "activeVersionId"='<old_id>' WHERE name IN ('评论回复-候选生成','短视频脚本-成片脚本')` 一键回退 |
+| P6 改名后发现外部依赖英文 | `UPDATE actions SET name = '<英文>' WHERE name = '<中文>'` 按映射表反向执行 |
+| 整批次回滚 | 上述三条合并执行（ACTIVATE → RENAME → 软下线新模板） |
 
 ---
 
-## 十一、不在本批次
+## 十二、不在本批次
 
 - 不做文件/图片输入类模板（证据链规划等）— 留 `BL-128d`，依赖产品侧新增 `file` 变量类型
 - 不做 Template 的 i18n 英文版（首发仍限中文）

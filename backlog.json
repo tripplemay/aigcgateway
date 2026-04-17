@@ -36,13 +36,15 @@
     },
     {
       "id": "BL-128c",
-      "title": "TEMPLATE-LIBRARY-CONTENT-02 — 2 修 + 3 新营销模板（运维）",
-      "description": "运维任务，不走开发状态机。两部分：(P1/P2) 修复 BL-128b 首轮冒烟发现的 2 处瑕疵 — #2 评论回复品牌臆造 + #4 短视频脚本代码块格式，均通过新建 ActionVersion 切换 activeVersionId 发布。(P3-P5) 新增 3 个模板：抖音爆款链接仿写 / 访谈切片（2-step）/ 线下探访内容策划，均归 short-video 分类。全部纯运维，扩展现有 seed 脚本即可。情报来源：docs/research/stableisland/flow-catalog.md 第 D/F 节。",
+      "title": "TEMPLATE-LIBRARY-CONTENT-02 — 2 修 + 3 新 + 8 改名（运维）",
+      "description": "运维任务，不走开发状态机。三部分：(P1/P2) 修复 BL-128b 首轮冒烟 2 瑕疵 — #2 评论回复品牌臆造 + #4 短视频脚本代码块格式，走新建 ActionVersion 切 activeVersionId。(P3-P5) 新增 3 个模板：抖音爆款链接仿写 / 访谈切片（2-step）/ 线下探访内容策划，均归 short-video 分类。(P6) BL-128b 8 个英文 action name 改中文（落实用户 2026-04-17 规则）。全部纯运维，扩展 scripts/seed-marketing-templates.ts 四阶段执行：RENAME → UPSERT → VERSION → ACTIVATE。情报来源：docs/research/stableisland/flow-catalog.md 第 D/F 节。",
       "decisions": [
         "运维性质，不建 features.json 条目，不走 harness 状态机",
         "Prompt 原文取自 docs/specs/template-library-content-batch-02-spec.md",
+        "所有 Action name 必须中文（用户规则，2026-04-17 起强制）",
         "P1/P2 走新建 ActionVersion + 切 activeVersionId，保留旧版一键回滚",
         "P3-P5 复用 scripts/seed-marketing-templates.ts 的幂等 seed 逻辑",
+        "P6 rename 必须在 UPSERT 之前执行，否则幂等 dedup 会按英文名找不到而重复创建",
         "3 个新模板全部归 short-video 分类，批次后该类曝光 1→4",
         "不做文件/图片输入类模板（证据链规划等延后为 BL-128d）",
         "P4 附录 transcript 示例待用户提供（公开节选或团队内部访谈）"
