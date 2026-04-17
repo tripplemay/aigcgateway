@@ -4,16 +4,16 @@ description: AIGC Gateway 当前状态快照（覆盖写，≤30 行）
 type: project
 ---
 ## 当前批次
-- TEMPLATE-TESTING：`verifying`（9 条功能，8/8 generator 完成，待 Codex 验收 F-TT-09）
+- TEMPLATE-TESTING：`reverifying`（9 条功能，8 generator 已修复，L1 本地 11/11，待 Reviewer 复验 F-TT-09）
 - 规格：`docs/specs/TEMPLATE-TESTING-spec.md`
-- 新增：TemplateTestRun 表 / test-runner lib / POST|GET test APIs / MCP test_mode
-- 新增：/templates/[id]/test 独立页面 / 详情+列表+global-library 测试入口
-- global-library.tsx 已对齐 SectionCard/StatusChip/Button gradient-primary
+- 修复点：engine/router.ts resolveEngine 加 routeByModelName 回退（解 AC2/3/7），
+  test 页 + global-library 手写样式清零，新增 gradient-primary Fork 按钮
+- fix round 证据：`docs/test-reports/template-testing-fixing-local-e2e-2026-04-17.json`
 
 ## 生产状态
 - ROUTING-RESILIENCE + endpointMap 已部署（failover + scheduler 优化）
 - TEMPLATE-LIBRARY-UPGRADE 待部署（分类+评分+排序）
-- TEMPLATE-TESTING 本地完成，未 commit/push
+- TEMPLATE-TESTING 修复本地完成，未 push
 
 ## 已知 gap
 - 5 个图片模型 supportedSizes 规则不匹配
