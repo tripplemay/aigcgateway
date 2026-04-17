@@ -876,7 +876,362 @@ const TEMPLATE_ON_SITE_VISIT: TemplateDef = {
 };
 
 // ============================================================
-// 模板清单（9 个：BL-128b 6 + BL-128c 3）
+// Template 10（BL-128d P1）：IP 内容规划
+// ============================================================
+
+const TEMPLATE_IP_CONTENT_PLAN: TemplateDef = {
+  name: "IP 内容规划",
+  description:
+    "给定 IP 人设摘要 + 主发平台 + 账号阶段，输出 4-8 周滚动内容规划表（12-20 条选题带节奏标注）+ 本期策略 + 阶段性调整信号。解决'有人设但不知道持续发什么'的问题。",
+  category: "ip-persona",
+  actions: [
+    {
+      name: "IP 内容规划",
+      description: "滚动选题规划 + 本期策略 + 调整信号（三章节 Markdown）",
+      model: "deepseek-v3",
+      variables: [
+        {
+          name: "persona_summary",
+          required: true,
+          description: "IP 人设摘要。可粘贴 'IP 人设画像生成' 模板的输出，或手写 200-400 字。",
+        },
+        {
+          name: "target_platform",
+          required: true,
+          description:
+            "主发平台。可选值：xhs（小红书）/ douyin（抖音）/ bilibili（B 站）/ weixin_shipin（视频号）/ wechat_moment（微信朋友圈）。",
+          defaultValue: "xhs",
+        },
+        {
+          name: "current_stage",
+          required: true,
+          description:
+            "账号阶段。可选值：0-1（0-500 粉起号期）/ 1-10（500-5000 粉涨粉期）/ 10-100（5000+ 粉稳定期）。",
+          defaultValue: "0-1",
+        },
+        {
+          name: "weeks",
+          required: false,
+          description: "规划周数。留空默认 4，上限 8。",
+          defaultValue: "4",
+        },
+        {
+          name: "constraints",
+          required: false,
+          description:
+            "约束条件。例：'每周不超过 3 条视频（精力有限）' / '不做付费推广'。留空默认无特殊约束。",
+          defaultValue: "无特殊约束",
+        },
+      ],
+      messages: [
+        {
+          role: "system",
+          content:
+            "你是 IP 运营规划师，专门为个人 IP 设计可执行的滚动内容规划。你输出 Markdown 表格 + 简短策略总结，不写前言或套话。",
+        },
+        {
+          role: "user",
+          content: `【IP 人设】
+{{persona_summary}}
+
+【主发平台】
+{{target_platform}}
+
+【账号阶段】
+{{current_stage}}
+
+【规划周数】
+{{weeks}}
+
+【约束】
+{{constraints}}
+
+【输出结构 — 严格三部分】
+
+## 一、本期策略一句话
+≤60 字，指出本期 {{weeks}} 周内容的主轴。例："前 2 周验证'商业视角育儿'能否破圈，后 2 周聚焦高转化金句"。
+
+## 二、{{weeks}} 周滚动选题表
+
+表头：| 周 | 日期（留空待填） | 内容类型 | 选题标题 | 钩子类型 | 发布节奏 |
+
+要求：
+- 每周 3-5 条选题，{{weeks}}=4 时共 12-20 条
+- 内容类型限于：观点 / 故事 / 教程 / 热点借势 / 问答回复 / 对比评测 / 幕后日常
+- 钩子类型：反常识 / 数字悬念 / 身份反转 / 利益预告 / 冲突 / 共鸣共情
+- 发布节奏：用 "W{周号}D{日号}" 标注（W1D1 / W1D3 / W2D2 ...）
+- 整体节奏需考虑平台调性和 {{current_stage}} 阶段特征
+
+## 三、阶段性调整策略
+
+### 3.1 如何判断某条选题是否跑通
+（给出 2-3 个可观测的数据指标）
+
+### 3.2 哪些选题需要马上调整
+（明确的"止损信号"）
+
+### 3.3 下一期（第 {{weeks}}+1 周起）的候补方向
+（3 条延展选题，给下一批次预留入口）
+
+【阶段约束】
+- 0-1 阶段：优先选题密度，单一赛道反复强化认知
+- 1-10 阶段：开始分支尝试，但不超过 2 个主线
+- 10-100 阶段：允许多线并行，加入商业内容（产品介绍、课程）
+
+【平台约束】
+- xhs: 40% 生活日常 / 40% 干货 / 20% 故事
+- douyin: 50% 钩子强型 / 30% 反转 / 20% 共鸣
+- bilibili: 50% 长知识 / 30% 观点 / 20% 幕后
+- weixin_shipin: 50% 中长故事 / 30% 观点 / 20% 生活
+- wechat_moment: 60% 结果反馈 / 20% 产品 / 20% 价值观
+
+【禁止】
+- 不照抄 {{persona_summary}} 的句子，必须产出新选题
+- 不使用"打造 / 赋能 / 闭环 / 爆款套路"等 3 年陈词
+- 不出现日期硬编码（用 W1D1 相对时间）`,
+        },
+      ],
+    },
+  ],
+};
+
+// ============================================================
+// Template 11（BL-128d P2）：IP 采访方案生成器
+// ============================================================
+
+const TEMPLATE_IP_INTERVIEW_PLAN: TemplateDef = {
+  name: "IP 采访方案生成器",
+  description:
+    "用采访者身份 + 被访者背景 + 采访目标 → 输出一份结构化采访提纲：核心主张 / 情绪曲线 / 问题清单（带敏感度和软化版本）/ 风险预案。与'访谈切片'模板形成完整闭环。",
+  category: "ip-persona",
+  actions: [
+    {
+      name: "IP 采访方案生成器",
+      description: "结构化采访提纲（四章节 Markdown）",
+      model: "deepseek-v3",
+      variables: [
+        {
+          name: "interviewer_identity",
+          required: true,
+          description: "采访者（我方 IP）身份 1-2 句。决定提问视角。",
+        },
+        {
+          name: "interviewee_profile",
+          required: true,
+          description:
+            "被访者背景 100-300 字。包含职业/成就/擅长话题/可能敏感点（隐私/商业机密/争议立场）。",
+        },
+        {
+          name: "interview_goal",
+          required: true,
+          description:
+            "首要目标。可选值：deep_profile（人物深访）/ expertise_extraction（专业观点萃取）/ story_collection（故事素材收集）/ tension_exploration（争议话题探讨）。",
+          defaultValue: "story_collection",
+        },
+        {
+          name: "duration_min",
+          required: false,
+          description: "采访时长（分钟）。留空默认 60，上限 180。",
+          defaultValue: "60",
+        },
+        {
+          name: "delivery_format",
+          required: false,
+          description:
+            "后续交付形式。可选值：long_video（长视频）/ short_clips（短视频切片）/ article（图文）/ podcast（播客）。留空默认 short_clips。",
+          defaultValue: "short_clips",
+        },
+      ],
+      messages: [
+        {
+          role: "system",
+          content:
+            "你是资深访谈编导。你的采访提纲有三个特点：(1) 每个问题都服务于特定叙事/信息目标 (2) 问题排列有情绪曲线设计 (3) 预判敏感区并给出预案。你只输出 Markdown 提纲，不写前言。",
+        },
+        {
+          role: "user",
+          content: `【采访者（我方 IP）】
+{{interviewer_identity}}
+
+【被访者背景】
+{{interviewee_profile}}
+
+【首要目标】
+{{interview_goal}}
+
+【时长】
+{{duration_min}} 分钟
+
+【后续交付形式】
+{{delivery_format}}
+
+【输出严格按以下四章节，禁止添加其他章节】
+
+## 一、采访核心主张（≤80 字）
+一段话，回答"这次采访最想让观众/读者记住的一个信息点是什么"。
+
+## 二、情绪曲线与节奏设计
+三幕式：
+- **预热段（前 20%）**：轻松破冰 + 个人背景建立。2-3 题
+- **深潜段（中间 60%）**：围绕 {{interview_goal}} 的核心提问。60 分钟约 8-10 题，120 分钟约 15-18 题
+- **收束段（最后 20%）**：反思 / 推荐 / 给观众寄语。2-3 题
+
+## 三、具体提问清单（按顺序编号）
+
+表格：| 序号 | 段落 | 问题文本 | 信息/叙事目标 | 预期回答时长 | 敏感度（低/中/高）|
+
+要求：
+- 问题必须开放式（不是"是/否"能回答）
+- 每题必须有明确的"信息/叙事目标"（不能写"增进了解"这种泛化）
+- 高敏感度问题标注原因（隐私 / 商业机密 / 争议立场）+ 备用软化版本放在表格下方说明
+- 提问顺序需匹配第二章节的情绪曲线
+- 时长总和应接近 {{duration_min}} × 0.85（留 15% 给自然聊天延伸）
+
+## 四、风险与预案
+
+### 4.1 可能的"卡壳"点（列 3 条）
+每条格式："<场景描述> → <应对话术>"。至少包含：
+- 1 条"被访者拒绝某问题"
+- 1 条"回答过于宣传化/公关口径"
+- 1 条"偏离主题"
+
+### 4.2 后续交付伏笔
+根据 {{delivery_format}} 给出 3 条"采访时要特别留意什么素材"：
+- long_video: 关注能独立成段的 5-10 分钟故事块
+- short_clips: 关注 30-60 秒可切片的金句/反差场景
+- article: 关注可直接引用的精彩原话
+- podcast: 关注音频节奏的自然起伏（沉默/笑声/激动）
+
+【禁止】
+- 问题不得透露 {{interviewer_identity}} 的预设立场（除非 interview_goal=tension_exploration 要求立场碰撞）
+- 不使用"您对…怎么看？""能不能分享一下？"等无目标模板提问
+- 不虚构 {{interviewee_profile}} 未提供的身份细节`,
+        },
+      ],
+    },
+  ],
+};
+
+// ============================================================
+// Template 12（BL-128d P3）：对谈内容策划
+// ============================================================
+
+const TEMPLATE_PANEL_CONTENT_PLAN: TemplateDef = {
+  name: "对谈内容策划",
+  description:
+    "为多人对谈节目（播客/直播/视频对谈）设计三幕结构：立场分布图 + 破冰→冲突→共识三幕 + 嘉宾专属料包 + 风险禁区。强调观点碰撞不抱团。",
+  category: "short-video",
+  actions: [
+    {
+      name: "对谈内容策划",
+      description: "多人对谈节目策划（四章节 Markdown）",
+      model: "deepseek-v3",
+      variables: [
+        {
+          name: "host_identity",
+          required: true,
+          description: "主持人/召集人身份 1-2 句。",
+        },
+        {
+          name: "guest_profiles",
+          required: true,
+          description: "嘉宾名单（2-3 人）。每人 1-2 句介绍，不同嘉宾用换行（\\n）分隔。",
+        },
+        {
+          name: "topic",
+          required: true,
+          description:
+            "对谈核心话题。一句话清晰陈述，而非泛化。例：'独立开发者在 AI 时代：是该用 AI 加速迭代，还是警惕快但薄的陷阱'。",
+        },
+        {
+          name: "format",
+          required: false,
+          description:
+            "形式。可选值：podcast_audio（播客音频）/ video_roundtable（视频圆桌）/ livestream（直播）。留空默认 podcast_audio。",
+          defaultValue: "podcast_audio",
+        },
+        {
+          name: "duration_min",
+          required: false,
+          description: "总时长（分钟）。留空默认 60。",
+          defaultValue: "60",
+        },
+      ],
+      messages: [
+        {
+          role: "system",
+          content:
+            "你是对谈节目策划。你设计的对谈有三个特点：(1) 观点不抱团（故意让嘉宾有立场差异）(2) 节奏有明确的冲突-和解-深化三幕 (3) 每个嘉宾都有'非说不可'的专属话题。你输出 Markdown，不写前言。",
+        },
+        {
+          role: "user",
+          content: `【主持人】
+{{host_identity}}
+
+【嘉宾名单】
+{{guest_profiles}}
+
+【核心话题】
+{{topic}}
+
+【形式】
+{{format}}
+
+【时长】
+{{duration_min}} 分钟
+
+【输出结构，禁止增减章节】
+
+## 一、立场分布图
+
+- 针对 {{topic}}，给每位嘉宾（含主持人）预判一个立场坐标：
+  - 在"保守 ↔ 激进"一维打一个位置（1-5 分）
+  - 标注 1-2 个支撑该立场的事实依据
+  - 同时识别"他们可能互相踩到的红线"
+- 若所有人立场相同（都是 3 分或都是 5 分），必须输出一句话："建议增加一位立场 X 的嘉宾"并给出画像建议
+
+## 二、对谈三幕结构
+
+### 第一幕·破冰与立场亮相（前 20%）
+表格：| 时间段 | 内容设计 | 主持人引导台词（口播样例） |
+至少 2 行，且要让每位嘉宾有 1 次发声机会。
+
+### 第二幕·观点碰撞（中间 60%）
+表格同上。围绕 {{topic}} 设计 3-5 个"冲突点"：
+- 每个冲突点要求至少 2 位嘉宾立场对立
+- 冲突点不得降到人身攻击层面，必须围绕观点/事实/方法论
+- 主持人引导台词要"激活分歧"而非"和稀泥"（例："A 说…B 您显然不同意，分歧的关键在哪？"）
+
+### 第三幕·共识与延展（最后 20%）
+表格同上。要素：
+- 找到 1 条所有嘉宾都认同的"最小公约数"
+- 每位嘉宾给 1 个"如果重来会怎么做"的回答机会
+- 给听众/观众 1 个可带走的 action（读什么书 / 做什么事 / 关注什么信号）
+
+## 三、嘉宾专属料包
+为每位嘉宾设计：
+- 1 个"只有他能回答的问题"（用其背景/经历）
+- 1 个"他容易被忽略的隐性视角"（主持人埋伏笔用）
+- 1 个"如果他太少说话时的救场话术"
+
+## 四、风险与禁区
+三条：
+- 1 条平台合规（涉及 {{format}} 的特定规则，如 podcast 不宜政治；直播不宜医疗）
+- 1 条嘉宾关系（避免让彼此处于公开商业冲突中的人同场）
+- 1 条话题漂移预案（当话题被带偏时主持人如何拉回）
+
+【禁止】
+- 不使用"有请""欢迎"等老套主持用语
+- 不让嘉宾扮演"观众需要的角色"（不预设立场后强推）
+- 不虚构 {{guest_profiles}} 未提供的嘉宾背景`,
+        },
+      ],
+    },
+  ],
+};
+
+// ============================================================
+// 模板清单（12 个：BL-128b 6 + BL-128c 3 + BL-128d 3）
 // ============================================================
 
 const TEMPLATES: TemplateDef[] = [
@@ -889,6 +1244,9 @@ const TEMPLATES: TemplateDef[] = [
   TEMPLATE_DOUYIN_VIRAL_COPY,
   TEMPLATE_INTERVIEW_SLICE,
   TEMPLATE_ON_SITE_VISIT,
+  TEMPLATE_IP_CONTENT_PLAN,
+  TEMPLATE_IP_INTERVIEW_PLAN,
+  TEMPLATE_PANEL_CONTENT_PLAN,
 ];
 
 // ============================================================
