@@ -391,6 +391,16 @@ async function handleFailure(route: RouteResult, results: CheckResult[]): Promis
     void markChannelCooldown(route.channel.id, "health_transient");
     if (route.channel.status === "ACTIVE") {
       await updateChannelStatus(route, "DEGRADED");
+    } else if (route.channel.status === "DISABLED") {
+      // F-RR2-06: a previously DISABLED channel surfacing a transient
+      // (rate_limit / timeout) failure is a signal the upstream is up
+      // and responding — just currently throttled. Reopen it to DEGRADED
+      // so routeByAlias starts including it again (sunk to the demoted
+      // band). Without this, a channel that gets DISABLED before the fix
+      // round 1 deploy would need manual `UPDATE status='ACTIVE'` to
+      // recover, because health-check PASS is unreachable while the
+      // upstream keeps rate-limiting the probe.
+      await updateChannelStatus(route, "DEGRADED");
     }
     return;
   }

@@ -42,6 +42,12 @@ function getAdapter(adapterType: string): EngineAdapter {
  * 别名 → 关联 Models → 所有 ACTIVE Channel → 按 priority 选最优（跳过健康检查 FAIL 的）
  */
 export async function routeByAlias(aliasName: string): Promise<RouteResultWithCandidates> {
+  // F-RR2-06: include DEGRADED channels in the candidate pool. DEGRADED is
+  // the scheduler's "transient failure" state — a channel that just hit 429
+  // / 限流 but might recover within the next cooldown window. Keeping it here
+  // lets withFailover actually try it (and write the 300 s Redis cooldown)
+  // instead of silently skipping it. DISABLED remains filtered out because
+  // it means "permanently failed per 3-batch escalation".
   const alias = await prisma.modelAlias.findUnique({
     where: { alias: aliasName, enabled: true },
     include: {
@@ -50,7 +56,7 @@ export async function routeByAlias(aliasName: string): Promise<RouteResultWithCa
           model: {
             include: {
               channels: {
-                where: { status: "ACTIVE" },
+                where: { status: { in: ["ACTIVE", "DEGRADED"] } },
                 orderBy: { priority: "asc" },
                 include: {
                   provider: { include: { config: true } },
@@ -91,6 +97,7 @@ export async function routeByAlias(aliasName: string): Promise<RouteResultWithCa
           model: link.model,
           healthFail,
           transientFail,
+          degraded: ch.status === "DEGRADED",
         };
       }),
     )
@@ -111,13 +118,15 @@ export async function routeByAlias(aliasName: string): Promise<RouteResultWithCa
   // are exhausted.
   const cooldownIds = await getCooldownChannelIds(candidateChannels.map((c) => c.channel.id));
 
-  // Sort priority ASC → non-cooldown first → transient-FAIL last → health
-  // PASS first → NULL last. Transient-FAIL candidates stay reachable but
-  // sink to the bottom of their priority band so healthy peers go first.
+  // Sort priority ASC → non-cooldown first → transient-FAIL/DEGRADED last →
+  // health PASS first → NULL last. DEGRADED channels (recent transient
+  // failure detected by the scheduler) sink to the same "demoted" band as
+  // cooldown / transient-FAIL peers — still reachable so withFailover can
+  // attempt them, but healthy ACTIVE peers go first.
   candidateChannels.sort((a, b) => {
     if (a.channel.priority !== b.channel.priority) return a.channel.priority - b.channel.priority;
-    const aCool = cooldownIds.has(a.channel.id) || a.transientFail;
-    const bCool = cooldownIds.has(b.channel.id) || b.transientFail;
+    const aCool = cooldownIds.has(a.channel.id) || a.transientFail || a.degraded;
+    const bCool = cooldownIds.has(b.channel.id) || b.transientFail || b.degraded;
     if (aCool !== bCool) return aCool ? 1 : -1;
     const aPass = a.channel.healthChecks.length > 0 && a.channel.healthChecks[0].result === "PASS";
     const bPass = b.channel.healthChecks.length > 0 && b.channel.healthChecks[0].result === "PASS";
