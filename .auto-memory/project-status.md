@@ -4,7 +4,7 @@ description: AIGC Gateway 当前状态快照（覆盖写，≤30 行）
 type: project
 ---
 ## 当前批次
-- ROUTING-RESILIENCE-V2：`reverifying`（fix_rounds=1，3/4 generator 已完成，F-RR2-04 待 Reviewer 重测）
+- ROUTING-RESILIENCE-V2：`fixing`（fix_rounds=1，3/4 generator 已完成，F-RR2-04 复验失败因生产未部署 fix commit，用户 2026-04-17 已手动触发 Deploy 含 7cfdde1+342be51）
 
 ## Fix Round 1 产物（2026-04-17）
 - `src/lib/engine/cooldown.ts` 新增 `isTransientFailureReason` 关键字分类器
