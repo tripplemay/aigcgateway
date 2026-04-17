@@ -5,28 +5,32 @@ type: project
 ---
 ## 当前批次
 - ROUTING-RESILIENCE-V2：`reverifying`（fix_rounds=1，3/4 generator 已完成，F-RR2-04 待 Reviewer 重测）
-- 源起：2026-04-17 生产 glm-4.7-flash zhipu 429 未切 openrouter
 
 ## Fix Round 1 产物（2026-04-17）
-- `src/lib/engine/cooldown.ts` 新增 `isTransientFailureReason(reason)` 关键字分类器（rate_limited/429/timeout/限流/econnrefused...）
-- `src/lib/health/scheduler.ts` handleFailure + runCallProbeManually 重构：transient 失败不计入 DISABLE 阈值，直接写 cooldown + 停 DEGRADED
-- `src/lib/engine/router.ts` routeByAlias 重构：latest FAIL 分 transient / permanent，transient 保留在 candidates 并降权（保 "每候选都会被遍历到" 铁律）
-- 单测：cooldown.test.ts +4 (15 tests)、router.test.ts 新建 +4
-- 生产运维：`UPDATE channels SET status='ACTIVE' WHERE id='cmnujsnpu00enbnrzy3roqexk'` → zhipu 恢复 ACTIVE
-- 全量：tsc 通过、vitest 11 files 72 tests 全过、npm run build 通过
+- `src/lib/engine/cooldown.ts` 新增 `isTransientFailureReason` 关键字分类器
+- `src/lib/health/scheduler.ts` transient 失败不计 DISABLE 阈值，写 cooldown + 停 DEGRADED
+- `src/lib/engine/router.ts` latest FAIL 分 transient/permanent，transient 保留降权
+- 单测：cooldown.test.ts 15 / router.test.ts 4；tsc+vitest 72/72+build 全过
+- 生产运维：zhipu glm-4.7-flash 通道 `UPDATE status='ACTIVE'` 已恢复
+
+## BL-128b 完成（2026-04-17 运维）
+- 生产 seed 6 个营销模板 + 8 actions（System Templates 项目，isPublic=true）
+- 模型：deepseek-v3 主力 / qwen3.5-flash JSON step / qwen3.5-plus 策略长文
+- 冒烟测试 6/6 PASS（MCP run_template），小瑕疵 2 处（#2 品牌臆造、#4 代码块）待下批次迭代
+- 生产公共模板现 9 条：3 dev-review + 2 social-content + 1 ip-persona + 1 short-video + 2 marketing-strategy
 
 ## 上一批次（ONBOARDING-ENHANCE done）
 - 3 个 migration 生产已生效（2026-04-17 05:27 UTC）
 
 ## 生产状态
-- zhipu glm-4.7-flash 通道已人工恢复 ACTIVE（14:38 UTC）
-- ROUTING-RESILIENCE-V2 新代码尚未部署，部署前生产 zhipu 可能再次被 DISABLE
+- zhipu glm-4.7-flash 已人工恢复 ACTIVE
+- ROUTING-RESILIENCE-V2 fix round 1 代码尚未部署，部署前 zhipu 可能再次被 DISABLE
 - TEMPLATE-LIBRARY-UPGRADE + TEMPLATE-TESTING 待部署
 
 ## 已知 gap
 - 5 个图片模型 supportedSizes 规则不匹配
 - get-balance.ts(74) tsc TS2353 batchId pre-existing
-- landing.html 4 个 href="#" 占位（关于/定价/服务条款/隐私政策）
+- landing.html 4 个 href="#" 占位
 
 ## Backlog（延后）
-- BL-065(支付验签) / BL-104(Settings 项目切换) / BL-128b(6 个营销模板录入)
+- BL-065(支付验签) / BL-104(Settings 项目切换)
