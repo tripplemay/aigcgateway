@@ -73,6 +73,7 @@ export class VolcengineAdapter extends OpenAICompatEngine {
     );
 
     const json = (await response.json()) as Record<string, unknown>;
+    this.throwIfBodyError(json);
     return this.extractImageFromChatResponse(json);
   }
 
@@ -104,6 +105,7 @@ export class VolcengineAdapter extends OpenAICompatEngine {
     );
 
     const json = (await response.json()) as Record<string, unknown>;
+    this.throwIfBodyError(json);
     return this.normalizeImageResponse(json);
   }
 

@@ -1,11 +1,11 @@
 {
-  "status": "building",
+  "status": "verifying",
   "user_goal": "ROUTING-RESILIENCE-V2 — 跨 provider 别名在 429/401/402/5xx/timeout 场景自动 failover + 失败通道 300s 冷却降权，避免雪崩",
   "total_features": 4,
-  "completed_features": 0,
+  "completed_features": 3,
   "fix_rounds": 0,
   "current_sprint": "ROUTING-RESILIENCE-V2",
-  "last_updated": "2026-04-17T14:10:00Z",
+  "last_updated": "2026-04-17T13:55:00Z",
   "reference_docs": [
     "docs/specs/ROUTING-RESILIENCE-V2-spec.md"
   ],
@@ -17,9 +17,9 @@
     "framework_reviewed": false
   },
   "evaluator_feedback": null,
-  "generator_handoff": null,
+  "generator_handoff": "3 条 generator 已完成。F-RR2-01: failover.ts 重构 isRetryable(err, current, next) + NEVER_RETRY{CONTENT_FILTERED,INVALID_REQUEST,INVALID_SIZE} + CROSS_PROVIDER_ONLY{AUTH_FAILED,INSUFFICIENT_BALANCE,RATE_LIMITED}；同 provider 429 不切，跨 provider 切。F-RR2-02: 新建 src/lib/engine/cooldown.ts（markChannelCooldown + getCooldownChannelIds，Redis 不可用 warn 不抛）；withFailover 内置 void markChannelCooldown(route.channel.id, cooldownReason(err))，不依赖调用方传 onRetry；router.ts routeByAlias 排序改为 priority ASC → 非冷却优先 → health PASS 优先，**不移除冷却中候选**（保铁律）；7 条 cooldown 单测全过（mock @/lib/redis，覆盖 set+mget+unavailable+error+empty）。F-RR2-03: openai-compat.ts 新增 mapBodyError 纯函数（map rate/auth/balance/invalid/timeout 关键字 → 语义 ErrorCodes）+ OpenAICompatEngine.throwIfBodyError protected 方法；call sites 补全：chatCompletions、imageGenerations、imageViaChat、volcengine.imageViaChat/imageFallback、siliconflow.imageGenerations 六处；11 条单测全过（7 语义 matcher + 4 adapter 集成）。全量：tsc 通过、vitest 10 files 64 tests 全过、npm run build 通过。验证建议：Evaluator 侧重（a）mock 上游 429 确认跨 provider 切到 openrouter + channel:cooldown:<id> 300s key 写入；（b）mock 同 provider 多 channel 429 → 直接抛不切；（c）生产烟测用 codex-dev 账号高频触发 zhipu 429 看 call_logs provider 切换 + redis-cli --scan channel:cooldown:*。",
   "session_notes": {
-    "Kimi": "Planner 完成 ROUTING-RESILIENCE-V2 批次初始化。源起：2026-04-17 生产故障 glm-4.7-flash zhipu 429 未切 openrouter。根因 failover.ts:22 将 429/401/402 列入 NON_RETRYABLE。本批次 4 条：F-RR2-01 provider-aware failover（NEVER_RETRY + CROSS_PROVIDER_ONLY 双集合）、F-RR2-02 Redis 冷却池 300s + routeByAlias 降权（不移除保证铁律）、F-RR2-03 adapter 200+error 映射审计（openai-compat/volcengine/siliconflow 三家）、F-RR2-04 codex 9 单测矩阵 + 生产烟测。混合批次（3 generator + 1 codex），状态 planning→building。Generator 可直接开始 F-RR2-01。",
+    "Kimi": "Generator 完成 3 条。关键决策：(1) failover 内置默认 cooldown 写入（不依赖调用方），否则 chat-stream/chat-ns/images 三处全需手传 onRetry，容易漏；(2) cooldown 写入 void fire-and-forget，不阻塞 retry；(3) routeByAlias 冷却中不移除只降权，避免全冷却时 alias 整挂；(4) mapBodyError 用关键字正则而非严格状态码匹配，兼容各 provider 非标准 error.code（zhipu/volcengine 差异大）；(5) throwIfBodyError 做 instance method 方便子类 this. 访问，mapBodyError 做 exported 纯函数方便单测。踩坑：failover.ts 本会话启动时工作树已有一版 F-RR2-01 代码（未提交），重新 Read 后又是原始版本（可能被 linter/hook 还原）——最终以我此次写入为准。",
     "Reviewer": null
   }
 }

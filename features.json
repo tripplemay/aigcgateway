@@ -7,7 +7,7 @@
       "title": "Provider-aware failover：429/401/402 跨 provider 放行",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "source": "ROUTING-RESILIENCE-V2",
       "acceptance": "1) `src/lib/engine/failover.ts` 重构 isRetryable(err, currentRoute, nextRoute)：新增 NEVER_RETRY 集合（CONTENT_FILTERED + INVALID_REQUEST + INVALID_SIZE，永不重试）+ CROSS_PROVIDER_ONLY 集合（AUTH_FAILED + RATE_LIMITED + INSUFFICIENT_BALANCE，仅下一候选 provider.id 不同时重试）；2) withFailover 循环每轮调用 isRetryable 传入 candidates[i] 和 candidates[i+1] ?? null；3) 同 provider 429 不重试（即使有下一候选，若同 provider 也不切）；4) 跨 provider 429/401/402 自动切换；5) CONTENT_FILTERED/INVALID_REQUEST 任何情况不重试；6) tsc 通过"
     },
@@ -16,7 +16,7 @@
       "title": "Redis 失败通道冷却池（300s） + routeByAlias 降权",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "source": "ROUTING-RESILIENCE-V2",
       "acceptance": "1) 新建 `src/lib/engine/cooldown.ts`：markChannelCooldown(channelId, reason) 写 `channel:cooldown:<id>` TTL=300s + getCooldownChannelIds(channelIds[]) 批查；2) Redis 不可用时 markChannelCooldown 仅 console.warn 不抛，getCooldownChannelIds 返回空 Set；3) withFailover 内置 onRetry 默认写冷却（不依赖调用方显式传入），保证三处调用全覆盖；4) routeByAlias 修改排序：同 priority 内，非冷却优先于冷却中，再按 health PASS/NULL 排序；5) 冷却中的 channel 不从候选移除（只降权）；6) 单测覆盖 cooldown 读写 + Redis 不可用降级；7) tsc 通过"
     },
@@ -25,7 +25,7 @@
       "title": "Adapter HTTP 200 + body.error 映射审计 + 修复",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "source": "ROUTING-RESILIENCE-V2",
       "acceptance": "1) 审计 `src/lib/engine/openai-compat.ts`、`adapters/volcengine.ts`、`adapters/siliconflow.ts` 非流响应处理分支：HTTP 200 但 body 含 error 字段时，是否抛 EngineError + 正确 code；2) 缺失则补（复用 mapProviderError 或等效逻辑），code 应对应 upstream 语义（429/401/400/其他 → PROVIDER_ERROR）；3) 为每个被修的 adapter 补单测：mock upstream 返回 200 + {error:{message,code}}，断言抛出 EngineError 且 code 正确；4) tsc 通过"
     },

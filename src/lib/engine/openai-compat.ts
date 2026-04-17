@@ -55,6 +55,7 @@ export class OpenAICompatEngine implements EngineAdapter {
     );
 
     const json = await response.json();
+    this.throwIfBodyError(json);
     const normalized = this.normalizeChatResponse(json);
     // F-DP-08: 当 json_object 模式时自动剥离 markdown code fence
     if (request.response_format?.type === "json_object") {
@@ -144,6 +145,7 @@ export class OpenAICompatEngine implements EngineAdapter {
     );
 
     const json = await response.json();
+    this.throwIfBodyError(json);
     return this.normalizeImageResponse(json);
   }
 
@@ -451,6 +453,21 @@ export class OpenAICompatEngine implements EngineAdapter {
   // 错误映射
   // ------------------------------------------------------------------
 
+  /**
+   * F-RR2-03: detect a body-level error on an HTTP 200 response and convert
+   * it to an EngineError with the right semantic code. Some providers
+   * (historically Zhipu's older endpoints, parts of volcengine / siliconflow)
+   * happily return HTTP 200 with `{"error": {...}}` instead of the usual
+   * 4xx/5xx status. Without this check the rest of the pipeline saw an
+   * empty-but-successful response and failover's isRetryable could not
+   * reach the right decision.
+   */
+  protected throwIfBodyError(json: unknown): void {
+    if (!json || typeof json !== "object") return;
+    const err = mapBodyError(json as Record<string, unknown>);
+    if (err) throw err;
+  }
+
   protected mapProviderError(status: number, body: string): EngineError {
     let message = `Provider returned ${status}`;
     let code: string = ErrorCodes.PROVIDER_ERROR;
@@ -494,6 +511,57 @@ export class OpenAICompatEngine implements EngineAdapter {
     }
     return null;
   }
+}
+
+/**
+ * F-RR2-03: inspect an upstream JSON body for a provider-level error block
+ * and translate it into an EngineError with a best-effort semantic code.
+ * Returns null when no error is present.
+ *
+ * Recognises the common OpenAI-compatible envelope `{error: {message, code,
+ * type}}` as well as flat `{error: "string"}`. Upstream hints (status codes,
+ * keywords) are matched against known categories; everything else falls
+ * back to PROVIDER_ERROR.
+ */
+export function mapBodyError(json: Record<string, unknown>): EngineError | null {
+  const rawErr = json.error;
+  if (rawErr === undefined || rawErr === null) return null;
+
+  let message: string;
+  let errObj: Record<string, unknown> = {};
+  if (typeof rawErr === "string") {
+    message = rawErr;
+  } else if (typeof rawErr === "object") {
+    errObj = rawErr as Record<string, unknown>;
+    message =
+      (typeof errObj.message === "string" && errObj.message) ||
+      (typeof errObj.msg === "string" && errObj.msg) ||
+      JSON.stringify(errObj);
+  } else {
+    return null;
+  }
+
+  const hint = `${String(errObj.code ?? "")} ${String(errObj.type ?? "")} ${message}`.toLowerCase();
+  let code: string = ErrorCodes.PROVIDER_ERROR;
+  let status = 502;
+  if (/rate.?limit|too.?many|quota|429/.test(hint)) {
+    code = ErrorCodes.RATE_LIMITED;
+    status = 429;
+  } else if (/unauthori[sz]|invalid.?api.?key|401|403|forbidden/.test(hint)) {
+    code = ErrorCodes.AUTH_FAILED;
+    status = 401;
+  } else if (/insufficient.?(balance|fund|credit)|no.?balance|402/.test(hint)) {
+    code = ErrorCodes.INSUFFICIENT_BALANCE;
+    status = 402;
+  } else if (/invalid.?request|bad.?request|\b400\b/.test(hint)) {
+    code = ErrorCodes.INVALID_REQUEST;
+    status = 400;
+  } else if (/timeout|timed.?out/.test(hint)) {
+    code = ErrorCodes.TIMEOUT;
+    status = 504;
+  }
+
+  return new EngineError(sanitizeErrorMessage(message), code, status, json);
 }
 
 /**

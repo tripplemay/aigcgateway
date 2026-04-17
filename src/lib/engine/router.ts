@@ -10,6 +10,7 @@ import { EngineError, ErrorCodes } from "./types";
 import { OpenAICompatEngine } from "./openai-compat";
 import { VolcengineAdapter } from "./adapters/volcengine";
 import { SiliconFlowAdapter } from "./adapters/siliconflow";
+import { getCooldownChannelIds } from "./cooldown";
 
 // Adapter 单例缓存
 const adapterCache = new Map<string, EngineAdapter>();
@@ -91,10 +92,19 @@ export async function routeByAlias(aliasName: string): Promise<RouteResultWithCa
     );
   }
 
-  // Sort: health PASS first, then NULL (never checked), within same priority.
+  // F-RR2-02: de-prioritize (but don't remove) channels that are currently
+  // cooling down from a recent failure. Keeping them in the list preserves
+  // the contract that "every candidate gets a shot" when healthier peers
+  // are exhausted.
+  const cooldownIds = await getCooldownChannelIds(candidateChannels.map((c) => c.channel.id));
+
+  // Sort: priority ASC → non-cooldown first → health PASS first → NULL last.
   // FAIL channels are already filtered out above.
   candidateChannels.sort((a, b) => {
     if (a.channel.priority !== b.channel.priority) return a.channel.priority - b.channel.priority;
+    const aCool = cooldownIds.has(a.channel.id);
+    const bCool = cooldownIds.has(b.channel.id);
+    if (aCool !== bCool) return aCool ? 1 : -1;
     const aPass = a.channel.healthChecks.length > 0 && a.channel.healthChecks[0].result === "PASS";
     const bPass = b.channel.healthChecks.length > 0 && b.channel.healthChecks[0].result === "PASS";
     if (aPass && !bPass) return -1;

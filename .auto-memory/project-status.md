@@ -4,24 +4,24 @@ description: AIGC Gateway 当前状态快照（覆盖写，≤30 行）
 type: project
 ---
 ## 当前批次
-- ROUTING-RESILIENCE-V2：`building`（4 条，3 generator + 1 codex）
-- 其他 Generator 已接手开发，本会话 Planner = Kimi 不再介入实现
-- 源起：2026-04-17 生产 glm-4.7-flash zhipu 429 未切 openrouter（failover.ts:22 将 429/401/402 列入 NON_RETRYABLE）
+- ROUTING-RESILIENCE-V2：`verifying`（4 条，3/4 generator 已完成，F-RR2-04 待 Reviewer）
+- 源起：2026-04-17 生产 glm-4.7-flash zhipu 429 未切 openrouter
 
-## 本批次范围
-- F-RR2-01 provider-aware failover（跨 provider 放行 429/401/402）
-- F-RR2-02 Redis 300s 冷却池 + routeByAlias 降权
-- F-RR2-03 adapter HTTP 200+body.error 映射审计
-- F-RR2-04 Codex 9 单测矩阵 + 生产烟测
+## 本批次产物
+- `src/lib/engine/failover.ts` 重构：NEVER_RETRY + CROSS_PROVIDER_ONLY 双集合；isRetryable(err, current, next)；内置默认 cooldown 写入
+- `src/lib/engine/cooldown.ts` 新建：markChannelCooldown / getCooldownChannelIds，TTL 300s，Redis 不可用 warn 不抛
+- `src/lib/engine/router.ts` routeByAlias 排序：priority ASC → 非冷却优先 → health PASS 优先（冷却中仅降权不移除）
+- `src/lib/engine/openai-compat.ts` 新增 mapBodyError 纯函数 + throwIfBodyError protected 方法
+- 6 call sites 补 200+error 守卫：chatCompletions / imageGenerations / volcengine.imageViaChat+imageFallback / siliconflow.imageGenerations
+- 2 个测试文件：cooldown.test.ts（7 用例）+ adapter-body-error.test.ts（11 用例）
+- 全量：tsc 通过、vitest 10 files 64 tests 全过、npm run build 通过
 
-## 上一批次遗产（ONBOARDING-ENHANCE done）
+## 上一批次（ONBOARDING-ENHANCE done）
 - 3 个 migration 生产已生效（2026-04-17 05:27 UTC）：BONUS enum、WELCOME_BONUS_USD=1.00、TEMPLATE_CATEGORIES 10 条
-- Signoff：`docs/test-reports/ONBOARDING-ENHANCE-signoff-2026-04-17.md`
 
 ## 生产状态
-- 生产 /landing.html 404 已 hotfix + deploy.yml 补 cp 防回归
-- TEMPLATE-LIBRARY-UPGRADE + TEMPLATE-TESTING + ONBOARDING-ENHANCE 新代码尚未部署
-- 现生产 `glm-4.7-flash` zhipu 单通道实际被限流时无 failover（本批次修复目标）
+- 现生产 `glm-4.7-flash` zhipu 单通道被限流时无 failover（本批次修复目标，待部署）
+- TEMPLATE-LIBRARY-UPGRADE + TEMPLATE-TESTING 新代码尚未部署
 
 ## 已知 gap
 - 5 个图片模型 supportedSizes 规则不匹配

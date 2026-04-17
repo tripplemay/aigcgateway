@@ -38,6 +38,7 @@ export class SiliconFlowAdapter extends OpenAICompatEngine {
     );
 
     const json = (await response.json()) as Record<string, unknown>;
+    this.throwIfBodyError(json);
 
     // 转换 images[0].url → data[0].url
     return this.normalizeSiliconFlowImageResponse(json);
