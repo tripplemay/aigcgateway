@@ -18,50 +18,6 @@
       "priority": "low"
     },
     {
-      "id": "BL-126",
-      "title": "AUDIT-CRITICAL-FIX — 修复 reports-20260413 审计的 critical/high 问题",
-      "description": "一个批次修复 2026-04-13 MCP 审计发现的全部 critical/high 问题（除限流外独立）。3 个系统性根因：(1) gpt-image 零图交付仍扣费导致资金损失（CHAOS-001/007）；(2) router.ts 不过滤 model.enabled 导致 list_models 和实际路由不一致（claude-sonnet-4.6/qwen-image 幽灵模型）；(3) 健康检查只探 /models 端点，GET /models 成功 ≠ 实际调用成功。另含 run_template 版本 bug、图片 URL 供应商泄露、XSS 转义不完整、错误脱敏不彻底等。详细规格见 docs/specs/AUDIT-CRITICAL-FIX-spec.md。",
-      "decisions": [
-        "合并为一个批次处理（12 generator + 1 codex = 13 条）",
-        "限流（RL-001/RL-005）不纳入本批次，独立为 RATE-LIMIT 批次",
-        "等 UI-UNIFY-FIX 签收后立即启动",
-        "历史受害用户通过 refund-zero-image-audit.ts 脚本批量退款",
-        "健康检查分层（API_REACHABILITY + CALL_PROBE）是本批次最大工程量，可能影响进度"
-      ],
-      "confirmed_at": "2026-04-14",
-      "priority": "critical",
-      "spec": "docs/specs/AUDIT-CRITICAL-FIX-spec.md"
-    },
-    {
-      "id": "BL-127",
-      "title": "RATE-LIMIT — 全局限流 + 突发消费保护",
-      "description": "为网关增加全局限流和突发消费保护。来源：RL-001/RL-005（2026-04-13 MCP 审计）。15 个并发请求全部通过网关无任何限流，支付上线后可能被恶意刷爆余额。需要 Redis token bucket + per API key / per user / per project 配额 + X-RateLimit-* 响应头 + 每分钟消费阈值 + 突发熔断。规模大，独立批次做。支付（BL-065）上线前必须完成。",
-      "decisions": [
-        "Redis token bucket 实现",
-        "三层限流：per API key、per user、per project",
-        "响应头增加 X-RateLimit-Limit / X-RateLimit-Remaining / X-RateLimit-Reset（/docs 已有文档字段但未实施）",
-        "每分钟消费阈值 + 5 秒内 N 次连续熔断（可配置）",
-        "必须在 BL-065 支付验签之前完成"
-      ],
-      "confirmed_at": "2026-04-14",
-      "priority": "high"
-    },
-    {
-      "id": "BL-128a",
-      "title": "TEMPLATE-CATEGORIES-EXPANSION — 分类扩展 seed 迁移（开发）",
-      "description": "为即将到来的中文营销内容模板（BL-128b）先铺路：扩展 template-categories 系统配置，新增 4 个分类 social-content（社交内容）/ short-video（短视频脚本）/ ip-persona（IP 与人设）/ marketing-strategy（营销策略）。通过 seed migration 注入 system_config.TEMPLATE_CATEGORIES，不改 DEFAULT_TEMPLATE_CATEGORIES 常量，保留 admin 自定义能力。单 feature 小批次。",
-      "decisions": [
-        "走 seed migration，不改 src/lib/template-categories.ts 的 DEFAULT 常量",
-        "若 system_config.TEMPLATE_CATEGORIES 已存在且 admin 已自定义，seed 逻辑需合并不覆盖（新增缺失项）",
-        "icon 使用 Material Symbols：tag / movie / person_outline / insights",
-        "上线后再启动 BL-128b 的内容录入"
-      ],
-      "confirmed_at": "2026-04-17",
-      "priority": "medium",
-      "spec": "docs/specs/template-library-content-batch-01-spec.md",
-      "research": "docs/research/stableisland/category-mapping.md"
-    },
-    {
       "id": "BL-128b",
       "title": "TEMPLATE-LIBRARY-CONTENT-01 — 首发 6 个中文营销模板录入（运维）",
       "description": "运维任务，不走开发状态机。管理员通过 admin UI 创建 6 个公共模板：(1) 朋友圈文案六型生成、(2) 社交平台评论区回复（2-step）、(3) IP 人设画像生成、(4) 短视频脚本（2-step 大纲→脚本）、(5) 产品力可视化脚本、(6) 私域营销策略方案。prompt 全部原创，设计稿见 spec。依赖 BL-128a 分类上线。每个模板创建后跑一次冒烟测试，通过后 publish。情报来源：docs/research/stableisland/flow-catalog.md。",

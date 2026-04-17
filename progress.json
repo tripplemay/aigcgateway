@@ -1,31 +1,25 @@
 {
-  "status": "done",
-  "user_goal": "TEMPLATE-TESTING — 模板测试工作台：独立测试页面 + dry_run 预览（免费）+ 真实执行 + 步骤级结果展示 + 测试历史（持久化最近 20 次）",
-  "total_features": 9,
-  "completed_features": 9,
-  "fix_rounds": 3,
+  "status": "building",
+  "user_goal": "ONBOARDING-ENHANCE — 注册赠送（WELCOME-BONUS：SystemConfig 可配 + BONUS 交易类型）+ 模板分类扩展（BL-128a：新增 4 个营销类分类）",
+  "total_features": 5,
+  "completed_features": 0,
+  "fix_rounds": 0,
   "current_sprint": null,
-  "last_updated": "2026-04-17T04:36:00Z",
+  "last_updated": "2026-04-17T10:00:00Z",
   "reference_docs": [
-    "docs/specs/TEMPLATE-TESTING-spec.md"
+    "docs/specs/WELCOME-BONUS-draft.md"
   ],
   "role_assignments": null,
   "docs": {
-    "spec": "docs/specs/TEMPLATE-TESTING-spec.md",
-    "test_cases": "docs/test-cases/template-testing-verifying-cases-2026-04-17.md",
-    "signoff": "docs/test-reports/TEMPLATE-TESTING-signoff-2026-04-17.md",
+    "spec": "docs/specs/WELCOME-BONUS-draft.md",
+    "test_cases": null,
+    "signoff": null,
     "framework_reviewed": false
   },
-  "evaluator_feedback": {
-    "summary": "reverifying 全量通过：11 项验收全部 PASS，批次可签收。",
-    "pass_count": 11,
-    "partial_count": 0,
-    "fail_count": 0,
-    "issues": []
-  },
-  "generator_handoff": "Fix round 3 —— 真根因找到并修复。**根因：** scripts/test/template-testing-verifying-e2e-2026-04-17.ts 里 `new PrismaClient()` 默认从 .env 读 DATABASE_URL（指向 dev 库 aigc_gateway）。当 Reviewer 在未 source scripts/test/codex-env.sh 的 shell 里运行 verifier，脚本内部的 Prisma 连 dev 库、而 server（3099）走 codex-env 连 test 库（aigc_gateway_test），fixture.configureLocalProvider 在 dev 库里 mock provider，但 server 读的 test 库没有 deepseek 模型，导致 resolveEngine 抛 MODEL_NOT_FOUND。本机复现：在 fresh codex-setup + unset DATABASE_URL 情况下运行 verifier，100% 复现 Reviewer 的 8/3（AC2/AC3/AC7）；pin 到 test 库后 11/11。**修复：** verifier 脚本把 PrismaClient 显式 datasourceUrl 指向 test 库（`new PrismaClient({ datasourceUrl: TEST_DATABASE_URL })`，允许 TEST_DATABASE_URL env 覆盖），这样 Reviewer 以任何方式启 shell 都不会连错库。证据：docs/test-reports/template-testing-fixing-r3-local-e2e-2026-04-17.json（11/11）。业务代码 router.ts / test-runner / MCP test_mode 本身没有新修改（round 1 的 resolveEngine fallback 本就正确）。**Evaluator 关注点：** 本轮唯一代码变化是 scripts/test/template-testing-verifying-e2e-2026-04-17.ts 顶部 14 行 env guard —— 属于测试基础设施修复，不改测试断言或流程。",
+  "evaluator_feedback": null,
+  "generator_handoff": null,
   "session_notes": {
-    "Kimi": "fix round 3 → reverifying。真根因是测试脚本的 PrismaClient 默认从 .env 载入 DATABASE_URL（dev 库），导致 verifier 内部操作的是 dev 库而 server 操作的是 test 库。这解释了为什么我本地 11/11（因为我总是 source codex-env.sh），而 Reviewer 8/3（大概率没 source 或 source 后新开了 shell）。修复：verifier 脚本显式 datasourceUrl pin test 库，Reviewer 无论怎么跑都走正确库。验证：unset DATABASE_URL + 跑一次 → 8/3 复现 Reviewer 报告；加 pin 后 → 11/11。",
-    "Reviewer": "已完成 reverifying：在 3099 环境执行模板验收脚本，结果 11/11 PASS。已生成 signoff 报告并将状态置为 done。"
+    "Kimi": "Planner 启动 ONBOARDING-ENHANCE 批次（4 generator + 1 codex = 5 条）。合并 WELCOME-BONUS（注册赠送 $1 可配 + BONUS 交易类型 + 管理端配置 + 前端展示）+ BL-128a（模板分类扩展 seed migration 新增 4 个营销类分类）。backlog 清理：BL-126/127 已完成删除，BL-128a 合并进本批次。本轮只负责 Planner 工作，不做 Generator。",
+    "Reviewer": null
   }
 }
