@@ -4,29 +4,29 @@ description: AIGC Gateway 当前状态快照（覆盖写，≤30 行）
 type: project
 ---
 ## 当前批次
-- ONBOARDING-ENHANCE：`done`（7/7 完成，L1 本地验收通过并签收）
-- 合并 WELCOME-BONUS + BL-128a + LANDING-LINKS-FIX
+- ROUTING-RESILIENCE-V2：`building`（4 条，3 generator + 1 codex）
+- 其他 Generator 已接手开发，本会话 Planner = Kimi 不再介入实现
+- 源起：2026-04-17 生产 glm-4.7-flash zhipu 429 未切 openrouter（failover.ts:22 将 429/401/402 列入 NON_RETRYABLE）
 
-## 本批次产物
-- Migrations: `20260417_add_transaction_type_bonus`、`20260417_welcome_bonus_seed`、`20260417_template_categories_marketing`
-- register 事务内注入 BONUS + defaultProject + notificationPreference 之后
-- admin/operations 新增 WelcomeBonusCard（PUT /api/admin/config）
-- balance 页 BONUS 绿色 chip + i18n 双语 + admin/users/[id] chip 同步
-- src/lib/safe-redirect.ts + 9 条 vitest 单测（/ 开头、拒 //、javascript:、backslash、控制字符、>256）
-- login 页 Suspense + useSearchParams + JWT exp 校验 hasLiveToken 自动跳 + authChecked 防闪烁
-- landing.html 4 链接改 /login?redirect=<path>
-- 验收报告：`docs/test-reports/onboarding-enhance-verifying-local-e2e-2026-04-17.json`
+## 本批次范围
+- F-RR2-01 provider-aware failover（跨 provider 放行 429/401/402）
+- F-RR2-02 Redis 300s 冷却池 + routeByAlias 降权
+- F-RR2-03 adapter HTTP 200+body.error 映射审计
+- F-RR2-04 Codex 9 单测矩阵 + 生产烟测
+
+## 上一批次遗产（ONBOARDING-ENHANCE done）
+- 3 个 migration 生产已生效（2026-04-17 05:27 UTC）：BONUS enum、WELCOME_BONUS_USD=1.00、TEMPLATE_CATEGORIES 10 条
 - Signoff：`docs/test-reports/ONBOARDING-ENHANCE-signoff-2026-04-17.md`
 
 ## 生产状态
-- 生产 /landing.html 404 已 hotfix（手动 cp + pm2 restart）+ deploy.yml 补 cp 防回归
-- TEMPLATE-LIBRARY-UPGRADE + TEMPLATE-TESTING 待部署
-- 用户要求本轮仅做本地验收，生产新代码尚未部署验收
+- 生产 /landing.html 404 已 hotfix + deploy.yml 补 cp 防回归
+- TEMPLATE-LIBRARY-UPGRADE + TEMPLATE-TESTING + ONBOARDING-ENHANCE 新代码尚未部署
+- 现生产 `glm-4.7-flash` zhipu 单通道实际被限流时无 failover（本批次修复目标）
 
 ## 已知 gap
 - 5 个图片模型 supportedSizes 规则不匹配
 - get-balance.ts(74) tsc TS2353 batchId pre-existing
-- landing.html 4 个 href="#" 占位（关于/定价/服务条款/隐私政策）—— 后续批次做真页面
+- landing.html 4 个 href="#" 占位（关于/定价/服务条款/隐私政策）
 
 ## Backlog（延后）
 - BL-065(支付验签) / BL-104(Settings 项目切换) / BL-128b(6 个营销模板录入)
