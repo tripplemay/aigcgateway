@@ -34,7 +34,7 @@
       "title": "BL-SEC-CRED-HARDEN 全量验收",
       "priority": "critical",
       "executor": "codex",
-      "status": "pending",
+      "status": "completed",
       "source": "BL-SEC-CRED-HARDEN",
       "acceptance": "静态检查：1) git grep -i 'admin123' 零结果；2) git grep 'Codex@2026' 零结果；3) git grep 'Test1234' 零结果；4) git grep 'aigc-gateway-image-proxy-dev-secret' 零结果（以上 4 条均允许 docs/ 目录引用但代码/scripts/prisma 需清零）；5) `.env.example` 含 4 个新变量（ADMIN_SEED_PASSWORD + ADMIN_TEST_PASSWORD + E2E_TEST_PASSWORD + IMAGE_PROXY_SECRET）。代码健全：6) `npm run build` 通过；7) `npx tsc --noEmit` 通过；8) `npx vitest run src/lib/api/__tests__/image-proxy.test.ts` 新单测通过。启动校验：9) 空 IMAGE_PROXY_SECRET + 空 AUTH_SECRET + 空 NEXTAUTH_SECRET 启动 `npm run dev` 应抛错退出（或首次请求 image-proxy 时抛错，二选一）。脚本健全：10) `ADMIN_TEST_PASSWORD= npx tsx scripts/admin-auth.ts` exit(1)；11) 设置 env 后 admin-auth.ts 能正常获取 token。12) 生成 signoff 报告 `docs/test-reports/BL-SEC-CRED-HARDEN-signoff-2026-04-18.md`。"
     }

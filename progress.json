@@ -1,11 +1,11 @@
 {
-  "status": "verifying",
+  "status": "done",
   "user_goal": "BL-SEC-CRED-HARDEN — 移除硬编码密码 + image-proxy HMAC fallback + 启动 env assert（Code Review CRIT-5 + CRIT-6 + L5）",
   "total_features": 4,
-  "completed_features": 3,
+  "completed_features": 4,
   "fix_rounds": 0,
   "current_sprint": "BL-SEC-CRED-HARDEN",
-  "last_updated": "2026-04-18T10:20:00Z",
+  "last_updated": "2026-04-18T02:23:48.650Z",
   "reference_docs": [
     "docs/specs/BL-SEC-CRED-HARDEN-spec.md",
     "docs/code-review/backend-fullscan-2026-04-17.md"
@@ -14,10 +14,16 @@
   "docs": {
     "spec": "docs/specs/BL-SEC-CRED-HARDEN-spec.md",
     "test_cases": null,
-    "signoff": null,
+    "signoff": "docs/test-reports/BL-SEC-CRED-HARDEN-signoff-2026-04-18.md",
     "framework_reviewed": false
   },
-  "evaluator_feedback": null,
+  "evaluator_feedback": {
+    "summary": "BL-SEC-CRED-HARDEN 验收通过：凭证硬编码已从代码域清理，image-proxy fail-fast 与脚本 env 断言行为符合预期。",
+    "pass_count": 12,
+    "partial_count": 0,
+    "fail_count": 0,
+    "issues": []
+  },
   "generator_handoff": {
     "summary": "F-CH-01 / F-CH-02 / F-CH-03 已完成，进入 verifying 等待 Codex 执行 F-CH-04。",
     "deliverables": [
@@ -46,6 +52,6 @@
   },
   "session_notes": {
     "Kimi": "Generator 完成 3/3 功能代码实现。F-CH-01 在 image-proxy.ts 改 || 链 + env 全空时 throw；启动校验放 src/instrumentation.ts（await import assertImageProxySecret 后首行执行）。F-CH-02 在 seed.ts 顶部加 requireEnv 并替换 hashSync 参数。F-CH-03 新建 scripts/lib/require-env.ts，另用 /tmp/bl-sec-patch.mjs 批量改 47 个文件（regex 替换 + auto-insert import），mjs/k6/bash 文件手动改。批次类型为「混合批次」（3 generator + 1 codex），按 harness 规则 building→verifying 跳过 fixing。生成回归测试沉淀在新单测里（credential-hardening 属 security 类，vitest 单测比改 e2e 脚本更合适）。",
-    "Reviewer": null
+    "Reviewer": "2026-04-18 verifying: executed static scans, env/example checks, tsc/build, image-proxy vitest, fail-fast startup checks, admin-auth negative/positive and seed env checks; all acceptance items passed; signed off batch."
   }
 }
