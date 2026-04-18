@@ -10,8 +10,14 @@
 
 ```
 framework/
+├── bootstrap.sh            # 一键初始化脚本（机械复制 + 目录建立）
+├── INIT.md                 # Claude CLI 初始化引导 prompt（智能填占位符）
+├── README.md               # 本文件（同时作为 template repo GitHub 落地页）
+├── CHANGELOG.md            # 框架版本变更记录
+├── proposed-learnings.md   # 待沉淀提案（done 阶段处理）
+├── archive/                # 已闭环提案归档
 ├── harness/                # 状态机核心（7 状态：new→planning→building→verifying→fixing⟷reverifying→done）
-│   ├── harness-rules.md    # 状态机规则，复制到项目根目录
+│   ├── harness-rules.md    # 状态机规则
 │   ├── planner.md          # Planner 角色指令
 │   ├── generator.md        # Generator 角色指令
 │   ├── evaluator.md        # Evaluator 角色指令
@@ -27,8 +33,8 @@ framework/
 │   ├── user-role.md        # T2：用户角色和工作偏好
 │   └── reference-docs.md   # T2：文档结构索引
 └── templates/              # 项目级配置模板
-    ├── CLAUDE.md           # Claude 项目指令模板
-    ├── AGENTS.md           # Codex 指令模板
+    ├── CLAUDE.md           # Claude 项目指令模板（占位符版本）
+    ├── AGENTS.md           # Codex 指令模板（占位符版本）
     ├── signoff-report.md   # 功能签收报告模板
     └── features.template.json  # features.json 模板（含 executor 字段）
 ```
@@ -53,72 +59,71 @@ framework/
 
 ---
 
-## 新项目启动（5 分钟完成）
+## 新项目启动（3 步）
 
-### 第 1 步：复制 Harness 文件到项目根目录
+### 第 1 步：从 template repo 拉取骨架
 
 ```bash
-cp framework/harness/harness-rules.md   ./harness-rules.md
-cp framework/harness/planner.md         ./planner.md
-cp framework/harness/generator.md       ./generator.md
-cp framework/harness/evaluator.md       ./evaluator.md
-cp framework/harness/progress.init.json ./progress.json
-echo '[]' > backlog.json
+npx degit tripplemay/harness-template my-new-project
+cd my-new-project
 ```
 
-### 第 2 步：初始化共享记忆系统（v0.5.0 分层结构）
+### 第 2 步：运行 bootstrap 脚本
 
 ```bash
-mkdir -p .auto-memory/role-context
-cp framework/memory/MEMORY.md          .auto-memory/MEMORY.md
-cp framework/memory/project-status.md  .auto-memory/project-status.md
-cp framework/memory/environment.md     .auto-memory/environment.md
-cp framework/memory/user-role.md       .auto-memory/user-role.md
-cp framework/memory/reference-docs.md  .auto-memory/reference-docs.md
-cp framework/memory/role-context/*.md  .auto-memory/role-context/
+bash bootstrap.sh
 ```
 
-填写 `user-role.md`、`environment.md`、`project-status.md` 中的占位内容。
+脚本会自动：
+- 把 harness 角色文件（`harness-rules.md` / `planner.md` / `generator.md` / `evaluator.md`）放到项目根
+- 从 `memory/` 初始化 `.auto-memory/`（含 T0/T1/T2 分层文件）
+- 从 `templates/` 初始化 `CLAUDE.md` / `AGENTS.md`（占位符版本）
+- 创建 `progress.json` / `features.json` / `backlog.json` 初始文件
+- 创建 `docs/specs/` / `docs/test-cases/` / `docs/test-reports/user_report/` / `docs/dev/` 目录骨架
+- 配置 `.gitignore`（`.agent-id` 等）
+- 把 template 源文件规整到 `framework/` 子目录（供后续沉淀回流）
+- 把 `INIT.md` 留在根目录，方便 Claude CLI 找到
 
-### 第 3 步：配置 CLAUDE.md + AGENTS.md
+### 第 3 步：用 Claude CLI 填占位符
+
+打开 Claude CLI（在项目目录），说：
+
+> "按 INIT.md 初始化项目"
+
+Claude 会：
+- 交互式问 6 个问题（项目名、技术栈、常用命令、生产地址、agent 身份、用户偏好）
+- 展示填充计划，等你确认
+- 自动填好 `CLAUDE.md` / `AGENTS.md` / `.auto-memory/*` 所有占位符
+- 创建 `.agent-id` 写入本机身份
+- 首次 `git init` + commit
+- 删除一次性工件 `INIT.md`
+
+完成后，第一个 Harness 批次可以直接开始：说"根据 harness 规则，开发 [第一个需求]"，Claude CLI 进入 Planner 模式。
+
+`.agents-registry` 会在第一次启动时自动创建（harness-rules.md §1.2 自动注册）。
+
+---
+
+### 备选：手工初始化（不使用 Claude）
+
+也可以跳过 INIT.md，手动编辑带占位符的文件：
+
+| 文件 | 占位符 |
+|---|---|
+| `CLAUDE.md` | 项目名、Tech Stack、Commands |
+| `AGENTS.md` | `PRODUCTION_STAGE` / `PRODUCTION_DB_WRITE` / `HIGH_COST_OPS` |
+| `.auto-memory/user-role.md` | 用户身份和偏好 |
+| `.auto-memory/environment.md` | 生产 URL、SSH、测试账号 |
+| `.auto-memory/project-status.md` | 初始批次状态 |
+
+手动创建 `.agent-id`：
 
 ```bash
-cp framework/templates/CLAUDE.md ./CLAUDE.md
-cp framework/templates/AGENTS.md ./AGENTS.md
-```
-
-编辑 `CLAUDE.md`：项目名、技术栈、常用命令。
-编辑 `AGENTS.md`：生产测试开关值（PRODUCTION_STAGE / DB_WRITE / HIGH_COST_OPS）。
-
-### 第 4 步：建立文档目录结构
-
-```bash
-mkdir -p docs/specs docs/test-cases docs/test-reports/user_report docs/dev
-```
-
-在 `docs/dev/` 中按需创建：
-- `architecture.md` — 系统架构详情
-- `rules.md` — 开发规则汇总
-- `codex-policies.md` — Codex 详细策略
-
-### 第 5 步：配置 agent 身份并纳入 git
-
-```bash
-# .agent-id 是本机 agent 身份，按工具类型分行（不入 git，每台机器独立）
 cat > .agent-id <<EOF
 cli: [本机 CLI agent 名]
 codex: [本机 Codex agent 名]
 EOF
-echo ".agent-id" >> .gitignore
-
-# 共享文件入 git
-git add .auto-memory/ harness-rules.md planner.md generator.md evaluator.md \
-        progress.json features.json backlog.json CLAUDE.md AGENTS.md
-git commit -m "chore: init project with Cowork-Harness framework"
-git push
 ```
-
-`.agents-registry` 会在第一次启动时自动创建（harness-rules.md §1.2 自动注册）。
 
 ---
 

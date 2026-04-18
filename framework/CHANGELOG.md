@@ -5,6 +5,34 @@
 
 ---
 
+## v0.6.1 — 2026-04-18（一键初始化：bootstrap.sh + INIT.md）
+
+**来源批次：** 独立任务（用户讨论"如何把框架应用到新项目"，确定形态三 = 独立 template repo + bootstrap + INIT 的初始化方案）
+**触发原因：** 原 5 步手工 cp + 编辑流程对新项目不友好；纯 bash 脚本无法智能填充 environment.md / user-role.md 等需要判断的字段；选定 "bootstrap.sh 做机械复制 + Claude 通过 INIT.md 智能填占位符" 的双层分工
+
+**变更内容：**
+
+- 新增 `framework/bootstrap.sh`：机械复制脚本
+  - 自动识别 flat（degit template repo 后）/ nested（aigcgateway 自身）布局
+  - 拷贝 harness 角色文件到根目录、初始化 `.auto-memory/` 分层结构、复制 CLAUDE.md/AGENTS.md 占位符版本
+  - 创建 progress.json/features.json/backlog.json/docs 骨架/.gitignore
+  - flat 布局下把源文件规整到 `framework/` 子目录、把 INIT.md 提到根目录
+  - 安全检查：harness-rules.md 已存在则拒绝执行
+- 新增 `framework/INIT.md`：Claude CLI 引导 prompt
+  - 6 个问题（项目名/技术栈/命令/生产环境/agent 身份/用户偏好）
+  - 步骤 2 必须展示填充计划等用户确认
+  - 用 Edit 工具精确替换占位符，不擅自编造信息
+  - 完成后 `git init` + commit + 删除 INIT.md
+- `framework/README.md` §新项目启动：从 5 步简化为 3 步（degit → bootstrap → Claude INIT）
+- 同步发布到独立 template repo `tripplemay/harness-template`（首次 `git subtree push --prefix=framework`）
+
+**分工设计：**
+- bootstrap.sh = 机械活（确定性 cp/mkdir/echo），shell 脚本可回归
+- Claude INIT.md = 判断题（智能填充占位符），自然语言交互
+- 边界清晰，互不踩脚
+
+---
+
 ## v0.6.0 — 2026-04-18（框架对齐审计 + 模板补齐）
 
 **来源批次：** 独立任务（用户要求审查 framework 是否与当前流程对齐）
