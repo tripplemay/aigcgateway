@@ -1,24 +1,69 @@
 {
-  "batch": "BL-SEC-BILLING-CHECK-FOLLOWUP",
+  "batch": "BL-SEC-INFRA-GUARD",
   "created_at": "2026-04-18",
   "features": [
     {
-      "id": "F-BCF-01",
-      "title": "修正 CHECK migration（v2）+ schema.prisma 注释",
-      "priority": "high",
+      "id": "F-IG-01",
+      "title": "admin PATCH 字段白名单（zod schema）+ baseUrl 协议校验",
+      "priority": "critical",
       "executor": "generator",
-      "status": "completed",
-      "source": "BL-SEC-BILLING-AI F-BA-03 deferred",
-      "acceptance": "1) 新建 `prisma/migrations/20260418_billing_check_constraints_v2/migration.sql`（v2 命名与失败的 v1 区分）；2) DO $$ 预检用**正确规则**：transactions 违规 = (type='DEDUCTION' AND amount>=0) OR (type IN ('REFUND','RECHARGE','BONUS') AND amount<0)，template_ratings 违规 = score<1 OR score>5；3) ALTER TABLE transactions ADD CONSTRAINT transactions_amount_sign_check CHECK ((type='DEDUCTION' AND amount<0) OR (type IN ('REFUND','RECHARGE','BONUS') AND amount>=0) OR (type='ADJUSTMENT'))；4) ALTER TABLE template_ratings ADD CONSTRAINT template_ratings_score_range_check CHECK (score>=1 AND score<=5)；5) schema.prisma 在 model Transaction.amount 和 model TemplateRating.score 字段上方加 `/// CHECK: ...` + `/// 在 migration 20260418_billing_check_constraints_v2 定义` 文档注释（Prisma 不支持 @@check 属性）；6) 本地 `npx prisma migrate dev` 跑通，无冲突；7) tsc + build 通过"
+      "status": "pending",
+      "source": "CRIT-8 + H-11 + H-12 + H-29",
+      "acceptance": "1) 新建 `src/lib/api/admin-schemas.ts`：导出 6 个 zod schemas（providerConfigUpdate / channelUpdate / modelCreate / modelUpdate / providerCreate / providerUpdate）；2) providerConfigUpdateSchema 禁止直接写 apiKey（独立 endpoint 或显式白名单）；3) baseUrl 字段用 `z.string().url().refine(u => ['http:','https:'].includes(new URL(u).protocol))`；4) 改造 4 个 handler 用 `const data = schema.parse(body)` 替代 `data: body`；ZodError → 400 `{errors}`；5) 对每处路由补单测或 e2e：恶意 body (id/apiKey/projectId) 被拒；baseUrl 'file://' 返 400；6) tsc + build 通过"
     },
     {
-      "id": "F-BCF-02",
-      "title": "BL-SEC-BILLING-CHECK-FOLLOWUP 生产部署 + 验收",
+      "id": "F-IG-02",
+      "title": "scheduler + model-sync Redis 分布式锁",
+      "priority": "critical",
+      "executor": "generator",
+      "status": "pending",
+      "source": "CRIT-9",
+      "acceptance": "1) 新建 `src/lib/infra/leader-lock.ts`：acquireLeaderLock(key, ttlSec) 用 Redis SET NX EX；heartbeatLock(key, ttlSec) 续约；releaseLeaderLock(key)；Redis 不可用 fallback 本地 boolean + warn；2) `src/instrumentation.ts:19-20` 删除 NODE_APP_INSTANCE 判断，改尝试 acquireLeaderLock('scheduler', 70)；3) `src/lib/health/scheduler.ts:35-54` 每 tick heartbeatLock；4) `src/lib/sync/model-sync.ts:44,380,396,628` 移除 syncInProgress 进程内变量，改 acquireLeaderLock('model-sync', 3600)；5) SIGTERM / process exit hook 调 releaseLeaderLock；6) 新增单测 leader-lock.test.ts 覆盖 NX + 竞争 + fallback；7) 手动验证：本地两实例 dev server 只有一个跑 scheduler；kill 后 70s 内另一个接管；8) tsc + build 通过"
+    },
+    {
+      "id": "F-IG-03",
+      "title": "scripts/stress-test.ts 改 spawn + execSync 审计",
+      "priority": "critical",
+      "executor": "generator",
+      "status": "pending",
+      "source": "CRIT-10",
+      "acceptance": "1) `scripts/stress-test.ts:34-40` 所有 execSync 字符串拼接改 `spawnSync('npx', ['autocannon', '-H', `${k}=${v}`, opts.url, ...])`；2) 全局审计 `git grep 'execSync\\\\|exec(' scripts/ | grep -v scripts/test/ | grep -v spec`，命中的字符串拼接调用一并改 spawn；3) 新增 negative test：BASE_URL=\"; echo pwn >/tmp/rce-test\" 运行脚本，/tmp/rce-test 不应被创建；4) tsc 通过"
+    },
+    {
+      "id": "F-IG-04",
+      "title": "MCP 权限一致性（fork-public-template + IP 白名单）",
       "priority": "high",
+      "executor": "generator",
+      "status": "pending",
+      "source": "H-13 + H-14",
+      "acceptance": "1) `src/lib/mcp/tools/fork-public-template.ts:22-45` handler 首行调用 checkMcpPermission(ctx, 'projectInfo')（参考其他 tool 用法），projectInfo:false 返 403；2) `src/lib/mcp/auth.ts:57-62` 改为显式 if 块：空 whitelist 显式 console.warn + return null；非空逐 IP 匹配；与 `src/lib/api/auth-middleware.ts:143-154` 语义对齐；3) 新增单测 src/lib/mcp/__tests__/ 或补到现有 auth 单测：projectInfo:false fork → 403；空白名单 → 401；4) tsc + build 通过"
+    },
+    {
+      "id": "F-IG-05",
+      "title": "checkBalanceAlerts Redis 去重",
+      "priority": "high",
+      "executor": "generator",
+      "status": "pending",
+      "source": "H-31",
+      "acceptance": "1) Generator 先定位 checkBalanceAlerts 实际函数位置（`src/lib/billing/scheduler.ts` 或 billing 目录其他文件）；2) 每次发告警前 `redis.set(`alert:balance:${userId}:${thresholdKey}:${YYYYMMDD}`, '1', 'NX', 'EX', 86400)`；返回 null 则 skip；3) thresholdKey 支持 'low' / 'critical' 等多阈值独立去重；4) 本地手工触发一次告警 → Redis 存在 key；再次触发同日同阈值应 skip；5) Redis 不可用 fallback：不 skip（宁可重复告警不漏告警）+ warn；6) tsc + build 通过"
+    },
+    {
+      "id": "F-IG-06",
+      "title": "Next.js + glob 依赖升级（消除 npm audit high/critical）",
+      "priority": "high",
+      "executor": "generator",
+      "status": "pending",
+      "source": "H-30",
+      "acceptance": "1) snapshot 当前 package-lock.json 作为回滚基线（commit 前）；2) `npm install next@^14.2.35 --save` 升到最新 14.2.x 稳定版（保 App Router 兼容）；3) `npm dedupe` + 可能需要 npm overrides 升级 glob；4) `npm audit --production` 输出 0 high + 0 critical（当前 5 high + 3 moderate）；5) `npm run build` + `npx tsc --noEmit` + `npx vitest run` 全过；6) 本地 dev server 冒烟：登录 / dashboard / 一次 /v1/chat/completions 成功；7) 如发现不兼容 → revert 本 feature commit，改升 14.1.x 或独立 issue 跟进"
+    },
+    {
+      "id": "F-IG-07",
+      "title": "BL-SEC-INFRA-GUARD 全量验收",
+      "priority": "critical",
       "executor": "codex",
       "status": "pending",
-      "source": "BL-SEC-BILLING-CHECK-FOLLOWUP",
-      "acceptance": "构建健全（本地）：1) npx prisma migrate dev v2 migration 跑通；2) npm run build 通过；3) npx tsc --noEmit 通过。生产数据预检：4) SELECT COUNT(*) FROM transactions WHERE (type='DEDUCTION' AND amount>=0) OR (type IN ('REFUND','RECHARGE','BONUS') AND amount<0) = 0；5) SELECT COUNT(*) FROM template_ratings WHERE score<1 OR score>5 = 0。生产部署：6) ssh 生产 git pull + prisma migrate deploy 成功；7) \\d+ transactions 见到 transactions_amount_sign_check；8) \\d+ template_ratings 见到 template_ratings_score_range_check。CHECK 功能验证（生产 psql）：9) INSERT transactions(type='DEDUCTION',amount=10) → 23514；10) INSERT transactions(type='REFUND',amount=-10) → 23514；11) INSERT template_ratings(score=0) → 23514；12) INSERT template_ratings(score=6) → 23514。正向回归：13) 生产发一次 AI 调用触发 DEDUCTION 正常完成（查最新 call_log + transaction 一对对齐）。14) 生成 signoff 报告 docs/test-reports/BL-SEC-BILLING-CHECK-FOLLOWUP-signoff-2026-04-18.md。"
+      "source": "BL-SEC-INFRA-GUARD",
+      "acceptance": "admin PATCH 防护（5 项）：1) providerConfig PATCH `{apiKey:'fake', id:'fake'}` 被拒或 schema 丢弃；2) channel PATCH `{status:'HIJACKED', createdAt:'2000-01-01'}` 被拒；3) model POST/PATCH `{projectId:'other'}` 被拒；4) provider PATCH `{baseUrl:'file:///etc/passwd'}` → 400；5) provider PATCH `{baseUrl:'javascript:alert(1)'}` → 400。分布式锁（2 项）：6) 本地两实例 dev server，scheduler 仅一个实例跑；7) Redis 不可用 fallback 本地 boolean + warn 日志。shell 注入防护：8) `BASE_URL='; echo pwn >/tmp/rce-test' npx tsx scripts/stress-test.ts` 不创建 /tmp/rce-test。MCP 权限：9) projectInfo:false key fork-public-template → 403；10) 空 IP whitelist MCP key → 401。告警去重：11) 同用户同日 balance 告警仅触发一次。依赖升级：12) `npm audit --production` 0 high + 0 critical；13) build + tsc + vitest 全过；14) 冒烟：生产登录 + dashboard + AI 调用无 regression。15) 生成 signoff 报告 docs/test-reports/BL-SEC-INFRA-GUARD-signoff-2026-04-18.md。"
     }
   ]
 }

@@ -153,6 +153,47 @@ executor:codex 的典型场景：压力测试执行、code review、安全审计
 
 ---
 
+## Planner 铁律（spec 编写前核查 — 2026-04-18 采纳）
+
+来源：BL-SEC-BILLING-AI 初稿把 `deduct_balance` 签名写错（2 参 BOOLEAN vs 实际 6 参 RETURNS TABLE），被 Generator 开工前核查捕获；随后 F-BA-03 CHECK migration 生产部署失败，根因是 Code Review 对 REFUND 符号断言错误（报告 <0 vs 实际 >=0）。两次事故证实：**Planner 不得只凭 Code Review 或记忆写 spec，涉及代码细节必须以源码为准**。
+
+### 铁律 1：spec 涉及具体代码细节时必须核查源码
+
+Planner 写 spec，若涉及以下内容，**必须先 Read 对应文件核实**：
+
+| 内容 | 核查动作 |
+|---|---|
+| 函数签名（参数/返回/异常） | Read migration + 所有调用点确认 |
+| API handler 参数 | Read handler + 调用方 |
+| 现有 schema 字段 | Read schema.prisma 或最新 migration |
+| 枚举值 / 常量 | Read 定义文件 |
+
+**规格引用实际代码时必须：**
+- 用 ` ```sql ` / ` ```ts ` 等代码块贴真实片段
+- 标注 `file:line` 来源（例：`migration.sql:40-80`）
+
+**Generator 发现规格偏差时**：开工前提出"规格偏差报告"暂停；Planner 修订 spec 后再开工。此为双方义务。
+
+### 铁律 2：Code Review 报告的事实性断言按"线索"处理，不按"真相"采信
+
+**符号/类型/约束/枚举/常量**类断言**必须双路交叉验证**：
+
+1. `grep` / `Read` 找到所有 INSERT/CREATE/UPDATE/写入点 → 源码约定
+2. `ssh prod-db` 采样现网数据 → 实际数据
+3. 两路一致后再写入 spec
+
+**规格中引用 Code Review 发现时必须标注**：
+- `[已核实 source:文件:行 + prod-data]` — 可直接使用
+- `[待核实]` — 不得作为 acceptance 阻断条件，Generator 开工前必须澄清
+
+### 结果
+
+- 规格质量从"转述 Review 报告"提升到"与现网代码/数据一致"
+- Generator 开工前规格偏差检查成为常态（节省 fix round）
+- 重复上次错误将承担召回责任（hotfix / 新修正批次）
+
+---
+
 ## status = "done" 时的收尾流程
 
 当 Codex 将 progress.json 置为 `done` 后，Claude CLI 接手执行以下步骤（**必须按顺序**）：

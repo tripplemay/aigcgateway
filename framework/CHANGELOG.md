@@ -5,6 +5,29 @@
 
 ---
 
+## v0.7.1 — 2026-04-18（Planner 铁律：spec 编写前核查源码 + 交叉验证 Code Review 断言）
+
+**来源批次：** BL-SEC-BILLING-AI / BL-SEC-BILLING-CHECK-FOLLOWUP
+**触发原因：** 两次连续事故：
+1. BL-SEC-BILLING-AI 初稿 spec 把 `deduct_balance` 签名写错（2 参 BOOLEAN vs 实际 6 参 RETURNS TABLE），被 Generator 开工前规格核查捕获；若未核查会产生重复 DEDUCTION transaction 记录破坏对账
+2. BL-SEC-BILLING-AI F-BA-03 CHECK migration 生产 `prisma migrate deploy` 失败，根因是 Code Review 对 `Transaction.amount` 符号断言错误（H-16 报告 REFUND < 0，实际代码 `scripts/refund-zero-image-audit.ts:102` 存 +sellPrice 为正数）；需 hotfix 回滚 + 开新批次 `BL-SEC-BILLING-CHECK-FOLLOWUP` 修正
+
+**变更内容（`framework/harness/planner.md` 新增 "Planner 铁律" 小节）：**
+
+**铁律 1：spec 涉及具体代码细节时必须核查源码**
+- 函数签名 / API handler 参数 / schema 字段 / 枚举常量 — 写 spec 前必须 Read 对应文件确认
+- 规格引用实际代码时必须用代码块贴片段 + 标注 `file:line`
+- Generator 发现规格偏差时有义务开工前提出，Planner 修订后再开工
+
+**铁律 2：Code Review 报告的事实性断言按"线索"处理不按"真相"采信**
+- 符号/类型/约束/枚举/常量类断言必须双路交叉验证：源码 + 生产数据采样
+- spec 中引用 Review 发现须标注 `[已核实 source + prod-data]` 或 `[待核实]`
+- `[待核实]` 类不得作为 acceptance 阻断条件
+
+**影响范围：** Planner 规格编写流程永久变更；Generator 开工前规格核查合法化并成为推荐做法。
+
+---
+
 ## v0.7.0 — 2026-04-18（改名：Cowork + Harness → Triad Workflow）
 
 **来源批次：** 独立任务（用户讨论时指出原名未准确反映框架工作模式）

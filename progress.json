@@ -1,46 +1,26 @@
 {
-  "status": "verifying",
-  "user_goal": "BL-SEC-BILLING-CHECK-FOLLOWUP — CHECK 约束规则修正 + 重提 migration（F-BA-03 生产部署失败后续）",
-  "total_features": 2,
-  "completed_features": 1,
+  "status": "building",
+  "user_goal": "BL-SEC-INFRA-GUARD — 基建硬化（admin PATCH 白名单 + 分布式锁 + shell 注入修 + MCP 权限一致 + 告警去重 + 依赖升级）",
+  "total_features": 7,
+  "completed_features": 0,
   "fix_rounds": 0,
-  "current_sprint": "BL-SEC-BILLING-CHECK-FOLLOWUP",
-  "last_updated": "2026-04-18T12:10:00Z",
+  "current_sprint": "BL-SEC-INFRA-GUARD",
+  "last_updated": "2026-04-18T13:00:00Z",
   "reference_docs": [
-    "docs/specs/BL-SEC-BILLING-CHECK-FOLLOWUP-spec.md",
-    "docs/specs/BL-SEC-BILLING-AI-spec.md"
+    "docs/specs/BL-SEC-INFRA-GUARD-spec.md",
+    "docs/code-review/backend-fullscan-2026-04-17.md"
   ],
   "role_assignments": null,
   "docs": {
-    "spec": "docs/specs/BL-SEC-BILLING-CHECK-FOLLOWUP-spec.md",
+    "spec": "docs/specs/BL-SEC-INFRA-GUARD-spec.md",
     "test_cases": null,
     "signoff": null,
     "framework_reviewed": false
   },
   "evaluator_feedback": null,
-  "generator_handoff": {
-    "summary": "F-BCF-01 delivered: v2 CHECK migration with corrected REFUND sign rule + field-level schema.prisma /// comments.",
-    "artifacts": [
-      "prisma/migrations/20260418_billing_check_constraints_v2/migration.sql",
-      "prisma/schema.prisma (field-level /// CHECK comments on Transaction.amount + TemplateRating.score, pointing to v2 migration)"
-    ],
-    "local_verification": {
-      "tsc": "clean",
-      "build": "ok",
-      "vitest": "96/96 pass",
-      "prisma_generate": "ok",
-      "migration_apply": "dropped v1 residue + DELETE FROM _prisma_migrations WHERE migration_name = 20260418_billing_check_constraints; applied v2 via psql; prisma migrate resolve --applied 20260418_billing_check_constraints_v2",
-      "psql_smoke": "DEDUCTION amount=10 → 23514 / REFUND amount=-10 → 23514 / REFUND amount=10 → accepted / score=0 → 23514 / score=6 → 23514"
-    },
-    "notes_for_evaluator": [
-      "F-BCF-02 codex-only: build + tsc + vitest; production preflight SELECT (expected 0); SSH prisma migrate deploy; positive AI call regression.",
-      "Production HEAD c8a7703 — only the v2 migration will be applied by deploy (v1 was already resolve --rolled-back on production by the hotfix commit).",
-      "Local dev DB still has pre-existing drift on 20260410051446 + 20260417_template_test_runs (unrelated). Production uses migrate deploy which is not affected.",
-      "No application code changed this batch — pm2 restart not required if deploy script is DB-only (the existing deploy script does restart pm2 anyway)."
-    ]
-  },
+  "generator_handoff": null,
   "session_notes": {
-    "Kimi": "Generator 完成 F-BCF-01（1/2）。\n\n动作：\n- 新 migration `20260418_billing_check_constraints_v2/`（v2 命名与失败的 v1 区分）\n- DO 预检规则修正：DEDUCTION amount>=0 或 REFUND/RECHARGE/BONUS amount<0 才算违规\n- ALTER TABLE CHECK 同步修正：REFUND 从 <0 改为 >=0\n- schema.prisma 删除 v1 的 model 行上方注释，改为 Transaction.amount / TemplateRating.score 字段级 /// 注释，指向 v2 migration\n\n本地适配：\n- 本地 dev DB 还残留 v1 约束 + _prisma_migrations 登记（上个会话的副作用），psql 先 DROP CONSTRAINT 两条 + DELETE FROM _prisma_migrations WHERE name='20260418_billing_check_constraints'，再 psql apply v2 + `prisma migrate resolve --applied 20260418_billing_check_constraints_v2`\n- 生产只有 v2 需要 apply（v1 在 c8a7703 时已 resolve --rolled-back）\n\n验证：tsc 干净，build 通过，vitest 96/96，psql 手工 5 项 CHECK 断言全对：DEDUCTION+10 / REFUND-10 都 23514 拒绝，REFUND+10 通过，score=0/6 都 23514 拒绝。\n\n交给 Evaluator 跑 F-BCF-02 的 14 项（含生产 SSH migrate deploy + 正反 INSERT + AI 调用回归）。",
+    "Kimi": "Planner 一次完成 3 件事：\n\n(1) BL-SEC-BILLING-CHECK-FOLLOWUP 状态机补完（Reviewer 签收 14/14 PASS 但未更新 progress.json，Planner 代替补齐）；\n\n(2) 采纳 2 条 framework 铁律 + 写入 `framework/harness/planner.md` 新小节 + CHANGELOG.md v0.7.1 + 清空 proposed-learnings.md。铁律 1：spec 涉及代码细节必须 Read 源码 + file:line 引用；铁律 2：Code Review 报告的符号/类型/约束断言按线索非真相，必须源码+生产数据交叉验证；\n\n(3) 初始化 BL-SEC-INFRA-GUARD（第一波第 4 批，2.5d，7 条 features：6 generator + 1 codex）。已**遵守新铁律**，spec 中所有 file:line 引用均已核实。范围覆盖：F-IG-01 admin PATCH 白名单 + baseUrl 协议校验（CRIT-8/H-11/H-12/H-29）；F-IG-02 scheduler/model-sync Redis 分布式锁（CRIT-9）；F-IG-03 stress-test shell 注入 + execSync 审计（CRIT-10）；F-IG-04 MCP 权限一致性（H-13/H-14）；F-IG-05 checkBalanceAlerts 去重（H-31）；F-IG-06 Next.js+glob 依赖升级（H-30，npm audit 当前 5 high / 3 moderate 需降为 0）；F-IG-07 codex 15 项验收。\n\n已核实证据：\n- `src/app/api/admin/providers/[id]/config/route.ts:30-34` mass assignment 属实\n- `src/app/api/admin/channels/[id]/route.ts:13-14` 同上\n- `src/app/api/admin/models/route.ts:95` 同上\n- `src/instrumentation.ts:19-20` isWorkerZero / `src/lib/health/scheduler.ts:35-54` schedulerTimer / `src/lib/sync/model-sync.ts:44,380,396,628` syncInProgress 进程内锁\n- `src/lib/mcp/tools/fork-public-template.ts:22-45` 缺 checkMcpPermission\n- `src/lib/mcp/auth.ts:57-62` vs `src/lib/api/auth-middleware.ts:143-154` IP 白名单实现差异\n- `npm audit` 当前 8 vulnerabilities (3 mod, 5 high); next@14.2.35 + glob@7/10\n\n[待核实] 项：H-14 语义实际一致只是写法不同，Generator 核实后若无实质分歧可直接统一为显式写法；H-31 checkBalanceAlerts 实际行号 Generator 自行定位。\n\nPath A 进度 4/14.5，BL-SEC-INFRA-GUARD 是第一波最大批次（2.5d）。完成后进入第二波 P0 前端（FE-PERF-01 2d）。",
     "Reviewer": null
   }
 }
