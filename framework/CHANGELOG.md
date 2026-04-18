@@ -5,6 +5,31 @@
 
 ---
 
+## v0.7.0 — 2026-04-18（改名：Cowork + Harness → Triad Workflow）
+
+**来源批次：** 独立任务（用户讨论时指出原名未准确反映框架工作模式）
+**触发原因：** "Cowork" 是早期 Claude Desktop 作为 Planner 时的残留（v0.4.0 起已由 Claude CLI 承担），"Harness" 偏泛且容易与 CI/CD harness.io 混淆。两词都无法突出本框架真正独特的"三角色不重叠 + 状态机驱动 + 无自评"三件事
+
+**新名称：Triad Workflow**
+- Triad（三角色）：Planner / Generator / Evaluator
+- Workflow：状态机 + Git 异步交接 + 记忆分层沉淀
+
+**变更内容（表层改名，不动文件路径）：**
+- `framework/README.md` 标题 + 介绍段重写：突出三角色 / 状态机 / Git 总线 / 记忆分层四个核心特征；保留历史说明解释 Cowork 来历
+- `framework/INIT.md` 标题、首次 commit 消息中"Cowork-Harness framework" → "Triad Workflow"
+- `framework/bootstrap.sh` 脚本注释 + 运行时输出"Harness framework" → "Triad Workflow"
+- `framework/memory/user-role.md` 模板中"Harness 7 状态机" → "Triad Workflow 7 状态机"
+
+**保留不动（向后兼容）：**
+- 所有文件名：`harness-rules.md` / `framework/harness/` 目录等
+- GitHub repo 名：`tripplemay/harness-template`（URL 稳定性优先，repo 描述已更新）
+- aigcgateway 项目根目录所有文件（现用命名不受影响）
+- 角色文件内容中出现的"harness 规则"引用（那些指的是 `harness-rules.md` 文件，是文件引用不是框架名）
+
+**后续可选升级（当前不做）：** 档位 2 = 文件名和路径也对齐（`harness/` → `state-machine/`），档位 3 = repo 同步改名。短期不破坏现有协作，长期如需彻底统一可再推进
+
+---
+
 ## v0.6.1 — 2026-04-18（一键初始化：bootstrap.sh + INIT.md）
 
 **来源批次：** 独立任务（用户讨论"如何把框架应用到新项目"，确定形态三 = 独立 template repo + bootstrap + INIT 的初始化方案）

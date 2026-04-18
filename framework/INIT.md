@@ -1,4 +1,4 @@
-# INIT — Harness 项目初始化引导（给 Claude CLI）
+# INIT — Triad Workflow 项目初始化引导（给 Claude CLI）
 
 > 这是给 Claude CLI 的一次性初始化指令。用户已运行过 `bootstrap.sh`，文件骨架就位但含占位符。
 > 你的任务：通过提问收集信息 → 展示填充计划 → 用户确认 → 执行填充 → 首次 commit → 删除本文件。
@@ -97,7 +97,7 @@
 ```bash
 git init
 git add .
-git commit -m "chore: init project with Cowork-Harness framework v0.6.x"
+git commit -m "chore: init project with Triad Workflow v0.7.x"
 ```
 
 如果用户指定了 GitHub remote，可以提示：

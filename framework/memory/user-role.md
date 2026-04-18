@@ -8,7 +8,7 @@ type: user
 
 用户是 [项目名] 的 [角色，如：独立开发者 / 产品负责人 / 全栈工程师]。
 
-- 使用 Claude CLI + Codex 配合 Harness 7 状态机（new → planning → building → verifying → fixing ⟷ reverifying → done）进行迭代开发
+- 使用 Claude CLI + Codex 配合 Triad Workflow 7 状态机（new → planning → building → verifying → fixing ⟷ reverifying → done）进行迭代开发
 - Claude CLI 负责全流程（planning / building / fixing / done），Codex 负责 verifying / reverifying
 - 技术栈熟悉：[填写，如：Next.js / TypeScript / PostgreSQL]
 - 工作语言：[中文沟通，代码用英文 / 全英文]

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# bootstrap.sh — 把 Harness 模板文件从源位置铺到项目运行位置
+# bootstrap.sh — 把 Triad Workflow 模板文件从源位置铺到项目运行位置
 #
 # 使用场景：
 #   1. 从 harness-template repo degit 后运行（flat 布局，源文件在 CWD）
@@ -33,7 +33,7 @@ if [ -f "$TARGET_DIR/harness-rules.md" ]; then
   exit 1
 fi
 
-echo "→ Bootstrapping Harness framework（布局：$LAYOUT）"
+echo "→ Bootstrapping Triad Workflow（布局：$LAYOUT）"
 
 # 1. Harness 角色文件到根目录
 cp "$SRC_PREFIX/harness/harness-rules.md"     "$TARGET_DIR/harness-rules.md"

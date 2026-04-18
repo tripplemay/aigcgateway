@@ -1,8 +1,16 @@
-# Cowork + Harness 工程化框架
+# Triad Workflow
 
-沉淀自 AIGC Gateway 项目完整实施过程。适用于任何使用 Claude CLI（Claude Code）+ Codex 协同开发的项目。
+> **三角色 · 状态机 · 无自评** —— Claude CLI + Codex 协同开发的工程化框架
 
-> **历史说明：** 早期版本曾使用 Cowork（Claude Desktop）作为 Planner，现已统一由 Claude CLI 同时承担 Planner + Generator 角色。"Cowork" 一词在文件名中保留以表明出处，行为上不再涉及。
+沉淀自 AIGC Gateway 项目完整实施过程。适用于任何使用 Claude CLI（Claude Code）+ Codex 或类似多 agent 配合开发的项目。
+
+**核心特征：**
+- **三角色不重叠**：Planner（规划）/ Generator（实现）/ Evaluator（验收），没有任何 agent 评估自己的工作
+- **状态机驱动**：7 状态 `new → planning → building → verifying → fixing ⟷ reverifying → done`，阶段推进由 `progress.json` 决定
+- **Git 作为协作总线**：agent 间不直接通信，通过状态文件 + `.auto-memory/` 异步交接，可跨机器、跨工具、跨会话
+- **记忆分层沉淀**：T0/T1/T2 共享记忆 + framework 自迭代，经验跨项目复用
+
+> **历史说明：** 早期版本曾命名为 "Cowork + Harness"（Cowork = Claude Desktop 作为 Planner），v0.7.0 改名为 Triad Workflow 以更准确反映三角色协作的本质。部分文件名（`harness-rules.md` 等）保留历史名以维持向后兼容。
 
 ---
 
