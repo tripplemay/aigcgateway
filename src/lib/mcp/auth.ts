@@ -52,11 +52,16 @@ export async function authenticateMcp(request: Request): Promise<McpAuthContext 
     return null;
   }
 
-  // IP 白名单检查（与 auth-middleware 一致）
+  // IP 白名单检查 — 与 auth-middleware.ts:143-158 语义显式对齐（F-IG-04）。
+  // 空数组 → 明确 block（"all requests blocked"），非空 → 严格匹配。
   const whitelist = apiKey.ipWhitelist as string[] | null;
   if (Array.isArray(whitelist)) {
+    if (whitelist.length === 0) {
+      console.warn(`[mcp] Empty IP whitelist on key ${keyPrefix}... — all requests blocked`);
+      return null;
+    }
     const clientIp = getClientIp(request);
-    if (whitelist.length === 0 || !isIpInWhitelist(clientIp, whitelist)) {
+    if (!isIpInWhitelist(clientIp, whitelist)) {
       console.warn(`[mcp] IP ${clientIp} not in whitelist for key: ${keyPrefix}...`);
       return null;
     }

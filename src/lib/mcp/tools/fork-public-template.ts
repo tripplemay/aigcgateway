@@ -7,11 +7,12 @@
 import { z } from "zod";
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { prisma } from "@/lib/prisma";
+import { checkMcpPermission } from "@/lib/mcp/auth";
 import type { McpServerOptions } from "@/lib/mcp/server";
 import type { Prisma } from "@prisma/client";
 
 export function registerForkPublicTemplate(server: McpServer, opts: McpServerOptions): void {
-  const { projectId } = opts;
+  const { projectId, permissions } = opts;
 
   server.tool(
     "fork_public_template",
@@ -20,9 +21,19 @@ export function registerForkPublicTemplate(server: McpServer, opts: McpServerOpt
       templateId: z.string().describe("ID of the public template to fork"),
     },
     async ({ templateId }) => {
+      // F-IG-04: require projectInfo permission before touching project-scoped data.
+      const permErr = checkMcpPermission(permissions, "projectInfo");
+      if (permErr) {
+        return { content: [{ type: "text" as const, text: permErr }], isError: true };
+      }
       if (!projectId) {
         return {
-          content: [{ type: "text" as const, text: "[no_project] No project found. Use create_project to create one." }],
+          content: [
+            {
+              type: "text" as const,
+              text: "[no_project] No project found. Use create_project to create one.",
+            },
+          ],
           isError: true,
         };
       }
