@@ -1,0 +1,19 @@
+{
+  "generatedAt": "2026-04-18T16:46:38.712Z",
+  "baseUrl": "http://localhost:3099",
+  "dbUrl": "postgresql://test:test@localhost:5432/aigc_gateway_test",
+  "pass": false,
+  "check": {
+    "runId": "cmo4kkpek001s9y70q38m3upr",
+    "templateId": "cmo4kkhe400199y70e5oudj8j",
+    "projectId": "cmo4kkhct00039y70f0khryeu",
+    "runStatus": "success",
+    "stepCount": 10,
+    "logCount": 0,
+    "runTotalCost": 0,
+    "sumSellPrice": 0,
+    "diff": 0,
+    "threshold": 1e-12
+  },
+  "logs": []
+}
