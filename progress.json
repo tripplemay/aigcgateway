@@ -1,11 +1,11 @@
 {
-  "status": "reverifying",
+  "status": "fixing",
   "user_goal": "BL-FE-QUALITY — 前端质量合并批次（UX 交互 + template-testing polish + A11y/i18n + DS Critical 3 文件）",
   "total_features": 5,
   "completed_features": 4,
   "fix_rounds": 3,
   "current_sprint": "BL-FE-QUALITY",
-  "last_updated": "2026-04-19T00:21:00Z",
+  "last_updated": "2026-04-18T16:27:53Z",
   "reference_docs": [
     "docs/specs/BL-FE-QUALITY-spec.md",
     "docs/code-review/batch-07-frontend-pages.md",
@@ -19,7 +19,7 @@
     "signoff": null,
     "framework_reviewed": false
   },
-  "evaluator_feedback": "FAIL: reverifying round3 未通过；A11y(auth dashboard)=96<98（color-contrast），其余关键回归：vitest 116/116 pass、admin/templates 非法 JSON=400、DS grep 维持 0。仍有 #7/#10/#11/#12/#15 BLOCKED。详见 docs/test-reports/bl-fe-quality-reverifying-local-2026-04-18-round3.md",
+  "evaluator_feedback": "PARTIAL: reverifying round4 核心失败项已修复（A11y auth dashboard=100，color-contrast=1），且 vitest 116/116 PASS、admin/templates 非法 JSON=400、DS grep=0；但 #7/#10/#11/#12/#15 仍 BLOCKED，尚不满足 signoff。详见 docs/test-reports/bl-fe-quality-reverifying-local-2026-04-19-round4.md",
   "generator_handoff": {
     "local_checks": {
       "tsc": "pass",
@@ -81,6 +81,6 @@
   },
   "session_notes": {
     "Kimi": "BL-FE-QUALITY fix round 3：\n\n精准根因（Codex round3 报告）：sidebar active nav link 对比度 3.48。axe 解析 `bg-ds-primary/5` 合成出 bg=#b4ade3（非我手算的 #eaeafb），#5443b9 on #b4ade3 = 3.48。可能是 Tailwind 4 的 alpha 解析 + axe 算法对 `rgb(from var)` 色空间合成的差异。\n\n修复：sidebar.tsx 3 处 active state `bg-ds-primary/5` → `bg-ds-primary-fixed`（solid #e5deff）。\n- 对比度：#5443b9 on #e5deff ≈ 6.47（AA ✅）\n- 不使用 alpha，避免 axe 算法分歧\n- 视觉：active link 从几乎透明的紫调 → 浅紫 solid 背景；Material 3 primary-fixed 本就是为 'active surface' 设计\n\n本地 tsc/vitest 116/116/build 全过。\n\nBLOCKED 5 项（#7/#10/#11/#12/#15）仍需 Codex 浏览器工具恢复后取证。\n\n经验沉淀候选：axe color-contrast 对 Tailwind 4 alpha class（如 bg-X/5）的合成色算法与 css rgba 解析可能存在差异，实际测出的 bg 色与手算值不一致。对 a11y 要求严格的 surface，应优先使用 solid token（如 ds-primary-fixed）而非 alpha 修饰类。",
-    "Reviewer": "BL-FE-QUALITY reverifying round3：已按规范重新拉起 3099 环境并规避本机代理干扰（localhost 需 no_proxy）；vitest 116/116 全过，admin/templates 非法 JSON=400，DS 三文件 grep=0。认证态 Lighthouse(/dashboard) 复测仍 96，失败点锁定为 sidebar 导航项 color-contrast（#5443b9 vs #b4ade3, ratio 3.48<4.5）。结论：未通过，状态建议 fixing；#7/#10/#11/#12/#15 仍 BLOCKED。"
+    "Reviewer": "BL-FE-QUALITY reverifying round4：已复测 round3 修复点（sidebar active nav 对比度），认证态 Lighthouse /dashboard 从 96 提升至 100；vitest 116/116、PATCH 非法 JSON=400、DS grep 三文件=0 维持通过。当前未闭合项为 #7/#10/#11/#12/#15（动态取证与视觉基线），故仍不能签收。"
   }
 }
