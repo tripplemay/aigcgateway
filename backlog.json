@@ -4,10 +4,11 @@
     {
       "id": "BL-065",
       "title": "支付回调验签 + 幂等（支付功能上线前必须修）",
-      "description": "alipay/wechat webhook 未验签 + 并发下可重复入账（幂等失效）。来源：backend-audit-2026-04-08.md [高]×2。",
+      "description": "alipay/wechat webhook 未验签 + 并发下可重复入账（幂等失效）。来源：backend-audit-2026-04-08.md [高]×2。已被 BL-SEC-PAY-DEFERRED 覆盖。",
       "decisions": [],
       "confirmed_at": "2026-04-08",
-      "priority": "high"
+      "priority": "high",
+      "superseded_by": "BL-SEC-PAY-DEFERRED"
     },
     {
       "id": "BL-104",
@@ -16,43 +17,6 @@
       "decisions": [],
       "confirmed_at": "2026-04-10",
       "priority": "low"
-    },
-    {
-      "id": "BL-128b",
-      "title": "TEMPLATE-LIBRARY-CONTENT-01 — 首发 6 个中文营销模板录入（运维）",
-      "description": "运维任务，不走开发状态机。管理员通过 admin UI 创建 6 个公共模板：(1) 朋友圈文案六型生成、(2) 社交平台评论区回复（2-step）、(3) IP 人设画像生成、(4) 短视频脚本（2-step 大纲→脚本）、(5) 产品力可视化脚本、(6) 私域营销策略方案。prompt 全部原创，设计稿见 spec。依赖 BL-128a 分类上线。每个模板创建后跑一次冒烟测试，通过后 publish。情报来源：docs/research/stableisland/flow-catalog.md。",
-      "decisions": [
-        "运维性质，不建 features.json 条目，不走 harness 状态机",
-        "执行者：用户或内容负责人；Claude CLI 不代操作 admin UI",
-        "Prompt 原文取自 docs/specs/template-library-content-batch-01-spec.md 的 2-7 节",
-        "推荐模型：claude-sonnet-4 / gpt-4o；haiku 作低价档",
-        "每个模板至少一次冒烟测试通过后 publish",
-        "首轮上线后观察 F-TL-04 评分 + list_public_templates 曝光，2 周后决定是否做 BL-128c 扩展批次"
-      ],
-      "confirmed_at": "2026-04-17",
-      "priority": "medium",
-      "spec": "docs/specs/template-library-content-batch-01-spec.md",
-      "depends_on": "BL-128a"
-    },
-    {
-      "id": "BL-128c",
-      "title": "TEMPLATE-LIBRARY-CONTENT-02 — 2 修 + 3 新 + 8 改名（运维）",
-      "description": "运维任务，不走开发状态机。三部分：(P1/P2) 修复 BL-128b 首轮冒烟 2 瑕疵 — #2 评论回复品牌臆造 + #4 短视频脚本代码块格式，走新建 ActionVersion 切 activeVersionId。(P3-P5) 新增 3 个模板：抖音爆款链接仿写 / 访谈切片（2-step）/ 线下探访内容策划，均归 short-video 分类。(P6) BL-128b 8 个英文 action name 改中文（落实用户 2026-04-17 规则）。全部纯运维，扩展 scripts/seed-marketing-templates.ts 四阶段执行：RENAME → UPSERT → VERSION → ACTIVATE。情报来源：docs/research/stableisland/flow-catalog.md 第 D/F 节。",
-      "decisions": [
-        "运维性质，不建 features.json 条目，不走 harness 状态机",
-        "Prompt 原文取自 docs/specs/template-library-content-batch-02-spec.md",
-        "所有 Action name 必须中文（用户规则，2026-04-17 起强制）",
-        "P1/P2 走新建 ActionVersion + 切 activeVersionId，保留旧版一键回滚",
-        "P3-P5 复用 scripts/seed-marketing-templates.ts 的幂等 seed 逻辑",
-        "P6 rename 必须在 UPSERT 之前执行，否则幂等 dedup 会按英文名找不到而重复创建",
-        "3 个新模板全部归 short-video 分类，批次后该类曝光 1→4",
-        "不做文件/图片输入类模板（证据链规划等延后为 BL-128d）",
-        "P4 附录 transcript 示例待用户提供（公开节选或团队内部访谈）"
-      ],
-      "confirmed_at": "2026-04-17",
-      "priority": "medium",
-      "spec": "docs/specs/template-library-content-batch-02-spec.md",
-      "depends_on": "BL-128b"
     },
     {
       "id": "BL-SEC-CRED-HARDEN",
@@ -69,12 +33,14 @@
       "confirmed_at": "2026-04-17",
       "priority": "critical",
       "source": "docs/code-review/backend-fullscan-2026-04-17.md CRIT-5 + CRIT-6 + L5",
-      "estimated_effort": "0.5 day"
+      "estimated_effort": "0.5 day",
+      "phase": "P0-security",
+      "order": 1
     },
     {
       "id": "BL-SEC-AUTH-SESSION",
-      "title": "会话硬化 — JWT 改 HttpOnly cookie + middleware 真正验签",
-      "description": "来源 docs/code-review/ CRIT-7 + H-8。(1) CRIT-7: src/app/(auth)/login/page.tsx:131 + layout.tsx:50 + settings/page.tsx:711-714 + top-app-bar.tsx:45 四处 document.cookie + localStorage 明文存 JWT，无 HttpOnly、无 Secure，任一 XSS 即全站会话劫持。(2) H-8: src/middleware.ts decodeJwtPayload 仅 base64 解码不验签，admin 路由保护可绕过。修复方案：后端 /api/auth/login 直接 Set-Cookie HttpOnly+Secure+SameSite；前端停止直接读写 cookie；middleware 改 jose 做 Edge 兼容的签名验证。",
+      "title": "会话硬化 — JWT 改 HttpOnly cookie + middleware 真正验签 + console layout SSR 守卫",
+      "description": "来源 docs/code-review/ CRIT-7 + H-8 + H-32。(1) CRIT-7: src/app/(auth)/login/page.tsx:131 + layout.tsx:50 + settings/page.tsx:711-714 + top-app-bar.tsx:45 四处 document.cookie + localStorage 明文存 JWT，无 HttpOnly、无 Secure，任一 XSS 即全站会话劫持。(2) H-8: src/middleware.ts decodeJwtPayload 仅 base64 解码不验签，admin 路由保护可绕过。(3) H-32（合并）: console layout 全 client + 每次导航重抓 /api/auth/profile，改 RSC 守卫消除闪现未授权内容。",
       "decisions": [
         "后端签 cookie：/api/auth/login 响应头 Set-Cookie httpOnly+secure+sameSite=lax+max-age 7d",
         "前端改造 4 个写入点：login/page + console/layout + settings signout + top-app-bar signout",
@@ -84,40 +50,238 @@
       ],
       "confirmed_at": "2026-04-17",
       "priority": "critical",
-      "source": "docs/code-review/backend-fullscan-2026-04-17.md CRIT-7 + H-8",
-      "estimated_effort": "1 day"
+      "source": "docs/code-review/backend-fullscan-2026-04-17.md CRIT-7 + H-8 + H-32",
+      "estimated_effort": "1.5 days",
+      "phase": "P0-security",
+      "order": 2
     },
     {
       "id": "BL-SEC-BILLING-AI",
-      "title": "AI 调用扣费原子性 — deduct_balance 行锁 + CallLog+deduct 事务化",
-      "description": "来源 docs/code-review/ CRIT-2 + CRIT-4 + H-16。与支付模块无关，每次 AI API 调用都走这条链路。(1) CRIT-2: prisma/migrations/20260410120000_apikey_to_user_level/migration.sql:40-80 deduct_balance PL/pgSQL 函数缺 SELECT ... FOR UPDATE，高并发下两个事务都通过 balance >= amount 检查 → 余额可透支为负。(2) CRIT-4: src/lib/api/post-process.ts:127-158 callLog.create + deductBalance 两次顺序 DB 调用无事务保证，若进程在两者之间崩溃 → 服务已消费但无扣费记录。(3) H-16: Transaction.amount 无 CHECK 约束，符号与类型无 DB 层保证。",
+      "title": "AI 调用扣费原子性 — deduct_balance 行锁 + CallLog+deduct 事务化 + amount CHECK",
+      "description": "来源 docs/code-review/ CRIT-2 + CRIT-4 + H-16 + H-19。与支付模块无关，每次 AI API 调用都走这条链路。(1) CRIT-2: prisma/migrations/20260410120000_apikey_to_user_level/migration.sql:40-80 deduct_balance PL/pgSQL 函数缺 SELECT ... FOR UPDATE，高并发下两个事务都通过 balance >= amount 检查 → 余额可透支为负。(2) CRIT-4: src/lib/api/post-process.ts:127-158 callLog.create + deductBalance 两次顺序 DB 调用无事务保证，若进程在两者之间崩溃 → 服务已消费但无扣费记录。(3) H-16: Transaction.amount 无 CHECK 约束，符号与类型无 DB 层保证。(4) H-19: TemplateRating.score 无 range CHECK。",
       "decisions": [
         "deduct_balance 函数重写：先 SELECT balance INTO v_balance FOR UPDATE，再条件判断后 UPDATE",
         "CallLog + deduct 改用 prisma.$transaction interactive 事务包裹；或把 CallLog 写入合并进 deduct_balance 函数内以保证单个 plpgsql 原子",
         "Transaction.amount 加 CHECK: DEDUCTION/REFUND < 0, RECHARGE/BONUS/ADJUSTMENT >= 0",
+        "TemplateRating.score 加 CHECK: 1 <= score <= 5",
         "Evaluator 设计并发测试：10 并发请求同一用户 + 余额卡阈值，断言最终余额 >= 0 且 call_logs 与 transactions 条数一致",
         "migration 需新写一个覆盖 deduct_balance（不是原位改）；回滚通过运行旧版 migration"
       ],
       "confirmed_at": "2026-04-17",
       "priority": "critical",
-      "source": "docs/code-review/backend-fullscan-2026-04-17.md CRIT-2 + CRIT-4 + H-16",
-      "estimated_effort": "2 days"
+      "source": "docs/code-review/backend-fullscan-2026-04-17.md CRIT-2 + CRIT-4 + H-16 + H-19",
+      "estimated_effort": "2 days",
+      "phase": "P0-security",
+      "order": 3
     },
     {
       "id": "BL-SEC-INFRA-GUARD",
-      "title": "基建硬化 — admin 白名单 + 分布式锁 + shell 注入 + 依赖升级",
-      "description": "来源 docs/code-review/ CRIT-8 + CRIT-9 + CRIT-10 + H-11 + H-12 + H-30。(1) CRIT-8/H-11/H-12: admin PATCH 三处 mass assignment（ProviderConfig/Channel/Model）直接 data: body 透传，可覆盖 apiKey 劫持上游。(2) CRIT-9: src/lib/health/scheduler.ts + model-sync.ts + instrumentation.ts 仅进程内锁，Docker 多副本部署下 NODE_APP_INSTANCE 均 undefined → 所有副本并发执行健康检查与同步。(3) CRIT-10: scripts/stress-test.ts:34-40 execSync 字符串拼接 BASE_URL/headers，可被 CI 污染 RCE。(4) H-30: Next.js 版本落后，npm audit 报 8 High (HTTP smuggling/DoS) + defu Prototype Pollution + glob CLI 注入。",
+      "title": "基建硬化 — admin 白名单 + 分布式锁 + shell + 依赖升级 + MCP 权限一致性",
+      "description": "来源 docs/code-review/ CRIT-8/9/10 + H-11/12/13/14/29/30/31。(1) CRIT-8/H-11/H-12: admin PATCH 三处 mass assignment（ProviderConfig/Channel/Model）直接 data: body 透传。(2) CRIT-9: scheduler + model-sync 仅进程内锁，Docker 多副本并发污染。(3) CRIT-10: scripts/stress-test.ts execSync 字符串拼接 RCE。(4) H-13: fork-public-template 无 checkMcpPermission。(5) H-14: MCP IP 白名单与 REST 层不一致。(6) H-29: Provider baseUrl 无协议校验。(7) H-30: Next.js 版本 8 个高危依赖。(8) H-31: checkBalanceAlerts 无去重，每小时重复告警。",
       "decisions": [
         "admin PATCH 字段白名单统一走 zod schema，ProviderConfig/Channel/Model 三处同批修",
         "scheduler/model-sync 加 Redis SET NX EX 70 分布式选主锁；Docker 单副本部署临时缓解但长期走锁",
         "stress-test.ts 改 spawn 数组形式，移除所有 execSync 字符串拼接",
+        "fork-public-template 补 checkMcpPermission（projectInfo:false 的 key 不得 fork）",
+        "MCP IP 白名单语义与 REST 层对齐（空列表=允许所有，非空=严格匹配）",
+        "Provider baseUrl 加 URL.parse + protocol in {'http:','https:'} 校验",
         "Next.js 版本升级到最新稳定版（兼容 App Router 14.x），defu 和 glob 一并升级；回归测试覆盖全 API 路由",
+        "checkBalanceAlerts 加 Redis dedup key（user_id + threshold + date）",
         "升级前先 snapshot 当前 package-lock，失败可回滚"
       ],
       "confirmed_at": "2026-04-17",
       "priority": "critical",
-      "source": "docs/code-review/backend-fullscan-2026-04-17.md CRIT-8 + CRIT-9 + CRIT-10 + H-11 + H-12 + H-30",
-      "estimated_effort": "2 days"
+      "source": "docs/code-review/backend-fullscan-2026-04-17.md CRIT-8/9/10 + H-11/12/13/14/29/30/31",
+      "estimated_effort": "2.5 days",
+      "phase": "P0-security",
+      "order": 4
+    },
+    {
+      "id": "BL-FE-PERF-01",
+      "title": "前端性能硬化 — Recharts 懒加载 + i18n 按需 + CLS 修复 + 字体/路由优化",
+      "description": "来源 docs/code-review/frontend-perf.md + frontend-lighthouse.md + frontend-bundle-analysis.md。(1) CRITICAL-1: dashboard/usage/admin-usage 静态导入 recharts (~396 kB chunk)，First Load 281/271/227 kB。(2) CRITICAL-2: en.json + zh-CN.json 两套 107 kB 全量打进每页。(3) HIGH-4: Material Symbols CSS 阻塞渲染无 preconnect。(4) LOW-4: src/app/page.tsx 'use client' 仅做 router.push 重定向，应改 RSC redirect()。(5) dashboard CLS 0.11 超 Good 阈值。(6) console 缺 loading.tsx Suspense 边界。(7) next.config.ts 缺 bundle-analyzer + images 配置。",
+      "decisions": [
+        "recharts 改 dynamic() 懒加载：dashboard/usage/admin-usage 各抽 ChartsSection 子组件",
+        "i18n 改 next-intl 动态加载或 useEffect+import()，移除 IntlProvider 的两语言静态 import",
+        "Material Symbols 加 preconnect fonts.googleapis.com + fonts.gstatic.com + &display=swap，考虑迁移 next/font/local 自宿",
+        "src/app/page.tsx 改 RSC 用 redirect('/dashboard')，删 'use client'",
+        "dashboard 所有异步卡片加固定 min-h-[Npx] 或 Skeleton 占位",
+        "console/ 下补 loading.tsx 启用路由级 Suspense",
+        "next.config.ts 接入 @next/bundle-analyzer（ANALYZE=true 时启用）",
+        "poweredByHeader: false"
+      ],
+      "confirmed_at": "2026-04-18",
+      "priority": "high",
+      "source": "docs/code-review/frontend-perf.md CRITICAL-1/2 + HIGH-4 + LOW-4 + frontend-lighthouse.md dashboard CLS",
+      "estimated_effort": "2 days",
+      "phase": "P0-frontend",
+      "order": 5
+    },
+    {
+      "id": "BL-FE-UX-QUALITY",
+      "title": "前端交互质量 — SPA 回调重构 + 轮询可见性 + 复制脱敏 + 模板测试 polish",
+      "description": "来源 docs/code-review/batch-07-frontend-pages.md + frontend-perf.md + daily 2026-04-17。(1) HIGH-33: 9 个 console 页面用 window.location.reload() 作为回调，破坏 SPA 状态。(2) HIGH-34: settings 同时 addEventListener + onClick，点击触发两次。(3) HIGH-35: keys 复制按钮复制的是脱敏 key，误导。(4) MEDIUM-1: notification-center 30s 轮询无 visibilitychange 门控。(5) MEDIUM-2: admin/usage/models/operations 三页面并发 useAsyncData 无 batch。(6) daily M1: admin templates PATCH 无 try/catch 返 500。(7) daily M2: test-runner Decimal 精度丢失。(8) daily M3: waitForCallLog 串行 3s×N 拖延。",
+      "decisions": [
+        "reload() 回调改 router.refresh() + 局部 mutate（SWR/TanStack Query 模式）",
+        "settings 去掉 native addEventListener，统一用 onClick",
+        "keys 复制按钮改复制真 key（仅创建瞬间可获取）或明确提示用户只能在创建时复制",
+        "NotificationCenter 加 document.hidden 检测，hidden 时清 interval",
+        "admin 页 Promise.all batch 合并为单个 useAsyncData",
+        "admin templates PATCH 加 try/catch + errorResponse(400)",
+        "test-runner 改 Prisma.Decimal 累加",
+        "waitForCallLog 改 runActionNonStream 返回时附带 CallLog 或事务内合并"
+      ],
+      "confirmed_at": "2026-04-18",
+      "priority": "high",
+      "source": "docs/code-review/batch-07-frontend-pages.md HIGH-33/34/35/36 + frontend-perf.md MEDIUM-1/2 + daily/2026-04-17.md M1/M2/M3",
+      "estimated_effort": "2 days",
+      "phase": "P1-quality",
+      "order": 6
+    },
+    {
+      "id": "BL-FE-A11Y-I18N-DS",
+      "title": "前端可访问性 + i18n + 设计 token 硬化（Critical 3 文件）",
+      "description": "来源 docs/code-review/batch-07-frontend-pages.md + frontend-ds-1-token-compliance.md。(1) HIGH-38: 数十个图标按钮无 aria-label。(2) HIGH-40: error.tsx 硬编码英文。(3) HIGH-41: admin/models 'Free' 'Degraded' 硬编码。(4) HIGH-37: notification-center timeAgo 英文 + 汇率 7.3。(5) DS-1 Critical 3 文件 590+ 违规：admin/operations (33 处)、dashboard (24 处)、admin/logs (24 处)。",
+      "decisions": [
+        "aria-label 按 IconButton 组件批量补充，建一个 a11y helper",
+        "error.tsx 接入 useTranslations",
+        "admin/models 'Free'/'Degraded' 文案走 i18n 并加对应 zh-CN 条目",
+        "notification-center timeAgo 本地化（dayjs relativeTime + next-intl），汇率从 API 读",
+        "DS-1 3 个 Critical 文件：硬编码 hex/rgb → ds-* token，非 ds Tailwind 色类 → ds 色阶对应类",
+        "其余 28 个 High 文件留给后续批次 BL-FE-DS-ROUNDS（非本批次）"
+      ],
+      "confirmed_at": "2026-04-18",
+      "priority": "high",
+      "source": "docs/code-review/batch-07-frontend-pages.md HIGH-37/38/40/41 + frontend-ds-1-token-compliance.md Critical 3 files",
+      "estimated_effort": "1.5 days",
+      "phase": "P1-quality",
+      "order": 7
+    },
+    {
+      "id": "BL-DATA-CONSISTENCY",
+      "title": "数据一致性 — 外键索引 + TTL/归档 + 分页 + 约束兜底",
+      "description": "来源 docs/code-review/batch-05-database.md + daily 2026-04-17。(1) H-1: TemplateStep.actionId 外键无 index，删除/关联全表扫描。(2) H-2: AliasModelLink 两外键无单列 index。(3) H-17: EmailVerificationToken.userId FK 无 onDelete，阻止用户硬删。(4) H-18: migration WHERE order >= 10000 粗粒度修复，二次运行覆盖风险。(5) H-20: notifications 表无 TTL，高频堆积。(6) daily H-1: listPublicTemplates 无 DB 分页，全表加载内存排序。",
+      "decisions": [
+        "补齐外键 @@index([actionId]) / @@index([modelId]) / @@index([aliasId])",
+        "EmailVerificationToken onDelete=Cascade",
+        "重新审 migration 20260416_fix_template_step_order_v2，改用精确的目标 templateId 列表",
+        "notifications 加 expiresAt 字段 + 后台 cron 清理（或 PG TTL 扩展）",
+        "listPublicTemplates 改 Prisma orderBy + skip/take，recommended 预计算 recommendedScore 列",
+        "全部通过 migration 发布，回滚脚本准备"
+      ],
+      "confirmed_at": "2026-04-18",
+      "priority": "high",
+      "source": "docs/code-review/batch-05-database.md H-1/2/17/18/20 + daily/2026-04-17.md H1",
+      "estimated_effort": "1 day",
+      "phase": "P1-data",
+      "order": 8
+    },
+    {
+      "id": "BL-INFRA-RESILIENCE",
+      "title": "后端韧性 — N+1 重写 + 流式超时 + AbortController + TOCTOU",
+      "description": "来源 docs/code-review/batch-02-engine.md + batch-04-infra.md。(1) H-4: model-sync reconcile N+1，每日 400-600 次 DB 往返 × 11 家。(2) H-5: list-actions include versions 无 take。(3) H-6: post-process 每成功调用多一次 Project 查询。(4) H-21: fetchWithProxy timeout 在 headers 到达即清除，流式超时失效。(5) H-22: chat completions catch 未 reader.cancel()，TCP 泄漏。(6) H-23: dispatcher webhook fetch 无 AbortController。(7) H-24: health alert webhook 无超时，阻塞检查循环。(8) H-25: waitForCallLog 失败静默返回。(9) H-26: rpmCheck TOCTOU。",
+      "decisions": [
+        "model-sync reconcile 重写为 batch upsert + dedup（单次 DB 往返处理一家）",
+        "list-actions include versions 加 take: 10（最近 10 版本）",
+        "post-process Project 查询缓存到请求上下文（DataLoader 或 WeakMap）",
+        "封装 fetchWithTimeout 强制 AbortController，所有外部调用统一入口",
+        "chat completions catch 里 await reader.cancel() 再抛",
+        "dispatcher + health alert webhook 全部改 fetchWithTimeout",
+        "rpmCheck 改 Redis INCR + EXPIRE 原子操作",
+        "waitForCallLog 失败时写 warn log 并返回 null 明示（而非静默）"
+      ],
+      "confirmed_at": "2026-04-18",
+      "priority": "high",
+      "source": "docs/code-review/batch-02-engine.md H-21/22/26 + batch-04-infra.md H-4/23/24/25",
+      "estimated_effort": "1.5 days",
+      "phase": "P1-data",
+      "order": 9
+    },
+    {
+      "id": "BL-SEC-AUTH-HYGIENE",
+      "title": "认证细节硬化 — 登录/注册 rate limit + bcrypt cost + 时序 oracle",
+      "description": "来源 docs/code-review/batch-01-api-routes.md + batch-06-security.md。(1) H-7: /api/auth/login 和 /api/auth/register 无速率限制，可暴力破解/批量注册。(2) H-9: bcrypt cost 从 12 降级为 10（静默 catch），降低暴力破解成本。(3) H-10: login 路由先做 bcrypt 比较再检查 deletedAt/suspended，形成时序 oracle。",
+      "decisions": [
+        "login/register 两个 API 加 Redis-backed rate limit（IP 级 10/min + account 级 5/min）",
+        "bcrypt cost 恢复 12，catch 改为抛错（不静默）",
+        "login 顺序：先查用户状态（deletedAt/suspended）→ 返回等价错误 → 再 bcrypt 比较；统一失败返回延迟（避免时序侧信道）"
+      ],
+      "confirmed_at": "2026-04-18",
+      "priority": "high",
+      "source": "docs/code-review/backend-fullscan-2026-04-17.md H-7/9/10",
+      "estimated_effort": "0.5 day",
+      "phase": "P2-polish",
+      "order": 10
+    },
+    {
+      "id": "BL-SEC-SSRF-INPUT",
+      "title": "SSRF + 输入验证硬化 — webhook URL + image-proxy Content-Type",
+      "description": "来源 docs/code-review/batch-06-security.md。(1) H-27: notifications/test-webhook + dispatcher 用户 webhookUrl 无 SSRF 过滤，可探测云元数据（169.254.169.254 等）。(2) H-28: images/proxy Content-Type 透传，可代理非图片响应。",
+      "decisions": [
+        "封装 isSafeWebhookUrl：拒绝私网/loopback/云元数据 IP，只允许 https://",
+        "webhook 发送前 DNS 解析并重新校验（防 DNS rebinding）",
+        "image-proxy 响应 Content-Type 强制白名单（image/*），其余改 application/octet-stream"
+      ],
+      "confirmed_at": "2026-04-18",
+      "priority": "high",
+      "source": "docs/code-review/backend-fullscan-2026-04-17.md H-27/28",
+      "estimated_effort": "0.5 day",
+      "phase": "P2-polish",
+      "order": 11
+    },
+    {
+      "id": "BL-SCRIPT-HYGIENE",
+      "title": "运维/测试脚本硬化 — setup fatal + 报告路径 + 弱密码 + 测试教坏",
+      "description": "来源 docs/code-review/batch-08-hooks-scripts.md。(1) H-42: e2e-errors.ts setup 失败无 fatal，后续连锁假 FAIL。(2) H-43: stress-test.ts 报告路径硬编码 2026-04-04。(3) H-44: setup-zero-balance.ts passwordHash='dummy' 非合法 bcrypt。(4) H-45: e2e-test.ts 直接调 webhook 无签名，教坏测试模式。(5) H-46: run-template test_mode=execute 跳速率限制，可被利用。",
+      "decisions": [
+        "e2e-errors.ts setup 任一步失败立即 process.exit(1)，不跑后续",
+        "stress-test.ts 报告路径改 new Date().toISOString().slice(0,10)",
+        "setup-zero-balance.ts 用 bcrypt.hashSync('{random}',10) 生成合法 hash",
+        "e2e-test.ts webhook 测试改走 mock 或签名 helper",
+        "run-template test_mode=execute 仍走速率限制，但成本预检不扣费（dry_run 路径）"
+      ],
+      "confirmed_at": "2026-04-18",
+      "priority": "medium",
+      "source": "docs/code-review/batch-08-hooks-scripts.md H-42/43/44/45 + batch-03-mcp.md H-46",
+      "estimated_effort": "0.5 day",
+      "phase": "P2-polish",
+      "order": 12
+    },
+    {
+      "id": "BL-INFRA-ARCHIVE",
+      "title": "大表分区归档 — call_logs / system_logs / health_checks",
+      "description": "来源 docs/code-review/batch-05-database.md H-3。call_logs / system_logs / health_checks 无归档/分区策略，6 个月后表体积数十 GB，索引膨胀 + 查询劣化。",
+      "decisions": [
+        "call_logs 月度分区（PostgreSQL PARTITION BY RANGE (createdAt)）",
+        "system_logs + health_checks 采用 30/90 天 TTL 自动清理",
+        "保留最近 30 天活跃分区，30-180 天归档到 S3/压缩表，>180 天清除",
+        "迁移前先 ANALYZE 现有表体积 + I/O 基线，评估迁移窗口"
+      ],
+      "confirmed_at": "2026-04-18",
+      "priority": "high",
+      "source": "docs/code-review/batch-05-database.md H-3",
+      "estimated_effort": "1 day",
+      "phase": "P2-polish",
+      "order": 13
+    },
+    {
+      "id": "BL-FE-DS-SHADCN",
+      "title": "前端设计系统 — shadcn 采用率提升 + 剩余 DS-1 High 文件",
+      "description": "来源 docs/code-review/frontend-ds-1-token-compliance.md + frontend-ds-2-shadcn-adoption.md。(1) DS-2: 62% shadcn 采用率，92 处 raw input/textarea/select 分散在 18 个文件，4 处 hand-rolled dialog，11 处 raw table。(2) DS-1 剩余 28 个 High 级文件（BL-FE-A11Y-I18N-DS 只处理 Critical 3 文件）。Worst offenders: admin/model-aliases (21 items)、admin/providers (23 items)、settings (17 items)、admin/operations (9 items)、actions/new (10 items)。",
+      "decisions": [
+        "admin/model-aliases / admin/providers / settings / actions/new 4 个 Critical 文件优先改造",
+        "raw <input>/<textarea>/<select> → shadcn <Input>/<Textarea>/<Select>",
+        "hand-rolled dialog → shadcn <Dialog>",
+        "raw <table> → shadcn <Table>/<TableCard>",
+        "settings useState 切 tab → <Tabs>/<TabsList>/<TabsTrigger>",
+        "DS-1 剩余 High 文件按 token 违规数从高到低清理，每批 5-8 个文件"
+      ],
+      "confirmed_at": "2026-04-18",
+      "priority": "medium",
+      "source": "docs/code-review/frontend-ds-2-shadcn-adoption.md Critical 5 files + frontend-ds-1-token-compliance.md High 28 files",
+      "estimated_effort": "2 days",
+      "phase": "P2-polish",
+      "order": 14
     },
     {
       "id": "BL-SEC-PAY-DEFERRED",
@@ -134,7 +298,9 @@
       "priority": "critical-deferred",
       "source": "docs/code-review/backend-fullscan-2026-04-17.md CRIT-1 + CRIT-3",
       "estimated_effort": "1-2 days",
-      "supersedes": "BL-065"
+      "supersedes": "BL-065",
+      "phase": "deferred",
+      "order": 99
     }
   ]
 }

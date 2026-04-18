@@ -1,42 +1,42 @@
 {
-  "batch": "ROUTING-RESILIENCE-V2",
-  "created_at": "2026-04-17",
+  "batch": "BL-SEC-CRED-HARDEN",
+  "created_at": "2026-04-18",
   "features": [
     {
-      "id": "F-RR2-01",
-      "title": "Provider-aware failover：429/401/402 跨 provider 放行",
-      "priority": "high",
+      "id": "F-CH-01",
+      "title": "image-proxy.ts 移除 HMAC fallback + 启动校验 env",
+      "priority": "critical",
       "executor": "generator",
-      "status": "done",
-      "source": "ROUTING-RESILIENCE-V2",
-      "acceptance": "1) `src/lib/engine/failover.ts` 重构 isRetryable(err, currentRoute, nextRoute)：新增 NEVER_RETRY 集合（CONTENT_FILTERED + INVALID_REQUEST + INVALID_SIZE，永不重试）+ CROSS_PROVIDER_ONLY 集合（AUTH_FAILED + RATE_LIMITED + INSUFFICIENT_BALANCE，仅下一候选 provider.id 不同时重试）；2) withFailover 循环每轮调用 isRetryable 传入 candidates[i] 和 candidates[i+1] ?? null；3) 同 provider 429 不重试（即使有下一候选，若同 provider 也不切）；4) 跨 provider 429/401/402 自动切换；5) CONTENT_FILTERED/INVALID_REQUEST 任何情况不重试；6) tsc 通过"
+      "status": "pending",
+      "source": "CRIT-6",
+      "acceptance": "1) `src/lib/api/image-proxy.ts` 删除 `?? 'aigc-gateway-image-proxy-dev-secret'` 字符串 fallback；2) getSecret() 改为若 IMAGE_PROXY_SECRET || AUTH_SECRET || NEXTAUTH_SECRET 均为空则 throw Error（含明确变量名提示）；3) 在 `src/lib/env.ts`（或新增 assertEnv 函数）加启动校验，应用启动阶段即抛错而非首次请求；4) 新增单测 `src/lib/api/__tests__/image-proxy.test.ts`：env 缺失时 throw + 三级 fallback 任一有值时通过；5) tsc 通过；6) `npm run build` 通过；7) git grep 'aigc-gateway-image-proxy-dev-secret' 零结果（除 docs/）"
     },
     {
-      "id": "F-RR2-02",
-      "title": "Redis 失败通道冷却池（300s） + routeByAlias 降权",
-      "priority": "high",
+      "id": "F-CH-02",
+      "title": "prisma/seed.ts admin 密码改读 ADMIN_SEED_PASSWORD",
+      "priority": "critical",
       "executor": "generator",
-      "status": "done",
-      "source": "ROUTING-RESILIENCE-V2",
-      "acceptance": "1) 新建 `src/lib/engine/cooldown.ts`：markChannelCooldown(channelId, reason) 写 `channel:cooldown:<id>` TTL=300s + getCooldownChannelIds(channelIds[]) 批查；2) Redis 不可用时 markChannelCooldown 仅 console.warn 不抛，getCooldownChannelIds 返回空 Set；3) withFailover 内置 onRetry 默认写冷却（不依赖调用方显式传入），保证三处调用全覆盖；4) routeByAlias 修改排序：同 priority 内，非冷却优先于冷却中，再按 health PASS/NULL 排序；5) 冷却中的 channel 不从候选移除（只降权）；6) 单测覆盖 cooldown 读写 + Redis 不可用降级；7) tsc 通过"
+      "status": "pending",
+      "source": "CRIT-5 (part 1)",
+      "acceptance": "1) `prisma/seed.ts:284` 删除 `hashSync('admin123', 12)` 字面量；2) 改为 `hashSync(requireEnv('ADMIN_SEED_PASSWORD'), 12)`，requireEnv helper 可放在 seed.ts 顶部或 `prisma/lib/require-env.ts`；3) 保留 seed 幂等性：upsert update 块不含 passwordHash（已存在 admin 不重置密码）；4) `.env.example` 新增 `ADMIN_SEED_PASSWORD=` 占位；5) `.env.production` 不设此变量（防止 prod 跑 seed）；6) `npx tsx prisma/seed.ts` 本地跑通（需本地 export ADMIN_SEED_PASSWORD=...）；7) git grep 'admin123' 零结果（除 docs/ 引用）"
     },
     {
-      "id": "F-RR2-03",
-      "title": "Adapter HTTP 200 + body.error 映射审计 + 修复",
-      "priority": "medium",
+      "id": "F-CH-03",
+      "title": "scripts + test scripts 密码 env 化（Codex@2026! + Test1234）",
+      "priority": "critical",
       "executor": "generator",
-      "status": "done",
-      "source": "ROUTING-RESILIENCE-V2",
-      "acceptance": "1) 审计 `src/lib/engine/openai-compat.ts`、`adapters/volcengine.ts`、`adapters/siliconflow.ts` 非流响应处理分支：HTTP 200 但 body 含 error 字段时，是否抛 EngineError + 正确 code；2) 缺失则补（复用 mapProviderError 或等效逻辑），code 应对应 upstream 语义（429/401/400/其他 → PROVIDER_ERROR）；3) 为每个被修的 adapter 补单测：mock upstream 返回 200 + {error:{message,code}}，断言抛出 EngineError 且 code 正确；4) tsc 通过"
+      "status": "pending",
+      "source": "CRIT-5 (part 2) + L5",
+      "acceptance": "1) 新建 `scripts/lib/require-env.ts` 导出 `requireEnv(key): string` —— 缺失时 console.error + process.exit(1)；2) 以下文件密码改 `requireEnv('ADMIN_TEST_PASSWORD')`：`scripts/admin-auth.ts`、`scripts/stress-test.ts`、`scripts/test/template-governance-eval.mjs`、`scripts/test/bf-fork-project-switch-verifying-e2e-2026-04-10.ts`、`scripts/test/rate-limit-f-rl-08-verifying-e2e-2026-04-15.ts`、其余用 `git grep -l 'Codex@2026\\\\!'` 枚举的所有命中文件；3) 含 'Test1234' 的 E2E 脚本改 `requireEnv('E2E_TEST_PASSWORD')`，用 `git grep -l 'Test1234'` 枚举；4) `.env.example` 新增 `ADMIN_TEST_PASSWORD=`、`E2E_TEST_PASSWORD=` 占位；5) 本地跑 `npx tsx scripts/admin-auth.ts`（无 env）应 exit(1) 打 'Missing env: ADMIN_TEST_PASSWORD'；6) git grep 'Codex@2026' + 'Test1234' 零结果（除 docs/）；7) tsc 通过；8) CI `.github/workflows/` 检查 secrets 文档化需要注入的 env（作为 spec 附注，不改 yml）"
     },
     {
-      "id": "F-RR2-04",
-      "title": "ROUTING-RESILIENCE-V2 全量验收（failover 单测矩阵 + 生产烟测）",
-      "priority": "high",
+      "id": "F-CH-04",
+      "title": "BL-SEC-CRED-HARDEN 全量验收",
+      "priority": "critical",
       "executor": "codex",
-      "status": "done",
-      "source": "ROUTING-RESILIENCE-V2",
-      "acceptance": "Failover 单元测试矩阵（9 用例）：1) 跨 provider 429 → 切换 + 冷却；2) 跨 provider 401 → 切换 + 冷却；3) 跨 provider 402 → 切换 + 冷却；4) PROVIDER_ERROR/500 → 切换 + 冷却；5) generic timeout → 切换 + 冷却；6) 同 provider 429 → 直接抛错；7) CONTENT_FILTERED → 直接抛错；8) INVALID_REQUEST → 直接抛错；9) Redis 不可用 + 429 跨 provider → 切换成功但未写冷却。生产烟测（用 codex-dev 账号）：10) 高频请求 glm-4.7-flash 触发 zhipu 429 → 后续 call_logs provider 自动切 openrouter；11) `redis-cli --scan 'channel:cooldown:*'` 存在 zhipu 通道 key；12) 手动清 key 后 zhipu 重新参与路由（或等 5 分钟）。13) 生成 signoff 报告。"
+      "status": "pending",
+      "source": "BL-SEC-CRED-HARDEN",
+      "acceptance": "静态检查：1) git grep -i 'admin123' 零结果；2) git grep 'Codex@2026' 零结果；3) git grep 'Test1234' 零结果；4) git grep 'aigc-gateway-image-proxy-dev-secret' 零结果（以上 4 条均允许 docs/ 目录引用但代码/scripts/prisma 需清零）；5) `.env.example` 含 4 个新变量（ADMIN_SEED_PASSWORD + ADMIN_TEST_PASSWORD + E2E_TEST_PASSWORD + IMAGE_PROXY_SECRET）。代码健全：6) `npm run build` 通过；7) `npx tsc --noEmit` 通过；8) `npx vitest run src/lib/api/__tests__/image-proxy.test.ts` 新单测通过。启动校验：9) 空 IMAGE_PROXY_SECRET + 空 AUTH_SECRET + 空 NEXTAUTH_SECRET 启动 `npm run dev` 应抛错退出（或首次请求 image-proxy 时抛错，二选一）。脚本健全：10) `ADMIN_TEST_PASSWORD= npx tsx scripts/admin-auth.ts` exit(1)；11) 设置 env 后 admin-auth.ts 能正常获取 token。12) 生成 signoff 报告 `docs/test-reports/BL-SEC-CRED-HARDEN-signoff-2026-04-18.md`。"
     }
   ]
 }
