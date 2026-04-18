@@ -1,0 +1,9 @@
+HTTP/1.1 200 OK
+vary: RSC, Next-Router-State-Tree, Next-Router-Prefetch
+content-type: application/json
+Date: Sat, 18 Apr 2026 02:48:20 GMT
+Connection: keep-alive
+Keep-Alive: timeout=5
+Transfer-Encoding: chunked
+
+{"id":"cmo3qffgp00009yu930xkmt9z","email":"admin@aigc-gateway.local","name":"Admin","role":"ADMIN","emailVerified":true}

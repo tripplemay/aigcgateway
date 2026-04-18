@@ -1,0 +1,9 @@
+HTTP/1.1 401 Unauthorized
+vary: RSC, Next-Router-State-Tree, Next-Router-Prefetch
+content-type: application/json
+Date: Sat, 18 Apr 2026 02:47:39 GMT
+Connection: keep-alive
+Keep-Alive: timeout=5
+Transfer-Encoding: chunked
+
+{"error":{"type":"authentication_error","code":"unauthorized","message":"Missing Authorization header"}}

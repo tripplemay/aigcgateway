@@ -1,11 +1,11 @@
 {
-  "status": "verifying",
+  "status": "done",
   "user_goal": "BL-SEC-AUTH-SESSION — JWT HttpOnly cookie + middleware jose 验签 + console layout SSR 守卫（Code Review CRIT-7 + H-8 + H-32）",
   "total_features": 4,
-  "completed_features": 3,
+  "completed_features": 4,
   "fix_rounds": 0,
   "current_sprint": "BL-SEC-AUTH-SESSION",
-  "last_updated": "2026-04-18T02:40:00Z",
+  "last_updated": "2026-04-18T02:49:18.824Z",
   "reference_docs": [
     "docs/specs/BL-SEC-AUTH-SESSION-spec.md",
     "docs/code-review/backend-fullscan-2026-04-17.md"
@@ -14,13 +14,19 @@
   "docs": {
     "spec": "docs/specs/BL-SEC-AUTH-SESSION-spec.md",
     "test_cases": null,
-    "signoff": null,
+    "signoff": "docs/test-reports/BL-SEC-AUTH-SESSION-signoff-2026-04-18.md",
     "framework_reviewed": false
   },
-  "evaluator_feedback": null,
+  "evaluator_feedback": {
+    "summary": "BL-SEC-AUTH-SESSION 本地验收通过：HttpOnly 会话写入、JWT 验签拦截、SSR 守卫与登出闭环均符合预期。",
+    "pass_count": 15,
+    "partial_count": 0,
+    "fail_count": 0,
+    "issues": []
+  },
   "generator_handoff": null,
   "session_notes": {
     "Kimi": "Generator 完成 F-AS-01/02/03（3/3 generator 任务 done）→ 状态转 verifying，等 Codex 执行 F-AS-04 的 16 条验收。\n\n关键交付物：\n- `src/lib/auth/session-cookie.ts`：`setSessionCookie` / `clearSessionCookie` + `SESSION_COOKIE_NAME=token` + `MAX_AGE=604800s`；prod 才加 Secure。\n- `src/app/api/auth/login/route.ts`：response 同时 body `{token}` + `Set-Cookie HttpOnly/Lax` 双轨。`register` 不自动登录（只返 verificationToken），未改。\n- `src/app/api/auth/logout/route.ts`：POST 清 cookie。\n- `src/lib/auth/jwt.ts`：`verifyJwt(token)` 基于 `jose.jwtVerify`（HS256），校验 userId/role/exp。\n- `src/middleware.ts`：删 `decodeJwtPayload`，改读 cookie + 真实验签；保留 /v1/* 和 /mcp rewrite 逻辑；用 Edge runtime（jose 兼容）；401 路径携带 `?redirect=<pathname>`。\n- `src/app/(console)/layout.tsx`：改 RSC，用 `cookies()+verifyJwt+prisma` 获取 user，redirect 失败；新增 `_client-shell.tsx` 承载原 UI。`/admin` 非管理员跳 `/dashboard`。\n- 前端 4 写入点：login page 删 document.cookie（加 TODO 保留 localStorage 过渡）；top-app-bar 登出 POST /logout；settings 登出 POST /logout。\n- `scripts/e2e-test.ts` 新增 4 个回归步骤（2b/2c/2d/2e）：Set-Cookie HttpOnly/Lax/MaxAge + logout 清 cookie + 伪造 JWT 被拒 + 无 cookie /dashboard redirect。\n- 单测 `src/lib/auth/__tests__/jwt.test.ts` 10 条全 pass；`npx vitest run` 96/96；`npx tsc --noEmit` 0 err；`npm run build` 通过。\n\n注意：\n- jose 装在 Edge runtime，未加 `runtime='nodejs'`（Next 14 不支持 nodejs middleware）。\n- `apiFetch` 继续使用 localStorage Bearer（过渡期 API routes 还走 Authorization）。\n- register route 不返 token，未改动。\n- 部署后所有现用户 cookie 失效需重新登录（HttpOnly 新写入）。\n\nCodex 下一步：F-AS-04 16 条验收（安全属性/验签/SSR 守卫/构建/兼容），输出 `docs/test-reports/BL-SEC-AUTH-SESSION-signoff-2026-04-18.md`。",
-    "Reviewer": null
+    "Reviewer": "2026-04-18 verifying: executed cookie/header checks, forged+expired JWT redirect checks, SSR redirect checks, logout/profile regression, tsc/build/vitest(jwt). All local acceptance passed; signoff generated."
   }
 }

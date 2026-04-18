@@ -1,0 +1,8 @@
+HTTP/1.1 307 Temporary Redirect
+location: /login?redirect=%2Fdashboard
+Date: Sat, 18 Apr 2026 02:47:39 GMT
+Connection: keep-alive
+Keep-Alive: timeout=5
+Transfer-Encoding: chunked
+
+/login?redirect=%2Fdashboard

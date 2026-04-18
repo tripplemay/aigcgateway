@@ -34,7 +34,7 @@
       "title": "BL-SEC-AUTH-SESSION 全量验收",
       "priority": "critical",
       "executor": "codex",
-      "status": "pending",
+      "status": "completed",
       "source": "BL-SEC-AUTH-SESSION",
       "acceptance": "安全属性断言（浏览器 DevTools + curl 双路验证）：1) 登录响应 Set-Cookie 含 HttpOnly；2) 含 SameSite=Lax；3) 生产环境 curl 响应含 Secure（本地可跳过）；4) DevTools Application > Cookies token 行 HttpOnly 勾选为 true；5) 浏览器 console `document.cookie` 读不到 token 字段。验签断言：6) 伪造 JWT（header+payload base64 后随便签）访问 /admin/operations → 302 redirect /login；7) 无 token curl /dashboard → 302 redirect /login?redirect=/dashboard；8) 过期 JWT（手工构造 exp=过去时间）→ redirect。SSR 守卫断言：9) 清空所有 cookie/storage 后直接访问 /dashboard，观察 HTML 首字节即是 redirect meta/Location，不含 console layout DOM（curl -I 验证或 view-source）。构建健全：10) npm run build 通过；11) npx tsc --noEmit 通过；12) npx vitest run src/lib/auth/__tests__/jwt.test.ts 新单测通过。兼容性回归：13) 登录后 apiFetch 调用 /api/auth/profile 成功（cookie 自动带上）；14) 登出 /api/auth/logout 后 apiFetch /api/auth/profile 返 401；15) 登出后浏览器手动访问 /dashboard 被 redirect。16) 生成 signoff 报告 docs/test-reports/BL-SEC-AUTH-SESSION-signoff-2026-04-18.md。"
     }

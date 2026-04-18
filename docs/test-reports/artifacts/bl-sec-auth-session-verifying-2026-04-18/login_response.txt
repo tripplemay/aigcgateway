@@ -1,0 +1,10 @@
+HTTP/1.1 200 OK
+vary: RSC, Next-Router-State-Tree, Next-Router-Prefetch
+content-type: application/json
+set-cookie: token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJjbW8zcWZmZ3AwMDAwOXl1OTMweGttdDl6Iiwicm9sZSI6IkFETUlOIiwiaWF0IjoxNzc2NDgwNDU5LCJleHAiOjE3NzcwODUyNTl9.ycgCyVZqkmISJbte4Nm9AGzhsgURnwbXxUg2dja7VhE; Path=/; Expires=Sat, 25 Apr 2026 02:47:39 GMT; Max-Age=604800; Secure; HttpOnly; SameSite=lax
+Date: Sat, 18 Apr 2026 02:47:39 GMT
+Connection: keep-alive
+Keep-Alive: timeout=5
+Transfer-Encoding: chunked
+
+{"token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJjbW8zcWZmZ3AwMDAwOXl1OTMweGttdDl6Iiwicm9sZSI6IkFETUlOIiwiaWF0IjoxNzc2NDgwNDU5LCJleHAiOjE3NzcwODUyNTl9.ycgCyVZqkmISJbte4Nm9AGzhsgURnwbXxUg2dja7VhE","user":{"id":"cmo3qffgp00009yu930xkmt9z","email":"admin@aigc-gateway.local","name":"Admin","role":"ADMIN"}}
