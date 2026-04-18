@@ -126,13 +126,15 @@ gh run list --limit 3 --branch main
 - 告知用户「请重新启动 Claude Code 继续」，然后结束
 
 ### 7. 框架提案（可选）
-实现过程中如果遇到以下情况，在 `framework/proposed-learnings.md` 末尾追加一条提案：
+实现过程中如果遇到以下情况，在 `.auto-memory/proposed-learnings.md` 末尾追加一条提案：
 - 发现某个通用模式（可复用到其他项目）
 - 踩到意外的技术约束或陷阱
 - acceptance 标准的写法有缺陷（太模糊 / 无法验证）
 - 某条铁律在实践中需要补充说明
 
-**不得直接修改 `framework/` 其他文件**，只能追加到 `framework/proposed-learnings.md`。格式：
+**不得直接修改 harness-template repo**，只追加到本地 `.auto-memory/proposed-learnings.md`，由 Planner 在 done 阶段批量同步到 harness-template。
+
+格式：
 
 ```markdown
 ## [YYYY-MM-DD] Claude CLI — 来源：F-XXX
@@ -141,10 +143,12 @@ gh run list --limit 3 --branch main
 
 **内容：** [一句话描述，足够让用户判断是否值得沉淀]
 
-**建议写入：** `framework/README.md` §经验教训 / `framework/harness/evaluator.md` / 其他
+**建议写入 harness-template 的：** `harness/generator.md` / `docs/02-usage.md` / 其他
 
 **状态：** 待确认
 ```
+
+> Triad Workflow 框架已独立为 `tripplemay/harness-template` repo。
 
 ### 7. Handoff 说明（存在 executor:codex 功能时）
 当所有 `executor:generator` 功能完成后，如果存在 `executor:codex` 的功能，在 progress.json 中写入 `generator_handoff`，说明：

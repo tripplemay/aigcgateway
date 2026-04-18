@@ -18,12 +18,12 @@ type: feedback
 ## done 收尾
 
 1. **校验** project-status.md 是否准确完整（不重写，整合不一致处）
-2. 处理 `framework/proposed-learnings.md`，逐条提交用户确认
+2. 处理 `.auto-memory/proposed-learnings.md`（本地暂存），用户确认的条目切到 `~/project/harness-template` 同步到框架 repo
 3. 清除 progress.json 中的 role_assignments
 4. 询问下一批次
 
-## 框架维护
+## 框架维护（框架已独立为 harness-template repo）
 
-- 即时提出：影响当前决策的规则变更
-- 后台队列：追加到 `framework/proposed-learnings.md`
-- 不得未经用户确认直接修改 `framework/` 文件
+- 即时提出：影响当前决策的规则变更 → 用户确认后，cd 到 `~/project/harness-template` 即时更新
+- 后台队列：不紧急的，追加到本项目 `.auto-memory/proposed-learnings.md`，done 阶段批量同步
+- **不得未经用户确认直接修改 harness-template repo**

@@ -12,7 +12,6 @@ on:
       - 'AGENTS.md'
       - '.auto-memory/**'
       - 'docs/**'
-      - 'framework/**'
       - 'design-draft/**'
       - 'planner.md'
       - 'generator.md'

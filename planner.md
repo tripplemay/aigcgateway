@@ -166,7 +166,13 @@ executor:codex 的典型场景：压力测试执行、code review、安全审计
 **注意：** 不再从头重写，Generator/Evaluator 已在过程中各自更新。Planner 只做最终校验和整合。
 
 ### 2. 处理 proposed-learnings（如有）
-读取 `framework/proposed-learnings.md`，逐条提交用户确认，确认后写入对应 framework 文件。
+读取 `.auto-memory/proposed-learnings.md`（本地暂存区），逐条提交用户确认。
+
+用户确认的条目，**切换到 `~/project/harness-template` 目录**，编辑对应文件（如 `harness/planner.md` / `docs/01-concepts.md`），在 harness-template 的 `CHANGELOG.md` 新增版本条目，`git commit + push`。
+
+已同步的条目从 aigcgateway 的 `.auto-memory/proposed-learnings.md` 移除。
+
+> Triad Workflow 框架已独立为 `tripplemay/harness-template` repo，本项目不再有 `framework/` 子目录。
 
 ### 3. 清除 role_assignments
 如果 progress.json 中存在 `role_assignments`，将其设为 `null`。角色分配仅对当前批次有效，下一批次重新分配。

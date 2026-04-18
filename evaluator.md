@@ -115,7 +115,7 @@
 ### 6. 写 signoff 报告（reverifying → done 时）
 当所有功能全部 PASS，在置 `done` 之前：
 - 在 `docs/test-reports/` 下创建签收报告（文件名：`[批次名称]-signoff-YYYY-MM-DD.md`）
-- 使用 `framework/templates/signoff-report.md` 模板
+- 参考历史 signoff 报告的格式（如 `docs/test-reports/BL-SEC-*-signoff-*.md`），或查阅 `~/project/harness-template/templates/signoff-report.md` 模板
 - 将文件路径填入 progress.json 的 `docs.signoff`
 
 **signoff 为空，不得置 done。**
@@ -144,13 +144,15 @@
 将 FAIL 和 PARTIAL 的功能 status 改回 "pending"，等待 Generator 修复。
 
 ### 9. 框架提案（可选）
-验收过程中如果遇到以下情况，在 `framework/proposed-learnings.md` 末尾追加一条提案：
+验收过程中如果遇到以下情况，在 `.auto-memory/proposed-learnings.md` 末尾追加一条提案：
 - acceptance 标准太模糊导致无法客观判定 PASS / FAIL
 - 某类 Bug 是系统性的（说明 Generator 指令或模板需要补充）
 - 验收步骤中发现某个通用的验证方法值得固化
 - 某个 PARTIAL 反复出现，说明验收标准写法需要改进
 
-**不得直接修改 `framework/` 其他文件**，只能追加到 `framework/proposed-learnings.md`。格式：
+**不得直接修改 harness-template repo**，只追加到本地 `.auto-memory/proposed-learnings.md`，由 Planner 在 done 阶段批量同步到 harness-template。
+
+格式：
 
 ```markdown
 ## [YYYY-MM-DD] Evaluator — 来源：F-XXX
@@ -159,7 +161,7 @@
 
 **内容：** [一句话描述，足够让用户判断是否值得沉淀]
 
-**建议写入：** `framework/README.md` §经验教训 / `framework/harness/generator.md` / 其他
+**建议写入 harness-template 的：** `harness/evaluator.md` / `docs/02-usage.md` / 其他
 
 **状态：** 待确认
 ```

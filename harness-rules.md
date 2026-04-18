@@ -327,14 +327,16 @@ git status --short docs/test-reports/ docs/test-cases/ .auto-memory/
 
 ## 框架提案规则
 
+> **重要：** Triad Workflow 框架已独立为 `tripplemay/harness-template` repo（本地克隆于 `~/project/harness-template`）。本项目**不再**有 `framework/` 子目录，也不再通过 subtree push 同步。
+
 Claude CLI 在执行任务过程中，若发现框架值得更新，采用以下两种模式：
 
-- **即时提出**：影响当前决策的、需要用户立即判断的，直接在对话中提出，用户确认后立即更新 `framework/` 文件
-- **后台队列**：不紧急的、不影响主线任务的，追加到 `framework/proposed-learnings.md`，在 `done` 阶段一并提出
+- **即时提出**：影响当前决策的、需要用户立即判断的，直接在对话中提出，用户确认后，**切到 `~/project/harness-template` 目录**立即更新对应文件
+- **后台队列**：不紧急的、不影响主线任务的，追加到 `.auto-memory/proposed-learnings.md`（**本项目本地暂存区**），在 `done` 阶段由 Planner 批量处理
 
-**不得在未经用户确认的情况下直接修改 `framework/` 其他文件。**
+**不得在未经用户确认的情况下直接修改 harness-template repo。**
 
-格式（追加到 `framework/proposed-learnings.md`）：
+格式（追加到 `.auto-memory/proposed-learnings.md`）：
 
 ```markdown
 ## [YYYY-MM-DD] Claude CLI — 来源：[触发场景简述]
@@ -343,7 +345,13 @@ Claude CLI 在执行任务过程中，若发现框架值得更新，采用以下
 
 **内容：** [一句话描述，足够让用户判断是否值得沉淀]
 
-**建议写入：** `framework/README.md` §经验教训 / `framework/harness/xxx.md` / 其他
+**建议写入 harness-template 的：** `harness/planner.md` / `docs/XX.md` / 其他
 
 **状态：** 待确认
 ```
+
+**done 阶段 Planner 的同步流程：**
+1. 读取 `.auto-memory/proposed-learnings.md`
+2. 逐条向用户确认
+3. 用户确认的条目：`cd ~/project/harness-template`，编辑对应文件 + 在 harness-template 的 `CHANGELOG.md` 加新版本条目，commit + push 到 harness-template main
+4. 已同步条目从 aigcgateway 的 `.auto-memory/proposed-learnings.md` 移除

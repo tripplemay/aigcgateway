@@ -2,8 +2,8 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-## Harness 规则（最高优先级）
-读取并严格遵守 @harness-rules.md 中的所有规则。
+## Triad Workflow 规则（最高优先级）
+读取并严格遵守 @harness-rules.md 中的所有规则。本项目采用的是 [Triad Workflow 框架](https://github.com/tripplemay/harness-template)（已独立为 `tripplemay/harness-template` repo）。
 
 **每次会话启动必须执行（所有 agent 通用）：**
 1. 读取 `.auto-memory/MEMORY.md`（项目记忆索引），按需加载记忆文件
@@ -14,6 +14,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 **记忆分层：** `.auto-memory/`（git-tracked）是跨 agent 共享记忆源。本机用户偏好记忆存储在 `~/.claude/projects/.../memory/` 中，不入 git。
 
 **规格文档分级：** 新功能批次须有 `docs/specs/` 下的规格文档（硬性）；Bug 修复批次可省略（软性）。
+
+**框架沉淀：** 发现值得沉淀的经验时追加到 `.auto-memory/proposed-learnings.md`（本地暂存）。done 阶段由 Planner 批量同步到 `~/project/harness-template` repo。**本项目不再维护 `framework/` 子目录**（v0.9.0 后已分离）。
 
 ---
 
