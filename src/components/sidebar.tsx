@@ -197,7 +197,7 @@ export function Sidebar({ role, userName, email }: SidebarProps) {
                     className={cn(
                       "relative flex items-center gap-3 px-4 py-2 rounded-lg transition-colors font-[var(--font-heading)] tracking-tight font-bold text-sm",
                       active
-                        ? "text-ds-primary bg-ds-primary/5 before:absolute before:left-0 before:top-1/2 before:-translate-y-1/2 before:w-[3px] before:h-5 before:rounded-full before:bg-ds-primary"
+                        ? "text-ds-primary bg-ds-primary-fixed before:absolute before:left-0 before:top-1/2 before:-translate-y-1/2 before:w-[3px] before:h-5 before:rounded-full before:bg-ds-primary"
                         : "text-ds-on-surface-variant hover:bg-ds-surface-container-high/50",
                     )}
                   >
@@ -217,7 +217,7 @@ export function Sidebar({ role, userName, email }: SidebarProps) {
             className={cn(
               "relative flex items-center gap-3 px-4 py-2 rounded-lg transition-colors font-[var(--font-heading)] tracking-tight font-bold text-sm",
               isActive("/settings")
-                ? "text-ds-primary bg-ds-primary/5 before:absolute before:left-0 before:top-1/2 before:-translate-y-1/2 before:w-[3px] before:h-5 before:rounded-full before:bg-ds-primary"
+                ? "text-ds-primary bg-ds-primary-fixed before:absolute before:left-0 before:top-1/2 before:-translate-y-1/2 before:w-[3px] before:h-5 before:rounded-full before:bg-ds-primary"
                 : "text-ds-on-surface-variant hover:bg-ds-surface-container-high/50",
             )}
           >
@@ -245,7 +245,7 @@ export function Sidebar({ role, userName, email }: SidebarProps) {
                         className={cn(
                           "relative flex items-center gap-3 px-4 py-2 rounded-lg transition-colors font-[var(--font-heading)] tracking-tight font-bold text-sm",
                           active
-                            ? "text-ds-primary bg-ds-primary/5 before:absolute before:left-0 before:top-1/2 before:-translate-y-1/2 before:w-[3px] before:h-5 before:rounded-full before:bg-ds-primary"
+                            ? "text-ds-primary bg-ds-primary-fixed before:absolute before:left-0 before:top-1/2 before:-translate-y-1/2 before:w-[3px] before:h-5 before:rounded-full before:bg-ds-primary"
                             : "text-ds-on-surface-variant hover:bg-ds-surface-container-high/50",
                         )}
                       >

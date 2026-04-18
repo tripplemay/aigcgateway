@@ -1,11 +1,11 @@
 {
-  "status": "fixing",
+  "status": "reverifying",
   "user_goal": "BL-FE-QUALITY — 前端质量合并批次（UX 交互 + template-testing polish + A11y/i18n + DS Critical 3 文件）",
   "total_features": 5,
   "completed_features": 4,
-  "fix_rounds": 2,
+  "fix_rounds": 3,
   "current_sprint": "BL-FE-QUALITY",
-  "last_updated": "2026-04-18T15:45:58Z",
+  "last_updated": "2026-04-19T00:21:00Z",
   "reference_docs": [
     "docs/specs/BL-FE-QUALITY-spec.md",
     "docs/code-review/batch-07-frontend-pages.md",
@@ -80,7 +80,7 @@
     ]
   },
   "session_notes": {
-    "Kimi": "BL-FE-QUALITY fix round 2：\n\nRound 2 根因（来自 Codex 报告 dashboard auth a11y json）：4 个 color-contrast + 1 个 label-content-name-mismatch。\n\n修复：\n1) sidebar.tsx text-slate-400 (#94a3b8) → text-ds-on-surface-variant (#474553)（L120 brand subtitle、L138 dropdown chevron）\n2) top-app-bar EN/CN inactive text-ds-outline (#787584) → text-ds-on-surface-variant（对比度 4.2→8.5）\n3) empty-state.tsx 4 处 text-text-tertiary (#888780) → text-ds-on-surface-variant（dashboard 显示无项目空态时的 EmptyState）\n4) top-app-bar EN/CN aria-label 加可见文字前缀：'EN — Switch to English' / 'CN — 切换到中文'，满足 WCAG 2.5.3 Label in Name\n5) dispatcher.test.ts 把 setTimeout(30) 改 vi.waitFor(() => expect(...).toHaveLength(1), {timeout:1000})，本机 116/116 仍秒过，Codex 慢机也能稳定（之前 30ms 不够导致 fire-and-forget retry 未完成）\n\n本地 tsc/vitest 116/116/build 全过。\n\nsidebar inactive nav <a> 的 text-ds-on-surface-variant on bg-ds-surface-container-low (#f2f3ff) 算对比度 ~7.5 应过 AA — Codex 报的那个 selector 暂未改（如复测仍 fail，下轮再调）。\n\nBLOCKED 5 项（#7/#10/#11/#12/#15）需 Codex 浏览器工具恢复后取证。",
+    "Kimi": "BL-FE-QUALITY fix round 3：\n\n精准根因（Codex round3 报告）：sidebar active nav link 对比度 3.48。axe 解析 `bg-ds-primary/5` 合成出 bg=#b4ade3（非我手算的 #eaeafb），#5443b9 on #b4ade3 = 3.48。可能是 Tailwind 4 的 alpha 解析 + axe 算法对 `rgb(from var)` 色空间合成的差异。\n\n修复：sidebar.tsx 3 处 active state `bg-ds-primary/5` → `bg-ds-primary-fixed`（solid #e5deff）。\n- 对比度：#5443b9 on #e5deff ≈ 6.47（AA ✅）\n- 不使用 alpha，避免 axe 算法分歧\n- 视觉：active link 从几乎透明的紫调 → 浅紫 solid 背景；Material 3 primary-fixed 本就是为 'active surface' 设计\n\n本地 tsc/vitest 116/116/build 全过。\n\nBLOCKED 5 项（#7/#10/#11/#12/#15）仍需 Codex 浏览器工具恢复后取证。\n\n经验沉淀候选：axe color-contrast 对 Tailwind 4 alpha class（如 bg-X/5）的合成色算法与 css rgba 解析可能存在差异，实际测出的 bg 色与手算值不一致。对 a11y 要求严格的 surface，应优先使用 solid token（如 ds-primary-fixed）而非 alpha 修饰类。",
     "Reviewer": "BL-FE-QUALITY reverifying round3：已按规范重新拉起 3099 环境并规避本机代理干扰（localhost 需 no_proxy）；vitest 116/116 全过，admin/templates 非法 JSON=400，DS 三文件 grep=0。认证态 Lighthouse(/dashboard) 复测仍 96，失败点锁定为 sidebar 导航项 color-contrast（#5443b9 vs #b4ade3, ratio 3.48<4.5）。结论：未通过，状态建议 fixing；#7/#10/#11/#12/#15 仍 BLOCKED。"
   }
 }
