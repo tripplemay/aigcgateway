@@ -1,11 +1,11 @@
 {
-  "status": "verifying",
+  "status": "fixing",
   "user_goal": "BL-SEC-INFRA-GUARD — 基建硬化（admin PATCH 白名单 + 分布式锁 + shell 注入修 + MCP 权限一致 + 告警去重 + 依赖升级）",
   "total_features": 7,
-  "completed_features": 6,
+  "completed_features": 4,
   "fix_rounds": 0,
   "current_sprint": "BL-SEC-INFRA-GUARD",
-  "last_updated": "2026-04-18T13:30:00Z",
+  "last_updated": "2026-04-18T07:30:00Z",
   "reference_docs": [
     "docs/specs/BL-SEC-INFRA-GUARD-spec.md",
     "docs/code-review/backend-fullscan-2026-04-17.md"
@@ -13,11 +13,42 @@
   "role_assignments": null,
   "docs": {
     "spec": "docs/specs/BL-SEC-INFRA-GUARD-spec.md",
-    "test_cases": null,
+    "test_cases": "docs/test-cases/bl-sec-infra-guard-verifying-cases-2026-04-18.md",
     "signoff": null,
     "framework_reviewed": false
   },
-  "evaluator_feedback": null,
+  "evaluator_feedback": {
+    "summary": "本地验收未通过：分布式锁双实例单主不成立，MCP projectInfo:false 未返回 403，npm audit 仍有 1 high。",
+    "pass_count": 3,
+    "partial_count": 1,
+    "fail_count": 3,
+    "issues": [
+      {
+        "feature_id": "F-IG-02",
+        "result": "FAIL",
+        "description": "双实例启动时均进入 scheduler leader，随后都 lost leadership 停止，单主语义不成立。",
+        "steps_to_reproduce": "1) 启动 :3099 实例 2) 启动 :3100 实例 3) 两边日志均出现 scheduler leader started，约 60s 后均 lost leadership"
+      },
+      {
+        "feature_id": "F-IG-04",
+        "result": "FAIL",
+        "description": "projectInfo:false key 调用 fork_public_template 返回 200 + MCP isError，而非验收要求的 403。",
+        "steps_to_reproduce": "1) 创建 projectInfo:false API key 2) POST /api/mcp tools/call fork_public_template 3) 观察 HTTP 200 text/event-stream"
+      },
+      {
+        "feature_id": "F-IG-06",
+        "result": "PARTIAL",
+        "description": "npm audit --production 仍有 1 high（next 漏洞），未达 0 high + 0 critical。",
+        "steps_to_reproduce": "执行 npm audit --production，输出 1 high severity vulnerability"
+      },
+      {
+        "feature_id": "F-IG-07",
+        "result": "FAIL",
+        "description": "全量验收用例中存在 FAIL（TC-IG-06/09/12），不满足 signoff 条件。",
+        "steps_to_reproduce": "执行 docs/test-cases/bl-sec-infra-guard-verifying-cases-2026-04-18.md 的 L1 用例并核对报告"
+      }
+    ]
+  },
   "generator_handoff": {
     "summary": "6 generator features delivered as 6 commits. F-IG-06 partial (Next.js high deferred to followup batch).",
     "commits": [
@@ -49,6 +80,7 @@
     ]
   },
   "session_notes": {
-    "Kimi": "Generator 完成 6/7（F-IG-07 codex 留给 Evaluator）。一次跑完。\n\n执行顺序（从小到大）：F-IG-03 → F-IG-04 → F-IG-05 → F-IG-02 → F-IG-01 → F-IG-06。每条独立 commit，每次 tsc + build 验证。\n\n新增测试 19 条：admin-schemas 8 + leader-lock 7 + mcp auth 4。full vitest 96 → 115。\n\nF-IG-06 只做了非破坏性 npm audit fix（7/8）。剩余 next@14.2.35 1 high：所有 14.x/15.x 都在漏洞范围，唯一修复版本 16.2.4 跨大版本 breaking，按 spec 回退条款推迟。已在 features.json F-IG-06.completion_note + F-IG-07 item 12 说明。建议用户规划 BL-SEC-INFRA-GUARD-FOLLOWUP 专题批次做 Next.js 16 迁移 + 全面回归。\n\n本地验证：tsc 干净，build 通过，vitest 115/115。没有 push，等用户确认。"
+    "Kimi": "Generator 完成 6/7（F-IG-07 codex 留给 Evaluator）。一次跑完。\n\n执行顺序（从小到大）：F-IG-03 → F-IG-04 → F-IG-05 → F-IG-02 → F-IG-01 → F-IG-06。每条独立 commit，每次 tsc + build 验证。\n\n新增测试 19 条：admin-schemas 8 + leader-lock 7 + mcp auth 4。full vitest 96 → 115。\n\nF-IG-06 只做了非破坏性 npm audit fix（7/8）。剩余 next@14.2.35 1 high：所有 14.x/15.x 都在漏洞范围，唯一修复版本 16.2.4 跨大版本 breaking，按 spec 回退条款推迟。已在 features.json F-IG-06.completion_note + F-IG-07 item 12 说明。建议用户规划 BL-SEC-INFRA-GUARD-FOLLOWUP 专题批次做 Next.js 16 迁移 + 全面回归。\n\n本地验证：tsc 干净，build 通过，vitest 115/115。没有 push，等用户确认。",
+    "Reviewer": "已执行 BL-SEC-INFRA-GUARD verifying（L1）。通过：admin PATCH 防护、shell 注入负测、空白名单 401、balance 去重、build/tsc/vitest。失败：分布式锁双实例单主不成立（两实例都启动 leader，后续都 lost leadership）、projectInfo:false 非 403（MCP 200 isError）、npm audit 仍 1 high。已写 docs/test-reports/bl-sec-infra-guard-verifying-local-2026-04-18.md，状态置 fixing。"
   }
 }

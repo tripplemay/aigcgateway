@@ -16,7 +16,7 @@
       "title": "scheduler + model-sync Redis 分布式锁",
       "priority": "critical",
       "executor": "generator",
-      "status": "completed",
+      "status": "pending",
       "source": "CRIT-9",
       "acceptance": "1) 新建 `src/lib/infra/leader-lock.ts`：acquireLeaderLock(key, ttlSec) 用 Redis SET NX EX；heartbeatLock(key, ttlSec) 续约；releaseLeaderLock(key)；Redis 不可用 fallback 本地 boolean + warn；2) `src/instrumentation.ts:19-20` 删除 NODE_APP_INSTANCE 判断，改尝试 acquireLeaderLock('scheduler', 70)；3) `src/lib/health/scheduler.ts:35-54` 每 tick heartbeatLock；4) `src/lib/sync/model-sync.ts:44,380,396,628` 移除 syncInProgress 进程内变量，改 acquireLeaderLock('model-sync', 3600)；5) SIGTERM / process exit hook 调 releaseLeaderLock；6) 新增单测 leader-lock.test.ts 覆盖 NX + 竞争 + fallback；7) 手动验证：本地两实例 dev server 只有一个跑 scheduler；kill 后 70s 内另一个接管；8) tsc + build 通过"
     },
@@ -34,7 +34,7 @@
       "title": "MCP 权限一致性（fork-public-template + IP 白名单）",
       "priority": "high",
       "executor": "generator",
-      "status": "completed",
+      "status": "pending",
       "source": "H-13 + H-14",
       "acceptance": "1) `src/lib/mcp/tools/fork-public-template.ts:22-45` handler 首行调用 checkMcpPermission(ctx, 'projectInfo')（参考其他 tool 用法），projectInfo:false 返 403；2) `src/lib/mcp/auth.ts:57-62` 改为显式 if 块：空 whitelist 显式 console.warn + return null；非空逐 IP 匹配；与 `src/lib/api/auth-middleware.ts:143-154` 语义对齐；3) 新增单测 src/lib/mcp/__tests__/ 或补到现有 auth 单测：projectInfo:false fork → 403；空白名单 → 401；4) tsc + build 通过"
     },
