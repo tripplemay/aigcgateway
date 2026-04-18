@@ -186,6 +186,16 @@ Planner 写 spec，若涉及以下内容，**必须先 Read 对应文件核实**
 - `[已核实 source:文件:行 + prod-data]` — 可直接使用
 - `[待核实]` — 不得作为 acceptance 阻断条件，Generator 开工前必须澄清
 
+### 铁律 2.1：协议返回形式的断言必须标明协议层
+
+- HTTP API：`HTTP 403` / `HTTP 200 + JSON body`
+- MCP tool（JSON-RPC over HTTP）：`{content:[...], isError: true}` 外层 HTTP 200（SDK 惯用法）
+- WebSocket：frame type + payload 格式
+- 不同协议的错误返回形式不同，混用会破坏客户端兼容性
+- Code Review 报告对协议层的描述按"线索"处理；**协议格式断言必须查该协议 SDK 或官方文档核实后再写 spec**，不得把 MCP 当普通 REST API 或把 WebSocket 当 HTTP
+
+来源：BL-SEC-INFRA-GUARD F-IG-04 fix round 1，原 spec 照抄 Code Review 要求"HTTP 403"，差点逼 Generator 破坏 MCP 协议兼容性去改 server 层拦截。
+
 ### 结果
 
 - 规格质量从"转述 Review 报告"提升到"与现网代码/数据一致"

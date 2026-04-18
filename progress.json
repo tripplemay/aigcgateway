@@ -1,47 +1,28 @@
 {
-  "status": "done",
-  "user_goal": "BL-SEC-INFRA-GUARD — 基建硬化（admin PATCH 白名单 + 分布式锁 + shell 注入修 + MCP 权限一致 + 告警去重 + 依赖升级）",
+  "status": "building",
+  "user_goal": "BL-FE-PERF-01 — 前端性能硬化（Recharts 懒加载 + i18n 按需 + CLS 修 + Material Symbols preconnect + / 路由 RSC + loading.tsx + bundle-analyzer）",
   "total_features": 7,
-  "completed_features": 7,
-  "fix_rounds": 1,
-  "current_sprint": "BL-SEC-INFRA-GUARD",
-  "last_updated": "2026-04-18T08:13:00Z",
+  "completed_features": 0,
+  "fix_rounds": 0,
+  "current_sprint": "BL-FE-PERF-01",
+  "last_updated": "2026-04-18T14:00:00Z",
   "reference_docs": [
-    "docs/specs/BL-SEC-INFRA-GUARD-spec.md",
-    "docs/code-review/backend-fullscan-2026-04-17.md"
+    "docs/specs/BL-FE-PERF-01-spec.md",
+    "docs/code-review/frontend-perf.md",
+    "docs/code-review/frontend-lighthouse.md",
+    "docs/code-review/frontend-bundle-analysis.md"
   ],
   "role_assignments": null,
   "docs": {
-    "spec": "docs/specs/BL-SEC-INFRA-GUARD-spec.md",
-    "test_cases": "docs/test-cases/bl-sec-infra-guard-verifying-cases-2026-04-18.md",
-    "signoff": "docs/test-reports/BL-SEC-INFRA-GUARD-signoff-2026-04-18.md",
+    "spec": "docs/specs/BL-FE-PERF-01-spec.md",
+    "test_cases": null,
+    "signoff": null,
     "framework_reviewed": false
   },
   "evaluator_feedback": null,
-  "generator_handoff": {
-    "summary": "fix round 1 addresses the sole remaining code issue (F-IG-02 leader-lock race). F-IG-04 / F-IG-06 were spec revisions only, no code change required.",
-    "fix_round_1_commits": [
-      "(local) F-IG-02 waitForRedisReady + leader-lock no-fallback"
-    ],
-    "files_changed": [
-      "src/lib/redis.ts (waitForRedisReady 新增)",
-      "src/lib/infra/leader-lock.ts (移除 in-process fallback，改 Redis-only)",
-      "src/instrumentation.ts (启动先 waitForRedisReady(5000)，超时节点降级 scheduler disabled)",
-      "src/lib/infra/__tests__/leader-lock.test.ts (重写：fallback case 删除，新增 one-source-of-truth 回归)"
-    ],
-    "local_verification": {
-      "tsc": "clean",
-      "build": "ok",
-      "vitest": "116/116 pass (was 115; +1 one-source-of-truth case)"
-    },
-    "notes_for_evaluator": [
-      "F-IG-02 fix round 1 重测（TC-IG-06 + TC-IG-07 修订语义）：Redis ready 后两实例只有一个 leader；Redis 5s 内未 ready 启动的实例 → 日志应出现 'scheduler disabled — Redis not ready within 5s' 且不跑任何调度。",
-      "F-IG-04 / F-IG-06 按 spec 修订：F-IG-04 代码未改（MCP isError:true HTTP 200 即协议标准），F-IG-06 接受 partial（Next.js 16 迁移独立批次）。TC-IG-09 / TC-IG-12 断言已修正。",
-      "原 fix round 0 其他产物不变（admin zod / stress-test spawn / MCP IP whitelist / balance dedup / npm audit fix 7/8）。"
-    ]
-  },
+  "generator_handoff": null,
   "session_notes": {
-    "Kimi": "Generator fix round 1：只动 F-IG-02。按 Planner 新 spec：禁 fallback，启动 waitForRedisReady(5000)，timeout 整节点降级 scheduler disabled。acquire/heartbeat/release 统一走 Redis，杜绝 fix round 0 的'先 fallback 后切 Redis 混合态'竞态。\n\n具体改：\n- src/lib/redis.ts 新增 waitForRedisReady(timeoutMs, pollMs=100)：已 ready → 立即 true；无 redis client（REDIS_URL 缺失）→ 立即 false；否则 poll 100ms 直到 ready 或 timeout。\n- src/lib/infra/leader-lock.ts 删除 localLocks + __resetLocalLocksForTest + fallback 分支。Redis 不可用时 acquire/heartbeat 都返 false，release no-op。\n- src/instrumentation.ts 先 prisma.$connect，再 await waitForRedisReady(5000)。timeout → console.warn 'scheduler disabled ...' + return；ready 后才 acquireLeaderLock + 启 schedulers。\n- src/lib/infra/__tests__/leader-lock.test.ts 重写：Redis 不可用组 3 case（acquire/heartbeat/release），Redis 可用组 5 case（含新增 one-source-of-truth 回归验证 mid-life Redis down → heartbeat false）。\n\n验证：tsc 干净，build 通过，vitest 115 → 116。\n\n不动：F-IG-04 代码（Planner 确认 MCP isError:true 是协议标准），F-IG-06 代码（接受 partial 按回退条款）。",
-    "Reviewer": "reverifying 已完成并通过。按 features/spec 新口径重测：TC-IG-06 单主通过（第二实例 skip），TC-IG-07 Redis not ready 5s 节点禁用调度通过，TC-IG-09 MCP 200+isError 通过，TC-IG-12 1 high/0 critical 按回退条款通过。L2 生产冒烟通过（codex-admin 登录、dashboard 200、临时 key chat 200，随后 revoke）。已写 docs/test-reports/bl-sec-infra-guard-reverifying-local-2026-04-18.md 与 signoff，状态置 done。"
+    "Kimi": "Planner 一次完成 3 件事：\n\n(1) BL-SEC-INFRA-GUARD done 收尾（Reviewer signoff 9/9 PASS，fix_rounds=1）；\n\n(2) 采纳第 3 条铁律 2.1（协议返回形式断言必须标明协议层）→ 写入 framework/harness/planner.md + CHANGELOG v0.7.2 + 清空 proposed-learnings.md。来源 F-IG-04 fix round 1 的 MCP isError vs HTTP 403 协议误解事件；\n\n(3) 初始化 BL-FE-PERF-01（Path A 第 5 批，第二波 P0 前端首批，2d，7 features：6 generator + 1 codex）。\n\nspec 遵守新铁律，所有 file:line 已核实：\n- dashboard/page.tsx:20 / usage/page.tsx:19 / admin/usage/page.tsx:24 recharts 静态 import\n- intl-provider.tsx:4-5 两语言静态 import\n- layout.tsx:23-26 Material Symbols link 缺 preconnect\n- src/app/page.tsx **核实发现 Code Review LOW-4 断言不准**：不是 simple redirect，实际有 JWT + localStorage + 未登录跳 landing 分支。AUTH-SESSION 已上线 verifyJwt + HttpOnly cookie，改 RSC 可行。\n\nPath A 进度 5/11（合并后），第一波 P0 安全全部完成 🎉\n\nBacklog 新增 BL-SEC-INFRA-GUARD-FOLLOWUP（Next.js 16 迁移 2-3d）延后候选。",
+    "Reviewer": null
   }
 }

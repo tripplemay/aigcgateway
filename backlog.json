@@ -117,6 +117,24 @@
       "order": 4
     },
     {
+      "id": "BL-SEC-INFRA-GUARD-FOLLOWUP",
+      "title": "Next.js 16 跨大版本迁移（BL-SEC-INFRA-GUARD 留尾）",
+      "description": "BL-SEC-INFRA-GUARD F-IG-06 按回退条款接受 partial 遗留的 1 high CVE（next@14.2.35，14.x/15.x 全系列未修）。唯一修复版本 next@16.2.4 跨大版本 breaking change，需要独立批次做完整迁移 + 全量 App Router 兼容性回归。",
+      "decisions": [
+        "启动时机：支付接入前 1 周（跟 BL-SEC-PAY-DEFERRED 对齐）或 Next.js 16 生态稳定 2 个月后",
+        "前置：先 snapshot package-lock.json + 创建独立 feature branch",
+        "范围：next@14.2.35 → next@16.2.x；eslint-config-next + next-intl 跟进兼容版本",
+        "回归：全部 /api/* + (console)/* 页面 smoke；vitest + build + bundle 对比（First Load 期望下降 or 持平）",
+        "失败回退：revert 整批，回到 14.2.x 状态",
+        "独立批次风险高，不混入其他需求"
+      ],
+      "confirmed_at": "2026-04-18",
+      "priority": "high-deferred",
+      "source": "BL-SEC-INFRA-GUARD F-IG-06 partial + H-30 残余",
+      "estimated_effort": "2-3 days",
+      "follows": "BL-SEC-INFRA-GUARD"
+    },
+    {
       "id": "BL-FE-PERF-01",
       "title": "前端性能硬化 — Recharts 懒加载 + i18n 按需 + CLS 修复 + 字体/路由优化",
       "description": "来源 docs/code-review/frontend-perf.md + frontend-lighthouse.md + frontend-bundle-analysis.md。(1) CRITICAL-1: dashboard/usage/admin-usage 静态导入 recharts (~396 kB chunk)，First Load 281/271/227 kB。(2) CRITICAL-2: en.json + zh-CN.json 两套 107 kB 全量打进每页。(3) HIGH-4: Material Symbols CSS 阻塞渲染无 preconnect。(4) LOW-4: src/app/page.tsx 'use client' 仅做 router.push 重定向，应改 RSC redirect()。(5) dashboard CLS 0.11 超 Good 阈值。(6) console 缺 loading.tsx Suspense 边界。(7) next.config.ts 缺 bundle-analyzer + images 配置。",

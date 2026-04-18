@@ -1,70 +1,69 @@
 {
-  "batch": "BL-SEC-INFRA-GUARD",
+  "batch": "BL-FE-PERF-01",
   "created_at": "2026-04-18",
   "features": [
     {
-      "id": "F-IG-01",
-      "title": "admin PATCH 字段白名单（zod schema）+ baseUrl 协议校验",
-      "priority": "critical",
-      "executor": "generator",
-      "status": "completed",
-      "source": "CRIT-8 + H-11 + H-12 + H-29",
-      "acceptance": "1) 新建 `src/lib/api/admin-schemas.ts`：导出 6 个 zod schemas（providerConfigUpdate / channelUpdate / modelCreate / modelUpdate / providerCreate / providerUpdate）；2) providerConfigUpdateSchema 禁止直接写 apiKey（独立 endpoint 或显式白名单）；3) baseUrl 字段用 `z.string().url().refine(u => ['http:','https:'].includes(new URL(u).protocol))`；4) 改造 4 个 handler 用 `const data = schema.parse(body)` 替代 `data: body`；ZodError → 400 `{errors}`；5) 对每处路由补单测或 e2e：恶意 body (id/apiKey/projectId) 被拒；baseUrl 'file://' 返 400；6) tsc + build 通过"
-    },
-    {
-      "id": "F-IG-02",
-      "title": "scheduler + model-sync Redis 分布式锁（fix round 1：启动等 Redis ready + 一致来源）",
-      "priority": "critical",
-      "executor": "generator",
-      "status": "completed",
-      "source": "CRIT-9",
-      "acceptance": "1) `src/lib/infra/leader-lock.ts`：acquireLeaderLock/heartbeatLock/releaseLeaderLock 用 Redis SET NX EX；2) **启动序列（fix round 1 新增）**：instrumentation.ts 启动时先 `await waitForRedisReady(5000)`；ready → 走 Redis 路径；timeout → 整个节点降级为 'scheduler disabled'（warn 日志），不跑任何调度；**禁止启动后从 fallback 切到 Redis 的混合状态**；3) acquire/heartbeat/release 必须使用同一来源（开机是 Redis 就一直 Redis，开机 disabled 就不跑）；4) instrumentation.ts 删 NODE_APP_INSTANCE 判断；5) scheduler.ts 每 tick heartbeat，失败立即 clearInterval 停 scheduler；6) model-sync.ts 启动前 acquireLeaderLock；7) SIGTERM 调 releaseLeaderLock；8) 更新或新增单测覆盖：waitForRedisReady + 降级路径 + acquire/heartbeat 一致来源；9) 手动验证：Redis ready 后两实例仅一个跑 scheduler（杀 leader 后 70s 内另一个接管）；Redis 关掉启动实例应观察 'scheduler disabled' warn 日志"
-    },
-    {
-      "id": "F-IG-03",
-      "title": "scripts/stress-test.ts 改 spawn + execSync 审计",
-      "priority": "critical",
-      "executor": "generator",
-      "status": "completed",
-      "source": "CRIT-10",
-      "acceptance": "1) `scripts/stress-test.ts:34-40` 所有 execSync 字符串拼接改 spawnSync 数组形式；2) 全局审计 `git grep 'execSync\\\\|exec(' scripts/` 命中的字符串拼接一并改；3) negative test：BASE_URL='; echo pwn >/tmp/rce-test' 运行脚本，/tmp/rce-test 不应被创建；4) tsc 通过"
-    },
-    {
-      "id": "F-IG-04",
-      "title": "MCP 权限一致性（fix round 1：acceptance 修正 MCP isError 为正确返回形式）",
+      "id": "F-PF-01",
+      "title": "Recharts 3 路由 dynamic 懒加载",
       "priority": "high",
       "executor": "generator",
-      "status": "completed",
-      "source": "H-13 + H-14",
-      "acceptance": "**协议澄清（fix round 1 修订）：** MCP tool 错误按协议标准返回 `{content:[{type:'text', text:'...'}], isError: true}` + 外层 HTTP 200（JSON-RPC over HTTP），**不是 HTTP 403**。Code Review 原报告要求 403 属误解 MCP 协议。Generator fix round 0 实现已符合 MCP SDK 惯用法，本 feature 无需改代码，仅修正 acceptance 断言形式。1) `src/lib/mcp/tools/fork-public-template.ts` handler 首行调 checkMcpPermission(ctx, 'projectInfo')；projectInfo:false → 返回 `{content:[{type:'text', text:'[forbidden] ...'}], isError: true}` HTTP 200；2) `src/lib/mcp/auth.ts:57-62` 改为显式：空 whitelist console.warn + return null（auth 层，HTTP 401）；非空逐 IP 匹配；与 `src/lib/api/auth-middleware.ts:143-154` 对齐；3) 单测覆盖：projectInfo:false fork → isError:true；空白名单 auth → 401；4) tsc + build 通过"
+      "status": "pending",
+      "source": "frontend-perf.md CRITICAL-1",
+      "acceptance": "1) 每个路由抽 ChartsSection.tsx 子组件（'use client'）承载所有 recharts import；2) dashboard/page.tsx:20 / usage/page.tsx:19 / admin/usage/page.tsx:24 的 recharts 静态 import 全部移到子组件；3) 页面用 `dynamic(() => import('./charts-section'), { ssr: false, loading: () => <Skeleton className='h-64 w-full' /> })`；4) `npm run build` 输出 /dashboard ≤ 180 kB、/usage ≤ 180 kB、/admin/usage ≤ 160 kB（First Load JS）；5) tsc + vitest 全过"
     },
     {
-      "id": "F-IG-05",
-      "title": "checkBalanceAlerts Redis 去重",
+      "id": "F-PF-02",
+      "title": "i18n 按需加载（移除 intl-provider 静态 import）",
       "priority": "high",
       "executor": "generator",
-      "status": "completed",
-      "source": "H-31",
-      "acceptance": "1) 定位 checkBalanceAlerts 函数位置；2) `redis.set('alert:balance:...:${YYYYMMDD}', '1', 'NX', 'EX', 86400)`，null 则 skip；3) 多阈值独立 key；4) 本地手工触发一次 → Redis 存在 key；再次触发同日同阈值 skip；5) Redis 不可用 fallback：不 skip（宁可重复告警不漏告警）+ warn；6) tsc + build 通过"
+      "status": "pending",
+      "source": "frontend-perf.md CRITICAL-2",
+      "acceptance": "1) `src/components/intl-provider.tsx:4-5` 删除 `import en from '@/messages/en.json'` 和 `import zhCN from '@/messages/zh-CN.json'`；2) IntlInner 改用 useState + useEffect + `import(\\`@/messages/${locale}.json\\`)` 动态加载；3) 加载中返回 `<Skeleton className='h-screen w-screen' />` 或 null；4) 语言切换（useLocale）触发重新加载；5) DevTools Network 验证：/dashboard 只加载一个 messages/*.json；6) tsc + build 通过"
     },
     {
-      "id": "F-IG-06",
-      "title": "npm audit 非破坏性修（接受 partial，Next.js 16 独立批次）",
+      "id": "F-PF-03",
+      "title": "Material Symbols preconnect + dashboard CLS 修",
       "priority": "high",
       "executor": "generator",
-      "status": "partial",
-      "source": "H-30",
-      "acceptance": "**回退条款生效（spec 确认）：** Next.js 14.x/15.x 全系列未修当前 high CVE，唯一修复版本 16.2.4 跨大版本 breaking，本批次不做 Next 16 迁移。1) snapshot package-lock.json ✅；2) `npm audit fix` 非破坏性完成 7/8（3 mod + 4 high → 0 mod + 1 high）✅；3) build + tsc + vitest 全过 ✅；4) backlog 已标注候选 `BL-SEC-INFRA-GUARD-FOLLOWUP`（Next.js 16 迁移）支付接入前或生态成熟后启动",
-      "completion_note": "Partial accepted per spec fallback clause. Remaining 1 high (next@14.x 全系列未修) deferred to BL-SEC-INFRA-GUARD-FOLLOWUP."
+      "status": "pending",
+      "source": "frontend-perf.md HIGH-4 + lighthouse CLS 0.11",
+      "acceptance": "1) `src/app/layout.tsx:22-27` 加 `<link rel='preconnect' href='https://fonts.googleapis.com' />` 和 `<link rel='preconnect' href='https://fonts.gstatic.com' crossOrigin='' />`（在 Material Symbols link 之前）；2) `src/app/(console)/dashboard/page.tsx` 所有 useAsyncData 依赖的卡片加 min-h-[Npx] 或 Skeleton 占位（balance / usage / recent logs 等）；3) 图表容器改固定高度（h-[300px]）+ Skeleton 占位而非自适应；4) Lighthouse dashboard CLS ≤ 0.1（当前 0.11）；5) tsc + build 通过"
     },
     {
-      "id": "F-IG-07",
-      "title": "BL-SEC-INFRA-GUARD 全量验收（fix round 1 验收断言已修正）",
-      "priority": "critical",
+      "id": "F-PF-04",
+      "title": "src/app/page.tsx 改 RSC（利用 AUTH-SESSION 的 verifyJwt + cookies）",
+      "priority": "high",
+      "executor": "generator",
+      "status": "pending",
+      "source": "frontend-perf.md LOW-4（已核实实际有 JWT 校验，非 simple redirect）",
+      "acceptance": "1) `src/app/page.tsx` 删除 'use client'；2) 改 async default function 用 `cookies().get('token')?.value` + `verifyJwt(token)`（复用 AUTH-SESSION 的 `@/lib/auth/jwt.ts`）；3) 无 token 或验签失败 → redirect('/landing.html')；验签通过 → redirect('/dashboard')；4) 删除 useEffect / useRouter / localStorage 逻辑；5) `npm run build` 输出 / 路由 First Load JS ≤ 90 kB（当前需测）；6) view-source / 响应首字节是 redirect；7) 冒烟：未登录 → /landing.html；已登录 → /dashboard；8) tsc + build 通过"
+    },
+    {
+      "id": "F-PF-05",
+      "title": "console/ 补 loading.tsx Suspense 边界",
+      "priority": "medium",
+      "executor": "generator",
+      "status": "pending",
+      "source": "frontend-perf.md MEDIUM-4",
+      "acceptance": "1) 新建 `src/app/(console)/loading.tsx` 通用 Skeleton 布局（顶部 + 主要区 + 底部）；2) 可选：dashboard/usage/admin-usage 各自更贴近布局的 loading.tsx；3) 手动导航切换时立即看到 Skeleton 无白屏；4) tsc + build 通过"
+    },
+    {
+      "id": "F-PF-06",
+      "title": "next.config.ts 接入 bundle-analyzer + poweredByHeader + images",
+      "priority": "medium",
+      "executor": "generator",
+      "status": "pending",
+      "source": "frontend-bundle-analysis.md + frontend-perf.md LOW-2/3",
+      "acceptance": "1) `npm install -D @next/bundle-analyzer`；2) `next.config.ts` 用 `withBundleAnalyzer({ enabled: process.env.ANALYZE === 'true' })` 包裹配置；3) 添加 `poweredByHeader: false`；4) 添加 `images: { remotePatterns: [] }` 预留；5) package.json 新增 `analyze` script；6) `npm run analyze` 生成 report.html 可打开；7) prod 响应头 X-Powered-By 消失；8) tsc + build 通过"
+    },
+    {
+      "id": "F-PF-07",
+      "title": "BL-FE-PERF-01 全量验收",
+      "priority": "high",
       "executor": "codex",
-      "status": "completed",
-      "source": "BL-SEC-INFRA-GUARD",
-      "acceptance": "admin PATCH 防护（5 项，fix round 0 已 PASS）：1) providerConfig PATCH `{apiKey:'fake', id:'fake'}` 被拒或字段丢弃；2) channel PATCH `{status:'HIJACKED', createdAt:'2000-01-01'}` 被拒；3) model POST/PATCH `{projectId:'other'}` 被拒；4) provider PATCH `{baseUrl:'file:///etc/passwd'}` → 400；5) provider PATCH `{baseUrl:'javascript:alert(1)'}` → 400。分布式锁（2 项，fix round 1 重测）：6) Redis ready 后本地两实例 dev server，scheduler 仅一个实例跑；7) Redis 5s 内未 ready 启动实例 → 观察 'scheduler disabled' warn 日志（节点整体降级，不跑调度）。shell 注入（fix round 0 已 PASS）：8) `BASE_URL='; echo pwn >/tmp/rce-test' npx tsx scripts/stress-test.ts` 不创建 /tmp/rce-test。MCP（acceptance 修正版）：9) projectInfo:false key fork_public_template → `{content:[{text:'[forbidden] ...'}], isError: true}` **HTTP 200**（MCP 协议标准，非 HTTP 403）；10) 空 IP whitelist MCP key → HTTP 401（auth 层）。告警去重（fix round 0 已 PASS）：11) 同用户同日 balance 告警仅触发一次。依赖（回退条款）：12) `npm audit --production` ≤ 1 high + 0 critical（1 high = next 已 deferred）；13) build + tsc + vitest 全过。冒烟：14) 生产登录 + dashboard + AI 调用无 regression。15) signoff 报告 `docs/test-reports/BL-SEC-INFRA-GUARD-signoff-2026-04-18.md`。"
+      "status": "pending",
+      "source": "BL-FE-PERF-01",
+      "acceptance": "Bundle 体积断言（5 项）：1) /dashboard First Load ≤ 180 kB（当前 281）；2) /usage ≤ 180 kB（当前 271）；3) /admin/usage ≤ 160 kB（当前 227）；4) / ≤ 90 kB；5) chunks/6627-*.js（recharts）不在三大路由 First Load。Lighthouse 实测（npm run build && npm start）：6) /dashboard LCP ≤ 1.5s；7) /dashboard CLS ≤ 0.1；8) / view-source 响应首字节是 HTML redirect meta 或 302。i18n 验证：9) DevTools Network /dashboard 只加载一个 messages/*.json；10) 语言切换动态请求另一个 JSON 正常。构建与单测：11) npm run build 通过；12) npx tsc --noEmit 通过；13) npx vitest run 全过；14) npm run analyze 生成 report.html。冒烟回归：15) 未登录访问 / → /landing.html；16) 已登录访问 / → /dashboard；17) dashboard 图表正常显示无白屏闪烁；18) zh-CN ↔ en 切换生效。19) 生成 signoff 报告 `docs/test-reports/BL-FE-PERF-01-signoff-2026-04-18.md`。"
     }
   ]
 }

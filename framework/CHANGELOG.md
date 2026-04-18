@@ -5,6 +5,22 @@
 
 ---
 
+## v0.7.2 — 2026-04-18（Planner 铁律 2.1：协议返回形式断言必须标明协议层）
+
+**来源批次：** BL-SEC-INFRA-GUARD fix round 1 F-IG-04
+**触发原因：** Planner 初稿 spec 要求 MCP tool 权限错误返回 `HTTP 403`，实际 MCP 协议（JSON-RPC over HTTP）标准是 `{content:[...], isError: true}` 外层 HTTP 200。Generator fix round 0 实现符合 MCP SDK 惯用法，但首轮 Evaluator 按 spec 要求 403 判 FAIL。若按 spec 真改 server 层拦截，会破坏所有 MCP client（Claude Desktop / CLI）错误处理兼容性。
+
+**变更内容（`framework/harness/planner.md` Planner 铁律 2 新增子条目）：**
+
+**铁律 2.1：协议返回形式断言必须标明协议层**
+- HTTP API / MCP tool / WebSocket 的错误返回形式不同
+- Code Review 报告对协议层描述按"线索"处理；协议格式断言必须查协议 SDK 或官方文档后再写 spec
+- 禁止把 MCP 当普通 REST 或把 WebSocket 当 HTTP
+
+**影响范围：** spec 涉及 MCP tool / JSON-RPC / WebSocket 错误返回形式时，Planner 必须查协议 SDK 文档核实；Generator 开工前规格核查可据此质疑。
+
+---
+
 ## v0.8.1 — 2026-04-18（设计精美的 SVG 图：三角色 / 状态机 / 记忆金字塔）
 
 **来源批次：** 独立任务（用户要求生成针对最终用户展示的、必要的、设计精美的 PNG 图片）
