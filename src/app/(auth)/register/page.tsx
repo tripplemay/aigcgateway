@@ -251,7 +251,7 @@ export default function RegisterPage() {
                 <div className="w-full border-t border-ds-outline-variant/30" />
               </div>
               <div className="relative flex justify-center text-xs">
-                <span className="px-4 bg-ds-surface-container-lowest text-ds-outline font-medium tracking-wide uppercase">
+                <span className="px-4 bg-ds-surface-container-lowest text-ds-on-surface-variant font-medium tracking-wide uppercase">
                   {t("orContinueWith")}
                 </span>
               </div>

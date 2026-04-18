@@ -4,7 +4,7 @@ description: AIGC Gateway 当前状态快照（覆盖写，≤30 行）
 type: project
 ---
 ## 当前批次
-- **BL-FE-QUALITY：`verifying`**（Generator 4/4 done，等 Codex 跑 F-FQ-05 19 项验收）
+- **BL-FE-QUALITY：`reverifying`**（fix_rounds=1，等 Codex 复验 a11y + BLOCKED 项）
 - Path A 进度 7/11
 
 ## 上一批次（BL-FE-PERF-01 done）
