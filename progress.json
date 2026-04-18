@@ -1,11 +1,11 @@
 {
-  "status": "building",
+  "status": "verifying",
   "user_goal": "BL-SEC-INFRA-GUARD — 基建硬化（admin PATCH 白名单 + 分布式锁 + shell 注入修 + MCP 权限一致 + 告警去重 + 依赖升级）",
   "total_features": 7,
-  "completed_features": 0,
+  "completed_features": 6,
   "fix_rounds": 0,
   "current_sprint": "BL-SEC-INFRA-GUARD",
-  "last_updated": "2026-04-18T13:00:00Z",
+  "last_updated": "2026-04-18T13:30:00Z",
   "reference_docs": [
     "docs/specs/BL-SEC-INFRA-GUARD-spec.md",
     "docs/code-review/backend-fullscan-2026-04-17.md"
@@ -18,9 +18,37 @@
     "framework_reviewed": false
   },
   "evaluator_feedback": null,
-  "generator_handoff": null,
+  "generator_handoff": {
+    "summary": "6 generator features delivered as 6 commits. F-IG-06 partial (Next.js high deferred to followup batch).",
+    "commits": [
+      "172ba68 F-IG-03 stress-test spawn",
+      "23887ab F-IG-04 MCP permission + IP whitelist",
+      "f9d345f F-IG-05 balance alerts daily dedup",
+      "4c4bd68 F-IG-02 Redis leader lock (instrumentation + health + model-sync)",
+      "17f25e1 F-IG-01 admin zod whitelist + baseUrl refine",
+      "de3e6f4 F-IG-06 npm audit fix (non-breaking, 7/8)"
+    ],
+    "new_files": [
+      "src/lib/api/admin-schemas.ts (+ __tests__/admin-schemas.test.ts — 8 cases)",
+      "src/lib/infra/leader-lock.ts (+ __tests__/leader-lock.test.ts — 7 cases)",
+      "src/lib/mcp/__tests__/auth.test.ts (4 cases)"
+    ],
+    "local_verification": {
+      "tsc": "clean",
+      "build": "ok",
+      "vitest": "115/115 pass",
+      "npm_audit_production": "1 high, 0 moderate (was 5 high + 3 moderate). Remaining: next@14.2.35 — all 14.x/15.x vulnerable, only next@16.2.4 fixes, cross-major breaking."
+    },
+    "notes_for_evaluator": [
+      "F-IG-07 codex verification: 14 items. Item 12 (npm audit 0 high) cannot pass without a Next.js 16 migration — recommend grading it as partial/deferred per spec F-IG-06 fallback clause.",
+      "F-IG-02 distributed-lock manual verification (两实例 dev server) not done locally — Evaluator should do this in their L2 environment, or rely on the 7 unit tests covering Redis NX / CAS Lua / fallback paths.",
+      "F-IG-03 shell injection: acceptance asks for a negative test `BASE_URL=\"; echo pwn >/tmp/rce-test\" npx tsx scripts/stress-test.ts`. spawnSync argv array makes this inert by construction (no shell interpretation); Evaluator can demonstrate the file is not created.",
+      "F-IG-05 balance dedup key is scoped per-project (`alert:balance_low_hourly:<projectId>:<thresholdMicro>`) to stay distinct from triggers.ts's per-user key (`alert:balance_low:<userId>:<thresholdMicro>`) — two alert sources stay independent.",
+      "F-IG-04 IP whitelist: src/lib/mcp/auth.ts now explicitly warns on empty whitelist (previously implicit via `||` short-circuit); behaviour unchanged, Evaluator can confirm with an empty-whitelist key → expect null (401).",
+      "F-IG-01 handlers still reject unknown keys with a 400 JSON containing {error:'invalid_parameter', errors:[{path,message}]} — Evaluator can post the five mass-assignment payloads and confirm 400 + payload shape."
+    ]
+  },
   "session_notes": {
-    "Kimi": "Planner 一次完成 3 件事：\n\n(1) BL-SEC-BILLING-CHECK-FOLLOWUP 状态机补完（Reviewer 签收 14/14 PASS 但未更新 progress.json，Planner 代替补齐）；\n\n(2) 采纳 2 条 framework 铁律 + 写入 `framework/harness/planner.md` 新小节 + CHANGELOG.md v0.7.1 + 清空 proposed-learnings.md。铁律 1：spec 涉及代码细节必须 Read 源码 + file:line 引用；铁律 2：Code Review 报告的符号/类型/约束断言按线索非真相，必须源码+生产数据交叉验证；\n\n(3) 初始化 BL-SEC-INFRA-GUARD（第一波第 4 批，2.5d，7 条 features：6 generator + 1 codex）。已**遵守新铁律**，spec 中所有 file:line 引用均已核实。范围覆盖：F-IG-01 admin PATCH 白名单 + baseUrl 协议校验（CRIT-8/H-11/H-12/H-29）；F-IG-02 scheduler/model-sync Redis 分布式锁（CRIT-9）；F-IG-03 stress-test shell 注入 + execSync 审计（CRIT-10）；F-IG-04 MCP 权限一致性（H-13/H-14）；F-IG-05 checkBalanceAlerts 去重（H-31）；F-IG-06 Next.js+glob 依赖升级（H-30，npm audit 当前 5 high / 3 moderate 需降为 0）；F-IG-07 codex 15 项验收。\n\n已核实证据：\n- `src/app/api/admin/providers/[id]/config/route.ts:30-34` mass assignment 属实\n- `src/app/api/admin/channels/[id]/route.ts:13-14` 同上\n- `src/app/api/admin/models/route.ts:95` 同上\n- `src/instrumentation.ts:19-20` isWorkerZero / `src/lib/health/scheduler.ts:35-54` schedulerTimer / `src/lib/sync/model-sync.ts:44,380,396,628` syncInProgress 进程内锁\n- `src/lib/mcp/tools/fork-public-template.ts:22-45` 缺 checkMcpPermission\n- `src/lib/mcp/auth.ts:57-62` vs `src/lib/api/auth-middleware.ts:143-154` IP 白名单实现差异\n- `npm audit` 当前 8 vulnerabilities (3 mod, 5 high); next@14.2.35 + glob@7/10\n\n[待核实] 项：H-14 语义实际一致只是写法不同，Generator 核实后若无实质分歧可直接统一为显式写法；H-31 checkBalanceAlerts 实际行号 Generator 自行定位。\n\nPath A 进度 4/14.5，BL-SEC-INFRA-GUARD 是第一波最大批次（2.5d）。完成后进入第二波 P0 前端（FE-PERF-01 2d）。",
-    "Reviewer": null
+    "Kimi": "Generator 完成 6/7（F-IG-07 codex 留给 Evaluator）。一次跑完。\n\n执行顺序（从小到大）：F-IG-03 → F-IG-04 → F-IG-05 → F-IG-02 → F-IG-01 → F-IG-06。每条独立 commit，每次 tsc + build 验证。\n\n新增测试 19 条：admin-schemas 8 + leader-lock 7 + mcp auth 4。full vitest 96 → 115。\n\nF-IG-06 只做了非破坏性 npm audit fix（7/8）。剩余 next@14.2.35 1 high：所有 14.x/15.x 都在漏洞范围，唯一修复版本 16.2.4 跨大版本 breaking，按 spec 回退条款推迟。已在 features.json F-IG-06.completion_note + F-IG-07 item 12 说明。建议用户规划 BL-SEC-INFRA-GUARD-FOLLOWUP 专题批次做 Next.js 16 迁移 + 全面回归。\n\n本地验证：tsc 干净，build 通过，vitest 115/115。没有 push，等用户确认。"
   }
 }
