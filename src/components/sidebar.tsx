@@ -117,7 +117,7 @@ export function Sidebar({ role, userName, email }: SidebarProps) {
             <span className="text-lg font-black tracking-tighter text-[#5443b9] dark:text-[#6D5DD3] font-[var(--font-heading)]">
               {t("brand")}
             </span>
-            <span className="text-[10px] uppercase tracking-widest text-slate-400 font-bold">
+            <span className="text-[10px] uppercase tracking-widest text-ds-on-surface-variant font-bold">
               {t("algorithmicAtelier")}
             </span>
           </div>
@@ -135,7 +135,7 @@ export function Sidebar({ role, userName, email }: SidebarProps) {
               <span className="material-symbols-outlined text-ds-primary text-lg">folder</span>
               <span className="truncate">{current?.name ?? t("noProject")}</span>
             </div>
-            <span className="material-symbols-outlined text-slate-400 text-lg shrink-0">
+            <span className="material-symbols-outlined text-ds-on-surface-variant text-lg shrink-0">
               {projectDropdownOpen ? "expand_less" : "unfold_more"}
             </span>
           </button>

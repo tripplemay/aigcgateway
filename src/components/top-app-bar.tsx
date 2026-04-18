@@ -61,24 +61,24 @@ export function TopAppBar({ userName, userEmail }: TopAppBarProps) {
         <div className="flex items-center gap-2 bg-ds-surface-container-low p-1 rounded-lg">
           <button
             onClick={() => locale !== "en" && toggleLocale()}
-            aria-label={t("switchToEnglish")}
+            aria-label={`EN — ${t("switchToEnglish")}`}
             aria-pressed={locale === "en"}
             className={`px-2 py-1 text-[10px] font-black rounded-md transition-colors ${
               locale === "en"
                 ? "bg-ds-surface-container-lowest shadow-sm text-ds-primary"
-                : "text-ds-outline"
+                : "text-ds-on-surface-variant"
             }`}
           >
             EN
           </button>
           <button
             onClick={() => locale !== "zh-CN" && toggleLocale()}
-            aria-label={t("switchToChinese")}
+            aria-label={`CN — ${t("switchToChinese")}`}
             aria-pressed={locale === "zh-CN"}
             className={`px-2 py-1 text-[10px] font-bold transition-colors ${
               locale === "zh-CN"
                 ? "bg-ds-surface-container-lowest shadow-sm text-ds-primary"
-                : "text-ds-outline"
+                : "text-ds-on-surface-variant"
             }`}
           >
             CN

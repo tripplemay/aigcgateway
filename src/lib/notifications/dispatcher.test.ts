@@ -81,19 +81,15 @@ describe("sendNotification (F-UA-02)", () => {
     };
     const fetchImpl = vi.fn(async () => new Response("nope", { status: 500 }));
 
-    await sendNotification(
-      "user-1",
-      "BALANCE_LOW",
-      { balance: 0.01 },
-      undefined,
-      { fetchImpl: fetchImpl as unknown as typeof fetch, backoffMs: [1, 1, 1] },
-    );
-    // Give the fire-and-forget webhook dispatch time to resolve.
-    await new Promise((r) => setTimeout(r, 30));
+    await sendNotification("user-1", "BALANCE_LOW", { balance: 0.01 }, undefined, {
+      fetchImpl: fetchImpl as unknown as typeof fetch,
+      backoffMs: [1, 1, 1],
+    });
+    // Wait deterministically for the fire-and-forget webhook to settle.
+    await vi.waitFor(() => expect(webhookCalls).toHaveLength(1), { timeout: 1000 });
 
     // 1 initial + 3 retries = 4 total attempts
     expect(fetchImpl).toHaveBeenCalledTimes(4);
-    expect(webhookCalls).toHaveLength(1);
     expect((webhookCalls[0] as { status: string }).status).toBe("FAILED");
   });
 
@@ -111,17 +107,13 @@ describe("sendNotification (F-UA-02)", () => {
       return new Response("ok", { status: 200 });
     });
 
-    await sendNotification(
-      "user-1",
-      "BALANCE_LOW",
-      { balance: 0.01 },
-      undefined,
-      { fetchImpl: fetchImpl as unknown as typeof fetch, backoffMs: [1, 1, 1] },
-    );
-    await new Promise((r) => setTimeout(r, 30));
+    await sendNotification("user-1", "BALANCE_LOW", { balance: 0.01 }, undefined, {
+      fetchImpl: fetchImpl as unknown as typeof fetch,
+      backoffMs: [1, 1, 1],
+    });
+    await vi.waitFor(() => expect(webhookCalls).toHaveLength(1), { timeout: 1000 });
 
     expect(fetchImpl).toHaveBeenCalledTimes(2);
-    expect(webhookCalls).toHaveLength(1);
     expect((webhookCalls[0] as { status: string }).status).toBe("SENT");
   });
 });

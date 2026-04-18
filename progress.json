@@ -1,11 +1,11 @@
 {
-  "status": "fixing",
+  "status": "reverifying",
   "user_goal": "BL-FE-QUALITY — 前端质量合并批次（UX 交互 + template-testing polish + A11y/i18n + DS Critical 3 文件）",
   "total_features": 5,
   "completed_features": 4,
   "fix_rounds": 2,
   "current_sprint": "BL-FE-QUALITY",
-  "last_updated": "2026-04-18T14:40:27.288Z",
+  "last_updated": "2026-04-18T23:01:00Z",
   "reference_docs": [
     "docs/specs/BL-FE-QUALITY-spec.md",
     "docs/code-review/batch-07-frontend-pages.md",
@@ -80,7 +80,7 @@
     ]
   },
   "session_notes": {
-    "Kimi": "BL-FE-QUALITY fix round 1：\n\n根因：Lighthouse 测 /dashboard /settings 时未登录被 redirect 到 /login，实际取证的是 login 页 a11y。Login + register 'OR continue with' divider 用 text-ds-outline (#787584) on bg-ds-surface-container-lowest (#fff) 对比度 ~4.4，差临界 4.5 一点。\n\n修复：两文件 divider span 类替换 text-ds-outline → text-ds-on-surface-variant (#474553)，对比度 ~9（AAA）。极小改动，零功能影响。\n\n本地 tsc/vitest 116/116/build 全过。建议 Codex 浏览器工具恢复后重测 lighthouse a11y dashboard/settings（应得 100），同时补 #10/#11/#12/#15 BLOCKED 项。\n\n（前轮 generator 4/4 done 内容已写在 generator_handoff，不重复。）",
+    "Kimi": "BL-FE-QUALITY fix round 2：\n\nRound 2 根因（来自 Codex 报告 dashboard auth a11y json）：4 个 color-contrast + 1 个 label-content-name-mismatch。\n\n修复：\n1) sidebar.tsx text-slate-400 (#94a3b8) → text-ds-on-surface-variant (#474553)（L120 brand subtitle、L138 dropdown chevron）\n2) top-app-bar EN/CN inactive text-ds-outline (#787584) → text-ds-on-surface-variant（对比度 4.2→8.5）\n3) empty-state.tsx 4 处 text-text-tertiary (#888780) → text-ds-on-surface-variant（dashboard 显示无项目空态时的 EmptyState）\n4) top-app-bar EN/CN aria-label 加可见文字前缀：'EN — Switch to English' / 'CN — 切换到中文'，满足 WCAG 2.5.3 Label in Name\n5) dispatcher.test.ts 把 setTimeout(30) 改 vi.waitFor(() => expect(...).toHaveLength(1), {timeout:1000})，本机 116/116 仍秒过，Codex 慢机也能稳定（之前 30ms 不够导致 fire-and-forget retry 未完成）\n\n本地 tsc/vitest 116/116/build 全过。\n\nsidebar inactive nav <a> 的 text-ds-on-surface-variant on bg-ds-surface-container-low (#f2f3ff) 算对比度 ~7.5 应过 AA — Codex 报的那个 selector 暂未改（如复测仍 fail，下轮再调）。\n\nBLOCKED 5 项（#7/#10/#11/#12/#15）需 Codex 浏览器工具恢复后取证。",
     "Reviewer": "reverifying round2：A11y 修复后复测 auth /dashboard 仍为 96；admin templates 非法 JSON=400 与 DS grep 保持通过；但 vitest 新增 2 条失败（dispatcher.test.ts），无法签收，回到 fixing。"
   }
 }

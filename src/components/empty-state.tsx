@@ -39,22 +39,15 @@ export function EmptyState({
     return <DefaultCreateProjectEmptyState onCreated={onCreated} />;
   }
   return (
-    <div
-      className={cn(
-        "flex flex-col items-center justify-center py-16 text-center",
-        className,
-      )}
-    >
+    <div className={cn("flex flex-col items-center justify-center py-16 text-center", className)}>
       {icon ? (
-        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-surface mb-4 text-text-tertiary">
+        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-surface mb-4 text-ds-on-surface-variant">
           {icon}
         </div>
       ) : null}
-      {title ? (
-        <h2 className="text-[15px] font-medium text-text-primary mb-1">{title}</h2>
-      ) : null}
+      {title ? <h2 className="text-[15px] font-medium text-text-primary mb-1">{title}</h2> : null}
       {description ? (
-        <p className="text-[13px] text-text-tertiary mb-5 max-w-md">{description}</p>
+        <p className="text-[13px] text-ds-on-surface-variant mb-5 max-w-md">{description}</p>
       ) : null}
       {action}
     </div>
@@ -66,14 +59,11 @@ function DefaultCreateProjectEmptyState({ onCreated }: { onCreated?: () => void 
   return (
     <div className="flex flex-col items-center justify-center py-20">
       <div className="flex h-12 w-12 items-center justify-center rounded-full bg-surface mb-4">
-        <FolderPlus className="h-6 w-6 text-text-tertiary" />
+        <FolderPlus className="h-6 w-6 text-ds-on-surface-variant" />
       </div>
       <h2 className="text-[15px] font-medium text-text-primary mb-1">{t("title")}</h2>
-      <p className="text-[13px] text-text-tertiary mb-5">{t("description")}</p>
-      <CreateProjectDialog
-        trigger={<Button>{t("createButton")}</Button>}
-        onCreated={onCreated}
-      />
+      <p className="text-[13px] text-ds-on-surface-variant mb-5">{t("description")}</p>
+      <CreateProjectDialog trigger={<Button>{t("createButton")}</Button>} onCreated={onCreated} />
     </div>
   );
 }
