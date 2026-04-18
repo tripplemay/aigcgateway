@@ -1,4 +1,5 @@
 import { readFileSync, writeFileSync } from "fs";
+import { requireEnv } from "../lib/require-env";
 
 const BASE = process.env.BASE_URL ?? "http://localhost:3099";
 const MCP_URL = `${BASE}/mcp`;
@@ -176,7 +177,7 @@ async function run() {
 
   try {
     const tag = nowTag();
-    const adminToken = await login("admin@aigc-gateway.local", "admin123");
+    const adminToken = await login("admin@aigc-gateway.local", requireEnv("ADMIN_TEST_PASSWORD"));
     if (!adminToken) throw new Error("admin token missing");
 
     const user = await registerAndLoginUser(tag);

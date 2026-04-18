@@ -1,6 +1,7 @@
 import { PrismaClient } from "@prisma/client";
 import { readFileSync, writeFileSync } from "fs";
 import { spawnSync } from "child_process";
+import { requireEnv } from "../lib/require-env";
 
 const BASE = process.env.BASE_URL ?? "http://localhost:3099";
 const OUTPUT =
@@ -12,7 +13,7 @@ const TEST_DATABASE_URL =
 const prisma = new PrismaClient({ datasourceUrl: TEST_DATABASE_URL });
 
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL ?? "admin@aigc-gateway.local";
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD ?? "admin123";
+const ADMIN_PASSWORD = requireEnv("ADMIN_TEST_PASSWORD");
 
 type Step = { id: string; ok: boolean; detail: string };
 type ApiResult = { status: number; body: any; text: string };

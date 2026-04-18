@@ -12,6 +12,7 @@
  *   const channel = await createTestChannel(prisma, { providerId, modelId, realModelId });
  */
 import type { PrismaClient } from "@prisma/client";
+import { requireEnvOrThrow } from "../../scripts/lib/require-env";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -94,7 +95,7 @@ const DEFAULT_SELL_PRICE = {
 export interface CreateTestUserOptions {
   /** Email prefix (default: "test") — timestamp is appended automatically */
   prefix?: string;
-  /** Password (default: "Test1234") */
+  /** Password (default: process.env.E2E_TEST_PASSWORD, required if not passed) */
   password?: string;
   /** Display name */
   name?: string;
@@ -104,7 +105,11 @@ export async function createTestUser(
   baseUrl: string,
   options: CreateTestUserOptions = {},
 ): Promise<TestUserResult> {
-  const { prefix = "test", password = "Test1234", name = "Test User" } = options;
+  const {
+    prefix = "test",
+    password = requireEnvOrThrow("E2E_TEST_PASSWORD"),
+    name = "Test User",
+  } = options;
   const email = `${prefix}_${Date.now()}@test.local`;
 
   const reg = await post(baseUrl, "/api/auth/register", { email, password, name });

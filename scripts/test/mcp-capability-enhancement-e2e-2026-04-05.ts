@@ -1,6 +1,7 @@
 import { createServer, type IncomingMessage, type ServerResponse } from "http";
 import { writeFileSync } from "fs";
 import { PrismaClient } from "@prisma/client";
+import { requireEnv } from "../lib/require-env";
 
 const BASE = process.env.BASE_URL ?? "http://localhost:3099";
 const MCP_URL = `${BASE}/mcp`;
@@ -29,7 +30,7 @@ let token = "";
 let projectId = "";
 let apiKey = "";
 const email = `mce_${Date.now()}@test.com`;
-const password = "Test1234";
+const password = requireEnv("E2E_TEST_PASSWORD");
 
 function json(res: ServerResponse, status: number, body: unknown) {
   res.writeHead(status, { "Content-Type": "application/json" });

@@ -1,4 +1,5 @@
 import { readFileSync, writeFileSync } from "fs";
+import { requireEnv } from "../lib/require-env";
 
 const BASE = process.env.BASE_URL ?? "http://localhost:3099";
 const OUTPUT =
@@ -8,7 +9,7 @@ type Step = { name: string; ok: boolean; detail: string };
 
 const RUN_ID = Date.now();
 const devEmail = `r3b_eval_${RUN_ID}@test.local`;
-const devPassword = "Test1234";
+const devPassword = requireEnv("E2E_TEST_PASSWORD");
 const projectName = `R3B Eval Project ${RUN_ID}`;
 const actionName = `r3b_eval_action_${RUN_ID}`;
 const templateName = `r3b_eval_template_${RUN_ID}`;
@@ -69,7 +70,7 @@ async function setupFixture() {
     method: "POST",
     auth: "none",
     expect: 200,
-    body: JSON.stringify({ email: "admin@aigc-gateway.local", password: "admin123" }),
+    body: JSON.stringify({ email: "admin@aigc-gateway.local", password: requireEnv("ADMIN_TEST_PASSWORD") }),
   });
   adminToken = String(adminLogin.body?.token ?? "");
   if (!adminToken) throw new Error("admin token missing");

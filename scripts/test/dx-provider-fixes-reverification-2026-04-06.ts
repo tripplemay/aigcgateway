@@ -6,6 +6,7 @@ import { anthropicAdapter } from "@/lib/sync/adapters/anthropic";
 import { zhipuAdapter } from "@/lib/sync/adapters/zhipu";
 import { siliconflowAdapter } from "@/lib/sync/adapters/siliconflow";
 import { resolveCapabilities } from "@/lib/sync/model-capabilities-fallback";
+import { requireEnv } from "../lib/require-env";
 
 const BASE_URL = process.env.BASE_URL ?? "http://localhost:3099";
 const MCP_URL = `${BASE_URL}/mcp`;
@@ -14,7 +15,7 @@ const OUTPUT_FILE =
   "docs/test-reports/dx-provider-fixes-local-reverification-2026-04-06.json";
 
 const prisma = new PrismaClient();
-const password = "Test1234";
+const password = requireEnv("E2E_TEST_PASSWORD");
 
 type CheckResult = {
   name: string;
@@ -69,7 +70,7 @@ async function main() {
       const res = await fetch(`${BASE_URL}/api/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: "admin@aigc-gateway.local", password: "admin123" }),
+        body: JSON.stringify({ email: "admin@aigc-gateway.local", password: requireEnv("ADMIN_TEST_PASSWORD") }),
       });
       const text = await res.text();
       if (!res.ok) throw new Error(`status=${res.status} body=${text || "<empty>"}`);

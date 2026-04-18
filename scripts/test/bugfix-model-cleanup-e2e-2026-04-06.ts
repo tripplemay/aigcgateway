@@ -1,6 +1,7 @@
 import { execFileSync } from "child_process";
 import { writeFileSync } from "fs";
 import { PrismaClient } from "@prisma/client";
+import { requireEnv } from "../lib/require-env";
 
 const BASE = process.env.BASE_URL ?? "http://localhost:3099";
 const OUTPUT_FILE =
@@ -96,7 +97,7 @@ async function loginAdmin() {
     method: "POST",
     auth: "none",
     expect: 200,
-    body: JSON.stringify({ email: "admin@aigc-gateway.local", password: "admin123" }),
+    body: JSON.stringify({ email: "admin@aigc-gateway.local", password: requireEnv("ADMIN_TEST_PASSWORD") }),
   });
   adminToken = String(login.body?.token ?? "");
   if (!adminToken) throw new Error("admin token missing");
@@ -104,7 +105,7 @@ async function loginAdmin() {
 
 async function createUserProjectAndKey() {
   const email = `cln_${Date.now()}@test.com`;
-  const password = "Test1234";
+  const password = requireEnv("E2E_TEST_PASSWORD");
   await api("/api/auth/register", {
     method: "POST",
     auth: "none",

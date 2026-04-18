@@ -1,4 +1,5 @@
 import { writeFileSync } from "fs";
+import { requireEnv } from "../lib/require-env";
 
 const BASE = process.env.BASE_URL ?? "http://localhost:3099";
 const OUTPUT =
@@ -66,7 +67,7 @@ async function loginHistory(token: string) {
 async function main() {
   const steps: StepResult[] = [];
   const email = `upc_test_${Date.now()}@test.com`;
-  const password = "Test1234!";
+  const password = requireEnv("E2E_TEST_PASSWORD");
 
   try {
     await register(email, password, "UPC Tester");

@@ -1,10 +1,10 @@
 import { writeFileSync, readFileSync } from "fs";
 import { spawnSync } from "child_process";
 import { PrismaClient } from "@prisma/client";
+import { requireEnv } from "../lib/require-env";
 
 const BASE = process.env.BASE_URL ?? "http://localhost:3099";
-const OUTPUT =
-  process.env.OUTPUT_FILE ?? "docs/test-reports/sup1-verifying-e2e-2026-04-11.json";
+const OUTPUT = process.env.OUTPUT_FILE ?? "docs/test-reports/sup1-verifying-e2e-2026-04-11.json";
 
 const prisma = new PrismaClient();
 
@@ -21,7 +21,12 @@ function unique(prefix: string) {
 
 async function api(
   path: string,
-  init?: RequestInit & { expect?: number; auth?: "none" | "jwt" | "key"; key?: string; project?: string },
+  init?: RequestInit & {
+    expect?: number;
+    auth?: "none" | "jwt" | "key";
+    key?: string;
+    project?: string;
+  },
 ): Promise<ApiRes> {
   const { expect, auth = "none", key, project, ...rest } = init ?? {};
   const headers: Record<string, string> = {
@@ -49,7 +54,7 @@ async function api(
 
 async function registerAndLogin(): Promise<{ email: string; token: string; userId: string }> {
   const email = `${unique("sup1_user")}@test.local`;
-  const password = "Test12345!";
+  const password = requireEnv("E2E_TEST_PASSWORD");
 
   await api("/api/auth/register", {
     method: "POST",
@@ -103,7 +108,8 @@ function runJwtSecretCheck(shortSecret: boolean): { ok: boolean; detail: string 
   const env = {
     ...process.env,
     JWT_SECRET: shortSecret ? "short-secret" : "long-enough-jwt-secret-2026",
-    DATABASE_URL: process.env.DATABASE_URL ?? "postgresql://test:test@localhost:5432/aigc_gateway_test",
+    DATABASE_URL:
+      process.env.DATABASE_URL ?? "postgresql://test:test@localhost:5432/aigc_gateway_test",
     ENCRYPTION_KEY: process.env.ENCRYPTION_KEY ?? "12345678901234567890123456789012",
     NODE_ENV: "test",
   } as NodeJS.ProcessEnv;
@@ -164,7 +170,7 @@ async function main() {
   // BL-070 email verify anti-forgery + expiry
   const emailA = `${unique("verify_a")}@test.local`;
   const emailB = `${unique("verify_b")}@test.local`;
-  const pwd = "Test12345!";
+  const pwd = requireEnv("E2E_TEST_PASSWORD");
 
   const regA = await api("/api/auth/register", {
     method: "POST",
@@ -275,10 +281,14 @@ async function main() {
     model: "openai/not-exist-model",
     messages: [{ role: "user", content: "hi" }],
   });
-  const imageRollback = await twoCalls("/v1/images/generations", {
-    model: "openai/not-exist-image-model",
-    prompt: "test",
-  }, true);
+  const imageRollback = await twoCalls(
+    "/v1/images/generations",
+    {
+      model: "openai/not-exist-image-model",
+      prompt: "test",
+    },
+    true,
+  );
   const actionRollback = await twoCalls("/v1/actions/run", {
     action_id: "cm_fake_action_id",
     stream: false,
@@ -357,12 +367,30 @@ async function main() {
 
   // BL-103 thousand-separator checks (static)
   const thousandChecks: Array<{ file: string; mustContain: string[] }> = [
-    { file: "src/app/(console)/dashboard/page.tsx", mustContain: ["usage.totalCalls.toLocaleString()", "usage.avgLatencyMs?.toLocaleString()"] },
-    { file: "src/app/(console)/usage/page.tsx", mustContain: ["avgLatencyMs ?? 0).toLocaleString()"] },
-    { file: "src/app/(console)/logs/page.tsx", mustContain: ["l.latencyMs.toLocaleString()", "l.totalTokens.toLocaleString()"] },
-    { file: "src/app/(console)/admin/logs/page.tsx", mustContain: ["l.promptTokens?.toLocaleString()", "l.completionTokens?.toLocaleString()"] },
-    { file: "src/app/(console)/admin/health/page.tsx", mustContain: ["summary.avgLatency.toLocaleString()"] },
-    { file: "src/app/(console)/settings/page.tsx", mustContain: ["projectDetail?.stats.callCount?.toLocaleString()"] },
+    {
+      file: "src/app/(console)/dashboard/page.tsx",
+      mustContain: ["usage.totalCalls.toLocaleString()", "usage.avgLatencyMs?.toLocaleString()"],
+    },
+    {
+      file: "src/app/(console)/usage/page.tsx",
+      mustContain: ["avgLatencyMs ?? 0).toLocaleString()"],
+    },
+    {
+      file: "src/app/(console)/logs/page.tsx",
+      mustContain: ["l.latencyMs.toLocaleString()", "l.totalTokens.toLocaleString()"],
+    },
+    {
+      file: "src/app/(console)/admin/logs/page.tsx",
+      mustContain: ["l.promptTokens?.toLocaleString()", "l.completionTokens?.toLocaleString()"],
+    },
+    {
+      file: "src/app/(console)/admin/health/page.tsx",
+      mustContain: ["summary.avgLatency.toLocaleString()"],
+    },
+    {
+      file: "src/app/(console)/settings/page.tsx",
+      mustContain: ["projectDetail?.stats.callCount?.toLocaleString()"],
+    },
     { file: "src/app/(console)/admin/model-aliases/page.tsx", mustContain: ["toLocaleString()"] },
     { file: "src/app/(console)/models/page.tsx", mustContain: ["toLocaleString()"] },
   ];
@@ -377,7 +405,9 @@ async function main() {
   steps.push({
     id: "F-SUP1-05-thousand-separator-static-check",
     ok: thousandMisses.length === 0,
-    detail: thousandMisses.length ? thousandMisses.join(" | ") : "all required toLocaleString checks present",
+    detail: thousandMisses.length
+      ? thousandMisses.join(" | ")
+      : "all required toLocaleString checks present",
   });
 
   const pass = steps.filter((s) => s.ok).length;

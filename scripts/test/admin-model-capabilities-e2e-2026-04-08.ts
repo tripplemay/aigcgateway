@@ -1,11 +1,12 @@
 import { writeFileSync } from "fs";
+import { requireEnv } from "../lib/require-env";
 
 const BASE = process.env.BASE_URL ?? "http://localhost:3099";
 const OUTPUT =
   process.env.OUTPUT_FILE ?? "docs/test-reports/admin-model-capabilities-e2e-2026-04-08.json";
 
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL ?? "admin@aigc-gateway.local";
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD ?? "admin123";
+const ADMIN_PASSWORD = requireEnv("ADMIN_TEST_PASSWORD");
 
 interface StepResult {
   name: string;
@@ -67,7 +68,7 @@ async function login(email: string, password: string): Promise<string> {
 
 async function ensureDeveloper(): Promise<{ email: string; password: string; token: string }> {
   const email = `model-cap-dev-${Date.now()}@test.local`;
-  const password = "Test1234";
+  const password = requireEnv("E2E_TEST_PASSWORD");
 
   await api("/api/auth/register", {
     method: "POST",

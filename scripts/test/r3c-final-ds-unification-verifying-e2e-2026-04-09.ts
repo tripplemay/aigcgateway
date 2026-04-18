@@ -1,4 +1,5 @@
 import { readFileSync, writeFileSync } from "fs";
+import { requireEnv } from "../lib/require-env";
 
 const BASE = process.env.BASE_URL ?? "http://localhost:3099";
 const OUTPUT =
@@ -60,7 +61,7 @@ async function setupAdminAuth() {
     method: "POST",
     auth: "none",
     expect: 200,
-    body: JSON.stringify({ email: "admin@aigc-gateway.local", password: "admin123" }),
+    body: JSON.stringify({ email: "admin@aigc-gateway.local", password: requireEnv("ADMIN_TEST_PASSWORD") }),
   });
   adminToken = String(login.body?.token ?? "");
   if (!adminToken) throw new Error("admin token missing");

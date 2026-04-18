@@ -1,5 +1,6 @@
 import { createServer, type IncomingMessage, type ServerResponse } from "http";
 import { readFileSync, writeFileSync } from "fs";
+import { requireEnv } from "../lib/require-env";
 
 const BASE = process.env.BASE_URL ?? "http://localhost:3099";
 const OUTPUT =
@@ -8,8 +9,8 @@ const MOCK_PORT = Number(process.env.MOCK_PORT ?? "3343");
 const MOCK_BASE = `http://127.0.0.1:${MOCK_PORT}`;
 
 const ADMIN_CANDIDATES = [
-  { email: "admin@aigc-gateway.local", password: "admin123" },
-  { email: "codex-admin@aigc-gateway.local", password: "Codex@2026!" },
+  { email: "admin@aigc-gateway.local", password: requireEnv("ADMIN_TEST_PASSWORD") },
+  { email: "codex-admin@aigc-gateway.local", password: requireEnv("ADMIN_TEST_PASSWORD") },
 ];
 
 type Step = { id: string; name: string; ok: boolean; detail: string };

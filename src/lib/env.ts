@@ -2,9 +2,7 @@ import { z } from "zod";
 
 const envSchema = z.object({
   // 核心配置
-  NODE_ENV: z
-    .enum(["development", "production", "test"])
-    .default("development"),
+  NODE_ENV: z.enum(["development", "production", "test"]).default("development"),
   PORT: z.coerce.number().default(3000),
 
   // 域名
@@ -83,9 +81,7 @@ export function getEnv(): Env {
     const formatted = result.error.issues
       .map((issue) => `  ${issue.path.join(".")}: ${issue.message}`)
       .join("\n");
-    throw new Error(
-      `Environment variable validation failed:\n${formatted}`
-    );
+    throw new Error(`Environment variable validation failed:\n${formatted}`);
   }
 
   _env = result.data;
@@ -98,3 +94,16 @@ export const env = new Proxy({} as Env, {
     return getEnv()[prop as keyof Env];
   },
 });
+
+/**
+ * Asserts that at least one of IMAGE_PROXY_SECRET / AUTH_SECRET / NEXTAUTH_SECRET is set.
+ * Called from src/instrumentation.ts at startup to fail-fast instead of erroring on
+ * first image-proxy request.
+ */
+export function assertImageProxySecret(): void {
+  const secret =
+    process.env.IMAGE_PROXY_SECRET || process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET;
+  if (!secret) {
+    throw new Error("IMAGE_PROXY_SECRET (or AUTH_SECRET / NEXTAUTH_SECRET) is required");
+  }
+}

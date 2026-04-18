@@ -1,4 +1,5 @@
 import { writeFileSync } from "fs";
+import { requireEnv } from "../lib/require-env";
 
 const BASE = process.env.BASE_URL ?? "http://localhost:3099";
 const OUTPUT_FILE =
@@ -19,7 +20,7 @@ let templateId = "";
 
 const testUser = {
   email: `ui_redesign_${Date.now()}@test.com`,
-  password: "Test1234",
+  password: requireEnv("E2E_TEST_PASSWORD"),
   name: "UI Redesign Tester",
 };
 
@@ -77,7 +78,7 @@ async function setupAuthAndData() {
     method: "POST",
     auth: "none",
     expect: 200,
-    body: JSON.stringify({ email: "admin@aigc-gateway.local", password: "admin123" }),
+    body: JSON.stringify({ email: "admin@aigc-gateway.local", password: requireEnv("ADMIN_TEST_PASSWORD") }),
   });
   adminToken = String(adminLogin.body?.token ?? "");
   if (!adminToken) throw new Error("admin token missing");

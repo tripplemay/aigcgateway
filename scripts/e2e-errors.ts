@@ -7,8 +7,10 @@
 import { prisma } from "@/lib/prisma";
 import { randomBytes } from "node:crypto";
 import { sanitizeErrorMessage } from "@/lib/engine/types";
+import { requireEnv } from "./lib/require-env";
 
 const BASE = process.env.BASE_URL ?? "http://localhost:3099";
+const E2E_TEST_PASSWORD = requireEnv("E2E_TEST_PASSWORD");
 let passed = 0;
 let failed = 0;
 
@@ -39,14 +41,14 @@ async function main() {
   const reg = await fetch(`${BASE}/api/auth/register`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email, password: "Test1234" }),
+    body: JSON.stringify({ email, password: E2E_TEST_PASSWORD }),
   });
   await reg.json();
 
   const login = await fetch(`${BASE}/api/auth/login`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email, password: "Test1234" }),
+    body: JSON.stringify({ email, password: E2E_TEST_PASSWORD }),
   });
   const loginData = await login.json();
   token = loginData.token;
@@ -206,7 +208,7 @@ async function main() {
   await fetch(`${BASE}/api/auth/register`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email: verifyEmail, password: "Test1234" }),
+    body: JSON.stringify({ email: verifyEmail, password: E2E_TEST_PASSWORD }),
   });
   const verifyUser = await prisma.user.findUnique({ where: { email: verifyEmail } });
 
@@ -260,7 +262,7 @@ async function main() {
     await fetch(`${BASE}/api/auth/register`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email: email2, password: "Test1234" }),
+      body: JSON.stringify({ email: email2, password: E2E_TEST_PASSWORD }),
     });
     const u = await prisma.user.findUnique({ where: { email: email2 } });
     if (!u) throw new Error("repeat-test user missing");

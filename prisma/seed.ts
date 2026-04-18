@@ -3,6 +3,16 @@ import { hashSync } from "bcryptjs";
 
 const prisma = new PrismaClient();
 
+function requireEnv(key: string): string {
+  const value = process.env[key];
+  if (!value) {
+    throw new Error(
+      `${key} is required for seed — set it before running \`npx tsx prisma/seed.ts\``,
+    );
+  }
+  return value;
+}
+
 // ============================================================
 // Provider 定义
 //
@@ -281,7 +291,8 @@ async function main() {
   console.log("Seeding database...");
 
   // 1. 创建管理员账号（bcrypt 哈希，与登录接口一致）
-  const adminPasswordHash = hashSync("admin123", 12);
+  // 密码从 ADMIN_SEED_PASSWORD env 注入，缺失时 throw；upsert update 块留空保留幂等性（已存在 admin 不重置）
+  const adminPasswordHash = hashSync(requireEnv("ADMIN_SEED_PASSWORD"), 12);
 
   const admin = await prisma.user.upsert({
     where: { email: "admin@aigc-gateway.local" },

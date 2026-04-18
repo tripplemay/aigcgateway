@@ -1,6 +1,7 @@
 import { readFileSync, writeFileSync } from "fs";
 import { spawnSync } from "child_process";
 import { PrismaClient } from "@prisma/client";
+import { requireEnv } from "../lib/require-env";
 
 const BASE = process.env.BASE_URL ?? "http://localhost:3099";
 const OUTPUT = process.env.OUTPUT_FILE ?? "docs/test-reports/dq2-verifying-e2e-2026-04-11.json";
@@ -50,7 +51,7 @@ async function loginAdmin() {
     method: "POST",
     auth: "none",
     expect: 200,
-    body: JSON.stringify({ email: "admin@aigc-gateway.local", password: "admin123" }),
+    body: JSON.stringify({ email: "admin@aigc-gateway.local", password: requireEnv("ADMIN_TEST_PASSWORD") }),
   });
   adminToken = String(res.body?.token ?? "");
   if (!adminToken) throw new Error("admin token missing");
@@ -58,7 +59,7 @@ async function loginAdmin() {
 
 async function registerUser() {
   const email = `${uniq("dq2_user")}@test.local`;
-  const password = "Test12345!";
+  const password = requireEnv("E2E_TEST_PASSWORD");
 
   await api("/api/auth/register", {
     method: "POST",

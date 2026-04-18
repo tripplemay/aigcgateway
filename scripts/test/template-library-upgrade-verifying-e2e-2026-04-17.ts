@@ -1,5 +1,6 @@
 import { readFileSync, writeFileSync, readdirSync, statSync } from "fs";
 import * as path from "path";
+import { requireEnv } from "../lib/require-env";
 
 const BASE = process.env.BASE_URL ?? "http://localhost:3099";
 const OUTPUT =
@@ -16,9 +17,9 @@ const PUBLIC_LIST_PATHS = [
 const ADMIN_CANDIDATES = [
   {
     email: process.env.ADMIN_EMAIL ?? "admin@aigc-gateway.local",
-    password: process.env.ADMIN_PASSWORD ?? "admin123",
+    password: requireEnv("ADMIN_TEST_PASSWORD"),
   },
-  { email: "codex-admin@aigc-gateway.local", password: "Codex@2026!" },
+  { email: "codex-admin@aigc-gateway.local", password: requireEnv("ADMIN_TEST_PASSWORD") },
 ];
 
 type StepResult = {

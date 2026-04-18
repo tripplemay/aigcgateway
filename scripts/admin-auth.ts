@@ -22,13 +22,13 @@
  *   curl -s -H "Authorization: Bearer $TOKEN" "$BASE_URL/api/admin/usage?from=2026-04-01T00:00:00Z&to=2026-04-06T00:00:00Z"
  */
 
+import { requireEnv } from "./lib/require-env";
+
 const DEFAULT_BASE_URL = "http://localhost:3099";
 const ADMIN_EMAIL = "codex-admin@aigc-gateway.local";
-const ADMIN_PASSWORD = "Codex@2026!";
+const ADMIN_PASSWORD = requireEnv("ADMIN_TEST_PASSWORD");
 
-export async function getAdminToken(
-  baseUrl?: string,
-): Promise<string> {
+export async function getAdminToken(baseUrl?: string): Promise<string> {
   const base = baseUrl ?? process.env.BASE_URL ?? DEFAULT_BASE_URL;
   const res = await fetch(`${base}/api/auth/login`, {
     method: "POST",
@@ -45,9 +45,7 @@ export async function getAdminToken(
   return data.token as string;
 }
 
-export async function getAdminHeaders(
-  baseUrl?: string,
-): Promise<Record<string, string>> {
+export async function getAdminHeaders(baseUrl?: string): Promise<Record<string, string>> {
   const token = await getAdminToken(baseUrl);
   return {
     Authorization: `Bearer ${token}`,
@@ -57,9 +55,7 @@ export async function getAdminHeaders(
 
 // 独立运行时打印 token 前 20 字符
 const isMain =
-  typeof process !== "undefined" &&
-  process.argv[1] &&
-  process.argv[1].includes("admin-auth");
+  typeof process !== "undefined" && process.argv[1] && process.argv[1].includes("admin-auth");
 
 if (isMain) {
   getAdminToken()

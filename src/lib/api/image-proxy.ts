@@ -11,18 +11,16 @@ import { createHmac, timingSafeEqual } from "crypto";
 const DEFAULT_TTL_SECONDS = 60 * 60;
 
 function getSecret(): string {
-  return (
-    process.env.IMAGE_PROXY_SECRET ??
-    process.env.AUTH_SECRET ??
-    process.env.NEXTAUTH_SECRET ??
-    "aigc-gateway-image-proxy-dev-secret"
-  );
+  const secret =
+    process.env.IMAGE_PROXY_SECRET || process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET;
+  if (!secret) {
+    throw new Error("IMAGE_PROXY_SECRET (or AUTH_SECRET / NEXTAUTH_SECRET) is required");
+  }
+  return secret;
 }
 
 function sign(traceId: string, idx: number, exp: number): string {
-  return createHmac("sha256", getSecret())
-    .update(`${traceId}.${idx}.${exp}`)
-    .digest("hex");
+  return createHmac("sha256", getSecret()).update(`${traceId}.${idx}.${exp}`).digest("hex");
 }
 
 export function buildProxyUrl(

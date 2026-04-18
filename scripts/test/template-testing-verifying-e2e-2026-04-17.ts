@@ -1,6 +1,7 @@
 import { createServer, type IncomingMessage, type ServerResponse } from "http";
 import { PrismaClient } from "@prisma/client";
 import { readFileSync, existsSync } from "fs";
+import { requireEnv } from "../lib/require-env";
 
 // Pin the Prisma client to the same DB the server on :3099 is using. Without
 // this, @prisma/client auto-loads .env (dev DATABASE_URL = aigc_gateway)
@@ -45,9 +46,9 @@ const MOCK_BASE = `http://127.0.0.1:${MOCK_PORT}/v1`;
 const ADMIN_CANDIDATES = [
   {
     email: process.env.ADMIN_EMAIL ?? "admin@aigc-gateway.local",
-    password: process.env.ADMIN_PASSWORD ?? "admin123",
+    password: requireEnv("ADMIN_TEST_PASSWORD"),
   },
-  { email: "codex-admin@aigc-gateway.local", password: "Codex@2026!" },
+  { email: "codex-admin@aigc-gateway.local", password: requireEnv("ADMIN_TEST_PASSWORD") },
 ];
 
 type Step = { id: string; ok: boolean; detail: string };

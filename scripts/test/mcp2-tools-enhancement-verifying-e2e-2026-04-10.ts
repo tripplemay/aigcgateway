@@ -2,6 +2,7 @@ import { createHash } from "crypto";
 import { createServer, type IncomingMessage, type ServerResponse } from "http";
 import { writeFileSync } from "fs";
 import { PrismaClient } from "@prisma/client";
+import { requireEnv } from "../lib/require-env";
 
 const prisma = new PrismaClient();
 
@@ -27,7 +28,7 @@ type RestoreState = {
 
 const tag = Date.now().toString(36);
 const email = `mcp2_${tag}@test.local`;
-const password = "Test1234";
+const password = requireEnv("E2E_TEST_PASSWORD");
 const keyName = `mcp2-key-${tag}`;
 const projectName = `MCP2 Project ${tag}`;
 const textAlias = `mcp2-chat-${tag}`;

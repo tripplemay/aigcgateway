@@ -11,6 +11,10 @@
 export async function register() {
   // 仅在 Node.js server 运行时启动（不在 edge runtime 或 build 时）
   if (process.env.NEXT_RUNTIME === "nodejs") {
+    // 启动时 fail-fast：IMAGE_PROXY_SECRET 家族必须至少一个有值
+    const { assertImageProxySecret } = await import("@/lib/env");
+    assertImageProxySecret();
+
     // PM2 cluster 模式下，只让 worker 0 执行定时任务，避免多进程重复执行
     const isWorkerZero =
       process.env.NODE_APP_INSTANCE === "0" || process.env.NODE_APP_INSTANCE === undefined; // 单进程模式也能跑

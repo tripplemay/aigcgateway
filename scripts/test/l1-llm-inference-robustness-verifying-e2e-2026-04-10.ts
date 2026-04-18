@@ -3,6 +3,7 @@ import { readFileSync, writeFileSync } from "fs";
 import { PrismaClient } from "@prisma/client";
 
 import {
+import { requireEnv } from "../lib/require-env";
   classifyNewModels,
   inferMissingBrands,
   inferMissingCapabilities,
@@ -18,7 +19,7 @@ const MOCK_PORT = Number(process.env.MOCK_PORT ?? "3344");
 const MOCK_BASE = `http://127.0.0.1:${MOCK_PORT}`;
 
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL ?? "admin@aigc-gateway.local";
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD ?? "admin123";
+const ADMIN_PASSWORD = requireEnv("ADMIN_TEST_PASSWORD");
 
 type Step = { id: string; name: string; ok: boolean; detail: string };
 type ApiResult = { status: number; body: any; text: string };

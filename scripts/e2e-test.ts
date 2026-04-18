@@ -5,6 +5,7 @@
  */
 
 import { prisma } from "@/lib/prisma";
+import { requireEnv } from "./lib/require-env";
 
 const BASE = process.env.BASE_URL ?? "http://localhost:3099";
 let token = "";
@@ -12,7 +13,7 @@ let projectId = "";
 let apiKey = "";
 let keyId = "";
 const email = `e2e_${Date.now()}@test.com`;
-const password = "Test1234";
+const password = requireEnv("E2E_TEST_PASSWORD");
 let passed = 0;
 let failed = 0;
 

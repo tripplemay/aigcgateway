@@ -1,5 +1,6 @@
 import { createServer, type IncomingMessage, type ServerResponse } from "http";
 import { existsSync, readFileSync, writeFileSync } from "fs";
+import { requireEnv } from "../lib/require-env";
 
 const BASE = process.env.BASE_URL ?? "http://localhost:3099";
 const MOCK_PORT = Number(process.env.MOCK_PORT ?? "3342");
@@ -8,7 +9,7 @@ const OUTPUT =
   process.env.OUTPUT_FILE ?? "docs/test-reports/m1b-alias-admin-verifying-e2e-2026-04-10.json";
 
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL ?? "admin@aigc-gateway.local";
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD ?? "admin123";
+const ADMIN_PASSWORD = requireEnv("ADMIN_TEST_PASSWORD");
 
 const TEST_MODEL_ID = "deepseek/test-classifier-2026";
 const TEST_ALIAS = "m1b-test-alias";

@@ -1,4 +1,5 @@
 import { writeFileSync } from "fs";
+import { requireEnv } from "../lib/require-env";
 
 const BASE = process.env.BASE_URL ?? "http://localhost:3099";
 const OUTPUT =
@@ -74,7 +75,7 @@ async function createAction(
 async function main() {
   const steps: StepResult[] = [];
   const email = process.env.TEST_EMAIL ?? "codex-admin@aigc-gateway.local";
-  const password = process.env.TEST_PASSWORD ?? "Codex@2026!";
+  const password = requireEnv("ADMIN_TEST_PASSWORD");
   const auth = await login(email, password);
   const token = auth.token as string;
   const headers = { "Content-Type": "application/json", Authorization: `Bearer ${token}` };

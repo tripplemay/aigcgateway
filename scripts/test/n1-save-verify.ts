@@ -1,4 +1,5 @@
 import { chromium } from "playwright";
+import { requireEnv } from "../lib/require-env";
 
 const BASE = process.env.BASE_URL ?? "http://localhost:3099";
 
@@ -10,7 +11,7 @@ async function main() {
     await fetch(`${BASE}/api/auth/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email: "admin@aigc-gateway.local", password: "admin123" }),
+      body: JSON.stringify({ email: "admin@aigc-gateway.local", password: requireEnv("ADMIN_TEST_PASSWORD") }),
     })
   ).json()) as { token: string };
 

@@ -12,10 +12,11 @@
  */
 
 import { chromium } from "playwright";
+import { requireEnv } from "../lib/require-env";
 
 const BASE = process.env.BASE_URL ?? "http://localhost:3099";
 const ADMIN_EMAIL = "admin@aigc-gateway.local";
-const ADMIN_PASSWORD = "admin123";
+const ADMIN_PASSWORD = requireEnv("ADMIN_TEST_PASSWORD");
 
 async function apiFetch(path: string, token: string, options?: RequestInit) {
   const res = await fetch(`${BASE}${path}`, {

@@ -1,11 +1,11 @@
 {
-  "status": "building",
+  "status": "verifying",
   "user_goal": "BL-SEC-CRED-HARDEN — 移除硬编码密码 + image-proxy HMAC fallback + 启动 env assert（Code Review CRIT-5 + CRIT-6 + L5）",
   "total_features": 4,
-  "completed_features": 0,
+  "completed_features": 3,
   "fix_rounds": 0,
   "current_sprint": "BL-SEC-CRED-HARDEN",
-  "last_updated": "2026-04-18T00:30:00Z",
+  "last_updated": "2026-04-18T10:20:00Z",
   "reference_docs": [
     "docs/specs/BL-SEC-CRED-HARDEN-spec.md",
     "docs/code-review/backend-fullscan-2026-04-17.md"
@@ -18,9 +18,34 @@
     "framework_reviewed": false
   },
   "evaluator_feedback": null,
-  "generator_handoff": null,
+  "generator_handoff": {
+    "summary": "F-CH-01 / F-CH-02 / F-CH-03 已完成，进入 verifying 等待 Codex 执行 F-CH-04。",
+    "deliverables": [
+      "src/lib/api/image-proxy.ts 删除 'aigc-gateway-image-proxy-dev-secret' fallback + 三 env 全空时抛错",
+      "src/lib/env.ts 新增 assertImageProxySecret() + src/instrumentation.ts 启动时调用（fail-fast）",
+      "src/lib/api/__tests__/image-proxy.test.ts 新单测 10/10 通过",
+      "prisma/seed.ts admin 密码改读 requireEnv('ADMIN_SEED_PASSWORD')；upsert update 块保留为空（幂等）",
+      "scripts/lib/require-env.ts 新建（requireEnv + requireEnvOrThrow 两个导出）",
+      "scripts/ 与 tests/ 下 47 个 TS 文件 + 1 mjs + 1 k6.js + 1 bash 全部改 env 读取",
+      ".env.example 新增 IMAGE_PROXY_SECRET / ADMIN_SEED_PASSWORD / ADMIN_TEST_PASSWORD / E2E_TEST_PASSWORD 四个变量",
+      "tests/perf/.env.example 将 DEV_PASSWORD 占位改为 <perf-dev-password>"
+    ],
+    "validation_done": [
+      "git grep 'admin123' / 'Codex@2026' / 'Test1234' / 'aigc-gateway-image-proxy-dev-secret' 源码零命中（backlog/features JSON 里保留 spec 文案）",
+      "npx tsc --noEmit 通过",
+      "npx vitest run src/lib/api/__tests__/image-proxy.test.ts 通过（10/10）",
+      "IMAGE_PROXY_SECRET=... ADMIN_TEST_PASSWORD=x ADMIN_SEED_PASSWORD=x E2E_TEST_PASSWORD=x npm run build 成功",
+      "ADMIN_TEST_PASSWORD= npx tsx scripts/admin-auth.ts → exit 1 + 'Missing env: ADMIN_TEST_PASSWORD'"
+    ],
+    "evaluator_focus": [
+      "F-CH-04 acceptance：git grep 四项零命中、.env.example 四变量齐备、build/tsc/vitest 通过",
+      "启动校验验证：IMAGE_PROXY_SECRET/AUTH_SECRET/NEXTAUTH_SECRET 全空 → npm run dev/build 应抛 IMAGE_PROXY_SECRET required",
+      "注意 instrumentation 仅在 NEXT_RUNTIME=nodejs 时校验（edge runtime 不生效，按设计）",
+      "template-governance-eval.mjs 使用内联 requireEnv（.mjs 不导入 TS 模块）；k6 脚本改用 throw；bash 脚本用 :? 语法"
+    ]
+  },
   "session_notes": {
-    "Kimi": "Planner 完成 BL-SEC-CRED-HARDEN 批次初始化。本批次 4 条：F-CH-01 image-proxy.ts fallback 移除 + 启动校验；F-CH-02 seed.ts ADMIN_SEED_PASSWORD；F-CH-03 scripts 批量密码 env 化 + requireEnv helper；F-CH-04 codex 全量验收（git grep 零命中 + 启动校验 + 脚本行为）。状态 planning→building。\n\n同时把 Code Review 推导出的全部 14 个批次写入 backlog.json（10 个新增），按 phase/order 字段标注第一波 P0-security 4 批 + 第二波 P0-frontend 1 批 + 第三波 P1 4 批 + 第四波 P2 4 批 + 延后 1 批。path A 串行执行。\n\nGenerator 可直接开始 F-CH-01。注意：用户已确认生产 admin 密码由其本人轮换，本批次代码改动不触碰生产数据库。",
+    "Kimi": "Generator 完成 3/3 功能代码实现。F-CH-01 在 image-proxy.ts 改 || 链 + env 全空时 throw；启动校验放 src/instrumentation.ts（await import assertImageProxySecret 后首行执行）。F-CH-02 在 seed.ts 顶部加 requireEnv 并替换 hashSync 参数。F-CH-03 新建 scripts/lib/require-env.ts，另用 /tmp/bl-sec-patch.mjs 批量改 47 个文件（regex 替换 + auto-insert import），mjs/k6/bash 文件手动改。批次类型为「混合批次」（3 generator + 1 codex），按 harness 规则 building→verifying 跳过 fixing。生成回归测试沉淀在新单测里（credential-hardening 属 security 类，vitest 单测比改 e2e 脚本更合适）。",
     "Reviewer": null
   }
 }

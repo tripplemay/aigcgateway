@@ -1,4 +1,5 @@
 import { writeFileSync, readFileSync } from "fs";
+import { requireEnv } from "../lib/require-env";
 
 const BASE = process.env.BASE_URL ?? "http://localhost:3099";
 const OUTPUT =
@@ -46,8 +47,8 @@ async function login(email: string, password: string) {
 
 async function loginAdmin(): Promise<string> {
   const candidates = [
-    { email: "admin@aigc-gateway.local", password: "admin123" },
-    { email: "codex-admin@aigc-gateway.local", password: "Codex@2026!" },
+    { email: "admin@aigc-gateway.local", password: requireEnv("ADMIN_TEST_PASSWORD") },
+    { email: "codex-admin@aigc-gateway.local", password: requireEnv("ADMIN_TEST_PASSWORD") },
   ];
   for (const c of candidates) {
     try {

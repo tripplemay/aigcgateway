@@ -1,5 +1,6 @@
 import { writeFileSync } from "fs";
 import { chromium } from "@playwright/test";
+import { requireEnv } from "../lib/require-env";
 
 const BASE = process.env.BASE_URL ?? "http://localhost:3099";
 const OUTPUT =
@@ -16,7 +17,7 @@ let token = "";
 let projectId = "";
 
 const email = `sr_${Date.now()}@test.local`;
-const password = "Test1234";
+const password = requireEnv("E2E_TEST_PASSWORD");
 
 async function api(
   path: string,

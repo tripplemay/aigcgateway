@@ -5,6 +5,7 @@ import { PrismaClient } from "@prisma/client";
 import { prisma as appPrisma } from "../../src/lib/prisma";
 import { createTestApiKey, createTestProject, createTestUser } from "../../tests/factories";
 import { jsonResponse, startMockProvider } from "../../tests/mocks/provider-server";
+import { requireEnv } from "../lib/require-env";
 
 const BASE = process.env.BASE_URL ?? "http://localhost:3099";
 const MCP_URL = `${BASE}/api/mcp`;
@@ -130,7 +131,7 @@ async function loginAndPrepare() {
   const admin = await api("/api/auth/login", {
     method: "POST",
     expect: 200,
-    body: JSON.stringify({ email: "admin@aigc-gateway.local", password: "admin123" }),
+    body: JSON.stringify({ email: "admin@aigc-gateway.local", password: requireEnv("ADMIN_TEST_PASSWORD") }),
   });
   adminToken = String(admin.body?.token ?? "");
   if (!adminToken) throw new Error("admin token missing");

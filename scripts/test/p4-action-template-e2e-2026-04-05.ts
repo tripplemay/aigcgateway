@@ -1,6 +1,7 @@
 import { createServer, type IncomingMessage, type ServerResponse } from "http";
 import { PrismaClient } from "@prisma/client";
 import { createHash } from "crypto";
+import { requireEnv } from "../lib/require-env";
 
 const BASE = process.env.BASE_URL ?? "http://localhost:3099";
 const MOCK_PORT = Number(process.env.MOCK_PORT ?? "3310");
@@ -19,7 +20,7 @@ let token = "";
 let projectId = "";
 let apiKey = "";
 const email = `p4_${Date.now()}@test.com`;
-const password = "Test1234";
+const password = requireEnv("E2E_TEST_PASSWORD");
 
 let singleActionId = "";
 let singleActionVersion2Id = "";

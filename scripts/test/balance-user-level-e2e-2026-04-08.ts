@@ -1,6 +1,7 @@
 import { createServer, type IncomingMessage, type Server, type ServerResponse } from "http";
 import { writeFileSync } from "fs";
 import { PrismaClient } from "@prisma/client";
+import { requireEnv } from "../lib/require-env";
 
 const BASE = process.env.BASE_URL ?? "http://localhost:3099";
 const MCP_URL = `${BASE}/mcp`;
@@ -33,7 +34,7 @@ let projectB = "";
 let apiKey = "";
 
 const testerEmail = `bu_user_${Date.now()}@test.com`;
-const testerPassword = "Test1234";
+const testerPassword = requireEnv("E2E_TEST_PASSWORD");
 
 function json(res: ServerResponse, status: number, body: unknown) {
   res.writeHead(status, { "Content-Type": "application/json" });
@@ -222,7 +223,7 @@ async function loginAdmin() {
     method: "POST",
     auth: "none",
     expect: 200,
-    body: JSON.stringify({ email: "admin@aigc-gateway.local", password: "admin123" }),
+    body: JSON.stringify({ email: "admin@aigc-gateway.local", password: requireEnv("ADMIN_TEST_PASSWORD") }),
   });
   adminToken = String(res.body?.token ?? "");
   if (!adminToken) throw new Error("admin token missing");

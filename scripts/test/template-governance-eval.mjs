@@ -1,8 +1,19 @@
 import { PrismaClient } from "@prisma/client";
+import path from "node:path";
 
 const prisma = new PrismaClient();
 const BASE = process.env.BASE_URL ?? "http://localhost:3099";
 const NOW = Date.now();
+
+function requireEnv(key) {
+  const v = process.env[key];
+  if (!v) {
+    const name = process.argv[1] ? path.basename(process.argv[1]) : "script";
+    console.error(`[${name}] Missing env: ${key}`);
+    process.exit(1);
+  }
+  return v;
+}
 
 function print(obj) {
   process.stdout.write(`${JSON.stringify(obj, null, 2)}\n`);
@@ -88,7 +99,7 @@ async function run() {
   await step("admin login", async () => {
     const res = await api("/api/auth/login", {
       method: "POST",
-      body: { email: "admin@aigc-gateway.local", password: "admin123" },
+      body: { email: "admin@aigc-gateway.local", password: requireEnv("ADMIN_TEST_PASSWORD") },
     });
     if (res.status !== 200 || !res.json?.token) {
       throw new Error(`login failed: ${res.status} ${res.text}`);

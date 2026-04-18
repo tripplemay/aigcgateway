@@ -1,4 +1,5 @@
 import { readFileSync, writeFileSync } from "node:fs";
+import { requireEnv } from "../lib/require-env";
 
 const BASE = process.env.BASE_URL ?? "http://localhost:3099";
 const OUTPUT =
@@ -116,7 +117,7 @@ async function run() {
   const login = await api("/api/auth/login", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email: "admin@aigc-gateway.local", password: "admin123" }),
+    body: JSON.stringify({ email: "admin@aigc-gateway.local", password: requireEnv("ADMIN_TEST_PASSWORD") }),
     expected: 200,
   });
   const token = String(login.body?.token ?? "");

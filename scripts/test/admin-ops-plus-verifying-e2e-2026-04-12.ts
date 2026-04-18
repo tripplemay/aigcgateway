@@ -2,6 +2,7 @@ import { readFileSync, writeFileSync } from "fs";
 import { spawnSync } from "child_process";
 import Redis from "ioredis";
 import { PrismaClient } from "@prisma/client";
+import { requireEnv } from "../lib/require-env";
 
 const BASE = process.env.BASE_URL ?? "http://localhost:3099";
 const OUTPUT =
@@ -9,7 +10,7 @@ const OUTPUT =
   "docs/test-reports/admin-ops-plus-verifying-e2e-2026-04-12.json";
 
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL ?? "admin@aigc-gateway.local";
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD ?? "admin123";
+const ADMIN_PASSWORD = requireEnv("ADMIN_TEST_PASSWORD");
 const REDIS_URL = process.env.REDIS_URL ?? "redis://localhost:6379/0";
 
 const prisma = new PrismaClient();

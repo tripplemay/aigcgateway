@@ -1,6 +1,7 @@
 import { createServer, type IncomingMessage, type Server, type ServerResponse } from "http";
 import { writeFileSync } from "fs";
 import { PrismaClient } from "@prisma/client";
+import { requireEnv } from "../lib/require-env";
 
 const BASE = process.env.BASE_URL ?? "http://localhost:3099";
 const MCP_URL = `${BASE}/mcp`;
@@ -15,8 +16,8 @@ type Step = { id: string; name: string; ok: boolean; detail: string };
 type AuthMode = "none" | "user" | "admin" | "key";
 
 const testerEmail = `k1_user_${Date.now()}@test.com`;
-const testerPassword = "Test1234";
-const adminCreds = { email: "admin@aigc-gateway.local", password: "admin123" };
+const testerPassword = requireEnv("E2E_TEST_PASSWORD");
+const adminCreds = { email: "admin@aigc-gateway.local", password: requireEnv("ADMIN_TEST_PASSWORD") };
 
 let userToken = "";
 let adminToken = "";

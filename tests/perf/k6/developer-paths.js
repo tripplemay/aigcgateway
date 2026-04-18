@@ -3,7 +3,10 @@ import { check, sleep } from "k6";
 
 const BASE_URL = __ENV.BASE_URL || "http://localhost:3099";
 const DEV_EMAIL = __ENV.DEV_EMAIL || "dev@example.com";
-const DEV_PASSWORD = __ENV.DEV_PASSWORD || "Test1234";
+const DEV_PASSWORD = __ENV.DEV_PASSWORD;
+if (!DEV_PASSWORD) {
+  throw new Error("Missing env: DEV_PASSWORD (k6 -e DEV_PASSWORD=... required)");
+}
 const ZERO_BALANCE_KEY = __ENV.ZERO_BALANCE_KEY || "";
 const NO_CHAT_KEY = __ENV.NO_CHAT_KEY || "";
 const REAL_CHAT_KEY = __ENV.REAL_CHAT_KEY || "";
@@ -66,7 +69,7 @@ export function login() {
     {
       headers: jsonHeaders(),
       tags: { scenario: "login" },
-    }
+    },
   );
 
   check(res, {
@@ -92,7 +95,7 @@ export function zeroBalanceGate() {
         Authorization: `Bearer ${ZERO_BALANCE_KEY}`,
       }),
       tags: { scenario: "zero_balance_gate" },
-    }
+    },
   );
 
   check(res, {
@@ -116,7 +119,7 @@ export function noChatPermissionGate() {
         Authorization: `Bearer ${NO_CHAT_KEY}`,
       }),
       tags: { scenario: "no_chat_permission_gate" },
-    }
+    },
   );
 
   check(res, {
@@ -141,7 +144,7 @@ export function realChat() {
       }),
       tags: { scenario: "real_chat_baseline" },
       timeout: "30s",
-    }
+    },
   );
 
   check(res, {

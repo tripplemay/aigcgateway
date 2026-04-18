@@ -1,6 +1,7 @@
 import { test, expect, Page } from "@playwright/test";
+import { requireEnv } from "../../scripts/lib/require-env";
 
-const PASSWORD = "Test1234!";
+const PASSWORD = requireEnv("E2E_TEST_PASSWORD");
 const BASE_URL = process.env.BASE_URL ?? "http://localhost:3099";
 
 async function bootstrapAuth(page: Page, token: string) {
@@ -84,7 +85,7 @@ test.describe.serial("project-switcher-ui", () => {
     expect(projectB).toBeTruthy();
 
     const adminLogin = await request.post(`${BASE_URL}/api/auth/login`, {
-      data: { email: "admin@aigc-gateway.local", password: "admin123" },
+      data: { email: "admin@aigc-gateway.local", password: requireEnv("ADMIN_TEST_PASSWORD") },
     });
     expect(adminLogin.status()).toBe(200);
     const adminToken = (await adminLogin.json()).token;

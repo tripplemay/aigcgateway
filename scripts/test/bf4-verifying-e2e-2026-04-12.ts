@@ -1,11 +1,12 @@
 import { readFileSync, writeFileSync } from "fs";
 import { spawnSync } from "child_process";
 import { PrismaClient } from "@prisma/client";
+import { requireEnv } from "../lib/require-env";
 
 const BASE = process.env.BASE_URL ?? "http://localhost:3099";
 const OUTPUT = process.env.OUTPUT_FILE ?? "docs/test-reports/bf4-verifying-e2e-2026-04-12.json";
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL ?? "admin@aigc-gateway.local";
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD ?? "admin123";
+const ADMIN_PASSWORD = requireEnv("ADMIN_TEST_PASSWORD");
 
 const prisma = new PrismaClient();
 
@@ -73,7 +74,7 @@ async function loginAdmin() {
 
 async function registerAndLoginUser(tag: string) {
   const email = `${tag}_${Date.now()}@test.local`;
-  const password = "Test1234!";
+  const password = requireEnv("E2E_TEST_PASSWORD");
   const reg = await api("/api/auth/register", {
     method: "POST",
     expect: 201,

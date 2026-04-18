@@ -1,6 +1,7 @@
 import { createServer, type IncomingMessage, type ServerResponse } from "http";
 import { existsSync, writeFileSync } from "fs";
 import Redis from "ioredis";
+import { requireEnv } from "../lib/require-env";
 
 const BASE = process.env.BASE_URL ?? "http://localhost:3099";
 const MOCK_PORT = Number(process.env.MOCK_PORT ?? "3341");
@@ -10,10 +11,10 @@ const OUTPUT =
   "docs/test-reports/m1a-alias-backend-verifying-e2e-2026-04-09.json";
 
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL ?? "admin@aigc-gateway.local";
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD ?? "admin123";
+const ADMIN_PASSWORD = requireEnv("ADMIN_TEST_PASSWORD");
 
 const TEST_EMAIL = `m1a_${Date.now()}@test.local`;
-const TEST_PASSWORD = "Test1234";
+const TEST_PASSWORD = requireEnv("E2E_TEST_PASSWORD");
 
 type Step = { id: string; name: string; ok: boolean; detail: string };
 

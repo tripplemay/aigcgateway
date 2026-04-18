@@ -5,6 +5,7 @@ import { createTestApiKey, createTestProject, createTestUser } from "../../tests
 import { jsonResponse, startMockProvider } from "../../tests/mocks/provider-server";
 import { recordSpending, recordTokenUsage } from "../../src/lib/api/rate-limit";
 import { getRedis } from "../../src/lib/redis";
+import { requireEnv } from "../lib/require-env";
 
 const BASE = process.env.BASE_URL ?? "http://localhost:3099";
 const OUTPUT_FILE =
@@ -128,8 +129,8 @@ async function step(id: string, checks: Check[], fn: () => Promise<string>) {
 
 async function loginAdmin() {
   const candidates = [
-    { email: "codex-admin@aigc-gateway.local", password: "Codex@2026!" },
-    { email: "admin@aigc-gateway.local", password: "admin123" },
+    { email: "codex-admin@aigc-gateway.local", password: requireEnv("ADMIN_TEST_PASSWORD") },
+    { email: "admin@aigc-gateway.local", password: requireEnv("ADMIN_TEST_PASSWORD") },
   ];
   for (const c of candidates) {
     const r = await api("/api/auth/login", {

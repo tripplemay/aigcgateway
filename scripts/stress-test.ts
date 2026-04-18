@@ -7,10 +7,11 @@
  */
 
 import { execSync, spawn } from "child_process";
+import { requireEnv } from "./lib/require-env";
 
 const BASE = process.env.BASE_URL ?? "https://aigc.guangai.ai";
 const ADMIN_EMAIL = "codex-admin@aigc-gateway.local";
-const ADMIN_PASSWORD = "Codex@2026!";
+const ADMIN_PASSWORD = requireEnv("ADMIN_TEST_PASSWORD");
 
 // ─── Helpers ────────────────────────────────────────────────
 
