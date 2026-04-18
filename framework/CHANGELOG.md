@@ -5,6 +5,30 @@
 
 ---
 
+## v0.7.3 — 2026-04-18（Planner 铁律 1.1 + Generator 前端性能经验）
+
+**来源批次：** BL-FE-PERF-01 F-PF-02 i18n 口径偏差 + F-PF-01 Recharts 懒加载实战
+
+**触发原因：**
+1. Planner spec F-PF-02 要求 "DevTools Network 只加载 `messages/*.json`"，但 Next.js 对 `import('./*.json')` 的标准行为是编译为独立 JS chunk，不是 .json 请求。Generator 实现完美达成 bundle 优化目标（dashboard 281→169 kB），但被死板 acceptance 判 FAIL。若按原 spec 改为 .json 形态，要把 JSON 放 `public/` 运行时 fetch，反而牺牲 webpack chunk 优化。
+2. F-PF-01 Recharts 懒加载首次 build 未达标：page.tsx 静态 `import { PIE_COLORS } from './charts-section'` 即便 component 本身 dynamic，webpack 仍把整个 charts-section 模块（含 recharts）打进主 chunk。常量抽到独立 `*-constants.ts` 才让 dynamic 真正生效，三大路由 First Load 各降 100+ kB。
+
+**变更内容：**
+
+**Planner 铁律 1.1（`framework/harness/planner.md` 铁律 1 新增子条目）：acceptance 的"实现形式"与"语义意图"必须分离**
+- 写 acceptance 时问：这条在验证功能行为还是实现细节？
+- 必须写具体技术形态时同时说明允许的等价实现
+- Next.js / Webpack / SWC 等编译期优化会改变资源形态，acceptance 不得锁死
+
+**Generator 经验（`framework/harness/generator.md` 新增"dynamic import 模块边界"小节）：dynamic import 的调用方不得静态 import 该模块的任何 symbol**
+- 常量 / type / helper 需与 dynamic component 同场景时，抽到独立 `*-constants.ts` / `*-types.ts` 文件
+- 否则 webpack 静态分析把整个 module + 依赖打进主 chunk，dynamic 失效
+- 典型症状：dynamic 配置正确但 bundle 体积未降
+
+**影响范围：** Planner spec 书写质量提升一个台阶（意图 vs 形式分离）；Generator 前端性能优化有了实战-proven 的模块拆分 pattern。
+
+---
+
 ## v0.9.0 — 2026-04-18（接入现有项目：adoption guide + 非破坏性 bootstrap）
 
 **来源批次：** 独立任务（用户讨论"如何把框架应用到已经研发一大半的项目"）

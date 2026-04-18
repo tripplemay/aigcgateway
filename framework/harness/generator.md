@@ -152,6 +152,38 @@ gh run list --limit 3 --branch main
 - Codex 需要执行哪些 executor:codex 功能
 - 已知的注意事项（脚本用法、环境变量、预期产出物路径）
 
+## 前端性能经验
+
+### dynamic import 模块边界（2026-04-18 采纳）
+
+来源：BL-FE-PERF-01 F-PF-01 实战。首次 build `/dashboard` 仍是 281 kB（未降）根因：
+
+`dynamic(() => import('./foo'))` 懒加载 foo 的条件：**调用方不得静态 import foo 的任何 symbol**。
+
+```ts
+// ❌ 坏：page.tsx 静态引用 charts-section 导致 webpack 把整个模块（含 recharts）打进主 chunk
+import { PIE_COLORS, type ChartData } from "./charts-section";
+const ChartsSection = dynamic(() => import("./charts-section"));  // dynamic 失效！
+
+// ✅ 好：常量抽独立文件，page.tsx 从不触及 charts-section
+// dashboard/charts-constants.ts
+export const PIE_COLORS = [...];
+export type ChartData = { ... };
+
+// dashboard/charts-section.tsx
+"use client";
+import { PieChart } from "recharts";  // 仅此文件含 recharts
+import { PIE_COLORS, type ChartData } from "./charts-constants";
+
+// dashboard/page.tsx
+import { PIE_COLORS } from "./charts-constants";  // 纯静态，不触及 recharts
+const ChartsSection = dynamic(() => import("./charts-section"), { ssr: false });
+```
+
+**典型症状：** dynamic 配置写对了但 bundle 体积未降 → 检查调用方是否静态 import 了懒加载模块的任何 symbol。
+
+**适用：** 所有 `next/dynamic` 懒加载场景（图表库、编辑器、PDF viewer、富文本等重型依赖）。
+
 ## 完成标准
 - **building 模式：** 所有 `executor:generator` 的功能 status 均为 "completed"（`executor:codex` 功能保持 pending，由 Codex 处理）→ 将 progress.json status 改为 "verifying"
 - **fixing 模式：** 所有被标为 FAIL/PARTIAL 的 `executor:generator` 功能已修复 → 将 progress.json status 改为 "reverifying"，fix_rounds +1

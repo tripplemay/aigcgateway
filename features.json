@@ -1,69 +1,51 @@
 {
-  "batch": "BL-FE-PERF-01",
+  "batch": "BL-FE-QUALITY",
   "created_at": "2026-04-18",
   "features": [
     {
-      "id": "F-PF-01",
-      "title": "Recharts 3 路由 dynamic 懒加载",
+      "id": "F-FQ-01",
+      "title": "UX 交互改造（9 reload SPA 化 + 双事件 + 复制 key + 轮询可见性 + batched fetch）",
       "priority": "high",
       "executor": "generator",
-      "status": "done",
-      "source": "frontend-perf.md CRITICAL-1",
-      "acceptance": "1) 每个路由抽 ChartsSection.tsx 子组件（'use client'）承载所有 recharts import；2) dashboard/page.tsx:20 / usage/page.tsx:19 / admin/usage/page.tsx:24 的 recharts 静态 import 全部移到子组件；3) 页面用 `dynamic(() => import('./charts-section'), { ssr: false, loading: () => <Skeleton className='h-64 w-full' /> })`；4) `npm run build` 输出 /dashboard ≤ 180 kB、/usage ≤ 180 kB、/admin/usage ≤ 160 kB（First Load JS）；5) tsc + vitest 全过"
+      "status": "pending",
+      "source": "HIGH-33/34/35 + MEDIUM-1/2",
+      "acceptance": "1) 9 处 `window.location.reload()` 改 `router.refresh()`：balance:129 / usage:111 / dashboard:125 / logs[traceId]:78 / logs:104 / actions:81 / templates:115 / keys[keyId]:119 / keys:106（全部 EmptyState onCreated 回调）；2) `src/app/(console)/settings/page.tsx:197` 删除 `btn.addEventListener('click', handler)` 保留 React onClick；3) `src/app/(console)/keys/page.tsx:173` 复制按钮：若可访问真 key 则改复制真 key，否则改提示'（仅创建时可复制）'并禁用；4) `src/components/notification-center.tsx:109-113` 30s 轮询加 `document.visibilitychange` 门控，hidden 时 clearInterval，重新可见时立即 tick + 重启 interval；5) admin/usage / admin/models / admin/operations 的多个 useAsyncData 合并为 Promise.all batched fetch；6) tsc + build 通过"
     },
     {
-      "id": "F-PF-02",
-      "title": "i18n 按需加载（移除 intl-provider 静态 import）",
-      "priority": "high",
-      "executor": "generator",
-      "status": "done",
-      "source": "frontend-perf.md CRITICAL-2",
-      "acceptance": "1) `src/components/intl-provider.tsx:4-5` 删除 `import en from '@/messages/en.json'` 和 `import zhCN from '@/messages/zh-CN.json'`；2) IntlInner 改用 useState + useEffect + `import(\\`@/messages/${locale}.json\\`)` 动态加载；3) 加载中返回 `<Skeleton className='h-screen w-screen' />` 或 null；4) 语言切换（useLocale）触发重新加载；5) DevTools Network 验证：/dashboard 只加载一个 locale 的资源（**webpack chunk 形式 messages-[hash].js 也符合，不要求必须是 messages/*.json 路径** — Next.js 对 JSON 的动态 import 标准行为是编译为 JS chunk，本身即满足按需加载语义）；6) tsc + build 通过"
-    },
-    {
-      "id": "F-PF-03",
-      "title": "Material Symbols preconnect + dashboard CLS 修",
-      "priority": "high",
-      "executor": "generator",
-      "status": "done",
-      "source": "frontend-perf.md HIGH-4 + lighthouse CLS 0.11",
-      "acceptance": "1) `src/app/layout.tsx:22-27` 加 `<link rel='preconnect' href='https://fonts.googleapis.com' />` 和 `<link rel='preconnect' href='https://fonts.gstatic.com' crossOrigin='' />`（在 Material Symbols link 之前）；2) `src/app/(console)/dashboard/page.tsx` 所有 useAsyncData 依赖的卡片加 min-h-[Npx] 或 Skeleton 占位（balance / usage / recent logs 等）；3) 图表容器改固定高度（h-[300px]）+ Skeleton 占位而非自适应；4) Lighthouse dashboard CLS ≤ 0.1（当前 0.11）；5) tsc + build 通过"
-    },
-    {
-      "id": "F-PF-04",
-      "title": "src/app/page.tsx 改 RSC（利用 AUTH-SESSION 的 verifyJwt + cookies）",
-      "priority": "high",
-      "executor": "generator",
-      "status": "done",
-      "source": "frontend-perf.md LOW-4（已核实实际有 JWT 校验，非 simple redirect）",
-      "acceptance": "1) `src/app/page.tsx` 删除 'use client'；2) 改 async default function 用 `cookies().get('token')?.value` + `verifyJwt(token)`（复用 AUTH-SESSION 的 `@/lib/auth/jwt.ts`）；3) 无 token 或验签失败 → redirect('/landing.html')；验签通过 → redirect('/dashboard')；4) 删除 useEffect / useRouter / localStorage 逻辑；5) `npm run build` 输出 / 路由 First Load JS ≤ 90 kB（当前需测）；6) view-source / 响应首字节是 redirect；7) 冒烟：未登录 → /landing.html；已登录 → /dashboard；8) tsc + build 通过"
-    },
-    {
-      "id": "F-PF-05",
-      "title": "console/ 补 loading.tsx Suspense 边界",
+      "id": "F-FQ-02",
+      "title": "template-testing polish（admin PATCH try/catch + Decimal 精度 + waitForCallLog 优化）",
       "priority": "medium",
       "executor": "generator",
-      "status": "done",
-      "source": "frontend-perf.md MEDIUM-4",
-      "acceptance": "1) 新建 `src/app/(console)/loading.tsx` 通用 Skeleton 布局（顶部 + 主要区 + 底部）；2) 可选：dashboard/usage/admin-usage 各自更贴近布局的 loading.tsx；3) 手动导航切换时立即看到 Skeleton 无白屏；4) tsc + build 通过"
+      "status": "pending",
+      "source": "daily 2026-04-17 M1/M2/M3",
+      "acceptance": "1) `src/app/api/admin/templates/[templateId]/route.ts:52-54` 加 try/catch：`const body = await request.json().catch(() => null); if (!body || typeof body !== 'object') return errorResponse(400, 'invalid_parameter', 'Invalid JSON body');`；2) `src/lib/template/test-runner.ts:200-207` 改 Prisma.Decimal 累加：`totalCostUsd = new Prisma.Decimal(totalCostUsd).plus(callLog.sellPrice)`，结束 `.toFixed(8)`；3) `src/lib/template/test-runner.ts:247-262` waitForCallLog 优化：首选 runActionNonStream 事务内附带 callLog 直出；次选 CALL_LOG_POLL_MAX_ATTEMPTS 30→10（timeout 1s 而非 3s）+ 失败明确 warn 日志而非静默 null；4) tsc + build 通过"
     },
     {
-      "id": "F-PF-06",
-      "title": "next.config.ts 接入 bundle-analyzer + poweredByHeader + images",
-      "priority": "medium",
+      "id": "F-FQ-03",
+      "title": "A11y + i18n（aria-label 批量 + error.tsx + Free/Degraded + timeAgo/汇率）",
+      "priority": "high",
       "executor": "generator",
-      "status": "done",
-      "source": "frontend-bundle-analysis.md + frontend-perf.md LOW-2/3",
-      "acceptance": "1) `npm install -D @next/bundle-analyzer`；2) `next.config.ts` 用 `withBundleAnalyzer({ enabled: process.env.ANALYZE === 'true' })` 包裹配置；3) 添加 `poweredByHeader: false`；4) 添加 `images: { remotePatterns: [] }` 预留；5) package.json 新增 `analyze` script；6) `npm run analyze` 生成 report.html 可打开；7) prod 响应头 X-Powered-By 消失；8) tsc + build 通过"
+      "status": "pending",
+      "source": "HIGH-37/38/40/41",
+      "acceptance": "1) 新建 `src/lib/a11y.ts` helper 或在 `components/ui/icon-button.tsx` 强制 aria-label prop；grep 所有 `<button>` 含图标无文字实例批量补 `aria-label={t('...')}`；重点 top-app-bar / notification-center / admin 页面；2) `src/app/(console)/error.tsx` 删除硬编码英文改 useTranslations；messages/*.json 新增 `error.*` 条目；3) `src/app/(console)/admin/models/page.tsx:65/70/282` 'Free'/'Degraded' 硬编码改 `t('models.priceFree')` / `t('models.statusDegraded')`；messages/*.json 新增对应条目；4) `src/components/notification-center.tsx:40` timeAgo() 改 `dayjs relativeTime` 或 `next-intl formatRelativeTime`；:53 NOTIF_CNY_RATE = 7.3 改从 API 或 SystemConfig 读（或至少 env + fallback）；5) Lighthouse A11y ≥ 98；6) tsc + build 通过"
     },
     {
-      "id": "F-PF-07",
-      "title": "BL-FE-PERF-01 全量验收",
+      "id": "F-FQ-04",
+      "title": "DS Critical 3 文件 token 改造（admin/operations + dashboard + admin/logs）",
+      "priority": "high",
+      "executor": "generator",
+      "status": "pending",
+      "source": "frontend-ds-1-token-compliance.md Critical",
+      "acceptance": "1) `src/app/(console)/admin/operations/page.tsx` 33 处违规清零：硬编码 hex/rgb → ds-* token；非 ds Tailwind 色类 (text-slate-*/bg-indigo-*/bg-rose-*/bg-emerald-*/bg-violet-*/bg-amber-*) → ds 色阶对应类；2) `src/app/(console)/dashboard/page.tsx` 24 处违规清零（重点 PIE_COLORS / 渐变 from-indigo-700）；3) `src/app/(console)/admin/logs/page.tsx` 24 处违规清零（重点 text-indigo-700 / text-slate-* / bg-white）；4) 每文件改完 grep 验证：`grep -cE '#[0-9a-fA-F]{6}|rgba?\\\\(|text-(slate|indigo|rose|emerald|violet|amber)-|bg-(slate|indigo|rose|emerald|violet|amber)-' <file>` = 0（color 类违规）；5) 建议按文件分段 commit（每文件一 commit）便于定位回滚；6) tsc + build 通过"
+    },
+    {
+      "id": "F-FQ-05",
+      "title": "BL-FE-QUALITY 全量验收",
       "priority": "high",
       "executor": "codex",
-      "status": "done",
-      "source": "BL-FE-PERF-01",
-      "acceptance": "Bundle 体积断言（5 项）：1) /dashboard First Load ≤ 180 kB（当前 281）；2) /usage ≤ 180 kB（当前 271）；3) /admin/usage ≤ 160 kB（当前 227）；4) / ≤ 90 kB；5) chunks/6627-*.js（recharts）不在三大路由 First Load。Lighthouse 实测（npm run build && npm start）：6) /dashboard LCP ≤ 1.5s；7) /dashboard CLS ≤ 0.1；8) / view-source 响应首字节是 HTML redirect meta 或 302。i18n 验证（**口径修订：webpack chunk 形式也算满足**）：9) DevTools Network /dashboard 只加载一个 locale 的资源（chunk `messages-[hash].js` 或 json 均可，**不要求是 .json 文件形态**）；10) 语言切换动态加载另一个 locale 的资源（chunk 或 json 均可）。构建与单测：11) npm run build 通过；12) npx tsc --noEmit 通过；13) npx vitest run 全过；14) npm run analyze 生成 report.html。冒烟回归：15) 未登录访问 / → /landing.html；16) 已登录访问 / → /dashboard；17) dashboard 图表正常显示无白屏闪烁；18) zh-CN ↔ en 切换生效。19) 生成 signoff 报告 `docs/test-reports/BL-FE-PERF-01-signoff-2026-04-18.md`。"
+      "status": "pending",
+      "source": "BL-FE-QUALITY",
+      "acceptance": "UX（5 项）：1) 9 页面 EmptyState onCreated SPA 状态保持（不闪屏不重置滚动 / state）；2) settings 按钮点击只触发一次 handler；3) keys 复制按钮真实复制可用 key 或明确提示（仅创建时可复制）；4) NotificationCenter tab 切换后 30s+ 回来 Network 无持续轮询；5) admin/usage 单次聚合请求或 Promise.all 并发。template-testing（3 项）：6) admin/templates PATCH 非法 JSON body → 400；7) test-runner totalCostUsd 10 步累加与 sum(sellPrice) 差距 < 1e-12；8) waitForCallLog 最大等待 ≤ 1s/step（或事务内合并直出）。A11y+i18n（4 项）：9) Lighthouse A11y ≥ 98（dashboard/usage/settings 任一）；10) error.tsx zh-CN 显示中文；11) admin/models 切 zh-CN 后 Free/Degraded 显示中文；12) notification-center zh-CN 显示中文相对时间。DS Critical（3 项）：13) admin/operations grep 硬编码 hex/rgb = 0；14) dashboard + admin/logs grep color 类违规 = 0；15) 视觉回归改造前后对比无肉眼差异。构建回归（3 项）：16) npm run build 通过；17) npx tsc --noEmit 通过；18) npx vitest run 全过。19) 生成 signoff 报告 docs/test-reports/BL-FE-QUALITY-signoff-2026-04-18.md。"
     }
   ]
 }

@@ -174,6 +174,23 @@ Planner 写 spec，若涉及以下内容，**必须先 Read 对应文件核实**
 
 **Generator 发现规格偏差时**：开工前提出"规格偏差报告"暂停；Planner 修订 spec 后再开工。此为双方义务。
 
+### 铁律 1.1：acceptance 的"实现形式"与"语义意图"必须分离
+
+写 acceptance 时问自己：**这条在验证功能行为还是实现细节？**
+
+- 若必须写具体技术形态（文件名 / 路径 / API 形态 / 网络请求形态），必须同时说明**允许的等价实现**
+- Next.js / Webpack / SWC 等编译期优化会改变资源形态，acceptance 不得锁死特定形态
+- Code Review 报告描述的实现细节当"线索"看，语义意图才是 acceptance 的本质
+
+**反例 → 正例：**
+
+- ✗ "DevTools Network 只加载 `messages/*.json`" → ✓ "只加载一个 locale 的资源（chunk 或 json 均可）"
+- ✗ "返回 HTTP 403" → ✓ "返回 MCP `isError: true`"（见铁律 2.1）
+- ✗ "使用 dayjs.format('YYYY-MM-DD')" → ✓ "格式化为 ISO 日期字符串"
+- ✗ "import { PIE_COLORS } from './charts-section'" → ✓ "使用 chart 渲染常量"
+
+来源：BL-FE-PERF-01 F-PF-02 i18n 口径偏差（Next.js 对 `import('./*.json')` 编译为 JS chunk 是标准优化，acceptance 锁死 `.json` 形态反而逼迫反最佳实践实现）。
+
 ### 铁律 2：Code Review 报告的事实性断言按"线索"处理，不按"真相"采信
 
 **符号/类型/约束/枚举/常量**类断言**必须双路交叉验证**：
