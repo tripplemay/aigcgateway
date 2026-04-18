@@ -5,6 +5,48 @@
 
 ---
 
+## v0.9.0 — 2026-04-18（接入现有项目：adoption guide + 非破坏性 bootstrap）
+
+**来源批次：** 独立任务（用户讨论"如何把框架应用到已经研发一大半的项目"）
+**触发原因：** 现有的 `bootstrap.sh` + `INIT.md` 只覆盖 greenfield 场景（新项目从零建）。已经开发到一半的项目直接跑会覆盖现有 CLAUDE.md / .gitignore / docs 等，不可接受。需要非破坏性接入方案和配套文档
+
+**变更内容：**
+
+- 新增 `framework/docs/04-adopt-existing-project.md`（~390 行）：
+  - 与 greenfield 的关键差异（哪些文件要保护、处理原则）
+  - 3 种落地路径对比（并行双轨 / 渐进接管 / 冷启动重建），推荐渐进接管
+  - 整体流程 mermaid 图（评估 → bootstrap → 写 project-status → 灌 backlog → 挑试点 → 走完 → 全员切换）
+  - 详细 8 步落地清单（每步有时间估算和具体操作）
+  - 5 种常见风险 + 对策（CLAUDE.md 臃肿 / 测试域冲突 / 团队协作者不用 Claude CLI / 进行中 PR / 想反悔）
+  - 6 条 FAQ（monorepo / Nx / 闭源 / 单 agent / 30 行不够 / 多机器）
+- 新增 `framework/bootstrap-adopt.sh`（非破坏性版本）：
+  - 自动识别 3 种布局（degit 的 `.triad-src/` / 已有 `framework/` / flat）
+  - 安全退出：progress.json + harness-rules.md 都已存在时拒绝运行
+  - 已存在文件全部跳过不覆盖
+  - CLAUDE.md 已有内容 → 顶部注入 Triad 规则块（原文件备份为 `CLAUDE.md.pre-triad.bak`）
+  - .gitignore 已有 → 追加 `.agent-id` 条目
+  - docs/ 子目录已存在 → 跳过，只建缺失的
+  - 结束时打印三类清单：新增文件 / 已存在跳过 / 手工待办事项（编号排序）
+  - 提示下一步 8 项指南（编辑 3 个记忆文件、灌 backlog、挑试点等）
+- `framework/README.md` 文档导航表新增第 4 条（接入现有项目）
+
+**与 `bootstrap.sh` 的分工：**
+
+| 脚本 | 场景 | 行为 |
+|---|---|---|
+| `bootstrap.sh` | greenfield 新项目 | 覆盖式复制，快速建起完整骨架 |
+| `bootstrap-adopt.sh` | 现有项目接入 | 非破坏性，保留所有现有内容，只补缺失 |
+
+**使用方式：**
+```bash
+cd /path/to/existing-project
+npx degit tripplemay/harness-template .triad-src
+bash .triad-src/bootstrap-adopt.sh
+# 按打印的手工待办清单完成后续配置
+```
+
+---
+
 ## v0.7.2 — 2026-04-18（Planner 铁律 2.1：协议返回形式断言必须标明协议层）
 
 **来源批次：** BL-SEC-INFRA-GUARD fix round 1 F-IG-04
