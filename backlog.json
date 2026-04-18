@@ -138,44 +138,24 @@
       "order": 5
     },
     {
-      "id": "BL-FE-UX-QUALITY",
-      "title": "前端交互质量 — SPA 回调重构 + 轮询可见性 + 复制脱敏 + 模板测试 polish",
-      "description": "来源 docs/code-review/batch-07-frontend-pages.md + frontend-perf.md + daily 2026-04-17。(1) HIGH-33: 9 个 console 页面用 window.location.reload() 作为回调，破坏 SPA 状态。(2) HIGH-34: settings 同时 addEventListener + onClick，点击触发两次。(3) HIGH-35: keys 复制按钮复制的是脱敏 key，误导。(4) MEDIUM-1: notification-center 30s 轮询无 visibilitychange 门控。(5) MEDIUM-2: admin/usage/models/operations 三页面并发 useAsyncData 无 batch。(6) daily M1: admin templates PATCH 无 try/catch 返 500。(7) daily M2: test-runner Decimal 精度丢失。(8) daily M3: waitForCallLog 串行 3s×N 拖延。",
+      "id": "BL-FE-QUALITY",
+      "title": "前端质量合并批次 — UX 交互 + A11y/i18n + DS Critical 3 文件",
+      "description": "合并原 BL-FE-UX-QUALITY + BL-FE-A11Y-I18N-DS（2026-04-18 合并决策）。覆盖三组改动均为前端质量向，同 Generator 上下文复用。(A UX) HIGH-33 9 处 window.location.reload() → SPA / HIGH-34 settings 双事件 / HIGH-35 keys 复制脱敏 / MEDIUM-1 轮询可见性门控 / MEDIUM-2 admin 并发 batched fetch / daily M1-M3 template-testing polish。(B A11y+i18n) HIGH-38 aria-label 批量 / HIGH-40 error.tsx i18n / HIGH-41 Free/Degraded 硬编码 / HIGH-37 timeAgo+汇率本地化。(C DS Critical) admin/operations (33)、dashboard (24)、admin/logs (24) 590+ token 违规。",
       "decisions": [
-        "reload() 回调改 router.refresh() + 局部 mutate（SWR/TanStack Query 模式）",
-        "settings 去掉 native addEventListener，统一用 onClick",
-        "keys 复制按钮改复制真 key（仅创建瞬间可获取）或明确提示用户只能在创建时复制",
-        "NotificationCenter 加 document.hidden 检测，hidden 时清 interval",
-        "admin 页 Promise.all batch 合并为单个 useAsyncData",
-        "admin templates PATCH 加 try/catch + errorResponse(400)",
-        "test-runner 改 Prisma.Decimal 累加",
-        "waitForCallLog 改 runActionNonStream 返回时附带 CallLog 或事务内合并"
+        "spec 必须按三组（UX / A11y-i18n / DS-Critical）清晰分节，便于 Evaluator 子任务独立验证",
+        "features.json 预计 4 条：3 generator（UX / A11y+i18n / DS）+ 1 codex",
+        "settings/page.tsx 和 admin/models/page.tsx 两批次都会动，合并后一次改完避免二次触及",
+        "UX 部分：reload() 回调改 router.refresh() + 局部 mutate；settings 去 native addEventListener；keys 复制真 key 或明确提示；NotificationCenter 加 visibilitychange 门控；admin 页 Promise.all batch；admin templates PATCH 加 try/catch；test-runner 改 Prisma.Decimal；waitForCallLog 事务内合并",
+        "A11y+i18n 部分：aria-label helper 批量补；error.tsx 接 useTranslations；admin/models Free/Degraded 走 i18n；notification-center timeAgo 走 dayjs relativeTime + 汇率 API",
+        "DS Critical 部分：3 个文件的硬编码 hex/rgb/非 ds 色类 → ds-* token；其余 28 个 High 文件留给 BL-FE-DS-SHADCN"
       ],
       "confirmed_at": "2026-04-18",
       "priority": "high",
-      "source": "docs/code-review/batch-07-frontend-pages.md HIGH-33/34/35/36 + frontend-perf.md MEDIUM-1/2 + daily/2026-04-17.md M1/M2/M3",
-      "estimated_effort": "2 days",
+      "source": "合并：BL-FE-UX-QUALITY (HIGH-33/34/35 + M1-M3) + BL-FE-A11Y-I18N-DS (HIGH-37/38/40/41 + DS-1 Critical 3)",
+      "estimated_effort": "3.5 days",
       "phase": "P1-quality",
-      "order": 6
-    },
-    {
-      "id": "BL-FE-A11Y-I18N-DS",
-      "title": "前端可访问性 + i18n + 设计 token 硬化（Critical 3 文件）",
-      "description": "来源 docs/code-review/batch-07-frontend-pages.md + frontend-ds-1-token-compliance.md。(1) HIGH-38: 数十个图标按钮无 aria-label。(2) HIGH-40: error.tsx 硬编码英文。(3) HIGH-41: admin/models 'Free' 'Degraded' 硬编码。(4) HIGH-37: notification-center timeAgo 英文 + 汇率 7.3。(5) DS-1 Critical 3 文件 590+ 违规：admin/operations (33 处)、dashboard (24 处)、admin/logs (24 处)。",
-      "decisions": [
-        "aria-label 按 IconButton 组件批量补充，建一个 a11y helper",
-        "error.tsx 接入 useTranslations",
-        "admin/models 'Free'/'Degraded' 文案走 i18n 并加对应 zh-CN 条目",
-        "notification-center timeAgo 本地化（dayjs relativeTime + next-intl），汇率从 API 读",
-        "DS-1 3 个 Critical 文件：硬编码 hex/rgb → ds-* token，非 ds Tailwind 色类 → ds 色阶对应类",
-        "其余 28 个 High 文件留给后续批次 BL-FE-DS-ROUNDS（非本批次）"
-      ],
-      "confirmed_at": "2026-04-18",
-      "priority": "high",
-      "source": "docs/code-review/batch-07-frontend-pages.md HIGH-37/38/40/41 + frontend-ds-1-token-compliance.md Critical 3 files",
-      "estimated_effort": "1.5 days",
-      "phase": "P1-quality",
-      "order": 7
+      "order": 6,
+      "merges": ["BL-FE-UX-QUALITY", "BL-FE-A11Y-I18N-DS"]
     },
     {
       "id": "BL-DATA-CONSISTENCY",
@@ -194,7 +174,7 @@
       "source": "docs/code-review/batch-05-database.md H-1/2/17/18/20 + daily/2026-04-17.md H1",
       "estimated_effort": "1 day",
       "phase": "P1-data",
-      "order": 8
+      "order": 7
     },
     {
       "id": "BL-INFRA-RESILIENCE",
@@ -215,57 +195,25 @@
       "source": "docs/code-review/batch-02-engine.md H-21/22/26 + batch-04-infra.md H-4/23/24/25",
       "estimated_effort": "1.5 days",
       "phase": "P1-data",
-      "order": 9
+      "order": 8
     },
     {
-      "id": "BL-SEC-AUTH-HYGIENE",
-      "title": "认证细节硬化 — 登录/注册 rate limit + bcrypt cost + 时序 oracle",
-      "description": "来源 docs/code-review/batch-01-api-routes.md + batch-06-security.md。(1) H-7: /api/auth/login 和 /api/auth/register 无速率限制，可暴力破解/批量注册。(2) H-9: bcrypt cost 从 12 降级为 10（静默 catch），降低暴力破解成本。(3) H-10: login 路由先做 bcrypt 比较再检查 deletedAt/suspended，形成时序 oracle。",
+      "id": "BL-SEC-POLISH",
+      "title": "安全杂项合并批次 — auth-hygiene + SSRF/Content-Type + 脚本硬化",
+      "description": "合并原 BL-SEC-AUTH-HYGIENE + BL-SEC-SSRF-INPUT + BL-SCRIPT-HYGIENE（2026-04-18 合并决策）。三组改动 scope 独立但主题同族（安全加固小修），文件域互不重叠（auth / notifications+proxy / scripts），任一失败不 block 另两组。(A AUTH) H-7 登录/注册 rate limit / H-9 bcrypt cost 恢复 12 / H-10 时序 oracle 修。(B SSRF) H-27 webhook URL 拒私网/元数据 / H-28 image-proxy Content-Type 白名单。(C SCRIPT) H-42/43/44/45 e2e setup fatal + 路径 + 弱密码 + webhook 签名 + H-46 run-template test_mode rate limit。",
       "decisions": [
-        "login/register 两个 API 加 Redis-backed rate limit（IP 级 10/min + account 级 5/min）",
-        "bcrypt cost 恢复 12，catch 改为抛错（不静默）",
-        "login 顺序：先查用户状态（deletedAt/suspended）→ 返回等价错误 → 再 bcrypt 比较；统一失败返回延迟（避免时序侧信道）"
+        "features.json 预计 4 条：3 generator（auth / ssrf / script）+ 1 codex 合并验收",
+        "(A AUTH) login/register 加 Redis rate limit（IP 10/min + account 5/min）；bcrypt cost 恢复 12 catch 抛错；login 先查 deletedAt/suspended 再 bcrypt；失败延迟统一防时序侧信道",
+        "(B SSRF) 封装 isSafeWebhookUrl 拒私网/loopback/169.254.169.254/仅 https；webhook DNS 解析二次校验防 rebinding；image-proxy Content-Type 白名单 image/*",
+        "(C SCRIPT) e2e-errors setup 任一失败 process.exit(1)；stress-test 报告路径走 new Date().toISOString().slice(0,10)；setup-zero-balance 改合法 bcrypt hash；e2e-test webhook 改 mock 或签名 helper；run-template test_mode=execute 仍走 rate limit"
       ],
       "confirmed_at": "2026-04-18",
       "priority": "high",
-      "source": "docs/code-review/backend-fullscan-2026-04-17.md H-7/9/10",
-      "estimated_effort": "0.5 day",
+      "source": "合并：BL-SEC-AUTH-HYGIENE (H-7/9/10) + BL-SEC-SSRF-INPUT (H-27/28) + BL-SCRIPT-HYGIENE (H-42-46)",
+      "estimated_effort": "1.5 days",
       "phase": "P2-polish",
-      "order": 10
-    },
-    {
-      "id": "BL-SEC-SSRF-INPUT",
-      "title": "SSRF + 输入验证硬化 — webhook URL + image-proxy Content-Type",
-      "description": "来源 docs/code-review/batch-06-security.md。(1) H-27: notifications/test-webhook + dispatcher 用户 webhookUrl 无 SSRF 过滤，可探测云元数据（169.254.169.254 等）。(2) H-28: images/proxy Content-Type 透传，可代理非图片响应。",
-      "decisions": [
-        "封装 isSafeWebhookUrl：拒绝私网/loopback/云元数据 IP，只允许 https://",
-        "webhook 发送前 DNS 解析并重新校验（防 DNS rebinding）",
-        "image-proxy 响应 Content-Type 强制白名单（image/*），其余改 application/octet-stream"
-      ],
-      "confirmed_at": "2026-04-18",
-      "priority": "high",
-      "source": "docs/code-review/backend-fullscan-2026-04-17.md H-27/28",
-      "estimated_effort": "0.5 day",
-      "phase": "P2-polish",
-      "order": 11
-    },
-    {
-      "id": "BL-SCRIPT-HYGIENE",
-      "title": "运维/测试脚本硬化 — setup fatal + 报告路径 + 弱密码 + 测试教坏",
-      "description": "来源 docs/code-review/batch-08-hooks-scripts.md。(1) H-42: e2e-errors.ts setup 失败无 fatal，后续连锁假 FAIL。(2) H-43: stress-test.ts 报告路径硬编码 2026-04-04。(3) H-44: setup-zero-balance.ts passwordHash='dummy' 非合法 bcrypt。(4) H-45: e2e-test.ts 直接调 webhook 无签名，教坏测试模式。(5) H-46: run-template test_mode=execute 跳速率限制，可被利用。",
-      "decisions": [
-        "e2e-errors.ts setup 任一步失败立即 process.exit(1)，不跑后续",
-        "stress-test.ts 报告路径改 new Date().toISOString().slice(0,10)",
-        "setup-zero-balance.ts 用 bcrypt.hashSync('{random}',10) 生成合法 hash",
-        "e2e-test.ts webhook 测试改走 mock 或签名 helper",
-        "run-template test_mode=execute 仍走速率限制，但成本预检不扣费（dry_run 路径）"
-      ],
-      "confirmed_at": "2026-04-18",
-      "priority": "medium",
-      "source": "docs/code-review/batch-08-hooks-scripts.md H-42/43/44/45 + batch-03-mcp.md H-46",
-      "estimated_effort": "0.5 day",
-      "phase": "P2-polish",
-      "order": 12
+      "order": 9,
+      "merges": ["BL-SEC-AUTH-HYGIENE", "BL-SEC-SSRF-INPUT", "BL-SCRIPT-HYGIENE"]
     },
     {
       "id": "BL-INFRA-ARCHIVE",
@@ -282,7 +230,7 @@
       "source": "docs/code-review/batch-05-database.md H-3",
       "estimated_effort": "1 day",
       "phase": "P2-polish",
-      "order": 13
+      "order": 10
     },
     {
       "id": "BL-FE-DS-SHADCN",
@@ -301,7 +249,7 @@
       "source": "docs/code-review/frontend-ds-2-shadcn-adoption.md Critical 5 files + frontend-ds-1-token-compliance.md High 28 files",
       "estimated_effort": "2 days",
       "phase": "P2-polish",
-      "order": 14
+      "order": 11
     },
     {
       "id": "BL-SEC-PAY-DEFERRED",

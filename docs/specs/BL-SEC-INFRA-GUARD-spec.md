@@ -95,7 +95,7 @@ Code Review 2026-04-17 发现基建层 9 个加固点，合并为一个批次覆
 
 ### F-IG-02：scheduler + model-sync Redis 分布式锁
 
-**文件：** `src/instrumentation.ts` + `src/lib/health/scheduler.ts` + `src/lib/sync/model-sync.ts`
+**文件：** `src/instrumentation.ts` + `src/lib/health/scheduler.ts` + `src/lib/sync/model-sync.ts` + 新建 `src/lib/infra/leader-lock.ts`
 
 **改动要求：**
 
@@ -106,13 +106,17 @@ Code Review 2026-04-17 发现基建层 9 个加固点，合并为一个批次覆
    export async function heartbeatLock(key: string, ttlSeconds: number): Promise<boolean>;
    ```
    - 用 Redis `SET key value NX EX ttl` 实现
-   - Redis 不可用时 fallback 到本地 boolean（记 warn 日志）
-2. `instrumentation.ts` 删除 `NODE_APP_INSTANCE==="0"` 判断，改为启动时尝试 `acquireLeaderLock('scheduler', 70)`；成功才启 scheduler + model-sync
-3. `scheduler.ts` 每 tick 调 `heartbeatLock('scheduler', 70)` 刷新 TTL
-4. `model-sync.ts` 每次启动前 `acquireLeaderLock('model-sync', 3600)`，失败 skip
-5. Graceful shutdown（SIGTERM）调用 `releaseLeaderLock`
+2. **启动时必须等待 Redis ready（关键，fix round 1 补）：**
+   - instrumentation 启动时 `await waitForRedisReady(5000)`（5s timeout）
+   - Redis ready → 走 Redis 路径，acquire/heartbeat/release 全部用 Redis
+   - Redis 5s 内未 ready → **整个节点降级为 "scheduler/model-sync disabled"**（warn 日志明示），不跑任何调度
+   - **禁止启动时 fallback 后切换到 Redis 的混合状态**（acquire 和 heartbeat 必须使用同一来源）
+3. `instrumentation.ts` 删除 `NODE_APP_INSTANCE==="0"` 判断；Redis ready 后 `acquireLeaderLock('scheduler', 70)`；成功才启 scheduler + model-sync
+4. `scheduler.ts` 每 tick 调 `heartbeatLock('scheduler', 70)` 刷新 TTL；失败（key 被其他节点占或 TTL 丢）立即 clearInterval 停 scheduler
+5. `model-sync.ts` 每次启动前 `acquireLeaderLock('model-sync', 3600)`，失败 skip
+6. Graceful shutdown（SIGTERM）调用 `releaseLeaderLock`
 
-**验证：** 本地启两个 dev server（不同 PORT），观察只有一个跑 scheduler；杀掉它后另一个 70s 内接管。
+**验证：** 本地启两个 dev server（不同 PORT），先启动 Redis 再启动两实例，观察只有一个跑 scheduler；杀掉它后另一个 70s 内接管；把 Redis 关掉启动实例应观察 "scheduler disabled" warn 日志。
 
 ### F-IG-03：scripts/stress-test.ts shell 注入修
 
@@ -130,9 +134,11 @@ Code Review 2026-04-17 发现基建层 9 个加固点，合并为一个批次覆
 
 **文件：** `src/lib/mcp/tools/fork-public-template.ts` + `src/lib/mcp/auth.ts`
 
+**协议澄清（fix round 1 修订）：** MCP tool 调用错误**不返回 HTTP 4xx**，而是返回 `{content:[...], isError: true}` + 外层 HTTP 200（JSON-RPC over HTTP 标准）。Code Review 原报告要求 403 是对 MCP 协议的误解。Generator fix round 0 实现已符合 MCP SDK 惯用法，本批次不改代码实现，仅修正 acceptance 断言形式。
+
 **改动：**
 
-1. `fork-public-template.ts` handler 首行调 `checkMcpPermission(ctx, "projectInfo")`（模仿 `create-template.ts` 或类似工具），`projectInfo:false` → 返回 403
+1. `fork-public-template.ts` handler 首行调 `checkMcpPermission(ctx, "projectInfo")`（模仿 `create-template.ts` 或类似工具）；`projectInfo:false` → 返回 `{content:[{type:"text", text:"[forbidden] ..."}], isError: true}`（**外层 HTTP 200**，符合 MCP SDK）
 2. `mcp/auth.ts:57-62` 改为显式：
    ```ts
    if (Array.isArray(whitelist)) {
@@ -159,18 +165,23 @@ Code Review 2026-04-17 发现基建层 9 个加固点，合并为一个批次覆
 
 **验证：** 本地触发一次 balance alert，查 Redis 存在 key；再次触发同日同阈值应 skip。
 
-### F-IG-06：Next.js + glob 依赖升级
+### F-IG-06：npm audit fix 非破坏性（接受 partial，Next.js 独立批次）
 
-**改动要求：**
+**回退条款生效（fix round 1 确认）：**
 
-1. 先 snapshot `package-lock.json` 作为回滚基线
-2. 升级 `next@14.2.35` → `next@14.2.latest`（保 App Router 14.x 兼容）
-3. 升级 `glob@7.2.3`（rimraf 带入）→ 间接升级或 override
-4. 运行 `npm audit --production` 确认 high/critical 降为 0
-5. 跑 `npm run build` + `npx tsc --noEmit` + `npx vitest run` 全部通过
-6. 手动冒烟：登录 / dashboard / api 调用一次确认无 runtime regression
+调查结果：Next.js 14.x/15.x 全系列未修当前 high（next-intl 关联的 CVE），唯一修复版本是 `next@16.2.4`（跨大版本，App Router 可能 breaking）。本批次**不做 Next 16 迁移**，接受 `partial` 状态。
 
-**验证：** `npm audit --production` 输出 0 high + 0 critical。
+**本批次做（Generator fix round 0 已完成）：**
+1. snapshot `package-lock.json` 作回滚基线 ✅
+2. `npm audit fix`（非破坏性）：3 moderate + 4 high → 0 moderate + 1 high ✅
+3. `npm run build` + `npx tsc --noEmit` + `npx vitest run` 全过 ✅
+
+**不做（推迟到独立批次）：**
+- `next@14.2.35 → next@16.2.4` 跨大版本迁移（App Router breaking，独立 2-3d 批次 `BL-SEC-INFRA-GUARD-FOLLOWUP`）
+
+**验证：** `npm audit --production` 输出 `≤ 1 high + 0 critical`（1 high 属已知 Next.js 已延后项），build/tsc/vitest 全绿。
+
+**后续：** backlog 已标注候选 `BL-SEC-INFRA-GUARD-FOLLOWUP`，支付接入前或依赖生态成熟后启动。
 
 ### F-IG-07：全量验收（Evaluator）
 
@@ -189,14 +200,14 @@ Code Review 2026-04-17 发现基建层 9 个加固点，合并为一个批次覆
 8. `BASE_URL="; rm -rf /tmp/test"; npx tsx scripts/stress-test.ts` 不应执行恶意命令
 
 **MCP 权限：**
-9. fork-public-template with projectInfo:false key → 403
-10. 空 IP whitelist MCP key → 401（语义显式）
+9. fork-public-template with `projectInfo:false` key → `{content:[{text:"[forbidden] ...", type:"text"}], isError: true}`（**HTTP 200**，MCP 协议标准，非 HTTP 403）
+10. 空 IP whitelist MCP key → HTTP 401（底层 auth 层，非 tool 层）
 
 **告警去重：**
 11. 同用户同日 balance 告警仅触发一次
 
-**依赖升级：**
-12. `npm audit --production` 0 high + 0 critical
+**依赖升级（按回退条款）：**
+12. `npm audit --production` ≤ 1 high + 0 critical（1 high 为 Next.js 延后项，deferred 到 `BL-SEC-INFRA-GUARD-FOLLOWUP`）
 13. `npm run build` + tsc + vitest 全过
 14. 冒烟：生产登录 + dashboard + 一次 AI 调用无 regression
 
