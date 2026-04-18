@@ -1,11 +1,11 @@
 {
-  "status": "verifying",
+  "status": "fixing",
   "user_goal": "BL-FE-QUALITY — 前端质量合并批次（UX 交互 + template-testing polish + A11y/i18n + DS Critical 3 文件）",
   "total_features": 5,
   "completed_features": 4,
-  "fix_rounds": 0,
+  "fix_rounds": 1,
   "current_sprint": "BL-FE-QUALITY",
-  "last_updated": "2026-04-18T21:30:00Z",
+  "last_updated": "2026-04-18T14:07:14.054Z",
   "reference_docs": [
     "docs/specs/BL-FE-QUALITY-spec.md",
     "docs/code-review/batch-07-frontend-pages.md",
@@ -15,11 +15,11 @@
   "role_assignments": null,
   "docs": {
     "spec": "docs/specs/BL-FE-QUALITY-spec.md",
-    "test_cases": null,
+    "test_cases": "docs/test-cases/bl-fe-quality-verifying-cases-2026-04-18.md",
     "signoff": null,
     "framework_reviewed": false
   },
-  "evaluator_feedback": null,
+  "evaluator_feedback": "FAIL: A11y>=98 未达标（dashboard/settings=96）且 UI 动态验收受浏览器工具超时阻塞；详见 docs/test-reports/bl-fe-quality-verifying-local-2026-04-18.md",
   "generator_handoff": {
     "local_checks": {
       "tsc": "pass",
@@ -81,6 +81,6 @@
   },
   "session_notes": {
     "Kimi": "BL-FE-QUALITY generator 4/4 完成。\n\nF-FQ-01：9 处 reload→refresh 全部 EmptyState onCreated 模式；setting 双事件删 useEffect+ref 保留 React onClick；keys 复制按钮改 disabled+i18n 提示；notification-center visibilitychange 门控（hidden 时 clearInterval）；admin/usage 3 个 useAsyncData 合并为单 Promise.all。admin/models 因 search vs mount-only deps 不合适合并；admin/operations 只有 1 个 useAsyncData，已是最简，未改。\n\nF-FQ-02：admin templates PATCH body json catch+400；test-runner totalCostUsd 改 Prisma.Decimal 累加；CALL_LOG_POLL_MAX_ATTEMPTS 30→10 + warn 日志。\n\nF-FQ-03：error.tsx i18n（含 aria-hidden icon）；admin/models fmtCostPrice 改接受 freeLabel param；notification-center 改用 utils.timeAgo + useExchangeRate + i18n summary keys；top-app-bar EN/CN/avatar 加 aria-label。完整 button audit 留待 follow-up。\n\nF-FQ-04：dashboard 9 / admin/operations 27 / admin/logs 24 行违规全部清零。映射：emerald→ds-status-success；rose→ds-error；amber→ds-status-warning；indigo/violet→ds-primary；slate→ds-on-surface 系；渐变 from-X to-Y 用 var(--ds-X) 任意值类。注意 PIE_COLORS 在 charts-constants.ts 不在 grep 范围（视觉色板）。本想按 spec 建议每文件分 commit，最终决定一个大 commit 简化（回滚仍可 git checkout HEAD~1 -- file）。\n\n本地 tsc/vitest 116/116/build 全过，进 verifying。",
-    "Reviewer": null
+    "Reviewer": "verifying 结果：命令与接口层多数通过（build/tsc/vitest、DS grep、admin PATCH 400），但 A11y 分数仅 96，且浏览器工具超时导致 error/models/notification/视觉项未完成动态取证，进入 fixing。"
   }
 }
