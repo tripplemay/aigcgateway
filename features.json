@@ -4,21 +4,21 @@
   "features": [
     {
       "id": "F-BA-01",
-      "title": "deduct_balance 加 SELECT FOR UPDATE 行锁（migration）",
-      "priority": "critical",
+      "title": "deduct_balance 内部改 SELECT FOR UPDATE + 分支（保 6 参签名）",
+      "priority": "high",
       "executor": "generator",
       "status": "pending",
       "source": "CRIT-2",
-      "acceptance": "1) 新建 `prisma/migrations/20260418_deduct_balance_for_update/migration.sql`，内容为 `CREATE OR REPLACE FUNCTION deduct_balance(p_user_id TEXT, p_amount DECIMAL) RETURNS BOOLEAN`：先 `SELECT balance INTO v_balance FROM users WHERE id = p_user_id FOR UPDATE`，再条件判断 v_balance IS NULL / v_balance < p_amount / 成功则 UPDATE；2) 函数签名保持 `(TEXT, DECIMAL) RETURNS BOOLEAN` 不变（向下兼容）；3) 不原位改旧 migration 20260410120000_apikey_to_user_level；4) 本地 `npx prisma migrate dev` 跑通；5) 新增 psql 或 prisma 层并发测试（手工 `BEGIN; SELECT deduct_balance; ...` 两开 session 验证阻塞行为，或用 pg_try_advisory_xact_lock 模拟）；6) tsc 通过"
+      "acceptance": "1) 新建 `prisma/migrations/20260418_deduct_balance_for_update/migration.sql`，`CREATE OR REPLACE FUNCTION deduct_balance` **严格保持现有 6 参签名**：(p_user_id TEXT, p_project_id TEXT, p_amount DECIMAL(16,8), p_call_log_id TEXT, p_description TEXT DEFAULT 'API call deduction', p_trace_id TEXT DEFAULT NULL) RETURNS TABLE(new_balance DECIMAL(16,8))；2) 内部改：(a) 先 `SELECT balance INTO v_balance FROM users WHERE id = p_user_id FOR UPDATE`；(b) IF v_balance IS NULL RAISE EXCEPTION 'User not found'；(c) IF v_balance < p_amount RAISE EXCEPTION 'Insufficient balance for user %'；(d) UPDATE balance；(e) 保留现有的 INSERT INTO transactions 段落（'DEDUCTION', -p_amount, 带 callLogId/traceId）不变；3) 签名/返回/异常消息与旧版严格兼容（post-process.ts 调用点 0 修改）；4) 不原位改旧 migration 20260410120000；5) 本地 `npx prisma migrate dev` 跑通；6) 新增并发验证（psql 手工两开 session BEGIN/SELECT deduct_balance/COMMIT 验证阻塞行为，或通过 F-BA-02 的 e2e 并发测试闭环覆盖）；7) tsc 通过"
     },
     {
       "id": "F-BA-02",
-      "title": "CallLog + deduct + Transaction 改 prisma.$transaction 原子",
+      "title": "CallLog + deduct_balance 包 prisma.$transaction（不重复写 transactions）",
       "priority": "critical",
       "executor": "generator",
       "status": "pending",
       "source": "CRIT-4",
-      "acceptance": "1) `src/lib/api/post-process.ts:127-158` callLog.create + deductBalance 改为 prisma.$transaction interactive 事务包裹；2) 同一事务内若 deduct 成功，紧跟 `tx.transaction.create({ type:'DEDUCTION', amount:-cost, userId, ... })`，保证 call_logs/transactions 两表记录条数一致；3) 若 deduct 返回 false（余额不足），事务回滚，callLog 不留记录（业务层再决定是否另写一条 FAILED 记录）；4) `scripts/e2e-test.ts` 新增 regression 步骤：创建测试用户余额 $1.00，发 10 个并发 /v1/chat/completions 请求，每次扣 $0.15，断言 final balance >= 0 且 call_logs(SUCCESS).count === transactions(DEDUCTION).count；5) tsc 通过；6) `npm run build` 通过；7) 本地跑 e2e-test 通过"
+      "acceptance": "1) `src/lib/api/post-process.ts:127-158` 把 `prisma.callLog.create(...)` 和 `prisma.$queryRaw\\`SELECT * FROM deduct_balance(...)\\`` 两步改为 `prisma.$transaction(async (tx) => { await tx.callLog.create(...); await tx.$queryRaw\\`SELECT * FROM deduct_balance(...)\\`; })`；2) **禁止额外写 tx.transaction.create()** —— deduct_balance 函数内已 INSERT DEDUCTION 记录，再加会导致重复（F-BA-04 断言 3 验证唯一性）；3) deduct_balance RAISE EXCEPTION（余额不足）时整个事务回滚，callLog 不落；4) `scripts/e2e-test.ts` 新增并发回归步骤：创建测试用户余额 $1.00，发 10 个并发 /v1/chat/completions（$0.15/次），断言 (a) 最终 balance >= 0；(b) `callLogs(SUCCESS).count === transactions(type=DEDUCTION AND callLogId IS NOT NULL).count`；(c) 同一 callLogId 在 transactions 仅 1 条 DEDUCTION；5) 本地跑 e2e 测试通过；6) tsc + npm run build 通过"
     },
     {
       "id": "F-BA-03",
@@ -27,7 +27,7 @@
       "executor": "generator",
       "status": "pending",
       "source": "H-16 + H-19",
-      "acceptance": "1) 新建 `prisma/migrations/20260418_billing_check_constraints/migration.sql`：(a) `ALTER TABLE transactions ADD CONSTRAINT transactions_amount_sign_check CHECK (...)`（DEDUCTION/REFUND<0 | RECHARGE/BONUS>=0 | ADJUSTMENT 任意）；(b) `ALTER TABLE template_ratings ADD CONSTRAINT template_ratings_score_range_check CHECK (score >= 1 AND score <= 5)`；2) migration 开头加预检 DO $$ ... IF 存在不合规数据则 RAISE EXCEPTION 指示需先清理 $$，避免静默失败；3) 本地生产 dev DB 先 SELECT COUNT 统计：SELECT COUNT(*) FROM transactions WHERE (type IN ('DEDUCTION','REFUND') AND amount >= 0) OR (type IN ('RECHARGE','BONUS') AND amount < 0); 和 SELECT COUNT(*) FROM template_ratings WHERE score < 1 OR score > 5；不合规为 0 才 migration；4) schema.prisma 在对应 model 注释上方加 `/// CHECK constraints: ...`（文档化，Prisma 不支持 @@check）；5) 本地 `npx prisma migrate dev` 跑通；6) tsc 通过"
+      "acceptance": "1) 新建 `prisma/migrations/20260418_billing_check_constraints/migration.sql`：(a) DO $$ 预检块，若 transactions 不符号规则（DEDUCTION/REFUND>=0 或 RECHARGE/BONUS<0）或 template_ratings score 越界（<1 或 >5）则 RAISE EXCEPTION 指示人工清理；(b) ALTER TABLE transactions ADD CONSTRAINT transactions_amount_sign_check CHECK ((type IN ('DEDUCTION','REFUND') AND amount<0) OR (type IN ('RECHARGE','BONUS') AND amount>=0) OR (type='ADJUSTMENT'))；(c) ALTER TABLE template_ratings ADD CONSTRAINT template_ratings_score_range_check CHECK (score>=1 AND score<=5)；2) 本地 dev DB 先 SELECT COUNT 统计不合规数据，全 0 才跑 migration；3) schema.prisma 在 model Transaction 和 model TemplateRating 注释上方加 `/// CHECK: ...` 文档化；4) 本地 `npx prisma migrate dev` 跑通；5) tsc 通过"
     },
     {
       "id": "F-BA-04",
@@ -36,7 +36,7 @@
       "executor": "codex",
       "status": "pending",
       "source": "BL-SEC-BILLING-AI",
-      "acceptance": "并发原子性（5 项）：1) 透支防护：10 并发 /v1/chat/completions，用户初始余额 $1，每次 $0.15 → 最终余额 >= 0（Prisma 或 psql 验证）；2) 计费一致：call_logs(SUCCESS).count === transactions(DEDUCTION).count；3) 进程中断模拟：在 $transaction 中间 throw → callLog 与 transaction 均回滚（事务内 INSERT 不可见）；4) CHECK 约束（Transaction）：直接 SQL INSERT INTO transactions VALUES(type=DEDUCTION, amount=10, ...) → 23514 check_violation；5) CHECK 约束（TemplateRating）：SQL INSERT INTO template_ratings VALUES(score=10, ...) → 23514 check_violation。构建健全：6) `npx prisma migrate dev` 本地跑通两个 migration；7) `npm run build` 通过；8) `npx tsc --noEmit` 通过；9) `npx vitest run` 全过。生产数据预检（由 Codex 生产只读 SSH 执行）：10) SELECT COUNT(*) FROM transactions WHERE (type IN ('DEDUCTION','REFUND') AND amount >= 0) OR (type IN ('RECHARGE','BONUS') AND amount < 0) = 0（或已出清理 SQL）；11) SELECT COUNT(*) FROM template_ratings WHERE score < 1 OR score > 5 = 0。12) 生成 signoff 报告 docs/test-reports/BL-SEC-BILLING-AI-signoff-2026-04-18.md。"
+      "acceptance": "并发原子性（5 项）：1) 透支防护：10 并发 /v1/chat/completions 同用户，$1 初始、$0.15/次 → 最终余额 >= 0；2) 计费一致：callLogs(SUCCESS).count === transactions(DEDUCTION AND callLogId IS NOT NULL).count；3) 无重复 Transaction：同一 callLogId 在 transactions 表唯一一条 DEDUCTION（验证 F-BA-02 未误写重复）；4) 事务回滚：在 prisma.$transaction async callback 中间 throw → callLog 与 transaction 均不可见；5) CHECK 约束：SQL INSERT INTO transactions(type=DEDUCTION, amount=10) → 23514；SQL INSERT INTO template_ratings(score=10) → 23514。构建健全：6) 本地 npx prisma migrate dev 两个 migration 跑通；7) npm run build 通过；8) npx tsc --noEmit 通过；9) npx vitest run 全过。生产数据预检（Codex 生产只读 SSH）：10) SELECT COUNT(*) FROM transactions WHERE (type IN ('DEDUCTION','REFUND') AND amount >= 0) OR (type IN ('RECHARGE','BONUS') AND amount < 0) = 0；11) SELECT COUNT(*) FROM template_ratings WHERE score < 1 OR score > 5 = 0。12) 生成 signoff 报告 docs/test-reports/BL-SEC-BILLING-AI-signoff-2026-04-18.md。"
     }
   ]
 }

@@ -1,11 +1,11 @@
 {
   "status": "building",
-  "user_goal": "BL-SEC-BILLING-AI — AI 调用扣费原子性（deduct_balance 行锁 + CallLog+deduct 事务化 + Transaction/Rating CHECK 约束）",
+  "user_goal": "BL-SEC-BILLING-AI — AI 调用扣费原子性（deduct_balance FOR UPDATE + CallLog+deduct 事务化 + CHECK 约束）",
   "total_features": 4,
   "completed_features": 0,
   "fix_rounds": 0,
   "current_sprint": "BL-SEC-BILLING-AI",
-  "last_updated": "2026-04-18T03:05:00Z",
+  "last_updated": "2026-04-18T03:25:00Z",
   "reference_docs": [
     "docs/specs/BL-SEC-BILLING-AI-spec.md",
     "docs/code-review/backend-fullscan-2026-04-17.md"
@@ -20,7 +20,7 @@
   "evaluator_feedback": null,
   "generator_handoff": null,
   "session_notes": {
-    "Kimi": "Planner 完成：(1) BL-SEC-AUTH-SESSION done 收尾（framework/proposed-learnings.md 无待确认条目，直接进入下一批）；(2) project-status.md 刷新为 BILLING-AI building + AUTH-SESSION 产物存档；(3) 初始化 BL-SEC-BILLING-AI 批次（4 条：3 generator + 1 codex）。\n\n本批次覆盖 4 个审查发现：CRIT-2 deduct_balance 无行锁并发透支 / CRIT-4 callLog+deduct 非原子计费泄漏 / H-16 Transaction.amount 无 CHECK / H-19 TemplateRating.score 无 CHECK。\n\n关键技术点：\n- F-BA-01 新 migration CREATE OR REPLACE FUNCTION，签名不变保兼容；SELECT ... FOR UPDATE 行锁防并发透支\n- F-BA-02 post-process.ts 改 prisma.$transaction 包裹 callLog+deduct+transaction 三步\n- F-BA-03 两条 CHECK 约束（Transaction 符号、TemplateRating 范围），migration 含不合规预检\n- F-BA-04 Codex 5 项并发断言 + 2 项生产数据预检 + 构建健全\n\n部署风险：Transaction CHECK 若生产有不合规数据会失败，F-BA-03 acceptance 含预检 SQL；Generator 需先本地 dev 运行 COUNT 统计。\n\nPath A 进度 3/14，串行继续。",
+    "Kimi": "Planner 2026-04-18 修订：Generator 开工前规格核查捕获 3 处偏差（感谢）：(1) deduct_balance 实际签名 6 参 RETURNS TABLE（非 spec 初稿的 2 参 BOOLEAN），(2) 函数内部已 INSERT transactions（spec 要求再加会重复记录，致命），(3) 现状 UPDATE 依赖 EPQ 语义不真透支但显式加锁仍值得（定性从 Critical 降为 High）。已修正 spec + features.json + progress：F-BA-01 严格保 6 参签名只改内部 SELECT FOR UPDATE + 分支；F-BA-02 只包 callLog.create + $queryRaw deduct_balance 两步进 $transaction，禁止 tx.transaction.create；F-BA-03 无偏差；F-BA-04 新增断言 3（验证 Transaction 唯一性）。\n\n同时追加 framework/proposed-learnings.md 条目：Planner 写 spec 涉及具体代码细节时必须先 Read 源码核实并提供 file:line 引用。本次建议铁律化。\n\nGenerator 现在可开工。Path A 进度 3/14（第 3 批 BILLING-AI building）。",
     "Reviewer": null
   }
 }
