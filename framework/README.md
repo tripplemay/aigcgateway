@@ -4,11 +4,86 @@
 
 沉淀自 AIGC Gateway 项目完整实施过程。适用于任何使用 Claude CLI（Claude Code）+ Codex 或类似多 agent 配合开发的项目。
 
-**核心特征：**
+---
+
+## 一图看懂
+
+```mermaid
+stateDiagram-v2
+    [*] --> new
+    new --> planning: 用户提需求
+    planning --> building: 含 generator 任务
+    planning --> verifying: 全 codex 任务
+    building --> verifying: 实现完成
+    verifying --> fixing: 有 FAIL/PARTIAL
+    verifying --> done: 全 PASS
+    fixing --> reverifying: 修复完成
+    reverifying --> fixing: 仍有问题
+    reverifying --> done: 全 PASS
+    done --> [*]: 归档批次
+    done --> new: 下一批次
+
+    note left of building
+        Claude CLI
+        (Generator)
+    end note
+    note right of verifying
+        Codex
+        (Evaluator)
+    end note
+    note left of planning
+        Claude CLI
+        (Planner)
+    end note
+```
+
+**三角色协作示意：**
+
+```
+┌──────────────┐  规格 + 拆分     ┌──────────────┐  代码          ┌──────────────┐
+│   Planner    │ ──────────────► │  Generator   │ ─────────────► │  Evaluator   │
+│ (Claude CLI) │                 │ (Claude CLI) │                │   (Codex)    │
+└──────────────┘ ◄────────────── └──────────────┘ ◄───────────── └──────────────┘
+                  改善反馈                          PASS/FAIL 反馈
+
+           ┌──────────────────────────────────────────────────┐
+           │  无人评估自己的工作 · 通过 progress.json 异步交接  │
+           └──────────────────────────────────────────────────┘
+```
+
+---
+
+## 核心特征
+
 - **三角色不重叠**：Planner（规划）/ Generator（实现）/ Evaluator（验收），没有任何 agent 评估自己的工作
 - **状态机驱动**：7 状态 `new → planning → building → verifying → fixing ⟷ reverifying → done`，阶段推进由 `progress.json` 决定
 - **Git 作为协作总线**：agent 间不直接通信，通过状态文件 + `.auto-memory/` 异步交接，可跨机器、跨工具、跨会话
 - **记忆分层沉淀**：T0/T1/T2 共享记忆 + framework 自迭代，经验跨项目复用
+
+---
+
+## 30 秒快速开始
+
+```bash
+npx degit tripplemay/harness-template my-new-project
+cd my-new-project && bash bootstrap.sh
+# 启动 Claude CLI："按 INIT.md 初始化项目"
+```
+
+详细见 [开箱即用手册](docs/03-quickstart.md)。
+
+---
+
+## 文档导航
+
+| 文档 | 给谁看 | 内容 |
+|---|---|---|
+| 📘 [01 · 功能介绍](docs/01-concepts.md) | 想了解"这是什么、解决什么问题、为什么这么设计" | 三角色 / 状态机 / 记忆分层 / 设计哲学 / 适用场景 |
+| 📗 [02 · 使用方法](docs/02-usage.md) | 已经初始化完，想了解"具体怎么跑" | 一次完整批次详解 / 角色职责 / 关键文件 / 高级用法 |
+| 📙 [03 · 开箱即用手册](docs/03-quickstart.md) | "我要现在就跑起来" | 前置条件 / 3 步初始化 / 第一个批次实战 / FAQ |
+| 📕 [CHANGELOG](CHANGELOG.md) | 想看版本演进 | 每次迭代的变更内容、来源批次、触发原因 |
+
+---
 
 > **历史说明：** 早期版本曾命名为 "Cowork + Harness"（Cowork = Claude Desktop 作为 Planner），v0.7.0 改名为 Triad Workflow 以更准确反映三角色协作的本质。部分文件名（`harness-rules.md` 等）保留历史名以维持向后兼容。
 

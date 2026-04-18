@@ -5,6 +5,32 @@
 
 ---
 
+## v0.8.0 — 2026-04-18（图文并茂文档套件首版）
+
+**来源批次：** 独立任务（用户要求为框架撰写图文并茂的介绍文档）
+**触发原因：** framework/README.md 虽然详尽但偏手册性质，缺乏直观的图形说明；没有分层文档让不同受众（概念学习 / 操作上手 / 实战演示）各取所需；mermaid 图可通过 GitHub 原生渲染，是低成本高效果的图文方案
+
+**变更内容：**
+
+- `framework/README.md` 升级为 landing page：
+  - 新增 Hero 区：mermaid 状态机图 + ASCII 三角色示意图 + 30 秒快速开始
+  - 新增文档导航区：指向 docs/01-03 + CHANGELOG
+  - 保留原有完整手册内容于下方（不动）
+- 新增 `framework/docs/` 目录及 4 份文档：
+  - `01-concepts.md`（功能介绍 · ~280 行）：3 个痛点 → 3 个解法、三角色图、状态机、记忆分层图、铁律故事、适用与不适用、vs 普通 AI 编程 / Scrum 对比
+  - `02-usage.md`（使用方法详解 · ~530 行）：完整批次时序图、状态机详解、三角色职责流程图、关键文件字段详解（progress.json / features.json / backlog.json / .auto-memory/）、高级用法（多 agent / Codex-only / Path A）、沉淀机制
+  - `03-quickstart.md`（开箱即用手册 · ~350 行）：前置条件、3 步初始化（含 GIF 占位）、第一个批次实战（签到积分系统示例）、10 条 FAQ
+  - `imgs/` + `gifs/` 目录（暂空，等后续设计工具出图和录屏）
+- 同步推到 template repo `tripplemay/harness-template`
+
+**设计决策：**
+- 图以 mermaid 为主（GitHub 原生渲染、版本控制友好），辅以 ASCII 图（表格化信息）
+- 2 处 GIF 占位（bootstrap 演示、Claude INIT 演示），待后续用 terminalizer/asciinema 录屏补上
+- 中文为主，暂不双语（符合用户工作语言偏好）
+- 未做 04-reference.md 和 05-case-study.md（当前文档已覆盖核心需求，未来可按需补充）
+
+---
+
 ## v0.7.1 — 2026-04-18（Planner 铁律：spec 编写前核查源码 + 交叉验证 Code Review 断言）
 
 **来源批次：** BL-SEC-BILLING-AI / BL-SEC-BILLING-CHECK-FOLLOWUP
