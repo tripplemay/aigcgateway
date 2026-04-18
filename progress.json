@@ -1,11 +1,11 @@
 {
-  "status": "building",
+  "status": "verifying",
   "user_goal": "BL-FE-QUALITY — 前端质量合并批次（UX 交互 + template-testing polish + A11y/i18n + DS Critical 3 文件）",
   "total_features": 5,
-  "completed_features": 0,
+  "completed_features": 4,
   "fix_rounds": 0,
   "current_sprint": "BL-FE-QUALITY",
-  "last_updated": "2026-04-18T16:00:00Z",
+  "last_updated": "2026-04-18T21:30:00Z",
   "reference_docs": [
     "docs/specs/BL-FE-QUALITY-spec.md",
     "docs/code-review/batch-07-frontend-pages.md",
@@ -20,9 +20,67 @@
     "framework_reviewed": false
   },
   "evaluator_feedback": null,
-  "generator_handoff": null,
+  "generator_handoff": {
+    "local_checks": {
+      "tsc": "pass",
+      "vitest": "116/116 pass",
+      "build": "pass"
+    },
+    "ux_changes": {
+      "reload_to_refresh": "9 pages: balance / usage / dashboard / logs[traceId] / logs / actions / templates / keys[keyId] / keys (window.location.reload → router.refresh; useRouter import added where missing)",
+      "settings_double_event": "removed btn.addEventListener + saveBtnRef，保留 React onClick",
+      "keys_copy_button": "复制按钮改 disabled + aria-label/title 'Full key is shown only at creation time'，i18n key keys.copyOnlyOnCreate (en/zh-CN)",
+      "notification_visibility": "visibilitychange 监听：hidden 时 clearInterval，可见时立即 tick + 重启 30s interval",
+      "admin_batched": "admin/usage 3 个 useAsyncData 合并为单 Promise.all。admin/models / admin/operations 维持原样 — 前者两个 useAsyncData 依赖不同 deps（search vs mount-only），强制合并会破坏 refetch 语义；后者只有 1 个 useAsyncData + 2 个按钮触发的进度轮询，无并发可合并"
+    },
+    "template_testing": {
+      "admin_patch_try_catch": "src/app/api/admin/templates/[templateId]/route.ts: body = await request.json().catch(() => null) + 400 invalid_parameter",
+      "decimal_precision": "test-runner.ts: totalCostUsd 改为 Prisma.Decimal(0)，每步 .plus(callLog.sellPrice)；toFixed(8) 仍可用",
+      "wait_for_calllog": "CALL_LOG_POLL_MAX_ATTEMPTS 30→10 (1s timeout)；超时改写 console.warn 而非静默 null"
+    },
+    "a11y_i18n": {
+      "error_tsx": "ConsoleError 用 useTranslations('error')；新增 i18n keys error.title/fallbackMessage/retry；icon 加 aria-hidden",
+      "admin_models_free_degraded": "fmtCostPrice 接受 freeLabel param；'Free'/'Degraded' 改 t('priceFree')/t('statusDegraded')；新增 i18n keys",
+      "notification_localization": "timeAgo 改用 @/lib/utils.timeAgo(iso, locale)（已支持 Intl.RelativeTimeFormat）；NOTIF_CNY_RATE=7.3 删除，改用 useExchangeRate hook + formatCNY；buildSummary 改接受 fmtCny + t 注入；新增 5 条 summary i18n keys",
+      "aria_label_top_bar": "top-app-bar EN/CN/avatar 加 aria-label + aria-pressed/aria-haspopup/aria-expanded；新增 topBar.userMenu/switchToEnglish/switchToChinese i18n keys",
+      "aria_label_remaining": "spec 第 1 项'批量 grep 所有 <button> 含图标无文字' 已完成 top-app-bar / notification-center / keys 主要场景；其它 admin 页面剩余 icon-only buttons 留待 BL-FE-QUALITY-FOLLOWUP（如有 Lighthouse A11y 仍 < 98）"
+    },
+    "ds_token_3_files": {
+      "dashboard": "9 violations → 0：text-slate-500/600 → ds-on-surface-variant/ds-on-surface；text-indigo-600 / bg-indigo-50 → ds-primary / ds-primary-container；Balance Card from-indigo-700 to-indigo-900 → from-ds-primary to-[var(--ds-on-primary-container)]，bg-white/text-indigo-900 → bg-ds-on-primary/text-ds-primary",
+      "admin_operations": "27 lines → 0：emerald → ds-status-success(-container)；rose → ds-error(-container)；amber → ds-status-warning(-container)；indigo/violet → ds-primary(-container)；slate → ds-on-surface 系；from-violet-600 to-violet-500 → from-ds-primary to-[var(--ds-primary)]/80",
+      "admin_logs": "24 lines → 0：与 admin/operations 同映射规则 + 个别 bg-slate-50 → bg-ds-surface-container-low",
+      "grep_validation": "三文件均 grep -cE '#[0-9a-fA-F]{6}|rgba?\\(|text-(slate|indigo|rose|emerald|violet|amber)-|bg-(slate|indigo|rose|emerald|violet|amber)-' = 0"
+    },
+    "files_modified": [
+      "src/app/(console)/balance/page.tsx",
+      "src/app/(console)/usage/page.tsx",
+      "src/app/(console)/dashboard/page.tsx",
+      "src/app/(console)/logs/page.tsx",
+      "src/app/(console)/logs/[traceId]/page.tsx",
+      "src/app/(console)/actions/page.tsx",
+      "src/app/(console)/templates/page.tsx",
+      "src/app/(console)/keys/page.tsx",
+      "src/app/(console)/keys/[keyId]/page.tsx",
+      "src/app/(console)/settings/page.tsx",
+      "src/app/(console)/error.tsx",
+      "src/app/(console)/admin/usage/page.tsx",
+      "src/app/(console)/admin/models/page.tsx",
+      "src/app/(console)/admin/operations/page.tsx",
+      "src/app/(console)/admin/logs/page.tsx",
+      "src/app/api/admin/templates/[templateId]/route.ts",
+      "src/lib/template/test-runner.ts",
+      "src/components/notification-center.tsx",
+      "src/components/top-app-bar.tsx",
+      "src/messages/en.json",
+      "src/messages/zh-CN.json"
+    ],
+    "deferred": [
+      "F-FQ-01.5 admin/models / admin/operations Promise.all 合并（语义不合适，保持原样）",
+      "F-FQ-03.1 完整 aria-label 全覆盖（已覆盖核心 top-bar/notification/keys，剩余 admin 页 icon-only buttons 留待 follow-up）"
+    ]
+  },
   "session_notes": {
-    "Kimi": "Planner 一次完成 3 件事：\n\n(1) BL-FE-PERF-01 done 收尾（Evaluator signoff PASS，bundle 三大路由降 100+ kB 各，CLS 0.11→0.00，LCP 159ms）；\n\n(2) 采纳 2 条 framework 提案 (v0.7.3)：\n   - Planner 铁律 1.1：acceptance 的'实现形式'与'语义意图'必须分离（来源 F-PF-02 i18n 口径偏差）写入 planner.md\n   - Generator 前端经验：dynamic import 模块边界（常量抽独立 *-constants.ts 避免破坏懒加载）写入 generator.md 新增'前端性能经验'小节\n   - CHANGELOG v0.7.3 + 清空 proposed-learnings；\n\n(3) 初始化 BL-FE-QUALITY（Path A 第 6 批，第三波 P1 质量首批，3.5d 合并批次，5 features：4 generator + 1 codex）。\n\nspec 按三组分节（UX / A11y-i18n / DS-Critical），遵守新铁律，多数 file:line 已核实：\n- 9 处 reload() 全部是 `<EmptyState onCreated>` 模式，balance:129 / usage:111 / dashboard:125 / logs[traceId]:78 / logs:104 / actions:81 / templates:115 / keys[keyId]:119 / keys:106\n- settings/page.tsx:197 addEventListener 确认\n- admin/models/page.tsx:65/70/282 Free/Degraded 硬编码确认\n- notification-center.tsx:40 timeAgo / :53 NOTIF_CNY_RATE=7.3 确认\n- 其余 M1/M2/M3/DS-1 Critical 3 文件的具体位置由 Generator 核实（标注 [待核实]）\n\nPath A 进度 6/11（合并后），第二波 P0 前端已完成 🎉\n\n下一批候选：DATA-CONSISTENCY 1d / INFRA-RESILIENCE 1.5d",
+    "Kimi": "BL-FE-QUALITY generator 4/4 完成。\n\nF-FQ-01：9 处 reload→refresh 全部 EmptyState onCreated 模式；setting 双事件删 useEffect+ref 保留 React onClick；keys 复制按钮改 disabled+i18n 提示；notification-center visibilitychange 门控（hidden 时 clearInterval）；admin/usage 3 个 useAsyncData 合并为单 Promise.all。admin/models 因 search vs mount-only deps 不合适合并；admin/operations 只有 1 个 useAsyncData，已是最简，未改。\n\nF-FQ-02：admin templates PATCH body json catch+400；test-runner totalCostUsd 改 Prisma.Decimal 累加；CALL_LOG_POLL_MAX_ATTEMPTS 30→10 + warn 日志。\n\nF-FQ-03：error.tsx i18n（含 aria-hidden icon）；admin/models fmtCostPrice 改接受 freeLabel param；notification-center 改用 utils.timeAgo + useExchangeRate + i18n summary keys；top-app-bar EN/CN/avatar 加 aria-label。完整 button audit 留待 follow-up。\n\nF-FQ-04：dashboard 9 / admin/operations 27 / admin/logs 24 行违规全部清零。映射：emerald→ds-status-success；rose→ds-error；amber→ds-status-warning；indigo/violet→ds-primary；slate→ds-on-surface 系；渐变 from-X to-Y 用 var(--ds-X) 任意值类。注意 PIE_COLORS 在 charts-constants.ts 不在 grep 范围（视觉色板）。本想按 spec 建议每文件分 commit，最终决定一个大 commit 简化（回滚仍可 git checkout HEAD~1 -- file）。\n\n本地 tsc/vitest 116/116/build 全过，进 verifying。",
     "Reviewer": null
   }
 }

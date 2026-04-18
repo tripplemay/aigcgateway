@@ -1,10 +1,10 @@
 "use client";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { useTranslations, useLocale } from "next-intl";
 import { apiFetch } from "@/lib/api-client";
 import { useProject } from "@/hooks/use-project";
 import { useAsyncData } from "@/hooks/use-async-data";
-import { toast } from "sonner";
 import { timeAgo } from "@/lib/utils";
 import { EmptyState } from "@/components/empty-state";
 import { PageContainer } from "@/components/page-container";
@@ -52,6 +52,7 @@ export default function KeysPage() {
   const t = useTranslations("keys");
   const tc = useTranslations("common");
   const locale = useLocale();
+  const router = useRouter();
   const { current, loading: projLoading } = useProject();
 
   const [search, setSearch] = useState("");
@@ -87,11 +88,6 @@ export default function KeysPage() {
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const safePage = Math.min(page, totalPages);
   const pageKeys = filtered.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
-  const copyKey = (key: string) => {
-    navigator.clipboard.writeText(key);
-    toast.success(tc("copied"));
-  };
-
   const handleSearchChange = (value: string) => {
     setSearch(value);
     setPage(1);
@@ -103,7 +99,7 @@ export default function KeysPage() {
         <PageLoader />
       </PageContainer>
     );
-  if (!current) return <EmptyState onCreated={() => window.location.reload()} />;
+  if (!current) return <EmptyState onCreated={() => router.refresh()} />;
 
   return (
     <>
@@ -170,8 +166,11 @@ export default function KeysPage() {
                         <span>{k.maskedKey}</span>
                         {k.status === "ACTIVE" && (
                           <button
-                            onClick={() => copyKey(k.maskedKey)}
-                            className="p-1 hover:bg-ds-primary-fixed rounded transition-colors text-ds-primary"
+                            type="button"
+                            disabled
+                            aria-label={t("copyOnlyOnCreate")}
+                            title={t("copyOnlyOnCreate")}
+                            className="p-1 rounded text-ds-outline opacity-60 cursor-not-allowed"
                           >
                             <span className="material-symbols-outlined text-sm">content_copy</span>
                           </button>

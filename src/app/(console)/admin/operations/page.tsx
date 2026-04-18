@@ -248,11 +248,11 @@ export default function OperationsPage() {
                 value={status?.lastSyncResult ?? "—"}
                 valueColor={
                   status?.lastSyncResult === "success"
-                    ? "text-emerald-600"
+                    ? "text-ds-status-success"
                     : status?.lastSyncResult === "partial"
-                      ? "text-amber-600"
+                      ? "text-ds-status-warning"
                       : status?.lastSyncResult === "failed"
-                        ? "text-rose-600"
+                        ? "text-ds-error"
                         : undefined
                 }
               />
@@ -281,7 +281,7 @@ export default function OperationsPage() {
                   label={t("failedProviders")}
                   value={String(syncResult.summary.totalFailedProviders)}
                   valueColor={
-                    syncResult.summary.totalFailedProviders > 0 ? "text-rose-600" : undefined
+                    syncResult.summary.totalFailedProviders > 0 ? "text-ds-error" : undefined
                   }
                 />
               </div>
@@ -289,10 +289,10 @@ export default function OperationsPage() {
 
             {/* Per-provider details */}
             {syncResult && syncResult.providers.length > 0 && (
-              <div className="bg-slate-50/50 rounded-lg overflow-hidden">
+              <div className="bg-ds-surface-container-low/50 rounded-lg overflow-hidden">
                 <table className="w-full text-xs">
                   <thead>
-                    <tr className="text-left text-slate-400 uppercase tracking-wider">
+                    <tr className="text-left text-ds-outline uppercase tracking-wider">
                       <th className="px-4 py-2 font-bold">{t("provider")}</th>
                       <th className="px-4 py-2 font-bold">{t("status")}</th>
                       <th className="px-4 py-2 font-bold text-right">{t("models")}</th>
@@ -308,8 +308,8 @@ export default function OperationsPage() {
                           <span
                             className={`inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded ${
                               p.success
-                                ? "text-emerald-600 bg-emerald-50"
-                                : "text-rose-600 bg-rose-50"
+                                ? "text-ds-status-success bg-ds-status-success-container"
+                                : "text-ds-error bg-ds-error-container"
                             }`}
                           >
                             {p.success ? "OK" : "FAIL"}
@@ -327,7 +327,7 @@ export default function OperationsPage() {
 
             {/* Zero-price warning */}
             {(status?.zeroPriceActiveChannels ?? 0) > 0 && (
-              <div className="flex items-center gap-2 text-amber-600 bg-amber-50 px-4 py-2.5 rounded-lg text-xs font-semibold">
+              <div className="flex items-center gap-2 text-ds-status-warning bg-ds-status-warning-container px-4 py-2.5 rounded-lg text-xs font-semibold">
                 <span className="material-symbols-outlined text-[16px]">warning</span>
                 {t("zeroPriceWarning", { count: status!.zeroPriceActiveChannels })}
               </div>
@@ -339,7 +339,7 @@ export default function OperationsPage() {
         <SectionCard className="[&>div]:p-0">
           <div className="px-6 py-5 flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-violet-50 text-violet-600 flex items-center justify-center">
+              <div className="w-10 h-10 rounded-full bg-ds-primary-container text-ds-primary flex items-center justify-center">
                 <span
                   className="material-symbols-outlined"
                   style={{ fontVariationSettings: "'FILL' 1" }}
@@ -355,7 +355,7 @@ export default function OperationsPage() {
             <button
               onClick={triggerInference}
               disabled={inferring}
-              className="bg-gradient-to-r from-violet-600 to-violet-500 text-white px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2 hover:opacity-90 transition-opacity disabled:opacity-50"
+              className="bg-gradient-to-r from-ds-primary to-[var(--ds-primary)]/80 text-ds-on-primary px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2 hover:opacity-90 transition-opacity disabled:opacity-50"
             >
               <span className="material-symbols-outlined text-[18px]">play_arrow</span>
               {inferring ? t("inferring") : t("runInference")}
@@ -388,7 +388,7 @@ export default function OperationsPage() {
             {inferResult && (
               <>
                 {/* Classification */}
-                <div className="bg-slate-50/50 rounded-lg p-4 space-y-2">
+                <div className="bg-ds-surface-container-low/50 rounded-lg p-4 space-y-2">
                   <div className="flex items-center gap-2 mb-2">
                     <span className="material-symbols-outlined text-[16px] text-ds-primary">
                       category
@@ -412,7 +412,7 @@ export default function OperationsPage() {
                 </div>
 
                 {/* Brand */}
-                <div className="bg-slate-50/50 rounded-lg p-4 space-y-2">
+                <div className="bg-ds-surface-container-low/50 rounded-lg p-4 space-y-2">
                   <div className="flex items-center gap-2 mb-2">
                     <span className="material-symbols-outlined text-[16px] text-ds-primary">
                       branding_watermark
@@ -429,7 +429,7 @@ export default function OperationsPage() {
                 </div>
 
                 {/* Capabilities */}
-                <div className="bg-slate-50/50 rounded-lg p-4 space-y-2">
+                <div className="bg-ds-surface-container-low/50 rounded-lg p-4 space-y-2">
                   <div className="flex items-center gap-2 mb-2">
                     <span className="material-symbols-outlined text-[16px] text-ds-primary">
                       tune
@@ -492,7 +492,7 @@ function StatCard({
 }) {
   return (
     <div className="bg-ds-surface-container-lowest rounded-lg p-3">
-      <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+      <div className="text-[10px] font-bold text-ds-outline uppercase tracking-wider mb-1">
         {label}
       </div>
       <div className={`text-lg font-[var(--font-heading)] font-bold ${valueColor ?? ""}`}>
@@ -519,7 +519,7 @@ function InferenceStatusBanner({
   // Determine banner variant
   if (totalErrors > 0) {
     return (
-      <div className="flex items-center gap-2 text-rose-700 bg-rose-50 px-4 py-2.5 rounded-lg text-xs font-semibold">
+      <div className="flex items-center gap-2 text-ds-error bg-ds-error-container px-4 py-2.5 rounded-lg text-xs font-semibold">
         <span className="material-symbols-outlined text-[16px]">error</span>
         {t("inferBannerError", { errors: totalErrors })}
       </div>
@@ -546,7 +546,7 @@ function InferenceStatusBanner({
       parts.push(t("inferBannerCapUpdated", { count: result.capabilities.updated }));
 
     return (
-      <div className="flex items-center gap-2 text-emerald-700 bg-emerald-50 px-4 py-2.5 rounded-lg text-xs font-semibold">
+      <div className="flex items-center gap-2 text-ds-status-success bg-ds-status-success-container px-4 py-2.5 rounded-lg text-xs font-semibold">
         <span className="material-symbols-outlined text-[16px]">task_alt</span>
         {parts.join(", ")}
       </div>
@@ -555,7 +555,7 @@ function InferenceStatusBanner({
 
   // Only skipped items, no updates
   return (
-    <div className="flex items-center gap-2 text-amber-700 bg-amber-50 px-4 py-2.5 rounded-lg text-xs font-semibold">
+    <div className="flex items-center gap-2 text-ds-status-warning bg-ds-status-warning-container px-4 py-2.5 rounded-lg text-xs font-semibold">
       <span className="material-symbols-outlined text-[16px]">warning</span>
       {t("inferBannerSkipped", { count: totalSkipped })}
     </div>
@@ -577,7 +577,7 @@ function SyncStatusBanner({
 
   if (totalFailedProviders > 0) {
     return (
-      <div className="flex items-center gap-2 text-rose-700 bg-rose-50 px-4 py-2.5 rounded-lg text-xs font-semibold">
+      <div className="flex items-center gap-2 text-ds-error bg-ds-error-container px-4 py-2.5 rounded-lg text-xs font-semibold">
         <span className="material-symbols-outlined text-[16px]">error</span>
         {t("syncBannerError", { failed: totalFailedProviders })}
       </div>
@@ -598,7 +598,7 @@ function SyncStatusBanner({
     if (totalNewModels > 0) parts.push(t("syncBannerNewModels", { count: totalNewModels }));
     if (totalNewChannels > 0) parts.push(t("syncBannerNewChannels", { count: totalNewChannels }));
     return (
-      <div className="flex items-center gap-2 text-emerald-700 bg-emerald-50 px-4 py-2.5 rounded-lg text-xs font-semibold">
+      <div className="flex items-center gap-2 text-ds-status-success bg-ds-status-success-container px-4 py-2.5 rounded-lg text-xs font-semibold">
         <span className="material-symbols-outlined text-[16px]">task_alt</span>
         {parts.join(", ")}
       </div>
@@ -607,7 +607,7 @@ function SyncStatusBanner({
 
   // Only disabled channels, no additions
   return (
-    <div className="flex items-center gap-2 text-amber-700 bg-amber-50 px-4 py-2.5 rounded-lg text-xs font-semibold">
+    <div className="flex items-center gap-2 text-ds-status-warning bg-ds-status-warning-container px-4 py-2.5 rounded-lg text-xs font-semibold">
       <span className="material-symbols-outlined text-[16px]">warning</span>
       {t("syncBannerDisabled", { count: totalDisabledChannels })}
     </div>
@@ -625,14 +625,14 @@ function ProgressBar({
 }) {
   const pct = total > 0 ? Math.round((completed / total) * 100) : 0;
   return (
-    <div className="bg-slate-50/80 rounded-lg p-3 space-y-1.5">
+    <div className="bg-ds-surface-container-low/80 rounded-lg p-3 space-y-1.5">
       <div className="flex items-center justify-between text-xs">
-        <span className="font-semibold text-slate-600">{label}</span>
+        <span className="font-semibold text-ds-on-surface">{label}</span>
         <span className="font-bold text-ds-primary">
           {completed}/{total}
         </span>
       </div>
-      <div className="h-2 bg-slate-200 rounded-full overflow-hidden">
+      <div className="h-2 bg-ds-outline-variant rounded-full overflow-hidden">
         <div
           className="h-full bg-gradient-to-r from-ds-primary to-ds-primary/70 rounded-full transition-all duration-500"
           style={{ width: `${pct}%` }}
@@ -648,7 +648,7 @@ function ErrorList({ errors, t }: { errors: string[]; t: ReturnType<typeof useTr
 
   return (
     <div className="mt-2">
-      <div className="flex items-center gap-1 text-rose-600 text-[11px] font-bold mb-1">
+      <div className="flex items-center gap-1 text-ds-error text-[11px] font-bold mb-1">
         <span className="material-symbols-outlined text-[14px]">error</span>
         {t("errorCount", { count: errors.length })}
       </div>
@@ -656,7 +656,7 @@ function ErrorList({ errors, t }: { errors: string[]; t: ReturnType<typeof useTr
         {shown.map((err, i) => (
           <div
             key={i}
-            className="text-[11px] text-rose-700 bg-rose-50 px-3 py-1.5 rounded truncate"
+            className="text-[11px] text-ds-error bg-ds-error-container px-3 py-1.5 rounded truncate"
             title={err}
           >
             {err}
@@ -728,7 +728,7 @@ function RateLimitDefaultsCard({ t }: { t: ReturnType<typeof useTranslations> })
   return (
     <SectionCard data-testid="rl-defaults">
       <div className="flex items-center gap-3 mb-6">
-        <div className="w-10 h-10 rounded-full bg-indigo-50 text-indigo-600 flex items-center justify-center">
+        <div className="w-10 h-10 rounded-full bg-ds-primary-container text-ds-primary flex items-center justify-center">
           <span className="material-symbols-outlined">speed</span>
         </div>
         <div>
@@ -1036,7 +1036,7 @@ function WelcomeBonusCard({ t }: { t: ReturnType<typeof useTranslations> }) {
   return (
     <SectionCard data-testid="welcome-bonus">
       <div className="flex items-center gap-3 mb-6">
-        <div className="w-10 h-10 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center">
+        <div className="w-10 h-10 rounded-full bg-ds-status-success-container text-ds-status-success flex items-center justify-center">
           <span className="material-symbols-outlined">redeem</span>
         </div>
         <div>

@@ -63,23 +63,24 @@ export default function AdminUsagePage() {
   const exchangeRate = useExchangeRate();
   const [period, setPeriod] = useState("7d");
 
-  const { data: summary } = useAsyncData<UsageSummary>(
-    () => apiFetch<UsageSummary>(`/api/admin/usage?period=${period}`),
-    [period],
-  );
+  interface AdminUsageBundle {
+    summary: UsageSummary;
+    byProvider: ProviderData[];
+    byModel: ModelData[];
+  }
 
-  const { data: providerResp } = useAsyncData<{ data: ProviderData[] }>(
-    () => apiFetch<{ data: ProviderData[] }>("/api/admin/usage/by-provider"),
-    [],
-  );
+  const { data: bundle } = useAsyncData<AdminUsageBundle>(async () => {
+    const [summary, providerResp, modelResp] = await Promise.all([
+      apiFetch<UsageSummary>(`/api/admin/usage?period=${period}`),
+      apiFetch<{ data: ProviderData[] }>("/api/admin/usage/by-provider"),
+      apiFetch<{ data: ModelData[] }>("/api/admin/usage/by-model"),
+    ]);
+    return { summary, byProvider: providerResp.data, byModel: modelResp.data };
+  }, [period]);
 
-  const { data: modelResp } = useAsyncData<{ data: ModelData[] }>(
-    () => apiFetch<{ data: ModelData[] }>("/api/admin/usage/by-model"),
-    [],
-  );
-
-  const byProvider = providerResp?.data ?? [];
-  const byModel = modelResp?.data ?? [];
+  const summary = bundle?.summary ?? null;
+  const byProvider = bundle?.byProvider ?? [];
+  const byModel = bundle?.byModel ?? [];
 
   const marginPct =
     summary && summary.totalRevenue > 0

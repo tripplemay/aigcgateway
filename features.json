@@ -7,7 +7,7 @@
       "title": "UX 交互改造（9 reload SPA 化 + 双事件 + 复制 key + 轮询可见性 + batched fetch）",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "source": "HIGH-33/34/35 + MEDIUM-1/2",
       "acceptance": "1) 9 处 `window.location.reload()` 改 `router.refresh()`：balance:129 / usage:111 / dashboard:125 / logs[traceId]:78 / logs:104 / actions:81 / templates:115 / keys[keyId]:119 / keys:106（全部 EmptyState onCreated 回调）；2) `src/app/(console)/settings/page.tsx:197` 删除 `btn.addEventListener('click', handler)` 保留 React onClick；3) `src/app/(console)/keys/page.tsx:173` 复制按钮：若可访问真 key 则改复制真 key，否则改提示'（仅创建时可复制）'并禁用；4) `src/components/notification-center.tsx:109-113` 30s 轮询加 `document.visibilitychange` 门控，hidden 时 clearInterval，重新可见时立即 tick + 重启 interval；5) admin/usage / admin/models / admin/operations 的多个 useAsyncData 合并为 Promise.all batched fetch；6) tsc + build 通过"
     },
@@ -16,7 +16,7 @@
       "title": "template-testing polish（admin PATCH try/catch + Decimal 精度 + waitForCallLog 优化）",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "source": "daily 2026-04-17 M1/M2/M3",
       "acceptance": "1) `src/app/api/admin/templates/[templateId]/route.ts:52-54` 加 try/catch：`const body = await request.json().catch(() => null); if (!body || typeof body !== 'object') return errorResponse(400, 'invalid_parameter', 'Invalid JSON body');`；2) `src/lib/template/test-runner.ts:200-207` 改 Prisma.Decimal 累加：`totalCostUsd = new Prisma.Decimal(totalCostUsd).plus(callLog.sellPrice)`，结束 `.toFixed(8)`；3) `src/lib/template/test-runner.ts:247-262` waitForCallLog 优化：首选 runActionNonStream 事务内附带 callLog 直出；次选 CALL_LOG_POLL_MAX_ATTEMPTS 30→10（timeout 1s 而非 3s）+ 失败明确 warn 日志而非静默 null；4) tsc + build 通过"
     },
@@ -25,7 +25,7 @@
       "title": "A11y + i18n（aria-label 批量 + error.tsx + Free/Degraded + timeAgo/汇率）",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "source": "HIGH-37/38/40/41",
       "acceptance": "1) 新建 `src/lib/a11y.ts` helper 或在 `components/ui/icon-button.tsx` 强制 aria-label prop；grep 所有 `<button>` 含图标无文字实例批量补 `aria-label={t('...')}`；重点 top-app-bar / notification-center / admin 页面；2) `src/app/(console)/error.tsx` 删除硬编码英文改 useTranslations；messages/*.json 新增 `error.*` 条目；3) `src/app/(console)/admin/models/page.tsx:65/70/282` 'Free'/'Degraded' 硬编码改 `t('models.priceFree')` / `t('models.statusDegraded')`；messages/*.json 新增对应条目；4) `src/components/notification-center.tsx:40` timeAgo() 改 `dayjs relativeTime` 或 `next-intl formatRelativeTime`；:53 NOTIF_CNY_RATE = 7.3 改从 API 或 SystemConfig 读（或至少 env + fallback）；5) Lighthouse A11y ≥ 98；6) tsc + build 通过"
     },
@@ -34,7 +34,7 @@
       "title": "DS Critical 3 文件 token 改造（admin/operations + dashboard + admin/logs）",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "source": "frontend-ds-1-token-compliance.md Critical",
       "acceptance": "1) `src/app/(console)/admin/operations/page.tsx` 33 处违规清零：硬编码 hex/rgb → ds-* token；非 ds Tailwind 色类 (text-slate-*/bg-indigo-*/bg-rose-*/bg-emerald-*/bg-violet-*/bg-amber-*) → ds 色阶对应类；2) `src/app/(console)/dashboard/page.tsx` 24 处违规清零（重点 PIE_COLORS / 渐变 from-indigo-700）；3) `src/app/(console)/admin/logs/page.tsx` 24 处违规清零（重点 text-indigo-700 / text-slate-* / bg-white）；4) 每文件改完 grep 验证：`grep -cE '#[0-9a-fA-F]{6}|rgba?\\\\(|text-(slate|indigo|rose|emerald|violet|amber)-|bg-(slate|indigo|rose|emerald|violet|amber)-' <file>` = 0（color 类违规）；5) 建议按文件分段 commit（每文件一 commit）便于定位回滚；6) tsc + build 通过"
     },

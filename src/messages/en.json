@@ -1,4 +1,9 @@
 {
+  "error": {
+    "title": "Something went wrong",
+    "fallbackMessage": "An unexpected error occurred.",
+    "retry": "Try again"
+  },
   "common": {
     "loading": "Loading...",
     "save": "Save",
@@ -69,7 +74,10 @@
     "apiReference": "API Reference",
     "support": "Support",
     "settings": "Settings",
-    "signOut": "Sign Out"
+    "signOut": "Sign Out",
+    "userMenu": "User menu",
+    "switchToEnglish": "Switch to English",
+    "switchToChinese": "切换到中文"
   },
   "notifications": {
     "toggle": "Toggle notifications",
@@ -81,7 +89,12 @@
     "spendingRate": "Spend Rate",
     "channelDown": "Channel Down",
     "channelRecovered": "Recovered",
-    "pendingClass": "Pending Review"
+    "pendingClass": "Pending Review",
+    "summaryBalanceLow": "Balance {current} below threshold {threshold}",
+    "summarySpendingRate": "Spent {spent} / {limit} per min",
+    "summaryChannelDown": "{provider}/{model} went down",
+    "summaryChannelRecovered": "{provider}/{model} recovered",
+    "summaryPendingClass": "{count} models await review"
   },
   "emptyState": {
     "title": "No project yet",
@@ -245,6 +258,7 @@
     "leastPrivilegeDesc": "Create separate keys for different environments and restrict permissions based on the specific project scope.",
     "comingSoon": "Coming Soon",
     "unnamedKey": "Unnamed Key",
+    "copyOnlyOnCreate": "Full key is shown only at creation time and cannot be copied later.",
     "project": "Project",
     "noKeysFound": "No keys found",
     "generalInfo": "General Information",
@@ -719,6 +733,8 @@
     "retry": "Retry",
     "troubleshoot": "Troubleshoot",
     "healthy": "Healthy",
+    "priceFree": "Free",
+    "statusDegraded": "Degraded",
     "total": "Total",
     "level": "L{n}",
     "allClear": "All Clear",

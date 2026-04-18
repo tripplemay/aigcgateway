@@ -3,6 +3,7 @@ export const dynamic = "force-dynamic";
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/api/admin-guard";
+import { errorResponse } from "@/lib/api/errors";
 import { getTemplateCategories, validateCategoryId } from "@/lib/template-categories";
 
 type Params = { params: { templateId: string } };
@@ -56,7 +57,10 @@ export async function PATCH(request: Request, { params }: Params) {
   const auth = requireAdmin(request);
   if (!auth.ok) return auth.error;
 
-  const body = await request.json();
+  const body = (await request.json().catch(() => null)) as Record<string, unknown> | null;
+  if (!body || typeof body !== "object") {
+    return errorResponse(400, "invalid_parameter", "Invalid JSON body");
+  }
   const update: Record<string, unknown> = {};
 
   if (typeof body.isPublic === "boolean") update.isPublic = body.isPublic;

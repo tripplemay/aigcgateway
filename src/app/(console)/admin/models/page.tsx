@@ -58,16 +58,16 @@ interface ProviderGroup {
 const MATRIX_PER_PAGE = 4;
 const MODELS_PER_PAGE = 20;
 
-function fmtCostPrice(p: Record<string, unknown> | null, rate: number) {
+function fmtCostPrice(p: Record<string, unknown> | null, rate: number, freeLabel: string) {
   if (!p) return "\u2014";
   if (p.unit === "call") {
     const v = Number(p.perCall ?? 0);
-    return v === 0 ? "Free" : `${formatCNY(v, rate, 2)}/call`;
+    return v === 0 ? freeLabel : `${formatCNY(v, rate, 2)}/call`;
   }
   const inp = Number(p.inputPer1M ?? 0);
   const out = Number(p.outputPer1M ?? 0);
   return inp === 0 && out === 0
-    ? "Free"
+    ? freeLabel
     : `${formatCNY(inp, rate, 2)} / ${formatCNY(out, rate, 2)}`;
 }
 
@@ -279,7 +279,7 @@ export default function ModelsChannelsPage() {
             const expanded = expandedProviders.has(prov.id);
             const healthLabel =
               prov.summary.degradedChannels > 0 || prov.summary.disabledChannels > 0
-                ? "Degraded"
+                ? t("statusDegraded")
                 : t("healthy");
             const visibleModels = showAllModels.has(prov.id)
               ? prov.models
@@ -460,7 +460,7 @@ export default function ModelsChannelsPage() {
                         </div>
                       </td>
                       <td className="px-6 py-4 font-bold text-xs">
-                        {fmtCostPrice(row.channel.costPrice, exchangeRate)}
+                        {fmtCostPrice(row.channel.costPrice, exchangeRate, t("priceFree"))}
                       </td>
                       <td
                         className={`px-6 py-4 text-xs ${isTimedOut ? "text-ds-error font-bold" : "text-ds-on-surface-variant"}`}

@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { useTranslations, useLocale } from "next-intl";
 import { apiFetch } from "@/lib/api-client";
 import { useProject } from "@/hooks/use-project";
@@ -77,6 +78,7 @@ const TYPE_I18N: Record<string, string> = {
 export default function BalancePage() {
   const t = useTranslations("balance");
   const locale = useLocale();
+  const router = useRouter();
   const { current, loading: projLoading } = useProject();
   const exchangeRate = useExchangeRate();
 
@@ -126,7 +128,7 @@ export default function BalancePage() {
         <PageLoader />
       </PageContainer>
     );
-  if (!current) return <EmptyState onCreated={() => window.location.reload()} />;
+  if (!current) return <EmptyState onCreated={() => router.refresh()} />;
 
   const isLow = info?.alertThreshold != null && info.balance <= info.alertThreshold;
 

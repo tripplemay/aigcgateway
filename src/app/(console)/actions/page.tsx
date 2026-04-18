@@ -78,7 +78,7 @@ export default function ActionsPage() {
         <PageLoader />
       </PageContainer>
     );
-  if (!current) return <EmptyState onCreated={() => window.location.reload()} />;
+  if (!current) return <EmptyState onCreated={() => router.refresh()} />;
 
   const header = (
     <PageHeader

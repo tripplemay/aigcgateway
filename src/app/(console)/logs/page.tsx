@@ -101,7 +101,7 @@ export default function LogsPage() {
         <PageLoader />
       </PageContainer>
     );
-  if (!current) return <EmptyState onCreated={() => window.location.reload()} />;
+  if (!current) return <EmptyState onCreated={() => router.refresh()} />;
 
   return (
     <PageContainer data-testid="logs-page">

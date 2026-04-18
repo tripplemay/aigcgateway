@@ -61,6 +61,8 @@ export function TopAppBar({ userName, userEmail }: TopAppBarProps) {
         <div className="flex items-center gap-2 bg-ds-surface-container-low p-1 rounded-lg">
           <button
             onClick={() => locale !== "en" && toggleLocale()}
+            aria-label={t("switchToEnglish")}
+            aria-pressed={locale === "en"}
             className={`px-2 py-1 text-[10px] font-black rounded-md transition-colors ${
               locale === "en"
                 ? "bg-ds-surface-container-lowest shadow-sm text-ds-primary"
@@ -71,6 +73,8 @@ export function TopAppBar({ userName, userEmail }: TopAppBarProps) {
           </button>
           <button
             onClick={() => locale !== "zh-CN" && toggleLocale()}
+            aria-label={t("switchToChinese")}
+            aria-pressed={locale === "zh-CN"}
             className={`px-2 py-1 text-[10px] font-bold transition-colors ${
               locale === "zh-CN"
                 ? "bg-ds-surface-container-lowest shadow-sm text-ds-primary"
@@ -92,6 +96,9 @@ export function TopAppBar({ userName, userEmail }: TopAppBarProps) {
           <button
             onClick={() => setMenuOpen((prev) => !prev)}
             className="flex items-center gap-3 cursor-pointer group"
+            aria-label={t("userMenu")}
+            aria-haspopup="menu"
+            aria-expanded={menuOpen}
           >
             <div className="w-8 h-8 rounded-full bg-ds-primary-container flex items-center justify-center text-ds-on-primary text-xs font-bold ring-2 ring-ds-primary/20 group-hover:ring-ds-primary/50 transition-all">
               {initials}

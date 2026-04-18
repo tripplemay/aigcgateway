@@ -72,8 +72,8 @@ export default function AdminLogsPage() {
             onClick={() => setActiveTab(tab)}
             className={`px-5 py-2 text-xs font-bold uppercase tracking-wider transition-all ${
               activeTab === tab
-                ? "text-indigo-700 bg-white rounded-lg shadow-sm"
-                : "text-slate-500 hover:text-slate-700"
+                ? "text-ds-primary bg-ds-surface-container-lowest rounded-lg shadow-sm"
+                : "text-ds-on-surface-variant hover:text-ds-on-surface"
             }`}
           >
             {tab === "api" ? t("tabApiCalls") : t("tabSystemLogs")}
@@ -130,7 +130,7 @@ function ApiCallsTab() {
                 setStatusFilter(s);
                 setPage(1);
               }}
-              className={`px-4 py-1.5 text-xs font-bold uppercase tracking-wider transition-all ${statusFilter === s ? "text-indigo-700 bg-white rounded-lg shadow-sm" : "text-slate-500 hover:text-slate-700"}`}
+              className={`px-4 py-1.5 text-xs font-bold uppercase tracking-wider transition-all ${statusFilter === s ? "text-ds-primary bg-ds-surface-container-lowest rounded-lg shadow-sm" : "text-ds-on-surface-variant hover:text-ds-on-surface"}`}
             >
               {s || tc("all")}
             </button>
@@ -140,11 +140,11 @@ function ApiCallsTab() {
 
       {/* Search */}
       <div className="relative">
-        <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-lg">
+        <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-ds-outline text-lg">
           search
         </span>
         <input
-          className="w-full bg-ds-surface-container-low border-none rounded-full pl-12 pr-4 py-2.5 text-sm focus:ring-2 focus:ring-ds-primary/20 placeholder:text-slate-400 outline-none"
+          className="w-full bg-ds-surface-container-low border-none rounded-full pl-12 pr-4 py-2.5 text-sm focus:ring-2 focus:ring-ds-primary/20 placeholder:text-ds-outline outline-none"
           placeholder={tl("searchPlaceholder")}
           value={searchQ}
           onChange={(e) => setSearchQ(e.target.value)}
@@ -171,7 +171,7 @@ function ApiCallsTab() {
               ].map((h) => (
                 <th
                   key={h}
-                  className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-400"
+                  className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-ds-outline"
                 >
                   {h}
                 </th>
@@ -189,18 +189,18 @@ function ApiCallsTab() {
               logs.map((l) => (
                 <tr key={l.traceId} className="hover:bg-ds-surface-container-low transition-colors">
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <span className="text-xs font-semibold text-slate-400" title={l.createdAt}>
+                    <span className="text-xs font-semibold text-ds-outline" title={l.createdAt}>
                       {timeAgo(l.createdAt)}
                     </span>
                   </td>
                   <td className="px-6 py-4">
-                    <span className="text-sm font-mono text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded">
+                    <span className="text-sm font-mono text-ds-primary bg-ds-primary-container px-2 py-0.5 rounded">
                       {l.traceId.slice(0, 12)}
                     </span>
                   </td>
                   <td className="px-6 py-4 text-xs font-medium">{l.projectName}</td>
-                  <td className="px-6 py-4 text-xs font-bold text-slate-700">{l.modelName}</td>
-                  <td className="px-6 py-4 text-xs text-slate-500" title={l.channelId}>
+                  <td className="px-6 py-4 text-xs font-bold text-ds-on-surface">{l.modelName}</td>
+                  <td className="px-6 py-4 text-xs text-ds-on-surface-variant" title={l.channelId}>
                     {l.channelProvider}/{l.channelRealModelId}
                   </td>
                   <td className="px-6 py-4">
@@ -212,17 +212,17 @@ function ApiCallsTab() {
                       <StatusChip variant="error">{l.status}</StatusChip>
                     )}
                   </td>
-                  <td className="px-6 py-4 text-xs font-medium text-slate-600">
+                  <td className="px-6 py-4 text-xs font-medium text-ds-on-surface">
                     {l.promptTokens?.toLocaleString() ?? "—"}/
                     {l.completionTokens?.toLocaleString() ?? "—"}
                   </td>
-                  <td className="px-6 py-4 text-xs font-medium text-slate-600">
+                  <td className="px-6 py-4 text-xs font-medium text-ds-on-surface">
                     {l.costPrice != null ? formatCNY(l.costPrice, exchangeRate) : "—"}
                   </td>
-                  <td className="px-6 py-4 text-xs font-medium text-slate-600">
+                  <td className="px-6 py-4 text-xs font-medium text-ds-on-surface">
                     {l.sellPrice != null ? formatCNY(l.sellPrice, exchangeRate) : "—"}
                   </td>
-                  <td className="px-6 py-4 text-xs font-medium text-slate-600">
+                  <td className="px-6 py-4 text-xs font-medium text-ds-on-surface">
                     {l.latencyMs != null ? `${(l.latencyMs / 1000).toFixed(1)}s` : "—"}
                   </td>
                 </tr>
@@ -273,7 +273,7 @@ function SystemLogsTab() {
                 setCategoryFilter(c);
                 setPage(1);
               }}
-              className={`px-4 py-1.5 text-xs font-bold uppercase tracking-wider transition-all ${categoryFilter === c ? "text-indigo-700 bg-white rounded-lg shadow-sm" : "text-slate-500 hover:text-slate-700"}`}
+              className={`px-4 py-1.5 text-xs font-bold uppercase tracking-wider transition-all ${categoryFilter === c ? "text-ds-primary bg-ds-surface-container-lowest rounded-lg shadow-sm" : "text-ds-on-surface-variant hover:text-ds-on-surface"}`}
             >
               {c || tc("all")}
             </button>
@@ -287,7 +287,7 @@ function SystemLogsTab() {
                 setLevelFilter(l);
                 setPage(1);
               }}
-              className={`px-4 py-1.5 text-xs font-bold uppercase tracking-wider transition-all ${levelFilter === l ? "text-indigo-700 bg-white rounded-lg shadow-sm" : "text-slate-500 hover:text-slate-700"}`}
+              className={`px-4 py-1.5 text-xs font-bold uppercase tracking-wider transition-all ${levelFilter === l ? "text-ds-primary bg-ds-surface-container-lowest rounded-lg shadow-sm" : "text-ds-on-surface-variant hover:text-ds-on-surface"}`}
             >
               {l || tc("all")}
             </button>
@@ -304,7 +304,7 @@ function SystemLogsTab() {
                 (h) => (
                   <th
                     key={h}
-                    className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-400"
+                    className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-ds-outline"
                   >
                     {h}
                   </th>
@@ -333,7 +333,7 @@ function SystemLogsTab() {
                   onClick={() => setExpandedId(expandedId === l.id ? null : l.id)}
                 >
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <span className="text-xs font-semibold text-slate-400" title={l.createdAt}>
+                    <span className="text-xs font-semibold text-ds-outline" title={l.createdAt}>
                       {timeAgo(l.createdAt)}
                     </span>
                   </td>
@@ -344,9 +344,9 @@ function SystemLogsTab() {
                     <LevelBadge level={l.level} />
                   </td>
                   <td className="px-6 py-4">
-                    <div className="text-xs font-medium text-slate-700">{l.message}</div>
+                    <div className="text-xs font-medium text-ds-on-surface">{l.message}</div>
                     {expandedId === l.id && l.detail && (
-                      <pre className="mt-2 text-[11px] text-slate-500 bg-slate-50 rounded-lg p-3 overflow-x-auto max-h-48">
+                      <pre className="mt-2 text-[11px] text-ds-on-surface-variant bg-ds-surface-container-low rounded-lg p-3 overflow-x-auto max-h-48">
                         {JSON.stringify(l.detail, null, 2)}
                       </pre>
                     )}
@@ -380,24 +380,24 @@ function Pagination({
   const t = useTranslations("adminLogs");
   return (
     <div className="px-6 py-4 bg-ds-surface-container-low/30 flex items-center justify-between">
-      <span className="text-xs font-medium text-slate-500">
+      <span className="text-xs font-medium text-ds-on-surface-variant">
         {total.toLocaleString()} {t("records")}
       </span>
       <div className="flex items-center gap-1">
         <button
           onClick={() => onPageChange(Math.max(1, page - 1))}
           disabled={page <= 1}
-          className="p-1.5 rounded-lg hover:bg-white text-slate-400 disabled:opacity-50"
+          className="p-1.5 rounded-lg hover:bg-white text-ds-outline disabled:opacity-50"
         >
           <span className="material-symbols-outlined text-lg">chevron_left</span>
         </button>
-        <span className="px-3 py-1 rounded-lg bg-white shadow-sm text-indigo-600 font-bold text-xs">
+        <span className="px-3 py-1 rounded-lg bg-white shadow-sm text-ds-primary font-bold text-xs">
           {page}
         </span>
         <button
           onClick={() => onPageChange(Math.min(totalPages, page + 1))}
           disabled={page >= totalPages}
-          className="p-1.5 rounded-lg hover:bg-white text-slate-400 disabled:opacity-50"
+          className="p-1.5 rounded-lg hover:bg-white text-ds-outline disabled:opacity-50"
         >
           <span className="material-symbols-outlined text-lg">chevron_right</span>
         </button>

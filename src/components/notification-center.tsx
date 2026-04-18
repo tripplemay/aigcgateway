@@ -1,8 +1,10 @@
 "use client";
 import { useState, useEffect, useRef, useCallback } from "react";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { StatusChip } from "./status-chip";
 import type { StatusChipVariant } from "./status-chip";
+import { useExchangeRate } from "@/hooks/use-exchange-rate";
+import { formatCNY, timeAgo } from "@/lib/utils";
 
 // ── Types ────────────────────────────────────────────────────
 
@@ -35,36 +37,37 @@ const EVENT_META: Record<
   PENDING_CLASSIFICATION: { icon: "pending_actions", variant: "info", labelKey: "pendingClass" },
 };
 
-// ── Time-ago helper ──────────────────────────────────────────
-
-function timeAgo(iso: string): string {
-  const diff = Date.now() - new Date(iso).getTime();
-  const m = Math.floor(diff / 60_000);
-  if (m < 1) return "just now";
-  if (m < 60) return `${m}m ago`;
-  const h = Math.floor(m / 60);
-  if (h < 24) return `${h}h ago`;
-  return `${Math.floor(h / 24)}d ago`;
-}
-
 // ── Summary text ─────────────────────────────────────────────
 
-// F-AP-09: approximate CNY for notification summaries (no hook available here)
-const NOTIF_CNY_RATE = 7.3;
-const fmtCny = (usd: number, d = 2) => `¥${(usd * NOTIF_CNY_RATE).toFixed(d)}`;
-
-function buildSummary(eventType: EventType, payload: Record<string, unknown>): string {
+function buildSummary(
+  eventType: EventType,
+  payload: Record<string, unknown>,
+  fmtCny: (usd: number, d?: number) => string,
+  t: (key: string, vars?: Record<string, string | number>) => string,
+): string {
   switch (eventType) {
     case "BALANCE_LOW":
-      return `Balance ${fmtCny(Number(payload.currentBalance ?? 0))} below threshold ${fmtCny(Number(payload.threshold ?? 0))}`;
+      return t("summaryBalanceLow", {
+        current: fmtCny(Number(payload.currentBalance ?? 0)),
+        threshold: fmtCny(Number(payload.threshold ?? 0)),
+      });
     case "SPENDING_RATE_EXCEEDED":
-      return `Spent ${fmtCny(Number(payload.spent ?? 0), 4)} / ${fmtCny(Number(payload.limit ?? 0))} per min`;
+      return t("summarySpendingRate", {
+        spent: fmtCny(Number(payload.spent ?? 0), 4),
+        limit: fmtCny(Number(payload.limit ?? 0)),
+      });
     case "CHANNEL_DOWN":
-      return `${payload.providerName ?? ""}/${payload.modelName ?? ""} went down`;
+      return t("summaryChannelDown", {
+        provider: String(payload.providerName ?? ""),
+        model: String(payload.modelName ?? ""),
+      });
     case "CHANNEL_RECOVERED":
-      return `${payload.providerName ?? ""}/${payload.modelName ?? ""} recovered`;
+      return t("summaryChannelRecovered", {
+        provider: String(payload.providerName ?? ""),
+        model: String(payload.modelName ?? ""),
+      });
     case "PENDING_CLASSIFICATION":
-      return `${Number(payload.count ?? 0)} models await review`;
+      return t("summaryPendingClass", { count: Number(payload.count ?? 0) });
     default:
       return "";
   }
@@ -74,6 +77,12 @@ function buildSummary(eventType: EventType, payload: Record<string, unknown>): s
 
 export function NotificationCenter() {
   const t = useTranslations("notifications");
+  const locale = useLocale();
+  const exchangeRate = useExchangeRate();
+  const fmtCny = useCallback(
+    (usd: number, d = 2) => formatCNY(usd, exchangeRate, d),
+    [exchangeRate],
+  );
   const [open, setOpen] = useState(false);
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
@@ -98,11 +107,37 @@ export function NotificationCenter() {
     }
   }, []);
 
-  // Initial fetch + 30-second polling
+  // Initial fetch + 30-second polling, paused when tab is hidden
   useEffect(() => {
     void fetchNotifications();
-    const timer = setInterval(() => void fetchNotifications(), 30_000);
-    return () => clearInterval(timer);
+    let timer: ReturnType<typeof setInterval> | null = null;
+    const start = () => {
+      if (timer) return;
+      timer = setInterval(() => void fetchNotifications(), 30_000);
+    };
+    const stop = () => {
+      if (!timer) return;
+      clearInterval(timer);
+      timer = null;
+    };
+    if (typeof document !== "undefined" && document.hidden) {
+      // Tab hidden at mount: don't start polling yet
+    } else {
+      start();
+    }
+    const handleVis = () => {
+      if (document.hidden) {
+        stop();
+      } else {
+        void fetchNotifications();
+        start();
+      }
+    };
+    document.addEventListener("visibilitychange", handleVis);
+    return () => {
+      stop();
+      document.removeEventListener("visibilitychange", handleVis);
+    };
   }, [fetchNotifications]);
 
   // Close when clicking outside
@@ -226,9 +261,11 @@ export function NotificationCenter() {
                         )}
                       </div>
                       <p className="text-xs text-ds-on-surface-variant truncate">
-                        {buildSummary(n.eventType, n.payload)}
+                        {buildSummary(n.eventType, n.payload, fmtCny, t)}
                       </p>
-                      <p className="text-[10px] text-ds-outline mt-0.5">{timeAgo(n.createdAt)}</p>
+                      <p className="text-[10px] text-ds-outline mt-0.5">
+                        {timeAgo(n.createdAt, locale)}
+                      </p>
                     </div>
 
                     {/* Mark read button */}

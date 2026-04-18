@@ -10,6 +10,7 @@
  */
 
 import { prisma } from "@/lib/prisma";
+import { Prisma } from "@prisma/client";
 import { runActionNonStream } from "@/lib/action/runner";
 import { injectVariables, InjectionError } from "@/lib/action/inject";
 import type { Message, VarDef } from "@/lib/action/inject";
@@ -56,7 +57,7 @@ export class TemplateTestError extends Error {
 
 const MAX_RUNS_PER_USER_TEMPLATE = 20;
 const CALL_LOG_POLL_INTERVAL_MS = 100;
-const CALL_LOG_POLL_MAX_ATTEMPTS = 30;
+const CALL_LOG_POLL_MAX_ATTEMPTS = 10;
 
 export interface RunTemplateTestParams {
   templateId: string;
@@ -114,7 +115,7 @@ export async function runTemplateTest(
   const steps: TemplateTestStep[] = [];
   let previousOutput: string | null = null;
   let totalTokens = 0;
-  let totalCostUsd = 0;
+  let totalCostUsd = new Prisma.Decimal(0);
   let totalLatency = 0;
   let runStatus: TestStatus = "success";
 
@@ -238,7 +239,7 @@ export async function runTemplateTest(
     const sellPrice = callLog?.sellPrice ? callLog.sellPrice.toString() : "0";
     if (stepTotal) totalTokens += stepTotal;
     if (callLog?.sellPrice) {
-      totalCostUsd += Number(callLog.sellPrice);
+      totalCostUsd = totalCostUsd.plus(callLog.sellPrice);
     }
 
     steps.push({
@@ -304,6 +305,9 @@ async function waitForCallLog(traceId: string) {
     if (log) return log;
     await new Promise((resolve) => setTimeout(resolve, CALL_LOG_POLL_INTERVAL_MS));
   }
+  console.warn(
+    `[test-runner] waitForCallLog gave up after ${CALL_LOG_POLL_MAX_ATTEMPTS} attempts for traceId=${traceId}; step metrics will be missing`,
+  );
   return null;
 }
 

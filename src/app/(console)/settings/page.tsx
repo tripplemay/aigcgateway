@@ -161,10 +161,9 @@ export default function SettingsPage() {
     setProjInitialized(false);
   }, [current?.id]);
 
-  // ── Account: save name (native DOM listener — proven pattern) ──
+  // ── Account: save name (React onClick handler) ──
   const nameRef = useRef(name);
   nameRef.current = name;
-  const saveBtnRef = useRef<HTMLButtonElement>(null);
 
   const doSaveName = useCallback(() => {
     const currentName = nameRef.current;
@@ -186,17 +185,6 @@ export default function SettingsPage() {
         toast.error((e as Error).message);
       });
   }, [t, refetchProfile]);
-
-  useEffect(() => {
-    const btn = saveBtnRef.current;
-    if (!btn) return;
-    const handler = (e: Event) => {
-      e.preventDefault();
-      doSaveName();
-    };
-    btn.addEventListener("click", handler);
-    return () => btn.removeEventListener("click", handler);
-  }, [doSaveName]);
 
   // ── Project: save (inline onClick — identical pattern to deleteProject) ──
   const handleProjectSave = () => {
@@ -589,7 +577,6 @@ export default function SettingsPage() {
                 </div>
                 <div className="flex justify-end pt-4">
                   <Button
-                    ref={saveBtnRef}
                     variant="gradient-primary"
                     size="lg"
                     type="button"

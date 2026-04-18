@@ -116,7 +116,7 @@ export default function KeySettingsPage() {
         <Skeleton className="h-64 w-full" />
       </div>
     );
-  if (!current) return <EmptyState onCreated={() => window.location.reload()} />;
+  if (!current) return <EmptyState onCreated={() => router.refresh()} />;
   if (!detail) return <div className="text-center py-20 text-ds-outline">{t("noKeysFound")}</div>;
 
   const isRevoked = detail.status === "REVOKED";

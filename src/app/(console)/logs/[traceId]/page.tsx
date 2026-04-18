@@ -4,7 +4,7 @@ import { useTranslations } from "next-intl";
 import { apiFetch } from "@/lib/api-client";
 import { useProject } from "@/hooks/use-project";
 import { useAsyncData } from "@/hooks/use-async-data";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState } from "@/components/empty-state";
@@ -39,6 +39,7 @@ interface LogDetail {
 
 export default function LogDetailPage() {
   const t = useTranslations("logs");
+  const router = useRouter();
   const { current, loading: projLoading } = useProject();
   const params = useParams<{ traceId: string }>();
 
@@ -75,7 +76,7 @@ export default function LogDetailPage() {
         <Skeleton className="h-64 w-full" />
       </div>
     );
-  if (!current) return <EmptyState onCreated={() => window.location.reload()} />;
+  if (!current) return <EmptyState onCreated={() => router.refresh()} />;
   if (!detail) return <div className="text-center py-20 text-ds-outline">{t("traceNotFound")}</div>;
 
   const statusColor =

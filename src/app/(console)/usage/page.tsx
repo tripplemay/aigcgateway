@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import dynamic from "next/dynamic";
+import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { apiFetch } from "@/lib/api-client";
 import { useProject } from "@/hooks/use-project";
@@ -74,6 +75,7 @@ const PERIOD_I18N: Record<string, string> = {
 
 export default function UsagePage() {
   const t = useTranslations("usage");
+  const router = useRouter();
   const { current, loading: projLoading } = useProject();
   const exchangeRate = useExchangeRate();
   const [period, setPeriod] = useState<string>("7d");
@@ -108,7 +110,7 @@ export default function UsagePage() {
         <PageLoader />
       </PageContainer>
     );
-  if (!current) return <EmptyState onCreated={() => window.location.reload()} />;
+  if (!current) return <EmptyState onCreated={() => router.refresh()} />;
 
   return (
     <PageContainer data-testid="usage-page">

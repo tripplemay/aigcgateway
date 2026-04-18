@@ -1,5 +1,6 @@
 "use client";
 import dynamic from "next/dynamic";
+import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { apiFetch } from "@/lib/api-client";
 import { useProject } from "@/hooks/use-project";
@@ -73,6 +74,7 @@ interface ModelData {
 export default function DashboardPage() {
   const t = useTranslations("dashboard");
   const tc = useTranslations("common");
+  const router = useRouter();
   const { current, loading: projLoading } = useProject();
   const exchangeRate = useExchangeRate();
   interface DashboardData {
@@ -122,7 +124,7 @@ export default function DashboardPage() {
         <PageLoader />
       </PageContainer>
     );
-  if (!current) return <EmptyState onCreated={() => window.location.reload()} />;
+  if (!current) return <EmptyState onCreated={() => router.refresh()} />;
 
   const totalModelCalls = models.reduce((s, x) => s + x.calls, 0);
 
@@ -176,14 +178,14 @@ export default function DashboardPage() {
         </div>
 
         {/* Balance Card — code.html lines 228-245 */}
-        <div className="col-span-12 lg:col-span-4 bg-gradient-to-br from-indigo-700 to-indigo-900 p-6 rounded-2xl relative overflow-hidden text-white shadow-2xl shadow-indigo-900/20 min-h-[180px]">
+        <div className="col-span-12 lg:col-span-4 bg-gradient-to-br from-ds-primary to-[var(--ds-on-primary-container)] p-6 rounded-2xl relative overflow-hidden text-ds-on-primary shadow-2xl shadow-ds-primary/20 min-h-[180px]">
           <div className="relative z-10 flex flex-col h-full justify-between">
             <div>
               <div className="flex justify-between items-start">
-                <span className="text-indigo-200 text-sm font-medium uppercase tracking-widest">
+                <span className="text-ds-on-primary/80 text-sm font-medium uppercase tracking-widest">
                   {tc("balance") ?? "Account Balance"}
                 </span>
-                <span className="material-symbols-outlined text-indigo-300">
+                <span className="material-symbols-outlined text-ds-on-primary/70">
                   account_balance_wallet
                 </span>
               </div>
@@ -193,7 +195,7 @@ export default function DashboardPage() {
             </div>
             <Link
               href="/balance"
-              className="mt-4 w-full bg-white text-indigo-900 font-extrabold py-3 rounded-xl hover:bg-indigo-50 transition-colors text-center block"
+              className="mt-4 w-full bg-ds-on-primary text-ds-primary font-extrabold py-3 rounded-xl hover:bg-ds-primary-container transition-colors text-center block"
             >
               {t("rechargeNow")}
             </Link>
@@ -229,7 +231,9 @@ export default function DashboardPage() {
                   ? `${(totalModelCalls / 1000).toFixed(1)}K`
                   : totalModelCalls}
               </span>
-              <span className="text-[10px] font-bold text-slate-500 uppercase">Requests</span>
+              <span className="text-[10px] font-bold text-ds-on-surface-variant uppercase">
+                Requests
+              </span>
             </div>
           </div>
           <div className="mt-8 space-y-3">
@@ -244,7 +248,7 @@ export default function DashboardPage() {
                     />
                     <span className="font-medium truncate max-w-[140px]">{m.model}</span>
                   </div>
-                  <span className="font-bold text-slate-600">{pct}%</span>
+                  <span className="font-bold text-ds-on-surface">{pct}%</span>
                 </div>
               );
             })}
@@ -307,13 +311,13 @@ export default function DashboardPage() {
                     key={l.traceId}
                     className="group hover:bg-ds-surface-container-high/30 transition-colors"
                   >
-                    <td className="py-4 text-sm font-mono text-indigo-600">
+                    <td className="py-4 text-sm font-mono text-ds-primary">
                       {l.traceId.slice(0, 12)}
                     </td>
                     <td className="py-4">
                       <div className="flex items-center gap-2">
-                        <div className="w-6 h-6 rounded bg-indigo-50 flex items-center justify-center">
-                          <span className="material-symbols-outlined text-indigo-600 text-xs">
+                        <div className="w-6 h-6 rounded bg-ds-primary-container flex items-center justify-center">
+                          <span className="material-symbols-outlined text-ds-primary text-xs">
                             bolt
                           </span>
                         </div>
@@ -332,7 +336,7 @@ export default function DashboardPage() {
                     <td className="py-4 text-right text-sm font-bold">
                       {l.sellPrice != null ? formatCNY(l.sellPrice, exchangeRate, 3) : "—"}
                     </td>
-                    <td className="py-4 text-right text-sm text-slate-500 font-medium">
+                    <td className="py-4 text-right text-sm text-ds-on-surface-variant font-medium">
                       {l.latencyMs != null ? `${l.latencyMs}ms` : "—"}
                     </td>
                   </tr>
