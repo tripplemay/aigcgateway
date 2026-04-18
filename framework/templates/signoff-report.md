@@ -1,6 +1,6 @@
 # [批次名称] Signoff YYYY-MM-DD
 
-> 状态：**待 Evaluator 验收**（progress.json status=reviewing）
+> 状态：**待 Evaluator 验收**（progress.json status=verifying）
 > 触发：[触发原因一句话]
 
 ---
@@ -14,6 +14,8 @@
 ## 变更功能清单
 
 ### F-XXX-01：[功能标题]
+
+**Executor：** generator / codex
 
 **文件：**
 - `path/to/file.ts`（新增 / 修改）
@@ -45,25 +47,27 @@
 
 ---
 
-## 类型检查
+## 类型检查 / CI
 
 ```
 [tsc / eslint 执行结果]
+[gh run list --limit 1 --branch main 输出]
 ```
 
 ---
 
 ## Harness 说明
 
-本批改动经 Harness 状态机完整流程（planning → building → verifying → done）交付。
+本批改动经 Harness 状态机完整流程（planning → building → verifying → reverifying → done）交付。
 `progress.json` 已设为 `status: "done"`，signoff 路径已填入 `docs.signoff`。
 
 ---
 
 ## Framework Learnings（可选）
 
-> 本节由 Cowork 在 status → done 时填写，记录本批次中值得沉淀进框架的新经验。
+> 本节由 Planner 在 status → done 时填写，记录本批次中值得沉淀进框架的新经验。
 > 用户确认后同步更新 `framework/` 对应文件，并在 `framework/CHANGELOG.md` 追加一条记录。
+> 不紧急的提案应先追加到 `framework/proposed-learnings.md`，由 Planner 在 done 阶段集中处理。
 
 <!-- 示例条目（无新经验时可留空或删除本节）：
 
@@ -82,4 +86,3 @@
   - 建议修改：`framework/templates/xxx.md` 第 N 行
 
 -->
-

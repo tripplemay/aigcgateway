@@ -15,5 +15,7 @@
   },
   "role_assignments": null,
   "evaluator_feedback": null,
+  "generator_handoff": null,
+  "session_notes": {},
   "features": []
 }
