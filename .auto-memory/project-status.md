@@ -4,28 +4,26 @@ description: AIGC Gateway 当前状态快照（覆盖写，≤30 行）
 type: project
 ---
 ## 当前批次
-- **BL-FE-PERF-01：`building`**（第二波 P0 前端首批，2d，7 features：6 generator + 1 codex）
-- Path A 进度 5/11，第一波 P0 安全全部完成 🎉
+- **BL-FE-PERF-01：`verifying`**（Generator 6/6 done，等 Evaluator 跑 F-PF-07）
+- Path A 进度 6/11
 
 ## 上一批次（BL-SEC-INFRA-GUARD done）
 - 9/9 PASS（reverifying），fix_rounds=1
 - Signoff: `docs/test-reports/BL-SEC-INFRA-GUARD-signoff-2026-04-18.md`
-- 产物：admin zod 白名单 + leader-lock.ts + shell spawn + MCP isError + balance 去重 + npm audit fix
-- Framework 铁律 2.1 已采纳（协议返回形式断言标注协议层）
 
-## 本批次目标
-- 三大路由 First Load ≤ 180 kB（当前 281/271/227）
-- i18n 每页 bundle ~107 kB → ~55 kB（仅当前语言）
-- dashboard CLS 0.11 → ≤ 0.1
-- Material Symbols preconnect 消除 FCP 阻塞
-- / 路由改 RSC（利用 AUTH-SESSION 的 verifyJwt）
-- console 补 loading.tsx Suspense 边界
-- bundle-analyzer 接 CI
+## 本批次交付（Generator）
+- 三大路由 First Load：dashboard 281→169 / usage 272→159 / admin-usage 227→112 / root 87.8（全达标）
+- Recharts 抽 `charts-section.tsx` + `charts-constants.ts`（常量独立文件是关键）
+- intl-provider 动态 `import('@/messages/${locale}.json')`
+- layout.tsx preconnect（fonts.googleapis + fonts.gstatic）
+- / 路由改 RSC（cookies + verifyJwt + redirect）
+- (console)/loading.tsx Skeleton
+- @next/bundle-analyzer + poweredByHeader: false + images + analyze script
+- 本地 checks：tsc pass / vitest 116/116 / build pass
 
 ## 生产状态
 - HEAD `a052779`（INFRA-GUARD signoff 后）
-- 5 批 Path A 安全代码已部署验收完毕
-- INFRA-GUARD 已具备部署条件
+- BL-FE-PERF-01 等 Codex 验收 + user push
 
 ## Framework 铁律（2026-04-18 v0.7.2）
 1. Planner 写 spec 涉及代码细节必须 Read 源码 + file:line 引用
@@ -34,10 +32,10 @@ type: project
 
 ## Path A 合并后路线图（11 批次）
 - P0 安全：CRED-HARDEN ✅ / AUTH-SESSION ✅ / BILLING-AI ✅ / BILLING-CHECK-FOLLOWUP ✅ / INFRA-GUARD ✅
-- P0 前端：FE-PERF-01 ← building
+- P0 前端：FE-PERF-01 ← verifying
 - P1 质量：FE-QUALITY 3.5d（合并 UX+A11y+DS）
 - P1 数据：DATA-CONSISTENCY 1d / INFRA-RESILIENCE 1.5d
-- P2 细节：SEC-POLISH 1.5d（合并 auth+SSRF+script）/ INFRA-ARCHIVE 1d / FE-DS-SHADCN 2d
+- P2 细节：SEC-POLISH 1.5d / INFRA-ARCHIVE 1d / FE-DS-SHADCN 2d
 - 延后候选：INFRA-GUARD-FOLLOWUP（Next.js 16 迁移 2-3d）
 - 延后：PAY-DEFERRED 1-2d
 

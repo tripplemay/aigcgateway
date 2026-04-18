@@ -1,5 +1,6 @@
 "use client";
 import { useState, useMemo } from "react";
+import dynamic from "next/dynamic";
 import { useTranslations } from "next-intl";
 import { apiFetch } from "@/lib/api-client";
 import { useAsyncData } from "@/hooks/use-async-data";
@@ -11,17 +12,16 @@ import { PageHeader } from "@/components/page-header";
 import { SectionCard } from "@/components/section-card";
 import { TableCard } from "@/components/table-card";
 import { KPICard } from "@/components/kpi-card";
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  Tooltip,
-  ResponsiveContainer,
-  PieChart,
-  Pie,
-  Cell,
-} from "recharts";
+import { PIE_COLORS } from "./charts-constants";
+
+const ProviderRevenuePieChart = dynamic(
+  () => import("./charts-section").then((m) => m.ProviderRevenuePieChart),
+  { ssr: false, loading: () => <Skeleton className="h-full w-full" /> },
+);
+const ModelCallsBarChart = dynamic(
+  () => import("./charts-section").then((m) => m.ModelCallsBarChart),
+  { ssr: false, loading: () => <Skeleton className="h-full w-full" /> },
+);
 
 // ============================================================
 // Types
@@ -53,17 +53,6 @@ interface ModelData {
 // ============================================================
 // Constants
 // ============================================================
-
-const PIE_COLORS = ["#5443b9", "#5f5987", "#7c4b00", "#c8bfff", "#ffb964", "#9d6100", "#ba1a1a"];
-const tooltipStyle = {
-  contentStyle: {
-    background: "rgba(250,248,255,0.95)",
-    backdropFilter: "blur(12px)",
-    border: "none",
-    borderRadius: 12,
-    fontSize: 12,
-  },
-};
 
 // ============================================================
 // Page
@@ -150,29 +139,10 @@ export default function AdminUsagePage() {
             {t("revenueByProvider")}
           </h4>
           <div className="h-[250px]">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie
-                  data={byProvider}
-                  dataKey="revenue"
-                  nameKey="provider"
-                  cx="50%"
-                  cy="50%"
-                  innerRadius={50}
-                  outerRadius={80}
-                  strokeWidth={2}
-                  stroke="#fff"
-                >
-                  {byProvider.map((_, i) => (
-                    <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />
-                  ))}
-                </Pie>
-                <Tooltip
-                  {...tooltipStyle}
-                  formatter={(v) => formatCNY(Number(v), exchangeRate, 2)}
-                />
-              </PieChart>
-            </ResponsiveContainer>
+            <ProviderRevenuePieChart
+              data={byProvider}
+              formatValue={(v) => formatCNY(v, exchangeRate, 2)}
+            />
           </div>
           <div className="mt-4 space-y-2">
             {byProvider.map((p, i) => (
@@ -196,26 +166,7 @@ export default function AdminUsagePage() {
             {t("callsByModel")}
           </h4>
           <div className="h-[300px]">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={byModel.slice(0, 8)} layout="vertical">
-                <XAxis
-                  type="number"
-                  tick={{ fontSize: 10, fill: "#787584" }}
-                  axisLine={false}
-                  tickLine={false}
-                />
-                <YAxis
-                  type="category"
-                  dataKey="model"
-                  width={140}
-                  tick={{ fontSize: 10, fill: "#787584" }}
-                  axisLine={false}
-                  tickLine={false}
-                />
-                <Tooltip {...tooltipStyle} />
-                <Bar dataKey="calls" fill="#5443b9" radius={[0, 4, 4, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
+            <ModelCallsBarChart data={byModel.slice(0, 8)} />
           </div>
         </SectionCard>
       </div>

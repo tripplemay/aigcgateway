@@ -1,22 +1,12 @@
 "use client";
 import { useState } from "react";
+import dynamic from "next/dynamic";
 import { useTranslations } from "next-intl";
 import { apiFetch } from "@/lib/api-client";
 import { useProject } from "@/hooks/use-project";
 import { useAsyncData } from "@/hooks/use-async-data";
 import { formatCNY } from "@/lib/utils";
 import { useExchangeRate } from "@/hooks/use-exchange-rate";
-import {
-  BarChart,
-  Bar,
-  PieChart,
-  Pie,
-  Cell,
-  XAxis,
-  YAxis,
-  Tooltip,
-  ResponsiveContainer,
-} from "recharts";
 import { EmptyState } from "@/components/empty-state";
 import { PageContainer } from "@/components/page-container";
 import { PageHeader } from "@/components/page-header";
@@ -24,6 +14,7 @@ import { PageLoader } from "@/components/page-loader";
 import { KPICard } from "@/components/kpi-card";
 import { SectionCard } from "@/components/section-card";
 import { TableCard } from "@/components/table-card";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Table,
   TableHeader,
@@ -32,6 +23,16 @@ import {
   TableRow,
   TableCell,
 } from "@/components/ui/table";
+import { PIE_COLORS } from "./charts-constants";
+
+const DailyPerformanceBarChart = dynamic(
+  () => import("./charts-section").then((m) => m.DailyPerformanceBarChart),
+  { ssr: false, loading: () => <Skeleton className="h-full w-full" /> },
+);
+const ModelPieChart = dynamic(() => import("./charts-section").then((m) => m.ModelPieChart), {
+  ssr: false,
+  loading: () => <Skeleton className="h-48 w-48 rounded-full" />,
+});
 
 // ============================================================
 // Types & constants
@@ -60,23 +61,11 @@ interface ModelRow {
   avgLatency: number;
 }
 
-const PIE_COLORS = ["#6d5dd3", "#5f5987", "#ffb964", "#c8bfff", "#7c4b00"];
 const PERIODS = ["today", "7d", "30d"] as const;
 const PERIOD_I18N: Record<string, string> = {
   today: "periodToday",
   "7d": "period7d",
   "30d": "period30d",
-};
-
-const tooltipStyle = {
-  contentStyle: {
-    background: "rgba(250,248,255,0.95)",
-    backdropFilter: "blur(12px)",
-    border: "none",
-    borderRadius: 12,
-    boxShadow: "0 20px 40px rgba(19,27,46,0.06)",
-    fontSize: 12,
-  },
 };
 
 // ============================================================
@@ -173,20 +162,7 @@ export default function UsagePage() {
             </p>
           </div>
           <div className="h-64">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={daily}>
-                <XAxis
-                  dataKey="date"
-                  tick={{ fontSize: 10, fill: "#787584" }}
-                  axisLine={false}
-                  tickLine={false}
-                />
-                <YAxis tick={{ fontSize: 10, fill: "#787584" }} axisLine={false} tickLine={false} />
-                <Tooltip {...tooltipStyle} />
-                <Bar dataKey="calls" fill="#6d5dd3" opacity={0.2} radius={[4, 4, 0, 0]} />
-                <Bar dataKey="cost" fill="#5443b9" radius={[2, 2, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
+            <DailyPerformanceBarChart data={daily} />
           </div>
           <div className="flex justify-center gap-8 pt-4">
             <div className="flex items-center gap-2">
@@ -207,26 +183,7 @@ export default function UsagePage() {
           </h4>
           <p className="text-lg font-extrabold font-[var(--font-heading)] mb-8">{t("byModel")}</p>
           <div className="relative flex-1 flex items-center justify-center min-h-[200px]">
-            <ResponsiveContainer width={192} height={192}>
-              <PieChart>
-                <Pie
-                  data={byModel}
-                  dataKey="calls"
-                  nameKey="model"
-                  cx="50%"
-                  cy="50%"
-                  innerRadius={56}
-                  outerRadius={80}
-                  strokeWidth={2}
-                  stroke="#fff"
-                >
-                  {byModel.map((_, i) => (
-                    <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />
-                  ))}
-                </Pie>
-                <Tooltip {...tooltipStyle} />
-              </PieChart>
-            </ResponsiveContainer>
+            <ModelPieChart data={byModel} />
             <div className="absolute text-center">
               <div className="text-2xl font-black font-[var(--font-heading)]">
                 {totalModelCalls > 0 ? "100%" : "\u2014"}

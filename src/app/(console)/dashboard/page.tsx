@@ -1,23 +1,11 @@
 "use client";
+import dynamic from "next/dynamic";
 import { useTranslations } from "next-intl";
 import { apiFetch } from "@/lib/api-client";
 import { useProject } from "@/hooks/use-project";
 import { useAsyncData } from "@/hooks/use-async-data";
 import { formatCNY, timeAgo } from "@/lib/utils";
 import { useExchangeRate } from "@/hooks/use-exchange-rate";
-import {
-  AreaChart,
-  Area,
-  BarChart,
-  Bar,
-  PieChart,
-  Pie,
-  Cell,
-  XAxis,
-  YAxis,
-  Tooltip,
-  ResponsiveContainer,
-} from "recharts";
 import Link from "next/link";
 import { EmptyState } from "@/components/empty-state";
 import { PageContainer } from "@/components/page-container";
@@ -26,6 +14,25 @@ import { PageLoader } from "@/components/page-loader";
 import { KPICard } from "@/components/kpi-card";
 import { SectionCard } from "@/components/section-card";
 import { StatusChip } from "@/components/status-chip";
+import { Skeleton } from "@/components/ui/skeleton";
+import { PIE_COLORS } from "./charts-constants";
+
+const CallsBarChart14d = dynamic(() => import("./charts-section").then((m) => m.CallsBarChart14d), {
+  ssr: false,
+  loading: () => <Skeleton className="h-full w-full" />,
+});
+const ModelPieChart = dynamic(() => import("./charts-section").then((m) => m.ModelPieChart), {
+  ssr: false,
+  loading: () => <Skeleton className="h-full w-full rounded-full" />,
+});
+const HourlyBarChart = dynamic(() => import("./charts-section").then((m) => m.HourlyBarChart), {
+  ssr: false,
+  loading: () => <Skeleton className="h-full w-full" />,
+});
+const CostBarChart = dynamic(() => import("./charts-section").then((m) => m.CostBarChart), {
+  ssr: false,
+  loading: () => <Skeleton className="h-full w-full" />,
+});
 
 // ============================================================
 // Types (unchanged)
@@ -58,8 +65,6 @@ interface ModelData {
   calls: number;
   cost: number;
 }
-
-const PIE_COLORS = ["#5443b9", "#5f5987", "#7c4b00", "#c8bfff", "#ffb964"];
 
 // ============================================================
 // Component
@@ -145,52 +150,58 @@ export default function DashboardPage() {
 
       <PageHeader title={t("title")} subtitle={t("subtitle") ?? "Real-time performance metrics"} />
 
-      {usage && (
-        <div className="grid grid-cols-12 gap-6">
-          <div className="col-span-12 lg:col-span-8 grid grid-cols-2 md:grid-cols-4 gap-4">
-            <KPICard label={t("todayCalls")} value={usage.totalCalls.toLocaleString()} />
-            <KPICard label={t("todayCost")} value={formatCNY(usage.totalCost, exchangeRate, 2)} />
-            <KPICard
-              label={t("avgLatency")}
-              value={`${usage.avgLatencyMs?.toLocaleString() ?? 0}ms`}
-            />
-            <KPICard
-              label={t("successRate")}
-              value={`${(usage.successRate * 100).toFixed(1)}%`}
-              trend={
-                <span className="italic">{t("errorsToday", { count: usage.errorCount })}</span>
-              }
-            />
-          </div>
-
-          {/* Balance Card — code.html lines 228-245 */}
-          <div className="col-span-12 lg:col-span-4 bg-gradient-to-br from-indigo-700 to-indigo-900 p-6 rounded-2xl relative overflow-hidden text-white shadow-2xl shadow-indigo-900/20">
-            <div className="relative z-10 flex flex-col h-full justify-between">
-              <div>
-                <div className="flex justify-between items-start">
-                  <span className="text-indigo-200 text-sm font-medium uppercase tracking-widest">
-                    {tc("balance") ?? "Account Balance"}
-                  </span>
-                  <span className="material-symbols-outlined text-indigo-300">
-                    account_balance_wallet
-                  </span>
-                </div>
-                <h3 className="text-4xl font-extrabold mt-2">
-                  {balanceInfo ? formatCNY(balanceInfo.balance, exchangeRate, 2) : "¥0.00"}
-                </h3>
-              </div>
-              <Link
-                href="/balance"
-                className="mt-4 w-full bg-white text-indigo-900 font-extrabold py-3 rounded-xl hover:bg-indigo-50 transition-colors text-center block"
-              >
-                {t("rechargeNow")}
-              </Link>
-            </div>
-            <div className="absolute -bottom-10 -right-10 w-40 h-40 bg-white/10 rounded-full blur-3xl" />
-            <div className="absolute -top-10 -left-10 w-32 h-32 bg-ds-primary-container/20 rounded-full blur-2xl" />
-          </div>
+      <div className="grid grid-cols-12 gap-6 min-h-[180px]">
+        <div className="col-span-12 lg:col-span-8 grid grid-cols-2 md:grid-cols-4 gap-4">
+          {usage ? (
+            <>
+              <KPICard label={t("todayCalls")} value={usage.totalCalls.toLocaleString()} />
+              <KPICard label={t("todayCost")} value={formatCNY(usage.totalCost, exchangeRate, 2)} />
+              <KPICard
+                label={t("avgLatency")}
+                value={`${usage.avgLatencyMs?.toLocaleString() ?? 0}ms`}
+              />
+              <KPICard
+                label={t("successRate")}
+                value={`${(usage.successRate * 100).toFixed(1)}%`}
+                trend={
+                  <span className="italic">{t("errorsToday", { count: usage.errorCount })}</span>
+                }
+              />
+            </>
+          ) : (
+            Array.from({ length: 4 }).map((_, i) => (
+              <Skeleton key={i} className="h-[108px] w-full rounded-2xl" />
+            ))
+          )}
         </div>
-      )}
+
+        {/* Balance Card — code.html lines 228-245 */}
+        <div className="col-span-12 lg:col-span-4 bg-gradient-to-br from-indigo-700 to-indigo-900 p-6 rounded-2xl relative overflow-hidden text-white shadow-2xl shadow-indigo-900/20 min-h-[180px]">
+          <div className="relative z-10 flex flex-col h-full justify-between">
+            <div>
+              <div className="flex justify-between items-start">
+                <span className="text-indigo-200 text-sm font-medium uppercase tracking-widest">
+                  {tc("balance") ?? "Account Balance"}
+                </span>
+                <span className="material-symbols-outlined text-indigo-300">
+                  account_balance_wallet
+                </span>
+              </div>
+              <h3 className="text-4xl font-extrabold mt-2">
+                {balanceInfo ? formatCNY(balanceInfo.balance, exchangeRate, 2) : "\u2014"}
+              </h3>
+            </div>
+            <Link
+              href="/balance"
+              className="mt-4 w-full bg-white text-indigo-900 font-extrabold py-3 rounded-xl hover:bg-indigo-50 transition-colors text-center block"
+            >
+              {t("rechargeNow")}
+            </Link>
+          </div>
+          <div className="absolute -bottom-10 -right-10 w-40 h-40 bg-white/10 rounded-full blur-3xl" />
+          <div className="absolute -top-10 -left-10 w-32 h-32 bg-ds-primary-container/20 rounded-full blur-2xl" />
+        </div>
+      </div>
 
       {/* ═══ Charts Row — code.html lines 248-352 ═══ */}
       <div className="grid grid-cols-12 gap-6 mb-8">
@@ -203,28 +214,7 @@ export default function DashboardPage() {
             </div>
           </div>
           <div className="h-64">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={daily}>
-                <XAxis
-                  dataKey="date"
-                  tick={{ fontSize: 10, fill: "#94a3b8" }}
-                  axisLine={false}
-                  tickLine={false}
-                />
-                <YAxis tick={{ fontSize: 10, fill: "#94a3b8" }} axisLine={false} tickLine={false} />
-                <Tooltip
-                  contentStyle={{
-                    background: "rgba(250,248,255,0.95)",
-                    backdropFilter: "blur(12px)",
-                    border: "none",
-                    borderRadius: 12,
-                    boxShadow: "0 20px 40px rgba(19,27,46,0.06)",
-                    fontSize: 12,
-                  }}
-                />
-                <Bar dataKey="calls" fill="#5443b9" radius={[2, 2, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
+            <CallsBarChart14d data={daily} />
           </div>
         </SectionCard>
 
@@ -232,34 +222,7 @@ export default function DashboardPage() {
         <SectionCard className="col-span-12 xl:col-span-4">
           <h4 className="font-[var(--font-heading)] font-bold text-lg mb-6">{t("modelDist")}</h4>
           <div className="relative h-48 w-48 mx-auto flex items-center justify-center">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie
-                  data={models}
-                  dataKey="calls"
-                  nameKey="model"
-                  cx="50%"
-                  cy="50%"
-                  innerRadius={48}
-                  outerRadius={72}
-                  strokeWidth={2}
-                  stroke="#fff"
-                >
-                  {models.map((_, i) => (
-                    <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />
-                  ))}
-                </Pie>
-                <Tooltip
-                  contentStyle={{
-                    background: "rgba(250,248,255,0.95)",
-                    backdropFilter: "blur(12px)",
-                    border: "none",
-                    borderRadius: 12,
-                    fontSize: 12,
-                  }}
-                />
-              </PieChart>
-            </ResponsiveContainer>
+            <ModelPieChart data={models} />
             <div className="absolute text-center">
               <span className="block text-2xl font-extrabold text-ds-on-surface">
                 {totalModelCalls > 1000
@@ -297,27 +260,7 @@ export default function DashboardPage() {
           <SectionCard>
             <h4 className="font-[var(--font-heading)] font-bold text-lg mb-4">{t("hourlyDist")}</h4>
             <div className="h-32">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={hourly}>
-                  <XAxis
-                    dataKey="hour"
-                    tick={{ fontSize: 9, fill: "#94a3b8" }}
-                    axisLine={false}
-                    tickLine={false}
-                    interval={3}
-                  />
-                  <Tooltip
-                    contentStyle={{
-                      background: "rgba(250,248,255,0.95)",
-                      backdropFilter: "blur(12px)",
-                      border: "none",
-                      borderRadius: 12,
-                      fontSize: 12,
-                    }}
-                  />
-                  <Bar dataKey="calls" fill="#5443b9" radius={[2, 2, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
+              <HourlyBarChart data={hourly} />
             </div>
           </SectionCard>
 
@@ -330,22 +273,7 @@ export default function DashboardPage() {
               </span>
             </div>
             <div className="h-24">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={daily}>
-                  <XAxis dataKey="date" hide />
-                  <Tooltip
-                    contentStyle={{
-                      background: "rgba(250,248,255,0.95)",
-                      backdropFilter: "blur(12px)",
-                      border: "none",
-                      borderRadius: 12,
-                      fontSize: 12,
-                    }}
-                    formatter={(v) => [`$${Number(v).toFixed(3)}`, "Cost"]}
-                  />
-                  <Bar dataKey="cost" fill="#5f5987" radius={[2, 2, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
+              <CostBarChart data={daily} />
             </div>
           </SectionCard>
         </div>
@@ -362,7 +290,7 @@ export default function DashboardPage() {
               <span className="material-symbols-outlined text-sm">arrow_forward</span>
             </Link>
           </div>
-          <div className="overflow-x-auto">
+          <div className="overflow-x-auto min-h-[260px]">
             <table className="w-full text-left">
               <thead>
                 <tr className="text-[10px] font-bold text-ds-on-surface-variant uppercase tracking-widest">

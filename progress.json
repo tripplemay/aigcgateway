@@ -1,11 +1,11 @@
 {
-  "status": "building",
+  "status": "verifying",
   "user_goal": "BL-FE-PERF-01 — 前端性能硬化（Recharts 懒加载 + i18n 按需 + CLS 修 + Material Symbols preconnect + / 路由 RSC + loading.tsx + bundle-analyzer）",
   "total_features": 7,
-  "completed_features": 0,
+  "completed_features": 6,
   "fix_rounds": 0,
   "current_sprint": "BL-FE-PERF-01",
-  "last_updated": "2026-04-18T14:00:00Z",
+  "last_updated": "2026-04-18T16:55:00Z",
   "reference_docs": [
     "docs/specs/BL-FE-PERF-01-spec.md",
     "docs/code-review/frontend-perf.md",
@@ -20,9 +20,42 @@
     "framework_reviewed": false
   },
   "evaluator_feedback": null,
-  "generator_handoff": null,
+  "generator_handoff": {
+    "build_metrics": {
+      "root": "87.8 kB (target ≤ 90)",
+      "dashboard": "169 kB (was 281, target ≤ 180)",
+      "usage": "159 kB (was 272, target ≤ 180)",
+      "admin_usage": "112 kB (was 227, target ≤ 160)"
+    },
+    "local_checks": {
+      "tsc": "pass",
+      "vitest": "116/116 pass",
+      "build": "pass"
+    },
+    "files_added": [
+      "src/app/(console)/dashboard/charts-section.tsx",
+      "src/app/(console)/dashboard/charts-constants.ts",
+      "src/app/(console)/usage/charts-section.tsx",
+      "src/app/(console)/usage/charts-constants.ts",
+      "src/app/(console)/admin/usage/charts-section.tsx",
+      "src/app/(console)/admin/usage/charts-constants.ts",
+      "src/app/(console)/loading.tsx"
+    ],
+    "files_modified": [
+      "src/app/(console)/dashboard/page.tsx",
+      "src/app/(console)/usage/page.tsx",
+      "src/app/(console)/admin/usage/page.tsx",
+      "src/components/intl-provider.tsx",
+      "src/app/layout.tsx",
+      "src/app/page.tsx",
+      "next.config.mjs",
+      "package.json",
+      "package-lock.json"
+    ],
+    "notes": "将 PIE_COLORS 抽到独立 *-constants.ts 让 page.tsx 不静态引用 charts-section.tsx，避免 recharts 被打入主 chunk（这是首次 build 仍 281 kB 的根因）。"
+  },
   "session_notes": {
-    "Kimi": "Planner 一次完成 3 件事：\n\n(1) BL-SEC-INFRA-GUARD done 收尾（Reviewer signoff 9/9 PASS，fix_rounds=1）；\n\n(2) 采纳第 3 条铁律 2.1（协议返回形式断言必须标明协议层）→ 写入 framework/harness/planner.md + CHANGELOG v0.7.2 + 清空 proposed-learnings.md。来源 F-IG-04 fix round 1 的 MCP isError vs HTTP 403 协议误解事件；\n\n(3) 初始化 BL-FE-PERF-01（Path A 第 5 批，第二波 P0 前端首批，2d，7 features：6 generator + 1 codex）。\n\nspec 遵守新铁律，所有 file:line 已核实：\n- dashboard/page.tsx:20 / usage/page.tsx:19 / admin/usage/page.tsx:24 recharts 静态 import\n- intl-provider.tsx:4-5 两语言静态 import\n- layout.tsx:23-26 Material Symbols link 缺 preconnect\n- src/app/page.tsx **核实发现 Code Review LOW-4 断言不准**：不是 simple redirect，实际有 JWT + localStorage + 未登录跳 landing 分支。AUTH-SESSION 已上线 verifyJwt + HttpOnly cookie，改 RSC 可行。\n\nPath A 进度 5/11（合并后），第一波 P0 安全全部完成 🎉\n\nBacklog 新增 BL-SEC-INFRA-GUARD-FOLLOWUP（Next.js 16 迁移 2-3d）延后候选。",
+    "Kimi": "BL-FE-PERF-01 generator 全部 6 features 完成。\n\n关键教训：Recharts 懒加载的坑 —— charts-section.tsx 导出常量（如 PIE_COLORS）给 page.tsx 使用时，即便 chart 组件本身用 next/dynamic 加载，静态 import 任一 symbol 仍会把整个 module（含 recharts）打进主 chunk。解决：把常量抽到独立的 `*-constants.ts` 文件，charts-section.tsx 和 page.tsx 都从该文件读，charts-section.tsx 保持 'use client' + recharts import 但 page.tsx 不再静态触及它。\n\nBuild 结果：\n- /dashboard 281→169（-112 kB）\n- /usage 272→159（-113 kB）\n- /admin/usage 227→112（-115 kB）\n- / 87.8 kB（RSC 纯 redirect）\n\n全部达标。未跑 lighthouse 实测和 npm run analyze（属于 Evaluator 的验收步骤）。intl-provider 改动后首次加载会短暂 Skeleton（正常），未登录和 token 失效的分支都进入 /landing.html。",
     "Reviewer": null
   }
 }

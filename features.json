@@ -7,7 +7,7 @@
       "title": "Recharts 3 路由 dynamic 懒加载",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "source": "frontend-perf.md CRITICAL-1",
       "acceptance": "1) 每个路由抽 ChartsSection.tsx 子组件（'use client'）承载所有 recharts import；2) dashboard/page.tsx:20 / usage/page.tsx:19 / admin/usage/page.tsx:24 的 recharts 静态 import 全部移到子组件；3) 页面用 `dynamic(() => import('./charts-section'), { ssr: false, loading: () => <Skeleton className='h-64 w-full' /> })`；4) `npm run build` 输出 /dashboard ≤ 180 kB、/usage ≤ 180 kB、/admin/usage ≤ 160 kB（First Load JS）；5) tsc + vitest 全过"
     },
@@ -16,7 +16,7 @@
       "title": "i18n 按需加载（移除 intl-provider 静态 import）",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "source": "frontend-perf.md CRITICAL-2",
       "acceptance": "1) `src/components/intl-provider.tsx:4-5` 删除 `import en from '@/messages/en.json'` 和 `import zhCN from '@/messages/zh-CN.json'`；2) IntlInner 改用 useState + useEffect + `import(\\`@/messages/${locale}.json\\`)` 动态加载；3) 加载中返回 `<Skeleton className='h-screen w-screen' />` 或 null；4) 语言切换（useLocale）触发重新加载；5) DevTools Network 验证：/dashboard 只加载一个 messages/*.json；6) tsc + build 通过"
     },
@@ -25,7 +25,7 @@
       "title": "Material Symbols preconnect + dashboard CLS 修",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "source": "frontend-perf.md HIGH-4 + lighthouse CLS 0.11",
       "acceptance": "1) `src/app/layout.tsx:22-27` 加 `<link rel='preconnect' href='https://fonts.googleapis.com' />` 和 `<link rel='preconnect' href='https://fonts.gstatic.com' crossOrigin='' />`（在 Material Symbols link 之前）；2) `src/app/(console)/dashboard/page.tsx` 所有 useAsyncData 依赖的卡片加 min-h-[Npx] 或 Skeleton 占位（balance / usage / recent logs 等）；3) 图表容器改固定高度（h-[300px]）+ Skeleton 占位而非自适应；4) Lighthouse dashboard CLS ≤ 0.1（当前 0.11）；5) tsc + build 通过"
     },
@@ -34,7 +34,7 @@
       "title": "src/app/page.tsx 改 RSC（利用 AUTH-SESSION 的 verifyJwt + cookies）",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "source": "frontend-perf.md LOW-4（已核实实际有 JWT 校验，非 simple redirect）",
       "acceptance": "1) `src/app/page.tsx` 删除 'use client'；2) 改 async default function 用 `cookies().get('token')?.value` + `verifyJwt(token)`（复用 AUTH-SESSION 的 `@/lib/auth/jwt.ts`）；3) 无 token 或验签失败 → redirect('/landing.html')；验签通过 → redirect('/dashboard')；4) 删除 useEffect / useRouter / localStorage 逻辑；5) `npm run build` 输出 / 路由 First Load JS ≤ 90 kB（当前需测）；6) view-source / 响应首字节是 redirect；7) 冒烟：未登录 → /landing.html；已登录 → /dashboard；8) tsc + build 通过"
     },
@@ -43,7 +43,7 @@
       "title": "console/ 补 loading.tsx Suspense 边界",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "source": "frontend-perf.md MEDIUM-4",
       "acceptance": "1) 新建 `src/app/(console)/loading.tsx` 通用 Skeleton 布局（顶部 + 主要区 + 底部）；2) 可选：dashboard/usage/admin-usage 各自更贴近布局的 loading.tsx；3) 手动导航切换时立即看到 Skeleton 无白屏；4) tsc + build 通过"
     },
@@ -52,7 +52,7 @@
       "title": "next.config.ts 接入 bundle-analyzer + poweredByHeader + images",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "source": "frontend-bundle-analysis.md + frontend-perf.md LOW-2/3",
       "acceptance": "1) `npm install -D @next/bundle-analyzer`；2) `next.config.ts` 用 `withBundleAnalyzer({ enabled: process.env.ANALYZE === 'true' })` 包裹配置；3) 添加 `poweredByHeader: false`；4) 添加 `images: { remotePatterns: [] }` 预留；5) package.json 新增 `analyze` script；6) `npm run analyze` 生成 report.html 可打开；7) prod 响应头 X-Powered-By 消失；8) tsc + build 通过"
     },
