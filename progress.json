@@ -1,48 +1,26 @@
 {
-  "status": "verifying",
-  "user_goal": "BL-SEC-BILLING-AI — AI 调用扣费原子性（deduct_balance FOR UPDATE + CallLog+deduct 事务化 + CHECK 约束）",
-  "total_features": 4,
-  "completed_features": 3,
+  "status": "building",
+  "user_goal": "BL-SEC-BILLING-CHECK-FOLLOWUP — CHECK 约束规则修正 + 重提 migration（F-BA-03 生产部署失败后续）",
+  "total_features": 2,
+  "completed_features": 0,
   "fix_rounds": 0,
-  "current_sprint": "BL-SEC-BILLING-AI",
-  "last_updated": "2026-04-18T11:20:00Z",
+  "current_sprint": "BL-SEC-BILLING-CHECK-FOLLOWUP",
+  "last_updated": "2026-04-18T12:05:00Z",
   "reference_docs": [
-    "docs/specs/BL-SEC-BILLING-AI-spec.md",
-    "docs/code-review/backend-fullscan-2026-04-17.md"
+    "docs/specs/BL-SEC-BILLING-CHECK-FOLLOWUP-spec.md",
+    "docs/specs/BL-SEC-BILLING-AI-spec.md"
   ],
   "role_assignments": null,
   "docs": {
-    "spec": "docs/specs/BL-SEC-BILLING-AI-spec.md",
+    "spec": "docs/specs/BL-SEC-BILLING-CHECK-FOLLOWUP-spec.md",
     "test_cases": null,
     "signoff": null,
     "framework_reviewed": false
   },
   "evaluator_feedback": null,
-  "generator_handoff": {
-    "summary": "3 generator features delivered + 2 migrations applied locally + e2e regression seeded.",
-    "artifacts": [
-      "prisma/migrations/20260418_deduct_balance_for_update/migration.sql",
-      "prisma/migrations/20260418_billing_check_constraints/migration.sql",
-      "src/lib/api/post-process.ts (chat + image paths both wrapped in prisma.$transaction)",
-      "prisma/schema.prisma (/// CHECK doc comments on Transaction / TemplateRating)",
-      "scripts/e2e-test.ts step 24 (F-BA-02 concurrent atomicity regression)"
-    ],
-    "local_verification": {
-      "tsc": "clean",
-      "build": "ok",
-      "vitest": "96/96 pass",
-      "psql_check_constraints": "positive DEDUCTION rejected (23514); score=10 rejected (23514)",
-      "prisma_migrate": "both migrations applied via psql + marked via prisma migrate resolve (dev DB had pre-existing drift on 20260410051446 + 20260417_template_test_runs; unrelated to this batch)"
-    },
-    "notes_for_evaluator": [
-      "F-BA-04 codex-only: run concurrent /v1/chat/completions stress + check_constraint assertions + rebuild tsc/build/vitest.",
-      "e2e step 24 requires a running dev server (BASE_URL=http://localhost:3099) — it sets e2e user balance to $1 then fires 10 concurrent chats.",
-      "post-process.ts's deductBalance helper now takes a tx client — the SQL deduct_balance function itself keeps 6-param signature + RETURNS TABLE; callers unchanged at the call-site semantics.",
-      "dev DB migrate drift is pre-existing (not introduced by this batch); production deploy should use `prisma migrate deploy` which is unaffected by dev drift."
-    ]
-  },
+  "generator_handoff": null,
   "session_notes": {
-    "Kimi": "Generator 完成 F-BA-01/02/03（3/4）。按 Planner 修订 spec 实施，无偏差。\n\n要点：\n- F-BA-01 新 migration CREATE OR REPLACE deduct_balance，显式 SELECT FOR UPDATE，签名/返回/INSERT transactions 段落与旧版完全一致，post-process.ts 调用点无需改\n- F-BA-02 post-process.ts 两路（chat + image）改 prisma.$transaction 包 callLog.create + deduct_balance raw query；deductBalance helper 的 tx 类型用 Parameters<Parameters<typeof prisma.$transaction>[0]>[0] 从扩展 prisma 客户端推导，绕开 Prisma.TransactionClient 与 $extends 的类型不兼容；禁止 tx.transaction.create（函数内已 INSERT）\n- F-BA-03 migration 带 DO $$ RAISE EXCEPTION 预检；schema.prisma 加 /// CHECK 文档注释\n- e2e-test.ts step 24：reset balance=$1 → 10 并发 chat → 断言 overdraft 防护 + callLog↔transaction 一一对应 + 无重复 callLogId\n\n本地验证：tsc 干净，build 通过，vitest 96/96，psql 手工 INSERT 验证两条 CHECK 都以 23514 拒绝。两个 migration 通过 psql 直接 apply 再 `prisma migrate resolve --applied` 登记（dev DB 有 pre-existing drift 与本批次无关，不 reset 避免销毁本地测试数据）。\n\n交给 Evaluator 跑 F-BA-04 的 12 项断言。",
+    "Kimi": "Planner 完成：(1) BL-SEC-BILLING-AI done 收尾（framework_reviewed 留给本批次一起收）；(2) 调查生产 7 行被 v1 migration 拒绝的数据：全是 REFUND amount>0，business 正确，source `scripts/refund-zero-image-audit.ts:102` 存 +sellPrice；(3) 结论：Code Review H-16 报告对 REFUND 符号断言错误（报告说 <0，实际代码约定 >=0），Planner 初稿照抄未核实；(4) backlog.json 追加 BL-SEC-BILLING-CHECK-FOLLOWUP order=3.5 follows=BILLING-AI；(5) 新批次 2 条 feature（1 generator 改 migration + schema 注释，1 codex 生产部署+14 项验收）。\n\nF-BCF-01 要点：新 migration `20260418_billing_check_constraints_v2`（区分失败的 v1），CHECK 规则修正为 DEDUCTION<0 / REFUND+RECHARGE+BONUS>=0 / ADJUSTMENT 任意；预检 SQL 同步。\n\nF-BCF-02 要点：本地 build + 生产预检（预期 0 不合规）+ 生产部署 + 正反 INSERT 验证 + AI 调用正向回归。\n\nPath A 进度 3.5/14.5（插队 1 个 0.5d 修正批次）。本批次完成后继续 INFRA-GUARD。\n\n已在 framework/proposed-learnings.md 追加一条：Code Review 报告的事实断言（符号/类型/约束）必须用生产数据 + 源码交叉验证。",
     "Reviewer": null
   }
 }

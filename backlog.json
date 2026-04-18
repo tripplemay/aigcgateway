@@ -75,6 +75,26 @@
       "order": 3
     },
     {
+      "id": "BL-SEC-BILLING-CHECK-FOLLOWUP",
+      "title": "BILLING-AI 后续 — CHECK 约束规则修正 + 重提 migration",
+      "description": "BL-SEC-BILLING-AI 的 F-BA-03 生产部署失败（c8a7703 hotfix 已删 migration）。根因：Code Review H-16 报告对 REFUND 符号断言错误（报告说 '<0'，实际代码 refund-zero-image-audit.ts:102 存 `+sellPrice` 为正数），7 行生产 REFUND amount>0 是业务正确的。本批次修正 CHECK 规则后重提。不需数据清理。顺带在 schema.prisma 补 /// CHECK 文档注释。",
+      "decisions": [
+        "不清理 7 行 REFUND 数据（业务正确）",
+        "CHECK 规则修正：DEDUCTION<0 / REFUND+RECHARGE+BONUS>=0 / ADJUSTMENT 任意",
+        "TemplateRating.score CHECK（1-5）无需改动",
+        "新 migration 命名 20260418_billing_check_constraints_v2/（与失败的 v1 区分）",
+        "DO $$ 预检用新规则（预期 0 不合规）",
+        "schema.prisma 补 /// CHECK 文档注释"
+      ],
+      "confirmed_at": "2026-04-18",
+      "priority": "high",
+      "source": "BL-SEC-BILLING-AI F-BA-03 deferred + c8a7703 hotfix",
+      "estimated_effort": "0.5 day",
+      "phase": "P0-security",
+      "order": 3.5,
+      "follows": "BL-SEC-BILLING-AI"
+    },
+    {
       "id": "BL-SEC-INFRA-GUARD",
       "title": "基建硬化 — admin 白名单 + 分布式锁 + shell + 依赖升级 + MCP 权限一致性",
       "description": "来源 docs/code-review/ CRIT-8/9/10 + H-11/12/13/14/29/30/31。(1) CRIT-8/H-11/H-12: admin PATCH 三处 mass assignment（ProviderConfig/Channel/Model）直接 data: body 透传。(2) CRIT-9: scheduler + model-sync 仅进程内锁，Docker 多副本并发污染。(3) CRIT-10: scripts/stress-test.ts execSync 字符串拼接 RCE。(4) H-13: fork-public-template 无 checkMcpPermission。(5) H-14: MCP IP 白名单与 REST 层不一致。(6) H-29: Provider baseUrl 无协议校验。(7) H-30: Next.js 版本 8 个高危依赖。(8) H-31: checkBalanceAlerts 无去重，每小时重复告警。",

@@ -3,7 +3,13 @@
 - 批次：`BL-SEC-BILLING-AI`
 - 阶段：`verifying` / `reverifying`
 - 目标功能：`F-BA-04`（`executor: codex`）
-- 当前状态：**仅准备用例，不执行测试**
+- 当前状态：**已执行（按用户指令收敛 sign-off 范围）**
+
+## 范围收敛说明（2026-04-18）
+
+1. 用户确认本批次 sign-off 仅以 `F-BA-01/02` 验证结果为准。
+2. CHECK 类验证项标记为 `deferred`，不作为本次签收阻断条件。
+3. 用户口径中的 `TC-BA-04/05（CHECK 类）` 对应当前文档编号 `TC-BA-05/06`。
 
 ## 验收范围
 
@@ -72,7 +78,7 @@ HAVING COUNT(*) > 1;
 1. 中断场景下 `call_logs` 与 `transactions` 均不可见（或均为 0 条）。
 2. 不允许出现仅写入其一的半成功状态。
 
-### TC-BA-05 CHECK 约束（transactions.amount）
+### TC-BA-05 CHECK 约束（transactions.amount）`[DEFERRED]`
 - 目的：验证交易金额符号约束在数据库层生效。
 - 步骤：
 1. 执行 SQL（示例）：
@@ -84,7 +90,7 @@ VALUES ('tc_ba_invalid_txn', '<TEST_USER_ID>', 'DEDUCTION', 10, 'invalid-positiv
 - 期望：
 1. SQL 被拒绝，错误码为 `23514`（check violation）。
 
-### TC-BA-06 CHECK 约束（template_ratings.score）
+### TC-BA-06 CHECK 约束（template_ratings.score）`[DEFERRED]`
 - 目的：验证评分范围约束在数据库层生效。
 - 步骤：
 1. 执行 SQL（示例）：

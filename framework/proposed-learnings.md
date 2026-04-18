@@ -36,3 +36,21 @@
 **建议铁律：** "Planner 写 spec 涉及具体代码细节时，必须提供 `file:line` 引用与源码片段；Generator 可在开工前做规格核查，发现偏差的在代码开工前必须先澄清。"
 
 **状态：** 待确认
+
+## [2026-04-18] Planner — 来源：BL-SEC-BILLING-AI F-BA-03 生产部署失败 / BILLING-CHECK-FOLLOWUP 启动
+
+**类型：** 铁律补充（上一条的专项延伸）
+
+**内容：** Code Review 报告的**事实性断言**（特别是符号/类型/约束/枚举值类）不是真相，**必须用生产数据 + 源码代码双路交叉验证**。本次 H-16 报告声称 `Transaction.amount 的 DEDUCTION/REFUND 应 <0`，但实际代码 `scripts/refund-zero-image-audit.ts:102` 存 `+sellPrice` 为正数；7 行生产 REFUND amount>0 是业务正确的。基于错误断言写的 CHECK migration 在生产 `prisma migrate deploy` 失败，需 hotfix 回滚 + 开新批次修正。
+
+**建议写入：** `framework/harness/planner.md` —— "spec 编写前核查清单"补充：
+- Code Review 报告的断言（符号/类型/约束/枚举/常量）按"线索"对待，**不按"真相"采信**
+- 符号/类型/约束断言的核验步骤：
+  1. `grep` / `Read` 找到所有 INSERT/CREATE/UPDATE 写入点
+  2. `ssh prod-db` 采样几行现网数据验证断言
+  3. 两路交叉验证一致再写进 spec
+- 规格中引用 Code Review 发现时，标注 "已核实" / "待核实" 状态
+
+**建议铁律：** "Planner 引用 Code Review 报告的符号/类型/约束/枚举断言时，必须标注核验来源（生产数据抽样 + 源码行号），否则 Generator 开工前有权拒绝。"
+
+**状态：** 待确认
