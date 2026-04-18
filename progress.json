@@ -1,11 +1,11 @@
 {
-  "status": "verifying",
+  "status": "done",
   "user_goal": "BL-FE-PERF-01 — 前端性能硬化（Recharts 懒加载 + i18n 按需 + CLS 修 + Material Symbols preconnect + / 路由 RSC + loading.tsx + bundle-analyzer）",
   "total_features": 7,
-  "completed_features": 6,
+  "completed_features": 7,
   "fix_rounds": 0,
   "current_sprint": "BL-FE-PERF-01",
-  "last_updated": "2026-04-18T16:55:00Z",
+  "last_updated": "2026-04-18T12:22:34Z",
   "reference_docs": [
     "docs/specs/BL-FE-PERF-01-spec.md",
     "docs/code-review/frontend-perf.md",
@@ -15,11 +15,11 @@
   "role_assignments": null,
   "docs": {
     "spec": "docs/specs/BL-FE-PERF-01-spec.md",
-    "test_cases": null,
-    "signoff": null,
+    "test_cases": "docs/test-cases/bl-fe-perf-01-verifying-cases-2026-04-18.md",
+    "signoff": "docs/test-reports/BL-FE-PERF-01-signoff-2026-04-18.md",
     "framework_reviewed": false
   },
-  "evaluator_feedback": null,
+  "evaluator_feedback": "PASS: BL-FE-PERF-01 验收通过（i18n 按修订口径通过，见 signoff）",
   "generator_handoff": {
     "build_metrics": {
       "root": "87.8 kB (target ≤ 90)",
@@ -56,6 +56,6 @@
   },
   "session_notes": {
     "Kimi": "BL-FE-PERF-01 generator 全部 6 features 完成。\n\n关键教训：Recharts 懒加载的坑 —— charts-section.tsx 导出常量（如 PIE_COLORS）给 page.tsx 使用时，即便 chart 组件本身用 next/dynamic 加载，静态 import 任一 symbol 仍会把整个 module（含 recharts）打进主 chunk。解决：把常量抽到独立的 `*-constants.ts` 文件，charts-section.tsx 和 page.tsx 都从该文件读，charts-section.tsx 保持 'use client' + recharts import 但 page.tsx 不再静态触及它。\n\nBuild 结果：\n- /dashboard 281→169（-112 kB）\n- /usage 272→159（-113 kB）\n- /admin/usage 227→112（-115 kB）\n- / 87.8 kB（RSC 纯 redirect）\n\n全部达标。未跑 lighthouse 实测和 npm run analyze（属于 Evaluator 的验收步骤）。intl-provider 改动后首次加载会短暂 Skeleton（正常），未登录和 token 失效的分支都进入 /landing.html。",
-    "Reviewer": null
+    "Reviewer": "已按修订口径完成 BL-FE-PERF-01 全量验收并签收。关键结果：/dashboard 169kB，/usage 159kB，/admin/usage 112kB，/ 87.8kB，LCP 159ms，CLS 0.00。"
   }
 }
