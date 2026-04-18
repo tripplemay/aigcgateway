@@ -71,20 +71,7 @@ sequenceDiagram
 
 ### 7 个状态
 
-```mermaid
-stateDiagram-v2
-    [*] --> new: 新批次
-    new --> planning: Planner 启动
-    planning --> building: 含 generator 任务
-    planning --> verifying: 全 codex 任务（跳过 building）
-    building --> verifying: Generator 完成所有 generator 任务
-    verifying --> done: 全 PASS + signoff 已写
-    verifying --> fixing: 有 FAIL/PARTIAL
-    fixing --> reverifying: Generator 修复完成
-    reverifying --> done: 全 PASS
-    reverifying --> fixing: 仍有问题
-    done --> [*]: 归档
-```
+<img src="imgs/state-machine.svg" alt="7 状态机流转" width="100%">
 
 ### 每个状态做什么
 
@@ -336,6 +323,8 @@ flowchart TD
 - `order` 字段用于大型多批次串行重构（Path A 模式）的执行顺序
 
 ### .auto-memory/ — 共享记忆
+
+<img src="imgs/memory-pyramid.svg" alt="记忆分层金字塔" width="100%">
 
 ```
 .auto-memory/

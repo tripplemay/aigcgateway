@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 700" width="1400" height="700" font-family="system-ui, -apple-system, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif">
+  <defs>
+    <filter id="nodeShadow">
+      <feDropShadow dx="0" dy="2" stdDeviation="4" flood-color="#94A3B8" flood-opacity="0.2"/>
+    </filter>
+    <marker id="arrFwd" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L9,3 z" fill="#475569"/>
+    </marker>
+    <marker id="arrFail" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L9,3 z" fill="#EF4444"/>
+    </marker>
+    <marker id="arrPass" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L9,3 z" fill="#10B981"/>
+    </marker>
+    <marker id="arrMuted" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L9,3 z" fill="#94A3B8"/>
+    </marker>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1400" height="700" fill="#FAFAFA"/>
+
+  <!-- Title -->
+  <text x="700" y="62" font-size="32" font-weight="700" fill="#0F172A" text-anchor="middle">7 状态机 · 状态流转</text>
+  <text x="700" y="94" font-size="14" fill="#64748B" text-anchor="middle">每个状态对应一个独立的 AI 会话 · progress.json 是 source of truth</text>
+
+  <!-- ===== Main row: new → planning → building → verifying → done ===== -->
+
+  <!-- new -->
+  <g filter="url(#nodeShadow)">
+    <rect x="40" y="205" width="140" height="70" rx="10" fill="#DBEAFE" stroke="#3B82F6" stroke-width="1.5"/>
+  </g>
+  <text x="110" y="238" font-size="17" font-weight="700" fill="#1E40AF" text-anchor="middle">new</text>
+  <text x="110" y="258" font-size="11" fill="#3B82F6" text-anchor="middle">新批次</text>
+
+  <!-- planning -->
+  <g filter="url(#nodeShadow)">
+    <rect x="240" y="205" width="140" height="70" rx="10" fill="#DBEAFE" stroke="#3B82F6" stroke-width="1.5"/>
+  </g>
+  <text x="310" y="238" font-size="17" font-weight="700" fill="#1E40AF" text-anchor="middle">planning</text>
+  <text x="310" y="258" font-size="11" fill="#3B82F6" text-anchor="middle">Planner 拆解</text>
+
+  <!-- building -->
+  <g filter="url(#nodeShadow)">
+    <rect x="440" y="205" width="140" height="70" rx="10" fill="#D1FAE5" stroke="#10B981" stroke-width="1.5"/>
+  </g>
+  <text x="510" y="238" font-size="17" font-weight="700" fill="#065F46" text-anchor="middle">building</text>
+  <text x="510" y="258" font-size="11" fill="#10B981" text-anchor="middle">Generator 实现</text>
+
+  <!-- verifying -->
+  <g filter="url(#nodeShadow)">
+    <rect x="670" y="205" width="140" height="70" rx="10" fill="#FEE2E2" stroke="#EF4444" stroke-width="1.5"/>
+  </g>
+  <text x="740" y="238" font-size="17" font-weight="700" fill="#991B1B" text-anchor="middle">verifying</text>
+  <text x="740" y="258" font-size="11" fill="#EF4444" text-anchor="middle">Evaluator 首验</text>
+
+  <!-- done -->
+  <g filter="url(#nodeShadow)">
+    <rect x="1200" y="205" width="140" height="70" rx="10" fill="#0F172A" stroke="#0F172A" stroke-width="1.5"/>
+  </g>
+  <text x="1270" y="238" font-size="17" font-weight="700" fill="#FAFAFA" text-anchor="middle">done</text>
+  <text x="1270" y="258" font-size="11" fill="#CBD5E1" text-anchor="middle">归档 + 下一批次</text>
+
+  <!-- ===== Bottom row: fixing ↔ reverifying ===== -->
+
+  <!-- fixing -->
+  <g filter="url(#nodeShadow)">
+    <rect x="700" y="435" width="140" height="70" rx="10" fill="#D1FAE5" stroke="#10B981" stroke-width="1.5"/>
+  </g>
+  <text x="770" y="468" font-size="17" font-weight="700" fill="#065F46" text-anchor="middle">fixing</text>
+  <text x="770" y="488" font-size="11" fill="#10B981" text-anchor="middle">Generator 修复</text>
+
+  <!-- reverifying -->
+  <g filter="url(#nodeShadow)">
+    <rect x="900" y="435" width="140" height="70" rx="10" fill="#FEE2E2" stroke="#EF4444" stroke-width="1.5"/>
+  </g>
+  <text x="970" y="468" font-size="17" font-weight="700" fill="#991B1B" text-anchor="middle">reverifying</text>
+  <text x="970" y="488" font-size="11" fill="#EF4444" text-anchor="middle">Evaluator 复验</text>
+
+  <!-- ===== Arrows ===== -->
+
+  <!-- new → planning -->
+  <line x1="180" y1="240" x2="238" y2="240" stroke="#475569" stroke-width="2" marker-end="url(#arrFwd)"/>
+
+  <!-- planning → building -->
+  <line x1="380" y1="240" x2="438" y2="240" stroke="#475569" stroke-width="2" marker-end="url(#arrFwd)"/>
+  <text x="409" y="228" font-size="10" fill="#64748B" text-anchor="middle">含 generator</text>
+
+  <!-- building → verifying -->
+  <line x1="580" y1="240" x2="668" y2="240" stroke="#475569" stroke-width="2" marker-end="url(#arrFwd)"/>
+  <text x="624" y="228" font-size="10" fill="#64748B" text-anchor="middle">完成实现</text>
+
+  <!-- verifying → done (全 PASS) -->
+  <line x1="810" y1="240" x2="1198" y2="240" stroke="#10B981" stroke-width="2.5" marker-end="url(#arrPass)"/>
+  <g transform="translate(1000, 240)">
+    <rect x="-75" y="-14" width="150" height="24" rx="6" fill="#FAFAFA" opacity="0.95"/>
+    <text x="0" y="3" font-size="13" font-weight="600" fill="#10B981" text-anchor="middle">全 PASS + signoff</text>
+  </g>
+
+  <!-- planning → verifying (codex-only shortcut, dashed) -->
+  <path d="M 310 275 Q 520 340 738 278" stroke="#94A3B8" stroke-width="1.5" fill="none" stroke-dasharray="5,4" marker-end="url(#arrMuted)"/>
+  <text x="520" y="360" font-size="11" fill="#64748B" text-anchor="middle" font-style="italic">全 codex 任务 · 跳过 building</text>
+
+  <!-- verifying → fixing (FAIL) -->
+  <path d="M 720 276 L 756 433" stroke="#EF4444" stroke-width="2.5" fill="none" marker-end="url(#arrFail)"/>
+  <g transform="translate(620, 360)">
+    <rect x="-78" y="-14" width="156" height="24" rx="6" fill="#FAFAFA" opacity="0.95"/>
+    <text x="0" y="3" font-size="12" font-weight="600" fill="#EF4444" text-anchor="middle">有 FAIL/PARTIAL</text>
+  </g>
+
+  <!-- fixing → reverifying -->
+  <path d="M 840 455 L 898 455" stroke="#475569" stroke-width="2" fill="none" marker-end="url(#arrFwd)"/>
+  <text x="870" y="445" font-size="10" fill="#64748B" text-anchor="middle">修复完</text>
+
+  <!-- reverifying → fixing (upper curve, 仍有问题) -->
+  <path d="M 898 485 Q 870 510 842 485" stroke="#EF4444" stroke-width="1.5" fill="none" stroke-dasharray="4,3" marker-end="url(#arrFail)"/>
+  <text x="870" y="524" font-size="10" fill="#EF4444" text-anchor="middle">仍有问题</text>
+
+  <!-- reverifying → done (up-right) -->
+  <path d="M 1040 450 Q 1150 400 1230 277" stroke="#10B981" stroke-width="2.5" fill="none" marker-end="url(#arrPass)"/>
+  <g transform="translate(1160, 380)">
+    <rect x="-44" y="-14" width="88" height="24" rx="6" fill="#FAFAFA" opacity="0.95"/>
+    <text x="0" y="3" font-size="12" font-weight="600" fill="#10B981" text-anchor="middle">全 PASS</text>
+  </g>
+
+  <!-- ===== Legend ===== -->
+  <g transform="translate(70, 610)">
+    <rect x="0" y="0" width="1260" height="60" rx="10" fill="#F8FAFC" stroke="#E2E8F0" stroke-width="1"/>
+
+    <rect x="24" y="20" width="20" height="20" rx="4" fill="#DBEAFE" stroke="#3B82F6" stroke-width="1.5"/>
+    <text x="54" y="35" font-size="13" fill="#334155">Planner 阶段</text>
+
+    <rect x="210" y="20" width="20" height="20" rx="4" fill="#D1FAE5" stroke="#10B981" stroke-width="1.5"/>
+    <text x="240" y="35" font-size="13" fill="#334155">Generator 阶段</text>
+
+    <rect x="410" y="20" width="20" height="20" rx="4" fill="#FEE2E2" stroke="#EF4444" stroke-width="1.5"/>
+    <text x="440" y="35" font-size="13" fill="#334155">Evaluator 阶段</text>
+
+    <rect x="610" y="20" width="20" height="20" rx="4" fill="#0F172A"/>
+    <text x="640" y="35" font-size="13" fill="#334155">终态</text>
+
+    <line x1="720" y1="30" x2="770" y2="30" stroke="#475569" stroke-width="2" marker-end="url(#arrFwd)"/>
+    <text x="780" y="35" font-size="13" fill="#334155">主流程</text>
+
+    <line x1="880" y1="30" x2="930" y2="30" stroke="#10B981" stroke-width="2.5" marker-end="url(#arrPass)"/>
+    <text x="940" y="35" font-size="13" fill="#334155">PASS</text>
+
+    <line x1="1020" y1="30" x2="1070" y2="30" stroke="#EF4444" stroke-width="2.5" marker-end="url(#arrFail)"/>
+    <text x="1080" y="35" font-size="13" fill="#334155">FAIL 反馈</text>
+  </g>
+</svg>

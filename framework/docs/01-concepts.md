@@ -58,22 +58,7 @@ flowchart LR
 
 ### 解法 1：三角色严格分离（无自评）
 
-```mermaid
-graph TB
-    subgraph Triad[" "]
-        P[Planner<br/>规划员<br/>Claude CLI]
-        G[Generator<br/>实现员<br/>Claude CLI]
-        E[Evaluator<br/>验收员<br/>Codex]
-    end
-    P -->|写规格 + 拆功能| G
-    G -->|代码 + 完成度报告| E
-    E -.->|FAIL/PARTIAL 反馈| G
-    E -->|PASS → done| P
-
-    style P fill:#bbf,color:#000
-    style G fill:#bfb,color:#000
-    style E fill:#fbb,color:#000
-```
+<img src="imgs/three-roles.svg" alt="三角色协作全景" width="100%">
 
 | 角色 | 工具 | 职责 | 不做的事 |
 |---|---|---|---|
@@ -85,20 +70,7 @@ graph TB
 
 ### 解法 2：状态机分阶段，每阶段独立会话
 
-```mermaid
-stateDiagram-v2
-    [*] --> new
-    new --> planning: 用户提需求
-    planning --> building: 含 generator 任务
-    planning --> verifying: 全 codex 任务
-    building --> verifying: 实现完成
-    verifying --> fixing: 有 FAIL/PARTIAL
-    verifying --> done: 全 PASS
-    fixing --> reverifying: 修复完成
-    reverifying --> fixing: 仍有问题
-    reverifying --> done: 全 PASS
-    done --> [*]
-```
+<img src="imgs/state-machine.svg" alt="7 状态机流转" width="100%">
 
 **每个状态对应一个独立的 AI 会话**：
 - `planning` 阶段开一个 Planner 会话写规格，结束
@@ -154,37 +126,7 @@ flowchart TD
 
 随着项目演进，记忆会越积越多。如果每次会话都加载全部，上下文很快爆炸。Triad Workflow 用分层加载解决：
 
-```mermaid
-graph TB
-    subgraph T0[T0 · 每次启动必读 · ≤60 行]
-        M[MEMORY.md<br/>索引]
-        PS[project-status.md<br/>当前批次/路线图/遗留问题]
-        EN[environment.md<br/>生产地址/服务器/账号]
-    end
-    subgraph T1[T1 · 按当前角色加载 · ≤50 行]
-        RP[role-context/planner.md]
-        RG[role-context/generator.md]
-        RE[role-context/evaluator.md]
-    end
-    subgraph T2[T2 · 触发条件命中时 · 按需]
-        UR[user-role.md]
-        RD[reference-docs.md]
-        FB[feedback-*.md]
-    end
-
-    M -.指向.-> PS
-    M -.指向.-> EN
-    M -.指向.-> RP
-    M -.指向.-> RG
-    M -.指向.-> RE
-    M -.指向.-> UR
-    M -.指向.-> RD
-    M -.指向.-> FB
-
-    style T0 fill:#fdd,color:#000
-    style T1 fill:#dfd,color:#000
-    style T2 fill:#ddf,color:#000
-```
+<img src="imgs/memory-pyramid.svg" alt="记忆分层金字塔" width="100%">
 
 **写入职责（避免冲突）：**
 

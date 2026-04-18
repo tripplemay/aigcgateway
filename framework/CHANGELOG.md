@@ -5,6 +5,41 @@
 
 ---
 
+## v0.8.1 — 2026-04-18（设计精美的 SVG 图：三角色 / 状态机 / 记忆金字塔）
+
+**来源批次：** 独立任务（用户要求生成针对最终用户展示的、必要的、设计精美的 PNG 图片）
+**触发原因：** v0.8.0 文档套件依赖 mermaid 图，虽然功能性够但视觉精致度不足；mermaid 在 GitHub 上渲染不可控，某些复杂图会变形。定位为"面向最终用户展示"，需要有设计感的图形作为 landing 视觉
+
+**方案决策过程：**
+1. 维度：载体（README / docs 多页 / 独立站）、图种（mermaid / ASCII / 真实截图 / GIF / 设计 PNG）、优先级
+2. 用户选：现代极简风格 + P0 3 张（最影响第一印象的）
+3. 实现：由于 Claude CLI 无法直接生成 PNG，选 SVG 方案 —— 可版本控制、GitHub 原生渲染、retina 友好、文本可diff、可后续转 PNG
+
+**变更内容：**
+
+- 新增 3 张精心设计的 SVG 图（`framework/docs/imgs/`）：
+  - `three-roles.svg`（1200×800）：三角形布局 + 3 个角色卡片（Planner/Generator/Evaluator）+ 循环箭头（规格/代码/PASS/FAIL 反馈）+ 底部铁律
+  - `state-machine.svg`（1400×700）：7 状态完整流转 + 角色色标 + 主流程/FAIL/PASS 三色箭头 + 底部图例
+  - `memory-pyramid.svg`（1200×800）：T0/T1/T2 三层金字塔（暖到冷色渐进）+ 左侧加载时机标注 + 右侧写入职责标注 + 底部内容边界铁律
+- 文档嵌入 SVG 替换对应 mermaid：
+  - `README.md` §一图看懂：mermaid 状态机 + ASCII 三角色 → three-roles.svg + state-machine.svg
+  - `docs/01-concepts.md` §解法1 / §解法2 / §记忆分层：3 个 mermaid → 3 张 SVG
+  - `docs/02-usage.md` §状态机详解 / §.auto-memory/：2 个 mermaid → 2 张 SVG
+- 保留不替换的 mermaid：§Git 总线、§完整批次时序图、§角色流程图（这些 mermaid 原生效果够用，无需重绘）
+
+**设计规范：**
+- 配色：Planner=#3B82F6（蓝）/ Generator=#10B981（绿）/ Evaluator=#EF4444（红）/ 终态=#0F172A（深）/ 金字塔三层=T0 琥珀/T1 绿/T2 蓝
+- 字体：system-ui 堆栈 + 中文 fallback（PingFang SC / Microsoft YaHei）
+- 风格：现代极简，浅色背景（#FAFAFA），轻度阴影，圆角 10-14px，无插画（纯几何）
+- SVG 文件大小：6-8 KB 每张，总计 ~22 KB
+
+**后续可升级路径：**
+- 用 Figma/Stitch 做插画版 hero 封面图（放大版 three-roles 概念）
+- 用 terminalizer 录制 2 个 GIF（bootstrap 演示 + Claude INIT 演示）
+- 补 P1 2 张（状态机精美版已做，痛点对比图、Git 总线示意图待补）
+
+---
+
 ## v0.8.0 — 2026-04-18（图文并茂文档套件首版）
 
 **来源批次：** 独立任务（用户要求为框架撰写图文并茂的介绍文档）

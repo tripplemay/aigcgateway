@@ -8,48 +8,9 @@
 
 ## 一图看懂
 
-```mermaid
-stateDiagram-v2
-    [*] --> new
-    new --> planning: 用户提需求
-    planning --> building: 含 generator 任务
-    planning --> verifying: 全 codex 任务
-    building --> verifying: 实现完成
-    verifying --> fixing: 有 FAIL/PARTIAL
-    verifying --> done: 全 PASS
-    fixing --> reverifying: 修复完成
-    reverifying --> fixing: 仍有问题
-    reverifying --> done: 全 PASS
-    done --> [*]: 归档批次
-    done --> new: 下一批次
+<img src="docs/imgs/three-roles.svg" alt="三角色协作全景" width="100%">
 
-    note left of building
-        Claude CLI
-        (Generator)
-    end note
-    note right of verifying
-        Codex
-        (Evaluator)
-    end note
-    note left of planning
-        Claude CLI
-        (Planner)
-    end note
-```
-
-**三角色协作示意：**
-
-```
-┌──────────────┐  规格 + 拆分     ┌──────────────┐  代码          ┌──────────────┐
-│   Planner    │ ──────────────► │  Generator   │ ─────────────► │  Evaluator   │
-│ (Claude CLI) │                 │ (Claude CLI) │                │   (Codex)    │
-└──────────────┘ ◄────────────── └──────────────┘ ◄───────────── └──────────────┘
-                  改善反馈                          PASS/FAIL 反馈
-
-           ┌──────────────────────────────────────────────────┐
-           │  无人评估自己的工作 · 通过 progress.json 异步交接  │
-           └──────────────────────────────────────────────────┘
-```
+<img src="docs/imgs/state-machine.svg" alt="7 状态机流转" width="100%">
 
 ---
 
