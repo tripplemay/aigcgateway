@@ -24,6 +24,7 @@ import type {
 
 import { enrichFromDocs } from "./doc-enricher";
 import { getRedis } from "@/lib/redis";
+import { acquireLeaderLock, releaseLeaderLock } from "@/lib/infra/leader-lock";
 import type { ModelModality, Prisma } from "@prisma/client";
 
 // ── 适配器注册表 ──
@@ -40,8 +41,11 @@ import { qwenAdapter } from "./adapters/qwen";
 import { stepfunAdapter } from "./adapters/stepfun";
 // model-whitelist.ts removed — whitelist now managed via Model.enabled in DB
 
-// ── 并发保护 ──
-let syncInProgress = false;
+// F-IG-02: concurrency guard is now a distributed lock (Redis NX EX) instead
+// of a per-process boolean. Prior `syncInProgress` let every replica start
+// its own sync in parallel because each had its own process-local flag.
+const SYNC_LOCK_KEY = "model-sync";
+const SYNC_LOCK_TTL_SEC = 3600; // a full sync should never exceed ~1h
 
 const ADAPTERS: Record<string, SyncAdapter> = {
   openai: openaiAdapter,
@@ -377,8 +381,9 @@ async function syncProvider(
 // ============================================================
 
 export async function runModelSync(): Promise<SyncResult> {
-  if (syncInProgress) {
-    console.log("[model-sync] Sync already in progress, skipping");
+  const gotLock = await acquireLeaderLock(SYNC_LOCK_KEY, SYNC_LOCK_TTL_SEC);
+  if (!gotLock) {
+    console.log("[model-sync] Sync already in progress (distributed lock held), skipping");
     return {
       startedAt: new Date().toISOString(),
       finishedAt: new Date().toISOString(),
@@ -393,7 +398,6 @@ export async function runModelSync(): Promise<SyncResult> {
       },
     };
   }
-  syncInProgress = true;
 
   const startedAt = new Date();
 
@@ -625,6 +629,6 @@ export async function runModelSync(): Promise<SyncResult> {
 
     return syncResult;
   } finally {
-    syncInProgress = false;
+    await releaseLeaderLock(SYNC_LOCK_KEY).catch(() => {});
   }
 }

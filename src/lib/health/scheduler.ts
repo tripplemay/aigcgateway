@@ -22,10 +22,16 @@ import { runHealthCheck, runApiReachabilityCheck, runCallProbe, type CheckResult
 import { sendAlert } from "./alert";
 import type { RouteResult } from "../engine/types";
 import { isTransientFailureReason, markChannelCooldown } from "../engine/cooldown";
+import { heartbeatLock } from "@/lib/infra/leader-lock";
 import {
   sendChannelDownToAdmins,
   sendChannelRecoveredToAdmins,
 } from "@/lib/notifications/triggers";
+
+// F-IG-02: keep the scheduler leader lock alive. 70s TTL refreshed every tick
+// (60s interval) gives a ~10s grace window if a tick runs long.
+const LEADER_KEY = "scheduler";
+const LEADER_TTL_SEC = 70;
 
 const FAIL_THRESHOLD = Number(process.env.HEALTH_CHECK_FAIL_THRESHOLD ?? 3);
 const ACTIVE_INTERVAL = Number(process.env.HEALTH_CHECK_ACTIVE_INTERVAL_MS ?? 600_000); // 10min
@@ -40,7 +46,16 @@ let schedulerTimer: ReturnType<typeof setInterval> | null = null;
 
 export function startScheduler(): void {
   if (schedulerTimer) return;
-  schedulerTimer = setInterval(() => {
+  schedulerTimer = setInterval(async () => {
+    // F-IG-02: heartbeat leader lock first. If we lost leadership (Redis
+    // expiry, failover), stop the scheduler instead of continuing to run in
+    // parallel with whichever replica now holds the lock.
+    const stillLeader = await heartbeatLock(LEADER_KEY, LEADER_TTL_SEC).catch(() => false);
+    if (!stillLeader) {
+      console.warn("[health-scheduler] lost scheduler leadership — stopping");
+      stopScheduler();
+      return;
+    }
     runScheduledChecks().catch((err) => {
       console.error("[health-scheduler] error:", err);
     });

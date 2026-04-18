@@ -15,14 +15,30 @@ export async function register() {
     const { assertImageProxySecret } = await import("@/lib/env");
     assertImageProxySecret();
 
-    // PM2 cluster 模式下，只让 worker 0 执行定时任务，避免多进程重复执行
-    const isWorkerZero =
-      process.env.NODE_APP_INSTANCE === "0" || process.env.NODE_APP_INSTANCE === undefined; // 单进程模式也能跑
+    // F-IG-02: Redis leader lock decides which replica runs the schedulers.
+    // This replaces the old `NODE_APP_INSTANCE === "0"` check, which Docker
+    // multi-replica deployments all evaluated to `undefined` → every replica
+    // ran the schedulers in parallel.
+    const { acquireLeaderLock, releaseLeaderLock } = await import("@/lib/infra/leader-lock");
+    const LEADER_KEY = "scheduler";
+    const LEADER_TTL_SEC = 70; // heartbeat every 30s refreshes this (see health/scheduler.ts)
 
-    if (!isWorkerZero) {
-      console.log(`[instrumentation] Worker ${process.env.NODE_APP_INSTANCE} — skip schedulers`);
+    const gotLeadership = await acquireLeaderLock(LEADER_KEY, LEADER_TTL_SEC);
+    if (!gotLeadership) {
+      console.log("[instrumentation] another replica holds scheduler leadership — skip");
       return;
     }
+
+    // Release on graceful shutdown so a replacement replica can take over fast.
+    const handleShutdown = (signal: string) => {
+      releaseLeaderLock(LEADER_KEY)
+        .catch(() => {})
+        .finally(() => {
+          console.log(`[instrumentation] released scheduler lock on ${signal}`);
+        });
+    };
+    process.once("SIGTERM", () => handleShutdown("SIGTERM"));
+    process.once("SIGINT", () => handleShutdown("SIGINT"));
 
     const { prisma } = await import("@/lib/prisma");
     const { getRedis } = await import("@/lib/redis");
@@ -83,6 +99,6 @@ export async function register() {
       60 * 60 * 1000,
     );
 
-    console.log("[instrumentation] Worker 0 — schedulers started");
+    console.log("[instrumentation] scheduler leader — all background jobs started");
   }
 }
