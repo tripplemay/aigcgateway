@@ -6,7 +6,7 @@
  * 依赖：autocannon（通过 npx 自动安装，无需全局）
  */
 
-import { execSync, spawn } from "child_process";
+import { spawn, spawnSync } from "child_process";
 import { requireEnv } from "./lib/require-env";
 
 const BASE = process.env.BASE_URL ?? "https://aigc.guangai.ai";
@@ -31,15 +31,26 @@ function runAutocannon(opts: {
   headers?: Record<string, string>;
   title: string;
 }): AutocannonResult {
-  const headerFlags = Object.entries(opts.headers ?? {})
-    .map(([k, v]) => `-H '${k}=${v}'`)
-    .join(" ");
+  // F-IG-03: spawnSync with argv array — no shell interpretation, no injection surface
+  // via BASE_URL / header values. Prior execSync string-template version was exploitable.
+  const args = ["autocannon", "-c", String(opts.connections), "-d", String(opts.duration)];
+  for (const [k, v] of Object.entries(opts.headers ?? {})) {
+    args.push("-H", `${k}=${v}`);
+  }
+  args.push("-j", opts.url);
 
-  const cmd = `npx autocannon -c ${opts.connections} -d ${opts.duration} ${headerFlags} -j '${opts.url}'`;
   console.log(`  Running: ${opts.title} (c=${opts.connections}, d=${opts.duration}s)`);
 
-  const raw = execSync(cmd, { timeout: (opts.duration + 30) * 1000, encoding: "utf-8" });
-  const data = JSON.parse(raw);
+  const result = spawnSync("npx", args, {
+    timeout: (opts.duration + 30) * 1000,
+    encoding: "utf-8",
+    stdio: ["ignore", "pipe", "pipe"],
+  });
+  if (result.status !== 0) {
+    const stderr = result.stderr ?? "";
+    throw new Error(`autocannon failed (exit=${result.status}): ${stderr.slice(0, 300)}`);
+  }
+  const data = JSON.parse(result.stdout);
 
   return {
     requests: { average: data.requests.average, total: data.requests.total },
