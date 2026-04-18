@@ -1,11 +1,11 @@
 {
-  "status": "reverifying",
+  "status": "fixing",
   "user_goal": "BL-FE-QUALITY — 前端质量合并批次（UX 交互 + template-testing polish + A11y/i18n + DS Critical 3 文件）",
   "total_features": 5,
   "completed_features": 4,
-  "fix_rounds": 1,
+  "fix_rounds": 2,
   "current_sprint": "BL-FE-QUALITY",
-  "last_updated": "2026-04-18T22:25:00Z",
+  "last_updated": "2026-04-18T14:40:27.288Z",
   "reference_docs": [
     "docs/specs/BL-FE-QUALITY-spec.md",
     "docs/code-review/batch-07-frontend-pages.md",
@@ -19,7 +19,7 @@
     "signoff": null,
     "framework_reviewed": false
   },
-  "evaluator_feedback": "FAIL: A11y>=98 未达标（dashboard/settings=96）且 UI 动态验收受浏览器工具超时阻塞；详见 docs/test-reports/bl-fe-quality-verifying-local-2026-04-18.md",
+  "evaluator_feedback": "FAIL: reverifying round2 未通过；A11y(auth dashboard)=96<98，vitest 2/116 失败（src/lib/notifications/dispatcher.test.ts），且部分 UI 动态项仍 BLOCKED。详见 docs/test-reports/bl-fe-quality-reverifying-local-2026-04-18-round2.md",
   "generator_handoff": {
     "local_checks": {
       "tsc": "pass",
@@ -81,6 +81,6 @@
   },
   "session_notes": {
     "Kimi": "BL-FE-QUALITY fix round 1：\n\n根因：Lighthouse 测 /dashboard /settings 时未登录被 redirect 到 /login，实际取证的是 login 页 a11y。Login + register 'OR continue with' divider 用 text-ds-outline (#787584) on bg-ds-surface-container-lowest (#fff) 对比度 ~4.4，差临界 4.5 一点。\n\n修复：两文件 divider span 类替换 text-ds-outline → text-ds-on-surface-variant (#474553)，对比度 ~9（AAA）。极小改动，零功能影响。\n\n本地 tsc/vitest 116/116/build 全过。建议 Codex 浏览器工具恢复后重测 lighthouse a11y dashboard/settings（应得 100），同时补 #10/#11/#12/#15 BLOCKED 项。\n\n（前轮 generator 4/4 done 内容已写在 generator_handoff，不重复。）",
-    "Reviewer": "verifying 结果：命令与接口层多数通过（build/tsc/vitest、DS grep、admin PATCH 400），但 A11y 分数仅 96，且浏览器工具超时导致 error/models/notification/视觉项未完成动态取证，进入 fixing。\n\nfix round 1 收到：Generator 修了 login + register 的 'OR continue with' divider color-contrast（ds-outline #787584 → ds-on-surface-variant #474553，对比度 4.4→9）。Lighthouse 测 dashboard/settings 时被 redirect 到 login，所以这是 a11y 96 的真实根因。其它 BLOCKED 项（#7/#10/#11/#12/#15）需浏览器工具恢复后再取证。"
+    "Reviewer": "reverifying round2：A11y 修复后复测 auth /dashboard 仍为 96；admin templates 非法 JSON=400 与 DS grep 保持通过；但 vitest 新增 2 条失败（dispatcher.test.ts），无法签收，回到 fixing。"
   }
 }
