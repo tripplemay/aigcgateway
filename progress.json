@@ -1,32 +1,26 @@
 {
-  "status": "done",
-  "user_goal": "BL-SEC-AUTH-SESSION — JWT HttpOnly cookie + middleware jose 验签 + console layout SSR 守卫（Code Review CRIT-7 + H-8 + H-32）",
+  "status": "building",
+  "user_goal": "BL-SEC-BILLING-AI — AI 调用扣费原子性（deduct_balance 行锁 + CallLog+deduct 事务化 + Transaction/Rating CHECK 约束）",
   "total_features": 4,
-  "completed_features": 4,
+  "completed_features": 0,
   "fix_rounds": 0,
-  "current_sprint": "BL-SEC-AUTH-SESSION",
-  "last_updated": "2026-04-18T02:49:18.824Z",
+  "current_sprint": "BL-SEC-BILLING-AI",
+  "last_updated": "2026-04-18T03:05:00Z",
   "reference_docs": [
-    "docs/specs/BL-SEC-AUTH-SESSION-spec.md",
+    "docs/specs/BL-SEC-BILLING-AI-spec.md",
     "docs/code-review/backend-fullscan-2026-04-17.md"
   ],
   "role_assignments": null,
   "docs": {
-    "spec": "docs/specs/BL-SEC-AUTH-SESSION-spec.md",
+    "spec": "docs/specs/BL-SEC-BILLING-AI-spec.md",
     "test_cases": null,
-    "signoff": "docs/test-reports/BL-SEC-AUTH-SESSION-signoff-2026-04-18.md",
+    "signoff": null,
     "framework_reviewed": false
   },
-  "evaluator_feedback": {
-    "summary": "BL-SEC-AUTH-SESSION 本地验收通过：HttpOnly 会话写入、JWT 验签拦截、SSR 守卫与登出闭环均符合预期。",
-    "pass_count": 15,
-    "partial_count": 0,
-    "fail_count": 0,
-    "issues": []
-  },
+  "evaluator_feedback": null,
   "generator_handoff": null,
   "session_notes": {
-    "Kimi": "Generator 完成 F-AS-01/02/03（3/3 generator 任务 done）→ 状态转 verifying，等 Codex 执行 F-AS-04 的 16 条验收。\n\n关键交付物：\n- `src/lib/auth/session-cookie.ts`：`setSessionCookie` / `clearSessionCookie` + `SESSION_COOKIE_NAME=token` + `MAX_AGE=604800s`；prod 才加 Secure。\n- `src/app/api/auth/login/route.ts`：response 同时 body `{token}` + `Set-Cookie HttpOnly/Lax` 双轨。`register` 不自动登录（只返 verificationToken），未改。\n- `src/app/api/auth/logout/route.ts`：POST 清 cookie。\n- `src/lib/auth/jwt.ts`：`verifyJwt(token)` 基于 `jose.jwtVerify`（HS256），校验 userId/role/exp。\n- `src/middleware.ts`：删 `decodeJwtPayload`，改读 cookie + 真实验签；保留 /v1/* 和 /mcp rewrite 逻辑；用 Edge runtime（jose 兼容）；401 路径携带 `?redirect=<pathname>`。\n- `src/app/(console)/layout.tsx`：改 RSC，用 `cookies()+verifyJwt+prisma` 获取 user，redirect 失败；新增 `_client-shell.tsx` 承载原 UI。`/admin` 非管理员跳 `/dashboard`。\n- 前端 4 写入点：login page 删 document.cookie（加 TODO 保留 localStorage 过渡）；top-app-bar 登出 POST /logout；settings 登出 POST /logout。\n- `scripts/e2e-test.ts` 新增 4 个回归步骤（2b/2c/2d/2e）：Set-Cookie HttpOnly/Lax/MaxAge + logout 清 cookie + 伪造 JWT 被拒 + 无 cookie /dashboard redirect。\n- 单测 `src/lib/auth/__tests__/jwt.test.ts` 10 条全 pass；`npx vitest run` 96/96；`npx tsc --noEmit` 0 err；`npm run build` 通过。\n\n注意：\n- jose 装在 Edge runtime，未加 `runtime='nodejs'`（Next 14 不支持 nodejs middleware）。\n- `apiFetch` 继续使用 localStorage Bearer（过渡期 API routes 还走 Authorization）。\n- register route 不返 token，未改动。\n- 部署后所有现用户 cookie 失效需重新登录（HttpOnly 新写入）。\n\nCodex 下一步：F-AS-04 16 条验收（安全属性/验签/SSR 守卫/构建/兼容），输出 `docs/test-reports/BL-SEC-AUTH-SESSION-signoff-2026-04-18.md`。",
-    "Reviewer": "2026-04-18 verifying: executed cookie/header checks, forged+expired JWT redirect checks, SSR redirect checks, logout/profile regression, tsc/build/vitest(jwt). All local acceptance passed; signoff generated."
+    "Kimi": "Planner 完成：(1) BL-SEC-AUTH-SESSION done 收尾（framework/proposed-learnings.md 无待确认条目，直接进入下一批）；(2) project-status.md 刷新为 BILLING-AI building + AUTH-SESSION 产物存档；(3) 初始化 BL-SEC-BILLING-AI 批次（4 条：3 generator + 1 codex）。\n\n本批次覆盖 4 个审查发现：CRIT-2 deduct_balance 无行锁并发透支 / CRIT-4 callLog+deduct 非原子计费泄漏 / H-16 Transaction.amount 无 CHECK / H-19 TemplateRating.score 无 CHECK。\n\n关键技术点：\n- F-BA-01 新 migration CREATE OR REPLACE FUNCTION，签名不变保兼容；SELECT ... FOR UPDATE 行锁防并发透支\n- F-BA-02 post-process.ts 改 prisma.$transaction 包裹 callLog+deduct+transaction 三步\n- F-BA-03 两条 CHECK 约束（Transaction 符号、TemplateRating 范围），migration 含不合规预检\n- F-BA-04 Codex 5 项并发断言 + 2 项生产数据预检 + 构建健全\n\n部署风险：Transaction CHECK 若生产有不合规数据会失败，F-BA-03 acceptance 含预检 SQL；Generator 需先本地 dev 运行 COUNT 统计。\n\nPath A 进度 3/14，串行继续。",
+    "Reviewer": null
   }
 }

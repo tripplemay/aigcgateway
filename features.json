@@ -1,42 +1,42 @@
 {
-  "batch": "BL-SEC-AUTH-SESSION",
+  "batch": "BL-SEC-BILLING-AI",
   "created_at": "2026-04-18",
   "features": [
     {
-      "id": "F-AS-01",
-      "title": "后端 /api/auth/login Set-Cookie HttpOnly + /api/auth/logout",
+      "id": "F-BA-01",
+      "title": "deduct_balance 加 SELECT FOR UPDATE 行锁（migration）",
       "priority": "critical",
       "executor": "generator",
-      "status": "done",
-      "source": "CRIT-7 (backend)",
-      "acceptance": "1) `src/app/api/auth/login/route.ts` 成功响应新增 `Set-Cookie: token=<jwt>; HttpOnly; SameSite=Lax; Max-Age=604800; Path=/` + `Secure` 标记仅在 NODE_ENV='production' 时添加（本地 HTTP dev 兼容）；2) 新建 `src/app/api/auth/logout/route.ts`（POST）返回 `Set-Cookie: token=; HttpOnly; Path=/; Max-Age=0`；3) 响应 body 保留 `{ token }` 字段向下兼容（过渡期 fetch Authorization header 仍可读）；4) `src/app/api/auth/register/route.ts` 若直接登录也同步返回 Set-Cookie；5) 使用 Next.js `cookies()` API 或 Response.headers.append 手动设置；6) tsc 通过；7) 本地 curl 登录验证响应头含正确 cookie 属性"
+      "status": "pending",
+      "source": "CRIT-2",
+      "acceptance": "1) 新建 `prisma/migrations/20260418_deduct_balance_for_update/migration.sql`，内容为 `CREATE OR REPLACE FUNCTION deduct_balance(p_user_id TEXT, p_amount DECIMAL) RETURNS BOOLEAN`：先 `SELECT balance INTO v_balance FROM users WHERE id = p_user_id FOR UPDATE`，再条件判断 v_balance IS NULL / v_balance < p_amount / 成功则 UPDATE；2) 函数签名保持 `(TEXT, DECIMAL) RETURNS BOOLEAN` 不变（向下兼容）；3) 不原位改旧 migration 20260410120000_apikey_to_user_level；4) 本地 `npx prisma migrate dev` 跑通；5) 新增 psql 或 prisma 层并发测试（手工 `BEGIN; SELECT deduct_balance; ...` 两开 session 验证阻塞行为，或用 pg_try_advisory_xact_lock 模拟）；6) tsc 通过"
     },
     {
-      "id": "F-AS-02",
-      "title": "middleware 用 jose 真实验签 + 从 cookie 读 token",
+      "id": "F-BA-02",
+      "title": "CallLog + deduct + Transaction 改 prisma.$transaction 原子",
       "priority": "critical",
       "executor": "generator",
-      "status": "done",
-      "source": "H-8",
-      "acceptance": "1) 删除 `src/middleware.ts` 的 `decodeJwtPayload` 函数；2) 新建 `src/lib/auth/jwt.ts` 导出 `verifyJwt(token: string): Promise<Payload>`，用 jose.jwtVerify(token, new TextEncoder().encode(JWT_SECRET))；3) middleware 改从 `request.cookies.get('token')?.value` 读 token，不再看 Authorization header；4) 验签失败：NextResponse.redirect(new URL('/login?redirect='+encodeURIComponent(pathname), request.url))；5) 保留 role 检查逻辑，读取已验签 payload.role；6) jose 若在 Edge Runtime 报错 fallback `export const runtime = 'nodejs'`；7) 新增单测 `src/lib/auth/__tests__/jwt.test.ts`：正向（合法 token 返回 payload）+ 负向（签名篡改 throw / 过期 throw / 空 throw）；8) tsc 通过；9) `npm run build` 通过"
+      "status": "pending",
+      "source": "CRIT-4",
+      "acceptance": "1) `src/lib/api/post-process.ts:127-158` callLog.create + deductBalance 改为 prisma.$transaction interactive 事务包裹；2) 同一事务内若 deduct 成功，紧跟 `tx.transaction.create({ type:'DEDUCTION', amount:-cost, userId, ... })`，保证 call_logs/transactions 两表记录条数一致；3) 若 deduct 返回 false（余额不足），事务回滚，callLog 不留记录（业务层再决定是否另写一条 FAILED 记录）；4) `scripts/e2e-test.ts` 新增 regression 步骤：创建测试用户余额 $1.00，发 10 个并发 /v1/chat/completions 请求，每次扣 $0.15，断言 final balance >= 0 且 call_logs(SUCCESS).count === transactions(DEDUCTION).count；5) tsc 通过；6) `npm run build` 通过；7) 本地跑 e2e-test 通过"
     },
     {
-      "id": "F-AS-03",
-      "title": "前端 4 写入点改造 + console layout SSR 守卫",
-      "priority": "critical",
+      "id": "F-BA-03",
+      "title": "Transaction.amount + TemplateRating.score CHECK 约束",
+      "priority": "high",
       "executor": "generator",
-      "status": "done",
-      "source": "CRIT-7 (frontend) + H-32",
-      "acceptance": "前端 4 写入点：1) `src/app/(auth)/login/page.tsx:131` 删除 `document.cookie = 'token=...'`（cookie 由后端 Set-Cookie 写入）；保留 `localStorage.setItem('token',...)` 带 TODO 注释（过渡期）；2) `src/app/(console)/layout.tsx:50` 同上删除 document.cookie；3) `src/app/(console)/settings/page.tsx:711-714` 登出改调 POST /api/auth/logout + localStorage.removeItem('token') + router.push('/login')；4) `src/components/top-app-bar.tsx:45` 同上登出逻辑。SSR 守卫：5) `src/app/(console)/layout.tsx` 拆分为 server layout（async RSC，从 cookies() 读 token，调 verifyJwt，失败 redirect('/login')）+ 内层 `_client-shell.tsx`（原来的 'use client' UI + state）；6) server layout 把 verified user payload 作为 prop 传给 shell，消除 layout 里重复 fetch /api/auth/profile；7) `apiFetch` 若是跨域配置 `credentials: 'include'`（本地+生产同源无需）；8) tsc 通过；9) `npm run build` 通过；10) 浏览器手动验证：登出后访问 /dashboard 应 redirect /login，不出现空白布局闪现"
+      "status": "pending",
+      "source": "H-16 + H-19",
+      "acceptance": "1) 新建 `prisma/migrations/20260418_billing_check_constraints/migration.sql`：(a) `ALTER TABLE transactions ADD CONSTRAINT transactions_amount_sign_check CHECK (...)`（DEDUCTION/REFUND<0 | RECHARGE/BONUS>=0 | ADJUSTMENT 任意）；(b) `ALTER TABLE template_ratings ADD CONSTRAINT template_ratings_score_range_check CHECK (score >= 1 AND score <= 5)`；2) migration 开头加预检 DO $$ ... IF 存在不合规数据则 RAISE EXCEPTION 指示需先清理 $$，避免静默失败；3) 本地生产 dev DB 先 SELECT COUNT 统计：SELECT COUNT(*) FROM transactions WHERE (type IN ('DEDUCTION','REFUND') AND amount >= 0) OR (type IN ('RECHARGE','BONUS') AND amount < 0); 和 SELECT COUNT(*) FROM template_ratings WHERE score < 1 OR score > 5；不合规为 0 才 migration；4) schema.prisma 在对应 model 注释上方加 `/// CHECK constraints: ...`（文档化，Prisma 不支持 @@check）；5) 本地 `npx prisma migrate dev` 跑通；6) tsc 通过"
     },
     {
-      "id": "F-AS-04",
-      "title": "BL-SEC-AUTH-SESSION 全量验收",
+      "id": "F-BA-04",
+      "title": "BL-SEC-BILLING-AI 并发压测 + 全量验收",
       "priority": "critical",
       "executor": "codex",
-      "status": "completed",
-      "source": "BL-SEC-AUTH-SESSION",
-      "acceptance": "安全属性断言（浏览器 DevTools + curl 双路验证）：1) 登录响应 Set-Cookie 含 HttpOnly；2) 含 SameSite=Lax；3) 生产环境 curl 响应含 Secure（本地可跳过）；4) DevTools Application > Cookies token 行 HttpOnly 勾选为 true；5) 浏览器 console `document.cookie` 读不到 token 字段。验签断言：6) 伪造 JWT（header+payload base64 后随便签）访问 /admin/operations → 302 redirect /login；7) 无 token curl /dashboard → 302 redirect /login?redirect=/dashboard；8) 过期 JWT（手工构造 exp=过去时间）→ redirect。SSR 守卫断言：9) 清空所有 cookie/storage 后直接访问 /dashboard，观察 HTML 首字节即是 redirect meta/Location，不含 console layout DOM（curl -I 验证或 view-source）。构建健全：10) npm run build 通过；11) npx tsc --noEmit 通过；12) npx vitest run src/lib/auth/__tests__/jwt.test.ts 新单测通过。兼容性回归：13) 登录后 apiFetch 调用 /api/auth/profile 成功（cookie 自动带上）；14) 登出 /api/auth/logout 后 apiFetch /api/auth/profile 返 401；15) 登出后浏览器手动访问 /dashboard 被 redirect。16) 生成 signoff 报告 docs/test-reports/BL-SEC-AUTH-SESSION-signoff-2026-04-18.md。"
+      "status": "pending",
+      "source": "BL-SEC-BILLING-AI",
+      "acceptance": "并发原子性（5 项）：1) 透支防护：10 并发 /v1/chat/completions，用户初始余额 $1，每次 $0.15 → 最终余额 >= 0（Prisma 或 psql 验证）；2) 计费一致：call_logs(SUCCESS).count === transactions(DEDUCTION).count；3) 进程中断模拟：在 $transaction 中间 throw → callLog 与 transaction 均回滚（事务内 INSERT 不可见）；4) CHECK 约束（Transaction）：直接 SQL INSERT INTO transactions VALUES(type=DEDUCTION, amount=10, ...) → 23514 check_violation；5) CHECK 约束（TemplateRating）：SQL INSERT INTO template_ratings VALUES(score=10, ...) → 23514 check_violation。构建健全：6) `npx prisma migrate dev` 本地跑通两个 migration；7) `npm run build` 通过；8) `npx tsc --noEmit` 通过；9) `npx vitest run` 全过。生产数据预检（由 Codex 生产只读 SSH 执行）：10) SELECT COUNT(*) FROM transactions WHERE (type IN ('DEDUCTION','REFUND') AND amount >= 0) OR (type IN ('RECHARGE','BONUS') AND amount < 0) = 0（或已出清理 SQL）；11) SELECT COUNT(*) FROM template_ratings WHERE score < 1 OR score > 5 = 0。12) 生成 signoff 报告 docs/test-reports/BL-SEC-BILLING-AI-signoff-2026-04-18.md。"
     }
   ]
 }
