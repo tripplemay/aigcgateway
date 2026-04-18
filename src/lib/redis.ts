@@ -55,3 +55,31 @@ createRedis();
 export function getRedis(): Redis | null {
   return ready ? redis : null;
 }
+
+/**
+ * BL-SEC-INFRA-GUARD F-IG-02 fix round 1 — wait until the shared Redis
+ * connection is `ready`, or give up after `timeoutMs`. Returns true iff
+ * Redis is ready within the window. Callers (instrumentation, etc.) use
+ * this to decide whether to start Redis-dependent jobs; the original
+ * "ready now? null-fallback otherwise" pattern lost the race on cold
+ * startup and let multiple replicas all claim leadership locally.
+ */
+export function waitForRedisReady(timeoutMs: number, pollMs = 100): Promise<boolean> {
+  if (ready) return Promise.resolve(true);
+  if (!redis) return Promise.resolve(false); // REDIS_URL missing — no client to wait for
+
+  return new Promise((resolve) => {
+    const start = Date.now();
+    const timer = setInterval(() => {
+      if (ready) {
+        clearInterval(timer);
+        resolve(true);
+        return;
+      }
+      if (Date.now() - start >= timeoutMs) {
+        clearInterval(timer);
+        resolve(false);
+      }
+    }, pollMs);
+  });
+}

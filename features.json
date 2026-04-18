@@ -16,7 +16,7 @@
       "title": "scheduler + model-sync Redis 分布式锁（fix round 1：启动等 Redis ready + 一致来源）",
       "priority": "critical",
       "executor": "generator",
-      "status": "fixing",
+      "status": "completed",
       "source": "CRIT-9",
       "acceptance": "1) `src/lib/infra/leader-lock.ts`：acquireLeaderLock/heartbeatLock/releaseLeaderLock 用 Redis SET NX EX；2) **启动序列（fix round 1 新增）**：instrumentation.ts 启动时先 `await waitForRedisReady(5000)`；ready → 走 Redis 路径；timeout → 整个节点降级为 'scheduler disabled'（warn 日志），不跑任何调度；**禁止启动后从 fallback 切到 Redis 的混合状态**；3) acquire/heartbeat/release 必须使用同一来源（开机是 Redis 就一直 Redis，开机 disabled 就不跑）；4) instrumentation.ts 删 NODE_APP_INSTANCE 判断；5) scheduler.ts 每 tick heartbeat，失败立即 clearInterval 停 scheduler；6) model-sync.ts 启动前 acquireLeaderLock；7) SIGTERM 调 releaseLeaderLock；8) 更新或新增单测覆盖：waitForRedisReady + 降级路径 + acquire/heartbeat 一致来源；9) 手动验证：Redis ready 后两实例仅一个跑 scheduler（杀 leader 后 70s 内另一个接管）；Redis 关掉启动实例应观察 'scheduler disabled' warn 日志"
     },

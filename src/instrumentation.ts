@@ -15,13 +15,34 @@ export async function register() {
     const { assertImageProxySecret } = await import("@/lib/env");
     assertImageProxySecret();
 
-    // F-IG-02: Redis leader lock decides which replica runs the schedulers.
-    // This replaces the old `NODE_APP_INSTANCE === "0"` check, which Docker
-    // multi-replica deployments all evaluated to `undefined` → every replica
-    // ran the schedulers in parallel.
+    const { prisma } = await import("@/lib/prisma");
+
+    // 预热 Prisma 连接池，避免首次请求冷启动延迟
+    prisma
+      .$connect()
+      .catch((err: unknown) => console.error("[instrumentation] prisma connect error:", err));
+
+    // F-IG-02 fix round 1: Redis leader lock decides which replica runs the
+    // schedulers. The fix-round-0 implementation allowed an in-process
+    // fallback when Redis was not ready at startup, which produced a race:
+    // both replicas fallback-acquired, then both lost leadership the moment
+    // Redis came up and heartbeat couldn't find a matching key.
+    //
+    // New rule: wait up to 5s for Redis. If Redis is not ready, disable all
+    // schedulers on this node. acquire/heartbeat/release then share a single
+    // source of truth (Redis) for the lifetime of the process.
+    const { waitForRedisReady } = await import("@/lib/redis");
+    const redisReady = await waitForRedisReady(5000);
+    if (!redisReady) {
+      console.warn(
+        "[instrumentation] scheduler disabled — Redis not ready within 5s. No background jobs will run on this node.",
+      );
+      return;
+    }
+
     const { acquireLeaderLock, releaseLeaderLock } = await import("@/lib/infra/leader-lock");
     const LEADER_KEY = "scheduler";
-    const LEADER_TTL_SEC = 70; // heartbeat every 30s refreshes this (see health/scheduler.ts)
+    const LEADER_TTL_SEC = 70; // heartbeat every 60s refreshes this (see health/scheduler.ts)
 
     const gotLeadership = await acquireLeaderLock(LEADER_KEY, LEADER_TTL_SEC);
     if (!gotLeadership) {
@@ -40,22 +61,11 @@ export async function register() {
     process.once("SIGTERM", () => handleShutdown("SIGTERM"));
     process.once("SIGINT", () => handleShutdown("SIGINT"));
 
-    const { prisma } = await import("@/lib/prisma");
-    const { getRedis } = await import("@/lib/redis");
     const { startScheduler, cleanupOldRecords } = await import("@/lib/health/scheduler");
     const { startBillingScheduler } = await import("@/lib/billing/scheduler");
     const { startModelSyncScheduler } = await import("@/lib/sync/scheduler");
 
-    // 预热 Prisma 连接池，避免首次请求冷启动延迟
-    prisma
-      .$connect()
-      .catch((err: unknown) => console.error("[instrumentation] prisma connect error:", err));
-
-    // 检查 Redis 可用性（redis.ts 在 import 时已自动建连，这里只打日志）
-    const redis = getRedis();
-    console.log(
-      `[instrumentation] Redis: ${redis ? "connected" : "not available (REDIS_URL missing or connection failed)"}`,
-    );
+    console.log("[instrumentation] Redis ready, leadership acquired");
 
     // 启动健康检查调度器
     startScheduler();
