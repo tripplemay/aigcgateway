@@ -6,6 +6,7 @@
  */
 
 import { prisma } from "@/lib/prisma";
+import { getRedis } from "@/lib/redis";
 
 let expiredOrderTimer: ReturnType<typeof setInterval> | null = null;
 let balanceAlertTimer: ReturnType<typeof setInterval> | null = null;
@@ -67,6 +68,10 @@ export async function closeExpiredOrders(): Promise<number> {
 
 /**
  * 检查所有项目余额，低于阈值时推送告警
+ *
+ * F-IG-05: 每日 dedup（Redis NX EX 86400）。同一项目在同一阈值下 24 小时内
+ * 仅触发一次 scheduler-sourced webhook，避免每小时重复打扰。
+ * Redis 不可用时 fallback：**不 skip**（宁可重复告警不漏告警）+ warn 日志。
  */
 export async function checkBalanceAlerts(): Promise<number> {
   const projects = await prisma.project.findMany({
@@ -83,35 +88,49 @@ export async function checkBalanceAlerts(): Promise<number> {
 
   let alertCount = 0;
   const webhookUrl = process.env.ALERT_WEBHOOK_URL;
+  const redis = getRedis();
 
   for (const project of projects) {
     const balance = Number(project.user.balance);
     const threshold = Number(project.alertThreshold);
 
-    if (balance <= threshold) {
-      alertCount++;
-      console.log(
-        `[billing-scheduler] Low balance alert: project ${project.name} (${project.id}), balance: $${balance}, threshold: $${threshold}`,
-      );
+    if (balance > threshold) continue;
 
-      if (webhookUrl) {
-        try {
-          await fetch(webhookUrl, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              event: "low_balance_alert",
-              projectId: project.id,
-              projectName: project.name,
-              userEmail: project.user.email,
-              balance,
-              threshold,
-              timestamp: new Date().toISOString(),
-            }),
-          });
-        } catch (err) {
-          console.error("[billing-scheduler] webhook failed:", (err as Error).message);
-        }
+    // Dedup: integer microdollars避免浮点 key 歧义，与 triggers.ts 同风格。
+    const thresholdMicro = Math.round(threshold * 1_000_000);
+    const dedupKey = `alert:balance_low_hourly:${project.id}:${thresholdMicro}`;
+
+    if (redis) {
+      const set = await redis.set(dedupKey, "1", "EX", 86400, "NX");
+      if (!set) continue; // already alerted within 24h for this project+threshold
+    } else {
+      console.warn(
+        "[billing-scheduler] Redis unavailable — sending alert without dedup (may duplicate)",
+      );
+    }
+
+    alertCount++;
+    console.log(
+      `[billing-scheduler] Low balance alert: project ${project.name} (${project.id}), balance: $${balance}, threshold: $${threshold}`,
+    );
+
+    if (webhookUrl) {
+      try {
+        await fetch(webhookUrl, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            event: "low_balance_alert",
+            projectId: project.id,
+            projectName: project.name,
+            userEmail: project.user.email,
+            balance,
+            threshold,
+            timestamp: new Date().toISOString(),
+          }),
+        });
+      } catch (err) {
+        console.error("[billing-scheduler] webhook failed:", (err as Error).message);
       }
     }
   }
