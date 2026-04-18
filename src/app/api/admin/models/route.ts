@@ -3,6 +3,14 @@ import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/api/admin-guard";
 import { errorResponse } from "@/lib/api/errors";
+import { ZodError } from "zod";
+import type { Prisma } from "@prisma/client";
+import {
+  modelCreateSchema,
+  zodErrorResponse,
+  mapJsonNulls,
+  MODEL_JSON_FIELDS,
+} from "@/lib/api/admin-schemas";
 
 /**
  * GET /api/admin/models
@@ -88,10 +96,18 @@ export async function POST(request: Request) {
   if (!auth.ok) return auth.error;
 
   const body = await request.json();
-  if (!body.name || !body.displayName || !body.modality) {
-    return errorResponse(400, "invalid_parameter", "name, displayName, modality required");
+
+  // F-IG-01: strict zod whitelist — rejects projectId, id, foreign fields.
+  let data;
+  try {
+    data = modelCreateSchema.parse(body);
+  } catch (err) {
+    if (err instanceof ZodError) return zodErrorResponse(err);
+    throw err;
   }
 
-  const model = await prisma.model.create({ data: body });
+  const model = await prisma.model.create({
+    data: mapJsonNulls(data, MODEL_JSON_FIELDS) as unknown as Prisma.ModelCreateInput,
+  });
   return NextResponse.json(model, { status: 201 });
 }

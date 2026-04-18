@@ -3,6 +3,8 @@ import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/api/admin-guard";
 import { errorResponse } from "@/lib/api/errors";
+import { ZodError } from "zod";
+import { providerUpdateSchema, zodErrorResponse } from "@/lib/api/admin-schemas";
 
 // F-AO2-01: hard-delete a Provider with cascade cleanup.
 //
@@ -151,7 +153,18 @@ export async function PATCH(request: Request, { params }: { params: { id: string
   if (!auth.ok) return auth.error;
 
   const body = await request.json();
-  const { displayName, baseUrl, authType, apiKey, adapterType, proxyUrl, status, rateLimit } = body;
+
+  // F-IG-01: strict zod whitelist + baseUrl http(s) protocol refine (H-29).
+  // Unknown fields (id, name, createdAt, authConfig) → 400.
+  let parsed;
+  try {
+    parsed = providerUpdateSchema.parse(body);
+  } catch (err) {
+    if (err instanceof ZodError) return zodErrorResponse(err);
+    throw err;
+  }
+  const { displayName, baseUrl, authType, apiKey, adapterType, proxyUrl, status, rateLimit } =
+    parsed;
 
   const data: Record<string, unknown> = {};
   if (displayName !== undefined) data.displayName = displayName;

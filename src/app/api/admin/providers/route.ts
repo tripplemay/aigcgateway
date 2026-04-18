@@ -3,6 +3,9 @@ import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/api/admin-guard";
 import { errorResponse } from "@/lib/api/errors";
+import { ZodError } from "zod";
+import { Prisma } from "@prisma/client";
+import { providerCreateSchema, zodErrorResponse } from "@/lib/api/admin-schemas";
 
 export async function GET(request: Request) {
   const auth = requireAdmin(request);
@@ -33,11 +36,16 @@ export async function POST(request: Request) {
   if (!auth.ok) return auth.error;
 
   const body = await request.json();
-  const { name, displayName, baseUrl, authType, apiKey, adapterType, proxyUrl, rateLimit } = body;
 
-  if (!name || !displayName || !baseUrl) {
-    return errorResponse(400, "invalid_parameter", "name, displayName, baseUrl are required");
+  // F-IG-01: strict zod whitelist + baseUrl http(s) protocol refine (H-29).
+  let parsed;
+  try {
+    parsed = providerCreateSchema.parse(body);
+  } catch (err) {
+    if (err instanceof ZodError) return zodErrorResponse(err);
+    throw err;
   }
+  const { name, displayName, baseUrl, authType, apiKey, adapterType, proxyUrl, rateLimit } = parsed;
 
   // Adapters that support /v1/models API
   const MODELS_API_ADAPTERS = new Set([
@@ -65,7 +73,7 @@ export async function POST(request: Request) {
       authConfig: { apiKey: apiKey ?? "" },
       adapterType: adapterType ?? "openai-compat",
       proxyUrl: proxyUrl ?? null,
-      rateLimit: rateLimit ?? null,
+      rateLimit: rateLimit ?? Prisma.JsonNull,
       config: {
         create: {
           chatEndpoint: "/chat/completions",
