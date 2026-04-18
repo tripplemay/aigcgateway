@@ -7,7 +7,7 @@
       "title": "后端 /api/auth/login Set-Cookie HttpOnly + /api/auth/logout",
       "priority": "critical",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "source": "CRIT-7 (backend)",
       "acceptance": "1) `src/app/api/auth/login/route.ts` 成功响应新增 `Set-Cookie: token=<jwt>; HttpOnly; SameSite=Lax; Max-Age=604800; Path=/` + `Secure` 标记仅在 NODE_ENV='production' 时添加（本地 HTTP dev 兼容）；2) 新建 `src/app/api/auth/logout/route.ts`（POST）返回 `Set-Cookie: token=; HttpOnly; Path=/; Max-Age=0`；3) 响应 body 保留 `{ token }` 字段向下兼容（过渡期 fetch Authorization header 仍可读）；4) `src/app/api/auth/register/route.ts` 若直接登录也同步返回 Set-Cookie；5) 使用 Next.js `cookies()` API 或 Response.headers.append 手动设置；6) tsc 通过；7) 本地 curl 登录验证响应头含正确 cookie 属性"
     },
@@ -16,7 +16,7 @@
       "title": "middleware 用 jose 真实验签 + 从 cookie 读 token",
       "priority": "critical",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "source": "H-8",
       "acceptance": "1) 删除 `src/middleware.ts` 的 `decodeJwtPayload` 函数；2) 新建 `src/lib/auth/jwt.ts` 导出 `verifyJwt(token: string): Promise<Payload>`，用 jose.jwtVerify(token, new TextEncoder().encode(JWT_SECRET))；3) middleware 改从 `request.cookies.get('token')?.value` 读 token，不再看 Authorization header；4) 验签失败：NextResponse.redirect(new URL('/login?redirect='+encodeURIComponent(pathname), request.url))；5) 保留 role 检查逻辑，读取已验签 payload.role；6) jose 若在 Edge Runtime 报错 fallback `export const runtime = 'nodejs'`；7) 新增单测 `src/lib/auth/__tests__/jwt.test.ts`：正向（合法 token 返回 payload）+ 负向（签名篡改 throw / 过期 throw / 空 throw）；8) tsc 通过；9) `npm run build` 通过"
     },
@@ -25,7 +25,7 @@
       "title": "前端 4 写入点改造 + console layout SSR 守卫",
       "priority": "critical",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "source": "CRIT-7 (frontend) + H-32",
       "acceptance": "前端 4 写入点：1) `src/app/(auth)/login/page.tsx:131` 删除 `document.cookie = 'token=...'`（cookie 由后端 Set-Cookie 写入）；保留 `localStorage.setItem('token',...)` 带 TODO 注释（过渡期）；2) `src/app/(console)/layout.tsx:50` 同上删除 document.cookie；3) `src/app/(console)/settings/page.tsx:711-714` 登出改调 POST /api/auth/logout + localStorage.removeItem('token') + router.push('/login')；4) `src/components/top-app-bar.tsx:45` 同上登出逻辑。SSR 守卫：5) `src/app/(console)/layout.tsx` 拆分为 server layout（async RSC，从 cookies() 读 token，调 verifyJwt，失败 redirect('/login')）+ 内层 `_client-shell.tsx`（原来的 'use client' UI + state）；6) server layout 把 verified user payload 作为 prop 传给 shell，消除 layout 里重复 fetch /api/auth/profile；7) `apiFetch` 若是跨域配置 `credentials: 'include'`（本地+生产同源无需）；8) tsc 通过；9) `npm run build` 通过；10) 浏览器手动验证：登出后访问 /dashboard 应 redirect /login，不出现空白布局闪现"
     },

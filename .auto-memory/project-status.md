@@ -4,12 +4,12 @@ description: AIGC Gateway 当前状态快照（覆盖写，≤30 行）
 type: project
 ---
 ## 当前批次
-- **BL-SEC-AUTH-SESSION：`building`**（1.5d，P0-security 第 2 批，覆盖 CRIT-7 + H-8 + H-32）
+- **BL-SEC-AUTH-SESSION：`verifying`**（P0-security 第 2 批，覆盖 CRIT-7 + H-8 + H-32）
+- Generator 3/3 done（F-AS-01/02/03）→ 等 Codex F-AS-04 16 条验收
 - Path A 串行执行：backlog.json 已列全 14 批次路线图（order 字段标顺序）
 
 ## 上一批次（BL-SEC-CRED-HARDEN done）
 - 4/4 PASS，fix_rounds=0，Reviewer 2026-04-18 签收
-- 产物：image-proxy fallback 移除 + 启动 fail-fast / seed.ts env / 47 脚本批量 env 化 / .env.example 4 新变量
 - Signoff: `docs/test-reports/BL-SEC-CRED-HARDEN-signoff-2026-04-18.md`
 
 ## 生产状态

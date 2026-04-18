@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 import { errorResponse } from "@/lib/api/errors";
 import { signJwt } from "@/lib/api/jwt-middleware";
+import { setSessionCookie } from "@/lib/auth/session-cookie";
 import { NextResponse } from "next/server";
 
 export async function POST(request: Request) {
@@ -57,7 +58,7 @@ export async function POST(request: Request) {
     })
     .catch(() => {});
 
-  return NextResponse.json({
+  const response = NextResponse.json({
     token,
     user: {
       id: user.id,
@@ -66,4 +67,6 @@ export async function POST(request: Request) {
       role: user.role,
     },
   });
+  setSessionCookie(response, token);
+  return response;
 }

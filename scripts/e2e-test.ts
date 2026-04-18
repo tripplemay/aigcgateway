@@ -113,6 +113,61 @@ async function main() {
     token = body.token;
   });
 
+  // 2b. BL-SEC-AUTH-SESSION F-AS-01: login sets HttpOnly cookie
+  await step("2b. BL-SEC-AUTH-SESSION login Set-Cookie HttpOnly", async () => {
+    const savedToken = token;
+    token = "";
+    try {
+      const res = await api("/api/auth/login", {
+        method: "POST",
+        body: JSON.stringify({ email, password }),
+        expectStatus: 200,
+      });
+      const setCookie = res.headers.get("set-cookie") ?? "";
+      if (!/token=/.test(setCookie)) throw new Error("Set-Cookie missing token cookie");
+      if (!/HttpOnly/i.test(setCookie)) throw new Error("Set-Cookie missing HttpOnly flag");
+      if (!/SameSite=Lax/i.test(setCookie)) throw new Error("Set-Cookie missing SameSite=Lax");
+      if (!/Max-Age=604800/.test(setCookie) && !/Max-Age=\d+/.test(setCookie)) {
+        throw new Error(`Set-Cookie missing Max-Age: ${setCookie}`);
+      }
+    } finally {
+      token = savedToken;
+    }
+  });
+
+  // 2c. BL-SEC-AUTH-SESSION F-AS-01: /api/auth/logout clears cookie
+  await step("2c. BL-SEC-AUTH-SESSION logout clears cookie", async () => {
+    const res = await fetch(`${BASE}/api/auth/logout`, { method: "POST" });
+    if (res.status !== 200) throw new Error(`logout status ${res.status}`);
+    const setCookie = res.headers.get("set-cookie") ?? "";
+    if (!/token=/.test(setCookie)) throw new Error("logout missing Set-Cookie");
+    if (!/Max-Age=0/.test(setCookie)) throw new Error("logout Max-Age should be 0");
+    if (!/HttpOnly/i.test(setCookie)) throw new Error("logout Set-Cookie missing HttpOnly");
+  });
+
+  // 2d. BL-SEC-AUTH-SESSION F-AS-02: middleware rejects tampered JWT cookie
+  await step("2d. BL-SEC-AUTH-SESSION tampered JWT → redirect", async () => {
+    const forged =
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJoYWNrZXIiLCJyb2xlIjoiQURNSU4ifQ.AAAA";
+    const res = await fetch(`${BASE}/dashboard`, {
+      headers: { cookie: `token=${forged}` },
+      redirect: "manual",
+    });
+    if (res.status !== 307 && res.status !== 302)
+      throw new Error(`expected redirect, got ${res.status}`);
+    const loc = res.headers.get("location") ?? "";
+    if (!/\/login/.test(loc)) throw new Error(`expected /login redirect, got ${loc}`);
+  });
+
+  // 2e. BL-SEC-AUTH-SESSION F-AS-03: no cookie → /dashboard redirects to /login
+  await step("2e. BL-SEC-AUTH-SESSION unauthenticated /dashboard → /login", async () => {
+    const res = await fetch(`${BASE}/dashboard`, { redirect: "manual" });
+    if (res.status !== 307 && res.status !== 302)
+      throw new Error(`expected redirect, got ${res.status}`);
+    const loc = res.headers.get("location") ?? "";
+    if (!/\/login/.test(loc)) throw new Error(`expected /login redirect, got ${loc}`);
+  });
+
   // 3. Create project
   await step("3. Create project", async () => {
     const { body } = await api("/api/projects", {

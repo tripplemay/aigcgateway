@@ -40,9 +40,13 @@ export function TopAppBar({ userName, userEmail }: TopAppBarProps) {
     return () => document.removeEventListener("mousedown", handler);
   }, [menuOpen]);
 
-  const handleSignOut = () => {
+  const handleSignOut = async () => {
+    try {
+      await fetch("/api/auth/logout", { method: "POST", credentials: "same-origin" });
+    } catch {
+      // best-effort; proceed with client-side cleanup even if network fails
+    }
     localStorage.removeItem("token");
-    document.cookie = "token=; path=/; max-age=0";
     router.push("/login");
   };
 

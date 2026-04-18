@@ -708,10 +708,17 @@ export default function SettingsPage() {
                 <h2 className="heading-2 text-ds-on-error-container mb-2">{t("sessionControl")}</h2>
                 <p className="text-sm text-ds-on-error-container/70 mb-6">{t("signOutDesc")}</p>
                 <button
-                  onClick={() => {
+                  onClick={async () => {
+                    try {
+                      await fetch("/api/auth/logout", {
+                        method: "POST",
+                        credentials: "same-origin",
+                      });
+                    } catch {
+                      // best-effort; continue cleanup even if the request fails
+                    }
                     localStorage.removeItem("token");
                     localStorage.removeItem("projectId");
-                    document.cookie = "token=; path=/; max-age=0";
                     router.push("/login");
                   }}
                   className="w-full py-3 bg-ds-error text-white font-bold rounded-lg shadow-lg shadow-ds-error/20 hover:opacity-90 transition-opacity active:scale-[0.98]"

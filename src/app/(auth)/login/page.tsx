@@ -127,8 +127,11 @@ function LoginPageInner() {
         setLoading(false);
         return;
       }
+      // TODO(BL-SEC-AUTH-SESSION follow-up): drop localStorage once all
+      // API routes migrate to cookie-based auth. Kept for apiFetch Bearer
+      // header during the transition. Cookie is now set by the server
+      // (HttpOnly, SameSite=Lax, Secure in prod) via Set-Cookie.
       localStorage.setItem("token", data.token);
-      document.cookie = `token=${data.token}; path=/; max-age=${7 * 24 * 3600}; SameSite=Lax`;
       router.push(redirectTarget);
     } catch {
       setError(t("networkError"));
