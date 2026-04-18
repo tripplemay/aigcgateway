@@ -1,11 +1,11 @@
 {
-  "status": "reverifying",
+  "status": "done",
   "user_goal": "BL-SEC-INFRA-GUARD — 基建硬化（admin PATCH 白名单 + 分布式锁 + shell 注入修 + MCP 权限一致 + 告警去重 + 依赖升级）",
   "total_features": 7,
-  "completed_features": 6,
+  "completed_features": 7,
   "fix_rounds": 1,
   "current_sprint": "BL-SEC-INFRA-GUARD",
-  "last_updated": "2026-04-18T16:00:00Z",
+  "last_updated": "2026-04-18T08:13:00Z",
   "reference_docs": [
     "docs/specs/BL-SEC-INFRA-GUARD-spec.md",
     "docs/code-review/backend-fullscan-2026-04-17.md"
@@ -14,7 +14,7 @@
   "docs": {
     "spec": "docs/specs/BL-SEC-INFRA-GUARD-spec.md",
     "test_cases": "docs/test-cases/bl-sec-infra-guard-verifying-cases-2026-04-18.md",
-    "signoff": null,
+    "signoff": "docs/test-reports/BL-SEC-INFRA-GUARD-signoff-2026-04-18.md",
     "framework_reviewed": false
   },
   "evaluator_feedback": null,
@@ -42,6 +42,6 @@
   },
   "session_notes": {
     "Kimi": "Generator fix round 1：只动 F-IG-02。按 Planner 新 spec：禁 fallback，启动 waitForRedisReady(5000)，timeout 整节点降级 scheduler disabled。acquire/heartbeat/release 统一走 Redis，杜绝 fix round 0 的'先 fallback 后切 Redis 混合态'竞态。\n\n具体改：\n- src/lib/redis.ts 新增 waitForRedisReady(timeoutMs, pollMs=100)：已 ready → 立即 true；无 redis client（REDIS_URL 缺失）→ 立即 false；否则 poll 100ms 直到 ready 或 timeout。\n- src/lib/infra/leader-lock.ts 删除 localLocks + __resetLocalLocksForTest + fallback 分支。Redis 不可用时 acquire/heartbeat 都返 false，release no-op。\n- src/instrumentation.ts 先 prisma.$connect，再 await waitForRedisReady(5000)。timeout → console.warn 'scheduler disabled ...' + return；ready 后才 acquireLeaderLock + 启 schedulers。\n- src/lib/infra/__tests__/leader-lock.test.ts 重写：Redis 不可用组 3 case（acquire/heartbeat/release），Redis 可用组 5 case（含新增 one-source-of-truth 回归验证 mid-life Redis down → heartbeat false）。\n\n验证：tsc 干净，build 通过，vitest 115 → 116。\n\n不动：F-IG-04 代码（Planner 确认 MCP isError:true 是协议标准），F-IG-06 代码（接受 partial 按回退条款）。",
-    "Reviewer": null
+    "Reviewer": "reverifying 已完成并通过。按 features/spec 新口径重测：TC-IG-06 单主通过（第二实例 skip），TC-IG-07 Redis not ready 5s 节点禁用调度通过，TC-IG-09 MCP 200+isError 通过，TC-IG-12 1 high/0 critical 按回退条款通过。L2 生产冒烟通过（codex-admin 登录、dashboard 200、临时 key chat 200，随后 revoke）。已写 docs/test-reports/bl-sec-infra-guard-reverifying-local-2026-04-18.md 与 signoff，状态置 done。"
   }
 }

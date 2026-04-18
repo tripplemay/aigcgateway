@@ -62,7 +62,7 @@
       "title": "BL-SEC-INFRA-GUARD 全量验收（fix round 1 验收断言已修正）",
       "priority": "critical",
       "executor": "codex",
-      "status": "pending",
+      "status": "completed",
       "source": "BL-SEC-INFRA-GUARD",
       "acceptance": "admin PATCH 防护（5 项，fix round 0 已 PASS）：1) providerConfig PATCH `{apiKey:'fake', id:'fake'}` 被拒或字段丢弃；2) channel PATCH `{status:'HIJACKED', createdAt:'2000-01-01'}` 被拒；3) model POST/PATCH `{projectId:'other'}` 被拒；4) provider PATCH `{baseUrl:'file:///etc/passwd'}` → 400；5) provider PATCH `{baseUrl:'javascript:alert(1)'}` → 400。分布式锁（2 项，fix round 1 重测）：6) Redis ready 后本地两实例 dev server，scheduler 仅一个实例跑；7) Redis 5s 内未 ready 启动实例 → 观察 'scheduler disabled' warn 日志（节点整体降级，不跑调度）。shell 注入（fix round 0 已 PASS）：8) `BASE_URL='; echo pwn >/tmp/rce-test' npx tsx scripts/stress-test.ts` 不创建 /tmp/rce-test。MCP（acceptance 修正版）：9) projectInfo:false key fork_public_template → `{content:[{text:'[forbidden] ...'}], isError: true}` **HTTP 200**（MCP 协议标准，非 HTTP 403）；10) 空 IP whitelist MCP key → HTTP 401（auth 层）。告警去重（fix round 0 已 PASS）：11) 同用户同日 balance 告警仅触发一次。依赖（回退条款）：12) `npm audit --production` ≤ 1 high + 0 critical（1 high = next 已 deferred）；13) build + tsc + vitest 全过。冒烟：14) 生产登录 + dashboard + AI 调用无 regression。15) signoff 报告 `docs/test-reports/BL-SEC-INFRA-GUARD-signoff-2026-04-18.md`。"
     }
