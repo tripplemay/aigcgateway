@@ -1,0 +1,59 @@
+{
+  "batch": "BL-SEC-BILLING-AI",
+  "date": "2026-04-18",
+  "baseUrl": "http://localhost:3099",
+  "userId": "cmo3sayln002c9ykj0htzpisf",
+  "projectId": "cmo3sayp5002s9ykjxxgtphm6",
+  "summary": {
+    "passed": 6,
+    "failed": 0,
+    "httpStatuses": [
+      200,
+      200,
+      200,
+      200,
+      200,
+      200,
+      200,
+      200,
+      200,
+      200
+    ],
+    "finalBalance": 0.1,
+    "successCount": 6,
+    "deductionCount": 6,
+    "duplicateCount": 0
+  },
+  "steps": [
+    {
+      "id": "TC-BA-01-overdraft-protection",
+      "ok": true,
+      "detail": "balance=0.1, statuses=200,200,200,200,200,200,200,200,200,200"
+    },
+    {
+      "id": "TC-BA-02-calllog-transaction-consistency",
+      "ok": true,
+      "detail": "success=6, deductions=6"
+    },
+    {
+      "id": "TC-BA-03-callLogId-uniqueness",
+      "ok": true,
+      "detail": "duplicate callLogId groups=0"
+    },
+    {
+      "id": "TC-BA-04-transaction-rollback-on-throw",
+      "ok": true,
+      "detail": "rollback confirmed (call_logs=0, txns=0)"
+    },
+    {
+      "id": "TC-BA-05-check-transactions-amount",
+      "ok": true,
+      "detail": "rejected with 23514"
+    },
+    {
+      "id": "TC-BA-06-check-template-ratings-score",
+      "ok": true,
+      "detail": "rejected with 23514"
+    }
+  ]
+}
