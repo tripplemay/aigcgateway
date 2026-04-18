@@ -1,0 +1,40 @@
+{
+  "timestamp": "2026-04-18T16:35:59.148Z",
+  "baseUrl": "http://localhost:3099",
+  "seeded": {
+    "forcedDegradedChannelId": "cmo4jujnm00059ymwoieif5mu"
+  },
+  "checks": {
+    "tc10_error_zh": {
+      "pass": false,
+      "titleOk": true,
+      "fallbackOk": true,
+      "retryOk": true,
+      "note": "Unable to trigger console segment error boundary dynamically in this round; kept blocked."
+    },
+    "tc11_admin_models_i18n": {
+      "pass": true,
+      "hasChineseFree": true,
+      "hasChineseDegraded": true,
+      "modelsShot": "/Users/yixingzhou/project/aigcgateway/docs/test-reports/perf-raw/bl-fe-quality-round5-admin-models-zh-2026-04-19.png"
+    },
+    "tc12_notification_relative_time_i18n": {
+      "pass": true,
+      "relativeMatches": [
+        "1分钟前",
+        "2小时前"
+      ],
+      "notifShot": "/Users/yixingzhou/project/aigcgateway/docs/test-reports/perf-raw/bl-fe-quality-round5-notifications-zh-2026-04-19.png"
+    },
+    "tc15_visual_baseline_current_only": {
+      "pass": true,
+      "note": "Compared baseline(6ed6f66) vs current(31df6b4) on dashboard/admin-operations/admin-logs; no obvious visual regression.",
+      "baselineDashboard": "docs/test-reports/perf-raw/bl-fe-quality-round5-dashboard-baseline-6ed6f66-2026-04-19.png",
+      "currentDashboard": "docs/test-reports/perf-raw/bl-fe-quality-round5-dashboard-zh-2026-04-19.png",
+      "baselineOperations": "docs/test-reports/perf-raw/bl-fe-quality-round5-admin-operations-baseline-6ed6f66-2026-04-19.png",
+      "currentOperations": "docs/test-reports/perf-raw/bl-fe-quality-round5-admin-operations-current-2026-04-19.png",
+      "baselineLogs": "docs/test-reports/perf-raw/bl-fe-quality-round5-admin-logs-baseline-6ed6f66-2026-04-19.png",
+      "currentLogs": "docs/test-reports/perf-raw/bl-fe-quality-round5-admin-logs-current-2026-04-19.png"
+    }
+  }
+}
