@@ -269,13 +269,14 @@ export function calculateTokenCost(
     return { costUsd: 0, sellUsd: 0 };
   }
 
-  const costPrice = route.channel.costPrice as {
+  const costPrice = (route.channel.costPrice ?? {}) as {
     inputPer1M?: number;
     outputPer1M?: number;
     unit?: string;
   };
-  // 扣费价从 alias.sellPrice 取（统一定价源），fallback 到 channel.sellPrice 兜底
-  const sellPrice = (route.alias?.sellPrice ?? route.channel.sellPrice) as {
+  // 扣费价从 alias.sellPrice 取（统一定价源），fallback 到 channel.sellPrice 兜底；
+  // 两者均为 null 时退化为 {}，后续 `?? 0` 保护下 sellUsd=0（未配置定价 → 不扣费）
+  const sellPrice = (route.alias?.sellPrice ?? route.channel.sellPrice ?? {}) as {
     inputPer1M?: number;
     outputPer1M?: number;
     unit?: string;

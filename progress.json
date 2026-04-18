@@ -1,11 +1,11 @@
 {
-  "status": "fixing",
+  "status": "reverifying",
   "user_goal": "BL-FE-QUALITY — 前端质量合并批次（UX 交互 + template-testing polish + A11y/i18n + DS Critical 3 文件）",
   "total_features": 5,
   "completed_features": 4,
-  "fix_rounds": 3,
+  "fix_rounds": 4,
   "current_sprint": "BL-FE-QUALITY",
-  "last_updated": "2026-04-18T16:48:02Z",
+  "last_updated": "2026-04-19T07:40:00Z",
   "reference_docs": [
     "docs/specs/BL-FE-QUALITY-spec.md",
     "docs/code-review/batch-07-frontend-pages.md",
@@ -80,7 +80,7 @@
     ]
   },
   "session_notes": {
-    "Kimi": "BL-FE-QUALITY fix round 3：\n\n精准根因（Codex round3 报告）：sidebar active nav link 对比度 3.48。axe 解析 `bg-ds-primary/5` 合成出 bg=#b4ade3（非我手算的 #eaeafb），#5443b9 on #b4ade3 = 3.48。可能是 Tailwind 4 的 alpha 解析 + axe 算法对 `rgb(from var)` 色空间合成的差异。\n\n修复：sidebar.tsx 3 处 active state `bg-ds-primary/5` → `bg-ds-primary-fixed`（solid #e5deff）。\n- 对比度：#5443b9 on #e5deff ≈ 6.47（AA ✅）\n- 不使用 alpha，避免 axe 算法分歧\n- 视觉：active link 从几乎透明的紫调 → 浅紫 solid 背景；Material 3 primary-fixed 本就是为 'active surface' 设计\n\n本地 tsc/vitest 116/116/build 全过。\n\nBLOCKED 5 项（#7/#10/#11/#12/#15）仍需 Codex 浏览器工具恢复后取证。\n\n经验沉淀候选：axe color-contrast 对 Tailwind 4 alpha class（如 bg-X/5）的合成色算法与 css rgba 解析可能存在差异，实际测出的 bg 色与手算值不一致。对 a11y 要求严格的 surface，应优先使用 solid token（如 ds-primary-fixed）而非 alpha 修饰类。",
+    "Kimi": "BL-FE-QUALITY fix round 4（应对 Codex round6 阻断）：\n\n#7 post-process null 防御（核心 bug）：\nCodex round6 脚本 logCount=0 根因——calculateTokenCost 把 route.channel.costPrice / sellPrice 硬 cast 为对象，但 channel/alias 未配置定价时为 null，后续 `costPrice.inputPer1M` 抛 TypeError，post-process 异常 → callLog.create 未执行 → 计费日志 0 条。\n修复 src/lib/api/post-process.ts:272-282：cast 时用 `?? {}` 兜底，保留下游 `?? 0` 的保护，null 定价退化为 costUsd=0/sellUsd=0。\n加 `src/lib/api/__tests__/post-process-cost.test.ts` 6 条 regression（null 双路径、alias 优先、ERROR 不计、FILTERED 仅算输入）。\n\n#10 error.tsx 动态触发路径：\n新增 `src/app/(console)/__error-test/page.tsx`，'use client' 内 throw Error 稳定触发父 (console)/error.tsx。命名 __ 前缀表内部测试，无 nav 入口，Codex 登录后 GET /__error-test 即可取证 zh-CN/en error UI。\n\n本地 tsc/vitest 122/122（原 116 + 新 6）/build 全过。进 reverifying。\n\n预期 Codex round7：重跑 10-step 脚本 logCount=10 / sumSellPrice=0 / runTotalCost=0 / diff=0 ≤ 1e-12 → #7 PASS；访问 /__error-test 截 zh-CN → #10 PASS。5 项全通则可签收。",
     "Reviewer": "BL-FE-QUALITY reverifying round6：新增精度专用脚本 scripts/test/bl-fe-quality-round6-precision-evidence-2026-04-19.ts。结果显示 10-step execute 成功但 call_logs=0（证据 JSON 已落盘），现场日志出现 post-process TypeError: reading inputPer1M of null，指向定价对象空值防御缺失，导致 #7 仍阻断。#10 仍缺可稳定动态触发路径；#11/#12/#15 持续通过。"
   }
 }
