@@ -1,42 +1,42 @@
 {
-  "batch": "BL-SEC-CRED-HARDEN",
+  "batch": "BL-SEC-AUTH-SESSION",
   "created_at": "2026-04-18",
   "features": [
     {
-      "id": "F-CH-01",
-      "title": "image-proxy.ts 移除 HMAC fallback + 启动校验 env",
+      "id": "F-AS-01",
+      "title": "后端 /api/auth/login Set-Cookie HttpOnly + /api/auth/logout",
       "priority": "critical",
       "executor": "generator",
-      "status": "completed",
-      "source": "CRIT-6",
-      "acceptance": "1) `src/lib/api/image-proxy.ts` 删除 `?? 'aigc-gateway-image-proxy-dev-secret'` 字符串 fallback；2) getSecret() 改为若 IMAGE_PROXY_SECRET || AUTH_SECRET || NEXTAUTH_SECRET 均为空则 throw Error（含明确变量名提示）；3) 在 `src/lib/env.ts`（或新增 assertEnv 函数）加启动校验，应用启动阶段即抛错而非首次请求；4) 新增单测 `src/lib/api/__tests__/image-proxy.test.ts`：env 缺失时 throw + 三级 fallback 任一有值时通过；5) tsc 通过；6) `npm run build` 通过；7) git grep 'aigc-gateway-image-proxy-dev-secret' 零结果（除 docs/）"
+      "status": "pending",
+      "source": "CRIT-7 (backend)",
+      "acceptance": "1) `src/app/api/auth/login/route.ts` 成功响应新增 `Set-Cookie: token=<jwt>; HttpOnly; SameSite=Lax; Max-Age=604800; Path=/` + `Secure` 标记仅在 NODE_ENV='production' 时添加（本地 HTTP dev 兼容）；2) 新建 `src/app/api/auth/logout/route.ts`（POST）返回 `Set-Cookie: token=; HttpOnly; Path=/; Max-Age=0`；3) 响应 body 保留 `{ token }` 字段向下兼容（过渡期 fetch Authorization header 仍可读）；4) `src/app/api/auth/register/route.ts` 若直接登录也同步返回 Set-Cookie；5) 使用 Next.js `cookies()` API 或 Response.headers.append 手动设置；6) tsc 通过；7) 本地 curl 登录验证响应头含正确 cookie 属性"
     },
     {
-      "id": "F-CH-02",
-      "title": "prisma/seed.ts admin 密码改读 ADMIN_SEED_PASSWORD",
+      "id": "F-AS-02",
+      "title": "middleware 用 jose 真实验签 + 从 cookie 读 token",
       "priority": "critical",
       "executor": "generator",
-      "status": "completed",
-      "source": "CRIT-5 (part 1)",
-      "acceptance": "1) `prisma/seed.ts:284` 删除 `hashSync('admin123', 12)` 字面量；2) 改为 `hashSync(requireEnv('ADMIN_SEED_PASSWORD'), 12)`，requireEnv helper 可放在 seed.ts 顶部或 `prisma/lib/require-env.ts`；3) 保留 seed 幂等性：upsert update 块不含 passwordHash（已存在 admin 不重置密码）；4) `.env.example` 新增 `ADMIN_SEED_PASSWORD=` 占位；5) `.env.production` 不设此变量（防止 prod 跑 seed）；6) `npx tsx prisma/seed.ts` 本地跑通（需本地 export ADMIN_SEED_PASSWORD=...）；7) git grep 'admin123' 零结果（除 docs/ 引用）"
+      "status": "pending",
+      "source": "H-8",
+      "acceptance": "1) 删除 `src/middleware.ts` 的 `decodeJwtPayload` 函数；2) 新建 `src/lib/auth/jwt.ts` 导出 `verifyJwt(token: string): Promise<Payload>`，用 jose.jwtVerify(token, new TextEncoder().encode(JWT_SECRET))；3) middleware 改从 `request.cookies.get('token')?.value` 读 token，不再看 Authorization header；4) 验签失败：NextResponse.redirect(new URL('/login?redirect='+encodeURIComponent(pathname), request.url))；5) 保留 role 检查逻辑，读取已验签 payload.role；6) jose 若在 Edge Runtime 报错 fallback `export const runtime = 'nodejs'`；7) 新增单测 `src/lib/auth/__tests__/jwt.test.ts`：正向（合法 token 返回 payload）+ 负向（签名篡改 throw / 过期 throw / 空 throw）；8) tsc 通过；9) `npm run build` 通过"
     },
     {
-      "id": "F-CH-03",
-      "title": "scripts + test scripts 密码 env 化（Codex@2026! + Test1234）",
+      "id": "F-AS-03",
+      "title": "前端 4 写入点改造 + console layout SSR 守卫",
       "priority": "critical",
       "executor": "generator",
-      "status": "completed",
-      "source": "CRIT-5 (part 2) + L5",
-      "acceptance": "1) 新建 `scripts/lib/require-env.ts` 导出 `requireEnv(key): string` —— 缺失时 console.error + process.exit(1)；2) 以下文件密码改 `requireEnv('ADMIN_TEST_PASSWORD')`：`scripts/admin-auth.ts`、`scripts/stress-test.ts`、`scripts/test/template-governance-eval.mjs`、`scripts/test/bf-fork-project-switch-verifying-e2e-2026-04-10.ts`、`scripts/test/rate-limit-f-rl-08-verifying-e2e-2026-04-15.ts`、其余用 `git grep -l 'Codex@2026\\\\!'` 枚举的所有命中文件；3) 含 'Test1234' 的 E2E 脚本改 `requireEnv('E2E_TEST_PASSWORD')`，用 `git grep -l 'Test1234'` 枚举；4) `.env.example` 新增 `ADMIN_TEST_PASSWORD=`、`E2E_TEST_PASSWORD=` 占位；5) 本地跑 `npx tsx scripts/admin-auth.ts`（无 env）应 exit(1) 打 'Missing env: ADMIN_TEST_PASSWORD'；6) git grep 'Codex@2026' + 'Test1234' 零结果（除 docs/）；7) tsc 通过；8) CI `.github/workflows/` 检查 secrets 文档化需要注入的 env（作为 spec 附注，不改 yml）"
+      "status": "pending",
+      "source": "CRIT-7 (frontend) + H-32",
+      "acceptance": "前端 4 写入点：1) `src/app/(auth)/login/page.tsx:131` 删除 `document.cookie = 'token=...'`（cookie 由后端 Set-Cookie 写入）；保留 `localStorage.setItem('token',...)` 带 TODO 注释（过渡期）；2) `src/app/(console)/layout.tsx:50` 同上删除 document.cookie；3) `src/app/(console)/settings/page.tsx:711-714` 登出改调 POST /api/auth/logout + localStorage.removeItem('token') + router.push('/login')；4) `src/components/top-app-bar.tsx:45` 同上登出逻辑。SSR 守卫：5) `src/app/(console)/layout.tsx` 拆分为 server layout（async RSC，从 cookies() 读 token，调 verifyJwt，失败 redirect('/login')）+ 内层 `_client-shell.tsx`（原来的 'use client' UI + state）；6) server layout 把 verified user payload 作为 prop 传给 shell，消除 layout 里重复 fetch /api/auth/profile；7) `apiFetch` 若是跨域配置 `credentials: 'include'`（本地+生产同源无需）；8) tsc 通过；9) `npm run build` 通过；10) 浏览器手动验证：登出后访问 /dashboard 应 redirect /login，不出现空白布局闪现"
     },
     {
-      "id": "F-CH-04",
-      "title": "BL-SEC-CRED-HARDEN 全量验收",
+      "id": "F-AS-04",
+      "title": "BL-SEC-AUTH-SESSION 全量验收",
       "priority": "critical",
       "executor": "codex",
-      "status": "completed",
-      "source": "BL-SEC-CRED-HARDEN",
-      "acceptance": "静态检查：1) git grep -i 'admin123' 零结果；2) git grep 'Codex@2026' 零结果；3) git grep 'Test1234' 零结果；4) git grep 'aigc-gateway-image-proxy-dev-secret' 零结果（以上 4 条均允许 docs/ 目录引用但代码/scripts/prisma 需清零）；5) `.env.example` 含 4 个新变量（ADMIN_SEED_PASSWORD + ADMIN_TEST_PASSWORD + E2E_TEST_PASSWORD + IMAGE_PROXY_SECRET）。代码健全：6) `npm run build` 通过；7) `npx tsc --noEmit` 通过；8) `npx vitest run src/lib/api/__tests__/image-proxy.test.ts` 新单测通过。启动校验：9) 空 IMAGE_PROXY_SECRET + 空 AUTH_SECRET + 空 NEXTAUTH_SECRET 启动 `npm run dev` 应抛错退出（或首次请求 image-proxy 时抛错，二选一）。脚本健全：10) `ADMIN_TEST_PASSWORD= npx tsx scripts/admin-auth.ts` exit(1)；11) 设置 env 后 admin-auth.ts 能正常获取 token。12) 生成 signoff 报告 `docs/test-reports/BL-SEC-CRED-HARDEN-signoff-2026-04-18.md`。"
+      "status": "pending",
+      "source": "BL-SEC-AUTH-SESSION",
+      "acceptance": "安全属性断言（浏览器 DevTools + curl 双路验证）：1) 登录响应 Set-Cookie 含 HttpOnly；2) 含 SameSite=Lax；3) 生产环境 curl 响应含 Secure（本地可跳过）；4) DevTools Application > Cookies token 行 HttpOnly 勾选为 true；5) 浏览器 console `document.cookie` 读不到 token 字段。验签断言：6) 伪造 JWT（header+payload base64 后随便签）访问 /admin/operations → 302 redirect /login；7) 无 token curl /dashboard → 302 redirect /login?redirect=/dashboard；8) 过期 JWT（手工构造 exp=过去时间）→ redirect。SSR 守卫断言：9) 清空所有 cookie/storage 后直接访问 /dashboard，观察 HTML 首字节即是 redirect meta/Location，不含 console layout DOM（curl -I 验证或 view-source）。构建健全：10) npm run build 通过；11) npx tsc --noEmit 通过；12) npx vitest run src/lib/auth/__tests__/jwt.test.ts 新单测通过。兼容性回归：13) 登录后 apiFetch 调用 /api/auth/profile 成功（cookie 自动带上）；14) 登出 /api/auth/logout 后 apiFetch /api/auth/profile 返 401；15) 登出后浏览器手动访问 /dashboard 被 redirect。16) 生成 signoff 报告 docs/test-reports/BL-SEC-AUTH-SESSION-signoff-2026-04-18.md。"
     }
   ]
 }

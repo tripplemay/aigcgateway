@@ -1,57 +1,26 @@
 {
-  "status": "done",
-  "user_goal": "BL-SEC-CRED-HARDEN — 移除硬编码密码 + image-proxy HMAC fallback + 启动 env assert（Code Review CRIT-5 + CRIT-6 + L5）",
+  "status": "building",
+  "user_goal": "BL-SEC-AUTH-SESSION — JWT HttpOnly cookie + middleware jose 验签 + console layout SSR 守卫（Code Review CRIT-7 + H-8 + H-32）",
   "total_features": 4,
-  "completed_features": 4,
+  "completed_features": 0,
   "fix_rounds": 0,
-  "current_sprint": "BL-SEC-CRED-HARDEN",
-  "last_updated": "2026-04-18T02:23:48.650Z",
+  "current_sprint": "BL-SEC-AUTH-SESSION",
+  "last_updated": "2026-04-18T02:40:00Z",
   "reference_docs": [
-    "docs/specs/BL-SEC-CRED-HARDEN-spec.md",
+    "docs/specs/BL-SEC-AUTH-SESSION-spec.md",
     "docs/code-review/backend-fullscan-2026-04-17.md"
   ],
   "role_assignments": null,
   "docs": {
-    "spec": "docs/specs/BL-SEC-CRED-HARDEN-spec.md",
+    "spec": "docs/specs/BL-SEC-AUTH-SESSION-spec.md",
     "test_cases": null,
-    "signoff": "docs/test-reports/BL-SEC-CRED-HARDEN-signoff-2026-04-18.md",
+    "signoff": null,
     "framework_reviewed": false
   },
-  "evaluator_feedback": {
-    "summary": "BL-SEC-CRED-HARDEN 验收通过：凭证硬编码已从代码域清理，image-proxy fail-fast 与脚本 env 断言行为符合预期。",
-    "pass_count": 12,
-    "partial_count": 0,
-    "fail_count": 0,
-    "issues": []
-  },
-  "generator_handoff": {
-    "summary": "F-CH-01 / F-CH-02 / F-CH-03 已完成，进入 verifying 等待 Codex 执行 F-CH-04。",
-    "deliverables": [
-      "src/lib/api/image-proxy.ts 删除 'aigc-gateway-image-proxy-dev-secret' fallback + 三 env 全空时抛错",
-      "src/lib/env.ts 新增 assertImageProxySecret() + src/instrumentation.ts 启动时调用（fail-fast）",
-      "src/lib/api/__tests__/image-proxy.test.ts 新单测 10/10 通过",
-      "prisma/seed.ts admin 密码改读 requireEnv('ADMIN_SEED_PASSWORD')；upsert update 块保留为空（幂等）",
-      "scripts/lib/require-env.ts 新建（requireEnv + requireEnvOrThrow 两个导出）",
-      "scripts/ 与 tests/ 下 47 个 TS 文件 + 1 mjs + 1 k6.js + 1 bash 全部改 env 读取",
-      ".env.example 新增 IMAGE_PROXY_SECRET / ADMIN_SEED_PASSWORD / ADMIN_TEST_PASSWORD / E2E_TEST_PASSWORD 四个变量",
-      "tests/perf/.env.example 将 DEV_PASSWORD 占位改为 <perf-dev-password>"
-    ],
-    "validation_done": [
-      "git grep 'admin123' / 'Codex@2026' / 'Test1234' / 'aigc-gateway-image-proxy-dev-secret' 源码零命中（backlog/features JSON 里保留 spec 文案）",
-      "npx tsc --noEmit 通过",
-      "npx vitest run src/lib/api/__tests__/image-proxy.test.ts 通过（10/10）",
-      "IMAGE_PROXY_SECRET=... ADMIN_TEST_PASSWORD=x ADMIN_SEED_PASSWORD=x E2E_TEST_PASSWORD=x npm run build 成功",
-      "ADMIN_TEST_PASSWORD= npx tsx scripts/admin-auth.ts → exit 1 + 'Missing env: ADMIN_TEST_PASSWORD'"
-    ],
-    "evaluator_focus": [
-      "F-CH-04 acceptance：git grep 四项零命中、.env.example 四变量齐备、build/tsc/vitest 通过",
-      "启动校验验证：IMAGE_PROXY_SECRET/AUTH_SECRET/NEXTAUTH_SECRET 全空 → npm run dev/build 应抛 IMAGE_PROXY_SECRET required",
-      "注意 instrumentation 仅在 NEXT_RUNTIME=nodejs 时校验（edge runtime 不生效，按设计）",
-      "template-governance-eval.mjs 使用内联 requireEnv（.mjs 不导入 TS 模块）；k6 脚本改用 throw；bash 脚本用 :? 语法"
-    ]
-  },
+  "evaluator_feedback": null,
+  "generator_handoff": null,
   "session_notes": {
-    "Kimi": "Generator 完成 3/3 功能代码实现。F-CH-01 在 image-proxy.ts 改 || 链 + env 全空时 throw；启动校验放 src/instrumentation.ts（await import assertImageProxySecret 后首行执行）。F-CH-02 在 seed.ts 顶部加 requireEnv 并替换 hashSync 参数。F-CH-03 新建 scripts/lib/require-env.ts，另用 /tmp/bl-sec-patch.mjs 批量改 47 个文件（regex 替换 + auto-insert import），mjs/k6/bash 文件手动改。批次类型为「混合批次」（3 generator + 1 codex），按 harness 规则 building→verifying 跳过 fixing。生成回归测试沉淀在新单测里（credential-hardening 属 security 类，vitest 单测比改 e2e 脚本更合适）。",
-    "Reviewer": "2026-04-18 verifying: executed static scans, env/example checks, tsc/build, image-proxy vitest, fail-fast startup checks, admin-auth negative/positive and seed env checks; all acceptance items passed; signed off batch."
+    "Kimi": "Planner 完成：(1) BL-SEC-CRED-HARDEN done 收尾（framework/proposed-learnings.md 无待确认条目，直接进入下一批）；(2) project-status.md 刷新为 AUTH-SESSION building + CRED-HARDEN 产物存档；(3) 初始化 BL-SEC-AUTH-SESSION 批次。本批次 4 条：F-AS-01 后端 Set-Cookie HttpOnly + /logout；F-AS-02 middleware jose 验签 + cookie 读 token；F-AS-03 前端 4 处改造 + console layout SSR 守卫（拆 server layout + client shell）；F-AS-04 codex 安全属性 + 验签 + SSR 守卫 16 条验收。混合批次 building→verifying。\n\n部署注意：AUTH-SESSION 上线后所有现有用户 cookie 失效需重新登录（HttpOnly 新写入），属一次性迁移痛点，不回滚。\n\nPath A 进度：CRED-HARDEN ✅ → AUTH-SESSION 🔄 → BILLING-AI → INFRA-GUARD → FE-PERF-01 → ...（共 14 批次）。",
+    "Reviewer": null
   }
 }
