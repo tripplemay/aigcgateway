@@ -18,7 +18,7 @@
       "executor": "generator",
       "status": "done",
       "source": "frontend-perf.md CRITICAL-2",
-      "acceptance": "1) `src/components/intl-provider.tsx:4-5` 删除 `import en from '@/messages/en.json'` 和 `import zhCN from '@/messages/zh-CN.json'`；2) IntlInner 改用 useState + useEffect + `import(\\`@/messages/${locale}.json\\`)` 动态加载；3) 加载中返回 `<Skeleton className='h-screen w-screen' />` 或 null；4) 语言切换（useLocale）触发重新加载；5) DevTools Network 验证：/dashboard 只加载一个 messages/*.json；6) tsc + build 通过"
+      "acceptance": "1) `src/components/intl-provider.tsx:4-5` 删除 `import en from '@/messages/en.json'` 和 `import zhCN from '@/messages/zh-CN.json'`；2) IntlInner 改用 useState + useEffect + `import(\\`@/messages/${locale}.json\\`)` 动态加载；3) 加载中返回 `<Skeleton className='h-screen w-screen' />` 或 null；4) 语言切换（useLocale）触发重新加载；5) DevTools Network 验证：/dashboard 只加载一个 locale 的资源（**webpack chunk 形式 messages-[hash].js 也符合，不要求必须是 messages/*.json 路径** — Next.js 对 JSON 的动态 import 标准行为是编译为 JS chunk，本身即满足按需加载语义）；6) tsc + build 通过"
     },
     {
       "id": "F-PF-03",
@@ -63,7 +63,7 @@
       "executor": "codex",
       "status": "pending",
       "source": "BL-FE-PERF-01",
-      "acceptance": "Bundle 体积断言（5 项）：1) /dashboard First Load ≤ 180 kB（当前 281）；2) /usage ≤ 180 kB（当前 271）；3) /admin/usage ≤ 160 kB（当前 227）；4) / ≤ 90 kB；5) chunks/6627-*.js（recharts）不在三大路由 First Load。Lighthouse 实测（npm run build && npm start）：6) /dashboard LCP ≤ 1.5s；7) /dashboard CLS ≤ 0.1；8) / view-source 响应首字节是 HTML redirect meta 或 302。i18n 验证：9) DevTools Network /dashboard 只加载一个 messages/*.json；10) 语言切换动态请求另一个 JSON 正常。构建与单测：11) npm run build 通过；12) npx tsc --noEmit 通过；13) npx vitest run 全过；14) npm run analyze 生成 report.html。冒烟回归：15) 未登录访问 / → /landing.html；16) 已登录访问 / → /dashboard；17) dashboard 图表正常显示无白屏闪烁；18) zh-CN ↔ en 切换生效。19) 生成 signoff 报告 `docs/test-reports/BL-FE-PERF-01-signoff-2026-04-18.md`。"
+      "acceptance": "Bundle 体积断言（5 项）：1) /dashboard First Load ≤ 180 kB（当前 281）；2) /usage ≤ 180 kB（当前 271）；3) /admin/usage ≤ 160 kB（当前 227）；4) / ≤ 90 kB；5) chunks/6627-*.js（recharts）不在三大路由 First Load。Lighthouse 实测（npm run build && npm start）：6) /dashboard LCP ≤ 1.5s；7) /dashboard CLS ≤ 0.1；8) / view-source 响应首字节是 HTML redirect meta 或 302。i18n 验证（**口径修订：webpack chunk 形式也算满足**）：9) DevTools Network /dashboard 只加载一个 locale 的资源（chunk `messages-[hash].js` 或 json 均可，**不要求是 .json 文件形态**）；10) 语言切换动态加载另一个 locale 的资源（chunk 或 json 均可）。构建与单测：11) npm run build 通过；12) npx tsc --noEmit 通过；13) npx vitest run 全过；14) npm run analyze 生成 report.html。冒烟回归：15) 未登录访问 / → /landing.html；16) 已登录访问 / → /dashboard；17) dashboard 图表正常显示无白屏闪烁；18) zh-CN ↔ en 切换生效。19) 生成 signoff 报告 `docs/test-reports/BL-FE-PERF-01-signoff-2026-04-18.md`。"
     }
   ]
 }
