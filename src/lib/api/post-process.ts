@@ -123,44 +123,49 @@ async function processChatResultAsync(params: ChatPostProcessParams): Promise<vo
       ? { reasoning_tokens: reasoningTokens }
       : undefined;
 
-  // 写入 CallLog
-  const callLog = await prisma.callLog.create({
-    data: {
-      traceId: params.traceId,
-      projectId: params.projectId,
-      channelId: params.route.channel.id,
-      modelName: params.modelName,
-      promptSnapshot: params.promptSnapshot as unknown as object,
-      requestParams: params.requestParams as Prisma.InputJsonValue,
-      responseContent,
-      ...(responseSummary ? { responseSummary } : {}),
-      finishReason,
-      status,
-      promptTokens: usage?.prompt_tokens ?? null,
-      completionTokens: usage?.completion_tokens ?? null,
-      totalTokens: usage?.total_tokens ?? null,
-      costPrice: costUsd,
-      sellPrice: sellUsd,
-      latencyMs,
-      ttftMs,
-      tokensPerSecond,
-      errorMessage: params.error?.message ? sanitizeErrorMessage(params.error.message) : null,
-      errorCode: params.error?.code ?? null,
-      actionId: params.actionId ?? null,
-      actionVersionId: params.actionVersionId ?? null,
-      templateRunId: params.templateRunId ?? null,
-      source: params.source ?? "api",
-    },
-  });
+  // F-BA-02: CallLog + deduct_balance 原子化
+  // sellUsd>0 且 SUCCESS/FILTERED 时 $transaction 包裹两步；否则仅写 callLog。
+  // deduct_balance 函数内部已 INSERT transactions(DEDUCTION) —— 这里不得再额外写入。
+  const callLogData: Prisma.CallLogUncheckedCreateInput = {
+    traceId: params.traceId,
+    projectId: params.projectId,
+    channelId: params.route.channel.id,
+    modelName: params.modelName,
+    promptSnapshot: params.promptSnapshot as unknown as object,
+    requestParams: params.requestParams as Prisma.InputJsonValue,
+    responseContent,
+    ...(responseSummary ? { responseSummary } : {}),
+    finishReason,
+    status,
+    promptTokens: usage?.prompt_tokens ?? null,
+    completionTokens: usage?.completion_tokens ?? null,
+    totalTokens: usage?.total_tokens ?? null,
+    costPrice: costUsd,
+    sellPrice: sellUsd,
+    latencyMs,
+    ttftMs,
+    tokensPerSecond,
+    errorMessage: params.error?.message ? sanitizeErrorMessage(params.error.message) : null,
+    errorCode: params.error?.code ?? null,
+    actionId: params.actionId ?? null,
+    actionVersionId: params.actionVersionId ?? null,
+    templateRunId: params.templateRunId ?? null,
+    source: params.source ?? "api",
+  };
 
-  // 扣费（ERROR / TIMEOUT 不扣）
-  if (sellUsd > 0 && (status === "SUCCESS" || status === "FILTERED")) {
-    await deductBalance(params.userId, params.projectId, sellUsd, callLog.id, params.traceId);
+  const shouldDeduct = sellUsd > 0 && (status === "SUCCESS" || status === "FILTERED");
+  if (shouldDeduct) {
+    await prisma.$transaction(async (tx) => {
+      const callLog = await tx.callLog.create({ data: callLogData });
+      await deductBalance(tx, params.userId, params.projectId, sellUsd, callLog.id, params.traceId);
+    });
     // F-RL-04: feed the spending rate limiter immediately so the next
     // incoming request sees the accurate per-minute tally.
     recordSpending(params.userId, sellUsd).catch(() => {});
     // F-UA-03: check if balance dropped below alertThreshold
     checkAndSendBalanceLowAlert(params.userId, params.projectId).catch(() => {});
+  } else {
+    await prisma.callLog.create({ data: callLogData });
   }
 
   // 记录 TPM（用于限流检查）
@@ -214,36 +219,40 @@ async function processImageResultAsync(params: ImagePostProcessParams): Promise<
     ...(zeroImageDelivery ? { zero_image_delivery: true } : {}),
   };
 
-  const callLog = await prisma.callLog.create({
-    data: {
-      traceId: params.traceId,
-      projectId: params.projectId,
-      channelId: params.route.channel.id,
-      modelName: params.modelName,
-      promptSnapshot: [{ role: "user", content: params.requestParams.prompt }] as unknown as object,
-      requestParams: params.requestParams as Prisma.InputJsonValue,
-      responseContent: params.response?.data?.[0]?.url ?? null,
-      responseSummary,
-      status,
-      latencyMs,
-      costPrice: costUsd,
-      sellPrice: sellUsd,
-      errorMessage: params.error?.message
-        ? sanitizeErrorMessage(params.error.message)
-        : zeroImageDelivery
-          ? "Image generation failed, model did not return a valid image"
-          : null,
-      errorCode: params.error?.code ?? (zeroImageDelivery ? "zero_image_delivery" : null),
-      source: params.source ?? "api",
-    },
-  });
+  // F-BA-02: 图片扣费 atomicity —— 与 chat 路径逻辑一致。
+  const imageCallLogData: Prisma.CallLogUncheckedCreateInput = {
+    traceId: params.traceId,
+    projectId: params.projectId,
+    channelId: params.route.channel.id,
+    modelName: params.modelName,
+    promptSnapshot: [{ role: "user", content: params.requestParams.prompt }] as unknown as object,
+    requestParams: params.requestParams as Prisma.InputJsonValue,
+    responseContent: params.response?.data?.[0]?.url ?? null,
+    responseSummary,
+    status,
+    latencyMs,
+    costPrice: costUsd,
+    sellPrice: sellUsd,
+    errorMessage: params.error?.message
+      ? sanitizeErrorMessage(params.error.message)
+      : zeroImageDelivery
+        ? "Image generation failed, model did not return a valid image"
+        : null,
+    errorCode: params.error?.code ?? (zeroImageDelivery ? "zero_image_delivery" : null),
+    source: params.source ?? "api",
+  };
 
-  // 图片失败（含零图）不扣费
-  if (sellUsd > 0 && status === "SUCCESS") {
-    await deductBalance(params.userId, params.projectId, sellUsd, callLog.id, params.traceId);
+  const shouldDeduct = sellUsd > 0 && status === "SUCCESS";
+  if (shouldDeduct) {
+    await prisma.$transaction(async (tx) => {
+      const callLog = await tx.callLog.create({ data: imageCallLogData });
+      await deductBalance(tx, params.userId, params.projectId, sellUsd, callLog.id, params.traceId);
+    });
     recordSpending(params.userId, sellUsd).catch(() => {});
     // F-UA-03: check if balance dropped below alertThreshold
     checkAndSendBalanceLowAlert(params.userId, params.projectId).catch(() => {});
+  } else {
+    await prisma.callLog.create({ data: imageCallLogData });
   }
 }
 
@@ -320,7 +329,10 @@ function calculateCallCost(
 // 扣费
 // ============================================================
 
+type ExtendedPrismaTx = Parameters<Parameters<typeof prisma.$transaction>[0]>[0];
+
 async function deductBalance(
+  tx: ExtendedPrismaTx,
   userId: string,
   projectId: string,
   amount: number,
@@ -333,7 +345,7 @@ async function deductBalance(
   const MIN_CHARGE = 0.00000001;
   const finalAmount = amount < MIN_CHARGE ? MIN_CHARGE : amount;
 
-  await prisma.$queryRaw`
+  await tx.$queryRaw`
     SELECT * FROM deduct_balance(
       ${userId}::TEXT,
       ${projectId}::TEXT,

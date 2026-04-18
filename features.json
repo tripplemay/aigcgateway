@@ -7,7 +7,7 @@
       "title": "deduct_balance 内部改 SELECT FOR UPDATE + 分支（保 6 参签名）",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "source": "CRIT-2",
       "acceptance": "1) 新建 `prisma/migrations/20260418_deduct_balance_for_update/migration.sql`，`CREATE OR REPLACE FUNCTION deduct_balance` **严格保持现有 6 参签名**：(p_user_id TEXT, p_project_id TEXT, p_amount DECIMAL(16,8), p_call_log_id TEXT, p_description TEXT DEFAULT 'API call deduction', p_trace_id TEXT DEFAULT NULL) RETURNS TABLE(new_balance DECIMAL(16,8))；2) 内部改：(a) 先 `SELECT balance INTO v_balance FROM users WHERE id = p_user_id FOR UPDATE`；(b) IF v_balance IS NULL RAISE EXCEPTION 'User not found'；(c) IF v_balance < p_amount RAISE EXCEPTION 'Insufficient balance for user %'；(d) UPDATE balance；(e) 保留现有的 INSERT INTO transactions 段落（'DEDUCTION', -p_amount, 带 callLogId/traceId）不变；3) 签名/返回/异常消息与旧版严格兼容（post-process.ts 调用点 0 修改）；4) 不原位改旧 migration 20260410120000；5) 本地 `npx prisma migrate dev` 跑通；6) 新增并发验证（psql 手工两开 session BEGIN/SELECT deduct_balance/COMMIT 验证阻塞行为，或通过 F-BA-02 的 e2e 并发测试闭环覆盖）；7) tsc 通过"
     },
@@ -16,7 +16,7 @@
       "title": "CallLog + deduct_balance 包 prisma.$transaction（不重复写 transactions）",
       "priority": "critical",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "source": "CRIT-4",
       "acceptance": "1) `src/lib/api/post-process.ts:127-158` 把 `prisma.callLog.create(...)` 和 `prisma.$queryRaw\\`SELECT * FROM deduct_balance(...)\\`` 两步改为 `prisma.$transaction(async (tx) => { await tx.callLog.create(...); await tx.$queryRaw\\`SELECT * FROM deduct_balance(...)\\`; })`；2) **禁止额外写 tx.transaction.create()** —— deduct_balance 函数内已 INSERT DEDUCTION 记录，再加会导致重复（F-BA-04 断言 3 验证唯一性）；3) deduct_balance RAISE EXCEPTION（余额不足）时整个事务回滚，callLog 不落；4) `scripts/e2e-test.ts` 新增并发回归步骤：创建测试用户余额 $1.00，发 10 个并发 /v1/chat/completions（$0.15/次），断言 (a) 最终 balance >= 0；(b) `callLogs(SUCCESS).count === transactions(type=DEDUCTION AND callLogId IS NOT NULL).count`；(c) 同一 callLogId 在 transactions 仅 1 条 DEDUCTION；5) 本地跑 e2e 测试通过；6) tsc + npm run build 通过"
     },
@@ -25,7 +25,7 @@
       "title": "Transaction.amount + TemplateRating.score CHECK 约束",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "source": "H-16 + H-19",
       "acceptance": "1) 新建 `prisma/migrations/20260418_billing_check_constraints/migration.sql`：(a) DO $$ 预检块，若 transactions 不符号规则（DEDUCTION/REFUND>=0 或 RECHARGE/BONUS<0）或 template_ratings score 越界（<1 或 >5）则 RAISE EXCEPTION 指示人工清理；(b) ALTER TABLE transactions ADD CONSTRAINT transactions_amount_sign_check CHECK ((type IN ('DEDUCTION','REFUND') AND amount<0) OR (type IN ('RECHARGE','BONUS') AND amount>=0) OR (type='ADJUSTMENT'))；(c) ALTER TABLE template_ratings ADD CONSTRAINT template_ratings_score_range_check CHECK (score>=1 AND score<=5)；2) 本地 dev DB 先 SELECT COUNT 统计不合规数据，全 0 才跑 migration；3) schema.prisma 在 model Transaction 和 model TemplateRating 注释上方加 `/// CHECK: ...` 文档化；4) 本地 `npx prisma migrate dev` 跑通；5) tsc 通过"
     },

@@ -558,6 +558,79 @@ async function main() {
     }
   });
 
+  // 24. BL-SEC-BILLING-AI F-BA-02 regression — CallLog + deduct_balance atomicity
+  // Seed balance to exactly $1.00, fire 10 concurrent /v1/chat/completions, then
+  // assert (a) balance never negative, (b) callLog(SUCCESS).count === transaction(DEDUCTION).count
+  // for this run, (c) each callLogId appears at most once in transactions — i.e. deduct_balance
+  // did not get double-INSERTed by a stray tx.transaction.create (the F-BA-02 anti-pattern).
+  await step("24. BL-SEC-BILLING-AI F-BA-02 concurrent atomicity", async () => {
+    const user = await prisma.user.findUnique({ where: { email } });
+    if (!user) throw new Error("e2e user missing");
+
+    // Reset to exactly $1.00 so 10 × $0.15 has a deterministic overdraft surface.
+    await prisma.user.update({ where: { id: user.id }, data: { balance: 1 } });
+
+    const since = new Date();
+    // Prisma's DATETIME precision is milliseconds on Postgres; back off 100ms
+    // so the "since" filter can't race the clock on very fast inserts.
+    since.setMilliseconds(since.getMilliseconds() - 100);
+
+    const fire = () =>
+      fetch(`${BASE}/v1/chat/completions`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
+        body: JSON.stringify({
+          model: "deepseek/v3",
+          messages: [{ role: "user", content: "ping" }],
+          max_tokens: 5,
+        }),
+      }).catch(() => null);
+    await Promise.all(Array.from({ length: 10 }, fire));
+
+    // Post-process is async; give the event loop up to 8s to drain all 10.
+    await new Promise((r) => setTimeout(r, 8000));
+
+    const [freshUser, logs, txns] = await Promise.all([
+      prisma.user.findUnique({ where: { id: user.id }, select: { balance: true } }),
+      prisma.callLog.findMany({
+        where: { projectId, status: "SUCCESS", createdAt: { gte: since } },
+        select: { id: true },
+      }),
+      prisma.transaction.findMany({
+        where: {
+          userId: user.id,
+          type: "DEDUCTION",
+          callLogId: { not: null },
+          createdAt: { gte: since },
+        },
+        select: { callLogId: true },
+      }),
+    ]);
+
+    if (!freshUser) throw new Error("user vanished mid-test");
+    if (Number(freshUser.balance) < 0) {
+      throw new Error(`overdraft detected: balance=${freshUser.balance}`);
+    }
+
+    // callLog ↔ transaction 一一对应（原子化保证）
+    if (logs.length !== txns.length) {
+      throw new Error(
+        `atomicity broken: callLog(SUCCESS)=${logs.length} !== transaction(DEDUCTION)=${txns.length}`,
+      );
+    }
+
+    // 同一 callLogId 只能出现一次（验证未误写重复 transaction）
+    const counts = new Map<string, number>();
+    for (const t of txns) {
+      if (!t.callLogId) continue;
+      counts.set(t.callLogId, (counts.get(t.callLogId) ?? 0) + 1);
+    }
+    const dupes = [...counts.entries()].filter(([, n]) => n > 1);
+    if (dupes.length > 0) {
+      throw new Error(`duplicate DEDUCTION per callLogId: ${JSON.stringify(dupes)}`);
+    }
+  });
+
   console.log("\n" + "=".repeat(60));
   console.log(`Results: ${passed} PASS | ${failed} FAIL | ${passed + failed} total`);
   await prisma.$disconnect().catch(() => {});
