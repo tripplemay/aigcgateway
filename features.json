@@ -7,7 +7,7 @@
       "title": "修正 CHECK migration（v2）+ schema.prisma 注释",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "source": "BL-SEC-BILLING-AI F-BA-03 deferred",
       "acceptance": "1) 新建 `prisma/migrations/20260418_billing_check_constraints_v2/migration.sql`（v2 命名与失败的 v1 区分）；2) DO $$ 预检用**正确规则**：transactions 违规 = (type='DEDUCTION' AND amount>=0) OR (type IN ('REFUND','RECHARGE','BONUS') AND amount<0)，template_ratings 违规 = score<1 OR score>5；3) ALTER TABLE transactions ADD CONSTRAINT transactions_amount_sign_check CHECK ((type='DEDUCTION' AND amount<0) OR (type IN ('REFUND','RECHARGE','BONUS') AND amount>=0) OR (type='ADJUSTMENT'))；4) ALTER TABLE template_ratings ADD CONSTRAINT template_ratings_score_range_check CHECK (score>=1 AND score<=5)；5) schema.prisma 在 model Transaction.amount 和 model TemplateRating.score 字段上方加 `/// CHECK: ...` + `/// 在 migration 20260418_billing_check_constraints_v2 定义` 文档注释（Prisma 不支持 @@check 属性）；6) 本地 `npx prisma migrate dev` 跑通，无冲突；7) tsc + build 通过"
     },

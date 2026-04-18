@@ -420,16 +420,15 @@ model CallLog {
 // 计费
 // ============================================================
 
-/// CHECK (enforced at DB layer, see migration 20260418_billing_check_constraints):
-///   transactions_amount_sign_check:
-///     - DEDUCTION / REFUND   → amount < 0
-///     - RECHARGE  / BONUS    → amount >= 0
-///     - ADJUSTMENT           → any sign
 model Transaction {
   id             String            @id @default(cuid())
   projectId      String?
   userId         String?
   type           TransactionType
+  /// CHECK transactions_amount_sign_check (migration 20260418_billing_check_constraints_v2):
+  ///   DEDUCTION            amount < 0
+  ///   REFUND/RECHARGE/BONUS amount >= 0
+  ///   ADJUSTMENT           any sign
   amount         Decimal           @db.Decimal(16, 8)
   balanceAfter   Decimal           @db.Decimal(16, 8)
   status         TransactionStatus @default(COMPLETED)
@@ -588,12 +587,12 @@ model TemplateTestRun {
   @@map("template_test_runs")
 }
 
-/// CHECK (enforced at DB layer, see migration 20260418_billing_check_constraints):
-///   template_ratings_score_range_check: 1 <= score <= 5
 model TemplateRating {
   id         String   @id @default(cuid())
   userId     String
   templateId String
+  /// CHECK template_ratings_score_range_check (migration 20260418_billing_check_constraints_v2):
+  ///   1 <= score <= 5
   score      Int
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt

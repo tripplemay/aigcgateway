@@ -1,11 +1,11 @@
 {
-  "status": "building",
+  "status": "verifying",
   "user_goal": "BL-SEC-BILLING-CHECK-FOLLOWUP — CHECK 约束规则修正 + 重提 migration（F-BA-03 生产部署失败后续）",
   "total_features": 2,
-  "completed_features": 0,
+  "completed_features": 1,
   "fix_rounds": 0,
   "current_sprint": "BL-SEC-BILLING-CHECK-FOLLOWUP",
-  "last_updated": "2026-04-18T12:05:00Z",
+  "last_updated": "2026-04-18T12:10:00Z",
   "reference_docs": [
     "docs/specs/BL-SEC-BILLING-CHECK-FOLLOWUP-spec.md",
     "docs/specs/BL-SEC-BILLING-AI-spec.md"
@@ -18,9 +18,29 @@
     "framework_reviewed": false
   },
   "evaluator_feedback": null,
-  "generator_handoff": null,
+  "generator_handoff": {
+    "summary": "F-BCF-01 delivered: v2 CHECK migration with corrected REFUND sign rule + field-level schema.prisma /// comments.",
+    "artifacts": [
+      "prisma/migrations/20260418_billing_check_constraints_v2/migration.sql",
+      "prisma/schema.prisma (field-level /// CHECK comments on Transaction.amount + TemplateRating.score, pointing to v2 migration)"
+    ],
+    "local_verification": {
+      "tsc": "clean",
+      "build": "ok",
+      "vitest": "96/96 pass",
+      "prisma_generate": "ok",
+      "migration_apply": "dropped v1 residue + DELETE FROM _prisma_migrations WHERE migration_name = 20260418_billing_check_constraints; applied v2 via psql; prisma migrate resolve --applied 20260418_billing_check_constraints_v2",
+      "psql_smoke": "DEDUCTION amount=10 → 23514 / REFUND amount=-10 → 23514 / REFUND amount=10 → accepted / score=0 → 23514 / score=6 → 23514"
+    },
+    "notes_for_evaluator": [
+      "F-BCF-02 codex-only: build + tsc + vitest; production preflight SELECT (expected 0); SSH prisma migrate deploy; positive AI call regression.",
+      "Production HEAD c8a7703 — only the v2 migration will be applied by deploy (v1 was already resolve --rolled-back on production by the hotfix commit).",
+      "Local dev DB still has pre-existing drift on 20260410051446 + 20260417_template_test_runs (unrelated). Production uses migrate deploy which is not affected.",
+      "No application code changed this batch — pm2 restart not required if deploy script is DB-only (the existing deploy script does restart pm2 anyway)."
+    ]
+  },
   "session_notes": {
-    "Kimi": "Planner 完成：(1) BL-SEC-BILLING-AI done 收尾（framework_reviewed 留给本批次一起收）；(2) 调查生产 7 行被 v1 migration 拒绝的数据：全是 REFUND amount>0，business 正确，source `scripts/refund-zero-image-audit.ts:102` 存 +sellPrice；(3) 结论：Code Review H-16 报告对 REFUND 符号断言错误（报告说 <0，实际代码约定 >=0），Planner 初稿照抄未核实；(4) backlog.json 追加 BL-SEC-BILLING-CHECK-FOLLOWUP order=3.5 follows=BILLING-AI；(5) 新批次 2 条 feature（1 generator 改 migration + schema 注释，1 codex 生产部署+14 项验收）。\n\nF-BCF-01 要点：新 migration `20260418_billing_check_constraints_v2`（区分失败的 v1），CHECK 规则修正为 DEDUCTION<0 / REFUND+RECHARGE+BONUS>=0 / ADJUSTMENT 任意；预检 SQL 同步。\n\nF-BCF-02 要点：本地 build + 生产预检（预期 0 不合规）+ 生产部署 + 正反 INSERT 验证 + AI 调用正向回归。\n\nPath A 进度 3.5/14.5（插队 1 个 0.5d 修正批次）。本批次完成后继续 INFRA-GUARD。\n\n已在 framework/proposed-learnings.md 追加一条：Code Review 报告的事实断言（符号/类型/约束）必须用生产数据 + 源码交叉验证。",
+    "Kimi": "Generator 完成 F-BCF-01（1/2）。\n\n动作：\n- 新 migration `20260418_billing_check_constraints_v2/`（v2 命名与失败的 v1 区分）\n- DO 预检规则修正：DEDUCTION amount>=0 或 REFUND/RECHARGE/BONUS amount<0 才算违规\n- ALTER TABLE CHECK 同步修正：REFUND 从 <0 改为 >=0\n- schema.prisma 删除 v1 的 model 行上方注释，改为 Transaction.amount / TemplateRating.score 字段级 /// 注释，指向 v2 migration\n\n本地适配：\n- 本地 dev DB 还残留 v1 约束 + _prisma_migrations 登记（上个会话的副作用），psql 先 DROP CONSTRAINT 两条 + DELETE FROM _prisma_migrations WHERE name='20260418_billing_check_constraints'，再 psql apply v2 + `prisma migrate resolve --applied 20260418_billing_check_constraints_v2`\n- 生产只有 v2 需要 apply（v1 在 c8a7703 时已 resolve --rolled-back）\n\n验证：tsc 干净，build 通过，vitest 96/96，psql 手工 5 项 CHECK 断言全对：DEDUCTION+10 / REFUND-10 都 23514 拒绝，REFUND+10 通过，score=0/6 都 23514 拒绝。\n\n交给 Evaluator 跑 F-BCF-02 的 14 项（含生产 SSH migrate deploy + 正反 INSERT + AI 调用回归）。",
     "Reviewer": null
   }
 }
