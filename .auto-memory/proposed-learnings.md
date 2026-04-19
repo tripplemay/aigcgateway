@@ -32,6 +32,29 @@ type: project
 
 -->
 
+## [2026-04-19] Planner+Generator — 来源：BL-SEC-POLISH Round 1 裁决
+
+**类型：** harness 流程补充（Generator 裁决申请机制）
+
+**内容：** Generator 在 fixing 阶段发现 spec acceptance 条款与以下任一冲突时，应落盘 `docs/adjudications/<批次名>-adjudication-request-<日期>.md`：
+(a) 同一 spec 内背景 / 风险分析 / 设计决策
+(b) 协议规范 / 语言标准
+(c) Planner session_notes 设计目标
+
+Planner 读取后裁决（修订 spec 或指示回退实现），Generator 不自主回退或坚持。本次 BL-SEC-POLISH 首次应用此流程，模板文件可作为事实标准。
+
+**背景事件：** BL-SEC-POLISH acceptance #1 "<50ms" 与 H-7 抗时序意图冲突；#14 "HTTP 429" 违反 MCP 协议标准。Generator 不自主决定，落盘裁决申请，Planner 裁决为修订 spec（而非回退实现）。
+
+**Planner 自省：** 本次 #14 是**我已采纳的铁律 2.1（协议返回形式标明协议层）**的反例第二发生——铁律已写下但 spec 编写时未自觉应用。教训：Planner 写 acceptance 时应**逐条对照已采纳铁律清单自检**，不是有规则就够，要真的用。
+
+**建议写入 harness-template 的：**
+- `harness/harness-rules.md` 新增 "§Generator 裁决申请" 小节（参考 adjudication request 模板结构）
+- `harness/planner.md` "Planner 铁律" 后新增一条 "自检规则"：写完 acceptance 后对照已采纳铁律清单逐条核查，特别关注形式/意图分离（铁律 1.1）和协议层标注（铁律 2.1）
+
+**状态：** 待确认
+
+---
+
 ## [2026-04-19] Generator — 来源：BL-FE-QUALITY fix round 5 F-FQ-03 #10
 
 **类型：** 新坑（Next.js App Router 私有目录约定）

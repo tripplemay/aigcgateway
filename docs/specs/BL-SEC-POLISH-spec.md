@@ -262,9 +262,9 @@ async ({ template_id, variables = {}, test_mode }) => {
 
 ### F-SP-04：全量验收（Evaluator）
 
-**AUTH（6 项）：**
-1. login 不存在用户 + 错密码 → 响应时长 < 50ms（不做 bcrypt）
-2. login 存在用户 + 错密码 → 响应时长 > 150ms（做 bcrypt cost=12）
+**AUTH（6 项，#1 已按 2026-04-19 裁决修订）：**
+1. **[裁决修订]** login 不存在用户+错密码 与 存在用户+错密码 响应时长**差 < 20ms**（抗时序枚举，两种路径均走 bcrypt cost=12）；两者绝对时长约 150-250ms 均可接受。*原要求 "<50ms" 与 H-7 抗时序意图冲突，违反铁律 1.1；见 `docs/adjudications/BL-SEC-POLISH-adjudication-request-2026-04-19.md` 裁决点 #1*
+2. login 存在用户 + 错密码 → 响应时长 > 150ms（bcrypt cost=12 生效）
 3. login 正确凭证 + 首次登录（存量 cost=10） → rehash 为 cost=12（数据库验证）
 4. login 同 IP 11 req/min → 第 11 req 返 429
 5. login 同 email 6 req/min → 第 6 req 返 429
@@ -279,8 +279,8 @@ async ({ template_id, variables = {}, test_mode }) => {
 **脚本（4 项）：**
 11. e2e-errors setup 失败 → process.exit(1) + 明确错误
 12. stress-test 报告生成在 `stress-test-{YYYY-MM-DD}.md`（当日日期）
-13. setup-zero-balance 生成的 user.passwordHash 匹配 `^\$2[aby]\$` bcrypt 格式
-14. run-template test_mode=execute 超过 rate limit → 429
+13. setup-zero-balance 生成的 user.passwordHash 匹配 `^\$2[aby]\$` bcrypt 格式 **且脚本整体能正常运行**（修 project.balance / apiKey.projectId 遗留字段）
+14. **[裁决修订]** run-template test_mode=execute 超过 rate limit → `CallToolResult.isError=true + content[0].text 含 "Rate limit exceeded"`（MCP 协议 JSON-RPC over HTTP 标准，外层 HTTP 200）。*原要求 "HTTP 429" 违反 MCP 协议规范，违反铁律 2.1；见裁决点 #14*
 
 **构建（3 项）：**
 15. npm run build 通过
