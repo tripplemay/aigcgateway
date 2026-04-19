@@ -1,0 +1,2 @@
+[redis] connected
+{"ok":true,"beforeEval":2,"afterEval":11,"deltaEval":9,"beforeEvalsha":0,"afterEvalsha":0,"deltaEvalsha":0}

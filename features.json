@@ -34,7 +34,7 @@
       "title": "BL-INFRA-RESILIENCE 全量验收",
       "priority": "high",
       "executor": "codex",
-      "status": "pending",
+      "status": "completed",
       "source": "BL-INFRA-RESILIENCE",
       "acceptance": "timeout / AbortController（4 项）：1) fetchWithTimeout 单测 PASS；2) dispatcher webhook hang 模拟 → 10s 后 AbortError；3) health alert webhook 同上；4) openai-compat stream mock 上游 headers 到达后 body 挂起 60s → 连接 abort。stream reader cancel（2 项）：5) chat stream 中途抛错 → reader.cancel 被调用（单测 spy）；6) withFailover 触发时前一个 candidate reader 被 cancel。rpmCheck 原子（2 项）：7) 并发 10 req 同 key limit=5 → 恰 5 ok / 5 over；8) 生产 redis eval 脚本正常运行（Codex SSH smoke）。N+1（3 项）：9) reconcile 10 model 同步 DB 往返 ≤ 3（mock prisma spy）；10) list-actions 单 action 100+ 版本返回 versions.length ≤ 10；11) post-process 同请求多次 success 仅 1 次 project.findUnique。构建（3 项）：12) npm run build 通过；13) npx tsc --noEmit 通过；14) npx vitest run 全过。15) 生成 signoff 报告 docs/test-reports/BL-INFRA-RESILIENCE-signoff-2026-04-19.md。"
     }
