@@ -1,61 +1,28 @@
 {
-  "status": "done",
-  "user_goal": "BL-INFRA-RESILIENCE — 后端韧性（fetchWithTimeout 统一 + stream reader.cancel + rpmCheck 原子 + 3 处 N+1 修复）",
+  "status": "building",
+  "user_goal": "BL-SEC-POLISH — 安全杂项合并（AUTH 硬化 + SSRF/CT + 脚本硬化）",
   "total_features": 4,
-  "completed_features": 4,
-  "fix_rounds": 1,
-  "current_sprint": "BL-INFRA-RESILIENCE",
-  "last_updated": "2026-04-19T13:10:17.887Z",
+  "completed_features": 0,
+  "fix_rounds": 0,
+  "current_sprint": "BL-SEC-POLISH",
+  "last_updated": "2026-04-19T17:00:00Z",
   "reference_docs": [
-    "docs/specs/BL-INFRA-RESILIENCE-spec.md",
-    "docs/code-review/batch-02-engine.md",
-    "docs/code-review/batch-04-infra.md"
+    "docs/specs/BL-SEC-POLISH-spec.md",
+    "docs/code-review/backend-fullscan-2026-04-17.md",
+    "docs/code-review/batch-06-security.md",
+    "docs/code-review/batch-08-hooks-scripts.md"
   ],
   "role_assignments": null,
   "docs": {
-    "spec": "docs/specs/BL-INFRA-RESILIENCE-spec.md",
-    "test_cases": "docs/test-cases/bl-infra-resilience-verifying-cases-2026-04-19.md",
-    "signoff": "docs/test-reports/BL-INFRA-RESILIENCE-signoff-2026-04-19.md",
+    "spec": "docs/specs/BL-SEC-POLISH-spec.md",
+    "test_cases": null,
+    "signoff": null,
     "framework_reviewed": false
   },
-  "evaluator_feedback": {
-    "summary": "BL-INFRA-RESILIENCE 复验完成：15/15 PASS，生产 Lua EVAL 动态证据通过，准予签收。",
-    "pass_count": 15,
-    "partial_count": 0,
-    "fail_count": 0,
-    "issues": []
-  },
-  "generator_handoff": {
-    "local_checks": {
-      "tsc": "pass",
-      "build": "pass",
-      "vitest": "146/146 pass (原 134 + 新 12: 6 fetch-with-timeout + 2 rpm Lua + 2 reconcile batch + 2 list-actions take)"
-    },
-    "F-IR-01_fetchWithTimeout": {
-      "helper": "src/lib/infra/fetch-with-timeout.ts 导出 fetchWithTimeout（非流式，自动 clear）+ fetchWithTimeoutStream（流式，返回 {response, clearTimeout} 让调用方显式清）；支持 caller-supplied signal",
-      "openai_compat": "src/lib/engine/openai-compat.ts 抽出 fetchWithProxyRaw 私有 helper，保留 fetchWithProxy 非流式语义；新增 fetchWithProxyStream 流式专用。chatCompletionsStream 改用后者，pipeThrough 后 wrap ReadableStream 在 start/cancel 时 clear timeout —— 修 H-21 流式 body 挂起无超时保护的 bug",
-      "dispatcher": "src/lib/notifications/dispatcher.ts DEFAULT_DEPS.fetchImpl 改为 timeoutFetch wrapper（默认 10_000 ms），测试接口 fetchImpl DI 保持不变",
-      "health_alert": "src/lib/health/alert.ts 改用 fetchWithTimeout(10_000)",
-      "tests": "src/lib/infra/__tests__/fetch-with-timeout.test.ts 6 条：正常 / timeout 触发 AbortError / clear timer on early fail / caller-supplied signal / stream clearTimeout callable / stream error clear"
-    },
-    "F-IR-02_stream_cancel_and_rpm_lua": {
-      "chat_stream_cancel": "src/app/api/v1/chat/completions/route.ts outputStream 改造：提取 upstreamReader 供 start/cancel 共享；start catch 分支补 reader.cancel(err)；cancel 钩子调用 upstreamReader.cancel 让 chatCompletionsStream wrapper 级联 cancel upstream + clear fetch timeout",
-      "rpm_lua": "src/lib/api/rate-limit.ts RPM_CHECK_LUA EVAL 脚本：ZREMRANGEBYSCORE + ZCARD + 条件 ZADD + EXPIRE 原子执行；Redis 不可用 fallback ok:true；返回 [allowed, count]",
-      "tests": "src/lib/api/__tests__/rate-limit-rpm.test.ts 2 条：10 并发 limit=5 → 恰 5 ok / 5 over；reject 路径不 ZADD（sorted set 停留在 limit）"
-    },
-    "F-IR-03_n_plus_1": {
-      "reconcile_batch": "src/lib/sync/model-sync.ts reconcile 重写：Promise.all(channel.findMany, model.findMany) → createMany Model (skipDuplicates) → 按需 model.update（仅 contextWindow 变化）→ 二次 model.findMany 刷新 ids → createMany Channel + 并发 channel.update；10 个全新 model 约 5 次 DB 往返（原 40+）",
-      "list_actions_take": "src/lib/mcp/tools/list-actions.ts include.versions 加 `take: 10`（保留 orderBy versionNumber desc）；activeVersion fallback 到 versions[0] 已存在，100+ 版本 + active 为老版本时显示最新版本号近似（authoritative 走 get_action_detail）",
-      "post_process_project_cache": "src/lib/api/post-process.ts 合并 balance-alert + TPM 两次 project.findUnique 为单次 select {id, alertThreshold, rateLimit}；checkAndSendBalanceLowAlert 接受 projectOrId: string | {id, alertThreshold} overload，post-process 传完整对象避免 triggers 内部再 findUnique",
-      "tests": "reconcile-batch.test.ts 2 条（契约文档 + mock round-trip 计数 = 5）；list-actions-take.test.ts 2 条（源码 regex 断言 include.versions 有 take:10）"
-    },
-    "deferred": [
-      "reconcile resolveCanonicalName 本身的 N+1（按当前实现每个 model 1 次查询 model_aliases），本批次未改；未来批次可用 in 批查",
-      "list_actions activeVersion 当 active 不在最近 10 版本时显示最新版本号近似，spec 已接受此 tradeoff"
-    ]
-  },
+  "evaluator_feedback": null,
+  "generator_handoff": null,
   "session_notes": {
-    "Kimi": "BL-INFRA-RESILIENCE generator 3/3 完成。\n\nF-IR-01 fetchWithTimeout：双 API（非流式 / 流式）设计合理，避免流式 body 挂起无超时保护的老 bug（H-21）。openai-compat wrapReadableStream 在 start/cancel 两侧都 clearTimeout，确保 reader 结束 timer 清理。dispatcher + health-alert 接入简单。\n\nF-IR-02 stream cancel + rpmCheck Lua：chat stream catch 补 reader.cancel + outputStream.cancel 级联 upstream。rpmCheck Lua EVAL 消除 pipeline TOCTOU。Redis 不可用 fallback 保持 ok:true（与原一致）。\n\nF-IR-03 N+1：reconcile 重写为 batch pattern（findMany × 2 → createMany → 补刷新 → channel createMany/updates），单 provider 往返从 40+ 降到 ~5（全新场景）/ ~10（混合）。list-actions.versions take:10。post-process 合并 project 两次查询，triggers 接收可选 project 对象避免再 findUnique。\n\n本地 tsc / vitest 146/146（+12）/ build 全过。推 verifying 交 Codex 15 项验收（timeout 4 + cancel 2 + rpm 2 + N+1 3 + 构建 3 + signoff 1）。\n\n注意：reconcile 测试是 contract-level（mock prisma round-trip 计数），end-to-end 集成由 Evaluator 在生产 smoke 验证。",
-    "Reviewer": "生产部署后复验完成：线上 rate-limit.ts 已包含 RPM_CHECK_LUA + redis.eval；生产探针 deltaEval=9，确认 Lua 原子路径在生产执行。结合 round2 本地结果（stream cancel/pass, post-process 去重/pass, tsc/build/vitest 全绿），15/15 PASS，已生成 signoff 并置 done。"
+    "Kimi": "Planner 一次完成：\n\n(1) BL-INFRA-RESILIENCE done 收尾（15/15 PASS，fix_rounds=1 仅修 stream cancel）。关键产物：fetchWithTimeout 双 API + rpmCheck Lua（生产探针 cmdstat_eval +9 实测）+ reconcile batch（40→5 次 DB 往返）。\n\n(2) 初始化 BL-SEC-POLISH（Path A 第 9 批，P2-polish 首批，1.5d 合并批次，4 features：3 generator + 1 codex）。合并原 BL-SEC-AUTH-HYGIENE + BL-SEC-SSRF-INPUT + BL-SCRIPT-HYGIENE 三批，覆盖 H-7/9/10 + H-27/28 + H-42-46 共 10 个加固点。\n\nspec 遵守新铁律，所有 file:line 已核实：\n- `login/route.ts:28` bcrypt.compare 在 :33 deletedAt + :36 suspended 检查之前（时序 oracle 属实）\n- `login/route.ts:43` bcrypt.hash cost=10（应 12）\n- `test-webhook/route.ts:37` 无 SSRF 过滤\n- `images/proxy/:48-52` Content-Type 透传\n- `stress-test.ts:230,352-353` 硬编码 '2026-04-04'\n- `setup-zero-balance-test.ts:38` passwordHash='dummy' 非 bcrypt 格式\n- `run-template.ts:86-119` test_mode 分支 return 在 :122 checkRateLimit 之前（确实跳过限流）\n\n关键设计决策：\n- F-SP-01 suspended 账号也返 401 + 内部日志（防账号枚举），dummy bcrypt 或 100ms 固定延迟抗时序\n- F-SP-02 isSafeWebhookUrl 仅 https + DNS 解析检查 RFC1918 + 元数据 + loopback + ULA；image-proxy 白名单正则\n- F-SP-03 test_mode rate limit 提前到分支前，保留 '不扣费' 特性（runTemplateTest 内部不变）\n\nPath A 进度 9/11。剩余 2 批（INFRA-ARCHIVE 1d + FE-DS-SHADCN 2d）。\n\n未消化 framework 提案 1 条（Next.js 私有目录）继续留 Path A 全部完成后批量同步。",
+    "Reviewer": null
   }
 }
