@@ -64,6 +64,7 @@ export async function register() {
     const { startScheduler, cleanupOldRecords } = await import("@/lib/health/scheduler");
     const { startBillingScheduler } = await import("@/lib/billing/scheduler");
     const { startModelSyncScheduler } = await import("@/lib/sync/scheduler");
+    const { startNotificationsCleanupScheduler } = await import("@/lib/notifications/scheduler");
 
     console.log("[instrumentation] Redis ready, leadership acquired");
 
@@ -87,6 +88,9 @@ export async function register() {
 
     // 启动模型同步调度器（启动时同步 + 每天 04:00 定时同步）
     startModelSyncScheduler();
+
+    // BL-DATA-CONSISTENCY F-DC-03: 每日清理过期通知（expiresAt < now）
+    startNotificationsCleanupScheduler();
 
     // 每小时扫描并吊销过期 API Key
     setInterval(

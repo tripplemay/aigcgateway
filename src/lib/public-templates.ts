@@ -10,6 +10,14 @@ export const PUBLIC_TEMPLATE_SORT_VALUES: PublicTemplateSort[] = [
   "latest",
 ];
 
+/**
+ * For sort modes whose ordering depends on computed fields not available in SQL
+ * (popular / recommended), we still fetch in-memory and sort there, but cap at
+ * this upper bound to keep the response bounded once the public-template count
+ * grows beyond a few hundred. Future work: precompute `recommendedScore` column.
+ */
+const MEMORY_SORT_UPPER_BOUND = 200;
+
 export interface PublicTemplateDto {
   id: string;
   name: string;
@@ -54,6 +62,47 @@ function computeRecommendedScore(averageScore: number, forkCount: number): numbe
   return averageScore * 0.7 + Math.log2(forkCount + 1) * 0.3;
 }
 
+const templateSelect = {
+  id: true,
+  name: true,
+  description: true,
+  category: true,
+  ratingCount: true,
+  ratingSum: true,
+  updatedAt: true,
+  steps: { orderBy: { order: "asc" as const }, select: { role: true } },
+  _count: { select: { forks: true } },
+};
+
+type TemplateRow = {
+  id: string;
+  name: string;
+  description: string | null;
+  category: string | null;
+  ratingCount: number;
+  ratingSum: number;
+  updatedAt: Date;
+  steps: { role: string }[];
+  _count: { forks: number };
+};
+
+function toDto(t: TemplateRow, cats: Awaited<ReturnType<typeof getTemplateCategories>>): PublicTemplateDto {
+  const averageScore = t.ratingCount > 0 ? t.ratingSum / t.ratingCount : 0;
+  return {
+    id: t.id,
+    name: t.name,
+    description: t.description,
+    category: t.category,
+    categoryIcon: getCategoryIcon(cats, t.category),
+    averageScore,
+    ratingCount: t.ratingCount,
+    forkCount: t._count.forks,
+    stepCount: t.steps.length,
+    executionMode: inferExecutionMode(t.steps),
+    updatedAt: t.updatedAt,
+  };
+}
+
 export async function listPublicTemplates(
   params: ListPublicTemplatesParams,
 ): Promise<ListPublicTemplatesResult> {
@@ -62,6 +111,7 @@ export async function listPublicTemplates(
   const sortBy = normalizeSortBy(params.sortBy);
   const page = Math.max(1, Math.trunc(params.page ?? 1));
   const pageSize = Math.min(100, Math.max(1, Math.trunc(params.pageSize ?? 20)));
+  const skip = (page - 1) * pageSize;
 
   const where: Record<string, unknown> = { isPublic: true };
   if (search) {
@@ -74,45 +124,44 @@ export async function listPublicTemplates(
     where.category = category;
   }
 
-  const rows = await prisma.template.findMany({
-    where,
-    select: {
-      id: true,
-      name: true,
-      description: true,
-      category: true,
-      ratingCount: true,
-      ratingSum: true,
-      updatedAt: true,
-      steps: { orderBy: { order: "asc" }, select: { role: true } },
-      _count: { select: { forks: true } },
-    },
-  });
-
   const cats = await getTemplateCategories();
 
-  const mapped: PublicTemplateDto[] = rows.map((t) => {
-    const averageScore = t.ratingCount > 0 ? t.ratingSum / t.ratingCount : 0;
+  // DB-level pagination for sort modes expressible in SQL.
+  if (sortBy === "latest" || sortBy === "top_rated") {
+    const orderBy =
+      sortBy === "latest"
+        ? [{ updatedAt: "desc" as const }]
+        : [{ ratingSum: "desc" as const }, { ratingCount: "desc" as const }];
+
+    const [rows, total] = await Promise.all([
+      prisma.template.findMany({ where, select: templateSelect, orderBy, skip, take: pageSize }),
+      prisma.template.count({ where }),
+    ]);
+
     return {
-      id: t.id,
-      name: t.name,
-      description: t.description,
-      category: t.category,
-      categoryIcon: getCategoryIcon(cats, t.category),
-      averageScore,
-      ratingCount: t.ratingCount,
-      forkCount: t._count.forks,
-      stepCount: t.steps.length,
-      executionMode: inferExecutionMode(t.steps),
-      updatedAt: t.updatedAt,
+      templates: rows.map((r) => toDto(r, cats)),
+      pagination: {
+        page,
+        pageSize,
+        total,
+        totalPages: Math.max(1, Math.ceil(total / pageSize)),
+      },
     };
+  }
+
+  // popular / recommended: sort by computed fields in memory, capped to an upper
+  // bound to keep the response bounded as the table grows.
+  const rows = await prisma.template.findMany({
+    where,
+    select: templateSelect,
+    orderBy: { updatedAt: "desc" },
+    take: MEMORY_SORT_UPPER_BOUND,
   });
+  const total = await prisma.template.count({ where });
 
+  const mapped = rows.map((r) => toDto(r, cats));
   const sorted = sortTemplates(mapped, sortBy);
-
-  const total = sorted.length;
-  const start = (page - 1) * pageSize;
-  const paged = sorted.slice(start, start + pageSize);
+  const paged = sorted.slice(skip, skip + pageSize);
 
   return {
     templates: paged,
@@ -150,5 +199,5 @@ function sortTemplates(items: PublicTemplateDto[], sortBy: PublicTemplateSort): 
         if (sb !== sa) return sb - sa;
         return b.updatedAt.getTime() - a.updatedAt.getTime();
       });
-  }
+    }
 }

@@ -105,19 +105,19 @@ enum Currency {
 // ============================================================
 
 model User {
-  id               String   @id @default(cuid())
-  email            String   @unique
+  id               String    @id @default(cuid())
+  email            String    @unique
   passwordHash     String
   name             String?
-  role             UserRole @default(DEVELOPER)
-  emailVerified    Boolean  @default(false)
-  balance          Decimal  @default(0) @db.Decimal(16, 8)
+  role             UserRole  @default(DEVELOPER)
+  emailVerified    Boolean   @default(false)
+  balance          Decimal   @default(0) @db.Decimal(16, 8)
   rateLimit        Json?
   defaultProjectId String?
   suspended        Boolean   @default(false)
   deletedAt        DateTime?
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
 
   projects                Project[]
   apiKeys                 ApiKey[]
@@ -143,7 +143,7 @@ model EmailVerificationToken {
   used      Boolean  @default(false)
   createdAt DateTime @default(now())
 
-  user User @relation(fields: [userId], references: [id])
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([token])
   @@index([userId])
@@ -173,11 +173,11 @@ model Project {
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
-  user            User            @relation(fields: [userId], references: [id])
-  callLogs        CallLog[]
-  transactions    Transaction[]
-  actions         Action[]
-  templates       Template[]
+  user         User          @relation(fields: [userId], references: [id])
+  callLogs     CallLog[]
+  transactions Transaction[]
+  actions      Action[]
+  templates    Template[]
 
   @@index([userId])
   @@map("projects")
@@ -231,22 +231,22 @@ model Provider {
 }
 
 model ProviderConfig {
-  id                 String   @id @default(cuid())
-  providerId         String   @unique
-  temperatureMin     Float?   @default(0)
-  temperatureMax     Float?   @default(2)
-  chatEndpoint       String?  @default("/chat/completions")
-  imageEndpoint      String?  @default("/images/generations")
-  imageViaChat       Boolean  @default(false)
-  supportsModelsApi    Boolean  @default(false)
-  healthCheckEndpoint  String?  @map("health_check_endpoint")
-  supportsSystemRole   Boolean  @default(true)
-  currency           Currency @default(USD)
-  quirks             Json?
-  staticModels       Json?
-  pricingOverrides   Json?    @map("pricing_overrides")
-  docUrls            Json?    @map("doc_urls")
-  updatedAt          DateTime @updatedAt
+  id                  String   @id @default(cuid())
+  providerId          String   @unique
+  temperatureMin      Float?   @default(0)
+  temperatureMax      Float?   @default(2)
+  chatEndpoint        String?  @default("/chat/completions")
+  imageEndpoint       String?  @default("/images/generations")
+  imageViaChat        Boolean  @default(false)
+  supportsModelsApi   Boolean  @default(false)
+  healthCheckEndpoint String?  @map("health_check_endpoint")
+  supportsSystemRole  Boolean  @default(true)
+  currency            Currency @default(USD)
+  quirks              Json?
+  staticModels        Json?
+  pricingOverrides    Json?    @map("pricing_overrides")
+  docUrls             Json?    @map("doc_urls")
+  updatedAt           DateTime @updatedAt
 
   provider Provider @relation(fields: [providerId], references: [id])
 
@@ -254,21 +254,21 @@ model ProviderConfig {
 }
 
 model Model {
-  id            String        @id @default(cuid())
-  name          String        @unique
-  displayName   String
-  modality      ModelModality
-  enabled       Boolean       @default(false)
-  maxTokens     Int?
-  contextWindow Int?
+  id             String        @id @default(cuid())
+  name           String        @unique
+  displayName    String
+  modality       ModelModality
+  enabled        Boolean       @default(false)
+  maxTokens      Int?
+  contextWindow  Int?
   capabilities   Json?
   supportedSizes Json?
   description    String?
-  createdAt     DateTime      @default(now())
-  updatedAt     DateTime      @updatedAt
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
 
-  channels             Channel[]
-  aliasLinks           AliasModelLink[]
+  channels              Channel[]
+  aliasLinks            AliasModelLink[]
   pendingClassification PendingClassification?
 
   @@index([modality])
@@ -278,20 +278,20 @@ model Model {
 }
 
 model ModelAlias {
-  id            String        @id @default(cuid())
-  alias         String        @unique
-  brand         String?
-  modality      ModelModality @default(TEXT)
-  enabled       Boolean       @default(false)
-  deprecated    Boolean       @default(false)
-  contextWindow Int?
-  maxTokens     Int?
-  capabilities  Json?
-  description   String?
-  sellPrice          Json?
-  openRouterModelId  String?
-  createdAt          DateTime      @default(now())
-  updatedAt          DateTime      @updatedAt
+  id                String        @id @default(cuid())
+  alias             String        @unique
+  brand             String?
+  modality          ModelModality @default(TEXT)
+  enabled           Boolean       @default(false)
+  deprecated        Boolean       @default(false)
+  contextWindow     Int?
+  maxTokens         Int?
+  capabilities      Json?
+  description       String?
+  sellPrice         Json?
+  openRouterModelId String?
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
 
   models AliasModelLink[]
 
@@ -306,9 +306,11 @@ model AliasModelLink {
   modelId String
 
   alias ModelAlias @relation(fields: [aliasId], references: [id], onDelete: Cascade)
-  model Model     @relation(fields: [modelId], references: [id], onDelete: Cascade)
+  model Model      @relation(fields: [modelId], references: [id], onDelete: Cascade)
 
   @@unique([aliasId, modelId])
+  @@index([aliasId])
+  @@index([modelId])
   @@map("alias_model_links")
 }
 
@@ -325,19 +327,19 @@ enum PendingClassificationStatus {
 }
 
 model PendingClassification {
-  id                String                      @id @default(cuid())
-  modelId           String                      @unique
-  suggestedAliasId  String?
-  suggestedAlias    String?
-  suggestedBrand    String?
-  confidence        Float?
-  reason            String?                     @db.Text
-  status            PendingClassificationStatus @default(PENDING)
-  reviewedBy        String?
-  reviewedAt        DateTime?
-  reviewNote        String?                     @db.Text
-  createdAt         DateTime                    @default(now())
-  updatedAt         DateTime                    @updatedAt
+  id               String                      @id @default(cuid())
+  modelId          String                      @unique
+  suggestedAliasId String?
+  suggestedAlias   String?
+  suggestedBrand   String?
+  confidence       Float?
+  reason           String?                     @db.Text
+  status           PendingClassificationStatus @default(PENDING)
+  reviewedBy       String?
+  reviewedAt       DateTime?
+  reviewNote       String?                     @db.Text
+  createdAt        DateTime                    @default(now())
+  updatedAt        DateTime                    @updatedAt
 
   model Model @relation(fields: [modelId], references: [id], onDelete: Cascade)
 
@@ -351,9 +353,9 @@ model Channel {
   modelId     String
   realModelId String
   priority    Int           @default(1)
-  costPrice       Json
-  sellPrice       Json?
-  status          ChannelStatus @default(ACTIVE)
+  costPrice   Json
+  sellPrice   Json?
+  status      ChannelStatus @default(ACTIVE)
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
 
@@ -395,14 +397,14 @@ model CallLog {
   tokensPerSecond  Float?
   errorMessage     String?       @db.Text
   errorCode        String?
-  actionId        String?
-  actionVersionId String?
-  templateRunId   String?
-  qualityScore      Float?
-  source           String        @default("api")  // 'api' | 'mcp'
+  actionId         String?
+  actionVersionId  String?
+  templateRunId    String?
+  qualityScore     Float?
+  source           String        @default("api") // 'api' | 'mcp'
   createdAt        DateTime      @default(now())
 
-  project Project @relation(fields: [projectId], references: [id])
+  project Project  @relation(fields: [projectId], references: [id])
   channel Channel? @relation(fields: [channelId], references: [id], onDelete: SetNull)
 
   @@index([traceId])
@@ -514,7 +516,7 @@ model Action {
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
-  project       Project        @relation(fields: [projectId], references: [id])
+  project       Project         @relation(fields: [projectId], references: [id])
   versions      ActionVersion[]
   templateSteps TemplateStep[]
 
@@ -552,9 +554,9 @@ model Template {
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
 
-  project        Project       @relation(fields: [projectId], references: [id])
-  sourceTemplate Template?     @relation("TemplateFork", fields: [sourceTemplateId], references: [id], onDelete: SetNull)
-  forks          Template[]    @relation("TemplateFork")
+  project        Project           @relation(fields: [projectId], references: [id])
+  sourceTemplate Template?         @relation("TemplateFork", fields: [sourceTemplateId], references: [id], onDelete: SetNull)
+  forks          Template[]        @relation("TemplateFork")
   steps          TemplateStep[]
   ratings        TemplateRating[]
   testRuns       TemplateTestRun[]
@@ -606,21 +608,22 @@ model TemplateRating {
 }
 
 model TemplateStep {
-  id             String   @id @default(cuid())
-  templateId     String
-  actionId       String
+  id              String   @id @default(cuid())
+  templateId      String
+  actionId        String
   /// F-WP-03: optional pinned version. When set, run_template uses this
   /// ActionVersion instead of the action's active version.
   lockedVersionId String?
-  order          Int
-  role           StepRole @default(SEQUENTIAL)
-  createdAt      DateTime @default(now())
+  order           Int
+  role            StepRole @default(SEQUENTIAL)
+  createdAt       DateTime @default(now())
 
   template Template @relation(fields: [templateId], references: [id], onDelete: Cascade)
   action   Action   @relation(fields: [actionId], references: [id])
 
   @@unique([templateId, order])
   @@index([templateId])
+  @@index([actionId])
   @@map("template_steps")
 }
 
@@ -707,12 +710,15 @@ model Notification {
   readAt    DateTime?
   sentAt    DateTime              @default(now())
   createdAt DateTime              @default(now())
+  /// BL-DATA-CONSISTENCY H-20: null = 永不过期；cleanup cron 按此字段清理
+  expiresAt DateTime?
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId, readAt, createdAt(sort: Desc)])
   @@index([userId, eventType, createdAt(sort: Desc)])
   @@index([status, createdAt])
+  @@index([expiresAt])
   @@map("notifications")
 }
 

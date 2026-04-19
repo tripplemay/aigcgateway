@@ -15,12 +15,9 @@
  * originating request.
  */
 import { prisma } from "@/lib/prisma";
-import type {
-  NotificationEventType,
-  NotificationStatus,
-  Prisma,
-} from "@prisma/client";
+import type { NotificationEventType, NotificationStatus, Prisma } from "@prisma/client";
 import { createHmac } from "node:crypto";
+import { defaultExpiresAt } from "./ttl";
 
 export interface DispatchPayload {
   // Arbitrary JSON-serialisable body. Callers use their own shape per
@@ -69,6 +66,7 @@ export async function sendNotification(
           channel: "INAPP",
           status: "SENT",
           payload: payload as unknown as Prisma.InputJsonValue,
+          expiresAt: defaultExpiresAt(eventType),
         },
       })
       .catch((err) => {
@@ -107,9 +105,7 @@ async function dispatchWebhook(job: WebhookJob, deps: DispatcherDeps): Promise<v
     payload: job.payload,
     timestamp: new Date().toISOString(),
   });
-  const signature = job.secret
-    ? createHmac("sha256", job.secret).update(body).digest("hex")
-    : "";
+  const signature = job.secret ? createHmac("sha256", job.secret).update(body).digest("hex") : "";
 
   let attempt = 0;
   let lastError: string | null = null;
@@ -152,6 +148,7 @@ async function dispatchWebhook(job: WebhookJob, deps: DispatcherDeps): Promise<v
         status,
         payload: job.payload as unknown as Prisma.InputJsonValue,
         error: lastError ?? null,
+        expiresAt: defaultExpiresAt(job.eventType),
       },
     });
   } catch (err) {
