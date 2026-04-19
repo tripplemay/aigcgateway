@@ -1,0 +1,187 @@
+{
+  "timestamp": "2026-04-19T09:02:13.537Z",
+  "baseUrl": "http://localhost:3099",
+  "dbUrl": "postgresql://test:test@localhost:5432/aigc_gateway_test",
+  "pass": true,
+  "passCount": 16,
+  "failCount": 0,
+  "steps": [
+    {
+      "id": 1,
+      "title": "Prisma migration 本地可执行（deploy + status）",
+      "ok": true,
+      "detail": "migrate deploy/status completed",
+      "evidence": {
+        "deployTail": "Prisma schema loaded from prisma/schema.prisma\nDatasource \"db\": PostgreSQL database \"aigc_gateway_test\", schema \"public\" at \"localhost:5432\"\n\n56 migrations found in prisma/migrations\n\n\nNo pending migrations to apply.\n",
+        "statusTail": "Prisma schema loaded from prisma/schema.prisma\nDatasource \"db\": PostgreSQL database \"aigc_gateway_test\", schema \"public\" at \"localhost:5432\"\n\n56 migrations found in prisma/migrations\n\nDatabase schema is up to date!\n"
+      }
+    },
+    {
+      "id": 2,
+      "title": "template_steps_actionId_idx 存在",
+      "ok": true,
+      "detail": "index exists",
+      "evidence": {
+        "rows": [
+          {
+            "indexname": "template_steps_actionId_idx"
+          }
+        ]
+      }
+    },
+    {
+      "id": 3,
+      "title": "alias_model_links 两个单列索引存在",
+      "ok": true,
+      "detail": "both indexes exist",
+      "evidence": {
+        "names": [
+          "alias_model_links_aliasId_idx",
+          "alias_model_links_modelId_idx"
+        ]
+      }
+    },
+    {
+      "id": 4,
+      "title": "email_verification_tokens FK 为 ON DELETE CASCADE",
+      "ok": true,
+      "detail": "fk cascade confirmed",
+      "evidence": {
+        "rows": [
+          {
+            "conname": "email_verification_tokens_userId_fkey",
+            "confdeltype": "c"
+          }
+        ]
+      }
+    },
+    {
+      "id": 5,
+      "title": "notifications.expiresAt 字段与索引存在",
+      "ok": true,
+      "detail": "column + index exist",
+      "evidence": {
+        "cols": [
+          {
+            "column_name": "expiresAt"
+          }
+        ],
+        "idx": [
+          {
+            "indexname": "notifications_expiresAt_idx"
+          }
+        ]
+      }
+    },
+    {
+      "id": 6,
+      "title": "删除用户触发 EmailVerificationToken 级联删除",
+      "ok": true,
+      "detail": "cascade delete works",
+      "evidence": {
+        "userId": "cmo5jemt900009yekq6zzvuml",
+        "tokenId": "cmo5jemtb00029yekfpyhdswx",
+        "remaining": 0
+      }
+    },
+    {
+      "id": 7,
+      "title": "存量 notifications expiresAt=null 保留",
+      "ok": true,
+      "detail": "null expiresAt row remains",
+      "evidence": {
+        "seededId": "cmo5jemtl00049yekzwlopgfd",
+        "remaining": 1
+      }
+    },
+    {
+      "id": 8,
+      "title": "BALANCE_LOW 新通知默认写入 expiresAt",
+      "ok": true,
+      "detail": "BALANCE_LOW gets default expiresAt",
+      "evidence": {
+        "id": "cmo5jemul00089yekoa1w5u9e",
+        "createdAt": "2026-04-19T09:01:52.557Z",
+        "expiresAt": "2026-05-19T09:01:52.556Z"
+      }
+    },
+    {
+      "id": 9,
+      "title": "listPublicTemplates latest 分页含 LIMIT 5",
+      "ok": true,
+      "detail": "latest pagination + explain limit verified",
+      "evidence": {
+        "plan": "Limit  (cost=15.86..15.87 rows=5 width=40)\n  ->  Sort  (cost=15.86..16.26 rows=160 width=40)\n        Sort Key: \"updatedAt\" DESC\n        ->  Seq Scan on templates  (cost=0.00..13.20 rows=160 width=40)\n              Filter: \"isPublic\""
+      }
+    },
+    {
+      "id": 10,
+      "title": "npm run build 通过",
+      "ok": true,
+      "detail": "build passed",
+      "evidence": {
+        "tail": "├ ƒ /quickstart                                           5.21 kB         125 kB\n├ ○ /register                                             6.4 kB          145 kB\n├ ƒ /settings                                             9.59 kB         130 kB\n├ ƒ /templates                                            34.8 kB         199 kB\n├ ƒ /templates/[templateId]                               4.42 kB         131 kB\n├ ƒ /templates/[templateId]/test                          7.63 kB         137 kB\n├ ƒ /templates/new                                        3.72 kB         122 kB\n└ ƒ /usage                                                4.39 kB         159 kB\n+ First Load JS shared by all                             87.7 kB\n  ├ chunks/2117-f4374eaeebe7a2ef.js                       31.9 kB\n  ├ chunks/fd9d1056-641436fadb5dd0aa.js                   53.7 kB\n  └ other shared chunks (total)                           2.14 kB\n\n\nƒ Middleware                                              32.7 kB\n\n○  (Static)   prerendered as static content\nƒ  (Dynamic)  server-rendered on demand\n\n"
+      }
+    },
+    {
+      "id": 11,
+      "title": "npx tsc --noEmit 通过",
+      "ok": true,
+      "detail": "tsc passed",
+      "evidence": {
+        "tail": ""
+      }
+    },
+    {
+      "id": 12,
+      "title": "npx vitest run 全通过",
+      "ok": true,
+      "detail": "vitest passed",
+      "evidence": {
+        "tail": "\n RUN  v4.1.4 /Users/yixingzhou/project/aigcgateway\n\n\n Test Files  19 passed (19)\n      Tests  134 passed (134)\n   Start at  17:02:08\n   Duration  578ms (transform 702ms, setup 0ms, import 1.26s, tests 317ms, environment 1ms)\n\n"
+      }
+    },
+    {
+      "id": 13,
+      "title": "登录后通知能力正常",
+      "ok": true,
+      "detail": "login + notifications api path ok",
+      "evidence": {
+        "apiStatus": 200,
+        "unreadCount": 8
+      }
+    },
+    {
+      "id": 14,
+      "title": "MCP list_public_templates 分页正常",
+      "ok": true,
+      "detail": "mcp initialize + list_public_templates ok",
+      "evidence": {
+        "path": "/mcp",
+        "pagination": {
+          "page": 1,
+          "pageSize": 5,
+          "total": 0
+        }
+      }
+    },
+    {
+      "id": 15,
+      "title": "生产只读预检 template_steps COUNT(*)",
+      "ok": true,
+      "detail": "production template_steps count fetched",
+      "evidence": {
+        "count": 45
+      }
+    },
+    {
+      "id": 16,
+      "title": "生产只读预检 notifications COUNT(*)",
+      "ok": true,
+      "detail": "production notifications count fetched",
+      "evidence": {
+        "count": 0
+      }
+    }
+  ]
+}

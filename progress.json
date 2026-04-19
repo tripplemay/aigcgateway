@@ -1,5 +1,5 @@
 {
-  "status": "verifying",
+  "status": "done",
   "user_goal": "BL-DATA-CONSISTENCY — 数据一致性（外键索引 + onDelete + notifications TTL + listPublicTemplates DB 分页）",
   "total_features": 4,
   "completed_features": 3,
@@ -14,11 +14,11 @@
   "role_assignments": null,
   "docs": {
     "spec": "docs/specs/BL-DATA-CONSISTENCY-spec.md",
-    "test_cases": null,
-    "signoff": null,
+    "test_cases": "docs/test-cases/bl-data-consistency-verifying-cases-2026-04-19.md",
+    "signoff": "docs/test-reports/BL-DATA-CONSISTENCY-signoff-2026-04-19.md",
     "framework_reviewed": false
   },
-  "evaluator_feedback": null,
+  "evaluator_feedback": "PASS: BL-DATA-CONSISTENCY verifying 完成（16/16 通过）。索引/FK/expiresAt/migration、TTL 行为、分页 LIMIT、build/tsc/vitest、MCP 分页与生产只读预检均通过。详见 docs/test-reports/bl-data-consistency-verifying-local-2026-04-19.md",
   "generator_handoff": {
     "local_checks": {
       "tsc": "pass",
@@ -50,6 +50,6 @@
   },
   "session_notes": {
     "Kimi": "BL-DATA-CONSISTENCY generator 3/3 完成。\n\nF-DC-01 schema + migration：\n- 4 处 schema 改动 + migration.sql 精确对齐\n- 本地 npx prisma migrate dev 检到 3 处 pre-existing drift（api_keys/model_aliases/recharge_orders 与本批次无关，历史 schema 修改），走 prisma migrate deploy 跳过 drift 直接 apply 新 migration，成功\n- migration SQL 全部 IF NOT EXISTS / IF EXISTS 幂等，生产重跑安全\n\nF-DC-02 DB 分页：\n- latest / top_rated 真正 DB orderBy + skip + take + count (Promise.all 并发)\n- popular / recommended 因复合公式保留内存排序，但 take:200 上限兜底 + orderBy updatedAt desc 取最新 200 参与（简化假设：stale 模板难入 top 排名）\n- 提取 templateSelect 常量 + toDto helper 减少重复\n\nF-DC-03 notifications TTL + cleanup：\n- ttl.ts 常量 + defaultExpiresAt(eventType)（balance 30d / rate 7d / admin null）\n- cleanup.ts deleteMany where expiresAt lt now\n- scheduler.ts 24h setInterval + 启动 tick 一次\n- instrumentation.ts 在 leader-lock 后启动 startNotificationsCleanupScheduler\n- dispatcher.ts 两处 create 注入 expiresAt\n- 6 条单测覆盖\n\n本地 tsc/vitest 134/134/build 全过。进 verifying，等 Codex 17 项（migration 验证 5 + 功能 4 + 构建 3 + 冒烟 2 + 生产预检 2 + signoff 1）。",
-    "Reviewer": null
+    "Reviewer": "BL-DATA-CONSISTENCY verifying：编写并执行自动化脚本 scripts/test/bl-data-consistency-verifying-2026-04-19.ts，16 项全部 PASS。关键证据见 docs/test-reports/perf-raw/bl-data-consistency-verifying-evidence-2026-04-19.json；已生成 verifying 报告与 signoff，状态置 done。"
   }
 }

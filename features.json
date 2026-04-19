@@ -34,7 +34,7 @@
       "title": "BL-DATA-CONSISTENCY 全量验收",
       "priority": "high",
       "executor": "codex",
-      "status": "pending",
+      "status": "done",
       "source": "BL-DATA-CONSISTENCY",
       "acceptance": "migration 验证（5 项）：1) 本地 npx prisma migrate dev 跑通；2) \\d template_steps 显示 template_steps_actionId_idx；3) \\d alias_model_links 显示 aliasId_idx + modelId_idx；4) \\d email_verification_tokens FK 含 ON DELETE CASCADE；5) \\d notifications 含 expiresAt column + notifications_expiresAt_idx。功能验证（4 项）：6) DELETE FROM users 测试 EmailVerificationToken 级联删除；7) 存量 notifications expiresAt=null 保留；8) 新 balance alert notification 有 expiresAt ≠ null；9) listPublicTemplates?sort_by=latest&page=1&pageSize=5 → SQL EXPLAIN 含 LIMIT 5。构建（3 项）：10) npm run build 通过；11) npx tsc --noEmit 通过；12) npx vitest run 全过。冒烟回归（2 项）：13) 登录 + /notifications 正常显示；14) MCP list_public_templates 分页返回正常。生产数据预检（Codex SSH）：15) SELECT COUNT(*) FROM template_steps 基线；16) SELECT COUNT(*) FROM notifications 基线（migration 后 expiresAt 全 null）。17) 生成 signoff 报告 docs/test-reports/BL-DATA-CONSISTENCY-signoff-2026-04-19.md。"
     }
