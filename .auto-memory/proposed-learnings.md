@@ -31,3 +31,21 @@ type: project
 **状态：** 待确认
 
 -->
+
+## [2026-04-19] Generator — 来源：BL-FE-QUALITY fix round 5 F-FQ-03 #10
+
+**类型：** 新坑（Next.js App Router 私有目录约定）
+
+**内容：** Next.js App Router 约定：**任何以下划线（`_` 或 `__`）开头的目录/文件夹视为 private folder，不生成 route**。本次把内部测试 route 命名为 `src/app/(console)/__error-test` 看似可访问，实际 404，导致 Codex 验证 error.tsx zh-CN 文案连续多轮 FAIL。改名为 `error-test` 后 build 输出即出现在 route 列表。
+
+**适用场景警示：** 测试性质、诊断性质、开发期内部的 route 命名**必须避开下划线前缀**。合法命名：`/error-test`、`/diag-foo`、`/devtools`；非法：`/__error-test`、`/_dev-only`、`/_test-a11y`。
+
+**建议写入 harness-template 的：** `harness/generator.md` §前端相关经验 新增 "Next.js App Router 路由约定" 小节：
+
+> Next.js App Router 目录命名约定：`_xxx`/`__xxx` 开头的目录视为 private folder，不生成 route；`(xxx)` 括号命名为 route group（不出现在 URL 中但仍生成 route）。开发期诊断/测试用途的 route 避开下划线前缀。
+
+**状态：** 待确认
+
+**状态：** 待确认
+
+-->

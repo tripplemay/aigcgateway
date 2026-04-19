@@ -1,51 +1,42 @@
 {
-  "batch": "BL-FE-QUALITY",
-  "created_at": "2026-04-18",
+  "batch": "BL-DATA-CONSISTENCY",
+  "created_at": "2026-04-19",
   "features": [
     {
-      "id": "F-FQ-01",
-      "title": "UX 交互改造（9 reload SPA 化 + 双事件 + 复制 key + 轮询可见性 + batched fetch）",
+      "id": "F-DC-01",
+      "title": "schema 索引 + onDelete + expiresAt（migration 20260419_data_consistency）",
       "priority": "high",
       "executor": "generator",
-      "status": "done",
-      "source": "HIGH-33/34/35 + MEDIUM-1/2",
-      "acceptance": "1) 9 处 `window.location.reload()` 改 `router.refresh()`：balance:129 / usage:111 / dashboard:125 / logs[traceId]:78 / logs:104 / actions:81 / templates:115 / keys[keyId]:119 / keys:106（全部 EmptyState onCreated 回调）；2) `src/app/(console)/settings/page.tsx:197` 删除 `btn.addEventListener('click', handler)` 保留 React onClick；3) `src/app/(console)/keys/page.tsx:173` 复制按钮：若可访问真 key 则改复制真 key，否则改提示'（仅创建时可复制）'并禁用；4) `src/components/notification-center.tsx:109-113` 30s 轮询加 `document.visibilitychange` 门控，hidden 时 clearInterval，重新可见时立即 tick + 重启 interval；5) admin/usage / admin/models / admin/operations 的多个 useAsyncData 合并为 Promise.all batched fetch；6) tsc + build 通过"
+      "status": "pending",
+      "source": "H-1 + H-2 + H-17 + H-20",
+      "acceptance": "1) `prisma/schema.prisma`：TemplateStep 新增 `@@index([actionId])`（已有 templateId 索引）；2) AliasModelLink 新增 `@@index([aliasId])` + `@@index([modelId])`（已有复合 unique）；3) EmailVerificationToken.user 关系加 `onDelete: Cascade`；4) Notification 新增 `expiresAt DateTime?` 字段 + `@@index([expiresAt])`；5) 新建 `prisma/migrations/20260419_data_consistency/migration.sql`：CREATE INDEX 3 条 + DROP/ADD FK 带 ON DELETE CASCADE + ALTER TABLE ADD COLUMN expiresAt + CREATE INDEX expiresAt；6) 本地 `npx prisma migrate dev` 跑通；7) tsc + build 通过"
     },
     {
-      "id": "F-FQ-02",
-      "title": "template-testing polish（admin PATCH try/catch + Decimal 精度 + waitForCallLog 优化）",
+      "id": "F-DC-02",
+      "title": "listPublicTemplates DB 级分页改造",
+      "priority": "high",
+      "executor": "generator",
+      "status": "pending",
+      "source": "daily 2026-04-17 H-1",
+      "acceptance": "1) `src/lib/public-templates.ts:69-87` 当前 `findMany` 全量加载 + `sortTemplates(mapped)` 内存排序 + `arr.slice` 分页，改为：sort_by='latest' 用 `orderBy: { updatedAt: 'desc' } + skip + take`；sort_by='top_rated' 用 `orderBy: [{ ratingSum: 'desc' }, { ratingCount: 'desc' }] + skip + take`；2) sort_by='popular' / 'recommended' 保留内存排序（复合公式），但 `findMany` 加 `take: 200` 上限兜底，避免 > 500 条时劣化；3) offset = (page-1) * pageSize；pageSize 默认 20，max 100（遵守现有约束）；4) 新增或扩展 `src/lib/__tests__/public-templates.test.ts`：4 种 sort_by 不报错 + latest 按 updatedAt desc + pageSize=2 page=2 返回第 3-4 条 + category 过滤；5) tsc + build 通过"
+    },
+    {
+      "id": "F-DC-03",
+      "title": "notifications 过期清理（cron + 默认 expiresAt 注入）",
       "priority": "medium",
       "executor": "generator",
-      "status": "done",
-      "source": "daily 2026-04-17 M1/M2/M3",
-      "acceptance": "1) `src/app/api/admin/templates/[templateId]/route.ts:52-54` 加 try/catch：`const body = await request.json().catch(() => null); if (!body || typeof body !== 'object') return errorResponse(400, 'invalid_parameter', 'Invalid JSON body');`；2) `src/lib/template/test-runner.ts:200-207` 改 Prisma.Decimal 累加：`totalCostUsd = new Prisma.Decimal(totalCostUsd).plus(callLog.sellPrice)`，结束 `.toFixed(8)`；3) `src/lib/template/test-runner.ts:247-262` waitForCallLog 优化：首选 runActionNonStream 事务内附带 callLog 直出；次选 CALL_LOG_POLL_MAX_ATTEMPTS 30→10（timeout 1s 而非 3s）+ 失败明确 warn 日志而非静默 null；4) tsc + build 通过"
+      "status": "pending",
+      "source": "H-20 扩展",
+      "acceptance": "1) 新建 `src/lib/notifications/cleanup.ts` 导出 `cleanupExpiredNotifications()`：`prisma.notification.deleteMany({ where: { expiresAt: { lt: new Date() } } })` + 返回 deleted count；2) 调度：复用 BL-SEC-INFRA-GUARD 的 leader-lock，每日执行一次（24h interval），建议放 `src/lib/health/scheduler.ts` 或新建 `src/lib/maintenance/scheduler.ts`；3) `src/lib/notifications/triggers.ts` 或 `dispatcher.ts` 创建 notification 时按 eventType 注入默认 expiresAt：balance 告警 30 天、rate limit 告警 7 天、其他 null；4) 存量 notifications 保持 expiresAt=null（不主动迁移）；5) 单测：cleanup 删除过期记录保留未过期；triggers 按类型注入正确 expiresAt；6) tsc + build 通过"
     },
     {
-      "id": "F-FQ-03",
-      "title": "A11y + i18n（aria-label 批量 + error.tsx + Free/Degraded + timeAgo/汇率）",
-      "priority": "high",
-      "executor": "generator",
-      "status": "done",
-      "source": "HIGH-37/38/40/41",
-      "acceptance": "1) 新建 `src/lib/a11y.ts` helper 或在 `components/ui/icon-button.tsx` 强制 aria-label prop；grep 所有 `<button>` 含图标无文字实例批量补 `aria-label={t('...')}`；重点 top-app-bar / notification-center / admin 页面；2) `src/app/(console)/error.tsx` 删除硬编码英文改 useTranslations；messages/*.json 新增 `error.*` 条目；3) `src/app/(console)/admin/models/page.tsx:65/70/282` 'Free'/'Degraded' 硬编码改 `t('models.priceFree')` / `t('models.statusDegraded')`；messages/*.json 新增对应条目；4) `src/components/notification-center.tsx:40` timeAgo() 改 `dayjs relativeTime` 或 `next-intl formatRelativeTime`；:53 NOTIF_CNY_RATE = 7.3 改从 API 或 SystemConfig 读（或至少 env + fallback）；5) Lighthouse A11y ≥ 98；6) tsc + build 通过"
-    },
-    {
-      "id": "F-FQ-04",
-      "title": "DS Critical 3 文件 token 改造（admin/operations + dashboard + admin/logs）",
-      "priority": "high",
-      "executor": "generator",
-      "status": "done",
-      "source": "frontend-ds-1-token-compliance.md Critical",
-      "acceptance": "1) `src/app/(console)/admin/operations/page.tsx` 33 处违规清零：硬编码 hex/rgb → ds-* token；非 ds Tailwind 色类 (text-slate-*/bg-indigo-*/bg-rose-*/bg-emerald-*/bg-violet-*/bg-amber-*) → ds 色阶对应类；2) `src/app/(console)/dashboard/page.tsx` 24 处违规清零（重点 PIE_COLORS / 渐变 from-indigo-700）；3) `src/app/(console)/admin/logs/page.tsx` 24 处违规清零（重点 text-indigo-700 / text-slate-* / bg-white）；4) 每文件改完 grep 验证：`grep -cE '#[0-9a-fA-F]{6}|rgba?\\\\(|text-(slate|indigo|rose|emerald|violet|amber)-|bg-(slate|indigo|rose|emerald|violet|amber)-' <file>` = 0（color 类违规）；5) 建议按文件分段 commit（每文件一 commit）便于定位回滚；6) tsc + build 通过"
-    },
-    {
-      "id": "F-FQ-05",
-      "title": "BL-FE-QUALITY 全量验收",
+      "id": "F-DC-04",
+      "title": "BL-DATA-CONSISTENCY 全量验收",
       "priority": "high",
       "executor": "codex",
       "status": "pending",
-      "source": "BL-FE-QUALITY",
-      "acceptance": "UX（5 项）：1) 9 页面 EmptyState onCreated SPA 状态保持（不闪屏不重置滚动 / state）；2) settings 按钮点击只触发一次 handler；3) keys 复制按钮真实复制可用 key 或明确提示（仅创建时可复制）；4) NotificationCenter tab 切换后 30s+ 回来 Network 无持续轮询；5) admin/usage 单次聚合请求或 Promise.all 并发。template-testing（3 项）：6) admin/templates PATCH 非法 JSON body → 400；7) test-runner totalCostUsd 10 步累加与 sum(sellPrice) 差距 < 1e-12；8) waitForCallLog 最大等待 ≤ 1s/step（或事务内合并直出）。A11y+i18n（4 项）：9) Lighthouse A11y ≥ 98（dashboard/usage/settings 任一）；10) error.tsx zh-CN 显示中文；11) admin/models 切 zh-CN 后 Free/Degraded 显示中文；12) notification-center zh-CN 显示中文相对时间。DS Critical（3 项）：13) admin/operations grep 硬编码 hex/rgb = 0；14) dashboard + admin/logs grep color 类违规 = 0；15) 视觉回归改造前后对比无肉眼差异。构建回归（3 项）：16) npm run build 通过；17) npx tsc --noEmit 通过；18) npx vitest run 全过。19) 生成 signoff 报告 docs/test-reports/BL-FE-QUALITY-signoff-2026-04-18.md。"
+      "source": "BL-DATA-CONSISTENCY",
+      "acceptance": "migration 验证（5 项）：1) 本地 npx prisma migrate dev 跑通；2) \\d template_steps 显示 template_steps_actionId_idx；3) \\d alias_model_links 显示 aliasId_idx + modelId_idx；4) \\d email_verification_tokens FK 含 ON DELETE CASCADE；5) \\d notifications 含 expiresAt column + notifications_expiresAt_idx。功能验证（4 项）：6) DELETE FROM users 测试 EmailVerificationToken 级联删除；7) 存量 notifications expiresAt=null 保留；8) 新 balance alert notification 有 expiresAt ≠ null；9) listPublicTemplates?sort_by=latest&page=1&pageSize=5 → SQL EXPLAIN 含 LIMIT 5。构建（3 项）：10) npm run build 通过；11) npx tsc --noEmit 通过；12) npx vitest run 全过。冒烟回归（2 项）：13) 登录 + /notifications 正常显示；14) MCP list_public_templates 分页返回正常。生产数据预检（Codex SSH）：15) SELECT COUNT(*) FROM template_steps 基线；16) SELECT COUNT(*) FROM notifications 基线（migration 后 expiresAt 全 null）。17) 生成 signoff 报告 docs/test-reports/BL-DATA-CONSISTENCY-signoff-2026-04-19.md。"
     }
   ]
 }

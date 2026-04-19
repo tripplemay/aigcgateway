@@ -1,86 +1,27 @@
 {
-  "status": "done",
-  "user_goal": "BL-FE-QUALITY — 前端质量合并批次（UX 交互 + template-testing polish + A11y/i18n + DS Critical 3 文件）",
-  "total_features": 5,
-  "completed_features": 4,
-  "fix_rounds": 5,
-  "current_sprint": "BL-FE-QUALITY",
-  "last_updated": "2026-04-19T15:15:00Z",
+  "status": "building",
+  "user_goal": "BL-DATA-CONSISTENCY — 数据一致性（外键索引 + onDelete + notifications TTL + listPublicTemplates DB 分页）",
+  "total_features": 4,
+  "completed_features": 0,
+  "fix_rounds": 0,
+  "current_sprint": "BL-DATA-CONSISTENCY",
+  "last_updated": "2026-04-19T15:30:00Z",
   "reference_docs": [
-    "docs/specs/BL-FE-QUALITY-spec.md",
-    "docs/code-review/batch-07-frontend-pages.md",
-    "docs/code-review/frontend-ds-1-token-compliance.md",
+    "docs/specs/BL-DATA-CONSISTENCY-spec.md",
+    "docs/code-review/batch-05-database.md",
     "docs/code-review/daily/2026-04-17.md"
   ],
   "role_assignments": null,
   "docs": {
-    "spec": "docs/specs/BL-FE-QUALITY-spec.md",
-    "test_cases": "docs/test-cases/bl-fe-quality-verifying-cases-2026-04-18.md",
-    "signoff": "docs/test-reports/BL-FE-QUALITY-signoff-2026-04-19.md",
+    "spec": "docs/specs/BL-DATA-CONSISTENCY-spec.md",
+    "test_cases": null,
+    "signoff": null,
     "framework_reviewed": false
   },
-  "evaluator_feedback": "PASS: reverifying round8 通过。#10 已闭环（/error-test 动态触发 (console)/error.tsx，zh-CN 标题=出错了，按钮=重试）；#7 复核继续通过（10-step, logCount=10, diff=0 <= 1e-12）；#11/#12/#15 沿用既有 PASS。详见 docs/test-reports/bl-fe-quality-reverifying-local-2026-04-19-round8.md",
-  "generator_handoff": {
-    "local_checks": {
-      "tsc": "pass",
-      "vitest": "116/116 pass",
-      "build": "pass"
-    },
-    "ux_changes": {
-      "reload_to_refresh": "9 pages: balance / usage / dashboard / logs[traceId] / logs / actions / templates / keys[keyId] / keys (window.location.reload → router.refresh; useRouter import added where missing)",
-      "settings_double_event": "removed btn.addEventListener + saveBtnRef，保留 React onClick",
-      "keys_copy_button": "复制按钮改 disabled + aria-label/title 'Full key is shown only at creation time'，i18n key keys.copyOnlyOnCreate (en/zh-CN)",
-      "notification_visibility": "visibilitychange 监听：hidden 时 clearInterval，可见时立即 tick + 重启 30s interval",
-      "admin_batched": "admin/usage 3 个 useAsyncData 合并为单 Promise.all。admin/models / admin/operations 维持原样 — 前者两个 useAsyncData 依赖不同 deps（search vs mount-only），强制合并会破坏 refetch 语义；后者只有 1 个 useAsyncData + 2 个按钮触发的进度轮询，无并发可合并"
-    },
-    "template_testing": {
-      "admin_patch_try_catch": "src/app/api/admin/templates/[templateId]/route.ts: body = await request.json().catch(() => null) + 400 invalid_parameter",
-      "decimal_precision": "test-runner.ts: totalCostUsd 改为 Prisma.Decimal(0)，每步 .plus(callLog.sellPrice)；toFixed(8) 仍可用",
-      "wait_for_calllog": "CALL_LOG_POLL_MAX_ATTEMPTS 30→10 (1s timeout)；超时改写 console.warn 而非静默 null"
-    },
-    "a11y_i18n": {
-      "error_tsx": "ConsoleError 用 useTranslations('error')；新增 i18n keys error.title/fallbackMessage/retry；icon 加 aria-hidden",
-      "admin_models_free_degraded": "fmtCostPrice 接受 freeLabel param；'Free'/'Degraded' 改 t('priceFree')/t('statusDegraded')；新增 i18n keys",
-      "notification_localization": "timeAgo 改用 @/lib/utils.timeAgo(iso, locale)（已支持 Intl.RelativeTimeFormat）；NOTIF_CNY_RATE=7.3 删除，改用 useExchangeRate hook + formatCNY；buildSummary 改接受 fmtCny + t 注入；新增 5 条 summary i18n keys",
-      "aria_label_top_bar": "top-app-bar EN/CN/avatar 加 aria-label + aria-pressed/aria-haspopup/aria-expanded；新增 topBar.userMenu/switchToEnglish/switchToChinese i18n keys",
-      "aria_label_remaining": "spec 第 1 项'批量 grep 所有 <button> 含图标无文字' 已完成 top-app-bar / notification-center / keys 主要场景；其它 admin 页面剩余 icon-only buttons 留待 BL-FE-QUALITY-FOLLOWUP（如有 Lighthouse A11y 仍 < 98）"
-    },
-    "ds_token_3_files": {
-      "dashboard": "9 violations → 0：text-slate-500/600 → ds-on-surface-variant/ds-on-surface；text-indigo-600 / bg-indigo-50 → ds-primary / ds-primary-container；Balance Card from-indigo-700 to-indigo-900 → from-ds-primary to-[var(--ds-on-primary-container)]，bg-white/text-indigo-900 → bg-ds-on-primary/text-ds-primary",
-      "admin_operations": "27 lines → 0：emerald → ds-status-success(-container)；rose → ds-error(-container)；amber → ds-status-warning(-container)；indigo/violet → ds-primary(-container)；slate → ds-on-surface 系；from-violet-600 to-violet-500 → from-ds-primary to-[var(--ds-primary)]/80",
-      "admin_logs": "24 lines → 0：与 admin/operations 同映射规则 + 个别 bg-slate-50 → bg-ds-surface-container-low",
-      "grep_validation": "三文件均 grep -cE '#[0-9a-fA-F]{6}|rgba?\\(|text-(slate|indigo|rose|emerald|violet|amber)-|bg-(slate|indigo|rose|emerald|violet|amber)-' = 0"
-    },
-    "files_modified": [
-      "src/app/(console)/balance/page.tsx",
-      "src/app/(console)/usage/page.tsx",
-      "src/app/(console)/dashboard/page.tsx",
-      "src/app/(console)/logs/page.tsx",
-      "src/app/(console)/logs/[traceId]/page.tsx",
-      "src/app/(console)/actions/page.tsx",
-      "src/app/(console)/templates/page.tsx",
-      "src/app/(console)/keys/page.tsx",
-      "src/app/(console)/keys/[keyId]/page.tsx",
-      "src/app/(console)/settings/page.tsx",
-      "src/app/(console)/error.tsx",
-      "src/app/(console)/admin/usage/page.tsx",
-      "src/app/(console)/admin/models/page.tsx",
-      "src/app/(console)/admin/operations/page.tsx",
-      "src/app/(console)/admin/logs/page.tsx",
-      "src/app/api/admin/templates/[templateId]/route.ts",
-      "src/lib/template/test-runner.ts",
-      "src/components/notification-center.tsx",
-      "src/components/top-app-bar.tsx",
-      "src/messages/en.json",
-      "src/messages/zh-CN.json"
-    ],
-    "deferred": [
-      "F-FQ-01.5 admin/models / admin/operations Promise.all 合并（语义不合适，保持原样）",
-      "F-FQ-03.1 完整 aria-label 全覆盖（已覆盖核心 top-bar/notification/keys，剩余 admin 页 icon-only buttons 留待 follow-up）"
-    ]
-  },
+  "evaluator_feedback": null,
+  "generator_handoff": null,
   "session_notes": {
-    "Kimi": "BL-FE-QUALITY fix round 5（应对 Codex round7 阻断）：\n\n#10 修复：rename `src/app/(console)/__error-test` → `src/app/(console)/error-test`。\n根因：Next.js App Router 约定，以下划线（_）开头的目录/文件视为 private folder，不生成 route。我上轮刻意用 `__` 前缀表 '内部测试'，恰好撞上该约定，`/__error-test` 返回 404。\nbuild 输出确认：`/error-test  259 B  88 kB` 已在 route 列表。登录后访问 /error-test → throw Error → 父 (console)/error.tsx 捕获。\n\n本地 tsc/vitest 122/122/build 全过，进 reverifying。\n\n预期 Codex round8：GET /error-test 触发 zh-CN error UI 截图 → #10 PASS。其它 18 项已全通 → 可签收。\n\n经验沉淀候选：Next.js App Router 私有目录约定——任何以 `_`（单/多）开头的文件夹不生成 route。测试性质的内部 route 命名避开下划线前缀（如 `/error-test`、`/diag-xxx`），否则看似可访问实际 404。",
-    "Reviewer": "BL-FE-QUALITY reverifying round8：修复点验证通过（error-test 可稳定触发 console error boundary），#10 解阻；#7 精度对账继续 PASS（10-step diff=0）。已生成 round8 复验报告与 signoff，状态置 done。"
+    "Kimi": "Planner 一次完成 3 件事：\n\n(1) BL-FE-QUALITY done 收尾（fix_rounds=5 艰难签收，round 8 PASS）。features.json 跨批次替换时 F-FQ-05 status=pending 属遗留字段瑕疵，实际 Evaluator round 8 signoff 明确 PASS（19 条全通），记录在 signoff + evaluator_feedback + git history，不反向补改。\n\n(2) 采纳 Generator 新经验 → `.auto-memory/proposed-learnings.md` 追加 'Next.js App Router 私有目录约定'（`_`/`__` 前缀不生成 route，测试 route 避开下划线前缀）。done 阶段批量同步 harness-template repo。注：本项目 CLAUDE.md 确认 framework/ 已分离到独立 repo tripplemay/harness-template，proposed-learnings 暂存在 .auto-memory/。\n\n(3) 初始化 BL-DATA-CONSISTENCY（Path A 第 7 批，P1 数据首批，1d 轻量，4 features：3 generator + 1 codex）。spec 遵守新铁律，所有 file:line 已核实：\n- TemplateStep (schema.prisma:608-625) ✅ 有 templateId 索引，❌ 缺 actionId 索引\n- AliasModelLink (:303-313) ✅ 复合 unique，❌ 缺单列索引\n- EmailVerificationToken (:138-151) ❌ user 关系无 onDelete\n- Notification (:698-717) ❌ 无 expiresAt 字段\n- listPublicTemplates 行号留 Generator 开工前核实\n\nPath A 进度 7/11。剩余 4 批次（~6d）+ 延后候选 2 批。",
+    "Reviewer": null
   }
 }
