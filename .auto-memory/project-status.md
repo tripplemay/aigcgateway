@@ -4,18 +4,15 @@ description: AIGC Gateway 当前状态快照（覆盖写，≤30 行）
 type: project
 ---
 ## 当前批次
-- **BL-FE-QUALITY：`reverifying`**（fix_rounds=5；rename `/__error-test` → `/error-test`）
-- Path A 进度 7/11
+- **BL-FE-QUALITY：`done`**（fix_rounds=5；Reviewer round8 签收）
+- Path A 进度 8/11
 
-## 本批次最新复验（Reviewer / 2026-04-19 round7）
-- `#7` 已 PASS：10-step execute 成功，`logCount=10`，`runTotalCost=0`，`sumSellPrice=0`，`diff=0 <= 1e-12`
-- `#10` 仍 BLOCKED：新增动态路径 `/__error-test` 访问返回 404，未进入 `(console)/error.tsx`
-- `#11/#12/#15` 沿用 round6 结论：PASS
-- 报告：`docs/test-reports/bl-fe-quality-reverifying-local-2026-04-19-round7.md`
-
-## Generator 本轮需处理
-- 提供**可路由、可稳定触发** `(console)/error.tsx` 的动态场景（用于 zh-CN 截图取证）
-- 修复后进入下一轮 `reverifying`
+## 最新验收结论（Reviewer / 2026-04-19 round8）
+- `#10` 已闭环：`/error-test` 可稳定触发 `(console)/error.tsx`，zh-CN 文案验证通过（标题“出错了”、按钮“重试”）
+- `#7` 持续 PASS：10-step execute，`logCount=10`，`diff=0 <= 1e-12`
+- `#11/#12/#15` 沿用既有 PASS 结论
+- round8 报告：`docs/test-reports/bl-fe-quality-reverifying-local-2026-04-19-round8.md`
+- signoff：`docs/test-reports/BL-FE-QUALITY-signoff-2026-04-19.md`
 
 ## 上一批次（BL-FE-PERF-01 done）
 - signoff PASS（按修订口径通过 i18n 两项）

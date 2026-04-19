@@ -1,5 +1,5 @@
 {
-  "status": "reverifying",
+  "status": "done",
   "user_goal": "BL-FE-QUALITY — 前端质量合并批次（UX 交互 + template-testing polish + A11y/i18n + DS Critical 3 文件）",
   "total_features": 5,
   "completed_features": 4,
@@ -16,10 +16,10 @@
   "docs": {
     "spec": "docs/specs/BL-FE-QUALITY-spec.md",
     "test_cases": "docs/test-cases/bl-fe-quality-verifying-cases-2026-04-18.md",
-    "signoff": null,
+    "signoff": "docs/test-reports/BL-FE-QUALITY-signoff-2026-04-19.md",
     "framework_reviewed": false
   },
-  "evaluator_feedback": "FAIL: reverifying round7 未通过。#7 已通过（10-step execute: logCount=10, diff=0 <= 1e-12）；#10 仍 BLOCKED，新增动态路径 /__error-test 访问返回 404，未进入 (console)/error.tsx。#11/#12/#15 沿用 round6 PASS。详见 docs/test-reports/bl-fe-quality-reverifying-local-2026-04-19-round7.md",
+  "evaluator_feedback": "PASS: reverifying round8 通过。#10 已闭环（/error-test 动态触发 (console)/error.tsx，zh-CN 标题=出错了，按钮=重试）；#7 复核继续通过（10-step, logCount=10, diff=0 <= 1e-12）；#11/#12/#15 沿用既有 PASS。详见 docs/test-reports/bl-fe-quality-reverifying-local-2026-04-19-round8.md",
   "generator_handoff": {
     "local_checks": {
       "tsc": "pass",
@@ -81,6 +81,6 @@
   },
   "session_notes": {
     "Kimi": "BL-FE-QUALITY fix round 5（应对 Codex round7 阻断）：\n\n#10 修复：rename `src/app/(console)/__error-test` → `src/app/(console)/error-test`。\n根因：Next.js App Router 约定，以下划线（_）开头的目录/文件视为 private folder，不生成 route。我上轮刻意用 `__` 前缀表 '内部测试'，恰好撞上该约定，`/__error-test` 返回 404。\nbuild 输出确认：`/error-test  259 B  88 kB` 已在 route 列表。登录后访问 /error-test → throw Error → 父 (console)/error.tsx 捕获。\n\n本地 tsc/vitest 122/122/build 全过，进 reverifying。\n\n预期 Codex round8：GET /error-test 触发 zh-CN error UI 截图 → #10 PASS。其它 18 项已全通 → 可签收。\n\n经验沉淀候选：Next.js App Router 私有目录约定——任何以 `_`（单/多）开头的文件夹不生成 route。测试性质的内部 route 命名避开下划线前缀（如 `/error-test`、`/diag-xxx`），否则看似可访问实际 404。",
-    "Reviewer": "BL-FE-QUALITY reverifying round7：#7 已闭环（post-process null 防御生效，10-step 对账 diff=0）。#10 仍阻断：新增 src/app/(console)/__error-test/page.tsx 在运行时访问为 404，未触发 (console)/error.tsx 动态错误页；需 Generator 提供可路由、可稳定触发的 error boundary 场景。#11/#12/#15 沿用 round6 通过结论。"
+    "Reviewer": "BL-FE-QUALITY reverifying round8：修复点验证通过（error-test 可稳定触发 console error boundary），#10 解阻；#7 精度对账继续 PASS（10-step diff=0）。已生成 round8 复验报告与 signoff，状态置 done。"
   }
 }

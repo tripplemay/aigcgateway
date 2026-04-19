@@ -1,0 +1,21 @@
+{
+  "timestamp": "2026-04-19T07:25:31+08:00",
+  "baseUrl": "http://localhost:3099",
+  "check": {
+    "id": "tc10_error_zh",
+    "pass": true,
+    "route": "/error-test",
+    "expected": {
+      "title": "出错了",
+      "fallbackMessage": "发生未知错误。",
+      "retry": "重试"
+    },
+    "actual": {
+      "title": "出错了",
+      "detail": "Test: trigger (console)/error.tsx boundary",
+      "retry": "重试"
+    },
+    "detailAcceptsRuntimeErrorMessage": true,
+    "screenshot": "docs/test-reports/perf-raw/bl-fe-quality-round8-error-zh-2026-04-19.png"
+  }
+}
