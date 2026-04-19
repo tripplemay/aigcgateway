@@ -4,14 +4,14 @@ description: AIGC Gateway 当前状态快照（覆盖写，≤30 行）
 type: project
 ---
 ## 当前批次
-- **BL-INFRA-RESILIENCE：`fixing`**（Codex 首轮验收完成，F-IR-04 未过）
+- **BL-INFRA-RESILIENCE：`reverifying`**（fix_rounds=1；stream cancel 闭包修 + 2 regression test）
 - Path A 进度 8/11
 
-## 本轮验收结论（2026-04-19）
-- L1 结果：`PARTIAL`
-- 通过：11（含 build/tsc/vitest 全绿）
-- 失败：1（stream cancel 动态探针）
-- 部分：2（生产 rpm Lua EVAL 证据不足；post-process 去重缺运行计数）
+## round 1 fix（2026-04-19 19:20）
+- FAIL 修复：openai-compat wrapper cancel — 把 innerReader 提到 closure，outer.cancel 调 innerReader.cancel（避免 upstream locked）
+- +2 regression test（stream-cancel-pattern.test.ts）
+- 本地 tsc / vitest 148/148 / build 全过
+- PARTIAL 2 项（非代码缺陷，由 Codex 补证）
 
 ## 关键发现
 - `chat/completions` 流取消链路在动态探针中触发 `Invalid state: ReadableStream is locked`，且上游连接未关闭。

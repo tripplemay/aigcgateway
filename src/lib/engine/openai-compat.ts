@@ -118,12 +118,22 @@ export class OpenAICompatEngine implements EngineAdapter {
     // on normal close, error, or cancellation from the caller. Without this
     // the timer would keep arming the AbortController even after the reader
     // has finished consuming the body (H-21 tail).
+    //
+    // `innerReader` is hoisted into the closure so the outer `cancel` hook can
+    // call `innerReader.cancel(reason)` instead of `upstream.cancel(reason)` —
+    // once `start` runs, `upstream` is locked by the inner reader, and calling
+    // `upstream.cancel` on a locked stream throws "Invalid state: ReadableStream
+    // is locked" (F-IR-02 round-1 FAIL). The reader is the lock holder, so its
+    // `cancel` is legal and propagates the signal up the pipeThrough chain
+    // (chunkStream → sseParser → textDecoder → response.body) which aborts the
+    // underlying fetch and releases the upstream TCP connection.
+    let innerReader: ReadableStreamDefaultReader<ChatCompletionChunk> | null = null;
     return new ReadableStream<ChatCompletionChunk>({
       async start(controller) {
-        const reader = upstream.getReader();
+        innerReader = upstream.getReader();
         try {
           while (true) {
-            const { value, done } = await reader.read();
+            const { value, done } = await innerReader.read();
             if (done) break;
             controller.enqueue(value);
           }
@@ -136,7 +146,12 @@ export class OpenAICompatEngine implements EngineAdapter {
       },
       async cancel(reason) {
         try {
-          await upstream.cancel(reason);
+          if (innerReader) {
+            await innerReader.cancel(reason);
+          } else {
+            // start() never ran (e.g. cancelled before first pull).
+            await upstream.cancel(reason);
+          }
         } finally {
           clearTimer();
         }
