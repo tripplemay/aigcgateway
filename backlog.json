@@ -263,11 +263,13 @@
         "DS-1 剩余 High 文件按 token 违规数从高到低清理，每批 5-8 个文件"
       ],
       "confirmed_at": "2026-04-18",
-      "priority": "medium",
+      "deferred_at": "2026-04-20",
+      "deferral_reason": "Path A 10 批次完成后成本/收益分析：边际收益低（不影响功能/安全/性能/a11y），18+ 文件 UI 回归风险，未来新页面用 shadcn + 存量'触及即替换'更适合。未来若启动新 UI 迭代或长期维护转入时再启用；也可拆 Mini-A (admin/model-aliases + admin/providers) 0.5d 小批次处理最高价值部分。",
+      "priority": "low-deferred",
       "source": "docs/code-review/frontend-ds-2-shadcn-adoption.md Critical 5 files + frontend-ds-1-token-compliance.md High 28 files",
       "estimated_effort": "2 days",
-      "phase": "P2-polish",
-      "order": 11
+      "phase": "deferred",
+      "order": 98
     },
     {
       "id": "BL-SEC-PAY-DEFERRED",
