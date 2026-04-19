@@ -1,0 +1,35 @@
+{
+  "generatedAt": "2026-04-19T22:14:07.647Z",
+  "summary": {
+    "total": 2,
+    "pass": 2,
+    "fail": 0
+  },
+  "results": [
+    {
+      "id": "#1",
+      "pass": true,
+      "detail": "deleted=2, remaining=2, expected keep 0d/20d remove 40d/100d",
+      "data": {
+        "deleted": 2,
+        "remainingIds": [
+          "cmo6bph5a00019ylhwzz941p4",
+          "cmo6bph5f00039ylhtzwjumpm"
+        ]
+      }
+    },
+    {
+      "id": "#2",
+      "pass": true,
+      "detail": "deleted=1, remaining=3, expected keep 0d/20d/40d remove 100d",
+      "data": {
+        "deleted": 1,
+        "remainingIds": [
+          "cmo6bph5p00089ylhx9ktucl0",
+          "cmo6bph5p000a9ylhy0753vzm",
+          "cmo6bph5p00099ylhrwdayi8p"
+        ]
+      }
+    }
+  ]
+}

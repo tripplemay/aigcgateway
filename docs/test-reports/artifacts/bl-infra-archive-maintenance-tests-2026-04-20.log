@@ -1,0 +1,45 @@
+
+ RUN  v4.1.4 /Users/yixingzhou/project/aigcgateway
+
+stdout | src/lib/maintenance/__tests__/archive-cleanup.test.ts > cleanupHealthChecks (F-IA-01) > deletes rows with createdAt < now - 30 days
+[archive] health_checks: deleted 42 rows older than 30d
+
+stdout | src/lib/maintenance/__tests__/archive-cleanup.test.ts > cleanupSystemLogs (F-IA-01) > deletes rows with createdAt < now - 90 days
+[archive] system_logs: deleted 7 rows older than 90d
+
+stdout | src/lib/maintenance/__tests__/archive-cleanup.test.ts > maintenance scheduler (F-IA-01) > a single tick fans out to all three cleanups
+[archive] health_checks: deleted 1 rows older than 30d
+[archive] system_logs: deleted 2 rows older than 90d
+
+stdout | src/lib/maintenance/__tests__/archive-cleanup.test.ts > maintenance scheduler (F-IA-01) > one cleanup failure does not block the others
+[archive] system_logs: deleted 1 rows older than 90d
+
+stderr | src/lib/maintenance/__tests__/archive-cleanup.test.ts > maintenance scheduler (F-IA-01) > one cleanup failure does not block the others
+[maintenance] health-checks-cleanup failed: Error: db down
+    at /Users/yixingzhou/project/aigcgateway/src/lib/maintenance/__tests__/archive-cleanup.test.ts:88:44
+    at file:///Users/yixingzhou/project/aigcgateway/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11
+    at file:///Users/yixingzhou/project/aigcgateway/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26
+    at file:///Users/yixingzhou/project/aigcgateway/node_modules/@vitest/runner/dist/chunk-artifact.js:2326:20
+    at new Promise (<anonymous>)
+    at runWithCancel (file:///Users/yixingzhou/project/aigcgateway/node_modules/@vitest/runner/dist/chunk-artifact.js:2323:10)
+    at file:///Users/yixingzhou/project/aigcgateway/node_modules/@vitest/runner/dist/chunk-artifact.js:2305:20
+    at new Promise (<anonymous>)
+    at runWithTimeout (file:///Users/yixingzhou/project/aigcgateway/node_modules/@vitest/runner/dist/chunk-artifact.js:2272:10)
+    at file:///Users/yixingzhou/project/aigcgateway/node_modules/@vitest/runner/dist/chunk-artifact.js:2955:64
+
+stdout | src/lib/maintenance/__tests__/archive-cleanup.test.ts > maintenance scheduler (F-IA-01) > start invokes tick immediately; stop clears the interval
+[maintenance] scheduler started (24h interval)
+
+ ✓ src/lib/maintenance/__tests__/archive-cleanup.test.ts > cleanupHealthChecks (F-IA-01) > deletes rows with createdAt < now - 30 days 2ms
+ ✓ src/lib/maintenance/__tests__/archive-cleanup.test.ts > cleanupHealthChecks (F-IA-01) > retention window matches RETENTION_DAYS.health_checks 0ms
+ ✓ src/lib/maintenance/__tests__/archive-cleanup.test.ts > cleanupSystemLogs (F-IA-01) > deletes rows with createdAt < now - 90 days 0ms
+ ✓ src/lib/maintenance/__tests__/archive-cleanup.test.ts > cleanupSystemLogs (F-IA-01) > retention window matches RETENTION_DAYS.system_logs 0ms
+ ✓ src/lib/maintenance/__tests__/archive-cleanup.test.ts > maintenance scheduler (F-IA-01) > a single tick fans out to all three cleanups 0ms
+ ✓ src/lib/maintenance/__tests__/archive-cleanup.test.ts > maintenance scheduler (F-IA-01) > one cleanup failure does not block the others 2ms
+ ✓ src/lib/maintenance/__tests__/archive-cleanup.test.ts > maintenance scheduler (F-IA-01) > start invokes tick immediately; stop clears the interval 0ms
+
+ Test Files  1 passed (1)
+      Tests  7 passed (7)
+   Start at  06:16:39
+   Duration  123ms (transform 20ms, setup 0ms, import 28ms, tests 5ms, environment 0ms)
+

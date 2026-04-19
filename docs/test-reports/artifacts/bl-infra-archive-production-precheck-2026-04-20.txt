@@ -1,0 +1,12 @@
+# BL-INFRA-ARCHIVE production readonly precheck (2026-04-20)
+
+Host: 34.180.93.185
+Path: /opt/aigc-gateway
+Env: source .env.production
+DB query via psql (DATABASE_URL stripped query params)
+
+Q1: SELECT COUNT(*) FROM health_checks WHERE "createdAt" < NOW() - make_interval(days => 30);
+A1: 0
+
+Q2: SELECT COUNT(*) FROM system_logs WHERE "createdAt" < NOW() - make_interval(days => 90);
+A2: 0

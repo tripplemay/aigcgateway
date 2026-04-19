@@ -1,0 +1,13 @@
+
+ RUN  v4.1.4 /Users/yixingzhou/project/aigcgateway
+
+stdout | scripts/test/bl-infra-archive-leader-lock-mock-2026-04-20.test.ts > BL-INFRA-ARCHIVE #4 leader-lock mock > does not start maintenance scheduler when leader lock is not acquired
+[instrumentation] another replica holds scheduler leadership — skip
+
+ ✓ scripts/test/bl-infra-archive-leader-lock-mock-2026-04-20.test.ts > BL-INFRA-ARCHIVE #4 leader-lock mock > does not start maintenance scheduler when leader lock is not acquired 8ms
+
+ Test Files  1 passed (1)
+      Tests  1 passed (1)
+   Start at  06:16:39
+   Duration  118ms (transform 17ms, setup 0ms, import 19ms, tests 9ms, environment 0ms)
+

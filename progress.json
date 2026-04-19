@@ -1,22 +1,28 @@
 {
-  "status": "verifying",
+  "status": "done",
   "user_goal": "BL-INFRA-ARCHIVE — health_checks/system_logs TTL 自动清理（call_logs 分区因当前体量小延后）",
   "total_features": 2,
-  "completed_features": 1,
+  "completed_features": 2,
   "fix_rounds": 0,
   "current_sprint": "BL-INFRA-ARCHIVE",
-  "last_updated": "2026-04-20T05:55:00Z",
+  "last_updated": "2026-04-19T22:17:37.753Z",
   "reference_docs": [
     "docs/specs/BL-INFRA-ARCHIVE-spec.md"
   ],
   "role_assignments": null,
   "docs": {
     "spec": "docs/specs/BL-INFRA-ARCHIVE-spec.md",
-    "test_cases": null,
-    "signoff": null,
+    "test_cases": "docs/test-cases/bl-infra-archive-verifying-cases-2026-04-20.md",
+    "signoff": "docs/test-reports/BL-INFRA-ARCHIVE-signoff-2026-04-20.md",
     "framework_reviewed": false
   },
-  "evaluator_feedback": null,
+  "evaluator_feedback": {
+    "summary": "BL-INFRA-ARCHIVE 验收通过：本地功能/质量门/生产只读预检满足口径，部署后 smoke 两项按 spec 延后。",
+    "pass_count": 11,
+    "partial_count": 0,
+    "fail_count": 0,
+    "issues": []
+  },
   "generator_handoff": {
     "local_checks": {
       "tsc": "pass",
@@ -37,6 +43,6 @@
   },
   "session_notes": {
     "Kimi": "BL-INFRA-ARCHIVE generator 1/1 完成。\n\n产物：\n- maintenance/archive-cleanup.ts：cleanupHealthChecks 30d + cleanupSystemLogs 90d；RETENTION_DAYS 常量集中\n- maintenance/scheduler.ts：Promise.all 并发 tick，每项 runOne wrapper 独立 try/catch；start 返 stop fn；startup 立即 tick；stop 幂等\n- instrumentation.ts 切换到 startMaintenanceScheduler（移除 startNotificationsCleanupScheduler）\n- 删除 notifications/scheduler.ts（dead code）\n- 7 条单测（cutoff 计算 + 常量 + scheduler 并发 + 失败隔离 + 启停幂等）\n\n本地 tsc / vitest 172/172（+7） / build 全过。\n\n观察：health/scheduler.ts cleanupOldRecords 7d 仍在跑（未移除），与新 maintenance 30d cleanup 功能重叠但不冲突（7d 先删；30d 删剩无事）。spec 未要求合并，下批次可评估。\n\n推 verifying 交 Codex F-IA-02 13 项（本地 4 + 构建 3 + 生产预检 3 + 部署后 smoke 2 + signoff 1）。",
-    "Reviewer": null
+    "Reviewer": "BL-INFRA-ARCHIVE verifying 完成：#1-#10 PASS，#11/#12 部署后 smoke 按 spec 延后；已生成 verifying + signoff，状态置 done。"
   }
 }

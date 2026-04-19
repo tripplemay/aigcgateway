@@ -1,0 +1,9 @@
+
+ RUN  v4.1.4 /Users/yixingzhou/project/aigcgateway
+
+
+ Test Files  27 passed (27)
+      Tests  172 passed (172)
+   Start at  06:14:33
+   Duration  711ms (transform 696ms, setup 0ms, import 1.36s, tests 521ms, environment 2ms)
+

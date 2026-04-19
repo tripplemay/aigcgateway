@@ -16,7 +16,7 @@
       "title": "BL-INFRA-ARCHIVE 全量验收",
       "priority": "medium",
       "executor": "codex",
-      "status": "pending",
+      "status": "completed",
       "source": "BL-INFRA-ARCHIVE",
       "acceptance": "本地功能（4 项）：1) 构造 createdAt=0/20/40/100 天前测试数据运行 cleanupHealthChecks → 删 40d/100d，保留 0d/20d（3 行）；2) 同上 cleanupSystemLogs（retention=90d）→ 删 100d，保留 40d/20d/0d（3 行）；3) scheduler start 后立即 tick 一次（测试桩）；4) Leader-lock 未持时 scheduler 不启动（mock）。构建（3 项）：5) npm run build 通过；6) npx tsc --noEmit 通过；7) npx vitest run 全过（新增单测 PASS）。生产只读预检（3 项，Codex SSH）：8) SELECT COUNT(*) FROM health_checks WHERE createdAt < NOW() - INTERVAL '30 days' 记录基线（当前预期 0，最早 2026-04-12）；9) SELECT COUNT(*) FROM system_logs WHERE createdAt < NOW() - INTERVAL '90 days' 记录基线（预期 0）；10) 确认 call_logs 未被改动（grep scripts/src 无 DELETE FROM call_logs 或 partition）。部署后 smoke（2 项，可延后）：11) 部署后下一个 24h 调度周期后 health_checks.COUNT(*) 稳定于当日增减；12) 日志出现 [archive] health_checks/system_logs: deleted N rows 行。13) 生成 signoff 报告 docs/test-reports/BL-INFRA-ARCHIVE-signoff-2026-04-20.md。"
     }
