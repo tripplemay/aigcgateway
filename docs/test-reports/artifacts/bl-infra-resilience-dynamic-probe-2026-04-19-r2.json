@@ -1,0 +1,55 @@
+{
+  "generatedAt": "2026-04-19T12:49:15.382Z",
+  "results": [
+    {
+      "name": "dispatcher-webhook-timeout-10s",
+      "pass": true,
+      "detail": "webhook hanging connection closed automatically (timeout path executed)",
+      "elapsedMs": 10026
+    },
+    {
+      "name": "health-alert-timeout-10s",
+      "pass": true,
+      "detail": "sendAlert returned in 10003ms (expected ~10s timeout window)",
+      "elapsedMs": 10003
+    },
+    {
+      "name": "openai-compat-stream-timeout-after-headers",
+      "pass": true,
+      "detail": "stream probe finished in 82ms, reason=Request timeout",
+      "elapsedMs": 82
+    },
+    {
+      "name": "stream-cancel-propagates-upstream",
+      "pass": true,
+      "detail": "upstream request closed after downstream reader.cancel",
+      "elapsedMs": 63
+    }
+  ],
+  "requestSamples": [
+    {
+      "url": "/hang",
+      "method": "POST",
+      "startedAt": 1776602935230,
+      "closedAt": 1776602945219
+    },
+    {
+      "url": "/alert-hang",
+      "method": "POST",
+      "startedAt": 1776602945237,
+      "closedAt": 1776602955239
+    },
+    {
+      "url": "/stream-hang",
+      "method": "POST",
+      "startedAt": 1776602955240,
+      "closedAt": 1776602955321
+    },
+    {
+      "url": "/stream-one-chunk",
+      "method": "POST",
+      "startedAt": 1776602955322,
+      "closedAt": 1776602955332
+    }
+  ]
+}

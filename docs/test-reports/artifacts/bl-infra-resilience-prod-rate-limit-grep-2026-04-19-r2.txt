@@ -1,0 +1,12 @@
+186:    const pipe = redis.pipeline();
+187:    pipe.zremrangebyscore(redisKey, 0, windowStart);
+188:    pipe.zcard(redisKey);
+189:    pipe.zadd(redisKey, now.toString(), member);
+289:      const pipe = redis.pipeline();
+290:      pipe.zremrangebyscore(burstKey, 0, now - burstWindow);
+291:      pipe.zcard(burstKey);
+292:      pipe.zadd(burstKey, now.toString(), `${now}:${Math.random().toString(36).slice(2, 8)}`);
+350:    await redis.zremrangebyscore(key, 0, now - 60);
+488:    const pipe = redis.pipeline();
+489:    pipe.zremrangebyscore(key, 0, now - 60);
+490:    pipe.zadd(key, now.toString(), `${now}:${tokens}:${Math.random().toString(36).slice(2, 8)}`);

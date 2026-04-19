@@ -1,11 +1,11 @@
 {
-  "status": "reverifying",
+  "status": "fixing",
   "user_goal": "BL-INFRA-RESILIENCE — 后端韧性（fetchWithTimeout 统一 + stream reader.cancel + rpmCheck 原子 + 3 处 N+1 修复）",
   "total_features": 4,
   "completed_features": 3,
   "fix_rounds": 1,
   "current_sprint": "BL-INFRA-RESILIENCE",
-  "last_updated": "2026-04-19T19:20:00Z",
+  "last_updated": "2026-04-19T12:55:32.318Z",
   "reference_docs": [
     "docs/specs/BL-INFRA-RESILIENCE-spec.md",
     "docs/code-review/batch-02-engine.md",
@@ -19,28 +19,16 @@
     "framework_reviewed": false
   },
   "evaluator_feedback": {
-    "summary": "BL-INFRA-RESILIENCE 首轮验收 PARTIAL：大部分通过，但 stream cancel 动态验证失败，另有 2 项证据不足。",
-    "pass_count": 11,
-    "partial_count": 2,
-    "fail_count": 1,
+    "summary": "BL-INFRA-RESILIENCE Round 2 复验：本地 14 项通过；生产 #8 因未部署 Lua 版本而阻断。",
+    "pass_count": 14,
+    "partial_count": 1,
+    "fail_count": 0,
     "issues": [
       {
         "feature_id": "F-IR-04",
-        "result": "FAIL",
-        "description": "stream cancel 动态探针失败：reader.cancel 触发 Invalid state: ReadableStream is locked，上游连接未关闭。",
-        "steps_to_reproduce": "运行 npx tsx scripts/test/bl-infra-resilience-dynamic-probe-2026-04-19.ts，查看 artifacts JSON 中 stream-cancel-propagates-upstream 项。"
-      },
-      {
-        "feature_id": "F-IR-04",
         "result": "PARTIAL",
-        "description": "生产 rpm Lua smoke 未形成 Redis EVAL 调用计数增长的确定性证据，仅完成 SSH checkRateLimit 运行验证。",
-        "steps_to_reproduce": "在生产机执行 checkRateLimit smoke，并结合 redis commandstats 补充 EVAL 计数前后对比。"
-      },
-      {
-        "feature_id": "F-IR-04",
-        "result": "PARTIAL",
-        "description": "post-process 项目查询去重缺运行期计数证据，当前仅有静态代码路径证明。",
-        "steps_to_reproduce": "增加请求级 project.findUnique 计数探针，重复触发 success path 验证单请求计数=1。"
+        "description": "生产验收 #8 阻断：生产机 /opt/aigc-gateway/src/lib/api/rate-limit.ts 仍为 pipeline 版本，redis eval 调用增量为 0，未能验证 Lua 原子脚本运行。",
+        "steps_to_reproduce": "执行 docs/test-reports/artifacts/bl-infra-resilience-prod-rpm-probe-2026-04-19-r2.txt 与 bl-infra-resilience-prod-rate-limit-grep-2026-04-19-r2.txt 对照。"
       }
     ]
   },
@@ -75,6 +63,6 @@
   },
   "session_notes": {
     "Kimi": "BL-INFRA-RESILIENCE generator 3/3 完成。\n\nF-IR-01 fetchWithTimeout：双 API（非流式 / 流式）设计合理，避免流式 body 挂起无超时保护的老 bug（H-21）。openai-compat wrapReadableStream 在 start/cancel 两侧都 clearTimeout，确保 reader 结束 timer 清理。dispatcher + health-alert 接入简单。\n\nF-IR-02 stream cancel + rpmCheck Lua：chat stream catch 补 reader.cancel + outputStream.cancel 级联 upstream。rpmCheck Lua EVAL 消除 pipeline TOCTOU。Redis 不可用 fallback 保持 ok:true（与原一致）。\n\nF-IR-03 N+1：reconcile 重写为 batch pattern（findMany × 2 → createMany → 补刷新 → channel createMany/updates），单 provider 往返从 40+ 降到 ~5（全新场景）/ ~10（混合）。list-actions.versions take:10。post-process 合并 project 两次查询，triggers 接收可选 project 对象避免再 findUnique。\n\n本地 tsc / vitest 146/146（+12）/ build 全过。推 verifying 交 Codex 15 项验收（timeout 4 + cancel 2 + rpm 2 + N+1 3 + 构建 3 + signoff 1）。\n\n注意：reconcile 测试是 contract-level（mock prisma round-trip 计数），end-to-end 集成由 Evaluator 在生产 smoke 验证。",
-    "Reviewer": "BL-INFRA-RESILIENCE verifying：L1 已执行。targeted vitest 12/12 pass，全量 vitest 146/146 pass，tsc/build pass。动态探针确认 dispatcher/health/openai stream timeout 生效，但 stream cancel 复现实例出现 ReadableStream is locked 且上游未关闭（FAIL）。生产 rpm Lua 仅完成 SSH smoke，EVAL 计数证据不足（PARTIAL）。post-process 去重为静态证据（PARTIAL）。状态置 fixing。\n\n[Generator round 1 fix 2026-04-19 19:20]：修 openai-compat wrapper 的 cancel bug。根因：outer.cancel 调用 upstream.cancel(reason)，但 upstream 已被 start() 的 inner reader 锁住。修复：把 innerReader 提到 closure，outer.cancel 改调 innerReader.cancel(reason)（reader 是锁持有者，cancel 合法且级联到 pipeThrough 链直至 response.body → fetch abort → TCP 关闭）。加 2 条 regression test (stream-cancel-pattern.test.ts) 覆盖 '正常 reader.cancel 不抛 locked' 和 'start 未跑时 pre-cancel'。本地 tsc/vitest 148/148（+2）/build 全过。\n\nPartial 两项属测试证据采集（非代码缺陷）：(8) rpm Lua 代码已原子（单测覆盖），生产补证用 redis-cli info commandstats grep eval 前后对比即可；(11) post-process 已合并 project 查询（静态可读），加计数探针或用 Prisma query log 即可采证。Generator 不改 production 代码加 log/counter，避免污染。"
+    "Reviewer": "BL-INFRA-RESILIENCE reverifying round2：stream cancel 动态探针已 PASS（上游 closedAt 已出现），post-process 去重动态探针 PASS（project.findUnique=1），targeted vitest 14/14、full vitest 148/148、tsc/build 全过。唯一阻断在生产 #8：SSH 取证显示 /opt/aigc-gateway 仍旧 pipeline 代码，eval delta=0，判定未部署到生产，状态置 fixing 等部署后复验。"
   }
 }

@@ -1,0 +1,9 @@
+{
+  "generatedAt": "2026-04-19T12:50:24.754Z",
+  "counters": {
+    "callLogCreate": 1,
+    "projectFindUnique": 1
+  },
+  "pass": true,
+  "detail": "Single success post-process run should perform exactly one project.findUnique"
+}

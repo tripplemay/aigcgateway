@@ -4,25 +4,22 @@ description: AIGC Gateway 当前状态快照（覆盖写，≤30 行）
 type: project
 ---
 ## 当前批次
-- **BL-INFRA-RESILIENCE：`reverifying`**（fix_rounds=1；stream cancel 闭包修 + 2 regression test）
+- **BL-INFRA-RESILIENCE：`fixing`（reverifying round 2）**
 - Path A 进度 8/11
 
-## round 1 fix（2026-04-19 19:20）
-- FAIL 修复：openai-compat wrapper cancel — 把 innerReader 提到 closure，outer.cancel 调 innerReader.cancel（避免 upstream locked）
-- +2 regression test（stream-cancel-pattern.test.ts）
-- 本地 tsc / vitest 148/148 / build 全过
-- PARTIAL 2 项（非代码缺陷，由 Codex 补证）
+## Round 2 复验（2026-04-19）
+- L1 本地：14 项通过
+- 已修复确认：stream cancel 动态证据通过（上游连接正常关闭）
+- 已补证确认：post-process 单次 success 仅 1 次 project.findUnique
+- 质量门禁：targeted vitest 14/14、full vitest 148/148、tsc/build 全通过
 
-## 关键发现
-- `chat/completions` 流取消链路在动态探针中触发 `Invalid state: ReadableStream is locked`，且上游连接未关闭。
-- timeout 修复链路已验证有效：dispatcher/health/openai-stream 均可触发超时收敛。
+## 唯一阻断项
+- 生产验收 #8（rpm Lua）阻断：
+  - 生产机 `/opt/aigc-gateway/src/lib/api/rate-limit.ts` 仍是旧 `pipeline` 实现
+  - 生产 smoke 探针 `eval_calls_delta=0`
+  - 结论：生产未部署本批次 Lua 原子化代码，需部署后再复验
 
 ## 产物
-- 用例：`docs/test-cases/bl-infra-resilience-verifying-cases-2026-04-19.md`
-- 报告：`docs/test-reports/BL-INFRA-RESILIENCE-verifying-local-2026-04-19.md`
-- 动态证据：`docs/test-reports/artifacts/bl-infra-resilience-dynamic-probe-2026-04-19.json`
-
-## 待修复/补证
-- 修复 stream cancel 运行期失败并补回归证据。
-- 生产补 `rpm Lua` 的 EVAL 命令计数前后对比证据。
-- 补 post-process 单请求 `project.findUnique` 计数证据。
+- 复验报告：`docs/test-reports/BL-INFRA-RESILIENCE-reverifying-local-2026-04-19-round2.md`
+- 动态证据：`docs/test-reports/artifacts/bl-infra-resilience-dynamic-probe-2026-04-19-r2.json`
+- 生产阻断证据：`docs/test-reports/artifacts/bl-infra-resilience-prod-rpm-probe-2026-04-19-r2.txt`
