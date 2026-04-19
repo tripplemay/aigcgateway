@@ -1,14 +1,13 @@
 {
-  "status": "building",
+  "status": "verifying",
   "user_goal": "BL-INFRA-ARCHIVE — health_checks/system_logs TTL 自动清理（call_logs 分区因当前体量小延后）",
   "total_features": 2,
-  "completed_features": 0,
+  "completed_features": 1,
   "fix_rounds": 0,
   "current_sprint": "BL-INFRA-ARCHIVE",
-  "last_updated": "2026-04-20T12:00:00Z",
+  "last_updated": "2026-04-20T05:55:00Z",
   "reference_docs": [
-    "docs/specs/BL-INFRA-ARCHIVE-spec.md",
-    "docs/code-review/batch-05-database.md"
+    "docs/specs/BL-INFRA-ARCHIVE-spec.md"
   ],
   "role_assignments": null,
   "docs": {
@@ -18,9 +17,26 @@
     "framework_reviewed": false
   },
   "evaluator_feedback": null,
-  "generator_handoff": null,
+  "generator_handoff": {
+    "local_checks": {
+      "tsc": "pass",
+      "build": "pass",
+      "vitest": "172/172 pass (原 165 + 新 7: 2 health + 2 system + 3 scheduler)"
+    },
+    "F-IA-01": {
+      "archive_cleanup": "src/lib/maintenance/archive-cleanup.ts — RETENTION_DAYS { health_checks: 30, system_logs: 90 } as const；cleanupHealthChecks(now?) + cleanupSystemLogs(now?) deleteMany where createdAt < now - days；返 {deleted}；count>0 时 console.log '[archive] xxx: deleted N rows older than Xd'",
+      "scheduler": "src/lib/maintenance/scheduler.ts — startMaintenanceScheduler() 启动时 tick 一次 + 24h interval；tick 用 Promise.all 并发跑 notifications/health/system 三项，每项 try/catch 独立；__maintenanceTickForTest 导出供测试；stop 幂等",
+      "instrumentation": "src/instrumentation.ts 移除 startNotificationsCleanupScheduler，改启 startMaintenanceScheduler（避免双调度）；保留 cleanupOldRecords(7d) 现状不动（spec 未要求合并；下批次可评估统一）",
+      "dead_code_removal": "删除 src/lib/notifications/scheduler.ts（已被 maintenance scheduler 取代，无其他引用）",
+      "tests": "src/lib/maintenance/__tests__/archive-cleanup.test.ts 7 条：cleanup health/system 各 2 条（cutoff 计算 + 常量核验）；scheduler 3 条（tick 并发 fan-out + 单一失败不阻塞其他 + start/stop 幂等）"
+    },
+    "deferred": [
+      "call_logs 分区（当前 721 行体量小，未来批次触发）",
+      "health/scheduler.ts 的 cleanupOldRecords 7d 清理与 maintenance 30d 重叠（下批次评估统一）"
+    ]
+  },
   "session_notes": {
-    "Kimi": "Planner 一次完成：\n\n(1) BL-SEC-POLISH done 收尾（18/18 PASS，按 2026-04-19 裁决口径，fix_rounds=1 仅修 #13 bug）。首次应用 Generator 裁决申请流程，值得 framework 沉淀。\n\n(2) 初始化 BL-INFRA-ARCHIVE（Path A 第 10 批，P2 倒数第二批，**范围收缩 1d→0.5d**）。基于 2026-04-20 生产实测数据：\n  - health_checks 109,828 行 / 42 MB（月增 400K） ← 真正热点\n  - system_logs 930 / 536 kB\n  - call_logs 721 / 2.3 MB ← 业务量小，分区 YAGNI\n  - notifications 0\n\n调整：不做 call_logs 月度分区（当前 721 行，未来业务量 > 100K 行再做），只做 health_checks(30d) + system_logs(90d) TTL 清理。Scheduler 复用 BL-SEC-INFRA-GUARD leader-lock + BL-DATA-CONSISTENCY notifications cleanup 模式。\n\n2 features：1 generator（maintenance scheduler + TTL 常量）+ 1 codex（13 项验收）。\n\nPath A 进度 10/11，最后 1 批 FE-DS-SHADCN 2d。\n\n未消化 framework 提案 3 条（Next.js 私有目录 / Generator 裁决申请 / Planner 自检规则）继续暂存 .auto-memory/proposed-learnings.md，Path A 全部完成后批量同步 harness-template repo。",
+    "Kimi": "BL-INFRA-ARCHIVE generator 1/1 完成。\n\n产物：\n- maintenance/archive-cleanup.ts：cleanupHealthChecks 30d + cleanupSystemLogs 90d；RETENTION_DAYS 常量集中\n- maintenance/scheduler.ts：Promise.all 并发 tick，每项 runOne wrapper 独立 try/catch；start 返 stop fn；startup 立即 tick；stop 幂等\n- instrumentation.ts 切换到 startMaintenanceScheduler（移除 startNotificationsCleanupScheduler）\n- 删除 notifications/scheduler.ts（dead code）\n- 7 条单测（cutoff 计算 + 常量 + scheduler 并发 + 失败隔离 + 启停幂等）\n\n本地 tsc / vitest 172/172（+7） / build 全过。\n\n观察：health/scheduler.ts cleanupOldRecords 7d 仍在跑（未移除），与新 maintenance 30d cleanup 功能重叠但不冲突（7d 先删；30d 删剩无事）。spec 未要求合并，下批次可评估。\n\n推 verifying 交 Codex F-IA-02 13 项（本地 4 + 构建 3 + 生产预检 3 + 部署后 smoke 2 + signoff 1）。",
     "Reviewer": null
   }
 }

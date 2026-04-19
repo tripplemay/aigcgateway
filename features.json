@@ -7,7 +7,7 @@
       "title": "health_checks + system_logs TTL 清理 scheduler（复用 leader-lock）",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "source": "H-3（范围收缩：基于生产实测数据）",
       "acceptance": "1) 新建 `src/lib/maintenance/archive-cleanup.ts`：cleanupHealthChecks(now?) deleteMany where createdAt < now - 30d；cleanupSystemLogs(now?) deleteMany where createdAt < now - 90d；两者返回 deleted count + console.log；2) 新建 `src/lib/maintenance/scheduler.ts`：startMaintenanceScheduler() 每 24h tick 一次，tick 内调 cleanupExpiredNotifications + cleanupHealthChecks + cleanupSystemLogs；try/catch 保底；返回 stop fn；3) `src/instrumentation.ts` 在 leader-lock 成功后启动 maintenance scheduler（仅 leader 节点跑）；若已有 startNotificationsCleanupScheduler 则用本 scheduler 替代（避免双调度）；4) 保留期常量集中：RETENTION_DAYS = {health_checks: 30, system_logs: 90}；未来如需 admin 配置再扩展；5) 新增单测 `src/lib/maintenance/__tests__/archive-cleanup.test.ts` ≥ 3 条：cleanupHealthChecks 删 31d+ 保留 29d-；cleanupSystemLogs 删 91d+ 保留 89d-；scheduler 启动 tick + stop 清理；6) tsc + build 通过"
     },

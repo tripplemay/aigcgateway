@@ -4,8 +4,15 @@ description: AIGC Gateway 当前状态快照（覆盖写，≤30 行）
 type: project
 ---
 ## 当前批次
-- **BL-INFRA-ARCHIVE：`building`**（P2-polish 第 2 批，**范围收缩 1d→0.5d**，2 features：1 generator + 1 codex）
-- Path A 进度 10/11（合并后）
+- **BL-INFRA-ARCHIVE：`verifying`**（Generator 1/1 done，等 Codex F-IA-02 13 项）
+- Path A 进度 10/11
+
+## 本批次交付（Generator）
+- maintenance/archive-cleanup.ts：cleanupHealthChecks 30d + cleanupSystemLogs 90d + RETENTION_DAYS 常量
+- maintenance/scheduler.ts：Promise.all 并发 tick（notifications + health + system），每项独立 try/catch；startup 立即 tick + 24h interval
+- instrumentation.ts 切换到 startMaintenanceScheduler（删除 notifications/scheduler.ts dead code）
+- 7 条单测（cutoff 计算 + 常量 + scheduler 并发/失败隔离/启停幂等）
+- 本地 tsc / vitest 172/172（+7）/ build 全过
 
 ## 上一批次（BL-SEC-POLISH done）
 - 18/18 PASS（按 2026-04-19 裁决口径），fix_rounds=1

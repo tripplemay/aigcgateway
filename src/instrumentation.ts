@@ -64,7 +64,10 @@ export async function register() {
     const { startScheduler, cleanupOldRecords } = await import("@/lib/health/scheduler");
     const { startBillingScheduler } = await import("@/lib/billing/scheduler");
     const { startModelSyncScheduler } = await import("@/lib/sync/scheduler");
-    const { startNotificationsCleanupScheduler } = await import("@/lib/notifications/scheduler");
+    // BL-INFRA-ARCHIVE F-IA-01: maintenance scheduler fans notifications/
+    // health_checks/system_logs cleanups into one 24h tick, superseding the
+    // standalone notifications-cleanup scheduler.
+    const { startMaintenanceScheduler } = await import("@/lib/maintenance/scheduler");
 
     console.log("[instrumentation] Redis ready, leadership acquired");
 
@@ -89,8 +92,11 @@ export async function register() {
     // 启动模型同步调度器（启动时同步 + 每天 04:00 定时同步）
     startModelSyncScheduler();
 
-    // BL-DATA-CONSISTENCY F-DC-03: 每日清理过期通知（expiresAt < now）
-    startNotificationsCleanupScheduler();
+    // BL-INFRA-ARCHIVE F-IA-01: 每 24h 清理过期数据
+    //   - notifications (expiresAt < now)  ← 原 BL-DATA-CONSISTENCY
+    //   - health_checks (createdAt < now - 30d)
+    //   - system_logs   (createdAt < now - 90d)
+    startMaintenanceScheduler();
 
     // 每小时扫描并吊销过期 API Key
     setInterval(
