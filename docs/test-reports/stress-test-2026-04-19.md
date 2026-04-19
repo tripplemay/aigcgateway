@@ -2,7 +2,7 @@
 
 > 目标服务器：http://localhost:3099
 > 工具：autocannon (Node.js)
-> 执行时间：2026-04-19T14:43:42.257Z
+> 执行时间：2026-04-19T15:35:24.429Z
 
 ---
 
@@ -10,8 +10,8 @@
 
 | 指标 | Cold (Round 1) | Warm (Round 2) |
 |---|---|---|
-| RPS | 6009.3 | 6035.6 |
-| Total Requests | 180256 | 181052 |
+| RPS | 6128.4 | 6300.4 |
+| Total Requests | 183845 | 189005 |
 | P50 | 7ms | 7ms |
 | P95 | 12ms | 12ms |
 | P99 | 15ms | 15ms |
@@ -21,9 +21,9 @@
 
 | 指标 | Cold (Round 1) | Warm (Round 2) |
 |---|---|---|
-| RPS | 8919.2 | 8959.2 |
-| Total Requests | 267562 | 268774 |
-| P50 | 2ms | 2ms |
+| RPS | 8991.6 | 9216.0 |
+| Total Requests | 269738 | 276447 |
+| P50 | 1ms | 1ms |
 | P95 | 3ms | 3ms |
 | P99 | 4ms | 4ms |
 | Errors | 0 (0.00%) | 0 (0.00%) |
@@ -32,9 +32,9 @@
 
 | 指标 | Cold (Round 1) | Warm (Round 2) |
 |---|---|---|
-| RPS | 8729.6 | 8986.9 |
-| Total Requests | 261881 | 269573 |
-| P50 | 2ms | 1ms |
+| RPS | 8868.7 | 8937.6 |
+| Total Requests | 266066 | 268077 |
+| P50 | 2ms | 2ms |
 | P95 | 3ms | 3ms |
 | P99 | 4ms | 4ms |
 | Errors | 0 (0.00%) | 0 (0.00%) |
@@ -43,9 +43,9 @@
 
 | 指标 | Cold (Round 1) | Warm (Round 2) |
 |---|---|---|
-| RPS | 8856.0 | 8876.3 |
-| Total Requests | 265668 | 266273 |
-| P50 | 1ms | 2ms |
+| RPS | 8915.2 | 8931.7 |
+| Total Requests | 267429 | 267926 |
+| P50 | 2ms | 2ms |
 | P95 | 3ms | 3ms |
 | P99 | 4ms | 4ms |
 | Errors | 0 (0.00%) | 0 (0.00%) |
@@ -54,11 +54,11 @@
 
 | Sub-scenario | RPS | P99 | Errors |
 |---|---|---|---|
-| models (c=20) | 3389.1 | 11ms | 0 |
-| models-channels (c=10) | 1755.3 | 11ms | 0 |
-| usage (c=10) | 1762.2 | 11ms | 0 |
+| models (c=20) | 3468.1 | 10ms | 0 |
+| models-channels (c=10) | 1802.6 | 10ms | 0 |
+| usage (c=10) | 1804.5 | 9ms | 0 |
 
-**Combined:** 414367 requests, 0 errors (0.00%), max P99: 11ms
+**Combined:** 424483 requests, 0 errors (0.00%), max P99: 10ms
 
 ---
 

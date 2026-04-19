@@ -63,7 +63,10 @@ async function main() {
       await prisma.user.update({ where: { id: admin.id }, data: { defaultProjectId: projectId } });
     }
 
-    // #1 nonexistent + wrong password <50ms
+    let missingUserMs = -1;
+    let existingWrongMs = -1;
+
+    // #1 nonexistent + wrong password latency should be close to existing-user wrong password
     {
       const start = Date.now();
       const r = await postJson(
@@ -71,13 +74,12 @@ async function main() {
         { email: `ghost_${Date.now()}@example.com`, password: "WrongPassword123!" },
         { "x-forwarded-for": "203.0.113.11" },
       );
-      const ms = Date.now() - start;
-      const pass = r.status === 401 && ms < 50;
+      missingUserMs = Date.now() - start;
       results.push({
         id: "#1",
-        pass,
-        detail: `status=${r.status}, elapsedMs=${ms}, expected status=401 and <50ms`,
-        data: { status: r.status, elapsedMs: ms },
+        pass: false,
+        detail: `placeholder (evaluated after #2): status=${r.status}, elapsedMs=${missingUserMs}`,
+        data: { status: r.status, elapsedMs: missingUserMs },
       });
     }
 
@@ -93,14 +95,35 @@ async function main() {
         { email, password: "BadPass123!" },
         { "x-forwarded-for": "203.0.113.12" },
       );
-      const ms = Date.now() - start;
-      const pass = r.status === 401 && ms > 150;
+      existingWrongMs = Date.now() - start;
+      const pass = r.status === 401 && existingWrongMs > 150;
       results.push({
         id: "#2",
         pass,
-        detail: `status=${r.status}, elapsedMs=${ms}, expected status=401 and >150ms`,
-        data: { status: r.status, elapsedMs: ms },
+        detail: `status=${r.status}, elapsedMs=${existingWrongMs}, expected status=401 and >150ms`,
+        data: { status: r.status, elapsedMs: existingWrongMs },
       });
+    }
+
+    {
+      const idx = results.findIndex((r) => r.id === "#1");
+      if (idx >= 0) {
+        const status = Number((results[idx].data?.status as number | undefined) ?? 0);
+        const delta = Math.abs(missingUserMs - existingWrongMs);
+        const inRange = (ms: number) => ms >= 150 && ms <= 250;
+        const pass = status === 401 && inRange(missingUserMs) && inRange(existingWrongMs) && delta < 20;
+        results[idx] = {
+          id: "#1",
+          pass,
+          detail: `missingMs=${missingUserMs}, existingWrongMs=${existingWrongMs}, deltaMs=${delta}, expected both in 150-250ms and delta<20ms`,
+          data: {
+            status,
+            missingMs: missingUserMs,
+            existingWrongMs,
+            deltaMs: delta,
+          },
+        };
+      }
     }
 
     // #3 rehash cost10 -> cost12

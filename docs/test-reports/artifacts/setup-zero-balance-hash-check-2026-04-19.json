@@ -1,5 +1,6 @@
 {
   "userExists": true,
   "ok": true,
-  "hashPrefix": "$2b$10$"
+  "hashPrefix": "$2b$10$",
+  "balance": "0"
 }

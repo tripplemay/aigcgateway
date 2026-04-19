@@ -1,29 +1,30 @@
-[redis] connected
 {
-  "generatedAt": "2026-04-19T14:35:20.383Z",
+  "generatedAt": "2026-04-19T15:26:17.767Z",
   "base": "http://localhost:3099",
   "summary": {
     "total": 10,
-    "pass": 9,
-    "fail": 1
+    "pass": 10,
+    "fail": 0
   },
   "results": [
     {
       "id": "#1",
-      "pass": false,
-      "detail": "status=401, elapsedMs=218, expected status=401 and <50ms",
+      "pass": true,
+      "detail": "missingMs=224, existingWrongMs=229, deltaMs=5, expected both in 150-250ms and delta<20ms",
       "data": {
         "status": 401,
-        "elapsedMs": 218
+        "missingMs": 224,
+        "existingWrongMs": 229,
+        "deltaMs": 5
       }
     },
     {
       "id": "#2",
       "pass": true,
-      "detail": "status=401, elapsedMs=222, expected status=401 and >150ms",
+      "detail": "status=401, elapsedMs=229, expected status=401 and >150ms",
       "data": {
         "status": 401,
-        "elapsedMs": 222
+        "elapsedMs": 229
       }
     },
     {
@@ -33,10 +34,10 @@
       "data": {
         "loginStatus": 200,
         "loginBody": {
-          "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJjbW81dmJjNmYwMDAxOXl3bzNkanE4cHR5Iiwicm9sZSI6IkRFVkVMT1BFUiIsImlhdCI6MTc3NjYwOTMxNCwiZXhwIjoxNzc3MjE0MTE0fQ.L1qtvHHLJyZla201k0MvXWVuUDFduWBEp1-5MlYjZVE",
+          "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJjbW81eDR2MTMwMDAxOXlvaG4zbzhwdWhjIiwicm9sZSI6IkRFVkVMT1BFUiIsImlhdCI6MTc3NjYxMjM3MSwiZXhwIjoxNzc3MjE3MTcxfQ.y_B8LLnNT1w5Llshq912G1XuWUrBen5im37P7csS2uI",
           "user": {
-            "id": "cmo5vbc6f00019ywo3djq8pty",
-            "email": "rehash_1776609314093@example.com",
+            "id": "cmo5x4v1300019yohn3o8puhc",
+            "email": "rehash_1776612371167@example.com",
             "name": "rehash",
             "role": "DEVELOPER"
           }
