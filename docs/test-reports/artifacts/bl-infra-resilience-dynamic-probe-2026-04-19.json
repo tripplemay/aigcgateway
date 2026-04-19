@@ -1,0 +1,55 @@
+{
+  "generatedAt": "2026-04-19T10:45:28.345Z",
+  "results": [
+    {
+      "name": "dispatcher-webhook-timeout-10s",
+      "pass": true,
+      "detail": "webhook hanging connection closed automatically (timeout path executed)",
+      "elapsedMs": 10021
+    },
+    {
+      "name": "health-alert-timeout-10s",
+      "pass": true,
+      "detail": "sendAlert returned in 10003ms (expected ~10s timeout window)",
+      "elapsedMs": 10003
+    },
+    {
+      "name": "openai-compat-stream-timeout-after-headers",
+      "pass": true,
+      "detail": "stream probe finished in 83ms, reason=Request timeout",
+      "elapsedMs": 83
+    },
+    {
+      "name": "stream-cancel-propagates-upstream",
+      "pass": false,
+      "detail": "closeObserved=false, cancelError=Invalid state: ReadableStream is locked",
+      "elapsedMs": 2058
+    }
+  ],
+  "requestSamples": [
+    {
+      "url": "/hang",
+      "method": "POST",
+      "startedAt": 1776595506201,
+      "closedAt": 1776595516188
+    },
+    {
+      "url": "/alert-hang",
+      "method": "POST",
+      "startedAt": 1776595516202,
+      "closedAt": 1776595526207
+    },
+    {
+      "url": "/stream-hang",
+      "method": "POST",
+      "startedAt": 1776595526208,
+      "closedAt": 1776595526289
+    },
+    {
+      "url": "/stream-one-chunk",
+      "method": "POST",
+      "startedAt": 1776595526290,
+      "closedAt": null
+    }
+  ]
+}
