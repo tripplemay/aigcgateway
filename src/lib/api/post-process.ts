@@ -162,20 +162,28 @@ async function processChatResultAsync(params: ChatPostProcessParams): Promise<vo
     // F-RL-04: feed the spending rate limiter immediately so the next
     // incoming request sees the accurate per-minute tally.
     recordSpending(params.userId, sellUsd).catch(() => {});
-    // F-UA-03: check if balance dropped below alertThreshold
-    checkAndSendBalanceLowAlert(params.userId, params.projectId).catch(() => {});
   } else {
     await prisma.callLog.create({ data: callLogData });
   }
 
-  // 记录 TPM（用于限流检查）
-  if (usage && usage.total_tokens > 0) {
+  // BL-INFRA-RESILIENCE F-IR-03 / H-6: fetch Project once and reuse across
+  // balance-alert and TPM recording. Previously the hot path issued two
+  // findUnique calls on every successful request (balance alert inside
+  // triggers + TPM recording here).
+  const needsProject = shouldDeduct || (usage != null && usage.total_tokens > 0);
+  if (needsProject) {
     const project = await prisma.project.findUnique({
       where: { id: params.projectId },
-      select: { id: true, rateLimit: true },
+      select: { id: true, alertThreshold: true, rateLimit: true },
     });
     if (project) {
-      recordTokenUsage(project, usage.total_tokens).catch(() => {});
+      if (shouldDeduct) {
+        // F-UA-03: check if balance dropped below alertThreshold
+        checkAndSendBalanceLowAlert(params.userId, project).catch(() => {});
+      }
+      if (usage && usage.total_tokens > 0) {
+        recordTokenUsage(project, usage.total_tokens).catch(() => {});
+      }
     }
   }
 }

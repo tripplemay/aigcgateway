@@ -4,6 +4,8 @@
  * 通道状态变更时调用 ALERT_WEBHOOK_URL
  */
 
+import { fetchWithTimeout } from "@/lib/infra/fetch-with-timeout";
+
 export interface AlertPayload {
   event: "channel_status_changed";
   channelId: string;
@@ -20,10 +22,11 @@ export async function sendAlert(payload: AlertPayload): Promise<void> {
   if (!webhookUrl) return;
 
   try {
-    await fetch(webhookUrl, {
+    await fetchWithTimeout(webhookUrl, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
+      timeoutMs: 10_000,
     });
   } catch (err) {
     console.error("[health-alert] webhook failed:", (err as Error).message);

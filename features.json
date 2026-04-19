@@ -7,7 +7,7 @@
       "title": "fetchWithTimeout 统一封装 + openai-compat/dispatcher/health-alert 接入",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "source": "H-21 + H-23 + H-24",
       "acceptance": "1) 新建 `src/lib/infra/fetch-with-timeout.ts` 导出 fetchWithTimeout(url, options)：支持 timeoutMs（默认 30_000）+ 流式场景（返回 {response, clearTimeout}） + onBodyTimeout 可选回调；2) `src/lib/engine/openai-compat.ts:213-263` fetchWithProxy 改造：非流式保持现行为（return 前 clear），**流式（chatCompletionsStream）timeoutId 不在 finally 清，暴露给调用方**，chat/completions route 的 stream handler 在 reader 结束时 clearTimeout；3) `src/lib/notifications/dispatcher.ts:116` webhook fetch 换 fetchWithTimeout（timeoutMs 10_000）；4) `src/lib/health/alert.ts:23` 同上；5) 新增单测 `src/lib/infra/__tests__/fetch-with-timeout.test.ts`：正常返回 / timeout 触发 AbortError / 流式 signal 外部传入；6) tsc + build 通过"
     },
@@ -16,7 +16,7 @@
       "title": "chat stream reader.cancel 补齐 + rpmCheck Lua 原子化",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "source": "H-22 + H-26",
       "acceptance": "1) `src/app/api/v1/chat/completions/route.ts` 审计所有 stream catch 分支（withFailover 错误、JSON 解析错误、客户端断开），每条补 `await reader.cancel()` 再抛；2) `src/lib/api/rate-limit.ts:174-201` rpmCheck 改 Lua script 原子执行：ZREMRANGEBYSCORE + ZCARD + 条件 ZADD + EXPIRE 合成一个 EVAL，消除 pipeline 的 TOCTOU；Redis 不可用 fallback 保持 `return ok:true`；3) 新增单测：rpmCheck 并发 10 req 同 key limit=5 → 恰 5 个 ok / 5 个 over；reader.cancel 被调用（mock stream）；4) tsc + build 通过"
     },
@@ -25,7 +25,7 @@
       "title": "N+1 修复三处（model-sync reconcile batch + list-actions versions take + post-process Project 缓存）",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "source": "H-4 + H-5 + H-6",
       "acceptance": "1) `src/lib/sync/model-sync.ts:171 reconcile` 改 batch upsert：先 findMany 拿 existing → 分 toCreate/toUpdate → prisma.$transaction([createMany(skipDuplicates), ...updates])，单 provider DB 往返从 50+ 降到 < 10；2) `src/lib/mcp/tools/list-actions.ts` include.versions 加 `take: 10` + `orderBy: { versionNumber: 'desc' }`（Generator 核实具体行号）；完整版本历史走 get_action_detail；3) `src/lib/api/post-process.ts` Balance alert Project 查询用请求级 WeakMap 缓存（同请求只查一次）；Generator 核实实际查询点；4) 单测：reconcile mock 10 个 model 入参断言 DB 调用次数 ≤ 3；list-actions 返回 versions.length ≤ 10；post-process 同请求多次 success 仅 1 次 project.findUnique；5) tsc + build 通过"
     },

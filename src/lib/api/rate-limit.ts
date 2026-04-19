@@ -171,6 +171,32 @@ async function logRateLimitEvent(params: {
 // RPM sliding-window primitive
 // ============================================================
 
+// BL-INFRA-RESILIENCE H-26: atomic sliding-window RPM via Lua EVAL.
+// The previous pipeline (zremrangebyscore + zcard + zadd + expire) was not
+// a MULTI transaction — concurrent callers could read `count` before each
+// other's ZADD, letting the window overflow. Lua `redis.call` executes
+// serially within a single Redis command, closing the TOCTOU race.
+//
+// Returns { allowed, count }:
+//   - allowed = 1 → caller added, current count = `count`
+//   - allowed = 0 → caller rejected (count already at limit), nothing added
+const RPM_CHECK_LUA = `
+local key = KEYS[1]
+local window_start = tonumber(ARGV[1])
+local member = ARGV[2]
+local score = tonumber(ARGV[3])
+local limit = tonumber(ARGV[4])
+local ttl = tonumber(ARGV[5])
+redis.call('ZREMRANGEBYSCORE', key, 0, window_start)
+local count = redis.call('ZCARD', key)
+if count >= limit then
+  return {0, count}
+end
+redis.call('ZADD', key, score, member)
+redis.call('EXPIRE', key, ttl)
+return {1, count + 1}
+`;
+
 async function rpmCheck(
   redisKey: string,
   limit: number,
@@ -183,18 +209,21 @@ async function rpmCheck(
   const windowStart = now - 60;
   const member = `${now}:${Math.random().toString(36).slice(2, 8)}`;
   try {
-    const pipe = redis.pipeline();
-    pipe.zremrangebyscore(redisKey, 0, windowStart);
-    pipe.zcard(redisKey);
-    pipe.zadd(redisKey, now.toString(), member);
-    pipe.expire(redisKey, 120);
-    const results = await pipe.exec();
-    const currentCount = (results?.[1]?.[1] as number) ?? 0;
-    if (currentCount >= limit) {
-      await redis.zrem(redisKey, member);
-      return { ok: false, currentCount };
+    const result = (await redis.eval(
+      RPM_CHECK_LUA,
+      1,
+      redisKey,
+      windowStart.toString(),
+      member,
+      now.toString(),
+      limit.toString(),
+      "120",
+    )) as [number, number];
+    const [allowed, count] = result;
+    if (allowed === 1) {
+      return { ok: true, member, currentCount: count };
     }
-    return { ok: true, member, currentCount };
+    return { ok: false, currentCount: count };
   } catch {
     return { ok: true, member: "", currentCount: 0 };
   }

@@ -189,66 +189,112 @@ async function reconcile(
     );
   }
 
-  const existingChannels = await prisma.channel.findMany({
-    where: { providerId: provider.id },
-    include: { model: true },
-  });
+  // BL-INFRA-RESILIENCE F-IR-03 / H-4: batch reconcile.
+  // Previous implementation issued ~4 queries per model (findUnique + upsert
+  // Model, findUnique + upsert Channel) = 50+ round-trips for a mid-size
+  // provider. Batched flow below issues 2 findManys + 1 createMany Model +
+  // 1 createMany Channel + a handful of updates (only when diff detected),
+  // reducing a 10-model sync to <10 round-trips in the common case and 3-4
+  // when all models are brand-new.
 
+  // ── Resolve canonical names up front ──
+  const canonicalNames = await Promise.all(
+    dedupedModels.map((m) => resolveCanonicalName(m.modelId)),
+  );
+  const remoteWithCanonical = dedupedModels.map((m, i) => ({
+    remote: m,
+    canonical: canonicalNames[i],
+  }));
+
+  const [existingChannels, existingModels] = await Promise.all([
+    prisma.channel.findMany({ where: { providerId: provider.id }, include: { model: true } }),
+    prisma.model.findMany({ where: { name: { in: canonicalNames } } }),
+  ]);
+
+  const existingModelByName = new Map(existingModels.map((m) => [m.name, m]));
+  const existingChannelByRealId = new Map(existingChannels.map((c) => [c.realModelId, c]));
   const remoteRealModelIds = new Set(dedupedModels.map((m) => m.modelId));
 
-  for (const remoteModel of dedupedModels) {
-    const canonicalName = await resolveCanonicalName(remoteModel.modelId);
+  // ── Model: batch create missing + record new names ──
+  const modelsToCreate = remoteWithCanonical
+    .filter(({ canonical }) => !existingModelByName.has(canonical))
+    .map(({ remote, canonical }) => ({
+      name: canonical,
+      displayName: remote.displayName ?? canonical,
+      modality: remote.modality as ModelModality,
+      contextWindow: remote.contextWindow ?? null,
+      maxTokens: remote.maxOutputTokens ?? null,
+      capabilities: {} as Prisma.InputJsonValue,
+      enabled: false,
+    }));
+  if (modelsToCreate.length > 0) {
+    await prisma.model.createMany({ data: modelsToCreate, skipDuplicates: true });
+    // Record new-model names for the caller summary. A model is "new" when
+    // this provider had no channel pointing at a Model of the same canonical
+    // name before.
+    const priorNames = new Set(existingChannels.map((ch) => ch.model.name));
+    for (const m of modelsToCreate) {
+      if (!priorNames.has(m.name)) newModels.push(m.name);
+    }
+  }
 
-    // Model upsert — 按 canonical name，多 Provider 共享同一 Model
-    const model = await prisma.model.upsert({
-      where: { name: canonicalName },
-      update: {
-        // 只更新 contextWindow（如果 provider 返回了值）
-        ...(remoteModel.contextWindow ? { contextWindow: remoteModel.contextWindow } : {}),
-      },
-      create: {
-        name: canonicalName,
-        displayName: remoteModel.displayName ?? canonicalName,
-        modality: remoteModel.modality as ModelModality,
-        contextWindow: remoteModel.contextWindow ?? null,
-        maxTokens: remoteModel.maxOutputTokens ?? null,
-        capabilities: {}, // 由管理员在 Admin UI 设置
-        enabled: false, // 默认不启用
-      },
-    });
+  // Model updates (contextWindow only — capabilities/displayName are admin-curated)
+  const modelUpdates = remoteWithCanonical
+    .filter(({ remote, canonical }) => {
+      const existing = existingModelByName.get(canonical);
+      return existing && remote.contextWindow && existing.contextWindow !== remote.contextWindow;
+    })
+    .map(({ remote, canonical }) =>
+      prisma.model.update({
+        where: { name: canonical },
+        data: { contextWindow: remote.contextWindow ?? null },
+      }),
+    );
+  if (modelUpdates.length > 0) {
+    await Promise.all(modelUpdates);
+  }
 
-    // Channel upsert — 按 (providerId, modelId) 唯一约束
-    const existingChannel = await prisma.channel.findUnique({
-      where: { providerId_modelId: { providerId: provider.id, modelId: model.id } },
-    });
+  // ── Refresh Model id map for channel creation ──
+  // Only re-query if we just created new rows; otherwise reuse the map.
+  if (modelsToCreate.length > 0) {
+    const refreshed = await prisma.model.findMany({ where: { name: { in: canonicalNames } } });
+    refreshed.forEach((m) => existingModelByName.set(m.name, m));
+  }
 
-    const costPrice = buildCostPrice(remoteModel);
-
+  // ── Channel: split into create vs update ──
+  const channelsToCreate: Prisma.ChannelCreateManyInput[] = [];
+  const channelUpdates: Promise<unknown>[] = [];
+  for (const { remote, canonical } of remoteWithCanonical) {
+    const model = existingModelByName.get(canonical);
+    if (!model) continue; // should not happen — createMany would have filled it
+    const costPrice = buildCostPrice(remote);
+    const existingChannel = existingChannelByRealId.get(remote.modelId);
     if (existingChannel) {
-      const updateData: Record<string, unknown> = {
-        realModelId: remoteModel.modelId,
-        costPrice,
+      const updateData: Prisma.ChannelUpdateInput = {
+        realModelId: remote.modelId,
+        costPrice: costPrice as unknown as Prisma.InputJsonValue,
       };
       if (existingChannel.status !== "ACTIVE") updateData.status = "ACTIVE";
-      await prisma.channel.update({ where: { id: existingChannel.id }, data: updateData });
+      channelUpdates.push(
+        prisma.channel.update({ where: { id: existingChannel.id }, data: updateData }),
+      );
     } else {
-      await prisma.channel.create({
-        data: {
-          modelId: model.id,
-          providerId: provider.id,
-          realModelId: remoteModel.modelId,
-          status: "ACTIVE",
-          priority: 10, // 默认优先级，管理员可调
-          costPrice: costPrice as unknown as Prisma.InputJsonValue,
-        },
+      channelsToCreate.push({
+        modelId: model.id,
+        providerId: provider.id,
+        realModelId: remote.modelId,
+        status: "ACTIVE",
+        priority: 10,
+        costPrice: costPrice as unknown as Prisma.InputJsonValue,
       });
-      newChannels.push(`${provider.name}/${remoteModel.modelId} → ${canonicalName}`);
+      newChannels.push(`${provider.name}/${remote.modelId} → ${canonical}`);
     }
-
-    // 记录新 Model
-    if (!existingChannels.some((ch) => ch.model.name === canonicalName)) {
-      newModels.push(canonicalName);
-    }
+  }
+  if (channelsToCreate.length > 0) {
+    await prisma.channel.createMany({ data: channelsToCreate, skipDuplicates: true });
+  }
+  if (channelUpdates.length > 0) {
+    await Promise.all(channelUpdates);
   }
 
   // 下架：服务商不再返回的模型

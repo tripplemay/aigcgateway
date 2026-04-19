@@ -298,9 +298,10 @@ async function handleStream(
 
     const encoder = new TextEncoder();
 
+    const upstreamReader = stream.getReader();
     const outputStream = new ReadableStream({
       async start(controller) {
-        const reader = stream.getReader();
+        const reader = upstreamReader;
 
         try {
           while (true) {
@@ -359,6 +360,11 @@ async function handleStream(
         } catch (err) {
           controller.error(err);
 
+          // BL-INFRA-RESILIENCE H-22: release the upstream reader so the
+          // provider TCP connection is returned to the pool instead of hanging
+          // until the total request timeout fires.
+          await reader.cancel(err).catch(() => {});
+
           // 流式请求失败 → 回滚限流计数
           if (rlKey && rlMember) rollbackRateLimit(rlKey, rlMember).catch(() => {});
 
@@ -378,6 +384,12 @@ async function handleStream(
             clientSignal,
           });
         }
+      },
+      async cancel(reason) {
+        // BL-INFRA-RESILIENCE H-22: propagate client-side cancel up the chain.
+        // Cancelling the locked reader tells the chatCompletionsStream wrapper
+        // to forward cancel upstream + clear the fetch timeout.
+        await upstreamReader.cancel(reason).catch(() => {});
       },
     });
 

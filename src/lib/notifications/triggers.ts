@@ -34,13 +34,25 @@ async function getAdminUserIds(): Promise<string[]> {
  */
 export async function checkAndSendBalanceLowAlert(
   userId: string,
-  projectId: string,
+  projectOrId:
+    | string
+    | { id: string; alertThreshold: import("@prisma/client").Prisma.Decimal | number | null },
 ): Promise<void> {
   try {
-    const [user, project] = await Promise.all([
-      prisma.user.findUnique({ where: { id: userId }, select: { balance: true } }),
-      prisma.project.findUnique({ where: { id: projectId }, select: { alertThreshold: true } }),
-    ]);
+    const projectId = typeof projectOrId === "string" ? projectOrId : projectOrId.id;
+    // BL-INFRA-RESILIENCE F-IR-03 / H-6: reuse the project row if caller
+    // already fetched it (post-process does) to avoid a second findUnique.
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { balance: true },
+    });
+    const project =
+      typeof projectOrId === "string"
+        ? await prisma.project.findUnique({
+            where: { id: projectId },
+            select: { alertThreshold: true },
+          })
+        : { alertThreshold: projectOrId.alertThreshold };
 
     if (!user || !project?.alertThreshold) return;
 

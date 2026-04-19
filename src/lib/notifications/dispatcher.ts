@@ -18,6 +18,17 @@ import { prisma } from "@/lib/prisma";
 import type { NotificationEventType, NotificationStatus, Prisma } from "@prisma/client";
 import { createHmac } from "node:crypto";
 import { defaultExpiresAt } from "./ttl";
+import { fetchWithTimeout } from "@/lib/infra/fetch-with-timeout";
+
+const WEBHOOK_TIMEOUT_MS = 10_000;
+
+// Default fetch wrapper: every outbound webhook carries a 10s deadline so a
+// hanging receiver cannot pin our dispatcher thread indefinitely.
+const timeoutFetch: typeof fetch = ((input: RequestInfo | URL, init?: RequestInit) =>
+  fetchWithTimeout(String(input), {
+    ...(init ?? {}),
+    timeoutMs: WEBHOOK_TIMEOUT_MS,
+  })) as typeof fetch;
 
 export interface DispatchPayload {
   // Arbitrary JSON-serialisable body. Callers use their own shape per
@@ -33,7 +44,7 @@ export interface DispatcherDeps {
 }
 
 const DEFAULT_DEPS: DispatcherDeps = {
-  fetchImpl: fetch,
+  fetchImpl: timeoutFetch,
   backoffMs: [5_000, 30_000, 120_000],
 };
 

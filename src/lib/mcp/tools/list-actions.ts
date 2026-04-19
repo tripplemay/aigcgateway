@@ -35,7 +35,11 @@ export function registerListActions(server: McpServer, opts: McpServerOptions): 
       const actions = await prisma.action.findMany({
         where: { projectId },
         include: {
-          versions: { orderBy: { versionNumber: "desc" } },
+          // BL-INFRA-RESILIENCE F-IR-03 / H-5: cap version include to the 10
+          // most recent; full history is served by get_action_detail instead.
+          // Prevents list_actions from loading 100+ rows per action just to
+          // surface one activeVersion summary.
+          versions: { orderBy: { versionNumber: "desc" }, take: 10 },
           _count: { select: { versions: true } },
         },
         orderBy: { updatedAt: "desc" },

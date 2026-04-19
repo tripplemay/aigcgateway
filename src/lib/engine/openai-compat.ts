@@ -76,7 +76,7 @@ export class OpenAICompatEngine implements EngineAdapter {
     const url = this.buildUrl(route, "chat");
     const headers = this.buildHeaders(route);
 
-    const response = await this.fetchWithProxy(
+    const { response, clearTimeout: clearTimer } = await this.fetchWithProxyStream(
       url,
       {
         method: "POST",
@@ -87,6 +87,7 @@ export class OpenAICompatEngine implements EngineAdapter {
     );
 
     if (!response.body) {
+      clearTimer();
       throw new EngineError("No response body for stream", ErrorCodes.PROVIDER_ERROR, 502);
     }
 
@@ -108,7 +109,39 @@ export class OpenAICompatEngine implements EngineAdapter {
       },
     });
 
-    return response.body.pipeThrough(textDecoder).pipeThrough(sseParser).pipeThrough(chunkStream);
+    const upstream = response.body
+      .pipeThrough(textDecoder)
+      .pipeThrough(sseParser)
+      .pipeThrough(chunkStream);
+
+    // Wrap the stream so the upstream timeout timer is cleared exactly once —
+    // on normal close, error, or cancellation from the caller. Without this
+    // the timer would keep arming the AbortController even after the reader
+    // has finished consuming the body (H-21 tail).
+    return new ReadableStream<ChatCompletionChunk>({
+      async start(controller) {
+        const reader = upstream.getReader();
+        try {
+          while (true) {
+            const { value, done } = await reader.read();
+            if (done) break;
+            controller.enqueue(value);
+          }
+          controller.close();
+        } catch (err) {
+          controller.error(err);
+        } finally {
+          clearTimer();
+        }
+      },
+      async cancel(reason) {
+        try {
+          await upstream.cancel(reason);
+        } finally {
+          clearTimer();
+        }
+      },
+    });
   }
 
   async imageGenerations(
@@ -215,17 +248,68 @@ export class OpenAICompatEngine implements EngineAdapter {
     init: RequestInit,
     route: RouteResult,
   ): Promise<Response> {
+    const { response, clearTimeout: clearTimer } = await this.fetchWithProxyRaw(
+      url,
+      init,
+      route,
+      60_000,
+    );
+    try {
+      if (!response.ok) {
+        const errorBody = await response.text().catch(() => "");
+        throw this.mapProviderError(response.status, errorBody);
+      }
+      return response;
+    } finally {
+      clearTimer();
+    }
+  }
+
+  /**
+   * BL-INFRA-RESILIENCE F-IR-01: 流式场景专用，timeout 不在 return 前 clear；
+   * 调用方负责在 body 读完/取消时调用 `clearTimeout`。消除原 fetchWithProxy
+   * `finally clearTimeout` 导致流式 body 挂起无超时保护的 bug (H-21)。
+   */
+  protected async fetchWithProxyStream(
+    url: string,
+    init: RequestInit,
+    route: RouteResult,
+  ): Promise<{ response: Response; clearTimeout: () => void }> {
+    const { response, clearTimeout: clearTimer } = await this.fetchWithProxyRaw(
+      url,
+      init,
+      route,
+      60_000,
+    );
+    if (!response.ok) {
+      const errorBody = await response.text().catch(() => "");
+      clearTimer();
+      throw this.mapProviderError(response.status, errorBody);
+    }
+    return { response, clearTimeout: clearTimer };
+  }
+
+  private async fetchWithProxyRaw(
+    url: string,
+    init: RequestInit,
+    route: RouteResult,
+    timeoutMs: number,
+  ): Promise<{ response: Response; clearTimeout: () => void }> {
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 60_000);
+    const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+    let cleared = false;
+    const clearTimer = () => {
+      if (cleared) return;
+      cleared = true;
+      clearTimeout(timeoutId);
+    };
 
     // 代理支持：Provider.proxyUrl → undici ProxyAgent → fetch dispatcher
     const proxyUrl = route.provider.proxyUrl ?? process.env.PROXY_URL_PRIMARY ?? null;
 
     try {
       let response: Response;
-
       if (proxyUrl) {
-        // 使用 undici 的 ProxyAgent 发送请求
         const { ProxyAgent, fetch: undiciFetch } = await import("undici");
         const dispatcher = new ProxyAgent(proxyUrl);
         response = await (undiciFetch as unknown as typeof fetch)(url, {
@@ -240,14 +324,9 @@ export class OpenAICompatEngine implements EngineAdapter {
           signal: controller.signal,
         });
       }
-
-      if (!response.ok) {
-        const errorBody = await response.text().catch(() => "");
-        throw this.mapProviderError(response.status, errorBody);
-      }
-
-      return response;
+      return { response, clearTimeout: clearTimer };
     } catch (error) {
+      clearTimer();
       if (error instanceof EngineError) throw error;
       if (error instanceof DOMException && error.name === "AbortError") {
         throw new EngineError("Request timeout", ErrorCodes.TIMEOUT, 504);
@@ -258,8 +337,6 @@ export class OpenAICompatEngine implements EngineAdapter {
         502,
         error,
       );
-    } finally {
-      clearTimeout(timeoutId);
     }
   }
 
