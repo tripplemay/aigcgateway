@@ -1,11 +1,11 @@
 {
-  "status": "fixing",
+  "status": "reverifying",
   "user_goal": "BL-SEC-POLISH — 安全杂项合并（AUTH 硬化 + SSRF/CT + 脚本硬化）",
   "total_features": 4,
   "completed_features": 3,
-  "fix_rounds": 0,
+  "fix_rounds": 1,
   "current_sprint": "BL-SEC-POLISH",
-  "last_updated": "2026-04-19T14:46:40.319Z",
+  "last_updated": "2026-04-19T23:12:00Z",
   "reference_docs": [
     "docs/specs/BL-SEC-POLISH-spec.md",
     "docs/code-review/backend-fullscan-2026-04-17.md",
@@ -76,6 +76,6 @@
   },
   "session_notes": {
     "Kimi": "BL-SEC-POLISH generator 3/3 完成。\n\nF-SP-01 AUTH：login 总执行 bcrypt.compare（真 or dummy 均 cost=12，响应时长恒定）→ 抗时序 oracle。unusable 路径（user 不存在 / bad pw / suspended / deleted）全部返 401 + console.warn 内部记录。auth-rate-limit.ts 复用 rate-limit RPM 的 Lua 模式，双桶（IP + account），fail-open on Redis down。\n\nF-SP-02 SSRF+CT：url-safety.ts DNS 解析后检查 RFC1918/loopback/169.254/::1/fc00::/7，IPv6 literal bracket strip 修了一个 edge case（测试先报错）。dispatcher 失败写 FAILED notification 留审计。image-proxy 白名单 + nosniff 头。13 条 url-safety 单测。\n\nF-SP-03 脚本：e2e-errors fatal exit；stress-test 动态日期；setup-zero-balance 合法 bcrypt；alipay webhook TODO；run-template rateCheck 提前。\n\n附带修：dispatcher.test.ts mock url-safety（新 SSRF guard 让 example.invalid hostname 被挡；原测试意图测 retry/success 语义而非 guard）。\n\n本地 tsc / vitest 165/165（原 148 + 新 17）/ build 全过。推 verifying 交 Codex F-SP-04 18 项验收。",
-    "Reviewer": "BL-SEC-POLISH verifying 完成：L1 动态证据补齐。结果 15 PASS / 2 PARTIAL / 1 FAIL。#1 与“恒定时延防枚举”实现冲突（实测 218ms）；#14 限流语义命中但 MCP 为 HTTP200+isError 非严格 429；#13 bcrypt 修复生效但脚本因 project.balance 字段不兼容而失败。已写报告 docs/test-reports/BL-SEC-POLISH-verifying-2026-04-19.md，并置状态 fixing。"
+    "Reviewer": "BL-SEC-POLISH verifying 完成：L1 动态证据补齐。结果 15 PASS / 2 PARTIAL / 1 FAIL。#1 与“恒定时延防枚举”实现冲突（实测 218ms）；#14 限流语义命中但 MCP 为 HTTP200+isError 非严格 429；#13 bcrypt 修复生效但脚本因 project.balance 字段不兼容而失败。已写报告 docs/test-reports/BL-SEC-POLISH-verifying-2026-04-19.md，并置状态 fixing。\n\n[Generator round 1 fix 2026-04-19 23:12]：按 Planner 裁决 docs/adjudications/BL-SEC-POLISH-adjudication-request-2026-04-19.md 执行：#1 方案 A 保留恒定时延（Planner 修订 acceptance 为'时延差 <20ms'），#14 方案 A 保留 MCP isError（Planner 修订 acceptance 为 CallToolResult.isError）——两者代码不动。仅修 #13 setup-zero-balance 脚本遗留 bug：balance 字段从 Project 挪到 User（Prisma schema drift 修复），apiKey 从 projectId 挪到 userId（schema 原本就是 userId）。脚本端到端 smoke 跑通（Created test user / project / apiKey 三步全部成功）。本地 tsc / vitest 165/165 / build 全过。"
   }
 }

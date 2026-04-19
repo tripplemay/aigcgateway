@@ -1,15 +1,20 @@
 /**
- * Setup script to create a zero-balance test project for TC-04-6
+ * Setup script to create a zero-balance test fixture for TC-04-6.
  *
  * 用法：npx tsx scripts/setup-zero-balance-test.ts
  *
- * 输出：会打印创建的项目 ID 和 API Key，供测试使用
+ * 输出：打印项目 ID 和 API Key，供测试使用。
+ *
+ * BL-SEC-POLISH F-SP-03 #13: fixed legacy schema drift:
+ *   - `balance` lives on User (not Project). We zero the owning user's
+ *     balance so the project's API key fails its billing guard.
+ *   - ApiKey is scoped by `userId` (not `projectId`). We attach the key
+ *     to the fixture user.
  */
 
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient, Prisma } from "@prisma/client";
 import bcrypt from "bcryptjs";
-import { randomBytes } from "crypto";
-import { createHash } from "crypto";
+import { randomBytes, createHash } from "crypto";
 
 const prisma = new PrismaClient();
 
@@ -22,20 +27,14 @@ function hashApiKey(key: string): string {
 }
 
 async function main() {
-  console.log("Setting up zero-balance test project...\n");
+  console.log("Setting up zero-balance test fixture...\n");
 
-  // Get or create a test user
+  // Get or create a test user with a real bcrypt hash (H-44) and balance=0.
   let user = await prisma.user.findFirst({
-    where: {
-      email: "test-zero-balance@example.com",
-    },
+    where: { email: "test-zero-balance@example.com" },
   });
 
   if (!user) {
-    // BL-SEC-POLISH H-44: generate a valid bcrypt hash of a random password
-    // instead of a literal "dummy" string. Some auth paths (bcrypt.getRounds)
-    // throw on malformed hashes; a real $2a$ hash keeps login etc. from
-    // crashing even though this fixture user is only used for API key auth.
     const randomPassword = randomBytes(16).toString("hex");
     const passwordHash = bcrypt.hashSync(randomPassword, 10);
     user = await prisma.user.create({
@@ -43,75 +42,73 @@ async function main() {
         email: "test-zero-balance@example.com",
         name: "Zero Balance Test User",
         passwordHash,
+        balance: new Prisma.Decimal(0),
       },
     });
     console.log(`Created test user: ${user.email}`);
   } else {
-    console.log(`Using existing user: ${user.email}`);
+    // Ensure balance is 0 on the existing fixture — earlier tests may have
+    // topped it up via transactions.
+    user = await prisma.user.update({
+      where: { id: user.id },
+      data: { balance: new Prisma.Decimal(0) },
+    });
+    console.log(`Using existing user (balance reset to 0): ${user.email}`);
   }
 
-  // Create or update zero-balance project
+  // Get or create the project (no balance column — Project is just a
+  // logical container; the billing guard reads User.balance).
   const projectName = "Zero Balance Test Project";
   let project = await prisma.project.findFirst({
-    where: {
-      userId: user.id,
-      name: projectName,
-    },
+    where: { userId: user.id, name: projectName },
   });
 
-  if (project) {
-    // Update balance to 0
-    project = await prisma.project.update({
-      where: { id: project.id },
-      data: { balance: 0 },
-    });
-    console.log(`Updated existing project: ${project.id}`);
-  } else {
+  if (!project) {
     project = await prisma.project.create({
       data: {
         userId: user.id,
         name: projectName,
-        description: "Test project with zero balance for TC-04-6",
-        balance: 0,
+        description: "Fixture project for TC-04-6 insufficient-balance tests",
       },
     });
-    console.log(`Created zero-balance project: ${project.id}`);
+    console.log(`Created fixture project: ${project.id}`);
+  } else {
+    console.log(`Using existing fixture project: ${project.id}`);
   }
 
-  // Create or update API key
+  // Get or create the API key — owned by the user, not the project.
   const apiKeyValue = generateApiKey();
   const keyHash = hashApiKey(apiKeyValue);
-  const keyPrefix = apiKeyValue.slice(0, 20); // First 20 chars
+  const keyPrefix = apiKeyValue.slice(0, 20);
 
-  let apiKey = await prisma.apiKey.findFirst({
-    where: {
-      keyHash,
-    },
-  });
+  let apiKey = await prisma.apiKey.findFirst({ where: { userId: user.id } });
+  let printedKey = apiKeyValue;
 
   if (!apiKey) {
     apiKey = await prisma.apiKey.create({
       data: {
-        projectId: project.id,
+        userId: user.id,
         keyHash,
         keyPrefix,
         name: "Zero Balance Test Key",
-        expiresAt: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000), // 1 year from now
+        expiresAt: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000), // +1 year
       },
     });
     console.log(`Created API key: ${apiKeyValue}`);
   } else {
-    console.log(`Using existing API key (hash already exists)`);
+    console.log("Using existing API key (keyHash preserved; raw value not retrievable)");
+    printedKey = "<existing — re-run after revoking to mint a new raw value>";
   }
 
   console.log("\n" + "=".repeat(60));
   console.log("Setup completed!");
   console.log("=".repeat(60));
+  console.log(`User ID: ${user.id}`);
+  console.log(`User balance: ${user.balance.toString()}`);
   console.log(`Project ID: ${project.id}`);
-  console.log(`Project Balance: ${project.balance}`);
-  console.log(`API Key: ${apiKeyValue}`);
+  console.log(`API Key: ${printedKey}`);
   console.log("\nUsage for error tests:");
-  console.log(`ZERO_BALANCE_API_KEY=${apiKeyValue} npm run test:mcp:errors`);
+  console.log(`ZERO_BALANCE_API_KEY=${printedKey} npm run test:mcp:errors`);
   console.log("=".repeat(60));
 
   await prisma.$disconnect();

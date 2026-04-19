@@ -4,14 +4,14 @@ description: AIGC Gateway 当前状态快照（覆盖写，≤30 行）
 type: project
 ---
 ## 当前批次
-- **BL-SEC-POLISH：`fixing`**（Codex 首轮验收：15 PASS / 2 PARTIAL / 1 FAIL）
-- Path A 进度 9/11（待本批修复后继续）
+- **BL-SEC-POLISH：`reverifying`**（fix_rounds=1；Planner 裁决 #1/#14 修订 acceptance，Generator 修 #13 脚本 bug）
+- Path A 进度 9/11
 
-## 本轮验收结论（F-SP-04）
-- FAIL: #1 `nonexistent+wrong-password <50ms`（实测约 218ms）
-- PARTIAL: #14 run_template 限流语义命中，但 MCP 协议层为 HTTP 200 + isError（非严格 429）
-- PARTIAL: #13 bcrypt 格式修复生效，但 `setup-zero-balance-test.ts` 在 `project.balance` 字段报错
-- 其余 15 项通过（#2-#12、#15-#17）
+## round 1 fix（2026-04-19 23:12）
+- Planner 裁决（docs/adjudications/BL-SEC-POLISH-adjudication-request-2026-04-19.md）：#1/#14 方案 A，修订 acceptance，代码不动
+- Generator 修 #13：setup-zero-balance 脚本 balance 字段从 Project → User（schema 原设计）+ apiKey projectId → userId；端到端 smoke 跑通
+- 本地 tsc / vitest 165/165 / build 全过
+- 新增 framework 流程：Generator 裁决申请（落盘 docs/adjudications/），待 done 阶段同步到 harness-template
 
 ## 关键产物
 - 验收报告：`docs/test-reports/BL-SEC-POLISH-verifying-2026-04-19.md`
