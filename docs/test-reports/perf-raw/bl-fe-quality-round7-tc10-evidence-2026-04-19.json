@@ -1,0 +1,20 @@
+{
+  "timestamp": "2026-04-19T00:18:17.798Z",
+  "baseUrl": "http://localhost:3099",
+  "check": {
+    "id": "tc10_error_zh",
+    "pass": false,
+    "reason": "GET /__error-test returned 404 page; did not enter (console)/error.tsx boundary",
+    "expected": {
+      "title": "出错了",
+      "fallbackMessage": "发生未知错误。",
+      "retry": "重试"
+    },
+    "actual": {
+      "title": "This page could not be found.",
+      "detail": "",
+      "retry": ""
+    },
+    "screenshot": "docs/test-reports/perf-raw/bl-fe-quality-round7-error-zh-2026-04-19.png"
+  }
+}

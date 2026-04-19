@@ -1,0 +1,45 @@
+{
+  "timestamp": "2026-04-19T00:18:17.798Z",
+  "baseUrl": "http://localhost:3099",
+  "seeded": {
+    "forcedDegradedChannelId": "cmnsqqbys000z9yese8l6ul3b"
+  },
+  "checks": {
+    "tc10_error_zh": {
+      "pass": false,
+      "titleOk": false,
+      "retryOk": false,
+      "detailIsFallback": false,
+      "detailIsKnownTestError": false,
+      "expected": {
+        "title": "出错了",
+        "fallbackMessage": "发生未知错误。",
+        "retry": "重试"
+      },
+      "actual": {
+        "title": "This page could not be found.",
+        "detail": "",
+        "retry": ""
+      },
+      "errorShot": "/Users/yixingzhou/project/aigcgateway/docs/test-reports/perf-raw/bl-fe-quality-round7-error-zh-2026-04-19.png"
+    },
+    "tc11_admin_models_i18n": {
+      "pass": false,
+      "hasChineseFree": true,
+      "hasChineseDegraded": false,
+      "modelsShot": "/Users/yixingzhou/project/aigcgateway/docs/test-reports/perf-raw/bl-fe-quality-round7-admin-models-zh-2026-04-19.png"
+    },
+    "tc12_notification_relative_time_i18n": {
+      "pass": false,
+      "relativeMatches": [],
+      "notifShot": "/Users/yixingzhou/project/aigcgateway/docs/test-reports/perf-raw/bl-fe-quality-round7-notifications-zh-2026-04-19.png"
+    },
+    "tc15_visual_baseline_current_only": {
+      "pass": true,
+      "note": "Collected current screenshots for dashboard/admin-operations/admin-logs as dynamic evidence set.",
+      "dashboardShot": "/Users/yixingzhou/project/aigcgateway/docs/test-reports/perf-raw/bl-fe-quality-round7-dashboard-zh-2026-04-19.png",
+      "operationsShot": "/Users/yixingzhou/project/aigcgateway/docs/test-reports/perf-raw/bl-fe-quality-round7-admin-operations-current-2026-04-19.png",
+      "logsShot": "/Users/yixingzhou/project/aigcgateway/docs/test-reports/perf-raw/bl-fe-quality-round7-admin-logs-current-2026-04-19.png"
+    }
+  }
+}

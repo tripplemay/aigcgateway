@@ -1,19 +1,100 @@
 {
-  "generatedAt": "2026-04-18T16:46:38.712Z",
+  "generatedAt": "2026-04-19T00:17:07.921Z",
   "baseUrl": "http://localhost:3099",
   "dbUrl": "postgresql://test:test@localhost:5432/aigc_gateway_test",
-  "pass": false,
+  "pass": true,
   "check": {
-    "runId": "cmo4kkpek001s9y70q38m3upr",
-    "templateId": "cmo4kkhe400199y70e5oudj8j",
-    "projectId": "cmo4kkhct00039y70f0khryeu",
+    "runId": "cmo50nu39002o9y3ip0kr8us1",
+    "templateId": "cmo50nt9w001p9y3izivo1gnb",
+    "projectId": "cmo50nt7x000j9y3ivt8hun6q",
     "runStatus": "success",
     "stepCount": 10,
-    "logCount": 0,
+    "logCount": 10,
     "runTotalCost": 0,
     "sumSellPrice": 0,
     "diff": 0,
     "threshold": 1e-12
   },
-  "logs": []
+  "logs": [
+    {
+      "id": "cmo50ntbc00229y3idakij5dc",
+      "traceId": "trc_aa2qazyfaatkc0c6n5wz46cw",
+      "actionId": "cmo50nt89000l9y3itgj88orc",
+      "sellPrice": "0",
+      "createdAt": "2026-04-19T00:17:08.137Z",
+      "status": "SUCCESS"
+    },
+    {
+      "id": "cmo50nten00269y3iqoib06tp",
+      "traceId": "trc_rtgnqbru528yamlrfozlktgr",
+      "actionId": "cmo50nt8y000p9y3i5qhdca33",
+      "sellPrice": "0",
+      "createdAt": "2026-04-19T00:17:08.255Z",
+      "status": "SUCCESS"
+    },
+    {
+      "id": "cmo50ntew00289y3i7v351cur",
+      "traceId": "trc_nvg2ed08175sb4as3fufawh7",
+      "actionId": "cmo50nt92000t9y3ifbd40ibu",
+      "sellPrice": "0",
+      "createdAt": "2026-04-19T00:17:08.264Z",
+      "status": "SUCCESS"
+    },
+    {
+      "id": "cmo50nthv002a9y3i0jm5zwg1",
+      "traceId": "trc_etguomz48yn8pm9nj7kjynfn",
+      "actionId": "cmo50nt96000x9y3imp75aemv",
+      "sellPrice": "0",
+      "createdAt": "2026-04-19T00:17:08.371Z",
+      "status": "SUCCESS"
+    },
+    {
+      "id": "cmo50ntkt002c9y3iihsmxago",
+      "traceId": "trc_sfsj43h1t4auvaccrrbmvbmt",
+      "actionId": "cmo50nt9900119y3ixjdbsefd",
+      "sellPrice": "0",
+      "createdAt": "2026-04-19T00:17:08.478Z",
+      "status": "SUCCESS"
+    },
+    {
+      "id": "cmo50ntnr002e9y3i5bmafid4",
+      "traceId": "trc_k89xe7ib2fgsm11vd6tqt05w",
+      "actionId": "cmo50nt9c00159y3ijm3894lu",
+      "sellPrice": "0",
+      "createdAt": "2026-04-19T00:17:08.584Z",
+      "status": "SUCCESS"
+    },
+    {
+      "id": "cmo50ntqp002g9y3isjr4usks",
+      "traceId": "trc_fzqbrdu4l1ygkigfu2jjeu0h",
+      "actionId": "cmo50nt9g00199y3ifo25ktdt",
+      "sellPrice": "0",
+      "createdAt": "2026-04-19T00:17:08.690Z",
+      "status": "SUCCESS"
+    },
+    {
+      "id": "cmo50nttr002i9y3ivnvtkp1s",
+      "traceId": "trc_hna6qsm61uj51v60heri36hq",
+      "actionId": "cmo50nt9k001d9y3im67ln17f",
+      "sellPrice": "0",
+      "createdAt": "2026-04-19T00:17:08.799Z",
+      "status": "SUCCESS"
+    },
+    {
+      "id": "cmo50ntx6002k9y3ifnrknr1n",
+      "traceId": "trc_wvbl1y8ahksqczhifc7wlh3g",
+      "actionId": "cmo50nt9o001h9y3i0oo8mh10",
+      "sellPrice": "0",
+      "createdAt": "2026-04-19T00:17:08.923Z",
+      "status": "SUCCESS"
+    },
+    {
+      "id": "cmo50nu0b002m9y3i3u6007e3",
+      "traceId": "trc_cxszmmgdzscchoc8ar405j22",
+      "actionId": "cmo50nt9r001l9y3irb2o9gky",
+      "sellPrice": "0",
+      "createdAt": "2026-04-19T00:17:09.035Z",
+      "status": "SUCCESS"
+    }
+  ]
 }
