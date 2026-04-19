@@ -226,8 +226,11 @@ async function runMixed(jwt: string): Promise<MixedResult> {
 // ─── Report generation ──────────────────────────────────────
 
 function generateReport(scenarios: ScenarioResult[], mixed: MixedResult): string {
+  // BL-SEC-POLISH H-43: dynamic report date; previously hardcoded 2026-04-04
+  // caused every run to overwrite the same file and display a stale heading.
+  const today = new Date().toISOString().slice(0, 10);
   const lines: string[] = [
-    "# 压力测试报告 — 2026-04-04",
+    `# 压力测试报告 — ${today}`,
     "",
     `> 目标服务器：${BASE}`,
     "> 工具：autocannon (Node.js)",
@@ -347,10 +350,12 @@ async function main() {
   const report = generateReport([scenarioA, scenarioB, scenarioC, scenarioD], mixed);
   console.log("\n\n" + report);
 
-  // Write report file
+  // Write report file — dynamic date matches heading above.
   const fs = await import("fs");
-  fs.writeFileSync("docs/test-reports/stress-test-2026-04-04.md", report);
-  console.log("\nReport written to docs/test-reports/stress-test-2026-04-04.md");
+  const today = new Date().toISOString().slice(0, 10);
+  const reportPath = `docs/test-reports/stress-test-${today}.md`;
+  fs.writeFileSync(reportPath, report);
+  console.log(`\nReport written to ${reportPath}`);
 }
 
 main().catch((err) => {

@@ -29,7 +29,7 @@ export async function POST(request: Request) {
     return errorResponse(401, "invalid_credentials", "Current password is incorrect");
   }
 
-  const newHash = await bcrypt.hash(newPassword, 10);
+  const newHash = await bcrypt.hash(newPassword, 12);
   await prisma.user.update({
     where: { id: auth.payload.userId },
     data: { passwordHash: newHash },

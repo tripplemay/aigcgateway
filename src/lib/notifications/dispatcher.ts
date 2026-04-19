@@ -19,6 +19,7 @@ import type { NotificationEventType, NotificationStatus, Prisma } from "@prisma/
 import { createHmac } from "node:crypto";
 import { defaultExpiresAt } from "./ttl";
 import { fetchWithTimeout } from "@/lib/infra/fetch-with-timeout";
+import { isSafeWebhookUrl } from "@/lib/infra/url-safety";
 
 const WEBHOOK_TIMEOUT_MS = 10_000;
 
@@ -111,6 +112,30 @@ interface WebhookJob {
 }
 
 async function dispatchWebhook(job: WebhookJob, deps: DispatcherDeps): Promise<void> {
+  // BL-SEC-POLISH F-SP-02: SSRF guard. A user-supplied webhook URL must not
+  // resolve to private / metadata ranges. Fail silent here (fire-and-forget
+  // contract) but persist an audit log so operators can see the block.
+  const safety = await isSafeWebhookUrl(job.url);
+  if (!safety.safe) {
+    try {
+      await prisma.notification.create({
+        data: {
+          userId: job.userId,
+          projectId: job.projectId ?? null,
+          eventType: job.eventType,
+          channel: "WEBHOOK",
+          status: "FAILED",
+          payload: job.payload as unknown as Prisma.InputJsonValue,
+          error: `webhook URL blocked by SSRF guard: ${safety.reason}`,
+          expiresAt: defaultExpiresAt(job.eventType),
+        },
+      });
+    } catch (err) {
+      console.error("[dispatcher] ssrf block log failed:", err);
+    }
+    return;
+  }
+
   const body = JSON.stringify({
     event: job.eventType,
     payload: job.payload,

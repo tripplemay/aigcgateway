@@ -34,6 +34,15 @@ vi.mock("@/lib/prisma", () => ({
   },
 }));
 
+// BL-SEC-POLISH F-SP-02: dispatcher now SSRF-gates the webhook URL. Tests use
+// `https://example.invalid` which would fail DNS resolution — stub the guard
+// to allow all URLs so the retry/success logic stays the real subject under
+// test here. Dedicated url-safety tests live in src/lib/infra/__tests__/.
+vi.mock("@/lib/infra/url-safety", () => ({
+  isSafeWebhookUrl: vi.fn(async () => ({ safe: true })),
+  sanitizeImageContentType: (raw: string | null | undefined) => raw ?? "application/octet-stream",
+}));
+
 import { sendNotification } from "./dispatcher";
 
 beforeEach(() => {

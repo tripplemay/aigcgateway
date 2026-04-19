@@ -32,43 +32,60 @@ async function main() {
   console.log("=".repeat(60));
 
   // Setup: register + login + create project + key (balance = 0)
+  // BL-SEC-POLISH H-42: fail fast on setup errors. A silent setup failure
+  // would cascade into confusing step-level failures downstream.
   const email = `err_${Date.now()}@test.com`;
   let token = "";
   let projectId = "";
   let apiKey = "";
   let keyId = "";
 
-  const reg = await fetch(`${BASE}/api/auth/register`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email, password: E2E_TEST_PASSWORD }),
-  });
-  await reg.json();
+  const fatal = (stage: string, detail: unknown): never => {
+    console.error(`[e2e-errors] setup FAILED at ${stage}:`, detail);
+    process.exit(1);
+  };
 
-  const login = await fetch(`${BASE}/api/auth/login`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email, password: E2E_TEST_PASSWORD }),
-  });
-  const loginData = await login.json();
-  token = loginData.token;
+  try {
+    const reg = await fetch(`${BASE}/api/auth/register`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password: E2E_TEST_PASSWORD }),
+    });
+    if (!reg.ok) fatal("register", `HTTP ${reg.status} ${await reg.text()}`);
 
-  const projRes = await fetch(`${BASE}/api/projects`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-    body: JSON.stringify({ name: "Error Test Project" }),
-  });
-  const proj = await projRes.json();
-  projectId = proj.id;
+    const login = await fetch(`${BASE}/api/auth/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password: E2E_TEST_PASSWORD }),
+    });
+    if (!login.ok) fatal("login", `HTTP ${login.status} ${await login.text()}`);
+    const loginData = await login.json();
+    token = loginData.token;
+    if (!token) fatal("login", "missing token in response");
 
-  const keyRes = await fetch(`${BASE}/api/keys`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-    body: JSON.stringify({ name: "err-key" }),
-  });
-  const keyData = await keyRes.json();
-  apiKey = keyData.key;
-  keyId = keyData.id;
+    const projRes = await fetch(`${BASE}/api/projects`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ name: "Error Test Project" }),
+    });
+    if (!projRes.ok) fatal("create project", `HTTP ${projRes.status} ${await projRes.text()}`);
+    const proj = await projRes.json();
+    projectId = proj.id;
+    if (!projectId) fatal("create project", "missing project id");
+
+    const keyRes = await fetch(`${BASE}/api/keys`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ name: "err-key" }),
+    });
+    if (!keyRes.ok) fatal("create key", `HTTP ${keyRes.status} ${await keyRes.text()}`);
+    const keyData = await keyRes.json();
+    apiKey = keyData.key;
+    keyId = keyData.id;
+    if (!apiKey || !keyId) fatal("create key", "missing key/id in response");
+  } catch (err) {
+    fatal("setup", err);
+  }
 
   // 1. Insufficient balance → 402
   await step("1. Insufficient balance → 402", async () => {

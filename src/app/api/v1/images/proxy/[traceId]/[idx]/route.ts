@@ -9,6 +9,7 @@ export const dynamic = "force-dynamic";
 
 import { prisma } from "@/lib/prisma";
 import { verifyProxySignature } from "@/lib/api/image-proxy";
+import { sanitizeImageContentType } from "@/lib/infra/url-safety";
 
 interface Params {
   params: Promise<{ traceId: string; idx: string }>;
@@ -45,12 +46,16 @@ export async function GET(request: Request, { params }: Params) {
     return new Response("upstream fetch failed", { status: 502 });
   }
 
-  const contentType = upstreamRes.headers.get("content-type") ?? "application/octet-stream";
+  // BL-SEC-POLISH F-SP-02: restrict Content-Type to known image MIME types;
+  // any other value (text/html, application/javascript, etc.) is coerced to
+  // application/octet-stream so browsers won't render/execute the payload.
+  const contentType = sanitizeImageContentType(upstreamRes.headers.get("content-type"));
   return new Response(upstreamRes.body, {
     status: 200,
     headers: {
       "Content-Type": contentType,
       "Cache-Control": "private, max-age=60",
+      "X-Content-Type-Options": "nosniff",
     },
   });
 }

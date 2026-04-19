@@ -4,21 +4,21 @@ description: AIGC Gateway 当前状态快照（覆盖写，≤30 行）
 type: project
 ---
 ## 当前批次
-- **BL-SEC-POLISH：`building`**（合并批次，P2-polish 第 1 批，1.5d，4 features：3 generator + 1 codex）
-- Path A 进度 9/11（合并后）
+- **BL-SEC-POLISH：`verifying`**（Generator 3/3 done，等 Codex F-SP-04 18 项）
+- Path A 进度 9/11
 
 ## 上一批次（BL-INFRA-RESILIENCE done）
-- 15/15 PASS，fix_rounds=1（仅修 stream cancel）
-- 关键产物：fetchWithTimeout 双 API + rpmCheck Lua（生产探针 cmdstat_eval +9 实测）+ reconcile batch（40→5 次 DB 往返）
-- Signoff: `docs/test-reports/BL-INFRA-RESILIENCE-signoff-2026-04-19.md`
+- 15/15 PASS，fix_rounds=1
+- 产物：fetchWithTimeout 双 API + rpmCheck Lua + reconcile batch
 
-## 本批次目标（三组合并）
-- **AUTH**：login 顺序修正（防时序 oracle）+ bcrypt cost 10→12 + login/register rate limit（IP 10/min + account 5/min）
-- **SSRF/CT**：isSafeWebhookUrl 白名单（仅 https + 非私网/元数据）+ image-proxy Content-Type 白名单
-- **脚本硬化**：e2e-errors setup fatal + stress-test 日期动态 + setup-zero-balance 合法 bcrypt + e2e-test webhook TODO + run-template test_mode 补 rate limit
+## 本批次交付（Generator）
+- **AUTH**：login 总 bcrypt.compare 恒定时长 + cost 10→12 + rehash + 2 级 rate limit（IP 10 / account 5）
+- **SSRF+CT**：url-safety.ts（https + RFC1918/loopback/metadata/ULA 黑名单）+ dispatcher/test-webhook/image-proxy 接入 + CT 白名单 + nosniff
+- **脚本**：e2e-errors fatal / stress-test 动态日期 / setup-zero-balance 合法 bcrypt / alipay TODO / run-template rateCheck 提前
+- 本地 checks：tsc / vitest 165/165（+17）/ build 全过
 
 ## Framework 提案池（1 条未消化）
-- Next.js App Router 私有目录约定（等 Path A 全部完成后批量同步到 harness-template）
+- Next.js App Router 私有目录约定（等 Path A 全部完成后批量同步）
 
 ## Framework 铁律（v0.7.3 已采纳）
 1. Planner spec 涉及代码细节 Read 源码 + file:line 引用
@@ -27,10 +27,10 @@ type: project
 2.1. 协议返回形式断言标明协议层
 
 ## 生产状态
-- HEAD `d5c2180`（BL-INFRA-RESILIENCE signoff 后）
+- HEAD `3646270`（BL-INFRA-RESILIENCE signoff 后）
 - 9 批 Path A 代码待用户触发 deploy
 
 ## Path A 剩余路线
-- P2：SEC-POLISH ← building / INFRA-ARCHIVE 1d / FE-DS-SHADCN 2d
-- 延后候选：INFRA-GUARD-FOLLOWUP（Next.js 16 迁移 2-3d）/ BL-FE-QUALITY-FOLLOWUP
+- P2：SEC-POLISH ← verifying / INFRA-ARCHIVE 1d / FE-DS-SHADCN 2d
+- 延后候选：INFRA-GUARD-FOLLOWUP / BL-FE-QUALITY-FOLLOWUP
 - 延后：PAY-DEFERRED 1-2d

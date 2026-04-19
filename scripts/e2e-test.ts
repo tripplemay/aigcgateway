@@ -223,7 +223,11 @@ async function main() {
     });
     const orderId = rechargeBody.body.orderId;
 
-    // Simulate alipay callback (form-urlencoded)
+    // Simulate alipay callback (form-urlencoded).
+    // TODO(BL-PAY-DEFERRED / H-45): this callback currently bypasses signature
+    // verification because e2e runs against a mock webhook endpoint. When the
+    // real payment integration lands, sign the body with the alipay SDK so the
+    // e2e path exercises the production signature-verification branch.
     await fetch(`${BASE}/api/webhooks/alipay`, {
       method: "POST",
       headers: { "Content-Type": "application/x-www-form-urlencoded" },

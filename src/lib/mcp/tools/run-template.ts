@@ -81,6 +81,25 @@ Two formats are supported:
         };
       }
 
+      // BL-SEC-POLISH H-46: lift RPM rate limit above the test_mode branch so
+      // every path (test_mode=dry_run / test_mode=execute / normal run) shares
+      // the same quota. test_mode retains its "no billing" property because
+      // runTemplateTest internals still skip deduct_balance; only the gate
+      // position changes. TPM / spending-rate checks stay below for execute,
+      // where they're meaningful (no token usage during test_mode).
+      const project = await prisma.project.findUnique({ where: { id: projectId } });
+      const projectForLimits = project ?? { id: projectId, rateLimit: null };
+      const rateCheck = await checkRateLimit(projectForLimits, "text", keyRateLimit, {
+        apiKeyId: apiKeyId ?? null,
+        userId,
+      });
+      if (!rateCheck.ok) {
+        return {
+          content: [{ type: "text" as const, text: "Rate limit exceeded. Retry after 60s." }],
+          isError: true,
+        };
+      }
+
       // F-TT-04: test harness branch — routes through the same runner as the
       // console /templates/[id]/test page so API + MCP share behavior.
       if (test_mode) {
@@ -116,20 +135,6 @@ Two formats are supported:
             isError: true,
           };
         }
-      }
-
-      // Rate limit (三维度 + TPM + 消费速率)
-      const project = await prisma.project.findUnique({ where: { id: projectId } });
-      const projectForLimits = project ?? { id: projectId, rateLimit: null };
-      const rateCheck = await checkRateLimit(projectForLimits, "text", keyRateLimit, {
-        apiKeyId: apiKeyId ?? null,
-        userId,
-      });
-      if (!rateCheck.ok) {
-        return {
-          content: [{ type: "text" as const, text: "Rate limit exceeded. Retry after 60s." }],
-          isError: true,
-        };
       }
       const tpmCheck = await checkTokenLimit(projectForLimits);
       if (!tpmCheck.ok) {

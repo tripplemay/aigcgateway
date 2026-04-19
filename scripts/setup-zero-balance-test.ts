@@ -7,6 +7,7 @@
  */
 
 import { PrismaClient } from "@prisma/client";
+import bcrypt from "bcryptjs";
 import { randomBytes } from "crypto";
 import { createHash } from "crypto";
 
@@ -31,11 +32,17 @@ async function main() {
   });
 
   if (!user) {
+    // BL-SEC-POLISH H-44: generate a valid bcrypt hash of a random password
+    // instead of a literal "dummy" string. Some auth paths (bcrypt.getRounds)
+    // throw on malformed hashes; a real $2a$ hash keeps login etc. from
+    // crashing even though this fixture user is only used for API key auth.
+    const randomPassword = randomBytes(16).toString("hex");
+    const passwordHash = bcrypt.hashSync(randomPassword, 10);
     user = await prisma.user.create({
       data: {
         email: "test-zero-balance@example.com",
         name: "Zero Balance Test User",
-        passwordHash: "dummy", // Not used for API testing
+        passwordHash,
       },
     });
     console.log(`Created test user: ${user.email}`);

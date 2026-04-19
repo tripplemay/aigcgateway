@@ -6,6 +6,10 @@ import { errorResponse } from "@/lib/api/errors";
 import { randomBytes } from "crypto";
 import { seedDefaultNotificationPreferences } from "@/lib/notifications/defaults";
 import { Prisma } from "@prisma/client";
+import { checkAuthRateLimit, extractClientIp } from "@/lib/api/auth-rate-limit";
+
+// BL-SEC-POLISH H-9: bump bcrypt cost 10 → 12.
+const BCRYPT_COST = 12;
 
 const WELCOME_BONUS_KEY = "WELCOME_BONUS_USD";
 
@@ -41,6 +45,20 @@ export async function POST(request: Request) {
     return errorResponse(400, "invalid_parameter", "email and password are required");
   }
 
+  // BL-SEC-POLISH F-SP-01: rate limit register by IP (no account identity yet).
+  const ip = extractClientIp(request);
+  const rl = await checkAuthRateLimit({ ip, route: "register" });
+  if (!rl.allowed) {
+    return errorResponse(
+      429,
+      "too_many_requests",
+      "Too many registration attempts, try again later",
+      {
+        headers: { "Retry-After": "60" },
+      },
+    );
+  }
+
   if (password.length < 8) {
     return errorResponse(422, "invalid_parameter", "Password must be at least 8 characters", {
       param: "password",
@@ -52,7 +70,7 @@ export async function POST(request: Request) {
     return errorResponse(409, "conflict", "Email already registered");
   }
 
-  const passwordHash = await bcrypt.hash(password, 10);
+  const passwordHash = await bcrypt.hash(password, BCRYPT_COST);
 
   const verificationToken = randomBytes(32).toString("hex");
   const tokenExpiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24h

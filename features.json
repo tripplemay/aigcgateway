@@ -7,7 +7,7 @@
       "title": "AUTH 硬化（rate limit + bcrypt cost 12 + login 顺序修正）",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "source": "H-7 + H-9 + H-10",
       "acceptance": "1) `src/app/api/auth/login/route.ts` 顺序修正：先查 user + 检查 deletedAt/suspended → 失败路径加 100ms 固定延迟或 dummy bcrypt.compare（防时序 oracle）→ 统一返回 401 invalid_credentials（suspended 账号也同样 401 + 内部日志记录）；再做真实 bcrypt.compare；2) line 43 `bcrypt.hash(password, 10)` → `bcrypt.hash(password, 12)`；若有 catch 静默改为 throw + 日志；3) 新建 `src/lib/api/auth-rate-limit.ts` helper 两级 IP(10/min) + account(5/min)，复用 rate-limit.ts 的 Redis Lua 模式；4) login + register 两路调用；触发限流 429 too_many_requests；5) 单测：dummy bcrypt vs 真 bcrypt 响应时长差 < 20ms；rate limit 并发超限生效；bcrypt cost=12 生效；6) tsc + build 通过"
     },
@@ -16,7 +16,7 @@
       "title": "SSRF + Content-Type 硬化（webhook URL 白名单 + image-proxy CT）",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "source": "H-27 + H-28",
       "acceptance": "1) 新建 `src/lib/infra/url-safety.ts` 导出 isSafeWebhookUrl(url): Promise<boolean>：仅 https + DNS 解析后 IP 不得属于 10.0.0.0/8 / 172.16.0.0/12 / 192.168.0.0/16 / 127.0.0.0/8 / 169.254.0.0/16 / 100.64.0.0/10 / ::1 / fc00::/7；2) `src/app/api/notifications/test-webhook/route.ts:37` + `src/lib/notifications/dispatcher.ts` webhook fetch 前调用 isSafeWebhookUrl，失败返 400/skip；3) `src/app/api/v1/images/proxy/[traceId]/[idx]/route.ts:48-52` Content-Type 白名单正则：`/^image\\/(jpeg|png|webp|gif|svg\\+xml|avif|heic)$/`，非图片强制 `application/octet-stream`；4) 单测：isSafeWebhookUrl 多种 URL 类型 + image-proxy mock 上游返 text/html 验证本地 CT；5) tsc + build 通过"
     },
@@ -25,7 +25,7 @@
       "title": "脚本硬化 5 项（setup fatal + 报告路径 + bcrypt + webhook + test_mode rate limit）",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "source": "H-42 + H-43 + H-44 + H-45 + H-46",
       "acceptance": "1) `scripts/e2e-errors.ts:34` setup try/catch 任一步失败 process.exit(1) 明确错误；2) `scripts/stress-test.ts:230,352-353` 硬编码 '2026-04-04' 改 `new Date().toISOString().slice(0,10)` 动态日期；3) `scripts/setup-zero-balance-test.ts:38` passwordHash='dummy' → `bcrypt.hashSync(crypto.randomBytes(16).toString('hex'), 10)` 合法 bcrypt 格式；4) `scripts/e2e-test.ts` webhook 调用加 TODO 注释 '支付接入后加签名'（不改现有调用，PAY-DEFERRED 批次统一处理）；5) `src/lib/mcp/tools/run-template.ts:86` test_mode 分支前移 rate limit 检查：把 line 122 的 checkRateLimit 提前到 test_mode if 之前，所有路径（含 execute）都走 rate limit；test_mode 仍保留 '不扣费' 特性（runTemplateTest 内部逻辑不变）；6) tsc + build 通过"
     },
