@@ -1,0 +1,38 @@
+Setting up zero-balance test project...
+
+Using existing user: test-zero-balance@example.com
+Error: PrismaClientValidationError: 
+Invalid `prisma.project.create()` invocation in
+/Users/yixingzhou/project/aigcgateway/scripts/setup-zero-balance-test.ts:70:36
+
+  67   });
+  68   console.log(`Updated existing project: ${project.id}`);
+  69 } else {
+→ 70   project = await prisma.project.create({
+         data: {
+           userId: "cmo5veedj00009y89z4n1qbzi",
+           name: "Zero Balance Test Project",
+           description: "Test project with zero balance for TC-04-6",
+           balance: 0,
+           ~~~~~~~
+       ?   id?: String,
+       ?   alertThreshold?: Decimal | Null,
+       ?   rateLimit?: NullableJsonNullValueInput | Json,
+       ?   createdAt?: DateTime,
+       ?   updatedAt?: DateTime,
+       ?   callLogs?: CallLogUncheckedCreateNestedManyWithoutProjectInput,
+       ?   transactions?: TransactionUncheckedCreateNestedManyWithoutProjectInput,
+       ?   actions?: ActionUncheckedCreateNestedManyWithoutProjectInput,
+       ?   templates?: TemplateUncheckedCreateNestedManyWithoutProjectInput
+         }
+       })
+
+Unknown argument `balance`. Available options are marked with ?.
+    at throwValidationException (/Users/yixingzhou/project/aigcgateway/node_modules/@prisma/client/src/runtime/core/errorRendering/throwValidationException.ts:45:9)
+    at ei.handleRequestError (/Users/yixingzhou/project/aigcgateway/node_modules/@prisma/client/src/runtime/RequestHandler.ts:202:7)
+    at ei.handleAndLogRequestError (/Users/yixingzhou/project/aigcgateway/node_modules/@prisma/client/src/runtime/RequestHandler.ts:174:12)
+    at ei.request (/Users/yixingzhou/project/aigcgateway/node_modules/@prisma/client/src/runtime/RequestHandler.ts:143:12)
+    at async a (/Users/yixingzhou/project/aigcgateway/node_modules/@prisma/client/src/runtime/getPrismaClient.ts:833:24)
+    at async main (/Users/yixingzhou/project/aigcgateway/scripts/setup-zero-balance-test.ts:70:15) {
+  clientVersion: '6.19.3'
+}

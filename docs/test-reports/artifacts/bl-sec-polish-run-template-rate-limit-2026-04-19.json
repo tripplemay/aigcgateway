@@ -1,0 +1,20 @@
+{
+  "generatedAt": "2026-04-19T14:45:07.578Z",
+  "base": "http://localhost:3099",
+  "user": "sp14_mo5vo1le@test.local",
+  "templateId": "cmo5vo1zy00709ynw1c4tbo1w",
+  "first": {
+    "status": 200,
+    "body": {
+      "raw": "event: message\ndata: {\"result\":{\"content\":[{\"type\":\"text\",\"text\":\"{\\n  \\\"runId\\\": \\\"cmo5vo22900769ynw0m9lwxz0\\\",\\n  \\\"mode\\\": \\\"execute\\\",\\n  \\\"status\\\": \\\"error\\\",\\n  \\\"steps\\\": [\\n    {\\n      \\\"order\\\": 0,\\n      \\\"actionId\\\": \\\"cmo5vo1zp006w9ynwkx5m95bx\\\",\\n      \\\"actionName\\\": \\\"sp14-action-mo5vo1le\\\",\\n      \\\"model\\\": \\\"deepseek/v3\\\",\\n      \\\"input\\\": [\\n        {\\n          \\\"role\\\": \\\"user\\\",\\n          \\\"content\\\": \\\"Say hello to first\\\"\\n        }\\n      ],\\n      \\\"output\\\": null,\\n      \\\"promptTokens\\\": null,\\n      \\\"completionTokens\\\": null,\\n      \\\"totalTokens\\\": null,\\n      \\\"cost\\\": null,\\n      \\\"latencyMs\\\": 4,\\n      \\\"status\\\": \\\"error\\\",\\n      \\\"error\\\": \\\"Engine error: Model \\\\\\\"deepseek/v3\\\\\\\" not found\\\"\\n    }\\n  ],\\n  \\\"totalTokens\\\": 0,\\n  \\\"totalCost\\\": \\\"0.00000000\\\",\\n  \\\"totalLatency\\\": 4\\n}\"}]},\"jsonrpc\":\"2.0\",\"id\":1776609907519}\n\n"
+    }
+  },
+  "second": {
+    "status": 200,
+    "body": {
+      "raw": "event: message\ndata: {\"result\":{\"content\":[{\"type\":\"text\",\"text\":\"Rate limit exceeded. Retry after 60s.\"}],\"isError\":true},\"jsonrpc\":\"2.0\",\"id\":1776609907573}\n\n"
+    }
+  },
+  "secondIsRateLimited": true,
+  "strict429": false
+}

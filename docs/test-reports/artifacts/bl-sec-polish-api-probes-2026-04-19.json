@@ -1,0 +1,160 @@
+[redis] connected
+{
+  "generatedAt": "2026-04-19T14:35:20.383Z",
+  "base": "http://localhost:3099",
+  "summary": {
+    "total": 10,
+    "pass": 9,
+    "fail": 1
+  },
+  "results": [
+    {
+      "id": "#1",
+      "pass": false,
+      "detail": "status=401, elapsedMs=218, expected status=401 and <50ms",
+      "data": {
+        "status": 401,
+        "elapsedMs": 218
+      }
+    },
+    {
+      "id": "#2",
+      "pass": true,
+      "detail": "status=401, elapsedMs=222, expected status=401 and >150ms",
+      "data": {
+        "status": 401,
+        "elapsedMs": 222
+      }
+    },
+    {
+      "id": "#3",
+      "pass": true,
+      "detail": "loginStatus=200, bcryptRoundsAfter=12, expected 200 and rounds=12",
+      "data": {
+        "loginStatus": 200,
+        "loginBody": {
+          "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJjbW81dmJjNmYwMDAxOXl3bzNkanE4cHR5Iiwicm9sZSI6IkRFVkVMT1BFUiIsImlhdCI6MTc3NjYwOTMxNCwiZXhwIjoxNzc3MjE0MTE0fQ.L1qtvHHLJyZla201k0MvXWVuUDFduWBEp1-5MlYjZVE",
+          "user": {
+            "id": "cmo5vbc6f00019ywo3djq8pty",
+            "email": "rehash_1776609314093@example.com",
+            "name": "rehash",
+            "role": "DEVELOPER"
+          }
+        },
+        "bcryptRoundsAfter": 12
+      }
+    },
+    {
+      "id": "#4",
+      "pass": true,
+      "detail": "statuses=401,401,401,401,401,401,401,401,401,401,429",
+      "data": {
+        "statuses": [
+          401,
+          401,
+          401,
+          401,
+          401,
+          401,
+          401,
+          401,
+          401,
+          401,
+          429
+        ]
+      }
+    },
+    {
+      "id": "#5",
+      "pass": true,
+      "detail": "statuses=401,401,401,401,401,429",
+      "data": {
+        "statuses": [
+          401,
+          401,
+          401,
+          401,
+          401,
+          429
+        ]
+      }
+    },
+    {
+      "id": "#6",
+      "pass": true,
+      "detail": "statuses=201,201,201,201,201,201,201,201,201,201,429",
+      "data": {
+        "statuses": [
+          201,
+          201,
+          201,
+          201,
+          201,
+          201,
+          201,
+          201,
+          201,
+          201,
+          429
+        ]
+      }
+    },
+    {
+      "id": "#7",
+      "pass": true,
+      "detail": "status=400, code=invalid_webhook_url, url=http://example.com/hook",
+      "data": {
+        "status": 400,
+        "code": "invalid_webhook_url",
+        "body": {
+          "error": {
+            "type": "invalid_request_error",
+            "code": "invalid_webhook_url",
+            "message": "Webhook URL rejected: non-https"
+          }
+        }
+      }
+    },
+    {
+      "id": "#8",
+      "pass": true,
+      "detail": "status=400, code=invalid_webhook_url, url=https://169.254.169.254/latest/meta-data",
+      "data": {
+        "status": 400,
+        "code": "invalid_webhook_url",
+        "body": {
+          "error": {
+            "type": "invalid_request_error",
+            "code": "invalid_webhook_url",
+            "message": "Webhook URL rejected: link-local-and-metadata"
+          }
+        }
+      }
+    },
+    {
+      "id": "#9",
+      "pass": true,
+      "detail": "status=400, code=invalid_webhook_url, url=https://10.0.0.1/hook",
+      "data": {
+        "status": 400,
+        "code": "invalid_webhook_url",
+        "body": {
+          "error": {
+            "type": "invalid_request_error",
+            "code": "invalid_webhook_url",
+            "message": "Webhook URL rejected: RFC1918"
+          }
+        }
+      }
+    },
+    {
+      "id": "#10",
+      "pass": true,
+      "detail": "status=200, contentType=application/octet-stream",
+      "data": {
+        "status": 200,
+        "contentType": "application/octet-stream"
+      }
+    }
+  ]
+}

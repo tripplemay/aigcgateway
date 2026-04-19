@@ -4,33 +4,24 @@ description: AIGC Gateway 当前状态快照（覆盖写，≤30 行）
 type: project
 ---
 ## 当前批次
-- **BL-SEC-POLISH：`verifying`**（Generator 3/3 done，等 Codex F-SP-04 18 项）
-- Path A 进度 9/11
+- **BL-SEC-POLISH：`fixing`**（Codex 首轮验收：15 PASS / 2 PARTIAL / 1 FAIL）
+- Path A 进度 9/11（待本批修复后继续）
 
-## 上一批次（BL-INFRA-RESILIENCE done）
-- 15/15 PASS，fix_rounds=1
-- 产物：fetchWithTimeout 双 API + rpmCheck Lua + reconcile batch
+## 本轮验收结论（F-SP-04）
+- FAIL: #1 `nonexistent+wrong-password <50ms`（实测约 218ms）
+- PARTIAL: #14 run_template 限流语义命中，但 MCP 协议层为 HTTP 200 + isError（非严格 429）
+- PARTIAL: #13 bcrypt 格式修复生效，但 `setup-zero-balance-test.ts` 在 `project.balance` 字段报错
+- 其余 15 项通过（#2-#12、#15-#17）
 
-## 本批次交付（Generator）
-- **AUTH**：login 总 bcrypt.compare 恒定时长 + cost 10→12 + rehash + 2 级 rate limit（IP 10 / account 5）
-- **SSRF+CT**：url-safety.ts（https + RFC1918/loopback/metadata/ULA 黑名单）+ dispatcher/test-webhook/image-proxy 接入 + CT 白名单 + nosniff
-- **脚本**：e2e-errors fatal / stress-test 动态日期 / setup-zero-balance 合法 bcrypt / alipay TODO / run-template rateCheck 提前
-- 本地 checks：tsc / vitest 165/165（+17）/ build 全过
-
-## Framework 提案池（1 条未消化）
-- Next.js App Router 私有目录约定（等 Path A 全部完成后批量同步）
-
-## Framework 铁律（v0.7.3 已采纳）
-1. Planner spec 涉及代码细节 Read 源码 + file:line 引用
-1.1. acceptance 的"实现形式"与"语义意图"分离
-2. Code Review 断言按线索，源码+生产数据双路核实
-2.1. 协议返回形式断言标明协议层
+## 关键产物
+- 验收报告：`docs/test-reports/BL-SEC-POLISH-verifying-2026-04-19.md`
+- 用例：`docs/test-cases/bl-sec-polish-verifying-cases-2026-04-19.md`
+- 证据：`docs/test-reports/artifacts/*2026-04-19*`
 
 ## 生产状态
-- HEAD `3646270`（BL-INFRA-RESILIENCE signoff 后）
-- 9 批 Path A 代码待用户触发 deploy
+- 生产已部署；本轮为本地 L1 验收判定
+- signoff 未生成（存在 FAIL/PARTIAL）
 
 ## Path A 剩余路线
-- P2：SEC-POLISH ← verifying / INFRA-ARCHIVE 1d / FE-DS-SHADCN 2d
-- 延后候选：INFRA-GUARD-FOLLOWUP / BL-FE-QUALITY-FOLLOWUP
-- 延后：PAY-DEFERRED 1-2d
+- P2：SEC-POLISH（fixing）/ INFRA-ARCHIVE / FE-DS-SHADCN
+- 延后候选：INFRA-GUARD-FOLLOWUP / BL-FE-QUALITY-FOLLOWUP / PAY-DEFERRED

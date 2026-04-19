@@ -1,0 +1,16 @@
+============================================================
+AIGC Gateway — Error Scenario Tests
+============================================================
+[e2e-errors] setup FAILED at setup: [TypeError: fetch failed] {
+  [cause]: Error: bad port
+      at makeNetworkError (node:internal/deps/undici/undici:10797:35)
+      at mainFetch (node:internal/deps/undici/undici:12173:22)
+      at fetching (node:internal/deps/undici/undici:12160:7)
+      at fetch (node:internal/deps/undici/undici:12031:20)
+      at fetch (node:internal/deps/undici/undici:16555:10)
+      at fetch (node:internal/bootstrap/web/exposed-window-or-worker:83:12)
+      at main (/Users/yixingzhou/project/aigcgateway/scripts/e2e-errors.ts:49:23)
+      at <anonymous> (/Users/yixingzhou/project/aigcgateway/scripts/e2e-errors.ts:369:1)
+      at Object.<anonymous> (/Users/yixingzhou/project/aigcgateway/scripts/e2e-errors.ts:372:2)
+      at Module._compile (node:internal/modules/cjs/loader:1811:14)
+}
