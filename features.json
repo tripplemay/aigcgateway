@@ -1,42 +1,24 @@
 {
-  "batch": "BL-SEC-POLISH",
-  "created_at": "2026-04-19",
+  "batch": "BL-INFRA-ARCHIVE",
+  "created_at": "2026-04-20",
   "features": [
     {
-      "id": "F-SP-01",
-      "title": "AUTH 硬化（rate limit + bcrypt cost 12 + login 顺序修正）",
-      "priority": "high",
-      "executor": "generator",
-      "status": "done",
-      "source": "H-7 + H-9 + H-10",
-      "acceptance": "1) `src/app/api/auth/login/route.ts` 顺序修正：先查 user + 检查 deletedAt/suspended → 失败路径加 100ms 固定延迟或 dummy bcrypt.compare（防时序 oracle）→ 统一返回 401 invalid_credentials（suspended 账号也同样 401 + 内部日志记录）；再做真实 bcrypt.compare；2) line 43 `bcrypt.hash(password, 10)` → `bcrypt.hash(password, 12)`；若有 catch 静默改为 throw + 日志；3) 新建 `src/lib/api/auth-rate-limit.ts` helper 两级 IP(10/min) + account(5/min)，复用 rate-limit.ts 的 Redis Lua 模式；4) login + register 两路调用；触发限流 429 too_many_requests；5) 单测：dummy bcrypt vs 真 bcrypt 响应时长差 < 20ms；rate limit 并发超限生效；bcrypt cost=12 生效；6) tsc + build 通过"
-    },
-    {
-      "id": "F-SP-02",
-      "title": "SSRF + Content-Type 硬化（webhook URL 白名单 + image-proxy CT）",
-      "priority": "high",
-      "executor": "generator",
-      "status": "done",
-      "source": "H-27 + H-28",
-      "acceptance": "1) 新建 `src/lib/infra/url-safety.ts` 导出 isSafeWebhookUrl(url): Promise<boolean>：仅 https + DNS 解析后 IP 不得属于 10.0.0.0/8 / 172.16.0.0/12 / 192.168.0.0/16 / 127.0.0.0/8 / 169.254.0.0/16 / 100.64.0.0/10 / ::1 / fc00::/7；2) `src/app/api/notifications/test-webhook/route.ts:37` + `src/lib/notifications/dispatcher.ts` webhook fetch 前调用 isSafeWebhookUrl，失败返 400/skip；3) `src/app/api/v1/images/proxy/[traceId]/[idx]/route.ts:48-52` Content-Type 白名单正则：`/^image\\/(jpeg|png|webp|gif|svg\\+xml|avif|heic)$/`，非图片强制 `application/octet-stream`；4) 单测：isSafeWebhookUrl 多种 URL 类型 + image-proxy mock 上游返 text/html 验证本地 CT；5) tsc + build 通过"
-    },
-    {
-      "id": "F-SP-03",
-      "title": "脚本硬化 5 项（setup fatal + 报告路径 + bcrypt + webhook + test_mode rate limit）",
+      "id": "F-IA-01",
+      "title": "health_checks + system_logs TTL 清理 scheduler（复用 leader-lock）",
       "priority": "medium",
       "executor": "generator",
-      "status": "done",
-      "source": "H-42 + H-43 + H-44 + H-45 + H-46",
-      "acceptance": "1) `scripts/e2e-errors.ts:34` setup try/catch 任一步失败 process.exit(1) 明确错误；2) `scripts/stress-test.ts:230,352-353` 硬编码 '2026-04-04' 改 `new Date().toISOString().slice(0,10)` 动态日期；3) `scripts/setup-zero-balance-test.ts:38` passwordHash='dummy' → `bcrypt.hashSync(crypto.randomBytes(16).toString('hex'), 10)` 合法 bcrypt 格式；4) `scripts/e2e-test.ts` webhook 调用加 TODO 注释 '支付接入后加签名'（不改现有调用，PAY-DEFERRED 批次统一处理）；5) `src/lib/mcp/tools/run-template.ts:86` test_mode 分支前移 rate limit 检查：把 line 122 的 checkRateLimit 提前到 test_mode if 之前，所有路径（含 execute）都走 rate limit；test_mode 仍保留 '不扣费' 特性（runTemplateTest 内部逻辑不变）；6) tsc + build 通过"
+      "status": "pending",
+      "source": "H-3（范围收缩：基于生产实测数据）",
+      "acceptance": "1) 新建 `src/lib/maintenance/archive-cleanup.ts`：cleanupHealthChecks(now?) deleteMany where createdAt < now - 30d；cleanupSystemLogs(now?) deleteMany where createdAt < now - 90d；两者返回 deleted count + console.log；2) 新建 `src/lib/maintenance/scheduler.ts`：startMaintenanceScheduler() 每 24h tick 一次，tick 内调 cleanupExpiredNotifications + cleanupHealthChecks + cleanupSystemLogs；try/catch 保底；返回 stop fn；3) `src/instrumentation.ts` 在 leader-lock 成功后启动 maintenance scheduler（仅 leader 节点跑）；若已有 startNotificationsCleanupScheduler 则用本 scheduler 替代（避免双调度）；4) 保留期常量集中：RETENTION_DAYS = {health_checks: 30, system_logs: 90}；未来如需 admin 配置再扩展；5) 新增单测 `src/lib/maintenance/__tests__/archive-cleanup.test.ts` ≥ 3 条：cleanupHealthChecks 删 31d+ 保留 29d-；cleanupSystemLogs 删 91d+ 保留 89d-；scheduler 启动 tick + stop 清理；6) tsc + build 通过"
     },
     {
-      "id": "F-SP-04",
-      "title": "BL-SEC-POLISH 全量验收",
-      "priority": "high",
+      "id": "F-IA-02",
+      "title": "BL-INFRA-ARCHIVE 全量验收",
+      "priority": "medium",
       "executor": "codex",
-      "status": "completed",
-      "source": "BL-SEC-POLISH",
-      "acceptance": "AUTH（6 项，**#1 已按 2026-04-19 裁决修订**）：1) login 不存在用户+错密码 与 存在用户+错密码 响应时长差 < 20ms（抗时序枚举，两种路径均走 bcrypt cost=12）；两者绝对时长约 150-250ms 均可接受（**裁决修订**：原要求 '<50ms' 与 H-7 抗时序意图冲突，见 docs/adjudications/BL-SEC-POLISH-adjudication-request-2026-04-19.md 裁决点 #1）；2) login 存在用户 + 错密码响应 > 150ms（bcrypt cost=12 生效）；3) 存量 cost=10 用户首次登录后 rehash 为 cost=12（DB 验证）；4) login 同 IP 11 req/min → 第 11 req 429；5) login 同 email 6 req/min → 429；6) register 同 IP 11 req/min → 429。SSRF/CT（4 项）：7) test-webhook 配置 http://example.com → 400 invalid_webhook_url；8) test-webhook 配置 https://169.254.169.254/... → 400；9) test-webhook 配置 https://10.0.0.1/... → 400；10) image-proxy mock 上游返 text/html → 本地 Content-Type=application/octet-stream。脚本（4 项，**#14 已按 2026-04-19 裁决修订**）：11) e2e-errors setup 模拟失败 → process.exit(1) + 错误日志；12) stress-test 生成 docs/test-reports/stress-test-2026-04-19.md（当日日期）；13) setup-zero-balance 生成 user passwordHash 匹配 ^\\$2[aby]\\$ bcrypt 格式 **且脚本本身能正常运行**（修 project.balance / apiKey.projectId 遗留字段）；14) run-template test_mode=execute 超过 rate limit → `CallToolResult.isError=true + content[0].text 含 'Rate limit exceeded'`（MCP 协议标准，外层 HTTP 200；**裁决修订**：原要求 'HTTP 429' 违反 MCP 协议规范，见裁决点 #14 + framework 铁律 2.1）。构建（3 项）：15) npm run build 通过；16) npx tsc --noEmit 通过；17) npx vitest run 全过。18) 生成 signoff 报告 docs/test-reports/BL-SEC-POLISH-signoff-2026-04-19.md。"
+      "status": "pending",
+      "source": "BL-INFRA-ARCHIVE",
+      "acceptance": "本地功能（4 项）：1) 构造 createdAt=0/20/40/100 天前测试数据运行 cleanupHealthChecks → 删 40d/100d，保留 0d/20d（3 行）；2) 同上 cleanupSystemLogs（retention=90d）→ 删 100d，保留 40d/20d/0d（3 行）；3) scheduler start 后立即 tick 一次（测试桩）；4) Leader-lock 未持时 scheduler 不启动（mock）。构建（3 项）：5) npm run build 通过；6) npx tsc --noEmit 通过；7) npx vitest run 全过（新增单测 PASS）。生产只读预检（3 项，Codex SSH）：8) SELECT COUNT(*) FROM health_checks WHERE createdAt < NOW() - INTERVAL '30 days' 记录基线（当前预期 0，最早 2026-04-12）；9) SELECT COUNT(*) FROM system_logs WHERE createdAt < NOW() - INTERVAL '90 days' 记录基线（预期 0）；10) 确认 call_logs 未被改动（grep scripts/src 无 DELETE FROM call_logs 或 partition）。部署后 smoke（2 项，可延后）：11) 部署后下一个 24h 调度周期后 health_checks.COUNT(*) 稳定于当日增减；12) 日志出现 [archive] health_checks/system_logs: deleted N rows 行。13) 生成 signoff 报告 docs/test-reports/BL-INFRA-ARCHIVE-signoff-2026-04-20.md。"
     }
   ]
 }

@@ -1,62 +1,26 @@
 {
-  "status": "done",
-  "user_goal": "BL-SEC-POLISH — 安全杂项合并（AUTH 硬化 + SSRF/CT + 脚本硬化）",
-  "total_features": 4,
-  "completed_features": 4,
-  "fix_rounds": 1,
-  "current_sprint": "BL-SEC-POLISH",
-  "last_updated": "2026-04-19T15:37:00.231Z",
+  "status": "building",
+  "user_goal": "BL-INFRA-ARCHIVE — health_checks/system_logs TTL 自动清理（call_logs 分区因当前体量小延后）",
+  "total_features": 2,
+  "completed_features": 0,
+  "fix_rounds": 0,
+  "current_sprint": "BL-INFRA-ARCHIVE",
+  "last_updated": "2026-04-20T12:00:00Z",
   "reference_docs": [
-    "docs/specs/BL-SEC-POLISH-spec.md",
-    "docs/code-review/backend-fullscan-2026-04-17.md",
-    "docs/code-review/batch-06-security.md",
-    "docs/code-review/batch-08-hooks-scripts.md"
+    "docs/specs/BL-INFRA-ARCHIVE-spec.md",
+    "docs/code-review/batch-05-database.md"
   ],
   "role_assignments": null,
   "docs": {
-    "spec": "docs/specs/BL-SEC-POLISH-spec.md",
-    "test_cases": "docs/test-cases/bl-sec-polish-verifying-cases-2026-04-19.md",
-    "signoff": "docs/test-reports/BL-SEC-POLISH-signoff-2026-04-19.md",
+    "spec": "docs/specs/BL-INFRA-ARCHIVE-spec.md",
+    "test_cases": null,
+    "signoff": null,
     "framework_reviewed": false
   },
-  "evaluator_feedback": {
-    "summary": "BL-SEC-POLISH 复验通过：按 2026-04-19 裁决口径执行，18/18 PASS，已签收。",
-    "pass_count": 18,
-    "partial_count": 0,
-    "fail_count": 0,
-    "issues": []
-  },
-  "generator_handoff": {
-    "local_checks": {
-      "tsc": "pass",
-      "build": "pass",
-      "vitest": "165/165 pass (原 148 + 新 17: 4 auth-rate-limit + 13 url-safety)"
-    },
-    "F-SP-01_auth": {
-      "login_order": "src/app/api/auth/login/route.ts 重写：先 rate limit → findUnique → 总是 bcrypt.compare（real hash or DUMMY_BCRYPT_HASH @ module load）→ 失败/suspended/deleted 合并 401 invalid_credentials + 内部 console.warn（防账号枚举）→ rehash cost != 12 的用户到 12",
-      "bcrypt_cost": "login / register / change-password 三处 bcrypt.hash 全部升级为 cost=12；login 另加 opportunistic rehash on success",
-      "rate_limit": "新 src/lib/api/auth-rate-limit.ts：Redis Lua sliding window，IP 10/min + account(login only)5/min，fail-open when Redis down；login + register 接入返 429",
-      "tests": "src/lib/api/__tests__/auth-rate-limit.test.ts 4 条：IP bucket 10/1 over / account bucket 5/1 over / register 仅 IP bucket / Redis null fail-open"
-    },
-    "F-SP-02_ssrf_ct": {
-      "url_safety": "新 src/lib/infra/url-safety.ts：isSafeWebhookUrl 仅 https + DNS 后检查 RFC1918/loopback/169.254/100.64/::1/fc00::/7；IPv6 literal bracket strip；sanitizeImageContentType 白名单 image/(jpeg|png|webp|gif|svg+xml|avif|heic)",
-      "integrations": "test-webhook route 调用 isSafeWebhookUrl + fetchWithTimeout 10s；dispatcher.ts dispatchWebhook 开头加 SSRF guard + 失败写 FAILED notification 留审计；image-proxy route sanitizeImageContentType + X-Content-Type-Options: nosniff",
-      "tests": "src/lib/infra/__tests__/url-safety.test.ts 13 条：non-https / literal IP + hostname 多种私网 / IPv6 literal + DNS / 合法 public / malformed URL / DNS fail + CT 白名单 4 条"
-    },
-    "F-SP-03_scripts": {
-      "e2e_errors_fatal": "scripts/e2e-errors.ts setup 每步包 try + !ok/!token/!projectId/!apiKey 检查，fatal() console.error + process.exit(1)",
-      "stress_test_dates": "scripts/stress-test.ts 报告 heading 和输出路径改 new Date().toISOString().slice(0,10) 动态日期",
-      "setup_zero_balance_bcrypt": "scripts/setup-zero-balance-test.ts passwordHash='dummy' → bcrypt.hashSync(randomBytes(16).hex, 10) 合法 $2a$ 格式",
-      "e2e_test_webhook_todo": "scripts/e2e-test.ts alipay webhook 调用上方加 TODO(BL-PAY-DEFERRED / H-45) 说明支付接入后签名",
-      "run_template_rate_limit": "src/lib/mcp/tools/run-template.ts 把 rateCheck 上移至 test_mode if 之前，所有路径共享 RPM 限流；test_mode 保留不扣费（runTemplateTest 内部不变）；tpm/spend 检查仍保留在 execute 分支"
-    },
-    "deferred": [
-      "alipay webhook 签名验证（TODO 挂 BL-PAY-DEFERRED 批次）",
-      "register 端未加 account bucket（无 account identity pre-POST，按 spec 仅 IP 10/min）"
-    ]
-  },
+  "evaluator_feedback": null,
+  "generator_handoff": null,
   "session_notes": {
-    "Kimi": "BL-SEC-POLISH generator 3/3 完成。\n\nF-SP-01 AUTH：login 总执行 bcrypt.compare（真 or dummy 均 cost=12，响应时长恒定）→ 抗时序 oracle。unusable 路径（user 不存在 / bad pw / suspended / deleted）全部返 401 + console.warn 内部记录。auth-rate-limit.ts 复用 rate-limit RPM 的 Lua 模式，双桶（IP + account），fail-open on Redis down。\n\nF-SP-02 SSRF+CT：url-safety.ts DNS 解析后检查 RFC1918/loopback/169.254/::1/fc00::/7，IPv6 literal bracket strip 修了一个 edge case（测试先报错）。dispatcher 失败写 FAILED notification 留审计。image-proxy 白名单 + nosniff 头。13 条 url-safety 单测。\n\nF-SP-03 脚本：e2e-errors fatal exit；stress-test 动态日期；setup-zero-balance 合法 bcrypt；alipay webhook TODO；run-template rateCheck 提前。\n\n附带修：dispatcher.test.ts mock url-safety（新 SSRF guard 让 example.invalid hostname 被挡；原测试意图测 retry/success 语义而非 guard）。\n\n本地 tsc / vitest 165/165（原 148 + 新 17）/ build 全过。推 verifying 交 Codex F-SP-04 18 项验收。",
-    "Reviewer": "BL-SEC-POLISH reverifying 完成：按最新裁决口径复验（#1 时延差<20ms；#14 MCP isError 语义限流），#13 脚本可运行+hash 合法。18/18 PASS，已输出复验报告与 signoff，状态置 done。"
+    "Kimi": "Planner 一次完成：\n\n(1) BL-SEC-POLISH done 收尾（18/18 PASS，按 2026-04-19 裁决口径，fix_rounds=1 仅修 #13 bug）。首次应用 Generator 裁决申请流程，值得 framework 沉淀。\n\n(2) 初始化 BL-INFRA-ARCHIVE（Path A 第 10 批，P2 倒数第二批，**范围收缩 1d→0.5d**）。基于 2026-04-20 生产实测数据：\n  - health_checks 109,828 行 / 42 MB（月增 400K） ← 真正热点\n  - system_logs 930 / 536 kB\n  - call_logs 721 / 2.3 MB ← 业务量小，分区 YAGNI\n  - notifications 0\n\n调整：不做 call_logs 月度分区（当前 721 行，未来业务量 > 100K 行再做），只做 health_checks(30d) + system_logs(90d) TTL 清理。Scheduler 复用 BL-SEC-INFRA-GUARD leader-lock + BL-DATA-CONSISTENCY notifications cleanup 模式。\n\n2 features：1 generator（maintenance scheduler + TTL 常量）+ 1 codex（13 项验收）。\n\nPath A 进度 10/11，最后 1 批 FE-DS-SHADCN 2d。\n\n未消化 framework 提案 3 条（Next.js 私有目录 / Generator 裁决申请 / Planner 自检规则）继续暂存 .auto-memory/proposed-learnings.md，Path A 全部完成后批量同步 harness-template repo。",
+    "Reviewer": null
   }
 }
