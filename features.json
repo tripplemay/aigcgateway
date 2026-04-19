@@ -1,42 +1,42 @@
 {
-  "batch": "BL-DATA-CONSISTENCY",
+  "batch": "BL-INFRA-RESILIENCE",
   "created_at": "2026-04-19",
   "features": [
     {
-      "id": "F-DC-01",
-      "title": "schema 索引 + onDelete + expiresAt（migration 20260419_data_consistency）",
+      "id": "F-IR-01",
+      "title": "fetchWithTimeout 统一封装 + openai-compat/dispatcher/health-alert 接入",
       "priority": "high",
       "executor": "generator",
-      "status": "done",
-      "source": "H-1 + H-2 + H-17 + H-20",
-      "acceptance": "1) `prisma/schema.prisma`：TemplateStep 新增 `@@index([actionId])`（已有 templateId 索引）；2) AliasModelLink 新增 `@@index([aliasId])` + `@@index([modelId])`（已有复合 unique）；3) EmailVerificationToken.user 关系加 `onDelete: Cascade`；4) Notification 新增 `expiresAt DateTime?` 字段 + `@@index([expiresAt])`；5) 新建 `prisma/migrations/20260419_data_consistency/migration.sql`：CREATE INDEX 3 条 + DROP/ADD FK 带 ON DELETE CASCADE + ALTER TABLE ADD COLUMN expiresAt + CREATE INDEX expiresAt；6) 本地 `npx prisma migrate dev` 跑通；7) tsc + build 通过"
+      "status": "pending",
+      "source": "H-21 + H-23 + H-24",
+      "acceptance": "1) 新建 `src/lib/infra/fetch-with-timeout.ts` 导出 fetchWithTimeout(url, options)：支持 timeoutMs（默认 30_000）+ 流式场景（返回 {response, clearTimeout}） + onBodyTimeout 可选回调；2) `src/lib/engine/openai-compat.ts:213-263` fetchWithProxy 改造：非流式保持现行为（return 前 clear），**流式（chatCompletionsStream）timeoutId 不在 finally 清，暴露给调用方**，chat/completions route 的 stream handler 在 reader 结束时 clearTimeout；3) `src/lib/notifications/dispatcher.ts:116` webhook fetch 换 fetchWithTimeout（timeoutMs 10_000）；4) `src/lib/health/alert.ts:23` 同上；5) 新增单测 `src/lib/infra/__tests__/fetch-with-timeout.test.ts`：正常返回 / timeout 触发 AbortError / 流式 signal 外部传入；6) tsc + build 通过"
     },
     {
-      "id": "F-DC-02",
-      "title": "listPublicTemplates DB 级分页改造",
+      "id": "F-IR-02",
+      "title": "chat stream reader.cancel 补齐 + rpmCheck Lua 原子化",
       "priority": "high",
       "executor": "generator",
-      "status": "done",
-      "source": "daily 2026-04-17 H-1",
-      "acceptance": "1) `src/lib/public-templates.ts:69-87` 当前 `findMany` 全量加载 + `sortTemplates(mapped)` 内存排序 + `arr.slice` 分页，改为：sort_by='latest' 用 `orderBy: { updatedAt: 'desc' } + skip + take`；sort_by='top_rated' 用 `orderBy: [{ ratingSum: 'desc' }, { ratingCount: 'desc' }] + skip + take`；2) sort_by='popular' / 'recommended' 保留内存排序（复合公式），但 `findMany` 加 `take: 200` 上限兜底，避免 > 500 条时劣化；3) offset = (page-1) * pageSize；pageSize 默认 20，max 100（遵守现有约束）；4) 新增或扩展 `src/lib/__tests__/public-templates.test.ts`：4 种 sort_by 不报错 + latest 按 updatedAt desc + pageSize=2 page=2 返回第 3-4 条 + category 过滤；5) tsc + build 通过"
+      "status": "pending",
+      "source": "H-22 + H-26",
+      "acceptance": "1) `src/app/api/v1/chat/completions/route.ts` 审计所有 stream catch 分支（withFailover 错误、JSON 解析错误、客户端断开），每条补 `await reader.cancel()` 再抛；2) `src/lib/api/rate-limit.ts:174-201` rpmCheck 改 Lua script 原子执行：ZREMRANGEBYSCORE + ZCARD + 条件 ZADD + EXPIRE 合成一个 EVAL，消除 pipeline 的 TOCTOU；Redis 不可用 fallback 保持 `return ok:true`；3) 新增单测：rpmCheck 并发 10 req 同 key limit=5 → 恰 5 个 ok / 5 个 over；reader.cancel 被调用（mock stream）；4) tsc + build 通过"
     },
     {
-      "id": "F-DC-03",
-      "title": "notifications 过期清理（cron + 默认 expiresAt 注入）",
-      "priority": "medium",
+      "id": "F-IR-03",
+      "title": "N+1 修复三处（model-sync reconcile batch + list-actions versions take + post-process Project 缓存）",
+      "priority": "high",
       "executor": "generator",
-      "status": "done",
-      "source": "H-20 扩展",
-      "acceptance": "1) 新建 `src/lib/notifications/cleanup.ts` 导出 `cleanupExpiredNotifications()`：`prisma.notification.deleteMany({ where: { expiresAt: { lt: new Date() } } })` + 返回 deleted count；2) 调度：复用 BL-SEC-INFRA-GUARD 的 leader-lock，每日执行一次（24h interval），建议放 `src/lib/health/scheduler.ts` 或新建 `src/lib/maintenance/scheduler.ts`；3) `src/lib/notifications/triggers.ts` 或 `dispatcher.ts` 创建 notification 时按 eventType 注入默认 expiresAt：balance 告警 30 天、rate limit 告警 7 天、其他 null；4) 存量 notifications 保持 expiresAt=null（不主动迁移）；5) 单测：cleanup 删除过期记录保留未过期；triggers 按类型注入正确 expiresAt；6) tsc + build 通过"
+      "status": "pending",
+      "source": "H-4 + H-5 + H-6",
+      "acceptance": "1) `src/lib/sync/model-sync.ts:171 reconcile` 改 batch upsert：先 findMany 拿 existing → 分 toCreate/toUpdate → prisma.$transaction([createMany(skipDuplicates), ...updates])，单 provider DB 往返从 50+ 降到 < 10；2) `src/lib/mcp/tools/list-actions.ts` include.versions 加 `take: 10` + `orderBy: { versionNumber: 'desc' }`（Generator 核实具体行号）；完整版本历史走 get_action_detail；3) `src/lib/api/post-process.ts` Balance alert Project 查询用请求级 WeakMap 缓存（同请求只查一次）；Generator 核实实际查询点；4) 单测：reconcile mock 10 个 model 入参断言 DB 调用次数 ≤ 3；list-actions 返回 versions.length ≤ 10；post-process 同请求多次 success 仅 1 次 project.findUnique；5) tsc + build 通过"
     },
     {
-      "id": "F-DC-04",
-      "title": "BL-DATA-CONSISTENCY 全量验收",
+      "id": "F-IR-04",
+      "title": "BL-INFRA-RESILIENCE 全量验收",
       "priority": "high",
       "executor": "codex",
-      "status": "done",
-      "source": "BL-DATA-CONSISTENCY",
-      "acceptance": "migration 验证（5 项）：1) 本地 npx prisma migrate dev 跑通；2) \\d template_steps 显示 template_steps_actionId_idx；3) \\d alias_model_links 显示 aliasId_idx + modelId_idx；4) \\d email_verification_tokens FK 含 ON DELETE CASCADE；5) \\d notifications 含 expiresAt column + notifications_expiresAt_idx。功能验证（4 项）：6) DELETE FROM users 测试 EmailVerificationToken 级联删除；7) 存量 notifications expiresAt=null 保留；8) 新 balance alert notification 有 expiresAt ≠ null；9) listPublicTemplates?sort_by=latest&page=1&pageSize=5 → SQL EXPLAIN 含 LIMIT 5。构建（3 项）：10) npm run build 通过；11) npx tsc --noEmit 通过；12) npx vitest run 全过。冒烟回归（2 项）：13) 登录 + /notifications 正常显示；14) MCP list_public_templates 分页返回正常。生产数据预检（Codex SSH）：15) SELECT COUNT(*) FROM template_steps 基线；16) SELECT COUNT(*) FROM notifications 基线（migration 后 expiresAt 全 null）。17) 生成 signoff 报告 docs/test-reports/BL-DATA-CONSISTENCY-signoff-2026-04-19.md。"
+      "status": "pending",
+      "source": "BL-INFRA-RESILIENCE",
+      "acceptance": "timeout / AbortController（4 项）：1) fetchWithTimeout 单测 PASS；2) dispatcher webhook hang 模拟 → 10s 后 AbortError；3) health alert webhook 同上；4) openai-compat stream mock 上游 headers 到达后 body 挂起 60s → 连接 abort。stream reader cancel（2 项）：5) chat stream 中途抛错 → reader.cancel 被调用（单测 spy）；6) withFailover 触发时前一个 candidate reader 被 cancel。rpmCheck 原子（2 项）：7) 并发 10 req 同 key limit=5 → 恰 5 ok / 5 over；8) 生产 redis eval 脚本正常运行（Codex SSH smoke）。N+1（3 项）：9) reconcile 10 model 同步 DB 往返 ≤ 3（mock prisma spy）；10) list-actions 单 action 100+ 版本返回 versions.length ≤ 10；11) post-process 同请求多次 success 仅 1 次 project.findUnique。构建（3 项）：12) npm run build 通过；13) npx tsc --noEmit 通过；14) npx vitest run 全过。15) 生成 signoff 报告 docs/test-reports/BL-INFRA-RESILIENCE-signoff-2026-04-19.md。"
     }
   ]
 }

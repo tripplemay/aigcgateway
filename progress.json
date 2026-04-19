@@ -1,55 +1,27 @@
 {
-  "status": "done",
-  "user_goal": "BL-DATA-CONSISTENCY — 数据一致性（外键索引 + onDelete + notifications TTL + listPublicTemplates DB 分页）",
+  "status": "building",
+  "user_goal": "BL-INFRA-RESILIENCE — 后端韧性（fetchWithTimeout 统一 + stream reader.cancel + rpmCheck 原子 + 3 处 N+1 修复）",
   "total_features": 4,
-  "completed_features": 3,
+  "completed_features": 0,
   "fix_rounds": 0,
-  "current_sprint": "BL-DATA-CONSISTENCY",
-  "last_updated": "2026-04-19T16:27:00Z",
+  "current_sprint": "BL-INFRA-RESILIENCE",
+  "last_updated": "2026-04-19T16:45:00Z",
   "reference_docs": [
-    "docs/specs/BL-DATA-CONSISTENCY-spec.md",
-    "docs/code-review/batch-05-database.md",
-    "docs/code-review/daily/2026-04-17.md"
+    "docs/specs/BL-INFRA-RESILIENCE-spec.md",
+    "docs/code-review/batch-02-engine.md",
+    "docs/code-review/batch-04-infra.md"
   ],
   "role_assignments": null,
   "docs": {
-    "spec": "docs/specs/BL-DATA-CONSISTENCY-spec.md",
-    "test_cases": "docs/test-cases/bl-data-consistency-verifying-cases-2026-04-19.md",
-    "signoff": "docs/test-reports/BL-DATA-CONSISTENCY-signoff-2026-04-19.md",
+    "spec": "docs/specs/BL-INFRA-RESILIENCE-spec.md",
+    "test_cases": null,
+    "signoff": null,
     "framework_reviewed": false
   },
-  "evaluator_feedback": "PASS: BL-DATA-CONSISTENCY verifying 完成（16/16 通过）。索引/FK/expiresAt/migration、TTL 行为、分页 LIMIT、build/tsc/vitest、MCP 分页与生产只读预检均通过。详见 docs/test-reports/bl-data-consistency-verifying-local-2026-04-19.md",
-  "generator_handoff": {
-    "local_checks": {
-      "tsc": "pass",
-      "build": "pass",
-      "vitest": "134/134 pass (原 122 + 新 12: 6 public-templates + 4 cleanup + 2 ttl)",
-      "migrate": "npx prisma migrate deploy applied 20260419_data_consistency to local db (drift bypassed: 3 pre-existing drifts unrelated to this batch)"
-    },
-    "F-DC-01": {
-      "schema": "TemplateStep +@@index([actionId]); AliasModelLink +@@index([aliasId]) +@@index([modelId]); EmailVerificationToken user FK +onDelete:Cascade; Notification +expiresAt DateTime? +@@index([expiresAt])",
-      "migration": "prisma/migrations/20260419_data_consistency/migration.sql — CREATE INDEX 3 + DROP/ADD FK ON DELETE CASCADE + ADD COLUMN expiresAt + CREATE INDEX expiresAt；全部用 IF NOT EXISTS / IF EXISTS 幂等化，便于生产重跑"
-    },
-    "F-DC-02": {
-      "file": "src/lib/public-templates.ts 全量重写",
-      "db_pagination": "sort_by=latest → orderBy:[{updatedAt:'desc'}] + skip + take + count (Promise.all); sort_by=top_rated → orderBy:[{ratingSum:'desc'},{ratingCount:'desc'}] + skip + take + count",
-      "memory_sort_upper_bound": "sort_by=popular/recommended 保留内存排序（复合公式），但 findMany take:200 上限兜底，超过 200 条时靠 orderBy updatedAt desc 取最新 200 条参与排序；总数走独立 count 查询（未来预计算 recommendedScore 列再一步优化）",
-      "tests": "src/lib/__tests__/public-templates.test.ts 6 条：latest orderBy+skip+take / top_rated orderBy / popular take:200 无 skip / recommended take:200 / category where 透传 / pageSize 钳制 100"
-    },
-    "F-DC-03": {
-      "ttl": "src/lib/notifications/ttl.ts defaultExpiresAt(eventType): BALANCE_LOW 30d / SPENDING_RATE_EXCEEDED 7d / admin-oriented 事件 null",
-      "cleanup": "src/lib/notifications/cleanup.ts cleanupExpiredNotifications(now) → prisma.notification.deleteMany where expiresAt lt now（null 不受影响）",
-      "scheduler": "src/lib/notifications/scheduler.ts startNotificationsCleanupScheduler() 24h setInterval + 启动 tick 一次；instrumentation.ts 在 leader-lock 之后启动（仅 leader 节点跑）",
-      "dispatcher_injection": "src/lib/notifications/dispatcher.ts 两处 prisma.notification.create（inApp + webhook）均注入 expiresAt: defaultExpiresAt(eventType)；存量 row 保持 null",
-      "tests": "src/lib/notifications/cleanup.test.ts 6 条：deleteMany where lt now / null 不删 / 3 个 TTL 值 / admin 事件 null / DEFAULT_TTL_DAYS 只含 2 键"
-    },
-    "deferred": [
-      "H-18 不原位改 20260416 migration（铁律），如有残留数据 Evaluator 生产预检发现后另起 migration 修正",
-      "recommendedScore 预计算列（未来批次）"
-    ]
-  },
+  "evaluator_feedback": null,
+  "generator_handoff": null,
   "session_notes": {
-    "Kimi": "BL-DATA-CONSISTENCY generator 3/3 完成。\n\nF-DC-01 schema + migration：\n- 4 处 schema 改动 + migration.sql 精确对齐\n- 本地 npx prisma migrate dev 检到 3 处 pre-existing drift（api_keys/model_aliases/recharge_orders 与本批次无关，历史 schema 修改），走 prisma migrate deploy 跳过 drift 直接 apply 新 migration，成功\n- migration SQL 全部 IF NOT EXISTS / IF EXISTS 幂等，生产重跑安全\n\nF-DC-02 DB 分页：\n- latest / top_rated 真正 DB orderBy + skip + take + count (Promise.all 并发)\n- popular / recommended 因复合公式保留内存排序，但 take:200 上限兜底 + orderBy updatedAt desc 取最新 200 参与（简化假设：stale 模板难入 top 排名）\n- 提取 templateSelect 常量 + toDto helper 减少重复\n\nF-DC-03 notifications TTL + cleanup：\n- ttl.ts 常量 + defaultExpiresAt(eventType)（balance 30d / rate 7d / admin null）\n- cleanup.ts deleteMany where expiresAt lt now\n- scheduler.ts 24h setInterval + 启动 tick 一次\n- instrumentation.ts 在 leader-lock 后启动 startNotificationsCleanupScheduler\n- dispatcher.ts 两处 create 注入 expiresAt\n- 6 条单测覆盖\n\n本地 tsc/vitest 134/134/build 全过。进 verifying，等 Codex 17 项（migration 验证 5 + 功能 4 + 构建 3 + 冒烟 2 + 生产预检 2 + signoff 1）。",
-    "Reviewer": "BL-DATA-CONSISTENCY verifying：编写并执行自动化脚本 scripts/test/bl-data-consistency-verifying-2026-04-19.ts，16 项全部 PASS。关键证据见 docs/test-reports/perf-raw/bl-data-consistency-verifying-evidence-2026-04-19.json；已生成 verifying 报告与 signoff，状态置 done。"
+    "Kimi": "Planner 一次完成：\n\n(1) BL-DATA-CONSISTENCY done 收尾（16/16 PASS，fix_rounds=0 一次过）。产物：4 处 schema 改动 + migration 幂等化 + listPublicTemplates DB 分页 + notifications TTL cron。\n\n(2) 初始化 BL-INFRA-RESILIENCE（Path A 第 8 批，P1 数据末批，1.5d，4 features：3 generator + 1 codex）。覆盖 H-21/22/23/24/26 + H-4/5/6，合计 7 个后端韧性点。\n\nspec 遵守新铁律，所有 file:line 已核实：\n- `openai-compat.ts:213-263` fetchWithProxy timeout finally clear 导致流式失效\n- `chat/completions/route.ts:307` reader.read 无 cancel 路径\n- `rate-limit.ts:174-201` rpmCheck pipeline 非原子（zcard 读旧值 + zadd 后写 → TOCTOU）\n- `notifications/dispatcher.ts:116` webhook fetch 无 signal\n- `health/alert.ts:23` 同上\n- `model-sync.ts:171` reconcile 入口\n- 其余（list-actions versions / post-process Project）由 Generator 开工前核实具体行号\n\n关键设计决策：\n- F-IR-01 helper 返回 {response, clearTimeout}，流式场景调用方在 reader 结束时显式 clear（非流式保持 finally clear）\n- F-IR-02 rpmCheck 用 Redis Lua EVAL 消除 TOCTOU\n- F-IR-03 reconcile batch：findMany existing → 分 createMany(skipDuplicates)+updates → $transaction\n\nPath A 进度 8/11。完成后进入 P2 细节 3 批（SEC-POLISH / INFRA-ARCHIVE / FE-DS-SHADCN）。\n\n上一轮未消化 framework 提案：Next.js App Router 私有目录约定，留下个 done 阶段批量同步。",
+    "Reviewer": null
   }
 }
