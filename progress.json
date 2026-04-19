@@ -1,11 +1,11 @@
 {
-  "status": "fixing",
+  "status": "reverifying",
   "user_goal": "BL-FE-QUALITY — 前端质量合并批次（UX 交互 + template-testing polish + A11y/i18n + DS Critical 3 文件）",
   "total_features": 5,
   "completed_features": 4,
-  "fix_rounds": 4,
+  "fix_rounds": 5,
   "current_sprint": "BL-FE-QUALITY",
-  "last_updated": "2026-04-19T07:40:00Z",
+  "last_updated": "2026-04-19T15:15:00Z",
   "reference_docs": [
     "docs/specs/BL-FE-QUALITY-spec.md",
     "docs/code-review/batch-07-frontend-pages.md",
@@ -80,7 +80,7 @@
     ]
   },
   "session_notes": {
-    "Kimi": "BL-FE-QUALITY fix round 4（应对 Codex round6 阻断）：\n\n#7 post-process null 防御（核心 bug）：\nCodex round6 脚本 logCount=0 根因——calculateTokenCost 把 route.channel.costPrice / sellPrice 硬 cast 为对象，但 channel/alias 未配置定价时为 null，后续 `costPrice.inputPer1M` 抛 TypeError，post-process 异常 → callLog.create 未执行 → 计费日志 0 条。\n修复 src/lib/api/post-process.ts:272-282：cast 时用 `?? {}` 兜底，保留下游 `?? 0` 的保护，null 定价退化为 costUsd=0/sellUsd=0。\n加 `src/lib/api/__tests__/post-process-cost.test.ts` 6 条 regression（null 双路径、alias 优先、ERROR 不计、FILTERED 仅算输入）。\n\n#10 error.tsx 动态触发路径：\n新增 `src/app/(console)/__error-test/page.tsx`，'use client' 内 throw Error 稳定触发父 (console)/error.tsx。命名 __ 前缀表内部测试，无 nav 入口，Codex 登录后 GET /__error-test 即可取证 zh-CN/en error UI。\n\n本地 tsc/vitest 122/122（原 116 + 新 6）/build 全过。进 reverifying。\n\n预期 Codex round7：重跑 10-step 脚本 logCount=10 / sumSellPrice=0 / runTotalCost=0 / diff=0 ≤ 1e-12 → #7 PASS；访问 /__error-test 截 zh-CN → #10 PASS。5 项全通则可签收。",
+    "Kimi": "BL-FE-QUALITY fix round 5（应对 Codex round7 阻断）：\n\n#10 修复：rename `src/app/(console)/__error-test` → `src/app/(console)/error-test`。\n根因：Next.js App Router 约定，以下划线（_）开头的目录/文件视为 private folder，不生成 route。我上轮刻意用 `__` 前缀表 '内部测试'，恰好撞上该约定，`/__error-test` 返回 404。\nbuild 输出确认：`/error-test  259 B  88 kB` 已在 route 列表。登录后访问 /error-test → throw Error → 父 (console)/error.tsx 捕获。\n\n本地 tsc/vitest 122/122/build 全过，进 reverifying。\n\n预期 Codex round8：GET /error-test 触发 zh-CN error UI 截图 → #10 PASS。其它 18 项已全通 → 可签收。\n\n经验沉淀候选：Next.js App Router 私有目录约定——任何以 `_`（单/多）开头的文件夹不生成 route。测试性质的内部 route 命名避开下划线前缀（如 `/error-test`、`/diag-xxx`），否则看似可访问实际 404。",
     "Reviewer": "BL-FE-QUALITY reverifying round7：#7 已闭环（post-process null 防御生效，10-step 对账 diff=0）。#10 仍阻断：新增 src/app/(console)/__error-test/page.tsx 在运行时访问为 404，未触发 (console)/error.tsx 动态错误页；需 Generator 提供可路由、可稳定触发的 error boundary 场景。#11/#12/#15 沿用 round6 通过结论。"
   }
 }

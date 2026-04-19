@@ -4,7 +4,7 @@ description: AIGC Gateway 当前状态快照（覆盖写，≤30 行）
 type: project
 ---
 ## 当前批次
-- **BL-FE-QUALITY：`fixing`**（fix_rounds=4；Reviewer round7 已回写）
+- **BL-FE-QUALITY：`reverifying`**（fix_rounds=5；rename `/__error-test` → `/error-test`）
 - Path A 进度 7/11
 
 ## 本批次最新复验（Reviewer / 2026-04-19 round7）
