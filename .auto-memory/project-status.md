@@ -4,7 +4,7 @@ description: AIGC Gateway 当前状态快照（覆盖写，≤30 行）
 type: project
 ---
 ## 当前批次
-- **BL-HEALTH-PROBE-EMERGENCY：`verifying`**（Generator 3/3 done，等 Codex F-HPE-04 10 项 + 生产 24h 观察）
+- **BL-HEALTH-PROBE-EMERGENCY：`done`**（Codex 已签收；L1 1-7/10 PASS，8/9 按规格可延后）
 - Path A 主线 11/11 已完成；本批次为独立 emergency 批次不计入 Path A
 
 ## 本批次交付（Generator）
@@ -45,6 +45,6 @@ type: project
 2.1. 协议返回形式断言标明协议层
 
 ## 生产状态
-- HEAD `fcba598`（Path A 归档后）
+- HEAD `96e3ae1`（Codex 2026-04-20 复核时）
 - 10 批 Path A 代码待用户触发 deploy
-- **每天 ~$10 health probe 流血直到本批次上线或紧急止血**
+- BL-HEALTH-PROBE-EMERGENCY 动态观测待部署后执行（24h day_usage_details 与日开销对比）

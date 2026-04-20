@@ -34,7 +34,7 @@
       "title": "BL-HEALTH-PROBE-EMERGENCY 全量验收",
       "priority": "critical",
       "executor": "codex",
-      "status": "pending",
+      "status": "done",
       "source": "BL-HEALTH-PROBE-EMERGENCY",
       "acceptance": "构建与单测（3 项）：1) npm run build 通过；2) npx tsc --noEmit 通过；3) npx vitest run 全过（新增单测 PASS + fix round 1/2 旧单测不破坏）。单测功能验证（4 项）：4) disabled text aliased channel → reachability mode；5) active text aliased channel → full mode；6) runScheduledCallProbes DISABLED 不入 probe；7) fix round 1 transient FAIL DISABLED→DEGRADED 机制保持。生产部署后观察（可延后）：8) 24h 内 chatanywhere day_usage_details 查询 openai 总调用数显著下降（对比 04-16 的 535 次应降幅 > 90%）；9) 生产 OpenAI 账户日开销 < $1。10) 生成 signoff 报告 docs/test-reports/BL-HEALTH-PROBE-EMERGENCY-signoff-2026-04-20.md。"
     }
