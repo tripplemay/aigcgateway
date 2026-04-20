@@ -22,6 +22,12 @@ interface HealthCheck {
   createdAt: string;
 }
 
+interface LatencyStats {
+  p50: number | null;
+  p95: number | null;
+  count: number;
+}
+
 interface ChannelRow {
   channelId: string;
   provider: string;
@@ -35,6 +41,9 @@ interface ChannelRow {
   lastChecks: HealthCheck[];
   lastCheckedAt: string | null;
   consecutiveFailures: number;
+  // BL-HEALTH-PROBE-LEAN F-HPL-03: real-traffic p50/p95 from call_logs.
+  latency1h: LatencyStats;
+  latency24h: LatencyStats;
 }
 
 interface AliasGroup {
@@ -596,12 +605,31 @@ function ChannelListRow({
             })}
       </div>
 
-      {/* Latency + time */}
-      <div className="text-center w-24 flex-shrink-0">
-        <div className="text-sm font-bold">{fmtLatency(latency)}</div>
-        <div className="text-[10px] text-ds-on-surface-variant">
-          {ch.lastCheckedAt ? timeAgo(ch.lastCheckedAt) : "\u2014"}
-        </div>
+      {/* Latency + time — BL-HEALTH-PROBE-LEAN F-HPL-03: real-traffic
+          p50/p95 from call_logs (last 1h). Probe latency fallback shown
+          when there was no traffic. */}
+      <div className="text-center w-28 flex-shrink-0">
+        {ch.latency1h.count > 0 ? (
+          <>
+            <div className="text-sm font-bold">p50 {fmtLatency(ch.latency1h.p50)}</div>
+            <div className="text-[10px] text-ds-on-surface-variant">
+              p95 {fmtLatency(ch.latency1h.p95)} · {ch.latency1h.count} calls/1h
+            </div>
+          </>
+        ) : (
+          <>
+            <div className="text-sm font-bold text-ds-outline">
+              {latency != null ? fmtLatency(latency) : "N/A"}
+            </div>
+            <div className="text-[10px] text-ds-on-surface-variant">
+              {ch.latency1h.count === 0
+                ? "no traffic"
+                : ch.lastCheckedAt
+                  ? timeAgo(ch.lastCheckedAt)
+                  : "\u2014"}
+            </div>
+          </>
+        )}
       </div>
 
       {/* Run Check */}

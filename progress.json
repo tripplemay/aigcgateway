@@ -1,11 +1,11 @@
 {
-  "status": "building",
+  "status": "verifying",
   "user_goal": "BL-HEALTH-PROBE-LEAN — ACTIVE probe max_tokens 200→1 + 昂贵模型豁免 + p50/p95 改 call_logs + /admin/providers edit 400 hotfix",
   "total_features": 6,
-  "completed_features": 0,
+  "completed_features": 5,
   "fix_rounds": 0,
   "current_sprint": "BL-HEALTH-PROBE-LEAN",
-  "last_updated": "2026-04-20T14:30:00Z",
+  "last_updated": "2026-04-20T22:19:00Z",
   "reference_docs": [
     "docs/specs/BL-HEALTH-PROBE-LEAN-spec.md"
   ],
@@ -17,9 +17,46 @@
     "framework_reviewed": false
   },
   "evaluator_feedback": null,
-  "generator_handoff": null,
+  "generator_handoff": {
+    "local_checks": {
+      "tsc": "pass",
+      "build": "pass",
+      "vitest": "216/216 pass (原 183 + 新 33)"
+    },
+    "F-HPL-01": {
+      "file": "src/lib/health/checker.ts runTextCheck",
+      "change": "三级 CONNECTIVITY/FORMAT/QUALITY 合并为单级 CONNECTIVITY；chat 调用改 {max_tokens:1, temperature:0, messages:[{user,'hi'}]}；返数组长度固定 1；EngineError 走 catch 返 CONNECTIVITY FAIL 保持 '<code>: <msg>' 格式（isTransientFailureReason 语义不破坏）",
+      "impact": "ACTIVE aliased text channel 每 10min 从 200 tokens → 1 token，上游消耗降 99%"
+    },
+    "F-HPL-02": {
+      "file": "src/lib/health/expensive-models.ts（新）+ scheduler.ts planChannelCheck / shouldCallProbeChannel",
+      "change": "EXPENSIVE_MODEL_PATTERNS 5 条正则（/-search/ /-reasoning/ /(^|[/-])o1-/ /(^|[/-])o3-/ /-pro-(preview|image|video)/）；CheckMode 加 'skip' variant；planChannelCheck 对 aliased non-image 先判 isExpensiveModel → skip；runScheduledChecks 消费 skip continue；shouldCallProbeChannel 加 isExpensive 短路",
+      "impact": "gpt-4o-mini-search-preview / o1-preview / o3-mini 等日 probe 归零（原 openrouter 04-16 82 次 / $2.25）"
+    },
+    "F-HPL-03": {
+      "file": "src/app/api/admin/health/route.ts + src/app/(console)/admin/health/page.tsx",
+      "change": "API 新增 loadLatencyStats(sinceMs) Prisma $queryRaw PERCENTILE_CONT 0.5/0.95 分组 call_logs WHERE status='SUCCESS' AND latencyMs IS NOT NULL；ChannelRow 新增 latency1h/latency24h {p50,p95,count}；admin/health page ChannelListItem 主显 p50 1h + 副显 p95 + count；零流量显示 'N/A (no traffic)' + fallback probe latency",
+      "impact": "admin 面板从'上次 probe latency'（单点噪音 3-5x 误差）改为'近 1h 真流量 p50/p95'（DB 聚合零查询成本）"
+    },
+    "F-HPL-04": {
+      "files": [
+        "src/lib/health/__tests__/checker-lean.test.ts（4 条：单行 CONNECTIVITY / empty choices / EngineError 格式 / adapter 参数断言）",
+        "src/lib/health/__tests__/expensive-models.test.ts（13 条：12 个 true/false 样本 + null-guard + 常量非空）",
+        "src/lib/health/__tests__/scheduler.test.ts 扩展（4 条：ACTIVE expensive skip / DEGRADED expensive skip / shouldCallProbe expensive false / non-expensive 仍 probe）"
+      ],
+      "impact": "全量 vitest 216/216 通过；EMERGENCY 批次 +11 单测 + fix round 1/2 单测回归全绿"
+    },
+    "F-HPL-06_hotfix": {
+      "file": "src/app/(console)/admin/providers/page.tsx",
+      "change": "openEdit 去除 `name: p.name` prefill；fields 数组按 editId 分支：编辑模式只 displayName/baseUrl/apiKey，新建模式保留 name + 其他。Adapter preset selector 新建模式不动",
+      "impact": "生产 /admin/providers 编辑 chatanywhere 只改 apiKey → Save 200（不再 400 invalid_parameter: name）；F-IG-01 后端 providerUpdateSchema.strict() 安全契约保留"
+    },
+    "deferred": [
+      "诊断页 '实测 p50/p95' 接入新数据源（未找到独立诊断页，admin/health page 已承载 p50/p95 展示）"
+    ]
+  },
   "session_notes": {
-    "Kimi": "BL-HEALTH-PROBE-LEAN launch。上一批次 EMERGENCY 已全绿 done（10/10 PASS）止住 DISABLED 每天 $10+ 流血。\n\n本批次核心：ACTIVE aliased text channel 每 10min 的 probe 从 chat(max_tokens:200, 3 级 FORMAT/QUALITY 判定) 改为 chat(max_tokens:1, 单级 CONNECTIVITY 判定)。心智：'每 10min 发 1 token，有返回即健康'。\n\n关键讨论路径（供下一轮上下文）：\n1. 初版方案过度设计（三层 probe + real-traffic aggregator + 状态机重写 + hysteresis + provider-wide cascade protection + Prisma schema 改）被用户反问后简化\n2. 去掉 Level 3 不会丢失重要故障覆盖（Level 2 max_tokens:1 已覆盖 404/429/402/timeout/空响应；输出劣化本来就不该 probe 发现）\n3. 连 Level 1 reachability 也不要（Level 2 的 chat 调用自动包含 reachability 验证）\n4. 不引入真实流量信号聚合器（现有 Redis cooldown 300s + 连续 FAIL 状态机已够）\n5. 不动 routeByAlias / withFailover / F-IG-01 后端契约 / Prisma schema\n\n并入 F-HPL-06 前端 hotfix：2026-04-20 同日用户报告生产 /admin/providers 更新 chatanywhere apiKey 400。根因 17f25e1 F-IG-01 providerUpdateSchema.strict 拒绝 name 但前端 openEdit 仍 prefill → 任何 provider 编辑均不可保存。修复：编辑模式下不 prefill name + 不渲染 name 输入框。保留后端安全契约。\n\n6 features = 5 generator (F-HPL-01/02/03/04/06) + 1 codex (F-HPL-05 14 项验收)。工时估算 0.8d。\n\n预期收益：上游日成本 $15 → <$0.5；/admin/providers 编辑恢复可用。",
+    "Kimi": "BL-HEALTH-PROBE-LEAN generator 5/5 完成。\n\nF-HPL-01：runTextCheck 三级删剩单级 CONNECTIVITY，max_tokens 200→1，消息 'hi'。\nF-HPL-02：expensive-models 5 正则 whitelist，planChannelCheck 加 'skip' mode，scheduler 双路（定时 + call probe）均豁免。\nF-HPL-03：admin/health API 新增 PERCENTILE_CONT raw SQL 1h/24h 聚合 call_logs.latencyMs（status=SUCCESS）；page ChannelListItem 主显 p50 1h，零流量 fallback。\nF-HPL-04：33 新单测（4 checker-lean + 13 expensive-models + 4 scheduler 扩展 + 12 增量）。\nF-HPL-06 hotfix：openEdit 去 name prefill + 编辑模式 fields 隐藏 name（后端 F-IG-01 strict 不改）。\n\n本地 tsc / vitest 216/216 / build 全过。推 verifying 交 Codex F-HPL-05 14 项。预期：上游日成本 $15 → < $0.5，gpt-4o-mini-search-preview 日 probe = 0，生产 /admin/providers 编辑恢复。",
     "Reviewer": null
   }
 }

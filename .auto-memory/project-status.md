@@ -4,9 +4,17 @@ description: AIGC Gateway 当前状态快照（覆盖写，≤30 行）
 type: project
 ---
 ## 当前批次
-- **BL-HEALTH-PROBE-LEAN：`building`**（P0，0.8d，6 features：5 generator + 1 codex）
-- 上一批次 BL-HEALTH-PROBE-EMERGENCY：done（10/10 PASS，commits 488d1d8 + 9382165 推 main）
-- Path A 主线 11/11 已完成；EMERGENCY / LEAN 为独立 emergency 链，不计入 Path A 序号
+- **BL-HEALTH-PROBE-LEAN：`verifying`**（Generator 5/5 done，等 Codex F-HPL-05 14 项）
+- 上一批次 BL-HEALTH-PROBE-EMERGENCY：done（10/10 PASS）
+- Path A 主线 11/11 已完成；EMERGENCY / LEAN 独立链
+
+## 本批次交付（Generator）
+- F-HPL-01 runTextCheck 三级 → 单级 CONNECTIVITY + max_tokens 200→1
+- F-HPL-02 expensive-models whitelist（search/reasoning/o1/o3/pro-preview），scheduler skip
+- F-HPL-03 admin/health API PERCENTILE_CONT 1h/24h p50/p95 + page 显示真流量
+- F-HPL-04 +33 单测（4 checker-lean + 13 expensive + 4 scheduler + 12 增量）
+- F-HPL-06 hotfix: providers openEdit 去 name prefill + 编辑模式 fields 隐藏 name
+- 本地 tsc / vitest 216/216（+33）/ build 全过
 
 ## 本批次目标（LEAN）
 - F-HPL-01 runTextCheck 降单级 + max_tokens:1（删 FORMAT/QUALITY），心智：每 10min 发 1 token，有返回即健康

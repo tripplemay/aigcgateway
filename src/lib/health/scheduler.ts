@@ -224,18 +224,29 @@ const MAX_CHECKS_PER_ROUND = 20;
 
 // Exported for unit tests — pure decision for which check strategy each
 // channel should receive on the current tick.
-export type CheckMode = "full" | "reachability";
+export type CheckMode = "full" | "reachability" | "skip";
 export interface CheckPlan {
   checkMode: CheckMode;
   interval: number;
 }
 
+import { isExpensiveModel } from "./expensive-models";
+
 export function planChannelCheck(
-  channel: { status: string; model: { modality: string } },
+  channel: { status: string; model: { modality: string; name: string } },
   isAliased: boolean,
 ): CheckPlan {
   const isImage = channel.model.modality === "IMAGE";
   if (isAliased && !isImage) {
+    // BL-HEALTH-PROBE-LEAN F-HPL-02: expensive models (built-in search /
+    // reasoning / o1 / o3 / pro-preview) are never probed — even one
+    // token costs 10-100× normal (openrouter 2026-04-16:
+    // openai/gpt-4o-mini-search-preview 82 calls = $2.25). Real traffic
+    // measures health via call_logs p50/p95 (F-HPL-03); cooldown handles
+    // outages on demand.
+    if (isExpensiveModel(channel.model.name)) {
+      return { checkMode: "skip", interval: ACTIVE_INTERVAL };
+    }
     // BL-HEALTH-PROBE-EMERGENCY F-HPE-01: DISABLED text channels run
     // zero-cost reachability only; the old 'full' path silently billed
     // upstream providers (chatanywhere 2026-04-16 = 535 calls / $11.71).
@@ -254,7 +265,7 @@ export function planChannelCheck(
 // Exported for unit tests — pure filter deciding whether a channel is
 // eligible for a CALL_PROBE this tick.
 export function shouldCallProbeChannel(
-  ch: { id: string; status: string; model: { modality: string } },
+  ch: { id: string; status: string; model: { modality: string; name: string } },
   aliasedIds: Set<string>,
 ): boolean {
   if (ch.model.modality === "IMAGE") return false;
@@ -262,6 +273,8 @@ export function shouldCallProbeChannel(
   // BL-HEALTH-PROBE-EMERGENCY F-HPE-02: never probe DISABLED channels —
   // CALL_PROBE makes a real billable call.
   if (ch.status === "DISABLED") return false;
+  // BL-HEALTH-PROBE-LEAN F-HPL-02: never call-probe expensive models.
+  if (isExpensiveModel(ch.model.name)) return false;
   return true;
 }
 
@@ -291,7 +304,7 @@ async function runScheduledChecks(): Promise<void> {
 
   const dueChannels: Array<{
     route: RouteResult;
-    checkMode: "full" | "reachability";
+    checkMode: Exclude<CheckMode, "skip">;
   }> = [];
 
   for (const channel of channels) {
@@ -302,6 +315,9 @@ async function runScheduledChecks(): Promise<void> {
     const elapsed = now - lastCheckTime;
 
     const { checkMode, interval } = planChannelCheck(channel, aliasedIds.has(channel.id));
+
+    // BL-HEALTH-PROBE-LEAN F-HPL-02: expensive models are dropped entirely.
+    if (checkMode === "skip") continue;
 
     if (elapsed < interval) continue;
 
@@ -337,7 +353,7 @@ async function runScheduledCallProbes(
   channels: Array<{
     id: string;
     status: string;
-    model: { modality: string; enabled: boolean };
+    model: { modality: string; enabled: boolean; name: string };
     healthChecks: Array<{ createdAt: Date }>;
   }>,
   aliasedIds: Set<string>,

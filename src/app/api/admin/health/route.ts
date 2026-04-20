@@ -32,23 +32,35 @@ interface ChannelRow {
   }>;
   lastCheckedAt: string | null;
   consecutiveFailures: number;
+  // BL-HEALTH-PROBE-LEAN F-HPL-03: real-traffic latency percentiles from
+  // call_logs (status=SUCCESS). Null indicates "no traffic in window" —
+  // the UI should render "N/A (no traffic)" rather than treat it as slow.
+  latency1h: { p50: number | null; p95: number | null; count: number };
+  latency24h: { p50: number | null; p95: number | null; count: number };
 }
 
-function buildChannelRow(ch: {
-  id: string;
-  realModelId: string;
-  status: string;
-  priority: number;
-  provider: { name: string; displayName: string };
-  model: { name: string; displayName: string; modality: string };
-  healthChecks: Array<{
-    level: string;
-    result: string;
-    latencyMs: number | null;
-    errorMessage: string | null;
-    createdAt: Date;
-  }>;
-}): ChannelRow {
+type LatencyStats = { p50: number | null; p95: number | null; count: number };
+type LatencyMap = Map<string, LatencyStats>;
+
+function buildChannelRow(
+  ch: {
+    id: string;
+    realModelId: string;
+    status: string;
+    priority: number;
+    provider: { name: string; displayName: string };
+    model: { name: string; displayName: string; modality: string };
+    healthChecks: Array<{
+      level: string;
+      result: string;
+      latencyMs: number | null;
+      errorMessage: string | null;
+      createdAt: Date;
+    }>;
+  },
+  latency1h: LatencyMap,
+  latency24h: LatencyMap,
+): ChannelRow {
   const lastCheckedAt =
     ch.healthChecks.length > 0 ? ch.healthChecks[0].createdAt.toISOString() : null;
 
@@ -81,7 +93,40 @@ function buildChannelRow(ch: {
     lastChecks: ch.healthChecks,
     lastCheckedAt,
     consecutiveFailures,
+    latency1h: latency1h.get(ch.id) ?? { p50: null, p95: null, count: 0 },
+    latency24h: latency24h.get(ch.id) ?? { p50: null, p95: null, count: 0 },
   };
+}
+
+// BL-HEALTH-PROBE-LEAN F-HPL-03: query real-traffic latency percentiles
+// from call_logs (success-only) for the given window. Uses PostgreSQL's
+// PERCENTILE_CONT to get p50/p95 at the DB layer — cheap to run since
+// call_logs already has (channelId, createdAt) indexed access patterns.
+async function loadLatencyStats(sinceMs: number): Promise<LatencyMap> {
+  const since = new Date(sinceMs);
+  const rows = await prisma.$queryRaw<
+    Array<{ channelId: string; p50: number | null; p95: number | null; count: bigint }>
+  >`
+    SELECT
+      "channelId",
+      PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY "latencyMs")::float AS p50,
+      PERCENTILE_CONT(0.95) WITHIN GROUP (ORDER BY "latencyMs")::float AS p95,
+      COUNT(*)::bigint AS count
+    FROM call_logs
+    WHERE status = 'SUCCESS'
+      AND "latencyMs" IS NOT NULL
+      AND "createdAt" >= ${since}
+    GROUP BY "channelId"
+  `;
+  const map: LatencyMap = new Map();
+  for (const r of rows) {
+    map.set(r.channelId, {
+      p50: r.p50 != null ? Math.round(r.p50) : null,
+      p95: r.p95 != null ? Math.round(r.p95) : null,
+      count: Number(r.count),
+    });
+  }
+  return map;
 }
 
 function computeAvgLatency(channels: ChannelRow[]): number | null {
@@ -103,6 +148,15 @@ function computeAvgLatency(channels: ChannelRow[]): number | null {
 export async function GET(request: Request) {
   const auth = requireAdmin(request);
   if (!auth.ok) return auth.error;
+
+  // Load real-traffic latency percentiles for both windows in parallel —
+  // these are what the UI cares about now that the three-tier probe is
+  // retired (F-HPL-01); healthChecks just answers "up or down?".
+  const now = Date.now();
+  const [latency1h, latency24h] = await Promise.all([
+    loadLatencyStats(now - 60 * 60 * 1000),
+    loadLatencyStats(now - 24 * 60 * 60 * 1000),
+  ]);
 
   // Fetch all aliases with linked models → channels → healthChecks
   const aliases = await prisma.modelAlias.findMany({
@@ -144,7 +198,7 @@ export async function GET(request: Request) {
     for (const link of a.models) {
       for (const ch of link.model.channels) {
         linkedChannelIds.add(ch.id);
-        channels.push(buildChannelRow(ch));
+        channels.push(buildChannelRow(ch, latency1h, latency24h));
       }
     }
     // sort channels: ACTIVE first, then by priority
@@ -195,7 +249,7 @@ export async function GET(request: Request) {
     },
   });
 
-  const orphans = orphanChannels.map((ch) => buildChannelRow(ch));
+  const orphans = orphanChannels.map((ch) => buildChannelRow(ch, latency1h, latency24h));
 
   // Global summary
   const allChannels = [...aliasGroups.flatMap((g) => g.channels), ...orphans];

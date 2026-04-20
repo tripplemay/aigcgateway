@@ -163,8 +163,13 @@ export default function ProvidersPage() {
     setDialogOpen(true);
   };
   const openEdit = (p: Provider) => {
+    // BL-HEALTH-PROBE-LEAN F-HPL-06: do not prefill `name` — the backend
+    // providerUpdateSchema (F-IG-01) is .strict() and rejects unknown /
+    // non-updatable keys including `name`. Previously the dialog would
+    // submit `{ name, displayName, baseUrl, adapterType }` on edit,
+    // causing PATCH to 400. `name` is an identifier; editing is a
+    // Rename-via-new-provider operation, not a field update.
     setForm({
-      name: p.name,
       displayName: p.displayName,
       baseUrl: p.baseUrl,
       adapterType: p.adapterType,
@@ -397,16 +402,48 @@ export default function ProvidersPage() {
                   </select>
                 </div>
               )}
-              {[
-                { key: "name", label: tc("name"), placeholder: t("namePlaceholder") },
-                {
-                  key: "displayName",
-                  label: t("displayName"),
-                  placeholder: t("displayNamePlaceholder"),
-                },
-                { key: "baseUrl", label: t("baseUrl"), placeholder: "https://api.openai.com/v1" },
-                { key: "apiKey", label: t("apiKey"), placeholder: "sk-...", type: "password" },
-              ].map((f) => (
+              {(editId
+                ? // BL-HEALTH-PROBE-LEAN F-HPL-06: edit mode omits `name`
+                  // because the backend schema rejects it. Keep displayName /
+                  // baseUrl / apiKey editable.
+                  [
+                    {
+                      key: "displayName",
+                      label: t("displayName"),
+                      placeholder: t("displayNamePlaceholder"),
+                    },
+                    {
+                      key: "baseUrl",
+                      label: t("baseUrl"),
+                      placeholder: "https://api.openai.com/v1",
+                    },
+                    {
+                      key: "apiKey",
+                      label: t("apiKey"),
+                      placeholder: "sk-...",
+                      type: "password",
+                    },
+                  ]
+                : [
+                    { key: "name", label: tc("name"), placeholder: t("namePlaceholder") },
+                    {
+                      key: "displayName",
+                      label: t("displayName"),
+                      placeholder: t("displayNamePlaceholder"),
+                    },
+                    {
+                      key: "baseUrl",
+                      label: t("baseUrl"),
+                      placeholder: "https://api.openai.com/v1",
+                    },
+                    {
+                      key: "apiKey",
+                      label: t("apiKey"),
+                      placeholder: "sk-...",
+                      type: "password",
+                    },
+                  ]
+              ).map((f) => (
                 <div key={f.key} className="space-y-1.5">
                   <label className="text-[11px] font-bold uppercase tracking-widest text-ds-on-surface-variant block">
                     {f.label}

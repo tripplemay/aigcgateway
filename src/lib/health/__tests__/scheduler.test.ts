@@ -19,10 +19,14 @@ import * as fs from "node:fs";
 import * as path from "node:path";
 import { planChannelCheck, shouldCallProbeChannel } from "../scheduler";
 
-type ChannelStub = { id: string; status: string; model: { modality: string } };
+type ChannelStub = { id: string; status: string; model: { modality: string; name: string } };
 
-function ch(status: string, modality: "TEXT" | "IMAGE" = "TEXT"): ChannelStub {
-  return { id: `ch_${status}_${modality}`, status, model: { modality } };
+function ch(
+  status: string,
+  modality: "TEXT" | "IMAGE" = "TEXT",
+  name = "gpt-4o-mini",
+): ChannelStub {
+  return { id: `ch_${status}_${modality}`, status, model: { modality, name } };
 }
 
 describe("planChannelCheck (F-HPE-01)", () => {
@@ -59,7 +63,12 @@ describe("planChannelCheck (F-HPE-01)", () => {
 });
 
 describe("shouldCallProbeChannel (F-HPE-02)", () => {
-  const aliased = new Set(["ch_ACTIVE_TEXT", "ch_DISABLED_TEXT", "ch_DEGRADED_TEXT", "ch_ACTIVE_IMAGE"]);
+  const aliased = new Set([
+    "ch_ACTIVE_TEXT",
+    "ch_DISABLED_TEXT",
+    "ch_DEGRADED_TEXT",
+    "ch_ACTIVE_IMAGE",
+  ]);
 
   it("probes aliased ACTIVE text channel", () => {
     expect(shouldCallProbeChannel(ch("ACTIVE"), aliased)).toBe(true);
@@ -79,6 +88,28 @@ describe("shouldCallProbeChannel (F-HPE-02)", () => {
 
   it("never probes un-aliased channels", () => {
     expect(shouldCallProbeChannel(ch("ACTIVE"), new Set())).toBe(false);
+  });
+});
+
+describe("expensive model whitelist (F-HPL-02)", () => {
+  it("ACTIVE aliased text channel running an expensive model → checkMode='skip'", () => {
+    const plan = planChannelCheck(ch("ACTIVE", "TEXT", "gpt-4o-mini-search-preview"), true);
+    expect(plan.checkMode).toBe("skip");
+  });
+
+  it("DEGRADED aliased text channel running an expensive model → skip (no revival probe)", () => {
+    const plan = planChannelCheck(ch("DEGRADED", "TEXT", "o1-preview"), true);
+    expect(plan.checkMode).toBe("skip");
+  });
+
+  it("shouldCallProbeChannel returns false for expensive ACTIVE aliased channel", () => {
+    const chan = ch("ACTIVE", "TEXT", "gpt-4o-mini-search-preview");
+    expect(shouldCallProbeChannel(chan, new Set([chan.id]))).toBe(false);
+  });
+
+  it("non-expensive ACTIVE aliased text channel continues to be call-probed", () => {
+    const chan = ch("ACTIVE", "TEXT", "gpt-4o-mini");
+    expect(shouldCallProbeChannel(chan, new Set([chan.id]))).toBe(true);
   });
 });
 
