@@ -419,7 +419,6 @@ export class OpenAICompatEngine implements EngineAdapter {
 
     const result = await this.chatCompletions(chatReq, route);
 
-    // 1. 检查 multimodal content（部分模型返回 content 数组含 image_url 类型）
     const choice = result.choices[0];
     const rawContent = choice?.message?.content;
     const msg = choice?.message as Record<string, unknown> | undefined;
@@ -428,6 +427,31 @@ export class OpenAICompatEngine implements EngineAdapter {
       model: route.channel.realModelId,
       provider: route.channel.providerId,
     };
+
+    // 0. BL-IMAGE-PARSER-FIX F-IPF-01: newer OpenRouter image models
+    // (openai/gpt-5-image, openai/gpt-5-image-mini, google/gemini-3-pro-
+    // image-preview) return the payload in a dedicated `images` array on
+    // the message rather than in `content` parts. Direct OpenRouter probes
+    // on 2026-04-21 confirmed shape:
+    //   message.images = [{type:'image_url', image_url:{url:'data:image/...;base64,...'}}]
+    // Without this branch the caller saw [imageViaChat] extraction failed
+    // on every KOLMatrix run (≈$0.3/h billed for useless 4xx responses).
+    const msgImages = msg?.images;
+    if (Array.isArray(msgImages)) {
+      for (const img of msgImages as Array<Record<string, unknown>>) {
+        const imageUrl = img?.image_url as Record<string, unknown> | undefined;
+        const url = imageUrl?.url;
+        if (typeof url === "string" && url.length > 0) {
+          return {
+            created: result.created,
+            data: [{ url }],
+          };
+        }
+      }
+      // msgImages was present but empty / unusable — fall through to
+      // Stage 1-4 so the existing logs + throw path still captures the
+      // diagnostic envelope for unknown shapes.
+    }
 
     if (Array.isArray(parts)) {
       const partTypes = (parts as Array<Record<string, unknown>>).map(

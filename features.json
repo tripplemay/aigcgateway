@@ -7,7 +7,7 @@
       "title": "imageViaChat 新增 Stage 0 识别 message.images[]",
       "priority": "critical",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "source": "KOLMatrix 2026-04-20/21 报告 gpt-image/gpt-image-mini/gemini-3-pro-image 持续失败；生产 pm2 logs [imageViaChat] extraction failed 三 route 全覆盖；直连 OpenRouter 确认三模型返回 message.images[{type:image_url,image_url:{url:data:image/...base64,...}}]",
       "acceptance": "1) `src/lib/engine/openai-compat.ts` `imageViaChat` 函数（约 line 411-542）在原 Stage 1（multimodal parts 检查）之前插入 Stage 0：读取 `msg.images`，若为数组则遍历找 `images[i].type === 'image_url'` 或含 `image_url` 子对象且 `image_url.url` 为 string → return `{created: result.created, data: [{url}]}`；2) images 为 undefined / 非数组 / 空数组 / 所有元素无 url → 继续走原 Stage 1-4（不改动原逻辑）；3) 不修改 extraction failed 日志输出格式；4) 不改 sanitizeErrorMessage / types.ts 错误消息转换；5) tsc + build 通过"
     },
@@ -16,7 +16,7 @@
       "title": "单测覆盖 image-via-chat 新旧路径",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "source": "F-IPF-01",
       "acceptance": "1) 新增 `src/lib/engine/__tests__/image-via-chat.test.ts`，6 条用例：(a) mock OpenAI gpt-5-image 形态（content:null, images:[{type:image_url,image_url:{url:'data:image/png;base64,abc'}}]) → imageViaChat 返回 data:[{url:'data:image/png;base64,abc'}]；(b) mock gemini 形态（content 为字符串 + images 有图片）→ 仍从 images 字段提取（不被 content 文字干扰）；(c) mock 旧 multimodal parts 路径（content 数组含 image_url）→ Stage 1 提取成功（images 字段不存在时）；(d) mock 旧 base64 data URI 字符串路径（content 为字符串含 base64 + 无 images）→ Stage 2 提取成功；(e) mock 全失配（content:'just text', 无 parts 无 images）→ 抛 EngineError 含 'no_image_in_response' code；(f) mock images 为空数组 → fallback 原 Stage 1-4 按旧逻辑；2) 全量 `npx vitest run` 通过（LEAN +33 + EMERGENCY +11 + fix round 1/2 + 本次新增 6 均 PASS）；3) tsc + build 通过"
     },

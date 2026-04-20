@@ -4,9 +4,15 @@ description: AIGC Gateway 当前状态快照（覆盖写，≤30 行）
 type: project
 ---
 ## 当前批次
-- **BL-IMAGE-PARSER-FIX：`building`**（P0-hotfix，0.3d，3 features：2 generator + 1 codex）
-- 上一批次 BL-HEALTH-PROBE-LEAN：done（生产已部署，修复全部生效：$15/day → ~$0.4/day probe 成本实测）
+- **BL-IMAGE-PARSER-FIX：`verifying`**（Generator 2/2 done，等 Codex F-IPF-03 11 项）
+- 上一批次 BL-HEALTH-PROBE-LEAN：done（生产已部署，$15/day → ~$0.4/day 实测）
 - Path A 主线 11/11 完成；EMERGENCY / LEAN / IMAGE-PARSER-FIX 独立 emergency 链
+
+## 本批次交付（Generator）
+- F-IPF-01 imageViaChat 新增 Stage 0 识别 message.images[]（OpenRouter 新协议）
+- F-IPF-02 +6 单测（新路径 2 + Stage 1/2 回归 + 全失配 + images 空数组 fallback）
+- 本地 tsc / vitest 222/222（+6）/ build 全过
+- 预期部署后：gpt-5-image / gpt-5-image-mini / gemini-3-pro-image 三模型恢复可用
 
 ## 本批次根因（非猜测，证据链完整）
 - 生产 pm2 logs [imageViaChat] extraction failed 覆盖 openrouter 三模型（gpt-5-image / gpt-5-image-mini / gemini-3-pro-image-preview）

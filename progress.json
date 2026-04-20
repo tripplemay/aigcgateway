@@ -1,11 +1,11 @@
 {
-  "status": "building",
+  "status": "verifying",
   "user_goal": "BL-IMAGE-PARSER-FIX — OpenRouter message.images[] 解析缺失 P0 hotfix（gpt-image/gpt-image-mini/gemini-3-pro-image 生产不可用 + 每次失败上游扣 $0.04-$0.20）",
   "total_features": 3,
-  "completed_features": 0,
+  "completed_features": 2,
   "fix_rounds": 0,
   "current_sprint": "BL-IMAGE-PARSER-FIX",
-  "last_updated": "2026-04-21T00:25:00Z",
+  "last_updated": "2026-04-21T00:35:00Z",
   "reference_docs": [
     "docs/specs/BL-IMAGE-PARSER-FIX-spec.md"
   ],
@@ -17,9 +17,31 @@
     "framework_reviewed": false
   },
   "evaluator_feedback": null,
-  "generator_handoff": null,
+  "generator_handoff": {
+    "local_checks": {
+      "tsc": "pass",
+      "build": "pass",
+      "vitest": "222/222 pass (原 216 + 新 6)"
+    },
+    "F-IPF-01": {
+      "file": "src/lib/engine/openai-compat.ts imageViaChat",
+      "change": "在 Stage 1 (multimodal parts) 之前插入 Stage 0：读 msg.images 数组，遍历找 image_url.url (string, length > 0) → return {created, data:[{url}]}；images 为空数组或所有元素无 url → 继续 fallback 到 Stage 1-4（旧逻辑不动）",
+      "impact": "openai/gpt-5-image / openai/gpt-5-image-mini / google/gemini-3-pro-image-preview 三模型从 100% 失败 → 成功；KOLMatrix ~$0.3/h 扣费止血"
+    },
+    "F-IPF-02": {
+      "file": "src/lib/engine/__tests__/image-via-chat.test.ts",
+      "change": "6 条单测：(a) null content + images → 提取 url；(b) Gemini-like content+images → Stage 0 优先；(c) Stage 1 multimodal parts（images 不存在） 回归；(d) Stage 2 base64 data URI（content 字符串）回归；(e) 全文字（无 parts/images/data URI）抛 EngineError 'did not return a valid image'；(f) images 空数组 → fallback 到 Stage 1-4 如期抛错",
+      "notes": "sanitizeErrorMessage 把 'returned no extractable image' → 'did not return a valid image' 是 types.ts 现有行为，不改，测试用实际 sanitized message 做断言。"
+    },
+    "preserved": [
+      "Stage 1-4 原解析逻辑完整保留",
+      "extraction failed 日志格式未动",
+      "sanitizeErrorMessage / types.ts 错误转换链未动",
+      "normalizeImageResponse 接口 shape 未动（data:[{url}]）"
+    ]
+  },
   "session_notes": {
-    "Kimi": "BL-IMAGE-PARSER-FIX launch。P0 hotfix，0.3d。\n\n根因证据链（核实完成，非猜测）：\n1. 生产 pm2 logs 显示 [imageViaChat] extraction failed，model 列表确认为 openai/gpt-5-image + openai/gpt-5-image-mini + google/gemini-3-pro-image-preview，provider 列表全部为 openrouter（cmnckvv5m0031n56ics9pggfg）\n2. Provider config 确认 openrouter imageViaChat:true + image_via_chat_modalities quirk，走 imageViaChat() 函数；chatanywhere imageViaChat:false，走 /images/generations 直连（不涉及本 bug）\n3. 直连 OpenRouter 实测三个模型均返回 `message.images[{type:image_url,image_url:{url:data:image/...}}]`，content:null 或纯描述文字，usage.cost 确认扣费 $0.04-$0.20\n4. 源码 openai-compat.ts:411-542 imageViaChat 函数 4 个 stage 只检查 msg.parts / msg.content 数组 / content 字符串 URL/base64，未检查 msg.images 字段\n\n实测 2h 内 OpenRouter 账单增量 $1.08，其中 KOLMatrix 4 次失败 ≈ $0.65，我直连测试 3 次 ≈ $0.38，Gateway probe ≈ $0.05（换算 $0.4/天，符合 LEAN <$0.5/天目标，说明 EMERGENCY+LEAN 修复全部生效）。\n\n修复方案最小化：imageViaChat 在 Stage 1 之前插入 Stage 0 识别 msg.images[]，不改 extraction failed 日志 + 不改 sanitize + 不改 normalizeImageResponse + 不改 failover/routing。\n\n3 features = 2 generator (F-IPF-01 parser + F-IPF-02 单测 6 条) + 1 codex (F-IPF-03 11 项验收含部署后 smoke)。\n\n推 main 后等用户触发 GitHub Actions deploy workflow。\n\n同时发现的次生 bug（留给 BL-BILLING-AUDIT）：call_logs channelId 错位 — 本应记 openrouter channelId 的错误被记成 chatanywhere channelId（但 errorMessage 是 openrouter 的）。",
+    "Kimi": "BL-IMAGE-PARSER-FIX generator 2/2 完成。\n\nF-IPF-01：openai-compat.ts imageViaChat 在 Stage 1 前插入 Stage 0 识别 msg.images[]（OpenRouter 新模型协议）。逻辑 < 20 行。优先级 Stage 0 > Stage 1-4（images 存在时直接命中，命不中才 fallback）。\n\nF-IPF-02：6 条单测用 TestEngine 子类 override chatCompletions 直接测 imageViaChat（protected 方法用 @ts-expect-error 访问）；覆盖新路径 (a)(b) + 旧路径回归 (c)(d) + 全失配 (e) + 空数组 fallback (f)。\n\n本地 tsc / vitest 222/222（原 216 + 新 6）/ build 全过。推 verifying 交 Codex F-IPF-03 11 项（单测 3 + 功能 3 + 生产 smoke 4 + signoff 1）。\n\n部署后 pm2 logs [imageViaChat] extraction failed 在 OpenRouter 三模型上应消失。KOLMatrix 日常图片生成恢复可用。",
     "Reviewer": null
   }
 }
