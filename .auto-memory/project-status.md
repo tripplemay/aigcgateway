@@ -4,7 +4,7 @@ description: AIGC Gateway 当前状态快照（覆盖写，≤30 行）
 type: project
 ---
 ## 当前批次
-- **BL-IMAGE-PARSER-FIX：`reverifying`**（fix round 1 完成，F-IPF-04 透传 images + HTTP-layer mock 单测）
+- **BL-IMAGE-PARSER-FIX：`fixing`**（Codex 复验失败：tsc 红 + 生产未部署最新 fix）
 - 上一批次 BL-HEALTH-PROBE-LEAN：done（生产已部署，$15/day → ~$0.4/day 实测）
 - Path A 主线 11/11 完成；EMERGENCY / LEAN / IMAGE-PARSER-FIX 独立 emergency 链
 
@@ -43,5 +43,5 @@ type: project
 2.1. 协议返回形式断言标明协议层
 
 ## 生产状态
-- HEAD `cbcfb1e`（IMAGE-PARSER-FIX signoff）已部署但修复未真正生效
-- KOLMatrix 三模型仍失败，每小时 ~$0.3 流血至 F-IPF-04 部署
+- HEAD `cbcfb1e`（旧 fix）已部署；本地复验 HEAD `f0df747` 尚未部署
+- 生产 smoke 7-10 在目标版本未部署前处于 blocked

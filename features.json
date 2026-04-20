@@ -34,7 +34,7 @@
       "title": "normalizeChatResponse 透传 images 字段 + 单测从 HTTP 层 mock 验证全链路",
       "priority": "critical",
       "executor": "generator",
-      "status": "done",
+      "status": "pending",
       "source": "fix round 1：生产 cbcfb1e 部署后 F-IPF-01 Stage 0 未生效。根因为 src/lib/engine/openai-compat.ts:362-386 normalizeChatResponse 在 imageViaChat 读 msg 之前已剥 images 字段。F-IPF-02 单测因 mock chatCompletions 直接返回假响应（含 images），绕过了 normalize 层，因此测试绿但生产红。",
       "acceptance": "1) 修改 `src/lib/engine/openai-compat.ts:362-386` normalizeChatResponse 的 message 对象构造，在保留 role/content/tool_calls 基础上，新增 `...(Array.isArray(msg?.images) ? { images: msg.images } : {})`，让 OpenRouter 返回的 images 字段穿透到 ChatCompletionResponse；2) 在 `src/lib/engine/types.ts` 的 ChatCompletionResponse.choices[].message 类型定义中补 `images?: unknown[]` 或 `images?: Array<{ type?: string; image_url?: { url?: string } }>`（类型名按既有风格起）；3) 新增（或扩展）`src/lib/engine/__tests__/image-via-chat-e2e.test.ts`（或合并到 image-via-chat.test.ts）至少 1 条用例：**mock `global.fetch` 或 `fetchWithProxy`**（而非 override chatCompletions）返回原始 OpenRouter HTTP body `{choices:[{message:{content:null,images:[{type:'image_url',image_url:{url:'data:image/png;base64,abc'}}]}}],usage:{cost:0.04}}`，调用 engine.imageGenerations，断言返回 `data:[{url:'data:image/png;base64,abc'}]`，证明 images 字段穿透 normalizeChatResponse 到达 Stage 0；4) 原 F-IPF-02 6 条单测保留不删；5) 单测 engine 实例需要适当配置 image_via_chat_modalities quirk 以走 imageViaChat 分支；6) 全量 `npx vitest run` 通过（原 216 + 新 6 + 本次新增 ≥1 = ≥223 PASS）；7) tsc + build 通过"
     }
