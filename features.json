@@ -1,60 +1,33 @@
 {
-  "batch": "BL-HEALTH-PROBE-LEAN",
-  "created_at": "2026-04-20",
+  "batch": "BL-IMAGE-PARSER-FIX",
+  "created_at": "2026-04-21",
   "features": [
     {
-      "id": "F-HPL-01",
-      "title": "runTextCheck 降为单级 CONNECTIVITY + max_tokens:1",
+      "id": "F-IPF-01",
+      "title": "imageViaChat 新增 Stage 0 识别 message.images[]",
       "priority": "critical",
       "executor": "generator",
-      "status": "done",
-      "source": "2026-04-20 chatanywhere + openrouter 账单：ACTIVE aliased text channel 每 10min 真实 chat(max_tokens:200) 造成每天 1.3M token 浪费",
-      "acceptance": "1) `src/lib/health/checker.ts:209-306` `runTextCheck` 改为单次 chat 调用 `{max_tokens:1, temperature:0, messages:[{role:'user',content:'hi'}]}`；2) 返回数组只含一条 CONNECTIVITY 行（ok = !!response?.choices?.length；失败走 catch 分支也返回 CONNECTIVITY FAIL + EngineError code）；3) 删除 FORMAT / QUALITY 两级判定（usage/finish_reason/content trim 逻辑整体移除）；4) scheduler.ts handleFailure 对 CheckResult[] 的'任一 FAIL 触发降级'判定输入从 3 行变 1 行不影响行为；5) isTransientFailureReason(errorMessage) 字符匹配复用，errorMessage 格式保持 `<ErrorCode>: <message>`；6) tsc + build 通过"
+      "status": "pending",
+      "source": "KOLMatrix 2026-04-20/21 报告 gpt-image/gpt-image-mini/gemini-3-pro-image 持续失败；生产 pm2 logs [imageViaChat] extraction failed 三 route 全覆盖；直连 OpenRouter 确认三模型返回 message.images[{type:image_url,image_url:{url:data:image/...base64,...}}]",
+      "acceptance": "1) `src/lib/engine/openai-compat.ts` `imageViaChat` 函数（约 line 411-542）在原 Stage 1（multimodal parts 检查）之前插入 Stage 0：读取 `msg.images`，若为数组则遍历找 `images[i].type === 'image_url'` 或含 `image_url` 子对象且 `image_url.url` 为 string → return `{created: result.created, data: [{url}]}`；2) images 为 undefined / 非数组 / 空数组 / 所有元素无 url → 继续走原 Stage 1-4（不改动原逻辑）；3) 不修改 extraction failed 日志输出格式；4) 不改 sanitizeErrorMessage / types.ts 错误消息转换；5) tsc + build 通过"
     },
     {
-      "id": "F-HPL-02",
-      "title": "昂贵模型 whitelist — scheduler 跳过 probe 和 call probe",
-      "priority": "critical",
-      "executor": "generator",
-      "status": "done",
-      "source": "openrouter 04-16 `openai/gpt-4o-mini-search-preview` 82 次/$2.25 单点流血",
-      "acceptance": "1) 新增 `src/lib/health/expensive-models.ts` 导出 `EXPENSIVE_MODEL_PATTERNS: RegExp[]`（至少覆盖 `/-search(-|$)/i`、`/-reasoning(-|$)/i`、`/^o1-/i`、`/^o3-/i`、`/-pro-(preview|image|video)/i`）+ `isExpensiveModel(modelName): boolean`；2) `scheduler.ts:planChannelCheck` 对 aliased non-image channel 额外判断 isExpensiveModel → 返回 checkMode='skip'；runScheduledChecks 消费 'skip' 即跳过；3) `shouldCallProbeChannel` 新增 `if (isExpensiveModel(ch.model.name)) return false`；4) tsc + build 通过"
-    },
-    {
-      "id": "F-HPL-03",
-      "title": "admin 面板 p50/p95 改 call_logs 聚合",
+      "id": "F-IPF-02",
+      "title": "单测覆盖 image-via-chat 新旧路径",
       "priority": "high",
       "executor": "generator",
-      "status": "done",
-      "source": "F-HPL-01 删除 FORMAT/QUALITY 后 healthChecks 不再能表达性能指标；probe latency 与真实请求 latency 差 3-5x 本就误导",
-      "acceptance": "1) 新增（或改写现有）API 返回按 channelId 聚合近 1h / 24h `call_logs.latencyMs` p50/p95 (status=success 过滤)；零流量 channel 返回 null 并由 UI 显示 'N/A (no traffic)'；2) `src/app/(console)/admin/health/page.tsx:106-108, 552, 584` 三级 L1/L2/L3 渲染简化（可全合并为单 'Health' 列，或保留 L2/L3 但永远 N/A 不报错）；3) 诊断页（如存在）'实测 p50/p95' 改读新数据源，'最近健康检查' 保持读 healthChecks 最近一条；4) tsc + build 通过"
+      "status": "pending",
+      "source": "F-IPF-01",
+      "acceptance": "1) 新增 `src/lib/engine/__tests__/image-via-chat.test.ts`，6 条用例：(a) mock OpenAI gpt-5-image 形态（content:null, images:[{type:image_url,image_url:{url:'data:image/png;base64,abc'}}]) → imageViaChat 返回 data:[{url:'data:image/png;base64,abc'}]；(b) mock gemini 形态（content 为字符串 + images 有图片）→ 仍从 images 字段提取（不被 content 文字干扰）；(c) mock 旧 multimodal parts 路径（content 数组含 image_url）→ Stage 1 提取成功（images 字段不存在时）；(d) mock 旧 base64 data URI 字符串路径（content 为字符串含 base64 + 无 images）→ Stage 2 提取成功；(e) mock 全失配（content:'just text', 无 parts 无 images）→ 抛 EngineError 含 'no_image_in_response' code；(f) mock images 为空数组 → fallback 原 Stage 1-4 按旧逻辑；2) 全量 `npx vitest run` 通过（LEAN +33 + EMERGENCY +11 + fix round 1/2 + 本次新增 6 均 PASS）；3) tsc + build 通过"
     },
     {
-      "id": "F-HPL-04",
-      "title": "单测覆盖（checker / scheduler / expensive-models）",
-      "priority": "high",
-      "executor": "generator",
-      "status": "done",
-      "source": "F-HPL-01 + F-HPL-02",
-      "acceptance": "1) `src/lib/health/__tests__/checker.test.ts` 新增用例：(a) runTextCheck mock choices 返回非空 → result=[CONNECTIVITY PASS] 长度 1；(b) mock choices=[] → [CONNECTIVITY FAIL] with errorMessage 含 'Empty response'；(c) mock 抛 EngineError(RATE_LIMITED) → [CONNECTIVITY FAIL] errorMessage 以 'rate_limited:' 开头；(d) mock 调用参数断言 max_tokens:1 / temperature:0 / messages=[{user,'hi'}]；2) 新增 `src/lib/health/__tests__/expensive-models.test.ts`：search/reasoning/o1-/o3-/pro-preview 样本返回 true；gpt-4o/claude-haiku-4.5/kimi-k2-thinking 样本返回 false；3) 扩展 `src/lib/health/__tests__/scheduler.test.ts`：(e) ACTIVE aliased expensive model → planChannelCheck checkMode='skip' + runScheduledChecks 不调用任何 check 函数；(f) shouldCallProbeChannel 对 expensive ACTIVE channel 返回 false；4) 所有 EMERGENCY 批次 +11 单测 + fix round 1/2 单测回归全绿；5) tsc + build 通过"
-    },
-    {
-      "id": "F-HPL-06",
-      "title": "Provider edit dialog name 字段隐藏（Request failed: 400 hotfix）",
-      "priority": "high",
-      "executor": "generator",
-      "status": "done",
-      "source": "2026-04-20 生产 /admin/providers 更新 chatanywhere apiKey 400；根因 commit 17f25e1 F-IG-01 providerUpdateSchema.strict 拒绝 name，前端 openEdit 仍 prefill name",
-      "acceptance": "1) `src/app/(console)/admin/providers/page.tsx:165-173` `openEdit` 去掉 `name: p.name` prefill；2) 同文件 line 400-408 fields 数组按 editId 分支：编辑模式下只渲染 displayName / baseUrl / apiKey 三输入，新建模式保留 name 作为第一个字段（adapter preset 自动填入 name 的 line 380-388 行为不动）；3) 不动后端 `src/app/api/admin/providers/[id]/route.ts` + `src/lib/api/admin-schemas.ts providerUpdateSchema`（F-IG-01 安全契约保留）；4) tsc + build 通过"
-    },
-    {
-      "id": "F-HPL-05",
-      "title": "BL-HEALTH-PROBE-LEAN 全量验收",
+      "id": "F-IPF-03",
+      "title": "BL-IMAGE-PARSER-FIX 全量验收",
       "priority": "critical",
       "executor": "codex",
-      "status": "done",
-      "source": "BL-HEALTH-PROBE-LEAN",
-      "acceptance": "构建与单测（3 项）：1) npm run build 通过；2) npx tsc --noEmit 通过；3) npx vitest run 全过（F-HPL-04 新增单测 PASS + EMERGENCY +11 + fix round 1/2 旧单测不破坏）。单测功能验证（4 项）：4) runTextCheck 返回数组长度 === 1（无 FORMAT/QUALITY 行）；5) runTextCheck 调用参数含 max_tokens:1（adapter mock 调用记录）；6) isExpensiveModel 对 search/reasoning/o1/o3 样本返回 true；7) scheduler 对 expensive ACTIVE aliased text channel 不跑 probe / call probe。F-HPL-06 hotfix 验证（2 项）：8) Dev /admin/providers 编辑任一 provider → 弹窗不含 name 输入框，只显示 displayName/baseUrl/apiKey；9) 编辑 chatanywhere 只改 apiKey → Save 200 + toast 'saved'（不再 400）。生产部署后观察（4 项，48h）：10) chatanywhere day_usage_details openai 日调用数降幅 > 95%（对比 EMERGENCY 止血后 baseline）；11) OpenRouter activity API openrouter 日 token 成本 < $0.5（对比 04-16 $2.71）；12) gpt-4o-mini-search-preview 日 probe 调用数 = 0；13) 用户在生产 /admin/providers 重试更新 chatanywhere apiKey → 成功。14) 生成 signoff docs/test-reports/BL-HEALTH-PROBE-LEAN-signoff-2026-04-2X.md。"
+      "status": "pending",
+      "source": "BL-IMAGE-PARSER-FIX",
+      "acceptance": "构建与单测（3 项）：1) npm run build 通过；2) npx tsc --noEmit 通过；3) npx vitest run 全过（F-IPF-02 新 6 条 PASS + LEAN +33 + EMERGENCY +11 + 旧单测不破坏）。单测功能验证（3 项）：4) image-via-chat.test.ts 6 条 PASS 且 Stage 0 优先级高于 Stage 1-4（images 存在时不 fallback）；5) imageViaChat 成功返回 shape 为 {created, data:[{url}]} 与 normalizeImageResponse 兼容；6) sanitizeErrorMessage 的 'returned no extractable image' → 'did not return a valid image' 转换逻辑不被破坏。生产部署后 smoke test（4 项）：7) 用 KOLMatrix 复现 curl: POST /v1/images/generations model=gemini-3-pro-image prompt='A dark blue world map with glowing cyan dots...' size=1024x1024 → HTTP 200 + data:image/png;base64 返回；8) 同 curl model=gpt-image → HTTP 200 + 图片；9) 同 curl model=gpt-image-mini → HTTP 200 + 图片；10) 部署后 1h 内 pm2 logs [imageViaChat] extraction failed 出现次数显著下降（对比前 1h，降幅 > 80%）。11) 生成 signoff 报告 docs/test-reports/BL-IMAGE-PARSER-FIX-signoff-2026-04-21.md。"
     }
   ]
 }

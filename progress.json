@@ -1,68 +1,25 @@
 {
-  "status": "done",
-  "user_goal": "BL-HEALTH-PROBE-LEAN — ACTIVE probe max_tokens 200→1 + 昂贵模型豁免 + p50/p95 改 call_logs + /admin/providers edit 400 hotfix",
-  "total_features": 6,
-  "completed_features": 6,
+  "status": "building",
+  "user_goal": "BL-IMAGE-PARSER-FIX — OpenRouter message.images[] 解析缺失 P0 hotfix（gpt-image/gpt-image-mini/gemini-3-pro-image 生产不可用 + 每次失败上游扣 $0.04-$0.20）",
+  "total_features": 3,
+  "completed_features": 0,
   "fix_rounds": 0,
-  "current_sprint": "BL-HEALTH-PROBE-LEAN",
-  "last_updated": "2026-04-20T14:33:36Z",
+  "current_sprint": "BL-IMAGE-PARSER-FIX",
+  "last_updated": "2026-04-21T00:25:00Z",
   "reference_docs": [
-    "docs/specs/BL-HEALTH-PROBE-LEAN-spec.md"
+    "docs/specs/BL-IMAGE-PARSER-FIX-spec.md"
   ],
   "role_assignments": null,
   "docs": {
-    "spec": "docs/specs/BL-HEALTH-PROBE-LEAN-spec.md",
+    "spec": "docs/specs/BL-IMAGE-PARSER-FIX-spec.md",
     "test_cases": null,
-    "signoff": "docs/test-reports/BL-HEALTH-PROBE-LEAN-signoff-2026-04-20.md",
-    "framework_reviewed": true
+    "signoff": null,
+    "framework_reviewed": false
   },
-  "evaluator_feedback": {
-    "summary": "F-HPL-05 本地验收通过；生产 48h 观察项按规格延后跟踪。",
-    "pass_count": 10,
-    "partial_count": 0,
-    "fail_count": 0,
-    "issues": []
-  },
-  "generator_handoff": {
-    "local_checks": {
-      "tsc": "pass",
-      "build": "pass",
-      "vitest": "216/216 pass (原 183 + 新 33)"
-    },
-    "F-HPL-01": {
-      "file": "src/lib/health/checker.ts runTextCheck",
-      "change": "三级 CONNECTIVITY/FORMAT/QUALITY 合并为单级 CONNECTIVITY；chat 调用改 {max_tokens:1, temperature:0, messages:[{user,'hi'}]}；返数组长度固定 1；EngineError 走 catch 返 CONNECTIVITY FAIL 保持 '<code>: <msg>' 格式（isTransientFailureReason 语义不破坏）",
-      "impact": "ACTIVE aliased text channel 每 10min 从 200 tokens → 1 token，上游消耗降 99%"
-    },
-    "F-HPL-02": {
-      "file": "src/lib/health/expensive-models.ts（新）+ scheduler.ts planChannelCheck / shouldCallProbeChannel",
-      "change": "EXPENSIVE_MODEL_PATTERNS 5 条正则（/-search/ /-reasoning/ /(^|[/-])o1-/ /(^|[/-])o3-/ /-pro-(preview|image|video)/）；CheckMode 加 'skip' variant；planChannelCheck 对 aliased non-image 先判 isExpensiveModel → skip；runScheduledChecks 消费 skip continue；shouldCallProbeChannel 加 isExpensive 短路",
-      "impact": "gpt-4o-mini-search-preview / o1-preview / o3-mini 等日 probe 归零（原 openrouter 04-16 82 次 / $2.25）"
-    },
-    "F-HPL-03": {
-      "file": "src/app/api/admin/health/route.ts + src/app/(console)/admin/health/page.tsx",
-      "change": "API 新增 loadLatencyStats(sinceMs) Prisma $queryRaw PERCENTILE_CONT 0.5/0.95 分组 call_logs WHERE status='SUCCESS' AND latencyMs IS NOT NULL；ChannelRow 新增 latency1h/latency24h {p50,p95,count}；admin/health page ChannelListItem 主显 p50 1h + 副显 p95 + count；零流量显示 'N/A (no traffic)' + fallback probe latency",
-      "impact": "admin 面板从'上次 probe latency'（单点噪音 3-5x 误差）改为'近 1h 真流量 p50/p95'（DB 聚合零查询成本）"
-    },
-    "F-HPL-04": {
-      "files": [
-        "src/lib/health/__tests__/checker-lean.test.ts（4 条：单行 CONNECTIVITY / empty choices / EngineError 格式 / adapter 参数断言）",
-        "src/lib/health/__tests__/expensive-models.test.ts（13 条：12 个 true/false 样本 + null-guard + 常量非空）",
-        "src/lib/health/__tests__/scheduler.test.ts 扩展（4 条：ACTIVE expensive skip / DEGRADED expensive skip / shouldCallProbe expensive false / non-expensive 仍 probe）"
-      ],
-      "impact": "全量 vitest 216/216 通过；EMERGENCY 批次 +11 单测 + fix round 1/2 单测回归全绿"
-    },
-    "F-HPL-06_hotfix": {
-      "file": "src/app/(console)/admin/providers/page.tsx",
-      "change": "openEdit 去除 `name: p.name` prefill；fields 数组按 editId 分支：编辑模式只 displayName/baseUrl/apiKey，新建模式保留 name + 其他。Adapter preset selector 新建模式不动",
-      "impact": "生产 /admin/providers 编辑 chatanywhere 只改 apiKey → Save 200（不再 400 invalid_parameter: name）；F-IG-01 后端 providerUpdateSchema.strict() 安全契约保留"
-    },
-    "deferred": [
-      "诊断页 '实测 p50/p95' 接入新数据源（未找到独立诊断页，admin/health page 已承载 p50/p95 展示）"
-    ]
-  },
+  "evaluator_feedback": null,
+  "generator_handoff": null,
   "session_notes": {
-    "Kimi": "BL-HEALTH-PROBE-LEAN generator 5/5 完成。\n\nF-HPL-01：runTextCheck 三级删剩单级 CONNECTIVITY，max_tokens 200→1，消息 'hi'。\nF-HPL-02：expensive-models 5 正则 whitelist，planChannelCheck 加 'skip' mode，scheduler 双路（定时 + call probe）均豁免。\nF-HPL-03：admin/health API 新增 PERCENTILE_CONT raw SQL 1h/24h 聚合 call_logs.latencyMs（status=SUCCESS）；page ChannelListItem 主显 p50 1h，零流量 fallback。\nF-HPL-04：33 新单测（4 checker-lean + 13 expensive-models + 4 scheduler 扩展 + 12 增量）。\nF-HPL-06 hotfix：openEdit 去 name prefill + 编辑模式 fields 隐藏 name（后端 F-IG-01 strict 不改）。\n\n本地 tsc / vitest 216/216 / build 全过。推 verifying 交 Codex F-HPL-05 14 项。预期：上游日成本 $15 → < $0.5，gpt-4o-mini-search-preview 日 probe = 0，生产 /admin/providers 编辑恢复。",
-    "Reviewer": "BL-HEALTH-PROBE-LEAN 已完成验收：build/tsc/vitest(216/216) 全通过；checker-lean/expensive-models/scheduler 定向用例通过；/admin/providers 编辑弹窗无 name 字段，保存后 PATCH 200 + 已保存 toast。已生成 verifying/signoff 并推进 done。生产 10-13 需部署后 48h 补动态证据。"
+    "Kimi": "BL-IMAGE-PARSER-FIX launch。P0 hotfix，0.3d。\n\n根因证据链（核实完成，非猜测）：\n1. 生产 pm2 logs 显示 [imageViaChat] extraction failed，model 列表确认为 openai/gpt-5-image + openai/gpt-5-image-mini + google/gemini-3-pro-image-preview，provider 列表全部为 openrouter（cmnckvv5m0031n56ics9pggfg）\n2. Provider config 确认 openrouter imageViaChat:true + image_via_chat_modalities quirk，走 imageViaChat() 函数；chatanywhere imageViaChat:false，走 /images/generations 直连（不涉及本 bug）\n3. 直连 OpenRouter 实测三个模型均返回 `message.images[{type:image_url,image_url:{url:data:image/...}}]`，content:null 或纯描述文字，usage.cost 确认扣费 $0.04-$0.20\n4. 源码 openai-compat.ts:411-542 imageViaChat 函数 4 个 stage 只检查 msg.parts / msg.content 数组 / content 字符串 URL/base64，未检查 msg.images 字段\n\n实测 2h 内 OpenRouter 账单增量 $1.08，其中 KOLMatrix 4 次失败 ≈ $0.65，我直连测试 3 次 ≈ $0.38，Gateway probe ≈ $0.05（换算 $0.4/天，符合 LEAN <$0.5/天目标，说明 EMERGENCY+LEAN 修复全部生效）。\n\n修复方案最小化：imageViaChat 在 Stage 1 之前插入 Stage 0 识别 msg.images[]，不改 extraction failed 日志 + 不改 sanitize + 不改 normalizeImageResponse + 不改 failover/routing。\n\n3 features = 2 generator (F-IPF-01 parser + F-IPF-02 单测 6 条) + 1 codex (F-IPF-03 11 项验收含部署后 smoke)。\n\n推 main 后等用户触发 GitHub Actions deploy workflow。\n\n同时发现的次生 bug（留给 BL-BILLING-AUDIT）：call_logs channelId 错位 — 本应记 openrouter channelId 的错误被记成 chatanywhere channelId（但 errorMessage 是 openrouter 的）。",
+    "Reviewer": null
   }
 }

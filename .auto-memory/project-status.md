@@ -3,22 +3,30 @@ name: project-status
 description: AIGC Gateway 当前状态快照（覆盖写，≤30 行）
 type: project
 ---
-## 当前状态
-- **空闲**：无进行中批次。等待下一批次指令
-- 最近完成：BL-HEALTH-PROBE-LEAN done（2026-04-20，6/6 + Codex 10 PASS），生产已部署
-- 上一批次：BL-HEALTH-PROBE-EMERGENCY done（10/10 PASS），生产已部署
+## 当前批次
+- **BL-IMAGE-PARSER-FIX：`building`**（P0-hotfix，0.3d，3 features：2 generator + 1 codex）
+- 上一批次 BL-HEALTH-PROBE-LEAN：done（生产已部署，修复全部生效：$15/day → ~$0.4/day probe 成本实测）
+- Path A 主线 11/11 完成；EMERGENCY / LEAN / IMAGE-PARSER-FIX 独立 emergency 链
 
-## 生产 baseline
-- HEAD `2389de4`（LEAN signoff）已上线
-- ACTIVE text probe max_tokens 200→1 + 昂贵模型豁免 + p50/p95 改 call_logs + /admin/providers edit hotfix 全部生效
-- 预期：上游日成本 $15 → < $0.5（48h 观察项 10-13 待跟踪）
+## 本批次根因（非猜测，证据链完整）
+- 生产 pm2 logs [imageViaChat] extraction failed 覆盖 openrouter 三模型（gpt-5-image / gpt-5-image-mini / gemini-3-pro-image-preview）
+- Provider config openrouter imageViaChat:true + image_via_chat_modalities quirk → 走 imageViaChat() 函数
+- 直连 OpenRouter 实测三模型返回 message.images[{type:image_url,image_url:{url:data:image/png;base64,...}}]，usage.cost 确认扣费
+- 源码 openai-compat.ts:411-542 imageViaChat 4 个 stage 未检查 msg.images 字段
 
-## Path A 状态
-- 主线 11/11 已完成 + 2 插入批次（EMERGENCY + LEAN）均 done
-- 延后候选：INFRA-GUARD-FOLLOWUP（Next.js 16） / FE-DS-SHADCN / FE-QUALITY-FOLLOWUP / PAY-DEFERRED
+## 修复方案（最小 10 行）
+- F-IPF-01 imageViaChat 在 Stage 1 前插入 Stage 0 识别 msg.images[]
+- F-IPF-02 单测 6 条（新路径 + 旧路径回归）
+- F-IPF-03 Codex 11 项验收（含部署后 smoke test）
 
-## Backlog 下一候选
-- **BL-BILLING-AUDIT**（1.5-2d，order 100，follows LEAN）：call_logs channelId 错位 / image costPrice 缺失 / failover 中间审计 / auth_failed 告警 / 错误文本转译
+## 上一批次证据（LEAN 生效）
+- 2026-04-21 2h 内 OpenRouter 账单 $1.08，其中 KOLMatrix 4 次失败 $0.65 + 直连测试 $0.38 + probe ~$0.05
+- 换算 probe 日成本 ~$0.4，降幅 ~85%（baseline 04-16 $2.71/day）
+- F-HPL-02 昂贵模型豁免生效：过去 5000 行日志无 gpt-4o-mini-search-preview probe
+
+## Backlog 紧接
+- **BL-BILLING-AUDIT**（1.5-2d，follows IMAGE-PARSER-FIX）：channelId 错位 / image costPrice / failover 中间审计 / auth_failed 告警 / 错误文本转译（本次发现的次生 bug 已归入）
+- KOLMatrix 验证用 curl 已在 spec §F-IPF-03 步骤 7-9
 
 ## Framework 铁律（v0.7.3 → harness-template v0.9.3 已同步）
 1. Planner spec 涉及代码细节 Read 源码 + file:line 引用
@@ -26,5 +34,7 @@ type: project
 2. Code Review 断言按线索，源码+生产数据双路核实
 2.1. 协议返回形式断言标明协议层
 
-## 待跟踪（动态观察）
-- LEAN 部署后 48h（~2026-04-22）：chatanywhere day_usage_details 降幅 > 95% / OpenRouter < $0.5/day / gpt-4o-mini-search-preview probe 数 = 0 / 生产 /admin/providers 编辑验证
+## 生产状态
+- HEAD `2389de4`（LEAN signoff）已部署，pm2 起始 2026-04-20 14:38 UTC
+- IMAGE-PARSER-FIX 代码待推 main → 用户触发 GitHub Actions deploy
+- KOLMatrix 每小时烧 ~$0.3 失败图片调用（直到 hotfix 部署）
