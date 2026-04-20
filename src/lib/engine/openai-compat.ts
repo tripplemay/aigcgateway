@@ -377,6 +377,12 @@ export class OpenAICompatEngine implements EngineAdapter {
             // Fallback: some providers (zhipu, deepseek) put output in reasoning_content when content is empty
             content: (msg?.content as string) || (msg?.reasoning_content as string) || null,
             ...(msg?.tool_calls ? { tool_calls: msg.tool_calls as [] } : {}),
+            // BL-IMAGE-PARSER-FIX F-IPF-04: pass through the images[] array
+            // used by newer OpenRouter image models (gpt-5-image family,
+            // gemini-3-pro-image). Stripping it here was the reason F-IPF-01
+            // Stage 0 never matched in production — msg.images ended up
+            // undefined by the time imageViaChat inspected it.
+            ...(Array.isArray(msg?.images) ? { images: msg.images as unknown[] } : {}),
           },
           finish_reason: this.normalizeFinishReason(c.finish_reason as string | null),
         };

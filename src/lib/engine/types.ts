@@ -70,9 +70,26 @@ export interface ChatCompletionResponse {
   usage: Usage | null;
 }
 
+export interface ChatMessageImage {
+  type?: string;
+  image_url?: { url?: string };
+}
+
 export interface ChatChoice {
   index: number;
-  message: { role: "assistant"; content: string | null; tool_calls?: ToolCall[] };
+  message: {
+    role: "assistant";
+    content: string | null;
+    tool_calls?: ToolCall[];
+    /**
+     * BL-IMAGE-PARSER-FIX F-IPF-04: newer OpenRouter image models
+     * (openai/gpt-5-image, google/gemini-3-pro-image-preview) surface
+     * generated images here instead of in `content`. The shape is
+     * OpenAI-compat-ish but is NOT in the official spec. Passed through
+     * by normalizeChatResponse so imageViaChat Stage 0 can inspect it.
+     */
+    images?: ChatMessageImage[] | unknown[];
+  };
   finish_reason: string | null;
 }
 

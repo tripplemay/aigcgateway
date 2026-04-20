@@ -1,11 +1,11 @@
 {
-  "status": "fixing",
+  "status": "reverifying",
   "user_goal": "BL-IMAGE-PARSER-FIX — OpenRouter message.images[] 解析缺失 P0 hotfix（部署后 smoke FAIL，fix round 1：normalize 透传 images 字段）",
   "total_features": 4,
-  "completed_features": 3,
+  "completed_features": 4,
   "fix_rounds": 1,
   "current_sprint": "BL-IMAGE-PARSER-FIX",
-  "last_updated": "2026-04-21T01:10:00Z",
+  "last_updated": "2026-04-21T01:21:00Z",
   "reference_docs": [
     "docs/specs/BL-IMAGE-PARSER-FIX-spec.md"
   ],
@@ -50,7 +50,7 @@
   },
   "generator_handoff": null,
   "session_notes": {
-    "Kimi": "BL-IMAGE-PARSER-FIX fix round 1 launch。\n\n部署后真实评估发现 F-IPF-01 仅解决一半问题。生产 HEAD cbcfb1e 含 Stage 0 代码，pm2 重启 16:51 UTC，KOLMatrix 16:56-16:57 UTC 测试仍复现。\n\n真正根因：normalizeChatResponse（src/lib/engine/openai-compat.ts:362-386）在 imageViaChat 读到 msg 之前剥掉 images 字段。Stage 0 检查 msg?.images 时已 undefined → fallback → 失败。\n\n修复方案：\n1. normalize 透传 images 字段（加 `...(Array.isArray(msg?.images) ? { images: msg.images } : {})`）\n2. ChatCompletionResponse 类型补 images?: unknown[]\n3. 单测从 HTTP 层 mock（fetchWithProxy / fetch global）验证全链路，而非 override chatCompletions\n\n新增 F-IPF-04 处理。保留 F-IPF-01 的 Stage 0 逻辑不动（normalize 修好后就能生效）。F-IPF-03 验收重跑 7-10。\n\n同时发现的次生证据（留 BL-BILLING-AUDIT）：两条 trace channelId 错位 —— trc_cvu84f channel=openai 但 error=openrouter 的 text-instead-of-image，trc_kju9fxz5 channel=openrouter 但 error=chatanywhere 的模型无返回结果。\n\nFramework learning 待沉淀：单测 mock 层级过高导致测试绿生产红。写入 .auto-memory/proposed-learnings.md。",
+    "Kimi": "BL-IMAGE-PARSER-FIX fix round 1 完成（F-IPF-04）。\n\n修复：\n1. src/lib/engine/openai-compat.ts normalizeChatResponse message 构造加 `...(Array.isArray(msg?.images) ? { images: msg.images as unknown[] } : {})` 让 OpenRouter images 字段穿透。\n2. src/lib/engine/types.ts ChatChoice.message 新增 images?: ChatMessageImage[] | unknown[] 类型。\n3. 新增 src/lib/engine/__tests__/image-via-chat-e2e.test.ts 2 条 HTTP-layer mock 用例：(1) mock global.fetch 返回原始 OpenRouter body {choices:[{message:{content:null,images:[{type:image_url,image_url:{url:data:...}}]}}]} → engine.imageGenerations 返回 data:[{url}]，证明 images 穿透 normalize + fetchWithProxy + imageViaChat 全链路；(2) 回归：content 含 base64 data URI（无 images）走 Stage 2 fallback 成功。\n\n踩坑：首次写测试时把 quirks 配为 object {image_via_chat_modalities:true}，getQuirks 要 legacy array 或 {flags:[...]} → 不命中 imageViaChat 分支走普通 imageEndpoint。改 quirks:[\"image_via_chat_modalities\"] 即可，印证 'mock 层级降低到 HTTP 边界后立即暴露 config/contract mismatch' 的价值。\n\nF-IPF-01 Stage 0 逻辑保留不动，F-IPF-02 原 6 单测保留（覆盖 parser-only 契约）。本地 tsc / vitest 224/224（+2）/ build 全过。推 reverifying 交 Codex 重跑 F-IPF-03 11 项含生产 smoke 7-10。\n\n次生 channelId 错位证据（trc_cvu84f / trc_kju9fxz5）已归入 BL-BILLING-AUDIT。Framework learning（mock 层级过高导致测试绿生产红）已待沉淀。",
     "Reviewer": "部署后 smoke 补采 FAIL：生产 HEAD cbcfb1e 已含 F-IPF-01 Stage 0，但 [imageViaChat] extraction failed 持续输出。根因锁定 normalizeChatResponse 剥字段 + 单测 mock 层级过高。等 Generator fix round 1 F-IPF-04 完成后复验全 11 项。"
   }
 }
