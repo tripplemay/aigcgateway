@@ -46,12 +46,13 @@ class TestEngine extends OpenAICompatEngine {
   ): Promise<ChatCompletionResponse> {
     return this.chatStub(req);
   }
-  // Expose protected `imageViaChat` for direct exercise.
+  // Expose protected `imageViaChat` for direct exercise. Subclass access
+  // to a protected member is legal TypeScript — no @ts-expect-error needed
+  // (CI's tsc flags unused directives as TS2578).
   public runImageViaChat(
     request: ImageGenerationRequest,
     route: RouteResult,
   ): Promise<ImageGenerationResponse> {
-    // @ts-expect-error — deliberately reaching into protected method
     return this.imageViaChat(request, route);
   }
 }
