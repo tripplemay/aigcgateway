@@ -14,7 +14,7 @@
     "spec": "docs/specs/BL-HEALTH-PROBE-LEAN-spec.md",
     "test_cases": null,
     "signoff": "docs/test-reports/BL-HEALTH-PROBE-LEAN-signoff-2026-04-20.md",
-    "framework_reviewed": false
+    "framework_reviewed": true
   },
   "evaluator_feedback": {
     "summary": "F-HPL-05 本地验收通过；生产 48h 观察项按规格延后跟踪。",
