@@ -1,11 +1,11 @@
 {
-  "status": "building",
+  "status": "verifying",
   "user_goal": "BL-HEALTH-PROBE-EMERGENCY — DISABLED text channel 止血（每天 $10+ 上游 probe 扣费）",
   "total_features": 4,
-  "completed_features": 0,
+  "completed_features": 3,
   "fix_rounds": 0,
   "current_sprint": "BL-HEALTH-PROBE-EMERGENCY",
-  "last_updated": "2026-04-20T22:00:00Z",
+  "last_updated": "2026-04-20T21:16:00Z",
   "reference_docs": [
     "docs/specs/BL-HEALTH-PROBE-EMERGENCY-spec.md"
   ],
@@ -17,9 +17,35 @@
     "framework_reviewed": false
   },
   "evaluator_feedback": null,
-  "generator_handoff": null,
+  "generator_handoff": {
+    "local_checks": {
+      "tsc": "pass",
+      "build": "pass",
+      "vitest": "183/183 pass (原 172 + 新 11: 5 planChannelCheck + 5 shouldCallProbeChannel + 1 contract)"
+    },
+    "F-HPE-01": {
+      "file": "src/lib/health/scheduler.ts",
+      "change": "runScheduledChecks 内部决策抽出 pure fn `planChannelCheck(channel, isAliased): {checkMode, interval}`。DISABLED text aliased 从 'full'+DISABLED_INTERVAL(30m) 改为 'reachability'+DISABLED_INTERVAL(30m)；即模式从真实 chat(max_tokens:200) 降为零成本 GET /models，interval 保持 30min",
+      "impact": "chatanywhere 等上游 probe 扣费归零（原因：DISABLED 每 30min 真实 chat → 每 channel 48 次/天 × ~15 channels = $10+/天）"
+    },
+    "F-HPE-02": {
+      "file": "src/lib/health/scheduler.ts runScheduledCallProbes",
+      "change": "筛选逻辑抽出 pure fn `shouldCallProbeChannel(ch, aliasedIds): boolean`，新增 DISABLED 短路；保留 IMAGE skip / 非 aliased skip",
+      "impact": "DISABLED channel 不再被选入 CALL_PROBE（独立于 F-HPE-01 的扫描周期，防止 30min call_probe 交叉漏洞）"
+    },
+    "F-HPE-03": {
+      "file": "src/lib/health/__tests__/scheduler.test.ts",
+      "change": "新增 11 条单测：planChannelCheck 5 条（ACTIVE text full / DISABLED text reachability / DEGRADED text full / IMAGE reachability / 非 aliased reachability）+ shouldCallProbeChannel 5 条（ACTIVE/DISABLED/DEGRADED text + IMAGE + 非 aliased）+ contract 1 条（scheduler.ts source regex 确保 handleFailure 的 `status === 'DISABLED'` → `updateChannelStatus DEGRADED` 分支未被删除，防止自动复活机制误删）"
+    },
+    "preserved": [
+      "fix round 1 handleFailure allTransient DISABLED→DEGRADED 自动复活路径（scheduler.ts:425-437，contract test 锁定）",
+      "ACTIVE→DEGRADED 降级路径（handleFailure L432-435）",
+      "IMAGE channel reachability 行为（planChannelCheck 测试覆盖）",
+      "非 aliased channel reachability 行为（planChannelCheck 测试覆盖）"
+    ]
+  },
   "session_notes": {
-    "Kimi": "P0-emergency 紧急批次。源起：2026-04-20 排查 gpt-image bug 时查 chatanywhere 上游 API（sk-B2nJ*）发现 04-16 当日 535 次调用 $11.71，但 Gateway call_logs 只记 7 次。核实为 health scheduler 对 DISABLED text channels 每 30min 真实 chat(max_tokens:200) 扣费，每 channel 48 次/天 × ~15 channels = 720 次/天 ≈ 实测 535。\n\n代码核实（遵守铁律 1）：\n- scheduler.ts:267-275 checkMode 分支：DISABLED 和 ACTIVE 都走 'full'（真实 chat completion）只是频率不同\n- scheduler.ts:319-327 runScheduledCallProbes 未排除 DISABLED\n- checker.ts:209 runTextCheck 真实 chat max_tokens:200\n- scheduler.ts:409-419 fix round 1 的 DISABLED→DEGRADED 自动复活机制（保持不动，通过 request-level transient FAIL 触发，不依赖 probe）\n\n本批次 3 features（generator）+ 1 codex 验收：\n- F-HPE-01 DISABLED text → reachability（不再 chat）\n- F-HPE-02 runScheduledCallProbes 跳过 DISABLED\n- F-HPE-03 单测覆盖\n- F-HPE-04 codex 10 项验收（含生产观察 24h）\n\n紧急止血建议（spec §紧急止血部分）：上线前可通过 env `CALL_PROBE_ENABLED=false` 临时关闭 probe。\n\nPath A 11/11 已完成，本批次为独立 emergency 批次，不计入 Path A 序号。\n\n后续规划：BL-BILLING-AUDIT（1.5-2d）修 channelId 错位 + costPrice 缺失 + failover 中间审计，紧接本批次完成。",
+    "Kimi": "BL-HEALTH-PROBE-EMERGENCY generator 3/3 完成。\n\n核心修复：scheduler.ts 抽出两个 pure fn（planChannelCheck + shouldCallProbeChannel）让决策可测试 + 可审查。DISABLED text aliased channel：\n- planChannelCheck 决策从 'full' 改 'reachability'（30min interval 不变，但不再跑真实 chat）\n- shouldCallProbeChannel 直接 skip DISABLED（防 CALL_PROBE 路径泄漏）\n\nfix round 1 的 handleFailure allTransient DISABLED→DEGRADED 自动复活机制未动；加了一条 contract test 用 regex 锁定 source 里那段 branch 不被误删。\n\n本地 tsc / vitest 183/183（+11） / build 全过。推 verifying 交 Codex F-HPE-04 10 项（单测 7 + 生产 24h 观察 3）。\n\n生产部署后预期：chatanywhere day_usage_details 04-16 的 535 次 → 降到个位数（ACTIVE channel 正常 probe）；OpenAI 日开销 < $1。",
     "Reviewer": null
   }
 }

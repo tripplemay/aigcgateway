@@ -7,7 +7,7 @@
       "title": "DISABLED text channel 降级为 reachability check（止血）",
       "priority": "critical",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "source": "chatanywhere 04-16 实测 535 次/$11.71 大多数来自 DISABLED probe",
       "acceptance": "1) `src/lib/health/scheduler.ts:267-275` checkMode 分支改造：ACTIVE aliased text → 'full' + 10min；DISABLED aliased text → 'reachability' + 30min（不再跑 chat max_tokens:200）；其他（image / 非 aliased）→ 'reachability' 保持 10min；2) 保留 fix round 1 的 `handleFailure` allTransient 分支 DISABLED→DEGRADED 自动复活机制（scheduler.ts:409-419 不动）；3) 不破坏 ACTIVE→DEGRADED 的降级路径；4) tsc + build 通过"
     },
@@ -16,7 +16,7 @@
       "title": "runScheduledCallProbes 跳过 DISABLED channel",
       "priority": "critical",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "source": "scheduler.ts:319-327 probe 筛选未排除 DISABLED",
       "acceptance": "1) `src/lib/health/scheduler.ts:319-327` 在 probe 筛选中新增 `if (ch.status === 'DISABLED') continue`；2) 保留 IMAGE 跳过（已有）和 aliased 条件（已有）；3) tsc + build 通过"
     },
@@ -25,7 +25,7 @@
       "title": "verification 单测 + scheduler.test.ts 扩展",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "source": "F-HPE-01 + F-HPE-02",
       "acceptance": "1) 新增或扩展 `src/lib/health/__tests__/scheduler.test.ts` 测试用例：(a) mock disabled text aliased channel → executeCheckWithRetry 走 runApiReachabilityCheck 而非 runHealthCheck；(b) mock active text aliased channel → 走 runHealthCheck（保持原行为）；(c) runScheduledCallProbes 输入 DISABLED channel → 不入 probeChannelIds；(d) DISABLED 受 handleFailure allTransient 分支时仍能升级到 DEGRADED（fix round 1 机制不破坏）；2) 全量 vitest 通过；3) tsc + build 通过"
     },

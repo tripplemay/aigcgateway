@@ -222,6 +222,49 @@ async function getAliasedChannelIds(): Promise<Set<string>> {
 
 const MAX_CHECKS_PER_ROUND = 20;
 
+// Exported for unit tests — pure decision for which check strategy each
+// channel should receive on the current tick.
+export type CheckMode = "full" | "reachability";
+export interface CheckPlan {
+  checkMode: CheckMode;
+  interval: number;
+}
+
+export function planChannelCheck(
+  channel: { status: string; model: { modality: string } },
+  isAliased: boolean,
+): CheckPlan {
+  const isImage = channel.model.modality === "IMAGE";
+  if (isAliased && !isImage) {
+    // BL-HEALTH-PROBE-EMERGENCY F-HPE-01: DISABLED text channels run
+    // zero-cost reachability only; the old 'full' path silently billed
+    // upstream providers (chatanywhere 2026-04-16 = 535 calls / $11.71).
+    // Fix round 1's DISABLED→DEGRADED auto-recovery (handleFailure
+    // allTransient branch) still applies: reachability success/failure
+    // still flows through executeCheckWithRetry → handleFailure.
+    if (channel.status === "DISABLED") {
+      return { checkMode: "reachability", interval: DISABLED_INTERVAL };
+    }
+    return { checkMode: "full", interval: ACTIVE_INTERVAL };
+  }
+  // Image channels or un-aliased channels: reachability only.
+  return { checkMode: "reachability", interval: ACTIVE_INTERVAL };
+}
+
+// Exported for unit tests — pure filter deciding whether a channel is
+// eligible for a CALL_PROBE this tick.
+export function shouldCallProbeChannel(
+  ch: { id: string; status: string; model: { modality: string } },
+  aliasedIds: Set<string>,
+): boolean {
+  if (ch.model.modality === "IMAGE") return false;
+  if (!aliasedIds.has(ch.id)) return false;
+  // BL-HEALTH-PROBE-EMERGENCY F-HPE-02: never probe DISABLED channels —
+  // CALL_PROBE makes a real billable call.
+  if (ch.status === "DISABLED") return false;
+  return true;
+}
+
 async function runScheduledChecks(): Promise<void> {
   const now = Date.now();
 
@@ -258,21 +301,7 @@ async function runScheduledChecks(): Promise<void> {
     const lastCheckTime = channel.healthChecks[0]?.createdAt?.getTime() ?? 0;
     const elapsed = now - lastCheckTime;
 
-    const isImage = channel.model.modality === "IMAGE";
-    const isAliased = aliasedIds.has(channel.id);
-
-    let interval: number;
-    let checkMode: "full" | "reachability";
-
-    if (isAliased && !isImage) {
-      // 文本通道，已纳入已启用别名
-      checkMode = "full";
-      interval = channel.status === "DISABLED" ? DISABLED_INTERVAL : ACTIVE_INTERVAL;
-    } else {
-      // 图片通道 or 未纳入别名 → API_REACHABILITY only
-      checkMode = "reachability";
-      interval = ACTIVE_INTERVAL;
-    }
+    const { checkMode, interval } = planChannelCheck(channel, aliasedIds.has(channel.id));
 
     if (elapsed < interval) continue;
 
@@ -319,8 +348,7 @@ async function runScheduledCallProbes(
   const probeChannelIds: string[] = [];
   for (const ch of channels) {
     if (probeChannelIds.length >= MAX_PROBES_PER_ROUND) break;
-    if (ch.model.modality === "IMAGE") continue;
-    if (!aliasedIds.has(ch.id)) continue;
+    if (!shouldCallProbeChannel(ch, aliasedIds)) continue;
 
     // Check last CALL_PROBE time from DB
     probeChannelIds.push(ch.id);

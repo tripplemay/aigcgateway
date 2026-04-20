@@ -4,8 +4,16 @@ description: AIGC Gateway 当前状态快照（覆盖写，≤30 行）
 type: project
 ---
 ## 当前批次
-- **BL-HEALTH-PROBE-EMERGENCY：`building`**（P0-emergency，0.5-1d，4 features：3 generator + 1 codex）
+- **BL-HEALTH-PROBE-EMERGENCY：`verifying`**（Generator 3/3 done，等 Codex F-HPE-04 10 项 + 生产 24h 观察）
 - Path A 主线 11/11 已完成；本批次为独立 emergency 批次不计入 Path A
+
+## 本批次交付（Generator）
+- scheduler.ts 抽 pure fn：planChannelCheck + shouldCallProbeChannel 便于测试 + 审查
+- F-HPE-01：DISABLED text aliased 从 'full'（真实 chat $$）→ 'reachability'（零成本 GET /models），interval 30min 不变
+- F-HPE-02：shouldCallProbeChannel DISABLED 短路，防 CALL_PROBE 交叉漏洞
+- F-HPE-03：+11 regression test 含 contract test 锁定 handleFailure 的 DISABLED→DEGRADED 分支不被误删
+- 本地 tsc / vitest 183/183（+11）/ build 全过
+- 预期：上游日开销从 $10+ 降到 < $1
 
 ## 紧急原因（2026-04-20）
 - 排查 gpt-image bug 时查 chatanywhere 上游（sk-B2nJ* API key）发现 04-16 调用 535 次/$11.71，Gateway 只记 7 次
