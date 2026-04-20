@@ -1,42 +1,60 @@
 {
-  "batch": "BL-HEALTH-PROBE-EMERGENCY",
+  "batch": "BL-HEALTH-PROBE-LEAN",
   "created_at": "2026-04-20",
   "features": [
     {
-      "id": "F-HPE-01",
-      "title": "DISABLED text channel 降级为 reachability check（止血）",
+      "id": "F-HPL-01",
+      "title": "runTextCheck 降为单级 CONNECTIVITY + max_tokens:1",
       "priority": "critical",
       "executor": "generator",
-      "status": "done",
-      "source": "chatanywhere 04-16 实测 535 次/$11.71 大多数来自 DISABLED probe",
-      "acceptance": "1) `src/lib/health/scheduler.ts:267-275` checkMode 分支改造：ACTIVE aliased text → 'full' + 10min；DISABLED aliased text → 'reachability' + 30min（不再跑 chat max_tokens:200）；其他（image / 非 aliased）→ 'reachability' 保持 10min；2) 保留 fix round 1 的 `handleFailure` allTransient 分支 DISABLED→DEGRADED 自动复活机制（scheduler.ts:409-419 不动）；3) 不破坏 ACTIVE→DEGRADED 的降级路径；4) tsc + build 通过"
+      "status": "pending",
+      "source": "2026-04-20 chatanywhere + openrouter 账单：ACTIVE aliased text channel 每 10min 真实 chat(max_tokens:200) 造成每天 1.3M token 浪费",
+      "acceptance": "1) `src/lib/health/checker.ts:209-306` `runTextCheck` 改为单次 chat 调用 `{max_tokens:1, temperature:0, messages:[{role:'user',content:'hi'}]}`；2) 返回数组只含一条 CONNECTIVITY 行（ok = !!response?.choices?.length；失败走 catch 分支也返回 CONNECTIVITY FAIL + EngineError code）；3) 删除 FORMAT / QUALITY 两级判定（usage/finish_reason/content trim 逻辑整体移除）；4) scheduler.ts handleFailure 对 CheckResult[] 的'任一 FAIL 触发降级'判定输入从 3 行变 1 行不影响行为；5) isTransientFailureReason(errorMessage) 字符匹配复用，errorMessage 格式保持 `<ErrorCode>: <message>`；6) tsc + build 通过"
     },
     {
-      "id": "F-HPE-02",
-      "title": "runScheduledCallProbes 跳过 DISABLED channel",
+      "id": "F-HPL-02",
+      "title": "昂贵模型 whitelist — scheduler 跳过 probe 和 call probe",
       "priority": "critical",
       "executor": "generator",
-      "status": "done",
-      "source": "scheduler.ts:319-327 probe 筛选未排除 DISABLED",
-      "acceptance": "1) `src/lib/health/scheduler.ts:319-327` 在 probe 筛选中新增 `if (ch.status === 'DISABLED') continue`；2) 保留 IMAGE 跳过（已有）和 aliased 条件（已有）；3) tsc + build 通过"
+      "status": "pending",
+      "source": "openrouter 04-16 `openai/gpt-4o-mini-search-preview` 82 次/$2.25 单点流血",
+      "acceptance": "1) 新增 `src/lib/health/expensive-models.ts` 导出 `EXPENSIVE_MODEL_PATTERNS: RegExp[]`（至少覆盖 `/-search(-|$)/i`、`/-reasoning(-|$)/i`、`/^o1-/i`、`/^o3-/i`、`/-pro-(preview|image|video)/i`）+ `isExpensiveModel(modelName): boolean`；2) `scheduler.ts:planChannelCheck` 对 aliased non-image channel 额外判断 isExpensiveModel → 返回 checkMode='skip'；runScheduledChecks 消费 'skip' 即跳过；3) `shouldCallProbeChannel` 新增 `if (isExpensiveModel(ch.model.name)) return false`；4) tsc + build 通过"
     },
     {
-      "id": "F-HPE-03",
-      "title": "verification 单测 + scheduler.test.ts 扩展",
+      "id": "F-HPL-03",
+      "title": "admin 面板 p50/p95 改 call_logs 聚合",
       "priority": "high",
       "executor": "generator",
-      "status": "done",
-      "source": "F-HPE-01 + F-HPE-02",
-      "acceptance": "1) 新增或扩展 `src/lib/health/__tests__/scheduler.test.ts` 测试用例：(a) mock disabled text aliased channel → executeCheckWithRetry 走 runApiReachabilityCheck 而非 runHealthCheck；(b) mock active text aliased channel → 走 runHealthCheck（保持原行为）；(c) runScheduledCallProbes 输入 DISABLED channel → 不入 probeChannelIds；(d) DISABLED 受 handleFailure allTransient 分支时仍能升级到 DEGRADED（fix round 1 机制不破坏）；2) 全量 vitest 通过；3) tsc + build 通过"
+      "status": "pending",
+      "source": "F-HPL-01 删除 FORMAT/QUALITY 后 healthChecks 不再能表达性能指标；probe latency 与真实请求 latency 差 3-5x 本就误导",
+      "acceptance": "1) 新增（或改写现有）API 返回按 channelId 聚合近 1h / 24h `call_logs.latencyMs` p50/p95 (status=success 过滤)；零流量 channel 返回 null 并由 UI 显示 'N/A (no traffic)'；2) `src/app/(console)/admin/health/page.tsx:106-108, 552, 584` 三级 L1/L2/L3 渲染简化（可全合并为单 'Health' 列，或保留 L2/L3 但永远 N/A 不报错）；3) 诊断页（如存在）'实测 p50/p95' 改读新数据源，'最近健康检查' 保持读 healthChecks 最近一条；4) tsc + build 通过"
     },
     {
-      "id": "F-HPE-04",
-      "title": "BL-HEALTH-PROBE-EMERGENCY 全量验收",
+      "id": "F-HPL-04",
+      "title": "单测覆盖（checker / scheduler / expensive-models）",
+      "priority": "high",
+      "executor": "generator",
+      "status": "pending",
+      "source": "F-HPL-01 + F-HPL-02",
+      "acceptance": "1) `src/lib/health/__tests__/checker.test.ts` 新增用例：(a) runTextCheck mock choices 返回非空 → result=[CONNECTIVITY PASS] 长度 1；(b) mock choices=[] → [CONNECTIVITY FAIL] with errorMessage 含 'Empty response'；(c) mock 抛 EngineError(RATE_LIMITED) → [CONNECTIVITY FAIL] errorMessage 以 'rate_limited:' 开头；(d) mock 调用参数断言 max_tokens:1 / temperature:0 / messages=[{user,'hi'}]；2) 新增 `src/lib/health/__tests__/expensive-models.test.ts`：search/reasoning/o1-/o3-/pro-preview 样本返回 true；gpt-4o/claude-haiku-4.5/kimi-k2-thinking 样本返回 false；3) 扩展 `src/lib/health/__tests__/scheduler.test.ts`：(e) ACTIVE aliased expensive model → planChannelCheck checkMode='skip' + runScheduledChecks 不调用任何 check 函数；(f) shouldCallProbeChannel 对 expensive ACTIVE channel 返回 false；4) 所有 EMERGENCY 批次 +11 单测 + fix round 1/2 单测回归全绿；5) tsc + build 通过"
+    },
+    {
+      "id": "F-HPL-06",
+      "title": "Provider edit dialog name 字段隐藏（Request failed: 400 hotfix）",
+      "priority": "high",
+      "executor": "generator",
+      "status": "pending",
+      "source": "2026-04-20 生产 /admin/providers 更新 chatanywhere apiKey 400；根因 commit 17f25e1 F-IG-01 providerUpdateSchema.strict 拒绝 name，前端 openEdit 仍 prefill name",
+      "acceptance": "1) `src/app/(console)/admin/providers/page.tsx:165-173` `openEdit` 去掉 `name: p.name` prefill；2) 同文件 line 400-408 fields 数组按 editId 分支：编辑模式下只渲染 displayName / baseUrl / apiKey 三输入，新建模式保留 name 作为第一个字段（adapter preset 自动填入 name 的 line 380-388 行为不动）；3) 不动后端 `src/app/api/admin/providers/[id]/route.ts` + `src/lib/api/admin-schemas.ts providerUpdateSchema`（F-IG-01 安全契约保留）；4) tsc + build 通过"
+    },
+    {
+      "id": "F-HPL-05",
+      "title": "BL-HEALTH-PROBE-LEAN 全量验收",
       "priority": "critical",
       "executor": "codex",
-      "status": "done",
-      "source": "BL-HEALTH-PROBE-EMERGENCY",
-      "acceptance": "构建与单测（3 项）：1) npm run build 通过；2) npx tsc --noEmit 通过；3) npx vitest run 全过（新增单测 PASS + fix round 1/2 旧单测不破坏）。单测功能验证（4 项）：4) disabled text aliased channel → reachability mode；5) active text aliased channel → full mode；6) runScheduledCallProbes DISABLED 不入 probe；7) fix round 1 transient FAIL DISABLED→DEGRADED 机制保持。生产部署后观察（可延后）：8) 24h 内 chatanywhere day_usage_details 查询 openai 总调用数显著下降（对比 04-16 的 535 次应降幅 > 90%）；9) 生产 OpenAI 账户日开销 < $1。10) 生成 signoff 报告 docs/test-reports/BL-HEALTH-PROBE-EMERGENCY-signoff-2026-04-20.md。"
+      "status": "pending",
+      "source": "BL-HEALTH-PROBE-LEAN",
+      "acceptance": "构建与单测（3 项）：1) npm run build 通过；2) npx tsc --noEmit 通过；3) npx vitest run 全过（F-HPL-04 新增单测 PASS + EMERGENCY +11 + fix round 1/2 旧单测不破坏）。单测功能验证（4 项）：4) runTextCheck 返回数组长度 === 1（无 FORMAT/QUALITY 行）；5) runTextCheck 调用参数含 max_tokens:1（adapter mock 调用记录）；6) isExpensiveModel 对 search/reasoning/o1/o3 样本返回 true；7) scheduler 对 expensive ACTIVE aliased text channel 不跑 probe / call probe。F-HPL-06 hotfix 验证（2 项）：8) Dev /admin/providers 编辑任一 provider → 弹窗不含 name 输入框，只显示 displayName/baseUrl/apiKey；9) 编辑 chatanywhere 只改 apiKey → Save 200 + toast 'saved'（不再 400）。生产部署后观察（4 项，48h）：10) chatanywhere day_usage_details openai 日调用数降幅 > 95%（对比 EMERGENCY 止血后 baseline）；11) OpenRouter activity API openrouter 日 token 成本 < $0.5（对比 04-16 $2.71）；12) gpt-4o-mini-search-preview 日 probe 调用数 = 0；13) 用户在生产 /admin/providers 重试更新 chatanywhere apiKey → 成功。14) 生成 signoff docs/test-reports/BL-HEALTH-PROBE-LEAN-signoff-2026-04-2X.md。"
     }
   ]
 }

@@ -21,7 +21,7 @@
       "estimated_effort": "1.5-2 days",
       "phase": "post-path-a",
       "order": 100,
-      "follows": "BL-HEALTH-PROBE-EMERGENCY"
+      "follows": "BL-HEALTH-PROBE-LEAN"
     },
     {
       "id": "BL-065",

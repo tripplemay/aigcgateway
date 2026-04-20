@@ -4,39 +4,30 @@ description: AIGC Gateway 当前状态快照（覆盖写，≤30 行）
 type: project
 ---
 ## 当前批次
-- **BL-HEALTH-PROBE-EMERGENCY：`done`**（Codex 已签收；L1 1-7/10 PASS，8/9 按规格可延后）
-- Path A 主线 11/11 已完成；本批次为独立 emergency 批次不计入 Path A
+- **BL-HEALTH-PROBE-LEAN：`building`**（P0，0.8d，6 features：5 generator + 1 codex）
+- 上一批次 BL-HEALTH-PROBE-EMERGENCY：done（10/10 PASS，commits 488d1d8 + 9382165 推 main）
+- Path A 主线 11/11 已完成；EMERGENCY / LEAN 为独立 emergency 链，不计入 Path A 序号
 
-## 本批次交付（Generator）
-- scheduler.ts 抽 pure fn：planChannelCheck + shouldCallProbeChannel 便于测试 + 审查
-- F-HPE-01：DISABLED text aliased 从 'full'（真实 chat $$）→ 'reachability'（零成本 GET /models），interval 30min 不变
-- F-HPE-02：shouldCallProbeChannel DISABLED 短路，防 CALL_PROBE 交叉漏洞
-- F-HPE-03：+11 regression test 含 contract test 锁定 handleFailure 的 DISABLED→DEGRADED 分支不被误删
-- 本地 tsc / vitest 183/183（+11）/ build 全过
-- 预期：上游日开销从 $10+ 降到 < $1
+## 本批次目标（LEAN）
+- F-HPL-01 runTextCheck 降单级 + max_tokens:1（删 FORMAT/QUALITY），心智：每 10min 发 1 token，有返回即健康
+- F-HPL-02 昂贵模型 whitelist（search/reasoning/o1/o3/pro-preview）scheduler 跳过 probe + call probe
+- F-HPL-03 admin p50/p95 改 call_logs 聚合（近 1h/24h），零流量 channel N/A
+- F-HPL-04 单测覆盖（checker + scheduler + expensive-models）
+- F-HPL-06 hotfix：/admin/providers 编辑弹窗不显示 name（F-IG-01 strict 拒绝 name 但前端 prefill 导致 400）
+- F-HPL-05 Codex 14 项验收（单测 3 + 功能 4 + hotfix 2 + 生产 4 + signoff 1）
 
-## 紧急原因（2026-04-20）
-- 排查 gpt-image bug 时查 chatanywhere 上游（sk-B2nJ* API key）发现 04-16 调用 535 次/$11.71，Gateway 只记 7 次
-- 根因：health scheduler 对 DISABLED text channels 每 30min 真实 chat(max_tokens:200) 扣费
-- 每 channel 48 次/天 × ~15 channels = 每天 $10+ 流血
-- OpenAI 账户 04-19 告急正是这个原因耗尽
+## 预期收益
+- 上游日成本从 $15（chatanywhere $11 + openrouter $4）降至 < $0.5
+- gpt-4o-mini-search-preview 等昂贵模型日 probe 降至 0
+- 生产 /admin/providers 编辑流程恢复可用
 
-## 本批次止血目标
-- scheduler.ts:267-275 DISABLED text channel 从 full check 降为 reachability check（零成本 GET /models）
-- scheduler.ts:319-327 runScheduledCallProbes 跳过 DISABLED
-- 保留 fix round 1 的 DISABLED→DEGRADED 自动复活机制不动
-- 生产部署后 24h 观察 chatanywhere 调用数预期降 > 90%
+## 不动的契约（铁律）
+- FAIL_THRESHOLD=3 / DEGRADED/DISABLED 状态机语义 / fix round 1 DISABLED→DEGRADED 自动复活
+- routeByAlias / withFailover / cooldown / Prisma schema
+- F-IG-01 后端 providerUpdateSchema.strict() 安全契约（name 拒绝仍保留，前端对齐）
 
-## 紧急止血选项（上线前可选）
-- `CALL_PROBE_ENABLED=false` env 临时关闭 probe
-- 或用户判断自行重启暂停 scheduler
-
-## Backlog 新增（post-path-a）
-- **BL-BILLING-AUDIT**（1.5-2d，紧接本批次）：修 channelId 错位 / image costPrice 缺失 / failover 中间审计 / auth_failed 告警 / 错误文本转译
-
-## Path A 主线（已完成 11 批 + 1 插入）
-- ✅ P0 安全 5 批 / P0 前端 1 批 / P1 质量 1 批 / P1 数据 2 批 / P2 细节 2 批
-- 延后候选：INFRA-GUARD-FOLLOWUP / FE-DS-SHADCN / FE-QUALITY-FOLLOWUP / PAY-DEFERRED
+## Backlog 紧接后续
+- **BL-BILLING-AUDIT**（1.5-2d，LEAN 稳定 24h 后）：channelId 错位 / image costPrice / failover 中间审计 / auth_failed 告警 / 错误文本转译
 
 ## Framework 铁律（v0.7.3 → harness-template v0.9.3 已同步）
 1. Planner spec 涉及代码细节 Read 源码 + file:line 引用
@@ -45,6 +36,6 @@ type: project
 2.1. 协议返回形式断言标明协议层
 
 ## 生产状态
-- HEAD `96e3ae1`（Codex 2026-04-20 复核时）
-- 10 批 Path A 代码待用户触发 deploy
-- BL-HEALTH-PROBE-EMERGENCY 动态观测待部署后执行（24h day_usage_details 与日开销对比）
+- HEAD 待推：LEAN 批次 launch commit（本次）
+- EMERGENCY 已推 main（488d1d8 + 9382165），等用户触发 Deploy workflow
+- 每天 ~$15 probe 流血持续到 LEAN 上线
