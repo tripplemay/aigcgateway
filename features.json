@@ -52,7 +52,7 @@
       "title": "BL-HEALTH-PROBE-LEAN 全量验收",
       "priority": "critical",
       "executor": "codex",
-      "status": "pending",
+      "status": "done",
       "source": "BL-HEALTH-PROBE-LEAN",
       "acceptance": "构建与单测（3 项）：1) npm run build 通过；2) npx tsc --noEmit 通过；3) npx vitest run 全过（F-HPL-04 新增单测 PASS + EMERGENCY +11 + fix round 1/2 旧单测不破坏）。单测功能验证（4 项）：4) runTextCheck 返回数组长度 === 1（无 FORMAT/QUALITY 行）；5) runTextCheck 调用参数含 max_tokens:1（adapter mock 调用记录）；6) isExpensiveModel 对 search/reasoning/o1/o3 样本返回 true；7) scheduler 对 expensive ACTIVE aliased text channel 不跑 probe / call probe。F-HPL-06 hotfix 验证（2 项）：8) Dev /admin/providers 编辑任一 provider → 弹窗不含 name 输入框，只显示 displayName/baseUrl/apiKey；9) 编辑 chatanywhere 只改 apiKey → Save 200 + toast 'saved'（不再 400）。生产部署后观察（4 项，48h）：10) chatanywhere day_usage_details openai 日调用数降幅 > 95%（对比 EMERGENCY 止血后 baseline）；11) OpenRouter activity API openrouter 日 token 成本 < $0.5（对比 04-16 $2.71）；12) gpt-4o-mini-search-preview 日 probe 调用数 = 0；13) 用户在生产 /admin/providers 重试更新 chatanywhere apiKey → 成功。14) 生成 signoff docs/test-reports/BL-HEALTH-PROBE-LEAN-signoff-2026-04-2X.md。"
     }

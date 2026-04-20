@@ -1,11 +1,11 @@
 {
-  "status": "verifying",
+  "status": "done",
   "user_goal": "BL-HEALTH-PROBE-LEAN — ACTIVE probe max_tokens 200→1 + 昂贵模型豁免 + p50/p95 改 call_logs + /admin/providers edit 400 hotfix",
   "total_features": 6,
-  "completed_features": 5,
+  "completed_features": 6,
   "fix_rounds": 0,
   "current_sprint": "BL-HEALTH-PROBE-LEAN",
-  "last_updated": "2026-04-20T22:19:00Z",
+  "last_updated": "2026-04-20T14:33:36Z",
   "reference_docs": [
     "docs/specs/BL-HEALTH-PROBE-LEAN-spec.md"
   ],
@@ -13,10 +13,16 @@
   "docs": {
     "spec": "docs/specs/BL-HEALTH-PROBE-LEAN-spec.md",
     "test_cases": null,
-    "signoff": null,
+    "signoff": "docs/test-reports/BL-HEALTH-PROBE-LEAN-signoff-2026-04-20.md",
     "framework_reviewed": false
   },
-  "evaluator_feedback": null,
+  "evaluator_feedback": {
+    "summary": "F-HPL-05 本地验收通过；生产 48h 观察项按规格延后跟踪。",
+    "pass_count": 10,
+    "partial_count": 0,
+    "fail_count": 0,
+    "issues": []
+  },
   "generator_handoff": {
     "local_checks": {
       "tsc": "pass",
@@ -57,6 +63,6 @@
   },
   "session_notes": {
     "Kimi": "BL-HEALTH-PROBE-LEAN generator 5/5 完成。\n\nF-HPL-01：runTextCheck 三级删剩单级 CONNECTIVITY，max_tokens 200→1，消息 'hi'。\nF-HPL-02：expensive-models 5 正则 whitelist，planChannelCheck 加 'skip' mode，scheduler 双路（定时 + call probe）均豁免。\nF-HPL-03：admin/health API 新增 PERCENTILE_CONT raw SQL 1h/24h 聚合 call_logs.latencyMs（status=SUCCESS）；page ChannelListItem 主显 p50 1h，零流量 fallback。\nF-HPL-04：33 新单测（4 checker-lean + 13 expensive-models + 4 scheduler 扩展 + 12 增量）。\nF-HPL-06 hotfix：openEdit 去 name prefill + 编辑模式 fields 隐藏 name（后端 F-IG-01 strict 不改）。\n\n本地 tsc / vitest 216/216 / build 全过。推 verifying 交 Codex F-HPL-05 14 项。预期：上游日成本 $15 → < $0.5，gpt-4o-mini-search-preview 日 probe = 0，生产 /admin/providers 编辑恢复。",
-    "Reviewer": null
+    "Reviewer": "BL-HEALTH-PROBE-LEAN 已完成验收：build/tsc/vitest(216/216) 全通过；checker-lean/expensive-models/scheduler 定向用例通过；/admin/providers 编辑弹窗无 name 字段，保存后 PATCH 200 + 已保存 toast。已生成 verifying/signoff 并推进 done。生产 10-13 需部署后 48h 补动态证据。"
   }
 }

@@ -4,7 +4,7 @@ description: AIGC Gateway 当前状态快照（覆盖写，≤30 行）
 type: project
 ---
 ## 当前批次
-- **BL-HEALTH-PROBE-LEAN：`verifying`**（Generator 5/5 done，等 Codex F-HPL-05 14 项）
+- **BL-HEALTH-PROBE-LEAN：`done`**（Codex 已签收：L1 1-9/14 PASS，10-13 按规格 48h 生产观察）
 - 上一批次 BL-HEALTH-PROBE-EMERGENCY：done（10/10 PASS）
 - Path A 主线 11/11 已完成；EMERGENCY / LEAN 独立链
 
@@ -44,6 +44,5 @@ type: project
 2.1. 协议返回形式断言标明协议层
 
 ## 生产状态
-- HEAD 待推：LEAN 批次 launch commit（本次）
-- EMERGENCY 已推 main（488d1d8 + 9382165），等用户触发 Deploy workflow
-- 每天 ~$15 probe 流血持续到 LEAN 上线
+- LEAN 验收基线：本地 HEAD `b09dee0`（含 F-HPL-06 热修）
+- 生产动态证据待 LEAN 部署后补采（10-13 观察项，48h）
