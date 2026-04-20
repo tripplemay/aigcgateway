@@ -4,35 +4,30 @@ description: AIGC Gateway 当前状态快照（覆盖写，≤30 行）
 type: project
 ---
 ## 当前批次
-- **BL-IMAGE-PARSER-FIX：`done`**（Codex 已签收：本地 1-6/11 PASS，7-10 待部署后 smoke）
+- **BL-IMAGE-PARSER-FIX：`fixing`（fix round 1）** —— 部署后 smoke 7-10 FAIL，回采确认 F-IPF-01 未真正生效
 - 上一批次 BL-HEALTH-PROBE-LEAN：done（生产已部署，$15/day → ~$0.4/day 实测）
 - Path A 主线 11/11 完成；EMERGENCY / LEAN / IMAGE-PARSER-FIX 独立 emergency 链
 
-## 本批次交付（Generator）
-- F-IPF-01 imageViaChat 新增 Stage 0 识别 message.images[]（OpenRouter 新协议）
-- F-IPF-02 +6 单测（新路径 2 + Stage 1/2 回归 + 全失配 + images 空数组 fallback）
-- 本地 tsc / vitest 222/222（+6）/ build 全过
-- 预期部署后：gpt-5-image / gpt-5-image-mini / gemini-3-pro-image 三模型恢复可用
+## Fix Round 1 根因（非猜测，生产硬证据）
+- 生产 HEAD cbcfb1e（Stage 0 代码已部署 16:51 UTC），pm2 logs 16:56-16:57 UTC 仍持续输出 `[imageViaChat] extraction failed`
+- 真因：`src/lib/engine/openai-compat.ts:362-386` **normalizeChatResponse 剥掉 message.images 字段**，Stage 0 读 msg?.images 永远 undefined → fallback Stage 1-4 失败
+- 次级：F-IPF-02 单测 mock chatCompletions 直接返回（已含 images），绕过 normalize 层 → 测试绿但生产红
 
-## 本批次根因（非猜测，证据链完整）
-- 生产 pm2 logs [imageViaChat] extraction failed 覆盖 openrouter 三模型（gpt-5-image / gpt-5-image-mini / gemini-3-pro-image-preview）
-- Provider config openrouter imageViaChat:true + image_via_chat_modalities quirk → 走 imageViaChat() 函数
-- 直连 OpenRouter 实测三模型返回 message.images[{type:image_url,image_url:{url:data:image/png;base64,...}}]，usage.cost 确认扣费
-- 源码 openai-compat.ts:411-542 imageViaChat 4 个 stage 未检查 msg.images 字段
+## Fix Round 1 修复（F-IPF-04）
+- normalizeChatResponse 透传 `...(Array.isArray(msg?.images) ? { images: msg.images } : {})`
+- ChatCompletionResponse 类型补 `images?: Array<...>`
+- 新单测从 HTTP 层 mock（`global.fetch` 或 `fetchWithProxy`）验证 images 字段穿透 normalize 全链路
+- F-IPF-01 Stage 0 逻辑保留不动（normalize 修好后自动生效）
+- F-IPF-03 重跑 11 项（含生产 smoke 7-10）
 
-## 修复方案（最小 10 行）
-- F-IPF-01 imageViaChat 在 Stage 1 前插入 Stage 0 识别 msg.images[]
-- F-IPF-02 单测 6 条（新路径 + 旧路径回归）
-- F-IPF-03 Codex 11 项验收（含部署后 smoke test）
+## Framework Learning（待沉淀 harness-template）
+- 单测 mock 层级过高导致 "测试绿生产红"：涉及多层调用链（parser + normalize 等）的修复，单测必须从 HTTP/网络边界层 mock，而非中间层
+- 已追加到 .auto-memory/proposed-learnings.md 待 done 阶段批量同步
 
-## 上一批次证据（LEAN 生效）
-- 2026-04-21 2h 内 OpenRouter 账单 $1.08，其中 KOLMatrix 4 次失败 $0.65 + 直连测试 $0.38 + probe ~$0.05
-- 换算 probe 日成本 ~$0.4，降幅 ~85%（baseline 04-16 $2.71/day）
-- F-HPL-02 昂贵模型豁免生效：过去 5000 行日志无 gpt-4o-mini-search-preview probe
-
-## Backlog 紧接
-- **BL-BILLING-AUDIT**（1.5-2d，follows IMAGE-PARSER-FIX）：channelId 错位 / image costPrice / failover 中间审计 / auth_failed 告警 / 错误文本转译（本次发现的次生 bug 已归入）
-- KOLMatrix 验证用 curl 已在 spec §F-IPF-03 步骤 7-9
+## 次生 bug（已归入 BL-BILLING-AUDIT）
+- trc_cvu84f channel=openai 但 errorMessage=openrouter 的 text-instead-of-image
+- trc_kju9fxz5 channel=openrouter 但 errorMessage=chatanywhere 的 模型无返回结果
+- 均为 channelId 错位 bug（failover 时 errorMessage 来自前一 attempt，channelId 记成后一 attempt）
 
 ## Framework 铁律（v0.7.3 → harness-template v0.9.3 已同步）
 1. Planner spec 涉及代码细节 Read 源码 + file:line 引用
@@ -41,6 +36,5 @@ type: project
 2.1. 协议返回形式断言标明协议层
 
 ## 生产状态
-- HEAD `2389de4`（LEAN signoff）已部署，pm2 起始 2026-04-20 14:38 UTC
-- IMAGE-PARSER-FIX 已签收（本地 HEAD `88bc1d4`），待部署后补 7-10 smoke 证据
-- KOLMatrix 每小时烧 ~$0.3 失败图片调用（直到 hotfix 部署）
+- HEAD `cbcfb1e`（IMAGE-PARSER-FIX signoff）已部署但修复未真正生效
+- KOLMatrix 三模型仍失败，每小时 ~$0.3 流血至 F-IPF-04 部署

@@ -32,6 +32,20 @@ type: project
 
 -->
 
+<!-- ================= 待确认区 ================= -->
+
+## [2026-04-21] Planner + Generator — 来源：BL-IMAGE-PARSER-FIX fix round 1
+
+**类型：** 新坑（测试 mock 层级）
+
+**内容：** 当修复涉及多层调用链时（如 parser 读某字段 → 中间某层 normalize 会剥该字段），Generator 的单测若在"中间层"之上做 mock（override 中间层方法直接返回已组装好的对象），会掩盖中间层的副作用（剥字段、重组），导致测试绿但生产红。本次 F-IPF-02 的 6 条单测 override `chatCompletions` 返回含 images 的假响应，绕过了真实的 `normalizeChatResponse` 会剥 `images` 字段的 bug，单测全绿但生产部署后 100% 失败。
+
+**具体规则建议：** Generator 单测涉及"修改响应字段处理逻辑"或"穿透多层转换"的修复时，至少有 1 条单测从**最外层边界**（HTTP 层 / `global.fetch` / `fetchWithProxy`）mock，让中间所有层级真实执行，验证字段能完整穿透。
+
+**建议写入 harness-template 的：** `harness/generator.md` §测试设计 新增规则；可能也写入 `harness/evaluator.md` §代码审查要求 评估员须核对 mock 层级
+
+**状态：** 待确认
+
 <!-- ================= 已同步到 harness-template（归档区） ================= -->
 
 ## [2026-04-20 已同步 v0.9.3] Next.js App Router 私有目录约定
