@@ -3,38 +3,40 @@ name: project-status
 description: AIGC Gateway 当前状态快照（覆盖写，≤30 行）
 type: project
 ---
-## Path A 主线完成 🎉（10 批 + 1 插入 = 11 次 done）
-- ✅ P0 安全 5 批（CRED / AUTH-SESSION / BILLING-AI / INFRA-GUARD + BILLING-CHECK-FOLLOWUP 插入）
-- ✅ P0 前端 1 批（FE-PERF-01）
-- ✅ P1 质量 1 批（FE-QUALITY 合并）
-- ✅ P1 数据 2 批（DATA-CONSISTENCY / INFRA-RESILIENCE）
-- ✅ P2 细节 2 批（SEC-POLISH 合并 / INFRA-ARCHIVE）
+## 当前批次
+- **BL-HEALTH-PROBE-EMERGENCY：`building`**（P0-emergency，0.5-1d，4 features：3 generator + 1 codex）
+- Path A 主线 11/11 已完成；本批次为独立 emergency 批次不计入 Path A
 
-## 最后批次延后（2026-04-20 决策）
-- **BL-FE-DS-SHADCN** → `deferred`（边际收益低 + UI 回归风险；未来新 UI 迭代时再启用或拆 Mini-A 0.5d）
+## 紧急原因（2026-04-20）
+- 排查 gpt-image bug 时查 chatanywhere 上游（sk-B2nJ* API key）发现 04-16 调用 535 次/$11.71，Gateway 只记 7 次
+- 根因：health scheduler 对 DISABLED text channels 每 30min 真实 chat(max_tokens:200) 扣费
+- 每 channel 48 次/天 × ~15 channels = 每天 $10+ 流血
+- OpenAI 账户 04-19 告急正是这个原因耗尽
 
-## 累计交付（全部通过 Evaluator 签收）
-- Code Review 15 Critical 全修（支付 2 条延后到 PAY-DEFERRED）
-- 46 High 绝大多数修复（少数延后：reconcile.resolveCanonicalName / list_actions activeVersion / Next.js 16 迁移）
-- 新增 172/172 单测（原 96 → 172，+76 条覆盖）
-- 关键基础设施：leader-lock / fetchWithTimeout / rpmCheck Lua / auth-rate-limit / maintenance scheduler
+## 本批次止血目标
+- scheduler.ts:267-275 DISABLED text channel 从 full check 降为 reachability check（零成本 GET /models）
+- scheduler.ts:319-327 runScheduledCallProbes 跳过 DISABLED
+- 保留 fix round 1 的 DISABLED→DEGRADED 自动复活机制不动
+- 生产部署后 24h 观察 chatanywhere 调用数预期降 > 90%
 
-## Framework 提案池（3 条待用户确认同步 harness-template repo）
-1. Next.js App Router 私有目录约定（BL-FE-QUALITY round 5）
-2. Generator 裁决申请机制（BL-SEC-POLISH 首发，docs/adjudications/ 模板）
-3. Planner 自检规则（对照已采纳铁律清单自检，防反例再发）
+## 紧急止血选项（上线前可选）
+- `CALL_PROBE_ENABLED=false` env 临时关闭 probe
+- 或用户判断自行重启暂停 scheduler
 
-## 延后候选（等用户决定时机）
-- INFRA-GUARD-FOLLOWUP（Next.js 16 迁移 2-3d）— 独立批次因 breaking
-- FE-DS-SHADCN（2d）— 代码质量，边际收益低
-- FE-QUALITY-FOLLOWUP（aria-label 剩余）— 小修
-- PAY-DEFERRED（1-2d）— 支付接入前 1 周启动
+## Backlog 新增（post-path-a）
+- **BL-BILLING-AUDIT**（1.5-2d，紧接本批次）：修 channelId 错位 / image costPrice 缺失 / failover 中间审计 / auth_failed 告警 / 错误文本转译
+
+## Path A 主线（已完成 11 批 + 1 插入）
+- ✅ P0 安全 5 批 / P0 前端 1 批 / P1 质量 1 批 / P1 数据 2 批 / P2 细节 2 批
+- 延后候选：INFRA-GUARD-FOLLOWUP / FE-DS-SHADCN / FE-QUALITY-FOLLOWUP / PAY-DEFERRED
+
+## Framework 铁律（v0.7.3 → harness-template v0.9.3 已同步）
+1. Planner spec 涉及代码细节 Read 源码 + file:line 引用
+1.1. acceptance 的"实现形式"与"语义意图"分离
+2. Code Review 断言按线索，源码+生产数据双路核实
+2.1. 协议返回形式断言标明协议层
 
 ## 生产状态
-- HEAD `96e3ae1`（BL-INFRA-ARCHIVE signoff 后）
-- **10 批 Path A 代码累计待用户触发 deploy**
-- framework 铁律 v0.7.3（Planner 1/1.1/2/2.1 共 4 条）
-
-## 后续决策节点
-- Framework 3 条提案是否立即同步 harness-template？
-- Path A 后下一方向：新功能需求 / 延后候选 / 其他
+- HEAD `fcba598`（Path A 归档后）
+- 10 批 Path A 代码待用户触发 deploy
+- **每天 ~$10 health probe 流血直到本批次上线或紧急止血**

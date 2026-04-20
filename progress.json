@@ -1,48 +1,25 @@
 {
-  "status": "done",
-  "user_goal": "BL-INFRA-ARCHIVE — health_checks/system_logs TTL 自动清理（call_logs 分区因当前体量小延后）",
-  "total_features": 2,
-  "completed_features": 2,
+  "status": "building",
+  "user_goal": "BL-HEALTH-PROBE-EMERGENCY — DISABLED text channel 止血（每天 $10+ 上游 probe 扣费）",
+  "total_features": 4,
+  "completed_features": 0,
   "fix_rounds": 0,
-  "current_sprint": "BL-INFRA-ARCHIVE",
-  "last_updated": "2026-04-19T22:17:37.753Z",
+  "current_sprint": "BL-HEALTH-PROBE-EMERGENCY",
+  "last_updated": "2026-04-20T22:00:00Z",
   "reference_docs": [
-    "docs/specs/BL-INFRA-ARCHIVE-spec.md"
+    "docs/specs/BL-HEALTH-PROBE-EMERGENCY-spec.md"
   ],
   "role_assignments": null,
   "docs": {
-    "spec": "docs/specs/BL-INFRA-ARCHIVE-spec.md",
-    "test_cases": "docs/test-cases/bl-infra-archive-verifying-cases-2026-04-20.md",
-    "signoff": "docs/test-reports/BL-INFRA-ARCHIVE-signoff-2026-04-20.md",
+    "spec": "docs/specs/BL-HEALTH-PROBE-EMERGENCY-spec.md",
+    "test_cases": null,
+    "signoff": null,
     "framework_reviewed": false
   },
-  "evaluator_feedback": {
-    "summary": "BL-INFRA-ARCHIVE 验收通过：本地功能/质量门/生产只读预检满足口径，部署后 smoke 两项按 spec 延后。",
-    "pass_count": 11,
-    "partial_count": 0,
-    "fail_count": 0,
-    "issues": []
-  },
-  "generator_handoff": {
-    "local_checks": {
-      "tsc": "pass",
-      "build": "pass",
-      "vitest": "172/172 pass (原 165 + 新 7: 2 health + 2 system + 3 scheduler)"
-    },
-    "F-IA-01": {
-      "archive_cleanup": "src/lib/maintenance/archive-cleanup.ts — RETENTION_DAYS { health_checks: 30, system_logs: 90 } as const；cleanupHealthChecks(now?) + cleanupSystemLogs(now?) deleteMany where createdAt < now - days；返 {deleted}；count>0 时 console.log '[archive] xxx: deleted N rows older than Xd'",
-      "scheduler": "src/lib/maintenance/scheduler.ts — startMaintenanceScheduler() 启动时 tick 一次 + 24h interval；tick 用 Promise.all 并发跑 notifications/health/system 三项，每项 try/catch 独立；__maintenanceTickForTest 导出供测试；stop 幂等",
-      "instrumentation": "src/instrumentation.ts 移除 startNotificationsCleanupScheduler，改启 startMaintenanceScheduler（避免双调度）；保留 cleanupOldRecords(7d) 现状不动（spec 未要求合并；下批次可评估统一）",
-      "dead_code_removal": "删除 src/lib/notifications/scheduler.ts（已被 maintenance scheduler 取代，无其他引用）",
-      "tests": "src/lib/maintenance/__tests__/archive-cleanup.test.ts 7 条：cleanup health/system 各 2 条（cutoff 计算 + 常量核验）；scheduler 3 条（tick 并发 fan-out + 单一失败不阻塞其他 + start/stop 幂等）"
-    },
-    "deferred": [
-      "call_logs 分区（当前 721 行体量小，未来批次触发）",
-      "health/scheduler.ts 的 cleanupOldRecords 7d 清理与 maintenance 30d 重叠（下批次评估统一）"
-    ]
-  },
+  "evaluator_feedback": null,
+  "generator_handoff": null,
   "session_notes": {
-    "Kimi": "BL-INFRA-ARCHIVE generator 1/1 完成。\n\n产物：\n- maintenance/archive-cleanup.ts：cleanupHealthChecks 30d + cleanupSystemLogs 90d；RETENTION_DAYS 常量集中\n- maintenance/scheduler.ts：Promise.all 并发 tick，每项 runOne wrapper 独立 try/catch；start 返 stop fn；startup 立即 tick；stop 幂等\n- instrumentation.ts 切换到 startMaintenanceScheduler（移除 startNotificationsCleanupScheduler）\n- 删除 notifications/scheduler.ts（dead code）\n- 7 条单测（cutoff 计算 + 常量 + scheduler 并发 + 失败隔离 + 启停幂等）\n\n本地 tsc / vitest 172/172（+7） / build 全过。\n\n观察：health/scheduler.ts cleanupOldRecords 7d 仍在跑（未移除），与新 maintenance 30d cleanup 功能重叠但不冲突（7d 先删；30d 删剩无事）。spec 未要求合并，下批次可评估。\n\n推 verifying 交 Codex F-IA-02 13 项（本地 4 + 构建 3 + 生产预检 3 + 部署后 smoke 2 + signoff 1）。",
-    "Reviewer": "BL-INFRA-ARCHIVE verifying 完成：#1-#10 PASS，#11/#12 部署后 smoke 按 spec 延后；已生成 verifying + signoff，状态置 done。"
+    "Kimi": "P0-emergency 紧急批次。源起：2026-04-20 排查 gpt-image bug 时查 chatanywhere 上游 API（sk-B2nJ*）发现 04-16 当日 535 次调用 $11.71，但 Gateway call_logs 只记 7 次。核实为 health scheduler 对 DISABLED text channels 每 30min 真实 chat(max_tokens:200) 扣费，每 channel 48 次/天 × ~15 channels = 720 次/天 ≈ 实测 535。\n\n代码核实（遵守铁律 1）：\n- scheduler.ts:267-275 checkMode 分支：DISABLED 和 ACTIVE 都走 'full'（真实 chat completion）只是频率不同\n- scheduler.ts:319-327 runScheduledCallProbes 未排除 DISABLED\n- checker.ts:209 runTextCheck 真实 chat max_tokens:200\n- scheduler.ts:409-419 fix round 1 的 DISABLED→DEGRADED 自动复活机制（保持不动，通过 request-level transient FAIL 触发，不依赖 probe）\n\n本批次 3 features（generator）+ 1 codex 验收：\n- F-HPE-01 DISABLED text → reachability（不再 chat）\n- F-HPE-02 runScheduledCallProbes 跳过 DISABLED\n- F-HPE-03 单测覆盖\n- F-HPE-04 codex 10 项验收（含生产观察 24h）\n\n紧急止血建议（spec §紧急止血部分）：上线前可通过 env `CALL_PROBE_ENABLED=false` 临时关闭 probe。\n\nPath A 11/11 已完成，本批次为独立 emergency 批次，不计入 Path A 序号。\n\n后续规划：BL-BILLING-AUDIT（1.5-2d）修 channelId 错位 + costPrice 缺失 + failover 中间审计，紧接本批次完成。",
+    "Reviewer": null
   }
 }

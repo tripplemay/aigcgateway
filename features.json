@@ -1,24 +1,42 @@
 {
-  "batch": "BL-INFRA-ARCHIVE",
+  "batch": "BL-HEALTH-PROBE-EMERGENCY",
   "created_at": "2026-04-20",
   "features": [
     {
-      "id": "F-IA-01",
-      "title": "health_checks + system_logs TTL 清理 scheduler（复用 leader-lock）",
-      "priority": "medium",
+      "id": "F-HPE-01",
+      "title": "DISABLED text channel 降级为 reachability check（止血）",
+      "priority": "critical",
       "executor": "generator",
-      "status": "done",
-      "source": "H-3（范围收缩：基于生产实测数据）",
-      "acceptance": "1) 新建 `src/lib/maintenance/archive-cleanup.ts`：cleanupHealthChecks(now?) deleteMany where createdAt < now - 30d；cleanupSystemLogs(now?) deleteMany where createdAt < now - 90d；两者返回 deleted count + console.log；2) 新建 `src/lib/maintenance/scheduler.ts`：startMaintenanceScheduler() 每 24h tick 一次，tick 内调 cleanupExpiredNotifications + cleanupHealthChecks + cleanupSystemLogs；try/catch 保底；返回 stop fn；3) `src/instrumentation.ts` 在 leader-lock 成功后启动 maintenance scheduler（仅 leader 节点跑）；若已有 startNotificationsCleanupScheduler 则用本 scheduler 替代（避免双调度）；4) 保留期常量集中：RETENTION_DAYS = {health_checks: 30, system_logs: 90}；未来如需 admin 配置再扩展；5) 新增单测 `src/lib/maintenance/__tests__/archive-cleanup.test.ts` ≥ 3 条：cleanupHealthChecks 删 31d+ 保留 29d-；cleanupSystemLogs 删 91d+ 保留 89d-；scheduler 启动 tick + stop 清理；6) tsc + build 通过"
+      "status": "pending",
+      "source": "chatanywhere 04-16 实测 535 次/$11.71 大多数来自 DISABLED probe",
+      "acceptance": "1) `src/lib/health/scheduler.ts:267-275` checkMode 分支改造：ACTIVE aliased text → 'full' + 10min；DISABLED aliased text → 'reachability' + 30min（不再跑 chat max_tokens:200）；其他（image / 非 aliased）→ 'reachability' 保持 10min；2) 保留 fix round 1 的 `handleFailure` allTransient 分支 DISABLED→DEGRADED 自动复活机制（scheduler.ts:409-419 不动）；3) 不破坏 ACTIVE→DEGRADED 的降级路径；4) tsc + build 通过"
     },
     {
-      "id": "F-IA-02",
-      "title": "BL-INFRA-ARCHIVE 全量验收",
-      "priority": "medium",
+      "id": "F-HPE-02",
+      "title": "runScheduledCallProbes 跳过 DISABLED channel",
+      "priority": "critical",
+      "executor": "generator",
+      "status": "pending",
+      "source": "scheduler.ts:319-327 probe 筛选未排除 DISABLED",
+      "acceptance": "1) `src/lib/health/scheduler.ts:319-327` 在 probe 筛选中新增 `if (ch.status === 'DISABLED') continue`；2) 保留 IMAGE 跳过（已有）和 aliased 条件（已有）；3) tsc + build 通过"
+    },
+    {
+      "id": "F-HPE-03",
+      "title": "verification 单测 + scheduler.test.ts 扩展",
+      "priority": "high",
+      "executor": "generator",
+      "status": "pending",
+      "source": "F-HPE-01 + F-HPE-02",
+      "acceptance": "1) 新增或扩展 `src/lib/health/__tests__/scheduler.test.ts` 测试用例：(a) mock disabled text aliased channel → executeCheckWithRetry 走 runApiReachabilityCheck 而非 runHealthCheck；(b) mock active text aliased channel → 走 runHealthCheck（保持原行为）；(c) runScheduledCallProbes 输入 DISABLED channel → 不入 probeChannelIds；(d) DISABLED 受 handleFailure allTransient 分支时仍能升级到 DEGRADED（fix round 1 机制不破坏）；2) 全量 vitest 通过；3) tsc + build 通过"
+    },
+    {
+      "id": "F-HPE-04",
+      "title": "BL-HEALTH-PROBE-EMERGENCY 全量验收",
+      "priority": "critical",
       "executor": "codex",
-      "status": "completed",
-      "source": "BL-INFRA-ARCHIVE",
-      "acceptance": "本地功能（4 项）：1) 构造 createdAt=0/20/40/100 天前测试数据运行 cleanupHealthChecks → 删 40d/100d，保留 0d/20d（3 行）；2) 同上 cleanupSystemLogs（retention=90d）→ 删 100d，保留 40d/20d/0d（3 行）；3) scheduler start 后立即 tick 一次（测试桩）；4) Leader-lock 未持时 scheduler 不启动（mock）。构建（3 项）：5) npm run build 通过；6) npx tsc --noEmit 通过；7) npx vitest run 全过（新增单测 PASS）。生产只读预检（3 项，Codex SSH）：8) SELECT COUNT(*) FROM health_checks WHERE createdAt < NOW() - INTERVAL '30 days' 记录基线（当前预期 0，最早 2026-04-12）；9) SELECT COUNT(*) FROM system_logs WHERE createdAt < NOW() - INTERVAL '90 days' 记录基线（预期 0）；10) 确认 call_logs 未被改动（grep scripts/src 无 DELETE FROM call_logs 或 partition）。部署后 smoke（2 项，可延后）：11) 部署后下一个 24h 调度周期后 health_checks.COUNT(*) 稳定于当日增减；12) 日志出现 [archive] health_checks/system_logs: deleted N rows 行。13) 生成 signoff 报告 docs/test-reports/BL-INFRA-ARCHIVE-signoff-2026-04-20.md。"
+      "status": "pending",
+      "source": "BL-HEALTH-PROBE-EMERGENCY",
+      "acceptance": "构建与单测（3 项）：1) npm run build 通过；2) npx tsc --noEmit 通过；3) npx vitest run 全过（新增单测 PASS + fix round 1/2 旧单测不破坏）。单测功能验证（4 项）：4) disabled text aliased channel → reachability mode；5) active text aliased channel → full mode；6) runScheduledCallProbes DISABLED 不入 probe；7) fix round 1 transient FAIL DISABLED→DEGRADED 机制保持。生产部署后观察（可延后）：8) 24h 内 chatanywhere day_usage_details 查询 openai 总调用数显著下降（对比 04-16 的 535 次应降幅 > 90%）；9) 生产 OpenAI 账户日开销 < $1。10) 生成 signoff 报告 docs/test-reports/BL-HEALTH-PROBE-EMERGENCY-signoff-2026-04-20.md。"
     }
   ]
 }
