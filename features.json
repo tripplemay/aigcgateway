@@ -25,7 +25,7 @@
       "title": "BL-IMAGE-PARSER-FIX 全量验收",
       "priority": "critical",
       "executor": "codex",
-      "status": "pending",
+      "status": "done",
       "source": "BL-IMAGE-PARSER-FIX",
       "acceptance": "构建与单测（3 项）：1) npm run build 通过；2) npx tsc --noEmit 通过；3) npx vitest run 全过（F-IPF-02 新 6 条 PASS + LEAN +33 + EMERGENCY +11 + 旧单测不破坏）。单测功能验证（3 项）：4) image-via-chat.test.ts 6 条 PASS 且 Stage 0 优先级高于 Stage 1-4（images 存在时不 fallback）；5) imageViaChat 成功返回 shape 为 {created, data:[{url}]} 与 normalizeImageResponse 兼容；6) sanitizeErrorMessage 的 'returned no extractable image' → 'did not return a valid image' 转换逻辑不被破坏。生产部署后 smoke test（4 项）：7) 用 KOLMatrix 复现 curl: POST /v1/images/generations model=gemini-3-pro-image prompt='A dark blue world map with glowing cyan dots...' size=1024x1024 → HTTP 200 + data:image/png;base64 返回；8) 同 curl model=gpt-image → HTTP 200 + 图片；9) 同 curl model=gpt-image-mini → HTTP 200 + 图片；10) 部署后 1h 内 pm2 logs [imageViaChat] extraction failed 出现次数显著下降（对比前 1h，降幅 > 80%）。11) 生成 signoff 报告 docs/test-reports/BL-IMAGE-PARSER-FIX-signoff-2026-04-21.md。"
     }

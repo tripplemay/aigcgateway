@@ -4,7 +4,7 @@ description: AIGC Gateway 当前状态快照（覆盖写，≤30 行）
 type: project
 ---
 ## 当前批次
-- **BL-IMAGE-PARSER-FIX：`verifying`**（Generator 2/2 done，等 Codex F-IPF-03 11 项）
+- **BL-IMAGE-PARSER-FIX：`done`**（Codex 已签收：本地 1-6/11 PASS，7-10 待部署后 smoke）
 - 上一批次 BL-HEALTH-PROBE-LEAN：done（生产已部署，$15/day → ~$0.4/day 实测）
 - Path A 主线 11/11 完成；EMERGENCY / LEAN / IMAGE-PARSER-FIX 独立 emergency 链
 
@@ -42,5 +42,5 @@ type: project
 
 ## 生产状态
 - HEAD `2389de4`（LEAN signoff）已部署，pm2 起始 2026-04-20 14:38 UTC
-- IMAGE-PARSER-FIX 代码待推 main → 用户触发 GitHub Actions deploy
+- IMAGE-PARSER-FIX 已签收（本地 HEAD `88bc1d4`），待部署后补 7-10 smoke 证据
 - KOLMatrix 每小时烧 ~$0.3 失败图片调用（直到 hotfix 部署）
