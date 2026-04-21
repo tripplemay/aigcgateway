@@ -58,6 +58,20 @@ type: project
 
 **状态：** 待确认
 
+## [2026-04-21] Planner — 来源：BL-IMAGE-PARSER-FIX round 3 adjudication round 2
+
+**类型：** 铁律补充（零基线边界）
+
+**内容：** Planner 写 "降幅/比值" 类定量 acceptance 必须显式处理零基线边界（分母=0、before=0、流量过低等）。否则 Evaluator 遇到冷门模型 / 上报者已切替 fallback / 部署时段低流量等场景必然 FAIL（虽然修复本身生效）。同时允许 qualitative（smoke、功能验证）与 quantitative（降幅、比值）证据**组合满足**，而非孤立比较。
+
+**案例：** BL-IMAGE-PARSER-FIX #10 原为 "(before-after)/before > 0.80 或 before>0 AND after=0"；reverifying 实际 before=0 AND after=0（KOLMatrix 已切 seedream 停测 + 模型冷门），零基线零除导致 FAIL，但 smoke 7-9 全 PASS 证明修复已生效。修订为三分支：(a) before>0 按降幅；(b) before=0 AND after=0 AND smoke 全 PASS → 零基线豁免 PASS；(c) before=0 AND after>0 → FAIL。
+
+**具体规则建议：** acceptance 模板包含 "If X is 0, handle edge case by Y" 的显式子句；qualitative + quantitative 组合满足需在 acceptance 明示"当且仅当"条件。
+
+**建议写入 harness-template 的：** `harness/planner.md` §铁律 1.3（"零基线边界与证据组合"）；`harness/spec-template.md` 加定量 acceptance 零边界处理 checklist。
+
+**状态：** 待确认
+
 <!-- ================= 已同步到 harness-template（归档区） ================= -->
 
 ## [2026-04-20 已同步 v0.9.3] Next.js App Router 私有目录约定
