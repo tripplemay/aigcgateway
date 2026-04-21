@@ -1,11 +1,11 @@
 {
-  "status": "reverifying",
+  "status": "fixing",
   "user_goal": "BL-IMAGE-PARSER-FIX — OpenRouter message.images[] 解析缺失 P0 hotfix（部署后 smoke FAIL，fix round 1：normalize 透传 images 字段）",
   "total_features": 4,
   "completed_features": 2,
   "fix_rounds": 1,
   "current_sprint": "BL-IMAGE-PARSER-FIX",
-  "last_updated": "2026-04-20T17:32:08Z",
+  "last_updated": "2026-04-21T02:22:23.361Z",
   "reference_docs": [
     "docs/specs/BL-IMAGE-PARSER-FIX-spec.md"
   ],
@@ -17,28 +17,28 @@
     "framework_reviewed": false
   },
   "evaluator_feedback": {
-    "summary": "reverifying 失败：tsc 在 image-via-chat-e2e.test.ts 报类型错误；生产仍未部署 fix round 1 目标版本，7-10 项 blocked。",
-    "pass_count": 5,
-    "partial_count": 0,
-    "fail_count": 6,
+    "summary": "reverifying 失败：#7 返回形态不满足 data URI 直返口径；#10 缺少可量化的 pm2 1h 降幅证据。",
+    "pass_count": 8,
+    "partial_count": 1,
+    "fail_count": 2,
     "issues": [
-      {
-        "feature_id": "F-IPF-04",
-        "result": "FAIL",
-        "description": "npx tsc --noEmit 失败：image-via-chat-e2e.test.ts:104 出现 TS2352/TS2493。",
-        "steps_to_reproduce": "1) git checkout f0df747 2) npx tsc --noEmit"
-      },
       {
         "feature_id": "F-IPF-03",
         "result": "FAIL",
-        "description": "生产未部署 fix round 1 版本；无法按目标代码执行 smoke 7-10。",
-        "steps_to_reproduce": "1) ssh tripplezhou@34.180.93.185 'cd /opt/aigc-gateway && git rev-parse --short HEAD' -> cbcfb1e 2) 本地 HEAD 为 f0df747"
+        "description": "生产 smoke #7：gemini-3-pro-image 虽 HTTP 200，但返回 proxy URL（https://0.0.0.0:3000/v1/images/proxy/...），未满足 acceptance 指定的 data:image/png;base64 直返。",
+        "steps_to_reproduce": "POST https://aigc.guangai.ai/v1/images/generations model=gemini-3-pro-image size=1024x1024; 见 docs/test-reports/artifacts/bl-image-parser-fix-prod-reverify-2026-04-21/gemini-3-pro-image.response.json"
+      },
+      {
+        "feature_id": "F-IPF-03",
+        "result": "BLOCKED",
+        "description": "生产观察 #10：pm2 logs 未含可解析时间戳，无法完成“部署前后 1h extraction failed 降幅 >80%”同口径量化。",
+        "steps_to_reproduce": "pm2 logs aigc-gateway --nostream --lines 20000 可见 [imageViaChat] extraction failed 但无时间戳；见 artifacts/pm2-logs-20000.txt"
       }
     ]
   },
   "generator_handoff": null,
   "session_notes": {
     "Kimi": "BL-IMAGE-PARSER-FIX fix round 1 完成（F-IPF-04）。\n\n修复：\n1. src/lib/engine/openai-compat.ts normalizeChatResponse message 构造加 `...(Array.isArray(msg?.images) ? { images: msg.images as unknown[] } : {})` 让 OpenRouter images 字段穿透。\n2. src/lib/engine/types.ts ChatChoice.message 新增 images?: ChatMessageImage[] | unknown[] 类型。\n3. 新增 src/lib/engine/__tests__/image-via-chat-e2e.test.ts 2 条 HTTP-layer mock 用例：(1) mock global.fetch 返回原始 OpenRouter body {choices:[{message:{content:null,images:[{type:image_url,image_url:{url:data:...}}]}}]} → engine.imageGenerations 返回 data:[{url}]，证明 images 穿透 normalize + fetchWithProxy + imageViaChat 全链路；(2) 回归：content 含 base64 data URI（无 images）走 Stage 2 fallback 成功。\n\n踩坑：首次写测试时把 quirks 配为 object {image_via_chat_modalities:true}，getQuirks 要 legacy array 或 {flags:[...]} → 不命中 imageViaChat 分支走普通 imageEndpoint。改 quirks:[\"image_via_chat_modalities\"] 即可，印证 'mock 层级降低到 HTTP 边界后立即暴露 config/contract mismatch' 的价值。\n\nF-IPF-01 Stage 0 逻辑保留不动，F-IPF-02 原 6 单测保留（覆盖 parser-only 契约）。本地 tsc / vitest 224/224（+2）/ build 全过。推 reverifying 交 Codex 重跑 F-IPF-03 11 项含生产 smoke 7-10。\n\n次生 channelId 错位证据（trc_cvu84f / trc_kju9fxz5）已归入 BL-BILLING-AUDIT。Framework learning（mock 层级过高导致测试绿生产红）已待沉淀。",
-    "Reviewer": "reverifying 结果：build/vitest 通过，但 tsc 失败（src/lib/engine/__tests__/image-via-chat-e2e.test.ts:104 TS2352/TS2493）。生产仍在 cbcfb1e，未部署本地 f0df747，导致 smoke 7-10 blocked。已写 reverifying 报告并回退 fixing，F-IPF-03/F-IPF-04 置 pending。\n\n[Generator fix round 2 2026-04-21 09:57]：修 tsc。根因 vi.fn() 无泛型，mock.calls 被推断为 never[][]，`[0][0]` 索引空元组报 TS2493；`as string` 对 undefined 报 TS2352。改法：`const firstCall = fetchMock.mock.calls[0] as unknown[] | undefined; const calledUrl = String(firstCall?.[0] ?? \"\");`，绕过泛型推断，运行时 String() 对 undefined 退化为 '' 同样安全。本地 tsc / vitest 224/224 / build 全过。生产部署需要用户触发 GitHub Actions workflow（非 Generator 职责）。"
+    "Reviewer": "reverifying(2026-04-21): 本地 1-6 全 PASS；生产已部署 5acfa2b。smoke: gemini/gpt-image-mini 返回 proxy URL，gpt-image 返回 b64_json。按当前 acceptance，#7 FAIL（未 data URI 直返），#10 BLOCKED（pm2 无时戳无法 1h 降幅量化）；回退 fixing。证据已落 docs/test-reports/artifacts/bl-image-parser-fix-prod-reverify-2026-04-21/"
   }
 }

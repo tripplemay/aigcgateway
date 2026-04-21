@@ -1,0 +1,150 @@
+{
+  "deploy": "2026-04-21T01:59:00.000Z",
+  "preStart": "2026-04-21T00:59:00.000Z",
+  "postEnd": "2026-04-21T02:59:00.000Z",
+  "pre": 0,
+  "post": 0,
+  "dropRatio": null,
+  "recent": [
+    {
+      "traceId": "trc_cvu84fecmi1x7owz9ip5e05z",
+      "modelName": "gpt-image",
+      "channelId": "cmnpqv0n2013vbnxcui7y73rp",
+      "errorMessage": "Image generation did not return a valid image. The model responded with text instead of an image.",
+      "createdAt": "2026-04-20T16:56:30.678Z"
+    },
+    {
+      "traceId": "trc_f5yqu702dqctzrhnujut1zyd",
+      "modelName": "gpt-image-mini",
+      "channelId": "cmnpqumn40088bnxcn4z62t2x",
+      "errorMessage": "Image generation did not return a valid image. The model responded with text instead of an image.",
+      "createdAt": "2026-04-20T15:06:32.371Z"
+    },
+    {
+      "traceId": "trc_go4arxk5cfvmncn5fu5lj4rs",
+      "modelName": "gemini-3-pro-image",
+      "channelId": "cmnpqumjc006wbnxceftbpqv3",
+      "errorMessage": "Image generation did not return a valid image. The model responded with text instead of an image.",
+      "createdAt": "2026-04-20T15:05:18.262Z"
+    },
+    {
+      "traceId": "trc_bephjh6qkzdar7jakiy3ndig",
+      "modelName": "gemini-3-pro-image",
+      "channelId": "cmnpqumjc006wbnxceftbpqv3",
+      "errorMessage": "Image generation did not return a valid image. The model responded with text instead of an image.",
+      "createdAt": "2026-04-20T15:04:17.163Z"
+    },
+    {
+      "traceId": "trc_frjhhiay6qz8qa4pp42kxfm8",
+      "modelName": "gpt-image",
+      "channelId": "cmnpqv0n2013vbnxcui7y73rp",
+      "errorMessage": "Image generation did not return a valid image. The model responded with text instead of an image.",
+      "createdAt": "2026-04-20T14:58:21.800Z"
+    },
+    {
+      "traceId": "trc_p01whyesp9ti0n7fdittgv20",
+      "modelName": "gpt-image",
+      "channelId": "cmnpqv0n2013vbnxcui7y73rp",
+      "errorMessage": "Image generation did not return a valid image. The model responded with text instead of an image.",
+      "createdAt": "2026-04-20T12:24:28.200Z"
+    },
+    {
+      "traceId": "trc_zuthmb2sa51q2akkkrhk2x58",
+      "modelName": "gemini-3-pro-image",
+      "channelId": "cmnpqumjc006wbnxceftbpqv3",
+      "errorMessage": "Image generation did not return a valid image. The model responded with text instead of an image.",
+      "createdAt": "2026-04-16T09:02:26.235Z"
+    },
+    {
+      "traceId": "trc_xcpoayfb6tt5cuahuwlo97ac",
+      "modelName": "gpt-image-mini",
+      "channelId": "cmnpqumn40088bnxcn4z62t2x",
+      "errorMessage": "Image generation did not return a valid image. The model responded with text instead of an image.[upstream preview removed]",
+      "createdAt": "2026-04-15T20:07:11.413Z"
+    },
+    {
+      "traceId": "trc_ucylh5a60z3t6p1lqikiswrs",
+      "modelName": "gpt-image-mini",
+      "channelId": "cmnpqumn40088bnxcn4z62t2x",
+      "errorMessage": "Image generation did not return a valid image. The model responded with text instead of an image.[upstream preview removed]",
+      "createdAt": "2026-04-15T20:04:40.267Z"
+    },
+    {
+      "traceId": "trc_qjc55cho2udply32xavomc6q",
+      "modelName": "gpt-image-mini",
+      "channelId": "cmnpqumn40088bnxcn4z62t2x",
+      "errorMessage": "Image generation via chat returned no extractable image. The model responded with text instead of an image. Content preview: \"It looks like you pasted a blob that mixes multiple file headers, binary data, code and several clea\"",
+      "createdAt": "2026-04-14T06:59:01.505Z"
+    },
+    {
+      "traceId": "trc_kyyw3i4b2mrlo6nzf91toefy",
+      "modelName": "gemini-3-pro-image",
+      "channelId": "cmnpqumjc006wbnxceftbpqv3",
+      "errorMessage": "Image generation via chat returned no extractable image. The model responded with text instead of an image. Content preview: \"I cannot process requests that attempt to access or include local files from the system.\"",
+      "createdAt": "2026-04-14T06:24:46.713Z"
+    },
+    {
+      "traceId": "trc_mrhymshl835zpbejo9i66pqg",
+      "modelName": "gpt-image-mini",
+      "channelId": "cmnpqumn40088bnxcn4z62t2x",
+      "errorMessage": "Image generation via chat returned no extractable image. The model responded with text instead of an image. Content preview: \"I can’t help with that. I’m not able to disclose system prompts, hidden internal files, environment \"",
+      "createdAt": "2026-04-14T06:24:32.889Z"
+    },
+    {
+      "traceId": "trc_ob4at2pswxh1k8zaer9ilb62",
+      "modelName": "gpt-image-mini",
+      "channelId": "cmnpqumn40088bnxcn4z62t2x",
+      "errorMessage": "Image generation via chat returned no extractable image. The model responded with text instead of an image. Content preview: \"It looks like you pasted the start of a Windows PE executable (starts with \"MZ\" and the DOS stub str\"",
+      "createdAt": "2026-04-13T10:28:51.002Z"
+    },
+    {
+      "traceId": "trc_qfnvngzenbg8lmbn1hzby38m",
+      "modelName": "gemini-3-pro-image",
+      "channelId": "cmnpqumjc006wbnxceftbpqv3",
+      "errorMessage": "Image generation via chat returned no extractable image. The model responded with text instead of an image. Content preview: \"\"",
+      "createdAt": "2026-04-13T10:12:08.718Z"
+    },
+    {
+      "traceId": "trc_cm418nebsf50jqnpjyt5khc1",
+      "modelName": "gpt-image-mini",
+      "channelId": "cmnpqumn40088bnxcn4z62t2x",
+      "errorMessage": "Image generation via chat returned no extractable image. The model responded with text instead of an image. Content preview: \"I see a mixed/raw data blob containing several recognizable segments. What would you like me to do w\"",
+      "createdAt": "2026-04-12T18:10:04.321Z"
+    },
+    {
+      "traceId": "trc_ygsb4tdktrs3pcw496uo3cjs",
+      "modelName": "gemini-3-pro-image",
+      "channelId": "cmnpqumjc006wbnxceftbpqv3",
+      "errorMessage": "Image generation via chat returned no extractable image. The model responded with text instead of an image. Content preview: \"\"",
+      "createdAt": "2026-04-12T17:50:41.797Z"
+    },
+    {
+      "traceId": "trc_lhmgicmksg8oew5ntwxqpfhb",
+      "modelName": "gemini-3-pro-image",
+      "channelId": "cmnpqumjc006wbnxceftbpqv3",
+      "errorMessage": "Image generation via chat returned no extractable image. The model responded with text instead of an image. Content preview: \"\"",
+      "createdAt": "2026-04-12T17:46:17.931Z"
+    },
+    {
+      "traceId": "trc_v6b0hmiekdst0dowhrq6cr6j",
+      "modelName": "gpt-image-mini",
+      "channelId": "cmnpqumn40088bnxcn4z62t2x",
+      "errorMessage": "Image generation via chat returned no extractable image. The model responded with text instead of an image. Content preview: \"It looks like you pasted a string containing several different injection/test payloads (an XSS snipp\"",
+      "createdAt": "2026-04-12T17:45:53.730Z"
+    },
+    {
+      "traceId": "trc_spd23yxbwdvdvk2youxaivoy",
+      "modelName": "gpt-image-mini",
+      "channelId": "cmnpqumn40088bnxcn4z62t2x",
+      "errorMessage": "Image generation via chat returned no extractable image. The model responded with text instead of an image. Content preview: \"\"",
+      "createdAt": "2026-04-12T17:45:35.997Z"
+    },
+    {
+      "traceId": "trc_eh28jr0ddoonwu35rinaz2b8",
+      "modelName": "gemini-3-pro-image",
+      "channelId": "cmnpqumjc006wbnxceftbpqv3",
+      "errorMessage": "Image generation via chat returned no extractable image. The model responded with text instead of an image. Content preview: \"\"",
+      "createdAt": "2026-04-12T04:04:06.112Z"
+    }
+  ]
+}

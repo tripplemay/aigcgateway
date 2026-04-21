@@ -1,0 +1,38 @@
+{
+  "from": "2026-04-20T23:21:30.918Z",
+  "rows": [
+    {
+      "traceId": "trc_t786mpsy8rxzfi2kq9s2l398",
+      "modelName": "gpt-image-mini",
+      "status": "SUCCESS",
+      "errorMessage": null,
+      "createdAt": "2026-04-21T02:17:47.610Z",
+      "imagesCount": 1,
+      "urlCount": 1,
+      "urlPrefix": "data:image/png;base64,iVBORw0KGg",
+      "urlLen": 1767930
+    },
+    {
+      "traceId": "trc_gks3m927qj4yjp93h8n29wod",
+      "modelName": "gpt-image",
+      "status": "SUCCESS",
+      "errorMessage": null,
+      "createdAt": "2026-04-21T02:16:50.310Z",
+      "imagesCount": 1,
+      "urlCount": 0,
+      "urlPrefix": "",
+      "urlLen": 0
+    },
+    {
+      "traceId": "trc_wq9oh34afnxlzql629dqec8t",
+      "modelName": "gemini-3-pro-image",
+      "status": "SUCCESS",
+      "errorMessage": null,
+      "createdAt": "2026-04-21T02:16:08.026Z",
+      "imagesCount": 1,
+      "urlCount": 1,
+      "urlPrefix": "data:image/png;base64,iVBORw0KGg",
+      "urlLen": 1903182
+    }
+  ]
+}
