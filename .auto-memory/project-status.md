@@ -4,22 +4,20 @@ description: AIGC Gateway 当前状态快照（覆盖写，≤30 行）
 type: project
 ---
 ## 当前批次
-- **BL-IMAGE-PARSER-FIX：`reverifying`**（fix round 3：#7 data URI 透传 + Planner 修订 #10）
-- 按 Planner 裁决 docs/adjudications/.../round3-...-2026-04-21.md：#7 方案 A 代码已改，#10 方案 A acceptance 改 DB 降幅
+- **BL-IMAGE-PARSER-FIX：`fixing`**（reverifying round4 失败）
+- 生产与本地版本一致：`e9e8963`
 
-## 本轮复验结果（Reviewer）
-- 本地门禁 PASS：`npm run build` / `npx tsc --noEmit` / `npx vitest run (224/224)`
-- 定向测试 PASS：`image-via-chat.test.ts + image-via-chat-e2e.test.ts = 8/8`
-- 生产已部署目标版本：`5acfa2b`
+## round4 复验结果（Reviewer）
+- L1 全通过：`npm run build` / `npx tsc --noEmit` / `npx vitest run` = `228/228`
+- 定向全通过：`image-via-chat` 8/8；`image-proxy` 14/14
 - 生产 smoke：
-  - gemini-3-pro-image：HTTP 200，但返回 proxy URL（非 data URI 直返）→ #7 FAIL
-  - gpt-image：HTTP 200 + b64_json 图片
-  - gpt-image-mini：HTTP 200 + proxy URL（call_log 原始 URL 为 data URI）
+  - `gemini-3-pro-image`：HTTP 200 + data URI 直返
+  - `gpt-image`：HTTP 200 + b64_json
+  - `gpt-image-mini`：HTTP 200 + data URI 直返
 
-## 阻塞与待修
-- #7 口径冲突：当前实现返回 proxy URL，不满足验收“data:image/png;base64 直返”
-- #10 量化阻塞：pm2 logs 无时间戳，无法计算“部署前后 1h 降幅 >80%”
-- `docs.signoff` 仍为 `null`，批次不可置 `done`
+## 未通过项
+- #10（Round3 裁决 SQL 口径）失败：`before_count=0, after_count=0, assertion_pass=false`
+- #11 signoff 因 #10 FAIL 被阻断，`docs.signoff` 仍为 `null`
 
 ## 证据目录
 - `docs/test-reports/BL-IMAGE-PARSER-FIX-reverifying-2026-04-21.md`

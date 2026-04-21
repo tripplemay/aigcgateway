@@ -1,11 +1,11 @@
 {
-  "status": "reverifying",
+  "status": "fixing",
   "user_goal": "BL-IMAGE-PARSER-FIX — OpenRouter message.images[] 解析缺失 P0 hotfix（部署后 smoke FAIL，fix round 1：normalize 透传 images 字段）",
   "total_features": 4,
   "completed_features": 2,
   "fix_rounds": 1,
   "current_sprint": "BL-IMAGE-PARSER-FIX",
-  "last_updated": "2026-04-21T02:22:23.361Z",
+  "last_updated": "2026-04-21T03:04:12.742Z",
   "reference_docs": [
     "docs/specs/BL-IMAGE-PARSER-FIX-spec.md"
   ],
@@ -17,28 +17,28 @@
     "framework_reviewed": false
   },
   "evaluator_feedback": {
-    "summary": "reverifying 失败：#7 返回形态不满足 data URI 直返口径；#10 缺少可量化的 pm2 1h 降幅证据。",
-    "pass_count": 8,
-    "partial_count": 1,
+    "summary": "reverifying 结果：#1-#9 通过；#10 call_logs 断言未达成（before=0, after=0）导致本轮失败。",
+    "pass_count": 9,
+    "partial_count": 0,
     "fail_count": 2,
     "issues": [
       {
         "feature_id": "F-IPF-03",
         "result": "FAIL",
-        "description": "生产 smoke #7：gemini-3-pro-image 虽 HTTP 200，但返回 proxy URL（https://0.0.0.0:3000/v1/images/proxy/...），未满足 acceptance 指定的 data:image/png;base64 直返。",
-        "steps_to_reproduce": "POST https://aigc.guangai.ai/v1/images/generations model=gemini-3-pro-image size=1024x1024; 见 docs/test-reports/artifacts/bl-image-parser-fix-prod-reverify-2026-04-21/gemini-3-pro-image.response.json"
+        "description": "#10 查询结果 before_count=0、after_count=0，按当前断言 ((before-after)/before>0.80) OR (before>0 && after==0) 判定为不通过。",
+        "steps_to_reproduce": "见 docs/test-reports/artifacts/bl-image-parser-fix-prod-reverify-2026-04-21/calllogs-hour-window.json"
       },
       {
         "feature_id": "F-IPF-03",
         "result": "BLOCKED",
-        "description": "生产观察 #10：pm2 logs 未含可解析时间戳，无法完成“部署前后 1h extraction failed 降幅 >80%”同口径量化。",
-        "steps_to_reproduce": "pm2 logs aigc-gateway --nostream --lines 20000 可见 [imageViaChat] extraction failed 但无时间戳；见 artifacts/pm2-logs-20000.txt"
+        "description": "#11 signoff 被 #10 FAIL 阻断。",
+        "steps_to_reproduce": "docs.signoff 保持 null；见 docs/test-reports/BL-IMAGE-PARSER-FIX-reverifying-2026-04-21.md"
       }
     ]
   },
   "generator_handoff": null,
   "session_notes": {
     "Kimi": "BL-IMAGE-PARSER-FIX fix round 1 完成（F-IPF-04）。\n\n修复：\n1. src/lib/engine/openai-compat.ts normalizeChatResponse message 构造加 `...(Array.isArray(msg?.images) ? { images: msg.images as unknown[] } : {})` 让 OpenRouter images 字段穿透。\n2. src/lib/engine/types.ts ChatChoice.message 新增 images?: ChatMessageImage[] | unknown[] 类型。\n3. 新增 src/lib/engine/__tests__/image-via-chat-e2e.test.ts 2 条 HTTP-layer mock 用例：(1) mock global.fetch 返回原始 OpenRouter body {choices:[{message:{content:null,images:[{type:image_url,image_url:{url:data:...}}]}}]} → engine.imageGenerations 返回 data:[{url}]，证明 images 穿透 normalize + fetchWithProxy + imageViaChat 全链路；(2) 回归：content 含 base64 data URI（无 images）走 Stage 2 fallback 成功。\n\n踩坑：首次写测试时把 quirks 配为 object {image_via_chat_modalities:true}，getQuirks 要 legacy array 或 {flags:[...]} → 不命中 imageViaChat 分支走普通 imageEndpoint。改 quirks:[\"image_via_chat_modalities\"] 即可，印证 'mock 层级降低到 HTTP 边界后立即暴露 config/contract mismatch' 的价值。\n\nF-IPF-01 Stage 0 逻辑保留不动，F-IPF-02 原 6 单测保留（覆盖 parser-only 契约）。本地 tsc / vitest 224/224（+2）/ build 全过。推 reverifying 交 Codex 重跑 F-IPF-03 11 项含生产 smoke 7-10。\n\n次生 channelId 错位证据（trc_cvu84f / trc_kju9fxz5）已归入 BL-BILLING-AUDIT。Framework learning（mock 层级过高导致测试绿生产红）已待沉淀。",
-    "Reviewer": "reverifying(2026-04-21): 本地 1-6 全 PASS；生产已部署 5acfa2b。smoke: gemini/gpt-image-mini 返回 proxy URL，gpt-image 返回 b64_json。按当前 acceptance，#7 FAIL（未 data URI 直返），#10 BLOCKED（pm2 无时戳无法 1h 降幅量化）；回退 fixing。证据已落 docs/test-reports/artifacts/bl-image-parser-fix-prod-reverify-2026-04-21/\n\n[Generator fix round 3 2026-04-21 10:46]：按 Planner 裁决 docs/adjudications/BL-IMAGE-PARSER-FIX-round3-adjudication-request-2026-04-21.md 执行。#7 代码修改：抽出 src/lib/api/image-proxy.ts rewriteImageResponseUrls helper（images/generations route 从内联 map 改为调用 helper），http(s) 包装 proxy，data: URI 透传。补 4 条单测：(a) http → proxy (b) data URI → verbatim (c) 混合 batch index 保留 (d) 无 url 字段（b64_json only）保留其他字段。#10 由 Planner 修订 acceptance 为 call_logs DB 降幅查询，Generator 不动代码。本地 tsc / vitest 228/228（+4）/ build 全过。"
+    "Reviewer": "reverifying(2026-04-21 round4): 本地 build/tsc/vitest(228) 与 image-proxy(14) 全过；生产 e9e8963 三模型 smoke 全 200，gemini/gpt-image-mini 已 data URI 直返，gpt-image 为 b64_json。#10 按裁决 SQL 口径查询得 before=0 after=0，断言不成立，回退 fixing。"
   }
 }

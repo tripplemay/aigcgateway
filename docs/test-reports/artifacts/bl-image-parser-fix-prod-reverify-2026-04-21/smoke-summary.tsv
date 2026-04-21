@@ -1,3 +1,3 @@
-gemini-3-pro-image	http=200	url_len=151	url_prefix=https://0.0.0.0:3000/v1/images
-gpt-image	http=200	url_len=0	url_prefix=
-gpt-image-mini	http=200	url_len=151	url_prefix=https://0.0.0.0:3000/v1/images
+gemini-3-pro-image	http=200	url_len=1040547	b64_len=0	url_prefix=data:image/jpeg;base64,/9j/4AAQSkZJRgABA
+gpt-image	http=200	url_len=0	b64_len=2320764	url_prefix=
+gpt-image-mini	http=200	url_len=1833646	b64_len=0	url_prefix=data:image/png;base64,iVBORw0KGgoAAAANSU
