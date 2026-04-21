@@ -35,6 +35,32 @@ export function buildProxyUrl(
   return origin ? `${origin}${path}` : path;
 }
 
+/**
+ * BL-IMAGE-PARSER-FIX round 3: rewrite every http(s) upstream URL into a
+ * signed proxy URL so callers never see bizyair/aliyuncs/openai.com
+ * hostnames (F-ACF-07). `data:` URIs are passed through verbatim — they
+ * carry the full payload inline, are not upstream URLs, and the proxy
+ * route only accepts http(s) upstreams so wrapping them would produce
+ * a dead link.
+ */
+export function rewriteImageResponseUrls<T extends { data?: Array<{ url?: string }> }>(
+  response: T,
+  traceId: string,
+  origin: string,
+): T {
+  const data = (response.data ?? []) as Array<Record<string, unknown>>;
+  return {
+    ...response,
+    data: data.map((d, i) => {
+      const url = typeof d?.url === "string" ? d.url : undefined;
+      return {
+        ...d,
+        url: url && !url.startsWith("data:") ? buildProxyUrl(traceId, i, origin) : url,
+      };
+    }),
+  } as T;
+}
+
 export function verifyProxySignature(
   traceId: string,
   idx: number,

@@ -4,8 +4,8 @@ description: AIGC Gateway 当前状态快照（覆盖写，≤30 行）
 type: project
 ---
 ## 当前批次
-- **BL-IMAGE-PARSER-FIX：`fixing`**（reverifying 2026-04-21 未通过）
-- 主因：`F-IPF-03` #7 FAIL，#10 BLOCKED，未满足 signoff
+- **BL-IMAGE-PARSER-FIX：`reverifying`**（fix round 3：#7 data URI 透传 + Planner 修订 #10）
+- 按 Planner 裁决 docs/adjudications/.../round3-...-2026-04-21.md：#7 方案 A 代码已改，#10 方案 A acceptance 改 DB 降幅
 
 ## 本轮复验结果（Reviewer）
 - 本地门禁 PASS：`npm run build` / `npx tsc --noEmit` / `npx vitest run (224/224)`

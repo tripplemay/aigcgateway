@@ -12,7 +12,7 @@ import { errorResponse } from "@/lib/api/errors";
 import { generateTraceId, jsonResponse } from "@/lib/api/response";
 import { resolveEngine, withFailover } from "@/lib/engine";
 import { processImageResult } from "@/lib/api/post-process";
-import { buildProxyUrl } from "@/lib/api/image-proxy";
+import { rewriteImageResponseUrls } from "@/lib/api/image-proxy";
 import { validatePrompt } from "@/lib/api/prompt-validation";
 import type { ImageGenerationRequest } from "@/lib/engine/types";
 import { EngineError, ErrorCodes, sanitizeErrorMessage } from "@/lib/engine/types";
@@ -132,16 +132,10 @@ export async function POST(request: Request) {
       clientSignal: request.signal,
     });
 
-    // F-ACF-07: rewrite each upstream URL into a signed proxy URL so callers
-    // never see bizyair/aliyuncs/ComfyUI/openai.com hostnames.
+    // F-ACF-07 + BL-IMAGE-PARSER-FIX round 3: sign http(s) upstreams,
+    // pass data: URIs through verbatim. Logic lives in rewriteImageResponseUrls.
     const origin = new URL(request.url).origin;
-    const proxied = {
-      ...response,
-      data: (response.data ?? []).map((d, i) => ({
-        ...d,
-        url: d?.url ? buildProxyUrl(traceId, i, origin) : d?.url,
-      })),
-    };
+    const proxied = rewriteImageResponseUrls(response, traceId, origin);
 
     return jsonResponse(proxied, 200, traceId, rateLimitHeaders);
   } catch (err) {

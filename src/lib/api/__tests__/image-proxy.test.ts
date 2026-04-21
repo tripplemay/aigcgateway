@@ -123,3 +123,76 @@ describe("assertImageProxySecret", () => {
     expect(() => assertImageProxySecret()).not.toThrow();
   });
 });
+
+/**
+ * BL-IMAGE-PARSER-FIX round 3 F-IPF-03 #7 regression —
+ * rewriteImageResponseUrls must sign http(s) upstreams but let data: URIs
+ * pass through verbatim, so OpenRouter image models (Stage 0) return
+ * usable data URIs instead of an unusable proxy wrapper.
+ */
+describe("rewriteImageResponseUrls (BL-IMAGE-PARSER-FIX #7)", () => {
+  beforeEach(() => {
+    process.env.IMAGE_PROXY_SECRET = "test-secret-rewrite";
+  });
+
+  it("wraps http(s) upstream URLs in a signed proxy URL", async () => {
+    const { rewriteImageResponseUrls } = await importFresh();
+    const response = {
+      created: 1_700_000_000,
+      data: [{ url: "https://example-upstream.invalid/generated.png" }],
+    };
+    const proxied = rewriteImageResponseUrls(response, "trc_abc", "https://aigc.test");
+    const url = proxied.data[0]?.url ?? "";
+    // hostname leaks are the bug F-ACF-07 exists to prevent — the original
+    // URL must NOT appear in the rewritten payload.
+    expect(url).not.toContain("example-upstream.invalid");
+    expect(url).toMatch(
+      /^https:\/\/aigc\.test\/v1\/images\/proxy\/trc_abc\/0\?exp=\d+&sig=[0-9a-f]+$/,
+    );
+  });
+
+  it("leaves data: URIs untouched (OpenRouter imageViaChat Stage 0 path)", async () => {
+    const { rewriteImageResponseUrls } = await importFresh();
+    const dataUri = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAAB";
+    const response = {
+      created: 1_700_000_000,
+      data: [{ url: dataUri }],
+    };
+    const proxied = rewriteImageResponseUrls(response, "trc_xyz", "https://aigc.test");
+    // Data URI must pass through verbatim — wrapping it in a proxy URL
+    // would be unusable (image-proxy only accepts http(s) upstreams).
+    expect(proxied.data[0]?.url).toBe(dataUri);
+  });
+
+  it("mixed batch: http → proxy, data: → verbatim (index preserved)", async () => {
+    const { rewriteImageResponseUrls } = await importFresh();
+    const dataUri = "data:image/jpeg;base64,/9j/4AAQSkZJRg";
+    const response = {
+      created: 1_700_000_000,
+      data: [
+        { url: "https://example-upstream.invalid/a.png" },
+        { url: dataUri },
+        { url: "https://example-upstream.invalid/b.png" },
+      ],
+    };
+    const proxied = rewriteImageResponseUrls(response, "trc_mix", "https://aigc.test");
+    expect(proxied.data[0]?.url).toMatch(/\/v1\/images\/proxy\/trc_mix\/0\?/);
+    expect(proxied.data[1]?.url).toBe(dataUri);
+    expect(proxied.data[2]?.url).toMatch(/\/v1\/images\/proxy\/trc_mix\/2\?/);
+  });
+
+  it("preserves non-url fields on each data item (e.g. b64_json)", async () => {
+    const { rewriteImageResponseUrls } = await importFresh();
+    const response: {
+      created: number;
+      data: Array<{ url?: string; b64_json?: string; revised_prompt?: string }>;
+    } = {
+      created: 1_700_000_000,
+      data: [{ b64_json: "AAAA", revised_prompt: "rp" }],
+    };
+    const proxied = rewriteImageResponseUrls(response, "trc_b64", "https://aigc.test");
+    expect(proxied.data[0]).toMatchObject({ b64_json: "AAAA", revised_prompt: "rp" });
+    // No url to rewrite → url stays undefined.
+    expect(proxied.data[0]?.url).toBeUndefined();
+  });
+});
