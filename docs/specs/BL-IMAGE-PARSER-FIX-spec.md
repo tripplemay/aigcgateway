@@ -142,10 +142,26 @@ protected async imageViaChat(
 6. 错误 sanitize 不受影响（含 `returned no extractable image` → `did not return a valid image` 的转换逻辑不动）
 
 **生产部署后 smoke test（4 项）：**
-7. 部署后用 KOLMatrix 文档 §5 极简复现 curl 调 `/v1/images/generations` 以 `gemini-3-pro-image` + "A dark blue world map..." → HTTP 200 + 返回图片 URL（data:image/png;base64,...）
-8. 同样方式调 `gpt-image` → HTTP 200 + 图片
-9. 同样方式调 `gpt-image-mini` → HTTP 200 + 图片
-10. pm2 logs 中 `[imageViaChat] extraction failed` 出现频次较上一小时显著下降（接近 0）
+7. 部署后用 KOLMatrix 文档 §5 极简复现 curl 调 `/v1/images/generations` 以 `gemini-3-pro-image` + "A dark blue world map..." → HTTP 200 + 返回图片。**data URI 直返语义**：若 response.data[].url 以 `data:image/...;base64,` 开头，直接透传给客户端（F-ACF-07 不适用，data URI 不含上游 hostname）；若是真实 http(s) URL 则仍用 `buildProxyUrl` 签名代理（由 `src/app/api/v1/images/generations/route.ts:148-150` 的 skip-data-uri 分支处理）
+8. 同样方式调 `gpt-image` → HTTP 200 + 图片（data URI 或 proxy URL 皆可，按上游返回形态）
+9. 同样方式调 `gpt-image-mini` → HTTP 200 + 图片（同上）
+10. **（Round 3 adjudication 修订）** 查询 `call_logs` 部署前后 1h 图片 parser 失败数降幅 > 80%。以 fix round 1 部署时刻 `T_deploy`（pm2 jlist 获取精确 pm_uptime）为界：
+
+    ```sql
+    SELECT
+      CASE WHEN "createdAt" < $T_deploy THEN 'before' ELSE 'after' END AS window,
+      COUNT(*) AS parser_failure_count
+    FROM call_logs
+    WHERE "createdAt" >= $T_deploy - INTERVAL '1 hour'
+      AND "createdAt" <= $T_deploy + INTERVAL '1 hour'
+      AND status = 'ERROR'
+      AND "errorMessage" ILIKE '%text instead of an image%'
+      AND "modelName" IN ('gpt-image', 'gpt-image-mini', 'gemini-3-pro-image')
+    GROUP BY window;
+    ```
+
+    **断言：** `(before - after) / before > 0.80`；或 `before > 0 AND after == 0` 视为满足。
+    **证据落盘：** 查询结果 JSON 归档到 `docs/test-reports/artifacts/bl-image-parser-fix-prod-reverify-2026-04-21/calllogs-hour-window.json`，含两桶 count + 明示 T_deploy 时间戳（裁决依据见 `docs/adjudications/BL-IMAGE-PARSER-FIX-round3-adjudication-request-2026-04-21.md`）。
 
 **11. 生成 signoff 报告 `docs/test-reports/BL-IMAGE-PARSER-FIX-signoff-2026-04-21.md`。**
 

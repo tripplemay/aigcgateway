@@ -46,6 +46,18 @@ type: project
 
 **状态：** 待确认
 
+## [2026-04-21] Planner — 来源：BL-IMAGE-PARSER-FIX round 3 adjudication
+
+**类型：** 铁律补充（证据来源限定）
+
+**内容：** Planner 写 acceptance 时，"证据来源"必须限定在 Generator 代码 + Evaluator 测试可控范围内，不得依赖运维侧配置（pm2 `log_date_format` / logrotate / env 注入 / 宿主 cron / GCP console 等）。若某个验收项隐含需要运维侧预设（如 pm2 log 带时间戳），要么改为 DB/应用层产物可量化的等价项，要么明确写"运维条件前置：X 需管理员在部署前确保"。否则 Evaluator 验收阶段命中运维差异 → 只能 BLOCKED / 返工，浪费 fix round。
+
+**案例：** F-IPF-03 #10 "pm2 logs 1h extraction failed 降幅 > 80%" 隐含需要 pm2 带时间戳。Generator 擅动生产 ecosystem.config.cjs 风险大（不在代码边界内）；改 acceptance 为基于 `call_logs` DB 查询（createdAt 精确毫秒级，按 1h 分桶）—— 数据源精准、可复现、不依赖运维。
+
+**建议写入 harness-template 的：** `harness/planner.md` §铁律 新增 1.2（"证据来源限定"）；`harness/evaluator.md` §评估点检查中加"遇到运维依赖立即触发 adjudication 而非 BLOCKED 卡死"。
+
+**状态：** 待确认
+
 <!-- ================= 已同步到 harness-template（归档区） ================= -->
 
 ## [2026-04-20 已同步 v0.9.3] Next.js App Router 私有目录约定
