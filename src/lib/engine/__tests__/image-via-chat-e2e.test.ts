@@ -100,8 +100,11 @@ describe("imageViaChat full pipeline — HTTP layer → normalize → Stage 0 (F
     expect(fetchMock).toHaveBeenCalledOnce();
     expect(result.data).toEqual([{ url: expectedUrl }]);
     // Prove imageViaChat dispatched to the chat endpoint — the image
-    // endpoint would have carried a different path.
-    const calledUrl = (fetchMock.mock.calls[0][0] as string) ?? "";
+    // endpoint would have carried a different path. vi.fn() infers
+    // mock.calls as `never[][]` without explicit generics, so coerce
+    // via String() on a typed narrow instead of an `as string` cast.
+    const firstCall = fetchMock.mock.calls[0] as unknown[] | undefined;
+    const calledUrl = String(firstCall?.[0] ?? "");
     expect(calledUrl).toContain("/chat/completions");
   });
 

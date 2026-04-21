@@ -1,5 +1,5 @@
 {
-  "status": "fixing",
+  "status": "reverifying",
   "user_goal": "BL-IMAGE-PARSER-FIX — OpenRouter message.images[] 解析缺失 P0 hotfix（部署后 smoke FAIL，fix round 1：normalize 透传 images 字段）",
   "total_features": 4,
   "completed_features": 2,
@@ -39,6 +39,6 @@
   "generator_handoff": null,
   "session_notes": {
     "Kimi": "BL-IMAGE-PARSER-FIX fix round 1 完成（F-IPF-04）。\n\n修复：\n1. src/lib/engine/openai-compat.ts normalizeChatResponse message 构造加 `...(Array.isArray(msg?.images) ? { images: msg.images as unknown[] } : {})` 让 OpenRouter images 字段穿透。\n2. src/lib/engine/types.ts ChatChoice.message 新增 images?: ChatMessageImage[] | unknown[] 类型。\n3. 新增 src/lib/engine/__tests__/image-via-chat-e2e.test.ts 2 条 HTTP-layer mock 用例：(1) mock global.fetch 返回原始 OpenRouter body {choices:[{message:{content:null,images:[{type:image_url,image_url:{url:data:...}}]}}]} → engine.imageGenerations 返回 data:[{url}]，证明 images 穿透 normalize + fetchWithProxy + imageViaChat 全链路；(2) 回归：content 含 base64 data URI（无 images）走 Stage 2 fallback 成功。\n\n踩坑：首次写测试时把 quirks 配为 object {image_via_chat_modalities:true}，getQuirks 要 legacy array 或 {flags:[...]} → 不命中 imageViaChat 分支走普通 imageEndpoint。改 quirks:[\"image_via_chat_modalities\"] 即可，印证 'mock 层级降低到 HTTP 边界后立即暴露 config/contract mismatch' 的价值。\n\nF-IPF-01 Stage 0 逻辑保留不动，F-IPF-02 原 6 单测保留（覆盖 parser-only 契约）。本地 tsc / vitest 224/224（+2）/ build 全过。推 reverifying 交 Codex 重跑 F-IPF-03 11 项含生产 smoke 7-10。\n\n次生 channelId 错位证据（trc_cvu84f / trc_kju9fxz5）已归入 BL-BILLING-AUDIT。Framework learning（mock 层级过高导致测试绿生产红）已待沉淀。",
-    "Reviewer": "reverifying 结果：build/vitest 通过，但 tsc 失败（src/lib/engine/__tests__/image-via-chat-e2e.test.ts:104 TS2352/TS2493）。生产仍在 cbcfb1e，未部署本地 f0df747，导致 smoke 7-10 blocked。已写 reverifying 报告并回退 fixing，F-IPF-03/F-IPF-04 置 pending。"
+    "Reviewer": "reverifying 结果：build/vitest 通过，但 tsc 失败（src/lib/engine/__tests__/image-via-chat-e2e.test.ts:104 TS2352/TS2493）。生产仍在 cbcfb1e，未部署本地 f0df747，导致 smoke 7-10 blocked。已写 reverifying 报告并回退 fixing，F-IPF-03/F-IPF-04 置 pending。\n\n[Generator fix round 2 2026-04-21 09:57]：修 tsc。根因 vi.fn() 无泛型，mock.calls 被推断为 never[][]，`[0][0]` 索引空元组报 TS2493；`as string` 对 undefined 报 TS2352。改法：`const firstCall = fetchMock.mock.calls[0] as unknown[] | undefined; const calledUrl = String(firstCall?.[0] ?? \"\");`，绕过泛型推断，运行时 String() 对 undefined 退化为 '' 同样安全。本地 tsc / vitest 224/224 / build 全过。生产部署需要用户触发 GitHub Actions workflow（非 Generator 职责）。"
   }
 }

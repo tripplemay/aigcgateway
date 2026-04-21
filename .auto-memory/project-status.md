@@ -4,15 +4,19 @@ description: AIGC Gateway 当前状态快照（覆盖写，≤30 行）
 type: project
 ---
 ## 当前批次
-- **BL-IMAGE-PARSER-FIX：`fixing`**（Codex 复验失败：tsc 红 + 生产未部署最新 fix）
+- **BL-IMAGE-PARSER-FIX：`reverifying`**（fix round 2：修 tsc TS2352/TS2493）
 - 上一批次 BL-HEALTH-PROBE-LEAN：done（生产已部署，$15/day → ~$0.4/day 实测）
 - Path A 主线 11/11 完成；EMERGENCY / LEAN / IMAGE-PARSER-FIX 独立 emergency 链
 
 ## round 1 fix（2026-04-21 01:21）
-- openai-compat normalizeChatResponse 透传 images 字段（Array.isArray 保护）
-- types.ts ChatChoice.message 补 images?: ChatMessageImage[]
-- +2 HTTP-layer mock 单测（mock global.fetch 返回原始 OpenRouter body 验证全链路）
-- 本地 tsc / vitest 224/224（+2）/ build 全过
+- openai-compat normalizeChatResponse 透传 images 字段
+- types.ts ChatChoice.message 补 images?
+- +2 HTTP-layer mock 单测
+
+## round 2 fix（2026-04-21 09:57）
+- image-via-chat-e2e.test.ts:104 改 `as string` 为 `String(firstCall?.[0] ?? "")`
+- 根因：vi.fn() 无泛型，mock.calls 被推断为 never[][] → `[0][0]` 索引空元组
+- 本地 tsc / vitest 224/224 / build 全过
 - 踩坑记录：quirks config 必须是数组或 {flags:[...]}，单测首写用对象未命中 imageViaChat 分支 → 印证 HTTP 层 mock 能立即暴露 contract mismatch
 
 ## Fix Round 1 根因（非猜测，生产硬证据）
