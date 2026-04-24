@@ -1,11 +1,11 @@
 {
-  "status": "verifying",
+  "status": "fixing",
   "user_goal": "BL-BILLING-AUDIT-EXT-P1 — Gateway 审计盲区修复（probe/sync/admin 补 call_log） + 原 BL-BILLING-AUDIT scope（channelId 错位 + image costPrice + auth_failed 告警） + Tier 1 上游账单 fetcher（Volcengine/OpenRouter/ChatanyWhere）",
   "total_features": 7,
   "completed_features": 6,
   "fix_rounds": 0,
   "current_sprint": "BL-BILLING-AUDIT-EXT-P1",
-  "last_updated": "2026-04-24T09:16:00Z",
+  "last_updated": "2026-04-24T02:09:57.000Z",
   "reference_docs": [
     "docs/specs/BL-BILLING-AUDIT-EXT-P1-spec.md",
     "docs/specs/BL-BILLING-AUDIT-EXT-P2-spec.md"
@@ -17,10 +17,41 @@
     "signoff": null,
     "framework_reviewed": false
   },
-  "evaluator_feedback": null,
+  "evaluator_feedback": {
+    "summary": "verifying 结果：本地可验证项通过（#1-#10、#12）；生产依赖项 #11/#13/#14/#15/#16/#17 BLOCKED，#18 signoff 被阻断。",
+    "pass_count": 11,
+    "partial_count": 0,
+    "fail_count": 7,
+    "issues": [
+      {
+        "feature_id": "F-BAX-07",
+        "result": "BLOCKED",
+        "description": "#11 需生产 seedream-3 手动触发且上游已充值，当前仅完成本地验证，无法确认生产 call_logs.costPrice > 0。",
+        "steps_to_reproduce": "见 docs/test-reports/BL-BILLING-AUDIT-EXT-P1-verifying-2026-04-24.md（BLOCKED 明细）"
+      },
+      {
+        "feature_id": "F-BAX-07",
+        "result": "BLOCKED",
+        "description": "#13/#14/#15 需生产 DB 配置真实 billing 凭证后执行 scripts/test-billing-fetchers.ts，当前环境无凭证。",
+        "steps_to_reproduce": "见 docs/test-reports/BL-BILLING-AUDIT-EXT-P1-verifying-2026-04-24.md（BLOCKED 明细）"
+      },
+      {
+        "feature_id": "F-BAX-07",
+        "result": "BLOCKED",
+        "description": "#16/#17 需生产部署后 24h 观察窗口，当前时点未满足。",
+        "steps_to_reproduce": "见 docs/test-reports/BL-BILLING-AUDIT-EXT-P1-verifying-2026-04-24.md（BLOCKED 明细）"
+      },
+      {
+        "feature_id": "F-BAX-07",
+        "result": "BLOCKED",
+        "description": "#18 signoff 需 18/18 全部满足；当前存在 6 项 BLOCKED，故不能签收。",
+        "steps_to_reproduce": "docs.signoff 仍为 null；见 docs/test-reports/BL-BILLING-AUDIT-EXT-P1-verifying-2026-04-24.md"
+      }
+    ]
+  },
   "generator_handoff": null,
   "session_notes": {
     "Kimi": "BL-BILLING-AUDIT-EXT-P1 building 完成，status→verifying 移交 Codex。\n\n实现 commit 链 (6 features)：\naf9bc99 F-BAX-01 schema: projectId nullable + source 扩展\ndb96fe5 F-BAX-02 probe/admin_health 补写 call_logs\ndfa2331 F-BAX-03 sync 工具改 adapter + alias fallback\n53414ca F-BAX-04 withFailover attemptChain + image costPrice WARN\nea3505a F-BAX-05 AUTH_ALERT + sanitize 上游余额/ApiKey 文案\nc37aab8 F-BAX-06 Tier 1 账单 fetcher + admin UI 条件字段\n\n新增 43 条单测（总 272 PASS），tsc + build 全过。两个 migration（20260424_call_logs_source_extend + 20260424_auth_alert_notification）已在 dev DB 应用，生产 deploy 时 migrate deploy 即可。\n\n关键交付：\n- writeProbeCallLog / writeSyncCallLog / callSyncLLM 三个新 helper 统一 audit 层\n- withFailover 返回 attemptChain + 通过 getAttemptChainFromError 在 catch 链中也能取到\n- isAuthFailedError 匹配 volcengine 欠费 / zhipu ApiKey错误 / openai 401 / 'balance too low' 等文案\n- sanitizeErrorMessage 新 3 规则：前往 URL 充值 / ApiKey 片段移除 / ApiKey错误→认证失败\n- billing-audit/fetchers/ V4 签名 / OpenRouter activity / ChatanyWhere UA + scripts/test-billing-fetchers.ts\n\nF-BAX-07 Codex 验收 18 项中，#13-15 需 DB 真填 billing 凭证（AKLTNmMy... / sk-or-v1-7c8e4... / chatanywhere apiKey）才能生产实测；#11 seedream-3 manual 触发；#6-10 本地/dev 即可完成。\n\nP2 backlog：Tier 2 balance snapshot + reconcile-job cron + admin /admin/reconciliation 面板 + call_logs TTL 30d。",
-    "Reviewer": null
+    "Reviewer": "verifying(2026-04-24): 已执行 build/tsc/vitest(272) + prisma migrate diff；新增脚本 scripts/test/bl-billing-audit-ext-p1-verifying-2026-04-24.ts 完成本地动态证据（#6/#7/#8/#9/#10/#12）并产出 artifacts/local-dynamic-evidence.json。结论：#1-#10/#12 PASS；#11/#13/#14/#15/#16/#17 BLOCKED（生产凭证、充值与24h观察窗口缺失）；#18 signoff 阻断，状态回 fixing。"
   }
 }

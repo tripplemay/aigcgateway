@@ -1,0 +1,8 @@
+src/lib/billing-audit/fetchers/__tests__/volcengine.test.ts	       5
+src/lib/billing-audit/fetchers/__tests__/chatanywhere.test.ts	       5
+src/lib/billing-audit/fetchers/__tests__/openrouter.test.ts	       3
+src/lib/engine/__tests__/failover-attempt-chain.test.ts	       4
+src/lib/engine/__tests__/sanitize-auth-alert.test.ts	       7
+src/lib/sync/__tests__/internal-llm.test.ts	       5
+src/lib/health/__tests__/probe-call-log.test.ts	       5
+src/lib/__tests__/call-log-schema-extend.test.ts	       4

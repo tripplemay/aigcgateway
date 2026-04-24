@@ -1,0 +1,201 @@
+{
+  "batch": "BL-BILLING-AUDIT-EXT-P1",
+  "generatedAt": "2026-04-24T02:08:30.650Z",
+  "baseUrl": "http://localhost:3099",
+  "mockProviderBaseUrl": "http://127.0.0.1:60867",
+  "mockHits": 3,
+  "pass": 7,
+  "fail": 0,
+  "steps": [
+    {
+      "id": "login-admin",
+      "ok": true,
+      "detail": "status=200"
+    },
+    {
+      "id": "create-api-key",
+      "ok": true,
+      "detail": "status=201"
+    },
+    {
+      "id": "chat-failover-attempt-chain",
+      "ok": true,
+      "detail": "chatStatus=200 hasLog=true attemptChainLen=2",
+      "evidence": {
+        "chatResponse": {
+          "id": "chatcmpl-trc_rj99mmlbrqlrup23tvuyl5kk",
+          "object": "chat.completion",
+          "created": 1776996505,
+          "model": "bax_failover_alias_1776996504442_nl4my8",
+          "choices": [
+            {
+              "index": 0,
+              "message": {
+                "role": "assistant",
+                "content": "{\"ok\":true}"
+              },
+              "finish_reason": "stop"
+            }
+          ],
+          "usage": {
+            "prompt_tokens": 10,
+            "completion_tokens": 4,
+            "total_tokens": 14
+          },
+          "cost": "$0.00000360"
+        },
+        "callLog": {
+          "id": "cmoc9u6s8001c9yvaymvhmc4k",
+          "status": "SUCCESS",
+          "channelId": "cmoc9u649000a9ymutyzman27",
+          "errorMessage": null,
+          "responseSummary": {
+            "attempt_chain": [
+              {
+                "channelId": "cmoc9u64800089ymuke3nam40",
+                "errorCode": "auth_failed",
+                "errorMessage": "You didn't provide an API key. You need to provide your API key in an Authorization header using Bearer auth (i.e. Authorization: Bearer [redacted]), or as the password field (with blank username) if you're accessing the API from your browser and are prompted for a username and password. You can obtain an API key from [URL removed]"
+              },
+              {
+                "channelId": "cmoc9u649000a9ymutyzman27"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": "run-inference-sync-calllog",
+      "ok": true,
+      "detail": "runInference=200 sync_logs=2",
+      "evidence": {
+        "runInference": {
+          "timestamp": "2026-04-24T02:08:26.136Z",
+          "classify": {
+            "classified": 0,
+            "newAliases": 0,
+            "skipped": 5,
+            "pendingQueued": 0,
+            "errors": []
+          },
+          "brand": {
+            "updated": 0,
+            "skipped": 0,
+            "errors": []
+          },
+          "capabilities": {
+            "updated": 0,
+            "skipped": 3,
+            "errors": []
+          }
+        },
+        "logs": [
+          {
+            "id": "cmoc9u7fc001h9yvabyg58e6m",
+            "traceId": "sync_capabilities_batch_1_1776996506130",
+            "modelName": "bax_text_ok_1776996504439_5tnemg",
+            "source": "sync"
+          },
+          {
+            "id": "cmoc9u7f4001e9yva76dosevc",
+            "traceId": "sync_classify_batch_1_1776996506118",
+            "modelName": "bax_text_ok_1776996504439_5tnemg",
+            "source": "sync"
+          }
+        ]
+      }
+    },
+    {
+      "id": "admin-health-check-and-probe-calllog",
+      "ok": true,
+      "detail": "check=200 probe=200 admin_health_logs=3",
+      "evidence": {
+        "checkResponse": {
+          "channelId": "cmoc9u64800089ymuke3nam40",
+          "overall": "FAIL",
+          "checks": [
+            {
+              "level": "CONNECTIVITY",
+              "result": "FAIL",
+              "latencyMs": 789,
+              "errorMessage": "auth_failed: You didn't provide an API key. You need to provide your API key in an Authorization header using Bearer auth (i.e. Authorization: Bearer [redacted]), or as the password field (with blank username) if you're accessing the API from your browser and are prompted for a username and password. You can obtain an API key from [URL removed]"
+            }
+          ]
+        },
+        "probeResponse": {
+          "channelId": "cmoc9u64800089ymuke3nam40",
+          "level": "CALL_PROBE",
+          "result": "FAIL",
+          "latencyMs": 356,
+          "errorMessage": "auth_failed: You didn't provide an API key. You need to provide your API key in an Authorization header using Bearer auth (i.e. Authorization: Bearer [redacted]), or as the password field (with blank username) if you're accessing the API from your browser and are prompted for a username and password. You can obtain an API key from [URL removed]"
+        },
+        "logs": [
+          {
+            "id": "cmoc9u8t4001k9yva4hjrmn5j",
+            "source": "admin_health",
+            "projectId": null,
+            "status": "ERROR",
+            "createdAt": "2026-04-24T02:08:27.929Z"
+          },
+          {
+            "id": "cmoc9u9f1001n9yvaujkivgfb",
+            "source": "admin_health",
+            "projectId": null,
+            "status": "ERROR",
+            "createdAt": "2026-04-24T02:08:28.717Z"
+          },
+          {
+            "id": "cmoc9u9pf001r9yvaoscb8nk0",
+            "source": "admin_health",
+            "projectId": null,
+            "status": "ERROR",
+            "createdAt": "2026-04-24T02:08:29.092Z"
+          }
+        ]
+      }
+    },
+    {
+      "id": "probe-source-calllog",
+      "ok": true,
+      "detail": "probe_logs=2",
+      "evidence": [
+        {
+          "id": "cmoc9uawg000k9ymukb0648vz",
+          "source": "probe",
+          "projectId": null
+        },
+        {
+          "id": "cmoc9ua9o000h9ymue3cssnxv",
+          "source": "probe",
+          "projectId": null
+        }
+      ]
+    },
+    {
+      "id": "sanitize-error-message",
+      "ok": true,
+      "detail": "错误：上游配额不足，已联系管理员 当前请求使用的 ApiKey: [key removed] 认证失败，请联系管理员"
+    }
+  ],
+  "fixtures": {
+    "projectId": "cmoc9u63y00019ymuvqzat068",
+    "modelIds": [
+      "cmoc9u64600059ymut519d5y3",
+      "cmoc9u64700069ymucvw6zf2h"
+    ],
+    "channelIds": [
+      "cmoc9u64800089ymuke3nam40",
+      "cmoc9u649000a9ymutyzman27"
+    ],
+    "aliasIds": [
+      "cmoc9u64a000b9ymu3wsukwki"
+    ],
+    "providerIds": [
+      "cmoc9u64300029ymuc2txv453"
+    ],
+    "providerConfigIds": [
+      "cmoc9u64400049ymur9mirson"
+    ],
+    "apiKeyPrefix": "pk_eabb8"
+  }
+}
