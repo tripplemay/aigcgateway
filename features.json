@@ -1,42 +1,69 @@
 {
-  "batch": "BL-IMAGE-PARSER-FIX",
-  "created_at": "2026-04-21",
+  "batch": "BL-BILLING-AUDIT-EXT-P1",
+  "created_at": "2026-04-24",
   "features": [
     {
-      "id": "F-IPF-01",
-      "title": "imageViaChat 新增 Stage 0 识别 message.images[]",
-      "priority": "critical",
-      "executor": "generator",
-      "status": "done",
-      "source": "KOLMatrix 2026-04-20/21 报告 gpt-image/gpt-image-mini/gemini-3-pro-image 持续失败；生产 pm2 logs [imageViaChat] extraction failed 三 route 全覆盖；直连 OpenRouter 确认三模型返回 message.images[{type:image_url,image_url:{url:data:image/...base64,...}}]",
-      "acceptance": "1) `src/lib/engine/openai-compat.ts` `imageViaChat` 函数（约 line 411-542）在原 Stage 1（multimodal parts 检查）之前插入 Stage 0：读取 `msg.images`，若为数组则遍历找 `images[i].type === 'image_url'` 或含 `image_url` 子对象且 `image_url.url` 为 string → return `{created: result.created, data: [{url}]}`；2) images 为 undefined / 非数组 / 空数组 / 所有元素无 url → 继续走原 Stage 1-4（不改动原逻辑）；3) 不修改 extraction failed 日志输出格式；4) 不改 sanitizeErrorMessage / types.ts 错误消息转换；5) tsc + build 通过"
-    },
-    {
-      "id": "F-IPF-02",
-      "title": "单测覆盖 image-via-chat 新旧路径",
-      "priority": "high",
-      "executor": "generator",
-      "status": "done",
-      "source": "F-IPF-01",
-      "acceptance": "1) 新增 `src/lib/engine/__tests__/image-via-chat.test.ts`，6 条用例：(a) mock OpenAI gpt-5-image 形态（content:null, images:[{type:image_url,image_url:{url:'data:image/png;base64,abc'}}]) → imageViaChat 返回 data:[{url:'data:image/png;base64,abc'}]；(b) mock gemini 形态（content 为字符串 + images 有图片）→ 仍从 images 字段提取（不被 content 文字干扰）；(c) mock 旧 multimodal parts 路径（content 数组含 image_url）→ Stage 1 提取成功（images 字段不存在时）；(d) mock 旧 base64 data URI 字符串路径（content 为字符串含 base64 + 无 images）→ Stage 2 提取成功；(e) mock 全失配（content:'just text', 无 parts 无 images）→ 抛 EngineError 含 'no_image_in_response' code；(f) mock images 为空数组 → fallback 原 Stage 1-4 按旧逻辑；2) 全量 `npx vitest run` 通过（LEAN +33 + EMERGENCY +11 + fix round 1/2 + 本次新增 6 均 PASS）；3) tsc + build 通过"
-    },
-    {
-      "id": "F-IPF-03",
-      "title": "BL-IMAGE-PARSER-FIX 全量验收",
-      "priority": "critical",
-      "executor": "codex",
-      "status": "done",
-      "source": "BL-IMAGE-PARSER-FIX fix round 1（本地 signoff 但生产 smoke 7-10 FAIL，需重跑）",
-      "acceptance": "构建与单测（3 项）：1) npm run build 通过；2) npx tsc --noEmit 通过；3) npx vitest run 全过（F-IPF-02 旧 6 + F-IPF-04 新增 HTTP-layer mock 用例 + LEAN +33 + EMERGENCY +11 + 旧单测不破坏）。单测功能验证（3 项）：4) image-via-chat.test.ts 全过且 Stage 0 优先级高于 Stage 1-4（images 存在时不 fallback）；5) imageViaChat 成功返回 shape 为 {created, data:[{url}]} 与 normalizeImageResponse 兼容；6) sanitizeErrorMessage 的 'returned no extractable image' → 'did not return a valid image' 转换逻辑不被破坏。生产部署后 smoke test（4 项）：7) 用 KOLMatrix 复现 curl: POST /v1/images/generations model=gemini-3-pro-image prompt='A dark blue world map...' size=1024x1024 → HTTP 200 + 返回图片；url 以 data:image/...;base64, 开头时直返（F-ACF-07 对 data URI 不适用，route.ts:148-150 skip-data-uri 分支已实装），http(s) URL 则 buildProxyUrl 包装；8) 同 curl model=gpt-image → HTTP 200 + 图片（data URI 或 proxy URL 按上游形态皆可）；9) 同 curl model=gpt-image-mini → HTTP 200 + 图片；10) （Round 3 adjudication v1+v2 合并）call_logs 部署前后 1h 图片 parser 失败数降幅 > 80%，含零基线豁免：执行 SQL SELECT CASE WHEN createdAt<$T_deploy THEN 'before' ELSE 'after' END AS window, COUNT(*) FROM call_logs WHERE createdAt BETWEEN $T_deploy-INTERVAL'1 hour' AND $T_deploy+INTERVAL'1 hour' AND status='ERROR' AND errorMessage ILIKE '%text instead of an image%' AND modelName IN ('gpt-image','gpt-image-mini','gemini-3-pro-image') GROUP BY window; 三分支判定：(a) before>0 → (before-after)/before>0.80 OR after=0 PASS；(b) before=0 AND after=0 → 零基线豁免：当 smoke 7-9 全 PASS 时 #10 PASS（qualitative+quantitative 组合替代降幅）；(c) before=0 AND after>0 → FAIL（部署后新失败反证）。证据落 calllogs-hour-window.json + smoke-summary.tsv 到 docs/test-reports/artifacts/bl-image-parser-fix-prod-reverify-2026-04-21/。11) 生成 signoff 报告 docs/test-reports/BL-IMAGE-PARSER-FIX-signoff-2026-04-21.md（追加 fix round 1 + v1/v2 adjudication 依据 + 生产 smoke 证据）。裁决依据 docs/adjudications/BL-IMAGE-PARSER-FIX-round3-adjudication-request-2026-04-21.md + BL-IMAGE-PARSER-FIX-round3-adjudication-round2-2026-04-21.md。"
-    },
-    {
-      "id": "F-IPF-04",
-      "title": "normalizeChatResponse 透传 images 字段 + 单测从 HTTP 层 mock 验证全链路",
+      "id": "F-BAX-01",
+      "title": "CallLog schema 扩展：source enum + projectId nullable",
       "priority": "critical",
       "executor": "generator",
       "status": "pending",
-      "source": "fix round 1：生产 cbcfb1e 部署后 F-IPF-01 Stage 0 未生效。根因为 src/lib/engine/openai-compat.ts:362-386 normalizeChatResponse 在 imageViaChat 读 msg 之前已剥 images 字段。F-IPF-02 单测因 mock chatCompletions 直接返回假响应（含 images），绕过了 normalize 层，因此测试绿但生产红。",
-      "acceptance": "1) 修改 `src/lib/engine/openai-compat.ts:362-386` normalizeChatResponse 的 message 对象构造，在保留 role/content/tool_calls 基础上，新增 `...(Array.isArray(msg?.images) ? { images: msg.images } : {})`，让 OpenRouter 返回的 images 字段穿透到 ChatCompletionResponse；2) 在 `src/lib/engine/types.ts` 的 ChatCompletionResponse.choices[].message 类型定义中补 `images?: unknown[]` 或 `images?: Array<{ type?: string; image_url?: { url?: string } }>`（类型名按既有风格起）；3) 新增（或扩展）`src/lib/engine/__tests__/image-via-chat-e2e.test.ts`（或合并到 image-via-chat.test.ts）至少 1 条用例：**mock `global.fetch` 或 `fetchWithProxy`**（而非 override chatCompletions）返回原始 OpenRouter HTTP body `{choices:[{message:{content:null,images:[{type:'image_url',image_url:{url:'data:image/png;base64,abc'}}]}}],usage:{cost:0.04}}`，调用 engine.imageGenerations，断言返回 `data:[{url:'data:image/png;base64,abc'}]`，证明 images 字段穿透 normalizeChatResponse 到达 Stage 0；4) 原 F-IPF-02 6 条单测保留不删；5) 单测 engine 实例需要适当配置 image_via_chat_modalities quirk 以走 imageViaChat 分支；6) 全量 `npx vitest run` 通过（原 216 + 新 6 + 本次新增 ≥1 = ≥223 PASS）；7) tsc + build 通过"
+      "source": "2026-04-23 审计发现 probe / sync 路径无法写 call_log 因 projectId NOT NULL 约束",
+      "acceptance": "1) Prisma migration `20260424_call_logs_source_extend`：`ALTER TABLE call_logs ALTER COLUMN \"projectId\" DROP NOT NULL`；2) schema.prisma `CallLog.projectId` 改为 `String?`；3) 运行时 source 字段接受新值 'probe' / 'sync' / 'admin_health'（String 类型，无 enum constraint）；4) tsc + build 通过；5) `npx prisma migrate dev` 在 dev 数据库 apply 通过；6) 单测：写 call_log with projectId=null + source='probe' 成功入库"
+    },
+    {
+      "id": "F-BAX-02",
+      "title": "Health probe 路径补写 call_log（scheduler + admin）",
+      "priority": "critical",
+      "executor": "generator",
+      "status": "pending",
+      "source": "Category B (runTextCheck/runCallProbe) + Category C (admin /health/:id/check,probe) 盲区",
+      "acceptance": "1) 新增 `src/lib/api/post-process.ts:writeProbeCallLog(params)` helper：签名接受 {traceId, route, source:'probe'|'admin_health', startTime, response?, error?, isImage}，调用 calculateTokenCost/calculateCallCost 算真实 cost，写 call_log with userId=null + projectId=null + 不 deductBalance + 不 checkBalanceAlert；2) `src/lib/health/checker.ts runTextCheck` 成功/失败分支调用 writeProbeCallLog(source='probe')，生成 traceId=`probe_${channelId}_${Date.now()}`；3) runCallProbe 同样（文本 + 图片两分支）；4) `checkChannel()` 路径（admin `/api/admin/health/:channelId/check`）source='admin_health'；5) `runCallProbeForChannel()` 路径（admin `/api/admin/health/:channelId/probe`）source='admin_health'；6) 保留 health_checks 表写入不变（状态机依赖）；7) 单测至少 4 条：runTextCheck success 写 call_log / runTextCheck error 写 call_log / runCallProbe IMAGE 写 call_log / admin check 写 source='admin_health'"
+    },
+    {
+      "id": "F-BAX-03",
+      "title": "同步工具 alias-classifier + doc-enricher 改用 adapter + fallback 链",
+      "priority": "critical",
+      "executor": "generator",
+      "status": "pending",
+      "source": "Category D 盲区：sync 工具直接 fetch，不写任何日志",
+      "acceptance": "1) `src/lib/sync/alias-classifier.ts` 的 classifyNewModels / inferMissingBrands / inferMissingCapabilities 4 处调用改用 `resolveEngine` + `withFailover` + `processChatResult(source='sync')`；2) `src/lib/sync/doc-enricher.ts` 同样改用 Gateway 内部路由；3) 新增 fallback 链 `SYNC_MODEL_FALLBACK_CHAIN = ['deepseek-chat', 'glm-4.7', 'doubao-pro']`：第一个 MODEL_NOT_FOUND 或 503 时依次尝试下一个；4) processChatResult 入参 userId=null, projectId=null, source='sync', traceId=`sync_${taskName}_${Date.now()}`；5) 不调用 deductBalance（内部系统调用）；6) 删除原有直接 fetch 代码（`fetch(${baseUrl}/chat/completions)`）；7) 单测至少 3 条：fallback 链成功切换 / 所有 fallback 耗尽时抛错 / 正常场景写 source='sync' call_log；8) tsc + build 通过"
+    },
+    {
+      "id": "F-BAX-04",
+      "title": "withFailover attempt_chain + image costPrice regression fix",
+      "priority": "high",
+      "executor": "generator",
+      "status": "pending",
+      "source": "KOLMatrix trc_cvu84f + trc_kju9fxz5 channelId 错位 / 2026-04-20 seedream-3 costPrice=0 regression",
+      "acceptance": "1) `src/lib/engine/failover.ts withFailover` 返回值增加 `attemptChain: Array<{channelId, errorCode?, errorMessage?}>`；2) 5 个调用方同步改造：/v1/chat/completions (3 处 processChatResult) / /v1/images/generations (2 处 processImageResult) / MCP chat.ts (2 处) / MCP generate-image.ts (1 处)；3) `processChatResult` / `processImageResult` 入参 attemptChain，写入 `responseSummary.attempt_chain`；4) `call_logs.channelId` 与 `errorMessage` 归属 channel 一致（消除错位）；5) `src/lib/api/post-process.ts processImageResultAsync` 修 image costPrice 计算：若 channel.costPrice 缺 perCall 配置写 system_log WARN + cost=0；若有 perCall 则正确计算；6) 单测：withFailover 两次失败一次成功 → attemptChain 3 条 + route.channel.id 等于最后一次成功的；7) 生产验证：触发一次 seedream-3 图片调用 → call_logs.costPrice > 0"
+    },
+    {
+      "id": "F-BAX-05",
+      "title": "auth_failed 告警 + 错误文本转译扩充",
+      "priority": "high",
+      "executor": "generator",
+      "status": "pending",
+      "source": "2026-04-22 volcengine 账户欠费 16h 无告警 + chatanywhere/zhipu 错误 URL 透传给终端用户",
+      "acceptance": "1) `src/lib/health/scheduler.ts handleFailure` 识别 auth_failed（errorCode=AUTH_FAILED 或 errorMessage 匹配 'overdue balance' / 'ApiKey错误' / '余额过低'）；2) channel 连续 3 次 auth_failed → 写 `notifications` 表 type=AUTH_ALERT，detail 含 channel / provider / errorMessage / 首次出现时间；3) 24h 内同一 channel 只告警一次（用 Redis SETNX 或 notifications 表 dedup）；4) `src/lib/engine/types.ts sanitizeErrorMessage` 补规则：(a) '前往 [URL] 充值' → '上游配额不足，已联系管理员'；(b) '当前请求使用的 ApiKey: xxx' / '当前 ApiKey: xxx' 完全移除；(c) 'ApiKey错误' → '认证失败，请联系管理员'；5) 告警不发 email / webhook（按决策 E 仅 UI 显示）；6) 单测：(a) 3 条 auth_failed 错误 → handleFailure 触发 AUTH_ALERT；(b) sanitizeErrorMessage 三类错误文本转译测试；7) tsc + build 通过"
+    },
+    {
+      "id": "F-BAX-06",
+      "title": "Tier 1 上游账单 fetcher adapter (Volcengine/OpenRouter/ChatanyWhere)",
+      "priority": "critical",
+      "executor": "generator",
+      "status": "pending",
+      "source": "2026-04-23 确认 3 家可自动查账单：Volcengine billing/ListBillDetail (AK/SK) + OpenRouter /api/v1/activity (provisioning key) + ChatanyWhere /v1/query/day_usage_details (inference key + UA)",
+      "acceptance": "1) 新目录 `src/lib/billing-audit/fetchers/` + `tier1-fetcher.ts`（BillRecord 接口）；2) `volcengine.ts`：POST `open.volcengineapi.com/?Action=ListBillDetail&Version=2022-01-01`，V4 签名（HMAC-SHA256，service='billing', region='cn-beijing'），body `{BillPeriod:'YYYY-MM', Limit:200, Offset:offset, NeedRecordNum:1, GroupPeriod:1}`，读 `authConfig.billingAccessKeyId + billingSecretAccessKey`；3) `openrouter.ts`：GET `/api/v1/activity?date=YYYY-MM-DD`，Bearer `authConfig.provisioningKey`；4) `chatanywhere.ts`：POST `/v1/query/day_usage_details`，body `{date:'YYYY-MM-DD'}`，Header `Authorization: Bearer <apiKey>` + `User-Agent: Mozilla/5.0`（必需，否则 Cloudflare 1010 拦截）；5) fetch 失败抛 BillFetchError(providerName, reason, httpCode)；6) `providers.authConfig` JSON 扩展字段（无需 schema migration）：billingAccessKeyId / billingSecretAccessKey / provisioningKey；7) `src/app/(console)/admin/providers/page.tsx` 编辑弹窗：按 provider.name 条件显示新字段（volcengine 显示 2 个 AK/SK 字段 / openrouter 显示 provisioningKey）；8) `src/lib/api/admin-schemas.ts providerUpdateSchema` 扩展 optional 字段；9) 单测：每个 fetcher mock HTTP 响应 → 正确解析 BillRecord + 签名字符串 snapshot test + UA header 断言；10) 生产实测：用 DB 填入真实 billingAccessKeyId（AKLTNmMy... 这把）/provisioningKey（sk-or-v1-7c8e4... 这把）后，dev 服启动 `npx tsx scripts/test-billing-fetchers.ts 2026-04-22` 能返回 3 家数据"
+    },
+    {
+      "id": "F-BAX-07",
+      "title": "BL-BILLING-AUDIT-EXT-P1 全量验收",
+      "priority": "critical",
+      "executor": "codex",
+      "status": "pending",
+      "source": "BL-BILLING-AUDIT-EXT-P1",
+      "acceptance": "构建与单测（5 项）：1) npm run build 通过；2) npx tsc --noEmit 通过；3) npx vitest run 全过（新增 15+ 单测 + 旧单测不破坏）；4) Prisma migration `20260424_call_logs_source_extend` 生产 dry-run 通过（可用 `npx prisma migrate diff --from-url ... --to-schema-datamodel schema.prisma`）；5) 新增单测总数 >= 15 条。数据正确性（7 项）：6) dev 服 `curl -X POST /api/admin/health/:id/check` → 写出 1 条 call_log source='admin_health'，projectId=null，userId=null；7) `curl -X POST /api/admin/health/:id/probe` → 同上；8) 手动等 scheduler 下一轮 probe（2h 或 manual trigger）→ call_logs 新增 source='probe' 行；9) 手动触发 model-sync（POST /api/admin/run-inference）→ call_logs 新增 source='sync' 行；10) failover 测试（调 /v1/chat/completions 用会 failover 的 alias，如 kimi-k2-thinking）→ call_log.responseSummary 含 attempt_chain 数组，数组中 channelId 与 errorMessage 对齐；11) 生产 manual 触发 seedream-3 图片调用（需 volcengine 账户充值）→ call_log.costPrice > 0；12) `sanitizeErrorMessage('前往 https://example.com 充值')` 不含 URL + 含 '上游配额不足'。功能验证（3 项）：13) volcengine fetcher + DB 里填 billingAccessKeyId/billingSecretAccessKey → 脚本 `npx tsx scripts/test-billing-fetchers.ts volcengine 2026-04-22` 返回 BillRecord 数组（非空）；14) openrouter fetcher + DB 里填 provisioningKey → 脚本同类调用 → 返回 BillRecord；15) chatanywhere fetcher → 脚本调用 → 返回结果（可能为空数组，但不抛错）。生产观察（2 项，部署后 24h 可补）：16) pm2 logs 过去 24h 无新增 crash / 'sync fallback exhausted' 错误；17) call_logs 表按 source 分组统计：probe ~500/天 + sync 零星（除非大 model-sync）+ admin_health 零散（手动触发）。18) 生成 signoff 报告 docs/test-reports/BL-BILLING-AUDIT-EXT-P1-signoff-2026-04-2X.md。"
     }
   ]
 }

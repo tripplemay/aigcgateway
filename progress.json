@@ -1,31 +1,26 @@
 {
-  "status": "done",
-  "user_goal": "BL-IMAGE-PARSER-FIX — OpenRouter message.images[] 解析缺失 P0 hotfix（部署后 smoke FAIL，fix round 1：normalize 透传 images 字段）",
-  "total_features": 4,
-  "completed_features": 3,
-  "fix_rounds": 1,
-  "current_sprint": "BL-IMAGE-PARSER-FIX",
-  "last_updated": "2026-04-21T03:29:52.000Z",
+  "status": "building",
+  "user_goal": "BL-BILLING-AUDIT-EXT-P1 — Gateway 审计盲区修复（probe/sync/admin 补 call_log） + 原 BL-BILLING-AUDIT scope（channelId 错位 + image costPrice + auth_failed 告警） + Tier 1 上游账单 fetcher（Volcengine/OpenRouter/ChatanyWhere）",
+  "total_features": 7,
+  "completed_features": 0,
+  "fix_rounds": 0,
+  "current_sprint": "BL-BILLING-AUDIT-EXT-P1",
+  "last_updated": "2026-04-24T08:00:00Z",
   "reference_docs": [
-    "docs/specs/BL-IMAGE-PARSER-FIX-spec.md"
+    "docs/specs/BL-BILLING-AUDIT-EXT-P1-spec.md",
+    "docs/specs/BL-BILLING-AUDIT-EXT-P2-spec.md"
   ],
   "role_assignments": null,
   "docs": {
-    "spec": "docs/specs/BL-IMAGE-PARSER-FIX-spec.md",
+    "spec": "docs/specs/BL-BILLING-AUDIT-EXT-P1-spec.md",
     "test_cases": null,
-    "signoff": "docs/test-reports/BL-IMAGE-PARSER-FIX-signoff-2026-04-21.md",
+    "signoff": null,
     "framework_reviewed": false
   },
-  "evaluator_feedback": {
-    "summary": "reverifying 按 Round 3 adjudication v1+v2 重审：#1-#11 全部通过（#10 命中零基线豁免：before=0, after=0 且 #7-#9 smoke 全 PASS）。",
-    "pass_count": 11,
-    "partial_count": 0,
-    "fail_count": 0,
-    "issues": []
-  },
+  "evaluator_feedback": null,
   "generator_handoff": null,
   "session_notes": {
-    "Kimi": "BL-IMAGE-PARSER-FIX fix round 1 完成（F-IPF-04）。\n\n修复：\n1. src/lib/engine/openai-compat.ts normalizeChatResponse message 构造加 `...(Array.isArray(msg?.images) ? { images: msg.images as unknown[] } : {})` 让 OpenRouter images 字段穿透。\n2. src/lib/engine/types.ts ChatChoice.message 新增 images?: ChatMessageImage[] | unknown[] 类型。\n3. 新增 src/lib/engine/__tests__/image-via-chat-e2e.test.ts 2 条 HTTP-layer mock 用例：(1) mock global.fetch 返回原始 OpenRouter body {choices:[{message:{content:null,images:[{type:image_url,image_url:{url:data:...}}]}}]} → engine.imageGenerations 返回 data:[{url}]，证明 images 穿透 normalize + fetchWithProxy + imageViaChat 全链路；(2) 回归：content 含 base64 data URI（无 images）走 Stage 2 fallback 成功。\n\n踩坑：首次写测试时把 quirks 配为 object {image_via_chat_modalities:true}，getQuirks 要 legacy array 或 {flags:[...]} → 不命中 imageViaChat 分支走普通 imageEndpoint。改 quirks:[\"image_via_chat_modalities\"] 即可，印证 'mock 层级降低到 HTTP 边界后立即暴露 config/contract mismatch' 的价值。\n\nF-IPF-01 Stage 0 逻辑保留不动，F-IPF-02 原 6 单测保留（覆盖 parser-only 契约）。本地 tsc / vitest 224/224（+2）/ build 全过。推 reverifying 交 Codex 重跑 F-IPF-03 11 项含生产 smoke 7-10。\n\n次生 channelId 错位证据（trc_cvu84f / trc_kju9fxz5）已归入 BL-BILLING-AUDIT。Framework learning（mock 层级过高导致测试绿生产红）已待沉淀。",
-    "Reviewer": "reverifying(2026-04-21 final): 按 Round 3 adjudication v1+v2 重审，无需重跑。证据沿用 docs/test-reports/artifacts/bl-image-parser-fix-prod-reverify-2026-04-21/：smoke #7-#9 全 PASS，call_logs #10=before0/after0 命中零基线豁免；已更新 signoff（docs/test-reports/BL-IMAGE-PARSER-FIX-signoff-2026-04-21.md），批次置 done。"
+    "Kimi": "BL-BILLING-AUDIT-EXT-P1 launch。P0，2.6d，6 generator features + 1 codex 验收。\n\n背景：2026-04-23 追查 OpenRouter 4 月 $200.26 账单异常时系统性发现 Gateway 三类 call_logs 盲区：\n1. Category B：health probe scheduler（runTextCheck/runCallProbe）只写 health_checks\n2. Category C：admin /api/admin/health/:id/{check,probe} 同盲区\n3. Category D：alias-classifier + doc-enricher 直接 fetch deepseek-chat，无任何日志\n\n加上原 BL-BILLING-AUDIT scope（channelId 错位 / image costPrice regression / auth_failed 告警 / 错误文本转译），共 5 个修复 feature 合成 P1 批次。同时 F-BAX-06 做 Tier 1 上游账单 fetcher adapter（Volcengine 需 AK/SK + OpenRouter 需 provisioning key + ChatanyWhere 需 UA header），为 P2 对账 cron 铺路。\n\n决策收敛（与用户 2026-04-24 讨论）：A=方案A（统一 audit 层）+ A=进 Gateway DB（authConfig 扩展）+ B=对账专用 fetcher（engine 层不改）+ C=Tier 2 余额 delta 做（P2）+ D1=Tier 3 不做上游对账（依赖 call_logs）+ E=不做告警阈值（仅 dashboard 分类）+ F=admin 面板完整版（P2）+ G2=call_logs TTL 30d + index（P2）+ 风险1=加 sync fallback 链 + 风险4=admin 面板完整（P2）+ 拆 2 批。\n\nP2 的 4 个 feature（Tier 2 balance snapshot + 对账 cron + admin 面板 + TTL）在 P1 完成且生产稳定 24h 后启动。\n\n本批次必改文件：prisma/schema.prisma + migration / src/lib/health/checker.ts + scheduler.ts / src/lib/api/post-process.ts / src/lib/sync/alias-classifier.ts + doc-enricher.ts / src/lib/engine/failover.ts + /v1/chat/completions + /v1/images/generations + MCP tools / src/lib/engine/types.ts (sanitize) / src/lib/notifications/triggers.ts (AUTH_ALERT) / 新 src/lib/billing-audit/fetchers/ / src/app/(console)/admin/providers/page.tsx / src/lib/api/admin-schemas.ts。",
+    "Reviewer": null
   }
 }

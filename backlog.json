@@ -2,26 +2,35 @@
   "description": "需求池：已与用户确认但尚未开发的功能，等待下一批次启动时统一安排",
   "items": [
     {
-      "id": "BL-BILLING-AUDIT",
-      "title": "账单/扣费审计漏洞修复（紧接 BL-HEALTH-PROBE-EMERGENCY 之后）",
-      "description": "2026-04-20 排查 gpt-image bug + openai 上游账单差距时系统性发现 Gateway 扣费审计多处漏洞。BL-HEALTH-PROBE-EMERGENCY 止血后紧接启动本批次做对账修复。(1) call_logs.channelId + errorCode 在 failover 时错位记录（案例：kimi 04-16 09:49 走 openrouter 但 call_log 记 DISABLED 的 openai）；(2) image-generation 路径 costPrice 从不记录（gpt-image 04-13/16 共扣用户 $0.33 但 costPrice=$0）；(3) 04-15 起 text completion 间歇性 costPrice=0（regression，04-17 基本恢复）；(4) failover 中间尝试不记 call_log（上游账单 2-3 倍于 Gateway 记录）；(5) auth_failed 上游错误无告警；(6) 上游余额不足错误文本透传给终端用户误导（'前往 URL 充值'）。",
+      "id": "BL-BILLING-AUDIT-EXT-P2",
+      "title": "对账 cron + admin 面板 + Tier 2 余额快照 + call_logs TTL（P1 完成后启动）",
+      "description": "BL-BILLING-AUDIT-EXT 拆分为 P1/P2 两批。P1（当前 building）含 call_logs 盲区修复 + 原 BL-BILLING-AUDIT scope + Tier 1 账单 fetcher。P2 做：(1) Tier 2 余额快照 fetcher（DeepSeek /user/balance + SiliconFlow /v1/user/info + OpenRouter /api/v1/credits）+ 新表 balance_snapshots；(2) 每日 04:30 UTC reconcile-job cron + 新表 bill_reconciliation（status: MATCH/MINOR_DIFF/BIG_DIFF，不发告警仅分类）；(3) admin /admin/reconciliation 面板（完整版：per-provider 卡片 + 30 天趋势图 + BIG_DIFF 明细表 + 手动重跑按钮）；(4) call_logs TTL 30 天 + 3 个 index（source+date / channel+source+date / createdAt）。详见 docs/specs/BL-BILLING-AUDIT-EXT-P2-spec.md。",
       "decisions": [
-        "紧接 BL-HEALTH-PROBE-EMERGENCY 之后启动（止血优先）",
-        "新增 upstream_call_logs 子表记录每次 failover attempt（traceId + channelId + upstream_status + estimated_upstream_cost）",
-        "修 post-process.ts imageGenerations 分支 costPrice 计算缺失",
-        "定位 04-15 前后 regression 的 commit 并修复 text costPrice=0",
-        "call_logs channelId/errorCode 错位根因修（需 Read withFailover + resolveEngine 审查）",
-        "admin 告警：连续 N 次 auth_failed on provider → Slack/email",
-        "上游余额不足错误文本转译为用户友好消息（不透传 URL）",
-        "BL-HEALTH-PROBE-EMERGENCY 完成且生产稳定 24h 后启动"
+        "BL-BILLING-AUDIT-EXT-P1 完成且生产稳定 24h 后启动",
+        "F-BAX-08 Tier 2 balance snapshot adapter 3 家（deepseek/siliconflow/openrouter-credits）",
+        "F-BAX-09 reconcile-job cron + bill_reconciliation 表 + status 分类（不发告警）",
+        "F-BAX-10 admin /admin/reconciliation 面板完整版（趋势图 + 明细 + 手动重跑）",
+        "F-BAX-11 call_logs TTL 30d + 3 个 index（扩展 BL-INFRA-ARCHIVE maintenance-scheduler）",
+        "F-BAX-12 Codex 15 项验收（含 48h 生产观察）"
       ],
-      "confirmed_at": "2026-04-20",
+      "confirmed_at": "2026-04-24",
       "priority": "high",
-      "source": "2026-04-20 gpt-image bug 排查 + chatanywhere 账单对账",
-      "estimated_effort": "1.5-2 days",
+      "source": "2026-04-23/24 OpenRouter $200.26 账单异常调查 + 用户决策 ABCDEFG 收敛",
+      "estimated_effort": "1.5 days",
       "phase": "post-path-a",
-      "order": 100,
-      "follows": "BL-HEALTH-PROBE-LEAN"
+      "order": 101,
+      "follows": "BL-BILLING-AUDIT-EXT-P1"
+    },
+    {
+      "id": "BL-BILLING-AUDIT",
+      "_superseded_by": "BL-BILLING-AUDIT-EXT-P1 + BL-BILLING-AUDIT-EXT-P2",
+      "_superseded_at": "2026-04-24",
+      "title": "[已被 P1+P2 合并覆盖] 账单/扣费审计漏洞修复",
+      "description": "原 scope 6 项全部并入 BL-BILLING-AUDIT-EXT-P1 的 F-BAX-04/05（channelId 错位 + image costPrice + 04-15 regression + auth_failed 告警 + 错误文本转译）；新增的盲区修复 + 对账 cron + Tier 1/2 fetcher + admin 面板在 P1/P2 批次完成。",
+      "confirmed_at": "2026-04-20",
+      "priority": "superseded",
+      "phase": "superseded",
+      "order": 999
     },
     {
       "id": "BL-065",
