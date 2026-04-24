@@ -7,7 +7,7 @@
       "title": "CallLog schema 扩展：source enum + projectId nullable",
       "priority": "critical",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "source": "2026-04-23 审计发现 probe / sync 路径无法写 call_log 因 projectId NOT NULL 约束",
       "acceptance": "1) Prisma migration `20260424_call_logs_source_extend`：`ALTER TABLE call_logs ALTER COLUMN \"projectId\" DROP NOT NULL`；2) schema.prisma `CallLog.projectId` 改为 `String?`；3) 运行时 source 字段接受新值 'probe' / 'sync' / 'admin_health'（String 类型，无 enum constraint）；4) tsc + build 通过；5) `npx prisma migrate dev` 在 dev 数据库 apply 通过；6) 单测：写 call_log with projectId=null + source='probe' 成功入库"
     },

@@ -2,10 +2,10 @@
   "status": "building",
   "user_goal": "BL-BILLING-AUDIT-EXT-P1 — Gateway 审计盲区修复（probe/sync/admin 补 call_log） + 原 BL-BILLING-AUDIT scope（channelId 错位 + image costPrice + auth_failed 告警） + Tier 1 上游账单 fetcher（Volcengine/OpenRouter/ChatanyWhere）",
   "total_features": 7,
-  "completed_features": 0,
+  "completed_features": 1,
   "fix_rounds": 0,
   "current_sprint": "BL-BILLING-AUDIT-EXT-P1",
-  "last_updated": "2026-04-24T08:00:00Z",
+  "last_updated": "2026-04-24T09:16:00Z",
   "reference_docs": [
     "docs/specs/BL-BILLING-AUDIT-EXT-P1-spec.md",
     "docs/specs/BL-BILLING-AUDIT-EXT-P2-spec.md"

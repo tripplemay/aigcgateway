@@ -22,7 +22,7 @@ export async function GET(request: Request, { params }: { params: { traceId: str
     ...log,
     costPrice: log.costPrice ? Number(log.costPrice) : null,
     sellPrice: log.sellPrice ? Number(log.sellPrice) : null,
-    projectName: log.project.name,
+    projectName: log.project?.name ?? null,
     channelId: log.channel?.id ?? log.channelId,
     channelProvider: log.channel?.provider.name ?? null,
     channelRealModelId: log.channel?.realModelId ?? null,

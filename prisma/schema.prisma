@@ -377,7 +377,7 @@ model Channel {
 model CallLog {
   id               String        @id @default(cuid())
   traceId          String        @unique @default(cuid())
-  projectId        String
+  projectId        String?
   channelId        String?
   modelName        String
   promptSnapshot   Json
@@ -401,10 +401,10 @@ model CallLog {
   actionVersionId  String?
   templateRunId    String?
   qualityScore     Float?
-  source           String        @default("api") // 'api' | 'mcp'
+  source           String        @default("api") // 'api' | 'mcp' | 'probe' | 'sync' | 'admin_health'
   createdAt        DateTime      @default(now())
 
-  project Project  @relation(fields: [projectId], references: [id])
+  project Project? @relation(fields: [projectId], references: [id])
   channel Channel? @relation(fields: [channelId], references: [id], onDelete: SetNull)
 
   @@index([traceId])

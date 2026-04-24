@@ -37,7 +37,7 @@ export async function GET(request: Request) {
   return NextResponse.json({
     data: data.map((log) => ({
       traceId: log.traceId,
-      projectName: log.project.name,
+      projectName: log.project?.name ?? null,
       projectId: log.projectId,
       modelName: log.modelName,
       channelId: log.channel?.id ?? log.channelId,
