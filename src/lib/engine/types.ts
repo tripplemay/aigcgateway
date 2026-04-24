@@ -160,6 +160,20 @@ export class EngineError extends Error {
  */
 export function sanitizeErrorMessage(message: string): string {
   let sanitized = message;
+  // BL-BILLING-AUDIT-EXT-P1 F-BAX-05: upstream 余额 / auth 文案屏蔽。
+  // 必须放在 URL 移除之前，否则 URL 会先被 [URL removed] 吃掉，
+  // 整句"前往 ... 充值"就检测不到。
+  // (a) 前往 URL 充值 → 上游配额不足，已联系管理员
+  sanitized = sanitized.replace(
+    /前往\s*https?:\/\/[^\s"'<>,;)}\]]+\s*充值/gi,
+    "上游配额不足，已联系管理员",
+  );
+  sanitized = sanitized.replace(/前往[^，。.]*充值/g, "上游配额不足，已联系管理员");
+  // (b) 当前 ApiKey: xxx / 当前请求使用的 ApiKey: xxx — 整句移除
+  sanitized = sanitized.replace(/(?:当前请求使用的?\s*|当前\s*)?ApiKey\s*[:：][^\s,。.]+/gi, "");
+  // (c) ApiKey错误 / 无效的 ApiKey → 认证失败，请联系管理员
+  sanitized = sanitized.replace(/(?:无效的?\s*)?ApiKey错误/gi, "认证失败，请联系管理员");
+  sanitized = sanitized.replace(/无效的?\s*ApiKey/gi, "认证失败，请联系管理员");
   // Remove URLs
   sanitized = sanitized.replace(/https?:\/\/[^\s"'<>,;)}\]]+/gi, "[URL removed]");
   // Remove API Key fragments (sk-xxx, sk_xxx, pk-xxx, pk_xxx, key_xxx, Bearer xxx)

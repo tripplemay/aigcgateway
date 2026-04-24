@@ -32,6 +32,7 @@ import { heartbeatLock } from "@/lib/infra/leader-lock";
 import {
   sendChannelDownToAdmins,
   sendChannelRecoveredToAdmins,
+  sendAuthAlertToAdmins,
 } from "@/lib/notifications/triggers";
 
 // F-IG-02: keep the scheduler leader lock alive. 70s TTL refreshed every tick
@@ -40,6 +41,33 @@ const LEADER_KEY = "scheduler";
 const LEADER_TTL_SEC = 70;
 
 const FAIL_THRESHOLD = Number(process.env.HEALTH_CHECK_FAIL_THRESHOLD ?? 3);
+
+// BL-BILLING-AUDIT-EXT-P1 F-BAX-05: 连续 N 次 auth_failed 触发 AUTH_ALERT
+// 管理员告警；解决 2026-04-22 volcengine 账户欠费 16h 无告警的问题。
+const AUTH_FAILED_ALERT_THRESHOLD = 3;
+
+/**
+ * 判断一条错误是否为 auth_failed 类型：
+ *   - 显式 errorCode 为 auth_failed
+ *   - errorMessage 命中已知上游 auth 文案（volcengine 欠费 / zhipu 'ApiKey错误' /
+ *     openai 'Incorrect API key provided' / 'balance too low' 等）
+ */
+export function isAuthFailedError(errorMessage: string | null): boolean {
+  if (!errorMessage) return false;
+  if (errorMessage.startsWith("auth_failed:")) return true;
+  const lower = errorMessage.toLowerCase();
+  return (
+    lower.includes("overdue balance") ||
+    lower.includes("apikey错误") ||
+    lower.includes("余额过低") ||
+    lower.includes("余额不足") ||
+    lower.includes("账户欠费") ||
+    lower.includes("incorrect api key") ||
+    lower.includes("invalid api key") ||
+    lower.includes("balance too low") ||
+    lower.includes("insufficient balance")
+  );
+}
 const ACTIVE_INTERVAL = Number(process.env.HEALTH_CHECK_ACTIVE_INTERVAL_MS ?? 600_000); // 10min
 const DISABLED_INTERVAL = Number(process.env.HEALTH_CHECK_DISABLED_INTERVAL_MS ?? 1_800_000); // 30min
 const CALL_PROBE_INTERVAL = Number(process.env.CALL_PROBE_INTERVAL_MS ?? 1_800_000); // 30min
@@ -461,6 +489,14 @@ async function handleFailure(route: RouteResult, results: CheckResult[]): Promis
   const allTransient =
     failedReasons.length > 0 && failedReasons.every((msg) => isTransientFailureReason(msg));
 
+  // F-BAX-05: 本批次含 auth_failed 错误 → 追查连续 auth_failed 次数并告警。
+  // 不改变现有 DISABLE/DEGRADE 逻辑，只做"提前告警"（volcengine 欠费 16h 无
+  // 告警的问题根因是：auth_failed → channel DISABLE 默默进行，没有直接告警）。
+  const currentBatchHasAuthFailed = failedReasons.some((msg) => isAuthFailedError(msg));
+  if (currentBatchHasAuthFailed) {
+    await maybeFireAuthAlert(route, failedReasons);
+  }
+
   if (allTransient) {
     // Mark a cooldown so routeByAlias de-prioritizes this channel for the
     // next 5 minutes. Written whether the channel is ACTIVE or DEGRADED;
@@ -595,5 +631,57 @@ async function updateChannelStatus(route: RouteResult, newStatus: ChannelStatus)
       providerName: route.provider.name,
       modelName: route.model.name,
     }).catch(() => {});
+  }
+}
+
+// ============================================================
+// BL-BILLING-AUDIT-EXT-P1 F-BAX-05: auth_failed 连续 N 次告警
+// ============================================================
+
+/**
+ * 查 health_checks 历史，若该 channel 连续 AUTH_FAILED_ALERT_THRESHOLD 次
+ * FAIL 且都是 auth_failed 文案 → 触发 AUTH_ALERT（24h Redis dedup）。
+ * 不改变 DISABLE 逻辑，只"提前告警"——volcengine 欠费 16h 期间，原逻辑
+ * 静默 DEGRADED→DISABLED 且无 admin 可见的即时提示。
+ */
+async function maybeFireAuthAlert(
+  route: RouteResult,
+  currentBatchReasons: Array<string | null>,
+): Promise<void> {
+  try {
+    const recent = await prisma.healthCheck.findMany({
+      where: { channelId: route.channel.id },
+      orderBy: { createdAt: "desc" },
+      take: AUTH_FAILED_ALERT_THRESHOLD,
+      select: { result: true, errorMessage: true, createdAt: true },
+    });
+
+    // 当前批次还没写 healthCheck —— 写入发生在 writeHealthRecords（同一
+    // executeCheckWithRetry 早于 handleFailure 的调用）。但为确保线程安全
+    // 地判断"连续"，允许 recent 长度 < threshold 时用当前批次 +recent 合并。
+    const merged = [
+      ...currentBatchReasons.map((m) => ({ result: "FAIL" as const, errorMessage: m })),
+      ...recent,
+    ];
+
+    const firstN = merged.slice(0, AUTH_FAILED_ALERT_THRESHOLD);
+    const allAuth =
+      firstN.length >= AUTH_FAILED_ALERT_THRESHOLD &&
+      firstN.every((c) => c.result === "FAIL" && isAuthFailedError(c.errorMessage));
+
+    if (!allAuth) return;
+
+    const firstFailureAt = recent[recent.length - 1]?.createdAt ?? new Date();
+
+    await sendAuthAlertToAdmins({
+      channelId: route.channel.id,
+      providerName: route.provider.name,
+      modelName: route.model.name,
+      errorMessage: firstN[0].errorMessage,
+      firstFailureAt,
+      consecutiveFailures: AUTH_FAILED_ALERT_THRESHOLD,
+    });
+  } catch (err) {
+    console.error("[health-scheduler] maybeFireAuthAlert error:", err);
   }
 }

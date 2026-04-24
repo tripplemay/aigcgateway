@@ -46,7 +46,6 @@ function makeRoute(id: string, providerId: string, behavior: "success" | Error):
     config: { id: `cfg-${providerId}`, currency: "USD" },
     model: { id: "m-1", name: "test", modality: "TEXT" },
     alias: { modality: "TEXT" },
-    // @ts-expect-error - test-only adapter attachment
     __adapter: adapter,
   } as unknown as RouteResult;
 }
@@ -61,7 +60,7 @@ describe("F-BAX-04 withFailover attemptChain", () => {
     // we use provider_error which is retryable regardless.
     const candidates = [
       makeRoute("ch-A", "prov-1", new EngineError("503", ErrorCodes.PROVIDER_ERROR, 503)),
-      makeRoute("ch-B", "prov-2", new EngineError("timeout", ErrorCodes.PROVIDER_TIMEOUT, 504)),
+      makeRoute("ch-B", "prov-2", new EngineError("timeout", ErrorCodes.TIMEOUT, 504)),
       makeRoute("ch-C", "prov-3", "success"),
     ];
 
@@ -79,7 +78,7 @@ describe("F-BAX-04 withFailover attemptChain", () => {
     });
     expect(out.attemptChain[1]).toMatchObject({
       channelId: "ch-B",
-      errorCode: ErrorCodes.PROVIDER_TIMEOUT,
+      errorCode: ErrorCodes.TIMEOUT,
     });
     // Successful attempt has no error fields
     expect(out.attemptChain[2].channelId).toBe("ch-C");
@@ -89,7 +88,7 @@ describe("F-BAX-04 withFailover attemptChain", () => {
   it("all failures → error annotated with attemptChain", async () => {
     const candidates = [
       makeRoute("ch-A", "prov-1", new EngineError("503", ErrorCodes.PROVIDER_ERROR, 503)),
-      makeRoute("ch-B", "prov-2", new EngineError("504", ErrorCodes.PROVIDER_TIMEOUT, 504)),
+      makeRoute("ch-B", "prov-2", new EngineError("504", ErrorCodes.TIMEOUT, 504)),
     ];
 
     await expect(
@@ -115,7 +114,7 @@ describe("F-BAX-04 withFailover attemptChain", () => {
     expect(chain).toHaveLength(2);
     expect(chain?.[0].channelId).toBe("ch-A");
     expect(chain?.[1].channelId).toBe("ch-B");
-    expect(chain?.[1].errorCode).toBe(ErrorCodes.PROVIDER_TIMEOUT);
+    expect(chain?.[1].errorCode).toBe(ErrorCodes.TIMEOUT);
   });
 
   it("single candidate success → attemptChain has 1 record", async () => {

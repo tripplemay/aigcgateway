@@ -685,6 +685,7 @@ enum NotificationEventType {
   CHANNEL_DOWN
   CHANNEL_RECOVERED
   PENDING_CLASSIFICATION
+  AUTH_ALERT
 }
 
 enum NotificationChannel {

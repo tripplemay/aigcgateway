@@ -15,7 +15,8 @@ const DAY_MS = 24 * 60 * 60 * 1000;
 export const DEFAULT_TTL_DAYS: Partial<Record<NotificationEventType, number>> = {
   BALANCE_LOW: 30,
   SPENDING_RATE_EXCEEDED: 7,
-  // CHANNEL_DOWN / CHANNEL_RECOVERED / PENDING_CLASSIFICATION 留 null，由运维手动决定
+  // CHANNEL_DOWN / CHANNEL_RECOVERED / PENDING_CLASSIFICATION / AUTH_ALERT
+  // 留 null，由运维手动决定何时清理
 };
 
 export function defaultExpiresAt(

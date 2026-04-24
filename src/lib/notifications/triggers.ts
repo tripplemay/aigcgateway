@@ -130,6 +130,59 @@ export async function sendChannelDownToAdmins(params: {
 }
 
 // ============================================================
+// BL-BILLING-AUDIT-EXT-P1 F-BAX-05: AUTH_ALERT (24-hour dedup per channel)
+// ============================================================
+
+/**
+ * 连续 N 次 auth_failed 触发；按决策 E 只落入 in-app，不发 email / webhook。
+ * dedup 键按 channelId + 24h，防止长期故障 channel 重复刷告警。
+ */
+export async function sendAuthAlertToAdmins(params: {
+  channelId: string;
+  providerName: string;
+  modelName: string;
+  errorMessage: string | null;
+  firstFailureAt: Date | string;
+  consecutiveFailures: number;
+}): Promise<void> {
+  try {
+    const dedupKey = `alert:auth_failed:${params.channelId}`;
+    const redis = getRedis();
+    if (redis) {
+      const set = await redis.set(dedupKey, "1", "EX", 86400, "NX"); // 24 h
+      if (!set) return; // already alerted within 24 h
+    }
+
+    const adminIds = await getAdminUserIds();
+    if (adminIds.length === 0) return;
+
+    const firstFailureIso =
+      typeof params.firstFailureAt === "string"
+        ? params.firstFailureAt
+        : params.firstFailureAt.toISOString();
+
+    const payload = {
+      channelId: params.channelId,
+      providerName: params.providerName,
+      modelName: params.modelName,
+      errorMessage: params.errorMessage,
+      firstFailureAt: firstFailureIso,
+      consecutiveFailures: params.consecutiveFailures,
+    };
+
+    await Promise.all(
+      adminIds.map((adminId) =>
+        sendNotification(adminId, "AUTH_ALERT", payload).catch((err) => {
+          console.error(`[triggers] AUTH_ALERT to admin ${adminId} failed:`, err);
+        }),
+      ),
+    );
+  } catch (err) {
+    console.error("[triggers] sendAuthAlertToAdmins error:", err);
+  }
+}
+
+// ============================================================
 // F-UA-04: CHANNEL_RECOVERED (no dedup — recovery is always relevant)
 // ============================================================
 

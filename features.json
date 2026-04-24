@@ -43,7 +43,7 @@
       "title": "auth_failed 告警 + 错误文本转译扩充",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "source": "2026-04-22 volcengine 账户欠费 16h 无告警 + chatanywhere/zhipu 错误 URL 透传给终端用户",
       "acceptance": "1) `src/lib/health/scheduler.ts handleFailure` 识别 auth_failed（errorCode=AUTH_FAILED 或 errorMessage 匹配 'overdue balance' / 'ApiKey错误' / '余额过低'）；2) channel 连续 3 次 auth_failed → 写 `notifications` 表 type=AUTH_ALERT，detail 含 channel / provider / errorMessage / 首次出现时间；3) 24h 内同一 channel 只告警一次（用 Redis SETNX 或 notifications 表 dedup）；4) `src/lib/engine/types.ts sanitizeErrorMessage` 补规则：(a) '前往 [URL] 充值' → '上游配额不足，已联系管理员'；(b) '当前请求使用的 ApiKey: xxx' / '当前 ApiKey: xxx' 完全移除；(c) 'ApiKey错误' → '认证失败，请联系管理员'；5) 告警不发 email / webhook（按决策 E 仅 UI 显示）；6) 单测：(a) 3 条 auth_failed 错误 → handleFailure 触发 AUTH_ALERT；(b) sanitizeErrorMessage 三类错误文本转译测试；7) tsc + build 通过"
     },
