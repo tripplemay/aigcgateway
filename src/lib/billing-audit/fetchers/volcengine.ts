@@ -29,6 +29,7 @@ interface ListBillDetailItem {
   BillDay?: string;
   BusinessName?: string;
   ProductName?: string;
+  ConfigName?: string; // fix-round-1 Bug 3: Volcengine 实际 modelName 字段（如 'doubao-lite-4k'）
   InstanceName?: string;
   Element?: string;
   Region?: string;
@@ -136,10 +137,20 @@ function normalizeBillItem(item: ListBillDetailItem, requestedDate: Date): BillR
   const date = billDay ? new Date(`${billDay}T00:00:00Z`) : new Date(requestedDate);
   const amount = toNumber(item.PayableAmount);
   const count = toNumber(item.Count);
-  // InstanceName 通常是 ep-xxx (endpoint id)；Element 是 tokens / 调用次数 — 我们保留 raw
+  // fix-round-1 Bug 3: 实际 Volcengine ListBillDetail 返回：
+  //   ConfigName = 实际 model 名（如 'doubao-lite-4k'）— 首选
+  //   InstanceName = ep-xxx endpoint id，且常常为空字符串 ""
+  //   ProductName = 产品线（如 'Doubao'）— category 兜底
+  // 旧逻辑用 `??` + null 保护，但空字符串是 truthy-string → 短路 → modelName
+  // 全空（2026-04-24 生产 118 条 evidence）。改用显式 trim() 过滤 + 多级 fallback。
+  const firstNonEmpty = (...candidates: Array<string | undefined | null>): string | null => {
+    for (const c of candidates) {
+      if (typeof c === "string" && c.trim().length > 0) return c.trim();
+    }
+    return null;
+  };
   const modelName =
-    (typeof item.InstanceName === "string" ? item.InstanceName : null) ??
-    (typeof item.ProductName === "string" ? item.ProductName : "unknown");
+    firstNonEmpty(item.ConfigName, item.InstanceName, item.ProductName) ?? "unknown";
   const currency = item.Currency === "USD" ? "USD" : "CNY";
   return {
     date,
@@ -208,12 +219,9 @@ export function signV4(params: SignV4Params): SignedRequest {
   ].join("\n");
 
   const credentialScope = `${dateStamp}/${params.region}/${params.service}/request`;
-  const stringToSign = [
-    "HMAC-SHA256",
-    amzDate,
-    credentialScope,
-    sha256Hex(canonicalRequest),
-  ].join("\n");
+  const stringToSign = ["HMAC-SHA256", amzDate, credentialScope, sha256Hex(canonicalRequest)].join(
+    "\n",
+  );
 
   const kDate = hmacSha256(params.secretKey, dateStamp);
   const kRegion = hmacSha256(kDate, params.region);

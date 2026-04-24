@@ -98,9 +98,11 @@ describe("F-BAX-06 Volcengine fetcher", () => {
   });
 
   it("raises BillFetchError on HTTP 400", async () => {
-    global.fetch = vi.fn().mockResolvedValueOnce(
-      new Response("InvalidAuthorization", { status: 400 }),
-    ) as unknown as typeof fetch;
+    global.fetch = vi
+      .fn()
+      .mockResolvedValueOnce(
+        new Response("InvalidAuthorization", { status: 400 }),
+      ) as unknown as typeof fetch;
 
     const f = new VolcengineBillFetcher({
       billingAccessKeyId: "AKLTtest",
@@ -128,8 +130,63 @@ describe("F-BAX-06 Volcengine fetcher", () => {
       billingSecretAccessKey: "SKLTtest==",
     });
 
-    await expect(f.fetchDailyBill(new Date("2026-04-22"))).rejects.toThrow(
-      /InvalidAuthorization/,
-    );
+    await expect(f.fetchDailyBill(new Date("2026-04-22"))).rejects.toThrow(/InvalidAuthorization/);
+  });
+
+  // fix-round-1 Bug 3: modelName fallback 优先级 + 空串过滤
+  describe("modelName fallback (fix-round-1 Bug 3)", () => {
+    async function fetchOne(item: Record<string, unknown>): Promise<string> {
+      global.fetch = vi.fn().mockResolvedValueOnce(
+        new Response(
+          JSON.stringify({
+            Result: { List: [{ BillDay: "2026-04-22", PayableAmount: 1, ...item }] },
+          }),
+          { status: 200 },
+        ),
+      ) as unknown as typeof fetch;
+
+      const f = new VolcengineBillFetcher({
+        billingAccessKeyId: "AKLTtest",
+        billingSecretAccessKey: "SKLTtest==",
+      });
+      const records = await f.fetchDailyBill(new Date("2026-04-22"));
+      return records[0].modelName;
+    }
+
+    it("prefers ConfigName over InstanceName", async () => {
+      expect(
+        await fetchOne({
+          ConfigName: "doubao-lite-4k",
+          InstanceName: "ep-abc",
+          ProductName: "Doubao",
+        }),
+      ).toBe("doubao-lite-4k");
+    });
+
+    it("falls through empty-string InstanceName to ConfigName (the production bug)", async () => {
+      expect(
+        await fetchOne({
+          ConfigName: "doubao-pro-32k",
+          InstanceName: "", // production returns empty string here
+          ProductName: "Doubao",
+        }),
+      ).toBe("doubao-pro-32k");
+    });
+
+    it("falls back to InstanceName when ConfigName missing but InstanceName non-empty", async () => {
+      expect(await fetchOne({ InstanceName: "ep-specific-endpoint", ProductName: "Doubao" })).toBe(
+        "ep-specific-endpoint",
+      );
+    });
+
+    it("falls back to ProductName when both ConfigName and InstanceName empty", async () => {
+      expect(await fetchOne({ ConfigName: "", InstanceName: "", ProductName: "Doubao" })).toBe(
+        "Doubao",
+      );
+    });
+
+    it("returns 'unknown' when all three fields empty", async () => {
+      expect(await fetchOne({ ConfigName: "", InstanceName: "", ProductName: "" })).toBe("unknown");
+    });
   });
 });

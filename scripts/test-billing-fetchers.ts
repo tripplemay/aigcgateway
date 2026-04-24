@@ -29,6 +29,20 @@ const FETCHERS: Record<string, (auth: BillingAuthConfig) => TierOneBillFetcher> 
   chatanywhere: (auth) => new ChatanyWhereBillFetcher(auth),
 };
 
+/**
+ * fix-round-1 Bug 1: fetcher key → DB providers.name 别名映射。
+ * 历史遗留命名：ChatanyWhere 在 providers 表里 name='openai'（兼容
+ * OpenAI 原生接入入口）。fetcher 逻辑仍用 'chatanywhere' 语义命名，映射
+ * 层在 script 解析凭证时把 fetcher key 翻到真实 provider.name。
+ */
+const FETCHER_ALIAS: Record<string, string> = {
+  chatanywhere: "openai",
+};
+
+export function resolveProviderName(fetcherKey: string): string {
+  return FETCHER_ALIAS[fetcherKey] ?? fetcherKey;
+}
+
 async function main(): Promise<void> {
   const args = process.argv.slice(2);
   let providerNameFilter: string | null = null;
@@ -40,9 +54,7 @@ async function main(): Promise<void> {
     providerNameFilter = args[0];
     dateArg = args[1];
   } else {
-    console.error(
-      "usage: npx tsx scripts/test-billing-fetchers.ts [<provider>] <YYYY-MM-DD>",
-    );
+    console.error("usage: npx tsx scripts/test-billing-fetchers.ts [<provider>] <YYYY-MM-DD>");
     process.exit(2);
   }
 
@@ -59,14 +71,15 @@ async function main(): Promise<void> {
       console.warn(`[skip] unknown provider fetcher: ${name}`);
       continue;
     }
-    const provider = await prisma.provider.findUnique({ where: { name } });
+    const providerName = resolveProviderName(name);
+    const provider = await prisma.provider.findUnique({ where: { name: providerName } });
     if (!provider) {
-      console.warn(`[skip] provider '${name}' not in DB`);
+      console.warn(`[skip] fetcher '${name}' (DB provider.name='${providerName}') not in DB`);
       continue;
     }
     const auth = (provider.authConfig ?? {}) as BillingAuthConfig;
     const fetcher = FETCHERS[name](auth);
-    console.log(`\n========== ${name} / ${dateArg} ==========`);
+    console.log(`\n========== ${name} (provider=${providerName}) / ${dateArg} ==========`);
     try {
       const records = await fetcher.fetchDailyBill(date);
       console.log(`records=${records.length}`);
@@ -83,7 +96,13 @@ async function main(): Promise<void> {
   await prisma.$disconnect();
 }
 
-main().catch((err) => {
-  console.error(err);
-  process.exit(1);
-});
+// fix-round-1 Bug 1 support: 只有作为 CLI 直接执行时跑 main()，被 vitest
+// 当模块 import 时（例如 resolveProviderName 单测）不触发。
+const isDirectRun =
+  typeof process.argv[1] === "string" && process.argv[1].endsWith("test-billing-fetchers.ts");
+if (isDirectRun) {
+  main().catch((err) => {
+    console.error(err);
+    process.exit(1);
+  });
+}

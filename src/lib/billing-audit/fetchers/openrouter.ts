@@ -87,7 +87,17 @@ export class OpenRouterBillFetcher implements TierOneBillFetcher {
 }
 
 function normalizeItem(item: ActivityItem, requestedDate: Date): BillRecord {
-  const date = item.date ? new Date(`${item.date}T00:00:00Z`) : new Date(requestedDate);
+  // fix-round-1 Bug 2: OpenRouter activity API 实际返回 `date` 有两种格式：
+  //   - "2026-04-22"（纯日期）— 旧接口
+  //   - "2026-04-22 00:00:00"（含空格的 local 时间）— 2026-04 后新版
+  // 原逻辑 `${item.date}T00:00:00Z` 在后者上拼出非法字符串 → Invalid Date，
+  // 导致整批解析在第一条含时间戳的记录抛 RangeError。slice(0,10) 简单可靠，
+  // 不会吞掉 requestedDate fallback。
+  const dateHead = typeof item.date === "string" ? item.date.slice(0, 10) : null;
+  const date =
+    dateHead && /^\d{4}-\d{2}-\d{2}$/.test(dateHead)
+      ? new Date(`${dateHead}T00:00:00Z`)
+      : new Date(requestedDate);
   return {
     date,
     modelName: item.model_permaslug ?? item.model ?? "unknown",

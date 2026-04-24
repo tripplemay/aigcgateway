@@ -24,9 +24,7 @@ describe("F-BAX-06 OpenRouter fetcher", () => {
 
   it("throws BillFetchError when provisioningKey missing", async () => {
     const f = new OpenRouterBillFetcher({});
-    await expect(f.fetchDailyBill(new Date("2026-04-22"))).rejects.toThrow(
-      /provisioningKey/,
-    );
+    await expect(f.fetchDailyBill(new Date("2026-04-22"))).rejects.toThrow(/provisioningKey/);
   });
 
   it("parses activity response into BillRecord[] with USD currency", async () => {
@@ -65,11 +63,48 @@ describe("F-BAX-06 OpenRouter fetcher", () => {
   });
 
   it("raises BillFetchError on HTTP 401", async () => {
-    global.fetch = vi.fn().mockResolvedValueOnce(
-      new Response("unauthorized", { status: 401 }),
-    ) as unknown as typeof fetch;
+    global.fetch = vi
+      .fn()
+      .mockResolvedValueOnce(
+        new Response("unauthorized", { status: 401 }),
+      ) as unknown as typeof fetch;
 
     const f = new OpenRouterBillFetcher({ provisioningKey: "sk-or-v1-bad" });
     await expect(f.fetchDailyBill(new Date("2026-04-22"))).rejects.toThrow(BillFetchError);
+  });
+
+  // fix-round-1 Bug 2: date 两种格式都必须解析成有效 UTC Date
+  describe("date parsing (fix-round-1 Bug 2)", () => {
+    it("parses date='YYYY-MM-DD' correctly", async () => {
+      global.fetch = vi.fn().mockResolvedValueOnce(
+        new Response(
+          JSON.stringify({
+            data: [{ date: "2026-04-22", model: "x", usage: 1, requests: 1 }],
+          }),
+          { status: 200 },
+        ),
+      ) as unknown as typeof fetch;
+
+      const f = new OpenRouterBillFetcher({ provisioningKey: "k" });
+      const records = await f.fetchDailyBill(new Date("2026-04-22T00:00:00Z"));
+      expect(records[0].date.toISOString()).toBe("2026-04-22T00:00:00.000Z");
+      expect(Number.isFinite(records[0].date.getTime())).toBe(true);
+    });
+
+    it("parses date='YYYY-MM-DD HH:MM:SS' correctly (production format)", async () => {
+      global.fetch = vi.fn().mockResolvedValueOnce(
+        new Response(
+          JSON.stringify({
+            data: [{ date: "2026-04-22 12:34:56", model: "x", usage: 1, requests: 1 }],
+          }),
+          { status: 200 },
+        ),
+      ) as unknown as typeof fetch;
+
+      const f = new OpenRouterBillFetcher({ provisioningKey: "k" });
+      const records = await f.fetchDailyBill(new Date("2026-04-22T00:00:00Z"));
+      expect(records[0].date.toISOString()).toBe("2026-04-22T00:00:00.000Z");
+      expect(Number.isFinite(records[0].date.getTime())).toBe(true);
+    });
   });
 });
