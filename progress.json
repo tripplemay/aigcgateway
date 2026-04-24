@@ -3,9 +3,9 @@
   "user_goal": "BL-BILLING-AUDIT-EXT-P1 — Gateway 审计盲区修复（probe/sync/admin 补 call_log） + 原 BL-BILLING-AUDIT scope（channelId 错位 + image costPrice + auth_failed 告警） + Tier 1 上游账单 fetcher（Volcengine/OpenRouter/ChatanyWhere）",
   "total_features": 7,
   "completed_features": 6,
-  "fix_rounds": 0,
+  "fix_rounds": 1,
   "current_sprint": "BL-BILLING-AUDIT-EXT-P1",
-  "last_updated": "2026-04-24T02:09:57.000Z",
+  "last_updated": "2026-04-24T09:00:00.000Z",
   "reference_docs": [
     "docs/specs/BL-BILLING-AUDIT-EXT-P1-spec.md",
     "docs/specs/BL-BILLING-AUDIT-EXT-P2-spec.md"
@@ -18,11 +18,29 @@
     "framework_reviewed": false
   },
   "evaluator_feedback": {
-    "summary": "verifying 结果：本地可验证项通过（#1-#10、#12）；生产依赖项 #11/#13/#14/#15/#16/#17 BLOCKED，#18 signoff 被阻断。",
+    "summary": "verifying 结果：本地可验证项通过（#1-#10、#12）；Planner 生产实测 F-BAX-06 Tier 1 fetcher 时发现 3 个代码 bug 必须本轮修复；另有 6 项生产依赖 BLOCKED 项需等硬件/账户/24h 观察窗口。当前 fix round 1 聚焦 3 个 code bug。",
     "pass_count": 11,
     "partial_count": 0,
-    "fail_count": 7,
+    "fail_count": 10,
     "issues": [
+      {
+        "feature_id": "F-BAX-06",
+        "result": "FAIL",
+        "description": "[fix-round-1 Bug 1] scripts/test-billing-fetchers.ts 中 FETCHERS 表用 'chatanywhere' 作 key，但 DB providers 表中该 provider 实际 name 为 'openai'（历史遗留命名）。运行时 `providers.find(p => p.name === 'chatanywhere')` 返回 undefined，输出 `[skip] provider 'chatanywhere' not in DB`，导致 ChatanyWhere fetcher 无法被生产脚本触发，F-BAX-07 #15 验收无法完成。",
+        "steps_to_reproduce": "生产执行 `set -a; source .env; set +a; npx tsx scripts/test-billing-fetchers.ts 2026-04-22` → 输出含 `[skip] provider 'chatanywhere' not in DB`。修复建议：在脚本中加 FETCHER_ALIAS 映射表 { chatanywhere: 'openai' }，或直接将 FETCHERS 的 key 改为 'openai'（需同时兼容今后可能独立的 chatanywhere provider 名）。推荐加 alias 映射保持 fetcher 命名语义。需要补一条单测：script resolve 'chatanywhere' → provider.name='openai' 成功。"
+      },
+      {
+        "feature_id": "F-BAX-06",
+        "result": "FAIL",
+        "description": "[fix-round-1 Bug 2] src/lib/billing-audit/fetchers/openrouter.ts normalizeItem 函数 date 解析失效。OpenRouter activity API 返回 `item.date = '2026-04-22 00:00:00'`（含空格的 ISO 8601 local 格式），代码用 `new Date(`${item.date}T00:00:00Z`)` 拼出 `'2026-04-22 00:00:00T00:00:00Z'` → Invalid Date。生产实测：前 62 条记录日期解析 OK（可能因 OR 返回 YYYY-MM-DD），但部分记录日期带时间戳时抛 `RangeError: Invalid time value`，导致 62 条后 fetcher 整体失败。F-BAX-07 #14 验收不完整。",
+        "steps_to_reproduce": "生产执行 `npx tsx scripts/test-billing-fetchers.ts 2026-04-22` → 输出 `[openrouter] error: Invalid time value`（第 62 条后终止）。修复建议：`new Date(\\`${item.date.slice(0,10)}T00:00:00Z\\`)`（取前 10 字符）或 `new Date(item.date.replace(' ', 'T') + (item.date.includes('Z') ? '' : 'Z'))`。推荐 slice(0,10) 简单可靠。补 2 条单测：date='YYYY-MM-DD' 与 date='YYYY-MM-DD HH:MM:SS' 两格式都能正确解析。"
+      },
+      {
+        "feature_id": "F-BAX-06",
+        "result": "FAIL",
+        "description": "[fix-round-1 Bug 3] src/lib/billing-audit/fetchers/volcengine.ts modelName 字段兜底逻辑错误：`const modelName = (typeof item.InstanceName === 'string' ? item.InstanceName : null) ?? (typeof item.ProductName === 'string' ? item.ProductName : 'unknown');`。Volcengine ListBillDetail 返回 InstanceName 常为空字符串 \"\"（非 null），`?? ` 仅在左值为 null/undefined 时走右值，空字符串是 truthy-string → 短路 → modelName 最终为 \"\"。生产实测：118 条记录 modelName 字段全为空，无法 join model/channel 做对账。",
+        "steps_to_reproduce": "生产执行 `npx tsx scripts/test-billing-fetchers.ts 2026-04-22` → 输出 `[volcengine] 118 records` 但 sample 输出中 modelName 字段空。修复建议：改成显式空字符串过滤，例如：`const modelName = (item.ConfigName && item.ConfigName.trim()) || (item.InstanceName && item.InstanceName.trim()) || (item.ProductName && item.ProductName.trim()) || 'unknown';` —— 这里 ConfigName 应作首选（Volcengine OpenAPI 实际字段，如 'doubao-lite-4k'），InstanceName 次之，ProductName 做 category 兜底。补 1 条单测：InstanceName=\"\" 时 fallback 到 ConfigName；若三者皆空则 'unknown'。"
+      },
       {
         "feature_id": "F-BAX-07",
         "result": "BLOCKED",
@@ -32,8 +50,8 @@
       {
         "feature_id": "F-BAX-07",
         "result": "BLOCKED",
-        "description": "#13/#14/#15 需生产 DB 配置真实 billing 凭证后执行 scripts/test-billing-fetchers.ts，当前环境无凭证。",
-        "steps_to_reproduce": "见 docs/test-reports/BL-BILLING-AUDIT-EXT-P1-verifying-2026-04-24.md（BLOCKED 明细）"
+        "description": "#13/#14/#15 需生产 DB 配置真实 billing 凭证后执行 scripts/test-billing-fetchers.ts；当前凭证已填但因上述 3 个 code bug，脚本无法完整走通。fix-round-1 修完后重跑即可解 block。",
+        "steps_to_reproduce": "见 docs/test-reports/BL-BILLING-AUDIT-EXT-P1-verifying-2026-04-24.md（BLOCKED 明细）+ 本轮 3 个 fix-round-1 Bug。"
       },
       {
         "feature_id": "F-BAX-07",
@@ -44,14 +62,44 @@
       {
         "feature_id": "F-BAX-07",
         "result": "BLOCKED",
-        "description": "#18 signoff 需 18/18 全部满足；当前存在 6 项 BLOCKED，故不能签收。",
+        "description": "#18 signoff 需 18/18 全部满足；当前存在 6 项 BLOCKED + 3 code bug，故不能签收。",
         "steps_to_reproduce": "docs.signoff 仍为 null；见 docs/test-reports/BL-BILLING-AUDIT-EXT-P1-verifying-2026-04-24.md"
       }
     ]
   },
-  "generator_handoff": null,
+  "generator_handoff": {
+    "fix_round": 1,
+    "scope": "fix 3 production code bugs in F-BAX-06 Tier 1 fetchers (discovered by Planner during production smoke test on 2026-04-24)",
+    "targets": [
+      {
+        "file": "scripts/test-billing-fetchers.ts",
+        "bug": "FETCHERS['chatanywhere'] not resolvable to DB provider.name='openai'",
+        "fix": "Add FETCHER_ALIAS map { chatanywhere: 'openai' } OR rename key to 'openai'. Recommend alias approach.",
+        "test": "unit test: resolve 'chatanywhere' → provider.name='openai'"
+      },
+      {
+        "file": "src/lib/billing-audit/fetchers/openrouter.ts",
+        "bug": "normalizeItem date='YYYY-MM-DD HH:MM:SS' parse → Invalid Date",
+        "fix": "Use item.date.slice(0,10) before appending 'T00:00:00Z'",
+        "test": "unit tests: date='2026-04-22' and date='2026-04-22 00:00:00' both parse to valid UTC Date"
+      },
+      {
+        "file": "src/lib/billing-audit/fetchers/volcengine.ts",
+        "bug": "modelName=\"\" because InstanceName='' is truthy string short-circuiting ?? fallback",
+        "fix": "Use `(item.ConfigName && item.ConfigName.trim()) || (item.InstanceName && item.InstanceName.trim()) || (item.ProductName && item.ProductName.trim()) || 'unknown'` — ConfigName primary",
+        "test": "unit test: InstanceName='' falls through to ConfigName; all-empty → 'unknown'"
+      }
+    ],
+    "post_fix_validation": [
+      "npx vitest run → 全过 + 新增 4 条单测（1 alias + 2 date + 1 volcengine fallback）",
+      "npx tsc --noEmit + npm run build",
+      "生产重跑 scripts/test-billing-fetchers.ts 2026-04-22 → 三家都输出非空记录，modelName 非空"
+    ],
+    "notes": "修完后 status→verifying 交 Codex 复验；Codex 继续处理遗留的 #11/#16/#17 生产观察项。"
+  },
   "session_notes": {
     "Kimi": "BL-BILLING-AUDIT-EXT-P1 building 完成，status→verifying 移交 Codex。\n\n实现 commit 链 (6 features)：\naf9bc99 F-BAX-01 schema: projectId nullable + source 扩展\ndb96fe5 F-BAX-02 probe/admin_health 补写 call_logs\ndfa2331 F-BAX-03 sync 工具改 adapter + alias fallback\n53414ca F-BAX-04 withFailover attemptChain + image costPrice WARN\nea3505a F-BAX-05 AUTH_ALERT + sanitize 上游余额/ApiKey 文案\nc37aab8 F-BAX-06 Tier 1 账单 fetcher + admin UI 条件字段\n\n新增 43 条单测（总 272 PASS），tsc + build 全过。两个 migration（20260424_call_logs_source_extend + 20260424_auth_alert_notification）已在 dev DB 应用，生产 deploy 时 migrate deploy 即可。\n\n关键交付：\n- writeProbeCallLog / writeSyncCallLog / callSyncLLM 三个新 helper 统一 audit 层\n- withFailover 返回 attemptChain + 通过 getAttemptChainFromError 在 catch 链中也能取到\n- isAuthFailedError 匹配 volcengine 欠费 / zhipu ApiKey错误 / openai 401 / 'balance too low' 等文案\n- sanitizeErrorMessage 新 3 规则：前往 URL 充值 / ApiKey 片段移除 / ApiKey错误→认证失败\n- billing-audit/fetchers/ V4 签名 / OpenRouter activity / ChatanyWhere UA + scripts/test-billing-fetchers.ts\n\nF-BAX-07 Codex 验收 18 项中，#13-15 需 DB 真填 billing 凭证（AKLTNmMy... / sk-or-v1-7c8e4... / chatanywhere apiKey）才能生产实测；#11 seedream-3 manual 触发；#6-10 本地/dev 即可完成。\n\nP2 backlog：Tier 2 balance snapshot + reconcile-job cron + admin /admin/reconciliation 面板 + call_logs TTL 30d。",
-    "Reviewer": "verifying(2026-04-24): 已执行 build/tsc/vitest(272) + prisma migrate diff；新增脚本 scripts/test/bl-billing-audit-ext-p1-verifying-2026-04-24.ts 完成本地动态证据（#6/#7/#8/#9/#10/#12）并产出 artifacts/local-dynamic-evidence.json。结论：#1-#10/#12 PASS；#11/#13/#14/#15/#16/#17 BLOCKED（生产凭证、充值与24h观察窗口缺失）；#18 signoff 阻断，状态回 fixing。"
+    "Reviewer": "verifying(2026-04-24): 已执行 build/tsc/vitest(272) + prisma migrate diff；新增脚本 scripts/test/bl-billing-audit-ext-p1-verifying-2026-04-24.ts 完成本地动态证据（#6/#7/#8/#9/#10/#12）并产出 artifacts/local-dynamic-evidence.json。结论：#1-#10/#12 PASS；#11/#13/#14/#15/#16/#17 BLOCKED（生产凭证、充值与24h观察窗口缺失）；#18 signoff 阻断，状态回 fixing。",
+    "Andy": "fix-round-1 交接 @ 2026-04-24 09:00：生产实测 scripts/test-billing-fetchers.ts 2026-04-22 发现 F-BAX-06 Tier 1 fetcher 三个 code bug（见 evaluator_feedback.issues + generator_handoff.targets）：Bug1 script provider name alias / Bug2 openrouter date 'YYYY-MM-DD HH:MM:SS' 解析失效 / Bug3 volcengine modelName 兜底空串短路。本轮 Generator 按 handoff 修 3 处 + 补 4 单测 + 重跑生产脚本验证三家非空 → status→verifying。修完后 Codex 继续处理遗留 #11/#16/#17 生产观察。生产凭证已填；Volcengine 账户充值状态待确认（#11 seedream-3 smoke 前置）。"
   }
 }
