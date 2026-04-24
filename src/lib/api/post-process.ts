@@ -86,6 +86,63 @@ export function writeProbeCallLog(params: ProbeCallLogParams): void {
   });
 }
 
+// ============================================================
+// BL-BILLING-AUDIT-EXT-P1 F-BAX-03: sync 工具调用 LLM 写 call_log
+// ============================================================
+//
+// Category D 盲区修复：alias-classifier / doc-enricher 原来直接 fetch
+// deepseek-chat，绕过 engine 层，call_logs 与 health_checks 都没记录。
+// 改用 adapter + withFailover 后，成功调用通过此 helper 写 call_log，
+// source='sync' 用于区分。projectId=null，不扣费，不告警。
+
+export interface SyncCallLogParams {
+  traceId: string;
+  route: RouteResult;
+  taskName: string;
+  startTime: number;
+  prompt: string;
+  response: ChatCompletionResponse;
+}
+
+export function writeSyncCallLog(params: SyncCallLogParams): void {
+  writeSyncCallLogAsync(params).catch((err) => {
+    console.error("[post-process] sync call_log write error:", err);
+  });
+}
+
+async function writeSyncCallLogAsync(params: SyncCallLogParams): Promise<void> {
+  const latencyMs = Date.now() - params.startTime;
+  const usage = params.response.usage ?? null;
+  const ok = !!params.response.choices?.length;
+  const status: CallStatus = ok ? "SUCCESS" : "FILTERED";
+  const finishReason = mapFinishReason(params.response.choices?.[0]?.finish_reason ?? null);
+  const { costUsd, sellUsd } = calculateTokenCost(usage, params.route, status);
+
+  await prisma.callLog.create({
+    data: {
+      traceId: params.traceId,
+      projectId: null,
+      channelId: params.route.channel.id,
+      modelName: params.route.model.name,
+      // prompt 可能很长（classifier prompt 数 KB），截断存入 snapshot
+      promptSnapshot: [
+        { role: "user", content: params.prompt.slice(0, 4000) },
+      ] as unknown as object,
+      requestParams: { taskName: params.taskName, model: params.route.model.name },
+      responseContent: params.response.choices?.[0]?.message?.content ?? null,
+      finishReason,
+      status,
+      promptTokens: usage?.prompt_tokens ?? null,
+      completionTokens: usage?.completion_tokens ?? null,
+      totalTokens: usage?.total_tokens ?? null,
+      costPrice: costUsd,
+      sellPrice: sellUsd,
+      latencyMs,
+      source: "sync",
+    },
+  });
+}
+
 async function writeProbeCallLogAsync(params: ProbeCallLogParams): Promise<void> {
   const latencyMs = Date.now() - params.startTime;
   const isError = !!params.error;

@@ -7,8 +7,7 @@
 
 import type { Provider, ProviderConfig } from "@prisma/client";
 import type { SyncedModel } from "./types";
-import { prisma } from "@/lib/prisma";
-import { getApiKey, getBaseUrl } from "./adapters/base";
+import { callSyncLLM } from "./internal-llm";
 
 const EXCHANGE_RATE = parseFloat(process.env.EXCHANGE_RATE_CNY_TO_USD ?? "0.137");
 
@@ -48,83 +47,14 @@ interface AIExtractedModel {
 }
 
 // ============================================================
-// 内部 AI 调用（绕过 API Gateway 鉴权和计费）
+// 内部 AI 调用 — 走 engine 层 + alias fallback 链
 // ============================================================
+//
+// BL-BILLING-AUDIT-EXT-P1 F-BAX-03: 原来直接 fetch deepseek baseUrl 绕过
+// engine 层；改走 callSyncLLM → resolveEngine + withFailover + 写 call_log。
 
-async function callInternalAI(prompt: string): Promise<string> {
-  // 从数据库获取 DeepSeek Provider 的凭证
-  const deepseekProvider = await prisma.provider.findUnique({
-    where: { name: "deepseek" },
-  });
-
-  if (!deepseekProvider) {
-    throw new Error("DeepSeek provider not found in database");
-  }
-
-  const apiKey = getApiKey(deepseekProvider);
-  const baseUrl = getBaseUrl(deepseekProvider);
-
-  if (!apiKey || apiKey.startsWith("PLACEHOLDER")) {
-    throw new Error("DeepSeek API key not configured");
-  }
-
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 120_000);
-
-  try {
-    const proxyUrl = deepseekProvider.proxyUrl ?? process.env.PROXY_URL_PRIMARY ?? null;
-
-    const body = JSON.stringify({
-      model: "deepseek-chat",
-      messages: [{ role: "user", content: prompt }],
-      temperature: 0,
-      max_tokens: 8192,
-      response_format: { type: "json_object" },
-    });
-
-    const headers: Record<string, string> = {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${apiKey}`,
-    };
-
-    let response: Response;
-
-    if (proxyUrl) {
-      const { ProxyAgent, fetch: undiciFetch } = await import("undici");
-      const dispatcher = new ProxyAgent(proxyUrl);
-      response = await (undiciFetch as unknown as typeof fetch)(`${baseUrl}/chat/completions`, {
-        method: "POST",
-        headers,
-        body,
-        signal: controller.signal,
-        // @ts-expect-error undici dispatcher option
-        dispatcher,
-      });
-    } else {
-      response = await fetch(`${baseUrl}/chat/completions`, {
-        method: "POST",
-        headers,
-        body,
-        signal: controller.signal,
-      });
-    }
-
-    if (!response.ok) {
-      throw new Error(`DeepSeek API returned ${response.status}`);
-    }
-
-    const json = await response.json();
-    const content = (json as { choices: Array<{ message: { content: string } }> }).choices?.[0]
-      ?.message?.content;
-
-    if (!content) {
-      throw new Error("Empty response from DeepSeek");
-    }
-
-    return content;
-  } finally {
-    clearTimeout(timeoutId);
-  }
+function callInternalAI(prompt: string, taskName: string): Promise<string> {
+  return callSyncLLM(prompt, { taskName });
 }
 
 // ============================================================
@@ -291,7 +221,10 @@ export async function enrichFromDocs(
       }
 
       console.log(`[doc-enricher] Calling AI for ${provider.name} (${content.length} chars)...`);
-      const aiResponse = await callInternalAI(EXTRACTION_PROMPT + content);
+      const aiResponse = await callInternalAI(
+        EXTRACTION_PROMPT + content,
+        `doc_enrich_${provider.name}`,
+      );
       const aiModels = parseAIResponse(aiResponse, provider.name);
       console.log(`[doc-enricher] AI extracted ${aiModels.length} models from ${url}`);
 

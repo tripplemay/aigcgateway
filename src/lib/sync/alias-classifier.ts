@@ -9,8 +9,8 @@
  */
 
 import { prisma } from "@/lib/prisma";
-import { getApiKey, getBaseUrl } from "./adapters/base";
 import { sendPendingClassificationToAdmins } from "@/lib/notifications/triggers";
+import { callSyncLLM } from "./internal-llm";
 
 // ============================================================
 // 重试辅助
@@ -39,89 +39,16 @@ async function retryWithBackoff<T>(fn: () => Promise<T>, label: string): Promise
 }
 
 // ============================================================
-// LLM 调用（复用 DeepSeek Provider 凭证）
+// LLM 调用 — 走 engine 层 + alias fallback 链
 // ============================================================
+//
+// BL-BILLING-AUDIT-EXT-P1 F-BAX-03: 原来直接 fetch deepseek baseUrl，
+// 绕过 engine 层且不写 call_logs，账单盲区。改用 callSyncLLM（resolveEngine
+// + withFailover + source='sync' 写 call_log），并叠加 alias 级别 fallback
+// (deepseek-chat → glm-4.7 → doubao-pro) 应对 deepseek 整体不可用。
 
-async function callInternalAI(prompt: string): Promise<string> {
-  const deepseekProvider = await prisma.provider.findUnique({
-    where: { name: "deepseek" },
-  });
-
-  if (!deepseekProvider) {
-    throw new Error("DeepSeek provider not found in database");
-  }
-
-  const apiKey = getApiKey(deepseekProvider);
-  const baseUrl = getBaseUrl(deepseekProvider);
-
-  console.log(
-    `[callInternalAI] provider=${deepseekProvider.name}, baseUrl=${baseUrl}, hasKey=${!!apiKey && !apiKey.startsWith("PLACEHOLDER")}, proxyUrl=${deepseekProvider.proxyUrl ?? "none"}`,
-  );
-
-  if (!apiKey || apiKey.startsWith("PLACEHOLDER")) {
-    throw new Error("DeepSeek API key not configured");
-  }
-
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 60_000);
-
-  try {
-    const rawProxy = deepseekProvider.proxyUrl ?? process.env.PROXY_URL_PRIMARY ?? null;
-    // Skip proxy for local addresses (mock servers in test)
-    const isLocal = /^https?:\/\/(127\.0\.0\.1|localhost)(:|\/|$)/.test(baseUrl);
-    const proxyUrl = isLocal ? null : rawProxy;
-
-    const body = JSON.stringify({
-      model: "deepseek-chat",
-      messages: [{ role: "user", content: prompt }],
-      temperature: 0,
-      max_tokens: 8192,
-      response_format: { type: "json_object" },
-    });
-
-    const headers: Record<string, string> = {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${apiKey}`,
-    };
-
-    let response: Response;
-
-    if (proxyUrl) {
-      const { ProxyAgent, fetch: undiciFetch } = await import("undici");
-      const dispatcher = new ProxyAgent(proxyUrl);
-      response = await (undiciFetch as unknown as typeof fetch)(`${baseUrl}/chat/completions`, {
-        method: "POST",
-        headers,
-        body,
-        signal: controller.signal,
-        // @ts-expect-error undici dispatcher option
-        dispatcher,
-      });
-    } else {
-      response = await fetch(`${baseUrl}/chat/completions`, {
-        method: "POST",
-        headers,
-        body,
-        signal: controller.signal,
-      });
-    }
-
-    if (!response.ok) {
-      throw new Error(`DeepSeek API returned ${response.status}`);
-    }
-
-    const json = await response.json();
-    const content = (json as { choices: Array<{ message: { content: string } }> }).choices?.[0]
-      ?.message?.content;
-
-    if (!content) {
-      throw new Error("Empty response from DeepSeek");
-    }
-
-    return content;
-  } finally {
-    clearTimeout(timeoutId);
-  }
+function callInternalAI(prompt: string, taskName: string): Promise<string> {
+  return callSyncLLM(prompt, { taskName });
 }
 
 // ============================================================
@@ -295,7 +222,7 @@ export async function classifyNewModels(): Promise<{
       // LLM 调用 + 重试
       const prompt = buildClassificationPrompt(aliasNames, modelNames, existingBrands);
       const rawResponse = await retryWithBackoff(
-        () => callInternalAI(prompt),
+        () => callInternalAI(prompt, `classify_batch_${batchNum}`),
         `classification batch ${batchNum}`,
       );
 
@@ -541,6 +468,7 @@ export async function inferMissingBrands(): Promise<{
               batch.map((a) => a.alias),
               existingBrands,
             ),
+            `brand_batch_${batchNum}`,
           ),
         `brand batch ${batchNum}`,
       );
@@ -646,7 +574,11 @@ export async function inferMissingCapabilities(): Promise<{
     try {
       // LLM 调用 + 重试
       const rawResponse = await retryWithBackoff(
-        () => callInternalAI(buildCapabilitiesPrompt(batch.map((a) => a.alias))),
+        () =>
+          callInternalAI(
+            buildCapabilitiesPrompt(batch.map((a) => a.alias)),
+            `capabilities_batch_${batchNum}`,
+          ),
         `capabilities batch ${batchNum}`,
       );
 
@@ -757,7 +689,11 @@ export async function reinferAllCapabilities(): Promise<{
 
     try {
       const rawResponse = await retryWithBackoff(
-        () => callInternalAI(buildCapabilitiesPrompt(batch.map((a) => a.alias))),
+        () =>
+          callInternalAI(
+            buildCapabilitiesPrompt(batch.map((a) => a.alias)),
+            `reinfer_batch_${batchNum}`,
+          ),
         `reinfer batch ${batchNum}`,
       );
       let results: Record<string, Record<string, unknown>>;

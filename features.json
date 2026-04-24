@@ -25,7 +25,7 @@
       "title": "同步工具 alias-classifier + doc-enricher 改用 adapter + fallback 链",
       "priority": "critical",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "source": "Category D 盲区：sync 工具直接 fetch，不写任何日志",
       "acceptance": "1) `src/lib/sync/alias-classifier.ts` 的 classifyNewModels / inferMissingBrands / inferMissingCapabilities 4 处调用改用 `resolveEngine` + `withFailover` + `processChatResult(source='sync')`；2) `src/lib/sync/doc-enricher.ts` 同样改用 Gateway 内部路由；3) 新增 fallback 链 `SYNC_MODEL_FALLBACK_CHAIN = ['deepseek-chat', 'glm-4.7', 'doubao-pro']`：第一个 MODEL_NOT_FOUND 或 503 时依次尝试下一个；4) processChatResult 入参 userId=null, projectId=null, source='sync', traceId=`sync_${taskName}_${Date.now()}`；5) 不调用 deductBalance（内部系统调用）；6) 删除原有直接 fetch 代码（`fetch(${baseUrl}/chat/completions)`）；7) 单测至少 3 条：fallback 链成功切换 / 所有 fallback 耗尽时抛错 / 正常场景写 source='sync' call_log；8) tsc + build 通过"
     },
