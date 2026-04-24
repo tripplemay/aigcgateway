@@ -7,7 +7,7 @@
 
 import { z } from "zod";
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import { resolveEngine, withFailover } from "@/lib/engine";
+import { resolveEngine, withFailover, getAttemptChainFromError } from "@/lib/engine";
 import { generateTraceId } from "@/lib/api/response";
 import { processChatResult, calculateTokenCost } from "@/lib/api/post-process";
 import { prisma } from "@/lib/prisma";
@@ -377,9 +377,12 @@ export function registerChat(server: McpServer, opts: McpServerOptions): void {
         // Stream mode: consume server-side, return with ttftMs
         if (stream) {
           // F-RR-02: failover for stream connection phase
-          const { result: streamResult, route: usedRoute } = await withFailover(
-            candidates.length > 0 ? candidates : [route],
-            (r, a) => a.chatCompletionsStream(request, r),
+          const {
+            result: streamResult,
+            route: usedRoute,
+            attemptChain: streamAttemptChain,
+          } = await withFailover(candidates.length > 0 ? candidates : [route], (r, a) =>
+            a.chatCompletionsStream(request, r),
           );
           route = usedRoute;
           const reader = streamResult.getReader();
@@ -460,6 +463,7 @@ export function registerChat(server: McpServer, opts: McpServerOptions): void {
               finishReason: lastFinishReason,
             },
             source: "mcp",
+            attemptChain: streamAttemptChain,
           });
 
           // F-AF2-09: compute cost for the response
@@ -500,9 +504,12 @@ export function registerChat(server: McpServer, opts: McpServerOptions): void {
         }
 
         // Non-stream mode (default) — F-RR-02: failover
-        const { result: response, route: usedRouteNs } = await withFailover(
-          candidates.length > 0 ? candidates : [route],
-          (r, a) => a.chatCompletions(request, r),
+        const {
+          result: response,
+          route: usedRouteNs,
+          attemptChain: nsAttemptChain,
+        } = await withFailover(candidates.length > 0 ? candidates : [route], (r, a) =>
+          a.chatCompletions(request, r),
         );
         route = usedRouteNs;
 
@@ -518,6 +525,7 @@ export function registerChat(server: McpServer, opts: McpServerOptions): void {
           startTime,
           response,
           source: "mcp",
+          attemptChain: nsAttemptChain,
         });
 
         const choice = response.choices?.[0];
@@ -559,6 +567,7 @@ export function registerChat(server: McpServer, opts: McpServerOptions): void {
           ],
         };
       } catch (err) {
+        const failedChain = getAttemptChainFromError(err) ?? undefined;
         processChatResult({
           traceId,
           userId,
@@ -570,6 +579,7 @@ export function registerChat(server: McpServer, opts: McpServerOptions): void {
           startTime,
           error: { message: (err as Error).message, code: (err as EngineError)?.code },
           source: "mcp",
+          attemptChain: failedChain,
         });
 
         const engineErr = err instanceof EngineError ? err : null;

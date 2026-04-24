@@ -10,7 +10,7 @@ import { checkBalance } from "@/lib/api/balance-middleware";
 import { checkRateLimit, checkSpendingRate, rollbackRateLimit } from "@/lib/api/rate-limit";
 import { errorResponse } from "@/lib/api/errors";
 import { generateTraceId, jsonResponse } from "@/lib/api/response";
-import { resolveEngine, withFailover } from "@/lib/engine";
+import { resolveEngine, withFailover, getAttemptChainFromError } from "@/lib/engine";
 import { processImageResult } from "@/lib/api/post-process";
 import { rewriteImageResponseUrls } from "@/lib/api/image-proxy";
 import { validatePrompt } from "@/lib/api/prompt-validation";
@@ -112,9 +112,12 @@ export async function POST(request: Request) {
 
   // 6. 执行请求（F-RR-02: failover on retryable errors）
   try {
-    const { result: response, route: usedRoute } = await withFailover(
-      candidates.length > 0 ? candidates : [route],
-      (r, a) => a.imageGenerations(body, r),
+    const {
+      result: response,
+      route: usedRoute,
+      attemptChain,
+    } = await withFailover(candidates.length > 0 ? candidates : [route], (r, a) =>
+      a.imageGenerations(body, r),
     );
     route = usedRoute;
 
@@ -130,6 +133,7 @@ export async function POST(request: Request) {
       startTime,
       response,
       clientSignal: request.signal,
+      attemptChain,
     });
 
     // F-ACF-07 + BL-IMAGE-PARSER-FIX round 3: sign http(s) upstreams,
@@ -143,6 +147,7 @@ export async function POST(request: Request) {
     if (rlKey && rlMember) rollbackRateLimit(rlKey, rlMember).catch(() => {});
 
     const engineErr = err instanceof EngineError ? err : null;
+    const failedChain = getAttemptChainFromError(err) ?? undefined;
 
     processImageResult({
       traceId,
@@ -158,6 +163,7 @@ export async function POST(request: Request) {
         code: engineErr?.code,
       },
       clientSignal: request.signal,
+      attemptChain: failedChain,
     });
 
     if (engineErr) {

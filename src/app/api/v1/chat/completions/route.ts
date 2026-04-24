@@ -15,7 +15,12 @@ import {
 } from "@/lib/api/rate-limit";
 import { errorResponse } from "@/lib/api/errors";
 import { generateTraceId, jsonResponse, sseResponse } from "@/lib/api/response";
-import { resolveEngine, withFailover, getAdapterForRoute } from "@/lib/engine";
+import {
+  resolveEngine,
+  withFailover,
+  getAdapterForRoute,
+  getAttemptChainFromError,
+} from "@/lib/engine";
 import { processChatResult, calculateTokenCost } from "@/lib/api/post-process";
 import type { ChatCompletionRequest, ChatCompletionChunk, Usage } from "@/lib/engine/types";
 import { EngineError, sanitizeErrorMessage } from "@/lib/engine/types";
@@ -196,9 +201,12 @@ async function handleNonStream(
 ) {
   try {
     // F-RR-02: failover — on retryable error, try next candidate channel
-    const { result: response, route: usedRoute } = await withFailover(
-      candidates.length > 0 ? candidates : [route],
-      (r, a) => a.chatCompletions(body, r),
+    const {
+      result: response,
+      route: usedRoute,
+      attemptChain,
+    } = await withFailover(candidates.length > 0 ? candidates : [route], (r, a) =>
+      a.chatCompletions(body, r),
     );
     // Use the route that actually succeeded (may differ from initial `route` after failover)
     route = usedRoute;
@@ -226,6 +234,7 @@ async function handleNonStream(
       startTime,
       response,
       clientSignal,
+      attemptChain,
     });
 
     return jsonResponse(result, 200, traceId, rateLimitHeaders);
@@ -234,6 +243,7 @@ async function handleNonStream(
     if (rlKey && rlMember) rollbackRateLimit(rlKey, rlMember).catch(() => {});
 
     const engineErr = err instanceof EngineError ? err : null;
+    const failedChain = getAttemptChainFromError(err) ?? undefined;
 
     processChatResult({
       traceId,
@@ -249,6 +259,7 @@ async function handleNonStream(
         code: engineErr?.code,
       },
       clientSignal,
+      attemptChain: failedChain,
     });
 
     if (engineErr) {
@@ -285,9 +296,12 @@ async function handleStream(
     // F-RR-02: failover for the initial stream connection. If the upstream
     // rejects before streaming starts (model_not_found, connection error),
     // we try the next candidate. Once streaming begins we're committed.
-    const { result: stream, route: usedRoute } = await withFailover(
-      candidates.length > 0 ? candidates : [route],
-      (r, a) => a.chatCompletionsStream(body, r),
+    const {
+      result: stream,
+      route: usedRoute,
+      attemptChain,
+    } = await withFailover(candidates.length > 0 ? candidates : [route], (r, a) =>
+      a.chatCompletionsStream(body, r),
     );
     route = usedRoute;
 
@@ -356,6 +370,7 @@ async function handleStream(
               finishReason: lastFinishReason,
             },
             clientSignal,
+            attemptChain,
           });
         } catch (err) {
           controller.error(err);
@@ -382,6 +397,7 @@ async function handleStream(
               message: (err as Error).message,
             },
             clientSignal,
+            attemptChain,
           });
         }
       },
@@ -399,6 +415,7 @@ async function handleStream(
     if (rlKey && rlMember) rollbackRateLimit(rlKey, rlMember).catch(() => {});
 
     const engineErr = err instanceof EngineError ? err : null;
+    const failedChain = getAttemptChainFromError(err) ?? undefined;
 
     processChatResult({
       traceId,
@@ -414,6 +431,7 @@ async function handleStream(
         code: engineErr?.code,
       },
       clientSignal,
+      attemptChain: failedChain,
     });
 
     if (engineErr) {

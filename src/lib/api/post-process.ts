@@ -20,6 +20,7 @@ import {
   type ChatCompletionResponse,
   type ImageGenerationResponse,
 } from "../engine/types";
+import type { AttemptRecord } from "../engine/failover";
 import { recordTokenUsage, recordSpending } from "./rate-limit";
 import { checkAndSendBalanceLowAlert } from "@/lib/notifications/triggers";
 
@@ -39,6 +40,13 @@ export interface PostProcessParams {
   templateRunId?: string;
   /** HTTP request abort signal — used to detect client disconnect before billing */
   clientSignal?: AbortSignal;
+  /**
+   * BL-BILLING-AUDIT-EXT-P1 F-BAX-04: withFailover 返回的尝试链，写入
+   * responseSummary.attempt_chain 供审计使用。消除"call_logs.channelId 与
+   * errorMessage 错位"（旧逻辑 errorMessage 保留了首个失败 channel 的信息，
+   * 但 channelId 却是最终成功/最后失败 channel）。
+   */
+  attemptChain?: AttemptRecord[];
 }
 
 export interface ChatPostProcessParams extends PostProcessParams {
@@ -271,9 +279,19 @@ async function processChatResultAsync(params: ChatPostProcessParams): Promise<vo
   } | null;
   const isReasoningModel = modelCapabilities?.reasoning === true;
   const reasoningTokens = isReasoningModel ? usage?.reasoning_tokens : undefined;
+  // F-BAX-04: 只在有多个尝试（失败过重试）时才写 attempt_chain，避免单次
+  // 成功调用也留一条 {channelId} 增加 JSON 体积。
+  const includeAttemptChain = Array.isArray(params.attemptChain) && params.attemptChain.length > 1;
+  const responseSummaryObj: Record<string, unknown> = {};
+  if (reasoningTokens !== undefined && reasoningTokens > 0) {
+    responseSummaryObj.reasoning_tokens = reasoningTokens;
+  }
+  if (includeAttemptChain) {
+    responseSummaryObj.attempt_chain = params.attemptChain;
+  }
   const responseSummary: Prisma.InputJsonValue | undefined =
-    reasoningTokens !== undefined && reasoningTokens > 0
-      ? { reasoning_tokens: reasoningTokens }
+    Object.keys(responseSummaryObj).length > 0
+      ? (responseSummaryObj as Prisma.InputJsonValue)
       : undefined;
 
   // F-BA-02: CallLog + deduct_balance 原子化
@@ -370,15 +388,29 @@ async function processImageResultAsync(params: ImagePostProcessParams): Promise<
     );
   }
 
+  // F-BAX-04 image costPrice regression fix：channel.costPrice 缺 perCall
+  // 配置时显式告警（seedream-3 2026-04-20 regression：成功调用但 costPrice=0）。
+  if (status === "SUCCESS") {
+    const costPriceCfg = params.route.channel.costPrice as { perCall?: number } | null;
+    if (!costPriceCfg || typeof costPriceCfg.perCall !== "number") {
+      console.warn(
+        `[post-process] WARNING: image channel ${params.route.channel.id} (${params.route.provider.name}/${params.modelName}) missing costPrice.perCall — costPrice recorded as 0. Fix channel.costPrice in admin.`,
+      );
+    }
+  }
+
   // 持久化 images_count + 上游原始 URL 列表（F-ACF-07 代理查找源）
   const originalUrls = (params.response?.data ?? [])
     .map((d) => d?.url)
     .filter((u): u is string => typeof u === "string" && u.length > 0);
-  const responseSummary: Prisma.InputJsonValue = {
+  // F-BAX-04: 多次尝试（失败过）才写 attempt_chain，避免单次成功也增加体积。
+  const includeAttemptChain = Array.isArray(params.attemptChain) && params.attemptChain.length > 1;
+  const responseSummary = {
     images_count: imagesCount,
     ...(originalUrls.length > 0 ? { original_urls: originalUrls } : {}),
     ...(zeroImageDelivery ? { zero_image_delivery: true } : {}),
-  };
+    ...(includeAttemptChain ? { attempt_chain: params.attemptChain } : {}),
+  } as unknown as Prisma.InputJsonValue;
 
   // F-BA-02: 图片扣费 atomicity —— 与 chat 路径逻辑一致。
   const imageCallLogData: Prisma.CallLogUncheckedCreateInput = {

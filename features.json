@@ -34,7 +34,7 @@
       "title": "withFailover attempt_chain + image costPrice regression fix",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "source": "KOLMatrix trc_cvu84f + trc_kju9fxz5 channelId 错位 / 2026-04-20 seedream-3 costPrice=0 regression",
       "acceptance": "1) `src/lib/engine/failover.ts withFailover` 返回值增加 `attemptChain: Array<{channelId, errorCode?, errorMessage?}>`；2) 5 个调用方同步改造：/v1/chat/completions (3 处 processChatResult) / /v1/images/generations (2 处 processImageResult) / MCP chat.ts (2 处) / MCP generate-image.ts (1 处)；3) `processChatResult` / `processImageResult` 入参 attemptChain，写入 `responseSummary.attempt_chain`；4) `call_logs.channelId` 与 `errorMessage` 归属 channel 一致（消除错位）；5) `src/lib/api/post-process.ts processImageResultAsync` 修 image costPrice 计算：若 channel.costPrice 缺 perCall 配置写 system_log WARN + cost=0；若有 perCall 则正确计算；6) 单测：withFailover 两次失败一次成功 → attemptChain 3 条 + route.channel.id 等于最后一次成功的；7) 生产验证：触发一次 seedream-3 图片调用 → call_logs.costPrice > 0"
     },

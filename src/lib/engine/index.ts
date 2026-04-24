@@ -1,5 +1,6 @@
 export { resolveEngine, routeByAlias, routeByModelName, getAdapterForRoute } from "./router";
-export { withFailover } from "./failover";
+export { withFailover, getAttemptChainFromError } from "./failover";
+export type { AttemptRecord } from "./failover";
 export { OpenAICompatEngine } from "./openai-compat";
 export { VolcengineAdapter } from "./adapters/volcengine";
 export { SiliconFlowAdapter } from "./adapters/siliconflow";

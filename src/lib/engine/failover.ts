@@ -84,21 +84,52 @@ function cooldownReason(err: unknown): string {
 }
 
 /**
+ * BL-BILLING-AUDIT-EXT-P1 F-BAX-04 — 每次 failover 尝试的可审计记录。
+ * 按顺序记录 routed 到的 channel 与（如失败时）失败原因。成功落地那一条
+ * 的 errorCode / errorMessage 为 undefined；全部失败时数组最后一条就是
+ * 最终抛出给调用方的那个错误。写入 call_logs.responseSummary.attempt_chain，
+ * 用于排查"channelId 与 errorMessage 错位"类问题。
+ */
+export interface AttemptRecord {
+  channelId: string;
+  errorCode?: string;
+  errorMessage?: string;
+}
+
+/**
+ * F-BAX-04: 获取任意 Error 上挂载的 attempt chain（若是从 withFailover 抛出来的）。
+ * 调用方在 catch 中读到 null 说明错误不是来自 withFailover（例如 resolveEngine 失败）。
+ */
+export function getAttemptChainFromError(err: unknown): AttemptRecord[] | null {
+  if (err && typeof err === "object" && "attemptChain" in err) {
+    const chain = (err as { attemptChain?: unknown }).attemptChain;
+    if (Array.isArray(chain)) return chain as AttemptRecord[];
+  }
+  return null;
+}
+
+/**
  * Execute a function with channel failover.
  *
  * @param candidates - Sorted channel list from routeByAlias
  * @param fn - The actual call to make (receives route + adapter)
  * @param onRetry - Optional extra callback per retry. Cooldown is written
  *                  automatically regardless of whether a callback is supplied.
- * @returns The result from the first successful call
+ * @returns The result from the first successful call plus the full attempt chain
  * @throws The last error if all candidates fail
  */
 export async function withFailover<T>(
   candidates: RouteResult[],
   fn: (route: RouteResult, adapter: ReturnType<typeof getAdapterForRoute>) => Promise<T>,
   onRetry?: (attempt: number, failedRoute: RouteResult, error: unknown) => void,
-): Promise<{ result: T; route: RouteResult; attempts: number }> {
+): Promise<{
+  result: T;
+  route: RouteResult;
+  attempts: number;
+  attemptChain: AttemptRecord[];
+}> {
   const maxAttempts = Math.min(candidates.length, MAX_FAILOVER_RETRIES + 1);
+  const attemptChain: AttemptRecord[] = [];
   let lastError: unknown;
 
   for (let i = 0; i < maxAttempts; i++) {
@@ -108,12 +139,26 @@ export async function withFailover<T>(
 
     try {
       const result = await fn(route, adapter);
-      return { result, route, attempts: i + 1 };
+      attemptChain.push({ channelId: route.channel.id });
+      return { result, route, attempts: i + 1, attemptChain };
     } catch (err) {
       lastError = err;
 
+      const code = err instanceof EngineError ? err.code : "network_error";
+      const message = err instanceof Error ? err.message : String(err);
+      attemptChain.push({
+        channelId: route.channel.id,
+        errorCode: code,
+        errorMessage: message,
+      });
+
       const retryable = isRetryable(err, route, nextRoute);
       if (!retryable || i === maxAttempts - 1) {
+        // F-BAX-04: annotate error with attemptChain so caller's catch
+        // can still write it into call_logs.responseSummary.attempt_chain.
+        if (err && typeof err === "object") {
+          (err as { attemptChain?: AttemptRecord[] }).attemptChain = attemptChain;
+        }
         throw err;
       }
 
@@ -122,9 +167,8 @@ export async function withFailover<T>(
       void markChannelCooldown(route.channel.id, cooldownReason(err));
 
       const channelDesc = `${route.provider.name}/${route.model.name}`;
-      const code = err instanceof EngineError ? err.code : "network_error";
       console.warn(
-        `[failover] Attempt ${i + 1} failed on ${channelDesc} (${code}): ${err instanceof Error ? err.message : String(err)}. Trying next channel...`,
+        `[failover] Attempt ${i + 1} failed on ${channelDesc} (${code}): ${message}. Trying next channel...`,
       );
 
       if (onRetry) {

@@ -7,7 +7,7 @@
 
 import { z } from "zod";
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import { resolveEngine, withFailover } from "@/lib/engine";
+import { resolveEngine, withFailover, getAttemptChainFromError } from "@/lib/engine";
 import { generateTraceId } from "@/lib/api/response";
 import { processImageResult } from "@/lib/api/post-process";
 import { buildProxyUrl } from "@/lib/api/image-proxy";
@@ -235,9 +235,12 @@ export function registerGenerateImage(server: McpServer, opts: McpServerOptions)
 
       try {
         // F-RR-02: failover
-        const { result: response, route: usedRoute } = await withFailover(
-          candidates.length > 0 ? candidates : [route],
-          (r, a) => a.imageGenerations(request, r),
+        const {
+          result: response,
+          route: usedRoute,
+          attemptChain,
+        } = await withFailover(candidates.length > 0 ? candidates : [route], (r, a) =>
+          a.imageGenerations(request, r),
         );
         route = usedRoute;
 
@@ -253,6 +256,7 @@ export function registerGenerateImage(server: McpServer, opts: McpServerOptions)
           startTime,
           response,
           source: "mcp",
+          attemptChain,
         });
 
         // F-ACF-07: swap upstream URLs for signed proxy URLs so the client
@@ -280,6 +284,7 @@ export function registerGenerateImage(server: McpServer, opts: McpServerOptions)
           ],
         };
       } catch (err) {
+        const failedChain = getAttemptChainFromError(err) ?? undefined;
         processImageResult({
           traceId,
           userId,
@@ -291,6 +296,7 @@ export function registerGenerateImage(server: McpServer, opts: McpServerOptions)
           startTime,
           error: { message: (err as Error).message, code: (err as EngineError)?.code },
           source: "mcp",
+          attemptChain: failedChain,
         });
 
         const engineErr = err instanceof EngineError ? err : null;
