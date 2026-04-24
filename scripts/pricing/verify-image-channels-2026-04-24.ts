@@ -19,17 +19,19 @@ interface SmokeTarget {
   label: string;
 }
 
+// F-BAX-08 smoke: 挑 3 个在生产 enabled 的 image alias，每个覆盖一个 provider
+// （/v1/models 实测可用：seedream-3 / gpt-image / gpt-image-mini / gemini-3-pro-image）。
 const TARGETS: readonly SmokeTarget[] = [
-  { alias: "seedream-3.0", label: "volcengine" },
-  { alias: "qwen-image-2.0", label: "qwen" },
-  { alias: "gpt-image-1-mini", label: "openai(CAW)" },
+  { alias: "seedream-3", label: "volcengine" },
+  { alias: "gpt-image-mini", label: "openai(CAW) mini" },
+  { alias: "gemini-3-pro-image", label: "openai(CAW) gemini" },
 ];
 
 async function triggerImage(
   baseUrl: string,
   apiKey: string,
   alias: string,
-): Promise<{ traceId: string; status: number }> {
+): Promise<{ traceId: string; status: number; errBody?: string }> {
   const res = await fetch(`${baseUrl.replace(/\/+$/, "")}/v1/images/generations`, {
     method: "POST",
     headers: {
@@ -38,15 +40,11 @@ async function triggerImage(
     },
     body: JSON.stringify({ model: alias, prompt: "a tiny red dot on white", size: "1024x1024" }),
   });
+  // traceId is returned in X-Trace-Id header (jsonResponse helper), not body.
+  const traceId = res.headers.get("x-trace-id") ?? "";
   const text = await res.text();
-  let traceId = "";
-  try {
-    const parsed = JSON.parse(text);
-    traceId = parsed?.traceId ?? parsed?.id ?? "";
-  } catch {
-    /* non-JSON */
-  }
-  return { traceId, status: res.status };
+  const errBody = res.ok ? undefined : text.slice(0, 200);
+  return { traceId, status: res.status, errBody };
 }
 
 async function fetchCostPrice(traceId: string): Promise<number | null> {
@@ -78,8 +76,9 @@ async function main(): Promise<void> {
   for (const t of TARGETS) {
     console.log(`\n--- ${t.label} / ${t.alias} ---`);
     try {
-      const { traceId, status } = await triggerImage(baseUrl, apiKey, t.alias);
+      const { traceId, status, errBody } = await triggerImage(baseUrl, apiKey, t.alias);
       console.log(`http=${status} traceId=${traceId || "(missing)"}`);
+      if (errBody) console.warn(`[body] ${errBody}`);
       if (!traceId) {
         console.warn(`[warn] no traceId returned — upstream may have failed`);
         failed++;
