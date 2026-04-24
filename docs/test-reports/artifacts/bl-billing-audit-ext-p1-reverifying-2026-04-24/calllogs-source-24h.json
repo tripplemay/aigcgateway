@@ -1,0 +1,192 @@
+{
+  "since": "2026-04-23T04:54:07.463Z",
+  "sourceCounts": [
+    {
+      "_count": {
+        "_all": 1
+      },
+      "source": "api"
+    },
+    {
+      "_count": {
+        "_all": 3
+      },
+      "source": "mcp"
+    },
+    {
+      "_count": {
+        "_all": 132
+      },
+      "source": "probe"
+    },
+    {
+      "_count": {
+        "_all": 15
+      },
+      "source": "sync"
+    }
+  ],
+  "syncFallbackErrorCount": 0,
+  "latestErrors": [
+    {
+      "id": "cmocfj95o0013bn2e51tvx4ls",
+      "traceId": "probe_cmnpqumxc00bqbnxcs9t7grga_1777006064945",
+      "source": "probe",
+      "errorCode": "rate_limited",
+      "errorMessage": "rate_limited: Provider returned error",
+      "createdAt": "2026-04-24T04:47:52.860Z"
+    },
+    {
+      "id": "cmocefbdq00grbnsm6b41bxzz",
+      "traceId": "probe_cmnpqumxc00bqbnxcs9t7grga_1777004201850",
+      "source": "probe",
+      "errorCode": "rate_limited",
+      "errorMessage": "rate_limited: Provider returned error",
+      "createdAt": "2026-04-24T04:16:49.465Z"
+    },
+    {
+      "id": "cmoceeh7g00gnbnsmfyx2nk23",
+      "traceId": "probe_cmnpquzs200vqbnxcmklmfqx9_1777004166904",
+      "source": "probe",
+      "errorCode": "provider_error",
+      "errorMessage": "provider_error: 模型无返回结果，可能是内容违规、输入过长、输入格式有误或负载较高，请检查后再试。No response, please try again.",
+      "createdAt": "2026-04-24T04:16:10.396Z"
+    },
+    {
+      "id": "cmoceeeij00gkbnsmxbocv5hd",
+      "traceId": "probe_cmnpquzs200vqbnxcmklmfqx9_1777004162746",
+      "source": "probe",
+      "errorCode": "provider_error",
+      "errorMessage": "provider_error: 模型无返回结果，可能是内容违规、输入过长、输入格式有误或负载较高，请检查后再试。No response, please try again.",
+      "createdAt": "2026-04-24T04:16:06.907Z"
+    },
+    {
+      "id": "cmoceebao00ghbnsmyjx3dej3",
+      "traceId": "probe_cmnpqumyb00c2bnxcu66fkpst_1777004162087",
+      "source": "probe",
+      "errorCode": "invalid_request",
+      "errorMessage": "invalid_request: Provider returned error",
+      "createdAt": "2026-04-24T04:16:02.736Z"
+    },
+    {
+      "id": "cmoceeasr00gebnsmt05sxse0",
+      "traceId": "probe_cmnpqumyb00c2bnxcu66fkpst_1777004161429",
+      "source": "probe",
+      "errorCode": "invalid_request",
+      "errorMessage": "invalid_request: Provider returned error",
+      "createdAt": "2026-04-24T04:16:02.091Z"
+    },
+    {
+      "id": "cmoceea9v00gabnsmvb1c07ti",
+      "traceId": "probe_cmnukegpz0064bnseifi4ra8s_1777004159009",
+      "source": "probe",
+      "errorCode": "invalid_request",
+      "errorMessage": "invalid_request: Aliyun market app does not exist, the user may not have activated the service.",
+      "createdAt": "2026-04-24T04:16:01.411Z"
+    },
+    {
+      "id": "cmocee8f600g8bnsmnj8yg3gt",
+      "traceId": "probe_cmnukegpz0064bnseifi4ra8s_1777004156949",
+      "source": "probe",
+      "errorCode": "invalid_request",
+      "errorMessage": "invalid_request: Aliyun market app does not exist, the user may not have activated the service.",
+      "createdAt": "2026-04-24T04:15:59.010Z"
+    },
+    {
+      "id": "cmocee6ti00g4bnsm469546xh",
+      "traceId": "probe_cmnukegpm005zbnsej4mi7z4s_1777004154502",
+      "source": "probe",
+      "errorCode": "invalid_request",
+      "errorMessage": "invalid_request: Aliyun market app does not exist, the user may not have activated the service.",
+      "createdAt": "2026-04-24T04:15:56.934Z"
+    },
+    {
+      "id": "cmocee4y000g2bnsmvbqqk50r",
+      "traceId": "probe_cmnukegpm005zbnsej4mi7z4s_1777004151830",
+      "source": "probe",
+      "errorCode": "invalid_request",
+      "errorMessage": "invalid_request: Aliyun market app does not exist, the user may not have activated the service.",
+      "createdAt": "2026-04-24T04:15:54.504Z"
+    },
+    {
+      "id": "cmocee2vc00fzbnsm91vrj0ot",
+      "traceId": "probe_cmnpquzcv00s5bnxcte6zr5dq_1777004117649",
+      "source": "probe",
+      "errorCode": "provider_error",
+      "errorMessage": "provider_error: 模型无返回结果，可能是内容违规、输入过长、输入格式有误或负载较高，请检查后再试。No response, please try again.",
+      "createdAt": "2026-04-24T04:15:51.816Z"
+    },
+    {
+      "id": "cmocedcic00fwbnsmxd6ysm6d",
+      "traceId": "probe_cmnpquzcv00s5bnxcte6zr5dq_1777004081851",
+      "source": "probe",
+      "errorCode": "provider_error",
+      "errorMessage": "provider_error: 模型无返回结果，可能是内容违规、输入过长、输入格式有误或负载较高，请检查后再试。No response, please try again.",
+      "createdAt": "2026-04-24T04:15:17.652Z"
+    },
+    {
+      "id": "cmoced5fj00fsbnsmcfl2jx0f",
+      "traceId": "probe_cmnpquzs200vqbnxcmklmfqx9_1777004104448",
+      "source": "probe",
+      "errorCode": "provider_error",
+      "errorMessage": "provider_error: 模型无返回结果，可能是内容违规、输入过长、输入格式有误或负载较高，请检查后再试。No response, please try again.",
+      "createdAt": "2026-04-24T04:15:08.479Z"
+    },
+    {
+      "id": "cmoced2bo00fqbnsmid8rt1dn",
+      "traceId": "probe_cmnpquzs200vqbnxcmklmfqx9_1777004099542",
+      "source": "probe",
+      "errorCode": "provider_error",
+      "errorMessage": "provider_error: 模型无返回结果，可能是内容违规、输入过长、输入格式有误或负载较高，请检查后再试。No response, please try again.",
+      "createdAt": "2026-04-24T04:15:04.452Z"
+    },
+    {
+      "id": "cmocecyiu00fnbnsmzj5ynkoq",
+      "traceId": "probe_cmnpqumyb00c2bnxcu66fkpst_1777004099100",
+      "source": "probe",
+      "errorCode": "invalid_request",
+      "errorMessage": "invalid_request: Provider returned error",
+      "createdAt": "2026-04-24T04:14:59.526Z"
+    },
+    {
+      "id": "cmocecy7400fkbnsm145y76ty",
+      "traceId": "probe_cmnpqumyb00c2bnxcu66fkpst_1777004097974",
+      "source": "probe",
+      "errorCode": "invalid_request",
+      "errorMessage": "invalid_request: Provider returned error",
+      "createdAt": "2026-04-24T04:14:59.104Z"
+    },
+    {
+      "id": "cmocecxbc00fhbnsmf2si1sa4",
+      "traceId": "probe_cmnukegpz0064bnseifi4ra8s_1777004095626",
+      "source": "probe",
+      "errorCode": "invalid_request",
+      "errorMessage": "invalid_request: Aliyun market app does not exist, the user may not have activated the service.",
+      "createdAt": "2026-04-24T04:14:57.960Z"
+    },
+    {
+      "id": "cmocecvil00febnsm3zuk1otc",
+      "traceId": "probe_cmnukegpz0064bnseifi4ra8s_1777004093027",
+      "source": "probe",
+      "errorCode": "invalid_request",
+      "errorMessage": "invalid_request: Aliyun market app does not exist, the user may not have activated the service.",
+      "createdAt": "2026-04-24T04:14:55.628Z"
+    },
+    {
+      "id": "cmocecthu00fbbnsmbs5v96ay",
+      "traceId": "probe_cmnukegpm005zbnsej4mi7z4s_1777004090760",
+      "source": "probe",
+      "errorCode": "invalid_request",
+      "errorMessage": "invalid_request: Aliyun market app does not exist, the user may not have activated the service.",
+      "createdAt": "2026-04-24T04:14:53.010Z"
+    },
+    {
+      "id": "cmocecrre00f8bnsmijke9n9r",
+      "traceId": "probe_cmnukegpm005zbnsej4mi7z4s_1777004089015",
+      "source": "probe",
+      "errorCode": "invalid_request",
+      "errorMessage": "invalid_request: Aliyun market app does not exist, the user may not have activated the service.",
+      "createdAt": "2026-04-24T04:14:50.762Z"
+    }
+  ]
+}
