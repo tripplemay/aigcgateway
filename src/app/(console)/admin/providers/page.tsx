@@ -131,6 +131,9 @@ export default function ProvidersPage() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [form, setForm] = useState<Record<string, string>>({});
   const [editId, setEditId] = useState<string | null>(null);
+  // BL-BILLING-AUDIT-EXT-P1 F-BAX-06: 编辑时记录 provider.name 以条件渲染
+  // 账单凭证字段（volcengine 显示 AK/SK，openrouter 显示 provisioning key）
+  const [editProviderName, setEditProviderName] = useState<string | null>(null);
   const [configOpen, setConfigOpen] = useState(false);
   const [configProviderId, setConfigProviderId] = useState<string | null>(null);
   const [config, setConfig] = useState<ProviderConfig>({});
@@ -160,6 +163,7 @@ export default function ProvidersPage() {
   const openCreate = () => {
     setForm({});
     setEditId(null);
+    setEditProviderName(null);
     setDialogOpen(true);
   };
   const openEdit = (p: Provider) => {
@@ -175,6 +179,7 @@ export default function ProvidersPage() {
       adapterType: p.adapterType,
     });
     setEditId(p.id);
+    setEditProviderName(p.name);
     setDialogOpen(true);
   };
 
@@ -471,6 +476,51 @@ export default function ProvidersPage() {
                   <option value="siliconflow">siliconflow</option>
                 </select>
               </div>
+              {/* BL-BILLING-AUDIT-EXT-P1 F-BAX-06: 账单 fetcher 凭证（仅 volcengine /
+                  openrouter 显示）。volcengine 需独立 AK/SK（与 model inference key 不同），
+                  openrouter 需 is_management_key=true 的 provisioning key。 */}
+              {editProviderName === "volcengine" && (
+                <>
+                  <div className="space-y-1.5">
+                    <label className="text-[11px] font-bold uppercase tracking-widest text-ds-on-surface-variant block">
+                      Billing Access Key ID
+                    </label>
+                    <input
+                      type="password"
+                      className="w-full bg-ds-surface-container-low border-none rounded-lg px-4 py-3 text-sm focus:ring-2 focus:ring-ds-primary/20 outline-none"
+                      placeholder="AKLT..."
+                      value={form.billingAccessKeyId ?? ""}
+                      onChange={(e) => set("billingAccessKeyId", e.target.value)}
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-[11px] font-bold uppercase tracking-widest text-ds-on-surface-variant block">
+                      Billing Secret Access Key
+                    </label>
+                    <input
+                      type="password"
+                      className="w-full bg-ds-surface-container-low border-none rounded-lg px-4 py-3 text-sm focus:ring-2 focus:ring-ds-primary/20 outline-none"
+                      placeholder="••••••"
+                      value={form.billingSecretAccessKey ?? ""}
+                      onChange={(e) => set("billingSecretAccessKey", e.target.value)}
+                    />
+                  </div>
+                </>
+              )}
+              {editProviderName === "openrouter" && (
+                <div className="space-y-1.5">
+                  <label className="text-[11px] font-bold uppercase tracking-widest text-ds-on-surface-variant block">
+                    Provisioning Key
+                  </label>
+                  <input
+                    type="password"
+                    className="w-full bg-ds-surface-container-low border-none rounded-lg px-4 py-3 text-sm focus:ring-2 focus:ring-ds-primary/20 outline-none"
+                    placeholder="sk-or-v1-..."
+                    value={form.provisioningKey ?? ""}
+                    onChange={(e) => set("provisioningKey", e.target.value)}
+                  />
+                </div>
+              )}
             </div>
             <div className="px-8 py-6 bg-ds-surface-container-low/50 flex justify-end gap-4">
               <button

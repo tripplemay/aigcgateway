@@ -52,7 +52,7 @@
       "title": "Tier 1 上游账单 fetcher adapter (Volcengine/OpenRouter/ChatanyWhere)",
       "priority": "critical",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "source": "2026-04-23 确认 3 家可自动查账单：Volcengine billing/ListBillDetail (AK/SK) + OpenRouter /api/v1/activity (provisioning key) + ChatanyWhere /v1/query/day_usage_details (inference key + UA)",
       "acceptance": "1) 新目录 `src/lib/billing-audit/fetchers/` + `tier1-fetcher.ts`（BillRecord 接口）；2) `volcengine.ts`：POST `open.volcengineapi.com/?Action=ListBillDetail&Version=2022-01-01`，V4 签名（HMAC-SHA256，service='billing', region='cn-beijing'），body `{BillPeriod:'YYYY-MM', Limit:200, Offset:offset, NeedRecordNum:1, GroupPeriod:1}`，读 `authConfig.billingAccessKeyId + billingSecretAccessKey`；3) `openrouter.ts`：GET `/api/v1/activity?date=YYYY-MM-DD`，Bearer `authConfig.provisioningKey`；4) `chatanywhere.ts`：POST `/v1/query/day_usage_details`，body `{date:'YYYY-MM-DD'}`，Header `Authorization: Bearer <apiKey>` + `User-Agent: Mozilla/5.0`（必需，否则 Cloudflare 1010 拦截）；5) fetch 失败抛 BillFetchError(providerName, reason, httpCode)；6) `providers.authConfig` JSON 扩展字段（无需 schema migration）：billingAccessKeyId / billingSecretAccessKey / provisioningKey；7) `src/app/(console)/admin/providers/page.tsx` 编辑弹窗：按 provider.name 条件显示新字段（volcengine 显示 2 个 AK/SK 字段 / openrouter 显示 provisioningKey）；8) `src/lib/api/admin-schemas.ts providerUpdateSchema` 扩展 optional 字段；9) 单测：每个 fetcher mock HTTP 响应 → 正确解析 BillRecord + 签名字符串 snapshot test + UA header 断言；10) 生产实测：用 DB 填入真实 billingAccessKeyId（AKLTNmMy... 这把）/provisioningKey（sk-or-v1-7c8e4... 这把）后，dev 服启动 `npx tsx scripts/test-billing-fetchers.ts 2026-04-22` 能返回 3 家数据"
     },

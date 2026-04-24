@@ -147,6 +147,13 @@ export const providerUpdateSchema = z
     proxyUrl: z.string().nullable().optional(),
     status: z.enum(["ACTIVE", "DISABLED"]).optional(),
     rateLimit: z.record(z.unknown()).nullable().optional(),
+    // BL-BILLING-AUDIT-EXT-P1 F-BAX-06: billing audit 账单 fetcher 凭证，
+    // merge 进 authConfig（不是独立 columns）。只有特定 provider 会用到：
+    //   volcengine: billingAccessKeyId + billingSecretAccessKey (V4 AK/SK)
+    //   openrouter: provisioningKey (is_management_key=true)
+    billingAccessKeyId: z.string().optional(),
+    billingSecretAccessKey: z.string().optional(),
+    provisioningKey: z.string().optional(),
   })
   .strict();
 

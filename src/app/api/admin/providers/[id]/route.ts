@@ -163,18 +163,51 @@ export async function PATCH(request: Request, { params }: { params: { id: string
     if (err instanceof ZodError) return zodErrorResponse(err);
     throw err;
   }
-  const { displayName, baseUrl, authType, apiKey, adapterType, proxyUrl, status, rateLimit } =
-    parsed;
+  const {
+    displayName,
+    baseUrl,
+    authType,
+    apiKey,
+    adapterType,
+    proxyUrl,
+    status,
+    rateLimit,
+    billingAccessKeyId,
+    billingSecretAccessKey,
+    provisioningKey,
+  } = parsed;
 
   const data: Record<string, unknown> = {};
   if (displayName !== undefined) data.displayName = displayName;
   if (baseUrl !== undefined) data.baseUrl = baseUrl;
   if (authType !== undefined) data.authType = authType;
-  if (apiKey !== undefined) data.authConfig = { apiKey };
   if (adapterType !== undefined) data.adapterType = adapterType;
   if (proxyUrl !== undefined) data.proxyUrl = proxyUrl;
   if (status !== undefined) data.status = status;
   if (rateLimit !== undefined) data.rateLimit = rateLimit;
+
+  // F-BAX-06: billing 凭证与 apiKey 都走 authConfig（JSON）。旧逻辑对 apiKey
+  // 会整块覆盖 authConfig，新逻辑先读旧 authConfig 再 merge，保证 billing 凭证
+  // 不会被单独改 apiKey 的操作清空。
+  const needsAuthMerge =
+    apiKey !== undefined ||
+    billingAccessKeyId !== undefined ||
+    billingSecretAccessKey !== undefined ||
+    provisioningKey !== undefined;
+  if (needsAuthMerge) {
+    const existing = await prisma.provider.findUnique({
+      where: { id: params.id },
+      select: { authConfig: true },
+    });
+    const prevAuth = (existing?.authConfig as Record<string, unknown> | null | undefined) ?? {};
+    const nextAuth: Record<string, unknown> = { ...prevAuth };
+    if (apiKey !== undefined) nextAuth.apiKey = apiKey;
+    if (billingAccessKeyId !== undefined) nextAuth.billingAccessKeyId = billingAccessKeyId;
+    if (billingSecretAccessKey !== undefined)
+      nextAuth.billingSecretAccessKey = billingSecretAccessKey;
+    if (provisioningKey !== undefined) nextAuth.provisioningKey = provisioningKey;
+    data.authConfig = nextAuth;
+  }
 
   const provider = await prisma.provider.update({
     where: { id: params.id },
