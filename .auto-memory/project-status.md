@@ -4,31 +4,31 @@ description: AIGC Gateway 当前状态快照（覆盖写，≤30 行）
 type: project
 ---
 ## 当前批次
-- **BL-BILLING-AUDIT-EXT-P1：`fixing` fix_round=2**（新增 F-BAX-08 image pricing 系统性修正）
+- **BL-BILLING-AUDIT-EXT-P1：`reverifying` fix_round=2 完成**（7/7 generator feature 完成，交 Codex 复验 #11 + F-BAX-08 13 项）
 - 上一批次 BL-IMAGE-PARSER-FIX：done（生产 e9e8963 已部署）
 - Path A 主线 11/11 完成；EMERGENCY / LEAN / IMAGE-PARSER-FIX / BILLING-AUDIT-EXT 独立 post-path-a 链
 
-## 本批次 P1 进度
-- F-BAX-01~06 build + fix_round 1 三个 fetcher bug 生产复验通过（vitest 284 / probe/sync/admin 日志全通）
-- **F-BAX-08 pending**：30 条 image channel 定价 UPDATE + 4 条 modality 修正 + Admin UI 校验 + 后端 Zod + 抽样 smoke
+## 本批次 P1 交付（已实现）
+- F-BAX-01~06 build + fix_round 1 三个 fetcher bug 生产已通过
+- **F-BAX-08 fix_round 2 完成**：30 条 channel 定价硬编码表 + 4 条 modality + dry-run/--apply/幂等脚本 + verify smoke 脚本 + 后端 PATCH 400 IMAGE_CHANNEL_REQUIRES_PERCALL_PRICE
+- vitest 306 PASS（+22 新 F-BAX-08 单测）/ tsc / build 全过
 
-## fix_round 2 决策纪要
-- 1A USD 口径（1 USD = 7 CNY）/ 2B OR 6 条延后 / 3A 未知 alias 按 gpt-image-1 中档保守填 / 4A 顺手修 4 条 modality
-- sellPrice = costPrice × 1.2
-- 延后的 OR 6 条已写入 backlog BL-IMAGE-PRICING-OR-P2（order=102）
+## F-BAX-08 未加前端 UI 校验
+- 原因：admin console 目前无 channel costPrice 编辑表单（仅 priority 重排 + 删除）
+- 后端 PATCH 400 是唯一 enforcement 边界；helper 导出供后续 UI 复用
 
-## 生产现状
-- 扫描确认 40 条 image channel 全体 `costPrice.perCall=0` → 全面修
-- 生产凭证已填（AK/SK + provisioningKey + chatanywhere UA）
-- 本批次后 OR 6 条仍为 0（token-priced 延后）
+## Codex reverifying round2 执行步骤
+1. ssh 生产 → `npx tsx scripts/pricing/fix-image-channels-2026-04-24.ts` 看 dry-run diff
+2. 人工 live 复核 cogview-3 ¥0.25/张（bigmodel.cn/pricing）
+3. `--apply` 执行，期望退出 0，抽查 5 条 channel 比值 1.19-1.21
+4. 重跑脚本取 "no change"（幂等）
+5. `BASE_URL=... API_KEY=... npx tsx scripts/pricing/verify-image-channels-2026-04-24.ts` 三家 smoke costPrice>0
+6. curl PATCH IMAGE channel perCall=0 → 400 / TEXT → 200
+7. 合并写 #18 signoff（F-BAX-07 + F-BAX-08）
 
-## 遗留（fix_round 2 完成后交 Codex reverifying round2）
-- F-BAX-07 #11 seedream-3 smoke（依赖 F-BAX-08 UPDATE）
-- F-BAX-08 § 4 13 项验收
-- #18 signoff 合并报告
-
-## P2（backlog order=101）后续启动
-- Tier 2 balance snapshot + reconcile-job cron + admin /admin/reconciliation 面板 + call_logs TTL 30d
+## P2（backlog order=101 / 102）后续启动
+- BL-BILLING-AUDIT-EXT-P2：Tier 2 balance snapshot + reconcile-job cron + admin panel + call_logs TTL 30d
+- BL-IMAGE-PRICING-OR-P2：OpenRouter 6 条 token-priced image channel
 
 ## Framework 铁律（v0.7.3 → harness-template v0.9.3 已同步）
 1. Planner spec 涉及代码细节 Read 源码 + file:line 引用

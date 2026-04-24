@@ -70,7 +70,7 @@
       "title": "Image channel pricing 系统性修正（30 条定价 + 4 条 modality + Admin UI 加固）",
       "priority": "critical",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "source": "BL-BILLING-AUDIT-EXT-P1 fix_round 2：reverifying round1 #11 FAIL 根因扫描发现 40 条 image channel 全体 costPrice=0；用户决策 B2（单批批量修）+ 1A（USD 口径）+ 2B（OR 6 条延后）+ 3A（gpt-image-2/-ca 保守填）+ 4A（顺手修 4 条 modality）",
       "acceptance": "详见 docs/specs/F-BAX-08-image-pricing-spec.md § 4 验收清单。摘要：1-4 构建/单测（含 ≥4 条新增测试）；5-10 数据正确性（脚本 apply + 抽查 + 幂等 + modality=TEXT + smoke 3 家 + Admin UI 阻止）；11-12 后端校验（IMAGE perCall=0 → 400 / TEXT → 200）；13 signoff 报告合并 F-BAX-07 #11。"
     }

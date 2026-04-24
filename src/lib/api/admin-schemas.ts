@@ -64,9 +64,49 @@ export const channelUpdateSchema = z
   .object({
     priority: z.number().int().optional(),
     costPrice: z.record(z.unknown()).optional(),
+    sellPrice: z.record(z.unknown()).optional(),
     status: z.enum(["ACTIVE", "DEGRADED", "DISABLED"]).optional(),
   })
   .strict();
+
+// ============================================================
+// BL-BILLING-AUDIT-EXT-P1 F-BAX-08: IMAGE channel 定价校验
+// ============================================================
+//
+// 修复 2026-04-24 生产事故：40 条 image channel 全体 costPrice.perCall=0，
+// 成功调用不计费。Zod 层（此处）给前端 + 脚本做标准化校验；PATCH 路由
+// 结合 model.modality 做二次校验后返回 400 IMAGE_CHANNEL_REQUIRES_PERCALL_PRICE。
+
+/** 对 IMAGE modality 的 channel 强制 `{unit:'call', perCall>0}` */
+export function imageChannelPriceValid(price: unknown): boolean {
+  if (!price || typeof price !== "object") return false;
+  const p = price as { unit?: unknown; perCall?: unknown };
+  if (p.unit !== "call") return false;
+  if (typeof p.perCall !== "number") return false;
+  return p.perCall > 0;
+}
+
+/**
+ * 对合并了 model.modality 的 channel 更新做校验：
+ *   - IMAGE + costPrice 传入但 perCall<=0 → fail
+ *   - IMAGE + sellPrice 传入但 perCall<=0 → fail
+ *   - TEXT / 其他 modality 不做约束
+ * 返回 null 表示通过；返回 string 为错误 message。
+ */
+export function validateChannelPriceForModality(
+  modality: string,
+  costPrice: unknown,
+  sellPrice?: unknown,
+): string | null {
+  if (modality !== "IMAGE") return null;
+  if (costPrice !== undefined && !imageChannelPriceValid(costPrice)) {
+    return "图片渠道 costPrice 必须为 {unit:'call', perCall>0}";
+  }
+  if (sellPrice !== undefined && !imageChannelPriceValid(sellPrice)) {
+    return "图片渠道 sellPrice 必须为 {unit:'call', perCall>0}";
+  }
+  return null;
+}
 
 // ============================================================
 // Model — POST /api/admin/models
