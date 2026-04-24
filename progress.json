@@ -1,14 +1,15 @@
 {
   "status": "fixing",
-  "user_goal": "BL-BILLING-AUDIT-EXT-P1 — Gateway 审计盲区修复（probe/sync/admin 补 call_log） + 原 BL-BILLING-AUDIT scope（channelId 错位 + image costPrice + auth_failed 告警） + Tier 1 上游账单 fetcher（Volcengine/OpenRouter/ChatanyWhere）",
-  "total_features": 7,
+  "user_goal": "BL-BILLING-AUDIT-EXT-P1 — Gateway 审计盲区修复（probe/sync/admin 补 call_log） + 原 BL-BILLING-AUDIT scope（channelId 错位 + image costPrice + auth_failed 告警） + Tier 1 上游账单 fetcher + Image channel pricing 系统性修正",
+  "total_features": 8,
   "completed_features": 6,
   "fix_rounds": 1,
   "current_sprint": "BL-BILLING-AUDIT-EXT-P1",
-  "last_updated": "2026-04-24T04:56:42.000Z",
+  "last_updated": "2026-04-24T09:30:00.000Z",
   "reference_docs": [
     "docs/specs/BL-BILLING-AUDIT-EXT-P1-spec.md",
-    "docs/specs/BL-BILLING-AUDIT-EXT-P2-spec.md"
+    "docs/specs/BL-BILLING-AUDIT-EXT-P2-spec.md",
+    "docs/specs/F-BAX-08-image-pricing-spec.md"
   ],
   "role_assignments": null,
   "docs": {
@@ -18,7 +19,7 @@
     "framework_reviewed": false
   },
   "evaluator_feedback": {
-    "summary": "reverifying 结果：#1-#10、#12、#13-#17 通过；#11 seedream-3 生产调用后 call_logs.costPrice 仍为 0 导致失败，#18 signoff 被阻断。",
+    "summary": "reverifying round1 结果：#1-#10、#12-#17 通过；#11 seedream-3 生产调用 call_logs.costPrice=0 FAIL。Planner 扫描确认根因为 40 条 image channel 全体 costPrice.perCall=0（数据配置层漏洞），拆出新 F-BAX-08（B2 路径）系统性修 30 条定价 + 4 条 modality + Admin UI 校验加固 + 后端校验。本轮 fix_round 2 Generator 接手 F-BAX-08；完成后 Codex 并行复验 F-BAX-07 #11 + F-BAX-08 全量验收 → #18 signoff。",
     "pass_count": 16,
     "partial_count": 0,
     "fail_count": 2,
@@ -26,51 +27,66 @@
       {
         "feature_id": "F-BAX-07",
         "result": "FAIL",
-        "description": "#11 生产实测 seedream-3：接口返回 200 且有图片，但 call_logs.costPrice=0（未满足 >0）。",
-        "steps_to_reproduce": "见 docs/test-reports/artifacts/bl-billing-audit-ext-p1-reverifying-2026-04-24/seedream-prod-check.log（traceId=trc_p2c4qf...）"
+        "description": "#11 生产实测 seedream-3：接口返回 200 且有图片，但 call_logs.costPrice=0。根因：生产 channel `cmnpquy5m00rwbnxcc0omrhet` (seedream-3.0) `costPrice={unit:'call',perCall:0}`——数据配置层问题。Planner 扫描全库发现全部 40 条 image channel 都是 perCall=0，不只 seedream-3 一条。已拆出 F-BAX-08 系统性修（见 docs/specs/F-BAX-08-image-pricing-spec.md）。F-BAX-08 完成后，seedream-3 新价 costPrice.perCall=0.0370 → 重触发 smoke → call_logs.costPrice 应>0。",
+        "steps_to_reproduce": "见 docs/test-reports/artifacts/bl-billing-audit-ext-p1-reverifying-2026-04-24/seedream-prod-check.log（traceId=trc_p2c4qf）"
       },
       {
         "feature_id": "F-BAX-07",
         "result": "BLOCKED",
-        "description": "#18 signoff 需 18 项全部满足；当前 #11 FAIL，因此本轮仍不能签收。",
+        "description": "#18 signoff 需 18 项全部满足；当前 #11 依赖 F-BAX-08 完成，故本轮仍不能签收。F-BAX-08 完成后，#11 + F-BAX-08 § 4 13 项合并生成一份 signoff 报告。",
         "steps_to_reproduce": "docs.signoff 仍为 null；见 docs/test-reports/BL-BILLING-AUDIT-EXT-P1-reverifying-2026-04-24-round1.md"
       }
     ]
   },
   "generator_handoff": {
-    "fix_round": 1,
-    "scope": "fix 3 production code bugs in F-BAX-06 Tier 1 fetchers (discovered by Planner during production smoke test on 2026-04-24)",
+    "fix_round": 2,
+    "scope": "F-BAX-08 image channel pricing 系统性修正（30 条 UPDATE + 4 条 modality + Admin UI 校验 + 后端 Zod superRefine + 抽样 smoke）",
+    "spec": "docs/specs/F-BAX-08-image-pricing-spec.md",
     "targets": [
       {
-        "file": "scripts/test-billing-fetchers.ts",
-        "bug": "FETCHERS['chatanywhere'] not resolvable to DB provider.name='openai'",
-        "fix": "Add FETCHER_ALIAS map { chatanywhere: 'openai' } OR rename key to 'openai'. Recommend alias approach.",
-        "test": "unit test: resolve 'chatanywhere' → provider.name='openai'"
+        "file": "scripts/pricing/fix-image-channels-2026-04-24.ts",
+        "action": "CREATE",
+        "summary": "30 条 channel UPDATE + 4 条 model modality UPDATE；default dry-run + --apply 开关；幂等重放；输出 diff 日志。定价表见 spec § 3.1 / 3.2。"
       },
       {
-        "file": "src/lib/billing-audit/fetchers/openrouter.ts",
-        "bug": "normalizeItem date='YYYY-MM-DD HH:MM:SS' parse → Invalid Date",
-        "fix": "Use item.date.slice(0,10) before appending 'T00:00:00Z'",
-        "test": "unit tests: date='2026-04-22' and date='2026-04-22 00:00:00' both parse to valid UTC Date"
+        "file": "scripts/pricing/verify-image-channels-2026-04-24.ts",
+        "action": "CREATE",
+        "summary": "apply 后抽样调用 seedream-3 / qwen-image-2.0 / gpt-image-1-mini 各一次，断言 call_logs.costPrice > 0。"
       },
       {
-        "file": "src/lib/billing-audit/fetchers/volcengine.ts",
-        "bug": "modelName=\"\" because InstanceName='' is truthy string short-circuiting ?? fallback",
-        "fix": "Use `(item.ConfigName && item.ConfigName.trim()) || (item.InstanceName && item.InstanceName.trim()) || (item.ProductName && item.ProductName.trim()) || 'unknown'` — ConfigName primary",
-        "test": "unit test: InstanceName='' falls through to ConfigName; all-empty → 'unknown'"
+        "file": "src/app/(console)/admin/channels/page.tsx (或 channel 编辑组件实际路径)",
+        "action": "MODIFY",
+        "summary": "IMAGE channel 编辑弹窗：costPrice.perCall / sellPrice.perCall 必填 > 0；前端 Zod 校验 + 红框提示。"
+      },
+      {
+        "file": "src/lib/api/admin-schemas.ts",
+        "action": "MODIFY",
+        "summary": "channelUpdateSchema 补 superRefine：若 modelModality='IMAGE' 则 costPrice.unit='call'+perCall>0 必要。"
+      },
+      {
+        "file": "src/app/api/admin/channels/[channelId]/route.ts",
+        "action": "MODIFY",
+        "summary": "PUT handler 读 model.modality，若 IMAGE 且 perCall<=0 → 400 响应带错误码 IMAGE_CHANNEL_REQUIRES_PERCALL_PRICE。"
+      },
+      {
+        "file": "vitest 新测试文件",
+        "action": "CREATE",
+        "summary": "≥ 4 条单测：imageChannelPriceSchema 正负例（IMAGE+perCall=0 拒 / IMAGE+perCall=0.01 通 / TEXT+perCall=0 通）+ fix-image-channels-2026-04-24.test.ts（dry-run + 幂等）。"
       }
     ],
     "post_fix_validation": [
-      "npx vitest run → 全过 + 新增 4 条单测（1 alias + 2 date + 1 volcengine fallback）",
-      "npx tsc --noEmit + npm run build",
-      "生产重跑 scripts/test-billing-fetchers.ts 2026-04-22 → 三家都输出非空记录，modelName 非空"
+      "本地：vitest + tsc + build 全过；脚本 dry-run 输出 30 行 channel diff + 4 行 modality diff",
+      "生产：ssh 执行 `npx tsx scripts/pricing/fix-image-channels-2026-04-24.ts --apply` → 退出 0；抽查 5 条 channel 价格非零 + 比值 1.19-1.21",
+      "生产：执行 verify 脚本抽样 3 家 smoke → call_logs.costPrice > 0",
+      "生产：curl PUT /api/admin/channels/<imageChannelId> with perCall=0 → 400",
+      "status→verifying 交 Codex 复验 F-BAX-08 § 4（13 项）+ F-BAX-07 #11/#18"
     ],
-    "notes": "修完后 status→verifying 交 Codex 复验；Codex 继续处理遗留的 #11/#16/#17 生产观察项。"
+    "notes": "Generator 在 apply 前务必 curl 一次 https://bigmodel.cn/pricing 复核 cogview-3 ¥0.25/张；若 >±20% 偏差先 push hold，让 Planner 重核。其他 3A 保守填条目（gpt-image-2 / gpt-image-2-ca / gemini-\\*-image-preview CAW alias）按 spec 硬编码值直接填。apply 后生成 docs/test-reports/artifacts/bl-billing-audit-ext-p1-reverifying-2026-04-24/pricing-migration.log + pricing-smoke-verification.log。"
   },
   "session_notes": {
-    "Kimi": "BL-BILLING-AUDIT-EXT-P1 building 完成，status→verifying 移交 Codex。\n\n实现 commit 链 (6 features)：\naf9bc99 F-BAX-01 schema: projectId nullable + source 扩展\ndb96fe5 F-BAX-02 probe/admin_health 补写 call_logs\ndfa2331 F-BAX-03 sync 工具改 adapter + alias fallback\n53414ca F-BAX-04 withFailover attemptChain + image costPrice WARN\nea3505a F-BAX-05 AUTH_ALERT + sanitize 上游余额/ApiKey 文案\nc37aab8 F-BAX-06 Tier 1 账单 fetcher + admin UI 条件字段\n\n新增 43 条单测（总 272 PASS），tsc + build 全过。两个 migration（20260424_call_logs_source_extend + 20260424_auth_alert_notification）已在 dev DB 应用，生产 deploy 时 migrate deploy 即可。\n\n关键交付：\n- writeProbeCallLog / writeSyncCallLog / callSyncLLM 三个新 helper 统一 audit 层\n- withFailover 返回 attemptChain + 通过 getAttemptChainFromError 在 catch 链中也能取到\n- isAuthFailedError 匹配 volcengine 欠费 / zhipu ApiKey错误 / openai 401 / 'balance too low' 等文案\n- sanitizeErrorMessage 新 3 规则：前往 URL 充值 / ApiKey 片段移除 / ApiKey错误→认证失败\n- billing-audit/fetchers/ V4 签名 / OpenRouter activity / ChatanyWhere UA + scripts/test-billing-fetchers.ts\n\nF-BAX-07 Codex 验收 18 项中，#13-15 需 DB 真填 billing 凭证（AKLTNmMy... / sk-or-v1-7c8e4... / chatanywhere apiKey）才能生产实测；#11 seedream-3 manual 触发；#6-10 本地/dev 即可完成。\n\nP2 backlog：Tier 2 balance snapshot + reconcile-job cron + admin /admin/reconciliation 面板 + call_logs TTL 30d。",
+    "Kimi": "BL-BILLING-AUDIT-EXT-P1 building 完成，status→verifying 移交 Codex。\n\n实现 commit 链 (6 features)：\naf9bc99 F-BAX-01 schema: projectId nullable + source 扩展\ndb96fe5 F-BAX-02 probe/admin_health 补写 call_logs\ndfa2331 F-BAX-03 sync 工具改 adapter + alias fallback\n53414ca F-BAX-04 withFailover attemptChain + image costPrice WARN\nea3505a F-BAX-05 AUTH_ALERT + sanitize 上游余额/ApiKey 文案\nc37aab8 F-BAX-06 Tier 1 账单 fetcher + admin UI 条件字段\n\n新增 43 条单测（总 272 PASS），tsc + build 全过。两个 migration（20260424_call_logs_source_extend + 20260424_auth_alert_notification）已在 dev DB 应用，生产 deploy 时 migrate deploy 即可。",
     "Reviewer": "reverifying(2026-04-24 round1): fix-round-1 三个 fetcher bug 已在生产复验通过（volcengine records=118 modelName非空；openrouter records=62 无日期异常；chatanywhere provider alias=openai 且脚本不报错）。补做 #11 seedream-3 生产调用：HTTP 200 但 call_logs.costPrice=0，未满足 >0。24h 观察补证：sync fallback exhausted=0、crash关键词=0、source分组 probe=132/sync=15。综合：#1-#10/#12/#13-#17 PASS，#11 FAIL，#18 BLOCKED，状态回 fixing。",
-    "Andy": "fix-round-1 交接 @ 2026-04-24 09:00：生产实测 scripts/test-billing-fetchers.ts 2026-04-22 发现 F-BAX-06 Tier 1 fetcher 三个 code bug（见 evaluator_feedback.issues + generator_handoff.targets）：Bug1 script provider name alias / Bug2 openrouter date 'YYYY-MM-DD HH:MM:SS' 解析失效 / Bug3 volcengine modelName 兜底空串短路。本轮 Generator 按 handoff 修 3 处 + 补 4 单测 + 重跑生产脚本验证三家非空 → status→verifying。修完后 Codex 继续处理遗留 #11/#16/#17 生产观察。生产凭证已填；Volcengine 账户充值状态待确认（#11 seedream-3 smoke 前置）。",
-    "Kimi-fix-round-1": "fix-round-1 完成 @ 2026-04-24 12:28，status fixing→reverifying。\n\n改动（1 commit）：\n- scripts/test-billing-fetchers.ts 加 FETCHER_ALIAS={chatanywhere:'openai'} + resolveProviderName export；main() 通过 argv[1] 末尾判断避免测试 import 时误触发\n- openrouter.ts normalizeItem 用 item.date.slice(0,10) + 正则校验避免 'YYYY-MM-DD HH:MM:SS' Invalid Date\n- volcengine.ts ListBillDetailItem 加 ConfigName 字段；modelName 用 firstNonEmpty(ConfigName, InstanceName, ProductName)+trim 过滤空串\n- vitest.config.ts include 扩展到 scripts/**/*.test.ts\n- 新增 11 条单测：resolveProviderName 4 / openrouter date 2 格式 2 / volcengine fallback 5（prefer ConfigName / empty-InstanceName / InstanceName-only / ProductName / all-empty→unknown）\n\n验证：\n- vitest 284 PASS（+12 from 272）\n- tsc --noEmit ✓\n- npm run build ✓\n\n生产实测须由 Codex/Planner 在 reverifying 阶段重跑 scripts/test-billing-fetchers.ts 2026-04-22 确认 3 家非空 + modelName 非空。遗留 #11/#16/#17 仍 BLOCKED 等生产条件。"
+    "Kimi-fix-round-1": "fix-round-1 完成 @ 2026-04-24 12:28，status fixing→reverifying。改动：scripts/test-billing-fetchers.ts 加 FETCHER_ALIAS / openrouter.ts date slice(0,10) / volcengine.ts ConfigName 首选 + 空串过滤。vitest 284 PASS / tsc / build 全过。",
+    "Andy-fix-round-2-plan": "fix_round 2 交接 @ 2026-04-24 09:30：reverifying round1 #11 根因扫描定位在 40 条 image channel 全体 costPrice.perCall=0（数据配置层，非代码 bug）。用户决策 B2（单批批量修）+ 1A（USD 口径）+ 2B（OR 6 条延后到新批次 BL-IMAGE-PRICING-OR-P2）+ 3A（gpt-image-2/-ca 保守填 gpt-image-1 中档 $0.0420）+ 4A（顺手修 4 条 modality）。新增 F-BAX-08（docs/specs/F-BAX-08-image-pricing-spec.md）覆盖 30 条定价 UPDATE + 4 条 modality + 脚本 dry-run/apply/幂等 + Admin UI 校验 + 后端 Zod superRefine + smoke 抽样。费率 sellPrice = costPrice × 1.2。total_features 7→8。OR 6 条已写入 backlog BL-IMAGE-PRICING-OR-P2（order=102, follows P1）。Generator 按 generator_handoff.targets 实现 → apply 生产 → status→verifying。Volcengine 账户充值状态由用户在 verify 阶段确认（seedream-3 smoke 前置）。"
   }
 }

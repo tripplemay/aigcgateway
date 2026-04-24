@@ -4,24 +4,28 @@ description: AIGC Gateway 当前状态快照（覆盖写，≤30 行）
 type: project
 ---
 ## 当前批次
-- **BL-BILLING-AUDIT-EXT-P1：`fixing`**（reverifying round1：仅 #11 未通过）
+- **BL-BILLING-AUDIT-EXT-P1：`fixing` fix_round=2**（新增 F-BAX-08 image pricing 系统性修正）
 - 上一批次 BL-IMAGE-PARSER-FIX：done（生产 e9e8963 已部署）
 - Path A 主线 11/11 完成；EMERGENCY / LEAN / IMAGE-PARSER-FIX / BILLING-AUDIT-EXT 独立 post-path-a 链
 
-## 本批次 P1 交付（已实现）
-- F-BAX-01~06 build 完成 + fix-round-1 3 个 Tier 1 fetcher 生产 bug 修复
-- vitest 284 PASS / tsc / build 全过
-- 生产已部署（migrate + env + provider authConfig 已填 AK/SK + provisioningKey + chatanywhere UA）
+## 本批次 P1 进度
+- F-BAX-01~06 build + fix_round 1 三个 fetcher bug 生产复验通过（vitest 284 / probe/sync/admin 日志全通）
+- **F-BAX-08 pending**：30 条 image channel 定价 UPDATE + 4 条 modality 修正 + Admin UI 校验 + 后端 Zod + 抽样 smoke
 
-## reverifying round1 结果（Codex）
-- PASS：#1-#10、#12、#13、#14、#15、#16、#17
-- FAIL：#11（seedream-3 生产调用成功但 call_logs.costPrice=0）
-- BLOCKED：#18 signoff（被 #11 阻断）
-- 复验报告：`docs/test-reports/BL-BILLING-AUDIT-EXT-P1-reverifying-2026-04-24-round1.md`
-- 证据目录：`docs/test-reports/artifacts/bl-billing-audit-ext-p1-reverifying-2026-04-24/`
+## fix_round 2 决策纪要
+- 1A USD 口径（1 USD = 7 CNY）/ 2B OR 6 条延后 / 3A 未知 alias 按 gpt-image-1 中档保守填 / 4A 顺手修 4 条 modality
+- sellPrice = costPrice × 1.2
+- 延后的 OR 6 条已写入 backlog BL-IMAGE-PRICING-OR-P2（order=102）
 
-## 下轮 fixing 聚焦
-- 生产 `seedream-3` 对应 channel 当前 `costPrice.perCall=0`，需修正为有效单次成本后再复验 #11
+## 生产现状
+- 扫描确认 40 条 image channel 全体 `costPrice.perCall=0` → 全面修
+- 生产凭证已填（AK/SK + provisioningKey + chatanywhere UA）
+- 本批次后 OR 6 条仍为 0（token-priced 延后）
+
+## 遗留（fix_round 2 完成后交 Codex reverifying round2）
+- F-BAX-07 #11 seedream-3 smoke（依赖 F-BAX-08 UPDATE）
+- F-BAX-08 § 4 13 项验收
+- #18 signoff 合并报告
 
 ## P2（backlog order=101）后续启动
 - Tier 2 balance snapshot + reconcile-job cron + admin /admin/reconciliation 面板 + call_logs TTL 30d
