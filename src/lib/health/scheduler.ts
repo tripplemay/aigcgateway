@@ -18,7 +18,13 @@
 import { prisma } from "@/lib/prisma";
 import type { ChannelStatus } from "@prisma/client";
 import { writeSystemLog } from "@/lib/system-logger";
-import { runHealthCheck, runApiReachabilityCheck, runCallProbe, type CheckResult } from "./checker";
+import {
+  runHealthCheck,
+  runApiReachabilityCheck,
+  runCallProbe,
+  type CheckResult,
+  type ProbeSource,
+} from "./checker";
 import { sendAlert } from "./alert";
 import type { RouteResult } from "../engine/types";
 import { isTransientFailureReason, markChannelCooldown } from "../engine/cooldown";
@@ -74,8 +80,14 @@ export function stopScheduler(): void {
 /**
  * 对单个通道执行检查（含重试、降级、记录、告警）
  * 根据通道类型自动选择检查方式
+ *
+ * BL-BILLING-AUDIT-EXT-P1 F-BAX-02: admin 手动触发时传 source='admin_health'，
+ * scheduler 自动触发（默认）传 'probe'，用于 call_logs 区分。
  */
-export async function checkChannel(channelId: string): Promise<CheckResult[]> {
+export async function checkChannel(
+  channelId: string,
+  source: ProbeSource = "probe",
+): Promise<CheckResult[]> {
   const channel = await prisma.channel.findUnique({
     where: { id: channelId },
     include: {
@@ -101,9 +113,9 @@ export async function checkChannel(channelId: string): Promise<CheckResult[]> {
   // 文本通道 + 已纳入已启用别名 → 全三级
   // 其他 → API_REACHABILITY
   if (!isImage && isAliased) {
-    return executeCheckWithRetry(route, "full");
+    return executeCheckWithRetry(route, "full", source);
   }
-  return executeCheckWithRetry(route, "reachability");
+  return executeCheckWithRetry(route, "reachability", source);
 }
 
 /**
@@ -112,7 +124,10 @@ export async function checkChannel(channelId: string): Promise<CheckResult[]> {
  * consecutive CALL_PROBE failures. Skipped when API_REACHABILITY for the
  * same channel is FAIL (cost-savings) or when CALL_PROBE_ENABLED=false.
  */
-export async function runCallProbeForChannel(channelId: string): Promise<CheckResult | null> {
+export async function runCallProbeForChannel(
+  channelId: string,
+  source: ProbeSource = "probe",
+): Promise<CheckResult | null> {
   if ((process.env.CALL_PROBE_ENABLED ?? "true").toLowerCase() === "false") {
     return null;
   }
@@ -140,7 +155,7 @@ export async function runCallProbeForChannel(channelId: string): Promise<CheckRe
     model: channel.model,
   };
 
-  const result = await runCallProbe(route);
+  const result = await runCallProbe(route, source);
   await writeHealthRecords(channelId, [result]);
 
   if (result.result === "FAIL") {
@@ -403,9 +418,12 @@ async function runScheduledCallProbes(
 async function executeCheckWithRetry(
   route: RouteResult,
   checkMode: "full" | "reachability",
+  source: ProbeSource = "probe",
 ): Promise<CheckResult[]> {
   const runCheck =
-    checkMode === "full" ? () => runHealthCheck(route) : () => runApiReachabilityCheck(route);
+    checkMode === "full"
+      ? () => runHealthCheck(route, source)
+      : () => runApiReachabilityCheck(route);
 
   let results = await runCheck();
   const allPassed = results.every((r) => r.result === "PASS");

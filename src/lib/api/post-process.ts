@@ -61,6 +61,102 @@ export function processChatResult(params: ChatPostProcessParams): void {
   });
 }
 
+// ============================================================
+// BL-BILLING-AUDIT-EXT-P1 F-BAX-02: probe / admin_health 写 call_log
+// ============================================================
+//
+// health probe（scheduler + admin）也会发真实 chat/image 请求，之前只写
+// health_checks，不写 call_logs —— 对上游是有计费的调用，对内部审计是
+// 黑洞。这里补上 call_log 写入（projectId=null，不 deduct，不 checkBalance），
+// source='probe' | 'admin_health' 与正常业务流量区分。
+
+export interface ProbeCallLogParams {
+  traceId: string;
+  route: RouteResult;
+  source: "probe" | "admin_health";
+  startTime: number;
+  response?: ChatCompletionResponse | ImageGenerationResponse;
+  error?: { message: string; code?: string };
+  isImage: boolean;
+}
+
+export function writeProbeCallLog(params: ProbeCallLogParams): void {
+  writeProbeCallLogAsync(params).catch((err) => {
+    console.error("[post-process] probe call_log write error:", err);
+  });
+}
+
+async function writeProbeCallLogAsync(params: ProbeCallLogParams): Promise<void> {
+  const latencyMs = Date.now() - params.startTime;
+  const isError = !!params.error;
+
+  let status: CallStatus;
+  let finishReason: FinishReason | null = null;
+  let responseContent: string | null = null;
+  let usage: Usage | null = null;
+  let imagesCount = 0;
+
+  if (isError) {
+    status = "ERROR";
+    finishReason = "ERROR";
+  } else if (params.isImage) {
+    const imgRes = params.response as ImageGenerationResponse | undefined;
+    imagesCount = imgRes?.data?.length ?? 0;
+    status = imagesCount > 0 ? "SUCCESS" : "FILTERED";
+    responseContent = imgRes?.data?.[0]?.url ?? null;
+  } else {
+    const chatRes = params.response as ChatCompletionResponse | undefined;
+    usage = chatRes?.usage ?? null;
+    const reason = chatRes?.choices?.[0]?.finish_reason ?? null;
+    status = chatRes?.choices?.length ? "SUCCESS" : "FILTERED";
+    finishReason = mapFinishReason(reason);
+    responseContent = chatRes?.choices?.[0]?.message?.content ?? null;
+  }
+
+  const { costUsd, sellUsd } = params.isImage
+    ? calculateCallCost(params.route, status)
+    : calculateTokenCost(usage, params.route, status);
+
+  const responseSummary: Prisma.InputJsonValue | undefined = params.isImage
+    ? { images_count: imagesCount }
+    : undefined;
+
+  const promptSnapshot = params.isImage
+    ? ([{ role: "user", content: "probe: a dot" }] as unknown as object)
+    : ([{ role: "user", content: "hi" }] as unknown as object);
+
+  await prisma.callLog.create({
+    data: {
+      traceId: params.traceId,
+      projectId: null,
+      channelId: params.route.channel.id,
+      modelName: params.route.model.name,
+      promptSnapshot,
+      requestParams: params.isImage
+        ? { model: params.route.model.name, prompt: "a dot" }
+        : {
+            model: params.route.model.name,
+            messages: [{ role: "user", content: "hi" }],
+            max_tokens: 1,
+            temperature: 0,
+          },
+      responseContent,
+      ...(responseSummary ? { responseSummary } : {}),
+      finishReason,
+      status,
+      promptTokens: usage?.prompt_tokens ?? null,
+      completionTokens: usage?.completion_tokens ?? null,
+      totalTokens: usage?.total_tokens ?? null,
+      costPrice: costUsd,
+      sellPrice: sellUsd,
+      latencyMs,
+      errorMessage: params.error?.message ? sanitizeErrorMessage(params.error.message) : null,
+      errorCode: params.error?.code ?? null,
+      source: params.source,
+    },
+  });
+}
+
 /**
  * 异步处理图片请求日志 + 扣费
  */

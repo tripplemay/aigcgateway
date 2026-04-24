@@ -10,17 +10,14 @@ import { NextResponse } from "next/server";
 import { runCallProbeForChannel } from "@/lib/health/scheduler";
 import { requireAdmin } from "@/lib/api/admin-guard";
 
-export async function POST(
-  request: Request,
-  { params }: { params: { channelId: string } },
-) {
+export async function POST(request: Request, { params }: { params: { channelId: string } }) {
   const auth = requireAdmin(request);
   if (!auth.ok) return auth.error;
 
   const { channelId } = params;
 
   try {
-    const result = await runCallProbeForChannel(channelId);
+    const result = await runCallProbeForChannel(channelId, "admin_health");
 
     if (result === null) {
       return NextResponse.json({

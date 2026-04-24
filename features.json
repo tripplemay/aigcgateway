@@ -16,7 +16,7 @@
       "title": "Health probe 路径补写 call_log（scheduler + admin）",
       "priority": "critical",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "source": "Category B (runTextCheck/runCallProbe) + Category C (admin /health/:id/check,probe) 盲区",
       "acceptance": "1) 新增 `src/lib/api/post-process.ts:writeProbeCallLog(params)` helper：签名接受 {traceId, route, source:'probe'|'admin_health', startTime, response?, error?, isImage}，调用 calculateTokenCost/calculateCallCost 算真实 cost，写 call_log with userId=null + projectId=null + 不 deductBalance + 不 checkBalanceAlert；2) `src/lib/health/checker.ts runTextCheck` 成功/失败分支调用 writeProbeCallLog(source='probe')，生成 traceId=`probe_${channelId}_${Date.now()}`；3) runCallProbe 同样（文本 + 图片两分支）；4) `checkChannel()` 路径（admin `/api/admin/health/:channelId/check`）source='admin_health'；5) `runCallProbeForChannel()` 路径（admin `/api/admin/health/:channelId/probe`）source='admin_health'；6) 保留 health_checks 表写入不变（状态机依赖）；7) 单测至少 4 条：runTextCheck success 写 call_log / runTextCheck error 写 call_log / runCallProbe IMAGE 写 call_log / admin check 写 source='admin_health'"
     },

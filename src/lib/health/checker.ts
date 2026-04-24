@@ -16,6 +16,7 @@ import type { HealthCheckLevel, HealthCheckResult } from "@prisma/client";
 import type { RouteResult } from "../engine/types";
 import { EngineError } from "../engine/types";
 import { getAdapterForRoute } from "../engine/router";
+import { writeProbeCallLog } from "@/lib/api/post-process";
 
 export interface CheckResult {
   level: HealthCheckLevel;
@@ -26,10 +27,19 @@ export interface CheckResult {
 }
 
 /**
+ * BL-BILLING-AUDIT-EXT-P1 F-BAX-02: probe 触发来源。
+ * 'probe' = scheduler 自动 / 'admin_health' = admin 手动。进 call_logs.source。
+ */
+export type ProbeSource = "probe" | "admin_health";
+
+/**
  * 对一个通道执行全三级检查（文本通道）
  */
-export async function runHealthCheck(route: RouteResult): Promise<CheckResult[]> {
-  return runTextCheck(route);
+export async function runHealthCheck(
+  route: RouteResult,
+  source: ProbeSource = "probe",
+): Promise<CheckResult[]> {
+  return runTextCheck(route, source);
 }
 
 /**
@@ -37,10 +47,14 @@ export async function runHealthCheck(route: RouteResult): Promise<CheckResult[]>
  * IMAGE models call generate_image with the smallest supported size. Use the
  * result to drive auto-disable on three consecutive failures.
  */
-export async function runCallProbe(route: RouteResult): Promise<CheckResult> {
+export async function runCallProbe(
+  route: RouteResult,
+  source: ProbeSource = "probe",
+): Promise<CheckResult> {
   const start = Date.now();
   const adapter = getAdapterForRoute(route);
   const isImage = route.alias?.modality === "IMAGE" || route.model.modality === "IMAGE";
+  const traceId = `${source}_${route.channel.id}_${start}`;
   try {
     if (isImage) {
       const supported = (route.model.supportedSizes as string[] | null) ?? [];
@@ -50,6 +64,14 @@ export async function runCallProbe(route: RouteResult): Promise<CheckResult> {
         route,
       );
       const ok = (res.data ?? []).length > 0;
+      writeProbeCallLog({
+        traceId,
+        route,
+        source,
+        startTime: start,
+        response: res,
+        isImage: true,
+      });
       return {
         level: "CALL_PROBE",
         result: ok ? "PASS" : "FAIL",
@@ -68,6 +90,14 @@ export async function runCallProbe(route: RouteResult): Promise<CheckResult> {
       route,
     );
     const ok = !!res.choices?.length;
+    writeProbeCallLog({
+      traceId,
+      route,
+      source,
+      startTime: start,
+      response: res,
+      isImage: false,
+    });
     return {
       level: "CALL_PROBE",
       result: ok ? "PASS" : "FAIL",
@@ -78,6 +108,15 @@ export async function runCallProbe(route: RouteResult): Promise<CheckResult> {
   } catch (err) {
     const message =
       err instanceof EngineError ? `${err.code}: ${err.message}` : (err as Error).message;
+    const code = err instanceof EngineError ? err.code : undefined;
+    writeProbeCallLog({
+      traceId,
+      route,
+      source,
+      startTime: start,
+      error: { message, code },
+      isImage,
+    });
     return {
       level: "CALL_PROBE",
       result: "FAIL",
@@ -215,9 +254,13 @@ async function runReachabilityCheck(route: RouteResult): Promise<CheckResult[]> 
 // p50/p95). Caller contract unchanged — still CheckResult[]. handleFailure's
 // "any FAIL → degrade" logic works identically with 1 row vs 3.
 
-async function runTextCheck(route: RouteResult): Promise<CheckResult[]> {
+async function runTextCheck(
+  route: RouteResult,
+  source: ProbeSource = "probe",
+): Promise<CheckResult[]> {
   const adapter = getAdapterForRoute(route);
   const start = Date.now();
+  const traceId = `${source}_${route.channel.id}_${start}`;
 
   try {
     const response = await adapter.chatCompletions(
@@ -233,6 +276,15 @@ async function runTextCheck(route: RouteResult): Promise<CheckResult[]> {
     const latencyMs = Date.now() - start;
     const ok = !!response?.choices?.length;
 
+    writeProbeCallLog({
+      traceId,
+      route,
+      source,
+      startTime: start,
+      response,
+      isImage: false,
+    });
+
     return [
       {
         level: "CONNECTIVITY",
@@ -246,6 +298,15 @@ async function runTextCheck(route: RouteResult): Promise<CheckResult[]> {
     const latencyMs = Date.now() - start;
     const message =
       err instanceof EngineError ? `${err.code}: ${err.message}` : (err as Error).message;
+    const code = err instanceof EngineError ? err.code : undefined;
+    writeProbeCallLog({
+      traceId,
+      route,
+      source,
+      startTime: start,
+      error: { message, code },
+      isImage: false,
+    });
     return [
       {
         level: "CONNECTIVITY",

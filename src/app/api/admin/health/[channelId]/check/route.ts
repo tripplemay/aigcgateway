@@ -9,17 +9,14 @@ import { NextResponse } from "next/server";
 import { checkChannel } from "@/lib/health/scheduler";
 import { requireAdmin } from "@/lib/api/admin-guard";
 
-export async function POST(
-  request: Request,
-  { params }: { params: { channelId: string } },
-) {
+export async function POST(request: Request, { params }: { params: { channelId: string } }) {
   const auth = requireAdmin(request);
   if (!auth.ok) return auth.error;
 
   const { channelId } = params;
 
   try {
-    const results = await checkChannel(channelId);
+    const results = await checkChannel(channelId, "admin_health");
 
     const allPassed = results.every((r) => r.result === "PASS");
 
