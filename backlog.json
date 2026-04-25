@@ -2,26 +2,6 @@
   "description": "需求池：已与用户确认但尚未开发的功能，等待下一批次启动时统一安排",
   "items": [
     {
-      "id": "BL-BILLING-AUDIT-EXT-P2",
-      "title": "对账 cron + admin 面板 + Tier 2 余额快照 + call_logs TTL（P1 完成后启动）",
-      "description": "BL-BILLING-AUDIT-EXT 拆分为 P1/P2 两批。P1（当前 building）含 call_logs 盲区修复 + 原 BL-BILLING-AUDIT scope + Tier 1 账单 fetcher。P2 做：(1) Tier 2 余额快照 fetcher（DeepSeek /user/balance + SiliconFlow /v1/user/info + OpenRouter /api/v1/credits）+ 新表 balance_snapshots；(2) 每日 04:30 UTC reconcile-job cron + 新表 bill_reconciliation（status: MATCH/MINOR_DIFF/BIG_DIFF，不发告警仅分类）；(3) admin /admin/reconciliation 面板（完整版：per-provider 卡片 + 30 天趋势图 + BIG_DIFF 明细表 + 手动重跑按钮）；(4) call_logs TTL 30 天 + 3 个 index（source+date / channel+source+date / createdAt）。详见 docs/specs/BL-BILLING-AUDIT-EXT-P2-spec.md。",
-      "decisions": [
-        "BL-BILLING-AUDIT-EXT-P1 完成且生产稳定 24h 后启动",
-        "F-BAX-08 Tier 2 balance snapshot adapter 3 家（deepseek/siliconflow/openrouter-credits）",
-        "F-BAX-09 reconcile-job cron + bill_reconciliation 表 + status 分类（不发告警）",
-        "F-BAX-10 admin /admin/reconciliation 面板完整版（趋势图 + 明细 + 手动重跑）",
-        "F-BAX-11 call_logs TTL 30d + 3 个 index（扩展 BL-INFRA-ARCHIVE maintenance-scheduler）",
-        "F-BAX-12 Codex 15 项验收（含 48h 生产观察）"
-      ],
-      "confirmed_at": "2026-04-24",
-      "priority": "high",
-      "source": "2026-04-23/24 OpenRouter $200.26 账单异常调查 + 用户决策 ABCDEFG 收敛",
-      "estimated_effort": "1.5 days",
-      "phase": "post-path-a",
-      "order": 101,
-      "follows": "BL-BILLING-AUDIT-EXT-P1"
-    },
-    {
       "id": "BL-IMAGE-PRICING-OR-P2",
       "title": "OpenRouter 6 条 token-priced image channel 定价 + DB CHECK 约束 + gemini/gpt-5-image 系列 costPrice 修正",
       "description": "BL-BILLING-AUDIT-EXT-P1 F-BAX-08 批量修正 image channel 定价时，6 条 OpenRouter image channel 因按 token 计价（input/outputPer1M）而非 per-call，延后独立批次处理。Scope：(1) 为 openrouter google/gemini-2.5-flash-image / google/gemini-3-pro-image-preview / google/gemini-3.1-flash-image-preview / openai/gpt-5-image / openai/gpt-5-image-mini / openai/gpt-5.4-image-2 6 条 channel 按 openrouter.ai/api/v1/models 返回的 token 定价填 costPrice (unit:'token'+inputPer1M+outputPer1M) + sellPrice ×1.2；(2) 新增 DB CHECK 约束（migration）确保 IMAGE channel 有效定价（call 或 token 二选一非零）；(3) 新增单测：OR image 模型调用后 call_logs.costPrice 按 token 数 × per1M 反算正确；(4) 顺手精确化 F-BAX-08 两条 3A 保守填的模型（gpt-image-2 / gpt-image-2-ca）—— 若届时拿到 ChatAnyWhere 真实定价则替换。",

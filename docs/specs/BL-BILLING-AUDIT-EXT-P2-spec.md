@@ -35,7 +35,7 @@ P2 批次在 P1 基础上补：
 
 ## 设计
 
-### F-BAX-08：Tier 2 余额快照 fetcher
+### F-BAP2-01：Tier 2 余额快照 fetcher
 
 **新目录：** `src/lib/billing-audit/fetchers/balance/`
 
@@ -88,7 +88,7 @@ model BalanceSnapshot {
 - 每个 fetcher mock HTTP → 返回正确 shape
 - 错误场景（401 / 超时）→ 抛 BalanceFetchError
 
-### F-BAX-09：对账 cron + bill_reconciliation 表
+### F-BAP2-02：对账 cron + bill_reconciliation 表
 
 **新表：**
 ```prisma
@@ -169,7 +169,7 @@ function classifyStatus(delta: number, deltaPercent: number | null): 'MATCH' | '
 - tier 1/2/3 分类正确
 - status 分类边界 case（delta=0.5 刚好到 MATCH / MINOR 边界）
 
-### F-BAX-10：admin /admin/reconciliation 面板
+### F-BAP2-03：admin /admin/reconciliation 面板
 
 **前端：** `src/app/(console)/admin/reconciliation/page.tsx`
 
@@ -201,7 +201,7 @@ function classifyStatus(delta: number, deltaPercent: number | null): 'MATCH' | '
 - E2E（Playwright 可选）：面板加载 + 手动重跑按钮点击 → mock cron 返回数据
 - API 单测：分页 / 过滤 / 手动重跑
 
-### F-BAX-11：call_logs TTL 30 天 + index
+### F-BAP2-04：call_logs TTL 30 天 + index
 
 **文件：**
 - `src/lib/maintenance/archive-cleanup.ts` 扩展
@@ -231,7 +231,7 @@ CREATE INDEX IF NOT EXISTS idx_call_logs_created_at ON call_logs("createdAt");
 - 插入 50 条旧 call_log（> 30 天）+ 50 条新 → 运行 cleanupCallLogs → 剩 50 条新的
 - tsc + build 通过
 
-### F-BAX-12：Codex 全量验收
+### F-BAP2-05：Codex 全量验收
 
 **构建与单测（4 项）：**
 1. `npm run build` 通过
@@ -272,6 +272,6 @@ CREATE INDEX IF NOT EXISTS idx_call_logs_created_at ON call_logs("createdAt");
 
 ## 验收标准
 
-- [ ] F-BAX-12 的 15 项全过（生产观察可在部署后 48h 内补）
+- [ ] F-BAP2-05 的 15 项全过（生产观察可在部署后 48h 内补）
 - [ ] build + tsc + vitest 全过
 - [ ] signoff 报告归档

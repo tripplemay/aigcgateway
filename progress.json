@@ -1,80 +1,24 @@
 {
-  "status": "done",
-  "user_goal": "BL-BILLING-AUDIT-EXT-P1 — Gateway 审计盲区修复（probe/sync/admin 补 call_log） + 原 BL-BILLING-AUDIT scope（channelId 错位 + image costPrice + auth_failed 告警） + Tier 1 上游账单 fetcher + Image channel pricing 系统性修正",
-  "total_features": 8,
-  "completed_features": 8,
-  "fix_rounds": 2,
-  "current_sprint": "BL-BILLING-AUDIT-EXT-P1",
-  "last_updated": "2026-04-25T01:35:00.000Z",
+  "status": "building",
+  "user_goal": "BL-BILLING-AUDIT-EXT-P2 — Tier 2 余额快照 fetcher（DeepSeek/SiliconFlow/OpenRouter credits） + 对账 cron + admin /admin/reconciliation 面板（趋势图+明细+手动重跑） + call_logs TTL 30d + 3 个 index",
+  "total_features": 5,
+  "completed_features": 0,
+  "fix_rounds": 0,
+  "current_sprint": "BL-BILLING-AUDIT-EXT-P2",
+  "last_updated": "2026-04-25T02:00:00.000Z",
   "reference_docs": [
-    "docs/specs/BL-BILLING-AUDIT-EXT-P1-spec.md",
-    "docs/specs/BL-BILLING-AUDIT-EXT-P2-spec.md",
-    "docs/specs/F-BAX-08-image-pricing-spec.md"
+    "docs/specs/BL-BILLING-AUDIT-EXT-P2-spec.md"
   ],
   "role_assignments": null,
   "docs": {
-    "spec": "docs/specs/BL-BILLING-AUDIT-EXT-P1-spec.md",
+    "spec": "docs/specs/BL-BILLING-AUDIT-EXT-P2-spec.md",
     "test_cases": null,
-    "signoff": "docs/test-reports/BL-BILLING-AUDIT-EXT-P1-signoff-2026-04-25.md",
+    "signoff": null,
     "framework_reviewed": false
   },
-  "evaluator_feedback": {
-    "summary": "reverifying round2：F-BAX-07 #11/#18 通过，F-BAX-08 按新 acceptance 口径通过，批次签收。",
-    "pass_count": 21,
-    "partial_count": 0,
-    "fail_count": 0,
-    "issues": []
-  },
-  "generator_handoff": {
-    "fix_round": 2,
-    "scope": "F-BAX-08 image channel pricing 系统性修正（30 条 UPDATE + 4 条 modality + Admin UI 校验 + 后端 Zod superRefine + 抽样 smoke）",
-    "spec": "docs/specs/F-BAX-08-image-pricing-spec.md",
-    "targets": [
-      {
-        "file": "scripts/pricing/fix-image-channels-2026-04-24.ts",
-        "action": "CREATE",
-        "summary": "30 条 channel UPDATE + 4 条 model modality UPDATE；default dry-run + --apply 开关；幂等重放；输出 diff 日志。定价表见 spec § 3.1 / 3.2。"
-      },
-      {
-        "file": "scripts/pricing/verify-image-channels-2026-04-24.ts",
-        "action": "CREATE",
-        "summary": "apply 后抽样调用 seedream-3 / qwen-image-2.0 / gpt-image-1-mini 各一次，断言 call_logs.costPrice > 0。"
-      },
-      {
-        "file": "src/app/(console)/admin/channels/page.tsx (或 channel 编辑组件实际路径)",
-        "action": "MODIFY",
-        "summary": "IMAGE channel 编辑弹窗：costPrice.perCall / sellPrice.perCall 必填 > 0；前端 Zod 校验 + 红框提示。"
-      },
-      {
-        "file": "src/lib/api/admin-schemas.ts",
-        "action": "MODIFY",
-        "summary": "channelUpdateSchema 补 superRefine：若 modelModality='IMAGE' 则 costPrice.unit='call'+perCall>0 必要。"
-      },
-      {
-        "file": "src/app/api/admin/channels/[channelId]/route.ts",
-        "action": "MODIFY",
-        "summary": "PUT handler 读 model.modality，若 IMAGE 且 perCall<=0 → 400 响应带错误码 IMAGE_CHANNEL_REQUIRES_PERCALL_PRICE。"
-      },
-      {
-        "file": "vitest 新测试文件",
-        "action": "CREATE",
-        "summary": "≥ 4 条单测：imageChannelPriceSchema 正负例（IMAGE+perCall=0 拒 / IMAGE+perCall=0.01 通 / TEXT+perCall=0 通）+ fix-image-channels-2026-04-24.test.ts（dry-run + 幂等）。"
-      }
-    ],
-    "post_fix_validation": [
-      "本地：vitest + tsc + build 全过；脚本 dry-run 输出 30 行 channel diff + 4 行 modality diff",
-      "生产：ssh 执行 `npx tsx scripts/pricing/fix-image-channels-2026-04-24.ts --apply` → 退出 0；抽查 5 条 channel 价格非零 + 比值 1.19-1.21",
-      "生产：执行 verify 脚本抽样 3 家 smoke → call_logs.costPrice > 0",
-      "生产：curl PUT /api/admin/channels/<imageChannelId> with perCall=0 → 400",
-      "status→verifying 交 Codex 复验 F-BAX-08 § 4（13 项）+ F-BAX-07 #11/#18"
-    ],
-    "notes": "Generator 在 apply 前务必 curl 一次 https://bigmodel.cn/pricing 复核 cogview-3 ¥0.25/张；若 >±20% 偏差先 push hold，让 Planner 重核。其他 3A 保守填条目（gpt-image-2 / gpt-image-2-ca / gemini-\\*-image-preview CAW alias）按 spec 硬编码值直接填。apply 后生成 docs/test-reports/artifacts/bl-billing-audit-ext-p1-reverifying-2026-04-24/pricing-migration.log + pricing-smoke-verification.log。"
-  },
+  "evaluator_feedback": null,
+  "generator_handoff": null,
   "session_notes": {
-    "Kimi": "BL-BILLING-AUDIT-EXT-P1 building 完成，status→verifying 移交 Codex。\n\n实现 commit 链 (6 features)：\naf9bc99 F-BAX-01 schema: projectId nullable + source 扩展\ndb96fe5 F-BAX-02 probe/admin_health 补写 call_logs\ndfa2331 F-BAX-03 sync 工具改 adapter + alias fallback\n53414ca F-BAX-04 withFailover attemptChain + image costPrice WARN\nea3505a F-BAX-05 AUTH_ALERT + sanitize 上游余额/ApiKey 文案\nc37aab8 F-BAX-06 Tier 1 账单 fetcher + admin UI 条件字段\n\n新增 43 条单测（总 272 PASS），tsc + build 全过。两个 migration（20260424_call_logs_source_extend + 20260424_auth_alert_notification）已在 dev DB 应用，生产 deploy 时 migrate deploy 即可。",
-    "Reviewer": "reverifying(2026-04-25 round2): 生产复验已完成并签收。seedream-3 smoke costPrice=0.005069>0；IMAGE perCall=0 返回 400、TEXT 返回 200；fetchers(volcengine/openrouter/chatanywhere) 通过；24h 观测无 crash/fallback 异常；本地基线 build/tsc/vitest(306) 通过。按 Planner 新裁决将 OR token-priced image 项归入 BL-IMAGE-PRICING-OR-P2，不计入本批失败。status -> done。",
-    "Kimi-fix-round-1": "fix-round-1 完成 @ 2026-04-24 12:28，status fixing→reverifying。改动：scripts/test-billing-fetchers.ts 加 FETCHER_ALIAS / openrouter.ts date slice(0,10) / volcengine.ts ConfigName 首选 + 空串过滤。vitest 284 PASS / tsc / build 全过。",
-    "Andy-fix-round-2-plan": "fix_round 2 交接 @ 2026-04-24 09:30：reverifying round1 #11 根因扫描定位在 40 条 image channel 全体 costPrice.perCall=0（数据配置层，非代码 bug）。用户决策 B2（单批批量修）+ 1A（USD 口径）+ 2B（OR 6 条延后到新批次 BL-IMAGE-PRICING-OR-P2）+ 3A（gpt-image-2/-ca 保守填 gpt-image-1 中档 $0.0420）+ 4A（顺手修 4 条 modality）。新增 F-BAX-08（docs/specs/F-BAX-08-image-pricing-spec.md）覆盖 30 条定价 UPDATE + 4 条 modality + 脚本 dry-run/apply/幂等 + Admin UI 校验 + 后端 Zod superRefine + smoke 抽样。费率 sellPrice = costPrice × 1.2。total_features 7→8。OR 6 条已写入 backlog BL-IMAGE-PRICING-OR-P2（order=102, follows P1）。Generator 按 generator_handoff.targets 实现 → apply 生产 → status→verifying。Volcengine 账户充值状态由用户在 verify 阶段确认（seedream-3 smoke 前置）。",
-    "Kimi-fix-round-2": "fix_round 2 完成 + 生产 apply + verify 完成 @ 2026-04-25 01:05。\n\n生产执行链：\n- 92186b9: 代码本地实现 + 22 单测\n- d7afc5d: verify 脚本修复（X-Trace-Id header + 启用 alias）\n- 生产 prisma db apply：30 channel + 4 modality 全部 UPDATE 成功\n- 幂等重跑：30+4=34 条全部 [no change]\n- 抽查 5 channel 比值 1.1993-1.2017（spec 1.19-1.21 ✓）\n- seedream-3 live smoke trc_yek776bpwrohgjqaj9fw0dsn → costPrice=0.005069 USD（=0.037×0.137 CNY→USD），F-BAX-07 #11 已 PASS\n- PATCH IMAGE+perCall=0 → 400 IMAGE_CHANNEL_REQUIRES_PERCALL_PRICE ✓\n- PATCH TEXT+perCall=0 → 200 ✓（已回滚副作用）\n\n副产物数据修复：tripplezhou@gmail.com defaultProjectId 历史指向不存在的 project（cmnfnuhvi015qrndh8w618u6e），导致 P2003 FK 阻塞 image post-process。已 UPDATE 到 admin_test1（cmnv2yl6x000kbnsdv624lwa3）。建议 P2 入数据 hygiene 扫所有用户。\n\nsmoke 范围说明：生产 enabled 4 个 image alias（seedream-3 / gpt-image / gpt-image-mini / gemini-3-pro-image），其中后 3 个按优先级路由到 OpenRouter，OR 6 条延后到 BL-IMAGE-PRICING-OR-P2。本批次 30 条非 OR channel 的数据正确性通过 §6 抽查 + §7 幂等间接确认（无独立 enabled alias 直达）。\n\nSignoff 报告：docs/test-reports/BL-BILLING-AUDIT-EXT-P1-signoff-2026-04-25.md\n证据：docs/test-reports/artifacts/bl-billing-audit-ext-p1-reverifying-2026-04-24/pricing-migration*.log + pricing-smoke-verification.log\n\n等 Codex 复核签收 → status→done。"
+    "Andy-batch-launch": "BL-BILLING-AUDIT-EXT-P2 启动 @ 2026-04-25 02:00（P1 done @ 04-25 01:35 后立即启动，未等 24h 稳定窗，按用户拍板）。\n\n5 features：\n- F-BAP2-01 critical generator: Tier 2 fetcher 3 家（deepseek/siliconflow/openrouter-credits）+ balance_snapshots 表 + migration 20260425_balance_snapshots\n- F-BAP2-02 critical generator: 对账 cron + bill_reconciliation 表 + tier 1/2 status 分类（MATCH/MINOR_DIFF/BIG_DIFF）+ migration 20260425_bill_reconciliation；scheduler 每日 04:30 UTC + leader-lock\n- F-BAP2-03 high generator: admin /admin/reconciliation 面板 4 区块（cards + 趋势图 + 明细表 + 手动重跑）+ 3 个 API + i18n\n- F-BAP2-04 high generator: call_logs TTL 30d + 3 个 index migration + scheduler 03:30 UTC\n- F-BAP2-05 critical codex: 15 项验收（含 48h 生产观察）\n\n关键决策（继承 P1）：\n- 不发 email/webhook（决策 E，仅 SystemLog WARN）\n- Tier 3 跳过（决策 D1）\n- bill_reconciliation 同日重跑 upsert（unique 防重）\n- Tier 2 首日无前日 snapshot 跳过 delta\n\n前置：P1 已 done，Tier 1 fetcher 凭证已注入生产；P1 image pricing 30 条已 apply 修正。Generator 按 spec § F-BAP2-01~04 实现 → status→verifying。\n\nharness-template v0.9.4 已 push（铁律 1.2/1.3 + 测试 mock 层级）—— 本批次 spec 已应用新铁律：F-BAP2-02 acceptance 阈值边界（delta=0.5 / |%|=5）符合铁律 1.3 要求；不依赖运维侧（无 pm2 / cron / GCP console），符合铁律 1.2。"
   }
 }

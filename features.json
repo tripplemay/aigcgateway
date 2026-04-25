@@ -1,78 +1,51 @@
 {
-  "batch": "BL-BILLING-AUDIT-EXT-P1",
-  "created_at": "2026-04-24",
+  "batch": "BL-BILLING-AUDIT-EXT-P2",
+  "created_at": "2026-04-25",
   "features": [
     {
-      "id": "F-BAX-01",
-      "title": "CallLog schema 扩展：source enum + projectId nullable",
+      "id": "F-BAP2-01",
+      "title": "Tier 2 余额快照 fetcher（DeepSeek / SiliconFlow / OpenRouter credits）+ balance_snapshots 表",
       "priority": "critical",
       "executor": "generator",
-      "status": "completed",
-      "source": "2026-04-23 审计发现 probe / sync 路径无法写 call_log 因 projectId NOT NULL 约束",
-      "acceptance": "1) Prisma migration `20260424_call_logs_source_extend`：`ALTER TABLE call_logs ALTER COLUMN \"projectId\" DROP NOT NULL`；2) schema.prisma `CallLog.projectId` 改为 `String?`；3) 运行时 source 字段接受新值 'probe' / 'sync' / 'admin_health'（String 类型，无 enum constraint）；4) tsc + build 通过；5) `npx prisma migrate dev` 在 dev 数据库 apply 通过；6) 单测：写 call_log with projectId=null + source='probe' 成功入库"
+      "status": "pending",
+      "source": "BL-BILLING-AUDIT-EXT-P2 spec § F-BAP2-01",
+      "acceptance": "1) 新目录 `src/lib/billing-audit/fetchers/balance/` + 接口 `TierTwoBalanceFetcher` (providerName / fetchBalanceSnapshot)；2) `deepseek.ts`：GET https://api.deepseek.com/user/balance，多币种 balance_infos → 写两条 snapshot（CNY + USD）；3) `siliconflow.ts`：GET https://api.siliconflow.cn/v1/user/info，单一 totalBalance（字符串，可能负数）；4) `openrouter-credits.ts`：GET https://openrouter.ai/api/v1/credits，balance=total_credits-total_usage + totalUsage 一并存；5) Prisma model `BalanceSnapshot` 含 providerId/snapshotAt/currency/balance(Decimal12,4)/totalUsage/raw + index(providerId,snapshotAt)；6) Migration `20260425_balance_snapshots`；7) 单测 ≥6 条：每个 fetcher mock HTTP 正例（含 deepseek 双币种） + 401/超时 → BalanceFetchError；8) tsc + build 通过"
     },
     {
-      "id": "F-BAX-02",
-      "title": "Health probe 路径补写 call_log（scheduler + admin）",
+      "id": "F-BAP2-02",
+      "title": "对账 cron + bill_reconciliation 表 + tier 1/2 status 分类",
       "priority": "critical",
       "executor": "generator",
-      "status": "completed",
-      "source": "Category B (runTextCheck/runCallProbe) + Category C (admin /health/:id/check,probe) 盲区",
-      "acceptance": "1) 新增 `src/lib/api/post-process.ts:writeProbeCallLog(params)` helper：签名接受 {traceId, route, source:'probe'|'admin_health', startTime, response?, error?, isImage}，调用 calculateTokenCost/calculateCallCost 算真实 cost，写 call_log with userId=null + projectId=null + 不 deductBalance + 不 checkBalanceAlert；2) `src/lib/health/checker.ts runTextCheck` 成功/失败分支调用 writeProbeCallLog(source='probe')，生成 traceId=`probe_${channelId}_${Date.now()}`；3) runCallProbe 同样（文本 + 图片两分支）；4) `checkChannel()` 路径（admin `/api/admin/health/:channelId/check`）source='admin_health'；5) `runCallProbeForChannel()` 路径（admin `/api/admin/health/:channelId/probe`）source='admin_health'；6) 保留 health_checks 表写入不变（状态机依赖）；7) 单测至少 4 条：runTextCheck success 写 call_log / runTextCheck error 写 call_log / runCallProbe IMAGE 写 call_log / admin check 写 source='admin_health'"
+      "status": "pending",
+      "source": "BL-BILLING-AUDIT-EXT-P2 spec § F-BAP2-02",
+      "acceptance": "1) Prisma model `BillReconciliation` (providerId/reportDate/tier 1or2/modelName/upstreamAmount/gatewayAmount/delta/deltaPercent/status/details/computedAt) + unique(providerId,reportDate,modelName) + index(reportDate)；2) Migration `20260425_bill_reconciliation`；3) `src/lib/billing-audit/reconcile-job.ts:runReconciliation(reportDate)` 主函数：枚举 ACTIVE providers → classifyTier(name) → tier 1 走 fetchDailyBill + aggregateGatewayCallLogs(per-model) / tier 2 走 fetchBalanceSnapshot + 取前日 snapshot 求 delta / tier 3 跳过；4) classifyStatus 阈值：|delta|<0.5 OR |%|<5 → MATCH；|delta|<5 AND |%|<20 → MINOR_DIFF；其他 → BIG_DIFF；5) BIG_DIFF 数量>0 时 SystemLog WARN，否则 INFO；不发 email/webhook（决策 E）；6) 集成进 `src/lib/maintenance/scheduler.ts` 每日 04:30 UTC，复用 P1 health scheduler 的 leader-lock；7) 单测 ≥8 条：mock fetcher → reconcile 写行 / tier 1/2/3 分类正确 / status 阈值边界（delta=0.5 / |%|=5 等） / Tier 2 首日无前日 snapshot 跳过 delta / upsert 同日重跑无重复行；8) tsc + build 通过"
     },
     {
-      "id": "F-BAX-03",
-      "title": "同步工具 alias-classifier + doc-enricher 改用 adapter + fallback 链",
-      "priority": "critical",
-      "executor": "generator",
-      "status": "completed",
-      "source": "Category D 盲区：sync 工具直接 fetch，不写任何日志",
-      "acceptance": "1) `src/lib/sync/alias-classifier.ts` 的 classifyNewModels / inferMissingBrands / inferMissingCapabilities 4 处调用改用 `resolveEngine` + `withFailover` + `processChatResult(source='sync')`；2) `src/lib/sync/doc-enricher.ts` 同样改用 Gateway 内部路由；3) 新增 fallback 链 `SYNC_MODEL_FALLBACK_CHAIN = ['deepseek-chat', 'glm-4.7', 'doubao-pro']`：第一个 MODEL_NOT_FOUND 或 503 时依次尝试下一个；4) processChatResult 入参 userId=null, projectId=null, source='sync', traceId=`sync_${taskName}_${Date.now()}`；5) 不调用 deductBalance（内部系统调用）；6) 删除原有直接 fetch 代码（`fetch(${baseUrl}/chat/completions)`）；7) 单测至少 3 条：fallback 链成功切换 / 所有 fallback 耗尽时抛错 / 正常场景写 source='sync' call_log；8) tsc + build 通过"
-    },
-    {
-      "id": "F-BAX-04",
-      "title": "withFailover attempt_chain + image costPrice regression fix",
+      "id": "F-BAP2-03",
+      "title": "admin /admin/reconciliation 面板（趋势图 + 明细表 + 手动重跑）",
       "priority": "high",
       "executor": "generator",
-      "status": "completed",
-      "source": "KOLMatrix trc_cvu84f + trc_kju9fxz5 channelId 错位 / 2026-04-20 seedream-3 costPrice=0 regression",
-      "acceptance": "1) `src/lib/engine/failover.ts withFailover` 返回值增加 `attemptChain: Array<{channelId, errorCode?, errorMessage?}>`；2) 5 个调用方同步改造：/v1/chat/completions (3 处 processChatResult) / /v1/images/generations (2 处 processImageResult) / MCP chat.ts (2 处) / MCP generate-image.ts (1 处)；3) `processChatResult` / `processImageResult` 入参 attemptChain，写入 `responseSummary.attempt_chain`；4) `call_logs.channelId` 与 `errorMessage` 归属 channel 一致（消除错位）；5) `src/lib/api/post-process.ts processImageResultAsync` 修 image costPrice 计算：若 channel.costPrice 缺 perCall 配置写 system_log WARN + cost=0；若有 perCall 则正确计算；6) 单测：withFailover 两次失败一次成功 → attemptChain 3 条 + route.channel.id 等于最后一次成功的；7) 生产验证：触发一次 seedream-3 图片调用 → call_logs.costPrice > 0"
+      "status": "pending",
+      "source": "BL-BILLING-AUDIT-EXT-P2 spec § F-BAP2-03",
+      "acceptance": "1) `src/app/(console)/admin/reconciliation/page.tsx` 含 4 个区块：(a) 顶部 6 个 provider summary cards（今日/本周/本月 delta + status 颜色 MATCH绿/MINOR黄/BIG红）；(b) 30 天 delta 趋势折线图（recharts，按 provider 分线 + filter 控件，复用 BL-FE-PERF-01 dynamic import 模式）；(c) BIG_DIFF 明细表（列：date/provider/model/upstream/gateway/delta/status/details，行点击展开 JSON details，过滤：date range/provider/status）；(d) 手动重跑控件（选 date+provider → POST /api/admin/reconciliation/rerun 同步执行返回结果）；2) API `GET /api/admin/reconciliation?start=&end=&providerId=&status=`、`POST /api/admin/reconciliation/rerun` body{date,providerId}、`GET /api/admin/reconciliation/balance-snapshots?providerId=&days=30`；3) i18n 中英双语（next-intl messages/admin.json）；4) 仅 admin 角色可访问（沿用 admin layout 的鉴权）；5) 单测：API 单测分页+过滤+rerun + 1 条 component-level 渲染断言；6) tsc + build 通过"
     },
     {
-      "id": "F-BAX-05",
-      "title": "auth_failed 告警 + 错误文本转译扩充",
+      "id": "F-BAP2-04",
+      "title": "call_logs TTL 30 天 + 3 个 index",
       "priority": "high",
       "executor": "generator",
-      "status": "completed",
-      "source": "2026-04-22 volcengine 账户欠费 16h 无告警 + chatanywhere/zhipu 错误 URL 透传给终端用户",
-      "acceptance": "1) `src/lib/health/scheduler.ts handleFailure` 识别 auth_failed（errorCode=AUTH_FAILED 或 errorMessage 匹配 'overdue balance' / 'ApiKey错误' / '余额过低'）；2) channel 连续 3 次 auth_failed → 写 `notifications` 表 type=AUTH_ALERT，detail 含 channel / provider / errorMessage / 首次出现时间；3) 24h 内同一 channel 只告警一次（用 Redis SETNX 或 notifications 表 dedup）；4) `src/lib/engine/types.ts sanitizeErrorMessage` 补规则：(a) '前往 [URL] 充值' → '上游配额不足，已联系管理员'；(b) '当前请求使用的 ApiKey: xxx' / '当前 ApiKey: xxx' 完全移除；(c) 'ApiKey错误' → '认证失败，请联系管理员'；5) 告警不发 email / webhook（按决策 E 仅 UI 显示）；6) 单测：(a) 3 条 auth_failed 错误 → handleFailure 触发 AUTH_ALERT；(b) sanitizeErrorMessage 三类错误文本转译测试；7) tsc + build 通过"
+      "status": "pending",
+      "source": "BL-BILLING-AUDIT-EXT-P2 spec § F-BAP2-04",
+      "acceptance": "1) `src/lib/maintenance/archive-cleanup.ts` 扩展：CALL_LOGS_TTL_DAYS=30，cleanupCallLogs() 删除 createdAt < now-30d 的行 + 写 SystemLog INFO 含删除条数；2) Migration `20260425_call_logs_indexes`：CREATE INDEX IF NOT EXISTS 3 个 — idx_call_logs_source_date(source,createdAt) + idx_call_logs_channel_source_date(channelId,source,createdAt) + idx_call_logs_created_at(createdAt)；3) maintenance scheduler 每日 03:30 UTC 触发 cleanupCallLogs；4) 单测：插入 50 条 createdAt > 30d + 50 条 < 30d → 跑 cleanup → 剩 50 条；5) tsc + build 通过"
     },
     {
-      "id": "F-BAX-06",
-      "title": "Tier 1 上游账单 fetcher adapter (Volcengine/OpenRouter/ChatanyWhere)",
-      "priority": "critical",
-      "executor": "generator",
-      "status": "completed",
-      "source": "2026-04-23 确认 3 家可自动查账单：Volcengine billing/ListBillDetail (AK/SK) + OpenRouter /api/v1/activity (provisioning key) + ChatanyWhere /v1/query/day_usage_details (inference key + UA)",
-      "acceptance": "1) 新目录 `src/lib/billing-audit/fetchers/` + `tier1-fetcher.ts`（BillRecord 接口）；2) `volcengine.ts`：POST `open.volcengineapi.com/?Action=ListBillDetail&Version=2022-01-01`，V4 签名（HMAC-SHA256，service='billing', region='cn-beijing'），body `{BillPeriod:'YYYY-MM', Limit:200, Offset:offset, NeedRecordNum:1, GroupPeriod:1}`，读 `authConfig.billingAccessKeyId + billingSecretAccessKey`；3) `openrouter.ts`：GET `/api/v1/activity?date=YYYY-MM-DD`，Bearer `authConfig.provisioningKey`；4) `chatanywhere.ts`：POST `/v1/query/day_usage_details`，body `{date:'YYYY-MM-DD'}`，Header `Authorization: Bearer <apiKey>` + `User-Agent: Mozilla/5.0`（必需，否则 Cloudflare 1010 拦截）；5) fetch 失败抛 BillFetchError(providerName, reason, httpCode)；6) `providers.authConfig` JSON 扩展字段（无需 schema migration）：billingAccessKeyId / billingSecretAccessKey / provisioningKey；7) `src/app/(console)/admin/providers/page.tsx` 编辑弹窗：按 provider.name 条件显示新字段（volcengine 显示 2 个 AK/SK 字段 / openrouter 显示 provisioningKey）；8) `src/lib/api/admin-schemas.ts providerUpdateSchema` 扩展 optional 字段；9) 单测：每个 fetcher mock HTTP 响应 → 正确解析 BillRecord + 签名字符串 snapshot test + UA header 断言；10) 生产实测：用 DB 填入真实 billingAccessKeyId（AKLTNmMy... 这把）/provisioningKey（sk-or-v1-7c8e4... 这把）后，dev 服启动 `npx tsx scripts/test-billing-fetchers.ts 2026-04-22` 能返回 3 家数据"
-    },
-    {
-      "id": "F-BAX-07",
-      "title": "BL-BILLING-AUDIT-EXT-P1 全量验收",
+      "id": "F-BAP2-05",
+      "title": "BL-BILLING-AUDIT-EXT-P2 全量验收",
       "priority": "critical",
       "executor": "codex",
-      "status": "completed",
-      "source": "BL-BILLING-AUDIT-EXT-P1",
-      "acceptance": "构建与单测（5 项）：1) npm run build 通过；2) npx tsc --noEmit 通过；3) npx vitest run 全过（新增 15+ 单测 + 旧单测不破坏）；4) Prisma migration `20260424_call_logs_source_extend` 生产 dry-run 通过（可用 `npx prisma migrate diff --from-url ... --to-schema-datamodel schema.prisma`）；5) 新增单测总数 >= 15 条。数据正确性（7 项）：6) dev 服 `curl -X POST /api/admin/health/:id/check` → 写出 1 条 call_log source='admin_health'，projectId=null，userId=null；7) `curl -X POST /api/admin/health/:id/probe` → 同上；8) 手动等 scheduler 下一轮 probe（2h 或 manual trigger）→ call_logs 新增 source='probe' 行；9) 手动触发 model-sync（POST /api/admin/run-inference）→ call_logs 新增 source='sync' 行；10) failover 测试（调 /v1/chat/completions 用会 failover 的 alias，如 kimi-k2-thinking）→ call_log.responseSummary 含 attempt_chain 数组，数组中 channelId 与 errorMessage 对齐；11) 生产 manual 触发 seedream-3 图片调用（需 volcengine 账户充值 + F-BAX-08 channel.costPrice.perCall 修正）→ call_log.costPrice > 0；12) `sanitizeErrorMessage('前往 https://example.com 充值')` 不含 URL + 含 '上游配额不足'。功能验证（3 项）：13) volcengine fetcher + DB 里填 billingAccessKeyId/billingSecretAccessKey → 脚本 `npx tsx scripts/test-billing-fetchers.ts volcengine 2026-04-22` 返回 BillRecord 数组（非空）；14) openrouter fetcher + DB 里填 provisioningKey → 脚本同类调用 → 返回 BillRecord；15) chatanywhere fetcher → 脚本调用 → 返回结果（可能为空数组，但不抛错）。生产观察（2 项，部署后 24h 可补）：16) pm2 logs 过去 24h 无新增 crash / 'sync fallback exhausted' 错误；17) call_logs 表按 source 分组统计：probe ~500/天 + sync 零星（除非大 model-sync）+ admin_health 零散（手动触发）。18) 生成 signoff 报告 docs/test-reports/BL-BILLING-AUDIT-EXT-P1-signoff-2026-04-2X.md。"
-    },
-    {
-      "id": "F-BAX-08",
-      "title": "Image channel pricing 系统性修正（30 条定价 + 4 条 modality + Admin UI 加固）",
-      "priority": "critical",
-      "executor": "generator",
-      "status": "completed",
-      "source": "BL-BILLING-AUDIT-EXT-P1 fix_round 2：reverifying round1 #11 FAIL 根因扫描发现 40 条 image channel 全体 costPrice=0；用户决策 B2（单批批量修）+ 1A（USD 口径）+ 2B（OR 6 条延后）+ 3A（gpt-image-2/-ca 保守填）+ 4A（顺手修 4 条 modality）",
-      "acceptance": "详见 docs/specs/F-BAX-08-image-pricing-spec.md § 4 验收清单。摘要：1-4 构建/单测（含 ≥4 条新增测试）；5-10 数据正确性（脚本 apply + 抽查 + 幂等 + modality=TEXT + smoke 3 家 + Admin UI 阻止）；11-12 后端校验（IMAGE perCall=0 → 400 / TEXT → 200）；13 signoff 报告合并 F-BAX-07 #11。"
+      "status": "pending",
+      "source": "BL-BILLING-AUDIT-EXT-P2",
+      "acceptance": "构建与单测（4 项）：1) npm run build 通过；2) npx tsc --noEmit 通过；3) npx vitest run 全过（新增 ≥15 条 P2 单测 + P1 + 历史不破坏）；4) Prisma migrations 生产 dry-run 通过（balance_snapshots / bill_reconciliation / call_logs_indexes）。功能验证（6 项）：5) 手动触发 POST /api/admin/reconciliation/rerun {date:'2026-04-22',providerId:volcengineId} → bill_reconciliation 新增行+status 分类正确；6) OpenRouter fetcher 拉 2026-04-22 → bill_reconciliation per-model 行；7) ChatanyWhere fetcher 拉 → bill_reconciliation 行（即使 empty 也写）；8) DeepSeek fetcher 拉余额 → balance_snapshots 表新增 2 行（CNY + USD）；9) 间隔 ≥1 天再跑 → tier 2 delta 对账生效（yesterday vs today）；10) /admin/reconciliation 面板 load 正常，30 天趋势图有数据，BIG_DIFF 明细表过滤可用，手动重跑按钮工作。生产观察（4 项，部署后 48h 可补）：11) 每日 04:30 UTC cron 自动执行，bill_reconciliation 每日新增 6-10 行；12) SystemLog 有 BILLING_AUDIT INFO/WARN 记录；13) call_logs TTL 生效：MIN(createdAt) ≈ now-30d；14) admin 面板 BIG_DIFF 条目占比 < 30%。15) 生成 signoff 报告 docs/test-reports/BL-BILLING-AUDIT-EXT-P2-signoff-2026-04-2X.md。"
     }
   ]
 }
