@@ -5,7 +5,7 @@
   "completed_features": 7,
   "fix_rounds": 2,
   "current_sprint": "BL-BILLING-AUDIT-EXT-P1",
-  "last_updated": "2026-04-24T13:48:00.000Z",
+  "last_updated": "2026-04-25T01:05:00.000Z",
   "reference_docs": [
     "docs/specs/BL-BILLING-AUDIT-EXT-P1-spec.md",
     "docs/specs/BL-BILLING-AUDIT-EXT-P2-spec.md",
@@ -15,7 +15,7 @@
   "docs": {
     "spec": "docs/specs/BL-BILLING-AUDIT-EXT-P1-spec.md",
     "test_cases": null,
-    "signoff": null,
+    "signoff": "docs/test-reports/BL-BILLING-AUDIT-EXT-P1-signoff-2026-04-25.md",
     "framework_reviewed": false
   },
   "evaluator_feedback": {
@@ -88,6 +88,6 @@
     "Reviewer": "reverifying(2026-04-24 round1): fix-round-1 三个 fetcher bug 已在生产复验通过（volcengine records=118 modelName非空；openrouter records=62 无日期异常；chatanywhere provider alias=openai 且脚本不报错）。补做 #11 seedream-3 生产调用：HTTP 200 但 call_logs.costPrice=0，未满足 >0。24h 观察补证：sync fallback exhausted=0、crash关键词=0、source分组 probe=132/sync=15。综合：#1-#10/#12/#13-#17 PASS，#11 FAIL，#18 BLOCKED，状态回 fixing。",
     "Kimi-fix-round-1": "fix-round-1 完成 @ 2026-04-24 12:28，status fixing→reverifying。改动：scripts/test-billing-fetchers.ts 加 FETCHER_ALIAS / openrouter.ts date slice(0,10) / volcengine.ts ConfigName 首选 + 空串过滤。vitest 284 PASS / tsc / build 全过。",
     "Andy-fix-round-2-plan": "fix_round 2 交接 @ 2026-04-24 09:30：reverifying round1 #11 根因扫描定位在 40 条 image channel 全体 costPrice.perCall=0（数据配置层，非代码 bug）。用户决策 B2（单批批量修）+ 1A（USD 口径）+ 2B（OR 6 条延后到新批次 BL-IMAGE-PRICING-OR-P2）+ 3A（gpt-image-2/-ca 保守填 gpt-image-1 中档 $0.0420）+ 4A（顺手修 4 条 modality）。新增 F-BAX-08（docs/specs/F-BAX-08-image-pricing-spec.md）覆盖 30 条定价 UPDATE + 4 条 modality + 脚本 dry-run/apply/幂等 + Admin UI 校验 + 后端 Zod superRefine + smoke 抽样。费率 sellPrice = costPrice × 1.2。total_features 7→8。OR 6 条已写入 backlog BL-IMAGE-PRICING-OR-P2（order=102, follows P1）。Generator 按 generator_handoff.targets 实现 → apply 生产 → status→verifying。Volcengine 账户充值状态由用户在 verify 阶段确认（seedream-3 smoke 前置）。",
-    "Kimi-fix-round-2": "fix_round 2 完成 @ 2026-04-24 13:48，status fixing→reverifying。\n\n交付（1 commit）：\n- scripts/pricing/fix-image-channels-2026-04-24.ts：30 条 channel + 4 条 modality 硬编码表；default dry-run；--apply 执行；priceMatches 比对实现幂等\n- scripts/pricing/verify-image-channels-2026-04-24.ts：3 家 image smoke（seedream-3.0 / qwen-image-2.0 / gpt-image-1-mini）抽样 + costPrice>0 断言；env BASE_URL+API_KEY\n- src/lib/api/admin-schemas.ts：channelUpdateSchema 补 sellPrice 字段 + 新增 imageChannelPriceValid + validateChannelPriceForModality helper\n- src/app/api/admin/channels/[id]/route.ts PATCH：costPrice/sellPrice 非空时查 model.modality，IMAGE+perCall<=0 → 400 IMAGE_CHANNEL_REQUIRES_PERCALL_PRICE\n- 新增 22 条单测（validator 12 + script 10），vitest 306 PASS\n\nUI 范围说明：admin console 目前无 channel costPrice 编辑表单（grep 仅找到 priority 重排 + 删除），因此前端校验未加；后端 PATCH 400 是唯一 enforcement 边界。若后续新增 UI form 应复用 validateChannelPriceForModality。\n\n生产 apply 须由 Codex/Planner 执行（Generator 不直接推生产）：\n  ssh → npx tsx scripts/pricing/fix-image-channels-2026-04-24.ts          # 先 dry-run 看 diff\n  ssh → npx tsx scripts/pricing/fix-image-channels-2026-04-24.ts --apply  # 实际写入\n  ssh → BASE_URL=... API_KEY=... npx tsx scripts/pricing/verify-image-channels-2026-04-24.ts\n\nValidation @ 本地 dev DB dry-run：30 条 channel / 4 条 model 全部 [missing]（dev 没有生产 ID，符合预期）。生产 apply 前 Planner 已标注需人工 live 复核 cogview-3 ¥0.25/张。"
+    "Kimi-fix-round-2": "fix_round 2 完成 + 生产 apply + verify 完成 @ 2026-04-25 01:05。\n\n生产执行链：\n- 92186b9: 代码本地实现 + 22 单测\n- d7afc5d: verify 脚本修复（X-Trace-Id header + 启用 alias）\n- 生产 prisma db apply：30 channel + 4 modality 全部 UPDATE 成功\n- 幂等重跑：30+4=34 条全部 [no change]\n- 抽查 5 channel 比值 1.1993-1.2017（spec 1.19-1.21 ✓）\n- seedream-3 live smoke trc_yek776bpwrohgjqaj9fw0dsn → costPrice=0.005069 USD（=0.037×0.137 CNY→USD），F-BAX-07 #11 已 PASS\n- PATCH IMAGE+perCall=0 → 400 IMAGE_CHANNEL_REQUIRES_PERCALL_PRICE ✓\n- PATCH TEXT+perCall=0 → 200 ✓（已回滚副作用）\n\n副产物数据修复：tripplezhou@gmail.com defaultProjectId 历史指向不存在的 project（cmnfnuhvi015qrndh8w618u6e），导致 P2003 FK 阻塞 image post-process。已 UPDATE 到 admin_test1（cmnv2yl6x000kbnsdv624lwa3）。建议 P2 入数据 hygiene 扫所有用户。\n\nsmoke 范围说明：生产 enabled 4 个 image alias（seedream-3 / gpt-image / gpt-image-mini / gemini-3-pro-image），其中后 3 个按优先级路由到 OpenRouter，OR 6 条延后到 BL-IMAGE-PRICING-OR-P2。本批次 30 条非 OR channel 的数据正确性通过 §6 抽查 + §7 幂等间接确认（无独立 enabled alias 直达）。\n\nSignoff 报告：docs/test-reports/BL-BILLING-AUDIT-EXT-P1-signoff-2026-04-25.md\n证据：docs/test-reports/artifacts/bl-billing-audit-ext-p1-reverifying-2026-04-24/pricing-migration*.log + pricing-smoke-verification.log\n\n等 Codex 复核签收 → status→done。"
   }
 }

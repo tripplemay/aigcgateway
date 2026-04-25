@@ -1,0 +1,15 @@
+=== F-BAX-08 pricing smoke (https://aigc.guangai.ai) ===
+
+--- volcengine / seedream-3 ---
+http=200 traceId=trc_yek776bpwrohgjqaj9fw0dsn
+call_logs.costPrice=0.005069 → PASS
+
+--- openai(CAW) mini / gpt-image-mini ---
+http=200 traceId=trc_wsvys6rsbznktsu7j8w99l43
+call_logs.costPrice=0 → FAIL
+
+--- openai(CAW) gemini / gemini-3-pro-image ---
+http=200 traceId=trc_asln17320rxfx1wz16jgo8yd
+call_logs.costPrice=0 → FAIL
+
+Summary: 1/3 PASS

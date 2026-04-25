@@ -1,0 +1,97 @@
+=== F-BAX-08 image channel pricing fix (APPLY) ===
+[apply ] volcengine/seedream-3.0 (cmnpquy5m00rwbnxcc0omrhet)
+    costPrice: {"unit":"call","perCall":0} → {"unit":"call","perCall":0.037}
+    sellPrice: {"unit":"call","perCall":0} → {"unit":"call","perCall":0.0444}
+[apply ] volcengine/seedream-4.0 (cmnpquy5y00rzbnxcxuixo8q8)
+    costPrice: {"unit":"call","perCall":0} → {"unit":"call","perCall":0.0286}
+    sellPrice: {"unit":"call","perCall":0} → {"unit":"call","perCall":0.0343}
+[apply ] volcengine/seedream-4.5 (cmnpquy6c00s2bnxciwqef9po)
+    costPrice: {"unit":"call","perCall":0} → {"unit":"call","perCall":0.0357}
+    sellPrice: {"unit":"call","perCall":0} → {"unit":"call","perCall":0.0429}
+[apply ] qwen/qwen-image-2.0 (cmnukegio0039bnsef0msh0bb)
+    costPrice: {"unit":"call","perCall":0} → {"unit":"call","perCall":0.0286}
+    sellPrice: {"unit":"call","perCall":0} → {"unit":"call","perCall":0.0343}
+[apply ] qwen/qwen-image-2.0-2026-03-03 (cmnukegh8002wbnsedae7k05n)
+    costPrice: {"unit":"call","perCall":0} → {"unit":"call","perCall":0.0286}
+    sellPrice: {"unit":"call","perCall":0} → {"unit":"call","perCall":0.0343}
+[apply ] qwen/qwen-image-2.0-pro (cmnukeghk0031bnsevhekxg4x)
+    costPrice: {"unit":"call","perCall":0} → {"unit":"call","perCall":0.0714}
+    sellPrice: {"unit":"call","perCall":0} → {"unit":"call","perCall":0.0857}
+[apply ] qwen/qwen-image-2.0-pro-2026-03-03 (cmnukegi40035bnsegwbx3ueq)
+    costPrice: {"unit":"call","perCall":0} → {"unit":"call","perCall":0.0714}
+    sellPrice: {"unit":"call","perCall":0} → {"unit":"call","perCall":0.0857}
+[apply ] qwen/qwen-image-2.0-pro-2026-04-22 (cmoca6bxz0001bnsmjykljq2k)
+    costPrice: {"unit":"call","perCall":0} → {"unit":"call","perCall":0.0714}
+    sellPrice: null → {"unit":"call","perCall":0.0857}
+[apply ] qwen/qwen-image-edit-max (cmnukegrj006pbnse7j3gtb0d)
+    costPrice: {"unit":"call","perCall":0} → {"unit":"call","perCall":0.0714}
+    sellPrice: {"unit":"call","perCall":0} → {"unit":"call","perCall":0.0857}
+[apply ] qwen/qwen-image-edit-max-2026-01-16 (cmnukegr8006kbnsen8lptjys)
+    costPrice: {"unit":"call","perCall":0} → {"unit":"call","perCall":0.0714}
+    sellPrice: {"unit":"call","perCall":0} → {"unit":"call","perCall":0.0857}
+[apply ] qwen/qwen-image-edit-plus (cmnukegya0099bnsefir3brxy)
+    costPrice: {"unit":"call","perCall":0} → {"unit":"call","perCall":0.0286}
+    sellPrice: {"unit":"call","perCall":0} → {"unit":"call","perCall":0.0343}
+[apply ] qwen/qwen-image-edit-plus-2025-10-30 (cmnukegxz0095bnsexkx0poni)
+    costPrice: {"unit":"call","perCall":0} → {"unit":"call","perCall":0.0286}
+    sellPrice: {"unit":"call","perCall":0} → {"unit":"call","perCall":0.0343}
+[apply ] qwen/qwen-image-edit-plus-2025-12-15 (cmnukegu2007nbnses5kt4rbd)
+    costPrice: {"unit":"call","perCall":0} → {"unit":"call","perCall":0.0286}
+    sellPrice: {"unit":"call","perCall":0} → {"unit":"call","perCall":0.0343}
+[apply ] qwen/qwen-image-max (cmnukegss0076bnse64juomn7)
+    costPrice: {"unit":"call","perCall":0} → {"unit":"call","perCall":0.0714}
+    sellPrice: {"unit":"call","perCall":0} → {"unit":"call","perCall":0.0857}
+[apply ] qwen/qwen-image-max-2025-12-30 (cmnukegsj0072bnsecdbcdwgj)
+    costPrice: {"unit":"call","perCall":0} → {"unit":"call","perCall":0.0714}
+    sellPrice: {"unit":"call","perCall":0} → {"unit":"call","perCall":0.0857}
+[apply ] qwen/qwen-image-plus-2026-01-09 (cmnukegrt006tbnse1dnwjede)
+    costPrice: {"unit":"call","perCall":0} → {"unit":"call","perCall":0.0286}
+    sellPrice: {"unit":"call","perCall":0} → {"unit":"call","perCall":0.0343}
+[apply ] qwen/wan2.7-image (cmnukegfk002gbnsewzxcheko)
+    costPrice: {"unit":"call","perCall":0} → {"unit":"call","perCall":0.0286}
+    sellPrice: {"unit":"call","perCall":0} → {"unit":"call","perCall":0.0343}
+[apply ] qwen/wan2.7-image-pro (cmnukegez0029bnse0d9akksv)
+    costPrice: {"unit":"call","perCall":0} → {"unit":"call","perCall":0.0714}
+    sellPrice: {"unit":"call","perCall":0} → {"unit":"call","perCall":0.0857}
+[apply ] qwen/z-image-turbo (cmnukegtg007ebnse2ikscfku)
+    costPrice: {"unit":"call","perCall":0} → {"unit":"call","perCall":0.0286}
+    sellPrice: {"unit":"call","perCall":0} → {"unit":"call","perCall":0.0343}
+[apply ] siliconflow/qwen/qwen-image (cmnujtxfs00jmbnrzj2c9t6tp)
+    costPrice: {"unit":"call","perCall":0} → {"unit":"call","perCall":0.02}
+    sellPrice: {"unit":"call","perCall":0} → {"unit":"call","perCall":0.024}
+[apply ] siliconflow/qwen/qwen-image-edit (cmnujtxfg00jjbnrz0slsyj1j)
+    costPrice: {"unit":"call","perCall":0} → {"unit":"call","perCall":0.04}
+    sellPrice: {"unit":"call","perCall":0} → {"unit":"call","perCall":0.048}
+[apply ] siliconflow/qwen/qwen-image-edit-2509 (cmnujtxf300jgbnrzuj14zlnp)
+    costPrice: {"unit":"call","perCall":0} → {"unit":"call","perCall":0.04}
+    sellPrice: {"unit":"call","perCall":0} → {"unit":"call","perCall":0.048}
+[apply ] openai/gemini-3-pro-image-preview (cmnpqv0mq013sbnxc9vjqcoyz)
+    costPrice: {"unit":"call","perCall":0} → {"unit":"call","perCall":0.042}
+    sellPrice: {"unit":"call","perCall":0} → {"unit":"call","perCall":0.0504}
+[apply ] openai/gemini-3.1-flash-image-preview (cmnpqv0m5013mbnxc1qhphm0a)
+    costPrice: {"unit":"call","perCall":0} → {"unit":"call","perCall":0.042}
+    sellPrice: {"unit":"call","perCall":0} → {"unit":"call","perCall":0.0504}
+[apply ] openai/gpt-image-1 (cmnpqv0mf013pbnxcysr06pxa)
+    costPrice: {"unit":"call","perCall":0} → {"unit":"call","perCall":0.042}
+    sellPrice: {"unit":"call","perCall":0} → {"unit":"call","perCall":0.0504}
+[apply ] openai/gpt-image-1-mini (cmnpqv0nd013ybnxcex3iuglj)
+    costPrice: {"unit":"call","perCall":0} → {"unit":"call","perCall":0.011}
+    sellPrice: {"unit":"call","perCall":0} → {"unit":"call","perCall":0.0132}
+[apply ] openai/gpt-image-1.5 (cmnpqv0n2013vbnxcui7y73rp)
+    costPrice: {"unit":"call","perCall":0} → {"unit":"call","perCall":0.009}
+    sellPrice: {"unit":"call","perCall":0} → {"unit":"call","perCall":0.0108}
+[apply ] openai/gpt-image-2 (cmoayey2y0mi7bnvxr667x1z6)
+    costPrice: {"unit":"call","perCall":0} → {"unit":"call","perCall":0.042}
+    sellPrice: null → {"unit":"call","perCall":0.0504}
+[apply ] openai/gpt-image-2-ca (cmoayey2x0mi6bnvxmydm6jat)
+    costPrice: {"unit":"call","perCall":0} → {"unit":"call","perCall":0.042}
+    sellPrice: null → {"unit":"call","perCall":0.0504}
+[apply ] zhipu/cogview-3 (cmnujsns900fhbnrzmnf793q2)
+    costPrice: {"unit":"token","inputPer1M":0,"outputPer1M":0.0027} → {"unit":"call","perCall":0.0357}
+    sellPrice: {"unit":"call","perCall":0} → {"unit":"call","perCall":0.0429}
+[apply ] model gpt-4.1-vision: modality IMAGE → TEXT
+[apply ] model gpt-4o-vision: modality IMAGE → TEXT
+[apply ] model gpt-4o-mini-vision: modality IMAGE → TEXT
+[apply ] model glm-4v: modality IMAGE → TEXT
+
+Summary: 30 channels inspected (30 updated); 4 models inspected (4 updated).
