@@ -2,6 +2,27 @@
   "description": "需求池：已与用户确认但尚未开发的功能，等待下一批次启动时统一安排",
   "items": [
     {
+      "id": "BL-IMAGE-LOG-DISPLAY-FIX",
+      "title": "Image call_log 显示修复 — base64 转存对象存储 + 前端图片预览（C 方案）",
+      "description": "生产 image call_log 前端显示异常根因（用户 2026-04-25 报告 + Planner 诊断）：(1) OR image 模型返回 base64 data URL（约 1MB/张），Gateway 直接落 `call_logs.responseContent` 同时存到 `responseSummary.original_urls`，单 row ≈ 2MB；(2) 前端 logs/[traceId]/page.tsx 把 responseContent 作 whitespace-pre-wrap 纯文本渲染，~1MB 字符串导致浏览器 layout 卡顿+乱码。volcengine seedream 等返回 https URL 不受影响。\n\nC 方案：base64 转存对象存储（GCS/TOS/S3）→ 落库改存 https URL；前端按 URL 类型识别（http/https/data:image）渲染 <img> 而非纯文本。\n\nScope（预估 6 features）：\n- F-ILDF-01 上游响应 base64 data URL 检测 + 上传到对象存储（复用现有 image-proxy GCS 路径）\n- F-ILDF-02 src/lib/api/post-process.ts processImageResultAsync 改 responseContent / responseSummary.original_urls 落 https URL\n- F-ILDF-03 前端 logs/[traceId]/page.tsx 识别 image URL 渲染 <img>（同时支持 data: 和 https://）+ 外链失效降级\n- F-ILDF-04 历史数据迁移脚本（可选）：扫描 size > 100KB 的 responseContent 含 data:image/ 前缀 → 异步上传转存 + UPDATE\n- F-ILDF-05 单测 + smoke：调一次 OR image → call_log.responseContent 是 https URL + 前端 logs 详情页能正常 <img> 渲染\n- F-ILDF-06 Codex 验收（含生产 smoke 3 家 image provider）",
+      "decisions": [
+        "BL-IMAGE-PRICING-OR-P2 done 后立即启动",
+        "C 方案（对象存储转存）— 用户 2026-04-25 拍板",
+        "复用现有 image-proxy / GCS 上传路径（具体看 src/lib/api/image-proxy.ts）",
+        "前端识别 http/https/data:image 三种 URL 形式，统一 <img>",
+        "历史数据迁移 F-ILDF-04 设为 optional（可选）：仅扫近 30 天（call_logs TTL 范围），不深挖归档",
+        "落库 responseContent 长度上限 ~10KB（超过判定为 base64 异常）",
+        "Codex 验收含 3 家 provider smoke：OR / volcengine / qwen 各调一次"
+      ],
+      "confirmed_at": "2026-04-25",
+      "priority": "high",
+      "source": "BL-IMAGE-PRICING-OR-P2 verifying 阶段用户报告的生产 image log 显示问题",
+      "estimated_effort": "1.0 day",
+      "phase": "post-path-a",
+      "order": 103,
+      "follows": "BL-IMAGE-PRICING-OR-P2"
+    },
+    {
       "id": "BL-BILLING-AUDIT",
       "_superseded_by": "BL-BILLING-AUDIT-EXT-P1 + BL-BILLING-AUDIT-EXT-P2",
       "_superseded_at": "2026-04-24",

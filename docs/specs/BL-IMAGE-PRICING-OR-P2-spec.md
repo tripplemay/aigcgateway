@@ -1,10 +1,14 @@
 # BL-IMAGE-PRICING-OR-P2 Spec
 
-**批次：** BL-IMAGE-PRICING-OR-P2（OpenRouter 6 条 token-priced image channel 定价 + DB 触发器约束）
+**批次：** BL-IMAGE-PRICING-OR-P2（OpenRouter 6 条 token-priced image channel 定价 + DB 触发器约束 + model-sync buildCostPrice 回归修复）
 **创建：** 2026-04-25
-**工时：** 0.5 day
-**优先级：** medium
+**工时：** 0.5 day → **修订 0.7 day**（含 mid-impl 裁决新增 F-BIPOR-04）
+**优先级：** medium → **critical**（裁决后升级，回归阻塞 P1/P2 全部 image 计费）
 **前置：** BL-BILLING-AUDIT-EXT-P1 / P2 已 done
+
+**【2026-04-25 mid-impl 裁决修订】** Planner 在 verifying 前发现 `src/lib/sync/model-sync.ts:100-109 buildCostPrice` 对 IMAGE modality 硬编码返回 `{perCall:0,unit:'call'}`，每日 model-sync 自动覆盖所有 IMAGE channel.costPrice，使 OR-P2 F-BIPOR-01 apply 后下次 sync 必失效。生产已观测：2026-04-25 04:00 channel.updatedAt 集中爆发，channel.costPrice 全回 0（P1 F-BAX-08 apply 完已被冲掉）。详见 `docs/adjudications/2026-04-25-or-p2-buildcostprice-regression.md`。
+
+**裁决处理：** 新增 F-BIPOR-04（generator，修 buildCostPrice）；原 F-BIPOR-04 codex 验收 → F-BIPOR-05；验收清单新增 #13（model-sync 跑后 channel.costPrice 保持）。
 
 ## 1. 背景
 
@@ -88,7 +92,33 @@ FOR EACH ROW EXECUTE FUNCTION validate_image_channel_pricing();
 
 **生产 smoke（在 verify 阶段）：** 调用 `google/gemini-2.5-flash-image`（最便宜）一次 → 查 `call_logs` 对应 traceId → `costPrice > 0` + 数值 = `(prompt_tokens × 0.30 + completion_tokens × 2.50) / 1e6`。
 
-### 3.4 Codex 验收（F-BIPOR-04）
+### 3.4 model-sync buildCostPrice 修复（F-BIPOR-04）【2026-04-25 裁决新增】
+
+**根因（实证）：** `src/lib/sync/model-sync.ts:100-109`：
+
+```ts
+function buildCostPrice(model: SyncedModel) {
+  if (model.modality === "IMAGE") {
+    return { perCall: 0, unit: "call" };  // 永远返回 0
+  }
+  ...
+}
+```
+
+第 275 行调用 `prisma.channel.update({ data: { costPrice: ... } })` 强制覆盖。每次 sync 跑后，运营手设/批量脚本 apply 的 IMAGE channel costPrice 全部归零。
+
+**修复方案（R1，最小改动）：** sync 时 IMAGE channel 跳过 costPrice 写入，保留运营手设值；其他字段（status / realModelId 等）仍可正常更新。
+
+**实现要点：**
+1. `buildCostPrice(model)` 返回 `null` 当 `model.modality === "IMAGE"`，调用方据此跳过 costPrice 字段
+2. 第 273-280 行 update 路径：构造 `updateData` 时若 `costPrice === null` 则不加入 `data`
+3. 第 282-290 行 createMany 路径：新建 IMAGE channel 默认 `costPrice = {perCall:0,unit:"call"}`（与现状兼容，靠 F-BIPOR-02 trigger 阻止后续 0 值持久化 —— 但创建瞬间是允许的，需运营在 admin 后立即填值）
+4. 单测 ≥ 3 条：(a) sync 一个已存在 IMAGE channel 且 channel.costPrice 已是非零 → sync 后 channel.costPrice 不变；(b) sync 一个 TEXT channel → costPrice 按 token 公式更新；(c) sync 创建新 IMAGE channel → 默认 `{perCall:0}` 但允许（创建瞬间）
+5. tsc + build 通过
+
+**生产 smoke：** apply F-BIPOR-04 修复 + F-BIPOR-01 6 条 OR UPDATE → **手动触发** model-sync（POST /api/admin/run-inference 或等下一轮 sync）→ 重新 SELECT 6 条 OR + 30 条 P1 image channel costPrice 仍保持非零（不被 sync 冲掉）。
+
+### 3.5 Codex 验收（F-BIPOR-05）
 
 构建（4）：
 1. `npm run build` 通过
@@ -107,8 +137,11 @@ FOR EACH ROW EXECUTE FUNCTION validate_image_channel_pricing();
 10. 触发 `google/gemini-2.5-flash-image` 一次 image 调用 → call_logs.costPrice > 0 且数值匹配 token 反算公式
 11. 生产 image channel 查询：`SELECT id, costPrice FROM channels WHERE modelId IN (image_models)` → 全部 perCall>0 OR token.input/outputPer1M>0（无遗漏）
 
+回归保护（1，裁决新增）：
+13. **手动触发 model-sync 一次（POST /api/admin/run-inference 或等 daily sync）**→ 重查 6 条 OR + 30 条 P1 image channel costPrice：所有非零字段（perCall>0 或 token.input/outputPer1M>0）保持，**不被 sync 冲回 0**。这是路径 X 的关键回归保护。
+
 报告（1）：
-12. 生成 signoff `docs/test-reports/BL-IMAGE-PRICING-OR-P2-signoff-2026-04-2X.md`
+14. 生成 signoff `docs/test-reports/BL-IMAGE-PRICING-OR-P2-signoff-2026-04-2X.md`
 
 ## 4. Non-Goals
 
