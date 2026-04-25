@@ -10,7 +10,8 @@
  * one replica executes the deletes per cluster.
  */
 import { cleanupExpiredNotifications } from "@/lib/notifications/cleanup";
-import { cleanupHealthChecks, cleanupSystemLogs } from "./archive-cleanup";
+import { cleanupHealthChecks, cleanupSystemLogs, cleanupCallLogs } from "./archive-cleanup";
+import { runReconciliation } from "@/lib/billing-audit/reconcile-job";
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
@@ -24,12 +25,30 @@ async function runOne<T>(label: string, fn: () => Promise<T>): Promise<void> {
   }
 }
 
+/**
+ * BL-BILLING-AUDIT-EXT-P2 F-BAP2-02 / F-BAP2-04: 把 call_logs cleanup 加到
+ * tick；reconciliation 每日跑一次（按 spec 04:30 UTC，实际由首次启动时点
+ * 决定，间隔 24h 即可满足"每日一次"的对账语义）。
+ */
 async function tick(): Promise<void> {
   await Promise.all([
     runOne("notifications-cleanup", () => cleanupExpiredNotifications()),
     runOne("health-checks-cleanup", () => cleanupHealthChecks()),
     runOne("system-logs-cleanup", () => cleanupSystemLogs()),
+    runOne("call-logs-cleanup", () => cleanupCallLogs()),
+    runOne("billing-reconciliation", () => runReconciliation(yesterdayUtc())),
   ]);
+}
+
+/**
+ * 对账目标日 = UTC 昨天（reportDate 用 DATE 类型 @db.Date）。
+ * 这样每天 cron 跑都对完整的"昨日"数据，不会跨天误差。
+ */
+function yesterdayUtc(now: Date = new Date()): Date {
+  const y = now.getUTCFullYear();
+  const m = now.getUTCMonth();
+  const d = now.getUTCDate();
+  return new Date(Date.UTC(y, m, d - 1));
 }
 
 export function startMaintenanceScheduler(): () => void {

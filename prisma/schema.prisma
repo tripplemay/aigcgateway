@@ -224,8 +224,10 @@ model Provider {
   createdAt   DateTime       @default(now())
   updatedAt   DateTime       @updatedAt
 
-  channels Channel[]
-  config   ProviderConfig?
+  channels             Channel[]
+  config               ProviderConfig?
+  balanceSnapshots     BalanceSnapshot[]
+  billReconciliations  BillReconciliation[]
 
   @@map("providers")
 }
@@ -637,6 +639,7 @@ enum SystemLogCategory {
   HEALTH_CHECK
   AUTO_RECOVERY
   RATE_LIMIT
+  BILLING_AUDIT
 }
 
 enum SystemLogLevel {
@@ -738,4 +741,48 @@ model NotificationPreference {
 
   @@unique([userId, eventType])
   @@map("notification_preferences")
+}
+
+// ============================================================
+// BL-BILLING-AUDIT-EXT-P2: Tier 2 余额快照 + 对账记录
+// ============================================================
+
+/// Tier 2 上游余额快照（DeepSeek / SiliconFlow / OpenRouter credits）。
+/// 每日 cron 拉一次，对比前日 snapshot 求 upstream usage delta。
+model BalanceSnapshot {
+  id         String   @id @default(cuid())
+  providerId String
+  provider   Provider @relation(fields: [providerId], references: [id], onDelete: Cascade)
+  snapshotAt DateTime @default(now())
+  currency   String // 'CNY' | 'USD'
+  balance    Decimal  @db.Decimal(12, 4)
+  totalUsage Decimal? @db.Decimal(12, 4)
+  raw        Json
+  createdAt  DateTime @default(now())
+
+  @@index([providerId, snapshotAt])
+  @@map("balance_snapshots")
+}
+
+/// 对账结果。tier=1 用 Tier 1 fetcher per-model 对比；tier=2 用余额 delta；
+/// status: MATCH (|delta|<0.5 OR |%|<5) / MINOR_DIFF (|delta|<5 AND |%|<20) / BIG_DIFF。
+/// unique(providerId, reportDate, modelName) 让同日重跑做 upsert。
+model BillReconciliation {
+  id             String   @id @default(cuid())
+  providerId     String
+  provider       Provider @relation(fields: [providerId], references: [id], onDelete: Cascade)
+  reportDate     DateTime @db.Date
+  tier           Int
+  modelName      String? // tier=1 有 per-model；tier=2 NULL
+  upstreamAmount Decimal  @db.Decimal(12, 6)
+  gatewayAmount  Decimal  @db.Decimal(12, 6)
+  delta          Decimal  @db.Decimal(12, 6)
+  deltaPercent   Decimal? @db.Decimal(8, 2)
+  status         String // 'MATCH' | 'MINOR_DIFF' | 'BIG_DIFF'
+  details        Json
+  computedAt     DateTime @default(now())
+
+  @@unique([providerId, reportDate, modelName])
+  @@index([reportDate])
+  @@map("bill_reconciliation")
 }
