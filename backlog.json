@@ -2,26 +2,6 @@
   "description": "需求池：已与用户确认但尚未开发的功能，等待下一批次启动时统一安排",
   "items": [
     {
-      "id": "BL-IMAGE-PRICING-OR-P2",
-      "title": "OpenRouter 6 条 token-priced image channel 定价 + DB CHECK 约束 + gemini/gpt-5-image 系列 costPrice 修正",
-      "description": "BL-BILLING-AUDIT-EXT-P1 F-BAX-08 批量修正 image channel 定价时，6 条 OpenRouter image channel 因按 token 计价（input/outputPer1M）而非 per-call，延后独立批次处理。Scope：(1) 为 openrouter google/gemini-2.5-flash-image / google/gemini-3-pro-image-preview / google/gemini-3.1-flash-image-preview / openai/gpt-5-image / openai/gpt-5-image-mini / openai/gpt-5.4-image-2 6 条 channel 按 openrouter.ai/api/v1/models 返回的 token 定价填 costPrice (unit:'token'+inputPer1M+outputPer1M) + sellPrice ×1.2；(2) 新增 DB CHECK 约束（migration）确保 IMAGE channel 有效定价（call 或 token 二选一非零）；(3) 新增单测：OR image 模型调用后 call_logs.costPrice 按 token 数 × per1M 反算正确；(4) 顺手精确化 F-BAX-08 两条 3A 保守填的模型（gpt-image-2 / gpt-image-2-ca）—— 若届时拿到 ChatAnyWhere 真实定价则替换。",
-      "decisions": [
-        "BL-BILLING-AUDIT-EXT-P1 签收后启动（#11 / F-BAX-08 通过）",
-        "F-BIPOR-01 OR 6 条 channel token 定价填入",
-        "F-BIPOR-02 DB CHECK 约束 migration（call/token 非零择一）",
-        "F-BIPOR-03 单测 OR image call_logs.costPrice 反算正确",
-        "F-BIPOR-04 精确化 gpt-image-2 / -ca（若有真实价格）",
-        "F-BIPOR-05 Codex 验收（含生产 smoke OR gemini-2.5-flash-image 调用）"
-      ],
-      "confirmed_at": "2026-04-24",
-      "priority": "medium",
-      "source": "BL-BILLING-AUDIT-EXT-P1 fix_round 2 用户决策 2B（OR 6 条延后独立处理）",
-      "estimated_effort": "0.5 days",
-      "phase": "post-path-a",
-      "order": 102,
-      "follows": "BL-BILLING-AUDIT-EXT-P1"
-    },
-    {
       "id": "BL-BILLING-AUDIT",
       "_superseded_by": "BL-BILLING-AUDIT-EXT-P1 + BL-BILLING-AUDIT-EXT-P2",
       "_superseded_at": "2026-04-24",

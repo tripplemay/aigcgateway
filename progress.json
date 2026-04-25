@@ -1,32 +1,24 @@
 {
-  "status": "done",
-  "user_goal": "BL-BILLING-AUDIT-EXT-P2 — Tier 2 余额快照 fetcher（DeepSeek/SiliconFlow/OpenRouter credits） + 对账 cron + admin /admin/reconciliation 面板（趋势图+明细+手动重跑） + call_logs TTL 30d + 3 个 index",
-  "total_features": 5,
-  "completed_features": 5,
+  "status": "building",
+  "user_goal": "BL-IMAGE-PRICING-OR-P2 — OpenRouter 6 条 token-priced image channel 定价 UPDATE + DB trigger 约束（IMAGE channel 必须有效 costPrice）+ token 反算单测",
+  "total_features": 4,
+  "completed_features": 0,
   "fix_rounds": 0,
-  "current_sprint": "BL-BILLING-AUDIT-EXT-P2",
-  "last_updated": "2026-04-25T12:15:00.000Z",
+  "current_sprint": "BL-IMAGE-PRICING-OR-P2",
+  "last_updated": "2026-04-25T12:30:00.000Z",
   "reference_docs": [
-    "docs/specs/BL-BILLING-AUDIT-EXT-P2-spec.md"
+    "docs/specs/BL-IMAGE-PRICING-OR-P2-spec.md"
   ],
   "role_assignments": null,
   "docs": {
-    "spec": "docs/specs/BL-BILLING-AUDIT-EXT-P2-spec.md",
+    "spec": "docs/specs/BL-IMAGE-PRICING-OR-P2-spec.md",
     "test_cases": null,
-    "signoff": "docs/test-reports/BL-BILLING-AUDIT-EXT-P2-signoff-2026-04-25.md",
+    "signoff": null,
     "framework_reviewed": false
   },
-  "evaluator_feedback": {
-    "summary": "verifying：F-BAP2-05 15项验收通过，P2批次签收。",
-    "pass_count": 15,
-    "partial_count": 0,
-    "fail_count": 0,
-    "issues": []
-  },
+  "evaluator_feedback": null,
   "generator_handoff": null,
   "session_notes": {
-    "Andy-batch-launch": "BL-BILLING-AUDIT-EXT-P2 启动 @ 2026-04-25 02:00（P1 done @ 04-25 01:35 后立即启动，未等 24h 稳定窗，按用户拍板）。\n\n5 features：\n- F-BAP2-01 critical generator: Tier 2 fetcher 3 家（deepseek/siliconflow/openrouter-credits）+ balance_snapshots 表 + migration 20260425_balance_snapshots\n- F-BAP2-02 critical generator: 对账 cron + bill_reconciliation 表 + tier 1/2 status 分类（MATCH/MINOR_DIFF/BIG_DIFF）+ migration 20260425_bill_reconciliation；scheduler 每日 04:30 UTC + leader-lock\n- F-BAP2-03 high generator: admin /admin/reconciliation 面板 4 区块（cards + 趋势图 + 明细表 + 手动重跑）+ 3 个 API + i18n\n- F-BAP2-04 high generator: call_logs TTL 30d + 3 个 index migration + scheduler 03:30 UTC\n- F-BAP2-05 critical codex: 15 项验收（含 48h 生产观察）",
-    "Kimi-build": "P2 building 完成 @ 2026-04-25 10:18，status→verifying。\n\n4 generator features 一气实现：\n- F-BAP2-01: tier2-fetcher.ts 接口 + 3 fetchers (DeepSeek 多币种 / SiliconFlow 含负数欠费 / OpenRouter credits) + BalanceSnapshot model + migration 20260425_balance_snapshots\n- F-BAP2-02: BillReconciliation model + migration 20260425_bill_reconciliation + reconcile-job.ts 主流程（classifyTier 1/2/3 + classifyStatus 严格 < 边界） + aggregate-gateway.ts + SystemLogCategory 加 BILLING_AUDIT\n- F-BAP2-03: 3 个 API endpoints + admin/reconciliation/page.tsx 4 区块（cards + recharts trend + BIG_DIFF table + manual rerun） + en/zh i18n + sidebar nav\n- F-BAP2-04: cleanupCallLogs + RETENTION_DAYS.call_logs=30 + migration 20260425_call_logs_indexes (3 indexes) + 接进 maintenance scheduler tick\n\n额外补丁：维持 nullable composite key 用 findFirst+update/create 替代 upsert（Prisma 限制 modelName=null 不能进 compound unique key 路径）。\n\nvitest 353 PASS (+47 P2 新增) / tsc / build 全过。dev DB 已 apply 4 个 migration（20260425_balance_snapshots / bill_reconciliation / billing_audit_category / call_logs_indexes）。\n\n生产部署须由用户/Codex 触发 GitHub Actions（包含 prisma migrate deploy）；deploy 后 reconcile-job 在 maintenance scheduler 启动时立即跑一次（reportDate=昨日），之后每 24h 一轮。Tier 2 fetcher 凭证已在 providers.authConfig.apiKey（DeepSeek/SF 复用 inference key；OR credits 复用 P1 已填的 apiKey）。\n\nF-BAP2-05 Codex 验收 15 项中 #1-#10 部署后即可验；#11-#14 需 48h 生产观察窗。",
-    "Reviewer": "verifying(2026-04-25): 已完成 BL-BILLING-AUDIT-EXT-P2 15 项验收并签收。生产侧完成 rerun/API/DB 动态验证与 UI 页面加载取证；本地 build/tsc/vitest(353) 通过；TTL/BILLING_AUDIT/BIG_DIFF 指标满足口径。status -> done。"
+    "Andy-batch-launch": "BL-IMAGE-PRICING-OR-P2 启动 @ 2026-04-25 12:30（P2 done @ 04-25 12:15 后立即启动）。\n\n4 features：\n- F-BIPOR-01 critical generator: 6 条 OR channel token 定价 UPDATE 脚本（dry-run/--apply/幂等）\n- F-BIPOR-02 high generator: PL/pgSQL trigger 约束 IMAGE channel costPrice 必须有效（call.perCall>0 或 token.input/outputPer1M>0）\n- F-BIPOR-03 high generator: OR token 计价 call_logs.costPrice 反算单测 + smoke 脚本\n- F-BIPOR-04 critical codex: 12 项验收\n\n关键决策（继承 P1）：\n- USD 口径 + sellPrice ×1.2\n- 数据源 OR /api/v1/models canonical\n- 不修复 gpt-image-2 / -ca（保守填值沿用）\n- 不回填历史 call_logs\n\n应用 framework v0.9.4 自检（spec § 6）：\n- 铁律 1.2：所有验收基于 DB/call_logs/脚本，无运维依赖 ✓\n- 铁律 1.3：阈值 1.19-1.21 显式 + ±1e-6 容差 ✓\n- 测试 mock 层级：F-BIPOR-03 单测要求从 global.fetch / fetchWithProxy 边界 mock，让 processChatResult 链路真实跑 ✓\n\n前置：P1/P2 已 done；6 条 OR channel ID 已确认；OR /api/v1/models 实时定价已调研。\n\nGenerator 按 spec § 3 实现 → status→verifying。"
   }
 }

@@ -1,51 +1,42 @@
 {
-  "batch": "BL-BILLING-AUDIT-EXT-P2",
+  "batch": "BL-IMAGE-PRICING-OR-P2",
   "created_at": "2026-04-25",
   "features": [
     {
-      "id": "F-BAP2-01",
-      "title": "Tier 2 余额快照 fetcher（DeepSeek / SiliconFlow / OpenRouter credits）+ balance_snapshots 表",
+      "id": "F-BIPOR-01",
+      "title": "OpenRouter 6 条 image channel token 定价 UPDATE",
       "priority": "critical",
       "executor": "generator",
-      "status": "completed",
-      "source": "BL-BILLING-AUDIT-EXT-P2 spec § F-BAP2-01",
-      "acceptance": "1) 新目录 `src/lib/billing-audit/fetchers/balance/` + 接口 `TierTwoBalanceFetcher` (providerName / fetchBalanceSnapshot)；2) `deepseek.ts`：GET https://api.deepseek.com/user/balance，多币种 balance_infos → 写两条 snapshot（CNY + USD）；3) `siliconflow.ts`：GET https://api.siliconflow.cn/v1/user/info，单一 totalBalance（字符串，可能负数）；4) `openrouter-credits.ts`：GET https://openrouter.ai/api/v1/credits，balance=total_credits-total_usage + totalUsage 一并存；5) Prisma model `BalanceSnapshot` 含 providerId/snapshotAt/currency/balance(Decimal12,4)/totalUsage/raw + index(providerId,snapshotAt)；6) Migration `20260425_balance_snapshots`；7) 单测 ≥6 条：每个 fetcher mock HTTP 正例（含 deepseek 双币种） + 401/超时 → BalanceFetchError；8) tsc + build 通过"
+      "status": "pending",
+      "source": "BL-IMAGE-PRICING-OR-P2 spec § 3.1",
+      "acceptance": "1) 创建 `scripts/pricing/fix-or-image-channels-2026-04-25.ts`：硬编码 6 条 channel pricing（spec § 3.1 表）；2) 默认 dry-run 模式 + `--apply` 开关；3) 幂等重放（重跑已 apply 数据输出 'no change'）；4) UPDATE 后 costPrice={unit:'token',inputPer1M:X,outputPer1M:Y}；sellPrice 对应 ×1.2；5) 输出 diff 日志到 docs/test-reports/artifacts/bl-image-pricing-or-p2-2026-04-25/pricing-or-migration.log；6) 脚本 apply 前 console.log 提示 Generator 先 curl https://openrouter.ai/api/v1/models 复核（>±10% 偏差 push hold）；7) 单测 ≥ 2 条：dry-run 6 行 diff + 幂等 no-change；8) tsc + build 通过"
     },
     {
-      "id": "F-BAP2-02",
-      "title": "对账 cron + bill_reconciliation 表 + tier 1/2 status 分类",
-      "priority": "critical",
-      "executor": "generator",
-      "status": "completed",
-      "source": "BL-BILLING-AUDIT-EXT-P2 spec § F-BAP2-02",
-      "acceptance": "1) Prisma model `BillReconciliation` (providerId/reportDate/tier 1or2/modelName/upstreamAmount/gatewayAmount/delta/deltaPercent/status/details/computedAt) + unique(providerId,reportDate,modelName) + index(reportDate)；2) Migration `20260425_bill_reconciliation`；3) `src/lib/billing-audit/reconcile-job.ts:runReconciliation(reportDate)` 主函数：枚举 ACTIVE providers → classifyTier(name) → tier 1 走 fetchDailyBill + aggregateGatewayCallLogs(per-model) / tier 2 走 fetchBalanceSnapshot + 取前日 snapshot 求 delta / tier 3 跳过；4) classifyStatus 阈值：|delta|<0.5 OR |%|<5 → MATCH；|delta|<5 AND |%|<20 → MINOR_DIFF；其他 → BIG_DIFF；5) BIG_DIFF 数量>0 时 SystemLog WARN，否则 INFO；不发 email/webhook（决策 E）；6) 集成进 `src/lib/maintenance/scheduler.ts` 每日 04:30 UTC，复用 P1 health scheduler 的 leader-lock；7) 单测 ≥8 条：mock fetcher → reconcile 写行 / tier 1/2/3 分类正确 / status 阈值边界（delta=0.5 / |%|=5 等） / Tier 2 首日无前日 snapshot 跳过 delta / upsert 同日重跑无重复行；8) tsc + build 通过"
-    },
-    {
-      "id": "F-BAP2-03",
-      "title": "admin /admin/reconciliation 面板（趋势图 + 明细表 + 手动重跑）",
+      "id": "F-BIPOR-02",
+      "title": "DB trigger 约束 — IMAGE channel 必须有有效 costPrice（call 或 token 非零）",
       "priority": "high",
       "executor": "generator",
-      "status": "completed",
-      "source": "BL-BILLING-AUDIT-EXT-P2 spec § F-BAP2-03",
-      "acceptance": "1) `src/app/(console)/admin/reconciliation/page.tsx` 含 4 个区块：(a) 顶部 6 个 provider summary cards（今日/本周/本月 delta + status 颜色 MATCH绿/MINOR黄/BIG红）；(b) 30 天 delta 趋势折线图（recharts，按 provider 分线 + filter 控件，复用 BL-FE-PERF-01 dynamic import 模式）；(c) BIG_DIFF 明细表（列：date/provider/model/upstream/gateway/delta/status/details，行点击展开 JSON details，过滤：date range/provider/status）；(d) 手动重跑控件（选 date+provider → POST /api/admin/reconciliation/rerun 同步执行返回结果）；2) API `GET /api/admin/reconciliation?start=&end=&providerId=&status=`、`POST /api/admin/reconciliation/rerun` body{date,providerId}、`GET /api/admin/reconciliation/balance-snapshots?providerId=&days=30`；3) i18n 中英双语（next-intl messages/admin.json）；4) 仅 admin 角色可访问（沿用 admin layout 的鉴权）；5) 单测：API 单测分页+过滤+rerun + 1 条 component-level 渲染断言；6) tsc + build 通过"
+      "status": "pending",
+      "source": "BL-IMAGE-PRICING-OR-P2 spec § 3.2",
+      "acceptance": "1) Prisma migration `20260425_image_channel_pricing_trigger`：创建 `validate_image_channel_pricing()` PL/pgSQL 函数 + `trg_validate_image_channel_pricing` BEFORE INSERT OR UPDATE OF costPrice, modelId 触发器（详见 spec § 3.2 SQL）；2) 仅当目标 channel 关联 model.modality='IMAGE' 时校验，TEXT/VIDEO/AUDIO 跳过；3) 校验规则：(call.perCall>0) OR (token.inputPer1M>0 OR token.outputPer1M>0)；4) RAISE EXCEPTION 用 ERRCODE='check_violation'，错误消息含 channelId+modelId；5) Migration down 操作：DROP TRIGGER + DROP FUNCTION；6) 单测 ≥ 2 条：trigger 阻挡 IMAGE 全 0 INSERT/UPDATE / TEXT 同样改通过；7) dev DB apply 通过"
     },
     {
-      "id": "F-BAP2-04",
-      "title": "call_logs TTL 30 天 + 3 个 index",
+      "id": "F-BIPOR-03",
+      "title": "OR token 计价 call_logs.costPrice 反算单测 + smoke",
       "priority": "high",
       "executor": "generator",
-      "status": "completed",
-      "source": "BL-BILLING-AUDIT-EXT-P2 spec § F-BAP2-04",
-      "acceptance": "1) `src/lib/maintenance/archive-cleanup.ts` 扩展：CALL_LOGS_TTL_DAYS=30，cleanupCallLogs() 删除 createdAt < now-30d 的行 + 写 SystemLog INFO 含删除条数；2) Migration `20260425_call_logs_indexes`：CREATE INDEX IF NOT EXISTS 3 个 — idx_call_logs_source_date(source,createdAt) + idx_call_logs_channel_source_date(channelId,source,createdAt) + idx_call_logs_created_at(createdAt)；3) maintenance scheduler 每日 03:30 UTC 触发 cleanupCallLogs；4) 单测：插入 50 条 createdAt > 30d + 50 条 < 30d → 跑 cleanup → 剩 50 条；5) tsc + build 通过"
+      "status": "pending",
+      "source": "BL-IMAGE-PRICING-OR-P2 spec § 3.3",
+      "acceptance": "1) 单测：mock OR /chat/completions 返回 {usage:{prompt_tokens:1000,completion_tokens:500}} → processChatResult 链路真实跑（按 v0.9.4 mock 层级铁律：从 global.fetch 或 fetchWithProxy 边界 mock）→ call_log.costPrice = (1000×inputPer1M + 500×outputPer1M)/1e6，浮点 ±1e-6 容差；2) 反例单测：channel costPrice token 全 0 → system_log WARN + cost=0；3) 生产 smoke 准备脚本 `scripts/pricing/verify-or-image-channels-2026-04-25.ts`：调用一次最便宜的 `google/gemini-2.5-flash-image` → 查 call_logs.costPrice 计算正确；4) 单测总数 ≥ 3 条；5) tsc + build 通过"
     },
     {
-      "id": "F-BAP2-05",
-      "title": "BL-BILLING-AUDIT-EXT-P2 全量验收",
+      "id": "F-BIPOR-04",
+      "title": "BL-IMAGE-PRICING-OR-P2 全量验收",
       "priority": "critical",
       "executor": "codex",
-      "status": "completed",
-      "source": "BL-BILLING-AUDIT-EXT-P2",
-      "acceptance": "构建与单测（4 项）：1) npm run build 通过；2) npx tsc --noEmit 通过；3) npx vitest run 全过（新增 ≥15 条 P2 单测 + P1 + 历史不破坏）；4) Prisma migrations 生产 dry-run 通过（balance_snapshots / bill_reconciliation / call_logs_indexes）。功能验证（6 项）：5) 手动触发 POST /api/admin/reconciliation/rerun {date:'2026-04-22',providerId:volcengineId} → bill_reconciliation 新增行+status 分类正确；6) OpenRouter fetcher 拉 2026-04-22 → bill_reconciliation per-model 行；7) ChatanyWhere fetcher 拉 → bill_reconciliation 行（即使 empty 也写）；8) DeepSeek fetcher 拉余额 → balance_snapshots 表新增 2 行（CNY + USD）；9) 间隔 ≥1 天再跑 → tier 2 delta 对账生效（yesterday vs today）；10) /admin/reconciliation 面板 load 正常，30 天趋势图有数据，BIG_DIFF 明细表过滤可用，手动重跑按钮工作。生产观察（4 项，部署后 48h 可补）：11) 每日 04:30 UTC cron 自动执行，bill_reconciliation 每日新增 6-10 行；12) SystemLog 有 BILLING_AUDIT INFO/WARN 记录；13) call_logs TTL 生效：MIN(createdAt) ≈ now-30d；14) admin 面板 BIG_DIFF 条目占比 < 30%。15) 生成 signoff 报告 docs/test-reports/BL-BILLING-AUDIT-EXT-P2-signoff-2026-04-2X.md。"
+      "status": "pending",
+      "source": "BL-IMAGE-PRICING-OR-P2",
+      "acceptance": "构建（4 项）：1) npm run build 通过；2) npx tsc --noEmit 通过；3) npx vitest run 全过（新 ≥ 5 条 + 历史不破坏，预期总数 358+）；4) `npx prisma migrate diff` 对 20260425_image_channel_pricing_trigger 生产 dry-run 通过。数据正确性（5 项）：5) 生产执行 `npx tsx scripts/pricing/fix-or-image-channels-2026-04-25.ts --apply` 退出 0；6) 抽查 6 条 OR channel：costPrice.unit='token' + inputPer1M/outputPer1M 与 spec § 3.1 表一致；7) sellPrice / costPrice 比值 1.19-1.21（浮点 ±1% 容差）；8) 重跑脚本 'no change' 幂等；9) 生产 trigger 反例：`UPDATE channels SET costPrice='{\"unit\":\"call\",\"perCall\":0}' WHERE id=<IMAGE channel>` → check_violation；同样改 TEXT channel → 通过。生产 smoke（2 项）：10) 触发 `google/gemini-2.5-flash-image` 一次 image 调用 → call_logs.costPrice > 0 + 数值匹配 (prompt_tokens×0.30 + completion_tokens×2.50)/1e6 公式；11) 全库 IMAGE channel 查询：所有 perCall>0 OR token 至少一个 per1M>0（无遗漏）。12) 生成 signoff docs/test-reports/BL-IMAGE-PRICING-OR-P2-signoff-2026-04-2X.md。"
     }
   ]
 }
