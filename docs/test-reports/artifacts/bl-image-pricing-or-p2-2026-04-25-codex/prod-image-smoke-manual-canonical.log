@@ -1,0 +1,3 @@
+http=401 traceId=missing
+{"error":{"type":"authentication_error","code":"invalid_api_key","message":"Invalid Authorization format. Expected: Bearer <api_key>"}}
+

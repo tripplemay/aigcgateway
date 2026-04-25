@@ -1,0 +1,16 @@
+fba779a
+?? .env.production
+?? .env.production.bak-crit6-20260417_093604
+?? ecosystem.config.cjs
+?? scripts/fix-deepseek-v4-prod.ts
+┌────┬──────────────────────┬─────────────┬─────────┬─────────┬──────────┬────────┬──────┬───────────┬──────────┬──────────┬──────────┬──────────┐
+│ id │ name                 │ namespace   │ version │ mode    │ pid      │ uptime │ ↺    │ status    │ cpu      │ mem      │ user     │ watching │
+├────┼──────────────────────┼─────────────┼─────────┼─────────┼──────────┼────────┼──────┼───────────┼──────────┼──────────┼──────────┼──────────┤
+│ 0  │ aigc-gateway         │ default     │ 0.1.0   │ cluster │ 1731726  │ 3m     │ 7    │ online    │ 0%       │ 311.4mb  │ tripple… │ disabled │
+│ 1  │ aigc-gateway         │ default     │ 0.1.0   │ cluster │ 1731727  │ 3m     │ 7    │ online    │ 0%       │ 146.6mb  │ tripple… │ disabled │
+│ 2  │ aigc-gateway         │ default     │ 0.1.0   │ cluster │ 1731740  │ 3m     │ 7    │ online    │ 0%       │ 131.7mb  │ tripple… │ disabled │
+│ 3  │ aigc-gateway         │ default     │ 0.1.0   │ cluster │ 1731741  │ 3m     │ 7    │ online    │ 0%       │ 147.0mb  │ tripple… │ disabled │
+│ 10 │ kolmatrix            │ default     │ 0.1.0   │ cluster │ 1512660  │ 38h    │ 10   │ online    │ 0%       │ 242.8mb  │ tripple… │ disabled │
+│ 11 │ kolmatrix            │ default     │ 0.1.0   │ cluster │ 1512675  │ 38h    │ 10   │ online    │ 0%       │ 221.1mb  │ tripple… │ disabled │
+│ 12 │ kolmatrix-staging    │ default     │ 0.1.0   │ fork    │ 1587966  │ 25h    │ 12   │ online    │ 0%       │ 236.8mb  │ tripple… │ disabled │
+└────┴──────────────────────┴─────────────┴─────────┴─────────┴──────────┴────────┴──────┴───────────┴──────────┴──────────┴──────────┴──────────┘

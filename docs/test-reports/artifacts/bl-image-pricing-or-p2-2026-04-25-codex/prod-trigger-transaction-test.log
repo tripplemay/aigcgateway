@@ -1,0 +1,4 @@
+BEGIN
+ERROR:  syntax error at or near "IMAGE$$"
+LINE 6: ...dels m ON m.id = c."modelId" WHERE m.modality = $$IMAGE$$ LI...
+                                                             ^

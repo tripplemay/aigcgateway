@@ -1,0 +1,19 @@
+PrismaClientKnownRequestError: 
+Invalid `prisma.$executeRawUnsafe()` invocation:
+
+
+Raw query failed. Code: `25P02`. Message: `ERROR: current transaction is aborted, commands ignored until end of transaction block`
+    at ei.handleRequestError (/opt/aigc-gateway/node_modules/@prisma/client/runtime/library.js:121:7268)
+    at ei.handleAndLogRequestError (/opt/aigc-gateway/node_modules/@prisma/client/runtime/library.js:121:6593)
+    at ei.request (/opt/aigc-gateway/node_modules/@prisma/client/runtime/library.js:121:6300)
+    at async a (/opt/aigc-gateway/node_modules/@prisma/client/runtime/library.js:130:9551)
+    at async [stdin]:15:4
+    at async Proxy._transactionWithCallback (/opt/aigc-gateway/node_modules/@prisma/client/runtime/library.js:130:8120)
+    at async [stdin]:7:2 {
+  code: 'P2010',
+  meta: {
+    code: '25P02',
+    message: 'ERROR: current transaction is aborted, commands ignored until end of transaction block'
+  },
+  clientVersion: '6.19.3'
+}

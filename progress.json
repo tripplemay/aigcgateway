@@ -1,11 +1,11 @@
 {
-  "status": "reverifying",
+  "status": "fixing",
   "user_goal": "BL-IMAGE-PRICING-OR-P2 — OpenRouter 6 条 token-priced image channel 定价 UPDATE + DB trigger 约束 + token 反算单测 + model-sync buildCostPrice 回归修复（裁决新增）",
   "total_features": 5,
   "completed_features": 4,
   "fix_rounds": 1,
   "current_sprint": "BL-IMAGE-PRICING-OR-P2",
-  "last_updated": "2026-04-25T12:42:00.000Z",
+  "last_updated": "2026-04-25T06:10:00.000Z",
   "reference_docs": [
     "docs/specs/BL-IMAGE-PRICING-OR-P2-spec.md",
     "docs/adjudications/2026-04-25-or-p2-buildcostprice-regression.md"
@@ -18,16 +18,34 @@
     "framework_reviewed": false
   },
   "evaluator_feedback": {
-    "summary": "Mid-impl 裁决（2026-04-25 路径 X）：Planner 在 verifying 前发现 `src/lib/sync/model-sync.ts:100-109 buildCostPrice` 对 IMAGE modality 硬编码 `{perCall:0}`，每日 sync 强制覆盖 P1/F-BAX-08 + OR-P2 apply 的 costPrice。生产已实证 2026-04-25 04:00 全 image channel costPrice 回 0。OR-P2 F-BIPOR-01 apply 即使 PASS 下次 sync 必失效，构成 acceptance 与代码行为冲突。用户拍板路径 X：当前批次内修订 spec + 加 F-BIPOR-04（generator）修 buildCostPrice + 验收新增 #12 model-sync 回归保护。",
-    "pass_count": 3,
-    "partial_count": 0,
-    "fail_count": 1,
+    "summary": "Reverification FAIL: local build/tsc/vitest and DB trigger pass, but production acceptance fails. 32/39 IMAGE channels still have costPrice=0; canonical image smoke returns HTTP 200 but call_logs.costPrice=0 with no token usage; provided smoke script uses a non-existent alias; pricing script hangs under full production env and idempotency required timeout; spec names run-inference for model-sync but actual endpoint is sync-models.",
+    "pass_count": 7,
+    "partial_count": 1,
+    "fail_count": 5,
     "issues": [
       {
+        "feature_id": "F-BIPOR-05",
+        "result": "FAIL",
+        "description": "Production full IMAGE channel scan fails: 32/39 IMAGE channels still have costPrice={unit:\"call\",perCall:0}. This violates acceptance #11 and makes #12 impossible for the expected 30+6 non-zero set. The 6 OR token-priced channels remain correct after /api/admin/sync-models, but the other image channels remain zero.",
+        "steps_to_reproduce": "Run production DB scan in docs/test-reports/artifacts/bl-image-pricing-or-p2-2026-04-25-codex/prod-db-pricing-check.v2.json, then trigger POST /api/admin/sync-models and inspect prod-sync-regression-check.log."
+      },
+      {
+        "feature_id": "F-BIPOR-03",
+        "result": "FAIL",
+        "description": "Image smoke billing fails. The provided verify script uses model gemini-2.5-flash-image and production returns model_not_found. Manual canonical request with google/gemini-2.5-flash-image succeeds, but call_logs.costPrice is 0 and promptTokens/completionTokens are null, so the token pricing formula cannot pass.",
+        "steps_to_reproduce": "Run scripts/pricing/verify-or-image-channels-2026-04-25.ts against production (prod-image-smoke.v2.log), then run the manual canonical smoke recorded in prod-image-smoke-manual-canonical.v2.log."
+      },
+      {
         "feature_id": "F-BIPOR-01",
-        "result": "BLOCKED",
-        "description": "F-BIPOR-01 acceptance 第 4 项 'UPDATE 后 costPrice={unit:token,inputPer1M:X,outputPer1M:Y}' 与 model-sync.buildCostPrice 行为冲突：IMAGE modality 硬编码 `{perCall:0}` 强制覆盖。须 F-BIPOR-04 修复后才能保证 apply 持久化。生产实证：所有 30 条 P1 image channel updatedAt 集中在 2026-04-25 04:00:18~04:01:16（model-sync 跑那一轮），costPrice 全部回 0；sellPrice 因 sync 不写该字段保留正确。",
-        "steps_to_reproduce": "ssh prod 直查 raw JSON：SELECT id, costPrice::text, sellPrice::text, updatedAt FROM channels c JOIN models m ON m.id=c.modelId WHERE m.modality='IMAGE' ORDER BY updatedAt DESC LIMIT 25 → 全部 costPrice.perCall=0；system_logs 04:00 时段大量 sync/HEALTH_CHECK 事件证实 sync 在跑。详见 docs/adjudications/2026-04-25-or-p2-buildcostprice-regression.md。"
+        "result": "FAIL",
+        "description": "Pricing CLI does not exit cleanly when .env.production is loaded because a Redis handle remains open. Apply printed 6 updates, but the process had to be killed; idempotency printed 6 no-change rows but timed out with EXIT_CODE=124. This violates F-BIPOR-05 #5/#8 exit-code expectations.",
+        "steps_to_reproduce": "ssh production, load .env.production, run npx tsx scripts/pricing/fix-or-image-channels-2026-04-25.ts --apply. See prod-pricing-apply.with-env.log and prod-pricing-idempotency.log."
+      },
+      {
+        "feature_id": "F-BIPOR-05",
+        "result": "FAIL",
+        "description": "Acceptance/handoff says POST /api/admin/run-inference can trigger model-sync, but current code only calls runModelSync from /api/admin/sync-models. run-inference does classify/brand/capability inference, not model sync.",
+        "steps_to_reproduce": "Compare src/app/api/admin/run-inference/route.ts with src/app/api/admin/sync-models/route.ts; actual regression trigger used /api/admin/sync-models."
       }
     ]
   },
@@ -59,6 +77,7 @@
     "Andy-batch-launch": "BL-IMAGE-PRICING-OR-P2 启动 @ 2026-04-25 12:30",
     "Kimi-build-round-0": "F-BIPOR-01~03 building 完成 @ 2026-04-25 12:23，status→verifying。vitest 378 PASS（+25 OR-P2 新单测）/ tsc / build 全过。",
     "Andy-mid-impl-adjudication": "Mid-impl 裁决 @ 2026-04-25 13:00：Planner 调研用户报告的生产 image log 显示问题时附带发现 model-sync.buildCostPrice 硬编码 IMAGE → {perCall:0}，每日 sync 自动覆盖所有 image channel costPrice。生产实证 P1 F-BAX-08 apply 后 04:00 被冲回 0；OR-P2 F-BIPOR-01 apply 后下次 sync 必失效。用户拍板路径 X：当前批次内修订 spec + 加 F-BIPOR-04（generator R1 方案：IMAGE 跳过 costPrice 写入）+ 验收 #12 回归保护。total_features 4→5；completed 3；status verifying→fixing；fix_rounds 0→1。BL-IMAGE-LOG-DISPLAY-FIX（C 方案，base64 转存对象存储 + 前端图片预览）已写入 backlog，OR-P2 done 后启动。",
-    "Kimi-fix-round-1": "F-BIPOR-04 完成 @ 2026-04-25 12:42，status fixing→reverifying。\n\n改动（按 R1 最小方案）：\n- src/lib/sync/model-sync.ts buildCostPrice() IMAGE → 返回 null（保留运营手设值）\n- 拆出 buildInitialCostPrice()：createMany 路径仍写默认 {perCall:0,unit:'call'}\n- 调用处第 270-280 行：null 时省略 costPrice 字段，update 只动 realModelId/status\n- 新建 channel 路径仍走 buildInitialCostPrice 默认占位，后续 UPDATE 由 F-BIPOR-02 trigger 兜底\n- export __testing 暴露两个 helper 给单测\n\n新增 7 单测覆盖 R1 契约：buildCostPrice IMAGE→null + TEXT/AUDIO 不变；buildInitialCostPrice IMAGE→默认占位 + TEXT 同 token 公式；invariant 显式声明两个 helper 不可互换。\n\nvitest 385 PASS（+7 from 378）/ tsc / build 全过。\n\nCodex F-BIPOR-05 13 项验收：#1-#11 部署后 + apply 即可；#12 model-sync 回归保护需 deploy F-BIPOR-04 → 跑 fix-or-image-channels --apply → POST /api/admin/run-inference 触发 sync → 重查 30+6 条 image channel costPrice 全部保持，**不被 sync 冲回 0**。"
+    "Kimi-fix-round-1": "F-BIPOR-04 完成 @ 2026-04-25 12:42，status fixing→reverifying。\n\n改动（按 R1 最小方案）：\n- src/lib/sync/model-sync.ts buildCostPrice() IMAGE → 返回 null（保留运营手设值）\n- 拆出 buildInitialCostPrice()：createMany 路径仍写默认 {perCall:0,unit:'call'}\n- 调用处第 270-280 行：null 时省略 costPrice 字段，update 只动 realModelId/status\n- 新建 channel 路径仍走 buildInitialCostPrice 默认占位，后续 UPDATE 由 F-BIPOR-02 trigger 兜底\n- export __testing 暴露两个 helper 给单测\n\n新增 7 单测覆盖 R1 契约：buildCostPrice IMAGE→null + TEXT/AUDIO 不变；buildInitialCostPrice IMAGE→默认占位 + TEXT 同 token 公式；invariant 显式声明两个 helper 不可互换。\n\nvitest 385 PASS（+7 from 378）/ tsc / build 全过。\n\nCodex F-BIPOR-05 13 项验收：#1-#11 部署后 + apply 即可；#12 model-sync 回归保护需 deploy F-BIPOR-04 → 跑 fix-or-image-channels --apply → POST /api/admin/run-inference 触发 sync → 重查 30+6 条 image channel costPrice 全部保持，**不被 sync 冲回 0**。",
+    "Reviewer": "2026-04-25 reverifying FAIL: local build/tsc/vitest pass; production migration dry-run and trigger pass; 6 OR channels correct and survive /api/admin/sync-models; blockers are 32/39 IMAGE costPrice still zero, image smoke call_log costPrice=0/no usage, smoke script wrong alias, pricing CLI hangs under full production env, and spec uses run-inference for model-sync though actual endpoint is sync-models. Report: docs/test-reports/BL-IMAGE-PRICING-OR-P2-reverifying-2026-04-25.md"
   }
 }

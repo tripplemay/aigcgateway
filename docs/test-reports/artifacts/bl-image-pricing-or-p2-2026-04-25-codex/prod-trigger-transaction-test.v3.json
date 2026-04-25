@@ -1,0 +1,20 @@
+{
+  "image": {
+    "id": "cmnpqv0mq013sbnxc9vjqcoyz",
+    "model": {
+      "name": "gemini-3-pro-image-preview"
+    }
+  },
+  "text": {
+    "id": "cmnujtx5l00gvbnrzozt3jaa6",
+    "model": {
+      "name": "qwen/qwen3.5-9b"
+    }
+  },
+  "imageBlocked": true,
+  "imageError": {
+    "code": "P2010",
+    "message": "\nInvalid `prisma.$executeRawUnsafe()` invocation:\n\n\nRaw query failed. Code: `23514`. Message: `ERROR: IMAGE channel costPrice must have call.perCall>0 OR token.inputPer1M>0 OR token.outputPer1M>0 (channelId=cmnpqv0mq013sbnxc9vjqcoyz, modelId=cmnpqv0mj013qbnxcprhu6k3w)`"
+  },
+  "textUpdatePassed": true
+}

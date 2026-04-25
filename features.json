@@ -7,7 +7,7 @@
       "title": "OpenRouter 6 条 image channel token 定价 UPDATE",
       "priority": "critical",
       "executor": "generator",
-      "status": "completed",
+      "status": "pending",
       "source": "BL-IMAGE-PRICING-OR-P2 spec § 3.1",
       "acceptance": "1) 创建 `scripts/pricing/fix-or-image-channels-2026-04-25.ts`：硬编码 6 条 channel pricing（spec § 3.1 表）；2) 默认 dry-run 模式 + `--apply` 开关；3) 幂等重放（重跑已 apply 数据输出 'no change'）；4) UPDATE 后 costPrice={unit:'token',inputPer1M:X,outputPer1M:Y}（注：apply 后需 F-BIPOR-04 buildCostPrice 修复保护，否则下次 sync 必失效，详见裁决文档）；5) 输出 diff 日志到 docs/test-reports/artifacts/bl-image-pricing-or-p2-2026-04-25/pricing-or-migration.log；6) 脚本 apply 前 console.log 提示 Generator 先 curl https://openrouter.ai/api/v1/models 复核（>±10% 偏差 push hold）；7) 单测 ≥ 2 条：dry-run 6 行 diff + 幂等 no-change；8) tsc + build 通过"
     },
@@ -25,7 +25,7 @@
       "title": "OR token 计价 call_logs.costPrice 反算单测 + smoke",
       "priority": "high",
       "executor": "generator",
-      "status": "completed",
+      "status": "pending",
       "source": "BL-IMAGE-PRICING-OR-P2 spec § 3.3",
       "acceptance": "1) 单测：mock OR /chat/completions 返回 {usage:{prompt_tokens:1000,completion_tokens:500}} → processChatResult 链路真实跑（按 v0.9.4 mock 层级铁律：从 global.fetch 或 fetchWithProxy 边界 mock）→ call_log.costPrice = (1000×inputPer1M + 500×outputPer1M)/1e6，浮点 ±1e-6 容差；2) 反例单测：channel costPrice token 全 0 → system_log WARN + cost=0；3) 生产 smoke 准备脚本 `scripts/pricing/verify-or-image-channels-2026-04-25.ts`：调用一次最便宜的 `google/gemini-2.5-flash-image` → 查 call_logs.costPrice 计算正确；4) 单测总数 ≥ 3 条；5) tsc + build 通过"
     },

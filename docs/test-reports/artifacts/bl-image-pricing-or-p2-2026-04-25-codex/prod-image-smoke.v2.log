@@ -1,0 +1,5 @@
+=== F-BIPOR-03 OR pricing smoke (https://aigc.guangai.ai) ===
+alias=gemini-2.5-flash-image pricing=(0.3/2.5 USD per 1M)
+http=404 traceId=(missing)
+[fail] body={"error":{"type":"not_found_error","code":"model_not_found","message":"Model \"gemini-2.5-flash-image\" not found"}}
+EXIT_CODE=1

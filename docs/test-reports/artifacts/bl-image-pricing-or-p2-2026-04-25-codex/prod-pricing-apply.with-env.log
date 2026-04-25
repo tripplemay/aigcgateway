@@ -1,0 +1,23 @@
+=== F-BIPOR-01 OR image channel pricing fix (APPLY) ===
+[hint] make sure you've cross-checked OR /api/v1/models — abort if pricing has drifted >10% since 2026-04-25.
+[redis] connected
+[apply ] google/gemini-2.5-flash-image (cmnpqumpb008zbnxc2t47ollt)
+    costPrice: {"unit":"call","perCall":0} → {"unit":"token","inputPer1M":0.3,"outputPer1M":2.5}
+    sellPrice: {"unit":"call","perCall":0} → {"unit":"token","inputPer1M":0.36,"outputPer1M":3}
+[apply ] google/gemini-3-pro-image-preview (cmnpqumjc006wbnxceftbpqv3)
+    costPrice: {"unit":"call","perCall":0} → {"unit":"token","inputPer1M":2,"outputPer1M":12}
+    sellPrice: {"unit":"call","perCall":0} → {"unit":"token","inputPer1M":2.4,"outputPer1M":14.399999999999999}
+[apply ] google/gemini-3.1-flash-image-preview (cmnpqum5m002bbnxcr4b4v3ew)
+    costPrice: {"unit":"call","perCall":0} → {"unit":"token","inputPer1M":0.5,"outputPer1M":3}
+    sellPrice: {"unit":"call","perCall":0} → {"unit":"token","inputPer1M":0.6,"outputPer1M":3.5999999999999996}
+[apply ] openai/gpt-5-image (cmnpqumo4008kbnxck2puju4i)
+    costPrice: {"unit":"call","perCall":0} → {"unit":"token","inputPer1M":10,"outputPer1M":10}
+    sellPrice: {"unit":"call","perCall":0} → {"unit":"token","inputPer1M":12,"outputPer1M":12}
+[apply ] openai/gpt-5-image-mini (cmnpqumn40088bnxcn4z62t2x)
+    costPrice: {"unit":"call","perCall":0} → {"unit":"token","inputPer1M":2.5,"outputPer1M":2}
+    sellPrice: {"unit":"call","perCall":0} → {"unit":"token","inputPer1M":3,"outputPer1M":2.4}
+[apply ] openai/gpt-5.4-image-2 (cmo9iyi2w0buxbnvxe4c1aaqt)
+    costPrice: {"unit":"call","perCall":0} → {"unit":"token","inputPer1M":8,"outputPer1M":15}
+    sellPrice: null → {"unit":"token","inputPer1M":9.6,"outputPer1M":18}
+
+Summary: 6 channels inspected (6 updated).

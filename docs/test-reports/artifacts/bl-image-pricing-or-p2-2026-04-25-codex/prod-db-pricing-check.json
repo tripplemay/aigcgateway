@@ -1,0 +1,70 @@
+PrismaClientValidationError: 
+Invalid `prisma.channel.findMany()` invocation:
+
+{
+  where: {
+    model: {
+      modality: "IMAGE"
+    },
+    NOT: [
+      {
+        costPrice: {
+          path: [
+            "perCall"
+          ],
+          gt: 0
+        }
+      },
+      {
+        costPrice: {
+          path: [
+            "inputPer1M"
+          ],
+          gt: 0
+        }
+      },
+      {
+        costPrice: {
+          path: [
+            "outputPer1M"
+          ],
+          gt: 0
+        }
+      }
+    ]
+  },
+  select: {
+    id: true,
+    name: true,
+    ~~~~
+    costPrice: true,
+    model: {
+      select: {
+        name: true
+      }
+    },
+?   providerId?: true,
+?   modelId?: true,
+?   realModelId?: true,
+?   priority?: true,
+?   sellPrice?: true,
+?   status?: true,
+?   createdAt?: true,
+?   updatedAt?: true,
+?   provider?: true,
+?   callLogs?: true,
+?   healthChecks?: true,
+?   _count?: true
+  },
+  take: 50
+}
+
+Unknown field `name` for select statement on model `Channel`. Available options are marked with ?.
+    at Nn (/opt/aigc-gateway/node_modules/@prisma/client/runtime/library.js:29:1363)
+    at ei.handleRequestError (/opt/aigc-gateway/node_modules/@prisma/client/runtime/library.js:121:6911)
+    at ei.handleAndLogRequestError (/opt/aigc-gateway/node_modules/@prisma/client/runtime/library.js:121:6593)
+    at ei.request (/opt/aigc-gateway/node_modules/@prisma/client/runtime/library.js:121:6300)
+    at async a (/opt/aigc-gateway/node_modules/@prisma/client/runtime/library.js:130:9551)
+    at async [stdin]:15:23 {
+  clientVersion: '6.19.3'
+}
