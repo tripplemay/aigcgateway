@@ -96,8 +96,29 @@ interface ProviderSyncResult {
 // ============================================================
 // 定价辅助
 // ============================================================
+//
+// BL-IMAGE-PRICING-OR-P2 fix_round 1（裁决文档：
+// docs/adjudications/2026-04-25-or-p2-buildcostprice-regression.md）：
+// IMAGE modality 返回 null —— 运营手设的 IMAGE channel 定价由 admin UI /
+// 价格脚本管理，sync 不应覆盖。调用处看到 null 时跳过 costPrice 字段，
+// 保留 channel 现有值；createMany（新建 IMAGE channel）走 buildInitialCostPrice
+// 仍写默认 `{perCall:0,unit:"call"}`，靠 F-BIPOR-02 trigger 在后续运营 UPDATE
+// 时拦截全 0。
+function buildCostPrice(model: SyncedModel): {
+  inputPer1M: number;
+  outputPer1M: number;
+  unit: "token";
+} | null {
+  if (model.modality === "IMAGE") return null;
+  return {
+    inputPer1M: model.inputPricePerM ?? 0,
+    outputPer1M: model.outputPricePerM ?? 0,
+    unit: "token",
+  };
+}
 
-function buildCostPrice(model: SyncedModel) {
+/** 新建 channel 的初始 costPrice：IMAGE 用 perCall:0 占位，TEXT 用 token 公式。 */
+function buildInitialCostPrice(model: SyncedModel) {
   if (model.modality === "IMAGE") {
     return { perCall: 0, unit: "call" };
   }
@@ -267,25 +288,30 @@ async function reconcile(
   for (const { remote, canonical } of remoteWithCanonical) {
     const model = existingModelByName.get(canonical);
     if (!model) continue; // should not happen — createMany would have filled it
-    const costPrice = buildCostPrice(remote);
+    const costPriceForUpdate = buildCostPrice(remote); // IMAGE → null（保留运营手设值）
     const existingChannel = existingChannelByRealId.get(remote.modelId);
     if (existingChannel) {
       const updateData: Prisma.ChannelUpdateInput = {
         realModelId: remote.modelId,
-        costPrice: costPrice as unknown as Prisma.InputJsonValue,
       };
+      // F-BIPOR-04 R1: IMAGE modality buildCostPrice 返回 null → 此次 sync
+      // 不动 channel.costPrice（避免覆盖 P1 F-BAX-08 / OR-P2 apply 的运营值）
+      if (costPriceForUpdate !== null) {
+        updateData.costPrice = costPriceForUpdate as unknown as Prisma.InputJsonValue;
+      }
       if (existingChannel.status !== "ACTIVE") updateData.status = "ACTIVE";
       channelUpdates.push(
         prisma.channel.update({ where: { id: existingChannel.id }, data: updateData }),
       );
     } else {
+      // 新建 channel：IMAGE 用 perCall:0 占位（trigger 后续 UPDATE 拦截）
       channelsToCreate.push({
         modelId: model.id,
         providerId: provider.id,
         realModelId: remote.modelId,
         status: "ACTIVE",
         priority: 10,
-        costPrice: costPrice as unknown as Prisma.InputJsonValue,
+        costPrice: buildInitialCostPrice(remote) as unknown as Prisma.InputJsonValue,
       });
       newChannels.push(`${provider.name}/${remote.modelId} → ${canonical}`);
     }
@@ -678,3 +704,6 @@ export async function runModelSync(): Promise<SyncResult> {
     await releaseLeaderLock(SYNC_LOCK_KEY).catch(() => {});
   }
 }
+
+// Exported for F-BIPOR-04 unit tests
+export const __testing = { buildCostPrice, buildInitialCostPrice };

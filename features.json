@@ -34,7 +34,7 @@
       "title": "model-sync buildCostPrice 回归修复（IMAGE channel sync 时跳过 costPrice 写入）",
       "priority": "critical",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "source": "BL-IMAGE-PRICING-OR-P2 mid-impl 裁决 2026-04-25：见 docs/adjudications/2026-04-25-or-p2-buildcostprice-regression.md。生产实证 P1 F-BAX-08 apply 完成后被 04:00 model-sync 冲回 costPrice=0。",
       "acceptance": "1) 修改 `src/lib/sync/model-sync.ts:100-109 buildCostPrice`：IMAGE modality 返回 null（不再硬编码 {perCall:0}）；2) 第 270-280 行调用方：`updateData` 构造时若 `costPrice === null` 则不加入 data 字段（保留 channel 现有 costPrice 不变）；3) 第 282-290 行 createMany 路径保持原行为（新 IMAGE channel 默认 {perCall:0,unit:'call'}，靠 F-BIPOR-02 trigger 在后续 UPDATE 时拦截）；4) 不涉及 schema 改动；5) 单测 ≥ 3 条：(a) sync 已存在 IMAGE channel 且 costPrice 非零 → sync 后 costPrice 不变；(b) sync TEXT channel → 按 token 公式更新；(c) sync 创建新 IMAGE channel → 默认 {perCall:0,unit:'call'} 进 createMany；6) tsc + build + vitest 全过；7) 验收前 console.log 标注 acceptance 是 R1 方案（IMAGE 跳过 costPrice 写入，保留运营手设值）"
     },
