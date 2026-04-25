@@ -16,27 +16,39 @@ let imageChannelId: string | null = null;
 let imageOriginalCostPrice: unknown = null;
 let textChannelId: string | null = null;
 let textOriginalCostPrice: unknown = null;
+/**
+ * CI 不带 DATABASE_URL → prisma init 抛 PrismaClientInitializationError，
+ * 此时整组测试 skip。本地 / 部署有 dev DB 时正常跑。
+ */
+let dbAvailable = false;
 
 beforeAll(async () => {
-  const imgCh = await prisma.channel.findFirst({
-    where: { model: { modality: "IMAGE" } },
-    select: { id: true, costPrice: true },
-  });
-  if (imgCh) {
-    imageChannelId = imgCh.id;
-    imageOriginalCostPrice = imgCh.costPrice;
-  }
-  const txtCh = await prisma.channel.findFirst({
-    where: { model: { modality: "TEXT" } },
-    select: { id: true, costPrice: true },
-  });
-  if (txtCh) {
-    textChannelId = txtCh.id;
-    textOriginalCostPrice = txtCh.costPrice;
+  try {
+    const imgCh = await prisma.channel.findFirst({
+      where: { model: { modality: "IMAGE" } },
+      select: { id: true, costPrice: true },
+    });
+    if (imgCh) {
+      imageChannelId = imgCh.id;
+      imageOriginalCostPrice = imgCh.costPrice;
+    }
+    const txtCh = await prisma.channel.findFirst({
+      where: { model: { modality: "TEXT" } },
+      select: { id: true, costPrice: true },
+    });
+    if (txtCh) {
+      textChannelId = txtCh.id;
+      textOriginalCostPrice = txtCh.costPrice;
+    }
+    dbAvailable = true;
+  } catch {
+    // DATABASE_URL 缺失 / DB 不可达 — CI lint job 走这条路径，跳过整个 suite。
+    dbAvailable = false;
   }
 });
 
 afterAll(async () => {
+  if (!dbAvailable) return;
   if (imageChannelId && imageOriginalCostPrice !== null) {
     await prisma.channel.update({
       where: { id: imageChannelId },
@@ -54,7 +66,7 @@ afterAll(async () => {
 
 describe("F-BIPOR-02 trg_validate_image_channel_pricing", () => {
   it("IMAGE channel + costPrice={call, perCall:0} → check_violation", async (ctx) => {
-    if (!imageChannelId) return ctx.skip();
+    if (!dbAvailable || !imageChannelId) return ctx.skip();
     await expect(
       prisma.channel.update({
         where: { id: imageChannelId },
@@ -64,7 +76,7 @@ describe("F-BIPOR-02 trg_validate_image_channel_pricing", () => {
   });
 
   it("IMAGE channel + costPrice={token, all-zero} → check_violation", async (ctx) => {
-    if (!imageChannelId) return ctx.skip();
+    if (!dbAvailable || !imageChannelId) return ctx.skip();
     await expect(
       prisma.channel.update({
         where: { id: imageChannelId },
@@ -74,7 +86,7 @@ describe("F-BIPOR-02 trg_validate_image_channel_pricing", () => {
   });
 
   it("IMAGE channel + costPrice={token, inputPer1M>0} → passes", async (ctx) => {
-    if (!imageChannelId) return ctx.skip();
+    if (!dbAvailable || !imageChannelId) return ctx.skip();
     await expect(
       prisma.channel.update({
         where: { id: imageChannelId },
@@ -84,7 +96,7 @@ describe("F-BIPOR-02 trg_validate_image_channel_pricing", () => {
   });
 
   it("TEXT channel + costPrice={call, perCall:0} → passes (trigger only guards IMAGE)", async (ctx) => {
-    if (!textChannelId) return ctx.skip();
+    if (!dbAvailable || !textChannelId) return ctx.skip();
     await expect(
       prisma.channel.update({
         where: { id: textChannelId },
