@@ -1,0 +1,34 @@
+=== pm2_status ===
+{
+  "name": "aigc-gateway",
+  "status": "online",
+  "restart_time": 7,
+  "unstable_restarts": 0,
+  "pm_uptime": 1777010292947
+}
+=== keyword_counts_last_4000_lines ===
+keyword_hits=0
+=== keyword_counts_last_4000_lines_grep ===
+=== keyword_counts_last_4000_lines_grep_retry ===
+keyword_hits=0
+=== call_logs_source_last_24h ===
+[
+  {
+    "_count": {
+      "_all": 10
+    },
+    "source": "api"
+  },
+  {
+    "_count": {
+      "_all": 1365
+    },
+    "source": "probe"
+  },
+  {
+    "_count": {
+      "_all": 19
+    },
+    "source": "sync"
+  }
+]

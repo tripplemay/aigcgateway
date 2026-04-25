@@ -1,11 +1,11 @@
 {
-  "status": "reverifying",
+  "status": "done",
   "user_goal": "BL-BILLING-AUDIT-EXT-P1 — Gateway 审计盲区修复（probe/sync/admin 补 call_log） + 原 BL-BILLING-AUDIT scope（channelId 错位 + image costPrice + auth_failed 告警） + Tier 1 上游账单 fetcher + Image channel pricing 系统性修正",
   "total_features": 8,
-  "completed_features": 7,
+  "completed_features": 8,
   "fix_rounds": 2,
   "current_sprint": "BL-BILLING-AUDIT-EXT-P1",
-  "last_updated": "2026-04-25T01:05:00.000Z",
+  "last_updated": "2026-04-25T01:35:00.000Z",
   "reference_docs": [
     "docs/specs/BL-BILLING-AUDIT-EXT-P1-spec.md",
     "docs/specs/BL-BILLING-AUDIT-EXT-P2-spec.md",
@@ -19,24 +19,11 @@
     "framework_reviewed": false
   },
   "evaluator_feedback": {
-    "summary": "reverifying round1 结果：#1-#10、#12-#17 通过；#11 seedream-3 生产调用 call_logs.costPrice=0 FAIL。Planner 扫描确认根因为 40 条 image channel 全体 costPrice.perCall=0（数据配置层漏洞），拆出新 F-BAX-08（B2 路径）系统性修 30 条定价 + 4 条 modality + Admin UI 校验加固 + 后端校验。本轮 fix_round 2 Generator 接手 F-BAX-08；完成后 Codex 并行复验 F-BAX-07 #11 + F-BAX-08 全量验收 → #18 signoff。",
-    "pass_count": 16,
+    "summary": "reverifying round2：F-BAX-07 #11/#18 通过，F-BAX-08 按新 acceptance 口径通过，批次签收。",
+    "pass_count": 21,
     "partial_count": 0,
-    "fail_count": 2,
-    "issues": [
-      {
-        "feature_id": "F-BAX-07",
-        "result": "FAIL",
-        "description": "#11 生产实测 seedream-3：接口返回 200 且有图片，但 call_logs.costPrice=0。根因：生产 channel `cmnpquy5m00rwbnxcc0omrhet` (seedream-3.0) `costPrice={unit:'call',perCall:0}`——数据配置层问题。Planner 扫描全库发现全部 40 条 image channel 都是 perCall=0，不只 seedream-3 一条。已拆出 F-BAX-08 系统性修（见 docs/specs/F-BAX-08-image-pricing-spec.md）。F-BAX-08 完成后，seedream-3 新价 costPrice.perCall=0.0370 → 重触发 smoke → call_logs.costPrice 应>0。",
-        "steps_to_reproduce": "见 docs/test-reports/artifacts/bl-billing-audit-ext-p1-reverifying-2026-04-24/seedream-prod-check.log（traceId=trc_p2c4qf）"
-      },
-      {
-        "feature_id": "F-BAX-07",
-        "result": "BLOCKED",
-        "description": "#18 signoff 需 18 项全部满足；当前 #11 依赖 F-BAX-08 完成，故本轮仍不能签收。F-BAX-08 完成后，#11 + F-BAX-08 § 4 13 项合并生成一份 signoff 报告。",
-        "steps_to_reproduce": "docs.signoff 仍为 null；见 docs/test-reports/BL-BILLING-AUDIT-EXT-P1-reverifying-2026-04-24-round1.md"
-      }
-    ]
+    "fail_count": 0,
+    "issues": []
   },
   "generator_handoff": {
     "fix_round": 2,
@@ -85,7 +72,7 @@
   },
   "session_notes": {
     "Kimi": "BL-BILLING-AUDIT-EXT-P1 building 完成，status→verifying 移交 Codex。\n\n实现 commit 链 (6 features)：\naf9bc99 F-BAX-01 schema: projectId nullable + source 扩展\ndb96fe5 F-BAX-02 probe/admin_health 补写 call_logs\ndfa2331 F-BAX-03 sync 工具改 adapter + alias fallback\n53414ca F-BAX-04 withFailover attemptChain + image costPrice WARN\nea3505a F-BAX-05 AUTH_ALERT + sanitize 上游余额/ApiKey 文案\nc37aab8 F-BAX-06 Tier 1 账单 fetcher + admin UI 条件字段\n\n新增 43 条单测（总 272 PASS），tsc + build 全过。两个 migration（20260424_call_logs_source_extend + 20260424_auth_alert_notification）已在 dev DB 应用，生产 deploy 时 migrate deploy 即可。",
-    "Reviewer": "reverifying(2026-04-24 round1): fix-round-1 三个 fetcher bug 已在生产复验通过（volcengine records=118 modelName非空；openrouter records=62 无日期异常；chatanywhere provider alias=openai 且脚本不报错）。补做 #11 seedream-3 生产调用：HTTP 200 但 call_logs.costPrice=0，未满足 >0。24h 观察补证：sync fallback exhausted=0、crash关键词=0、source分组 probe=132/sync=15。综合：#1-#10/#12/#13-#17 PASS，#11 FAIL，#18 BLOCKED，状态回 fixing。",
+    "Reviewer": "reverifying(2026-04-25 round2): 生产复验已完成并签收。seedream-3 smoke costPrice=0.005069>0；IMAGE perCall=0 返回 400、TEXT 返回 200；fetchers(volcengine/openrouter/chatanywhere) 通过；24h 观测无 crash/fallback 异常；本地基线 build/tsc/vitest(306) 通过。按 Planner 新裁决将 OR token-priced image 项归入 BL-IMAGE-PRICING-OR-P2，不计入本批失败。status -> done。",
     "Kimi-fix-round-1": "fix-round-1 完成 @ 2026-04-24 12:28，status fixing→reverifying。改动：scripts/test-billing-fetchers.ts 加 FETCHER_ALIAS / openrouter.ts date slice(0,10) / volcengine.ts ConfigName 首选 + 空串过滤。vitest 284 PASS / tsc / build 全过。",
     "Andy-fix-round-2-plan": "fix_round 2 交接 @ 2026-04-24 09:30：reverifying round1 #11 根因扫描定位在 40 条 image channel 全体 costPrice.perCall=0（数据配置层，非代码 bug）。用户决策 B2（单批批量修）+ 1A（USD 口径）+ 2B（OR 6 条延后到新批次 BL-IMAGE-PRICING-OR-P2）+ 3A（gpt-image-2/-ca 保守填 gpt-image-1 中档 $0.0420）+ 4A（顺手修 4 条 modality）。新增 F-BAX-08（docs/specs/F-BAX-08-image-pricing-spec.md）覆盖 30 条定价 UPDATE + 4 条 modality + 脚本 dry-run/apply/幂等 + Admin UI 校验 + 后端 Zod superRefine + smoke 抽样。费率 sellPrice = costPrice × 1.2。total_features 7→8。OR 6 条已写入 backlog BL-IMAGE-PRICING-OR-P2（order=102, follows P1）。Generator 按 generator_handoff.targets 实现 → apply 生产 → status→verifying。Volcengine 账户充值状态由用户在 verify 阶段确认（seedream-3 smoke 前置）。",
     "Kimi-fix-round-2": "fix_round 2 完成 + 生产 apply + verify 完成 @ 2026-04-25 01:05。\n\n生产执行链：\n- 92186b9: 代码本地实现 + 22 单测\n- d7afc5d: verify 脚本修复（X-Trace-Id header + 启用 alias）\n- 生产 prisma db apply：30 channel + 4 modality 全部 UPDATE 成功\n- 幂等重跑：30+4=34 条全部 [no change]\n- 抽查 5 channel 比值 1.1993-1.2017（spec 1.19-1.21 ✓）\n- seedream-3 live smoke trc_yek776bpwrohgjqaj9fw0dsn → costPrice=0.005069 USD（=0.037×0.137 CNY→USD），F-BAX-07 #11 已 PASS\n- PATCH IMAGE+perCall=0 → 400 IMAGE_CHANNEL_REQUIRES_PERCALL_PRICE ✓\n- PATCH TEXT+perCall=0 → 200 ✓（已回滚副作用）\n\n副产物数据修复：tripplezhou@gmail.com defaultProjectId 历史指向不存在的 project（cmnfnuhvi015qrndh8w618u6e），导致 P2003 FK 阻塞 image post-process。已 UPDATE 到 admin_test1（cmnv2yl6x000kbnsdv624lwa3）。建议 P2 入数据 hygiene 扫所有用户。\n\nsmoke 范围说明：生产 enabled 4 个 image alias（seedream-3 / gpt-image / gpt-image-mini / gemini-3-pro-image），其中后 3 个按优先级路由到 OpenRouter，OR 6 条延后到 BL-IMAGE-PRICING-OR-P2。本批次 30 条非 OR channel 的数据正确性通过 §6 抽查 + §7 幂等间接确认（无独立 enabled alias 直达）。\n\nSignoff 报告：docs/test-reports/BL-BILLING-AUDIT-EXT-P1-signoff-2026-04-25.md\n证据：docs/test-reports/artifacts/bl-billing-audit-ext-p1-reverifying-2026-04-24/pricing-migration*.log + pricing-smoke-verification.log\n\n等 Codex 复核签收 → status→done。"

@@ -1,0 +1,212 @@
+===== volcengine =====
+[redis] connected
+
+========== volcengine (provider=volcengine) / 2026-04-22 ==========
+records=126
+  2026-04-22 Doubao-Seedream-4.5 requests=14 amount=3.5 CNY
+  2026-04-22 Doubao1.5-pro-32k requests=0.228 amount=0 CNY
+  2026-04-22 Doubao-Seedream-4.5 requests=13 amount=3.25 CNY
+  2026-04-22 Doubao-Seedream-4.5 requests=12 amount=3 CNY
+  2026-04-22 DeepSeek-V3.2 requests=0.008 amount=0 CNY
+  2026-04-22 Doubao1.5-pro-32k requests=2.774 amount=0 CNY
+  2026-04-22 DeepSeek-R1 requests=13.51 amount=0 CNY
+  2026-04-22 Doubao-Seedream-4.5 requests=33 amount=8.25 CNY
+  2026-04-22 Doubao1.5-pro-32k requests=0.247 amount=0 CNY
+  2026-04-22 DeepSeek-R1 requests=1.513 amount=0 CNY
+  2026-04-22 Doubao1.5-pro-32k requests=2.176 amount=0 CNY
+  2026-04-22 Doubao1.5-pro-32k requests=0.099 amount=0 CNY
+  2026-04-22 Doubao1.5-pro-32k requests=0.016 amount=0 CNY
+  2026-04-22 DeepSeek-R1 requests=2.378 amount=0 CNY
+  2026-04-22 DeepSeek-R1 requests=2.4 amount=0 CNY
+  2026-04-22 Doubao-Seedream-4.5 requests=12 amount=3 CNY
+  2026-04-22 DeepSeek-V3.2 requests=0.101 amount=0 CNY
+  2026-04-22 Doubao-Seedream-4.5 requests=12 amount=3 CNY
+  2026-04-22 Doubao1.5-pro-32k requests=0.013 amount=0 CNY
+  2026-04-22 Doubao1.5-pro-32k requests=0.247 amount=0 CNY
+  2026-04-22 Doubao-Seed-2.0-lite requests=0.155 amount=0 CNY
+  2026-04-22 Doubao1.5-pro-32k requests=0.228 amount=0 CNY
+  2026-04-22 DeepSeek-V3.2 requests=0.06 amount=0 CNY
+  2026-04-22 Doubao1.5-pro-32k requests=0.247 amount=0 CNY
+  2026-04-22 Doubao1.5-pro-32k requests=0.146 amount=0 CNY
+  2026-04-22 DeepSeek-R1 requests=2.358 amount=0 CNY
+  2026-04-22 DeepSeek-V3.2 requests=0.35 amount=0 CNY
+  2026-04-22 DeepSeek-V3.2 requests=2.04 amount=0 CNY
+  2026-04-22 Doubao-Seed-2.0-lite requests=0.488 amount=0 CNY
+  2026-04-22 Doubao1.5-pro-32k requests=0.247 amount=0 CNY
+  2026-04-22 Doubao1.5-pro-32k requests=0.182 amount=0 CNY
+  2026-04-22 Doubao-Seedream3.0-文生图 requests=2 amount=0 CNY
+  2026-04-22 Doubao1.5-pro-32k requests=0.228 amount=0 CNY
+  2026-04-22 Doubao-Seed-2.0-lite requests=0.518 amount=0 CNY
+  2026-04-22 Doubao-Seed-2.0-lite requests=0.774 amount=0 CNY
+  2026-04-22 DeepSeek-V3.2 requests=0.146 amount=0 CNY
+  2026-04-22 Doubao-Seed-2.0-lite requests=1.08 amount=0 CNY
+  2026-04-22 Doubao-Seedream-4.5 requests=13 amount=3.25 CNY
+  2026-04-22 Doubao1.5-pro-32k requests=9.694 amount=0 CNY
+  2026-04-22 DeepSeek-R1 requests=0.072 amount=0 CNY
+  2026-04-22 Doubao1.5-pro-32k requests=3.904 amount=0 CNY
+  2026-04-22 DeepSeek-R1 requests=0.626 amount=0 CNY
+  2026-04-22 DeepSeek-V3.2 requests=0.001 amount=0 CNY
+  2026-04-22 DeepSeek-V3.2 requests=0.012 amount=0 CNY
+  2026-04-22 DeepSeek-V3.2 requests=1.515 amount=0 CNY
+  2026-04-22 DeepSeek-V3.2 requests=0.02 amount=0 CNY
+  2026-04-22 Doubao1.5-pro-32k requests=0.228 amount=0 CNY
+  2026-04-22 Doubao-Seed-Character免费在线推理资源包 requests=500000 amount=0 CNY
+  2026-04-22 DeepSeek-V3.2 requests=0.004 amount=0 CNY
+  2026-04-22 Doubao1.5-pro-32k requests=0.228 amount=0 CNY
+  2026-04-22 Doubao1.5-pro-32k requests=3.002 amount=0 CNY
+  2026-04-22 Doubao-Seedream-4.5 requests=17 amount=4.25 CNY
+  2026-04-22 Doubao-Seedream-4.5 requests=12 amount=3 CNY
+  2026-04-22 DeepSeek-V3.2 requests=2.04 amount=0 CNY
+  2026-04-22 DeepSeek-R1 requests=2.528 amount=0 CNY
+  2026-04-22 Doubao1.5-pro-32k requests=0.033 amount=0 CNY
+  2026-04-22 Doubao-Seed-2.0-lite requests=0.385 amount=0 CNY
+  2026-04-22 DeepSeek-R1 requests=1.712 amount=0 CNY
+  2026-04-22 Doubao1.5-pro-32k requests=0.012 amount=0 CNY
+  2026-04-22 Doubao1.5-pro-32k requests=0.012 amount=0 CNY
+  2026-04-22 Doubao1.5-pro-32k requests=0.013 amount=0 CNY
+  2026-04-22 Doubao1.5-pro-32k requests=0.013 amount=0 CNY
+  2026-04-22 Doubao1.5-pro-32k requests=0.072 amount=0 CNY
+  2026-04-22 Doubao1.5-pro-32k requests=0.228 amount=0 CNY
+  2026-04-22 Doubao1.5-pro-32k requests=0.012 amount=0 CNY
+  2026-04-22 DeepSeek-R1 requests=18.4 amount=0 CNY
+  2026-04-22 Doubao1.5-pro-32k requests=0.013 amount=0 CNY
+  2026-04-22 DeepSeek-R1 requests=0.804 amount=0 CNY
+  2026-04-22 DeepSeek-V3.2 requests=2.12 amount=0 CNY
+  2026-04-22 DeepSeek-V3.2 requests=0.136 amount=0 CNY
+  2026-04-22 DeepSeek-R1 requests=24.882 amount=0 CNY
+  2026-04-22 DeepSeek-V3.2 requests=0.73 amount=0 CNY
+  2026-04-22 Doubao-Seed-2.0-lite requests=1.62 amount=0 CNY
+  2026-04-22 Doubao1.5-pro-32k requests=0.012 amount=0 CNY
+  2026-04-22 Doubao1.5-pro-32k requests=0.627 amount=0 CNY
+  2026-04-22 Doubao1.5-pro-32k requests=0.012 amount=0 CNY
+  2026-04-22 DeepSeek-R1 requests=0.414 amount=0 CNY
+  2026-04-22 Doubao-Seedream-4.5 requests=19 amount=4.75 CNY
+  2026-04-22 Doubao1.5-pro-32k requests=5.704 amount=0 CNY
+  2026-04-22 Doubao1.5-pro-32k requests=0.115 amount=0 CNY
+  2026-04-22 Doubao-Seed-2.0-lite requests=1.02 amount=0 CNY
+  2026-04-22 Doubao1.5-pro-32k requests=0.304 amount=0 CNY
+  2026-04-22 Doubao-Seedream-4.5 requests=22 amount=5.5 CNY
+  2026-04-22 DeepSeek-R1 requests=0.048 amount=0 CNY
+  2026-04-22 Doubao-Seedream-4.5 requests=12 amount=3 CNY
+  2026-04-22 Doubao-Seed-2.0-lite requests=0.72 amount=0 CNY
+  2026-04-22 DeepSeek-V3.2 requests=0.012 amount=0 CNY
+  2026-04-22 Doubao-Seedream3.0-文生图 requests=5 amount=0 CNY
+  2026-04-22 Doubao1.5-pro-32k requests=0.158 amount=0 CNY
+  2026-04-22 Doubao1.5-pro-32k requests=0.004 amount=0 CNY
+  2026-04-22 Doubao-Seedream-4.5 requests=14 amount=3.5 CNY
+  2026-04-22 Doubao-Seedream-4.5 requests=12 amount=3 CNY
+  2026-04-22 DeepSeek-V3.2 requests=0.04 amount=0 CNY
+  2026-04-22 Doubao1.5-pro-32k requests=0.244 amount=0 CNY
+  2026-04-22 DeepSeek-R1 requests=26.259 amount=0 CNY
+  2026-04-22 Doubao-Seedream-4.5 requests=37 amount=9.25 CNY
+  2026-04-22 Doubao-Seedream-4.5 requests=46 amount=11.5 CNY
+  2026-04-22 Doubao-Seedream-4.5 requests=16 amount=4 CNY
+  2026-04-22 DeepSeek-V3.2 requests=0.07 amount=0 CNY
+  2026-04-22 DeepSeek-V3.2 requests=0.148 amount=0 CNY
+  2026-04-22 Doubao1.5-pro-32k requests=0.012 amount=0 CNY
+  2026-04-22 Doubao-Seedream-4.5 requests=12 amount=3 CNY
+  2026-04-22 Doubao1.5-pro-32k requests=0.036 amount=0 CNY
+  2026-04-22 Doubao-Seedream-4.5 requests=14 amount=3.5 CNY
+  2026-04-22 DeepSeek-R1 requests=0.024 amount=0 CNY
+  2026-04-22 Doubao-Seed-2.0-lite requests=0.822 amount=0 CNY
+  2026-04-22 Doubao-Seed-2.0-lite requests=0.3 amount=0 CNY
+  2026-04-22 Doubao1.5-pro-32k requests=0.008 amount=0 CNY
+  2026-04-22 DeepSeek-R1 requests=26.872 amount=0 CNY
+  2026-04-22 Doubao-Seedream-4.5 requests=14 amount=3.5 CNY
+  2026-04-22 Doubao1.5-pro-32k requests=0.013 amount=0 CNY
+  2026-04-22 Doubao1.5-pro-32k requests=0.44 amount=0 CNY
+  2026-04-22 Doubao-Seedream-4.5 requests=12 amount=3 CNY
+  2026-04-22 Doubao1.5-pro-32k requests=0.012 amount=0 CNY
+  2026-04-22 Doubao-Seedream-4.5 requests=13 amount=3.25 CNY
+  2026-04-22 Doubao1.5-pro-32k requests=1.091 amount=0 CNY
+  2026-04-22 Doubao1.5-pro-32k requests=0.012 amount=0 CNY
+  2026-04-22 Doubao1.5-pro-32k requests=3.378 amount=0 CNY
+  2026-04-22 Doubao1.5-pro-32k requests=0.012 amount=0 CNY
+  2026-04-22 Doubao-Seed-2.0-lite requests=1.74 amount=0 CNY
+  2026-04-22 Doubao1.5-pro-32k requests=0.228 amount=0 CNY
+  2026-04-22 Doubao-Seedream3.0-文生图 requests=1 amount=0 CNY
+  2026-04-22 DeepSeek-V3.2 requests=0.136 amount=0 CNY
+  2026-04-22 Doubao1.5-pro-32k requests=0.228 amount=0 CNY
+  2026-04-22 DeepSeek-R1 requests=25.261 amount=0 CNY
+  2026-04-22 Doubao1.5-pro-32k requests=0.228 amount=0 CNY
+
+-----
+
+===== openrouter =====
+[redis] connected
+
+========== openrouter (provider=openrouter) / 2026-04-22 ==========
+records=62
+  2026-04-22 z-ai/glm-4.7-flash-20260119 requests=25 amount=0.000025 USD
+  2026-04-22 z-ai/glm-4.7-flash-20260119 requests=99 amount=0 USD
+  2026-04-22 xiaomi/mimo-v2-flash-20251210 requests=53 amount=0.000057 USD
+  2026-04-22 anthropic/claude-4.5-haiku-20251001 requests=137 amount=0.001781 USD
+  2026-04-22 openai/gpt-4o-2024-08-06 requests=96 amount=0.00288 USD
+  2026-04-22 minimax/minimax-m2-her-20260123 requests=141 amount=0.008178 USD
+  2026-04-22 baidu/ernie-4.5-300b-a47b requests=39 amount=0.001569 USD
+  2026-04-22 openai/gpt-4o-mini requests=84 amount=0.000084 USD
+  2026-04-22 deepseek/deepseek-r1-0528 requests=1 amount=0.000028 USD
+  2026-04-22 anthropic/claude-4.6-sonnet-20260217 requests=26 amount=0.003744 USD
+  2026-04-22 openai/gpt-4o-mini-2024-07-18 requests=145 amount=0.000145 USD
+  2026-04-22 minimax/minimax-m2 requests=32 amount=0.000256 USD
+  2026-04-22 google/gemini-3-flash-preview-20251217 requests=155 amount=0 USD
+  2026-04-22 minimax/minimax-m1 requests=91 amount=0.016835 USD
+  2026-04-22 google/gemini-2.5-flash requests=5 amount=0.000018 USD
+  2026-04-22 moonshotai/kimi-k2-thinking-20251106 requests=30 amount=0.00021 USD
+  2026-04-22 openai/gpt-4o-2024-11-20 requests=143 amount=0.00429 USD
+  2026-04-22 anthropic/claude-4.5-haiku-20251001 requests=2 amount=0.000026 USD
+  2026-04-22 minimax/minimax-m2.7-20260318 requests=15 amount=0.00048 USD
+  2026-04-22 minimax/minimax-m2.7-20260318 requests=75 amount=0.000645 USD
+  2026-04-22 z-ai/glm-4.7-flash-20260119 requests=6 amount=0 USD
+  2026-04-22 baidu/ernie-4.5-vl-424b-a47b requests=160 amount=0.00016 USD
+  2026-04-22 x-ai/grok-4.1-fast requests=154 amount=0.012402 USD
+  2026-04-22 xiaomi/mimo-v2-flash-20251210 requests=13 amount=0.000026 USD
+  2026-04-22 google/gemma-4-31b-it-20260402 requests=40 amount=0.00008 USD
+  2026-04-22 deepseek/deepseek-chat-v3 requests=71 amount=0.000142 USD
+  2026-04-22 deepseek/deepseek-r1-0528 requests=48 amount=0.021993 USD
+  2026-04-22 deepseek/deepseek-r1-0528 requests=42 amount=0.006976 USD
+  2026-04-22 xiaomi/mimo-v2-omni-20260318 requests=148 amount=0.00592 USD
+  2026-04-22 deepseek/deepseek-r1-0528 requests=84 amount=0.000336 USD
+  2026-04-22 deepseek/deepseek-r1 requests=64 amount=0.000896 USD
+  2026-04-22 baidu/ernie-4.5-21b-a3b requests=172 amount=0 USD
+  2026-04-22 moonshotai/kimi-k2-thinking-20251106 requests=51 amount=0.012735 USD
+  2026-04-22 deepseek/deepseek-r1 requests=238 amount=0.061009 USD
+  2026-04-22 openai/gpt-4o-2024-08-06 requests=66 amount=0.00198 USD
+  2026-04-22 openai/gpt-4o requests=70 amount=0.002485 USD
+  2026-04-22 minimax/minimax-m2 requests=31 amount=0.000465 USD
+  2026-04-22 google/gemini-2.5-flash requests=183 amount=0.000471 USD
+  2026-04-22 deepseek/deepseek-chat-v3 requests=85 amount=0.00017 USD
+  2026-04-22 minimax/minimax-m2 requests=33 amount=0.000308 USD
+  2026-04-22 minimax/minimax-m1 requests=75 amount=0.015075 USD
+  2026-04-22 z-ai/glm-4.7-flash-20260119 requests=23 amount=0.000023 USD
+  2026-04-22 moonshotai/kimi-k2-thinking-20251106 requests=55 amount=0.018062 USD
+  2026-04-22 openai/gpt-4o-2024-05-13 requests=85 amount=0.004675 USD
+  2026-04-22 minimax/minimax-m2.7-20260318 requests=6 amount=0.000072 USD
+  2026-04-22 minimax/minimax-m2.7-20260318 requests=53 amount=0.000566 USD
+  2026-04-22 qwen/qwen3.5-plus-20260216 requests=150 amount=0.075646 USD
+  2026-04-22 openai/gpt-4o-2024-05-13 requests=62 amount=0.00341 USD
+  2026-04-22 google/gemini-2.5-flash-lite-preview-09-2025 requests=149 amount=0 USD
+  2026-04-22 google/gemma-4-31b-it-20260402 requests=25 amount=0.00005 USD
+  2026-04-22 google/gemma-4-31b-it-20260402 requests=42 amount=0.000084 USD
+  2026-04-22 minimax/minimax-m2 requests=36 amount=0.000468 USD
+  2026-04-22 xiaomi/mimo-v2-pro-20260318 requests=159 amount=0.028677 USD
+  2026-04-22 anthropic/claude-4.6-sonnet-20260217 requests=10 amount=0.00144 USD
+  2026-04-22 minimax/minimax-01 requests=163 amount=0.023309 USD
+  2026-04-22 baidu/ernie-4.5-300b-a47b requests=136 amount=0.000136 USD
+  2026-04-22 anthropic/claude-3-haiku requests=141 amount=0.000423 USD
+  2026-04-22 google/gemma-4-31b-it-20260402 requests=24 amount=0.000072 USD
+  2026-04-22 google/gemma-4-31b-it-20260402 requests=44 amount=0.000088 USD
+  2026-04-22 openai/gpt-4o-mini requests=78 amount=0.000078 USD
+  2026-04-22 xiaomi/mimo-v2-flash-20251210 requests=88 amount=0.000075 USD
+  2026-04-22 openai/gpt-4o requests=108 amount=0.00374 USD
+
+-----
+
+===== chatanywhere =====
+[redis] connected
+
+========== chatanywhere (provider=openai) / 2026-04-22 ==========
+records=0
+
+-----
+

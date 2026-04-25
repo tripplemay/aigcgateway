@@ -1,0 +1,5 @@
+[image_patch_status] 400
+[image_patch_body] {"error":"IMAGE_CHANNEL_REQUIRES_PERCALL_PRICE","message":"图片渠道 costPrice 必须为 {unit:'call', perCall>0}"}
+[text_patch_status] 200
+[text_patch_body_prefix] {"id":"cmnpquzhx00tbbnxcb9friga1","providerId":"cmnckvutn0001n56id4ky9umz","modelId":"cmnpquzhp00t9bnxc0lifp5pn","realModelId":"gpt-4.1-mini-ca","priority":10,"costPrice":{"unit":"
+[text_rollback_costPrice] {"unit":"token","inputPer1M":0,"outputPer1M":0}

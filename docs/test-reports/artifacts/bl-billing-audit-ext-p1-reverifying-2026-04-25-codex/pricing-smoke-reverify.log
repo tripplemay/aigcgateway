@@ -1,0 +1,19 @@
+[temp_key_created]
+=== F-BAX-08 pricing smoke (https://aigc.guangai.ai) ===
+
+--- volcengine / seedream-3 ---
+[redis] connected
+http=200 traceId=trc_y3rusinj9idvpigj8yeboj31
+call_logs.costPrice=0.005069 → PASS
+
+--- openai(CAW) mini / gpt-image-mini ---
+http=200 traceId=trc_yylqgk63due4kue4dqcipw0c
+call_logs.costPrice=0 → FAIL
+
+--- openai(CAW) gemini / gemini-3-pro-image ---
+http=200 traceId=trc_aexjskz4s69fyopsh7etf2ez
+call_logs.costPrice=0 → FAIL
+
+Summary: 1/3 PASS
+[verify_exit_code] 1
+[temp_key_revoked] 1
