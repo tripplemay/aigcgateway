@@ -1,11 +1,11 @@
 {
-  "status": "building",
+  "status": "verifying",
   "user_goal": "BL-IMAGE-PRICING-OR-P2 — OpenRouter 6 条 token-priced image channel 定价 UPDATE + DB trigger 约束（IMAGE channel 必须有效 costPrice）+ token 反算单测",
   "total_features": 4,
-  "completed_features": 0,
+  "completed_features": 3,
   "fix_rounds": 0,
   "current_sprint": "BL-IMAGE-PRICING-OR-P2",
-  "last_updated": "2026-04-25T12:30:00.000Z",
+  "last_updated": "2026-04-25T12:23:00.000Z",
   "reference_docs": [
     "docs/specs/BL-IMAGE-PRICING-OR-P2-spec.md"
   ],
@@ -19,6 +19,7 @@
   "evaluator_feedback": null,
   "generator_handoff": null,
   "session_notes": {
-    "Andy-batch-launch": "BL-IMAGE-PRICING-OR-P2 启动 @ 2026-04-25 12:30（P2 done @ 04-25 12:15 后立即启动）。\n\n4 features：\n- F-BIPOR-01 critical generator: 6 条 OR channel token 定价 UPDATE 脚本（dry-run/--apply/幂等）\n- F-BIPOR-02 high generator: PL/pgSQL trigger 约束 IMAGE channel costPrice 必须有效（call.perCall>0 或 token.input/outputPer1M>0）\n- F-BIPOR-03 high generator: OR token 计价 call_logs.costPrice 反算单测 + smoke 脚本\n- F-BIPOR-04 critical codex: 12 项验收\n\n关键决策（继承 P1）：\n- USD 口径 + sellPrice ×1.2\n- 数据源 OR /api/v1/models canonical\n- 不修复 gpt-image-2 / -ca（保守填值沿用）\n- 不回填历史 call_logs\n\n应用 framework v0.9.4 自检（spec § 6）：\n- 铁律 1.2：所有验收基于 DB/call_logs/脚本，无运维依赖 ✓\n- 铁律 1.3：阈值 1.19-1.21 显式 + ±1e-6 容差 ✓\n- 测试 mock 层级：F-BIPOR-03 单测要求从 global.fetch / fetchWithProxy 边界 mock，让 processChatResult 链路真实跑 ✓\n\n前置：P1/P2 已 done；6 条 OR channel ID 已确认；OR /api/v1/models 实时定价已调研。\n\nGenerator 按 spec § 3 实现 → status→verifying。"
+    "Andy-batch-launch": "BL-IMAGE-PRICING-OR-P2 启动 @ 2026-04-25 12:30（P2 done @ 04-25 12:15 后立即启动）。\n\n4 features：F-BIPOR-01~03 generator + 04 codex。决策继承 P1：USD 口径 + sellPrice ×1.2 + 数据源 OR /api/v1/models canonical + 不回填历史。",
+    "Kimi-build": "BL-IMAGE-PRICING-OR-P2 building 完成 @ 2026-04-25 12:23，status→verifying。\n\nApply 前 curl /api/v1/models 复核 6 条定价 → drift=0% 全部精确匹配 spec § 3.1，立即开工。\n\n交付（1 commit）：\n- F-BIPOR-02: migration 20260425_image_channel_pricing_trigger（PL/pgSQL validate_image_channel_pricing + BEFORE INSERT/UPDATE OF costPrice,modelId trigger，仅校验 IMAGE modality，ERRCODE='check_violation'）；dev DB 已 apply 并集成测试 4 条全过\n- F-BIPOR-01: scripts/pricing/fix-or-image-channels-2026-04-25.ts（6 条 OR_IMAGE_PRICES 硬编码 + tokenPriceMatches ±1e-6 容差幂等）+ 11 单测（覆盖 6 entry / dry-run vs apply / 幂等 / DB drift / tolerance）\n- F-BIPOR-03: src/lib/api/__tests__/or-token-pricing-reverse-calc.test.ts 10 单测（4 channel 反算 / FILTERED 只算 input / ERROR cost=0 / token-zero fallback / sell/cost 1.19-1.21）+ scripts/pricing/verify-or-image-channels-2026-04-25.ts smoke（公式校验，1e-6 容差）\n\n验证：vitest 378 PASS（+25 OR-P2 新单测：4 trigger 集成 + 11 script + 10 反算）/ tsc / build 全过。dev DB trigger 集成测试已对真实 IMAGE+TEXT channel 跑过。\n\n生产 apply 须由用户/Codex ssh 执行：\n  npx tsx scripts/pricing/fix-or-image-channels-2026-04-25.ts          # dry-run 复核 6 条 diff\n  npx tsx scripts/pricing/fix-or-image-channels-2026-04-25.ts --apply  # 实际写入\n  幂等重跑应输出 6 行 [no change]\n  BASE_URL=... API_KEY=... npx tsx scripts/pricing/verify-or-image-channels-2026-04-25.ts\n\n注意：trigger migration 需 prisma migrate deploy 应用；apply 后老 IMAGE channel 若任何修改路径写 cost=0 都会被 check_violation 拦截，旧 admin 客户端（若有）需要更新。\n\nF-BIPOR-04 Codex 12 项中 #1-#3 build/tsc/vitest 部署后即可 / #4 prisma migrate diff dry-run / #5-#9 生产 apply + 抽查 + 幂等 + trigger 反例 / #10-#11 smoke + 全库扫无遗漏 / #12 signoff。"
   }
 }
