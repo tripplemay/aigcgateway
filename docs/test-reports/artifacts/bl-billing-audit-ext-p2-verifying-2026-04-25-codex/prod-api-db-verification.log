@@ -1,0 +1,179 @@
+[providers] [
+  {
+    "id": "cmnckvuyt0014n56ilpx34sur",
+    "name": "deepseek",
+    "displayName": "DeepSeek"
+  },
+  {
+    "id": "cmnckvutn0001n56id4ky9umz",
+    "name": "openai",
+    "displayName": "chatanywhere"
+  },
+  {
+    "id": "cmnckvv5m0031n56ics9pggfg",
+    "name": "openrouter",
+    "displayName": "OpenRouter"
+  },
+  {
+    "id": "cmnckvv2n002dn56i4gx6su7k",
+    "name": "siliconflow",
+    "displayName": "硅基流动"
+  },
+  {
+    "id": "cmnckvv1k001yn56i09ewg1ib",
+    "name": "volcengine",
+    "displayName": "火山引擎方舟"
+  }
+]
+[rerun_volcengine] status=200 body={"reportDate":"2026-04-22","providersInspected":1,"rowsWritten":126,"bigDiffs":22}
+[bill_rows_volc_2026-04-22_count] 7
+[bill_rows_volc_2026-04-22_sample] [
+  {
+    "id": "cmodtd17i0009bnztds6kfvd8",
+    "tier": 1,
+    "modelName": "DeepSeek-R1",
+    "status": "MATCH",
+    "upstreamAmount": "0",
+    "gatewayAmount": "0",
+    "delta": "0",
+    "computedAt": "2026-04-25T04:02:44.397Z"
+  },
+  {
+    "id": "cmodtd16w0007bnztlslx9lt1",
+    "tier": 1,
+    "modelName": "DeepSeek-V3.2",
+    "status": "MATCH",
+    "upstreamAmount": "0",
+    "gatewayAmount": "0",
+    "delta": "0",
+    "computedAt": "2026-04-25T04:02:44.379Z"
+  },
+  {
+    "id": "cmodtd1au000bbnztywu96c7f",
+    "tier": 1,
+    "modelName": "Doubao-Seed-2.0-lite",
+    "status": "MATCH",
+    "upstreamAmount": "0",
+    "gatewayAmount": "0",
+    "delta": "0",
+    "computedAt": "2026-04-25T04:02:44.355Z"
+  }
+]
+[rerun_openrouter] status=200
+[rerun_openai(chatanywhere)] status=200
+[bill_rows_openrouter_2026-04-22_count] 10
+[bill_rows_openrouter_2026-04-22_sample] [
+  {
+    "modelName": "anthropic/claude-4.6-sonnet-20260217",
+    "status": "MATCH",
+    "tier": 1
+  },
+  {
+    "modelName": "minimax/minimax-m2.7-20260318",
+    "status": "MATCH",
+    "tier": 1
+  },
+  {
+    "modelName": "openai/gpt-4o-2024-08-06",
+    "status": "MATCH",
+    "tier": 1
+  },
+  {
+    "modelName": "deepseek/deepseek-r1",
+    "status": "MATCH",
+    "tier": 1
+  },
+  {
+    "modelName": "google/gemma-4-31b-it-20260402",
+    "status": "MATCH",
+    "tier": 1
+  }
+]
+[bill_rows_openai_2026-04-22_count] 1
+[bill_rows_openai_2026-04-22_sample] [
+  {
+    "modelName": null,
+    "status": "MATCH",
+    "tier": 1
+  }
+]
+[deepseek_snapshots_24h_count] 2
+[deepseek_snapshots_24h] [
+  {
+    "id": "cmodpyc6k0003bn07ajda3adg",
+    "currency": "USD",
+    "balance": "0",
+    "totalUsage": null,
+    "snapshotAt": "2026-04-25T02:27:18.948Z"
+  },
+  {
+    "id": "cmodpyc6e0001bn07c9hv89bo",
+    "currency": "CNY",
+    "balance": "0.01",
+    "totalUsage": null,
+    "snapshotAt": "2026-04-25T02:27:18.948Z"
+  }
+]
+[tier2_rows_deepseek_count] 0
+[tier2_rows_deepseek] []
+[tier2_rows_siliconflow_count] 0
+[tier2_rows_siliconflow] []
+[tier2_rows_openrouter_count] 1
+[tier2_rows_openrouter] [
+  {
+    "reportDate": "2026-04-22T00:00:00.000Z",
+    "upstreamAmount": "0.003153",
+    "gatewayAmount": "0",
+    "delta": "-0.003153",
+    "status": "MATCH",
+    "computedAt": "2026-04-25T04:02:45.976Z"
+  }
+]
+[bill_reconciliation_grouped_last72h] [
+  {
+    "_count": {
+      "_all": 40
+    },
+    "reportDate": "2026-04-24T00:00:00.000Z"
+  },
+  {
+    "_count": {
+      "_all": 40
+    },
+    "reportDate": "2026-04-22T00:00:00.000Z"
+  }
+]
+[systemlog_billing_audit_last72h_count] 4
+[systemlog_billing_audit_last72h_sample] [
+  {
+    "id": "cmodtd3c7002ebnztuqo5p6zn",
+    "level": "INFO",
+    "message": "Reconciliation 2026-04-22 — providers=1 rows=1 bigDiffs=0",
+    "createdAt": "2026-04-25T04:02:46.183Z"
+  },
+  {
+    "id": "cmodtd36t002bbnzt2s3qxsyj",
+    "level": "INFO",
+    "message": "Reconciliation 2026-04-22 — providers=1 rows=63 bigDiffs=0",
+    "createdAt": "2026-04-25T04:02:45.990Z"
+  },
+  {
+    "id": "cmodtd1yz000gbnztpmptqkjx",
+    "level": "WARN",
+    "message": "Reconciliation 2026-04-22 — providers=1 rows=126 bigDiffs=22",
+    "createdAt": "2026-04-25T04:02:44.411Z"
+  },
+  {
+    "id": "cmodpyg0u002gbn07hl360ws3",
+    "level": "WARN",
+    "message": "Reconciliation 2026-04-24 — providers=10 rows=185 bigDiffs=22",
+    "createdAt": "2026-04-25T02:27:23.934Z"
+  }
+]
+[call_logs_min_createdAt] 2026-03-30T05:29:51.520Z
+[call_logs_count] 2352
+[big_diff_ratio_30d] {"total30":80,"big30":2,"ratioPercent":2.5}
+[api_reconciliation_list_status] 200
+[api_reconciliation_list_count] 80
+[api_balance_snapshots_status] 200
+[api_balance_snapshots_count] 2

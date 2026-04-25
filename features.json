@@ -43,7 +43,7 @@
       "title": "BL-BILLING-AUDIT-EXT-P2 全量验收",
       "priority": "critical",
       "executor": "codex",
-      "status": "pending",
+      "status": "completed",
       "source": "BL-BILLING-AUDIT-EXT-P2",
       "acceptance": "构建与单测（4 项）：1) npm run build 通过；2) npx tsc --noEmit 通过；3) npx vitest run 全过（新增 ≥15 条 P2 单测 + P1 + 历史不破坏）；4) Prisma migrations 生产 dry-run 通过（balance_snapshots / bill_reconciliation / call_logs_indexes）。功能验证（6 项）：5) 手动触发 POST /api/admin/reconciliation/rerun {date:'2026-04-22',providerId:volcengineId} → bill_reconciliation 新增行+status 分类正确；6) OpenRouter fetcher 拉 2026-04-22 → bill_reconciliation per-model 行；7) ChatanyWhere fetcher 拉 → bill_reconciliation 行（即使 empty 也写）；8) DeepSeek fetcher 拉余额 → balance_snapshots 表新增 2 行（CNY + USD）；9) 间隔 ≥1 天再跑 → tier 2 delta 对账生效（yesterday vs today）；10) /admin/reconciliation 面板 load 正常，30 天趋势图有数据，BIG_DIFF 明细表过滤可用，手动重跑按钮工作。生产观察（4 项，部署后 48h 可补）：11) 每日 04:30 UTC cron 自动执行，bill_reconciliation 每日新增 6-10 行；12) SystemLog 有 BILLING_AUDIT INFO/WARN 记录；13) call_logs TTL 生效：MIN(createdAt) ≈ now-30d；14) admin 面板 BIG_DIFF 条目占比 < 30%。15) 生成 signoff 报告 docs/test-reports/BL-BILLING-AUDIT-EXT-P2-signoff-2026-04-2X.md。"
     }

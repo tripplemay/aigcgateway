@@ -1,11 +1,11 @@
 {
-  "status": "verifying",
+  "status": "done",
   "user_goal": "BL-BILLING-AUDIT-EXT-P2 — Tier 2 余额快照 fetcher（DeepSeek/SiliconFlow/OpenRouter credits） + 对账 cron + admin /admin/reconciliation 面板（趋势图+明细+手动重跑） + call_logs TTL 30d + 3 个 index",
   "total_features": 5,
-  "completed_features": 4,
+  "completed_features": 5,
   "fix_rounds": 0,
   "current_sprint": "BL-BILLING-AUDIT-EXT-P2",
-  "last_updated": "2026-04-25T10:18:00.000Z",
+  "last_updated": "2026-04-25T12:15:00.000Z",
   "reference_docs": [
     "docs/specs/BL-BILLING-AUDIT-EXT-P2-spec.md"
   ],
@@ -13,13 +13,20 @@
   "docs": {
     "spec": "docs/specs/BL-BILLING-AUDIT-EXT-P2-spec.md",
     "test_cases": null,
-    "signoff": null,
+    "signoff": "docs/test-reports/BL-BILLING-AUDIT-EXT-P2-signoff-2026-04-25.md",
     "framework_reviewed": false
   },
-  "evaluator_feedback": null,
+  "evaluator_feedback": {
+    "summary": "verifying：F-BAP2-05 15项验收通过，P2批次签收。",
+    "pass_count": 15,
+    "partial_count": 0,
+    "fail_count": 0,
+    "issues": []
+  },
   "generator_handoff": null,
   "session_notes": {
     "Andy-batch-launch": "BL-BILLING-AUDIT-EXT-P2 启动 @ 2026-04-25 02:00（P1 done @ 04-25 01:35 后立即启动，未等 24h 稳定窗，按用户拍板）。\n\n5 features：\n- F-BAP2-01 critical generator: Tier 2 fetcher 3 家（deepseek/siliconflow/openrouter-credits）+ balance_snapshots 表 + migration 20260425_balance_snapshots\n- F-BAP2-02 critical generator: 对账 cron + bill_reconciliation 表 + tier 1/2 status 分类（MATCH/MINOR_DIFF/BIG_DIFF）+ migration 20260425_bill_reconciliation；scheduler 每日 04:30 UTC + leader-lock\n- F-BAP2-03 high generator: admin /admin/reconciliation 面板 4 区块（cards + 趋势图 + 明细表 + 手动重跑）+ 3 个 API + i18n\n- F-BAP2-04 high generator: call_logs TTL 30d + 3 个 index migration + scheduler 03:30 UTC\n- F-BAP2-05 critical codex: 15 项验收（含 48h 生产观察）",
-    "Kimi-build": "P2 building 完成 @ 2026-04-25 10:18，status→verifying。\n\n4 generator features 一气实现：\n- F-BAP2-01: tier2-fetcher.ts 接口 + 3 fetchers (DeepSeek 多币种 / SiliconFlow 含负数欠费 / OpenRouter credits) + BalanceSnapshot model + migration 20260425_balance_snapshots\n- F-BAP2-02: BillReconciliation model + migration 20260425_bill_reconciliation + reconcile-job.ts 主流程（classifyTier 1/2/3 + classifyStatus 严格 < 边界） + aggregate-gateway.ts + SystemLogCategory 加 BILLING_AUDIT\n- F-BAP2-03: 3 个 API endpoints + admin/reconciliation/page.tsx 4 区块（cards + recharts trend + BIG_DIFF table + manual rerun） + en/zh i18n + sidebar nav\n- F-BAP2-04: cleanupCallLogs + RETENTION_DAYS.call_logs=30 + migration 20260425_call_logs_indexes (3 indexes) + 接进 maintenance scheduler tick\n\n额外补丁：维持 nullable composite key 用 findFirst+update/create 替代 upsert（Prisma 限制 modelName=null 不能进 compound unique key 路径）。\n\nvitest 353 PASS (+47 P2 新增) / tsc / build 全过。dev DB 已 apply 4 个 migration（20260425_balance_snapshots / bill_reconciliation / billing_audit_category / call_logs_indexes）。\n\n生产部署须由用户/Codex 触发 GitHub Actions（包含 prisma migrate deploy）；deploy 后 reconcile-job 在 maintenance scheduler 启动时立即跑一次（reportDate=昨日），之后每 24h 一轮。Tier 2 fetcher 凭证已在 providers.authConfig.apiKey（DeepSeek/SF 复用 inference key；OR credits 复用 P1 已填的 apiKey）。\n\nF-BAP2-05 Codex 验收 15 项中 #1-#10 部署后即可验；#11-#14 需 48h 生产观察窗。"
+    "Kimi-build": "P2 building 完成 @ 2026-04-25 10:18，status→verifying。\n\n4 generator features 一气实现：\n- F-BAP2-01: tier2-fetcher.ts 接口 + 3 fetchers (DeepSeek 多币种 / SiliconFlow 含负数欠费 / OpenRouter credits) + BalanceSnapshot model + migration 20260425_balance_snapshots\n- F-BAP2-02: BillReconciliation model + migration 20260425_bill_reconciliation + reconcile-job.ts 主流程（classifyTier 1/2/3 + classifyStatus 严格 < 边界） + aggregate-gateway.ts + SystemLogCategory 加 BILLING_AUDIT\n- F-BAP2-03: 3 个 API endpoints + admin/reconciliation/page.tsx 4 区块（cards + recharts trend + BIG_DIFF table + manual rerun） + en/zh i18n + sidebar nav\n- F-BAP2-04: cleanupCallLogs + RETENTION_DAYS.call_logs=30 + migration 20260425_call_logs_indexes (3 indexes) + 接进 maintenance scheduler tick\n\n额外补丁：维持 nullable composite key 用 findFirst+update/create 替代 upsert（Prisma 限制 modelName=null 不能进 compound unique key 路径）。\n\nvitest 353 PASS (+47 P2 新增) / tsc / build 全过。dev DB 已 apply 4 个 migration（20260425_balance_snapshots / bill_reconciliation / billing_audit_category / call_logs_indexes）。\n\n生产部署须由用户/Codex 触发 GitHub Actions（包含 prisma migrate deploy）；deploy 后 reconcile-job 在 maintenance scheduler 启动时立即跑一次（reportDate=昨日），之后每 24h 一轮。Tier 2 fetcher 凭证已在 providers.authConfig.apiKey（DeepSeek/SF 复用 inference key；OR credits 复用 P1 已填的 apiKey）。\n\nF-BAP2-05 Codex 验收 15 项中 #1-#10 部署后即可验；#11-#14 需 48h 生产观察窗。",
+    "Reviewer": "verifying(2026-04-25): 已完成 BL-BILLING-AUDIT-EXT-P2 15 项验收并签收。生产侧完成 rerun/API/DB 动态验证与 UI 页面加载取证；本地 build/tsc/vitest(353) 通过；TTL/BILLING_AUDIT/BIG_DIFF 指标满足口径。status -> done。"
   }
 }
