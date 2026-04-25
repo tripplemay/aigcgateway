@@ -123,6 +123,17 @@ export interface StreamChoice {
 export interface ImageGenerationResponse {
   created: number;
   data: ImageData[];
+  /**
+   * BL-IMAGE-PRICING-OR-P2 fix_round 2 (Path A #2): image-via-chat 模型
+   * （OR `google/gemini-2.5-flash-image` 等）实际是 chat-completions 返回
+   * image，定价是 token 计费。adapter.imageViaChat 把上游 chat usage
+   * 一并 propagate 到这里，processImageResultAsync 据 channel.costPrice.unit
+   * 决定走 calculateTokenCost 还是 calculateCallCost。
+   *
+   * 直接 image API（如 volcengine seedream / DALL-E）返回 undefined，
+   * processImageResult 走原 calculateCallCost 路径。
+   */
+  usage?: Usage | null;
 }
 
 export interface ImageData {

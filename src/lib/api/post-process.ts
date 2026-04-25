@@ -378,19 +378,33 @@ async function processImageResultAsync(params: ImagePostProcessParams): Promise<
   else if (zeroImageDelivery) status = "FILTERED";
   else status = "SUCCESS";
 
-  // 图片成本：按次计价 — FILTERED/ERROR/TIMEOUT 都返回 0
-  const { costUsd, sellUsd } = calculateCallCost(params.route, status);
+  // BL-IMAGE-PRICING-OR-P2 fix_round 2 (Path A #2): image-via-chat 模型
+  // （OR 6 条 token-priced image channel 等）的 channel.costPrice 是
+  // {unit:"token",inputPer1M,outputPer1M}，按 chat tokens 计费；imageViaChat
+  // adapter 已 propagate 上游 chat usage 到 response.usage。这里据 channel
+  // costPrice.unit 分支：token → calculateTokenCost；call → 旧 calculateCallCost。
+  const channelCostPrice = params.route.channel.costPrice as { unit?: string } | null;
+  const isTokenPriced = channelCostPrice?.unit === "token";
+  const upstreamUsage: Usage | null = params.response?.usage ?? null;
 
-  // 定价缺失告警：成功调用但 sellPrice 为 0，说明 alias 未配置 perCall 定价
+  let costUsd: number;
+  let sellUsd: number;
+  if (isTokenPriced) {
+    ({ costUsd, sellUsd } = calculateTokenCost(upstreamUsage, params.route, status));
+  } else {
+    ({ costUsd, sellUsd } = calculateCallCost(params.route, status));
+  }
+
+  // 定价缺失告警：成功调用但 sellPrice 为 0，说明 alias 未配置定价
   if (status === "SUCCESS" && sellUsd === 0) {
     console.warn(
-      `[post-process] WARNING: zero sell price for image call alias=${params.route.alias?.alias ?? "unknown"} model=${params.modelName}. Check alias sellPrice.perCall config.`,
+      `[post-process] WARNING: zero sell price for image call alias=${params.route.alias?.alias ?? "unknown"} model=${params.modelName}. Check alias sellPrice config.`,
     );
   }
 
   // F-BAX-04 image costPrice regression fix：channel.costPrice 缺 perCall
-  // 配置时显式告警（seedream-3 2026-04-20 regression：成功调用但 costPrice=0）。
-  if (status === "SUCCESS") {
+  // 配置时显式告警（仅 per-call 路径；token-priced 走另一分支）。
+  if (status === "SUCCESS" && !isTokenPriced) {
     const costPriceCfg = params.route.channel.costPrice as { perCall?: number } | null;
     if (!costPriceCfg || typeof costPriceCfg.perCall !== "number") {
       console.warn(
@@ -413,6 +427,8 @@ async function processImageResultAsync(params: ImagePostProcessParams): Promise<
   } as unknown as Prisma.InputJsonValue;
 
   // F-BA-02: 图片扣费 atomicity —— 与 chat 路径逻辑一致。
+  // image-via-chat token 路径：附带 promptTokens/completionTokens/totalTokens
+  // 让 admin 面板 + 对账 cron 能查 usage（与 chat 路径一致）。
   const imageCallLogData: Prisma.CallLogUncheckedCreateInput = {
     traceId: params.traceId,
     projectId: params.projectId,
@@ -426,6 +442,9 @@ async function processImageResultAsync(params: ImagePostProcessParams): Promise<
     latencyMs,
     costPrice: costUsd,
     sellPrice: sellUsd,
+    promptTokens: upstreamUsage?.prompt_tokens ?? null,
+    completionTokens: upstreamUsage?.completion_tokens ?? null,
+    totalTokens: upstreamUsage?.total_tokens ?? null,
     errorMessage: params.error?.message
       ? sanitizeErrorMessage(params.error.message)
       : zeroImageDelivery

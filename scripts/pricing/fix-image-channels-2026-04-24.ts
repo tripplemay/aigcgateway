@@ -15,6 +15,7 @@
  * 幂等：重跑已 apply 的条目输出 "no change"。
  */
 import { prisma } from "../../src/lib/prisma";
+import { disconnectRedis } from "../../src/lib/redis";
 
 // ============================================================
 // 硬编码定价表（spec § 3.1）
@@ -29,36 +30,216 @@ export interface ChannelPriceEntry {
 }
 
 export const IMAGE_CHANNEL_PRICES: readonly ChannelPriceEntry[] = [
-  { channelId: "cmnpquy5m00rwbnxcc0omrhet", provider: "volcengine", model: "seedream-3.0", costPerCall: 0.037, sellPerCall: 0.0444 },
-  { channelId: "cmnpquy5y00rzbnxcxuixo8q8", provider: "volcengine", model: "seedream-4.0", costPerCall: 0.0286, sellPerCall: 0.0343 },
-  { channelId: "cmnpquy6c00s2bnxciwqef9po", provider: "volcengine", model: "seedream-4.5", costPerCall: 0.0357, sellPerCall: 0.0429 },
-  { channelId: "cmnukegio0039bnsef0msh0bb", provider: "qwen", model: "qwen-image-2.0", costPerCall: 0.0286, sellPerCall: 0.0343 },
-  { channelId: "cmnukegh8002wbnsedae7k05n", provider: "qwen", model: "qwen-image-2.0-2026-03-03", costPerCall: 0.0286, sellPerCall: 0.0343 },
-  { channelId: "cmnukeghk0031bnsevhekxg4x", provider: "qwen", model: "qwen-image-2.0-pro", costPerCall: 0.0714, sellPerCall: 0.0857 },
-  { channelId: "cmnukegi40035bnsegwbx3ueq", provider: "qwen", model: "qwen-image-2.0-pro-2026-03-03", costPerCall: 0.0714, sellPerCall: 0.0857 },
-  { channelId: "cmoca6bxz0001bnsmjykljq2k", provider: "qwen", model: "qwen-image-2.0-pro-2026-04-22", costPerCall: 0.0714, sellPerCall: 0.0857 },
-  { channelId: "cmnukegrj006pbnse7j3gtb0d", provider: "qwen", model: "qwen-image-edit-max", costPerCall: 0.0714, sellPerCall: 0.0857 },
-  { channelId: "cmnukegr8006kbnsen8lptjys", provider: "qwen", model: "qwen-image-edit-max-2026-01-16", costPerCall: 0.0714, sellPerCall: 0.0857 },
-  { channelId: "cmnukegya0099bnsefir3brxy", provider: "qwen", model: "qwen-image-edit-plus", costPerCall: 0.0286, sellPerCall: 0.0343 },
-  { channelId: "cmnukegxz0095bnsexkx0poni", provider: "qwen", model: "qwen-image-edit-plus-2025-10-30", costPerCall: 0.0286, sellPerCall: 0.0343 },
-  { channelId: "cmnukegu2007nbnses5kt4rbd", provider: "qwen", model: "qwen-image-edit-plus-2025-12-15", costPerCall: 0.0286, sellPerCall: 0.0343 },
-  { channelId: "cmnukegss0076bnse64juomn7", provider: "qwen", model: "qwen-image-max", costPerCall: 0.0714, sellPerCall: 0.0857 },
-  { channelId: "cmnukegsj0072bnsecdbcdwgj", provider: "qwen", model: "qwen-image-max-2025-12-30", costPerCall: 0.0714, sellPerCall: 0.0857 },
-  { channelId: "cmnukegrt006tbnse1dnwjede", provider: "qwen", model: "qwen-image-plus-2026-01-09", costPerCall: 0.0286, sellPerCall: 0.0343 },
-  { channelId: "cmnukegfk002gbnsewzxcheko", provider: "qwen", model: "wan2.7-image", costPerCall: 0.0286, sellPerCall: 0.0343 },
-  { channelId: "cmnukegez0029bnse0d9akksv", provider: "qwen", model: "wan2.7-image-pro", costPerCall: 0.0714, sellPerCall: 0.0857 },
-  { channelId: "cmnukegtg007ebnse2ikscfku", provider: "qwen", model: "z-image-turbo", costPerCall: 0.0286, sellPerCall: 0.0343 },
-  { channelId: "cmnujtxfs00jmbnrzj2c9t6tp", provider: "siliconflow", model: "qwen/qwen-image", costPerCall: 0.02, sellPerCall: 0.024 },
-  { channelId: "cmnujtxfg00jjbnrz0slsyj1j", provider: "siliconflow", model: "qwen/qwen-image-edit", costPerCall: 0.04, sellPerCall: 0.048 },
-  { channelId: "cmnujtxf300jgbnrzuj14zlnp", provider: "siliconflow", model: "qwen/qwen-image-edit-2509", costPerCall: 0.04, sellPerCall: 0.048 },
-  { channelId: "cmnpqv0mq013sbnxc9vjqcoyz", provider: "openai", model: "gemini-3-pro-image-preview", costPerCall: 0.042, sellPerCall: 0.0504 },
-  { channelId: "cmnpqv0m5013mbnxc1qhphm0a", provider: "openai", model: "gemini-3.1-flash-image-preview", costPerCall: 0.042, sellPerCall: 0.0504 },
-  { channelId: "cmnpqv0mf013pbnxcysr06pxa", provider: "openai", model: "gpt-image-1", costPerCall: 0.042, sellPerCall: 0.0504 },
-  { channelId: "cmnpqv0nd013ybnxcex3iuglj", provider: "openai", model: "gpt-image-1-mini", costPerCall: 0.011, sellPerCall: 0.0132 },
-  { channelId: "cmnpqv0n2013vbnxcui7y73rp", provider: "openai", model: "gpt-image-1.5", costPerCall: 0.009, sellPerCall: 0.0108 },
-  { channelId: "cmoayey2y0mi7bnvxr667x1z6", provider: "openai", model: "gpt-image-2", costPerCall: 0.042, sellPerCall: 0.0504 },
-  { channelId: "cmoayey2x0mi6bnvxmydm6jat", provider: "openai", model: "gpt-image-2-ca", costPerCall: 0.042, sellPerCall: 0.0504 },
-  { channelId: "cmnujsns900fhbnrzmnf793q2", provider: "zhipu", model: "cogview-3", costPerCall: 0.0357, sellPerCall: 0.0429 },
+  {
+    channelId: "cmnpquy5m00rwbnxcc0omrhet",
+    provider: "volcengine",
+    model: "seedream-3.0",
+    costPerCall: 0.037,
+    sellPerCall: 0.0444,
+  },
+  {
+    channelId: "cmnpquy5y00rzbnxcxuixo8q8",
+    provider: "volcengine",
+    model: "seedream-4.0",
+    costPerCall: 0.0286,
+    sellPerCall: 0.0343,
+  },
+  {
+    channelId: "cmnpquy6c00s2bnxciwqef9po",
+    provider: "volcengine",
+    model: "seedream-4.5",
+    costPerCall: 0.0357,
+    sellPerCall: 0.0429,
+  },
+  {
+    channelId: "cmnukegio0039bnsef0msh0bb",
+    provider: "qwen",
+    model: "qwen-image-2.0",
+    costPerCall: 0.0286,
+    sellPerCall: 0.0343,
+  },
+  {
+    channelId: "cmnukegh8002wbnsedae7k05n",
+    provider: "qwen",
+    model: "qwen-image-2.0-2026-03-03",
+    costPerCall: 0.0286,
+    sellPerCall: 0.0343,
+  },
+  {
+    channelId: "cmnukeghk0031bnsevhekxg4x",
+    provider: "qwen",
+    model: "qwen-image-2.0-pro",
+    costPerCall: 0.0714,
+    sellPerCall: 0.0857,
+  },
+  {
+    channelId: "cmnukegi40035bnsegwbx3ueq",
+    provider: "qwen",
+    model: "qwen-image-2.0-pro-2026-03-03",
+    costPerCall: 0.0714,
+    sellPerCall: 0.0857,
+  },
+  {
+    channelId: "cmoca6bxz0001bnsmjykljq2k",
+    provider: "qwen",
+    model: "qwen-image-2.0-pro-2026-04-22",
+    costPerCall: 0.0714,
+    sellPerCall: 0.0857,
+  },
+  {
+    channelId: "cmnukegrj006pbnse7j3gtb0d",
+    provider: "qwen",
+    model: "qwen-image-edit-max",
+    costPerCall: 0.0714,
+    sellPerCall: 0.0857,
+  },
+  {
+    channelId: "cmnukegr8006kbnsen8lptjys",
+    provider: "qwen",
+    model: "qwen-image-edit-max-2026-01-16",
+    costPerCall: 0.0714,
+    sellPerCall: 0.0857,
+  },
+  {
+    channelId: "cmnukegya0099bnsefir3brxy",
+    provider: "qwen",
+    model: "qwen-image-edit-plus",
+    costPerCall: 0.0286,
+    sellPerCall: 0.0343,
+  },
+  {
+    channelId: "cmnukegxz0095bnsexkx0poni",
+    provider: "qwen",
+    model: "qwen-image-edit-plus-2025-10-30",
+    costPerCall: 0.0286,
+    sellPerCall: 0.0343,
+  },
+  {
+    channelId: "cmnukegu2007nbnses5kt4rbd",
+    provider: "qwen",
+    model: "qwen-image-edit-plus-2025-12-15",
+    costPerCall: 0.0286,
+    sellPerCall: 0.0343,
+  },
+  {
+    channelId: "cmnukegss0076bnse64juomn7",
+    provider: "qwen",
+    model: "qwen-image-max",
+    costPerCall: 0.0714,
+    sellPerCall: 0.0857,
+  },
+  {
+    channelId: "cmnukegsj0072bnsecdbcdwgj",
+    provider: "qwen",
+    model: "qwen-image-max-2025-12-30",
+    costPerCall: 0.0714,
+    sellPerCall: 0.0857,
+  },
+  {
+    channelId: "cmnukegrt006tbnse1dnwjede",
+    provider: "qwen",
+    model: "qwen-image-plus-2026-01-09",
+    costPerCall: 0.0286,
+    sellPerCall: 0.0343,
+  },
+  {
+    channelId: "cmnukegfk002gbnsewzxcheko",
+    provider: "qwen",
+    model: "wan2.7-image",
+    costPerCall: 0.0286,
+    sellPerCall: 0.0343,
+  },
+  {
+    channelId: "cmnukegez0029bnse0d9akksv",
+    provider: "qwen",
+    model: "wan2.7-image-pro",
+    costPerCall: 0.0714,
+    sellPerCall: 0.0857,
+  },
+  {
+    channelId: "cmnukegtg007ebnse2ikscfku",
+    provider: "qwen",
+    model: "z-image-turbo",
+    costPerCall: 0.0286,
+    sellPerCall: 0.0343,
+  },
+  {
+    channelId: "cmnujtxfs00jmbnrzj2c9t6tp",
+    provider: "siliconflow",
+    model: "qwen/qwen-image",
+    costPerCall: 0.02,
+    sellPerCall: 0.024,
+  },
+  {
+    channelId: "cmnujtxfg00jjbnrz0slsyj1j",
+    provider: "siliconflow",
+    model: "qwen/qwen-image-edit",
+    costPerCall: 0.04,
+    sellPerCall: 0.048,
+  },
+  {
+    channelId: "cmnujtxf300jgbnrzuj14zlnp",
+    provider: "siliconflow",
+    model: "qwen/qwen-image-edit-2509",
+    costPerCall: 0.04,
+    sellPerCall: 0.048,
+  },
+  {
+    channelId: "cmnpqv0mq013sbnxc9vjqcoyz",
+    provider: "openai",
+    model: "gemini-3-pro-image-preview",
+    costPerCall: 0.042,
+    sellPerCall: 0.0504,
+  },
+  {
+    channelId: "cmnpqv0m5013mbnxc1qhphm0a",
+    provider: "openai",
+    model: "gemini-3.1-flash-image-preview",
+    costPerCall: 0.042,
+    sellPerCall: 0.0504,
+  },
+  {
+    channelId: "cmnpqv0mf013pbnxcysr06pxa",
+    provider: "openai",
+    model: "gpt-image-1",
+    costPerCall: 0.042,
+    sellPerCall: 0.0504,
+  },
+  {
+    channelId: "cmnpqv0nd013ybnxcex3iuglj",
+    provider: "openai",
+    model: "gpt-image-1-mini",
+    costPerCall: 0.011,
+    sellPerCall: 0.0132,
+  },
+  {
+    channelId: "cmnpqv0n2013vbnxcui7y73rp",
+    provider: "openai",
+    model: "gpt-image-1.5",
+    costPerCall: 0.009,
+    sellPerCall: 0.0108,
+  },
+  {
+    channelId: "cmoayey2y0mi7bnvxr667x1z6",
+    provider: "openai",
+    model: "gpt-image-2",
+    costPerCall: 0.042,
+    sellPerCall: 0.0504,
+  },
+  {
+    channelId: "cmoayey2x0mi6bnvxmydm6jat",
+    provider: "openai",
+    model: "gpt-image-2-ca",
+    costPerCall: 0.042,
+    sellPerCall: 0.0504,
+  },
+  {
+    channelId: "cmnujsns900fhbnrzmnf793q2",
+    provider: "zhipu",
+    model: "cogview-3",
+    costPerCall: 0.0357,
+    sellPerCall: 0.0429,
+  },
 ];
 
 // ============================================================
@@ -101,7 +282,10 @@ interface ChannelDiff {
   model: string;
   provider: string;
   before: { costPrice: unknown; sellPrice: unknown };
-  after: { costPrice: { unit: "call"; perCall: number }; sellPrice: { unit: "call"; perCall: number } };
+  after: {
+    costPrice: { unit: "call"; perCall: number };
+    sellPrice: { unit: "call"; perCall: number };
+  };
   skipped: boolean;
 }
 
@@ -116,7 +300,9 @@ export async function runPricingFix(opts: RunOptions): Promise<{
       select: { id: true, costPrice: true, sellPrice: true },
     });
     if (!current) {
-      console.warn(`[missing] channelId=${entry.channelId} (${entry.provider}/${entry.model}) not in DB — skip`);
+      console.warn(
+        `[missing] channelId=${entry.channelId} (${entry.provider}/${entry.model}) not in DB — skip`,
+      );
       continue;
     }
     const costExpected = { unit: "call" as const, perCall: entry.costPerCall };
@@ -158,7 +344,8 @@ export async function runPricingFix(opts: RunOptions): Promise<{
   }
 
   // modality 修正
-  const modalityChanges: Array<{ name: string; before: string; after: string; skipped: boolean }> = [];
+  const modalityChanges: Array<{ name: string; before: string; after: string; skipped: boolean }> =
+    [];
   for (const name of MODALITY_FIX_MODELS) {
     const model = await prisma.model.findUnique({
       where: { name },
@@ -210,6 +397,7 @@ async function cliMain(): Promise<void> {
     console.log("[hint] re-run with --apply to commit changes.");
   }
   await prisma.$disconnect();
+  await disconnectRedis();
 }
 
 const isDirectRun =

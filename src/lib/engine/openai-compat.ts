@@ -451,6 +451,7 @@ export class OpenAICompatEngine implements EngineAdapter {
           return {
             created: result.created,
             data: [{ url }],
+            usage: result.usage ?? null,
           };
         }
       }
@@ -470,6 +471,7 @@ export class OpenAICompatEngine implements EngineAdapter {
           return {
             created: result.created,
             data: [{ url: (p.image_url as Record<string, unknown>).url as string }],
+            usage: result.usage ?? null,
           };
         }
         // Gemini 原生格式：{ type: "inline_data", inline_data: { mime_type: "image/png", data: "base64..." } }
@@ -479,6 +481,7 @@ export class OpenAICompatEngine implements EngineAdapter {
           return {
             created: result.created,
             data: [{ url: `data:${mime};base64,${inlineData.data as string}` }],
+            usage: result.usage ?? null,
           };
         }
       }
@@ -501,6 +504,7 @@ export class OpenAICompatEngine implements EngineAdapter {
       return {
         created: result.created,
         data: [{ url: base64Match[0] }],
+        usage: result.usage ?? null,
       };
     }
 
@@ -525,6 +529,7 @@ export class OpenAICompatEngine implements EngineAdapter {
       return {
         created: result.created,
         data: [{ url: urlWithExtMatch[0] }],
+        usage: result.usage ?? null,
       };
     }
 
@@ -546,6 +551,7 @@ export class OpenAICompatEngine implements EngineAdapter {
       return {
         created: result.created,
         data: [{ url: anyUrlMatch[0] }],
+        usage: result.usage ?? null,
       };
     }
 

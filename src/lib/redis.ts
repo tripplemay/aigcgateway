@@ -64,6 +64,28 @@ export function getRedis(): Redis | null {
  * "ready now? null-fallback otherwise" pattern lost the race on cold
  * startup and let multiple replicas all claim leadership locally.
  */
+/**
+ * 关闭 Redis 单例连接（CLI / 一次性脚本退出前调用）。
+ *
+ * BL-IMAGE-PRICING-OR-P2 fix_round 2：pricing 脚本在 .env.production 下
+ * 因为 redis singleton 自动建连后保持 keep-alive，导致 node 进程不退出
+ * （Codex 复验跑 idempotency 用 timeout 124 退出）。CLI 入口在 prisma.$disconnect()
+ * 之后调一次 disconnectRedis() 即可干净退出。
+ *
+ * 用 `quit()` 而非 `disconnect()` —— quit 会等 inflight 命令完成，安全。
+ */
+export async function disconnectRedis(): Promise<void> {
+  if (!redis) return;
+  try {
+    await redis.quit();
+  } catch {
+    // 已断开或正在重连 → 忽略
+  } finally {
+    redis = null;
+    ready = false;
+  }
+}
+
 export function waitForRedisReady(timeoutMs: number, pollMs = 100): Promise<boolean> {
   if (ready) return Promise.resolve(true);
   if (!redis) return Promise.resolve(false); // REDIS_URL missing — no client to wait for

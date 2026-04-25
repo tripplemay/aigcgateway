@@ -15,6 +15,7 @@
  * F-BAX-07 acceptance items 13/14/15.
  */
 import { prisma } from "../src/lib/prisma";
+import { disconnectRedis } from "../src/lib/redis";
 import { VolcengineBillFetcher } from "../src/lib/billing-audit/fetchers/volcengine";
 import { OpenRouterBillFetcher } from "../src/lib/billing-audit/fetchers/openrouter";
 import { ChatanyWhereBillFetcher } from "../src/lib/billing-audit/fetchers/chatanywhere";
@@ -94,6 +95,7 @@ async function main(): Promise<void> {
   }
 
   await prisma.$disconnect();
+  await disconnectRedis();
 }
 
 // fix-round-1 Bug 1 support: 只有作为 CLI 直接执行时跑 main()，被 vitest

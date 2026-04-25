@@ -13,6 +13,7 @@
  *   API_KEY   — 触发请求用的有效 API key（pk_xxx）
  */
 import { prisma } from "../../src/lib/prisma";
+import { disconnectRedis } from "../../src/lib/redis";
 
 interface SmokeTarget {
   alias: string;
@@ -101,6 +102,7 @@ async function main(): Promise<void> {
 
   console.log(`\nSummary: ${TARGETS.length - failed}/${TARGETS.length} PASS`);
   await prisma.$disconnect();
+  await disconnectRedis();
   process.exit(failed > 0 ? 1 : 0);
 }
 

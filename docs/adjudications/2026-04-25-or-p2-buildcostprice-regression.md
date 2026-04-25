@@ -94,7 +94,7 @@ OR-P2 F-BIPOR-01 acceptance 第 4 项：
 
 ## 7. 验收新增项（F-BIPOR-05 #13）
 
-> 手动触发 model-sync 一次（POST /api/admin/run-inference 或等 daily sync）→ 重查 6 条 OR + 30 条 P1 image channel costPrice：所有非零字段（perCall>0 或 token.input/outputPer1M>0）保持，**不被 sync 冲回 0**。
+> 手动触发 model-sync 一次（POST /api/admin/sync-models 或等 daily sync）→ 重查 6 条 OR + 30 条 P1 image channel costPrice：所有非零字段（perCall>0 或 token.input/outputPer1M>0）保持，**不被 sync 冲回 0**。
 
 ## 8. 风险与确认
 

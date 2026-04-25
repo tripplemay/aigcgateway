@@ -116,7 +116,7 @@ function buildCostPrice(model: SyncedModel) {
 4. 单测 ≥ 3 条：(a) sync 一个已存在 IMAGE channel 且 channel.costPrice 已是非零 → sync 后 channel.costPrice 不变；(b) sync 一个 TEXT channel → costPrice 按 token 公式更新；(c) sync 创建新 IMAGE channel → 默认 `{perCall:0}` 但允许（创建瞬间）
 5. tsc + build 通过
 
-**生产 smoke：** apply F-BIPOR-04 修复 + F-BIPOR-01 6 条 OR UPDATE → **手动触发** model-sync（POST /api/admin/run-inference 或等下一轮 sync）→ 重新 SELECT 6 条 OR + 30 条 P1 image channel costPrice 仍保持非零（不被 sync 冲掉）。
+**生产 smoke：** apply F-BIPOR-04 修复 + F-BIPOR-01 6 条 OR UPDATE → **手动触发** model-sync（POST /api/admin/sync-models 或等下一轮 sync）→ 重新 SELECT 6 条 OR + 30 条 P1 image channel costPrice 仍保持非零（不被 sync 冲掉）。
 
 ### 3.5 Codex 验收（F-BIPOR-05）
 
@@ -138,7 +138,7 @@ function buildCostPrice(model: SyncedModel) {
 11. 生产 image channel 查询：`SELECT id, costPrice FROM channels WHERE modelId IN (image_models)` → 全部 perCall>0 OR token.input/outputPer1M>0（无遗漏）
 
 回归保护（1，裁决新增）：
-13. **手动触发 model-sync 一次（POST /api/admin/run-inference 或等 daily sync）**→ 重查 6 条 OR + 30 条 P1 image channel costPrice：所有非零字段（perCall>0 或 token.input/outputPer1M>0）保持，**不被 sync 冲回 0**。这是路径 X 的关键回归保护。
+13. **手动触发 model-sync 一次（POST /api/admin/sync-models 或等 daily sync）**→ 重查 6 条 OR + 30 条 P1 image channel costPrice：所有非零字段（perCall>0 或 token.input/outputPer1M>0）保持，**不被 sync 冲回 0**。这是路径 X 的关键回归保护。
 
 报告（1）：
 14. 生成 signoff `docs/test-reports/BL-IMAGE-PRICING-OR-P2-signoff-2026-04-2X.md`
