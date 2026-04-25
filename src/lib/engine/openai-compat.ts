@@ -267,7 +267,7 @@ export class OpenAICompatEngine implements EngineAdapter {
       url,
       init,
       route,
-      60_000,
+      3_600_000,
     );
     try {
       if (!response.ok) {
@@ -294,7 +294,7 @@ export class OpenAICompatEngine implements EngineAdapter {
       url,
       init,
       route,
-      60_000,
+      3_600_000,
     );
     if (!response.ok) {
       const errorBody = await response.text().catch(() => "");
