@@ -1,48 +1,83 @@
 {
-  "status": "done",
-  "user_goal": "BL-FE-QUALITY — 前端质量合并：UX 交互（9 reload + 双事件 + 复制 + 轮询门控 + admin batch）+ template-testing polish（PATCH 400 + Decimal + waitForCallLog）+ A11y/i18n（aria-label + error.tsx + admin/models + timeAgo/汇率）+ DS Critical 3 文件 token 改造",
-  "total_features": 5,
-  "completed_features": 5,
-  "fix_rounds": 4,
-  "current_sprint": "BL-FE-QUALITY",
-  "last_updated": "2026-04-26T14:41:08.000Z",
+  "status": "building",
+  "user_goal": "BL-DEV-PORT-3199 — 解决两个项目共用 :3099 的本机冲突。Codex 测试环境与所有 scripts/tests/docs 默认 BASE_URL 由 3099 全量替换为 3199；本机 .env 已由 Planner 单独改完。",
+  "total_features": 2,
+  "completed_features": 0,
+  "fix_rounds": 0,
+  "current_sprint": "BL-DEV-PORT-3199",
+  "last_updated": "2026-04-26T15:00:00.000Z",
   "reference_docs": [
-    "docs/specs/BL-FE-QUALITY-spec.md"
+    "docs/specs/BL-DEV-PORT-3199-spec.md"
   ],
   "role_assignments": null,
   "docs": {
-    "spec": "docs/specs/BL-FE-QUALITY-spec.md",
+    "spec": "docs/specs/BL-DEV-PORT-3199-spec.md",
     "test_cases": null,
-    "signoff": "docs/test-reports/BL-FE-QUALITY-signoff-2026-04-26-round6.md",
+    "signoff": null,
     "framework_reviewed": false
   },
   "evaluator_feedback": null,
   "generator_handoff": {
-    "fix_round": 3,
-    "scope": "fix_round 3 完成：测试环境 env 缺口修复 — codex-env.sh 补齐 IMAGE_PROXY_SECRET/AUTH_SECRET/NEXTAUTH_SECRET（commit b9fafa5 BL-SEC-CRED-HARDEN 引入 instrumentation fail-fast 后未同步测试 env）。本地实证 standalone server 启动 + chunks/login/dashboard 全 200。",
-    "spec": "docs/specs/BL-FE-QUALITY-spec.md",
-    "summary_report": "docs/test-reports/BL-FE-QUALITY-fix-round-3-summary-2026-04-26.md",
-    "root_cause": "src/instrumentation.ts:14-16 调用 assertImageProxySecret() 要求三个 SECRET 之一；scripts/test/codex-env.sh 三个都缺 → server prepare throw → 每个请求 500 → 浏览器加载错误页时 chunk 路径错乱 → _next/static 大量 400/404 + Lighthouse NO_FCP。round3/round4/round5 三轮失败同一根因。fix_round 2 push-back 只看到 URL 前缀这一层，未挖到 env 缺口，向 Reviewer 致歉。",
-    "fix_files": [
-      "scripts/test/codex-env.sh — 补 IMAGE_PROXY_SECRET + AUTH_SECRET + NEXTAUTH_SECRET",
-      "scripts/test/codex-setup.sh — cp 步骤改稳健（rm 旧目录 + 不静默错误 + verify chunks 非空）"
+    "fix_round": 0,
+    "scope": "F-DP-01 首轮实现：批量 sed 替换 ~83 文件中 3099 → 3199（含 codex-env.sh PORT、codex-setup.sh lsof + echo、codex-wait.sh URL、6 个活跃 scripts 默认 BASE_URL、3 个 tests/e2e spec、3 个 tests/perf k6 + autocannon + .env.example、CLAUDE.md 4 行、AGENTS.md 2 行、~50 个 scripts/test/*-YYYY-MM-DD.ts 历史脚本默认值）",
+    "spec": "docs/specs/BL-DEV-PORT-3199-spec.md",
+    "targets": [
+      {
+        "step": "1. 预扫描",
+        "command": "grep -rl '3099' scripts/ tests/ CLAUDE.md AGENTS.md --include={*.ts,*.tsx,*.md,*.sh,*.js,*.mjs} | grep -v 'docs/test-cases\\|docs/test-reports\\|docs/audits'",
+        "expected": "~83 文件"
+      },
+      {
+        "step": "2. 批量替换（macOS）",
+        "command": "<上述列表> | xargs sed -i '' 's/3099/3199/g'",
+        "note": "sed -i '' 是 macOS BSD 写法，必需。Linux/CI 不会执行此 commit"
+      },
+      {
+        "step": "3. 关键文件确认",
+        "files": [
+          "scripts/test/codex-env.sh:24 → PORT=3199",
+          "scripts/test/codex-setup.sh:36-37 lsof :3199 + echo :3199",
+          "scripts/test/codex-setup.sh:61 echo Start on :3199",
+          "scripts/test/codex-wait.sh:10 TARGET=http://localhost:3199/v1/models"
+        ]
+      },
+      {
+        "step": "4. grep 反向验证",
+        "command": "grep -rn '3099' scripts/ tests/ CLAUDE.md AGENTS.md --include={*.ts,*.tsx,*.md,*.sh,*.js,*.mjs} | grep -v 'docs/test-cases\\|docs/test-reports\\|docs/audits'",
+        "expected": "0 行"
+      },
+      {
+        "step": "5. 抽检 git diff",
+        "command": "git diff --stat | head -20 + git diff <随机 5 文件>",
+        "expected": "全部 URL/端口语境，无误命中（如非 URL 的 3099 数字常量）"
+      },
+      {
+        "step": "6. 本地构建/测试",
+        "commands": [
+          "npx tsc --noEmit",
+          "npm run build",
+          "npx vitest run"
+        ],
+        "expected": "全 PASS，vitest 测试数不减少"
+      },
+      {
+        "step": "7. 启动冒烟",
+        "commands": [
+          "bash scripts/test/codex-setup.sh（前台）",
+          "bash scripts/test/codex-wait.sh（另一终端）",
+          "curl -s -o /dev/null -w '%{http_code}' http://localhost:3199/login"
+        ],
+        "expected": ":3199 监听 + wait PASS + curl 200"
+      },
+      {
+        "step": "8. 单 commit + push",
+        "command": "git add -A && git commit -m 'chore(BL-DEV-PORT-3199): 3099 → 3199 端口字面量全量同步' && git push origin main"
+      }
     ],
-    "no_product_code_change": true,
-    "post_fix_validation": [
-      "本地 source codex-env.sh + node .next/standalone/server.js：instrumentation 全部 scheduler 启动成功（已截图日志）",
-      "curl _next/static/chunks/*.js → 200",
-      "curl /login → 200",
-      "curl /dashboard 未登录 → 307 redirect /login（middleware 正确）",
-      "Reviewer round6 重跑 codex-setup.sh + dynamic-check：所有 chunks 200 + 页面可渲染 + Lighthouse A11y ≥ 98 + TC10/11/12 PASS"
-    ]
+    "notes": "纯字面量替换无逻辑改动。无新单测。如果 sed 命中误判（极小概率，例如某个变量名巧合含 3099），用 git checkout <file> 恢复后手工 Edit 该文件。codex-env.sh 已是替换后将驱动 Codex 测试环境用 :3199，与本机 .env（dev :3199）形成两层端口源但取值一致。"
   },
   "session_notes": {
-    "Andy-batch-launch": "BL-FE-QUALITY 启动 @ 2026-04-26 10:30",
-    "Kimi-FQ-01": "BL-FE-QUALITY 批次复核 + zombie 推 verifying @ 2026-04-26 18:35。整个批次（F-FQ-01~04）已在 04-18 commit 09331f4 实现，本次 commit 22ad728 补 admin/models 双 useAsyncData → 1 个合并；CI 24954287111 PASS。",
-    "Reviewer": "reverify round6 @ 2026-04-26：3099 环境重建后完成全量复验，tsc/vitest/PATCH400/Lighthouse/TC10-12 全 PASS；已产出 signoff，状态置 done。",
-    "Andy-fix-round-1-plan": "fix_round 1 交接 @ 2026-04-26 19:15：Codex 首轮 19/17 PASS，2 个阻断项均为 Generator 实现 acceptance 时未到位的局部 polish，不需 mid-impl 裁决（非 acceptance 与代码冲突，是 acceptance 未达成）。\n\n阻断 1（F-FQ-05-09）：top-app-bar.tsx:96-106 头像 button 两处 A11y 缺陷 — text-ds-on-primary 应为 text-ds-on-primary-container（DS token 误用导致对比度 1.52）；aria-label='用户菜单' 不含可见文本 'AD' 触发 label-content-name-mismatch。\n\n阻断 2（F-FQ-05-14）：F-FQ-04 改造时漏掉 7 处非 ds 色类（admin/logs 2 处 divide-slate-50；admin/operations 5 处 blue/slate/teal）。Generator 改前应 cat globals.css 查可用 ds-* token 全集。\n\nGenerator 修完三个文件 + 本地 lighthouse 自测后 status→reverifying，Codex 重跑全 19 项验收。预期 fix_rounds=1 一轮收口。\n\n注意：本 fix_round 不引入新 scope，仅修阻断；DS-1 其余 28 个 High 文件留给 BL-FE-DS-SHADCN。",
-    "Kimi-fix-round-1": "Fix round 1 完成 @ 2026-04-26 19:45。\n\n修复 2 个阻断项：\n1) F-FQ-05-09 Lighthouse A11y — top-app-bar.tsx:99,103：\n   - aria-label: t(userMenu) →  (含可见文本 AD，消 label-content-name-mismatch)\n   - 头像 div text token: text-ds-on-primary → text-ds-on-primary-fixed-variant\n   注：handoff 原指 text-ds-on-primary-container，但 globals.css 中该 token = #f6f1ff (浅色)，无法解决对比度问题。\n   实际背景被 lighthouse 检测为 #d2cdf2（globals.css 无该值，疑 ring-2/opacity 叠加），需深色文字。\n   选 text-ds-on-primary-fixed-variant (#4431a8 深紫) 与浅紫背景视觉协调，对比度计算 ~6.6 ≥ 4.5。\n\n2) F-FQ-05-14 DS grep 7 处非 ds 色类：\n   - admin/logs:181,315 divide-slate-50 → divide-ds-outline-variant/30\n   - admin/operations:203 bg-blue-50 text-blue-600 → bg-ds-primary-container text-ds-primary\n   - admin/operations:305 border-slate-100/60 → border-ds-outline-variant/60\n   - admin/operations:531,589 text-blue-700 bg-blue-50 → text-ds-primary bg-ds-primary-container (replace_all 一并改)\n   - admin/operations:1186 bg-teal-50 text-teal-600 → bg-ds-status-success-container text-ds-status-success\n\n本地预检：\n- grep -E DS-tailwind 三文件全部 0/0/0\n- npx tsc --noEmit 通过 (exit 0)\n- 未跑本地 lighthouse（需启 dev server，由 codex reverify 时跑）\n\nstatus fixing→reverifying / fix_rounds 1→2 / evaluator_feedback 清空。",
-    "Kimi-fix-round-2-pushback": "Fix round 2 = PUSH-BACK @ 2026-04-26 22:30，用户裁决采用 B 方案。\n\n根因：Reviewer round3/round4 使用了项目中不存在的 /zh/... URL 前缀路径，所有 4 项 FAIL（404 / _next 400-404 / Lighthouse 0 / TC10-12 阻断）均为同一验收方法学回归。\n\n证据链（全部文件级引用，已写入 push-back 报告）：\n- src/app/ 无 [locale] 段，结构 (auth) + (console) + 直接路径\n- src/middleware.ts matcher 无 /zh/* /en/*，无 createMiddleware\n- next.config.mjs 无 next-intl/plugin\n- src/components/intl-provider.tsx + src/hooks/use-locale.tsx：纯客户端 localStorage('aigc-locale') + 动态 import messages\n- 04-19 round8 (commit 994a665) signoff 同样用无前缀 URL（/error-test, /admin/models）通过\n\n反证：fix_round 1 commit b62a9ff 只修了 top-app-bar.tsx + admin/logs/page.tsx + admin/operations/page.tsx 三个文件（色类 + aria-label），无任何代码会让一个 200 URL 变 404。\n\n本轮动作：\n- 不修任何产品代码（无 bug 可修）\n- 写 docs/test-reports/BL-FE-QUALITY-generator-pushback-2026-04-26-round2.md\n- progress.json: status fixing→reverifying / fix_rounds 2→3 / evaluator_feedback 清空 / generator_handoff 改为 PUSHBACK 说明\n- 等 Reviewer round5 用无前缀 URL + 客户端切语言重验\n- 若 Reviewer 不接受 → 申请 Planner 裁决（spec 改 i18n 验收方法 / 或新批次 BL-I18N-URL-PREFIX）",
-    "Kimi-fix-round-3": "Fix round 3 完成 @ 2026-04-26 22:50。Reviewer round5 用无前缀 URL 复验仍 FAIL，证明 fix_round 2 push-back 只看到一半。本轮挖到真根因：\n\n根因：commit b9fafa5 BL-SEC-CRED-HARDEN 引入 instrumentation 启动 fail-fast (assertImageProxySecret 要求 IMAGE_PROXY_SECRET/AUTH_SECRET/NEXTAUTH_SECRET 之一)，但 scripts/test/codex-env.sh 三个都缺。standalone server start 后每个请求 throw → 500 → 浏览器加载错误页时 chunk hash 不一致 → 大量 _next/static 400/404 + NO_FCP。\n\n修复：\n1) scripts/test/codex-env.sh 补三个 SECRET\n2) scripts/test/codex-setup.sh cp 改稳健（rm 旧目录 + 不静默错误 + verify chunks 非空）\n\n本地实证：source codex-env.sh + node .next/standalone/server.js → instrumentation 全部 scheduler 启动 / chunks 200 / login 200 / dashboard 307 redirect login。\n\n不修任何产品代码（src/ 无变化）。push-back 误判向 Reviewer 致歉，写入 fix-round-3-summary 报告。\n\nstatus fixing→reverifying / fix_rounds 3→4 / evaluator_feedback 清空。"
+    "Kimi-batch-launch": "BL-DEV-PORT-3199 启动 @ 2026-04-26 15:00。\n\n背景：本机两个项目同时跑测试，本项目 dev (.env) + Codex test (codex-env.sh) 都用 :3099 → 与另一项目互相干扰。\n\n已完成：\n1) Planner 本机将 .env PORT 改 3000 → 3199（gitignore 文件，不入仓）\n2) 写完 spec docs/specs/BL-DEV-PORT-3199-spec.md\n3) features.json 写入 F-DP-01（generator 字面量替换）+ F-DP-02（codex 验收）\n4) progress.json 状态 done → building，generator_handoff 已填详细 8 步操作\n\n下一步：本会话身份固定 Planner，无法直接执行 F-DP-01。等待 Generator session（Johnsong / Mark / Richard 任一）pull main 后按 generator_handoff 8 步执行。\n\n范围说明：包含 ~50 个 scripts/test/*-YYYY-MM-DD.ts 历史 e2e 脚本默认值，避免日后回归再手动覆盖 BASE_URL。排除 docs/test-cases/test-reports/audits 历史报告（事实记录）。",
+    "Reviewer": null
   }
 }

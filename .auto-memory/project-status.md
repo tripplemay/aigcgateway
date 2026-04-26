@@ -4,22 +4,23 @@ description: AIGC Gateway 当前状态快照（覆盖写，≤30 行）
 type: project
 ---
 ## 当前批次
-- **BL-FE-QUALITY：`reverifying`**（fix_round 3 完成，等 Reviewer round6）
-- fix_round 1 (b62a9ff) 修 A11y + DS grep；fix_round 2 push-back 只识别 URL 前缀这层；fix_round 3 挖到真根因
-- 真根因：commit b9fafa5 BL-SEC-CRED-HARDEN 加了 instrumentation fail-fast，但 codex-env.sh 没补 IMAGE_PROXY_SECRET 家族 → server 启动后每请求 500 → chunks 400/404 + NO_FCP
-- 修复（test infra only，src/ 0 改动）：codex-env.sh 补 3 个 SECRET + codex-setup.sh cp 改稳健
-- 本地实证：standalone server 起来 + chunks 200 + /login 200 + /dashboard 307 redirect login
-- 报告：`docs/test-reports/BL-FE-QUALITY-fix-round-3-summary-2026-04-26.md`
+- **BL-DEV-PORT-3199：`building`**（dev-chore 微批次：解决本机两项目 :3099 端口冲突）
+- F-DP-01（generator）：sed 全量替换 ~83 文件中 3099 → 3199；F-DP-02（codex）：grep + tsc + build + vitest + 启动冒烟
+- Spec：`docs/specs/BL-DEV-PORT-3199-spec.md`，generator_handoff 含 8 步操作清单
+- 已完成：Planner 本机 `.env` 3000 → 3199；spec/features/progress 入仓
+- 关键文件：`scripts/test/codex-env.sh:24` PORT、`codex-setup.sh:36-37,61` lsof+echo、`codex-wait.sh:10` URL
+- 范围排除：docs/test-cases/test-reports/audits（历史报告，不改写）
 
-## 修复后复验范围
-- Reviewer round6 重跑修复后 `bash scripts/test/codex-setup.sh`，按 push-back §5 用无前缀 URL + 客户端切语言
-- 期望：所有 chunks 200 + 页面渲染 + Lighthouse A11y ≥ 98 + TC10/11/12 PASS
-- build / tsc / vitest(414) / PATCH invalid JSON 400 已 PASS（round4-5 已确认），无需复验
+## 上一批次（已 done）
+- **BL-FE-QUALITY：done @ round6**（5/5 features，fix_rounds=4）
+- Signoff：`docs/test-reports/BL-FE-QUALITY-signoff-2026-04-26-round6.md`
+- 收尾：tsc / vitest 414 / PATCH 400 / Lighthouse A11y=100 / TC10-12 全 PASS
+- proposed-learnings 待确认区已空（无新条目沉淀）
 
 ## 后续 backlog（按 order）
-- BL-SEC-* (1-4): 安全加固（接支付前启动，按 reference_payment_timing 决策）
+- BL-SEC-CRED-HARDEN (1) / BL-SEC-AUTH-SESSION (2) / BL-SEC-BILLING-AI (3) / BL-SEC-BILLING-CHECK-FOLLOWUP (3.5) / BL-SEC-INFRA-GUARD (4)
 - BL-DATA-CONSISTENCY (7) / BL-INFRA-RESILIENCE (8) / BL-SEC-POLISH (9) / BL-INFRA-ARCHIVE (10)
 - BL-FE-DS-SHADCN (98) / BL-SEC-PAY-DEFERRED (99) deferred
 
 ## 生产前置
-- 无（纯前端 + 极少 backend）
+- 无（纯本机 dev-chore）
