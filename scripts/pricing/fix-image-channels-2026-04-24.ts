@@ -233,6 +233,31 @@ export const IMAGE_CHANNEL_PRICES: readonly ChannelPriceEntry[] = [
     costPerCall: 0.042,
     sellPerCall: 0.0504,
   },
+  // BL-IMAGE-PRICING-OR-P2 fix_round 2 addendum (2026-04-26): 3 条 sync 后陆续
+  // 新增的 image channel，未在原 P1 spec § 3.1 表中。按 OpenAI/Google canonical
+  // 保守填值，让脚本幂等 + sync 后保持非零（buildCostPrice IMAGE→null 修复
+  // 已防 sync 覆盖；这里加进硬编码表是为了"已知未填值的运营纠错"路径）。
+  {
+    channelId: "cmnpqv0lk013gbnxchdxs55ch",
+    provider: "openai",
+    model: "dall-e-2",
+    costPerCall: 0.02,
+    sellPerCall: 0.024,
+  },
+  {
+    channelId: "cmnpqv0lb013dbnxcmm6ny1e5",
+    provider: "openai",
+    model: "dall-e-3",
+    costPerCall: 0.04,
+    sellPerCall: 0.048,
+  },
+  {
+    channelId: "cmnpqv0lw013jbnxctqm8tyt6",
+    provider: "openai",
+    model: "gemini-2.5-flash-image-preview",
+    costPerCall: 0.042,
+    sellPerCall: 0.0504,
+  },
   {
     channelId: "cmnujsns900fhbnrzmnf793q2",
     provider: "zhipu",

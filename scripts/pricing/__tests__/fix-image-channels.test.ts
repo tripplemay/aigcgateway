@@ -4,7 +4,7 @@
  * 验证 runPricingFix：
  *   1) dry-run 不写库，输出 diff；apply=true 才执行 UPDATE
  *   2) 幂等：当前值已匹配目标值 → skipped=true，不产生 update
- *   3) 定价表完整覆盖 spec § 3.1（30 条）+ modality 列表完整（4 条）
+ *   3) 定价表完整覆盖 spec § 3.1（30 条）+ OR-P2 fix_round 2 addendum（3 条）+ modality 列表（4 条）= 33+4
  *   4) priceMatches 对 null / undefined / 不同结构返回 false
  */
 import { describe, it, expect, vi, beforeEach } from "vitest";
@@ -57,8 +57,11 @@ beforeEach(() => {
 });
 
 describe("F-BAX-08 runPricingFix", () => {
-  it("covers all 30 channels + 4 modality models per spec § 3.1 / 3.2", () => {
-    expect(IMAGE_CHANNEL_PRICES).toHaveLength(30);
+  it("covers all 33 channels + 4 modality models (30 spec § 3.1 + 3 fix_round 2 addendum)", () => {
+    // 30 from P1 spec § 3.1 + 3 added in BL-IMAGE-PRICING-OR-P2 fix_round 2
+    // (dall-e-2 / dall-e-3 / gemini-2.5-flash-image-preview — sync-added IMAGE
+    // channels never priced in original spec).
+    expect(IMAGE_CHANNEL_PRICES).toHaveLength(33);
     expect(MODALITY_FIX_MODELS).toEqual([
       "gpt-4.1-vision",
       "gpt-4o-vision",
@@ -80,7 +83,7 @@ describe("F-BAX-08 runPricingFix", () => {
 
     expect(updateChannelMock).not.toHaveBeenCalled();
     expect(updateModelMock).not.toHaveBeenCalled();
-    expect(channelDiffs).toHaveLength(30);
+    expect(channelDiffs).toHaveLength(33);
     expect(modalityChanges).toHaveLength(4);
     // every channel starts with perCall=0 so none should be skipped
     expect(channelDiffs.every((d) => !d.skipped)).toBe(true);
@@ -88,7 +91,7 @@ describe("F-BAX-08 runPricingFix", () => {
 
   it("apply=true calls update for non-skipped entries", async () => {
     await runPricingFix({ apply: true });
-    expect(updateChannelMock).toHaveBeenCalledTimes(30);
+    expect(updateChannelMock).toHaveBeenCalledTimes(33);
     expect(updateModelMock).toHaveBeenCalledTimes(4);
     // verify first update uses expected shape
     const firstCall = updateChannelMock.mock.calls[0][0];
@@ -135,21 +138,21 @@ describe("F-BAX-08 runPricingFix", () => {
 
 describe("F-BAX-08 priceMatches", () => {
   it("matches identical struct", () => {
-    expect(
-      priceMatches({ unit: "call", perCall: 0.037 }, { unit: "call", perCall: 0.037 }),
-    ).toBe(true);
+    expect(priceMatches({ unit: "call", perCall: 0.037 }, { unit: "call", perCall: 0.037 })).toBe(
+      true,
+    );
   });
 
   it("rejects unit mismatch", () => {
-    expect(
-      priceMatches({ unit: "token", perCall: 0.037 }, { unit: "call", perCall: 0.037 }),
-    ).toBe(false);
+    expect(priceMatches({ unit: "token", perCall: 0.037 }, { unit: "call", perCall: 0.037 })).toBe(
+      false,
+    );
   });
 
   it("rejects perCall drift beyond tolerance", () => {
-    expect(
-      priceMatches({ unit: "call", perCall: 0.038 }, { unit: "call", perCall: 0.037 }),
-    ).toBe(false);
+    expect(priceMatches({ unit: "call", perCall: 0.038 }, { unit: "call", perCall: 0.037 })).toBe(
+      false,
+    );
   });
 
   it("rejects null", () => {
