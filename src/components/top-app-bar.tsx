@@ -96,11 +96,11 @@ export function TopAppBar({ userName, userEmail }: TopAppBarProps) {
           <button
             onClick={() => setMenuOpen((prev) => !prev)}
             className="flex items-center gap-3 cursor-pointer group"
-            aria-label={t("userMenu")}
+            aria-label={`${initials} ${t("userMenu")}`}
             aria-haspopup="menu"
             aria-expanded={menuOpen}
           >
-            <div className="w-8 h-8 rounded-full bg-ds-primary-container flex items-center justify-center text-ds-on-primary text-xs font-bold ring-2 ring-ds-primary/20 group-hover:ring-ds-primary/50 transition-all">
+            <div className="w-8 h-8 rounded-full bg-ds-primary-container flex items-center justify-center text-ds-on-primary-fixed-variant text-xs font-bold ring-2 ring-ds-primary/20 group-hover:ring-ds-primary/50 transition-all">
               {initials}
             </div>
           </button>

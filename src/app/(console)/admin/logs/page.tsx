@@ -178,7 +178,7 @@ function ApiCallsTab() {
               ))}
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-50">
+          <tbody className="divide-y divide-ds-outline-variant/30">
             {loading && logs.length === 0 ? (
               <tr>
                 <td colSpan={10} className="px-6 py-12 text-center text-ds-outline">
@@ -312,7 +312,7 @@ function SystemLogsTab() {
               )}
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-50">
+          <tbody className="divide-y divide-ds-outline-variant/30">
             {loading && logs.length === 0 ? (
               <tr>
                 <td colSpan={4} className="px-6 py-12 text-center text-ds-outline">

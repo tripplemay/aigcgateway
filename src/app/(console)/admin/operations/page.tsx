@@ -200,7 +200,7 @@ export default function OperationsPage() {
         <SectionCard className="[&>div]:p-0">
           <div className="px-6 py-5 flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center">
+              <div className="w-10 h-10 rounded-full bg-ds-primary-container text-ds-primary flex items-center justify-center">
                 <span
                   className="material-symbols-outlined"
                   style={{ fontVariationSettings: "'FILL' 1" }}
@@ -302,7 +302,7 @@ export default function OperationsPage() {
                   </thead>
                   <tbody>
                     {syncResult.providers.map((p) => (
-                      <tr key={p.providerName} className="border-t border-slate-100/60">
+                      <tr key={p.providerName} className="border-t border-ds-outline-variant/60">
                         <td className="px-4 py-2.5 font-semibold">{p.providerName}</td>
                         <td className="px-4 py-2.5">
                           <span
@@ -528,7 +528,7 @@ function InferenceStatusBanner({
 
   if (totalUpdated === 0 && totalNewAliases === 0 && totalSkipped === 0) {
     return (
-      <div className="flex items-center gap-2 text-blue-700 bg-blue-50 px-4 py-2.5 rounded-lg text-xs font-semibold">
+      <div className="flex items-center gap-2 text-ds-primary bg-ds-primary-container px-4 py-2.5 rounded-lg text-xs font-semibold">
         <span className="material-symbols-outlined text-[16px]">check_circle</span>
         {t("inferBannerUpToDate")}
       </div>
@@ -586,7 +586,7 @@ function SyncStatusBanner({
 
   if (totalNewModels === 0 && totalNewChannels === 0 && totalDisabledChannels === 0) {
     return (
-      <div className="flex items-center gap-2 text-blue-700 bg-blue-50 px-4 py-2.5 rounded-lg text-xs font-semibold">
+      <div className="flex items-center gap-2 text-ds-primary bg-ds-primary-container px-4 py-2.5 rounded-lg text-xs font-semibold">
         <span className="material-symbols-outlined text-[16px]">check_circle</span>
         {t("syncBannerUpToDate")}
       </div>
@@ -1183,7 +1183,7 @@ function TemplateCategoriesCard({ t }: { t: ReturnType<typeof useTranslations> }
   return (
     <SectionCard data-testid="template-categories">
       <div className="flex items-center gap-3 mb-6">
-        <div className="w-10 h-10 rounded-full bg-teal-50 text-teal-600 flex items-center justify-center">
+        <div className="w-10 h-10 rounded-full bg-ds-status-success-container text-ds-status-success flex items-center justify-center">
           <span className="material-symbols-outlined">category</span>
         </div>
         <div>
