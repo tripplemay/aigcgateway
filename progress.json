@@ -2,10 +2,10 @@
   "status": "building",
   "user_goal": "BL-FE-QUALITY — 前端质量合并：UX 交互（9 reload + 双事件 + 复制 + 轮询门控 + admin batch）+ template-testing polish（PATCH 400 + Decimal + waitForCallLog）+ A11y/i18n（aria-label + error.tsx + admin/models + timeAgo/汇率）+ DS Critical 3 文件 token 改造",
   "total_features": 5,
-  "completed_features": 0,
+  "completed_features": 1,
   "fix_rounds": 0,
-  "current_sprint": "BL-FE-QUALITY",
-  "last_updated": "2026-04-26T10:30:00.000Z",
+  "current_sprint": "F-FQ-02",
+  "last_updated": "2026-04-26T18:30:00.000Z",
   "reference_docs": [
     "docs/specs/BL-FE-QUALITY-spec.md"
   ],
@@ -19,6 +19,7 @@
   "evaluator_feedback": null,
   "generator_handoff": null,
   "session_notes": {
-    "Andy-batch-launch": "BL-FE-QUALITY 启动 @ 2026-04-26 10:30（BL-IMAGE-LOG-DISPLAY-FIX done @ 09:45 后立即启动）。\n\n前置调研：\n- BL-FE-PERF-01 (order=5) 经 grep 复核已完成（commit a954c46 close）：recharts 懒加载 / IntlProvider 动态 import / page.tsx RSC redirect / loading.tsx / dashboard min-h Skeleton / next.config bundle-analyzer 全部就绪\n- backlog zombie 条目顺手清理（PERF-01 + QUALITY 都从 backlog 移除）\n\n5 features：\n- F-FQ-01 high generator: UX 9 reload→router.refresh + settings 双事件 + keys 复制 + 轮询 visibilitychange + admin batched fetch\n- F-FQ-02 high generator: template-testing polish (PATCH try/catch + Decimal 精度 + waitForCallLog)\n- F-FQ-03 high generator: A11y/i18n (aria-label helper + error.tsx i18n + admin/models Free/Degraded + timeAgo/汇率)\n- F-FQ-04 high generator: DS Critical 3 文件 token 改造（admin/operations 33 + dashboard 24 + admin/logs 24 处违规）\n- F-FQ-05 critical codex: 19 项验收（含 Lighthouse A11y ≥ 98 + 视觉回归截图）\n\n应用 framework v0.9.5（spec 顶部自检 7 项已勾选）：\n- 铁律 1.1：F-FQ-01 #1 锁死 router.refresh() —— 已加'或等价 SPA 局部 mutate'豁免\n- 铁律 1.2：所有验收基于 DOM/Network/DB/Lighthouse，无运维依赖\n- 铁律 2：[已核实] / [待核实] 标记齐备，Generator 开工前必 Read 重核（多个批次动过这些文件）\n\n生产前置：无。Generator 按 spec § F-FQ-01~04 4 文件 cluster 并行开工 → status→verifying。"
+    "Andy-batch-launch": "BL-FE-QUALITY 启动 @ 2026-04-26 10:30（BL-IMAGE-LOG-DISPLAY-FIX done @ 09:45 后立即启动）。\n\n前置调研：\n- BL-FE-PERF-01 (order=5) 经 grep 复核已完成（commit a954c46 close）：recharts 懒加载 / IntlProvider 动态 import / page.tsx RSC redirect / loading.tsx / dashboard min-h Skeleton / next.config bundle-analyzer 全部就绪\n- backlog zombie 条目顺手清理（PERF-01 + QUALITY 都从 backlog 移除）\n\n5 features：\n- F-FQ-01 high generator: UX 9 reload→router.refresh + settings 双事件 + keys 复制 + 轮询 visibilitychange + admin batched fetch\n- F-FQ-02 high generator: template-testing polish (PATCH try/catch + Decimal 精度 + waitForCallLog)\n- F-FQ-03 high generator: A11y/i18n (aria-label helper + error.tsx i18n + admin/models Free/Degraded + timeAgo/汇率)\n- F-FQ-04 high generator: DS Critical 3 文件 token 改造（admin/operations 33 + dashboard 24 + admin/logs 24 处违规）\n- F-FQ-05 critical codex: 19 项验收（含 Lighthouse A11y ≥ 98 + 视觉回归截图）\n\n应用 framework v0.9.5（spec 顶部自检 7 项已勾选）：\n- 铁律 1.1：F-FQ-01 #1 锁死 router.refresh() —— 已加'或等价 SPA 局部 mutate'豁免\n- 铁律 1.2：所有验收基于 DOM/Network/DB/Lighthouse，无运维依赖\n- 铁律 2：[已核实] / [待核实] 标记齐备，Generator 开工前必 Read 重核（多个批次动过这些文件）\n\n生产前置：无。Generator 按 spec § F-FQ-01~04 4 文件 cluster 并行开工 → status→verifying。",
+    "Kimi-FQ-01": "F-FQ-01 done @ 2026-04-26 18:30 — Read 复核 9 文件 + admin 3 文件后发现 7/8 改动点已在前序批次（PERF-01 / UX-PERF / 等）实现：(1) 9 处 reload 全部已是 router.refresh() (grep 残留 0); (2) settings/page.tsx 已是纯 React onClick (无 btn.addEventListener 双事件); (3) keys/page.tsx:167-176 已 disabled + copyOnlyOnCreate 文案 (方案 B); (4) notification-center.tsx:110-141 visibilitychange 门控已实现; (5) admin/usage: 1 useAsyncData + Promise.all (已优化); (6) admin/operations: 1 useAsyncData, setInterval 是 user-triggered 进度轮询 (保持); (7) admin/models 仍是 2 useAsyncData → 本次合并为 1 个 + Promise.all (依赖 [search], 副作用: 每次 search 重 fetch sync-status 一次轻端点, 可接受). tsc 通过. 下一步 F-FQ-02."
   }
 }

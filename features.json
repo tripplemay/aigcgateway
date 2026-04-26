@@ -7,7 +7,7 @@
       "title": "UX 交互改造 — 9 处 reload + settings 双事件 + keys 复制 + 轮询门控 + admin batched fetch",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "source": "BL-FE-QUALITY spec § F-FQ-01",
       "acceptance": "1) 9 处 `<EmptyState onCreated={() => window.location.reload()} />` 改为 `router.refresh()` 或等价 SPA 局部 mutate（语义：刷新数据但不破 SPA 状态/滚动）：balance/usage/dashboard/logs+[traceId]/actions/templates/keys+[keyId] 共 9 个 console 页面；2) settings/page.tsx:197 删除 `btn.addEventListener('click', handler)` 双事件，保留 React onClick；3) keys 复制按钮：实测复制内容若为脱敏 key（前后省略号），改复制真 key（创建瞬间）；若不可访问改文案为'（创建时可复制）'并 disabled；4) notification-center.tsx 30s 轮询加 visibilitychange 门控（document.hidden 暂停 / 重显恢复）；5) admin/usage/page.tsx 3 个 useAsyncData → 单个 Promise.all；admin/models/page.tsx 2 个 → 1 个；admin/operations/page.tsx 评估并合并；6) Generator 开工前对 [待核实] 位置 Read 复核（src/app/(console)/keys/page.tsx:173 / notification-center.tsx 行号 / admin 页面行号）；7) tsc + build + 单测全过"
     },

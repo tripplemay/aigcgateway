@@ -96,26 +96,29 @@ export default function ModelsChannelsPage() {
   const [showAllModels, setShowAllModels] = useState<Set<string>>(new Set());
   const [matrixPage, setMatrixPage] = useState(0);
 
-  // ── Data loading via useAsyncData ──
-  const { data: channelData, refetch: load } = useAsyncData<{ data: ProviderGroup[] }>(async () => {
+  // ── F-FQ-01 #5: batched fetch — single useAsyncData with Promise.all
+  //    (was 2 independent useAsyncData causing 2 render cycles on mount).
+  interface ModelsBundle {
+    channels: ProviderGroup[];
+    syncStatus: { lastSyncTime: string | null; lastSyncResultDetail: typeof lastSyncResult };
+  }
+  const { data: bundle, refetch: load } = useAsyncData<ModelsBundle>(async () => {
     const params = new URLSearchParams();
     if (search) params.set("search", search);
     const q = params.toString() ? `?${params}` : "";
-    return apiFetch<{ data: ProviderGroup[] }>(`/api/admin/models-channels${q}`);
+    const [channelResp, syncResp] = await Promise.all([
+      apiFetch<{ data: ProviderGroup[] }>(`/api/admin/models-channels${q}`),
+      apiFetch<{
+        data: { lastSyncTime: string | null; lastSyncResultDetail: typeof lastSyncResult };
+      }>("/api/admin/sync-status"),
+    ]);
+    return { channels: channelResp.data, syncStatus: syncResp.data };
   }, [search]);
 
-  const data = channelData?.data ?? [];
-  const loading = !channelData && search === "";
-
-  const { data: syncData, refetch: loadSyncStatus } = useAsyncData<{
-    data: { lastSyncTime: string | null; lastSyncResultDetail: typeof lastSyncResult };
-  }>(async () => {
-    return apiFetch<{
-      data: { lastSyncTime: string | null; lastSyncResultDetail: typeof lastSyncResult };
-    }>("/api/admin/sync-status");
-  }, []);
-
-  const lastSyncTime = syncData?.data.lastSyncTime ?? null;
+  const data = bundle?.channels ?? [];
+  const loading = !bundle && search === "";
+  const lastSyncTime = bundle?.syncStatus.lastSyncTime ?? null;
+  const loadSyncStatus = load;
 
   // ── Aggregated stats ──
   const stats = useMemo(() => {
