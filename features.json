@@ -7,7 +7,7 @@
       "title": "3099 → 3199 端口字面量全量同步（codex-env + scripts + tests + CLAUDE/AGENTS.md）",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "source": "BL-DEV-PORT-3199 spec § F-DP-01",
       "acceptance": "1) 预扫描：grep -rl '3099' scripts/ tests/ CLAUDE.md AGENTS.md --include={*.ts,*.tsx,*.md,*.sh,*.js,*.mjs} 排除 docs/test-cases/test-reports/audits → ~83 文件；2) 批量 sed 'sed -i \"\" s/3099/3199/g' 一次性替换；3) 核对关键文件：scripts/test/codex-env.sh PORT=3199 + codex-setup.sh lsof :3199 + echo Start on :3199 + codex-wait.sh URL 3199；4) 本地验证：grep -rn '3099' 上述路径排除 docs/* = 0；npx tsc --noEmit PASS；npm run build PASS；npx vitest run 不破坏 414 测试；5) 启动验证：bash scripts/test/codex-setup.sh + bash scripts/test/codex-wait.sh + curl http://localhost:3199/login → 200；6) git diff 抽检 5-10 文件 confirm 全部为 URL/端口语境无误命中；7) 单 commit 'chore(BL-DEV-PORT-3199): 3099 → 3199 端口字面量全量同步'"
     },

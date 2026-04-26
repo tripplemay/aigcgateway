@@ -4,12 +4,12 @@ description: AIGC Gateway 当前状态快照（覆盖写，≤30 行）
 type: project
 ---
 ## 当前批次
-- **BL-DEV-PORT-3199：`building`**（dev-chore 微批次：解决本机两项目 :3099 端口冲突）
-- F-DP-01（generator）：sed 全量替换 ~83 文件中 3099 → 3199；F-DP-02（codex）：grep + tsc + build + vitest + 启动冒烟
-- Spec：`docs/specs/BL-DEV-PORT-3199-spec.md`，generator_handoff 含 8 步操作清单
-- 已完成：Planner 本机 `.env` 3000 → 3199；spec/features/progress 入仓
-- 关键文件：`scripts/test/codex-env.sh:24` PORT、`codex-setup.sh:36-37,61` lsof+echo、`codex-wait.sh:10` URL
-- 范围排除：docs/test-cases/test-reports/audits（历史报告，不改写）
+- **BL-DEV-PORT-3199：`verifying`**（dev-chore 微批次：解决本机两项目 :3099 端口冲突）
+- F-DP-01（generator）：✅ done @ commit 319ebbc — 82 文件 sed 替换；F-DP-02（codex）：待 Codex 走 codex-setup.sh + codex-wait.sh + curl :3199/login + 写 signoff
+- Spec：`docs/specs/BL-DEV-PORT-3199-spec.md`
+- Generator 验证：tsc 0 / vitest 414 PASS / build PASS / curl :3199 /login 200 + /v1/models 200
+- 已知 untracked：`scripts/test/bl-fe-quality-round7-dynamic-evidence-2026-04-19.tsx`（BL-FE-QUALITY round7 漏推，不属本批次 scope）
+- Codex 验收注意：本机走 http_proxy 时需 `curl --noproxy '*'` 绕过代理
 
 ## 上一批次（已 done）
 - **BL-FE-QUALITY：done @ round6**（5/5 features，fix_rounds=4）
