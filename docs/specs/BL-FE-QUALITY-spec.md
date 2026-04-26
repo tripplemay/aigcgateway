@@ -3,8 +3,19 @@
 **批次：** BL-FE-QUALITY（合并批次，P1-quality 第 1 批）
 **负责人：** Planner = Kimi / Generator = 默认映射 / Evaluator = Reviewer
 **创建：** 2026-04-18
+**最后更新：** 2026-04-26（启动复审；前置 BL-FE-PERF-01 已 done @ a954c46，BL-IMAGE-LOG-DISPLAY-FIX 已 done @ 2026-04-26）
 **工时：** 3.5 day
 **源：** 合并原 BL-FE-UX-QUALITY（HIGH-33/34/35 + M1-M3）+ BL-FE-A11Y-I18N-DS（HIGH-37/38/40/41 + DS-1 Critical 3）
+
+## Framework v0.9.5 自检（启动前 Planner 核查）
+
+- ✅ 铁律 1：spec 内代码位置标注 `[已核实 file:line]` / `[待核实]` —— Generator 开工前必须 Read 重新核实标 `[待核实]` 的位置（v0.9.3 铁律 2）
+- ⚠️ 铁律 1.1：F-FQ-01 #1 锁死 `router.refresh()` —— 等价实现允许 `router.refresh() OR local mutate`（语义意图：SPA 状态保持）
+- ✅ 铁律 1.2：所有验收基于 DOM / Network / DB / Lighthouse 浏览器指标，无运维依赖
+- ✅ 铁律 1.3：定量阈值（< 1e-12 / Lighthouse ≥ 98）显式声明
+- ✅ 铁律 1.4：本批次不涉及周期任务（sync/cron），无需 sync 回归保护
+- ✅ 铁律 2：Code Review 来源（HIGH-33/34/...）已交叉核实代码现状 + 标 `[已核实]`
+- ✅ 铁律 2.1：本批次纯 HTTP / RSC 协议，无跨协议混淆
 
 ## 背景
 

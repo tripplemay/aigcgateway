@@ -1,32 +1,24 @@
 {
-  "status": "done",
-  "user_goal": "BL-IMAGE-LOG-DISPLAY-FIX — 简化 X 方案：后端 strip base64 → metadata + 前端识别 http(s) image URL 渲染 <img> + 历史 30d 回填脚本",
-  "total_features": 4,
-  "completed_features": 4,
+  "status": "building",
+  "user_goal": "BL-FE-QUALITY — 前端质量合并：UX 交互（9 reload + 双事件 + 复制 + 轮询门控 + admin batch）+ template-testing polish（PATCH 400 + Decimal + waitForCallLog）+ A11y/i18n（aria-label + error.tsx + admin/models + timeAgo/汇率）+ DS Critical 3 文件 token 改造",
+  "total_features": 5,
+  "completed_features": 0,
   "fix_rounds": 0,
-  "current_sprint": "BL-IMAGE-LOG-DISPLAY-FIX",
-  "last_updated": "2026-04-26T09:45:00.000Z",
+  "current_sprint": "BL-FE-QUALITY",
+  "last_updated": "2026-04-26T10:30:00.000Z",
   "reference_docs": [
-    "docs/specs/BL-IMAGE-LOG-DISPLAY-FIX-spec.md"
+    "docs/specs/BL-FE-QUALITY-spec.md"
   ],
   "role_assignments": null,
   "docs": {
-    "spec": "docs/specs/BL-IMAGE-LOG-DISPLAY-FIX-spec.md",
+    "spec": "docs/specs/BL-FE-QUALITY-spec.md",
     "test_cases": null,
-    "signoff": "docs/test-reports/BL-IMAGE-LOG-DISPLAY-FIX-signoff-2026-04-26.md",
+    "signoff": null,
     "framework_reviewed": false
   },
-  "evaluator_feedback": {
-    "summary": "Verifying PASS: build/tsc/vitest 414 pass; production HEAD 370ee52 online; OR image API still returns base64 to client while DB logs store metadata; seedream DB responseContent remains http(s) URL; maintenance backfill exits 0 and is idempotent; browser log detail renders seedream as visible img and OR as metadata text without base64.",
-    "pass_count": 12,
-    "partial_count": 0,
-    "fail_count": 0,
-    "issues": []
-  },
+  "evaluator_feedback": null,
   "generator_handoff": null,
   "session_notes": {
-    "Andy-batch-launch": "BL-IMAGE-LOG-DISPLAY-FIX 启动 @ 2026-04-26 09:00。简化 X 方案 0.4d。",
-    "Kimi-build": "F-ILDF-01~03 building 完成 @ 2026-04-26 17:09，status→verifying。\n\n交付：\n- F-ILDF-01: src/lib/api/post-process.ts 加 export summarizeImageUrl（RFC 2397 解析，data:image/foo;param=v;base64,xxx 多 param mime 也能 split first ;）；processImageResultAsync 第 417/440 行 responseContent + responseSummary.original_urls 都过这个 helper；http(s) 透传不变\n- F-ILDF-02: src/app/(console)/logs/[traceId]/is-image-url.ts（独立 .ts 让 vitest 无 JSX 也能 import）+ page.tsx 识别 http(s) image URL → <img loading=lazy onError=hide> 渲染；其他走原 whitespace-pre-wrap div；i18n responseImage 中英双语\n- F-ILDF-03: scripts/maintenance/strip-image-base64-2026-04-26.ts dry-run/--apply 30 天回填；exported planBackfillRow 解耦 helper + DB 调用方便单测；CLI try/finally 保证 prisma + redis 都 close（v0.9.5 铁律）\n\n新增 24 单测（vitest 414 PASS / +24 from 390）：\n- summarize-image-url 7（http 透传 / data:multi-param mime / fallback unknown / null / 幂等 / RFC2397 multi-param）\n- process-image-base64-strip 3 集成（OR ~1MB → metadata≤200B / volcengine https 透传 / metadata 幂等 — v0.9.4 mock 层级铁律最外层）\n- strip-image-base64 6（base64 / https / metadata / summary-only / mixed batch）\n- is-image-url 8（image extension + querystring / proxy URL / metadata 不识别 / data: 不识别 / plain text / non-image http / ipfs/ftp/file 不识别 / trim）\n\ntsc 干净 / npm run build 通过。\n\nF-ILDF-04 Codex 12 项验收：构建 4 + OR/volcengine smoke + 客户端 API 透传 + 脚本 apply + 幂等 + 浏览器图片预览 + base64 不出现 + signoff。生产前置：无（不需新凭证 / 不接外部服务）。",
-    "Reviewer": "2026-04-26 F-ILDF-04 PASS. Evidence in docs/test-reports/artifacts/bl-image-log-display-fix-2026-04-26-codex. Production HEAD 370ee52; build/tsc/vitest 414 pass; OR smoke trace trc_uzgllypnfjw5xfxaenivlfwk proves client base64 preserved + DB metadata; seedream smoke trace trc_mhqdojle30gitvo8mk0ep60w proves http URL passthrough; current-project browser seedream trace trc_v0sqax5tfxjyvtxldo8cfbt8 renders visible img; OR metadata page trc_aexjskz4s69fyopsh7etf2ez shows [image:jpeg, 970KB] and no base64. Backfill apply/idempotency exit 0. Temp API keys revoked. Signoff written."
+    "Andy-batch-launch": "BL-FE-QUALITY 启动 @ 2026-04-26 10:30（BL-IMAGE-LOG-DISPLAY-FIX done @ 09:45 后立即启动）。\n\n前置调研：\n- BL-FE-PERF-01 (order=5) 经 grep 复核已完成（commit a954c46 close）：recharts 懒加载 / IntlProvider 动态 import / page.tsx RSC redirect / loading.tsx / dashboard min-h Skeleton / next.config bundle-analyzer 全部就绪\n- backlog zombie 条目顺手清理（PERF-01 + QUALITY 都从 backlog 移除）\n\n5 features：\n- F-FQ-01 high generator: UX 9 reload→router.refresh + settings 双事件 + keys 复制 + 轮询 visibilitychange + admin batched fetch\n- F-FQ-02 high generator: template-testing polish (PATCH try/catch + Decimal 精度 + waitForCallLog)\n- F-FQ-03 high generator: A11y/i18n (aria-label helper + error.tsx i18n + admin/models Free/Degraded + timeAgo/汇率)\n- F-FQ-04 high generator: DS Critical 3 文件 token 改造（admin/operations 33 + dashboard 24 + admin/logs 24 处违规）\n- F-FQ-05 critical codex: 19 项验收（含 Lighthouse A11y ≥ 98 + 视觉回归截图）\n\n应用 framework v0.9.5（spec 顶部自检 7 项已勾选）：\n- 铁律 1.1：F-FQ-01 #1 锁死 router.refresh() —— 已加'或等价 SPA 局部 mutate'豁免\n- 铁律 1.2：所有验收基于 DOM/Network/DB/Lighthouse，无运维依赖\n- 铁律 2：[已核实] / [待核实] 标记齐备，Generator 开工前必 Read 重核（多个批次动过这些文件）\n\n生产前置：无。Generator 按 spec § F-FQ-01~04 4 文件 cluster 并行开工 → status→verifying。"
   }
 }

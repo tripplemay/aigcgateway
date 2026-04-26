@@ -146,47 +146,6 @@
       "follows": "BL-SEC-INFRA-GUARD"
     },
     {
-      "id": "BL-FE-PERF-01",
-      "title": "前端性能硬化 — Recharts 懒加载 + i18n 按需 + CLS 修复 + 字体/路由优化",
-      "description": "来源 docs/code-review/frontend-perf.md + frontend-lighthouse.md + frontend-bundle-analysis.md。(1) CRITICAL-1: dashboard/usage/admin-usage 静态导入 recharts (~396 kB chunk)，First Load 281/271/227 kB。(2) CRITICAL-2: en.json + zh-CN.json 两套 107 kB 全量打进每页。(3) HIGH-4: Material Symbols CSS 阻塞渲染无 preconnect。(4) LOW-4: src/app/page.tsx 'use client' 仅做 router.push 重定向，应改 RSC redirect()。(5) dashboard CLS 0.11 超 Good 阈值。(6) console 缺 loading.tsx Suspense 边界。(7) next.config.ts 缺 bundle-analyzer + images 配置。",
-      "decisions": [
-        "recharts 改 dynamic() 懒加载：dashboard/usage/admin-usage 各抽 ChartsSection 子组件",
-        "i18n 改 next-intl 动态加载或 useEffect+import()，移除 IntlProvider 的两语言静态 import",
-        "Material Symbols 加 preconnect fonts.googleapis.com + fonts.gstatic.com + &display=swap，考虑迁移 next/font/local 自宿",
-        "src/app/page.tsx 改 RSC 用 redirect('/dashboard')，删 'use client'",
-        "dashboard 所有异步卡片加固定 min-h-[Npx] 或 Skeleton 占位",
-        "console/ 下补 loading.tsx 启用路由级 Suspense",
-        "next.config.ts 接入 @next/bundle-analyzer（ANALYZE=true 时启用）",
-        "poweredByHeader: false"
-      ],
-      "confirmed_at": "2026-04-18",
-      "priority": "high",
-      "source": "docs/code-review/frontend-perf.md CRITICAL-1/2 + HIGH-4 + LOW-4 + frontend-lighthouse.md dashboard CLS",
-      "estimated_effort": "2 days",
-      "phase": "P0-frontend",
-      "order": 5
-    },
-    {
-      "id": "BL-FE-QUALITY",
-      "title": "前端质量合并批次 — UX 交互 + A11y/i18n + DS Critical 3 文件",
-      "description": "合并原 BL-FE-UX-QUALITY + BL-FE-A11Y-I18N-DS（2026-04-18 合并决策）。覆盖三组改动均为前端质量向，同 Generator 上下文复用。(A UX) HIGH-33 9 处 window.location.reload() → SPA / HIGH-34 settings 双事件 / HIGH-35 keys 复制脱敏 / MEDIUM-1 轮询可见性门控 / MEDIUM-2 admin 并发 batched fetch / daily M1-M3 template-testing polish。(B A11y+i18n) HIGH-38 aria-label 批量 / HIGH-40 error.tsx i18n / HIGH-41 Free/Degraded 硬编码 / HIGH-37 timeAgo+汇率本地化。(C DS Critical) admin/operations (33)、dashboard (24)、admin/logs (24) 590+ token 违规。",
-      "decisions": [
-        "spec 必须按三组（UX / A11y-i18n / DS-Critical）清晰分节，便于 Evaluator 子任务独立验证",
-        "features.json 预计 4 条：3 generator（UX / A11y+i18n / DS）+ 1 codex",
-        "settings/page.tsx 和 admin/models/page.tsx 两批次都会动，合并后一次改完避免二次触及",
-        "UX 部分：reload() 回调改 router.refresh() + 局部 mutate；settings 去 native addEventListener；keys 复制真 key 或明确提示；NotificationCenter 加 visibilitychange 门控；admin 页 Promise.all batch；admin templates PATCH 加 try/catch；test-runner 改 Prisma.Decimal；waitForCallLog 事务内合并",
-        "A11y+i18n 部分：aria-label helper 批量补；error.tsx 接 useTranslations；admin/models Free/Degraded 走 i18n；notification-center timeAgo 走 dayjs relativeTime + 汇率 API",
-        "DS Critical 部分：3 个文件的硬编码 hex/rgb/非 ds 色类 → ds-* token；其余 28 个 High 文件留给 BL-FE-DS-SHADCN"
-      ],
-      "confirmed_at": "2026-04-18",
-      "priority": "high",
-      "source": "合并：BL-FE-UX-QUALITY (HIGH-33/34/35 + M1-M3) + BL-FE-A11Y-I18N-DS (HIGH-37/38/40/41 + DS-1 Critical 3)",
-      "estimated_effort": "3.5 days",
-      "phase": "P1-quality",
-      "order": 6,
-      "merges": ["BL-FE-UX-QUALITY", "BL-FE-A11Y-I18N-DS"]
-    },
-    {
       "id": "BL-DATA-CONSISTENCY",
       "title": "数据一致性 — 外键索引 + TTL/归档 + 分页 + 约束兜底",
       "description": "来源 docs/code-review/batch-05-database.md + daily 2026-04-17。(1) H-1: TemplateStep.actionId 外键无 index，删除/关联全表扫描。(2) H-2: AliasModelLink 两外键无单列 index。(3) H-17: EmailVerificationToken.userId FK 无 onDelete，阻止用户硬删。(4) H-18: migration WHERE order >= 10000 粗粒度修复，二次运行覆盖风险。(5) H-20: notifications 表无 TTL，高频堆积。(6) daily H-1: listPublicTemplates 无 DB 分页，全表加载内存排序。",
