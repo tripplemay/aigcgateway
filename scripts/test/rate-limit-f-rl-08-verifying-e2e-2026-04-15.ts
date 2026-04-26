@@ -7,7 +7,7 @@ import { recordSpending, recordTokenUsage } from "../../src/lib/api/rate-limit";
 import { getRedis } from "../../src/lib/redis";
 import { requireEnv } from "../lib/require-env";
 
-const BASE = process.env.BASE_URL ?? "http://localhost:3099";
+const BASE = process.env.BASE_URL ?? "http://localhost:3199";
 const OUTPUT_FILE =
   process.env.OUTPUT_FILE ??
   "docs/test-reports/rate-limit-f-rl-08-verifying-e2e-2026-04-15.json";
@@ -498,7 +498,7 @@ async function main() {
   const report = {
     feature: "F-RL-08",
     batch: "RATE-LIMIT",
-    env: "L1-local-3099",
+    env: "L1-local-3199",
     startedAt,
     finishedAt: new Date().toISOString(),
     pass: failed.length === 0,

@@ -3,7 +3,7 @@ import { PrismaClient } from "@prisma/client";
 import { chromium } from "@playwright/test";
 import { requireEnv } from "../lib/require-env";
 
-const BASE = process.env.BASE_URL ?? "http://localhost:3099";
+const BASE = process.env.BASE_URL ?? "http://localhost:3199";
 const OUTPUT =
   process.env.OUTPUT_FILE ?? "docs/test-reports/u1-admin-user-detail-verifying-e2e-2026-04-10.json";
 

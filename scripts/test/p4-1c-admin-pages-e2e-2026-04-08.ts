@@ -3,7 +3,7 @@ import { PrismaClient } from "@prisma/client";
 import { requireEnv } from "../lib/require-env";
 
 const prisma = new PrismaClient();
-const BASE = process.env.BASE_URL ?? "http://localhost:3099";
+const BASE = process.env.BASE_URL ?? "http://localhost:3199";
 const OUTPUT =
   process.env.OUTPUT_FILE ?? "docs/test-reports/p4-1c-admin-pages-e2e-2026-04-08.json";
 

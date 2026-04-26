@@ -1,13 +1,13 @@
 /**
  * 端到端全链路测试
  *
- * 用法：BASE_URL=http://localhost:3099 npx tsx scripts/e2e-test.ts
+ * 用法：BASE_URL=http://localhost:3199 npx tsx scripts/e2e-test.ts
  */
 
 import { prisma } from "@/lib/prisma";
 import { requireEnv } from "./lib/require-env";
 
-const BASE = process.env.BASE_URL ?? "http://localhost:3099";
+const BASE = process.env.BASE_URL ?? "http://localhost:3199";
 let token = "";
 let projectId = "";
 let apiKey = "";

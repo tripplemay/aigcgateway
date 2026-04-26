@@ -7,7 +7,7 @@
 # 最多等待 120 秒（40 次 × 3 秒），超时后以非零退出码退出。
 set -euo pipefail
 
-TARGET="http://localhost:3099/v1/models"
+TARGET="http://localhost:3199/v1/models"
 MAX=40
 INTERVAL=3
 

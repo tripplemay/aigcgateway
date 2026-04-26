@@ -2,7 +2,7 @@ import { readFileSync, writeFileSync } from "node:fs";
 import OpenAI from "openai";
 import { requireEnv } from "../lib/require-env";
 
-const BASE = process.env.BASE_URL ?? "http://localhost:3099";
+const BASE = process.env.BASE_URL ?? "http://localhost:3199";
 const OUTPUT =
   process.env.OUTPUT_FILE ?? "docs/test-reports/docs-refresh-fdr04-verifying-e2e-2026-04-13.json";
 
@@ -259,7 +259,7 @@ async function run() {
   const summary = {
     feature: "F-DR-04",
     batch: "DOCS-REFRESH",
-    env: "L1-local-3099",
+    env: "L1-local-3199",
     startedAt,
     finishedAt: nowIso(),
     pass: failed.length === 0,

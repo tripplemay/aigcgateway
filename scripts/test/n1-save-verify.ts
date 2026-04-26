@@ -1,7 +1,7 @@
 import { chromium } from "playwright";
 import { requireEnv } from "../lib/require-env";
 
-const BASE = process.env.BASE_URL ?? "http://localhost:3099";
+const BASE = process.env.BASE_URL ?? "http://localhost:3199";
 
 async function main() {
   console.log("=== N1 Save Button Verification ===");

@@ -2,7 +2,7 @@ import { createServer, type IncomingMessage, type ServerResponse } from "http";
 import { readFileSync, writeFileSync } from "fs";
 import { requireEnv } from "../lib/require-env";
 
-const BASE = process.env.BASE_URL ?? "http://localhost:3099";
+const BASE = process.env.BASE_URL ?? "http://localhost:3199";
 const OUTPUT =
   process.env.OUTPUT_FILE ?? "docs/test-reports/m1d-alias-page-polish-reverifying-e2e-2026-04-10.json";
 const MOCK_PORT = Number(process.env.MOCK_PORT ?? "3343");

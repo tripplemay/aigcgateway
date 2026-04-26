@@ -10,7 +10,7 @@ import { requireEnv } from "../lib/require-env";
 const execFileAsync = promisify(execFile);
 const prisma = new PrismaClient();
 
-const BASE = process.env.BASE_URL ?? "http://localhost:3099";
+const BASE = process.env.BASE_URL ?? "http://localhost:3199";
 const OUTPUT =
   process.env.OUTPUT_FILE ?? "docs/test-reports/a1-alias-data-quality-verifying-2026-04-10.json";
 const MOCK_PORT = Number(process.env.MOCK_PORT ?? "3346");

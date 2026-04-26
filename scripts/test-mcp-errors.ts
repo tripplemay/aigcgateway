@@ -1,13 +1,13 @@
 /**
  * MCP 错误场景测试
  *
- * 用法：BASE_URL=http://localhost:3099 API_KEY=pk_xxx npx tsx scripts/test-mcp-errors.ts
+ * 用法：BASE_URL=http://localhost:3199 API_KEY=pk_xxx npx tsx scripts/test-mcp-errors.ts
  *
  * 环境变量：
  *   ZERO_BALANCE_API_KEY=pk_xxx - API Key of a project with zero balance (for TC-04-6)
  */
 
-const BASE = process.env.BASE_URL ?? "http://localhost:3099";
+const BASE = process.env.BASE_URL ?? "http://localhost:3199";
 const API_KEY = process.env.API_KEY ?? "";
 const ZERO_BALANCE_API_KEY = process.env.ZERO_BALANCE_API_KEY ?? "";
 const MCP_URL = `${BASE}/mcp`;

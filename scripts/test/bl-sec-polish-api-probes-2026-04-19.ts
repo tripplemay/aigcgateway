@@ -3,7 +3,7 @@ import bcrypt from "bcryptjs";
 import http from "node:http";
 import { buildProxyUrl } from "../../src/lib/api/image-proxy";
 
-const BASE = process.env.BASE_URL ?? "http://localhost:3099";
+const BASE = process.env.BASE_URL ?? "http://localhost:3199";
 const ADMIN_EMAIL = "admin@aigc-gateway.local";
 const ADMIN_PASSWORD = process.env.ADMIN_SEED_PASSWORD ?? "CodexSeed@2026";
 

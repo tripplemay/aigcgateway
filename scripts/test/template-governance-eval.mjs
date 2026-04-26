@@ -2,7 +2,7 @@ import { PrismaClient } from "@prisma/client";
 import path from "node:path";
 
 const prisma = new PrismaClient();
-const BASE = process.env.BASE_URL ?? "http://localhost:3099";
+const BASE = process.env.BASE_URL ?? "http://localhost:3199";
 const NOW = Date.now();
 
 function requireEnv(key) {

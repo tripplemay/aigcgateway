@@ -5,7 +5,7 @@ import { createTestApiKey, createTestProject, createTestUser } from "../../tests
 import { jsonResponse, startMockProvider } from "../../tests/mocks/provider-server";
 import { runCallProbeForChannel } from "../../src/lib/health/scheduler";
 
-const BASE = process.env.BASE_URL ?? "http://localhost:3099";
+const BASE = process.env.BASE_URL ?? "http://localhost:3199";
 const OUTPUT_FILE =
   process.env.OUTPUT_FILE ??
   "docs/test-reports/audit-critical-fix-f-acf-13-verifying-e2e-2026-04-14.json";
@@ -478,7 +478,7 @@ async function main() {
   const report = {
     feature: "F-ACF-13",
     batch: "AUDIT-CRITICAL-FIX",
-    env: "L1-local-3099",
+    env: "L1-local-3199",
     startedAt,
     finishedAt: new Date().toISOString(),
     pass: failed.length === 0,

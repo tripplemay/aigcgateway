@@ -1,6 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 
-const BASE = process.env.BASE_URL ?? "http://localhost:3099";
+const BASE = process.env.BASE_URL ?? "http://localhost:3199";
 const prisma = new PrismaClient({
   datasourceUrl:
     process.env.TEST_DATABASE_URL ?? "postgresql://test:test@localhost:5432/aigc_gateway_test",

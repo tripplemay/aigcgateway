@@ -1,6 +1,6 @@
 import { readFileSync, writeFileSync } from "fs";
 
-const BASE = process.env.BASE_URL ?? "http://localhost:3099";
+const BASE = process.env.BASE_URL ?? "http://localhost:3199";
 const OUTPUT =
   process.env.OUTPUT_FILE ?? "docs/test-reports/m1c-models-topbar-verifying-e2e-2026-04-10.json";
 

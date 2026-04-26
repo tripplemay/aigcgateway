@@ -50,10 +50,10 @@ cd sdk && npm run typecheck  # SDK type check
 cd sdk && npm run build      # Build CJS + ESM + .d.ts
 
 # Test Scripts (deterministic regression)
-BASE_URL=http://localhost:3099 npx tsx scripts/e2e-test.ts           # Full E2E
-BASE_URL=http://localhost:3099 npx tsx scripts/e2e-errors.ts         # Error scenarios
-BASE_URL=http://localhost:3099 API_KEY=pk_xxx npx tsx scripts/test-mcp.ts       # MCP full journey
-BASE_URL=http://localhost:3099 API_KEY=pk_xxx npx tsx scripts/test-mcp-errors.ts # MCP error scenarios
+BASE_URL=http://localhost:3199 npx tsx scripts/e2e-test.ts           # Full E2E
+BASE_URL=http://localhost:3199 npx tsx scripts/e2e-errors.ts         # Error scenarios
+BASE_URL=http://localhost:3199 API_KEY=pk_xxx npx tsx scripts/test-mcp.ts       # MCP full journey
+BASE_URL=http://localhost:3199 API_KEY=pk_xxx npx tsx scripts/test-mcp-errors.ts # MCP error scenarios
 
 # MCP Exploratory Audit (discovers new issues)
 cd tests/mcp-test && ./run_all_audits.sh    # 8-role audit, outputs reports + assertions JSON

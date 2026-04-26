@@ -5,7 +5,7 @@ import { createHash, randomBytes } from 'node:crypto';
 import { PrismaClient } from '@prisma/client';
 import { chromium } from 'playwright';
 
-const BASE = process.env.BASE_URL ?? 'http://localhost:3099';
+const BASE = process.env.BASE_URL ?? 'http://localhost:3199';
 const DB_URL = process.env.TEST_DATABASE_URL ?? 'postgresql://test:test@localhost:5432/aigc_gateway_test';
 const OUT =
   process.env.OUTPUT_FILE ??

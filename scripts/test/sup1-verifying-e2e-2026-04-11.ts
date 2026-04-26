@@ -3,7 +3,7 @@ import { spawnSync } from "child_process";
 import { PrismaClient } from "@prisma/client";
 import { requireEnv } from "../lib/require-env";
 
-const BASE = process.env.BASE_URL ?? "http://localhost:3099";
+const BASE = process.env.BASE_URL ?? "http://localhost:3199";
 const OUTPUT = process.env.OUTPUT_FILE ?? "docs/test-reports/sup1-verifying-e2e-2026-04-11.json";
 
 const prisma = new PrismaClient();

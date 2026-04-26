@@ -4,7 +4,7 @@ import { createServer } from 'http';
 import { checkChannel } from '../../src/lib/health/scheduler';
 import { sanitizeErrorMessage } from '../../src/lib/engine/types';
 
-const BASE = process.env.BASE_URL ?? 'http://localhost:3099';
+const BASE = process.env.BASE_URL ?? 'http://localhost:3199';
 const OUT =
   process.env.OUTPUT_FILE ??
   'docs/test-reports/artifacts/bl-billing-audit-ext-p1-verifying-2026-04-24/local-dynamic-evidence.json';

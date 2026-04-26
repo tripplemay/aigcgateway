@@ -4,7 +4,7 @@ import Redis from "ioredis";
 import { PrismaClient } from "@prisma/client";
 import { requireEnv } from "../lib/require-env";
 
-const BASE = process.env.BASE_URL ?? "http://localhost:3099";
+const BASE = process.env.BASE_URL ?? "http://localhost:3199";
 const OUTPUT =
   process.env.OUTPUT_FILE ??
   "docs/test-reports/admin-ops-plus-verifying-e2e-2026-04-12.json";

@@ -5,7 +5,7 @@ import { PrismaClient } from "@prisma/client";
 import { startMockProvider } from "../../tests/mocks/provider-server";
 import { requireEnv } from "../lib/require-env";
 
-const BASE = process.env.BASE_URL ?? "http://localhost:3099";
+const BASE = process.env.BASE_URL ?? "http://localhost:3199";
 const OUTPUT_FILE =
   process.env.OUTPUT_FILE ??
   "docs/test-reports/artifacts/bl-sec-billing-ai-verifying-2026-04-18/local-evidence.json";

@@ -6,7 +6,7 @@ import { requireEnv } from "../lib/require-env";
 
 const prisma = new PrismaClient();
 
-const BASE = process.env.BASE_URL ?? "http://localhost:3099";
+const BASE = process.env.BASE_URL ?? "http://localhost:3199";
 const MCP_URL = `${BASE}/mcp`;
 const OUTPUT =
   process.env.OUTPUT_FILE ?? "docs/test-reports/mcp2-tools-enhancement-verifying-2026-04-10.json";

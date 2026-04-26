@@ -11,7 +11,7 @@ import { requireEnv } from "../lib/require-env";
 
 const prisma = new PrismaClient();
 
-const BASE = process.env.BASE_URL ?? "http://localhost:3099";
+const BASE = process.env.BASE_URL ?? "http://localhost:3199";
 const OUTPUT =
   process.env.OUTPUT_FILE ??
   "docs/test-reports/l1-llm-inference-robustness-verifying-2026-04-10.json";

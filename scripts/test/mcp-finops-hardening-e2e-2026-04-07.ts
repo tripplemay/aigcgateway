@@ -4,7 +4,7 @@ import { PrismaClient } from "@prisma/client";
 import { startMockProvider, jsonResponse } from "../../tests/mocks/provider-server";
 import { createTestUser, createTestProject, createTestApiKey } from "../../tests/factories";
 
-const BASE = process.env.BASE_URL ?? "http://localhost:3099";
+const BASE = process.env.BASE_URL ?? "http://localhost:3199";
 const MCP_URL = `${BASE}/mcp`;
 const MOCK_PORT = Number(process.env.MOCK_PORT ?? "3314");
 const OUTPUT_FILE =

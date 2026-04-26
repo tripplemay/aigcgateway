@@ -5,7 +5,7 @@ import { runModelSync } from "@/lib/sync/model-sync";
 import { requireEnv } from "../lib/require-env";
 
 const prisma = new PrismaClient();
-const BASE = process.env.BASE_URL ?? "http://localhost:3099";
+const BASE = process.env.BASE_URL ?? "http://localhost:3199";
 const MOCK_PORT = Number(process.env.MOCK_PORT ?? "3323");
 const MOCK_BASE = `http://127.0.0.1:${MOCK_PORT}`;
 const OUTPUT =

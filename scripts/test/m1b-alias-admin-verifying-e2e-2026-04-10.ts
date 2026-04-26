@@ -2,7 +2,7 @@ import { createServer, type IncomingMessage, type ServerResponse } from "http";
 import { existsSync, readFileSync, writeFileSync } from "fs";
 import { requireEnv } from "../lib/require-env";
 
-const BASE = process.env.BASE_URL ?? "http://localhost:3099";
+const BASE = process.env.BASE_URL ?? "http://localhost:3199";
 const MOCK_PORT = Number(process.env.MOCK_PORT ?? "3342");
 const MOCK_BASE = `http://127.0.0.1:${MOCK_PORT}`;
 const OUTPUT =

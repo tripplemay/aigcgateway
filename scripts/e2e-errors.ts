@@ -1,7 +1,7 @@
 /**
  * 异常场景测试
  *
- * 用法：BASE_URL=http://localhost:3099 npx tsx scripts/e2e-errors.ts
+ * 用法：BASE_URL=http://localhost:3199 npx tsx scripts/e2e-errors.ts
  */
 
 import { prisma } from "@/lib/prisma";
@@ -9,7 +9,7 @@ import { randomBytes } from "node:crypto";
 import { sanitizeErrorMessage } from "@/lib/engine/types";
 import { requireEnv } from "./lib/require-env";
 
-const BASE = process.env.BASE_URL ?? "http://localhost:3099";
+const BASE = process.env.BASE_URL ?? "http://localhost:3199";
 const E2E_TEST_PASSWORD = requireEnv("E2E_TEST_PASSWORD");
 let passed = 0;
 let failed = 0;

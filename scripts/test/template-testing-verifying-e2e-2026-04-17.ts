@@ -3,7 +3,7 @@ import { PrismaClient } from "@prisma/client";
 import { readFileSync, existsSync } from "fs";
 import { requireEnv } from "../lib/require-env";
 
-// Pin the Prisma client to the same DB the server on :3099 is using. Without
+// Pin the Prisma client to the same DB the server on :3199 is using. Without
 // this, @prisma/client auto-loads .env (dev DATABASE_URL = aigc_gateway)
 // whenever scripts/test/codex-env.sh is not sourced in the shell running the
 // verifier — the fixture then mocks providers in the dev DB, but the server
@@ -14,7 +14,7 @@ const TEST_DATABASE_URL =
   process.env.TEST_DATABASE_URL ?? "postgresql://test:test@localhost:5432/aigc_gateway_test";
 const prisma = new PrismaClient({ datasourceUrl: TEST_DATABASE_URL });
 
-const BASE = process.env.BASE_URL ?? "http://localhost:3099";
+const BASE = process.env.BASE_URL ?? "http://localhost:3199";
 const OUTPUT =
   process.env.OUTPUT_FILE ??
   "docs/test-reports/template-testing-verifying-local-e2e-2026-04-17.json";

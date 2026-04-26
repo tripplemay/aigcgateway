@@ -2,7 +2,7 @@ import { createServer, type IncomingMessage, type ServerResponse } from "http";
 import { PrismaClient } from "@prisma/client";
 import fs from "node:fs";
 
-const BASE = process.env.BASE_URL ?? "http://localhost:3099";
+const BASE = process.env.BASE_URL ?? "http://localhost:3199";
 const OUT =
   process.env.OUTPUT_FILE ??
   "docs/test-reports/perf-raw/bl-fe-quality-round6-precision-evidence-2026-04-19.json";

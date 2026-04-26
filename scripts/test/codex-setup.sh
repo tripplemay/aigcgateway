@@ -33,8 +33,8 @@ fi
 DB_NAME="aigc_gateway_test"
 
 # ── 0. 清理旧进程 ──
-echo "=== [0/5] Killing old process on :3099 ==="
-lsof -ti:3099 | xargs kill -9 2>/dev/null || true
+echo "=== [0/5] Killing old process on :3199 ==="
+lsof -ti:3199 | xargs kill -9 2>/dev/null || true
 
 # ── 1. 重置测试数据库 ──
 echo "=== [1/5] Resetting test database ==="
@@ -58,7 +58,7 @@ rm -rf .next
 npm run build
 
 # ── 5. 复制静态资源 + 前台启动 ──
-echo "=== [5/5] Start on :3099 (foreground via exec) ==="
+echo "=== [5/5] Start on :3199 (foreground via exec) ==="
 # Next.js standalone build does not bundle .next/static or public; manual copy is required.
 # Pre-clean target dirs to avoid macOS/BSD `cp -r` nesting (`cp -r src dest/` -> `dest/src/` when dest exists).
 rm -rf .next/standalone/.next/static .next/standalone/public

@@ -9,7 +9,7 @@
  *     npx tsx scripts/pricing/verify-image-channels-2026-04-24.ts
  *
  * 环境变量：
- *   BASE_URL  — 网关域，默认 http://localhost:3099
+ *   BASE_URL  — 网关域，默认 http://localhost:3199
  *   API_KEY   — 触发请求用的有效 API key（pk_xxx）
  */
 import { prisma } from "../../src/lib/prisma";
@@ -65,7 +65,7 @@ async function fetchCostPrice(traceId: string): Promise<number | null> {
 }
 
 async function main(): Promise<void> {
-  const baseUrl = process.env.BASE_URL ?? "http://localhost:3099";
+  const baseUrl = process.env.BASE_URL ?? "http://localhost:3199";
   const apiKey = process.env.API_KEY;
   if (!apiKey) {
     console.error("API_KEY env required");

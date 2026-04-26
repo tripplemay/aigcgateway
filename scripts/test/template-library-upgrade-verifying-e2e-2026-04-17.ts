@@ -2,7 +2,7 @@ import { readFileSync, writeFileSync, readdirSync, statSync } from "fs";
 import * as path from "path";
 import { requireEnv } from "../lib/require-env";
 
-const BASE = process.env.BASE_URL ?? "http://localhost:3099";
+const BASE = process.env.BASE_URL ?? "http://localhost:3199";
 const OUTPUT =
   process.env.OUTPUT_FILE ?? "docs/test-reports/template-library-upgrade-verifying-local-e2e-2026-04-17.json";
 

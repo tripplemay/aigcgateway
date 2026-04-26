@@ -7,14 +7,14 @@
 # if any script failed so CI / Codex acceptance can trust the result.
 #
 # Usage:
-#   BASE_URL=http://localhost:3099 API_KEY=pk_xxx scripts/test-all.sh
+#   BASE_URL=http://localhost:3199 API_KEY=pk_xxx scripts/test-all.sh
 #
 # Optional:
 #   ZERO_BALANCE_API_KEY=pk_yyy  # enables the balance-exhausted MCP error case
 
 set -u
 
-BASE_URL="${BASE_URL:-http://localhost:3099}"
+BASE_URL="${BASE_URL:-http://localhost:3199}"
 API_KEY="${API_KEY:-}"
 
 if [ -z "$API_KEY" ]; then

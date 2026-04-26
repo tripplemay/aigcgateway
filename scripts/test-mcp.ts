@@ -1,10 +1,10 @@
 /**
  * MCP 集成测试 — 全链路验证
  *
- * 用法：BASE_URL=http://localhost:3099 API_KEY=pk_xxx npx tsx scripts/test-mcp.ts
+ * 用法：BASE_URL=http://localhost:3199 API_KEY=pk_xxx npx tsx scripts/test-mcp.ts
  */
 
-const BASE = process.env.BASE_URL ?? "http://localhost:3099";
+const BASE = process.env.BASE_URL ?? "http://localhost:3199";
 const API_KEY = process.env.API_KEY ?? "";
 const MCP_URL = `${BASE}/mcp`;
 

@@ -2,7 +2,7 @@
 
 set -euo pipefail
 
-BASE_URL="${BASE_URL:-http://localhost:3099}"
+BASE_URL="${BASE_URL:-http://localhost:3199}"
 DEV_EMAIL="${DEV_EMAIL:-dev@example.com}"
 DEV_PASSWORD="${DEV_PASSWORD:?DEV_PASSWORD is required}"
 ADMIN_TOKEN="${ADMIN_TOKEN:-}"

@@ -2,7 +2,7 @@ import "../../tests/helpers/load-test-env";
 import { readFileSync, writeFileSync } from "fs";
 import { createTestProject, createTestUser } from "../../tests/factories";
 
-const BASE = process.env.BASE_URL ?? "http://localhost:3099";
+const BASE = process.env.BASE_URL ?? "http://localhost:3199";
 const OUTPUT =
   process.env.OUTPUT_FILE ?? "docs/test-reports/ui-unify-verifying-local-e2e-2026-04-13.json";
 

@@ -24,7 +24,7 @@
 
 import { requireEnv } from "./lib/require-env";
 
-const DEFAULT_BASE_URL = "http://localhost:3099";
+const DEFAULT_BASE_URL = "http://localhost:3199";
 const ADMIN_EMAIL = "codex-admin@aigc-gateway.local";
 const ADMIN_PASSWORD = requireEnv("ADMIN_TEST_PASSWORD");
 

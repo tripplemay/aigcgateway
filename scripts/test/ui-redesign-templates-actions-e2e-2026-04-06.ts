@@ -1,7 +1,7 @@
 import { writeFileSync } from "fs";
 import { requireEnv } from "../lib/require-env";
 
-const BASE = process.env.BASE_URL ?? "http://localhost:3099";
+const BASE = process.env.BASE_URL ?? "http://localhost:3199";
 const OUTPUT_FILE =
   process.env.OUTPUT_FILE ??
   "docs/test-reports/ui-redesign-templates-actions-local-e2e-2026-04-06.json";

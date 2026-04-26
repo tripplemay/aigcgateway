@@ -1,7 +1,7 @@
 import { readFileSync, writeFileSync } from "fs";
 import { requireEnv } from "../lib/require-env";
 
-const BASE = process.env.BASE_URL ?? "http://localhost:3099";
+const BASE = process.env.BASE_URL ?? "http://localhost:3199";
 const MCP_URL = `${BASE}/mcp`;
 const OUTPUT =
   process.env.OUTPUT_FILE ?? "docs/test-reports/p5-public-templates-verifying-e2e-2026-04-09.json";

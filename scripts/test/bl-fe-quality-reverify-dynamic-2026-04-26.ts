@@ -3,7 +3,7 @@ import path from "node:path";
 import { chromium } from "playwright";
 import { PrismaClient } from "@prisma/client";
 
-const BASE_URL = process.env.BASE_URL ?? "http://localhost:3099";
+const BASE_URL = process.env.BASE_URL ?? "http://localhost:3199";
 const OUT_DIR = path.resolve("docs/test-reports/artifacts/bl-fe-quality-2026-04-26-codex-reverify");
 const OUT_JSON = path.join(OUT_DIR, "dynamic-evidence.json");
 const prisma = new PrismaClient();

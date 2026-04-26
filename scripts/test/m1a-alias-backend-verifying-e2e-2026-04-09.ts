@@ -3,7 +3,7 @@ import { existsSync, writeFileSync } from "fs";
 import Redis from "ioredis";
 import { requireEnv } from "../lib/require-env";
 
-const BASE = process.env.BASE_URL ?? "http://localhost:3099";
+const BASE = process.env.BASE_URL ?? "http://localhost:3199";
 const MOCK_PORT = Number(process.env.MOCK_PORT ?? "3341");
 const MOCK_BASE = `http://127.0.0.1:${MOCK_PORT}`;
 const OUTPUT =

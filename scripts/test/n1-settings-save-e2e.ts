@@ -5,16 +5,16 @@
  * triggers a PATCH request and updates the project name/description.
  *
  * Usage:
- *   BASE_URL=http://localhost:3099 npx playwright test scripts/test/n1-settings-save-e2e.ts
+ *   BASE_URL=http://localhost:3199 npx playwright test scripts/test/n1-settings-save-e2e.ts
  *
  * Or run directly:
- *   BASE_URL=http://localhost:3099 npx tsx scripts/test/n1-settings-save-e2e.ts
+ *   BASE_URL=http://localhost:3199 npx tsx scripts/test/n1-settings-save-e2e.ts
  */
 
 import { chromium } from "playwright";
 import { requireEnv } from "../lib/require-env";
 
-const BASE = process.env.BASE_URL ?? "http://localhost:3099";
+const BASE = process.env.BASE_URL ?? "http://localhost:3199";
 const ADMIN_EMAIL = "admin@aigc-gateway.local";
 const ADMIN_PASSWORD = requireEnv("ADMIN_TEST_PASSWORD");
 

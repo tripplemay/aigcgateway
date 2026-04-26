@@ -5,7 +5,7 @@ import { PrismaClient } from '@prisma/client';
 import Redis from 'ioredis';
 import zh from '../../src/messages/zh-CN.json';
 
-const BASE_URL = process.env.BASE_URL ?? 'http://localhost:3099';
+const BASE_URL = process.env.BASE_URL ?? 'http://localhost:3199';
 const OUT_DIR = path.resolve('docs/test-reports/perf-raw');
 const OUT_JSON = path.join(OUT_DIR, 'bl-fe-quality-round5-dynamic-evidence-2026-04-19.json');
 

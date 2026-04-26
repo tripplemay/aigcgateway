@@ -1,7 +1,7 @@
 import http from "k6/http";
 import { check, sleep } from "k6";
 
-const BASE_URL = __ENV.BASE_URL || "http://localhost:3099";
+const BASE_URL = __ENV.BASE_URL || "http://localhost:3199";
 const DEV_EMAIL = __ENV.DEV_EMAIL || "dev@example.com";
 const DEV_PASSWORD = __ENV.DEV_PASSWORD;
 if (!DEV_PASSWORD) {

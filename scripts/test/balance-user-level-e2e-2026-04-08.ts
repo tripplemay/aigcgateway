@@ -3,7 +3,7 @@ import { writeFileSync } from "fs";
 import { PrismaClient } from "@prisma/client";
 import { requireEnv } from "../lib/require-env";
 
-const BASE = process.env.BASE_URL ?? "http://localhost:3099";
+const BASE = process.env.BASE_URL ?? "http://localhost:3199";
 const MCP_URL = `${BASE}/mcp`;
 const MOCK_PORT = Number(process.env.BU_MOCK_PORT ?? "3322");
 const MOCK_BASE = `http://127.0.0.1:${MOCK_PORT}/v1`;

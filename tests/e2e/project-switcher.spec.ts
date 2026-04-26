@@ -2,7 +2,7 @@ import { test, expect, Page } from "@playwright/test";
 import { requireEnv } from "../../scripts/lib/require-env";
 
 const PASSWORD = requireEnv("E2E_TEST_PASSWORD");
-const BASE_URL = process.env.BASE_URL ?? "http://localhost:3099";
+const BASE_URL = process.env.BASE_URL ?? "http://localhost:3199";
 
 async function bootstrapAuth(page: Page, token: string) {
   await page.goto(`${BASE_URL}/login`);

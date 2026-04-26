@@ -8,7 +8,7 @@ import { siliconflowAdapter } from "@/lib/sync/adapters/siliconflow";
 import { resolveCapabilities } from "@/lib/sync/model-capabilities-fallback";
 import { requireEnv } from "../lib/require-env";
 
-const BASE_URL = process.env.BASE_URL ?? "http://localhost:3099";
+const BASE_URL = process.env.BASE_URL ?? "http://localhost:3199";
 const MCP_URL = `${BASE_URL}/mcp`;
 const OUTPUT_FILE =
   process.env.OUTPUT_FILE ??

@@ -5,7 +5,7 @@ import { PrismaClient } from "@prisma/client";
 import { prisma as appPrisma } from "../../src/lib/prisma";
 import { requireEnv } from "../lib/require-env";
 
-const BASE = process.env.BASE_URL ?? "http://localhost:3099";
+const BASE = process.env.BASE_URL ?? "http://localhost:3199";
 const OUTPUT =
   process.env.OUTPUT_FILE ?? "docs/test-reports/price-fix-verifying-e2e-2026-04-12.json";
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL ?? "admin@aigc-gateway.local";

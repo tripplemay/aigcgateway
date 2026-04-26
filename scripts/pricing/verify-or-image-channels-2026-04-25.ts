@@ -86,7 +86,7 @@ async function fetchCallLog(traceId: string): Promise<{
 }
 
 async function main(): Promise<void> {
-  const baseUrl = process.env.BASE_URL ?? "http://localhost:3099";
+  const baseUrl = process.env.BASE_URL ?? "http://localhost:3199";
   const apiKey = process.env.API_KEY;
   if (!apiKey) {
     console.error("API_KEY env required");

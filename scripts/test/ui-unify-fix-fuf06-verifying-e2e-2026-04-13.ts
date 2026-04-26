@@ -1,7 +1,7 @@
 import { readFileSync, writeFileSync } from "node:fs";
 import { requireEnv } from "../lib/require-env";
 
-const BASE = process.env.BASE_URL ?? "http://localhost:3099";
+const BASE = process.env.BASE_URL ?? "http://localhost:3199";
 const OUTPUT =
   process.env.OUTPUT_FILE ?? "docs/test-reports/ui-unify-fix-fuf06-verifying-e2e-2026-04-13.json";
 
@@ -155,7 +155,7 @@ async function run() {
   const summary = {
     feature: "F-UF-06",
     batch: "UI-UNIFY-FIX",
-    env: "L1-local-3099",
+    env: "L1-local-3199",
     startedAt: new Date().toISOString(),
     finishedAt: new Date().toISOString(),
     pass: failCount === 0,

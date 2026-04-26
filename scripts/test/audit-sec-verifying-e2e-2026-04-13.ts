@@ -4,7 +4,7 @@ import { PrismaClient, type HealthCheckResult } from "@prisma/client";
 import { createTestApiKey, createTestProject, createTestUser } from "../../tests/factories";
 import { jsonResponse, startMockProvider } from "../../tests/mocks/provider-server";
 
-const BASE = process.env.BASE_URL ?? "http://localhost:3099";
+const BASE = process.env.BASE_URL ?? "http://localhost:3199";
 const MCP_URL = `${BASE}/api/mcp`;
 const MOCK_PORT = Number(process.env.MOCK_PORT ?? "3318");
 const OUTPUT_FILE =
