@@ -1,0 +1,5 @@
+ M .auto-memory/project-status.md
+ M features.json
+ M progress.json
+?? docs/test-reports/BL-FE-QUALITY-verification-failed-2026-04-26.md
+?? docs/test-reports/artifacts/bl-fe-quality-2026-04-26-codex/

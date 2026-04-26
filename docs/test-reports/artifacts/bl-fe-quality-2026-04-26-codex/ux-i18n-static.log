@@ -1,0 +1,257 @@
+## F-FQ-01 target files
+src/hooks/use-async-data.ts:17:export function useAsyncData<T>(
+src/components/notification-center.tsx:136:    document.addEventListener("visibilitychange", handleVis);
+src/components/notification-center.tsx:139:      document.removeEventListener("visibilitychange", handleVis);
+src/app/(console)/mcp-setup/page.tsx:245:  const copyConfig = () => {
+src/app/(console)/mcp-setup/page.tsx:250:    navigator.clipboard.writeText(configText);
+src/app/(console)/mcp-setup/page.tsx:416:              onClick={copyConfig}
+src/app/(console)/mcp-setup/page.tsx:419:              <span className="material-symbols-outlined text-base">content_copy</span>
+src/app/(console)/mcp-setup/page.tsx:420:              <span>{t("copyConfig")}</span>
+src/app/(console)/keys/page.tsx:7:import { useAsyncData } from "@/hooks/use-async-data";
+src/app/(console)/keys/page.tsx:9:import { EmptyState } from "@/components/empty-state";
+src/app/(console)/keys/page.tsx:38:  maskedKey: string;
+src/app/(console)/keys/page.tsx:67:  // ── Data loading via useAsyncData ──
+src/app/(console)/keys/page.tsx:72:  } = useAsyncData<{ data: ApiKeyRow[] }>(async () => {
+src/app/(console)/keys/page.tsx:84:          k.maskedKey.toLowerCase().includes(normalizedSearch),
+src/app/(console)/keys/page.tsx:102:  if (!current) return <EmptyState onCreated={() => router.refresh()} />;
+src/app/(console)/keys/page.tsx:161:                    {/* Access Key — masked with copy button for active keys */}
+src/app/(console)/keys/page.tsx:166:                        <span>{k.maskedKey}</span>
+src/app/(console)/keys/page.tsx:171:                            aria-label={t("copyOnlyOnCreate")}
+src/app/(console)/keys/page.tsx:172:                            title={t("copyOnlyOnCreate")}
+src/app/(console)/keys/page.tsx:175:                            <span className="material-symbols-outlined text-sm">content_copy</span>
+src/components/sidebar.tsx:90:      { labelKey: "adminTemplates", href: "/admin/templates", icon: "folder_copy" },
+src/components/empty-state.tsx:9:interface EmptyStateProps {
+src/components/empty-state.tsx:18:   * existing `<EmptyState onCreated={...} />` call sites.
+src/components/empty-state.tsx:24: * EmptyState — generic empty-state block.
+src/components/empty-state.tsx:30:export function EmptyState({
+src/components/empty-state.tsx:37:}: EmptyStateProps) {
+src/components/empty-state.tsx:39:    return <DefaultCreateProjectEmptyState onCreated={onCreated} />;
+src/components/empty-state.tsx:57:function DefaultCreateProjectEmptyState({ onCreated }: { onCreated?: () => void }) {
+src/app/(console)/keys/[keyId]/page.tsx:6:import { useAsyncData } from "@/hooks/use-async-data";
+src/app/(console)/keys/[keyId]/page.tsx:9:import { EmptyState } from "@/components/empty-state";
+src/app/(console)/keys/[keyId]/page.tsx:21:  maskedKey: string;
+src/app/(console)/keys/[keyId]/page.tsx:57:  // ── Data loading via useAsyncData ──
+src/app/(console)/keys/[keyId]/page.tsx:58:  const { data: detail, loading } = useAsyncData<KeyDetail | null>(async () => {
+src/app/(console)/keys/[keyId]/page.tsx:119:  if (!current) return <EmptyState onCreated={() => router.refresh()} />;
+src/app/(console)/keys/[keyId]/page.tsx:137:          <span className="text-ds-primary/80 font-medium">{detail.name ?? detail.maskedKey}</span>
+src/app/(console)/keys/[keyId]/page.tsx:331:                  value={detail.maskedKey}
+src/app/(console)/keys/[keyId]/page.tsx:335:                    navigator.clipboard.writeText(detail.maskedKey);
+src/app/(console)/keys/[keyId]/page.tsx:340:                  <span className="material-symbols-outlined text-[20px]">content_copy</span>
+src/components/keys/create-key-dialog.tsx:90:  const copyKey = (key: string) => {
+src/components/keys/create-key-dialog.tsx:91:    navigator.clipboard.writeText(key);
+src/components/keys/create-key-dialog.tsx:123:                  onClick={() => copyKey(newKey)}
+src/components/keys/create-key-dialog.tsx:126:                  <span className="material-symbols-outlined text-sm">content_copy</span>
+src/app/(console)/templates/page.tsx:6:import { useAsyncData } from "@/hooks/use-async-data";
+src/app/(console)/templates/page.tsx:7:import { EmptyState } from "@/components/empty-state";
+src/app/(console)/templates/page.tsx:76:  const { data: result, loading } = useAsyncData<TemplatesResponse>(async () => {
+src/app/(console)/templates/page.tsx:115:  if (!current) return <EmptyState onCreated={() => router.refresh()} />;
+src/app/(console)/templates/page.tsx:185:            <EmptyState
+src/app/(console)/templates/[templateId]/page.tsx:6:import { useAsyncData } from "@/hooks/use-async-data";
+src/app/(console)/templates/[templateId]/page.tsx:72:  const { data: template, loading } = useAsyncData<TemplateDetail>(async () => {
+src/app/(console)/dashboard/page.tsx:7:import { useAsyncData } from "@/hooks/use-async-data";
+src/app/(console)/dashboard/page.tsx:11:import { EmptyState } from "@/components/empty-state";
+src/app/(console)/dashboard/page.tsx:89:  const { data: dashData, loading: dataLoading } = useAsyncData<DashboardData | null>(async () => {
+src/app/(console)/dashboard/page.tsx:92:    const [bal, u, d, l, m, h] = await Promise.all([
+src/app/(console)/dashboard/page.tsx:127:  if (!current) return <EmptyState onCreated={() => router.refresh()} />;
+src/app/(console)/templates/global-library.tsx:7:import { useAsyncData } from "@/hooks/use-async-data";
+src/app/(console)/templates/global-library.tsx:126:  const { data: result, loading } = useAsyncData<PublicTemplatesResponse>(async () => {
+src/app/(console)/templates/global-library.tsx:138:  const { data: detail } = useAsyncData<PublicTemplateDetail | null>(async () => {
+src/app/(console)/quickstart/page.tsx:79:  const copy = () => {
+src/app/(console)/quickstart/page.tsx:80:    navigator.clipboard.writeText(code);
+src/app/(console)/quickstart/page.tsx:89:          onClick={copy}
+src/app/(console)/quickstart/page.tsx:94:            {copied ? "check" : "content_copy"}
+src/app/(console)/quickstart/page.tsx:96:          <span>{copied ? t("copied") : t("copy")}</span>
+src/app/(console)/balance/page.tsx:7:import { useAsyncData } from "@/hooks/use-async-data";
+src/app/(console)/balance/page.tsx:13:import { EmptyState } from "@/components/empty-state";
+src/app/(console)/balance/page.tsx:96:  } = useAsyncData<BalanceInfo>(async () => {
+src/app/(console)/balance/page.tsx:108:  const { data: txnData, loading: txnLoading } = useAsyncData<TxnResponse>(async () => {
+src/app/(console)/balance/page.tsx:131:  if (!current) return <EmptyState onCreated={() => router.refresh()} />;
+src/app/(console)/docs/page.tsx:24:          navigator.clipboard.writeText(children);
+src/app/(console)/models/page.tsx:4:import { useAsyncData } from "@/hooks/use-async-data";
+src/app/(console)/models/page.tsx:101:  const { data: modelsData } = useAsyncData<{ data: ModelItem[] }>(async () => {
+src/app/(console)/actions/page.tsx:6:import { useAsyncData } from "@/hooks/use-async-data";
+src/app/(console)/actions/page.tsx:7:import { EmptyState } from "@/components/empty-state";
+src/app/(console)/actions/page.tsx:57:  const { data: result, loading } = useAsyncData<ActionsResponse>(async () => {
+src/app/(console)/actions/page.tsx:81:  if (!current) return <EmptyState onCreated={() => router.refresh()} />;
+src/app/(console)/actions/page.tsx:130:        <EmptyState
+src/app/(console)/settings/page.tsx:7:import { useAsyncData } from "@/hooks/use-async-data";
+src/app/(console)/settings/page.tsx:101:  const { data: profile, refetch: refetchProfile } = useAsyncData<Profile>(async () => {
+src/app/(console)/settings/page.tsx:113:  const { data: historyData } = useAsyncData<{ data: LoginRecord[] }>(async () => {
+src/app/(console)/settings/page.tsx:120:  const { data: projectDetail, refetch: refetchProject } = useAsyncData<ProjectDetail>(async () => {
+src/app/(console)/usage/page.tsx:8:import { useAsyncData } from "@/hooks/use-async-data";
+src/app/(console)/usage/page.tsx:11:import { EmptyState } from "@/components/empty-state";
+src/app/(console)/usage/page.tsx:86:  const { data: summary } = useAsyncData<UsageSummary>(async () => {
+src/app/(console)/usage/page.tsx:92:  const { data: dailyData } = useAsyncData<{ data: DailyRow[] }>(async () => {
+src/app/(console)/usage/page.tsx:98:  const { data: modelData } = useAsyncData<{ data: ModelRow[] }>(async () => {
+src/app/(console)/usage/page.tsx:113:  if (!current) return <EmptyState onCreated={() => router.refresh()} />;
+src/app/(console)/actions/[actionId]/page.tsx:5:import { useAsyncData } from "@/hooks/use-async-data";
+src/app/(console)/actions/[actionId]/page.tsx:71:  } = useAsyncData<ActionDetail>(async () => {
+src/app/(console)/admin/model-aliases/page.tsx:5:import { useAsyncData } from "@/hooks/use-async-data";
+src/app/(console)/admin/model-aliases/page.tsx:106:  } = useAsyncData<ApiResponse>(() => apiFetch<ApiResponse>("/api/admin/model-aliases"), []);
+src/app/(console)/admin/model-aliases/page.tsx:108:  const { data: priceData } = useAsyncData<OpenRouterPrices>(
+src/app/(console)/admin/model-aliases/page.tsx:301:      await Promise.all(
+src/app/(console)/admin/logs/page.tsx:5:import { useAsyncData } from "@/hooks/use-async-data";
+src/app/(console)/admin/logs/page.tsx:103:  const { data, loading } = useAsyncData<LogsResponse>(() => {
+src/app/(console)/admin/logs/page.tsx:251:  const { data, loading } = useAsyncData<SystemLogsResponse>(() => {
+src/app/(console)/admin/operations/page.tsx:5:import { useAsyncData } from "@/hooks/use-async-data";
+src/app/(console)/admin/operations/page.tsx:97:  const { data, loading, refetch } = useAsyncData<SyncStatusResponse>(
+src/app/(console)/admin/templates/page.tsx:5:import { useAsyncData } from "@/hooks/use-async-data";
+src/app/(console)/admin/templates/page.tsx:62:  const { data, loading, refetch } = useAsyncData<TemplatesResponse>(() => {
+src/app/(console)/admin/templates/page.tsx:201:            {t("reload")}
+src/app/(console)/admin/users/page.tsx:4:import { useAsyncData } from "@/hooks/use-async-data";
+src/app/(console)/admin/users/page.tsx:36:  const { data, loading } = useAsyncData<{ data: UserRow[] }>(
+src/app/(console)/admin/models/page.tsx:5:import { useAsyncData } from "@/hooks/use-async-data";
+src/app/(console)/admin/models/page.tsx:99:  // ── F-FQ-01 #5: batched fetch — single useAsyncData with Promise.all
+src/app/(console)/admin/models/page.tsx:100:  //    (was 2 independent useAsyncData causing 2 render cycles on mount).
+src/app/(console)/admin/models/page.tsx:105:  const { data: bundle, refetch: load } = useAsyncData<ModelsBundle>(async () => {
+src/app/(console)/admin/models/page.tsx:109:    const [channelResp, syncResp] = await Promise.all([
+src/app/(console)/admin/templates/[id]/page.tsx:4:import { useAsyncData } from "@/hooks/use-async-data";
+src/app/(console)/admin/templates/[id]/page.tsx:80:  } = useAsyncData<AdminTemplateDetail>(
+src/app/(console)/admin/users/[id]/page.tsx:6:import { useAsyncData } from "@/hooks/use-async-data";
+src/app/(console)/admin/users/[id]/page.tsx:85:  } = useAsyncData<UserDetail>(
+src/app/(console)/admin/users/[id]/page.tsx:90:  const { data: txnData, refetch: refetchTxn } = useAsyncData<TxnResponse>(
+src/app/(console)/admin/providers/page.tsx:5:import { useAsyncData } from "@/hooks/use-async-data";
+src/app/(console)/admin/providers/page.tsx:157:  } = useAsyncData<{ data: Provider[] }>(async () => {
+src/app/(console)/admin/usage/page.tsx:6:import { useAsyncData } from "@/hooks/use-async-data";
+src/app/(console)/admin/usage/page.tsx:72:  const { data: bundle } = useAsyncData<AdminUsageBundle>(async () => {
+src/app/(console)/admin/usage/page.tsx:73:    const [summary, providerResp, modelResp] = await Promise.all([
+src/app/(console)/admin/reconciliation/page.tsx:15:import { useAsyncData } from "@/hooks/use-async-data";
+src/app/(console)/admin/reconciliation/page.tsx:72:  const { data: bundle, refetch: load } = useAsyncData<{
+src/app/(console)/logs/page.tsx:6:import { useAsyncData } from "@/hooks/use-async-data";
+src/app/(console)/logs/page.tsx:9:import { EmptyState } from "@/components/empty-state";
+src/app/(console)/logs/page.tsx:69:  // ── Data loading via useAsyncData ──
+src/app/(console)/logs/page.tsx:70:  const { data: logsData, loading } = useAsyncData<{
+src/app/(console)/logs/page.tsx:104:  if (!current) return <EmptyState onCreated={() => router.refresh()} />;
+src/app/(console)/admin/health/page.tsx:5:import { useAsyncData } from "@/hooks/use-async-data";
+src/app/(console)/admin/health/page.tsx:133:  const { data, loading, refetch } = useAsyncData<HealthResponse>(
+src/app/(console)/logs/[traceId]/page.tsx:6:import { useAsyncData } from "@/hooks/use-async-data";
+src/app/(console)/logs/[traceId]/page.tsx:10:import { EmptyState } from "@/components/empty-state";
+src/app/(console)/logs/[traceId]/page.tsx:50:  const { data: detail, loading } = useAsyncData<LogDetail | null>(async () => {
+src/app/(console)/logs/[traceId]/page.tsx:80:  if (!current) return <EmptyState onCreated={() => router.refresh()} />;
+src/app/(console)/logs/[traceId]/page.tsx:132:              navigator.clipboard.writeText(detail.traceId);
+src/app/(console)/logs/[traceId]/page.tsx:137:            <span className="material-symbols-outlined text-base">content_copy</span>
+src/app/(console)/logs/[traceId]/page.tsx:138:            {t("copyTraceId")}
+
+## F-FQ-03 i18n/a11y target files
+src/components/notification-center.tsx:7:import { formatCNY, timeAgo } from "@/lib/utils";
+src/components/notification-center.tsx:195:        aria-label={t("toggle")}
+src/components/notification-center.tsx:267:                        {timeAgo(n.createdAt, locale)}
+src/app/(console)/keys/page.tsx:8:import { timeAgo } from "@/lib/utils";
+src/app/(console)/keys/page.tsx:171:                            aria-label={t("copyOnlyOnCreate")}
+src/app/(console)/keys/page.tsx:190:                      {k.lastUsedAt ? timeAgo(k.lastUsedAt, locale) : tc("never")}
+src/lib/billing-audit/fetchers/tier1-fetcher.ts:35:/** fetcher 失败时抛出的错误，包含 provider + 原因 + HTTP 状态码（如有）。 */
+src/app/(console)/templates/page.tsx:29:import { timeAgo } from "@/lib/utils";
+src/app/(console)/templates/page.tsx:258:                            {timeAgo(tpl.updatedAt, locale)}
+src/components/top-app-bar.tsx:64:            aria-label={`EN — ${t("switchToEnglish")}`}
+src/components/top-app-bar.tsx:76:            aria-label={`CN — ${t("switchToChinese")}`}
+src/components/top-app-bar.tsx:99:            aria-label={t("userMenu")}
+src/app/(console)/templates/rate-template-dialog.tsx:103:          role="radiogroup"
+src/app/(console)/templates/rate-template-dialog.tsx:104:          aria-label={t("rateThisTemplate")}
+src/app/(console)/templates/rate-template-dialog.tsx:112:                role="radio"
+src/app/(console)/templates/rate-template-dialog.tsx:114:                aria-label={`${n}`}
+src/lib/billing-audit/fetchers/__tests__/volcengine.test.ts:8: *   4) HTTP 错误/非 JSON 错误抛 BillFetchError
+src/components/admin/channel-table.tsx:52:    return v === 0 ? "Free" : `${formatCNY(v, rate, 2)}/call`;
+src/components/admin/channel-table.tsx:57:    ? "Free"
+src/app/(console)/templates/[templateId]/page.tsx:15:import { timeAgo } from "@/lib/utils";
+src/app/(console)/templates/[templateId]/page.tsx:282:                  value: timeAgo(template.updatedAt, locale),
+src/app/(console)/templates/[templateId]/test/page.tsx:16:import { cn, timeAgo } from "@/lib/utils";
+src/app/(console)/templates/[templateId]/test/page.tsx:381:                  {t("testPreviewFree")}
+src/app/(console)/templates/[templateId]/test/page.tsx:470:                  {timeAgo(run.createdAt, locale)}
+src/app/(console)/templates/[templateId]/test/page.tsx:743:                  {timeAgo(run.createdAt, locale)}
+src/lib/billing-audit/fetchers/balance/tier2-fetcher.ts:32:/** 拉取失败时抛出的错误，包含 provider + HTTP 状态码（如有） */
+src/app/(console)/templates/global-library.tsx:272:              <SelectTrigger className="w-[180px]" aria-label={t("sortLabel")}>
+src/app/(console)/templates/global-library.tsx:293:          role="tablist"
+src/app/(console)/templates/global-library.tsx:294:          aria-label={t("categoryTabs")}
+src/app/(console)/templates/global-library.tsx:298:            role="tab"
+src/app/(console)/templates/global-library.tsx:312:                role="tab"
+src/app/(console)/templates/global-library.tsx:341:                role="button"
+src/app/(console)/templates/global-library.tsx:363:                    aria-label={t("test")}
+src/app/(console)/templates/global-library.tsx:446:                  aria-label={t("ctaTitle")}
+src/app/(console)/actions/page.tsx:28:import { timeAgo } from "@/lib/utils";
+src/app/(console)/actions/page.tsx:205:                    {timeAgo(action.updatedAt, locale)}
+src/components/ui/table.tsx:67:        "h-auto px-2 py-[7px] text-left align-middle text-[10px] font-bold uppercase tracking-widest whitespace-nowrap text-ds-on-surface-variant bg-ds-surface-container-high/30 [&:has([role=checkbox])]:pr-0",
+src/components/ui/table.tsx:80:        "px-2 py-2 align-middle whitespace-nowrap text-xs text-text-secondary [&:has([role=checkbox])]:pr-0",
+src/components/ui/sidebar.tsx:287:      aria-label="Toggle Sidebar"
+src/app/(console)/actions/[actionId]/page.tsx:18:import { timeAgo } from "@/lib/utils";
+src/app/(console)/actions/[actionId]/page.tsx:179:                  {timeAgo(activeVersion.createdAt, locale)}
+src/app/(console)/actions/[actionId]/page.tsx:301:                          {timeAgo(v.createdAt, locale)}
+src/app/(console)/actions/[actionId]/page.tsx:343:                  value: timeAgo(action.versions[0]?.createdAt ?? action.createdAt, locale),
+src/components/ui/input-group.tsx:15:      role="group"
+src/components/ui/input-group.tsx:53:      role="group"
+src/app/(console)/logs/page.tsx:7:import { timeAgo, formatCNY } from "@/lib/utils";
+src/app/(console)/logs/page.tsx:194:                      {timeAgo(l.createdAt, locale)}
+src/components/ui/alert.tsx:30:      role="alert"
+src/lib/engine/cooldown.test.ts:121:    expect(isTransientFailureReason("请求被限流，请稍后重试")).toBe(true);
+src/lib/api/admin-schemas.ts:94: * 返回 null 表示通过；返回 string 为错误 message。
+src/lib/engine/__tests__/sanitize-auth-alert.test.ts:4: * 修复 2026-04-22 生产事故：chatanywhere / zhipu 余额不足错误文本
+src/lib/engine/__tests__/sanitize-auth-alert.test.ts:13:      "余额过低，请前往 https://example.com/recharge 充值后重试",
+src/lib/engine/__tests__/sanitize-auth-alert.test.ts:38:  it("rewrites 'ApiKey错误' to neutral 认证失败 text", () => {
+src/lib/engine/__tests__/sanitize-auth-alert.test.ts:39:    const out = sanitizeErrorMessage("ApiKey错误，请检查密钥");
+src/lib/engine/__tests__/sanitize-auth-alert.test.ts:41:    expect(out).not.toContain("ApiKey错误");
+src/lib/engine/adapters/volcengine.ts:6: * 2. 多尺寸重试（默认 → 1024x1024 → 2048x2048）
+src/lib/engine/adapters/volcengine.ts:17:   * 图片生成：chat 优先 → 回退 images → 多尺寸重试
+src/lib/engine/adapters/volcengine.ts:146:   * 构建尺寸重试列表
+src/lib/engine/failover.ts:90: * 最终抛出给调用方的那个错误。写入 call_logs.responseSummary.attempt_chain，
+src/lib/engine/failover.ts:101: * 调用方在 catch 中读到 null 说明错误不是来自 withFailover（例如 resolveEngine 失败）。
+src/app/(console)/_client-shell.tsx:37:          <Sidebar role={user.role} userName={user.name} email={user.email} />
+src/lib/sync/model-sync.ts:4: * 第 1 层：/models API（自动，免费）
+src/lib/engine/types.ts:146:// 错误类型
+src/lib/engine/types.ts:185:  // (c) ApiKey错误 / 无效的 ApiKey → 认证失败，请联系管理员
+src/lib/engine/types.ts:186:  sanitized = sanitized.replace(/(?:无效的?\s*)?ApiKey错误/gi, "认证失败，请联系管理员");
+src/app/(console)/balance/page.tsx:9:import { formatCNY, timeAgo } from "@/lib/utils";
+src/app/(console)/balance/page.tsx:174:                          {timeAgo(info.lastRecharge.createdAt, locale)} ·{" "}
+src/app/(console)/dashboard/page.tsx:8:import { formatCNY, timeAgo } from "@/lib/utils";
+src/app/(console)/settings/page.tsx:982:                  role="switch"
+src/lib/engine/openai-compat.ts:581:  // 错误映射
+src/lib/sync/internal-llm.ts:37: * 指向下一个 alias fallback 的错误判断：
+src/lib/sync/internal-llm.ts:39: *   - 其他错误（withFailover 已穷尽 channel 级别重试）→ 换下一个 alias 继续尝试
+src/lib/sync/alias-classifier.ts:16:// 重试辅助
+src/lib/sync/alias-classifier.ts:19:const RETRY_DELAYS = [3_000, 10_000]; // 重试间隔：3s, 10s
+src/lib/sync/alias-classifier.ts:23:  // 首次 + 2 次重试 = 共 3 次
+src/lib/sync/alias-classifier.ts:222:      // LLM 调用 + 重试
+src/lib/sync/alias-classifier.ts:395:      // 重试仍失败 → 跳过本批，继续下一批
+src/lib/sync/alias-classifier.ts:417: * 分批 30 个 + 即时持久化 + 重试 2 次 + 失败跳过。
+src/lib/sync/alias-classifier.ts:575:      // LLM 调用 + 重试
+src/lib/sync/alias-classifier.ts:612:      // 重试仍失败 → 跳过本批，继续下一批
+src/app/(console)/admin/models/page.tsx:285:                ? t("statusDegraded")
+src/app/(console)/admin/models/page.tsx:466:                        {fmtCostPrice(row.channel.costPrice, exchangeRate, t("priceFree"))}
+src/app/(console)/admin/templates/[id]/page.tsx:11:import { timeAgo } from "@/lib/utils";
+src/app/(console)/admin/templates/[id]/page.tsx:283:                  value: timeAgo(template.updatedAt, locale),
+src/app/(console)/admin/health/page.tsx:11:import { timeAgo } from "@/lib/utils";
+src/app/(console)/admin/health/page.tsx:521:                    {ch.lastCheckedAt ? timeAgo(ch.lastCheckedAt) : "\u2014"}
+src/app/(console)/admin/health/page.tsx:628:                  ? timeAgo(ch.lastCheckedAt)
+src/lib/utils.ts:33:export function timeAgo(date: Date | string, locale?: string): string {
+src/app/(console)/admin/users/page.tsx:6:import { formatCNY, timeAgo } from "@/lib/utils";
+src/app/(console)/admin/users/page.tsx:89:                  {timeAgo(u.createdAt)}
+src/lib/redis.ts:5: * - getRedis() 只在连接就绪时返回实例，否则返回 null（降级走 DB）
+src/lib/template/test-runner.ts:5: *   - dry_run：渲染变量后返回完整 prompt，不调模型，免费
+src/app/(console)/admin/logs/page.tsx:6:import { formatCNY, timeAgo } from "@/lib/utils";
+src/app/(console)/admin/logs/page.tsx:193:                      {timeAgo(l.createdAt)}
+src/app/(console)/admin/logs/page.tsx:337:                      {timeAgo(l.createdAt)}
+src/lib/mcp/auth.ts:108: * 返回错误消息字符串，null 表示放行
+src/lib/mcp/server.ts:71:- **run_action(action_id, variables?, version_id?, dry_run?)** — 执行 Action。version_id 指定版本（默认活跃版本）；dry_run=true 仅渲染变量不调用模型（免费预览）
+src/lib/sync/adapters/openrouter.ts:33:        // 排除免费模型（pricing 全为 0 或 "0"）
+src/app/(console)/admin/operations/page.tsx:13:import { timeAgo } from "@/lib/utils";
+src/app/(console)/admin/operations/page.tsx:240:                value={status?.lastSyncAt ? timeAgo(status.lastSyncAt) : "—"}
+src/app/(console)/admin/operations/page.tsx:382:              value={inferResult?.timestamp ? timeAgo(inferResult.timestamp) : "—"}
+src/lib/mcp/tools/list-models.ts:134:                price = "Free";
+src/lib/mcp/tools/list-models.ts:143:              price = perCall === 0 ? "Free" : `$${sellPrice.perCall} per image`;
+src/lib/health/__tests__/auth-failed-detect.test.ts:4: * 覆盖上游已知 auth 错误文案识别，确保连续 3 次 AUTH_ALERT 触发路径
+src/lib/health/__tests__/auth-failed-detect.test.ts:5: * 正确匹配 volcengine 欠费 / zhipu ApiKey错误 / openai 401 等。
+src/lib/health/__tests__/auth-failed-detect.test.ts:17:    expect(isAuthFailedError("账户欠费，请充值后重试")).toBe(true);
+src/lib/health/__tests__/auth-failed-detect.test.ts:20:  it("matches zhipu 'ApiKey错误' phrasing", () => {
+src/lib/health/__tests__/auth-failed-detect.test.ts:21:    expect(isAuthFailedError("ApiKey错误")).toBe(true);
+src/lib/health/__tests__/auth-failed-detect.test.ts:22:    expect(isAuthFailedError("provider_error: ApiKey错误(sk-xxx)")).toBe(true);
+src/lib/api/errors.ts:2: * 统一错误格式
+src/lib/api/post-process.ts:315:  // F-BAX-04: 只在有多个尝试（失败过重试）时才写 attempt_chain，避免单次
+src/lib/health/scheduler.ts:12: * 自动降级与恢复：
+src/lib/health/scheduler.ts:13: *   单次失败 → 重试 → 仍失败 → DEGRADED
+src/lib/health/scheduler.ts:50: * 判断一条错误是否为 auth_failed 类型：
+src/lib/health/scheduler.ts:52: *   - errorMessage 命中已知上游 auth 文案（volcengine 欠费 / zhipu 'ApiKey错误' /
+src/lib/health/scheduler.ts:61:    lower.includes("apikey错误") ||
+src/lib/health/scheduler.ts:109: * 对单个通道执行检查（含重试、降级、记录、告警）
+src/lib/health/scheduler.ts:215: * 清理 7 天前的 HealthCheck 记录
+src/lib/health/scheduler.ts:443:// 检查执行（含重试 + 降级 + 恢复）
+src/lib/health/scheduler.ts:459:  // 失败 → 重试一次
+src/lib/health/scheduler.ts:492:  // F-BAX-05: 本批次含 auth_failed 错误 → 追查连续 auth_failed 次数并告警。
+src/lib/sync/adapters/base.ts:106:/** 预检 API Key，为空时抛出明确错误 */

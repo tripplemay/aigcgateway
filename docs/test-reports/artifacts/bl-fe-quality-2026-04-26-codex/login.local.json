@@ -1,0 +1,9 @@
+{
+  "token": "[redacted-local-test-jwt]",
+  "user": {
+    "id": "cmofmmn0k00009yadk9enezcl",
+    "email": "admin@aigc-gateway.local",
+    "name": "Admin",
+    "role": "ADMIN"
+  }
+}

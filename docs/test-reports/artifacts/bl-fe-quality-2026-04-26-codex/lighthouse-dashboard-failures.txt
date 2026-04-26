@@ -1,0 +1,95 @@
+[
+  {
+    "id": "color-contrast",
+    "title": "Background and foreground colors do not have a sufficient contrast ratio.",
+    "score": 0,
+    "details": [
+      {
+        "node": {
+          "type": "node",
+          "lhId": "1-0-DIV",
+          "path": "1,HTML,1,BODY,7,DIV,1,DIV,0,HEADER,1,DIV,3,DIV,0,BUTTON,0,DIV",
+          "selector": "div.flex > div.relative > button.flex > div.w-8",
+          "boundingRect": {
+            "top": 16,
+            "bottom": 48,
+            "left": 1376,
+            "right": 1408,
+            "width": 32,
+            "height": 32
+          },
+          "snippet": "<div class=\"w-8 h-8 rounded-full bg-ds-primary-container flex items-center justify-cen…\">",
+          "nodeLabel": "AD",
+          "explanation": "Fix any of the following:\n  Element has insufficient color contrast of 1.52 (foreground color: #ffffff, background color: #d2cdf2, font size: 9.0pt (12px), font weight: bold). Expected contrast ratio of 4.5:1"
+        },
+        "subItems": {
+          "type": "subitems",
+          "items": [
+            {
+              "relatedNode": {
+                "type": "node",
+                "lhId": "1-1-HEADER",
+                "path": "1,HTML,1,BODY,7,DIV,1,DIV,0,HEADER",
+                "selector": "body > div.bg-ds-surface > div.ml-64 > header.sticky",
+                "boundingRect": {
+                  "top": 0,
+                  "bottom": 64,
+                  "left": 256,
+                  "right": 1440,
+                  "width": 1184,
+                  "height": 64
+                },
+                "snippet": "<header class=\"sticky top-0 z-50 w-full bg-ds-surface-container-lowest/80 backdrop-blur-x…\">",
+                "nodeLabel": "EN\nCN\nnotifications\nAD"
+              }
+            },
+            {
+              "relatedNode": {
+                "type": "node",
+                "lhId": "1-2-DIV",
+                "path": "1,HTML,1,BODY,7,DIV",
+                "selector": "body > div.bg-ds-surface",
+                "boundingRect": {
+                  "top": 0,
+                  "bottom": 694,
+                  "left": 0,
+                  "right": 1440,
+                  "width": 1440,
+                  "height": 694
+                },
+                "snippet": "<div class=\"bg-ds-surface text-ds-on-surface antialiased overflow-hidden\">",
+                "nodeLabel": "token\nAIGC Gateway\nALGORITHMIC ATELIER\nfolder\n无项目\nunfold_more\nadd\n新建项目\n\n核心\n\nfol…"
+              }
+            }
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "id": "label-content-name-mismatch",
+    "title": "Elements with visible text labels do not have matching accessible names.",
+    "score": 0,
+    "details": [
+      {
+        "node": {
+          "type": "node",
+          "lhId": "1-3-BUTTON",
+          "path": "1,HTML,1,BODY,7,DIV,1,DIV,0,HEADER,1,DIV,3,DIV,0,BUTTON",
+          "selector": "header.sticky > div.flex > div.relative > button.flex",
+          "boundingRect": {
+            "top": 16,
+            "bottom": 48,
+            "left": 1376,
+            "right": 1408,
+            "width": 32,
+            "height": 32
+          },
+          "snippet": "<button class=\"flex items-center gap-3 cursor-pointer group\" aria-label=\"用户菜单\" aria-haspopup=\"menu\" aria-expanded=\"false\">",
+          "nodeLabel": "AD",
+          "explanation": "Fix any of the following:\n  Text inside the element is not included in the accessible name"
+        }
+      }
+    ]
+  }
+]

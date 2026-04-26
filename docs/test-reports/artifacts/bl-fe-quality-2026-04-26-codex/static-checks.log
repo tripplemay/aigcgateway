@@ -1,0 +1,54 @@
+## reload checks
+
+## DS hard-coded colors
+
+## DS tailwind color classes
+src/app/(console)/admin/logs/page.tsx:181:          <tbody className="divide-y divide-slate-50">
+src/app/(console)/admin/logs/page.tsx:315:          <tbody className="divide-y divide-slate-50">
+src/app/(console)/admin/operations/page.tsx:203:              <div className="w-10 h-10 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center">
+src/app/(console)/admin/operations/page.tsx:305:                      <tr key={p.providerName} className="border-t border-slate-100/60">
+src/app/(console)/admin/operations/page.tsx:531:      <div className="flex items-center gap-2 text-blue-700 bg-blue-50 px-4 py-2.5 rounded-lg text-xs font-semibold">
+src/app/(console)/admin/operations/page.tsx:589:      <div className="flex items-center gap-2 text-blue-700 bg-blue-50 px-4 py-2.5 rounded-lg text-xs font-semibold">
+src/app/(console)/admin/operations/page.tsx:1186:        <div className="w-10 h-10 rounded-full bg-teal-50 text-teal-600 flex items-center justify-center">
+
+## visibility/polling
+src/components/notification-center.tsx:110:  // Initial fetch + 30-second polling, paused when tab is hidden
+src/components/notification-center.tsx:113:    let timer: ReturnType<typeof setInterval> | null = null;
+src/components/notification-center.tsx:116:      timer = setInterval(() => void fetchNotifications(), 30_000);
+src/components/notification-center.tsx:123:    if (typeof document !== "undefined" && document.hidden) {
+src/components/notification-center.tsx:124:      // Tab hidden at mount: don't start polling yet
+src/components/notification-center.tsx:129:      if (document.hidden) {
+src/components/notification-center.tsx:136:    document.addEventListener("visibilitychange", handleVis);
+src/components/notification-center.tsx:139:      document.removeEventListener("visibilitychange", handleVis);
+src/app/(console)/admin/operations/page.tsx:94:  const syncPollRef = useRef<ReturnType<typeof setInterval> | null>(null);
+src/app/(console)/admin/operations/page.tsx:95:  const inferPollRef = useRef<ReturnType<typeof setInterval> | null>(null);
+src/app/(console)/admin/operations/page.tsx:106:  // Cleanup polling on unmount
+src/app/(console)/admin/operations/page.tsx:114:  const pollSyncProgress = () => {
+src/app/(console)/admin/operations/page.tsx:116:    syncPollRef.current = setInterval(async () => {
+src/app/(console)/admin/operations/page.tsx:128:        // ignore polling errors
+src/app/(console)/admin/operations/page.tsx:138:      pollSyncProgress();
+src/app/(console)/admin/operations/page.tsx:145:  const pollInferProgress = () => {
+src/app/(console)/admin/operations/page.tsx:147:    inferPollRef.current = setInterval(async () => {
+src/app/(console)/admin/operations/page.tsx:159:        // ignore polling errors
+src/app/(console)/admin/operations/page.tsx:166:    pollInferProgress();
+src/app/api/admin/operations/progress/route.ts:12:// keep a single polling helper when it needs to.
+
+## settings event listeners
+src/components/notification-center.tsx:136:    document.addEventListener("visibilitychange", handleVis);
+src/components/notification-center.tsx:139:      document.removeEventListener("visibilitychange", handleVis);
+src/components/notification-center.tsx:151:    document.addEventListener("mousedown", handler);
+src/components/notification-center.tsx:152:    return () => document.removeEventListener("mousedown", handler);
+src/components/top-app-bar.tsx:39:    document.addEventListener("mousedown", handler);
+src/components/top-app-bar.tsx:40:    return () => document.removeEventListener("mousedown", handler);
+src/components/ui/sidebar.tsx:108:    window.addEventListener("keydown", handleKeyDown)
+src/components/ui/sidebar.tsx:109:    return () => window.removeEventListener("keydown", handleKeyDown)
+
+## admin usage/model batching
+src/app/(console)/admin/models/page.tsx:5:import { useAsyncData } from "@/hooks/use-async-data";
+src/app/(console)/admin/models/page.tsx:99:  // ── F-FQ-01 #5: batched fetch — single useAsyncData with Promise.all
+src/app/(console)/admin/models/page.tsx:100:  //    (was 2 independent useAsyncData causing 2 render cycles on mount).
+src/app/(console)/admin/models/page.tsx:105:  const { data: bundle, refetch: load } = useAsyncData<ModelsBundle>(async () => {
+src/app/(console)/admin/models/page.tsx:109:    const [channelResp, syncResp] = await Promise.all([
+src/app/(console)/admin/usage/page.tsx:6:import { useAsyncData } from "@/hooks/use-async-data";
+src/app/(console)/admin/usage/page.tsx:72:  const { data: bundle } = useAsyncData<AdminUsageBundle>(async () => {
+src/app/(console)/admin/usage/page.tsx:73:    const [summary, providerResp, modelResp] = await Promise.all([

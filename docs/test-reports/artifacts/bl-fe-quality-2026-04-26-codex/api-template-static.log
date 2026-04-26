@@ -1,0 +1,489 @@
+## template patch route invalid json handling
+src/app/api/admin/templates/[templateId]/route.ts:53:// PATCH /api/admin/templates/:templateId — Admin update template
+src/app/api/admin/templates/[templateId]/route.ts:56:export async function PATCH(request: Request, { params }: Params) {
+src/app/api/admin/templates/[templateId]/route.ts:60:  const body = (await request.json().catch(() => null)) as Record<string, unknown> | null;
+src/app/api/admin/templates/[templateId]/route.ts:62:    return errorResponse(400, "invalid_parameter", "Invalid JSON body");
+
+## Decimal precision references
+src/lib/billing-audit/aggregate-gateway.ts:2: * BL-BILLING-AUDIT-EXT-P2 F-BAP2-02 — gateway-side cost aggregation.
+src/lib/billing-audit/aggregate-gateway.ts:15: * 返回 Number（USD 等价值；call_logs.costPrice 已统一 USD）。
+src/lib/billing-audit/aggregate-gateway.ts:44:    select: { costPrice: true },
+src/lib/billing-audit/aggregate-gateway.ts:49:    if (r.costPrice !== null && r.costPrice !== undefined) {
+src/lib/billing-audit/aggregate-gateway.ts:50:      sum += Number(r.costPrice);
+src/lib/billing-audit/__tests__/reconcile-job.test.ts:7: *   3) tier 2 provider 第二日 → delta = prev.balance - curr.balance，写 reconciliation
+src/lib/billing-audit/__tests__/reconcile-job.test.ts:44:    balanceSnapshot: {
+src/lib/billing-audit/__tests__/reconcile-job.test.ts:70:vi.mock("../fetchers/balance/deepseek", () => ({
+src/lib/billing-audit/__tests__/reconcile-job.test.ts:75:vi.mock("../fetchers/balance/siliconflow", () => ({
+src/lib/billing-audit/__tests__/reconcile-job.test.ts:80:vi.mock("../fetchers/balance/openrouter-credits", () => ({
+src/lib/billing-audit/__tests__/reconcile-job.test.ts:125:    findManyCallLogMock.mockResolvedValueOnce([{ costPrice: 3.5 }]); // gateway sum=3.5
+src/lib/billing-audit/__tests__/reconcile-job.test.ts:142:    findManyCallLogMock.mockResolvedValueOnce([{ costPrice: 0.1 }, { costPrice: 0.2 }]);
+src/lib/billing-audit/__tests__/reconcile-job.test.ts:176:        balance: 100,
+src/lib/billing-audit/__tests__/reconcile-job.test.ts:198:        balance: 90,
+src/lib/billing-audit/__tests__/reconcile-job.test.ts:204:      balance: 100,
+src/lib/billing-audit/__tests__/reconcile-job.test.ts:207:    findManyCallLogMock.mockResolvedValueOnce([{ costPrice: 9.95 }]);
+src/lib/billing-audit/__tests__/reconcile-job.test.ts:245:    findManyCallLogMock.mockResolvedValueOnce([{ costPrice: 50 }]); // gateway 50 vs upstream 100 → delta=50, |%|=50 → BIG_DIFF
+src/lib/billing-audit/reconcile-job.ts:30:import { DeepSeekBalanceFetcher } from "./fetchers/balance/deepseek";
+src/lib/billing-audit/reconcile-job.ts:31:import { SiliconFlowBalanceFetcher } from "./fetchers/balance/siliconflow";
+src/lib/billing-audit/reconcile-job.ts:32:import { OpenRouterCreditsFetcher } from "./fetchers/balance/openrouter-credits";
+src/lib/billing-audit/reconcile-job.ts:34:import type { TierTwoBalanceFetcher, BalanceSnapshot } from "./fetchers/balance/tier2-fetcher";
+src/lib/billing-audit/reconcile-job.ts:257:    console.error(`[reconcile] tier2 balance fetch ${provider.name} failed:`, err);
+src/lib/billing-audit/reconcile-job.ts:263:    await prisma.balanceSnapshot.create({
+src/lib/billing-audit/reconcile-job.ts:268:        balance: snap.balance,
+src/lib/billing-audit/reconcile-job.ts:279:    const prev = await prisma.balanceSnapshot.findFirst({
+src/lib/billing-audit/reconcile-job.ts:291:    const upstreamUsage = Number(prev.balance) - snap.balance; // 余额下降 = 消费
+src/lib/billing-audit/reconcile-job.ts:307:        prevBalance: Number(prev.balance),
+src/lib/billing-audit/reconcile-job.ts:308:        currBalance: snap.balance,
+src/lib/billing-audit/fetchers/volcengine.ts:138:  const amount = toNumber(item.PayableAmount);
+src/lib/billing-audit/fetchers/volcengine.ts:139:  const count = toNumber(item.Count);
+src/lib/billing-audit/fetchers/volcengine.ts:165:function toNumber(v: unknown): number {
+src/lib/billing-audit/fetchers/volcengine.ts:168:    const n = parseFloat(v);
+src/lib/billing-audit/fetchers/balance/siliconflow.ts:2: * BL-BILLING-AUDIT-EXT-P2 F-BAP2-01 — SiliconFlow balance fetcher.
+src/lib/billing-audit/fetchers/balance/siliconflow.ts:27:    balance?: string | number;
+src/lib/billing-audit/fetchers/balance/siliconflow.ts:83:    // 优先 totalBalance；fallback 到 balance（不同版本字段名）
+src/lib/billing-audit/fetchers/balance/siliconflow.ts:84:    const balanceRaw = data.totalBalance ?? data.balance ?? "0";
+src/lib/billing-audit/fetchers/balance/siliconflow.ts:85:    const balance = Number(balanceRaw);
+src/lib/billing-audit/fetchers/balance/siliconflow.ts:91:        balance: Number.isFinite(balance) ? balance : 0,
+src/lib/billing-audit/fetchers/balance/__tests__/openrouter-credits.test.ts:4: * 关键：balance = total_credits - total_usage；totalUsage 必须随 snapshot 一并保存。
+src/lib/billing-audit/fetchers/balance/__tests__/openrouter-credits.test.ts:26:  it("computes balance = total_credits - total_usage and persists totalUsage", async () => {
+src/lib/billing-audit/fetchers/balance/__tests__/openrouter-credits.test.ts:39:    expect(snaps[0].balance).toBeCloseTo(76.55);
+src/lib/billing-audit/fetchers/balance/__tests__/siliconflow.test.ts:39:    expect(snaps[0].balance).toBeCloseTo(42.5);
+src/lib/billing-audit/fetchers/balance/__tests__/siliconflow.test.ts:52:    expect(snaps[0].balance).toBeCloseTo(-1.7582);
+src/lib/utils.ts:9:  return `$${value.toFixed(decimals)}`;
+src/lib/utils.ts:20:  return `¥${cny.toFixed(decimals)}`;
+src/lib/billing-audit/fetchers/balance/__tests__/deepseek.test.ts:7: *   - 401 / 非 JSON / balance_infos 缺失 / network error → BalanceFetchError
+src/lib/billing-audit/fetchers/balance/__tests__/deepseek.test.ts:8: *   - 字符串 balance 正确转 number
+src/lib/billing-audit/fetchers/balance/__tests__/deepseek.test.ts:35:          balance_infos: [
+src/lib/billing-audit/fetchers/balance/__tests__/deepseek.test.ts:36:            { currency: "CNY", total_balance: "12.34", granted_balance: "0", topped_up_balance: "12.34" },
+src/lib/billing-audit/fetchers/balance/__tests__/deepseek.test.ts:37:            { currency: "USD", total_balance: "1.78", granted_balance: "0", topped_up_balance: "1.78" },
+src/lib/billing-audit/fetchers/balance/__tests__/deepseek.test.ts:49:    expect(snaps[0].balance).toBeCloseTo(12.34);
+src/lib/billing-audit/fetchers/balance/__tests__/deepseek.test.ts:51:    expect(snaps[1].balance).toBeCloseTo(1.78);
+src/lib/billing-audit/fetchers/balance/__tests__/deepseek.test.ts:69:  it("balance_infos missing → BalanceFetchError", async () => {
+src/lib/billing-audit/fetchers/balance/__tests__/deepseek.test.ts:75:    await expect(f.fetchBalanceSnapshot()).rejects.toThrow(/balance_infos/);
+src/lib/config.ts:18:export async function getConfigNumber(
+src/lib/config.ts:24:  const num = parseFloat(val);
+src/lib/billing-audit/fetchers/balance/openrouter-credits.ts:8: * 单一 USD 货币，balance = total_credits - total_usage。totalUsage 一并保存
+src/lib/billing-audit/fetchers/balance/openrouter-credits.ts:77:    const balance = data.total_credits - data.total_usage;
+src/lib/billing-audit/fetchers/balance/openrouter-credits.ts:83:        balance,
+src/lib/billing-audit/fetchers/balance/tier2-fetcher.ts:19:  balance: number;
+src/lib/billing-audit/fetchers/balance/deepseek.ts:2: * BL-BILLING-AUDIT-EXT-P2 F-BAP2-01 — DeepSeek balance fetcher.
+src/lib/billing-audit/fetchers/balance/deepseek.ts:4: * GET https://api.deepseek.com/user/balance
+src/lib/billing-audit/fetchers/balance/deepseek.ts:7: * 返回 multi-currency balance_infos：
+src/lib/billing-audit/fetchers/balance/deepseek.ts:10: *   "balance_infos": [
+src/lib/billing-audit/fetchers/balance/deepseek.ts:11: *     {"currency": "CNY", "total_balance": "..", "granted_balance": "..", "topped_up_balance": ".."},
+src/lib/billing-audit/fetchers/balance/deepseek.ts:12: *     {"currency": "USD", "total_balance": "..", ...}
+src/lib/billing-audit/fetchers/balance/deepseek.ts:16: * 每条 balance_info → 一个 BalanceSnapshot。
+src/lib/billing-audit/fetchers/balance/deepseek.ts:25:const URL = "https://api.deepseek.com/user/balance";
+src/lib/billing-audit/fetchers/balance/deepseek.ts:29:  total_balance?: string;
+src/lib/billing-audit/fetchers/balance/deepseek.ts:30:  granted_balance?: string;
+src/lib/billing-audit/fetchers/balance/deepseek.ts:31:  topped_up_balance?: string;
+src/lib/billing-audit/fetchers/balance/deepseek.ts:36:  balance_infos?: DeepSeekBalanceInfo[];
+src/lib/billing-audit/fetchers/balance/deepseek.ts:78:    const infos = parsed.balance_infos ?? [];
+src/lib/billing-audit/fetchers/balance/deepseek.ts:80:      throw new BalanceFetchError(this.providerName, "balance_infos missing/empty");
+src/lib/billing-audit/fetchers/balance/deepseek.ts:95:  const balance = Number(info.total_balance ?? "0");
+src/lib/billing-audit/fetchers/balance/deepseek.ts:100:    balance: Number.isFinite(balance) ? balance : 0,
+src/lib/template/test-runner.ts:6: *   - execute：真实调用每步，收集 input/output/tokens/cost/latency，写 TemplateTestRun
+src/lib/template/test-runner.ts:31:  cost: string | null;
+src/lib/template/test-runner.ts:118:  let totalCostUsd = new Prisma.Decimal(0);
+src/lib/template/test-runner.ts:137:        cost: null,
+src/lib/template/test-runner.ts:168:        cost: null,
+src/lib/template/test-runner.ts:188:        cost: null,
+src/lib/template/test-runner.ts:222:        cost: null,
+src/lib/template/test-runner.ts:255:      cost: sellPrice,
+src/lib/template/test-runner.ts:263:  const totalCost = totalCostUsd.toFixed(8);
+src/lib/health/__tests__/probe-call-log.test.ts:56:    costPrice: { inputPer1M: 0.1, outputPer1M: 0.2 },
+src/lib/health/__tests__/probe-call-log.test.ts:74:    costPrice: { perCall: 0.01 },
+src/lib/health/__tests__/probe-call-log.test.ts:144:  it("runCallProbe IMAGE success writes call_log (per-call cost)", async () => {
+src/lib/health/__tests__/probe-call-log.test.ts:161:    // perCall cost should be non-zero for success with channel.costPrice.perCall configured
+src/lib/health/__tests__/probe-call-log.test.ts:162:    expect(Number(row.costPrice)).toBeGreaterThan(0);
+src/lib/health/__tests__/auth-failed-detect.test.ts:16:    expect(isAuthFailedError("your account has an overdue balance")).toBe(true);
+src/lib/health/__tests__/auth-failed-detect.test.ts:30:  it("matches 余额 / balance phrasing", () => {
+src/lib/health/__tests__/auth-failed-detect.test.ts:33:    expect(isAuthFailedError("balance too low")).toBe(true);
+src/lib/health/__tests__/auth-failed-detect.test.ts:34:    expect(isAuthFailedError("insufficient balance for this request")).toBe(true);
+src/lib/billing/scheduler.ts:12:let balanceAlertTimer: ReturnType<typeof setInterval> | null = null;
+src/lib/billing/scheduler.ts:26:  balanceAlertTimer = setInterval(
+src/lib/billing/scheduler.ts:29:        console.error("[billing-scheduler] balance alert error:", err);
+src/lib/billing/scheduler.ts:43:  if (balanceAlertTimer) {
+src/lib/billing/scheduler.ts:44:    clearInterval(balanceAlertTimer);
+src/lib/billing/scheduler.ts:45:    balanceAlertTimer = null;
+src/lib/billing/scheduler.ts:85:      user: { select: { email: true, balance: true } },
+src/lib/billing/scheduler.ts:94:    const balance = Number(project.user.balance);
+src/lib/billing/scheduler.ts:95:    const threshold = Number(project.alertThreshold);
+src/lib/billing/scheduler.ts:97:    if (balance > threshold) continue;
+src/lib/billing/scheduler.ts:101:    const dedupKey = `alert:balance_low_hourly:${project.id}:${thresholdMicro}`;
+src/lib/billing/scheduler.ts:114:      `[billing-scheduler] Low balance alert: project ${project.name} (${project.id}), balance: $${balance}, threshold: $${threshold}`,
+src/lib/billing/scheduler.ts:123:            event: "low_balance_alert",
+src/lib/billing/scheduler.ts:127:            balance,
+src/lib/billing/payment.ts:54:        balance: { increment: order.amount },
+src/lib/billing/payment.ts:61:      select: { balance: true, defaultProjectId: true },
+src/lib/billing/payment.ts:81:        balanceAfter: user!.balance,
+src/lib/billing/payment.ts:86:        description: `Recharge $${Number(order.amount).toFixed(2)} via ${order.paymentMethod}`,
+src/lib/health/__tests__/scheduler.test.ts:43:    // 30 min default — less-frequent, zero-cost probe for revival path
+src/lib/notifications/ttl.ts:4: * 高频 transient 告警有保留上限（balance 30d / rate 7d），读完即过；
+src/lib/health/expensive-models.ts:4: * Some upstream models cost 10-100× a normal chat completion even for a
+src/lib/mcp/server.ts:14:import { registerGetBalance } from "./tools/get-balance";
+src/lib/mcp/server.ts:43:1. **get_balance** — 查看余额，确认可用
+src/lib/mcp/server.ts:104:- **get_balance(include_transactions?)** — 查看余额和最近交易（交易含 traceId 用于关联调用记录）
+src/lib/health/scheduler.ts:43:const FAIL_THRESHOLD = Number(process.env.HEALTH_CHECK_FAIL_THRESHOLD ?? 3);
+src/lib/health/scheduler.ts:53: *     openai 'Incorrect API key provided' / 'balance too low' 等）
+src/lib/health/scheduler.ts:60:    lower.includes("overdue balance") ||
+src/lib/health/scheduler.ts:67:    lower.includes("balance too low") ||
+src/lib/health/scheduler.ts:68:    lower.includes("insufficient balance")
+src/lib/health/scheduler.ts:71:const ACTIVE_INTERVAL = Number(process.env.HEALTH_CHECK_ACTIVE_INTERVAL_MS ?? 600_000); // 10min
+src/lib/health/scheduler.ts:72:const DISABLED_INTERVAL = Number(process.env.HEALTH_CHECK_DISABLED_INTERVAL_MS ?? 1_800_000); // 30min
+src/lib/health/scheduler.ts:73:const CALL_PROBE_INTERVAL = Number(process.env.CALL_PROBE_INTERVAL_MS ?? 1_800_000); // 30min
+src/lib/health/scheduler.ts:150: * F-ACF-10 — CALL_PROBE driver. Runs a minimum-cost real call against one
+src/lib/health/scheduler.ts:153: * same channel is FAIL (cost-savings) or when CALL_PROBE_ENABLED=false.
+src/lib/health/scheduler.ts:286:    // token costs 10-100× normal (openrouter 2026-04-16:
+src/lib/health/scheduler.ts:294:    // zero-cost reachability only; the old 'full' path silently billed
+src/lib/health/scheduler.ts:387:  // CALL_PROBE makes a real (minimum-cost) API call to verify end-to-end
+src/lib/health/scheduler.ts:388:  // availability, so it runs less frequently than the zero-cost checks above.
+src/lib/notifications/dispatcher.test.ts:56:    await sendNotification("user-1", "BALANCE_LOW", { balance: 0 });
+src/lib/notifications/dispatcher.test.ts:68:    await sendNotification("user-1", "BALANCE_LOW", { balance: 0 });
+src/lib/notifications/dispatcher.test.ts:79:    await sendNotification("user-1", "BALANCE_LOW", { balance: 0.01 });
+src/lib/notifications/dispatcher.test.ts:93:    await sendNotification("user-1", "BALANCE_LOW", { balance: 0.01 }, undefined, {
+src/lib/notifications/dispatcher.test.ts:119:    await sendNotification("user-1", "BALANCE_LOW", { balance: 0.01 }, undefined, {
+src/lib/infra/url-safety.ts:32:    const v = Number(p);
+src/lib/infra/url-safety.ts:41:  const bits = Number(bitsStr);
+src/lib/notifications/triggers.ts:30: * Called after every successful balance deduction.
+src/lib/notifications/triggers.ts:31: * If the user's balance has dropped below the project's alertThreshold,
+src/lib/notifications/triggers.ts:39:    | { id: string; alertThreshold: import("@prisma/client").Prisma.Decimal | number | null },
+src/lib/notifications/triggers.ts:47:      select: { balance: true },
+src/lib/notifications/triggers.ts:59:    const balance = Number(user.balance);
+src/lib/notifications/triggers.ts:60:    const threshold = Number(project.alertThreshold);
+src/lib/notifications/triggers.ts:62:    if (balance >= threshold) return;
+src/lib/notifications/triggers.ts:66:    const dedupKey = `alert:balance_low:${userId}:${thresholdMicro}`;
+src/lib/notifications/triggers.ts:77:      { currentBalance: balance, threshold, projectId },
+src/lib/notifications/triggers.ts:252:      confidence: Number(r.confidence),
+src/lib/notifications/triggers.test.ts:19:        dbState.userBalance !== undefined ? { balance: dbState.userBalance } : null,
+src/lib/notifications/triggers.test.ts:71:  it("does nothing when balance is above threshold", async () => {
+src/lib/notifications/triggers.test.ts:80:  it("fires BALANCE_LOW when balance drops below threshold (first time)", async () => {
+src/lib/notifications/triggers.test.ts:111:  it("sends when balance equals threshold (balance >= threshold guard uses >=)", async () => {
+src/lib/notifications/triggers.test.ts:134:      "alert:balance_low:user-abc:1500000",
+tests/perf/k6/developer-paths.js:27:    zero_balance_gate: {
+tests/perf/k6/developer-paths.js:51:    "http_req_duration{scenario:zero_balance_gate}": ["p(95)<800"],
+tests/perf/k6/developer-paths.js:97:      tags: { scenario: "zero_balance_gate" },
+tests/perf/k6/developer-paths.js:102:    "zero balance returns 402": (r) => r.status === 402,
+src/lib/api/admin-schemas.ts:61:// Admin can re-prioritize, override costPrice, and flip status. providerId /
+src/lib/api/admin-schemas.ts:66:    costPrice: z.record(z.unknown()).optional(),
+src/lib/api/admin-schemas.ts:76:// 修复 2026-04-24 生产事故：40 条 image channel 全体 costPrice.perCall=0，
+src/lib/api/admin-schemas.ts:91: *   - IMAGE + costPrice 传入但 perCall<=0 → fail
+src/lib/api/admin-schemas.ts:98:  costPrice: unknown,
+src/lib/api/admin-schemas.ts:102:  if (costPrice !== undefined && !imageChannelPriceValid(costPrice)) {
+src/lib/api/admin-schemas.ts:103:    return "图片渠道 costPrice 必须为 {unit:'call', perCall>0}";
+src/lib/mcp/tools/generate-image.ts:5: * AI 调用类 Tool —— 写入 CallLog（source='mcp'），执行 deduct_balance。
+src/lib/mcp/tools/generate-image.ts:26:    `Generate images using an AI model via AIGC Gateway. Returns image URLs, trace ID, and cost. IMPORTANT: Call list_models(modality='image') first to get available image model names and supported sizes.`,
+src/lib/mcp/tools/generate-image.ts:69:      // Check balance
+src/lib/mcp/tools/generate-image.ts:71:      if (!user || Number(user.balance) <= 0) {
+src/lib/mcp/tools/generate-image.ts:76:              text: `Insufficient balance. Current balance: $${Number(user?.balance ?? 0).toFixed(4)}. Please recharge at the console.`,
+src/lib/mcp/tools/generate-image.ts:247:        // Post-process: write CallLog (source='mcp') + deduct balance
+src/lib/mcp/tools/generate-image.ts:312:                  message: `Provider timeout after ${(latencyMs / 1000).toFixed(1)}s. Try again or use a different model.`,
+src/lib/api/ip-utils.ts:60:  const ipNum = ipToNumber(ip);
+src/lib/api/ip-utils.ts:61:  const rangeNum = ipToNumber(range);
+src/lib/api/ip-utils.ts:66:function ipToNumber(ip: string): number {
+src/lib/api/rate-limit.ts:55:    rpm: Number(process.env.DEFAULT_RPM ?? 60),
+src/lib/api/rate-limit.ts:56:    tpm: Number(process.env.DEFAULT_TPM ?? 100_000),
+src/lib/api/rate-limit.ts:57:    imageRpm: Number(process.env.DEFAULT_IMAGE_RPM ?? 10),
+src/lib/api/rate-limit.ts:58:    burstCount: Number(process.env.DEFAULT_BURST_COUNT ?? 20),
+src/lib/api/rate-limit.ts:59:    burstWindowSec: Number(process.env.DEFAULT_BURST_WINDOW_SEC ?? 5),
+src/lib/api/rate-limit.ts:60:    spendPerMin: Number(process.env.DEFAULT_SPEND_PER_MIN ?? 1),
+src/lib/api/rate-limit.ts:61:    keyRpm: Number(process.env.DEFAULT_KEY_RPM ?? 30),
+src/lib/api/rate-limit.ts:62:    userRpm: Number(process.env.DEFAULT_USER_RPM ?? 60),
+src/lib/api/rate-limit.ts:76:    const map = new Map(rows.map((r) => [r.key, Number(r.value)]));
+src/lib/api/rate-limit.ts:384:      const n = Number(parts[1]);
+src/lib/api/rate-limit.ts:446:    const spent = raw ? Number(raw) : 0;
+src/lib/api/rate-limit.ts:477:          `Spending rate limit exceeded (spent $${spent.toFixed(4)} of $${limit.toFixed(2)}/min). Please retry after 60 seconds.`,
+src/lib/mcp/tools/chat.ts:5: * AI 调用类 Tool —— 写入 CallLog（source='mcp'），执行 deduct_balance。
+src/lib/mcp/tools/chat.ts:159:      // Check balance
+src/lib/mcp/tools/chat.ts:161:      if (!user || Number(user.balance) <= 0) {
+src/lib/mcp/tools/chat.ts:166:              text: `[insufficient_balance] Insufficient balance. Current balance: $${Number(user?.balance ?? 0).toFixed(4)}. Please recharge at the console.`,
+src/lib/mcp/tools/chat.ts:469:          // F-AF2-09: compute cost for the response
+src/lib/mcp/tools/chat.ts:482:                    cost: `$${streamCost.sellUsd.toFixed(8)}`,
+src/lib/mcp/tools/chat.ts:516:        // Post-process: write CallLog (source='mcp') + deduct balance
+src/lib/mcp/tools/chat.ts:535:        // F-AF2-09: compute cost for the response
+src/lib/mcp/tools/chat.ts:547:                  cost: `$${chatCost.sellUsd.toFixed(8)}`,
+src/lib/mcp/tools/chat.ts:593:                text: `[provider_timeout] Provider timeout after ${(latencyMs / 1000).toFixed(1)}s. Try again or use a different model.`,
+tests/factories/index.ts:196:  costPrice?: Record<string, unknown>;
+tests/factories/index.ts:210:    costPrice = DEFAULT_COST_PRICE,
+tests/factories/index.ts:216:    update: { realModelId, priority, status, costPrice, sellPrice },
+tests/factories/index.ts:217:    create: { providerId, modelId, realModelId, priority, status, costPrice, sellPrice },
+src/lib/mcp/tools/list-logs.ts:19:    `List recent AI call logs for your project. Shows trace ID, model, status, prompt preview, cost, and latency. Use 'search' to find calls by prompt content. Use get_log_detail with a trace ID for the full prompt and response.`,
+src/lib/mcp/tools/list-logs.ts:227:    cost: log.sellPrice != null ? `$${Number(log.sellPrice).toFixed(8)}` : null,
+src/lib/mcp/tools/list-logs.ts:228:    latency: log.latencyMs != null ? `${(log.latencyMs / 1000).toFixed(1)}s` : null,
+src/lib/engine/adapter-body-error.test.ts:113:  it("maps balance/credit hints to INSUFFICIENT_BALANCE", () => {
+src/lib/engine/adapter-body-error.test.ts:115:      error: { message: "insufficient balance to complete request" },
+src/lib/engine/adapter-body-error.test.ts:184:      error: { message: "insufficient balance", code: "balance_not_enough" },
+src/lib/prisma.ts:23:    const n = Number(value);
+src/lib/prisma.ts:50: * 统一处理 ModelAlias / Channel 写入时的 sellPrice/costPrice：
+src/lib/prisma.ts:57:  normalizePriceObject(data.costPrice);
+src/lib/mcp/tools/get-balance.ts:2: * MCP Tool: get_balance
+src/lib/mcp/tools/get-balance.ts:18:    "get_balance",
+src/lib/mcp/tools/get-balance.ts:19:    `Check your current balance (user-level, shared across all projects) and optionally view recent transactions. Set include_transactions to true to see charges, top-ups, and adjustments. Supports pagination via limit/offset.`,
+src/lib/mcp/tools/get-balance.ts:44:      // Get user-level balance
+src/lib/mcp/tools/get-balance.ts:47:        select: { balance: true },
+src/lib/mcp/tools/get-balance.ts:58:        balance: `$${Number(user.balance).toFixed(8)}`,
+src/lib/mcp/tools/get-balance.ts:72:            balanceAfter: true,
+src/lib/mcp/tools/get-balance.ts:100:            amount: `$${Number(t.amount).toFixed(8)}`,
+src/lib/mcp/tools/get-balance.ts:101:            balanceAfter: `$${Number(t.balanceAfter).toFixed(8)}`,
+src/lib/api/__tests__/image-via-chat-token-cost.test.ts:6: * smoke HTTP 200 但 call_log.costPrice=0 / promptTokens=null。根因：image
+src/lib/api/__tests__/image-via-chat-token-cost.test.ts:13: *   - processImageResultAsync 据 channel.costPrice.unit 分支：'token'
+src/lib/api/__tests__/image-via-chat-token-cost.test.ts:17: *   1) Token-priced channel + image-via-chat usage → cost = 公式匹配，
+src/lib/api/__tests__/image-via-chat-token-cost.test.ts:19: *   2) Token-priced channel + 缺 usage → cost=0（不抛错）+ promptTokens=null
+src/lib/api/__tests__/image-via-chat-token-cost.test.ts:59:function makeRoute(costPrice: unknown, sellPrice: unknown): RouteResult {
+src/lib/api/__tests__/image-via-chat-token-cost.test.ts:61:    channel: { id: "ch_x", costPrice, sellPrice },
+src/lib/api/__tests__/image-via-chat-token-cost.test.ts:82:describe("F-BIPOR-Path-A image-via-chat token-priced cost", () => {
+src/lib/api/__tests__/image-via-chat-token-cost.test.ts:83:  it("token-priced channel + usage → cost = (prompt × inputPer1M + completion × outputPer1M) / 1e6", async () => {
+src/lib/api/__tests__/image-via-chat-token-cost.test.ts:114:    // sellUsd>0 → 走 transaction 路径（tx.callLog.create + deductBalance）
+src/lib/api/__tests__/image-via-chat-token-cost.test.ts:119:    expect(Number(data.costPrice)).toBeCloseTo(0.00155, 8);
+src/lib/api/__tests__/image-via-chat-token-cost.test.ts:121:    expect(Number(data.sellPrice)).toBeCloseTo(0.00186, 8);
+src/lib/api/__tests__/image-via-chat-token-cost.test.ts:128:  it("token-priced channel + missing usage → cost=0, tokens=null, no throw", async () => {
+src/lib/api/__tests__/image-via-chat-token-cost.test.ts:157:    expect(Number(data.costPrice)).toBe(0);
+src/lib/api/__tests__/image-via-chat-token-cost.test.ts:158:    expect(Number(data.sellPrice)).toBe(0);
+src/lib/api/__tests__/image-via-chat-token-cost.test.ts:192:    // perCall=0.037 → costPrice=0.037
+src/lib/api/__tests__/image-via-chat-token-cost.test.ts:193:    expect(Number(data.costPrice)).toBeCloseTo(0.037, 8);
+src/lib/api/__tests__/image-via-chat-token-cost.test.ts:194:    expect(Number(data.sellPrice)).toBeCloseTo(0.0444, 8);
+src/lib/api/__tests__/image-via-chat-token-cost.test.ts:200:  it("token-priced channel + ERROR status → cost=0, no charge", async () => {
+src/lib/api/__tests__/image-via-chat-token-cost.test.ts:224:    expect(Number(data.costPrice)).toBe(0);
+src/lib/api/__tests__/image-via-chat-token-cost.test.ts:225:    expect(Number(data.sellPrice)).toBe(0);
+src/lib/api/__tests__/image-via-chat-token-cost.test.ts:229:  it("token-priced channel + zero pricing → WARN logged, cost=0", async () => {
+
+## waitForCallLog references
+src/lib/billing-audit/aggregate-gateway.ts:21:export async function aggregateGatewayCallLogs(
+tests/perf/k6/developer-paths.js:146:      timeout: "30s",
+tests/perf/k6/admin-and-jobs.js:111:    timeout: "60s",
+src/lib/billing-audit/__tests__/reconcile-job.test.ts:22:const findManyCallLogMock = vi.fn();
+src/lib/billing-audit/__tests__/reconcile-job.test.ts:37:    callLog: { findMany: (a: unknown) => findManyCallLogMock(a) },
+src/lib/billing-audit/__tests__/reconcile-job.test.ts:96:  findManyCallLogMock.mockReset();
+src/lib/billing-audit/__tests__/reconcile-job.test.ts:112:  findManyCallLogMock.mockResolvedValue([]);
+src/lib/billing-audit/__tests__/reconcile-job.test.ts:125:    findManyCallLogMock.mockResolvedValueOnce([{ costPrice: 3.5 }]); // gateway sum=3.5
+src/lib/billing-audit/__tests__/reconcile-job.test.ts:142:    findManyCallLogMock.mockResolvedValueOnce([{ costPrice: 0.1 }, { costPrice: 0.2 }]);
+src/lib/billing-audit/__tests__/reconcile-job.test.ts:207:    findManyCallLogMock.mockResolvedValueOnce([{ costPrice: 9.95 }]);
+src/lib/billing-audit/__tests__/reconcile-job.test.ts:245:    findManyCallLogMock.mockResolvedValueOnce([{ costPrice: 50 }]); // gateway 50 vs upstream 100 → delta=50, |%|=50 → BIG_DIFF
+src/lib/billing-audit/__tests__/reconcile-job.test.ts:273:    findManyCallLogMock.mockResolvedValueOnce([]);
+src/lib/billing-audit/reconcile-job.ts:6: *     拉上游 per-model 账单；对每个 model 跑 aggregateGatewayCallLogs
+src/lib/billing-audit/reconcile-job.ts:26:import { aggregateGatewayCallLogs } from "./aggregate-gateway";
+src/lib/billing-audit/reconcile-job.ts:208:    const gatewaySum = await aggregateGatewayCallLogs(provider.id, null, reportDate);
+src/lib/billing-audit/reconcile-job.ts:222:    const gatewaySum = await aggregateGatewayCallLogs(provider.id, bill.modelName, reportDate);
+src/lib/billing-audit/reconcile-job.ts:292:    const gatewaySum = await aggregateGatewayCallLogs(provider.id, null, reportDate);
+tests/mcp-test/run_all_audits.sh:36:CURRENT_IP=$(curl -s --connect-timeout 5 ifconfig.me || echo "获取失败，请检查代理网络是否畅通")
+src/lib/billing-audit/fetchers/balance/tier2-fetcher.ts:47:  init: RequestInit & { timeoutMs?: number } = {},
+src/lib/billing-audit/fetchers/balance/tier2-fetcher.ts:49:  const { timeoutMs = 10_000, ...rest } = init;
+src/lib/billing-audit/fetchers/balance/tier2-fetcher.ts:51:  const t = setTimeout(() => controller.abort(), timeoutMs);
+scripts/benchmark-text-models-stream2.ts:2: * Round 2 streaming retry, after upstream provider HTTP timeout was bumped
+src/lib/notifications/dispatcher.ts:21:import { fetchWithTimeout } from "@/lib/infra/fetch-with-timeout";
+src/lib/notifications/dispatcher.ts:28:const timeoutFetch: typeof fetch = ((input: RequestInfo | URL, init?: RequestInit) =>
+src/lib/notifications/dispatcher.ts:31:    timeoutMs: WEBHOOK_TIMEOUT_MS,
+src/lib/notifications/dispatcher.ts:48:  fetchImpl: timeoutFetch,
+src/lib/notifications/dispatcher.test.ts:98:    await vi.waitFor(() => expect(webhookCalls).toHaveLength(1), { timeout: 1000 });
+src/lib/notifications/dispatcher.test.ts:123:    await vi.waitFor(() => expect(webhookCalls).toHaveLength(1), { timeout: 1000 });
+src/lib/__tests__/call-log-schema-extend.test.ts:2: * F-BAX-01 regression — CallLog schema extension.
+src/lib/__tests__/call-log-schema-extend.test.ts:9: *   1) CallLog.projectId 在 Input 层接受 null（非空约束已去除）
+src/lib/__tests__/call-log-schema-extend.test.ts:10: *   2) CallLog.source 接受新扩展值 'probe' / 'sync' / 'admin_health'（String 类型）
+src/lib/__tests__/call-log-schema-extend.test.ts:21:      create: (args: Prisma.CallLogCreateArgs) => createMock(args),
+src/lib/__tests__/call-log-schema-extend.test.ts:28:describe("CallLog schema extension (F-BAX-01)", () => {
+src/lib/__tests__/call-log-schema-extend.test.ts:35:    const data: Prisma.CallLogUncheckedCreateInput = {
+src/lib/__tests__/call-log-schema-extend.test.ts:51:    const data: Prisma.CallLogUncheckedCreateInput = {
+src/lib/__tests__/call-log-schema-extend.test.ts:64:    const data: Prisma.CallLogUncheckedCreateInput = {
+src/lib/__tests__/call-log-schema-extend.test.ts:77:    const data: Prisma.CallLogUncheckedCreateInput = {
+src/lib/engine/cooldown.ts:4: * When a channel fails mid-request (429 / 401 / 402 / 5xx / timeout),
+src/lib/engine/cooldown.ts:30: * "timeout") that checker.ts emits as `${code}: ${message}` and raw
+src/lib/engine/cooldown.ts:40:  "timeout",
+src/lib/engine/router.ts:81:  // the failure was transient (429 / 限流 / timeout) or permanent (auth,
+src/lib/engine/__tests__/failover-attempt-chain.test.ts:63:      makeRoute("ch-B", "prov-2", new EngineError("timeout", ErrorCodes.TIMEOUT, 504)),
+src/lib/action/runner.ts:9: * 6. 写 CallLog + 扣费
+src/lib/action/runner.ts:159:    // 7. Post-process: CallLog + billing
+scripts/refund-zero-image-audit.ts:4: * Finds CallLog rows that were billed despite delivering zero images (the pre-F-ACF-01
+scripts/refund-zero-image-audit.ts:12: * same traceId as the original CallLog, the record is skipped.
+src/lib/redis.ts:61: * connection is `ready`, or give up after `timeoutMs`. Returns true iff
+src/lib/redis.ts:72: * （Codex 复验跑 idempotency 用 timeout 124 退出）。CLI 入口在 prisma.$disconnect()
+src/lib/redis.ts:89:export function waitForRedisReady(timeoutMs: number, pollMs = 100): Promise<boolean> {
+src/lib/redis.ts:101:      if (Date.now() - start >= timeoutMs) {
+src/lib/health/__tests__/probe-call-log.test.ts:14: *   5) writeProbeCallLog 直接调用（projectId=null + source='probe' 成功入库）—
+src/lib/health/__tests__/probe-call-log.test.ts:51:import { writeProbeCallLog } from "@/lib/api/post-process";
+src/lib/health/__tests__/probe-call-log.test.ts:97:  // writeProbeCallLog is fire-and-forget — await two ticks so the inner
+src/lib/health/__tests__/probe-call-log.test.ts:181:  it("writeProbeCallLog direct call with projectId=null + source='probe' hits prisma.create", async () => {
+src/lib/health/__tests__/probe-call-log.test.ts:182:    writeProbeCallLog({
+src/lib/health/__tests__/auth-failed-detect.test.ts:37:  it("does NOT match unrelated errors (rate_limited / timeout / 5xx)", () => {
+src/lib/health/__tests__/auth-failed-detect.test.ts:39:    expect(isAuthFailedError("timeout")).toBe(false);
+src/lib/engine/failover.ts:16: *   - Everything else (model_not_found, provider_error/5xx, timeout,
+src/lib/engine/failover.ts:62:    // model_not_found, provider_error, timeout, channel_unavailable, model_not_available
+src/lib/engine/failover.ts:65:  // Generic network errors / timeouts — retryable
+src/lib/engine/failover.ts:68:    if (msg.includes("timeout") || msg.includes("econnrefused") || msg.includes("fetch failed")) {
+src/lib/engine/failover.ts:79:    if (msg.includes("timeout")) return "timeout";
+src/lib/engine/cooldown.test.ts:51:    await expect(markChannelCooldown("ch_1", "timeout")).resolves.toBeUndefined();
+src/lib/engine/cooldown.test.ts:77:    redis.mget.mockResolvedValueOnce(["rate_limited:2026-04-17T00:00:00.000Z", null, "timeout:…"]);
+src/lib/engine/cooldown.test.ts:125:  it("flags timeout / network failures as transient", () => {
+src/lib/engine/cooldown.test.ts:126:    expect(isTransientFailureReason("Request timeout after 60s")).toBe(true);
+src/lib/template/test-runner.ts:234:    const callLog = await waitForCallLog(actionResult.traceId);
+src/lib/template/test-runner.ts:293:async function waitForCallLog(traceId: string) {
+src/lib/template/test-runner.ts:309:    `[test-runner] waitForCallLog gave up after ${CALL_LOG_POLL_MAX_ATTEMPTS} attempts for traceId=${traceId}; step metrics will be missing`,
+src/lib/health/scheduler.ts:191:    // failures are transient (429 / timeout / 限流). Write a cooldown
+src/lib/health/scheduler.ts:482:  // F-RR2-05: transient failures (429, timeout, 限流) must NOT trip the
+src/lib/health/scheduler.ts:509:      // (rate_limit / timeout) failure is a signal the upstream is up
+src/lib/engine/types.ts:297:  TIMEOUT: "timeout",
+src/lib/sync/doc-enricher.ts:70:  const timeoutId = setTimeout(() => controller.abort(), 30_000);
+src/lib/sync/doc-enricher.ts:90:    clearTimeout(timeoutId);
+src/lib/engine/openai-compat.ts:117:    // Wrap the stream so the upstream timeout timer is cleared exactly once —
+src/lib/engine/openai-compat.ts:284:   * BL-INFRA-RESILIENCE F-IR-01: 流式场景专用，timeout 不在 return 前 clear；
+src/lib/engine/openai-compat.ts:311:    timeoutMs: number,
+src/lib/engine/openai-compat.ts:314:    const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+src/lib/engine/openai-compat.ts:319:      clearTimeout(timeoutId);
+src/lib/engine/openai-compat.ts:347:        throw new EngineError("Request timeout", ErrorCodes.TIMEOUT, 504);
+src/lib/engine/openai-compat.ts:687:  } else if (/timeout|timed.?out/.test(hint)) {
+src/lib/mcp/tools/generate-image.ts:5: * AI 调用类 Tool —— 写入 CallLog（source='mcp'），执行 deduct_balance。
+src/lib/mcp/tools/generate-image.ts:247:        // Post-process: write CallLog (source='mcp') + deduct balance
+src/lib/mcp/tools/generate-image.ts:305:        if (engineErr?.code === "provider_timeout") {
+src/lib/mcp/tools/generate-image.ts:311:                  code: "provider_timeout",
+src/lib/mcp/tools/generate-image.ts:312:                  message: `Provider timeout after ${(latencyMs / 1000).toFixed(1)}s. Try again or use a different model.`,
+src/lib/engine/router.test.ts:28:      hay.includes("timeout")
+src/lib/health/checker.ts:19:import { writeProbeCallLog } from "@/lib/api/post-process";
+src/lib/health/checker.ts:67:      writeProbeCallLog({
+src/lib/health/checker.ts:93:    writeProbeCallLog({
+src/lib/health/checker.ts:112:    writeProbeCallLog({
+src/lib/health/checker.ts:163:    const timeoutId = setTimeout(() => controller.abort(), 15_000);
+src/lib/health/checker.ts:182:      clearTimeout(timeoutId);
+src/lib/health/checker.ts:279:    writeProbeCallLog({
+src/lib/health/checker.ts:302:    writeProbeCallLog({
+src/lib/sync/internal-llm.ts:10: * 成功调用通过 writeSyncCallLog 写入 call_logs，source='sync'。
+src/lib/sync/internal-llm.ts:16:import { writeSyncCallLog } from "@/lib/api/post-process";
+src/lib/sync/internal-llm.ts:80:      writeSyncCallLog({
+src/lib/maintenance/__tests__/archive-cleanup.test.ts:28:  cleanupCallLogs,
+src/lib/maintenance/__tests__/archive-cleanup.test.ts:86:describe("cleanupCallLogs (F-BAP2-04)", () => {
+src/lib/maintenance/__tests__/archive-cleanup.test.ts:90:    const result = await cleanupCallLogs(now);
+src/lib/maintenance/__tests__/archive-cleanup.test.ts:108:    await cleanupCallLogs(now);
+src/lib/health/alert.ts:7:import { fetchWithTimeout } from "@/lib/infra/fetch-with-timeout";
+src/lib/health/alert.ts:29:      timeoutMs: 10_000,
+src/lib/mcp/tools/list-logs.ts:35:        .enum(["success", "error", "filtered", "timeout"])
+src/lib/maintenance/scheduler.ts:13:import { cleanupHealthChecks, cleanupSystemLogs, cleanupCallLogs } from "./archive-cleanup";
+src/lib/maintenance/scheduler.ts:38:    runOne("call-logs-cleanup", () => cleanupCallLogs()),
+src/lib/mcp/tools/get-balance.ts:84:        // F-WP-08: inline model + source by joining CallLog on traceId.
+src/lib/sync/__tests__/internal-llm.test.ts:14:const writeSyncCallLogMock = vi.fn();
+src/lib/sync/__tests__/internal-llm.test.ts:43:  writeSyncCallLog: (params: unknown) => writeSyncCallLogMock(params),
+src/lib/sync/__tests__/internal-llm.test.ts:90:  writeSyncCallLogMock.mockReset();
+src/lib/sync/__tests__/internal-llm.test.ts:107:    expect(writeSyncCallLogMock).toHaveBeenCalledTimes(1);
+src/lib/sync/__tests__/internal-llm.test.ts:108:    const logParams = writeSyncCallLogMock.mock.calls[0][0];
+src/lib/sync/__tests__/internal-llm.test.ts:127:    expect(writeSyncCallLogMock).toHaveBeenCalledTimes(1);
+src/lib/sync/__tests__/internal-llm.test.ts:128:    expect(writeSyncCallLogMock.mock.calls[0][0].route.channel.id).toBe("ch-glm-4.7");
+src/lib/sync/__tests__/internal-llm.test.ts:141:    expect(writeSyncCallLogMock).not.toHaveBeenCalled();
+tests/mocks/provider-server.ts:180:  // Prevent idle connection timeouts that cause "fetch failed" in long-running tests
+src/lib/maintenance/archive-cleanup.ts:59:export async function cleanupCallLogs(now: Date = new Date()): Promise<CleanupResult> {
+src/lib/infra/__tests__/fetch-with-timeout.test.ts:5:import { fetchWithTimeout, fetchWithTimeoutStream } from "../fetch-with-timeout";
+src/lib/infra/__tests__/fetch-with-timeout.test.ts:17:    const res = await fetchWithTimeout("https://example.test/ok", { timeoutMs: 100 });
+src/lib/infra/__tests__/fetch-with-timeout.test.ts:22:  it("aborts with AbortError when upstream exceeds timeoutMs", async () => {
+src/lib/infra/__tests__/fetch-with-timeout.test.ts:32:      fetchWithTimeout("https://example.test/hang", { timeoutMs: 20 }),
+src/lib/infra/__tests__/fetch-with-timeout.test.ts:41:    await expect(fetchWithTimeout("https://x", { timeoutMs: 100 })).rejects.toThrow(
+src/lib/infra/__tests__/fetch-with-timeout.test.ts:60:      fetchWithTimeout("https://x", { timeoutMs: 1000, signal: ac.signal }),
+src/lib/infra/__tests__/fetch-with-timeout.test.ts:68:    const result = await fetchWithTimeoutStream("https://x", { timeoutMs: 100 });
+src/lib/infra/__tests__/fetch-with-timeout.test.ts:81:    await expect(fetchWithTimeoutStream("https://x", { timeoutMs: 100 })).rejects.toThrow(
+src/lib/mcp/tools/run-template.ts:6: * AI 调用类 Tool — 写入 CallLog (source='mcp')，执行 deduct_balance。
+src/lib/infra/fetch-with-timeout.ts:4: * Rationale: every external fetch must carry a timeout + AbortController.
+src/lib/infra/fetch-with-timeout.ts:9: *     with a deadline; timeout auto-clears when the call resolves/rejects. Use
+src/lib/infra/fetch-with-timeout.ts:14: *     once the body is fully consumed or cancelled. The timeout continues to
+src/lib/infra/fetch-with-timeout.ts:26:  timeoutMs?: number;
+src/lib/infra/fetch-with-timeout.ts:42:  const { timeoutMs = DEFAULT_TIMEOUT_MS, signal: callerSignal, ...init } = options;
+src/lib/infra/fetch-with-timeout.ts:44:  const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+src/lib/infra/fetch-with-timeout.ts:53:    clearTimeout(timeoutId);
+src/lib/infra/fetch-with-timeout.ts:66:  const { timeoutMs = DEFAULT_TIMEOUT_MS, signal: callerSignal, ...init } = options;
+src/lib/infra/fetch-with-timeout.ts:68:  const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+src/lib/infra/fetch-with-timeout.ts:77:    clearTimeout(timeoutId);
+src/lib/mcp/tools/run-action.ts:5: * AI 调用类 Tool — 写入 CallLog (source='mcp')，执行 deduct_balance。
+scripts/stress-test.ts:22:  timeouts: number;
+scripts/stress-test.ts:45:    timeout: (opts.duration + 30) * 1000,
+scripts/stress-test.ts:64:    timeouts: data.timeouts,
+scripts/stress-test.ts:71:  const errorTotal = r.errors + r.timeouts + r.non2xx;
+scripts/stress-test.ts:169:          timeouts: data.timeouts,
+scripts/stress-test.ts:215:  const totalErrors = results.reduce((a, r) => a + r.errors + r.timeouts + r.non2xx, 0);
+scripts/stress-test.ts:245:    const coldErrors = s.cold.errors + s.cold.timeouts + s.cold.non2xx;
+scripts/stress-test.ts:246:    const warmErrors = s.warm.errors + s.warm.timeouts + s.warm.non2xx;
+scripts/stress-test.ts:277:    const errs = r.errors + r.timeouts + r.non2xx;
+src/lib/prisma.ts:10: *   ?connection_limit=5&pool_timeout=2
+src/lib/prisma.ts:12: *   pool_timeout=2      — 等待可用连接超时 2 秒，快速失败
+scripts/benchmark-text-models.ts:3: * Per-model timeout 60 min. Streams progress to stdout; writes full results to
+scripts/benchmark-text-models.ts:105:  console.log(`Per-model timeout: 60min\n`);
+src/lib/sync/adapters/base.ts:71:/** 通用 fetch with timeout + proxy */
+src/lib/sync/adapters/base.ts:76:  timeoutMs = 15_000,
+src/lib/sync/adapters/base.ts:79:  const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+src/lib/sync/adapters/base.ts:96:    clearTimeout(timeoutId);
+src/lib/mcp/tools/chat.ts:5: * AI 调用类 Tool —— 写入 CallLog（source='mcp'），执行 deduct_balance。
+src/lib/mcp/tools/chat.ts:516:        // Post-process: write CallLog (source='mcp') + deduct balance
+src/lib/mcp/tools/chat.ts:588:        if (engineErr?.code === "provider_timeout") {
+src/lib/mcp/tools/chat.ts:593:                text: `[provider_timeout] Provider timeout after ${(latencyMs / 1000).toFixed(1)}s. Try again or use a different model.`,
+src/lib/api/post-process.ts:4: * 调用完成后异步写入 CallLog + 异步执行 deduct_balance
+src/lib/api/post-process.ts:81:export interface ProbeCallLogParams {
+src/lib/api/post-process.ts:91:export function writeProbeCallLog(params: ProbeCallLogParams): void {
+src/lib/api/post-process.ts:92:  writeProbeCallLogAsync(params).catch((err) => {
+src/lib/api/post-process.ts:106:export interface SyncCallLogParams {
+src/lib/api/post-process.ts:115:export function writeSyncCallLog(params: SyncCallLogParams): void {
+src/lib/api/post-process.ts:116:  writeSyncCallLogAsync(params).catch((err) => {
+src/lib/api/post-process.ts:121:async function writeSyncCallLogAsync(params: SyncCallLogParams): Promise<void> {
+src/lib/api/post-process.ts:154:async function writeProbeCallLogAsync(params: ProbeCallLogParams): Promise<void> {
+src/lib/api/post-process.ts:330:  // F-BA-02: CallLog + deduct_balance 原子化
+src/lib/api/post-process.ts:333:  const callLogData: Prisma.CallLogUncheckedCreateInput = {
+src/lib/api/post-process.ts:466:  const imageCallLogData: Prisma.CallLogUncheckedCreateInput = {
+src/lib/api/post-process.ts:495:      const callLog = await tx.callLog.create({ data: imageCallLogData });
+src/lib/api/post-process.ts:502:    await prisma.callLog.create({ data: imageCallLogData });
+src/lib/api/post-process.ts:616:  if (finishReason === "timeout") return "TIMEOUT";
+src/lib/api/post-process.ts:627:    timeout: "TIMEOUT",
+scripts/benchmark-progress.log:4:Per-model timeout: 60min
+scripts/test-mcp.ts:196:  await step("7. Verify CallLog.source='mcp' (get_log_detail)", async () => {
+scripts/test-mcp.ts:248:  await step("11. Verify CallLog.source='mcp' (generate_image)", async () => {
+scripts/test-mcp.ts:820:  // 18. F-AF2-02 regression — list_logs supports status=timeout filter
+scripts/test-mcp.ts:821:  await step("18. F-AF2-02 list_logs timeout filter via MCP", async () => {
+scripts/test-mcp.ts:822:    const result = await callTool("list_logs", { status: "timeout", limit: 1 });
+scripts/test-mcp.ts:824:    // Should not throw a validation error — "timeout" is a valid status
+scripts/test-mcp.ts:826:      throw new Error("list_logs rejected 'timeout' as status value");
+scripts/pricing/verify-or-image-channels-2026-04-25.ts:19: * 单例 keep-alive 会让 node 进程不退出（Codex 复验跑 idempotency 用 timeout 124）。
+scripts/pricing/verify-or-image-channels-2026-04-25.ts:56:async function fetchCallLog(traceId: string): Promise<{
+scripts/pricing/verify-or-image-channels-2026-04-25.ts:111:  const log = await fetchCallLog(traceId);
+scripts/e2e-test.ts:370:  // We send a chat request and immediately abort, then verify the CallLog
+scripts/e2e-test.ts:374:    // Abort immediately to simulate client timeout
+scripts/e2e-test.ts:408:  // 21. F-AF2-01 regression — list_logs supports status=timeout filter
+scripts/e2e-test.ts:409:  await step("21. F-AF2-01 list_logs timeout filter", async () => {
+scripts/e2e-test.ts:410:    // Verify the API doesn't reject 'timeout' as a status value
+scripts/e2e-test.ts:565:  // 24. BL-SEC-BILLING-AI F-BA-02 regression — CallLog + deduct_balance atomicity
+scripts/benchmark-gpt5-final.ts:2: * Final retry: gpt-5 only, after Nginx /v1/ proxy_read_timeout was bumped 120s→3700s.
+src/messages/en.json:680:    "willNullCallLogs": "Call logs that will lose their channel",
+src/app/api/notifications/test-webhook/route.ts:7:import { fetchWithTimeout } from "@/lib/infra/fetch-with-timeout";
+src/app/api/notifications/test-webhook/route.ts:54:      timeoutMs: 10_000,
+src/messages/zh-CN.json:680:    "willNullCallLogs": "将失去渠道引用的调用日志数",
+scripts/benchmark-text-models-stream.ts:3: * Streaming keeps SSE bytes flowing, so Nginx's 120s proxy_read_timeout never
+scripts/benchmark-text-models-stream.ts:4: * triggers (timeout resets on each chunk).
+src/app/api/admin/openrouter-prices/route.ts:28:    const timeout = setTimeout(() => controller.abort(), 10_000);
+src/app/api/admin/openrouter-prices/route.ts:33:    clearTimeout(timeout);
+src/app/api/admin/openrouter-prices/route.ts:57:      return errorResponse(504, "timeout", "OpenRouter request timed out");
+src/app/api/admin/model-aliases/[id]/suggest-price/route.ts:41:    const timeout = setTimeout(() => controller.abort(), 10_000);
+src/app/api/admin/model-aliases/[id]/suggest-price/route.ts:46:    clearTimeout(timeout);
+src/app/api/admin/model-aliases/[id]/suggest-price/route.ts:110:      return errorResponse(504, "timeout", "OpenRouter request timed out");
+src/app/api/admin/models-channels/route.ts:57:  // 2. Get CallLog stats for the last 7 days per channel
+src/app/api/admin/providers/[id]/route.ts:14://   - CallLog.channelId is set to NULL so historical audit rows survive.
+src/app/api/admin/providers/[id]/route.ts:28:  nulledCallLogs: number;
+src/app/api/admin/providers/[id]/route.ts:51:    const nulledCallLogs = channelIds.length
+src/app/api/admin/providers/[id]/route.ts:108:      nulledCallLogs,
+src/app/api/projects/[id]/actions/stats/route.ts:11: * Returns action call statistics from CallLog.
+src/app/api/admin/users/[id]/route.ts:32:  // lastActive: most recent CallLog across all projects
+src/app/api/v1/images/proxy/[traceId]/[idx]/route.ts:6: * resolved from CallLog.responseSummary.original_urls and never leaks to
+src/app/api/v1/chat/completions/route.ts:380:          // until the total request timeout fires.
+src/app/api/v1/chat/completions/route.ts:407:        // to forward cancel upstream + clear the fetch timeout.
+src/app/(console)/admin/providers/page.tsx:145:    nulledCallLogs: number;
+src/app/(console)/admin/providers/page.tsx:225:        nulledCallLogs: number;
+src/app/(console)/admin/providers/page.tsx:731:                    <span>{t("willNullCallLogs")}</span>
+src/app/(console)/admin/providers/page.tsx:732:                    <span className="font-bold">{deleteImpact.nulledCallLogs}</span>
+scripts/test/balance-user-level-e2e-2026-04-08.ts:356:  timeoutMs = 6000,
+scripts/test/balance-user-level-e2e-2026-04-08.ts:359:  const expiresAt = Date.now() + timeoutMs;
+scripts/test/balance-user-level-e2e-2026-04-08.ts:376:    `balance did not ${direction} (before=${previous}) within ${(timeoutMs / 1000).toFixed(1)}s`,
+scripts/test/security-and-robustness-e2e-2026-04-08.ts:197:        await openCreate.waitFor({ state: "visible", timeout: 10000 });
+scripts/test/security-and-robustness-e2e-2026-04-08.ts:201:        await modal.waitFor({ state: "visible", timeout: 10000 });
+scripts/test/routing-resilience-v2-verifying-e2e-2026-04-17.ts:156:      caseId: "AC5-timeout-retry-and-cooldown",
+scripts/test/routing-resilience-v2-verifying-e2e-2026-04-17.ts:157:      genericError: new Error("request timeout"),
+scripts/test/p4-action-template-e2e-2026-04-05.ts:301:async function waitForCallLogs(where: Record<string, unknown>, countAtLeast = 1) {
+scripts/test/p4-action-template-e2e-2026-04-05.ts:435:    const singleLogs = await waitForCallLogs({ projectId, actionId: singleActionId });
+scripts/test/p4-action-template-e2e-2026-04-05.ts:499:    const seqLogs = await waitForCallLogs({ projectId, templateRunId: { not: null } }, 2);
+scripts/test/p4-action-template-e2e-2026-04-05.ts:564:    const fanLogs = await waitForCallLogs({ projectId, templateRunId: { not: null } }, 5);
+scripts/test/bl-fe-quality-round7-dynamic-evidence-2026-04-19.tsx:94:  await page.waitForURL('**/dashboard', { timeout: 20000 });
+scripts/test/bl-fe-quality-round7-dynamic-evidence-2026-04-19.tsx:118:  await notifButton.waitFor({ state: 'visible', timeout: 10000 });
+scripts/test/bl-fe-quality-round7-dynamic-evidence-2026-04-19.tsx:125:  await notifPanel.waitFor({ state: 'visible', timeout: 5000 });
+scripts/test/bugfix-model-cleanup-e2e-2026-04-06.ts:306:async function waitSyncFinished(previousSyncTime: string | null, timeoutMs = 180000) {
+scripts/test/bugfix-model-cleanup-e2e-2026-04-06.ts:308:  while (Date.now() - started < timeoutMs) {
+scripts/test/bugfix-model-cleanup-e2e-2026-04-06.ts:323:  throw new Error("sync status did not update within timeout");
+scripts/test/bf2-verifying-e2e-2026-04-12.ts:70:async function triggerSyncAndWait(marker: string, timeoutMs = 120000) {
+scripts/test/bf2-verifying-e2e-2026-04-12.ts:77:  while (Date.now() - start < timeoutMs) {
+scripts/test/bf2-verifying-e2e-2026-04-12.ts:88:  throw new Error(`sync timeout waiting marker provider ${marker}`);

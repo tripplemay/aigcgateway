@@ -1,0 +1,272 @@
+=== [0/5] Killing old process on :3099 ===
+=== [1/5] Resetting test database ===
+DROP DATABASE
+CREATE DATABASE
+=== [2/5] Install dependencies ===
+npm warn deprecated inflight@1.0.6: This module is not supported, and leaks memory. Do not use it. Check out lru-cache if you want a good and tested way to coalesce async requests by a key value, which is much more comprehensive and powerful.
+npm warn deprecated @humanwhocodes/config-array@0.13.0: Use @eslint/config-array instead
+npm warn deprecated rimraf@3.0.2: Rimraf versions prior to v4 are no longer supported
+npm warn deprecated glob@7.2.3: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
+npm warn deprecated @humanwhocodes/object-schema@2.0.3: Use @eslint/object-schema instead
+npm warn deprecated node-domexception@1.0.0: Use your platform's native DOMException instead
+npm warn deprecated glob@10.3.10: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
+npm warn deprecated eslint@8.57.1: This version is no longer supported. Please see https://eslint.org/version-support for other options.
+
+added 858 packages, and audited 859 packages in 12s
+
+269 packages are looking for funding
+  run `npm fund` for details
+
+5 vulnerabilities (1 moderate, 4 high)
+
+To address all issues (including breaking changes), run:
+  npm audit fix --force
+
+Run `npm audit` for details.
+=== [3/5] Prisma generate + migrate deploy + seed ===
+warn The configuration property `package.json#prisma` is deprecated and will be removed in Prisma 7. Please migrate to a Prisma config file (e.g., `prisma.config.ts`).
+For more information, see: https://pris.ly/prisma-config
+
+Environment variables loaded from .env
+Prisma schema loaded from prisma/schema.prisma
+
+✔ Generated Prisma Client (v6.19.3) to ./node_modules/@prisma/client in 201ms
+
+Start by importing your Prisma Client (See: https://pris.ly/d/importing-client)
+
+Tip: Want to turn off tips and other hints? https://pris.ly/tip-4-nohints
+
+warn The configuration property `package.json#prisma` is deprecated and will be removed in Prisma 7. Please migrate to a Prisma config file (e.g., `prisma.config.ts`).
+For more information, see: https://pris.ly/prisma-config
+
+Environment variables loaded from .env
+Prisma schema loaded from prisma/schema.prisma
+Datasource "db": PostgreSQL database "aigc_gateway_test", schema "public" at "localhost:5432"
+
+63 migrations found in prisma/migrations
+
+Applying migration `20260329065335_init`
+Applying migration `20260329070000_native_sql_functions`
+Applying migration `20260330000000_add_recharge_orders`
+Applying migration `20260330100000_add_model_sync_fields`
+Applying migration `20260330200000_add_calllog_source`
+Applying migration `20260331000000_add_pricing_overrides`
+Applying migration `20260331100000_add_doc_urls`
+Applying migration `20260401161020_add_apikey_permissions_and_settings`
+Applying migration `20260402000000_cleanup_call_logs_search_vector`
+Applying migration `20260402100000_add_perf_indexes`
+Applying migration `20260403170000_add_template_governance`
+Applying migration `20260404090000_channel_fk_cascade_setnull`
+Applying migration `20260404120000_add_call_logs_status_created_at_index`
+Applying migration `20260405200000_p4_action_template_schema`
+Applying migration `20260406120000_add_template_public_quality`
+Applying migration `20260406200000_add_model_whitelist_fields`
+Applying migration `20260407010000_add_trace_id_and_precision`
+Applying migration `20260408010000_balance_user_level`
+Applying migration `20260408020000_add_login_history`
+Applying migration `20260408080000_add_model_supported_sizes`
+Applying migration `20260408090000_fix_capabilities_prefix_match`
+Applying migration `20260408100000_fix_capabilities_broad_match`
+Applying migration `20260408150000_p4_model_aggregation_schema`
+Applying migration `20260408150100_p4_model_alias_seed`
+Applying migration `20260409142813_add_source_template_id`
+Applying migration `20260409234127_add_sell_price_to_model_alias`
+Applying migration `20260410000000_upgrade_model_alias_schema`
+Applying migration `20260410043537_transaction_projectid_optional`
+Applying migration `20260410051446_add_user_suspend_delete`
+Applying migration `20260410120000_apikey_to_user_level`
+Applying migration `20260411_add_api_reachability_level`
+Applying migration `20260411_add_email_verification_token`
+Applying migration `20260411_add_openrouter_model_id`
+Applying migration `20260412_add_health_check_endpoint`
+Applying migration `20260412_add_system_log`
+Applying migration `20260412_billing_refactor_channel_cleanup`
+Applying migration `20260413_dx_polish_alias_deprecated`
+Applying migration `20260414_audit_critical_fix_call_probe_level`
+Applying migration `20260414_audit_critical_fix_response_summary`
+Applying migration `20260414_rate_limit_system_log_category`
+Applying migration `20260414_rate_limit_user_rate_limit`
+Applying migration `20260415_add_pending_classification`
+Applying migration `20260415_workflow_polish_step_locked_version`
+Applying migration `20260416_add_transaction_batch_id`
+Applying migration `20260416_add_usage_alerts_notifications`
+Applying migration `20260416_fix_template_step_order_base`
+Applying migration `20260416_fix_template_step_order_v2`
+Applying migration `20260417_add_transaction_type_bonus`
+Applying migration `20260417_template_categories_marketing`
+Applying migration `20260417_template_categories_seed`
+Applying migration `20260417_template_library_upgrade`
+Applying migration `20260417_template_test_runs`
+Applying migration `20260417_welcome_bonus_seed`
+Applying migration `20260418_billing_check_constraints_v2`
+Applying migration `20260418_deduct_balance_for_update`
+Applying migration `20260419_data_consistency`
+Applying migration `20260424_auth_alert_notification`
+Applying migration `20260424_call_logs_source_extend`
+Applying migration `20260425_balance_snapshots`
+Applying migration `20260425_bill_reconciliation`
+Applying migration `20260425_billing_audit_category`
+Applying migration `20260425_call_logs_indexes`
+Applying migration `20260425_image_channel_pricing_trigger`
+
+┌─────────────────────────────────────────────────────────┐
+│  Update available 6.19.3 -> 7.8.0                       │
+│                                                         │
+│  This is a major update - please follow the guide at    │
+│  https://pris.ly/d/major-version-upgrade                │
+│                                                         │
+│  Run the following to update                            │
+│    npm i --save-dev prisma@latest                       │
+│    npm i @prisma/client@latest                          │
+└─────────────────────────────────────────────────────────┘
+The following migration(s) have been applied:
+
+migrations/
+  └─ 20260329065335_init/
+    └─ migration.sql
+  └─ 20260329070000_native_sql_functions/
+    └─ migration.sql
+  └─ 20260330000000_add_recharge_orders/
+    └─ migration.sql
+  └─ 20260330100000_add_model_sync_fields/
+    └─ migration.sql
+  └─ 20260330200000_add_calllog_source/
+    └─ migration.sql
+  └─ 20260331000000_add_pricing_overrides/
+    └─ migration.sql
+  └─ 20260331100000_add_doc_urls/
+    └─ migration.sql
+  └─ 20260401161020_add_apikey_permissions_and_settings/
+    └─ migration.sql
+  └─ 20260402000000_cleanup_call_logs_search_vector/
+    └─ migration.sql
+  └─ 20260402100000_add_perf_indexes/
+    └─ migration.sql
+  └─ 20260403170000_add_template_governance/
+    └─ migration.sql
+  └─ 20260404090000_channel_fk_cascade_setnull/
+    └─ migration.sql
+  └─ 20260404120000_add_call_logs_status_created_at_index/
+    └─ migration.sql
+  └─ 20260405200000_p4_action_template_schema/
+    └─ migration.sql
+  └─ 20260406120000_add_template_public_quality/
+    └─ migration.sql
+  └─ 20260406200000_add_model_whitelist_fields/
+    └─ migration.sql
+  └─ 20260407010000_add_trace_id_and_precision/
+    └─ migration.sql
+  └─ 20260408010000_balance_user_level/
+    └─ migration.sql
+  └─ 20260408020000_add_login_history/
+    └─ migration.sql
+  └─ 20260408080000_add_model_supported_sizes/
+    └─ migration.sql
+  └─ 20260408090000_fix_capabilities_prefix_match/
+    └─ migration.sql
+  └─ 20260408100000_fix_capabilities_broad_match/
+    └─ migration.sql
+  └─ 20260408150000_p4_model_aggregation_schema/
+    └─ migration.sql
+  └─ 20260408150100_p4_model_alias_seed/
+    └─ migration.sql
+  └─ 20260409142813_add_source_template_id/
+    └─ migration.sql
+  └─ 20260409234127_add_sell_price_to_model_alias/
+    └─ migration.sql
+  └─ 20260410000000_upgrade_model_alias_schema/
+    └─ migration.sql
+  └─ 20260410043537_transaction_projectid_optional/
+    └─ migration.sql
+  └─ 20260410051446_add_user_suspend_delete/
+    └─ migration.sql
+  └─ 20260410120000_apikey_to_user_level/
+    └─ migration.sql
+  └─ 20260411_add_api_reachability_level/
+    └─ migration.sql
+  └─ 20260411_add_email_verification_token/
+    └─ migration.sql
+  └─ 20260411_add_openrouter_model_id/
+    └─ migration.sql
+  └─ 20260412_add_health_check_endpoint/
+    └─ migration.sql
+  └─ 20260412_add_system_log/
+    └─ migration.sql
+  └─ 20260412_billing_refactor_channel_cleanup/
+    └─ migration.sql
+  └─ 20260413_dx_polish_alias_deprecated/
+    └─ migration.sql
+  └─ 20260414_audit_critical_fix_call_probe_level/
+    └─ migration.sql
+  └─ 20260414_audit_critical_fix_response_summary/
+    └─ migration.sql
+  └─ 20260414_rate_limit_system_log_category/
+    └─ migration.sql
+  └─ 20260414_rate_limit_user_rate_limit/
+    └─ migration.sql
+  └─ 20260415_add_pending_classification/
+    └─ migration.sql
+  └─ 20260415_workflow_polish_step_locked_version/
+    └─ migration.sql
+  └─ 20260416_add_transaction_batch_id/
+    └─ migration.sql
+  └─ 20260416_add_usage_alerts_notifications/
+    └─ migration.sql
+  └─ 20260416_fix_template_step_order_base/
+    └─ migration.sql
+  └─ 20260416_fix_template_step_order_v2/
+    └─ migration.sql
+  └─ 20260417_add_transaction_type_bonus/
+    └─ migration.sql
+  └─ 20260417_template_categories_marketing/
+    └─ migration.sql
+  └─ 20260417_template_categories_seed/
+    └─ migration.sql
+  └─ 20260417_template_library_upgrade/
+    └─ migration.sql
+  └─ 20260417_template_test_runs/
+    └─ migration.sql
+  └─ 20260417_welcome_bonus_seed/
+    └─ migration.sql
+  └─ 20260418_billing_check_constraints_v2/
+    └─ migration.sql
+  └─ 20260418_deduct_balance_for_update/
+    └─ migration.sql
+  └─ 20260419_data_consistency/
+    └─ migration.sql
+  └─ 20260424_auth_alert_notification/
+    └─ migration.sql
+  └─ 20260424_call_logs_source_extend/
+    └─ migration.sql
+  └─ 20260425_balance_snapshots/
+    └─ migration.sql
+  └─ 20260425_bill_reconciliation/
+    └─ migration.sql
+  └─ 20260425_billing_audit_category/
+    └─ migration.sql
+  └─ 20260425_call_logs_indexes/
+    └─ migration.sql
+  └─ 20260425_image_channel_pricing_trigger/
+    └─ migration.sql
+      
+All migrations have been successfully applied.
+warn The configuration property `package.json#prisma` is deprecated and will be removed in Prisma 7. Please migrate to a Prisma config file (e.g., `prisma.config.ts`).
+For more information, see: https://pris.ly/prisma-config
+
+Environment variables loaded from .env
+Running seed command `tsx prisma/seed.ts` ...
+Seeding database...
+Error: ADMIN_SEED_PASSWORD is required for seed — set it before running `npx tsx prisma/seed.ts`
+    at requireEnv (/Users/yixingzhou/project/aigcgateway/prisma/seed.ts:9:11)
+    at main (/Users/yixingzhou/project/aigcgateway/prisma/seed.ts:295:38)
+    at <anonymous> (/Users/yixingzhou/project/aigcgateway/prisma/seed.ts:381:1)
+    at Object.<anonymous> (/Users/yixingzhou/project/aigcgateway/prisma/seed.ts:388:4)
+    at Module._compile (node:internal/modules/cjs/loader:1811:14)
+    at Object.transformer (/Users/yixingzhou/project/aigcgateway/node_modules/tsx/dist/register-D46fvsV_.cjs:3:1104)
+    at Module.load (node:internal/modules/cjs/loader:1532:32)
+    at Module._load (node:internal/modules/cjs/loader:1334:12)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:255:19)
+    at loadCJSModuleWithModuleLoad (node:internal/modules/esm/translators:320:3)
+
+An error occurred while running the seed command:
+Error: Command failed with exit code 1: tsx prisma/seed.ts
