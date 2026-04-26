@@ -1,0 +1,364 @@
+{
+  "dashboard": {
+    "url": "http://localhost:3099/login?redirect=%2Fdashboard",
+    "hasAppError": false,
+    "hasDashboardZh": false
+  },
+  "tc10_error_zh": {
+    "pass": false,
+    "sample": ""
+  },
+  "tc11_models_zh": {
+    "pass": false,
+    "hasFree": false,
+    "hasDegraded": false
+  },
+  "tc12_notification_zh": {
+    "pass": false,
+    "relativeMatches": []
+  },
+  "failedRequests": [
+    {
+      "status": 400,
+      "url": "http://localhost:3099/_next/static/css/e89dc666dc5c3cfe.css",
+      "type": "stylesheet"
+    },
+    {
+      "status": 400,
+      "url": "http://localhost:3099/_next/static/media/4c9affa5bc8f420e-s.p.woff2",
+      "type": "font"
+    },
+    {
+      "status": 400,
+      "url": "http://localhost:3099/_next/static/media/e4af272ccee01ff0-s.p.woff2",
+      "type": "font"
+    },
+    {
+      "status": 400,
+      "url": "http://localhost:3099/_next/static/chunks/webpack-aec31ef042451ce4.js",
+      "type": "script"
+    },
+    {
+      "status": 404,
+      "url": "http://localhost:3099/_next/static/css/7b58c13ea0bbc767.css",
+      "type": "stylesheet"
+    },
+    {
+      "status": 400,
+      "url": "http://localhost:3099/_next/static/chunks/main-app-fd9488e99414c25b.js",
+      "type": "script"
+    },
+    {
+      "status": 400,
+      "url": "http://localhost:3099/_next/static/chunks/fd9d1056-a39cfe73956b35a9.js",
+      "type": "script"
+    },
+    {
+      "status": 400,
+      "url": "http://localhost:3099/_next/static/chunks/6010-affe9b8d50439fb4.js",
+      "type": "script"
+    },
+    {
+      "status": 400,
+      "url": "http://localhost:3099/_next/static/chunks/2117-ccd960d7d8c492d8.js",
+      "type": "script"
+    },
+    {
+      "status": 400,
+      "url": "http://localhost:3099/_next/static/chunks/6137-4dc78bf963e49844.js",
+      "type": "script"
+    },
+    {
+      "status": 400,
+      "url": "http://localhost:3099/_next/static/chunks/9658-abf64f4ec96d5111.js",
+      "type": "script"
+    },
+    {
+      "status": 400,
+      "url": "http://localhost:3099/_next/static/chunks/9531-ab122104fc3da095.js",
+      "type": "script"
+    },
+    {
+      "status": 400,
+      "url": "http://localhost:3099/_next/static/chunks/7648-3a022ff8d0e976e4.js",
+      "type": "script"
+    },
+    {
+      "status": 400,
+      "url": "http://localhost:3099/_next/static/chunks/app/(auth)/login/page-59d13f507560d183.js",
+      "type": "script"
+    },
+    {
+      "status": 400,
+      "url": "http://localhost:3099/_next/static/chunks/9226-2567c329a8dd93dc.js",
+      "type": "script"
+    },
+    {
+      "status": 404,
+      "url": "http://localhost:3099/_next/static/chunks/app/layout-469674eabe881b93.js",
+      "type": "script"
+    },
+    {
+      "status": 400,
+      "url": "http://localhost:3099/_next/static/css/e89dc666dc5c3cfe.css",
+      "type": "stylesheet"
+    },
+    {
+      "status": 400,
+      "url": "http://localhost:3099/_next/static/media/4c9affa5bc8f420e-s.p.woff2",
+      "type": "font"
+    },
+    {
+      "status": 400,
+      "url": "http://localhost:3099/_next/static/media/e4af272ccee01ff0-s.p.woff2",
+      "type": "font"
+    },
+    {
+      "status": 400,
+      "url": "http://localhost:3099/_next/static/chunks/webpack-aec31ef042451ce4.js",
+      "type": "script"
+    },
+    {
+      "status": 400,
+      "url": "http://localhost:3099/_next/static/chunks/fd9d1056-a39cfe73956b35a9.js",
+      "type": "script"
+    },
+    {
+      "status": 404,
+      "url": "http://localhost:3099/_next/static/css/7b58c13ea0bbc767.css",
+      "type": "stylesheet"
+    },
+    {
+      "status": 400,
+      "url": "http://localhost:3099/_next/static/chunks/main-app-fd9488e99414c25b.js",
+      "type": "script"
+    },
+    {
+      "status": 400,
+      "url": "http://localhost:3099/_next/static/chunks/app/(console)/error-test/page-2d2fea565a15f415.js",
+      "type": "script"
+    },
+    {
+      "status": 400,
+      "url": "http://localhost:3099/_next/static/chunks/2117-ccd960d7d8c492d8.js",
+      "type": "script"
+    },
+    {
+      "status": 400,
+      "url": "http://localhost:3099/_next/static/chunks/6010-affe9b8d50439fb4.js",
+      "type": "script"
+    },
+    {
+      "status": 400,
+      "url": "http://localhost:3099/_next/static/chunks/6137-4dc78bf963e49844.js",
+      "type": "script"
+    },
+    {
+      "status": 404,
+      "url": "http://localhost:3099/_next/static/chunks/app/layout-469674eabe881b93.js",
+      "type": "script"
+    },
+    {
+      "status": 400,
+      "url": "http://localhost:3099/_next/static/css/e89dc666dc5c3cfe.css",
+      "type": "stylesheet"
+    },
+    {
+      "status": 400,
+      "url": "http://localhost:3099/_next/static/media/4c9affa5bc8f420e-s.p.woff2",
+      "type": "font"
+    },
+    {
+      "status": 400,
+      "url": "http://localhost:3099/_next/static/media/e4af272ccee01ff0-s.p.woff2",
+      "type": "font"
+    },
+    {
+      "status": 400,
+      "url": "http://localhost:3099/_next/static/chunks/webpack-aec31ef042451ce4.js",
+      "type": "script"
+    },
+    {
+      "status": 400,
+      "url": "http://localhost:3099/_next/static/chunks/fd9d1056-a39cfe73956b35a9.js",
+      "type": "script"
+    },
+    {
+      "status": 404,
+      "url": "http://localhost:3099/_next/static/css/7b58c13ea0bbc767.css",
+      "type": "stylesheet"
+    },
+    {
+      "status": 400,
+      "url": "http://localhost:3099/_next/static/chunks/main-app-fd9488e99414c25b.js",
+      "type": "script"
+    },
+    {
+      "status": 400,
+      "url": "http://localhost:3099/_next/static/chunks/2117-ccd960d7d8c492d8.js",
+      "type": "script"
+    },
+    {
+      "status": 400,
+      "url": "http://localhost:3099/_next/static/chunks/6010-affe9b8d50439fb4.js",
+      "type": "script"
+    },
+    {
+      "status": 400,
+      "url": "http://localhost:3099/_next/static/chunks/6137-4dc78bf963e49844.js",
+      "type": "script"
+    },
+    {
+      "status": 400,
+      "url": "http://localhost:3099/_next/static/chunks/9658-abf64f4ec96d5111.js",
+      "type": "script"
+    },
+    {
+      "status": 400,
+      "url": "http://localhost:3099/_next/static/chunks/7648-3a022ff8d0e976e4.js",
+      "type": "script"
+    },
+    {
+      "status": 400,
+      "url": "http://localhost:3099/_next/static/chunks/9531-ab122104fc3da095.js",
+      "type": "script"
+    },
+    {
+      "status": 400,
+      "url": "http://localhost:3099/_next/static/chunks/9226-2567c329a8dd93dc.js",
+      "type": "script"
+    },
+    {
+      "status": 400,
+      "url": "http://localhost:3099/_next/static/chunks/app/(auth)/login/page-59d13f507560d183.js",
+      "type": "script"
+    },
+    {
+      "status": 404,
+      "url": "http://localhost:3099/_next/static/chunks/app/layout-469674eabe881b93.js",
+      "type": "script"
+    },
+    {
+      "status": 400,
+      "url": "http://localhost:3099/_next/static/css/e89dc666dc5c3cfe.css",
+      "type": "stylesheet"
+    },
+    {
+      "status": 400,
+      "url": "http://localhost:3099/_next/static/media/4c9affa5bc8f420e-s.p.woff2",
+      "type": "font"
+    },
+    {
+      "status": 400,
+      "url": "http://localhost:3099/_next/static/media/e4af272ccee01ff0-s.p.woff2",
+      "type": "font"
+    },
+    {
+      "status": 400,
+      "url": "http://localhost:3099/_next/static/chunks/webpack-aec31ef042451ce4.js",
+      "type": "script"
+    },
+    {
+      "status": 400,
+      "url": "http://localhost:3099/_next/static/chunks/fd9d1056-a39cfe73956b35a9.js",
+      "type": "script"
+    },
+    {
+      "status": 404,
+      "url": "http://localhost:3099/_next/static/css/7b58c13ea0bbc767.css",
+      "type": "stylesheet"
+    },
+    {
+      "status": 400,
+      "url": "http://localhost:3099/_next/static/chunks/main-app-fd9488e99414c25b.js",
+      "type": "script"
+    },
+    {
+      "status": 400,
+      "url": "http://localhost:3099/_next/static/chunks/2117-ccd960d7d8c492d8.js",
+      "type": "script"
+    },
+    {
+      "status": 400,
+      "url": "http://localhost:3099/_next/static/chunks/6010-affe9b8d50439fb4.js",
+      "type": "script"
+    },
+    {
+      "status": 400,
+      "url": "http://localhost:3099/_next/static/chunks/6137-4dc78bf963e49844.js",
+      "type": "script"
+    },
+    {
+      "status": 400,
+      "url": "http://localhost:3099/_next/static/chunks/9658-abf64f4ec96d5111.js",
+      "type": "script"
+    },
+    {
+      "status": 400,
+      "url": "http://localhost:3099/_next/static/chunks/7648-3a022ff8d0e976e4.js",
+      "type": "script"
+    },
+    {
+      "status": 400,
+      "url": "http://localhost:3099/_next/static/chunks/9531-ab122104fc3da095.js",
+      "type": "script"
+    },
+    {
+      "status": 400,
+      "url": "http://localhost:3099/_next/static/chunks/app/(auth)/login/page-59d13f507560d183.js",
+      "type": "script"
+    },
+    {
+      "status": 400,
+      "url": "http://localhost:3099/_next/static/chunks/9226-2567c329a8dd93dc.js",
+      "type": "script"
+    },
+    {
+      "status": 404,
+      "url": "http://localhost:3099/_next/static/chunks/app/layout-469674eabe881b93.js",
+      "type": "script"
+    }
+  ],
+  "consoleErrors": [
+    "Failed to load resource: the server responded with a status of 400 (Bad Request)",
+    "Failed to load resource: the server responded with a status of 400 (Bad Request)",
+    "Failed to load resource: the server responded with a status of 400 (Bad Request)",
+    "Failed to load resource: the server responded with a status of 400 (Bad Request)",
+    "Failed to load resource: the server responded with a status of 404 (Not Found)",
+    "Failed to load resource: the server responded with a status of 400 (Bad Request)",
+    "Failed to load resource: the server responded with a status of 400 (Bad Request)",
+    "Failed to load resource: the server responded with a status of 400 (Bad Request)",
+    "Failed to load resource: the server responded with a status of 400 (Bad Request)",
+    "Failed to load resource: the server responded with a status of 400 (Bad Request)",
+    "Failed to load resource: the server responded with a status of 400 (Bad Request)",
+    "Failed to load resource: the server responded with a status of 400 (Bad Request)",
+    "Failed to load resource: the server responded with a status of 400 (Bad Request)",
+    "Failed to load resource: the server responded with a status of 400 (Bad Request)",
+    "Failed to load resource: the server responded with a status of 400 (Bad Request)",
+    "Failed to load resource: the server responded with a status of 404 (Not Found)",
+    "Failed to load resource: the server responded with a status of 400 (Bad Request)",
+    "Failed to load resource: the server responded with a status of 400 (Bad Request)",
+    "Failed to load resource: the server responded with a status of 400 (Bad Request)",
+    "Failed to load resource: the server responded with a status of 400 (Bad Request)",
+    "Failed to load resource: the server responded with a status of 400 (Bad Request)",
+    "Failed to load resource: the server responded with a status of 404 (Not Found)",
+    "Failed to load resource: the server responded with a status of 400 (Bad Request)",
+    "Failed to load resource: the server responded with a status of 400 (Bad Request)",
+    "Failed to load resource: the server responded with a status of 400 (Bad Request)",
+    "Failed to load resource: the server responded with a status of 400 (Bad Request)",
+    "Failed to load resource: the server responded with a status of 400 (Bad Request)",
+    "Failed to load resource: the server responded with a status of 404 (Not Found)",
+    "Failed to load resource: the server responded with a status of 400 (Bad Request)",
+    "Failed to load resource: the server responded with a status of 400 (Bad Request)",
+    "Failed to load resource: the server responded with a status of 400 (Bad Request)",
+    "Failed to load resource: the server responded with a status of 400 (Bad Request)",
+    "Failed to load resource: the server responded with a status of 400 (Bad Request)",
+    "Failed to load resource: the server responded with a status of 404 (Not Found)",
+    "Failed to load resource: the server responded with a status of 400 (Bad Request)",
+    "Failed to load resource: the server responded with a status of 400 (Bad Request)",
+    "Failed to load resource: the server responded with a status of 400 (Bad Request)",
+    "Failed to load resource: the server responded with a status of 400 (Bad Request)",
+    "Failed to load resource: the server responded with a status of 400 (Bad Request)",
+    "Failed to load resource: the server responded with a status of 400 (Bad Request)"
+  ]
+}

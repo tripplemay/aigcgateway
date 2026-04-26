@@ -1,0 +1,9 @@
+HTTP/1.1 400 Bad Request
+vary: RSC, Next-Router-State-Tree, Next-Router-Prefetch
+content-type: application/json
+Date: Sun, 26 Apr 2026 14:10:51 GMT
+Connection: keep-alive
+Keep-Alive: timeout=5
+Transfer-Encoding: chunked
+
+{"error":{"type":"invalid_request_error","code":"invalid_parameter","message":"Invalid JSON body"}}

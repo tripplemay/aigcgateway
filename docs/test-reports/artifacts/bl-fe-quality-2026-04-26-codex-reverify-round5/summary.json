@@ -1,0 +1,23 @@
+{
+  "vitest": {
+    "files": "60",
+    "tests": "414"
+  },
+  "patch400": true,
+  "lighthouseA11y": 0,
+  "tc10": {
+    "pass": false,
+    "sample": ""
+  },
+  "tc11": {
+    "pass": false,
+    "hasFree": false,
+    "hasDegraded": false
+  },
+  "tc12": {
+    "pass": false,
+    "relativeMatches": []
+  },
+  "failedReqCount": 60,
+  "consoleErrorCount": 40
+}

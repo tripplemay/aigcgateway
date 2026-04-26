@@ -3,9 +3,9 @@
   "user_goal": "BL-FE-QUALITY — 前端质量合并：UX 交互（9 reload + 双事件 + 复制 + 轮询门控 + admin batch）+ template-testing polish（PATCH 400 + Decimal + waitForCallLog）+ A11y/i18n（aria-label + error.tsx + admin/models + timeAgo/汇率）+ DS Critical 3 文件 token 改造",
   "total_features": 5,
   "completed_features": 4,
-  "fix_rounds": 3,
+  "fix_rounds": 4,
   "current_sprint": "BL-FE-QUALITY",
-  "last_updated": "2026-04-26T22:30:00.000Z",
+  "last_updated": "2026-04-26T22:50:00.000Z",
   "reference_docs": [
     "docs/specs/BL-FE-QUALITY-spec.md"
   ],
@@ -18,33 +18,31 @@
   },
   "evaluator_feedback": null,
   "generator_handoff": {
-    "fix_round": 2,
-    "scope": "fix_round 2 push-back：Reviewer round3/round4 使用了项目中不存在的 /zh/... URL 前缀路径，所有 4 项 FAIL 均为同一根因（验收方法学回归，不是代码缺陷）。请按 push-back 报告 §5 用无前缀 URL + 客户端切语言重验。",
+    "fix_round": 3,
+    "scope": "fix_round 3 完成：测试环境 env 缺口修复 — codex-env.sh 补齐 IMAGE_PROXY_SECRET/AUTH_SECRET/NEXTAUTH_SECRET（commit b9fafa5 BL-SEC-CRED-HARDEN 引入 instrumentation fail-fast 后未同步测试 env）。本地实证 standalone server 启动 + chunks/login/dashboard 全 200。",
     "spec": "docs/specs/BL-FE-QUALITY-spec.md",
-    "pushback_report": "docs/test-reports/BL-FE-QUALITY-generator-pushback-2026-04-26-round2.md",
-    "blocking_issue_summary": "项目 i18n = 客户端 localStorage('aigc-locale') + IntlProvider 动态 import messages，URL 永远不带 locale 前缀；src/app 无 [locale] 段；middleware.ts matcher 无 /zh/* /en/*；next.config.mjs 无 next-intl/plugin。round3/round4 curl /zh/dashboard 必然 404 命中 /_not-found，_next/* 400/404 是 404 页面副作用。04-19 round8 signoff 也是无前缀验收（commit 994a665）。",
-    "targets": [
-      {
-        "file": "(no product code change)",
-        "action": "PUSHBACK",
-        "summary": "fix_round 1 (commit b62a9ff) 已正确闭环 spec acceptance；本轮不修任何产品代码，输出 push-back 报告交 Reviewer 用正确方法重验。"
-      }
+    "summary_report": "docs/test-reports/BL-FE-QUALITY-fix-round-3-summary-2026-04-26.md",
+    "root_cause": "src/instrumentation.ts:14-16 调用 assertImageProxySecret() 要求三个 SECRET 之一；scripts/test/codex-env.sh 三个都缺 → server prepare throw → 每个请求 500 → 浏览器加载错误页时 chunk 路径错乱 → _next/static 大量 400/404 + Lighthouse NO_FCP。round3/round4/round5 三轮失败同一根因。fix_round 2 push-back 只看到 URL 前缀这一层，未挖到 env 缺口，向 Reviewer 致歉。",
+    "fix_files": [
+      "scripts/test/codex-env.sh — 补 IMAGE_PROXY_SECRET + AUTH_SECRET + NEXTAUTH_SECRET",
+      "scripts/test/codex-setup.sh — cp 步骤改稳健（rm 旧目录 + 不静默错误 + verify chunks 非空）"
     ],
+    "no_product_code_change": true,
     "post_fix_validation": [
-      "Reviewer round5 使用无前缀 URL：/dashboard、/error-test、/admin/models（非 /zh/dashboard 等）",
-      "切语言通过浏览器 DevTools Console `localStorage.setItem('aigc-locale','zh-CN'); location.reload();`",
-      "Lighthouse 命令：`npx lighthouse http://localhost:3099/dashboard --only-categories=accessibility`（登录态 + 已切 zh-CN）",
-      "TC10 沿用 04-19 round8 通过路径 /error-test，TC11 用 /admin/models，TC12 用 console 任意页右上 NotificationCenter",
-      "build / tsc / vitest(414) / PATCH invalid JSON 400 已 PASS（round4 已确认），无需复验"
-    ],
-    "notes": "若 Reviewer 不接受本 push-back，请引用项目内任意一处 URL 前缀 i18n 实现作为反证；或申请 Planner 裁决（新批次 BL-I18N-URL-PREFIX 引入前缀机制）。"
+      "本地 source codex-env.sh + node .next/standalone/server.js：instrumentation 全部 scheduler 启动成功（已截图日志）",
+      "curl _next/static/chunks/*.js → 200",
+      "curl /login → 200",
+      "curl /dashboard 未登录 → 307 redirect /login（middleware 正确）",
+      "Reviewer round6 重跑 codex-setup.sh + dynamic-check：所有 chunks 200 + 页面可渲染 + Lighthouse A11y ≥ 98 + TC10/11/12 PASS"
+    ]
   },
   "session_notes": {
     "Andy-batch-launch": "BL-FE-QUALITY 启动 @ 2026-04-26 10:30",
     "Kimi-FQ-01": "BL-FE-QUALITY 批次复核 + zombie 推 verifying @ 2026-04-26 18:35。整个批次（F-FQ-01~04）已在 04-18 commit 09331f4 实现，本次 commit 22ad728 补 admin/models 双 useAsyncData → 1 个合并；CI 24954287111 PASS。",
-    "Reviewer": "reverify round4 @ 2026-04-26：按要求重建3099后复验。build/tsc/vitest+DS静态+PATCH400通过；但 /zh/dashboard 404 且 _next 资源 400/404 导致白屏，A11y/i18n 动态验收阻断。已输出 round4 失败报告并保持 fixing。",
+    "Reviewer": "reverify round5 @ 2026-04-26：已按 generator push-back 改用无前缀 URL 复验；仍见 _next 资源 400/404 与页面白屏，A11y=0(NO_FCP)，TC10/11/12 阻断。判定真实运行时问题未修复，状态回 fixing。",
     "Andy-fix-round-1-plan": "fix_round 1 交接 @ 2026-04-26 19:15：Codex 首轮 19/17 PASS，2 个阻断项均为 Generator 实现 acceptance 时未到位的局部 polish，不需 mid-impl 裁决（非 acceptance 与代码冲突，是 acceptance 未达成）。\n\n阻断 1（F-FQ-05-09）：top-app-bar.tsx:96-106 头像 button 两处 A11y 缺陷 — text-ds-on-primary 应为 text-ds-on-primary-container（DS token 误用导致对比度 1.52）；aria-label='用户菜单' 不含可见文本 'AD' 触发 label-content-name-mismatch。\n\n阻断 2（F-FQ-05-14）：F-FQ-04 改造时漏掉 7 处非 ds 色类（admin/logs 2 处 divide-slate-50；admin/operations 5 处 blue/slate/teal）。Generator 改前应 cat globals.css 查可用 ds-* token 全集。\n\nGenerator 修完三个文件 + 本地 lighthouse 自测后 status→reverifying，Codex 重跑全 19 项验收。预期 fix_rounds=1 一轮收口。\n\n注意：本 fix_round 不引入新 scope，仅修阻断；DS-1 其余 28 个 High 文件留给 BL-FE-DS-SHADCN。",
     "Kimi-fix-round-1": "Fix round 1 完成 @ 2026-04-26 19:45。\n\n修复 2 个阻断项：\n1) F-FQ-05-09 Lighthouse A11y — top-app-bar.tsx:99,103：\n   - aria-label: t(userMenu) →  (含可见文本 AD，消 label-content-name-mismatch)\n   - 头像 div text token: text-ds-on-primary → text-ds-on-primary-fixed-variant\n   注：handoff 原指 text-ds-on-primary-container，但 globals.css 中该 token = #f6f1ff (浅色)，无法解决对比度问题。\n   实际背景被 lighthouse 检测为 #d2cdf2（globals.css 无该值，疑 ring-2/opacity 叠加），需深色文字。\n   选 text-ds-on-primary-fixed-variant (#4431a8 深紫) 与浅紫背景视觉协调，对比度计算 ~6.6 ≥ 4.5。\n\n2) F-FQ-05-14 DS grep 7 处非 ds 色类：\n   - admin/logs:181,315 divide-slate-50 → divide-ds-outline-variant/30\n   - admin/operations:203 bg-blue-50 text-blue-600 → bg-ds-primary-container text-ds-primary\n   - admin/operations:305 border-slate-100/60 → border-ds-outline-variant/60\n   - admin/operations:531,589 text-blue-700 bg-blue-50 → text-ds-primary bg-ds-primary-container (replace_all 一并改)\n   - admin/operations:1186 bg-teal-50 text-teal-600 → bg-ds-status-success-container text-ds-status-success\n\n本地预检：\n- grep -E DS-tailwind 三文件全部 0/0/0\n- npx tsc --noEmit 通过 (exit 0)\n- 未跑本地 lighthouse（需启 dev server，由 codex reverify 时跑）\n\nstatus fixing→reverifying / fix_rounds 1→2 / evaluator_feedback 清空。",
-    "Kimi-fix-round-2-pushback": "Fix round 2 = PUSH-BACK @ 2026-04-26 22:30，用户裁决采用 B 方案。\n\n根因：Reviewer round3/round4 使用了项目中不存在的 /zh/... URL 前缀路径，所有 4 项 FAIL（404 / _next 400-404 / Lighthouse 0 / TC10-12 阻断）均为同一验收方法学回归。\n\n证据链（全部文件级引用，已写入 push-back 报告）：\n- src/app/ 无 [locale] 段，结构 (auth) + (console) + 直接路径\n- src/middleware.ts matcher 无 /zh/* /en/*，无 createMiddleware\n- next.config.mjs 无 next-intl/plugin\n- src/components/intl-provider.tsx + src/hooks/use-locale.tsx：纯客户端 localStorage('aigc-locale') + 动态 import messages\n- 04-19 round8 (commit 994a665) signoff 同样用无前缀 URL（/error-test, /admin/models）通过\n\n反证：fix_round 1 commit b62a9ff 只修了 top-app-bar.tsx + admin/logs/page.tsx + admin/operations/page.tsx 三个文件（色类 + aria-label），无任何代码会让一个 200 URL 变 404。\n\n本轮动作：\n- 不修任何产品代码（无 bug 可修）\n- 写 docs/test-reports/BL-FE-QUALITY-generator-pushback-2026-04-26-round2.md\n- progress.json: status fixing→reverifying / fix_rounds 2→3 / evaluator_feedback 清空 / generator_handoff 改为 PUSHBACK 说明\n- 等 Reviewer round5 用无前缀 URL + 客户端切语言重验\n- 若 Reviewer 不接受 → 申请 Planner 裁决（spec 改 i18n 验收方法 / 或新批次 BL-I18N-URL-PREFIX）"
+    "Kimi-fix-round-2-pushback": "Fix round 2 = PUSH-BACK @ 2026-04-26 22:30，用户裁决采用 B 方案。\n\n根因：Reviewer round3/round4 使用了项目中不存在的 /zh/... URL 前缀路径，所有 4 项 FAIL（404 / _next 400-404 / Lighthouse 0 / TC10-12 阻断）均为同一验收方法学回归。\n\n证据链（全部文件级引用，已写入 push-back 报告）：\n- src/app/ 无 [locale] 段，结构 (auth) + (console) + 直接路径\n- src/middleware.ts matcher 无 /zh/* /en/*，无 createMiddleware\n- next.config.mjs 无 next-intl/plugin\n- src/components/intl-provider.tsx + src/hooks/use-locale.tsx：纯客户端 localStorage('aigc-locale') + 动态 import messages\n- 04-19 round8 (commit 994a665) signoff 同样用无前缀 URL（/error-test, /admin/models）通过\n\n反证：fix_round 1 commit b62a9ff 只修了 top-app-bar.tsx + admin/logs/page.tsx + admin/operations/page.tsx 三个文件（色类 + aria-label），无任何代码会让一个 200 URL 变 404。\n\n本轮动作：\n- 不修任何产品代码（无 bug 可修）\n- 写 docs/test-reports/BL-FE-QUALITY-generator-pushback-2026-04-26-round2.md\n- progress.json: status fixing→reverifying / fix_rounds 2→3 / evaluator_feedback 清空 / generator_handoff 改为 PUSHBACK 说明\n- 等 Reviewer round5 用无前缀 URL + 客户端切语言重验\n- 若 Reviewer 不接受 → 申请 Planner 裁决（spec 改 i18n 验收方法 / 或新批次 BL-I18N-URL-PREFIX）",
+    "Kimi-fix-round-3": "Fix round 3 完成 @ 2026-04-26 22:50。Reviewer round5 用无前缀 URL 复验仍 FAIL，证明 fix_round 2 push-back 只看到一半。本轮挖到真根因：\n\n根因：commit b9fafa5 BL-SEC-CRED-HARDEN 引入 instrumentation 启动 fail-fast (assertImageProxySecret 要求 IMAGE_PROXY_SECRET/AUTH_SECRET/NEXTAUTH_SECRET 之一)，但 scripts/test/codex-env.sh 三个都缺。standalone server start 后每个请求 throw → 500 → 浏览器加载错误页时 chunk hash 不一致 → 大量 _next/static 400/404 + NO_FCP。\n\n修复：\n1) scripts/test/codex-env.sh 补三个 SECRET\n2) scripts/test/codex-setup.sh cp 改稳健（rm 旧目录 + 不静默错误 + verify chunks 非空）\n\n本地实证：source codex-env.sh + node .next/standalone/server.js → instrumentation 全部 scheduler 启动 / chunks 200 / login 200 / dashboard 307 redirect login。\n\n不修任何产品代码（src/ 无变化）。push-back 误判向 Reviewer 致歉，写入 fix-round-3-summary 报告。\n\nstatus fixing→reverifying / fix_rounds 3→4 / evaluator_feedback 清空。"
   }
 }

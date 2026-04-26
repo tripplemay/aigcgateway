@@ -59,6 +59,14 @@ npm run build
 
 # ── 5. 复制静态资源 + 前台启动 ──
 echo "=== [5/5] Start on :3099 (foreground via exec) ==="
-cp -r .next/static .next/standalone/.next/static 2>/dev/null || true
-cp -r public .next/standalone/public 2>/dev/null || true
+# Next.js standalone build does not bundle .next/static or public; manual copy is required.
+# Pre-clean target dirs to avoid macOS/BSD `cp -r` nesting (`cp -r src dest/` -> `dest/src/` when dest exists).
+rm -rf .next/standalone/.next/static .next/standalone/public
+cp -r .next/static .next/standalone/.next/static
+cp -r public .next/standalone/public
+# Fail-fast verify: standalone must contain real chunks; otherwise every page chunk request 400/404s and pages NO_FCP.
+if [ -z "$(ls -A .next/standalone/.next/static/chunks 2>/dev/null)" ]; then
+  echo "ERROR: .next/standalone/.next/static/chunks empty after cp" >&2
+  exit 1
+fi
 exec node .next/standalone/server.js
