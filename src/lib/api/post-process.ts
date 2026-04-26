@@ -222,6 +222,39 @@ async function writeProbeCallLogAsync(params: ProbeCallLogParams): Promise<void>
   });
 }
 
+// ============================================================
+// BL-IMAGE-LOG-DISPLAY-FIX F-ILDF-01: image base64 落库前 strip 成 metadata。
+// ============================================================
+//
+// OR image 模型（gemini-3-pro-image / gpt-image-mini 等）返回 ~1MB
+// base64 data URL 直接落库会让 call_logs row 体积爆炸（实测 trc_aexj... =
+// 993KB / trc_yyl... = 1.4MB），前端按 whitespace-pre-wrap 渲染会卡顿。
+//
+// 客户端 API 响应不动（OR base64 透传给调用方 — image-proxy.ts 已处理）；
+// 仅落库时把 data: 转 metadata 字符串 [image:fmt, NKB]，http(s) URL（含
+// gateway 签名 proxy URL）原样保留供前端 <img> 预览。
+//
+// 用 RFC 2397 标准 data URL 头解析（^data:[mime];base64,）；非标准格式
+// fallback 到 [image:unknown, NKB]。
+export function summarizeImageUrl(url: string | null | undefined): string | null {
+  if (!url) return null;
+  if (!url.startsWith("data:")) return url; // http(s) / proxy URL 透传
+  // RFC 2397 允许 mime 后跟 `;param=value` 链再接 `;base64,`：
+  //   data:image/webp+xml;charset=utf-8;base64,xxx
+  // 扫到 `;base64,` 位置，再从 `data:` 后取到该位置的部分；其首段
+  // （split first `;`）即真正 mime type。无 `;base64,` 时 fallback unknown。
+  const base64Idx = url.indexOf(";base64,");
+  let mime = "unknown";
+  if (base64Idx > "data:".length) {
+    const mimePart = url.substring("data:".length, base64Idx);
+    const head = mimePart.split(";")[0];
+    if (head) mime = head;
+  }
+  const format = mime.includes("/") ? (mime.split("/")[1] ?? "unknown") : mime;
+  const sizeKB = Math.round(url.length / 1024);
+  return `[image:${format}, ${sizeKB}KB]`;
+}
+
 /**
  * 异步处理图片请求日志 + 扣费
  */
@@ -413,9 +446,10 @@ async function processImageResultAsync(params: ImagePostProcessParams): Promise<
     }
   }
 
-  // 持久化 images_count + 上游原始 URL 列表（F-ACF-07 代理查找源）
+  // 持久化 images_count + 上游原始 URL 列表（F-ACF-07 代理查找源）。
+  // F-ILDF-01: data: base64 在落库前转 metadata，http(s) URL 透传不变。
   const originalUrls = (params.response?.data ?? [])
-    .map((d) => d?.url)
+    .map((d) => summarizeImageUrl(d?.url))
     .filter((u): u is string => typeof u === "string" && u.length > 0);
   // F-BAX-04: 多次尝试（失败过）才写 attempt_chain，避免单次成功也增加体积。
   const includeAttemptChain = Array.isArray(params.attemptChain) && params.attemptChain.length > 1;
@@ -436,7 +470,8 @@ async function processImageResultAsync(params: ImagePostProcessParams): Promise<
     modelName: params.modelName,
     promptSnapshot: [{ role: "user", content: params.requestParams.prompt }] as unknown as object,
     requestParams: params.requestParams as Prisma.InputJsonValue,
-    responseContent: params.response?.data?.[0]?.url ?? null,
+    // F-ILDF-01: data: base64 → [image:fmt, NKB] metadata；http(s) 透传
+    responseContent: summarizeImageUrl(params.response?.data?.[0]?.url) ?? null,
     responseSummary,
     status,
     latencyMs,

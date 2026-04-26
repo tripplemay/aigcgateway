@@ -1,11 +1,11 @@
 {
-  "status": "building",
+  "status": "verifying",
   "user_goal": "BL-IMAGE-LOG-DISPLAY-FIX — 简化 X 方案：后端 strip base64 → metadata + 前端识别 http(s) image URL 渲染 <img> + 历史 30d 回填脚本",
   "total_features": 4,
-  "completed_features": 0,
+  "completed_features": 3,
   "fix_rounds": 0,
   "current_sprint": "BL-IMAGE-LOG-DISPLAY-FIX",
-  "last_updated": "2026-04-26T09:00:00.000Z",
+  "last_updated": "2026-04-26T17:09:00.000Z",
   "reference_docs": [
     "docs/specs/BL-IMAGE-LOG-DISPLAY-FIX-spec.md"
   ],
@@ -19,6 +19,7 @@
   "evaluator_feedback": null,
   "generator_handoff": null,
   "session_notes": {
-    "Andy-batch-launch": "BL-IMAGE-LOG-DISPLAY-FIX 启动 @ 2026-04-26 09:00（OR-P2 done @ 04-26 08:40 后立即启动，按承诺）。\n\n4 features：\n- F-ILDF-01 critical generator: 后端 base64 strip（post-process.ts processImageResultAsync 落库前 summarizeImageUrl 转 metadata；http(s) 透传）\n- F-ILDF-02 high generator: 前端 logs/[traceId]/page.tsx 识别 http(s) image URL → <img>；其他文本（含 metadata 字符串）走 div\n- F-ILDF-03 medium generator: scripts/maintenance/strip-image-base64-2026-04-26.ts 历史 30d 回填（dry-run/--apply/幂等）\n- F-ILDF-04 critical codex: 12 项验收（含 OR + volcengine 两家 smoke + 客户端 API 透传保护 + 浏览器秒开）\n\n关键决策：\n- 简化 X 方案（用户 2026-04-26 拍板，0.4d 工时）\n- 不接对象存储（保留升 C 方案路径不阻塞）\n- 客户端 API 响应不变（OR base64 透传）\n- 30d 回填范围（与 P2 call_logs TTL 对齐）\n\n应用 framework v0.9.5 自检（spec § 6）：\n- 铁律 1.4：本批次同步路径写入，不涉及周期任务，无需 sync 回归保护 ✓\n- 铁律 1.2：所有验收基于 DB/API/浏览器，不依赖运维 ✓\n- 铁律 1.3：阈值 ≤ 200B / 容差 ±1KB 显式 ✓\n- 测试 mock 层级（v0.9.4）：F-ILDF-01 集成测试要求最外层 fetch / fetchWithProxy mock ✓\n- CLI 脚本退出（v0.9.5）：F-ILDF-03 必须 close prisma + redis ✓\n\n生产前置：无（不需新凭证 / 不接外部服务）。Generator 按 spec § 3 实现 → status→verifying。"
+    "Andy-batch-launch": "BL-IMAGE-LOG-DISPLAY-FIX 启动 @ 2026-04-26 09:00。简化 X 方案 0.4d。",
+    "Kimi-build": "F-ILDF-01~03 building 完成 @ 2026-04-26 17:09，status→verifying。\n\n交付：\n- F-ILDF-01: src/lib/api/post-process.ts 加 export summarizeImageUrl（RFC 2397 解析，data:image/foo;param=v;base64,xxx 多 param mime 也能 split first ;）；processImageResultAsync 第 417/440 行 responseContent + responseSummary.original_urls 都过这个 helper；http(s) 透传不变\n- F-ILDF-02: src/app/(console)/logs/[traceId]/is-image-url.ts（独立 .ts 让 vitest 无 JSX 也能 import）+ page.tsx 识别 http(s) image URL → <img loading=lazy onError=hide> 渲染；其他走原 whitespace-pre-wrap div；i18n responseImage 中英双语\n- F-ILDF-03: scripts/maintenance/strip-image-base64-2026-04-26.ts dry-run/--apply 30 天回填；exported planBackfillRow 解耦 helper + DB 调用方便单测；CLI try/finally 保证 prisma + redis 都 close（v0.9.5 铁律）\n\n新增 24 单测（vitest 414 PASS / +24 from 390）：\n- summarize-image-url 7（http 透传 / data:multi-param mime / fallback unknown / null / 幂等 / RFC2397 multi-param）\n- process-image-base64-strip 3 集成（OR ~1MB → metadata≤200B / volcengine https 透传 / metadata 幂等 — v0.9.4 mock 层级铁律最外层）\n- strip-image-base64 6（base64 / https / metadata / summary-only / mixed batch）\n- is-image-url 8（image extension + querystring / proxy URL / metadata 不识别 / data: 不识别 / plain text / non-image http / ipfs/ftp/file 不识别 / trim）\n\ntsc 干净 / npm run build 通过。\n\nF-ILDF-04 Codex 12 项验收：构建 4 + OR/volcengine smoke + 客户端 API 透传 + 脚本 apply + 幂等 + 浏览器图片预览 + base64 不出现 + signoff。生产前置：无（不需新凭证 / 不接外部服务）。"
   }
 }

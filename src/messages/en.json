@@ -345,6 +345,7 @@
     "noLogsFound": "No logs found",
     "promptMessages": "Prompt Messages",
     "responseContent": "Response Content",
+    "responseImage": "Response image",
     "requestParameters": "Request Parameters",
     "metadata": "Metadata",
     "promptTokens": "Prompt Tokens",

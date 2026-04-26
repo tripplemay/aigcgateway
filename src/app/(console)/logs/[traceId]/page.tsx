@@ -9,6 +9,7 @@ import Link from "next/link";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState } from "@/components/empty-state";
 import { toast } from "sonner";
+import { isImageUrl } from "./is-image-url";
 
 // ============================================================
 // Types
@@ -249,9 +250,25 @@ export default function LogDetailPage() {
             </h3>
             {detail.responseContent ? (
               <div className="bg-ds-surface-container-lowest p-8 rounded-2xl shadow-sm">
-                <div className="text-sm leading-7 text-ds-on-surface/80 whitespace-pre-wrap">
-                  {detail.responseContent}
-                </div>
+                {/* BL-IMAGE-LOG-DISPLAY-FIX F-ILDF-02: 识别 http(s) image URL
+                    渲染 <img> 预览；其他文本（含 [image:fmt, NKB] metadata）
+                    走原 div 路径。data: 前缀 base64 在落库前已被
+                    summarizeImageUrl strip，此处不会再出现。 */}
+                {isImageUrl(detail.responseContent) ? (
+                  <img
+                    src={detail.responseContent}
+                    alt={t("responseImage")}
+                    className="max-w-full max-h-[600px] rounded-lg"
+                    loading="lazy"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).style.display = "none";
+                    }}
+                  />
+                ) : (
+                  <div className="text-sm leading-7 text-ds-on-surface/80 whitespace-pre-wrap">
+                    {detail.responseContent}
+                  </div>
+                )}
                 {detail.finishReason && (
                   <p className="pt-4 border-t border-ds-outline-variant/10 text-xs italic text-ds-on-surface-variant mt-4">
                     {t("finishReason")}: {detail.finishReason}

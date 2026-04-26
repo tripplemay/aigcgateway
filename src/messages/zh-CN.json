@@ -345,6 +345,7 @@
     "noLogsFound": "未找到日志",
     "promptMessages": "提示消息",
     "responseContent": "响应内容",
+    "responseImage": "响应图片",
     "requestParameters": "请求参数",
     "metadata": "元数据",
     "promptTokens": "提示 Token",

@@ -7,7 +7,7 @@
       "title": "后端 base64 strip — post-process.ts processImageResultAsync 落库前转 metadata",
       "priority": "critical",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "source": "BL-IMAGE-LOG-DISPLAY-FIX spec § 3.1",
       "acceptance": "1) 新增 helper `summarizeImageUrl(url)`：data: 前缀 → `[image:{format}, {sizeKB}KB]`（解析 `^data:([^;]+);base64,` mime-type；总长度 / 1024 作 sizeKB；非标准格式 fallback `[image:unknown, NKB]`）；http(s) URL 透传；null/undefined → null；2) 修改 `src/lib/api/post-process.ts:processImageResultAsync` 第 402-413 行 responseSummary.original_urls：每个 url 走 summarizeImageUrl；3) 修改第 423 行 responseContent：同样走 summarizeImageUrl；4) 不改 image-proxy.ts；不改 API 调用方响应（rewriteImageResponseUrls 行为不变）；5) 单测 ≥ 4 条：(a) http URL 透传不变；(b) data:image/jpeg;base64,xxx (100KB) → `[image:jpeg, 100KB]` 容差 ±1KB；(c) data: 格式异常 fallback `[image:unknown, NKB]`；(d) 集成测试：mock OR /v1/chat/completions 响应（含 base64 data URL）从 fetch / fetchWithProxy 边界 mock（v0.9.4 铁律），processImageResultAsync 真实跑 → call_log.responseContent metadata 字符串 ≤ 200B + responseSummary.original_urls[0] 同样；6) tsc + build 通过"
     },
@@ -16,7 +16,7 @@
       "title": "前端 log 详情页识别 http(s) image URL 渲染 <img>",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "source": "BL-IMAGE-LOG-DISPLAY-FIX spec § 3.2",
       "acceptance": "1) 新增 helper `isImageUrl(text)`：trim 后 `^https?://` 且 (扩展名 jpg/jpeg/png/gif/webp/svg) OR 包含 `/v1/images/proxy/`；其他 false；2) 修改 `src/app/(console)/logs/[traceId]/page.tsx` 第 250-254 行块：`isImageUrl(detail.responseContent)` true → 渲染 `<img src=... alt={t('responseImage')} className=... loading='lazy' onError={hide}/>`，max-h-[600px] 控制尺寸；false → 保持 `<div>{...}</div>` 纯文本；3) i18n messages/en.json + zh-CN.json 加 key `responseImage` (`Response image` / `响应图片`)；4) 单测 ≥ 3 条：(a) https://example.com/foo.png → 渲染 img；(b) /v1/images/proxy/trc_x/0?exp=... → 渲染 img；(c) `[image:jpeg, 100KB]` 文本 → 渲染 div；5) tsc + build 通过"
     },
@@ -25,7 +25,7 @@
       "title": "历史数据 backfill 脚本 — strip 近 30 天 call_logs 中 base64 responseContent",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "source": "BL-IMAGE-LOG-DISPLAY-FIX spec § 3.3",
       "acceptance": "1) 新建 `scripts/maintenance/strip-image-base64-2026-04-26.ts`；2) WHERE 条件 `createdAt > now-30d AND (LENGTH(responseContent) > 10000 OR responseContent LIKE 'data:image/%')`；3) 复用 F-ILDF-01 的 summarizeImageUrl helper（导出 / 复用）；4) 同时处理 responseContent + responseSummary.original_urls 两个字段；5) 默认 dry-run 输出 'X rows would update / Y unchanged'；--apply 实际 UPDATE；6) 幂等（metadata 字符串重跑不变）；7) 退出前 close prisma.$disconnect() + disconnectRedis()（按 v0.9.5 铁律）；8) 单测 ≥ 1 条：dry-run 5 mixed rows（3 base64 / 2 https）→ '3 rows would update / 2 unchanged'；9) tsc + build 通过"
     },
