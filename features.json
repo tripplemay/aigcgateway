@@ -16,7 +16,7 @@
       "title": "template-testing polish — admin templates PATCH try/catch + Decimal 精度 + waitForCallLog 优化",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "source": "BL-FE-QUALITY spec § F-FQ-02",
       "acceptance": "1) `src/app/api/admin/templates/[templateId]/route.ts:52-54` PATCH handler 加 try/catch：`request.json().catch(() => null)` + body 校验失败返 400 errorResponse 而非 500；2) `src/lib/template/test-runner.ts:200-207` `totalCostUsd` 累加改用 `Prisma.Decimal`（避免 Number 浮点丢失），结束 .toFixed(8)；3) `test-runner.ts:247-262 waitForCallLog`：方案 A 改 runActionNonStream 事务内合并直出 callLog；方案 B 退化为 CALL_LOG_POLL_MAX_ATTEMPTS 30→10 + interval 3s→1s + 失败 warn 不静默 null；4) Generator 开工前对 [待核实] 行号 Read 重核；5) 单测：(a) PATCH 非法 JSON → 400；(b) Decimal 累加 10 步与 Prisma 直查 sum 差距 < 1e-12；(c) waitForCallLog timeout 减少；6) tsc + build 通过"
     },
@@ -25,7 +25,7 @@
       "title": "A11y + i18n — aria-label 批量补 + error.tsx i18n + admin/models Free/Degraded + notification-center timeAgo/汇率",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "source": "BL-FE-QUALITY spec § F-FQ-03",
       "acceptance": "1) 新建 `src/lib/a11y.ts` helper 或 `components/ui/icon-button.tsx` 强制 aria-label；批量 grep 所有图标按钮无 aria-label 实例并补；重点 top-app-bar / notification-center / admin 页 / form actions；2) `src/app/(console)/error.tsx` 接 useTranslations，messages/{en,zh-CN}.json 新增 error.* 条目（title/retry/back 等）；3) `admin/models/page.tsx:65/70` 'Free' → t('models.priceFree')；:282 'Degraded' → t('models.statusDegraded')；4) `notification-center.tsx:40` timeAgo 改用 dayjs relativeTime（项目应已引入 dayjs，否则 next-intl formatRelativeTime）+ :53 NOTIF_CNY_RATE=7.3 改为从 SystemConfig API 读取（fallback 7.3 + warn）；5) Generator 开工前 [待核实] 行号 Read 重核；6) 单测：(a) error.tsx 渲染中文 messages；(b) timeAgo 中英双语 snapshot；(c) Free/Degraded 切语言显示对应文本；7) tsc + build 通过"
     },
@@ -34,7 +34,7 @@
       "title": "DS Critical 3 文件 token 改造 — admin/operations + dashboard + admin/logs",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "source": "BL-FE-QUALITY spec § F-FQ-04",
       "acceptance": "1) 改造 3 个文件硬编码色值：(a) src/app/(console)/admin/operations/page.tsx 33 处；(b) src/app/(console)/dashboard/page.tsx 24 处；(c) src/app/(console)/admin/logs/page.tsx 24 处；2) 改造规则：硬编码 hex/rgb（#3b82f6 / rgba(...)）→ ds-* token；非 ds Tailwind 色类（bg-indigo-700 / text-slate-500 等）→ ds 色阶对应类（bg-ds-primary / text-ds-muted 等）；任意值 px 尺寸 h-[300px] 保留（仅清色值）；3) 验证每文件 `grep -cE '#[0-9a-fA-F]{6}|text-(slate|indigo|rose|emerald|violet|amber)-' <file>` = 0；4) 分文件分 commit 便于回滚；5) Generator 开工前对 590+ 违规数实测复核（可能 Path A 各批次已带 fix 部分）；6) tsc + build 通过；7) 改造前后视觉对比截图（dashboard / admin/operations / admin/logs 各 1 对）存 docs/test-reports/artifacts/bl-fe-quality-2026-04-26/"
     },
