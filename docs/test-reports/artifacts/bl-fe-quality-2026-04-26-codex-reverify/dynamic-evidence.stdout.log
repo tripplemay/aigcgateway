@@ -1,0 +1,8 @@
+page.fill: Timeout 30000ms exceeded.
+Call log:
+[2m  - waiting for locator('input[type="email"]')[22m
+
+    at login (/Users/yixingzhou/project/aigcgateway/scripts/test/bl-fe-quality-reverify-dynamic-2026-04-26.ts:57:16)
+    at async run (/Users/yixingzhou/project/aigcgateway/scripts/test/bl-fe-quality-reverify-dynamic-2026-04-26.ts:76:22) {
+  name: 'TimeoutError'
+}

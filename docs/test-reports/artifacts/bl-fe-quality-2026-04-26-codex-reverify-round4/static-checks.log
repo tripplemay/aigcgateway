@@ -1,0 +1,9 @@
+## ds hex/rgb grep
+src/app/(console)/admin/operations/page.tsx :: 0
+src/app/(console)/dashboard/page.tsx :: 0
+src/app/(console)/admin/logs/page.tsx :: 0
+
+## non-ds tailwind color grep
+src/app/(console)/admin/operations/page.tsx :: 0
+src/app/(console)/dashboard/page.tsx :: 0
+src/app/(console)/admin/logs/page.tsx :: 0

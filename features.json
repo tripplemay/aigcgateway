@@ -43,7 +43,7 @@
       "title": "BL-FE-QUALITY 全量验收（19 项含视觉 + Lighthouse）",
       "priority": "critical",
       "executor": "codex",
-      "status": "failed",
+      "status": "pending",
       "source": "BL-FE-QUALITY",
       "acceptance": "UX 验证（5 项）：1) 9 个页面 EmptyState 创建后 SPA 状态保持（不闪屏 / 滚动不重置 / 其他 state 不丢）；2) settings 按钮点击只触发一次 handler；3) keys 复制按钮复制真 key 或文案明确；4) NotificationCenter tab 切换到其他标签 30s+ 后回来，Network 面板无持续轮询请求；5) admin/usage 打开时 Network 只有一次聚合请求或 Promise.all 并发。template-testing polish（3 项）：6) POST /api/admin/templates/:id 带非法 JSON → 400 而非 500；7) test-runner totalCostUsd 累加 10 步后与 Prisma 直查 sum(sellPrice) 差距 < 1e-12；8) waitForCallLog timeout 从 3s×N 降到 1s×N（或事务内合并直出）。A11y + i18n（4 项）：9) Lighthouse A11y ≥ 98（当前 94-95）；10) error.tsx 中文界面显示中文文案；11) admin/models 切 zh-CN 后 Free/Degraded 显示中文；12) notification-center 切 zh-CN 后 timeAgo 显示'5 分钟前'式中文相对时间。DS Critical（3 项）：13) admin/operations + dashboard + admin/logs grep 硬编码 hex/rgb = 0；14) 各文件 grep 非 ds Tailwind 色类 = 0；15) 视觉回归：Chrome DevTools 打开三个页面与改造前无肉眼可见差异（截图存 artifacts）。构建 + 回归（3 项）：16) npm run build 通过；17) npx tsc --noEmit 通过；18) npx vitest run 全过（预期总数 ≥ 414，新增测试 ≥ 6 条）。报告（1 项）：19) 生成 signoff docs/test-reports/BL-FE-QUALITY-signoff-2026-04-2X.md。"
     }

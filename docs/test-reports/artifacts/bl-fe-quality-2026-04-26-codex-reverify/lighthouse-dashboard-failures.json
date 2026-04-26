@@ -1,0 +1,14 @@
+{
+  "a11yScore": 92,
+  "failedCount": 2,
+  "failed": [
+    {
+      "id": "color-contrast",
+      "title": "Background and foreground colors do not have a sufficient contrast ratio."
+    },
+    {
+      "id": "link-in-text-block",
+      "title": "Links rely on color to be distinguishable."
+    }
+  ]
+}

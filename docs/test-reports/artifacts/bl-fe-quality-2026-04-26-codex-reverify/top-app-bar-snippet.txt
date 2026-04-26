@@ -1,0 +1,24 @@
+top-app-bar snippet
+    90	
+    91	        {/* Divider */}
+    92	        <div className="h-8 w-px bg-ds-outline-variant/50 mx-2" />
+    93	
+    94	        {/* User Avatar + Dropdown */}
+    95	        <div ref={menuRef} className="relative">
+    96	          <button
+    97	            onClick={() => setMenuOpen((prev) => !prev)}
+    98	            className="flex items-center gap-3 cursor-pointer group"
+    99	            aria-label={`${initials} ${t("userMenu")}`}
+   100	            aria-haspopup="menu"
+   101	            aria-expanded={menuOpen}
+   102	          >
+   103	            <div className="w-8 h-8 rounded-full bg-ds-primary-container flex items-center justify-center text-ds-on-primary-fixed-variant text-xs font-bold ring-2 ring-ds-primary/20 group-hover:ring-ds-primary/50 transition-all">
+   104	              {initials}
+   105	            </div>
+   106	          </button>
+   107	
+   108	          {menuOpen && (
+   109	            <div className="absolute right-0 top-12 w-56 bg-ds-surface-container-lowest rounded-xl shadow-lg border border-ds-outline-variant/20 py-2 z-50">
+   110	              {/* User info */}
+   111	              <div className="px-4 py-3 border-b border-ds-outline-variant/10">
+   112	                {userName && (

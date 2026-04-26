@@ -1,0 +1,66 @@
+{
+  "url": "http://localhost:3099/zh/dashboard",
+  "title": "AIGC Gateway",
+  "fails": [
+    {
+      "status": 404,
+      "url": "http://localhost:3099/zh/dashboard",
+      "rt": "document"
+    },
+    {
+      "status": 400,
+      "url": "http://localhost:3099/_next/static/media/4c9affa5bc8f420e-s.p.woff2",
+      "rt": "font"
+    },
+    {
+      "status": 400,
+      "url": "http://localhost:3099/_next/static/css/e89dc666dc5c3cfe.css",
+      "rt": "stylesheet"
+    },
+    {
+      "status": 400,
+      "url": "http://localhost:3099/_next/static/media/e4af272ccee01ff0-s.p.woff2",
+      "rt": "font"
+    },
+    {
+      "status": 400,
+      "url": "http://localhost:3099/_next/static/chunks/2117-ccd960d7d8c492d8.js",
+      "rt": "script"
+    },
+    {
+      "status": 400,
+      "url": "http://localhost:3099/_next/static/chunks/webpack-aec31ef042451ce4.js",
+      "rt": "script"
+    },
+    {
+      "status": 400,
+      "url": "http://localhost:3099/_next/static/chunks/fd9d1056-a39cfe73956b35a9.js",
+      "rt": "script"
+    },
+    {
+      "status": 400,
+      "url": "http://localhost:3099/_next/static/chunks/main-app-fd9488e99414c25b.js",
+      "rt": "script"
+    },
+    {
+      "status": 404,
+      "url": "http://localhost:3099/_next/static/css/7b58c13ea0bbc767.css",
+      "rt": "stylesheet"
+    },
+    {
+      "status": 400,
+      "url": "http://localhost:3099/_next/static/chunks/6010-affe9b8d50439fb4.js",
+      "rt": "script"
+    },
+    {
+      "status": 400,
+      "url": "http://localhost:3099/_next/static/chunks/6137-4dc78bf963e49844.js",
+      "rt": "script"
+    },
+    {
+      "status": 404,
+      "url": "http://localhost:3099/_next/static/chunks/app/layout-469674eabe881b93.js",
+      "rt": "script"
+    }
+  ]
+}

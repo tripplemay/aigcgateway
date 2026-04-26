@@ -1,0 +1,44 @@
+{
+  "dashboardUrl": "http://localhost:3099/zh/dashboard",
+  "dashboardHasAppError": false,
+  "dashboardHasChunkError": false,
+  "dashboardTextHead": "",
+  "errorPage": {
+    "url": "http://localhost:3099/zh/error-test",
+    "hasChineseError": false,
+    "hasAppError": false,
+    "textHead": ""
+  },
+  "models": {
+    "url": "http://localhost:3099/zh/admin/models",
+    "hasChineseFree": false,
+    "hasChineseDegraded": false,
+    "hasAppError": false,
+    "textHead": ""
+  },
+  "notification": {
+    "relativeMatches": []
+  },
+  "consoleErrors": [
+    "Failed to load resource: the server responded with a status of 404 (Not Found)",
+    "Failed to load resource: the server responded with a status of 400 (Bad Request)",
+    "Failed to load resource: the server responded with a status of 400 (Bad Request)",
+    "Failed to load resource: the server responded with a status of 400 (Bad Request)",
+    "Failed to load resource: the server responded with a status of 400 (Bad Request)",
+    "Failed to load resource: the server responded with a status of 400 (Bad Request)",
+    "Failed to load resource: the server responded with a status of 400 (Bad Request)",
+    "Failed to load resource: the server responded with a status of 404 (Not Found)",
+    "Failed to load resource: the server responded with a status of 400 (Bad Request)",
+    "Failed to load resource: the server responded with a status of 400 (Bad Request)",
+    "Failed to load resource: the server responded with a status of 400 (Bad Request)",
+    "Failed to load resource: the server responded with a status of 404 (Not Found)",
+    "Failed to load resource: the server responded with a status of 404 (Not Found)",
+    "Failed to load resource: the server responded with a status of 400 (Bad Request)",
+    "Failed to load resource: the server responded with a status of 400 (Bad Request)",
+    "Failed to load resource: the server responded with a status of 400 (Bad Request)",
+    "Failed to load resource: the server responded with a status of 400 (Bad Request)",
+    "Failed to load resource: the server responded with a status of 400 (Bad Request)",
+    "Failed to load resource: the server responded with a status of 404 (Not Found)",
+    "Failed to load resource: the server responded with a status of 400 (Bad Request)"
+  ]
+}

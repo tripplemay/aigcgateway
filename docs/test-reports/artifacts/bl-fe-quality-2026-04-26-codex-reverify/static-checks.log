@@ -1,0 +1,30 @@
+## reload grep
+
+## notification visibility gate
+116:      timer = setInterval(() => void fetchNotifications(), 30_000);
+123:    if (typeof document !== "undefined" && document.hidden) {
+129:      if (document.hidden) {
+136:    document.addEventListener("visibilitychange", handleVis);
+139:      document.removeEventListener("visibilitychange", handleVis);
+
+## admin aggregation
+src/app/(console)/admin/models/page.tsx:5:import { useAsyncData } from "@/hooks/use-async-data";
+src/app/(console)/admin/models/page.tsx:99:  // ── F-FQ-01 #5: batched fetch — single useAsyncData with Promise.all
+src/app/(console)/admin/models/page.tsx:100:  //    (was 2 independent useAsyncData causing 2 render cycles on mount).
+src/app/(console)/admin/models/page.tsx:105:  const { data: bundle, refetch: load } = useAsyncData<ModelsBundle>(async () => {
+src/app/(console)/admin/models/page.tsx:109:    const [channelResp, syncResp] = await Promise.all([
+src/app/(console)/admin/operations/page.tsx:5:import { useAsyncData } from "@/hooks/use-async-data";
+src/app/(console)/admin/operations/page.tsx:97:  const { data, loading, refetch } = useAsyncData<SyncStatusResponse>(
+src/app/(console)/admin/usage/page.tsx:6:import { useAsyncData } from "@/hooks/use-async-data";
+src/app/(console)/admin/usage/page.tsx:72:  const { data: bundle } = useAsyncData<AdminUsageBundle>(async () => {
+src/app/(console)/admin/usage/page.tsx:73:    const [summary, providerResp, modelResp] = await Promise.all([
+
+## ds hex/rgb grep
+src/app/(console)/admin/operations/page.tsx :: 0
+src/app/(console)/dashboard/page.tsx :: 0
+src/app/(console)/admin/logs/page.tsx :: 0
+
+## non-ds tailwind color grep
+src/app/(console)/admin/operations/page.tsx :: 0
+src/app/(console)/dashboard/page.tsx :: 0
+src/app/(console)/admin/logs/page.tsx :: 0

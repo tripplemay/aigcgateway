@@ -1,0 +1,6 @@
+Dashboard/Admin runtime errors captured via Chrome DevTools:
+- Failed to load resource: 404 (multiple chunk resources)
+- ChunkLoadError: Loading chunk 3185 failed (/_next/static/chunks/app/layout-469674eabe881b93.js)
+- Uncaught Error: Minified React error #423
+Network evidence:
+- GET /_next/static/chunks/app/layout-469674eabe881b93.js -> 404
