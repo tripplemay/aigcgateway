@@ -1,59 +1,24 @@
 {
-  "status": "done",
-  "user_goal": "BL-IMAGE-PRICING-OR-P2 — OpenRouter 6 条 token-priced image channel 定价 UPDATE + DB trigger 约束 + token 反算单测 + model-sync buildCostPrice 回归修复 + image-via-chat token cost calc + endpoint/alias/CLI cleanup",
-  "total_features": 5,
-  "completed_features": 5,
-  "fix_rounds": 2,
-  "current_sprint": "BL-IMAGE-PRICING-OR-P2",
-  "last_updated": "2026-04-26T08:40:00.000Z",
+  "status": "building",
+  "user_goal": "BL-IMAGE-LOG-DISPLAY-FIX — 简化 X 方案：后端 strip base64 → metadata + 前端识别 http(s) image URL 渲染 <img> + 历史 30d 回填脚本",
+  "total_features": 4,
+  "completed_features": 0,
+  "fix_rounds": 0,
+  "current_sprint": "BL-IMAGE-LOG-DISPLAY-FIX",
+  "last_updated": "2026-04-26T09:00:00.000Z",
   "reference_docs": [
-    "docs/specs/BL-IMAGE-PRICING-OR-P2-spec.md",
-    "docs/adjudications/2026-04-25-or-p2-buildcostprice-regression.md"
+    "docs/specs/BL-IMAGE-LOG-DISPLAY-FIX-spec.md"
   ],
   "role_assignments": null,
   "docs": {
-    "spec": "docs/specs/BL-IMAGE-PRICING-OR-P2-spec.md",
+    "spec": "docs/specs/BL-IMAGE-LOG-DISPLAY-FIX-spec.md",
     "test_cases": null,
-    "signoff": "docs/test-reports/BL-IMAGE-PRICING-OR-P2-signoff-2026-04-26.md",
+    "signoff": null,
     "framework_reviewed": false
   },
-  "evaluator_feedback": {
-    "summary": "Reverification PASS: local build/tsc/vitest pass; production deploy 278b18c verified; P1 and OR pricing scripts exit 0; 6 OR token prices and sell ratios match spec; all 39 IMAGE channels have non-zero valid costPrice; trigger blocks IMAGE zero update and allows TEXT; real google/gemini-2.5-flash-image smoke writes tokens and costPrice matching formula; /api/admin/sync-models regression check preserves all IMAGE prices.",
-    "pass_count": 13,
-    "partial_count": 0,
-    "fail_count": 0,
-    "issues": []
-  },
-  "generator_handoff": {
-    "fix_round": 1,
-    "scope": "F-BIPOR-04 model-sync buildCostPrice 回归修复（裁决新增的 generator feature）",
-    "spec": "docs/specs/BL-IMAGE-PRICING-OR-P2-spec.md § 3.4",
-    "adjudication": "docs/adjudications/2026-04-25-or-p2-buildcostprice-regression.md",
-    "targets": [
-      {
-        "file": "src/lib/sync/model-sync.ts",
-        "action": "MODIFY",
-        "summary": "buildCostPrice IMAGE 分支返回 null + 调用处第 270-280 行省略 costPrice 字段（R1 方案）；createMany 路径保持现状（新 IMAGE channel 默认 {perCall:0}，靠 F-BIPOR-02 trigger 后续兜底）"
-      },
-      {
-        "file": "vitest 新单测 ≥ 3 条",
-        "action": "CREATE",
-        "summary": "(a) sync 已存在 IMAGE channel 且 costPrice 非零 → 不变；(b) sync TEXT channel → 按 token 公式更新；(c) sync 创建新 IMAGE channel → 默认 {perCall:0} 进 createMany"
-      }
-    ],
-    "post_fix_validation": [
-      "本地：vitest + tsc + build 全过（预期 vitest 总数 381+）",
-      "本地：dev DB seed 一个 IMAGE channel costPrice.perCall=0.0370 → 跑 sync → 重查 channel.costPrice 不变",
-      "完成后 status→verifying 交 Codex 复验全 13 项（含 #12 生产 model-sync 跑后回归保护）"
-    ],
-    "notes": "本 fix_round 仅做 buildCostPrice 一处改动；不要顺手修其他 sync 相关 bug。F-BIPOR-04 完成后 Codex 在生产先 apply F-BIPOR-04 deploy → apply F-BIPOR-01 fix-or-image-channels-2026-04-25.ts → 手动 trigger model-sync → 验证 channel costPrice 持久化（验收 #12）。"
-  },
+  "evaluator_feedback": null,
+  "generator_handoff": null,
   "session_notes": {
-    "Andy-batch-launch": "BL-IMAGE-PRICING-OR-P2 启动 @ 2026-04-25 12:30",
-    "Kimi-build-round-0": "F-BIPOR-01~03 building 完成 @ 2026-04-25 12:23，status→verifying。vitest 378 PASS（+25 OR-P2 新单测）/ tsc / build 全过。",
-    "Andy-mid-impl-adjudication": "Mid-impl 裁决 @ 2026-04-25 13:00：Planner 调研用户报告的生产 image log 显示问题时附带发现 model-sync.buildCostPrice 硬编码 IMAGE → {perCall:0}，每日 sync 自动覆盖所有 image channel costPrice。生产实证 P1 F-BAX-08 apply 后 04:00 被冲回 0；OR-P2 F-BIPOR-01 apply 后下次 sync 必失效。用户拍板路径 X：当前批次内修订 spec + 加 F-BIPOR-04（generator R1 方案：IMAGE 跳过 costPrice 写入）+ 验收 #12 回归保护。total_features 4→5；completed 3；status verifying→fixing；fix_rounds 0→1。BL-IMAGE-LOG-DISPLAY-FIX（C 方案，base64 转存对象存储 + 前端图片预览）已写入 backlog，OR-P2 done 后启动。",
-    "Kimi-fix-round-1": "F-BIPOR-04 完成 @ 2026-04-25 12:42，status fixing→reverifying。\n\n改动（按 R1 最小方案）：\n- src/lib/sync/model-sync.ts buildCostPrice() IMAGE → 返回 null（保留运营手设值）\n- 拆出 buildInitialCostPrice()：createMany 路径仍写默认 {perCall:0,unit:'call'}\n- 调用处第 270-280 行：null 时省略 costPrice 字段，update 只动 realModelId/status\n- 新建 channel 路径仍走 buildInitialCostPrice 默认占位，后续 UPDATE 由 F-BIPOR-02 trigger 兜底\n- export __testing 暴露两个 helper 给单测\n\n新增 7 单测覆盖 R1 契约：buildCostPrice IMAGE→null + TEXT/AUDIO 不变；buildInitialCostPrice IMAGE→默认占位 + TEXT 同 token 公式；invariant 显式声明两个 helper 不可互换。\n\nvitest 385 PASS（+7 from 378）/ tsc / build 全过。\n\nCodex F-BIPOR-05 13 项验收：#1-#11 部署后 + apply 即可；#12 model-sync 回归保护需 deploy F-BIPOR-04 → 跑 fix-or-image-channels --apply → POST /api/admin/run-inference 触发 sync → 重查 30+6 条 image channel costPrice 全部保持，**不被 sync 冲回 0**。",
-    "Reviewer": "2026-04-26 reverifying PASS for BL-IMAGE-PRICING-OR-P2 fix_round=2. Evidence in docs/test-reports/artifacts/bl-image-pricing-or-p2-2026-04-26-codex. Production HEAD 278b18c; build/tsc/vitest 390 pass; P1 and OR pricing scripts exit 0; imageCount=39 invalidImageCount=0 before and after /api/admin/sync-models; real image smoke trace trc_h88lhsxymvqw8xmibvhocova costPrice=0.0032368 matches formula. Signoff docs/test-reports/BL-IMAGE-PRICING-OR-P2-signoff-2026-04-26.md; status done.",
-    "Kimi-fix-round-2": "Path A 全修完成 @ 2026-04-25 14:30，status fixing→reverifying，fix_rounds 1→2。\n\n5 项 FAIL 处理：\n- #1 32/39 IMAGE channel zero — 操作类，部署后由 Codex/我 ssh 重跑 fix-image-channels-2026-04-24.ts --apply（脚本幂等，会重新写 30 条 P1 定价）。代码无改动。\n- #2 image-via-chat token cost calc — 架构修复：(a) ImageGenerationResponse 加 usage?: Usage; (b) openai-compat imageViaChat 5 个 return 路径全部 propagate result.usage; (c) processImageResultAsync 据 channel.costPrice.unit 分支：'token' → calculateTokenCost；'call' → 旧 calculateCallCost; (d) call_log 写入 promptTokens/completionTokens/totalTokens（与 chat 路径对齐）。\n- #3 verify script alias — gemini-2.5-flash-image → google/gemini-2.5-flash-image（Codex 实证）。\n- #4 pricing CLI Redis hang — redis.ts 新增 export disconnectRedis()；4 个脚本（fix-image / fix-or-image / verify-image / verify-or-image / test-billing-fetchers）prisma.$disconnect() 后调一次 disconnectRedis() 干净退出。verify-or-image 重构成 cleanup() + exitWith() helper 避免散落。\n- #5 endpoint reference — /api/admin/run-inference → /api/admin/sync-models 修在 spec § 3.4/3.5 #13 + adjudication doc + features.json。\n\n新增单测 5 条（image-via-chat-token-cost.test.ts）：\n- token + usage → 公式 0.00155 USD，promptTokens/completionTokens/totalTokens 写入\n- token + 缺 usage → cost=0 不抛错\n- per-call (volcengine) → 旧路径，tokens=null\n- ERROR status → cost=0\n- token + zero pricing → WARN 输出\n\nvitest 390 PASS（+5 from 385）/ tsc 干净 / build 通过。\n\n生产部署链（Codex/我 reverifying 时执行）：\n1. GitHub Actions deploy fix_round_2 commits\n2. ssh: npx tsx scripts/pricing/fix-image-channels-2026-04-24.ts --apply（恢复 30 条 P1 定价）\n3. POST /api/admin/sync-models 触发 sync → 重查 36+ image channel costPrice 全部保持\n4. BASE_URL=... API_KEY=... npx tsx scripts/pricing/verify-or-image-channels-2026-04-25.ts → cost > 0 + 公式匹配\n5. trigger 反例 SQL"
+    "Andy-batch-launch": "BL-IMAGE-LOG-DISPLAY-FIX 启动 @ 2026-04-26 09:00（OR-P2 done @ 04-26 08:40 后立即启动，按承诺）。\n\n4 features：\n- F-ILDF-01 critical generator: 后端 base64 strip（post-process.ts processImageResultAsync 落库前 summarizeImageUrl 转 metadata；http(s) 透传）\n- F-ILDF-02 high generator: 前端 logs/[traceId]/page.tsx 识别 http(s) image URL → <img>；其他文本（含 metadata 字符串）走 div\n- F-ILDF-03 medium generator: scripts/maintenance/strip-image-base64-2026-04-26.ts 历史 30d 回填（dry-run/--apply/幂等）\n- F-ILDF-04 critical codex: 12 项验收（含 OR + volcengine 两家 smoke + 客户端 API 透传保护 + 浏览器秒开）\n\n关键决策：\n- 简化 X 方案（用户 2026-04-26 拍板，0.4d 工时）\n- 不接对象存储（保留升 C 方案路径不阻塞）\n- 客户端 API 响应不变（OR base64 透传）\n- 30d 回填范围（与 P2 call_logs TTL 对齐）\n\n应用 framework v0.9.5 自检（spec § 6）：\n- 铁律 1.4：本批次同步路径写入，不涉及周期任务，无需 sync 回归保护 ✓\n- 铁律 1.2：所有验收基于 DB/API/浏览器，不依赖运维 ✓\n- 铁律 1.3：阈值 ≤ 200B / 容差 ±1KB 显式 ✓\n- 测试 mock 层级（v0.9.4）：F-ILDF-01 集成测试要求最外层 fetch / fetchWithProxy mock ✓\n- CLI 脚本退出（v0.9.5）：F-ILDF-03 必须 close prisma + redis ✓\n\n生产前置：无（不需新凭证 / 不接外部服务）。Generator 按 spec § 3 实现 → status→verifying。"
   }
 }

@@ -36,6 +36,14 @@ type: project
 
 <!-- ================= 已同步到 harness-template（归档区） ================= -->
 
+## [2026-04-26 已同步 v0.9.5] Planner 铁律 1.4：周期性后台任务对数据的覆写必须显式 + 回归保护
+- 来源：BL-IMAGE-PRICING-OR-P2 mid-impl 裁决（buildCostPrice 回归）
+- 写入：`harness/planner.md` §铁律 1.4 + 自检 checklist
+
+## [2026-04-26 已同步 v0.9.5] Generator CLI 脚本退出前 close 所有外部连接
+- 来源：BL-IMAGE-PRICING-OR-P2 fix_round 2 Path A #4（pricing CLI Redis hang）
+- 写入：`harness/generator.md` §测试相关经验
+
 ## [2026-04-25 已同步 v0.9.4] Generator 单测 mock 层级 — 穿透多层转换类修复
 - 来源：BL-IMAGE-PARSER-FIX fix round 1
 - 写入：`harness/generator.md` §测试相关经验；`harness/evaluator.md` §4 评分标准（核查 mock 层级）

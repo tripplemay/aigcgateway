@@ -1,51 +1,42 @@
 {
-  "batch": "BL-IMAGE-PRICING-OR-P2",
-  "created_at": "2026-04-25",
+  "batch": "BL-IMAGE-LOG-DISPLAY-FIX",
+  "created_at": "2026-04-26",
   "features": [
     {
-      "id": "F-BIPOR-01",
-      "title": "OpenRouter 6 条 image channel token 定价 UPDATE",
+      "id": "F-ILDF-01",
+      "title": "后端 base64 strip — post-process.ts processImageResultAsync 落库前转 metadata",
       "priority": "critical",
       "executor": "generator",
-      "status": "completed",
-      "source": "BL-IMAGE-PRICING-OR-P2 spec § 3.1",
-      "acceptance": "1) 创建 `scripts/pricing/fix-or-image-channels-2026-04-25.ts`：硬编码 6 条 channel pricing（spec § 3.1 表）；2) 默认 dry-run 模式 + `--apply` 开关；3) 幂等重放（重跑已 apply 数据输出 'no change'）；4) UPDATE 后 costPrice={unit:'token',inputPer1M:X,outputPer1M:Y}（注：apply 后需 F-BIPOR-04 buildCostPrice 修复保护，否则下次 sync 必失效，详见裁决文档）；5) 输出 diff 日志到 docs/test-reports/artifacts/bl-image-pricing-or-p2-2026-04-25/pricing-or-migration.log；6) 脚本 apply 前 console.log 提示 Generator 先 curl https://openrouter.ai/api/v1/models 复核（>±10% 偏差 push hold）；7) 单测 ≥ 2 条：dry-run 6 行 diff + 幂等 no-change；8) tsc + build 通过"
+      "status": "pending",
+      "source": "BL-IMAGE-LOG-DISPLAY-FIX spec § 3.1",
+      "acceptance": "1) 新增 helper `summarizeImageUrl(url)`：data: 前缀 → `[image:{format}, {sizeKB}KB]`（解析 `^data:([^;]+);base64,` mime-type；总长度 / 1024 作 sizeKB；非标准格式 fallback `[image:unknown, NKB]`）；http(s) URL 透传；null/undefined → null；2) 修改 `src/lib/api/post-process.ts:processImageResultAsync` 第 402-413 行 responseSummary.original_urls：每个 url 走 summarizeImageUrl；3) 修改第 423 行 responseContent：同样走 summarizeImageUrl；4) 不改 image-proxy.ts；不改 API 调用方响应（rewriteImageResponseUrls 行为不变）；5) 单测 ≥ 4 条：(a) http URL 透传不变；(b) data:image/jpeg;base64,xxx (100KB) → `[image:jpeg, 100KB]` 容差 ±1KB；(c) data: 格式异常 fallback `[image:unknown, NKB]`；(d) 集成测试：mock OR /v1/chat/completions 响应（含 base64 data URL）从 fetch / fetchWithProxy 边界 mock（v0.9.4 铁律），processImageResultAsync 真实跑 → call_log.responseContent metadata 字符串 ≤ 200B + responseSummary.original_urls[0] 同样；6) tsc + build 通过"
     },
     {
-      "id": "F-BIPOR-02",
-      "title": "DB trigger 约束 — IMAGE channel 必须有有效 costPrice（call 或 token 非零）",
+      "id": "F-ILDF-02",
+      "title": "前端 log 详情页识别 http(s) image URL 渲染 <img>",
       "priority": "high",
       "executor": "generator",
-      "status": "completed",
-      "source": "BL-IMAGE-PRICING-OR-P2 spec § 3.2",
-      "acceptance": "1) Prisma migration `20260425_image_channel_pricing_trigger`：创建 `validate_image_channel_pricing()` PL/pgSQL 函数 + `trg_validate_image_channel_pricing` BEFORE INSERT OR UPDATE OF costPrice, modelId 触发器（详见 spec § 3.2 SQL）；2) 仅当目标 channel 关联 model.modality='IMAGE' 时校验，TEXT/VIDEO/AUDIO 跳过；3) 校验规则：(call.perCall>0) OR (token.inputPer1M>0 OR token.outputPer1M>0)；4) RAISE EXCEPTION 用 ERRCODE='check_violation'，错误消息含 channelId+modelId；5) Migration down 操作：DROP TRIGGER + DROP FUNCTION；6) 单测 ≥ 2 条：trigger 阻挡 IMAGE 全 0 INSERT/UPDATE / TEXT 同样改通过；7) dev DB apply 通过"
+      "status": "pending",
+      "source": "BL-IMAGE-LOG-DISPLAY-FIX spec § 3.2",
+      "acceptance": "1) 新增 helper `isImageUrl(text)`：trim 后 `^https?://` 且 (扩展名 jpg/jpeg/png/gif/webp/svg) OR 包含 `/v1/images/proxy/`；其他 false；2) 修改 `src/app/(console)/logs/[traceId]/page.tsx` 第 250-254 行块：`isImageUrl(detail.responseContent)` true → 渲染 `<img src=... alt={t('responseImage')} className=... loading='lazy' onError={hide}/>`，max-h-[600px] 控制尺寸；false → 保持 `<div>{...}</div>` 纯文本；3) i18n messages/en.json + zh-CN.json 加 key `responseImage` (`Response image` / `响应图片`)；4) 单测 ≥ 3 条：(a) https://example.com/foo.png → 渲染 img；(b) /v1/images/proxy/trc_x/0?exp=... → 渲染 img；(c) `[image:jpeg, 100KB]` 文本 → 渲染 div；5) tsc + build 通过"
     },
     {
-      "id": "F-BIPOR-03",
-      "title": "OR token 计价 call_logs.costPrice 反算单测 + smoke",
-      "priority": "high",
+      "id": "F-ILDF-03",
+      "title": "历史数据 backfill 脚本 — strip 近 30 天 call_logs 中 base64 responseContent",
+      "priority": "medium",
       "executor": "generator",
-      "status": "completed",
-      "source": "BL-IMAGE-PRICING-OR-P2 spec § 3.3",
-      "acceptance": "1) 单测：mock OR /chat/completions 返回 {usage:{prompt_tokens:1000,completion_tokens:500}} → processChatResult 链路真实跑（按 v0.9.4 mock 层级铁律：从 global.fetch 或 fetchWithProxy 边界 mock）→ call_log.costPrice = (1000×inputPer1M + 500×outputPer1M)/1e6，浮点 ±1e-6 容差；2) 反例单测：channel costPrice token 全 0 → system_log WARN + cost=0；3) 生产 smoke 准备脚本 `scripts/pricing/verify-or-image-channels-2026-04-25.ts`：调用一次最便宜的 `google/gemini-2.5-flash-image` → 查 call_logs.costPrice 计算正确；4) 单测总数 ≥ 3 条；5) tsc + build 通过"
+      "status": "pending",
+      "source": "BL-IMAGE-LOG-DISPLAY-FIX spec § 3.3",
+      "acceptance": "1) 新建 `scripts/maintenance/strip-image-base64-2026-04-26.ts`；2) WHERE 条件 `createdAt > now-30d AND (LENGTH(responseContent) > 10000 OR responseContent LIKE 'data:image/%')`；3) 复用 F-ILDF-01 的 summarizeImageUrl helper（导出 / 复用）；4) 同时处理 responseContent + responseSummary.original_urls 两个字段；5) 默认 dry-run 输出 'X rows would update / Y unchanged'；--apply 实际 UPDATE；6) 幂等（metadata 字符串重跑不变）；7) 退出前 close prisma.$disconnect() + disconnectRedis()（按 v0.9.5 铁律）；8) 单测 ≥ 1 条：dry-run 5 mixed rows（3 base64 / 2 https）→ '3 rows would update / 2 unchanged'；9) tsc + build 通过"
     },
     {
-      "id": "F-BIPOR-04",
-      "title": "model-sync buildCostPrice 回归修复（IMAGE channel sync 时跳过 costPrice 写入）",
-      "priority": "critical",
-      "executor": "generator",
-      "status": "completed",
-      "source": "BL-IMAGE-PRICING-OR-P2 mid-impl 裁决 2026-04-25：见 docs/adjudications/2026-04-25-or-p2-buildcostprice-regression.md。生产实证 P1 F-BAX-08 apply 完成后被 04:00 model-sync 冲回 costPrice=0。",
-      "acceptance": "1) 修改 `src/lib/sync/model-sync.ts:100-109 buildCostPrice`：IMAGE modality 返回 null（不再硬编码 {perCall:0}）；2) 第 270-280 行调用方：`updateData` 构造时若 `costPrice === null` 则不加入 data 字段（保留 channel 现有 costPrice 不变）；3) 第 282-290 行 createMany 路径保持原行为（新 IMAGE channel 默认 {perCall:0,unit:'call'}，靠 F-BIPOR-02 trigger 在后续 UPDATE 时拦截）；4) 不涉及 schema 改动；5) 单测 ≥ 3 条：(a) sync 已存在 IMAGE channel 且 costPrice 非零 → sync 后 costPrice 不变；(b) sync TEXT channel → 按 token 公式更新；(c) sync 创建新 IMAGE channel → 默认 {perCall:0,unit:'call'} 进 createMany；6) tsc + build + vitest 全过；7) 验收前 console.log 标注 acceptance 是 R1 方案（IMAGE 跳过 costPrice 写入，保留运营手设值）"
-    },
-    {
-      "id": "F-BIPOR-05",
-      "title": "BL-IMAGE-PRICING-OR-P2 全量验收（含 model-sync 回归保护）",
+      "id": "F-ILDF-04",
+      "title": "BL-IMAGE-LOG-DISPLAY-FIX 全量验收",
       "priority": "critical",
       "executor": "codex",
-      "status": "completed",
-      "source": "BL-IMAGE-PRICING-OR-P2",
-      "acceptance": "构建（4 项）：1) npm run build 通过；2) npx tsc --noEmit 通过；3) npx vitest run 全过（新 ≥ 8 条 = F-BIPOR-03 5+ + F-BIPOR-04 3+；预期总数 381+）；4) `npx prisma migrate diff` 对 20260425_image_channel_pricing_trigger 生产 dry-run 通过。数据正确性（5 项）：5) 生产执行 `npx tsx scripts/pricing/fix-or-image-channels-2026-04-25.ts --apply` 退出 0；6) 抽查 6 条 OR channel：costPrice.unit='token' + inputPer1M/outputPer1M 与 spec § 3.1 表一致；7) sellPrice / costPrice 比值 1.19-1.21（浮点 ±1% 容差）；8) 重跑脚本 'no change' 幂等；9) 生产 trigger 反例：`UPDATE channels SET costPrice='{\"unit\":\"call\",\"perCall\":0}' WHERE id=<IMAGE channel>` → check_violation；同样改 TEXT channel → 通过。生产 smoke（2 项）：10) 触发 `google/gemini-2.5-flash-image` 一次 image 调用 → call_logs.costPrice > 0 + 数值匹配 (prompt_tokens×0.30 + completion_tokens×2.50)/1e6 公式；11) 全库 IMAGE channel 查询：所有 perCall>0 OR token 至少一个 per1M>0（无遗漏）。回归保护（1 项，裁决新增）：12) 手动触发 model-sync 一次（POST /api/admin/sync-models 或等 daily sync）→ 重查 6 条 OR + 30 条 P1 image channel costPrice：所有非零字段保持，**不被 sync 冲回 0**（路径 X 关键回归保护）。报告（1 项）：13) 生成 signoff docs/test-reports/BL-IMAGE-PRICING-OR-P2-signoff-2026-04-2X.md。"
+      "status": "pending",
+      "source": "BL-IMAGE-LOG-DISPLAY-FIX",
+      "acceptance": "构建（4 项）：1) npm run build 通过；2) npx tsc --noEmit 通过；3) npx vitest run 全过（新增 ≥ 8 条测试，预期总数 398+）；4) 脚本本地 dry-run 输出符合预期。数据正确性（5 项）：5) 生产触发一次 OR image 调用（google/gemini-2.5-flash-image）→ 查 call_logs：responseContent ≤ 200B 且形如 `[image:{fmt}, {n}KB]`；responseSummary.original_urls[0] 同样 metadata；6) 同时调一次 volcengine seedream-3 → responseContent 仍是 https URL（透传不变）；7) 客户端 API 响应（curl 捕获）：OR 调用仍返回完整 base64 data URL（透传保护，不影响调用方）；8) 生产执行 `npx tsx scripts/maintenance/strip-image-base64-2026-04-26.ts --apply` 退出 0；输出 'X rows updated'；9) 重跑脚本输出 '0 rows would update'（幂等）。前端（2 项）：10) 浏览器 /logs/<seedream-3 traceId> → `<img>` 预览 https URL；11) 浏览器 /logs/<OR traceId after strip> → 看到 metadata 文本而非 base64 乱码；页面渲染秒开。报告（1）：12) 生成 signoff docs/test-reports/BL-IMAGE-LOG-DISPLAY-FIX-signoff-2026-04-2X.md。"
     }
   ]
 }
