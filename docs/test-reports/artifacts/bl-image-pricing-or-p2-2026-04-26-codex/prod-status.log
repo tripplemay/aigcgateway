@@ -1,0 +1,18 @@
+278b18c
+278b18c fix(BL-IMAGE-PRICING-OR-P2 round 2 Path A): image-via-chat token cost + script cleanup + endpoint fix
+?? .env.production
+?? .env.production.bak-crit6-20260417_093604
+?? docs/test-reports/artifacts/bl-image-pricing-or-p2-2026-04-26-fix-round-2/
+?? ecosystem.config.cjs
+?? scripts/fix-deepseek-v4-prod.ts
+┌────┬──────────────────────┬─────────────┬─────────┬─────────┬──────────┬────────┬──────┬───────────┬──────────┬──────────┬──────────┬──────────┐
+│ id │ name                 │ namespace   │ version │ mode    │ pid      │ uptime │ ↺    │ status    │ cpu      │ mem      │ user     │ watching │
+├────┼──────────────────────┼─────────────┼─────────┼─────────┼──────────┼────────┼──────┼───────────┼──────────┼──────────┼──────────┼──────────┤
+│ 0  │ aigc-gateway         │ default     │ 0.1.0   │ cluster │ 1873165  │ 8m     │ 7    │ online    │ 0%       │ 153.6mb  │ tripple… │ disabled │
+│ 1  │ aigc-gateway         │ default     │ 0.1.0   │ cluster │ 1873166  │ 8m     │ 7    │ online    │ 0%       │ 161.4mb  │ tripple… │ disabled │
+│ 2  │ aigc-gateway         │ default     │ 0.1.0   │ cluster │ 1873179  │ 8m     │ 7    │ online    │ 0%       │ 116.2mb  │ tripple… │ disabled │
+│ 3  │ aigc-gateway         │ default     │ 0.1.0   │ cluster │ 1873180  │ 8m     │ 7    │ online    │ 0%       │ 224.5mb  │ tripple… │ disabled │
+│ 10 │ kolmatrix            │ default     │ 0.1.0   │ cluster │ 1512660  │ 2D     │ 10   │ online    │ 0%       │ 257.9mb  │ tripple… │ disabled │
+│ 11 │ kolmatrix            │ default     │ 0.1.0   │ cluster │ 1512675  │ 2D     │ 10   │ online    │ 0%       │ 258.1mb  │ tripple… │ disabled │
+│ 12 │ kolmatrix-staging    │ default     │ 0.1.0   │ fork    │ 1587966  │ 2D     │ 12   │ online    │ 0%       │ 256.9mb  │ tripple… │ disabled │
+└────┴──────────────────────┴─────────────┴─────────┴─────────┴──────────┴────────┴──────┴───────────┴──────────┴──────────┴──────────┴──────────┘

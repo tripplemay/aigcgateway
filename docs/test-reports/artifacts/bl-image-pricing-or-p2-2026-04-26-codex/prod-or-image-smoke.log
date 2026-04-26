@@ -1,0 +1,7 @@
+=== F-BIPOR-03 OR pricing smoke (https://aigc.guangai.ai) ===
+alias=google/gemini-2.5-flash-image pricing=(0.3/2.5 USD per 1M)
+[redis] connected
+http=200 traceId=trc_h88lhsxymvqw8xmibvhocova
+call_log: model=google/gemini-2.5-flash-image prompt=6 completion=1294 costPrice=0.0032368
+[PASS] costPrice=0.0032368 matches formula (expected=0.0032368, diff=0)
+EXIT_CODE=0

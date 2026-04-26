@@ -1,0 +1,120 @@
+login=ok
+HTTP/2 202 
+server: nginx/1.18.0 (Ubuntu)
+date: Sun, 26 Apr 2026 08:34:45 GMT
+content-type: application/json
+vary: RSC, Next-Router-State-Tree, Next-Router-Prefetch
+
+{"message":"Sync started","status":"in_progress"}
+
+--- wait 35s ---
+{
+  "afterSyncCheckAt": "2026-04-26T08:35:20.463Z",
+  "orRows": [
+    {
+      "id": "cmnpqum5m002bbnxcr4b4v3ew",
+      "costPrice": {
+        "unit": "token",
+        "inputPer1M": 0.5,
+        "outputPer1M": 3
+      },
+      "sellPrice": {
+        "unit": "token",
+        "inputPer1M": 0.6,
+        "outputPer1M": 3.6
+      },
+      "updatedAt": "2026-04-26T08:34:47.797Z",
+      "model": {
+        "name": "google/gemini-3.1-flash-image-preview"
+      }
+    },
+    {
+      "id": "cmnpqumjc006wbnxceftbpqv3",
+      "costPrice": {
+        "unit": "token",
+        "inputPer1M": 2,
+        "outputPer1M": 12
+      },
+      "sellPrice": {
+        "unit": "token",
+        "inputPer1M": 2.4,
+        "outputPer1M": 14.4
+      },
+      "updatedAt": "2026-04-26T08:34:47.814Z",
+      "model": {
+        "name": "google/gemini-3-pro-image-preview"
+      }
+    },
+    {
+      "id": "cmnpqumn40088bnxcn4z62t2x",
+      "costPrice": {
+        "unit": "token",
+        "inputPer1M": 2.5,
+        "outputPer1M": 2
+      },
+      "sellPrice": {
+        "unit": "token",
+        "inputPer1M": 3,
+        "outputPer1M": 2.4
+      },
+      "updatedAt": "2026-04-26T08:34:47.776Z",
+      "model": {
+        "name": "openai/gpt-5-image-mini"
+      }
+    },
+    {
+      "id": "cmnpqumo4008kbnxck2puju4i",
+      "costPrice": {
+        "unit": "token",
+        "inputPer1M": 10,
+        "outputPer1M": 10
+      },
+      "sellPrice": {
+        "unit": "token",
+        "inputPer1M": 12,
+        "outputPer1M": 12
+      },
+      "updatedAt": "2026-04-26T08:34:47.786Z",
+      "model": {
+        "name": "openai/gpt-5-image"
+      }
+    },
+    {
+      "id": "cmnpqumpb008zbnxc2t47ollt",
+      "costPrice": {
+        "unit": "token",
+        "inputPer1M": 0.3,
+        "outputPer1M": 2.5
+      },
+      "sellPrice": {
+        "unit": "token",
+        "inputPer1M": 0.36,
+        "outputPer1M": 3
+      },
+      "updatedAt": "2026-04-26T08:34:47.787Z",
+      "model": {
+        "name": "google/gemini-2.5-flash-image"
+      }
+    },
+    {
+      "id": "cmo9iyi2w0buxbnvxe4c1aaqt",
+      "costPrice": {
+        "unit": "token",
+        "inputPer1M": 8,
+        "outputPer1M": 15
+      },
+      "sellPrice": {
+        "unit": "token",
+        "inputPer1M": 9.6,
+        "outputPer1M": 18
+      },
+      "updatedAt": "2026-04-26T08:34:47.771Z",
+      "model": {
+        "name": "openai/gpt-5.4-image-2"
+      }
+    }
+  ],
+  "imageCount": 39,
+  "invalidImageCount": 0,
+  "invalidSample": []
+}

@@ -43,7 +43,7 @@
       "title": "BL-IMAGE-PRICING-OR-P2 全量验收（含 model-sync 回归保护）",
       "priority": "critical",
       "executor": "codex",
-      "status": "pending",
+      "status": "completed",
       "source": "BL-IMAGE-PRICING-OR-P2",
       "acceptance": "构建（4 项）：1) npm run build 通过；2) npx tsc --noEmit 通过；3) npx vitest run 全过（新 ≥ 8 条 = F-BIPOR-03 5+ + F-BIPOR-04 3+；预期总数 381+）；4) `npx prisma migrate diff` 对 20260425_image_channel_pricing_trigger 生产 dry-run 通过。数据正确性（5 项）：5) 生产执行 `npx tsx scripts/pricing/fix-or-image-channels-2026-04-25.ts --apply` 退出 0；6) 抽查 6 条 OR channel：costPrice.unit='token' + inputPer1M/outputPer1M 与 spec § 3.1 表一致；7) sellPrice / costPrice 比值 1.19-1.21（浮点 ±1% 容差）；8) 重跑脚本 'no change' 幂等；9) 生产 trigger 反例：`UPDATE channels SET costPrice='{\"unit\":\"call\",\"perCall\":0}' WHERE id=<IMAGE channel>` → check_violation；同样改 TEXT channel → 通过。生产 smoke（2 项）：10) 触发 `google/gemini-2.5-flash-image` 一次 image 调用 → call_logs.costPrice > 0 + 数值匹配 (prompt_tokens×0.30 + completion_tokens×2.50)/1e6 公式；11) 全库 IMAGE channel 查询：所有 perCall>0 OR token 至少一个 per1M>0（无遗漏）。回归保护（1 项，裁决新增）：12) 手动触发 model-sync 一次（POST /api/admin/sync-models 或等 daily sync）→ 重查 6 条 OR + 30 条 P1 image channel costPrice：所有非零字段保持，**不被 sync 冲回 0**（路径 X 关键回归保护）。报告（1 项）：13) 生成 signoff docs/test-reports/BL-IMAGE-PRICING-OR-P2-signoff-2026-04-2X.md。"
     }

@@ -1,0 +1,12 @@
+=== F-BIPOR-01 OR image channel pricing fix (APPLY) ===
+[hint] make sure you've cross-checked OR /api/v1/models — abort if pricing has drifted >10% since 2026-04-25.
+[redis] connected
+[no change] google/gemini-2.5-flash-image (cmnpqumpb008zbnxc2t47ollt)
+[no change] google/gemini-3-pro-image-preview (cmnpqumjc006wbnxceftbpqv3)
+[no change] google/gemini-3.1-flash-image-preview (cmnpqum5m002bbnxcr4b4v3ew)
+[no change] openai/gpt-5-image (cmnpqumo4008kbnxck2puju4i)
+[no change] openai/gpt-5-image-mini (cmnpqumn40088bnxcn4z62t2x)
+[no change] openai/gpt-5.4-image-2 (cmo9iyi2w0buxbnvxe4c1aaqt)
+
+Summary: 6 channels inspected (0 updated).
+EXIT_CODE=0

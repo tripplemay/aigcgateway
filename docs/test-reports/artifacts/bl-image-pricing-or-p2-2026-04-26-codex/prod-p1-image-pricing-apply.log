@@ -1,0 +1,39 @@
+=== F-BAX-08 image channel pricing fix (APPLY) ===
+[redis] connected
+[no change] volcengine/seedream-3.0 (cmnpquy5m00rwbnxcc0omrhet)
+[no change] volcengine/seedream-4.0 (cmnpquy5y00rzbnxcxuixo8q8)
+[no change] volcengine/seedream-4.5 (cmnpquy6c00s2bnxciwqef9po)
+[no change] qwen/qwen-image-2.0 (cmnukegio0039bnsef0msh0bb)
+[no change] qwen/qwen-image-2.0-2026-03-03 (cmnukegh8002wbnsedae7k05n)
+[no change] qwen/qwen-image-2.0-pro (cmnukeghk0031bnsevhekxg4x)
+[no change] qwen/qwen-image-2.0-pro-2026-03-03 (cmnukegi40035bnsegwbx3ueq)
+[no change] qwen/qwen-image-2.0-pro-2026-04-22 (cmoca6bxz0001bnsmjykljq2k)
+[no change] qwen/qwen-image-edit-max (cmnukegrj006pbnse7j3gtb0d)
+[no change] qwen/qwen-image-edit-max-2026-01-16 (cmnukegr8006kbnsen8lptjys)
+[no change] qwen/qwen-image-edit-plus (cmnukegya0099bnsefir3brxy)
+[no change] qwen/qwen-image-edit-plus-2025-10-30 (cmnukegxz0095bnsexkx0poni)
+[no change] qwen/qwen-image-edit-plus-2025-12-15 (cmnukegu2007nbnses5kt4rbd)
+[no change] qwen/qwen-image-max (cmnukegss0076bnse64juomn7)
+[no change] qwen/qwen-image-max-2025-12-30 (cmnukegsj0072bnsecdbcdwgj)
+[no change] qwen/qwen-image-plus-2026-01-09 (cmnukegrt006tbnse1dnwjede)
+[no change] qwen/wan2.7-image (cmnukegfk002gbnsewzxcheko)
+[no change] qwen/wan2.7-image-pro (cmnukegez0029bnse0d9akksv)
+[no change] qwen/z-image-turbo (cmnukegtg007ebnse2ikscfku)
+[no change] siliconflow/qwen/qwen-image (cmnujtxfs00jmbnrzj2c9t6tp)
+[no change] siliconflow/qwen/qwen-image-edit (cmnujtxfg00jjbnrz0slsyj1j)
+[no change] siliconflow/qwen/qwen-image-edit-2509 (cmnujtxf300jgbnrzuj14zlnp)
+[no change] openai/gemini-3-pro-image-preview (cmnpqv0mq013sbnxc9vjqcoyz)
+[no change] openai/gemini-3.1-flash-image-preview (cmnpqv0m5013mbnxc1qhphm0a)
+[no change] openai/gpt-image-1 (cmnpqv0mf013pbnxcysr06pxa)
+[no change] openai/gpt-image-1-mini (cmnpqv0nd013ybnxcex3iuglj)
+[no change] openai/gpt-image-1.5 (cmnpqv0n2013vbnxcui7y73rp)
+[no change] openai/gpt-image-2 (cmoayey2y0mi7bnvxr667x1z6)
+[no change] openai/gpt-image-2-ca (cmoayey2x0mi6bnvxmydm6jat)
+[no change] zhipu/cogview-3 (cmnujsns900fhbnrzmnf793q2)
+[no change] model gpt-4.1-vision modality already TEXT
+[no change] model gpt-4o-vision modality already TEXT
+[no change] model gpt-4o-mini-vision modality already TEXT
+[no change] model glm-4v modality already TEXT
+
+Summary: 30 channels inspected (0 updated); 4 models inspected (0 updated).
+EXIT_CODE=0

@@ -4,36 +4,24 @@ description: AIGC Gateway 当前状态快照（覆盖写，≤30 行）
 type: project
 ---
 ## 当前批次
-- **BL-IMAGE-PRICING-OR-P2：`reverifying` fix_round=2 完成**（4/5 generator + Codex 13 项验收 pending）
+- **BL-IMAGE-PRICING-OR-P2：`done` @ 2026-04-26 08:40 UTC**（Codex signoff PASS）
 - 上一批次 BL-BILLING-AUDIT-EXT-P2：done @ 2026-04-25 12:15
 
-## fix_round 2 处理 5 项 FAIL（Path A 全修）
-- #1 32/39 IMAGE 残留 0 → 部署后 ssh 重跑 P1 fix-image-channels-2026-04-24.ts --apply（脚本幂等，无代码改动）
-- #2 image-via-chat token cost calc → ImageGenerationResponse 加 usage / imageViaChat 5 路 return propagate / processImageResultAsync 据 costPrice.unit 分支 / call_log 写入 promptTokens/completionTokens/totalTokens
-- #3 verify alias → google/gemini-2.5-flash-image（OR canonical 全名）
-- #4 pricing CLI Redis hang → redis.ts disconnectRedis() helper；5 个脚本调用
-- #5 endpoint → /api/admin/sync-models（spec/adjudication/features 全改）
+## OR-P2 签收结论
+- 生产 HEAD `278b18c`，PM2 `aigc-gateway` 在线
+- 本地 `npm run build` PASS；`npx tsc --noEmit` PASS；`npx vitest run` 390 PASS
+- 生产 migration transaction dry-run PASS；DB trigger IMAGE zero update blocked / TEXT zero update passed
+- P1 image pricing restore script PASS：30 channels inspected，exit 0
+- OR 6 条 token-priced image channel PASS：costPrice/sellPrice 匹配 spec，脚本幂等 exit 0
+- 全库 IMAGE scan PASS：`imageCount=39`，`invalidImageCount=0`
+- 真实 image smoke PASS：`google/gemini-2.5-flash-image` costPrice=0.0032368，公式 diff=0
+- model-sync 回归 PASS：`POST /api/admin/sync-models` 后 6 OR + 全部 IMAGE channel costPrice 保持有效
 
-## 验证（本地）
-- vitest 390 PASS（+5 image-via-chat-token-cost）/ tsc / build 全过
-
-## Codex F-BIPOR-05 13 项验收路径（reverifying）
-- #1-#11 部署后 + apply + 抽查 + smoke
-- #12 model-sync 回归保护：POST /api/admin/sync-models 后 36+ image channel costPrice 全部保持
-- #13 signoff
-
-## 生产部署链
-1. GitHub Actions deploy fix_round_2 commits
-2. ssh: P1 script --apply 恢复 30 条 P1 定价
-3. POST /api/admin/sync-models 触发 sync → 重查全部保持
-4. verify-or-image-channels-2026-04-25.ts smoke 验证 cost > 0 + 公式匹配
-5. trigger 反例 SQL
-
-## 决策（继承 P1/P2）
-- USD 口径 + sellPrice = costPrice × 1.2
-- 数据源 OR /api/v1/models canonical
-- 不修复 gpt-image-2 / -ca（保守填值沿用）
-- 不回填历史 call_logs
+## 状态文件
+- `progress.json`: status=`done`，docs.signoff 已填
+- `features.json`: F-BIPOR-01~05 全部 completed
+- Signoff: `docs/test-reports/BL-IMAGE-PRICING-OR-P2-signoff-2026-04-26.md`
+- Artifacts: `docs/test-reports/artifacts/bl-image-pricing-or-p2-2026-04-26-codex/`
 
 ## 后续 backlog
 - BL-IMAGE-LOG-DISPLAY-FIX (103)：base64 转存对象存储 + 前端图片预览（OR-P2 done 后启动）

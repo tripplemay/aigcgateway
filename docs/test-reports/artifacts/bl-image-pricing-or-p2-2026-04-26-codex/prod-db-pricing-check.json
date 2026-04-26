@@ -1,0 +1,134 @@
+{
+  "checkedAt": "2026-04-26T08:33:08.369Z",
+  "orChannels": [
+    {
+      "id": "cmnpqum5m002bbnxcr4b4v3ew",
+      "model": "google/gemini-3.1-flash-image-preview",
+      "modality": "IMAGE",
+      "costPrice": {
+        "unit": "token",
+        "inputPer1M": 0.5,
+        "outputPer1M": 3
+      },
+      "sellPrice": {
+        "unit": "token",
+        "inputPer1M": 0.6,
+        "outputPer1M": 3.6
+      },
+      "expected": [
+        0.5,
+        3
+      ],
+      "costMatches": true,
+      "sellRatioOk": true
+    },
+    {
+      "id": "cmnpqumjc006wbnxceftbpqv3",
+      "model": "google/gemini-3-pro-image-preview",
+      "modality": "IMAGE",
+      "costPrice": {
+        "unit": "token",
+        "inputPer1M": 2,
+        "outputPer1M": 12
+      },
+      "sellPrice": {
+        "unit": "token",
+        "inputPer1M": 2.4,
+        "outputPer1M": 14.4
+      },
+      "expected": [
+        2,
+        12
+      ],
+      "costMatches": true,
+      "sellRatioOk": true
+    },
+    {
+      "id": "cmnpqumn40088bnxcn4z62t2x",
+      "model": "openai/gpt-5-image-mini",
+      "modality": "IMAGE",
+      "costPrice": {
+        "unit": "token",
+        "inputPer1M": 2.5,
+        "outputPer1M": 2
+      },
+      "sellPrice": {
+        "unit": "token",
+        "inputPer1M": 3,
+        "outputPer1M": 2.4
+      },
+      "expected": [
+        2.5,
+        2
+      ],
+      "costMatches": true,
+      "sellRatioOk": true
+    },
+    {
+      "id": "cmnpqumo4008kbnxck2puju4i",
+      "model": "openai/gpt-5-image",
+      "modality": "IMAGE",
+      "costPrice": {
+        "unit": "token",
+        "inputPer1M": 10,
+        "outputPer1M": 10
+      },
+      "sellPrice": {
+        "unit": "token",
+        "inputPer1M": 12,
+        "outputPer1M": 12
+      },
+      "expected": [
+        10,
+        10
+      ],
+      "costMatches": true,
+      "sellRatioOk": true
+    },
+    {
+      "id": "cmnpqumpb008zbnxc2t47ollt",
+      "model": "google/gemini-2.5-flash-image",
+      "modality": "IMAGE",
+      "costPrice": {
+        "unit": "token",
+        "inputPer1M": 0.3,
+        "outputPer1M": 2.5
+      },
+      "sellPrice": {
+        "unit": "token",
+        "inputPer1M": 0.36,
+        "outputPer1M": 3
+      },
+      "expected": [
+        0.3,
+        2.5
+      ],
+      "costMatches": true,
+      "sellRatioOk": true
+    },
+    {
+      "id": "cmo9iyi2w0buxbnvxe4c1aaqt",
+      "model": "openai/gpt-5.4-image-2",
+      "modality": "IMAGE",
+      "costPrice": {
+        "unit": "token",
+        "inputPer1M": 8,
+        "outputPer1M": 15
+      },
+      "sellPrice": {
+        "unit": "token",
+        "inputPer1M": 9.6,
+        "outputPer1M": 18
+      },
+      "expected": [
+        8,
+        15
+      ],
+      "costMatches": true,
+      "sellRatioOk": true
+    }
+  ],
+  "imageCount": 39,
+  "invalidImageCount": 0,
+  "invalidImage": []
+}
