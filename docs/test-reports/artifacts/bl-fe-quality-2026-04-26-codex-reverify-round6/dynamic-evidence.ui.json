@@ -1,0 +1,29 @@
+{
+  "dashboard": {
+    "url": "http://localhost:3099/dashboard",
+    "hasAppError": false,
+    "hasDashboardZh": false
+  },
+  "tc10_error_zh": {
+    "pass": true,
+    "sample": "token\nAIGC Gateway\nALGORITHMIC ATELIER\nfolder\n无项目\nunfold_more\nadd\n新建项目\n\n核心\n\nfolder_managed\n项目\nsmart_toy\n模型\nextension\n模板\nbolt\n动作\n\n开发\n\nkey\nAPI 密钥\nrocket_launch\n快速开始\nelectrical_services\nMCP 配置\nmenu_book\n文档\n\n数据\n\nterminal\n日志\nbar_chart\n用量\npayments\n计费\nsettings\n设置\n\n模型管理\n\nlink\n模型别名\nhub\n模型与通道\nsettings_input_c"
+  },
+  "tc11_models_zh": {
+    "pass": false,
+    "hasFree": true,
+    "hasDegraded": false
+  },
+  "tc12_notification_zh": {
+    "pass": false,
+    "relativeMatches": []
+  },
+  "failedRequests": [],
+  "consoleErrors": [
+    "Failed to fetch RSC payload for http://localhost:3099/keys. Falling back to browser navigation. TypeError: Failed to fetch\n    at f (http://localhost:3099/_next/static/chunks/2117-ccd960d7d8c492d8.js:1:45578)\n    at http://localhost:3099/_next/static/chunks/2117-ccd960d7d8c492d8.js:1:59129\n    at Object.u [as task] (http://localhost:3099/_next/static/chunks/2117-ccd960d7d8c492d8.js:1:31933)\n    at c.s (http://localhost:3099/_next/static/chunks/2117-ccd960d7d8c492d8.js:1:32638)\n    at c.enqueue (http://localhost:3099/_next/static/chunks/2117-ccd960d7d8c492d8.js:1:32063)\n    at s (http://localhost:3099/_next/static/chunks/2117-ccd960d7d8c492d8.js:1:59092)\n    at i (http://localhost:3099/_next/static/chunks/2117-ccd960d7d8c492d8.js:1:58632)\n    at a (http://localhost:3099/_next/static/chunks/2117-ccd960d7d8c492d8.js:1:65458)\n    at f (http://localhost:3099/_next/static/chunks/2117-ccd960d7d8c492d8.js:1:75372)\n    at Object.action (http://localhost:3099/_next/static/chunks/2117-ccd960d7d8c492d8.js:2:7102)",
+    "Failed to fetch RSC payload for http://localhost:3099/quickstart. Falling back to browser navigation. TypeError: Failed to fetch\n    at f (http://localhost:3099/_next/static/chunks/2117-ccd960d7d8c492d8.js:1:45578)\n    at http://localhost:3099/_next/static/chunks/2117-ccd960d7d8c492d8.js:1:59129\n    at Object.u [as task] (http://localhost:3099/_next/static/chunks/2117-ccd960d7d8c492d8.js:1:31933)\n    at c.s (http://localhost:3099/_next/static/chunks/2117-ccd960d7d8c492d8.js:1:32638)\n    at c.enqueue (http://localhost:3099/_next/static/chunks/2117-ccd960d7d8c492d8.js:1:32063)\n    at s (http://localhost:3099/_next/static/chunks/2117-ccd960d7d8c492d8.js:1:59092)\n    at i (http://localhost:3099/_next/static/chunks/2117-ccd960d7d8c492d8.js:1:58632)\n    at a (http://localhost:3099/_next/static/chunks/2117-ccd960d7d8c492d8.js:1:65458)\n    at f (http://localhost:3099/_next/static/chunks/2117-ccd960d7d8c492d8.js:1:75372)\n    at Object.action (http://localhost:3099/_next/static/chunks/2117-ccd960d7d8c492d8.js:2:7102)",
+    "Failed to fetch RSC payload for http://localhost:3099/actions. Falling back to browser navigation. TypeError: Failed to fetch\n    at f (http://localhost:3099/_next/static/chunks/2117-ccd960d7d8c492d8.js:1:45578)\n    at http://localhost:3099/_next/static/chunks/2117-ccd960d7d8c492d8.js:1:59129\n    at Object.u [as task] (http://localhost:3099/_next/static/chunks/2117-ccd960d7d8c492d8.js:1:31933)\n    at c.s (http://localhost:3099/_next/static/chunks/2117-ccd960d7d8c492d8.js:1:32638)\n    at c.enqueue (http://localhost:3099/_next/static/chunks/2117-ccd960d7d8c492d8.js:1:32063)\n    at s (http://localhost:3099/_next/static/chunks/2117-ccd960d7d8c492d8.js:1:59092)\n    at i (http://localhost:3099/_next/static/chunks/2117-ccd960d7d8c492d8.js:1:58632)\n    at a (http://localhost:3099/_next/static/chunks/2117-ccd960d7d8c492d8.js:1:65458)\n    at f (http://localhost:3099/_next/static/chunks/2117-ccd960d7d8c492d8.js:1:75372)\n    at Object.action (http://localhost:3099/_next/static/chunks/2117-ccd960d7d8c492d8.js:2:7102)",
+    "Failed to fetch RSC payload for http://localhost:3099/models. Falling back to browser navigation. TypeError: network error",
+    "Failed to fetch RSC payload for http://localhost:3099/templates. Falling back to browser navigation. TypeError: network error",
+    "Error: Test: trigger (console)/error.tsx boundary\n    at t (http://localhost:3099/_next/static/chunks/app/(console)/error-test/page-2d2fea565a15f415.js:1:182)\n    at rE (http://localhost:3099/_next/static/chunks/fd9d1056-a39cfe73956b35a9.js:1:40344)\n    at iZ (http://localhost:3099/_next/static/chunks/fd9d1056-a39cfe73956b35a9.js:1:117029)\n    at ia (http://localhost:3099/_next/static/chunks/fd9d1056-a39cfe73956b35a9.js:1:95165)\n    at http://localhost:3099/_next/static/chunks/fd9d1056-a39cfe73956b35a9.js:1:94987\n    at il (http://localhost:3099/_next/static/chunks/fd9d1056-a39cfe73956b35a9.js:1:94994)\n    at oJ (http://localhost:3099/_next/static/chunks/fd9d1056-a39cfe73956b35a9.js:1:92350)\n    at oZ (http://localhost:3099/_next/static/chunks/fd9d1056-a39cfe73956b35a9.js:1:91769)\n    at MessagePort.M (http://localhost:3099/_next/static/chunks/2117-ccd960d7d8c492d8.js:1:85060)"
+  ]
+}

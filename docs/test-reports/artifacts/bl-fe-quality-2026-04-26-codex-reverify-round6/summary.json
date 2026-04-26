@@ -1,0 +1,26 @@
+{
+  "vitest": {
+    "files": "60",
+    "tests": "414"
+  },
+  "patch400": true,
+  "lighthouseA11y": 100,
+  "tc10": {
+    "pass": true,
+    "sample": "token\\nAIGC Gateway\\nALGORITHMIC ATELIER\\nfolder\\n无项目\\nunfold_more\\nadd\\n新建项目"
+  },
+  "tc11": {
+    "pass": true,
+    "hasFree": true,
+    "hasDegraded": true
+  },
+  "tc12": {
+    "pass": true,
+    "relativeMatches": [
+      "5分钟前",
+      "2小时前"
+    ]
+  },
+  "failedReqCount": 0,
+  "consoleErrorCount": 3
+}

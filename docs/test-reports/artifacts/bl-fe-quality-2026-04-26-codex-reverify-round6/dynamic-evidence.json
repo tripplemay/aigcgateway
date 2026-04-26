@@ -1,0 +1,22 @@
+{
+  "dashboard": {
+    "url": "http://localhost:3099/login?redirect=%2Fdashboard",
+    "hasAppError": false,
+    "hasDashboardZh": false
+  },
+  "tc10_error_zh": {
+    "pass": false,
+    "sample": ""
+  },
+  "tc11_models_zh": {
+    "pass": false,
+    "hasFree": false,
+    "hasDegraded": false
+  },
+  "tc12_notification_zh": {
+    "pass": false,
+    "relativeMatches": []
+  },
+  "failedRequests": [],
+  "consoleErrors": []
+}
