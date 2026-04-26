@@ -1,11 +1,11 @@
 {
-  "status": "verifying",
+  "status": "done",
   "user_goal": "BL-DEV-PORT-3199 — 解决两个项目共用 :3099 的本机冲突。Codex 测试环境与所有 scripts/tests/docs 默认 BASE_URL 由 3099 全量替换为 3199；本机 .env 已由 Planner 单独改完。",
   "total_features": 2,
-  "completed_features": 1,
+  "completed_features": 2,
   "fix_rounds": 0,
   "current_sprint": "BL-DEV-PORT-3199",
-  "last_updated": "2026-04-26T23:10:00.000Z",
+  "last_updated": "2026-04-26T23:45:00.000Z",
   "reference_docs": [
     "docs/specs/BL-DEV-PORT-3199-spec.md"
   ],
@@ -13,7 +13,7 @@
   "docs": {
     "spec": "docs/specs/BL-DEV-PORT-3199-spec.md",
     "test_cases": null,
-    "signoff": null,
+    "signoff": "docs/test-reports/BL-DEV-PORT-3199-signoff-2026-04-26.md",
     "framework_reviewed": false
   },
   "evaluator_feedback": null,
@@ -79,6 +79,6 @@
   "session_notes": {
     "Kimi-batch-launch": "BL-DEV-PORT-3199 启动 @ 2026-04-26 15:00。\n\n背景：本机两个项目同时跑测试，本项目 dev (.env) + Codex test (codex-env.sh) 都用 :3099 → 与另一项目互相干扰。\n\n已完成：\n1) Planner 本机将 .env PORT 改 3000 → 3199（gitignore 文件，不入仓）\n2) 写完 spec docs/specs/BL-DEV-PORT-3199-spec.md\n3) features.json 写入 F-DP-01（generator 字面量替换）+ F-DP-02（codex 验收）\n4) progress.json 状态 done → building，generator_handoff 已填详细 8 步操作\n\n下一步：本会话身份固定 Planner，无法直接执行 F-DP-01。等待 Generator session（Johnsong / Mark / Richard 任一）pull main 后按 generator_handoff 8 步执行。\n\n范围说明：包含 ~50 个 scripts/test/*-YYYY-MM-DD.ts 历史 e2e 脚本默认值，避免日后回归再手动覆盖 BASE_URL。排除 docs/test-cases/test-reports/audits 历史报告（事实记录）。",
     "Kimi-generator": "F-DP-01 完成 @ 2026-04-26 23:10。\n\n执行：8 步全部 PASS。\n1) 预扫描 83 文件\n2) sed -i '' 批量替换（commit 显示 82 文件，差额 1 是 untracked round7 tsx 同样被 sed 改了但未纳入 commit）\n3) 关键文件 codex-env.sh PORT=3199 / codex-setup.sh lsof+echo / codex-wait.sh URL 全部正确\n4) grep 反向验证 0 行残留\n5) git diff 抽检 5 文件全部 URL/端口语境无误命中\n6) tsc 0 错误 / vitest 60 files 414 tests PASS / npm run build PASS\n7) 启动冒烟：source codex-env.sh + node standalone server.js → :3199 ready；curl --noproxy '*' /login=200 + /v1/models=200\n8) 单 commit 319ebbc，82 文件 102 增 102 删（精准 git add -u，未带入 56 个无关 untracked）\n\n范围偏差说明：\n- handoff scope 写 ~83 文件，实际 commit 82 文件。差额 1 是 scripts/test/bl-fe-quality-round7-dynamic-evidence-2026-04-19.tsx（已 sed 改成 :3199 但保持 untracked，因为这是上次 BL-FE-QUALITY round7 漏推文件，不属于本批次 scope）。\n- 工作站本身 http_proxy=127.0.0.1:7890 拦截了首次 curl（502）— 用 --noproxy '*' 绕过后 200 PASS。Codex 验收时若本机也走代理需注意此点。\n\n下一步：交给 Codex 完整跑 codex-setup.sh + codex-wait.sh + curl + 写 signoff 报告。Codex 走完整流程才能验证 npm ci / prisma migrate / build 链路也无端口残留。",
-    "Reviewer": null
+    "Reviewer": "verifying @ 2026-04-26：完成 BL-DEV-PORT-3199 验收（grep/tsc/build/vitest/setup/wait/curl）。F-DP-02 通过，已写 signoff 并置 done。"
   }
 }
