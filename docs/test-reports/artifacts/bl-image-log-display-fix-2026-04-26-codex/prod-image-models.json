@@ -1,0 +1,51 @@
+PrismaClientValidationError: 
+Invalid `prisma.model.findMany()` invocation:
+
+{
+  where: {
+    modality: "IMAGE"
+  },
+  select: {
+    name: true,
+    displayName: true,
+    aliases: {
+    ~~~~~~~
+      select: {
+        alias: {
+          select: {
+            name: true,
+            status: true
+          }
+        }
+      }
+    },
+?   id?: true,
+?   modality?: true,
+?   enabled?: true,
+?   maxTokens?: true,
+?   contextWindow?: true,
+?   capabilities?: true,
+?   supportedSizes?: true,
+?   description?: true,
+?   createdAt?: true,
+?   updatedAt?: true,
+?   channels?: true,
+?   aliasLinks?: true,
+?   pendingClassification?: true,
+?   _count?: true
+  },
+  orderBy: {
+    name: "asc"
+  },
+  take: 80
+}
+
+Unknown field `aliases` for select statement on model `Model`. Available options are marked with ?.
+    at Nn (/opt/aigc-gateway/node_modules/@prisma/client/runtime/library.js:29:1363)
+    at ei.handleRequestError (/opt/aigc-gateway/node_modules/@prisma/client/runtime/library.js:121:6911)
+    at ei.handleAndLogRequestError (/opt/aigc-gateway/node_modules/@prisma/client/runtime/library.js:121:6593)
+    at ei.request (/opt/aigc-gateway/node_modules/@prisma/client/runtime/library.js:121:6300)
+    at async a (/opt/aigc-gateway/node_modules/@prisma/client/runtime/library.js:130:9551)
+    at async [stdin]:4:15 {
+  clientVersion: '6.19.3'
+}

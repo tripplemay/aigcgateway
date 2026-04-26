@@ -34,7 +34,7 @@
       "title": "BL-IMAGE-LOG-DISPLAY-FIX 全量验收",
       "priority": "critical",
       "executor": "codex",
-      "status": "pending",
+      "status": "completed",
       "source": "BL-IMAGE-LOG-DISPLAY-FIX",
       "acceptance": "构建（4 项）：1) npm run build 通过；2) npx tsc --noEmit 通过；3) npx vitest run 全过（新增 ≥ 8 条测试，预期总数 398+）；4) 脚本本地 dry-run 输出符合预期。数据正确性（5 项）：5) 生产触发一次 OR image 调用（google/gemini-2.5-flash-image）→ 查 call_logs：responseContent ≤ 200B 且形如 `[image:{fmt}, {n}KB]`；responseSummary.original_urls[0] 同样 metadata；6) 同时调一次 volcengine seedream-3 → responseContent 仍是 https URL（透传不变）；7) 客户端 API 响应（curl 捕获）：OR 调用仍返回完整 base64 data URL（透传保护，不影响调用方）；8) 生产执行 `npx tsx scripts/maintenance/strip-image-base64-2026-04-26.ts --apply` 退出 0；输出 'X rows updated'；9) 重跑脚本输出 '0 rows would update'（幂等）。前端（2 项）：10) 浏览器 /logs/<seedream-3 traceId> → `<img>` 预览 https URL；11) 浏览器 /logs/<OR traceId after strip> → 看到 metadata 文本而非 base64 乱码；页面渲染秒开。报告（1）：12) 生成 signoff docs/test-reports/BL-IMAGE-LOG-DISPLAY-FIX-signoff-2026-04-2X.md。"
     }

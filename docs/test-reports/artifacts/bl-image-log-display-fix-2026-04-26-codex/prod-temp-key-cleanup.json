@@ -1,0 +1,16 @@
+[
+  {
+    "id": "cmofktd3w0001bn16wsc95gee",
+    "keyPrefix": "pk_49a5e",
+    "name": "codex-ildf-seedream-ui-smoke",
+    "status": "REVOKED",
+    "createdAt": "2026-04-26T09:39:01.147Z"
+  },
+  {
+    "id": "cmofkqkxc0020bn0rpdqd59ef",
+    "keyPrefix": "pk_49153",
+    "name": "codex-ildf-browser-smoke",
+    "status": "REVOKED",
+    "createdAt": "2026-04-26T09:36:51.312Z"
+  }
+]

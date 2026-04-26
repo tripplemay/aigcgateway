@@ -1,0 +1,661 @@
+[
+  {
+    "name": "cogview-3",
+    "displayName": "Cogview-3",
+    "enabled": true,
+    "supportedSizes": [
+      "1024x1024"
+    ],
+    "aliasLinks": [
+      {
+        "alias": {
+          "alias": "cogview-3",
+          "enabled": false
+        }
+      }
+    ]
+  },
+  {
+    "name": "dall-e-2",
+    "displayName": "DALL·E 2",
+    "enabled": false,
+    "supportedSizes": [
+      "256x256",
+      "512x512",
+      "1024x1024"
+    ],
+    "aliasLinks": [
+      {
+        "alias": {
+          "alias": "dall-e-2",
+          "enabled": false
+        }
+      }
+    ]
+  },
+  {
+    "name": "dall-e-3",
+    "displayName": "DALL·E 3",
+    "enabled": true,
+    "supportedSizes": [
+      "1024x1024",
+      "1024x1792",
+      "1792x1024"
+    ],
+    "aliasLinks": [
+      {
+        "alias": {
+          "alias": "dall-e-2",
+          "enabled": false
+        }
+      }
+    ]
+  },
+  {
+    "name": "gemini-2.5-flash-image-preview",
+    "displayName": "gemini-2.5-flash-image-preview",
+    "enabled": true,
+    "supportedSizes": [
+      "1024x1024"
+    ],
+    "aliasLinks": [
+      {
+        "alias": {
+          "alias": "gemini-2.5-flash-image",
+          "enabled": false
+        }
+      }
+    ]
+  },
+  {
+    "name": "gemini-3-pro-image-preview",
+    "displayName": "gemini-3-pro-image-preview",
+    "enabled": false,
+    "supportedSizes": [
+      "1024x1024"
+    ],
+    "aliasLinks": [
+      {
+        "alias": {
+          "alias": "gemini-3-pro-image",
+          "enabled": true
+        }
+      }
+    ]
+  },
+  {
+    "name": "gemini-3.1-flash-image-preview",
+    "displayName": "gemini-3.1-flash-image-preview",
+    "enabled": true,
+    "supportedSizes": [
+      "1024x1024"
+    ],
+    "aliasLinks": [
+      {
+        "alias": {
+          "alias": "gemini-flash",
+          "enabled": false
+        }
+      }
+    ]
+  },
+  {
+    "name": "google/gemini-2.5-flash-image",
+    "displayName": "Google: Nano Banana (Gemini 2.5 Flash Image)",
+    "enabled": true,
+    "supportedSizes": [
+      "1024x1024"
+    ],
+    "aliasLinks": [
+      {
+        "alias": {
+          "alias": "gemini-2.5-flash-image",
+          "enabled": false
+        }
+      }
+    ]
+  },
+  {
+    "name": "google/gemini-3-pro-image-preview",
+    "displayName": "Google: Nano Banana Pro (Gemini 3 Pro Image Preview)",
+    "enabled": true,
+    "supportedSizes": [
+      "1024x1024"
+    ],
+    "aliasLinks": [
+      {
+        "alias": {
+          "alias": "gemini-3-pro-image",
+          "enabled": true
+        }
+      }
+    ]
+  },
+  {
+    "name": "google/gemini-3.1-flash-image-preview",
+    "displayName": "Google: Nano Banana 2 (Gemini 3.1 Flash Image Preview)",
+    "enabled": true,
+    "supportedSizes": [
+      "1024x1024"
+    ],
+    "aliasLinks": [
+      {
+        "alias": {
+          "alias": "gemini-3.1-pro",
+          "enabled": false
+        }
+      }
+    ]
+  },
+  {
+    "name": "gpt-image-1",
+    "displayName": "gpt-image-1",
+    "enabled": false,
+    "supportedSizes": [
+      "1024x1024",
+      "1024x1792",
+      "1792x1024"
+    ],
+    "aliasLinks": [
+      {
+        "alias": {
+          "alias": "gpt-image",
+          "enabled": true
+        }
+      }
+    ]
+  },
+  {
+    "name": "gpt-image-1-mini",
+    "displayName": "gpt-image-1-mini",
+    "enabled": false,
+    "supportedSizes": [
+      "1024x1024",
+      "1024x1792",
+      "1792x1024"
+    ],
+    "aliasLinks": [
+      {
+        "alias": {
+          "alias": "gpt-image-mini",
+          "enabled": true
+        }
+      }
+    ]
+  },
+  {
+    "name": "gpt-image-1.5",
+    "displayName": "gpt-image-1.5",
+    "enabled": true,
+    "supportedSizes": [
+      "1024x1024",
+      "1024x1792",
+      "1792x1024"
+    ],
+    "aliasLinks": [
+      {
+        "alias": {
+          "alias": "gpt-image",
+          "enabled": true
+        }
+      }
+    ]
+  },
+  {
+    "name": "gpt-image-2",
+    "displayName": "gpt-image-2",
+    "enabled": true,
+    "supportedSizes": null,
+    "aliasLinks": [
+      {
+        "alias": {
+          "alias": "gpt-image",
+          "enabled": true
+        }
+      }
+    ]
+  },
+  {
+    "name": "gpt-image-2-ca",
+    "displayName": "gpt-image-2-ca",
+    "enabled": true,
+    "supportedSizes": null,
+    "aliasLinks": [
+      {
+        "alias": {
+          "alias": "gpt-image",
+          "enabled": true
+        }
+      }
+    ]
+  },
+  {
+    "name": "openai/gpt-5-image",
+    "displayName": "OpenAI: GPT-5 Image",
+    "enabled": true,
+    "supportedSizes": null,
+    "aliasLinks": [
+      {
+        "alias": {
+          "alias": "gpt-image",
+          "enabled": true
+        }
+      }
+    ]
+  },
+  {
+    "name": "openai/gpt-5-image-mini",
+    "displayName": "OpenAI: GPT-5 Image Mini",
+    "enabled": true,
+    "supportedSizes": [
+      "1024x1024",
+      "1024x1536",
+      "1536x1024",
+      "auto"
+    ],
+    "aliasLinks": [
+      {
+        "alias": {
+          "alias": "gpt-image-mini",
+          "enabled": true
+        }
+      }
+    ]
+  },
+  {
+    "name": "openai/gpt-5.4-image-2",
+    "displayName": "OpenAI: GPT-5.4 Image 2",
+    "enabled": false,
+    "supportedSizes": null,
+    "aliasLinks": [
+      {
+        "alias": {
+          "alias": "gpt-5.4-image",
+          "enabled": false
+        }
+      }
+    ]
+  },
+  {
+    "name": "qwen-image-2.0",
+    "displayName": "qwen-image-2.0",
+    "enabled": true,
+    "supportedSizes": [
+      "1024x1024",
+      "720x1280",
+      "1280x720"
+    ],
+    "aliasLinks": [
+      {
+        "alias": {
+          "alias": "qwen-image-2.0",
+          "enabled": false
+        }
+      }
+    ]
+  },
+  {
+    "name": "qwen-image-2.0-2026-03-03",
+    "displayName": "qwen-image-2.0-2026-03-03",
+    "enabled": false,
+    "supportedSizes": [
+      "1024x1024",
+      "720x1280",
+      "1280x720"
+    ],
+    "aliasLinks": [
+      {
+        "alias": {
+          "alias": "qwen-image-2.0",
+          "enabled": false
+        }
+      }
+    ]
+  },
+  {
+    "name": "qwen-image-2.0-pro",
+    "displayName": "qwen-image-2.0-pro",
+    "enabled": true,
+    "supportedSizes": [
+      "1024x1024",
+      "720x1280",
+      "1280x720"
+    ],
+    "aliasLinks": [
+      {
+        "alias": {
+          "alias": "qwen-image-2.0-pro",
+          "enabled": false
+        }
+      }
+    ]
+  },
+  {
+    "name": "qwen-image-2.0-pro-2026-03-03",
+    "displayName": "qwen-image-2.0-pro-2026-03-03",
+    "enabled": true,
+    "supportedSizes": [
+      "1024x1024",
+      "720x1280",
+      "1280x720"
+    ],
+    "aliasLinks": [
+      {
+        "alias": {
+          "alias": "qwen-image-2.0-pro",
+          "enabled": false
+        }
+      }
+    ]
+  },
+  {
+    "name": "qwen-image-2.0-pro-2026-04-22",
+    "displayName": "qwen-image-2.0-pro-2026-04-22",
+    "enabled": false,
+    "supportedSizes": null,
+    "aliasLinks": [
+      {
+        "alias": {
+          "alias": "qwen-image-2.0-pro",
+          "enabled": false
+        }
+      }
+    ]
+  },
+  {
+    "name": "qwen-image-edit-max",
+    "displayName": "qwen-image-edit-max",
+    "enabled": false,
+    "supportedSizes": [
+      "1024x1024",
+      "720x1280",
+      "1280x720"
+    ],
+    "aliasLinks": [
+      {
+        "alias": {
+          "alias": "qwen-image-edit-max",
+          "enabled": false
+        }
+      }
+    ]
+  },
+  {
+    "name": "qwen-image-edit-max-2026-01-16",
+    "displayName": "qwen-image-edit-max-2026-01-16",
+    "enabled": false,
+    "supportedSizes": [
+      "1024x1024",
+      "720x1280",
+      "1280x720"
+    ],
+    "aliasLinks": [
+      {
+        "alias": {
+          "alias": "qwen-image-edit-max",
+          "enabled": false
+        }
+      }
+    ]
+  },
+  {
+    "name": "qwen-image-edit-plus",
+    "displayName": "qwen-image-edit-plus",
+    "enabled": true,
+    "supportedSizes": [
+      "1024x1024",
+      "720x1280",
+      "1280x720"
+    ],
+    "aliasLinks": [
+      {
+        "alias": {
+          "alias": "qwen-image-edit-plus",
+          "enabled": false
+        }
+      }
+    ]
+  },
+  {
+    "name": "qwen-image-edit-plus-2025-10-30",
+    "displayName": "qwen-image-edit-plus-2025-10-30",
+    "enabled": false,
+    "supportedSizes": [
+      "1024x1024",
+      "720x1280",
+      "1280x720"
+    ],
+    "aliasLinks": [
+      {
+        "alias": {
+          "alias": "qwen-image-edit-plus",
+          "enabled": false
+        }
+      }
+    ]
+  },
+  {
+    "name": "qwen-image-edit-plus-2025-12-15",
+    "displayName": "qwen-image-edit-plus-2025-12-15",
+    "enabled": true,
+    "supportedSizes": [
+      "1024x1024",
+      "720x1280",
+      "1280x720"
+    ],
+    "aliasLinks": [
+      {
+        "alias": {
+          "alias": "qwen-image-edit-plus",
+          "enabled": false
+        }
+      }
+    ]
+  },
+  {
+    "name": "qwen-image-max",
+    "displayName": "qwen-image-max",
+    "enabled": false,
+    "supportedSizes": [
+      "1024x1024",
+      "720x1280",
+      "1280x720"
+    ],
+    "aliasLinks": [
+      {
+        "alias": {
+          "alias": "qwen-image-max",
+          "enabled": false
+        }
+      }
+    ]
+  },
+  {
+    "name": "qwen-image-max-2025-12-30",
+    "displayName": "qwen-image-max-2025-12-30",
+    "enabled": false,
+    "supportedSizes": [
+      "1024x1024",
+      "720x1280",
+      "1280x720"
+    ],
+    "aliasLinks": [
+      {
+        "alias": {
+          "alias": "qwen-image-max",
+          "enabled": false
+        }
+      }
+    ]
+  },
+  {
+    "name": "qwen-image-plus-2026-01-09",
+    "displayName": "qwen-image-plus-2026-01-09",
+    "enabled": false,
+    "supportedSizes": [
+      "1024x1024",
+      "720x1280",
+      "1280x720"
+    ],
+    "aliasLinks": [
+      {
+        "alias": {
+          "alias": "qwen-image-plus",
+          "enabled": false
+        }
+      }
+    ]
+  },
+  {
+    "name": "qwen/qwen-image",
+    "displayName": "Qwen/Qwen-Image",
+    "enabled": false,
+    "supportedSizes": [
+      "1024x1024",
+      "720x1280",
+      "1280x720"
+    ],
+    "aliasLinks": [
+      {
+        "alias": {
+          "alias": "qwen-image",
+          "enabled": true
+        }
+      }
+    ]
+  },
+  {
+    "name": "qwen/qwen-image-edit",
+    "displayName": "Qwen/Qwen-Image-Edit",
+    "enabled": true,
+    "supportedSizes": [
+      "1024x1024",
+      "720x1280",
+      "1280x720"
+    ],
+    "aliasLinks": [
+      {
+        "alias": {
+          "alias": "qwen-image-edit-plus",
+          "enabled": false
+        }
+      }
+    ]
+  },
+  {
+    "name": "qwen/qwen-image-edit-2509",
+    "displayName": "Qwen/Qwen-Image-Edit-2509",
+    "enabled": false,
+    "supportedSizes": [
+      "1024x1024",
+      "720x1280",
+      "1280x720"
+    ],
+    "aliasLinks": [
+      {
+        "alias": {
+          "alias": "qwen-image-edit-2509",
+          "enabled": false
+        }
+      }
+    ]
+  },
+  {
+    "name": "seedream-3.0",
+    "displayName": "Seedream 3.0",
+    "enabled": true,
+    "supportedSizes": [
+      "1024x1024",
+      "960x1280",
+      "1280x960"
+    ],
+    "aliasLinks": [
+      {
+        "alias": {
+          "alias": "seedream-3",
+          "enabled": true
+        }
+      }
+    ]
+  },
+  {
+    "name": "seedream-4.0",
+    "displayName": "Seedream 4.0",
+    "enabled": true,
+    "supportedSizes": [
+      "1024x1024",
+      "960x1280",
+      "1280x960"
+    ],
+    "aliasLinks": [
+      {
+        "alias": {
+          "alias": "seedream-4",
+          "enabled": false
+        }
+      }
+    ]
+  },
+  {
+    "name": "seedream-4.5",
+    "displayName": "Seedream 4.5",
+    "enabled": true,
+    "supportedSizes": [
+      "1024x1024",
+      "960x1280",
+      "1280x960",
+      "720x1440",
+      "1440x720"
+    ],
+    "aliasLinks": [
+      {
+        "alias": {
+          "alias": "seedream-4.5",
+          "enabled": false
+        }
+      }
+    ]
+  },
+  {
+    "name": "wan2.7-image",
+    "displayName": "wan2.7-image",
+    "enabled": false,
+    "supportedSizes": null,
+    "aliasLinks": [
+      {
+        "alias": {
+          "alias": "wan2.7-image",
+          "enabled": false
+        }
+      }
+    ]
+  },
+  {
+    "name": "wan2.7-image-pro",
+    "displayName": "wan2.7-image-pro",
+    "enabled": false,
+    "supportedSizes": null,
+    "aliasLinks": [
+      {
+        "alias": {
+          "alias": "wan2.7-image-pro",
+          "enabled": false
+        }
+      }
+    ]
+  },
+  {
+    "name": "z-image-turbo",
+    "displayName": "z-image-turbo",
+    "enabled": false,
+    "supportedSizes": null,
+    "aliasLinks": [
+      {
+        "alias": {
+          "alias": "z-image-turbo",
+          "enabled": false
+        }
+      }
+    ]
+  }
+]

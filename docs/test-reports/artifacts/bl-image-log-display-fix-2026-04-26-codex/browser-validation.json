@@ -1,0 +1,29 @@
+{
+  "seedream_current_project": {
+    "traceId": "trc_v0sqax5tfxjyvtxldo8cfbt8",
+    "page": "/logs/trc_v0sqax5tfxjyvtxldo8cfbt8",
+    "imgCount": 1,
+    "imgDisplay": "block",
+    "naturalWidth": 1024,
+    "naturalHeight": 1024,
+    "loading": "lazy",
+    "alt": "响应图片",
+    "containsBase64Marker": false,
+    "containsDataImage": false,
+    "screenshot": "browser-seedream-img.png"
+  },
+  "or_metadata_existing_project": {
+    "traceId": "trc_aexjskz4s69fyopsh7etf2ez",
+    "page": "/logs/trc_aexjskz4s69fyopsh7etf2ez",
+    "imgCount": 0,
+    "containsMetadata": true,
+    "metadataText": "[image:jpeg, 970KB]",
+    "containsBase64Marker": false,
+    "containsDataImage": false,
+    "screenshot": "browser-or-metadata.png"
+  },
+  "temporary_api_key": {
+    "createdPrefix": "pk_49a5e",
+    "revoked": true
+  }
+}

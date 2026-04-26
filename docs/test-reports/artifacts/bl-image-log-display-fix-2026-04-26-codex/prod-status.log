@@ -1,0 +1,19 @@
+370ee52
+370ee52 feat(BL-IMAGE-LOG-DISPLAY-FIX): X 方案 strip base64 + 前端识别 http(s) image URL + 30d 回填
+?? .env.production
+?? .env.production.bak-crit6-20260417_093604
+?? docs/test-reports/artifacts/bl-image-log-display-fix-2026-04-26/
+?? docs/test-reports/artifacts/bl-image-pricing-or-p2-2026-04-26-fix-round-2/
+?? ecosystem.config.cjs
+?? scripts/fix-deepseek-v4-prod.ts
+┌────┬──────────────────────┬─────────────┬─────────┬─────────┬──────────┬────────┬──────┬───────────┬──────────┬──────────┬──────────┬──────────┐
+│ id │ name                 │ namespace   │ version │ mode    │ pid      │ uptime │ ↺    │ status    │ cpu      │ mem      │ user     │ watching │
+├────┼──────────────────────┼─────────────┼─────────┼─────────┼──────────┼────────┼──────┼───────────┼──────────┼──────────┼──────────┼──────────┤
+│ 0  │ aigc-gateway         │ default     │ 0.1.0   │ cluster │ 1880523  │ 14m    │ 7    │ online    │ 0%       │ 224.6mb  │ tripple… │ disabled │
+│ 1  │ aigc-gateway         │ default     │ 0.1.0   │ cluster │ 1880524  │ 14m    │ 7    │ online    │ 0%       │ 135.1mb  │ tripple… │ disabled │
+│ 2  │ aigc-gateway         │ default     │ 0.1.0   │ cluster │ 1880537  │ 14m    │ 7    │ online    │ 0%       │ 157.3mb  │ tripple… │ disabled │
+│ 3  │ aigc-gateway         │ default     │ 0.1.0   │ cluster │ 1880538  │ 14m    │ 7    │ online    │ 0%       │ 124.8mb  │ tripple… │ disabled │
+│ 10 │ kolmatrix            │ default     │ 0.1.0   │ cluster │ 1512660  │ 2D     │ 10   │ online    │ 0%       │ 257.9mb  │ tripple… │ disabled │
+│ 11 │ kolmatrix            │ default     │ 0.1.0   │ cluster │ 1512675  │ 2D     │ 10   │ online    │ 0%       │ 258.4mb  │ tripple… │ disabled │
+│ 12 │ kolmatrix-staging    │ default     │ 0.1.0   │ fork    │ 1587966  │ 2D     │ 12   │ online    │ 0%       │ 256.9mb  │ tripple… │ disabled │
+└────┴──────────────────────┴─────────────┴─────────┴─────────┴──────────┴────────┴──────┴───────────┴──────────┴──────────┴──────────┴──────────┘

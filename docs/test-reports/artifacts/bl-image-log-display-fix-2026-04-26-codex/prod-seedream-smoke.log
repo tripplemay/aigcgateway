@@ -1,0 +1,23 @@
+{"label":"SEEDREAM","model":"seedream-3","http":200,"traceId":"trc_mhqdojle30gitvo8mk0ep60w","clientBodyLength":193,"clientContainsHttpUrl":true}
+{
+  "traceId": "trc_mhqdojle30gitvo8mk0ep60w",
+  "status": "SUCCESS",
+  "modelName": "seedream-3",
+  "responseContent": "<redacted-signed-image-url>",
+  "responseSummary": {
+    "images_count": 1,
+    "original_urls": [
+      "<redacted-signed-image-url>"
+    ]
+  },
+  "errorMessage": null,
+  "createdAt": "2026-04-26T09:34:31.035Z",
+  "responseContentLength": 447,
+  "responseContentIsHttp": true,
+  "responseContentStartsData": false,
+  "originalUrls": [
+    "<redacted-signed-image-url>"
+  ],
+  "originalUrl0IsHttp": true,
+  "originalUrl0StartsData": false
+}

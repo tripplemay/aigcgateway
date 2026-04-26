@@ -1,0 +1,26 @@
+{"label":"OR","model":"google/gemini-2.5-flash-image","http":200,"traceId":"trc_uzgllypnfjw5xfxaenivlfwk","clientBodyLength":280233,"clientContainsDataImage":true,"clientContainsBase64Marker":true}
+{
+  "traceId": "trc_uzgllypnfjw5xfxaenivlfwk",
+  "status": "SUCCESS",
+  "modelName": "google/gemini-2.5-flash-image",
+  "responseContent": "[image:png, 274KB]",
+  "responseSummary": {
+    "images_count": 1,
+    "original_urls": [
+      "[image:png, 274KB]"
+    ]
+  },
+  "promptTokens": 9,
+  "completionTokens": 1291,
+  "costPrice": "0.0032302",
+  "errorMessage": null,
+  "createdAt": "2026-04-26T09:33:23.183Z",
+  "responseContentLength": 18,
+  "responseContentStartsData": false,
+  "originalUrls": [
+    "[image:png, 274KB]"
+  ],
+  "originalUrl0Length": 18,
+  "originalUrl0StartsData": false
+}
+{"label":"SEEDREAM","model":"volcengine/seedream-3.0","http":404,"traceId":"","clientBodyLength":117,"clientContainsDataImage":false,"clientContainsBase64Marker":false}

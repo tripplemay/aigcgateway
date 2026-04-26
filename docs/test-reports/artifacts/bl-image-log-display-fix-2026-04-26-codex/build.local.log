@@ -1,0 +1,197 @@
+
+> aigc-gateway@0.1.0 build
+> next build
+
+  ▲ Next.js 14.2.35
+  - Environments: .env
+  - Experiments (use with caution):
+    · instrumentationHook
+
+   Creating an optimized production build ...
+ ✓ Compiled successfully
+   Linting and checking validity of types ...
+
+./src/app/(console)/admin/model-aliases/page.tsx
+113:9  Warning: The 'aliases' logical expression could make the dependencies of useMemo Hook (at line 123) change on every render. To fix this, wrap the initialization of 'aliases' in its own useMemo() Hook.  react-hooks/exhaustive-deps
+113:9  Warning: The 'aliases' logical expression could make the dependencies of useMemo Hook (at line 128) change on every render. To fix this, wrap the initialization of 'aliases' in its own useMemo() Hook.  react-hooks/exhaustive-deps
+113:9  Warning: The 'aliases' logical expression could make the dependencies of useMemo Hook (at line 156) change on every render. To fix this, wrap the initialization of 'aliases' in its own useMemo() Hook.  react-hooks/exhaustive-deps
+113:9  Warning: The 'aliases' logical expression could make the dependencies of useCallback Hook (at line 164) change on every render. To fix this, wrap the initialization of 'aliases' in its own useMemo() Hook.  react-hooks/exhaustive-deps
+
+./src/app/(console)/admin/models/page.tsx
+107:9  Warning: The 'data' logical expression could make the dependencies of useMemo Hook (at line 143) change on every render. To fix this, wrap the initialization of 'data' in its own useMemo() Hook.  react-hooks/exhaustive-deps
+107:9  Warning: The 'data' logical expression could make the dependencies of useMemo Hook (at line 156) change on every render. To fix this, wrap the initialization of 'data' in its own useMemo() Hook.  react-hooks/exhaustive-deps
+
+./src/app/(console)/admin/reconciliation/page.tsx
+81:9  Warning: The 'rows' logical expression could make the dependencies of useMemo Hook (at line 84) change on every render. To fix this, wrap the initialization of 'rows' in its own useMemo() Hook.  react-hooks/exhaustive-deps
+81:9  Warning: The 'rows' logical expression could make the dependencies of useMemo Hook (at line 87) change on every render. To fix this, wrap the initialization of 'rows' in its own useMemo() Hook.  react-hooks/exhaustive-deps
+
+./src/app/(console)/logs/[traceId]/page.tsx
+258:19  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+./src/app/(console)/models/page.tsx
+129:6  Warning: React Hook useMemo has a missing dependency: 'models'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+
+./src/app/layout.tsx
+25:9  Warning: Custom fonts not added in `pages/_document.js` will only load for a single page. This is discouraged. See: https://nextjs.org/docs/messages/no-page-custom-font  @next/next/no-page-custom-font
+
+./src/components/auth-terminal.tsx
+83:6  Warning: React Hook useCallback has a missing dependency: 'sequences'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+
+info  - Need to disable some ESLint rules? Learn more here: https://nextjs.org/docs/basic-features/eslint#disabling-rules
+   Collecting page data ...
+   Generating static pages (0/31) ...
+   Generating static pages (7/31) 
+   Generating static pages (15/31) 
+   Generating static pages (23/31) 
+ ✓ Generating static pages (31/31)
+   Finalizing page optimization ...
+   Collecting build traces ...
+
+Route (app)                                               Size     First Load JS
+┌ ƒ /                                                     151 B          87.9 kB
+├ ○ /_not-found                                           883 B          88.6 kB
+├ ƒ /actions                                              3.83 kB         168 kB
+├ ƒ /actions/[actionId]                                   4.29 kB         131 kB
+├ ƒ /actions/new                                          3.9 kB          122 kB
+├ ƒ /admin/health                                         5.03 kB         123 kB
+├ ƒ /admin/logs                                           4.1 kB          112 kB
+├ ƒ /admin/model-aliases                                  6.45 kB         148 kB
+├ ƒ /admin/models                                         3.9 kB          145 kB
+├ ƒ /admin/operations                                     9.69 kB         130 kB
+├ ƒ /admin/providers                                      5.66 kB         133 kB
+├ ƒ /admin/reconciliation                                 4.61 kB         122 kB
+├ ƒ /admin/templates                                      3.01 kB         130 kB
+├ ƒ /admin/templates/[id]                                 3.43 kB         139 kB
+├ ƒ /admin/usage                                          4.06 kB         112 kB
+├ ƒ /admin/users                                          2.44 kB         119 kB
+├ ƒ /admin/users/[id]                                     8.13 kB         138 kB
+├ ƒ /api/admin/channels                                   0 B                0 B
+├ ƒ /api/admin/channels/[id]                              0 B                0 B
+├ ƒ /api/admin/config                                     0 B                0 B
+├ ƒ /api/admin/debug/enrichment                           0 B                0 B
+├ ƒ /api/admin/debug/sync                                 0 B                0 B
+├ ƒ /api/admin/finance                                    0 B                0 B
+├ ƒ /api/admin/health                                     0 B                0 B
+├ ƒ /api/admin/health/[channelId]/check                   0 B                0 B
+├ ƒ /api/admin/health/[channelId]/probe                   0 B                0 B
+├ ƒ /api/admin/inference/status                           0 B                0 B
+├ ƒ /api/admin/logs                                       0 B                0 B
+├ ƒ /api/admin/logs/[traceId]                             0 B                0 B
+├ ƒ /api/admin/logs/search                                0 B                0 B
+├ ƒ /api/admin/model-aliases                              0 B                0 B
+├ ƒ /api/admin/model-aliases/[id]                         0 B                0 B
+├ ƒ /api/admin/model-aliases/[id]/link                    0 B                0 B
+├ ƒ /api/admin/model-aliases/[id]/link/[modelId]          0 B                0 B
+├ ƒ /api/admin/model-aliases/[id]/suggest-price           0 B                0 B
+├ ƒ /api/admin/model-aliases/infer-capabilities           0 B                0 B
+├ ƒ /api/admin/model-aliases/merge                        0 B                0 B
+├ ƒ /api/admin/models                                     0 B                0 B
+├ ƒ /api/admin/models-channels                            0 B                0 B
+├ ƒ /api/admin/models/[id]                                0 B                0 B
+├ ƒ /api/admin/openrouter-prices                          0 B                0 B
+├ ƒ /api/admin/operations/progress                        0 B                0 B
+├ ƒ /api/admin/pending-classifications                    0 B                0 B
+├ ƒ /api/admin/pending-classifications/[id]               0 B                0 B
+├ ƒ /api/admin/providers                                  0 B                0 B
+├ ƒ /api/admin/providers/[id]                             0 B                0 B
+├ ƒ /api/admin/providers/[id]/config                      0 B                0 B
+├ ƒ /api/admin/reconciliation                             0 B                0 B
+├ ƒ /api/admin/reconciliation/balance-snapshots           0 B                0 B
+├ ƒ /api/admin/reconciliation/rerun                       0 B                0 B
+├ ƒ /api/admin/run-inference                              0 B                0 B
+├ ƒ /api/admin/sync-models                                0 B                0 B
+├ ƒ /api/admin/sync-status                                0 B                0 B
+├ ƒ /api/admin/sync/status                                0 B                0 B
+├ ƒ /api/admin/system-logs                                0 B                0 B
+├ ƒ /api/admin/template-categories                        0 B                0 B
+├ ƒ /api/admin/templates                                  0 B                0 B
+├ ƒ /api/admin/templates/[templateId]                     0 B                0 B
+├ ƒ /api/admin/usage                                      0 B                0 B
+├ ƒ /api/admin/usage/by-model                             0 B                0 B
+├ ƒ /api/admin/usage/by-provider                          0 B                0 B
+├ ƒ /api/admin/users                                      0 B                0 B
+├ ƒ /api/admin/users/[id]                                 0 B                0 B
+├ ƒ /api/admin/users/[id]/recharge                        0 B                0 B
+├ ƒ /api/admin/users/[id]/suspend                         0 B                0 B
+├ ƒ /api/admin/users/[id]/transactions                    0 B                0 B
+├ ƒ /api/auth/change-password                             0 B                0 B
+├ ƒ /api/auth/login                                       0 B                0 B
+├ ƒ /api/auth/login-history                               0 B                0 B
+├ ƒ /api/auth/logout                                      0 B                0 B
+├ ƒ /api/auth/profile                                     0 B                0 B
+├ ƒ /api/auth/register                                    0 B                0 B
+├ ƒ /api/auth/verify-email                                0 B                0 B
+├ ƒ /api/exchange-rate                                    0 B                0 B
+├ ƒ /api/keys                                             0 B                0 B
+├ ƒ /api/keys/[keyId]                                     0 B                0 B
+├ ƒ /api/mcp                                              0 B                0 B
+├ ƒ /api/notifications                                    0 B                0 B
+├ ƒ /api/notifications/[id]                               0 B                0 B
+├ ƒ /api/notifications/mark-all-read                      0 B                0 B
+├ ƒ /api/notifications/preferences                        0 B                0 B
+├ ƒ /api/notifications/test-webhook                       0 B                0 B
+├ ƒ /api/projects                                         0 B                0 B
+├ ƒ /api/projects/[id]                                    0 B                0 B
+├ ƒ /api/projects/[id]/actions                            0 B                0 B
+├ ƒ /api/projects/[id]/actions/[actionId]                 0 B                0 B
+├ ƒ /api/projects/[id]/actions/[actionId]/active-version  0 B                0 B
+├ ƒ /api/projects/[id]/actions/[actionId]/versions        0 B                0 B
+├ ƒ /api/projects/[id]/actions/stats                      0 B                0 B
+├ ƒ /api/projects/[id]/balance                            0 B                0 B
+├ ƒ /api/projects/[id]/logs                               0 B                0 B
+├ ƒ /api/projects/[id]/logs/[traceId]                     0 B                0 B
+├ ƒ /api/projects/[id]/logs/[traceId]/quality             0 B                0 B
+├ ƒ /api/projects/[id]/logs/search                        0 B                0 B
+├ ƒ /api/projects/[id]/recharge                           0 B                0 B
+├ ƒ /api/projects/[id]/templates                          0 B                0 B
+├ ƒ /api/projects/[id]/templates/[templateId]             0 B                0 B
+├ ƒ /api/projects/[id]/templates/fork                     0 B                0 B
+├ ƒ /api/projects/[id]/transactions                       0 B                0 B
+├ ƒ /api/projects/[id]/usage                              0 B                0 B
+├ ƒ /api/projects/[id]/usage/by-model                     0 B                0 B
+├ ƒ /api/projects/[id]/usage/daily                        0 B                0 B
+├ ƒ /api/template-categories                              0 B                0 B
+├ ƒ /api/templates/[templateId]/rate                      0 B                0 B
+├ ƒ /api/templates/[templateId]/test                      0 B                0 B
+├ ƒ /api/templates/[templateId]/test-runs                 0 B                0 B
+├ ƒ /api/templates/[templateId]/test-runs/[runId]         0 B                0 B
+├ ƒ /api/templates/public                                 0 B                0 B
+├ ƒ /api/templates/public/[templateId]                    0 B                0 B
+├ ƒ /api/v1/actions/run                                   0 B                0 B
+├ ƒ /api/v1/chat/completions                              0 B                0 B
+├ ƒ /api/v1/images/generations                            0 B                0 B
+├ ƒ /api/v1/images/proxy/[traceId]/[idx]                  0 B                0 B
+├ ƒ /api/v1/models                                        0 B                0 B
+├ ƒ /api/v1/templates/run                                 0 B                0 B
+├ ƒ /api/webhooks/alipay                                  0 B                0 B
+├ ƒ /api/webhooks/wechat                                  0 B                0 B
+├ ƒ /balance                                              5.3 kB          160 kB
+├ ƒ /dashboard                                            4.97 kB         169 kB
+├ ƒ /docs                                                 7.36 kB         127 kB
+├ ƒ /error-test                                           259 B            88 kB
+├ ƒ /keys                                                 5.73 kB         170 kB
+├ ƒ /keys/[keyId]                                         3.57 kB         167 kB
+├ ○ /login                                                6.69 kB         145 kB
+├ ƒ /logs                                                 4.02 kB         159 kB
+├ ƒ /logs/[traceId]                                       3.22 kB         167 kB
+├ ƒ /mcp-setup                                            6.58 kB         136 kB
+├ ƒ /models                                               4.35 kB         112 kB
+├ ƒ /quickstart                                           5.21 kB         125 kB
+├ ○ /register                                             6.4 kB          145 kB
+├ ƒ /settings                                             9.59 kB         130 kB
+├ ƒ /templates                                            34.8 kB         199 kB
+├ ƒ /templates/[templateId]                               4.42 kB         131 kB
+├ ƒ /templates/[templateId]/test                          7.63 kB         137 kB
+├ ƒ /templates/new                                        3.72 kB         122 kB
+└ ƒ /usage                                                4.4 kB          159 kB
++ First Load JS shared by all                             87.7 kB
+  ├ chunks/2117-ccd960d7d8c492d8.js                       31.9 kB
+  ├ chunks/fd9d1056-a39cfe73956b35a9.js                   53.7 kB
+  └ other shared chunks (total)                           2.19 kB
+
+
+ƒ Middleware                                              32.7 kB
+
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand
+
