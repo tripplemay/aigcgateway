@@ -68,6 +68,7 @@ describe("F-BAX-06 Volcengine fetcher", () => {
             List: [
               {
                 BillDay: "2026-04-22",
+                ExpenseDate: "2026-04-22",
                 InstanceName: "ep-abc123",
                 ProductName: "Doubao-Pro",
                 PayableAmount: "3.45",
@@ -139,7 +140,16 @@ describe("F-BAX-06 Volcengine fetcher", () => {
       global.fetch = vi.fn().mockResolvedValueOnce(
         new Response(
           JSON.stringify({
-            Result: { List: [{ BillDay: "2026-04-22", PayableAmount: 1, ...item }] },
+            Result: {
+              List: [
+                {
+                  BillDay: "2026-04-22",
+                  ExpenseDate: "2026-04-22",
+                  PayableAmount: 1,
+                  ...item,
+                },
+              ],
+            },
           }),
           { status: 200 },
         ),
@@ -187,6 +197,110 @@ describe("F-BAX-06 Volcengine fetcher", () => {
 
     it("returns 'unknown' when all three fields empty", async () => {
       expect(await fetchOne({ ConfigName: "", InstanceName: "", ProductName: "" })).toBe("unknown");
+    });
+  });
+
+  // BL-RECON-FIX-PHASE1 F-RF-01: ExpenseDate 过滤 — 月度账单 daily cron 防重复入账
+  describe("ExpenseDate filter (F-RF-01)", () => {
+    function makeMonthlyResponse(dates: string[]): Response {
+      return new Response(
+        JSON.stringify({
+          Result: {
+            List: dates.map((expenseDate, idx) => ({
+              BillDay: expenseDate, // BillDay 与 ExpenseDate 在月度账单里通常一致
+              ExpenseDate: expenseDate,
+              ConfigName: `model-${idx}`,
+              PayableAmount: "1.00",
+              Count: "1",
+              Currency: "CNY",
+            })),
+            Total: dates.length,
+          },
+        }),
+        { status: 200 },
+      );
+    }
+
+    it("returns only the bill row whose ExpenseDate matches reportDate", async () => {
+      // mock 月度全量返回 3 条（04-02 / 04-15 / 04-23）；查询 04-23 应只返 1 条
+      global.fetch = vi
+        .fn()
+        .mockResolvedValueOnce(
+          makeMonthlyResponse(["2026-04-02", "2026-04-15", "2026-04-23"]),
+        ) as unknown as typeof fetch;
+
+      const f = new VolcengineBillFetcher({
+        billingAccessKeyId: "AKLTtest",
+        billingSecretAccessKey: "SKLTtest==",
+      });
+
+      const records = await f.fetchDailyBill(new Date("2026-04-23T00:00:00Z"));
+      expect(records).toHaveLength(1);
+      expect((records[0].raw as { ExpenseDate?: string }).ExpenseDate).toBe("2026-04-23");
+    });
+
+    it("returns empty array when no row has ExpenseDate matching reportDate", async () => {
+      global.fetch = vi
+        .fn()
+        .mockResolvedValueOnce(
+          makeMonthlyResponse(["2026-04-02", "2026-04-15"]),
+        ) as unknown as typeof fetch;
+
+      const f = new VolcengineBillFetcher({
+        billingAccessKeyId: "AKLTtest",
+        billingSecretAccessKey: "SKLTtest==",
+      });
+
+      const records = await f.fetchDailyBill(new Date("2026-04-23T00:00:00Z"));
+      expect(records).toEqual([]);
+    });
+
+    it("filters out rows missing ExpenseDate (conservative)", async () => {
+      // 仅一条命中目标日，其他要么缺失 ExpenseDate 要么字段非 string，全部应被过滤
+      global.fetch = vi.fn().mockResolvedValueOnce(
+        new Response(
+          JSON.stringify({
+            Result: {
+              List: [
+                {
+                  BillDay: "2026-04-23",
+                  ExpenseDate: "2026-04-23",
+                  ConfigName: "model-keep",
+                  PayableAmount: "1.00",
+                  Count: "1",
+                  Currency: "CNY",
+                },
+                {
+                  BillDay: "2026-04-22",
+                  // ExpenseDate 缺失 → 保守过滤掉
+                  ConfigName: "model-drop-1",
+                  PayableAmount: "2.00",
+                  Count: "2",
+                  Currency: "CNY",
+                },
+                {
+                  BillDay: "2026-04-22",
+                  ExpenseDate: 20260422, // 类型不是 string → 保守过滤掉
+                  ConfigName: "model-drop-2",
+                  PayableAmount: "3.00",
+                  Count: "3",
+                  Currency: "CNY",
+                },
+              ],
+            },
+          }),
+          { status: 200 },
+        ),
+      ) as unknown as typeof fetch;
+
+      const f = new VolcengineBillFetcher({
+        billingAccessKeyId: "AKLTtest",
+        billingSecretAccessKey: "SKLTtest==",
+      });
+
+      const records = await f.fetchDailyBill(new Date("2026-04-23T00:00:00Z"));
+      expect(records).toHaveLength(1);
+      expect(records[0].modelName).toBe("model-keep");
     });
   });
 });

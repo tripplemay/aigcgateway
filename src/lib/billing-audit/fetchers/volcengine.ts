@@ -16,6 +16,7 @@ import {
   type TierOneBillFetcher,
   BillFetchError,
   formatBillPeriodYYYYMM,
+  formatDateYYYYMMDD,
 } from "./tier1-fetcher";
 
 const HOST = "open.volcengineapi.com";
@@ -27,6 +28,10 @@ const VERSION = "2022-01-01";
 interface ListBillDetailItem {
   BillPeriod?: string;
   BillDay?: string;
+  // BL-RECON-FIX-PHASE1 F-RF-01: ExpenseDate 是上游"实际发生扣费日"，
+  // 与 BillDay（账单生成日）可能不同；月度 BillPeriod 拉取下每条都标自己
+  // 的 ExpenseDate，必须按当前 reportDate 过滤，否则月度账单全量重复入对账表。
+  ExpenseDate?: string;
   BusinessName?: string;
   ProductName?: string;
   ConfigName?: string; // fix-round-1 Bug 3: Volcengine 实际 modelName 字段（如 'doubao-lite-4k'）
@@ -127,7 +132,17 @@ export class VolcengineBillFetcher implements TierOneBillFetcher {
     }
 
     const list = parsed.Result?.List ?? [];
-    return list.map((item) => normalizeBillItem(item, date));
+    // BL-RECON-FIX-PHASE1 F-RF-01: Volcengine ListBillDetail 按 BillPeriod=YYYY-MM
+    // 拉的是当月全量；每条 ExpenseDate 才是真实扣费日。daily cron 调用时必须
+    // 仅保留 ExpenseDate==reportDate 的行，否则同一笔月初账单会被每天重复
+    // 写入 bill_reconciliation（生产 evidence: 5 倍重复 BIG_DIFF）。缺失或非
+    // 字符串的 ExpenseDate 字段保守过滤掉（不写对账行；下次 cron 再尝试）。
+    const targetYmd = formatDateYYYYMMDD(date);
+    const filtered = list.filter((item) => {
+      const exp = typeof item.ExpenseDate === "string" ? item.ExpenseDate.slice(0, 10) : null;
+      return exp === targetYmd;
+    });
+    return filtered.map((item) => normalizeBillItem(item, date));
   }
 }
 
