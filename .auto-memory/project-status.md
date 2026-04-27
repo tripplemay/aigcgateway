@@ -4,13 +4,11 @@ description: AIGC Gateway 当前状态快照（覆盖写，≤30 行）
 type: project
 ---
 ## 当前批次
-- **BL-EMBEDDING-MVP：`building`**（Embedding modality 接入，KOLMatrix dogfood 需求，~3.5 day）
-- 来源：KOLMatrix 客户 request `/Users/yixingzhou/project/joyce/docs/external-asks/aigcgateway-embedding-request.md`
-- 6 features：F-EM-01 schema+adapter / F-EM-02 API+计费 / F-EM-03 Action runner / F-EM-04 seed+UI / F-EM-05 MCP+SDK / F-EM-06 Codex 验收
-- 优先 model：bge-m3 (SiliconFlow, KOLMatrix 主推中日韩) + text-embedding-3-small (OpenAI 兜底)
-- 时机目标：2026-05-22 前完成（KOLMatrix MVP 上线日期，给 BL-014 升级留 buffer）
-- 架构：ModelModality 加 EMBEDDING + Action.modality + adapter.embeddings? + runner 分支
-- 计费：input tokens 单边（复用 calculateTokenCost output=0）
+- **BL-EMBEDDING-MVP：`verifying`**（Embedding modality 接入完成，KOLMatrix dogfood 需求）
+- F-EM-01~05 commits 58ad53c/3382b35/7b90ded/4132d85/9697249；tsc + build + vitest 505 + sdk build 全过
+- 关键发现：/v1/models 走 ModelAlias，seed 须同时建 alias 否则 ?modality=embedding 返空（已处理）
+- admin/models 页面是 read-only list 无 creation form，spec acceptance #3 N/A
+- F-EM-06 验收待 Codex（生产实证需重创 admin API key + 部署 prisma migrate deploy → db seed → bge-m3 调用）
 
 ## Phase 2 显式排除
 - dimensions 可选 / encoding_format / cosine endpoint / 持久化向量 / Volcengine+Zhipu+DeepSeek 适配 / Template 编排 / Action 批量

@@ -7,7 +7,7 @@
       "title": "Schema migration（ModelModality EMBEDDING + Action.modality）+ Engine adapter embeddings()",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "source": "BL-EMBEDDING-MVP spec § F-EM-01",
       "acceptance": "1) prisma/migrations/20260428_embedding_modality/migration.sql：ALTER TYPE ModelModality ADD VALUE 'EMBEDDING'; ALTER TABLE actions ADD COLUMN modality 默认 'TEXT'；2) prisma/schema.prisma 同步两改；3) src/lib/engine/types.ts 加 EmbeddingRequest/EmbeddingData/EmbeddingResponse interfaces + EngineAdapter.embeddings? 可选方法；4) src/lib/engine/openai-compat.ts 加 embeddings() 实现 + buildUrl 加 'embedding' 类型 + normalizeEmbeddingResponse；5) src/lib/engine/openai-compat.test.ts 加 embeddings 单测：单条 input mock fetch 返 OpenAI 兼容 response → 解析正确；批量 input array → response.data 多条；error response → throw EngineError；6) tsc + build + vitest + prisma generate 全过；7) commit 'feat(BL-EMBEDDING-MVP F-EM-01): schema + engine adapter for embeddings'"
     },
@@ -16,7 +16,7 @@
       "title": "POST /v1/embeddings API endpoint + 计费 + CallLog",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "source": "BL-EMBEDDING-MVP spec § F-EM-02",
       "acceptance": "1) src/app/api/v1/embeddings/route.ts 新建（参考 chat/completions 结构去 stream）：authenticateApiKey + checkBalance + checkRateLimit('text') + resolveEngine + adapter.embeddings + processEmbeddingResult；2) 校验 model + input 必填；input array max 100；非 EMBEDDING modality 模型 → 400 invalid_model_modality；3) src/lib/api/post-process.ts 加 processEmbeddingResult：复用 calculateTokenCost (completion_tokens=0) + 写 CallLog source='api' + metadata.modality='EMBEDDING'；4) 单测 src/app/api/v1/embeddings/__tests__/route.test.ts：单条 + 批量 + 非 embedding 模型 400 + 缺 model/input 400 + 鉴权失败 401 + balance 不够 402；5) tsc + build + vitest 全过；6) commit 'feat(BL-EMBEDDING-MVP F-EM-02): /v1/embeddings endpoint + billing'"
     },
@@ -25,7 +25,7 @@
       "title": "Action 系统支持 embedding modality（runner 分支 + result 类型扩展）",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "source": "BL-EMBEDDING-MVP spec § F-EM-03",
       "acceptance": "1) src/lib/action/runner.ts runAction + runActionNonStream 加 modality 分支：action.modality='EMBEDDING' 时不走 chat path，调 adapter.embeddings({model, input: messages.map(m=>m.content).join('\\n')}, route)；2) ActionRunResult 类型扩展 modality:'TEXT'|'EMBEDDING' + 可选 embedding:number[] / dimensions:number 字段（chat path 仍设 modality:'TEXT' 兼容）；3) src/lib/mcp/tools/create-action.ts 接受 modality 参数（zod enum default 'TEXT'）；validate model.modality === action.modality（一致性约束，409 不一致）；4) 单测 src/lib/action/__tests__/runner.test.ts 加 embedding action 跑通 mock adapter；现有 chat action 单测不破；5) tsc + build + vitest 全过；6) commit 'feat(BL-EMBEDDING-MVP F-EM-03): action runner embedding branch'"
     },
@@ -34,7 +34,7 @@
       "title": "Provider seed bge-m3 + text-embedding-3-small + admin UI 加 EMBEDDING 选项",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "source": "BL-EMBEDDING-MVP spec § F-EM-04",
       "acceptance": "1) Preflight：用 WebFetch 或人工查 SiliconFlow 当前 BAAI/bge-m3 单价（spec 默认 ¥0.5/M ≈ $0.07/M）+ OpenAI text-embedding-3-small 单价（spec 默认 $0.02/M）→ 价格变动则更新到 spec 引用块；2) prisma/seed.ts 加幂等 upsert 2 个 model + 2 个 channel（bge-m3 → SiliconFlow / text-embedding-3-small → OpenAI）+ costPrice/sellPrice JSON；3) admin/models 创建表单 modality select 加 EMBEDDING 选项；list 展示页 modality 列正确显示 EMBEDDING；4) 验证 GET /v1/models?modality=embedding 过滤正确返回 2 条；5) 部署后 npx prisma db seed 写入生产；6) tsc + build 通过；7) commit 'feat(BL-EMBEDDING-MVP F-EM-04): seed bge-m3 + text-embedding-3-small models'"
     },
@@ -43,7 +43,7 @@
       "title": "MCP tool embed_text + SDK gateway.embed()",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "source": "BL-EMBEDDING-MVP spec § F-EM-05",
       "acceptance": "1) src/lib/mcp/tools/embed-text.ts 新建：server.tool('embed_text', desc, {model, input: string|string[].max(100)}, handler)；handler 内调 adapter.embeddings 走完整鉴权 + 计费 + CallLog (source='mcp')；2) src/lib/mcp/server.ts 注册 registerEmbedText(server, opts)；3) 单测 src/lib/mcp/tools/__tests__/embed-text.test.ts：mock prisma + adapter，单条 + 批量 + 非 embedding 模型 error；4) sdk/src/gateway.ts 加 async embed(params: EmbedParams): Promise<EmbedResponse>；5) sdk/src/types/request.ts 加 EmbedParams + sdk/src/types/response.ts 加 EmbedResponse + sdk/src/index.ts 重导出；6) sdk/test/ 加 embed.test.ts（mock fetch + assert path + body shape）；7) tsc + build + vitest + sdk build 全过；8) commit 'feat(BL-EMBEDDING-MVP F-EM-05): MCP embed_text + SDK gateway.embed'"
     },

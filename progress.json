@@ -1,11 +1,11 @@
 {
-  "status": "building",
+  "status": "verifying",
   "user_goal": "BL-EMBEDDING-MVP — 接入 embedding modality（KOLMatrix dogfood 客户需求）。新 ModelModality EMBEDDING + POST /v1/embeddings + Action embedding 类型 + MCP embed_text + SDK gateway.embed + bge-m3 (SiliconFlow) + text-embedding-3-small (OpenAI) seed。目标 2026-05-22 KOLMatrix MVP 上线前完成。",
   "total_features": 6,
-  "completed_features": 0,
+  "completed_features": 5,
   "fix_rounds": 0,
   "current_sprint": "BL-EMBEDDING-MVP",
-  "last_updated": "2026-04-28T00:00:00.000Z",
+  "last_updated": "2026-04-28T01:25:00.000Z",
   "reference_docs": [
     "docs/specs/BL-EMBEDDING-MVP-spec.md",
     "/Users/yixingzhou/project/joyce/docs/external-asks/aigcgateway-embedding-request.md"
@@ -19,70 +19,41 @@
     "external_request": "/Users/yixingzhou/project/joyce/docs/external-asks/aigcgateway-embedding-request.md"
   },
   "evaluator_feedback": null,
-  "evaluator_handoff": null,
-  "generator_handoff": {
-    "fix_round": 0,
-    "scope": "F-EM-01 → F-EM-02 → F-EM-03 → F-EM-04 → F-EM-05 顺序执行；总工时 ~3 day。每个 feature ~0.5 day。",
-    "spec": "docs/specs/BL-EMBEDDING-MVP-spec.md",
-    "execution_order": [
-      "F-EM-01：Schema migration + Engine adapter（基础，先做）",
-      "F-EM-02：API endpoint /v1/embeddings + 计费",
-      "F-EM-03：Action 系统支持 embedding modality",
-      "F-EM-04：Provider seed bge-m3 + text-embedding-3-small",
-      "F-EM-05：MCP embed_text + SDK gateway.embed"
+  "evaluator_handoff": {
+    "scope": "F-EM-06 全量验收 — 静态(3) + API 行为(4) + Action(2) + MCP(1) + SDK(1) + 生产实证(2) + signoff(1)，共 14 项",
+    "spec": "docs/specs/BL-EMBEDDING-MVP-spec.md § F-EM-06",
+    "completed_by_generator": [
+      "F-EM-01 (commit 58ad53c): ModelModality enum 加 EMBEDDING + Action.modality 字段 + migration + Engine adapter embeddings() 实现 + 8 unit tests",
+      "F-EM-02 (commit 3382b35): POST /v1/embeddings + processEmbeddingResult (input tokens 单边计费) + 14 unit tests",
+      "F-EM-03 (commit 7b90ded): action runner modality 分支 + ActionRunResult 扩展 + create_action 加 modality 参数 + 6 unit tests",
+      "F-EM-04 (commit 4132d85): seed bge-m3 + text-embedding-3-small + ModelAlias + AliasModelLink + /v1/models 类型扩展。注：admin UI 无 creation form，spec acceptance #3 N/A",
+      "F-EM-05 (commit 9697249): MCP embed_text + SDK gateway.embed() + types 扩展 + 6 unit tests"
     ],
-    "key_files": {
-      "new": [
-        "prisma/migrations/20260428_embedding_modality/migration.sql",
-        "src/app/api/v1/embeddings/route.ts",
-        "src/app/api/v1/embeddings/__tests__/route.test.ts",
-        "src/lib/mcp/tools/embed-text.ts",
-        "src/lib/mcp/tools/__tests__/embed-text.test.ts",
-        "sdk/test/embed.test.ts（如该 sdk/test 模式存在）"
-      ],
-      "modified": [
-        "prisma/schema.prisma（ModelModality enum + Action.modality 字段）",
-        "src/lib/engine/types.ts（EmbeddingRequest/Data/Response interfaces + EngineAdapter.embeddings? 方法）",
-        "src/lib/engine/openai-compat.ts（embeddings() 方法 + buildUrl 加 'embedding' 类型 + normalizeEmbeddingResponse）",
-        "src/lib/engine/openai-compat.test.ts（加 embeddings 单测）",
-        "src/lib/api/post-process.ts（processEmbeddingResult 复用 calculateTokenCost）",
-        "src/lib/action/runner.ts（runAction + runActionNonStream 加 modality 分支）",
-        "src/lib/action/__tests__/runner.test.ts（加 embedding action case）",
-        "src/lib/mcp/tools/create-action.ts（接受 modality 参数）",
-        "src/lib/mcp/server.ts（注册 registerEmbedText）",
-        "prisma/seed.ts（加 bge-m3 + text-embedding-3-small upsert）",
-        "src/app/(console)/admin/models/page.tsx（modality select 加 EMBEDDING 选项）",
-        "sdk/src/gateway.ts（embed() 方法）",
-        "sdk/src/types/request.ts + response.ts + index.ts（EmbedParams/Response 类型）",
-        "src/app/api/v1/models/route.ts（如 modality filter 不支持 EMBEDDING 需扩展）"
-      ]
+    "verification_evidence": {
+      "static": {
+        "tsc": "PASS（npx tsc --noEmit 无输出）",
+        "build": "PASS（npm run build 完成所有路由）",
+        "vitest": "505 tests PASS（基线 471 + F-EM-01 8 + F-EM-02 14 + F-EM-03 6 + F-EM-05 6 = 505）",
+        "sdk_build": "PASS（sdk/dist/index.js 17.20 KB + .mjs 15.77 KB + .d.ts 8.15 KB）"
+      },
+      "local_db_state": {
+        "models_with_embedding": "2 行（bge-m3 + text-embedding-3-small）",
+        "model_aliases_with_embedding": "2 行（同名 alias，brand=BAAI/OpenAI）",
+        "channels_for_embedding": "2 行（siliconflow→BAAI/bge-m3 + openai→text-embedding-3-small；都 ACTIVE，costPrice token-priced）"
+      },
+      "production_proof_hint": {
+        "deploy_steps": "1) 部署后跑 npx prisma migrate deploy（应用 enum + Action.modality）；2) 跑 npx prisma db seed（写入 2 个 embedding model + alias）；3) 跑 admin API key 调 1 次 POST /v1/embeddings {model:bge-m3, input:'hello'}",
+        "admin_api_key_note": "memory 里 pk_aa6b13... 已 401 过期；Codex 需登录 codex-admin@aigc-gateway.local / Codex@2026! 在 https://aigc.guangai.ai 创建新 key",
+        "expected_results": "200 + data[0].embedding 长度 1024（bge-m3）或 1536（text-embedding-3-small）+ usage.prompt_tokens>0 + costPrice ≈ tokens × \\$0.07/M < \\$0.001"
+      }
     },
-    "preflight_checks": [
-      "Read src/app/api/v1/chat/completions/route.ts 完整结构（embedding endpoint 镜像但去 stream）",
-      "Read src/lib/engine/openai-compat.ts:162-204 imageGenerations 看 buildUrl 切换模式（embedding 同样需切换）",
-      "Read src/lib/api/post-process.ts calculateTokenCost 函数确认 outputPer1M=0 边界正确（bge-m3 sellPrice.outputPer1M=0）",
-      "Read src/lib/action/runner.ts runAction + runActionNonStream 完整以决定分支位置",
-      "Read prisma/schema.prisma Action 模型 看其他字段有无影响 modality 加入（如 modality 与 maxTokens 类似）",
-      "Read sdk/src/gateway.ts 已有 chat/image/models 方法的实现模式",
-      "WebFetch 或人工查 SiliconFlow https://siliconflow.cn pricing 确认 BAAI/bge-m3 当前单价（spec 默认 ¥0.5/M）",
-      "WebFetch 或人工查 OpenAI text-embedding-3-small 当前单价（spec 默认 $0.02/M）"
-    ],
-    "design_decisions": {
-      "action_messages_shape": "embedding action 的 ActionVersion.messages 约定为 [{role:'user', content:'template-string'}] 单条；多条时 runner 用 .join('\\n') 合并。不改 ActionVersion schema。",
-      "calculateTokenCost_reuse": "embedding 计费复用 calculateTokenCost(usage, route)，把 completion_tokens 设 0 即可（output 单价乘 0）。无需新建 calculateEmbeddingCost。",
-      "modality_consistency_check": "create_action 时 validate model.modality === action.modality；不一致 409。run_action 时 trust action.modality 不重新检查（migration 时已锁定）。",
-      "phase_2_excluded": "dimensions / encoding_format=base64 / similarity endpoint / 持久化向量 / Volcengine+Zhipu+DeepSeek 适配 / Template embedding step / Action embedding 批量 全部 Phase 2"
-    },
-    "kolmatrix_context": {
-      "external_request_doc": "/Users/yixingzhou/project/joyce/docs/external-asks/aigcgateway-embedding-request.md",
-      "target_models": "P0 bge-m3 (KOLMatrix 主推中日韩) + P1 text-embedding-3-small (兜底)",
-      "kolmatrix_mvp_deadline": "2026-05-22（aigcgateway 完成给 KOLMatrix 留 BL-014 升级时间）",
-      "expected_kolmatrix_use": "KOL bio embed 1500 一次性 + 50/day 增量 + Smart Match 5000-50000 月查询"
-    },
-    "notes": "本批次共 6 features，~3 day Generator 实施 + 0.5 day Codex 验收。Generator 完成 F-EM-01~05 后 status=verifying；Codex 跑 F-EM-06 14 项验收（含 1 次生产实证调用 ~$0.0001）。生产实证调用花真钱（bge-m3 约 $0.07/M tokens × 50 token 测试 prompt = ~$0.000004，几乎免费）。"
+    "expected_signoff_path": "docs/test-reports/BL-EMBEDDING-MVP-signoff-2026-04-2X.md",
+    "exclusions_reminder": "明确不要求：dimensions 可选参数 / encoding_format=base64 / similarity endpoint / 持久化向量 / Volcengine+Zhipu+DeepSeek 适配 / Template embedding step / Action embedding 批量；admin UI creation form（不存在）spec acceptance #3 N/A"
   },
+  "generator_handoff": null,
   "session_notes": {
-    "Kimi-batch-launch": "BL-EMBEDDING-MVP 启动 @ 2026-04-28 00:00。\n\n来源：KOLMatrix 客户文档 /Users/yixingzhou/project/joyce/docs/external-asks/aigcgateway-embedding-request.md（同一用户的 dogfood 客户）。\n\n用户决策路径：\n1) 用户问 'gateway 可以支持 Embedding Model 吗？' → Planner 评估当前不支持\n2) Planner 给 MVP 1.5-2 day / 完整 2 day 两版估算\n3) 用户引用 KOLMatrix 客户 request 文档（含完整商业 case + 9 受益场景 + ROI + API spec）\n4) 文档 KOLMatrix 给的工时估算 3-5 day（比 Planner 之前估算更合理，含 Action 集成 + MCP + SDK）\n5) Planner 时机评估：05-22 KOLMatrix MVP 上线前完成最佳；现在起 batch 时间窗口够\n6) 用户选 A：立即启动\n\n架构决策：\n- ModelModality 枚举加 EMBEDDING；Action 加 modality 字段\n- API endpoint /v1/embeddings 镜像 chat/completions（去 stream）\n- Engine adapter.embeddings? 可选方法（OpenAI 兼容）\n- Action runner 分支 by action.modality；ActionVersion.messages 不改 schema（embedding action 用单条 user message 作 template）\n- 计费复用 calculateTokenCost（output=0）\n- Seed bge-m3 (SiliconFlow ~$0.07/M) + text-embedding-3-small (OpenAI $0.02/M)\n- MCP embed_text + SDK gateway.embed()\n\n6 features × 0.5d = 3 day Gen + 0.5d Codex 验收 = 3.5 day 总，留 buffer 给 fix-round。\n\nPhase 2 显式排除：dimensions / cosine endpoint / 持久化向量 / 其他 provider / Template embedding step。\n\n下一步：本会话 Planner 身份固定。等 Generator session pull 后按 generator_handoff 顺序执行 F-EM-01~05，完成后 status=verifying 交 Codex F-EM-06（含生产实证 1 次真调用 ~$0.000004）。",
+    "Kimi-batch-launch": "BL-EMBEDDING-MVP 启动 @ 2026-04-28 00:00。\n\n来源：KOLMatrix 客户文档 /Users/yixingzhou/project/joyce/docs/external-asks/aigcgateway-embedding-request.md（同一用户的 dogfood 客户）。\n\n用户决策路径：\n1) 用户问 'gateway 可以支持 Embedding Model 吗？' → Planner 评估当前不支持\n2) Planner 给 MVP 1.5-2 day / 完整 2 day 两版估算\n3) 用户引用 KOLMatrix 客户 request 文档（含完整商业 case + 9 受益场景 + ROI + API spec）\n4) 文档 KOLMatrix 给的工时估算 3-5 day（比 Planner 之前估算更合理，含 Action 集成 + MCP + SDK）\n5) Planner 时机评估：05-22 KOLMatrix MVP 上线前完成最佳；现在起 batch 时间窗口够\n6) 用户选 A：立即启动\n\n架构决策：\n- ModelModality 枚举加 EMBEDDING；Action 加 modality 字段\n- API endpoint /v1/embeddings 镜像 chat/completions（去 stream）\n- Engine adapter.embeddings? 可选方法（OpenAI 兼容）\n- Action runner 分支 by action.modality；ActionVersion.messages 不改 schema（embedding action 用单条 user message 作 template）\n- 计费复用 calculateTokenCost（output=0）\n- Seed bge-m3 (SiliconFlow ~\\$0.07/M) + text-embedding-3-small (OpenAI \\$0.02/M)\n- MCP embed_text + SDK gateway.embed()\n\n6 features × 0.5d = 3 day Gen + 0.5d Codex 验收 = 3.5 day 总，留 buffer 给 fix-round。\n\nPhase 2 显式排除：dimensions / cosine endpoint / 持久化向量 / 其他 provider / Template embedding step。\n\n下一步：本会话 Planner 身份固定。等 Generator session pull 后按 generator_handoff 顺序执行 F-EM-01~05，完成后 status=verifying 交 Codex F-EM-06（含生产实证 1 次真调用 ~\\$0.000004）。",
+    "Kimi": "BL-EMBEDDING-MVP building → verifying @ 2026-04-28 01:25。\n\n5 个 generator features 一次性完成 + push 模式（用户选 B 一鼓作气）：\n- F-EM-01 (58ad53c): schema migration（PG enum ALTER + Action.modality 共一 migration 不冲突）+ Engine types 加 EmbeddingRequest/Data/Response + EngineAdapter.embeddings? 可选方法 + openai-compat embeddings()/normalizeEmbeddingResponse + buildUrl 扩展 + 8 单测。本地手动 psql ALTER + prisma migrate resolve --applied（避开 dev DB drift reset）。\n- F-EM-02 (3382b35): /v1/embeddings 镜像 chat/completions 鉴权链 + modality 必须 EMBEDDING（与 chat 排除 IMAGE 相反）+ processEmbeddingResult/Async 复用 calculateTokenCost(usage{completion_tokens:0}) + 14 单测覆盖鉴权失败/各种 input 校验/非 EMBEDDING/no embeddings adapter/happy/error。\n- F-EM-03 (7b90ded): Action runner runAction(stream)+runActionNonStream 加 modality 分支；ActionRunResult 加 modality/embedding/dimensions；create_action MCP tool 加 modality enum + model.modality 一致性校验；6 单测含 chat 回归 + embedding 流/非流。\n- F-EM-04 (4132d85): seed.ts 加 embeddingSeeds（bge-m3+text-embedding-3-small），写 Model+Channel+ModelAlias+AliasModelLink；价格用 spec 默认 \\$0.07/M (bge-m3) / \\$0.02/M (openai) markup 1.2x（WebFetch 被屏蔽，未线上 verify）；/v1/models 类型断言加 EMBEDDING；admin/models 页面是 read-only 无 creation form 故 spec acceptance #3 N/A；本地 seed 跑通 2 model+2 alias。\n- F-EM-05 (9697249): MCP embed_text 完整鉴权+计费链（permission 复用 chatCompletion）+ server.ts 注册；SDK EmbedParams/EmbedResponse 类型 + gateway.embed() POST /v1/embeddings + index.ts 重导出；6 单测含静态契约（server.ts 注册）+ handler（balance 0 / 非 EMBEDDING / 单/批量 happy）。SDK build PASS。\n\n最终验证：tsc PASS / vitest 505 PASS / build PASS / sdk build PASS。progress.json status=verifying，evaluator_handoff 写 14 项验收证据指引（含 admin key 重创提醒 + 部署步骤 prisma migrate deploy → db seed → 实测调用）。\n\n注意点：\n- 真根因（不是 spec 问题）：\\v1/models 走 ModelAlias，所以必须为 embedding model 同时建 alias，否则 /v1/models?modality=embedding 返空（spec 假设 spec 默认有 alias 但 sync 不创建 embedding alias）。已在 seed 中显式建。\n- WebFetch 当前被生产网页屏蔽，价格未实时 verify\n- admin UI page 是只读 list，spec L302 提到的 'admin/models 创建表单 modality select 加 EMBEDDING' 实际页面不存在 → 该项 N/A\n- F-EM-06 第 13 项生产实证调用 ~\\$0.000004 几乎免费\n- 现行 Action.messages 约定 [{role:'user', content:'template'}] 单条，runner.join('\\n') 拼接；embedding shape 验收看实际效果",
     "Reviewer": null
   }
 }
