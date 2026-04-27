@@ -1,0 +1,125 @@
+{
+  "timestamp": "2026-04-27T07:50:00.923Z",
+  "real_call": {
+    "status": 200,
+    "ok": true,
+    "traceId": "chatcmpl-trc_iyp6j4qwowbsu8fhqmo4ujfb",
+    "usage": {
+      "prompt_tokens": 7,
+      "completion_tokens": 1290,
+      "total_tokens": 1297,
+      "upstreamCostUsd": 0.0387021
+    },
+    "error": null
+  },
+  "trace_lookup": {
+    "trace_from_call": "chatcmpl-trc_iyp6j4qwowbsu8fhqmo4ujfb",
+    "trace_search_note": "use trc_* id when querying /api/admin/logs/search",
+    "hit": {
+      "traceId": "trc_iyp6j4qwowbsu8fhqmo4ujfb",
+      "projectName": "Codex Admin Project",
+      "projectId": "cmnj295c90003rny7hsd0li9l",
+      "modelName": "google/gemini-2.5-flash-image",
+      "channelId": "cmnpqumpb008zbnxc2t47ollt",
+      "channelProvider": "openrouter",
+      "channelRealModelId": "google/gemini-2.5-flash-image",
+      "status": "SUCCESS",
+      "promptTokens": 7,
+      "completionTokens": 1290,
+      "costPrice": 0.0387021,
+      "sellPrice": 0.00387252,
+      "latencyMs": 4476,
+      "createdAt": "2026-04-27T07:47:11.058Z"
+    }
+  },
+  "rerun_today": {
+    "status": 200,
+    "ok": true,
+    "body": {
+      "reportDate": "2026-04-27",
+      "providersInspected": 10,
+      "rowsWritten": 11,
+      "bigDiffs": 0
+    }
+  },
+  "reconciliation_after_rerun_today": {
+    "report_date_utc": "2026-04-27",
+    "rows_count": 0,
+    "target_row": null
+  },
+  "model_rows_recent": [
+    {
+      "id": "cmoglymx6001tbnqx0h2zvxni",
+      "providerId": "cmnckvv5m0031n56ics9pggfg",
+      "providerName": "openrouter",
+      "providerDisplayName": "OpenRouter",
+      "reportDate": "2026-04-26T00:00:00.000Z",
+      "tier": 1,
+      "modelName": "google/gemini-2.5-flash-image",
+      "upstreamAmount": 0.193548,
+      "gatewayAmount": 0.016176,
+      "delta": -0.177373,
+      "deltaPercent": -91.64,
+      "status": "MATCH",
+      "details": {
+        "raw": {
+          "date": "2026-04-26 00:00:00",
+          "model": "google/gemini-2.5-flash-image",
+          "usage": 0.193548,
+          "requests": 5,
+          "endpoint_id": "9fc81a95-52d2-4a94-adc5-f99869ab1351",
+          "byok_requests": 0,
+          "prompt_tokens": 35,
+          "provider_name": "google-vertex",
+          "model_permaslug": "google/gemini-2.5-flash-image",
+          "reasoning_tokens": 0,
+          "completion_tokens": 6466,
+          "byok_usage_inference": 0
+        },
+        "currency": "USD",
+        "upstreamRequests": 5,
+        "exchangeRateApplied": 1,
+        "upstreamAmountOriginal": 0.193548
+      },
+      "computedAt": "2026-04-27T07:45:00.051Z"
+    },
+    {
+      "id": "cmofcnlbt0452bn7ib5btn66b",
+      "providerId": "cmnckvv5m0031n56ics9pggfg",
+      "providerName": "openrouter",
+      "providerDisplayName": "OpenRouter",
+      "reportDate": "2026-04-25T00:00:00.000Z",
+      "tier": 1,
+      "modelName": "google/gemini-2.5-flash-image",
+      "upstreamAmount": 0.038701,
+      "gatewayAmount": 0,
+      "delta": -0.038701,
+      "deltaPercent": -100,
+      "status": "MATCH",
+      "details": {
+        "raw": {
+          "date": "2026-04-25 00:00:00",
+          "model": "google/gemini-2.5-flash-image",
+          "usage": 0.038701,
+          "requests": 1,
+          "endpoint_id": "9fc81a95-52d2-4a94-adc5-f99869ab1351",
+          "byok_requests": 0,
+          "prompt_tokens": 6,
+          "provider_name": "google-vertex",
+          "model_permaslug": "google/gemini-2.5-flash-image",
+          "reasoning_tokens": 0,
+          "completion_tokens": 1290,
+          "byok_usage_inference": 0
+        },
+        "currency": "USD",
+        "upstreamRequests": 1
+      },
+      "computedAt": "2026-04-26T15:55:33.821Z"
+    }
+  ],
+  "checks": {
+    "tc6_real_call_ok": true,
+    "tc7_cost_in_range": true,
+    "tc8_today_match": false
+  }
+}

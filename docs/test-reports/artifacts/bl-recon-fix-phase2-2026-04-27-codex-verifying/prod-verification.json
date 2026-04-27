@@ -1,0 +1,69 @@
+{
+  "timestamp": "2026-04-27T07:40:48.673Z",
+  "base": "https://aigc.guangai.ai",
+  "steps": {
+    "login": {
+      "status": 200,
+      "ok": true,
+      "role": "ADMIN"
+    },
+    "create_key": {
+      "status": 201,
+      "ok": true,
+      "keyId": "cmogw18u40003bnet8uk674kp",
+      "prefix": "pk_a5086"
+    },
+    "image_call": {
+      "status": 404,
+      "ok": false,
+      "traceId": null,
+      "usage": null,
+      "error": {
+        "type": "not_found_error",
+        "code": "model_not_found",
+        "message": "Model \"gemini-2.5-flash-image\" not found"
+      }
+    },
+    "logs_poll": {
+      "attempts": 1,
+      "status": 200,
+      "rows": 10
+    },
+    "call_log_row": {
+      "traceId": "trc_ct17f6cnjk93pa510hsgfb0p",
+      "projectName": "Codex Admin Project",
+      "projectId": "cmnj295c90003rny7hsd0li9l",
+      "modelName": "google/gemini-2.5-flash-image",
+      "channelId": "cmnpqumpb008zbnxc2t47ollt",
+      "channelProvider": "openrouter",
+      "channelRealModelId": "google/gemini-2.5-flash-image",
+      "status": "SUCCESS",
+      "promptTokens": 10,
+      "completionTokens": 1291,
+      "costPrice": 0.0032305,
+      "sellPrice": 0.0038766,
+      "latencyMs": 7253,
+      "createdAt": "2026-04-26T09:36:58.781Z"
+    },
+    "rerun": {
+      "status": 200,
+      "ok": true,
+      "body": {
+        "reportDate": "2026-04-27",
+        "providersInspected": 10,
+        "rowsWritten": 11,
+        "bigDiffs": 0
+      }
+    },
+    "reconciliation_row": null,
+    "delete_key": {
+      "status": 200,
+      "ok": true
+    }
+  },
+  "checks": {
+    "tc6_real_call_ok": false,
+    "tc7_cost_in_range": false,
+    "tc8_reconcile_match": false
+  }
+}

@@ -1,0 +1,85 @@
+{
+  "timestamp": "2026-04-27T07:48:56.579Z",
+  "logs_model_status": 200,
+  "logs_model_rows": 7,
+  "trace_hit": null,
+  "logs_search_status": 200,
+  "logs_search_rows": 0,
+  "reconciliation_status": 200,
+  "reconciliation_rows": 2,
+  "reconciliation_data": [
+    {
+      "id": "cmoglymx6001tbnqx0h2zvxni",
+      "providerId": "cmnckvv5m0031n56ics9pggfg",
+      "providerName": "openrouter",
+      "providerDisplayName": "OpenRouter",
+      "reportDate": "2026-04-26T00:00:00.000Z",
+      "tier": 1,
+      "modelName": "google/gemini-2.5-flash-image",
+      "upstreamAmount": 0.193548,
+      "gatewayAmount": 0.016176,
+      "delta": -0.177373,
+      "deltaPercent": -91.64,
+      "status": "MATCH",
+      "details": {
+        "raw": {
+          "date": "2026-04-26 00:00:00",
+          "model": "google/gemini-2.5-flash-image",
+          "usage": 0.193548,
+          "requests": 5,
+          "endpoint_id": "9fc81a95-52d2-4a94-adc5-f99869ab1351",
+          "byok_requests": 0,
+          "prompt_tokens": 35,
+          "provider_name": "google-vertex",
+          "model_permaslug": "google/gemini-2.5-flash-image",
+          "reasoning_tokens": 0,
+          "completion_tokens": 6466,
+          "byok_usage_inference": 0
+        },
+        "currency": "USD",
+        "upstreamRequests": 5,
+        "exchangeRateApplied": 1,
+        "upstreamAmountOriginal": 0.193548
+      },
+      "computedAt": "2026-04-27T07:45:00.051Z"
+    },
+    {
+      "id": "cmofcnlbt0452bn7ib5btn66b",
+      "providerId": "cmnckvv5m0031n56ics9pggfg",
+      "providerName": "openrouter",
+      "providerDisplayName": "OpenRouter",
+      "reportDate": "2026-04-25T00:00:00.000Z",
+      "tier": 1,
+      "modelName": "google/gemini-2.5-flash-image",
+      "upstreamAmount": 0.038701,
+      "gatewayAmount": 0,
+      "delta": -0.038701,
+      "deltaPercent": -100,
+      "status": "MATCH",
+      "details": {
+        "raw": {
+          "date": "2026-04-25 00:00:00",
+          "model": "google/gemini-2.5-flash-image",
+          "usage": 0.038701,
+          "requests": 1,
+          "endpoint_id": "9fc81a95-52d2-4a94-adc5-f99869ab1351",
+          "byok_requests": 0,
+          "prompt_tokens": 6,
+          "provider_name": "google-vertex",
+          "model_permaslug": "google/gemini-2.5-flash-image",
+          "reasoning_tokens": 0,
+          "completion_tokens": 1290,
+          "byok_usage_inference": 0
+        },
+        "currency": "USD",
+        "upstreamRequests": 1
+      },
+      "computedAt": "2026-04-26T15:55:33.821Z"
+    }
+  ],
+  "checks": {
+    "trace_found_in_admin_logs": false,
+    "cost_in_range": null,
+    "has_match_row": true
+  }
+}

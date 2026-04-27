@@ -1,0 +1,57 @@
+{
+  "timestamp": "2026-04-27T07:47:03.488Z",
+  "base": "https://aigc.guangai.ai",
+  "steps": {
+    "login": {
+      "status": 200,
+      "ok": true,
+      "role": "ADMIN"
+    },
+    "create_key": {
+      "status": 201,
+      "ok": true,
+      "keyId": "cmogw9a0k0003bn5asnrgqq6h",
+      "prefix": "pk_cdf26"
+    },
+    "image_call": {
+      "status": 200,
+      "ok": true,
+      "traceId": "chatcmpl-trc_iyp6j4qwowbsu8fhqmo4ujfb",
+      "usage": {
+        "prompt_tokens": 7,
+        "completion_tokens": 1290,
+        "total_tokens": 1297,
+        "upstreamCostUsd": 0.0387021
+      },
+      "error": null
+    },
+    "logs_poll": {
+      "attempts": 30,
+      "status": 200,
+      "rows": 0
+    },
+    "call_log_row": null,
+    "report_date_utc": "2026-04-27",
+    "rerun": {
+      "status": 200,
+      "ok": true,
+      "body": {
+        "reportDate": "2026-04-27",
+        "providersInspected": 10,
+        "rowsWritten": 11,
+        "bigDiffs": 0
+      }
+    },
+    "reconciliation_rows": 0,
+    "reconciliation_row": null,
+    "delete_key": {
+      "status": 200,
+      "ok": true
+    }
+  },
+  "checks": {
+    "tc6_real_call_ok": true,
+    "tc7_cost_in_range": false,
+    "tc8_reconcile_match": false
+  }
+}
