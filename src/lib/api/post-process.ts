@@ -18,6 +18,7 @@ import {
   type RouteResult,
   type Usage,
   type ChatCompletionResponse,
+  type EmbeddingResponse,
   type ImageGenerationResponse,
 } from "../engine/types";
 import type { AttemptRecord } from "../engine/failover";
@@ -57,6 +58,16 @@ export interface ChatPostProcessParams extends PostProcessParams {
 
 export interface ImagePostProcessParams extends PostProcessParams {
   response?: ImageGenerationResponse;
+  error?: { message: string; code?: string };
+}
+
+/**
+ * BL-EMBEDDING-MVP F-EM-02: embedding 后处理参数。usage 仅含 prompt_tokens
+ * （embedding 无 completion）；computed cost via calculateTokenCost(usage,
+ * route, status) where usage.completion_tokens=0 → output 项乘 0 = 0。
+ */
+export interface EmbeddingPostProcessParams extends PostProcessParams {
+  response?: EmbeddingResponse;
   error?: { message: string; code?: string };
 }
 
@@ -261,6 +272,20 @@ export function summarizeImageUrl(url: string | null | undefined): string | null
 export function processImageResult(params: ImagePostProcessParams): void {
   processImageResultAsync(params).catch((err) => {
     console.error("[post-process] image error:", err);
+  });
+}
+
+/**
+ * BL-EMBEDDING-MVP F-EM-02: 异步处理 embedding 请求日志 + 扣费。
+ *
+ * 复用 calculateTokenCost(usage, route, status)：把 EmbeddingResponse.usage
+ * 转成 Usage shape（completion_tokens=0），output 单价 × 0 = 0，符合
+ * input-only 计费语义。CallLog.responseSummary 写 modality='EMBEDDING' +
+ * data_count + dimensions（首条向量长度）便于审计。
+ */
+export function processEmbeddingResult(params: EmbeddingPostProcessParams): void {
+  processEmbeddingResultAsync(params).catch((err) => {
+    console.error("[post-process] embedding error:", err);
   });
 }
 
@@ -500,6 +525,90 @@ async function processImageResultAsync(params: ImagePostProcessParams): Promise<
     checkAndSendBalanceLowAlert(params.userId, params.projectId).catch(() => {});
   } else {
     await prisma.callLog.create({ data: imageCallLogData });
+  }
+}
+
+async function processEmbeddingResultAsync(params: EmbeddingPostProcessParams): Promise<void> {
+  const latencyMs = Date.now() - params.startTime;
+  const isError = !!params.error;
+
+  // EmbeddingResponse.usage = { prompt_tokens, total_tokens } — 转成 chat
+  // 风格 Usage（completion_tokens=0），让 calculateTokenCost output 项 × 0 = 0
+  const embUsage = params.response?.usage ?? null;
+  const usage: Usage | null = embUsage
+    ? {
+        prompt_tokens: embUsage.prompt_tokens,
+        completion_tokens: 0,
+        total_tokens: embUsage.total_tokens,
+      }
+    : null;
+
+  // status: 有 data 即 SUCCESS，否则 ERROR/FILTERED
+  const dataCount = params.response?.data?.length ?? 0;
+  const status: CallStatus = isError ? "ERROR" : dataCount > 0 ? "SUCCESS" : "FILTERED";
+  const finishReason: FinishReason | null = isError
+    ? "ERROR"
+    : status === "SUCCESS"
+      ? "STOP"
+      : null;
+
+  const { costUsd, sellUsd } = calculateTokenCost(usage, params.route, status);
+
+  // 定价缺失告警（与 chat 一致）
+  if (status === "SUCCESS" && usage && usage.prompt_tokens > 0 && sellUsd === 0) {
+    console.warn(
+      `[post-process] WARNING: zero sell price for embedding alias=${params.route.alias?.alias ?? "unknown"} model=${params.modelName} tokens=${usage.prompt_tokens}. Check alias sellPrice config.`,
+    );
+  }
+
+  // responseSummary 记录 modality + data_count + dimensions（首条向量长度）
+  const dimensions = params.response?.data?.[0]?.embedding?.length ?? null;
+  const responseSummaryObj: Record<string, unknown> = {
+    modality: "EMBEDDING",
+    data_count: dataCount,
+  };
+  if (dimensions !== null) responseSummaryObj.dimensions = dimensions;
+  const includeAttemptChain = Array.isArray(params.attemptChain) && params.attemptChain.length > 1;
+  if (includeAttemptChain) responseSummaryObj.attempt_chain = params.attemptChain;
+  const responseSummary = responseSummaryObj as Prisma.InputJsonValue;
+
+  const callLogData: Prisma.CallLogUncheckedCreateInput = {
+    traceId: params.traceId,
+    projectId: params.projectId,
+    channelId: params.route.channel.id,
+    modelName: params.modelName,
+    promptSnapshot: params.promptSnapshot as unknown as object,
+    requestParams: params.requestParams as Prisma.InputJsonValue,
+    responseContent: null, // embedding 无文本响应
+    responseSummary,
+    finishReason,
+    status,
+    promptTokens: usage?.prompt_tokens ?? null,
+    completionTokens: 0,
+    totalTokens: usage?.total_tokens ?? null,
+    costPrice: costUsd,
+    sellPrice: sellUsd,
+    latencyMs,
+    ttftMs: null,
+    tokensPerSecond: null,
+    errorMessage: params.error?.message ? sanitizeErrorMessage(params.error.message) : null,
+    errorCode: params.error?.code ?? null,
+    actionId: params.actionId ?? null,
+    actionVersionId: params.actionVersionId ?? null,
+    templateRunId: params.templateRunId ?? null,
+    source: params.source ?? "api",
+  };
+
+  const shouldDeduct = sellUsd > 0 && status === "SUCCESS";
+  if (shouldDeduct) {
+    await prisma.$transaction(async (tx) => {
+      const callLog = await tx.callLog.create({ data: callLogData });
+      await deductBalance(tx, params.userId, params.projectId, sellUsd, callLog.id, params.traceId);
+    });
+    recordSpending(params.userId, sellUsd).catch(() => {});
+    checkAndSendBalanceLowAlert(params.userId, params.projectId).catch(() => {});
+  } else {
+    await prisma.callLog.create({ data: callLogData });
   }
 }
 
