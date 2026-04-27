@@ -3,77 +3,87 @@
   "user_goal": "BL-RECON-UX-PHASE1 — 优化 /admin/reconciliation 对账面板。A 视图筛选（日期 picker + 倒序默认 + 分页 + Tier 切换 + model 搜索）+ D CSV 导出 + E 阈值可配置（SystemConfig 4 keys）+ 用户明确要求最新数据在顶部。Phase 1 不含告警 / 数据洞察 / Tier 3 占位 / 重跑 audit trail。",
   "total_features": 3,
   "completed_features": 2,
-  "fix_rounds": 0,
+  "fix_rounds": 1,
   "current_sprint": "BL-RECON-UX-PHASE1",
-  "last_updated": "2026-04-27T05:17:36.000Z",
+  "last_updated": "2026-04-27T06:00:00.000Z",
   "reference_docs": [
-    "docs/specs/BL-RECON-UX-PHASE1-spec.md"
+    "docs/specs/BL-RECON-UX-PHASE1-spec.md",
+    "docs/adjudications/BL-RECON-UX-PHASE1-tc13-relaxation-2026-04-27.md"
   ],
   "role_assignments": null,
   "docs": {
     "spec": "docs/specs/BL-RECON-UX-PHASE1-spec.md",
     "test_cases": null,
     "signoff": null,
-    "framework_reviewed": false
+    "framework_reviewed": false,
+    "adjudication": "docs/adjudications/BL-RECON-UX-PHASE1-tc13-relaxation-2026-04-27.md"
   },
-  "evaluator_feedback": {
-    "summary": "F-RC-03 验收 15/16 通过；tc13 在本地环境阻断（rerun rowsWritten=0，无法验证阈值变更后的状态迁移）。",
-    "pass_count": 15,
-    "partial_count": 0,
-    "fail_count": 1,
-    "report": "docs/test-reports/BL-RECON-UX-PHASE1-verification-failed-2026-04-27.md",
-    "issues": [
-      {
-        "feature_id": "F-RC-03",
-        "result": "FAIL",
-        "description": "阈值更新后执行 /api/admin/reconciliation/rerun 返回 200 但 rowsWritten=0，MATCH 总量不变，未观察到 MATCH->MINOR_DIFF 迁移。",
-        "steps_to_reproduce": "1) 保存 RECONCILIATION_MATCH_DELTA_USD=0.1 2) POST /api/admin/reconciliation/rerun {date:\"2026-04-27\"} 3) 检查返回 rowsWritten=0 4) 查询 status=MATCH meta.total 仍 12022",
-        "evidence": [
-          "docs/test-reports/artifacts/bl-recon-ux-phase1-2026-04-27-codex-verifying/recheck-11-13.json",
-          "docs/test-reports/artifacts/bl-recon-ux-phase1-2026-04-27-codex-verifying/codex-setup.log"
-        ],
-        "risk": "本地缺失可用上游 billing 凭证导致重跑抓账阶段未产出新对账行；需在 staging（真实 key）补测或补可控测试桩。"
-      }
-    ]
-  },
-  "evaluator_handoff": {
-    "scope": "F-RC-03 全量验收：3 项静态 + 6 项 API 行为 + 5 项前端冒烟 + 1 项 i18n + 1 项 signoff 报告 = 16 项",
+  "evaluator_feedback": null,
+  "evaluator_handoff": null,
+  "generator_handoff": {
+    "fix_round": 1,
+    "scope": "fix_round 1：补 tc13 mock-based wiring 集成测试。tc13 验收已经 Planner 裁决放宽（用户 2026-04-27 同意），原『真实凭证下手动重跑观察 MATCH→MINOR_DIFF 迁移』因本地 fetcher 无 billing 凭证 skip 不可达；新 acceptance = mock fetcher 注入 + 阈值切换前后 status 字段二值差异。",
     "spec": "docs/specs/BL-RECON-UX-PHASE1-spec.md",
-    "feature_id": "F-RC-03",
-    "deployed_artifacts": {
-      "new_endpoints": [
-        "GET /api/admin/reconciliation/export — CSV 导出（同列表 filter，无 page/pageSize；BOM + 10000 hard cap）"
-      ],
-      "modified_endpoints": [
-        "GET /api/admin/reconciliation — 新增 tier/modelSearch/page/pageSize/sort 参数；返回 { data, meta:{total,page,pageSize} }；默认 sort=desc"
-      ],
-      "frontend_routes": [
-        "/admin/reconciliation — 6 区块：cards / trend / 阈值配置（新）/ 重跑 / 明细表（含日期 picker + Tier 按钮组 + 分页 + 模型搜索 + CSV 按钮）"
-      ],
-      "system_config_keys": [
-        "RECONCILIATION_MATCH_DELTA_USD = 0.5",
-        "RECONCILIATION_MATCH_PERCENT = 5",
-        "RECONCILIATION_MINOR_DELTA_USD = 5",
-        "RECONCILIATION_MINOR_PERCENT = 20"
-      ]
-    },
-    "verification_pointers": {
-      "static": "npx tsc --noEmit / npm run build / npx vitest run（基线 441 应保持，Generator 本机已确认）",
-      "api_behavior": "spec § F-RC-03 第 4-9 项；BASE_URL=生产或本地 + admin token；建议先 seed 4 个 SystemConfig 再跑",
-      "frontend_smoke": "spec § F-RC-03 第 10-14 项；登录 admin → /admin/reconciliation",
-      "i18n": "切 zh-CN locale 检查表头 + 阈值区块；spec § F-RC-03 第 15 项",
-      "signoff_report": "docs/test-reports/BL-RECON-UX-PHASE1-signoff-2026-04-2X.md（含 16 项证据 + 4 张关键截图）"
-    },
-    "deploy_notes": "本机已通过 tsc + build + vitest 441 PASS。生产部署后需先跑一次 npx prisma db seed 写入 4 个 SystemConfig 默认值（之后管理员可在 UI 改）。reconcile cron 04:30 UTC 会自动用新阈值。",
-    "known_caveats": [
-      "lint warnings（aggregateRows + data 的 useMemo deps 警告）已修；reconciliation 页其他 lint clean",
-      "dev server 本机 smoke test 因 IMAGE_PROXY_SECRET 未设而失败，但 production build 已通过 strict tsc + 路由打包 6.45 kB",
-      "CSV BOM 测试需要 arrayBuffer() 而非 text()（TextDecoder 默认吞 BOM）"
-    ]
+    "adjudication": "docs/adjudications/BL-RECON-UX-PHASE1-tc13-relaxation-2026-04-27.md",
+    "targets": [
+      {
+        "step": "1. 选择 fetcher 注入方式",
+        "preferred": "改造 src/lib/billing-audit/reconcile-job.ts: 给 runReconciliation 加可选第三参数 __testFetcherOverrides?: { tier1?: Map<providerId, TierOneBillFetcher>; tier2?: Map<...> }；如 override 存在则跳过 tier1FetcherFor / tier2FetcherFor 工厂调用直接用 override map 取值；生产代码不传，无副作用",
+        "alt": "vi.mock 模块级 mock fetcher 文件；缺点：与 reconcile-job 耦合更紧，refactor 时易破"
+      },
+      {
+        "step": "2. 新建测试文件",
+        "file": "src/lib/billing-audit/__tests__/runReconciliation-thresholds.test.ts",
+        "structure": [
+          "describe.sequential('runReconciliation thresholds wiring', ...) 防并发污染 SystemConfig",
+          "beforeEach: 清理 BillReconciliation 测试行 + reset SystemConfig 4 keys 到默认值 + 创建 1 个 test provider (name='test-tier1') + insert 必要的 callLogs 让 aggregateGatewayCallLogs 返 0",
+          "afterEach: 删除 test provider + bill_reconciliation rows + system_config keys (恢复默认或删除让 fallback 生效)",
+          "test A (默认 0.5): 不动 SystemConfig → runReconciliation(date, undefined, { tier1: Map([['test-tier1-id', fakeFetcher]]) }) → query bill_reconciliation → expect status === 'MATCH'",
+          "test B (紧 0.1): prisma.systemConfig.upsert RECONCILIATION_MATCH_DELTA_USD=0.1 → 重跑 → expect status === 'MINOR_DIFF'",
+          "test C (回归 fakeFetcher 不变): A 与 B 用同一 fakeFetcher 与同一 delta，断言 status A !== status B（核心 wiring 证据）"
+        ]
+      },
+      {
+        "step": "3. fakeFetcher 实现",
+        "shape": "{ async fetch(date: Date): Promise<BillRecord[]> { return [{ modelName: 'test-model', upstreamAmount: 0.3 }]; } }",
+        "note": "0.3 在阈值 0.5 下 MATCH（|0.3| < 0.5），在阈值 0.1 下 MINOR_DIFF（|0.3| > 0.1 且 |0.3| < 5，deltaPercent === null 因 gateway=0 → upstream=0.3 → 实际 deltaPercent 不为 null：(0-0.3)/0.3*100 = -100%，|%|=100，超 minorPercent=20 → 走最后一个 else BIG_DIFF！需重新选 delta 或 gateway 值）",
+        "delta_recalc": "正确 synthetic：upstream=0.3, gateway=0 → delta=-0.3, deltaPercent=-100%。|delta|=0.3, |%|=100。在默认（matchDelta=0.5, matchPercent=5, minorDelta=5, minorPercent=20）下：ad<0.5 ✓ → MATCH。在 matchDelta=0.1 下：ad<0.1 ✗，ap<5 ✗，ad<5 且 (ap===null 或 ap<20) — ap=100 > 20 → 走最后 else → BIG_DIFF。需要的是 MATCH→MINOR_DIFF 边界，那就用 upstream=0.3, gateway=0.27 → delta=-0.03... 等。重新选：upstream=10, gateway=9.7 → delta=-0.3, deltaPercent=-3%。默认 matchDelta=0.5 命中 (ad=0.3<0.5) → MATCH。matchDelta=0.1 → ad<0.1 ✗，ap<5 ✓ (3<5) → 仍 MATCH。仍不对。需同时压低 matchPercent。新方案 case B: 同时 matchDelta=0.1 + matchPercent=1 → ad=0.3 ≥ 0.1 ✗，ap=3 ≥ 1 ✗，ad<5 ✓ + (ap=3 < minorPercent=20) ✓ → MINOR_DIFF ✓"
+      },
+      {
+        "step": "4. 修订后的 fakeFetcher synthetic 数据",
+        "data": "upstream=10, gateway=9.7 → delta=-0.3, deltaPercent=-3%",
+        "case_a": "默认阈值 (matchDelta=0.5, matchPercent=5, minorDelta=5, minorPercent=20) → ad=0.3 < 0.5 → MATCH",
+        "case_b": "紧阈值 (matchDelta=0.1, matchPercent=1, 其他默认) → ad=0.3 ≥ 0.1, ap=3 ≥ 1, ad=0.3 < 5 且 ap=3 < 20 → MINOR_DIFF",
+        "fix_round_handoff_note": "Generator 实测时若以上推算与代码 classifyStatus 实际结果不符，要先跑一次 vitest 单测的 classifyStatus 用例确认两组阈值下的实际 status，再调整 synthetic upstream/gateway 数值确保两组阈值产生不同 status。核心是『同一 delta 下两组阈值 status 不同』，具体数值次要"
+      },
+      {
+        "step": "5. 本地验证",
+        "commands": [
+          "npx tsc --noEmit",
+          "npx vitest run src/lib/billing-audit/__tests__/runReconciliation-thresholds.test.ts",
+          "npx vitest run（确保 441 测试 +1 = 442 全 PASS，无回归）"
+        ]
+      },
+      {
+        "step": "6. 提交 + push",
+        "command": "git commit -m 'fix(BL-RECON-UX-PHASE1 round 1): tc13 mock-based wiring test for threshold reclassification'"
+      },
+      {
+        "step": "7. status fixing → reverifying",
+        "note": "提交完后 update progress.json status fixing → reverifying / fix_rounds 1 不动 / evaluator_feedback 仍为 null（已清空）"
+      }
+    ],
+    "constraints": [
+      "不动 reconcile-job 的核心 fetcher / classifyStatus 逻辑",
+      "如选 fetcher 注入方式（推荐 step 1 preferred），仅加可选参数，生产代码无 callsite 改动",
+      "测试必须用 describe.sequential 或类似机制防并发污染（SystemConfig 是全局表）",
+      "afterEach 必须清理，不留测试 provider / BillReconciliation 行 / system_config 修改"
+    ],
+    "notes": "本 fix_round 不引入新 scope，仅补 wiring 测试达成新 tc13 acceptance。Codex 复验范围：原 15 PASS 项保持 + 新 tc13 集成测 PASS = 16 PASS。生产观察留作 deploy 后人工事后核对，不在本 fix_round acceptance 内。"
   },
-  "generator_handoff": null,
   "session_notes": {
     "Kimi": "BL-RECON-UX-PHASE1 F-RC-01 + F-RC-02 完成 @ 2026-04-27 11:45，status=verifying 交 Codex。\n\n本批次 Generator 工作总结：\n\n[F-RC-01 后端 — commit 4b507f2 已 push 已 CI 通过 1m6s]\n1) 抽出 src/app/api/admin/reconciliation/query.ts 作为列表/导出共享 parser；用 AND 数组组合 where 避免 spread 覆盖（修了一个 spec 里的隐含 bug：原方案中 tier filter 与 providerId 同传时后者会覆盖前者）。\n2) classifyStatus 加可选 thresholds 参数，默认 = DEFAULT_THRESHOLDS；reconcile-job 内 tier1/2 path + upsertReconciliation 全程 thread thresholds，runReconciliation 入口 await loadThresholds()。\n3) CSV BOM 用字面量 U+FEFF（在文件中是 ef bb bf 三字节）；测试不能 res.text() 因为 TextDecoder 默认会吞 BOM，改用 arrayBuffer() 校验前三字节。\n4) seed.ts 4 个 RECONCILIATION_* keys 用 update:{} 幂等 upsert（已存在不覆盖管理员手改值）。\n\n[F-RC-02 前端 — 本 commit]\n1) page.tsx 366 → 605 行：6 区块 = cards / trend / 阈值配置（新）/ 重跑 / 明细表\n2) cards/trend 与明细表两路 fetch（spec § Risks 第 3 项）；前者固定 30 天 pageSize=200，后者带全部 filter + 分页\n3) 默认 sortDir='desc' 且表头 reportDate 列点击切 asc/desc（▼/▲ 图标）\n4) 阈值 SectionCard：先 GET /api/admin/config 拉初始值，保存按 PUT × 4 顺序调用，toast 「下次重跑生效」\n5) CSV 导出按 actions slot 放在 SectionCard 头部（不是 action 单数，组件 prop 是 actions）；用 raw fetch 而非 apiFetch 因为响应是 blob，400 → toast；200 → blob URL trigger 下载\n6) useDebouncedValue 内联 hook（项目原本没有），300ms\n7) 翻 19 个 i18n keys（spec 列了 18 个，多加了 'save'）\n\n[测试]\n- 总计 441 tests pass（baseline 414 + 27 新增；F-RC-02 没新增前端测试，role-context 不写测试 + spec 也没列前端单测）\n\n[张力点]\nrole-context/generator.md 写「不写任何测试」，但 spec § F-RC-01 acceptance 显式列「单测扩展」。我自己作 Planner 时埋了这个矛盾。本次按 spec 写了完整后端测试。已追加到 .auto-memory/proposed-learnings.md，done 阶段统一处理。\n\n[Codex F-RC-03 准备就绪]\nevaluator_handoff 字段已写好，verification_pointers 列出 spec § F-RC-03 16 项的执行入口。本机 tsc + build + vitest 全过；等 Codex 跑 API 行为 + 前端冒烟 + 写 signoff 报告。",
-    "Reviewer": "verifying @ 2026-04-27：完成 BL-RECON-UX-PHASE1 F-RC-03 验收。静态/API/i18n均通过，tc13 阻断（rerun rowsWritten=0，需有效上游账单凭证），状态置 fixing 并输出失败报告。"
+    "Reviewer": "verifying @ 2026-04-27：完成 BL-RECON-UX-PHASE1 F-RC-03 验收。静态/API/i18n均通过，tc13 阻断（rerun rowsWritten=0，需有效上游账单凭证），状态置 fixing 并输出失败报告。",
+    "Kimi-tc13-adjudication": "Planner 裁决 @ 2026-04-27 06:00：用户同意放宽 tc13。\n\n失败本质 = 测试环境约束（fetcher 缺凭证 skip），非代码 bug。新 tc13 = mock-based wiring 集成测试，证明『阈值切换前后 BillReconciliation.status 不同』即可。\n\n关键决策记录：\n1) 写裁决文档 docs/adjudications/BL-RECON-UX-PHASE1-tc13-relaxation-2026-04-27.md（含铁律 1.1/1.2/1.3 检查）\n2) 改 spec § F-RC-03 第 13 项 + features.json F-RC-03 acceptance：tc13 改为 mock-based wiring 测试\n3) progress.json fix_rounds 0→1，evaluator_feedback 清空，generator_handoff 改为 fix_round 1 任务（含 7 步执行清单）\n4) Generator 注意：fakeFetcher synthetic 数据需用 upstream=10/gateway=9.7（delta=-0.3, deltaPercent=-3%），case A 默认阈值 → MATCH，case B (matchDelta=0.1+matchPercent=1) → MINOR_DIFF。我在 handoff 第 4 步详细推算了边界（含一次推算翻车 → 修订），Generator 实测要先跑 classifyStatus 单测确认推算正确再写测\n5) 生产观察验收延后到 deploy 后人工事后核对，不阻塞 done\n\n下一步：Generator session pull 后按 generator_handoff 7 步执行；预估 1h。完成后 status fixing → reverifying，Codex 复验 16 项。"
   }
 }

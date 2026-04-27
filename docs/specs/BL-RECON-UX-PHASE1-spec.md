@@ -257,7 +257,7 @@ for (const [k, v, d] of recoKeys) {
 10. 登录 admin → `/admin/reconciliation` → 列表第一行是最近一天的数据（不是 30 天前）
 11. 改 date picker 至最近 7 天 → refetch；表行数减少
 12. 切 Tier 1 → 仅显示 Tier 1 provider 行
-13. 阈值改 `MATCH |Δ|<` 至 `0.1` → 保存（toast 显示）→ 手动重跑昨日 → 部分原 MATCH 行变 MINOR_DIFF（重跑后 refetch 看到状态变化）
+13. **【fix_round 1 重新定义；见 docs/adjudications/BL-RECON-UX-PHASE1-tc13-relaxation-2026-04-27.md】** mock-based wiring 集成测试 `src/lib/billing-audit/__tests__/runReconciliation-thresholds.test.ts` PASS：mock 一个 Tier 1 fake fetcher 返回 synthetic upstream bill（固定 delta = 0.3 跨阈值边界），调 `runReconciliation(date)` 跑完，断言写入的 `BillReconciliation.status` 在 SystemConfig `RECONCILIATION_MATCH_DELTA_USD=0.5`（默认）下 = `MATCH`，在 `=0.1` 下 = `MINOR_DIFF`。零基线 = 同一 delta 在不同阈值下 status 取不同值。原 tc13「真实凭证下手动重跑观察 MATCH→MINOR_DIFF 迁移」因本地 fetcher 无凭证 skip 不可达，已放宽为机制证明 + 生产部署后人工事后核对（不阻塞 done）。
 14. 点击导出 CSV → 浏览器下载文件 → Excel 打开列正确
 
 ### 国际化（1）
