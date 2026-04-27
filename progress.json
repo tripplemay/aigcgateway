@@ -1,11 +1,11 @@
 {
-  "status": "building",
+  "status": "verifying",
   "user_goal": "BL-RECON-FIX-PHASE1 — 修对账数据正确性 bug。来源 2026-04-27 生产数据分析：Issue 1 volcengine fetcher 月度账单重复入对账表 + CNY 当 USD 比较；Issue 2 image 模型 token-priced 计费漏算（如 google/gemini-2.5-flash-image 92% undercount）。Phase 1 修 fetcher + 货币 + 出 image pricing audit 报告；Phase 2 留观察（基于审计报告决策）。",
   "total_features": 4,
-  "completed_features": 0,
+  "completed_features": 3,
   "fix_rounds": 0,
   "current_sprint": "BL-RECON-FIX-PHASE1",
-  "last_updated": "2026-04-27T15:00:00.000Z",
+  "last_updated": "2026-04-27T14:40:00.000Z",
   "reference_docs": [
     "docs/specs/BL-RECON-FIX-PHASE1-spec.md"
   ],
@@ -17,45 +17,40 @@
     "framework_reviewed": false
   },
   "evaluator_feedback": null,
-  "evaluator_handoff": null,
-  "generator_handoff": {
-    "fix_round": 0,
-    "scope": "F-RF-01 → F-RF-02 → F-RF-03 顺序执行；总工时 ~2h。F-RF-01/02 是 fetcher / reconcile-job 逻辑修正，F-RF-03 是 read-only 审计脚本输出报告。",
-    "spec": "docs/specs/BL-RECON-FIX-PHASE1-spec.md",
-    "execution_order": [
-      "F-RF-01：volcengine.ts fetchDailyBill 加 ExpenseDate filter（独立改动，先做）",
-      "F-RF-02：reconcile-job.ts tier1 path 加 CNY→USD 转换（独立改动）",
-      "F-RF-03：scripts/audit-image-pricing.ts 新建 + 用生产 DATABASE_URL 跑出报告"
+  "evaluator_handoff": {
+    "scope": "F-RF-04 全量验收 — 静态(3) + volcengine fetcher 行为(2) + CNY→USD(2) + audit 脚本(2) + signoff 报告(1)",
+    "spec": "docs/specs/BL-RECON-FIX-PHASE1-spec.md § F-RF-04",
+    "completed_by_generator": [
+      "F-RF-01：src/lib/billing-audit/fetchers/volcengine.ts ExpenseDate filter + volcengine.test.ts 新增 3 case（commit 48baf89）",
+      "F-RF-02：src/lib/billing-audit/reconcile-job.ts tier1 CNY→USD 转换 + reconcile-job.test.ts 新增 4 case（commit 0695615）",
+      "F-RF-03：scripts/audit-image-pricing.ts + docs/audits/image-pricing-2026-04-27.md（生产 39 image models / 7 ⚠️ token-priced channels / 32 perCall channels；commit 916c20e）"
     ],
-    "key_files": {
-      "modified": [
-        "src/lib/billing-audit/fetchers/volcengine.ts（fetchDailyBill 加 ExpenseDate filter）",
-        "src/lib/billing-audit/fetchers/__tests__/volcengine.test.ts（如不存在则新建；3 case）",
-        "src/lib/billing-audit/reconcile-job.ts（tier1 path bill 循环加 CNY→USD 转换 + details 三字段）",
-        "src/lib/billing-audit/__tests__/reconcile-job.test.ts（扩展，3 case）"
-      ],
-      "new": [
-        "scripts/audit-image-pricing.ts",
-        "docs/audits/image-pricing-2026-04-27.md（生产报告输出）"
-      ]
+    "verification_evidence": {
+      "static": {
+        "tsc": "PASS（npx tsc --noEmit 无输出）",
+        "build": "PASS（npm run build 完成所有路由）",
+        "vitest": "452 tests PASS（基线 445 + F-RF-01 新 3 case + F-RF-02 新 4 case = 452）"
+      },
+      "fetcher_behavior": {
+        "F-RF-01_unit_tests": "src/lib/billing-audit/fetchers/__tests__/volcengine.test.ts 'ExpenseDate filter (F-RF-01)' describe 块 3 个 case 全 PASS",
+        "integration_simulation_hint": "Codex 可用 mock fetcher 跨 5 天 reportDate 验证：同一笔 ExpenseDate=04-02 的账单仅在 04-02 那天产生 1 行 BillReconciliation"
+      },
+      "currency_conversion": {
+        "F-RF-02_unit_tests": "src/lib/billing-audit/__tests__/reconcile-job.test.ts 'F-RF-02 tier 1 CNY→USD currency conversion' describe 块 4 个 case 全 PASS（USD passthrough / CNY 默认 0.137 / 自定义 0.14 / tier 2 不受影响）",
+        "key_assertion_3.25_CNY": "amount=3.25 currency='CNY' → upstreamAmount≈0.44525 + details.upstreamAmountOriginal=3.25 + details.exchangeRateApplied=0.137 + details.currency='CNY'"
+      },
+      "audit_script": {
+        "tsx_runs_clean": "npx tsx scripts/audit-image-pricing.ts 在本地 dev DB 跑通；在生产 .env.production DB 跑通（exit 0，输出 729 行）",
+        "warning_marker": "docs/audits/image-pricing-2026-04-27.md 含 7 处 '⚠️ token-priced image' 标记；脚本仅调 prisma findMany / aggregate（read-only）"
+      }
     },
-    "preflight_checks": [
-      "Read src/lib/billing-audit/fetchers/volcengine.ts:55-130 确认 fetchDailyBill + normalizeBillItem 当前结构",
-      "Read src/lib/billing-audit/reconcile-job.ts:260-300 确认 tier1 path bill loop 结构（reconcileTier1）",
-      "Read src/lib/billing-audit/fetchers/tier1-fetcher.ts 确认 BillRecord interface",
-      "Read src/lib/config.ts 确认 getConfigNumber API",
-      "确认 SystemConfig 是否已存 EXCHANGE_RATE_CNY_TO_USD（生产应已有；getConfigNumber fallback 0.137 兜底）"
-    ],
-    "production_data_evidence": {
-      "issue_1": "5 行 BIG_DIFF Doubao-Seedream-4.5 在 04-22/24/25/26/27 重复，all raw.ExpenseDate=2026-04-02；详见生产 SSH 查询 docs/audits/recon-investigation-2026-04-27.md（如未保存可重查）",
-      "issue_2": "1 行 BIG_DIFF google/gemini-2.5-flash-image @ 04-26 upstream=$0.1935/5req vs gateway=$0.0162/6466tok；channel.costPrice.unit==='token' 是根因",
-      "table_state": "bill_reconciliation prod 行数：MATCH=179 / BIG_DIFF=6"
-    },
-    "audit_script_implementation_hint": "用 prisma.model.findMany({where:{modality:'IMAGE'}, include:{channels:{include:{provider:{select:{name:true}}}}}}) 拉一次；30 天 call_logs 用 prisma.callLog.aggregate({where:{model:m.name, createdAt:{gte:thirtyDaysAgo}}, _count, _sum:{sellPrice:true}}); 也可考虑 raw SQL 提性能。Markdown 输出按 console.log 直接 stdout 重定向。",
-    "notes": "F-RF-03 跑生产 DATABASE_URL 时注意 SSL/proxy 配置；如遇连接问题可让用户 SSH 到 prod 跑该脚本（脚本 read-only 安全）。Generator 完成后置 status=verifying 等 Codex F-RF-04。"
+    "expected_signoff_path": "docs/test-reports/BL-RECON-FIX-PHASE1-signoff-2026-04-2X.md",
+    "exclusions_reminder": "明确不要求：生产数据 reconcile 重跑 / 历史 BIG_DIFF 回填 / 任何 channel.costPrice 配置改动（Phase 2 决策）"
   },
+  "generator_handoff": null,
   "session_notes": {
     "Kimi-batch-launch": "BL-RECON-FIX-PHASE1 启动 @ 2026-04-27 15:00。\n\n来源：用户要求分析近期对账记录 BIG_DIFF。Planner SSH 生产 DB 查询发现 6 行 BIG_DIFF（5 行 volcengine Doubao-Seedream-4.5 重复 + 1 行 openrouter gemini-2.5-flash-image）。\n\n根因诊断：\n1) volcengine fetcher 拉月度账单（BillPeriod=YYYY-MM）但每天 cron 都把同一笔 4-02 的账单写到 reportDate=今日 → 5 倍重复 BIG_DIFF\n2) reconcile-job tier1 path 把 bill.amount 当 USD 直接比较，但 volcengine bill.currency='CNY'，应按 EXCHANGE_RATE_CNY_TO_USD=0.137 折算\n3) gemini-2.5-flash-image 是 image 模型但 channel.costPrice.unit='token' → calculateTokenCost 漏算 12 倍（应 perCall 计费）\n\nPhase 1 仅修代码逻辑（A+B），C 留 read-only 审计输出报告由用户决策 Phase 2 是否做配置改动。\n\n4 features：F-RF-01 fetcher（generator）+ F-RF-02 reconcile-job（generator）+ F-RF-03 audit script（generator）+ F-RF-04 验收（codex）。预计 2h Generator + 0.5h Codex。\n\n下一步：本会话 Planner 身份固定，无法执行。等 Generator session pull 后按 generator_handoff 顺序执行 3 个 features，完成后 status=verifying 交 Codex。",
+    "Kimi": "BL-RECON-FIX-PHASE1 building → verifying @ 2026-04-27 14:40。\n\n3 个 generator features 全部 commit：\n- F-RF-01 (commit 48baf89): volcengine fetcher 加 ExpenseDate UTC 过滤 + ListBillDetailItem 类型加 ExpenseDate 字段；缺失字段保守过滤；扩展 volcengine.test.ts ExpenseDate filter describe 块 3 个 case + 给现有 mock 全部加 ExpenseDate 字段避免被新过滤误杀。13 tests PASS。\n- F-RF-02 (commit 0695615): reconcile-job tier1 path 在 bills loop 前一次性读 EXCHANGE_RATE_CNY_TO_USD（默认 0.137）；bill.currency==='CNY' 时折算成 upstreamUsd 再 delta；details 新增 upstreamAmountOriginal / exchangeRateApplied / currency 三字段。tier 2 path 未改。把 reconcile-job.test.ts 既有 tier1 happy-path 改为 currency:'USD' 表明 passthrough 语义；getConfigNumber 改为可控 mockFn 以支持自定义汇率测试；新增 F-RF-02 describe 块 4 case（USD passthrough / CNY 0.137 / 自定义 0.14 / tier 2 不受影响）。13 tests PASS（含 4 新增）。\n- F-RF-03 (commit 916c20e): scripts/audit-image-pricing.ts 仅用 prisma findMany / aggregate（read-only，无 INSERT/UPDATE/DELETE）；用 SSH 到 prod 用 .env.production 跑出 docs/audits/image-pricing-2026-04-27.md（39 image models / 7 ⚠️ token-priced 可疑 channel：6 openrouter image-via-chat + 1 zhipu cogview-4 / 32 perCall 合理）。prod 临时文件已清理。\n\n最终验证：tsc PASS / vitest 452 PASS / build PASS。progress.json status=verifying，evaluator_handoff 已写入证据指引（含 9 项验收 hint）。等 Codex session 启动跑 F-RF-04 + 写 signoff。\n\n注意点：F-RF-02 之后既有 BIG_DIFF 测试 (volcengine CNY 100 vs gateway 50) 数学含义变了（upstream 13.7 USD vs gateway 50 USD → BIG_DIFF），但 status 仍 BIG_DIFF，断言不破。注释已更新。",
     "Reviewer": null
   }
 }

@@ -7,7 +7,7 @@
       "title": "Volcengine fetcher 加 ExpenseDate 过滤（消除月度账单重复入对账表）",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "source": "BL-RECON-FIX-PHASE1 spec § F-RF-01",
       "acceptance": "1) src/lib/billing-audit/fetchers/volcengine.ts fetchDailyBill 返回前过滤 ExpenseDate ≠ requestedDate 的行（YYYY-MM-DD UTC 比较）；缺失 ExpenseDate 字段保守过滤；2) 单测覆盖 3 case：mock 月度全量 3 条 ExpenseDate（04-02/04-15/04-23）→ fetchDailyBill(04-23) 仅返 1 条；mock 全部 ExpenseDate≠target → 返空数组；mock 缺失 ExpenseDate → 过滤；3) tsc + build + vitest 全过；4) commit 'feat(BL-RECON-FIX-PHASE1 F-RF-01): volcengine fetcher ExpenseDate filter'"
     },
@@ -16,7 +16,7 @@
       "title": "reconcile-job tier1 path 加 CNY→USD 货币转换",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "source": "BL-RECON-FIX-PHASE1 spec § F-RF-02",
       "acceptance": "1) src/lib/billing-audit/reconcile-job.ts tier1 path bill loop 内：const exchangeRate = await getConfigNumber('EXCHANGE_RATE_CNY_TO_USD', 0.137)；const upstreamUsd = bill.currency === 'CNY' ? bill.amount * exchangeRate : bill.amount；upsertReconciliation 写 upstreamAmount=upstreamUsd + details.currency=bill.currency + details.upstreamAmountOriginal=bill.amount + details.exchangeRateApplied=（CNY 时 exchangeRate 否则 1）；2) 单测扩展：USD 不变 / CNY amount=3.25 → 0.44525 / 自定义 EXCHANGE_RATE_CNY_TO_USD=0.14 时按新汇率；3) tier 2 balance path 不动；4) tsc + build + vitest 全过；5) commit 'feat(BL-RECON-FIX-PHASE1 F-RF-02): tier1 CNY-to-USD currency conversion'"
     },
@@ -25,7 +25,7 @@
       "title": "Image pricing audit 脚本 + 生产数据报告（read-only，不改 DB）",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "source": "BL-RECON-FIX-PHASE1 spec § F-RF-03",
       "acceptance": "1) 新建 scripts/audit-image-pricing.ts：查所有 modality=image 的 model + 关联 channel（含 costPrice + sellPrice + provider name）+ 30 天 call_logs sum(costPrice)/count(*)/avg；输出 markdown 表格按模型分块；2) 标注 ⚠️ 可疑 = modality=image AND channel.costPrice.unit=='token'（image 模型按 token 计费，与 openrouter 上游 perCall 计费规则不一致，可能漏算）；3) 脚本 read-only（无 INSERT/UPDATE/DELETE）；4) 用 prod-readonly DATABASE_URL 跑出 docs/audits/image-pricing-2026-04-27.md；5) 报告 commit 入仓；6) tsc 编译通过；7) commit 'feat(BL-RECON-FIX-PHASE1 F-RF-03): image pricing audit script + 2026-04-27 prod report'"
     },

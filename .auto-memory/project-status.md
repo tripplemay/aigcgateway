@@ -4,13 +4,11 @@ description: AIGC Gateway 当前状态快照（覆盖写，≤30 行）
 type: project
 ---
 ## 当前批次
-- **BL-RECON-FIX-PHASE1：`building`**（对账数据正确性 bugfix Phase 1，~2h Generator + 0.5h Codex）
-- 来源：用户 2026-04-27 要求分析对账 BIG_DIFF；Planner SSH 生产查到 6 行 BIG_DIFF
-- 根因 1：volcengine fetcher 拉月度账单未按 ExpenseDate 过滤 → 5 倍重复（Doubao-Seedream-4.5 每天写 reportDate=今日）
-- 根因 2：reconcile-job tier1 把 CNY 当 USD 比较（应按 EXCHANGE_RATE_CNY_TO_USD=0.137 折算）
-- 根因 3：image 模型 channel.costPrice.unit='token' 漏算 12 倍（如 gemini-2.5-flash-image 92% undercount）
-- 4 features：F-RF-01 fetcher / F-RF-02 reconcile-job / F-RF-03 image pricing audit script / F-RF-04 验收
-- Phase 2 留观察：基于 F-RF-03 audit 报告决策是否改 channel.costPrice 配置 + 历史 BIG_DIFF 回填 + 阈值粒度
+- **BL-RECON-FIX-PHASE1：`verifying`**（对账数据正确性 bugfix Phase 1）
+- F-RF-01 / F-RF-02 / F-RF-03 全部 commit（48baf89 / 0695615 / 916c20e）；tsc + build + vitest 452 全过
+- 生产 audit：39 image models / **7 ⚠️ token-priced 可疑 channel**（6 openrouter image-via-chat + 1 zhipu cogview-4）/ 32 perCall 合理
+- F-RF-04 验收（Codex）待执行；docs/audits/image-pricing-2026-04-27.md 已入仓
+- Phase 2 留观察：用户 review 7 行 ⚠️ 后决定改 channel.costPrice 配置 + 历史 BIG_DIFF 回填 + 阈值粒度
 
 ## 上一批次（已 done）
 - BL-RECON-UX-PHASE1（对账面板 UX）@ 2026-04-27（fix_round 1 收口，tc13 已放宽）
