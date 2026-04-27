@@ -1,0 +1,959 @@
+{
+  "data": [
+    {
+      "id": "cmogqq6gi02sw9ymypqm3pr0l",
+      "providerId": "cmogqnjkk00079yi1wucovn6y",
+      "providerName": "openai",
+      "providerDisplayName": "OpenAI",
+      "reportDate": "2026-04-27T00:00:00.000Z",
+      "tier": 1,
+      "modelName": "gpt-load-03598",
+      "upstreamAmount": 13,
+      "gatewayAmount": 13.1,
+      "delta": 0.1,
+      "deltaPercent": 0.77,
+      "status": "MATCH",
+      "details": {
+        "i": 3598,
+        "seed": "load"
+      },
+      "computedAt": "2026-04-27T00:59:58.000Z"
+    },
+    {
+      "id": "cmogqq6ku05ku9ymyuabtang2",
+      "providerId": "cmogqnjkk00079yi1wucovn6y",
+      "providerName": "openai",
+      "providerDisplayName": "OpenAI",
+      "reportDate": "2026-04-27T00:00:00.000Z",
+      "tier": 1,
+      "modelName": "gpt-load-07196",
+      "upstreamAmount": 11,
+      "gatewayAmount": 11.1,
+      "delta": 0.1,
+      "deltaPercent": 0.91,
+      "status": "MATCH",
+      "details": {
+        "i": 7196,
+        "seed": "load"
+      },
+      "computedAt": "2026-04-27T00:59:56.000Z"
+    },
+    {
+      "id": "cmogqq6od08cs9ymyf3i4w1v7",
+      "providerId": "cmogqnjkk00079yi1wucovn6y",
+      "providerName": "openai",
+      "providerDisplayName": "OpenAI",
+      "reportDate": "2026-04-27T00:00:00.000Z",
+      "tier": 1,
+      "modelName": "gpt-load-10794",
+      "upstreamAmount": 14,
+      "gatewayAmount": 14.1,
+      "delta": 0.1,
+      "deltaPercent": 0.71,
+      "status": "MATCH",
+      "details": {
+        "i": 10794,
+        "seed": "load"
+      },
+      "computedAt": "2026-04-27T00:59:54.000Z"
+    },
+    {
+      "id": "cmogqq6gi02sp9ymye4x5oveg",
+      "providerId": "cmogqnjkk00079yi1wucovn6y",
+      "providerName": "openai",
+      "providerDisplayName": "OpenAI",
+      "reportDate": "2026-04-27T00:00:00.000Z",
+      "tier": 1,
+      "modelName": "gpt-load-03591",
+      "upstreamAmount": 11,
+      "gatewayAmount": 11.1,
+      "delta": 0.1,
+      "deltaPercent": 0.91,
+      "status": "MATCH",
+      "details": {
+        "i": 3591,
+        "seed": "load"
+      },
+      "computedAt": "2026-04-27T00:59:51.000Z"
+    },
+    {
+      "id": "cmogqq6kt05kn9ymyhziv1g6g",
+      "providerId": "cmogqnjkk00079yi1wucovn6y",
+      "providerName": "openai",
+      "providerDisplayName": "OpenAI",
+      "reportDate": "2026-04-27T00:00:00.000Z",
+      "tier": 1,
+      "modelName": "gpt-load-07189",
+      "upstreamAmount": 14,
+      "gatewayAmount": 14.1,
+      "delta": 0.1,
+      "deltaPercent": 0.71,
+      "status": "MATCH",
+      "details": {
+        "i": 7189,
+        "seed": "load"
+      },
+      "computedAt": "2026-04-27T00:59:49.000Z"
+    },
+    {
+      "id": "cmogqq6od08cl9ymynj0lz699",
+      "providerId": "cmogqnjkk00079yi1wucovn6y",
+      "providerName": "openai",
+      "providerDisplayName": "OpenAI",
+      "reportDate": "2026-04-27T00:00:00.000Z",
+      "tier": 1,
+      "modelName": "gpt-load-10787",
+      "upstreamAmount": 12,
+      "gatewayAmount": 12.1,
+      "delta": 0.1,
+      "deltaPercent": 0.83,
+      "status": "MATCH",
+      "details": {
+        "i": 10787,
+        "seed": "load"
+      },
+      "computedAt": "2026-04-27T00:59:47.000Z"
+    },
+    {
+      "id": "cmogqq6gi02si9ymyk4cvgibu",
+      "providerId": "cmogqnjkk00079yi1wucovn6y",
+      "providerName": "openai",
+      "providerDisplayName": "OpenAI",
+      "reportDate": "2026-04-27T00:00:00.000Z",
+      "tier": 1,
+      "modelName": "gpt-load-03584",
+      "upstreamAmount": 14,
+      "gatewayAmount": 14.1,
+      "delta": 0.1,
+      "deltaPercent": 0.71,
+      "status": "MATCH",
+      "details": {
+        "i": 3584,
+        "seed": "load"
+      },
+      "computedAt": "2026-04-27T00:59:44.000Z"
+    },
+    {
+      "id": "cmogqq6kt05kg9ymy6p1pscdh",
+      "providerId": "cmogqnjkk00079yi1wucovn6y",
+      "providerName": "openai",
+      "providerDisplayName": "OpenAI",
+      "reportDate": "2026-04-27T00:00:00.000Z",
+      "tier": 1,
+      "modelName": "gpt-load-07182",
+      "upstreamAmount": 12,
+      "gatewayAmount": 12.1,
+      "delta": 0.1,
+      "deltaPercent": 0.83,
+      "status": "MATCH",
+      "details": {
+        "i": 7182,
+        "seed": "load"
+      },
+      "computedAt": "2026-04-27T00:59:42.000Z"
+    },
+    {
+      "id": "cmogqq6od08ce9ymy0b9op5oq",
+      "providerId": "cmogqnjkk00079yi1wucovn6y",
+      "providerName": "openai",
+      "providerDisplayName": "OpenAI",
+      "reportDate": "2026-04-27T00:00:00.000Z",
+      "tier": 1,
+      "modelName": "gpt-load-10780",
+      "upstreamAmount": 10,
+      "gatewayAmount": 10.1,
+      "delta": 0.1,
+      "deltaPercent": 1,
+      "status": "MATCH",
+      "details": {
+        "i": 10780,
+        "seed": "load"
+      },
+      "computedAt": "2026-04-27T00:59:40.000Z"
+    },
+    {
+      "id": "cmogqq6gi02sb9ymymr7qvftj",
+      "providerId": "cmogqnjkk00079yi1wucovn6y",
+      "providerName": "openai",
+      "providerDisplayName": "OpenAI",
+      "reportDate": "2026-04-27T00:00:00.000Z",
+      "tier": 1,
+      "modelName": "gpt-load-03577",
+      "upstreamAmount": 12,
+      "gatewayAmount": 12.1,
+      "delta": 0.1,
+      "deltaPercent": 0.83,
+      "status": "MATCH",
+      "details": {
+        "i": 3577,
+        "seed": "load"
+      },
+      "computedAt": "2026-04-27T00:59:37.000Z"
+    },
+    {
+      "id": "cmogqq6kt05k99ymye4h1pwxw",
+      "providerId": "cmogqnjkk00079yi1wucovn6y",
+      "providerName": "openai",
+      "providerDisplayName": "OpenAI",
+      "reportDate": "2026-04-27T00:00:00.000Z",
+      "tier": 1,
+      "modelName": "gpt-load-07175",
+      "upstreamAmount": 10,
+      "gatewayAmount": 10.1,
+      "delta": 0.1,
+      "deltaPercent": 1,
+      "status": "MATCH",
+      "details": {
+        "i": 7175,
+        "seed": "load"
+      },
+      "computedAt": "2026-04-27T00:59:35.000Z"
+    },
+    {
+      "id": "cmogqq6od08c79ymy3cfilh25",
+      "providerId": "cmogqnjkk00079yi1wucovn6y",
+      "providerName": "openai",
+      "providerDisplayName": "OpenAI",
+      "reportDate": "2026-04-27T00:00:00.000Z",
+      "tier": 1,
+      "modelName": "gpt-load-10773",
+      "upstreamAmount": 13,
+      "gatewayAmount": 13.1,
+      "delta": 0.1,
+      "deltaPercent": 0.77,
+      "status": "MATCH",
+      "details": {
+        "i": 10773,
+        "seed": "load"
+      },
+      "computedAt": "2026-04-27T00:59:33.000Z"
+    },
+    {
+      "id": "cmogqq6gi02s49ymy5wh2k5bm",
+      "providerId": "cmogqnjkk00079yi1wucovn6y",
+      "providerName": "openai",
+      "providerDisplayName": "OpenAI",
+      "reportDate": "2026-04-27T00:00:00.000Z",
+      "tier": 1,
+      "modelName": "gpt-load-03570",
+      "upstreamAmount": 10,
+      "gatewayAmount": 10.1,
+      "delta": 0.1,
+      "deltaPercent": 1,
+      "status": "MATCH",
+      "details": {
+        "i": 3570,
+        "seed": "load"
+      },
+      "computedAt": "2026-04-27T00:59:30.000Z"
+    },
+    {
+      "id": "cmogqq6kt05k29ymy88jz7kx6",
+      "providerId": "cmogqnjkk00079yi1wucovn6y",
+      "providerName": "openai",
+      "providerDisplayName": "OpenAI",
+      "reportDate": "2026-04-27T00:00:00.000Z",
+      "tier": 1,
+      "modelName": "gpt-load-07168",
+      "upstreamAmount": 13,
+      "gatewayAmount": 13.1,
+      "delta": 0.1,
+      "deltaPercent": 0.77,
+      "status": "MATCH",
+      "details": {
+        "i": 7168,
+        "seed": "load"
+      },
+      "computedAt": "2026-04-27T00:59:28.000Z"
+    },
+    {
+      "id": "cmogqq6od08c09ymyigevbagk",
+      "providerId": "cmogqnjkk00079yi1wucovn6y",
+      "providerName": "openai",
+      "providerDisplayName": "OpenAI",
+      "reportDate": "2026-04-27T00:00:00.000Z",
+      "tier": 1,
+      "modelName": "gpt-load-10766",
+      "upstreamAmount": 11,
+      "gatewayAmount": 11.1,
+      "delta": 0.1,
+      "deltaPercent": 0.91,
+      "status": "MATCH",
+      "details": {
+        "i": 10766,
+        "seed": "load"
+      },
+      "computedAt": "2026-04-27T00:59:26.000Z"
+    },
+    {
+      "id": "cmogqq6gi02rx9ymyblmwnf54",
+      "providerId": "cmogqnjkk00079yi1wucovn6y",
+      "providerName": "openai",
+      "providerDisplayName": "OpenAI",
+      "reportDate": "2026-04-27T00:00:00.000Z",
+      "tier": 1,
+      "modelName": "gpt-load-03563",
+      "upstreamAmount": 13,
+      "gatewayAmount": 13.1,
+      "delta": 0.1,
+      "deltaPercent": 0.77,
+      "status": "MATCH",
+      "details": {
+        "i": 3563,
+        "seed": "load"
+      },
+      "computedAt": "2026-04-27T00:59:23.000Z"
+    },
+    {
+      "id": "cmogqq6kt05jv9ymygl9a5wcw",
+      "providerId": "cmogqnjkk00079yi1wucovn6y",
+      "providerName": "openai",
+      "providerDisplayName": "OpenAI",
+      "reportDate": "2026-04-27T00:00:00.000Z",
+      "tier": 1,
+      "modelName": "gpt-load-07161",
+      "upstreamAmount": 11,
+      "gatewayAmount": 11.1,
+      "delta": 0.1,
+      "deltaPercent": 0.91,
+      "status": "MATCH",
+      "details": {
+        "i": 7161,
+        "seed": "load"
+      },
+      "computedAt": "2026-04-27T00:59:21.000Z"
+    },
+    {
+      "id": "cmogqq6od08bt9ymyyzaxbxx3",
+      "providerId": "cmogqnjkk00079yi1wucovn6y",
+      "providerName": "openai",
+      "providerDisplayName": "OpenAI",
+      "reportDate": "2026-04-27T00:00:00.000Z",
+      "tier": 1,
+      "modelName": "gpt-load-10759",
+      "upstreamAmount": 14,
+      "gatewayAmount": 14.1,
+      "delta": 0.1,
+      "deltaPercent": 0.71,
+      "status": "MATCH",
+      "details": {
+        "i": 10759,
+        "seed": "load"
+      },
+      "computedAt": "2026-04-27T00:59:19.000Z"
+    },
+    {
+      "id": "cmogqq6gi02rq9ymym89rz9f6",
+      "providerId": "cmogqnjkk00079yi1wucovn6y",
+      "providerName": "openai",
+      "providerDisplayName": "OpenAI",
+      "reportDate": "2026-04-27T00:00:00.000Z",
+      "tier": 1,
+      "modelName": "gpt-load-03556",
+      "upstreamAmount": 11,
+      "gatewayAmount": 11.1,
+      "delta": 0.1,
+      "deltaPercent": 0.91,
+      "status": "MATCH",
+      "details": {
+        "i": 3556,
+        "seed": "load"
+      },
+      "computedAt": "2026-04-27T00:59:16.000Z"
+    },
+    {
+      "id": "cmogqq6kt05jo9ymyg41m1kz4",
+      "providerId": "cmogqnjkk00079yi1wucovn6y",
+      "providerName": "openai",
+      "providerDisplayName": "OpenAI",
+      "reportDate": "2026-04-27T00:00:00.000Z",
+      "tier": 1,
+      "modelName": "gpt-load-07154",
+      "upstreamAmount": 14,
+      "gatewayAmount": 14.1,
+      "delta": 0.1,
+      "deltaPercent": 0.71,
+      "status": "MATCH",
+      "details": {
+        "i": 7154,
+        "seed": "load"
+      },
+      "computedAt": "2026-04-27T00:59:14.000Z"
+    },
+    {
+      "id": "cmogqq6od08bm9ymyhvk0okf2",
+      "providerId": "cmogqnjkk00079yi1wucovn6y",
+      "providerName": "openai",
+      "providerDisplayName": "OpenAI",
+      "reportDate": "2026-04-27T00:00:00.000Z",
+      "tier": 1,
+      "modelName": "gpt-load-10752",
+      "upstreamAmount": 12,
+      "gatewayAmount": 12.1,
+      "delta": 0.1,
+      "deltaPercent": 0.83,
+      "status": "MATCH",
+      "details": {
+        "i": 10752,
+        "seed": "load"
+      },
+      "computedAt": "2026-04-27T00:59:12.000Z"
+    },
+    {
+      "id": "cmogqq6gi02rj9ymyz7ofldpk",
+      "providerId": "cmogqnjkk00079yi1wucovn6y",
+      "providerName": "openai",
+      "providerDisplayName": "OpenAI",
+      "reportDate": "2026-04-27T00:00:00.000Z",
+      "tier": 1,
+      "modelName": "gpt-load-03549",
+      "upstreamAmount": 14,
+      "gatewayAmount": 14.1,
+      "delta": 0.1,
+      "deltaPercent": 0.71,
+      "status": "MATCH",
+      "details": {
+        "i": 3549,
+        "seed": "load"
+      },
+      "computedAt": "2026-04-27T00:59:09.000Z"
+    },
+    {
+      "id": "cmogqq6kt05jh9ymydf1gk0k4",
+      "providerId": "cmogqnjkk00079yi1wucovn6y",
+      "providerName": "openai",
+      "providerDisplayName": "OpenAI",
+      "reportDate": "2026-04-27T00:00:00.000Z",
+      "tier": 1,
+      "modelName": "gpt-load-07147",
+      "upstreamAmount": 12,
+      "gatewayAmount": 12.1,
+      "delta": 0.1,
+      "deltaPercent": 0.83,
+      "status": "MATCH",
+      "details": {
+        "i": 7147,
+        "seed": "load"
+      },
+      "computedAt": "2026-04-27T00:59:07.000Z"
+    },
+    {
+      "id": "cmogqq6od08bf9ymyowwvt2mf",
+      "providerId": "cmogqnjkk00079yi1wucovn6y",
+      "providerName": "openai",
+      "providerDisplayName": "OpenAI",
+      "reportDate": "2026-04-27T00:00:00.000Z",
+      "tier": 1,
+      "modelName": "gpt-load-10745",
+      "upstreamAmount": 10,
+      "gatewayAmount": 10.1,
+      "delta": 0.1,
+      "deltaPercent": 1,
+      "status": "MATCH",
+      "details": {
+        "i": 10745,
+        "seed": "load"
+      },
+      "computedAt": "2026-04-27T00:59:05.000Z"
+    },
+    {
+      "id": "cmogqq6gi02rc9ymygsumnwgb",
+      "providerId": "cmogqnjkk00079yi1wucovn6y",
+      "providerName": "openai",
+      "providerDisplayName": "OpenAI",
+      "reportDate": "2026-04-27T00:00:00.000Z",
+      "tier": 1,
+      "modelName": "gpt-load-03542",
+      "upstreamAmount": 12,
+      "gatewayAmount": 12.1,
+      "delta": 0.1,
+      "deltaPercent": 0.83,
+      "status": "MATCH",
+      "details": {
+        "i": 3542,
+        "seed": "load"
+      },
+      "computedAt": "2026-04-27T00:59:02.000Z"
+    },
+    {
+      "id": "cmogqq6kt05ja9ymyzafurnrf",
+      "providerId": "cmogqnjkk00079yi1wucovn6y",
+      "providerName": "openai",
+      "providerDisplayName": "OpenAI",
+      "reportDate": "2026-04-27T00:00:00.000Z",
+      "tier": 1,
+      "modelName": "gpt-load-07140",
+      "upstreamAmount": 10,
+      "gatewayAmount": 10.1,
+      "delta": 0.1,
+      "deltaPercent": 1,
+      "status": "MATCH",
+      "details": {
+        "i": 7140,
+        "seed": "load"
+      },
+      "computedAt": "2026-04-27T00:59:00.000Z"
+    },
+    {
+      "id": "cmogqq6od08b89ymyn4uo7am8",
+      "providerId": "cmogqnjkk00079yi1wucovn6y",
+      "providerName": "openai",
+      "providerDisplayName": "OpenAI",
+      "reportDate": "2026-04-27T00:00:00.000Z",
+      "tier": 1,
+      "modelName": "gpt-load-10738",
+      "upstreamAmount": 13,
+      "gatewayAmount": 13.1,
+      "delta": 0.1,
+      "deltaPercent": 0.77,
+      "status": "MATCH",
+      "details": {
+        "i": 10738,
+        "seed": "load"
+      },
+      "computedAt": "2026-04-27T00:58:58.000Z"
+    },
+    {
+      "id": "cmogqq6gi02r59ymybwwr6p4f",
+      "providerId": "cmogqnjkk00079yi1wucovn6y",
+      "providerName": "openai",
+      "providerDisplayName": "OpenAI",
+      "reportDate": "2026-04-27T00:00:00.000Z",
+      "tier": 1,
+      "modelName": "gpt-load-03535",
+      "upstreamAmount": 10,
+      "gatewayAmount": 10.1,
+      "delta": 0.1,
+      "deltaPercent": 1,
+      "status": "MATCH",
+      "details": {
+        "i": 3535,
+        "seed": "load"
+      },
+      "computedAt": "2026-04-27T00:58:55.000Z"
+    },
+    {
+      "id": "cmogqq6kt05j39ymyics5v091",
+      "providerId": "cmogqnjkk00079yi1wucovn6y",
+      "providerName": "openai",
+      "providerDisplayName": "OpenAI",
+      "reportDate": "2026-04-27T00:00:00.000Z",
+      "tier": 1,
+      "modelName": "gpt-load-07133",
+      "upstreamAmount": 13,
+      "gatewayAmount": 13.1,
+      "delta": 0.1,
+      "deltaPercent": 0.77,
+      "status": "MATCH",
+      "details": {
+        "i": 7133,
+        "seed": "load"
+      },
+      "computedAt": "2026-04-27T00:58:53.000Z"
+    },
+    {
+      "id": "cmogqq6od08b19ymyhzhqhfvi",
+      "providerId": "cmogqnjkk00079yi1wucovn6y",
+      "providerName": "openai",
+      "providerDisplayName": "OpenAI",
+      "reportDate": "2026-04-27T00:00:00.000Z",
+      "tier": 1,
+      "modelName": "gpt-load-10731",
+      "upstreamAmount": 11,
+      "gatewayAmount": 11.1,
+      "delta": 0.1,
+      "deltaPercent": 0.91,
+      "status": "MATCH",
+      "details": {
+        "i": 10731,
+        "seed": "load"
+      },
+      "computedAt": "2026-04-27T00:58:51.000Z"
+    },
+    {
+      "id": "cmogqq6gi02qy9ymymdfbja18",
+      "providerId": "cmogqnjkk00079yi1wucovn6y",
+      "providerName": "openai",
+      "providerDisplayName": "OpenAI",
+      "reportDate": "2026-04-27T00:00:00.000Z",
+      "tier": 1,
+      "modelName": "gpt-load-03528",
+      "upstreamAmount": 13,
+      "gatewayAmount": 13.1,
+      "delta": 0.1,
+      "deltaPercent": 0.77,
+      "status": "MATCH",
+      "details": {
+        "i": 3528,
+        "seed": "load"
+      },
+      "computedAt": "2026-04-27T00:58:48.000Z"
+    },
+    {
+      "id": "cmogqq6kt05iw9ymy38aqwm75",
+      "providerId": "cmogqnjkk00079yi1wucovn6y",
+      "providerName": "openai",
+      "providerDisplayName": "OpenAI",
+      "reportDate": "2026-04-27T00:00:00.000Z",
+      "tier": 1,
+      "modelName": "gpt-load-07126",
+      "upstreamAmount": 11,
+      "gatewayAmount": 11.1,
+      "delta": 0.1,
+      "deltaPercent": 0.91,
+      "status": "MATCH",
+      "details": {
+        "i": 7126,
+        "seed": "load"
+      },
+      "computedAt": "2026-04-27T00:58:46.000Z"
+    },
+    {
+      "id": "cmogqq6od08au9ymy1n9nc8hx",
+      "providerId": "cmogqnjkk00079yi1wucovn6y",
+      "providerName": "openai",
+      "providerDisplayName": "OpenAI",
+      "reportDate": "2026-04-27T00:00:00.000Z",
+      "tier": 1,
+      "modelName": "gpt-load-10724",
+      "upstreamAmount": 14,
+      "gatewayAmount": 14.1,
+      "delta": 0.1,
+      "deltaPercent": 0.71,
+      "status": "MATCH",
+      "details": {
+        "i": 10724,
+        "seed": "load"
+      },
+      "computedAt": "2026-04-27T00:58:44.000Z"
+    },
+    {
+      "id": "cmogqq6gi02qr9ymyulu4ge06",
+      "providerId": "cmogqnjkk00079yi1wucovn6y",
+      "providerName": "openai",
+      "providerDisplayName": "OpenAI",
+      "reportDate": "2026-04-27T00:00:00.000Z",
+      "tier": 1,
+      "modelName": "gpt-load-03521",
+      "upstreamAmount": 11,
+      "gatewayAmount": 11.1,
+      "delta": 0.1,
+      "deltaPercent": 0.91,
+      "status": "MATCH",
+      "details": {
+        "i": 3521,
+        "seed": "load"
+      },
+      "computedAt": "2026-04-27T00:58:41.000Z"
+    },
+    {
+      "id": "cmogqq6kt05ip9ymyd6392rj7",
+      "providerId": "cmogqnjkk00079yi1wucovn6y",
+      "providerName": "openai",
+      "providerDisplayName": "OpenAI",
+      "reportDate": "2026-04-27T00:00:00.000Z",
+      "tier": 1,
+      "modelName": "gpt-load-07119",
+      "upstreamAmount": 14,
+      "gatewayAmount": 14.1,
+      "delta": 0.1,
+      "deltaPercent": 0.71,
+      "status": "MATCH",
+      "details": {
+        "i": 7119,
+        "seed": "load"
+      },
+      "computedAt": "2026-04-27T00:58:39.000Z"
+    },
+    {
+      "id": "cmogqq6od08an9ymy3hhmqoep",
+      "providerId": "cmogqnjkk00079yi1wucovn6y",
+      "providerName": "openai",
+      "providerDisplayName": "OpenAI",
+      "reportDate": "2026-04-27T00:00:00.000Z",
+      "tier": 1,
+      "modelName": "gpt-load-10717",
+      "upstreamAmount": 12,
+      "gatewayAmount": 12.1,
+      "delta": 0.1,
+      "deltaPercent": 0.83,
+      "status": "MATCH",
+      "details": {
+        "i": 10717,
+        "seed": "load"
+      },
+      "computedAt": "2026-04-27T00:58:37.000Z"
+    },
+    {
+      "id": "cmogqq6gi02qk9ymy6m9qkwti",
+      "providerId": "cmogqnjkk00079yi1wucovn6y",
+      "providerName": "openai",
+      "providerDisplayName": "OpenAI",
+      "reportDate": "2026-04-27T00:00:00.000Z",
+      "tier": 1,
+      "modelName": "gpt-load-03514",
+      "upstreamAmount": 14,
+      "gatewayAmount": 14.1,
+      "delta": 0.1,
+      "deltaPercent": 0.71,
+      "status": "MATCH",
+      "details": {
+        "i": 3514,
+        "seed": "load"
+      },
+      "computedAt": "2026-04-27T00:58:34.000Z"
+    },
+    {
+      "id": "cmogqq6kt05ii9ymygnloz4in",
+      "providerId": "cmogqnjkk00079yi1wucovn6y",
+      "providerName": "openai",
+      "providerDisplayName": "OpenAI",
+      "reportDate": "2026-04-27T00:00:00.000Z",
+      "tier": 1,
+      "modelName": "gpt-load-07112",
+      "upstreamAmount": 12,
+      "gatewayAmount": 12.1,
+      "delta": 0.1,
+      "deltaPercent": 0.83,
+      "status": "MATCH",
+      "details": {
+        "i": 7112,
+        "seed": "load"
+      },
+      "computedAt": "2026-04-27T00:58:32.000Z"
+    },
+    {
+      "id": "cmogqq6od08ag9ymyop73juun",
+      "providerId": "cmogqnjkk00079yi1wucovn6y",
+      "providerName": "openai",
+      "providerDisplayName": "OpenAI",
+      "reportDate": "2026-04-27T00:00:00.000Z",
+      "tier": 1,
+      "modelName": "gpt-load-10710",
+      "upstreamAmount": 10,
+      "gatewayAmount": 10.1,
+      "delta": 0.1,
+      "deltaPercent": 1,
+      "status": "MATCH",
+      "details": {
+        "i": 10710,
+        "seed": "load"
+      },
+      "computedAt": "2026-04-27T00:58:30.000Z"
+    },
+    {
+      "id": "cmogqq6gi02qd9ymyy3aak0o1",
+      "providerId": "cmogqnjkk00079yi1wucovn6y",
+      "providerName": "openai",
+      "providerDisplayName": "OpenAI",
+      "reportDate": "2026-04-27T00:00:00.000Z",
+      "tier": 1,
+      "modelName": "gpt-load-03507",
+      "upstreamAmount": 12,
+      "gatewayAmount": 12.1,
+      "delta": 0.1,
+      "deltaPercent": 0.83,
+      "status": "MATCH",
+      "details": {
+        "i": 3507,
+        "seed": "load"
+      },
+      "computedAt": "2026-04-27T00:58:27.000Z"
+    },
+    {
+      "id": "cmogqq6kt05ib9ymyjgacn4g2",
+      "providerId": "cmogqnjkk00079yi1wucovn6y",
+      "providerName": "openai",
+      "providerDisplayName": "OpenAI",
+      "reportDate": "2026-04-27T00:00:00.000Z",
+      "tier": 1,
+      "modelName": "gpt-load-07105",
+      "upstreamAmount": 10,
+      "gatewayAmount": 10.1,
+      "delta": 0.1,
+      "deltaPercent": 1,
+      "status": "MATCH",
+      "details": {
+        "i": 7105,
+        "seed": "load"
+      },
+      "computedAt": "2026-04-27T00:58:25.000Z"
+    },
+    {
+      "id": "cmogqq6od08a99ymy3crfrhe7",
+      "providerId": "cmogqnjkk00079yi1wucovn6y",
+      "providerName": "openai",
+      "providerDisplayName": "OpenAI",
+      "reportDate": "2026-04-27T00:00:00.000Z",
+      "tier": 1,
+      "modelName": "gpt-load-10703",
+      "upstreamAmount": 13,
+      "gatewayAmount": 13.1,
+      "delta": 0.1,
+      "deltaPercent": 0.77,
+      "status": "MATCH",
+      "details": {
+        "i": 10703,
+        "seed": "load"
+      },
+      "computedAt": "2026-04-27T00:58:23.000Z"
+    },
+    {
+      "id": "cmogqq6gi02q69ymyxo4w2ta4",
+      "providerId": "cmogqnjkk00079yi1wucovn6y",
+      "providerName": "openai",
+      "providerDisplayName": "OpenAI",
+      "reportDate": "2026-04-27T00:00:00.000Z",
+      "tier": 1,
+      "modelName": "gpt-load-03500",
+      "upstreamAmount": 10,
+      "gatewayAmount": 10.1,
+      "delta": 0.1,
+      "deltaPercent": 1,
+      "status": "MATCH",
+      "details": {
+        "i": 3500,
+        "seed": "load"
+      },
+      "computedAt": "2026-04-27T00:58:20.000Z"
+    },
+    {
+      "id": "cmogqq6kt05i49ymys91q56k9",
+      "providerId": "cmogqnjkk00079yi1wucovn6y",
+      "providerName": "openai",
+      "providerDisplayName": "OpenAI",
+      "reportDate": "2026-04-27T00:00:00.000Z",
+      "tier": 1,
+      "modelName": "gpt-load-07098",
+      "upstreamAmount": 13,
+      "gatewayAmount": 13.1,
+      "delta": 0.1,
+      "deltaPercent": 0.77,
+      "status": "MATCH",
+      "details": {
+        "i": 7098,
+        "seed": "load"
+      },
+      "computedAt": "2026-04-27T00:58:18.000Z"
+    },
+    {
+      "id": "cmogqq6od08a29ymy0tj39xx2",
+      "providerId": "cmogqnjkk00079yi1wucovn6y",
+      "providerName": "openai",
+      "providerDisplayName": "OpenAI",
+      "reportDate": "2026-04-27T00:00:00.000Z",
+      "tier": 1,
+      "modelName": "gpt-load-10696",
+      "upstreamAmount": 11,
+      "gatewayAmount": 11.1,
+      "delta": 0.1,
+      "deltaPercent": 0.91,
+      "status": "MATCH",
+      "details": {
+        "i": 10696,
+        "seed": "load"
+      },
+      "computedAt": "2026-04-27T00:58:16.000Z"
+    },
+    {
+      "id": "cmogqq6gi02pz9ymyrjobk1ex",
+      "providerId": "cmogqnjkk00079yi1wucovn6y",
+      "providerName": "openai",
+      "providerDisplayName": "OpenAI",
+      "reportDate": "2026-04-27T00:00:00.000Z",
+      "tier": 1,
+      "modelName": "gpt-load-03493",
+      "upstreamAmount": 13,
+      "gatewayAmount": 13.1,
+      "delta": 0.1,
+      "deltaPercent": 0.77,
+      "status": "MATCH",
+      "details": {
+        "i": 3493,
+        "seed": "load"
+      },
+      "computedAt": "2026-04-27T00:58:13.000Z"
+    },
+    {
+      "id": "cmogqq6kt05hx9ymy8hm9t92a",
+      "providerId": "cmogqnjkk00079yi1wucovn6y",
+      "providerName": "openai",
+      "providerDisplayName": "OpenAI",
+      "reportDate": "2026-04-27T00:00:00.000Z",
+      "tier": 1,
+      "modelName": "gpt-load-07091",
+      "upstreamAmount": 11,
+      "gatewayAmount": 11.1,
+      "delta": 0.1,
+      "deltaPercent": 0.91,
+      "status": "MATCH",
+      "details": {
+        "i": 7091,
+        "seed": "load"
+      },
+      "computedAt": "2026-04-27T00:58:11.000Z"
+    },
+    {
+      "id": "cmogqq6od089v9ymyuasenf16",
+      "providerId": "cmogqnjkk00079yi1wucovn6y",
+      "providerName": "openai",
+      "providerDisplayName": "OpenAI",
+      "reportDate": "2026-04-27T00:00:00.000Z",
+      "tier": 1,
+      "modelName": "gpt-load-10689",
+      "upstreamAmount": 14,
+      "gatewayAmount": 14.1,
+      "delta": 0.1,
+      "deltaPercent": 0.71,
+      "status": "MATCH",
+      "details": {
+        "i": 10689,
+        "seed": "load"
+      },
+      "computedAt": "2026-04-27T00:58:09.000Z"
+    },
+    {
+      "id": "cmogqq6gi02ps9ymytue9nqs3",
+      "providerId": "cmogqnjkk00079yi1wucovn6y",
+      "providerName": "openai",
+      "providerDisplayName": "OpenAI",
+      "reportDate": "2026-04-27T00:00:00.000Z",
+      "tier": 1,
+      "modelName": "gpt-load-03486",
+      "upstreamAmount": 11,
+      "gatewayAmount": 11.1,
+      "delta": 0.1,
+      "deltaPercent": 0.91,
+      "status": "MATCH",
+      "details": {
+        "i": 3486,
+        "seed": "load"
+      },
+      "computedAt": "2026-04-27T00:58:06.000Z"
+    },
+    {
+      "id": "cmogqq6kt05hq9ymyuznxgy07",
+      "providerId": "cmogqnjkk00079yi1wucovn6y",
+      "providerName": "openai",
+      "providerDisplayName": "OpenAI",
+      "reportDate": "2026-04-27T00:00:00.000Z",
+      "tier": 1,
+      "modelName": "gpt-load-07084",
+      "upstreamAmount": 14,
+      "gatewayAmount": 14.1,
+      "delta": 0.1,
+      "deltaPercent": 0.71,
+      "status": "MATCH",
+      "details": {
+        "i": 7084,
+        "seed": "load"
+      },
+      "computedAt": "2026-04-27T00:58:04.000Z"
+    }
+  ],
+  "meta": {
+    "total": 12054,
+    "page": 1,
+    "pageSize": 50
+  }
+}

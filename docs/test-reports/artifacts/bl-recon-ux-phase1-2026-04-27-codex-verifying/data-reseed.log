@@ -1,0 +1,23 @@
+{
+  "total": 12054,
+  "byStatus": [
+    {
+      "_count": {
+        "_all": 1
+      },
+      "status": "MINOR_DIFF"
+    },
+    {
+      "_count": {
+        "_all": 31
+      },
+      "status": "BIG_DIFF"
+    },
+    {
+      "_count": {
+        "_all": 12022
+      },
+      "status": "MATCH"
+    }
+  ]
+}

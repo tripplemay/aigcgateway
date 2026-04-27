@@ -1,0 +1,14 @@
+{
+  "tc11_total_before": 12054,
+  "tc11_total_after": 3458,
+  "tc11_pass": true,
+  "threshold_match_delta": "0.1",
+  "rerun_status": 200,
+  "rerun_response": {
+    "reportDate": "2026-04-27",
+    "providersInspected": 11,
+    "rowsWritten": 0,
+    "bigDiffs": 0
+  },
+  "match_total_after_rerun": 12022
+}

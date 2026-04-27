@@ -1,0 +1,36 @@
+{
+  "tc10_latest_top": {
+    "pass": true,
+    "firstDate": "2026-04-27"
+  },
+  "tc11_date_filter": {
+    "pass": false,
+    "beforeRows": 50,
+    "afterRows": 50
+  },
+  "tc12_tier1_only": {
+    "pass": true,
+    "sampleProviders": [
+      "openai",
+      "openai",
+      "openai",
+      "openai",
+      "openai",
+      "openai",
+      "openai",
+      "openai"
+    ]
+  },
+  "tc13_threshold_rerun_change": {
+    "pass": false,
+    "matchBefore": 50,
+    "matchAfter": 50
+  },
+  "tc14_export_download": {
+    "pass": true,
+    "filename": "reconciliation-2026-04-27.csv"
+  },
+  "tc15_i18n_zh": {
+    "pass": true
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "total": 12025,
+  "byStatus": [
+    {
+      "_count": {
+        "_all": 1
+      },
+      "status": "MINOR_DIFF"
+    },
+    {
+      "_count": {
+        "_all": 12022
+      },
+      "status": "BIG_DIFF"
+    },
+    {
+      "_count": {
+        "_all": 2
+      },
+      "status": "MATCH"
+    }
+  ],
+  "providerIds": {
+    "openai": "cmogqnjkk00079yi1wucovn6y",
+    "anthropic": "cmogqnjko000a9yi1fr95rr49",
+    "deepseek": "cmogqnjkq000d9yi1orv4rbad",
+    "zhipu": "cmogqnjkr000g9yi1o7785yvm",
+    "volcengine": "cmogqnjks000j9yi1t2x1uyrv",
+    "siliconflow": "cmogqnjku000m9yi1de5bbn2t",
+    "openrouter": "cmogqnjkv000p9yi1u3uil4u4",
+    "minimax": "cmogqnjkw000s9yi1c9mcxq4v",
+    "moonshot": "cmogqnjky000v9yi1ae162yh1",
+    "qwen": "cmogqnjkz000y9yi1t5axm3wy",
+    "stepfun": "cmogqnjl000119yi1nj0w0nug"
+  }
+}

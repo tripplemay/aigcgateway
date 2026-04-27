@@ -1,11 +1,11 @@
 {
-  "status": "verifying",
+  "status": "fixing",
   "user_goal": "BL-RECON-UX-PHASE1 — 优化 /admin/reconciliation 对账面板。A 视图筛选（日期 picker + 倒序默认 + 分页 + Tier 切换 + model 搜索）+ D CSV 导出 + E 阈值可配置（SystemConfig 4 keys）+ 用户明确要求最新数据在顶部。Phase 1 不含告警 / 数据洞察 / Tier 3 占位 / 重跑 audit trail。",
   "total_features": 3,
   "completed_features": 2,
   "fix_rounds": 0,
   "current_sprint": "BL-RECON-UX-PHASE1",
-  "last_updated": "2026-04-27T11:45:00.000Z",
+  "last_updated": "2026-04-27T05:17:36.000Z",
   "reference_docs": [
     "docs/specs/BL-RECON-UX-PHASE1-spec.md"
   ],
@@ -16,7 +16,26 @@
     "signoff": null,
     "framework_reviewed": false
   },
-  "evaluator_feedback": null,
+  "evaluator_feedback": {
+    "summary": "F-RC-03 验收 15/16 通过；tc13 在本地环境阻断（rerun rowsWritten=0，无法验证阈值变更后的状态迁移）。",
+    "pass_count": 15,
+    "partial_count": 0,
+    "fail_count": 1,
+    "report": "docs/test-reports/BL-RECON-UX-PHASE1-verification-failed-2026-04-27.md",
+    "issues": [
+      {
+        "feature_id": "F-RC-03",
+        "result": "FAIL",
+        "description": "阈值更新后执行 /api/admin/reconciliation/rerun 返回 200 但 rowsWritten=0，MATCH 总量不变，未观察到 MATCH->MINOR_DIFF 迁移。",
+        "steps_to_reproduce": "1) 保存 RECONCILIATION_MATCH_DELTA_USD=0.1 2) POST /api/admin/reconciliation/rerun {date:\"2026-04-27\"} 3) 检查返回 rowsWritten=0 4) 查询 status=MATCH meta.total 仍 12022",
+        "evidence": [
+          "docs/test-reports/artifacts/bl-recon-ux-phase1-2026-04-27-codex-verifying/recheck-11-13.json",
+          "docs/test-reports/artifacts/bl-recon-ux-phase1-2026-04-27-codex-verifying/codex-setup.log"
+        ],
+        "risk": "本地缺失可用上游 billing 凭证导致重跑抓账阶段未产出新对账行；需在 staging（真实 key）补测或补可控测试桩。"
+      }
+    ]
+  },
   "evaluator_handoff": {
     "scope": "F-RC-03 全量验收：3 项静态 + 6 项 API 行为 + 5 项前端冒烟 + 1 项 i18n + 1 项 signoff 报告 = 16 项",
     "spec": "docs/specs/BL-RECON-UX-PHASE1-spec.md",
@@ -55,6 +74,6 @@
   "generator_handoff": null,
   "session_notes": {
     "Kimi": "BL-RECON-UX-PHASE1 F-RC-01 + F-RC-02 完成 @ 2026-04-27 11:45，status=verifying 交 Codex。\n\n本批次 Generator 工作总结：\n\n[F-RC-01 后端 — commit 4b507f2 已 push 已 CI 通过 1m6s]\n1) 抽出 src/app/api/admin/reconciliation/query.ts 作为列表/导出共享 parser；用 AND 数组组合 where 避免 spread 覆盖（修了一个 spec 里的隐含 bug：原方案中 tier filter 与 providerId 同传时后者会覆盖前者）。\n2) classifyStatus 加可选 thresholds 参数，默认 = DEFAULT_THRESHOLDS；reconcile-job 内 tier1/2 path + upsertReconciliation 全程 thread thresholds，runReconciliation 入口 await loadThresholds()。\n3) CSV BOM 用字面量 U+FEFF（在文件中是 ef bb bf 三字节）；测试不能 res.text() 因为 TextDecoder 默认会吞 BOM，改用 arrayBuffer() 校验前三字节。\n4) seed.ts 4 个 RECONCILIATION_* keys 用 update:{} 幂等 upsert（已存在不覆盖管理员手改值）。\n\n[F-RC-02 前端 — 本 commit]\n1) page.tsx 366 → 605 行：6 区块 = cards / trend / 阈值配置（新）/ 重跑 / 明细表\n2) cards/trend 与明细表两路 fetch（spec § Risks 第 3 项）；前者固定 30 天 pageSize=200，后者带全部 filter + 分页\n3) 默认 sortDir='desc' 且表头 reportDate 列点击切 asc/desc（▼/▲ 图标）\n4) 阈值 SectionCard：先 GET /api/admin/config 拉初始值，保存按 PUT × 4 顺序调用，toast 「下次重跑生效」\n5) CSV 导出按 actions slot 放在 SectionCard 头部（不是 action 单数，组件 prop 是 actions）；用 raw fetch 而非 apiFetch 因为响应是 blob，400 → toast；200 → blob URL trigger 下载\n6) useDebouncedValue 内联 hook（项目原本没有），300ms\n7) 翻 19 个 i18n keys（spec 列了 18 个，多加了 'save'）\n\n[测试]\n- 总计 441 tests pass（baseline 414 + 27 新增；F-RC-02 没新增前端测试，role-context 不写测试 + spec 也没列前端单测）\n\n[张力点]\nrole-context/generator.md 写「不写任何测试」，但 spec § F-RC-01 acceptance 显式列「单测扩展」。我自己作 Planner 时埋了这个矛盾。本次按 spec 写了完整后端测试。已追加到 .auto-memory/proposed-learnings.md，done 阶段统一处理。\n\n[Codex F-RC-03 准备就绪]\nevaluator_handoff 字段已写好，verification_pointers 列出 spec § F-RC-03 16 项的执行入口。本机 tsc + build + vitest 全过；等 Codex 跑 API 行为 + 前端冒烟 + 写 signoff 报告。",
-    "Reviewer": null
+    "Reviewer": "verifying @ 2026-04-27：完成 BL-RECON-UX-PHASE1 F-RC-03 验收。静态/API/i18n均通过，tc13 阻断（rerun rowsWritten=0，需有效上游账单凭证），状态置 fixing 并输出失败报告。"
   }
 }

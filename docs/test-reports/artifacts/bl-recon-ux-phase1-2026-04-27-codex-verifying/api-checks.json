@@ -1,0 +1,59 @@
+{
+  "tc4_default_desc": {
+    "status": 200,
+    "pass": true,
+    "first": "2026-04-27T00:00:00.000Z",
+    "second": "2026-04-27T00:00:00.000Z"
+  },
+  "tc5_asc_page": {
+    "status": 200,
+    "pass": true,
+    "meta": {
+      "total": 12054,
+      "page": 1,
+      "pageSize": 5
+    },
+    "len": 5
+  },
+  "tc6_tier1": {
+    "status": 200,
+    "pass": true,
+    "providers": [
+      "openai"
+    ],
+    "totalProviders": 1
+  },
+  "tc7_modelsearch": {
+    "status": 200,
+    "pass": true,
+    "len": 20
+  },
+  "tc8_export_csv": {
+    "status": 200,
+    "contentType": "text/csv; charset=utf-8",
+    "contentDisposition": "attachment; filename=\"reconciliation-2026-04-27.csv\"",
+    "bom": [
+      239,
+      187,
+      191
+    ],
+    "header": "reportDate,tier,providerName,modelName,upstreamAmount,gatewayAmount,delta,deltaPercent,status,computedAt",
+    "pass": true
+  },
+  "tc9_hardcap": {
+    "status": 400,
+    "pass": true,
+    "body": {
+      "error": {
+        "type": "invalid_request_error",
+        "code": "row_count_exceeds_cap",
+        "message": "row count 12054 exceeds 10000, narrow filter"
+      }
+    }
+  },
+  "login": {
+    "status": 200,
+    "role": "ADMIN",
+    "user": "admin@aigc-gateway.local"
+  }
+}
