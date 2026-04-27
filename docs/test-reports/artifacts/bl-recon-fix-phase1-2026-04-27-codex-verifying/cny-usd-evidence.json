@@ -1,0 +1,17 @@
+{
+  "found": true,
+  "reportDate": "2026-04-02",
+  "upstreamAmount": 0.44525,
+  "gatewayAmount": 0,
+  "status": "MATCH",
+  "details": {
+    "raw": {
+      "ExpenseDate": "2026-04-02"
+    },
+    "currency": "CNY",
+    "upstreamRequests": 1,
+    "exchangeRateApplied": 0.137,
+    "upstreamAmountOriginal": 3.25
+  },
+  "pass": true
+}

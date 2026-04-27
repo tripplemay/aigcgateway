@@ -1,0 +1,43 @@
+{
+  "provider": {
+    "id": "cmogu1u9u000j9y997ywp48w6",
+    "name": "volcengine"
+  },
+  "dailyResults": [
+    {
+      "date": "2026-04-02",
+      "rowsWritten": 1,
+      "bigDiffs": 0
+    },
+    {
+      "date": "2026-04-03",
+      "rowsWritten": 1,
+      "bigDiffs": 0
+    },
+    {
+      "date": "2026-04-04",
+      "rowsWritten": 1,
+      "bigDiffs": 0
+    },
+    {
+      "date": "2026-04-05",
+      "rowsWritten": 1,
+      "bigDiffs": 0
+    },
+    {
+      "date": "2026-04-06",
+      "rowsWritten": 1,
+      "bigDiffs": 0
+    }
+  ],
+  "modelRowCount": 1,
+  "modelRows": [
+    {
+      "reportDate": "2026-04-02",
+      "modelName": "rf01-cross-day-model",
+      "upstreamAmount": 0.44525,
+      "status": "MATCH"
+    }
+  ],
+  "pass": true
+}

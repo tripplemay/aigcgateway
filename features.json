@@ -34,7 +34,7 @@
       "title": "BL-RECON-FIX-PHASE1 全量验收（fetcher 行为 + 货币转换 + audit 脚本 + 静态）",
       "priority": "high",
       "executor": "codex",
-      "status": "pending",
+      "status": "completed",
       "source": "BL-RECON-FIX-PHASE1 spec § F-RF-04",
       "acceptance": "静态（3）：tsc / build / vitest（≥ 445 + F-RF-01/02 新增）。Volcengine fetcher 行为（2）：4) F-RF-01 单测全 PASS；5) 集成模拟：mock fetcher 返月度 3 条 ExpenseDate → reconcile cross 5 天 reportDate 仅 ExpenseDate=对应日的 1 行 BillReconciliation。CNY→USD（2）：6) F-RF-02 单测全 PASS；7) mock {currency:'CNY', amount:3.25} → upstreamAmount=0.44525 + details.upstreamAmountOriginal=3.25 + details.currency='CNY' + details.exchangeRateApplied=0.137。Audit 脚本（2）：8) npx tsx scripts/audit-image-pricing.ts 在测试 DB 跑通无错（即使无数据输出空表）；9) mock 一个 image modality + token-priced channel 跑脚本验证 ⚠️ 标记输出。报告（1）：10) docs/test-reports/BL-RECON-FIX-PHASE1-signoff-2026-04-2X.md 含 9 项证据 + 关键截图（audit 报告输出片段）。明确排除：不要求生产数据 reconcile 重跑 / 不要求历史 BIG_DIFF 回填 / 不要求修改任何 channel 配置（Phase 2）"
     }
