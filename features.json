@@ -1,42 +1,42 @@
 {
-  "batch": "BL-RECON-FIX-PHASE1",
+  "batch": "BL-RECON-FIX-PHASE2",
   "created_at": "2026-04-27",
   "features": [
     {
-      "id": "F-RF-01",
-      "title": "Volcengine fetcher 加 ExpenseDate 过滤（消除月度账单重复入对账表）",
+      "id": "F-RP-01",
+      "title": "调研 OR image 模型 usage 字段形态（H1/H2/H3 三假设核证）",
       "priority": "high",
       "executor": "generator",
-      "status": "completed",
-      "source": "BL-RECON-FIX-PHASE1 spec § F-RF-01",
-      "acceptance": "1) src/lib/billing-audit/fetchers/volcengine.ts fetchDailyBill 返回前过滤 ExpenseDate ≠ requestedDate 的行（YYYY-MM-DD UTC 比较）；缺失 ExpenseDate 字段保守过滤；2) 单测覆盖 3 case：mock 月度全量 3 条 ExpenseDate（04-02/04-15/04-23）→ fetchDailyBill(04-23) 仅返 1 条；mock 全部 ExpenseDate≠target → 返空数组；mock 缺失 ExpenseDate → 过滤；3) tsc + build + vitest 全过；4) commit 'feat(BL-RECON-FIX-PHASE1 F-RF-01): volcengine fetcher ExpenseDate filter'"
+      "status": "pending",
+      "source": "BL-RECON-FIX-PHASE2 spec § F-RP-01",
+      "acceptance": "1) 用 admin API key (pk_aa6b13...) 通过 https://aigc.guangai.ai/v1/chat/completions 调一次 gemini-2.5-flash-image 真实图像生成，捕获 raw response；2) 用 .env.production 的 OR API key 直连 https://openrouter.ai/api/v1/chat/completions 调相同 prompt，捕获 raw OR 响应；3) jq usage 输出对比；用 OR /api/v1/generation/{id} 反查实收 cost；4) 标注 H1（completion_tokens 已含被截断）/ H2（独立字段如 completion_tokens_details.image_tokens）/ H3（usage.cost 直返）哪个成立，引用 OR API 文档；5) 调研报告写入 docs/audits/openrouter-image-usage-shape-2026-04-27.md 含 raw JSON 片段 + 量化 gap（gateway costPrice vs OR 实收）；6) commit 'docs(BL-RECON-FIX-PHASE2 F-RP-01): OR image usage shape investigation'"
     },
     {
-      "id": "F-RF-02",
-      "title": "reconcile-job tier1 path 加 CNY→USD 货币转换",
+      "id": "F-RP-02",
+      "title": "适配层 extractUsage 兼容 image-output tokens（按 F-RP-01 结论选 A/B/C 分支）",
       "priority": "high",
       "executor": "generator",
-      "status": "completed",
-      "source": "BL-RECON-FIX-PHASE1 spec § F-RF-02",
-      "acceptance": "1) src/lib/billing-audit/reconcile-job.ts tier1 path bill loop 内：const exchangeRate = await getConfigNumber('EXCHANGE_RATE_CNY_TO_USD', 0.137)；const upstreamUsd = bill.currency === 'CNY' ? bill.amount * exchangeRate : bill.amount；upsertReconciliation 写 upstreamAmount=upstreamUsd + details.currency=bill.currency + details.upstreamAmountOriginal=bill.amount + details.exchangeRateApplied=（CNY 时 exchangeRate 否则 1）；2) 单测扩展：USD 不变 / CNY amount=3.25 → 0.44525 / 自定义 EXCHANGE_RATE_CNY_TO_USD=0.14 时按新汇率；3) tier 2 balance path 不动；4) tsc + build + vitest 全过；5) commit 'feat(BL-RECON-FIX-PHASE1 F-RF-02): tier1 CNY-to-USD currency conversion'"
+      "status": "pending",
+      "source": "BL-RECON-FIX-PHASE2 spec § F-RP-02",
+      "acceptance": "1) src/lib/engine/openai-compat.ts extractUsage 按 F-RP-01 结论实现：A 分支 (image_tokens 单独字段) → 加到 completion_tokens 总计 / B 分支 (cost 直返) → 新增 Usage.upstreamCostUsd 字段 + post-process 优先用此值 / C 分支 (sse-parser 截断) → 修流末尾 usage 聚合；2) 若选 B 分支需更新 src/lib/engine/types.ts Usage interface；3) src/lib/engine/openai-compat.test.ts 扩展：mock image_tokens 场景 → completion_tokens 含 image / mock cost 场景 → upstreamCostUsd / 纯文本回归不变；4) tsc + build 通过；5) 单 commit 'feat(BL-RECON-FIX-PHASE2 F-RP-02): capture OR image-output tokens in extractUsage'"
     },
     {
-      "id": "F-RF-03",
-      "title": "Image pricing audit 脚本 + 生产数据报告（read-only，不改 DB）",
+      "id": "F-RP-03",
+      "title": "image-via-chat 端到端 cost 集成测（CallLog.costPrice ≈ OR 实收 ±5%）",
       "priority": "high",
       "executor": "generator",
-      "status": "completed",
-      "source": "BL-RECON-FIX-PHASE1 spec § F-RF-03",
-      "acceptance": "1) 新建 scripts/audit-image-pricing.ts：查所有 modality=image 的 model + 关联 channel（含 costPrice + sellPrice + provider name）+ 30 天 call_logs sum(costPrice)/count(*)/avg；输出 markdown 表格按模型分块；2) 标注 ⚠️ 可疑 = modality=image AND channel.costPrice.unit=='token'（image 模型按 token 计费，与 openrouter 上游 perCall 计费规则不一致，可能漏算）；3) 脚本 read-only（无 INSERT/UPDATE/DELETE）；4) 用 prod-readonly DATABASE_URL 跑出 docs/audits/image-pricing-2026-04-27.md；5) 报告 commit 入仓；6) tsc 编译通过；7) commit 'feat(BL-RECON-FIX-PHASE1 F-RF-03): image pricing audit script + 2026-04-27 prod report'"
+      "status": "pending",
+      "source": "BL-RECON-FIX-PHASE2 spec § F-RP-03",
+      "acceptance": "1) 新建 src/lib/engine/__tests__/image-via-chat-cost.test.ts 或扩展 image-via-chat-e2e.test.ts；2) mock OR 完整 image 响应（含 F-RP-01 实证 shape：35 prompt + 1293 completion + image_tokens 等）；3) 跑完整 imageViaChat → post-process 链路，断言 CallLog.costPrice ∈ [$0.030, $0.045]（OR 实收 $0.0387 ±15% 容差）；4) 文本回归测：纯文本 chat（无 image tokens）成本计算不变；5) vitest 全过 + build；6) 单 commit 'test(BL-RECON-FIX-PHASE2 F-RP-03): image-via-chat e2e cost accuracy test'"
     },
     {
-      "id": "F-RF-04",
-      "title": "BL-RECON-FIX-PHASE1 全量验收（fetcher 行为 + 货币转换 + audit 脚本 + 静态）",
+      "id": "F-RP-04",
+      "title": "BL-RECON-FIX-PHASE2 验收（静态 + 单测 + 生产实证 + reconcile 验证）",
       "priority": "high",
       "executor": "codex",
-      "status": "completed",
-      "source": "BL-RECON-FIX-PHASE1 spec § F-RF-04",
-      "acceptance": "静态（3）：tsc / build / vitest（≥ 445 + F-RF-01/02 新增）。Volcengine fetcher 行为（2）：4) F-RF-01 单测全 PASS；5) 集成模拟：mock fetcher 返月度 3 条 ExpenseDate → reconcile cross 5 天 reportDate 仅 ExpenseDate=对应日的 1 行 BillReconciliation。CNY→USD（2）：6) F-RF-02 单测全 PASS；7) mock {currency:'CNY', amount:3.25} → upstreamAmount=0.44525 + details.upstreamAmountOriginal=3.25 + details.currency='CNY' + details.exchangeRateApplied=0.137。Audit 脚本（2）：8) npx tsx scripts/audit-image-pricing.ts 在测试 DB 跑通无错（即使无数据输出空表）；9) mock 一个 image modality + token-priced channel 跑脚本验证 ⚠️ 标记输出。报告（1）：10) docs/test-reports/BL-RECON-FIX-PHASE1-signoff-2026-04-2X.md 含 9 项证据 + 关键截图（audit 报告输出片段）。明确排除：不要求生产数据 reconcile 重跑 / 不要求历史 BIG_DIFF 回填 / 不要求修改任何 channel 配置（Phase 2）"
+      "status": "pending",
+      "source": "BL-RECON-FIX-PHASE2 spec § F-RP-04",
+      "acceptance": "静态（3）：tsc / build / vitest（≥ 452 + F-RP-02/03 新增）。单测验证（2）：4) F-RP-02 extractUsage 新单测全 PASS；5) F-RP-03 集成测全 PASS。生产实证（3）：6) 触发 1 次真实 gemini-2.5-flash-image 调用（admin API key + https://aigc.guangai.ai/v1/chat/completions）；7) 查 call_logs 该 traceId 对应 costPrice ∈ [$0.030, $0.045]（覆盖 OR 实收 $0.0387 ±15%）；8) 触发手动 reconcile rerun（POST /api/admin/reconciliation/rerun {date:今日}）→ 该日 gemini-2.5-flash-image 行 status=MATCH（默认阈值 |Δ|<$0.5）。报告（1）：9) docs/test-reports/BL-RECON-FIX-PHASE2-signoff-2026-04-2X.md 含 9 项证据 + 引用 F-RP-01 调研报告 + 实证 traceId + reconcile 截图"
     }
   ]
 }

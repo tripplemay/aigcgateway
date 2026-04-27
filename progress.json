@@ -1,27 +1,65 @@
 {
-  "status": "done",
-  "user_goal": "BL-RECON-FIX-PHASE1 — 修对账数据正确性 bug。来源 2026-04-27 生产数据分析：Issue 1 volcengine fetcher 月度账单重复入对账表 + CNY 当 USD 比较；Issue 2 image 模型 token-priced 计费漏算（如 google/gemini-2.5-flash-image 92% undercount）。Phase 1 修 fetcher + 货币 + 出 image pricing audit 报告；Phase 2 留观察（基于审计报告决策）。",
+  "status": "building",
+  "user_goal": "BL-RECON-FIX-PHASE2 — 治本修 OR image-via-chat 模型计费漏算（gemini-2.5-flash-image 实测 12x undercount）。修 src/lib/engine/openai-compat.ts extractUsage 让 image-output tokens 被记录，让 7 个 ⚠️ token-priced channel 的现有公式自动算对。用户 2026-04-27 选方案 B 治本（其他选项：A 全量 perCall 配置 / C 仅修 2 条）。",
   "total_features": 4,
-  "completed_features": 4,
+  "completed_features": 0,
   "fix_rounds": 0,
-  "current_sprint": "BL-RECON-FIX-PHASE1",
-  "last_updated": "2026-04-27T15:05:00.000Z",
+  "current_sprint": "BL-RECON-FIX-PHASE2",
+  "last_updated": "2026-04-27T16:00:00.000Z",
   "reference_docs": [
-    "docs/specs/BL-RECON-FIX-PHASE1-spec.md"
+    "docs/specs/BL-RECON-FIX-PHASE2-spec.md",
+    "docs/audits/image-pricing-2026-04-27.md"
   ],
   "role_assignments": null,
   "docs": {
-    "spec": "docs/specs/BL-RECON-FIX-PHASE1-spec.md",
+    "spec": "docs/specs/BL-RECON-FIX-PHASE2-spec.md",
     "test_cases": null,
-    "signoff": "docs/test-reports/BL-RECON-FIX-PHASE1-signoff-2026-04-27.md",
+    "signoff": null,
     "framework_reviewed": false
   },
   "evaluator_feedback": null,
   "evaluator_handoff": null,
-  "generator_handoff": null,
+  "generator_handoff": {
+    "fix_round": 0,
+    "scope": "F-RP-01 调研 → F-RP-02 修适配 → F-RP-03 集成测；F-RP-01 必须先做（结论决定 F-RP-02 实现分支）。",
+    "spec": "docs/specs/BL-RECON-FIX-PHASE2-spec.md",
+    "execution_order": [
+      "F-RP-01：先做调研，决定 H1/H2/H3 哪个成立 → 写报告 docs/audits/openrouter-image-usage-shape-2026-04-27.md",
+      "F-RP-02：按调研结论选实现分支（A 加 image_tokens 进 completion / B 用 cost 字段直返 / C 修 sse-parser）",
+      "F-RP-03：集成测验证 imageViaChat 全链路成本"
+    ],
+    "key_files": {
+      "modified": [
+        "src/lib/engine/openai-compat.ts（extractUsage 函数 line 703-723）",
+        "src/lib/engine/types.ts（如选 B 分支需加 Usage.upstreamCostUsd）",
+        "src/lib/engine/openai-compat.test.ts（如不存在则查 *.test.ts 模式）"
+      ],
+      "new": [
+        "docs/audits/openrouter-image-usage-shape-2026-04-27.md（调研报告）",
+        "src/lib/engine/__tests__/image-via-chat-cost.test.ts（或扩展现有 image-via-chat-e2e.test.ts）"
+      ]
+    },
+    "preflight_checks": [
+      "Read src/lib/engine/openai-compat.ts:703-723 确认 extractUsage 当前结构",
+      "Read src/lib/engine/types.ts 确认 Usage interface",
+      "Read src/lib/engine/__tests__/image-via-chat-e2e.test.ts 看是否能扩展（避免新建文件）",
+      "Read src/lib/api/post-process.ts:520-540 calculateTokenCost 函数，确认其消费 usage.completion_tokens 的方式（如选 A 分支公式自动覆盖；如选 B 分支需改 calculateTokenCost）",
+      "查 OR API key 在 .env.production 的 key 名（用于直连调研）"
+    ],
+    "investigation_hints": {
+      "or_api_endpoint_for_pricing_replay": "GET https://openrouter.ai/api/v1/generation/{generationId} 返回该次调用的实际 cost；可用此反查任意 traceId 的 OR 实收金额（前提：用 OR 自己的 generation id，gateway 应 log 这个）",
+      "expected_field_locations": [
+        "usage.completion_tokens_details.image_tokens（OR 文档参考 OAI 风格）",
+        "usage.total_tokens（含全部）减 prompt - completion 余下可能是 image",
+        "usage.cost（OR 直返美元）"
+      ],
+      "test_call_cost_budget": "调研 + 验收期共 ~3 次 gemini-2.5-flash-image 调用 × $0.04 = ~$0.12，可接受"
+    },
+    "production_admin_key_hint": "memory T2 reference_production_accounts.md 含 admin API key (pk_aa6b13...)；用 https://aigc.guangai.ai/v1/chat/completions 路径",
+    "notes": "F-RP-01 是判断点。如果 OR 同时支持 H2 (image_tokens 字段) 和 H3 (cost 字段)，优先选 H3 (cost 直返最权威，避免依赖 token 单价正确性）。Generator 完成 F-RP-01/02/03 后 status=verifying。"
+  },
   "session_notes": {
-    "Kimi-batch-launch": "BL-RECON-FIX-PHASE1 启动 @ 2026-04-27 15:00。\n\n来源：用户要求分析近期对账记录 BIG_DIFF。Planner SSH 生产 DB 查询发现 6 行 BIG_DIFF（5 行 volcengine Doubao-Seedream-4.5 重复 + 1 行 openrouter gemini-2.5-flash-image）。\n\n根因诊断：\n1) volcengine fetcher 拉月度账单（BillPeriod=YYYY-MM）但每天 cron 都把同一笔 4-02 的账单写到 reportDate=今日 → 5 倍重复 BIG_DIFF\n2) reconcile-job tier1 path 把 bill.amount 当 USD 直接比较，但 volcengine bill.currency='CNY'，应按 EXCHANGE_RATE_CNY_TO_USD=0.137 折算\n3) gemini-2.5-flash-image 是 image 模型但 channel.costPrice.unit='token' → calculateTokenCost 漏算 12 倍（应 perCall 计费）\n\nPhase 1 仅修代码逻辑（A+B），C 留 read-only 审计输出报告由用户决策 Phase 2 是否做配置改动。\n\n4 features：F-RF-01 fetcher（generator）+ F-RF-02 reconcile-job（generator）+ F-RF-03 audit script（generator）+ F-RF-04 验收（codex）。预计 2h Generator + 0.5h Codex。\n\n下一步：本会话 Planner 身份固定，无法执行。等 Generator session pull 后按 generator_handoff 顺序执行 3 个 features，完成后 status=verifying 交 Codex。",
-    "Kimi": "BL-RECON-FIX-PHASE1 building → verifying @ 2026-04-27 14:40。\n\n3 个 generator features 全部 commit：\n- F-RF-01 (commit 48baf89): volcengine fetcher 加 ExpenseDate UTC 过滤 + ListBillDetailItem 类型加 ExpenseDate 字段；缺失字段保守过滤；扩展 volcengine.test.ts ExpenseDate filter describe 块 3 个 case + 给现有 mock 全部加 ExpenseDate 字段避免被新过滤误杀。13 tests PASS。\n- F-RF-02 (commit 0695615): reconcile-job tier1 path 在 bills loop 前一次性读 EXCHANGE_RATE_CNY_TO_USD（默认 0.137）；bill.currency==='CNY' 时折算成 upstreamUsd 再 delta；details 新增 upstreamAmountOriginal / exchangeRateApplied / currency 三字段。tier 2 path 未改。把 reconcile-job.test.ts 既有 tier1 happy-path 改为 currency:'USD' 表明 passthrough 语义；getConfigNumber 改为可控 mockFn 以支持自定义汇率测试；新增 F-RF-02 describe 块 4 case（USD passthrough / CNY 0.137 / 自定义 0.14 / tier 2 不受影响）。13 tests PASS（含 4 新增）。\n- F-RF-03 (commit 916c20e): scripts/audit-image-pricing.ts 仅用 prisma findMany / aggregate（read-only，无 INSERT/UPDATE/DELETE）；用 SSH 到 prod 用 .env.production 跑出 docs/audits/image-pricing-2026-04-27.md（39 image models / 7 ⚠️ token-priced 可疑 channel：6 openrouter image-via-chat + 1 zhipu cogview-4 / 32 perCall 合理）。prod 临时文件已清理。\n\n最终验证：tsc PASS / vitest 452 PASS / build PASS。progress.json status=verifying，evaluator_handoff 已写入证据指引（含 9 项验收 hint）。等 Codex session 启动跑 F-RF-04 + 写 signoff。\n\n注意点：F-RF-02 之后既有 BIG_DIFF 测试 (volcengine CNY 100 vs gateway 50) 数学含义变了（upstream 13.7 USD vs gateway 50 USD → BIG_DIFF），但 status 仍 BIG_DIFF，断言不破。注释已更新。",
-    "Reviewer": "verifying @ 2026-04-27：完成 BL-RECON-FIX-PHASE1 F-RF-04 验收。tsc/build/vitest(452) 通过；F-RF-01/02 指定单测通过；cross-5days 与 CNY→USD details 证据通过；audit 脚本基线与 ⚠️ 标记机制通过。已写 signoff，建议批次 done。"
+    "Kimi-batch-launch": "BL-RECON-FIX-PHASE2 启动 @ 2026-04-27 16:00。\n\n背景：BL-RECON-FIX-PHASE1 F-RF-03 audit 输出 7 个 ⚠️ token-priced image channel；用户深度复核后选方案 B（治本：修适配层让 image tokens 被捕获，而非 A 改全量 perCall 或 C 只改 2 条）。\n\n关键发现：channel.costPrice 公式 token 单价与 OR 公布完全一致；问题在 extractUsage 仅读 prompt_tokens / completion_tokens / reasoning_tokens 三字段，**忽略了 image-output tokens**。\n\nspec 设计要点：\n1) 投入 F-RP-01 调研先 — 通过 1 次真实 gemini call（gateway 路径 + 直连 OR）确认 H1/H2/H3 哪个成立\n2) F-RP-02 按结论选 A/B/C 实现分支（A 加 image_tokens 到 completion / B 用 cost 字段 / C 修 sse-parser）\n3) F-RP-03 集成测 ±15% 容差实证准确性\n4) F-RP-04 含生产实证（真调用 gemini → CallLog.costPrice ∈ [$0.030,$0.045]）\n\n非目标：不动 channel 配置（修适配层后 7 channel 全部自动算对）；不动 cogview-3（zhipu 适配独立）；不动阈值粒度。\n\n下一步：本会话 Planner 身份固定。等 Generator session pull 后按 generator_handoff 执行 F-RP-01 → F-RP-02 → F-RP-03，预估 2h。完成后 status=verifying 交 Codex F-RP-04（含生产实证）。",
+    "Reviewer": null
   }
 }
