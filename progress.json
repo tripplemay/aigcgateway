@@ -1,9 +1,9 @@
 {
-  "status": "reverifying",
+  "status": "fixing",
   "user_goal": "BL-EMBEDDING-MVP — 接入 embedding modality（KOLMatrix dogfood 客户需求）。新 ModelModality EMBEDDING + POST /v1/embeddings + Action embedding 类型 + MCP embed_text + SDK gateway.embed + bge-m3 (SiliconFlow) + text-embedding-3-small (OpenAI) seed。目标 2026-05-22 KOLMatrix MVP 上线前完成。",
   "total_features": 6,
   "completed_features": 5,
-  "fix_rounds": 1,
+  "fix_rounds": 2,
   "current_sprint": "BL-EMBEDDING-MVP",
   "last_updated": "2026-04-28T01:55:00.000Z",
   "reference_docs": [
@@ -19,7 +19,7 @@
     "external_request": "/Users/yixingzhou/project/joyce/docs/external-asks/aigcgateway-embedding-request.md"
   },
   "evaluator_feedback": null,
-  "evaluator_handoff": {
+  "evaluator_handoff_paused_for_fix_round_2": {
     "scope": "F-EM-06 全量验收 — 静态(3) + API 行为(4) + Action(2) + MCP(1) + SDK(1) + 生产实证(2) + signoff(1)，共 14 项",
     "spec": "docs/specs/BL-EMBEDDING-MVP-spec.md § F-EM-06",
     "completed_by_generator": [
@@ -52,11 +52,87 @@
     "expected_signoff_path": "docs/test-reports/BL-EMBEDDING-MVP-signoff-2026-04-2X.md",
     "exclusions_reminder": "明确不要求：dimensions 可选参数 / encoding_format=base64 / similarity endpoint / 持久化向量 / Volcengine+Zhipu+DeepSeek 适配 / Template embedding step / Action embedding 批量；admin UI creation form（不存在）spec acceptance #3 N/A"
   },
-  "generator_handoff": null,
+  "generator_handoff": {
+    "fix_round": 2,
+    "scope": "Health probe 加 EMBEDDING 分支 — 修生产 2 个 embedding channel DEGRADED 根因。F-EM 系列 spec 漏定义 health probe 路径，channel seed ACTIVE 后第一次 cron 走默认 chat probe → 上游 400 → 自动降级。除 src/lib/health/checker.ts 与 scheduler.ts 多处 isImage 硬编码改为 modality switch 外，需部署后清理生产 health 状态让 channel 立即恢复，使 Codex 能跑 reverify acceptance #4-7 + #13。",
+    "spec": "docs/specs/BL-EMBEDDING-MVP-spec.md",
+    "root_cause": "src/lib/health/checker.ts:56 (runCallProbe) + :260 (runTextCheck) 仅有 isImage / else=chat 二分；scheduler.ts:138/282/314 同样 isImage 硬编码。EMBEDDING 模型走 default chat path → adapter.chatCompletions(model='bge-m3') → SiliconFlow 'model_not_found: 该接口暂不支持该模型调用'；OpenAI text-embedding-3-small 同样返 400。生产 health_checks 显示 CONNECTIVITY + CALL_PROBE 双 FAIL，channel 自动 DEGRADED。",
+    "evidence": [
+      "ssh prod: SELECT m.name, c.status FROM models m JOIN channels c ON c.modelId=m.id WHERE m.modality='EMBEDDING' → 2 行都 DEGRADED",
+      "health_checks 最新 4 行：siliconflow 'model_not_found: 该接口暂不支持该模型调用' + openai 'invalid_request: Provider returned 400'"
+    ],
+    "targets": [
+      {
+        "step": "1. 重构 runCallProbe（checker.ts:50-110）",
+        "change": "提取 helper modalityProbe(route, source) 或直接 switch (route.model.modality): 'IMAGE' → imageGenerations / 'EMBEDDING' → adapter.embeddings({model, input:'hi'}) 判 data?.length>0 / 'TEXT' (default) → chatCompletions / 'VIDEO'/'AUDIO' → 暂不支持，跳过返回 PASS（保守，未来加 adapter 时再覆盖）",
+        "note": "embedding probe 用 adapter.embeddings（F-EM-01 已实现），失败 fallback 到 chat 不可（embedding 模型对 chat endpoint 必返 400）；如 adapter.embeddings 不存在（旧 adapter）则跳过"
+      },
+      {
+        "step": "2. 重构 runTextCheck → runConnectivityCheck（checker.ts:258-328）",
+        "change": "现 runTextCheck 仅文本路径。改名为通用 runConnectivityCheck，按 modality 分支同上，CALL_PROBE 与 CONNECTIVITY 共用 helper 减少重复。runHealthCheck 入口仍调用此函数。"
+      },
+      {
+        "step": "3. scheduler.ts modality 判断扩展（138/282/314）",
+        "change": "shouldCallProbeChannel: ch.model.modality === 'IMAGE' → 不再短路；EMBEDDING 也参与 CALL_PROBE（F-ACF-10 minimum-cost probe）。建议提 helper isProbableModality(modality) 集中判定。"
+      },
+      {
+        "step": "4. 单测扩展（checker.test.ts + scheduler test 如有）",
+        "change": "加 EMBEDDING modality probe case：mock adapter.embeddings → PASS / FAIL；现有 IMAGE + TEXT 单测不破。"
+      },
+      {
+        "step": "5. 本地验证",
+        "commands": [
+          "npx tsc --noEmit",
+          "npm run build",
+          "npx vitest run（基线 505 + 至少 2 新增 = ≥ 507 应 PASS）"
+        ]
+      },
+      {
+        "step": "6. commit + push + 部署",
+        "commands": [
+          "git add -A && git commit -m 'fix(BL-EMBEDDING-MVP fix-round-2): health probe EMBEDDING modality branch'",
+          "git push origin main",
+          "用户 GitHub Actions 触发 Deploy to VPS（或 Generator 提示用户触发）"
+        ]
+      },
+      {
+        "step": "7. 部署后 SSH 生产解锁 channel + 触发立即 probe（双轨）",
+        "commands": [
+          "ssh tripplezhou@34.180.93.185",
+          "sudo -u postgres psql aigc_gateway -c \"UPDATE channels SET status='ACTIVE', \\\"updatedAt\\\"=NOW() WHERE \\\"modelId\\\" IN (SELECT id FROM models WHERE modality='EMBEDDING')\"",
+          "可选：触发 admin 端点立即跑 probe（POST /api/admin/health/probe?channelId=...）；否则等下次 cron（CALL_PROBE_INTERVAL 30min）"
+        ],
+        "expected": "ACTIVE 状态保持 + 下次 probe 用新代码 PASS（不再降级）"
+      },
+      {
+        "step": "8. 验证：再 ssh prod 查 channel.status",
+        "command": "sudo -u postgres psql aigc_gateway -c \"SELECT m.name, c.status FROM models m JOIN channels c ON c.\\\"modelId\\\"=m.id WHERE m.modality='EMBEDDING'\"",
+        "expected": "2 行 status=ACTIVE（如已降级说明 probe 仍有 bug，回 step 1 排查）"
+      },
+      {
+        "step": "9. status fixing → reverifying",
+        "note": "提交完后 update progress.json status=reverifying / fix_rounds 2 不动 / 把 evaluator_handoff_paused_for_fix_round_2 重命名回 evaluator_handoff（解暂停）"
+      }
+    ],
+    "preflight_checks": [
+      "Read src/lib/health/checker.ts 完整理解 runCallProbe + runTextCheck + writeProbeCallLog",
+      "Read src/lib/health/scheduler.ts:130-160 + :270-320 看 isImage 检查点",
+      "确认 adapter.embeddings 在 SiliconFlowAdapter / VolcengineAdapter 等是否被覆盖（如继承默认 OpenAICompatEngine 应可用）",
+      "Read existing image probe 看 short-circuit / cost-control 设计是否对 embedding 也适用（embedding probe 单 token input 几乎免费）"
+    ],
+    "constraints": [
+      "不动 ModelModality enum 顺序（EMBEDDING 已存在，不再扩）",
+      "不引入新单测框架，沿用 vitest",
+      "scheduler.ts 改动若涉及 helper 抽出，新 helper 加单测覆盖",
+      "SQL 直改 channel.status 是临时解锁手段，长期靠 probe 修；fix-round 完成后由 cron 自动管理"
+    ],
+    "notes": "本 fix-round 修生产实际 bug + 暴露 spec 设计漏洞（modality 扩展时未扫描所有硬编码点）。Generator 完成 9 步后 status=reverifying，Codex 跑 F-EM-06 14 项含 #13 实证。生产 SQL 解锁需用户授权（生产数据写）—— Generator 在 step 7 前应先报告用户。"
+  },
   "session_notes": {
     "Kimi-batch-launch": "BL-EMBEDDING-MVP 启动 @ 2026-04-28 00:00。\n\n来源：KOLMatrix 客户文档 /Users/yixingzhou/project/joyce/docs/external-asks/aigcgateway-embedding-request.md（同一用户的 dogfood 客户）。\n\n用户决策路径：\n1) 用户问 'gateway 可以支持 Embedding Model 吗？' → Planner 评估当前不支持\n2) Planner 给 MVP 1.5-2 day / 完整 2 day 两版估算\n3) 用户引用 KOLMatrix 客户 request 文档（含完整商业 case + 9 受益场景 + ROI + API spec）\n4) 文档 KOLMatrix 给的工时估算 3-5 day（比 Planner 之前估算更合理，含 Action 集成 + MCP + SDK）\n5) Planner 时机评估：05-22 KOLMatrix MVP 上线前完成最佳；现在起 batch 时间窗口够\n6) 用户选 A：立即启动\n\n架构决策：\n- ModelModality 枚举加 EMBEDDING；Action 加 modality 字段\n- API endpoint /v1/embeddings 镜像 chat/completions（去 stream）\n- Engine adapter.embeddings? 可选方法（OpenAI 兼容）\n- Action runner 分支 by action.modality；ActionVersion.messages 不改 schema（embedding action 用单条 user message 作 template）\n- 计费复用 calculateTokenCost（output=0）\n- Seed bge-m3 (SiliconFlow ~\\$0.07/M) + text-embedding-3-small (OpenAI \\$0.02/M)\n- MCP embed_text + SDK gateway.embed()\n\n6 features × 0.5d = 3 day Gen + 0.5d Codex 验收 = 3.5 day 总，留 buffer 给 fix-round。\n\nPhase 2 显式排除：dimensions / cosine endpoint / 持久化向量 / 其他 provider / Template embedding step。\n\n下一步：本会话 Planner 身份固定。等 Generator session pull 后按 generator_handoff 顺序执行 F-EM-01~05，完成后 status=verifying 交 Codex F-EM-06（含生产实证 1 次真调用 ~\\$0.000004）。",
     "Kimi": "BL-EMBEDDING-MVP building → verifying @ 2026-04-28 01:25。\n\n5 个 generator features 一次性完成 + push 模式（用户选 B 一鼓作气）：\n- F-EM-01 (58ad53c): schema migration（PG enum ALTER + Action.modality 共一 migration 不冲突）+ Engine types 加 EmbeddingRequest/Data/Response + EngineAdapter.embeddings? 可选方法 + openai-compat embeddings()/normalizeEmbeddingResponse + buildUrl 扩展 + 8 单测。本地手动 psql ALTER + prisma migrate resolve --applied（避开 dev DB drift reset）。\n- F-EM-02 (3382b35): /v1/embeddings 镜像 chat/completions 鉴权链 + modality 必须 EMBEDDING（与 chat 排除 IMAGE 相反）+ processEmbeddingResult/Async 复用 calculateTokenCost(usage{completion_tokens:0}) + 14 单测覆盖鉴权失败/各种 input 校验/非 EMBEDDING/no embeddings adapter/happy/error。\n- F-EM-03 (7b90ded): Action runner runAction(stream)+runActionNonStream 加 modality 分支；ActionRunResult 加 modality/embedding/dimensions；create_action MCP tool 加 modality enum + model.modality 一致性校验；6 单测含 chat 回归 + embedding 流/非流。\n- F-EM-04 (4132d85): seed.ts 加 embeddingSeeds（bge-m3+text-embedding-3-small），写 Model+Channel+ModelAlias+AliasModelLink；价格用 spec 默认 \\$0.07/M (bge-m3) / \\$0.02/M (openai) markup 1.2x（WebFetch 被屏蔽，未线上 verify）；/v1/models 类型断言加 EMBEDDING；admin/models 页面是 read-only 无 creation form 故 spec acceptance #3 N/A；本地 seed 跑通 2 model+2 alias。\n- F-EM-05 (9697249): MCP embed_text 完整鉴权+计费链（permission 复用 chatCompletion）+ server.ts 注册；SDK EmbedParams/EmbedResponse 类型 + gateway.embed() POST /v1/embeddings + index.ts 重导出；6 单测含静态契约（server.ts 注册）+ handler（balance 0 / 非 EMBEDDING / 单/批量 happy）。SDK build PASS。\n\n最终验证：tsc PASS / vitest 505 PASS / build PASS / sdk build PASS。progress.json status=verifying，evaluator_handoff 写 14 项验收证据指引（含 admin key 重创提醒 + 部署步骤 prisma migrate deploy → db seed → 实测调用）。\n\n注意点：\n- 真根因（不是 spec 问题）：\\v1/models 走 ModelAlias，所以必须为 embedding model 同时建 alias，否则 /v1/models?modality=embedding 返空（spec 假设 spec 默认有 alias 但 sync 不创建 embedding alias）。已在 seed 中显式建。\n- WebFetch 当前被生产网页屏蔽，价格未实时 verify\n- admin UI page 是只读 list，spec L302 提到的 'admin/models 创建表单 modality select 加 EMBEDDING' 实际页面不存在 → 该项 N/A\n- F-EM-06 第 13 项生产实证调用 ~\\$0.000004 几乎免费\n- 现行 Action.messages 约定 [{role:'user', content:'template'}] 单条，runner.join('\\n') 拼接；embedding shape 验收看实际效果",
     "Reviewer": "2026-04-28 生产复验 round1：接口已部署（invalid_model_modality 生效），但 embedding seed/alias 未生效，bge-m3 model_not_found。已写失败报告 docs/test-reports/BL-EMBEDDING-MVP-verification-failed-2026-04-28-prod-round1.md，状态置 fixing 等待修复后 reverifying。",
+    "Kimi-fix-round-2-launch": "Planner 启动 fix-round 2 @ 2026-04-28：用户报「2 个生产 embedding channel 都 DEGRADED」。SSH 排查发现 health_checks 显示 model_not_found（siliconflow）/ invalid_request 400（openai），根因 = src/lib/health/checker.ts + scheduler.ts 多处 isImage 硬编码，EMBEDDING 走 default chat probe 必失败。这是 BL-EMBEDDING-MVP 原 spec 的范围漏洞（F-EM-01 加 modality enum 时没扫健康探测路径）。\n\nfix-round 2 范围（generator_handoff 已含 9 步）：\n1) checker.ts runCallProbe + runTextCheck modality switch（含 EMBEDDING 调 adapter.embeddings({input:'hi'})）\n2) scheduler.ts shouldCallProbeChannel + 多处 isImage 改为 modality helper\n3) 单测覆盖 EMBEDDING probe case\n4) 部署后 SSH SQL UPDATE channels SET status='ACTIVE'（双轨：长期靠 probe 修，短期解锁让 Codex 能跑 #13 实证）\n5) reverify Codex 跑 F-EM-06 14 项\n\n用户已同意方案 A（完整修 + SQL 解锁）。预估 Generator ~30-45min + Codex ~15min。\n\n沉淀：拟追加 1 条 proposed-learning「modality enum 扩展时必须扫描所有硬编码分支点」到 .auto-memory/proposed-learnings.md 待确认区，与 done 阶段 2 条一并下次同步。"
     "Kimi-fix-round-1": "fix-round-1 @ 2026-04-28 01:55。\n\n根因诊断（与 Codex 失败报告一致）：deploy.yml 仅跑 `prisma migrate deploy` 不跑 `prisma db seed`（设计如此 — 防止覆盖管理员手动 ProviderConfig）；migration 应用了 enum 但 seed 没跑就缺 model/alias 行。\n\n修复策略（用户选 B）：抽离 embedding seed 到独立脚本，可单独跑而不触碰其他配置。\n\n动作：\n- 新建 scripts/seed-embedding-models.ts 导出 seedEmbeddingModels(prisma) 共享函数 + EMBEDDING_SEEDS 数组 + standalone CLI（DRY_RUN 支持）\n- prisma/seed.ts 移除内联 embedding 块，改 import 共享函数（避免双源）\n- 本地验证：seed.ts + standalone 脚本各跑一次，幂等 [updated] 2 条；DRY_RUN 模式正确\n- prod SSH：scp 脚本 → DRY_RUN 确认 CREATE 2 → 正式跑 → [created] 2\n- 验证 https://aigc.guangai.ai/v1/models?modality=embedding 返 2 条（bge-m3 brand=BAAI 1024 dim hint / text-embedding-3-small brand=OpenAI 1536）\n- 清理 prod /tmp + 未 commit scripts 副本\n\n最终验证：tsc PASS / vitest 505 PASS（refactor 无破坏）/ 共享函数复用避免双源。\n\n后续：Codex reverify F-EM-06 #4-7（API 行为）+ #12-13（生产实证 seed 已可见，bge-m3 真调用应返 1024 维向量）；admin API key 仍需 codex-admin 重创。fix_rounds 计数 1。"
   }
 }

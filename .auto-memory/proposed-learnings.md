@@ -34,6 +34,18 @@ type: project
 
 <!-- ================= 待确认区 ================= -->
 
+## [2026-04-28] Planner — 来源：BL-EMBEDDING-MVP fix-round-2（生产 channel DEGRADED 根因）
+
+**类型：** 模板修订（spec 设计 checklist）+ 新坑
+
+**内容：** 扩展 modality enum / 类型字段（如 ModelModality 加 EMBEDDING / Action.modality 加分支）时，必须先全仓 grep 所有现有硬编码分支点（`isImage / isText / modality === 'X' / instanceof Y` 等），把这些点全部纳入本批次 spec 的改动范围。本次 BL-EMBEDDING-MVP F-EM-01~05 全部 PASS 单测，但 spec 漏定义 `src/lib/health/checker.ts:56,260` + `scheduler.ts:138,282,314` 几处 `isImage` 硬编码 → seed channel ACTIVE 后第一次 cron 跑默认 chat probe → 上游 400 → DEGRADED → reverify acceptance #4-7/#13 全部被 channel 路由级阻断。Generator 单测覆盖了 modality 自身分支，但漏了**反向消费**这个 modality 的代码点。
+
+**建议写入 harness-template 的：** `harness/planner.md` § spec 设计 checklist 加一条「枚举/字段扩展前置步骤：全仓 grep 现有 modality / type 硬编码分支点（如 `isImage / type === 'X'`），将所有命中点纳入本批次 scope 或显式标注为 N/A 风险」。
+
+**状态：** 待确认
+
+---
+
 ## [2026-04-28] Planner — 来源：BL-RECON-FIX-PHASE2 F-RP-01 调研反转
 
 **类型：** 模板修订（spec 设计 checklist）
