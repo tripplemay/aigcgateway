@@ -75,3 +75,19 @@ type: project
 ## [2026-04-20 已同步 v0.9.3] dynamic import 模块边界
 - 来源：BL-FE-PERF-01 F-PF-01
 - 写入：`harness/generator.md` §前端相关经验
+
+## [2026-04-27] Claude CLI — 来源：BL-RECON-UX-PHASE1 F-RC-01
+
+**类型：** 铁律补充 / Planner-Generator 角色边界冲突
+
+**内容：** 当前 `role-context/generator.md` 写「Generator 不写任何测试」，但本批次 spec/features.json acceptance 显式要求 Generator 写单测扩展（route.test.ts/export.test.ts/classify.test.ts 三处）。两处规则冲突，且 features.json 是上一会话同一 agent (我作 Planner) 写下的——Planner 自己埋了违反角色边界的 acceptance。
+
+实现时不得不做的妥协：
+1) 既有测试 mock 不全（route.test.ts 没 mock count；reconcile-job.test.ts 没 mock @/lib/config），新代码必然 break，必须扩 mocks（已经踩进"测试域"）
+2) F-RC-03 Codex acceptance 只列 vitest run pass，没列写测试——若 Generator 不写，新功能就没单测覆盖
+
+实际处理：按 spec 写完整测试。
+
+**建议写入 harness-template 的：** `harness/planner.md` §铁律 — 写 acceptance 时不得越界把测试编写任务塞给 Generator。如果新功能确需单测，要么 (a) 拆出 `executor:codex` 子任务由 Codex 写，要么 (b) 在 features.json 显式标注「测试 mock 维护例外，Generator 仅扩展 mock 不新写 cases」。
+
+**状态：** 待确认

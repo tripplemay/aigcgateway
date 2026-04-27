@@ -7,7 +7,7 @@
       "title": "对账后端 — API 增强（sort/page/tier/modelSearch）+ CSV 导出 + reconcile-job 阈值化 + SystemConfig seed",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "source": "BL-RECON-UX-PHASE1 spec § F-RC-01",
       "acceptance": "1) src/app/api/admin/reconciliation/route.ts 增加 query 参数 tier(1|2)/modelSearch(case-insensitive contains)/page(≥1)/pageSize(1-200,默认50)/sort(asc|desc，默认desc) → 返回结构改为 { data, meta:{total,page,pageSize} }；用 prisma findMany + count 并发；orderBy [{reportDate: sort},{computedAt: sort}]；2) 新建 src/app/api/admin/reconciliation/export/route.ts，GET 同 filter（无 page/pageSize），返回 text/csv;charset=utf-8 + BOM 前缀 + Content-Disposition attachment;filename=reconciliation-YYYY-MM-DD.csv，列顺序 reportDate,tier,providerName,modelName,upstreamAmount,gatewayAmount,delta,deltaPercent,status,computedAt，数值 6 位小数；hard cap take:10000，超返 400 + message：3) src/lib/billing-audit/reconcile-job.ts classifyStatus 改签名加 thresholds:ReconThresholds 参数（默认 DEFAULT_THRESHOLDS={matchDeltaUsd:0.5,matchPercent:5,minorDeltaUsd:5,minorPercent:20}）；新增 export async function loadThresholds() 从 getConfigNumber 读 4 keys；runReconciliation 入口 const thresholds = await loadThresholds() 并传给 2 处 classifyStatus 调用；4) prisma/seed.ts 加幂等 upsert 4 个 SystemConfig keys（RECONCILIATION_MATCH_DELTA_USD=0.5/MATCH_PERCENT=5/MINOR_DELTA_USD=5/MINOR_PERCENT=20）+ description 中文；5) 单测扩展：route.test.ts 加 sort/page/tier/modelSearch/meta.total cases；新建 export/__tests__/route.test.ts（CSV header + BOM + Content-Disposition + 10000 cap）；reconcile-job.test.ts 加 classifyStatus 自定义阈值边界测试 + 默认参数回归保护；6) tsc + build + vitest 全过；7) 单 commit 'feat(BL-RECON-UX-PHASE1 F-RC-01): backend API + CSV export + threshold config'"
     },

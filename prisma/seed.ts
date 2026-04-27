@@ -330,6 +330,34 @@ async function main() {
   });
   console.log("  SystemConfig: USD_TO_CNY_RATE = 7.3");
 
+  // BL-RECON-UX-PHASE1 F-RC-01d — 对账阈值，幂等 upsert（已存在不覆盖管理员的修改）
+  const recoThresholds: Array<[string, string, string]> = [
+    [
+      "RECONCILIATION_MATCH_DELTA_USD",
+      "0.5",
+      "对账 MATCH 判定：|delta|（USD）<此值视为匹配；下次重跑生效",
+    ],
+    ["RECONCILIATION_MATCH_PERCENT", "5", "对账 MATCH 判定：|百分比| <此值视为匹配；下次重跑生效"],
+    [
+      "RECONCILIATION_MINOR_DELTA_USD",
+      "5",
+      "对账 MINOR_DIFF 判定：|delta|（USD）<此值视为小差异；下次重跑生效",
+    ],
+    [
+      "RECONCILIATION_MINOR_PERCENT",
+      "20",
+      "对账 MINOR_DIFF 判定：|百分比| <此值视为小差异；下次重跑生效",
+    ],
+  ];
+  for (const [key, value, description] of recoThresholds) {
+    await prisma.systemConfig.upsert({
+      where: { key },
+      update: {},
+      create: { key, value, description },
+    });
+    console.log(`  SystemConfig: ${key} = ${value}`);
+  }
+
   // 3. 创建 Provider + ProviderConfig
   for (const providerDef of providers) {
     const provider = await prisma.provider.upsert({

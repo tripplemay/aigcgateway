@@ -1,50 +1,50 @@
 /**
  * BL-BILLING-AUDIT-EXT-P2 F-BAP2-03 — bill_reconciliation 列表查询。
  *
- * GET /api/admin/reconciliation?start=YYYY-MM-DD&end=YYYY-MM-DD
- *   &providerId=&status=BIG_DIFF
+ * BL-RECON-UX-PHASE1 F-RC-01a 增强：
+ *   - 新增 query：tier(1|2) / modelSearch / page / pageSize / sort
+ *   - 默认 sort=desc（最新在顶，用户明确要求）
+ *   - 返回 { data, meta:{ total, page, pageSize } }
  *
- * 返回 reportDate 升序的对账行 + 关联 provider name/displayName。面板的
- * 趋势图 / 明细表共用此接口。
+ * GET /api/admin/reconciliation
+ *   ?start=YYYY-MM-DD&end=YYYY-MM-DD&providerId=&status=&tier=1|2
+ *   &modelSearch=&page=1&pageSize=50&sort=desc|asc
  */
 export const dynamic = "force-dynamic";
 import { NextResponse } from "next/server";
+import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/api/admin-guard";
+import { parseReconQuery } from "./query";
 
 export async function GET(request: Request) {
   const auth = requireAdmin(request);
   if (!auth.ok) return auth.error;
 
   const url = new URL(request.url);
-  const start = url.searchParams.get("start");
-  const end = url.searchParams.get("end");
-  const providerId = url.searchParams.get("providerId");
-  const status = url.searchParams.get("status");
+  const parsed = await parseReconQuery(url.searchParams);
+  if (!parsed.ok) return parsed.error;
 
-  // 默认查最近 30 天
-  const now = new Date();
-  const defaultStart = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
-  const startDate = start ? parseDate(start) : defaultStart;
-  const endDate = end ? parseDate(end) : now;
-  if (!startDate || !endDate) {
-    return NextResponse.json(
-      { error: "invalid_parameter", message: "start/end must be YYYY-MM-DD" },
-      { status: 400 },
-    );
-  }
+  const { where, page, pageSize, sort } = parsed;
 
-  const rows = await prisma.billReconciliation.findMany({
-    where: {
-      reportDate: { gte: startDate, lte: endDate },
-      ...(providerId ? { providerId } : {}),
-      ...(status && ["MATCH", "MINOR_DIFF", "BIG_DIFF"].includes(status) ? { status } : {}),
-    },
-    orderBy: { reportDate: "asc" },
-    include: {
-      provider: { select: { name: true, displayName: true } },
-    },
-  });
+  const skip = (page - 1) * pageSize;
+  const orderBy: Prisma.BillReconciliationOrderByWithRelationInput[] = [
+    { reportDate: sort },
+    { computedAt: sort },
+  ];
+
+  const [rows, total] = await Promise.all([
+    prisma.billReconciliation.findMany({
+      where,
+      orderBy,
+      skip,
+      take: pageSize,
+      include: {
+        provider: { select: { name: true, displayName: true } },
+      },
+    }),
+    prisma.billReconciliation.count({ where }),
+  ]);
 
   return NextResponse.json({
     data: rows.map((r) => ({
@@ -63,11 +63,6 @@ export async function GET(request: Request) {
       details: r.details,
       computedAt: r.computedAt,
     })),
+    meta: { total, page, pageSize },
   });
-}
-
-function parseDate(s: string): Date | null {
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(s)) return null;
-  const d = new Date(`${s}T00:00:00Z`);
-  return Number.isFinite(d.getTime()) ? d : null;
 }

@@ -2,10 +2,10 @@
   "status": "building",
   "user_goal": "BL-RECON-UX-PHASE1 — 优化 /admin/reconciliation 对账面板。A 视图筛选（日期 picker + 倒序默认 + 分页 + Tier 切换 + model 搜索）+ D CSV 导出 + E 阈值可配置（SystemConfig 4 keys）+ 用户明确要求最新数据在顶部。Phase 1 不含告警 / 数据洞察 / Tier 3 占位 / 重跑 audit trail。",
   "total_features": 3,
-  "completed_features": 0,
+  "completed_features": 1,
   "fix_rounds": 0,
   "current_sprint": "BL-RECON-UX-PHASE1",
-  "last_updated": "2026-04-27T00:00:00.000Z",
+  "last_updated": "2026-04-27T11:30:00.000Z",
   "reference_docs": [
     "docs/specs/BL-RECON-UX-PHASE1-spec.md"
   ],
@@ -49,7 +49,7 @@
     "notes": "spec § Risks 第 3 项的妥协方案：cards/trend 用 pageSize=200 page=1 fetch，明细表独立分页 fetch。两路并行。F-RC-01 commit 推完后立刻可启 F-RC-02。Generator 完成 F-RC-01+02 后置 status=verifying 等 Codex F-RC-03。"
   },
   "session_notes": {
-    "Kimi-batch-launch": "BL-RECON-UX-PHASE1 启动 @ 2026-04-27 00:00。\n\n背景：用户优化 /admin/reconciliation 对账面板。我列了 7 个方向（A/B/C/D/E/F/G），用户选 A+D+E + 排序倒序需求作为 Phase 1。\n\nspec 设计要点：\n1) 用户明确要求「最新数据在顶部」 → API 默认 sort=desc，前端 default sortDir=desc，且表头 reportDate 列点击可切 asc/desc\n2) 阈值不溯及历史，仅下次 cron / 手动重跑生效（避免重算 history 风险）\n3) CSV 导出 hard cap 10000 行（妥协，省得做流式）\n4) cards/trend 与明细表两路 fetch（cards 用 pageSize=200 拉聚合源；明细表独立分页）\n5) Tier 3 不展示（reconcile-job 本就不写 Tier 3 行）\n6) 阈值 UI 放 reconciliation 页内独立 SectionCard，不去 admin/operations\n\n下一步：本会话 Planner 身份固定，无法直接做 F-RC-01/02。Generator session（Johnsong/Mark/Richard 任一）pull main 后按 generator_handoff 顺序执行：F-RC-01 → F-RC-02 → status=verifying 交 Codex。\n\n注意：Phase 2（C 告警 + B 数据洞察 + F 重跑 audit + G Tier 3 占位）不在本批次 scope，验收阶段如发现需要请走新 backlog 条目。",
+    "Kimi": "F-RC-01 完成 @ 2026-04-27 11:30。\n\n实现要点：\n1) 抽出 src/app/api/admin/reconciliation/query.ts 作为列表/导出共享 parser；用 AND 数组组合 where 避免 spread 覆盖（修了一个 spec 里的隐含 bug：原方案中 tier filter 与 providerId 同传时后者会覆盖前者）。\n2) classifyStatus 加可选 thresholds 参数，默认 = DEFAULT_THRESHOLDS；reconcile-job 内 tier1/2 path + upsertReconciliation 全程 thread thresholds，runReconciliation 入口 await loadThresholds()。\n3) CSV BOM 用字面量 U+FEFF（在文件中是 ef bb bf 三字节）；测试不能 res.text() 因为 TextDecoder 默认会吞 BOM，改用 arrayBuffer() 校验前三字节。\n4) seed.ts 4 个 RECONCILIATION_* keys 用 update:{} 幂等 upsert（已存在不覆盖管理员手改值）。\n5) tier=3 query 被显式忽略（不查 provider 也不加 filter），因为 reconcile-job 本就不写 Tier 3 行，避免无意义 IN([]) 查询。\n\n测试：\n- 总计 441 tests pass（baseline 414 + 27 新增）\n- 9 个新 tier/sort/page/meta cases\n- 6 个 CSV 导出测试（200 + BOM + Content-Disposition + 10000 cap + CSV escape + filter）\n- 7 个 classifyStatus thresholds 边界 + 默认回归保护\n- reconcile-job.test.ts 加 vi.mock(\"@/lib/config\") 让 loadThresholds 走默认值\n\n张力点：role-context/generator.md 写「不写任何测试」，但 spec § F-RC-01 acceptance 显式列「单测扩展」。我自己作 Planner 时埋了这个矛盾。本次按 spec 写了完整测试。已追加到 .auto-memory/proposed-learnings.md，done 阶段统一处理。\n\n下一步：F-RC-02 前端 UX。注意 reconciliation page.tsx 是 client component (366 行)，按 spec § F-RC-02 改造为 ~480 行，14 个 i18n keys。",
     "Reviewer": null
   }
 }

@@ -23,6 +23,7 @@
  */
 import { prisma } from "@/lib/prisma";
 import { writeSystemLog } from "@/lib/system-logger";
+import { getConfigNumber } from "@/lib/config";
 import { aggregateGatewayCallLogs } from "./aggregate-gateway";
 import { VolcengineBillFetcher } from "./fetchers/volcengine";
 import { OpenRouterBillFetcher } from "./fetchers/openrouter";
@@ -63,21 +64,65 @@ export function classifyTier(providerName: string): ProviderTier {
 }
 
 /**
- * status 分类阈值（铁律 1.3 显式边界）：
- *   |delta|<0.5  OR  (|%|<5 AND deltaPercent != null)         → MATCH
- *   |delta|<5    AND (|%|<20 OR deltaPercent === null)        → MINOR_DIFF
- *   其他                                                       → BIG_DIFF
+ * BL-RECON-UX-PHASE1 F-RC-01c — 阈值可配置。
+ *
+ * 默认值与原硬编码一致（铁律 1.3 显式边界）。管理员可通过 SystemConfig 4 个
+ * RECONCILIATION_* keys 覆盖；阈值变更不溯及历史，仅下次 cron / 手动重跑生效。
+ */
+export interface ReconThresholds {
+  matchDeltaUsd: number;
+  matchPercent: number;
+  minorDeltaUsd: number;
+  minorPercent: number;
+}
+
+export const DEFAULT_THRESHOLDS: ReconThresholds = {
+  matchDeltaUsd: 0.5,
+  matchPercent: 5,
+  minorDeltaUsd: 5,
+  minorPercent: 20,
+};
+
+export async function loadThresholds(): Promise<ReconThresholds> {
+  return {
+    matchDeltaUsd: await getConfigNumber(
+      "RECONCILIATION_MATCH_DELTA_USD",
+      DEFAULT_THRESHOLDS.matchDeltaUsd,
+    ),
+    matchPercent: await getConfigNumber(
+      "RECONCILIATION_MATCH_PERCENT",
+      DEFAULT_THRESHOLDS.matchPercent,
+    ),
+    minorDeltaUsd: await getConfigNumber(
+      "RECONCILIATION_MINOR_DELTA_USD",
+      DEFAULT_THRESHOLDS.minorDeltaUsd,
+    ),
+    minorPercent: await getConfigNumber(
+      "RECONCILIATION_MINOR_PERCENT",
+      DEFAULT_THRESHOLDS.minorPercent,
+    ),
+  };
+}
+
+/**
+ * status 分类（thresholds 默认 = DEFAULT_THRESHOLDS，保持回归兼容）：
+ *   |delta|<matchDeltaUsd  OR  (|%|<matchPercent AND deltaPercent != null)         → MATCH
+ *   |delta|<minorDeltaUsd  AND (|%|<minorPercent OR deltaPercent === null)         → MINOR_DIFF
+ *   其他                                                                            → BIG_DIFF
  */
 export function classifyStatus(
   delta: number,
   deltaPercent: number | null,
+  thresholds: ReconThresholds = DEFAULT_THRESHOLDS,
 ): "MATCH" | "MINOR_DIFF" | "BIG_DIFF" {
   const ad = Math.abs(delta);
   const ap = deltaPercent === null ? null : Math.abs(deltaPercent);
 
-  if (ad < 0.5) return "MATCH";
-  if (ap !== null && ap < 5) return "MATCH";
-  if (ad < 5 && (ap === null || ap < 20)) return "MINOR_DIFF";
+  if (ad < thresholds.matchDeltaUsd) return "MATCH";
+  if (ap !== null && ap < thresholds.matchPercent) return "MATCH";
+  if (ad < thresholds.minorDeltaUsd && (ap === null || ap < thresholds.minorPercent)) {
+    return "MINOR_DIFF";
+  }
   return "BIG_DIFF";
 }
 
@@ -137,12 +182,13 @@ interface ReconUpsertParams {
   upstreamAmount: number;
   gatewayAmount: number;
   details: Record<string, unknown>;
+  thresholds?: ReconThresholds;
 }
 
 async function upsertReconciliation(params: ReconUpsertParams): Promise<void> {
   const delta = params.gatewayAmount - params.upstreamAmount;
   const dp = deltaPercent(params.upstreamAmount, params.gatewayAmount);
-  const status = classifyStatus(delta, dp);
+  const status = classifyStatus(delta, dp, params.thresholds);
 
   // Prisma 不能直接 upsert 含 nullable 字段的 compound unique key（modelName
   // 在 tier=2 是 null）。手动 findFirst + 分支处理，幂等语义不变。
@@ -190,6 +236,7 @@ async function upsertReconciliation(params: ReconUpsertParams): Promise<void> {
 async function reconcileTier1(
   provider: ProviderRow,
   reportDate: Date,
+  thresholds: ReconThresholds,
 ): Promise<{ rows: number; bigDiffs: number }> {
   const fetcher = tier1FetcherFor(provider);
   if (!fetcher) return { rows: 0, bigDiffs: 0 };
@@ -214,6 +261,7 @@ async function reconcileTier1(
       upstreamAmount: 0,
       gatewayAmount: gatewaySum,
       details: { note: "upstream returned empty bill list" },
+      thresholds,
     });
     return { rows: 1, bigDiffs: gatewaySum > 5 ? 1 : 0 };
   }
@@ -222,7 +270,7 @@ async function reconcileTier1(
     const gatewaySum = await aggregateGatewayCallLogs(provider.id, bill.modelName, reportDate);
     const delta = gatewaySum - bill.amount;
     const dp = deltaPercent(bill.amount, gatewaySum);
-    const status = classifyStatus(delta, dp);
+    const status = classifyStatus(delta, dp, thresholds);
     if (status === "BIG_DIFF") bigDiffs += 1;
 
     await upsertReconciliation({
@@ -237,6 +285,7 @@ async function reconcileTier1(
         upstreamRequests: bill.requests,
         raw: bill.raw ?? null,
       },
+      thresholds,
     });
   }
 
@@ -246,6 +295,7 @@ async function reconcileTier1(
 async function reconcileTier2(
   provider: ProviderRow,
   reportDate: Date,
+  thresholds: ReconThresholds,
 ): Promise<{ rows: number; bigDiffs: number }> {
   const fetcher = tier2FetcherFor(provider);
   if (!fetcher) return { rows: 0, bigDiffs: 0 };
@@ -291,7 +341,7 @@ async function reconcileTier2(
     const upstreamUsage = Number(prev.balance) - snap.balance; // 余额下降 = 消费
     const gatewaySum = await aggregateGatewayCallLogs(provider.id, null, reportDate);
     const dp = deltaPercent(upstreamUsage, gatewaySum);
-    const status = classifyStatus(gatewaySum - upstreamUsage, dp);
+    const status = classifyStatus(gatewaySum - upstreamUsage, dp, thresholds);
     if (status === "BIG_DIFF") bigDiffs += 1;
 
     await upsertReconciliation({
@@ -307,6 +357,7 @@ async function reconcileTier2(
         prevBalance: Number(prev.balance),
         currBalance: snap.balance,
       },
+      thresholds,
     });
     rows += 1;
   }
@@ -336,6 +387,9 @@ export async function runReconciliation(
     select: { id: true, name: true, authConfig: true },
   });
 
+  // F-RC-01c: 每次跑加载阈值；阈值变更不溯及历史
+  const thresholds = await loadThresholds();
+
   let rowsWritten = 0;
   let bigDiffs = 0;
   for (const p of providers) {
@@ -343,17 +397,17 @@ export async function runReconciliation(
     if (tier === 3) continue;
 
     if (tier === 1) {
-      const { rows, bigDiffs: bd } = await reconcileTier1(p, reportDate);
+      const { rows, bigDiffs: bd } = await reconcileTier1(p, reportDate, thresholds);
       rowsWritten += rows;
       bigDiffs += bd;
       // openrouter 同时跑 tier 2 余额（双 tier）
       if (p.name === "openrouter") {
-        const t2 = await reconcileTier2(p, reportDate);
+        const t2 = await reconcileTier2(p, reportDate, thresholds);
         rowsWritten += t2.rows;
         bigDiffs += t2.bigDiffs;
       }
     } else if (tier === 2) {
-      const { rows, bigDiffs: bd } = await reconcileTier2(p, reportDate);
+      const { rows, bigDiffs: bd } = await reconcileTier2(p, reportDate, thresholds);
       rowsWritten += rows;
       bigDiffs += bd;
     }

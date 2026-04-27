@@ -52,6 +52,15 @@ vi.mock("@/lib/system-logger", () => ({
   writeSystemLog: (...args: unknown[]) => writeSystemLogMock(...args),
 }));
 
+// F-RC-01c: loadThresholds() reads from SystemConfig via getConfigNumber.
+// Mock @/lib/config so reconcile flow uses default thresholds, keeping
+// existing test expectations stable (no behavior change).
+vi.mock("@/lib/config", () => ({
+  getConfig: async () => undefined,
+  getConfigNumber: async (_key: string, def: number) => def,
+  setConfig: async () => undefined,
+}));
+
 vi.mock("../fetchers/volcengine", () => ({
   VolcengineBillFetcher: class {
     fetchDailyBill = volcengineFetchMock;
