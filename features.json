@@ -1,24 +1,33 @@
 {
-  "batch": "BL-DEV-PORT-3199",
-  "created_at": "2026-04-26",
+  "batch": "BL-RECON-UX-PHASE1",
+  "created_at": "2026-04-27",
   "features": [
     {
-      "id": "F-DP-01",
-      "title": "3099 → 3199 端口字面量全量同步（codex-env + scripts + tests + CLAUDE/AGENTS.md）",
+      "id": "F-RC-01",
+      "title": "对账后端 — API 增强（sort/page/tier/modelSearch）+ CSV 导出 + reconcile-job 阈值化 + SystemConfig seed",
       "priority": "high",
       "executor": "generator",
-      "status": "completed",
-      "source": "BL-DEV-PORT-3199 spec § F-DP-01",
-      "acceptance": "1) 预扫描：grep -rl '3099' scripts/ tests/ CLAUDE.md AGENTS.md --include={*.ts,*.tsx,*.md,*.sh,*.js,*.mjs} 排除 docs/test-cases/test-reports/audits → ~83 文件；2) 批量 sed 'sed -i \"\" s/3099/3199/g' 一次性替换；3) 核对关键文件：scripts/test/codex-env.sh PORT=3199 + codex-setup.sh lsof :3199 + echo Start on :3199 + codex-wait.sh URL 3199；4) 本地验证：grep -rn '3099' 上述路径排除 docs/* = 0；npx tsc --noEmit PASS；npm run build PASS；npx vitest run 不破坏 414 测试；5) 启动验证：bash scripts/test/codex-setup.sh + bash scripts/test/codex-wait.sh + curl http://localhost:3199/login → 200；6) git diff 抽检 5-10 文件 confirm 全部为 URL/端口语境无误命中；7) 单 commit 'chore(BL-DEV-PORT-3199): 3099 → 3199 端口字面量全量同步'"
+      "status": "pending",
+      "source": "BL-RECON-UX-PHASE1 spec § F-RC-01",
+      "acceptance": "1) src/app/api/admin/reconciliation/route.ts 增加 query 参数 tier(1|2)/modelSearch(case-insensitive contains)/page(≥1)/pageSize(1-200,默认50)/sort(asc|desc，默认desc) → 返回结构改为 { data, meta:{total,page,pageSize} }；用 prisma findMany + count 并发；orderBy [{reportDate: sort},{computedAt: sort}]；2) 新建 src/app/api/admin/reconciliation/export/route.ts，GET 同 filter（无 page/pageSize），返回 text/csv;charset=utf-8 + BOM 前缀 + Content-Disposition attachment;filename=reconciliation-YYYY-MM-DD.csv，列顺序 reportDate,tier,providerName,modelName,upstreamAmount,gatewayAmount,delta,deltaPercent,status,computedAt，数值 6 位小数；hard cap take:10000，超返 400 + message：3) src/lib/billing-audit/reconcile-job.ts classifyStatus 改签名加 thresholds:ReconThresholds 参数（默认 DEFAULT_THRESHOLDS={matchDeltaUsd:0.5,matchPercent:5,minorDeltaUsd:5,minorPercent:20}）；新增 export async function loadThresholds() 从 getConfigNumber 读 4 keys；runReconciliation 入口 const thresholds = await loadThresholds() 并传给 2 处 classifyStatus 调用；4) prisma/seed.ts 加幂等 upsert 4 个 SystemConfig keys（RECONCILIATION_MATCH_DELTA_USD=0.5/MATCH_PERCENT=5/MINOR_DELTA_USD=5/MINOR_PERCENT=20）+ description 中文；5) 单测扩展：route.test.ts 加 sort/page/tier/modelSearch/meta.total cases；新建 export/__tests__/route.test.ts（CSV header + BOM + Content-Disposition + 10000 cap）；reconcile-job.test.ts 加 classifyStatus 自定义阈值边界测试 + 默认参数回归保护；6) tsc + build + vitest 全过；7) 单 commit 'feat(BL-RECON-UX-PHASE1 F-RC-01): backend API + CSV export + threshold config'"
     },
     {
-      "id": "F-DP-02",
-      "title": "BL-DEV-PORT-3199 端口替换验收（grep + 构建 + 启动冒烟）",
+      "id": "F-RC-02",
+      "title": "对账前端 — 排序倒序 + 日期 picker + Tier 按钮组 + 分页 + model 搜索 + CSV 导出按钮 + 阈值配置 UI + i18n",
+      "priority": "high",
+      "executor": "generator",
+      "status": "pending",
+      "source": "BL-RECON-UX-PHASE1 spec § F-RC-02",
+      "acceptance": "1) src/app/(console)/admin/reconciliation/page.tsx 改造：明细表默认 sortDir='desc'（最新在顶，用户明确要求）；表头 reportDate 列点击切 asc/desc；2) 日期范围 picker（start/end 两个 type=date，默认 today-30 / today），改后 refetch；3) Tier 按钮组 [All|Tier 1|Tier 2]，默认 All（Tier 3 不展示）；4) 模型搜索 input + debounce 300ms；5) 分页 bar（page/pageSize 选项 [20,50,100,200] 默认 50；前后翻页按钮；显示 total）；6) 表头右上角导出 CSV 按钮，点击触发 GET /api/admin/reconciliation/export?<当前 filters> 浏览器下载；超 10000 行时 toast 错误（捕获 400 message）；7) 新增阈值配置 SectionCard：4 个 number input（match Δ/match %/minor Δ/minor %）+ 保存按钮，调 PUT /api/admin/config × 4 顺序；保存后 toast 「下次重跑生效」；保存前从 GET /api/admin/config 拉初始值；8) cards/trend 计算源用 pageSize=200 page=1 单独 fetch（spec § Risks 第 3 项妥协方案）；明细表独立分页 fetch；9) messages/{en,zh-CN}.json 加 spec 列出的 14 个新 keys；10) tsc + build 通过；11) 单 commit 'feat(BL-RECON-UX-PHASE1 F-RC-02): frontend reconciliation UX + i18n'"
+    },
+    {
+      "id": "F-RC-03",
+      "title": "BL-RECON-UX-PHASE1 全量验收（API 行为 + 前端冒烟 + i18n + 静态）",
       "priority": "high",
       "executor": "codex",
-      "status": "completed",
-      "source": "BL-DEV-PORT-3199 spec § F-DP-02",
-      "acceptance": "1) git pull --ff-only origin main；2) Grep 验证：grep -rn '3099' scripts/ tests/ CLAUDE.md AGENTS.md 排除 docs/test-cases/test-reports/audits → 0 行；3) npx tsc --noEmit PASS；4) npm run build PASS；5) npx vitest run 全 PASS（≥ 414 测试）；6) bash scripts/test/codex-setup.sh 启动 standalone 监听 :3199；7) bash scripts/test/codex-wait.sh 退出码 0；8) curl -s -o /dev/null -w '%{http_code}' http://localhost:3199/login → 200；9) 反向验证 lsof -ti:3099 空（本项目不再占用旧端口）；10) 写 docs/test-reports/BL-DEV-PORT-3199-signoff-2026-04-2X.md（含 grep 输出 + tsc/build/vitest log + curl 200 证据）"
+      "status": "pending",
+      "source": "BL-RECON-UX-PHASE1 spec § F-RC-03",
+      "acceptance": "静态（3）：tsc / build / vitest（≥ 414 + F-RC-01 新增）。API 行为（6）：4) GET /api/admin/reconciliation 默认 sort=desc 第一行 reportDate ≥ 第二行；5) sort=asc&page=1&pageSize=5 返 5 行 + meta.total>5；6) tier=1 仅返 volcengine/openrouter/openai 行；7) modelSearch=gpt 大小写不敏感命中；8) /export?status=BIG_DIFF 返 text/csv + BOM + header 正确 + Content-Disposition；9) 构造 > 10000 行 query 触 400。前端冒烟（5）：10) 登录 admin /admin/reconciliation 列表第一行是最近一天数据；11) 改 date picker 至最近 7 天 refetch 表行减少；12) 切 Tier 1 仅显示 Tier 1；13) 阈值改 MATCH |Δ|< 至 0.1 保存 toast → 手动重跑昨日 → 部分原 MATCH 变 MINOR_DIFF；14) 点导出 CSV 浏览器下载，Excel 打开列正确。i18n（1）：15) 切 zh-CN 表头 + 阈值区块全部中文。报告（1）：16) 写 docs/test-reports/BL-RECON-UX-PHASE1-signoff-2026-04-2X.md 含 15 项证据 + 4 张关键截图（默认列表 / Tier / 阈值改后 / CSV 预览）"
     }
   ]
 }
