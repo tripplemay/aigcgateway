@@ -4,17 +4,17 @@ description: AIGC Gateway 当前状态快照（覆盖写，≤30 行）
 type: project
 ---
 ## 当前批次
-- **BL-RECON-UX-PHASE1：`fixing` (fix_round 1)**（Codex 验收 15/16，tc13 阻断已放宽）
-- F-RC-01 ✅ commit 4b507f2 / F-RC-02 ✅ / F-RC-03 待 reverify
-- tc13 失败本质：reconcile-job fetcher 需真实 billing 凭证，本地 codex-env.sh 不带 → fetcher skip → rowsWritten=0 → 阈值变更无可观察对象（环境约束非代码 bug）
-- 用户 2026-04-27 同意放宽：mock-based wiring 集成测试替代真实 rerun 验证；生产观察事后核对不阻塞 done
+- **BL-RECON-UX-PHASE1：`reverifying` (fix_round 1 完成)**
+- F-RC-01 ✅ commit 4b507f2 / F-RC-02 ✅ commit 555f229 / F-RC-03 fix_round 1 ✅ 待 Codex 复验
+- fix_round 1 改动：reconcile-job 加 `__testFetcherOverrides` 可选参数 + 新 wiring 测试 4 PASS（A 默认 MATCH / B 紧 MINOR_DIFF / C 同 fetcher 状态不同 / D 无 override 回归）
+- vitest 445 PASS（baseline 441 + 4 新）；生产 callsite 0 改动
 - 裁决文档：`docs/adjudications/BL-RECON-UX-PHASE1-tc13-relaxation-2026-04-27.md`
 
-## fix_round 1 待办（Generator）
-- 新建 `src/lib/billing-audit/__tests__/runReconciliation-thresholds.test.ts`
-- 改造 `runReconciliation` 加可选 `__testFetcherOverrides` 参数（推荐方式，生产 callsite 0 改动）
-- 测试：mock fake fetcher 返回 upstream=10/gateway=9.7 → 默认阈值 status=MATCH，紧阈值（matchDelta=0.1+matchPercent=1）status=MINOR_DIFF
-- 工时 ~1h；status fixing → reverifying
+## Codex 复验范围
+- 新测：`src/lib/billing-audit/__tests__/runReconciliation-thresholds.test.ts` 4 PASS
+- 回归：≥445 全 PASS
+- 抽样原 15 项 PASS smoke（本 fix_round 不动相关代码）
+- 输出：`docs/test-reports/BL-RECON-UX-PHASE1-fix-round-1-signoff-2026-04-27.md`
 
 ## 上一批次（已 done）
 - BL-DEV-PORT-3199（dev-chore）@ 2026-04-26

@@ -237,8 +237,9 @@ async function reconcileTier1(
   provider: ProviderRow,
   reportDate: Date,
   thresholds: ReconThresholds,
+  override?: TierOneBillFetcher,
 ): Promise<{ rows: number; bigDiffs: number }> {
-  const fetcher = tier1FetcherFor(provider);
+  const fetcher = override ?? tier1FetcherFor(provider);
   if (!fetcher) return { rows: 0, bigDiffs: 0 };
 
   let bills: BillRecord[];
@@ -296,8 +297,9 @@ async function reconcileTier2(
   provider: ProviderRow,
   reportDate: Date,
   thresholds: ReconThresholds,
+  override?: TierTwoBalanceFetcher,
 ): Promise<{ rows: number; bigDiffs: number }> {
-  const fetcher = tier2FetcherFor(provider);
+  const fetcher = override ?? tier2FetcherFor(provider);
   if (!fetcher) return { rows: 0, bigDiffs: 0 };
 
   let snaps: BalanceSnapshot[];
@@ -375,9 +377,22 @@ export interface ReconciliationResult {
   bigDiffs: number;
 }
 
+/**
+ * BL-RECON-UX-PHASE1 fix_round 1 — fetcher 注入 hook（仅供测试用）。
+ *
+ * 生产 callsite 不传第三参数；测试通过 Map<providerId, fetcher> 注入 fake
+ * fetcher，绕开 tier1FetcherFor / tier2FetcherFor 工厂（工厂依赖真实凭证）。
+ * 用于 tc13 wiring 验证：阈值切换前后写入的 status 字段差异。
+ */
+export interface TestFetcherOverrides {
+  tier1?: Map<string, TierOneBillFetcher>;
+  tier2?: Map<string, TierTwoBalanceFetcher>;
+}
+
 export async function runReconciliation(
   reportDate: Date,
   opts?: { providerId?: string },
+  __testFetcherOverrides?: TestFetcherOverrides,
 ): Promise<ReconciliationResult> {
   const providers = await prisma.provider.findMany({
     where: {
@@ -396,18 +411,21 @@ export async function runReconciliation(
     const tier = classifyTier(p.name);
     if (tier === 3) continue;
 
+    const tier1Override = __testFetcherOverrides?.tier1?.get(p.id);
+    const tier2Override = __testFetcherOverrides?.tier2?.get(p.id);
+
     if (tier === 1) {
-      const { rows, bigDiffs: bd } = await reconcileTier1(p, reportDate, thresholds);
+      const { rows, bigDiffs: bd } = await reconcileTier1(p, reportDate, thresholds, tier1Override);
       rowsWritten += rows;
       bigDiffs += bd;
       // openrouter 同时跑 tier 2 余额（双 tier）
       if (p.name === "openrouter") {
-        const t2 = await reconcileTier2(p, reportDate, thresholds);
+        const t2 = await reconcileTier2(p, reportDate, thresholds, tier2Override);
         rowsWritten += t2.rows;
         bigDiffs += t2.bigDiffs;
       }
     } else if (tier === 2) {
-      const { rows, bigDiffs: bd } = await reconcileTier2(p, reportDate, thresholds);
+      const { rows, bigDiffs: bd } = await reconcileTier2(p, reportDate, thresholds, tier2Override);
       rowsWritten += rows;
       bigDiffs += bd;
     }
