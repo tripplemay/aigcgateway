@@ -693,12 +693,18 @@ export function mapBodyError(json: Record<string, unknown>): EngineError | null 
 }
 
 /**
- * 从上游 usage 中提取标准化 Usage，包含 reasoning_tokens（若有）。
+ * 从上游 usage 中提取标准化 Usage，包含 reasoning_tokens / upstreamCostUsd（若有）。
  *
  * 支持的上游字段位置：
  * - OpenAI o1/o3: usage.completion_tokens_details.reasoning_tokens
  * - DeepSeek R1 / Zhipu GLM Thinking: usage.reasoning_tokens（扁平）
  * - Anthropic extended thinking: usage.thinking_tokens（通过 adapter 转换后亦可落到 reasoning_tokens）
+ *
+ * BL-RECON-FIX-PHASE2 F-RP-02: 额外读 OR 风格的实收金额字段：
+ * - usage.cost（OR 主字段，实测 gen-1777274549 = $0.0387371）
+ * - usage.cost_details.upstream_inference_cost（备选）
+ * 存在时（>0）写入 Usage.upstreamCostUsd；post-process.calculateTokenCost
+ * 优先用此值作 costUsd，解决 image-via-chat 单价错位漏算。
  */
 export function extractUsage(raw: Record<string, unknown>): Usage {
   const promptTokens = toNumber(raw.prompt_tokens) ?? 0;
@@ -711,6 +717,9 @@ export function extractUsage(raw: Record<string, unknown>): Usage {
     toNumber(raw.reasoning_tokens) ??
     toNumber(raw.thinking_tokens);
 
+  const costDetails = raw.cost_details as Record<string, unknown> | undefined;
+  const upstreamCostUsd = toNumber(raw.cost) ?? toNumber(costDetails?.upstream_inference_cost);
+
   const usage: Usage = {
     prompt_tokens: promptTokens,
     completion_tokens: completionTokens,
@@ -718,6 +727,9 @@ export function extractUsage(raw: Record<string, unknown>): Usage {
   };
   if (reasoningTokens !== undefined && reasoningTokens > 0) {
     usage.reasoning_tokens = reasoningTokens;
+  }
+  if (upstreamCostUsd !== undefined && upstreamCostUsd > 0) {
+    usage.upstreamCostUsd = upstreamCostUsd;
   }
   return usage;
 }

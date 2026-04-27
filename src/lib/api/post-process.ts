@@ -537,11 +537,25 @@ export function calculateTokenCost(
   const isCny = route.config.currency === "CNY";
   const exchangeRate = isCny ? cnyToUsd : 1;
 
-  const costUsd =
-    ((inputTokens * (costPrice.inputPer1M ?? 0)) / 1_000_000 +
-      (outputTokens * (costPrice.outputPer1M ?? 0)) / 1_000_000) *
-    exchangeRate;
+  // BL-RECON-FIX-PHASE2 F-RP-02: 上游直返实收 USD 时短路 token×单价 公式。
+  // 解决 image-via-chat 单价错位漏算（OR gemini-2.5-flash-image image-output
+  // 实价 ≈ $30/M vs 配置的文本 output $2.5/M → 12× 漏算）。
+  // FILTERED 仍走原公式（仅算输入），不消费 upstream cost。
+  const upstreamCostUsd = usage.upstreamCostUsd;
+  const useUpstreamCost =
+    status === "SUCCESS" &&
+    upstreamCostUsd !== undefined &&
+    Number.isFinite(upstreamCostUsd) &&
+    upstreamCostUsd > 0;
 
+  const costUsd = useUpstreamCost
+    ? upstreamCostUsd
+    : ((inputTokens * (costPrice.inputPer1M ?? 0)) / 1_000_000 +
+        (outputTokens * (costPrice.outputPer1M ?? 0)) / 1_000_000) *
+      exchangeRate;
+
+  // sellUsd 不变：用户卖价由 alias.sellPrice / channel.sellPrice 公式决定，
+  // 是产品定价决策，与上游成本短路无关。
   const sellUsd =
     ((inputTokens * (sellPrice.inputPer1M ?? 0)) / 1_000_000 +
       (outputTokens * (sellPrice.outputPer1M ?? 0)) / 1_000_000) *

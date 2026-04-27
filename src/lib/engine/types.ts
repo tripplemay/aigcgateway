@@ -103,6 +103,21 @@ export interface Usage {
    * 来源：上游 usage.completion_tokens_details.reasoning_tokens
    */
   reasoning_tokens?: number;
+  /**
+   * BL-RECON-FIX-PHASE2 F-RP-02: 上游直返的实收 USD 金额。
+   *
+   * 部分 provider（确认：OpenRouter）在 chat-completions 响应内直接返回
+   * 本次调用的实收金额：
+   *   - usage.cost（OR 主字段）
+   *   - usage.cost_details.upstream_inference_cost（备选）
+   *
+   * 存在时（>0）post-process.calculateTokenCost 短路 token×单价公式，直接用
+   * 此值作 costUsd。解决 image-via-chat 类响应单价错位漏算（如 OR
+   * gemini-2.5-flash-image image-output ≈ $30/M vs 文本 $2.5/M）。
+   *
+   * sellUsd 不受影响（产品定价独立决策，仍走 alias.sellPrice / channel.sellPrice 公式）。
+   */
+  upstreamCostUsd?: number;
 }
 
 export interface ChatCompletionChunk {
