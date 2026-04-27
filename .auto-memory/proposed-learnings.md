@@ -34,7 +34,30 @@ type: project
 
 <!-- ================= 待确认区 ================= -->
 
+## [2026-04-28] Planner — 来源：BL-RECON-FIX-PHASE2 F-RP-01 调研反转
+
+**类型：** 模板修订（spec 设计 checklist）
+
+**内容：** 调研类 spec 的假设列表应至少枚举三大类根因：(1) 数据缺失（gateway 没收到上游字段）/ (2) 数据正确但解释错（如单价错位 / 单位错位 / 货币错位）/ (3) 数据正确但消费方式错（如读了错的字段 / 聚合方式错）。本次 H1/H2/H3 三假设都聚焦「数据缺失」维度，漏掉了「单价错位」类根因（image-output token 实际单价 ~$30/M，远高于配置 $2.5/M completion 单价），Generator 走完调研才发现，多消耗一轮思考与一次真实 API 调用成本。
+
+**建议写入 harness-template 的：** `harness/planner.md` § spec 设计经验，新增"调研类 feature 的假设枚举三类法"checklist。
+
+**状态：** 待确认
+
+---
+
+## [2026-04-28] Planner — 来源：BL-RECON-FIX-PHASE2 F-RP-04 tc8 阻断
+
+**类型：** 新坑 + 铁律补充
+
+**内容：** 跨 cron 周期 / 上游 settlement 的 acceptance 必须明确 T+N 时序口径。本次 tc8「触发手动 rerun → 当日 model 行 status=MATCH」假设了 reconcile 在调用发生后当日立即可观察，但上游 OR billing API 当天数据未必已 settle（数据按 T+1 出账），导致同日 rowsWritten=11 但目标 model 行未出现，被迫向用户申请 T+1 口径放宽。涉及 cron / 上游账单 / 异步 settlement 的 acceptance，spec 写时就要标注「T+0 / T+1 / T+N」明确时序，避免 verifying 阶段才发现假设错误。
+
+**建议写入 harness-template 的：** `harness/planner.md` § acceptance 设计 checklist 加一条「时序假设标注」；`harness/planner.md` 铁律 1.x 系列加一条「跨周期 acceptance 必须含时序口径」（编号待定）。
+
+**状态：** 待确认
+
 <!-- ================= 已同步到 harness-template（归档区） ================= -->
+
 
 ## [2026-04-26 已同步 v0.9.5] Planner 铁律 1.4：周期性后台任务对数据的覆写必须显式 + 回归保护
 - 来源：BL-IMAGE-PRICING-OR-P2 mid-impl 裁决（buildCostPrice 回归）
