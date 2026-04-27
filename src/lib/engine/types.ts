@@ -135,6 +135,39 @@ export interface StreamChoice {
   finish_reason: string | null;
 }
 
+// ============================================================
+// Embedding（BL-EMBEDDING-MVP F-EM-01）
+// ============================================================
+
+/**
+ * OpenAI 兼容 embedding 请求。MVP 仅支持 input + model；
+ * dimensions / encoding_format=base64 等参数留 Phase 2。
+ */
+export interface EmbeddingRequest {
+  model: string;
+  /** 单条字符串或字符串数组（批量），数组长度上限由 API 层控制（≤100）。 */
+  input: string | string[];
+  /** 仅 'float'；MVP 不支持 base64。 */
+  encoding_format?: "float";
+}
+
+export interface EmbeddingData {
+  object: "embedding";
+  index: number;
+  embedding: number[];
+}
+
+export interface EmbeddingResponse {
+  object: "list";
+  data: EmbeddingData[];
+  model: string;
+  usage: {
+    prompt_tokens: number;
+    /** 与 prompt_tokens 相同（embedding 无 completion）。 */
+    total_tokens: number;
+  };
+}
+
 export interface ImageGenerationResponse {
   created: number;
   data: ImageData[];
@@ -353,6 +386,13 @@ export interface EngineAdapter {
     request: ImageGenerationRequest,
     route: RouteResult,
   ): Promise<ImageGenerationResponse>;
+
+  /**
+   * BL-EMBEDDING-MVP F-EM-01: optional embeddings method.
+   * Adapters that don't implement may leave undefined; API/runner layers
+   * throw EngineError when missing on a route resolved for an EMBEDDING model.
+   */
+  embeddings?(request: EmbeddingRequest, route: RouteResult): Promise<EmbeddingResponse>;
 }
 
 // ============================================================

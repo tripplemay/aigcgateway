@@ -10,6 +10,8 @@ import type {
   ChatCompletionRequest,
   ChatCompletionResponse,
   ChatCompletionChunk,
+  EmbeddingRequest,
+  EmbeddingResponse,
   ImageGenerationRequest,
   ImageGenerationResponse,
   RouteResult,
@@ -197,6 +199,40 @@ export class OpenAICompatEngine implements EngineAdapter {
     return this.normalizeImageResponse(json);
   }
 
+  /**
+   * BL-EMBEDDING-MVP F-EM-01: OpenAI 兼容 embeddings 实现。
+   *
+   * 适配两家：
+   *   - OpenAI text-embedding-3-small：标准 shape
+   *   - SiliconFlow BAAI/bge-m3：OpenAI 兼容（response.data[].embedding）
+   *
+   * 单条 / 批量 input 透传上游；上游 max input 数量上层 API route 已校验。
+   */
+  async embeddings(request: EmbeddingRequest, route: RouteResult): Promise<EmbeddingResponse> {
+    const url = this.buildUrl(route, "embedding");
+    const headers = this.buildHeaders(route);
+
+    const body = {
+      model: this.resolveModelId(route),
+      input: request.input,
+      ...(request.encoding_format ? { encoding_format: request.encoding_format } : {}),
+    };
+
+    const response = await this.fetchWithProxy(
+      url,
+      {
+        method: "POST",
+        headers,
+        body: JSON.stringify(body),
+      },
+      route,
+    );
+
+    const json = await response.json();
+    this.throwIfBodyError(json);
+    return this.normalizeEmbeddingResponse(json);
+  }
+
   // ------------------------------------------------------------------
   // 请求构建（protected，子类可覆盖）
   // ------------------------------------------------------------------
@@ -224,7 +260,7 @@ export class OpenAICompatEngine implements EngineAdapter {
     return rest as ChatCompletionRequest;
   }
 
-  protected buildUrl(route: RouteResult, type: "chat" | "image"): string {
+  protected buildUrl(route: RouteResult, type: "chat" | "image" | "embedding"): string {
     let baseUrl = route.provider.baseUrl;
     const quirks = getQuirks(route.config);
 
@@ -237,6 +273,14 @@ export class OpenAICompatEngine implements EngineAdapter {
 
     if (type === "chat") {
       const endpoint = route.config.chatEndpoint ?? "/chat/completions";
+      return `${baseUrl}${endpoint}`;
+    }
+
+    if (type === "embedding") {
+      // BL-EMBEDDING-MVP F-EM-01: OpenAI 兼容路径；SiliconFlow / OpenAI 都用 /embeddings。
+      // 如服务商需自定义 endpoint，将来可在 ProviderConfig 加 embeddingEndpoint 字段。
+      const config = route.config as { embeddingEndpoint?: string };
+      const endpoint = config.embeddingEndpoint ?? "/embeddings";
       return `${baseUrl}${endpoint}`;
     }
 
@@ -400,6 +444,36 @@ export class OpenAICompatEngine implements EngineAdapter {
         ...(d.b64_json ? { b64_json: d.b64_json as string } : {}),
         ...(d.revised_prompt ? { revised_prompt: d.revised_prompt as string } : {}),
       })),
+    };
+  }
+
+  /**
+   * BL-EMBEDDING-MVP F-EM-01: OpenAI 兼容 embedding 响应解析。
+   *
+   * OpenAI / SiliconFlow 都返回:
+   *   { object:'list', data:[{object:'embedding', index, embedding:number[]}], model, usage:{prompt_tokens, total_tokens} }
+   *
+   * 缺失字段保守填充（usage 缺失 → 0）。embedding 数组保留上游原值（dimension
+   * 由 model 决定，gateway 不强校）。
+   */
+  protected normalizeEmbeddingResponse(json: Record<string, unknown>): EmbeddingResponse {
+    const data = (json.data as Record<string, unknown>[]) ?? [];
+    const usage = (json.usage ?? {}) as { prompt_tokens?: number; total_tokens?: number };
+    const promptTokens = typeof usage.prompt_tokens === "number" ? usage.prompt_tokens : 0;
+    const totalTokens = typeof usage.total_tokens === "number" ? usage.total_tokens : promptTokens;
+
+    return {
+      object: "list",
+      data: data.map((d, idx) => ({
+        object: "embedding",
+        index: typeof d.index === "number" ? d.index : idx,
+        embedding: Array.isArray(d.embedding) ? (d.embedding as number[]) : [],
+      })),
+      model: typeof json.model === "string" ? json.model : "",
+      usage: {
+        prompt_tokens: promptTokens,
+        total_tokens: totalTokens,
+      },
     };
   }
 

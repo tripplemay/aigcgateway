@@ -26,6 +26,7 @@ enum ModelModality {
   IMAGE
   VIDEO
   AUDIO
+  EMBEDDING
 }
 
 enum ChannelStatus {
@@ -509,14 +510,15 @@ model RechargeOrder {
 // ============================================================
 
 model Action {
-  id              String   @id @default(cuid())
+  id              String        @id @default(cuid())
   projectId       String
   name            String
   description     String?
   model           String
+  modality        ModelModality @default(TEXT)
   activeVersionId String?
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
 
   project       Project         @relation(fields: [projectId], references: [id])
   versions      ActionVersion[]
