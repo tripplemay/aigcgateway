@@ -1385,6 +1385,25 @@
     "colDelta": "差额",
     "colStatus": "状态",
     "empty": "选定窗口内无对账记录。",
-    "emptyToday": "尚未执行过对账。"
+    "emptyToday": "尚未执行过对账。",
+    "dateRangeStart": "起始日期",
+    "dateRangeEnd": "结束日期",
+    "tierAll": "全部",
+    "tierOne": "Tier 1",
+    "tierTwo": "Tier 2",
+    "modelSearchPlaceholder": "搜索模型",
+    "pageSize": "每页",
+    "exportCsv": "导出 CSV",
+    "exportTooLarge": "结果超过 10000 行，请缩小筛选范围",
+    "thresholdsTitle": "阈值配置",
+    "thresholdsDesc": "下次重跑生效（不溯及历史）",
+    "thMatchDelta": "MATCH |Δ|<",
+    "thMatchPercent": "MATCH |%|<",
+    "thMinorDelta": "MINOR |Δ|<",
+    "thMinorPercent": "MINOR |%|<",
+    "thresholdSaved": "阈值已保存",
+    "save": "保存",
+    "sortAsc": "升序",
+    "sortDesc": "降序"
   }
 }

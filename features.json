@@ -16,7 +16,7 @@
       "title": "对账前端 — 排序倒序 + 日期 picker + Tier 按钮组 + 分页 + model 搜索 + CSV 导出按钮 + 阈值配置 UI + i18n",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "source": "BL-RECON-UX-PHASE1 spec § F-RC-02",
       "acceptance": "1) src/app/(console)/admin/reconciliation/page.tsx 改造：明细表默认 sortDir='desc'（最新在顶，用户明确要求）；表头 reportDate 列点击切 asc/desc；2) 日期范围 picker（start/end 两个 type=date，默认 today-30 / today），改后 refetch；3) Tier 按钮组 [All|Tier 1|Tier 2]，默认 All（Tier 3 不展示）；4) 模型搜索 input + debounce 300ms；5) 分页 bar（page/pageSize 选项 [20,50,100,200] 默认 50；前后翻页按钮；显示 total）；6) 表头右上角导出 CSV 按钮，点击触发 GET /api/admin/reconciliation/export?<当前 filters> 浏览器下载；超 10000 行时 toast 错误（捕获 400 message）；7) 新增阈值配置 SectionCard：4 个 number input（match Δ/match %/minor Δ/minor %）+ 保存按钮，调 PUT /api/admin/config × 4 顺序；保存后 toast 「下次重跑生效」；保存前从 GET /api/admin/config 拉初始值；8) cards/trend 计算源用 pageSize=200 page=1 单独 fetch（spec § Risks 第 3 项妥协方案）；明细表独立分页 fetch；9) messages/{en,zh-CN}.json 加 spec 列出的 14 个新 keys；10) tsc + build 通过；11) 单 commit 'feat(BL-RECON-UX-PHASE1 F-RC-02): frontend reconciliation UX + i18n'"
     },

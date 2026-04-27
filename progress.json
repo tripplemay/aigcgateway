@@ -1,11 +1,11 @@
 {
-  "status": "building",
+  "status": "verifying",
   "user_goal": "BL-RECON-UX-PHASE1 — 优化 /admin/reconciliation 对账面板。A 视图筛选（日期 picker + 倒序默认 + 分页 + Tier 切换 + model 搜索）+ D CSV 导出 + E 阈值可配置（SystemConfig 4 keys）+ 用户明确要求最新数据在顶部。Phase 1 不含告警 / 数据洞察 / Tier 3 占位 / 重跑 audit trail。",
   "total_features": 3,
-  "completed_features": 1,
+  "completed_features": 2,
   "fix_rounds": 0,
   "current_sprint": "BL-RECON-UX-PHASE1",
-  "last_updated": "2026-04-27T11:30:00.000Z",
+  "last_updated": "2026-04-27T11:45:00.000Z",
   "reference_docs": [
     "docs/specs/BL-RECON-UX-PHASE1-spec.md"
   ],
@@ -17,39 +17,44 @@
     "framework_reviewed": false
   },
   "evaluator_feedback": null,
-  "generator_handoff": {
-    "fix_round": 0,
-    "scope": "F-RC-01（后端 API 增强 + CSV 导出 + reconcile-job 阈值化 + SystemConfig seed）→ F-RC-02（前端排序倒序 + 日期 picker + Tier + 分页 + model 搜索 + CSV 按钮 + 阈值 UI + i18n）",
+  "evaluator_handoff": {
+    "scope": "F-RC-03 全量验收：3 项静态 + 6 项 API 行为 + 5 项前端冒烟 + 1 项 i18n + 1 项 signoff 报告 = 16 项",
     "spec": "docs/specs/BL-RECON-UX-PHASE1-spec.md",
-    "execution_order": [
-      "F-RC-01 先做：后端先稳定，前端依赖新 API 字段 + 新 endpoint",
-      "F-RC-02 后做：前端基于 F-RC-01 已 push 后的 API 调用"
-    ],
-    "key_files": {
-      "new": [
-        "src/app/api/admin/reconciliation/export/route.ts（CSV 导出）",
-        "src/app/api/admin/reconciliation/export/__tests__/route.test.ts"
+    "feature_id": "F-RC-03",
+    "deployed_artifacts": {
+      "new_endpoints": [
+        "GET /api/admin/reconciliation/export — CSV 导出（同列表 filter，无 page/pageSize；BOM + 10000 hard cap）"
       ],
-      "modified": [
-        "src/app/api/admin/reconciliation/route.ts（新增 4 query 参数 + meta + sort 默认 desc）",
-        "src/lib/billing-audit/reconcile-job.ts（classifyStatus 加 thresholds 参数 + loadThresholds + runReconciliation 入口加载）",
-        "prisma/seed.ts（4 个 RECONCILIATION_* SystemConfig keys 幂等 upsert）",
-        "src/app/api/admin/reconciliation/__tests__/route.test.ts（扩展）",
-        "src/lib/billing-audit/__tests__/reconcile-job.test.ts（扩展）",
-        "src/app/(console)/admin/reconciliation/page.tsx（366 → ~480 行）",
-        "messages/en.json + messages/zh-CN.json（adminReconciliation 14 keys）"
+      "modified_endpoints": [
+        "GET /api/admin/reconciliation — 新增 tier/modelSearch/page/pageSize/sort 参数；返回 { data, meta:{total,page,pageSize} }；默认 sort=desc"
+      ],
+      "frontend_routes": [
+        "/admin/reconciliation — 6 区块：cards / trend / 阈值配置（新）/ 重跑 / 明细表（含日期 picker + Tier 按钮组 + 分页 + 模型搜索 + CSV 按钮）"
+      ],
+      "system_config_keys": [
+        "RECONCILIATION_MATCH_DELTA_USD = 0.5",
+        "RECONCILIATION_MATCH_PERCENT = 5",
+        "RECONCILIATION_MINOR_DELTA_USD = 5",
+        "RECONCILIATION_MINOR_PERCENT = 20"
       ]
     },
-    "preflight_checks": [
-      "Read src/lib/billing-audit/reconcile-job.ts:71-82 确认 classifyStatus 当前签名",
-      "Read src/lib/config.ts 确认 getConfigNumber API 存在",
-      "Read src/app/api/admin/config/route.ts 确认 PUT 行为（已存在，前端阈值 UI 复用此 endpoint）",
-      "Read prisma/seed.ts 看是否已有类似 SystemConfig upsert 区块（追加风格保持一致）"
-    ],
-    "notes": "spec § Risks 第 3 项的妥协方案：cards/trend 用 pageSize=200 page=1 fetch，明细表独立分页 fetch。两路并行。F-RC-01 commit 推完后立刻可启 F-RC-02。Generator 完成 F-RC-01+02 后置 status=verifying 等 Codex F-RC-03。"
+    "verification_pointers": {
+      "static": "npx tsc --noEmit / npm run build / npx vitest run（基线 441 应保持，Generator 本机已确认）",
+      "api_behavior": "spec § F-RC-03 第 4-9 项；BASE_URL=生产或本地 + admin token；建议先 seed 4 个 SystemConfig 再跑",
+      "frontend_smoke": "spec § F-RC-03 第 10-14 项；登录 admin → /admin/reconciliation",
+      "i18n": "切 zh-CN locale 检查表头 + 阈值区块；spec § F-RC-03 第 15 项",
+      "signoff_report": "docs/test-reports/BL-RECON-UX-PHASE1-signoff-2026-04-2X.md（含 16 项证据 + 4 张关键截图）"
+    },
+    "deploy_notes": "本机已通过 tsc + build + vitest 441 PASS。生产部署后需先跑一次 npx prisma db seed 写入 4 个 SystemConfig 默认值（之后管理员可在 UI 改）。reconcile cron 04:30 UTC 会自动用新阈值。",
+    "known_caveats": [
+      "lint warnings（aggregateRows + data 的 useMemo deps 警告）已修；reconciliation 页其他 lint clean",
+      "dev server 本机 smoke test 因 IMAGE_PROXY_SECRET 未设而失败，但 production build 已通过 strict tsc + 路由打包 6.45 kB",
+      "CSV BOM 测试需要 arrayBuffer() 而非 text()（TextDecoder 默认吞 BOM）"
+    ]
   },
+  "generator_handoff": null,
   "session_notes": {
-    "Kimi": "F-RC-01 完成 @ 2026-04-27 11:30。\n\n实现要点：\n1) 抽出 src/app/api/admin/reconciliation/query.ts 作为列表/导出共享 parser；用 AND 数组组合 where 避免 spread 覆盖（修了一个 spec 里的隐含 bug：原方案中 tier filter 与 providerId 同传时后者会覆盖前者）。\n2) classifyStatus 加可选 thresholds 参数，默认 = DEFAULT_THRESHOLDS；reconcile-job 内 tier1/2 path + upsertReconciliation 全程 thread thresholds，runReconciliation 入口 await loadThresholds()。\n3) CSV BOM 用字面量 U+FEFF（在文件中是 ef bb bf 三字节）；测试不能 res.text() 因为 TextDecoder 默认会吞 BOM，改用 arrayBuffer() 校验前三字节。\n4) seed.ts 4 个 RECONCILIATION_* keys 用 update:{} 幂等 upsert（已存在不覆盖管理员手改值）。\n5) tier=3 query 被显式忽略（不查 provider 也不加 filter），因为 reconcile-job 本就不写 Tier 3 行，避免无意义 IN([]) 查询。\n\n测试：\n- 总计 441 tests pass（baseline 414 + 27 新增）\n- 9 个新 tier/sort/page/meta cases\n- 6 个 CSV 导出测试（200 + BOM + Content-Disposition + 10000 cap + CSV escape + filter）\n- 7 个 classifyStatus thresholds 边界 + 默认回归保护\n- reconcile-job.test.ts 加 vi.mock(\"@/lib/config\") 让 loadThresholds 走默认值\n\n张力点：role-context/generator.md 写「不写任何测试」，但 spec § F-RC-01 acceptance 显式列「单测扩展」。我自己作 Planner 时埋了这个矛盾。本次按 spec 写了完整测试。已追加到 .auto-memory/proposed-learnings.md，done 阶段统一处理。\n\n下一步：F-RC-02 前端 UX。注意 reconciliation page.tsx 是 client component (366 行)，按 spec § F-RC-02 改造为 ~480 行，14 个 i18n keys。",
+    "Kimi": "BL-RECON-UX-PHASE1 F-RC-01 + F-RC-02 完成 @ 2026-04-27 11:45，status=verifying 交 Codex。\n\n本批次 Generator 工作总结：\n\n[F-RC-01 后端 — commit 4b507f2 已 push 已 CI 通过 1m6s]\n1) 抽出 src/app/api/admin/reconciliation/query.ts 作为列表/导出共享 parser；用 AND 数组组合 where 避免 spread 覆盖（修了一个 spec 里的隐含 bug：原方案中 tier filter 与 providerId 同传时后者会覆盖前者）。\n2) classifyStatus 加可选 thresholds 参数，默认 = DEFAULT_THRESHOLDS；reconcile-job 内 tier1/2 path + upsertReconciliation 全程 thread thresholds，runReconciliation 入口 await loadThresholds()。\n3) CSV BOM 用字面量 U+FEFF（在文件中是 ef bb bf 三字节）；测试不能 res.text() 因为 TextDecoder 默认会吞 BOM，改用 arrayBuffer() 校验前三字节。\n4) seed.ts 4 个 RECONCILIATION_* keys 用 update:{} 幂等 upsert（已存在不覆盖管理员手改值）。\n\n[F-RC-02 前端 — 本 commit]\n1) page.tsx 366 → 605 行：6 区块 = cards / trend / 阈值配置（新）/ 重跑 / 明细表\n2) cards/trend 与明细表两路 fetch（spec § Risks 第 3 项）；前者固定 30 天 pageSize=200，后者带全部 filter + 分页\n3) 默认 sortDir='desc' 且表头 reportDate 列点击切 asc/desc（▼/▲ 图标）\n4) 阈值 SectionCard：先 GET /api/admin/config 拉初始值，保存按 PUT × 4 顺序调用，toast 「下次重跑生效」\n5) CSV 导出按 actions slot 放在 SectionCard 头部（不是 action 单数，组件 prop 是 actions）；用 raw fetch 而非 apiFetch 因为响应是 blob，400 → toast；200 → blob URL trigger 下载\n6) useDebouncedValue 内联 hook（项目原本没有），300ms\n7) 翻 19 个 i18n keys（spec 列了 18 个，多加了 'save'）\n\n[测试]\n- 总计 441 tests pass（baseline 414 + 27 新增；F-RC-02 没新增前端测试，role-context 不写测试 + spec 也没列前端单测）\n\n[张力点]\nrole-context/generator.md 写「不写任何测试」，但 spec § F-RC-01 acceptance 显式列「单测扩展」。我自己作 Planner 时埋了这个矛盾。本次按 spec 写了完整后端测试。已追加到 .auto-memory/proposed-learnings.md，done 阶段统一处理。\n\n[Codex F-RC-03 准备就绪]\nevaluator_handoff 字段已写好，verification_pointers 列出 spec § F-RC-03 16 项的执行入口。本机 tsc + build + vitest 全过；等 Codex 跑 API 行为 + 前端冒烟 + 写 signoff 报告。",
     "Reviewer": null
   }
 }

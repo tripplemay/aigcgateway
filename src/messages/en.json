@@ -1385,6 +1385,25 @@
     "colDelta": "Delta",
     "colStatus": "Status",
     "empty": "No reconciliation rows in the selected window.",
-    "emptyToday": "No reconciliation has run yet."
+    "emptyToday": "No reconciliation has run yet.",
+    "dateRangeStart": "Start date",
+    "dateRangeEnd": "End date",
+    "tierAll": "All",
+    "tierOne": "Tier 1",
+    "tierTwo": "Tier 2",
+    "modelSearchPlaceholder": "Search model",
+    "pageSize": "Per page",
+    "exportCsv": "Export CSV",
+    "exportTooLarge": "Result exceeds 10000 rows, narrow filter",
+    "thresholdsTitle": "Thresholds",
+    "thresholdsDesc": "Effective on next reconciliation run",
+    "thMatchDelta": "MATCH |Δ|<",
+    "thMatchPercent": "MATCH |%|<",
+    "thMinorDelta": "MINOR |Δ|<",
+    "thMinorPercent": "MINOR |%|<",
+    "thresholdSaved": "Thresholds saved",
+    "save": "Save",
+    "sortAsc": "Ascending",
+    "sortDesc": "Descending"
   }
 }
