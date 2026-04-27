@@ -1,5 +1,6 @@
 import { PrismaClient, Prisma, Currency } from "@prisma/client";
 import { hashSync } from "bcryptjs";
+import { seedEmbeddingModels } from "../scripts/seed-embedding-models";
 
 const prisma = new PrismaClient();
 
@@ -402,117 +403,14 @@ async function main() {
     });
   }
 
-  // BL-EMBEDDING-MVP F-EM-04 — embedding 模型 + channel 幂等 upsert
+  // BL-EMBEDDING-MVP F-EM-04 — embedding 模型 + channel + alias 幂等 upsert
   // 注：其他 modality 的 model/channel 由 startup sync 拉取；embedding 是新增
   // modality 上游目前不返回该列表，由此 seed 显式注入。
-  // 价格来源：spec § F-EM-04 — bge-m3 ¥0.5/M ≈ $0.07/M、text-embedding-3-small $0.02/M
-  // markup ratio 1.2x（与 DEFAULT_MARKUP_RATIO 一致）
-  const embeddingSeeds: Array<{
-    modelName: string;
-    displayName: string;
-    description: string;
-    contextWindow: number;
-    providerName: string;
-    realModelId: string;
-    costInputPer1M: number;
-    sellInputPer1M: number;
-  }> = [
-    {
-      modelName: "bge-m3",
-      displayName: "BGE-M3",
-      description:
-        "Multilingual embedding model by BAAI (1024 dims). Optimized for Chinese/Japanese/Korean. Hosted on SiliconFlow.",
-      contextWindow: 8192,
-      providerName: "siliconflow",
-      realModelId: "BAAI/bge-m3",
-      costInputPer1M: 0.07, // ¥0.5/M ÷ 7.3 ≈ $0.0685, round to 0.07
-      sellInputPer1M: 0.084, // 1.2x markup
-    },
-    {
-      modelName: "text-embedding-3-small",
-      displayName: "OpenAI text-embedding-3-small",
-      description:
-        "Compact, performant English-first embedding model (1536 dims). Hosted on OpenAI.",
-      contextWindow: 8191,
-      providerName: "openai",
-      realModelId: "text-embedding-3-small",
-      costInputPer1M: 0.02,
-      sellInputPer1M: 0.024, // 1.2x markup
-    },
-  ];
-
-  for (const def of embeddingSeeds) {
-    const provider = await prisma.provider.findUnique({ where: { name: def.providerName } });
-    if (!provider) {
-      console.log(`  ⚠ Provider ${def.providerName} not found, skipping ${def.modelName} seed`);
-      continue;
-    }
-
-    const model = await prisma.model.upsert({
-      where: { name: def.modelName },
-      update: {
-        displayName: def.displayName,
-        description: def.description,
-        modality: "EMBEDDING",
-        contextWindow: def.contextWindow,
-        enabled: true,
-      },
-      create: {
-        name: def.modelName,
-        displayName: def.displayName,
-        description: def.description,
-        modality: "EMBEDDING",
-        contextWindow: def.contextWindow,
-        enabled: true,
-      },
-    });
-
-    await prisma.channel.upsert({
-      where: { providerId_modelId: { providerId: provider.id, modelId: model.id } },
-      update: {
-        realModelId: def.realModelId,
-        costPrice: { unit: "token", inputPer1M: def.costInputPer1M, outputPer1M: 0 },
-        sellPrice: { unit: "token", inputPer1M: def.sellInputPer1M, outputPer1M: 0 },
-        status: "ACTIVE",
-      },
-      create: {
-        providerId: provider.id,
-        modelId: model.id,
-        realModelId: def.realModelId,
-        priority: 1,
-        costPrice: { unit: "token", inputPer1M: def.costInputPer1M, outputPer1M: 0 },
-        sellPrice: { unit: "token", inputPer1M: def.sellInputPer1M, outputPer1M: 0 },
-        status: "ACTIVE",
-      },
-    });
-
-    // ModelAlias + AliasModelLink — 让 /v1/models?modality=embedding 能查到
-    const alias = await prisma.modelAlias.upsert({
-      where: { alias: def.modelName },
-      update: {
-        enabled: true,
-        modality: "EMBEDDING",
-        contextWindow: def.contextWindow,
-        sellPrice: { unit: "token", inputPer1M: def.sellInputPer1M, outputPer1M: 0 },
-      },
-      create: {
-        alias: def.modelName,
-        brand: def.providerName === "siliconflow" ? "BAAI" : "OpenAI",
-        modality: "EMBEDDING",
-        enabled: true,
-        contextWindow: def.contextWindow,
-        sellPrice: { unit: "token", inputPer1M: def.sellInputPer1M, outputPer1M: 0 },
-        description: def.description,
-      },
-    });
-    await prisma.aliasModelLink.upsert({
-      where: { aliasId_modelId: { aliasId: alias.id, modelId: model.id } },
-      update: {},
-      create: { aliasId: alias.id, modelId: model.id },
-    });
-
-    console.log(`  Embedding model: ${def.modelName} → ${def.providerName}/${def.realModelId}`);
-  }
+  //
+  // 实现移到 scripts/seed-embedding-models.ts 共享，避免双源维护；prod 部署可
+  // 单独跑该脚本（avoid 全量 seed 覆盖管理员手动调过的 ProviderConfig）。
+  const r = await seedEmbeddingModels(prisma);
+  console.log(`  Embedding models: created=${r.created} updated=${r.updated} skipped=${r.skipped}`);
 
   // 4. 平台公共模板（projectId=null）
   console.log(
