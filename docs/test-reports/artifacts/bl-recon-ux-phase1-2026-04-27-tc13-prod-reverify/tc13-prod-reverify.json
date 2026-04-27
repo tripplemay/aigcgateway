@@ -1,0 +1,117 @@
+{
+  "timestamp": "2026-04-27T05:24:35.448Z",
+  "base": "https://aigc.guangai.ai",
+  "login": {
+    "status": 200,
+    "ok": true,
+    "user": "codex-admin@aigc-gateway.local",
+    "role": "ADMIN"
+  },
+  "config_before": {
+    "status": 200,
+    "matchDelta": "0.5"
+  },
+  "reportDate": "2026-04-26",
+  "match_rows_sample": [
+    {
+      "providerId": "cmnckvv5m0031n56ics9pggfg",
+      "providerName": "openrouter",
+      "delta": 0.041191,
+      "deltaPercent": 205.52,
+      "status": "MATCH"
+    },
+    {
+      "providerId": "cmnckvv5m0031n56ics9pggfg",
+      "providerName": "openrouter",
+      "delta": -0.001188,
+      "deltaPercent": -100,
+      "status": "MATCH"
+    },
+    {
+      "providerId": "cmnckvv5m0031n56ics9pggfg",
+      "providerName": "openrouter",
+      "delta": 0.000008,
+      "deltaPercent": 67,
+      "status": "MATCH"
+    },
+    {
+      "providerId": "cmnckvv5m0031n56ics9pggfg",
+      "providerName": "openrouter",
+      "delta": 0.00033,
+      "deltaPercent": 157.14,
+      "status": "MATCH"
+    },
+    {
+      "providerId": "cmnckvv5m0031n56ics9pggfg",
+      "providerName": "openrouter",
+      "delta": 0.006188,
+      "deltaPercent": 14733.1,
+      "status": "MATCH"
+    }
+  ],
+  "candidate_count": 1,
+  "chosen": {
+    "providerId": "cmnckvv5m0031n56ics9pggfg",
+    "providerName": "openrouter",
+    "delta": -0.177373,
+    "deltaPercent": -91.64
+  },
+  "count_before": {
+    "MATCH": {
+      "statusCode": 200,
+      "total": 34
+    },
+    "MINOR_DIFF": {
+      "statusCode": 200,
+      "total": 0
+    }
+  },
+  "set_threshold": {
+    "status": 200,
+    "ok": true,
+    "body": {
+      "data": {
+        "id": "cmogr63st0002bn49q5602nd9",
+        "key": "RECONCILIATION_MATCH_DELTA_USD",
+        "value": "0.1",
+        "description": null,
+        "updatedAt": "2026-04-27T05:24:39.485Z"
+      }
+    }
+  },
+  "rerun": {
+    "status": 200,
+    "ok": true,
+    "body": {
+      "reportDate": "2026-04-26",
+      "providersInspected": 1,
+      "rowsWritten": 65,
+      "bigDiffs": 1
+    }
+  },
+  "count_after": {
+    "MATCH": {
+      "statusCode": 200,
+      "total": 33
+    },
+    "MINOR_DIFF": {
+      "statusCode": 200,
+      "total": 0
+    }
+  },
+  "tc13_pass": false,
+  "restore_threshold": {
+    "status": 200,
+    "ok": true,
+    "value": "0.5",
+    "body": {
+      "data": {
+        "id": "cmogr63st0002bn49q5602nd9",
+        "key": "RECONCILIATION_MATCH_DELTA_USD",
+        "value": "0.5",
+        "description": null,
+        "updatedAt": "2026-04-27T05:24:42.106Z"
+      }
+    }
+  }
+}

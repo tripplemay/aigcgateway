@@ -1,0 +1,68 @@
+{
+  "timestamp": "2026-04-27T05:59:02.808Z",
+  "base": "http://127.0.0.1:3199",
+  "db": "postgresql://test:test@localhost:5432/aigc_gateway_test",
+  "seed": {
+    "baseCreated": 12,
+    "tc9Created": 10020,
+    "total": 10032
+  },
+  "checks": {
+    "tc4": {
+      "status": 200,
+      "d1": "2026-04-27T00:00:00.000Z",
+      "d2": "2026-04-26T00:00:00.000Z",
+      "pass": true
+    },
+    "tc5": {
+      "status": 200,
+      "rows": 5,
+      "meta": {
+        "total": 10028,
+        "page": 1,
+        "pageSize": 5
+      },
+      "pass": true
+    },
+    "tc6": {
+      "status": 200,
+      "names": [
+        "openai",
+        "openrouter"
+      ],
+      "invalid": [],
+      "pass": true
+    },
+    "tc7": {
+      "status": 200,
+      "rows": 4,
+      "badCount": 0,
+      "pass": true
+    },
+    "tc8": {
+      "status": 200,
+      "query": "status=BIG_DIFF&providerId=cmogs7bng00079ysqcm4aitmf",
+      "contentType": "text/csv; charset=utf-8",
+      "contentDisposition": "attachment; filename=\"reconciliation-2026-04-27.csv\"",
+      "bomHex": "efbbbf",
+      "headerLine": "reportDate,tier,providerName,modelName,upstreamAmount,gatewayAmount,delta,deltaPercent,status,computedAt",
+      "pass": true
+    },
+    "tc9": {
+      "status": 400,
+      "body": {
+        "error": {
+          "type": "invalid_request_error",
+          "code": "row_count_exceeds_cap",
+          "message": "row count 10023 exceeds 10000, narrow filter"
+        }
+      },
+      "pass": true
+    }
+  },
+  "login": {
+    "status": 200,
+    "ok": true,
+    "role": "ADMIN"
+  }
+}
