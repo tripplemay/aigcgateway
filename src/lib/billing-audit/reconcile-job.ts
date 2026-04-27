@@ -267,10 +267,17 @@ async function reconcileTier1(
     return { rows: 1, bigDiffs: gatewaySum > 5 ? 1 : 0 };
   }
 
+  // BL-RECON-FIX-PHASE1 F-RF-02: tier1 比较前把 CNY 折算成 USD，与 gateway USD
+  // 同口径。生产 evidence: volcengine bill.currency='CNY' 时原逻辑直接当 USD
+  // 比较，CNY 3.25 vs USD 0 被分类成 BIG_DIFF 而不是真实的 0.44525 vs 0。
+  const exchangeRate = await getConfigNumber("EXCHANGE_RATE_CNY_TO_USD", 0.137);
+
   for (const bill of bills) {
     const gatewaySum = await aggregateGatewayCallLogs(provider.id, bill.modelName, reportDate);
-    const delta = gatewaySum - bill.amount;
-    const dp = deltaPercent(bill.amount, gatewaySum);
+    const isCny = bill.currency === "CNY";
+    const upstreamUsd = isCny ? bill.amount * exchangeRate : bill.amount;
+    const delta = gatewaySum - upstreamUsd;
+    const dp = deltaPercent(upstreamUsd, gatewaySum);
     const status = classifyStatus(delta, dp, thresholds);
     if (status === "BIG_DIFF") bigDiffs += 1;
 
@@ -279,10 +286,12 @@ async function reconcileTier1(
       reportDate,
       tier: 1,
       modelName: bill.modelName,
-      upstreamAmount: bill.amount,
+      upstreamAmount: upstreamUsd,
       gatewayAmount: gatewaySum,
       details: {
         currency: bill.currency,
+        upstreamAmountOriginal: bill.amount,
+        exchangeRateApplied: isCny ? exchangeRate : 1,
         upstreamRequests: bill.requests,
         raw: bill.raw ?? null,
       },

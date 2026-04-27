@@ -30,6 +30,7 @@ const chatanywhereFetchMock = vi.fn();
 const deepseekBalanceMock = vi.fn();
 const siliconflowBalanceMock = vi.fn();
 const openrouterCreditsMock = vi.fn();
+const getConfigNumberMock = vi.fn(async (_key: string, def: number) => def);
 
 vi.mock("@/lib/prisma", () => ({
   prisma: {
@@ -57,7 +58,7 @@ vi.mock("@/lib/system-logger", () => ({
 // existing test expectations stable (no behavior change).
 vi.mock("@/lib/config", () => ({
   getConfig: async () => undefined,
-  getConfigNumber: async (_key: string, def: number) => def,
+  getConfigNumber: (key: string, def: number) => getConfigNumberMock(key, def),
   setConfig: async () => undefined,
 }));
 
@@ -112,6 +113,9 @@ beforeEach(() => {
   deepseekBalanceMock.mockReset();
   siliconflowBalanceMock.mockReset();
   openrouterCreditsMock.mockReset();
+  // F-RF-02: 默认 getConfigNumber 走 default（保持回归兼容）；CNY 转换测试可覆盖
+  getConfigNumberMock.mockReset();
+  getConfigNumberMock.mockImplementation(async (_key: string, def: number) => def);
 
   upsertReconMock.mockResolvedValue({});
   findFirstReconMock.mockResolvedValue(null); // default: no existing row → create path
@@ -124,12 +128,13 @@ beforeEach(() => {
 });
 
 describe("F-BAP2-02 runReconciliation tier 1", () => {
-  it("Tier 1 volcengine → upsert per-model row, classify status", async () => {
+  it("Tier 1 USD upstream (passthrough) → upsert per-model row, classify status", async () => {
     findManyProvidersMock.mockResolvedValueOnce([
       { id: "p_volc", name: "volcengine", authConfig: {} },
     ]);
+    // USD currency 走 passthrough（无汇率折算）；CNY 转换由 F-RF-02 describe 块覆盖
     volcengineFetchMock.mockResolvedValueOnce([
-      { date: REPORT_DATE, modelName: "ep-abc", requests: 100, amount: 3.5, currency: "CNY" },
+      { date: REPORT_DATE, modelName: "ep-abc", requests: 100, amount: 3.5, currency: "USD" },
     ]);
     findManyCallLogMock.mockResolvedValueOnce([{ costPrice: 3.5 }]); // gateway sum=3.5
 
@@ -143,6 +148,10 @@ describe("F-BAP2-02 runReconciliation tier 1", () => {
     expect(args.create.upstreamAmount).toBe(3.5);
     expect(args.create.gatewayAmount).toBe(3.5);
     expect(args.create.status).toBe("MATCH"); // delta=0
+    // F-RF-02: USD 时 exchangeRateApplied=1，upstreamAmountOriginal 保留原值
+    expect(args.create.details.currency).toBe("USD");
+    expect(args.create.details.upstreamAmountOriginal).toBe(3.5);
+    expect(args.create.details.exchangeRateApplied).toBe(1);
   });
 
   it("Tier 1 returns empty bill list → write placeholder row with upstreamAmount=0", async () => {
@@ -169,6 +178,102 @@ describe("F-BAP2-02 runReconciliation tier 1", () => {
     expect(result.rowsWritten).toBe(0);
     expect(createReconMock).not.toHaveBeenCalled();
     expect(updateReconMock).not.toHaveBeenCalled();
+  });
+});
+
+describe("F-RF-02 tier 1 CNY→USD currency conversion", () => {
+  it("USD currency → upstreamAmount passthrough, exchangeRateApplied=1", async () => {
+    // 用 chatanywhere（DB 中 name='openai'）— 仅 tier 1，无双 tier 干扰
+    findManyProvidersMock.mockResolvedValueOnce([{ id: "p_caw", name: "openai", authConfig: {} }]);
+    chatanywhereFetchMock.mockResolvedValueOnce([
+      { date: REPORT_DATE, modelName: "gpt-4o", requests: 10, amount: 1.5, currency: "USD" },
+    ]);
+    findManyCallLogMock.mockResolvedValueOnce([{ costPrice: 1.5 }]);
+
+    await runReconciliation(REPORT_DATE);
+    const args = createReconMock.mock.calls[0][0].data;
+    expect(args.upstreamAmount).toBe(1.5);
+    expect(args.details.currency).toBe("USD");
+    expect(args.details.upstreamAmountOriginal).toBe(1.5);
+    expect(args.details.exchangeRateApplied).toBe(1);
+  });
+
+  it("CNY currency with default rate 0.137 → upstreamAmount = amount * 0.137", async () => {
+    findManyProvidersMock.mockResolvedValueOnce([
+      { id: "p_volc", name: "volcengine", authConfig: {} },
+    ]);
+    // 生产 evidence: Doubao-Seedream-4.5 amount=3.25 CNY
+    volcengineFetchMock.mockResolvedValueOnce([
+      {
+        date: REPORT_DATE,
+        modelName: "doubao-seedream-4.5",
+        requests: 1,
+        amount: 3.25,
+        currency: "CNY",
+      },
+    ]);
+    findManyCallLogMock.mockResolvedValueOnce([{ costPrice: 0.44525 }]); // gateway 已等于换算后值，期望 MATCH
+
+    await runReconciliation(REPORT_DATE);
+    const args = createReconMock.mock.calls[0][0].data;
+    expect(args.upstreamAmount).toBeCloseTo(0.44525, 6); // 3.25 * 0.137
+    expect(args.gatewayAmount).toBeCloseTo(0.44525, 6);
+    expect(args.status).toBe("MATCH");
+    expect(args.details.currency).toBe("CNY");
+    expect(args.details.upstreamAmountOriginal).toBe(3.25);
+    expect(args.details.exchangeRateApplied).toBe(0.137);
+  });
+
+  it("custom EXCHANGE_RATE_CNY_TO_USD=0.14 → uses overridden rate", async () => {
+    // 模拟 SystemConfig 自定义汇率
+    getConfigNumberMock.mockImplementation(async (key: string, def: number) => {
+      if (key === "EXCHANGE_RATE_CNY_TO_USD") return 0.14;
+      return def;
+    });
+
+    findManyProvidersMock.mockResolvedValueOnce([
+      { id: "p_volc", name: "volcengine", authConfig: {} },
+    ]);
+    volcengineFetchMock.mockResolvedValueOnce([
+      { date: REPORT_DATE, modelName: "doubao-pro", requests: 1, amount: 10, currency: "CNY" },
+    ]);
+    findManyCallLogMock.mockResolvedValueOnce([{ costPrice: 1.4 }]);
+
+    await runReconciliation(REPORT_DATE);
+    const args = createReconMock.mock.calls[0][0].data;
+    expect(args.upstreamAmount).toBeCloseTo(1.4, 6); // 10 * 0.14
+    expect(args.details.exchangeRateApplied).toBe(0.14);
+  });
+
+  it("tier 2 balance path is not affected by CNY→USD logic", async () => {
+    // tier 2 使用 BalanceSnapshot.balance 字段，本身已是 currency-aware；不走 F-RF-02 路径
+    findManyProvidersMock.mockResolvedValueOnce([
+      { id: "p_sf", name: "siliconflow", authConfig: { apiKey: "x" } },
+    ]);
+    siliconflowBalanceMock.mockResolvedValueOnce([
+      {
+        providerName: "siliconflow",
+        snapshotAt: new Date("2026-04-22T05:00:00Z"),
+        currency: "CNY",
+        balance: 90,
+        raw: {},
+      },
+    ]);
+    findFirstSnapshotMock.mockResolvedValueOnce({
+      snapshotAt: new Date("2026-04-21T05:00:00Z"),
+      balance: 100,
+      currency: "CNY",
+    });
+    findManyCallLogMock.mockResolvedValueOnce([{ costPrice: 9.95 }]);
+
+    await runReconciliation(REPORT_DATE);
+    const args = createReconMock.mock.calls[0][0].data;
+    // tier 2 仍按 balance 直接 delta=10（无 USD 折算），与原行为一致
+    expect(args.upstreamAmount).toBe(10);
+    expect(args.tier).toBe(2);
+    // 不应有 F-RF-02 引入的 details 字段
+    expect(args.details.upstreamAmountOriginal).toBeUndefined();
+    expect(args.details.exchangeRateApplied).toBeUndefined();
   });
 });
 
@@ -251,7 +356,8 @@ describe("F-BAP2-02 runReconciliation overall", () => {
     volcengineFetchMock.mockResolvedValueOnce([
       { date: REPORT_DATE, modelName: "ep-abc", requests: 100, amount: 100, currency: "CNY" },
     ]);
-    findManyCallLogMock.mockResolvedValueOnce([{ costPrice: 50 }]); // gateway 50 vs upstream 100 → delta=50, |%|=50 → BIG_DIFF
+    // F-RF-02: upstream 100 CNY → 13.7 USD；gateway 50 USD → delta=36.3, |%|=265% → BIG_DIFF
+    findManyCallLogMock.mockResolvedValueOnce([{ costPrice: 50 }]);
 
     const result = await runReconciliation(REPORT_DATE);
     expect(result.bigDiffs).toBe(1);
