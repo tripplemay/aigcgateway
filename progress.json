@@ -1,14 +1,15 @@
 {
-  "status": "building",
+  "status": "verifying",
   "user_goal": "BL-RECON-FIX-PHASE2 — 治本修 OR image-via-chat 模型计费漏算（gemini-2.5-flash-image 实测 12x undercount）。修 src/lib/engine/openai-compat.ts extractUsage 让 image-output tokens 被记录，让 7 个 ⚠️ token-priced channel 的现有公式自动算对。用户 2026-04-27 选方案 B 治本（其他选项：A 全量 perCall 配置 / C 仅修 2 条）。",
   "total_features": 4,
-  "completed_features": 0,
+  "completed_features": 3,
   "fix_rounds": 0,
   "current_sprint": "BL-RECON-FIX-PHASE2",
-  "last_updated": "2026-04-27T16:00:00.000Z",
+  "last_updated": "2026-04-27T15:31:00.000Z",
   "reference_docs": [
     "docs/specs/BL-RECON-FIX-PHASE2-spec.md",
-    "docs/audits/image-pricing-2026-04-27.md"
+    "docs/audits/image-pricing-2026-04-27.md",
+    "docs/audits/openrouter-image-usage-shape-2026-04-27.md"
   ],
   "role_assignments": null,
   "docs": {
@@ -18,48 +19,38 @@
     "framework_reviewed": false
   },
   "evaluator_feedback": null,
-  "evaluator_handoff": null,
-  "generator_handoff": {
-    "fix_round": 0,
-    "scope": "F-RP-01 调研 → F-RP-02 修适配 → F-RP-03 集成测；F-RP-01 必须先做（结论决定 F-RP-02 实现分支）。",
-    "spec": "docs/specs/BL-RECON-FIX-PHASE2-spec.md",
-    "execution_order": [
-      "F-RP-01：先做调研，决定 H1/H2/H3 哪个成立 → 写报告 docs/audits/openrouter-image-usage-shape-2026-04-27.md",
-      "F-RP-02：按调研结论选实现分支（A 加 image_tokens 进 completion / B 用 cost 字段直返 / C 修 sse-parser）",
-      "F-RP-03：集成测验证 imageViaChat 全链路成本"
+  "evaluator_handoff": {
+    "scope": "F-RP-04 全量验收 — 静态(3) + 单测(2) + 生产实证(3) + reconcile 验证(1) + signoff(1)，共 10 项",
+    "spec": "docs/specs/BL-RECON-FIX-PHASE2-spec.md § F-RP-04",
+    "completed_by_generator": [
+      "F-RP-01 (commit df5340c): 真实 OR 直连 + reverse-lookup 三重佐证 → docs/audits/openrouter-image-usage-shape-2026-04-27.md；选 B 分支（usage.cost passthrough）",
+      "F-RP-02 (commit e0bc4e8): types.ts 加 Usage.upstreamCostUsd / openai-compat.ts extractUsage 双 fallback 链读 raw.cost + cost_details / post-process.ts calculateTokenCost SUCCESS+upstreamCostUsd>0 短路；扩 8 case extractUsage + 6 case calculateTokenCost",
+      "F-RP-03 (commit 2ce2556): 端到端 mock OR 真实 shape → CallLog.costPrice ∈ [\\$0.030,\\$0.045] (3 case @ image-via-chat-token-cost.test.ts) + HTTP fetch 全链路透传 (2 case @ image-via-chat-e2e.test.ts)"
     ],
-    "key_files": {
-      "modified": [
-        "src/lib/engine/openai-compat.ts（extractUsage 函数 line 703-723）",
-        "src/lib/engine/types.ts（如选 B 分支需加 Usage.upstreamCostUsd）",
-        "src/lib/engine/openai-compat.test.ts（如不存在则查 *.test.ts 模式）"
-      ],
-      "new": [
-        "docs/audits/openrouter-image-usage-shape-2026-04-27.md（调研报告）",
-        "src/lib/engine/__tests__/image-via-chat-cost.test.ts（或扩展现有 image-via-chat-e2e.test.ts）"
-      ]
+    "verification_evidence": {
+      "static": {
+        "tsc": "PASS（npx tsc --noEmit 无输出）",
+        "build": "PASS（npm run build 完成所有路由）",
+        "vitest": "471 tests PASS（基线 452 + F-RP-02 14 + F-RP-03 5 = 471）"
+      },
+      "unit_tests": {
+        "F-RP-02_extractUsage": "src/lib/engine/__tests__/extract-usage.test.ts 8 case PASS（cost 主字段 / cost_details 兜底 / 双存在优先 / 缺失 / 0 / 负值/NaN/Infinity / string 形式 / reasoning_tokens 共存）",
+        "F-RP-02_calculateTokenCost": "src/lib/api/__tests__/post-process-cost.test.ts F-RP-02 describe 6 case PASS（短路 + 区间断言 / sellUsd 不变 / 缺失 fallback / 0 与负值 fallback / FILTERED 不短路 / ERROR 返 0）",
+        "F-RP-03_e2e": "src/lib/api/__tests__/image-via-chat-token-cost.test.ts F-RP-03 describe 3 case + image-via-chat-e2e.test.ts 2 case PASS"
+      },
+      "production_proof_hint": {
+        "real_call_traceId": "F-RP-01 调研已花 \\$0.0387：gen-1777274549-ggCU4VodGLK3d1SNKnBJ（OR 直连）",
+        "next_step_for_codex": "F-RP-04 验收第 6 项：用 admin API key (注意：memory 里 pk_aa6b13... 已过期 23 天，需登录 codex-admin@aigc-gateway.local / Codex@2026! 在 https://aigc.guangai.ai 创建新 key) 通过 https://aigc.guangai.ai/v1/chat/completions 调一次 google/gemini-2.5-flash-image，相同 prompt 'A simple red circle on white background'；查 call_logs 该 traceId 对应 costPrice ∈ [\\$0.030, \\$0.045]",
+        "reconcile_rerun_hint": "F-RP-04 验收第 8 项：POST /api/admin/reconciliation/rerun {date:今日} → 该日 google/gemini-2.5-flash-image 行 status=MATCH（默认阈值 |Δ|<\\$0.5）"
+      }
     },
-    "preflight_checks": [
-      "Read src/lib/engine/openai-compat.ts:703-723 确认 extractUsage 当前结构",
-      "Read src/lib/engine/types.ts 确认 Usage interface",
-      "Read src/lib/engine/__tests__/image-via-chat-e2e.test.ts 看是否能扩展（避免新建文件）",
-      "Read src/lib/api/post-process.ts:520-540 calculateTokenCost 函数，确认其消费 usage.completion_tokens 的方式（如选 A 分支公式自动覆盖；如选 B 分支需改 calculateTokenCost）",
-      "查 OR API key 在 .env.production 的 key 名（用于直连调研）"
-    ],
-    "investigation_hints": {
-      "or_api_endpoint_for_pricing_replay": "GET https://openrouter.ai/api/v1/generation/{generationId} 返回该次调用的实际 cost；可用此反查任意 traceId 的 OR 实收金额（前提：用 OR 自己的 generation id，gateway 应 log 这个）",
-      "expected_field_locations": [
-        "usage.completion_tokens_details.image_tokens（OR 文档参考 OAI 风格）",
-        "usage.total_tokens（含全部）减 prompt - completion 余下可能是 image",
-        "usage.cost（OR 直返美元）"
-      ],
-      "test_call_cost_budget": "调研 + 验收期共 ~3 次 gemini-2.5-flash-image 调用 × $0.04 = ~$0.12，可接受"
-    },
-    "production_admin_key_hint": "memory T2 reference_production_accounts.md 含 admin API key (pk_aa6b13...)；用 https://aigc.guangai.ai/v1/chat/completions 路径",
-    "notes": "F-RP-01 是判断点。如果 OR 同时支持 H2 (image_tokens 字段) 和 H3 (cost 字段)，优先选 H3 (cost 直返最权威，避免依赖 token 单价正确性）。Generator 完成 F-RP-01/02/03 后 status=verifying。"
+    "expected_signoff_path": "docs/test-reports/BL-RECON-FIX-PHASE2-signoff-2026-04-2X.md",
+    "exclusions_reminder": "明确不要求：channel.costPrice 配置改动（保持 token-priced，公式被 upstreamCostUsd 短路绕过）/ sellPrice 改动 / 历史数据回填 / zhipu cogview-3 单独验证（zhipu adapter 是否同样返 cost 待未来）"
   },
+  "generator_handoff": null,
   "session_notes": {
     "Kimi-batch-launch": "BL-RECON-FIX-PHASE2 启动 @ 2026-04-27 16:00。\n\n背景：BL-RECON-FIX-PHASE1 F-RF-03 audit 输出 7 个 ⚠️ token-priced image channel；用户深度复核后选方案 B（治本：修适配层让 image tokens 被捕获，而非 A 改全量 perCall 或 C 只改 2 条）。\n\n关键发现：channel.costPrice 公式 token 单价与 OR 公布完全一致；问题在 extractUsage 仅读 prompt_tokens / completion_tokens / reasoning_tokens 三字段，**忽略了 image-output tokens**。\n\nspec 设计要点：\n1) 投入 F-RP-01 调研先 — 通过 1 次真实 gemini call（gateway 路径 + 直连 OR）确认 H1/H2/H3 哪个成立\n2) F-RP-02 按结论选 A/B/C 实现分支（A 加 image_tokens 到 completion / B 用 cost 字段 / C 修 sse-parser）\n3) F-RP-03 集成测 ±15% 容差实证准确性\n4) F-RP-04 含生产实证（真调用 gemini → CallLog.costPrice ∈ [$0.030,$0.045]）\n\n非目标：不动 channel 配置（修适配层后 7 channel 全部自动算对）；不动 cogview-3（zhipu 适配独立）；不动阈值粒度。\n\n下一步：本会话 Planner 身份固定。等 Generator session pull 后按 generator_handoff 执行 F-RP-01 → F-RP-02 → F-RP-03，预估 2h。完成后 status=verifying 交 Codex F-RP-04（含生产实证）。",
+    "Kimi": "BL-RECON-FIX-PHASE2 building → verifying @ 2026-04-27 15:31。\n\nF-RP-01 调研发现：completion_tokens=1304 已包含 image_tokens=1290，token 数量没缺；但 image-output 实际单价 ≈ \\$30/M（OR 反查 \\$0.038735/1290），远高于配置的文本 output \\$2.5/M。12x 漏算来自单价错位非 token 缺失。这意味着 A/C 分支均不可行，必须 B 分支用 OR 直返 usage.cost 短路 token×单价公式。\n\n3 features 全 commit：\n- F-RP-01 (df5340c): 调研报告 + 1 次真实 OR 调用扣 \\$0.0387；OR generation reverse-lookup 反查 total_cost 三重对齐\n- F-RP-02 (e0bc4e8): types.ts 加 Usage.upstreamCostUsd / openai-compat.ts extractUsage 加 raw.cost + cost_details fallback / post-process.ts calculateTokenCost SUCCESS+upstreamCostUsd>0 短路（FILTERED/ERROR 不短路保安全），sellUsd 公式不动；新增 8 case extractUsage 单测 + 6 case calculateTokenCost 单测\n- F-RP-03 (2ce2556): 端到端 image-via-chat-token-cost 加 3 case（CallLog.costPrice 区间断言 + 文本回归 + 短路防回归），image-via-chat-e2e 加 2 case（HTTP fetch → Usage.upstreamCostUsd 全链路 + cost_details 兜底）\n\n最终验证：tsc PASS / vitest 471 PASS（19 新增）/ build PASS。progress.json status=verifying，evaluator_handoff 写 10 项验收证据 + 注意事项（admin API key memory 过期需重新登录创建）。\n\n注意点：\n- F-RP-04 acceptance 第 6/7 项需要新创 admin API key 才能跑生产实证；memory 里那个 pk_aa6b13... 已 401\n- 7 ⚠️ channel 全部不需改 costPrice 配置（公式自动绕过）\n- zhipu cogview-3 留未来启用时验证（zhipu adapter 是否返 cost）",
     "Reviewer": null
   }
 }

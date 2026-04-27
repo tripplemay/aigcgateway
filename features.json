@@ -7,7 +7,7 @@
       "title": "调研 OR image 模型 usage 字段形态（H1/H2/H3 三假设核证）",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "source": "BL-RECON-FIX-PHASE2 spec § F-RP-01",
       "acceptance": "1) 用 admin API key (pk_aa6b13...) 通过 https://aigc.guangai.ai/v1/chat/completions 调一次 gemini-2.5-flash-image 真实图像生成，捕获 raw response；2) 用 .env.production 的 OR API key 直连 https://openrouter.ai/api/v1/chat/completions 调相同 prompt，捕获 raw OR 响应；3) jq usage 输出对比；用 OR /api/v1/generation/{id} 反查实收 cost；4) 标注 H1（completion_tokens 已含被截断）/ H2（独立字段如 completion_tokens_details.image_tokens）/ H3（usage.cost 直返）哪个成立，引用 OR API 文档；5) 调研报告写入 docs/audits/openrouter-image-usage-shape-2026-04-27.md 含 raw JSON 片段 + 量化 gap（gateway costPrice vs OR 实收）；6) commit 'docs(BL-RECON-FIX-PHASE2 F-RP-01): OR image usage shape investigation'"
     },
@@ -16,7 +16,7 @@
       "title": "适配层 extractUsage 兼容 image-output tokens（按 F-RP-01 结论选 A/B/C 分支）",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "source": "BL-RECON-FIX-PHASE2 spec § F-RP-02",
       "acceptance": "1) src/lib/engine/openai-compat.ts extractUsage 按 F-RP-01 结论实现：A 分支 (image_tokens 单独字段) → 加到 completion_tokens 总计 / B 分支 (cost 直返) → 新增 Usage.upstreamCostUsd 字段 + post-process 优先用此值 / C 分支 (sse-parser 截断) → 修流末尾 usage 聚合；2) 若选 B 分支需更新 src/lib/engine/types.ts Usage interface；3) src/lib/engine/openai-compat.test.ts 扩展：mock image_tokens 场景 → completion_tokens 含 image / mock cost 场景 → upstreamCostUsd / 纯文本回归不变；4) tsc + build 通过；5) 单 commit 'feat(BL-RECON-FIX-PHASE2 F-RP-02): capture OR image-output tokens in extractUsage'"
     },
@@ -25,7 +25,7 @@
       "title": "image-via-chat 端到端 cost 集成测（CallLog.costPrice ≈ OR 实收 ±5%）",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "source": "BL-RECON-FIX-PHASE2 spec § F-RP-03",
       "acceptance": "1) 新建 src/lib/engine/__tests__/image-via-chat-cost.test.ts 或扩展 image-via-chat-e2e.test.ts；2) mock OR 完整 image 响应（含 F-RP-01 实证 shape：35 prompt + 1293 completion + image_tokens 等）；3) 跑完整 imageViaChat → post-process 链路，断言 CallLog.costPrice ∈ [$0.030, $0.045]（OR 实收 $0.0387 ±15% 容差）；4) 文本回归测：纯文本 chat（无 image tokens）成本计算不变；5) vitest 全过 + build；6) 单 commit 'test(BL-RECON-FIX-PHASE2 F-RP-03): image-via-chat e2e cost accuracy test'"
     },
