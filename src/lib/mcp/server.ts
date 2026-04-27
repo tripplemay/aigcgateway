@@ -8,6 +8,7 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { registerListModels } from "./tools/list-models";
 import { registerChat } from "./tools/chat";
+import { registerEmbedText } from "./tools/embed-text";
 import { registerGenerateImage } from "./tools/generate-image";
 import { registerListLogs } from "./tools/list-logs";
 import { registerGetLogDetail } from "./tools/get-log-detail";
@@ -155,6 +156,7 @@ export function createMcpServer(opts: McpServerOptions): McpServer {
   // AI invocation tools (need project context for billing)
   registerChat(server, opts);
   registerGenerateImage(server, opts);
+  registerEmbedText(server, opts); // BL-EMBEDDING-MVP F-EM-05
 
   // Query tools (need project context for scoping)
   registerListLogs(server, opts);

@@ -33,10 +33,26 @@ export interface ImageResponse {
   traceId: string;
 }
 
+export interface EmbedData {
+  index: number;
+  embedding: number[];
+}
+
+export interface EmbedResponse {
+  object: "list";
+  data: EmbedData[];
+  model: string;
+  usage: {
+    promptTokens: number;
+    totalTokens: number;
+  };
+  traceId: string;
+}
+
 export interface ModelInfo {
   id: string;
   displayName: string;
-  modality: "text" | "image";
+  modality: "text" | "image" | "embedding";
   contextWindow?: number;
   maxOutputTokens?: number;
   pricing: TokenPricing | CallPricing;

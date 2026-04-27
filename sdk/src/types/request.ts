@@ -68,7 +68,15 @@ export interface ImageParams {
 }
 
 export interface ModelsParams {
-  modality?: "text" | "image";
+  modality?: "text" | "image" | "embedding";
+}
+
+export interface EmbedParams {
+  model: string;
+  /** Text to embed: a single string or batch up to 100 strings. */
+  input: string | string[];
+  /** MVP only supports 'float'. */
+  encoding_format?: "float";
 }
 
 export interface ToolDefinition {

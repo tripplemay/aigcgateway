@@ -8,6 +8,7 @@ export type { GatewayConfig, RetryConfig } from "./types/config";
 export type {
   ChatParams,
   ChatStreamParams,
+  EmbedParams,
   ImageParams,
   ModelsParams,
   Message,
@@ -29,6 +30,8 @@ export type {
   ChatResponse,
   ChatStream,
   StreamChunk,
+  EmbedResponse,
+  EmbedData,
   ImageResponse,
   ModelInfo,
   Usage,

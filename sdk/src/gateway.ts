@@ -2,12 +2,14 @@ import type { GatewayConfig } from "./types/config";
 import type {
   ChatParams,
   ChatStreamParams,
+  EmbedParams,
   ImageParams,
   ModelsParams,
 } from "./types/request";
 import type {
   ChatResponse,
   ChatStream,
+  EmbedResponse,
   ImageResponse,
   ModelInfo,
   RawChatResponse,
@@ -47,6 +49,39 @@ export class Gateway {
       return this.chatStream(params);
     }
     return this.chatNonStream(params as ChatParams);
+  }
+
+  // ==============================================================
+  // embed (BL-EMBEDDING-MVP F-EM-05)
+  // ==============================================================
+
+  async embed(params: EmbedParams): Promise<EmbedResponse> {
+    const response = await this.request(
+      "/v1/embeddings",
+      "POST",
+      {
+        model: params.model,
+        input: params.input,
+        ...(params.encoding_format ? { encoding_format: params.encoding_format } : {}),
+      },
+      params.model,
+    );
+    const traceId = this.extractTraceId(response);
+    const body = (await response.json()) as {
+      data?: Array<{ index: number; embedding: number[] }>;
+      model?: string;
+      usage?: { prompt_tokens: number; total_tokens: number };
+    };
+    return {
+      object: "list",
+      data: (body.data ?? []).map((d) => ({ index: d.index, embedding: d.embedding })),
+      model: body.model ?? params.model,
+      usage: {
+        promptTokens: body.usage?.prompt_tokens ?? 0,
+        totalTokens: body.usage?.total_tokens ?? 0,
+      },
+      traceId,
+    };
   }
 
   // ==============================================================
