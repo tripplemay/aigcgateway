@@ -1,42 +1,60 @@
 {
-  "batch": "BL-RECON-FIX-PHASE2",
-  "created_at": "2026-04-27",
+  "batch": "BL-EMBEDDING-MVP",
+  "created_at": "2026-04-28",
   "features": [
     {
-      "id": "F-RP-01",
-      "title": "调研 OR image 模型 usage 字段形态（H1/H2/H3 三假设核证）",
+      "id": "F-EM-01",
+      "title": "Schema migration（ModelModality EMBEDDING + Action.modality）+ Engine adapter embeddings()",
       "priority": "high",
       "executor": "generator",
-      "status": "completed",
-      "source": "BL-RECON-FIX-PHASE2 spec § F-RP-01",
-      "acceptance": "1) 用 admin API key (pk_aa6b13...) 通过 https://aigc.guangai.ai/v1/chat/completions 调一次 gemini-2.5-flash-image 真实图像生成，捕获 raw response；2) 用 .env.production 的 OR API key 直连 https://openrouter.ai/api/v1/chat/completions 调相同 prompt，捕获 raw OR 响应；3) jq usage 输出对比；用 OR /api/v1/generation/{id} 反查实收 cost；4) 标注 H1（completion_tokens 已含被截断）/ H2（独立字段如 completion_tokens_details.image_tokens）/ H3（usage.cost 直返）哪个成立，引用 OR API 文档；5) 调研报告写入 docs/audits/openrouter-image-usage-shape-2026-04-27.md 含 raw JSON 片段 + 量化 gap（gateway costPrice vs OR 实收）；6) commit 'docs(BL-RECON-FIX-PHASE2 F-RP-01): OR image usage shape investigation'"
+      "status": "pending",
+      "source": "BL-EMBEDDING-MVP spec § F-EM-01",
+      "acceptance": "1) prisma/migrations/20260428_embedding_modality/migration.sql：ALTER TYPE ModelModality ADD VALUE 'EMBEDDING'; ALTER TABLE actions ADD COLUMN modality 默认 'TEXT'；2) prisma/schema.prisma 同步两改；3) src/lib/engine/types.ts 加 EmbeddingRequest/EmbeddingData/EmbeddingResponse interfaces + EngineAdapter.embeddings? 可选方法；4) src/lib/engine/openai-compat.ts 加 embeddings() 实现 + buildUrl 加 'embedding' 类型 + normalizeEmbeddingResponse；5) src/lib/engine/openai-compat.test.ts 加 embeddings 单测：单条 input mock fetch 返 OpenAI 兼容 response → 解析正确；批量 input array → response.data 多条；error response → throw EngineError；6) tsc + build + vitest + prisma generate 全过；7) commit 'feat(BL-EMBEDDING-MVP F-EM-01): schema + engine adapter for embeddings'"
     },
     {
-      "id": "F-RP-02",
-      "title": "适配层 extractUsage 兼容 image-output tokens（按 F-RP-01 结论选 A/B/C 分支）",
+      "id": "F-EM-02",
+      "title": "POST /v1/embeddings API endpoint + 计费 + CallLog",
       "priority": "high",
       "executor": "generator",
-      "status": "completed",
-      "source": "BL-RECON-FIX-PHASE2 spec § F-RP-02",
-      "acceptance": "1) src/lib/engine/openai-compat.ts extractUsage 按 F-RP-01 结论实现：A 分支 (image_tokens 单独字段) → 加到 completion_tokens 总计 / B 分支 (cost 直返) → 新增 Usage.upstreamCostUsd 字段 + post-process 优先用此值 / C 分支 (sse-parser 截断) → 修流末尾 usage 聚合；2) 若选 B 分支需更新 src/lib/engine/types.ts Usage interface；3) src/lib/engine/openai-compat.test.ts 扩展：mock image_tokens 场景 → completion_tokens 含 image / mock cost 场景 → upstreamCostUsd / 纯文本回归不变；4) tsc + build 通过；5) 单 commit 'feat(BL-RECON-FIX-PHASE2 F-RP-02): capture OR image-output tokens in extractUsage'"
+      "status": "pending",
+      "source": "BL-EMBEDDING-MVP spec § F-EM-02",
+      "acceptance": "1) src/app/api/v1/embeddings/route.ts 新建（参考 chat/completions 结构去 stream）：authenticateApiKey + checkBalance + checkRateLimit('text') + resolveEngine + adapter.embeddings + processEmbeddingResult；2) 校验 model + input 必填；input array max 100；非 EMBEDDING modality 模型 → 400 invalid_model_modality；3) src/lib/api/post-process.ts 加 processEmbeddingResult：复用 calculateTokenCost (completion_tokens=0) + 写 CallLog source='api' + metadata.modality='EMBEDDING'；4) 单测 src/app/api/v1/embeddings/__tests__/route.test.ts：单条 + 批量 + 非 embedding 模型 400 + 缺 model/input 400 + 鉴权失败 401 + balance 不够 402；5) tsc + build + vitest 全过；6) commit 'feat(BL-EMBEDDING-MVP F-EM-02): /v1/embeddings endpoint + billing'"
     },
     {
-      "id": "F-RP-03",
-      "title": "image-via-chat 端到端 cost 集成测（CallLog.costPrice ≈ OR 实收 ±5%）",
+      "id": "F-EM-03",
+      "title": "Action 系统支持 embedding modality（runner 分支 + result 类型扩展）",
       "priority": "high",
       "executor": "generator",
-      "status": "completed",
-      "source": "BL-RECON-FIX-PHASE2 spec § F-RP-03",
-      "acceptance": "1) 新建 src/lib/engine/__tests__/image-via-chat-cost.test.ts 或扩展 image-via-chat-e2e.test.ts；2) mock OR 完整 image 响应（含 F-RP-01 实证 shape：35 prompt + 1293 completion + image_tokens 等）；3) 跑完整 imageViaChat → post-process 链路，断言 CallLog.costPrice ∈ [$0.030, $0.045]（OR 实收 $0.0387 ±15% 容差）；4) 文本回归测：纯文本 chat（无 image tokens）成本计算不变；5) vitest 全过 + build；6) 单 commit 'test(BL-RECON-FIX-PHASE2 F-RP-03): image-via-chat e2e cost accuracy test'"
+      "status": "pending",
+      "source": "BL-EMBEDDING-MVP spec § F-EM-03",
+      "acceptance": "1) src/lib/action/runner.ts runAction + runActionNonStream 加 modality 分支：action.modality='EMBEDDING' 时不走 chat path，调 adapter.embeddings({model, input: messages.map(m=>m.content).join('\\n')}, route)；2) ActionRunResult 类型扩展 modality:'TEXT'|'EMBEDDING' + 可选 embedding:number[] / dimensions:number 字段（chat path 仍设 modality:'TEXT' 兼容）；3) src/lib/mcp/tools/create-action.ts 接受 modality 参数（zod enum default 'TEXT'）；validate model.modality === action.modality（一致性约束，409 不一致）；4) 单测 src/lib/action/__tests__/runner.test.ts 加 embedding action 跑通 mock adapter；现有 chat action 单测不破；5) tsc + build + vitest 全过；6) commit 'feat(BL-EMBEDDING-MVP F-EM-03): action runner embedding branch'"
     },
     {
-      "id": "F-RP-04",
-      "title": "BL-RECON-FIX-PHASE2 验收（静态 + 单测 + 生产实证 + reconcile 验证）",
+      "id": "F-EM-04",
+      "title": "Provider seed bge-m3 + text-embedding-3-small + admin UI 加 EMBEDDING 选项",
+      "priority": "high",
+      "executor": "generator",
+      "status": "pending",
+      "source": "BL-EMBEDDING-MVP spec § F-EM-04",
+      "acceptance": "1) Preflight：用 WebFetch 或人工查 SiliconFlow 当前 BAAI/bge-m3 单价（spec 默认 ¥0.5/M ≈ $0.07/M）+ OpenAI text-embedding-3-small 单价（spec 默认 $0.02/M）→ 价格变动则更新到 spec 引用块；2) prisma/seed.ts 加幂等 upsert 2 个 model + 2 个 channel（bge-m3 → SiliconFlow / text-embedding-3-small → OpenAI）+ costPrice/sellPrice JSON；3) admin/models 创建表单 modality select 加 EMBEDDING 选项；list 展示页 modality 列正确显示 EMBEDDING；4) 验证 GET /v1/models?modality=embedding 过滤正确返回 2 条；5) 部署后 npx prisma db seed 写入生产；6) tsc + build 通过；7) commit 'feat(BL-EMBEDDING-MVP F-EM-04): seed bge-m3 + text-embedding-3-small models'"
+    },
+    {
+      "id": "F-EM-05",
+      "title": "MCP tool embed_text + SDK gateway.embed()",
+      "priority": "high",
+      "executor": "generator",
+      "status": "pending",
+      "source": "BL-EMBEDDING-MVP spec § F-EM-05",
+      "acceptance": "1) src/lib/mcp/tools/embed-text.ts 新建：server.tool('embed_text', desc, {model, input: string|string[].max(100)}, handler)；handler 内调 adapter.embeddings 走完整鉴权 + 计费 + CallLog (source='mcp')；2) src/lib/mcp/server.ts 注册 registerEmbedText(server, opts)；3) 单测 src/lib/mcp/tools/__tests__/embed-text.test.ts：mock prisma + adapter，单条 + 批量 + 非 embedding 模型 error；4) sdk/src/gateway.ts 加 async embed(params: EmbedParams): Promise<EmbedResponse>；5) sdk/src/types/request.ts 加 EmbedParams + sdk/src/types/response.ts 加 EmbedResponse + sdk/src/index.ts 重导出；6) sdk/test/ 加 embed.test.ts（mock fetch + assert path + body shape）；7) tsc + build + vitest + sdk build 全过；8) commit 'feat(BL-EMBEDDING-MVP F-EM-05): MCP embed_text + SDK gateway.embed'"
+    },
+    {
+      "id": "F-EM-06",
+      "title": "BL-EMBEDDING-MVP 全量验收（API + Action + MCP + SDK + 生产实证）",
       "priority": "high",
       "executor": "codex",
-      "status": "completed",
-      "source": "BL-RECON-FIX-PHASE2 spec § F-RP-04",
-      "acceptance": "静态（3）：tsc / build / vitest（≥ 452 + F-RP-02/03 新增）。单测验证（2）：4) F-RP-02 extractUsage 新单测全 PASS；5) F-RP-03 集成测全 PASS。生产实证（3）：6) 触发 1 次真实 gemini-2.5-flash-image 调用（admin API key + https://aigc.guangai.ai/v1/chat/completions）；7) 查 call_logs 该 traceId 对应 costPrice ∈ [$0.030, $0.045]（覆盖 OR 实收 $0.0387 ±15%）；8) 触发手动 reconcile rerun（POST /api/admin/reconciliation/rerun {date:今日}）→ 该日 gemini-2.5-flash-image 行 status=MATCH（默认阈值 |Δ|<$0.5）。报告（1）：9) docs/test-reports/BL-RECON-FIX-PHASE2-signoff-2026-04-2X.md 含 9 项证据 + 引用 F-RP-01 调研报告 + 实证 traceId + reconcile 截图"
+      "status": "pending",
+      "source": "BL-EMBEDDING-MVP spec § F-EM-06",
+      "acceptance": "静态（3）：1) tsc + build + vitest 全过（基线 471 + 新增）；2) prisma migrate dev + generate 通过；3) sdk build 通过。API（4）：4) POST /v1/embeddings {model:bge-m3, input:'hello'} → 200 + data[0].embedding 长度 1024 + usage.prompt_tokens>0；5) 批量 input:['a','b','c'] → data 3 条；6) POST 用 chat 模型 → 400 invalid_model_modality；7) CallLog 写入 modality='EMBEDDING' (metadata) + costPrice ≈ usage × 单价。Action（2）：8) create_action modality:'EMBEDDING' model:'bge-m3' messages:[{role:'user', content:'{{text}}'}] → 创建成功；9) run_action variables:{text:'hello'} → 返回 modality:'EMBEDDING' + embedding[1024] + dimensions:1024 + usage。MCP（1）：10) MCP client embed_text {model:bge-m3, input:'hello'} → embedding 返回。SDK（1）：11) gateway.embed({model:bge-m3, input:'hello'}) → response.data[0].embedding。生产（2）：12) 部署 + npx prisma db seed → 生产 DB 含 bge-m3 + text-embedding-3-small；13) 生产 API 调 1 次 bge-m3（admin API key）→ 200 + costPrice<$0.001。报告（1）：14) docs/test-reports/BL-EMBEDDING-MVP-signoff-2026-04-2X.md 含 13 项证据 + 真实 traceId + 截图"
     }
   ]
 }

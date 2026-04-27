@@ -1,29 +1,88 @@
 {
-  "status": "done",
-  "user_goal": "BL-RECON-FIX-PHASE2 — 治本修 OR image-via-chat 模型计费漏算（gemini-2.5-flash-image 实测 12x undercount）。修 src/lib/engine/openai-compat.ts extractUsage 让 image-output tokens 被记录，让 7 个 ⚠️ token-priced channel 的现有公式自动算对。用户 2026-04-27 选方案 B 治本（其他选项：A 全量 perCall 配置 / C 仅修 2 条）。",
-  "total_features": 4,
-  "completed_features": 4,
+  "status": "building",
+  "user_goal": "BL-EMBEDDING-MVP — 接入 embedding modality（KOLMatrix dogfood 客户需求）。新 ModelModality EMBEDDING + POST /v1/embeddings + Action embedding 类型 + MCP embed_text + SDK gateway.embed + bge-m3 (SiliconFlow) + text-embedding-3-small (OpenAI) seed。目标 2026-05-22 KOLMatrix MVP 上线前完成。",
+  "total_features": 6,
+  "completed_features": 0,
   "fix_rounds": 0,
-  "current_sprint": "BL-RECON-FIX-PHASE2",
-  "last_updated": "2026-04-27T15:58:00.000Z",
+  "current_sprint": "BL-EMBEDDING-MVP",
+  "last_updated": "2026-04-28T00:00:00.000Z",
   "reference_docs": [
-    "docs/specs/BL-RECON-FIX-PHASE2-spec.md",
-    "docs/audits/image-pricing-2026-04-27.md",
-    "docs/audits/openrouter-image-usage-shape-2026-04-27.md"
+    "docs/specs/BL-EMBEDDING-MVP-spec.md",
+    "/Users/yixingzhou/project/joyce/docs/external-asks/aigcgateway-embedding-request.md"
   ],
   "role_assignments": null,
   "docs": {
-    "spec": "docs/specs/BL-RECON-FIX-PHASE2-spec.md",
+    "spec": "docs/specs/BL-EMBEDDING-MVP-spec.md",
     "test_cases": null,
-    "signoff": "docs/test-reports/BL-RECON-FIX-PHASE2-signoff-2026-04-27.md",
-    "framework_reviewed": false
+    "signoff": null,
+    "framework_reviewed": false,
+    "external_request": "/Users/yixingzhou/project/joyce/docs/external-asks/aigcgateway-embedding-request.md"
   },
   "evaluator_feedback": null,
   "evaluator_handoff": null,
-  "generator_handoff": null,
+  "generator_handoff": {
+    "fix_round": 0,
+    "scope": "F-EM-01 → F-EM-02 → F-EM-03 → F-EM-04 → F-EM-05 顺序执行；总工时 ~3 day。每个 feature ~0.5 day。",
+    "spec": "docs/specs/BL-EMBEDDING-MVP-spec.md",
+    "execution_order": [
+      "F-EM-01：Schema migration + Engine adapter（基础，先做）",
+      "F-EM-02：API endpoint /v1/embeddings + 计费",
+      "F-EM-03：Action 系统支持 embedding modality",
+      "F-EM-04：Provider seed bge-m3 + text-embedding-3-small",
+      "F-EM-05：MCP embed_text + SDK gateway.embed"
+    ],
+    "key_files": {
+      "new": [
+        "prisma/migrations/20260428_embedding_modality/migration.sql",
+        "src/app/api/v1/embeddings/route.ts",
+        "src/app/api/v1/embeddings/__tests__/route.test.ts",
+        "src/lib/mcp/tools/embed-text.ts",
+        "src/lib/mcp/tools/__tests__/embed-text.test.ts",
+        "sdk/test/embed.test.ts（如该 sdk/test 模式存在）"
+      ],
+      "modified": [
+        "prisma/schema.prisma（ModelModality enum + Action.modality 字段）",
+        "src/lib/engine/types.ts（EmbeddingRequest/Data/Response interfaces + EngineAdapter.embeddings? 方法）",
+        "src/lib/engine/openai-compat.ts（embeddings() 方法 + buildUrl 加 'embedding' 类型 + normalizeEmbeddingResponse）",
+        "src/lib/engine/openai-compat.test.ts（加 embeddings 单测）",
+        "src/lib/api/post-process.ts（processEmbeddingResult 复用 calculateTokenCost）",
+        "src/lib/action/runner.ts（runAction + runActionNonStream 加 modality 分支）",
+        "src/lib/action/__tests__/runner.test.ts（加 embedding action case）",
+        "src/lib/mcp/tools/create-action.ts（接受 modality 参数）",
+        "src/lib/mcp/server.ts（注册 registerEmbedText）",
+        "prisma/seed.ts（加 bge-m3 + text-embedding-3-small upsert）",
+        "src/app/(console)/admin/models/page.tsx（modality select 加 EMBEDDING 选项）",
+        "sdk/src/gateway.ts（embed() 方法）",
+        "sdk/src/types/request.ts + response.ts + index.ts（EmbedParams/Response 类型）",
+        "src/app/api/v1/models/route.ts（如 modality filter 不支持 EMBEDDING 需扩展）"
+      ]
+    },
+    "preflight_checks": [
+      "Read src/app/api/v1/chat/completions/route.ts 完整结构（embedding endpoint 镜像但去 stream）",
+      "Read src/lib/engine/openai-compat.ts:162-204 imageGenerations 看 buildUrl 切换模式（embedding 同样需切换）",
+      "Read src/lib/api/post-process.ts calculateTokenCost 函数确认 outputPer1M=0 边界正确（bge-m3 sellPrice.outputPer1M=0）",
+      "Read src/lib/action/runner.ts runAction + runActionNonStream 完整以决定分支位置",
+      "Read prisma/schema.prisma Action 模型 看其他字段有无影响 modality 加入（如 modality 与 maxTokens 类似）",
+      "Read sdk/src/gateway.ts 已有 chat/image/models 方法的实现模式",
+      "WebFetch 或人工查 SiliconFlow https://siliconflow.cn pricing 确认 BAAI/bge-m3 当前单价（spec 默认 ¥0.5/M）",
+      "WebFetch 或人工查 OpenAI text-embedding-3-small 当前单价（spec 默认 $0.02/M）"
+    ],
+    "design_decisions": {
+      "action_messages_shape": "embedding action 的 ActionVersion.messages 约定为 [{role:'user', content:'template-string'}] 单条；多条时 runner 用 .join('\\n') 合并。不改 ActionVersion schema。",
+      "calculateTokenCost_reuse": "embedding 计费复用 calculateTokenCost(usage, route)，把 completion_tokens 设 0 即可（output 单价乘 0）。无需新建 calculateEmbeddingCost。",
+      "modality_consistency_check": "create_action 时 validate model.modality === action.modality；不一致 409。run_action 时 trust action.modality 不重新检查（migration 时已锁定）。",
+      "phase_2_excluded": "dimensions / encoding_format=base64 / similarity endpoint / 持久化向量 / Volcengine+Zhipu+DeepSeek 适配 / Template embedding step / Action embedding 批量 全部 Phase 2"
+    },
+    "kolmatrix_context": {
+      "external_request_doc": "/Users/yixingzhou/project/joyce/docs/external-asks/aigcgateway-embedding-request.md",
+      "target_models": "P0 bge-m3 (KOLMatrix 主推中日韩) + P1 text-embedding-3-small (兜底)",
+      "kolmatrix_mvp_deadline": "2026-05-22（aigcgateway 完成给 KOLMatrix 留 BL-014 升级时间）",
+      "expected_kolmatrix_use": "KOL bio embed 1500 一次性 + 50/day 增量 + Smart Match 5000-50000 月查询"
+    },
+    "notes": "本批次共 6 features，~3 day Generator 实施 + 0.5 day Codex 验收。Generator 完成 F-EM-01~05 后 status=verifying；Codex 跑 F-EM-06 14 项验收（含 1 次生产实证调用 ~$0.0001）。生产实证调用花真钱（bge-m3 约 $0.07/M tokens × 50 token 测试 prompt = ~$0.000004，几乎免费）。"
+  },
   "session_notes": {
-    "Kimi-batch-launch": "BL-RECON-FIX-PHASE2 启动 @ 2026-04-27 16:00。\n\n背景：BL-RECON-FIX-PHASE1 F-RF-03 audit 输出 7 个 ⚠️ token-priced image channel；用户深度复核后选方案 B（治本：修适配层让 image tokens 被捕获，而非 A 改全量 perCall 或 C 只改 2 条）。\n\n关键发现：channel.costPrice 公式 token 单价与 OR 公布完全一致；问题在 extractUsage 仅读 prompt_tokens / completion_tokens / reasoning_tokens 三字段，**忽略了 image-output tokens**。\n\nspec 设计要点：\n1) 投入 F-RP-01 调研先 — 通过 1 次真实 gemini call（gateway 路径 + 直连 OR）确认 H1/H2/H3 哪个成立\n2) F-RP-02 按结论选 A/B/C 实现分支（A 加 image_tokens 到 completion / B 用 cost 字段 / C 修 sse-parser）\n3) F-RP-03 集成测 ±15% 容差实证准确性\n4) F-RP-04 含生产实证（真调用 gemini → CallLog.costPrice ∈ [$0.030,$0.045]）\n\n非目标：不动 channel 配置（修适配层后 7 channel 全部自动算对）；不动 cogview-3（zhipu 适配独立）；不动阈值粒度。\n\n下一步：本会话 Planner 身份固定。等 Generator session pull 后按 generator_handoff 执行 F-RP-01 → F-RP-02 → F-RP-03，预估 2h。完成后 status=verifying 交 Codex F-RP-04（含生产实证）。",
-    "Kimi": "BL-RECON-FIX-PHASE2 building → verifying @ 2026-04-27 15:31。\n\nF-RP-01 调研发现：completion_tokens=1304 已包含 image_tokens=1290，token 数量没缺；但 image-output 实际单价 ≈ \\$30/M（OR 反查 \\$0.038735/1290），远高于配置的文本 output \\$2.5/M。12x 漏算来自单价错位非 token 缺失。这意味着 A/C 分支均不可行，必须 B 分支用 OR 直返 usage.cost 短路 token×单价公式。\n\n3 features 全 commit：\n- F-RP-01 (df5340c): 调研报告 + 1 次真实 OR 调用扣 \\$0.0387；OR generation reverse-lookup 反查 total_cost 三重对齐\n- F-RP-02 (e0bc4e8): types.ts 加 Usage.upstreamCostUsd / openai-compat.ts extractUsage 加 raw.cost + cost_details fallback / post-process.ts calculateTokenCost SUCCESS+upstreamCostUsd>0 短路（FILTERED/ERROR 不短路保安全），sellUsd 公式不动；新增 8 case extractUsage 单测 + 6 case calculateTokenCost 单测\n- F-RP-03 (2ce2556): 端到端 image-via-chat-token-cost 加 3 case（CallLog.costPrice 区间断言 + 文本回归 + 短路防回归），image-via-chat-e2e 加 2 case（HTTP fetch → Usage.upstreamCostUsd 全链路 + cost_details 兜底）\n\n最终验证：tsc PASS / vitest 471 PASS（19 新增）/ build PASS。progress.json status=verifying，evaluator_handoff 写 10 项验收证据 + 注意事项（admin API key memory 过期需重新登录创建）。\n\n注意点：\n- F-RP-04 acceptance 第 6/7 项需要新创 admin API key 才能跑生产实证；memory 里那个 pk_aa6b13... 已 401\n- 7 ⚠️ channel 全部不需改 costPrice 配置（公式自动绕过）\n- zhipu cogview-3 留未来启用时验证（zhipu adapter 是否返 cost）",
-    "Reviewer": "verifying @ 2026-04-27：用户同意 tc8 采用 T+1 口径后完成签收。真实调用 trc_iyp6j4qwowbsu8fhqmo4ujfb 成本 0.0387021 命中区间；最近可得账期（2026-04-26）存在 gemini-2.5-flash-image MATCH 行。已输出 signoff。"
+    "Kimi-batch-launch": "BL-EMBEDDING-MVP 启动 @ 2026-04-28 00:00。\n\n来源：KOLMatrix 客户文档 /Users/yixingzhou/project/joyce/docs/external-asks/aigcgateway-embedding-request.md（同一用户的 dogfood 客户）。\n\n用户决策路径：\n1) 用户问 'gateway 可以支持 Embedding Model 吗？' → Planner 评估当前不支持\n2) Planner 给 MVP 1.5-2 day / 完整 2 day 两版估算\n3) 用户引用 KOLMatrix 客户 request 文档（含完整商业 case + 9 受益场景 + ROI + API spec）\n4) 文档 KOLMatrix 给的工时估算 3-5 day（比 Planner 之前估算更合理，含 Action 集成 + MCP + SDK）\n5) Planner 时机评估：05-22 KOLMatrix MVP 上线前完成最佳；现在起 batch 时间窗口够\n6) 用户选 A：立即启动\n\n架构决策：\n- ModelModality 枚举加 EMBEDDING；Action 加 modality 字段\n- API endpoint /v1/embeddings 镜像 chat/completions（去 stream）\n- Engine adapter.embeddings? 可选方法（OpenAI 兼容）\n- Action runner 分支 by action.modality；ActionVersion.messages 不改 schema（embedding action 用单条 user message 作 template）\n- 计费复用 calculateTokenCost（output=0）\n- Seed bge-m3 (SiliconFlow ~$0.07/M) + text-embedding-3-small (OpenAI $0.02/M)\n- MCP embed_text + SDK gateway.embed()\n\n6 features × 0.5d = 3 day Gen + 0.5d Codex 验收 = 3.5 day 总，留 buffer 给 fix-round。\n\nPhase 2 显式排除：dimensions / cosine endpoint / 持久化向量 / 其他 provider / Template embedding step。\n\n下一步：本会话 Planner 身份固定。等 Generator session pull 后按 generator_handoff 顺序执行 F-EM-01~05，完成后 status=verifying 交 Codex F-EM-06（含生产实证 1 次真调用 ~$0.000004）。",
+    "Reviewer": null
   }
 }
