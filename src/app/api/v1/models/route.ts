@@ -26,7 +26,7 @@ async function queryModelsJSON(modalityFilter: string | undefined): Promise<stri
     where: {
       enabled: true,
       ...(modalityFilter
-        ? { modality: modalityFilter as "TEXT" | "IMAGE" | "VIDEO" | "AUDIO" }
+        ? { modality: modalityFilter as "TEXT" | "IMAGE" | "VIDEO" | "AUDIO" | "EMBEDDING" }
         : {}),
     },
     include: {
