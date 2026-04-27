@@ -1,30 +1,61 @@
 {
-  "status": "done",
-  "user_goal": "BL-RECON-UX-PHASE1 — 优化 /admin/reconciliation 对账面板。A 视图筛选（日期 picker + 倒序默认 + 分页 + Tier 切换 + model 搜索）+ D CSV 导出 + E 阈值可配置（SystemConfig 4 keys）+ 用户明确要求最新数据在顶部。Phase 1 不含告警 / 数据洞察 / Tier 3 占位 / 重跑 audit trail。",
-  "total_features": 3,
-  "completed_features": 3,
-  "fix_rounds": 1,
-  "current_sprint": "BL-RECON-UX-PHASE1",
-  "last_updated": "2026-04-27T14:05:00.000Z",
+  "status": "building",
+  "user_goal": "BL-RECON-FIX-PHASE1 — 修对账数据正确性 bug。来源 2026-04-27 生产数据分析：Issue 1 volcengine fetcher 月度账单重复入对账表 + CNY 当 USD 比较；Issue 2 image 模型 token-priced 计费漏算（如 google/gemini-2.5-flash-image 92% undercount）。Phase 1 修 fetcher + 货币 + 出 image pricing audit 报告；Phase 2 留观察（基于审计报告决策）。",
+  "total_features": 4,
+  "completed_features": 0,
+  "fix_rounds": 0,
+  "current_sprint": "BL-RECON-FIX-PHASE1",
+  "last_updated": "2026-04-27T15:00:00.000Z",
   "reference_docs": [
-    "docs/specs/BL-RECON-UX-PHASE1-spec.md",
-    "docs/adjudications/BL-RECON-UX-PHASE1-tc13-relaxation-2026-04-27.md"
+    "docs/specs/BL-RECON-FIX-PHASE1-spec.md"
   ],
   "role_assignments": null,
   "docs": {
-    "spec": "docs/specs/BL-RECON-UX-PHASE1-spec.md",
+    "spec": "docs/specs/BL-RECON-FIX-PHASE1-spec.md",
     "test_cases": null,
-    "signoff": "docs/test-reports/BL-RECON-UX-PHASE1-fix-round-1-signoff-2026-04-27.md",
-    "framework_reviewed": false,
-    "adjudication": "docs/adjudications/BL-RECON-UX-PHASE1-tc13-relaxation-2026-04-27.md"
+    "signoff": null,
+    "framework_reviewed": false
   },
   "evaluator_feedback": null,
   "evaluator_handoff": null,
-  "generator_handoff": null,
+  "generator_handoff": {
+    "fix_round": 0,
+    "scope": "F-RF-01 → F-RF-02 → F-RF-03 顺序执行；总工时 ~2h。F-RF-01/02 是 fetcher / reconcile-job 逻辑修正，F-RF-03 是 read-only 审计脚本输出报告。",
+    "spec": "docs/specs/BL-RECON-FIX-PHASE1-spec.md",
+    "execution_order": [
+      "F-RF-01：volcengine.ts fetchDailyBill 加 ExpenseDate filter（独立改动，先做）",
+      "F-RF-02：reconcile-job.ts tier1 path 加 CNY→USD 转换（独立改动）",
+      "F-RF-03：scripts/audit-image-pricing.ts 新建 + 用生产 DATABASE_URL 跑出报告"
+    ],
+    "key_files": {
+      "modified": [
+        "src/lib/billing-audit/fetchers/volcengine.ts（fetchDailyBill 加 ExpenseDate filter）",
+        "src/lib/billing-audit/fetchers/__tests__/volcengine.test.ts（如不存在则新建；3 case）",
+        "src/lib/billing-audit/reconcile-job.ts（tier1 path bill 循环加 CNY→USD 转换 + details 三字段）",
+        "src/lib/billing-audit/__tests__/reconcile-job.test.ts（扩展，3 case）"
+      ],
+      "new": [
+        "scripts/audit-image-pricing.ts",
+        "docs/audits/image-pricing-2026-04-27.md（生产报告输出）"
+      ]
+    },
+    "preflight_checks": [
+      "Read src/lib/billing-audit/fetchers/volcengine.ts:55-130 确认 fetchDailyBill + normalizeBillItem 当前结构",
+      "Read src/lib/billing-audit/reconcile-job.ts:260-300 确认 tier1 path bill loop 结构（reconcileTier1）",
+      "Read src/lib/billing-audit/fetchers/tier1-fetcher.ts 确认 BillRecord interface",
+      "Read src/lib/config.ts 确认 getConfigNumber API",
+      "确认 SystemConfig 是否已存 EXCHANGE_RATE_CNY_TO_USD（生产应已有；getConfigNumber fallback 0.137 兜底）"
+    ],
+    "production_data_evidence": {
+      "issue_1": "5 行 BIG_DIFF Doubao-Seedream-4.5 在 04-22/24/25/26/27 重复，all raw.ExpenseDate=2026-04-02；详见生产 SSH 查询 docs/audits/recon-investigation-2026-04-27.md（如未保存可重查）",
+      "issue_2": "1 行 BIG_DIFF google/gemini-2.5-flash-image @ 04-26 upstream=$0.1935/5req vs gateway=$0.0162/6466tok；channel.costPrice.unit==='token' 是根因",
+      "table_state": "bill_reconciliation prod 行数：MATCH=179 / BIG_DIFF=6"
+    },
+    "audit_script_implementation_hint": "用 prisma.model.findMany({where:{modality:'IMAGE'}, include:{channels:{include:{provider:{select:{name:true}}}}}}) 拉一次；30 天 call_logs 用 prisma.callLog.aggregate({where:{model:m.name, createdAt:{gte:thirtyDaysAgo}}, _count, _sum:{sellPrice:true}}); 也可考虑 raw SQL 提性能。Markdown 输出按 console.log 直接 stdout 重定向。",
+    "notes": "F-RF-03 跑生产 DATABASE_URL 时注意 SSL/proxy 配置；如遇连接问题可让用户 SSH 到 prod 跑该脚本（脚本 read-only 安全）。Generator 完成后置 status=verifying 等 Codex F-RF-04。"
+  },
   "session_notes": {
-    "Kimi": "BL-RECON-UX-PHASE1 F-RC-01 + F-RC-02 完成 @ 2026-04-27 11:45，status=verifying 交 Codex。\n\n本批次 Generator 工作总结：\n\n[F-RC-01 后端 — commit 4b507f2 已 push 已 CI 通过 1m6s]\n1) 抽出 src/app/api/admin/reconciliation/query.ts 作为列表/导出共享 parser；用 AND 数组组合 where 避免 spread 覆盖（修了一个 spec 里的隐含 bug：原方案中 tier filter 与 providerId 同传时后者会覆盖前者）。\n2) classifyStatus 加可选 thresholds 参数，默认 = DEFAULT_THRESHOLDS；reconcile-job 内 tier1/2 path + upsertReconciliation 全程 thread thresholds，runReconciliation 入口 await loadThresholds()。\n3) CSV BOM 用字面量 U+FEFF（在文件中是 ef bb bf 三字节）；测试不能 res.text() 因为 TextDecoder 默认会吞 BOM，改用 arrayBuffer() 校验前三字节。\n4) seed.ts 4 个 RECONCILIATION_* keys 用 update:{} 幂等 upsert（已存在不覆盖管理员手改值）。\n\n[F-RC-02 前端 — 本 commit]\n1) page.tsx 366 → 605 行：6 区块 = cards / trend / 阈值配置（新）/ 重跑 / 明细表\n2) cards/trend 与明细表两路 fetch（spec § Risks 第 3 项）；前者固定 30 天 pageSize=200，后者带全部 filter + 分页\n3) 默认 sortDir='desc' 且表头 reportDate 列点击切 asc/desc（▼/▲ 图标）\n4) 阈值 SectionCard：先 GET /api/admin/config 拉初始值，保存按 PUT × 4 顺序调用，toast 「下次重跑生效」\n5) CSV 导出按 actions slot 放在 SectionCard 头部（不是 action 单数，组件 prop 是 actions）；用 raw fetch 而非 apiFetch 因为响应是 blob，400 → toast；200 → blob URL trigger 下载\n6) useDebouncedValue 内联 hook（项目原本没有），300ms\n7) 翻 19 个 i18n keys（spec 列了 18 个，多加了 'save'）\n\n[测试]\n- 总计 441 tests pass（baseline 414 + 27 新增；F-RC-02 没新增前端测试，role-context 不写测试 + spec 也没列前端单测）\n\n[张力点]\nrole-context/generator.md 写「不写任何测试」，但 spec § F-RC-01 acceptance 显式列「单测扩展」。我自己作 Planner 时埋了这个矛盾。本次按 spec 写了完整后端测试。已追加到 .auto-memory/proposed-learnings.md，done 阶段统一处理。\n\n[Codex F-RC-03 准备就绪]\nevaluator_handoff 字段已写好，verification_pointers 列出 spec § F-RC-03 16 项的执行入口。本机 tsc + build + vitest 全过；等 Codex 跑 API 行为 + 前端冒烟 + 写 signoff 报告。",
-    "Reviewer": "reverifying @ 2026-04-27：按 tc13 放宽口径完成 fix_round 1 复验；tsc/build/vitest(445) 通过，mock wiring tc13(4) 通过，API 4-9 通过；输出 signoff 并建议状态置 done。",
-    "Kimi-tc13-adjudication": "Planner 裁决 @ 2026-04-27 06:00：用户同意放宽 tc13。\n\n失败本质 = 测试环境约束（fetcher 缺凭证 skip），非代码 bug。新 tc13 = mock-based wiring 集成测试，证明『阈值切换前后 BillReconciliation.status 不同』即可。\n\n关键决策记录：\n1) 写裁决文档 docs/adjudications/BL-RECON-UX-PHASE1-tc13-relaxation-2026-04-27.md（含铁律 1.1/1.2/1.3 检查）\n2) 改 spec § F-RC-03 第 13 项 + features.json F-RC-03 acceptance：tc13 改为 mock-based wiring 测试\n3) progress.json fix_rounds 0→1，evaluator_feedback 清空，generator_handoff 改为 fix_round 1 任务（含 7 步执行清单）\n4) Generator 注意：fakeFetcher synthetic 数据需用 upstream=10/gateway=9.7（delta=-0.3, deltaPercent=-3%），case A 默认阈值 → MATCH，case B (matchDelta=0.1+matchPercent=1) → MINOR_DIFF。我在 handoff 第 4 步详细推算了边界（含一次推算翻车 → 修订），Generator 实测要先跑 classifyStatus 单测确认推算正确再写测\n5) 生产观察验收延后到 deploy 后人工事后核对，不阻塞 done\n\n下一步：Generator session pull 后按 generator_handoff 7 步执行；预估 1h。完成后 status fixing → reverifying，Codex 复验 16 项。",
-    "Kimi-fix-round-1": "fix_round 1 完成 @ 2026-04-27 13:45，status fixing → reverifying 交 Codex 复验。\n\n[改动]\n1) src/lib/billing-audit/reconcile-job.ts：\n   - 新 export interface TestFetcherOverrides { tier1?: Map<string, TierOneBillFetcher>; tier2?: Map<string, TierTwoBalanceFetcher> }\n   - runReconciliation 加可选第三参数 __testFetcherOverrides\n   - reconcileTier1/2 加可选 override 参数（fetcher = override ?? factory(provider)）\n   - 生产 callsite（cron + /api/admin/reconciliation/rerun）0 改动\n2) src/lib/billing-audit/__tests__/runReconciliation-thresholds.test.ts：4 PASS\n   - A 默认阈值 → MATCH（fakeFetcher upstream=10 + callLog gateway=9.7 → delta=-0.3）\n   - B 紧阈值（matchDelta=0.1, matchPercent=1）→ MINOR_DIFF\n   - C 同 fetcher 同 delta，A vs B status 不同（核心 wiring 证据）\n   - D 不传 override → factory 路径不变，0 行（VolcengineBillFetcher 无凭证抛 BillFetchError），生产 callsite 回归保护\n\n[关键设计决定]\n- 不 mock @/lib/config，让 getConfigNumber 真实跑命中 prisma.systemConfig.findUnique mock — 这样测试覆盖完整链路 runReconciliation→loadThresholds→getConfigNumber→prisma.systemConfig.findUnique，比 mock getConfigNumber 更接近生产语义\n- describe.sequential 防并发污染（mock state 模块级 single instance）\n- 测试数据校验：handoff 第 4 步 Planner 推算 upstream=10/gateway=9.7 → 默认 MATCH / 紧阈值 MINOR_DIFF。我实测确认推算正确，无需调整\n\n[结果]\n- vitest 全跑 445 PASS（baseline 441 + 4 新；handoff 预期 442+，实际超出 3 个因为我加了 D 回归测试）\n- tsc clean / build 未跑（fix_round 仅测试相关，无 production code 形状变化；CI 会跑）\n\n[Codex 复验范围]\n- 必须：新 wiring 测 4 PASS + 原 441 baseline 不回退 = 445 PASS\n- 静态：tsc + build\n- 抽样：原 spec § F-RC-03 第 1-12 + 14-16 项任选 3-5 项 smoke（本 fix_round 未动相关代码）\n- 输出：docs/test-reports/BL-RECON-UX-PHASE1-fix-round-1-signoff-2026-04-27.md，引用裁决文档\n\nevaluator_handoff 字段已写好。"
+    "Kimi-batch-launch": "BL-RECON-FIX-PHASE1 启动 @ 2026-04-27 15:00。\n\n来源：用户要求分析近期对账记录 BIG_DIFF。Planner SSH 生产 DB 查询发现 6 行 BIG_DIFF（5 行 volcengine Doubao-Seedream-4.5 重复 + 1 行 openrouter gemini-2.5-flash-image）。\n\n根因诊断：\n1) volcengine fetcher 拉月度账单（BillPeriod=YYYY-MM）但每天 cron 都把同一笔 4-02 的账单写到 reportDate=今日 → 5 倍重复 BIG_DIFF\n2) reconcile-job tier1 path 把 bill.amount 当 USD 直接比较，但 volcengine bill.currency='CNY'，应按 EXCHANGE_RATE_CNY_TO_USD=0.137 折算\n3) gemini-2.5-flash-image 是 image 模型但 channel.costPrice.unit='token' → calculateTokenCost 漏算 12 倍（应 perCall 计费）\n\nPhase 1 仅修代码逻辑（A+B），C 留 read-only 审计输出报告由用户决策 Phase 2 是否做配置改动。\n\n4 features：F-RF-01 fetcher（generator）+ F-RF-02 reconcile-job（generator）+ F-RF-03 audit script（generator）+ F-RF-04 验收（codex）。预计 2h Generator + 0.5h Codex。\n\n下一步：本会话 Planner 身份固定，无法执行。等 Generator session pull 后按 generator_handoff 顺序执行 3 个 features，完成后 status=verifying 交 Codex。",
+    "Reviewer": null
   }
 }

@@ -1,33 +1,42 @@
 {
-  "batch": "BL-RECON-UX-PHASE1",
+  "batch": "BL-RECON-FIX-PHASE1",
   "created_at": "2026-04-27",
   "features": [
     {
-      "id": "F-RC-01",
-      "title": "对账后端 — API 增强（sort/page/tier/modelSearch）+ CSV 导出 + reconcile-job 阈值化 + SystemConfig seed",
+      "id": "F-RF-01",
+      "title": "Volcengine fetcher 加 ExpenseDate 过滤（消除月度账单重复入对账表）",
       "priority": "high",
       "executor": "generator",
-      "status": "completed",
-      "source": "BL-RECON-UX-PHASE1 spec § F-RC-01",
-      "acceptance": "1) src/app/api/admin/reconciliation/route.ts 增加 query 参数 tier(1|2)/modelSearch(case-insensitive contains)/page(≥1)/pageSize(1-200,默认50)/sort(asc|desc，默认desc) → 返回结构改为 { data, meta:{total,page,pageSize} }；用 prisma findMany + count 并发；orderBy [{reportDate: sort},{computedAt: sort}]；2) 新建 src/app/api/admin/reconciliation/export/route.ts，GET 同 filter（无 page/pageSize），返回 text/csv;charset=utf-8 + BOM 前缀 + Content-Disposition attachment;filename=reconciliation-YYYY-MM-DD.csv，列顺序 reportDate,tier,providerName,modelName,upstreamAmount,gatewayAmount,delta,deltaPercent,status,computedAt，数值 6 位小数；hard cap take:10000，超返 400 + message：3) src/lib/billing-audit/reconcile-job.ts classifyStatus 改签名加 thresholds:ReconThresholds 参数（默认 DEFAULT_THRESHOLDS={matchDeltaUsd:0.5,matchPercent:5,minorDeltaUsd:5,minorPercent:20}）；新增 export async function loadThresholds() 从 getConfigNumber 读 4 keys；runReconciliation 入口 const thresholds = await loadThresholds() 并传给 2 处 classifyStatus 调用；4) prisma/seed.ts 加幂等 upsert 4 个 SystemConfig keys（RECONCILIATION_MATCH_DELTA_USD=0.5/MATCH_PERCENT=5/MINOR_DELTA_USD=5/MINOR_PERCENT=20）+ description 中文；5) 单测扩展：route.test.ts 加 sort/page/tier/modelSearch/meta.total cases；新建 export/__tests__/route.test.ts（CSV header + BOM + Content-Disposition + 10000 cap）；reconcile-job.test.ts 加 classifyStatus 自定义阈值边界测试 + 默认参数回归保护；6) tsc + build + vitest 全过；7) 单 commit 'feat(BL-RECON-UX-PHASE1 F-RC-01): backend API + CSV export + threshold config'"
+      "status": "pending",
+      "source": "BL-RECON-FIX-PHASE1 spec § F-RF-01",
+      "acceptance": "1) src/lib/billing-audit/fetchers/volcengine.ts fetchDailyBill 返回前过滤 ExpenseDate ≠ requestedDate 的行（YYYY-MM-DD UTC 比较）；缺失 ExpenseDate 字段保守过滤；2) 单测覆盖 3 case：mock 月度全量 3 条 ExpenseDate（04-02/04-15/04-23）→ fetchDailyBill(04-23) 仅返 1 条；mock 全部 ExpenseDate≠target → 返空数组；mock 缺失 ExpenseDate → 过滤；3) tsc + build + vitest 全过；4) commit 'feat(BL-RECON-FIX-PHASE1 F-RF-01): volcengine fetcher ExpenseDate filter'"
     },
     {
-      "id": "F-RC-02",
-      "title": "对账前端 — 排序倒序 + 日期 picker + Tier 按钮组 + 分页 + model 搜索 + CSV 导出按钮 + 阈值配置 UI + i18n",
+      "id": "F-RF-02",
+      "title": "reconcile-job tier1 path 加 CNY→USD 货币转换",
       "priority": "high",
       "executor": "generator",
-      "status": "completed",
-      "source": "BL-RECON-UX-PHASE1 spec § F-RC-02",
-      "acceptance": "1) src/app/(console)/admin/reconciliation/page.tsx 改造：明细表默认 sortDir='desc'（最新在顶，用户明确要求）；表头 reportDate 列点击切 asc/desc；2) 日期范围 picker（start/end 两个 type=date，默认 today-30 / today），改后 refetch；3) Tier 按钮组 [All|Tier 1|Tier 2]，默认 All（Tier 3 不展示）；4) 模型搜索 input + debounce 300ms；5) 分页 bar（page/pageSize 选项 [20,50,100,200] 默认 50；前后翻页按钮；显示 total）；6) 表头右上角导出 CSV 按钮，点击触发 GET /api/admin/reconciliation/export?<当前 filters> 浏览器下载；超 10000 行时 toast 错误（捕获 400 message）；7) 新增阈值配置 SectionCard：4 个 number input（match Δ/match %/minor Δ/minor %）+ 保存按钮，调 PUT /api/admin/config × 4 顺序；保存后 toast 「下次重跑生效」；保存前从 GET /api/admin/config 拉初始值；8) cards/trend 计算源用 pageSize=200 page=1 单独 fetch（spec § Risks 第 3 项妥协方案）；明细表独立分页 fetch；9) messages/{en,zh-CN}.json 加 spec 列出的 14 个新 keys；10) tsc + build 通过；11) 单 commit 'feat(BL-RECON-UX-PHASE1 F-RC-02): frontend reconciliation UX + i18n'"
+      "status": "pending",
+      "source": "BL-RECON-FIX-PHASE1 spec § F-RF-02",
+      "acceptance": "1) src/lib/billing-audit/reconcile-job.ts tier1 path bill loop 内：const exchangeRate = await getConfigNumber('EXCHANGE_RATE_CNY_TO_USD', 0.137)；const upstreamUsd = bill.currency === 'CNY' ? bill.amount * exchangeRate : bill.amount；upsertReconciliation 写 upstreamAmount=upstreamUsd + details.currency=bill.currency + details.upstreamAmountOriginal=bill.amount + details.exchangeRateApplied=（CNY 时 exchangeRate 否则 1）；2) 单测扩展：USD 不变 / CNY amount=3.25 → 0.44525 / 自定义 EXCHANGE_RATE_CNY_TO_USD=0.14 时按新汇率；3) tier 2 balance path 不动；4) tsc + build + vitest 全过；5) commit 'feat(BL-RECON-FIX-PHASE1 F-RF-02): tier1 CNY-to-USD currency conversion'"
     },
     {
-      "id": "F-RC-03",
-      "title": "BL-RECON-UX-PHASE1 全量验收（API 行为 + 前端冒烟 + i18n + 静态）",
+      "id": "F-RF-03",
+      "title": "Image pricing audit 脚本 + 生产数据报告（read-only，不改 DB）",
+      "priority": "high",
+      "executor": "generator",
+      "status": "pending",
+      "source": "BL-RECON-FIX-PHASE1 spec § F-RF-03",
+      "acceptance": "1) 新建 scripts/audit-image-pricing.ts：查所有 modality=image 的 model + 关联 channel（含 costPrice + sellPrice + provider name）+ 30 天 call_logs sum(costPrice)/count(*)/avg；输出 markdown 表格按模型分块；2) 标注 ⚠️ 可疑 = modality=image AND channel.costPrice.unit=='token'（image 模型按 token 计费，与 openrouter 上游 perCall 计费规则不一致，可能漏算）；3) 脚本 read-only（无 INSERT/UPDATE/DELETE）；4) 用 prod-readonly DATABASE_URL 跑出 docs/audits/image-pricing-2026-04-27.md；5) 报告 commit 入仓；6) tsc 编译通过；7) commit 'feat(BL-RECON-FIX-PHASE1 F-RF-03): image pricing audit script + 2026-04-27 prod report'"
+    },
+    {
+      "id": "F-RF-04",
+      "title": "BL-RECON-FIX-PHASE1 全量验收（fetcher 行为 + 货币转换 + audit 脚本 + 静态）",
       "priority": "high",
       "executor": "codex",
-      "status": "completed",
-      "source": "BL-RECON-UX-PHASE1 spec § F-RC-03",
-      "acceptance": "【fix_round 1 后修订：tc13 已放宽，见 docs/adjudications/BL-RECON-UX-PHASE1-tc13-relaxation-2026-04-27.md】静态（3）：tsc / build / vitest（≥ 441 含 F-RC-01 新增 + fix_round 1 新增 1 个 wiring 测试）。API 行为（6）：4) GET /api/admin/reconciliation 默认 sort=desc 第一行 reportDate ≥ 第二行；5) sort=asc&page=1&pageSize=5 返 5 行 + meta.total>5；6) tier=1 仅返 volcengine/openrouter/openai 行；7) modelSearch=gpt 大小写不敏感命中；8) /export?status=BIG_DIFF 返 text/csv + BOM + header 正确 + Content-Disposition；9) 构造 > 10000 行 query 触 400。前端冒烟（5）：10) 登录 admin /admin/reconciliation 列表第一行是最近一天数据；11) 改 date picker 至最近 7 天 refetch 表行减少；12) 切 Tier 1 仅显示 Tier 1；13) 【放宽】mock-based wiring 集成测试 src/lib/billing-audit/__tests__/runReconciliation-thresholds.test.ts PASS — mock Tier 1 fake fetcher 返回 delta=0.3 synthetic bill，断言 RECONCILIATION_MATCH_DELTA_USD=0.5 下 status=MATCH、=0.1 下 status=MINOR_DIFF（零基线 = 同 delta 在不同阈值下 status 取不同值）；原 tc13 因本地 fetcher 无凭证 skip 不可达，生产部署后人工事后核对不阻塞 done；14) 点导出 CSV 浏览器下载，Excel 打开列正确。i18n（1）：15) 切 zh-CN 表头 + 阈值区块全部中文。报告（1）：16) 写 docs/test-reports/BL-RECON-UX-PHASE1-fix-round-1-signoff-2026-04-2X.md 含 15 项证据（新 tc13 包含）+ 4 张关键截图 + 引用裁决文档"
+      "status": "pending",
+      "source": "BL-RECON-FIX-PHASE1 spec § F-RF-04",
+      "acceptance": "静态（3）：tsc / build / vitest（≥ 445 + F-RF-01/02 新增）。Volcengine fetcher 行为（2）：4) F-RF-01 单测全 PASS；5) 集成模拟：mock fetcher 返月度 3 条 ExpenseDate → reconcile cross 5 天 reportDate 仅 ExpenseDate=对应日的 1 行 BillReconciliation。CNY→USD（2）：6) F-RF-02 单测全 PASS；7) mock {currency:'CNY', amount:3.25} → upstreamAmount=0.44525 + details.upstreamAmountOriginal=3.25 + details.currency='CNY' + details.exchangeRateApplied=0.137。Audit 脚本（2）：8) npx tsx scripts/audit-image-pricing.ts 在测试 DB 跑通无错（即使无数据输出空表）；9) mock 一个 image modality + token-priced channel 跑脚本验证 ⚠️ 标记输出。报告（1）：10) docs/test-reports/BL-RECON-FIX-PHASE1-signoff-2026-04-2X.md 含 9 项证据 + 关键截图（audit 报告输出片段）。明确排除：不要求生产数据 reconcile 重跑 / 不要求历史 BIG_DIFF 回填 / 不要求修改任何 channel 配置（Phase 2）"
     }
   ]
 }
