@@ -52,6 +52,21 @@ const AUTH_FAILED_ALERT_THRESHOLD = 3;
  *   - errorMessage 命中已知上游 auth 文案（volcengine 欠费 / zhipu 'ApiKey错误' /
  *     openai 'Incorrect API key provided' / 'balance too low' 等）
  */
+/**
+ * BL-EMBEDDING-MVP fix-round-2: modality 是否参与「真调用 probe」决策。
+ *
+ * - TEXT      → adapter.chatCompletions（1 token）
+ * - EMBEDDING → adapter.embeddings（1 token input）
+ * - IMAGE     → 跳过（单次成本远高于 text/embedding，靠 reachability + 真实流量）
+ * - VIDEO/AUDIO 等未实现 → 跳过（保守）
+ *
+ * 用于 planChannelCheck（决定 full vs reachability）和 shouldCallProbeChannel
+ * （决定是否跑 CALL_PROBE）。
+ */
+export function isProbableModality(modality: string): boolean {
+  return modality === "TEXT" || modality === "EMBEDDING";
+}
+
 export function isAuthFailedError(errorMessage: string | null): boolean {
   if (!errorMessage) return false;
   if (errorMessage.startsWith("auth_failed:")) return true;
@@ -135,12 +150,13 @@ export async function checkChannel(
     model: channel.model,
   };
 
-  const isImage = channel.model.modality === "IMAGE";
   const isAliased = await isChannelInEnabledAlias(channelId);
 
-  // 文本通道 + 已纳入已启用别名 → 全三级
-  // 其他 → API_REACHABILITY
-  if (!isImage && isAliased) {
+  // BL-EMBEDDING-MVP fix-round-2: 把 isImage 二分换成 isProbableModality —
+  // EMBEDDING 也要走 full（adapter.embeddings 真调用）才能与 IMAGE/TEXT 一致
+  // 享受 CONNECTIVITY probe；否则只走 reachability 导致 channel 一直无法被
+  // 真实流量验证。
+  if (isProbableModality(channel.model.modality) && isAliased) {
     return executeCheckWithRetry(route, "full", source);
   }
   return executeCheckWithRetry(route, "reachability", source);
@@ -279,8 +295,10 @@ export function planChannelCheck(
   channel: { status: string; model: { modality: string; name: string } },
   isAliased: boolean,
 ): CheckPlan {
-  const isImage = channel.model.modality === "IMAGE";
-  if (isAliased && !isImage) {
+  // BL-EMBEDDING-MVP fix-round-2: TEXT + EMBEDDING 都走 full probe（前者 chat
+  // 后者 adapter.embeddings）；IMAGE 仍只 reachability（成本敏感）。
+  const isProbable = isProbableModality(channel.model.modality);
+  if (isAliased && isProbable) {
     // BL-HEALTH-PROBE-LEAN F-HPL-02: expensive models (built-in search /
     // reasoning / o1 / o3 / pro-preview) are never probed — even one
     // token costs 10-100× normal (openrouter 2026-04-16:
@@ -311,7 +329,9 @@ export function shouldCallProbeChannel(
   ch: { id: string; status: string; model: { modality: string; name: string } },
   aliasedIds: Set<string>,
 ): boolean {
-  if (ch.model.modality === "IMAGE") return false;
+  // BL-EMBEDDING-MVP fix-round-2: TEXT + EMBEDDING 走 CALL_PROBE；IMAGE 仍跳过
+  // （成本太高 — single image probe call ≈ $0.04 vs text/embedding ≈ $0.000004）
+  if (!isProbableModality(ch.model.modality)) return false;
   if (!aliasedIds.has(ch.id)) return false;
   // BL-HEALTH-PROBE-EMERGENCY F-HPE-02: never probe DISABLED channels —
   // CALL_PROBE makes a real billable call.

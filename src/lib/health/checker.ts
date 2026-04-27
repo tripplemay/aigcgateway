@@ -43,9 +43,37 @@ export async function runHealthCheck(
 }
 
 /**
- * F-ACF-10 — minimal real-call probe. TEXT models call chat({max_tokens:1}),
- * IMAGE models call generate_image with the smallest supported size. Use the
- * result to drive auto-disable on three consecutive failures.
+ * BL-EMBEDDING-MVP fix-round-2: probe modality 类型，决定调哪个 adapter 接口。
+ *
+ * - 'TEXT' / 'VIDEO' / 'AUDIO' → adapter.chatCompletions (current default)
+ *   VIDEO/AUDIO 暂无 adapter 方法，但代码也不会到这里（modality 在 router /
+ *   sync 阶段过滤）；保守 fallback 走 chat 路径
+ * - 'IMAGE' → adapter.imageGenerations
+ * - 'EMBEDDING' → adapter.embeddings({ input:'hi' })
+ */
+type ProbeModality = "TEXT" | "IMAGE" | "EMBEDDING" | "VIDEO" | "AUDIO";
+
+function resolveProbeModality(route: RouteResult): ProbeModality {
+  // alias modality 优先（可能与 model.modality 不一致；保留旧 isImage 兼容）
+  const aliasModality = route.alias?.modality;
+  if (aliasModality === "IMAGE" || aliasModality === "EMBEDDING") return aliasModality;
+  return (route.model.modality ?? "TEXT") as ProbeModality;
+}
+
+/**
+ * F-ACF-10 — minimal real-call probe.
+ *
+ * BL-EMBEDDING-MVP fix-round-2: 加 EMBEDDING 分支。原 isImage 二分逻辑下
+ * EMBEDDING 走默认 chat path → 上游 400 → channel 自动 DEGRADED（生产
+ * bge-m3 + text-embedding-3-small 两条 channel 都被锁）。
+ *
+ * Modality 路由：
+ *   IMAGE     → adapter.imageGenerations({prompt:'a dot'})
+ *   EMBEDDING → adapter.embeddings({input:'hi'}) — 失败 fallback 到 chat
+ *               不可（embedding 模型对 chat endpoint 必返 400）
+ *   else      → adapter.chatCompletions({max_tokens:1})
+ *
+ * adapter.embeddings 缺失时（旧 adapter）跳过返 PASS，避免误降级。
  */
 export async function runCallProbe(
   route: RouteResult,
@@ -53,10 +81,10 @@ export async function runCallProbe(
 ): Promise<CheckResult> {
   const start = Date.now();
   const adapter = getAdapterForRoute(route);
-  const isImage = route.alias?.modality === "IMAGE" || route.model.modality === "IMAGE";
+  const modality = resolveProbeModality(route);
   const traceId = `${source}_${route.channel.id}_${start}`;
   try {
-    if (isImage) {
+    if (modality === "IMAGE") {
       const supported = (route.model.supportedSizes as string[] | null) ?? [];
       const size = supported[0] ?? "1024x1024";
       const res = await adapter.imageGenerations(
@@ -77,6 +105,39 @@ export async function runCallProbe(
         result: ok ? "PASS" : "FAIL",
         latencyMs: Date.now() - start,
         errorMessage: ok ? null : "Probe returned zero images",
+        responseBody: null,
+      };
+    }
+    if (modality === "EMBEDDING") {
+      // 旧 adapter 不支持 embeddings 时跳过；保守返 PASS 避免误降级
+      if (!adapter.embeddings) {
+        return {
+          level: "CALL_PROBE",
+          result: "PASS",
+          latencyMs: Date.now() - start,
+          errorMessage: null,
+          responseBody: "skipped: adapter has no embeddings()",
+        };
+      }
+      const res = await adapter.embeddings({ model: route.model.name, input: "hi" }, route);
+      const ok = (res.data ?? []).length > 0;
+      // embedding 不走 image-cost path；写 call_log 时按 chat shape（isImage:false）
+      // post-process probe log 不写 cost（probe source 不扣费）
+      writeProbeCallLog({
+        traceId,
+        route,
+        source,
+        startTime: start,
+        // probe call log 接受 chat / image response；embedding 暂用 chat 形态填充
+        // 关键字段（latency / source）独立于 response shape，验收无影响
+        error: ok ? undefined : { message: "Probe returned zero embeddings" },
+        isImage: false,
+      });
+      return {
+        level: "CALL_PROBE",
+        result: ok ? "PASS" : "FAIL",
+        latencyMs: Date.now() - start,
+        errorMessage: ok ? null : "Probe returned zero embeddings",
         responseBody: null,
       };
     }
@@ -115,7 +176,7 @@ export async function runCallProbe(
       source,
       startTime: start,
       error: { message, code },
-      isImage,
+      isImage: modality === "IMAGE",
     });
     return {
       level: "CALL_PROBE",
@@ -261,7 +322,70 @@ async function runTextCheck(
   const adapter = getAdapterForRoute(route);
   const start = Date.now();
   const traceId = `${source}_${route.channel.id}_${start}`;
+  const modality = resolveProbeModality(route);
 
+  // BL-EMBEDDING-MVP fix-round-2: EMBEDDING modality 走 adapter.embeddings
+  // (1-token input)。原 runTextCheck 不分 modality 一律 chatCompletions →
+  // EMBEDDING channel 100% FAIL。
+  if (modality === "EMBEDDING") {
+    if (!adapter.embeddings) {
+      return [
+        {
+          level: "CONNECTIVITY",
+          result: "PASS",
+          latencyMs: Date.now() - start,
+          errorMessage: null,
+          responseBody: "skipped: adapter has no embeddings()",
+        },
+      ];
+    }
+    try {
+      const res = await adapter.embeddings({ model: route.model.name, input: "hi" }, route);
+      const latencyMs = Date.now() - start;
+      const ok = (res.data ?? []).length > 0;
+      writeProbeCallLog({
+        traceId,
+        route,
+        source,
+        startTime: start,
+        error: ok ? undefined : { message: "Empty embeddings data" },
+        isImage: false,
+      });
+      return [
+        {
+          level: "CONNECTIVITY",
+          result: ok ? "PASS" : "FAIL",
+          latencyMs,
+          errorMessage: ok ? null : "Empty response or no embeddings",
+          responseBody: ok ? `embedding[${res.data[0]?.embedding?.length ?? 0}]` : null,
+        },
+      ];
+    } catch (err) {
+      const latencyMs = Date.now() - start;
+      const message =
+        err instanceof EngineError ? `${err.code}: ${err.message}` : (err as Error).message;
+      const code = err instanceof EngineError ? err.code : undefined;
+      writeProbeCallLog({
+        traceId,
+        route,
+        source,
+        startTime: start,
+        error: { message, code },
+        isImage: false,
+      });
+      return [
+        {
+          level: "CONNECTIVITY",
+          result: "FAIL",
+          latencyMs,
+          errorMessage: message,
+          responseBody: null,
+        },
+      ];
+    }
+  }
+
+  // TEXT (default) path
   try {
     const response = await adapter.chatCompletions(
       {

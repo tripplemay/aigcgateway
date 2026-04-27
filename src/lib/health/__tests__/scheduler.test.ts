@@ -23,7 +23,7 @@ type ChannelStub = { id: string; status: string; model: { modality: string; name
 
 function ch(
   status: string,
-  modality: "TEXT" | "IMAGE" = "TEXT",
+  modality: "TEXT" | "IMAGE" | "EMBEDDING" = "TEXT",
   name = "gpt-4o-mini",
 ): ChannelStub {
   return { id: `ch_${status}_${modality}`, status, model: { modality, name } };
@@ -55,6 +55,20 @@ describe("planChannelCheck (F-HPE-01)", () => {
     expect(planChannelCheck(ch("DISABLED", "IMAGE"), true).checkMode).toBe("reachability");
   });
 
+  // BL-EMBEDDING-MVP fix-round-2: EMBEDDING channel 须走 full（adapter.embeddings
+  // 真调用），与 TEXT 同等待遇。原 isImage/else 二分让 EMBEDDING 错误走 chat
+  // probe → 上游 400 → 自动 DEGRADED。
+  it("aliased ACTIVE EMBEDDING channel → full + ACTIVE_INTERVAL (fix-round-2)", () => {
+    const plan = planChannelCheck(ch("ACTIVE", "EMBEDDING", "bge-m3"), true);
+    expect(plan.checkMode).toBe("full");
+    expect(plan.interval).toBe(600_000);
+  });
+
+  it("aliased DEGRADED EMBEDDING channel still on full path (revival probe)", () => {
+    const plan = planChannelCheck(ch("DEGRADED", "EMBEDDING", "bge-m3"), true);
+    expect(plan.checkMode).toBe("full");
+  });
+
   it("un-aliased channel → reachability", () => {
     const plan = planChannelCheck(ch("ACTIVE"), false);
     expect(plan.checkMode).toBe("reachability");
@@ -84,6 +98,22 @@ describe("shouldCallProbeChannel (F-HPE-02)", () => {
 
   it("never probes IMAGE channels", () => {
     expect(shouldCallProbeChannel(ch("ACTIVE", "IMAGE"), aliased)).toBe(false);
+  });
+
+  // BL-EMBEDDING-MVP fix-round-2: EMBEDDING channels eligible for CALL_PROBE
+  it("probes aliased ACTIVE EMBEDDING channels (fix-round-2)", () => {
+    const chan = ch("ACTIVE", "EMBEDDING", "bge-m3");
+    expect(shouldCallProbeChannel(chan, new Set([chan.id]))).toBe(true);
+  });
+
+  it("probes aliased DEGRADED EMBEDDING channel (needs revival)", () => {
+    const chan = ch("DEGRADED", "EMBEDDING", "bge-m3");
+    expect(shouldCallProbeChannel(chan, new Set([chan.id]))).toBe(true);
+  });
+
+  it("does NOT probe aliased DISABLED EMBEDDING channel", () => {
+    const chan = ch("DISABLED", "EMBEDDING", "bge-m3");
+    expect(shouldCallProbeChannel(chan, new Set([chan.id]))).toBe(false);
   });
 
   it("never probes un-aliased channels", () => {
