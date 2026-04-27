@@ -108,6 +108,107 @@ describe("imageViaChat full pipeline — HTTP layer → normalize → Stage 0 (F
     expect(calledUrl).toContain("/chat/completions");
   });
 
+  // BL-RECON-FIX-PHASE2 F-RP-03: full HTTP layer → extractUsage → Usage.upstreamCostUsd
+  // 用 F-RP-01 实测 OR 响应 shape，证明 fetch → normalizeChatResponse → extractUsage
+  // → ImageGenerationResponse.usage.upstreamCostUsd 链路完整透传
+  it("OR usage.cost / cost_details surfaces as Usage.upstreamCostUsd (F-RP-03)", async () => {
+    const expectedUrl = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAAB";
+    // Real shape captured 2026-04-27 from OR direct probe (gen-1777274549-…)
+    const openrouterBody = {
+      id: "gen-1777274549-ggCU4VodGLK3d1SNKnBJ",
+      object: "chat.completion",
+      created: 1_700_000_000,
+      model: "google/gemini-2.5-flash-image",
+      choices: [
+        {
+          index: 0,
+          message: {
+            role: "assistant",
+            content: "Here is the image:",
+            images: [{ type: "image_url", image_url: { url: expectedUrl } }],
+          },
+          finish_reason: "stop",
+        },
+      ],
+      usage: {
+        prompt_tokens: 7,
+        completion_tokens: 1304,
+        total_tokens: 1311,
+        cost: 0.0387371,
+        cost_details: {
+          upstream_inference_cost: 0.0387371,
+          upstream_inference_prompt_cost: 2.1e-6,
+          upstream_inference_completions_cost: 0.038735,
+        },
+        completion_tokens_details: {
+          reasoning_tokens: 0,
+          image_tokens: 1290,
+          audio_tokens: 0,
+        },
+      },
+    };
+
+    globalThis.fetch = vi.fn(
+      async () =>
+        new Response(JSON.stringify(openrouterBody), {
+          status: 200,
+          headers: { "content-type": "application/json" },
+        }),
+    ) as unknown as typeof fetch;
+
+    const engine = new OpenAICompatEngine();
+    const result = await engine.imageGenerations(imageRequest, openrouterRoute());
+
+    expect(result.data[0].url).toBe(expectedUrl);
+    expect(result.usage).toBeDefined();
+    expect(result.usage?.prompt_tokens).toBe(7);
+    expect(result.usage?.completion_tokens).toBe(1304);
+    expect(result.usage?.total_tokens).toBe(1311);
+    // 关键断言：upstreamCostUsd 已被 extractUsage 提取并传到 ImageGenerationResponse.usage
+    expect(result.usage?.upstreamCostUsd).toBe(0.0387371);
+  });
+
+  // F-RP-03 fallback: cost 字段缺失但 cost_details 存在
+  it("falls back to cost_details.upstream_inference_cost when usage.cost missing (F-RP-03)", async () => {
+    const expectedUrl = "data:image/png;base64,iVBORw0KGgo";
+    const openrouterBody = {
+      id: "gen-fallback-test",
+      object: "chat.completion",
+      created: 1_700_000_000,
+      model: "google/gemini-2.5-flash-image",
+      choices: [
+        {
+          index: 0,
+          message: {
+            role: "assistant",
+            content: null,
+            images: [{ type: "image_url", image_url: { url: expectedUrl } }],
+          },
+          finish_reason: "stop",
+        },
+      ],
+      usage: {
+        prompt_tokens: 7,
+        completion_tokens: 1304,
+        total_tokens: 1311,
+        // no top-level cost — only cost_details
+        cost_details: { upstream_inference_cost: 0.0421 },
+      },
+    };
+
+    globalThis.fetch = vi.fn(
+      async () =>
+        new Response(JSON.stringify(openrouterBody), {
+          status: 200,
+          headers: { "content-type": "application/json" },
+        }),
+    ) as unknown as typeof fetch;
+
+    const engine = new OpenAICompatEngine();
+    const result = await engine.imageGenerations(imageRequest, openrouterRoute());
+    expect(result.usage?.upstreamCostUsd).toBe(0.0421);
+  });
+
   it("regression: images[] absent but content has data URI → falls back to Stage 2 through full pipeline", async () => {
     const expectedUrl = "data:image/jpeg;base64,/9j/4AAQSkZJRg";
     const openrouterBody = {
