@@ -2,135 +2,9 @@
   "description": "需求池：已与用户确认但尚未开发的功能，等待下一批次启动时统一安排",
   "items": [
     {
-      "id": "BL-BILLING-AUDIT",
-      "_superseded_by": "BL-BILLING-AUDIT-EXT-P1 + BL-BILLING-AUDIT-EXT-P2",
-      "_superseded_at": "2026-04-24",
-      "title": "[已被 P1+P2 合并覆盖] 账单/扣费审计漏洞修复",
-      "description": "原 scope 6 项全部并入 BL-BILLING-AUDIT-EXT-P1 的 F-BAX-04/05（channelId 错位 + image costPrice + 04-15 regression + auth_failed 告警 + 错误文本转译）；新增的盲区修复 + 对账 cron + Tier 1/2 fetcher + admin 面板在 P1/P2 批次完成。",
-      "confirmed_at": "2026-04-20",
-      "priority": "superseded",
-      "phase": "superseded",
-      "order": 999
-    },
-    {
-      "id": "BL-065",
-      "title": "支付回调验签 + 幂等（支付功能上线前必须修）",
-      "description": "alipay/wechat webhook 未验签 + 并发下可重复入账（幂等失效）。来源：backend-audit-2026-04-08.md [高]×2。已被 BL-SEC-PAY-DEFERRED 覆盖。",
-      "decisions": [],
-      "confirmed_at": "2026-04-08",
-      "priority": "high",
-      "superseded_by": "BL-SEC-PAY-DEFERRED"
-    },
-    {
-      "id": "BL-104",
-      "title": "Settings Project tab 增加项目切换下拉框",
-      "description": "Settings 的 Project tab 当前只能管理侧边栏选中的项目。增加一个项目下拉选择器，用户可以切换查看/编辑不同项目的信息（名称、描述、统计、删除）。",
-      "decisions": [],
-      "confirmed_at": "2026-04-10",
-      "priority": "low"
-    },
-    {
-      "id": "BL-SEC-CRED-HARDEN",
-      "title": "凭证硬化 — 移除硬编码密码 + 图片代理 HMAC fallback",
-      "description": "来源 docs/code-review/ 2026-04-17 全量审查 CRIT-5 + CRIT-6。(1) CRIT-5: prisma/seed.ts + scripts/admin-auth.ts + scripts/stress-test.ts + 10+ 个 scripts/test/*.ts 硬编码 admin 密码（admin123 / Codex@2026! 已进 git 历史）。(2) CRIT-6: src/lib/api/image-proxy.ts:13-19 getSecret() 有硬编码字符串 fallback 'aigc-gateway-image-proxy-dev-secret'。(3) L5: E2E 测试脚本 'Test1234' 硬编码。2026-04-17 已为生产 env 注入 IMAGE_PROXY_SECRET/AUTH_SECRET/NEXTAUTH_SECRET 关闭即时曝光，但代码 fallback 仍需移除；admin 密码由用户自行轮换。",
-      "decisions": [
-        "用户自行轮换生产 admin@aigc-gateway.local 和 codex-admin@aigc-gateway.local 密码（2026-04-17 同步确认）",
-        "CRIT-6 生产 env 已注入随机 secret，本批次负责删除 src/lib/api/image-proxy.ts 的 fallback 字符串 + 启动时 assert env 存在",
-        "脚本改为 process.env.X ?? throw，无 fallback 值",
-        "seed.ts 改读 process.env.ADMIN_SEED_PASSWORD，保留幂等性",
-        "不做 git filter-repo 清理历史（视为已知泄漏，依赖密码轮换闭环）",
-        "顺带把 Info/Low 级的 E2E 测试密码（Test1234）移到 env"
-      ],
-      "confirmed_at": "2026-04-17",
-      "priority": "critical",
-      "source": "docs/code-review/backend-fullscan-2026-04-17.md CRIT-5 + CRIT-6 + L5",
-      "estimated_effort": "0.5 day",
-      "phase": "P0-security",
-      "order": 1
-    },
-    {
-      "id": "BL-SEC-AUTH-SESSION",
-      "title": "会话硬化 — JWT 改 HttpOnly cookie + middleware 真正验签 + console layout SSR 守卫",
-      "description": "来源 docs/code-review/ CRIT-7 + H-8 + H-32。(1) CRIT-7: src/app/(auth)/login/page.tsx:131 + layout.tsx:50 + settings/page.tsx:711-714 + top-app-bar.tsx:45 四处 document.cookie + localStorage 明文存 JWT，无 HttpOnly、无 Secure，任一 XSS 即全站会话劫持。(2) H-8: src/middleware.ts decodeJwtPayload 仅 base64 解码不验签，admin 路由保护可绕过。(3) H-32（合并）: console layout 全 client + 每次导航重抓 /api/auth/profile，改 RSC 守卫消除闪现未授权内容。",
-      "decisions": [
-        "后端签 cookie：/api/auth/login 响应头 Set-Cookie httpOnly+secure+sameSite=lax+max-age 7d",
-        "前端改造 4 个写入点：login/page + console/layout + settings signout + top-app-bar signout",
-        "localStorage 可保留用于 fetch Authorization header（过渡期），但最终目标移除（P3）",
-        "middleware 用 jose.jwtVerify + JWT_SECRET 做 Edge Runtime 兼容验签",
-        "顺便补：console/layout 拆出 server layout 做 SSR 鉴权守卫（HIGH-01），消除未授权内容闪现"
-      ],
-      "confirmed_at": "2026-04-17",
-      "priority": "critical",
-      "source": "docs/code-review/backend-fullscan-2026-04-17.md CRIT-7 + H-8 + H-32",
-      "estimated_effort": "1.5 days",
-      "phase": "P0-security",
-      "order": 2
-    },
-    {
-      "id": "BL-SEC-BILLING-AI",
-      "title": "AI 调用扣费原子性 — deduct_balance 行锁 + CallLog+deduct 事务化 + amount CHECK",
-      "description": "来源 docs/code-review/ CRIT-2 + CRIT-4 + H-16 + H-19。与支付模块无关，每次 AI API 调用都走这条链路。(1) CRIT-2: prisma/migrations/20260410120000_apikey_to_user_level/migration.sql:40-80 deduct_balance PL/pgSQL 函数缺 SELECT ... FOR UPDATE，高并发下两个事务都通过 balance >= amount 检查 → 余额可透支为负。(2) CRIT-4: src/lib/api/post-process.ts:127-158 callLog.create + deductBalance 两次顺序 DB 调用无事务保证，若进程在两者之间崩溃 → 服务已消费但无扣费记录。(3) H-16: Transaction.amount 无 CHECK 约束，符号与类型无 DB 层保证。(4) H-19: TemplateRating.score 无 range CHECK。",
-      "decisions": [
-        "deduct_balance 函数重写：先 SELECT balance INTO v_balance FOR UPDATE，再条件判断后 UPDATE",
-        "CallLog + deduct 改用 prisma.$transaction interactive 事务包裹；或把 CallLog 写入合并进 deduct_balance 函数内以保证单个 plpgsql 原子",
-        "Transaction.amount 加 CHECK: DEDUCTION/REFUND < 0, RECHARGE/BONUS/ADJUSTMENT >= 0",
-        "TemplateRating.score 加 CHECK: 1 <= score <= 5",
-        "Evaluator 设计并发测试：10 并发请求同一用户 + 余额卡阈值，断言最终余额 >= 0 且 call_logs 与 transactions 条数一致",
-        "migration 需新写一个覆盖 deduct_balance（不是原位改）；回滚通过运行旧版 migration"
-      ],
-      "confirmed_at": "2026-04-17",
-      "priority": "critical",
-      "source": "docs/code-review/backend-fullscan-2026-04-17.md CRIT-2 + CRIT-4 + H-16 + H-19",
-      "estimated_effort": "2 days",
-      "phase": "P0-security",
-      "order": 3
-    },
-    {
-      "id": "BL-SEC-BILLING-CHECK-FOLLOWUP",
-      "title": "BILLING-AI 后续 — CHECK 约束规则修正 + 重提 migration",
-      "description": "BL-SEC-BILLING-AI 的 F-BA-03 生产部署失败（c8a7703 hotfix 已删 migration）。根因：Code Review H-16 报告对 REFUND 符号断言错误（报告说 '<0'，实际代码 refund-zero-image-audit.ts:102 存 `+sellPrice` 为正数），7 行生产 REFUND amount>0 是业务正确的。本批次修正 CHECK 规则后重提。不需数据清理。顺带在 schema.prisma 补 /// CHECK 文档注释。",
-      "decisions": [
-        "不清理 7 行 REFUND 数据（业务正确）",
-        "CHECK 规则修正：DEDUCTION<0 / REFUND+RECHARGE+BONUS>=0 / ADJUSTMENT 任意",
-        "TemplateRating.score CHECK（1-5）无需改动",
-        "新 migration 命名 20260418_billing_check_constraints_v2/（与失败的 v1 区分）",
-        "DO $$ 预检用新规则（预期 0 不合规）",
-        "schema.prisma 补 /// CHECK 文档注释"
-      ],
-      "confirmed_at": "2026-04-18",
-      "priority": "high",
-      "source": "BL-SEC-BILLING-AI F-BA-03 deferred + c8a7703 hotfix",
-      "estimated_effort": "0.5 day",
-      "phase": "P0-security",
-      "order": 3.5,
-      "follows": "BL-SEC-BILLING-AI"
-    },
-    {
-      "id": "BL-SEC-INFRA-GUARD",
-      "title": "基建硬化 — admin 白名单 + 分布式锁 + shell + 依赖升级 + MCP 权限一致性",
-      "description": "来源 docs/code-review/ CRIT-8/9/10 + H-11/12/13/14/29/30/31。(1) CRIT-8/H-11/H-12: admin PATCH 三处 mass assignment（ProviderConfig/Channel/Model）直接 data: body 透传。(2) CRIT-9: scheduler + model-sync 仅进程内锁，Docker 多副本并发污染。(3) CRIT-10: scripts/stress-test.ts execSync 字符串拼接 RCE。(4) H-13: fork-public-template 无 checkMcpPermission。(5) H-14: MCP IP 白名单与 REST 层不一致。(6) H-29: Provider baseUrl 无协议校验。(7) H-30: Next.js 版本 8 个高危依赖。(8) H-31: checkBalanceAlerts 无去重，每小时重复告警。",
-      "decisions": [
-        "admin PATCH 字段白名单统一走 zod schema，ProviderConfig/Channel/Model 三处同批修",
-        "scheduler/model-sync 加 Redis SET NX EX 70 分布式选主锁；Docker 单副本部署临时缓解但长期走锁",
-        "stress-test.ts 改 spawn 数组形式，移除所有 execSync 字符串拼接",
-        "fork-public-template 补 checkMcpPermission（projectInfo:false 的 key 不得 fork）",
-        "MCP IP 白名单语义与 REST 层对齐（空列表=允许所有，非空=严格匹配）",
-        "Provider baseUrl 加 URL.parse + protocol in {'http:','https:'} 校验",
-        "Next.js 版本升级到最新稳定版（兼容 App Router 14.x），defu 和 glob 一并升级；回归测试覆盖全 API 路由",
-        "checkBalanceAlerts 加 Redis dedup key（user_id + threshold + date）",
-        "升级前先 snapshot 当前 package-lock，失败可回滚"
-      ],
-      "confirmed_at": "2026-04-17",
-      "priority": "critical",
-      "source": "docs/code-review/backend-fullscan-2026-04-17.md CRIT-8/9/10 + H-11/12/13/14/29/30/31",
-      "estimated_effort": "2.5 days",
-      "phase": "P0-security",
-      "order": 4
-    },
-    {
       "id": "BL-SEC-INFRA-GUARD-FOLLOWUP",
       "title": "Next.js 16 跨大版本迁移（BL-SEC-INFRA-GUARD 留尾）",
-      "description": "BL-SEC-INFRA-GUARD F-IG-06 按回退条款接受 partial 遗留的 1 high CVE（next@14.2.35，14.x/15.x 全系列未修）。唯一修复版本 next@16.2.4 跨大版本 breaking change，需要独立批次做完整迁移 + 全量 App Router 兼容性回归。",
+      "description": "BL-SEC-INFRA-GUARD F-IG-06 按回退条款接受 partial 遗留的 1 high CVE（next@14.2.35，14.x/15.x 全系列未修）。唯一修复版本 next@16.2.4 跨大版本 breaking change，需要独立批次做完整迁移 + 全量 App Router 兼容性回归。当前 package.json next=^14.2.28（2026-04-27 复核仍未升级）。",
       "decisions": [
         "启动时机：支付接入前 1 周（跟 BL-SEC-PAY-DEFERRED 对齐）或 Next.js 16 生态稳定 2 个月后",
         "前置：先 snapshot package-lock.json + 创建独立 feature branch",
@@ -144,81 +18,6 @@
       "source": "BL-SEC-INFRA-GUARD F-IG-06 partial + H-30 残余",
       "estimated_effort": "2-3 days",
       "follows": "BL-SEC-INFRA-GUARD"
-    },
-    {
-      "id": "BL-DATA-CONSISTENCY",
-      "title": "数据一致性 — 外键索引 + TTL/归档 + 分页 + 约束兜底",
-      "description": "来源 docs/code-review/batch-05-database.md + daily 2026-04-17。(1) H-1: TemplateStep.actionId 外键无 index，删除/关联全表扫描。(2) H-2: AliasModelLink 两外键无单列 index。(3) H-17: EmailVerificationToken.userId FK 无 onDelete，阻止用户硬删。(4) H-18: migration WHERE order >= 10000 粗粒度修复，二次运行覆盖风险。(5) H-20: notifications 表无 TTL，高频堆积。(6) daily H-1: listPublicTemplates 无 DB 分页，全表加载内存排序。",
-      "decisions": [
-        "补齐外键 @@index([actionId]) / @@index([modelId]) / @@index([aliasId])",
-        "EmailVerificationToken onDelete=Cascade",
-        "重新审 migration 20260416_fix_template_step_order_v2，改用精确的目标 templateId 列表",
-        "notifications 加 expiresAt 字段 + 后台 cron 清理（或 PG TTL 扩展）",
-        "listPublicTemplates 改 Prisma orderBy + skip/take，recommended 预计算 recommendedScore 列",
-        "全部通过 migration 发布，回滚脚本准备"
-      ],
-      "confirmed_at": "2026-04-18",
-      "priority": "high",
-      "source": "docs/code-review/batch-05-database.md H-1/2/17/18/20 + daily/2026-04-17.md H1",
-      "estimated_effort": "1 day",
-      "phase": "P1-data",
-      "order": 7
-    },
-    {
-      "id": "BL-INFRA-RESILIENCE",
-      "title": "后端韧性 — N+1 重写 + 流式超时 + AbortController + TOCTOU",
-      "description": "来源 docs/code-review/batch-02-engine.md + batch-04-infra.md。(1) H-4: model-sync reconcile N+1，每日 400-600 次 DB 往返 × 11 家。(2) H-5: list-actions include versions 无 take。(3) H-6: post-process 每成功调用多一次 Project 查询。(4) H-21: fetchWithProxy timeout 在 headers 到达即清除，流式超时失效。(5) H-22: chat completions catch 未 reader.cancel()，TCP 泄漏。(6) H-23: dispatcher webhook fetch 无 AbortController。(7) H-24: health alert webhook 无超时，阻塞检查循环。(8) H-25: waitForCallLog 失败静默返回。(9) H-26: rpmCheck TOCTOU。",
-      "decisions": [
-        "model-sync reconcile 重写为 batch upsert + dedup（单次 DB 往返处理一家）",
-        "list-actions include versions 加 take: 10（最近 10 版本）",
-        "post-process Project 查询缓存到请求上下文（DataLoader 或 WeakMap）",
-        "封装 fetchWithTimeout 强制 AbortController，所有外部调用统一入口",
-        "chat completions catch 里 await reader.cancel() 再抛",
-        "dispatcher + health alert webhook 全部改 fetchWithTimeout",
-        "rpmCheck 改 Redis INCR + EXPIRE 原子操作",
-        "waitForCallLog 失败时写 warn log 并返回 null 明示（而非静默）"
-      ],
-      "confirmed_at": "2026-04-18",
-      "priority": "high",
-      "source": "docs/code-review/batch-02-engine.md H-21/22/26 + batch-04-infra.md H-4/23/24/25",
-      "estimated_effort": "1.5 days",
-      "phase": "P1-data",
-      "order": 8
-    },
-    {
-      "id": "BL-SEC-POLISH",
-      "title": "安全杂项合并批次 — auth-hygiene + SSRF/Content-Type + 脚本硬化",
-      "description": "合并原 BL-SEC-AUTH-HYGIENE + BL-SEC-SSRF-INPUT + BL-SCRIPT-HYGIENE（2026-04-18 合并决策）。三组改动 scope 独立但主题同族（安全加固小修），文件域互不重叠（auth / notifications+proxy / scripts），任一失败不 block 另两组。(A AUTH) H-7 登录/注册 rate limit / H-9 bcrypt cost 恢复 12 / H-10 时序 oracle 修。(B SSRF) H-27 webhook URL 拒私网/元数据 / H-28 image-proxy Content-Type 白名单。(C SCRIPT) H-42/43/44/45 e2e setup fatal + 路径 + 弱密码 + webhook 签名 + H-46 run-template test_mode rate limit。",
-      "decisions": [
-        "features.json 预计 4 条：3 generator（auth / ssrf / script）+ 1 codex 合并验收",
-        "(A AUTH) login/register 加 Redis rate limit（IP 10/min + account 5/min）；bcrypt cost 恢复 12 catch 抛错；login 先查 deletedAt/suspended 再 bcrypt；失败延迟统一防时序侧信道",
-        "(B SSRF) 封装 isSafeWebhookUrl 拒私网/loopback/169.254.169.254/仅 https；webhook DNS 解析二次校验防 rebinding；image-proxy Content-Type 白名单 image/*",
-        "(C SCRIPT) e2e-errors setup 任一失败 process.exit(1)；stress-test 报告路径走 new Date().toISOString().slice(0,10)；setup-zero-balance 改合法 bcrypt hash；e2e-test webhook 改 mock 或签名 helper；run-template test_mode=execute 仍走 rate limit"
-      ],
-      "confirmed_at": "2026-04-18",
-      "priority": "high",
-      "source": "合并：BL-SEC-AUTH-HYGIENE (H-7/9/10) + BL-SEC-SSRF-INPUT (H-27/28) + BL-SCRIPT-HYGIENE (H-42-46)",
-      "estimated_effort": "1.5 days",
-      "phase": "P2-polish",
-      "order": 9,
-      "merges": ["BL-SEC-AUTH-HYGIENE", "BL-SEC-SSRF-INPUT", "BL-SCRIPT-HYGIENE"]
-    },
-    {
-      "id": "BL-INFRA-ARCHIVE",
-      "title": "大表分区归档 — call_logs / system_logs / health_checks",
-      "description": "来源 docs/code-review/batch-05-database.md H-3。call_logs / system_logs / health_checks 无归档/分区策略，6 个月后表体积数十 GB，索引膨胀 + 查询劣化。",
-      "decisions": [
-        "call_logs 月度分区（PostgreSQL PARTITION BY RANGE (createdAt)）",
-        "system_logs + health_checks 采用 30/90 天 TTL 自动清理",
-        "保留最近 30 天活跃分区，30-180 天归档到 S3/压缩表，>180 天清除",
-        "迁移前先 ANALYZE 现有表体积 + I/O 基线，评估迁移窗口"
-      ],
-      "confirmed_at": "2026-04-18",
-      "priority": "high",
-      "source": "docs/code-review/batch-05-database.md H-3",
-      "estimated_effort": "1 day",
-      "phase": "P2-polish",
-      "order": 10
     },
     {
       "id": "BL-FE-DS-SHADCN",
@@ -244,9 +43,9 @@
     {
       "id": "BL-SEC-PAY-DEFERRED",
       "title": "支付 webhook 验签 + 幂等 CAS（支付接入前启动）",
-      "description": "来源 docs/code-review/ CRIT-1 + CRIT-3。两者仅在支付功能上线后才会真正触发，故延后到支付接入批次前启动。(1) CRIT-1: src/app/api/webhooks/alipay/route.ts:32 + wechat/route.ts:31 签名验证被注释掉，微信 webhook 甚至直接按明文 JSON 解析 ciphertext。任意 POST 伪造回调即可触发 processPaymentCallback，业务破产级资金风险。(2) CRIT-3: src/lib/billing/payment.ts:20-98 先 findUnique 读订单状态再进事务，两并发回调读到同一 PENDING 状态 → 余额被充两次。",
+      "description": "来源 docs/code-review/ CRIT-1 + CRIT-3。两者仅在支付功能上线后才会真正触发，故延后到支付接入批次前启动。(1) CRIT-1: src/app/api/webhooks/alipay/route.ts:32 + wechat/route.ts:31 签名验证被注释掉（2026-04-27 复核仍是 'TODO: P2 实现 RSA2 签名验证' / 'TODO: P2 实现 WECHATPAY2-SHA256-RSA2048 签名验证 + AES-256-GCM 解密'），微信 webhook 甚至直接按明文 JSON 解析 ciphertext。任意 POST 伪造回调即可触发 processPaymentCallback，业务破产级资金风险。(2) CRIT-3: src/lib/billing/payment.ts:20-98 先 findUnique 读订单状态再进事务，两并发回调读到同一 PENDING 状态 → 余额被充两次。",
       "decisions": [
-        "超越早期 BL-065（本条目取代之，BL-065 可移除）",
+        "超越早期 BL-065（本条目取代之，BL-065 已移除）",
         "支付宝用 alipay-sdk 的 AlipaySignature.rsaCheckV1/V2；微信用 Wechatpay-Node-V3 做 WECHATPAY2-SHA256-RSA2048 验签 + AEAD-AES-256-GCM 解密",
         "支付回调事务内 updateMany CAS: where id+status=PENDING, data status=COMPLETED，count===0 则幂等跳过",
         "开发前准备：支付宝和微信支付沙箱账号 + 官方 SDK 引入",
