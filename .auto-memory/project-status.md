@@ -1,12 +1,12 @@
 # Project Status (<=30 lines)
 
-- Updated: 2026-04-27 15:52 UTC+8
+- Updated: 2026-04-27 15:58 UTC+8
 - Current batch: BL-RECON-FIX-PHASE2
-- Phase/state: fixing (verifying failed on tc8)
-- Verification summary: 8/9 PASS, 1 blocker
-- Passed: static checks, F-RP-02/F-RP-03 tests, production real call, call_logs cost range
-- Blocker: tc8 requires same-day reconciliation MATCH for gemini-2.5-flash-image on 2026-04-27
-- Observed: rerun(date=2026-04-27) rowsWritten=11 but model row count=0 for same date
-- Production cost proof: trace trc_iyp6j4qwowbsu8fhqmo4ujfb costPrice=0.0387021 in expected range
-- Failed report: docs/test-reports/BL-RECON-FIX-PHASE2-verification-failed-2026-04-27.md
+- Phase/state: done
+- Signoff: docs/test-reports/BL-RECON-FIX-PHASE2-signoff-2026-04-27.md
+- Verification: PASS under user-approved tc8 T+1 acceptance
+- Static checks: tsc/build/vitest passed (471 tests)
+- Production proof: real call trace trc_iyp6j4qwowbsu8fhqmo4ujfb costPrice=0.0387021 in expected range
+- Reconciliation proof: nearest available reportDate (2026-04-26) contains model google/gemini-2.5-flash-image with status MATCH
+- Notes: same-day (2026-04-27) row not present after rerun; user accepted T+1 criterion
 - Artifacts: docs/test-reports/artifacts/bl-recon-fix-phase2-2026-04-27-codex-verifying/

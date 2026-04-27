@@ -34,7 +34,7 @@
       "title": "BL-RECON-FIX-PHASE2 验收（静态 + 单测 + 生产实证 + reconcile 验证）",
       "priority": "high",
       "executor": "codex",
-      "status": "pending",
+      "status": "completed",
       "source": "BL-RECON-FIX-PHASE2 spec § F-RP-04",
       "acceptance": "静态（3）：tsc / build / vitest（≥ 452 + F-RP-02/03 新增）。单测验证（2）：4) F-RP-02 extractUsage 新单测全 PASS；5) F-RP-03 集成测全 PASS。生产实证（3）：6) 触发 1 次真实 gemini-2.5-flash-image 调用（admin API key + https://aigc.guangai.ai/v1/chat/completions）；7) 查 call_logs 该 traceId 对应 costPrice ∈ [$0.030, $0.045]（覆盖 OR 实收 $0.0387 ±15%）；8) 触发手动 reconcile rerun（POST /api/admin/reconciliation/rerun {date:今日}）→ 该日 gemini-2.5-flash-image 行 status=MATCH（默认阈值 |Δ|<$0.5）。报告（1）：9) docs/test-reports/BL-RECON-FIX-PHASE2-signoff-2026-04-2X.md 含 9 项证据 + 引用 F-RP-01 调研报告 + 实证 traceId + reconcile 截图"
     }
