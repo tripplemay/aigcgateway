@@ -7,7 +7,7 @@
       "title": "动态 tool 清单：MCP_TOOL_REGISTRY + GET /api/mcp/tools + i18n 35 个新 keys",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "source": "BL-MCP-PAGE-REVAMP spec § F-MR-01",
       "acceptance": "1) 新建 src/lib/mcp/tool-registry.ts 集中维护 28 个 tool 元数据 const MCP_TOOL_REGISTRY = [{ name, category, descriptionKey, icon }, ...]；按 server.ts register 顺序 + spec 给出的 7 category 划分；2) 新建 src/app/api/mcp/tools/route.ts GET 返回 { data: registry }；3) 单测 src/lib/mcp/__tests__/tool-registry.test.ts 断言 registry.length === 28 + 每 name 与 server.ts 调用一致（grep 检测）+ 必含 embed_text；4) 修改 src/app/(console)/mcp-setup/page.tsx 删除 line 318-326 hardcoded 7 个 tool 数组，改用 useAsyncData 拉 /api/mcp/tools；5) messages/en.json + zh-CN.json 加 35 个新 keys（28 toolXxx + 7 categoryXxx）按 spec 文案；6) tsc + build + vitest（≥ 517）全过；7) commit 'feat(BL-MCP-PAGE-REVAMP F-MR-01): dynamic tool registry + i18n'"
     },
@@ -16,7 +16,7 @@
       "title": "Category 分组展示 + Step 编号修正",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "source": "BL-MCP-PAGE-REVAMP spec § F-MR-02",
       "acceptance": "1) src/app/(console)/mcp-setup/page.tsx tool 渲染按 category 分 7 组（顺序：models / ai_call / observability / action / template / api_key / project），每组 section header 用 i18n category 标签；2) Step 编号修复：当前 Step 1 → Step 3 (line 311) → Step 2，改为 Step 1 → Step 2 → 独立 Tools 区块（无编号）；3) 视觉验证：sections 之间留 gap 6 + section header h4 风格一致；4) tsc + build 通过；5) commit 'feat(BL-MCP-PAGE-REVAMP F-MR-02): category grouping + step ordering'"
     },
@@ -25,7 +25,7 @@
       "title": "每 category 加 prompt 示例（中英双语）",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "source": "BL-MCP-PAGE-REVAMP spec § F-MR-03",
       "acceptance": "1) src/app/(console)/mcp-setup/page.tsx 每 category section 内 tool list 上方加 'Example prompt' 块；2) 7 category 各 1 段示例（spec § F-MR-03 表格给定文案）；3) messages/en.json + zh-CN.json 加 7 个 exampleXxx i18n keys（mcpSetup.exampleModels 等）；4) 视觉：example 用 quote 样式（左 border-l-4 border-ds-primary + italic + bg-ds-surface-container-low p-3 rounded-r）；5) tsc + build 通过；6) commit 'feat(BL-MCP-PAGE-REVAMP F-MR-03): example prompts per category'"
     },
@@ -34,7 +34,7 @@
       "title": "Try-it 面板（仅 4 个安全 tool：list_models / get_balance / get_usage_summary / embed_text）",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "source": "BL-MCP-PAGE-REVAMP spec § F-MR-04",
       "acceptance": "1) src/app/(console)/mcp-setup/page.tsx 新增 SectionCard 'Try It' 在 tool list 之后；2) Tool dropdown 仅 4 选项（list_models / get_balance / get_usage_summary / embed_text）；3) 参数表单：list_models 显示 modality select (text/image/embedding/all) + embed_text 显示 input textarea (max 1000 chars，model 锁定 bge-m3) + get_balance / get_usage_summary 无参数；4) Run button → 调用对应内部 API：list_models→/api/v1/models?modality / embed_text→/api/v1/embeddings (apiFetch 走 user session) / get_balance→/api/users/me/balance / get_usage_summary→/api/users/me/usage；5) 响应区域 JSON 格式化 + max-height:400px overflow-auto + 错误 toast；6) embed_text 试用前显示 '将产生微量费用 ~$0.000004' 警示（i18n key tryItCostWarning）；7) tsc + build + vitest 全过；8) commit 'feat(BL-MCP-PAGE-REVAMP F-MR-04): try-it panel for 4 safe tools'"
     },
