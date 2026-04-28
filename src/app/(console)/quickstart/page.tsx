@@ -37,7 +37,7 @@ const res = await client.chat.completions.create({
 console.log(res.choices[0].message.content);`;
 
 const SDK_STREAM = `const stream = await client.chat.completions.create({
-  model: "claude-sonnet-4-6",
+  model: "claude-sonnet-4.6",
   messages: [{ role: "user", content: "Write a haiku about the ocean." }],
   stream: true,
 });
@@ -46,13 +46,35 @@ for await (const chunk of stream) {
   process.stdout.write(chunk.choices[0]?.delta?.content ?? "");
 }`;
 
+const SDK_EMBED = `// Single input
+const single = await client.embeddings.create({
+  model: "bge-m3",
+  input: "AIGC Gateway aggregates 10+ AI providers behind one OpenAI-compatible API.",
+});
+console.log(single.data[0].embedding.length); // 1024 (bge-m3) / 1536 (text-embedding-3-small)
+
+// Batch (up to 100 inputs per request)
+const batch = await client.embeddings.create({
+  model: "bge-m3",
+  input: ["hello", "world", "AIGC Gateway"],
+});
+console.log(batch.data.length); // 3`;
+
 interface NextItem {
   href: string;
   icon: string;
-  titleKey: "nextChat" | "nextImages" | "nextModels" | "nextErrors" | "nextRateLimits" | "nextMcp";
+  titleKey:
+    | "nextChat"
+    | "nextImages"
+    | "nextEmbeddings"
+    | "nextModels"
+    | "nextErrors"
+    | "nextRateLimits"
+    | "nextMcp";
   descKey:
     | "nextChatDesc"
     | "nextImagesDesc"
+    | "nextEmbeddingsDesc"
     | "nextModelsDesc"
     | "nextErrorsDesc"
     | "nextRateLimitsDesc"
@@ -62,6 +84,12 @@ interface NextItem {
 const NEXT_ITEMS: NextItem[] = [
   { href: "/docs#chat", icon: "forum", titleKey: "nextChat", descKey: "nextChatDesc" },
   { href: "/docs#images", icon: "image", titleKey: "nextImages", descKey: "nextImagesDesc" },
+  {
+    href: "/docs#embeddings",
+    icon: "data_object",
+    titleKey: "nextEmbeddings",
+    descKey: "nextEmbeddingsDesc",
+  },
   { href: "/docs#models", icon: "list_alt", titleKey: "nextModels", descKey: "nextModelsDesc" },
   { href: "/docs#errors", icon: "error", titleKey: "nextErrors", descKey: "nextErrorsDesc" },
   {
@@ -171,8 +199,18 @@ export default function QuickStartPage() {
           <CodeBlock code={SDK_STREAM} fileName="stream.ts" />
         </StepCard>
 
-        {/* Step 4 — what to explore next */}
-        <StepCard num={4} title={t("step4Title")} tag={t("step4Tag")} desc={t("step4Desc")}>
+        {/* Step 4 — embeddings */}
+        <StepCard
+          num={4}
+          title={t("stepEmbedTitle")}
+          tag={t("stepEmbedTag")}
+          desc={t("stepEmbedDesc")}
+        >
+          <CodeBlock code={SDK_EMBED} fileName="embed.ts" />
+        </StepCard>
+
+        {/* Step 5 — what to explore next */}
+        <StepCard num={5} title={t("step4Title")} tag={t("step4Tag")} desc={t("step4Desc")}>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {NEXT_ITEMS.map((item) => (
               <Link

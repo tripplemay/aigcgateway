@@ -146,6 +146,28 @@ export default function DocsPage() {
   }'`}</Code>
       </Section>
 
+      <Section title={t("secEmbeddings")} id="embeddings">
+        <p className="text-sm mb-3">{t("embeddingsDesc")}</p>
+        <Code>{`# Single input
+curl https://aigc.guangai.ai/v1/embeddings \\
+  -H "Authorization: Bearer pk_your_api_key" \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "model": "bge-m3",
+    "input": "AIGC Gateway aggregates 10+ AI providers."
+  }'
+
+# Batch (up to 100 inputs)
+curl https://aigc.guangai.ai/v1/embeddings \\
+  -H "Authorization: Bearer pk_your_api_key" \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "model": "bge-m3",
+    "input": ["hello", "world", "AIGC Gateway"]
+  }'`}</Code>
+        <p className="text-xs text-ds-on-surface-variant mt-3">{t("embeddingsModelsHint")}</p>
+      </Section>
+
       <Section title={t("secModels")} id="models">
         <p className="text-sm mb-3">{t("modelsDesc")}</p>
         <Code>{`curl https://aigc.guangai.ai/v1/models
