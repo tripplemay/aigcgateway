@@ -324,8 +324,22 @@ async function reconcile(
   }
 
   // 下架：服务商不再返回的模型
+  //
+  // BL-MCP-PAGE-REVAMP fix-round-4 真因修复（更深层）：跨批次 regression
+  // model-sync 跑 SiliconFlow / OpenAI 时只拉 chat completions 模型清单
+  // (/v1/models)，**不包含 EMBEDDING modality**（如 BAAI/bge-m3）。
+  // 原 toDisable filter 把 embedding channel 当作"消失模型"反复 DISABLED，
+  // 即使 health probe PASS 也会被下次 sync 强制 disable。导致 fix-round-4
+  // SQL 解锁 ACTIVE 后下次 sync 又被下架，try-it embed_text 持续 503。
+  // 修复：toDisable 显式排除 EMBEDDING modality（这些 model 不通过 chat
+  // completions list 同步，由 seed-embedding-models.ts 单独管理）。
+  // 长期方向：modality-aware sync（按需拉 embeddings list 同步），但 MVP
+  // 只需 EMBEDDING 不被误下架即可。
   const toDisable = existingChannels.filter(
-    (ch) => ch.status !== "DISABLED" && !remoteRealModelIds.has(ch.realModelId),
+    (ch) =>
+      ch.status !== "DISABLED" &&
+      !remoteRealModelIds.has(ch.realModelId) &&
+      ch.model.modality !== "EMBEDDING",
   );
   if (toDisable.length > 0) {
     await prisma.channel.updateMany({
