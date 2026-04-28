@@ -300,8 +300,17 @@ export default function McpSetupPage() {
     try {
       let result: unknown;
       if (tryItTool === "list_models") {
+        // BL-MCP-PAGE-REVAMP fix-round-4: 不能用 apiFetch（自动加 user JWT 到
+        // Authorization）。/api/v1/models 见到任何 Bearer token 都走 API key
+        // 鉴权（sha256），JWT 不匹配 → 401 Invalid API key（Codex round4 现象）。
+        // /v1/models 公开端点本就支持无 auth 访问，直接 raw fetch 即可。
         const q = tryItModality && tryItModality !== "all" ? `?modality=${tryItModality}` : "";
-        result = await apiFetch(`/api/v1/models${q}`);
+        const res = await fetch(`/api/v1/models${q}`);
+        if (!res.ok) {
+          const body = await res.json().catch(() => ({}));
+          throw new Error(body.error?.message ?? `HTTP ${res.status}`);
+        }
+        result = await res.json();
       } else if (tryItTool === "get_balance") {
         if (!current?.id) {
           toast.error(t("tryItProjectRequired"));
