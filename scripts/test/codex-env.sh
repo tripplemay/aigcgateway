@@ -22,3 +22,11 @@ export DEFAULT_TPM="100000"
 export DEFAULT_IMAGE_RPM="10"
 export NODE_ENV="test"
 export PORT="3199"
+
+# BL-MCP-PAGE-REVAMP fix-round-2: 绕开本地 HTTP_PROXY (clash/v2ray) 干扰
+# Codex round2 reverify 502 真因：curl 默认走 http_proxy（如 127.0.0.1:7890）
+# 代理无法 forward 到 :3199 → 返 502。让 codex 测试期间 localhost 流量绕过
+# proxy。NODE 也使用同样 NO_PROXY 避免内部 fetch 走代理（health probe 在
+# 本地测试时不应走 proxy）。
+export NO_PROXY="localhost,127.0.0.1,::1"
+export no_proxy="localhost,127.0.0.1,::1"
