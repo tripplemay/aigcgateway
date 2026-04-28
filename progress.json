@@ -1,120 +1,86 @@
 {
-  "status": "fixing",
-  "user_goal": "BL-MCP-PAGE-REVAMP — /mcp-setup 页面修正与增强。Tool 清单错误率 4/7 修正 + 后端 28 个 tool 全展示（含 embed_text）+ category 分组 + prompt 示例 + try-it 面板（4 安全 tool）。来源：用户调研发现 dogfood 页面与后端不一致。",
-  "total_features": 5,
-  "completed_features": 4,
-  "fix_rounds": 6,
-  "current_sprint": "BL-MCP-PAGE-REVAMP",
-  "last_updated": "2026-04-28T09:48:43.355Z",
+  "status": "building",
+  "user_goal": "BL-TEST-INFRA-IMPORT — 全量迁移 KOLMatrix/joyce 测试基建到 aigcgateway。CI 3→8 jobs（含 build+migrate / coverage / integration / e2e + rollback validate）+ vitest 三配置 + MSW 框架 + Testcontainers + 64 migrations ROLLBACK 注释 + scripts/test/ 历史归档。来源：用户对比分析后选 D 全量迁移。",
+  "total_features": 7,
+  "completed_features": 0,
+  "fix_rounds": 0,
+  "current_sprint": "BL-TEST-INFRA-IMPORT",
+  "last_updated": "2026-04-28T20:00:00.000Z",
   "reference_docs": [
-    "docs/specs/BL-MCP-PAGE-REVAMP-spec.md"
+    "docs/specs/BL-TEST-INFRA-IMPORT-spec.md",
+    "/Users/yixingzhou/project/joyce/.github/workflows/ci.yml",
+    "/Users/yixingzhou/project/joyce/vitest.config.ts",
+    "/Users/yixingzhou/project/joyce/vitest.integration.config.ts",
+    "/Users/yixingzhou/project/joyce/playwright.config.ts",
+    "/Users/yixingzhou/project/joyce/tests/setup.ts",
+    "/Users/yixingzhou/project/joyce/tests/mocks/handlers.ts",
+    "/Users/yixingzhou/project/joyce/scripts/validate-rollback-sql.sh"
   ],
   "role_assignments": null,
   "docs": {
-    "spec": "docs/specs/BL-MCP-PAGE-REVAMP-spec.md",
+    "spec": "docs/specs/BL-TEST-INFRA-IMPORT-spec.md",
     "test_cases": null,
     "signoff": null,
     "framework_reviewed": false
   },
-  "evaluator_feedback": {
-    "result": "FAIL",
-    "round": "reverifying-round4",
-    "report": "docs/test-reports/BL-MCP-PAGE-REVAMP-reverification-failed-2026-04-28-round4.md",
-    "blockers": [
-      "production mcp-setup try-it returns Invalid API key with valid full key",
-      "same key works on direct production /api/v1/models"
-    ]
-  },
-  "evaluator_handoff": {
-    "scope": "F-MR-05 全量验收 — 静态(3) + API(3) + 前端(5) + Try-it(3) + 报告(1)，共 13 项",
-    "spec": "docs/specs/BL-MCP-PAGE-REVAMP-spec.md § F-MR-05",
-    "completed_by_generator": [
-      "F-MR-01 (commit pending push): MCP_TOOL_REGISTRY 29 entry + GET /api/mcp/tools + 38 单测 + i18n 81 keys 中英对齐",
-      "F-MR-02 (合并 c986bcd): 7 category 分组渲染 + Step 1/2 + 独立 Tools 区块（消除 'Step 3' 错位）",
-      "F-MR-03 (合并 c986bcd): 每 category 加 quote 样式 example prompt 块 + 7 i18n exampleXxx keys",
-      "F-MR-04 (合并 c986bcd): Try-it 面板 4 安全 tool（list_models / get_balance / get_usage_summary / embed_text）"
-    ],
-    "verification_evidence": {
-      "static": {
-        "tsc": "PASS（npx tsc --noEmit 无输出）",
-        "build": "PASS（npm run build 完成所有路由）",
-        "vitest": "554 tests PASS（基线 516 + 38 新增 = 554）"
-      },
-      "registry_verification": {
-        "tool_count": "29（spec § 算 28 错误，server.ts 实有 29 register* 调用；以 server.ts 为准）",
-        "category_breakdown": "models 1 / ai_call 3 / observability 4 / action 8 / template 8 / api_key 3 / project 2 = 29",
-        "embed_text_present": "✅ 在 ai_call category（KOLMatrix dependency）",
-        "lint_consistency": "29 个 server.ts grep test 各自 PASS（pattern: register{Pascal}\\(）"
-      },
-      "i18n_state": {
-        "en_keys": 81,
-        "zh_keys": 81,
-        "parity": "完全对齐（en_only=[] / zh_only=[]）",
-        "removed_keys": "toolChatCompletion / toolGetContext / toolTokenCount / toolFetchLogs / toolVerifyKey（错误的 placeholder keys）",
-        "added_keys": "29 toolXxx + 7 categoryXxx + 7 exampleXxx + examplePrompt + 18 tryItXxx"
-      },
-      "spec_deviations": [
-        "spec § '完整 28 个 tool' 算错为 28，registry 实际 29（多 1 个：spec 表格里 list_public_templates + fork_public_template 算 2 但合并到 8 导致总和算错）；不影响功能",
-        "spec § F-MR-04 引用 /api/users/me/balance 不存在，实际改用 /api/projects/{currentId}/balance（usage 同样）；功能等价"
-      ],
-      "production_proof_hint": {
-        "deploy_steps": "单 commit 部署即生效，无 migration / 配置变更；revert 简单",
-        "try_it_test_plan": "1) 访问 /mcp-setup 看 7 category × 29 tool；2) 切 zh-CN 看翻译；3) try-it list_models?modality=image 应返 image models；4) try-it embed_text 'hello' 应返 dim=1024 + 首 5 维（cost ~$0.000004）；5) try-it get_balance 应与 sidebar 一致"
-      }
-    },
-    "expected_signoff_path": "docs/test-reports/BL-MCP-PAGE-REVAMP-signoff-2026-04-28.md",
-    "exclusions_reminder": "明确不要求：chat / generate_image / run_action try-it（计费/副作用）；create/update/delete try-it（不可逆）；MCP 协议层 try-it（直接发 JSON-RPC）；客户端配置生成函数重构"
-  },
-  "generator_handoff_completed": {
+  "evaluator_feedback": null,
+  "evaluator_handoff": null,
+  "generator_handoff": {
     "fix_round": 0,
-    "completed_commits": "F-MR-01 (1 commit: tool-registry + route + i18n + tests) + F-MR-02/03/04 合并 (commit c986bcd)",
-    "scope": "F-MR-01 → F-MR-02 → F-MR-03 → F-MR-04 顺序执行；总工时 ~3.5h。F-MR-01 是基础（动态 registry + i18n），其他 3 个并行依赖该基础。",
-    "spec": "docs/specs/BL-MCP-PAGE-REVAMP-spec.md",
+    "scope": "全量迁移 joyce 测试基建（~10-12h）。F-TI-01→02→03→04→05→06 顺序执行；建议每完成一条独立 commit 便于回滚。",
+    "spec": "docs/specs/BL-TEST-INFRA-IMPORT-spec.md",
     "execution_order": [
-      "F-MR-01：MCP_TOOL_REGISTRY + GET /api/mcp/tools + i18n 35 keys（基础）",
-      "F-MR-02：Category 分组渲染 + Step 编号修正",
-      "F-MR-03：每 category 加 prompt 示例",
-      "F-MR-04：Try-it 面板（4 安全 tool）"
+      "F-TI-01：装 deps + 3 配置文件（vitest / vitest.integration / playwright）+ package.json scripts",
+      "F-TI-02：tests/ 目录重组 + setup.ts MSW 生命周期 + handlers.ts 4 上游 mock",
+      "F-TI-03：CI 8 jobs（含 PostgreSQL service container + e2e artifact）",
+      "F-TI-04：validate-rollback-sql.sh + 64 migrations 补 ROLLBACK 注释",
+      "F-TI-05：Testcontainers 集成测示例（deduct-balance-atomic）+ docs/dev/testing.md",
+      "F-TI-06：scripts/test/ 历史 dated 脚本归档"
     ],
-    "key_files": {
-      "new": [
-        "src/lib/mcp/tool-registry.ts（28 entry registry）",
-        "src/lib/mcp/__tests__/tool-registry.test.ts（lint 一致性）",
-        "src/app/api/mcp/tools/route.ts（GET endpoint）",
-        "src/app/api/mcp/tools/__tests__/route.test.ts"
-      ],
-      "modified": [
-        "src/app/(console)/mcp-setup/page.tsx（hardcoded → 动态 + category + step + try-it ~600 行预计）",
-        "messages/en.json（+35 toolXxx/categoryXxx + 7 exampleXxx + 1 tryItCostWarning ≈ 50 keys）",
-        "messages/zh-CN.json（同步）"
-      ]
+    "joyce_reference_paths": {
+      "ci_yml": "/Users/yixingzhou/project/joyce/.github/workflows/ci.yml",
+      "vitest_unit": "/Users/yixingzhou/project/joyce/vitest.config.ts",
+      "vitest_integration": "/Users/yixingzhou/project/joyce/vitest.integration.config.ts",
+      "playwright": "/Users/yixingzhou/project/joyce/playwright.config.ts",
+      "setup": "/Users/yixingzhou/project/joyce/tests/setup.ts",
+      "msw_handlers": "/Users/yixingzhou/project/joyce/tests/mocks/handlers.ts",
+      "msw_server": "/Users/yixingzhou/project/joyce/tests/mocks/server.ts",
+      "validate_rollback": "/Users/yixingzhou/project/joyce/scripts/validate-rollback-sql.sh",
+      "integration_examples": "/Users/yixingzhou/project/joyce/tests/integration/"
     },
     "preflight_checks": [
-      "Read src/lib/mcp/server.ts 完整 register 列表（28 个调用），逐个对应 registry 元数据",
-      "Read src/app/(console)/mcp-setup/page.tsx 当前结构（427 行）以确认改动点",
-      "Read src/hooks/use-async-data.ts 确认 hook API 用法（已有项目其他页面用过）",
-      "Read src/lib/api-client.ts 确认 apiFetch 已支持 GET /api/v1/models 等内部路径（embed_text try-it 需用）",
-      "确认 /api/users/me/balance 和 /api/users/me/usage 端点存在（如不存在可改成 /api/admin/balance 或现有路径）"
+      "Read joyce 全部 reference paths 上下文（每个文件至少粗读）",
+      "Read aigcgateway 当前 vitest.config.ts（11 行）+ ci.yml + tests/ 现状",
+      "Read aigcgateway prisma/migrations/ 64 文件名列表（确定 retrofit 范围）",
+      "Read src/lib/__tests__ 现有 554 单测文件结构（jsdom 切换风险评估）",
+      "全仓 grep 'scripts/test/.*-202' 引用（F-TI-06 归档前要修 broken refs）"
     ],
     "design_decisions": {
-      "registry_sync_strategy": "MCP_TOOL_REGISTRY 是手动维护的 const 数组（不反射 server 内部状态），加新 tool 必须同步 server.ts + registry.ts；单测 length 断言 + grep 检测保证不漂移",
-      "tryit_safety": "仅 4 安全 tool（read-only 或 ~$0.000004 cost）；明确排除 chat/generate_image/run_action/run_template/create_*/update_*/delete_* 系列",
-      "i18n_strategy": "中英双语，~50 个新 keys；中文优先准确（KOLMatrix 中文主用户），英文兜底",
-      "step_layout": "原 Step 1 → 'Step 3' tools → Step 2 改为 Step 1 → Step 2 + 独立 Tools 区块（无 step 编号），避免编号错位"
+      "msw_strategy": "F-TI-02 引入 MSW 不强制全替换现有 vi.mock；新测试推荐 MSW，旧 vi.mock 保留",
+      "testcontainers_scope_phase_1": "F-TI-05 仅 1-2 集成测示例（deduct-balance-atomic 必做，cny-conversion 可选）；后续批次按需扩",
+      "rollback_retrofit_strategy": "F-TI-04 64 migrations 用脚本批量加 placeholder + 人工 review 关键 DATA migration；不可逆 migration 标注 'revert commit + restore from backup'",
+      "ci_e2e_acceptance": "F-TI-07 e2e jobs 接受『至少 1 spec PASS + report 上传』，不要求全绿；现有 3 spec 修留单独 batch",
+      "scripts_archive_decision": "F-TI-06 倾向 git mv 到 _archive 子目录（保留方便复跑），而非 git rm（虽然 git 历史也保留）",
+      "coverage_threshold": "F-TI-01 设 60/60/50/60（lines/functions/branches/statements），与 joyce 一致；首批 fail 也接受（让用户看到 baseline 后调）"
     },
     "kolmatrix_context": {
-      "external_request_doc": "/Users/yixingzhou/project/joyce/docs/external-asks/aigcgateway-embedding-request.md",
-      "embed_text_visibility": "本批次让 embed_text 在 /mcp-setup 页正式展示，KOLMatrix 接入时能从该页找到文档 + try-it 验证",
-      "kolmatrix_mvp_deadline": "2026-05-22"
+      "joyce_test_infra_maturity": "joyce 在 BI1-BI2 阶段做的核心测试基建批次；aigcgateway 落后 ~6-12 个月",
+      "fix_round_history_pattern": "BL-EMBEDDING-MVP 3 轮 / BL-FE-QUALITY 6 轮 / BL-RECON-FIX-PHASE2 / BL-MCP-PAGE-REVAMP 4 轮 — 大量 single 单测过但生产挂可被 joyce 测试基建直接 catch",
+      "expected_outcome": "未来 batch fix-round 数量明显下降（从 1.5+ 平均降到 < 1）"
     },
-    "notes": "本批次共 5 features（4 generator + 1 codex），~3.5h Generator 实施 + 0.5h Codex 验收。Generator 完成 F-MR-01~04 后置 status=verifying；Codex 跑 F-MR-05 14 项验收。生产实证调用 ~$0.000004（embed_text try-it 1 次）。"
+    "risk_areas": [
+      "jsdom env 切换让现有单测部分破（旧 vitest config 是默认 node env）— 修可能要调几个 component 测",
+      "@testing-library/react 引入与现有 component 测 vi.mock 冲突（不强制改写）",
+      "Testcontainers 在 CI 时间膨胀（30s/容器）— 集成测控数量",
+      "Playwright 现有 3 spec 部分本就破（开发期被 ignore）— F-TI-07 仅要求 1 PASS",
+      "scripts/test/ 归档可能让 docs / CLAUDE.md 引用断链 — preflight grep 必做",
+      "64 migrations 补注释机械易错 — 用 git diff 抽检 5-10 文件确认"
+    ],
+    "rollback_plan": "本批次纯 dev infra 改动，无产品代码影响。如出问题 git revert 单 commit 即可。最坏情况整批 revert 回到 commit 7603d79（README 改完）状态。",
+    "notes": "本批次共 7 features（6 generator + 1 codex），~10-12h Generator + 1h Codex 验收。Generator 完成 F-TI-01~06 后置 status=verifying；Codex 跑 F-TI-07 11 项验收。建议每 feature 独立 commit 便于回滚 / 中途暂停。"
   },
   "session_notes": {
-    "Kimi-batch-launch": "BL-MCP-PAGE-REVAMP 启动 @ 2026-04-28 15:00。\n\n来源：用户 2026-04-28 对话调研 /mcp-setup 页面发现严重过时：\n1) Tool 清单 4/7 错误率（chat_completion/get_context/token_count/verify_key/fetch_logs 4 个名字错或不存在）\n2) 后端 28 个 tools 中 21 个没展示，包括最新交付的 embed_text（KOLMatrix 客户即将依赖）\n3) i18n 翻译键 mcpSetup.toolXxx 完全缺失\n4) Step 编号视觉错位 1→3→2\n5) 缺 category 分组 + prompt 示例 + try-it\n\n用户从 4 选项（A MVP P0 only / B P0+P1 / C P0+P1+P2 / D 完整）选 D。\n\n5 features 设计：\n- F-MR-01 (gen, ~1h): MCP_TOOL_REGISTRY 集中维护 + GET /api/mcp/tools + i18n 35 keys\n- F-MR-02 (gen, ~30min): category 分组 + Step 编号修\n- F-MR-03 (gen, ~30min): 每 category prompt 示例\n- F-MR-04 (gen, ~1.5h): Try-it 面板（4 安全 tool：list_models / get_balance / get_usage_summary / embed_text）\n- F-MR-05 (codex, ~30min): 14 项验收\n\n关键设计：\n- registry 手动维护 const（不反射 server 内部）+ 单测 length 断言防漂移\n- try-it 仅 read-only 和最低成本 tool（embed_text $0.000004），排除 chat/image/run_*/create_*等\n- step layout 改 1/2 + 独立 Tools 区块，避免编号错位\n- 中文优先（KOLMatrix 中文主用户）\n\nKOLMatrix 受益：embed_text 在该页正式文档化 + 可 try-it 验证，5/22 上线前到位。\n\n下一步：本会话 Planner 身份固定。等 Generator session pull 后按 generator_handoff 顺序执行 F-MR-01~04，完成后 status=verifying 交 Codex F-MR-05（含生产实证 try-it）。",
-    "Reviewer": "2026-04-28 reverifying round4 (production): /api/mcp/tools PASS (29 incl embed_text), page structure PASS, try-it list_models FAIL with Invalid API key despite direct /api/v1/models success using same key. moved to fixing.",
-    "Kimi-fix-round-2": "fix-round-2 完成 @ 2026-04-28 16:55。\n\n双 blocker 真因诊断：\n1) 本地 502 (Codex round2 报告) — **真因 HTTP_PROXY 干扰**，不是 standalone build 不全。本地复现：source codex-env.sh + standalone start + curl GET /api/mcp/tools → 502 (Connection: keep-alive Content-Length: 0)。curl -v 显示 'Uses proxy env variable http_proxy == http://127.0.0.1:7890'。bypass: curl --noproxy '*' → http=200 + 29 tool + embed_text。Codex sandbox 同样有 proxy env，故同样 502。报告里 MODULE_NOT_FOUND 是 502 cascade error 的副产物（proxy 502 后 Next 可能 fallback 加载 _error.js 时缺失）。\n2) 生产 404 (Codex round2 报告) — **真因 Deploy 时序**，不是路由问题。Codex round2 跑 reverify 时间在 fix-round-1 commit 之前的 Deploy run；那次 Deploy 跑的是更早 commit 不含 /api/mcp/tools route。fix-round-1 Deploy 已部署 dd70969，这个 commit 包含 8ab8529 的 route。验证：curl https://aigc.guangai.ai/api/mcp/tools → http=200 + 29 tools + embed_text 在 ai_call。\n\n修复（commit 2af3dde + artifact commit）：\n- src/app/api/mcp/tools/route.ts: 改 force-dynamic 与项目其他 API 一致（移除 force-static + revalidate=3600 ISR 配置）。这是 belt-and-suspenders — 实际 force-static 在 prod 也工作（dd70969 已部署），但去掉避免任何潜在 ISR/static 边界 case，避免 future 类似困惑。\n- scripts/test/codex-env.sh: 加 NO_PROXY/no_proxy=localhost,127.0.0.1,::1。这是真因修复 — 让 Codex 测试环境 localhost 流量绕开 proxy。\n- artifacts: round2 失败报告 + round2/round3 证据快照入仓\n\n切状态机：fixing → reverifying，fix_rounds 2 → 3。无需重新部署 prod（dd70969 已工作，2af3dde force-dynamic 改动不影响 prod 行为）；Codex 重启 codex-setup.sh 自动 source 新 codex-env.sh 拿到 NO_PROXY。\n\n沉淀（next done 阶段）：spec 模板 reverify 流程文档应加「先确认 Deploy workflow run id 含目标 commit」步骤；codex-env.sh 应保持 NO_PROXY 永久启用避免类似 504/502 误判。",
-    "Kimi-fix-round-3": "fix-round-3 完成 @ 2026-04-28 17:35。\n\nCodex round3 单 blocker：prod /mcp-setup try-it 用有效 API key 仍返 Invalid API key；同 key 直调 /api/v1/models 工作。\n\n诊断：\n1) /api/v1/models route.ts 注释明确 '无 Bearer token → 公开访问'。Codex 测的 'same key works' 实为 unauth 公开访问（200 公开 list），并非 'key 有效'。这是 Codex 推理误判。\n2) try-it 真问题：input value 含 trailing whitespace/newline（paste 时常见），auth middleware sha256(rawKey) 对 trailing chars 敏感（auth-middleware.ts:74-75）→ Bearer header 含坏字符 → sha256 不匹配 → 401 Invalid API key。\n\n修复（commit cefb3ba）：\n- src/app/(console)/mcp-setup/page.tsx 双重 trim 防御：\n  (a) <input onChange>: setApiKey(e.target.value.trim()) — 输入即 trim\n  (b) try-it embed_text fetch 前: const trimmedKey = apiKey.trim() + 校验 startsWith('pk_')；非 pk_ 显示 tryItKeyRequired toast\n  (c) Authorization 改用 trimmedKey，永远干净\n\n部署：cefb3ba 已部署到 prod (curl 验证 git rev-parse HEAD = cefb3ba)。/api/mcp/tools 实测 200 + 29 tools。\n\n切状态机：fixing → reverifying，fix_rounds 4 → 5。Codex reverify try-it embed_text 应直接 200 + dim=1024。\n\n沉淀（next done 阶段）：spec 模板 try-it / API key input 类组件必须含 .trim() 防御；可作通用 lint rule 检测 string state setter 缺 trim。",
-    "Kimi-fix-round-1": "fix-round-1 @ 2026-04-28 16:25 — 数据修复，无代码改动。\n\n诊断：Codex 在本地 dev :3199 跑 try-it embed_text。错误 'Insufficient balance' 来自 /api/v1/embeddings 的 checkBalance(user) — codex-dev 账号 (DEVELOPER, 关联 pk_1ec762...) 在 dev DB 余额 = 0。这是 spec 漏定义的「测试账户余额>0」前置条件，不是代码 bug。\n\n选项 A：dev DB SQL UPDATE codex-dev balance += 10。dev 数据可改，最快。\n\n执行：UPDATE users SET balance=10.0 WHERE email='codex-dev@aigc-gateway.local' → 100→10.00000000 ✓\n\n影响：仅 dev 环境数据；不改代码、不破 build / vitest；Codex reverify try-it embed_text 应直接返回 dim=1024 + 首 5 维向量（input='hello' 约 1-3 token，cost ~$0.000004 - 0.0001）。\n\n沉淀：spec 模板未来需加「测试账户 balance prerequisite」section（与 admin API key 重创类似）。已记录待 done 阶段同步 proposed-learnings。",
-    "Kimi": "BL-MCP-PAGE-REVAMP building → verifying @ 2026-04-28 16:05。\n\n4 个 generator features 一次性完成（B 模式），但拆 2 个 commit：\n- F-MR-01 (registry + GET endpoint + 81 i18n keys + 38 单测): 基础设施层独立\n- F-MR-02/03/04 合并 (commit c986bcd): page.tsx 整体重写\n\n关键发现：\n1) spec § '28 个 tool' 算错；server.ts 实有 29 register 调用，registry 与之对齐\n2) /api/users/me/balance 不存在，实际是 /api/projects/{currentId}/balance；F-MR-04 try-it 用项目级路径\n3) try-it embed_text 必须用 step 1 输入的 pk_xxx（apiFetch 走 user JWT 不能调 /api/v1/embeddings）；缺 key 时 toast tryItKeyRequired\n4) i18n 全部 81 keys 中英对齐 PASS（en_count=zh_count，diff=[]）\n5) registry 单测 38 个 PASS（含 29 个 server.ts grep 一致性 lint）\n\n下一步：Codex F-MR-05 13 项（静态 3 / API 3 / 前端 5 / try-it 3 / 报告 1）。生产实证 try-it embed_text 1 次 ~$0.000004 几乎免费。"
+    "Kimi-batch-launch": "BL-TEST-INFRA-IMPORT 启动 @ 2026-04-28 20:00。\n\n来源：用户 2026-04-28 对话比对 aigcgateway vs joyce 测试基建后选 D 全量迁移。\n\n落差总结：\n- 测试文件：69 (含 69 dated scripts) vs 134 (清晰三层)\n- CI jobs：3 vs 8\n- Coverage：未装 vs 装+threshold\n- Mock：1 个手写 vs MSW 完整框架\n- Integration：0 vs 35（Testcontainers PostgreSQL）\n- Migration rollback 强制：无 vs validate-rollback-sql.sh\n\n7 features 设计：\n- F-TI-01 (gen, ~1h): deps + 3 配置（vitest unit/integration + playwright）+ package.json scripts\n- F-TI-02 (gen, ~2h): tests/ 三层目录 + setup.ts + MSW handlers 4 上游 mock\n- F-TI-03 (gen, ~1h): CI 8 jobs 含 PostgreSQL service container + artifact upload\n- F-TI-04 (gen, ~1.5-2h): validate-rollback-sql.sh + 64 migrations 补 ROLLBACK 注释\n- F-TI-05 (gen, ~2h): Testcontainers 集成测示例 deduct-balance-atomic + docs/dev/testing.md\n- F-TI-06 (gen, ~1h): scripts/test/ 69 dated 文件归档到 _archive_2026Q1Q2/\n- F-TI-07 (codex, ~1h): 11 项验收（CI 8 jobs / 集成测 / e2e / MSW / 报告）\n\n关键决策：\n- MSW 不强制全替换 vi.mock（增量）\n- Testcontainers Phase 1 仅 1-2 示例\n- jsdom env 切换可能破现有 1-2 测试，修不改\n- e2e CI 接受『至少 1 spec PASS』，现有 3 spec 修留单独 batch\n- Coverage threshold 60/60/50/60 首批 fail 接受\n\n非目标（Phase 2）：visual regression / staging 环境 / 完整 e2e 修补 / 替换全部 vi.mock。\n\n下一步：本会话 Planner 身份固定。等 Generator session pull 后按 generator_handoff 顺序执行 F-TI-01~06，每条独立 commit；完成后 status=verifying 交 Codex F-TI-07 11 项验收。预估总工时 ~11-13h。",
+    "Reviewer": null
   }
 }
