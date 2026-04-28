@@ -1,11 +1,11 @@
 {
-  "status": "verifying",
+  "status": "fixing",
   "user_goal": "BL-MCP-PAGE-REVAMP — /mcp-setup 页面修正与增强。Tool 清单错误率 4/7 修正 + 后端 28 个 tool 全展示（含 embed_text）+ category 分组 + prompt 示例 + try-it 面板（4 安全 tool）。来源：用户调研发现 dogfood 页面与后端不一致。",
   "total_features": 5,
   "completed_features": 4,
   "fix_rounds": 0,
   "current_sprint": "BL-MCP-PAGE-REVAMP",
-  "last_updated": "2026-04-28T15:00:00.000Z",
+  "last_updated": "2026-04-28T08:20:07.470Z",
   "reference_docs": [
     "docs/specs/BL-MCP-PAGE-REVAMP-spec.md"
   ],
@@ -16,7 +16,20 @@
     "signoff": null,
     "framework_reviewed": false
   },
-  "evaluator_feedback": null,
+  "evaluator_feedback": {
+    "summary": "BL-MCP-PAGE-REVAMP 部分通过：Try-it embed_text 未能返回 1024 维成功结果，F-MR-05 未完成。",
+    "pass_count": 10,
+    "partial_count": 0,
+    "fail_count": 1,
+    "issues": [
+      {
+        "feature_id": "F-MR-05",
+        "result": "FAIL",
+        "description": "Try-it 选择 embed_text 执行后返回错误（本轮为 Insufficient balance），未达到 dimensions=1024 的验收要求。",
+        "steps_to_reproduce": "登录 /mcp-setup → Step1 输入有效 API key → Try-it 选 embed_text 输入 hello → 运行 → 响应区出现 error，而非 embedding 结果。"
+      }
+    ]
+  },
   "evaluator_handoff": {
     "scope": "F-MR-05 全量验收 — 静态(3) + API(3) + 前端(5) + Try-it(3) + 报告(1)，共 13 项",
     "spec": "docs/specs/BL-MCP-PAGE-REVAMP-spec.md § F-MR-05",
@@ -103,7 +116,7 @@
   },
   "session_notes": {
     "Kimi-batch-launch": "BL-MCP-PAGE-REVAMP 启动 @ 2026-04-28 15:00。\n\n来源：用户 2026-04-28 对话调研 /mcp-setup 页面发现严重过时：\n1) Tool 清单 4/7 错误率（chat_completion/get_context/token_count/verify_key/fetch_logs 4 个名字错或不存在）\n2) 后端 28 个 tools 中 21 个没展示，包括最新交付的 embed_text（KOLMatrix 客户即将依赖）\n3) i18n 翻译键 mcpSetup.toolXxx 完全缺失\n4) Step 编号视觉错位 1→3→2\n5) 缺 category 分组 + prompt 示例 + try-it\n\n用户从 4 选项（A MVP P0 only / B P0+P1 / C P0+P1+P2 / D 完整）选 D。\n\n5 features 设计：\n- F-MR-01 (gen, ~1h): MCP_TOOL_REGISTRY 集中维护 + GET /api/mcp/tools + i18n 35 keys\n- F-MR-02 (gen, ~30min): category 分组 + Step 编号修\n- F-MR-03 (gen, ~30min): 每 category prompt 示例\n- F-MR-04 (gen, ~1.5h): Try-it 面板（4 安全 tool：list_models / get_balance / get_usage_summary / embed_text）\n- F-MR-05 (codex, ~30min): 14 项验收\n\n关键设计：\n- registry 手动维护 const（不反射 server 内部）+ 单测 length 断言防漂移\n- try-it 仅 read-only 和最低成本 tool（embed_text $0.000004），排除 chat/image/run_*/create_*等\n- step layout 改 1/2 + 独立 Tools 区块，避免编号错位\n- 中文优先（KOLMatrix 中文主用户）\n\nKOLMatrix 受益：embed_text 在该页正式文档化 + 可 try-it 验证，5/22 上线前到位。\n\n下一步：本会话 Planner 身份固定。等 Generator session pull 后按 generator_handoff 顺序执行 F-MR-01~04，完成后 status=verifying 交 Codex F-MR-05（含生产实证 try-it）。",
-    "Reviewer": null,
+    "Reviewer": "2026-04-28 verifying: F-MR-05 除 try-it embed_text 成功返回外其余通过。/api/mcp/tools=29、页面分组与文案正常、4 安全 tool 渲染正常。embed_text 运行返回错误（余额/环境前置未满足），状态置 fixing。",
     "Kimi": "BL-MCP-PAGE-REVAMP building → verifying @ 2026-04-28 16:05。\n\n4 个 generator features 一次性完成（B 模式），但拆 2 个 commit：\n- F-MR-01 (registry + GET endpoint + 81 i18n keys + 38 单测): 基础设施层独立\n- F-MR-02/03/04 合并 (commit c986bcd): page.tsx 整体重写\n\n关键发现：\n1) spec § '28 个 tool' 算错；server.ts 实有 29 register 调用，registry 与之对齐\n2) /api/users/me/balance 不存在，实际是 /api/projects/{currentId}/balance；F-MR-04 try-it 用项目级路径\n3) try-it embed_text 必须用 step 1 输入的 pk_xxx（apiFetch 走 user JWT 不能调 /api/v1/embeddings）；缺 key 时 toast tryItKeyRequired\n4) i18n 全部 81 keys 中英对齐 PASS（en_count=zh_count，diff=[]）\n5) registry 单测 38 个 PASS（含 29 个 server.ts grep 一致性 lint）\n\n下一步：Codex F-MR-05 13 项（静态 3 / API 3 / 前端 5 / try-it 3 / 报告 1）。生产实证 try-it embed_text 1 次 ~$0.000004 几乎免费。"
   }
 }
