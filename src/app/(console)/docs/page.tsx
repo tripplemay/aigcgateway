@@ -93,7 +93,7 @@ export default function DocsPage() {
           <p>
             <code className="bg-ds-surface-container-low px-1 rounded">model</code>{" "}
             <Badge variant="secondary">{t("required")}</Badge> — {t("paramModel")}{" "}
-            <code>gpt-4o-mini</code>, <code>claude-sonnet-4-6</code>, <code>deepseek-v3</code>
+            <code>gpt-4o-mini</code>, <code>claude-sonnet-4.6</code>, <code>deepseek-v3</code>
           </p>
           <p>
             <code className="bg-ds-surface-container-low px-1 rounded">messages</code>{" "}
@@ -140,7 +140,7 @@ export default function DocsPage() {
   -H "Authorization: Bearer pk_your_api_key" \\
   -H "Content-Type: application/json" \\
   -d '{
-    "model": "cogview-3-flash",
+    "model": "qwen-image",
     "prompt": "A friendly robot",
     "size": "1024x1024"
   }'`}</Code>
@@ -269,7 +269,7 @@ curl https://aigc.guangai.ai/v1/models?modality=image`}</Code>
   }
 }`}</Code>
         <p className="text-sm mt-3 mb-2">
-          <strong>{t("availableTools")} (28)</strong>
+          <strong>{t("availableTools")} (29)</strong>
         </p>
         <div className="text-sm space-y-3">
           <div>
@@ -280,6 +280,7 @@ curl https://aigc.guangai.ai/v1/models?modality=image`}</Code>
               <ToolItem name="list_models" desc={t("toolListModels")} />
               <ToolItem name="chat" desc={t("toolChat")} />
               <ToolItem name="generate_image" desc={t("toolGenImage")} />
+              <ToolItem name="embed_text" desc={t("toolEmbedText")} />
             </div>
           </div>
           <div>

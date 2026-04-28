@@ -529,6 +529,7 @@
     "toolListModels": "列出模型及定价",
     "toolChat": "文本生成（非流式）",
     "toolGenImage": "图片生成",
+    "toolEmbedText": "生成向量 embedding（单条或最多 100 条批量）",
     "toolListLogs": "查看调用日志",
     "toolLogDetail": "完整调用详情",
     "toolBalance": "查询余额",

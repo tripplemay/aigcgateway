@@ -529,6 +529,7 @@
     "toolListModels": "List models with pricing",
     "toolChat": "Text generation (non-streaming)",
     "toolGenImage": "Image generation",
+    "toolEmbedText": "Generate vector embeddings (single or batch up to 100)",
     "toolListLogs": "View call logs",
     "toolLogDetail": "Full call details",
     "toolBalance": "Check balance",
