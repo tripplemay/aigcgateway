@@ -153,3 +153,32 @@ describe("fix round 1 DISABLED→DEGRADED auto-recovery preserved", () => {
     expect(source).toMatch(/updateChannelStatus\s*\(\s*route\s*,\s*["']DEGRADED["']\s*\)/);
   });
 });
+
+// BL-EMBEDDING-MVP fix-round-3: re-entrancy guard regression test.
+//
+// Background: fix-round-2 (commit 2f05db8) deployment caused 5-fold burst
+// of probes — same channel selected on each of 5 consecutive 60s ticks.
+// Root cause hypothesis (H4 race): runScheduledChecks is fire-and-forget
+// (setInterval doesn't await), so when one tick runs > 60s the next tick
+// starts concurrently; both see stale lastCheckTime and probe.
+//
+// Fix: schedulerRunning boolean guard — skip new tick if previous still
+// running. These contract tests pin the guard's presence so future refactor
+// can't silently delete it.
+describe("fix-round-3 re-entrancy guard (5-burst regression)", () => {
+  it("scheduler.ts declares schedulerRunning module flag", () => {
+    const source = fs.readFileSync(path.resolve(__dirname, "../scheduler.ts"), "utf8");
+    expect(source).toMatch(/let\s+schedulerRunning\s*=\s*false\s*;/);
+  });
+
+  it("startScheduler skips re-entrant ticks", () => {
+    const source = fs.readFileSync(path.resolve(__dirname, "../scheduler.ts"), "utf8");
+    expect(source).toMatch(/if\s*\(\s*schedulerRunning\s*\)/);
+    expect(source).toMatch(/re-entrancy guard/i);
+  });
+
+  it("startScheduler resets schedulerRunning in finally block", () => {
+    const source = fs.readFileSync(path.resolve(__dirname, "../scheduler.ts"), "utf8");
+    expect(source).toMatch(/\.finally\(\(\)\s*=>\s*\{\s*schedulerRunning\s*=\s*false/);
+  });
+});

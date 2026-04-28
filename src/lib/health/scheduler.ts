@@ -29,6 +29,9 @@ import { sendAlert } from "./alert";
 import type { RouteResult } from "../engine/types";
 import { isTransientFailureReason, markChannelCooldown } from "../engine/cooldown";
 import { heartbeatLock } from "@/lib/infra/leader-lock";
+// BL-EMBEDDING-MVP fix-round-3 diagnostic: tick id 区分多 worker（若 H4 真）。
+// 用 process.pid 后 4 位（PM2 cluster mode 下不同 worker pid 不同）。
+const SCHED_PID_TAG = String(process.pid).slice(-4);
 import {
   sendChannelDownToAdmins,
   sendChannelRecoveredToAdmins,
@@ -88,6 +91,11 @@ const DISABLED_INTERVAL = Number(process.env.HEALTH_CHECK_DISABLED_INTERVAL_MS ?
 const CALL_PROBE_INTERVAL = Number(process.env.CALL_PROBE_INTERVAL_MS ?? 1_800_000); // 30min
 
 let schedulerTimer: ReturnType<typeof setInterval> | null = null;
+// BL-EMBEDDING-MVP fix-round-3: 重入 guard。runScheduledChecks 是 fire-and-
+// forget（setInterval 不 await），上一 tick 跑超 60s 时下一 tick 会与之并发。
+// 并发跑两次都看到旧 lastCheckTime → 都标 due → 同 channel probe 多次。
+// guard 防止单进程内重入；leader-lock 已防止跨进程 race。
+let schedulerRunning = false;
 
 // ============================================================
 // 公共 API
@@ -101,22 +109,33 @@ export function startScheduler(): void {
     // parallel with whichever replica now holds the lock.
     const stillLeader = await heartbeatLock(LEADER_KEY, LEADER_TTL_SEC).catch(() => false);
     if (!stillLeader) {
-      console.warn("[health-scheduler] lost scheduler leadership — stopping");
+      console.warn(`[health-scheduler:${SCHED_PID_TAG}] lost scheduler leadership — stopping`);
       stopScheduler();
       return;
     }
-    runScheduledChecks().catch((err) => {
-      console.error("[health-scheduler] error:", err);
-    });
+    if (schedulerRunning) {
+      console.warn(
+        `[health-scheduler:${SCHED_PID_TAG}] previous tick still running, skipping (re-entrancy guard)`,
+      );
+      return;
+    }
+    schedulerRunning = true;
+    runScheduledChecks()
+      .catch((err) => {
+        console.error(`[health-scheduler:${SCHED_PID_TAG}] error:`, err);
+      })
+      .finally(() => {
+        schedulerRunning = false;
+      });
   }, 60_000);
-  console.log("[health-scheduler] started (V2 alias-aware)");
+  console.log(`[health-scheduler:${SCHED_PID_TAG}] started (V2 alias-aware)`);
 }
 
 export function stopScheduler(): void {
   if (schedulerTimer) {
     clearInterval(schedulerTimer);
     schedulerTimer = null;
-    console.log("[health-scheduler] stopped");
+    console.log(`[health-scheduler:${SCHED_PID_TAG}] stopped`);
   }
 }
 
@@ -360,7 +379,7 @@ async function runScheduledChecks(): Promise<void> {
       healthChecks: {
         orderBy: { createdAt: "desc" },
         take: 1,
-        select: { createdAt: true },
+        select: { createdAt: true, level: true },
       },
     },
   });
@@ -370,11 +389,28 @@ async function runScheduledChecks(): Promise<void> {
     checkMode: Exclude<CheckMode, "skip">;
   }> = [];
 
+  // BL-EMBEDDING-MVP fix-round-3 diagnostic: 记录每个 candidate channel 的
+  // lastCheckTime / elapsed / interval / 是否 due，定位 5 连击根因。
+  // 期望：每个 channel 在 due cycle 内仅 select 1 次；连续 tick 内 elapsed
+  // 应 ~60s 远 < 2h interval。如日志显示 elapsed = now（即 lastCheckTime=0）
+  // 则证 H1（prisma include nested take:1 读不到最近 row）。
+  const diag: Array<{
+    channelId: string;
+    modelName: string;
+    lastCheckTime: number;
+    lastCheckLevel: string | null;
+    elapsedSec: number;
+    intervalSec: number;
+    checkMode: string;
+    due: boolean;
+  }> = [];
+
   for (const channel of channels) {
     if (!channel.provider.config) continue;
     if (dueChannels.length >= MAX_CHECKS_PER_ROUND) break;
 
-    const lastCheckTime = channel.healthChecks[0]?.createdAt?.getTime() ?? 0;
+    const lastCheck = channel.healthChecks[0];
+    const lastCheckTime = lastCheck?.createdAt?.getTime() ?? 0;
     const elapsed = now - lastCheckTime;
 
     const { checkMode, interval } = planChannelCheck(channel, aliasedIds.has(channel.id));
@@ -382,7 +418,19 @@ async function runScheduledChecks(): Promise<void> {
     // BL-HEALTH-PROBE-LEAN F-HPL-02: expensive models are dropped entirely.
     if (checkMode === "skip") continue;
 
-    if (elapsed < interval) continue;
+    const due = elapsed >= interval;
+    diag.push({
+      channelId: channel.id,
+      modelName: channel.model.name,
+      lastCheckTime,
+      lastCheckLevel: lastCheck?.level ?? null,
+      elapsedSec: Math.round(elapsed / 1000),
+      intervalSec: Math.round(interval / 1000),
+      checkMode,
+      due,
+    });
+
+    if (!due) continue;
 
     dueChannels.push({
       route: {
@@ -395,11 +443,27 @@ async function runScheduledChecks(): Promise<void> {
     });
   }
 
+  // 仅当有 due 时输出（避免每分钟空 log 噪声）
+  const dueRows = diag.filter((d) => d.due);
+  if (dueRows.length > 0) {
+    console.log(
+      `[health-scheduler:${SCHED_PID_TAG}] tick @ ${new Date(now).toISOString()} dueChannels=${dueChannels.length}/${diag.length}`,
+    );
+    for (const d of dueRows) {
+      console.log(
+        `[health-scheduler:${SCHED_PID_TAG}]   due ch=${d.channelId.slice(0, 12)} model=${d.modelName} elapsed=${d.elapsedSec}s interval=${d.intervalSec}s lastLevel=${d.lastCheckLevel ?? "null"} mode=${d.checkMode}`,
+      );
+    }
+  }
+
   for (const { route, checkMode } of dueChannels) {
     try {
       await executeCheckWithRetry(route, checkMode);
     } catch (err) {
-      console.error(`[health-scheduler] check failed for ${route.channel.id}:`, err);
+      console.error(
+        `[health-scheduler:${SCHED_PID_TAG}] check failed for ${route.channel.id}:`,
+        err,
+      );
     }
   }
 
@@ -454,7 +518,7 @@ async function runScheduledCallProbes(
     try {
       await runCallProbeForChannel(channelId);
     } catch (err) {
-      console.error(`[health-scheduler] CALL_PROBE failed for ${channelId}:`, err);
+      console.error(`[health-scheduler:${SCHED_PID_TAG}] CALL_PROBE failed for ${channelId}:`, err);
     }
   }
 }
@@ -702,6 +766,6 @@ async function maybeFireAuthAlert(
       consecutiveFailures: AUTH_FAILED_ALERT_THRESHOLD,
     });
   } catch (err) {
-    console.error("[health-scheduler] maybeFireAuthAlert error:", err);
+    console.error(`[health-scheduler:${SCHED_PID_TAG}] maybeFireAuthAlert error:`, err);
   }
 }
