@@ -4,11 +4,11 @@ description: AIGC Gateway 当前状态快照（覆盖写，≤30 行）
 type: project
 ---
 ## 当前批次
-- **BL-MCP-PAGE-REVAMP：`verifying`**（fix_rounds=0；4 generator features 完成）
-- F-MR-01 (registry+API+i18n) + F-MR-02/03/04 合并 (commit c986bcd) — page.tsx 整体重写：动态 registry 29 tool + 7 category 分组 + example prompts + try-it 面板 4 安全 tool
-- 关键发现：spec § '28 个 tool' 算错（server.ts 实有 29）；/api/users/me/balance 不存在，try-it 用 /api/projects/{id}/balance
-- vitest 554 PASS（基线 516 + 38 新增）；i18n 81 keys 中英对齐
-- 待 Codex F-MR-05 13 项验收（含 try-it embed_text 实证 ~$0.000004）
+- **BL-MCP-PAGE-REVAMP：`reverifying`**（fix_rounds=1；fix-round-1 数据修复无代码改）
+- Codex round1：10 PASS / 1 FAIL（try-it embed_text dev 账户 balance=0）
+- fix-round-1：SQL UPDATE codex-dev balance=10（spec 漏「测试账户 balance>0」前置条件）
+- 代码无变化，commit 542c1c0 已部署；本次仅 progress.json 状态机切换
+- 待 Codex reverify try-it embed_text（应返 dim=1024 + 首 5 维）
 
 ## 上一批次（已 done）
 - BL-EMBEDDING-MVP @ 2026-04-28（fix_round 3 收口；commit 977e4b5 signoff）
