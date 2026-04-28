@@ -31,7 +31,7 @@
   },
   "sidebar": {
     "brand": "AIGC Gateway",
-    "algorithmicAtelier": "Algorithmic Atelier",
+    "algorithmicAtelier": "Prompts as Products",
     "newProject": "New Project",
     "noProject": "No Project",
     "projects": "Projects",
@@ -143,7 +143,7 @@
     "rememberMe": "Remember Me",
     "orContinueWith": "Or continue with",
     "tagline": "Professional Observability.",
-    "taglineDesc": "The Algorithmic Atelier for modern AI developers.",
+    "taglineDesc": "Treat prompts as products — versioned, observable, ready to ship.",
     "documentation": "Documentation",
     "privacyPolicy": "Privacy Policy",
     "support": "Support",

@@ -31,7 +31,7 @@
   },
   "sidebar": {
     "brand": "AIGC Gateway",
-    "algorithmicAtelier": "Algorithmic Atelier",
+    "algorithmicAtelier": "Prompts as Products",
     "newProject": "新建项目",
     "noProject": "无项目",
     "projects": "项目",
@@ -143,7 +143,7 @@
     "rememberMe": "记住我",
     "orContinueWith": "或通过以下方式继续",
     "tagline": "专业级可观测性。",
-    "taglineDesc": "为现代 AI 开发者打造的精工平台。",
+    "taglineDesc": "把 prompt 当作产品来管理 — 版本化、可观测、可迭代。",
     "documentation": "文档",
     "privacyPolicy": "隐私政策",
     "support": "支持",
