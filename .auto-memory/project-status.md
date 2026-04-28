@@ -4,11 +4,11 @@ description: AIGC Gateway 当前状态快照（覆盖写，≤30 行）
 type: project
 ---
 ## 当前批次
-- **BL-MCP-PAGE-REVAMP：`reverifying`**（fix_rounds=1；fix-round-1 数据修复无代码改）
-- Codex round1：10 PASS / 1 FAIL（try-it embed_text dev 账户 balance=0）
-- fix-round-1：SQL UPDATE codex-dev balance=10（spec 漏「测试账户 balance>0」前置条件）
-- 代码无变化，commit 542c1c0 已部署；本次仅 progress.json 状态机切换
-- 待 Codex reverify try-it embed_text（应返 dim=1024 + 首 5 维）
+- **BL-MCP-PAGE-REVAMP：`reverifying`**（fix_rounds=3）
+- Codex round2：static PASS / 阻断 local 502 + prod 404；真因诊断：proxy 干扰 + Deploy 时序，非代码 bug
+- fix-round-2 (commit 2af3dde): route.ts force-dynamic（消除 ISR 边界 case）+ codex-env.sh 加 NO_PROXY=localhost,127.0.0.1（绕开 sandbox proxy 干扰真因修复）
+- prod 实测 https://aigc.guangai.ai/api/mcp/tools 返 200 + 29 tools + embed_text；prod 已部署 dd70969 含 route
+- 待 Codex reverify（重启 codex-setup.sh 拿新 NO_PROXY）跑 13 项 acceptance
 
 ## 上一批次（已 done）
 - BL-EMBEDDING-MVP @ 2026-04-28（fix_round 3 收口；commit 977e4b5 signoff）
