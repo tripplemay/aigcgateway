@@ -1,60 +1,51 @@
 {
-  "batch": "BL-EMBEDDING-MVP",
+  "batch": "BL-MCP-PAGE-REVAMP",
   "created_at": "2026-04-28",
   "features": [
     {
-      "id": "F-EM-01",
-      "title": "Schema migration（ModelModality EMBEDDING + Action.modality）+ Engine adapter embeddings()",
+      "id": "F-MR-01",
+      "title": "动态 tool 清单：MCP_TOOL_REGISTRY + GET /api/mcp/tools + i18n 35 个新 keys",
       "priority": "high",
       "executor": "generator",
-      "status": "completed",
-      "source": "BL-EMBEDDING-MVP spec § F-EM-01",
-      "acceptance": "1) prisma/migrations/20260428_embedding_modality/migration.sql：ALTER TYPE ModelModality ADD VALUE 'EMBEDDING'; ALTER TABLE actions ADD COLUMN modality 默认 'TEXT'；2) prisma/schema.prisma 同步两改；3) src/lib/engine/types.ts 加 EmbeddingRequest/EmbeddingData/EmbeddingResponse interfaces + EngineAdapter.embeddings? 可选方法；4) src/lib/engine/openai-compat.ts 加 embeddings() 实现 + buildUrl 加 'embedding' 类型 + normalizeEmbeddingResponse；5) src/lib/engine/openai-compat.test.ts 加 embeddings 单测：单条 input mock fetch 返 OpenAI 兼容 response → 解析正确；批量 input array → response.data 多条；error response → throw EngineError；6) tsc + build + vitest + prisma generate 全过；7) commit 'feat(BL-EMBEDDING-MVP F-EM-01): schema + engine adapter for embeddings'"
+      "status": "pending",
+      "source": "BL-MCP-PAGE-REVAMP spec § F-MR-01",
+      "acceptance": "1) 新建 src/lib/mcp/tool-registry.ts 集中维护 28 个 tool 元数据 const MCP_TOOL_REGISTRY = [{ name, category, descriptionKey, icon }, ...]；按 server.ts register 顺序 + spec 给出的 7 category 划分；2) 新建 src/app/api/mcp/tools/route.ts GET 返回 { data: registry }；3) 单测 src/lib/mcp/__tests__/tool-registry.test.ts 断言 registry.length === 28 + 每 name 与 server.ts 调用一致（grep 检测）+ 必含 embed_text；4) 修改 src/app/(console)/mcp-setup/page.tsx 删除 line 318-326 hardcoded 7 个 tool 数组，改用 useAsyncData 拉 /api/mcp/tools；5) messages/en.json + zh-CN.json 加 35 个新 keys（28 toolXxx + 7 categoryXxx）按 spec 文案；6) tsc + build + vitest（≥ 517）全过；7) commit 'feat(BL-MCP-PAGE-REVAMP F-MR-01): dynamic tool registry + i18n'"
     },
     {
-      "id": "F-EM-02",
-      "title": "POST /v1/embeddings API endpoint + 计费 + CallLog",
+      "id": "F-MR-02",
+      "title": "Category 分组展示 + Step 编号修正",
       "priority": "high",
       "executor": "generator",
-      "status": "completed",
-      "source": "BL-EMBEDDING-MVP spec § F-EM-02",
-      "acceptance": "1) src/app/api/v1/embeddings/route.ts 新建（参考 chat/completions 结构去 stream）：authenticateApiKey + checkBalance + checkRateLimit('text') + resolveEngine + adapter.embeddings + processEmbeddingResult；2) 校验 model + input 必填；input array max 100；非 EMBEDDING modality 模型 → 400 invalid_model_modality；3) src/lib/api/post-process.ts 加 processEmbeddingResult：复用 calculateTokenCost (completion_tokens=0) + 写 CallLog source='api' + metadata.modality='EMBEDDING'；4) 单测 src/app/api/v1/embeddings/__tests__/route.test.ts：单条 + 批量 + 非 embedding 模型 400 + 缺 model/input 400 + 鉴权失败 401 + balance 不够 402；5) tsc + build + vitest 全过；6) commit 'feat(BL-EMBEDDING-MVP F-EM-02): /v1/embeddings endpoint + billing'"
+      "status": "pending",
+      "source": "BL-MCP-PAGE-REVAMP spec § F-MR-02",
+      "acceptance": "1) src/app/(console)/mcp-setup/page.tsx tool 渲染按 category 分 7 组（顺序：models / ai_call / observability / action / template / api_key / project），每组 section header 用 i18n category 标签；2) Step 编号修复：当前 Step 1 → Step 3 (line 311) → Step 2，改为 Step 1 → Step 2 → 独立 Tools 区块（无编号）；3) 视觉验证：sections 之间留 gap 6 + section header h4 风格一致；4) tsc + build 通过；5) commit 'feat(BL-MCP-PAGE-REVAMP F-MR-02): category grouping + step ordering'"
     },
     {
-      "id": "F-EM-03",
-      "title": "Action 系统支持 embedding modality（runner 分支 + result 类型扩展）",
+      "id": "F-MR-03",
+      "title": "每 category 加 prompt 示例（中英双语）",
       "priority": "high",
       "executor": "generator",
-      "status": "completed",
-      "source": "BL-EMBEDDING-MVP spec § F-EM-03",
-      "acceptance": "1) src/lib/action/runner.ts runAction + runActionNonStream 加 modality 分支：action.modality='EMBEDDING' 时不走 chat path，调 adapter.embeddings({model, input: messages.map(m=>m.content).join('\\n')}, route)；2) ActionRunResult 类型扩展 modality:'TEXT'|'EMBEDDING' + 可选 embedding:number[] / dimensions:number 字段（chat path 仍设 modality:'TEXT' 兼容）；3) src/lib/mcp/tools/create-action.ts 接受 modality 参数（zod enum default 'TEXT'）；validate model.modality === action.modality（一致性约束，409 不一致）；4) 单测 src/lib/action/__tests__/runner.test.ts 加 embedding action 跑通 mock adapter；现有 chat action 单测不破；5) tsc + build + vitest 全过；6) commit 'feat(BL-EMBEDDING-MVP F-EM-03): action runner embedding branch'"
+      "status": "pending",
+      "source": "BL-MCP-PAGE-REVAMP spec § F-MR-03",
+      "acceptance": "1) src/app/(console)/mcp-setup/page.tsx 每 category section 内 tool list 上方加 'Example prompt' 块；2) 7 category 各 1 段示例（spec § F-MR-03 表格给定文案）；3) messages/en.json + zh-CN.json 加 7 个 exampleXxx i18n keys（mcpSetup.exampleModels 等）；4) 视觉：example 用 quote 样式（左 border-l-4 border-ds-primary + italic + bg-ds-surface-container-low p-3 rounded-r）；5) tsc + build 通过；6) commit 'feat(BL-MCP-PAGE-REVAMP F-MR-03): example prompts per category'"
     },
     {
-      "id": "F-EM-04",
-      "title": "Provider seed bge-m3 + text-embedding-3-small + admin UI 加 EMBEDDING 选项",
+      "id": "F-MR-04",
+      "title": "Try-it 面板（仅 4 个安全 tool：list_models / get_balance / get_usage_summary / embed_text）",
       "priority": "high",
       "executor": "generator",
-      "status": "completed",
-      "source": "BL-EMBEDDING-MVP spec § F-EM-04",
-      "acceptance": "1) Preflight：用 WebFetch 或人工查 SiliconFlow 当前 BAAI/bge-m3 单价（spec 默认 ¥0.5/M ≈ $0.07/M）+ OpenAI text-embedding-3-small 单价（spec 默认 $0.02/M）→ 价格变动则更新到 spec 引用块；2) prisma/seed.ts 加幂等 upsert 2 个 model + 2 个 channel（bge-m3 → SiliconFlow / text-embedding-3-small → OpenAI）+ costPrice/sellPrice JSON；3) admin/models 创建表单 modality select 加 EMBEDDING 选项；list 展示页 modality 列正确显示 EMBEDDING；4) 验证 GET /v1/models?modality=embedding 过滤正确返回 2 条；5) 部署后 npx prisma db seed 写入生产；6) tsc + build 通过；7) commit 'feat(BL-EMBEDDING-MVP F-EM-04): seed bge-m3 + text-embedding-3-small models'"
+      "status": "pending",
+      "source": "BL-MCP-PAGE-REVAMP spec § F-MR-04",
+      "acceptance": "1) src/app/(console)/mcp-setup/page.tsx 新增 SectionCard 'Try It' 在 tool list 之后；2) Tool dropdown 仅 4 选项（list_models / get_balance / get_usage_summary / embed_text）；3) 参数表单：list_models 显示 modality select (text/image/embedding/all) + embed_text 显示 input textarea (max 1000 chars，model 锁定 bge-m3) + get_balance / get_usage_summary 无参数；4) Run button → 调用对应内部 API：list_models→/api/v1/models?modality / embed_text→/api/v1/embeddings (apiFetch 走 user session) / get_balance→/api/users/me/balance / get_usage_summary→/api/users/me/usage；5) 响应区域 JSON 格式化 + max-height:400px overflow-auto + 错误 toast；6) embed_text 试用前显示 '将产生微量费用 ~$0.000004' 警示（i18n key tryItCostWarning）；7) tsc + build + vitest 全过；8) commit 'feat(BL-MCP-PAGE-REVAMP F-MR-04): try-it panel for 4 safe tools'"
     },
     {
-      "id": "F-EM-05",
-      "title": "MCP tool embed_text + SDK gateway.embed()",
-      "priority": "high",
-      "executor": "generator",
-      "status": "completed",
-      "source": "BL-EMBEDDING-MVP spec § F-EM-05",
-      "acceptance": "1) src/lib/mcp/tools/embed-text.ts 新建：server.tool('embed_text', desc, {model, input: string|string[].max(100)}, handler)；handler 内调 adapter.embeddings 走完整鉴权 + 计费 + CallLog (source='mcp')；2) src/lib/mcp/server.ts 注册 registerEmbedText(server, opts)；3) 单测 src/lib/mcp/tools/__tests__/embed-text.test.ts：mock prisma + adapter，单条 + 批量 + 非 embedding 模型 error；4) sdk/src/gateway.ts 加 async embed(params: EmbedParams): Promise<EmbedResponse>；5) sdk/src/types/request.ts 加 EmbedParams + sdk/src/types/response.ts 加 EmbedResponse + sdk/src/index.ts 重导出；6) sdk/test/ 加 embed.test.ts（mock fetch + assert path + body shape）；7) tsc + build + vitest + sdk build 全过；8) commit 'feat(BL-EMBEDDING-MVP F-EM-05): MCP embed_text + SDK gateway.embed'"
-    },
-    {
-      "id": "F-EM-06",
-      "title": "BL-EMBEDDING-MVP 全量验收（API + Action + MCP + SDK + 生产实证）",
+      "id": "F-MR-05",
+      "title": "BL-MCP-PAGE-REVAMP 全量验收（API + 前端 + Try-it + i18n）",
       "priority": "high",
       "executor": "codex",
-      "status": "completed",
-      "source": "BL-EMBEDDING-MVP spec § F-EM-06",
-      "acceptance": "静态（3）：1) tsc + build + vitest 全过（基线 471 + 新增）；2) prisma migrate dev + generate 通过；3) sdk build 通过。API（4）：4) POST /v1/embeddings {model:bge-m3, input:'hello'} → 200 + data[0].embedding 长度 1024 + usage.prompt_tokens>0；5) 批量 input:['a','b','c'] → data 3 条；6) POST 用 chat 模型 → 400 invalid_model_modality；7) CallLog 写入 modality='EMBEDDING' (metadata) + costPrice ≈ usage × 单价。Action（2）：8) create_action modality:'EMBEDDING' model:'bge-m3' messages:[{role:'user', content:'{{text}}'}] → 创建成功；9) run_action variables:{text:'hello'} → 返回 modality:'EMBEDDING' + embedding[1024] + dimensions:1024 + usage。MCP（1）：10) MCP client embed_text {model:bge-m3, input:'hello'} → embedding 返回。SDK（1）：11) gateway.embed({model:bge-m3, input:'hello'}) → response.data[0].embedding。生产（2）：12) 部署 + npx prisma db seed → 生产 DB 含 bge-m3 + text-embedding-3-small；13) 生产 API 调 1 次 bge-m3（admin API key）→ 200 + costPrice<$0.001。报告（1）：14) docs/test-reports/BL-EMBEDDING-MVP-signoff-2026-04-2X.md 含 13 项证据 + 真实 traceId + 截图"
+      "status": "pending",
+      "source": "BL-MCP-PAGE-REVAMP spec § F-MR-05",
+      "acceptance": "静态（3）：1) tsc / build / vitest（≥ 517）；2) tool registry 单测 PASS；3) sdk build 不破。API（3）：4) GET /api/mcp/tools 返 28 行 + 字段完整；5) registry 与 server.ts 一致（grep 各 name 命中 register 调用）；6) embed_text 在 registry 中。前端（5）：7) 访问 /mcp-setup → 7 category 顺序展示；8) 共 28 个 tool 显示（之前 7）；9) embed_text 在 'AI Calls' category；10) Step 编号视觉 1 → 2 无 'Step 3' 错位；11) 切 zh-CN 后 tool desc + category + example 全部中文。Try-it（3）：12) list_models + image → 返 image models；13) embed_text + 'hello' → dim=1024 + 向量前 5 维；14) get_balance → 与 sidebar 一致。报告（1）：15) docs/test-reports/BL-MCP-PAGE-REVAMP-signoff-2026-04-2X.md 含 14 项证据 + 前后对比截图 + try-it demo gif/screenshot"
     }
   ]
 }
