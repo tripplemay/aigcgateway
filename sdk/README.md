@@ -83,6 +83,38 @@ console.log(img.url)       // Image URL (valid for 1 hour)
 console.log(img.traceId)
 ```
 
+## Embeddings
+
+```typescript
+// Single input
+const single = await gw.embed({
+  model: 'bge-m3',
+  input: 'KOL bio: gaming creator focused on FPS and esports',
+})
+
+console.log(single.data[0].embedding.length)   // 1024 (bge-m3) / 1536 (text-embedding-3-small)
+console.log(single.usage.prompt_tokens)         // input tokens (single-side billing)
+
+// Batch (up to 100 inputs)
+const batch = await gw.embed({
+  model: 'bge-m3',
+  input: ['hello', 'world', 'AIGC Gateway'],
+})
+
+for (const item of batch.data) {
+  console.log(`#${item.index}: ${item.embedding.length}-dim vector`)
+}
+```
+
+**Available embedding models:**
+
+| Model | Provider | Dim | Languages |
+|---|---|---|---|
+| `bge-m3` | SiliconFlow | 1024 | zh / ja / ko / en strong (BAAI) |
+| `text-embedding-3-small` | OpenAI | 1536 | universal |
+
+Embeddings are billed by input tokens only (no output cost).
+
 ## List Models
 
 ```typescript
@@ -214,6 +246,15 @@ const gw = new Gateway({
 - 429 responses: uses `Retry-After` header value
 - Streaming: only retries before connection is established
 - Exponential backoff: `1s → 2s → 4s` (configurable)
+
+## Changelog
+
+### 0.1.1 (2026-04-28)
+- **`embed()` method added** — Generate vector embeddings (single or batch up to 100 inputs). Supported models: `bge-m3` (1024-dim, SiliconFlow), `text-embedding-3-small` (1536-dim, OpenAI). Input-tokens-only billing.
+- New types: `EmbedParams`, `EmbedResponse`, `EmbeddingData`.
+
+### 0.1.0
+- Initial release: `chat()` (stream + non-stream), `image()`, `models()`, function calling, retry strategy, typed errors.
 
 ## License
 
