@@ -4,11 +4,11 @@ description: AIGC Gateway 当前状态快照（覆盖写，≤30 行）
 type: project
 ---
 ## 当前批次
-- **BL-MCP-PAGE-REVAMP：`reverifying`**（fix_rounds=3）
-- Codex round2：static PASS / 阻断 local 502 + prod 404；真因诊断：proxy 干扰 + Deploy 时序，非代码 bug
-- fix-round-2 (commit 2af3dde): route.ts force-dynamic（消除 ISR 边界 case）+ codex-env.sh 加 NO_PROXY=localhost,127.0.0.1（绕开 sandbox proxy 干扰真因修复）
-- prod 实测 https://aigc.guangai.ai/api/mcp/tools 返 200 + 29 tools + embed_text；prod 已部署 dd70969 含 route
-- 待 Codex reverify（重启 codex-setup.sh 拿新 NO_PROXY）跑 13 项 acceptance
+- **BL-MCP-PAGE-REVAMP：`reverifying`**（fix_rounds=5）
+- Codex round3：static PASS / try-it embed_text 'Invalid API key' 阻断；诊断 input 含 trailing whitespace/newline → sha256 不 match
+- fix-round-3 (commit cefb3ba): page.tsx 双重 trim 防御 — onChange 即 trim + fetch 前 startsWith('pk_') 校验
+- prod 已部署 cefb3ba（curl 验证 git HEAD = cefb3ba；/api/mcp/tools 200 + 29 tools）
+- 待 Codex reverify try-it embed_text（应直接 200 + dim=1024）
 
 ## 上一批次（已 done）
 - BL-EMBEDDING-MVP @ 2026-04-28（fix_round 3 收口；commit 977e4b5 signoff）
