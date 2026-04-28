@@ -1,0 +1,3 @@
+event: message
+data: {"result":{"content":[{"type":"text","text":"{\n  \"action_id\": \"cmoi367fe0003bn4u4j03zo4g\",\n  \"name\": \"codex_embed_action_r3b\",\n  \"model\": \"bge-m3\",\n  \"modality\": \"EMBEDDING\",\n  \"active_version\": 1,\n  \"message\": \"Action created successfully\"\n}"}]},"jsonrpc":"2.0","id":21}
+

@@ -1,0 +1,13 @@
+HTTP/2 200 
+server: nginx/1.18.0 (Ubuntu)
+date: Tue, 28 Apr 2026 03:46:47 GMT
+content-type: application/json
+vary: Accept-Encoding
+x-middleware-rewrite: /api/v1/embeddings
+vary: RSC, Next-Router-State-Tree, Next-Router-Prefetch
+x-ratelimit-limit: 60
+x-ratelimit-remaining: 57
+x-ratelimit-reset: 1777348067
+x-request-id: req_el7hlej21njca12niqnrpm2x
+x-trace-id: trc_llmgk7vvvoxc0m6i3ql9a2cm
+

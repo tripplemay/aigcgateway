@@ -1,0 +1,10 @@
+HTTP/2 200 
+server: nginx/1.18.0 (Ubuntu)
+date: Tue, 28 Apr 2026 03:49:37 GMT
+content-type: text/event-stream
+x-middleware-rewrite: /api/v1/actions/run
+vary: RSC, Next-Router-State-Tree, Next-Router-Prefetch
+cache-control: no-cache
+x-request-id: req_fd9rsxbspxyr0rzjhvs6dgir
+x-trace-id: trc_eesb4s2s9q4b4eobrr1y8lea
+

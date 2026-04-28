@@ -1,0 +1,1 @@
+{"error":{"type":"invalid_request_error","code":"invalid_model_modality","message":"Model \"gpt-4o-mini\" is not an embedding model. Use list_models?modality=embedding to discover embedding models.","param":"model"}}

@@ -52,7 +52,7 @@
       "title": "BL-EMBEDDING-MVP 全量验收（API + Action + MCP + SDK + 生产实证）",
       "priority": "high",
       "executor": "codex",
-      "status": "pending",
+      "status": "completed",
       "source": "BL-EMBEDDING-MVP spec § F-EM-06",
       "acceptance": "静态（3）：1) tsc + build + vitest 全过（基线 471 + 新增）；2) prisma migrate dev + generate 通过；3) sdk build 通过。API（4）：4) POST /v1/embeddings {model:bge-m3, input:'hello'} → 200 + data[0].embedding 长度 1024 + usage.prompt_tokens>0；5) 批量 input:['a','b','c'] → data 3 条；6) POST 用 chat 模型 → 400 invalid_model_modality；7) CallLog 写入 modality='EMBEDDING' (metadata) + costPrice ≈ usage × 单价。Action（2）：8) create_action modality:'EMBEDDING' model:'bge-m3' messages:[{role:'user', content:'{{text}}'}] → 创建成功；9) run_action variables:{text:'hello'} → 返回 modality:'EMBEDDING' + embedding[1024] + dimensions:1024 + usage。MCP（1）：10) MCP client embed_text {model:bge-m3, input:'hello'} → embedding 返回。SDK（1）：11) gateway.embed({model:bge-m3, input:'hello'}) → response.data[0].embedding。生产（2）：12) 部署 + npx prisma db seed → 生产 DB 含 bge-m3 + text-embedding-3-small；13) 生产 API 调 1 次 bge-m3（admin API key）→ 200 + costPrice<$0.001。报告（1）：14) docs/test-reports/BL-EMBEDDING-MVP-signoff-2026-04-2X.md 含 13 项证据 + 真实 traceId + 截图"
     }

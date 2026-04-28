@@ -1,0 +1,3 @@
+event: message
+data: {"result":{"content":[{"type":"text","text":"{\n  \"output\": \"\",\n  \"traceId\": \"trc_ch94y54t6ljpmbsyndtla8ce\",\n  \"usage\": {\n    \"prompt_tokens\": 4,\n    \"output_tokens\": 0,\n    \"total_tokens\": 4\n  }\n}"}]},"jsonrpc":"2.0","id":22}
+

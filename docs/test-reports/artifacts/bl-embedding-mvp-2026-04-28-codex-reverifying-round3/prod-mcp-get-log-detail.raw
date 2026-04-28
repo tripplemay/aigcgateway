@@ -1,0 +1,3 @@
+event: message
+data: {"result":{"content":[{"type":"text","text":"{\n  \"traceId\": \"trc_a8eu9v63j5i6uy7cxynyrmd2\",\n  \"model\": \"bge-m3\",\n  \"status\": \"success\",\n  \"source\": \"api\",\n  \"prompt\": [\n    {\n      \"role\": \"user\",\n      \"content\": \"hello\"\n    }\n  ],\n  \"parameters\": {\n    \"model\": \"bge-m3\",\n    \"input_type\": \"single\",\n    \"input_count\": 1\n  },\n  \"response\": null,\n  \"finishReason\": \"STOP\",\n  \"usage\": {\n    \"promptTokens\": 4,\n    \"completionTokens\": 0,\n    \"totalTokens\": 4\n  },\n  \"cost\": \"$0.00000005\",\n  \"latency\": \"0.9s\",\n  \"tokensPerSecond\": null,\n  \"error\": null,\n  \"createdAt\": \"2026-04-28T03:46:46.067Z\"\n}"}]},"jsonrpc":"2.0","id":31}
+
