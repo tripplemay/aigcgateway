@@ -65,12 +65,7 @@ const CATEGORY_META: Array<{ id: McpToolCategory; labelKey: string; exampleKey: 
 
 // BL-MCP-PAGE-REVAMP F-MR-04: 4 个安全 tool — 仅 read-only / ~$0.000004 cost
 type TryItTool = "list_models" | "get_balance" | "get_usage_summary" | "embed_text";
-const TRY_IT_TOOLS: TryItTool[] = [
-  "list_models",
-  "get_balance",
-  "get_usage_summary",
-  "embed_text",
-];
+const TRY_IT_TOOLS: TryItTool[] = ["list_models", "get_balance", "get_usage_summary", "embed_text"];
 
 function generateConfig(client: ClientType, apiKey: string): string {
   const bearer = `Bearer ${apiKey || "pk_your_api_key"}`;
@@ -323,7 +318,12 @@ export default function McpSetupPage() {
         result = await apiFetch(`/api/projects/${current.id}/usage`);
       } else if (tryItTool === "embed_text") {
         // 需用户在 step 1 输入 API Key（pk_xxx），不能含 ••••
-        if (!apiKey || apiKey.includes("••••")) {
+        // BL-MCP-PAGE-REVAMP fix-round-3: 防御性 trim + prefix 校验。
+        // Codex round3 在 prod 用有效 key 仍返 Invalid API key — 真因猜测：
+        // input value 包含 trailing whitespace/newline（paste 时常见），
+        // auth middleware sha256(rawKey) 对 trailing chars 敏感 → 哈希不匹配。
+        const trimmedKey = apiKey.trim();
+        if (!trimmedKey || trimmedKey.includes("••••") || !trimmedKey.startsWith("pk_")) {
           toast.error(t("tryItKeyRequired"));
           setTryItRunning(false);
           return;
@@ -332,7 +332,7 @@ export default function McpSetupPage() {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${apiKey}`,
+            Authorization: `Bearer ${trimmedKey}`,
           },
           body: JSON.stringify({ model: "bge-m3", input: tryItInput.slice(0, 1000) }),
         });
@@ -388,7 +388,10 @@ export default function McpSetupPage() {
                 className="w-full bg-ds-surface-container-low border-none rounded-lg px-4 py-3 text-sm font-mono text-ds-on-surface outline-none focus:ring-2 focus:ring-ds-primary/20 transition-all placeholder:text-ds-outline"
                 placeholder={t("keyPlaceholder")}
                 value={apiKey}
-                onChange={(e) => setApiKey(e.target.value)}
+                // BL-MCP-PAGE-REVAMP fix-round-3: 自动 trim 防 paste 含 newline/
+                // whitespace 导致 try-it Bearer header 含 trailing chars，sha256
+                // 不 match → Invalid API key（Codex round3 现象）。
+                onChange={(e) => setApiKey(e.target.value.trim())}
               />
 
               {/* Key list shortcuts */}
