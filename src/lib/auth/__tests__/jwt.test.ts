@@ -1,3 +1,4 @@
+// @vitest-environment node
 /**
  * BL-SEC-AUTH-SESSION F-AS-02 — verifyJwt unit tests.
  *
@@ -69,10 +70,7 @@ describe("verifyJwt", () => {
   });
 
   it("throws on expired token", async () => {
-    const token = await makeToken(
-      { userId: "u-123", role: "DEVELOPER" },
-      { expiresIn: "-1s" },
-    );
+    const token = await makeToken({ userId: "u-123", role: "DEVELOPER" }, { expiresIn: "-1s" });
     await expect(verifyJwt(token)).rejects.toThrow();
   });
 

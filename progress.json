@@ -2,10 +2,10 @@
   "status": "building",
   "user_goal": "BL-TEST-INFRA-IMPORT — 全量迁移 KOLMatrix/joyce 测试基建到 aigcgateway。CI 3→8 jobs（含 build+migrate / coverage / integration / e2e + rollback validate）+ vitest 三配置 + MSW 框架 + Testcontainers + 64 migrations ROLLBACK 注释 + scripts/test/ 历史归档。来源：用户对比分析后选 D 全量迁移。",
   "total_features": 7,
-  "completed_features": 0,
+  "completed_features": 1,
   "fix_rounds": 0,
   "current_sprint": "BL-TEST-INFRA-IMPORT",
-  "last_updated": "2026-04-28T20:00:00.000Z",
+  "last_updated": "2026-04-30T11:50:00.000Z",
   "reference_docs": [
     "docs/specs/BL-TEST-INFRA-IMPORT-spec.md",
     "/Users/yixingzhou/project/joyce/.github/workflows/ci.yml",
@@ -80,7 +80,8 @@
     "notes": "本批次共 7 features（6 generator + 1 codex），~10-12h Generator + 1h Codex 验收。Generator 完成 F-TI-01~06 后置 status=verifying；Codex 跑 F-TI-07 11 项验收。建议每 feature 独立 commit 便于回滚 / 中途暂停。"
   },
   "session_notes": {
-    "Kimi-batch-launch": "BL-TEST-INFRA-IMPORT 启动 @ 2026-04-28 20:00。\n\n来源：用户 2026-04-28 对话比对 aigcgateway vs joyce 测试基建后选 D 全量迁移。\n\n落差总结：\n- 测试文件：69 (含 69 dated scripts) vs 134 (清晰三层)\n- CI jobs：3 vs 8\n- Coverage：未装 vs 装+threshold\n- Mock：1 个手写 vs MSW 完整框架\n- Integration：0 vs 35（Testcontainers PostgreSQL）\n- Migration rollback 强制：无 vs validate-rollback-sql.sh\n\n7 features 设计：\n- F-TI-01 (gen, ~1h): deps + 3 配置（vitest unit/integration + playwright）+ package.json scripts\n- F-TI-02 (gen, ~2h): tests/ 三层目录 + setup.ts + MSW handlers 4 上游 mock\n- F-TI-03 (gen, ~1h): CI 8 jobs 含 PostgreSQL service container + artifact upload\n- F-TI-04 (gen, ~1.5-2h): validate-rollback-sql.sh + 64 migrations 补 ROLLBACK 注释\n- F-TI-05 (gen, ~2h): Testcontainers 集成测示例 deduct-balance-atomic + docs/dev/testing.md\n- F-TI-06 (gen, ~1h): scripts/test/ 69 dated 文件归档到 _archive_2026Q1Q2/\n- F-TI-07 (codex, ~1h): 11 项验收（CI 8 jobs / 集成测 / e2e / MSW / 报告）\n\n关键决策：\n- MSW 不强制全替换 vi.mock（增量）\n- Testcontainers Phase 1 仅 1-2 示例\n- jsdom env 切换可能破现有 1-2 测试，修不改\n- e2e CI 接受『至少 1 spec PASS』，现有 3 spec 修留单独 batch\n- Coverage threshold 60/60/50/60 首批 fail 接受\n\n非目标（Phase 2）：visual regression / staging 环境 / 完整 e2e 修补 / 替换全部 vi.mock。\n\n下一步：本会话 Planner 身份固定。等 Generator session pull 后按 generator_handoff 顺序执行 F-TI-01~06，每条独立 commit；完成后 status=verifying 交 Codex F-TI-07 11 项验收。预估总工时 ~11-13h。",
+    "Kimi-batch-launch": "BL-TEST-INFRA-IMPORT 启动 @ 2026-04-28 20:00（详见 git log 833f9f3）。",
+    "Johnsong": "F-TI-01 完成 @ 2026-04-30 11:50（generator）。\n\n实施：\n- 装 8 deps + jsdom（jsdom env 必需，原 spec 漏列）：msw@2.14.2 / @testcontainers/postgresql@11.14.0 / testcontainers@11.14.0 / @testing-library/{jest-dom@6.9.1,react@16.3.2,user-event@14.6.1} / @vitest/{coverage-v8@4.1.5,ui@4.1.5} / jsdom\n- 重写 vitest.config.ts：jsdom env + setupFiles ./tests/setup.ts + coverage v8（include src/lib|components|app/api，exclude shadcn/console pages，threshold 60/60/50/60）+ exclude tests/integration|e2e|mcp-test|perf\n- 新建 vitest.integration.config.ts（node env / 120s timeout / fileParallelism false）\n- 新建 playwright.config.ts（E2E_BASE_URL/E2E_PORT/PORT fallback，testDir tests/e2e，screenshot/trace on failure）\n- tests/setup.ts 占位（仅 import @testing-library/jest-dom/vitest，F-TI-02 加 MSW lifecycle）\n- package.json 加 10 个 scripts（test/test:unit/test:watch/test:coverage/test:ui/test:integration/test:e2e/test:e2e:ui/test:e2e:debug/typecheck）\n\nkolmatrix reference 实际路径：/mnt/c/Users/tripplezhou/projects/kolmatrix（不是 progress.json 标的 /Users/yixingzhou/project/joyce）\n\njsdom 切换破 2 文件（11 fail）：\n- src/lib/auth/__tests__/jwt.test.ts（jsonwebtoken 需 node crypto）\n- src/lib/infra/__tests__/url-safety.test.ts（dns.lookup not in jsdom）\n修：两文件首行加 // @vitest-environment node\n\n验收：\n- npm run test：69 files / 550 passed / 4 skipped（与基线 100% 一致）\n- npx tsc --noEmit：clean（npm install 后需先 npx prisma generate）\n- npm run build：通过\n\n下一步：F-TI-02（tests/ 目录重组 + MSW handlers 4 上游 + setup.ts MSW lifecycle）。",
     "Reviewer": null
   }
 }

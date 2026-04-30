@@ -1,3 +1,4 @@
+// @vitest-environment node
 /**
  * BL-SEC-POLISH F-SP-02 — url-safety unit tests.
  */

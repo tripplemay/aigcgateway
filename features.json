@@ -7,7 +7,7 @@
       "title": "Foundation — 装依赖（msw/testcontainers/coverage-v8/testing-library）+ vitest/playwright 配置",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "source": "BL-TEST-INFRA-IMPORT spec § F-TI-01",
       "acceptance": "1) 装 8 个 deps 精确版本：msw@2.13.4 / @testcontainers/postgresql@11.14.0 / testcontainers@11.14.0 / @testing-library/jest-dom@6.9.1 / @testing-library/react@16.3.2 / @testing-library/user-event@14.6.1 / @vitest/coverage-v8@4.1.4 / @vitest/ui@4.1.4；2) 重写 vitest.config.ts：jsdom env + setupFiles ./tests/setup.ts + coverage v8（include src/lib/components/api，exclude shadcn/console pages，threshold 60/60/50/60）+ include scripts/**/*.test.ts；3) 新建 vitest.integration.config.ts（node env / 120s timeout / fileParallelism false）；4) 新建 playwright.config.ts（参考 joyce E2E_BASE_URL/E2E_PORT/PORT fallback 链）；5) package.json 加 9 个 test scripts（test/test:unit/test:watch/test:coverage/test:ui/test:integration/test:e2e/test:e2e:ui/test:e2e:debug）；6) 现有 554 单测 vitest run 仍 PASS（jsdom env 切换可能要调 1-2 个测，要修）；7) tsc + build 通过"
     },
