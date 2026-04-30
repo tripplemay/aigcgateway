@@ -1,0 +1,33 @@
+
+> aigc-gateway@0.1.0 test:integration
+> vitest run --config vitest.integration.config.ts
+
+
+ RUN  v4.1.5 /Users/yixingzhou/project/aigcgateway
+
+ ❯ tests/integration/deduct-balance-atomic.test.ts (2 tests | 2 skipped) 4ms
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/integration/deduct-balance-atomic.test.ts [ tests/integration/deduct-balance-atomic.test.ts ]
+Error: Could not find a working container runtime strategy
+ ❯ getContainerRuntimeClient node_modules/testcontainers/build/container-runtime/clients/client.js:67:11
+ ❯ PostgreSqlContainer.start node_modules/testcontainers/build/generic-container/generic-container.js:62:24
+ ❯ PostgreSqlContainer.start node_modules/@testcontainers/postgresql/build/postgresql-container.js:119:47
+ ❯ setupTestDb tests/helpers/db.ts:39:21
+     37|   if (shared) return shared;
+     38|
+     39|   const container = await new PostgreSqlContainer(POSTGRES_IMAGE)
+       |                     ^
+     40|     .withDatabase(DB_NAME)
+     41|     .withUsername("postgres")
+ ❯ tests/integration/deduct-balance-atomic.test.ts:29:17
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 skipped (2)
+   Start at  13:20:55
+   Duration  304ms (transform 14ms, setup 0ms, import 208ms, tests 4ms, environment 0ms)
+

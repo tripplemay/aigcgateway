@@ -1,0 +1,63 @@
+
+> aigc-gateway@0.1.0 test:integration
+> vitest run --config vitest.integration.config.ts
+
+
+ RUN  v4.1.5 /Users/yixingzhou/project/aigcgateway
+
+stdout | tests/integration/deduct-balance-atomic.test.ts
+2026-04-30T05:21:13.276Z testcontainers [DEBUG] Checking container runtime strategy "TestcontainersHostStrategy"...
+
+stdout | tests/integration/deduct-balance-atomic.test.ts
+2026-04-30T05:21:13.276Z testcontainers [DEBUG] Container runtime strategy "TestcontainersHostStrategy" is not applicable
+
+stdout | tests/integration/deduct-balance-atomic.test.ts
+2026-04-30T05:21:13.276Z testcontainers [DEBUG] Checking container runtime strategy "ConfigurationStrategy"...
+
+stdout | tests/integration/deduct-balance-atomic.test.ts
+2026-04-30T05:21:13.276Z testcontainers [DEBUG] Container runtime strategy "ConfigurationStrategy" is not applicable
+
+stdout | tests/integration/deduct-balance-atomic.test.ts
+2026-04-30T05:21:13.276Z testcontainers [DEBUG] Checking container runtime strategy "UnixSocketStrategy"...
+
+stdout | tests/integration/deduct-balance-atomic.test.ts
+2026-04-30T05:21:13.276Z testcontainers [DEBUG] Container runtime strategy "UnixSocketStrategy" is not applicable
+
+stdout | tests/integration/deduct-balance-atomic.test.ts
+2026-04-30T05:21:13.276Z testcontainers [DEBUG] Checking container runtime strategy "RootlessUnixSocketStrategy"...
+
+stdout | tests/integration/deduct-balance-atomic.test.ts
+2026-04-30T05:21:13.278Z testcontainers [DEBUG] Container runtime strategy "RootlessUnixSocketStrategy" is not applicable
+
+stdout | tests/integration/deduct-balance-atomic.test.ts
+2026-04-30T05:21:13.278Z testcontainers [DEBUG] Checking container runtime strategy "NpipeSocketStrategy"...
+
+stdout | tests/integration/deduct-balance-atomic.test.ts
+2026-04-30T05:21:13.278Z testcontainers [DEBUG] Container runtime strategy "NpipeSocketStrategy" is not applicable
+
+ ❯ tests/integration/deduct-balance-atomic.test.ts (2 tests | 2 skipped) 6ms
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/integration/deduct-balance-atomic.test.ts [ tests/integration/deduct-balance-atomic.test.ts ]
+Error: Could not find a working container runtime strategy
+ ❯ getContainerRuntimeClient node_modules/testcontainers/build/container-runtime/clients/client.js:67:11
+ ❯ PostgreSqlContainer.start node_modules/testcontainers/build/generic-container/generic-container.js:62:24
+ ❯ PostgreSqlContainer.start node_modules/@testcontainers/postgresql/build/postgresql-container.js:119:47
+ ❯ setupTestDb tests/helpers/db.ts:39:21
+     37|   if (shared) return shared;
+     38|
+     39|   const container = await new PostgreSqlContainer(POSTGRES_IMAGE)
+       |                     ^
+     40|     .withDatabase(DB_NAME)
+     41|     .withUsername("postgres")
+ ❯ tests/integration/deduct-balance-atomic.test.ts:29:17
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 skipped (2)
+   Start at  13:21:13
+   Duration  242ms (transform 14ms, setup 0ms, import 142ms, tests 6ms, environment 0ms)
+

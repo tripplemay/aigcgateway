@@ -1,11 +1,11 @@
 {
-  "status": "verifying",
+  "status": "fixing",
   "user_goal": "BL-TEST-INFRA-IMPORT — 全量迁移 KOLMatrix/joyce 测试基建到 aigcgateway。CI 3→8 jobs（含 build+migrate / coverage / integration / e2e + rollback validate）+ vitest 三配置 + MSW 框架 + Testcontainers + 64 migrations ROLLBACK 注释 + scripts/test/ 历史归档。来源：用户对比分析后选 D 全量迁移。",
   "total_features": 7,
   "completed_features": 6,
   "fix_rounds": 0,
   "current_sprint": "BL-TEST-INFRA-IMPORT",
-  "last_updated": "2026-04-30T12:05:00.000Z",
+  "last_updated": "2026-04-30T05:28:53.000Z",
   "reference_docs": [
     "docs/specs/BL-TEST-INFRA-IMPORT-spec.md",
     "/Users/yixingzhou/project/joyce/.github/workflows/ci.yml",
@@ -21,10 +21,29 @@
     "spec": "docs/specs/BL-TEST-INFRA-IMPORT-spec.md",
     "test_cases": null,
     "signoff": null,
-    "framework_reviewed": false
+    "framework_reviewed": true
   },
-  "evaluator_feedback": null,
-  "evaluator_handoff": null,
+  "evaluator_feedback": {
+    "result": "FAIL",
+    "report": "docs/test-reports/BL-TEST-INFRA-IMPORT-verifying-2026-04-30.md",
+    "blocking_issues": [
+      "F-TI-07#7 FAIL: Playwright 3 specs yielded 0 PASS locally and 0 PASS in CI; CI job is green only because Run Playwright E2E uses continue-on-error.",
+      "Local evaluator workflow is not self-contained: default npm run test:integration fails on Colima/Testcontainers, codex-setup.sh misses seed env vars / PostgreSQL socket assumptions, and npm run test:e2e in a fresh shell misses E2E_TEST_PASSWORD."
+    ],
+    "non_blocking_notes": [
+      "Coverage artifact is generated and readable, but thresholds remain below baseline by design (local 23.64/20.9/22.71/19.42; CI 23.79/21.17/22.82/19.49).",
+      "Unit suite passes with tests/setup.ts enabled: local 68 files, 549 passed, 4 skipped."
+    ]
+  },
+  "evaluator_handoff": {
+    "report": "docs/test-reports/BL-TEST-INFRA-IMPORT-verifying-2026-04-30.md",
+    "next_status": "fixing",
+    "focus": [
+      "Make local test harness self-contained for Codex: codex-env.sh / codex-setup.sh / test:integration / test:e2e",
+      "Fix Playwright CI startup path so at least one spec can pass",
+      "Fix current 3 E2E spec failures observed after app startup"
+    ]
+  },
   "generator_handoff": {
     "fix_round": 0,
     "scope": "全量迁移 joyce 测试基建（~10-12h）。F-TI-01→02→03→04→05→06 顺序执行；建议每完成一条独立 commit 便于回滚。",
@@ -82,6 +101,6 @@
   "session_notes": {
     "Kimi-batch-launch": "BL-TEST-INFRA-IMPORT 启动 @ 2026-04-28 20:00（详见 git log 833f9f3）。",
     "Johnsong": "BL-TEST-INFRA-IMPORT 全部 6 generator features 完成 @ 2026-04-30 12:50。status → verifying（交 Codex F-TI-07 11 项验收）。\n\nReference paths：实际为 /mnt/c/Users/tripplezhou/projects/kolmatrix（不是 progress.json 标的 /Users/yixingzhou/project/joyce 路径）。\n\nF-TI-01 (8b14bde)：装 9 deps（msw/testcontainers/testing-library/coverage-v8/ui + jsdom）；重写 vitest.config.ts（jsdom env + coverage 60/60/50/60）；新建 vitest.integration.config.ts + playwright.config.ts + tests/setup.ts 占位；package.json 加 10 个 test scripts。jsdom 破 2 文件（jwt + url-safety），加 // @vitest-environment node 修。验：69 files / 550 passed / 4 skipped。\n\nF-TI-02 (7f323cc)：MSW 4 上游 handlers（OpenAI/OpenRouter/Anthropic/SiliconFlow） + server.ts (Node) + browser.ts (Worker) + setup.ts MSW lifecycle；tests/{unit,integration}/README.md。验：554 测无回归 / coverage/lcov.info 生成 / build OK。\n\nF-TI-03 (368f1bd)：CI 3→8 jobs（install/lint/typecheck/validate-rollback-sql/build/unit-tests/integration-tests/e2e-tests）+ env placeholder + concurrency + paths-ignore。NODE_VERSION 22。unit + e2e jobs continue-on-error true（spec 接受 baseline coverage fail / e2e ≥1 PASS）。\n\nF-TI-04 (64396a7)：scripts/validate-rollback-sql.sh + scripts/maintenance/add-rollback-comments.ts（自动分类器）+ 64 migrations retrofit（31 composite / 12 add-column / 7 alter-enum / 6 data / 余下 less）+ docs/dev/rules.md 'Migration ROLLBACK 注释规范' 表格。验：./scripts/validate-rollback-sql.sh exit 0。\n\nF-TI-05 (5c0fc65)：tests/helpers/db.ts（Testcontainers + prisma migrate deploy + truncateAll）+ tests/integration/deduct-balance-atomic.test.ts（2 specs：$8×2 vs $10 → 1 succeed; $4×3 vs $10 → 2 succeed）+ docs/dev/testing.md（三层指南/决策树/集成测模板/MSW override）。验：integration 39s 全过 / 单测 554 不破。\n\nF-TI-06 (本 commit)：mkdir scripts/test/_archive_2026Q1Q2 + git mv 67 dated 文件（*-YYYY-MM-DD.{ts,tsx,mjs}）；保留 codex-{env,setup,wait}.sh + n1-* + template-governance-eval.mjs + vitest.scripts.config.ts；bulk sed rewrite docs/ 中 126 文件的引用 path → _archive_2026Q1Q2/；docs/dev/rules.md 加 'E2E / verification scripts location' 表格规定新批次走 tests/e2e/。\n\nCodex F-TI-07 接手清单：\n1) tsc + build + npm run test + npm run test:integration 跑通\n2) coverage/lcov.info artifact + 60/60/50/60 baseline 数据（接受 fail）\n3) ./scripts/validate-rollback-sql.sh 64 migrations 全过\n4) CI 8 jobs 在 main push 全跑（5/8 必 PASS）— 推 F-TI-06 后会触发，等 GH Actions 结果\n5) deduct-balance-atomic 真跑通 + boot ≤ 90s\n6) Playwright 跑 3 spec 至少 1 PASS（接受 fail）\n7) MSW handlers 4 上游 untreated 请求 console warn\n8) docs/test-reports/BL-TEST-INFRA-IMPORT-signoff-2026-04-XX.md（含 CI 截图 + coverage % + integration log + e2e report 链接）",
-    "Reviewer": null
+    "Reviewer": "BL-TEST-INFRA-IMPORT verifying @ 2026-04-30 13:28 CST / 2026-04-30T05:28:53Z complete. Conclusion FAIL, status -> fixing.\n\nPasses:\n- npm run lint: warnings only\n- npm run typecheck: pass\n- npm run build: pass\n- ./scripts/validate-rollback-sql.sh: 64 migrations pass\n- npm run test: pass (68 files, 549 passed, 4 skipped)\n- coverage/lcov.info generated locally and in CI artifact\n- CI run 25148437837: all 8 jobs success\n- integration test logic passes in CI (10.71s) and locally with Colima overrides + Ryuk disabled (2 tests pass, real 2.96s)\n\nBlockers:\n1) E2E acceptance FAIL. CI Playwright actual result = 3 failed / 0 passed (job green only because continue-on-error). Local app brought up on 3199 also gives 3 failed / 0 passed:\n   - balance-user-level-ui: recharge endpoint returned 404, expected 201\n   - project-switcher: 'No project yet' never visible within 30s\n   - user-profile-center: missing 'PlaywrightUICheck' in Security Log\n2) Local harness not self-contained:\n   - npm run test:integration default fails on Colima: Could not find a working container runtime strategy; debug shows Ryuk still targets /var/run/docker.sock\n   - codex-setup.sh default fails without local PostgreSQL socket; with PGHOST/PGUSER/PGPASSWORD it then fails because ADMIN_SEED_PASSWORD missing from codex-env.sh\n   - npm run test:e2e from fresh shell fails without E2E_TEST_PASSWORD\n\nArtifacts/report:\n- docs/test-reports/BL-TEST-INFRA-IMPORT-verifying-2026-04-30.md\n- docs/test-reports/_artifacts/BL-TEST-INFRA-IMPORT/\n- GH Actions run: https://github.com/tripplemay/aigcgateway/actions/runs/25148437837"
   }
 }

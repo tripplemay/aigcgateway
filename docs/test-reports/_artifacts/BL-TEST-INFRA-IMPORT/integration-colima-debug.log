@@ -1,0 +1,181 @@
+
+> aigc-gateway@0.1.0 test:integration
+> vitest run --config vitest.integration.config.ts
+
+
+ RUN  v4.1.5 /Users/yixingzhou/project/aigcgateway
+
+stdout | tests/integration/deduct-balance-atomic.test.ts
+2026-04-30T05:22:07.594Z testcontainers [DEBUG] Checking container runtime strategy "TestcontainersHostStrategy"...
+
+stdout | tests/integration/deduct-balance-atomic.test.ts
+2026-04-30T05:22:07.595Z testcontainers [DEBUG] Found custom configuration: dockerHost: "unix:///Users/yixingzhou/.colima/default/docker.sock"
+
+stdout | tests/integration/deduct-balance-atomic.test.ts
+2026-04-30T05:22:07.595Z testcontainers [DEBUG] Container runtime strategy "TestcontainersHostStrategy" is not applicable
+
+stdout | tests/integration/deduct-balance-atomic.test.ts
+2026-04-30T05:22:07.595Z testcontainers [DEBUG] Checking container runtime strategy "ConfigurationStrategy"...
+
+stdout | tests/integration/deduct-balance-atomic.test.ts
+2026-04-30T05:22:07.595Z testcontainers [TRACE] Fetching Docker info...
+
+stdout | tests/integration/deduct-balance-atomic.test.ts
+2026-04-30T05:22:07.607Z testcontainers [TRACE] Fetching remote container runtime socket path...
+2026-04-30T05:22:07.607Z testcontainers [TRACE] Resolving host...
+
+stdout | tests/integration/deduct-balance-atomic.test.ts
+2026-04-30T05:22:07.607Z testcontainers [TRACE] Fetching Compose info...
+
+stdout | tests/integration/deduct-balance-atomic.test.ts
+2026-04-30T05:22:07.607Z testcontainers [TRACE] Looking up host IPs...
+
+stdout | tests/integration/deduct-balance-atomic.test.ts
+2026-04-30T05:22:07.610Z testcontainers [TRACE] Initialising clients...
+2026-04-30T05:22:07.610Z testcontainers [TRACE] Container runtime info:
+{
+  "node": {
+    "version": "v25.7.0",
+    "architecture": "arm64",
+    "platform": "darwin"
+  },
+  "containerRuntime": {
+    "host": "localhost",
+    "hostIps": [
+      {
+        "address": "::1",
+        "family": 6
+      },
+      {
+        "address": "127.0.0.1",
+        "family": 4
+      }
+    ],
+    "remoteSocketPath": "/Users/yixingzhou/.colima/default/docker.sock",
+    "indexServerAddress": "https://index.docker.io/v1/",
+    "serverVersion": "29.2.1",
+    "operatingSystem": "Ubuntu 24.04.4 LTS",
+    "operatingSystemType": "linux",
+    "architecture": "aarch64",
+    "cpus": 4,
+    "memory": 8304488448,
+    "runtimes": [
+      "io.containerd.runc.v2",
+      "runc"
+    ],
+    "labels": []
+  }
+}
+
+stdout | tests/integration/deduct-balance-atomic.test.ts
+2026-04-30T05:22:07.610Z testcontainers [DEBUG] Container runtime strategy "ConfigurationStrategy" works
+
+stdout | tests/integration/deduct-balance-atomic.test.ts
+2026-04-30T05:22:07.610Z testcontainers [DEBUG] Checking if image exists "postgres:16-alpine"...
+
+stdout | tests/integration/deduct-balance-atomic.test.ts
+2026-04-30T05:22:07.636Z testcontainers [DEBUG] Checked if image exists "postgres:16-alpine"
+
+stdout | tests/integration/deduct-balance-atomic.test.ts
+2026-04-30T05:22:07.636Z testcontainers [DEBUG] Image "postgres:16-alpine" already exists
+
+stdout | tests/integration/deduct-balance-atomic.test.ts
+2026-04-30T05:22:07.638Z testcontainers [DEBUG] Acquiring lock file "/private/var/folders/rq/8682y70j5ys5w899ft_9mddw0000gn/T/testcontainers-node-501.lock"...
+
+stdout | tests/integration/deduct-balance-atomic.test.ts
+2026-04-30T05:22:07.638Z testcontainers [DEBUG] Acquired lock file "/private/var/folders/rq/8682y70j5ys5w899ft_9mddw0000gn/T/testcontainers-node-501.lock"
+2026-04-30T05:22:07.638Z testcontainers [DEBUG] Listing containers...
+
+stdout | tests/integration/deduct-balance-atomic.test.ts
+2026-04-30T05:22:07.652Z testcontainers [DEBUG] Listed containers
+
+stdout | tests/integration/deduct-balance-atomic.test.ts
+2026-04-30T05:22:07.652Z testcontainers [DEBUG] Creating new Reaper for session "5889bdcd2212" with socket path "/Users/yixingzhou/.colima/default/docker.sock"...
+
+stdout | tests/integration/deduct-balance-atomic.test.ts
+2026-04-30T05:22:07.652Z testcontainers [DEBUG] Checking if image exists "testcontainers/ryuk:0.14.0"...
+
+stdout | tests/integration/deduct-balance-atomic.test.ts
+2026-04-30T05:22:07.668Z testcontainers [DEBUG] Checked if image exists "testcontainers/ryuk:0.14.0"
+
+stdout | tests/integration/deduct-balance-atomic.test.ts
+2026-04-30T05:22:07.668Z testcontainers [DEBUG] Image "testcontainers/ryuk:0.14.0" already exists
+
+stdout | tests/integration/deduct-balance-atomic.test.ts
+2026-04-30T05:22:07.668Z testcontainers [DEBUG] Creating container for image "testcontainers/ryuk:0.14.0"...
+
+stdout | tests/integration/deduct-balance-atomic.test.ts
+2026-04-30T05:22:07.691Z testcontainers [DEBUG] [78efb061131f] Created container for image "testcontainers/ryuk:0.14.0"
+
+stdout | tests/integration/deduct-balance-atomic.test.ts
+2026-04-30T05:22:07.691Z testcontainers [INFO] [78efb061131f] Starting container for image "testcontainers/ryuk:0.14.0"...
+2026-04-30T05:22:07.691Z testcontainers [DEBUG] [78efb061131f] Starting container...
+
+stdout | tests/integration/deduct-balance-atomic.test.ts
+2026-04-30T05:22:07.781Z testcontainers [DEBUG] [78efb061131f] Started container
+
+stdout | tests/integration/deduct-balance-atomic.test.ts
+2026-04-30T05:22:07.781Z testcontainers [INFO] [78efb061131f] Started container for image "testcontainers/ryuk:0.14.0"
+
+stdout | tests/integration/deduct-balance-atomic.test.ts
+2026-04-30T05:22:07.783Z testcontainers [DEBUG] [78efb061131f] Fetching container logs...
+
+stdout | tests/integration/deduct-balance-atomic.test.ts
+2026-04-30T05:22:07.783Z testcontainers [DEBUG] [78efb061131f] Waiting for container to be ready...
+2026-04-30T05:22:07.783Z testcontainers [DEBUG] [78efb061131f] Waiting for log message "/.*Started.*/"...
+
+stdout | tests/integration/deduct-balance-atomic.test.ts
+2026-04-30T05:22:07.783Z testcontainers [DEBUG] [78efb061131f] Fetching container logs...
+
+stdout | tests/integration/deduct-balance-atomic.test.ts
+2026-04-30T05:22:07.785Z testcontainers [DEBUG] [78efb061131f] Demuxing stream...
+2026-04-30T05:22:07.785Z testcontainers [DEBUG] [78efb061131f] Demuxed stream
+
+stdout | tests/integration/deduct-balance-atomic.test.ts
+2026-04-30T05:22:07.786Z testcontainers [DEBUG] [78efb061131f] Demuxing stream...
+2026-04-30T05:22:07.786Z testcontainers [DEBUG] [78efb061131f] Demuxed stream
+
+stdout | tests/integration/deduct-balance-atomic.test.ts
+2026-04-30T05:22:07.853Z testcontainers:containers [78efb061131f] 2026/04/30 05:22:07 ERROR run error="new reaper: ping: Cannot connect to the Docker daemon at unix:///var/run/docker.sock. Is the docker daemon running?"
+
+stdout | tests/integration/deduct-balance-atomic.test.ts
+2026-04-30T05:22:07.866Z testcontainers [ERROR] [78efb061131f] Log stream ended and message "/.*Started.*/" was not received
+
+stdout | tests/integration/deduct-balance-atomic.test.ts
+2026-04-30T05:22:07.867Z testcontainers [ERROR] [78efb061131f] Container failed to be ready: Error: Log stream ended and message "/.*Started.*/" was not received
+2026-04-30T05:22:07.867Z testcontainers [DEBUG] [78efb061131f] Stopping container...
+
+stdout | tests/integration/deduct-balance-atomic.test.ts
+2026-04-30T05:22:07.943Z testcontainers [DEBUG] [78efb061131f] Container already stopped
+
+stdout | tests/integration/deduct-balance-atomic.test.ts
+2026-04-30T05:22:07.943Z testcontainers [DEBUG] [78efb061131f] Removing container...
+
+stdout | tests/integration/deduct-balance-atomic.test.ts
+2026-04-30T05:22:07.945Z testcontainers [ERROR] [78efb061131f] Failed to remove container: Error: (HTTP code 409) unexpected - removal of container 78efb061131f8866634400298ae42d5bf4795c206eabe921467f5f6fe399aa85 is already in progress 
+
+stdout | tests/integration/deduct-balance-atomic.test.ts
+2026-04-30T05:22:07.945Z testcontainers [ERROR] [78efb061131f] Failed to stop container after it failed to be ready: Error: (HTTP code 409) unexpected - removal of container 78efb061131f8866634400298ae42d5bf4795c206eabe921467f5f6fe399aa85 is already in progress 
+
+stdout | tests/integration/deduct-balance-atomic.test.ts
+2026-04-30T05:22:07.945Z testcontainers [DEBUG] Releasing lock file "/private/var/folders/rq/8682y70j5ys5w899ft_9mddw0000gn/T/testcontainers-node-501.lock"...
+
+stdout | tests/integration/deduct-balance-atomic.test.ts
+2026-04-30T05:22:07.945Z testcontainers [DEBUG] Released lock file "/private/var/folders/rq/8682y70j5ys5w899ft_9mddw0000gn/T/testcontainers-node-501.lock"
+
+ ❯ tests/integration/deduct-balance-atomic.test.ts (2 tests | 2 skipped) 353ms
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/integration/deduct-balance-atomic.test.ts [ tests/integration/deduct-balance-atomic.test.ts ]
+Error: Log stream ended and message "/.*Started.*/" was not received
+ ❯ LineStream.<anonymous> node_modules/testcontainers/build/wait-strategies/log-wait-strategy.js:56:24
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 skipped (2)
+   Start at  13:22:07
+   Duration  582ms (transform 14ms, setup 0ms, import 139ms, tests 353ms, environment 0ms)
+

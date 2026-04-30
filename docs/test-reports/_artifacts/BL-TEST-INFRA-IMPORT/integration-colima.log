@@ -1,0 +1,26 @@
+
+> aigc-gateway@0.1.0 test:integration
+> vitest run --config vitest.integration.config.ts
+
+
+ RUN  v4.1.5 /Users/yixingzhou/project/aigcgateway
+
+ ❯ tests/integration/deduct-balance-atomic.test.ts (2 tests | 2 skipped) 365ms
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/integration/deduct-balance-atomic.test.ts [ tests/integration/deduct-balance-atomic.test.ts ]
+Error: Log stream ended and message "/.*Started.*/" was not received
+ ❯ LineStream.<anonymous> node_modules/testcontainers/build/wait-strategies/log-wait-strategy.js:56:24
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 skipped (2)
+   Start at  13:21:43
+   Duration  592ms (transform 14ms, setup 0ms, import 140ms, tests 365ms, environment 0ms)
+
+real 0.86
+user 0.59
+sys 0.08

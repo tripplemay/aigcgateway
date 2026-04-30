@@ -1,0 +1,16 @@
+
+> aigc-gateway@0.1.0 test:integration
+> vitest run --config vitest.integration.config.ts
+
+
+ RUN  v4.1.5 /Users/yixingzhou/project/aigcgateway
+
+
+ Test Files  1 passed (1)
+      Tests  2 passed (2)
+   Start at  13:22:37
+   Duration  2.70s (transform 14ms, setup 0ms, import 140ms, tests 2.47s, environment 0ms)
+
+real 2.96
+user 1.32
+sys 0.24

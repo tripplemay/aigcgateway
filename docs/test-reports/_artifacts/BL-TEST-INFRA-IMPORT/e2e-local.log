@@ -1,0 +1,127 @@
+
+> aigc-gateway@0.1.0 test:e2e
+> playwright test
+
+
+Running 3 tests using 3 workers
+
+(node:41844) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:41846) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:41845) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:41845) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:41846) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:41844) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  2 [chromium] › tests/e2e/balance-user-level-ui.spec.ts:26:7 › balance-user-level-ui › F-BU-08 Sidebar wallet remains constant when switching projects (2.5s)
+  ✘  1 [chromium] › tests/e2e/user-profile-center.spec.ts:35:7 › user-profile-center › Sidebar user info + Settings security log (9.2s)
+  ✘  3 [chromium] › tests/e2e/project-switcher.spec.ts:43:7 › project-switcher-ui › F-PS-06 end-to-end scenarios (30.2s)
+
+
+  1) [chromium] › tests/e2e/balance-user-level-ui.spec.ts:26:7 › balance-user-level-ui › F-BU-08 Sidebar wallet remains constant when switching projects 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+    Expected: [32m201[39m
+    Received: [31m404[39m
+
+      59 |       },
+      60 |     );
+    > 61 |     expect(rechargeRes.status()).toBe(201);
+         |                                  ^
+      62 |
+      63 |     await bootstrapAuth(page, userToken);
+      64 |     await page.goto(`${BASE_URL}/dashboard`);
+        at /Users/yixingzhou/project/aigcgateway/tests/e2e/balance-user-level-ui.spec.ts:61:34
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/balance-user-level-ui-bala-4452a-ant-when-switching-projects-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/balance-user-level-ui-bala-4452a-ant-when-switching-projects-chromium/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/balance-user-level-ui-bala-4452a-ant-when-switching-projects-chromium/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/balance-user-level-ui-bala-4452a-ant-when-switching-projects-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) [chromium] › tests/e2e/project-switcher.spec.ts:43:7 › project-switcher-ui › F-PS-06 end-to-end scenarios 
+
+    [31mTest timeout of 30000ms exceeded.[39m
+
+    Error: locator.waitFor: Test timeout of 30000ms exceeded.
+    Call log:
+    [2m  - waiting for getByText('No project yet') to be visible[22m
+
+
+      62 |     await page.goto(`${BASE_URL}/dashboard`);
+      63 |
+    > 64 |     await page.getByText("No project yet").waitFor();
+         |                                            ^
+      65 |
+      66 |     const projectAName = `PS Auto ${timestamp}`;
+      67 |     await page.getByRole("button", { name: "Create Project" }).click();
+        at /Users/yixingzhou/project/aigcgateway/tests/e2e/project-switcher.spec.ts:64:44
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/project-switcher-project-s-03548--PS-06-end-to-end-scenarios-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/project-switcher-project-s-03548--PS-06-end-to-end-scenarios-chromium/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/project-switcher-project-s-03548--PS-06-end-to-end-scenarios-chromium/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/project-switcher-project-s-03548--PS-06-end-to-end-scenarios-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) [chromium] › tests/e2e/user-profile-center.spec.ts:35:7 › user-profile-center › Sidebar user info + Settings security log 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoContainText[2m([22m[32mexpected[39m[2m)[22m failed
+
+    Locator: locator('section').filter({ hasText: 'Security Log' }).first().locator('div.flex.items-center.justify-between.p-3').first()
+    Expected substring: [32m"PlaywrightUICheck"[39m
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toContainText" with timeout 5000ms[22m
+    [2m  - waiting for locator('section').filter({ hasText: 'Security Log' }).first().locator('div.flex.items-center.justify-between.p-3').first()[22m
+
+
+      55 |       .locator("div.flex.items-center.justify-between.p-3")
+      56 |       .first();
+    > 57 |     await expect(logRow).toContainText("PlaywrightUICheck");
+         |                          ^
+      58 |   });
+      59 | });
+      60 |
+        at /Users/yixingzhou/project/aigcgateway/tests/e2e/user-profile-center.spec.ts:57:26
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/user-profile-center-user-p-ca16b--info-Settings-security-log-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/user-profile-center-user-p-ca16b--info-Settings-security-log-chromium/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/user-profile-center-user-p-ca16b--info-Settings-security-log-chromium/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/user-profile-center-user-p-ca16b--info-Settings-security-log-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3 failed
+    [chromium] › tests/e2e/balance-user-level-ui.spec.ts:26:7 › balance-user-level-ui › F-BU-08 Sidebar wallet remains constant when switching projects 
+    [chromium] › tests/e2e/project-switcher.spec.ts:43:7 › project-switcher-ui › F-PS-06 end-to-end scenarios 
+    [chromium] › tests/e2e/user-profile-center.spec.ts:35:7 › user-profile-center › Sidebar user info + Settings security log 

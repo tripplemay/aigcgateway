@@ -1,0 +1,1013 @@
+
+> aigc-gateway@0.1.0 test:coverage
+> vitest run --coverage
+
+
+ RUN  v4.1.5 /Users/yixingzhou/project/aigcgateway
+      Coverage enabled with v8
+
+(node:38696) Warning: `--localstorage-file` was provided without a valid path
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:38695) Warning: `--localstorage-file` was provided without a valid path
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:38697) Warning: `--localstorage-file` was provided without a valid path
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:38690) Warning: `--localstorage-file` was provided without a valid path
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:38691) Warning: `--localstorage-file` was provided without a valid path
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:38694) Warning: `--localstorage-file` was provided without a valid path
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:38693) Warning: `--localstorage-file` was provided without a valid path
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:38698) Warning: `--localstorage-file` was provided without a valid path
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:38692) Warning: `--localstorage-file` was provided without a valid path
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:38708) Warning: `--localstorage-file` was provided without a valid path
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:38707) Warning: `--localstorage-file` was provided without a valid path
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:38709) Warning: `--localstorage-file` was provided without a valid path
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:38710) Warning: `--localstorage-file` was provided without a valid path
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:38712) Warning: `--localstorage-file` was provided without a valid path
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:38711) Warning: `--localstorage-file` was provided without a valid path
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:38714) Warning: `--localstorage-file` was provided without a valid path
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:38715) Warning: `--localstorage-file` was provided without a valid path
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:38713) Warning: `--localstorage-file` was provided without a valid path
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:38716) Warning: `--localstorage-file` was provided without a valid path
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:38721) Warning: `--localstorage-file` was provided without a valid path
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:38717) Warning: `--localstorage-file` was provided without a valid path
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:38718) Warning: `--localstorage-file` was provided without a valid path
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:38719) Warning: `--localstorage-file` was provided without a valid path
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:38720) Warning: `--localstorage-file` was provided without a valid path
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:38722) Warning: `--localstorage-file` was provided without a valid path
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:38724) Warning: `--localstorage-file` was provided without a valid path
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:38723) Warning: `--localstorage-file` was provided without a valid path
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:38725) Warning: `--localstorage-file` was provided without a valid path
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:38726) Warning: `--localstorage-file` was provided without a valid path
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:38727) Warning: `--localstorage-file` was provided without a valid path
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:38729) Warning: `--localstorage-file` was provided without a valid path
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:38728) Warning: `--localstorage-file` was provided without a valid path
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:38730) Warning: `--localstorage-file` was provided without a valid path
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:38731) Warning: `--localstorage-file` was provided without a valid path
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:38732) Warning: `--localstorage-file` was provided without a valid path
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:38733) Warning: `--localstorage-file` was provided without a valid path
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:38734) Warning: `--localstorage-file` was provided without a valid path
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:38739) Warning: `--localstorage-file` was provided without a valid path
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:38740) Warning: `--localstorage-file` was provided without a valid path
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:38741) Warning: `--localstorage-file` was provided without a valid path
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:38742) Warning: `--localstorage-file` was provided without a valid path
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:38743) Warning: `--localstorage-file` was provided without a valid path
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:38745) Warning: `--localstorage-file` was provided without a valid path
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:38744) Warning: `--localstorage-file` was provided without a valid path
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:38746) Warning: `--localstorage-file` was provided without a valid path
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:38747) Warning: `--localstorage-file` was provided without a valid path
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:38748) Warning: `--localstorage-file` was provided without a valid path
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:38749) Warning: `--localstorage-file` was provided without a valid path
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:38750) Warning: `--localstorage-file` was provided without a valid path
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:38751) Warning: `--localstorage-file` was provided without a valid path
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:38752) Warning: `--localstorage-file` was provided without a valid path
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:38753) Warning: `--localstorage-file` was provided without a valid path
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:38756) Warning: `--localstorage-file` was provided without a valid path
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:38755) Warning: `--localstorage-file` was provided without a valid path
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:38757) Warning: `--localstorage-file` was provided without a valid path
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:38758) Warning: `--localstorage-file` was provided without a valid path
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:38759) Warning: `--localstorage-file` was provided without a valid path
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:38760) Warning: `--localstorage-file` was provided without a valid path
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:38761) Warning: `--localstorage-file` was provided without a valid path
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:38762) Warning: `--localstorage-file` was provided without a valid path
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:38767) Warning: `--localstorage-file` was provided without a valid path
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:38769) Warning: `--localstorage-file` was provided without a valid path
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:38768) Warning: `--localstorage-file` was provided without a valid path
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:38774) Warning: `--localstorage-file` was provided without a valid path
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:38779) Warning: `--localstorage-file` was provided without a valid path
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:38780) Warning: `--localstorage-file` was provided without a valid path
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:38782) Warning: `--localstorage-file` was provided without a valid path
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:38781) Warning: `--localstorage-file` was provided without a valid path
+(Use `node --trace-warnings ...` to show where the warning was created)
+Failed to parse file:///Users/yixingzhou/project/aigcgateway/src/components/cta-banner.tsx. Excluding it from coverage.
+ Error [RolldownError]: Parse failed with 1 error:
+Expected a semicolon or an implicit semicolon after a statement, but found none
+2: import { cn } from "@/lib/utils";
+3: 
+4: interface CTABannerProps {
+            ^
+5:   title: React.ReactNode;
+6:   description?: React.ReactNode;
+    at error (file:///Users/yixingzhou/project/aigcgateway/node_modules/rolldown/dist/shared/logs-D80CXhvg.mjs:147:24)
+    at normalizeParseError (file:///Users/yixingzhou/project/aigcgateway/node_modules/rolldown/dist/parse-ast-index.mjs:25:9)
+    at wrap (file:///Users/yixingzhou/project/aigcgateway/node_modules/rolldown/dist/parse-ast-index.mjs:5:39)
+    at parseAstAsync (file:///Users/yixingzhou/project/aigcgateway/node_modules/rolldown/dist/parse-ast-index.mjs:54:9)
+    at V8CoverageProvider.remapCoverage (file:///Users/yixingzhou/project/aigcgateway/node_modules/@vitest/coverage-v8/dist/provider.js:133:10)
+    at file:///Users/yixingzhou/project/aigcgateway/node_modules/@vitest/coverage-v8/dist/provider.js:119:23
+    at async Promise.all (index 2)
+    at V8CoverageProvider.getCoverageMapForUncoveredFiles (file:///Users/yixingzhou/project/aigcgateway/node_modules/@vitest/coverage-v8/dist/provider.js:109:4)
+    at V8CoverageProvider.generateCoverage (file:///Users/yixingzhou/project/aigcgateway/node_modules/@vitest/coverage-v8/dist/provider.js:56:29)
+    at file:///Users/yixingzhou/project/aigcgateway/node_modules/vitest/dist/chunks/cli-api.Cjt90eJu.js:13588:23 {
+  code: 'PARSE_ERROR',
+  id: undefined,
+  pos: 76
+}
+Failed to parse file:///Users/yixingzhou/project/aigcgateway/src/components/intl-provider.tsx. Excluding it from coverage.
+ Error [RolldownError]: Parse failed with 1 error:
+Expected `,` or `}` but found `Identifier`
+2: import { useEffect, useState } from "react";
+3: import { NextIntlClientProvider } from "next-intl";
+4: import { LocaleProvider, useLocale, type Locale } from "@/hooks/use-locale";
+                                            ^
+5: import { Skeleton } from "@/components/ui/skeleton";
+2: import { useEffect, useState } from "react";
+3: import { NextIntlClientProvider } from "next-intl";
+4: import { LocaleProvider, useLocale, type Locale } from "@/hooks/use-locale";
+          ^
+5: import { Skeleton } from "@/components/ui/skeleton";
+    at error (file:///Users/yixingzhou/project/aigcgateway/node_modules/rolldown/dist/shared/logs-D80CXhvg.mjs:147:24)
+    at normalizeParseError (file:///Users/yixingzhou/project/aigcgateway/node_modules/rolldown/dist/parse-ast-index.mjs:25:9)
+    at wrap (file:///Users/yixingzhou/project/aigcgateway/node_modules/rolldown/dist/parse-ast-index.mjs:5:39)
+    at parseAstAsync (file:///Users/yixingzhou/project/aigcgateway/node_modules/rolldown/dist/parse-ast-index.mjs:54:9)
+    at V8CoverageProvider.remapCoverage (file:///Users/yixingzhou/project/aigcgateway/node_modules/@vitest/coverage-v8/dist/provider.js:133:10)
+    at file:///Users/yixingzhou/project/aigcgateway/node_modules/@vitest/coverage-v8/dist/provider.js:119:23
+    at async Promise.all (index 4)
+    at V8CoverageProvider.getCoverageMapForUncoveredFiles (file:///Users/yixingzhou/project/aigcgateway/node_modules/@vitest/coverage-v8/dist/provider.js:109:4)
+    at V8CoverageProvider.generateCoverage (file:///Users/yixingzhou/project/aigcgateway/node_modules/@vitest/coverage-v8/dist/provider.js:56:29)
+    at file:///Users/yixingzhou/project/aigcgateway/node_modules/vitest/dist/chunks/cli-api.Cjt90eJu.js:13588:23 {
+  code: 'PARSE_ERROR',
+  id: undefined,
+  pos: 152
+}
+Failed to parse file:///Users/yixingzhou/project/aigcgateway/src/components/empty-state.tsx. Excluding it from coverage.
+ Error [RolldownError]: Parse failed with 1 error:
+Expected a semicolon or an implicit semicolon after a statement, but found none
+ 7: import { cn } from "@/lib/utils";
+ 8: 
+ 9: interface EmptyStateProps {
+             ^
+10:   icon?: React.ReactNode;
+11:   title?: React.ReactNode;
+    at error (file:///Users/yixingzhou/project/aigcgateway/node_modules/rolldown/dist/shared/logs-D80CXhvg.mjs:147:24)
+    at normalizeParseError (file:///Users/yixingzhou/project/aigcgateway/node_modules/rolldown/dist/parse-ast-index.mjs:25:9)
+    at wrap (file:///Users/yixingzhou/project/aigcgateway/node_modules/rolldown/dist/parse-ast-index.mjs:5:39)
+    at parseAstAsync (file:///Users/yixingzhou/project/aigcgateway/node_modules/rolldown/dist/parse-ast-index.mjs:54:9)
+    at V8CoverageProvider.remapCoverage (file:///Users/yixingzhou/project/aigcgateway/node_modules/@vitest/coverage-v8/dist/provider.js:133:10)
+    at file:///Users/yixingzhou/project/aigcgateway/node_modules/@vitest/coverage-v8/dist/provider.js:119:23
+    at async Promise.all (index 3)
+    at V8CoverageProvider.getCoverageMapForUncoveredFiles (file:///Users/yixingzhou/project/aigcgateway/node_modules/@vitest/coverage-v8/dist/provider.js:109:4)
+    at V8CoverageProvider.generateCoverage (file:///Users/yixingzhou/project/aigcgateway/node_modules/@vitest/coverage-v8/dist/provider.js:56:29)
+    at file:///Users/yixingzhou/project/aigcgateway/node_modules/vitest/dist/chunks/cli-api.Cjt90eJu.js:13588:23 {
+  code: 'PARSE_ERROR',
+  id: undefined,
+  pos: 301
+}
+Failed to parse file:///Users/yixingzhou/project/aigcgateway/src/components/kpi-card.tsx. Excluding it from coverage.
+ Error [RolldownError]: Parse failed with 1 error:
+Expected a semicolon or an implicit semicolon after a statement, but found none
+2: import { cn } from "@/lib/utils";
+3: 
+4: interface KPICardProps {
+            ^
+5:   label: React.ReactNode;
+6:   value: React.ReactNode;
+    at error (file:///Users/yixingzhou/project/aigcgateway/node_modules/rolldown/dist/shared/logs-D80CXhvg.mjs:147:24)
+    at normalizeParseError (file:///Users/yixingzhou/project/aigcgateway/node_modules/rolldown/dist/parse-ast-index.mjs:25:9)
+    at wrap (file:///Users/yixingzhou/project/aigcgateway/node_modules/rolldown/dist/parse-ast-index.mjs:5:39)
+    at parseAstAsync (file:///Users/yixingzhou/project/aigcgateway/node_modules/rolldown/dist/parse-ast-index.mjs:54:9)
+    at V8CoverageProvider.remapCoverage (file:///Users/yixingzhou/project/aigcgateway/node_modules/@vitest/coverage-v8/dist/provider.js:133:10)
+    at file:///Users/yixingzhou/project/aigcgateway/node_modules/@vitest/coverage-v8/dist/provider.js:119:23
+    at async Promise.all (index 5)
+    at V8CoverageProvider.getCoverageMapForUncoveredFiles (file:///Users/yixingzhou/project/aigcgateway/node_modules/@vitest/coverage-v8/dist/provider.js:109:4)
+    at V8CoverageProvider.generateCoverage (file:///Users/yixingzhou/project/aigcgateway/node_modules/@vitest/coverage-v8/dist/provider.js:56:29)
+    at file:///Users/yixingzhou/project/aigcgateway/node_modules/vitest/dist/chunks/cli-api.Cjt90eJu.js:13588:23 {
+  code: 'PARSE_ERROR',
+  id: undefined,
+  pos: 76
+}
+Failed to parse file:///Users/yixingzhou/project/aigcgateway/src/components/auth-terminal.tsx. Excluding it from coverage.
+ Error [RolldownError]: Parse failed with 1 error:
+Unexpected token
+ 6: // ============================================================
+ 7: 
+ 8: export interface TerminalSequence {
+           ^
+ 9:   command: string;
+10:   responses: { text: string; color: string }[];
+    at error (file:///Users/yixingzhou/project/aigcgateway/node_modules/rolldown/dist/shared/logs-D80CXhvg.mjs:147:24)
+    at normalizeParseError (file:///Users/yixingzhou/project/aigcgateway/node_modules/rolldown/dist/parse-ast-index.mjs:25:9)
+    at wrap (file:///Users/yixingzhou/project/aigcgateway/node_modules/rolldown/dist/parse-ast-index.mjs:5:39)
+    at parseAstAsync (file:///Users/yixingzhou/project/aigcgateway/node_modules/rolldown/dist/parse-ast-index.mjs:54:9)
+    at V8CoverageProvider.remapCoverage (file:///Users/yixingzhou/project/aigcgateway/node_modules/@vitest/coverage-v8/dist/provider.js:133:10)
+    at file:///Users/yixingzhou/project/aigcgateway/node_modules/@vitest/coverage-v8/dist/provider.js:119:23
+    at async Promise.all (index 0)
+    at V8CoverageProvider.getCoverageMapForUncoveredFiles (file:///Users/yixingzhou/project/aigcgateway/node_modules/@vitest/coverage-v8/dist/provider.js:109:4)
+    at V8CoverageProvider.generateCoverage (file:///Users/yixingzhou/project/aigcgateway/node_modules/@vitest/coverage-v8/dist/provider.js:56:29)
+    at file:///Users/yixingzhou/project/aigcgateway/node_modules/vitest/dist/chunks/cli-api.Cjt90eJu.js:13588:23 {
+  code: 'PARSE_ERROR',
+  id: undefined,
+  pos: 216
+}
+Failed to parse file:///Users/yixingzhou/project/aigcgateway/src/components/page-header.tsx. Excluding it from coverage.
+ Error [RolldownError]: Parse failed with 1 error:
+Expected a semicolon or an implicit semicolon after a statement, but found none
+2: import { cn } from "@/lib/utils";
+3: 
+4: interface PageHeaderProps {
+            ^
+5:   title: React.ReactNode;
+6:   subtitle?: React.ReactNode;
+    at error (file:///Users/yixingzhou/project/aigcgateway/node_modules/rolldown/dist/shared/logs-D80CXhvg.mjs:147:24)
+    at normalizeParseError (file:///Users/yixingzhou/project/aigcgateway/node_modules/rolldown/dist/parse-ast-index.mjs:25:9)
+    at wrap (file:///Users/yixingzhou/project/aigcgateway/node_modules/rolldown/dist/parse-ast-index.mjs:5:39)
+    at parseAstAsync (file:///Users/yixingzhou/project/aigcgateway/node_modules/rolldown/dist/parse-ast-index.mjs:54:9)
+    at V8CoverageProvider.remapCoverage (file:///Users/yixingzhou/project/aigcgateway/node_modules/@vitest/coverage-v8/dist/provider.js:133:10)
+    at file:///Users/yixingzhou/project/aigcgateway/node_modules/@vitest/coverage-v8/dist/provider.js:119:23
+    at async Promise.all (index 8)
+    at V8CoverageProvider.getCoverageMapForUncoveredFiles (file:///Users/yixingzhou/project/aigcgateway/node_modules/@vitest/coverage-v8/dist/provider.js:109:4)
+    at V8CoverageProvider.generateCoverage (file:///Users/yixingzhou/project/aigcgateway/node_modules/@vitest/coverage-v8/dist/provider.js:56:29)
+    at file:///Users/yixingzhou/project/aigcgateway/node_modules/vitest/dist/chunks/cli-api.Cjt90eJu.js:13588:23 {
+  code: 'PARSE_ERROR',
+  id: undefined,
+  pos: 76
+}
+Failed to parse file:///Users/yixingzhou/project/aigcgateway/src/components/create-project-dialog.tsx. Excluding it from coverage.
+ Error [RolldownError]: Parse failed with 1 error:
+Expected a semicolon or an implicit semicolon after a statement, but found none
+15: import { useTranslations } from "next-intl";
+16: 
+17: interface CreateProjectDialogProps {
+             ^
+18:   trigger: React.ReactElement;
+19:   onCreated?: () => void;
+    at error (file:///Users/yixingzhou/project/aigcgateway/node_modules/rolldown/dist/shared/logs-D80CXhvg.mjs:147:24)
+    at normalizeParseError (file:///Users/yixingzhou/project/aigcgateway/node_modules/rolldown/dist/parse-ast-index.mjs:25:9)
+    at wrap (file:///Users/yixingzhou/project/aigcgateway/node_modules/rolldown/dist/parse-ast-index.mjs:5:39)
+    at parseAstAsync (file:///Users/yixingzhou/project/aigcgateway/node_modules/rolldown/dist/parse-ast-index.mjs:54:9)
+    at V8CoverageProvider.remapCoverage (file:///Users/yixingzhou/project/aigcgateway/node_modules/@vitest/coverage-v8/dist/provider.js:133:10)
+    at file:///Users/yixingzhou/project/aigcgateway/node_modules/@vitest/coverage-v8/dist/provider.js:119:23
+    at async Promise.all (index 1)
+    at V8CoverageProvider.getCoverageMapForUncoveredFiles (file:///Users/yixingzhou/project/aigcgateway/node_modules/@vitest/coverage-v8/dist/provider.js:109:4)
+    at V8CoverageProvider.generateCoverage (file:///Users/yixingzhou/project/aigcgateway/node_modules/@vitest/coverage-v8/dist/provider.js:56:29)
+    at file:///Users/yixingzhou/project/aigcgateway/node_modules/vitest/dist/chunks/cli-api.Cjt90eJu.js:13588:23 {
+  code: 'PARSE_ERROR',
+  id: undefined,
+  pos: 440
+}
+Failed to parse file:///Users/yixingzhou/project/aigcgateway/src/components/page-loader.tsx. Excluding it from coverage.
+ Error [RolldownError]: Parse failed with 1 error:
+Expected a semicolon or an implicit semicolon after a statement, but found none
+3: import { cn } from "@/lib/utils";
+4: 
+5: interface PageLoaderProps {
+            ^
+6:   className?: string;
+7: }
+    at error (file:///Users/yixingzhou/project/aigcgateway/node_modules/rolldown/dist/shared/logs-D80CXhvg.mjs:147:24)
+    at normalizeParseError (file:///Users/yixingzhou/project/aigcgateway/node_modules/rolldown/dist/parse-ast-index.mjs:25:9)
+    at wrap (file:///Users/yixingzhou/project/aigcgateway/node_modules/rolldown/dist/parse-ast-index.mjs:5:39)
+    at parseAstAsync (file:///Users/yixingzhou/project/aigcgateway/node_modules/rolldown/dist/parse-ast-index.mjs:54:9)
+    at V8CoverageProvider.remapCoverage (file:///Users/yixingzhou/project/aigcgateway/node_modules/@vitest/coverage-v8/dist/provider.js:133:10)
+    at file:///Users/yixingzhou/project/aigcgateway/node_modules/@vitest/coverage-v8/dist/provider.js:119:23
+    at async Promise.all (index 9)
+    at V8CoverageProvider.getCoverageMapForUncoveredFiles (file:///Users/yixingzhou/project/aigcgateway/node_modules/@vitest/coverage-v8/dist/provider.js:109:4)
+    at V8CoverageProvider.generateCoverage (file:///Users/yixingzhou/project/aigcgateway/node_modules/@vitest/coverage-v8/dist/provider.js:56:29)
+    at file:///Users/yixingzhou/project/aigcgateway/node_modules/vitest/dist/chunks/cli-api.Cjt90eJu.js:13588:23 {
+  code: 'PARSE_ERROR',
+  id: undefined,
+  pos: 129
+}
+Failed to parse file:///Users/yixingzhou/project/aigcgateway/src/components/page-container.tsx. Excluding it from coverage.
+ Error [RolldownError]: Parse failed with 1 error:
+Expected a semicolon or an implicit semicolon after a statement, but found none
+2: import { cn } from "@/lib/utils";
+3: 
+4: interface PageContainerProps extends React.HTMLAttributes<HTMLDivElement> {}
+            ^
+5: 
+6: /**
+    at error (file:///Users/yixingzhou/project/aigcgateway/node_modules/rolldown/dist/shared/logs-D80CXhvg.mjs:147:24)
+    at normalizeParseError (file:///Users/yixingzhou/project/aigcgateway/node_modules/rolldown/dist/parse-ast-index.mjs:25:9)
+    at wrap (file:///Users/yixingzhou/project/aigcgateway/node_modules/rolldown/dist/parse-ast-index.mjs:5:39)
+    at parseAstAsync (file:///Users/yixingzhou/project/aigcgateway/node_modules/rolldown/dist/parse-ast-index.mjs:54:9)
+    at V8CoverageProvider.remapCoverage (file:///Users/yixingzhou/project/aigcgateway/node_modules/@vitest/coverage-v8/dist/provider.js:133:10)
+    at file:///Users/yixingzhou/project/aigcgateway/node_modules/@vitest/coverage-v8/dist/provider.js:119:23
+    at async Promise.all (index 7)
+    at V8CoverageProvider.getCoverageMapForUncoveredFiles (file:///Users/yixingzhou/project/aigcgateway/node_modules/@vitest/coverage-v8/dist/provider.js:109:4)
+    at V8CoverageProvider.generateCoverage (file:///Users/yixingzhou/project/aigcgateway/node_modules/@vitest/coverage-v8/dist/provider.js:56:29)
+    at file:///Users/yixingzhou/project/aigcgateway/node_modules/vitest/dist/chunks/cli-api.Cjt90eJu.js:13588:23 {
+  code: 'PARSE_ERROR',
+  id: undefined,
+  pos: 76
+}
+Failed to parse file:///Users/yixingzhou/project/aigcgateway/src/components/notification-center.tsx. Excluding it from coverage.
+ Error [RolldownError]: Parse failed with 1 error:
+Expected `from` but found `{`
+3: import { useTranslations, useLocale } from "next-intl";
+4: import { StatusChip } from "./status-chip";
+5: import type { StatusChipVariant } from "./status-chip";
+               ^
+6: import { useExchangeRate } from "@/hooks/use-exchange-rate";
+7: import { formatCNY, timeAgo } from "@/lib/utils";
+    at error (file:///Users/yixingzhou/project/aigcgateway/node_modules/rolldown/dist/shared/logs-D80CXhvg.mjs:147:24)
+    at normalizeParseError (file:///Users/yixingzhou/project/aigcgateway/node_modules/rolldown/dist/parse-ast-index.mjs:25:9)
+    at wrap (file:///Users/yixingzhou/project/aigcgateway/node_modules/rolldown/dist/parse-ast-index.mjs:5:39)
+    at parseAstAsync (file:///Users/yixingzhou/project/aigcgateway/node_modules/rolldown/dist/parse-ast-index.mjs:54:9)
+    at V8CoverageProvider.remapCoverage (file:///Users/yixingzhou/project/aigcgateway/node_modules/@vitest/coverage-v8/dist/provider.js:133:10)
+    at file:///Users/yixingzhou/project/aigcgateway/node_modules/@vitest/coverage-v8/dist/provider.js:119:23
+    at async Promise.all (index 6)
+    at V8CoverageProvider.getCoverageMapForUncoveredFiles (file:///Users/yixingzhou/project/aigcgateway/node_modules/@vitest/coverage-v8/dist/provider.js:109:4)
+    at V8CoverageProvider.generateCoverage (file:///Users/yixingzhou/project/aigcgateway/node_modules/@vitest/coverage-v8/dist/provider.js:56:29)
+    at file:///Users/yixingzhou/project/aigcgateway/node_modules/vitest/dist/chunks/cli-api.Cjt90eJu.js:13588:23 {
+  code: 'PARSE_ERROR',
+  id: undefined,
+  pos: 192
+}
+Failed to parse file:///Users/yixingzhou/project/aigcgateway/src/components/pagination.tsx. Excluding it from coverage.
+ Error [RolldownError]: Parse failed with 1 error:
+Expected a semicolon or an implicit semicolon after a statement, but found none
+4: import { useTranslations } from "next-intl";
+5: 
+6: interface PaginationProps {
+            ^
+7:   page: number;
+8:   totalPages: number;
+    at error (file:///Users/yixingzhou/project/aigcgateway/node_modules/rolldown/dist/shared/logs-D80CXhvg.mjs:147:24)
+    at normalizeParseError (file:///Users/yixingzhou/project/aigcgateway/node_modules/rolldown/dist/parse-ast-index.mjs:25:9)
+    at wrap (file:///Users/yixingzhou/project/aigcgateway/node_modules/rolldown/dist/parse-ast-index.mjs:5:39)
+    at parseAstAsync (file:///Users/yixingzhou/project/aigcgateway/node_modules/rolldown/dist/parse-ast-index.mjs:54:9)
+    at V8CoverageProvider.remapCoverage (file:///Users/yixingzhou/project/aigcgateway/node_modules/@vitest/coverage-v8/dist/provider.js:133:10)
+    at file:///Users/yixingzhou/project/aigcgateway/node_modules/@vitest/coverage-v8/dist/provider.js:119:23
+    at async Promise.all (index 0)
+    at V8CoverageProvider.getCoverageMapForUncoveredFiles (file:///Users/yixingzhou/project/aigcgateway/node_modules/@vitest/coverage-v8/dist/provider.js:109:4)
+    at V8CoverageProvider.generateCoverage (file:///Users/yixingzhou/project/aigcgateway/node_modules/@vitest/coverage-v8/dist/provider.js:56:29)
+    at file:///Users/yixingzhou/project/aigcgateway/node_modules/vitest/dist/chunks/cli-api.Cjt90eJu.js:13588:23 {
+  code: 'PARSE_ERROR',
+  id: undefined,
+  pos: 104
+}
+Failed to parse file:///Users/yixingzhou/project/aigcgateway/src/components/section-card.tsx. Excluding it from coverage.
+ Error [RolldownError]: Parse failed with 1 error:
+Expected a semicolon or an implicit semicolon after a statement, but found none
+2: import { cn } from "@/lib/utils";
+3: 
+4: interface SectionCardProps extends Omit<React.HTMLAttributes<HTMLDivElement>, "title"> {
+            ^
+5:   title?: React.ReactNode;
+6:   actions?: React.ReactNode;
+    at error (file:///Users/yixingzhou/project/aigcgateway/node_modules/rolldown/dist/shared/logs-D80CXhvg.mjs:147:24)
+    at normalizeParseError (file:///Users/yixingzhou/project/aigcgateway/node_modules/rolldown/dist/parse-ast-index.mjs:25:9)
+    at wrap (file:///Users/yixingzhou/project/aigcgateway/node_modules/rolldown/dist/parse-ast-index.mjs:5:39)
+    at parseAstAsync (file:///Users/yixingzhou/project/aigcgateway/node_modules/rolldown/dist/parse-ast-index.mjs:54:9)
+    at V8CoverageProvider.remapCoverage (file:///Users/yixingzhou/project/aigcgateway/node_modules/@vitest/coverage-v8/dist/provider.js:133:10)
+    at file:///Users/yixingzhou/project/aigcgateway/node_modules/@vitest/coverage-v8/dist/provider.js:119:23
+    at async Promise.all (index 2)
+    at V8CoverageProvider.getCoverageMapForUncoveredFiles (file:///Users/yixingzhou/project/aigcgateway/node_modules/@vitest/coverage-v8/dist/provider.js:109:4)
+    at V8CoverageProvider.generateCoverage (file:///Users/yixingzhou/project/aigcgateway/node_modules/@vitest/coverage-v8/dist/provider.js:56:29)
+    at file:///Users/yixingzhou/project/aigcgateway/node_modules/vitest/dist/chunks/cli-api.Cjt90eJu.js:13588:23 {
+  code: 'PARSE_ERROR',
+  id: undefined,
+  pos: 76
+}
+Failed to parse file:///Users/yixingzhou/project/aigcgateway/src/components/status-chip.tsx. Excluding it from coverage.
+ Error [RolldownError]: Parse failed with 1 error:
+Unexpected token
+2: import { cn } from "@/lib/utils";
+3: 
+4: export type StatusChipVariant = "success" | "error" | "warning" | "info" | "neutral";
+          ^
+5: 
+6: interface StatusChipProps {
+    at error (file:///Users/yixingzhou/project/aigcgateway/node_modules/rolldown/dist/shared/logs-D80CXhvg.mjs:147:24)
+    at normalizeParseError (file:///Users/yixingzhou/project/aigcgateway/node_modules/rolldown/dist/parse-ast-index.mjs:25:9)
+    at wrap (file:///Users/yixingzhou/project/aigcgateway/node_modules/rolldown/dist/parse-ast-index.mjs:5:39)
+    at parseAstAsync (file:///Users/yixingzhou/project/aigcgateway/node_modules/rolldown/dist/parse-ast-index.mjs:54:9)
+    at V8CoverageProvider.remapCoverage (file:///Users/yixingzhou/project/aigcgateway/node_modules/@vitest/coverage-v8/dist/provider.js:133:10)
+    at file:///Users/yixingzhou/project/aigcgateway/node_modules/@vitest/coverage-v8/dist/provider.js:119:23
+    at async Promise.all (index 4)
+    at V8CoverageProvider.getCoverageMapForUncoveredFiles (file:///Users/yixingzhou/project/aigcgateway/node_modules/@vitest/coverage-v8/dist/provider.js:109:4)
+    at V8CoverageProvider.generateCoverage (file:///Users/yixingzhou/project/aigcgateway/node_modules/@vitest/coverage-v8/dist/provider.js:56:29)
+    at file:///Users/yixingzhou/project/aigcgateway/node_modules/vitest/dist/chunks/cli-api.Cjt90eJu.js:13588:23 {
+  code: 'PARSE_ERROR',
+  id: undefined,
+  pos: 74
+}
+Failed to parse file:///Users/yixingzhou/project/aigcgateway/src/components/top-app-bar.tsx. Excluding it from coverage.
+ Error [RolldownError]: Parse failed with 1 error:
+Expected a semicolon or an implicit semicolon after a statement, but found none
+16:  */
+17: 
+18: interface TopAppBarProps {
+             ^
+19:   userName?: string;
+20:   userEmail?: string;
+    at error (file:///Users/yixingzhou/project/aigcgateway/node_modules/rolldown/dist/shared/logs-D80CXhvg.mjs:147:24)
+    at normalizeParseError (file:///Users/yixingzhou/project/aigcgateway/node_modules/rolldown/dist/parse-ast-index.mjs:25:9)
+    at wrap (file:///Users/yixingzhou/project/aigcgateway/node_modules/rolldown/dist/parse-ast-index.mjs:5:39)
+    at parseAstAsync (file:///Users/yixingzhou/project/aigcgateway/node_modules/rolldown/dist/parse-ast-index.mjs:54:9)
+    at V8CoverageProvider.remapCoverage (file:///Users/yixingzhou/project/aigcgateway/node_modules/@vitest/coverage-v8/dist/provider.js:133:10)
+    at file:///Users/yixingzhou/project/aigcgateway/node_modules/@vitest/coverage-v8/dist/provider.js:119:23
+    at async Promise.all (index 7)
+    at V8CoverageProvider.getCoverageMapForUncoveredFiles (file:///Users/yixingzhou/project/aigcgateway/node_modules/@vitest/coverage-v8/dist/provider.js:109:4)
+    at V8CoverageProvider.generateCoverage (file:///Users/yixingzhou/project/aigcgateway/node_modules/@vitest/coverage-v8/dist/provider.js:56:29)
+    at file:///Users/yixingzhou/project/aigcgateway/node_modules/vitest/dist/chunks/cli-api.Cjt90eJu.js:13588:23 {
+  code: 'PARSE_ERROR',
+  id: undefined,
+  pos: 612
+}
+Failed to parse file:///Users/yixingzhou/project/aigcgateway/src/components/table-card.tsx. Excluding it from coverage.
+ Error [RolldownError]: Parse failed with 1 error:
+Expected a semicolon or an implicit semicolon after a statement, but found none
+2: import { cn } from "@/lib/utils";
+3: 
+4: interface TableCardProps {
+            ^
+5:   title?: React.ReactNode;
+6:   search?: React.ReactNode;
+    at error (file:///Users/yixingzhou/project/aigcgateway/node_modules/rolldown/dist/shared/logs-D80CXhvg.mjs:147:24)
+    at normalizeParseError (file:///Users/yixingzhou/project/aigcgateway/node_modules/rolldown/dist/parse-ast-index.mjs:25:9)
+    at wrap (file:///Users/yixingzhou/project/aigcgateway/node_modules/rolldown/dist/parse-ast-index.mjs:5:39)
+    at parseAstAsync (file:///Users/yixingzhou/project/aigcgateway/node_modules/rolldown/dist/parse-ast-index.mjs:54:9)
+    at V8CoverageProvider.remapCoverage (file:///Users/yixingzhou/project/aigcgateway/node_modules/@vitest/coverage-v8/dist/provider.js:133:10)
+    at file:///Users/yixingzhou/project/aigcgateway/node_modules/@vitest/coverage-v8/dist/provider.js:119:23
+    at async Promise.all (index 5)
+    at V8CoverageProvider.getCoverageMapForUncoveredFiles (file:///Users/yixingzhou/project/aigcgateway/node_modules/@vitest/coverage-v8/dist/provider.js:109:4)
+    at V8CoverageProvider.generateCoverage (file:///Users/yixingzhou/project/aigcgateway/node_modules/@vitest/coverage-v8/dist/provider.js:56:29)
+    at file:///Users/yixingzhou/project/aigcgateway/node_modules/vitest/dist/chunks/cli-api.Cjt90eJu.js:13588:23 {
+  code: 'PARSE_ERROR',
+  id: undefined,
+  pos: 76
+}
+Failed to parse file:///Users/yixingzhou/project/aigcgateway/src/components/search-bar.tsx. Excluding it from coverage.
+ Error [RolldownError]: Parse failed with 1 error:
+Expected a semicolon or an implicit semicolon after a statement, but found none
+3: import { cn } from "@/lib/utils";
+4: 
+5: interface SearchBarProps {
+            ^
+6:   placeholder?: string;
+7:   value: string;
+    at error (file:///Users/yixingzhou/project/aigcgateway/node_modules/rolldown/dist/shared/logs-D80CXhvg.mjs:147:24)
+    at normalizeParseError (file:///Users/yixingzhou/project/aigcgateway/node_modules/rolldown/dist/parse-ast-index.mjs:25:9)
+    at wrap (file:///Users/yixingzhou/project/aigcgateway/node_modules/rolldown/dist/parse-ast-index.mjs:5:39)
+    at parseAstAsync (file:///Users/yixingzhou/project/aigcgateway/node_modules/rolldown/dist/parse-ast-index.mjs:54:9)
+    at V8CoverageProvider.remapCoverage (file:///Users/yixingzhou/project/aigcgateway/node_modules/@vitest/coverage-v8/dist/provider.js:133:10)
+    at file:///Users/yixingzhou/project/aigcgateway/node_modules/@vitest/coverage-v8/dist/provider.js:119:23
+    at async Promise.all (index 1)
+    at V8CoverageProvider.getCoverageMapForUncoveredFiles (file:///Users/yixingzhou/project/aigcgateway/node_modules/@vitest/coverage-v8/dist/provider.js:109:4)
+    at V8CoverageProvider.generateCoverage (file:///Users/yixingzhou/project/aigcgateway/node_modules/@vitest/coverage-v8/dist/provider.js:56:29)
+    at file:///Users/yixingzhou/project/aigcgateway/node_modules/vitest/dist/chunks/cli-api.Cjt90eJu.js:13588:23 {
+  code: 'PARSE_ERROR',
+  id: undefined,
+  pos: 59
+}
+Failed to parse file:///Users/yixingzhou/project/aigcgateway/src/components/table-loader.tsx. Excluding it from coverage.
+ Error [RolldownError]: Parse failed with 1 error:
+Expected a semicolon or an implicit semicolon after a statement, but found none
+3: import { Skeleton } from "@/components/ui/skeleton";
+4: 
+5: interface TableLoaderProps {
+            ^
+6:   /** How many skeleton rows to render (default 5). */
+7:   rows?: number;
+    at error (file:///Users/yixingzhou/project/aigcgateway/node_modules/rolldown/dist/shared/logs-D80CXhvg.mjs:147:24)
+    at normalizeParseError (file:///Users/yixingzhou/project/aigcgateway/node_modules/rolldown/dist/parse-ast-index.mjs:25:9)
+    at wrap (file:///Users/yixingzhou/project/aigcgateway/node_modules/rolldown/dist/parse-ast-index.mjs:5:39)
+    at parseAstAsync (file:///Users/yixingzhou/project/aigcgateway/node_modules/rolldown/dist/parse-ast-index.mjs:54:9)
+    at V8CoverageProvider.remapCoverage (file:///Users/yixingzhou/project/aigcgateway/node_modules/@vitest/coverage-v8/dist/provider.js:133:10)
+    at file:///Users/yixingzhou/project/aigcgateway/node_modules/@vitest/coverage-v8/dist/provider.js:119:23
+    at async Promise.all (index 6)
+    at V8CoverageProvider.getCoverageMapForUncoveredFiles (file:///Users/yixingzhou/project/aigcgateway/node_modules/@vitest/coverage-v8/dist/provider.js:109:4)
+    at V8CoverageProvider.generateCoverage (file:///Users/yixingzhou/project/aigcgateway/node_modules/@vitest/coverage-v8/dist/provider.js:56:29)
+    at file:///Users/yixingzhou/project/aigcgateway/node_modules/vitest/dist/chunks/cli-api.Cjt90eJu.js:13588:23 {
+  code: 'PARSE_ERROR',
+  id: undefined,
+  pos: 156
+}
+Failed to parse file:///Users/yixingzhou/project/aigcgateway/src/components/sidebar.tsx. Excluding it from coverage.
+ Error [RolldownError]: Parse failed with 1 error:
+Expected a semicolon or an implicit semicolon after a statement, but found none
+21: // ── Nav items — icons from Layout Shell code.html lines 106-129 ──
+22: 
+23: interface NavItem {
+             ^
+24:   labelKey: string;
+25:   href: string;
+    at error (file:///Users/yixingzhou/project/aigcgateway/node_modules/rolldown/dist/shared/logs-D80CXhvg.mjs:147:24)
+    at normalizeParseError (file:///Users/yixingzhou/project/aigcgateway/node_modules/rolldown/dist/parse-ast-index.mjs:25:9)
+    at wrap (file:///Users/yixingzhou/project/aigcgateway/node_modules/rolldown/dist/parse-ast-index.mjs:5:39)
+    at parseAstAsync (file:///Users/yixingzhou/project/aigcgateway/node_modules/rolldown/dist/parse-ast-index.mjs:54:9)
+    at V8CoverageProvider.remapCoverage (file:///Users/yixingzhou/project/aigcgateway/node_modules/@vitest/coverage-v8/dist/provider.js:133:10)
+    at file:///Users/yixingzhou/project/aigcgateway/node_modules/@vitest/coverage-v8/dist/provider.js:119:23
+    at async Promise.all (index 3)
+    at V8CoverageProvider.getCoverageMapForUncoveredFiles (file:///Users/yixingzhou/project/aigcgateway/node_modules/@vitest/coverage-v8/dist/provider.js:109:4)
+    at V8CoverageProvider.generateCoverage (file:///Users/yixingzhou/project/aigcgateway/node_modules/@vitest/coverage-v8/dist/provider.js:56:29)
+    at file:///Users/yixingzhou/project/aigcgateway/node_modules/vitest/dist/chunks/cli-api.Cjt90eJu.js:13588:23 {
+  code: 'PARSE_ERROR',
+  id: undefined,
+  pos: 792
+}
+Failed to parse file:///Users/yixingzhou/project/aigcgateway/src/components/admin/channel-table.tsx. Excluding it from coverage.
+ Error [RolldownError]: Parse failed with 1 error:
+Expected `,` or `}` but found `Identifier`
+ 9:   useSensor,
+10:   useSensors,
+11:   type DragEndEvent,
+           ^
+12: } from "@dnd-kit/core";
+13: import {
+2: import { useTranslations } from "next-intl";
+3: import { formatCNY } from "@/lib/utils";
+4: import {
+          ^
+5:   DndContext,
+6:   closestCenter,
+    at error (file:///Users/yixingzhou/project/aigcgateway/node_modules/rolldown/dist/shared/logs-D80CXhvg.mjs:147:24)
+    at normalizeParseError (file:///Users/yixingzhou/project/aigcgateway/node_modules/rolldown/dist/parse-ast-index.mjs:25:9)
+    at wrap (file:///Users/yixingzhou/project/aigcgateway/node_modules/rolldown/dist/parse-ast-index.mjs:5:39)
+    at parseAstAsync (file:///Users/yixingzhou/project/aigcgateway/node_modules/rolldown/dist/parse-ast-index.mjs:54:9)
+    at V8CoverageProvider.remapCoverage (file:///Users/yixingzhou/project/aigcgateway/node_modules/@vitest/coverage-v8/dist/provider.js:133:10)
+    at file:///Users/yixingzhou/project/aigcgateway/node_modules/@vitest/coverage-v8/dist/provider.js:119:23
+    at async Promise.all (index 1)
+    at V8CoverageProvider.getCoverageMapForUncoveredFiles (file:///Users/yixingzhou/project/aigcgateway/node_modules/@vitest/coverage-v8/dist/provider.js:109:4)
+    at V8CoverageProvider.generateCoverage (file:///Users/yixingzhou/project/aigcgateway/node_modules/@vitest/coverage-v8/dist/provider.js:56:29)
+    at file:///Users/yixingzhou/project/aigcgateway/node_modules/vitest/dist/chunks/cli-api.Cjt90eJu.js:13588:23 {
+  code: 'PARSE_ERROR',
+  id: undefined,
+  pos: 209
+}
+Failed to parse file:///Users/yixingzhou/project/aigcgateway/src/components/keys/revoke-key-dialog.tsx. Excluding it from coverage.
+ Error [RolldownError]: Parse failed with 1 error:
+Expected a semicolon or an implicit semicolon after a statement, but found none
+ 8: import { Dialog, DialogContent } from "@/components/ui/dialog";
+ 9: 
+10: interface RevokeKeyDialogProps {
+             ^
+11:   keyId: string | null;
+12:   onOpenChange: (open: boolean) => void;
+    at error (file:///Users/yixingzhou/project/aigcgateway/node_modules/rolldown/dist/shared/logs-D80CXhvg.mjs:147:24)
+    at normalizeParseError (file:///Users/yixingzhou/project/aigcgateway/node_modules/rolldown/dist/parse-ast-index.mjs:25:9)
+    at wrap (file:///Users/yixingzhou/project/aigcgateway/node_modules/rolldown/dist/parse-ast-index.mjs:5:39)
+    at parseAstAsync (file:///Users/yixingzhou/project/aigcgateway/node_modules/rolldown/dist/parse-ast-index.mjs:54:9)
+    at V8CoverageProvider.remapCoverage (file:///Users/yixingzhou/project/aigcgateway/node_modules/@vitest/coverage-v8/dist/provider.js:133:10)
+    at file:///Users/yixingzhou/project/aigcgateway/node_modules/@vitest/coverage-v8/dist/provider.js:119:23
+    at async Promise.all (index 4)
+    at V8CoverageProvider.getCoverageMapForUncoveredFiles (file:///Users/yixingzhou/project/aigcgateway/node_modules/@vitest/coverage-v8/dist/provider.js:109:4)
+    at V8CoverageProvider.generateCoverage (file:///Users/yixingzhou/project/aigcgateway/node_modules/@vitest/coverage-v8/dist/provider.js:56:29)
+    at file:///Users/yixingzhou/project/aigcgateway/node_modules/vitest/dist/chunks/cli-api.Cjt90eJu.js:13588:23 {
+  code: 'PARSE_ERROR',
+  id: undefined,
+  pos: 295
+}
+Failed to parse file:///Users/yixingzhou/project/aigcgateway/src/components/balance/recharge-dialog.tsx. Excluding it from coverage.
+ Error [RolldownError]: Parse failed with 1 error:
+Expected a semicolon or an implicit semicolon after a statement, but found none
+13: const AMOUNTS_CNY = [50, 100, 200, 500, 1000];
+14: 
+15: interface RechargeDialogProps {
+             ^
+16:   open: boolean;
+17:   onOpenChange: (open: boolean) => void;
+    at error (file:///Users/yixingzhou/project/aigcgateway/node_modules/rolldown/dist/shared/logs-D80CXhvg.mjs:147:24)
+    at normalizeParseError (file:///Users/yixingzhou/project/aigcgateway/node_modules/rolldown/dist/parse-ast-index.mjs:25:9)
+    at wrap (file:///Users/yixingzhou/project/aigcgateway/node_modules/rolldown/dist/parse-ast-index.mjs:5:39)
+    at parseAstAsync (file:///Users/yixingzhou/project/aigcgateway/node_modules/rolldown/dist/parse-ast-index.mjs:54:9)
+    at V8CoverageProvider.remapCoverage (file:///Users/yixingzhou/project/aigcgateway/node_modules/@vitest/coverage-v8/dist/provider.js:133:10)
+    at file:///Users/yixingzhou/project/aigcgateway/node_modules/@vitest/coverage-v8/dist/provider.js:119:23
+    at async Promise.all (index 2)
+    at V8CoverageProvider.getCoverageMapForUncoveredFiles (file:///Users/yixingzhou/project/aigcgateway/node_modules/@vitest/coverage-v8/dist/provider.js:109:4)
+    at V8CoverageProvider.generateCoverage (file:///Users/yixingzhou/project/aigcgateway/node_modules/@vitest/coverage-v8/dist/provider.js:56:29)
+    at file:///Users/yixingzhou/project/aigcgateway/node_modules/vitest/dist/chunks/cli-api.Cjt90eJu.js:13588:23 {
+  code: 'PARSE_ERROR',
+  id: undefined,
+  pos: 489
+}
+Failed to parse file:///Users/yixingzhou/project/aigcgateway/src/components/keys/create-key-dialog.tsx. Excluding it from coverage.
+ Error [RolldownError]: Parse failed with 1 error:
+Expected a semicolon or an implicit semicolon after a statement, but found none
+ 8: import { Dialog, DialogContent } from "@/components/ui/dialog";
+ 9: 
+10: interface CreateKeyDialogProps {
+             ^
+11:   open: boolean;
+12:   onOpenChange: (open: boolean) => void;
+    at error (file:///Users/yixingzhou/project/aigcgateway/node_modules/rolldown/dist/shared/logs-D80CXhvg.mjs:147:24)
+    at normalizeParseError (file:///Users/yixingzhou/project/aigcgateway/node_modules/rolldown/dist/parse-ast-index.mjs:25:9)
+    at wrap (file:///Users/yixingzhou/project/aigcgateway/node_modules/rolldown/dist/parse-ast-index.mjs:5:39)
+    at parseAstAsync (file:///Users/yixingzhou/project/aigcgateway/node_modules/rolldown/dist/parse-ast-index.mjs:54:9)
+    at V8CoverageProvider.remapCoverage (file:///Users/yixingzhou/project/aigcgateway/node_modules/@vitest/coverage-v8/dist/provider.js:133:10)
+    at file:///Users/yixingzhou/project/aigcgateway/node_modules/@vitest/coverage-v8/dist/provider.js:119:23
+    at async Promise.all (index 3)
+    at V8CoverageProvider.getCoverageMapForUncoveredFiles (file:///Users/yixingzhou/project/aigcgateway/node_modules/@vitest/coverage-v8/dist/provider.js:109:4)
+    at V8CoverageProvider.generateCoverage (file:///Users/yixingzhou/project/aigcgateway/node_modules/@vitest/coverage-v8/dist/provider.js:56:29)
+    at file:///Users/yixingzhou/project/aigcgateway/node_modules/vitest/dist/chunks/cli-api.Cjt90eJu.js:13588:23 {
+  code: 'PARSE_ERROR',
+  id: undefined,
+  pos: 295
+}
+
+ Test Files  68 passed (68)
+      Tests  549 passed | 4 skipped (553)
+   Start at  13:20:40
+   Duration  7.33s (transform 1.71s, setup 8.86s, import 3.64s, tests 1.09s, environment 30.33s)
+
+ % Coverage report from v8
+-------------------|---------|----------|---------|---------|-------------------
+File               | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s 
+-------------------|---------|----------|---------|---------|-------------------
+All files          |   22.71 |    19.42 |    20.9 |   23.64 |                   
+ ...admin/channels |       0 |        0 |       0 |       0 |                   
+  _cache.ts        |       0 |        0 |       0 |       0 | 6-71              
+  route.ts         |       0 |        0 |       0 |       0 | 1-138             
+ .../channels/[id] |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-65              
+ ...i/admin/config |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-47              
+ ...bug/enrichment |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-69              
+ ...min/debug/sync |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-77              
+ .../admin/finance |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-19              
+ ...i/admin/health |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-266             
+ ...annelId]/check |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-34              
+ ...annelId]/probe |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-38              
+ ...ference/status |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-20              
+ ...api/admin/logs |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-38              
+ ...logs/[traceId] |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-21              
+ ...in/logs/search |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-52              
+ .../model-aliases |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-150             
+ ...l-aliases/[id] |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-152             
+ ...ases/[id]/link |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-67              
+ ...link/[modelId] |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-43              
+ .../suggest-price |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-112             
+ ...r-capabilities |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-31              
+ ...-aliases/merge |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-63              
+ ...i/admin/models |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-112             
+ ...odels-channels |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-198             
+ ...in/models/[id] |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-63              
+ ...nrouter-prices |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-59              
+ ...tions/progress |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-38              
+ ...lassifications |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-22              
+ ...fications/[id] |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-124             
+ ...dmin/providers |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-88              
+ ...providers/[id] |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-217             
+ ...rs/[id]/config |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-54              
+ ...reconciliation |   92.64 |     82.6 |     100 |   96.42 |                   
+  query.ts         |   92.59 |       85 |     100 |   95.45 | 90-91             
+  route.ts         |   92.85 |    66.66 |     100 |     100 | 22,61             
+ ...ance-snapshots |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 8-40              
+ ...liation/export |   93.75 |    68.75 |     100 |     100 |                   
+  route.ts         |   93.75 |    68.75 |     100 |     100 | 37,73-100         
+ ...iliation/rerun |      80 |       50 |     100 |   84.61 |                   
+  route.ts         |      80 |       50 |     100 |   84.61 | 32,37             
+ .../run-inference |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-74              
+ ...in/sync-models |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-30              
+ ...in/sync-status |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-108             
+ ...in/sync/status |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-20              
+ ...in/system-logs |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-35              
+ ...ate-categories |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-48              
+ ...dmin/templates |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-62              
+ ...s/[templateId] |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-102             
+ ...pi/admin/usage |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-56              
+ ...usage/by-model |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-65              
+ ...ge/by-provider |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-63              
+ ...pi/admin/users |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-57              
+ ...min/users/[id] |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-89              
+ .../[id]/recharge |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-43              
+ ...s/[id]/suspend |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-46              
+ ...]/transactions |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-38              
+ ...hange-password |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-38              
+ ...api/auth/login |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-88              
+ .../login-history |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-23              
+ ...pi/auth/logout |       0 |      100 |       0 |       0 |                   
+  route.ts         |       0 |      100 |       0 |       0 | 1-8               
+ ...i/auth/profile |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-32              
+ .../auth/register |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-139             
+ ...h/verify-email |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-58              
+ .../exchange-rate |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-20              
+ app/api/keys      |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-111             
+ ...i/keys/[keyId] |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-165             
+ app/api/mcp       |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-107             
+ .../notifications |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-43              
+ ...fications/[id] |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-31              
+ .../mark-all-read |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-17              
+ ...ns/preferences |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-86              
+ ...s/test-webhook |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-66              
+ app/api/projects  |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-73              
+ .../projects/[id] |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-116             
+ ...s/[id]/actions |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-118             
+ ...ons/[actionId] |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-95              
+ ...active-version |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-41              
+ ...onId]/versions |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-72              
+ .../actions/stats |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-33              
+ ...s/[id]/balance |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-33              
+ ...ects/[id]/logs |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-64              
+ ...logs/[traceId] |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-32              
+ ...aceId]/quality |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-36              
+ ...d]/logs/search |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-41              
+ .../[id]/recharge |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-62              
+ ...[id]/templates |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-135             
+ ...s/[templateId] |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-141             
+ ...templates/fork |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-163             
+ ...]/transactions |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-48              
+ ...cts/[id]/usage |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-39              
+ ...usage/by-model |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-28              
+ ...d]/usage/daily |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-34              
+ ...ate-categories |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-11              
+ ...mplateId]/rate |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-115             
+ ...mplateId]/test |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-56              
+ ...eId]/test-runs |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-43              
+ ...t-runs/[runId] |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-42              
+ ...mplates/public |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-42              
+ ...c/[templateId] |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-74              
+ ...v1/actions/run |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-124             
+ ...at/completions |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-454             
+ .../v1/embeddings |      90 |    70.37 |   33.33 |   92.85 |                   
+  route.ts         |      90 |    70.37 |   33.33 |   92.85 | 122-126,230       
+ ...es/generations |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-176             
+ ...traceId]/[idx] |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-53              
+ app/api/v1/models |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-242             
+ .../templates/run |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-168             
+ ...ebhooks/alipay |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-44              
+ ...ebhooks/wechat |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-66              
+ lib               |   23.52 |    29.01 |    18.3 |    24.1 |                   
+  api-client.ts    |       0 |        0 |       0 |       0 | 1-23              
+  config.ts        |    87.5 |     62.5 |   66.66 |   85.71 | 36                
+  env.ts           |    37.5 |    55.55 |      25 |      40 | 76-88,94          
+  prisma.ts        |       6 |     6.45 |    4.34 |    6.31 | 18-57,66-190      
+  ...-templates.ts |   59.32 |    57.77 |   46.15 |   66.66 | ...82-193,197-200 
+  redis.ts         |   14.28 |     5.88 |      10 |   13.51 | 18-45,56-103      
+  system-logger.ts |       0 |        0 |       0 |       0 | 10                
+  ...categories.ts |       0 |        0 |       0 |       0 | 10-83             
+  utils.ts         |       0 |        0 |       0 |       0 | 5-49              
+ lib/action        |   64.39 |    44.61 |     100 |   67.76 |                   
+  inject.ts        |   77.77 |    46.15 |     100 |   76.47 | 35,44-45,52       
+  runner.ts        |   62.28 |    44.23 |     100 |   66.34 | ...46-349,454-469 
+ lib/api           |    44.3 |    41.34 |   41.11 |   45.86 |                   
+  admin-guard.ts   |       0 |        0 |       0 |       0 | 13-23             
+  admin-schemas.ts |   80.48 |    83.33 |   83.33 |   78.37 | 27,229-238        
+  ...middleware.ts |   77.35 |    68.51 |      50 |   83.33 | 45-49,130,136,146 
+  ...rate-limit.ts |   92.59 |    73.33 |   66.66 |    92.3 | 73,119            
+  ...middleware.ts |       0 |        0 |       0 |       0 | 19-35             
+  errors.ts        |     100 |       70 |     100 |     100 | 45,49-50          
+  image-proxy.ts   |   89.28 |    88.46 |     100 |      96 | 81                
+  ip-utils.ts      |   25.64 |        8 |    37.5 |   26.47 | ...38-41,48,56-67 
+  ...middleware.ts |       0 |        0 |       0 |       0 | 21-61             
+  post-process.ts  |   53.73 |       44 |   42.42 |   55.37 | ...32-611,736-740 
+  ...validation.ts |   91.66 |     87.5 |     100 |     100 | 20,39,42          
+  rate-limit.ts    |     2.5 |        0 |       0 |    2.75 | 54-150,207-542    
+  response.ts      |   66.66 |       25 |      75 |   66.66 | 46-47             
+  sanitize-html.ts |       0 |        0 |       0 |       0 | 7-38              
+ lib/auth          |   72.72 |    88.88 |      40 |   72.72 |                   
+  jwt.ts           |   94.11 |    88.88 |     100 |   94.11 | 37                
+  ...ion-cookie.ts |       0 |      100 |       0 |       0 | 3-33              
+ lib/billing       |       0 |        0 |       0 |       0 |                   
+  payment.ts       |       0 |        0 |       0 |       0 | 21-104            
+  scheduler.ts     |       0 |        0 |       0 |       0 | 11-138            
+ lib/billing-audit |    88.7 |    82.05 |   91.66 |   90.35 |                   
+  ...te-gateway.ts |     100 |    83.33 |     100 |     100 | 49                
+  reconcile-job.ts |   87.82 |    81.94 |    90.9 |   89.52 | ...19,432-434,456 
+ ...audit/fetchers |   96.42 |    67.56 |     100 |   96.29 |                   
+  chatanywhere.ts  |   95.65 |    53.33 |     100 |   95.45 | 64                
+  openrouter.ts    |   91.66 |     61.9 |     100 |    91.3 | 62,81             
+  volcengine.ts    |   97.53 |       75 |     100 |   97.43 | 104,123           
+ ...tchers/balance |    92.5 |       75 |    90.9 |   93.58 |                   
+  deepseek.ts      |     100 |    77.77 |     100 |     100 | 58,93,95-100      
+  ...er-credits.ts |      90 |    81.81 |     100 |      90 | 48,67             
+  siliconflow.ts   |   86.95 |    63.15 |     100 |   86.95 | 50,69,81          
+  tier2-fetcher.ts |   91.66 |      100 |   66.66 |     100 |                   
+ lib/cache         |      20 |        0 |       0 |      25 |                   
+  models-cache.ts  |      20 |        0 |       0 |      25 | 19-21             
+ lib/engine        |   63.31 |    52.64 |   68.11 |   64.51 |                   
+  ...ig-overlay.ts |      50 |    35.89 |      75 |      50 | ...2,84-85,94-108 
+  cooldown.ts      |     100 |    85.71 |     100 |     100 | 76,99             
+  failover.ts      |   68.42 |    45.83 |     100 |      72 | ...,77-83,175-181 
+  openai-compat.ts |   66.42 |    58.82 |   67.64 |   69.14 | ...62-763,821-827 
+  router.ts        |   42.02 |    50.94 |   69.23 |    38.7 | ...34-135,153-232 
+  sse-parser.ts    |       0 |        0 |       0 |       0 | 20-96             
+ ...ngine/adapters |   68.96 |    32.35 |      60 |   67.27 |                   
+  siliconflow.ts   |      50 |    18.75 |      25 |      50 | 51-65             
+  volcengine.ts    |      75 |    44.44 |   83.33 |   73.17 | 47,116-138,159    
+ lib/health        |    26.5 |    29.16 |      20 |   26.68 |                   
+  alert.ts         |       0 |        0 |       0 |       0 | 21-32             
+  checker.ts       |   50.53 |       40 |   57.14 |   50.54 | ...96-293,331-376 
+  scheduler.ts     |   15.78 |    22.94 |      10 |   15.22 | ...64-473,488-769 
+ lib/infra         |   83.89 |     72.3 |   82.35 |   92.55 |                   
+  ...th-timeout.ts |   78.78 |    71.42 |   57.14 |   88.46 | 48,70-71          
+  url-safety.ts    |   81.53 |    68.88 |     100 |      92 | 60-63,98          
+ lib/maintenance   |   95.34 |    92.85 |   92.85 |     100 |                   
+  scheduler.ts     |    92.3 |       80 |    90.9 |     100 | 55                
+ lib/mcp           |    6.75 |     6.06 |      20 |    6.94 |                   
+  auth.ts          |     7.5 |     6.06 |      25 |    7.89 | 28-103            
+  server.ts        |       0 |      100 |       0 |       0 | 41-196            
+ lib/mcp/tools     |     5.7 |     4.32 |    3.89 |    5.71 |                   
+  ...te-version.ts |       0 |        0 |       0 |       0 | 14-64             
+  chat.ts          |       0 |        0 |       0 |       0 | 20-601            
+  ...on-version.ts |       0 |        0 |       0 |       0 | 14-85             
+  create-action.ts |       0 |        0 |       0 |       0 | 15-99             
+  ...e-template.ts |       0 |        0 |       0 |       0 | 14-156            
+  delete-action.ts |       0 |        0 |       0 |       0 | 14-61             
+  ...e-template.ts |       0 |        0 |       0 |       0 | 14-59             
+  embed-text.ts    |   68.62 |    47.16 |      80 |      70 | ...44,165,237-258 
+  ...c-template.ts |       0 |        0 |       0 |       0 | 15-139            
+  ...rate-image.ts |       0 |        0 |       0 |       0 | 23-320            
+  ...ion-detail.ts |       0 |        0 |       0 |       0 | 14-76             
+  get-balance.ts   |       0 |        0 |       0 |       0 | 15-115            
+  ...log-detail.ts |       0 |        0 |       0 |       0 | 17-149            
+  ...ate-detail.ts |       0 |        0 |       0 |       0 | 14-132            
+  ...ge-summary.ts |       0 |        0 |       0 |       0 | 15-294            
+  list-actions.ts  |       0 |        0 |       0 |       0 | 13-75             
+  list-logs.ts     |       0 |        0 |       0 |       0 | 15-253            
+  list-models.ts   |       0 |        0 |       0 |       0 | 19-203            
+  ...-templates.ts |       0 |        0 |       0 |       0 | 17-63             
+  ...-templates.ts |       0 |        0 |       0 |       0 | 13-69             
+  ...e-api-keys.ts |       0 |        0 |       0 |       0 | 16-182            
+  ...e-projects.ts |       0 |        0 |       0 |       0 | 15-137            
+  run-action.ts    |       0 |        0 |       0 |       0 | 18-227            
+  run-template.ts  |   17.96 |    15.31 |   16.66 |   15.78 | 22-346            
+  update-action.ts |       0 |        0 |       0 |       0 | 14-102            
+  ...e-template.ts |       0 |        0 |       0 |       0 | 14-146            
+ lib/notifications |   44.69 |    53.33 |   22.22 |   45.21 |                   
+  defaults.ts      |       0 |        0 |       0 |       0 | 41-75             
+  dispatcher.ts    |   80.48 |    75.75 |      60 |   81.08 | ...20-136,168,191 
+  triggers.ts      |   23.37 |    30.55 |    5.88 |   23.07 | 18-22,80-265      
+ lib/sync          |     5.7 |     6.33 |    5.37 |    5.75 |                   
+  ...classifier.ts |       0 |        0 |       0 |       0 | 19-725            
+  doc-enricher.ts  |    3.26 |     1.44 |       0 |    3.44 | 57,67-258         
+  internal-llm.ts  |    91.3 |    70.58 |     100 |    90.9 | 48,77             
+  model-sync.ts    |    4.82 |     7.09 |    5.12 |     4.8 | 142-718           
+  scheduler.ts     |       0 |        0 |       0 |       0 | 10-51             
+ lib/sync/adapters |    7.18 |     0.85 |       0 |    8.44 |                   
+  anthropic.ts     |   11.11 |        0 |       0 |   14.28 | 8-30              
+  base.ts          |       0 |        0 |       0 |       0 | 15-120            
+  deepseek.ts      |      20 |        0 |       0 |      25 | 14-28             
+  minimax.ts       |       5 |        0 |       0 |    5.55 | 13-52             
+  moonshot.ts      |      10 |        0 |       0 |   11.11 | 8-24              
+  openai.ts        |      10 |        0 |       0 |   11.11 | 8-24              
+  openrouter.ts    |       4 |        0 |       0 |    4.76 | 8-56              
+  qwen.ts          |      10 |        0 |       0 |   11.11 | 8-24              
+  siliconflow.ts   |      10 |        0 |       0 |   11.11 | 8-24              
+  stepfun.ts       |      10 |        0 |       0 |   11.11 | 8-24              
+  volcengine.ts    |   13.33 |     5.88 |       0 |   14.28 | 23-47             
+  zhipu.ts         |      10 |        0 |       0 |   11.11 | 8-24              
+ lib/template      |    1.67 |        0 |       0 |    1.89 |                   
+  fanout.ts        |       0 |        0 |       0 |       0 | 27-208            
+  sequential.ts    |       0 |        0 |       0 |       0 | 25-122            
+  test-runner.ts   |    3.19 |        0 |       0 |    3.52 | 50-54,72-323      
+-------------------|---------|----------|---------|---------|-------------------
+
+=============================== Coverage summary ===============================
+Statements   : 22.71% ( 1752/7714 )
+Branches     : 19.42% ( 1105/5690 )
+Functions    : 20.9% ( 227/1086 )
+Lines        : 23.64% ( 1636/6918 )
+================================================================================
+ERROR: Coverage for lines (23.64%) does not meet global threshold (60%)
+ERROR: Coverage for functions (20.9%) does not meet global threshold (60%)
+ERROR: Coverage for statements (22.71%) does not meet global threshold (60%)
+ERROR: Coverage for branches (19.42%) does not meet global threshold (50%)
