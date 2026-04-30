@@ -4,11 +4,9 @@ description: AIGC Gateway 当前状态快照（覆盖写，≤30 行）
 type: project
 ---
 ## 当前批次
-- **BL-ALIAS-MODEL-CASCADE-ENABLE**（building，0/3 features 完成）
-- F-ACE-01: 后端级联启用 alias→model.enabled（pending）
-- F-ACE-02: 列表 API 暴露 modelEnabled + lastHealthResult（pending）
-- F-ACE-03: Admin UI 链路状态徽章 + 启用预警 toast（pending）
-- 规格文档：`docs/specs/BL-ALIAS-MODEL-CASCADE-ENABLE-spec.md`
+- **BL-ALIAS-MODEL-CASCADE-ENABLE（status=verifying，交 Codex 验收）**
+- 3/3 features done：F-ACE-01 级联 model.enabled、F-ACE-02 暴露 modelEnabled/lastHealthResult、F-ACE-03 UI 徽章+toast
+- commits: 2202aad（F-ACE-01/02）、ffa9da8（F-ACE-03）
 
 ## reference path
 - KOLMatrix repo 实际路径：`/mnt/c/Users/tripplezhou/projects/kolmatrix`

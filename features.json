@@ -1,69 +1,33 @@
 {
-  "batch": "BL-TEST-INFRA-IMPORT",
-  "created_at": "2026-04-28",
+  "batch": "BL-ALIAS-MODEL-CASCADE-ENABLE",
+  "created_at": "2026-05-01",
   "features": [
     {
-      "id": "F-TI-01",
-      "title": "Foundation — 装依赖（msw/testcontainers/coverage-v8/testing-library）+ vitest/playwright 配置",
+      "id": "F-ACE-01",
+      "title": "后端级联启用 — PATCH alias enabled 时自动 model.enabled=true",
       "priority": "high",
       "executor": "generator",
       "status": "done",
-      "source": "BL-TEST-INFRA-IMPORT spec § F-TI-01",
-      "acceptance": "1) 装 8 个 deps 精确版本：msw@2.13.4 / @testcontainers/postgresql@11.14.0 / testcontainers@11.14.0 / @testing-library/jest-dom@6.9.1 / @testing-library/react@16.3.2 / @testing-library/user-event@14.6.1 / @vitest/coverage-v8@4.1.4 / @vitest/ui@4.1.4；2) 重写 vitest.config.ts：jsdom env + setupFiles ./tests/setup.ts + coverage v8（include src/lib/components/api，exclude shadcn/console pages，threshold 60/60/50/60）+ include scripts/**/*.test.ts；3) 新建 vitest.integration.config.ts（node env / 120s timeout / fileParallelism false）；4) 新建 playwright.config.ts（参考 joyce E2E_BASE_URL/E2E_PORT/PORT fallback 链）；5) package.json 加 9 个 test scripts（test/test:unit/test:watch/test:coverage/test:ui/test:integration/test:e2e/test:e2e:ui/test:e2e:debug）；6) 现有 554 单测 vitest run 仍 PASS（jsdom env 切换可能要调 1-2 个测，要修）；7) tsc + build 通过"
+      "source": "BL-ALIAS-MODEL-CASCADE-ENABLE Bug-A",
+      "acceptance": "1) PATCH /api/admin/model-aliases/:id { enabled: true }（当前 enabled=false），linked models 中有 enabled=false 的 model → 响应后 GET /api/admin/model-aliases 验证对应 linkedModels[].modelEnabled=true；2) dev env（无 Redis cache）GET /v1/models 立即返回该 alias；3) PATCH 只改其他字段（如 brand）→ linked models.enabled 不变；4) npx tsc --noEmit PASS；5) npm run build PASS"
     },
     {
-      "id": "F-TI-02",
-      "title": "tests/ 目录重组 — setup.ts + MSW mocks + 三层目录建立",
+      "id": "F-ACE-02",
+      "title": "列表 API 暴露 modelEnabled + lastHealthResult",
       "priority": "high",
       "executor": "generator",
       "status": "done",
-      "source": "BL-TEST-INFRA-IMPORT spec § F-TI-02",
-      "acceptance": "1) tests/setup.ts：MSW 生命周期（beforeAll listen / afterEach resetHandlers / afterAll close）+ 引入 testing-library/jest-dom/vitest；2) tests/mocks/server.ts (setupServer) + browser.ts (setupWorker) + handlers.ts；3) handlers.ts mock 4 个上游：openai (chat/embeddings) / openrouter (chat/embeddings/activity) / anthropic (messages) / siliconflow (embeddings)；4) MOCK_BASE_URLS const 导出 + 默认 200 happy response；5) tests/{unit,integration} 目录创建（空 placeholder，README.md 占位）；6) tests/e2e/ 已有 3 spec 不动；7) 运行 npm run test 现有 554 仍 PASS；8) npm run test:coverage 跑通 coverage/ 生成；9) tsc + build 通过"
+      "source": "BL-ALIAS-MODEL-CASCADE-ENABLE Bug-B/C/D 可见性基础",
+      "acceptance": "1) GET /api/admin/model-aliases 每条 alias 的 linkedModels[n].modelEnabled 为 boolean（对应 model.enabled 字段）；2) linkedModels[n].channels[m].lastHealthResult 为 'PASS'|'FAIL'|null（healthChecks 最新一条 result，无记录为 null）；3) page.tsx 的 LinkedModel / channel 类型同步更新，npx tsc --noEmit PASS；4) 现有字段（latencyMs / providerName 等）不变"
     },
     {
-      "id": "F-TI-03",
-      "title": "CI workflow 扩展 — 3 jobs → 8 jobs（含 build+migrate / coverage / integration / e2e）",
+      "id": "F-ACE-03",
+      "title": "Admin UI 链路状态徽章 + 启用预警 toast",
       "priority": "high",
       "executor": "generator",
       "status": "done",
-      "source": "BL-TEST-INFRA-IMPORT spec § F-TI-03",
-      "acceptance": "1) 重写 .github/workflows/ci.yml 为 8 jobs：install / lint / typecheck / validate-rollback-sql / build (PostgreSQL service container + migrate deploy + npm run build) / unit-tests (vitest + coverage artifact) / integration-tests (vitest integration config) / e2e-tests (PostgreSQL service container + playwright + report artifact)；2) env 块加 CI placeholder：JWT_SECRET / ENCRYPTION_KEY / IMAGE_PROXY_SECRET / DATABASE_URL / REDIS_URL；3) concurrency group ci-${{github.ref}} cancel-in-progress；4) NODE_VERSION 22 统一；5) install job 单独跑 npm ci 用 cache；6) 其他 jobs needs: install；7) e2e job 上传 playwright-report artifact；8) coverage artifact 上传 lcov.info；9) push 到 main 后 CI 8 jobs 运行（即使 e2e 部分 fail 也接受，要求 5/8 必 PASS）；10) CI 总时间 ≤ 12min"
-    },
-    {
-      "id": "F-TI-04",
-      "title": "Migration ROLLBACK 强制规范 — validate 脚本 + 64 historical migrations retrofit",
-      "priority": "high",
-      "executor": "generator",
-      "status": "done",
-      "source": "BL-TEST-INFRA-IMPORT spec § F-TI-04",
-      "acceptance": "1) 新建 scripts/validate-rollback-sql.sh（直接 port joyce 版本，35 行 bash + chmod +x）；2) 64 个 prisma/migrations/*/migration.sql 文件全部加一行 -- ROLLBACK: 注释，按规则：CREATE INDEX → DROP INDEX；ADD COLUMN → ALTER TABLE DROP COLUMN；CREATE TABLE → DROP TABLE；ADD CHECK → DROP CONSTRAINT；DATA migration → 'revert commit + restore from backup'；复合 → 标注 'manual SQL recovery required + 理由'；3) ./scripts/validate-rollback-sql.sh 退出码 0；4) docs/dev/rules.md 加一段 'Migration ROLLBACK 注释规范' + 链接 joyce reference；5) 验证 grep -L '^-- ROLLBACK:' prisma/migrations/*/migration.sql 返空（即所有 migration 都含）"
-    },
-    {
-      "id": "F-TI-05",
-      "title": "Testcontainers 集成测示例 — 1-2 高价值集成测 + 文档化",
-      "priority": "high",
-      "executor": "generator",
-      "status": "done",
-      "source": "BL-TEST-INFRA-IMPORT spec § F-TI-05",
-      "acceptance": "1) tests/integration/deduct-balance-atomic.test.ts：Testcontainers 起 PostgreSQL 16 → npx prisma migrate deploy → seed user balance=10 → 并发 deduct_balance(8) ×2 → 断言 finalBalance>=0 且仅 1 次成功；2) tests/integration/reconciliation-cny-conversion.test.ts（可选第 2 测）：测 BL-RECON-FIX-PHASE1 F-RF-02 CNY→USD 转换在真 PG 上 BillReconciliation Decimal 精度行为；3) docs/dev/testing.md 新建（≥ 50 行）：何时用 unit (vi.mock) vs integration (Testcontainers) 决策树 + Testcontainers 启动时间预期 + 完整代码模板；4) npm run test:integration 跑通本地（CI 在 F-TI-03 跑）；5) 单测时间 ≤ 90s（含容器 boot 30s + migrate 10s + 实际 test）"
-    },
-    {
-      "id": "F-TI-06",
-      "title": "scripts/test/ 历史 dated 脚本归档（69 文件 → _archive 目录）",
-      "priority": "high",
-      "executor": "generator",
-      "status": "done",
-      "source": "BL-TEST-INFRA-IMPORT spec § F-TI-06",
-      "acceptance": "1) mkdir -p scripts/test/_archive_2026Q1Q2；2) git mv scripts/test/*-YYYY-MM-DD.ts scripts/test/_archive_2026Q1Q2/；同上 .tsx；3) keep：codex-env.sh / codex-setup.sh / codex-wait.sh 在 scripts/test/ 根；4) scripts/seed-* 不动（产线必需）；5) 全仓 grep 引用 'scripts/test/.*-202' → 修任何 broken reference（CLAUDE.md / docs/* 可能引用 dated 脚本路径）；6) docs/dev/rules.md 标注：dated e2e 写到 _archive_，新批次 verifying e2e 写到 tests/e2e/；7) tsc + build 通过"
-    },
-    {
-      "id": "F-TI-07",
-      "title": "BL-TEST-INFRA-IMPORT 全量验收（CI / 集成测 / e2e / MSW / 报告）",
-      "priority": "high",
-      "executor": "codex",
-      "status": "pending",
-      "source": "BL-TEST-INFRA-IMPORT spec § F-TI-07",
-      "acceptance": "静态（4）：1) tsc + build + vitest unit + vitest integration 全过；2) coverage artifact 生成且 lcov.info 可读；3) validate-rollback-sql.sh 通过 64 migrations；4) CI 8 jobs 在 main push 全跑（5/8 必 PASS：install/lint/typecheck/validate-rollback/build；3 个测试 jobs 至少 unit 必过）。集成测（2）：5) deduct-balance-atomic 真跑通；6) Testcontainers 启动 + migrate + cleanup ≤ 90s。E2E（2）：7) Playwright 跑 3 spec 至少 1 PASS；8) CI 上传 playwright-report artifact。MSW（2）：9) tests/setup.ts 启用后 554 单测无回归；10) handlers.ts mock 4 个上游 untreated 请求 console warn。报告（1）：11) docs/test-reports/BL-TEST-INFRA-IMPORT-signoff-2026-04-2X.md 含 CI 截图 + coverage % + integration log + e2e report 链接"
+      "source": "BL-ALIAS-MODEL-CASCADE-ENABLE Bug-B/C/D",
+      "acceptance": "1) alias 列表中，所有 channel lastHealthResult=FAIL 的 enabled alias 显示红色'渠道全部异常'徽章（中文）/ 'All channels failing'（英文）；2) sellPrice=null 或 {} 的 enabled alias 显示黄色'价格未设置'徽章；3) toggle false→true 时，若 sellPrice 未设置 → toast 含价格警告；若所有 channel FAIL → toast 含不可见警告；4) 健康链路 alias（有 sellPrice + 有非 FAIL channel）→ 无警告徽章；5) en.json + zh-CN.json 各新增 5 个 key（chainStatusWarnNoSellPrice / chainStatusWarnAllFail / chainStatusWarnNoChannel / toastEnabledNoSellPrice / toastEnabledAllFail）；6) npx tsc --noEmit PASS；7) npm run build PASS"
     }
   ]
 }
