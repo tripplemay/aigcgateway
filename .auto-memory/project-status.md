@@ -4,17 +4,20 @@ description: AIGC Gateway 当前状态快照（覆盖写，≤30 行）
 type: project
 ---
 ## 当前批次
-- **无进行中批次（BL-TEST-INFRA-IMPORT 已 done @ 2026-04-30，fix_rounds=3）**
+- **BL-ALIAS-MODEL-CASCADE-ENABLE**（building，0/3 features 完成）
+- F-ACE-01: 后端级联启用 alias→model.enabled（pending）
+- F-ACE-02: 列表 API 暴露 modelEnabled + lastHealthResult（pending）
+- F-ACE-03: Admin UI 链路状态徽章 + 启用预警 toast（pending）
+- 规格文档：`docs/specs/BL-ALIAS-MODEL-CASCADE-ENABLE-spec.md`
 
 ## reference path
 - KOLMatrix repo 实际路径：`/mnt/c/Users/tripplezhou/projects/kolmatrix`
 
 ## 上一批次
-- BL-TEST-INFRA-IMPORT @ 2026-04-30（done）/ BL-MCP-PAGE-REVAMP @ 2026-04-28 / BL-EMBEDDING-MVP @ 2026-04-28
+- BL-TEST-INFRA-IMPORT @ 2026-04-30（done，fix_rounds=3）
 
-## Backlog（5 条，按优先级）
-- **BL-ALIAS-MODEL-CASCADE-ENABLE**（medium）— alias 启用未级联 model.enabled + sellPrice 缺失 + health-FAIL 隐藏
-- **BL-HEALTH-PROBE-MIN-TOKENS**（medium）— probe max_tokens=1 不兼容 Azure-backed model（gpt-5 永远 FAIL）
+## Backlog（4 条，按优先级）
+- **BL-HEALTH-PROBE-MIN-TOKENS**（medium）— probe max_tokens=1 不兼容 Azure-backed model
 - **BL-SEC-INFRA-GUARD-FOLLOWUP**（high-deferred）— Next.js 16 跨大版本迁移
 - **BL-SEC-PAY-DEFERRED**（critical-deferred）— 支付 webhook 验签 + 幂等 CAS
 - **BL-FE-DS-SHADCN**（low-deferred）— shadcn 采用率提升
