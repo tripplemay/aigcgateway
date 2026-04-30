@@ -58,6 +58,20 @@
       "supersedes": "BL-065",
       "phase": "deferred",
       "order": 99
+    },
+    {
+      "id": "BL-ALIAS-MODEL-CASCADE-ENABLE",
+      "title": "Alias 启用未联动 model 启用，导致 /v1/models 看不到已启用的 alias",
+      "description": "复现：admin 在 /admin/model-aliases（或 /admin/model-whitelist）把 alias 切到 enabled=true → UI 显示成功 → 用户面 GET /v1/models 实时响应仍不返回该 alias。根因：src/app/api/v1/models/route.ts:30-44 查询要求三层全部满足——alias.enabled=true AND alias_model_links 中至少一个 model.enabled=true AND channels.status=ACTIVE；当前 alias 启用只改 model_aliases.enabled，未联动 alias_model_links 引用的 models.enabled。已确认非缓存问题：生产 redis-cli KEYS 'models:list*' 命中 0、TTL=-2。2026-04-30 实例：alias claude-opus-4.7 / claude-sonnet-4.6 enabled=true，链到的 models anthropic/claude-opus-4.7 / anthropic/claude-sonnet-4.6 仍 enabled=false → /v1/models 实时返回 10810B 但 grep 命中 0 次。Bug-A（数据层）：alias PATCH 路径缺 model 级联；Bug-B（UI 层）：admin/model-aliases 启用 toggle 缺『底层 N 个 model 仍 disabled，启用后用户面不可见』提示。修复参考：PATCH /api/admin/model-aliases/[id] 在 enabled false→true 分支内，对所有 alias_model_links 引用的 model 在事务中 SET enabled=true；或在 UI 启用前预检 + 强提示。",
+      "decisions": [
+        "方案待拍板：A 后端级联自动启用；B 前端预检+强提示；C 两者都做（推荐）",
+        "复现路径已固化：alias enabled=true → /v1/models 仍 200 但 data 中无该 alias → 必查 models.enabled",
+        "本次实例旁路修复：UPDATE models SET enabled=true WHERE name IN('anthropic/claude-opus-4.7','anthropic/claude-sonnet-4.6')"
+      ],
+      "confirmed_at": "2026-04-30",
+      "priority": "medium",
+      "source": "用户 2026-04-30 操作复现：在 admin 启用 anthropic 两个 alias 后 https://aigc.guangai.ai/models 看不到",
+      "estimated_effort": "0.5 day"
     }
   ]
 }
