@@ -2,10 +2,10 @@
   "status": "building",
   "user_goal": "BL-TEST-INFRA-IMPORT — 全量迁移 KOLMatrix/joyce 测试基建到 aigcgateway。CI 3→8 jobs（含 build+migrate / coverage / integration / e2e + rollback validate）+ vitest 三配置 + MSW 框架 + Testcontainers + 64 migrations ROLLBACK 注释 + scripts/test/ 历史归档。来源：用户对比分析后选 D 全量迁移。",
   "total_features": 7,
-  "completed_features": 1,
+  "completed_features": 2,
   "fix_rounds": 0,
   "current_sprint": "BL-TEST-INFRA-IMPORT",
-  "last_updated": "2026-04-30T11:50:00.000Z",
+  "last_updated": "2026-04-30T12:05:00.000Z",
   "reference_docs": [
     "docs/specs/BL-TEST-INFRA-IMPORT-spec.md",
     "/Users/yixingzhou/project/joyce/.github/workflows/ci.yml",

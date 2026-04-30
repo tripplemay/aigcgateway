@@ -16,7 +16,7 @@
       "title": "tests/ 目录重组 — setup.ts + MSW mocks + 三层目录建立",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "source": "BL-TEST-INFRA-IMPORT spec § F-TI-02",
       "acceptance": "1) tests/setup.ts：MSW 生命周期（beforeAll listen / afterEach resetHandlers / afterAll close）+ 引入 testing-library/jest-dom/vitest；2) tests/mocks/server.ts (setupServer) + browser.ts (setupWorker) + handlers.ts；3) handlers.ts mock 4 个上游：openai (chat/embeddings) / openrouter (chat/embeddings/activity) / anthropic (messages) / siliconflow (embeddings)；4) MOCK_BASE_URLS const 导出 + 默认 200 happy response；5) tests/{unit,integration} 目录创建（空 placeholder，README.md 占位）；6) tests/e2e/ 已有 3 spec 不动；7) 运行 npm run test 现有 554 仍 PASS；8) npm run test:coverage 跑通 coverage/ 生成；9) tsc + build 通过"
     },
