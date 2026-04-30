@@ -25,7 +25,7 @@
       "title": "CI workflow 扩展 — 3 jobs → 8 jobs（含 build+migrate / coverage / integration / e2e）",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "source": "BL-TEST-INFRA-IMPORT spec § F-TI-03",
       "acceptance": "1) 重写 .github/workflows/ci.yml 为 8 jobs：install / lint / typecheck / validate-rollback-sql / build (PostgreSQL service container + migrate deploy + npm run build) / unit-tests (vitest + coverage artifact) / integration-tests (vitest integration config) / e2e-tests (PostgreSQL service container + playwright + report artifact)；2) env 块加 CI placeholder：JWT_SECRET / ENCRYPTION_KEY / IMAGE_PROXY_SECRET / DATABASE_URL / REDIS_URL；3) concurrency group ci-${{github.ref}} cancel-in-progress；4) NODE_VERSION 22 统一；5) install job 单独跑 npm ci 用 cache；6) 其他 jobs needs: install；7) e2e job 上传 playwright-report artifact；8) coverage artifact 上传 lcov.info；9) push 到 main 后 CI 8 jobs 运行（即使 e2e 部分 fail 也接受，要求 5/8 必 PASS）；10) CI 总时间 ≤ 12min"
     },
