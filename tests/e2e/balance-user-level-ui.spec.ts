@@ -51,14 +51,21 @@ test.describe("balance-user-level-ui", () => {
     expect(adminLogin.status()).toBe(200);
     const adminToken: string = (await adminLogin.json()).token;
 
-    const rechargeRes = await request.post(
-      `${BASE_URL}/api/admin/users/${userId}/projects/${projectAId}/recharge`,
-      {
-        data: { amount: 30, description: "bu-ui-test" },
-        headers: { Authorization: `Bearer ${adminToken}` },
-      },
-    );
+    // BL-TEST-INFRA-IMPORT fix-round-1: balance moved from project-level
+    // to user-level (BL-USER-LEVEL-BALANCE batch). The old admin recharge
+    // URL `/admin/users/:userId/projects/:projectId/recharge` no longer
+    // exists; recharge now targets the user record directly via
+    // `/api/admin/users/:id/recharge` (src/app/api/admin/users/[id]/
+    // recharge/route.ts) and the User.balance column. The test's premise
+    // (sidebar wallet stays constant when switching projects) is
+    // unchanged — under user-level balance the sidebar reads the user's
+    // single balance regardless of selected project.
+    const rechargeRes = await request.post(`${BASE_URL}/api/admin/users/${userId}/recharge`, {
+      data: { amount: 30, description: "bu-ui-test" },
+      headers: { Authorization: `Bearer ${adminToken}` },
+    });
     expect(rechargeRes.status()).toBe(201);
+    void projectAId; // retained for compatibility with the original spec signature
 
     await bootstrapAuth(page, userToken);
     await page.goto(`${BASE_URL}/dashboard`);

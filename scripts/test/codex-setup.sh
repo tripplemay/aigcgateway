@@ -18,6 +18,15 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 source "$SCRIPT_DIR/codex-env.sh"
 
+# ── psql 连接参数（默认 Unix socket，远端/容器场景请预先 export） ──
+# 默认假设本机 PostgreSQL 监听 Unix socket（macOS Homebrew / Linux 默认）。
+# 远端或容器场景：在调用本脚本前先 export PGHOST/PGPORT/PGUSER/PGPASSWORD
+# 即可（psql 会自动读取这些 env），无需改本脚本。
+#
+# 例（连本机 docker postgres :5433）：
+#   export PGHOST=127.0.0.1 PGPORT=5433 PGUSER=postgres PGPASSWORD=postgres
+#   bash scripts/test/codex-setup.sh
+
 # ── 定位 psql ──
 if command -v psql > /dev/null 2>&1; then
   PSQL="psql"

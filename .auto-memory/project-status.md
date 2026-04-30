@@ -4,10 +4,9 @@ description: AIGC Gateway 当前状态快照（覆盖写，≤30 行）
 type: project
 ---
 ## 当前批次
-- **BL-TEST-INFRA-IMPORT：`fixing`**（Codex 首轮验收 FAIL，已回 Generator 修复）
-- 6 commits：F-TI-01 8b14bde / F-TI-02 7f323cc / F-TI-03 368f1bd / F-TI-04 64396a7 / F-TI-05 5c0fc65 / F-TI-06 + post-verifying fix 410a9d0
-- 测试基建已落地：vitest 三配置 + MSW 4 上游 + Testcontainers 集成测 + 64 migrations ROLLBACK 注释 + scripts/test/ 67 dated 文件归档 + CI 3→8 jobs
+- **BL-TEST-INFRA-IMPORT：`reverifying`**（fix_rounds=1 完成，等 Codex 复验）
 - 验收报告：`docs/test-reports/BL-TEST-INFRA-IMPORT-verifying-2026-04-30.md`
+- fix-round-1 内容：Colima auto-detect helper + codex-env 补 3 password + codex-setup PG override 注释 + playwright default port 3000→3199 + balance-user-level-ui admin recharge URL 修 + project-switcher / user-profile-center 加 skip（标 follow-up batch）
 
 ## 首轮验收结论（Reviewer）
 - PASS：lint warning only / typecheck / build / rollback validate / unit suite / coverage artifact / CI 8 jobs / integration logic（CI 10.71s，本地 Colima override 2.96s）

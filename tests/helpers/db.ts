@@ -17,6 +17,10 @@
  * `tests/integration/deduct-balance-atomic.test.ts` for the canonical
  * pattern.
  */
+// Must import before @testcontainers/postgresql so Colima env is
+// configured before the container runtime probe fires.
+import "./_colima-detect";
+
 import { execSync } from "node:child_process";
 
 import { PrismaClient } from "@prisma/client";
