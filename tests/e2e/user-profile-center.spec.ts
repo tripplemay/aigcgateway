@@ -60,9 +60,7 @@ test.describe.skip("user-profile-center [SKIPPED — see BL-E2E-FIX-USER-PROFILE
 
     const securitySection = page.locator("section", { hasText: "Security Log" }).first();
     await expect(securitySection).toContainText("Security Log");
-    const logRow = securitySection
-      .locator("div.flex.items-center.justify-between.p-3")
-      .first();
+    const logRow = securitySection.locator("div.flex.items-center.justify-between.p-3").first();
     await expect(logRow).toContainText("PlaywrightUICheck");
   });
 });
