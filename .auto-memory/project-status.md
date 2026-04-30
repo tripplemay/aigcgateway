@@ -4,14 +4,13 @@ description: AIGC Gateway 当前状态快照（覆盖写，≤30 行）
 type: project
 ---
 ## 当前批次
-- **BL-TEST-INFRA-IMPORT：`fixing`（reverifying round-2 未签收，回退 Generator）**
-- 当前报告：`docs/test-reports/BL-TEST-INFRA-IMPORT-reverifying-2026-04-30-round2.md`
-- round-2 结论：
-  - PASS：rollback validate / typecheck / lint warning only / build / unit / integration / fresh-shell Playwright / CI 8 jobs / Playwright `1 passed + 3 skipped` / artifacts
-  - BLOCKER：`bash scripts/test/codex-setup.sh` 仍默认失败
-    - 新失败点不是缺 env，而是 docker fallback 撞上 `5432` 已占用：`Bind for 0.0.0.0:5432 failed: port is already allocated`
-    - 本机已有 `kolmatrix-postgres` 占 `5432`，脚本未处理“可复用现有 PG / 改用非冲突端口”的默认路径
-- Coverage 阈值差仍是 spec 接受 baseline gap，不阻断
+- **BL-TEST-INFRA-IMPORT：`reverifying`（fix-round-3 已交 Codex）**
+- 前轮报告：`docs/test-reports/BL-TEST-INFRA-IMPORT-reverifying-2026-04-30-round2.md`
+- fix-round-3 关 docker fallback 端口冲突：
+  - `codex-setup.sh ensure_pg`：加 `port_busy()` / `find_free_port()` / `sync_database_url()`
+  - 5432 被占 → OS 分配空闲端口（如 :41316）创 container；旧 container 端口冲突就 rm 重建
+  - `DATABASE_URL` 跟随实际 PGPORT，覆盖 codex-env.sh 写死的 5432，prisma/seed 透明
+- round-2 PASS 维持：fresh-shell Playwright / CI 8 jobs / unit / integration / Playwright 1+3 skip / artifacts。Coverage 阈值差是 spec 接受 baseline gap
 
 ## reference path 修正
 - KOLMatrix repo 实际路径：`/mnt/c/Users/tripplezhou/projects/kolmatrix`（progress.json Mac 路径不在 WSL）

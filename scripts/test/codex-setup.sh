@@ -45,7 +45,33 @@ fi
 
 DB_NAME="aigc_gateway_test"
 
-# ── PG bootstrap ──
+# ── PG bootstrap helpers ──
+
+# 端口探测：bash 内建 /dev/tcp，TCP connect 成功 = 端口被占（有 server）
+port_busy() {
+  (exec 3<> "/dev/tcp/127.0.0.1/$1") 2> /dev/null
+  local rc=$?
+  exec 3<&- 3>&- 2> /dev/null || true
+  return $rc
+}
+
+# 拿 OS 分配的空闲 host port（避开 5432 已被占用的场景）
+find_free_port() {
+  if command -v node > /dev/null 2>&1; then
+    node -e 'const s=require("net").createServer().listen(0,"127.0.0.1",()=>{const p=s.address().port; s.close(()=>console.log(p));})' 2> /dev/null && return 0
+  fi
+  if command -v python3 > /dev/null 2>&1; then
+    python3 -c 'import socket; s=socket.socket(); s.bind(("127.0.0.1",0)); print(s.getsockname()[1]); s.close()' 2> /dev/null && return 0
+  fi
+  echo 15432
+}
+
+# 把 export 的 PGHOST/PGPORT/PGUSER/PGPASSWORD 同步到 DATABASE_URL，
+# 覆盖 codex-env.sh 里写死的 5432（让 prisma migrate / seed / next 都跟随）
+sync_database_url() {
+  export DATABASE_URL="postgresql://test:test@${PGHOST:-localhost}:${PGPORT:-5432}/aigc_gateway_test"
+}
+
 ensure_pg() {
   # 第 1+2 步：当前 PG* env / 默认 socket 能否连通
   if "$PSQL" postgres -c "SELECT 1" > /dev/null 2>&1; then
@@ -72,24 +98,41 @@ EOF
     return 1
   fi
 
-  echo "=== [PG] no native PostgreSQL → starting docker container ${PG_CONTAINER_NAME} ==="
+  # 优先复用我们自己的 container（不碰别项目的 PG，不碰 socket）
   if docker ps -a --format '{{.Names}}' | grep -qx "${PG_CONTAINER_NAME}"; then
     if ! docker ps --format '{{.Names}}' | grep -qx "${PG_CONTAINER_NAME}"; then
-      docker start "${PG_CONTAINER_NAME}" > /dev/null
+      # 已存在但停了 — 试 start，fail 通常意味着旧容器 -p 5432:5432 撞当前已占用，rm 重建
+      if ! docker start "${PG_CONTAINER_NAME}" > /dev/null 2>&1; then
+        echo "=== [PG] existing container failed to start (port conflict?), recreating ==="
+        docker rm -f "${PG_CONTAINER_NAME}" > /dev/null 2>&1 || true
+      fi
     fi
-  else
+  fi
+
+  # 不存在或刚被 rm → 新建（5432 空闲就用 5432 维持向后兼容；被占就 OS 分配）
+  if ! docker ps -a --format '{{.Names}}' | grep -qx "${PG_CONTAINER_NAME}"; then
+    HOST_PORT=5432
+    if port_busy "${HOST_PORT}"; then
+      HOST_PORT=$(find_free_port)
+      echo "=== [PG] :5432 occupied → starting ${PG_CONTAINER_NAME} on host :${HOST_PORT} ==="
+    else
+      echo "=== [PG] starting ${PG_CONTAINER_NAME} on host :${HOST_PORT} ==="
+    fi
     docker run -d \
       --name "${PG_CONTAINER_NAME}" \
       -e POSTGRES_USER=postgres \
       -e POSTGRES_PASSWORD=postgres \
-      -p 5432:5432 \
+      -p "${HOST_PORT}:5432" \
       postgres:16-alpine > /dev/null
   fi
 
+  # 等就绪 + 拿 docker 实际暴露的 host port + export PG* + sync DATABASE_URL
   for _ in $(seq 1 30); do
     if docker exec "${PG_CONTAINER_NAME}" pg_isready -U postgres > /dev/null 2>&1; then
-      export PGHOST=localhost PGPORT=5432 PGUSER=postgres PGPASSWORD=postgres
-      echo "=== [PG] container ready, exported PGHOST/PGPORT/PGUSER/PGPASSWORD ==="
+      RESOLVED_PORT=$(docker port "${PG_CONTAINER_NAME}" 5432/tcp 2> /dev/null | sed -n 's/.*:\([0-9][0-9]*\)$/\1/p' | head -1)
+      export PGHOST=localhost PGPORT="${RESOLVED_PORT:-5432}" PGUSER=postgres PGPASSWORD=postgres
+      sync_database_url
+      echo "=== [PG] container ready on :${PGPORT} (DATABASE_URL synced) ==="
       return 0
     fi
     sleep 1
