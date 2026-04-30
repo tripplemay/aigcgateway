@@ -18,14 +18,18 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 source "$SCRIPT_DIR/codex-env.sh"
 
-# ── psql 连接参数（默认 Unix socket，远端/容器场景请预先 export） ──
-# 默认假设本机 PostgreSQL 监听 Unix socket（macOS Homebrew / Linux 默认）。
-# 远端或容器场景：在调用本脚本前先 export PGHOST/PGPORT/PGUSER/PGPASSWORD
-# 即可（psql 会自动读取这些 env），无需改本脚本。
+# ── psql 连接参数（自动探测，无可用 PG 时拉起 docker container） ──
+# 优先级：
+#   1. 调用方已 export PGHOST/PGPORT/PGUSER/PGPASSWORD 且能连 → 沿用
+#   2. 本机默认 Unix socket 能连 (`psql postgres -c 'SELECT 1'`) → 沿用
+#   3. docker 可用 → 启动/复用 container `aigc-gateway-test-pg`，
+#      自动 export PGHOST=localhost PGPORT=5432 PGUSER=postgres PGPASSWORD=postgres
+#   4. 都不行 → 清晰报错退出
 #
-# 例（连本机 docker postgres :5433）：
-#   export PGHOST=127.0.0.1 PGPORT=5433 PGUSER=postgres PGPASSWORD=postgres
-#   bash scripts/test/codex-setup.sh
+# 这样 evaluator 默认环境（macOS+Colima、CI、纯 docker 沙箱）开箱即可跑，
+# 不再需要手动 export PG*。
+
+PG_CONTAINER_NAME="aigc-gateway-test-pg"
 
 # ── 定位 psql ──
 if command -v psql > /dev/null 2>&1; then
@@ -35,11 +39,67 @@ elif [ -x "$(brew --prefix postgresql@16 2>/dev/null)/bin/psql" ]; then
 elif [ -x "$(brew --prefix postgresql 2>/dev/null)/bin/psql" ]; then
   PSQL="$(brew --prefix postgresql)/bin/psql"
 else
-  echo "ERROR: psql not found" >&2
+  echo "ERROR: psql not found (install postgresql-client or libpq)" >&2
   exit 1
 fi
 
 DB_NAME="aigc_gateway_test"
+
+# ── PG bootstrap ──
+ensure_pg() {
+  # 第 1+2 步：当前 PG* env / 默认 socket 能否连通
+  if "$PSQL" postgres -c "SELECT 1" > /dev/null 2>&1; then
+    echo "=== [PG] using existing PostgreSQL (PGHOST=${PGHOST:-socket} PGPORT=${PGPORT:-5432}) ==="
+    return 0
+  fi
+
+  # 第 3 步：docker fallback
+  if ! command -v docker > /dev/null 2>&1; then
+    cat >&2 <<EOF
+ERROR: 无法连接 PostgreSQL，且未发现 docker。
+请安装本机 PostgreSQL（监听默认 socket 或预先 export PGHOST/PGPORT/PGUSER/PGPASSWORD），
+或安装 Docker（codex-setup.sh 会自动起 ${PG_CONTAINER_NAME}）。
+EOF
+    return 1
+  fi
+  if ! docker info > /dev/null 2>&1; then
+    cat >&2 <<EOF
+ERROR: docker 命令存在但 daemon 未运行。
+  - macOS/Colima：colima start
+  - Linux：sudo systemctl start docker
+  - Docker Desktop：启动 Docker.app
+EOF
+    return 1
+  fi
+
+  echo "=== [PG] no native PostgreSQL → starting docker container ${PG_CONTAINER_NAME} ==="
+  if docker ps -a --format '{{.Names}}' | grep -qx "${PG_CONTAINER_NAME}"; then
+    if ! docker ps --format '{{.Names}}' | grep -qx "${PG_CONTAINER_NAME}"; then
+      docker start "${PG_CONTAINER_NAME}" > /dev/null
+    fi
+  else
+    docker run -d \
+      --name "${PG_CONTAINER_NAME}" \
+      -e POSTGRES_USER=postgres \
+      -e POSTGRES_PASSWORD=postgres \
+      -p 5432:5432 \
+      postgres:16-alpine > /dev/null
+  fi
+
+  for _ in $(seq 1 30); do
+    if docker exec "${PG_CONTAINER_NAME}" pg_isready -U postgres > /dev/null 2>&1; then
+      export PGHOST=localhost PGPORT=5432 PGUSER=postgres PGPASSWORD=postgres
+      echo "=== [PG] container ready, exported PGHOST/PGPORT/PGUSER/PGPASSWORD ==="
+      return 0
+    fi
+    sleep 1
+  done
+
+  echo "ERROR: docker container ${PG_CONTAINER_NAME} 30 秒内未就绪" >&2
+  return 1
+}
+
+ensure_pg
 
 # ── 0. 清理旧进程 ──
 echo "=== [0/5] Killing old process on :3199 ==="
