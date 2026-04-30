@@ -175,7 +175,29 @@ export default function ModelAliasesPage() {
 
   // ── API actions ──
 
+  const getAliasWarnings = (alias: AliasItem) => {
+    const sp = alias.sellPrice as Record<string, unknown> | null;
+    const hasSellPrice =
+      sp != null &&
+      Object.keys(sp).some((k) =>
+        ["inputPer1M", "outputPer1M", "perCall"].includes(k) &&
+        typeof (sp as Record<string, unknown>)[k] === "number",
+      );
+    const allChannels = alias.linkedModels.flatMap((lm) => lm.channels);
+    const hasChannels = allChannels.length > 0;
+    const allFail = hasChannels && allChannels.every((ch) => ch.lastHealthResult === "FAIL");
+    return { hasSellPrice, hasChannels, allFail };
+  };
+
   const toggleEnabled = async (id: string, enabled: boolean) => {
+    if (enabled) {
+      const alias = aliases.find((a) => a.id === id);
+      if (alias) {
+        const { hasSellPrice, allFail } = getAliasWarnings(alias);
+        if (!hasSellPrice) toast.warning(t("toastEnabledNoSellPrice"));
+        if (allFail) toast.warning(t("toastEnabledAllFail"));
+      }
+    }
     try {
       await apiFetch(`/api/admin/model-aliases/${id}`, {
         method: "PATCH",
@@ -627,6 +649,7 @@ export default function ModelAliasesPage() {
                 boolean
               >;
               const sp = getSellPrice(alias.id);
+              const warnings = alias.enabled ? getAliasWarnings(alias) : null;
 
               return (
                 <SectionCard
@@ -646,6 +669,19 @@ export default function ModelAliasesPage() {
                     {alias.brand && (
                       <span className="px-2 py-0.5 bg-ds-secondary-container text-ds-on-secondary-container text-[10px] font-bold rounded uppercase tracking-tighter flex-shrink-0">
                         {alias.brand}
+                      </span>
+                    )}
+                    {/* Chain status warning badges (only for enabled aliases) */}
+                    {warnings && !warnings.hasSellPrice && (
+                      <span className="px-2 py-0.5 bg-ds-tertiary-container text-ds-on-tertiary-container text-[10px] font-bold rounded uppercase tracking-tighter flex-shrink-0 flex items-center gap-1">
+                        <span className="material-symbols-outlined text-sm">warning</span>
+                        {t("chainStatusWarnNoSellPrice")}
+                      </span>
+                    )}
+                    {warnings && warnings.allFail && (
+                      <span className="px-2 py-0.5 bg-ds-error-container text-ds-on-error-container text-[10px] font-bold rounded uppercase tracking-tighter flex-shrink-0 flex items-center gap-1">
+                        <span className="material-symbols-outlined text-sm">error</span>
+                        {t("chainStatusWarnAllFail")}
                       </span>
                     )}
                     {/* Modality badge */}
