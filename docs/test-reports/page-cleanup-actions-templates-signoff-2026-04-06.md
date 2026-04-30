@@ -18,7 +18,7 @@
 ## 执行说明
 
 1. 启动本地测试环境：`scripts/test/codex-setup.sh` + `scripts/test/codex-wait.sh`
-2. 运行现有 API E2E 脚本：`npx tsx scripts/test/ui-redesign-templates-actions-e2e-2026-04-06.ts`
+2. 运行现有 API E2E 脚本：`npx tsx scripts/test/_archive_2026Q1Q2/ui-redesign-templates-actions-e2e-2026-04-06.ts`
 3. 基于固定测试数据执行专项 API 校验：
    - `docs/test-reports/page-cleanup-actions-templates-local-api-verify-2026-04-06.json`
    - `docs/test-reports/page-cleanup-actions-templates-new-version-local-2026-04-06.json`

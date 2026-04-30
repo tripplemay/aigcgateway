@@ -12,7 +12,7 @@
 - 执行脚本：
   - `BASE_URL=http://localhost:3099`
   - `OUTPUT_FILE=docs/test-reports/r4-design-restoration-reverifying-e2e-2026-04-09.json`
-  - `npx tsx scripts/test/r4-design-restoration-verifying-e2e-2026-04-09.ts`
+  - `npx tsx scripts/test/_archive_2026Q1Q2/r4-design-restoration-verifying-e2e-2026-04-09.ts`
 
 ## 结果概览
 

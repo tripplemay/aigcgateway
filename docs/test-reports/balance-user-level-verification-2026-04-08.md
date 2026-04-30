@@ -10,7 +10,7 @@
 
 ## 测试资产
 1. `docs/test-cases/balance-user-level-backend-local-test-cases-2026-04-08.md`
-2. `scripts/test/balance-user-level-e2e-2026-04-08.ts`
+2. `scripts/test/_archive_2026Q1Q2/balance-user-level-e2e-2026-04-08.ts`
 3. `tests/e2e/balance-user-level-ui.spec.ts`（Playwright WebKit）
 
 ## 执行记录
@@ -18,10 +18,10 @@
 | --- | --- | --- | --- |
 | 1 | `bash scripts/test/codex-setup.sh`（2026-04-08 早） | FAIL | Migration `20260408010000_balance_user_level` 无法应用（见旧问题 1） |
 | 2 | 手动执行 migration + seed + build + start | PASS (workaround) | 详见上一轮报告 |
-| 3 | `npx tsx scripts/test/balance-user-level-e2e-2026-04-08.ts` | PASS | 生成 `docs/test-reports/balance-user-level-e2e-2026-04-08.json`（旧数据） |
+| 3 | `npx tsx scripts/test/_archive_2026Q1Q2/balance-user-level-e2e-2026-04-08.ts` | PASS | 生成 `docs/test-reports/balance-user-level-e2e-2026-04-08.json`（旧数据） |
 | 4 | `npx playwright test tests/e2e/balance-user-level-ui.spec.ts --browser=webkit` | PASS | 生成 `docs/test-reports/balance-user-level-ui-playwright-report.json`（旧数据） |
 | 5 | `bash scripts/test/codex-setup.sh`（2026-04-08 晚，包含 fix） | PASS | migration 全量回放成功，无需手动 DROP |
-| 6 | `npx tsx scripts/test/balance-user-level-e2e-2026-04-08.ts` | PASS | 生成最新报告（同路径，已覆盖） |
+| 6 | `npx tsx scripts/test/_archive_2026Q1Q2/balance-user-level-e2e-2026-04-08.ts` | PASS | 生成最新报告（同路径，已覆盖） |
 | 7 | `BASE_URL=http://localhost:3099 npx playwright test … --browser=webkit` | PASS | 生成最新 JSON 报告（已覆盖） |
 
 ## 结果概要

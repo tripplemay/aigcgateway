@@ -3,7 +3,7 @@
 - Batch: `P4-1c-admin-pages`
 - Feature: `F-P4C-06` (executor: codex)
 - Environment: L1 local (`http://localhost:3099`, test DB)
-- Script: `scripts/test/p4-1c-admin-pages-e2e-2026-04-08.ts`
+- Script: `scripts/test/_archive_2026Q1Q2/p4-1c-admin-pages-e2e-2026-04-08.ts`
 
 ## Scope
 
@@ -23,7 +23,7 @@
 
 ```bash
 source scripts/test/codex-env.sh
-npx tsx scripts/test/p4-1c-admin-pages-e2e-2026-04-08.ts
+npx tsx scripts/test/_archive_2026Q1Q2/p4-1c-admin-pages-e2e-2026-04-08.ts
 ```
 
 ## Expected

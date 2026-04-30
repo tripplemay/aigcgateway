@@ -2,7 +2,7 @@
 
 - Date: 2026-04-13
 - Environment: `http://localhost:3099` (Codex harness, PTY foreground)
-- Script: `scripts/test/audit-sec-verifying-e2e-2026-04-13.ts`
+- Script: `scripts/test/_archive_2026Q1Q2/audit-sec-verifying-e2e-2026-04-13.ts`
 - Raw evidence: `docs/test-reports/audit-sec-verifying-local-e2e-2026-04-13.json`
 
 ## Summary

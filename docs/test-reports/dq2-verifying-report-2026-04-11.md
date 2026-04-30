@@ -34,7 +34,7 @@
 - 同一系统存在多套金额格式化路径，后续汇率口径、千分位、精度和符号规则可能发生页面间不一致。
 
 ## 产物
-- 自动化脚本：`scripts/test/dq2-verifying-e2e-2026-04-11.ts`
+- 自动化脚本：`scripts/test/_archive_2026Q1Q2/dq2-verifying-e2e-2026-04-11.ts`
 - 结构化结果：`docs/test-reports/dq2-verifying-e2e-2026-04-11.json`
 
 ## 最终结论

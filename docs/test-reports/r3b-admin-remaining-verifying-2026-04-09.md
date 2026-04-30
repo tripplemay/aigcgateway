@@ -14,7 +14,7 @@
   - `bash scripts/test/codex-wait.sh`
 - 执行脚本：
   - `source scripts/test/codex-env.sh`
-  - `npx tsx scripts/test/r3b-admin-remaining-verifying-e2e-2026-04-09.ts`
+  - `npx tsx scripts/test/_archive_2026Q1Q2/r3b-admin-remaining-verifying-e2e-2026-04-09.ts`
 
 ## 结果概览
 

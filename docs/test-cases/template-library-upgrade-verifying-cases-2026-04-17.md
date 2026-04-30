@@ -118,7 +118,7 @@
 ```bash
 BASE_URL=http://localhost:3099 \
 OUTPUT_FILE=docs/test-reports/template-library-upgrade-verifying-local-e2e-2026-04-17.json \
-npx tsx scripts/test/template-library-upgrade-verifying-e2e-2026-04-17.ts
+npx tsx scripts/test/_archive_2026Q1Q2/template-library-upgrade-verifying-e2e-2026-04-17.ts
 ```
 
 ## Evidence Output

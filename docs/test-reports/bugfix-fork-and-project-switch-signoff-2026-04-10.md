@@ -8,7 +8,7 @@
 ## 测试环境
 - 本地 L1：`http://localhost:3099`
 - 启动方式：`bash scripts/test/codex-setup.sh` + `bash scripts/test/codex-wait.sh`
-- 验收脚本：`scripts/test/bf-fork-project-switch-verifying-e2e-2026-04-10.ts`
+- 验收脚本：`scripts/test/_archive_2026Q1Q2/bf-fork-project-switch-verifying-e2e-2026-04-10.ts`
 - 结果文件：`docs/test-reports/bf-fork-project-switch-verifying-e2e-2026-04-10.json`
 
 ## 结果摘要

@@ -20,7 +20,7 @@
 - 复验脚本结果：[u1-admin-user-detail-verifying-e2e-2026-04-10.json](/Users/yixingzhou/project/aigcgateway/docs/test-reports/u1-admin-user-detail-verifying-e2e-2026-04-10.json)
 - 首轮验收报告：[u1-admin-user-detail-verifying-2026-04-10.md](/Users/yixingzhou/project/aigcgateway/docs/test-reports/u1-admin-user-detail-verifying-2026-04-10.md)
 - 本地签收报告：[u1-admin-user-detail-signoff-2026-04-10.md](/Users/yixingzhou/project/aigcgateway/docs/test-reports/u1-admin-user-detail-signoff-2026-04-10.md)
-- 验收脚本：[u1-admin-user-detail-verifying-e2e-2026-04-10.ts](/Users/yixingzhou/project/aigcgateway/scripts/test/u1-admin-user-detail-verifying-e2e-2026-04-10.ts)
+- 验收脚本：[u1-admin-user-detail-verifying-e2e-2026-04-10.ts](/Users/yixingzhou/project/aigcgateway/scripts/test/_archive_2026Q1Q2/u1-admin-user-detail-verifying-e2e-2026-04-10.ts)
 
 ## 状态机更新
 - `progress.json.status` → `done`

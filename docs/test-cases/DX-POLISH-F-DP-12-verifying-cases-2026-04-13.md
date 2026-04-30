@@ -3,7 +3,7 @@
 - 批次：DX-POLISH
 - 执行者：Codex Evaluator
 - 目标：覆盖 F-DP-01 ~ F-DP-11，并验证 list_models -> chat -> list_logs 链路
-- 主脚本：`scripts/test/dx-polish-verifying-e2e-2026-04-13.ts`
+- 主脚本：`scripts/test/_archive_2026Q1Q2/dx-polish-verifying-e2e-2026-04-13.ts`
 
 ## 用例清单
 
@@ -26,7 +26,7 @@
 ## 执行命令
 
 ```bash
-npx tsx scripts/test/dx-polish-verifying-e2e-2026-04-13.ts
+npx tsx scripts/test/_archive_2026Q1Q2/dx-polish-verifying-e2e-2026-04-13.ts
 ```
 
 ## 报告输出

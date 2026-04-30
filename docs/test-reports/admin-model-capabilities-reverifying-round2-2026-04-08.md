@@ -6,7 +6,7 @@
 - Setup: `bash scripts/test/codex-setup.sh` + `bash scripts/test/codex-wait.sh`
 
 ## Executed Artifacts
-- Test script: `scripts/test/admin-model-capabilities-e2e-2026-04-08.ts`
+- Test script: `scripts/test/_archive_2026Q1Q2/admin-model-capabilities-e2e-2026-04-08.ts`
 - Evidence JSON: `docs/test-reports/admin-model-capabilities-e2e-2026-04-08.json`
 
 ## Result Summary

@@ -2,7 +2,7 @@
 
 - 测试目标：执行 F-MH-10 E2E 验证，并验收 F-MH-01~F-MH-09 对应行为
 - 测试环境：L1 本地 `http://localhost:3099`（Codex 测试端口）
-- 执行脚本：`scripts/test/mcp-finops-hardening-e2e-2026-04-07.ts`
+- 执行脚本：`scripts/test/_archive_2026Q1Q2/mcp-finops-hardening-e2e-2026-04-07.ts`
 - JSON 证据：`docs/test-reports/mcp-finops-hardening-verifying-local-e2e-2026-04-07.json`
 
 ## 结果

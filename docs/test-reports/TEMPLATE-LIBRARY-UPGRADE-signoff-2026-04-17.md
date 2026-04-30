@@ -22,7 +22,7 @@
 ## 执行资产
 
 - 用例文档：`docs/test-cases/template-library-upgrade-verifying-cases-2026-04-17.md`
-- 执行脚本：`scripts/test/template-library-upgrade-verifying-e2e-2026-04-17.ts`
+- 执行脚本：`scripts/test/_archive_2026Q1Q2/template-library-upgrade-verifying-e2e-2026-04-17.ts`
 - 结果证据：`docs/test-reports/template-library-upgrade-verifying-local-e2e-2026-04-17.json`
 
 ---

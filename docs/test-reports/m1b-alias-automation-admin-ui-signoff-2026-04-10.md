@@ -29,7 +29,7 @@ M1b 目标是完成别名自动化与 Admin 管理体验升级：
 ## 验收证据
 
 - 测试用例：`docs/test-cases/m1b-alias-admin-verifying-e2e-2026-04-10.md`
-- 自动化脚本：`scripts/test/m1b-alias-admin-verifying-e2e-2026-04-10.ts`
+- 自动化脚本：`scripts/test/_archive_2026Q1Q2/m1b-alias-admin-verifying-e2e-2026-04-10.ts`
 - 执行结果：`docs/test-reports/m1b-alias-admin-verifying-e2e-2026-04-10.json`
 - 首轮验收：`docs/test-reports/m1b-alias-admin-verifying-2026-04-10.md`
 - 复验报告：`docs/test-reports/m1b-alias-admin-reverifying-2026-04-10.md`

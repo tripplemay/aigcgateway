@@ -33,7 +33,7 @@
 - 新建 `login_history` 表，记录 userId/ip/userAgent/createdAt。
 - 登录成功时 async 写入，并保持兼容。
 
-**验收：** `scripts/test/user-profile-center-e2e-2026-04-08.ts` 校验连续登录写入两条记录。
+**验收：** `scripts/test/_archive_2026Q1Q2/user-profile-center-e2e-2026-04-08.ts` 校验连续登录写入两条记录。
 
 ### F-UP-04/05 Settings 安全日志 + i18n
 **文件：**
@@ -50,7 +50,7 @@
 
 ### F-UP-06 E2E 验证
 **文件：**
-- `scripts/test/user-profile-center-e2e-2026-04-08.ts`
+- `scripts/test/_archive_2026Q1Q2/user-profile-center-e2e-2026-04-08.ts`
 - `tests/e2e/user-profile-center.spec.ts`
 
 **改动：** Codex 提供自动化脚本与 UI 测试覆盖登录历史与 Sidebar/Settings。已在 L1 环境运行并产出报告。

@@ -6,7 +6,7 @@
 ## 测试环境
 - 环境：本地 L1（`http://localhost:3099`）
 - 启动方式：`bash scripts/test/codex-setup.sh` + `bash scripts/test/codex-wait.sh`
-- 测试脚本：`scripts/test/mcp-dx-round2-e2e-2026-04-06.ts`
+- 测试脚本：`scripts/test/_archive_2026Q1Q2/mcp-dx-round2-e2e-2026-04-06.ts`
 - 结果文件：`docs/test-reports/mcp-dx-round2-local-e2e-2026-04-06.json`
 
 ## 测试范围

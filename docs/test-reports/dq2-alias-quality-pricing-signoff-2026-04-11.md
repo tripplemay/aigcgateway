@@ -10,7 +10,7 @@
 对 DQ2 全部验收项执行复验，确认 fix round 1 后功能完整达标。
 
 ## 执行摘要
-- 执行脚本：`scripts/test/dq2-verifying-e2e-2026-04-11.ts`
+- 执行脚本：`scripts/test/_archive_2026Q1Q2/dq2-verifying-e2e-2026-04-11.ts`
 - 结果：7 PASS / 0 FAIL
 - 结论：通过签收
 

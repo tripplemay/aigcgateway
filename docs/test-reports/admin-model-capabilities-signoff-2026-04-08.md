@@ -32,7 +32,7 @@
 
 ### F-MC-07：E2E 验证（executor:codex）
 **测试资产：**
-- `scripts/test/admin-model-capabilities-e2e-2026-04-08.ts`
+- `scripts/test/_archive_2026Q1Q2/admin-model-capabilities-e2e-2026-04-08.ts`
 - `docs/test-cases/admin-model-capabilities-e2e-2026-04-08.md`
 
 **最终证据：**

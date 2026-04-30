@@ -52,7 +52,7 @@
   const ADMIN_PASSWORD = "Codex@2026!";
   const ADMIN_EMAIL = "codex-admin@aigc-gateway.local";
   ```
-  同样出现在: `scripts/test/bf-fork-project-switch-verifying-e2e-2026-04-10.ts:L49-L50`、`scripts/test/rate-limit-f-rl-08-verifying-e2e-2026-04-15.ts:L131-L132` 等 10+ 个文件。
+  同样出现在: `scripts/test/_archive_2026Q1Q2/bf-fork-project-switch-verifying-e2e-2026-04-10.ts:L49-L50`、`scripts/test/_archive_2026Q1Q2/rate-limit-f-rl-08-verifying-e2e-2026-04-15.ts:L131-L132` 等 10+ 个文件。
 - 攻击场景: 与 C2 相同，这些脚本通常由 CI/CD 执行，代码库中的密码明文可被任何有代码读取权限的成员使用。
 - 影响: 管理员账号凭据泄漏，同 C2。
 - 修复建议: 所有脚本中的密码改为 `process.env.ADMIN_PASSWORD ?? (() => { throw new Error("ADMIN_PASSWORD not set") })()`，禁止有任何硬编码 fallback 值。

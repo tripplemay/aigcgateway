@@ -13,7 +13,7 @@
 
 - Base URL: `http://localhost:3099`
 - 启动方式：`bash scripts/test/codex-setup.sh` + `bash scripts/test/codex-wait.sh`
-- 验收脚本：`scripts/test/ui-unify-verifying-e2e-2026-04-13.ts`
+- 验收脚本：`scripts/test/_archive_2026Q1Q2/ui-unify-verifying-e2e-2026-04-13.ts`
 - 原始报告：`docs/test-reports/ui-unify-verifying-local-e2e-2026-04-13.json`
 
 ## 验收结果

@@ -6,7 +6,7 @@
 - 账号：`codex-admin@aigc-gateway.local` / `Codex@2026!`
 
 ## 执行步骤
-1. 运行 `npx tsx scripts/test/bugfix-template-api-e2e-2026-04-08.ts`，脚本第一步调用 `/api/auth/login`。
+1. 运行 `npx tsx scripts/test/_archive_2026Q1Q2/bugfix-template-api-e2e-2026-04-08.ts`，脚本第一步调用 `/api/auth/login`。
 2. 直接用 `curl` 重试 `/api/auth/login`（同时测试 dev/admin 两个账号，移除 proxy），结果一致。
 
 ## 结果

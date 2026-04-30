@@ -6,7 +6,7 @@
 ## 测试环境
 - L1 本地：`http://localhost:3099`
 - 启动方式：`bash scripts/test/codex-setup.sh` + `bash scripts/test/codex-wait.sh`
-- 执行脚本：`source scripts/test/codex-env.sh && npx tsx scripts/test/u1-admin-user-detail-verifying-e2e-2026-04-10.ts`
+- 执行脚本：`source scripts/test/codex-env.sh && npx tsx scripts/test/_archive_2026Q1Q2/u1-admin-user-detail-verifying-e2e-2026-04-10.ts`
 - 结果 JSON：[u1-admin-user-detail-verifying-e2e-2026-04-10.json](/Users/yixingzhou/project/aigcgateway/docs/test-reports/u1-admin-user-detail-verifying-e2e-2026-04-10.json)
 
 ## 执行结果
@@ -26,7 +26,7 @@
    - 严重级别：Medium
    - 稳定复现：是
    - 复现步骤：
-   1. 执行 `source scripts/test/codex-env.sh && npx tsx scripts/test/u1-admin-user-detail-verifying-e2e-2026-04-10.ts`
+   1. 执行 `source scripts/test/codex-env.sh && npx tsx scripts/test/_archive_2026Q1Q2/u1-admin-user-detail-verifying-e2e-2026-04-10.ts`
    2. 查看 `GET /api/admin/users/:id` 的返回体中 `projects` 数组
    3. 返回项仅含 `id/name/callCount/createdAt`，缺少规格要求的 `keyCount`
    - 实际结果：

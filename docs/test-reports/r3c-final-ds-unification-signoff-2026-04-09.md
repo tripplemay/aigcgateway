@@ -32,7 +32,7 @@ R3C 目标是完成最终 DS 统一与 Auth/公共页面还原，覆盖：
 - `passCount=5`, `failCount=0`
 
 执行脚本：
-- `scripts/test/r3c-final-ds-unification-verifying-e2e-2026-04-09.ts`
+- `scripts/test/_archive_2026Q1Q2/r3c-final-ds-unification-verifying-e2e-2026-04-09.ts`
 
 ---
 

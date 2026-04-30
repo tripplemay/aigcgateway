@@ -11,7 +11,7 @@
 验证 ADMIN-UX 批次 11 条验收项：别名定价透明化、Channel 成本价展示、Models 只读化、拖拽优先级、健康摘要、调度策略 V2、健康页 bug 修复与 V2 设计稿还原。
 
 ## 执行摘要
-- 执行脚本：`scripts/test/admin-ux-health-v2-verifying-e2e-2026-04-11.ts`
+- 执行脚本：`scripts/test/_archive_2026Q1Q2/admin-ux-health-v2-verifying-e2e-2026-04-11.ts`
 - 结构化结果：`docs/test-reports/admin-ux-health-v2-verifying-e2e-2026-04-11.json`
 - 结果：11 PASS / 0 FAIL
 - 结论：通过签收

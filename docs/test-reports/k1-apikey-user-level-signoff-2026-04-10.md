@@ -21,10 +21,10 @@
 ## 关键证据
 - 复验脚本结果：[k1-apikey-user-level-verifying-e2e-2026-04-10.json](/Users/yixingzhou/project/aigcgateway/docs/test-reports/k1-apikey-user-level-verifying-e2e-2026-04-10.json)
 - 本地签收报告：[k1-apikey-user-level-signoff-2026-04-10.md](/Users/yixingzhou/project/aigcgateway/docs/test-reports/k1-apikey-user-level-signoff-2026-04-10.md)
-- 被测脚本：[k1-apikey-user-level-verifying-e2e-2026-04-10.ts](/Users/yixingzhou/project/aigcgateway/scripts/test/k1-apikey-user-level-verifying-e2e-2026-04-10.ts)
+- 被测脚本：[k1-apikey-user-level-verifying-e2e-2026-04-10.ts](/Users/yixingzhou/project/aigcgateway/scripts/test/_archive_2026Q1Q2/k1-apikey-user-level-verifying-e2e-2026-04-10.ts)
 
 ## 备注
-- 本轮执行时需要加载测试环境变量：`source scripts/test/codex-env.sh && npx tsx scripts/test/k1-apikey-user-level-verifying-e2e-2026-04-10.ts`
+- 本轮执行时需要加载测试环境变量：`source scripts/test/codex-env.sh && npx tsx scripts/test/_archive_2026Q1Q2/k1-apikey-user-level-verifying-e2e-2026-04-10.ts`
 - JSON 结果中的 `feature` 字段写为 `F-K1-09`，但当前批次实际验收项是 `F-K1-08`。这不影响业务验收结论，但属于测试产物编号不一致。
 
 ## 状态机更新

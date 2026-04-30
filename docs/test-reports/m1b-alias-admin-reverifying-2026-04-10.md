@@ -4,7 +4,7 @@
 - Batch: `M1b-alias-automation-admin-ui`
 - Feature: `F-M1b-06`
 - Env: L1 local (`http://localhost:3099`)
-- Script: `scripts/test/m1b-alias-admin-verifying-e2e-2026-04-10.ts`
+- Script: `scripts/test/_archive_2026Q1Q2/m1b-alias-admin-verifying-e2e-2026-04-10.ts`
 
 ## Result
 - Pass: `8`

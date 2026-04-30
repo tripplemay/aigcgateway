@@ -6,7 +6,7 @@
 ## 测试环境
 - 本地 L1：`http://localhost:3099`
 - 启动方式：`bash scripts/test/codex-setup.sh` + `bash scripts/test/codex-wait.sh`
-- API E2E：`scripts/test/ui-redesign-templates-actions-e2e-2026-04-06.ts`
+- API E2E：`scripts/test/_archive_2026Q1Q2/ui-redesign-templates-actions-e2e-2026-04-06.ts`
 - 浏览器：Chrome DevTools MCP（人工核验 + 截图）
 
 ## 执行步骤概述

@@ -3,7 +3,7 @@
 ## 环境
 - 脚本：`bash scripts/test/codex-setup.sh` + `bash scripts/test/codex-wait.sh`
 - BASE_URL：`http://localhost:3099`
-- 通过 `npx tsx scripts/test/mcp-capability-enhancement-e2e-2026-04-05.ts` 注入最小可用模型和 mock 渠道，再手工启用 image 模型（`openai/dall-e-3` / `openai/gpt-image-1` / `volcengine/seedream-4.5` / `zhipu/cogview-3`）。
+- 通过 `npx tsx scripts/test/_archive_2026Q1Q2/mcp-capability-enhancement-e2e-2026-04-05.ts` 注入最小可用模型和 mock 渠道，再手工启用 image 模型（`openai/dall-e-3` / `openai/gpt-image-1` / `volcengine/seedream-4.5` / `zhipu/cogview-3`）。
 - 测试项目：`cmnon51xm00qj9yy03ul4lkhf`（余额手工置为 $100 以覆盖 image 场景）
 
 > 说明：由于本地无真实 provider API Key，需要通过 mock server + 手工启用模型来复现批次目标数据。

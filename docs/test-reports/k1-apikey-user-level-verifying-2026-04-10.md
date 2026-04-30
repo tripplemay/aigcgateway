@@ -4,7 +4,7 @@
 - 批次：`K1-apikey-user-level`
 - 目标 Feature：`F-K1-09`
 - 环境：L1 本地 `http://localhost:3099`
-- 脚本：`scripts/test/k1-apikey-user-level-verifying-e2e-2026-04-10.ts`
+- 脚本：`scripts/test/_archive_2026Q1Q2/k1-apikey-user-level-verifying-e2e-2026-04-10.ts`
 - 执行时间：`2026-04-10T04:32:12.290Z`
 
 ## 结果概览

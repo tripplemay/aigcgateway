@@ -28,7 +28,7 @@
 - PRD / 验收标准：[features.json](/Users/yixingzhou/project/aigcgateway/features.json)
 - 代码路径：上述 7 个页面实现
 - 运行环境或预览地址：`http://localhost:3099`
-- 功能验证脚本：[scripts/test/ui-redesign-templates-actions-e2e-2026-04-06.ts](/Users/yixingzhou/project/aigcgateway/scripts/test/ui-redesign-templates-actions-e2e-2026-04-06.ts)
+- 功能验证脚本：[scripts/test/_archive_2026Q1Q2/ui-redesign-templates-actions-e2e-2026-04-06.ts](/Users/yixingzhou/project/aigcgateway/scripts/test/_archive_2026Q1Q2/ui-redesign-templates-actions-e2e-2026-04-06.ts)
 
 ## 3. 审查方法与限制
 

@@ -24,7 +24,7 @@
 1. 同步远端并读取状态机（`progress.json` / `features.json`）
 2. 重建本地 `3099` 测试环境
 3. 执行复验脚本：
-   - `BASE_URL=http://localhost:3099 OUTPUT_FILE=docs/test-reports/mcp-capability-enhancement-local-e2e-2026-04-06-rerun.json npx tsx scripts/test/mcp-capability-enhancement-e2e-2026-04-05.ts`
+   - `BASE_URL=http://localhost:3099 OUTPUT_FILE=docs/test-reports/mcp-capability-enhancement-local-e2e-2026-04-06-rerun.json npx tsx scripts/test/_archive_2026Q1Q2/mcp-capability-enhancement-e2e-2026-04-05.ts`
 4. 汇总复验结果并回写状态机
 
 ## 通过项

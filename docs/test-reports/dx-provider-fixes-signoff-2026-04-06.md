@@ -28,7 +28,7 @@
 1. `git pull --ff-only origin main`
 2. 读取状态机、角色分配、共享记忆
 3. 启动本地 3099 环境
-4. 执行 [scripts/test/dx-provider-fixes-reverification-2026-04-06.ts](/Users/yixingzhou/project/aigcgateway/scripts/test/dx-provider-fixes-reverification-2026-04-06.ts)
+4. 执行 [scripts/test/_archive_2026Q1Q2/dx-provider-fixes-reverification-2026-04-06.ts](/Users/yixingzhou/project/aigcgateway/scripts/test/_archive_2026Q1Q2/dx-provider-fixes-reverification-2026-04-06.ts)
 5. 在 model sync 完成后复跑，排除启动时序造成的空模型列表干扰
 6. 结合 `progress.json` 中的用户确认说明，完成最终签收判断
 
@@ -57,7 +57,7 @@
 - 复验报告
   [docs/test-reports/dx-provider-fixes-local-reverification-2026-04-06.md](/Users/yixingzhou/project/aigcgateway/docs/test-reports/dx-provider-fixes-local-reverification-2026-04-06.md)
 - 复验脚本
-  [scripts/test/dx-provider-fixes-reverification-2026-04-06.ts](/Users/yixingzhou/project/aigcgateway/scripts/test/dx-provider-fixes-reverification-2026-04-06.ts)
+  [scripts/test/_archive_2026Q1Q2/dx-provider-fixes-reverification-2026-04-06.ts](/Users/yixingzhou/project/aigcgateway/scripts/test/_archive_2026Q1Q2/dx-provider-fixes-reverification-2026-04-06.ts)
 
 ## 最终结论
 

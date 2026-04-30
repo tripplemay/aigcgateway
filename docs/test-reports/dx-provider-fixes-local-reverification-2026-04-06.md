@@ -12,7 +12,7 @@
 1. `git pull --ff-only origin main`
 2. 读取 `harness-rules.md`、`progress.json`、`features.json`、`.agent-id`、`.auto-memory/MEMORY.md`
 3. 启动本地 3099 测试环境并等待就绪
-4. 执行复验脚本 `scripts/test/dx-provider-fixes-reverification-2026-04-06.ts`
+4. 执行复验脚本 `scripts/test/_archive_2026Q1Q2/dx-provider-fixes-reverification-2026-04-06.ts`
 5. 读取 `LAST_SYNC_RESULT`、本地模型数据和 MCP tool 描述，生成复验结论
 
 ## 通过项
@@ -43,7 +43,7 @@
 - 结构化复验结果
   [docs/test-reports/dx-provider-fixes-local-reverification-2026-04-06.json](/Users/yixingzhou/project/aigcgateway/docs/test-reports/dx-provider-fixes-local-reverification-2026-04-06.json)
 - 复验脚本
-  [scripts/test/dx-provider-fixes-reverification-2026-04-06.ts](/Users/yixingzhou/project/aigcgateway/scripts/test/dx-provider-fixes-reverification-2026-04-06.ts)
+  [scripts/test/_archive_2026Q1Q2/dx-provider-fixes-reverification-2026-04-06.ts](/Users/yixingzhou/project/aigcgateway/scripts/test/_archive_2026Q1Q2/dx-provider-fixes-reverification-2026-04-06.ts)
 
 ## 最终结论
 

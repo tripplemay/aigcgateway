@@ -3,7 +3,7 @@
 - 批次：`ONBOARDING-ENHANCE`
 - 阶段：`verifying`
 - 环境：`http://localhost:3099`
-- 脚本：`scripts/test/onboarding-enhance-verifying-e2e-2026-04-17.ts`
+- 脚本：`scripts/test/_archive_2026Q1Q2/onboarding-enhance-verifying-e2e-2026-04-17.ts`
 
 ## 覆盖点
 

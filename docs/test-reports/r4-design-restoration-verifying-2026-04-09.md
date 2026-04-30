@@ -10,7 +10,7 @@
 
 - L1 Local：`http://localhost:3099`
 - 启动：`bash scripts/test/codex-setup.sh` + `bash scripts/test/codex-wait.sh`
-- 执行脚本：`npx tsx scripts/test/r4-design-restoration-verifying-e2e-2026-04-09.ts`
+- 执行脚本：`npx tsx scripts/test/_archive_2026Q1Q2/r4-design-restoration-verifying-e2e-2026-04-09.ts`
 
 ## 结果概览
 

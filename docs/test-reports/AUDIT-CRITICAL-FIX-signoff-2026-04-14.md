@@ -10,7 +10,7 @@
 - 批次：`AUDIT-CRITICAL-FIX`
 - 规格：`docs/specs/AUDIT-CRITICAL-FIX-spec.md`
 - 验收环境：`localhost:3099`（L1）
-- 验收脚本：`scripts/test/audit-critical-fix-f-acf-13-verifying-e2e-2026-04-14.ts`
+- 验收脚本：`scripts/test/_archive_2026Q1Q2/audit-critical-fix-f-acf-13-verifying-e2e-2026-04-14.ts`
 - 结果报告：`docs/test-reports/audit-critical-fix-f-acf-13-verifying-e2e-2026-04-14.json`
 
 ---

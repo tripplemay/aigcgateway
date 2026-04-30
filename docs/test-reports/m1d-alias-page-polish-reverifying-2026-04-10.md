@@ -10,7 +10,7 @@
 ## 测试环境
 - L1 本地：`http://localhost:3099`
 - 启动：`bash scripts/test/codex-setup.sh` + `bash scripts/test/codex-wait.sh`
-- 复验脚本：`scripts/test/m1d-alias-page-polish-reverifying-e2e-2026-04-10.ts`
+- 复验脚本：`scripts/test/_archive_2026Q1Q2/m1d-alias-page-polish-reverifying-e2e-2026-04-10.ts`
 - 结果文件：`docs/test-reports/m1d-alias-page-polish-reverifying-e2e-2026-04-10.json`
 - 本次执行时间：`2026-04-10T01:01:52.808Z`
 

@@ -3,7 +3,7 @@
 - Batch: `R3C-final-ds-unification`
 - Feature: `F-R3C-09` (executor: codex)
 - Environment: L1 local (`http://localhost:3099`, test DB)
-- Script: `scripts/test/r3c-final-ds-unification-verifying-e2e-2026-04-09.ts`
+- Script: `scripts/test/_archive_2026Q1Q2/r3c-final-ds-unification-verifying-e2e-2026-04-09.ts`
 
 ## Scope
 
@@ -31,7 +31,7 @@ bash scripts/test/codex-wait.sh
 
 ```bash
 source scripts/test/codex-env.sh
-npx tsx scripts/test/r3c-final-ds-unification-verifying-e2e-2026-04-09.ts
+npx tsx scripts/test/_archive_2026Q1Q2/r3c-final-ds-unification-verifying-e2e-2026-04-09.ts
 ```
 
 ## Expected

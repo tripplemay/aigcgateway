@@ -14,17 +14,17 @@
 
 ## 执行结果
 
-1. `npx tsx scripts/test/mcp-dx-round2-e2e-2026-04-06.ts`
+1. `npx tsx scripts/test/_archive_2026Q1Q2/mcp-dx-round2-e2e-2026-04-06.ts`
    - FAIL：`registerAndLogin: user not found in database`
-   - 报错点：`scripts/test/mcp-dx-round2-e2e-2026-04-06.ts:123`
+   - 报错点：`scripts/test/_archive_2026Q1Q2/mcp-dx-round2-e2e-2026-04-06.ts:123`
 
-2. `npx tsx scripts/test/mcp-finops-hardening-e2e-2026-04-07.ts`
+2. `npx tsx scripts/test/_archive_2026Q1Q2/mcp-finops-hardening-e2e-2026-04-07.ts`
    - FAIL：`registerAndLogin: user not found in database`
-   - 报错点：`scripts/test/mcp-finops-hardening-e2e-2026-04-07.ts:148`
+   - 报错点：`scripts/test/_archive_2026Q1Q2/mcp-finops-hardening-e2e-2026-04-07.ts:148`
 
-3. `npx tsx scripts/test/security-billing-polish-e2e-2026-04-07.ts`
+3. `npx tsx scripts/test/_archive_2026Q1Q2/security-billing-polish-e2e-2026-04-07.ts`
    - FAIL：`registerAndLogin: user not found in database`
-   - 报错点：`scripts/test/security-billing-polish-e2e-2026-04-07.ts:158`
+   - 报错点：`scripts/test/_archive_2026Q1Q2/security-billing-polish-e2e-2026-04-07.ts:158`
 
 ## 关键证据
 

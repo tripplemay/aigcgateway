@@ -3,7 +3,7 @@
 - Batch: `R4-design-restoration`
 - Feature: `F-R4-08` (executor: codex)
 - Environment: L1 local (`http://localhost:3099`)
-- Script: `scripts/test/r4-design-restoration-verifying-e2e-2026-04-09.ts`
+- Script: `scripts/test/_archive_2026Q1Q2/r4-design-restoration-verifying-e2e-2026-04-09.ts`
 
 ## Scope
 
@@ -25,7 +25,7 @@
 
 ```bash
 source scripts/test/codex-env.sh
-npx tsx scripts/test/r4-design-restoration-verifying-e2e-2026-04-09.ts
+npx tsx scripts/test/_archive_2026Q1Q2/r4-design-restoration-verifying-e2e-2026-04-09.ts
 ```
 
 ## Evidence

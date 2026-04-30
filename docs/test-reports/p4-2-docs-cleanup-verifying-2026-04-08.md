@@ -7,7 +7,7 @@
 
 ## Evidence
 
-- Script: `scripts/test/p4-2-docs-cleanup-e2e-2026-04-08.ts`
+- Script: `scripts/test/_archive_2026Q1Q2/p4-2-docs-cleanup-e2e-2026-04-08.ts`
 - Test cases: `docs/test-cases/p4-2-docs-cleanup-e2e-2026-04-08.md`
 - Execution output: `docs/test-reports/p4-2-docs-cleanup-e2e-2026-04-08.json`
 

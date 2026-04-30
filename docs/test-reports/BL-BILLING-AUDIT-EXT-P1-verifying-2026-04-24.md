@@ -42,7 +42,7 @@
 - migration diff：`docs/test-reports/artifacts/bl-billing-audit-ext-p1-verifying-2026-04-24/prisma-migrate-diff.sql`
 - BAX 测试计数：`docs/test-reports/artifacts/bl-billing-audit-ext-p1-verifying-2026-04-24/bax-test-counts.tsv`
 - 本地动态证据（#6/#7/#8/#9/#10/#12）：`docs/test-reports/artifacts/bl-billing-audit-ext-p1-verifying-2026-04-24/local-dynamic-evidence.json`
-- 执行脚本：`scripts/test/bl-billing-audit-ext-p1-verifying-2026-04-24.ts`
+- 执行脚本：`scripts/test/_archive_2026Q1Q2/bl-billing-audit-ext-p1-verifying-2026-04-24.ts`
 
 ## BLOCKED 明细（需补充条件）
 

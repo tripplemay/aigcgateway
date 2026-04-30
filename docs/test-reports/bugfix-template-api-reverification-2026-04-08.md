@@ -6,13 +6,13 @@
 - 账户：`codex-admin@aigc-gateway.local` / `Codex@2026!`
 
 ## 测试资产
-1. `npx tsx scripts/test/bugfix-template-api-e2e-2026-04-08.ts`
+1. `npx tsx scripts/test/_archive_2026Q1Q2/bugfix-template-api-e2e-2026-04-08.ts`
    - 新增 action 引用后，验证：
      - 正常创建多步骤 Template (`create baseline template`)
      - 缺失 order/重复 order 进入 400（REST 层）
      - MCP `create_template` 输入缺少 action_id → `isError=true`（结构化错误）
    - 结果：`docs/test-reports/bugfix-template-api-e2e-2026-04-08.json`
-2. `bash -lc 'source scripts/test/codex-env.sh && BASE_URL=http://localhost:3099 npx tsx scripts/test/p4-action-template-e2e-2026-04-05.ts'`
+2. `bash -lc 'source scripts/test/codex-env.sh && BASE_URL=http://localhost:3099 npx tsx scripts/test/_archive_2026Q1Q2/p4-action-template-e2e-2026-04-05.ts'`
    - 自动启动 mock provider（SSE）、设定用户余额、串行 + Fan-out Template 运行、MCP run_action/run_template、call_log & trace 校验。
    - 最新跑次输出：`docs/test-reports/p4-action-template-e2e-2026-04-08.json`
 3. 手工 API/MCP 验证

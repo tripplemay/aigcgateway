@@ -4,7 +4,7 @@
 - Batch: `M1a-alias-backend-core`
 - Feature: `F-M1a-06` (`executor: codex`)
 - Env: L1 local (`http://localhost:3099`)
-- Script: `scripts/test/m1a-alias-backend-verifying-e2e-2026-04-09.ts`
+- Script: `scripts/test/_archive_2026Q1Q2/m1a-alias-backend-verifying-e2e-2026-04-09.ts`
 
 ## Result
 - Pass: `6`

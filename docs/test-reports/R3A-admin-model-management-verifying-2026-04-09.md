@@ -45,7 +45,7 @@
   - 预期结果：中文模式下页面 UI 文案应为中文（业务数据名词除外）。
 
 ## 风险项
-- R1：`scripts/test/p4-1c-admin-pages-e2e-2026-04-08.ts` 在当前库环境执行失败（`models.supportedSizes` 列缺失），本轮改用页面+API 实测覆盖验收点。该问题不阻塞本次结论，但需后续统一脚本与测试库 schema。
+- R1：`scripts/test/_archive_2026Q1Q2/p4-1c-admin-pages-e2e-2026-04-08.ts` 在当前库环境执行失败（`models.supportedSizes` 列缺失），本轮改用页面+API 实测覆盖验收点。该问题不阻塞本次结论，但需后续统一脚本与测试库 schema。
 
 ## 结论
 - 本轮结论：`未通过`

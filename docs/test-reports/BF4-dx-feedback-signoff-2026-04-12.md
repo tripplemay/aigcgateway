@@ -20,7 +20,7 @@
 - 环境：本地 L1（`http://localhost:3099`）
 - 启动方式：`bash scripts/test/codex-setup.sh` + `bash scripts/test/codex-wait.sh`
 - 代码版本：`2ee7ec5`
-- 执行脚本：`scripts/test/bf4-verifying-e2e-2026-04-12.ts`
+- 执行脚本：`scripts/test/_archive_2026Q1Q2/bf4-verifying-e2e-2026-04-12.ts`
 - 证据报告：`docs/test-reports/bf4-verifying-e2e-2026-04-12.json`
 
 ## 执行结果

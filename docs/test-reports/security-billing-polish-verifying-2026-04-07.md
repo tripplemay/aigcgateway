@@ -2,7 +2,7 @@
 
 - 测试目标：执行 F-SB-04 E2E，并验收 F-SB-01~F-SB-03
 - 测试环境：L1 本地 `http://localhost:3099`
-- 执行脚本：`scripts/test/security-billing-polish-e2e-2026-04-07.ts`
+- 执行脚本：`scripts/test/_archive_2026Q1Q2/security-billing-polish-e2e-2026-04-07.ts`
 - JSON 证据：`docs/test-reports/security-billing-polish-reverifying-local-e2e-2026-04-07.json`
 
 ## 结果

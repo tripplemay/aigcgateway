@@ -52,7 +52,7 @@
       "title": "scripts/test/ 历史 dated 脚本归档（69 文件 → _archive 目录）",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "source": "BL-TEST-INFRA-IMPORT spec § F-TI-06",
       "acceptance": "1) mkdir -p scripts/test/_archive_2026Q1Q2；2) git mv scripts/test/*-YYYY-MM-DD.ts scripts/test/_archive_2026Q1Q2/；同上 .tsx；3) keep：codex-env.sh / codex-setup.sh / codex-wait.sh 在 scripts/test/ 根；4) scripts/seed-* 不动（产线必需）；5) 全仓 grep 引用 'scripts/test/.*-202' → 修任何 broken reference（CLAUDE.md / docs/* 可能引用 dated 脚本路径）；6) docs/dev/rules.md 标注：dated e2e 写到 _archive_，新批次 verifying e2e 写到 tests/e2e/；7) tsc + build 通过"
     },

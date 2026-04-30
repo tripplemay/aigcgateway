@@ -13,7 +13,7 @@
 
 ## 复验范围与结果
 
-- 复验脚本：`scripts/test/audit-sec-verifying-e2e-2026-04-13.ts`
+- 复验脚本：`scripts/test/_archive_2026Q1Q2/audit-sec-verifying-e2e-2026-04-13.ts`
 - 原始证据：`docs/test-reports/audit-sec-verifying-local-e2e-2026-04-13.json`
 - 环境：`http://localhost:3099`（L1 本地）
 

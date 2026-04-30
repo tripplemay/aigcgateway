@@ -14,7 +14,7 @@ F-R1-13：基础组件 + Dashboard 视觉回归验收。
 3. 检查 Dashboard 加载与 console。
 4. 检查 Sidebar active 样式是否为 accent pill（排除 `border-l-4`）。
 5. 运行脚本验证 SearchBar/Pagination import + render：
-   - `npx tsx scripts/test/r1-design-system-foundation-e2e-2026-04-08.tsx`
+   - `npx tsx scripts/test/_archive_2026Q1Q2/r1-design-system-foundation-e2e-2026-04-08.tsx`
 
 ## 通过项
 - AC1 Dashboard 可正常加载。
@@ -31,7 +31,7 @@ F-R1-13：基础组件 + Dashboard 视觉回归验收。
 
 ## 证据
 - 用例：`docs/test-cases/r1-design-system-foundation-e2e-2026-04-08.md`
-- 脚本：`scripts/test/r1-design-system-foundation-e2e-2026-04-08.tsx`
+- 脚本：`scripts/test/_archive_2026Q1Q2/r1-design-system-foundation-e2e-2026-04-08.tsx`
 - 脚本结果：`docs/test-reports/r1-design-system-foundation-e2e-2026-04-08.json`
 
 ## 最终结论

@@ -14,7 +14,7 @@
   - `bash scripts/test/codex-wait.sh`
 - 执行：
   - `source scripts/test/codex-env.sh`
-  - `npx tsx scripts/test/r3c-final-ds-unification-verifying-e2e-2026-04-09.ts`
+  - `npx tsx scripts/test/_archive_2026Q1Q2/r3c-final-ds-unification-verifying-e2e-2026-04-09.ts`
 
 ## 结果概览
 

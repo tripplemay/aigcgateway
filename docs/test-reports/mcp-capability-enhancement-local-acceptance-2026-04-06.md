@@ -41,7 +41,7 @@
    - `openrouter-whitelist.ts` 是否删除
    - `SERVER_INSTRUCTIONS` 是否包含新版说明
 5. 运行专用脚本：
-   - [mcp-capability-enhancement-e2e-2026-04-05.ts](/Users/yixingzhou/project/aigcgateway/scripts/test/mcp-capability-enhancement-e2e-2026-04-05.ts)
+   - [mcp-capability-enhancement-e2e-2026-04-05.ts](/Users/yixingzhou/project/aigcgateway/scripts/test/_archive_2026Q1Q2/mcp-capability-enhancement-e2e-2026-04-05.ts)
 6. 汇总 MCP E2E 结果并回写状态机
 
 ## 通过项

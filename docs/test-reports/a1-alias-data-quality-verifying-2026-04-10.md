@@ -20,7 +20,7 @@
 - L1 本地：`localhost:3099`
 - 本地启动：`bash scripts/test/codex-setup.sh` + `bash scripts/test/codex-wait.sh`
 - 本地动态脚本：
-  - [a1-alias-data-quality-verifying-e2e-2026-04-10.ts](/Users/yixingzhou/project/aigcgateway/scripts/test/a1-alias-data-quality-verifying-e2e-2026-04-10.ts)
+  - [a1-alias-data-quality-verifying-e2e-2026-04-10.ts](/Users/yixingzhou/project/aigcgateway/scripts/test/_archive_2026Q1Q2/a1-alias-data-quality-verifying-e2e-2026-04-10.ts)
   - [a1-alias-data-quality-verifying-2026-04-10.json](/Users/yixingzhou/project/aigcgateway/docs/test-reports/a1-alias-data-quality-verifying-2026-04-10.json)
 - 生产只读核对：
   - 通过 SSH 到 `/opt/aigc-gateway` 执行只读 Prisma 查询

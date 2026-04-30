@@ -78,8 +78,8 @@
   - `scripts/admin-auth.ts:5-6` — `ADMIN_PASSWORD = "Codex@2026!"` (email: `codex-admin@aigc-gateway.local`)
   - `scripts/stress-test.ts:12-13` — 同上
   - `scripts/test/template-governance-eval.mjs:89-93`
-  - `scripts/test/bf-fork-project-switch-verifying-e2e-2026-04-10.ts:49-50`
-  - `scripts/test/rate-limit-f-rl-08-verifying-e2e-2026-04-15.ts:131-132`
+  - `scripts/test/_archive_2026Q1Q2/bf-fork-project-switch-verifying-e2e-2026-04-10.ts:49-50`
+  - `scripts/test/_archive_2026Q1Q2/rate-limit-f-rl-08-verifying-e2e-2026-04-15.ts:131-132`
   - 另外 5+ 个 `scripts/test/*.ts` 文件
 - **现象：** 明文密码已进入 git 历史，永久可见。
 - **影响：** 任何有代码读权限者均可直接登录生产管理员账号。

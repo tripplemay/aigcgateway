@@ -17,7 +17,7 @@
 ## 执行摘要
 
 - 使用 `scripts/test/codex-setup.sh` + `scripts/test/codex-wait.sh` 启动本地测试环境
-- 执行 `scripts/test/mcp-finops-hardening-e2e-2026-04-07.ts`
+- 执行 `scripts/test/_archive_2026Q1Q2/mcp-finops-hardening-e2e-2026-04-07.ts`
 - 结果：9/9 检查项通过（fail=0）
 
 ## 通过项

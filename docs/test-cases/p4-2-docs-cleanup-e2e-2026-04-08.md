@@ -3,7 +3,7 @@
 - Batch: `P4-2-docs-cleanup`
 - Feature: `F-P4D-04` (executor: codex)
 - Environment: L1 local (`http://localhost:3099`)
-- Script: `scripts/test/p4-2-docs-cleanup-e2e-2026-04-08.ts`
+- Script: `scripts/test/_archive_2026Q1Q2/p4-2-docs-cleanup-e2e-2026-04-08.ts`
 
 ## Scope
 
@@ -20,7 +20,7 @@
 ## Execute
 
 ```bash
-npx tsx scripts/test/p4-2-docs-cleanup-e2e-2026-04-08.ts
+npx tsx scripts/test/_archive_2026Q1Q2/p4-2-docs-cleanup-e2e-2026-04-08.ts
 ```
 
 ## Output

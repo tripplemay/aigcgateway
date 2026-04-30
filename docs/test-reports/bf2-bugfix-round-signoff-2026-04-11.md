@@ -10,7 +10,7 @@
 验证 BF2 七项缺陷修复：参考定价回填、千位分隔展示、生效价格 placeholder、LLM 分类规则、MiniMax sync、Layer1 warning 可见化、"引擎类型"标签。
 
 ## 执行摘要
-- 执行脚本：`scripts/test/bf2-verifying-e2e-2026-04-12.ts`
+- 执行脚本：`scripts/test/_archive_2026Q1Q2/bf2-verifying-e2e-2026-04-12.ts`
 - 结构化结果：`docs/test-reports/bf2-verifying-e2e-2026-04-12.json`
 - 结果：8 PASS / 0 FAIL（含 tsc）
 - 结论：通过签收

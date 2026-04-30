@@ -16,7 +16,7 @@
 
 - Automated report: `docs/test-reports/p4-1c-admin-pages-e2e-2026-04-08.json`
 - Test cases: `docs/test-cases/p4-1c-admin-pages-e2e-2026-04-08.md`
-- Script: `scripts/test/p4-1c-admin-pages-e2e-2026-04-08.ts`
+- Script: `scripts/test/_archive_2026Q1Q2/p4-1c-admin-pages-e2e-2026-04-08.ts`
 
 ## Acceptance Check
 

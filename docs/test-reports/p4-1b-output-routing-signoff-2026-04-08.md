@@ -26,7 +26,7 @@
 
 ### F-P4B-05：E2E 验证（executor:codex）
 **测试资产：**
-- `scripts/test/p4-1b-output-routing-e2e-2026-04-08.ts`
+- `scripts/test/_archive_2026Q1Q2/p4-1b-output-routing-e2e-2026-04-08.ts`
 - `docs/test-cases/p4-1b-output-routing-e2e-2026-04-08.md`
 
 **最终证据：**

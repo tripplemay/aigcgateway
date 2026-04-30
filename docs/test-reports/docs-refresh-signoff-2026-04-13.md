@@ -15,7 +15,7 @@
 - 执行时间：2026-04-13
 
 ## 执行证据
-- 自动化验收脚本：`scripts/test/docs-refresh-fdr04-verifying-e2e-2026-04-13.ts`
+- 自动化验收脚本：`scripts/test/_archive_2026Q1Q2/docs-refresh-fdr04-verifying-e2e-2026-04-13.ts`
 - 结果 JSON：`docs/test-reports/docs-refresh-fdr04-verifying-e2e-2026-04-13.json`
 
 ## 验收结果

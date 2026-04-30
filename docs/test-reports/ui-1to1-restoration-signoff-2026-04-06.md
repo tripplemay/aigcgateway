@@ -31,7 +31,7 @@
   - [src/app/(console)/templates/new/page.tsx](/Users/yixingzhou/project/aigcgateway/src/app/(console)/templates/new/page.tsx)
   - [src/app/(console)/admin/templates/page.tsx](/Users/yixingzhou/project/aigcgateway/src/app/(console)/admin/templates/page.tsx)
 - L1 脚本：
-  - [scripts/test/ui-redesign-templates-actions-e2e-2026-04-06.ts](/Users/yixingzhou/project/aigcgateway/scripts/test/ui-redesign-templates-actions-e2e-2026-04-06.ts)
+  - [scripts/test/_archive_2026Q1Q2/ui-redesign-templates-actions-e2e-2026-04-06.ts](/Users/yixingzhou/project/aigcgateway/scripts/test/_archive_2026Q1Q2/ui-redesign-templates-actions-e2e-2026-04-06.ts)
   - [docs/test-reports/ui-redesign-templates-actions-local-e2e-2026-04-06.json](/Users/yixingzhou/project/aigcgateway/docs/test-reports/ui-redesign-templates-actions-local-e2e-2026-04-06.json)
 
 ## 执行步骤概述

@@ -17,15 +17,15 @@
 1. `npx vitest run`
    - PASS：`11/11`
 
-2. `npx tsx scripts/test/mcp-dx-round2-e2e-2026-04-06.ts`
+2. `npx tsx scripts/test/_archive_2026Q1Q2/mcp-dx-round2-e2e-2026-04-06.ts`
    - PASS：`11 passed / 0 failed`
 
-3. `npx tsx scripts/test/mcp-finops-hardening-e2e-2026-04-07.ts`
+3. `npx tsx scripts/test/_archive_2026Q1Q2/mcp-finops-hardening-e2e-2026-04-07.ts`
    - FAIL：`8 passed / 1 failed`
    - 失败点：
      - `F-MH-01 generate_image invalid size no upstream leak`：期望错误，但实际成功返回 mock image
 
-4. `npx tsx scripts/test/security-billing-polish-e2e-2026-04-07.ts`
+4. `npx tsx scripts/test/_archive_2026Q1Q2/security-billing-polish-e2e-2026-04-07.ts`
    - PASS：`5 passed / 0 failed`
 
 ## 结论说明

@@ -23,7 +23,7 @@
   - [src/app/(console)/actions/[actionId]/page.tsx](/Users/yixingzhou/project/aigcgateway/src/app/(console)/actions/%5BactionId%5D/page.tsx)
   - [src/app/(console)/templates/[templateId]/page.tsx](/Users/yixingzhou/project/aigcgateway/src/app/(console)/templates/%5BtemplateId%5D/page.tsx)
 - 脚本验证：
-  - [scripts/test/ui-redesign-templates-actions-e2e-2026-04-06.ts](/Users/yixingzhou/project/aigcgateway/scripts/test/ui-redesign-templates-actions-e2e-2026-04-06.ts)
+  - [scripts/test/_archive_2026Q1Q2/ui-redesign-templates-actions-e2e-2026-04-06.ts](/Users/yixingzhou/project/aigcgateway/scripts/test/_archive_2026Q1Q2/ui-redesign-templates-actions-e2e-2026-04-06.ts)
   - [docs/test-reports/ui-redesign-templates-actions-local-e2e-2026-04-06.json](/Users/yixingzhou/project/aigcgateway/docs/test-reports/ui-redesign-templates-actions-local-e2e-2026-04-06.json)
 
 ## 执行步骤概述

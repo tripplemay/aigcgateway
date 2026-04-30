@@ -26,7 +26,7 @@
 - `docs/test-reports/p6-verifying-e2e-2026-04-11.json`
 
 执行脚本：
-- `scripts/test/p6-verifying-e2e-2026-04-11.ts`
+- `scripts/test/_archive_2026Q1Q2/p6-verifying-e2e-2026-04-11.ts`
 
 ---
 

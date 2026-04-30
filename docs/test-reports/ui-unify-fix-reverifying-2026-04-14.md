@@ -10,7 +10,7 @@
 - 执行时间：2026-04-14
 
 ## 测试证据
-- 验收脚本：`scripts/test/ui-unify-fix-fuf06-verifying-e2e-2026-04-13.ts`
+- 验收脚本：`scripts/test/_archive_2026Q1Q2/ui-unify-fix-fuf06-verifying-e2e-2026-04-13.ts`
 - 结果 JSON：`docs/test-reports/ui-unify-fix-fuf06-verifying-e2e-2026-04-13.json`
 
 ## 复验结果

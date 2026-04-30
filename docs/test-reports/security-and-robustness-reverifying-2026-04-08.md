@@ -7,7 +7,7 @@
 
 ## Executed Artifacts
 - Test case: `docs/test-cases/security-and-robustness-e2e-2026-04-08.md`
-- Test script: `scripts/test/security-and-robustness-e2e-2026-04-08.ts`
+- Test script: `scripts/test/_archive_2026Q1Q2/security-and-robustness-e2e-2026-04-08.ts`
 - Evidence JSON: `docs/test-reports/security-and-robustness-e2e-2026-04-08.json`
 
 ## Result Summary

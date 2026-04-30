@@ -40,7 +40,7 @@
 ## 证据文件
 
 - 结构化证据 JSON：`docs/test-reports/artifacts/bl-sec-billing-ai-verifying-2026-04-18/local-evidence.json`
-- 执行脚本：`scripts/test/bl-sec-billing-ai-verifying-e2e-2026-04-18.ts`
+- 执行脚本：`scripts/test/_archive_2026Q1Q2/bl-sec-billing-ai-verifying-e2e-2026-04-18.ts`
 
 ## 风险与备注
 

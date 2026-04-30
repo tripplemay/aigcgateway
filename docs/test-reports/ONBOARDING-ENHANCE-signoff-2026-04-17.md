@@ -20,7 +20,7 @@
 - 地址：`http://localhost:3099`
 - 启动：`scripts/test/codex-setup.sh` + `scripts/test/codex-wait.sh`
 - 用例：`docs/test-cases/onboarding-enhance-verifying-cases-2026-04-17.md`
-- 脚本：`scripts/test/onboarding-enhance-verifying-e2e-2026-04-17.ts`
+- 脚本：`scripts/test/_archive_2026Q1Q2/onboarding-enhance-verifying-e2e-2026-04-17.ts`
 - 报告：`docs/test-reports/onboarding-enhance-verifying-local-e2e-2026-04-17.json`
 
 ---

@@ -7,13 +7,13 @@
 
 ## 测试资产
 1. `docs/test-cases/user-profile-center-local-test-cases-2026-04-08.md`
-2. `scripts/test/user-profile-center-e2e-2026-04-08.ts`
+2. `scripts/test/_archive_2026Q1Q2/user-profile-center-e2e-2026-04-08.ts`
 3. `tests/e2e/user-profile-center.spec.ts`（Playwright WebKit）
 
 ## 执行记录
 | 顺序 | 资产 | 结果 | 产物 |
 | --- | --- | --- | --- |
-| 1 | `npx tsx scripts/test/user-profile-center-e2e-2026-04-08.ts` | PASS | `docs/test-reports/user-profile-center-e2e-2026-04-08.json` |
+| 1 | `npx tsx scripts/test/_archive_2026Q1Q2/user-profile-center-e2e-2026-04-08.ts` | PASS | `docs/test-reports/user-profile-center-e2e-2026-04-08.json` |
 | 2 | `npx playwright test tests/e2e/user-profile-center.spec.ts --browser=webkit` | PASS | `docs/test-reports/user-profile-center-playwright-report.json` |
 
 ## 结果概要

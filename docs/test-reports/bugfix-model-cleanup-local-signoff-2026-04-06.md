@@ -6,7 +6,7 @@
 ## 测试环境
 - 本地 L1：`http://localhost:3099`
 - 启动方式：`bash scripts/test/codex-setup.sh` + `bash scripts/test/codex-wait.sh`
-- E2E 脚本：`scripts/test/bugfix-model-cleanup-e2e-2026-04-06.ts`
+- E2E 脚本：`scripts/test/_archive_2026Q1Q2/bugfix-model-cleanup-e2e-2026-04-06.ts`
 
 ## 测试范围
 - F-CLN-02：清理脚本 dry-run 输出校验

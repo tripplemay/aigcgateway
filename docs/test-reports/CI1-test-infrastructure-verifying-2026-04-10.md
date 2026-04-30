@@ -18,28 +18,28 @@
    - 结果：PASS
    - 数据：`1` file, `11` tests 全通过（鉴权模块 `authenticateApiKey`）
 
-2. `npx tsx scripts/test/mcp-dx-round2-e2e-2026-04-06.ts`
+2. `npx tsx scripts/test/_archive_2026Q1Q2/mcp-dx-round2-e2e-2026-04-06.ts`
    - 结果：FAIL
    - 错误：`ReferenceError: MOCK_BASE is not defined`
-   - 位置：`scripts/test/mcp-dx-round2-e2e-2026-04-06.ts:189`
+   - 位置：`scripts/test/_archive_2026Q1Q2/mcp-dx-round2-e2e-2026-04-06.ts:189`
 
-3. `npx tsx scripts/test/mcp-finops-hardening-e2e-2026-04-07.ts`
+3. `npx tsx scripts/test/_archive_2026Q1Q2/mcp-finops-hardening-e2e-2026-04-07.ts`
    - 结果：FAIL
    - 错误：`ReferenceError: MOCK_BASE is not defined`
-   - 位置：`scripts/test/mcp-finops-hardening-e2e-2026-04-07.ts:218`
+   - 位置：`scripts/test/_archive_2026Q1Q2/mcp-finops-hardening-e2e-2026-04-07.ts:218`
 
-4. `npx tsx scripts/test/security-billing-polish-e2e-2026-04-07.ts`
+4. `npx tsx scripts/test/_archive_2026Q1Q2/security-billing-polish-e2e-2026-04-07.ts`
    - 结果：FAIL
    - 错误：`ReferenceError: MOCK_BASE is not defined`
-   - 位置：`scripts/test/security-billing-polish-e2e-2026-04-07.ts:207`
+   - 位置：`scripts/test/_archive_2026Q1Q2/security-billing-polish-e2e-2026-04-07.ts:207`
 
 ## 代码证据
 
 - 三个脚本均存在 `data: { baseUrl: MOCK_BASE, ... }` 的调用，但文件顶部未定义 `MOCK_BASE` 常量。
 - 可见行：
-  - `scripts/test/mcp-dx-round2-e2e-2026-04-06.ts:189`
-  - `scripts/test/mcp-finops-hardening-e2e-2026-04-07.ts:218`
-  - `scripts/test/security-billing-polish-e2e-2026-04-07.ts:207`
+  - `scripts/test/_archive_2026Q1Q2/mcp-dx-round2-e2e-2026-04-06.ts:189`
+  - `scripts/test/_archive_2026Q1Q2/mcp-finops-hardening-e2e-2026-04-07.ts:218`
+  - `scripts/test/_archive_2026Q1Q2/security-billing-polish-e2e-2026-04-07.ts:207`
 
 ## 影响评估
 

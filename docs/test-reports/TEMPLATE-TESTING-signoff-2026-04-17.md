@@ -20,7 +20,7 @@
 - 环境：L1 本地
 - 服务地址：`http://localhost:3099`
 - 启动方式：`scripts/test/codex-setup.sh` + `scripts/test/codex-wait.sh`
-- 验收脚本：`scripts/test/template-testing-verifying-e2e-2026-04-17.ts`
+- 验收脚本：`scripts/test/_archive_2026Q1Q2/template-testing-verifying-e2e-2026-04-17.ts`
 - 结果报告：`docs/test-reports/template-testing-verifying-local-e2e-2026-04-17.json`
 
 ---

@@ -51,7 +51,7 @@
 - 结果：`PASS`
 - 证据：
   - `src/lib/health/checker.ts` 中图片检查在 `FORMAT` 通过后直接 `return`
-  - 通过测试脚本 `scripts/test/evaluator-cost-bug-batch-2026-04-04.ts` 实测：
+  - 通过测试脚本 `scripts/test/_archive_2026Q1Q2/evaluator-cost-bug-batch-2026-04-04.ts` 实测：
     - `imageCalls = 1`
     - `chatCalls = 0`
     - 返回 level 仅有 `CONNECTIVITY`、`FORMAT`
@@ -63,7 +63,7 @@
 - 证据：
   - `src/lib/sync/doc-enricher.ts` 中将 `existingModels` 分为 `textModels` 与 `imageModels`
   - 当输入仅包含图片模型时直接返回 `aiEnriched = 0`
-  - 通过测试脚本 `scripts/test/evaluator-cost-bug-batch-2026-04-04.ts` 实测：
+  - 通过测试脚本 `scripts/test/_archive_2026Q1Q2/evaluator-cost-bug-batch-2026-04-04.ts` 实测：
     - 纯图片模型输入未触发 DeepSeek AI 调用
     - 混合输入时仅文本模型参与 AI merge，图片模型原样保留
 

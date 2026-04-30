@@ -9,7 +9,7 @@
 
 - L1 Local：`http://localhost:3099`
 - 启动：`bash scripts/test/codex-setup.sh` + `bash scripts/test/codex-wait.sh`
-- 脚本：`scripts/test/p5-public-templates-verifying-e2e-2026-04-09.ts`
+- 脚本：`scripts/test/_archive_2026Q1Q2/p5-public-templates-verifying-e2e-2026-04-09.ts`
 - 输出：`docs/test-reports/p5-public-templates-reverifying-e2e-2026-04-09-round3.json`
 
 ## 结果概览

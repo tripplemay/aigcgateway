@@ -34,7 +34,7 @@
 
 1. 本地执行报告：`docs/test-reports/bl-sec-billing-ai-verifying-local-2026-04-18.md`
 2. 结构化证据：`docs/test-reports/artifacts/bl-sec-billing-ai-verifying-2026-04-18/local-evidence.json`
-3. 执行脚本：`scripts/test/bl-sec-billing-ai-verifying-e2e-2026-04-18.ts`
+3. 执行脚本：`scripts/test/_archive_2026Q1Q2/bl-sec-billing-ai-verifying-e2e-2026-04-18.ts`
 
 ## 最终结论
 

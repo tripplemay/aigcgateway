@@ -17,15 +17,15 @@
 1. `npx vitest run`
    - PASS：`11/11`（鉴权模块）
 
-2. `npx tsx scripts/test/mcp-dx-round2-e2e-2026-04-06.ts`
+2. `npx tsx scripts/test/_archive_2026Q1Q2/mcp-dx-round2-e2e-2026-04-06.ts`
    - FAIL：脚本结果 `passed=2, failed=9`
    - 主要失败：`no_project`、`insufficient_balance`、空模型列表断言失败
 
-3. `npx tsx scripts/test/mcp-finops-hardening-e2e-2026-04-07.ts`
+3. `npx tsx scripts/test/_archive_2026Q1Q2/mcp-finops-hardening-e2e-2026-04-07.ts`
    - FAIL：脚本结果 `pass=3, fail=6`
    - 主要失败：`no_project`、`insufficient_balance`
 
-4. `npx tsx scripts/test/security-billing-polish-e2e-2026-04-07.ts`
+4. `npx tsx scripts/test/_archive_2026Q1Q2/security-billing-polish-e2e-2026-04-07.ts`
    - FAIL：脚本结果 `pass=3, fail=2`
    - 关键失败：
      - `F-SB-03` 被余额不足拦截（未命中预期空内容错误分支）

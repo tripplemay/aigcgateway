@@ -7,7 +7,7 @@
 - 阶段：L1 本地验收
 - 地址：`http://localhost:3099`
 - 启动检查：`bash scripts/test/codex-wait.sh` Ready
-- 执行脚本：`npx tsx scripts/test/m1c-models-topbar-verifying-e2e-2026-04-10.ts`
+- 执行脚本：`npx tsx scripts/test/_archive_2026Q1Q2/m1c-models-topbar-verifying-e2e-2026-04-10.ts`
 - 结果文件：`docs/test-reports/m1c-models-topbar-verifying-e2e-2026-04-10.json`
 
 ## 测试范围

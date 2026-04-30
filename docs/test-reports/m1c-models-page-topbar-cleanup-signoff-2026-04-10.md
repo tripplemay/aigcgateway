@@ -43,7 +43,7 @@
 
 - 环境：L1 本地（`http://localhost:3099`）
 - 就绪检查：`bash scripts/test/codex-wait.sh`
-- 复验脚本：`scripts/test/m1c-models-topbar-verifying-e2e-2026-04-10.ts`
+- 复验脚本：`scripts/test/_archive_2026Q1Q2/m1c-models-topbar-verifying-e2e-2026-04-10.ts`
 - 结果文件：`docs/test-reports/m1c-models-topbar-verifying-e2e-2026-04-10.json`
 - 结果摘要：`passCount=6`，`failCount=0`
 

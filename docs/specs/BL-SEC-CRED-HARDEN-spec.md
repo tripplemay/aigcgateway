@@ -25,8 +25,8 @@ process.env.IMAGE_PROXY_SECRET ?? AUTH_SECRET ?? NEXTAUTH_SECRET ?? "aigc-gatewa
 - `scripts/admin-auth.ts:5-6` — `"Codex@2026!"` (email: `codex-admin@aigc-gateway.local`)
 - `scripts/stress-test.ts:12-13` — 同上
 - `scripts/test/template-governance-eval.mjs:89-93`
-- `scripts/test/bf-fork-project-switch-verifying-e2e-2026-04-10.ts:49-50`
-- `scripts/test/rate-limit-f-rl-08-verifying-e2e-2026-04-15.ts:131-132`
+- `scripts/test/_archive_2026Q1Q2/bf-fork-project-switch-verifying-e2e-2026-04-10.ts:49-50`
+- `scripts/test/_archive_2026Q1Q2/rate-limit-f-rl-08-verifying-e2e-2026-04-15.ts:131-132`
 - 另外 5+ 个 `scripts/test/*.ts`
 
 **用户负责：** 生产 admin 密码由用户自行轮换（2026-04-17 同步确认）。
@@ -68,8 +68,8 @@ process.env.IMAGE_PROXY_SECRET ?? AUTH_SECRET ?? NEXTAUTH_SECRET ?? "aigc-gatewa
 - `scripts/admin-auth.ts`
 - `scripts/stress-test.ts`
 - `scripts/test/template-governance-eval.mjs`
-- `scripts/test/bf-fork-project-switch-verifying-e2e-2026-04-10.ts`
-- `scripts/test/rate-limit-f-rl-08-verifying-e2e-2026-04-15.ts`
+- `scripts/test/_archive_2026Q1Q2/bf-fork-project-switch-verifying-e2e-2026-04-10.ts`
+- `scripts/test/_archive_2026Q1Q2/rate-limit-f-rl-08-verifying-e2e-2026-04-15.ts`
 - 另外 5+ 个 `scripts/test/*.ts`（用 `git grep -l "Codex@2026\\!"` 枚举）
 - `scripts/e2e-test.ts` 等含 `Test1234` 的 E2E 脚本
 

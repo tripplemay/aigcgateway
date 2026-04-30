@@ -17,20 +17,20 @@
 1. `npx vitest run`
    - PASS：`11/11` 用例通过（鉴权模块）
 
-2. `npx tsx scripts/test/mcp-dx-round2-e2e-2026-04-06.ts`
+2. `npx tsx scripts/test/_archive_2026Q1Q2/mcp-dx-round2-e2e-2026-04-06.ts`
    - FAIL：`PrismaClientValidationError`
    - 关键信息：`Unknown argument providerId_modelId_realModelId`
-   - 报错点：`scripts/test/mcp-dx-round2-e2e-2026-04-06.ts:197`
+   - 报错点：`scripts/test/_archive_2026Q1Q2/mcp-dx-round2-e2e-2026-04-06.ts:197`
 
-3. `npx tsx scripts/test/mcp-finops-hardening-e2e-2026-04-07.ts`
+3. `npx tsx scripts/test/_archive_2026Q1Q2/mcp-finops-hardening-e2e-2026-04-07.ts`
    - FAIL：`PrismaClientValidationError`
    - 关键信息：`Unknown argument providerId_modelId_realModelId`
-   - 报错点：`scripts/test/mcp-finops-hardening-e2e-2026-04-07.ts:226`
+   - 报错点：`scripts/test/_archive_2026Q1Q2/mcp-finops-hardening-e2e-2026-04-07.ts:226`
 
-4. `npx tsx scripts/test/security-billing-polish-e2e-2026-04-07.ts`
+4. `npx tsx scripts/test/_archive_2026Q1Q2/security-billing-polish-e2e-2026-04-07.ts`
    - FAIL：`PrismaClientValidationError`
    - 关键信息：`Unknown argument providerId_modelId_realModelId`
-   - 报错点：`scripts/test/security-billing-polish-e2e-2026-04-07.ts:216`
+   - 报错点：`scripts/test/_archive_2026Q1Q2/security-billing-polish-e2e-2026-04-07.ts:216`
 
 ## 根因判断
 

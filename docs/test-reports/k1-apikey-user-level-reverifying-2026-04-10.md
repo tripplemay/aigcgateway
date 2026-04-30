@@ -6,7 +6,7 @@
 ## 测试环境
 - L1 本地：`http://localhost:3099`
 - 启动方式：`bash scripts/test/codex-setup.sh` + `bash scripts/test/codex-wait.sh`
-- 计划执行脚本：`npx tsx scripts/test/k1-apikey-user-level-verifying-e2e-2026-04-10.ts`
+- 计划执行脚本：`npx tsx scripts/test/_archive_2026Q1Q2/k1-apikey-user-level-verifying-e2e-2026-04-10.ts`
 - 执行日期：2026-04-10
 
 ## 执行结果

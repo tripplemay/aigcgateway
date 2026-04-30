@@ -14,11 +14,11 @@
 6. 设计稿关键区块一致性（`design-draft/admin-model-aliases/code.html` 对照）。
 
 ## Execution Method
-- Script: `scripts/test/m1b-alias-admin-verifying-e2e-2026-04-10.ts`
+- Script: `scripts/test/_archive_2026Q1Q2/m1b-alias-admin-verifying-e2e-2026-04-10.ts`
 - Command:
 
 ```bash
-npx tsx scripts/test/m1b-alias-admin-verifying-e2e-2026-04-10.ts
+npx tsx scripts/test/_archive_2026Q1Q2/m1b-alias-admin-verifying-e2e-2026-04-10.ts
 ```
 
 ## Notes

@@ -66,6 +66,20 @@
 - **MCP Tool errors:** Use `isError: true` (not protocol errors) so AI editors can self-correct
 - **i18n client-side:** No route changes, instant switch via `useLocale()` + localStorage
 
+## E2E / verification scripts location
+
+| 类型 | 路径 | 说明 |
+|---|---|---|
+| 当前批次 verifying e2e（Playwright spec） | `tests/e2e/*.spec.ts` | F-TI-01 落地的 Playwright 套件，CI 运行 |
+| 一次性 dated tsx 验收脚本（历史） | `scripts/test/_archive_2026Q1Q2/*-YYYY-MM-DD.{ts,tsx,mjs}` | 2026-Q1Q2 batch 验收的 dated 脚本，F-TI-06 归档；保留以便复跑 |
+| 通用辅助 / 长期工具 | `scripts/test/{codex-env.sh,codex-setup.sh,codex-wait.sh,vitest.scripts.config.ts,...}` | 不带日期，永久保留 |
+| 长期回归脚本 | `scripts/{e2e-test.ts,e2e-errors.ts,test-mcp.ts,test-mcp-errors.ts}` | 项目级确定性回归，CLAUDE.md 列为标准命令 |
+
+**约定：**
+- 新批次的 verifying e2e 写到 `tests/e2e/*.spec.ts`，**不要**再往 `scripts/test/` 写带日期的 tsx
+- Codex 临时 probe 脚本如确需提交，放 `scripts/test/_archive_<YYYY>Q<N>/` 子目录
+- 回归测试沉淀（来自审计 critical/high 断言）合并到 `scripts/{e2e-test,e2e-errors,test-mcp,test-mcp-errors}.ts`，详见 `docs/dev/test-lifecycle.md`
+
 ## CI/CD
 
 - `.github/workflows/ci.yml` — Push to main: lint + tsc + build Docker → push ghcr.io

@@ -22,7 +22,7 @@
 - DeepSeek provider：切到本地 mock `http://127.0.0.1:3344`
 - 证据：
   - [l1-llm-inference-robustness-verifying-2026-04-10.json](/Users/yixingzhou/project/aigcgateway/docs/test-reports/l1-llm-inference-robustness-verifying-2026-04-10.json)
-  - [l1-llm-inference-robustness-verifying-e2e-2026-04-10.ts](/Users/yixingzhou/project/aigcgateway/scripts/test/l1-llm-inference-robustness-verifying-e2e-2026-04-10.ts)
+  - [l1-llm-inference-robustness-verifying-e2e-2026-04-10.ts](/Users/yixingzhou/project/aigcgateway/scripts/test/_archive_2026Q1Q2/l1-llm-inference-robustness-verifying-e2e-2026-04-10.ts)
   - [l1-llm-inference-robustness-verifying-2026-04-10.md](/Users/yixingzhou/project/aigcgateway/docs/test-cases/l1-llm-inference-robustness-verifying-2026-04-10.md)
 
 ---

@@ -10,7 +10,7 @@
 - 批次：`RATE-LIMIT`
 - 规格：`docs/specs/RATE-LIMIT-spec.md`
 - 验收环境：`localhost:3099`（L1）
-- 验收脚本：`scripts/test/rate-limit-f-rl-08-verifying-e2e-2026-04-15.ts`
+- 验收脚本：`scripts/test/_archive_2026Q1Q2/rate-limit-f-rl-08-verifying-e2e-2026-04-15.ts`
 - 验收报告：`docs/test-reports/rate-limit-f-rl-08-verifying-e2e-2026-04-15.json`
 
 ---

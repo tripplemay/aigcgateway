@@ -17,7 +17,7 @@
 1. `npx vitest run`
    - PASS：`11/11`
 
-2. `npx tsx scripts/test/mcp-dx-round2-e2e-2026-04-06.ts`
+2. `npx tsx scripts/test/_archive_2026Q1Q2/mcp-dx-round2-e2e-2026-04-06.ts`
    - FAIL：`7 passed / 4 failed`
    - 失败点：
      - `generate_image tool description contains size guidance`（缺少 `openai/gpt-image-1` 文本）
@@ -25,10 +25,10 @@
      - `list_models show_all_channels=true`（缺少 channels 字段）
      - `error: rate limit exceeded`（返回了限流错误文本但被脚本判 FAIL）
 
-3. `npx tsx scripts/test/mcp-finops-hardening-e2e-2026-04-07.ts`
+3. `npx tsx scripts/test/_archive_2026Q1Q2/mcp-finops-hardening-e2e-2026-04-07.ts`
    - PASS：`9 passed / 0 failed`
 
-4. `npx tsx scripts/test/security-billing-polish-e2e-2026-04-07.ts`
+4. `npx tsx scripts/test/_archive_2026Q1Q2/security-billing-polish-e2e-2026-04-07.ts`
    - FAIL：`3 passed / 2 failed`
    - 失败点：
      - `F-SB-01 REST generate_image empty prompt sanitized`（预期错误，实际 200）
