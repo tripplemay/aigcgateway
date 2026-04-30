@@ -20,6 +20,7 @@ export default defineConfig({
       "tests/e2e/**",
       "tests/mcp-test/**",
       "tests/perf/**",
+      "scripts/test/_archive_**",
     ],
     coverage: {
       provider: "v8",
