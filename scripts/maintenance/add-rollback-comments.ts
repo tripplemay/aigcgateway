@@ -69,7 +69,8 @@ function classify(sql: string): Verdict {
 
   if (isDataOnly) {
     return {
-      rollback: "revert commit + restore from backup (data migration is not idempotently reversible)",
+      rollback:
+        "revert commit + restore from backup (data migration is not idempotently reversible)",
       category: "data",
     };
   }
@@ -77,7 +78,8 @@ function classify(sql: string): Verdict {
   // ALTER TYPE ... ADD VALUE (PostgreSQL enum) — not natively reversible
   if (ops.alterEnum) {
     return {
-      rollback: "revert commit; PostgreSQL ALTER TYPE ... ADD VALUE is not reversible — manual SQL recovery required (drop + recreate enum or accept residual value)",
+      rollback:
+        "revert commit; PostgreSQL ALTER TYPE ... ADD VALUE is not reversible — manual SQL recovery required (drop + recreate enum or accept residual value)",
       category: "alter-enum",
     };
   }
@@ -85,7 +87,8 @@ function classify(sql: string): Verdict {
   // Rename — needs to flip
   if (ops.renameTable || ops.renameColumn) {
     return {
-      rollback: "revert commit; manual SQL recovery required (RENAME ops must be flipped by hand based on the original SQL)",
+      rollback:
+        "revert commit; manual SQL recovery required (RENAME ops must be flipped by hand based on the original SQL)",
       category: "rename",
     };
   }
@@ -109,32 +112,49 @@ function classify(sql: string): Verdict {
 
   // Single-op cases
   if (ops.createIndex) {
-    return { rollback: "DROP INDEX for indexes created in this migration", category: "create-index" };
+    return {
+      rollback: "DROP INDEX for indexes created in this migration",
+      category: "create-index",
+    };
   }
   if (ops.addColumn) {
-    return { rollback: "ALTER TABLE ... DROP COLUMN for columns added in this migration", category: "add-column" };
+    return {
+      rollback: "ALTER TABLE ... DROP COLUMN for columns added in this migration",
+      category: "add-column",
+    };
   }
   if (ops.createTable) {
-    return { rollback: "DROP TABLE for tables created in this migration (cascade if FKs)", category: "create-table" };
+    return {
+      rollback: "DROP TABLE for tables created in this migration (cascade if FKs)",
+      category: "create-table",
+    };
   }
   if (ops.addConstraint) {
-    return { rollback: "ALTER TABLE ... DROP CONSTRAINT for constraints added in this migration", category: "add-constraint" };
+    return {
+      rollback: "ALTER TABLE ... DROP CONSTRAINT for constraints added in this migration",
+      category: "add-constraint",
+    };
   }
   if (ops.createFunction) {
-    return { rollback: "DROP FUNCTION for functions created in this migration", category: "create-function" };
+    return {
+      rollback: "DROP FUNCTION for functions created in this migration",
+      category: "create-function",
+    };
   }
   if (ops.createType) {
     return { rollback: "DROP TYPE for types created in this migration", category: "create-type" };
   }
   if (ops.alterColumn) {
     return {
-      rollback: "revert commit; ALTER COLUMN reversal must reproduce the original column definition by hand",
+      rollback:
+        "revert commit; ALTER COLUMN reversal must reproduce the original column definition by hand",
       category: "alter-column",
     };
   }
   if (ops.dropTable || ops.dropColumn || ops.dropConstraint) {
     return {
-      rollback: "revert commit + restore from backup (DROP is destructive — no schema-only recovery)",
+      rollback:
+        "revert commit + restore from backup (DROP is destructive — no schema-only recovery)",
       category: "drop",
     };
   }

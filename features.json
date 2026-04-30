@@ -43,7 +43,7 @@
       "title": "Testcontainers 集成测示例 — 1-2 高价值集成测 + 文档化",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "source": "BL-TEST-INFRA-IMPORT spec § F-TI-05",
       "acceptance": "1) tests/integration/deduct-balance-atomic.test.ts：Testcontainers 起 PostgreSQL 16 → npx prisma migrate deploy → seed user balance=10 → 并发 deduct_balance(8) ×2 → 断言 finalBalance>=0 且仅 1 次成功；2) tests/integration/reconciliation-cny-conversion.test.ts（可选第 2 测）：测 BL-RECON-FIX-PHASE1 F-RF-02 CNY→USD 转换在真 PG 上 BillReconciliation Decimal 精度行为；3) docs/dev/testing.md 新建（≥ 50 行）：何时用 unit (vi.mock) vs integration (Testcontainers) 决策树 + Testcontainers 启动时间预期 + 完整代码模板；4) npm run test:integration 跑通本地（CI 在 F-TI-03 跑）；5) 单测时间 ≤ 90s（含容器 boot 30s + migrate 10s + 实际 test）"
     },
