@@ -4,13 +4,15 @@ description: AIGC Gateway 当前状态快照（覆盖写，≤30 行）
 type: project
 ---
 ## 当前批次
-- **BL-TEST-INFRA-IMPORT：`reverifying`（fix-round-3 已交 Codex）**
-- 前轮报告：`docs/test-reports/BL-TEST-INFRA-IMPORT-reverifying-2026-04-30-round2.md`
-- fix-round-3 关 docker fallback 端口冲突：
-  - `codex-setup.sh ensure_pg`：加 `port_busy()` / `find_free_port()` / `sync_database_url()`
-  - 5432 被占 → OS 分配空闲端口（如 :41316）创 container；旧 container 端口冲突就 rm 重建
-  - `DATABASE_URL` 跟随实际 PGPORT，覆盖 codex-env.sh 写死的 5432，prisma/seed 透明
-- round-2 PASS 维持：fresh-shell Playwright / CI 8 jobs / unit / integration / Playwright 1+3 skip / artifacts。Coverage 阈值差是 spec 接受 baseline gap
+- **BL-TEST-INFRA-IMPORT：`done`（Codex 已签收）**
+- signoff：`docs/test-reports/BL-TEST-INFRA-IMPORT-signoff-2026-04-30.md`
+- 最终结论：
+  - PASS：`codex-setup.sh` 在真实 `5432` 冲突环境中成功选空闲端口 `:55592`，同步 `DATABASE_URL`，完成 migrate/seed/build/start；`codex-wait.sh` PASS
+  - PASS：rollback validate / typecheck / lint warning only / build / unit / integration / Playwright `1 passed + 3 skipped` / CI 8 jobs / coverage + playwright-report artifacts
+  - CI signoff run：`25155177661`
+- residual risk：
+  - pre-fix 旧版遗留的 malformed `aigc-gateway-test-pg` 容器可能需要一次性 `docker rm -f aigc-gateway-test-pg`；clean-state 默认路径已验证 PASS，不阻断签收
+- Coverage 阈值差仍是 spec 接受 baseline gap
 
 ## reference path 修正
 - KOLMatrix repo 实际路径：`/mnt/c/Users/tripplezhou/projects/kolmatrix`（progress.json Mac 路径不在 WSL）
