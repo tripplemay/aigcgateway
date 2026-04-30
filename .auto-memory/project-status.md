@@ -4,15 +4,13 @@ description: AIGC Gateway 当前状态快照（覆盖写，≤30 行）
 type: project
 ---
 ## 当前批次
-- **BL-ALIAS-MODEL-CASCADE-ENABLE（status=done，Codex 已签收）**
-- 3/3 features accepted：F-ACE-01 级联 model.enabled、F-ACE-02 暴露 modelEnabled/lastHealthResult、F-ACE-03 UI 徽章+toast
-- commits: 2202aad（F-ACE-01/02）、ffa9da8（F-ACE-03）
-- signoff: `docs/test-reports/BL-ALIAS-MODEL-CASCADE-ENABLE-signoff-2026-05-01.md`
+- **无进行中批次**
 
 ## reference path
 - KOLMatrix repo 实际路径：`/mnt/c/Users/tripplezhou/projects/kolmatrix`
 
 ## 上一批次
+- BL-ALIAS-MODEL-CASCADE-ENABLE @ 2026-05-01（done，fix_rounds=0）
 - BL-TEST-INFRA-IMPORT @ 2026-04-30（done，fix_rounds=3）
 
 ## Backlog（4 条，按优先级）
