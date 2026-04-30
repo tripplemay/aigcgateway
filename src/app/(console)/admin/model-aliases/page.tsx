@@ -18,6 +18,7 @@ import { Button } from "@/components/ui/button";
 interface LinkedModel {
   modelId: string;
   modelName: string;
+  modelEnabled: boolean;
   channels: {
     id: string;
     priority: number;
@@ -26,6 +27,7 @@ interface LinkedModel {
     sellPrice: Record<string, unknown> | null;
     providerName: string;
     latencyMs: number | null;
+    lastHealthResult: "PASS" | "FAIL" | null;
   }[];
 }
 

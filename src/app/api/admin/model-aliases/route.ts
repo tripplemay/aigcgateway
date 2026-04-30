@@ -19,7 +19,10 @@ export async function GET(request: Request) {
         models: {
           include: {
             model: {
-              include: {
+              select: {
+                id: true,
+                name: true,
+                enabled: true,
                 channels: {
                   orderBy: { priority: "asc" },
                   select: {
@@ -32,7 +35,7 @@ export async function GET(request: Request) {
                     healthChecks: {
                       orderBy: { createdAt: "desc" },
                       take: 1,
-                      select: { latencyMs: true },
+                      select: { latencyMs: true, result: true },
                     },
                   },
                 },
@@ -80,6 +83,7 @@ export async function GET(request: Request) {
       linkedModels: a.models.map((link) => ({
         modelId: link.model.id,
         modelName: link.model.name,
+        modelEnabled: link.model.enabled,
         channels: link.model.channels.map((ch) => ({
           id: ch.id,
           priority: ch.priority,
@@ -87,6 +91,7 @@ export async function GET(request: Request) {
           costPrice: ch.costPrice as Record<string, unknown> | null,
           providerName: ch.provider.displayName,
           latencyMs: ch.healthChecks[0]?.latencyMs ?? null,
+          lastHealthResult: (ch.healthChecks[0]?.result ?? null) as "PASS" | "FAIL" | null,
         })),
       })),
       linkedModelCount: a.models.length,

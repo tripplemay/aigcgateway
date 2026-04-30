@@ -77,6 +77,21 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
 
   const updated = await prisma.modelAlias.update({ where: { id }, data });
 
+  // Cascade-enable linked models when alias transitions from disabled → enabled
+  if (data.enabled === true && !existing.enabled) {
+    const links = await prisma.aliasModelLink.findMany({
+      where: { aliasId: id },
+      select: { modelId: true },
+    });
+    const modelIds = links.map((l) => l.modelId);
+    if (modelIds.length > 0) {
+      await prisma.model.updateMany({
+        where: { id: { in: modelIds }, enabled: false },
+        data: { enabled: true },
+      });
+    }
+  }
+
   // Invalidate models list cache when sellPrice or enabled changes
   if (data.sellPrice !== undefined || data.enabled !== undefined) {
     const redis = getRedis();
