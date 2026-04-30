@@ -1,3 +1,4 @@
+-- ROLLBACK: revert commit; manual SQL recovery required (composite migration: DROP TABLE for new tables; DROP INDEX for new indexes; ALTER TABLE DROP CONSTRAINT for new constraints)
 -- BL-BILLING-AUDIT-EXT-P2 F-BAP2-01: Tier 2 上游余额快照表。
 -- 每日 cron 拉一次，前后日 snapshot 求 delta = upstream usage。
 

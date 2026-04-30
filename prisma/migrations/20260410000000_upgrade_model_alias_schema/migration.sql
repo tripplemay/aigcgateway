@@ -1,3 +1,4 @@
+-- ROLLBACK: revert commit; manual SQL recovery required (composite migration: DROP TABLE for new tables; ALTER TABLE DROP COLUMN for new columns; DROP INDEX for new indexes; ALTER TABLE DROP CONSTRAINT for new constraints; data ops require restore from backup)
 -- Step 1: Clear old ModelAlias data (dev phase, no data preservation needed)
 DELETE FROM "model_aliases";
 

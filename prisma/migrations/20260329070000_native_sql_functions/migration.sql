@@ -1,3 +1,4 @@
+-- ROLLBACK: revert commit; manual SQL recovery required (composite migration: ALTER TABLE DROP COLUMN for new columns; DROP INDEX for new indexes; DROP FUNCTION for new functions; data ops require restore from backup)
 -- 全文搜索: 添加 tsvector 列
 ALTER TABLE call_logs ADD COLUMN search_vector tsvector;
 

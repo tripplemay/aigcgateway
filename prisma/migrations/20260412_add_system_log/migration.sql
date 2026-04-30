@@ -1,3 +1,4 @@
+-- ROLLBACK: revert commit; manual SQL recovery required (composite migration: DROP TABLE for new tables; DROP INDEX for new indexes; DROP TYPE for new types)
 -- CreateEnum
 CREATE TYPE "SystemLogCategory" AS ENUM ('SYNC', 'INFERENCE', 'HEALTH_CHECK', 'AUTO_RECOVERY');
 

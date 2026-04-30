@@ -1,3 +1,4 @@
+-- ROLLBACK: revert commit + restore from backup (data migration is not idempotently reversible)
 -- Fix: capabilities 数据迁移补丁 — 覆盖带 provider 前缀的模型名（如 openai/gpt-4o）
 -- 原 migration 仅匹配 'gpt-4o%'，未覆盖 'openai/gpt-4o' 等带前缀的名称
 -- 使用 %/suffix% 模式匹配带前缀的变体，仅更新 capabilities 为空的记录

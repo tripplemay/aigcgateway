@@ -1,3 +1,4 @@
+-- ROLLBACK: revert commit; manual SQL recovery required (composite migration: DROP TABLE for new tables; DROP INDEX for new indexes; ALTER TABLE DROP CONSTRAINT for new constraints; DROP TYPE for new types)
 -- F-UA-01: Notification + NotificationPreference schema for USAGE-ALERTS
 -- Event sources (balance / rate-limit / health / classifier) fan out
 -- through NotificationPreference and land here as inApp rows or as

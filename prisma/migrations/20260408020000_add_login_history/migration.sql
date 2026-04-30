@@ -1,3 +1,4 @@
+-- ROLLBACK: revert commit; manual SQL recovery required (composite migration: DROP TABLE for new tables; DROP INDEX for new indexes; ALTER TABLE DROP CONSTRAINT for new constraints)
 -- CreateTable
 CREATE TABLE "login_history" (
     "id" TEXT NOT NULL,

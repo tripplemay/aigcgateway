@@ -1,3 +1,4 @@
+-- ROLLBACK: revert commit; manual SQL recovery required (composite migration: ALTER TABLE DROP CONSTRAINT for new constraints; data ops require restore from backup)
 -- F-AF2-08 v2: Normalize template step order to 1-based.
 -- Replaces the failed 20260416_fix_template_step_order_base migration.
 -- Handles the partially-applied state: constraint may already be dropped,

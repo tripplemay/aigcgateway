@@ -1,3 +1,4 @@
+-- ROLLBACK: revert commit; manual SQL recovery required (composite migration: ALTER TABLE DROP COLUMN for new columns; DROP INDEX for new indexes; data ops require restore from backup)
 -- AlterTable: add enabled, canonicalName, isVariant to models
 ALTER TABLE "models" ADD COLUMN "enabled" BOOLEAN NOT NULL DEFAULT false;
 ALTER TABLE "models" ADD COLUMN "canonicalName" TEXT NOT NULL DEFAULT '';

@@ -1,3 +1,4 @@
+-- ROLLBACK: revert commit + restore from backup (data migration is not idempotently reversible)
 -- Fix round 2: 使用更宽泛的匹配 + 显式 jsonb cast + 覆盖所有空值情况
 -- 不限制 capabilities 当前值，直接覆盖为正确值（Admin 可通过 UI 随时调整）
 

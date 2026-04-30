@@ -1,3 +1,4 @@
+-- ROLLBACK: revert commit; manual SQL recovery required (composite migration: ALTER TABLE DROP COLUMN for new columns; DROP INDEX for new indexes; ALTER TABLE DROP CONSTRAINT for new constraints; DROP FUNCTION for new functions; data ops require restore from backup)
 -- F-BU-01: User.balance 字段 + 数据迁移
 -- F-BU-02: deduct_balance / check_balance SQL 函数重写
 

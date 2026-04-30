@@ -1,3 +1,4 @@
+-- ROLLBACK: revert commit; PostgreSQL ALTER TYPE ... ADD VALUE is not reversible — manual SQL recovery required (drop + recreate enum or accept residual value)
 -- BL-EMBEDDING-MVP F-EM-01 — ModelModality EMBEDDING + Action.modality field
 --
 -- 拆分约束：PostgreSQL 不允许在同一事务里 ADD VALUE 然后立刻 USE VALUE。

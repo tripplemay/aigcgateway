@@ -1,3 +1,4 @@
+-- ROLLBACK: revert commit; manual SQL recovery required (composite migration: DROP TABLE for new tables; DROP INDEX for new indexes; ALTER TABLE DROP CONSTRAINT for new constraints)
 -- BL-BILLING-AUDIT-EXT-P2 F-BAP2-02: 对账记录表。
 -- tier=1 用 Tier 1 fetcher per-model；tier=2 用余额 delta；status MATCH/MINOR_DIFF/BIG_DIFF。
 -- unique(providerId,reportDate,modelName) 让同日重跑做 upsert。

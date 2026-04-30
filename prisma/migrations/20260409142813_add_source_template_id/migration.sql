@@ -1,3 +1,4 @@
+-- ROLLBACK: revert commit; manual SQL recovery required (composite migration: ALTER TABLE DROP COLUMN for new columns; DROP INDEX for new indexes; ALTER TABLE DROP CONSTRAINT for new constraints; ALTER COLUMN must be reversed manually)
 -- AlterTable
 ALTER TABLE "actions" ALTER COLUMN "updatedAt" DROP DEFAULT;
 

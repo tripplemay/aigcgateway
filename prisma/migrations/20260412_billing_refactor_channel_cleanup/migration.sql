@@ -1,3 +1,4 @@
+-- ROLLBACK: revert commit; manual SQL recovery required (composite migration: ALTER COLUMN must be reversed manually)
 -- BILLING-REFACTOR: Channel.sellPrice optional + remove sellPriceLocked
 -- sellPrice retained as historical cost reference, but billing now uses ModelAlias.sellPrice
 

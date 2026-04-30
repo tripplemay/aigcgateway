@@ -1,3 +1,4 @@
+-- ROLLBACK: revert commit; manual SQL recovery required (RENAME ops must be flipped by hand based on the original SQL)
 -- DropIndex: search_vector GIN index (no longer used)
 DROP INDEX IF EXISTS "idx_call_logs_search";
 

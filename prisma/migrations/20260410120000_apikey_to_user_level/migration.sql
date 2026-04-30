@@ -1,3 +1,4 @@
+-- ROLLBACK: revert commit; manual SQL recovery required (composite migration: ALTER TABLE DROP COLUMN for new columns; DROP INDEX for new indexes; ALTER TABLE DROP CONSTRAINT for new constraints; DROP FUNCTION for new functions; data ops require restore from backup)
 -- K1: API Key 用户级迁移 + 余额模型收敛
 -- 不兼容旧数据，清空 API Key 表重建
 

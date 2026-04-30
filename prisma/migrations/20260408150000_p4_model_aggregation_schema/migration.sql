@@ -1,3 +1,4 @@
+-- ROLLBACK: revert commit; manual SQL recovery required (composite migration: DROP TABLE for new tables; DROP INDEX for new indexes; data ops require restore from backup)
 -- P4 Model Aggregation: Schema migration
 -- 1. Clear existing model/channel data (channels first due to FK)
 -- 2. Drop deprecated fields from models

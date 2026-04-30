@@ -1,3 +1,4 @@
+-- ROLLBACK: revert commit; manual SQL recovery required (composite migration: DROP TABLE for new tables; ALTER TABLE DROP COLUMN for new columns; DROP INDEX for new indexes)
 -- AlterTable: ProviderConfig add staticModels
 ALTER TABLE "provider_configs" ADD COLUMN "staticModels" JSONB;
 

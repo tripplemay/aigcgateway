@@ -1,3 +1,4 @@
+-- ROLLBACK: revert commit + restore from backup (data migration is not idempotently reversible)
 -- ONBOARDING-ENHANCE F-OE-02: seed default WELCOME_BONUS_USD (1.00 USD).
 -- Admin can tweak or zero it via admin/operations UI without redeploy.
 INSERT INTO "system_configs" ("id", "key", "value", "description", "updatedAt")

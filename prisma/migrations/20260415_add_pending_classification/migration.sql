@@ -1,3 +1,4 @@
+-- ROLLBACK: revert commit; manual SQL recovery required (composite migration: DROP TABLE for new tables; DROP INDEX for new indexes; ALTER TABLE DROP CONSTRAINT for new constraints; DROP TYPE for new types)
 -- F-AO2-06: PendingClassification review queue for low-confidence LLM
 -- classifier suggestions. Admins approve / reject / reassign from the
 -- operations panel instead of auto-attaching every suggestion.

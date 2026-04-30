@@ -34,7 +34,7 @@
       "title": "Migration ROLLBACK 强制规范 — validate 脚本 + 64 historical migrations retrofit",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "source": "BL-TEST-INFRA-IMPORT spec § F-TI-04",
       "acceptance": "1) 新建 scripts/validate-rollback-sql.sh（直接 port joyce 版本，35 行 bash + chmod +x）；2) 64 个 prisma/migrations/*/migration.sql 文件全部加一行 -- ROLLBACK: 注释，按规则：CREATE INDEX → DROP INDEX；ADD COLUMN → ALTER TABLE DROP COLUMN；CREATE TABLE → DROP TABLE；ADD CHECK → DROP CONSTRAINT；DATA migration → 'revert commit + restore from backup'；复合 → 标注 'manual SQL recovery required + 理由'；3) ./scripts/validate-rollback-sql.sh 退出码 0；4) docs/dev/rules.md 加一段 'Migration ROLLBACK 注释规范' + 链接 joyce reference；5) 验证 grep -L '^-- ROLLBACK:' prisma/migrations/*/migration.sql 返空（即所有 migration 都含）"
     },

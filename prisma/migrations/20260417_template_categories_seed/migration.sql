@@ -1,3 +1,4 @@
+-- ROLLBACK: revert commit + restore from backup (data migration is not idempotently reversible)
 -- TEMPLATE-LIBRARY-UPGRADE F-TL-02: seed default template categories into SystemConfig
 -- Inserts only if key does not already exist.
 INSERT INTO "system_configs" ("id", "key", "value", "description", "updatedAt")

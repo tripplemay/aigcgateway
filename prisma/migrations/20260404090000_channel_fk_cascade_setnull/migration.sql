@@ -1,3 +1,4 @@
+-- ROLLBACK: revert commit; manual SQL recovery required (composite migration: ALTER TABLE DROP CONSTRAINT for new constraints; ALTER COLUMN must be reversed manually)
 -- DropForeignKey
 ALTER TABLE "call_logs" DROP CONSTRAINT "call_logs_channelId_fkey";
 

@@ -1,3 +1,4 @@
+-- ROLLBACK: revert commit; manual SQL recovery required (composite migration: ALTER TABLE DROP COLUMN for new columns; DROP INDEX for new indexes)
 -- F-AF2-09: Add batchId to transactions for grouping related refunds
 ALTER TABLE "transactions" ADD COLUMN "batchId" TEXT;
 

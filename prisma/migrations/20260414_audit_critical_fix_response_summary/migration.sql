@@ -1,3 +1,4 @@
+-- ROLLBACK: ALTER TABLE ... DROP COLUMN for columns added in this migration
 -- AUDIT-CRITICAL-FIX F-ACF-01 — add responseSummary JSON column to CallLog.
 -- Holds per-call structured metadata such as images_count for image requests
 -- and zero_image_delivery markers that the refund audit script filters on.

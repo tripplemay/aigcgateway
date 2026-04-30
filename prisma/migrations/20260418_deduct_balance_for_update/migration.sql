@@ -1,3 +1,4 @@
+-- ROLLBACK: revert commit; manual SQL recovery required (composite migration: DROP FUNCTION for new functions; data ops require restore from backup)
 -- BL-SEC-BILLING-AI / F-BA-01
 -- deduct_balance: explicit SELECT ... FOR UPDATE row lock (no EPQ reliance).
 -- Signature and return type are kept identical to 20260410120000_apikey_to_user_level

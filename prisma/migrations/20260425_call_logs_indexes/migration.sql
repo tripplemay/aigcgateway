@@ -1,3 +1,4 @@
+-- ROLLBACK: DROP INDEX for indexes created in this migration
 -- BL-BILLING-AUDIT-EXT-P2 F-BAP2-04: call_logs 查询性能 index。
 -- 配合 30 天 TTL cleanup，把按 source / channel / 时间范围 GROUP BY 的对账查询提速。
 -- IF NOT EXISTS 让生产 deploy 幂等（即便手动建过同名 index 也无副作用）。

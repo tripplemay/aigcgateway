@@ -1,3 +1,4 @@
+-- ROLLBACK: revert commit + restore from backup (data migration is not idempotently reversible)
 -- P4 ModelAlias initial seed data
 -- Maps provider-specific model IDs to canonical names
 

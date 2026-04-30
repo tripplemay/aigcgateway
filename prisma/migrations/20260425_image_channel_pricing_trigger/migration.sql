@@ -1,3 +1,4 @@
+-- ROLLBACK: DROP FUNCTION for functions created in this migration
 -- BL-IMAGE-PRICING-OR-P2 F-BIPOR-02: DB 层 trigger 兜底校验。
 -- 应用层 (admin-schemas.validateChannelPriceForModality + PATCH 400) 已先行
 -- 拦截，本 trigger 是数据完整性最后一道闸：禁止任何路径（直连 SQL / 旧版

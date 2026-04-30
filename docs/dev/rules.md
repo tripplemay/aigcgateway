@@ -9,6 +9,27 @@
 - **不要用 `prisma migrate reset` + `migrate dev` 处理有 schema 漂移的库：** 会把所有差异打包成一个 migration，混入无关变更
 - **每个 migration 只包含一个功能的变更：** 不同功能的 schema 变更必须拆为独立 migration
 
+### Migration ROLLBACK 注释规范
+
+每个 `prisma/migrations/*/migration.sql` 文件**必须**含一行 `-- ROLLBACK:` 注释，说明回滚策略。CI 的 `validate-rollback-sql` job 会调用 `scripts/validate-rollback-sql.sh` 强制校验，缺失则 push 失败。
+
+| Migration 类型 | ROLLBACK 写法 |
+|---|---|
+| `CREATE INDEX` | `DROP INDEX "idx_name";` |
+| `ADD COLUMN`（nullable / with default） | `ALTER TABLE "x" DROP COLUMN "y";` |
+| `CREATE TABLE` | `DROP TABLE "x";`（含 FK 时加 CASCADE） |
+| `ADD CONSTRAINT`（CHECK / FK） | `ALTER TABLE "x" DROP CONSTRAINT "y_check";` |
+| `CREATE FUNCTION` / `CREATE TYPE` | 对应 `DROP FUNCTION` / `DROP TYPE` |
+| `ALTER TYPE ... ADD VALUE`（PG enum） | 不可幂等回滚；标注 `revert commit; manual SQL recovery required`（drop + recreate enum 或接受残留值） |
+| `RENAME TABLE` / `RENAME COLUMN` | 标注 `revert commit; manual SQL recovery required`（手动反向 RENAME） |
+| `UPDATE` / `INSERT` / `DELETE`（DATA migration） | 标注 `revert commit + restore from backup`（不可幂等回滚） |
+| `ALTER COLUMN` | 标注 `revert commit; ALTER COLUMN reversal must reproduce original column definition by hand` |
+| 复合（多类操作） | 标注 `revert commit; manual SQL recovery required`，列出所有操作类型 |
+
+64 个 historical migrations 已通过 `scripts/maintenance/add-rollback-comments.ts` 一次性 retrofit。新建 migration 时由开发者手写 `-- ROLLBACK:` 行（参考已有 migration 模板）。
+
+参考实现：`/mnt/c/Users/tripplezhou/projects/kolmatrix/scripts/validate-rollback-sql.sh`（joyce/KOLMatrix 的同名脚本）。
+
 ## MCP Development Rules
 
 - Use `@modelcontextprotocol/sdk`, never hand-write protocol layer

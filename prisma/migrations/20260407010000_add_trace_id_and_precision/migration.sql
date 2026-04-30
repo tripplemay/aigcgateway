@@ -1,3 +1,4 @@
+-- ROLLBACK: revert commit; manual SQL recovery required (composite migration: ALTER TABLE DROP COLUMN for new columns; DROP FUNCTION for new functions; ALTER COLUMN must be reversed manually; data ops require restore from backup)
 -- Transaction: add traceId column
 ALTER TABLE "transactions" ADD COLUMN "traceId" TEXT;
 

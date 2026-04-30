@@ -1,3 +1,4 @@
+-- ROLLBACK: revert commit; manual SQL recovery required (composite migration: ALTER TABLE DROP COLUMN for new columns; data ops require restore from backup)
 -- F-MC-01: Model.supportedSizes 字段（JSON 字符串数组，nullable）
 ALTER TABLE "models" ADD COLUMN "supportedSizes" JSONB;
 

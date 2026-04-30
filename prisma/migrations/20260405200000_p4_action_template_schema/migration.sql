@@ -1,3 +1,4 @@
+-- ROLLBACK: revert commit; manual SQL recovery required (composite migration: DROP TABLE for new tables; ALTER TABLE DROP COLUMN for new columns; DROP INDEX for new indexes; ALTER TABLE DROP CONSTRAINT for new constraints; DROP TYPE for new types)
 -- P4: Action + Template 统一重构 Schema
 -- 破坏性变更：生产数据为测试数据，允许删除旧表
 

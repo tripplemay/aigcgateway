@@ -1,3 +1,4 @@
+-- ROLLBACK: revert commit + restore from backup (data migration is not idempotently reversible)
 -- ONBOARDING-ENHANCE F-OE-04 (BL-128a): extend TEMPLATE_CATEGORIES with 4
 -- marketing categories. Idempotent: merges by id so re-running or manual
 -- edits to the admin-curated list are preserved (new ids are appended at

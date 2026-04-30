@@ -1,3 +1,4 @@
+-- ROLLBACK: ALTER TABLE ... DROP CONSTRAINT for constraints added in this migration
 -- BL-SEC-BILLING-CHECK-FOLLOWUP / F-BCF-01
 -- v2: supersedes the failed 20260418_billing_check_constraints (v1).
 -- v1's DO block mis-classified REFUND (amount >= 0) as a violation and aborted.

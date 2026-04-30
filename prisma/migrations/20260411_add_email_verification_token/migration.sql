@@ -1,3 +1,4 @@
+-- ROLLBACK: revert commit; manual SQL recovery required (composite migration: DROP TABLE for new tables; DROP INDEX for new indexes; ALTER TABLE DROP CONSTRAINT for new constraints)
 -- CreateTable
 CREATE TABLE "email_verification_tokens" (
     "id" TEXT NOT NULL,
