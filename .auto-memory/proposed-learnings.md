@@ -34,42 +34,23 @@ type: project
 
 <!-- ================= 待确认区 ================= -->
 
-## [2026-04-28] Planner — 来源：BL-EMBEDDING-MVP fix-round-2（生产 channel DEGRADED 根因）
-
-**类型：** 模板修订（spec 设计 checklist）+ 新坑
-
-**内容：** 扩展 modality enum / 类型字段（如 ModelModality 加 EMBEDDING / Action.modality 加分支）时，必须先全仓 grep 所有现有硬编码分支点（`isImage / isText / modality === 'X' / instanceof Y` 等），把这些点全部纳入本批次 spec 的改动范围。本次 BL-EMBEDDING-MVP F-EM-01~05 全部 PASS 单测，但 spec 漏定义 `src/lib/health/checker.ts:56,260` + `scheduler.ts:138,282,314` 几处 `isImage` 硬编码 → seed channel ACTIVE 后第一次 cron 跑默认 chat probe → 上游 400 → DEGRADED → reverify acceptance #4-7/#13 全部被 channel 路由级阻断。Generator 单测覆盖了 modality 自身分支，但漏了**反向消费**这个 modality 的代码点。
-
-**建议写入 harness-template 的：** `harness/planner.md` § spec 设计 checklist 加一条「枚举/字段扩展前置步骤：全仓 grep 现有 modality / type 硬编码分支点（如 `isImage / type === 'X'`），将所有命中点纳入本批次 scope 或显式标注为 N/A 风险」。
-
-**状态：** 待确认
-
----
-
-## [2026-04-28] Planner — 来源：BL-RECON-FIX-PHASE2 F-RP-01 调研反转
-
-**类型：** 模板修订（spec 设计 checklist）
-
-**内容：** 调研类 spec 的假设列表应至少枚举三大类根因：(1) 数据缺失（gateway 没收到上游字段）/ (2) 数据正确但解释错（如单价错位 / 单位错位 / 货币错位）/ (3) 数据正确但消费方式错（如读了错的字段 / 聚合方式错）。本次 H1/H2/H3 三假设都聚焦「数据缺失」维度，漏掉了「单价错位」类根因（image-output token 实际单价 ~$30/M，远高于配置 $2.5/M completion 单价），Generator 走完调研才发现，多消耗一轮思考与一次真实 API 调用成本。
-
-**建议写入 harness-template 的：** `harness/planner.md` § spec 设计经验，新增"调研类 feature 的假设枚举三类法"checklist。
-
-**状态：** 待确认
-
----
-
-## [2026-04-28] Planner — 来源：BL-RECON-FIX-PHASE2 F-RP-04 tc8 阻断
-
-**类型：** 新坑 + 铁律补充
-
-**内容：** 跨 cron 周期 / 上游 settlement 的 acceptance 必须明确 T+N 时序口径。本次 tc8「触发手动 rerun → 当日 model 行 status=MATCH」假设了 reconcile 在调用发生后当日立即可观察，但上游 OR billing API 当天数据未必已 settle（数据按 T+1 出账），导致同日 rowsWritten=11 但目标 model 行未出现，被迫向用户申请 T+1 口径放宽。涉及 cron / 上游账单 / 异步 settlement 的 acceptance，spec 写时就要标注「T+0 / T+1 / T+N」明确时序，避免 verifying 阶段才发现假设错误。
-
-**建议写入 harness-template 的：** `harness/planner.md` § acceptance 设计 checklist 加一条「时序假设标注」；`harness/planner.md` 铁律 1.x 系列加一条「跨周期 acceptance 必须含时序口径」（编号待定）。
-
-**状态：** 待确认
-
 <!-- ================= 已同步到 harness-template（归档区） ================= -->
 
+## [2026-04-30 已同步 v0.9.6] Planner 铁律 1.5：枚举/字段扩展必须前置 grep 所有反向消费点
+- 来源：BL-EMBEDDING-MVP fix-round-2（isImage 硬编码漏定义）
+- 写入：`harness/planner.md` §铁律 1.5 + 自检 checklist
+
+## [2026-04-30 已同步 v0.9.6] Planner 铁律 1.6：调研类 spec 假设必须枚举三类根因
+- 来源：BL-RECON-FIX-PHASE2 F-RP-01（漏掉「单价错位」根因）
+- 写入：`harness/planner.md` §铁律 1.6 + 自检 checklist
+
+## [2026-04-30 已同步 v0.9.6] Planner 铁律 1.7：跨 cron 周期 acceptance 必须标注时序口径
+- 来源：BL-RECON-FIX-PHASE2 F-RP-04 tc8（T+1 出账假设未对齐）
+- 写入：`harness/planner.md` §铁律 1.7 + 自检 checklist
+
+## [2026-04-30 已同步 v0.9.6] Planner 铁律 3：不得在 acceptance 中将测试编写任务塞给 Generator
+- 来源：BL-RECON-UX-PHASE1 F-RC-01（角色边界冲突两难）
+- 写入：`harness/planner.md` §铁律 3 + 自检 checklist
 
 ## [2026-04-26 已同步 v0.9.5] Planner 铁律 1.4：周期性后台任务对数据的覆写必须显式 + 回归保护
 - 来源：BL-IMAGE-PRICING-OR-P2 mid-impl 裁决（buildCostPrice 回归）
@@ -111,18 +92,3 @@ type: project
 - 来源：BL-FE-PERF-01 F-PF-01
 - 写入：`harness/generator.md` §前端相关经验
 
-## [2026-04-27] Claude CLI — 来源：BL-RECON-UX-PHASE1 F-RC-01
-
-**类型：** 铁律补充 / Planner-Generator 角色边界冲突
-
-**内容：** 当前 `role-context/generator.md` 写「Generator 不写任何测试」，但本批次 spec/features.json acceptance 显式要求 Generator 写单测扩展（route.test.ts/export.test.ts/classify.test.ts 三处）。两处规则冲突，且 features.json 是上一会话同一 agent (我作 Planner) 写下的——Planner 自己埋了违反角色边界的 acceptance。
-
-实现时不得不做的妥协：
-1) 既有测试 mock 不全（route.test.ts 没 mock count；reconcile-job.test.ts 没 mock @/lib/config），新代码必然 break，必须扩 mocks（已经踩进"测试域"）
-2) F-RC-03 Codex acceptance 只列 vitest run pass，没列写测试——若 Generator 不写，新功能就没单测覆盖
-
-实际处理：按 spec 写完整测试。
-
-**建议写入 harness-template 的：** `harness/planner.md` §铁律 — 写 acceptance 时不得越界把测试编写任务塞给 Generator。如果新功能确需单测，要么 (a) 拆出 `executor:codex` 子任务由 Codex 写，要么 (b) 在 features.json 显式标注「测试 mock 维护例外，Generator 仅扩展 mock 不新写 cases」。
-
-**状态：** 待确认

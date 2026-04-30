@@ -4,27 +4,24 @@ description: AIGC Gateway 当前状态快照（覆盖写，≤30 行）
 type: project
 ---
 ## 当前批次
-- **BL-TEST-INFRA-IMPORT：`done`（Codex 已签收）**
-- signoff：`docs/test-reports/BL-TEST-INFRA-IMPORT-signoff-2026-04-30.md`
-- 最终结论：
-  - PASS：`codex-setup.sh` 在真实 `5432` 冲突环境中成功选空闲端口 `:55592`，同步 `DATABASE_URL`，完成 migrate/seed/build/start；`codex-wait.sh` PASS
-  - PASS：rollback validate / typecheck / lint warning only / build / unit / integration / Playwright `1 passed + 3 skipped` / CI 8 jobs / coverage + playwright-report artifacts
-  - CI signoff run：`25155177661`
-- residual risk：
-  - pre-fix 旧版遗留的 malformed `aigc-gateway-test-pg` 容器可能需要一次性 `docker rm -f aigc-gateway-test-pg`；clean-state 默认路径已验证 PASS，不阻断签收
-- Coverage 阈值差仍是 spec 接受 baseline gap
+- **无进行中批次（BL-TEST-INFRA-IMPORT 已 done @ 2026-04-30，fix_rounds=3）**
 
-## reference path 修正
-- KOLMatrix repo 实际路径：`/mnt/c/Users/tripplezhou/projects/kolmatrix`（progress.json Mac 路径不在 WSL）
+## reference path
+- KOLMatrix repo 实际路径：`/mnt/c/Users/tripplezhou/projects/kolmatrix`
 
 ## 上一批次
-- BL-MCP-PAGE-REVAMP @ 2026-04-28（4 rounds done）/ BL-EMBEDDING-MVP @ 2026-04-28（rounds=3）
+- BL-TEST-INFRA-IMPORT @ 2026-04-30（done）/ BL-MCP-PAGE-REVAMP @ 2026-04-28 / BL-EMBEDDING-MVP @ 2026-04-28
 
-## Backlog
-- BL-SEC-INFRA-GUARD-FOLLOWUP / BL-FE-DS-SHADCN / BL-SEC-PAY-DEFERRED / BL-E2E-FIX-PROJECT-SWITCHER / BL-E2E-FIX-USER-PROFILE-CENTER
+## Backlog（5 条，按优先级）
+- **BL-ALIAS-MODEL-CASCADE-ENABLE**（medium）— alias 启用未级联 model.enabled + sellPrice 缺失 + health-FAIL 隐藏
+- **BL-HEALTH-PROBE-MIN-TOKENS**（medium）— probe max_tokens=1 不兼容 Azure-backed model（gpt-5 永远 FAIL）
+- **BL-SEC-INFRA-GUARD-FOLLOWUP**（high-deferred）— Next.js 16 跨大版本迁移
+- **BL-SEC-PAY-DEFERRED**（critical-deferred）— 支付 webhook 验签 + 幂等 CAS
+- **BL-FE-DS-SHADCN**（low-deferred）— shadcn 采用率提升
 
 ## proposed-learnings
-- 3 条待 done 阶段同步 harness-template
+- 全部已同步 harness-template v0.9.6（4 条：铁律 1.5/1.6/1.7/3）
 
-## 生产前置
-- 本批次纯 dev infra，无生产部署影响
+## 生产旁路修复（2026-04-30 已执行）
+- alias claude-opus-4.7/claude-sonnet-4.6 model.enabled 已改 true
+- 4 个 alias sellPrice 已补（claude-opus-4.7 / gpt-4o / kimi-k2.5 / kimi-k2.6）
