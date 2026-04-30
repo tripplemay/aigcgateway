@@ -4,15 +4,16 @@ description: AIGC Gateway 当前状态快照（覆盖写，≤30 行）
 type: project
 ---
 ## 当前批次
-- **BL-TEST-INFRA-IMPORT：`reverifying`**（fix_rounds=1 完成，等 Codex 复验）
-- 验收报告：`docs/test-reports/BL-TEST-INFRA-IMPORT-verifying-2026-04-30.md`
+- **BL-TEST-INFRA-IMPORT：`fixing`**（reverifying 完成但未签收，回退 fix-round-2）
+- 验收报告：`docs/test-reports/BL-TEST-INFRA-IMPORT-reverifying-2026-04-30.md`
 - fix-round-1 内容：Colima auto-detect helper + codex-env 补 3 password + codex-setup PG override 注释 + playwright default port 3000→3199 + balance-user-level-ui admin recharge URL 修 + project-switcher / user-profile-center 加 skip（标 follow-up batch）
 
-## 首轮验收结论（Reviewer）
-- PASS：lint warning only / typecheck / build / rollback validate / unit suite / coverage artifact / CI 8 jobs / integration logic（CI 10.71s，本地 Colima override 2.96s）
-- FAIL 1：Playwright 验收未达标。CI 实际 `3 failed / 0 passed`（job 绿仅因 continue-on-error）；本地 3199 真启动后仍 `3 failed / 0 passed`
-- FAIL 2：本地 harness 不自洽。默认 `npm run test:integration` 在 Colima 上找不到 container runtime；`codex-setup.sh` 缺 PostgreSQL socket / seed env；`npm run test:e2e` 新 shell 缺 `E2E_TEST_PASSWORD`
-- Coverage 仍低于阈值（本地 23.64/20.9/22.71/19.42；CI 23.79/21.17/22.82/19.49），但这是 spec 接受的 baseline gap，不阻断本批次之外的结论
+## 复验结论（Reviewer）
+- PASS：lint warning only / typecheck / build / rollback validate / unit suite / coverage artifact / CI 8 jobs / integration logic / Playwright `1 passed + 3 skipped` / playwright-report artifact
+- BLOCKER：本地 evaluator 默认工作流仍不自洽
+  - `bash scripts/test/codex-setup.sh` 仍默认失败：`psql` 连接本地 socket `/tmp/.s.PGSQL.5432` 失败
+  - fresh-shell `npm run test:e2e` 仍默认失败：`Missing env: E2E_TEST_PASSWORD`
+- Coverage 仍低于阈值，但这是 spec 接受的 baseline gap，不阻断；本地 `npm run test:coverage` 仍会在生成 `coverage/lcov.info` 后以阈值失败退出
 
 ## reference path 修正
 - 实际 KOLMatrix repo 路径：`/mnt/c/Users/tripplezhou/projects/kolmatrix`（progress.json 原标 Mac 路径不在 WSL 上）
