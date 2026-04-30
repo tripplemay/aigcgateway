@@ -4,12 +4,14 @@ description: AIGC Gateway 当前状态快照（覆盖写，≤30 行）
 type: project
 ---
 ## 当前批次
-- **BL-TEST-INFRA-IMPORT：`reverifying`（fix-round-2 已交 Codex）**
-- 前轮报告：`docs/test-reports/BL-TEST-INFRA-IMPORT-reverifying-2026-04-30.md`
-- fix-round-2 关 local evaluator 工作流 blocker：
-  - `codex-setup.sh` 加 `ensure_pg()`：caller env / 默认 socket / docker 起 `aigc-gateway-test-pg` 三段降级
-  - `playwright.config.ts` 顶部 inject `codex-env.sh`，fresh-shell `npm run test:e2e` 自带 E2E_TEST_PASSWORD
-- 上轮 PASS 项维持：lint / typecheck / build / unit / integration / CI 8 jobs / Playwright 1+3 skip / artifacts。Coverage 阈值差是 spec 接受 baseline gap
+- **BL-TEST-INFRA-IMPORT：`fixing`（reverifying round-2 未签收，回退 Generator）**
+- 当前报告：`docs/test-reports/BL-TEST-INFRA-IMPORT-reverifying-2026-04-30-round2.md`
+- round-2 结论：
+  - PASS：rollback validate / typecheck / lint warning only / build / unit / integration / fresh-shell Playwright / CI 8 jobs / Playwright `1 passed + 3 skipped` / artifacts
+  - BLOCKER：`bash scripts/test/codex-setup.sh` 仍默认失败
+    - 新失败点不是缺 env，而是 docker fallback 撞上 `5432` 已占用：`Bind for 0.0.0.0:5432 failed: port is already allocated`
+    - 本机已有 `kolmatrix-postgres` 占 `5432`，脚本未处理“可复用现有 PG / 改用非冲突端口”的默认路径
+- Coverage 阈值差仍是 spec 接受 baseline gap，不阻断
 
 ## reference path 修正
 - KOLMatrix repo 实际路径：`/mnt/c/Users/tripplezhou/projects/kolmatrix`（progress.json Mac 路径不在 WSL）
