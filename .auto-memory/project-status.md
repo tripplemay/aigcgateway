@@ -4,11 +4,11 @@ description: AIGC Gateway 当前状态快照（覆盖写，≤30 行）
 type: project
 ---
 ## 当前批次
-- **BL-HEALTH-PROBE-MIN-TOKENS**（verifying，2026-05-01 启动 / 2026-05-01 generator 完成）
+- **BL-HEALTH-PROBE-MIN-TOKENS**（done，2026-05-01 已签收）
   - 主修 probe max_tokens 1→16（兼容 OR Azure-backed gpt-5）
   - 附带清理 OR 已下线 ~openai/gpt-latest model + channels（软停）
-  - F-HPMT-01/02 done by generator；F-HPMT-03 等 Codex 验收
-  - spec: docs/specs/BL-HEALTH-PROBE-MIN-TOKENS-spec.md
+  - F-HPMT-01/02 generator 完成；F-HPMT-03 Codex 验收 PASS
+  - signoff: `docs/test-reports/BL-HEALTH-PROBE-MIN-TOKENS-signoff-2026-05-01.md`
 
 ## reference path
 - KOLMatrix repo 实际路径：`/mnt/c/Users/tripplezhou/projects/kolmatrix`
