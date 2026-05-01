@@ -547,16 +547,13 @@
 </div>
 </div>
 </div>
-<!-- Pagination footer (BL-ADMIN-ALIAS-UX-PHASE1 F-AAU-09) -->
+<!-- Pagination footer (BL-ADMIN-ALIAS-UX-PHASE1 F-AAU-09).
+     Mirrors src/components/pagination.tsx — prev/next + numeric page
+     buttons + total display. No page-size selector: PAGE_SIZE is a
+     constant (20) on the page; if size customization is later added,
+     update both this footer and the Pagination component together. -->
 <div class="sticky bottom-4 mt-2 px-4 py-3 bg-surface-container-lowest/80 backdrop-blur-sm rounded-xl shadow-sm flex items-center justify-between">
 <span class="text-xs text-slate-500 font-medium">Showing <span class="text-on-surface font-bold">1–20</span> of 137 aliases</span>
-<div class="flex items-center gap-3">
-<!-- Page-size selector (20 / 50 / 100) -->
-<select class="bg-surface-container-low border-none rounded-md text-xs font-bold px-3 py-1.5 focus:ring-1 focus:ring-primary/30">
-<option>20 / page</option>
-<option>50 / page</option>
-<option>100 / page</option>
-</select>
 <!-- Page navigation -->
 <div class="flex items-center gap-1">
 <button class="w-10 h-10 flex items-center justify-center rounded-xl text-slate-400 hover:bg-slate-100 transition-colors" aria-label="previous page">
@@ -570,7 +567,6 @@
 <button class="w-10 h-10 flex items-center justify-center rounded-xl text-slate-400 hover:bg-slate-100 transition-colors" aria-label="next page">
 <span class="material-symbols-outlined">chevron_right</span>
 </button>
-</div>
 </div>
 </div>
 </section>

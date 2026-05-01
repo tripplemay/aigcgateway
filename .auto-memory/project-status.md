@@ -4,11 +4,9 @@ description: AIGC Gateway 当前状态快照（覆盖写，≤30 行）
 type: project
 ---
 ## 当前批次
-- **BL-ADMIN-ALIAS-UX-PHASE1**（fixing，2026-05-01 Codex 首轮验收失败）
-  - 实现面基本通过：reorder 错位修复 + optimistic handlers + 服务端分页/过滤 + 单测/构建
-  - 阻断项在 F-AAU-09 设计稿同步：
-    - `design-draft/admin-model-aliases/screen.png` 未刷新
-    - `code.html` 含 page-size selector，但真实 UI 没有该控件
+- **BL-ADMIN-ALIAS-UX-PHASE1**（reverifying，2026-05-01 fix-round-1 完成）
+  - F-AAU-01..08 实现面 Codex 已 PASS（含 dev-server runtime 验收）
+  - F-AAU-09 fix-round-1：(a) code.html 删除 pageSize selector（对齐已实现 Pagination 组件）；(b) screen.png 用 Codex 跑出的真实 dev server 截图替换；(c) DESIGN.md 同步去除 pageSize 描述
   - report: `docs/test-reports/BL-ADMIN-ALIAS-UX-PHASE1-verifying-2026-05-01.md`
 
 ## reference path
@@ -26,6 +24,7 @@ type: project
 
 ## proposed-learnings
 - 已同步 harness-template v0.9.7（5 条累计：铁律 1.5 + 1.5 范围细化 + 1.6 + 1.7 + 3）
+- 待确认（1 条）：Generator 不应把 manual screenshot 类任务甩锅给 Codex（来源 BL-ADMIN-ALIAS-UX-PHASE1 verifying FAIL）
 
 ## 生产旁路修复（2026-04-30 已执行）
 - alias claude-opus-4.7/claude-sonnet-4.6 model.enabled 已改 true
