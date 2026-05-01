@@ -4,7 +4,10 @@ description: AIGC Gateway 当前状态快照（覆盖写，≤30 行）
 type: project
 ---
 ## 当前批次
-- **无进行中批次**
+- **BL-SYNC-INTEGRITY-PHASE1**（building，2026-05-01 启动）
+  - 修复生产 sync 失败 #1（siliconflow IMAGE CHECK 23514）+ #2（xiaomi-mimo 无 adapter）+ 隐患 311 zero-price 扫描报告
+  - 4 features：F-SI-01/02/03 generator + F-SI-04 codex
+  - spec: docs/specs/BL-SYNC-INTEGRITY-PHASE1-spec.md
 
 ## reference path
 - KOLMatrix repo 实际路径：`/mnt/c/Users/tripplezhou/projects/kolmatrix`
