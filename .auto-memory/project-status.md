@@ -4,16 +4,17 @@ description: AIGC Gateway 当前状态快照（覆盖写，≤30 行）
 type: project
 ---
 ## 当前批次
-- **BL-ADMIN-ALIAS-UX-PHASE1**（building，2026-05-01 启动）
+- **BL-ADMIN-ALIAS-UX-PHASE1**（verifying，2026-05-01 启动 / 2026-05-01 generator 完成 9/10）
   - admin/model-aliases UX 大修：reorder 错位修复 + 6 类 optimistic + 服务端分页（方案 B）+ 设计稿同步
-  - 10 features：F-AAU-01~09 generator + F-AAU-10 codex
+  - F-AAU-01..09 done by generator；F-AAU-10 等 Codex 验收
   - spec: docs/specs/BL-ADMIN-ALIAS-UX-PHASE1-spec.md
+  - 遗留：design-draft/admin-model-aliases/screen.png 未替换（Generator 手动截图，留 Codex / 后续 chore 补）
 
 ## reference path
 - KOLMatrix repo 实际路径：`/mnt/c/Users/tripplezhou/projects/kolmatrix`
 
 ## 上一批次
-- BL-HEALTH-PROBE-MIN-TOKENS @ 2026-05-01（done，fix_rounds=0）— probe max_tokens 1→16 + 软停 ~openai/gpt-latest + audit-log drift cleanup（post-process.ts 同源 PROBE_MAX_TOKENS）
+- BL-HEALTH-PROBE-MIN-TOKENS @ 2026-05-01（done，fix_rounds=0）— probe max_tokens 1→16 + 软停 ~openai/gpt-latest + audit-log drift cleanup
 - BL-ALIAS-MODEL-CASCADE-ENABLE @ 2026-05-01（done，fix_rounds=0）
 - BL-TEST-INFRA-IMPORT @ 2026-04-30（done，fix_rounds=3）
 

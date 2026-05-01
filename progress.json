@@ -1,11 +1,11 @@
 {
-  "status": "building",
+  "status": "verifying",
   "user_goal": "BL-ADMIN-ALIAS-UX-PHASE1 — admin/model-aliases 页面 UX 大修一期：reorder 视觉错位修复 + 6 类写操作 optimistic update（toggle/reorder/save/link/unlink/delete）+ 服务端分页过滤（方案 B）+ Stitch 设计稿同步",
   "total_features": 10,
-  "completed_features": 0,
+  "completed_features": 9,
   "fix_rounds": 0,
   "current_sprint": "BL-ADMIN-ALIAS-UX-PHASE1",
-  "last_updated": "2026-05-01T00:00:00Z",
+  "last_updated": "2026-05-01T13:30:00Z",
   "role_assignments": null,
   "docs": {
     "spec": "docs/specs/BL-ADMIN-ALIAS-UX-PHASE1-spec.md",
@@ -13,5 +13,9 @@
     "signoff": null,
     "framework_reviewed": false
   },
-  "evaluator_feedback": null
+  "evaluator_feedback": null,
+  "session_notes": {
+    "Generator-AAU": "BL-ADMIN-ALIAS-UX-PHASE1 F-AAU-01..09 完成 @ 2026-05-01；status building → verifying。\n\nF-AAU-01 (reorder 视觉错位)：page.tsx ChannelTable channels prop 在 flatMap 后追加 `.sort((a,b) => (a.priority ?? 0) - (b.priority ?? 0))`，跨 model 拖拽后 UI 顺序 = 全局 priority asc = 路由层 routeByAlias 顺序。\n\nF-AAU-02 (useAsyncData mutate)：src/hooks/use-async-data.ts 加 `mutate(updater?: T | null | (prev) => T|null)` SWR 风格 API。mutate(value)/mutate(fn)/mutate() 三种语义；`T | null` 让 rollback 接受 prev 直传。新增 use-async-data.test.ts 6 测全过。其他 8 处既有 useAsyncData 消费方因仅新增字段不破坏。\n\nF-AAU-03..07 (5 类 optimistic)：抽 `_helpers.ts`（applyAliasPatch / applyToggleEnabled / applyChannelReorder / applyDeleteAlias / applyUnlinkModel / isAliasEnabledStillTarget）+ `_types.ts`（ApiResponse / AliasItem / LinkedModel / ChannelData / UnlinkedModel / PaginationMeta）。page.tsx 5 个 handler 全部从 `load()` 改为 `mutate((cur) => applyXxx(cur, …))` + 失败 rollback。toggleEnabled 走严格 race protection（D2.3：仅当 isAliasEnabledStillTarget(cur, id, enabled) 时回滚），其余 best-effort（spec 妥协）。createAlias / createAliasForModel 仍 load()（spec 非目标）。`_helpers.test.ts` + `toggle-enabled.test.tsx` 共 15 测全过；toggle-enabled 含 race 场景（renderHook + factory pattern 模拟 page.tsx handler 闭包）。\n\nF-AAU-08 (服务端分页 + 过滤)：route.ts 加 page/pageSize/search/brand/modality/enabled/sortKey 7 query params；page 缺省/NaN→1/clamp ≥1，pageSize 缺省→20/NaN→20/0~负→1/>100→100。Prisma where 组合 + orderBy 三档（alias/enabled/updatedAt）。响应 shape 改为 `{ data, unlinkedModels, availableBrands, pagination: {page,pageSize,total,totalPages} }`，drop legacy `total`/`unlinkedCount`。distinct 4 prisma 调用 Promise.all（aliases / count / unlinkedModels / brand 列表）。前端 page.tsx 加 `page` state + 5 个 setXxxAndResetPage wrapper（filter 变化 reset page=1，page 切换不影响 filter）；删除 client-side filteredAliases / brands / modalities useMemo（服务端做完）；引入 `<Pagination>` 组件 sticky bottom（totalPages>1 才渲染，>10 走 simple 模式）；MODALITY_OPTIONS 硬编码（5 enum）；SortKey 重命名 'name' → 'alias'，drop 'brand' sort 加 'updatedAt'，i18n 同步（sortBrand → sortUpdated）。route.test.ts 10 测全过（默认/page/pageSize 越界/search/brand/modality/enabled/sortKey/响应 shape/组合）。\n\nF-AAU-09 (设计稿同步)：design-draft/admin-model-aliases/code.html 在 Configured Mappings section 末尾追加 sticky bottom Pagination footer（左 Showing X–Y of Z，右 pageSize 选择器 20/50/100 + 上一页/下一页/页码序列），参照 design-draft/admin-logs/code.html 范式。DESIGN.md 追加 'Phase 1 UX 改造' 段记录 D1/D2/D3 设计要点。**screen.png 未替换**（spec 默认 Generator 手动截图，需本地启 dev server + 浏览器手动截 — 留 Codex 在 verifying 阶段或后续 chore 补；当前文件保留旧截图）。\n\n验证：tsc --noEmit clean / npm run test 全过（72 files / 581 passed / 4 skipped，本批次新增 4 文件 31 单测）/ npm run build PASS。grep 'load()' page.tsx 命中 2 处（createAlias + createAliasForModel，spec 非目标）。\n\n交 Codex F-AAU-10 验：scripts/test/codex-setup.sh + codex-wait.sh + 11 项 acceptance（含 dev server UI 操作 + 设计稿对照 + signoff 报告）。screen.png 替换可与 codex 沟通后续。",
+    "Reviewer": null
+  }
 }

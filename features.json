@@ -7,7 +7,7 @@
       "title": "reorder 视觉错位修复（ChannelTable channels 入参追加 sort by priority）",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "source": "BL-ADMIN-ALIAS-UX-PHASE1 Spec D1；用户报告 + 生产现地核验（deepseek-r1 alias UI pos 3/4 priority=4/3 错位）",
       "acceptance": "1) src/app/(console)/admin/model-aliases/page.tsx 中 <ChannelTable channels={...}> 的 props 在 flatMap 后追加 .sort((a, b) => (a.priority ?? 0) - (b.priority ?? 0))；2) channelModelMap 仍按原 flatMap 构建（用 ch.id 索引，不影响）；3) 视觉验证：mock 一个 alias 含 2 linkedModels（A 内 priority=1,3；B 内 priority=2,4），ChannelTable 渲染顺序应为 1,2,3,4 而非 1,3,2,4；4) npx tsc --noEmit PASS；5) npm run build PASS"
     },
@@ -16,7 +16,7 @@
       "title": "useAsyncData hook 扩展暴露 mutate（SWR 风格 functional updater）",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "source": "BL-ADMIN-ALIAS-UX-PHASE1 Spec D2.1（前置依赖 — F-AAU-03 ~ F-AAU-07 都依赖此）",
       "acceptance": "1) src/hooks/use-async-data.ts 的 UseAsyncDataResult<T> 增加 mutate 字段，类型 (updater?: T | ((prev: T | null) => T | null)) => void；2) 行为：mutate(value) 直接 setData(value)；mutate(fn) 走 functional updater（fn 接收最新 prev）；mutate() 不传等价 refetch()；3) 现有 8 处 useAsyncData 消费方未破（不强制使用 mutate）；4) 新增 src/hooks/__tests__/use-async-data.test.ts 覆盖：(a) 初始 fetch；(b) refetch；(c) mutate(value) 同步生效；(d) mutate(fn) 接收 prev 并设新值；(e) mutate() 等价 refetch；(f) mutate 后再 refetch 用 server 值覆盖本地 patch；5) npm run test PASS；6) npx tsc --noEmit PASS"
     },
@@ -25,7 +25,7 @@
       "title": "toggleEnabled optimistic + race-protected rollback（最严格保护范例）",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "source": "BL-ADMIN-ALIAS-UX-PHASE1 Spec D2.2 + D2.3；用户原话痛点之一",
       "acceptance": "1) page.tsx 的 toggleEnabled (现 ~L161-210) 删除 load() 调用；2) optimistic patch 用 mutate((cur) => 把目标 alias 的 enabled 字段翻转 + 保留其他字段)；3) catch 时按 D2.3 race protection：只在当前 state 中目标 alias 的 enabled 仍为本次写入的值时回滚到 prev，否则保留（说明已被后续操作覆盖）；4) toast.warning(toastEnabledNoSellPrice / toastEnabledAllFail) 行为不变；5) 新增 toggle-enabled.test.tsx 测试三场景：happy（fetch resolved → enabled 翻转）、failure（fetch rejected → rollback）、race（连续 2 次 toggle，第 1 次 reject 不覆盖第 2 次的 state）；6) npm run test PASS；7) 无 load() 调用残留在 toggleEnabled 函数内"
     },
@@ -34,7 +34,7 @@
       "title": "reorderChannels optimistic + rollback（依赖 F-AAU-01 修错位）",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "source": "BL-ADMIN-ALIAS-UX-PHASE1 Spec D2.2；用户原话痛点之一",
       "acceptance": "1) page.tsx 的 reorderChannels (L323-337) 删除 load() 调用；2) optimistic patch：mutate 函数内根据 orderedIds 的位次给对应 alias.linkedModels[*].channels 内匹配 channelId 的 channel 更新 priority=i+1；3) F-AAU-01 的 sort 让 patch 后的 ChannelTable 立即按新 priority 顺序渲染；4) catch 时回滚 prev snapshot；5) 单测：mock alias 数据（10 channel 跨 3 model），调 reorderChannels → 验证 mutate 写入的 alias.linkedModels[*].channels[*].priority 与 orderedIds 位次一致；6) 抽 helper 函数 applyChannelReorder(state, aliasId, orderedIds) 便于复用 + 测试；7) npm run test PASS"
     },
@@ -43,7 +43,7 @@
       "title": "saveChanges optimistic（多字段 spread merge + editState 失败保留）",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "source": "BL-ADMIN-ALIAS-UX-PHASE1 Spec D2.2",
       "acceptance": "1) page.tsx 的 saveChanges (L212-254) 删除 load() 调用；2) optimistic patch：mutate 函数内 spread merge editState[id] 的字段到目标 alias（不整体覆盖，避免 server 没返回的字段被丢失）；3) sellPrice CNY→USD 转换 + unit 自动填充逻辑保留（已在前端做）；4) catch 时回滚 prev snapshot 但**保留 editState[id]**（让用户重试），不删除；5) 成功时 setEditState 清除该 id（行为不变）；6) toast.success(saved) 行为保留；7) 抽 helper applyAliasPatch(state, aliasId, patch) 便于复用 + 测试；8) 单测覆盖 happy + failure 场景"
     },
@@ -52,7 +52,7 @@
       "title": "linkModel 半 optimistic（refetch）+ unlinkModel 严格 optimistic",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "source": "BL-ADMIN-ALIAS-UX-PHASE1 Spec F-AAU-06（默认半 optimistic 已拍板）",
       "acceptance": "1) page.tsx 的 linkModel (L296-309)：删除 load() 调用，replaced by refetch()（即 mutate() 不传参等价）；toast.success(modelLinked) + setAddModelAliasId(null) + setModelSearch('') 行为保留；catch 时 toast.error 即可（不需 rollback，因为没做 optimistic patch）；2) page.tsx 的 unlinkModel (L311-321)：删除 load() 调用，optimistic 从 alias.linkedModels 过滤掉对应 modelId 条目；catch rollback prev；toast.success(modelUnlinked) 行为保留；3) 单测：unlinkModel happy + failure；linkModel 仅验证 load()→refetch() 的替换；4) npm run test PASS"
     },
@@ -61,7 +61,7 @@
       "title": "deleteAlias optimistic（移除一行 + expandedId 清理）",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "source": "BL-ADMIN-ALIAS-UX-PHASE1 Spec F-AAU-07",
       "acceptance": "1) page.tsx 的 deleteAlias (L264-273) 删除 load() 调用；2) optimistic 从 aliases 数组中移除对应 id；3) expandedId === id 时清空 expandedId（行为保留）；4) catch 时回滚 prev；5) toast.success(aliasDeleted) 行为保留；6) 单测覆盖 happy + failure"
     },
@@ -70,7 +70,7 @@
       "title": "服务端分页 + 服务端过滤（API + UI 配套，方案 B）",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "source": "BL-ADMIN-ALIAS-UX-PHASE1 Spec D3 方案 B（用户已确认）；候选 4 用户自带需求",
       "acceptance": "1) src/app/api/admin/model-aliases/route.ts 加 query params 解析：page (default 1, min 1)、pageSize (default 20, min 1, max 100)、search、brand、modality、enabled (true/false)、sortKey (alias/enabled/updatedAt，default alias)；2) Prisma where 组合 search (alias OR description contains, mode insensitive) + brand + modality + enabled；orderBy 按 sortKey 分支（参考 spec D3 代码）；3) 响应 shape：{data, unlinkedModels, pagination: {page, pageSize, total, totalPages}}；4) unlinkedModels 不分页（量小，单独查全量）；5) 前端 page.tsx 引入 page/pageSize state（默认 1/20），既有 search/filterBrand/filterModality/filterEnabled/sortKey 5 个 state 改为传入 query；useAsyncData deps 含全部分页/过滤参数；filter 变化时 reset page=1，page 切换不影响 filter；6) 引入 <Pagination> 组件（src/components/pagination.tsx），放置 alias 列表底部 sticky；7) 翻页时未保存 editState 直接丢弃（不提示，spec 默认拍板）；8) 客户端 useMemo 过滤逻辑移除（已在服务端做），保留排序的客户端 fallback 仅用于 sortKey 之外的细微展示排序（如有，否则一并移除）；9) 单测：route.test.ts 覆盖默认参数 / search / brand / modality / enabled / sortKey 各值 / pageSize 越界 / 响应 shape；10) npm run test PASS；11) npx tsc --noEmit PASS；12) npm run build PASS"
     },
@@ -79,7 +79,7 @@
       "title": "Stitch 设计稿同步（code.html 加分页 footer + DESIGN.md + screen.png）",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "source": "BL-ADMIN-ALIAS-UX-PHASE1 Spec D4；planner.md §2.5 硬性要求（功能改造批次 design-draft 一致性）",
       "acceptance": "1) design-draft/admin-model-aliases/code.html 在 alias 列表底部追加 Pagination footer，参照 design-draft/admin-logs/code.html 范式（含 pageSize 选择器 20/50/100 + 上一页/下一页按钮 + 总数显示）；2) design-draft/admin-model-aliases/DESIGN.md 追加 'Phase 1 UX 改造（reorder 修复 + optimistic + pagination）' 段记录设计变更要点；3) design-draft/admin-model-aliases/screen.png 重新截图（Generator 在本地启 dev server 后浏览器手动截图替换）；4) code.html 在浏览器打开后视觉与实际 dev server 渲染一致（分页控件位置 + pageSize 选择器存在）"
     },
