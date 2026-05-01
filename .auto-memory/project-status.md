@@ -4,11 +4,12 @@ description: AIGC Gateway 当前状态快照（覆盖写，≤30 行）
 type: project
 ---
 ## 当前批次
-- **BL-ADMIN-ALIAS-UX-PHASE1**（verifying，2026-05-01 启动 / 2026-05-01 generator 完成 9/10）
-  - admin/model-aliases UX 大修：reorder 错位修复 + 6 类 optimistic + 服务端分页（方案 B）+ 设计稿同步
-  - F-AAU-01..09 done by generator；F-AAU-10 等 Codex 验收
-  - spec: docs/specs/BL-ADMIN-ALIAS-UX-PHASE1-spec.md
-  - 遗留：design-draft/admin-model-aliases/screen.png 未替换（Generator 手动截图，留 Codex / 后续 chore 补）
+- **BL-ADMIN-ALIAS-UX-PHASE1**（fixing，2026-05-01 Codex 首轮验收失败）
+  - 实现面基本通过：reorder 错位修复 + optimistic handlers + 服务端分页/过滤 + 单测/构建
+  - 阻断项在 F-AAU-09 设计稿同步：
+    - `design-draft/admin-model-aliases/screen.png` 未刷新
+    - `code.html` 含 page-size selector，但真实 UI 没有该控件
+  - report: `docs/test-reports/BL-ADMIN-ALIAS-UX-PHASE1-verifying-2026-05-01.md`
 
 ## reference path
 - KOLMatrix repo 实际路径：`/mnt/c/Users/tripplezhou/projects/kolmatrix`
