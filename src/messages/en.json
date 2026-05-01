@@ -822,7 +822,7 @@
     "disabledOnly": "Disabled",
     "sortEnabled": "Sort: Enabled first",
     "sortName": "Sort: Name",
-    "sortBrand": "Sort: Brand",
+    "sortUpdated": "Sort: Recently updated",
     "channels": "channels",
     "sellPrice": "Sell Price",
     "inputPer1M": "Input / 1M tokens",

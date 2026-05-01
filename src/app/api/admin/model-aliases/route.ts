@@ -1,4 +1,5 @@
 export const dynamic = "force-dynamic";
+import { Prisma, type ModelModality } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/api/admin-guard";
@@ -6,15 +7,77 @@ import { errorResponse } from "@/lib/api/errors";
 
 /**
  * GET /api/admin/model-aliases
- * 返回所有别名（含关联模型详情 + 未归类模型列表）
+ *
+ * BL-ADMIN-ALIAS-UX-PHASE1 F-AAU-08: server-side pagination + filtering.
+ * Query params (all optional):
+ *   page (default 1, min 1)
+ *   pageSize (default 20, min 1, max 100)
+ *   search (alias / description contains, mode insensitive)
+ *   brand (exact match)
+ *   modality (exact match against ModelModality enum)
+ *   enabled ('true' | 'false')
+ *   sortKey ('alias' | 'enabled' | 'updatedAt'; default 'alias')
+ *
+ * Response: { data, unlinkedModels, availableBrands, pagination }
+ *   - data: AliasItem[] for the current page
+ *   - unlinkedModels: full list (small N, no point paginating)
+ *   - availableBrands: distinct brand values across **all** aliases
+ *     (so the brand filter dropdown shows every option, not only those
+ *     present on the current page)
+ *   - pagination: { page, pageSize, total, totalPages } reflects the
+ *     **filtered** set; total = matching aliases regardless of page
  */
 export async function GET(request: Request) {
   const auth = requireAdmin(request);
   if (!auth.ok) return auth.error;
 
-  const [aliases, allModels] = await Promise.all([
+  const url = new URL(request.url);
+  // Page: missing or non-numeric → 1; numeric clamps to ≥1.
+  const rawPage = Number(url.searchParams.get("page"));
+  const page = Number.isFinite(rawPage) ? Math.max(1, Math.floor(rawPage)) : 1;
+  // pageSize: missing → 20; non-numeric → 20; 0/negative → 1; >100 → 100.
+  const pageSizeParam = url.searchParams.get("pageSize");
+  const rawPageSize = pageSizeParam == null ? 20 : Number(pageSizeParam);
+  const pageSize = Number.isFinite(rawPageSize)
+    ? Math.min(100, Math.max(1, Math.floor(rawPageSize)))
+    : 20;
+  const search = (url.searchParams.get("search") ?? "").trim();
+  const brand = (url.searchParams.get("brand") ?? "").trim();
+  const modality = (url.searchParams.get("modality") ?? "").trim();
+  const enabledFilter = url.searchParams.get("enabled");
+  const sortKey = url.searchParams.get("sortKey") ?? "alias";
+
+  const where: Prisma.ModelAliasWhereInput = {
+    ...(search
+      ? {
+          OR: [
+            { alias: { contains: search, mode: "insensitive" } },
+            { description: { contains: search, mode: "insensitive" } },
+          ],
+        }
+      : {}),
+    ...(brand ? { brand } : {}),
+    ...(modality ? { modality: modality as ModelModality } : {}),
+    ...(enabledFilter === "true"
+      ? { enabled: true }
+      : enabledFilter === "false"
+        ? { enabled: false }
+        : {}),
+  };
+
+  const orderBy: Prisma.ModelAliasOrderByWithRelationInput[] =
+    sortKey === "enabled"
+      ? [{ enabled: "desc" }, { alias: "asc" }]
+      : sortKey === "updatedAt"
+        ? [{ updatedAt: "desc" }]
+        : [{ alias: "asc" }];
+
+  const [aliases, total, allModels, brandRows] = await Promise.all([
     prisma.modelAlias.findMany({
-      orderBy: [{ alias: "asc" }],
+      where,
+      orderBy,
+      skip: (page - 1) * pageSize,
+      take: pageSize,
       include: {
         models: {
           include: {
@@ -45,6 +108,7 @@ export async function GET(request: Request) {
         },
       },
     }),
+    prisma.modelAlias.count({ where }),
     prisma.model.findMany({
       where: {
         aliasLinks: { none: {} },
@@ -64,6 +128,14 @@ export async function GET(request: Request) {
         },
       },
       orderBy: { name: "asc" },
+    }),
+    // Distinct brand list across the *unfiltered* alias table so the
+    // brand dropdown stays complete after pagination/filtering kicks in.
+    prisma.modelAlias.findMany({
+      where: { brand: { not: null } },
+      select: { brand: true },
+      distinct: ["brand"],
+      orderBy: { brand: "asc" },
     }),
   ]);
 
@@ -113,11 +185,20 @@ export async function GET(request: Request) {
     providers: [...new Set(m.channels.map((ch) => ch.provider.displayName))],
   }));
 
+  const availableBrands = brandRows
+    .map((r) => r.brand)
+    .filter((b): b is string => !!b);
+
   return NextResponse.json({
     data,
-    total: data.length,
     unlinkedModels,
-    unlinkedCount: unlinkedModels.length,
+    availableBrands,
+    pagination: {
+      page,
+      pageSize,
+      total,
+      totalPages: Math.max(1, Math.ceil(total / pageSize)),
+    },
   });
 }
 

@@ -822,7 +822,7 @@
     "disabledOnly": "已禁用",
     "sortEnabled": "排序：启用优先",
     "sortName": "排序：名称",
-    "sortBrand": "排序：品牌",
+    "sortUpdated": "排序：最近更新",
     "channels": "个通道",
     "sellPrice": "售价",
     "inputPer1M": "输入 / 1M tokens",

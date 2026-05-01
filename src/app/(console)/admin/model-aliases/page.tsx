@@ -1,5 +1,5 @@
 "use client";
-import { useState, useCallback, useMemo } from "react";
+import { useState, useCallback } from "react";
 import { useTranslations } from "next-intl";
 import { apiFetch } from "@/lib/api-client";
 import { useAsyncData } from "@/hooks/use-async-data";
@@ -12,61 +12,20 @@ import { PageHeader } from "@/components/page-header";
 import { SectionCard } from "@/components/section-card";
 import { TableCard } from "@/components/table-card";
 import { Button } from "@/components/ui/button";
-
-// ── Types ──
-
-interface LinkedModel {
-  modelId: string;
-  modelName: string;
-  modelEnabled: boolean;
-  channels: {
-    id: string;
-    priority: number;
-    status: string;
-    costPrice: Record<string, unknown> | null;
-    sellPrice: Record<string, unknown> | null;
-    providerName: string;
-    latencyMs: number | null;
-    lastHealthResult: "PASS" | "FAIL" | null;
-  }[];
-}
-
-interface AliasItem {
-  id: string;
-  alias: string;
-  brand: string | null;
-  modality: string;
-  enabled: boolean;
-  contextWindow: number | null;
-  maxTokens: number | null;
-  capabilities: Record<string, boolean> | null;
-  description: string | null;
-  sellPrice: Record<string, unknown> | null;
-  openRouterModelId: string | null;
-  linkedModels: LinkedModel[];
-  linkedModelCount: number;
-  activeChannelCount: number;
-}
+import { Pagination } from "@/components/pagination";
+import type { AliasItem, ApiResponse } from "./_types";
+import {
+  applyAliasPatch,
+  applyChannelReorder,
+  applyDeleteAlias,
+  applyToggleEnabled,
+  applyUnlinkModel,
+  isAliasEnabledStillTarget,
+} from "./_helpers";
 
 interface OpenRouterPrices {
   prices: Record<string, { inputPer1M: number; outputPer1M: number }>;
   rate: number;
-}
-
-interface UnlinkedModel {
-  id: string;
-  name: string;
-  displayName: string;
-  modality: string;
-  channelCount: number;
-  providers: string[];
-}
-
-interface ApiResponse {
-  data: AliasItem[];
-  total: number;
-  unlinkedModels: UnlinkedModel[];
-  unlinkedCount: number;
 }
 
 const CAPABILITY_KEYS = [
@@ -79,8 +38,11 @@ const CAPABILITY_KEYS = [
   "search",
 ] as const;
 
-type SortKey = "name" | "enabled" | "brand";
+type SortKey = "alias" | "enabled" | "updatedAt";
 type FilterEnabled = "all" | "enabled" | "disabled";
+
+const PAGE_SIZE = 20;
+const MODALITY_OPTIONS = ["TEXT", "IMAGE", "EMBEDDING", "AUDIO", "VIDEO"] as const;
 
 export default function ModelAliasesPage() {
   const t = useTranslations("modelAliases");
@@ -94,18 +56,55 @@ export default function ModelAliasesPage() {
   const [newSizeInput, setNewSizeInput] = useState<Record<string, string>>({});
   const [editingNumField, setEditingNumField] = useState<string | null>(null);
 
-  // Search / Filter / Sort state
+  // F-AAU-08: Search / Filter / Sort / Pagination state. All filter
+  // changes reset page to 1 (via the `applyFilter` setters); manual page
+  // navigation does not reset filters.
   const [search, setSearch] = useState("");
   const [filterBrand, setFilterBrand] = useState("");
   const [filterModality, setFilterModality] = useState("");
   const [filterEnabled, setFilterEnabled] = useState<FilterEnabled>("all");
   const [sortKey, setSortKey] = useState<SortKey>("enabled");
+  const [page, setPage] = useState(1);
+
+  const setSearchAndResetPage = useCallback((v: string) => {
+    setSearch(v);
+    setPage(1);
+  }, []);
+  const setFilterBrandAndResetPage = useCallback((v: string) => {
+    setFilterBrand(v);
+    setPage(1);
+  }, []);
+  const setFilterModalityAndResetPage = useCallback((v: string) => {
+    setFilterModality(v);
+    setPage(1);
+  }, []);
+  const setFilterEnabledAndResetPage = useCallback((v: FilterEnabled) => {
+    setFilterEnabled(v);
+    setPage(1);
+  }, []);
+  const setSortKeyAndResetPage = useCallback((v: SortKey) => {
+    setSortKey(v);
+    setPage(1);
+  }, []);
 
   const {
     data: apiData,
     loading,
     refetch: load,
-  } = useAsyncData<ApiResponse>(() => apiFetch<ApiResponse>("/api/admin/model-aliases"), []);
+    mutate,
+  } = useAsyncData<ApiResponse>(() => {
+    const params = new URLSearchParams({
+      page: String(page),
+      pageSize: String(PAGE_SIZE),
+      sortKey,
+    });
+    if (search) params.set("search", search);
+    if (filterBrand) params.set("brand", filterBrand);
+    if (filterModality) params.set("modality", filterModality);
+    if (filterEnabled === "enabled") params.set("enabled", "true");
+    else if (filterEnabled === "disabled") params.set("enabled", "false");
+    return apiFetch<ApiResponse>(`/api/admin/model-aliases?${params.toString()}`);
+  }, [page, search, filterBrand, filterModality, filterEnabled, sortKey]);
 
   const { data: priceData } = useAsyncData<OpenRouterPrices>(
     () => apiFetch<OpenRouterPrices>("/api/admin/openrouter-prices"),
@@ -115,47 +114,18 @@ export default function ModelAliasesPage() {
   const aliases = apiData?.data ?? [];
   const orPrices = priceData?.prices ?? {};
   const unlinkedModels = apiData?.unlinkedModels ?? [];
-  const totalAliases = apiData?.total ?? 0;
+  const totalAliases = apiData?.pagination.total ?? 0;
+  const totalPages = apiData?.pagination.totalPages ?? 1;
+  // activeAliases on the current page only — without an extra count query
+  // we cannot show the table-wide enabled count under server pagination.
+  // Stat-card label is generic ("active") so this is acceptable; switching
+  // to a global count would need a new endpoint or a second query here.
   const activeAliases = aliases.filter((a) => a.enabled).length;
 
-  // Unique brands and modalities for filter dropdowns
-  const brands = useMemo(() => {
-    const set = new Set(aliases.map((a) => a.brand).filter(Boolean) as string[]);
-    return [...set].sort();
-  }, [aliases]);
-
-  const modalities = useMemo(() => {
-    const set = new Set(aliases.map((a) => a.modality));
-    return [...set].sort();
-  }, [aliases]);
-
-  // Filtered + sorted aliases
-  const filteredAliases = useMemo(() => {
-    let result = aliases;
-    if (search) {
-      const q = search.toLowerCase();
-      result = result.filter(
-        (a) => a.alias.toLowerCase().includes(q) || (a.brand && a.brand.toLowerCase().includes(q)),
-      );
-    }
-    if (filterBrand) result = result.filter((a) => a.brand === filterBrand);
-    if (filterModality) result = result.filter((a) => a.modality === filterModality);
-    if (filterEnabled === "enabled") result = result.filter((a) => a.enabled);
-    if (filterEnabled === "disabled") result = result.filter((a) => !a.enabled);
-
-    return [...result].sort((a, b) => {
-      if (sortKey === "enabled") {
-        if (a.enabled !== b.enabled) return a.enabled ? -1 : 1;
-        return a.alias.localeCompare(b.alias);
-      }
-      if (sortKey === "brand") {
-        const ab = a.brand ?? "";
-        const bb = b.brand ?? "";
-        return ab.localeCompare(bb) || a.alias.localeCompare(b.alias);
-      }
-      return a.alias.localeCompare(b.alias);
-    });
-  }, [aliases, search, filterBrand, filterModality, filterEnabled, sortKey]);
+  // F-AAU-08: brand list comes from the server (distinct across all
+  // aliases) so the dropdown stays complete after filtering. Modalities
+  // are a fixed enum, hardcoded above (MODALITY_OPTIONS).
+  const availableBrands = apiData?.availableBrands ?? [];
 
   // ── Edit helpers ──
 
@@ -190,6 +160,8 @@ export default function ModelAliasesPage() {
   };
 
   const toggleEnabled = async (id: string, enabled: boolean) => {
+    // Pre-flight warnings — must fire before optimistic apply so the user
+    // sees the warning toast even on the synchronous local update.
     if (enabled) {
       const alias = aliases.find((a) => a.id === id);
       if (alias) {
@@ -198,23 +170,31 @@ export default function ModelAliasesPage() {
         if (allFail) toast.warning(t("toastEnabledAllFail"));
       }
     }
+    // F-AAU-03: optimistic toggle. Rollback is race-protected — if a
+    // subsequent toggle has already flipped enabled to a different value
+    // by the time this PATCH rejects, we leave that newer state alone.
+    const prev = apiData;
+    mutate((cur) => applyToggleEnabled(cur, id, enabled));
     try {
       await apiFetch(`/api/admin/model-aliases/${id}`, {
         method: "PATCH",
         body: JSON.stringify({ enabled }),
       });
-      load();
     } catch (err) {
+      mutate((cur) => (isAliasEnabledStillTarget(cur, id, enabled) ? prev : cur));
       toast.error((err as Error).message);
     }
   };
 
   const saveChanges = async (id: string) => {
-    const changes = { ...editState[id] };
-    if (!changes || Object.keys(changes).length === 0) return;
-    // CNY → USD conversion for sellPrice
-    if (changes.sellPrice) {
-      const sp = changes.sellPrice as Record<string, unknown>;
+    const rawChanges = { ...editState[id] };
+    if (!rawChanges || Object.keys(rawChanges).length === 0) return;
+    // CNY → USD conversion for sellPrice (request payload only — local
+    // optimistic patch keeps the CNY-displayed editState; the next server
+    // refetch will normalise back to USD shape).
+    const requestChanges: Partial<AliasItem> = { ...rawChanges };
+    if (requestChanges.sellPrice) {
+      const sp = requestChanges.sellPrice as Record<string, unknown>;
       const converted: Record<string, unknown> = {};
       for (const [k, v] of Object.entries(sp)) {
         if (
@@ -234,21 +214,25 @@ export default function ModelAliasesPage() {
           converted.unit = "call";
         }
       }
-      changes.sellPrice = converted;
+      requestChanges.sellPrice = converted;
     }
+    // F-AAU-05: optimistic spread-merge. On failure rollback prev state
+    // but keep editState[id] so the user can correct + retry.
+    const prev = apiData;
+    mutate((cur) => applyAliasPatch(cur, id, requestChanges));
     try {
       await apiFetch(`/api/admin/model-aliases/${id}`, {
         method: "PATCH",
-        body: JSON.stringify(changes),
+        body: JSON.stringify(requestChanges),
       });
       toast.success(t("saved"));
-      setEditState((prev) => {
-        const next = { ...prev };
+      setEditState((prevEdit) => {
+        const next = { ...prevEdit };
         delete next[id];
         return next;
       });
-      load();
     } catch (err) {
+      mutate(prev);
       toast.error((err as Error).message);
     }
   };
@@ -262,12 +246,15 @@ export default function ModelAliasesPage() {
   };
 
   const deleteAlias = async (id: string) => {
+    // F-AAU-07: optimistic remove + expandedId cleanup; rollback on failure.
+    const prev = apiData;
+    mutate((cur) => applyDeleteAlias(cur, id));
+    if (expandedId === id) setExpandedId(null);
     try {
       await apiFetch(`/api/admin/model-aliases/${id}`, { method: "DELETE" });
       toast.success(t("aliasDeleted"));
-      if (expandedId === id) setExpandedId(null);
-      load();
     } catch (err) {
+      mutate(prev);
       toast.error((err as Error).message);
     }
   };
@@ -294,6 +281,10 @@ export default function ModelAliasesPage() {
   };
 
   const linkModel = async (aliasId: string, modelId: string) => {
+    // F-AAU-06 (half optimistic): POST /link returns the linked entry but
+    // not the channel set the new model brings — we'd have to fabricate
+    // priority + provider data optimistically, so fall back to a scoped
+    // refetch (mutate() with no arg) instead of integral page load.
     try {
       await apiFetch(`/api/admin/model-aliases/${aliasId}/link`, {
         method: "POST",
@@ -302,25 +293,42 @@ export default function ModelAliasesPage() {
       toast.success(t("modelLinked"));
       setAddModelAliasId(null);
       setModelSearch("");
-      load();
+      mutate();
     } catch (err) {
       toast.error((err as Error).message);
     }
   };
 
   const unlinkModel = async (aliasId: string, modelId: string) => {
+    // F-AAU-06 (strict optimistic): filter the modelId out + recompute
+    // counts immediately; rollback on failure.
+    const prev = apiData;
+    mutate((cur) => applyUnlinkModel(cur, aliasId, modelId));
     try {
       await apiFetch(`/api/admin/model-aliases/${aliasId}/link/${modelId}`, {
         method: "DELETE",
       });
       toast.success(t("modelUnlinked"));
-      load();
     } catch (err) {
+      mutate(prev);
       toast.error((err as Error).message);
     }
   };
 
   const reorderChannels = async (orderedIds: string[]) => {
+    // F-AAU-04: optimistic priority rewrite. The drag source is bound to
+    // a single alias's ChannelTable, so all `orderedIds` belong to that
+    // alias — find it by matching the first id, then re-stamp priority
+    // = i+1. Combined with F-AAU-01's flatMap+sort, the ChannelTable
+    // re-renders in the new order without a refetch.
+    if (orderedIds.length === 0) return;
+    const aliasId = apiData?.data.find((a) =>
+      a.linkedModels.some((lm) => lm.channels.some((ch) => ch.id === orderedIds[0])),
+    )?.id;
+    const prev = apiData;
+    if (aliasId) {
+      mutate((cur) => applyChannelReorder(cur, aliasId, orderedIds));
+    }
     try {
       await Promise.all(
         orderedIds.map((id, i) =>
@@ -330,8 +338,10 @@ export default function ModelAliasesPage() {
           }),
         ),
       );
-      load();
+      // race-on-rollback: 失败概率低，simple rollback 接受可能覆盖后续操作的
+      // 小概率风险（spec D2.3 妥协，仅 toggleEnabled 走严格 race protection）
     } catch (err) {
+      mutate(prev);
       toast.error((err as Error).message);
     }
   };
@@ -587,17 +597,17 @@ export default function ModelAliasesPage() {
           <SearchBar
             placeholder={t("searchAliases")}
             value={search}
-            onChange={setSearch}
+            onChange={setSearchAndResetPage}
             className="w-64"
           />
           {/* Brand filter */}
           <select
             className="bg-ds-surface-container-low border-none rounded-full text-xs font-bold px-4 py-2 focus:ring-1 focus:ring-ds-primary/30"
             value={filterBrand}
-            onChange={(e) => setFilterBrand(e.target.value)}
+            onChange={(e) => setFilterBrandAndResetPage(e.target.value)}
           >
             <option value="">{t("allBrands")}</option>
-            {brands.map((b) => (
+            {availableBrands.map((b) => (
               <option key={b} value={b}>
                 {b}
               </option>
@@ -607,10 +617,10 @@ export default function ModelAliasesPage() {
           <select
             className="bg-ds-surface-container-low border-none rounded-full text-xs font-bold px-4 py-2 focus:ring-1 focus:ring-ds-primary/30"
             value={filterModality}
-            onChange={(e) => setFilterModality(e.target.value)}
+            onChange={(e) => setFilterModalityAndResetPage(e.target.value)}
           >
             <option value="">{t("allModalities")}</option>
-            {modalities.map((m) => (
+            {MODALITY_OPTIONS.map((m) => (
               <option key={m} value={m}>
                 {m}
               </option>
@@ -620,7 +630,7 @@ export default function ModelAliasesPage() {
           <select
             className="bg-ds-surface-container-low border-none rounded-full text-xs font-bold px-4 py-2 focus:ring-1 focus:ring-ds-primary/30"
             value={filterEnabled}
-            onChange={(e) => setFilterEnabled(e.target.value as FilterEnabled)}
+            onChange={(e) => setFilterEnabledAndResetPage(e.target.value as FilterEnabled)}
           >
             <option value="all">{t("allStatus")}</option>
             <option value="enabled">{t("enabledOnly")}</option>
@@ -630,19 +640,19 @@ export default function ModelAliasesPage() {
           <select
             className="bg-ds-surface-container-low border-none rounded-full text-xs font-bold px-4 py-2 focus:ring-1 focus:ring-ds-primary/30"
             value={sortKey}
-            onChange={(e) => setSortKey(e.target.value as SortKey)}
+            onChange={(e) => setSortKeyAndResetPage(e.target.value as SortKey)}
           >
             <option value="enabled">{t("sortEnabled")}</option>
-            <option value="name">{t("sortName")}</option>
-            <option value="brand">{t("sortBrand")}</option>
+            <option value="alias">{t("sortName")}</option>
+            <option value="updatedAt">{t("sortUpdated")}</option>
           </select>
         </div>
 
-        {filteredAliases.length === 0 ? (
+        {aliases.length === 0 ? (
           <p className="text-ds-on-surface-variant text-center py-8">{t("noAliases")}</p>
         ) : (
           <div className="flex flex-col gap-2">
-            {filteredAliases.map((alias) => {
+            {aliases.map((alias) => {
               const isExpanded = expandedId === alias.id;
               const caps = (getEditValue(alias.id, "capabilities") ?? {}) as Record<
                 string,
@@ -988,19 +998,24 @@ export default function ModelAliasesPage() {
                           {t("linkedInfrastructure")}
                         </h4>
                         <ChannelTable
-                          channels={alias.linkedModels.flatMap((lm) =>
-                            lm.channels.map(
-                              (ch): ChannelRowData => ({
-                                id: ch.id,
-                                modelName: lm.modelName,
-                                providerName: ch.providerName,
-                                costPrice: ch.costPrice,
-                                status: ch.status,
-                                priority: ch.priority,
-                                latencyMs: ch.latencyMs,
-                              }),
-                            ),
-                          )}
+                          channels={alias.linkedModels
+                            .flatMap((lm) =>
+                              lm.channels.map(
+                                (ch): ChannelRowData => ({
+                                  id: ch.id,
+                                  modelName: lm.modelName,
+                                  providerName: ch.providerName,
+                                  costPrice: ch.costPrice,
+                                  status: ch.status,
+                                  priority: ch.priority,
+                                  latencyMs: ch.latencyMs,
+                                }),
+                              ),
+                            )
+                            // F-AAU-01: 跨 model 拖拽后视觉与路由层一致 —
+                            // ChannelTable 渲染顺序 = 全局 priority asc。
+                            // 不在 API 层做（API 返回 shape 保持稳定）。
+                            .sort((a, b) => (a.priority ?? 0) - (b.priority ?? 0))}
                           exchangeRate={exchangeRate}
                           mode="editable"
                           onUnlink={(_channelId, modelId) => unlinkModel(alias.id, modelId)}
@@ -1043,6 +1058,19 @@ export default function ModelAliasesPage() {
               );
             })}
           </div>
+        )}
+
+        {/* F-AAU-08: server-side pagination footer (only when ≥2 pages) */}
+        {totalPages > 1 && (
+          <Pagination
+            page={page}
+            totalPages={totalPages}
+            onPageChange={setPage}
+            total={totalAliases}
+            pageSize={PAGE_SIZE}
+            simple={totalPages > 10}
+            className="sticky bottom-4 bg-ds-surface-container-lowest/80 backdrop-blur-sm rounded-xl px-4 py-2 mt-2 shadow-sm"
+          />
         )}
       </section>
 
