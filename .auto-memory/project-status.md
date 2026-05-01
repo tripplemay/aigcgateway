@@ -4,10 +4,10 @@ description: AIGC Gateway 当前状态快照（覆盖写，≤30 行）
 type: project
 ---
 ## 当前批次
-- **BL-ADMIN-ALIAS-UX-PHASE1**（reverifying，2026-05-01 fix-round-1 完成）
-  - F-AAU-01..08 实现面 Codex 已 PASS（含 dev-server runtime 验收）
-  - F-AAU-09 fix-round-1：(a) code.html 删除 pageSize selector（对齐已实现 Pagination 组件）；(b) screen.png 用 Codex 跑出的真实 dev server 截图替换；(c) DESIGN.md 同步去除 pageSize 描述
-  - report: `docs/test-reports/BL-ADMIN-ALIAS-UX-PHASE1-verifying-2026-05-01.md`
+- **BL-ADMIN-ALIAS-UX-PHASE1**（done，2026-05-01 Codex reverifying PASS）
+  - F-AAU-01..08：实现面已在 verifying 通过（含 dev-server runtime 验收）
+  - F-AAU-09：design-draft 三件已同步 PASS：code.html 去除 pageSize selector、screen.png 刷新为真实页面截图、DESIGN.md 同步分页说明
+  - signoff: `docs/test-reports/BL-ADMIN-ALIAS-UX-PHASE1-signoff-2026-05-01.md`
 
 ## reference path
 - KOLMatrix repo 实际路径：`/mnt/c/Users/tripplezhou/projects/kolmatrix`

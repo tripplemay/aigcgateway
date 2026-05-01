@@ -1,32 +1,29 @@
 {
-  "status": "reverifying",
+  "status": "done",
   "user_goal": "BL-ADMIN-ALIAS-UX-PHASE1 — admin/model-aliases 页面 UX 大修一期：reorder 视觉错位修复 + 6 类写操作 optimistic update（toggle/reorder/save/link/unlink/delete）+ 服务端分页过滤（方案 B）+ Stitch 设计稿同步",
   "total_features": 10,
-  "completed_features": 9,
+  "completed_features": 10,
   "fix_rounds": 1,
   "current_sprint": "BL-ADMIN-ALIAS-UX-PHASE1",
-  "last_updated": "2026-05-01T14:15:00Z",
+  "last_updated": "2026-05-01T14:53:00Z",
   "role_assignments": null,
   "docs": {
     "spec": "docs/specs/BL-ADMIN-ALIAS-UX-PHASE1-spec.md",
     "test_cases": null,
-    "signoff": null,
+    "signoff": "docs/test-reports/BL-ADMIN-ALIAS-UX-PHASE1-signoff-2026-05-01.md",
     "framework_reviewed": false
   },
   "evaluator_feedback": {
-    "result": "FAIL",
-    "report": "docs/test-reports/BL-ADMIN-ALIAS-UX-PHASE1-verifying-2026-05-01.md",
-    "blocking_issues": [
-      "F-AAU-09 failed: design-draft/admin-model-aliases/screen.png was not refreshed for this batch.",
-      "F-AAU-09 failed: design-draft/admin-model-aliases/code.html includes a page-size selector (20/50/100) that the real UI does not render."
-    ],
+    "result": "PASS",
+    "report": "docs/test-reports/BL-ADMIN-ALIAS-UX-PHASE1-signoff-2026-05-01.md",
+    "blocking_issues": [],
     "non_blocking_notes": [
-      "Implementation acceptance otherwise passed: harness, tests, build, pagination/search runtime behavior, toggle optimistic update, and reorder PATCH behavior all verified.",
-      "Concurrent `npx tsc --noEmit` with `npm run build` produces false-negative `.next/types` missing-file errors; final sequential tsc result passed."
+      "Current commit contains no product implementation diff versus the prior runtime-verified baseline `a743e4d`; reverification focused on F-AAU-09 design sync and smoke/build stability.",
+      "Chrome DevTools transport was unavailable during this round, so final UI equivalence used direct image inspection and exact hash equality between refreshed `screen.png` and the prior runtime screenshot artifact."
     ]
   },
   "session_notes": {
     "Generator-AAU": "BL-ADMIN-ALIAS-UX-PHASE1 fix-round-1 完成 @ 2026-05-01；status fixing → reverifying。\n\n本轮仅修 F-AAU-09 的两个阻断项，不动实现代码（Codex 已 PASS F-AAU-01..08 含 dev-server runtime 验收）。\n\n**修复 #1 — 移除 code.html 中 pageSize selector：** 真实 UI 用的是 src/components/pagination.tsx，该组件只渲染 prev/next + 页码 + total，无 pageSize 切换。code.html 上轮按 spec acceptance #1 字面要求 (\"含 pageSize 选择器 20/50/100\") 加了 selector，但 spec 与已实现的 Pagination 组件存在冲突 —— 选\"设计稿对齐已实现 UI\"路径（不引入新功能）。删除 design-draft/admin-model-aliases/code.html 中 `<select> 20|50|100 / page </select>` 块；保留 prev/next + 页码序列 + total 显示；注释说明 PAGE_SIZE 是 page.tsx 常量、若未来加 size 切换需同时更新组件 + footer。\n\n**修复 #2 — 刷新 screen.png：** 上轮甩给 Codex 让其 verifying 阶段补，Codex 不接，回到我手上。Codex 验收时已经在 dev server 跑出真实页面截图（保存在 docs/test-reports/_artifacts/BL-ADMIN-ALIAS-UX-PHASE1/admin-model-aliases-page.png，174KB / 1600×1800 PNG），直接复用 cp 替换 design-draft/admin-model-aliases/screen.png。截图含 Model Aliases 页面 stats cards + search/filter 工具栏 + 展开 alias 详情卡片（Codex 测试 fixture 'codex-aau-reorder-fixture'）；未含分页 footer 因为 fixture 只 1 alias，totalPages=1 时 `<Pagination>` 不渲染（这是 page.tsx 的正确行为）。\n\n**修复 #3 — 同步 DESIGN.md：** 删除 'Phase 1 UX 改造' 段中 \"右侧 pageSize 选择器（20 / 50 / 100）\" 描述；改为 \"上一页/下一页按钮 + 页码序列\"；补一行说明 pageSize 当前是页面常量 20、未来如要 UI 切换需同时改组件 + footer；screen.png 描述更新为 dev server 真实截图。\n\n本轮**不动**实现代码 / 单测 / route.ts。tsc / npm run test / npm run build 上轮已 PASS（72 files / 581 passed / 4 skipped），Codex 已确认；本轮变更仅设计稿 + 文档 + 状态文件，不影响 build/test。\n\n[历史 — round-0 (verifying 前)] BL-ADMIN-ALIAS-UX-PHASE1 F-AAU-01..09 完成。F-AAU-01 ChannelTable sort by priority；F-AAU-02 useAsyncData mutate API + 6 测；F-AAU-03..07 抽 _helpers.ts (applyAliasPatch/Reorder/Delete/Toggle/Unlink + isAliasEnabledStillTarget) + page.tsx 5 handler 改 mutate optimistic + rollback；F-AAU-08 route.ts 7 query params + Prisma where/orderBy + Pagination UI 配套 + 10 路由测；F-AAU-09 code.html 加 footer + DESIGN.md 加 Phase 1 段（**screen.png 当时未替换 → fix-round-1 修复**）。load() page.tsx 从 8 → 2 (createAlias/createAliasForModel 保留 spec 非目标)。\n\n交 Codex 复验：仅设计稿三件 + progress.json + project-status.md 变更；F-AAU-09 acceptance 重新评估即可，#1..#8 实现面无变更不必重跑 runtime 验收。",
-    "Reviewer": "BL-ADMIN-ALIAS-UX-PHASE1 verifying @ 2026-05-01 21:43 CST / 2026-05-01T13:43:11Z complete. Conclusion FAIL, status -> fixing.\n\nAccepted:\n- `bash scripts/test/codex-setup.sh` PASS\n- `bash scripts/test/codex-wait.sh` PASS\n- F-AAU-01 reorder display fix verified in code + runtime order\n- F-AAU-02 useAsyncData mutate hook tests PASS\n- F-AAU-03..07 optimistic handlers tests PASS; runtime toggle/reorder behavior verified with PATCH-only request traces and no alias-list GET refetch\n- F-AAU-08 route tests PASS; runtime pagination and cross-page search verified\n- `npm run test` PASS (72 files, 581 passed, 4 skipped)\n- `npm run build` PASS with warnings only\n- `npx tsc --noEmit` PASS when run after build\n\nBlocking issues:\n- F-AAU-09 failed: `design-draft/admin-model-aliases/screen.png` was not refreshed for this batch\n- F-AAU-09 failed: `design-draft/admin-model-aliases/code.html` shows a page-size selector (20/50/100) but the real UI does not render that selector\n\nResult: return batch to fixing; do not sign off."
+    "Reviewer": "BL-ADMIN-ALIAS-UX-PHASE1 verifying @ 2026-05-01 21:43 CST / 2026-05-01T13:43:11Z complete. Conclusion FAIL, status -> fixing.\n\nAccepted:\n- `bash scripts/test/codex-setup.sh` PASS\n- `bash scripts/test/codex-wait.sh` PASS\n- F-AAU-01 reorder display fix verified in code + runtime order\n- F-AAU-02 useAsyncData mutate hook tests PASS\n- F-AAU-03..07 optimistic handlers tests PASS; runtime toggle/reorder behavior verified with PATCH-only request traces and no alias-list GET refetch\n- F-AAU-08 route tests PASS; runtime pagination and cross-page search verified\n- `npm run test` PASS (72 files, 581 passed, 4 skipped)\n- `npm run build` PASS with warnings only\n- `npx tsc --noEmit` PASS when run after build\n\nBlocking issues:\n- F-AAU-09 failed: `design-draft/admin-model-aliases/screen.png` was not refreshed for this batch\n- F-AAU-09 failed: `design-draft/admin-model-aliases/code.html` shows a page-size selector (20/50/100) but the real UI does not render that selector\n\nResult: return batch to fixing; do not sign off.\n\nBL-ADMIN-ALIAS-UX-PHASE1 reverifying @ 2026-05-01 22:53 CST / 2026-05-01T14:53:00Z complete. Conclusion PASS, status -> done.\n\nAccepted:\n- `bash scripts/test/codex-setup.sh` PASS\n- `bash scripts/test/codex-wait.sh` PASS\n- `next build` PASS during setup with pre-existing warnings only\n- `git diff --name-only a743e4d..1c44bb5` confirms no product implementation drift after the prior runtime-verified baseline\n- F-AAU-09 PASS: `design-draft/admin-model-aliases/code.html` now matches `src/components/pagination.tsx` and no longer includes a page-size selector\n- F-AAU-09 PASS: `design-draft/admin-model-aliases/screen.png` refreshed and hash-identical to the prior runtime screenshot artifact\n- F-AAU-09 PASS: `design-draft/admin-model-aliases/DESIGN.md` synchronized with current pagination behavior and screenshot source\n\nResult: sign off batch; `docs.signoff` set; recommend `done`."
   }
 }
