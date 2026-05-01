@@ -58,37 +58,6 @@
       "supersedes": "BL-065",
       "phase": "deferred",
       "order": 99
-    },
-    {
-      "id": "BL-ALIAS-MODEL-CASCADE-ENABLE",
-      "title": "Alias 启用工作流缺陷（model 级联 + sellPrice 校验 + health-FAIL 隐藏不可见）",
-      "description": "Admin 启用 alias 后用户面 /v1/models 不显示或显示但 pricing 字段空。共 4 类子 bug，均在 2026-04-30 复现/确认：\n\nBug-A：alias 启用未联动底层 model 启用。源代码 src/app/api/v1/models/route.ts:30-44 要求 alias.enabled=true AND links.model.enabled=true AND channels.status=ACTIVE 三层成立；管理员 toggle alias.enabled 时只改 model_aliases.enabled，未联动 alias_model_links 引用的 models.enabled。实例：alias claude-opus-4.7 / claude-sonnet-4.6 enabled=true，但 anthropic/claude-opus-4.7 / anthropic/claude-sonnet-4.6 model 仍 enabled=false → /v1/models 实时响应不含。已通过 UPDATE models SET enabled=true 旁路修复。\n\nBug-B：admin UI 缺『底层 N 个 model 仍 disabled / 启用后用户面不可见』预检与强提示。\n\nBug-C：alias 启用未强制 sellPrice 配置。sellPrice=null 时 /v1/models 输出 pricing={} 空对象（用户面 /models 价格列空白）。2026-04-30 全量核查发现 4/33 enabled alias 的 sellPrice=null：claude-opus-4.7 / gpt-4o / kimi-k2.5 / kimi-k2.6。已通过 UPDATE model_aliases SET sellPrice=... 旁路修复（按 channel 参考价定）。\n\nBug-D：alias 链路完整但所有底层 channel.health=FAIL 时，alias 在 /v1/models 被静默隐藏（src/app/api/v1/models/route.ts 后处理 lastCheck.result !== 'FAIL' 过滤；allChannels=[] → null 化丢弃）。逻辑正确（保护用户避免必失败调用），但 admin 完全无错误信号。2026-04-30 gpt-5 实例：openrouter channel health 持续 FAIL → 外网 /v1/models 响应缺失但 admin 不知（详见 BL-HEALTH-PROBE-MIN-TOKENS 根因）。\n\n修复参考：\n- A: PATCH /api/admin/model-aliases/[id] 在 enabled false→true 分支内事务级联：WHERE alias_model_links.aliasId=:id UPDATE models SET enabled=true。\n- B: admin/model-aliases UI 启用 toggle 前发起预检 GET，返回链路 3 层状态，断链时禁用启用按钮 + 显示 'X 个底层 model 仍 disabled' / 'sellPrice 未设置' / 'all channels FAIL'。\n- C: 在 alias 列表/详情页给每条 alias 加可见的『链路状态』指示灯（绿/黄/红）。",
-      "decisions": [
-        "方案待拍板：A 后端级联自动启用；B 前端预检+强提示；C 链路状态可视化（推荐 A+B+C 全做）",
-        "复现路径：alias enabled=true → /v1/models 不显示或 pricing={} → 必查 models.enabled / sellPrice / health_checks",
-        "已执行旁路修复：UPDATE models SET enabled=true WHERE name IN('anthropic/claude-opus-4.7','anthropic/claude-sonnet-4.6'); UPDATE model_aliases SET sellPrice=... WHERE alias IN(claude-opus-4.7,gpt-4o,kimi-k2.5,kimi-k2.6)"
-      ],
-      "confirmed_at": "2026-04-30",
-      "priority": "medium",
-      "source": "用户 2026-04-30 操作复现 + 全量 33 enabled alias 健康核查（4 sellPrice 缺失 + 1 health-FAIL 隐藏）",
-      "estimated_effort": "1 day"
-    },
-    {
-      "id": "BL-HEALTH-PROBE-MIN-TOKENS",
-      "title": "Health probe max_tokens=1 与 Azure-backed model 不兼容（gpt-5 永远 FAIL）",
-      "description": "src/lib/health/checker.ts:390 runTextCheck 用 max_tokens=1 调 chatCompletions（BL-HEALTH-PROBE-LEAN F-HPL-01 从 200 降到 1，目的是降低 probe 计费）；但 OpenRouter 上 Azure-backed 的 gpt-5 系列模型要求 max_output_tokens >= 16，否则 400 'integer_below_min_value'。生产 channel openai/gpt-5 + ~openai/gpt-latest 持续 FAIL CONNECTIVITY/CALL_PROBE 'invalid_request: Provider returned error'，实际 OpenRouter 上 openai/gpt-5 model 仍存在（ /api/v1/models 命中 True）；~openai/gpt-latest 已下线（命中 False）。直接 curl POST openrouter/v1/chat/completions {model:openai/gpt-5, max_tokens:1} 返 raw error 'Invalid max_output_tokens: integer below minimum value. Expected >= 16, got 1'。结果：alias gpt-5 (linked enabled-model + ACTIVE channel) 链路完整但被 health 过滤静默隐藏（Bug-D）。修复方案：A 把 probe max_tokens 改回 16（满足 Azure 最小要求；token 增量微小，月成本 < $0.01）；B 在 checker 错误识别 'invalid_request_error' 时降级判定为 PASS-but-warn（认为 endpoint 可达，参数不合法不算通道故障）；C 引入 per-channel probe-min-tokens 配置（provider_configs 加字段）。同时清理 ~openai/gpt-latest 通道（OR 已下线该 model）。",
-      "decisions": [
-        "方案 A 推荐（最小改动 + 月成本可忽略 + 兼容 Azure 等严格 provider）",
-        "B 思路上更优雅但需小心扩大 PASS 范围引入误判",
-        "C 灵活但成本高，仅在 A/B 不满足时考虑",
-        "附带：openrouter ~openai/gpt-latest model 已下线，channel 应清理"
-      ],
-      "confirmed_at": "2026-04-30",
-      "priority": "medium",
-      "source": "2026-04-30 调研 gpt-5 alias 用户面隐藏根因；OpenRouter raw error 显示 max_output_tokens 最小 16",
-      "estimated_effort": "0.5 day",
-      "depends_on": "BL-HEALTH-PROBE-LEAN（F-HPL-01）",
-      "related": "BL-ALIAS-MODEL-CASCADE-ENABLE Bug-D"
     }
   ]
 }

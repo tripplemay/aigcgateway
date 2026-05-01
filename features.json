@@ -1,33 +1,33 @@
 {
-  "batch": "BL-ALIAS-MODEL-CASCADE-ENABLE",
+  "batch": "BL-HEALTH-PROBE-MIN-TOKENS",
   "created_at": "2026-05-01",
   "features": [
     {
-      "id": "F-ACE-01",
-      "title": "后端级联启用 — PATCH alias enabled 时自动 model.enabled=true",
+      "id": "F-HPMT-01",
+      "title": "probe max_tokens 提升至 16（runTextCheck + runCallProbe chat 两处同步）",
       "priority": "high",
       "executor": "generator",
-      "status": "done",
-      "source": "BL-ALIAS-MODEL-CASCADE-ENABLE Bug-A",
-      "acceptance": "1) PATCH /api/admin/model-aliases/:id { enabled: true }（当前 enabled=false），linked models 中有 enabled=false 的 model → 响应后 GET /api/admin/model-aliases 验证对应 linkedModels[].modelEnabled=true；2) dev env（无 Redis cache）GET /v1/models 立即返回该 alias；3) PATCH 只改其他字段（如 brand）→ linked models.enabled 不变；4) npx tsc --noEmit PASS；5) npm run build PASS"
+      "status": "pending",
+      "source": "BL-HEALTH-PROBE-MIN-TOKENS 主修；Planner 铁律 1.5（同款硬编码 grep 全 site）",
+      "acceptance": "1) src/lib/health/checker.ts 顶部新增常量 PROBE_MAX_TOKENS=16，注释引用本批次 ID + 月成本估算 + 上游 Azure-strict 限制说明；2) checker.ts:148（runCallProbe chat 默认分支）+ :394（runTextCheck）两处 max_tokens 改为 PROBE_MAX_TOKENS；3) 全文 grep 'max_tokens: 1' src/lib/health/ 命中 0 次（除测试 mock 字面量外）；4) src/lib/health/__tests__/checker-lean.test.ts 已有的 'invokes adapter with max_tokens:1, ...' 测试更名 + 期望改为 toBe(16)，4 个 case 全 PASS；5) 同一测试文件新增一条 runCallProbe chat 分支测试：mock chatCompletions resolved → 调用 runCallProbe（route.modality=TEXT）→ 断言入参 max_tokens=16, temperature=0, messages=[{role:'user',content:'hi'}]；6) npx tsc --noEmit PASS；7) npm run test PASS（health 模块 + 全仓单测无回归）；8) npm run build PASS"
     },
     {
-      "id": "F-ACE-02",
-      "title": "列表 API 暴露 modelEnabled + lastHealthResult",
-      "priority": "high",
+      "id": "F-HPMT-02",
+      "title": "清理 OpenRouter ~openai/gpt-latest 已下线 model + channels（软停脚本）",
+      "priority": "medium",
       "executor": "generator",
-      "status": "done",
-      "source": "BL-ALIAS-MODEL-CASCADE-ENABLE Bug-B/C/D 可见性基础",
-      "acceptance": "1) GET /api/admin/model-aliases 每条 alias 的 linkedModels[n].modelEnabled 为 boolean（对应 model.enabled 字段）；2) linkedModels[n].channels[m].lastHealthResult 为 'PASS'|'FAIL'|null（healthChecks 最新一条 result，无记录为 null）；3) page.tsx 的 LinkedModel / channel 类型同步更新，npx tsc --noEmit PASS；4) 现有字段（latencyMs / providerName 等）不变"
+      "status": "pending",
+      "source": "BL-HEALTH-PROBE-MIN-TOKENS 附带运维（backlog decisions 第 4 条）",
+      "acceptance": "1) 新增 scripts/maintenance/disable-or-deprecated-models.ts；2) 脚本顶部声明常量 DEPRECATED_MODEL_NAMES=['~openai/gpt-latest']（注释解释来源：OR 已下线该 model）；3) 默认事务执行：UPDATE models SET enabled=false WHERE name IN (...) AND UPDATE channels SET status='DISABLED' WHERE modelId IN (...)；不删除任何 channels/models/health_checks/call_logs 记录；4) 支持 DRY_RUN=1 模式：仅打印目标 model + 关联 channels（id/status），不执行任何写库；5) 幂等：二次跑不报错（即便 enabled 已为 false / status 已为 DISABLED，重复 update 不抛）；6) Prisma 客户端在脚本结束前 prisma.$disconnect() 释放连接；7) 在 _scratch 或本地 dev DB 上 DRY_RUN=1 跑通：若 ~openai/gpt-latest 存在 → 列出 model id + N 个 channel id；不存在 → 输出 [skip] not found 后退出 0；8) 在 _scratch 上非 dry-run 跑：(a) model.enabled=false；(b) 关联 channels.status 全部为 DISABLED；(c) health_checks/call_logs count 前后一致；9) npx tsc --noEmit PASS"
     },
     {
-      "id": "F-ACE-03",
-      "title": "Admin UI 链路状态徽章 + 启用预警 toast",
+      "id": "F-HPMT-03",
+      "title": "Codex 验收 + 签收报告",
       "priority": "high",
-      "executor": "generator",
-      "status": "done",
-      "source": "BL-ALIAS-MODEL-CASCADE-ENABLE Bug-B/C/D",
-      "acceptance": "1) alias 列表中，所有 channel lastHealthResult=FAIL 的 enabled alias 显示红色'渠道全部异常'徽章（中文）/ 'All channels failing'（英文）；2) sellPrice=null 或 {} 的 enabled alias 显示黄色'价格未设置'徽章；3) toggle false→true 时，若 sellPrice 未设置 → toast 含价格警告；若所有 channel FAIL → toast 含不可见警告；4) 健康链路 alias（有 sellPrice + 有非 FAIL channel）→ 无警告徽章；5) en.json + zh-CN.json 各新增 5 个 key（chainStatusWarnNoSellPrice / chainStatusWarnAllFail / chainStatusWarnNoChannel / toastEnabledNoSellPrice / toastEnabledAllFail）；6) npx tsc --noEmit PASS；7) npm run build PASS"
+      "executor": "codex",
+      "status": "pending",
+      "source": "BL-HEALTH-PROBE-MIN-TOKENS 验收",
+      "acceptance": "1) bash scripts/test/codex-setup.sh + codex-wait.sh PASS；2) F-HPMT-01：(a) grep -n 'PROBE_MAX_TOKENS' src/lib/health/checker.ts 显示常量声明 + 至少 2 个引用点；(b) grep -n 'max_tokens: 1' src/lib/health/ 仅命中 mock/测试断言（无生产代码硬编码 1）；(c) npm run test 全 PASS（含 checker-lean.test.ts）；(d) npx tsc --noEmit PASS；(e) npm run build PASS；3) F-HPMT-02：(a) DRY_RUN=1 npx tsx scripts/maintenance/disable-or-deprecated-models.ts 输出受影响 model + channels 列表；(b) 在临时 DB 上跑非 dry-run → 验证 model.enabled=false + channel.status=DISABLED + health_checks/call_logs 行数不变；(c) 二次跑 idempotent；4) 生产侧软验证（如可达）：alias gpt-5（如仍存在）的 channels[].lastHealthResult 不再持续 FAIL（接受 1-2 个 probe 周期后）；5) 输出 docs/test-reports/BL-HEALTH-PROBE-MIN-TOKENS-signoff-YYYY-MM-DD.md，含上述命令输出 + 结论 PASS/FAIL"
     }
   ]
 }
