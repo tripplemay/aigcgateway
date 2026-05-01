@@ -4,16 +4,13 @@ description: AIGC Gateway 当前状态快照（覆盖写，≤30 行）
 type: project
 ---
 ## 当前批次
-- **BL-HEALTH-PROBE-MIN-TOKENS**（done，2026-05-01 已签收）
-  - 主修 probe max_tokens 1→16（兼容 OR Azure-backed gpt-5）
-  - 附带清理 OR 已下线 ~openai/gpt-latest model + channels（软停）
-  - F-HPMT-01/02 generator 完成；F-HPMT-03 Codex 验收 PASS
-  - signoff: `docs/test-reports/BL-HEALTH-PROBE-MIN-TOKENS-signoff-2026-05-01.md`
+- **无进行中批次**
 
 ## reference path
 - KOLMatrix repo 实际路径：`/mnt/c/Users/tripplezhou/projects/kolmatrix`
 
 ## 上一批次
+- BL-HEALTH-PROBE-MIN-TOKENS @ 2026-05-01（done，fix_rounds=0）— probe max_tokens 1→16 + 软停 ~openai/gpt-latest + audit-log drift cleanup（post-process.ts 同源 PROBE_MAX_TOKENS）
 - BL-ALIAS-MODEL-CASCADE-ENABLE @ 2026-05-01（done，fix_rounds=0）
 - BL-TEST-INFRA-IMPORT @ 2026-04-30（done，fix_rounds=3）
 
@@ -29,6 +26,3 @@ type: project
 ## 生产旁路修复（2026-04-30 已执行）
 - alias claude-opus-4.7/claude-sonnet-4.6 model.enabled 已改 true
 - 4 个 alias sellPrice 已补（claude-opus-4.7 / gpt-4o / kimi-k2.5 / kimi-k2.6）
-
-## 本批次发现（待下批跟进）
-- src/lib/api/post-process.ts:216 writeProbeCallLog requestParams 硬编码 max_tokens:1，本批次 spec scope 未覆盖
