@@ -24,6 +24,7 @@ import {
 import type { AttemptRecord } from "../engine/failover";
 import { recordTokenUsage, recordSpending } from "./rate-limit";
 import { checkAndSendBalanceLowAlert } from "@/lib/notifications/triggers";
+import { PROBE_MAX_TOKENS } from "../health/checker";
 
 export interface PostProcessParams {
   traceId: string;
@@ -213,7 +214,7 @@ async function writeProbeCallLogAsync(params: ProbeCallLogParams): Promise<void>
         : {
             model: params.route.model.name,
             messages: [{ role: "user", content: "hi" }],
-            max_tokens: 1,
+            max_tokens: PROBE_MAX_TOKENS,
             temperature: 0,
           },
       responseContent,

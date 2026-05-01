@@ -31,10 +31,11 @@ import { writeProbeCallLog } from "@/lib/api/post-process";
  * Cost impact: 16 × 46 ACTIVE channels × 144 probes/day × 30 days
  *              ≈ 3.18M tokens/month ≈ $0.45/month — acceptable.
  *
- * Used by both runCallProbe (CALL_PROBE level) and runTextCheck
- * (CONNECTIVITY level). Single source of truth — do not inline.
+ * Used by runCallProbe (CALL_PROBE level), runTextCheck (CONNECTIVITY level),
+ * and post-process.writeProbeCallLog (audit metadata). Single source of truth —
+ * do not inline.
  */
-const PROBE_MAX_TOKENS = 16;
+export const PROBE_MAX_TOKENS = 16;
 
 export interface CheckResult {
   level: HealthCheckLevel;
