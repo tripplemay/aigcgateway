@@ -7,7 +7,7 @@
       "title": "probe max_tokens 提升至 16（runTextCheck + runCallProbe chat 两处同步）",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "source": "BL-HEALTH-PROBE-MIN-TOKENS 主修；Planner 铁律 1.5（同款硬编码 grep 全 site）",
       "acceptance": "1) src/lib/health/checker.ts 顶部新增常量 PROBE_MAX_TOKENS=16，注释引用本批次 ID + 月成本估算 + 上游 Azure-strict 限制说明；2) checker.ts:148（runCallProbe chat 默认分支）+ :394（runTextCheck）两处 max_tokens 改为 PROBE_MAX_TOKENS；3) 全文 grep 'max_tokens: 1' src/lib/health/ 命中 0 次（除测试 mock 字面量外）；4) src/lib/health/__tests__/checker-lean.test.ts 已有的 'invokes adapter with max_tokens:1, ...' 测试更名 + 期望改为 toBe(16)，4 个 case 全 PASS；5) 同一测试文件新增一条 runCallProbe chat 分支测试：mock chatCompletions resolved → 调用 runCallProbe（route.modality=TEXT）→ 断言入参 max_tokens=16, temperature=0, messages=[{role:'user',content:'hi'}]；6) npx tsc --noEmit PASS；7) npm run test PASS（health 模块 + 全仓单测无回归）；8) npm run build PASS"
     },
@@ -16,7 +16,7 @@
       "title": "清理 OpenRouter ~openai/gpt-latest 已下线 model + channels（软停脚本）",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "source": "BL-HEALTH-PROBE-MIN-TOKENS 附带运维（backlog decisions 第 4 条）",
       "acceptance": "1) 新增 scripts/maintenance/disable-or-deprecated-models.ts；2) 脚本顶部声明常量 DEPRECATED_MODEL_NAMES=['~openai/gpt-latest']（注释解释来源：OR 已下线该 model）；3) 默认事务执行：UPDATE models SET enabled=false WHERE name IN (...) AND UPDATE channels SET status='DISABLED' WHERE modelId IN (...)；不删除任何 channels/models/health_checks/call_logs 记录；4) 支持 DRY_RUN=1 模式：仅打印目标 model + 关联 channels（id/status），不执行任何写库；5) 幂等：二次跑不报错（即便 enabled 已为 false / status 已为 DISABLED，重复 update 不抛）；6) Prisma 客户端在脚本结束前 prisma.$disconnect() 释放连接；7) 在 _scratch 或本地 dev DB 上 DRY_RUN=1 跑通：若 ~openai/gpt-latest 存在 → 列出 model id + N 个 channel id；不存在 → 输出 [skip] not found 后退出 0；8) 在 _scratch 上非 dry-run 跑：(a) model.enabled=false；(b) 关联 channels.status 全部为 DISABLED；(c) health_checks/call_logs count 前后一致；9) npx tsc --noEmit PASS"
     },

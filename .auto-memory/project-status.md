@@ -4,10 +4,10 @@ description: AIGC Gateway 当前状态快照（覆盖写，≤30 行）
 type: project
 ---
 ## 当前批次
-- **BL-HEALTH-PROBE-MIN-TOKENS**（building，2026-05-01 启动）
+- **BL-HEALTH-PROBE-MIN-TOKENS**（verifying，2026-05-01 启动 / 2026-05-01 generator 完成）
   - 主修 probe max_tokens 1→16（兼容 OR Azure-backed gpt-5）
   - 附带清理 OR 已下线 ~openai/gpt-latest model + channels（软停）
-  - 3 features：F-HPMT-01/02 generator + F-HPMT-03 codex
+  - F-HPMT-01/02 done by generator；F-HPMT-03 等 Codex 验收
   - spec: docs/specs/BL-HEALTH-PROBE-MIN-TOKENS-spec.md
 
 ## reference path
@@ -23,8 +23,12 @@ type: project
 - **BL-FE-DS-SHADCN**（low-deferred）— shadcn 采用率提升
 
 ## proposed-learnings
-- 全部已同步 harness-template v0.9.6（4 条：铁律 1.5/1.6/1.7/3）
+- 已同步 harness-template v0.9.6（4 条：铁律 1.5/1.6/1.7/3）
+- 待确认（1 条）：Planner 铁律 1.5 grep 范围细化（来源 BL-HEALTH-PROBE-MIN-TOKENS F-HPMT-01）
 
 ## 生产旁路修复（2026-04-30 已执行）
 - alias claude-opus-4.7/claude-sonnet-4.6 model.enabled 已改 true
 - 4 个 alias sellPrice 已补（claude-opus-4.7 / gpt-4o / kimi-k2.5 / kimi-k2.6）
+
+## 本批次发现（待下批跟进）
+- src/lib/api/post-process.ts:216 writeProbeCallLog requestParams 硬编码 max_tokens:1，本批次 spec scope 未覆盖
