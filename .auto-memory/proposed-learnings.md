@@ -34,17 +34,15 @@ type: project
 
 <!-- ================= 待确认区 ================= -->
 
-## [2026-05-01] Generator (Generator-AAU) — 来源：BL-ADMIN-ALIAS-UX-PHASE1 F-AAU-09 fix-round-1
-
-**类型：** Generator 行为补充（铁律 / generator.md）
-
-**内容：** Generator 不得把 spec 标注为「Generator 手动」的任务（如手动截图、手动操作步骤等）甩给 Codex 完成；spec 默认 Generator 手动 = Generator 必须完成，否则 verifying 必然 FAIL。本批次 F-AAU-09 截图任务 spec 默认 "Generator 手动截图"，Generator 上轮 session_notes 写 "留 Codex 在 verifying 阶段或后续 chore 补"，结果 Codex 验收时该任务被识别为未完成 → 阻断 + 强制 fix-round-1。除非 Planner 在 spec 中显式分配给 Codex（如 acceptance 字段写明），否则 Generator 必须自完成所有归属自己的 manual 步骤。无法在终端完成的步骤（如真实浏览器截图），可：(a) 主动请求用户协助；(b) 用项目内已有的 playwright/dev-server 自动化代替；(c) 在 features.json 主动标注为已知遗留 + 取得用户确认后再交付。但绝不能在 session_notes 里单方面"甩锅"。
-
-**建议写入 harness-template 的：** `harness/generator.md` §通用约束 — 增加 "Manual 任务归属" 小节：spec 默认 Generator 手动 = Generator 完成；不得甩 Codex；无法完成需主动请用户/标注遗留；session_notes 不构成跨角色任务转移凭证。可联动 `harness/planner.md` 在 spec 模板里要求所有 manual 步骤显式注明执行者。
-
-**状态：** 待确认
-
 <!-- ================= 已同步到 harness-template（归档区） ================= -->
+
+## [2026-05-01 已同步 v0.9.8] Planner 铁律 1.8：复用现有 UI 组件时 acceptance 不得超出组件实际能力
+- 来源：BL-ADMIN-ALIAS-UX-PHASE1 F-AAU-09 acceptance 字面要求"含 pageSize 选择器"，但已复用的 `src/components/pagination.tsx` 不渲染该 UI；Generator 按字面要求在设计稿加 selector → Codex FAIL → fix-round-1
+- 写入：`harness/planner.md` §铁律 1.8（spec 引用复用组件必须先 Read props + 渲染分支，acceptance 仅可描述真实能力；业务需要新功能必须拆独立 feature）+ 自检 checklist 1.8 项
+
+## [2026-05-01 已同步 v0.9.8] Generator 行为：Manual 任务归属（不得甩 Codex / 必须自完成或显式标注遗留）
+- 来源：BL-ADMIN-ALIAS-UX-PHASE1 F-AAU-09 fix-round-1，Generator 上轮把截图任务在 session_notes 写"留 Codex 补"，触发 round-1 阻断
+- 写入：`harness/generator.md` §4.1 "Manual 任务归属（2026-05-01 采纳）"（含禁止做法 + 4 类应对策略 — playwright 自动化/请求用户/显式标注遗留/cp 复用 Codex 产物）
 
 ## [2026-05-01 已同步 v0.9.7] Planner 铁律 1.5 范围细化：grep 不得限定单一子目录
 - 来源：BL-HEALTH-PROBE-MIN-TOKENS F-HPMT-01（Planner 自检：spec D2 把 grep 限到 src/lib/health/，漏掉 src/lib/api/post-process.ts:216 同款 max_tokens:1）
