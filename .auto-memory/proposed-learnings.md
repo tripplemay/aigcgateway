@@ -34,17 +34,11 @@ type: project
 
 <!-- ================= 待确认区 ================= -->
 
-## [2026-05-01] Generator (Generator-HPMT) — 来源：BL-HEALTH-PROBE-MIN-TOKENS F-HPMT-01
-
-**类型：** 铁律补充（铁律 1.5 范围细化）
-
-**内容：** Planner 铁律 1.5 "前置 grep 反向消费点" 应明确把搜索范围扩到整个项目代码（src/ + scripts/，且不限定单一子目录），否则跨模块同款字面量会被漏掉。本批次 spec 中 grep "max_tokens: 1" 仅限 src/lib/health/checker.ts，命中两处并据此定义 acceptance；但 src/lib/api/post-process.ts:216 writeProbeCallLog 的 requestParams 也硬编码同款字面量记录 audit log，spec 阶段未发现。Generator 修完后 wire 发 16 / audit log 仍写 1，纯审计漂移、不影响 probe 行为，但语义上是同一根因，理应同批解决。
-
-**建议写入 harness-template 的：** `harness/planner.md` §铁律 1.5 — grep 命令示例改为 `grep -rn "<literal>" src/ scripts/` 全项目；自检 checklist 加 "已覆盖 src/ + scripts/，未限定单一子目录"。
-
-**状态：** 待确认
-
 <!-- ================= 已同步到 harness-template（归档区） ================= -->
+
+## [2026-05-01 已同步 v0.9.7] Planner 铁律 1.5 范围细化：grep 不得限定单一子目录
+- 来源：BL-HEALTH-PROBE-MIN-TOKENS F-HPMT-01（Planner 自检：spec D2 把 grep 限到 src/lib/health/，漏掉 src/lib/api/post-process.ts:216 同款 max_tokens:1）
+- 写入：`harness/planner.md` §铁律 1.5（追加 "grep 范围必须是全项目代码" 小节 + 模板扩展为 src/+scripts/+docs/specs/+ 同义命名展开）+ 自检 checklist 强化
 
 ## [2026-04-30 已同步 v0.9.6] Planner 铁律 1.5：枚举/字段扩展必须前置 grep 所有反向消费点
 - 来源：BL-EMBEDDING-MVP fix-round-2（isImage 硬编码漏定义）

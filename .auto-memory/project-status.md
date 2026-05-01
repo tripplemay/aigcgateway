@@ -23,8 +23,7 @@ type: project
 - **BL-FE-DS-SHADCN**（low-deferred）— shadcn 采用率提升
 
 ## proposed-learnings
-- 已同步 harness-template v0.9.6（4 条：铁律 1.5/1.6/1.7/3）
-- 待确认（1 条）：Planner 铁律 1.5 grep 范围细化（来源 BL-HEALTH-PROBE-MIN-TOKENS F-HPMT-01）
+- 已同步 harness-template v0.9.7（5 条累计：铁律 1.5 + 1.5 范围细化 + 1.6 + 1.7 + 3）
 
 ## 生产旁路修复（2026-04-30 已执行）
 - alias claude-opus-4.7/claude-sonnet-4.6 model.enabled 已改 true
