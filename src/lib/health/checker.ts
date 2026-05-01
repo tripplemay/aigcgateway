@@ -18,6 +18,24 @@ import { EngineError } from "../engine/types";
 import { getAdapterForRoute } from "../engine/router";
 import { writeProbeCallLog } from "@/lib/api/post-process";
 
+/**
+ * BL-HEALTH-PROBE-MIN-TOKENS F-HPMT-01: probe chat max_tokens floor.
+ *
+ * BL-HEALTH-PROBE-LEAN F-HPL-01 had pushed this to 1 (cost saving).
+ * BL-HEALTH-PROBE-MIN-TOKENS restores 16 because OpenRouter Azure-backed
+ * models (e.g. openai/gpt-5) reject max_output_tokens < 16 with
+ * `invalid_request_error: Expected >= 16, got 1`, which causes the probe
+ * to permanently FAIL and silently hides the alias from /v1/models
+ * (BL-ALIAS-MODEL-CASCADE-ENABLE Bug-D root cause).
+ *
+ * Cost impact: 16 × 46 ACTIVE channels × 144 probes/day × 30 days
+ *              ≈ 3.18M tokens/month ≈ $0.45/month — acceptable.
+ *
+ * Used by both runCallProbe (CALL_PROBE level) and runTextCheck
+ * (CONNECTIVITY level). Single source of truth — do not inline.
+ */
+const PROBE_MAX_TOKENS = 16;
+
 export interface CheckResult {
   level: HealthCheckLevel;
   result: HealthCheckResult;
@@ -71,7 +89,7 @@ function resolveProbeModality(route: RouteResult): ProbeModality {
  *   IMAGE     → adapter.imageGenerations({prompt:'a dot'})
  *   EMBEDDING → adapter.embeddings({input:'hi'}) — 失败 fallback 到 chat
  *               不可（embedding 模型对 chat endpoint 必返 400）
- *   else      → adapter.chatCompletions({max_tokens:1})
+ *   else      → adapter.chatCompletions({max_tokens:PROBE_MAX_TOKENS})
  *
  * adapter.embeddings 缺失时（旧 adapter）跳过返 PASS，避免误降级。
  */
@@ -145,7 +163,7 @@ export async function runCallProbe(
       {
         model: route.model.name,
         messages: [{ role: "user", content: "hi" }],
-        max_tokens: 1,
+        max_tokens: PROBE_MAX_TOKENS,
         temperature: 0,
       },
       route,
@@ -391,7 +409,7 @@ async function runTextCheck(
       {
         model: route.model.name,
         messages: [{ role: "user", content: "hi" }],
-        max_tokens: 1,
+        max_tokens: PROBE_MAX_TOKENS,
         temperature: 0,
       },
       route,
