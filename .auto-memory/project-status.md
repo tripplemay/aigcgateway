@@ -4,7 +4,10 @@ description: AIGC Gateway 当前状态快照（覆盖写，≤30 行）
 type: project
 ---
 ## 当前批次
-- **无进行中批次**
+- **BL-ADMIN-ALIAS-UX-PHASE1**（building，2026-05-01 启动）
+  - admin/model-aliases UX 大修：reorder 错位修复 + 6 类 optimistic + 服务端分页（方案 B）+ 设计稿同步
+  - 10 features：F-AAU-01~09 generator + F-AAU-10 codex
+  - spec: docs/specs/BL-ADMIN-ALIAS-UX-PHASE1-spec.md
 
 ## reference path
 - KOLMatrix repo 实际路径：`/mnt/c/Users/tripplezhou/projects/kolmatrix`

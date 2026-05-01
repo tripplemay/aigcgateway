@@ -1,33 +1,96 @@
 {
-  "batch": "BL-HEALTH-PROBE-MIN-TOKENS",
+  "batch": "BL-ADMIN-ALIAS-UX-PHASE1",
   "created_at": "2026-05-01",
   "features": [
     {
-      "id": "F-HPMT-01",
-      "title": "probe max_tokens 提升至 16（runTextCheck + runCallProbe chat 两处同步）",
+      "id": "F-AAU-01",
+      "title": "reorder 视觉错位修复（ChannelTable channels 入参追加 sort by priority）",
       "priority": "high",
       "executor": "generator",
-      "status": "done",
-      "source": "BL-HEALTH-PROBE-MIN-TOKENS 主修；Planner 铁律 1.5（同款硬编码 grep 全 site）",
-      "acceptance": "1) src/lib/health/checker.ts 顶部新增常量 PROBE_MAX_TOKENS=16，注释引用本批次 ID + 月成本估算 + 上游 Azure-strict 限制说明；2) checker.ts:148（runCallProbe chat 默认分支）+ :394（runTextCheck）两处 max_tokens 改为 PROBE_MAX_TOKENS；3) 全文 grep 'max_tokens: 1' src/lib/health/ 命中 0 次（除测试 mock 字面量外）；4) src/lib/health/__tests__/checker-lean.test.ts 已有的 'invokes adapter with max_tokens:1, ...' 测试更名 + 期望改为 toBe(16)，4 个 case 全 PASS；5) 同一测试文件新增一条 runCallProbe chat 分支测试：mock chatCompletions resolved → 调用 runCallProbe（route.modality=TEXT）→ 断言入参 max_tokens=16, temperature=0, messages=[{role:'user',content:'hi'}]；6) npx tsc --noEmit PASS；7) npm run test PASS（health 模块 + 全仓单测无回归）；8) npm run build PASS"
+      "status": "pending",
+      "source": "BL-ADMIN-ALIAS-UX-PHASE1 Spec D1；用户报告 + 生产现地核验（deepseek-r1 alias UI pos 3/4 priority=4/3 错位）",
+      "acceptance": "1) src/app/(console)/admin/model-aliases/page.tsx 中 <ChannelTable channels={...}> 的 props 在 flatMap 后追加 .sort((a, b) => (a.priority ?? 0) - (b.priority ?? 0))；2) channelModelMap 仍按原 flatMap 构建（用 ch.id 索引，不影响）；3) 视觉验证：mock 一个 alias 含 2 linkedModels（A 内 priority=1,3；B 内 priority=2,4），ChannelTable 渲染顺序应为 1,2,3,4 而非 1,3,2,4；4) npx tsc --noEmit PASS；5) npm run build PASS"
     },
     {
-      "id": "F-HPMT-02",
-      "title": "清理 OpenRouter ~openai/gpt-latest 已下线 model + channels（软停脚本）",
+      "id": "F-AAU-02",
+      "title": "useAsyncData hook 扩展暴露 mutate（SWR 风格 functional updater）",
+      "priority": "high",
+      "executor": "generator",
+      "status": "pending",
+      "source": "BL-ADMIN-ALIAS-UX-PHASE1 Spec D2.1（前置依赖 — F-AAU-03 ~ F-AAU-07 都依赖此）",
+      "acceptance": "1) src/hooks/use-async-data.ts 的 UseAsyncDataResult<T> 增加 mutate 字段，类型 (updater?: T | ((prev: T | null) => T | null)) => void；2) 行为：mutate(value) 直接 setData(value)；mutate(fn) 走 functional updater（fn 接收最新 prev）；mutate() 不传等价 refetch()；3) 现有 8 处 useAsyncData 消费方未破（不强制使用 mutate）；4) 新增 src/hooks/__tests__/use-async-data.test.ts 覆盖：(a) 初始 fetch；(b) refetch；(c) mutate(value) 同步生效；(d) mutate(fn) 接收 prev 并设新值；(e) mutate() 等价 refetch；(f) mutate 后再 refetch 用 server 值覆盖本地 patch；5) npm run test PASS；6) npx tsc --noEmit PASS"
+    },
+    {
+      "id": "F-AAU-03",
+      "title": "toggleEnabled optimistic + race-protected rollback（最严格保护范例）",
+      "priority": "high",
+      "executor": "generator",
+      "status": "pending",
+      "source": "BL-ADMIN-ALIAS-UX-PHASE1 Spec D2.2 + D2.3；用户原话痛点之一",
+      "acceptance": "1) page.tsx 的 toggleEnabled (现 ~L161-210) 删除 load() 调用；2) optimistic patch 用 mutate((cur) => 把目标 alias 的 enabled 字段翻转 + 保留其他字段)；3) catch 时按 D2.3 race protection：只在当前 state 中目标 alias 的 enabled 仍为本次写入的值时回滚到 prev，否则保留（说明已被后续操作覆盖）；4) toast.warning(toastEnabledNoSellPrice / toastEnabledAllFail) 行为不变；5) 新增 toggle-enabled.test.tsx 测试三场景：happy（fetch resolved → enabled 翻转）、failure（fetch rejected → rollback）、race（连续 2 次 toggle，第 1 次 reject 不覆盖第 2 次的 state）；6) npm run test PASS；7) 无 load() 调用残留在 toggleEnabled 函数内"
+    },
+    {
+      "id": "F-AAU-04",
+      "title": "reorderChannels optimistic + rollback（依赖 F-AAU-01 修错位）",
+      "priority": "high",
+      "executor": "generator",
+      "status": "pending",
+      "source": "BL-ADMIN-ALIAS-UX-PHASE1 Spec D2.2；用户原话痛点之一",
+      "acceptance": "1) page.tsx 的 reorderChannels (L323-337) 删除 load() 调用；2) optimistic patch：mutate 函数内根据 orderedIds 的位次给对应 alias.linkedModels[*].channels 内匹配 channelId 的 channel 更新 priority=i+1；3) F-AAU-01 的 sort 让 patch 后的 ChannelTable 立即按新 priority 顺序渲染；4) catch 时回滚 prev snapshot；5) 单测：mock alias 数据（10 channel 跨 3 model），调 reorderChannels → 验证 mutate 写入的 alias.linkedModels[*].channels[*].priority 与 orderedIds 位次一致；6) 抽 helper 函数 applyChannelReorder(state, aliasId, orderedIds) 便于复用 + 测试；7) npm run test PASS"
+    },
+    {
+      "id": "F-AAU-05",
+      "title": "saveChanges optimistic（多字段 spread merge + editState 失败保留）",
       "priority": "medium",
       "executor": "generator",
-      "status": "done",
-      "source": "BL-HEALTH-PROBE-MIN-TOKENS 附带运维（backlog decisions 第 4 条）",
-      "acceptance": "1) 新增 scripts/maintenance/disable-or-deprecated-models.ts；2) 脚本顶部声明常量 DEPRECATED_MODEL_NAMES=['~openai/gpt-latest']（注释解释来源：OR 已下线该 model）；3) 默认事务执行：UPDATE models SET enabled=false WHERE name IN (...) AND UPDATE channels SET status='DISABLED' WHERE modelId IN (...)；不删除任何 channels/models/health_checks/call_logs 记录；4) 支持 DRY_RUN=1 模式：仅打印目标 model + 关联 channels（id/status），不执行任何写库；5) 幂等：二次跑不报错（即便 enabled 已为 false / status 已为 DISABLED，重复 update 不抛）；6) Prisma 客户端在脚本结束前 prisma.$disconnect() 释放连接；7) 在 _scratch 或本地 dev DB 上 DRY_RUN=1 跑通：若 ~openai/gpt-latest 存在 → 列出 model id + N 个 channel id；不存在 → 输出 [skip] not found 后退出 0；8) 在 _scratch 上非 dry-run 跑：(a) model.enabled=false；(b) 关联 channels.status 全部为 DISABLED；(c) health_checks/call_logs count 前后一致；9) npx tsc --noEmit PASS"
+      "status": "pending",
+      "source": "BL-ADMIN-ALIAS-UX-PHASE1 Spec D2.2",
+      "acceptance": "1) page.tsx 的 saveChanges (L212-254) 删除 load() 调用；2) optimistic patch：mutate 函数内 spread merge editState[id] 的字段到目标 alias（不整体覆盖，避免 server 没返回的字段被丢失）；3) sellPrice CNY→USD 转换 + unit 自动填充逻辑保留（已在前端做）；4) catch 时回滚 prev snapshot 但**保留 editState[id]**（让用户重试），不删除；5) 成功时 setEditState 清除该 id（行为不变）；6) toast.success(saved) 行为保留；7) 抽 helper applyAliasPatch(state, aliasId, patch) 便于复用 + 测试；8) 单测覆盖 happy + failure 场景"
     },
     {
-      "id": "F-HPMT-03",
+      "id": "F-AAU-06",
+      "title": "linkModel 半 optimistic（refetch）+ unlinkModel 严格 optimistic",
+      "priority": "medium",
+      "executor": "generator",
+      "status": "pending",
+      "source": "BL-ADMIN-ALIAS-UX-PHASE1 Spec F-AAU-06（默认半 optimistic 已拍板）",
+      "acceptance": "1) page.tsx 的 linkModel (L296-309)：删除 load() 调用，replaced by refetch()（即 mutate() 不传参等价）；toast.success(modelLinked) + setAddModelAliasId(null) + setModelSearch('') 行为保留；catch 时 toast.error 即可（不需 rollback，因为没做 optimistic patch）；2) page.tsx 的 unlinkModel (L311-321)：删除 load() 调用，optimistic 从 alias.linkedModels 过滤掉对应 modelId 条目；catch rollback prev；toast.success(modelUnlinked) 行为保留；3) 单测：unlinkModel happy + failure；linkModel 仅验证 load()→refetch() 的替换；4) npm run test PASS"
+    },
+    {
+      "id": "F-AAU-07",
+      "title": "deleteAlias optimistic（移除一行 + expandedId 清理）",
+      "priority": "medium",
+      "executor": "generator",
+      "status": "pending",
+      "source": "BL-ADMIN-ALIAS-UX-PHASE1 Spec F-AAU-07",
+      "acceptance": "1) page.tsx 的 deleteAlias (L264-273) 删除 load() 调用；2) optimistic 从 aliases 数组中移除对应 id；3) expandedId === id 时清空 expandedId（行为保留）；4) catch 时回滚 prev；5) toast.success(aliasDeleted) 行为保留；6) 单测覆盖 happy + failure"
+    },
+    {
+      "id": "F-AAU-08",
+      "title": "服务端分页 + 服务端过滤（API + UI 配套，方案 B）",
+      "priority": "high",
+      "executor": "generator",
+      "status": "pending",
+      "source": "BL-ADMIN-ALIAS-UX-PHASE1 Spec D3 方案 B（用户已确认）；候选 4 用户自带需求",
+      "acceptance": "1) src/app/api/admin/model-aliases/route.ts 加 query params 解析：page (default 1, min 1)、pageSize (default 20, min 1, max 100)、search、brand、modality、enabled (true/false)、sortKey (alias/enabled/updatedAt，default alias)；2) Prisma where 组合 search (alias OR description contains, mode insensitive) + brand + modality + enabled；orderBy 按 sortKey 分支（参考 spec D3 代码）；3) 响应 shape：{data, unlinkedModels, pagination: {page, pageSize, total, totalPages}}；4) unlinkedModels 不分页（量小，单独查全量）；5) 前端 page.tsx 引入 page/pageSize state（默认 1/20），既有 search/filterBrand/filterModality/filterEnabled/sortKey 5 个 state 改为传入 query；useAsyncData deps 含全部分页/过滤参数；filter 变化时 reset page=1，page 切换不影响 filter；6) 引入 <Pagination> 组件（src/components/pagination.tsx），放置 alias 列表底部 sticky；7) 翻页时未保存 editState 直接丢弃（不提示，spec 默认拍板）；8) 客户端 useMemo 过滤逻辑移除（已在服务端做），保留排序的客户端 fallback 仅用于 sortKey 之外的细微展示排序（如有，否则一并移除）；9) 单测：route.test.ts 覆盖默认参数 / search / brand / modality / enabled / sortKey 各值 / pageSize 越界 / 响应 shape；10) npm run test PASS；11) npx tsc --noEmit PASS；12) npm run build PASS"
+    },
+    {
+      "id": "F-AAU-09",
+      "title": "Stitch 设计稿同步（code.html 加分页 footer + DESIGN.md + screen.png）",
+      "priority": "medium",
+      "executor": "generator",
+      "status": "pending",
+      "source": "BL-ADMIN-ALIAS-UX-PHASE1 Spec D4；planner.md §2.5 硬性要求（功能改造批次 design-draft 一致性）",
+      "acceptance": "1) design-draft/admin-model-aliases/code.html 在 alias 列表底部追加 Pagination footer，参照 design-draft/admin-logs/code.html 范式（含 pageSize 选择器 20/50/100 + 上一页/下一页按钮 + 总数显示）；2) design-draft/admin-model-aliases/DESIGN.md 追加 'Phase 1 UX 改造（reorder 修复 + optimistic + pagination）' 段记录设计变更要点；3) design-draft/admin-model-aliases/screen.png 重新截图（Generator 在本地启 dev server 后浏览器手动截图替换）；4) code.html 在浏览器打开后视觉与实际 dev server 渲染一致（分页控件位置 + pageSize 选择器存在）"
+    },
+    {
+      "id": "F-AAU-10",
       "title": "Codex 验收 + 签收报告",
       "priority": "high",
       "executor": "codex",
       "status": "pending",
-      "source": "BL-HEALTH-PROBE-MIN-TOKENS 验收",
-      "acceptance": "1) bash scripts/test/codex-setup.sh + codex-wait.sh PASS；2) F-HPMT-01：(a) grep -n 'PROBE_MAX_TOKENS' src/lib/health/checker.ts 显示常量声明 + 至少 2 个引用点；(b) grep -n 'max_tokens: 1' src/lib/health/ 仅命中 mock/测试断言（无生产代码硬编码 1）；(c) npm run test 全 PASS（含 checker-lean.test.ts）；(d) npx tsc --noEmit PASS；(e) npm run build PASS；3) F-HPMT-02：(a) DRY_RUN=1 npx tsx scripts/maintenance/disable-or-deprecated-models.ts 输出受影响 model + channels 列表；(b) 在临时 DB 上跑非 dry-run → 验证 model.enabled=false + channel.status=DISABLED + health_checks/call_logs 行数不变；(c) 二次跑 idempotent；4) 生产侧软验证（如可达）：alias gpt-5（如仍存在）的 channels[].lastHealthResult 不再持续 FAIL（接受 1-2 个 probe 周期后）；5) 输出 docs/test-reports/BL-HEALTH-PROBE-MIN-TOKENS-signoff-YYYY-MM-DD.md，含上述命令输出 + 结论 PASS/FAIL"
+      "source": "BL-ADMIN-ALIAS-UX-PHASE1 验收",
+      "acceptance": "1) bash scripts/test/codex-setup.sh + codex-wait.sh PASS；2) F-AAU-01：grep page.tsx 确认 ChannelTable channels prop 含 .sort by priority；mock 渲染顺序符合 priority asc；3) F-AAU-02：use-async-data.test.ts PASS；其他 8 处 useAsyncData 消费方 typecheck 不破；4) F-AAU-03 ~ F-AAU-07：各 handler 单测 PASS；page.tsx 内 load() 调用从 8 处降到 ≤2 处（仅 createAlias / createAliasForModel 保留 load() 是 spec 非目标）；5) F-AAU-08：route.test.ts PASS；本地启 dev 后访问 /admin/model-aliases，page=1, pageSize=20 时返回 ≤20 条；翻页 page=2 应返回不同数据；search='deepseek' 应跨全部数据匹配（不只当页）；6) UI 层验收（codex 在 dev server 操作）：拖拽 channel 立即生效无 loading 闪屏 + 4-10 个 PATCH 全 200 + 后续 GET 重拉次数=0；toggle alias enabled 立即翻转无闪屏 + warning toast 仍触发；分页 + 过滤组合操作无回归；7) F-AAU-09：design-draft/admin-model-aliases/ 三文件已更新，code.html 在浏览器打开有分页 footer，screen.png 与 dev server 一致；8) npx tsc --noEmit PASS；9) npm run test PASS（含本批次新增的 5+ 单测）；10) npm run build PASS（接受现有非阻断 ESLint warning）；11) 输出 docs/test-reports/BL-ADMIN-ALIAS-UX-PHASE1-signoff-YYYY-MM-DD.md，含上述命令输出 + 截图证据 + 结论 PASS/FAIL"
     }
   ]
 }

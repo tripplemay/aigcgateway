@@ -1,29 +1,17 @@
 {
-  "status": "done",
-  "user_goal": "BL-HEALTH-PROBE-MIN-TOKENS — 修复 health probe max_tokens=1 与 OpenRouter Azure-backed model（gpt-5）不兼容；同步清理 OR 已下线 ~openai/gpt-latest model + channels",
-  "total_features": 3,
-  "completed_features": 3,
+  "status": "building",
+  "user_goal": "BL-ADMIN-ALIAS-UX-PHASE1 — admin/model-aliases 页面 UX 大修一期：reorder 视觉错位修复 + 6 类写操作 optimistic update（toggle/reorder/save/link/unlink/delete）+ 服务端分页过滤（方案 B）+ Stitch 设计稿同步",
+  "total_features": 10,
+  "completed_features": 0,
   "fix_rounds": 0,
-  "current_sprint": "BL-HEALTH-PROBE-MIN-TOKENS",
-  "last_updated": "2026-05-01T09:39:11Z",
+  "current_sprint": "BL-ADMIN-ALIAS-UX-PHASE1",
+  "last_updated": "2026-05-01T00:00:00Z",
   "role_assignments": null,
   "docs": {
-    "spec": "docs/specs/BL-HEALTH-PROBE-MIN-TOKENS-spec.md",
+    "spec": "docs/specs/BL-ADMIN-ALIAS-UX-PHASE1-spec.md",
     "test_cases": null,
-    "signoff": "docs/test-reports/BL-HEALTH-PROBE-MIN-TOKENS-signoff-2026-05-01.md",
+    "signoff": null,
     "framework_reviewed": false
   },
-  "evaluator_feedback": {
-    "result": "PASS",
-    "report": "docs/test-reports/BL-HEALTH-PROBE-MIN-TOKENS-signoff-2026-05-01.md",
-    "blocking_issues": [],
-    "non_blocking_notes": [
-      "src/lib/api/post-process.ts:216 still writes requestParams.max_tokens=1 in audit payloads. This is outside current batch scope and does not affect probe behavior, but it leaves audit metadata inconsistent with runtime value 16.",
-      "Production-side soft validation against real provider-backed gpt-5 channels was not executed in this round because the local verification environment has no provider API keys configured."
-    ]
-  },
-  "session_notes": {
-    "Generator-HPMT": "BL-HEALTH-PROBE-MIN-TOKENS F-HPMT-01/02 完成 @ 2026-05-01；status building → verifying。\n\nF-HPMT-01 (probe max_tokens 1 → 16)：src/lib/health/checker.ts 顶部加 const PROBE_MAX_TOKENS=16（带本批次 ID + 月成本估算 + Azure-strict 注释）；:148 (runCallProbe chat 默认分支) + :394 (runTextCheck) 两处 max_tokens 改用常量；line 74 doc 注释同步。checker-lean.test.ts 旧 max_tokens:1 期望改 16，新增 runCallProbe TEXT 路径单测（5 PASS）。全仓 npm run test 68 files / 550 passed / 4 skipped 无回归；npx tsc --noEmit + npm run build 全过。grep 'max_tokens: 1' src/lib/health/ 命中 0（acceptance 3 通过）。\n\nF-HPMT-02 (清理 OR 已下线 model)：scripts/maintenance/disable-or-deprecated-models.ts，DEPRECATED_MODEL_NAMES=['~openai/gpt-latest']，DRY_RUN=1 仅打印，默认 prisma.$transaction(model.update enabled=false + channel.updateMany status=DISABLED)，prisma+redis 退出前 disconnect。本地 docker postgres:16-alpine + prisma migrate deploy + 自建 fixture 验证四路径：(a) 空 DB DRY_RUN → [skip] not found 退 0；(b) fixture DRY_RUN → 列出 model+channel 不写库；(c) 真跑 → enabled=false + channel.status=DISABLED + health_checks/call_logs 计数 1/1 不变（保留审计）；(d) 二次跑 idempotent 退 0 不抛。tsc PASS。\n\nPlanner 关注点（非本批次 scope，不阻断验收）：src/lib/api/post-process.ts:216 writeProbeCallLog 的 requestParams 也硬编码 max_tokens:1。本批次 spec 限定 src/lib/health/ 故未触达；生效后 wire 发 16 但 audit log 仍写 1，纯审计漂移、不影响 probe 行为。建议下批 backlog 或 chore 一并修；同时 proposed-learnings 新增 Planner 铁律 1.5 grep 范围细化提案。\n\n交 Codex F-HPMT-03 验：scripts/test/codex-setup.sh + codex-wait.sh + 5 项 acceptance（grep PROBE_MAX_TOKENS 命中常量+至少 2 引用、tsc/test/build PASS、scripts DRY_RUN 列出、real-run 软停 + audit count 不变、idempotent）。",
-    "Reviewer": "BL-HEALTH-PROBE-MIN-TOKENS signoff @ 2026-05-01 17:39 CST / 2026-05-01T09:39:11Z complete. Conclusion PASS, status -> done.\n\nFinal acceptance:\n- `bash scripts/test/codex-setup.sh` PASS\n- `bash scripts/test/codex-wait.sh` PASS\n- `F-HPMT-01` PASS: `PROBE_MAX_TOKENS=16` exists in `src/lib/health/checker.ts` and is used in both `runCallProbe` and `runTextCheck`; `src/lib/health/` has no production `max_tokens: 1` hardcode remaining\n- `F-HPMT-02` PASS: `DRY_RUN=1` lists target model/channels without writes; apply run sets `model.enabled=false` and `channel.status=DISABLED`; `health_checks` and `call_logs` counts remain unchanged; second apply run is idempotent\n- `npx tsc --noEmit` PASS\n- `npm run test` PASS (68 files, 550 passed, 4 skipped)\n- `npm run build` PASS with warnings only\n- docs.signoff populated: `docs/test-reports/BL-HEALTH-PROBE-MIN-TOKENS-signoff-2026-05-01.md`\n\nNon-blocking notes:\n- `src/lib/api/post-process.ts:216` still writes audit `max_tokens: 1`; outside this batch scope\n- Production-side soft validation against real provider-backed gpt-5 channels not executed locally because no provider API keys are configured"
-  }
+  "evaluator_feedback": null
 }
