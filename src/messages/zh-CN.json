@@ -909,6 +909,7 @@
     "apiCount": "API",
     "aiEnriched": "AI 补充",
     "zeroPriceWarning": "{count} 个活跃通道售价为零",
+    "unpricedAliasWarning": "{count} 个已启用 alias 未设售价（用户面价格空白）",
     "inferTitle": "LLM 推断",
     "inferDesc": "分类模型、推断品牌、填充能力。",
     "runInference": "执行推断",

@@ -60,6 +60,13 @@ interface SyncStatusResponse {
     lastSyncTime: string | null;
     lastSyncResultDetail: SyncResult | null;
     zeroPriceActiveChannels: number;
+    unpricedActiveAliases: number;
+    zeroPriceChannelsByAliasStatus: {
+      enabledAliasPriced: number;
+      enabledAliasUnpriced: number;
+      disabledAliasOnly: number;
+      noAlias: number;
+    };
     lastSyncAt: string | null;
     lastSyncDuration: number | null;
     lastSyncResult: "success" | "partial" | "failed" | null;
@@ -325,11 +332,21 @@ export default function OperationsPage() {
               </div>
             )}
 
-            {/* Zero-price warning */}
+            {/* Zero-price warning (channel layer — historical compat) */}
             {(status?.zeroPriceActiveChannels ?? 0) > 0 && (
               <div className="flex items-center gap-2 text-ds-status-warning bg-ds-status-warning-container px-4 py-2.5 rounded-lg text-xs font-semibold">
                 <span className="material-symbols-outlined text-[16px]">warning</span>
                 {t("zeroPriceWarning", { count: status!.zeroPriceActiveChannels })}
+              </div>
+            )}
+
+            {/* F-SI2-02: alias-layer warning — only renders when an enabled
+                alias has no sellPrice (real "blank price in /v1/models"
+                signal). Production should be 0 post-PHASE2. */}
+            {(status?.unpricedActiveAliases ?? 0) > 0 && (
+              <div className="flex items-center gap-2 text-ds-status-warning bg-ds-status-warning-container px-4 py-2.5 rounded-lg text-xs font-semibold">
+                <span className="material-symbols-outlined text-[16px]">warning</span>
+                {t("unpricedAliasWarning", { count: status!.unpricedActiveAliases })}
               </div>
             )}
           </div>

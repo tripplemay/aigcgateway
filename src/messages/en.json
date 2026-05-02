@@ -909,6 +909,7 @@
     "apiCount": "API",
     "aiEnriched": "AI Enriched",
     "zeroPriceWarning": "{count} active channels have zero sell price",
+    "unpricedAliasWarning": "{count} enabled alias(es) without sellPrice (price field blank in /v1/models)",
     "inferTitle": "LLM Inference",
     "inferDesc": "Classify models, infer brands, and fill capabilities.",
     "runInference": "Run Inference",

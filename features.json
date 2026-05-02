@@ -16,7 +16,7 @@
       "title": "sync-status 度量重定义（unpricedActiveAliases + zeroPriceChannelsByAliasStatus + UI warning chip）",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "source": "BL-SYNC-INTEGRITY-PHASE2 Spec D2；旧 zeroPriceActiveChannels 度量误报",
       "acceptance": "1) src/app/api/admin/sync-status/route.ts 增加 2 个 SQL 计数（与现有 zeroPriceCount 并列在 prisma.$queryRawUnsafe 调用中或 Promise.all）：(a) unpricedActiveAliases — model_aliases.enabled=true AND (sellPrice IS NULL OR sellPrice::text='{}')；(b) zeroPriceChannelsByAliasStatus — 4 类 GROUP BY 计数（enabledAliasPriced / enabledAliasUnpriced / disabledAliasOnly / noAlias），CASE 表达式与 spec D2 一致；2) 响应 shape 增加这 2 个字段；3) 旧 zeroPriceActiveChannels 字段保留不动（向后兼容 admin/operations:62/329/332）；4) 缓存 cache:admin:sync-status TTL 30s 不动；5) src/app/(console)/admin/operations/page.tsx SyncStatusResponse type 同步加 2 字段；既有 zero-price warning chip（page.tsx:329-334）保留；新增 alias-level warning chip：当 unpricedActiveAliases > 0 时渲染（与 zero-price warning 同款 className：bg-ds-status-warning-container + text-ds-status-warning + warning material icon），含 i18n key unpricedAliasWarning 占位 {count}；6) messages/zh-CN.json + messages/en.json admin operations namespace 加 unpricedAliasWarning：(zh) '{count} 个已启用 alias 未设售价（用户面价格空白）'；(en) '{count} enabled alias(es) without sellPrice (price field blank in /v1/models)'；7) 现有 sync-status 路由测试（如有）扩展 mock prisma raw query 并断言新字段；8) npx tsc --noEmit PASS；9) npm run test PASS；10) npm run build PASS"
     },
