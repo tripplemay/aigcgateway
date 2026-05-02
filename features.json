@@ -7,7 +7,7 @@
       "title": "disable-orphan-zero-price-channels.ts 软停脚本（259 个 disabled-alias-only zero-price channel）",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "source": "BL-SYNC-INTEGRITY-PHASE2 Spec D1；PHASE1 生产 scan 真分组数据（259 个 disabled-alias-only）",
       "acceptance": "1) 新文件 scripts/maintenance/disable-orphan-zero-price-channels.ts；2) 顶部 banner 注释：DRY_RUN 默认推荐 + 严格三重条件（c.status=ACTIVE AND channel.sellPrice 三类零 AND alias_status=disabled-alias-only）+ 软停 status=DISABLED 不删除 + 幂等 + 退出 prisma.$disconnect + disconnectRedis；3) prisma.$queryRaw 执行 spec D1 SELECT SQL（含 EXISTS+NOT EXISTS 精确判定 disabled-alias-only），返回目标 channel id 列表；4) stdout 输出：找到 N 条；按 (provider, modality) 分组列每条 channel id + provider/model 名；5) DRY_RUN=1 仅打印不写库；DRY_RUN 未设时 stdout 提示后跑 prisma.channel.updateMany({ where: {id: {in: ids}}, data: {status: 'DISABLED'} }) 输出'Disabled N channels'+ 完整 disabled ids 列表（备份用，便于回滚）；6) 抽 buildDisableTargetIds(rows) 纯函数（输入 SQL 结果数组，输出过滤后 ids），便于单测；7) scripts/maintenance/__tests__/disable-orphan-zero-price-channels.test.ts 扩展或新增（按铁律 3，仅扩展现有 __tests__ 或加 helper 测试）：覆盖 buildDisableTargetIds 三场景 — happy（disabled-alias-only 入选）/ enabled-alias-priced 不入选 / 已 DISABLED 不入选；8) Docker postgres + 3-channel fixture（disabled-alias-only / enabled-alias-priced / 已 DISABLED 各 1）smoke：DRY_RUN 列 1 条；real apply 后该 channel.status=DISABLED 其他 2 不变；二次跑 0 affected；9) npx tsc --noEmit PASS"
     },
