@@ -5,11 +5,30 @@ import { apiFetch } from "@/lib/api-client";
 import { useAsyncData } from "@/hooks/use-async-data";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { PageContainer } from "@/components/page-container";
 import { PageHeader } from "@/components/page-header";
 import { TableCard } from "@/components/table-card";
 import { StatusChip } from "@/components/status-chip";
 import { toast } from "sonner";
+
+const ADAPTER_PRESET_NONE = "__none__";
 
 // ============================================================
 // Types (unchanged)
@@ -270,67 +289,71 @@ export default function ProvidersPage() {
 
         {/* Table */}
         <TableCard>
-          <table className="w-full text-left">
-            <thead className="bg-ds-surface-container-low/50">
-              <tr>
-                <th className="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest">
+          <Table className="w-full text-left">
+            <TableHeader className="bg-ds-surface-container-low/50">
+              <TableRow>
+                <TableHead className="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest">
                   {tc("name")}
-                </th>
-                <th className="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest">
+                </TableHead>
+                <TableHead className="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest">
                   {t("baseUrl")}
-                </th>
-                <th className="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest">
+                </TableHead>
+                <TableHead className="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest">
                   {t("adapter")}
-                </th>
-                <th className="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest">
+                </TableHead>
+                <TableHead className="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest">
                   {t("channels")}
-                </th>
-                <th className="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest">
+                </TableHead>
+                <TableHead className="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest">
                   {tc("status")}
-                </th>
-                <th className="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest text-right">
+                </TableHead>
+                <TableHead className="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest text-right">
                   {tc("actions")}
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-50">
+                </TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody className="divide-y divide-slate-50">
               {loading ? (
-                <tr>
-                  <td colSpan={6} className="px-6 py-12 text-center text-ds-outline">
+                <TableRow>
+                  <TableCell colSpan={6} className="px-6 py-12 text-center text-ds-outline">
                     {tc("loading")}
-                  </td>
-                </tr>
+                  </TableCell>
+                </TableRow>
               ) : (
                 providers.map((p) => (
-                  <tr key={p.id} className="hover:bg-ds-surface-container-low transition-colors">
-                    <td className="px-6 py-4">
+                  <TableRow key={p.id} className="hover:bg-ds-surface-container-low transition-colors">
+                    <TableCell className="px-6 py-4">
                       <span className="text-sm font-bold text-ds-on-surface">{p.displayName}</span>
-                    </td>
-                    <td className="px-6 py-4">
+                    </TableCell>
+                    <TableCell className="px-6 py-4">
                       <span className="text-xs font-mono text-slate-500">{p.baseUrl}</span>
-                    </td>
-                    <td className="px-6 py-4">
+                    </TableCell>
+                    <TableCell className="px-6 py-4">
                       <StatusChip variant="neutral">{p.adapterType}</StatusChip>
-                    </td>
-                    <td className="px-6 py-4 text-sm font-medium text-slate-600">
+                    </TableCell>
+                    <TableCell className="px-6 py-4 text-sm font-medium text-slate-600">
                       {p.channelCount}
-                    </td>
-                    <td className="px-6 py-4">
-                      <button onClick={() => toggleStatus(p)}>
+                    </TableCell>
+                    <TableCell className="px-6 py-4">
+                      <Button variant="ghost" size="sm" onClick={() => toggleStatus(p)} className="p-0 h-auto">
                         <StatusChip variant={p.status === "ACTIVE" ? "success" : "neutral"}>
                           {p.status === "ACTIVE" ? t("statusActive") : t("statusDisabled")}
                         </StatusChip>
-                      </button>
-                    </td>
-                    <td className="px-6 py-4 text-right">
+                      </Button>
+                    </TableCell>
+                    <TableCell className="px-6 py-4 text-right">
                       <div className="flex justify-end gap-1">
-                        <button
+                        <Button
+                          variant="ghost"
+                          size="icon-sm"
                           onClick={() => openEdit(p)}
                           className="p-2 text-slate-400 hover:text-ds-primary hover:bg-ds-primary/5 rounded-lg transition-all"
                         >
                           <span className="material-symbols-outlined text-lg">edit</span>
-                        </button>
-                        <button
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon-sm"
                           onClick={async () => {
                             const r = await apiFetch<{ data: ProviderConfig | null }>(
                               `/api/admin/providers/${p.id}/config`,
@@ -343,21 +366,23 @@ export default function ProvidersPage() {
                           className="p-2 text-slate-400 hover:text-ds-primary hover:bg-ds-primary/5 rounded-lg transition-all"
                         >
                           <span className="material-symbols-outlined text-lg">settings</span>
-                        </button>
-                        <button
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon-sm"
                           onClick={() => openDelete(p)}
                           className="p-2 text-slate-400 hover:text-ds-error hover:bg-ds-error/5 rounded-lg transition-all"
                           title={t("delete")}
                         >
                           <span className="material-symbols-outlined text-lg">delete</span>
-                        </button>
+                        </Button>
                       </div>
-                    </td>
-                  </tr>
+                    </TableCell>
+                  </TableRow>
                 ))
               )}
-            </tbody>
-          </table>
+            </TableBody>
+          </Table>
         </TableCard>
       </PageContainer>
 
@@ -369,12 +394,14 @@ export default function ProvidersPage() {
               <h2 className="text-xl font-extrabold tracking-tight font-[var(--font-heading)]">
                 {editId ? t("editProvider") : t("addProviderTitle")}
               </h2>
-              <button
+              <Button
+                variant="ghost"
+                size="icon-sm"
                 onClick={() => setDialogOpen(false)}
                 className="text-ds-on-surface-variant hover:text-ds-on-surface"
               >
                 <span className="material-symbols-outlined">close</span>
-              </button>
+              </Button>
             </div>
             <div className="p-8 space-y-5">
               {/* Adapter preset selector (create mode only) */}
@@ -383,14 +410,14 @@ export default function ProvidersPage() {
                   <label className="text-[11px] font-bold uppercase tracking-widest text-ds-primary block">
                     {t("selectAdapter")}
                   </label>
-                  <select
-                    className="w-full bg-ds-primary/5 border-2 border-ds-primary/20 rounded-lg px-4 py-3 text-sm font-bold focus:ring-2 focus:ring-ds-primary/20 outline-none"
-                    value={form.name ?? ""}
-                    onChange={(e) => {
-                      const preset = ADAPTER_PRESETS[e.target.value];
+                  <Select
+                    value={form.name ? form.name : ADAPTER_PRESET_NONE}
+                    onValueChange={(v) => {
+                      if (!v || v === ADAPTER_PRESET_NONE) return;
+                      const preset = ADAPTER_PRESETS[v];
                       if (preset) {
                         setForm({
-                          name: e.target.value,
+                          name: v,
                           displayName: preset.displayName,
                           baseUrl: preset.baseUrl,
                           adapterType: preset.adapterType,
@@ -398,13 +425,18 @@ export default function ProvidersPage() {
                       }
                     }}
                   >
-                    <option value="">{t("chooseAdapter")}</option>
-                    {Object.entries(ADAPTER_PRESETS).map(([key, p]) => (
-                      <option key={key} value={key}>
-                        {p.displayName} ({key})
-                      </option>
-                    ))}
-                  </select>
+                    <SelectTrigger className="w-full bg-ds-primary/5 border-2 border-ds-primary/20 rounded-lg px-4 py-3 text-sm font-bold focus:ring-2 focus:ring-ds-primary/20 outline-none">
+                      <SelectValue placeholder={t("chooseAdapter")} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value={ADAPTER_PRESET_NONE}>{t("chooseAdapter")}</SelectItem>
+                      {Object.entries(ADAPTER_PRESETS).map(([key, p]) => (
+                        <SelectItem key={key} value={key}>
+                          {p.displayName} ({key})
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
               )}
               {(editId
@@ -453,7 +485,7 @@ export default function ProvidersPage() {
                   <label className="text-[11px] font-bold uppercase tracking-widest text-ds-on-surface-variant block">
                     {f.label}
                   </label>
-                  <input
+                  <Input
                     type={f.type ?? "text"}
                     className="w-full bg-ds-surface-container-low border-none rounded-lg px-4 py-3 text-sm focus:ring-2 focus:ring-ds-primary/20 outline-none"
                     placeholder={f.placeholder}
@@ -466,15 +498,19 @@ export default function ProvidersPage() {
                 <label className="text-[11px] font-bold uppercase tracking-widest text-ds-on-surface-variant block">
                   {t("adapter")}
                 </label>
-                <select
-                  className="w-full bg-ds-surface-container-low border-none rounded-lg px-4 py-3 text-sm focus:ring-2 focus:ring-ds-primary/20 outline-none"
+                <Select
                   value={form.adapterType ?? "openai-compat"}
-                  onChange={(e) => set("adapterType", e.target.value)}
+                  onValueChange={(v) => v && set("adapterType", v)}
                 >
-                  <option value="openai-compat">openai-compat</option>
-                  <option value="volcengine">volcengine</option>
-                  <option value="siliconflow">siliconflow</option>
-                </select>
+                  <SelectTrigger className="w-full bg-ds-surface-container-low border-none rounded-lg px-4 py-3 text-sm focus:ring-2 focus:ring-ds-primary/20 outline-none">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="openai-compat">openai-compat</SelectItem>
+                    <SelectItem value="volcengine">volcengine</SelectItem>
+                    <SelectItem value="siliconflow">siliconflow</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
               {/* BL-BILLING-AUDIT-EXT-P1 F-BAX-06: 账单 fetcher 凭证（仅 volcengine /
                   openrouter 显示）。volcengine 需独立 AK/SK（与 model inference key 不同），
@@ -485,7 +521,7 @@ export default function ProvidersPage() {
                     <label className="text-[11px] font-bold uppercase tracking-widest text-ds-on-surface-variant block">
                       Billing Access Key ID
                     </label>
-                    <input
+                    <Input
                       type="password"
                       className="w-full bg-ds-surface-container-low border-none rounded-lg px-4 py-3 text-sm focus:ring-2 focus:ring-ds-primary/20 outline-none"
                       placeholder="AKLT..."
@@ -497,7 +533,7 @@ export default function ProvidersPage() {
                     <label className="text-[11px] font-bold uppercase tracking-widest text-ds-on-surface-variant block">
                       Billing Secret Access Key
                     </label>
-                    <input
+                    <Input
                       type="password"
                       className="w-full bg-ds-surface-container-low border-none rounded-lg px-4 py-3 text-sm focus:ring-2 focus:ring-ds-primary/20 outline-none"
                       placeholder="••••••"
@@ -512,7 +548,7 @@ export default function ProvidersPage() {
                   <label className="text-[11px] font-bold uppercase tracking-widest text-ds-on-surface-variant block">
                     Provisioning Key
                   </label>
-                  <input
+                  <Input
                     type="password"
                     className="w-full bg-ds-surface-container-low border-none rounded-lg px-4 py-3 text-sm focus:ring-2 focus:ring-ds-primary/20 outline-none"
                     placeholder="sk-or-v1-..."
@@ -523,12 +559,13 @@ export default function ProvidersPage() {
               )}
             </div>
             <div className="px-8 py-6 bg-ds-surface-container-low/50 flex justify-end gap-4">
-              <button
+              <Button
+                variant="ghost"
                 onClick={() => setDialogOpen(false)}
                 className="px-6 py-2.5 font-bold text-sm text-ds-on-surface-variant hover:text-ds-on-surface"
               >
                 {tc("cancel")}
-              </button>
+              </Button>
               <button
                 onClick={save}
                 className="bg-ds-primary-container text-ds-on-primary-container px-8 py-3 rounded-xl font-bold text-sm shadow-lg shadow-ds-primary/20 hover:scale-[1.02] transition-transform"
@@ -548,12 +585,14 @@ export default function ProvidersPage() {
               <h2 className="text-xl font-extrabold tracking-tight font-[var(--font-heading)]">
                 {t("configOverride")}
               </h2>
-              <button
+              <Button
+                variant="ghost"
+                size="icon-sm"
                 onClick={() => setConfigOpen(false)}
                 className="text-ds-on-surface-variant hover:text-ds-on-surface"
               >
                 <span className="material-symbols-outlined">close</span>
-              </button>
+              </Button>
             </div>
             <div className="p-8 space-y-5 max-h-[60vh] overflow-y-auto">
               <div className="grid grid-cols-2 gap-4">
@@ -561,7 +600,7 @@ export default function ProvidersPage() {
                   <label className="text-[11px] font-bold uppercase tracking-widest text-ds-on-surface-variant block">
                     {t("tempMin")}
                   </label>
-                  <input
+                  <Input
                     type="number"
                     step="0.01"
                     className="w-full bg-ds-surface-container-low border-none rounded-lg px-4 py-3 text-sm outline-none"
@@ -575,7 +614,7 @@ export default function ProvidersPage() {
                   <label className="text-[11px] font-bold uppercase tracking-widest text-ds-on-surface-variant block">
                     {t("tempMax")}
                   </label>
-                  <input
+                  <Input
                     type="number"
                     step="0.01"
                     className="w-full bg-ds-surface-container-low border-none rounded-lg px-4 py-3 text-sm outline-none"
@@ -590,7 +629,7 @@ export default function ProvidersPage() {
                 <label className="text-[11px] font-bold uppercase tracking-widest text-ds-on-surface-variant block">
                   {t("chatEndpoint")}
                 </label>
-                <input
+                <Input
                   className="w-full bg-ds-surface-container-low border-none rounded-lg px-4 py-3 text-sm outline-none"
                   value={config.chatEndpoint ?? "/chat/completions"}
                   onChange={(e) => setConfig({ ...config, chatEndpoint: e.target.value })}
@@ -600,7 +639,7 @@ export default function ProvidersPage() {
                 <label className="text-[11px] font-bold uppercase tracking-widest text-ds-on-surface-variant block">
                   {t("imageEndpoint")}
                 </label>
-                <input
+                <Input
                   className="w-full bg-ds-surface-container-low border-none rounded-lg px-4 py-3 text-sm outline-none"
                   placeholder={t("imageEndpointPlaceholder")}
                   value={config.imageEndpoint ?? ""}
@@ -641,21 +680,25 @@ export default function ProvidersPage() {
                   <label className="text-[11px] font-bold uppercase tracking-widest text-ds-on-surface-variant block">
                     {t("currency")}
                   </label>
-                  <select
-                    className="w-full bg-ds-surface-container-low border-none rounded-lg px-4 py-3 text-sm outline-none"
+                  <Select
                     value={config.currency ?? "USD"}
-                    onChange={(e) => setConfig({ ...config, currency: e.target.value })}
+                    onValueChange={(v) => v && setConfig({ ...config, currency: v })}
                   >
-                    <option value="USD">USD</option>
-                    <option value="CNY">CNY</option>
-                  </select>
+                    <SelectTrigger className="w-full bg-ds-surface-container-low border-none rounded-lg px-4 py-3 text-sm outline-none">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="USD">USD</SelectItem>
+                      <SelectItem value="CNY">CNY</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
               <div className="space-y-1.5">
                 <label className="text-[11px] font-bold uppercase tracking-widest text-ds-on-surface-variant block">
                   {t("quirks")}
                 </label>
-                <textarea
+                <Textarea
                   className="w-full bg-ds-surface-container-low border-none rounded-lg px-4 py-3 text-sm outline-none resize-none"
                   rows={3}
                   placeholder={t("quirksPlaceholder")}
@@ -665,12 +708,13 @@ export default function ProvidersPage() {
               </div>
             </div>
             <div className="px-8 py-6 bg-ds-surface-container-low/50 flex justify-end gap-4">
-              <button
+              <Button
+                variant="ghost"
                 onClick={() => setConfigOpen(false)}
                 className="px-6 py-2.5 font-bold text-sm text-ds-on-surface-variant"
               >
                 {tc("cancel")}
-              </button>
+              </Button>
               <button
                 onClick={async () => {
                   try {
@@ -734,7 +778,8 @@ export default function ProvidersPage() {
                 </ul>
               ) : null}
               <div className="flex justify-end gap-3 pt-2">
-                <button
+                <Button
+                  variant="ghost"
                   onClick={() => {
                     setDeleteTarget(null);
                     setDeleteImpact(null);
@@ -742,7 +787,7 @@ export default function ProvidersPage() {
                   className="px-5 py-2 text-sm font-bold text-ds-on-surface-variant hover:text-ds-on-surface"
                 >
                   {tc("cancel")}
-                </button>
+                </Button>
                 <button
                   onClick={confirmDelete}
                   disabled={deleteLoading || !deleteImpact}
