@@ -12,7 +12,27 @@ import { PageHeader } from "@/components/page-header";
 import { SectionCard } from "@/components/section-card";
 import { TableCard } from "@/components/table-card";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { Pagination } from "@/components/pagination";
+
+const FILTER_BRAND_ALL = "__all__";
+const FILTER_MODALITY_ALL = "__all__";
+const LINK_TO_PLACEHOLDER = "__placeholder__";
 import type { AliasItem, ApiResponse } from "./_types";
 import {
   applyAliasPatch,
@@ -460,7 +480,7 @@ export default function ModelAliasesPage() {
             <div className="space-y-4">
               <div className="space-y-1.5">
                 <label className="label-caps ml-1">{t("aliasName")}</label>
-                <input
+                <Input
                   className="w-full bg-ds-surface-container-low border-none rounded-lg text-sm px-4 py-2 font-semibold focus:ring-2 focus:ring-ds-primary/20"
                   value={createForm.alias}
                   onChange={(e) => setCreateForm({ ...createForm, alias: e.target.value })}
@@ -469,7 +489,7 @@ export default function ModelAliasesPage() {
               </div>
               <div className="space-y-1.5">
                 <label className="label-caps ml-1">{t("brand")}</label>
-                <input
+                <Input
                   className="w-full bg-ds-surface-container-low border-none rounded-lg text-sm px-4 py-2 font-semibold focus:ring-2 focus:ring-ds-primary/20"
                   value={createForm.brand}
                   onChange={(e) => setCreateForm({ ...createForm, brand: e.target.value })}
@@ -478,7 +498,7 @@ export default function ModelAliasesPage() {
               </div>
               <div className="space-y-1.5">
                 <label className="label-caps ml-1">{t("description")}</label>
-                <input
+                <Input
                   className="w-full bg-ds-surface-container-low border-none rounded-lg text-sm px-4 py-2 font-semibold focus:ring-2 focus:ring-ds-primary/20"
                   value={createForm.description}
                   onChange={(e) => setCreateForm({ ...createForm, description: e.target.value })}
@@ -486,12 +506,13 @@ export default function ModelAliasesPage() {
               </div>
             </div>
             <div className="flex justify-end gap-3">
-              <button
+              <Button
+                variant="ghost"
                 className="px-4 py-2 text-xs font-bold text-ds-on-surface-variant hover:text-ds-on-surface"
                 onClick={() => setShowCreateDialog(false)}
               >
                 {t("cancel")}
-              </button>
+              </Button>
               <button
                 className="bg-ds-primary text-ds-on-primary px-6 py-2 rounded-lg text-xs font-bold shadow-sm active:scale-95 transition-all"
                 onClick={createAlias}
@@ -508,7 +529,7 @@ export default function ModelAliasesPage() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm">
           <div className="bg-ds-surface rounded-2xl p-8 w-full max-w-lg shadow-2xl space-y-6 max-h-[80vh] flex flex-col">
             <h2 className="text-xl font-extrabold">{t("addModel")}</h2>
-            <input
+            <Input
               className="w-full bg-ds-surface-container-low border-none rounded-lg text-sm px-4 py-2 font-semibold focus:ring-2 focus:ring-ds-primary/20"
               placeholder={t("searchModels")}
               value={modelSearch}
@@ -531,18 +552,21 @@ export default function ModelAliasesPage() {
                         {m.providers.join(", ")} · {m.channelCount} {t("channels")}
                       </p>
                     </div>
-                    <button
+                    <Button
+                      variant="ghost"
+                      size="sm"
                       className="bg-ds-primary text-ds-on-primary px-4 py-1.5 rounded-lg text-[10px] font-bold active:scale-95 transition-all"
                       onClick={() => linkModel(addModelAliasId, m.id)}
                     >
                       {t("link")}
-                    </button>
+                    </Button>
                   </div>
                 ))
               )}
             </div>
             <div className="flex justify-end">
-              <button
+              <Button
+                variant="ghost"
                 className="px-4 py-2 text-xs font-bold text-ds-on-surface-variant hover:text-ds-on-surface"
                 onClick={() => {
                   setAddModelAliasId(null);
@@ -550,7 +574,7 @@ export default function ModelAliasesPage() {
                 }}
               >
                 {t("close")}
-              </button>
+              </Button>
             </div>
           </div>
         </div>
@@ -601,51 +625,71 @@ export default function ModelAliasesPage() {
             className="w-64"
           />
           {/* Brand filter */}
-          <select
-            className="bg-ds-surface-container-low border-none rounded-full text-xs font-bold px-4 py-2 focus:ring-1 focus:ring-ds-primary/30"
-            value={filterBrand}
-            onChange={(e) => setFilterBrandAndResetPage(e.target.value)}
+          <Select
+            value={filterBrand === "" ? FILTER_BRAND_ALL : filterBrand}
+            onValueChange={(v) =>
+              setFilterBrandAndResetPage(!v || v === FILTER_BRAND_ALL ? "" : v)
+            }
           >
-            <option value="">{t("allBrands")}</option>
-            {availableBrands.map((b) => (
-              <option key={b} value={b}>
-                {b}
-              </option>
-            ))}
-          </select>
+            <SelectTrigger className="bg-ds-surface-container-low border-none rounded-full text-xs font-bold px-4 py-2 focus:ring-1 focus:ring-ds-primary/30">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value={FILTER_BRAND_ALL}>{t("allBrands")}</SelectItem>
+              {availableBrands.map((b) => (
+                <SelectItem key={b} value={b}>
+                  {b}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
           {/* Modality filter */}
-          <select
-            className="bg-ds-surface-container-low border-none rounded-full text-xs font-bold px-4 py-2 focus:ring-1 focus:ring-ds-primary/30"
-            value={filterModality}
-            onChange={(e) => setFilterModalityAndResetPage(e.target.value)}
+          <Select
+            value={filterModality === "" ? FILTER_MODALITY_ALL : filterModality}
+            onValueChange={(v) =>
+              setFilterModalityAndResetPage(!v || v === FILTER_MODALITY_ALL ? "" : v)
+            }
           >
-            <option value="">{t("allModalities")}</option>
-            {MODALITY_OPTIONS.map((m) => (
-              <option key={m} value={m}>
-                {m}
-              </option>
-            ))}
-          </select>
+            <SelectTrigger className="bg-ds-surface-container-low border-none rounded-full text-xs font-bold px-4 py-2 focus:ring-1 focus:ring-ds-primary/30">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value={FILTER_MODALITY_ALL}>{t("allModalities")}</SelectItem>
+              {MODALITY_OPTIONS.map((m) => (
+                <SelectItem key={m} value={m}>
+                  {m}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
           {/* Enabled filter */}
-          <select
-            className="bg-ds-surface-container-low border-none rounded-full text-xs font-bold px-4 py-2 focus:ring-1 focus:ring-ds-primary/30"
+          <Select
             value={filterEnabled}
-            onChange={(e) => setFilterEnabledAndResetPage(e.target.value as FilterEnabled)}
+            onValueChange={(v) => v && setFilterEnabledAndResetPage(v as FilterEnabled)}
           >
-            <option value="all">{t("allStatus")}</option>
-            <option value="enabled">{t("enabledOnly")}</option>
-            <option value="disabled">{t("disabledOnly")}</option>
-          </select>
+            <SelectTrigger className="bg-ds-surface-container-low border-none rounded-full text-xs font-bold px-4 py-2 focus:ring-1 focus:ring-ds-primary/30">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">{t("allStatus")}</SelectItem>
+              <SelectItem value="enabled">{t("enabledOnly")}</SelectItem>
+              <SelectItem value="disabled">{t("disabledOnly")}</SelectItem>
+            </SelectContent>
+          </Select>
           {/* Sort */}
-          <select
-            className="bg-ds-surface-container-low border-none rounded-full text-xs font-bold px-4 py-2 focus:ring-1 focus:ring-ds-primary/30"
+          <Select
             value={sortKey}
-            onChange={(e) => setSortKeyAndResetPage(e.target.value as SortKey)}
+            onValueChange={(v) => v && setSortKeyAndResetPage(v as SortKey)}
           >
-            <option value="enabled">{t("sortEnabled")}</option>
-            <option value="alias">{t("sortName")}</option>
-            <option value="updatedAt">{t("sortUpdated")}</option>
-          </select>
+            <SelectTrigger className="bg-ds-surface-container-low border-none rounded-full text-xs font-bold px-4 py-2 focus:ring-1 focus:ring-ds-primary/30">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="enabled">{t("sortEnabled")}</SelectItem>
+              <SelectItem value="alias">{t("sortName")}</SelectItem>
+              <SelectItem value="updatedAt">{t("sortUpdated")}</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
 
         {aliases.length === 0 ? (
@@ -711,8 +755,12 @@ export default function ModelAliasesPage() {
                     {/* Spacer */}
                     <div className="flex-1" />
                     {/* Enabled toggle */}
-                    <button
-                      className="relative inline-block w-10 h-5 flex-shrink-0"
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="relative inline-block w-10 h-5 flex-shrink-0 p-0"
+                      aria-pressed={alias.enabled}
+                      aria-label={t("deleteAlias")}
                       onClick={(e) => {
                         e.stopPropagation();
                         toggleEnabled(alias.id, !alias.enabled);
@@ -724,9 +772,11 @@ export default function ModelAliasesPage() {
                       <div
                         className={`absolute left-0.5 top-0.5 w-4 h-4 bg-ds-surface-container-lowest rounded-full transition-transform ${alias.enabled ? "translate-x-5" : ""}`}
                       />
-                    </button>
+                    </Button>
                     {/* Delete */}
-                    <button
+                    <Button
+                      variant="ghost"
+                      size="icon-sm"
                       className="text-ds-on-surface-variant hover:text-ds-error transition-colors p-1 flex-shrink-0"
                       title={t("deleteAlias")}
                       onClick={(e) => {
@@ -735,7 +785,7 @@ export default function ModelAliasesPage() {
                       }}
                     >
                       <span className="material-symbols-outlined text-xl">delete</span>
-                    </button>
+                    </Button>
                     {/* Expand arrow */}
                     <span className="material-symbols-outlined text-ds-on-surface-variant flex-shrink-0">
                       {isExpanded ? "keyboard_arrow_up" : "keyboard_arrow_down"}
@@ -749,7 +799,7 @@ export default function ModelAliasesPage() {
                       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 pt-6">
                         <div className="space-y-1.5">
                           <label className="label-caps ml-1">{t("brand")}</label>
-                          <input
+                          <Input
                             className="w-full bg-ds-surface-container-low border-none rounded-lg text-sm px-4 py-2 font-semibold focus:ring-2 focus:ring-ds-primary/20"
                             value={(getEditValue(alias.id, "brand") as string) ?? ""}
                             onChange={(e) =>
@@ -760,7 +810,7 @@ export default function ModelAliasesPage() {
                         <div className="space-y-1.5">
                           <label className="label-caps ml-1">{t("contextWindow")}</label>
                           {editingNumField === `${alias.id}_contextWindow` ? (
-                            <input
+                            <Input
                               className="w-full bg-ds-surface-container-low border-none rounded-lg text-sm px-4 py-2 font-semibold focus:ring-2 focus:ring-ds-primary/20"
                               type="number"
                               autoFocus
@@ -793,7 +843,7 @@ export default function ModelAliasesPage() {
                         <div className="space-y-1.5">
                           <label className="label-caps ml-1">{t("maxTokens")}</label>
                           {editingNumField === `${alias.id}_maxTokens` ? (
-                            <input
+                            <Input
                               className="w-full bg-ds-surface-container-low border-none rounded-lg text-sm px-4 py-2 font-semibold focus:ring-2 focus:ring-ds-primary/20"
                               type="number"
                               autoFocus
@@ -825,7 +875,7 @@ export default function ModelAliasesPage() {
                         </div>
                         <div className="space-y-1.5">
                           <label className="label-caps ml-1">{t("description")}</label>
-                          <input
+                          <Input
                             className="w-full bg-ds-surface-container-low border-none rounded-lg text-sm px-4 py-2 font-semibold focus:ring-2 focus:ring-ds-primary/20"
                             value={(getEditValue(alias.id, "description") as string) ?? ""}
                             onChange={(e) =>
@@ -875,7 +925,7 @@ export default function ModelAliasesPage() {
                           <div className="bg-ds-surface-container-low/30 p-4 rounded-xl">
                             <div className="space-y-1.5 max-w-xs">
                               <label className="label-caps ml-1">{t("perCall")} (¥ / image)</label>
-                              <input
+                              <Input
                                 className="w-full bg-ds-surface-container-lowest border-none rounded-lg text-sm px-4 py-2 font-semibold focus:ring-2 focus:ring-ds-primary/20"
                                 type="number"
                                 step="0.001"
@@ -891,7 +941,7 @@ export default function ModelAliasesPage() {
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-ds-surface-container-low/30 p-4 rounded-xl">
                             <div className="space-y-1.5">
                               <label className="label-caps ml-1">{t("inputPer1M")}</label>
-                              <input
+                              <Input
                                 className="w-full bg-ds-surface-container-lowest border-none rounded-lg text-sm px-4 py-2 font-semibold focus:ring-2 focus:ring-ds-primary/20"
                                 type="number"
                                 step="0.01"
@@ -904,7 +954,7 @@ export default function ModelAliasesPage() {
                             </div>
                             <div className="space-y-1.5">
                               <label className="label-caps ml-1">{t("outputPer1M")}</label>
-                              <input
+                              <Input
                                 className="w-full bg-ds-surface-container-lowest border-none rounded-lg text-sm px-4 py-2 font-semibold focus:ring-2 focus:ring-ds-primary/20"
                                 type="number"
                                 step="0.01"
@@ -931,8 +981,11 @@ export default function ModelAliasesPage() {
                               <span className="text-sm font-semibold text-ds-on-surface-variant">
                                 {t(`cap_${key}`)}
                               </span>
-                              <button
-                                className="relative inline-block w-10 h-5"
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="relative inline-block w-10 h-5 p-0"
+                                aria-pressed={!!caps[key]}
                                 onClick={() => toggleCapability(alias.id, key)}
                               >
                                 <div
@@ -941,7 +994,7 @@ export default function ModelAliasesPage() {
                                 <div
                                   className={`absolute left-0.5 top-0.5 w-4 h-4 bg-ds-surface-container-lowest rounded-full transition-transform ${caps[key] ? "translate-x-5" : ""}`}
                                 />
-                              </button>
+                              </Button>
                             </div>
                           ))}
                         </div>
@@ -960,16 +1013,18 @@ export default function ModelAliasesPage() {
                               className="flex items-center gap-1.5 px-3 py-1.5 bg-ds-surface-container-lowest rounded-lg border border-ds-outline-variant shadow-sm transition-all hover:border-ds-primary group"
                             >
                               <span className="text-xs font-bold">{size}</span>
-                              <button
+                              <Button
+                                variant="ghost"
+                                size="icon-xs"
                                 className="text-ds-on-surface-variant hover:text-ds-error flex items-center"
                                 onClick={() => removeSize(alias.id, size)}
                               >
                                 <span className="material-symbols-outlined text-sm">close</span>
-                              </button>
+                              </Button>
                             </div>
                           ))}
                           <div className="relative flex-1 min-w-[200px]">
-                            <input
+                            <Input
                               className="w-full bg-ds-surface-container-lowest border-2 border-dashed border-ds-outline-variant rounded-lg text-xs px-3 py-1.5 font-bold focus:border-ds-primary focus:ring-0 placeholder:text-ds-on-surface-variant/50 transition-all"
                               placeholder={t("sizePlaceholder")}
                               value={newSizeInput[alias.id] ?? ""}
@@ -981,12 +1036,14 @@ export default function ModelAliasesPage() {
                               }
                               onKeyDown={(e) => e.key === "Enter" && addSize(alias.id)}
                             />
-                            <button
+                            <Button
+                              variant="ghost"
+                              size="icon-sm"
                               className="absolute right-2 top-1/2 -translate-y-1/2 text-ds-primary hover:scale-110 transition-transform flex items-center"
                               onClick={() => addSize(alias.id)}
                             >
                               <span className="material-symbols-outlined text-xl">add_circle</span>
-                            </button>
+                            </Button>
                           </div>
                         </div>
                       </div>
@@ -1027,21 +1084,24 @@ export default function ModelAliasesPage() {
                           )}
                         />
                         <div className="flex justify-between items-center mt-2">
-                          <button
+                          <Button
+                            variant="ghost"
+                            size="sm"
                             className="text-ds-primary text-xs font-bold flex items-center gap-1.5 hover:underline"
                             onClick={() => setAddModelAliasId(alias.id)}
                           >
                             <span className="material-symbols-outlined text-sm">add_circle</span>{" "}
                             {t("addModelMapping")}
-                          </button>
+                          </Button>
                           {editState[alias.id] && Object.keys(editState[alias.id]).length > 0 && (
                             <div className="flex gap-3">
-                              <button
+                              <Button
+                                variant="ghost"
                                 className="px-4 py-2 text-xs font-bold text-ds-on-surface-variant hover:text-ds-on-surface"
                                 onClick={() => discardChanges(alias.id)}
                               >
                                 {t("discard")}
-                              </button>
+                              </Button>
                               <button
                                 className="bg-ds-primary text-ds-on-primary px-6 py-2 rounded-lg text-xs font-bold shadow-sm active:scale-95 transition-all"
                                 onClick={() => saveChanges(alias.id)}
@@ -1087,57 +1147,63 @@ export default function ModelAliasesPage() {
             </div>
           </div>
           <TableCard>
-            <table className="w-full text-left">
-              <thead className="bg-ds-surface-container-high/30">
-                <tr className="text-[10px] font-bold text-ds-on-surface-variant uppercase tracking-widest">
-                  <th className="py-4 px-6">{t("colModel")}</th>
-                  <th className="py-4">{t("colProvider")}</th>
-                  <th className="py-4">{t("colModality")}</th>
-                  <th className="py-4">{t("colChannels")}</th>
-                  <th className="py-4 px-6 text-right">{t("colActions")}</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-ds-surface-variant/20">
+            <Table className="w-full text-left">
+              <TableHeader className="bg-ds-surface-container-high/30">
+                <TableRow className="text-[10px] font-bold text-ds-on-surface-variant uppercase tracking-widest">
+                  <TableHead className="py-4 px-6">{t("colModel")}</TableHead>
+                  <TableHead className="py-4">{t("colProvider")}</TableHead>
+                  <TableHead className="py-4">{t("colModality")}</TableHead>
+                  <TableHead className="py-4">{t("colChannels")}</TableHead>
+                  <TableHead className="py-4 px-6 text-right">{t("colActions")}</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody className="divide-y divide-ds-surface-variant/20">
                 {unlinkedModels.map((m) => (
-                  <tr key={m.id} className="hover:bg-ds-surface-container-low transition-colors">
-                    <td className="py-4 px-6 text-xs font-mono font-medium">{m.name}</td>
-                    <td className="py-4 text-xs font-semibold">{m.providers.join(", ")}</td>
-                    <td className="py-4">
+                  <TableRow key={m.id} className="hover:bg-ds-surface-container-low transition-colors">
+                    <TableCell className="py-4 px-6 text-xs font-mono font-medium">{m.name}</TableCell>
+                    <TableCell className="py-4 text-xs font-semibold">{m.providers.join(", ")}</TableCell>
+                    <TableCell className="py-4">
                       <span className="text-[10px] font-bold text-ds-on-surface-variant bg-ds-surface-container px-2 py-0.5 rounded uppercase">
                         {m.modality}
                       </span>
-                    </td>
-                    <td className="py-4 text-xs font-bold text-ds-on-surface-variant">
+                    </TableCell>
+                    <TableCell className="py-4 text-xs font-bold text-ds-on-surface-variant">
                       {m.channelCount}
-                    </td>
-                    <td className="py-4 px-6 text-right">
+                    </TableCell>
+                    <TableCell className="py-4 px-6 text-right">
                       <div className="flex justify-end gap-2">
-                        <button
+                        <Button
+                          variant="ghost"
+                          size="sm"
                           className="text-ds-primary text-[10px] font-bold hover:underline px-3 py-1"
                           onClick={() => createAliasForModel(m.name, m.id)}
                         >
                           {t("createAliasAction")}
-                        </button>
-                        <select
-                          className="bg-ds-surface-container-low border-none rounded-md text-[10px] font-bold px-2 py-1 focus:ring-1 focus:ring-ds-primary/30"
-                          value=""
-                          onChange={(e) => {
-                            if (e.target.value) linkUnlinkedModel(m.id, e.target.value);
+                        </Button>
+                        <Select
+                          value={LINK_TO_PLACEHOLDER}
+                          onValueChange={(v) => {
+                            if (v && v !== LINK_TO_PLACEHOLDER) linkUnlinkedModel(m.id, v);
                           }}
                         >
-                          <option value="">{t("linkTo")}</option>
-                          {aliases.map((a) => (
-                            <option key={a.id} value={a.id}>
-                              {a.alias}
-                            </option>
-                          ))}
-                        </select>
+                          <SelectTrigger className="bg-ds-surface-container-low border-none rounded-md text-[10px] font-bold px-2 py-1 focus:ring-1 focus:ring-ds-primary/30">
+                            <SelectValue placeholder={t("linkTo")} />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value={LINK_TO_PLACEHOLDER}>{t("linkTo")}</SelectItem>
+                            {aliases.map((a) => (
+                              <SelectItem key={a.id} value={a.id}>
+                                {a.alias}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
                       </div>
-                    </td>
-                  </tr>
+                    </TableCell>
+                  </TableRow>
                 ))}
-              </tbody>
-            </table>
+              </TableBody>
+            </Table>
           </TableCard>
         </section>
       )}
@@ -1227,7 +1293,7 @@ function SuggestPriceButton({
 
       {showDropdown && (
         <div className="absolute right-0 top-8 z-50 w-80 bg-ds-surface rounded-xl shadow-2xl border border-ds-outline-variant/20 p-3">
-          <input
+          <Input
             type="text"
             className="w-full bg-ds-surface-container-low border-none rounded-lg text-xs px-3 py-2 mb-2 focus:ring-1 focus:ring-ds-primary/30"
             placeholder={t("searchOpenRouter")}
@@ -1239,17 +1305,22 @@ function SuggestPriceButton({
           />
           <div className="max-h-48 overflow-y-auto">
             {candidates.map((c) => (
-              <button
+              <Button
                 key={c.id}
+                variant="ghost"
                 onClick={() => selectCandidate(c)}
-                className="w-full text-left px-3 py-2 rounded-lg hover:bg-ds-surface-container-low transition-colors text-xs"
+                className="w-full h-auto text-left px-3 py-2 rounded-lg hover:bg-ds-surface-container-low transition-colors text-xs justify-start"
               >
-                <div className="font-bold truncate">{c.id}</div>
-                <div className="text-ds-on-surface-variant">{formatPrice(c)}</div>
-              </button>
+                <div className="flex-1 min-w-0">
+                  <div className="font-bold truncate">{c.id}</div>
+                  <div className="text-ds-on-surface-variant">{formatPrice(c)}</div>
+                </div>
+              </Button>
             ))}
           </div>
-          <button
+          <Button
+            variant="ghost"
+            size="sm"
             onClick={() => {
               setShowDropdown(false);
               setCandidates([]);
@@ -1257,7 +1328,7 @@ function SuggestPriceButton({
             className="mt-2 w-full text-center text-[10px] text-ds-on-surface-variant hover:text-ds-primary"
           >
             {t("close")}
-          </button>
+          </Button>
         </div>
       )}
     </div>

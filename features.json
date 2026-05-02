@@ -25,7 +25,7 @@
       "title": "admin/model-aliases/page.tsx 残留 raw 表单 + unlinkedModels 表替换",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "source": "BL-FE-DS-SHADCN-MINI-A Spec F-MAS-03；frontend-ds-2-shadcn-adoption.md audit + Planner 用户裁决 D4 走 B（替换 unlinkedModels）",
       "acceptance": "1) 全部 16 处 raw <input> → <Input>，全部 5 处 raw <select> → <Select>（D2 sentinel）；2) 行内非主 <button>（line 489/495/534/545/714/729/934/963/984/1030/1039/1045/1115/1242/1252 中的行操作）→ <Button variant=\"ghost\"|\"outline\">；主 CTA（顶部 line 1219）保留 raw；3) raw <table> line 1090（unlinkedModels）→ shadcn <Table> family；4) ChannelTable 组件本体（line 1000 引用）不动；5) 文件 raw <input>/<textarea>/<select> 计数 = 0；6) unlinkedModels raw <table> 计数 = 0；7) npx tsc --noEmit PASS；8) npm run build PASS；9) dev server 跑 /admin/model-aliases：alias CRUD + 启用切换 + 售价编辑 + channel 关联 + 删除 alias + unlinkedModels 关联 全部交互不退回归；10) ChannelTable 行为完全不变（关联/排序/分页等）；11) 中英双语 toggle 文案正常；12) 视觉对比附 commit 描述；13) 独立 commit 标注 feat(BL-FE-DS-SHADCN-MINI-A F-MAS-03)"
     },

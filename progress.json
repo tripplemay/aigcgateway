@@ -1,8 +1,8 @@
 {
-  "status": "building",
+  "status": "verifying",
   "user_goal": "BL-FE-DS-SHADCN-MINI-A — 3 个高频 admin 页面 raw HTML → shadcn 组件壳替换：(1) admin/reconciliation 筛选行 + 明细表；(2) admin/providers 表单 + 明细表 + 行内 button；(3) admin/model-aliases 残留 raw 表单 + unlinkedModels 表（ChannelTable 不动）。'触及即替换'范式，逐文件独立 commit 便于回滚",
   "total_features": 4,
-  "completed_features": 2,
+  "completed_features": 3,
   "fix_rounds": 0,
   "current_sprint": "BL-FE-DS-SHADCN-MINI-A",
   "last_updated": "2026-05-03T00:00:00Z",
@@ -16,6 +16,7 @@
   "evaluator_feedback": null,
   "session_notes": {
     "Planner": "2026-05-03 启动 BL-FE-DS-SHADCN-MINI-A。用户裁决：(D4) admin/model-aliases unlinkedModels raw <table> 走选项 B 替换；(role) 默认映射，role_assignments=null。已写 spec + features.json + 推 building。已从 backlog.json 移除 MINI-A。重新评估完整 BL-FE-DS-SHADCN：保持 low-deferred（最高 a11y 价值的 9 个 hand-rolled dialogs 已被 FE-QUALITY/ADMIN-ALIAS-UX-PHASE1 等批次自然清零；剩余主要是组件壳替换边际收益更低；2026-05-02 立的渗透工程纪律 + MINI-A 双轨已消化高价值部分）。下一会话 CLI 将按默认映射加载 generator.md 开始实现 F-MAS-01。",
+    "Generator": "2026-05-03 完成 F-MAS-01/02/03 三个文件 raw → shadcn 替换。每文件独立 commit + push（fc60d06 / ef6b8c2 / 待 commit）。三页 raw <input>/<select>/<textarea>/<table> 计数全部 = 0；保留主 CTA <button> 共 9 处（recon 3 + providers 3 + aliases 3）。Select API 关键：base-ui Select 的 onValueChange 类型是 string|null，sentinel 处理空字符串需双重保护（!v || v === SENTINEL）。推 verifying 等 Codex 验收（F-MAS-04）。",
     "Reviewer": null
   }
 }
