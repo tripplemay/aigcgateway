@@ -1,5 +1,5 @@
 {
-  "status": "verifying",
+  "status": "fixing",
   "user_goal": "BL-SYNC-INTEGRITY-PHASE2 — 基于 PHASE1 生产 scan 真分组数据：(1) 软停 259 个 disabled-alias-only zero-price ACTIVE channel 节省 probe 成本；(2) sync-status 度量重定义（新 unpricedActiveAliases alias 层度量 + 4 类 zeroPriceChannelsByAliasStatus，旧 zeroPriceActiveChannels 保留兼容）；(3) admin/operations 加 alias-level warning chip；(4) scan 脚本扩展三维分组",
   "total_features": 4,
   "completed_features": 3,
@@ -13,5 +13,5 @@
     "signoff": null,
     "framework_reviewed": false
   },
-  "evaluator_feedback": null
+  "evaluator_feedback": "F-SI2-02 blocker: /api/admin/sync-status does not count enabled aliases whose sellPrice is stored as JSON null, so unpricedActiveAliases stays at 0 and the alias-level warning chip cannot render."
 }
