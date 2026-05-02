@@ -21,9 +21,8 @@ type: project
 - **BL-FE-DS-SHADCN**（low-deferred）— shadcn 大批量采用率提升（剩余 15+ 文件）
 
 ## proposed-learnings
-- 已同步 harness-template v0.9.9（8 条累计：铁律 1 内部命名 grep + 1.5 + 1.5 范围细化 + 1.6 + 1.7 + 1.8 + 3 + Generator manual 归属）
-- 待确认（1 条）：Planner jsonb 字段空判定三态枚举（来源 BL-SYNC-INTEGRITY-PHASE2 F-SI2-02 fix-round-1）
+- 已同步 harness-template v0.9.10（9 条累计：铁律 1 jsonb 三态 + 内部命名 grep + 1.5 + 1.5 范围细化 + 1.6 + 1.7 + 1.8 + 3 + Generator manual 归属）
 
-## 生产旁路修复（2026-04-30 已执行）
-- alias claude-opus-4.7/claude-sonnet-4.6 model.enabled 已改 true
-- 4 个 alias sellPrice 已补（claude-opus-4.7 / gpt-4o / kimi-k2.5 / kimi-k2.6）
+## 生产旁路修复
+- 2026-04-30：alias claude-opus-4.7/claude-sonnet-4.6 model.enabled 改 true + 4 个 alias sellPrice 已补
+- 2026-05-02：disable-orphan-zero-price-channels.ts 软停 263 个 disabled-alias-only channel（生产 SSH 跑），sync-status disabledAliasOnly 259→0 / unpricedActiveAliases 0（无 leak）/ 旧 zeroPriceActiveChannels 310→56（仅"无害零价"）
