@@ -26,7 +26,26 @@ import { PageContainer } from "@/components/page-container";
 import { PageHeader } from "@/components/page-header";
 import { SectionCard } from "@/components/section-card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { toast } from "sonner";
+
+const STATUS_FILTER_ALL = "__all__";
 
 const TrendChart = dynamic(() => import("./trend-chart").then((m) => m.TrendChart), {
   ssr: false,
@@ -367,7 +386,7 @@ export default function ReconciliationPage() {
             <span className="text-xs font-bold uppercase tracking-wider text-ds-on-surface-variant">
               {t("rerunDate")}
             </span>
-            <input
+            <Input
               type="date"
               className="bg-ds-surface-container-low rounded-lg px-3 py-2 text-sm"
               value={rerunDate}
@@ -378,7 +397,7 @@ export default function ReconciliationPage() {
             <span className="text-xs font-bold uppercase tracking-wider text-ds-on-surface-variant">
               {t("rerunProvider")}
             </span>
-            <input
+            <Input
               type="text"
               placeholder="(all)"
               className="bg-ds-surface-container-low rounded-lg px-3 py-2 text-sm w-40"
@@ -415,7 +434,7 @@ export default function ReconciliationPage() {
             <span className="text-[10px] font-bold uppercase tracking-wider text-ds-on-surface-variant">
               {t("dateRangeStart")}
             </span>
-            <input
+            <Input
               type="date"
               className="bg-ds-surface-container-low rounded-lg px-3 py-2 text-sm"
               value={filterStart}
@@ -426,7 +445,7 @@ export default function ReconciliationPage() {
             <span className="text-[10px] font-bold uppercase tracking-wider text-ds-on-surface-variant">
               {t("dateRangeEnd")}
             </span>
-            <input
+            <Input
               type="date"
               className="bg-ds-surface-container-low rounded-lg px-3 py-2 text-sm"
               value={filterEnd}
@@ -454,24 +473,28 @@ export default function ReconciliationPage() {
               </TierButton>
             </div>
           </div>
-          <select
-            className="bg-ds-surface-container-low rounded-lg px-3 py-2 text-sm"
-            value={filterStatus}
-            onChange={(e) => setFilterStatus(e.target.value)}
+          <Select
+            value={filterStatus === "" ? STATUS_FILTER_ALL : filterStatus}
+            onValueChange={(v) => setFilterStatus(!v || v === STATUS_FILTER_ALL ? "" : v)}
           >
-            <option value="">{t("allStatus")}</option>
-            <option value="MATCH">MATCH</option>
-            <option value="MINOR_DIFF">MINOR_DIFF</option>
-            <option value="BIG_DIFF">BIG_DIFF</option>
-          </select>
-          <input
+            <SelectTrigger className="bg-ds-surface-container-low rounded-lg px-3 py-2 text-sm">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value={STATUS_FILTER_ALL}>{t("allStatus")}</SelectItem>
+              <SelectItem value="MATCH">MATCH</SelectItem>
+              <SelectItem value="MINOR_DIFF">MINOR_DIFF</SelectItem>
+              <SelectItem value="BIG_DIFF">BIG_DIFF</SelectItem>
+            </SelectContent>
+          </Select>
+          <Input
             type="text"
             placeholder={t("providerIdPlaceholder")}
             className="bg-ds-surface-container-low rounded-lg px-3 py-2 text-sm w-40"
             value={filterProvider}
             onChange={(e) => setFilterProvider(e.target.value)}
           />
-          <input
+          <Input
             type="text"
             placeholder={t("modelSearchPlaceholder")}
             className="bg-ds-surface-container-low rounded-lg px-3 py-2 text-sm w-44"
@@ -483,40 +506,40 @@ export default function ReconciliationPage() {
         {rows.length === 0 ? (
           <p className="text-sm text-ds-on-surface-variant">{t("empty")}</p>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead className="text-left text-xs uppercase tracking-wider text-ds-on-surface-variant">
-                <tr>
-                  <th className="pb-2">
-                    <button
-                      onClick={toggleSort}
-                      className="inline-flex items-center gap-1 hover:text-ds-on-surface uppercase tracking-wider font-bold"
-                      aria-label={sortDir === "desc" ? t("sortDesc") : t("sortAsc")}
-                    >
-                      {t("colDate")}
-                      <span aria-hidden="true">{sortDir === "desc" ? "▼" : "▲"}</span>
-                    </button>
-                  </th>
-                  <th className="pb-2">{t("colProvider")}</th>
-                  <th className="pb-2">{t("colModel")}</th>
-                  <th className="pb-2 text-right">{t("colUpstream")}</th>
-                  <th className="pb-2 text-right">{t("colGateway")}</th>
-                  <th className="pb-2 text-right">{t("colDelta")}</th>
-                  <th className="pb-2">{t("colStatus")}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {rows.map((r) => (
-                  <RowItem
-                    key={r.id}
-                    row={r}
-                    expanded={expandedId === r.id}
-                    onToggle={() => setExpandedId(expandedId === r.id ? null : r.id)}
-                  />
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <Table className="w-full text-sm">
+            <TableHeader className="text-left text-xs uppercase tracking-wider text-ds-on-surface-variant">
+              <TableRow>
+                <TableHead className="pb-2">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={toggleSort}
+                    className="inline-flex items-center gap-1 hover:text-ds-on-surface uppercase tracking-wider font-bold px-0"
+                    aria-label={sortDir === "desc" ? t("sortDesc") : t("sortAsc")}
+                  >
+                    {t("colDate")}
+                    <span aria-hidden="true">{sortDir === "desc" ? "▼" : "▲"}</span>
+                  </Button>
+                </TableHead>
+                <TableHead className="pb-2">{t("colProvider")}</TableHead>
+                <TableHead className="pb-2">{t("colModel")}</TableHead>
+                <TableHead className="pb-2 text-right">{t("colUpstream")}</TableHead>
+                <TableHead className="pb-2 text-right">{t("colGateway")}</TableHead>
+                <TableHead className="pb-2 text-right">{t("colDelta")}</TableHead>
+                <TableHead className="pb-2">{t("colStatus")}</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {rows.map((r) => (
+                <RowItem
+                  key={r.id}
+                  row={r}
+                  expanded={expandedId === r.id}
+                  onToggle={() => setExpandedId(expandedId === r.id ? null : r.id)}
+                />
+              ))}
+            </TableBody>
+          </Table>
         )}
 
         {/* 分页 bar */}
@@ -552,7 +575,7 @@ function ThresholdInput({
       <span className="text-[10px] font-bold uppercase tracking-wider text-ds-on-surface-variant">
         {label}
       </span>
-      <input
+      <Input
         type="number"
         step="0.01"
         min="0"
@@ -574,17 +597,19 @@ function TierButton({
   children: React.ReactNode;
 }) {
   return (
-    <button
+    <Button
+      variant="ghost"
+      size="sm"
       onClick={onClick}
       aria-pressed={active}
-      className={`px-3 py-2 text-sm font-bold transition-colors ${
+      className={`px-3 py-2 text-sm font-bold transition-colors rounded-none ${
         active
           ? "bg-ds-primary-container text-ds-on-primary-container"
           : "text-ds-on-surface-variant hover:text-ds-on-surface"
       }`}
     >
       {children}
-    </button>
+    </Button>
   );
 }
 
@@ -613,32 +638,40 @@ function PaginationBar({
       <div className="flex items-center gap-2">
         <label className="flex items-center gap-2">
           <span className="uppercase tracking-wider">{pageSizeLabel}</span>
-          <select
-            className="bg-ds-surface-container-low rounded-lg px-2 py-1 text-sm"
-            value={pageSize}
-            onChange={(e) => onPageSize(Number(e.target.value))}
+          <Select
+            value={String(pageSize)}
+            onValueChange={(v) => onPageSize(Number(v))}
           >
-            {PAGE_SIZE_OPTIONS.map((n) => (
-              <option key={n} value={n}>
-                {n}
-              </option>
-            ))}
-          </select>
+            <SelectTrigger className="bg-ds-surface-container-low rounded-lg px-2 py-1 text-sm">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {PAGE_SIZE_OPTIONS.map((n) => (
+                <SelectItem key={n} value={String(n)}>
+                  {n}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </label>
-        <button
+        <Button
+          variant="ghost"
+          size="sm"
           onClick={() => onPage(Math.max(1, page - 1))}
           disabled={page <= 1}
           className="px-3 py-1 rounded-lg bg-ds-surface-container-low disabled:opacity-40"
         >
           ‹
-        </button>
-        <button
+        </Button>
+        <Button
+          variant="ghost"
+          size="sm"
           onClick={() => onPage(Math.min(totalPages, page + 1))}
           disabled={page >= totalPages}
           className="px-3 py-1 rounded-lg bg-ds-surface-container-low disabled:opacity-40"
         >
           ›
-        </button>
+        </Button>
       </div>
     </div>
   );
@@ -656,27 +689,27 @@ function RowItem({
   const style = STATUS_STYLES[row.status];
   return (
     <>
-      <tr className="cursor-pointer hover:bg-ds-surface-container-low/40" onClick={onToggle}>
-        <td className="py-2 font-mono text-xs">{row.reportDate.slice(0, 10)}</td>
-        <td className="py-2">{row.providerDisplayName}</td>
-        <td className="py-2 font-mono text-xs">{row.modelName ?? "(all)"}</td>
-        <td className="py-2 text-right font-mono">{fmtUsd(row.upstreamAmount)}</td>
-        <td className="py-2 text-right font-mono">{fmtUsd(row.gatewayAmount)}</td>
-        <td className="py-2 text-right font-mono">{fmtUsd(row.delta)}</td>
-        <td className="py-2">
+      <TableRow className="cursor-pointer hover:bg-ds-surface-container-low/40" onClick={onToggle}>
+        <TableCell className="py-2 font-mono text-xs">{row.reportDate.slice(0, 10)}</TableCell>
+        <TableCell className="py-2">{row.providerDisplayName}</TableCell>
+        <TableCell className="py-2 font-mono text-xs">{row.modelName ?? "(all)"}</TableCell>
+        <TableCell className="py-2 text-right font-mono">{fmtUsd(row.upstreamAmount)}</TableCell>
+        <TableCell className="py-2 text-right font-mono">{fmtUsd(row.gatewayAmount)}</TableCell>
+        <TableCell className="py-2 text-right font-mono">{fmtUsd(row.delta)}</TableCell>
+        <TableCell className="py-2">
           <span className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded ${style?.text}`}>
             {style?.label ?? row.status}
           </span>
-        </td>
-      </tr>
+        </TableCell>
+      </TableRow>
       {expanded && (
-        <tr>
-          <td colSpan={7} className="bg-ds-surface-container-low/30 p-3">
+        <TableRow>
+          <TableCell colSpan={7} className="bg-ds-surface-container-low/30 p-3">
             <pre className="text-[11px] overflow-x-auto">
               {JSON.stringify(row.details, null, 2)}
             </pre>
-          </td>
-        </tr>
+          </TableCell>
+        </TableRow>
       )}
     </>
   );
