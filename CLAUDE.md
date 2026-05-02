@@ -71,3 +71,16 @@ cd tests/mcp-test && ./run_all_audits.sh    # 8-role audit, outputs reports + as
 - **规格文档：** → `docs/specs/`（开发时优先查阅）
 - **服务商接入：** → `docs/provider/`（新增服务商时参考）
 - **设计稿：** → `design-draft/`（UI 页面还原时参考）
+
+## 前端工程纪律 — shadcn 渗透（2026-05-02 立）
+
+新批次触及任何 admin / 用户面页面（修 bug / 加功能 / 重构）时，Generator **顺手将本批次实际触及的代码块内的 raw `<input>` / `<select>` / `<button>` / `<table>` 等替换为 shadcn 组件**（参 `src/components/ui/`，已安装 24 个）。
+
+适用约束：
+- 仅替换被本批次实际触及的代码块（**不扩 scope** 改未涉及区域；按"触及即替换"原则渐进改进）
+- 替换后保持 design system tokens (`bg-ds-*` / `text-ds-*` / `text-on-*`) + i18n 文案 + a11y 属性 + 既有交互行为不变
+- 不主动新建/重构布局，组件壳替换不变结构
+
+退出条款：spec 显式声明 "skip shadcn 渗透" 时跳过（性能关键路径 / 第三方组件 portal/ref 透传等罕见场景）。
+
+集中改造批次：`BL-FE-DS-SHADCN-MINI-A`（backlog medium，3 个 Critical 文件 0.5-1d）+ `BL-FE-DS-SHADCN`（backlog low-deferred，剩余 15+ 文件）。本工程纪律是"渐进路径"，与集中批次互补。

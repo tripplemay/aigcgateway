@@ -16,10 +16,11 @@ type: project
 - BL-ADMIN-ALIAS-UX-PHASE1 @ 2026-05-01（done，fix_rounds=1）— admin/model-aliases UX 大修
 - BL-HEALTH-PROBE-MIN-TOKENS @ 2026-05-01（done，fix_rounds=0）— probe max_tokens 1→16
 
-## Backlog（3 条，按优先级）
+## Backlog（4 条，按优先级）
 - **BL-SEC-PAY-DEFERRED**（critical-deferred）— 支付 webhook 验签 + 幂等 CAS
 - **BL-SEC-INFRA-GUARD-FOLLOWUP**（high-deferred）— Next.js 16 跨大版本迁移
-- **BL-FE-DS-SHADCN**（low-deferred）— shadcn 采用率提升
+- **BL-FE-DS-SHADCN-MINI-A**（medium）— shadcn 渗透 3 高频 admin 页（depends_on PHASE2 done）
+- **BL-FE-DS-SHADCN**（low-deferred）— shadcn 大批量采用率提升（剩余 15+ 文件）
 
 ## proposed-learnings
 - 已同步 harness-template v0.9.9（8 条累计：铁律 1 内部命名 grep + 1.5 + 1.5 范围细化 + 1.6 + 1.7 + 1.8 + 3 + Generator manual 归属）

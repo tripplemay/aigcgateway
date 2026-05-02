@@ -20,9 +20,29 @@
       "follows": "BL-SEC-INFRA-GUARD"
     },
     {
+      "id": "BL-FE-DS-SHADCN-MINI-A",
+      "title": "shadcn 渗透 Mini-A — admin/reconciliation 筛选行 + admin/providers + admin/model-aliases 残留 raw HTML",
+      "description": "来源 BL-FE-DS-SHADCN 拆分（其 deferral_reason 已显式列出 'Mini-A 路径 0.5d 处理最高价值部分'）。本 mini 批次只动 3 个高频 admin 页面：(a) admin/reconciliation 筛选行 raw <input>/<select>（当前 shadcn 采用率 ≈ 2.7%）；(b) admin/providers raw <input>/<select>/<table>（约 23 items）；(c) admin/model-aliases PHASE1 改造后剩余 raw 元素（约 21 items 中的低风险部分）。不动其它页面，不重构布局。",
+      "decisions": [
+        "范围严格限定 3 文件，不触及 settings/actions-new/admin-operations 等其它页面（留原 BL-FE-DS-SHADCN）",
+        "raw <input>/<textarea>/<select> → shadcn <Input>/<Textarea>/<Select>（保留 className 中现有 ds-* token，组件继承）",
+        "raw <button> 仅替换非主操作（已显眼的 primary button 保留 raw 减少 UI 视觉跳动）",
+        "raw <table> 仅替换 admin/reconciliation 与 admin/providers 的明细表，admin/model-aliases 表已 ChannelTable 不动",
+        "保持 a11y / i18n / 现有交互行为不变（只换组件壳）",
+        "spec 必须用'触及即替换'范式——逐 PR 改一个文件，独立 commit，便于回滚",
+        "verifying 含 build + tsc + 视觉对照（Generator 手动截图对比改造前后），无 design-draft 同步要求"
+      ],
+      "confirmed_at": "2026-05-02",
+      "priority": "medium",
+      "source": "BL-FE-DS-SHADCN 拆分 + Planner 评估对账页采用率 2.7% 触发",
+      "estimated_effort": "0.5-1 day",
+      "depends_on": "BL-SYNC-INTEGRITY-PHASE2 done",
+      "order": 50
+    },
+    {
       "id": "BL-FE-DS-SHADCN",
       "title": "前端设计系统 — shadcn 采用率提升 + 剩余 DS-1 High 文件",
-      "description": "来源 docs/code-review/frontend-ds-1-token-compliance.md + frontend-ds-2-shadcn-adoption.md。(1) DS-2: 62% shadcn 采用率，92 处 raw input/textarea/select 分散在 18 个文件，4 处 hand-rolled dialog，11 处 raw table。(2) DS-1 剩余 28 个 High 级文件（BL-FE-A11Y-I18N-DS 只处理 Critical 3 文件）。Worst offenders: admin/model-aliases (21 items)、admin/providers (23 items)、settings (17 items)、admin/operations (9 items)、actions/new (10 items)。",
+      "description": "来源 docs/code-review/frontend-ds-1-token-compliance.md + frontend-ds-2-shadcn-adoption.md。(1) DS-2: 62% shadcn 采用率，92 处 raw input/textarea/select 分散在 18 个文件，4 处 hand-rolled dialog，11 处 raw table。(2) DS-1 剩余 28 个 High 级文件（BL-FE-A11Y-I18N-DS 只处理 Critical 3 文件）。Worst offenders: admin/model-aliases (21 items)、admin/providers (23 items)、settings (17 items)、admin/operations (9 items)、actions/new (10 items)。**注：3 个 Critical 文件由 BL-FE-DS-SHADCN-MINI-A (medium) 单独处理，本批次仅覆盖剩余 15+ 文件。**",
       "decisions": [
         "admin/model-aliases / admin/providers / settings / actions/new 4 个 Critical 文件优先改造",
         "raw <input>/<textarea>/<select> → shadcn <Input>/<Textarea>/<Select>",
