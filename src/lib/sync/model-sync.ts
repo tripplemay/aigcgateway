@@ -39,6 +39,7 @@ import { minimaxAdapter } from "./adapters/minimax";
 import { moonshotAdapter } from "./adapters/moonshot";
 import { qwenAdapter } from "./adapters/qwen";
 import { stepfunAdapter } from "./adapters/stepfun";
+import { xiaomiMimoAdapter } from "./adapters/xiaomi-mimo";
 // model-whitelist.ts removed — whitelist now managed via Model.enabled in DB
 
 // F-IG-02: concurrency guard is now a distributed lock (Redis NX EX) instead
@@ -59,6 +60,7 @@ const ADAPTERS: Record<string, SyncAdapter> = {
   moonshot: moonshotAdapter,
   qwen: qwenAdapter,
   stepfun: stepfunAdapter,
+  "xiaomi-mimo": xiaomiMimoAdapter,
 };
 
 // ============================================================
@@ -90,6 +92,15 @@ interface ProviderSyncResult {
   newModels: string[];
   newChannels: string[];
   disabledChannels: string[];
+  /**
+   * BL-SYNC-INTEGRITY-PHASE1 F-SI-01: IMAGE channels intentionally not
+   * created at sync time. F-BAX-08's CHECK 23514 forbids costPrice all-zero
+   * on IMAGE channels, so the placeholder `{perCall:0,unit:'call'}` would
+   * fail INSERT and roll back the whole provider's TEXT batch. Operators
+   * must create IMAGE channels manually via Admin UI with a real costPrice;
+   * this list surfaces the IMAGE models awaiting that manual step.
+   */
+  skippedImageChannels: string[];
   modelCount: number;
 }
 
@@ -192,10 +203,19 @@ async function resolveCanonicalName(modelId: string): Promise<string> {
 async function reconcile(
   provider: ProviderWithConfig,
   models: SyncedModel[],
-): Promise<{ newModels: string[]; newChannels: string[]; disabledChannels: string[] }> {
+): Promise<{
+  newModels: string[];
+  newChannels: string[];
+  disabledChannels: string[];
+  skippedImageChannels: string[];
+}> {
   const newModels: string[] = [];
   const newChannels: string[] = [];
   const disabledChannels: string[] = [];
+  // F-SI-01: IMAGE remote models still create rows in `models` (no CHECK
+  // constraint there) but skip `channels` to avoid CHECK 23514 rolling back
+  // the whole provider's batch. Operators handle IMAGE channels manually.
+  const skippedImageChannels: string[] = [];
 
   // 去重：同一 Provider 返回的重复 modelId 只保留第一条
   const seen = new Set<string>();
@@ -304,7 +324,16 @@ async function reconcile(
         prisma.channel.update({ where: { id: existingChannel.id }, data: updateData }),
       );
     } else {
-      // 新建 channel：IMAGE 用 perCall:0 占位（trigger 后续 UPDATE 拦截）
+      // F-SI-01: skip IMAGE channel creation. CHECK 23514 (F-BAX-08) rejects
+      // any IMAGE channel with all-zero costPrice; the legacy placeholder
+      // `{perCall:0,unit:'call'}` would have failed INSERT and aborted the
+      // whole provider's createMany batch (silently dropping new TEXT
+      // channels). Operators must create IMAGE channels manually via Admin
+      // UI with real costPrice. The skipped models still exist in `models`.
+      if (remote.modality === "IMAGE") {
+        skippedImageChannels.push(`${provider.name}/${remote.modelId} → ${canonical}`);
+        continue;
+      }
       channelsToCreate.push({
         modelId: model.id,
         providerId: provider.id,
@@ -351,7 +380,7 @@ async function reconcile(
     }
   }
 
-  return { newModels, newChannels, disabledChannels };
+  return { newModels, newChannels, disabledChannels, skippedImageChannels };
 }
 
 // ============================================================
@@ -371,6 +400,7 @@ async function syncProvider(
     newModels: [],
     newChannels: [],
     disabledChannels: [],
+    skippedImageChannels: [],
     modelCount: 0,
   };
 
@@ -453,6 +483,7 @@ async function syncProvider(
     result.newModels = dbResult.newModels;
     result.newChannels = dbResult.newChannels;
     result.disabledChannels = dbResult.disabledChannels;
+    result.skippedImageChannels = dbResult.skippedImageChannels;
 
     result.success = true;
   } catch (err) {
@@ -531,6 +562,7 @@ export async function runModelSync(): Promise<SyncResult> {
           newModels: [],
           newChannels: [],
           disabledChannels: [],
+          skippedImageChannels: [],
           modelCount: 0,
         };
         completedCount++;
@@ -590,6 +622,7 @@ export async function runModelSync(): Promise<SyncResult> {
             newModels: [],
             newChannels: [],
             disabledChannels: [],
+            skippedImageChannels: [],
             modelCount: 0,
           },
     );
@@ -609,10 +642,14 @@ export async function runModelSync(): Promise<SyncResult> {
       const overrideNote = result.overrides > 0 ? `, overrides: ${result.overrides}` : "";
 
       const status = result.success ? "OK" : result.warning ? "WARNING" : "FAIL";
+      const skipNote =
+        result.skippedImageChannels.length > 0
+          ? `, skipped IMAGE: ${result.skippedImageChannels.length}`
+          : "";
       console.log(
         `[model-sync] ${provider.name}: ${status} ` +
           `${result.modelCount} models (API: ${result.apiModels}${aiNote}${overrideNote}) ` +
-          `+${result.newChannels.length} new, -${result.disabledChannels.length} disabled` +
+          `+${result.newChannels.length} new, -${result.disabledChannels.length} disabled${skipNote}` +
           (result.error ? ` error: ${result.error}` : ""),
       );
     }
@@ -719,5 +756,5 @@ export async function runModelSync(): Promise<SyncResult> {
   }
 }
 
-// Exported for F-BIPOR-04 unit tests
-export const __testing = { buildCostPrice, buildInitialCostPrice };
+// Exported for F-BIPOR-04 + F-SI-01 + F-SI-02 unit tests
+export const __testing = { buildCostPrice, buildInitialCostPrice, reconcile, ADAPTERS };
