@@ -5,6 +5,7 @@ import { requireAdmin } from "@/lib/api/admin-guard";
 import { getRedis } from "@/lib/redis";
 import {
   ALIAS_STATUS_BUCKETS,
+  SQL_ALIAS_HAS_NO_USABLE_SELL_PRICE_BARE,
   SQL_ALIAS_STATUS_CASE,
   type AliasStatusBucket,
 } from "@/lib/sql/alias-status";
@@ -62,10 +63,14 @@ export async function GET(request: Request) {
          AND COALESCE(("sellPrice"::jsonb->>'perCall')::float, 0) = 0`,
     ),
     // 已启用 alias 但未设售价（用户面 /v1/models 价格字段空白）— 真度量。
+    // SQL_ALIAS_HAS_NO_USABLE_SELL_PRICE_BARE 与 /v1/models route.ts:80 的
+    // `sellPrice && Object.keys(sellPrice).length > 0` 反向语义一致：
+    // SQL NULL / JSON null（Prisma 写 sellPrice:null 的实际存法）/ 空对象
+    // 都计入 unpriced。
     prisma.$queryRawUnsafe<[{ cnt: number }]>(
       `SELECT count(*)::int as cnt FROM model_aliases
        WHERE enabled = true
-         AND ("sellPrice" IS NULL OR "sellPrice"::text = '{}')`,
+         AND ${SQL_ALIAS_HAS_NO_USABLE_SELL_PRICE_BARE}`,
     ),
     // 零价 ACTIVE channel 按 alias_status 4 类分组（与 PHASE1 scan 同款 CASE）。
     prisma.$queryRawUnsafe<{ bucket: AliasStatusBucket; cnt: number }[]>(
