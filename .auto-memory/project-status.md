@@ -4,9 +4,9 @@ description: AIGC Gateway 当前状态快照（覆盖写，≤30 行）
 type: project
 ---
 ## 当前批次
-- **BL-SYNC-INTEGRITY-PHASE2**（reverifying，2026-05-02 启动，fix_rounds=1）— 软停 259 disabled-alias-only channel + sync-status 度量重定义（alias 层）+ admin chip + scan 三维扩展；4 features (3 generator + 1 codex)
+- **BL-SYNC-INTEGRITY-PHASE2**（done，2026-05-02 启动，fix_rounds=1）— 软停 259 disabled-alias-only channel + sync-status 度量重定义（alias 层）+ admin chip + scan 三维扩展；4 features (3 generator + 1 codex)
   - 数据来源：PHASE1 生产 scan SSH 真跑（310 行精准三维分组）；spec: docs/specs/BL-SYNC-INTEGRITY-PHASE2-spec.md
-  - fix#1：F-SI2-02 阻断 bug 已修 — SQL_ALIAS 系列 helper 对齐 /v1/models 语义（`jsonb_typeof='object' AND <>'{}'`，覆盖 JSON null / SQL NULL / `{}`），SQL_ALIAS_STATUS_CASE 也同步
+  - Codex 复验通过：`unpricedActiveAliases` 现已正确统计 SQL NULL / JSON null / `{}` sellPrice；admin alias-level warning chip 可随度量显现
 
 ## reference path
 - KOLMatrix repo 实际路径：`/mnt/c/Users/tripplezhou/projects/kolmatrix`

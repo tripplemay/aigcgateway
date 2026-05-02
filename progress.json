@@ -1,5 +1,5 @@
 {
-  "status": "reverifying",
+  "status": "done",
   "user_goal": "BL-SYNC-INTEGRITY-PHASE2 — 基于 PHASE1 生产 scan 真分组数据：(1) 软停 259 个 disabled-alias-only zero-price ACTIVE channel 节省 probe 成本；(2) sync-status 度量重定义（新 unpricedActiveAliases alias 层度量 + 4 类 zeroPriceChannelsByAliasStatus，旧 zeroPriceActiveChannels 保留兼容）；(3) admin/operations 加 alias-level warning chip；(4) scan 脚本扩展三维分组",
   "total_features": 4,
   "completed_features": 3,
@@ -10,8 +10,8 @@
   "docs": {
     "spec": "docs/specs/BL-SYNC-INTEGRITY-PHASE2-spec.md",
     "test_cases": null,
-    "signoff": null,
+    "signoff": "docs/test-reports/BL-SYNC-INTEGRITY-PHASE2-signoff-2026-05-02.md",
     "framework_reviewed": false
   },
-  "evaluator_feedback": "F-SI2-02 blocker fixed in fix round 1: SQL_ALIAS_HAS_NO_USABLE_SELL_PRICE_BARE now matches /v1/models semantics (SQL NULL OR jsonb_typeof != 'object' OR '{}'). Same fix applied to SQL_ALIAS_STATUS_CASE enabledAliasPriced predicate (was misclassifying JSON-null aliases as priced)."
+  "evaluator_feedback": "PHASE2 signoff PASS after fix round 1; sync-status now counts SQL NULL / JSON null / {} sellPrice correctly for unpricedActiveAliases."
 }
