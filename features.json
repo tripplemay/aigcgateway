@@ -1,42 +1,42 @@
 {
-  "batch": "BL-SYNC-INTEGRITY-PHASE1",
-  "created_at": "2026-05-01",
+  "batch": "BL-SYNC-INTEGRITY-PHASE2",
+  "created_at": "2026-05-02",
   "features": [
     {
-      "id": "F-SI-01",
-      "title": "siliconflow IMAGE channel sync 跳过（修复 DB CHECK 23514）",
+      "id": "F-SI2-01",
+      "title": "disable-orphan-zero-price-channels.ts 软停脚本（259 个 disabled-alias-only zero-price channel）",
       "priority": "high",
       "executor": "generator",
-      "status": "done",
-      "source": "BL-SYNC-INTEGRITY-PHASE1 Spec D1；生产 sync-status 实测 lastSyncResult=partial",
-      "acceptance": "1) src/lib/sync/model-sync.ts ~L286-321 的新建 channel 分支（else block）顶部增加：if (remote.modality === 'IMAGE') { skippedImageChannels.push(`${provider.name}/${remote.modelId} → ${canonical}`); continue; }；2) skippedImageChannels: string[] 数组在函数开头与 newChannels 并列初始化；3) ProviderSyncResult 类型（src/lib/sync/types.ts 或 model-sync.ts 内联类型）增加 skippedImageChannels: string[] 字段；4) buildInitialCostPrice 函数本身保留不动（IMAGE 仍返回 perCall:0，仅在新建分支绕过它）；5) 现有单测 src/lib/sync/__tests__/build-cost-price-regression.test.ts 或类似文件扩展 1 个 case：mock remote 含 modality=IMAGE 的 model，调用 syncProviderModels（或同等内部函数）→ 验证 channel 表无新增 IMAGE channel + skippedImageChannels 数组含该 modelId；6) npx tsc --noEmit PASS；7) npm run test PASS（sync 模块 + 全仓单测无回归）；8) npm run build PASS"
+      "status": "pending",
+      "source": "BL-SYNC-INTEGRITY-PHASE2 Spec D1；PHASE1 生产 scan 真分组数据（259 个 disabled-alias-only）",
+      "acceptance": "1) 新文件 scripts/maintenance/disable-orphan-zero-price-channels.ts；2) 顶部 banner 注释：DRY_RUN 默认推荐 + 严格三重条件（c.status=ACTIVE AND channel.sellPrice 三类零 AND alias_status=disabled-alias-only）+ 软停 status=DISABLED 不删除 + 幂等 + 退出 prisma.$disconnect + disconnectRedis；3) prisma.$queryRaw 执行 spec D1 SELECT SQL（含 EXISTS+NOT EXISTS 精确判定 disabled-alias-only），返回目标 channel id 列表；4) stdout 输出：找到 N 条；按 (provider, modality) 分组列每条 channel id + provider/model 名；5) DRY_RUN=1 仅打印不写库；DRY_RUN 未设时 stdout 提示后跑 prisma.channel.updateMany({ where: {id: {in: ids}}, data: {status: 'DISABLED'} }) 输出'Disabled N channels'+ 完整 disabled ids 列表（备份用，便于回滚）；6) 抽 buildDisableTargetIds(rows) 纯函数（输入 SQL 结果数组，输出过滤后 ids），便于单测；7) scripts/maintenance/__tests__/disable-orphan-zero-price-channels.test.ts 扩展或新增（按铁律 3，仅扩展现有 __tests__ 或加 helper 测试）：覆盖 buildDisableTargetIds 三场景 — happy（disabled-alias-only 入选）/ enabled-alias-priced 不入选 / 已 DISABLED 不入选；8) Docker postgres + 3-channel fixture（disabled-alias-only / enabled-alias-priced / 已 DISABLED 各 1）smoke：DRY_RUN 列 1 条；real apply 后该 channel.status=DISABLED 其他 2 不变；二次跑 0 affected；9) npx tsc --noEmit PASS"
     },
     {
-      "id": "F-SI-02",
-      "title": "xiaomi-mimo sync adapter（OpenAI 兼容 + ADAPTERS 注册）",
+      "id": "F-SI2-02",
+      "title": "sync-status 度量重定义（unpricedActiveAliases + zeroPriceChannelsByAliasStatus + UI warning chip）",
       "priority": "high",
       "executor": "generator",
-      "status": "done",
-      "source": "BL-SYNC-INTEGRITY-PHASE1 Spec D2；生产 sync 报错 'No sync adapter found for provider xiaomi-mimo'",
-      "acceptance": "1) 实施前 shape 验证：从 dev/scratch DB 取 xiaomi-mimo provider 的 apiKey，curl https://token-plan-cn.xiaomimimo.com/v1/models -H 'Authorization: Bearer <key>'，确认返回 OpenAI 标准 shape {object:'list', data:[{id,object,created,owned_by}]}。如 shape 不符立即停下来更新 spec，不得自行调整；2) 新文件 src/lib/sync/adapters/xiaomi-mimo.ts，参考 src/lib/sync/adapters/siliconflow.ts 范式；providerName: 'xiaomi-mimo'；filterModel: isChatModality；fetchModels 拉 /v1/models → filter isChatModality → map 为 SyncedModel（modelId / name='xiaomi/{id}' / displayName / modality=inferModality(id)）；3) src/lib/sync/model-sync.ts 顶部加 import { xiaomiMimoAdapter } from './adapters/xiaomi-mimo'；ADAPTERS 字典加 'xiaomi-mimo': xiaomiMimoAdapter；4) 现有单测扩展或新增 case：mock provider name='xiaomi-mimo' → ADAPTERS 命中、不抛 'No sync adapter found'；5) dev/scratch DB 上跑一次 syncSingleProvider('xiaomi-mimo')（admin debug endpoint 或 npm script）→ 不抛错 + skipDuplicates 保护下既有 mimo-v2-pro / mimo-v2-omni model 不被重复创建；6) npx tsc --noEmit PASS；7) npm run test PASS；8) npm run build PASS"
+      "status": "pending",
+      "source": "BL-SYNC-INTEGRITY-PHASE2 Spec D2；旧 zeroPriceActiveChannels 度量误报",
+      "acceptance": "1) src/app/api/admin/sync-status/route.ts 增加 2 个 SQL 计数（与现有 zeroPriceCount 并列在 prisma.$queryRawUnsafe 调用中或 Promise.all）：(a) unpricedActiveAliases — model_aliases.enabled=true AND (sellPrice IS NULL OR sellPrice::text='{}')；(b) zeroPriceChannelsByAliasStatus — 4 类 GROUP BY 计数（enabledAliasPriced / enabledAliasUnpriced / disabledAliasOnly / noAlias），CASE 表达式与 spec D2 一致；2) 响应 shape 增加这 2 个字段；3) 旧 zeroPriceActiveChannels 字段保留不动（向后兼容 admin/operations:62/329/332）；4) 缓存 cache:admin:sync-status TTL 30s 不动；5) src/app/(console)/admin/operations/page.tsx SyncStatusResponse type 同步加 2 字段；既有 zero-price warning chip（page.tsx:329-334）保留；新增 alias-level warning chip：当 unpricedActiveAliases > 0 时渲染（与 zero-price warning 同款 className：bg-ds-status-warning-container + text-ds-status-warning + warning material icon），含 i18n key unpricedAliasWarning 占位 {count}；6) messages/zh-CN.json + messages/en.json admin operations namespace 加 unpricedAliasWarning：(zh) '{count} 个已启用 alias 未设售价（用户面价格空白）'；(en) '{count} enabled alias(es) without sellPrice (price field blank in /v1/models)'；7) 现有 sync-status 路由测试（如有）扩展 mock prisma raw query 并断言新字段；8) npx tsc --noEmit PASS；9) npm run test PASS；10) npm run build PASS"
     },
     {
-      "id": "F-SI-03",
-      "title": "zero-price ACTIVE channel 扫描脚本（read-only 报告）",
+      "id": "F-SI2-03",
+      "title": "scan-zero-price-channels.ts 扩展三维分组（aliasStatus）",
       "priority": "medium",
       "executor": "generator",
-      "status": "done",
-      "source": "BL-SYNC-INTEGRITY-PHASE1 Spec D3；生产 sync-status zeroPriceActiveChannels=311",
-      "acceptance": "1) 新文件 scripts/maintenance/scan-zero-price-channels.ts；2) 顶部 banner 注释：'PURE READ-ONLY — 不得调用 prisma.update / delete / create / upsert，违反即视为 FAIL'；3) 用 prisma.$queryRaw 执行 spec D3 的 SELECT SQL（JOIN providers + models + alias_model_links + model_aliases，按 provider+modality 排序）；4) 输出按 (provider × modality × any-enabled-alias 布尔) 三维分组的 summary 表到 stdout，columns: provider | modality | any-enabled-alias | count | sample_channel_id；5) 同时写两个文件到 OUT_DIR（默认 docs/test-reports/_artifacts/BL-SYNC-INTEGRITY-PHASE1/）：(a) zero-price-channels-YYYY-MM-DD.json — 完整 311 行原始 select 结果数组；(b) zero-price-channels-YYYY-MM-DD-summary.csv — 分组 summary；6) OUT_DIR 不存在时自动 mkdir -p；7) 退出前 prisma.$disconnect() + disconnectRedis()（若引用 src/lib/redis）；8) 在 dev/scratch DB 上跑（fixture 数据需含至少 1 zero-price ACTIVE channel）→ stdout 打印分组表 + 两个文件已生成 + 行数与 stdout 总计一致；9) grep 脚本源码确认无 prisma.(update|delete|create|upsert|createMany|updateMany|deleteMany) 任意一项；10) npx tsc --noEmit PASS"
+      "status": "pending",
+      "source": "BL-SYNC-INTEGRITY-PHASE2 Spec D3；与 F-SI2-02 SQL CASE 表达式共享",
+      "acceptance": "1) 修改 scripts/maintenance/scan-zero-price-channels.ts 的 SQL — 加 alias_status 字段（CASE 与 F-SI2-02 D2 SQL 一致；建议抽 SQL_ALIAS_STATUS_CASE 常量复用避免漂移）；2) 每行 result 新增 aliasStatus 字段（值 enabledAliasPriced/enabledAliasUnpriced/disabledAliasOnly/noAlias 之一）；3) buildSummary 分组键从 (provider, modality, anyEnabledAlias) 升级为 (provider, modality, aliasStatus)；4) CSV header 同步：provider,modality,alias_status,count,sample_channel_id；5) JSON full 输出仍保留 associated_aliases 数组（向后兼容旧消费），新增 alias_status 字段挨着；6) 现有 __tests__/scan-zero-price-channels.test.ts 扩展 buildSummary 三维场景测试（hasEnabledAlias 测试可改为 aliasStatus）；7) npx tsc --noEmit PASS；8) Docker postgres + fixture（4 个 zero-price channel 各属一类 alias_status）smoke：summary 4 行 / CSV 4 行 / JSON 4 行各含正确 aliasStatus"
     },
     {
-      "id": "F-SI-04",
+      "id": "F-SI2-04",
       "title": "Codex 验收 + 签收报告",
       "priority": "high",
       "executor": "codex",
       "status": "pending",
-      "source": "BL-SYNC-INTEGRITY-PHASE1 验收",
-      "acceptance": "1) bash scripts/test/codex-setup.sh + codex-wait.sh PASS；2) F-SI-01 验证：grep 'modality === \"IMAGE\"' src/lib/sync/model-sync.ts 命中 IMAGE skip 分支；ProviderSyncResult 类型含 skippedImageChannels 字段；现有单测扩展的 IMAGE case PASS；mock IMAGE model 经过 sync 后 channel 表无新增 + skippedImageChannels 数组含该 modelId；3) F-SI-02 验证：(a) src/lib/sync/adapters/xiaomi-mimo.ts 文件存在且导出 xiaomiMimoAdapter；(b) ADAPTERS['xiaomi-mimo'] 命中；(c) Codex 用项目内 fixture / 测试 apiKey 直接 curl /v1/models 验证 OpenAI shape；(d) 在 _scratch DB 跑一次 syncSingleProvider('xiaomi-mimo')，不抛错；4) F-SI-03 验证：(a) 在 _scratch DB 含 zero-price fixture 跑脚本 → 两个文件生成 + stdout 分组表；(b) 行数与 SQL 实际命中数一致；(c) grep 脚本源码 0 命中 prisma.(update|delete|create|upsert) 任一变体；5) 生产软验收（如可达）：触发一次 POST /api/admin/sync-models 后查 sync-status，期望 lastSyncResult=success（或仅其他无关 provider 失败，不再含 siliconflow / xiaomi-mimo）；6) npx tsc --noEmit PASS；7) npm run test PASS（含 sync 模块新增/扩展单测）；8) npm run build PASS（接受现有非阻断 warning）；9) 输出 docs/test-reports/BL-SYNC-INTEGRITY-PHASE1-signoff-YYYY-MM-DD.md，含上述命令证据 + 结论 PASS/FAIL"
+      "source": "BL-SYNC-INTEGRITY-PHASE2 验收",
+      "acceptance": "1) bash scripts/test/codex-setup.sh + codex-wait.sh PASS；2) F-SI2-01 验证：(a) scripts/maintenance/disable-orphan-zero-price-channels.ts 文件存在 + buildDisableTargetIds 单测 PASS；(b) Codex 在 _scratch DB 构造 3-channel fixture（disabled-alias-only / enabled-alias-priced / 已 DISABLED 各 1）；(c) DRY_RUN=1 跑脚本 → stdout 列 1 条 disabled-alias-only；(d) real apply 跑 → 该 channel.status=DISABLED + 其他 2 channel 不变；(e) 二次跑 0 affected（幂等）；3) F-SI2-02 验证：(a) GET /api/admin/sync-status 响应含 unpricedActiveAliases + zeroPriceChannelsByAliasStatus 字段；(b) zeroPriceActiveChannels 字段仍存在（向后兼容）；(c) Codex 在 _scratch DB 注入 1 个 unpriced enabled alias，dev server 访问 /admin/operations 看到 alias-level warning chip 渲染（中英双语切换正常）；(d) 注入 0 unpriced alias 时 chip 不渲染；4) F-SI2-03 验证：(a) scan 脚本输出含 alias_status 字段；(b) summary 分组按四值正确分；(c) CSV / JSON / stdout 三态一致；5) 生产软验收（如用户协助 SSH 跑或可达）：(a) DRY_RUN=1 跑 disable-orphan 期望列出 ~259 channel；(b) real apply 后 sync-status 显示 zeroPriceChannelsByAliasStatus.disabledAliasOnly = 0（或显著下降）；(c) /admin/operations 旧 chip 仍显示但 count 应降至约 51（仅 enabled-alias-priced 剩余）；6) npx tsc --noEmit PASS；7) npm run test PASS（含本批次新增/扩展单测）；8) npm run build PASS（接受现有非阻断 warning）；9) 输出 docs/test-reports/BL-SYNC-INTEGRITY-PHASE2-signoff-YYYY-MM-DD.md 含上述命令证据 + 结论 PASS/FAIL"
     }
   ]
 }

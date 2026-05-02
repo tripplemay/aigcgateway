@@ -4,7 +4,8 @@ description: AIGC Gateway 当前状态快照（覆盖写，≤30 行）
 type: project
 ---
 ## 当前批次
-- **无进行中批次**（PHASE2 待生产 scan 报告评审后启动）
+- **BL-SYNC-INTEGRITY-PHASE2**（building，2026-05-02 启动）— 软停 259 disabled-alias-only channel + sync-status 度量重定义（alias 层）+ admin chip + scan 三维扩展；4 features (3 generator + 1 codex)
+  - 数据来源：PHASE1 生产 scan SSH 真跑（310 行精准三维分组）；spec: docs/specs/BL-SYNC-INTEGRITY-PHASE2-spec.md
 
 ## reference path
 - KOLMatrix repo 实际路径：`/mnt/c/Users/tripplezhou/projects/kolmatrix`
@@ -14,10 +15,9 @@ type: project
 - BL-ADMIN-ALIAS-UX-PHASE1 @ 2026-05-01（done，fix_rounds=1）— admin/model-aliases UX 大修
 - BL-HEALTH-PROBE-MIN-TOKENS @ 2026-05-01（done，fix_rounds=0）— probe max_tokens 1→16
 
-## Backlog（4 条，按优先级）
+## Backlog（3 条，按优先级）
 - **BL-SEC-PAY-DEFERRED**（critical-deferred）— 支付 webhook 验签 + 幂等 CAS
 - **BL-SEC-INFRA-GUARD-FOLLOWUP**（high-deferred）— Next.js 16 跨大版本迁移
-- **BL-SYNC-INTEGRITY-PHASE2**（待评审）— 311 zero-price ACTIVE channel 处置策略（依据 PHASE1 扫描报告分组制定 DISABLED / 补价 / DELETE）
 - **BL-FE-DS-SHADCN**（low-deferred）— shadcn 采用率提升
 
 ## proposed-learnings
