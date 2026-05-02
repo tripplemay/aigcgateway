@@ -1,42 +1,42 @@
 {
-  "batch": "BL-SYNC-INTEGRITY-PHASE2",
-  "created_at": "2026-05-02",
+  "batch": "BL-FE-DS-SHADCN-MINI-A",
+  "created_at": "2026-05-03",
   "features": [
     {
-      "id": "F-SI2-01",
-      "title": "disable-orphan-zero-price-channels.ts 软停脚本（259 个 disabled-alias-only zero-price channel）",
-      "priority": "high",
-      "executor": "generator",
-      "status": "done",
-      "source": "BL-SYNC-INTEGRITY-PHASE2 Spec D1；PHASE1 生产 scan 真分组数据（259 个 disabled-alias-only）",
-      "acceptance": "1) 新文件 scripts/maintenance/disable-orphan-zero-price-channels.ts；2) 顶部 banner 注释：DRY_RUN 默认推荐 + 严格三重条件（c.status=ACTIVE AND channel.sellPrice 三类零 AND alias_status=disabled-alias-only）+ 软停 status=DISABLED 不删除 + 幂等 + 退出 prisma.$disconnect + disconnectRedis；3) prisma.$queryRaw 执行 spec D1 SELECT SQL（含 EXISTS+NOT EXISTS 精确判定 disabled-alias-only），返回目标 channel id 列表；4) stdout 输出：找到 N 条；按 (provider, modality) 分组列每条 channel id + provider/model 名；5) DRY_RUN=1 仅打印不写库；DRY_RUN 未设时 stdout 提示后跑 prisma.channel.updateMany({ where: {id: {in: ids}}, data: {status: 'DISABLED'} }) 输出'Disabled N channels'+ 完整 disabled ids 列表（备份用，便于回滚）；6) 抽 buildDisableTargetIds(rows) 纯函数（输入 SQL 结果数组，输出过滤后 ids），便于单测；7) scripts/maintenance/__tests__/disable-orphan-zero-price-channels.test.ts 扩展或新增（按铁律 3，仅扩展现有 __tests__ 或加 helper 测试）：覆盖 buildDisableTargetIds 三场景 — happy（disabled-alias-only 入选）/ enabled-alias-priced 不入选 / 已 DISABLED 不入选；8) Docker postgres + 3-channel fixture（disabled-alias-only / enabled-alias-priced / 已 DISABLED 各 1）smoke：DRY_RUN 列 1 条；real apply 后该 channel.status=DISABLED 其他 2 不变；二次跑 0 affected；9) npx tsc --noEmit PASS"
-    },
-    {
-      "id": "F-SI2-02",
-      "title": "sync-status 度量重定义（unpricedActiveAliases + zeroPriceChannelsByAliasStatus + UI warning chip）",
-      "priority": "high",
-      "executor": "generator",
-      "status": "done",
-      "source": "BL-SYNC-INTEGRITY-PHASE2 Spec D2；旧 zeroPriceActiveChannels 度量误报",
-      "acceptance": "1) src/app/api/admin/sync-status/route.ts 增加 2 个 SQL 计数（与现有 zeroPriceCount 并列在 prisma.$queryRawUnsafe 调用中或 Promise.all）：(a) unpricedActiveAliases — model_aliases.enabled=true AND (sellPrice IS NULL OR sellPrice::text='{}')；(b) zeroPriceChannelsByAliasStatus — 4 类 GROUP BY 计数（enabledAliasPriced / enabledAliasUnpriced / disabledAliasOnly / noAlias），CASE 表达式与 spec D2 一致；2) 响应 shape 增加这 2 个字段；3) 旧 zeroPriceActiveChannels 字段保留不动（向后兼容 admin/operations:62/329/332）；4) 缓存 cache:admin:sync-status TTL 30s 不动；5) src/app/(console)/admin/operations/page.tsx SyncStatusResponse type 同步加 2 字段；既有 zero-price warning chip（page.tsx:329-334）保留；新增 alias-level warning chip：当 unpricedActiveAliases > 0 时渲染（与 zero-price warning 同款 className：bg-ds-status-warning-container + text-ds-status-warning + warning material icon），含 i18n key unpricedAliasWarning 占位 {count}；6) messages/zh-CN.json + messages/en.json admin operations namespace 加 unpricedAliasWarning：(zh) '{count} 个已启用 alias 未设售价（用户面价格空白）'；(en) '{count} enabled alias(es) without sellPrice (price field blank in /v1/models)'；7) 现有 sync-status 路由测试（如有）扩展 mock prisma raw query 并断言新字段；8) npx tsc --noEmit PASS；9) npm run test PASS；10) npm run build PASS"
-    },
-    {
-      "id": "F-SI2-03",
-      "title": "scan-zero-price-channels.ts 扩展三维分组（aliasStatus）",
+      "id": "F-MAS-01",
+      "title": "admin/reconciliation/page.tsx raw → shadcn 重构（含明细表）",
       "priority": "medium",
       "executor": "generator",
-      "status": "done",
-      "source": "BL-SYNC-INTEGRITY-PHASE2 Spec D3；与 F-SI2-02 SQL CASE 表达式共享",
-      "acceptance": "1) 修改 scripts/maintenance/scan-zero-price-channels.ts 的 SQL — 加 alias_status 字段（CASE 与 F-SI2-02 D2 SQL 一致；建议抽 SQL_ALIAS_STATUS_CASE 常量复用避免漂移）；2) 每行 result 新增 aliasStatus 字段（值 enabledAliasPriced/enabledAliasUnpriced/disabledAliasOnly/noAlias 之一）；3) buildSummary 分组键从 (provider, modality, anyEnabledAlias) 升级为 (provider, modality, aliasStatus)；4) CSV header 同步：provider,modality,alias_status,count,sample_channel_id；5) JSON full 输出仍保留 associated_aliases 数组（向后兼容旧消费），新增 alias_status 字段挨着；6) 现有 __tests__/scan-zero-price-channels.test.ts 扩展 buildSummary 三维场景测试（hasEnabledAlias 测试可改为 aliasStatus）；7) npx tsc --noEmit PASS；8) Docker postgres + fixture（4 个 zero-price channel 各属一类 alias_status）smoke：summary 4 行 / CSV 4 行 / JSON 4 行各含正确 aliasStatus"
+      "status": "pending",
+      "source": "BL-FE-DS-SHADCN-MINI-A Spec F-MAS-01；frontend-ds-2-shadcn-adoption.md audit",
+      "acceptance": "1) 全部 9 处 raw <input> → <Input>，全部 2 处 raw <select> → <Select>（D2 sentinel value 规则）；2) 行内非主 <button> → <Button variant=\"ghost\">（分页页码/排序/行操作），主 CTA（导出/重跑/添加）保留 raw；3) raw <table> line 487 → shadcn <Table> family，保留所有 ds-* className token；4) 文件 raw <input>/<textarea>/<select> 计数 = 0；5) 明细 raw <table> 计数 = 0；6) npx tsc --noEmit PASS；7) npm run build PASS；8) dev server 跑 /admin/reconciliation：日期范围 picker + Tier 切换 + 模型搜索 + 分页大小 + CSV 导出 + 阈值保存 全部交互不退回归；9) 中英双语 toggle 文案正常；10) 视觉对比改造前后附 commit 描述（dev server 截图，列像素差异如有）；11) 独立 commit 标注 feat(BL-FE-DS-SHADCN-MINI-A F-MAS-01)"
     },
     {
-      "id": "F-SI2-04",
+      "id": "F-MAS-02",
+      "title": "admin/providers/page.tsx raw → shadcn 重构（含明细表 + 行内 button）",
+      "priority": "medium",
+      "executor": "generator",
+      "status": "pending",
+      "source": "BL-FE-DS-SHADCN-MINI-A Spec F-MAS-02；frontend-ds-2-shadcn-adoption.md audit",
+      "acceptance": "1) 全部 9 处 raw <input> → <Input>，全部 3 处 raw <select> → <Select>（D2 sentinel）；2) 1 处 raw <textarea> line 658 → <Textarea>；3) 行内非主 <button>（toggle/edit/delete 行操作 line 319/327/333/347/526/532/551/737/746）→ <Button variant=\"ghost\"|\"outline\">；主 CTA（line 372/668/674）保留 raw；4) raw <table> line 273 → shadcn <Table> family；5) 文件 raw <input>/<textarea>/<select> 计数 = 0；6) 明细 raw <table> 计数 = 0；7) npx tsc --noEmit PASS；8) npm run build PASS；9) dev server 跑 /admin/providers：CRUD + toggle + 删除 + 批量操作 全部交互不退回归；10) 中英双语 toggle 文案正常；11) 视觉对比附 commit 描述；12) 独立 commit 标注 feat(BL-FE-DS-SHADCN-MINI-A F-MAS-02)"
+    },
+    {
+      "id": "F-MAS-03",
+      "title": "admin/model-aliases/page.tsx 残留 raw 表单 + unlinkedModels 表替换",
+      "priority": "medium",
+      "executor": "generator",
+      "status": "pending",
+      "source": "BL-FE-DS-SHADCN-MINI-A Spec F-MAS-03；frontend-ds-2-shadcn-adoption.md audit + Planner 用户裁决 D4 走 B（替换 unlinkedModels）",
+      "acceptance": "1) 全部 16 处 raw <input> → <Input>，全部 5 处 raw <select> → <Select>（D2 sentinel）；2) 行内非主 <button>（line 489/495/534/545/714/729/934/963/984/1030/1039/1045/1115/1242/1252 中的行操作）→ <Button variant=\"ghost\"|\"outline\">；主 CTA（顶部 line 1219）保留 raw；3) raw <table> line 1090（unlinkedModels）→ shadcn <Table> family；4) ChannelTable 组件本体（line 1000 引用）不动；5) 文件 raw <input>/<textarea>/<select> 计数 = 0；6) unlinkedModels raw <table> 计数 = 0；7) npx tsc --noEmit PASS；8) npm run build PASS；9) dev server 跑 /admin/model-aliases：alias CRUD + 启用切换 + 售价编辑 + channel 关联 + 删除 alias + unlinkedModels 关联 全部交互不退回归；10) ChannelTable 行为完全不变（关联/排序/分页等）；11) 中英双语 toggle 文案正常；12) 视觉对比附 commit 描述；13) 独立 commit 标注 feat(BL-FE-DS-SHADCN-MINI-A F-MAS-03)"
+    },
+    {
+      "id": "F-MAS-04",
       "title": "Codex 验收 + 签收报告",
       "priority": "high",
       "executor": "codex",
       "status": "pending",
-      "source": "BL-SYNC-INTEGRITY-PHASE2 验收",
-      "acceptance": "1) bash scripts/test/codex-setup.sh + codex-wait.sh PASS；2) F-SI2-01 验证：(a) scripts/maintenance/disable-orphan-zero-price-channels.ts 文件存在 + buildDisableTargetIds 单测 PASS；(b) Codex 在 _scratch DB 构造 3-channel fixture（disabled-alias-only / enabled-alias-priced / 已 DISABLED 各 1）；(c) DRY_RUN=1 跑脚本 → stdout 列 1 条 disabled-alias-only；(d) real apply 跑 → 该 channel.status=DISABLED + 其他 2 channel 不变；(e) 二次跑 0 affected（幂等）；3) F-SI2-02 验证：(a) GET /api/admin/sync-status 响应含 unpricedActiveAliases + zeroPriceChannelsByAliasStatus 字段；(b) zeroPriceActiveChannels 字段仍存在（向后兼容）；(c) Codex 在 _scratch DB 注入 1 个 unpriced enabled alias，dev server 访问 /admin/operations 看到 alias-level warning chip 渲染（中英双语切换正常）；(d) 注入 0 unpriced alias 时 chip 不渲染；4) F-SI2-03 验证：(a) scan 脚本输出含 alias_status 字段；(b) summary 分组按四值正确分；(c) CSV / JSON / stdout 三态一致；5) 生产软验收（如用户协助 SSH 跑或可达）：(a) DRY_RUN=1 跑 disable-orphan 期望列出 ~259 channel；(b) real apply 后 sync-status 显示 zeroPriceChannelsByAliasStatus.disabledAliasOnly = 0（或显著下降）；(c) /admin/operations 旧 chip 仍显示但 count 应降至约 51（仅 enabled-alias-priced 剩余）；6) npx tsc --noEmit PASS；7) npm run test PASS（含本批次新增/扩展单测）；8) npm run build PASS（接受现有非阻断 warning）；9) 输出 docs/test-reports/BL-SYNC-INTEGRITY-PHASE2-signoff-YYYY-MM-DD.md 含上述命令证据 + 结论 PASS/FAIL"
+      "source": "BL-FE-DS-SHADCN-MINI-A Spec 验收",
+      "acceptance": "1) bash scripts/test/codex-setup.sh + codex-wait.sh PASS；2) F-MAS-01/02/03 grep 验证：三个文件业务代码内 raw <(input|textarea|select)\\b 计数 = 0；admin/reconciliation 与 admin/providers 明细表 + admin/model-aliases unlinkedModels 表 raw <table\\b 计数 = 0；3) 视觉验收（dev server 三页面访问）：(a) /admin/reconciliation：日期/Tier/搜索/分页/CSV/阈值 交互正常；(b) /admin/providers：CRUD/toggle/删除/批量 交互正常；(c) /admin/model-aliases：alias CRUD/售价/channel 关联/unlinkedModels 关联 交互正常，ChannelTable 行为不变；4) i18n：三页 zh-CN/en 切换文案正常；5) a11y：tab 键导航 + Escape 关闭 + aria 属性保留正常；6) npx tsc --noEmit PASS；7) npm run test PASS（前端无新单测，仅既有测试不退回归）；8) npm run build PASS；9) 输出 docs/test-reports/BL-FE-DS-SHADCN-MINI-A-signoff-YYYY-MM-DD.md 含命令证据 + 视觉对比说明 + 结论 PASS/FAIL"
     }
   ]
 }
