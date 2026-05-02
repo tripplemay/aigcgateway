@@ -1,0 +1,66 @@
+[
+  {
+    "channel_id": "cmonnwrae00089yprovrzj8kc",
+    "realModelId": "abab5.5-chat",
+    "provider_name": "minimax",
+    "model_name": "abab5.5-chat",
+    "modality": "TEXT",
+    "model_enabled": false,
+    "channel_status": "ACTIVE",
+    "sellPrice": null,
+    "costPrice": {
+      "unit": "token",
+      "inputPer1M": 0,
+      "outputPer1M": 0
+    },
+    "associated_aliases": []
+  },
+  {
+    "channel_id": "cmonnwrae00079yprfelyom9g",
+    "realModelId": "abab6.5-chat",
+    "provider_name": "minimax",
+    "model_name": "abab6.5-chat",
+    "modality": "TEXT",
+    "model_enabled": false,
+    "channel_status": "ACTIVE",
+    "sellPrice": null,
+    "costPrice": {
+      "unit": "token",
+      "inputPer1M": 0,
+      "outputPer1M": 0
+    },
+    "associated_aliases": []
+  },
+  {
+    "channel_id": "cmonnwrae00069yprdl68nufd",
+    "realModelId": "abab6.5s-chat",
+    "provider_name": "minimax",
+    "model_name": "abab6.5s-chat",
+    "modality": "TEXT",
+    "model_enabled": false,
+    "channel_status": "ACTIVE",
+    "sellPrice": null,
+    "costPrice": {
+      "unit": "token",
+      "inputPer1M": 0,
+      "outputPer1M": 0
+    },
+    "associated_aliases": []
+  },
+  {
+    "channel_id": "cmonnwrae00059ypr4n56hmv7",
+    "realModelId": "MiniMax-Text-01",
+    "provider_name": "minimax",
+    "model_name": "minimax-text-01",
+    "modality": "TEXT",
+    "model_enabled": false,
+    "channel_status": "ACTIVE",
+    "sellPrice": null,
+    "costPrice": {
+      "unit": "token",
+      "inputPer1M": 0,
+      "outputPer1M": 0
+    },
+    "associated_aliases": []
+  }
+]

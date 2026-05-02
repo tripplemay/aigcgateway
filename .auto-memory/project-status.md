@@ -4,12 +4,12 @@ description: AIGC Gateway 当前状态快照（覆盖写，≤30 行）
 type: project
 ---
 ## 当前批次
-- **BL-SYNC-INTEGRITY-PHASE1**（verifying，2026-05-02 generator 完成 3/4）
-  - F-SI-01 reconcile 跳过 IMAGE channel 创建（修复 DB CHECK 23514 + 配套 ProviderSyncResult.skippedImageChannels 字段）
-  - F-SI-02 xiaomi-mimo sync adapter（curl 验证 OpenAI shape → ADAPTERS 注册，name 前缀 xiaomi/，filterModel=isChatModality 丢 4 TTS）
-  - F-SI-03 read-only 扫描脚本 scan-zero-price-channels.ts（stdout + JSON + CSV，docker smoke 通过）
-  - F-SI-04 等 Codex 验收（含 dev DB sync xiaomi-mimo + 生产软验收 lastSyncResult=success）
-  - spec: docs/specs/BL-SYNC-INTEGRITY-PHASE1-spec.md
+- **BL-SYNC-INTEGRITY-PHASE1**（done，2026-05-02 Codex verifying PASS）
+  - F-SI-01 PASS：IMAGE model 保留、channel 创建跳过，`skippedImageChannels` 回写正常
+  - F-SI-02 PASS：xiaomi-mimo adapter 已注册；Codex 用 mock provider 真实跑通 `runModelSync()`，不再报 no-adapter，旧 mimo channels 未重复创建
+  - F-SI-03 PASS：read-only 扫描脚本真跑，clean-seed local DB 命中 4 行，JSON + CSV 已落地
+  - signoff: `docs/test-reports/BL-SYNC-INTEGRITY-PHASE1-signoff-2026-05-02.md`
+  - spec: `docs/specs/BL-SYNC-INTEGRITY-PHASE1-spec.md`
 
 ## reference path
 - KOLMatrix repo 实际路径：`/mnt/c/Users/tripplezhou/projects/kolmatrix`
