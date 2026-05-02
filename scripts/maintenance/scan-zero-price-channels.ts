@@ -1,5 +1,6 @@
 /**
- * BL-SYNC-INTEGRITY-PHASE1 F-SI-03 — zero-price ACTIVE channel scanner.
+ * BL-SYNC-INTEGRITY-PHASE1 F-SI-03 + PHASE2 F-SI2-03 — zero-price ACTIVE
+ * channel scanner with three-dim alias_status grouping.
  *
  * ============================================================================
  *  PURE READ-ONLY — DO NOT MUTATE THE DATABASE.
@@ -14,18 +15,21 @@
  *      $transaction containing any of the above
  *
  *  Reviewers (Codex F-SI-04 #4c) grep this file for those tokens against
- *  the real `prisma.<model>.<verb>(` shape; any hit is a hard FAIL. The
- *  handover artefact is the report — clean-up of the scanned rows is the
- *  next batch's decision (BL-SYNC-INTEGRITY-PHASE2).
+ *  the real `prisma.<model>.<verb>(` shape; any hit is a hard FAIL.
+ *  Soft-disabling channels lives in the sibling
+ *  `disable-orphan-zero-price-channels.ts` (PHASE2 F-SI2-01).
  * ============================================================================
  *
  * What it does:
- *   1. Runs the spec D3 SELECT via prisma.$queryRaw
- *   2. Groups results by (provider, modality, has-enabled-alias) and
- *      prints a stdout summary table
+ *   1. Runs the SELECT (with shared SQL_ALIAS_STATUS_CASE) via prisma.$queryRaw.
+ *   2. Groups results by (provider, modality, alias_status) — 4 buckets:
+ *        enabledAliasPriced / enabledAliasUnpriced /
+ *        disabledAliasOnly / noAlias
+ *      and prints a stdout summary table.
  *   3. Writes two files into OUT_DIR (default
  *      docs/test-reports/_artifacts/BL-SYNC-INTEGRITY-PHASE1/):
- *        - zero-price-channels-YYYY-MM-DD.json        (full row dump)
+ *        - zero-price-channels-YYYY-MM-DD.json        (full row dump,
+ *          including alias_status + associated_aliases for backward compat)
  *        - zero-price-channels-YYYY-MM-DD-summary.csv (grouped counts)
  *
  * Usage:
@@ -36,8 +40,14 @@
  */
 import { mkdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
+import { Prisma } from "@prisma/client";
 import { prisma } from "../../src/lib/prisma";
 import { disconnectRedis } from "../../src/lib/redis";
+import {
+  ALIAS_STATUS_BUCKETS,
+  SQL_ALIAS_STATUS_CASE,
+  type AliasStatusBucket,
+} from "../../src/lib/sql/alias-status";
 
 interface AliasLink {
   alias: string;
@@ -54,6 +64,7 @@ interface ZeroPriceRow {
   channel_status: string;
   sellPrice: unknown;
   costPrice: unknown;
+  alias_status: AliasStatusBucket;
   associated_aliases: AliasLink[] | null;
 }
 
@@ -68,23 +79,26 @@ function todayUtc(): string {
   return new Date().toISOString().slice(0, 10);
 }
 
-function hasEnabledAlias(row: ZeroPriceRow): boolean {
-  return Array.isArray(row.associated_aliases) && row.associated_aliases.some((a) => a.enabled);
-}
-
 interface SummaryRow {
   provider: string;
   modality: string;
-  hasEnabledAlias: boolean;
+  aliasStatus: AliasStatusBucket;
   count: number;
   sampleChannelId: string;
 }
 
+const ALIAS_STATUS_SORT_INDEX: Record<AliasStatusBucket, number> = ALIAS_STATUS_BUCKETS.reduce(
+  (acc, bucket, idx) => {
+    acc[bucket] = idx;
+    return acc;
+  },
+  {} as Record<AliasStatusBucket, number>,
+);
+
 function buildSummary(rows: ZeroPriceRow[]): SummaryRow[] {
   const groups = new Map<string, SummaryRow>();
   for (const row of rows) {
-    const flag = hasEnabledAlias(row);
-    const key = `${row.provider_name}\x00${row.modality}\x00${flag}`;
+    const key = `${row.provider_name}\x00${row.modality}\x00${row.alias_status}`;
     const existing = groups.get(key);
     if (existing) {
       existing.count += 1;
@@ -92,7 +106,7 @@ function buildSummary(rows: ZeroPriceRow[]): SummaryRow[] {
       groups.set(key, {
         provider: row.provider_name,
         modality: row.modality,
-        hasEnabledAlias: flag,
+        aliasStatus: row.alias_status,
         count: 1,
         sampleChannelId: row.channel_id,
       });
@@ -101,7 +115,7 @@ function buildSummary(rows: ZeroPriceRow[]): SummaryRow[] {
   return Array.from(groups.values()).sort((a, b) => {
     if (a.provider !== b.provider) return a.provider.localeCompare(b.provider);
     if (a.modality !== b.modality) return a.modality.localeCompare(b.modality);
-    return Number(a.hasEnabledAlias) - Number(b.hasEnabledAlias);
+    return ALIAS_STATUS_SORT_INDEX[a.aliasStatus] - ALIAS_STATUS_SORT_INDEX[b.aliasStatus];
   });
 }
 
@@ -110,12 +124,12 @@ function printSummaryTable(rows: SummaryRow[], total: number): void {
     console.log("[scan] no zero-price ACTIVE channels found.");
     return;
   }
-  const headers = ["provider", "modality", "any-enabled-alias", "count", "sample_channel_id"];
+  const headers = ["provider", "modality", "alias_status", "count", "sample_channel_id"];
   const widths = headers.map((h) => h.length);
   const dataRows = rows.map((r) => [
     r.provider,
     r.modality,
-    String(r.hasEnabledAlias),
+    r.aliasStatus,
     String(r.count),
     r.sampleChannelId,
   ]);
@@ -149,10 +163,10 @@ function writeReports(rows: ZeroPriceRow[], summary: SummaryRow[], outDir: strin
 
   writeFileSync(jsonPath, JSON.stringify(rows, null, 2), "utf8");
 
-  const csvHeader = "provider,modality,any_enabled_alias,count,sample_channel_id\n";
+  const csvHeader = "provider,modality,alias_status,count,sample_channel_id\n";
   const csvBody = summary
     .map((r) =>
-      [r.provider, r.modality, r.hasEnabledAlias, r.count, r.sampleChannelId]
+      [r.provider, r.modality, r.aliasStatus, r.count, r.sampleChannelId]
         .map(csvEscape)
         .join(","),
     )
@@ -163,6 +177,9 @@ function writeReports(rows: ZeroPriceRow[], summary: SummaryRow[], outDir: strin
 }
 
 async function runScan(): Promise<{ rows: ZeroPriceRow[]; summary: SummaryRow[] }> {
+  // SQL_ALIAS_STATUS_CASE is a constant SQL fragment (no user input);
+  // Prisma.raw splice is the supported way to interpolate it into the
+  // tagged-template $queryRaw call.
   const rows = await prisma.$queryRaw<ZeroPriceRow[]>`
     SELECT
       c.id AS channel_id,
@@ -174,6 +191,7 @@ async function runScan(): Promise<{ rows: ZeroPriceRow[]; summary: SummaryRow[] 
       c.status::text AS channel_status,
       c."sellPrice",
       c."costPrice",
+      ${Prisma.raw(SQL_ALIAS_STATUS_CASE)} AS alias_status,
       COALESCE(
         (SELECT json_agg(json_build_object('alias', ma.alias, 'enabled', ma.enabled))
          FROM alias_model_links aml
@@ -195,7 +213,7 @@ async function runScan(): Promise<{ rows: ZeroPriceRow[]; summary: SummaryRow[] 
 
 async function cliMain(): Promise<void> {
   const outDir = process.env.OUT_DIR?.trim() || DEFAULT_OUT_DIR;
-  console.log(`=== F-SI-03 zero-price ACTIVE channel scan (read-only) ===`);
+  console.log(`=== F-SI-03 / F-SI2-03 zero-price ACTIVE channel scan (read-only) ===`);
   console.log(`OUT_DIR: ${outDir}`);
   try {
     const { rows, summary } = await runScan();
@@ -221,4 +239,4 @@ if (isDirectRun) {
 }
 
 // Exported for unit tests + Codex grep verification (no DB-mutation imports).
-export const __testing = { buildSummary, hasEnabledAlias, csvEscape };
+export const __testing = { buildSummary, csvEscape };

@@ -25,7 +25,7 @@
       "title": "scan-zero-price-channels.ts 扩展三维分组（aliasStatus）",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "source": "BL-SYNC-INTEGRITY-PHASE2 Spec D3；与 F-SI2-02 SQL CASE 表达式共享",
       "acceptance": "1) 修改 scripts/maintenance/scan-zero-price-channels.ts 的 SQL — 加 alias_status 字段（CASE 与 F-SI2-02 D2 SQL 一致；建议抽 SQL_ALIAS_STATUS_CASE 常量复用避免漂移）；2) 每行 result 新增 aliasStatus 字段（值 enabledAliasPriced/enabledAliasUnpriced/disabledAliasOnly/noAlias 之一）；3) buildSummary 分组键从 (provider, modality, anyEnabledAlias) 升级为 (provider, modality, aliasStatus)；4) CSV header 同步：provider,modality,alias_status,count,sample_channel_id；5) JSON full 输出仍保留 associated_aliases 数组（向后兼容旧消费），新增 alias_status 字段挨着；6) 现有 __tests__/scan-zero-price-channels.test.ts 扩展 buildSummary 三维场景测试（hasEnabledAlias 测试可改为 aliasStatus）；7) npx tsc --noEmit PASS；8) Docker postgres + fixture（4 个 zero-price channel 各属一类 alias_status）smoke：summary 4 行 / CSV 4 行 / JSON 4 行各含正确 aliasStatus"
     },
