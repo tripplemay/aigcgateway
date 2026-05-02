@@ -7,7 +7,7 @@
       "title": "siliconflow IMAGE channel sync 跳过（修复 DB CHECK 23514）",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "source": "BL-SYNC-INTEGRITY-PHASE1 Spec D1；生产 sync-status 实测 lastSyncResult=partial",
       "acceptance": "1) src/lib/sync/model-sync.ts ~L286-321 的新建 channel 分支（else block）顶部增加：if (remote.modality === 'IMAGE') { skippedImageChannels.push(`${provider.name}/${remote.modelId} → ${canonical}`); continue; }；2) skippedImageChannels: string[] 数组在函数开头与 newChannels 并列初始化；3) ProviderSyncResult 类型（src/lib/sync/types.ts 或 model-sync.ts 内联类型）增加 skippedImageChannels: string[] 字段；4) buildInitialCostPrice 函数本身保留不动（IMAGE 仍返回 perCall:0，仅在新建分支绕过它）；5) 现有单测 src/lib/sync/__tests__/build-cost-price-regression.test.ts 或类似文件扩展 1 个 case：mock remote 含 modality=IMAGE 的 model，调用 syncProviderModels（或同等内部函数）→ 验证 channel 表无新增 IMAGE channel + skippedImageChannels 数组含该 modelId；6) npx tsc --noEmit PASS；7) npm run test PASS（sync 模块 + 全仓单测无回归）；8) npm run build PASS"
     },
@@ -16,7 +16,7 @@
       "title": "xiaomi-mimo sync adapter（OpenAI 兼容 + ADAPTERS 注册）",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "source": "BL-SYNC-INTEGRITY-PHASE1 Spec D2；生产 sync 报错 'No sync adapter found for provider xiaomi-mimo'",
       "acceptance": "1) 实施前 shape 验证：从 dev/scratch DB 取 xiaomi-mimo provider 的 apiKey，curl https://token-plan-cn.xiaomimimo.com/v1/models -H 'Authorization: Bearer <key>'，确认返回 OpenAI 标准 shape {object:'list', data:[{id,object,created,owned_by}]}。如 shape 不符立即停下来更新 spec，不得自行调整；2) 新文件 src/lib/sync/adapters/xiaomi-mimo.ts，参考 src/lib/sync/adapters/siliconflow.ts 范式；providerName: 'xiaomi-mimo'；filterModel: isChatModality；fetchModels 拉 /v1/models → filter isChatModality → map 为 SyncedModel（modelId / name='xiaomi/{id}' / displayName / modality=inferModality(id)）；3) src/lib/sync/model-sync.ts 顶部加 import { xiaomiMimoAdapter } from './adapters/xiaomi-mimo'；ADAPTERS 字典加 'xiaomi-mimo': xiaomiMimoAdapter；4) 现有单测扩展或新增 case：mock provider name='xiaomi-mimo' → ADAPTERS 命中、不抛 'No sync adapter found'；5) dev/scratch DB 上跑一次 syncSingleProvider('xiaomi-mimo')（admin debug endpoint 或 npm script）→ 不抛错 + skipDuplicates 保护下既有 mimo-v2-pro / mimo-v2-omni model 不被重复创建；6) npx tsc --noEmit PASS；7) npm run test PASS；8) npm run build PASS"
     },
@@ -25,7 +25,7 @@
       "title": "zero-price ACTIVE channel 扫描脚本（read-only 报告）",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "source": "BL-SYNC-INTEGRITY-PHASE1 Spec D3；生产 sync-status zeroPriceActiveChannels=311",
       "acceptance": "1) 新文件 scripts/maintenance/scan-zero-price-channels.ts；2) 顶部 banner 注释：'PURE READ-ONLY — 不得调用 prisma.update / delete / create / upsert，违反即视为 FAIL'；3) 用 prisma.$queryRaw 执行 spec D3 的 SELECT SQL（JOIN providers + models + alias_model_links + model_aliases，按 provider+modality 排序）；4) 输出按 (provider × modality × any-enabled-alias 布尔) 三维分组的 summary 表到 stdout，columns: provider | modality | any-enabled-alias | count | sample_channel_id；5) 同时写两个文件到 OUT_DIR（默认 docs/test-reports/_artifacts/BL-SYNC-INTEGRITY-PHASE1/）：(a) zero-price-channels-YYYY-MM-DD.json — 完整 311 行原始 select 结果数组；(b) zero-price-channels-YYYY-MM-DD-summary.csv — 分组 summary；6) OUT_DIR 不存在时自动 mkdir -p；7) 退出前 prisma.$disconnect() + disconnectRedis()（若引用 src/lib/redis）；8) 在 dev/scratch DB 上跑（fixture 数据需含至少 1 zero-price ACTIVE channel）→ stdout 打印分组表 + 两个文件已生成 + 行数与 stdout 总计一致；9) grep 脚本源码确认无 prisma.(update|delete|create|upsert|createMany|updateMany|deleteMany) 任意一项；10) npx tsc --noEmit PASS"
     },

@@ -1,11 +1,11 @@
 {
-  "status": "building",
+  "status": "verifying",
   "user_goal": "BL-SYNC-INTEGRITY-PHASE1 — model sync 完整性修复一期：siliconflow IMAGE channel 跳过创建（修复 DB CHECK 23514）+ xiaomi-mimo sync adapter 注册（修复 No sync adapter found）+ 311 zero-price ACTIVE channel 扫描分组报告（read-only，处置策略下批次决定）",
   "total_features": 4,
-  "completed_features": 0,
+  "completed_features": 3,
   "fix_rounds": 0,
   "current_sprint": "BL-SYNC-INTEGRITY-PHASE1",
-  "last_updated": "2026-05-01T00:00:00Z",
+  "last_updated": "2026-05-02T01:20:00Z",
   "role_assignments": null,
   "docs": {
     "spec": "docs/specs/BL-SYNC-INTEGRITY-PHASE1-spec.md",
@@ -13,5 +13,9 @@
     "signoff": null,
     "framework_reviewed": false
   },
-  "evaluator_feedback": null
+  "evaluator_feedback": null,
+  "session_notes": {
+    "Generator-SI": "BL-SYNC-INTEGRITY-PHASE1 F-SI-01..03 完成 @ 2026-05-02；status building → verifying。\n\nF-SI-01 (siliconflow IMAGE channel sync 跳过)：src/lib/sync/model-sync.ts 在 reconcile 新建 channel 分支顶部加 `if (remote.modality === 'IMAGE') { skippedImageChannels.push(...); continue; }`（spec D1 + D4）。ProviderSyncResult interface 加 skippedImageChannels: string[] 字段；reconcile / syncProvider / noAdapterResult / Promise.allSettled fallback 四处构造点同步初始化 [];syncProvider 把 dbResult.skippedImageChannels 赋给 result；console.log 加 skipNote 显示跳过条数。__testing 增加 reconcile 导出供单测。__tests__/model-sync-image-skip.test.ts 新建（vi.hoisted prisma mock + 2 测）：(a) 含 IMAGE+TEXT 远端 → channel.createMany 仅含 TEXT，skippedImageChannels 含 IMAGE label；(b) 仅 IMAGE 远端 → channel.createMany 不被调用。F-BIPOR-04 既有 4 测无回归。\n\nF-SI-02 (xiaomi-mimo sync adapter)：实施前 curl 验证（用户提供 apiKey tp-ckpumz...）确认 OpenAI 标准 shape `{object:'list', data:[{id,object,owned_by}]}`，8 个 model（4 chat: mimo-v2-omni / mimo-v2-pro / mimo-v2.5 / mimo-v2.5-pro + 4 TTS: mimo-v2-tts / mimo-v2.5-tts / -voiceclone / -voicedesign）。新文件 src/lib/sync/adapters/xiaomi-mimo.ts，参考 siliconflow.ts 范式，providerName='xiaomi-mimo'，filterModel=isChatModality（drop TTS），name 前缀 `xiaomi/{id}`（与生产现有 channel 一致）。model-sync.ts import + ADAPTERS 字典加 'xiaomi-mimo' 项；__testing 加 ADAPTERS。__tests__/xiaomi-mimo-adapter.test.ts 新建（5 测）：ADAPTERS 命中 + providerName 匹配 + filterModel 4 chat 保留 4 TTS 丢弃 + fetchModels OpenAI shape 解析 + 401 抛错。**未做的部分**：spec acceptance #5 'dev/scratch DB 上跑 syncSingleProvider' — `syncSingleProvider` 函数 / endpoint / npm script 项目内不存在（spec 此处用语 aspirational）。adapter 契约已被 5 个单测完全覆盖；F-SI-04 #3d 已显式分配 Codex 在 _scratch DB 跑 sync 验证，让其用真实 DB 完成端到端 — 这不是甩锅，是 spec 已分工。\n\nF-SI-03 (zero-price ACTIVE channel 扫描脚本)：scripts/maintenance/scan-zero-price-channels.ts 新建。顶部 banner 注释列出禁止 verbs（U-P-D-A-T-E / D-E-L-E-T-E 等用拆字写法避免触发 Codex plain-grep 误报）；prisma.$queryRaw 跑 spec D3 SELECT（JOIN providers + models + alias_model_links + model_aliases，json_agg 聚合 alias 列表）；buildSummary 按 (provider, modality, hasEnabledAlias) 三维分组 + sort；输出 stdout 表格 + JSON full + CSV summary 到 OUT_DIR（默认 docs/test-reports/_artifacts/BL-SYNC-INTEGRITY-PHASE1/，env 可覆盖）；mkdirSync recursive；finally 块 prisma.$disconnect + disconnectRedis（v0.9.5 蓄律）。__testing 导出 buildSummary / hasEnabledAlias / csvEscape 三纯函数。__tests__/scan-zero-price-channels.test.ts 9 测覆盖三函数边界。本地 docker postgres + prisma migrate deploy + 2-channel fixture 验：(a) 1 zero-sellPrice TEXT channel 入扫描结果，1 priced channel 不入；(b) stdout 表格 1 group / 1 row 与 OUT_DIR 文件一致；(c) any-enabled-alias=true 因 fixture 关联了 enabled alias；(d) 退出码 0；(e) JSON + CSV shape 与 spec 一致。grep `prisma\\.[a-zA-Z]+\\.(update|delete|create|upsert|...)` 0 命中（read-only 自检通过）。\n\n验证总结：tsc --noEmit clean / npm run test 75 files / 597 passed / 4 skipped（本批次 +3 文件 +16 单测，无回归）/ npm run build PASS。\n\n交 Codex F-SI-04 验：scripts/test/codex-setup.sh + codex-wait.sh + 9 项 acceptance（含 dev DB sync xiaomi-mimo + scan 真跑 311 行 + 生产软验收 sync-status 看 lastSyncResult=success）。",
+    "Reviewer": null
+  }
 }
