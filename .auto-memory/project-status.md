@@ -4,20 +4,15 @@ description: AIGC Gateway 当前状态快照（覆盖写，≤30 行）
 type: project
 ---
 ## 当前批次
-- **BL-SYNC-INTEGRITY-PHASE1**（done，2026-05-02 Codex verifying PASS）
-  - F-SI-01 PASS：IMAGE model 保留、channel 创建跳过，`skippedImageChannels` 回写正常
-  - F-SI-02 PASS：xiaomi-mimo adapter 已注册；Codex 用 mock provider 真实跑通 `runModelSync()`，不再报 no-adapter，旧 mimo channels 未重复创建
-  - F-SI-03 PASS：read-only 扫描脚本真跑，clean-seed local DB 命中 4 行，JSON + CSV 已落地
-  - signoff: `docs/test-reports/BL-SYNC-INTEGRITY-PHASE1-signoff-2026-05-02.md`
-  - spec: `docs/specs/BL-SYNC-INTEGRITY-PHASE1-spec.md`
+- **无进行中批次**（PHASE2 待生产 scan 报告评审后启动）
 
 ## reference path
 - KOLMatrix repo 实际路径：`/mnt/c/Users/tripplezhou/projects/kolmatrix`
 
 ## 上一批次
-- BL-ADMIN-ALIAS-UX-PHASE1 @ 2026-05-01（done，fix_rounds=1）— admin/model-aliases UX 大修：reorder 错位修复 + 6 类 optimistic + 服务端分页 + 设计稿同步
-- BL-HEALTH-PROBE-MIN-TOKENS @ 2026-05-01（done，fix_rounds=0）— probe max_tokens 1→16 + 软停 ~openai/gpt-latest + audit-log drift cleanup
-- BL-ALIAS-MODEL-CASCADE-ENABLE @ 2026-05-01（done，fix_rounds=0）
+- BL-SYNC-INTEGRITY-PHASE1 @ 2026-05-02（done，fix_rounds=0）— siliconflow IMAGE skip + xiaomi-mimo adapter + 311 zero-price 扫描脚本；main 已部署生产
+- BL-ADMIN-ALIAS-UX-PHASE1 @ 2026-05-01（done，fix_rounds=1）— admin/model-aliases UX 大修
+- BL-HEALTH-PROBE-MIN-TOKENS @ 2026-05-01（done，fix_rounds=0）— probe max_tokens 1→16
 
 ## Backlog（4 条，按优先级）
 - **BL-SEC-PAY-DEFERRED**（critical-deferred）— 支付 webhook 验签 + 幂等 CAS
@@ -26,7 +21,7 @@ type: project
 - **BL-FE-DS-SHADCN**（low-deferred）— shadcn 采用率提升
 
 ## proposed-learnings
-- 已同步 harness-template v0.9.8（7 条累计：铁律 1.5 + 1.5 范围细化 + 1.6 + 1.7 + 1.8 + 3 + Generator manual 归属）
+- 已同步 harness-template v0.9.9（8 条累计：铁律 1 内部命名 grep + 1.5 + 1.5 范围细化 + 1.6 + 1.7 + 1.8 + 3 + Generator manual 归属）
 
 ## 生产旁路修复（2026-04-30 已执行）
 - alias claude-opus-4.7/claude-sonnet-4.6 model.enabled 已改 true

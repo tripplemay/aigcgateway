@@ -36,6 +36,10 @@ type: project
 
 <!-- ================= 已同步到 harness-template（归档区） ================= -->
 
+## [2026-05-02 已同步 v0.9.9] Planner 铁律 1 细化：内部命名 grep 确认存在
+- 来源：BL-SYNC-INTEGRITY-PHASE1 F-SI-02 acceptance #5 写"dev/scratch DB 上跑 syncSingleProvider"，但该函数/endpoint/npm script 项目内全部不存在；Generator 用 mock provider 走 runModelSync 全路径代偿，Codex 通过 — 没 fix-round 但浪费推理时间
+- 写入：`harness/planner.md` §铁律 1 末尾追加"内部命名 grep 确认（2026-05-02 细化）"小节 + 模板 grep 命令；自检 checklist 铁律 1 项强化为"acceptance 引用的所有内部命名已 grep 确认存在；不存在的命名不进 acceptance"
+
 ## [2026-05-01 已同步 v0.9.8] Planner 铁律 1.8：复用现有 UI 组件时 acceptance 不得超出组件实际能力
 - 来源：BL-ADMIN-ALIAS-UX-PHASE1 F-AAU-09 acceptance 字面要求"含 pageSize 选择器"，但已复用的 `src/components/pagination.tsx` 不渲染该 UI；Generator 按字面要求在设计稿加 selector → Codex FAIL → fix-round-1
 - 写入：`harness/planner.md` §铁律 1.8（spec 引用复用组件必须先 Read props + 渲染分支，acceptance 仅可描述真实能力；业务需要新功能必须拆独立 feature）+ 自检 checklist 1.8 项
