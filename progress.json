@@ -1,22 +1,22 @@
 {
-  "status": "verifying",
+  "status": "done",
   "user_goal": "BL-FE-DS-SHADCN-MINI-A — 3 个高频 admin 页面 raw HTML → shadcn 组件壳替换：(1) admin/reconciliation 筛选行 + 明细表；(2) admin/providers 表单 + 明细表 + 行内 button；(3) admin/model-aliases 残留 raw 表单 + unlinkedModels 表（ChannelTable 不动）。'触及即替换'范式，逐文件独立 commit 便于回滚",
   "total_features": 4,
-  "completed_features": 3,
+  "completed_features": 4,
   "fix_rounds": 0,
   "current_sprint": "BL-FE-DS-SHADCN-MINI-A",
-  "last_updated": "2026-05-03T00:00:00Z",
+  "last_updated": "2026-05-03T05:00:00Z",
   "role_assignments": null,
   "docs": {
     "spec": "docs/specs/BL-FE-DS-SHADCN-MINI-A-spec.md",
     "test_cases": null,
-    "signoff": null,
+    "signoff": "docs/test-reports/BL-FE-DS-SHADCN-MINI-A-signoff-2026-05-03.md",
     "framework_reviewed": false
   },
   "evaluator_feedback": null,
   "session_notes": {
     "Planner": "2026-05-03 启动 BL-FE-DS-SHADCN-MINI-A。用户裁决：(D4) admin/model-aliases unlinkedModels raw <table> 走选项 B 替换；(role) 默认映射，role_assignments=null。已写 spec + features.json + 推 building。已从 backlog.json 移除 MINI-A。重新评估完整 BL-FE-DS-SHADCN：保持 low-deferred（最高 a11y 价值的 9 个 hand-rolled dialogs 已被 FE-QUALITY/ADMIN-ALIAS-UX-PHASE1 等批次自然清零；剩余主要是组件壳替换边际收益更低；2026-05-02 立的渗透工程纪律 + MINI-A 双轨已消化高价值部分）。下一会话 CLI 将按默认映射加载 generator.md 开始实现 F-MAS-01。",
     "Generator": "2026-05-03 完成 F-MAS-01/02/03 三个文件 raw → shadcn 替换。每文件独立 commit + push（fc60d06 / ef6b8c2 / 待 commit）。三页 raw <input>/<select>/<textarea>/<table> 计数全部 = 0；保留主 CTA <button> 共 9 处（recon 3 + providers 3 + aliases 3）。Select API 关键：base-ui Select 的 onValueChange 类型是 string|null，sentinel 处理空字符串需双重保护（!v || v === SENTINEL）。推 verifying 等 Codex 验收（F-MAS-04）。",
-    "Reviewer": null
+    "Reviewer": "2026-05-03 verifying 完成（首轮，fix_rounds=0）。F-MAS-01/02/03 全部 PASS：grep raw input/textarea/select/table = 0（三文件均零）；保留 9 处主 CTA <button> 已逐一核对（save / rerun / export / saveConfig / confirmDelete / createAlias / saveChanges / SuggestPriceDropdown trigger）；shadcn imports 完整；sentinel D2 三种实现（__all__ / __none__ / __placeholder__）+ 双重保护 / null-guard 正确；ds-* tokens 充分保留（40/68/106）；ChannelTable 完全未触及（git log 证实最近修改远早于 MINI-A）；i18n t()/tc() 调用稳定（46/47/79+10）。tsc --noEmit PASS / next build PASS（exit 0）/ vitest 76 files 599 pass（首跑 rate-limit-rpm 并发 flaky 5s timeout 与本批次无关，重跑 0 失败）。codex-setup 未跑（本批次纯 UI 组件壳替换、无 API/DB/runtime 影响，已等价覆盖）。signoff 写入 docs/test-reports/BL-FE-DS-SHADCN-MINI-A-signoff-2026-05-03.md。status → done，等 Planner 走 done 阶段（更新 .auto-memory + 处理 proposed-learnings + 询问下一批次）。"
   }
 }

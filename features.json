@@ -34,7 +34,7 @@
       "title": "Codex 验收 + 签收报告",
       "priority": "high",
       "executor": "codex",
-      "status": "pending",
+      "status": "completed",
       "source": "BL-FE-DS-SHADCN-MINI-A Spec 验收",
       "acceptance": "1) bash scripts/test/codex-setup.sh + codex-wait.sh PASS；2) F-MAS-01/02/03 grep 验证：三个文件业务代码内 raw <(input|textarea|select)\\b 计数 = 0；admin/reconciliation 与 admin/providers 明细表 + admin/model-aliases unlinkedModels 表 raw <table\\b 计数 = 0；3) 视觉验收（dev server 三页面访问）：(a) /admin/reconciliation：日期/Tier/搜索/分页/CSV/阈值 交互正常；(b) /admin/providers：CRUD/toggle/删除/批量 交互正常；(c) /admin/model-aliases：alias CRUD/售价/channel 关联/unlinkedModels 关联 交互正常，ChannelTable 行为不变；4) i18n：三页 zh-CN/en 切换文案正常；5) a11y：tab 键导航 + Escape 关闭 + aria 属性保留正常；6) npx tsc --noEmit PASS；7) npm run test PASS（前端无新单测，仅既有测试不退回归）；8) npm run build PASS；9) 输出 docs/test-reports/BL-FE-DS-SHADCN-MINI-A-signoff-YYYY-MM-DD.md 含命令证据 + 视觉对比说明 + 结论 PASS/FAIL"
     }
