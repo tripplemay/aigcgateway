@@ -34,6 +34,30 @@ type: project
 
 <!-- ================= 待确认区 ================= -->
 
+## [2026-05-02] Planner — 来源：BL-SYNC-INTEGRITY-PHASE2 F-SI2-02 fix-round-1（JSON 字段三态判定盲区）
+
+**类型：** 铁律 1 范围细化（jsonb 字段空判定三态枚举）
+
+**内容：** Planner 写 jsonb 字段的"空判定"SQL 时，**必须显式枚举三态**：SQL `NULL` / JSON `null` / `{}` 空对象（按业务存储 shape 可能性而定，必要时还含 `[]` 空数组）。本批次 F-SI2-02 acceptance 给的 `(sellPrice IS NULL OR sellPrice::text = '{}')` 漏了 JSON null 分支（jsonb null 的 `::text` 是 `'null'`，不在二者之中）；Generator 镜像实施漏了同样边界；Codex 注入 `sellPrice: null` fixture 触发 unpricedActiveAliases 计数错配 → FAIL → fix-round-1。
+
+Generator 修复时抽出 `src/lib/sql/alias-status.ts` 共享 SQL 谓词 `SQL_ALIAS_HAS_NO_USABLE_SELL_PRICE_BARE`，让 sync-status / scan 脚本 / `/v1/models` 三处共用 — 这是范式优秀的代偿（与 spec D3 "抽 CASE 常量"思路一致）。
+
+**与既有铁律的关系：** 铁律 1.5（v0.9.7 范围细化）讲"反向消费点"层面的 grep 漏；铁律 1（v0.9.9 内部命名 grep）讲"命名"层面的 grep 漏；本条讲**数据形态层面**的枚举漏 — 当字段是 jsonb / 复合类型时，"为空"在不同存储 shape 下判定不同。
+
+**SQL 模板（spec push 前自检）：**
+
+```sql
+-- jsonb 字段判定"无可用值"必须穷举:
+WHERE col IS NULL                    -- SQL NULL
+   OR col::jsonb = 'null'::jsonb     -- JSON null（或 jsonb_typeof(col)='null'）
+   OR col::text = '{}'               -- 空对象
+   OR col::text = '[]'               -- 空数组（如适用）
+```
+
+**建议写入 harness-template 的：** `harness/planner.md` §铁律 1 末尾追加"jsonb 字段空判定三态"小节 + 模板；自检 checklist 增加 1 项 "spec acceptance 中所有 jsonb 字段空判定 SQL 已枚举三态（SQL NULL / JSON null / 空对象 / 空数组按业务定）"。
+
+**状态：** 待确认（用户在本次 done 收尾时未明确表态，保留等下次明确 confirm 后再同步 harness-template v0.9.10）
+
 <!-- ================= 已同步到 harness-template（归档区） ================= -->
 
 ## [2026-05-02 已同步 v0.9.9] Planner 铁律 1 细化：内部命名 grep 确认存在
