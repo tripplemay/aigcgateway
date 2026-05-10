@@ -1,0 +1,1376 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Portfolio Overview · 3 个月 8 个项目</title>
+<style>
+  :root {
+    --bg: #0b0d12;
+    --bg-elev: #14171f;
+    --surface: #1a1e28;
+    --line: #232834;
+    --line-soft: #1a1e28;
+    --text: #e7e9ee;
+    --text-dim: #9aa0ad;
+    --text-mute: #6b7280;
+    --accent: #60a5fa;
+    --accent-strong: #3b82f6;
+    --accent-soft: rgba(96,165,250,0.12);
+    --green: #34d399;
+    --green-soft: rgba(52,211,153,0.12);
+    --purple: #c084fc;
+    --purple-soft: rgba(192,132,252,0.12);
+    --warn: #f59e0b;
+    --danger: #f87171;
+    --code-bg: #0f1320;
+    --shadow: 0 20px 60px rgba(0,0,0,0.45);
+    --radius: 12px;
+    --slide-w: 1280px;
+    --slide-h: 720px;
+    --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Source Han Sans CN', sans-serif;
+    --font-mono: 'JetBrains Mono', 'Fira Code', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-sans);
+    font-size: 16px;
+    overflow: hidden;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* ============ 舞台与缩放 ============ */
+  .stage { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; }
+  .deck { position: relative; width: var(--slide-w); height: var(--slide-h); transform-origin: center center; }
+
+  /* ============ 幻灯片 ============ */
+  .slide {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    background: var(--bg);
+    padding: 64px 84px;
+    display: none;
+    flex-direction: column;
+    overflow: hidden;
+    animation: fadeIn 0.32s ease;
+  }
+  .slide.active { display: flex; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+  .slide h1 { font-size: 56px; font-weight: 700; letter-spacing: -0.02em; line-height: 1.1; margin-bottom: 20px; }
+  .slide h2 { font-size: 38px; font-weight: 700; letter-spacing: -0.015em; line-height: 1.18; margin-bottom: 14px; }
+  .slide h3 { font-size: 22px; font-weight: 600; color: var(--text); margin-bottom: 10px; }
+  .slide .eyebrow {
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 14px;
+  }
+  .slide p, .slide li { font-size: 21px; line-height: 1.55; color: var(--text-dim); }
+  .slide li { margin-bottom: 10px; }
+  .slide ul { list-style: none; padding-left: 0; }
+  .slide ul li { padding-left: 26px; position: relative; }
+  .slide ul li::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 14px;
+    width: 14px; height: 2px;
+    background: var(--accent);
+    border-radius: 2px;
+  }
+
+  .accent { color: var(--accent); }
+  .green { color: var(--green); }
+  .purple { color: var(--purple); }
+  .strong { color: var(--text); font-weight: 600; }
+  .mono { font-family: var(--font-mono); font-size: 0.9em; }
+  .dim { color: var(--text-mute); }
+
+  /* 高亮块 */
+  .highlight {
+    background: var(--accent-soft);
+    border-left: 3px solid var(--accent);
+    padding: 14px 18px;
+    border-radius: 6px;
+    margin-top: 14px;
+    font-size: 19px;
+    color: var(--text);
+    line-height: 1.55;
+  }
+
+  /* 网格 */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; }
+  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+  .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+  .grid-5 { display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px; }
+
+  /* 卡片 */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 18px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .card .label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+  .card.green .label { color: var(--green); }
+  .card.purple .label { color: var(--purple); }
+  .card .title { font-size: 19px; font-weight: 600; color: var(--text); }
+  .card .desc { font-size: 14.5px; color: var(--text-dim); line-height: 1.5; }
+  .card.center { align-items: center; text-align: center; }
+
+  /* 项目卡 */
+  .proj {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 14px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    transition: transform 0.2s;
+  }
+  .proj.app { border-top: 3px solid var(--accent); }
+  .proj.infra { border-top: 3px solid var(--green); }
+  .proj.hub { border-top: 3px solid var(--purple); background: linear-gradient(180deg, var(--purple-soft) 0%, var(--surface) 60%); }
+  .proj .name { font-size: 16px; font-weight: 700; color: var(--text); display: flex; align-items: center; gap: 6px; }
+  .proj .name .lock { font-size: 11px; color: var(--text-mute); }
+  .proj .meta { font-size: 12px; color: var(--text-mute); font-family: var(--font-mono); letter-spacing: 0.04em; }
+  .proj .desc { font-size: 13.5px; color: var(--text-dim); line-height: 1.45; }
+
+  /* 数字框 */
+  .stat-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px; margin-top: 18px; }
+  .stat {
+    background: var(--bg-elev);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 18px 14px;
+    text-align: center;
+  }
+  .stat .num { font-size: 36px; font-weight: 700; color: var(--accent); line-height: 1; letter-spacing: -0.02em; }
+  .stat .lbl { font-size: 13px; color: var(--text-dim); margin-top: 8px; }
+
+  /* 时间轴 */
+  .timeline {
+    position: relative;
+    margin: 30px 0 10px;
+    padding: 26px 0 14px;
+    flex: 1;
+  }
+  .timeline-axis {
+    position: relative;
+    height: 2px;
+    background: linear-gradient(90deg, var(--line) 0%, var(--accent) 50%, var(--line) 100%);
+    margin: 90px 40px 90px 40px;
+  }
+  .timeline-month {
+    position: absolute;
+    top: 28px;
+    transform: translateX(-50%);
+    font-size: 13px;
+    color: var(--text-mute);
+    font-family: var(--font-mono);
+    letter-spacing: 0.05em;
+  }
+  .timeline-month.major { color: var(--accent); font-weight: 700; }
+  .tl-event {
+    position: absolute;
+    transform: translate(-50%, -50%);
+    top: 50%;
+  }
+  .tl-event .dot {
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    background: var(--accent);
+    border: 3px solid var(--bg);
+    box-shadow: 0 0 0 2px var(--accent);
+  }
+  .tl-event.infra .dot { background: var(--green); box-shadow: 0 0 0 2px var(--green); }
+  .tl-event.hub .dot {
+    background: var(--purple);
+    box-shadow: 0 0 0 2px var(--purple), 0 0 16px 4px rgba(192,132,252,0.4);
+    width: 18px; height: 18px;
+  }
+  .tl-event .label {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+    color: var(--text);
+    background: var(--bg-elev);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: 4px 8px;
+    line-height: 1.2;
+  }
+  .tl-event.up .label { bottom: 18px; }
+  .tl-event.down .label { top: 18px; }
+  .tl-event .label .sub {
+    display: block;
+    font-size: 10px;
+    color: var(--text-mute);
+    font-weight: 500;
+    margin-top: 2px;
+    font-family: var(--font-mono);
+  }
+
+  /* 图谱 */
+  .map { display: flex; flex-direction: column; gap: 16px; flex: 1; margin-top: 18px; }
+  .map-row {
+    background: var(--bg-elev);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 16px;
+  }
+  .map-row .row-title {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+  .map-row.apps .row-title { color: var(--accent); }
+  .map-row.hub .row-title { color: var(--purple); }
+  .map-row.infra .row-title { color: var(--green); }
+  .map-row .row-content { display: grid; gap: 10px; }
+  .map-row.apps .row-content { grid-template-columns: repeat(5, 1fr); }
+  .map-row.hub .row-content { grid-template-columns: repeat(2, 1fr); }
+  .map-row.infra .row-content { grid-template-columns: repeat(2, 1fr); }
+
+  /* 标签 / 徽章 */
+  .pill {
+    display: inline-block;
+    padding: 3px 9px;
+    background: var(--accent-soft);
+    color: var(--accent);
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+  }
+  .pill.green { background: var(--green-soft); color: var(--green); }
+  .pill.purple { background: var(--purple-soft); color: var(--purple); }
+
+  /* 头部信息 */
+  .header-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 22px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--line-soft);
+  }
+  .header-bar .brand { font-size: 13px; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: var(--text-mute); }
+  .header-bar .chapter { font-size: 12px; color: var(--accent); font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; }
+
+  /* 封面页 */
+  .cover { justify-content: center; align-items: flex-start; padding: 84px 100px; }
+  .cover .kicker {
+    font-size: 14px; letter-spacing: 0.3em; text-transform: uppercase; color: var(--accent); font-weight: 700;
+    margin-bottom: 22px;
+  }
+  .cover h1 {
+    font-size: 96px;
+    line-height: 1.0;
+    margin-bottom: 28px;
+    background: linear-gradient(120deg, #ffffff 0%, #cbd5e1 60%, #60a5fa 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .cover .sub {
+    font-size: 26px;
+    color: var(--text-dim);
+    line-height: 1.4;
+    max-width: 900px;
+    margin-bottom: 48px;
+  }
+  .cover .meta {
+    display: flex; gap: 32px; color: var(--text-mute); font-size: 15px; font-family: var(--font-mono);
+    border-top: 1px solid var(--line);
+    padding-top: 18px;
+    width: 100%;
+  }
+  .cover .meta span strong { color: var(--text); }
+
+  /* Q&A 页 */
+  .qa { justify-content: center; align-items: center; text-align: center; padding: 60px; }
+  .qa .q-mark { font-size: 280px; line-height: 1; color: var(--accent); opacity: 0.18; font-weight: 800; }
+  .qa h1 { font-size: 80px; margin-top: -120px; }
+  .qa .links { margin-top: 36px; display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px 28px; max-width: 760px; }
+  .qa .links span { color: var(--text-dim); font-family: var(--font-mono); font-size: 14px; text-align: left; }
+  .qa .links span strong { color: var(--text); }
+
+  /* HUB 中枢图 */
+  .hub-diagram {
+    margin-top: 24px;
+    flex: 1;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  .hub-row {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    align-items: center;
+  }
+  .hub-app {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-top: 2px solid var(--accent);
+    border-radius: 8px;
+    padding: 8px 14px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+    min-width: 110px;
+    text-align: center;
+  }
+  .hub-arrows {
+    height: 30px;
+    display: flex;
+    justify-content: center;
+    gap: 60px;
+    color: var(--text-mute);
+    font-size: 18px;
+  }
+  .hub-center {
+    background: linear-gradient(180deg, var(--purple-soft) 0%, var(--surface) 100%);
+    border: 1px solid var(--purple);
+    border-radius: 12px;
+    padding: 16px 28px;
+    text-align: center;
+    box-shadow: 0 0 30px rgba(192,132,252,0.15);
+  }
+  .hub-center .name { font-size: 24px; font-weight: 700; color: var(--text); }
+  .hub-center .role { font-size: 12px; color: var(--purple); letter-spacing: 0.18em; text-transform: uppercase; font-weight: 700; margin-top: 4px; }
+  .hub-center .caps { font-size: 13px; color: var(--text-dim); margin-top: 8px; font-family: var(--font-mono); }
+
+  /* 流程箭头 */
+  .flow {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .flow .step {
+    background: var(--bg-elev);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 8px 14px;
+    font-size: 14px;
+    color: var(--text);
+    font-family: var(--font-mono);
+    font-weight: 600;
+  }
+  .flow .step.on { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
+  .flow .arr { color: var(--text-mute); font-size: 14px; }
+
+  /* ============ 控件层 ============ */
+  .hud {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 10;
+  }
+  .hud .progress {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: var(--line);
+  }
+  .hud .progress > i {
+    display: block;
+    height: 100%;
+    background: var(--accent);
+    width: 0;
+    transition: width 0.3s ease;
+  }
+  .hud .page-num {
+    position: absolute;
+    bottom: 16px;
+    right: 26px;
+    color: var(--text-mute);
+    font-family: var(--font-mono);
+    font-size: 12px;
+    pointer-events: auto;
+  }
+  .hud .controls-hint {
+    position: absolute;
+    bottom: 16px;
+    left: 26px;
+    color: var(--text-mute);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    opacity: 0.55;
+    pointer-events: auto;
+  }
+
+  /* ============ 讲者模式（独立窗口）============ */
+  body.presenter .stage { display: none; }
+  body.presenter .hud { display: none; }
+  .presenter-view {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: var(--bg);
+    color: var(--text);
+    grid-template-columns: 1fr 400px;
+    grid-template-rows: 50% 1fr;
+    gap: 14px;
+    padding: 16px;
+  }
+  body.presenter .presenter-view { display: grid; }
+  .pv-panel {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 14px 16px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    min-height: 0;
+  }
+  .pv-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+  }
+  .pv-label .meta { font-weight: 500; color: var(--text-mute); letter-spacing: 0.05em; text-transform: none; font-size: 12px; }
+  .pv-current { grid-column: 1; grid-row: 1; }
+  .pv-next    { grid-column: 2; grid-row: 1; }
+  .pv-notes   { grid-column: 1 / -1; grid-row: 2; }
+  .pv-frame {
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+    border-radius: 6px;
+    background: var(--bg);
+    border: 1px solid var(--line);
+  }
+  .pv-frame .slide {
+    display: flex !important;
+    position: absolute;
+    top: 0; left: 0;
+    width: 1280px;
+    height: 720px;
+    transform-origin: top left;
+    animation: none;
+  }
+  .pv-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid var(--line);
+    font-family: var(--font-mono);
+    font-size: 13px;
+    color: var(--text-dim);
+  }
+  .pv-timer { font-size: 26px; color: var(--accent); font-weight: 700; letter-spacing: 0.02em; }
+  .pv-pagebox { text-align: right; }
+  .pv-pagebox .now { color: var(--text); font-size: 18px; font-weight: 700; }
+  .pv-pagebox .of  { color: var(--text-mute); font-size: 13px; }
+  .pv-notes-body {
+    flex: 1;
+    overflow-y: auto;
+    font-size: 22px;
+    line-height: 1.65;
+    color: var(--text);
+    padding-right: 12px;
+  }
+  .pv-notes-body p { font-size: 21px; margin-bottom: 14px; color: var(--text); line-height: 1.65; }
+  .pv-notes-body strong { color: var(--accent); }
+  .pv-hint {
+    position: fixed;
+    bottom: 8px;
+    left: 18px;
+    color: var(--text-mute);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    opacity: 0.55;
+  }
+
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-thumb { background: var(--line); border-radius: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+</style>
+</head>
+<body>
+
+<div class="stage">
+  <div class="deck" id="deck">
+
+    <!-- ============ P1 封面 ============ -->
+    <section class="slide cover active">
+      <div class="kicker">2026-05 · Portfolio Briefing</div>
+      <h1>3 个月<br>8 个项目</h1>
+      <div class="sub">一个独立开发者的 <span class="strong">AI 工程化</span> 成长路径 ——<br>不是更努力，是<span class="strong" style="color:var(--accent)">更结构化</span></div>
+      <div class="meta">
+        <span><strong>5</strong> 个 AI 应用</span>
+        <span><strong>3</strong> 个基础设施</span>
+        <span><strong>1</strong> 个中枢</span>
+        <span><strong>1</strong> 套方法论</span>
+        <span><strong>已上线</strong> 生产</span>
+      </div>
+    </section>
+
+    <!-- ============ P2 开场命题 ============ -->
+    <section class="slide">
+      <div class="header-bar">
+        <span class="brand">Portfolio Briefing</span>
+        <span class="chapter">第一幕 · 命题</span>
+      </div>
+      <div class="eyebrow">开场</div>
+      <h1>AI 时代的<span class="accent">独立开发者</span>，<br>真正的杠杆是什么？</h1>
+      <ul style="margin-top: 28px;">
+        <li>不是 <span class="dim">"AI 帮我多写几行代码"</span> —— AI 不能替你做需求决策</li>
+        <li>不是 <span class="dim">"通宵更长一点"</span> —— 物理疲劳早晚到来</li>
+        <li>是 <span class="strong">基础设施的第二次价值</span> —— 一次建好，跨项目复用</li>
+        <li>是 <span class="strong">方法论的可外溢</span> —— 一套规则，从 1 到 N</li>
+      </ul>
+      <div class="highlight">
+        在 75 天里我交付了 8 个完整产品级项目。
+        证明的不是"我做得多快"，而是 <span class="strong">"AI + 基础设施复用 + 方法论沉淀"</span> 这条路径真的能跑通。
+      </div>
+    </section>
+
+    <!-- ============ P3 时间轴 ============ -->
+    <section class="slide">
+      <div class="header-bar">
+        <span class="brand">Portfolio Briefing</span>
+        <span class="chapter">第二幕 · 全景</span>
+      </div>
+      <div class="eyebrow">时间轴 · 75 天 8 个项目</div>
+      <h2>密度跃迁是怎么发生的</h2>
+
+      <div class="timeline">
+        <div class="timeline-axis">
+          <span class="timeline-month" style="left: 0%;">2026-02</span>
+          <span class="timeline-month" style="left: 33%;">2026-03</span>
+          <span class="timeline-month major" style="left: 50%;">★ 中枢搭建</span>
+          <span class="timeline-month" style="left: 66%;">2026-04</span>
+          <span class="timeline-month" style="left: 100%;">2026-05</span>
+
+          <!-- 项目事件 -->
+          <div class="tl-event up infra" style="left: 4%;">
+            <div class="label">nextpanel<span class="sub">02-28 · 基础设施</span></div>
+            <div class="dot"></div>
+          </div>
+          <div class="tl-event down" style="left: 22%;">
+            <div class="dot"></div>
+            <div class="label">AIdash<span class="sub">03-12 · 应用</span></div>
+          </div>
+          <div class="tl-event up" style="left: 35%;">
+            <div class="label">pt-download-bot<span class="sub">03-23 · 应用</span></div>
+            <div class="dot"></div>
+          </div>
+          <div class="tl-event down hub" style="left: 49%;">
+            <div class="dot"></div>
+            <div class="label" style="background:var(--purple-soft); border-color:var(--purple); color:var(--text);">★ aigcgateway<span class="sub" style="color:var(--purple);">03-29 · 中枢</span></div>
+          </div>
+          <div class="tl-event up" style="left: 66%;">
+            <div class="label">kolmatrix<span class="sub">04-18 · 应用</span></div>
+            <div class="dot"></div>
+          </div>
+          <div class="tl-event down infra" style="left: 66%;">
+            <div class="dot"></div>
+            <div class="label" style="background:var(--green-soft); border-color:var(--green);">harness-template<span class="sub">04-18 · 方法论</span></div>
+          </div>
+          <div class="tl-event up" style="left: 76%;">
+            <div class="label">trainbot 🔒<span class="sub">04-20 · 应用</span></div>
+            <div class="dot"></div>
+          </div>
+          <div class="tl-event down infra" style="left: 100%;">
+            <div class="dot"></div>
+            <div class="label" style="background:var(--green-soft); border-color:var(--green);">proxywatch<span class="sub">05-09 · 基础设施</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="highlight" style="margin-top: 20px;">
+        <span class="purple strong">★ aigcgateway (3-29) 是分水岭</span> —— 之前是单点应用，之后所有 AI 应用都接入它。
+        <span class="green strong">harness-template + kolmatrix 同日创建（4-18）</span> 不是巧合：第一个大项目的工作流被立刻沉淀，给第二个大项目用。
+      </div>
+    </section>
+
+    <!-- ============ P4 项目图谱 ============ -->
+    <section class="slide">
+      <div class="header-bar">
+        <span class="brand">Portfolio Briefing</span>
+        <span class="chapter">第二幕 · 全景</span>
+      </div>
+      <div class="eyebrow">项目图谱</div>
+      <h2>5 个 AI 应用 · 1 个中枢 · 3 个基础设施</h2>
+
+      <div class="map">
+        <div class="map-row apps">
+          <div class="row-title">🅰️ AI 应用层 · 5 个</div>
+          <div class="row-content">
+            <div class="proj app">
+              <div class="name">AIdash</div>
+              <div class="meta">2026-03-12 · TS</div>
+              <div class="desc">AI 教研平台 — 课程方向 → 框架 → 详方案 → AI 审核全流程</div>
+            </div>
+            <div class="proj app">
+              <div class="name">pt-download-bot</div>
+              <div class="meta">2026-03-23 · Py</div>
+              <div class="desc">Telegram bot — AI 自然语言搜片 + NAS 一键下载</div>
+            </div>
+            <div class="proj app">
+              <div class="name">kolmatrix</div>
+              <div class="meta">2026-04-18 · TS</div>
+              <div class="desc">AI 驱动 KOL 营销中台 — 跨 4 平台 KOL 全周期管理</div>
+            </div>
+            <div class="proj app">
+              <div class="name">trainbot <span class="lock">🔒</span></div>
+              <div class="meta">2026-04-20 · Py</div>
+              <div class="desc">12306 智能火车规划 — LLM 推断中转，TG bot 接 aigcgateway</div>
+            </div>
+            <div class="proj app">
+              <div class="name">aigcgateway</div>
+              <div class="meta">2026-03-29 · TS</div>
+              <div class="desc">自身也是产品 — 网关 SaaS + MCP Server + Action 商店</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="map-row hub">
+          <div class="row-title">🅷 中枢节点</div>
+          <div class="row-content">
+            <div class="proj hub">
+              <div class="name">★ aigcgateway</div>
+              <div class="meta">OpenAI 兼容 · 10 服务商 · 28 MCP tools · Action/Template</div>
+              <div class="desc">让所有 AI 应用<span class="strong">接通就跑</span>。trainbot 直接挂上、kolmatrix 复用工作流、AIdash 走兼容协议。</div>
+            </div>
+            <div class="proj hub" style="border-color: var(--green); background: linear-gradient(180deg, var(--green-soft) 0%, var(--surface) 60%);">
+              <div class="name" style="color:var(--text);">★ harness-template</div>
+              <div class="meta">3 角色 · 7 状态 · 分层记忆 · Git 总线</div>
+              <div class="desc">把<span class="strong">工程纪律变成 repo</span>。kolmatrix 同日创建即采用。</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="map-row infra">
+          <div class="row-title">🅱️ 工具 / 基础设施 · 3 个</div>
+          <div class="row-content">
+            <div class="proj infra">
+              <div class="name">nextpanel</div>
+              <div class="meta">2026-02-28 · TS+Go</div>
+              <div class="desc">自部署代理节点面板 — 一键多协议 + Agent 系统 + 订阅生成 / 分享 / IP 检测</div>
+            </div>
+            <div class="proj infra">
+              <div class="name">proxywatch</div>
+              <div class="meta">2026-05-09 · Go</div>
+              <div class="desc">SOCKS5 出口 IP 健康监控 sidecar — 状态机 + Telegram 告警 + Web UI（Go 单二进制）</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ P5 中枢节点 aigcgateway ============ -->
+    <section class="slide">
+      <div class="header-bar">
+        <span class="brand">Portfolio Briefing</span>
+        <span class="chapter">第三幕 · 中枢与方法论</span>
+      </div>
+      <div class="eyebrow">放大 · 之一</div>
+      <h2>aigcgateway —— <span class="accent">让 AI 应用"接通就跑"</span></h2>
+
+      <div class="hub-diagram">
+        <div class="hub-row">
+          <div class="hub-app">trainbot 🔒</div>
+          <div class="hub-app">AIdash</div>
+          <div class="hub-app">kolmatrix</div>
+          <div class="hub-app">pt-download-bot</div>
+          <div class="hub-app">未来项目 N</div>
+        </div>
+        <div class="hub-arrows">↓&nbsp;&nbsp;&nbsp;&nbsp;↓&nbsp;&nbsp;&nbsp;&nbsp;↓&nbsp;&nbsp;&nbsp;&nbsp;↓&nbsp;&nbsp;&nbsp;&nbsp;↓</div>
+        <div class="hub-row">
+          <div class="hub-center">
+            <div class="role">中枢节点 · HUB</div>
+            <div class="name">aigcgateway</div>
+            <div class="caps">OpenAI 兼容  ·  10 服务商  ·  28 MCP tools  ·  Action/Template  ·  预充值计费  ·  对账  ·  健康探测</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid-3" style="margin-top: 22px;">
+        <div class="card">
+          <span class="label">协议复用</span>
+          <div class="title">OpenAI 兼容</div>
+          <div class="desc">所有应用换 baseUrl 即可，不需要写多套 SDK 适配</div>
+        </div>
+        <div class="card">
+          <span class="label">Prompt 资产</span>
+          <div class="title">Action / Template</div>
+          <div class="desc">prompt 不再散落代码，集中版本管理 + 多步编排</div>
+        </div>
+        <div class="card">
+          <span class="label">运营治理</span>
+          <div class="title">计费 / 对账 / MCP</div>
+          <div class="desc">业务侧不用各自处理服务商账单、限流、健康检查</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ P6 方法论 harness-template ============ -->
+    <section class="slide">
+      <div class="header-bar">
+        <span class="brand">Portfolio Briefing</span>
+        <span class="chapter">第三幕 · 中枢与方法论</span>
+      </div>
+      <div class="eyebrow">放大 · 之二</div>
+      <h2>harness-template —— <span class="green">把工程纪律变成 repo</span></h2>
+
+      <div class="grid-2" style="margin-top: 24px; flex: 1;">
+        <div>
+          <h3 style="color: var(--green); margin-bottom: 14px;">三角色不重叠</h3>
+          <ul style="margin-bottom: 24px;">
+            <li><span class="strong">Planner</span> — 拆需求、写 spec、做架构决策</li>
+            <li><span class="strong">Generator</span> — 按规格写代码，不评估自己</li>
+            <li><span class="strong">Evaluator</span> — 设计测试、签收（独立工具）</li>
+          </ul>
+
+          <h3 style="color: var(--green); margin-bottom: 14px;">7 状态机</h3>
+          <div class="flow">
+            <span class="step on">new</span><span class="arr">→</span>
+            <span class="step on">planning</span><span class="arr">→</span>
+            <span class="step on">building</span><span class="arr">→</span>
+            <span class="step on">verifying</span>
+          </div>
+          <div class="flow" style="margin-top: 6px;">
+            <span class="arr">⇄</span>
+            <span class="step on">fixing</span><span class="arr">⇄</span>
+            <span class="step on">reverifying</span><span class="arr">→</span>
+            <span class="step on">done</span>
+          </div>
+        </div>
+
+        <div>
+          <h3 style="color: var(--green); margin-bottom: 14px;">分层记忆</h3>
+          <ul style="margin-bottom: 24px;">
+            <li><span class="mono accent">T0 必读</span> — 项目状态 / 环境信息</li>
+            <li><span class="mono accent">T1 角色</span> — 当前角色行为规范</li>
+            <li><span class="mono accent">T2 按需</span> — 触发条件命中才加载</li>
+          </ul>
+
+          <h3 style="color: var(--green); margin-bottom: 14px;">沉淀路径</h3>
+          <ul>
+            <li>aigcgateway = 第一个落地 — 边做边迭代</li>
+            <li>kolmatrix = 第二个落地 — 同日抽出 template</li>
+            <li>未来项目 N = <span class="mono accent">npx degit + bootstrap.sh</span> 即用</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="highlight" style="margin-top: 18px;">
+        关键时机：<span class="strong">不是第一个项目时建工作流（YAGNI），是第二个项目要复用的那一刻</span>。
+      </div>
+    </section>
+
+    <!-- ============ P7 应用矩阵 ============ -->
+    <section class="slide">
+      <div class="header-bar">
+        <span class="brand">Portfolio Briefing</span>
+        <span class="chapter">第四幕 · 应用矩阵</span>
+      </div>
+      <div class="eyebrow">5 个应用 · 4 种形态 · 同一基座</div>
+      <h2>不同形态都能跑通，<span class="accent">基础设施就值了</span></h2>
+
+      <div class="grid-2" style="margin-top: 22px; flex: 1;">
+        <div class="card">
+          <span class="label">B2B SaaS · 复用工作流</span>
+          <div class="title">kolmatrix</div>
+          <div class="desc" style="font-size:15px; line-height:1.55;">
+            跨 YouTube / Twitch / TikTok / Instagram 的 KOL 全周期管理 ——
+            发现 → 评估 → 联系 → 追踪。<br><br>
+            <span class="strong">技术栈：</span> Next.js 16 · React 19.2 · Postgres 16（含 RLS）· Prisma 7 · NextAuth v5 · next-intl
+            <br><br>
+            <span class="accent strong">关键证据：</span> 与 harness-template 同日创建 —— 第一天就用工作流。
+          </div>
+        </div>
+
+        <div class="card">
+          <span class="label">行业平台 · 标准协议</span>
+          <div class="title">AIdash</div>
+          <div class="desc" style="font-size:15px; line-height:1.55;">
+            AI 教研平台 —— 教师授课 + 课程研发双模块。研发流程：方向 → 框架 → 详细方案 → AI 审核 → 一键发布。<br><br>
+            <span class="strong">技术栈：</span> Next.js 16 + React 19 + MySQL + Prisma 6 + NextAuth v5
+            <br><br>
+            <span class="accent strong">关键证据：</span> 走 OpenAI 兼容协议 —— 任何兼容服务商可即插即用。
+          </div>
+        </div>
+
+        <div class="card" style="grid-column: 1 / -1;">
+          <span class="label">两个 Telegram bot · 不同形态相同基座</span>
+          <div class="title">pt-download-bot · trainbot 🔒</div>
+          <div class="desc" style="font-size:15px; line-height:1.55;">
+            <span class="strong">pt-download-bot：</span>AI 自然语言搜片 + NAS 一键下载 + 多用户审批（OpenRouter + TMDB）<br>
+            <span class="strong">trainbot 🔒：</span>12306 智能火车规划 + LLM 推断中转枢纽 —— <span class="accent">直接挂在 aigcgateway 上</span><br><br>
+            两个 bot 共同点：<span class="strong">轻量 Python + AI 增强 + 个人/小团队场景</span>，证明同一套 AI 基座可以延伸到非 Web 形态。
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ P8 基础设施补强 ============ -->
+    <section class="slide">
+      <div class="header-bar">
+        <span class="brand">Portfolio Briefing</span>
+        <span class="chapter">第五幕 · 基础设施</span>
+      </div>
+      <div class="eyebrow">不只会写应用</div>
+      <h2>3 个基础设施项目 —— <span class="green">底层硬功夫</span></h2>
+
+      <div class="grid-3" style="margin-top: 24px; flex: 1;">
+        <div class="card green">
+          <span class="label">已介绍</span>
+          <div class="title">harness-template</div>
+          <div class="desc" style="font-size:15px;">
+            多 agent 编码工作流框架 ——
+            从 aigcgateway 抽出，独立 repo 后 kolmatrix 立刻复用。
+            <br><br>
+            <span class="strong">价值：</span> 把"工程纪律"标准化为可分发的资产。
+          </div>
+        </div>
+
+        <div class="card green">
+          <span class="label">代理节点运维</span>
+          <div class="title">nextpanel</div>
+          <div class="desc" style="font-size:15px;">
+            自部署代理节点管理面板 ——
+            一键多协议（VLESS+REALITY / WS+TLS / Hysteria2）+ 订阅生成 / 分享 + IP 检测 / 路由诊断 + Agent 系统。
+            <br><br>
+            <span class="strong">技术栈：</span> Next.js + Go Agent 双语言。
+          </div>
+        </div>
+
+        <div class="card green">
+          <span class="label">代理出口监控</span>
+          <div class="title">proxywatch</div>
+          <div class="desc" style="font-size:15px;">
+            CLIProxyAPI 的健康监控 sidecar ——
+            状态机驱动（5 状态：HEALTHY → SUSPECT → ROTATING → VERIFYING → COOLDOWN）+ Telegram 告警 + 嵌入式 Web UI。
+            <br><br>
+            <span class="strong">技术栈：</span> Go 单静态二进制 + React + SQLite（pure-Go）。
+          </div>
+        </div>
+      </div>
+
+      <div class="highlight" style="margin-top: 22px;">
+        基础设施项目证明的是 <span class="strong">"复杂度处理能力"</span> ——
+        AI 应用层的快是<span class="accent">中枢复用</span>带来的，
+        基础设施层的扎实是<span class="green">底层工程功夫</span>带来的，两者缺一不可。
+      </div>
+    </section>
+
+    <!-- ============ P9 怎么做到的（HOW）============ -->
+    <section class="slide">
+      <div class="header-bar">
+        <span class="brand">Portfolio Briefing</span>
+        <span class="chapter">第六幕 · 方法论</span>
+      </div>
+      <div class="eyebrow">机制揭示</div>
+      <h2>怎么做到的 —— <span class="accent">3 个互相强化的机制</span></h2>
+
+      <div style="display: flex; flex-direction: column; gap: 16px; margin-top: 24px;">
+        <div class="card" style="border-left: 4px solid var(--accent); flex-direction: row; align-items: center; gap: 22px;">
+          <div style="font-size: 36px; font-family: var(--font-mono); font-weight: 700; color: var(--accent);">01</div>
+          <div style="flex: 1;">
+            <div class="title">中枢复用 · 一次建好，跨项目共享</div>
+            <div class="desc" style="font-size: 16px; margin-top: 6px;">
+              aigcgateway = 多服务商 / 计费 / 对账 / MCP 一次解决 →
+              <span class="strong">trainbot 当天就能挂上</span>，AIdash / kolmatrix / pt-download-bot 走 OpenAI 兼容协议即插即用。
+            </div>
+          </div>
+        </div>
+
+        <div class="card" style="border-left: 4px solid var(--green); flex-direction: row; align-items: center; gap: 22px;">
+          <div style="font-size: 36px; font-family: var(--font-mono); font-weight: 700; color: var(--green);">02</div>
+          <div style="flex: 1;">
+            <div class="title">工作流沉淀 · 第二个项目时建 template</div>
+            <div class="desc" style="font-size: 16px; margin-top: 6px;">
+              第一个项目（aigcgateway）走通后立刻抽出 harness-template，<span class="strong">kolmatrix 同日采用</span>。
+              不是过早抽象（第一个项目时），也不是错过窗口（第三个时），而是<span class="green strong">"刚好需要的时刻"</span>。
+            </div>
+          </div>
+        </div>
+
+        <div class="card" style="border-left: 4px solid var(--purple); flex-direction: row; align-items: center; gap: 22px;">
+          <div style="font-size: 36px; font-family: var(--font-mono); font-weight: 700; color: var(--purple);">03</div>
+          <div style="flex: 1;">
+            <div class="title">AI 协作工程化 · 设计流程，让 AI 走流程</div>
+            <div class="desc" style="font-size: 16px; margin-top: 6px;">
+              Triad 三角色（Planner / Generator / Evaluator）+ 状态机 + 分层记忆 ——
+              <span class="strong">不是"我和 AI 一起写代码"，是"我设计流程，AI 走流程"</span>。
+              没有这套约束，AI 协作会失忆 / 重复劳动 / 无法接力。
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="highlight" style="margin-top: 18px;">
+        这三个机制互相强化：中枢让<span class="strong">应用层快</span>，工作流让<span class="strong">基础设施稳</span>，AI 协作让<span class="strong">两者都可持续</span>。
+      </div>
+    </section>
+
+    <!-- ============ P10 三条经验 ============ -->
+    <section class="slide">
+      <div class="header-bar">
+        <span class="brand">Portfolio Briefing</span>
+        <span class="chapter">第六幕 · 方法论</span>
+      </div>
+      <div class="eyebrow">最终 takeaway · 可外溢到任何团队</div>
+      <h2>三条可外溢经验</h2>
+
+      <div style="display: flex; flex-direction: column; gap: 14px; margin-top: 24px;">
+        <div class="card" style="border-left: 4px solid var(--accent);">
+          <div style="display:flex; gap:14px; align-items:baseline;">
+            <span style="color:var(--accent); font-size:26px; font-weight:700; font-family:var(--font-mono);">01</span>
+            <div class="title">基础设施在<span class="accent">"第二个项目时"</span>建</div>
+          </div>
+          <div class="desc" style="font-size:17px;">
+            第一个项目时建 = <span class="strong">YAGNI</span>，过度抽象拖慢交付。<br>
+            第三个项目时建 = <span class="strong">沉没成本</span>，三套独立代码已经长大。<br>
+            <span class="accent strong">第二个项目要复用的那一刻</span>，是抽出 template 的最佳窗口。
+          </div>
+        </div>
+
+        <div class="card" style="border-left: 4px solid var(--green);">
+          <div style="display:flex; gap:14px; align-items:baseline;">
+            <span style="color:var(--green); font-size:26px; font-weight:700; font-family:var(--font-mono);">02</span>
+            <div class="title">方法论沉淀比<span class="green">"做更多项目"</span>更稀缺</div>
+          </div>
+          <div class="desc" style="font-size:17px;">
+            做 8 个项目 = 重复 8 次相同的脚手架 + 决策 + 踩坑。<br>
+            做 1 个项目 + 1 套方法论 + 7 次复用 = <span class="strong">同样的产出，1/3 的成本</span>。<br>
+            <span class="green strong">harness-template 独立 repo 是这一条的物理证据。</span>
+          </div>
+        </div>
+
+        <div class="card" style="border-left: 4px solid var(--purple);">
+          <div style="display:flex; gap:14px; align-items:baseline;">
+            <span style="color:var(--purple); font-size:26px; font-weight:700; font-family:var(--font-mono);">03</span>
+            <div class="title">AI 协作的天花板 = <span class="purple">工程纪律的厚度</span></div>
+          </div>
+          <div class="desc" style="font-size:17px;">
+            "AI 写代码快不快"是错误的问题。<br>
+            正确的问题是：<span class="strong">"我有没有给 AI 设计好规则、状态、记忆、验收"</span>。<br>
+            <span class="purple strong">prompt 不是核心，状态机 + 记忆分层 + 三角色约束才是。</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ P11 收尾 ============ -->
+    <section class="slide">
+      <div class="header-bar">
+        <span class="brand">Portfolio Briefing</span>
+        <span class="chapter">收尾</span>
+      </div>
+      <div class="eyebrow">一句话总结</div>
+      <h1 style="margin-top: 40px;">不是 AI <span class="accent">让我写得更快</span>，<br>是<span class="strong">基础设施 + 方法论</span>让 AI 协作<br><span class="green">真正发挥了杠杆</span></h1>
+
+      <div class="stat-row" style="margin-top: 50px;">
+        <div class="stat"><div class="num">8</div><div class="lbl">完整原创项目</div></div>
+        <div class="stat"><div class="num">75</div><div class="lbl">天</div></div>
+        <div class="stat"><div class="num">5</div><div class="lbl">主语言</div></div>
+        <div class="stat"><div class="num">1</div><div class="lbl">中枢复用</div></div>
+        <div class="stat"><div class="num">1</div><div class="lbl">方法论沉淀</div></div>
+      </div>
+
+      <div class="highlight" style="margin-top: 28px;">
+        每个项目独立看都"完成了" —— aigcgateway 上线生产，proxywatch v0.1 feature-complete，nextpanel 含 Agent 系统。
+        <span class="strong">没有 demo 仓，没有半成品。</span>
+      </div>
+    </section>
+
+    <!-- ============ P12 Q&A ============ -->
+    <section class="slide qa">
+      <div class="q-mark">?</div>
+      <h1>Q & A</h1>
+      <div class="sub" style="margin-top: 16px; max-width: 800px; color: var(--text-dim); font-size: 22px; line-height: 1.5;">
+        <span class="accent strong">基础设施 + 方法论</span> 是个人开发者的 AI 杠杆，<br>
+        放到任何团队也成立。
+      </div>
+      <div class="links">
+        <span><strong>aigcgateway</strong> · github.com/tripplemay/aigcgateway</span>
+        <span><strong>harness-template</strong> · github.com/tripplemay/harness-template</span>
+        <span><strong>kolmatrix</strong> · github.com/tripplemay/kolmatrix</span>
+        <span><strong>AIdash</strong> · github.com/tripplemay/AIdash</span>
+        <span><strong>nextpanel</strong> · github.com/tripplemay/nextpanel</span>
+        <span><strong>proxywatch</strong> · github.com/tripplemay/proxywatch</span>
+        <span><strong>pt-download-bot</strong> · github.com/tripplemay/pt-download-bot</span>
+        <span><strong>trainbot</strong> 🔒 · 私有项目</span>
+      </div>
+    </section>
+
+  </div>
+</div>
+
+<!-- 控件层（仅观众模式）-->
+<div class="hud">
+  <div class="progress"><i id="progress"></i></div>
+  <div class="page-num" id="pageNum">1 / 12</div>
+  <div class="controls-hint">← →  翻页　·　N  打开讲者窗口　·　F  全屏　·　Home / End  跳转</div>
+</div>
+
+<!-- 讲者模式视图（仅在 #presenter 弹窗中显示）-->
+<div class="presenter-view">
+  <div class="pv-panel pv-current">
+    <div class="pv-label"><span>当前页</span><span class="meta" id="pvCurrentTitle"></span></div>
+    <div class="pv-frame" id="pvCurrentFrame"></div>
+  </div>
+
+  <div class="pv-panel pv-next">
+    <div class="pv-label"><span>下一页</span></div>
+    <div class="pv-frame" id="pvNextFrame"></div>
+    <div class="pv-bar">
+      <span class="pv-timer" id="pvTimer">00:00</span>
+      <span class="pv-pagebox"><span class="now" id="pvPageNow">1</span><span class="of"> / <span id="pvPageOf">12</span></span></span>
+    </div>
+  </div>
+
+  <div class="pv-panel pv-notes">
+    <div class="pv-label"><span id="pvNotesTitle">讲者注</span><span class="meta">空格 / → 下一页　·　← 上一页　·　R 重置计时</span></div>
+    <div class="pv-notes-body" id="pvNotesBody"></div>
+  </div>
+</div>
+<div class="pv-hint" style="display:none;" id="pvHint">讲者窗口 · 翻页与观众窗口同步</div>
+
+<script>
+  const isPresenter = location.hash === '#presenter';
+  if (isPresenter) document.body.classList.add('presenter');
+
+  const NOTES = [
+    {
+      title: 'P1 · 封面',
+      body: `
+        <p><strong>开场（30 秒）：</strong>"今天和大家分享一份 portfolio 总览 —— 过去 3 个月里我做的 8 个项目。但我想讲的不是项目数量，是<strong>这些项目背后那条共同的路径</strong>。"</p>
+        <p><strong>节奏提示：</strong>停在标题"3 个月 8 个项目"几秒，让数字说话。</p>
+        <p><strong>给非技术听众的桥：</strong>"我会用业务的语言来讲为什么 8 个项目能在 75 天里发生。"</p>
+      `
+    },
+    {
+      title: 'P2 · 开场命题',
+      body: `
+        <p><strong>核心 hook（1 分钟）：</strong>先否定常见误解 —— 不是 AI 帮我写更快，不是通宵更长。<strong>是基础设施的第二次价值 + 方法论的可外溢</strong>。</p>
+        <p><strong>关键句：</strong>"75 天，8 个完整产品。证明的不是我做得多快，而是这条路径真的能跑通。"</p>
+        <p><strong>留白：</strong>这一页是整场的"立论"。后面所有内容都在为这两句话提供证据。</p>
+      `
+    },
+    {
+      title: 'P3 · 时间轴',
+      body: `
+        <p><strong>看图说话（1.5 分钟）：</strong>用手指划过时间轴，<strong>停在 aigcgateway (3-29) 这个紫色大点</strong>。"这是分水岭 —— 之前是单点应用，之后所有 AI 应用都接入它。"</p>
+        <p><strong>第二个亮点：</strong>4-18 那一对 —— harness-template 和 kolmatrix 同日创建。"这不是巧合，是工程上的'时机感'：第一个大项目走通后，立刻把工作流沉淀，给下一个用。"</p>
+        <p><strong>过渡：</strong>"接下来用一张图把这 8 个项目的关系讲清楚。"</p>
+      `
+    },
+    {
+      title: 'P4 · 项目图谱',
+      body: `
+        <p><strong>结构介绍（2 分钟）：</strong>三层结构 —— 上面 5 个 AI 应用，中间是中枢和方法论（紫色和绿色），下面 2 个基础设施项目。</p>
+        <p><strong>不要逐个念项目</strong>，让听众自己看。重点说<strong>"上面 5 个 AI 应用，每个都通过中间的中枢节点连通"</strong>。</p>
+        <p><strong>给技术同事的细节：</strong>注意 trainbot 的 description 里写了"via aigc-gateway" —— 这是<strong>真实依赖关系的物证</strong>。</p>
+        <p><strong>过渡：</strong>"现在放大讲两个最关键的节点 —— aigcgateway 和 harness-template。"</p>
+      `
+    },
+    {
+      title: 'P5 · aigcgateway 中枢',
+      body: `
+        <p><strong>中枢图（2 分钟）：</strong>这页的图是整场最重要的视觉之一 —— 5 个应用在上，1 个 hub 在下，箭头朝下。<strong>"接通就跑"</strong>是关键句。</p>
+        <p><strong>三个能力</strong>简要带过：协议复用 / Prompt 资产 / 运营治理。如果听众里有 AI 工程师，这里会有共鸣。</p>
+        <p><strong>关键证据：</strong>"trainbot 当天挂上"是个具体数字，"AIdash 走 OpenAI 兼容协议"是个具体路径。这两个都是<strong>降低未来项目接入成本</strong>的证据。</p>
+      `
+    },
+    {
+      title: 'P6 · harness-template 方法论',
+      body: `
+        <p><strong>双层叙事（1.5 分钟）：</strong>左边讲是什么（3 角色 / 7 状态机），右边讲怎么沉淀的（aigcgateway → kolmatrix → 未来 N）。</p>
+        <p><strong>关键时机句：</strong>页面底部的 highlight —— "<strong>不是第一个项目时建（YAGNI），是第二个项目要复用的那一刻</strong>"。这一句是金句，慢说，重读。</p>
+        <p><strong>给技术同事：</strong>状态机的 7 个阶段不要逐个念，用手划过去就行。重点是"每个批次都走完整闭环、没走完不进下一批"的工程纪律。</p>
+      `
+    },
+    {
+      title: 'P7 · 应用矩阵',
+      body: `
+        <p><strong>用矩阵讲（2 分钟）：</strong>4 种形态 —— B2B SaaS / 行业平台 / 两个 TG bot —— 都跑通了。<strong>"基础设施就值了"</strong>是这一页的总结。</p>
+        <p><strong>kolmatrix 的关键证据：</strong>与 harness-template 同日创建。这是<strong>"方法论一抽出来就有人用"</strong>的最有力证据。</p>
+        <p><strong>AIdash 关键证据：</strong>走 OpenAI 兼容协议 —— 不需要专门为 AIdash 写适配。</p>
+        <p><strong>两个 bot：</strong>"轻量 Python + AI 增强" —— 证明 AI 基座不只能延伸到 Web。</p>
+      `
+    },
+    {
+      title: 'P8 · 基础设施补强',
+      body: `
+        <p><strong>底层硬功夫（1 分钟）：</strong>这页的目的是平衡 —— 避免观众觉得"全是 AI 应用，没真功夫"。</p>
+        <p><strong>nextpanel：</strong>Next.js + Go Agent 双语言。代理面板是个复杂度高的运维场景。</p>
+        <p><strong>proxywatch：</strong>Go 单二进制 + 嵌入式 React + SQLite —— 是经典的 sidecar / Web UI 组合，工程美感很强。</p>
+        <p><strong>关键句：</strong>"应用层的快是中枢复用带来的，基础设施层的扎实是底层工程功夫带来的，<strong>两者缺一不可</strong>。"</p>
+      `
+    },
+    {
+      title: 'P9 · 怎么做到的',
+      body: `
+        <p><strong>方法论提炼（2 分钟）：</strong>3 个互相强化的机制。每条停留 30 秒。</p>
+        <p><strong>机制 1 · 中枢复用：</strong>"trainbot 当天就能挂上" —— 这是<strong>具体可量化的</strong>证据。</p>
+        <p><strong>机制 2 · 工作流沉淀：</strong>"刚好需要的时刻" —— 强调<strong>时机感</strong>，不是早也不是晚。</p>
+        <p><strong>机制 3 · AI 协作工程化：</strong>金句 —— "<strong>不是我和 AI 一起写代码，是我设计流程，AI 走流程</strong>"。</p>
+        <p><strong>底部 highlight：</strong>三机制互相强化，是这页的总结。</p>
+      `
+    },
+    {
+      title: 'P10 · 三条外溢经验',
+      body: `
+        <p><strong>压轴页（2 分钟）：</strong>三条要分别停留，让听众消化。</p>
+        <p><strong>第 1 条 · 第二个项目时建：</strong>具体的"时机感"建议。听众会想"我现在该不该建" —— 这条给出明确判据。</p>
+        <p><strong>第 2 条 · 方法论沉淀比做更多项目稀缺：</strong>这条对管理层有说服力。<strong>"同样的产出，1/3 的成本"</strong>是个吸引人的数字。</p>
+        <p><strong>第 3 条 · AI 协作的天花板：</strong>这条最容易被记住。"<strong>prompt 不是核心，状态机 + 记忆分层 + 三角色约束才是</strong>"。</p>
+      `
+    },
+    {
+      title: 'P11 · 收尾',
+      body: `
+        <p><strong>总结（1 分钟）：</strong>主标题是整场最浓缩的一句话 —— 慢说，重读。</p>
+        <p><strong>底部数字栏：</strong>8 / 75 / 5 / 1 / 1。最后两个 1（中枢复用 + 方法论沉淀）是核心。</p>
+        <p><strong>底部 highlight：</strong>"没有 demo 仓，没有半成品" —— 提醒听众这些都是真实可用的项目，不是 portfolio 灌水。</p>
+      `
+    },
+    {
+      title: 'P12 · Q&A',
+      body: `
+        <p><strong>常见 Q 预案：</strong></p>
+        <p>· "你怎么有时间做这么多？" → <strong>"不是更多时间，是中枢复用 + 方法论沉淀。第一个项目花 6 周，第二个 4 周，第三个 2 周。"</strong></p>
+        <p>· "AI 真的能写出生产代码吗？" → <strong>"AI 单独写不行。'设计流程让 AI 走流程' 是工程化方法。harness-template 是载体。"</strong></p>
+        <p>· "这套方法别人能用吗？" → <strong>"harness-template 是 public repo，npx degit + bootstrap.sh 即用。已被 kolmatrix 验证。"</strong></p>
+        <p>· "下一个项目是什么？" → 留给现场发挥。</p>
+      `
+    }
+  ];
+
+  // ============ 引擎 · 共享状态 ============
+  const slides = document.querySelectorAll('.slide');
+  const total = slides.length;
+  let current = 0;
+
+  // ============ 跨窗口同步 ============
+  const channel = ('BroadcastChannel' in window) ? new BroadcastChannel('portfolio-deck-sync') : null;
+  if (channel) {
+    channel.onmessage = (e) => {
+      const msg = e.data || {};
+      if (msg.type === 'goto') {
+        show(msg.index, true);
+      } else if (msg.type === 'request-state' && !isPresenter) {
+        channel.postMessage({ type: 'goto', index: current });
+      }
+    };
+  }
+  function broadcast(index) {
+    if (channel) channel.postMessage({ type: 'goto', index });
+  }
+
+  function show(i, silent) {
+    if (i < 0 || i >= total) return;
+    slides[current].classList.remove('active');
+    slides[i].classList.add('active');
+    current = i;
+
+    if (!isPresenter) {
+      const progressBar = document.getElementById('progress');
+      const pageNum = document.getElementById('pageNum');
+      progressBar.style.width = ((i + 1) / total * 100) + '%';
+      pageNum.textContent = (i + 1) + ' / ' + total;
+    } else {
+      renderPresenter(i);
+    }
+
+    if (!silent) broadcast(i);
+  }
+
+  function next() { show(Math.min(current + 1, total - 1)); }
+  function prev() { show(Math.max(current - 1, 0)); }
+
+  document.addEventListener('keydown', (e) => {
+    switch (e.key) {
+      case 'ArrowRight':
+      case 'PageDown':
+      case ' ':
+        e.preventDefault(); next(); break;
+      case 'ArrowLeft':
+      case 'PageUp':
+        e.preventDefault(); prev(); break;
+      case 'Home':
+        e.preventDefault(); show(0); break;
+      case 'End':
+        e.preventDefault(); show(total - 1); break;
+      case 'n':
+      case 'N':
+      case 'p':
+      case 'P':
+        if (!isPresenter) {
+          e.preventDefault();
+          openPresenterWindow();
+        }
+        break;
+      case 'r':
+      case 'R':
+        if (isPresenter) { e.preventDefault(); resetTimer(); }
+        break;
+      case 'f':
+      case 'F':
+        e.preventDefault();
+        if (!document.fullscreenElement) document.documentElement.requestFullscreen?.();
+        else document.exitFullscreen?.();
+        break;
+    }
+  });
+
+  if (!isPresenter) {
+    let startX = 0;
+    document.addEventListener('touchstart', (e) => { startX = e.touches[0].clientX; });
+    document.addEventListener('touchend', (e) => {
+      const dx = e.changedTouches[0].clientX - startX;
+      if (Math.abs(dx) > 50) { dx < 0 ? next() : prev(); }
+    });
+    document.addEventListener('click', (e) => {
+      const x = e.clientX;
+      const w = window.innerWidth;
+      if (x > w * 0.7) next();
+      else if (x < w * 0.3) prev();
+    });
+  }
+
+  function fit() {
+    if (isPresenter) return;
+    const deck = document.getElementById('deck');
+    const sw = window.innerWidth;
+    const sh = window.innerHeight;
+    const scale = Math.min(sw / 1280, sh / 720);
+    deck.style.transform = `scale(${scale})`;
+  }
+  window.addEventListener('resize', fit);
+
+  let presenterWindow = null;
+  function openPresenterWindow() {
+    if (presenterWindow && !presenterWindow.closed) {
+      presenterWindow.focus();
+      return;
+    }
+    const url = location.pathname + location.search + '#presenter';
+    presenterWindow = window.open(
+      url,
+      'portfolio-presenter',
+      'width=1280,height=820,menubar=no,toolbar=no,location=no,status=no'
+    );
+  }
+
+  function renderPresenter(i) {
+    const curFrame = document.getElementById('pvCurrentFrame');
+    const nextFrame = document.getElementById('pvNextFrame');
+    const titleEl = document.getElementById('pvCurrentTitle');
+    const notesTitle = document.getElementById('pvNotesTitle');
+    const notesBody = document.getElementById('pvNotesBody');
+    const pageNow = document.getElementById('pvPageNow');
+    const pageOf = document.getElementById('pvPageOf');
+
+    curFrame.innerHTML = '';
+    const curClone = slides[i].cloneNode(true);
+    curClone.classList.add('active');
+    curFrame.appendChild(curClone);
+
+    nextFrame.innerHTML = '';
+    if (slides[i + 1]) {
+      const nextClone = slides[i + 1].cloneNode(true);
+      nextClone.classList.add('active');
+      nextFrame.appendChild(nextClone);
+    } else {
+      nextFrame.innerHTML = '<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--text-mute);font-family:var(--font-mono);font-size:14px;">— 已是最后一页 —</div>';
+    }
+
+    if (NOTES[i]) {
+      const nt = NOTES[i];
+      const titleParts = nt.title.split('·');
+      titleEl.textContent = titleParts[1] ? titleParts[1].trim() : nt.title;
+      notesTitle.textContent = '讲者注 · ' + nt.title;
+      notesBody.innerHTML = nt.body;
+    }
+
+    pageNow.textContent = (i + 1);
+    pageOf.textContent = total;
+
+    requestAnimationFrame(fitPresenterFrames);
+  }
+
+  function fitPresenterFrames() {
+    ['pvCurrentFrame', 'pvNextFrame'].forEach(id => {
+      const frame = document.getElementById(id);
+      const slide = frame.querySelector('.slide');
+      if (!slide) return;
+      const fw = frame.clientWidth;
+      const fh = frame.clientHeight;
+      const scale = Math.min(fw / 1280, fh / 720);
+      slide.style.transform = `scale(${scale})`;
+    });
+  }
+
+  if (isPresenter) {
+    window.addEventListener('resize', fitPresenterFrames);
+  }
+
+  let timerStart = Date.now();
+  function resetTimer() { timerStart = Date.now(); }
+  function tickTimer() {
+    if (!isPresenter) return;
+    const el = document.getElementById('pvTimer');
+    if (!el) return;
+    const sec = Math.floor((Date.now() - timerStart) / 1000);
+    const mm = String(Math.floor(sec / 60)).padStart(2, '0');
+    const ss = String(sec % 60).padStart(2, '0');
+    el.textContent = `${mm}:${ss}`;
+  }
+  if (isPresenter) {
+    setInterval(tickTimer, 1000);
+    document.getElementById('pvHint').style.display = 'block';
+  }
+
+  fit();
+  show(0, true);
+
+  if (isPresenter && channel) {
+    channel.postMessage({ type: 'request-state' });
+  }
+</script>
+
+</body>
+</html>
