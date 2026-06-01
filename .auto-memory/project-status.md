@@ -4,15 +4,15 @@ description: AIGC Gateway 当前状态快照（覆盖写，≤30 行）
 type: project
 ---
 ## 当前批次
-- **BL-FE-DS-SHADCN-MINI-A**（building，2026-05-03 启动）— 3 个高频 admin 页面 raw HTML → shadcn 组件壳替换：admin/reconciliation 筛选行 + 明细表 / admin/providers 表单 + 明细表 + 行内 button / admin/model-aliases 残留 raw 表单 + unlinkedModels 表（ChannelTable 不动）。"触及即替换"范式，逐文件独立 commit。Spec：`docs/specs/BL-FE-DS-SHADCN-MINI-A-spec.md`
+- **BL-IMG-PERSIST-GCS**（hotfix，building，2026-06-01 启动）— 生产图片无法下载根治：生成时把图（url-http/url-data:/b64_json 三形态）转存 GCS 桶，对外统一返回同源签名代理 URL（回源改读 GCS，TTL 90d）。修复 MCP base64 死链 + b64_json 空数组 + 日志不可回看 + 1h/24h 双过期。用户裁决：GCS 桶 + 90d TTL。Spec：`docs/specs/BL-IMG-PERSIST-GCS-spec.md`；根因：`docs/audits/image-download-failure-diagnosis-2026-06-01.md`。**前置（用户 ops）：** 建 GCS 桶 + VM SA 授权 + 90d lifecycle + .env 两项。
 
 ## reference path
 - KOLMatrix repo 实际路径：`/mnt/c/Users/tripplezhou/projects/kolmatrix`
 
 ## 上一批次
+- BL-FE-DS-SHADCN-MINI-A @ 2026-05-03（done，fix_rounds=0）— 3 高频 admin 页 raw→shadcn 组件壳替换（recon/providers/model-aliases），signoff PASS
 - BL-SYNC-INTEGRITY-PHASE2 @ 2026-05-02（done，fix_rounds=1）— 软停 259 disabled-alias-only channel + sync-status 度量重定义（alias 层 + JSON 三态判定）+ admin chip + scan 三维扩展；抽 sql/alias-status.ts 共享谓词
 - BL-SYNC-INTEGRITY-PHASE1 @ 2026-05-02（done，fix_rounds=0）— siliconflow IMAGE skip + xiaomi-mimo adapter + 311 zero-price 扫描脚本
-- BL-ADMIN-ALIAS-UX-PHASE1 @ 2026-05-01（done，fix_rounds=1）— admin/model-aliases UX 大修
 
 ## Backlog（3 条，按优先级）
 - **BL-SEC-PAY-DEFERRED**（critical-deferred）— 支付 webhook 验签 + 幂等 CAS
