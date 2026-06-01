@@ -4,7 +4,7 @@ description: AIGC Gateway 当前状态快照（覆盖写，≤30 行）
 type: project
 ---
 ## 当前批次
-- **BL-IMG-PERSIST-GCS**（hotfix，**verifying**，2026-06-01）— Generator 完成 F-IGP-01~04（4/5），本地 commits 0c66d9b/4935243/59617e8/9f1765f（**未推送，待用户确认 push**）。图三形态（url-http/url-data:/b64_json）转存 GCS + 同源签名代理（回源读 GCS，TTL 90d）；修 MCP base64 死链 + b64_json 空数组 + 日志不可回看 + 1h/24h 过期。tsc/build/eslint PASS。**本批测试域归 Codex（F-IGP-05）**。Spec `docs/specs/BL-IMG-PERSIST-GCS-spec.md`。**前置 ops 已完成**（2026-06-01 用户授权 Generator 代执行）：桶 `gs://aigc-gateway-images`（东京/私有）+ VM SA `1044753973286-compute@` objectAdmin + 90d lifecycle + `.env.production` 两项，VM SA round-trip 验证 PUT/GET 200 通过。**生产代码未部署**（持久化暂未激活，env 惰性无副作用），待 Codex 验收→用户手动 Deploy 激活。详见 `docs/specs/BL-IMG-PERSIST-GCS-ops.md` 执行记录。
+- **BL-IMG-PERSIST-GCS**（hotfix，**verifying**，2026-06-01）— Generator 完成 F-IGP-01~04（4/5），本地 commits 0c66d9b/4935243/59617e8/9f1765f（**未推送，待用户确认 push**）。图三形态（url-http/url-data:/b64_json）转存 GCS + 同源签名代理（回源读 GCS，TTL 90d）；修 MCP base64 死链 + b64_json 空数组 + 日志不可回看 + 1h/24h 过期。tsc/build/eslint PASS。**本批测试域归 Codex（F-IGP-05）**。Spec `docs/specs/BL-IMG-PERSIST-GCS-spec.md`。**前置 ops 已完成**（2026-06-01 用户授权 Generator 代执行）：桶 `gs://aigc-gateway-images`（东京/私有）+ VM SA `1044753973286-compute@` objectAdmin + 90d lifecycle + `.env.production` 两项，VM SA round-trip 验证 PUT/GET 200 通过。**已部署上线**（2026-06-01 用户授权，CI PASS→Deploy 成功，线上 commit 15d0a46，pm2 online restarts=0，控制台 200）——**持久化已在生产激活**，Codex 可做真实桶 E2E 验收（D10 IMAGE_PERSIST_ENABLED=false 可一键回退）。详见 `docs/specs/BL-IMG-PERSIST-GCS-ops.md`。
 
 ## reference path
 - KOLMatrix repo 实际路径：`/mnt/c/Users/tripplezhou/projects/kolmatrix`
