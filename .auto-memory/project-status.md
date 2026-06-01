@@ -4,7 +4,7 @@ description: AIGC Gateway 当前状态快照（覆盖写，≤30 行）
 type: project
 ---
 ## 当前批次
-- **BL-IMG-PERSIST-GCS**（hotfix，**reverifying** fix_rounds=1，2026-06-01）— Generator 完成 F-IGP-01~04 + fix_round1。Codex 首轮 FAIL 根因：API/日志路由用 `new URL(request.url).origin`，Next standalone 下解析成内部绑定 `0.0.0.0:3000`（GCS 持久化/代理读回本身 OK）。fix_round1（commit 400f2af/501147e）新增 `image-proxy.ts resolveRequestOrigin()`——从 `Host`+`X-Forwarded-Proto` 头推导（nginx 已核转发），兜底 env/request.url；`generations` 与 `logs/[traceId]` 路由改用之。已推送+部署（Deploy run 26733023342 success，线上 commit 501147e，pm2 online）。**待 Codex 复验**：gpt-image-mini 的 `data[0].url`/日志 `images[0]` 应直接为 `https://aigc.guangai.ai/...` 且 GET 200。`seedream-3 404` 为本批外模型可用性问题（即将下线），http 上游对照可换在售模型。报告 `docs/test-reports/BL-IMG-PERSIST-GCS-verifying-2026-06-01.md`；ops+部署见 `docs/specs/BL-IMG-PERSIST-GCS-ops.md`。
+- **BL-IMG-PERSIST-GCS**（hotfix，**fixing** fix_rounds=1，2026-06-01）— Generator 完成 F-IGP-01~04 + fix_round1。Codex `reverifying` 结果：**origin 签发缺陷已修复**。生产 `gpt-image-mini` trace `trc_ebyvtle8lqi30w1pt2aec6ix` 现在直接返回 `https://aigc.guangai.ai/v1/images/proxy/...`，且无需手工改 host 就可 `GET 200 image/png`；日志详情 API `/api/projects/:id/logs/:traceId` 的 `images[0]` 也已改为同域名。L1 本地 `tsc` / targeted vitest / 全量 `npm test` 均 PASS。**但** 按当前 spec 仍未 signoff：`seedream-3` 继续出现在 `GET /v1/models` 的 image 列表中，真实调用依旧 `404 model_not_found`（trace `trc_j4nq6rierghkcsrp1ndwmh5o`），因此 `seedream-3 同样 200` acceptance 未满足，`progress.json.status` 已退回 `fixing`，`docs.signoff=null`。复验报告：`docs/test-reports/BL-IMG-PERSIST-GCS-reverifying-2026-06-01-round1.md`；首轮报告：`docs/test-reports/BL-IMG-PERSIST-GCS-verifying-2026-06-01.md`；ops+部署见 `docs/specs/BL-IMG-PERSIST-GCS-ops.md`。
 
 ## reference path
 - KOLMatrix repo 实际路径：`/mnt/c/Users/tripplezhou/projects/kolmatrix`
