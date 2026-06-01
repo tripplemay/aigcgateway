@@ -16,7 +16,7 @@
       "title": "持久化 helper（url-http/url-data:/b64_json 三形态归一）+ 同步接入两入口 + 落库 keys",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "source": "BL-IMG-PERSIST-GCS Spec F-IGP-02；D4 同步时序 + D5 三形态 + types.ts:188-189 b64_json 被忽略缺陷",
       "acceptance": "1) src/lib/api/persist-image.ts: persistGeneratedImages(traceId,projectId,response) 处理 url-http(fetch)/url-data:(解码)/b64_json(解码) 三形态 → 上传 GCS(key images/{projectId}/{traceId}/{idx}.{ext}) → 返回 keys(失败项 null)；2) 同步 await 接入 generations/route.ts + mcp/tools/generate-image.ts，构造响应前完成；3) original_urls 改存 GCS keys，且在对外代理 URL 可用前已可解析（消除 fire-and-forget 竞态）；4) 三形态 fixture 均成功上传返回 key；5) original_urls = GCS keys（非上游 URL 非 metadata）；6) 竞态闭合：响应返回后立即 GET 代理 URL 可解析；7) 上传失败按 D6 兜底生成不硬失败；8) tsc + build PASS；9) 独立 commit feat(BL-IMG-PERSIST-GCS F-IGP-02)"
     },
