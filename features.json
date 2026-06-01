@@ -25,7 +25,7 @@
       "title": "代理回源改读 GCS + 签名 TTL 90d + MCP/API 统一返回可用代理 URL",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "source": "BL-IMG-PERSIST-GCS Spec F-IGP-03；MCP data: 死链 + b64_json 空数组 双缺陷修复",
       "acceptance": "1) proxy/[traceId]/[idx]/route.ts: original_urls[idx] 作为 GCS key → getImageObject 流式回传，去 fetch 上游分支，保留 sanitizeImageContentType + nosniff，对象缺失 404；2) image-proxy.ts DEFAULT_TTL_SECONDS → 90d；3) MCP generate-image.ts 对每张持久化图(含 data:/b64_json)构造代理 URL；4) API generations/route.ts 所有图 data[i].url 置可用代理 URL，b64_json 字段原样透传不删(D7)；5) 经 MCP gpt-image-mini/gemini-3-pro-image 生成 → 代理 URL GET 200 返回图(修复前必 404)；6) seedream-3 同样 200；7) b64_json-only fixture → MCP images[] 非空；8) tsc + build PASS；9) 独立 commit feat(BL-IMG-PERSIST-GCS F-IGP-03)"
     },
@@ -34,7 +34,7 @@
       "title": "日志详情页可回看持久化图 + 下载（server 端新签代理 URL 渲染 <img>）",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "source": "BL-IMG-PERSIST-GCS Spec F-IGP-04；F-ILDF-01 strip 导致日志不可回看",
       "acceptance": "1) logs/[traceId]/page.tsx: CallLog 含持久化图资产时对每张图用 buildProxyUrl(traceId,idx,origin) 渲染 <img>，不再显示 [image:fmt,NKB]；非图文本保留原分支；2) responseContent/summarizeImageUrl 用法调整使日志页能渲染（复用 isImageUrl 已识别 /v1/images/proxy/）；3) 持久化生成后日志详情页显示图而非 metadata；4) 图可右键另存/直接打开（同源代理 90d 内有效）；5) n>1 多图全渲染；6) 中英 i18n 文案正常；7) tsc + build PASS；8) 独立 commit feat(BL-IMG-PERSIST-GCS F-IGP-04)"
     },
