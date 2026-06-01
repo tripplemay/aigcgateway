@@ -32,6 +32,12 @@ interface LogDetail {
   requestParams?: Record<string, unknown>;
   responseContent?: string | null;
   errorMessage?: string | null;
+  /**
+   * BL-IMG-PERSIST-GCS F-IGP-04: server-signed same-origin proxy URLs for
+   * persisted images (90d valid). Rendered as <img> previews instead of the
+   * [image:fmt, NKB] metadata.
+   */
+  images?: string[] | null;
 }
 
 // ============================================================
@@ -248,7 +254,36 @@ export default function LogDetailPage() {
               <span className="material-symbols-outlined text-ds-primary">auto_awesome</span>
               {t("responseContent")}
             </h3>
-            {detail.responseContent ? (
+            {detail.images && detail.images.length > 0 ? (
+              /* BL-IMG-PERSIST-GCS F-IGP-04: 持久化图资产 → 服务端签名代理 URL
+                 渲染 <img> 画廊（右键另存 / 点击新窗打开，同源 90d 有效），
+                 不再显示 [image:fmt, NKB] metadata。多图全部渲染。 */
+              <div className="bg-ds-surface-container-lowest p-8 rounded-2xl shadow-sm">
+                <div className="flex flex-wrap gap-4">
+                  {detail.images.map((src, i) => (
+                    <a
+                      key={i}
+                      href={src}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="block"
+                    >
+                      <img
+                        src={src}
+                        alt={t("responseImage")}
+                        className="max-w-full max-h-[600px] rounded-lg"
+                        loading="lazy"
+                      />
+                    </a>
+                  ))}
+                </div>
+                {detail.finishReason && (
+                  <p className="pt-4 border-t border-ds-outline-variant/10 text-xs italic text-ds-on-surface-variant mt-4">
+                    {t("finishReason")}: {detail.finishReason}
+                  </p>
+                )}
+              </div>
+            ) : detail.responseContent ? (
               <div className="bg-ds-surface-container-lowest p-8 rounded-2xl shadow-sm">
                 {/* BL-IMAGE-LOG-DISPLAY-FIX F-ILDF-02: 识别 http(s) image URL
                     渲染 <img> 预览；其他文本（含 [image:fmt, NKB] metadata）

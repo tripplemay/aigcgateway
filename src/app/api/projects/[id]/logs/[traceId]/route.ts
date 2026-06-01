@@ -4,6 +4,7 @@ import { NextResponse } from "next/server";
 import { verifyJwt } from "@/lib/api/jwt-middleware";
 import { errorResponse } from "@/lib/api/errors";
 import { sanitizeErrorMessage } from "@/lib/engine/types";
+import { buildProxyUrl } from "@/lib/api/image-proxy";
 
 export async function GET(
   request: Request,
@@ -29,6 +30,20 @@ export async function GET(
   const reasoningTokens =
     typeof reasoningRaw === "number" && reasoningRaw > 0 ? reasoningRaw : null;
 
+  // BL-IMG-PERSIST-GCS F-IGP-04: when the call persisted images, sign a fresh
+  // same-origin proxy URL per image (server-side — the client cannot HMAC) so
+  // the log detail page can render real <img> previews instead of the
+  // [image:fmt, NKB] metadata. Index-aligned with original_urls; empty/null
+  // entries are skipped. Works for GCS keys and legacy http upstreams alike
+  // (the proxy route resolves either).
+  const originalUrls = Array.isArray(summary?.original_urls) ? summary.original_urls : [];
+  const origin = new URL(request.url).origin;
+  const images = originalUrls
+    .map((u, idx) =>
+      typeof u === "string" && u.length > 0 ? buildProxyUrl(log.traceId, idx, origin) : null,
+    )
+    .filter((u): u is string => typeof u === "string");
+
   return NextResponse.json({
     traceId: log.traceId,
     modelName: log.modelName,
@@ -48,6 +63,7 @@ export async function GET(
     ttftMs: log.ttftMs,
     tokensPerSecond: log.tokensPerSecond,
     errorMessage: log.errorMessage ? sanitizeErrorMessage(log.errorMessage) : null,
+    images,
     createdAt: log.createdAt,
   });
 }
