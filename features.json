@@ -7,7 +7,7 @@
       "title": "GCS 存储抽象层 + 配置（@google-cloud/storage + ADC + feature flag）",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "source": "BL-IMG-PERSIST-GCS Spec F-IGP-01；docs/audits/image-download-failure-diagnosis-2026-06-01.md 根治方案",
       "acceptance": "1) 新增 src/lib/storage/image-store.ts(接口) + gcs-image-store.ts(GCS 实现)：putImage({key,body,contentType}) + getImageObject(key)；2) ADC 认证（GCP VM 默认 SA），env GCS_IMAGE_BUCKET(启用时必填) + IMAGE_PERSIST_ENABLED(默认 true)；3) put/get round-trip 可用（dev 桶或 mock）；4) 缺 bucket 时按 D6 兜底不 crash；5) .env.example 增两项 + 注释；6) npx tsc --noEmit PASS；7) npm run build PASS；8) 独立 commit feat(BL-IMG-PERSIST-GCS F-IGP-01)"
     },

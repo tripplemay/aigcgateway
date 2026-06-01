@@ -2,10 +2,10 @@
   "status": "building",
   "user_goal": "BL-IMG-PERSIST-GCS (hotfix) — 生产图片无法下载根因修复：生成时把图（url-http / url-data: / b64_json 三形态归一）转存自有 GCS 桶，对外统一返回同源签名代理 URL（回源改读 GCS，TTL 90d）。一举消除 MCP base64 死链 + b64_json 空数组 + 日志不可回看 + 1h/24h 双过期。用户裁决：GCS 桶 + 90 天 TTL 保留。",
   "total_features": 5,
-  "completed_features": 0,
+  "completed_features": 1,
   "fix_rounds": 0,
   "current_sprint": "BL-IMG-PERSIST-GCS",
-  "last_updated": "2026-06-01T00:00:00Z",
+  "last_updated": "2026-06-01T09:10:00Z",
   "role_assignments": null,
   "docs": {
     "spec": "docs/specs/BL-IMG-PERSIST-GCS-spec.md",
@@ -16,7 +16,7 @@
   "evaluator_feedback": null,
   "session_notes": {
     "Planner": "2026-06-01 启动 hotfix BL-IMG-PERSIST-GCS（铁律 9 流程）。根因已确认并写入 docs/audits/image-download-failure-diagnosis-2026-06-01.md：MCP generate-image.ts:265 缺 !data: 判断把 data: URI 包成死代理 URL（永 404）+ b64_json 字段全链路被忽略（b64_json-only provider 经 MCP 返回空 images[]）+ F-ILDF-01 strip 致日志不可回看 + 1h 签名/24h 上游双过期。用户选根治方案：GCS 桶 + 90d TTL。已写 spec(D1-D10 决策 + 前置 ops 清单) + features.json(F-IGP-01~05，含 1 个 codex signoff) + 推 building，role_assignments=null 默认映射。关键设计：D4 转存请求路径内同步 await（顺带消除 fire-and-forget 落库竞态）；D5 三形态归一；D6 存储故障兜底不硬失败；D7 API 仅新增可用 url 不删 b64_json（零消费方破坏）；D8 历史不回填(已告知用户)；D10 IMAGE_PERSIST_ENABLED 一键回退。前置：GCS 桶 + VM SA 授权 + 90d lifecycle + .env 两项，由用户在生产执行（Generator 须附 gcloud 命令清单，不得代 provision）。下一会话 Generator 按默认映射加载 generator.md 实现 F-IGP-01。",
-    "Generator": null,
+    "Generator": "2026-06-01 (Kimi) F-IGP-01 DONE，本地 commit 0c66d9b（未推送，待用户确认 push）。新增 src/lib/storage/{image-store.ts 接口 + 配置助手, gcs-image-store.ts GCS 实现 + lazy getImageStore() 工厂}。关键点：getImageStore() 在 flag off 或缺 bucket 时返回 null（D6 兜底，调用方须当 null 处理不 crash）；extForContentType 供 D2 key 推断扩展名；ADC 认证（new Storage() 无 keyFile）。已装 @google-cloud/storage 依赖。tsc+build+eslint PASS。.env.example 增 IMAGE_PERSIST_ENABLED/GCS_IMAGE_BUCKET；附 lifecycle-90d.json。下一步 F-IGP-02：persist-image.ts 三形态归一 helper（http fetch / data: 解码 / b64_json 解码 → Buffer → putImage，key=images/{projectId}/{traceId}/{idx}.{ext}），同步 await 接入 generations/route.ts + mcp/tools/generate-image.ts，original_urls 改存 GCS keys。注意 D4 竞态：响应返回前须确保 proxy 可解析。前置 ops（建桶+SA 授权+lifecycle+.env）仍待用户在生产执行——交付时附 gcloud 命令清单。",
     "Reviewer": null
   }
 }
