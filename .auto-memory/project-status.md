@@ -4,7 +4,7 @@ description: AIGC Gateway 当前状态快照（覆盖写，≤30 行）
 type: project
 ---
 ## 当前批次
-- **BL-IMG-PERSIST-GCS**（hotfix，building，2026-06-01 启动）— 生产图片无法下载根治：生成时把图（url-http/url-data:/b64_json 三形态）转存 GCS 桶，对外统一返回同源签名代理 URL（回源改读 GCS，TTL 90d）。修复 MCP base64 死链 + b64_json 空数组 + 日志不可回看 + 1h/24h 双过期。用户裁决：GCS 桶 + 90d TTL。Spec：`docs/specs/BL-IMG-PERSIST-GCS-spec.md`；根因：`docs/audits/image-download-failure-diagnosis-2026-06-01.md`。**前置（用户 ops）：** 建 GCS 桶 + VM SA 授权 + 90d lifecycle + .env 两项。
+- **BL-IMG-PERSIST-GCS**（hotfix，**verifying**，2026-06-01）— Generator 完成 F-IGP-01~04（4/5），本地 commits 0c66d9b/4935243/59617e8/9f1765f（**未推送，待用户确认 push**）。图三形态（url-http/url-data:/b64_json）转存 GCS + 同源签名代理（回源读 GCS，TTL 90d）；修 MCP base64 死链 + b64_json 空数组 + 日志不可回看 + 1h/24h 过期。tsc/build/eslint PASS。**本批测试域归 Codex（F-IGP-05）**。Spec `docs/specs/BL-IMG-PERSIST-GCS-spec.md`；前置 ops（建桶+SA 授权+lifecycle+.env）见 `docs/specs/BL-IMG-PERSIST-GCS-ops.md`（gcloud 命令齐备，**用户须先执行 Codex 才能真实桶验收**）。
 
 ## reference path
 - KOLMatrix repo 实际路径：`/mnt/c/Users/tripplezhou/projects/kolmatrix`
