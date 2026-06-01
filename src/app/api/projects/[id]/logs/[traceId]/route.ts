@@ -4,7 +4,7 @@ import { NextResponse } from "next/server";
 import { verifyJwt } from "@/lib/api/jwt-middleware";
 import { errorResponse } from "@/lib/api/errors";
 import { sanitizeErrorMessage } from "@/lib/engine/types";
-import { buildProxyUrl } from "@/lib/api/image-proxy";
+import { buildProxyUrl, resolveRequestOrigin } from "@/lib/api/image-proxy";
 
 export async function GET(
   request: Request,
@@ -37,7 +37,8 @@ export async function GET(
   // entries are skipped. Works for GCS keys and legacy http upstreams alike
   // (the proxy route resolves either).
   const originalUrls = Array.isArray(summary?.original_urls) ? summary.original_urls : [];
-  const origin = new URL(request.url).origin;
+  // fix_round 1: forwarded-header origin (request.url = internal 0.0.0.0 bind).
+  const origin = resolveRequestOrigin(request);
   const images = originalUrls
     .map((u, idx) =>
       typeof u === "string" && u.length > 0 ? buildProxyUrl(log.traceId, idx, origin) : null,

@@ -13,7 +13,7 @@ import { generateTraceId, jsonResponse } from "@/lib/api/response";
 import { resolveEngine, withFailover, getAttemptChainFromError } from "@/lib/engine";
 import { processImageResult } from "@/lib/api/post-process";
 import { persistGeneratedImages } from "@/lib/api/persist-image";
-import { rewriteImageResponseUrls } from "@/lib/api/image-proxy";
+import { rewriteImageResponseUrls, resolveRequestOrigin } from "@/lib/api/image-proxy";
 import { validatePrompt } from "@/lib/api/prompt-validation";
 import type { ImageGenerationRequest } from "@/lib/engine/types";
 import { EngineError, ErrorCodes, sanitizeErrorMessage } from "@/lib/engine/types";
@@ -149,7 +149,9 @@ export async function POST(request: Request) {
     // F-ACF-07 + F-IGP-03: persisted images (incl. data:/b64_json) get a proxy
     // URL that reads back from GCS; `b64_json` is left intact (D7). Non-persisted
     // indices fall back to legacy behaviour (http→proxy, data:→verbatim).
-    const origin = new URL(request.url).origin;
+    // fix_round 1: derive public origin from forwarded headers — request.url
+    // resolves to the internal 0.0.0.0:3000 bind under Next standalone.
+    const origin = resolveRequestOrigin(request);
     const proxied = rewriteImageResponseUrls(response, traceId, origin, persistedKeys);
 
     return jsonResponse(proxied, 200, traceId, rateLimitHeaders);

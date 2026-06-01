@@ -26,6 +26,36 @@ function sign(traceId: string, idx: number, exp: number): string {
   return createHmac("sha256", getSecret()).update(`${traceId}.${idx}.${exp}`).digest("hex");
 }
 
+/**
+ * BL-IMG-PERSIST-GCS fix_round 1 — resolve the public-facing origin for signed
+ * proxy URLs.
+ *
+ * Next.js standalone builds `request.url` from the server's LISTEN address, so
+ * `new URL(request.url).origin` yields the internal bind `http://0.0.0.0:3000`
+ * behind the reverse proxy — producing un-fetchable image URLs (Codex verifying
+ * FAIL 2026-06-01). nginx forwards the real `Host` ($host) + `X-Forwarded-Proto`
+ * ($scheme), so we derive the origin from headers and only fall back to env /
+ * request.url when no usable Host is present.
+ */
+export function resolveRequestOrigin(request: Request): string {
+  const headers = request.headers;
+  const host = headers.get("x-forwarded-host") || headers.get("host");
+  // A bind address (0.0.0.0) is never the public host — skip to fallbacks.
+  if (host && !/^0\.0\.0\.0(:|$)/.test(host)) {
+    const isLocal = /^(localhost|127\.0\.0\.1|\[::1\])(:|$)/i.test(host);
+    const proto = headers.get("x-forwarded-proto") || (isLocal ? "http" : "https");
+    return `${proto}://${host}`;
+  }
+  const envOrigin =
+    process.env.NEXT_PUBLIC_GATEWAY_ORIGIN || process.env.SITE_URL || process.env.API_BASE_URL;
+  if (envOrigin) return envOrigin.replace(/\/+$/, "");
+  try {
+    return new URL(request.url).origin;
+  } catch {
+    return "https://aigc.guangai.ai";
+  }
+}
+
 export function buildProxyUrl(
   traceId: string,
   idx: number,
