@@ -1,7 +1,28 @@
-# BL-IMG-PERSIST-GCS — 前置 Ops 运行手册（用户在生产执行）
+# BL-IMG-PERSIST-GCS — 前置 Ops 运行手册
 
-> 铁律：Generator 不得代为 provision 生产基建。本文档提供**确切 gcloud 命令清单**，
-> 由用户在生产 GCP 项目执行。代码侧（F-IGP-01~04）已交付，启用前需完成以下 4 步。
+> 默认铁律：Generator 不得代为 provision 生产基建。**本批次例外**：用户于
+> 2026-06-01 显式授权 Generator 代为执行 ops。下方"执行记录"为实际落地结果。
+> 命令清单保留作复现/回滚参考。
+
+## ✅ 执行记录（2026-06-01，已授权执行 + 验证通过）
+
+| 项 | 实际值 / 结果 |
+|---|---|
+| GCP 项目 | `gen-lang-client-0229748590` |
+| 桶 | `gs://aigc-gateway-images`（`ASIA-NORTHEAST1`，uniform access，public-access-prevention=**enforced**） |
+| ADC 身份（生产 SA） | `1044753973286-compute@developer.gserviceaccount.com` |
+| IAM | 上述 SA 已授 `roles/storage.objectAdmin`（仅此桶）✅ |
+| Lifecycle | 90 天 Delete 规则已应用 ✅ |
+| 生产 env | `/opt/aigc-gateway/.env.production` 追加 `IMAGE_PERSIST_ENABLED=true` + `GCS_IMAGE_BUCKET=aigc-gateway-images`（已备份 `.env.production.bak-imgpersist-*`）；该文件由 Next.js standalone 运行时加载（与既有 `IMAGE_PROXY_SECRET` 同处，已验证生效路径） |
+| Round-trip 验证 | 以 VM SA token（= 生产 ADC 身份）PUT 200 / GET 200 / 内容 MATCH / 清理 DELETE 204 ✅ |
+
+> **注意：生产当前运行的代码尚无本批次 commit（未部署）**，故持久化暂未激活；
+> 旧代码不引用这两个 env 变量，设置后完全惰性、无副作用。用户在 Codex 验收通过后
+> 手动触发 Deploy workflow，部署即激活持久化（D10 一键回退仍可用）。
+
+---
+
+> 以下为原始命令清单（复现/回滚参考）。代码侧（F-IGP-01~04）已交付。
 
 ## 0. 前提变量（先确认）
 
