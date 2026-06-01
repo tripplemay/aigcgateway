@@ -10,6 +10,7 @@ import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { resolveEngine, withFailover, getAttemptChainFromError } from "@/lib/engine";
 import { generateTraceId } from "@/lib/api/response";
 import { processImageResult } from "@/lib/api/post-process";
+import { persistGeneratedImages } from "@/lib/api/persist-image";
 import { buildProxyUrl } from "@/lib/api/image-proxy";
 import { validatePrompt } from "@/lib/api/prompt-validation";
 import { prisma } from "@/lib/prisma";
@@ -244,8 +245,13 @@ export function registerGenerateImage(server: McpServer, opts: McpServerOptions)
         );
         route = usedRoute;
 
+        // BL-IMG-PERSIST-GCS F-IGP-02 (D4/D5): 同步转存三形态图到 GCS，再同步
+        // await CallLog 写入（original_urls = GCS keys），保证响应返回前代理
+        // 回源已可解析。存储故障 → null 项，按 D6 兜底不硬失败。
+        const persistedKeys = await persistGeneratedImages(traceId, projectId, response);
+
         // Post-process: write CallLog (source='mcp') + deduct balance
-        processImageResult({
+        await processImageResult({
           traceId,
           userId,
           projectId,
@@ -255,6 +261,7 @@ export function registerGenerateImage(server: McpServer, opts: McpServerOptions)
           requestParams: request as unknown as Record<string, unknown>,
           startTime,
           response,
+          persistedKeys,
           source: "mcp",
           attemptChain,
         });

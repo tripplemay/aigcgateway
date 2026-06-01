@@ -12,6 +12,7 @@ import { errorResponse } from "@/lib/api/errors";
 import { generateTraceId, jsonResponse } from "@/lib/api/response";
 import { resolveEngine, withFailover, getAttemptChainFromError } from "@/lib/engine";
 import { processImageResult } from "@/lib/api/post-process";
+import { persistGeneratedImages } from "@/lib/api/persist-image";
 import { rewriteImageResponseUrls } from "@/lib/api/image-proxy";
 import { validatePrompt } from "@/lib/api/prompt-validation";
 import type { ImageGenerationRequest } from "@/lib/engine/types";
@@ -121,23 +122,34 @@ export async function POST(request: Request) {
     );
     route = usedRoute;
 
+    const effectiveProjectId = project?.id ?? user.defaultProjectId ?? "";
+
+    // BL-IMG-PERSIST-GCS F-IGP-02 (D4/D5): 请求路径内同步转存三形态图到 GCS，
+    // 再同步 await CallLog 写入（original_urls = GCS keys），保证响应返回前
+    // 代理回源已可解析（关闭 fire-and-forget 竞态）。存储故障 → keys 含 null，
+    // 按 D6 兜底，生成不硬失败。
+    const persistedKeys = await persistGeneratedImages(traceId, effectiveProjectId, response);
+
     // F-AF2-01: pass clientSignal for disconnect detection
-    processImageResult({
+    await processImageResult({
       traceId,
       userId: user.id,
-      projectId: project?.id ?? user.defaultProjectId ?? "",
+      projectId: effectiveProjectId,
       route,
       modelName,
       promptSnapshot: [{ role: "user", content: body.prompt }],
       requestParams: body as unknown as Record<string, unknown>,
       startTime,
       response,
+      persistedKeys,
       clientSignal: request.signal,
       attemptChain,
     });
 
     // F-ACF-07 + BL-IMAGE-PARSER-FIX round 3: sign http(s) upstreams,
     // pass data: URIs through verbatim. Logic lives in rewriteImageResponseUrls.
+    // NOTE: F-IGP-03 升级 rewriteImageResponseUrls 让持久化图（含 data:/b64）
+    // 也返回可用代理 URL。
     const origin = new URL(request.url).origin;
     const proxied = rewriteImageResponseUrls(response, traceId, origin);
 

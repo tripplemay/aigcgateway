@@ -22,6 +22,7 @@ import {
   type ImageGenerationResponse,
 } from "../engine/types";
 import type { AttemptRecord } from "../engine/failover";
+import type { PersistedImage } from "./persist-image";
 import { recordTokenUsage, recordSpending } from "./rate-limit";
 import { checkAndSendBalanceLowAlert } from "@/lib/notifications/triggers";
 import { PROBE_MAX_TOKENS } from "../health/checker";
@@ -60,6 +61,13 @@ export interface ChatPostProcessParams extends PostProcessParams {
 export interface ImagePostProcessParams extends PostProcessParams {
   response?: ImageGenerationResponse;
   error?: { message: string; code?: string };
+  /**
+   * BL-IMG-PERSIST-GCS F-IGP-02: GCS keys for each persisted image, index-
+   * aligned with response.data (null = D6 fallback for that image). When
+   * provided, responseSummary.original_urls stores these keys (the proxy
+   * reads them back as GCS object keys) instead of upstream URLs.
+   */
+  persistedKeys?: Array<PersistedImage | null>;
 }
 
 /**
@@ -268,10 +276,15 @@ export function summarizeImageUrl(url: string | null | undefined): string | null
 }
 
 /**
- * 异步处理图片请求日志 + 扣费
+ * 异步处理图片请求日志 + 扣费。
+ *
+ * BL-IMG-PERSIST-GCS F-IGP-02: 返回 Promise（仍内部 catch，永不 throw），
+ * 让请求路径在成功分支 `await` 它——保证 CallLog.responseSummary.original_urls
+ * （GCS keys）在响应返回前已落库，关闭代理回源竞态（D4）。错误分支仍可
+ * fire-and-forget（不 await）。
  */
-export function processImageResult(params: ImagePostProcessParams): void {
-  processImageResultAsync(params).catch((err) => {
+export function processImageResult(params: ImagePostProcessParams): Promise<void> {
+  return processImageResultAsync(params).catch((err) => {
     console.error("[post-process] image error:", err);
   });
 }
@@ -472,16 +485,30 @@ async function processImageResultAsync(params: ImagePostProcessParams): Promise<
     }
   }
 
-  // 持久化 images_count + 上游原始 URL 列表（F-ACF-07 代理查找源）。
-  // F-ILDF-01: data: base64 在落库前转 metadata，http(s) URL 透传不变。
-  const originalUrls = (params.response?.data ?? [])
-    .map((d) => summarizeImageUrl(d?.url))
-    .filter((u): u is string => typeof u === "string" && u.length > 0);
+  // 持久化 images_count + 代理查找源（F-ACF-07）。
+  // BL-IMG-PERSIST-GCS F-IGP-02: 当 persistedKeys 提供时，original_urls 改存
+  // GCS keys（索引对齐 response.data，代理回源 getImageObject）；单图持久化
+  // 失败（null）回退——http 上游 URL 原样存（D6，旧代理 fetch 兜底），data:/
+  // b64-only 失败则存 null（响应已内联，代理该 idx 返回 404）。
+  // 未提供 persistedKeys（持久化关闭/旧调用）时保留旧行为：
+  //   F-ILDF-01 data: base64 转 metadata，http(s) URL 透传，过滤空值。
+  const dataItems = params.response?.data ?? [];
+  const originalUrls: Array<string | null> = params.persistedKeys
+    ? dataItems.map((d, idx) => {
+        const persisted = params.persistedKeys?.[idx];
+        if (persisted) return persisted.key;
+        const u = typeof d?.url === "string" ? d.url : undefined;
+        return u && /^https?:\/\//i.test(u) ? u : null;
+      })
+    : dataItems
+        .map((d) => summarizeImageUrl(d?.url))
+        .filter((u): u is string => typeof u === "string" && u.length > 0);
+  const hasOriginalUrls = originalUrls.some((u) => typeof u === "string" && u.length > 0);
   // F-BAX-04: 多次尝试（失败过）才写 attempt_chain，避免单次成功也增加体积。
   const includeAttemptChain = Array.isArray(params.attemptChain) && params.attemptChain.length > 1;
   const responseSummary = {
     images_count: imagesCount,
-    ...(originalUrls.length > 0 ? { original_urls: originalUrls } : {}),
+    ...(hasOriginalUrls ? { original_urls: originalUrls } : {}),
     ...(zeroImageDelivery ? { zero_image_delivery: true } : {}),
     ...(includeAttemptChain ? { attempt_chain: params.attemptChain } : {}),
   } as unknown as Prisma.InputJsonValue;
