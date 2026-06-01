@@ -4,7 +4,7 @@ description: AIGC Gateway 当前状态快照（覆盖写，≤30 行）
 type: project
 ---
 ## 当前批次
-- **BL-IMG-PERSIST-GCS**（hotfix，**verifying**，2026-06-01）— Generator 完成 F-IGP-01~04（4/5），本地 commits 0c66d9b/4935243/59617e8/9f1765f（**未推送，待用户确认 push**）。图三形态（url-http/url-data:/b64_json）转存 GCS + 同源签名代理（回源读 GCS，TTL 90d）；修 MCP base64 死链 + b64_json 空数组 + 日志不可回看 + 1h/24h 过期。tsc/build/eslint PASS。**本批测试域归 Codex（F-IGP-05）**。Spec `docs/specs/BL-IMG-PERSIST-GCS-spec.md`。**前置 ops 已完成**（2026-06-01 用户授权 Generator 代执行）：桶 `gs://aigc-gateway-images`（东京/私有）+ VM SA `1044753973286-compute@` objectAdmin + 90d lifecycle + `.env.production` 两项，VM SA round-trip 验证 PUT/GET 200 通过。**已部署上线**（2026-06-01 用户授权，CI PASS→Deploy 成功，线上 commit 15d0a46，pm2 online restarts=0，控制台 200）——**持久化已在生产激活**，Codex 可做真实桶 E2E 验收（D10 IMAGE_PERSIST_ENABLED=false 可一键回退）。详见 `docs/specs/BL-IMG-PERSIST-GCS-ops.md`。
+- **BL-IMG-PERSIST-GCS**（hotfix，**fixing**，2026-06-01）— Generator 完成 F-IGP-01~04（4/5），Codex 首轮 verifying 已完成并判 **FAIL**：本地 `codex-setup`/build/tsc/vitest 通过，新增 `src/lib/api/__tests__/persist-image.test.ts` 覆盖 b64_json-only + D6；生产 `gpt-image-mini` trace `trc_k9antbsfryyy9o6ds4jq07n7` 已成功转存到 GCS，手工把 host 改成 `https://aigc.guangai.ai/...` 后代理 `GET 200 image/png`，但 API `/v1/images/generations` 与日志详情 API `/api/projects/:id/logs/:traceId` 实际签出的图片 URL 都错误指向 `https://0.0.0.0:3000/...`，导致客户端下载/回看仍失败；`seedream-3` 生产仍 `404 model_not_found`。验收报告：`docs/test-reports/BL-IMG-PERSIST-GCS-verifying-2026-06-01.md`。`progress.json.status` 已转 `fixing`，`docs.signoff` 仍为 `null`。前置 ops 与部署均已完成，详见 `docs/specs/BL-IMG-PERSIST-GCS-ops.md`。
 
 ## reference path
 - KOLMatrix repo 实际路径：`/mnt/c/Users/tripplezhou/projects/kolmatrix`
