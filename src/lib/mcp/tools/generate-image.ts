@@ -266,11 +266,18 @@ export function registerGenerateImage(server: McpServer, opts: McpServerOptions)
           attemptChain,
         });
 
-        // F-ACF-07: swap upstream URLs for signed proxy URLs so the client
-        // never sees bizyair/aliyuncs/ComfyUI/openai.com hostnames.
+        // F-ACF-07 + F-IGP-03: build a signed proxy URL for every persisted
+        // image (incl. data:/b64_json — fixes the previous data: dead link and
+        // the b64_json-only empty images[] bug). D6 fallback: a non-persisted
+        // http(s) upstream is still proxiable; a failed data:/b64 image is
+        // dropped (MCP never returns raw base64 text — payload control).
         const baseOrigin = process.env.NEXT_PUBLIC_GATEWAY_ORIGIN ?? "https://aigc.guangai.ai";
         const urls = response.data
-          .map((d, i) => (d?.url ? buildProxyUrl(traceId, i, baseOrigin) : null))
+          .map((d, i) => {
+            if (persistedKeys[i]) return buildProxyUrl(traceId, i, baseOrigin);
+            const u = typeof d?.url === "string" ? d.url : undefined;
+            return u && /^https?:\/\//i.test(u) ? buildProxyUrl(traceId, i, baseOrigin) : null;
+          })
           .filter((u): u is string => typeof u === "string");
 
         return {

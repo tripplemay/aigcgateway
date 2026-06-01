@@ -8,7 +8,10 @@
 
 import { createHmac, timingSafeEqual } from "crypto";
 
-const DEFAULT_TTL_SECONDS = 60 * 60;
+// BL-IMG-PERSIST-GCS F-IGP-03 (D9): images are persisted to GCS and retained
+// 90 days (bucket lifecycle). The signed proxy TTL is raised to match so a
+// signed URL stays resolvable for the object's whole retention window.
+const DEFAULT_TTL_SECONDS = 60 * 60 * 24 * 90;
 
 function getSecret(): string {
   const secret =
@@ -36,22 +39,30 @@ export function buildProxyUrl(
 }
 
 /**
- * BL-IMAGE-PARSER-FIX round 3: rewrite every http(s) upstream URL into a
- * signed proxy URL so callers never see bizyair/aliyuncs/openai.com
- * hostnames (F-ACF-07). `data:` URIs are passed through verbatim — they
- * carry the full payload inline, are not upstream URLs, and the proxy
- * route only accepts http(s) upstreams so wrapping them would produce
- * a dead link.
+ * Rewrite image response URLs to signed same-origin proxy URLs so callers never
+ * see bizyair/aliyuncs/openai.com hostnames (F-ACF-07).
+ *
+ * BL-IMG-PERSIST-GCS F-IGP-03: when `persistedKeys` is supplied, every
+ * persisted image (incl. ones that arrived as `data:` URIs or `b64_json`) gets
+ * a proxy URL because the proxy now reads the object back from GCS — this fixes
+ * the previous `data:` dead-link and the b64_json-only empty-array bugs. The
+ * `b64_json` field is left untouched (D7 — no consumer break).
+ *
+ * Fallback (persistedKeys absent, or null for an index = D6/D10):
+ *   - http(s) URL → proxy URL (legacy upstream fetch in the proxy route)
+ *   - `data:` URI → passed through verbatim (inline payload, not proxiable)
  */
-export function rewriteImageResponseUrls<T extends { data?: Array<{ url?: string }> }>(
-  response: T,
-  traceId: string,
-  origin: string,
-): T {
+export function rewriteImageResponseUrls<
+  T extends { data?: Array<{ url?: string; b64_json?: string }> },
+>(response: T, traceId: string, origin: string, persistedKeys?: Array<{ key: string } | null>): T {
   const data = (response.data ?? []) as Array<Record<string, unknown>>;
   return {
     ...response,
     data: data.map((d, i) => {
+      if (persistedKeys?.[i]) {
+        // Persisted to GCS → always a resolvable proxy URL.
+        return { ...d, url: buildProxyUrl(traceId, i, origin) };
+      }
       const url = typeof d?.url === "string" ? d.url : undefined;
       return {
         ...d,

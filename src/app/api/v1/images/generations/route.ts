@@ -146,12 +146,11 @@ export async function POST(request: Request) {
       attemptChain,
     });
 
-    // F-ACF-07 + BL-IMAGE-PARSER-FIX round 3: sign http(s) upstreams,
-    // pass data: URIs through verbatim. Logic lives in rewriteImageResponseUrls.
-    // NOTE: F-IGP-03 升级 rewriteImageResponseUrls 让持久化图（含 data:/b64）
-    // 也返回可用代理 URL。
+    // F-ACF-07 + F-IGP-03: persisted images (incl. data:/b64_json) get a proxy
+    // URL that reads back from GCS; `b64_json` is left intact (D7). Non-persisted
+    // indices fall back to legacy behaviour (http→proxy, data:→verbatim).
     const origin = new URL(request.url).origin;
-    const proxied = rewriteImageResponseUrls(response, traceId, origin);
+    const proxied = rewriteImageResponseUrls(response, traceId, origin, persistedKeys);
 
     return jsonResponse(proxied, 200, traceId, rateLimitHeaders);
   } catch (err) {
