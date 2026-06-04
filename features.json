@@ -18,7 +18,7 @@
       "executor": "codex",
       "status": "pending",
       "source": "BL-IMG-SEEDREAM45 Spec 验收；附带补 BL-IMG-PERSIST-GCS 的 http 上游→GCS E2E",
-      "acceptance": "1) scripts/test/codex-setup.sh + wait PASS；2) list_models(image)/生产 /v1/models 含 seedream-4-5；3) 真实 E2E：经 API(/v1/images/generations) 或 MCP(generate_image) 用 seedream-4-5 生成 → 返回同源代理 URL → GET 200 image/* 且对象已持久化到 GCS（验证 http 上游→GCS 首个真实 E2E）；4) 计费正确：CallLog cost≈¥0.20 等值、sellPrice 按 D5、SUCCESS 扣费、失败不收费；5) 日志详情页该 trace 可回看图（非 metadata）；6) 幂等：脚本重跑不产生重复 channel/model/alias；7) npx tsc --noEmit / npm run build / npm run test PASS；8) 输出 docs/test-reports/BL-IMG-SEEDREAM45-signoff-YYYY-MM-DD.md 含命令证据 + 结论 PASS/FAIL"
+      "acceptance": "1) scripts/test/codex-setup.sh + wait PASS；2) 生产 /v1/models 含 seedream-4-5（**生产为准**：本地 L1 /v1/models 空属 seed 固有限制——prisma/seed.ts 不建任何 model/alias，data.length=0 为预期，非缺陷，不作门槛 [环境裁决@2026-06-04]）；3) 真实 E2E：经 API(/v1/images/generations) 或 MCP(generate_image) 用 seedream-4-5 生成 → 返回同源代理 URL → GET 200 image/* 且对象已持久化到 GCS（验证 http 上游→GCS 首个真实 E2E）；4) 计费正确：CallLog cost≈¥0.20 等值、sellPrice 按 D5、SUCCESS 扣费、失败不收费；5) 日志详情页该 trace 可回看图（非 metadata）；6) 幂等：脚本重跑不产生重复 channel/model/alias；7) **tsc 以 CI typecheck job 为准**（CI 不 build、无 .next → 一直 PASS，已绿）；本地 `npx tsc --noEmit` 若因 .next/types 陈旧报 TS6053 属环境态非代码缺陷 [环境裁决@2026-06-04]；npm run build / npm run test PASS；8) 输出 docs/test-reports/BL-IMG-SEEDREAM45-signoff-YYYY-MM-DD.md 含命令证据 + 结论 PASS/FAIL"
     }
   ]
 }

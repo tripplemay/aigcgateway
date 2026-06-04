@@ -4,7 +4,7 @@ description: AIGC Gateway 当前状态快照（覆盖写，≤30 行）
 type: project
 ---
 ## 当前批次
-- **BL-IMG-SEEDREAM45**（**fixing**，2026-06-04）— Seedream 4.5 生产接入已由 Codex 首轮验收打通：临时在生产机执行 `scripts/add-seedream-45.ts` 后，`/v1/models` 已出现 `seedream-4-5`；真实 E2E `trc_p3fgsec90ehv49svi1mcyimr` 返回同源代理 URL，`GET 200 image/jpeg`，`call_logs.responseSummary.original_urls[0]` 为 GCS key，`gsutil stat` 确认对象存在；日志详情 `images[0]` 正常；计费 `costPrice=0.0274` / `sellPrice=0.03288` 与 ¥0.20 / ¥0.24 × 0.137 一致；脚本幂等（created→updated）成立。**未签收原因：L1 未过**：`npx tsc --noEmit` 因 `.next/types/**/*.ts` 指向不存在文件而大量 `TS6053` 失败；本地 `http://localhost:3199/v1/models` 返回空列表。报告：`docs/test-reports/BL-IMG-SEEDREAM45-verifying-2026-06-04.md`。
+- **BL-IMG-SEEDREAM45**（**reverifying** fix_rounds=1，2026-06-04）— Seedream 4.5 生产接入 Codex 首轮已打通：`/v1/models` 含 `seedream-4-5`；真实 E2E `trc_p3fgsec90ehv49svi1mcyimr` 同源代理 URL `GET 200 image/jpeg`，`original_urls[0]` 为 GCS key（gsutil stat 确认）；日志可回看；计费 0.0274/0.03288（¥0.20/¥0.24×0.137）；脚本幂等。首轮卡两条**本地 L1**：tsc TS6053（.next/types 陈旧态）+ 本地 /v1/models 空。**查实两者均为测试环境/harness 既有特性非本批缺陷**（tsc：CI typecheck job 不 build 无 .next→恒 PASS；/v1/models 空：seed 建 0 模型）。**用户裁决=视为环境问题凭生产证据签收，不改 harness**。已放宽 features.json F-SD45-02 acceptance #2/#7 标注环境裁决。待 Codex 凭生产证据写 signoff PASS→done。报告：`docs/test-reports/BL-IMG-SEEDREAM45-verifying-2026-06-04.md`。
 
 ## ⚠️ harness-template 同步阻塞（2026-06-04）
 - 本地 `~/project/harness-template` clone 严重 diverge：本地 v0.9.5（+v1.0 实验线），远端已 **v0.9.20**（apify-kol/kolmatrix 驱动）+ planner.md 已重构，50↔51 commits，pull 无法 ff。
