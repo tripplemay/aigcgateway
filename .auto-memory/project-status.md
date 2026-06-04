@@ -4,15 +4,19 @@ description: AIGC Gateway 当前状态快照（覆盖写，≤30 行）
 type: project
 ---
 ## 当前批次
-- **BL-IMG-PERSIST-GCS**（hotfix，**done**，2026-06-04）— Codex round2 复验通过并签收。L1：`codex-setup`/`codex-wait` PASS，图片相关 targeted vitest `5 files/35 tests PASS`，`npx tsc --noEmit` PASS，全量 `npm test`=`77 files / 602 passed / 4 skipped`。L2：生产 `/v1/models` image 列表已为 `[gemini-3-pro-image,gpt-image,gpt-image-mini]`，`seedream-3` 已按用户裁决下线并移除；`gpt-image-mini` trace `trc_u23njc1f9xz02atujtf66ini` 直接返回 `https://aigc.guangai.ai/v1/images/proxy/...`，代理 `GET 200 image/png`，日志详情 API `images[0]` 也正常。验收口径已同步放宽：`seedream-3` 退出验收，http 上游→GCS 路径由 `persist-image.test.ts` 覆盖。signoff：`docs/test-reports/BL-IMG-PERSIST-GCS-signoff-2026-06-04.md`；前序报告：`docs/test-reports/BL-IMG-PERSIST-GCS-verifying-2026-06-01.md`、`docs/test-reports/BL-IMG-PERSIST-GCS-reverifying-2026-06-01-round1.md`；ops+部署：`docs/specs/BL-IMG-PERSIST-GCS-ops.md`。
+- **BL-IMG-SEEDREAM45**（building，2026-06-04 启动）— 接火山方舟最新图片模型 Seedream 4.5（`doubao-seedream-4-5-251128`，¥0.20/张）替代已下线 seedream-3（用户裁决）。幂等 provisioning 脚本配 channel/model/alias（realModelId=ep-ID、imageViaChat=true）+ ops runbook（用户建 ep-ID）+ Codex E2E（顺带补 BL-IMG-PERSIST-GCS 的 http 上游→GCS 真实 E2E）。Spec：`docs/specs/BL-IMG-SEEDREAM45-spec.md`。**前置（用户 ops）：** 火山控制台建在线推理接入点拿 ep-ID。
+
+## ⚠️ harness-template 同步阻塞（2026-06-04）
+- 本地 `~/project/harness-template` clone 严重 diverge：本地 v0.9.5（+v1.0 实验线），远端已 **v0.9.20**（apify-kol/kolmatrix 驱动）+ planner.md 已重构，50↔51 commits，pull 无法 ff。
+- 本批 hotfix 沉淀 2 条经验（L1 外部模型可用性前置验证 / L2 Next standalone origin 推导）用户已确认，已 queue 到 `proposed-learnings.md` 待确认区，**待 clone reconcile（reset/re-clone 到 origin/main）后同步**。
 
 ## reference path
 - KOLMatrix repo 实际路径：`/mnt/c/Users/tripplezhou/projects/kolmatrix`
 
 ## 上一批次
+- BL-IMG-PERSIST-GCS @ 2026-06-04（hotfix done，fix_rounds=2）— 图片生成转存 GCS（三形态归一 + 同源代理回源 GCS TTL90d），修 MCP base64 死链 + b64_json 空数组 + 日志不可回看 + 1h/24h 过期；已部署生产。signoff：`docs/test-reports/BL-IMG-PERSIST-GCS-signoff-2026-06-04.md`
 - BL-FE-DS-SHADCN-MINI-A @ 2026-05-03（done，fix_rounds=0）— 3 高频 admin 页 raw→shadcn 组件壳替换（recon/providers/model-aliases），signoff PASS
-- BL-SYNC-INTEGRITY-PHASE2 @ 2026-05-02（done，fix_rounds=1）— 软停 259 disabled-alias-only channel + sync-status 度量重定义（alias 层 + JSON 三态判定）+ admin chip + scan 三维扩展；抽 sql/alias-status.ts 共享谓词
-- BL-SYNC-INTEGRITY-PHASE1 @ 2026-05-02（done，fix_rounds=0）— siliconflow IMAGE skip + xiaomi-mimo adapter + 311 zero-price 扫描脚本
+- BL-SYNC-INTEGRITY-PHASE2 @ 2026-05-02（done，fix_rounds=1）— 软停 259 disabled-alias-only channel + sync-status 度量重定义 + 抽 sql/alias-status.ts 共享谓词
 
 ## Backlog（3 条，按优先级）
 - **BL-SEC-PAY-DEFERRED**（critical-deferred）— 支付 webhook 验签 + 幂等 CAS

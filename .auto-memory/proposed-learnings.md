@@ -34,6 +34,32 @@ type: project
 
 <!-- ================= 待确认区 ================= -->
 
+## [2026-06-04 用户已确认沉淀，待 harness-template clone reconcile 后同步] Planner 铁律 1.5 扩展：外部模型/服务 E2E acceptance 前须验证真实可用
+
+**类型：** 铁律细化
+
+**内容：** acceptance 引用具体外部模型/服务做 E2E（如"用 seedream-3 生成图 → 200"）前，Planner 必须确认该模型在生产**真实可用**——不只是 alias enabled，还要 channel 配置正确（火山引擎须 `realModelId=ep-ID` 或已验证的模型名）+ 不在下线名单。否则不写进 acceptance，或提供 fallback 模型。是 [铁律 1.5「内部命名 grep 确认存在」] 向"外部模型运行时可用性"的扩展。
+
+**来源：** BL-IMG-PERSIST-GCS fix_round2 — spec F-IGP-03 acceptance#6 要求 seedream-3（http 上游）E2E 200，但该 channel `realModelId` 仍是模型名 `seedream-3.0`（非 ep-ID，火山恒 404）+ 本就在下线名单 → 触发 fix_round2。
+
+**建议写入 harness-template 的：** `harness/planner.md` §铁律 1.5（外部模型可用性自检）+ 自检 checklist 追加一项
+
+**状态：** 用户已确认沉淀（2026-06-04）；**因本地 harness-template clone 严重 diverge（本地 v0.9.5，远端已 v0.9.20 + planner.md 已重构，50↔51 commits）暂无法同步**，待 clone reconcile（reset/re-clone 到 origin/main）后由 Planner 按新结构写入
+
+---
+
+## [2026-06-04 用户已确认沉淀，待 harness-template clone reconcile 后同步] Generator 经验：Next.js standalone 模式 request.url 的 origin 取监听地址，反代后须从 forwarded headers 推导
+
+**类型：** 新坑 / Generator 经验
+
+**内容：** Next.js **standalone 输出模式**下，route handler 里 `new URL(request.url).origin` 取的是**监听地址**（如 `0.0.0.0:3000` / `localhost:port`），**无视 Host 头**。任何据此构造对外**绝对 URL**（签名 proxy URL / webhook 回调 / 邮件链接）的代码，在反向代理后都会生成客户端不可达的地址。必须从 `X-Forwarded-Host` + `X-Forwarded-Proto`（localhost 用 http）推导公网 origin，兜底 `NEXT_PUBLIC_GATEWAY_ORIGIN` 等 env，最后才 `request.url`。需确认反代已转发 `Host $host` + `X-Forwarded-Proto $scheme`。
+
+**来源：** BL-IMG-PERSIST-GCS fix_round1 — 图片代理签发 origin=`0.0.0.0:3000` → 客户端不可达 → Codex FAIL。修复 `resolveRequestOrigin(request)`（commit 400f2af）。
+
+**建议写入 harness-template 的：** `harness/generator.md` §前端相关经验（新增"standalone origin 推导"小节）
+
+**状态：** 用户已确认沉淀（2026-06-04）；同上，待 harness-template clone reconcile 后同步
+
 <!-- ================= 已同步到 harness-template（归档区） ================= -->
 
 ## [2026-05-02 已同步 v0.9.10] Planner 铁律 1 细化：jsonb 字段空判定三态枚举
