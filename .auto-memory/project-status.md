@@ -4,7 +4,7 @@ description: AIGC Gateway 当前状态快照（覆盖写，≤30 行）
 type: project
 ---
 ## 当前批次
-- **BL-IMG-SEEDREAM45**（building，2026-06-04 启动）— 接火山方舟最新图片模型 Seedream 4.5（`doubao-seedream-4-5-251128`，¥0.20/张）替代已下线 seedream-3（用户裁决）。幂等 provisioning 脚本配 channel/model/alias（realModelId=ep-ID、imageViaChat=true）+ ops runbook（用户建 ep-ID）+ Codex E2E（顺带补 BL-IMG-PERSIST-GCS 的 http 上游→GCS 真实 E2E）。Spec：`docs/specs/BL-IMG-SEEDREAM45-spec.md`。**前置（用户 ops）：** 火山控制台建在线推理接入点拿 ep-ID。
+- **BL-IMG-SEEDREAM45**（**verifying**，2026-06-04）— 接 Seedream 4.5（`doubao-seedream-4-5-251128`，¥0.20/张）替代下线 seedream-3。F-SD45-01 DONE（Generator/Kimi）：`scripts/add-seedream-45.ts` 幂等 upsert + `docs/specs/BL-IMG-SEEDREAM45-ops.md`；ep-ID=`ep-20260604162024-k2sbk`（用户已建）；tsc/eslint/build PASS（脚本因本地 dev DB 凭证不可用未自跑，待 Codex 真实 DB 验收）。待 Codex F-SD45-02 E2E（含 http 上游→GCS 首个真实 E2E）。Spec：`docs/specs/BL-IMG-SEEDREAM45-spec.md`；ops：`docs/specs/BL-IMG-SEEDREAM45-ops.md`。
 
 ## ⚠️ harness-template 同步阻塞（2026-06-04）
 - 本地 `~/project/harness-template` clone 严重 diverge：本地 v0.9.5（+v1.0 实验线），远端已 **v0.9.20**（apify-kol/kolmatrix 驱动）+ planner.md 已重构，50↔51 commits，pull 无法 ff。

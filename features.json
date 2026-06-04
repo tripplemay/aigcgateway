@@ -7,7 +7,7 @@
       "title": "Seedream 4.5 幂等 provisioning 脚本 + ops runbook",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "done",
       "source": "BL-IMG-SEEDREAM45 Spec F-SD45-01；用户裁决接入最新 Seedream 4.5 替代下线 seedream-3；docs/provider/ADR-005",
       "acceptance": "1) 新增 scripts/add-seedream-45.ts（dry-run 默认 / --apply 落库）幂等 upsert：channel(provider=volcengine, realModelId=ep-ID 从 env/arg 注入、imageViaChat=true、costPrice=¥0.20/张按现有 image channel shape、ACTIVE) + model seedream-4-5(modality=IMAGE、supportedSizes 按官方文档、capabilities image+image_prefer_chat) + alias seedream-4-5(指向 model、sellPrice 按 gpt-image-mini 惯例、enabled=true)；2) 脚本先 grep/Read 在售 image channel(gpt-image-mini) 作 costPrice/sellPrice/字段 shape 模板；3) dry-run 输出将创建/更新摘要；4) --apply 在 dev/scratch DB 幂等（重复跑不产生重复行）；5) 字段 shape 与现有 image channel 一致；6) CLI 退出 close prisma+redis（铁律）；7) 新增 docs/specs/BL-IMG-SEEDREAM45-ops.md（火山控制台开 ep-ID 步骤 + 跑脚本 + 回滚 alias enabled=false）；8) npx tsc --noEmit + npm run build PASS；9) 独立 commit feat(BL-IMG-SEEDREAM45 F-SD45-01)"
     },
