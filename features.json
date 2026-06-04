@@ -43,7 +43,7 @@
       "title": "Codex 验收 + 签收报告",
       "priority": "high",
       "executor": "codex",
-      "status": "pending",
+      "status": "done",
       "source": "BL-IMG-PERSIST-GCS Spec 验收",
       "acceptance": "1) scripts/test/codex-setup.sh + wait PASS；2) 复现修复：MCP base64 模型生成图 → 代理 URL GET 200(对照修复前 404)，b64_json-only fixture 非空；3) 回归既有图片测试(image-proxy/summarize-image-url/process-image-base64-strip/is-image-url)——original_urls 语义改 GCS key + data: 不再内联，相关用例随之更新(Codex 测试域)；4) 存储层 put/get(mock 或 dev 桶)；5) D6 兜底路径(存储故障不硬失败)验证；6) 日志页可回看图(视觉/DOM)；7) npx tsc --noEmit / npm run build / npm run test PASS；8) 前置 ops 清单(gcloud 命令 + lifecycle json)齐备可执行；9) 输出 docs/test-reports/BL-IMG-PERSIST-GCS-signoff-YYYY-MM-DD.md 含命令证据 + 结论 PASS/FAIL"
     }

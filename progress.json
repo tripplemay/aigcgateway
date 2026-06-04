@@ -1,41 +1,28 @@
 {
-  "status": "reverifying",
+  "status": "done",
   "user_goal": "BL-IMG-PERSIST-GCS (hotfix) — 生产图片无法下载根因修复：生成时把图（url-http / url-data: / b64_json 三形态归一）转存自有 GCS 桶，对外统一返回同源签名代理 URL（回源改读 GCS，TTL 90d）。一举消除 MCP base64 死链 + b64_json 空数组 + 日志不可回看 + 1h/24h 双过期。用户裁决：GCS 桶 + 90 天 TTL 保留。",
   "total_features": 5,
-  "completed_features": 4,
+  "completed_features": 5,
   "fix_rounds": 2,
   "current_sprint": "BL-IMG-PERSIST-GCS",
-  "last_updated": "2026-06-04T00:00:00Z",
+  "last_updated": "2026-06-04T07:56:00Z",
   "role_assignments": null,
   "docs": {
     "spec": "docs/specs/BL-IMG-PERSIST-GCS-spec.md",
     "test_cases": null,
-    "signoff": null,
+    "signoff": "docs/test-reports/BL-IMG-PERSIST-GCS-signoff-2026-06-04.md",
     "framework_reviewed": false
   },
   "evaluator_feedback": {
-    "summary": "fix_round 1 已修复生产图片 URL origin 错误：API 与日志详情现在都直接返回 `https://aigc.guangai.ai/...` 且代理 GET 200 image/png；但规格中的 `seedream-3 同样 200` 仍未成立，因为该模型仍被列在 `/v1/models` 中却实际返回 `404 model_not_found`，本轮整体仍未达到签收条件。",
-    "pass_count": 4,
-    "partial_count": 1,
-    "fail_count": 1,
-    "issues": [
-      {
-        "feature_id": "F-IGP-05",
-        "result": "PARTIAL",
-        "description": "上轮两条主 FAIL 已关闭：生产 `gpt-image-mini` 现在直接返回 `https://aigc.guangai.ai/v1/images/proxy/...`，直接 GET 返回 `200 image/png`；日志详情 API `images[]` 也返回正确生产域名。但本 feature 仍有一条未完成 acceptance：`seedream-3` 依旧出现在 `/v1/models` image 列表中，实际调用仍是 `404 model_not_found`。",
-        "steps_to_reproduce": "1. 使用生产控制台临时 API key POST https://aigc.guangai.ai/v1/images/generations，body={\"model\":\"gpt-image-mini\",\"prompt\":\"a simple red circle on white background\",\"size\":\"1024x1024\",\"n\":1} 2. 观察 traceId=trc_ebyvtle8lqi30w1pt2aec6ix，`data[0].url` 已为 `https://aigc.guangai.ai/...` 3. 直接 GET 该 URL，返回 `200 image/png` 4. 使用生产控制台 JWT GET `/api/projects/cmnj295c90003rny7hsd0li9l/logs/trc_ebyvtle8lqi30w1pt2aec6ix`，`images[0]` 同样为 `https://aigc.guangai.ai/...` 5. 再 POST `model=seedream-3,size=1024x1024` 到 `/v1/images/generations`，返回 `404 model_not_found`。"
-      },
-      {
-        "feature_id": "F-IGP-05",
-        "result": "FAIL",
-        "description": "`seedream-3` 仍被列在 `GET /v1/models` 的 image 列表中，但真实生成依旧返回 `404 model_not_found`。在当前 spec 未放宽前，`F-IGP-03` 的 `seedream-3 同样 200` acceptance 仍未满足。",
-        "steps_to_reproduce": "1. GET https://aigc.guangai.ai/v1/models，确认 image 列表包含 `seedream-3` 2. POST https://aigc.guangai.ai/v1/images/generations，body={\"model\":\"seedream-3\",\"prompt\":\"a simple blue square on white background\",\"size\":\"1024x1024\",\"n\":1} 3. 观察返回 `HTTP 404` 与 `{\"code\":\"model_not_found\"}`，对应日志 traceId=trc_j4nq6rierghkcsrp1ndwmh5o。"
-      }
-    ]
+    "summary": "fix_round 2 复验通过：生产 `/v1/models` image 列表已移除 seedream-3，`gpt-image-mini` 真实生成仍直接返回 `https://aigc.guangai.ai/...` 且代理 GET 200 image/png，日志详情 `images[]` 也正常；本批满足放宽后的最终验收口径。",
+    "pass_count": 5,
+    "partial_count": 0,
+    "fail_count": 0,
+    "issues": []
   },
   "session_notes": {
     "Planner": "2026-06-01 启动 hotfix BL-IMG-PERSIST-GCS（铁律 9 流程）。根因已确认并写入 docs/audits/image-download-failure-diagnosis-2026-06-01.md：MCP generate-image.ts:265 缺 !data: 判断把 data: URI 包成死代理 URL（永 404）+ b64_json 字段全链路被忽略（b64_json-only provider 经 MCP 返回空 images[]）+ F-ILDF-01 strip 致日志不可回看 + 1h 签名/24h 上游双过期。用户选根治方案：GCS 桶 + 90d TTL。已写 spec(D1-D10 决策 + 前置 ops 清单) + features.json(F-IGP-01~05，含 1 个 codex signoff) + 推 building，role_assignments=null 默认映射。关键设计：D4 转存请求路径内同步 await（顺带消除 fire-and-forget 落库竞态）；D5 三形态归一；D6 存储故障兜底不硬失败；D7 API 仅新增可用 url 不删 b64_json（零消费方破坏）；D8 历史不回填(已告知用户)；D10 IMAGE_PERSIST_ENABLED 一键回退。前置：GCS 桶 + VM SA 授权 + 90d lifecycle + .env 两项，由用户在生产执行（Generator 须附 gcloud 命令清单，不得代 provision）。下一会话 Generator 按默认映射加载 generator.md 实现 F-IGP-01。",
     "Generator": "2026-06-01 (Kimi) BUILDING 全部完成 F-IGP-01~04 DONE（4/5），status→verifying 交 Codex。本地 commits 0c66d9b/4935243/59617e8/9f1765f（均未推送，待用户确认 push）。\nF-IGP-01：src/lib/storage/{image-store.ts 接口+配置, gcs-image-store.ts GCS 实现+lazy getImageStore()→null 兜底}，ADC，装 @google-cloud/storage，lifecycle-90d.json+.env.example。\nF-IGP-02：src/lib/api/persist-image.ts 三形态归一（http fetch/data:解码/b64_json解码→putImage，key=images/{pid}/{tid}/{idx}.{ext}，索引对齐 keys，null=D6）；post-process.ts persistedKeys 入参 + processImageResult 改返回 Promise（内部 catch）+ original_urls 存 GCS keys（http url 兜底）；两入口先 persist 再 await processImageResult（关 D4 竞态，计费原子性保留）。\nF-IGP-03：proxy route original_urls[idx]=GCS key→getImageObject 流式（Readable.toWeb）+ 保留 http 分支作 D6/D10 兜底（**与 spec '去掉 fetch 上游分支' 的有意偏差**，因 D6 单图失败/D10 flag-off 都需 http fetch；Evaluator 留意）；image-proxy.ts TTL→90d + rewriteImageResponseUrls(persistedKeys) 让 data:/b64 持久化图也回代理 URL（D7 保留 b64_json）；MCP urls 构造改用 persistedKeys（修 b64_json-only 空 images[]）。\nF-IGP-04：logs/[traceId] API route 服务端签名 images[]（client 无法 HMAC）；client page 优先渲染 images[] <img> 画廊（<a target=_blank> 可打开/右键存），无持久化图回退旧 responseContent 分支。\n全程 tsc+build+eslint PASS（仅 next/img 既有 advisory warning）。**本批不写测试**（harness 铁律+spec F-IGP-05 明确测试域归 Codex，含既有 image 测试因 original_urls 语义改 GCS key 需同步更新）。\n交付：前置 ops runbook docs/specs/BL-IMG-PERSIST-GCS-ops.md（确切 gcloud 命令）+ lifecycle-90d.json。**用户须先执行 ops 4 步（建桶+SA 授权+lifecycle+.env）Codex 才能在真实桶验收 round-trip**；或 Codex 用 mock store 验证存储层。\nCodex 注意：(1) original_urls 现为 GCS key（非上游 URL/metadata），相关回归用例 image-proxy/summarize-image-url/process-image-base64-strip/is-image-url 需随语义更新；(2) D6 兜底路径（缺桶→null→不硬失败）需验证；(3) 复现修复对照：base64 模型 proxy URL 修复前 404→修复后 200。\n【ops 已完成 2026-06-01，用户授权 Generator 代执行】桶 gs://aigc-gateway-images（gen-lang-client-0229748590，东京，uniform+public-access-prevention enforced）已建；VM 默认 SA 1044753973286-compute@developer.gserviceaccount.com 授 roles/storage.objectAdmin（仅此桶）；90d lifecycle 已应用；生产 .env.production 追加 IMAGE_PERSIST_ENABLED=true + GCS_IMAGE_BUCKET=aigc-gateway-images（已备份，该文件被 Next standalone 运行时加载，与 IMAGE_PROXY_SECRET 同处）。以 VM SA token round-trip 验证 PUT200/GET200/MATCH/DELETE204 通过。**但生产代码尚未部署（commits 未推送），持久化未激活**；旧代码不引用这两变量，env 惰性无副作用。Codex 真实桶验收需先部署本批代码。\n【已部署 2026-06-01，用户授权】CI run 26731632671 PASS→触发 Deploy run 26731805492 成功（4m40s）。线上 commit=15d0a46，pm2 aigc-gateway online restarts=0，控制台 200。**持久化已在生产激活**，Codex 现可做真实桶 base64 模型 E2E 复现验收（proxy URL 修复前 404→修复后应 200）。回退：.env.production 改 IMAGE_PERSIST_ENABLED=false + pm2 restart（D10）。\n【fix_round 1，2026-06-01】修 Codex FAIL（签发 origin=0.0.0.0:3000）：根因 Next standalone 用监听地址构造 request.url，无视 Host 头。新增 image-proxy.ts resolveRequestOrigin(request)——优先 X-Forwarded-Host/Host + X-Forwarded-Proto（localhost 用 http），兜底 NEXT_PUBLIC_GATEWAY_ORIGIN/SITE_URL/API_BASE_URL 再 request.url。已核 nginx 转发 Host \\$host + X-Forwarded-Proto \\$scheme。generations/route.ts + logs/[traceId]/route.ts 改用之。commit 400f2af，tsc+build+eslint PASS。MCP 未动（本就用 env+硬编码兜底）。**已推送+部署**（commit 501147e，CI run 26732867841 success→Deploy run 26733023342 success 4m40s，线上 commit=501147e，pm2 online restarts=0）。Codex 复验点：gpt-image-mini 的 data[0].url 与日志 images[0] 应直接为 https://aigc.guangai.ai/...，GET 200 image/*（不再 0.0.0.0:3000）。\nseedream-3 404 model_not_found 为**本批外的模型可用性问题**（记忆：seedream-3 即将下线待更新），非本次 origin 缺陷；http 上游对照可改用其它在售 image 模型，或由用户决定是否单独重启用 seedream-3。\n【fix_round 2，2026-06-04】用户裁决=下线 seedream-3。查实根因：alias enabled=t→model seedream-3.0 enabled=t→channel ACTIVE(volcengine)，但 realModelId 仍是模型名 seedream-3.0 而非 ep-ID（火山引擎规则 100% 失败）+ 本就在下线名单。执行（生产数据变更，无代码改动/无需部署）：SSH psql UPDATE model_aliases SET enabled=false,deprecated=true WHERE alias='seedream-3'（原 enabled=true，可 revert）；清 Redis models:list* 缓存（TTL 120s）。验证 curl 生产 /v1/models image 列表=[gemini-3-pro-image,gpt-image,gpt-image-mini]，seedream-3 已移除。验收契约同步放宽：features.json F-IGP-03 #6 + spec F-IGP-03 acceptance(2) 标注 seedream-3 退出验收，http 上游→GCS 持久化由 persist-image.test.ts 单测覆盖（现无在售 http-url image 模型）。**无 commit 代码改动，仅 features.json/spec/progress/project-status 文档更新待推送。** Codex 复验：确认 /v1/models 不含 seedream-3 + 既有 PASS 项不回归即可 signoff。",
-    "Reviewer": "2026-06-01 reverifying round1 完成。L1：图片相关 targeted vitest 5 files/35 tests PASS，全量 `npm test`=77 files/602 passed/4 skipped，`npx tsc --noEmit` PASS，本地 setup/build PASS。L2：生产 `gpt-image-mini` traceId=trc_ebyvtle8lqi30w1pt2aec6ix 现已直接返回 `https://aigc.guangai.ai/v1/images/proxy/...`，直接 GET 200 image/png；日志详情 API `/api/projects/cmnj295c90003rny7hsd0li9l/logs/trc_ebyvtle8lqi30w1pt2aec6ix` 的 `images[0]` 也已修正为 `https://aigc.guangai.ai/...`，说明 origin 修复生效。残留：`seedream-3` 仍出现在 `/v1/models` image 列表中，但调用返回 404 model_not_found（traceId=trc_j4nq6rierghkcsrp1ndwmh5o），因此按当前 spec 不能 signoff，status 退回 fixing。报告：docs/test-reports/BL-IMG-PERSIST-GCS-reverifying-2026-06-01-round1.md。"
+    "Reviewer": "2026-06-04 reverifying round2 完成并签收。L1：在 `codex-setup` 完整结束后复跑，targeted vitest=5 files/35 tests PASS，`npx tsc --noEmit` PASS，全量 `npm test`=77 files/602 passed/4 skipped，build PASS。L2：生产 `/v1/models` image 列表=[gemini-3-pro-image,gpt-image,gpt-image-mini]，seedream-3 已移除；`gpt-image-mini` traceId=trc_u23njc1f9xz02atujtf66ini 直接返回 `https://aigc.guangai.ai/v1/images/proxy/...`，GET 200 image/png；日志详情 API `/api/projects/cmnj295c90003rny7hsd0li9l/logs/trc_u23njc1f9xz02atujtf66ini` 的 `images[0]` 同样正常。按 fix_round2 放宽后的验收口径，本批 PASS。signoff=docs/test-reports/BL-IMG-PERSIST-GCS-signoff-2026-06-04.md，status→done。"
   }
 }

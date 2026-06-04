@@ -4,7 +4,7 @@ description: AIGC Gateway 当前状态快照（覆盖写，≤30 行）
 type: project
 ---
 ## 当前批次
-- **BL-IMG-PERSIST-GCS**（hotfix，**reverifying** fix_rounds=2，→2026-06-04）— 核心修复（GCS 持久化+同源代理+origin）Codex round1 已确认 PASS（gpt-image-mini 直接 200、日志回看正常）。唯一卡点 seedream-3「列在 /v1/models 却 404」：**用户裁决下线**。fix_round2（生产数据变更，无代码）：psql 禁用 seedream-3 alias（enabled=false,deprecated=true，可 revert）+ 清 Redis models:list* 缓存；验证生产 /v1/models image=[gemini-3-pro-image,gpt-image,gpt-image-mini]，已移除。验收契约（features.json F-IGP-03#6 + spec）同步放宽：seedream-3 退出验收，http 上游→GCS 路径由 persist-image.test.ts 覆盖。待 Codex round2 复验（确认列表无 seedream-3 + 既有 PASS 不回归→signoff）。报告：`docs/test-reports/BL-IMG-PERSIST-GCS-reverifying-2026-06-01-round1.md`；ops+部署：`docs/specs/BL-IMG-PERSIST-GCS-ops.md`。
+- **BL-IMG-PERSIST-GCS**（hotfix，**done**，2026-06-04）— Codex round2 复验通过并签收。L1：`codex-setup`/`codex-wait` PASS，图片相关 targeted vitest `5 files/35 tests PASS`，`npx tsc --noEmit` PASS，全量 `npm test`=`77 files / 602 passed / 4 skipped`。L2：生产 `/v1/models` image 列表已为 `[gemini-3-pro-image,gpt-image,gpt-image-mini]`，`seedream-3` 已按用户裁决下线并移除；`gpt-image-mini` trace `trc_u23njc1f9xz02atujtf66ini` 直接返回 `https://aigc.guangai.ai/v1/images/proxy/...`，代理 `GET 200 image/png`，日志详情 API `images[0]` 也正常。验收口径已同步放宽：`seedream-3` 退出验收，http 上游→GCS 路径由 `persist-image.test.ts` 覆盖。signoff：`docs/test-reports/BL-IMG-PERSIST-GCS-signoff-2026-06-04.md`；前序报告：`docs/test-reports/BL-IMG-PERSIST-GCS-verifying-2026-06-01.md`、`docs/test-reports/BL-IMG-PERSIST-GCS-reverifying-2026-06-01-round1.md`；ops+部署：`docs/specs/BL-IMG-PERSIST-GCS-ops.md`。
 
 ## reference path
 - KOLMatrix repo 实际路径：`/mnt/c/Users/tripplezhou/projects/kolmatrix`
