@@ -4,7 +4,7 @@ description: AIGC Gateway 当前状态快照（覆盖写，≤30 行）
 type: project
 ---
 ## 当前批次
-- **BL-IMG-PERSIST-GCS**（hotfix，**fixing** fix_rounds=1，2026-06-01）— Generator 完成 F-IGP-01~04 + fix_round1。Codex `reverifying` 结果：**origin 签发缺陷已修复**。生产 `gpt-image-mini` trace `trc_ebyvtle8lqi30w1pt2aec6ix` 现在直接返回 `https://aigc.guangai.ai/v1/images/proxy/...`，且无需手工改 host 就可 `GET 200 image/png`；日志详情 API `/api/projects/:id/logs/:traceId` 的 `images[0]` 也已改为同域名。L1 本地 `tsc` / targeted vitest / 全量 `npm test` 均 PASS。**但** 按当前 spec 仍未 signoff：`seedream-3` 继续出现在 `GET /v1/models` 的 image 列表中，真实调用依旧 `404 model_not_found`（trace `trc_j4nq6rierghkcsrp1ndwmh5o`），因此 `seedream-3 同样 200` acceptance 未满足，`progress.json.status` 已退回 `fixing`，`docs.signoff=null`。复验报告：`docs/test-reports/BL-IMG-PERSIST-GCS-reverifying-2026-06-01-round1.md`；首轮报告：`docs/test-reports/BL-IMG-PERSIST-GCS-verifying-2026-06-01.md`；ops+部署见 `docs/specs/BL-IMG-PERSIST-GCS-ops.md`。
+- **BL-IMG-PERSIST-GCS**（hotfix，**reverifying** fix_rounds=2，→2026-06-04）— 核心修复（GCS 持久化+同源代理+origin）Codex round1 已确认 PASS（gpt-image-mini 直接 200、日志回看正常）。唯一卡点 seedream-3「列在 /v1/models 却 404」：**用户裁决下线**。fix_round2（生产数据变更，无代码）：psql 禁用 seedream-3 alias（enabled=false,deprecated=true，可 revert）+ 清 Redis models:list* 缓存；验证生产 /v1/models image=[gemini-3-pro-image,gpt-image,gpt-image-mini]，已移除。验收契约（features.json F-IGP-03#6 + spec）同步放宽：seedream-3 退出验收，http 上游→GCS 路径由 persist-image.test.ts 覆盖。待 Codex round2 复验（确认列表无 seedream-3 + 既有 PASS 不回归→signoff）。报告：`docs/test-reports/BL-IMG-PERSIST-GCS-reverifying-2026-06-01-round1.md`；ops+部署：`docs/specs/BL-IMG-PERSIST-GCS-ops.md`。
 
 ## reference path
 - KOLMatrix repo 实际路径：`/mnt/c/Users/tripplezhou/projects/kolmatrix`

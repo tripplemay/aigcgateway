@@ -63,7 +63,7 @@ Generator 须在交付时给出**确切 gcloud 命令清单**，由用户在生�
 - `src/lib/api/image-proxy.ts`：`DEFAULT_TTL_SECONDS` → 90d。
 - **MCP** `generate-image.ts`：对**每张已持久化图**（含 data:/b64_json）构造代理 URL（修复 data: 死链 + b64_json 空数组）。
 - **API** `generations/route.ts`：所有图 `data[i].url` 置为可用代理 URL；`b64_json` 字段按 D7 原样透传不删。`rewriteImageResponseUrls` 相应调整或退役。
-- **Acceptance：** (1) 经 MCP 用 `gpt-image-mini`/`gemini-3-pro-image` 生成 → 返回代理 URL，GET **200 返回图**（修复前必 404）；(2) `seedream-3`（http 上游）同样 200；(3) 构造 b64_json-only fixture → MCP `images[]` 非空；(4) API 响应不含被强塞的超大 inline `data:`（但 `b64_json` 字段若本就存在则保留）；(5) 代理签名 TTL=90d 生效；(6) tsc + build PASS；(7) 独立 commit `feat(BL-IMG-PERSIST-GCS F-IGP-03)`。
+- **Acceptance：** (1) 经 MCP 用 `gpt-image-mini`/`gemini-3-pro-image` 生成 → 返回代理 URL，GET **200 返回图**（修复前必 404）；(2) ~~`seedream-3`（http 上游）同样 200~~ **[已放宽 @2026-06-04，用户裁决]**：seedream-3 本就在火山引擎下线名单（channel `realModelId` 仍是模型名而非 `ep-ID`，调用恒 404），用户裁决**下线该 alias**（已 `enabled=false, deprecated=true`，从 `/v1/models` 移除），故不再要求其 200。http 上游→GCS 持久化路径由 `persist-image.test.ts` 单测覆盖（当前在售 image 模型 gpt-image-mini / gemini-3-pro-image / gpt-image 均为 base64 形态，生产无在售 http-url image 模型可做 E2E 对照）；(3) 构造 b64_json-only fixture → MCP `images[]` 非空；(4) API 响应不含被强塞的超大 inline `data:`（但 `b64_json` 字段若本就存在则保留）；(5) 代理签名 TTL=90d 生效；(6) tsc + build PASS；(7) 独立 commit `feat(BL-IMG-PERSIST-GCS F-IGP-03)`。
 
 ### F-IGP-04 — 日志可回看 + 下载（executor: generator）
 - `src/app/(console)/logs/[traceId]/page.tsx`：当 CallLog 含持久化图资产（`responseSummary.original_urls` 非空）时，对每张图用服务端新签的 `buildProxyUrl(traceId, idx, origin)` 渲染 `<img>`；不再对这些图显示 `[image:fmt,NKB]`。非图文本保留原 `whitespace-pre-wrap` 分支。

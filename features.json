@@ -27,7 +27,7 @@
       "executor": "generator",
       "status": "done",
       "source": "BL-IMG-PERSIST-GCS Spec F-IGP-03；MCP data: 死链 + b64_json 空数组 双缺陷修复",
-      "acceptance": "1) proxy/[traceId]/[idx]/route.ts: original_urls[idx] 作为 GCS key → getImageObject 流式回传，去 fetch 上游分支，保留 sanitizeImageContentType + nosniff，对象缺失 404；2) image-proxy.ts DEFAULT_TTL_SECONDS → 90d；3) MCP generate-image.ts 对每张持久化图(含 data:/b64_json)构造代理 URL；4) API generations/route.ts 所有图 data[i].url 置可用代理 URL，b64_json 字段原样透传不删(D7)；5) 经 MCP gpt-image-mini/gemini-3-pro-image 生成 → 代理 URL GET 200 返回图(修复前必 404)；6) seedream-3 同样 200；7) b64_json-only fixture → MCP images[] 非空；8) tsc + build PASS；9) 独立 commit feat(BL-IMG-PERSIST-GCS F-IGP-03)"
+      "acceptance": "1) proxy/[traceId]/[idx]/route.ts: original_urls[idx] 作为 GCS key → getImageObject 流式回传，去 fetch 上游分支，保留 sanitizeImageContentType + nosniff，对象缺失 404；2) image-proxy.ts DEFAULT_TTL_SECONDS → 90d；3) MCP generate-image.ts 对每张持久化图(含 data:/b64_json)构造代理 URL；4) API generations/route.ts 所有图 data[i].url 置可用代理 URL，b64_json 字段原样透传不删(D7)；5) 经 MCP gpt-image-mini/gemini-3-pro-image 生成 → 代理 URL GET 200 返回图(修复前必 404)；6) [已放宽@2026-06-04 用户裁决] seedream-3 下线退出验收：该模型本就在火山引擎下线名单(realModelId 未改 ep-ID，调用 404)，用户裁决禁用其 alias(enabled=false,deprecated=true)，已从 /v1/models 移除——不再要求 seedream-3 200；http 上游→GCS 持久化路径由 persist-image.test.ts 单测覆盖(当前在售 image 模型 gpt-image-mini/gemini-3-pro-image/gpt-image 均 base64)；7) b64_json-only fixture → MCP images[] 非空；8) tsc + build PASS；9) 独立 commit feat(BL-IMG-PERSIST-GCS F-IGP-03)"
     },
     {
       "id": "F-IGP-04",
