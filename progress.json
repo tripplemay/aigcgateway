@@ -1,5 +1,5 @@
 {
-  "status": "verifying",
+  "status": "fixing",
   "user_goal": "BL-IMG-SEEDREAM45 — 接入火山方舟最新图片模型 Seedream 4.5（doubao-seedream-4-5-251128，¥0.20/张）替代已下线的 seedream-3。幂等 provisioning 脚本配置 channel/model/alias（realModelId=ep-ID）+ ops runbook（用户建 ep-ID）+ Codex E2E 验收（顺带补 BL-IMG-PERSIST-GCS 的 http 上游→GCS 持久化真实 E2E）。用户裁决：接 4.5 非 seedream-3。",
   "total_features": 2,
   "completed_features": 1,
@@ -13,10 +13,29 @@
     "signoff": null,
     "framework_reviewed": false
   },
-  "evaluator_feedback": null,
+  "evaluator_feedback": {
+    "summary": "生产 Seedream 4.5 接入与真实生成链路通过，但本地 L1 门槛未通过，不能签收。",
+    "pass_count": 6,
+    "partial_count": 1,
+    "fail_count": 1,
+    "issues": [
+      {
+        "feature_id": "F-SD45-02",
+        "result": "FAIL",
+        "description": "npx tsc --noEmit 在当前主分支失败；tsconfig include 的 .next/types/**/*.ts 指向大量不存在文件，不满足 acceptance 7。",
+        "steps_to_reproduce": "1. 运行 bash scripts/test/codex-setup.sh 2. 运行 bash scripts/test/codex-wait.sh 3. 在仓库根目录执行 npx tsc --noEmit 4. 观察 TS6053 大量缺失 .next/types 文件错误"
+      },
+      {
+        "feature_id": "F-SD45-02",
+        "result": "PARTIAL",
+        "description": "本地 localhost:3199 可以响应，但 /v1/models 返回空列表（data.length=0），导致 L1 无法本地确认 image 模型暴露。",
+        "steps_to_reproduce": "1. 运行 bash scripts/test/codex-setup.sh 2. 运行 bash scripts/test/codex-wait.sh 3. 执行 curl -sS http://localhost:3199/v1/models | jq '.data | length' 4. 返回 0"
+      }
+    ]
+  },
   "session_notes": {
     "Planner": "2026-06-04 启动 BL-IMG-SEEDREAM45（接 Seedream 4.5 替代下线 seedream-3，用户裁决）。BL-IMG-PERSIST-GCS done 收尾已做：project-status 校验、role_assignments=null。proposed-learnings 处理：本 hotfix 沉淀 2 条经验（L1 外部模型可用性前置验证=铁律1.5扩展 / L2 Next standalone request.url origin 取监听地址须从 X-Forwarded-Host 推导），用户已确认沉淀，但【harness-template 本地 clone 严重 diverge：本地 v0.9.5+v1.0实验线，远端已 v0.9.20（apify-kol/kolmatrix 驱动）+ planner.md 已重构，50↔51 commits，pull 无法 ff】→ 暂无法同步，已 queue 到 .auto-memory/proposed-learnings.md 待确认区，待 clone reconcile（建议 reset/re-clone 到 origin/main，本地 50 commits 是旧线已被远端取代）后按新结构写入。已就此向用户报告。本批设计：纯配置接入，复用 volcengine adapter(chat 优先图片提取已存在) + GCS 持久化(已上线)；D2 关键=realModelId 必须 ep-ID(seedream-3 翻车根因)，用户须在火山控制台建在线推理接入点；D5 sellPrice 按 gpt-image-mini 惯例待 admin 定；F-SD45-01 幂等脚本 scripts/add-seedream-45.ts + ops runbook，F-SD45-02 Codex E2E。spec+features 已写，role_assignments=null 默认映射。下一会话 Generator 加载 generator.md 实现 F-SD45-01。",
     "Generator": "2026-06-04 (Kimi) F-SD45-01 DONE，status→verifying 交 Codex。新增 scripts/add-seedream-45.ts（幂等 upsert Model seedream-4-5 + Channel + Alias seedream-4-5 + AliasModelLink，复用 seed-embedding-models.ts 范式；dry-run 默认 / --apply 写库；CLI close prisma）+ docs/specs/BL-IMG-SEEDREAM45-ops.md。用户已给 ep-ID=ep-20260604162024-k2sbk（写入脚本默认常量，可 SEEDREAM45_ENDPOINT_ID env 覆盖）。\n开工前审计纠正 spec 偏差：(1) imageViaChat 是 ProviderConfig（provider 级）字段非 Channel 字段——volcengine ProviderConfig 已 imageViaChat=true + currency=CNY + adapterType=volcengine，脚本不动 ProviderConfig，仅校验+告警；(2) costPrice/sellPrice shape = {perCall:number}（CNY，由 calculateCallCost 按 provider currency × EXCHANGE_RATE_CNY_TO_USD 换算）；(3) supportedSizes=null（跳过预校验靠 adapter 尺寸回退 1024/2048，避免误拒；与 gpt-image 一致）；(4) capabilities=null（admin 配置，MCP 约定）。定价 cost ¥0.20/sell ¥0.24（1.2x markup，待 admin 定）。\ntsc --noEmit PASS / eslint PASS / npm run build PASS（仅加 standalone 脚本+docs，未动 app 代码）。**脚本未在本地跑**（dev DB 凭证 postgresql://yixingzhou@localhost:5432/aigc_gateway 在本环境 auth failed）——dry-run 也需 DB 读，故 Codex 须在真实 DB 跑 --apply + E2E（F-SD45-02）。\nCodex 注意：(1) 先确认 volcengine provider + ProviderConfig(imageViaChat=true) 存在；(2) --apply 后清 Redis models:list* 缓存；(3) E2E 用 seedream-4-5 生成→代理 URL GET 200 image→GCS 持久化（http 上游→GCS 首个真实 E2E）；(4) 计费 cost≈¥0.20 sell≈¥0.24 换算后 USD；(5) 幂等重跑无重复行；(6) 日志详情可回看图。",
-    "Reviewer": null
+    "Reviewer": "2026-06-04 首轮验收 F-SD45-02。生产 VM 未部署 scripts/add-seedream-45.ts，我将当前仓库脚本临时传到生产机同名路径执行：dry-run=CREATE，--apply 第一次 created、清 models:list* 缓存后第二次 updated，幂等成立。生产 /v1/models 已出现 seedream-4-5。真实 E2E traceId=trc_p3fgsec90ehv49svi1mcyimr：POST /v1/images/generations 返回同源代理 URL，GET 200 image/jpeg，call_logs.responseSummary.original_urls[0]=images/cmnj295c90003rny7hsd0li9l/trc_p3fgsec90ehv49svi1mcyimr/0.jpg，gsutil stat 确认对象存在于 gs://aigc-gateway-images；日志详情 API images[0] 正常。计费核对通过：costPrice=0.0274、sellPrice=0.03288，符合 ¥0.20/¥0.24 * 0.137。失败不收费仅做了保守验证：400 invalid_parameter 请求前后 balance 不变。首轮未签收原因：L1 仍有两项未过，本地 /v1/models 返回空列表，且 npx tsc --noEmit 因 .next/types 缺失大量 TS6053 失败；npm run build 与 npm test 通过。已写 docs/test-reports/BL-IMG-SEEDREAM45-verifying-2026-06-04.md，状态回 fixing。"
   }
 }
