@@ -6,9 +6,10 @@ type: project
 ## 当前批次
 - **BL-IMG-SEEDREAM45**（**done**，2026-06-05）— Seedream 4.5（`doubao-seedream-4-5-251128`，¥0.20/张）已签收。生产 `/v1/models` 含 `seedream-4-5`；独立真实 E2E `trc_xkmj5yhk3lknm7wu85u0pmox` 返回同源代理 URL，`GET 200 image/jpeg`，`original_urls[0]` 为 GCS key 且 `gsutil stat` 确认落桶；日志详情 `images[0]` 正常；计费 `0.0274 / 0.03288` 与 ¥0.20 / ¥0.24 × 0.137 一致；脚本幂等复用首轮 `created -> updated` 证据通过。fix_round1 用户裁决生效：本地 `/v1/models` 空与本地 `.next/types` TS6053 视为测试环境既有限制，不阻断签收。signoff：`docs/test-reports/BL-IMG-SEEDREAM45-signoff-2026-06-05.md`。
 
-## ⚠️ harness-template 同步阻塞（2026-06-04）
-- 本地 `~/project/harness-template` clone 严重 diverge：本地 v0.9.5（+v1.0 实验线），远端已 **v0.9.20**（apify-kol/kolmatrix 驱动）+ planner.md 已重构，50↔51 commits，pull 无法 ff。
-- 本批 hotfix 沉淀 2 条经验（L1 外部模型可用性前置验证 / L2 Next standalone origin 推导）用户已确认，已 queue 到 `proposed-learnings.md` 待确认区，**待 clone reconcile（reset/re-clone 到 origin/main）后同步**。
+## harness-template 同步（2026-06-05 已解决）
+- L1/L2 已同步到 harness-template **v0.9.21**（planner.md 铁律 8 + generator.md §9，commit f3cd49c 已推送）；proposed-learnings 已归档。
+- reconcile：本地 stale clone（旧 v0.9.5 线）`reset --hard origin/main`(v0.9.20)，旧线存 `backup-local-v0.9.5-line-20260605` 分支。
+- **遗留**（非紧急）：aigcgateway 旧线 v0.9.6–v0.9.10（铁律 1.1–1.8 等）未并入 canonical（两项目曾各推各线），仅存 backup 分支，待后续单独 reconcile。
 
 ## reference path
 - KOLMatrix repo 实际路径：`/mnt/c/Users/tripplezhou/projects/kolmatrix`
@@ -24,7 +25,8 @@ type: project
 - **BL-FE-DS-SHADCN**（low-deferred）— shadcn 大批量采用率提升（剩余 15+ 文件，2026-05-03 复核仍 defer：MINI-A + 渗透工程纪律双轨已消化高价值部分）
 
 ## proposed-learnings
-- 已同步 harness-template v0.9.10（9 条累计：铁律 1 jsonb 三态 + 内部命名 grep + 1.5 + 1.5 范围细化 + 1.6 + 1.7 + 1.8 + 3 + Generator manual 归属）
+- 最新同步 harness-template **v0.9.21**（2026-06-05：铁律 8 外部模型可用性 + Generator §9 standalone origin，来源 BL-IMG-PERSIST-GCS）
+- 旧线 v0.9.6–v0.9.10（铁律 1.1–1.8 等）见上「遗留」：未并入 canonical，存 backup 分支
 
 ## 生产旁路修复
 - 2026-04-30：alias claude-opus-4.7/claude-sonnet-4.6 model.enabled 改 true + 4 个 alias sellPrice 已补
