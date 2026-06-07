@@ -29,6 +29,12 @@ export interface ActionRunParams {
   source?: string;
   templateRunId?: string;
   versionId?: string;
+  /**
+   * BL-093: optional per-call max_tokens. Action 抽象层不带 max_tokens,缺省时
+   * 上游按模型 output cap 预留额度(余额不足→预检拒)。传 sane 值即透传到上游
+   * (prepareRequest spread rest),既付得起又不截断真实输出。
+   */
+  maxTokens?: number;
 }
 
 export interface ActionRunResult {
@@ -62,6 +68,7 @@ export async function runAction(
     source = "api",
     templateRunId,
     versionId,
+    maxTokens,
   } = params;
 
   // 1. Load Action + version (specific or active)
@@ -204,6 +211,7 @@ export async function runAction(
     model: action.model,
     messages: injectedMessages as ChatCompletionRequest["messages"],
     stream: true,
+    ...(maxTokens !== undefined ? { max_tokens: maxTokens } : {}),
   };
 
   let fullContent = "";
@@ -317,6 +325,7 @@ export async function runActionNonStream(params: ActionRunParams): Promise<Actio
     source = "api",
     templateRunId,
     versionId,
+    maxTokens,
   } = params;
 
   const action = await prisma.action.findFirst({
@@ -421,6 +430,7 @@ export async function runActionNonStream(params: ActionRunParams): Promise<Actio
     model: action.model,
     messages: injectedMessages as ChatCompletionRequest["messages"],
     stream: false,
+    ...(maxTokens !== undefined ? { max_tokens: maxTokens } : {}),
   };
 
   try {

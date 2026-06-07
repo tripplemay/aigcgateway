@@ -237,3 +237,45 @@ describe("runAction (stream) — embedding path", () => {
     expect(errEvent).toBeDefined();
   });
 });
+
+describe("runActionNonStream — BL-093 max_tokens passthrough", () => {
+  function mockChatAction() {
+    findFirstActionMock.mockResolvedValueOnce({
+      id: "a1",
+      activeVersionId: "v1",
+      model: "claude-haiku-4.5",
+      modality: "TEXT",
+    });
+    const chatCompletionsFn = vi.fn(async () => ({
+      id: "x",
+      object: "chat.completion",
+      created: 0,
+      model: "claude-haiku-4.5",
+      choices: [
+        { index: 0, message: { role: "assistant", content: "ok" }, finish_reason: "stop" },
+      ],
+      usage: { prompt_tokens: 5, completion_tokens: 3, total_tokens: 8 },
+    }));
+    resolveEngineMock.mockResolvedValueOnce({
+      route: { channel: { id: "c1" }, model: { name: "claude-haiku-4.5" }, alias: null, config: {} },
+      adapter: { chatCompletions: chatCompletionsFn, embeddings: undefined },
+    });
+    return chatCompletionsFn;
+  }
+
+  it("maxTokens 提供时 → 透传到 chatCompletions 请求 max_tokens", async () => {
+    const chatCompletionsFn = mockChatAction();
+    await runActionNonStream({ ...params, maxTokens: 16000 });
+    expect(chatCompletionsFn).toHaveBeenCalledOnce();
+    const req = chatCompletionsFn.mock.calls[0][0] as { max_tokens?: number };
+    expect(req.max_tokens).toBe(16000);
+  });
+
+  it("maxTokens 缺省时 → 请求不含 max_tokens(向后兼容)", async () => {
+    const chatCompletionsFn = mockChatAction();
+    await runActionNonStream(params);
+    expect(chatCompletionsFn).toHaveBeenCalledOnce();
+    const req = chatCompletionsFn.mock.calls[0][0] as { max_tokens?: number };
+    expect(req.max_tokens).toBeUndefined();
+  });
+});

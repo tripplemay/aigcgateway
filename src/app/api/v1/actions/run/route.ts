@@ -47,6 +47,7 @@ export async function POST(request: Request) {
     action_id: string;
     variables?: Record<string, string>;
     stream?: boolean;
+    max_tokens?: number;
   };
   try {
     body = await request.json();
@@ -56,6 +57,15 @@ export async function POST(request: Request) {
 
   if (!body.action_id) {
     return errorResponse(400, "invalid_parameter", "action_id is required");
+  }
+
+  // BL-093: optional per-call max_tokens override. Action 抽象层不带 max_tokens,
+  // 缺省时 runner 不设 → 上游按模型 output cap(如 haiku-4.5 64000)预留额度,
+  // 余额不足时预检直接拒整条请求。调用方传 sane 值即可付得起 + 不截断真实输出。
+  if (body.max_tokens !== undefined) {
+    if (!Number.isInteger(body.max_tokens) || body.max_tokens <= 0) {
+      return errorResponse(400, "invalid_parameter", "max_tokens must be a positive integer");
+    }
   }
 
   // 4. Rate limit (三维度 + TPM + 消费速率)
@@ -78,6 +88,7 @@ export async function POST(request: Request) {
     userId: user.id,
     variables: body.variables || {},
     source: "api",
+    maxTokens: body.max_tokens,
   };
 
   // 5. Execute
