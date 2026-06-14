@@ -34,6 +34,16 @@ type: project
 
 <!-- ================= 待确认区 ================= -->
 
+## [2026-06-14] Evaluator/Generator — 来源：BL-VISION-INPUT L2 E2E
+
+**类型：** 新坑
+
+**内容：** E2E 真实调用所用的测试素材（图片/URL/文件）必须先验证是预期 content-type 再断言上游行为——否则坏 fixture 会伪装成产品 bug。本批 L2 首轮图片输入 E2E 返回 400，排查发现是 wikipedia 缩略图 URL 返回 HTML 错误页（非 JPEG），base64 后上游正确判 invalid image；换真实 JPEG 后全 200。教训：下载/构造测试图后用 `file`/magic-bytes 确认类型；URL 素材选上游可达且稳定的源（如 picsum）；优先自带 base64 而非依赖外部 fetch。
+
+**建议写入 harness-template 的：** `harness/evaluator.md` §测试相关经验（E2E fixture 校验）
+
+**状态：** 待确认
+
 <!-- ================= 已同步到 harness-template（归档区） ================= -->
 
 ## [2026-06-05 已同步 v0.9.21] Planner 铁律 8：spec 引用外部模型/服务做 E2E acceptance 前必须验证真实可用
