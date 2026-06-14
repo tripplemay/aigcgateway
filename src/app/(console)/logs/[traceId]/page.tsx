@@ -15,6 +15,16 @@ import { isImageUrl } from "./is-image-url";
 // Types
 // ============================================================
 
+/**
+ * BL-VISION-INPUT: a chat message's content may be a plain string (legacy /
+ * text-only) OR an array of OpenAI content parts. sanitizeMessagesForLog keeps
+ * the array shape in promptSnapshot (only the image url is replaced with a
+ * placeholder), so the log detail page must handle both.
+ */
+type ContentPart =
+  | { type: "text"; text: string }
+  | { type: "image_url"; image_url: { url: string } };
+
 interface LogDetail {
   traceId: string;
   modelName: string;
@@ -28,7 +38,7 @@ interface LogDetail {
   ttftMs: number | null;
   tokensPerSecond: number | null;
   createdAt: string;
-  promptSnapshot?: Array<{ role: string; content: string }>;
+  promptSnapshot?: Array<{ role: string; content: string | ContentPart[] }>;
   requestParams?: Record<string, unknown>;
   responseContent?: string | null;
   errorMessage?: string | null;
@@ -38,6 +48,80 @@ interface LogDetail {
    * [image:fmt, NKB] metadata.
    */
   images?: string[] | null;
+}
+
+// ============================================================
+// Multimodal message content renderer
+// ============================================================
+
+/**
+ * BL-VISION-INPUT regression fix: render a prompt message's content whether it
+ * is a string or an array of content parts. Rendering the raw object array as a
+ * React child throws React error #31 ("object with keys {text, type}"), which
+ * crashed the log detail page for any request that included image input.
+ *
+ * Defensive on purpose — any unexpected part shape is stringified instead of
+ * handed to React as an object, so this page can never crash on log content.
+ */
+function MessageContent({ content }: { content: string | ContentPart[] }) {
+  if (typeof content === "string") {
+    return (
+      <p className="text-sm leading-relaxed text-ds-on-surface/90 whitespace-pre-wrap">{content}</p>
+    );
+  }
+
+  if (!Array.isArray(content)) {
+    return (
+      <p className="text-sm leading-relaxed text-ds-on-surface/90 whitespace-pre-wrap">
+        {JSON.stringify(content)}
+      </p>
+    );
+  }
+
+  return (
+    <div className="space-y-2">
+      {content.map((part, i) => {
+        if (part && typeof part === "object" && part.type === "text") {
+          return (
+            <p
+              key={i}
+              className="text-sm leading-relaxed text-ds-on-surface/90 whitespace-pre-wrap"
+            >
+              {part.text}
+            </p>
+          );
+        }
+        if (part && typeof part === "object" && part.type === "image_url") {
+          const url = part.image_url?.url ?? "";
+          // Input images are sanitized to a placeholder string before storage
+          // (e.g. "[image:url host]"), so a real <img> only renders on the rare
+          // chance a genuine URL survived; otherwise show a labeled badge.
+          return isImageUrl(url) ? (
+            <img
+              key={i}
+              src={url}
+              alt=""
+              className="max-w-full max-h-[400px] rounded-lg"
+              loading="lazy"
+            />
+          ) : (
+            <span
+              key={i}
+              className="inline-flex items-center gap-1.5 text-xs font-medium text-ds-on-surface-variant bg-ds-surface-container px-2.5 py-1 rounded-lg"
+            >
+              <span className="material-symbols-outlined text-base">image</span>
+              {url || "[image]"}
+            </span>
+          );
+        }
+        return (
+          <p key={i} className="text-sm leading-relaxed text-ds-on-surface/90 whitespace-pre-wrap">
+            {JSON.stringify(part)}
+          </p>
+        );
+      })}
+    </div>
+  );
 }
 
 // ============================================================
@@ -237,9 +321,7 @@ export default function LogDetailPage() {
                       {m.role.toUpperCase()}
                     </span>
                   </div>
-                  <p className="text-sm leading-relaxed text-ds-on-surface/90 whitespace-pre-wrap">
-                    {m.content}
-                  </p>
+                  <MessageContent content={m.content} />
                 </div>
               ))}
               {(!detail.promptSnapshot || detail.promptSnapshot.length === 0) && (
