@@ -1,24 +1,51 @@
 {
-  "batch": "BL-IMG-SEEDREAM45",
-  "created_at": "2026-06-04",
+  "batch": "BL-VISION-INPUT",
+  "created_at": "2026-06-14",
   "features": [
     {
-      "id": "F-SD45-01",
-      "title": "Seedream 4.5 幂等 provisioning 脚本 + ops runbook",
+      "id": "F-VI-01",
+      "title": "多模态 content 校验器 + 放开 string-only 护栏（REST）",
       "priority": "high",
       "executor": "generator",
-      "status": "done",
-      "source": "BL-IMG-SEEDREAM45 Spec F-SD45-01；用户裁决接入最新 Seedream 4.5 替代下线 seedream-3；docs/provider/ADR-005",
-      "acceptance": "1) 新增 scripts/add-seedream-45.ts（dry-run 默认 / --apply 落库）幂等 upsert：channel(provider=volcengine, realModelId=ep-ID 从 env/arg 注入、imageViaChat=true、costPrice=¥0.20/张按现有 image channel shape、ACTIVE) + model seedream-4-5(modality=IMAGE、supportedSizes 按官方文档、capabilities image+image_prefer_chat) + alias seedream-4-5(指向 model、sellPrice 按 gpt-image-mini 惯例、enabled=true)；2) 脚本先 grep/Read 在售 image channel(gpt-image-mini) 作 costPrice/sellPrice/字段 shape 模板；3) dry-run 输出将创建/更新摘要；4) --apply 在 dev/scratch DB 幂等（重复跑不产生重复行）；5) 字段 shape 与现有 image channel 一致；6) CLI 退出 close prisma+redis（铁律）；7) 新增 docs/specs/BL-IMG-SEEDREAM45-ops.md（火山控制台开 ep-ID 步骤 + 跑脚本 + 回滚 alias enabled=false）；8) npx tsc --noEmit + npm run build PASS；9) 独立 commit feat(BL-IMG-SEEDREAM45 F-SD45-01)"
+      "status": "pending",
+      "source": "BL-VISION-INPUT Spec F-VI-01 / D1 D2 D4 D5；用户裁决 REST-only + URL&base64 + 严格门禁",
+      "acceptance": "1) 新增可复用 zod schema（src/lib/api/chat-content.ts）：content 为 string 或 ChatContentPart[]；数组每 part 为 {type:text,text} 或 {type:image_url,image_url:{url,detail?}}；空数组/非法 part/缺字段拒绝；2) image_url.url 协议白名单（https/http/data:image），base64 解码 ≤5MB，单请求 image part ≤10，常量集中 src/lib/api/vision-limits.ts；3) 改写 route.ts:54-66 用新 schema 替换 typeof!==string 硬拒绝，string content 向后兼容，空 content 仍拒，错误沿用 errorResponse(400,invalid_parameter,param 定位)；4) string content 请求行为不变（回归）；5) 合法多模态通过、各类非法各自 400 可定位；6) npx tsc --noEmit + npm run build PASS；7) 独立 commit feat(BL-VISION-INPUT F-VI-01)"
     },
     {
-      "id": "F-SD45-02",
-      "title": "Codex 验收 + 签收报告（含 http 上游→GCS 持久化真实 E2E）",
+      "id": "F-VI-02",
+      "title": "vision 能力门禁（非 vision 模型拒图片输入）",
+      "priority": "high",
+      "executor": "generator",
+      "status": "pending",
+      "source": "BL-VISION-INPUT Spec F-VI-02 / D3；用户裁决严格门禁",
+      "acceptance": "1) route 解析后调上游前：请求含 image_url part 时检查 route.alias?.capabilities?.vision ?? route.model?.capabilities?.vision，非 true → errorResponse(400,model_not_vision_capable,'model <x> does not support image input')；2) 复用先例形态（route.ts:102 alias 门禁 / 135 读 capabilities），capabilities 为 Json? 用安全类型守卫读 vision；3) 向 vision 模型发图通过；4) 向非 vision 模型发图 400 model_not_vision_capable；5) 纯文字请求任何模型不受门禁影响；6) capabilities=null/缺 vision 字段按不支持处理（安全默认）；7) tsc + build PASS；8) 独立 commit feat(BL-VISION-INPUT F-VI-02)"
+    },
+    {
+      "id": "F-VI-03",
+      "title": "管道兼容修复（mergeSystemMessages 数组兼容 + 日志卫生 sanitize）",
+      "priority": "high",
+      "executor": "generator",
+      "status": "pending",
+      "source": "BL-VISION-INPUT Spec F-VI-03 / D6 D7；破坏点 config-overlay.ts:98-101 + route.ts 5 处 promptSnapshot",
+      "acceptance": "1) mergeSystemMessages（config-overlay.ts:78-109）user 消息 content 为数组时把 system 文本作为首个 text part 插入（不强转 string），system 消息含数组时提取 text 拼接；2) sanitizeMessagesForLog helper：image_url.url base64→占位符 [image:base64 <bytes>B]、http→[image:url <host>]，text part 原样；3) route.ts 5 处（232/254/363/392/426）promptSnapshot=body.messages → sanitizeMessagesForLog(body.messages)；4) supportsSystemRole=false 且首条 user 为数组时 system 文本并入且图片 part 保留（不丢失）；5) string content 路径行为不变（回归）；6) call_logs promptSnapshot 无 base64 原始字节仅占位符，text 可读；7) tsc + build PASS；8) 独立 commit feat(BL-VISION-INPUT F-VI-03)"
+    },
+    {
+      "id": "F-VI-04",
+      "title": "vision 标记盘点 + 幂等 provisioning 脚本",
+      "priority": "medium",
+      "executor": "generator",
+      "status": "pending",
+      "source": "BL-VISION-INPUT Spec F-VI-04 / D9；严格门禁前置（避免误拒能用模型）",
+      "acceptance": "1) 新增 scripts/audit-vision-capabilities.ts（dry-run 默认 / --apply）盘点所有 enabled alias 的 capabilities.vision 现状；2) 对已知 vision 模型清单（gpt-4o 系/claude sonnet+opus/gemini/qwen-vl/glm-4v/step-1v/kimi-vl 等按 brand+alias 名匹配）vision≠true 的 --apply 幂等补 vision=true（保留其余 capabilities 字段）；3) dry-run 输出当前 vision=true 清单 + 待补清单；4) --apply 幂等重复跑无变化、不误改非 vision 模型；5) CLI 退出 close prisma+redis（铁律），--apply 后清 Redis models:list* 缓存；6) tsc + build PASS；7) 新增 ops 说明（脚本用法 + 已知 vision 模型清单来源）；8) 独立 commit feat(BL-VISION-INPUT F-VI-04)"
+    },
+    {
+      "id": "F-VI-05",
+      "title": "Codex 验收 + 签收报告（图片输入真实 E2E）",
       "priority": "high",
       "executor": "codex",
-      "status": "done",
-      "source": "BL-IMG-SEEDREAM45 Spec 验收；附带补 BL-IMG-PERSIST-GCS 的 http 上游→GCS E2E",
-      "acceptance": "1) scripts/test/codex-setup.sh + wait PASS；2) 生产 /v1/models 含 seedream-4-5（**生产为准**：本地 L1 /v1/models 空属 seed 固有限制——prisma/seed.ts 不建任何 model/alias，data.length=0 为预期，非缺陷，不作门槛 [环境裁决@2026-06-04]）；3) 真实 E2E：经 API(/v1/images/generations) 或 MCP(generate_image) 用 seedream-4-5 生成 → 返回同源代理 URL → GET 200 image/* 且对象已持久化到 GCS（验证 http 上游→GCS 首个真实 E2E）；4) 计费正确：CallLog cost≈¥0.20 等值、sellPrice 按 D5、SUCCESS 扣费、失败不收费；5) 日志详情页该 trace 可回看图（非 metadata）；6) 幂等：脚本重跑不产生重复 channel/model/alias；7) **tsc 以 CI typecheck job 为准**（CI 不 build、无 .next → 一直 PASS，已绿）；本地 `npx tsc --noEmit` 若因 .next/types 陈旧报 TS6053 属环境态非代码缺陷 [环境裁决@2026-06-04]；npm run build / npm run test PASS；8) 输出 docs/test-reports/BL-IMG-SEEDREAM45-signoff-YYYY-MM-DD.md 含命令证据 + 结论 PASS/FAIL"
+      "status": "pending",
+      "source": "BL-VISION-INPUT Spec F-VI-05 验收",
+      "acceptance": "前置 F-VI-04 --apply 到生产、目标 vision 模型 capabilities.vision=true。1) scripts/test/codex-setup.sh + wait PASS；2) 图片输入 E2E(URL)：vision 模型(gpt-4o)POST /v1/chat/completions message 含 image_url(http URL 公网图)→200 文字正确描述图片；3) 图片输入 E2E(base64)：data:image base64→200 文字正确；4) 门禁：非 vision 模型发图→400 model_not_vision_capable；5) 安全限制：超 10 张/超 5MB base64/非白名单协议→各自 400；6) 计费：CallLog promptTokens 含图片 token(>纯文字基线)、SUCCESS 扣费、失败不收费；7) 日志卫生：call_logs promptSnapshot 无 base64 原始字节(仅占位符) text 可读；8) 回归：纯文字 chat(string content)不变、流式正常；9) npx tsc --noEmit(以 CI typecheck job 为准)/npm run build/npm run test PASS；10) 输出 docs/test-reports/BL-VISION-INPUT-signoff-YYYY-MM-DD.md 含命令证据 + PASS/FAIL"
     }
   ]
 }
