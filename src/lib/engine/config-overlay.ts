@@ -8,7 +8,7 @@
  */
 
 import type { ProviderConfig } from "@prisma/client";
-import type { ChatCompletionRequest, ChatMessage, Quirk } from "./types";
+import type { ChatCompletionRequest, ChatMessage, ChatContentPart, Quirk } from "./types";
 
 export function getQuirks(config: ProviderConfig): Set<Quirk> {
   const quirks = config.quirks;
@@ -81,8 +81,9 @@ function mergeSystemMessages(messages: ChatMessage[]): ChatMessage[] {
 
   for (const msg of messages) {
     if (msg.role === "system") {
-      const content = typeof msg.content === "string" ? msg.content : "";
-      systemMsgs.push(content);
+      // BL-VISION-INPUT F-VI-03: system content 为数组时提取其 text part，
+      // 不再无声转 "" 丢内容。
+      systemMsgs.push(extractText(msg.content));
     } else {
       rest.push(msg);
     }
@@ -95,10 +96,11 @@ function mergeSystemMessages(messages: ChatMessage[]): ChatMessage[] {
   const firstUserIdx = rest.findIndex((m) => m.role === "user");
   if (firstUserIdx >= 0) {
     const original = rest[firstUserIdx];
-    const originalContent = typeof original.content === "string" ? original.content : "";
     rest[firstUserIdx] = {
       ...original,
-      content: `${merged}\n\n${originalContent}`,
+      // BL-VISION-INPUT F-VI-03: 数组 content（含图片）时把 system 文本作为首个
+      // text part 插入，保留图片等其余 part；string content 保持原拼接行为。
+      content: prependSystemText(merged, original.content),
     };
   } else {
     // 没有 user 消息，创建一条
@@ -106,4 +108,24 @@ function mergeSystemMessages(messages: ChatMessage[]): ChatMessage[] {
   }
 
   return rest;
+}
+
+/** 提取 message content 中的纯文本（string 直接返回；数组拼接 text part）。 */
+function extractText(content: string | ChatContentPart[]): string {
+  if (typeof content === "string") return content;
+  return content
+    .filter((p) => p.type === "text" && typeof p.text === "string")
+    .map((p) => p.text as string)
+    .join("\n");
+}
+
+/** 把 system 文本并入 user content：string 用拼接；数组则前插一个 text part。 */
+function prependSystemText(
+  prefix: string,
+  content: string | ChatContentPart[],
+): string | ChatContentPart[] {
+  if (typeof content === "string") {
+    return `${prefix}\n\n${content}`;
+  }
+  return [{ type: "text", text: prefix }, ...content];
 }

@@ -14,7 +14,11 @@ import {
   rollbackRateLimit,
 } from "@/lib/api/rate-limit";
 import { errorResponse } from "@/lib/api/errors";
-import { validateMessagesContent } from "@/lib/api/chat-content";
+import {
+  validateMessagesContent,
+  messagesContainImage,
+  sanitizeMessagesForLog,
+} from "@/lib/api/chat-content";
 import { generateTraceId, jsonResponse, sseResponse } from "@/lib/api/response";
 import {
   resolveEngine,
@@ -108,6 +112,23 @@ export async function POST(request: Request) {
     );
   }
 
+  // BL-VISION-INPUT F-VI-02: vision 能力门禁——请求含 image_url 时，模型必须声明
+  // capabilities.vision=true（vision 由 alias-classifier 写在 alias，回退 model）。
+  // 非 vision 模型快速 400，避免把图片透传给不支持的上游后才被拒（且已计费）。
+  if (messagesContainImage(body.messages)) {
+    const aliasCaps = (route.alias?.capabilities ?? null) as { vision?: boolean } | null;
+    const modelCaps = (route.model?.capabilities ?? null) as { vision?: boolean } | null;
+    if (aliasCaps?.vision !== true && modelCaps?.vision !== true) {
+      if (rlKey && rlMember) rollbackRateLimit(rlKey, rlMember).catch(() => {});
+      return errorResponse(
+        400,
+        "model_not_vision_capable",
+        `Model "${body.model}" does not support image input.`,
+        { param: "model" },
+      );
+    }
+  }
+
   // F-ACF-06 + F-AP-07: max_tokens upper bound — prefer maxTokens (max output),
   // fallback to contextWindow. Fail fast with 400 rather than letting the
   // upstream reject the call after we've billed its input.
@@ -198,6 +219,10 @@ async function handleNonStream(
   rlMember?: string,
   candidates: import("@/lib/engine/types").RouteResult[] = [],
 ) {
+  // BL-VISION-INPUT F-VI-03: 日志快照剥离图片原始字节（base64/URL → 占位符）。
+  const promptSnapshotForLog = sanitizeMessagesForLog(
+    body.messages as { role?: string; content?: unknown }[],
+  );
   try {
     // F-RR-02: failover — on retryable error, try next candidate channel
     const {
@@ -228,7 +253,7 @@ async function handleNonStream(
       projectId,
       route,
       modelName,
-      promptSnapshot: body.messages,
+      promptSnapshot: promptSnapshotForLog,
       requestParams: extractRequestParams(body),
       startTime,
       response,
@@ -250,7 +275,7 @@ async function handleNonStream(
       projectId,
       route,
       modelName,
-      promptSnapshot: body.messages,
+      promptSnapshot: promptSnapshotForLog,
       requestParams: extractRequestParams(body),
       startTime,
       error: {
@@ -291,6 +316,10 @@ async function handleStream(
   rlMember?: string,
   candidates: import("@/lib/engine/types").RouteResult[] = [],
 ) {
+  // BL-VISION-INPUT F-VI-03: 日志快照剥离图片原始字节（base64/URL → 占位符）。
+  const promptSnapshotForLog = sanitizeMessagesForLog(
+    body.messages as { role?: string; content?: unknown }[],
+  );
   try {
     // F-RR-02: failover for the initial stream connection. If the upstream
     // rejects before streaming starts (model_not_found, connection error),
@@ -359,7 +388,7 @@ async function handleStream(
             projectId,
             route,
             modelName,
-            promptSnapshot: body.messages,
+            promptSnapshot: promptSnapshotForLog,
             requestParams: extractRequestParams(body),
             startTime,
             ttftTime,
@@ -388,7 +417,7 @@ async function handleStream(
             projectId,
             route,
             modelName,
-            promptSnapshot: body.messages,
+            promptSnapshot: promptSnapshotForLog,
             requestParams: extractRequestParams(body),
             startTime,
             ttftTime,
@@ -422,7 +451,7 @@ async function handleStream(
       projectId,
       route,
       modelName,
-      promptSnapshot: body.messages,
+      promptSnapshot: promptSnapshotForLog,
       requestParams: extractRequestParams(body),
       startTime,
       error: {

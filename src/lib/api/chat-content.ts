@@ -174,8 +174,40 @@ export function messagesContainImage(messages: RawMessage[]): boolean {
 
 function isImagePart(part: unknown): boolean {
   return (
-    typeof part === "object" &&
-    part !== null &&
-    (part as { type?: unknown }).type === "image_url"
+    typeof part === "object" && part !== null && (part as { type?: unknown }).type === "image_url"
   );
+}
+
+/**
+ * BL-VISION-INPUT F-VI-03 — 日志卫生：把 content 里图片的 url 替换为占位符，
+ * 避免 base64 原始字节 / 完整 URL 写入 call_logs（DB 暴涨）。text part 原样保留，
+ * string content 原样返回。返回新结构（不改原 messages）。
+ */
+export function sanitizeMessagesForLog(messages: RawMessage[]): RawMessage[] {
+  return messages.map((m) => {
+    const c = m?.content;
+    if (!Array.isArray(c)) return m;
+    return { ...m, content: c.map(sanitizePart) };
+  });
+}
+
+function sanitizePart(part: unknown): unknown {
+  if (typeof part !== "object" || part === null) return part;
+  const p = part as { type?: unknown; image_url?: { url?: unknown } };
+  if (p.type !== "image_url") return part;
+  return { ...p, image_url: { ...p.image_url, url: placeholderForImageUrl(p.image_url?.url) } };
+}
+
+function placeholderForImageUrl(url: unknown): string {
+  if (typeof url !== "string") return "[image]";
+  if (url.startsWith("data:")) {
+    const commaIdx = url.indexOf(",");
+    const b64 = commaIdx >= 0 ? url.slice(commaIdx + 1) : "";
+    return `[image:base64 ${base64DecodedSize(b64)}B]`;
+  }
+  try {
+    return `[image:url ${new URL(url).host}]`;
+  } catch {
+    return "[image:url]";
+  }
 }
