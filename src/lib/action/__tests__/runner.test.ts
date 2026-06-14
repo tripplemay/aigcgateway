@@ -246,18 +246,21 @@ describe("runActionNonStream — BL-093 max_tokens passthrough", () => {
       model: "claude-haiku-4.5",
       modality: "TEXT",
     });
-    const chatCompletionsFn = vi.fn(async () => ({
+    const chatCompletionsFn = vi.fn(async (_request: { max_tokens?: number }) => ({
       id: "x",
       object: "chat.completion",
       created: 0,
       model: "claude-haiku-4.5",
-      choices: [
-        { index: 0, message: { role: "assistant", content: "ok" }, finish_reason: "stop" },
-      ],
+      choices: [{ index: 0, message: { role: "assistant", content: "ok" }, finish_reason: "stop" }],
       usage: { prompt_tokens: 5, completion_tokens: 3, total_tokens: 8 },
     }));
     resolveEngineMock.mockResolvedValueOnce({
-      route: { channel: { id: "c1" }, model: { name: "claude-haiku-4.5" }, alias: null, config: {} },
+      route: {
+        channel: { id: "c1" },
+        model: { name: "claude-haiku-4.5" },
+        alias: null,
+        config: {},
+      },
       adapter: { chatCompletions: chatCompletionsFn, embeddings: undefined },
     });
     return chatCompletionsFn;
