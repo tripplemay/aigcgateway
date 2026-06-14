@@ -1,8 +1,8 @@
 {
-  "status": "verifying",
+  "status": "done",
   "user_goal": "BL-VISION-INPUT — 网关支持图片输入（vision/多模态）。REST /v1/chat/completions 接受 OpenAI 多模态格式（content 数组 + image_url，URL+base64 两种来源），严格按 capabilities.vision 门禁。修两处 string-only 护栏 + mergeSystemMessages 数组兼容 + 日志卫生（base64 不入库）+ vision 标记幂等盘点。计费/格式转换/流式自动覆盖（全走 OpenAI 兼容端点含 Anthropic，按上游 usage 计费）。用户裁决：REST-only / URL+base64 / 严格门禁。",
   "total_features": 5,
-  "completed_features": 4,
+  "completed_features": 5,
   "fix_rounds": 0,
   "current_sprint": "BL-VISION-INPUT",
   "last_updated": "2026-06-14T00:00:00Z",
@@ -10,13 +10,13 @@
   "docs": {
     "spec": "docs/specs/BL-VISION-INPUT-spec.md",
     "test_cases": null,
-    "signoff": null,
+    "signoff": "docs/test-reports/BL-VISION-INPUT-signoff-2026-06-14.md",
     "framework_reviewed": false
   },
   "evaluator_feedback": null,
   "session_notes": {
     "Planner": "2026-06-14 (Kimi) 从 done 启动新批次 BL-VISION-INPUT（用户讨论后裁决起批次）。需求=网关支持图片输入(vision)。三项用户裁决：REST-only(MCP 另起批次) / URL+base64 都支持 / 严格按 capabilities.vision 门禁。已做完整代码勘察（铁律 1.5 反向消费点）：内部类型 types.ts:7-19 已支持多模态、prepareRequest 透传、全 11 家走 OpenAI 兼容端点(Anthropic 经 api.anthropic.com/v1/ 兼容端点其层自动翻译 image_url→无需 per-provider adapter)、计费按上游 usage(post-process 143/194 无需自算图片税)。真破坏点：(1)route.ts:54-66 string-only 硬拒；(2)mergeSystemMessages config-overlay.ts:98-101 supportsSystemRole=false 时把首条 user 数组 content 强转''销毁图片；(3)route.ts 5 处 promptSnapshot=body.messages 会把 base64 写库。假警报(响应侧恒 string 不改)：volcengine.ts:118 / openai-compat.ts:422。门禁字段：RouteResult 暴露 model+alias 均 capabilities Json?，vision 由 alias-classifier 写在 alias(image_input 已迁移 vision，alias-classifier.ts:648/669)，先例 route.ts:102 alias.modality 门禁/135 读 capabilities。spec+features 已写：F-VI-01 校验器放开护栏 / F-VI-02 vision 门禁 / F-VI-03 管道兼容(mergeSystemMessages+日志卫生) / F-VI-04 vision 标记幂等盘点脚本(严格门禁前置避免误拒) / F-VI-05 Codex 验收。安全默认值 D4：≤10 张/≤5MB base64/协议白名单(待 admin 调)。role_assignments=null 默认映射。下一步 Generator 加载 generator.md 逐条实现 F-VI-01。",
     "Generator": "2026-06-14 (Kimi) F-VI-01~04 全部 DONE，status→verifying 交 Codex。commits: 6d3a919(CI 修复 BL-093 runner.test.ts) / 74776e0(F-VI-01) / d87635d(F-VI-02+03) / dff5e1c(F-VI-04)。\n【先修 CI】发现 main 自 BL-093(e9d963e,06-07) CI 一直红：runner.test.ts:270/278 mock.calls 空元组类型错误（4 个）。用户裁决并入本批先修，给 vi.fn 工厂加 (_request:{max_tokens?:number}) 参数，tsc 恢复 0。\n【F-VI-01】新增 src/lib/api/vision-limits.ts(常量 ≤10张/≤5MB/协议白名单) + src/lib/api/chat-content.ts(validateMessagesContent + messagesContainImage + sanitizeMessagesForLog + base64DecodedSize)。route.ts:54-66 string-only 护栏 → validateMessagesContent。错误统一 code=invalid_parameter（与 embeddings 一致），param 精确定位。向后兼容：string content 保留非空约束。\n【F-VI-02】route.ts F-DP-09 modality 门禁后插 vision 门禁：messagesContainImage 时查 (route.alias?.capabilities??null).vision || (route.model?.capabilities??null).vision（cast 模式同 line135），非 true → 400 model_not_vision_capable + rollbackRateLimit + param:model。capabilities=null 按不支持(安全默认)。\n【F-VI-03】config-overlay.ts mergeSystemMessages：新增 extractText(数组提 text part) + prependSystemText(数组前插 {type:text} 不强转''，保留图片)。route.ts 日志卫生：5 处 promptSnapshot 分布在 handleNonStream(2)+handleStream(3) 两个 helper(非 POST)，各 helper 顶部算 const promptSnapshotForLog=sanitizeMessagesForLog(body.messages) 复用，base64→[image:base64 NB]、url→[image:url host]、text 原样。\n【F-VI-04】scripts/audit-vision-capabilities.ts(dry-run 默认/--apply 幂等)：盘点 enabled TEXT alias vision 现状，对名称匹配 VISION_NAME_PATTERNS(gpt-4o/claude3+/gemini/qwen-vl/glm-4v/step-*v/kimi-vl/grok/pixtral/llama-vision/doubao-vision 等)且 vision≠true 的合并补 vision=true，close prisma+disconnectRedis，--apply 后 invalidateModelsListCache。+ docs/specs/BL-VISION-INPUT-ops.md。\n验证：tsc/lint/build 全 exit 0；脚本 tsx dry-run 模块解析+运行路径全通，仅本地 DB 凭证 auth failed(同 F-SD45-01 既有本地限制)→脚本类型用临时 tsconfig 单独检验 0 错误。**脚本未在真实 DB 跑**——Codex 须在生产/可控 DB 跑 --apply。\n【Codex 注意 F-VI-05】(1)先跑 audit-vision --apply 让目标 vision 模型 capabilities.vision=true(否则严格门禁误拒)，--apply 后清 Redis models:list*；(2)URL+base64 双路 E2E 用 vision 模型(gpt-4o)→200 正确描述；(3)非 vision 模型发图→400 model_not_vision_capable；(4)安全限制 超10张/超5MB base64/非白名单协议→各 400；(5)计费 promptTokens 含图片 token>纯文字基线、SUCCESS 扣费/失败不收费；(6)日志卫生 /logs/<trace> promptSnapshot 无 base64 原始字节(占位符);(7)回归 纯文字 string content+流式不变；(8)tsc 以 CI typecheck 为准(scripts/ 不在 tsconfig include)。",
-    "Reviewer": null
+    "Reviewer": "2026-06-14 验收 BL-VISION-INPUT。L1 由独立子 agent（代 Codex）执行：独立重跑 tsc/lint/build/npm test 全绿，补写 58 单测一次通过（chat-content 校验/sanitize 全分支 + mergeSystemMessages 图片保留核心破坏点 + base64DecodedSize 逐一比对 Node Buffer + 协议白名单/5MB/10张边界 + null/异常不崩），无阻塞 bug，5 条 LOW/INFO（H3 F-VI-02/03 合并 commit 记录即可）。L2 用户授权后于生产执行（执行者 Kimi，证据客观）：Deploy workflow 上生产(run 27487373039 success)→生产 audit dry-run 显 20 vision alias 已标记/待补0→--apply 幂等 no-op+清缓存→真实 E2E 全 PASS：图片输入 URL(trc_cdikc1pdyz3ao5195tlgos7c)+base64(trc_j2v8016v9hjftv7e7n1a72j0) 200 正确描述、门禁 deepseek-v3 拒图 400 model_not_vision_capable、协议(ftp)/数量(11张)限制 400、计费 prompt_tokens 225/270 含图片 token、日志卫生 call_logs promptSnapshot=[image:base64 8189B] DB 无原始字节、流式+纯文字回归。坑：首轮图片 E2E 400 系测试图坏(wikipedia 返 HTML 非 JPEG)非网关缺陷，换真实 JPEG 后全 200。5MB 大小限制因 >5MB body 上传/代理不可靠以 L1 单测精确验证为准。临时 E2E key 已 revoke。signoff: docs/test-reports/BL-VISION-INPUT-signoff-2026-06-14.md。总判定 PASS→done。新代码已部署生产。"
   }
 }

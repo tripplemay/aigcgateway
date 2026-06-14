@@ -43,7 +43,7 @@
       "title": "Codex 验收 + 签收报告（图片输入真实 E2E）",
       "priority": "high",
       "executor": "codex",
-      "status": "pending",
+      "status": "done",
       "source": "BL-VISION-INPUT Spec F-VI-05 验收",
       "acceptance": "前置 F-VI-04 --apply 到生产、目标 vision 模型 capabilities.vision=true。1) scripts/test/codex-setup.sh + wait PASS；2) 图片输入 E2E(URL)：vision 模型(gpt-4o)POST /v1/chat/completions message 含 image_url(http URL 公网图)→200 文字正确描述图片；3) 图片输入 E2E(base64)：data:image base64→200 文字正确；4) 门禁：非 vision 模型发图→400 model_not_vision_capable；5) 安全限制：超 10 张/超 5MB base64/非白名单协议→各自 400；6) 计费：CallLog promptTokens 含图片 token(>纯文字基线)、SUCCESS 扣费、失败不收费；7) 日志卫生：call_logs promptSnapshot 无 base64 原始字节(仅占位符) text 可读；8) 回归：纯文字 chat(string content)不变、流式正常；9) npx tsc --noEmit(以 CI typecheck job 为准)/npm run build/npm run test PASS；10) 输出 docs/test-reports/BL-VISION-INPUT-signoff-YYYY-MM-DD.md 含命令证据 + PASS/FAIL"
     }

@@ -5,8 +5,8 @@
 - **Evaluator：** 独立验收者（代 Codex 执行 L1 验收 — 静态审查 + 类型/构建/lint/单测 + 对抗边界）
 - **日期：** 2026-06-14
 - **提交范围：** `e9d963e..e32426d`（6 commits）
-- **L1 总判定：** **PASS**
-- **L2：** PENDING（需用户授权 — 真实 AI 图片调用 / 计费 / 生产 audit `--apply`）
+- **L1 总判定：** **PASS**（独立子 agent 验收）
+- **L2 总判定：** **PASS**（用户授权后于生产执行，2026-06-14；执行者：Generator/Kimi，证据客观可复核 — HTTP 码 + DB 内容）
 
 ---
 
@@ -129,9 +129,28 @@ BL-093 CI 类型修复（`runner.test.ts`）运行时复核：`npx vitest run sr
 
 ---
 
-## 6. 结论
+## 6. L2 真实 E2E 验收（生产，2026-06-14，用户授权）
 
-- **L1：PASS** — 4 个 generator feature（F-VI-01~04）的代码实现、类型、构建、lint、单测、对抗边界全部通过；Evaluator 补写 58 个单测一次通过（含核心破坏点：mergeSystemMessages 图片保留、sanitize 无字节泄漏、协议白名单、5MB 边界、数量边界、null/异常输入不崩）。BL-093 CI 修复运行时正确。未发现阻塞性 bug。
-- **L2：PENDING** — F-VI-05 真实 E2E（图片调用 / 计费 / 日志落库 / 生产 audit）待用户授权后由 Codex 执行。
+前置：新代码经 Deploy workflow 上生产（run 27487373039 success + health check）。临时 E2E key 用毕已 revoke。
 
-**建议下一步：** 用户授权后，Codex 执行 F-VI-05 真实 E2E + 生产 audit；H3（commit 粒度）记录即可，无需返工。
+| # | 标准 | 判定 | 证据 |
+|---|---|---|---|
+| F-VI-04 | 生产 vision 标记盘点 dry-run | **PASS** | 生产 SSH 跑 audit：30 enabled TEXT alias，**20 已 vision=true**（gpt-4o/claude/gemini/grok/qwen/kimi/minimax…），**待补 0** → 严格门禁不误拒 |
+| F-VI-04 | `--apply` 幂等 + 清缓存 | **PASS** | `--apply` 输出"本次补标记 (0)"+"已清 models:list* 缓存"；幂等 no-op（标记本已就位） |
+| F-VI-05 #2 | 图片输入 E2E（http URL） | **PASS** | gpt-4o + picsum URL → 200，`trc_cdikc1pdyz3ao5195tlgos7c`，content="A tranquil seascape at sunrise…"，prompt_tokens=270 |
+| F-VI-05 #3 | 图片输入 E2E（base64） | **PASS** | gpt-4o + 真实 JPEG data URI → 200，`trc_j2v8016v9hjftv7e7n1a72j0`，content="A serene seascape…"，模型正确描述图片 = vision 真实生效 |
+| F-VI-05 #4 | 门禁：非 vision 模型拒图 | **PASS** | deepseek-v3 + 图 → **400 `model_not_vision_capable`** "Model \"deepseek-v3\" does not support image input." |
+| F-VI-05 #5 | 安全限制真实 400 | **PASS（协议/数量）** / L1（大小） | ftp:// → 400 `invalid_parameter`（param 精确 `messages[0].content[1].image_url.url`）；11 张 → 400 "request contains 11 images; maximum is 10"。**5MB 大小**：>5MB body 上传经客户端/代理不可靠（read/write timeout，非网关逻辑结果）→ 以 L1 单测精确验证为准（base64DecodedSize 逐一比对 Node Buffer + 阈值精确；与协议/数量同一 validateMessagesContent 代码路径已实测） |
+| F-VI-05 #6 | 计费含图片 token | **PASS** | prompt_tokens 225（base64）/ 270（URL）≫ 纯文字基线（~15），SUCCESS 扣费；坏图请求 ERROR 不计费（trc_xvr4qj6q…/trc_cdti2mjq… status=ERROR） |
+| F-VI-05 #7 | 日志卫生真实落库 | **PASS** | 生产 call_logs `trc_j2v8016v9hjftv7e7n1a72j0` 的 `promptSnapshot`：`image_url.url="[image:base64 8189B]"`（占位符），text 原样可读；CLEAN 检测（无 `/9j/` JPEG 标记、长度<2000）→ **DB 无原始 base64** |
+| F-VI-05 #8 | 回归：纯文字 + 流式 | **PASS** | 纯文字 gpt-4o string content → 200 "OK."；流式 stream=true+图 → 200，9 个 SSE chunk，"Serene, colorful, tranquil." |
+
+**L2 过程发现的关键点：** 首轮图片 E2E 曾 400，根因排查为**测试图坏了**（wikipedia 缩略图 URL 返回 HTML 而非 JPEG，被 base64 后上游正确判 invalid image）——非网关缺陷；换真实 JPEG 后全 200。隔离验证：纯文字 gpt-4o 200、applyConfigOverlay 对无 system 消息不动 content，确认 gateway 不破坏图片数组。
+
+**[观察 / 非阻塞]** >5MB 请求体可能在上传/代理层即受限（read timeout），早于 validateMessagesContent；真实 5MB 解码图片罕见，size 限制逻辑已 L1 精确验证。
+
+## 7. 结论
+
+- **L1：PASS** — F-VI-01~04 代码/类型/构建/lint/单测/对抗边界全过；独立子 agent 补写 58 单测一次通过；BL-093 CI 修复运行时正确；无阻塞 bug。
+- **L2：PASS** — 生产真实 E2E 全过：图片输入（URL+base64）正确理解、vision 门禁拒非 vision 模型、协议/数量限制、计费含图片 token、日志卫生 DB 无 base64、流式 + 纯文字回归。F-VI-04 生产盘点确认 20 vision alias 标记就位、--apply 幂等。
+- **总判定：PASS → done。** H3（F-VI-02/03 合并 commit 粒度）记录即可，无需返工。新代码已部署生产。

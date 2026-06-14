@@ -4,7 +4,7 @@ description: AIGC Gateway 当前状态快照（覆盖写，≤30 行）
 type: project
 ---
 ## 当前批次
-- **BL-VISION-INPUT**（**verifying**，2026-06-14）— 网关支持图片输入（vision/多模态）。REST `/v1/chat/completions` 接受 OpenAI 多模态（content 数组+image_url，URL+base64），严格按 `capabilities.vision` 门禁。用户裁决：REST-only / URL+base64 / 严格门禁。F-VI-01~04（generator）done：多模态校验器+放开 string-only 护栏、vision 门禁(400 model_not_vision_capable)、mergeSystemMessages 数组兼容+日志卫生(base64 不入库)、`scripts/audit-vision-capabilities.ts` 幂等盘点补漏。计费/格式转换(全 OpenAI 兼容端点含 Anthropic)/流式自动覆盖；tsc/lint/build 全绿。**顺带修 BL-093 遗留 CI 红**(runner.test.ts,6d3a919)。待 Codex F-VI-05 验收（先跑 audit --apply）。spec+ops：`docs/specs/BL-VISION-INPUT-*.md`。细节见 progress.json session_notes。
+- **BL-VISION-INPUT**（**done**，2026-06-14）— 网关图片输入（vision/多模态）已上线生产。REST `/v1/chat/completions` 接受 OpenAI 多模态（content 数组+image_url，URL+base64），严格按 `capabilities.vision` 门禁。L1 独立子 agent 验收（58 单测）+ L2 生产真实 E2E 全 PASS：图片输入 URL+base64 正确理解、门禁拒非 vision(400 model_not_vision_capable)、协议/数量限制、计费含图片 token、日志卫生 DB 无 base64、流式回归。生产 20 vision alias 标记就位。**顺带修 BL-093 遗留 CI 红**(runner.test.ts,6d3a919)。计费/格式转换(全 OpenAI 兼容端点含 Anthropic)/流式自动覆盖。MCP chat 图片输入未做(另起批次)。signoff：`docs/test-reports/BL-VISION-INPUT-signoff-2026-06-14.md`。spec+ops：`docs/specs/BL-VISION-INPUT-*.md`。
 
 ## harness-template 同步（2026-06-05 已解决）
 - L1/L2 已同步到 harness-template **v0.9.21**（planner.md 铁律 8 + generator.md §9，commit f3cd49c 已推送）；proposed-learnings 已归档。
