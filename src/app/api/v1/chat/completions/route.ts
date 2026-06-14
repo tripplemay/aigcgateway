@@ -14,6 +14,7 @@ import {
   rollbackRateLimit,
 } from "@/lib/api/rate-limit";
 import { errorResponse } from "@/lib/api/errors";
+import { validateMessagesContent } from "@/lib/api/chat-content";
 import { generateTraceId, jsonResponse, sseResponse } from "@/lib/api/response";
 import {
   resolveEngine,
@@ -51,18 +52,16 @@ export async function POST(request: Request) {
     });
   }
 
-  // F-WP-05: every message must have non-empty string content. The MCP
-  // surface enforces this via zod; the REST surface was missing the check.
-  for (let i = 0; i < body.messages.length; i++) {
-    const m = body.messages[i] as { role?: string; content?: unknown };
-    if (typeof m.content !== "string" || m.content.length === 0) {
-      return errorResponse(
-        400,
-        "invalid_parameter",
-        `messages[${i}].content must be a non-empty string`,
-        { param: `messages[${i}].content` },
-      );
-    }
+  // F-WP-05 + BL-VISION-INPUT F-VI-01: content 必须是非空 string（向后兼容）或
+  // OpenAI 多模态数组（text / image_url）。校验 part 形态 + 图片 URL 协议 /
+  // base64 大小 / 图片数量限制。vision 能力门禁见下方 route 解析后（F-VI-02）。
+  const contentError = validateMessagesContent(
+    body.messages as { role?: string; content?: unknown }[],
+  );
+  if (contentError) {
+    return errorResponse(400, contentError.code, contentError.message, {
+      param: contentError.param,
+    });
   }
 
   // 4. 限流：RPM (三维度) + TPM + 消费速率
