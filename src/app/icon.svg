@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32" role="img" aria-label="AIGC Gateway">
+  <defs>
+    <linearGradient id="aigc-grad" x1="0" y1="32" x2="32" y2="0" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#5443b9"/>
+      <stop offset="1" stop-color="#6d5dd3"/>
+    </linearGradient>
+  </defs>
+  <rect width="32" height="32" rx="7" fill="url(#aigc-grad)"/>
+  <path fill="#ffffff" stroke="#ffffff" stroke-width="1.1" stroke-linejoin="round" fill-rule="evenodd"
+        d="M25.5 16 20.75 7.77 11.25 7.77 6.5 16 11.25 24.23 20.75 24.23Z
+           M20.6 16 18.3 12.02 13.7 12.02 11.4 16 13.7 19.98 18.3 19.98Z"/>
+</svg>
