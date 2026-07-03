@@ -74,6 +74,18 @@ const ADAPTERS_BY_TYPE: Record<string, SyncAdapter> = {
   "openai-compat": openaiCompatAdapter,
 };
 
+/**
+ * provider 是否走通用 fallback 适配器（无专属 named 适配器，且 adapterType 命中
+ * ADAPTERS_BY_TYPE）。与派发逻辑 `ADAPTERS[name] ?? ADAPTERS_BY_TYPE[adapterType]`
+ * 保持同一判定，供 reconcile 命名空间决策与运维脚本复用。
+ */
+export function providerUsesGenericFallbackAdapter(provider: {
+  name: string;
+  adapterType: string;
+}): boolean {
+  return !ADAPTERS[provider.name] && !!ADAPTERS_BY_TYPE[provider.adapterType];
+}
+
 // ============================================================
 // 同步结果类型
 // ============================================================
@@ -199,12 +211,21 @@ function applyOverrides(
 // ============================================================
 
 /**
- * 将 Provider 返回的 modelId 映射到 canonical name。
- * M1a 后 ModelAlias 不再持有 modelName，直接返回原始 modelId。
- * 后续 M1b 的 LLM 分类推断会在 sync 后自动挂载模型到别名。
+ * 将 Provider 返回的 modelId 映射到 canonical name（models.name）。
+ *
+ * - 内置 named provider：直接返回裸 modelId（M1a 后 ModelAlias 不再持有 modelName）。
+ *   同一模型可被多个 named provider 以多 channel 共享同一 canonical Model，用于故障转移。
+ * - 通用 fallback provider（第三方 openai-compat 端点，如 guangtech）：以 provider.name
+ *   作命名空间前缀 `${provider.name}/${modelId}`，避免其裸 modelId（如 reseller 的 gpt-5.5）
+ *   与其它 provider 的同名模型撞名 / 被误合并到同一 canonical Model。
+ *
+ * 注意：channel.realModelId 始终保留裸 modelId（发往上游 API 用），仅 models.name 加前缀。
  */
-async function resolveCanonicalName(modelId: string): Promise<string> {
-  return modelId.toLowerCase();
+function resolveCanonicalName(modelId: string, provider: ProviderWithConfig): string {
+  const name = providerUsesGenericFallbackAdapter(provider)
+    ? `${provider.name}/${modelId}`
+    : modelId;
+  return name.toLowerCase();
 }
 
 // ============================================================
@@ -250,9 +271,7 @@ async function reconcile(
   // when all models are brand-new.
 
   // ── Resolve canonical names up front ──
-  const canonicalNames = await Promise.all(
-    dedupedModels.map((m) => resolveCanonicalName(m.modelId)),
-  );
+  const canonicalNames = dedupedModels.map((m) => resolveCanonicalName(m.modelId, provider));
   const remoteWithCanonical = dedupedModels.map((m, i) => ({
     remote: m,
     canonical: canonicalNames[i],

@@ -49,7 +49,11 @@ const adapter = ADAPTERS[provider.name] ?? ADAPTERS_BY_TYPE[provider.adapterType
 - name 未命中但 `adapterType` 命中（当前仅 `"openai-compat"`）→ 用通用适配器。
 - 两者都未命中 → 保持原有失败结果，错误信息补充 adapterType。
 
-**D2 — 通用适配器用动态前缀：** 现有 named 适配器把模型名前缀写死（`openai/`、`deepseek/`）。通用适配器必须用 `provider.name` 作前缀（`${provider.name}/${modelId}`），否则不同 provider 会撞名。
+**D2 — canonical 命名空间前缀（fix-round-1 修订）：** guangtech 的模型必须以 `${provider.name}/${modelId}` 命名（如 `guangtech/gpt-5.5`），否则其裸 `gpt-5.5` 会与其它 provider 的同名模型撞名 / 被误合并到同一 canonical Model。
+
+> **fix-round-1 修订（首轮验收暴露）：** 原以为 `SyncedModel.name`（适配器设的前缀）会流入 DB —— **错**。M1a 后 `reconcile()` 的 `resolveCanonicalName(modelId)` 直接返回裸 `modelId.toLowerCase()`，**丢弃适配器的 name**，所以所有 provider 的 `models.name` 都是裸 id（deepseek→`deepseek-chat`）。真正的命名决策在 `resolveCanonicalName`。
+>
+> 修复：`resolveCanonicalName(modelId, provider)` 对**通用 fallback provider**（`providerUsesGenericFallbackAdapter` 为 true）加 `${provider.name}/` 前缀；**内置 named provider 保持裸 id 不变**（同一模型多 provider 多 channel 共享 = 故障转移设计）。`channel.realModelId` 始终保留裸 id（发往上游）。存量已用裸名同步的 guangtech 行由一次性脚本就地重命名修正。
 
 **D3 — ADAPTERS_BY_TYPE 只映射 `openai-compat`：** siliconflow / volcengine 这类特殊 adapterType 已有 name 键适配器优先命中；它们的 named 适配器前缀写死，不适合给异名 provider 复用。故 by-type 表只保留 `openai-compat → 通用适配器`，其余未知 adapterType 仍走失败分支（我们确实不知道怎么对话）。
 
@@ -60,7 +64,8 @@ const adapter = ADAPTERS[provider.name] ?? ADAPTERS_BY_TYPE[provider.adapterType
 | 文件 | 变更 |
 |---|---|
 | `src/lib/sync/adapters/openai-compat.ts` | **新增** 通用 OpenAI 兼容适配器（动态前缀） |
-| `src/lib/sync/model-sync.ts` | import 通用适配器；新增 `ADAPTERS_BY_TYPE`；派发行 `553` 加 adapterType 回退；错误信息补 adapterType |
+| `src/lib/sync/model-sync.ts` | import 通用适配器；新增 `ADAPTERS_BY_TYPE`；派发加 adapterType 回退；错误信息补 adapterType；**导出 `providerUsesGenericFallbackAdapter`；`resolveCanonicalName(modelId, provider)` 对 fallback provider 加命名空间前缀（fix-round-1）** |
+| `scripts/fix-guangtech-canonical-naming.ts` | **新增（fix-round-1）** 一次性数据修复：就地重命名 fallback provider 已同步的裸名 canonical 模型 → 带前缀（幂等，dry-run 默认，护栏：目标名已存在 / 共享模型则跳过） |
 
 ## 6. 验收要点（Codex L2）
 
