@@ -16,7 +16,7 @@
       "title": "Codex 验收 — 生产同步 guangtech + 回归其余 provider + 单测 + 签收报告",
       "priority": "high",
       "executor": "codex",
-      "status": "pending",
+      "status": "done",
       "source": "BL-SYNC-ADAPTERTYPE-FALLBACK Spec §6 验收",
       "acceptance": "前置：F-GT-01 已部署生产。1) 触发一次模型同步(POST /api/admin/sync-models 或 runModelSync)，观察 [model-sync] guangtech 从 FAIL→OK，导入 N(>0) 个模型且 channel 生成，DB 可查 guangtech 的 models/channels；2) 回归：deepseek/zhipu/qwen/siliconflow/volcengine/openrouter/minimax 同步结果与修复前一致(模型数量级不变、模型 name 不变、无新 FAIL)；3) guangtech 模型命名为 guangtech/<modelId>、modality 正确(chat 类保留、非 chat 过滤)；4) 补单测：派发解析(name 优先 / adapterType 回退 openai-compat / 未知 adapterType→失败保留错误) + 通用适配器 fetchModels(mock json.data 映射 / 动态前缀用 provider.name / isChatModality 过滤 / display_name 回退)；5) npx tsc --noEmit(以 CI typecheck job 为准) + npm run build + npm run test PASS；6) 输出 docs/test-reports/BL-SYNC-ADAPTERTYPE-FALLBACK-signoff-YYYY-MM-DD.md 含命令/日志证据 + PASS/FAIL 判定"
     }

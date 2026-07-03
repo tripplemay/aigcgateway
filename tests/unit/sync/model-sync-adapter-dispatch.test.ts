@@ -82,6 +82,16 @@ function installModelRowsAfterCreate(modelNames: string[]) {
     );
 }
 
+function installExistingModelRows(modelNames: string[]) {
+  mocks.mockPrisma.model.findMany.mockResolvedValueOnce(
+    modelNames.map((name, index) => ({
+      id: `model_${index + 1}`,
+      name,
+      contextWindow: null,
+    })),
+  );
+}
+
 beforeEach(() => {
   vi.clearAllMocks();
   vi.unstubAllGlobals();
@@ -114,7 +124,7 @@ describe("model-sync adapter dispatch (BL-SYNC-ADAPTERTYPE-FALLBACK)", () => {
     mocks.mockPrisma.provider.findMany.mockResolvedValue([
       provider({ id: "prov_guangtech", name: "guangtech", adapterType: "openai-compat" }),
     ]);
-    installModelRowsAfterCreate(["gpt-5.5", "gpt-5.3-codex"]);
+    installModelRowsAfterCreate(["guangtech/gpt-5.5", "guangtech/gpt-5.3-codex"]);
 
     const fetchMock = vi.fn(async (url: string | URL | Request, init?: RequestInit) => {
       expect(String(url)).toBe("https://example.test/v1/models");
@@ -139,12 +149,56 @@ describe("model-sync adapter dispatch (BL-SYNC-ADAPTERTYPE-FALLBACK)", () => {
     });
     expect(result.providers[0].error).toBeUndefined();
     expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect(mocks.mockPrisma.model.createMany).toHaveBeenCalledWith({
+      data: [
+        expect.objectContaining({ name: "guangtech/gpt-5.5" }),
+        expect.objectContaining({ name: "guangtech/gpt-5.3-codex" }),
+      ],
+      skipDuplicates: true,
+    });
     expect(mocks.mockPrisma.channel.createMany).toHaveBeenCalledTimes(1);
     const createCall = mocks.mockPrisma.channel.createMany.mock.calls[0][0] as {
       data: Array<{ realModelId: string; providerId: string }>;
     };
     expect(createCall.data.map((row) => row.realModelId)).toEqual(["gpt-5.5", "gpt-5.3-codex"]);
     expect(createCall.data.every((row) => row.providerId === "prov_guangtech")).toBe(true);
+  });
+
+  it("reuses prefixed canonical models for fallback providers without creating duplicate bare names", async () => {
+    mocks.mockPrisma.provider.findMany.mockResolvedValue([
+      provider({ id: "prov_guangtech", name: "guangtech", adapterType: "openai-compat" }),
+    ]);
+    installExistingModelRows(["guangtech/gpt-5.5"]);
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        new Response(JSON.stringify({ data: [{ id: "gpt-5.5" }] }), {
+          status: 200,
+          headers: { "content-type": "application/json" },
+        }),
+      ) as unknown as typeof fetch,
+    );
+
+    const result = await runModelSync();
+
+    expect(result.providers[0]).toMatchObject({
+      providerName: "guangtech",
+      success: true,
+      apiModels: 1,
+      modelCount: 1,
+    });
+    expect(mocks.mockPrisma.model.createMany).not.toHaveBeenCalled();
+    expect(mocks.mockPrisma.channel.createMany).toHaveBeenCalledWith({
+      data: [
+        expect.objectContaining({
+          modelId: "model_1",
+          providerId: "prov_guangtech",
+          realModelId: "gpt-5.5",
+        }),
+      ],
+      skipDuplicates: true,
+    });
   });
 
   it("keeps provider.name priority for named adapters even when adapterType is openai-compat", async () => {
