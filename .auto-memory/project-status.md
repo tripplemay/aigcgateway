@@ -4,10 +4,11 @@ description: AIGC Gateway 当前状态快照（覆盖写，≤30 行）
 type: project
 ---
 ## 当前批次
-- **BL-SYNC-ADAPTERTYPE-FALLBACK**（**fixing**，2026-07-03）— 修复后台新增 provider `guangtech` 模型同步 FAIL(`No sync adapter found`)。方案 B：新增通用 `openai-compat` 适配器 + `ADAPTERS[name] ?? ADAPTERS_BY_TYPE[adapterType]` 回退。
-- F-GT-01 首轮验收 **FAIL**：派发回退已生效，生产 `guangtech` 已同步 OK（9 API models / 6 ACTIVE TEXT channels / 3 IMAGE skipped），但 DB `models.name` 仍是裸 `gpt-5.5`/`gpt-5.4` 等；`openaiCompatAdapter` 返回的 `guangtech/<id>` 被 `reconcile()` 的 `resolveCanonicalName(modelId)` 丢弃，不符合防撞命名验收。
-- F-GT-02 测试资产已创建：`docs/test-cases/BL-SYNC-ADAPTERTYPE-FALLBACK-verifying-cases-2026-07-03.md`、`tests/unit/sync/openai-compat-adapter.test.ts`、`tests/unit/sync/model-sync-adapter-dispatch.test.ts`。报告：`docs/test-reports/BL-SYNC-ADAPTERTYPE-FALLBACK-verifying-2026-07-03.md`。
-- 本地验证：新增单测 7 PASS；全量 vitest 81 files / 669 passed / 4 skipped PASS；`npx tsc --noEmit` PASS；`npm run build` PASS。`codex-setup` 3199 smoke 因 PostgreSQL/Docker daemon 不可用阻塞。
+- **BL-SYNC-ADAPTERTYPE-FALLBACK**（**reverifying**，2026-07-03，fix_rounds=1）— 修复后台新增 provider `guangtech` 模型同步 FAIL(`No sync adapter found`)。方案 B：通用 `openai-compat` 适配器 + `ADAPTERS[name] ?? ADAPTERS_BY_TYPE[adapterType]` 回退。
+- 首轮 FAIL 真因=`reconcile` 的 `resolveCanonicalName(modelId)` 返回裸 modelId 丢弃前缀(M1a 后所有 provider 都存裸名)。**fix-round-1（commit a751d0a+431642a）**：`resolveCanonicalName(modelId,provider)` 对 fallback provider 加 `${provider.name}/` 前缀、named provider 零回归、realModelId 仍裸；导出 `providerUsesGenericFallbackAdapter`；新增 `scripts/fix-guangtech-canonical-naming.ts` 一次性重命名存量裸名(幂等/护栏删 orphan)。
+- **生产已部署+已修复**：Deploy run 28652156819 success(prod@a751d0a)；脚本 `--apply` 重命名 6 个成功。核验：guangtech 6 channel 现全 `guangtech/gpt-5.x`(ACTIVE，realModelId 裸，alias_links 保留)，无残留裸名/orphan，脚本 dry-run 复跑 0 待改(幂等)。CI a751d0a 全绿(含 Codex 7 单测)。
+- **待 Codex 复验 F-GT-02** → signoff。注：新模型 enabled=false(reconcile 默认)，上架/定价属 admin 独立流程非本 bug。
+- 测试资产(Codex 首轮)：`tests/unit/sync/openai-compat-adapter.test.ts`、`tests/unit/sync/model-sync-adapter-dispatch.test.ts`；首轮报告 `docs/test-reports/BL-SYNC-ADAPTERTYPE-FALLBACK-verifying-2026-07-03.md`。
 
 ## Backlog（3 条，按优先级）
 - **BL-SEC-PAY-DEFERRED**（critical-deferred）— 支付 webhook 验签 + 幂等 CAS
