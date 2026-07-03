@@ -36,6 +36,14 @@ type: project
 
 <!-- ================= 已同步到 harness-template（归档区） ================= -->
 
+## [2026-07-03 已同步 v0.9.23] Planner 铁律 9：spec 断言某值"写入 DB/流向下游"前必须追踪实际写入路径
+- 来源：BL-SYNC-ADAPTERTYPE-FALLBACK 首轮 FAIL — spec D2 断言适配器返回的 SyncedModel.name（带 provider/ 前缀）会成为 models.name，但 reconcile 的 resolveCanonicalName(modelId) 直接返回裸 modelId、丢弃 name（M1a 后所有 provider 都存裸 id）→ 前缀从未落库 → fix-round-1
+- 写入：`harness/planner.md` §铁律 9（grep 落点列反查真实来源；警惕 canonical/reconcile/transform 中间层重算/丢弃；铁律 1 向数据流终点维度扩展）
+
+## [2026-07-03 已同步 v0.9.23] deploy-patterns §6：数据命名/结构变更类修复——部署立即触发 on-boot 后台任务产生 orphan/中间态
+- 来源：BL-SYNC-ADAPTERTYPE-FALLBACK fix-round-1 — 部署后 boot sync 立即用新命名逻辑跑，在旧裸名数据 + 新前缀逻辑间建了 6 个 orphan guangtech/* 模型（活跃 channel 仍挂裸名）→ 一次性重命名脚本需增强为"删 orphan 再 rename"
+- 写入：`harness/deploy-patterns.md` §6（配套幂等数据修复脚本 + 自愈 orphan + 先部署后修数据 + dry-run 默认 + Reviewer 复验 dry-run=0）
+
 ## [2026-06-14 已同步 v0.9.22] Evaluator §2：E2E 测试素材必须先校验 content-type
 - 来源：BL-VISION-INPUT L2 — 首轮图片 E2E 400，排查发现 wikipedia 缩略图 URL 返回 HTML 非 JPEG，base64 后上游正确判 invalid image（坏 fixture 伪装成产品 bug），换真实 JPEG 后全 200
 - 写入：`harness/evaluator.md` §2 编写测试（fixture 用 file/magic-bytes 验类型 + URL 选稳定源 + 优先自带 base64）
