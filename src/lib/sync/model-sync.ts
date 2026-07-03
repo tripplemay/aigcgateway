@@ -40,6 +40,7 @@ import { moonshotAdapter } from "./adapters/moonshot";
 import { qwenAdapter } from "./adapters/qwen";
 import { stepfunAdapter } from "./adapters/stepfun";
 import { xiaomiMimoAdapter } from "./adapters/xiaomi-mimo";
+import { openaiCompatAdapter } from "./adapters/openai-compat";
 // model-whitelist.ts removed — whitelist now managed via Model.enabled in DB
 
 // F-IG-02: concurrency guard is now a distributed lock (Redis NX EX) instead
@@ -61,6 +62,16 @@ const ADAPTERS: Record<string, SyncAdapter> = {
   qwen: qwenAdapter,
   stepfun: stepfunAdapter,
   "xiaomi-mimo": xiaomiMimoAdapter,
+};
+
+// ── adapterType 回退表 ──
+// provider.name 未命中 ADAPTERS 时，按 provider.adapterType 回退。
+// 让后台 UI 新增的任意 OpenAI 兼容 provider 无需改代码即可同步。
+// 仅映射 "openai-compat"（通用适配器用动态前缀 provider.name）；
+// siliconflow/volcengine 等特殊 adapterType 的 named 适配器前缀写死，不适合异名复用，
+// 故不入本表，未命中者仍走"无适配器"失败分支。
+const ADAPTERS_BY_TYPE: Record<string, SyncAdapter> = {
+  "openai-compat": openaiCompatAdapter,
 };
 
 // ============================================================
@@ -550,12 +561,14 @@ export async function runModelSync(): Promise<SyncResult> {
 
     // 并行同步所有 provider（各 provider 独立，互不阻塞）
     const syncTasks = providers.map((provider) => {
-      const adapter = ADAPTERS[provider.name];
+      // name 优先命中内置 named 适配器（保证现有 provider 行为不变），
+      // 未命中时按 adapterType 回退到通用适配器（如 openai-compat）。
+      const adapter = ADAPTERS[provider.name] ?? ADAPTERS_BY_TYPE[provider.adapterType];
       if (!adapter) {
         const noAdapterResult: ProviderSyncResult = {
           providerName: provider.name,
           success: false,
-          error: `No sync adapter found for provider "${provider.name}"`,
+          error: `No sync adapter found for provider "${provider.name}" (adapterType="${provider.adapterType}")`,
           apiModels: 0,
           aiEnriched: 0,
           overrides: 0,

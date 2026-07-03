@@ -1,51 +1,24 @@
 {
-  "batch": "BL-VISION-INPUT",
-  "created_at": "2026-06-14",
+  "batch": "BL-SYNC-ADAPTERTYPE-FALLBACK",
+  "created_at": "2026-07-03",
   "features": [
     {
-      "id": "F-VI-01",
-      "title": "多模态 content 校验器 + 放开 string-only 护栏（REST）",
+      "id": "F-GT-01",
+      "title": "通用 openai-compat 同步适配器 + adapterType 回退派发",
       "priority": "high",
       "executor": "generator",
       "status": "done",
-      "source": "BL-VISION-INPUT Spec F-VI-01 / D1 D2 D4 D5；用户裁决 REST-only + URL&base64 + 严格门禁",
-      "acceptance": "1) 新增可复用 zod schema（src/lib/api/chat-content.ts）：content 为 string 或 ChatContentPart[]；数组每 part 为 {type:text,text} 或 {type:image_url,image_url:{url,detail?}}；空数组/非法 part/缺字段拒绝；2) image_url.url 协议白名单（https/http/data:image），base64 解码 ≤5MB，单请求 image part ≤10，常量集中 src/lib/api/vision-limits.ts；3) 改写 route.ts:54-66 用新 schema 替换 typeof!==string 硬拒绝，string content 向后兼容，空 content 仍拒，错误沿用 errorResponse(400,invalid_parameter,param 定位)；4) string content 请求行为不变（回归）；5) 合法多模态通过、各类非法各自 400 可定位；6) npx tsc --noEmit + npm run build PASS；7) 独立 commit feat(BL-VISION-INPUT F-VI-01)"
+      "source": "BL-SYNC-ADAPTERTYPE-FALLBACK Spec §4 D1-D4 / §5；根因 model-sync.ts:553 只按 name 派发忽略 adapterType",
+      "acceptance": "1) 新增 src/lib/sync/adapters/openai-compat.ts：实现 SyncAdapter，providerName='openai-compat'，filterModel=isChatModality，fetchModels GET ${getBaseUrl}/models + Bearer requireApiKey，解析 json.data，过滤 isChatModality，映射 {modelId:m.id, name:`${provider.name}/${m.id}`(动态前缀), displayName:m.display_name??m.id, modality:inferModality(m.id)}，复用 base.ts helper；2) model-sync.ts 新增 ADAPTERS_BY_TYPE={'openai-compat':openaiCompatAdapter} 并 import；3) 派发行(553)改 const adapter = ADAPTERS[provider.name] ?? ADAPTERS_BY_TYPE[provider.adapterType]；4) 无适配器错误信息补 adapterType：`No sync adapter found for provider \"${provider.name}\" (adapterType=\"${provider.adapterType}\")`；5) 现有 12 个 named 适配器行为零变化(name 优先命中，deepseek/zhipu/qwen/siliconflow/volcengine/openrouter/minimax/xiaomi-mimo/openai/anthropic/moonshot/stepfun 前缀与 NAME_MAP 不变)；6) 不改后台 UI / provider 表单 / 现有适配器文件；7) npx tsc --noEmit + npm run build PASS；8) 独立 commit fix(BL-SYNC-ADAPTERTYPE-FALLBACK F-GT-01)"
     },
     {
-      "id": "F-VI-02",
-      "title": "vision 能力门禁（非 vision 模型拒图片输入）",
-      "priority": "high",
-      "executor": "generator",
-      "status": "done",
-      "source": "BL-VISION-INPUT Spec F-VI-02 / D3；用户裁决严格门禁",
-      "acceptance": "1) route 解析后调上游前：请求含 image_url part 时检查 route.alias?.capabilities?.vision ?? route.model?.capabilities?.vision，非 true → errorResponse(400,model_not_vision_capable,'model <x> does not support image input')；2) 复用先例形态（route.ts:102 alias 门禁 / 135 读 capabilities），capabilities 为 Json? 用安全类型守卫读 vision；3) 向 vision 模型发图通过；4) 向非 vision 模型发图 400 model_not_vision_capable；5) 纯文字请求任何模型不受门禁影响；6) capabilities=null/缺 vision 字段按不支持处理（安全默认）；7) tsc + build PASS；8) 独立 commit feat(BL-VISION-INPUT F-VI-02)"
-    },
-    {
-      "id": "F-VI-03",
-      "title": "管道兼容修复（mergeSystemMessages 数组兼容 + 日志卫生 sanitize）",
-      "priority": "high",
-      "executor": "generator",
-      "status": "done",
-      "source": "BL-VISION-INPUT Spec F-VI-03 / D6 D7；破坏点 config-overlay.ts:98-101 + route.ts 5 处 promptSnapshot",
-      "acceptance": "1) mergeSystemMessages（config-overlay.ts:78-109）user 消息 content 为数组时把 system 文本作为首个 text part 插入（不强转 string），system 消息含数组时提取 text 拼接；2) sanitizeMessagesForLog helper：image_url.url base64→占位符 [image:base64 <bytes>B]、http→[image:url <host>]，text part 原样；3) route.ts 5 处（232/254/363/392/426）promptSnapshot=body.messages → sanitizeMessagesForLog(body.messages)；4) supportsSystemRole=false 且首条 user 为数组时 system 文本并入且图片 part 保留（不丢失）；5) string content 路径行为不变（回归）；6) call_logs promptSnapshot 无 base64 原始字节仅占位符，text 可读；7) tsc + build PASS；8) 独立 commit feat(BL-VISION-INPUT F-VI-03)"
-    },
-    {
-      "id": "F-VI-04",
-      "title": "vision 标记盘点 + 幂等 provisioning 脚本",
-      "priority": "medium",
-      "executor": "generator",
-      "status": "done",
-      "source": "BL-VISION-INPUT Spec F-VI-04 / D9；严格门禁前置（避免误拒能用模型）",
-      "acceptance": "1) 新增 scripts/audit-vision-capabilities.ts（dry-run 默认 / --apply）盘点所有 enabled alias 的 capabilities.vision 现状；2) 对已知 vision 模型清单（gpt-4o 系/claude sonnet+opus/gemini/qwen-vl/glm-4v/step-1v/kimi-vl 等按 brand+alias 名匹配）vision≠true 的 --apply 幂等补 vision=true（保留其余 capabilities 字段）；3) dry-run 输出当前 vision=true 清单 + 待补清单；4) --apply 幂等重复跑无变化、不误改非 vision 模型；5) CLI 退出 close prisma+redis（铁律），--apply 后清 Redis models:list* 缓存；6) tsc + build PASS；7) 新增 ops 说明（脚本用法 + 已知 vision 模型清单来源）；8) 独立 commit feat(BL-VISION-INPUT F-VI-04)"
-    },
-    {
-      "id": "F-VI-05",
-      "title": "Codex 验收 + 签收报告（图片输入真实 E2E）",
+      "id": "F-GT-02",
+      "title": "Codex 验收 — 生产同步 guangtech + 回归其余 provider + 单测 + 签收报告",
       "priority": "high",
       "executor": "codex",
-      "status": "done",
-      "source": "BL-VISION-INPUT Spec F-VI-05 验收",
-      "acceptance": "前置 F-VI-04 --apply 到生产、目标 vision 模型 capabilities.vision=true。1) scripts/test/codex-setup.sh + wait PASS；2) 图片输入 E2E(URL)：vision 模型(gpt-4o)POST /v1/chat/completions message 含 image_url(http URL 公网图)→200 文字正确描述图片；3) 图片输入 E2E(base64)：data:image base64→200 文字正确；4) 门禁：非 vision 模型发图→400 model_not_vision_capable；5) 安全限制：超 10 张/超 5MB base64/非白名单协议→各自 400；6) 计费：CallLog promptTokens 含图片 token(>纯文字基线)、SUCCESS 扣费、失败不收费；7) 日志卫生：call_logs promptSnapshot 无 base64 原始字节(仅占位符) text 可读；8) 回归：纯文字 chat(string content)不变、流式正常；9) npx tsc --noEmit(以 CI typecheck job 为准)/npm run build/npm run test PASS；10) 输出 docs/test-reports/BL-VISION-INPUT-signoff-YYYY-MM-DD.md 含命令证据 + PASS/FAIL"
+      "status": "pending",
+      "source": "BL-SYNC-ADAPTERTYPE-FALLBACK Spec §6 验收",
+      "acceptance": "前置：F-GT-01 已部署生产。1) 触发一次模型同步(POST /api/admin/sync-models 或 runModelSync)，观察 [model-sync] guangtech 从 FAIL→OK，导入 N(>0) 个模型且 channel 生成，DB 可查 guangtech 的 models/channels；2) 回归：deepseek/zhipu/qwen/siliconflow/volcengine/openrouter/minimax 同步结果与修复前一致(模型数量级不变、模型 name 不变、无新 FAIL)；3) guangtech 模型命名为 guangtech/<modelId>、modality 正确(chat 类保留、非 chat 过滤)；4) 补单测：派发解析(name 优先 / adapterType 回退 openai-compat / 未知 adapterType→失败保留错误) + 通用适配器 fetchModels(mock json.data 映射 / 动态前缀用 provider.name / isChatModality 过滤 / display_name 回退)；5) npx tsc --noEmit(以 CI typecheck job 为准) + npm run build + npm run test PASS；6) 输出 docs/test-reports/BL-SYNC-ADAPTERTYPE-FALLBACK-signoff-YYYY-MM-DD.md 含命令/日志证据 + PASS/FAIL 判定"
     }
   ]
 }

@@ -4,7 +4,8 @@ description: AIGC Gateway 当前状态快照（覆盖写，≤30 行）
 type: project
 ---
 ## 当前批次
-- **BL-VISION-INPUT**（**done**，2026-06-14）— 网关图片输入（vision/多模态）已上线生产。REST `/v1/chat/completions` 接受 OpenAI 多模态（content 数组+image_url，URL+base64），严格按 `capabilities.vision` 门禁。L1 独立子 agent 验收（58 单测）+ L2 生产真实 E2E 全 PASS：图片输入 URL+base64 正确理解、门禁拒非 vision(400 model_not_vision_capable)、协议/数量限制、计费含图片 token、日志卫生 DB 无 base64、流式回归。生产 20 vision alias 标记就位。**顺带修 BL-093 遗留 CI 红**(runner.test.ts,6d3a919)。计费/格式转换(全 OpenAI 兼容端点含 Anthropic)/流式自动覆盖。MCP chat 图片输入未做(另起批次)。signoff：`docs/test-reports/BL-VISION-INPUT-signoff-2026-06-14.md`。spec+ops：`docs/specs/BL-VISION-INPUT-*.md`。
+- **BL-SYNC-ADAPTERTYPE-FALLBACK**（**verifying**，2026-07-03）— 修复后台新增 provider `guangtech` 模型同步 FAIL(`No sync adapter found`)。根因：`model-sync.ts` 派发只按 `provider.name` 查硬编码 ADAPTERS，忽略 `adapterType`(死数据)，后台新增的任意 provider 都在查找适配器步直接失败。方案 B(用户裁决/通用修复)：新增 `src/lib/sync/adapters/openai-compat.ts` 通用适配器(动态前缀 `${provider.name}/${id}`)，派发 name 未命中按 `adapterType` 回退(`ADAPTERS[name] ?? ADAPTERS_BY_TYPE[adapterType]`)——以后 UI 新增的 openai-compat provider 免改代码可同步。F-GT-01 DONE(tsc/lint/build 绿，现有 12 named 适配器零回归)。已 curl 验证生产 guangtech `/v1/models` 返回 200 标准 OpenAI 格式(gpt-5.5 等)。**待推送+部署+Codex 验收(F-GT-02)**。spec：`docs/specs/BL-SYNC-ADAPTERTYPE-FALLBACK-spec.md`。
+- **BL-VISION-INPUT**（done，2026-06-14）— 网关图片输入(vision/多模态)已上线生产。signoff：`docs/test-reports/BL-VISION-INPUT-signoff-2026-06-14.md`。
 
 ## harness-template 同步（2026-06-05 已解决）
 - L1/L2 已同步到 harness-template **v0.9.21**（planner.md 铁律 8 + generator.md §9，commit f3cd49c 已推送）；proposed-learnings 已归档。
