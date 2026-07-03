@@ -1,22 +1,72 @@
 {
-  "status": "verifying",
+  "status": "fixing",
   "user_goal": "BL-SYNC-ADAPTERTYPE-FALLBACK — 修复后台新增 provider guangtech 模型同步失败。根因：model-sync.ts 派发只按 provider.name 查硬编码 ADAPTERS，完全忽略 provider.adapterType，后台新增的任意 provider 都在'查找适配器'步骤直接失败(No sync adapter found)。方案 B(用户裁决)：新增通用 openai-compat 适配器(动态以 provider.name 作模型名前缀)，派发 name 未命中时按 adapterType 回退。通用修复——以后从 UI 新增的任何 openai-compat provider 都自动可同步。已验证 guangtech /v1/models 真实返回 200 + 标准 OpenAI 格式，无需 staticModels。",
   "total_features": 2,
-  "completed_features": 1,
+  "completed_features": 0,
   "fix_rounds": 0,
   "current_sprint": "BL-SYNC-ADAPTERTYPE-FALLBACK",
-  "last_updated": "2026-07-03T00:00:00Z",
+  "last_updated": "2026-07-03T09:03:17Z",
   "role_assignments": null,
   "docs": {
     "spec": "docs/specs/BL-SYNC-ADAPTERTYPE-FALLBACK-spec.md",
-    "test_cases": null,
+    "test_cases": "docs/test-cases/BL-SYNC-ADAPTERTYPE-FALLBACK-verifying-cases-2026-07-03.md",
     "signoff": null,
     "framework_reviewed": false
   },
-  "evaluator_feedback": null,
+  "evaluator_feedback": {
+    "summary": "首轮验收 FAIL：adapterType 回退已在本地单测和生产同步中生效，guangtech 已从 No sync adapter found 变为 OK 9 models / 6 ACTIVE channels；但验收要求的 guangtech/<modelId> 防撞命名没有落到 DB，reconcile 仍用 resolveCanonicalName(modelId) 生成裸模型名。",
+    "pass_count": 5,
+    "partial_count": 1,
+    "fail_count": 1,
+    "issues": [
+      {
+        "feature_id": "F-GT-01",
+        "result": "FAIL",
+        "description": "通用 openai-compat 适配器虽然返回 name=`${provider.name}/${id}`，但 model-sync reconcile 完全丢弃 SyncedModel.name，改用 resolveCanonicalName(modelId) 入库。生产 guangtech 同步后 channel labels 为 `guangtech/gpt-5.5 → gpt-5.5`，DB `models.name` 也是 `gpt-5.5` / `gpt-5.4` 等裸 id，不符合 spec D2 / F-GT-02 #3 的 `guangtech/<modelId>` 防撞命名要求。",
+        "steps_to_reproduce": "1. 查看生产 LAST_SYNC_RESULT(2026-07-03T08:44:17.990Z) 中 guangtech.newChannels；2. 查询 guangtech provider 的 channels include model；3. 观察 realModelId=gpt-5.5 对应 model.name=gpt-5.5，而不是 guangtech/gpt-5.5。代码路径：openaiCompatAdapter.fetchModels 设置 name 前缀，但 reconcile 使用 resolveCanonicalName(modelId) 丢弃 remote.name。"
+      },
+      {
+        "feature_id": "F-GT-02",
+        "result": "PARTIAL",
+        "description": "本地新增单测、全量单测、typecheck、build 均 PASS；生产同步只读证据 PASS；但本地 3199 smoke 因环境 PostgreSQL/Docker daemon 不可用阻塞，且生产 DB 命名验收 FAIL。",
+        "steps_to_reproduce": "运行 `bash scripts/test/codex-setup.sh`，输出 `ERROR: docker 命令存在但 daemon 未运行。`；运行本批新增测试与全量测试均通过。"
+      }
+    ],
+    "evidence": {
+      "test_cases": "docs/test-cases/BL-SYNC-ADAPTERTYPE-FALLBACK-verifying-cases-2026-07-03.md",
+      "report": "docs/test-reports/BL-SYNC-ADAPTERTYPE-FALLBACK-verifying-2026-07-03.md",
+      "commands": [
+        "npm run test -- tests/unit/sync/openai-compat-adapter.test.ts tests/unit/sync/model-sync-adapter-dispatch.test.ts => PASS 7 tests",
+        "npm run test => PASS 81 files / 669 passed / 4 skipped",
+        "npx tsc --noEmit => PASS",
+        "npm run build => PASS",
+        "bash scripts/test/codex-setup.sh => BLOCKED: Docker daemon not running and no reachable PostgreSQL"
+      ],
+      "production": {
+        "commit": "0cd5a3e3b0fcf666a14e394bb40a11ccf688a980",
+        "lastSyncFinishedAt": "2026-07-03T08:44:17.990Z",
+        "guangtech": {
+          "success": true,
+          "apiModels": 9,
+          "modelCount": 9,
+          "newChannels": 6,
+          "skippedImageChannels": 3,
+          "dbActiveChannels": 6,
+          "observedModelNames": [
+            "gpt-5.2",
+            "gpt-5.3-codex",
+            "gpt-5.3-codex-spark",
+            "gpt-5.4",
+            "gpt-5.4-mini",
+            "gpt-5.5"
+          ]
+        }
+      }
+    }
+  },
   "session_notes": {
     "Planner": "2026-07-03 (Kimi) 从 done 起新批次 BL-SYNC-ADAPTERTYPE-FALLBACK(bug 修复/设计缺口)。触发=生产新增 provider guangtech 模型同步 FAIL。根因勘察完毕：model-sync.ts:553 `ADAPTERS[provider.name]` 只按 name 派发，adapterType(默认 openai-compat)是同步路径死数据；后台 UI 允许建任意 name+adapterType 的 provider 但后端只认 12 个写死名字。用户裁决方案 B(通用修复)。设计已定(spec §4)：D1 派发 `ADAPTERS[name] ?? ADAPTERS_BY_TYPE[adapterType]`(name 优先保证现有 12 适配器零回归) / D2 通用适配器动态前缀 `${provider.name}/${id}`(避免撞名) / D3 by-type 只映射 openai-compat(siliconflow/volcengine named 前缀写死不复用) / D4 通用适配器对齐 openai.ts 复用 base.ts helper。**关键验证**：生产 SSH curl guangtech /v1/models 用真实 key(sk-699…3889,67 char)返回 200 + `{data:[{id:gpt-5.5,display_name...}]}` 标准 OpenAI 格式(earlier 401 是我 SQL 文件抽 key 污染成 91 char 的假象，清抽 -tAc 得 67 char 正常)→无需 staticModels。features：F-GT-01(generator 实现) + F-GT-02(codex 验收+单测)。混合批次→status=building。role_assignments=null 默认映射(Kimi 实现/Codex 验收)。下一步 Generator 加载 generator.md 实现 F-GT-01。",
     "Generator": "2026-07-03 (Kimi) F-GT-01 DONE，status building→verifying 交 Codex。改动仅 backend 同步引擎(无 UI/schema/design-draft)：(1)新增 src/lib/sync/adapters/openai-compat.ts —— 通用 OpenAI 兼容适配器，对齐 openai.ts 但模型名前缀动态取 provider.name(`${provider.name}/${id}`)避免异名 provider 撞名，displayName 取上游 display_name??id，复用 base.ts helper(fetchWithTimeout/requireApiKey/getBaseUrl/inferModality/isChatModality)；(2)model-sync.ts 加 ADAPTERS_BY_TYPE={'openai-compat':openaiCompatAdapter}+import；(3)派发行改 `ADAPTERS[provider.name] ?? ADAPTERS_BY_TYPE[provider.adapterType]`(name 优先→现有 12 named 适配器零回归)；(4)无适配器错误信息补 adapterType 便于诊断。验证：tsc/lint/build 全 exit 0(2 条 lint warning 是既有 layout/auth-terminal，非本改动)。**未在真实 DB 跑 runModelSync**——本地无全 provider+DB 环境。【Codex F-GT-02 注意】前置须先部署到生产：(1)触发同步观察 guangtech FAIL→OK 导入 N>0 模型+channel 生成，DB 可查；(2)回归 deepseek/zhipu/qwen/siliconflow/volcengine/openrouter/minimax 无变化(模型 name/数量级不变)；(3)guangtech 模型命名 guangtech/<id>；(4)补单测(派发解析 name 优先/adapterType 回退/未知失败 + 通用适配器映射)；(5)signoff 报告。已 curl 验证生产 guangtech /v1/models 返回 200 标准 OpenAI 格式(gpt-5.5 等)，通用适配器可直接消费。",
-    "Reviewer": null
+    "Reviewer": "2026-07-03 首轮 verifying 完成，结论 FAIL→fixing。新增测试资产：docs/test-cases/BL-SYNC-ADAPTERTYPE-FALLBACK-verifying-cases-2026-07-03.md、tests/unit/sync/openai-compat-adapter.test.ts、tests/unit/sync/model-sync-adapter-dispatch.test.ts；报告：docs/test-reports/BL-SYNC-ADAPTERTYPE-FALLBACK-verifying-2026-07-03.md。本地：新增单测 7 PASS、全量 vitest 81 files/669 passed/4 skipped PASS、tsc PASS、build PASS；codex-setup 3199 smoke 因 PostgreSQL/Docker daemon 不可用阻塞。生产只读：/opt/aigc-gateway main@0cd5a3e 已部署，PM2 online，/v1/models 200；LAST_SYNC_RESULT 2026-07-03T08:44:17.990Z 显示 guangtech success=true apiModels=9 modelCount=9 newChannels=6 skippedImage=3，旧 No sync adapter found 消失，deepseek/zhipu/qwen/siliconflow/volcengine/openrouter/minimax 成功，xiaomi-mimo 401 为 spec out-of-scope。失败点：openaiCompatAdapter 返回 name=guangtech/<id>，但 reconcile 使用 resolveCanonicalName(modelId) 丢弃 remote.name；生产 DB channel 关联 models.name 为裸 gpt-5.5/gpt-5.4 等，不符合 spec D2/F-GT-02 #3 的 guangtech/<modelId> 防撞命名。"
   }
 }

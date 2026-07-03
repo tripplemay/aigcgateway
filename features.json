@@ -7,7 +7,7 @@
       "title": "通用 openai-compat 同步适配器 + adapterType 回退派发",
       "priority": "high",
       "executor": "generator",
-      "status": "done",
+      "status": "pending",
       "source": "BL-SYNC-ADAPTERTYPE-FALLBACK Spec §4 D1-D4 / §5；根因 model-sync.ts:553 只按 name 派发忽略 adapterType",
       "acceptance": "1) 新增 src/lib/sync/adapters/openai-compat.ts：实现 SyncAdapter，providerName='openai-compat'，filterModel=isChatModality，fetchModels GET ${getBaseUrl}/models + Bearer requireApiKey，解析 json.data，过滤 isChatModality，映射 {modelId:m.id, name:`${provider.name}/${m.id}`(动态前缀), displayName:m.display_name??m.id, modality:inferModality(m.id)}，复用 base.ts helper；2) model-sync.ts 新增 ADAPTERS_BY_TYPE={'openai-compat':openaiCompatAdapter} 并 import；3) 派发行(553)改 const adapter = ADAPTERS[provider.name] ?? ADAPTERS_BY_TYPE[provider.adapterType]；4) 无适配器错误信息补 adapterType：`No sync adapter found for provider \"${provider.name}\" (adapterType=\"${provider.adapterType}\")`；5) 现有 12 个 named 适配器行为零变化(name 优先命中，deepseek/zhipu/qwen/siliconflow/volcengine/openrouter/minimax/xiaomi-mimo/openai/anthropic/moonshot/stepfun 前缀与 NAME_MAP 不变)；6) 不改后台 UI / provider 表单 / 现有适配器文件；7) npx tsc --noEmit + npm run build PASS；8) 独立 commit fix(BL-SYNC-ADAPTERTYPE-FALLBACK F-GT-01)"
     },
