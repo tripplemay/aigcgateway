@@ -1,24 +1,42 @@
 {
-  "batch": "BL-SYNC-ADAPTERTYPE-FALLBACK",
-  "created_at": "2026-07-03",
+  "batch": "BL-PROD-MIGRATE-DEPLOYSVR",
+  "created_at": "2026-07-11",
   "features": [
     {
-      "id": "F-GT-01",
-      "title": "通用 openai-compat 同步适配器 + adapterType 回退派发",
+      "id": "F-MIG-01",
+      "title": "容器化部署基座 + 入口配置（deploysvr compose / .env 模板 / GCS 凭据 / Prisma 迁移 / nginx vhost）",
       "priority": "high",
       "executor": "generator",
-      "status": "done",
-      "source": "BL-SYNC-ADAPTERTYPE-FALLBACK Spec §4 D1-D4 / §5；根因 model-sync.ts:553 只按 name 派发忽略 adapterType",
-      "acceptance": "1) 新增 src/lib/sync/adapters/openai-compat.ts：实现 SyncAdapter，providerName='openai-compat'，filterModel=isChatModality，fetchModels GET ${getBaseUrl}/models + Bearer requireApiKey，解析 json.data，过滤 isChatModality，映射 {modelId:m.id, name:`${provider.name}/${m.id}`(动态前缀), displayName:m.display_name??m.id, modality:inferModality(m.id)}，复用 base.ts helper；2) model-sync.ts 新增 ADAPTERS_BY_TYPE={'openai-compat':openaiCompatAdapter} 并 import；3) 派发行(553)改 const adapter = ADAPTERS[provider.name] ?? ADAPTERS_BY_TYPE[provider.adapterType]；4) 无适配器错误信息补 adapterType：`No sync adapter found for provider \"${provider.name}\" (adapterType=\"${provider.adapterType}\")`；5) 现有 12 个 named 适配器行为零变化(name 优先命中，deepseek/zhipu/qwen/siliconflow/volcengine/openrouter/minimax/xiaomi-mimo/openai/anthropic/moonshot/stepfun 前缀与 NAME_MAP 不变)；6) 不改后台 UI / provider 表单 / 现有适配器文件；7) npx tsc --noEmit + npm run build PASS；8) 独立 commit fix(BL-SYNC-ADAPTERTYPE-FALLBACK F-GT-01)；【fix-round-1】9) 首轮验收暴露 reconcile 的 resolveCanonicalName 丢弃 SyncedModel.name→裸 modelId 入库，不满足 guangtech/<modelId> 防撞命名。修复：model-sync.ts 导出 providerUsesGenericFallbackAdapter(与派发同判定)，resolveCanonicalName(modelId,provider) 对 fallback provider 加 `${provider.name}/` 前缀、named provider 保持裸 id 零回归，realModelId 仍裸 id；10) 新增 scripts/fix-guangtech-canonical-naming.ts 就地重命名存量裸名 fallback 模型(幂等/dry-run 默认/护栏跳过共享或已存在)，生产 --apply 已执行；11) tsc+build PASS"
+      "status": "pending",
+      "source": "spec §4 D1-D4/D6, §5 F-MIG-01；用户裁决容器化 GHCR-pull + 直连拓扑",
+      "acceptance": "1) 新增 docker-compose.prod.yml(deploysvr 专用)：服务 app + postgres:17-alpine + redis:7-alpine；app 绑 127.0.0.1:3000:3000；镜像 ghcr.io/tripplemay/aigcgateway:${IMAGE_TAG}；pg/redis 命名卷；env_file .env；2) GCS 凭据接线：挂载宿主 key 文件到容器 + GOOGLE_APPLICATION_CREDENTIALS，IMAGE_PERSIST_ENABLED=true / GCS_IMAGE_BUCKET=aigc-gateway-images 保持；3) 新增 .env.production.example(deploysvr 版，仅键名占位禁真值)：DATABASE_URL(postgres:5432) / REDIS_URL(redis:6379) / ENCRYPTION_KEY / JWT_SECRET / IMAGE_PROXY_SECRET / AUTH_SECRET / NEXTAUTH_SECRET / GCS_* / GOOGLE_APPLICATION_CREDENTIALS / EXCHANGE_RATE / LOG_*；4) Prisma 容器迁移路径(D4)：migrate 镜像阶段或 compose 一次性 migrate 服务，可在容器内成功 prisma migrate deploy；5) 新增 deploy/nginx/aigc.conf：公网 80/443 直连反代 127.0.0.1:3000，复刻旧机全部 location(/v1/models 缓存60s+gzip、/v1/ proxy_buffering off SSE、/mcp 流式、/api/webhooks/、/ websocket upgrade、cdn. 子域静态缓存)+安全头；6) 不改 src/** 产品代码，不改现有 docker-compose.production.yml(保留标注弃用)；7) npx tsc --noEmit + npm run build PASS；8) 独立 commit"
     },
     {
-      "id": "F-GT-02",
-      "title": "Codex 验收 — 生产同步 guangtech + 回归其余 provider + 单测 + 签收报告",
+      "id": "F-MIG-02",
+      "title": "CI/CD 管道改造 — 镜像构建推 GHCR + Deploy workflow 改写为 pull+compose",
+      "priority": "high",
+      "executor": "generator",
+      "status": "pending",
+      "source": "spec §4 D5, §5 F-MIG-02",
+      "acceptance": "1) 新增镜像构建 workflow：main push → docker build → 推 ghcr.io/tripplemay/aigcgateway:<git-sha> + :latest(permissions packages:write，登录 GHCR)；2) 改写 .github/workflows/deploy.yml：workflow_dispatch 保留 → SSH deploysvr → cd /opt/apps/aigc-gateway → 设 IMAGE_TAG → docker compose pull → 迁移(D4) → docker compose up -d → 健康检查 curl -sf http://127.0.0.1:3000/v1/models(重试)；3) 文档化 GitHub secrets 更新清单：VPS_HOST=194.238.26.173 / VPS_USERNAME / VPS_SSH_KEY(deploysvr 私钥) / VPS_SSH_PORT，标注旧值 34.180.93.185 作回滚；4) ci.yml 保持不回归(lint+tsc+vitest+build)；5) 独立 commit"
+    },
+    {
+      "id": "F-MIG-03",
+      "title": "迁移 runbook + 生产割接实操（P0-P5，受监督，不可逆门禁 go/no-go）",
+      "priority": "high",
+      "executor": "generator",
+      "status": "pending",
+      "source": "spec §4 D7-D9, §5 F-MIG-03, §7 回滚；对标 grandtianfu MIGRATION_STATE.md",
+      "acceptance": "1) 新增 docs/ops/deploysvr-migration-runbook.md：P0 准备(建 /opt/apps/aigc-gateway + .env 600 + secrets/；用户导出 GCS SA key 步骤；装 certbot；Cloudflare DNS-01 token；验证 80/443 inbound) / P2 起新栈(compose up + 灌旧库快照 + loopback 冒烟 /v1/models+/mcp+chat+图片 GCS 回读) / P3 数据终态同步(停旧写→pg_dump→restore→行数+双哈希 parity；Redis 弃旧起新确认) / P4 边缘割接(Certbot DNS-01 预签发→装 aigc.conf reload→DNS aigc+cdn A→194.238.26.173→更新 GitHub secrets) / P5 观察期+回滚就绪(旧机 API 停/数据冻结/旧 nginx+DNS+VPS_HOST 回滚点留存) / P6 退役门禁(用户验收后才退，含 kolmatrix 依赖) ；2) 按 runbook 执行 P0-P5 受监督实操；3) 三个不可逆门禁(数据终态同步/DNS 切换/旧机停写)执行前取得用户显式 go/no-go；4) H1 ENCRYPTION_KEY 等 secrets 从旧机 ecosystem.config.cjs/.env.production 原样迁移，禁写入仓库；5) 割接完成回写 runbook 实测 live state/parity/rollback controls"
+    },
+    {
+      "id": "F-MIG-04",
+      "title": "Codex 验收 — 新栈冒烟 + 数据 parity + 直连可达 + 回滚演练 + signoff",
       "priority": "high",
       "executor": "codex",
-      "status": "done",
-      "source": "BL-SYNC-ADAPTERTYPE-FALLBACK Spec §6 验收",
-      "acceptance": "前置：F-GT-01 已部署生产。1) 触发一次模型同步(POST /api/admin/sync-models 或 runModelSync)，观察 [model-sync] guangtech 从 FAIL→OK，导入 N(>0) 个模型且 channel 生成，DB 可查 guangtech 的 models/channels；2) 回归：deepseek/zhipu/qwen/siliconflow/volcengine/openrouter/minimax 同步结果与修复前一致(模型数量级不变、模型 name 不变、无新 FAIL)；3) guangtech 模型命名为 guangtech/<modelId>、modality 正确(chat 类保留、非 chat 过滤)；4) 补单测：派发解析(name 优先 / adapterType 回退 openai-compat / 未知 adapterType→失败保留错误) + 通用适配器 fetchModels(mock json.data 映射 / 动态前缀用 provider.name / isChatModality 过滤 / display_name 回退)；5) npx tsc --noEmit(以 CI typecheck job 为准) + npm run build + npm run test PASS；6) 输出 docs/test-reports/BL-SYNC-ADAPTERTYPE-FALLBACK-signoff-YYYY-MM-DD.md 含命令/日志证据 + PASS/FAIL 判定"
+      "status": "pending",
+      "source": "spec §5 F-MIG-04, §6 验收标准",
+      "acceptance": "前置：F-MIG-01~03 完成、新栈已割接。1) 冒烟：/v1/models(缓存头)、真实 chat(非流+流式 SSE 不被缓冲)、generate_image→GCS 持久化→代理 URL 回读 200、/mcp 全流程(list_models→chat→get_balance)；2) 数据 parity 复核：新库关键表行数+双哈希与旧库一致；抽查若干 provider authConfig 解密成功(验证 ENCRYPTION_KEY 正确)；3) 直连可达性：https://aigc.guangai.ai 证书有效、TLS 链正常、直连 deploysvr；4) 回滚演练可行性：旧机可快速拉起+旧 DNS/VPS_HOST 回退路径成立(不真正回滚)；5) 输出 docs/test-reports/BL-PROD-MIGRATE-DEPLOYSVR-signoff-YYYY-MM-DD.md 含命令/日志证据+PASS/FAIL"
     }
   ]
 }

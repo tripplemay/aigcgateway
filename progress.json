@@ -1,22 +1,26 @@
 {
-  "status": "done",
-  "user_goal": "BL-SYNC-ADAPTERTYPE-FALLBACK — 修复后台新增 provider guangtech 模型同步失败。根因：model-sync.ts 派发只按 provider.name 查硬编码 ADAPTERS，完全忽略 provider.adapterType，后台新增的任意 provider 都在'查找适配器'步骤直接失败(No sync adapter found)。方案 B(用户裁决)：新增通用 openai-compat 适配器(动态以 provider.name 作模型名前缀)，派发 name 未命中时按 adapterType 回退。通用修复——以后从 UI 新增的任何 openai-compat provider 都自动可同步。已验证 guangtech /v1/models 真实返回 200 + 标准 OpenAI 格式，无需 staticModels。fix-round-1：首轮验收暴露 reconcile 的 resolveCanonicalName 丢弃前缀入库裸名→已改为对 fallback provider 加 provider 命名空间前缀 + 一次性数据修复脚本，生产已部署+已 apply。",
-  "total_features": 2,
-  "completed_features": 2,
-  "fix_rounds": 1,
-  "current_sprint": "BL-SYNC-ADAPTERTYPE-FALLBACK",
-  "last_updated": "2026-07-03T12:53:59Z",
-  "role_assignments": null,
+  "status": "building",
+  "user_goal": "BL-PROD-MIGRATE-DEPLOYSVR — 生产环境迁移：旧 VPS(GCP 34.180.93.185，东京，原生 PM2)即将下线，将 AIGC Gateway 迁移到新 VPS deploysvr(194.238.26.173，Ubuntu 24.04，Docker 化)。用户三项裁决：(1)容器化 GHCR-pull 部署模型(复用 grandtianfu/invoce 已跑通范式，弃用仓库自带 docker-compose.production.yml)；(2)GCS 图片桶 aigc-gateway-images 留 GCP 不动，导出服务账号 key JSON 挂新机(新机非 GCP，ADC 失效)；(3)不走 dmitsvr/WireGuard 中转，用户直连 deploysvr(与旧机一致)，deploysvr host nginx 新增公网 80/443 直连块(与既有 10.77.0.2:8080 origin 块共存)。范围仅 aigc；旧机还跑 kolmatrix，整机退役单列。硬约束：ENCRYPTION_KEY 逐字迁移(解密 provider 凭据，红线)、SSE/MCP 反代 proxy_buffering off、不可逆步骤(数据同步/DNS 切/旧机停写)用户 go/no-go。",
+  "total_features": 4,
+  "completed_features": 0,
+  "fix_rounds": 0,
+  "current_sprint": "BL-PROD-MIGRATE-DEPLOYSVR",
+  "last_updated": "2026-07-11T00:00:00Z",
+  "role_assignments": {
+    "planner": "Kimi",
+    "generator": "Kimi",
+    "evaluator": "Reviewer"
+  },
   "docs": {
-    "spec": "docs/specs/BL-SYNC-ADAPTERTYPE-FALLBACK-spec.md",
-    "test_cases": "docs/test-cases/BL-SYNC-ADAPTERTYPE-FALLBACK-verifying-cases-2026-07-03.md",
-    "signoff": "docs/test-reports/BL-SYNC-ADAPTERTYPE-FALLBACK-signoff-2026-07-03.md",
+    "spec": "docs/specs/BL-PROD-MIGRATE-DEPLOYSVR-spec.md",
+    "test_cases": null,
+    "signoff": null,
     "framework_reviewed": false
   },
   "evaluator_feedback": null,
   "session_notes": {
-    "Planner": "2026-07-03 (Kimi) 从 done 起新批次 BL-SYNC-ADAPTERTYPE-FALLBACK(bug 修复/设计缺口)。触发=生产新增 provider guangtech 模型同步 FAIL。根因勘察完毕：model-sync.ts:553 `ADAPTERS[provider.name]` 只按 name 派发，adapterType(默认 openai-compat)是同步路径死数据；后台 UI 允许建任意 name+adapterType 的 provider 但后端只认 12 个写死名字。用户裁决方案 B(通用修复)。设计已定(spec §4)：D1 派发 `ADAPTERS[name] ?? ADAPTERS_BY_TYPE[adapterType]`(name 优先保证现有 12 适配器零回归) / D2 通用适配器动态前缀 `${provider.name}/${id}`(避免撞名) / D3 by-type 只映射 openai-compat(siliconflow/volcengine named 前缀写死不复用) / D4 通用适配器对齐 openai.ts 复用 base.ts helper。**关键验证**：生产 SSH curl guangtech /v1/models 用真实 key(sk-699…3889,67 char)返回 200 + `{data:[{id:gpt-5.5,display_name...}]}` 标准 OpenAI 格式(earlier 401 是我 SQL 文件抽 key 污染成 91 char 的假象，清抽 -tAc 得 67 char 正常)→无需 staticModels。features：F-GT-01(generator 实现) + F-GT-02(codex 验收+单测)。混合批次→status=building。role_assignments=null 默认映射(Kimi 实现/Codex 验收)。下一步 Generator 加载 generator.md 实现 F-GT-01。",
-    "Generator": "2026-07-03 (Kimi) fix-round-1 DONE，status fixing→reverifying 交 Codex 复验。首轮 FAIL 真因=reconcile 的 resolveCanonicalName(modelId) 返回裸 modelId.toLowerCase() 丢弃前缀(适配器 name 是 M1a 后死数据，所有 provider 都存裸名)。修复(commit a751d0a)：(1)model-sync.ts 导出 providerUsesGenericFallbackAdapter(provider)=`!ADAPTERS[name] && !!ADAPTERS_BY_TYPE[adapterType]`(与派发同判定)；(2)resolveCanonicalName(modelId,provider)→fallback provider 加 `${provider.name}/` 前缀，named provider 保持裸 id(零回归)，realModelId 仍裸 id 发上游；(3)去掉多余 async/Promise.all。**一次性数据修复**(commit 431642a)：scripts/fix-guangtech-canonical-naming.ts 就地重命名存量裸名 fallback 模型(幂等/dry-run 默认/护栏：目标 orphan 无引用则删后重命名、被引用或共享则跳过)。**部署+执行已完成**：Deploy workflow run 28652156819 success(prod@a751d0a)；坑=部署后 boot sync 用新代码建了 6 个 orphan guangtech/* 模型但活跃 channel 仍挂裸名→脚本增强为删 orphan 再 rename；prod --apply 重命名 6 个成功。**生产核验**：guangtech 6 channel 现全指向 guangtech/gpt-5.x(ACTIVE，realModelId 仍裸，alias_links 各 1 保留)，无残留裸名/无 orphan，脚本 dry-run 复跑 0 待改(幂等)。CI a751d0a 全绿(含 Codex 新增 7 单测)。【Codex 复验 F-GT-02 注意】(1)现网 DB 已是修复态，可直接查 guangtech channels 均 guangtech/*；(2)如再触发 sync 应幂等(canonical 匹配现有 renamed 模型+channel update-in-place，不再建 orphan)；(3)回归其余 provider 命名不变；(4)注：新模型 enabled=false(reconcile 默认)，是否上架/定价属 admin 独立流程，非本 bug 范围。",
-    "Reviewer": "2026-07-03 复验 PASS→done。补强 tests/unit/sync/model-sync-adapter-dispatch.test.ts：fallback provider 新建/复用 canonical 必须是 guangtech/<id>，realModelId 保持裸 id；targeted 单测 8 PASS，全量 vitest 81 files/670 passed/4 skipped PASS，tsc PASS，build PASS。codex-setup 3199 smoke 仍因本机 PostgreSQL/Docker daemon 不可用阻塞，记为环境非产品失败。生产只读核验：/opt/aigc-gateway 运行代码 a751d0a，PM2 online x4；guangtech provider ACTIVE/openai-compat，6 ACTIVE channel 全部指向 guangtech/gpt-5.x，bareLinkedCount=0，aliasLinkCount 各 1；IMAGE prefixed model row 3 个无 channel，符合 IMAGE skip；修复脚本 dry-run 待重命名 0，幂等。LAST_SYNC_RESULT 2026-07-03T09:44:44.995Z guangtech success=true apiModels=9 modelCount=9 newChannels=0 disabled=0 skippedImage=3。回归 providers deepseek/zhipu/qwen/siliconflow/volcengine/openrouter/minimax 均 success；xiaomi-mimo 401 仍 out-of-scope。zhipu modelCount 8 低于首轮 16，经查上游 /models 当前只返回 8 且本批未改 zhipu/doc-enricher，判定外部清单/AI enrich 波动。signoff：docs/test-reports/BL-SYNC-ADAPTERTYPE-FALLBACK-signoff-2026-07-03.md。"
+    "Planner": "2026-07-11 (Kimi) 从 done 起新批次 BL-PROD-MIGRATE-DEPLOYSVR(生产迁移)。已完成全面现场勘察：旧机 34.180.93.185 原生 PM2×2 port3000 + PostgreSQL17.9 库 aigc_gateway 272MB + Redis + 自带 nginx/certbot；GCS 图片走 GCP ADC(SA 1044753973286-compute)。新机 deploysvr Ubuntu24.04 4vCPU/7.8G/145G，Docker 化，已按同范式迁完 grandtianfu+invoce(GHCR 镜像+容器 127.0.0.1 loopback+host nginx 反代)；3000 空闲/ufw inactive/certbot 未装/无 LE 证书；GHCR owner=tripplemay。范式剧本参考服务器 /root/migration/grandtianfu/MIGRATION_STATE.md + /opt/apps/invoce/docker-compose.prod.yml。用户三裁决见 user_goal。spec 已写(docs/specs/BL-PROD-MIGRATE-DEPLOYSVR-spec.md)，features 4 条(F-MIG-01 部署基座代码 / F-MIG-02 CI-CD 改造 / F-MIG-03 runbook+实操 / F-MIG-04 codex 验收)，混合批次→building。role_assignments Kimi generator / Reviewer evaluator。关键 secrets(ENCRYPTION_KEY/JWT/IMAGE_PROXY/AUTH/NEXTAUTH/DB pw)在旧机 /opt/aigc-gateway/ecosystem.config.cjs+.env.production，执行时读取禁入仓。下一步 Generator(Kimi) 加载 generator.md 实现 F-MIG-01。",
+    "Generator": null,
+    "Reviewer": null
   }
 }
