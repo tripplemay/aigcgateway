@@ -1,96 +1,120 @@
 name: Deploy to VPS
 
+# BL-PROD-MIGRATE-DEPLOYSVR F-MIG-02：手动部署到 deploysvr（容器化 GHCR-pull 模型）。
+# 遵循本项目"用户手动触发部署"策略（workflow_dispatch）；镜像由 build-push.yml 预构建。
+#
+# 需要的 GitHub secrets（迁移时更新）：
+#   VPS_HOST      = 194.238.26.173        （旧值 34.180.93.185 → 回滚时改回）
+#   VPS_SSH_PORT  = 22
+#   VPS_USERNAME  = root                   （deploysvr 部署用户；旧机为 tripplezhou）
+#   VPS_SSH_KEY   = deploysvr 对应私钥      （旧机为 GCP 私钥 → 回滚时改回）
+# 服务器前置（见 runbook F-MIG-03 P0）：/opt/apps/aigc-gateway 为本仓库 git checkout，
+#   含 .env(600) + secrets/gcs-sa.json(600)。
+
 on:
   workflow_dispatch:
     inputs:
-      reason:
-        description: '部署原因（可选）'
+      image_tag:
+        description: "要部署的镜像 tag（默认 latest；回滚填指定 git sha）"
         required: false
-        default: 'Manual deploy'
+        default: "latest"
+      reason:
+        description: "部署原因（可选）"
+        required: false
+        default: "Manual deploy"
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
 
 jobs:
   deploy:
-    name: Deploy to Production
+    name: Deploy to Production (deploysvr)
     runs-on: ubuntu-latest
     environment: production
-
+    permissions:
+      contents: read
+      packages: read
     steps:
-      - uses: actions/checkout@v4
-
-      - name: Deploy via SSH
+      - name: SSH deploy
         uses: appleboy/ssh-action@v1
         with:
           host: ${{ secrets.VPS_HOST }}
           port: ${{ secrets.VPS_SSH_PORT }}
           username: ${{ secrets.VPS_USERNAME }}
           key: ${{ secrets.VPS_SSH_KEY }}
-          command_timeout: 10m
+          # VPS→GHCR 首拉大镜像较慢，放宽命令超时
+          command_timeout: 40m
           script: |
-            set -e
-            cd /opt/aigc-gateway
+            set -euo pipefail
+            APP_DIR=/opt/apps/aigc-gateway
+            cd "$APP_DIR"
 
-            echo "=== Pull latest code ==="
-            git fetch origin main
-            git reset --hard origin/main
+            # 部署本次 workflow 对应的 commit（保证 compose 版本与代码对齐）
+            git fetch --quiet origin "${{ github.sha }}"
+            git checkout --detach "${{ github.sha }}"
 
-            echo "=== Stop app to free memory for build ==="
-            pm2 stop aigc-gateway 2>/dev/null || true
+            REPO_LC=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
+            IMAGE_TAG="${{ github.event.inputs.image_tag }}"
+            [ -z "$IMAGE_TAG" ] && IMAGE_TAG=latest
 
-            echo "=== Clean + Install dependencies ==="
-            rm -rf node_modules .next
-            npm ci
+            previous_tag=$(sed -n 's/^IMAGE_TAG=//p' .env | tail -n 1)
 
-            echo "=== Prisma generate + migrate ==="
-            npx prisma generate
-            set -a && source .env.production && set +a
+            # compose 插值用（shell env 优先于 .env）；.env 仍持有 secrets 供 env_file 注入
+            export GH_REPO="$REPO_LC"
+            export IMAGE_TAG
 
-            echo "=== Resolve failed migration (if any) ==="
-            npx prisma migrate resolve --applied 20260416_fix_template_step_order_base 2>/dev/null || true
+            # 用本次运行的 GITHUB_TOKEN 临时登录 GHCR 拉私有镜像（免 PAT）
+            echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
+            trap 'docker logout ghcr.io >/dev/null 2>&1 || true' EXIT
 
-            npx prisma migrate deploy
+            docker compose -f docker-compose.prod.yml pull
+            # up -d 前 migrate 服务经 service_completed_successfully 门禁自动先跑 prisma migrate deploy，
+            # 迁移失败则 app 不启动、up -d 非零退出（fail-safe）。
+            docker compose -f docker-compose.prod.yml up -d
 
-            echo "=== Build ==="
-            npm run build
-
-            echo "=== Copy static + public to standalone ==="
-            cp -r .next/static .next/standalone/.next/static
-            mkdir -p .next/standalone/public
-            cp -r public/. .next/standalone/public/
-
-            echo "=== Restart PM2 ==="
-            pm2 restart aigc-gateway || pm2 start ecosystem.config.cjs
-
-            echo "=== Waiting for app ==="
-            sleep 3
-
-      - name: Health Check
-        uses: appleboy/ssh-action@v1
-        with:
-          host: ${{ secrets.VPS_HOST }}
-          port: ${{ secrets.VPS_SSH_PORT }}
-          username: ${{ secrets.VPS_USERNAME }}
-          key: ${{ secrets.VPS_SSH_KEY }}
-          script: |
-            MAX_RETRIES=10
-            RETRY=0
-            until curl -sf http://localhost:3000/v1/models > /dev/null 2>&1; do
-              RETRY=$((RETRY + 1))
-              if [ $RETRY -ge $MAX_RETRIES ]; then
-                echo "Health check failed after $MAX_RETRIES attempts"
-                pm2 logs aigc-gateway --lines 30 --nostream
-                exit 1
-              fi
-              echo "Retry $RETRY/$MAX_RETRIES..."
+            # 健康检查：/v1/models 无需鉴权返回 200
+            ready=0
+            for attempt in $(seq 1 60); do
+              code=$(curl --noproxy '*' -sS -o /dev/null -w '%{http_code}' http://127.0.0.1:3000/v1/models 2>/dev/null || true)
+              if [ "$code" = 200 ]; then ready=1; break; fi
+              echo "health retry $attempt/60 (code=$code)"
               sleep 3
             done
-            echo "Health check passed"
+            if [ "$ready" != 1 ]; then
+              echo "Health check FAILED — dumping app logs"
+              docker compose -f docker-compose.prod.yml logs --tail 60 app || true
+              docker compose -f docker-compose.prod.yml logs --tail 30 migrate || true
+              exit 1
+            fi
 
-      - name: Notify Success
-        if: success()
-        run: echo "Deployed to production — $(date -u '+%Y-%m-%d %H:%M UTC')"
+            # 容器状态校验（running）
+            for service in postgres redis app; do
+              cid=$(docker compose -f docker-compose.prod.yml ps -q "$service")
+              test -n "$cid"
+              test "$(docker inspect "$cid" --format '{{.State.Status}}')" = running
+            done
 
-      - name: Notify Failure
-        if: failure()
-        run: |
-          echo "Deployment failed — check logs above"
-          exit 1
+            # 健康通过后才持久化 IMAGE_TAG 到 .env（后续手动 compose 操作沿用同一版本）
+            env_tmp=$(mktemp .env.release.XXXXXX)
+            awk -v tag="$IMAGE_TAG" '
+              BEGIN { updated = 0 }
+              /^IMAGE_TAG=/ { print "IMAGE_TAG=" tag; updated = 1; next }
+              { print }
+              END { if (!updated) print "IMAGE_TAG=" tag }
+            ' .env > "$env_tmp"
+            chmod --reference=.env "$env_tmp"
+            mv "$env_tmp" .env
+
+            # 记录回滚点
+            mkdir -p .deploy-state && chmod 700 .deploy-state
+            if [ -n "$previous_tag" ] && [ "$previous_tag" != "$IMAGE_TAG" ]; then
+              printf '%s\n' "$previous_tag" > .deploy-state/last-known-good-tag
+            fi
+            printf '%s\n' "$IMAGE_TAG" > .deploy-state/current-tag
+            chmod 600 .deploy-state/* || true
+
+            # 仅清悬空数据，保留 tagged 镜像供回滚
+            docker image prune -f || true
+
+            echo "Deployed image_tag=$IMAGE_TAG at $(date -u '+%Y-%m-%d %H:%M UTC')"
