@@ -195,12 +195,16 @@
 - **🐛 演练捕获并修复**：Next standalone 默认绑 `$HOSTNAME`(容器ID) → 容器内 127.0.0.1 不监听、healthcheck 卡 starting。修复 commit `6ef692a`（compose app.environment `HOSTNAME=0.0.0.0`），复验 app→healthy。
 - **P2.4 冒烟全绿**：`/v1/models` 200(36 模型)；非流式 chat deepseek-v3→`MIGRATION_OK`（**验证 provider 凭据解密**）；SSE 流式多 chunk；`gpt-image-mini` 生图→GCS 写入→代理 URL loopback 回读 `image/png 1024x1024 539KB`（**验证 GCS 跨云 key 读写**）；`/mcp` initialize→serverInfo `aigc-gateway v1.0.0`；后台 model-sync 对 siliconflow/qwen/openrouter/guangtech 全部成功（**佐证全 provider 凭据解密**）。
 
-## 割接实测记录（P3-P5 执行后回填）
+## 割接实测记录（2026-07-12 ✅ 已切，观察期中）
 
 > 对标 grandtianfu MIGRATION_STATE 的 "Current live state / Verified parity / Rollback controls"。
 
-- **Last verified:** _（待回填）_
-- **Live state:** _（app/pg/redis 容器状态、镜像 tag、健康检查）_
-- **Verified parity:** _（终态表行数 diff、关键表哈希、provider 凭据解密抽查）_
-- **Edge / TLS:** _（证书到期、公网 curl 结果）_
-- **Rollback controls:** _（last-known-good-tag、旧机状态、VPS_HOST 旧值、旧 DNS 记录）_
+- **Last verified:** 2026-07-12（P3+P4 一次性割接完成）。
+- **Live state:** 新机 `194.238.26.173` 三容器全 healthy —— app(`ghcr.io/tripplemay/aigcgateway/app:latest`, HOSTNAME=0.0.0.0) / postgres:17 / redis:7；`docker compose` 编排；IMAGE_TAG=latest。
+- **Public 验证:** `https://aigc.guangai.ai/v1/models` 200（LE 证书 CN=aigc.guangai.ai，到期 2026-10-10）；HTTP→301；`cdn.` 200；admin 登录 200(ADMIN)；**公网真实 chat deepseek-v3→`LIVE_ON_DEPLOYSVR`**（端到端：DNS→TLS→app→DB→凭据解密→上游→计费全通）。
+- **Verified parity:** 28/28 非空表；业务关键表（users/providers/channels/models/transactions/api_keys/projects）**逐行一致**；差异仅 append-only 运营表（call_logs/system_logs/health_checks/balance_snapshots/alias_*，为新 app 起来后自身新写，非丢数据）。旧机冻结库 users=31 = 新机。
+- **DNS:** Cloudflare `aigc`+`cdn` A → `194.238.26.173`，proxied=False，TTL 60（zone `ca43cb02…`；record id aigc=`5bd5f415…` cdn=`259475c8…`）。
+- **Edge / TLS:** Certbot DNS-01（Cloudflare token，`/root/.secrets/cloudflare.ini`），自动续期已装；options-ssl-nginx.conf 已补；vhost `/etc/nginx/sites-enabled/aigc.conf`（公网 80/443，与 `10.77.0.2:8080` origin 共存）。
+- **CI/CD:** GitHub repo secrets 已更 `VPS_HOST=194.238.26.173 / VPS_USERNAME=root / VPS_SSH_PORT=22 / VPS_SSH_KEY=专用 ed25519 部署密钥`（已验证登录）；deploy pipeline 本身尚未实跑（首次 deploy 或 Evaluator 验证）。
+- **Rollback controls:** ①流量回滚：DNS `aigc`+`cdn` 改回 `34.180.93.185`（旧值）+ `gh secret set VPS_HOST -b 34.180.93.185` + 旧机 `pm2 start aigc-gateway`。②镜像回滚：`.deploy-state/last-known-good-tag`（首次 deploy.yml 后生成）或 `IMAGE_TAG=<sha> up -d`。③旧机 aigc app 4 实例 **STOPPED 冻结**、DB 未写（P3 后），kolmatrix/kolmatrix-staging 仍 online。
+- **⚠️ 观察期门禁:** 用户明确验收前不进 P6；旧 VPS 整机退役另受 kolmatrix 迁移制约。

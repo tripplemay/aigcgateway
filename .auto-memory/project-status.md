@@ -4,13 +4,12 @@ description: AIGC Gateway 当前状态快照（覆盖写，≤30 行）
 type: project
 ---
 ## 当前批次
-- **BL-PROD-MIGRATE-DEPLOYSVR**（**building**，2026-07-11）— 生产迁移：旧 VPS(GCP `34.180.93.185`，原生 PM2)下线，AIGC Gateway 迁到新 VPS `deploysvr`(`194.238.26.173`，Ubuntu24.04，Docker 化)。
-- 用户三裁决：(1)容器化 GHCR-pull(复用 grandtianfu/invoce 范式，弃用仓库 docker-compose.production.yml)；(2)GCS 桶留 GCP + 导 SA key 挂新机；(3)**不走 dmitsvr/WireGuard，用户直连 deploysvr**，host nginx 加公网 80/443 直连块。
-- 范围仅 aigc；旧机还跑 kolmatrix+staging，整机退役单列。硬约束：ENCRYPTION_KEY 逐字迁移(红线)、SSE/MCP 反代不缓冲、不可逆步骤(数据同步/DNS 切/旧机停写)用户 go/no-go。
-- **进度**：F-MIG-01(部署基座代码)✅ done / F-MIG-02(CI-CD 改造)✅ done（build-push run 29185738841 SUCCESS，app+migrate 镜像已推 GHCR）/ F-MIG-03 runbook ✅ 交付、**生产割接实操⏳待用户 go/no-go** / F-MIG-04 codex 验收(割接后)。role: Kimi generator / Reviewer evaluator。
-- **P0+P2 演练已执行✅（2026-07-12，旧生产未受影响）**：clone + .env(ENCRYPTION_KEY 等 sha256 逐字校验一致) + GCS key 就位 + 灌快照 173495 行 + 冒烟全绿(chat 解密/SSE/图片 GCS 读写/MCP)。**演练捕获并修复 1 bug**：Next standalone 绑 $HOSTNAME→healthcheck 失败，commit 6ef692a compose 加 HOSTNAME=0.0.0.0。GCS key + Cloudflare token 两外部阻塞均已解决。
-- **剩余（需用户 go/no-go）**：🔴P3 数据终态同步（停旧机写+clean restore）/ 🔴P4 DNS 切换 + Certbot / 🔴P6 退役 → 交 Codex 验收(F-MIG-04)。演练栈在新机 loopback 运行待续。
-- spec：`docs/specs/BL-PROD-MIGRATE-DEPLOYSVR-spec.md`；runbook：`docs/ops/deploysvr-migration-runbook.md`。范式剧本(服务器)：`/root/migration/grandtianfu/MIGRATION_STATE.md`。
+- **BL-PROD-MIGRATE-DEPLOYSVR**（**verifying**，2026-07-12）— 生产迁移已割接：AIGC Gateway 从旧 VPS(GCP `34.180.93.185`)迁到 `deploysvr`(`194.238.26.173`，Docker 化)。**新机已 LIVE**：`https://aigc.guangai.ai` 公网 200、真实 chat 通、业务数据逐行 parity。
+- 方案：容器化 GHCR-pull + GCS 桶留 GCP(导 compute SA key 挂新机) + 直连(不走 dmitsvr) host nginx 公网 80/443 + Certbot DNS-01。ENCRYPTION_KEY 等 secrets sha256 逐字校验一致。
+- **观察期中**：旧机 aigc 4 实例 STOPPED 冻结(可回滚，DNS 旧值 34.180.93.185)、kolmatrix 仍 online。🔴P6 退役待用户验收 + kolmatrix 迁移(单列)。
+- **进度**：F-MIG-01(部署基座+HOSTNAME 修复 6ef692a)✅ / F-MIG-02(CI-CD 改造，secrets 已切新机)✅ / F-MIG-03(runbook+P0-P5 割接实操)✅ / **F-MIG-04 交 Codex Reviewer 验收 LIVE 系统**⏳。role: Kimi generator / Reviewer evaluator。
+- **下一步**：Codex F-MIG-04 验收（公网冒烟/parity 复核/回滚演练可行）→ 用户验收 → 结束观察期 → P6 退役(另需 kolmatrix 迁移)。deploy pipeline 尚未实跑(首次 deploy 或验收时验证)。
+- spec：`docs/specs/BL-PROD-MIGRATE-DEPLOYSVR-spec.md`；runbook(含割接实测记录)：`docs/ops/deploysvr-migration-runbook.md`。
 
 ## 关键现场事实（勘察 2026-07-11）
 - 旧机：PostgreSQL17.9 库 aigc_gateway 272MB / Redis / GCS ADC(SA 1044753973286-compute) / secrets 在 ecosystem.config.cjs+.env.production。
