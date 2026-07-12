@@ -35,7 +35,8 @@
       "title": "Codex 验收 — 新栈冒烟 + 数据 parity + 直连可达 + 回滚演练 + signoff",
       "priority": "high",
       "executor": "codex",
-      "status": "pending",
+      "status": "done",
+      "progress_note": "2026-07-12 用户手工验收通过（未走 Codex）。客观证据见 docs/test-reports/BL-PROD-MIGRATE-DEPLOYSVR-acceptance-2026-07-12.md + runbook 割接实测记录。",
       "source": "spec §5 F-MIG-04, §6 验收标准",
       "acceptance": "前置：F-MIG-01~03 完成、新栈已割接。1) 冒烟：/v1/models(缓存头)、真实 chat(非流+流式 SSE 不被缓冲)、generate_image→GCS 持久化→代理 URL 回读 200、/mcp 全流程(list_models→chat→get_balance)；2) 数据 parity 复核：新库关键表行数+双哈希与旧库一致；抽查若干 provider authConfig 解密成功(验证 ENCRYPTION_KEY 正确)；3) 直连可达性：https://aigc.guangai.ai 证书有效、TLS 链正常、直连 deploysvr；4) 回滚演练可行性：旧机可快速拉起+旧 DNS/VPS_HOST 回退路径成立(不真正回滚)；5) 输出 docs/test-reports/BL-PROD-MIGRATE-DEPLOYSVR-signoff-YYYY-MM-DD.md 含命令/日志证据+PASS/FAIL"
     }

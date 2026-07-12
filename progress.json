@@ -1,20 +1,16 @@
 {
-  "status": "verifying",
+  "status": "done",
   "user_goal": "BL-PROD-MIGRATE-DEPLOYSVR — 生产环境迁移：旧 VPS(GCP 34.180.93.185，东京，原生 PM2)即将下线，将 AIGC Gateway 迁移到新 VPS deploysvr(194.238.26.173，Ubuntu 24.04，Docker 化)。用户三项裁决：(1)容器化 GHCR-pull 部署模型(复用 grandtianfu/invoce 已跑通范式，弃用仓库自带 docker-compose.production.yml)；(2)GCS 图片桶 aigc-gateway-images 留 GCP 不动，导出服务账号 key JSON 挂新机(新机非 GCP，ADC 失效)；(3)不走 dmitsvr/WireGuard 中转，用户直连 deploysvr(与旧机一致)，deploysvr host nginx 新增公网 80/443 直连块(与既有 10.77.0.2:8080 origin 块共存)。范围仅 aigc；旧机还跑 kolmatrix，整机退役单列。硬约束：ENCRYPTION_KEY 逐字迁移(解密 provider 凭据，红线)、SSE/MCP 反代 proxy_buffering off、不可逆步骤(数据同步/DNS 切/旧机停写)用户 go/no-go。",
   "total_features": 4,
-  "completed_features": 3,
+  "completed_features": 4,
   "fix_rounds": 0,
   "current_sprint": "BL-PROD-MIGRATE-DEPLOYSVR",
-  "last_updated": "2026-07-11T00:00:00Z",
-  "role_assignments": {
-    "planner": "Kimi",
-    "generator": "Kimi",
-    "evaluator": "Reviewer"
-  },
+  "last_updated": "2026-07-12T00:00:00Z",
+  "role_assignments": null,
   "docs": {
     "spec": "docs/specs/BL-PROD-MIGRATE-DEPLOYSVR-spec.md",
     "test_cases": null,
-    "signoff": null,
+    "signoff": "docs/test-reports/BL-PROD-MIGRATE-DEPLOYSVR-acceptance-2026-07-12.md",
     "framework_reviewed": false
   },
   "evaluator_feedback": null,
