@@ -53,6 +53,10 @@ services:
     image: ghcr.io/${GH_REPO}/app:${IMAGE_TAG:?IMAGE_TAG is required}
     restart: unless-stopped
     env_file: .env
+    environment:
+      # Next.js standalone 默认绑定 $HOSTNAME（Docker 注入为容器 ID），导致容器内 127.0.0.1
+      # 不监听、healthcheck ECONNREFUSED。强制绑 0.0.0.0（发布端口仍仅 127.0.0.1 loopback，安全）。
+      - HOSTNAME=0.0.0.0
     volumes:
       # GCS 服务账号 key（H2 跨云凭据）。宿主 /opt/apps/aigc-gateway/secrets/gcs-sa.json（600）。
       # 容器内路径需与 .env 的 GOOGLE_APPLICATION_CREDENTIALS 一致。
