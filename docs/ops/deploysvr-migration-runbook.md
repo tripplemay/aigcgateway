@@ -53,6 +53,7 @@
    scp gcs-sa.json deploysvr:/opt/apps/aigc-gateway/secrets/gcs-sa.json  # 目录需先 mkdir
    ssh deploysvr 'chmod 600 /opt/apps/aigc-gateway/secrets/gcs-sa.json'
    ```
+   **✅ 已执行（2026-07-12）**：直接在旧机为 compute SA `1044753973286-compute@...`（已持 bucket objectAdmin）签发 key（key id `ce6ee438d236e73d922bce25e2e086c8c44c0085`），功能验证成功列桶，已直传暂存新机 `/root/migration/aigc-gateway/gcs-sa.json`（600）。P0 正式起栈时 `mv` 到 `/opt/apps/aigc-gateway/secrets/gcs-sa.json`。旧机临时文件已 shred。**注：迁移最终验收后如需可吊销此 key**（`gcloud iam service-accounts keys delete ce6ee438... --iam-account=1044753973286-compute@developer.gserviceaccount.com`）。
 4. **装 certbot（DNS-01）** + Cloudflare token：
    ```bash
    ssh deploysvr 'apt-get update && apt-get install -y certbot python3-certbot-dns-cloudflare'
