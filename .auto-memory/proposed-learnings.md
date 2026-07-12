@@ -34,37 +34,11 @@ type: project
 
 <!-- ================= 待确认区 ================= -->
 
-## [2026-07-12] Planner/Generator — 来源：BL-PROD-MIGRATE-DEPLOYSVR
-
-**类型：** 新规律（生产迁移剧本）
-
-**内容：** 不可逆生产迁移（换机/换部署模型）应遵循固定剧本：①并行演练——起新栈 + 灌一份生产数据快照 + 全链路冒烟，旧机全程照常（本次演练即捕获 Next standalone HOSTNAME bug，割接前挡掉）；②割接前把可逆步骤（签证/反代/验证公网可达）全预置完，把不可逆停机窗口压到"停旧写→数据终态同步→切 DNS"最短；③停机前逐项 go/no-go；④旧机停写冻结作回滚点 + 旧 DNS/secret 值留档，观察期后再退役。
-
-**建议写入 harness-template 的：** 新增 `harness/deploy-patterns.md` §"不可逆生产迁移剧本"（演练→预置→最短窗口→回滚就绪四段）
-
-**状态：** 待确认
-
-## [2026-07-12] Generator — 来源：BL-PROD-MIGRATE-DEPLOYSVR
-
-**类型：** 新坑（有状态应用迁移的凭据一致性）
-
-**内容：** 迁移有状态应用时，"解密 DB 数据的密钥"（如 ENCRYPTION_KEY）必须与源机**逐字节一致**，且要用 sha256 跨机比对证明（不能只"复制了就算"）——不一致则 DB 内加密字段全部无法解密=全站瘫痪。配套坑：源机 `.env` 若是 bash `source` 的（值带引号 `KEY="v"`），迁到 docker compose `env_file` 时引号会被当字面量保留，须去引号规范化。
-
-**建议写入 harness-template 的：** `harness/deploy-patterns.md` §凭据迁移（sha256 逐字校验 + env_file 去引号）
-
-**状态：** 待确认
-
-## [2026-07-12] Generator — 来源：BL-PROD-MIGRATE-DEPLOYSVR
-
-**类型：** 新坑（Next.js standalone 容器部署）
-
-**内容：** Next.js standalone `server.js` 默认绑 `process.env.HOSTNAME`，而 Docker 运行时把 HOSTNAME 注入为容器 ID → 应用绑到容器 IP 而非 0.0.0.0，导致容器内 `127.0.0.1` 不监听：发布端口经 docker-proxy 仍可达（外部 200），但容器内 healthcheck（fetch 127.0.0.1）ECONNREFUSED、状态卡 starting。修复：compose `environment: HOSTNAME=0.0.0.0`（发布端口仅 loopback 时无安全影响）。
-
-**建议写入 harness-template 的：** `harness/deploy-patterns.md` §容器化 Next.js（与既有 §"Next standalone request.url origin 反代推导" v0.9.21 同族，可并一节）
-
-**状态：** 待确认
-
 <!-- ================= 已同步到 harness-template（归档区） ================= -->
+
+## [2026-07-12 已同步 v1.0.1] deploy §7 不可逆生产迁移剧本（换机 / 换部署模型）
+- 来源：BL-PROD-MIGRATE-DEPLOYSVR（GCP 原生 PM2 `34.180.93.185` → deploysvr `194.238.26.173` 容器化，用户手工验收）
+- 写入：`patterns/deploy-patterns.md` §7（7.1 演练→预置→最短窗口→回滚四段剧本 + Planner checklist / 7.2 凭据 sha256 逐字一致红线 + env_file 引号坑 / 7.3 容器化 Next.js standalone HOSTNAME=0.0.0.0 坑）+ README deploy 触发扩展 + CHANGELOG v1.0.1
 
 ## [2026-07-03 已同步 v0.9.23] Planner 铁律 9：spec 断言某值"写入 DB/流向下游"前必须追踪实际写入路径
 - 来源：BL-SYNC-ADAPTERTYPE-FALLBACK 首轮 FAIL — spec D2 断言适配器返回的 SyncedModel.name（带 provider/ 前缀）会成为 models.name，但 reconcile 的 resolveCanonicalName(modelId) 直接返回裸 modelId、丢弃 name（M1a 后所有 provider 都存裸 id）→ 前缀从未落库 → fix-round-1
