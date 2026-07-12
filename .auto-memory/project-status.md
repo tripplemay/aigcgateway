@@ -7,8 +7,9 @@ type: project
 - **BL-PROD-MIGRATE-DEPLOYSVR**（**building**，2026-07-11）— 生产迁移：旧 VPS(GCP `34.180.93.185`，原生 PM2)下线，AIGC Gateway 迁到新 VPS `deploysvr`(`194.238.26.173`，Ubuntu24.04，Docker 化)。
 - 用户三裁决：(1)容器化 GHCR-pull(复用 grandtianfu/invoce 范式，弃用仓库 docker-compose.production.yml)；(2)GCS 桶留 GCP + 导 SA key 挂新机；(3)**不走 dmitsvr/WireGuard，用户直连 deploysvr**，host nginx 加公网 80/443 直连块。
 - 范围仅 aigc；旧机还跑 kolmatrix+staging，整机退役单列。硬约束：ENCRYPTION_KEY 逐字迁移(红线)、SSE/MCP 反代不缓冲、不可逆步骤(数据同步/DNS 切/旧机停写)用户 go/no-go。
-- features 4 条：F-MIG-01 部署基座代码(compose/.env/GCS/Prisma 迁移/nginx vhost) / F-MIG-02 CI-CD 改造(镜像推 GHCR+deploy 改写) / F-MIG-03 runbook+受监督实操 / F-MIG-04 codex 验收。role: Kimi generator / Reviewer evaluator。
-- spec：`docs/specs/BL-PROD-MIGRATE-DEPLOYSVR-spec.md`。范式剧本参考(服务器)：`/root/migration/grandtianfu/MIGRATION_STATE.md` + `/opt/apps/invoce/docker-compose.prod.yml`。
+- **进度**：F-MIG-01(部署基座代码)✅ done / F-MIG-02(CI-CD 改造)✅ done（build-push run 29185738841 SUCCESS，app+migrate 镜像已推 GHCR）/ F-MIG-03 runbook ✅ 交付、**生产割接实操⏳待用户 go/no-go** / F-MIG-04 codex 验收(割接后)。role: Kimi generator / Reviewer evaluator。
+- **剩余（需用户在场）**：用户 GCP 侧导出 GCS SA key → 按 runbook 执行 P0-P5（3 个🔴不可逆门禁 go/no-go：P3 数据终态同步 / P4 DNS 切换 / P6 退役）→ 交 Codex 验收。
+- spec：`docs/specs/BL-PROD-MIGRATE-DEPLOYSVR-spec.md`；runbook：`docs/ops/deploysvr-migration-runbook.md`。范式剧本(服务器)：`/root/migration/grandtianfu/MIGRATION_STATE.md`。
 
 ## 关键现场事实（勘察 2026-07-11）
 - 旧机：PostgreSQL17.9 库 aigc_gateway 272MB / Redis / GCS ADC(SA 1044753973286-compute) / secrets 在 ecosystem.config.cjs+.env.production。
