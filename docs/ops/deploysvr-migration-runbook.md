@@ -100,12 +100,14 @@
    ```bash
    ssh tripplezhou@34.180.93.185 'pm2 stop aigc-gateway'   # kolmatrix 不动
    ```
-2. **终态 dump + restore**：
+2. **终态 dump + clean restore**（先 drop schema 清掉演练残留，再灌）：
    ```bash
-   ssh tripplezhou@34.180.93.185 'pg_dump -Fc -U aigc aigc_gateway' > /tmp/aigc_final.dump
-   scp /tmp/aigc_final.dump deploysvr:/tmp/
-   ssh deploysvr 'PGC=$(docker compose -f /opt/apps/aigc-gateway/docker-compose.prod.yml ps -q postgres); \
-     docker exec -i $PGC pg_restore -U aigc -d aigc_gateway --clean --if-exists < /tmp/aigc_final.dump'
+   ssh deploysvr 'cd /opt/apps/aigc-gateway && docker compose -f docker-compose.prod.yml stop app'  # 停 app 断写
+   PGC_CMD='docker compose -f /opt/apps/aigc-gateway/docker-compose.prod.yml ps -q postgres'
+   ssh deploysvr "PGC=\$($PGC_CMD); docker exec -i \$PGC psql -U aigc -d aigc_gateway -c 'DROP SCHEMA public CASCADE; CREATE SCHEMA public;'"
+   ssh tripplezhou@34.180.93.185 'sudo -n -u postgres pg_dump -Fc aigc_gateway' \
+     | ssh deploysvr "PGC=\$($PGC_CMD); docker exec -i \$PGC pg_restore -U aigc -d aigc_gateway --no-owner"
+   ssh deploysvr 'cd /opt/apps/aigc-gateway && docker compose -f docker-compose.prod.yml up -d'  # migrate no-op + 起 app
    ```
 3. **parity 校验**（对标 grandtianfu 双哈希）：
    ```bash
@@ -183,12 +185,22 @@
 
 ---
 
-## 割接实测记录（执行后回填）
+## P2 演练记录（2026-07-12，✅ 全通过，旧生产未受影响）
+
+- **P0.1** 仓库 clone 到 `/opt/apps/aigc-gateway`（public repo，plain HTTPS）。
+- **P0.2** `.env` 从旧机 `.env.production` 直传构建（DB/REDIS host 改容器名、去引号、补 GH_REPO/POSTGRES_*/域名）；**H1 sha256 校验**：`ENCRYPTION_KEY`(be12cf12…) + JWT + IMAGE_PROXY + AUTH + NEXTAUTH + DB 密码全部与旧机（ecosystem.config.cjs / .env.production）**逐字一致**。GCS key 移入 `secrets/gcs-sa.json`(600)。
+- **P2.1** GHCR 登录 + `compose pull`（app 439MB / migrate 3.39GB / pg17 / redis7），postgres+redis healthy。
+- **P2.2** 演练灌旧库快照：28/29 表非空、**173,495 行**（users=31/providers=9/channels=871/models=970/transactions=26713…）。
+- **P2.3** `up -d`：migrate 门禁「64 migrations found，No pending」no-op 退出0；app healthy。
+- **🐛 演练捕获并修复**：Next standalone 默认绑 `$HOSTNAME`(容器ID) → 容器内 127.0.0.1 不监听、healthcheck 卡 starting。修复 commit `6ef692a`（compose app.environment `HOSTNAME=0.0.0.0`），复验 app→healthy。
+- **P2.4 冒烟全绿**：`/v1/models` 200(36 模型)；非流式 chat deepseek-v3→`MIGRATION_OK`（**验证 provider 凭据解密**）；SSE 流式多 chunk；`gpt-image-mini` 生图→GCS 写入→代理 URL loopback 回读 `image/png 1024x1024 539KB`（**验证 GCS 跨云 key 读写**）；`/mcp` initialize→serverInfo `aigc-gateway v1.0.0`；后台 model-sync 对 siliconflow/qwen/openrouter/guangtech 全部成功（**佐证全 provider 凭据解密**）。
+
+## 割接实测记录（P3-P5 执行后回填）
 
 > 对标 grandtianfu MIGRATION_STATE 的 "Current live state / Verified parity / Rollback controls"。
 
 - **Last verified:** _（待回填）_
 - **Live state:** _（app/pg/redis 容器状态、镜像 tag、健康检查）_
-- **Verified parity:** _（表行数 diff 结果、关键表哈希、provider 凭据解密抽查）_
+- **Verified parity:** _（终态表行数 diff、关键表哈希、provider 凭据解密抽查）_
 - **Edge / TLS:** _（证书到期、公网 curl 结果）_
 - **Rollback controls:** _（last-known-good-tag、旧机状态、VPS_HOST 旧值、旧 DNS 记录）_
