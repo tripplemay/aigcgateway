@@ -13,14 +13,25 @@ import { processChatResult, calculateTokenCost } from "@/lib/api/post-process";
 import { prisma } from "@/lib/prisma";
 import { checkRateLimit, checkTokenLimit, checkSpendingRate } from "@/lib/api/rate-limit";
 import { EngineError, sanitizeErrorMessage } from "@/lib/engine/types";
-import type { ChatCompletionRequest } from "@/lib/engine/types";
+import type { ChatCompletionRequest, ChatMessage } from "@/lib/engine/types";
+import {
+  validateMessagesContent,
+  messagesContainImage,
+  sanitizeMessagesForLog,
+} from "@/lib/api/chat-content";
 import { checkMcpPermission } from "@/lib/mcp/auth";
 import type { McpServerOptions } from "@/lib/mcp/server";
 
 const messageSchema = z.object({
   role: z.enum(["system", "user", "assistant"]),
   // F-WP-05: reject empty message content at the schema layer.
-  content: z.string().min(1, "content must be non-empty"),
+  // F-IIV-01: content 放开为 string | 多模态数组；part 形态 / URL 协议 / base64
+  // 大小 / 张数限制统一交给 chat-content.ts validateMessagesContent（单一事实源），
+  // 避免 zod 与校验器双处维护。
+  content: z.union([
+    z.string().min(1, "content must be non-empty"),
+    z.array(z.record(z.unknown())).min(1, "content array must be non-empty"),
+  ]),
 });
 
 // F-AF-03 (DX-004): tolerate clients that pass `messages` as a JSON string by
@@ -48,14 +59,16 @@ export function registerChat(server: McpServer, opts: McpServerOptions): void {
   const { userId, projectId, apiKeyId, permissions, keyRateLimit } = opts;
   server.tool(
     "chat",
-    `Send a chat completion request to an AI model via AIGC Gateway. Pass model name and messages array. Returns generated text, trace ID, and token usage. IMPORTANT: Call list_models first to get available model names.`,
+    `Send a chat completion request to an AI model via AIGC Gateway. Pass model name and messages array. Returns generated text, trace ID, and token usage. Supports image input (vision) for vision-capable models via multimodal content arrays. IMPORTANT: Call list_models first to get available model names.`,
     {
       model: z
         .string()
         .describe(
           "Exact model name from list_models output (e.g. gpt-4o-mini, claude-sonnet-4.6, deepseek-v3, gemini-3-flash)",
         ),
-      messages: messagesSchema.describe("Message array [{role, content}]."),
+      messages: messagesSchema.describe(
+        "Message array [{role, content}]. content is a plain string, or a multimodal content-part array for vision models: [{type:'text',text:'...'},{type:'image_url',image_url:{url:'https://... or data:image/...;base64,...'}}]. Prefer image URLs over base64 (base64 payloads are heavy over MCP). Limits: max 10 images per request, 5MB per base64 image. The model must have the vision capability (check list_models).",
+      ),
       temperature: z.number().min(0).max(2).optional().describe("Sampling temperature, 0-2"),
       max_tokens: z
         .number()
@@ -238,9 +251,10 @@ export function registerChat(server: McpServer, opts: McpServerOptions): void {
         };
       }
 
-      // Validate no empty content
+      // Validate no empty content（F-IIV-01: trim 校验仅适用于 string 路径；
+      // 数组路径的形态校验由下方 validateMessagesContent 统一负责）
       const emptyContentIdx = messages.findIndex(
-        (m) => !m.content || m.content.trim().length === 0,
+        (m) => !m.content || (typeof m.content === "string" && m.content.trim().length === 0),
       );
       if (emptyContentIdx >= 0) {
         return {
@@ -248,6 +262,21 @@ export function registerChat(server: McpServer, opts: McpServerOptions): void {
             {
               type: "text" as const,
               text: `[invalid_request] messages[${emptyContentIdx}].content is empty. All messages must have non-empty content.`,
+            },
+          ],
+          isError: true,
+        };
+      }
+
+      // F-IIV-01: 多模态 content 校验（part 形态 / 协议白名单 / base64 大小 /
+      // 图片张数），与 REST /v1/chat/completions 同一校验器（chat-content.ts）。
+      const contentError = validateMessagesContent(messages);
+      if (contentError) {
+        return {
+          content: [
+            {
+              type: "text" as const,
+              text: `[${contentError.code}] ${contentError.message} (param: ${contentError.param})`,
             },
           ],
           isError: true,
@@ -320,6 +349,24 @@ export function registerChat(server: McpServer, opts: McpServerOptions): void {
         };
       }
 
+      // F-IIV-01: vision 能力门禁——与 REST F-VI-02 同语义（alias 优先，回退
+      // model；null 按不支持处理）。快速拒绝，避免图片透传给不支持的上游。
+      if (messagesContainImage(messages)) {
+        const aliasCaps = (route.alias?.capabilities ?? null) as { vision?: boolean } | null;
+        const modelCaps = (route.model?.capabilities ?? null) as { vision?: boolean } | null;
+        if (aliasCaps?.vision !== true && modelCaps?.vision !== true) {
+          return {
+            content: [
+              {
+                type: "text" as const,
+                text: `[model_not_vision_capable] Model "${model}" does not support image input. Use list_models to find a vision-capable model.`,
+              },
+            ],
+            isError: true,
+          };
+        }
+      }
+
       // F-ACF-06 + F-AP-07: prefer maxTokens (max output), fallback to contextWindow.
       const modelContextWindow = route.model?.contextWindow ?? null;
       const modelMaxOutput = route.model?.maxTokens ?? null;
@@ -355,9 +402,14 @@ export function registerChat(server: McpServer, opts: McpServerOptions): void {
       const traceId = generateTraceId();
       const startTime = Date.now();
 
+      // F-IIV-01: 日志卫生——promptSnapshot 统一走 sanitize（image url → 占位符），
+      // 防 base64 原始字节写入 call_logs（与 REST 行为对齐）。
+      const promptSnapshotForLog = sanitizeMessagesForLog(messages);
+
       const request: ChatCompletionRequest = {
         model,
-        messages: messages,
+        // zod 层为宽松 record 数组，形态已由 validateMessagesContent 保证
+        messages: messages as unknown as ChatMessage[],
         ...(temperature !== undefined ? { temperature } : {}),
         ...(max_tokens !== undefined ? { max_tokens } : {}),
         ...(effectiveMaxReasoningTokens !== undefined
@@ -453,7 +505,7 @@ export function registerChat(server: McpServer, opts: McpServerOptions): void {
             projectId,
             route,
             modelName: model,
-            promptSnapshot: messages,
+            promptSnapshot: promptSnapshotForLog,
             requestParams: { temperature, max_tokens, stream: true },
             startTime,
             ttftTime,
@@ -520,7 +572,7 @@ export function registerChat(server: McpServer, opts: McpServerOptions): void {
           projectId,
           route,
           modelName: model,
-          promptSnapshot: messages,
+          promptSnapshot: promptSnapshotForLog,
           requestParams: { temperature, max_tokens },
           startTime,
           response,
@@ -574,7 +626,7 @@ export function registerChat(server: McpServer, opts: McpServerOptions): void {
           projectId,
           route,
           modelName: model,
-          promptSnapshot: messages,
+          promptSnapshot: promptSnapshotForLog,
           requestParams: { temperature, max_tokens },
           startTime,
           error: { message: (err as Error).message, code: (err as EngineError)?.code },
