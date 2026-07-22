@@ -4,12 +4,14 @@ description: AIGC Gateway 当前状态快照（覆盖写，≤30 行）
 type: project
 ---
 ## 当前批次
-- **BL-IMG-I2I-VISION**（**building**，2026-07-22 起）— 图生图 + MCP 图片输入。8 features（7 generator + 1 codex），spec `docs/specs/BL-IMG-I2I-VISION-spec.md`。角色默认映射：Kimi generator / Reviewer evaluator。
-- 三项用户裁决：并入 BL-MCP-VISION-INPUT（已出 backlog）；generations 扩展 image 参数 + /v1/images/edits 兼容壳都做；首发 seedream-4-5 + OpenRouter gpt-5-image / gemini-3-pro-image。
-- 关键设计：capability 定名 `image_to_image`（避开 reinferAllCapabilities 的 image_input→vision 剥离）；F-IIV-04/05 上游契约**前置实测硬门禁**（seedream-3 教训），探测不通收缩不硬上；源图仅 URL+base64 不 fetch 不落盘，限制复用 vision-limits。
+- **BL-IMG-I2I-VISION**（**verifying**，2026-07-22 handoff）— 图生图 + MCP 图片输入。7/7 generator features 完成（CI 全绿），待 Codex 执行 F-IIV-08 验收。handoff 详情见 progress.json generator_handoff。
+- i2i 放行模型（ops 文档为准）：seedream-4-5（上游实测通过：images 端点 image 字段 URL/数组/base64 全通，chat API 不可用）；gpt-image / gemini-3-pro-image（用户裁决按标准 OpenAI 契约直上，未实测）。
+- **🔴 OpenRouter 账户欠费**（$590 用尽超支 $0.20）——生产所有 OR 通道 402 中，含 OR 图模验收阻断。待用户充值。
+- 生产 provisioning 未跑：部署后需在 deploysvr 跑 `provision-i2i-capabilities.ts --apply`（ops 文档 §3 有步骤）。
 
 ## 上一批次遗留（仍有效）
-- **BL-PROD-MIGRATE-DEPLOYSVR**（done 2026-07-12）：生产已迁 deploysvr(194.238.26.173，容器化)，`https://aigc.guangai.ai` LIVE。旧机 aigc 4 实例 STOPPED 冻结可回滚（DNS 旧值 34.180.93.185）、kolmatrix+staging 仍 online。**🔴P6 旧机退役**待用户择机 + **kolmatrix 迁移**（单列）。deploy pipeline secrets 已配但未实跑。
+- **BL-PROD-MIGRATE-DEPLOYSVR**（done 2026-07-12）：生产已迁 deploysvr(194.238.26.173，容器化)。旧机冻结可回滚。**🔴P6 旧机退役**待用户择机 + **kolmatrix 迁移**（单列）。
+- alias capabilities 历史双层嵌套 + seedream-4-5 supported_sizes 陈旧（本批次发现，ops §3 附录，建议后续清洗批次）。
 
 ## Backlog（3 条）
 - **BL-SEC-PAY-DEFERRED**（critical-deferred）— 支付 webhook 验签 + 幂等 CAS
@@ -17,4 +19,4 @@ type: project
 - **BL-FE-DS-SHADCN**（low-deferred）— shadcn 大批量采用率提升
 
 ## 参考
-- 生产：`https://aigc.guangai.ai`。图片能力勘察报告结论已固化进 spec §2（vision REST 已有 / MCP 缺 / i2i 全空白 / 存储计费门禁地基全就绪）。
+- 生产：`https://aigc.guangai.ai`。本批次探测/脚本/回滚记录：`docs/specs/BL-IMG-I2I-VISION-ops.md`。

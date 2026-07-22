@@ -138,3 +138,23 @@ type: project
 - 来源：BL-FE-PERF-01 F-PF-01
 - 写入：`harness/generator.md` §前端相关经验
 
+
+## [2026-07-22] Claude CLI — 来源：BL-IMG-I2I-VISION F-IIV-04/05
+
+**类型：** 新规律
+
+**内容：** Generator 自测外部上游集成的可复用模式：经 SSH 从生产 DB 提取 provider 真实 key（不落本地文件/git）→ 在本地测试库镜像 provider/channel/alias 配置 → 本地网关直连真实上游做全链路 E2E（含计费/日志断言）。比"只 tsc+build 等 Codex 验收"提前一轮发现契约问题（本批次借此实测出 seedream-4-5 chat API 整体不可用、1024 尺寸恒拒等 4 个上游事实）。
+
+**建议写入 harness-template 的：** `harness/generator.md`（自测手段一节）
+
+**状态：** 待确认
+
+## [2026-07-22] Claude CLI — 来源：BL-IMG-I2I-VISION F-IIV-05
+
+**类型：** 铁律补充
+
+**内容：** 「外部契约前置实测」铁律的例外处理：探测被环境问题（如上游账户欠费）而非契约问题阻断时，不能直接判"探测不通→收缩"，应升级为用户裁决点——标准协议（如 OpenAI 兼容格式）可特批免探直上、验收阶段补真实验证；非标准/自有格式上游仍必须实测。裁决与理由记入 ops 文档。
+
+**建议写入 harness-template 的：** `harness/planner.md` 或 `docs/`（铁律 L1 的例外条款）
+
+**状态：** 待确认

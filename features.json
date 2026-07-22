@@ -7,7 +7,7 @@
       "title": "MCP chat 多模态 content（vision）— schema 放开 + 复用 chat-content.ts 校验 + vision 门禁 + 日志卫生",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "string content 回归不变；多模态数组经 MCP chat 调 vision 模型正常回答；非 vision 模型带图 → model_not_vision_capable；超限/非法 part → 干净 MCP 错误；call_logs 无 base64 原始字节；tsc + build PASS；独立 commit"
     },
     {
@@ -15,7 +15,7 @@
       "title": "引擎类型扩展（ImageGenerationRequest.image）+ REST /v1/images/generations image 参数 + i2i 门禁 + 日志卫生",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "纯文生图回归不变；合法 image + image_to_image 模型通过门禁；非 i2i 模型带 image → 400 model_not_i2i_capable；非法协议/超大/超张数各自 400 可定位；call_logs 无源图 base64；tsc + build PASS；独立 commit"
     },
     {
@@ -23,7 +23,7 @@
       "title": "/v1/images/edits OpenAI 兼容壳（multipart → 内部归一化，复用 generations 管道）",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "OpenAI SDK images.edit() / curl -F 打通返回可解析代理 URL；多文件上送多源图；mask/非法类型/超大各自干净 4xx；计费审计与 generations 一致；tsc + build PASS；独立 commit"
     },
     {
@@ -31,7 +31,7 @@
       "title": "Volcengine adapter 源图上送（seedream-4-5，前置真实探测上游 i2i 契约）",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "探测记录入 ops 文档（chat 带图 / images 端点带 image 两路径结论）；seedream-4-5 URL+base64 源图真实生成返回可解析代理 URL；纯文生图回归不变；探测不通则按 D5 收缩并记录；tsc + build PASS；独立 commit"
     },
     {
@@ -39,7 +39,7 @@
       "title": "OpenRouter imageViaChat 源图上送（gpt-5-image / gemini-3-pro-image，前置真实探测）",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "探测记录入 ops 文档；两模型带源图真实生成返回可解析代理 URL；image_via_chat_modalities 纯文生图回归不变；探测不通的模型收缩出批次；tsc + build PASS；独立 commit"
     },
     {
@@ -47,7 +47,7 @@
       "title": "MCP generate_image 增 image 参数（同校验同门禁 + description 引导）",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "MCP 带源图调 seedream-4-5 返回代理 URL；非 i2i 模型带图 → MCP model_not_i2i_capable；超限干净 MCP 错误；纯文生图 MCP 回归不变；tsc + build PASS；独立 commit"
     },
     {
@@ -55,7 +55,7 @@
       "title": "capability provisioning 脚本（image_to_image 幂等补标）+ sync 存活性核验 + docs 页双语示例 + ops 文档",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "脚本 dry-run 盘点 + --apply 幂等（重跑无变化）且清 models:list* 缓存；不误标探测未通过模型；sync merge 语义核验结论落 ops 文档；docs 页双语示例与实际 API 一致；tsc + build PASS；独立 commit"
     },
     {
