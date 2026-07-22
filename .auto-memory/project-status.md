@@ -4,8 +4,8 @@ description: AIGC Gateway 当前状态快照（覆盖写，≤30 行）
 type: project
 ---
 ## 当前批次
-- **BL-IMG-I2I-VISION**（**reverifying**，2026-07-22 fix_round 1 完成）— 图生图 + MCP 图片输入。两缺陷已修（commit 1cd8676，CI 绿）：IIV-DEF-01 edits 纳入 image 权限域（detectEndpoint 补映射，restricted key 现 403）；IIV-DEF-02 去 zod max(10) 改由 validateImageInput 返回 D7 业务信封。
-- 回归测试已同 commit 沉淀：e2e-errors.ts「IIV-DEF-01 edits 403」+ test-mcp-errors.ts「5c IIV-DEF-02 信封断言」，本地验证均 PASS。待 Codex 复验（真实 L2 授权事项见首验报告）。
+- **BL-IMG-I2I-VISION**（**reverifying**，2026-07-22 fix_round 1）— Codex L1 复验已通过：专用 E2E `44/44 PASS`，tsc/build PASS，Vitest `670 PASS / 4 SKIP`。IIV-DEF-01/02 均 CLOSED；受限 edits 为 403，余额和 CallLog 均无变化；MCP 11 图返回 D7 业务信封。
+- **L2 BLOCKED / NOT RUN**：真实 provider 调用和计费尚未获用户明确授权；F-IIV-08 pending，`docs.signoff=null`，不得置 done。复验检查点见 `docs/test-reports/BL-IMG-I2I-VISION-signoff-2026-07-22.md`。
 - i2i 放行模型（ops 文档为准）：seedream-4-5（上游实测通过：images 端点 image 字段 URL/数组/base64 全通，chat API 不可用）；gpt-image / gemini-3-pro-image（用户裁决按标准 OpenAI 契约直上，未实测）。
 - **🔴 OpenRouter 账户欠费**（$590 用尽超支 $0.20）——生产所有 OR 通道 402 中，含 OR 图模验收阻断。待用户充值。
 - 生产 provisioning 未跑：部署后需在 deploysvr 跑 `provision-i2i-capabilities.ts --apply`（ops 文档 §3 有步骤）。

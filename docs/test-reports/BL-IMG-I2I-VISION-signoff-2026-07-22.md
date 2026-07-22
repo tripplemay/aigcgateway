@@ -1,12 +1,36 @@
-# BL-IMG-I2I-VISION 验收报告（FAIL，未签收）
+# BL-IMG-I2I-VISION 验收报告（复验中，未签收）
 
 **批次：** BL-IMG-I2I-VISION  
-**阶段：** verifying（首轮）  
+**阶段：** reverifying（fix round 1）
 **Evaluator：** Reviewer  
 **执行时间：** 2026-07-22  
-**最终结论：** **FAIL，进入 fixing；本文件不是发布签收。**
+**当前结论：** **L1 PASS；L2 BLOCKED / NOT RUN。本文件不是发布签收。**
 
-## Summary
+## Fix Round 1 Reverification Checkpoint
+
+- **被测提交：** `1cd8676`（缺陷修复），状态交接提交 `599623d`。
+- **L1 专用 E2E：** `44 PASS / 0 FAIL / 44`；首轮 IIV-DEF-01、IIV-DEF-02 均关闭。
+- **副作用核验：** `imageGeneration=false` Key 调 `/v1/images/edits` 返回 `403 forbidden`；余额 `99.92798536 → 99.92798536`，项目 CallLog `12 → 12`。
+- **修复回归：** `scripts/e2e-errors.ts` 的 IIV-DEF-01 步骤 PASS；`scripts/test-mcp-errors.ts` 的 IIV-DEF-02 步骤 PASS。
+- **静态/回归：** `npx tsc --noEmit` PASS；setup 内 production build PASS；Vitest `81/81` files、`670 passed / 4 skipped`。
+- **附带脚本既有失败：** `e2e-errors.ts` 总计 `11 PASS / 2 FAIL`，失败因 clean seed 无 `deepseek/v3`；`test-mcp-errors.ts` 总计 `8 PASS / 3 FAIL`，失败因无 `deepseek-v3` 且 burst case 触发后续限流。新增缺陷回归步骤均 PASS，批次专用 44 项脚本不依赖这些缺失基线。
+- **L2：** 尚未获得真实 provider 调用与计费的明确授权；seedream-4-5 真正出图、GCS 实际对象、计费一致性仍为 BLOCKED。OpenRouter 两模型另有已知账户 402 环境阻塞。
+- **状态约束：** 保持 `progress.status=reverifying`、F-IIV-08 pending、`docs.signoff=null`；不得置 `done`。
+
+### Fix Verification
+
+| Defect | 复验结果 | 证据 |
+|---|---|---|
+| IIV-DEF-01 edits 权限绕过和扣费 | CLOSED / PASS | HTTP 403；余额不变；CallLog 数量不变；独立回归步骤 PASS |
+| IIV-DEF-02 MCP 11 图协议错误 | CLOSED / PASS | `result.isError=true`；`code=invalid_parameter`；`param=image`；不存在 JSON-RPC `-32602` |
+
+### Current Coverage Gap
+
+真实 provider L2 未执行，因此当前不能对 F-IIV-08 做最终签收。需要用户明确授权后执行 seedream-4-5 URL/base64、edits、MCP generate_image、代理对象、CallLog 和计费核验；OpenRouter 402 按环境 BLOCKED 记录。
+
+## Initial Verifying History
+
+## Initial Summary
 
 - **Scope：** F-IIV-01..08；重点覆盖 i2i generations、multipart edits、MCP vision/generate_image、capability provisioning、门禁、安全限制、计费、日志卫生与回归。
 - **Documents：** `docs/specs/BL-IMG-I2I-VISION-spec.md`、`docs/specs/BL-IMG-I2I-VISION-ops.md`、`features.json`、`docs/test-cases/BL-IMG-I2I-VISION-test-cases.md`。
@@ -95,6 +119,6 @@
 - 无需产品裁决即可修复 IIV-DEF-01：`edits` 应与 `generations` 同属 image endpoint 权限域。
 - IIV-DEF-02 的规格已明确 D7 `isError:true + code`；如团队决定接受 SDK `-32602`，需先由 Planner 修改规格，否则当前行为仍判 FAIL。
 
-## Final Conclusion
+## Initial Final Conclusion (History)
 
 **FAIL。** F-IIV-03 与 F-IIV-06 回到 pending，`progress.status` 应置 `fixing`。修复后最小复验范围：两项缺陷用例、REST/MCP 权限与限制回归、全量 Vitest；L1 全 PASS 后再申请并执行 L2，最终才能填写 `docs.signoff` 并置 `done`。

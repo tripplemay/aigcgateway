@@ -1,7 +1,7 @@
 # BL-IMG-I2I-VISION 验收测试用例
 
 **批次：** BL-IMG-I2I-VISION  
-**阶段：** verifying  
+**阶段：** verifying / reverifying（fix round 1）
 **Evaluator：** Reviewer  
 **需求来源：** `docs/specs/BL-IMG-I2I-VISION-spec.md`、`docs/specs/BL-IMG-I2I-VISION-ops.md`、`features.json` F-IIV-01..08  
 **环境边界：** L1 使用 `http://localhost:3199` 与测试数据库；L2 使用真实 provider key，须用户明确授权。OpenRouter 账户 402 记为环境 `BLOCKED`，不直接判产品 `FAIL`。
