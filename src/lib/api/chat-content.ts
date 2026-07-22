@@ -113,8 +113,9 @@ export function validateMessagesContent(messages: RawMessage[]): ContentValidati
 
 /**
  * 校验单个 image_url：data:image base64（含大小上限）或 http(s) URL（协议白名单）。
+ * F-IIV-02: 导出供 image-input.ts（图生图源图校验）复用，同一套限制规则。
  */
-function validateImageUrl(url: string, param: string): ContentValidationError | null {
+export function validateImageUrl(url: string, param: string): ContentValidationError | null {
   if (url.startsWith("data:")) {
     const match = DATA_URI_IMAGE_RE.exec(url);
     if (!match) {
@@ -198,7 +199,10 @@ function sanitizePart(part: unknown): unknown {
   return { ...p, image_url: { ...p.image_url, url: placeholderForImageUrl(p.image_url?.url) } };
 }
 
-function placeholderForImageUrl(url: unknown): string {
+/**
+ * F-IIV-02: 导出供 image-input.ts（图生图源图日志占位符）复用。
+ */
+export function placeholderForImageUrl(url: unknown): string {
   if (typeof url !== "string") return "[image]";
   if (url.startsWith("data:")) {
     const commaIdx = url.indexOf(",");

@@ -15,6 +15,7 @@ import { processImageResult } from "@/lib/api/post-process";
 import { persistGeneratedImages } from "@/lib/api/persist-image";
 import { rewriteImageResponseUrls, resolveRequestOrigin } from "@/lib/api/image-proxy";
 import { validatePrompt } from "@/lib/api/prompt-validation";
+import { validateImageInput, sanitizeImageInputForLog } from "@/lib/api/image-input";
 import type { ImageGenerationRequest } from "@/lib/engine/types";
 import { EngineError, ErrorCodes, sanitizeErrorMessage } from "@/lib/engine/types";
 
@@ -50,6 +51,20 @@ export async function POST(request: Request) {
     return errorResponse(400, "invalid_prompt", promptCheck.message ?? "invalid prompt", {
       param: "prompt",
     });
+  }
+
+  // BL-IMG-I2I-VISION F-IIV-02 (D1): 源图（图生图）校验——归一化 string→[string]，
+  // 协议白名单 / base64 大小 / 张数复用 vision-limits。网关不 fetch 源图。
+  let sourceImages: string[] = [];
+  if (body.image !== undefined) {
+    const imageCheck = validateImageInput(body.image);
+    if (!imageCheck.ok) {
+      return errorResponse(400, imageCheck.error.code, imageCheck.error.message, {
+        param: imageCheck.error.param,
+      });
+    }
+    sourceImages = imageCheck.images;
+    body.image = sourceImages; // 归一化为数组，adapter 侧统一按 string[] 消费
   }
 
   // 4. 限流：RPM (三维度) + 消费速率（TPM 对图片不适用）
@@ -94,6 +109,23 @@ export async function POST(request: Request) {
     );
   }
 
+  // BL-IMG-I2I-VISION F-IIV-02 (D2): i2i 能力门禁——带源图时模型必须声明
+  // capabilities.image_to_image=true（alias 优先，回退 model；null 按不支持）。
+  // 快速 400，避免把源图透传给不支持的上游后才被拒（且已计费）。
+  if (sourceImages.length > 0) {
+    const aliasCaps = (route.alias?.capabilities ?? null) as { image_to_image?: boolean } | null;
+    const modelCaps = (route.model?.capabilities ?? null) as { image_to_image?: boolean } | null;
+    if (aliasCaps?.image_to_image !== true && modelCaps?.image_to_image !== true) {
+      if (rlKey && rlMember) rollbackRateLimit(rlKey, rlMember).catch(() => {});
+      return errorResponse(
+        400,
+        "model_not_i2i_capable",
+        `Model "${body.model}" does not support image-to-image generation (source image input).`,
+        { param: "model" },
+      );
+    }
+  }
+
   // 5.5 Size 预校验
   if (body.size) {
     const supportedSizes = route.model.supportedSizes as string[] | null;
@@ -110,6 +142,13 @@ export async function POST(request: Request) {
 
   const startTime = Date.now();
   const modelName = body.model;
+
+  // F-IIV-02 (D6) 日志卫生：requestParams 落库前把源图替换为占位符
+  // （base64 → [image:base64 NB] / URL → [image:url host]），防 call_logs 暴涨。
+  const requestParamsForLog: Record<string, unknown> = {
+    ...(body as unknown as Record<string, unknown>),
+    ...(sourceImages.length > 0 ? { image: sanitizeImageInputForLog(sourceImages) } : {}),
+  };
 
   // 6. 执行请求（F-RR-02: failover on retryable errors）
   try {
@@ -138,7 +177,8 @@ export async function POST(request: Request) {
       route,
       modelName,
       promptSnapshot: [{ role: "user", content: body.prompt }],
-      requestParams: body as unknown as Record<string, unknown>,
+      requestParams: requestParamsForLog,
+      sourceImagesCount: sourceImages.length > 0 ? sourceImages.length : undefined,
       startTime,
       response,
       persistedKeys,
@@ -169,7 +209,8 @@ export async function POST(request: Request) {
       route,
       modelName,
       promptSnapshot: [{ role: "user", content: body.prompt }],
-      requestParams: body as unknown as Record<string, unknown>,
+      requestParams: requestParamsForLog,
+      sourceImagesCount: sourceImages.length > 0 ? sourceImages.length : undefined,
       startTime,
       error: {
         message: (err as Error).message,

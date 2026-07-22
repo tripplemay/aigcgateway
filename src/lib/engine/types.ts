@@ -55,6 +55,13 @@ export interface ImageGenerationRequest {
   size?: string;
   quality?: string;
   response_format?: "url" | "b64_json";
+  /**
+   * BL-IMG-I2I-VISION F-IIV-02 (D1): 图生图源图。http(s) URL 或 data:image
+   * base64 URI，单图或多图（多图融合，如 Seedream 4.x）。网关不 fetch 不落盘，
+   * 限制复用 vision-limits（≤10 张 / base64 解码 ≤5MB / 协议白名单）。
+   * route 层校验后归一化为 string[] 再进 adapter。
+   */
+  image?: string | string[];
 }
 
 // ============================================================

@@ -68,6 +68,11 @@ export interface ImagePostProcessParams extends PostProcessParams {
    * reads them back as GCS object keys) instead of upstream URLs.
    */
   persistedKeys?: Array<PersistedImage | null>;
+  /**
+   * BL-IMG-I2I-VISION F-IIV-02 (D6): 图生图源图张数，写入
+   * responseSummary.source_images_count 供审计区分 t2i / i2i 调用。
+   */
+  sourceImagesCount?: number;
 }
 
 /**
@@ -508,6 +513,10 @@ async function processImageResultAsync(params: ImagePostProcessParams): Promise<
   const includeAttemptChain = Array.isArray(params.attemptChain) && params.attemptChain.length > 1;
   const responseSummary = {
     images_count: imagesCount,
+    // F-IIV-02 (D6): i2i 调用记录源图张数，审计区分 t2i / i2i
+    ...(typeof params.sourceImagesCount === "number" && params.sourceImagesCount > 0
+      ? { source_images_count: params.sourceImagesCount }
+      : {}),
     ...(hasOriginalUrls ? { original_urls: originalUrls } : {}),
     ...(zeroImageDelivery ? { zero_image_delivery: true } : {}),
     ...(includeAttemptChain ? { attempt_chain: params.attemptChain } : {}),
