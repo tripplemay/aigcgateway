@@ -4,7 +4,7 @@
 **阶段：** verifying / reverifying（fix round 1）
 **Evaluator：** Reviewer  
 **需求来源：** `docs/specs/BL-IMG-I2I-VISION-spec.md`、`docs/specs/BL-IMG-I2I-VISION-ops.md`、`features.json` F-IIV-01..08  
-**环境边界：** L1 使用 `http://localhost:3199` 与测试数据库；L2 使用真实 provider key，须用户明确授权。OpenRouter 账户 402 记为环境 `BLOCKED`，不直接判产品 `FAIL`。
+**环境边界：** L1 使用 `http://localhost:3199` 与测试数据库；L2 使用真实 provider key，须用户明确授权。若 OpenRouter 返回账户 402 则记为环境 `BLOCKED`；本轮账户可用，两模型真实调用成功。
 
 ## 覆盖摘要
 
@@ -17,6 +17,13 @@
 | MCP generate_image / chat | TC-IIV-040..047、TC-IIV-065..067 |
 | 计费、日志、持久化        | TC-IIV-050..056                  |
 | 相邻流程回归              | TC-IIV-060..067                  |
+
+## 本轮执行结论
+
+- L1：`44/44 PASS`；IIV-DEF-01/02 复验关闭。
+- L2：真实 Provider 功能场景 `14/14 PASS`，视觉相关性、GCS、代理、Seedream perCall 和失败不扣费均通过。
+- TC-IIV-051：**FAIL**。生产等价配置中 OpenRouter channel 为 token sell、alias 为 call sell，成功调用写入非零 cost 但 sell=0、无 Transaction；缺陷 IIV-DEF-03。
+- 批次整体：**FAIL / fixing**；F-IIV-08 保持 pending，signoff 为空。
 
 ## 结构化测试用例
 
