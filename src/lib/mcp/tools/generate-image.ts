@@ -13,6 +13,7 @@ import { processImageResult } from "@/lib/api/post-process";
 import { persistGeneratedImages } from "@/lib/api/persist-image";
 import { buildProxyUrl } from "@/lib/api/image-proxy";
 import { validatePrompt } from "@/lib/api/prompt-validation";
+import { validateImageInput, sanitizeImageInputForLog } from "@/lib/api/image-input";
 import { prisma } from "@/lib/prisma";
 import { checkRateLimit, checkSpendingRate } from "@/lib/api/rate-limit";
 import { EngineError, sanitizeErrorMessage } from "@/lib/engine/types";
@@ -24,7 +25,7 @@ export function registerGenerateImage(server: McpServer, opts: McpServerOptions)
   const { userId, projectId, apiKeyId, permissions, keyRateLimit } = opts;
   server.tool(
     "generate_image",
-    `Generate images using an AI model via AIGC Gateway. Returns image URLs, trace ID, and cost. IMPORTANT: Call list_models(modality='image') first to get available image model names and supported sizes.`,
+    `Generate images using an AI model via AIGC Gateway. Returns image URLs, trace ID, and cost. Supports image-to-image (i2i): pass source image(s) via the optional "image" parameter — the model must have the image_to_image capability. IMPORTANT: Call list_models(modality='image') first to get available image model names, supported sizes, and capabilities.`,
     {
       model: z.string().describe("Exact image model name from list_models output"),
       prompt: z
@@ -32,6 +33,12 @@ export function registerGenerateImage(server: McpServer, opts: McpServerOptions)
         .min(1, "prompt must be non-empty")
         .max(4000, "prompt must be at most 4000 characters")
         .describe("Image description / prompt"),
+      image: z
+        .union([z.string(), z.array(z.string()).max(10)])
+        .optional()
+        .describe(
+          "Optional source image(s) for image-to-image generation: an http(s) URL or data:image base64 URI, or an array of up to 10 (multi-image fusion). Prefer URLs over base64 (base64 payloads are heavy over MCP; max 5MB per base64 image). Requires a model with the image_to_image capability (check list_models).",
+        ),
       size: z
         .string()
         .optional()
@@ -46,7 +53,7 @@ export function registerGenerateImage(server: McpServer, opts: McpServerOptions)
         .optional()
         .describe("Number of images to generate, default 1"),
     },
-    async ({ model, prompt, size, n }) => {
+    async ({ model, prompt, image, size, n }) => {
       // Permission check
       const permErr = checkMcpPermission(permissions, "imageGeneration");
       if (permErr) {
@@ -65,6 +72,29 @@ export function registerGenerateImage(server: McpServer, opts: McpServerOptions)
           ],
           isError: true,
         };
+      }
+
+      // BL-IMG-I2I-VISION F-IIV-06 (D1): 源图校验——与 REST 同一 helper
+      // （image-input.ts：归一化 / 协议白名单 / base64 大小 / 张数）。
+      let sourceImages: string[] = [];
+      if (image !== undefined) {
+        const imageCheck = validateImageInput(image);
+        if (!imageCheck.ok) {
+          return {
+            content: [
+              {
+                type: "text" as const,
+                text: JSON.stringify({
+                  code: imageCheck.error.code,
+                  message: imageCheck.error.message,
+                  param: imageCheck.error.param,
+                }),
+              },
+            ],
+            isError: true,
+          };
+        }
+        sourceImages = imageCheck.images;
       }
 
       // Check balance
@@ -204,6 +234,31 @@ export function registerGenerateImage(server: McpServer, opts: McpServerOptions)
         };
       }
 
+      // BL-IMG-I2I-VISION F-IIV-06 (D2): i2i 能力门禁——与 REST 同语义
+      // （alias 优先，回退 model；null 按不支持）。
+      if (sourceImages.length > 0) {
+        const aliasCaps = (route.alias?.capabilities ?? null) as {
+          image_to_image?: boolean;
+        } | null;
+        const modelCaps = (route.model?.capabilities ?? null) as {
+          image_to_image?: boolean;
+        } | null;
+        if (aliasCaps?.image_to_image !== true && modelCaps?.image_to_image !== true) {
+          return {
+            content: [
+              {
+                type: "text" as const,
+                text: JSON.stringify({
+                  code: "model_not_i2i_capable",
+                  message: `Model "${model}" does not support image-to-image generation (source image input). Use list_models to find a model with the image_to_image capability.`,
+                }),
+              },
+            ],
+            isError: true,
+          };
+        }
+      }
+
       // Size 预校验
       if (size) {
         const supportedSizes = route.model.supportedSizes as string[] | null;
@@ -230,9 +285,17 @@ export function registerGenerateImage(server: McpServer, opts: McpServerOptions)
       const request: ImageGenerationRequest = {
         model,
         prompt,
+        ...(sourceImages.length > 0 ? { image: sourceImages } : {}),
         ...(size ? { size } : {}),
         ...(n ? { n } : {}),
       };
+
+      // F-IIV-06 (D6) 日志卫生：requestParams 落库前源图占位符化
+      const requestParamsForLog: Record<string, unknown> = {
+        ...(request as unknown as Record<string, unknown>),
+        ...(sourceImages.length > 0 ? { image: sanitizeImageInputForLog(sourceImages) } : {}),
+      };
+      const sourceImagesCount = sourceImages.length > 0 ? sourceImages.length : undefined;
 
       try {
         // F-RR-02: failover
@@ -258,7 +321,8 @@ export function registerGenerateImage(server: McpServer, opts: McpServerOptions)
           route,
           modelName: model,
           promptSnapshot: [{ role: "user", content: prompt }],
-          requestParams: request as unknown as Record<string, unknown>,
+          requestParams: requestParamsForLog,
+          sourceImagesCount,
           startTime,
           response,
           persistedKeys,
@@ -306,7 +370,8 @@ export function registerGenerateImage(server: McpServer, opts: McpServerOptions)
           route,
           modelName: model,
           promptSnapshot: [{ role: "user", content: prompt }],
-          requestParams: request as unknown as Record<string, unknown>,
+          requestParams: requestParamsForLog,
+          sourceImagesCount,
           startTime,
           error: { message: (err as Error).message, code: (err as EngineError)?.code },
           source: "mcp",

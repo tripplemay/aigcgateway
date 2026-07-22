@@ -42,6 +42,25 @@
 
 ---
 
-## 2. F-IIV-05 — OpenRouter 图模探测（待补）
+## 2. F-IIV-05 — OpenRouter 图模探测（受阻，等用户裁决）
+
+**探测时间：** 2026-07-22
+**探测环境：** 生产 openrouter key，直连 `https://openrouter.ai/api/v1/chat/completions`，从 deploysvr 发起。
+
+### 探测矩阵与结果
+
+| # | 模型 | 源图形态 | 结果 |
+|---|---|---|---|
+| 1 | `openai/gpt-5-image` | URL | ❌ 402 Insufficient credits |
+| 2 | `openai/gpt-5-image` | base64 | ❌ 402 Insufficient credits |
+| 3 | `google/gemini-3-pro-image-preview` | URL | ❌ 402 Insufficient credits |
+| 4 | `google/gemini-3-pro-image-preview` | base64 | ❌ 402 Insufficient credits |
+
+### 受阻原因（非契约问题）
+
+**OpenRouter 账户余额耗尽**：`/api/v1/credits` 返回 `total_credits=590, total_usage=590.20`（超支 $0.20）。廉价文本模型（deepseek-chat）同样 402——**全账户欠费，生产所有 OpenRouter 通道当前 402**（不止图模）。
+
+**用户裁决（2026-07-22）：先跳过 F-IIV-05 等用户决定（充值后重探 / 或按 D5 收缩出批次）。**
+i2i 上游契约（chat content 数组带 image_url）在余额恢复前无法验证；`openai-compat.ts imageViaChat` 的源图上送代码待探测通过后再落。
 
 ## 3. F-IIV-07 — provisioning 脚本用法 + 回滚（待补）
