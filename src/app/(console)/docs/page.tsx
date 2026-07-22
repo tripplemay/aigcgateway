@@ -132,6 +132,21 @@ export default function DocsPage() {
             {t("paramToolChoice")}
           </p>
         </div>
+        <h4 className="font-medium mt-4 mb-2 text-sm">{t("visionInputTitle")}</h4>
+        <p className="text-sm mb-3">{t("visionInputDesc")}</p>
+        <Code>{`curl https://aigc.guangai.ai/v1/chat/completions \\
+  -H "Authorization: Bearer pk_your_api_key" \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "model": "gpt-4o-mini",
+    "messages": [{
+      "role": "user",
+      "content": [
+        {"type": "text", "text": "Describe this image"},
+        {"type": "image_url", "image_url": {"url": "https://example.com/photo.jpg"}}
+      ]
+    }]
+  }'`}</Code>
       </Section>
 
       <Section title={t("secImages")} id="images">
@@ -144,6 +159,23 @@ export default function DocsPage() {
     "prompt": "A friendly robot",
     "size": "1024x1024"
   }'`}</Code>
+        <h4 className="font-medium mt-4 mb-2 text-sm">{t("i2iTitle")}</h4>
+        <p className="text-sm mb-3">{t("i2iDesc")}</p>
+        <Code>{`curl https://aigc.guangai.ai/v1/images/generations \\
+  -H "Authorization: Bearer pk_your_api_key" \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "model": "seedream-4-5",
+    "prompt": "Turn the sketch into a watercolor painting",
+    "image": "https://example.com/sketch.jpg"
+  }'`}</Code>
+        <h4 className="font-medium mt-4 mb-2 text-sm">{t("editsTitle")}</h4>
+        <p className="text-sm mb-3">{t("editsDesc")}</p>
+        <Code>{`curl https://aigc.guangai.ai/v1/images/edits \\
+  -H "Authorization: Bearer pk_your_api_key" \\
+  -F "image=@sketch.jpg" \\
+  -F "prompt=Turn the sketch into a watercolor painting" \\
+  -F "model=seedream-4-5"`}</Code>
       </Section>
 
       <Section title={t("secEmbeddings")} id="embeddings">
@@ -247,6 +279,7 @@ curl https://aigc.guangai.ai/v1/models?modality=image`}</Code>
 
       <Section title={t("secMcp")} id="mcp">
         <p className="text-sm mb-3">{t("mcpDesc")}</p>
+        <p className="text-sm mb-3">{t("mcpImageInput")}</p>
         <p className="text-sm mb-2">
           <strong>{t("endpoint")}</strong>{" "}
           <code className="bg-ds-surface-container-low px-1 rounded">
