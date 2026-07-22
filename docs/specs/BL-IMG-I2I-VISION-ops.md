@@ -60,8 +60,16 @@
 
 **OpenRouter 账户余额耗尽**：`/api/v1/credits` 返回 `total_credits=590, total_usage=590.20`（超支 $0.20）。廉价文本模型（deepseek-chat）同样 402——**全账户欠费，生产所有 OpenRouter 通道当前 402**（不止图模）。
 
-**用户裁决（2026-07-22）：先跳过 F-IIV-05 等用户决定（充值后重探 / 或按 D5 收缩出批次）。**
-i2i 上游契约（chat content 数组带 image_url）在余额恢复前无法验证；`openai-compat.ts imageViaChat` 的源图上送代码待探测通过后再落。
+### 最终裁决与落地（2026-07-22）
+
+**用户裁决：「openrouter 是标准的 openai 兼容格式，不依赖探测也可以上」**——按标准 OpenAI 多模态 content 契约直接实现，跳过 D5 前置实测（本例特批；D5 铁律对非标准/自有格式上游继续有效）。
+
+**代码落点：**
+- `openai-compat.ts imageViaChat`：`request.image` 展开为标准 content parts（`[{type:"text",text:prompt}, {type:"image_url",image_url:{url}}...]`），无源图时保持纯 string prompt（回归不变）。
+- 生产 alias 名核实：`gpt-image`（→ openai/gpt-5-image）、`gemini-3-pro-image`（→ google/gemini-3-pro-image-preview）——spec 中的 "gpt-5-image" 为 model 名非 alias 名。
+- provisioning TARGETS 已含以上两 alias。
+
+**验收注意（Codex F-IIV-08）：** 这两个模型的首次真实 i2i 验证落在验收阶段；**若 OpenRouter 账户仍欠费，两模型 E2E 会 402**——届时按「环境受阻」记录，勿判代码 FAIL；seedream-4-5 不受影响。
 
 ## 3. F-IIV-07 — provisioning 脚本用法 + 回滚
 

@@ -492,9 +492,30 @@ export class OpenAICompatEngine implements EngineAdapter {
     request: ImageGenerationRequest,
     route: RouteResult,
   ): Promise<ImageGenerationResponse> {
+    // BL-IMG-I2I-VISION F-IIV-05 (D5): 源图上送——request.image 展开为标准
+    // OpenAI 多模态 content（text + image_url parts）。OpenRouter 图模
+    // （gpt-image / gemini-3-pro-image 等 image_via_chat_modalities 管道）
+    // 按标准 OpenAI 兼容契约接受 vision 输入（用户裁决 2026-07-22：标准
+    // 格式不依赖前置探测；上游探测因 OR 余额耗尽受阻，见 ops 文档 §2）。
+    const sourceImages = request.image
+      ? Array.isArray(request.image)
+        ? request.image
+        : [request.image]
+      : [];
+    const requestContent =
+      sourceImages.length > 0
+        ? [
+            { type: "text" as const, text: request.prompt },
+            ...sourceImages.map((img) => ({
+              type: "image_url" as const,
+              image_url: { url: img },
+            })),
+          ]
+        : request.prompt;
+
     const chatReq: ChatCompletionRequest = {
       model: this.resolveModelId(route),
-      messages: [{ role: "user", content: request.prompt }],
+      messages: [{ role: "user", content: requestContent }],
     };
 
     const result = await this.chatCompletions(chatReq, route);

@@ -31,12 +31,13 @@ import { invalidateModelsListCache } from "../src/lib/cache/models-cache";
 import { disconnectRedis } from "../src/lib/redis";
 
 /**
- * 探测通过清单（唯一事实源：docs/specs/BL-IMG-I2I-VISION-ops.md）。
+ * i2i 放行清单（事实源：docs/specs/BL-IMG-I2I-VISION-ops.md）。
  * - seedream-4-5：2026-07-22 实测通过（images 端点 image 字段，URL/数组/base64 全通）
- * - gpt-5-image / gemini-3-pro-image：F-IIV-05 探测受阻（OpenRouter 余额耗尽），
- *   探测通过后再追加到此清单并重跑 --apply。
+ * - gpt-image / gemini-3-pro-image（OpenRouter imageViaChat 管道）：标准 OpenAI
+ *   多模态 content 契约，用户裁决 2026-07-22「标准格式不依赖前置探测」直上
+ *   （上游实测因 OR 余额耗尽受阻，首次真实验证由 Codex F-IIV-08 执行）。
  */
-const TARGETS: string[] = ["seedream-4-5"];
+const TARGETS: string[] = ["seedream-4-5", "gpt-image", "gemini-3-pro-image"];
 
 function readI2i(capabilities: unknown): boolean {
   return (
