@@ -209,6 +209,43 @@ async function main() {
     console.log("(text model rejected) ");
   });
 
+  // BL-IMG-I2I-VISION fix_round 1 regression (IIV-DEF-02) — generate_image
+  // 11 张源图必须返回业务错误信封（isError:true + invalid_parameter + param），
+  // 不得被 SDK zod 层转成 JSON-RPC -32602 协议错误（修复前行为）。
+  // 张数校验位于 handler 前段（路由/余额之前），不依赖模型真实存在。
+  await step(
+    "5c. IIV-DEF-02 generate_image 11 images → business envelope (not -32602)",
+    async () => {
+      if (!API_KEY) throw new Error("API_KEY not set");
+      const { body } = await rawMcpRequest(
+        "tools/call",
+        {
+          name: "generate_image",
+          arguments: {
+            model: "seedream-4-5",
+            prompt: "limit check",
+            image: Array.from({ length: 11 }, (_, i) => `https://example.com/src-${i}.png`),
+          },
+        },
+        API_KEY,
+      );
+      const protocolError = (body as { error?: { code?: number } })?.error;
+      if (protocolError) {
+        throw new Error(
+          `Got JSON-RPC protocol error ${protocolError.code}, expected tool result envelope`,
+        );
+      }
+      const result = (
+        body as { result?: { isError?: boolean; content?: Array<{ text?: string }> } }
+      )?.result;
+      if (!result?.isError) throw new Error("Expected isError=true for 11 images");
+      const text = result.content?.[0]?.text ?? "";
+      if (!/invalid_parameter/.test(text) || !/maximum is 10/.test(text)) {
+        throw new Error(`Expected invalid_parameter + "maximum is 10", got: ${text}`);
+      }
+    },
+  );
+
   // F-WP-05 regression — empty content / binary prompt rejected client-side.
   await step("5d. F-WP-05 empty chat content → invalid_request", async () => {
     if (!API_KEY) throw new Error("API_KEY not set");

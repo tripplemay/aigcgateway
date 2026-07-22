@@ -359,6 +359,46 @@ async function main() {
     }
   });
 
+  // BL-IMG-I2I-VISION fix_round 1 regression (IIV-DEF-01) — /v1/images/edits
+  // 必须与 generations 同属 image 权限域：imageGeneration=false 的 Key 调用
+  // edits 应 403 forbidden（修复前：200 + SUCCESS CallLog + 扣费）。
+  await step("IIV-DEF-01 edits with imageGeneration=false key → 403 forbidden", async () => {
+    const keyRes = await fetch(`${BASE}/api/keys`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ name: "err-key-no-image" }),
+    });
+    if (!keyRes.ok) throw new Error(`create key failed: HTTP ${keyRes.status}`);
+    const keyData = await keyRes.json();
+    const restrictedKey: string = keyData.key;
+    if (!restrictedKey || !keyData.id) throw new Error("missing key/id in response");
+    // 权限收紧直接走 DB（与控制台建 key 解耦，测试确定性）
+    await prisma.apiKey.update({
+      where: { id: keyData.id },
+      data: { permissions: { imageGeneration: false } },
+    });
+
+    const png = Buffer.from(
+      "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5kSuQmCC",
+      "base64",
+    );
+    const form = new FormData();
+    form.append("image", new Blob([png], { type: "image/png" }), "t.png");
+    form.append("prompt", "permission check");
+    form.append("model", "seedream-4-5");
+    const res = await fetch(`${BASE}/v1/images/edits`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${restrictedKey}` },
+      body: form,
+    });
+    if (res.status !== 403) throw new Error(`Expected 403, got ${res.status}`);
+    const body = await res.json();
+    if (body.error?.code !== "forbidden") throw new Error(`Code: ${body.error?.code}`);
+    if (!/imageGeneration/.test(body.error?.message ?? "")) {
+      throw new Error(`Message: ${body.error?.message}`);
+    }
+  });
+
   console.log("\n" + "=".repeat(60));
   console.log(`Results: ${passed} PASS | ${failed} FAIL`);
   console.log("=".repeat(60));

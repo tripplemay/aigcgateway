@@ -45,6 +45,9 @@ function detectEndpoint(request: Request): Endpoint {
   if (raw.includes("/actions/run")) return "chat";
   if (raw.includes("/templates/run")) return "chat";
   if (raw.includes("/images/generations")) return "image";
+  // BL-IMG-I2I-VISION fix_round 1 (IIV-DEF-01): edits 与 generations 同属
+  // image 权限域——漏掉此映射会让 imageGeneration=false 的 Key 越权调用并扣费。
+  if (raw.includes("/images/edits")) return "image";
   if (raw.includes("/models")) return "model";
   return "unknown";
 }

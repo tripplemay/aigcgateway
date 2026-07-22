@@ -33,8 +33,11 @@ export function registerGenerateImage(server: McpServer, opts: McpServerOptions)
         .min(1, "prompt must be non-empty")
         .max(4000, "prompt must be at most 4000 characters")
         .describe("Image description / prompt"),
+      // fix_round 1 (IIV-DEF-02): 不在 zod 层设 max(10)——SDK 会把超限转成
+      // JSON-RPC -32602 协议错误；张数上限交给 handler 内 validateImageInput，
+      // 返回 spec D7 要求的业务信封（isError:true + code + param）。
       image: z
-        .union([z.string(), z.array(z.string()).max(10)])
+        .union([z.string(), z.array(z.string())])
         .optional()
         .describe(
           "Optional source image(s) for image-to-image generation: an http(s) URL or data:image base64 URI, or an array of up to 10 (multi-image fusion). Prefer URLs over base64 (base64 payloads are heavy over MCP; max 5MB per base64 image). Requires a model with the image_to_image capability (check list_models).",
