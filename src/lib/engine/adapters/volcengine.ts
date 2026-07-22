@@ -49,6 +49,12 @@ export class VolcengineAdapter extends OpenAICompatEngine {
 
   /**
    * 通过 chat 接口生成图片
+   *
+   * F-IIV-04: request.image（源图）存在时 content 升级为多模态数组，防止 chat
+   * 路径静默丢弃源图（i2i 退化为 t2i）。实测（2026-07-22，见
+   * BL-IMG-I2I-VISION-ops.md）seedream-4-5 的 chat API 整体不可用
+   * （"does not support this api"），恒回退 imageFallback——此改动对该模型
+   * 行为无影响，仅保证未来支持 chat 的图模不丢源图。
    */
   protected override async imageViaChat(
     request: ImageGenerationRequest,
@@ -57,9 +63,22 @@ export class VolcengineAdapter extends OpenAICompatEngine {
     const url = this.buildUrl(route, "chat");
     const headers = this.buildHeaders(route);
 
+    const sourceImages = request.image
+      ? Array.isArray(request.image)
+        ? request.image
+        : [request.image]
+      : [];
+    const content =
+      sourceImages.length > 0
+        ? [
+            { type: "text", text: request.prompt },
+            ...sourceImages.map((img) => ({ type: "image_url", image_url: { url: img } })),
+          ]
+        : request.prompt;
+
     const body = {
       model: this.resolveModelId(route),
-      messages: [{ role: "user", content: request.prompt }],
+      messages: [{ role: "user", content }],
     };
 
     const response = await this.fetchWithProxy(
@@ -79,6 +98,11 @@ export class VolcengineAdapter extends OpenAICompatEngine {
 
   /**
    * 回退到 /images/generations
+   *
+   * F-IIV-04 (D5): 源图上送——实测（2026-07-22，ep-20260604162024-k2sbk，见
+   * BL-IMG-I2I-VISION-ops.md）`image` 字段三种形态全通：单 URL string /
+   * string[]（多图融合）/ base64 data URI。seedream-4-5 的 i2i 即走此路径
+   * （其 chat API 不可用，imageViaChat 恒失败后回退至此）。
    */
   private async imageFallback(
     request: ImageGenerationRequest,
@@ -92,6 +116,8 @@ export class VolcengineAdapter extends OpenAICompatEngine {
       prompt: request.prompt,
       n: request.n ?? 1,
       ...(request.size ? { size: request.size } : {}),
+      // 源图透传：上游接受 string | string[]，route 层已归一化为 string[]
+      ...(request.image ? { image: request.image } : {}),
     };
 
     const response = await this.fetchWithProxy(
