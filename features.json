@@ -23,7 +23,7 @@
       "title": "/v1/images/edits OpenAI 兼容壳（multipart → 内部归一化，复用 generations 管道）",
       "priority": "high",
       "executor": "generator",
-      "status": "completed",
+      "status": "pending",
       "acceptance": "OpenAI SDK images.edit() / curl -F 打通返回可解析代理 URL；多文件上送多源图；mask/非法类型/超大各自干净 4xx；计费审计与 generations 一致；tsc + build PASS；独立 commit"
     },
     {
@@ -47,7 +47,7 @@
       "title": "MCP generate_image 增 image 参数（同校验同门禁 + description 引导）",
       "priority": "medium",
       "executor": "generator",
-      "status": "completed",
+      "status": "pending",
       "acceptance": "MCP 带源图调 seedream-4-5 返回代理 URL；非 i2i 模型带图 → MCP model_not_i2i_capable；超限干净 MCP 错误；纯文生图 MCP 回归不变；tsc + build PASS；独立 commit"
     },
     {

@@ -4,7 +4,9 @@ description: AIGC Gateway 当前状态快照（覆盖写，≤30 行）
 type: project
 ---
 ## 当前批次
-- **BL-IMG-I2I-VISION**（**verifying**，2026-07-22 handoff）— 图生图 + MCP 图片输入。7/7 generator features 完成（CI 全绿），待 Codex 执行 F-IIV-08 验收。handoff 详情见 progress.json generator_handoff。
+- **BL-IMG-I2I-VISION**（**fixing**，2026-07-22 Codex 首验 FAIL）— 图生图 + MCP 图片输入。L1 专用 E2E 42 PASS / 2 FAIL；F-IIV-03、F-IIV-06 已回 pending，缺陷与复现见 progress.json evaluator_feedback / FAIL 报告。
+- **High：** `/v1/images/edits` 未进入 image 权限域，`imageGeneration=false` Key 可成功调用并扣费。**Medium：** MCP generate_image 11 图返回 JSON-RPC `-32602`，不符合 D7 `isError:true + code`。
+- setup/wait、provisioning dry/apply/幂等、tsc/build、Vitest（670 PASS）均通过；真实 L2 因未获明确授权且 L1 已阻断未执行。`docs.signoff` 保持 null。
 - i2i 放行模型（ops 文档为准）：seedream-4-5（上游实测通过：images 端点 image 字段 URL/数组/base64 全通，chat API 不可用）；gpt-image / gemini-3-pro-image（用户裁决按标准 OpenAI 契约直上，未实测）。
 - **🔴 OpenRouter 账户欠费**（$590 用尽超支 $0.20）——生产所有 OR 通道 402 中，含 OR 图模验收阻断。待用户充值。
 - 生产 provisioning 未跑：部署后需在 deploysvr 跑 `provision-i2i-capabilities.ts --apply`（ops 文档 §3 有步骤）。
