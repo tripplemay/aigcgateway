@@ -4,10 +4,10 @@ description: AIGC Gateway 当前状态快照（覆盖写，≤30 行）
 type: project
 ---
 ## 当前批次
-- **BL-IMG-I2I-VISION**（**fixing**，2026-07-22 fix_round 1）— L1 `44/44 PASS`；用户授权后的 L2 真实功能 `14/14 PASS`，Seedream、edits、MCP、Qwen vision、OpenRouter、GCS、代理和视觉相关性均通过。
-- **IIV-DEF-03 [High] 阻断签收**：OpenRouter token-priced channel 遇到 call-priced alias 时 `calculateTokenCost` 计算 `sell=0` 并跳过扣费。生产只读抽样最近 20 条成功图片调用全部 cost>0/sell=0；gpt-image/gemini 样本均无 Transaction。
-- F-IIV-08 保持 pending，`docs.signoff=null`；报告与复验要求见 `docs/test-reports/BL-IMG-I2I-VISION-signoff-2026-07-22.md`。
-- IIV-DEF-01/02 已 CLOSED；tsc/build PASS，Vitest `670 PASS / 4 SKIP`。OpenRouter 原 402 阻塞已解除，两模型真实 i2i 均成功。
+- **BL-IMG-I2I-VISION**（**reverifying**，2026-07-24 fix_round 2 完成）— IIV-DEF-03 [High] 已修（commit 72e58b8，CI 绿）。IIV-DEF-01/02 早前 CLOSED。
+- **IIV-DEF-03 修复**：`calculateTokenCost` token 路径卖价改为取含 token 字段的来源（alias 缺字段→fallback channel.sellPrice），镜像 `calculateCallCost` 兼容逻辑。生产 gpt-image/gemini-3-pro-image（alias=call、channel=token）此前 20/20 漏扣，现按 channel token sell 正确计费。回归：4 个 Vitest 单元测试（image-via-chat-token-cost.test.ts），red/green 已验证；全量 674 PASS / 4 SKIP。
+- **待 Codex 复验**：生产等价价格双 alias 真实 i2i（sell>0 + Transaction），Seedream/失败不扣费/纯文回归。F-IIV-08 pending，`docs.signoff=null`。报告 `docs/test-reports/BL-IMG-I2I-VISION-signoff-2026-07-22.md`。
+- **待裁决**（Planner/用户）：历史零扣费 CallLog 是否追补 Transaction；生产 alias sellPrice 是否改 token-priced（可选，代码 fallback 已正确计费）。
 - 生产 provisioning 未跑：部署后需在 deploysvr 跑 `provision-i2i-capabilities.ts --apply`（ops 文档 §3）。
 
 ## 上一批次遗留（仍有效）
