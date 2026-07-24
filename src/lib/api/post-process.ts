@@ -667,13 +667,26 @@ export function calculateTokenCost(
     outputPer1M?: number;
     unit?: string;
   };
-  // 扣费价从 alias.sellPrice 取（统一定价源），fallback 到 channel.sellPrice 兜底；
-  // 两者均为 null 时退化为 {}，后续 `?? 0` 保护下 sellUsd=0（未配置定价 → 不扣费）
-  const sellPrice = (route.alias?.sellPrice ?? route.channel.sellPrice ?? {}) as {
-    inputPer1M?: number;
-    outputPer1M?: number;
-    unit?: string;
-  };
+  // 扣费价从 alias.sellPrice 取（统一定价源），fallback 到 channel.sellPrice 兜底。
+  //
+  // BL-IMG-I2I-VISION fix_round 2 (IIV-DEF-03): token 路径的卖价必须来自**含
+  // token 字段（inputPer1M/outputPer1M）**的来源。旧逻辑用 `??` 无条件优先任何
+  // 非 null 的 alias.sellPrice——但 alias 可能是 call-priced（{unit:'call',
+  // perCall}），没有 token 字段，读出来全 undefined→0，算出 sellUsd=0 并漏扣费
+  // （生产 gpt-image/gemini-3-pro-image alias=call、channel=token，20/20 成功调用
+  // sell=0 无 Transaction）。镜像 calculateCallCost 的字段兼容 fallback：alias
+  // 缺 token 字段时回退到 channel.sellPrice（token-priced channel 必有）。
+  // 两者均无 token 字段时退化为 {}，后续 `?? 0` 保护下 sellUsd=0（未配置定价 → 不扣费）。
+  type TokenSellPrice = { inputPer1M?: number; outputPer1M?: number; unit?: string };
+  const aliasSell = (route.alias?.sellPrice ?? null) as TokenSellPrice | null;
+  const channelSell = (route.channel.sellPrice ?? null) as TokenSellPrice | null;
+  const hasTokenSell = (sp: TokenSellPrice | null): sp is TokenSellPrice =>
+    sp !== null && (typeof sp.inputPer1M === "number" || typeof sp.outputPer1M === "number");
+  const sellPrice: TokenSellPrice = hasTokenSell(aliasSell)
+    ? aliasSell
+    : hasTokenSell(channelSell)
+      ? channelSell
+      : {};
 
   const inputTokens = usage.prompt_tokens;
   // FILTERED → 只算输入 token

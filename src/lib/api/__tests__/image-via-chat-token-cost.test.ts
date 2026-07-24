@@ -62,6 +62,25 @@ function makeRoute(costPrice: unknown, sellPrice: unknown): RouteResult {
   } as unknown as RouteResult;
 }
 
+/**
+ * IIV-DEF-03 变体：alias.sellPrice 与 channel.sellPrice 独立设置
+ * （生产 gpt-image/gemini-3-pro-image 场景——alias 为 call-priced、channel 为
+ * token-priced）。
+ */
+function makeRouteSplit(
+  costPrice: unknown,
+  aliasSellPrice: unknown,
+  channelSellPrice: unknown,
+): RouteResult {
+  return {
+    channel: { id: "ch_x", costPrice, sellPrice: channelSellPrice },
+    alias: { alias: "test-alias", sellPrice: aliasSellPrice },
+    config: { currency: "USD" },
+    model: { name: "test-model", capabilities: null },
+    provider: { name: "openrouter" },
+  } as unknown as RouteResult;
+}
+
 function flushAsync(): Promise<void> {
   return new Promise((r) => setImmediate(r));
 }
@@ -349,6 +368,180 @@ describe("F-BIPOR-Path-A image-via-chat token-priced cost", () => {
       const data = writeCall![0].data;
       // costPrice 用 OR 实收（即使公式会算出 0.2615 也不该用）
       expect(Number(data.costPrice)).toBeCloseTo(0.0387371, 8);
+    });
+  });
+
+  // BL-IMG-I2I-VISION fix_round 2 — IIV-DEF-03 regression
+  // token-priced channel + call-priced alias sellPrice + token channel sellPrice。
+  // 修复前：calculateTokenCost 无条件优先非 null 的 call-priced alias.sellPrice，
+  // 读不到 inputPer1M/outputPer1M → sellUsd=0 → 跳过扣费（生产 20/20 漏扣）。
+  // 修复后：alias 缺 token 字段 → fallback 到 token-priced channel.sellPrice。
+  describe("IIV-DEF-03 token channel + call-priced alias sell fallback", () => {
+    it("gpt-image shape: alias={call,perCall} + channel token sell → uses channel token sell (nonzero)", async () => {
+      // 生产 gpt-image：channel cost 10/10, sell 12/12（token）；alias={call, perCall:0.082603}
+      const route = makeRouteSplit(
+        { unit: "token", inputPer1M: 10, outputPer1M: 10 },
+        { unit: "call", perCall: 0.082603 }, // alias 为 call-priced（无 token 字段）
+        { unit: "token", inputPer1M: 12, outputPer1M: 12 }, // channel token sell
+      );
+      const usage: Usage = {
+        prompt_tokens: 2000,
+        completion_tokens: 1500,
+        total_tokens: 3500,
+      };
+      const response: ImageGenerationResponse = {
+        created: 0,
+        data: [{ url: "data:image/png;base64,xx" }],
+        usage,
+      };
+
+      processImageResult({
+        traceId: "trc_iiv_def_03_gpt",
+        userId: "u1",
+        projectId: "p1",
+        route,
+        modelName: "openai/gpt-5-image",
+        promptSnapshot: [],
+        requestParams: { prompt: "a red circle" },
+        startTime: Date.now() - 50,
+        response,
+        source: "api",
+      });
+      await flushAsync();
+
+      // sellUsd>0 → 走 transaction 路径（有扣费）
+      const writeCall = txCreateMock.mock.calls[0] ?? callLogCreateMock.mock.calls[0];
+      expect(writeCall).toBeDefined();
+      const data = writeCall![0].data;
+      // channel token sell：2000×12/1e6 + 1500×12/1e6 = 0.024 + 0.018 = 0.042
+      expect(Number(data.sellPrice)).toBeCloseTo(0.042, 8);
+      expect(Number(data.sellPrice)).toBeGreaterThan(0);
+      // cost 用 channel token cost：2000×10/1e6 + 1500×10/1e6 = 0.035
+      expect(Number(data.costPrice)).toBeCloseTo(0.035, 8);
+      expect(data.status).toBe("SUCCESS");
+      // 关键回归断言：sell>0 → deductBalance 被调用（Transaction 存在）
+      expect(txQueryRawMock).toHaveBeenCalled();
+    });
+
+    it("gemini-3-pro-image shape: alias={call} + channel token sell 2.4/14.4 → nonzero sell + deduction", async () => {
+      // 生产 gemini-3-pro-image：channel cost 2/12, sell 2.4/14.4（token）；alias={call, perCall:0.08274}
+      const route = makeRouteSplit(
+        { unit: "token", inputPer1M: 2, outputPer1M: 12 },
+        { unit: "call", perCall: 0.08274 },
+        { unit: "token", inputPer1M: 2.4, outputPer1M: 14.4 },
+      );
+      const usage: Usage = {
+        prompt_tokens: 500,
+        completion_tokens: 1200,
+        total_tokens: 1700,
+      };
+      const response: ImageGenerationResponse = {
+        created: 0,
+        data: [{ url: "data:image/png;base64,xx" }],
+        usage,
+      };
+
+      processImageResult({
+        traceId: "trc_iiv_def_03_gemini",
+        userId: "u1",
+        projectId: "p1",
+        route,
+        modelName: "google/gemini-3-pro-image-preview",
+        promptSnapshot: [],
+        requestParams: { prompt: "a blue square" },
+        startTime: Date.now() - 50,
+        response,
+        source: "api",
+      });
+      await flushAsync();
+
+      const writeCall = txCreateMock.mock.calls[0] ?? callLogCreateMock.mock.calls[0];
+      expect(writeCall).toBeDefined();
+      const data = writeCall![0].data;
+      // channel token sell：500×2.4/1e6 + 1200×14.4/1e6 = 0.0012 + 0.01728 = 0.01848
+      expect(Number(data.sellPrice)).toBeCloseTo(0.01848, 8);
+      expect(Number(data.sellPrice)).toBeGreaterThan(0);
+      expect(txQueryRawMock).toHaveBeenCalled();
+    });
+
+    it("regression: normal token alias (has token fields) still wins over channel", async () => {
+      // 正常 token alias（含 inputPer1M/outputPer1M）→ 仍优先 alias，不受 fallback 影响
+      const route = makeRouteSplit(
+        { unit: "token", inputPer1M: 0.3, outputPer1M: 2.5 },
+        { unit: "token", inputPer1M: 0.36, outputPer1M: 3.0 }, // alias token sell（×1.2）
+        { unit: "token", inputPer1M: 99, outputPer1M: 99 }, // channel token sell（不应被用）
+      );
+      const usage: Usage = {
+        prompt_tokens: 1000,
+        completion_tokens: 500,
+        total_tokens: 1500,
+      };
+      const response: ImageGenerationResponse = {
+        created: 0,
+        data: [{ url: "x" }],
+        usage,
+      };
+
+      processImageResult({
+        traceId: "trc_iiv_def_03_normal",
+        userId: "u1",
+        projectId: "p1",
+        route,
+        modelName: "google/gemini-2.5-flash-image",
+        promptSnapshot: [],
+        requestParams: { prompt: "x" },
+        startTime: Date.now() - 50,
+        response,
+        source: "api",
+      });
+      await flushAsync();
+
+      const writeCall = txCreateMock.mock.calls[0] ?? callLogCreateMock.mock.calls[0];
+      const data = writeCall![0].data;
+      // alias sell 生效：1000×0.36/1e6 + 500×3/1e6 = 0.00186（非 channel 的 99）
+      expect(Number(data.sellPrice)).toBeCloseTo(0.00186, 8);
+    });
+
+    it("regression: both alias & channel lack token fields → sell=0 (no accidental charge)", async () => {
+      // alias call + channel call（两者都无 token 字段），但走了 token 路径（配置矛盾）
+      // → sell=0，不误扣（保持旧的安全默认）
+      const route = makeRouteSplit(
+        { unit: "token", inputPer1M: 10, outputPer1M: 10 },
+        { unit: "call", perCall: 0.05 },
+        { unit: "call", perCall: 0.06 },
+      );
+      const usage: Usage = {
+        prompt_tokens: 1000,
+        completion_tokens: 500,
+        total_tokens: 1500,
+      };
+      const response: ImageGenerationResponse = {
+        created: 0,
+        data: [{ url: "x" }],
+        usage,
+      };
+      const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+
+      processImageResult({
+        traceId: "trc_iiv_def_03_bothcall",
+        userId: "u1",
+        projectId: "p1",
+        route,
+        modelName: "openai/gpt-5-image",
+        promptSnapshot: [],
+        requestParams: { prompt: "x" },
+        startTime: Date.now() - 50,
+        response,
+        source: "api",
+      });
+      await flushAsync();
+
+      const writeCall = callLogCreateMock.mock.calls[0];
+      const data = writeCall![0].data;
+      expect(Number(data.sellPrice)).toBe(0);
+      // sell=0 → 不走扣费
+      expect(txQueryRawMock).not.toHaveBeenCalled();
+      warn.mockRestore();
     });
   });
 
