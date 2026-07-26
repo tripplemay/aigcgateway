@@ -23,7 +23,7 @@
       "title": "model-sync 缩水护栏告警可见化（SystemLog + 管理员通知 + 节流）",
       "priority": "high",
       "executor": "generator",
-      "status": "completed",
+      "status": "pending",
       "acceptance": "两种 SKIPPED reconcile 分支命中时写 SystemLog(SYNC/WARN) 含 provider/远端模型数/现存通道数 + 生成管理员通知；连续命中按节流不重复轰炸；未命中不写；不改护栏阈值与拦截行为；单测覆盖；tsc + build + 全量 vitest PASS；独立 commit"
     },
     {
