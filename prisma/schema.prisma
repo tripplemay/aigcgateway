@@ -691,6 +691,8 @@ enum NotificationEventType {
   CHANNEL_RECOVERED
   PENDING_CLASSIFICATION
   AUTH_ALERT
+  /// BL-DEEPSEEK-V4-HOTFIX F-DSV4-03: model-sync 缩水护栏拦下 reconcile 时告警
+  SYNC_RECONCILE_SKIPPED
 }
 
 enum NotificationChannel {

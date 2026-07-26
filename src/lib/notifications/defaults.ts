@@ -46,6 +46,8 @@ const DEVELOPER_DEFAULTS: PrefSeed[] = [
   { eventType: "CHANNEL_DOWN", channels: ["inApp"], enabled: false },
   { eventType: "CHANNEL_RECOVERED", channels: ["inApp"], enabled: false },
   { eventType: "PENDING_CLASSIFICATION", channels: ["inApp"], enabled: false },
+  { eventType: "AUTH_ALERT", channels: ["inApp"], enabled: false },
+  { eventType: "SYNC_RECONCILE_SKIPPED", channels: ["inApp"], enabled: false },
 ];
 
 const ADMIN_DEFAULTS: PrefSeed[] = [
@@ -54,6 +56,13 @@ const ADMIN_DEFAULTS: PrefSeed[] = [
   { eventType: "CHANNEL_DOWN", channels: ["inApp"], enabled: true },
   { eventType: "CHANNEL_RECOVERED", channels: ["inApp"], enabled: true },
   { eventType: "PENDING_CLASSIFICATION", channels: ["inApp"], enabled: true },
+  // BL-DEEPSEEK-V4-HOTFIX F-DSV4-03: AUTH_ALERT 在 BL-BILLING-AUDIT-EXT-P1
+  // 加进了 enum 和 trigger，却没进 seed —— dispatcher 对「无偏好行」是静默
+  // 丢弃，所以那条告警从上线起就没送达过任何人。这里补齐，SYNC_RECONCILE_
+  // SKIPPED 同批加入。存量用户由 scripts/backfill-notification-preferences.ts
+  // 回填（seed 只在建号时跑）。
+  { eventType: "AUTH_ALERT", channels: ["inApp"], enabled: true },
+  { eventType: "SYNC_RECONCILE_SKIPPED", channels: ["inApp"], enabled: true },
 ];
 
 export function defaultNotificationPreferences(role: UserRole): PrefSeed[] {

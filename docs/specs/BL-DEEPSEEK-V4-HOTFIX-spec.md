@@ -231,6 +231,26 @@ DeepSeek 从 5 个模型缩到 2 个，`2 < 5 × 0.5` 命中护栏。生产日�
 | 调度器改动引入多副本并发 probe | 保留"抢不到锁绝不 probe"不变式 + 单测覆盖 |
 | 部署窗口 | 止血（F-DSV4-01）是纯数据操作，可先落地；代码类需等 Evaluator 验收后由用户手动触发 Deploy |
 
+## 6.5 部署与运维步骤（Generator 记录，供 Evaluator / 用户执行）
+
+| # | 步骤 | 时机 | 说明 |
+|---|---|---|---|
+| 1 | ~~生产止血脚本~~ | ✅ 已于 2026-07-25 执行 | `hotfix-deepseek-v4-retire-legacy.ts --apply`，纯数据操作，不依赖部署 |
+| 2 | 触发 Deploy workflow | Evaluator 验收通过后，用户手动 | migrate 容器会带上 `20260725_sync_reconcile_skipped_notification`（`ALTER TYPE ADD VALUE`，向后兼容、可先于代码生效） |
+| 3 | 回填通知偏好 | **部署之后** | `npx tsx scripts/backfill-notification-preferences.ts --apply`（dry-run 显示待新增 **174 行**）。**必须等 migration 落地**，否则 `SYNC_RECONCILE_SKIPPED` 枚举值不存在会写入失败 |
+| 4 | 确认健康检查恢复 | 部署后 | 容器重启即重新抢锁；`SELECT max("createdAt") FROM health_checks` 应持续推进 |
+
+**F-DSV4-03 执行中发现的既有缺陷（已一并修复）：**
+
+`dispatcher.sendNotification` 对「用户无该 eventType 偏好行」是**静默丢弃**，而偏好行只在建号时 seed、从无回填路径。生产实查：
+
+- 5 个 ADMIN 账号（建号早于通知功能）**一条偏好行都没有** → `CHANNEL_DOWN` / `CHANNEL_RECOVERED` / `PENDING_CLASSIFICATION` 从上线起没送达过任何管理员（`notifications` 表 **0 行**可证）
+- `AUTH_ALERT`（BL-BILLING-AUDIT-EXT-P1 F-BAX-05）进了 Prisma enum 和 trigger，却没进 seed 名单、没进 API zod、没进 Settings UI → 对所有人都是死信
+
+若不一并修复，本次新增的 `SYNC_RECONCILE_SKIPPED` 会掉进同一个坑，F-DSV4-03 等于白做。因此本 feature 额外交付：seed 名单补全（含 AUTH_ALERT）、API/Settings/通知中心接线、i18n 双语、回填脚本，以及一条把「enum 全集 ⊆ seed 名单」钉成结构性约束的测试。
+
+**另记：** `tsconfig.json` 的 `exclude` 含 `scripts`，因此 `npx tsc --noEmit` **不覆盖 `scripts/` 下的脚本**（本次一个 Prisma 关系名笔误就是靠实跑才暴露的）。脚本类交付必须实跑 dry-run 验证，不能只靠 tsc。
+
 ## 7. 与 BL-IMG-I2I-VISION 的关系
 
 BL-IMG-I2I-VISION 处于 `reverifying`（F-IIV-08 待 Codex 复验），本批次插队。挂起状态已归档：

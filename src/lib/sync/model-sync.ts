@@ -25,6 +25,11 @@ import type {
 import { enrichFromDocs } from "./doc-enricher";
 import { getRedis } from "@/lib/redis";
 import { acquireLeaderLock, releaseLeaderLock } from "@/lib/infra/leader-lock";
+import { writeSystemLog } from "@/lib/system-logger";
+import {
+  sendSyncReconcileSkippedToAdmins,
+  type ReconcileSkipReason,
+} from "@/lib/notifications/triggers";
 import type { ModelModality, Prisma } from "@prisma/client";
 
 // ── 适配器注册表 ──
@@ -414,6 +419,51 @@ async function reconcile(
 }
 
 // ============================================================
+// BL-DEEPSEEK-V4-HOTFIX F-DSV4-03: 护栏命中的可见化
+// ============================================================
+
+/**
+ * reconcile 被防误杀护栏拦下时，把这件事变成"看得见的"。
+ *
+ * ## 为什么需要
+ *
+ * 护栏本身是对的（上游 /models 抖动时不该批量下架通道），但原实现只
+ * `console.log`。DeepSeek 直连下线 `deepseek-chat` / `deepseek-reasoner` 后
+ * 远端模型数 5 → 2 触发 `shrink_guard`，2026-07-21 起连续 5 天每天 04:00 打印
+ * 同一行日志，无 SystemLog、无通知 —— 陈旧通道就这么带病留在 priority=1 上，
+ * 直到用户报障才被发现。
+ *
+ * **护栏命中 = 自动化主动放弃处置 = 必须有人来看一眼。** 因此这里同时写
+ * SystemLog（可在 admin/logs 检索、留存 90 天）和管理员通知（24h dedup）。
+ *
+ * 本函数吞掉自身的所有异常：告警失败不能让整轮 sync 挂掉。
+ */
+export async function announceReconcileSkipped(params: {
+  providerName: string;
+  reason: ReconcileSkipReason;
+  remoteModelCount: number;
+  existingChannelCount: number;
+}): Promise<void> {
+  const detail = {
+    provider: params.providerName,
+    reason: params.reason,
+    remoteModelCount: params.remoteModelCount,
+    existingChannelCount: params.existingChannelCount,
+  };
+  const message =
+    params.reason === "zero_models"
+      ? `model-sync 跳过 ${params.providerName} 的 reconcile：上游返回 0 个模型，但库中仍有 ${params.existingChannelCount} 条在服役通道`
+      : `model-sync 跳过 ${params.providerName} 的 reconcile：上游模型数 ${params.remoteModelCount} 不足现存通道数 ${params.existingChannelCount} 的 50%（缩水护栏）。若上游确已下线模型，需人工确认并下架陈旧通道`;
+
+  await writeSystemLog("SYNC", "WARN", message, detail).catch((err) => {
+    console.error("[model-sync] announceReconcileSkipped systemLog failed:", err);
+  });
+  await sendSyncReconcileSkippedToAdmins(params).catch((err) => {
+    console.error("[model-sync] announceReconcileSkipped notification failed:", err);
+  });
+}
+
+// ============================================================
 // 核心：两层同步 + reconcile
 // ============================================================
 
@@ -475,6 +525,12 @@ async function syncProvider(
       console.log(
         `[model-sync] ${provider.name}: SKIPPED reconcile — 0 models from API+AI but DB has ${existingChannelCount} active channels`,
       );
+      await announceReconcileSkipped({
+        providerName: provider.name,
+        reason: "zero_models",
+        remoteModelCount: 0,
+        existingChannelCount,
+      });
       result.modelCount = 0;
       if (result.error) {
         // Layer 1 failed but existing data preserved — mark as warning, not success
@@ -490,6 +546,12 @@ async function syncProvider(
       console.log(
         `[model-sync] ${provider.name}: SKIPPED reconcile — model count ${models.length} < 50% of existing ${existingChannelCount}`,
       );
+      await announceReconcileSkipped({
+        providerName: provider.name,
+        reason: "shrink_guard",
+        remoteModelCount: models.length,
+        existingChannelCount,
+      });
       result.modelCount = models.length;
       result.success = true;
       return result;

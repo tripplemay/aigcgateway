@@ -265,3 +265,58 @@ export async function sendPendingClassificationToAdmins(count: number): Promise<
     console.error("[triggers] sendPendingClassificationToAdmins error:", err);
   }
 }
+
+// ============================================================
+// BL-DEEPSEEK-V4-HOTFIX F-DSV4-03: SYNC_RECONCILE_SKIPPED
+// （24h dedup per provider + reason）
+// ============================================================
+
+/** 护栏命中的两种原因，进 dedup key 与 payload */
+export type ReconcileSkipReason = "zero_models" | "shrink_guard";
+
+/**
+ * model-sync 的防误杀护栏拦下 reconcile 时调用。
+ *
+ * 事故背景：DeepSeek 直连下线 `deepseek-chat` / `deepseek-reasoner` 后远端模型
+ * 数从 5 掉到 2，触发 `models.length < existingChannelCount * 0.5` 护栏 →
+ * reconcile 被跳过 → 陈旧通道未被自动 DISABLED。护栏拦得对（防上游抖动误杀），
+ * 但它**只 console.log**，连续 5 天没有任何人看得见，直到用户报障。
+ *
+ * 护栏命中恰恰意味着"自动化不敢动，需要人来看一眼"，因此必须推给管理员。
+ * dedup 按 provider + reason 24h，避免每天 04:00 定时同步重复轰炸。
+ */
+export async function sendSyncReconcileSkippedToAdmins(params: {
+  providerName: string;
+  reason: ReconcileSkipReason;
+  remoteModelCount: number;
+  existingChannelCount: number;
+}): Promise<void> {
+  try {
+    const dedupKey = `alert:sync_reconcile_skipped:${params.providerName}:${params.reason}`;
+    const redis = getRedis();
+    if (redis) {
+      const set = await redis.set(dedupKey, "1", "EX", 86400, "NX"); // 24 h
+      if (!set) return; // already alerted within 24 h
+    }
+
+    const adminIds = await getAdminUserIds();
+    if (adminIds.length === 0) return;
+
+    const payload = {
+      providerName: params.providerName,
+      reason: params.reason,
+      remoteModelCount: params.remoteModelCount,
+      existingChannelCount: params.existingChannelCount,
+    };
+
+    await Promise.all(
+      adminIds.map((adminId) =>
+        sendNotification(adminId, "SYNC_RECONCILE_SKIPPED", payload).catch((err) => {
+          console.error(`[triggers] SYNC_RECONCILE_SKIPPED to admin ${adminId} failed:`, err);
+        }),
+      ),
+    );
+  } catch (err) {
+    console.error("[triggers] sendSyncReconcileSkippedToAdmins error:", err);
+  }
+}

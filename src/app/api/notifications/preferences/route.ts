@@ -12,6 +12,10 @@ const preferenceUpdateSchema = z.object({
     "CHANNEL_DOWN",
     "CHANNEL_RECOVERED",
     "PENDING_CLASSIFICATION",
+    // BL-DEEPSEEK-V4-HOTFIX F-DSV4-03: 这两类此前存在于 Prisma enum 但没进
+    // API/UI，用户无从开关，AUTH_ALERT 更是从未送达过。
+    "AUTH_ALERT",
+    "SYNC_RECONCILE_SKIPPED",
   ]),
   channels: z.array(z.enum(["inApp", "webhook"])),
   enabled: z.boolean(),

@@ -91,11 +91,15 @@
     "channelDown": "通道故障",
     "channelRecovered": "通道恢复",
     "pendingClass": "待审批",
+    "authAlert": "鉴权告警",
+    "syncReconcileSkipped": "同步护栏",
     "summaryBalanceLow": "余额 {current} 低于阈值 {threshold}",
     "summarySpendingRate": "每分钟消费 {spent} / 限额 {limit}",
     "summaryChannelDown": "{provider}/{model} 已下线",
     "summaryChannelRecovered": "{provider}/{model} 已恢复",
-    "summaryPendingClass": "{count} 个模型待审核"
+    "summaryPendingClass": "{count} 个模型待审核",
+    "summaryAuthAlert": "{provider}/{model} 连续 {count} 次鉴权失败",
+    "summarySyncReconcileSkipped": "{provider} 同步跳过下架：上游 {remote} 个模型 / 现存 {existing} 条通道，需人工确认"
   },
   "emptyState": {
     "title": "暂无项目",
@@ -621,6 +625,8 @@
     "notifEvent_CHANNEL_DOWN": "通道故障",
     "notifEvent_CHANNEL_RECOVERED": "通道恢复",
     "notifEvent_PENDING_CLASSIFICATION": "模型待审批",
+    "notifEvent_AUTH_ALERT": "通道鉴权告警",
+    "notifEvent_SYNC_RECONCILE_SKIPPED": "模型同步护栏拦截",
     "projectInfo": "项目信息",
     "projectInfoDesc": "更新您的项目详情。",
     "projectName": "项目名称",

@@ -91,11 +91,15 @@
     "channelDown": "Channel Down",
     "channelRecovered": "Recovered",
     "pendingClass": "Pending Review",
+    "authAlert": "Auth Alert",
+    "syncReconcileSkipped": "Sync Guard",
     "summaryBalanceLow": "Balance {current} below threshold {threshold}",
     "summarySpendingRate": "Spent {spent} / {limit} per min",
     "summaryChannelDown": "{provider}/{model} went down",
     "summaryChannelRecovered": "{provider}/{model} recovered",
-    "summaryPendingClass": "{count} models await review"
+    "summaryPendingClass": "{count} models await review",
+    "summaryAuthAlert": "{provider}/{model} failed auth {count} times in a row",
+    "summarySyncReconcileSkipped": "{provider} sync skipped retirement: {remote} upstream models vs {existing} channels — needs review"
   },
   "emptyState": {
     "title": "No project yet",
@@ -621,6 +625,8 @@
     "notifEvent_CHANNEL_DOWN": "Channel Down",
     "notifEvent_CHANNEL_RECOVERED": "Channel Recovered",
     "notifEvent_PENDING_CLASSIFICATION": "Pending Model Review",
+    "notifEvent_AUTH_ALERT": "Channel Auth Alert",
+    "notifEvent_SYNC_RECONCILE_SKIPPED": "Model Sync Guard Tripped",
     "projectInfo": "Project Information",
     "projectInfoDesc": "Update your project details.",
     "projectName": "Project Name",

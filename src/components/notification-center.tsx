@@ -13,7 +13,9 @@ type EventType =
   | "SPENDING_RATE_EXCEEDED"
   | "CHANNEL_DOWN"
   | "CHANNEL_RECOVERED"
-  | "PENDING_CLASSIFICATION";
+  | "PENDING_CLASSIFICATION"
+  | "AUTH_ALERT"
+  | "SYNC_RECONCILE_SKIPPED";
 
 interface NotificationItem {
   id: string;
@@ -35,6 +37,12 @@ const EVENT_META: Record<
   CHANNEL_DOWN: { icon: "cloud_off", variant: "error", labelKey: "channelDown" },
   CHANNEL_RECOVERED: { icon: "cloud_done", variant: "success", labelKey: "channelRecovered" },
   PENDING_CLASSIFICATION: { icon: "pending_actions", variant: "info", labelKey: "pendingClass" },
+  AUTH_ALERT: { icon: "key_off", variant: "error", labelKey: "authAlert" },
+  SYNC_RECONCILE_SKIPPED: {
+    icon: "sync_problem",
+    variant: "warning",
+    labelKey: "syncReconcileSkipped",
+  },
 };
 
 // ── Summary text ─────────────────────────────────────────────
@@ -68,6 +76,18 @@ function buildSummary(
       });
     case "PENDING_CLASSIFICATION":
       return t("summaryPendingClass", { count: Number(payload.count ?? 0) });
+    case "AUTH_ALERT":
+      return t("summaryAuthAlert", {
+        provider: String(payload.providerName ?? ""),
+        model: String(payload.modelName ?? ""),
+        count: Number(payload.consecutiveFailures ?? 0),
+      });
+    case "SYNC_RECONCILE_SKIPPED":
+      return t("summarySyncReconcileSkipped", {
+        provider: String(payload.providerName ?? ""),
+        remote: Number(payload.remoteModelCount ?? 0),
+        existing: Number(payload.existingChannelCount ?? 0),
+      });
     default:
       return "";
   }
