@@ -7,7 +7,7 @@
       "title": "生产止血 — 下架 deepseek 直连陈旧通道（realModelId 不在上游 /models 内）",
       "priority": "critical",
       "executor": "generator",
-      "status": "completed",
+      "status": "pending",
       "acceptance": "脚本以实拉上游 /models 为真值，dry-run 先行、--apply 幂等、拉取失败即中止；生产 3 条陈旧通道 DISABLED；deepseek-v3 / deepseek-r1 / deepseek-v4-pro / deepseek-v4-flash 四别名真实调用成功且计费正常；不改 realModelId 不重指别名；前后 dump 证据落 docs/test-reports/；独立 commit"
     },
     {

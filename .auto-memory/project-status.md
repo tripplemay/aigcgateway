@@ -4,11 +4,12 @@ description: AIGC Gateway 当前状态快照（覆盖写，≤30 行）
 type: project
 ---
 ## 当前批次
-- **BL-DEEPSEEK-V4-HOTFIX**（**reverifying**，fix_rounds=3，6/7）— DSV4-DEF-03 已修并部署（run 30216513457，checkout `26b3272`），待 Codex 复验 F-DSV4-06。
-- **DSV4-DEF-03**：F-DSV4-02 恢复的调度器撤销了 F-DSV4-01 的止血。根因是 DISABLED 通道恢复走 API_REACHABILITY，只验 `/models` 端点有响应、不碰 `realModelId`。新增 `vetoRecovery`：只在能确证模型已从目录消失时否决，排除 EMBEDDING / `quirks.endpointMap` / 无专属适配器 / 拉取失败 / 空目录五类。
+- **BL-DEEPSEEK-V4-HOTFIX**（**fixing**，fix_rounds=3，5/7）— fix round 3 复验退回；报告 `docs/test-reports/BL-DEEPSEEK-V4-HOTFIX-reverification-2026-07-26-round3.md`。
+- **DSV4-DEF-03 目标场景 PASS**：生产 checkout `26b3272`；DeepSeek 三旧通道持续 DISABLED，v4 两通道 ACTIVE；目标 veto 两次、volcengine endpointMap 正常放行。
 - **上游二次变更**：DeepSeek 已补向后兼容别名，`deepseek-chat`/`deepseek-reasoner` 返回 200 但响应 `model=deepseek-v4-flash` → 语义偷换。用户裁决坚持 D1 下架。
-- **生产实测**：部署后 1h AUTO_RECOVERY 否决 8 / 放行 4；两条陈旧通道由 **model-sync 的 toDisable 自动下架**（不再需要一次性脚本）；`deepseek-v3`→volcengine 真 V3、`deepseek-r1`→openrouter 真 R1。
-- **⚠️ 取舍已兑现**：siliconflow 4 + openrouter 2 条通道将一直 DISABLED 不自动恢复，需运维判断置回或保持。
+- **规范回归 PASS**：四组 L1 脚本 72 PASS / 0 FAIL / 28 SKIP；typecheck、typecheck:scripts、lint、build 通过。
+- **DSV4-DEF-04 [High] 待修**：`vetoRecovery` 对所有非 ACTIVE 状态生效；DEGRADED 通道即使模型特定 full probe PASS，也会因目录缺失被 veto，长期无法恢复 ACTIVE。
+- **红灯证据**：`tests/unit/dsv4-recovery-veto-status.test.ts` 稳定 FAIL；最终全量 1 FAIL / 742 PASS / 3 SKIP。F-DSV4-01/F-DSV4-06 pending，`docs.signoff=null`。
 - **遗留（建议另开）**：deepseek reconcile 恢复运行后把 v4-flash/v4-pro 的 costPrice 覆盖成 0，与跨服务商 costPrice 全零同源。
 
 ## 挂起批次

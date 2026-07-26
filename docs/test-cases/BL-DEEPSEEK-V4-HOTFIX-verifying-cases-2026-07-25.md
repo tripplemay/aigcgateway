@@ -160,6 +160,17 @@
   4. 查询新 sync LLM 三别名 enabled 状态与 DeepSeek model/channel 重复项。
 - Expected Result: 无 ACTIVE 陈旧通道；健康检查持续推进；已部署后护栏告警可见且节流；链首 enabled 且无重复 model。
 
+### TC-DSV4-014 DEGRADED 通道恢复不受目录闸门误拦
+
+- Priority: High
+- Requirement Source: spec §6.10 DSV4-DEF-03；健康调度既有 DEGRADED → ACTIVE 语义
+- Preconditions: Vitest；专属 adapter 返回不完整 `/models` 目录；通道状态为 DEGRADED，模型特定 full probe 已 PASS。
+- Steps:
+  1. 构造 `status=DEGRADED` 的 TEXT 通道，`realModelId` 不在 provider 目录内。
+  2. 通过 `checkChannel` 执行模型特定 full probe，并让 probe 返回 PASS。
+  3. 检查通道状态写回。
+- Expected Result: 目录闸门只作用于 DISABLED 通道的零成本 reachability 恢复；DEGRADED 通道的模型特定 probe PASS 后不被 veto，可恢复为 ACTIVE。
+
 ## 判定规则
 
 - `PASS`：行为完全符合规格。
