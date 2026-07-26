@@ -5,7 +5,7 @@
   "completed_features": 5,
   "fix_rounds": 0,
   "current_sprint": "BL-DEEPSEEK-V4-HOTFIX",
-  "last_updated": "2026-07-25T12:35:00Z",
+  "last_updated": "2026-07-25T12:40:00Z",
   "role_assignments": null,
   "docs": {
     "spec": "docs/specs/BL-DEEPSEEK-V4-HOTFIX-spec.md",
@@ -27,8 +27,8 @@
   },
   "session_notes": {
     "Planner": "2026-07-25 (Kimi) 用户报生产 DeepSeek 调用报错，按铁律 9 走 hotfix 流程：Planner 诊断 → 用户裁决 → Generator 执行。诊断证据全部实查：(1) 生产 key 实测 api.deepseek.com，/models 只剩 v4-flash/v4-pro，deepseek-chat 与 deepseek-reasoner 均 400。(2) 生产 DB 3 条 deepseek 直连通道 realModelId 陈旧，其中 deepseek-v3 别名与 deepseek-r1 别名下的两条 priority=1（router 按 ASC 取优，是第一选择）。(3) failover.ts:38 NEVER_RETRY 含 INVALID_REQUEST，openai-compat.ts:707 把上游 400 无条件映射成 INVALID_REQUEST → 同别名 7~9 条健康通道一条未试。(4) model-sync.ts:489 缩水护栏 2<5*0.5 命中，07-21 起连续 5 天 SKIPPED reconcile 只 console.log 无告警。(5) 健康检查调度器 2026-07-23T05:15:31Z lost leadership → stopScheduler 终局，instrumentation.ts:47 只在启动时抢一次锁，无重抢路径；单副本容器 Up 13 天未重启 → health_checks max(createdAt)=07-23 05:12，全站健康检查停摆 2 天；billing/model-sync/maintenance 不检查 leadership 所以还在跑（解释了为何 sync 日志有健康检查没有）。用户裁决：止血+系统性修复、插队。已归档 BL-IMG-I2I-VISION 状态到 docs/archive/*-suspended.json，本批次 done 后由 Planner 还原到 reverifying 让 Codex 继续 F-IIV-08。下一步 Generator 从 F-DSV4-01 开始（先止血）。",
-    "Generator": null,
+    "Generator": "2026-07-25 (Kimi) BL-DEEPSEEK-V4-HOTFIX 5/5 generator features 一轮完成。F-DSV4-01 止血：脚本以实拉上游 /models 为真值判定陈旧通道（不硬编码 ID），生产 3 条 DISABLED，四别名真实调用全 SUCCESS 且 Transaction 正常。F-DSV4-02 调度器：丢锁不再 stopScheduler 终局，改 ensureLeadership 待命重抢；保住「未确认持锁不 probe」不变式。核实 billing/sync/maintenance 三调度器完全不感知 leadership（grep 零命中），这解释了丢锁后 model-sync 仍每天跑而 health 停摆；未改其行为，不引入新并发风险。F-DSV4-03 挖到更深的坑：dispatcher 对「无偏好行」静默丢弃，偏好行只在建号时 seed、无回填路径 → 生产 5 个 ADMIN 一条偏好行都没有，notifications 表 0 行，管理员类通知从上线起从未送达；AUTH_ALERT 更是进了 enum+trigger 却没进 seed/API/UI，纯死信。不修则新事件类型白做，故一并交付 seed 补全 + API/Settings/通知中心/i18n 接线 + 回填脚本 + 「enum 全集 ⊆ seed 名单」结构性测试。F-DSV4-04 链首重排前先查了生产别名状态：旧链 deepseek-chat 和 glm-4.7 双双 enabled=false，只有 doubao-pro 活着；新链 deepseek-v4-flash → glm-5 → doubao-pro，并加 chain rot 专用告警防再腐坏。NAME_MAP 删除安全性核实：SyncedModel.name 不参与 models.name 决定（resolveCanonicalName 对专属适配器 provider 取裸 modelId），唯一消费者是 doc-enricher 次级匹配键。F-DSV4-05 匹配特征全部实测采集，未实测的服务商文案不纳入。另：止血后 deepseek 在库通道数 2、远端 2，缩水护栏（2 < 2*0.5 不成立）下次日同步不再触发，reconcile 会正常运行——canonical name 与现有 model 行一致，无重复 model 风险。全量 720 PASS / 4 SKIP，tsc + lint + build 全绿。未 push，等用户确认。",
     "Reviewer": null
   },
-  "generator_handoff": null
+  "generator_handoff": "5/5 generator features 完成（commit 2720f8a / 864fbf1 / 7ad6950 / 9442160 / 6d85571）。Codex 执行 F-DSV4-06。关键信息：(1) 生产止血已在 2026-07-25 完成（3 条 deepseek 直连陈旧通道 DISABLED），证据 docs/test-reports/BL-DEEPSEEK-V4-HOTFIX-F-DSV4-01-prod-evidence-2026-07-25.md；四别名真实调用已验通过，复验请重跑确认。(2) ⚠️ 部署顺序有依赖：F-DSV4-03 带 migration 20260725_sync_reconcile_skipped_notification（ALTER TYPE ADD VALUE，向后兼容）。scripts/backfill-notification-preferences.ts --apply 必须在 migration 落地之后跑，否则 SYNC_RECONCILE_SKIPPED 枚举值不存在会写入失败。生产 dry-run 显示待新增 174 行。(3) 部署即容器重启 → 健康检查调度器会重新抢锁恢复；复验点：SELECT max(\"createdAt\") FROM health_checks 应持续推进（当前停在 2026-07-23 05:12）。(4) F-DSV4-05 的匹配特征来自 2026-07-25 逐家真实探测（deepseek/siliconflow/zhipu/minimax/openrouter 五家 400 文案 + qwen/volcengine 走 404）。反向验证很重要：参数类/内容违规 400 必须仍不 failover。(5) 顺带发现、未修（超出本批次范围，spec §5 已声明）：token 计价 ACTIVE 通道中 costPrice 全零的—qwen 185/185、siliconflow 62/68、zhipu 6/8、minimax+guangtech 各 5/5、xiaomi-mimo 2/2、openrouter 5/332。成本侧记 0，毛利统计失真（卖价正常，用户不受影响）。建议另开数据治理批次。(6) 本地跑脚本可用 SSH 隧道：ssh -f -N -L 15432:127.0.0.1:5432 -L 16379:127.0.0.1:6379 deploysvr，生产 pg/redis 只绑 127.0.0.1。(7) tsconfig exclude 含 scripts，tsc 不覆盖 scripts/，脚本类交付必须实跑 dry-run 验证。"
 }
