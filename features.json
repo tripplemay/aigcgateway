@@ -31,7 +31,7 @@
       "title": "清理指向已下线模型的硬编码（internal-llm 链首 + deepseek sync adapter NAME_MAP）",
       "priority": "medium",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "SYNC_MODEL_FALLBACK_CHAIN 首项改为生产 enabled 且健康的别名并核实其状态；internal-llm.test.ts 断言同步更新；NAME_MAP 死映射清理前核实无重复 model 生成风险（给出依据），有风险则只删不加并记录；tsc + build + 全量 vitest PASS；独立 commit"
     },
     {

@@ -2,8 +2,8 @@
  * BL-BILLING-AUDIT-EXT-P1 F-BAX-03 — callSyncLLM fallback chain & call_log.
  *
  * Category D 盲区修复：alias-classifier / doc-enricher 改走 engine 层后：
- *   1) 正常：deepseek-chat 成功 → 写 call_log source='sync'
- *   2) Fallback：deepseek-chat MODEL_NOT_FOUND → glm-4.7 成功 → 写 call_log
+ *   1) 正常：deepseek-v4-flash 成功 → 写 call_log source='sync'
+ *   2) Fallback：deepseek-v4-flash MODEL_NOT_FOUND → glm-5 成功 → 写 call_log
  *   3) 全部挂：3 个 alias 都抛错 → callSyncLLM 抛 "All sync LLM fallbacks exhausted"
  */
 import { describe, it, expect, vi, beforeEach } from "vitest";
@@ -23,8 +23,13 @@ vi.mock("@/lib/engine/router", () => ({
 // resolveEngine mock 里同时返回 `{ candidates }` 且 candidates 上挂 adapter。
 vi.mock("@/lib/engine/failover", () => ({
   withFailover: async (
-    candidates: Array<RouteResult & { __adapter: { chatCompletions: () => Promise<ChatCompletionResponse> } }>,
-    fn: (r: RouteResult, a: { chatCompletions: () => Promise<ChatCompletionResponse> }) => Promise<ChatCompletionResponse>,
+    candidates: Array<
+      RouteResult & { __adapter: { chatCompletions: () => Promise<ChatCompletionResponse> } }
+    >,
+    fn: (
+      r: RouteResult,
+      a: { chatCompletions: () => Promise<ChatCompletionResponse> },
+    ) => Promise<ChatCompletionResponse>,
   ) => {
     let lastErr: unknown;
     for (const c of candidates) {
@@ -92,40 +97,40 @@ beforeEach(() => {
 
 describe("F-BAX-03 callSyncLLM", () => {
   it("SYNC_MODEL_FALLBACK_CHAIN is the documented 3-alias chain", () => {
-    expect(SYNC_MODEL_FALLBACK_CHAIN).toEqual(["deepseek-chat", "glm-4.7", "doubao-pro"]);
+    expect(SYNC_MODEL_FALLBACK_CHAIN).toEqual(["deepseek-v4-flash", "glm-5", "doubao-pro"]);
   });
 
   it("normal path — first alias succeeds, writes call_log source='sync'", async () => {
-    const route = makeRouteWithAdapter("deepseek-chat", okResponse("{\"ok\":true}"));
+    const route = makeRouteWithAdapter("deepseek-v4-flash", okResponse('{"ok":true}'));
     resolveEngineMock.mockResolvedValueOnce({ candidates: [route] });
 
     const content = await callSyncLLM("test prompt", { taskName: "unit_test" });
 
-    expect(content).toBe("{\"ok\":true}");
+    expect(content).toBe('{"ok":true}');
     expect(resolveEngineMock).toHaveBeenCalledTimes(1);
-    expect(resolveEngineMock).toHaveBeenCalledWith("deepseek-chat");
+    expect(resolveEngineMock).toHaveBeenCalledWith("deepseek-v4-flash");
     expect(writeSyncCallLogMock).toHaveBeenCalledTimes(1);
     const logParams = writeSyncCallLogMock.mock.calls[0][0];
     expect(logParams.taskName).toBe("unit_test");
     expect(logParams.traceId).toMatch(/^sync_unit_test_/);
-    expect(logParams.route.channel.id).toBe("ch-deepseek-chat");
+    expect(logParams.route.channel.id).toBe("ch-deepseek-v4-flash");
   });
 
   it("fallback — first alias MODEL_NOT_FOUND, second alias succeeds", async () => {
     resolveEngineMock.mockImplementationOnce(async () => {
-      throw new EngineError("deepseek-chat not found", ErrorCodes.MODEL_NOT_FOUND, 404);
+      throw new EngineError("deepseek-v4-flash not found", ErrorCodes.MODEL_NOT_FOUND, 404);
     });
-    const route = makeRouteWithAdapter("glm-4.7", okResponse("{\"fallback\":true}"));
+    const route = makeRouteWithAdapter("glm-5", okResponse('{"fallback":true}'));
     resolveEngineMock.mockResolvedValueOnce({ candidates: [route] });
 
     const content = await callSyncLLM("p", { taskName: "fallback_test" });
 
-    expect(content).toBe("{\"fallback\":true}");
+    expect(content).toBe('{"fallback":true}');
     expect(resolveEngineMock).toHaveBeenCalledTimes(2);
-    expect(resolveEngineMock.mock.calls[0][0]).toBe("deepseek-chat");
-    expect(resolveEngineMock.mock.calls[1][0]).toBe("glm-4.7");
+    expect(resolveEngineMock.mock.calls[0][0]).toBe("deepseek-v4-flash");
+    expect(resolveEngineMock.mock.calls[1][0]).toBe("glm-5");
     expect(writeSyncCallLogMock).toHaveBeenCalledTimes(1);
-    expect(writeSyncCallLogMock.mock.calls[0][0].route.channel.id).toBe("ch-glm-4.7");
+    expect(writeSyncCallLogMock.mock.calls[0][0].route.channel.id).toBe("ch-glm-5");
   });
 
   it("all fallbacks exhausted — throws descriptive error", async () => {
@@ -142,7 +147,7 @@ describe("F-BAX-03 callSyncLLM", () => {
   });
 
   it("CONTENT_FILTERED propagates immediately (no fallback)", async () => {
-    const route = makeRouteWithAdapter("deepseek-chat", () => {
+    const route = makeRouteWithAdapter("deepseek-v4-flash", () => {
       throw new EngineError("filtered", ErrorCodes.CONTENT_FILTERED, 400);
     });
     resolveEngineMock.mockResolvedValueOnce({ candidates: [route] });
@@ -150,5 +155,44 @@ describe("F-BAX-03 callSyncLLM", () => {
     await expect(callSyncLLM("p", { taskName: "filter" })).rejects.toThrow(/filtered/i);
     // Only the first alias is attempted — filter errors don't warrant fallback
     expect(resolveEngineMock).toHaveBeenCalledTimes(1);
+  });
+});
+
+/**
+ * BL-DEEPSEEK-V4-HOTFIX F-DSV4-04 — 链腐坏可见性。
+ *
+ * 旧链首 `deepseek-chat` 和次位 `glm-4.7` 在生产双双 enabled=false，每次调用
+ * 都空转两跳才落到 doubao-pro，而这两跳的失败混在通用 warn 里没人看见。
+ * MODEL_NOT_FOUND 说明的是"配置腐坏"而非"运行时故障"，必须能一眼认出来。
+ */
+describe("F-DSV4-04 链腐坏告警", () => {
+  it("MODEL_NOT_FOUND 打出 chain rot 专用警告并带上别名", async () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    resolveEngineMock.mockImplementationOnce(async () => {
+      throw new EngineError("gone", ErrorCodes.MODEL_NOT_FOUND, 404);
+    });
+    const route = makeRouteWithAdapter("glm-5", okResponse('{"ok":true}'));
+    resolveEngineMock.mockResolvedValueOnce({ candidates: [route] });
+
+    await callSyncLLM("p", { taskName: "rot" });
+
+    const rotLines = warn.mock.calls.map(String).filter((l) => l.includes("chain rot"));
+    expect(rotLines).toHaveLength(1);
+    expect(rotLines[0]).toContain("deepseek-v4-flash");
+    warn.mockRestore();
+  });
+
+  it("非 MODEL_NOT_FOUND 的失败不误报为链腐坏", async () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    resolveEngineMock.mockImplementationOnce(async () => {
+      throw new EngineError("upstream 500", ErrorCodes.PROVIDER_ERROR, 502);
+    });
+    const route = makeRouteWithAdapter("glm-5", okResponse('{"ok":true}'));
+    resolveEngineMock.mockResolvedValueOnce({ candidates: [route] });
+
+    await callSyncLLM("p", { taskName: "not_rot" });
+
+    expect(warn.mock.calls.map(String).filter((l) => l.includes("chain rot"))).toHaveLength(0);
+    warn.mockRestore();
   });
 });
