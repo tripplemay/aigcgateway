@@ -338,6 +338,43 @@ rename .../ingest/.../data .../blobs/sha256/8458c34067...: no such file or direc
 
 **过度门控的自我修正：** 一度把 `5d 空 chat content → invalid_request` 也标成 SKIP，核对后确认该校验发生在 schema 层、早于模型解析，无模型环境同样可验 —— 已撤回门控，保住这条断言。
 
+## 6.10 fix_round 3（2026-07-26）— DSV4-DEF-03
+
+**缺陷（复验发现，High）：本批次两个修复互相打架。** F-DSV4-02 恢复的调度器，把 F-DSV4-01 的止血成果撤销了 —— 08:44/08:45 两条已下架的 DeepSeek 陈旧通道被自动拉回 ACTIVE，且都是 enabled alias 下的 priority=1。
+
+**根因（Evaluator 定位准确）：** DISABLED 通道走零成本 `API_REACHABILITY` 恢复检查，它只验 provider 的 `/models` 端点有响应，**根本不碰 channel 自己的 `realModelId`**，PASS 就无条件转 ACTIVE。影响是全局的：24h 内 76 次 AUTO_RECOVERY，日志可见 siliconflow 的 `deepseek-v3` / `hunyuan` / `ernie-4.5` 在反复 `DISABLED↔ACTIVE` 抖动。
+
+### 修复期间发现的上游二次变更
+
+Evaluator 只核了 `/models`（仍只返回 v4-flash / v4-pro）。Generator 补做真实调用探测，发现 **DeepSeek 已补上向后兼容别名**：
+
+```
+POST /chat/completions {"model":"deepseek-chat"}     → 200，响应体 "model":"deepseek-v4-flash"
+POST /chat/completions {"model":"deepseek-reasoner"} → 200，响应体 "model":"deepseek-v4-flash"
+```
+
+所以现在不是用户可见故障（调用会成功），而是**语义偷换**：点 `deepseek-v3` / `deepseek-r1` 实际拿到 V4-flash。这正是 D1 禁止的事，也解释了健康检查为何放行。**用户 2026-07-26 裁决：坚持 D1，重新下架。**
+
+### 门槛设计与误伤实测
+
+朴素的"缺席即下架"判定**不安全**。上线前用生产数据逐 provider 对比 `/models` 与其通道：
+
+| provider | 远端模型 | 通道 | realModelId 不在远端 | 其中 ACTIVE |
+|---|---:|---:|---:|---:|
+| zhipu | 8 | 33 | 25 | **16**（glm-4-air / glm-4-long / cogview-3…，能调通，目录不完整） |
+| openrouter | 325 | 417 | 85 | 4 |
+| siliconflow | 73 | 155 | 85 | 4（含 EMBEDDING `bge-m3`） |
+| volcengine | 14 | 17 | 3 | 2（`seedream-4-5` 的 realModelId 是接入点 ID `ep-2026…`，与目录命名不是一套） |
+| deepseek | 2 | 5 | 3 | 2（**本次目标**） |
+
+因此 `vetoRecovery` 只在**能确证模型已从目录消失**时否决，逐条排除不可比情形：EMBEDDING 模态、provider 配了 `quirks.endpointMap`（接入点 ID 体系）、无专属适配器、目录拉取失败、目录返回空。**宁可漏否决（退回现状），不可误否决（把还能用的通道永久钉死在 DISABLED）。** 否决时写 SystemLog，不重蹈"静默行为"的覆辙。
+
+**已知取舍（须知悉）：** 上述 zhipu 16 / openrouter 4 / siliconflow 4 条通道若今后被降级到 DISABLED，将不会自动恢复，需管理员在后台手动置回 ACTIVE。这是"止血不被撤销"的代价。
+
+**回归：** `recovery-veto.test.ts` 9 例，覆盖否决本体（deepseek-chat / deepseek-reasoner）与全部 5 类放行护栏。
+
+**遗留（不在本批次，建议另开）：** 止血使 deepseek 通道数降到与远端相等 → 缩水护栏不再触发 → reconcile 恢复运行 → 把 `deepseek-v4-flash` / `deepseek-v4-pro` 的 costPrice 从 `{0.14,0.28}` / `{0.435,0.87}` 覆盖成 `{0,0}`（上游 `/models` 不返回价格）。卖价与用户不受影响，成本核算失真。与 §6.5 记录的跨服务商 costPrice 全零问题同源。
+
 ## 7. 与 BL-IMG-I2I-VISION 的关系
 
 BL-IMG-I2I-VISION 处于 `reverifying`（F-IIV-08 待 Codex 复验），本批次插队。挂起状态已归档：

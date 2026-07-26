@@ -195,6 +195,9 @@ export function stopScheduler(): void {
   }
 }
 
+/** 测试用：暴露恢复门槛，不供业务代码使用。 */
+export const __recoveryTesting = { vetoRecovery };
+
 /** 测试用：读写 leadership 状态，不导出给业务代码使用。 */
 export const __leadershipTesting = {
   get hasLeadership(): boolean {
@@ -619,6 +622,24 @@ async function executeCheckWithRetry(
 
   if (finalPassed) {
     if (route.channel.status !== "ACTIVE") {
+      // BL-DEEPSEEK-V4-HOTFIX fix_round 3 / DSV4-DEF-03：探测 PASS 不等于"这个
+      // 模型还在"。DISABLED 通道走的是零成本 API_REACHABILITY，只验 provider
+      // 的 /models 端点有响应，根本不碰 channel 自己的 realModelId —— 于是
+      // 2026-07-26 08:44/08:45 把两条按上游目录下架的 DeepSeek 陈旧通道又
+      // 拉回 ACTIVE，直接撤销了 F-DSV4-01 的止血。
+      const veto = await vetoRecovery(route);
+      if (veto) {
+        console.warn(
+          `[health] recovery vetoed ${route.provider.name}/${route.channel.realModelId}: ${veto}`,
+        );
+        void writeSystemLog(
+          "AUTO_RECOVERY",
+          "WARN",
+          `拒绝自动恢复 ${route.provider.name}/${route.channel.realModelId}：${veto}`,
+          { channelId: route.channel.id, realModelId: route.channel.realModelId, reason: veto },
+        ).catch(() => {});
+        return results;
+      }
       await updateChannelStatus(route, "ACTIVE");
     }
   } else {
@@ -626,6 +647,56 @@ async function executeCheckWithRetry(
   }
 
   return results;
+}
+
+/**
+ * BL-DEEPSEEK-V4-HOTFIX fix_round 3 — DISABLED → ACTIVE 的额外门槛。
+ *
+ * 只在**能确证模型已从服务商目录消失**时否决恢复，返回否决理由；其余一律放行。
+ *
+ * ## 为什么护栏这么保守
+ *
+ * 上线前用生产数据实测了误伤面（每个 provider 的 /models 与其通道对比）：
+ *   zhipu       16 条 ACTIVE 通道的 realModelId 不在自家 /models 里（glm-4-air /
+ *               glm-4-long / cogview-3 …），但它们是能调通的 —— 该目录不完整
+ *   volcengine  seedream-4-5 的 realModelId 是接入点 ID `ep-2026...`，与目录里的
+ *               友好名根本不是一套命名
+ *   siliconflow bge-m3 属 EMBEDDING，本来就不出现在 chat 的 /models 里
+ *               （model-sync.ts toDisable 早就为此专门排除了 EMBEDDING）
+ *
+ * 所以"不在 /models 里"**不是**通用的下架信号。下面逐条排除这些已知不可比的
+ * 情形，只在剩余情形里否决 —— 宁可漏否决（退回现状），不可误否决（把还能用的
+ * 通道永久钉死在 DISABLED）。
+ *
+ * 被否决时会写 SystemLog，避免又一个"静默行为"（本批次的教训）。
+ */
+async function vetoRecovery(route: RouteResult): Promise<string | null> {
+  // EMBEDDING 不通过 chat /models 同步，缺席是常态
+  if (route.model.modality === "EMBEDDING") return null;
+
+  const quirks = route.config.quirks as Record<string, unknown> | null;
+  // 接入点 ID 体系（volcengine）：realModelId 与目录命名不可比
+  if (quirks?.endpointMap) return null;
+
+  const { getSyncAdapter } = await import("@/lib/sync/model-sync");
+  const adapter = getSyncAdapter(route.provider.name);
+  if (!adapter) return null; // 无专属适配器 → 无权威目录
+
+  let remote: string[];
+  try {
+    const provider = await prisma.provider.findUnique({
+      where: { id: route.provider.id },
+      include: { config: true },
+    });
+    if (!provider) return null;
+    remote = (await adapter.fetchModels(provider)).map((m) => m.modelId);
+  } catch {
+    return null; // 拉不到目录 → 不作判断，保持原有行为
+  }
+  if (remote.length === 0) return null; // 空目录多半是上游抖动，不据此否决
+
+  if (remote.includes(route.channel.realModelId)) return null;
+  return `realModelId 不在 ${route.provider.name} 的 /models 目录中（远端 ${remote.length} 个模型）`;
 }
 
 async function handleFailure(route: RouteResult, results: CheckResult[]): Promise<void> {

@@ -1,11 +1,11 @@
 {
-  "status": "fixing",
+  "status": "building",
   "user_goal": "BL-DEEPSEEK-V4-HOTFIX — 生产故障止血 + 自动兜底修复。DeepSeek 直连 API 下线 deepseek-chat / deepseek-reasoner，只保留 deepseek-v4-pro / deepseek-v4-flash；生产 3 条 deepseek 直连通道 realModelId 陈旧且占据 priority=1，上游 400 被归类为 INVALID_REQUEST（NEVER_RETRY）→ 无 failover → deepseek-v3 别名硬失败。两层自动兜底同时失效：model-sync 缩水护栏（2 < 5×0.5）静默拦截自动下架已 5 天无告警；健康检查调度器 2026-07-23T05:15 丢 leadership 后永久停摆（无重抢路径，单副本 → 全站健康检查零执行）。用户裁决：止血 + 系统性修复，插队开 hotfix 批次（BL-IMG-I2I-VISION reverifying 挂起，本批次 done 后还原）。6 features（5 generator + 1 codex）。",
   "total_features": 7,
   "completed_features": 5,
-  "fix_rounds": 2,
+  "fix_rounds": 3,
   "current_sprint": "BL-DEEPSEEK-V4-HOTFIX",
-  "last_updated": "2026-07-26T16:00:00Z",
+  "last_updated": "2026-07-26T09:50:00Z",
   "role_assignments": null,
   "docs": {
     "spec": "docs/specs/BL-DEEPSEEK-V4-HOTFIX-spec.md",
@@ -13,26 +13,7 @@
     "signoff": null,
     "framework_reviewed": false
   },
-  "evaluator_feedback": {
-    "summary": "fix round 2 复验 FAIL：DSV4-DEF-02 与全部 L1 回归已通过；生产健康调度恢复后把两条已止血下架的 DeepSeek priority=1 陈旧通道从 DISABLED 自动恢复为 ACTIVE，违反 F-DSV4-01 / F-DSV4-06.2，不能签收。",
-    "pass_count": 5,
-    "partial_count": 0,
-    "fail_count": 2,
-    "issues": [
-      {
-        "feature_id": "F-DSV4-01",
-        "result": "FAIL",
-        "description": "DSV4-DEF-03 [High]：上游 /models 当前仍仅返回 deepseek-v4-flash / deepseek-v4-pro，但健康恢复任务以只验证 data 数组存在的 API_REACHABILITY PASS，将 deepseek-reasoner 与 deepseek-v3/deepseek-chat 两条已下架通道重新置为 ACTIVE；两条均为 enabled alias 下 priority=1。",
-        "steps_to_reproduce": "生产止血后部署并等待 DISABLED_INTERVAL；查询 2026-07-26 08:44:21Z、08:45:19Z AUTO_RECOVERY 日志及当前 DeepSeek 通道，再对照上游 /models。详见 docs/test-reports/BL-DEEPSEEK-V4-HOTFIX-reverification-2026-07-26-round2.md。"
-      },
-      {
-        "feature_id": "F-DSV4-06",
-        "result": "FAIL",
-        "description": "签收门禁未满足：TC-DSV4-002/013 FAIL，生产存在 2 条 ACTIVE 陈旧 realModelId 通道；docs.signoff 必须保持 null。其余 11 个验收用例通过。",
-        "steps_to_reproduce": "见 docs/test-reports/BL-DEEPSEEK-V4-HOTFIX-reverification-2026-07-26-round2.md §4-5。"
-      }
-    ]
-  },
+  "evaluator_feedback": null,
   "suspended_batch": {
     "sprint": "BL-IMG-I2I-VISION",
     "status_at_suspend": "reverifying",

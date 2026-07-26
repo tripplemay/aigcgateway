@@ -69,6 +69,15 @@ const ADAPTERS: Record<string, SyncAdapter> = {
   "xiaomi-mimo": xiaomiMimoAdapter,
 };
 
+/**
+ * BL-DEEPSEEK-V4-HOTFIX fix_round 3：按 provider 名取专属适配器。
+ * 健康检查的恢复门槛（scheduler.vetoRecovery）用它拉取权威模型目录。
+ * 只认专属适配器 —— 走通用回退的 provider 目录命名不可靠，不作为下架依据。
+ */
+export function getSyncAdapter(providerName: string): SyncAdapter | undefined {
+  return ADAPTERS[providerName];
+}
+
 // ── adapterType 回退表 ──
 // provider.name 未命中 ADAPTERS 时，按 provider.adapterType 回退。
 // 让后台 UI 新增的任意 OpenAI 兼容 provider 无需改代码即可同步。
