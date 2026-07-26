@@ -2,10 +2,10 @@
   "status": "building",
   "user_goal": "BL-DEEPSEEK-V4-HOTFIX — 生产故障止血 + 自动兜底修复。DeepSeek 直连 API 下线 deepseek-chat / deepseek-reasoner，只保留 deepseek-v4-pro / deepseek-v4-flash；生产 3 条 deepseek 直连通道 realModelId 陈旧且占据 priority=1，上游 400 被归类为 INVALID_REQUEST（NEVER_RETRY）→ 无 failover → deepseek-v3 别名硬失败。两层自动兜底同时失效：model-sync 缩水护栏（2 < 5×0.5）静默拦截自动下架已 5 天无告警；健康检查调度器 2026-07-23T05:15 丢 leadership 后永久停摆（无重抢路径，单副本 → 全站健康检查零执行）。用户裁决：止血 + 系统性修复，插队开 hotfix 批次（BL-IMG-I2I-VISION reverifying 挂起，本批次 done 后还原）。6 features（5 generator + 1 codex）。",
   "total_features": 6,
-  "completed_features": 0,
+  "completed_features": 1,
   "fix_rounds": 0,
   "current_sprint": "BL-DEEPSEEK-V4-HOTFIX",
-  "last_updated": "2026-07-25T11:30:00Z",
+  "last_updated": "2026-07-25T11:45:00Z",
   "role_assignments": null,
   "docs": {
     "spec": "docs/specs/BL-DEEPSEEK-V4-HOTFIX-spec.md",
