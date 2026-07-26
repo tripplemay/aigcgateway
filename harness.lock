@@ -1,0 +1,86 @@
+{
+  "lock_version": 1,
+  "framework": {
+    "version": "unknown",
+    "commit": "b9f5dfd"
+  },
+  "managed": {
+    "evaluator.md": {
+      "src": "harness/evaluator.md",
+      "sha256": "974055063533e34cbec8b99f4581cf659787354e4aca12e614d81fdd04140a93",
+      "upstream": "2c14aa5977a1bedda1d51d3f64244a5511d85fa5d248e6780a1d5f4f49fedb86"
+    },
+    "generator.md": {
+      "src": "harness/generator.md",
+      "sha256": "2d842274e25ece1193597ce239af1edaf86b9d2664381aa0ace3c19f339d6db2",
+      "upstream": "f7c43ad4133db778ce0d197d94f9fcf6d736659dc2db9fe24dd431d9845c8113"
+    },
+    "harness-rules.md": {
+      "src": "harness/harness-rules.md",
+      "sha256": "7a971aa3f0b698839c5cd308b830cdc862856b164a011a03c4477a699252fbfe",
+      "upstream": "359840d518942cf9a1559a3051cb6d947b85a187f53194c6f55adfb18c23c892"
+    },
+    "planner.md": {
+      "src": "harness/planner.md",
+      "sha256": "faccac8d4fadbd2cf5cc2736ddac96a5b5463974d2f204d147b5278e1aa751c5",
+      "upstream": "b3fe138c65f2fa7affb8f6dbf412e5449b07125afc62296cc92f681c431b2d85"
+    }
+  },
+  "seeded": {
+    ".auto-memory/MEMORY.md": {
+      "src": "memory/MEMORY.md",
+      "sha256": "07fb9b3cfc0fd934ee1a31e249c3c3f62349b5163babaefe9030af82188fc725",
+      "upstream": "2856839b2c5b3b77b79671a955511e70c8004b0c1d484f36584a7594d53617d2"
+    },
+    ".auto-memory/environment.md": {
+      "src": "memory/environment.md",
+      "sha256": "782a6097e2a8d8f347f98fb7f5800b503e81ee15697e17d82cc7d45e8c330cbe",
+      "upstream": "3a8ab4117793da7dc151389b28650a5fd9e99021ff038d79b6498aa431dccb2a"
+    },
+    ".auto-memory/project-status.md": {
+      "src": "memory/project-status.md",
+      "sha256": "08fa9e3a7b96d43e5d748931308e2c3bfc93f5c712c2ca55bc63866cbda3d2cd",
+      "upstream": "7618ab126416a2915ba97e0fec988cc4117c314e0397c83ca400d0398d419c03"
+    },
+    ".auto-memory/reference-docs.md": {
+      "src": "memory/reference-docs.md",
+      "sha256": "d06a8e3af7035e5c4acdffdb920c254d78487529e16f30b4daea0720ad698b8e",
+      "upstream": "18310757d409d57973929ac7d06498fe612b502ee5cd5277bb87fc1a83a4d7f4"
+    },
+    ".auto-memory/role-context/evaluator.md": {
+      "src": "memory/role-context/evaluator.md",
+      "sha256": "7914c5f6d993499962144bcd613c472e1398dcbf7da8986eea62ff30640fe445",
+      "upstream": "4ce3f22f883a836aa2f248c02f6f018e0ace59dd7b0754811aa3959ebb75475c"
+    },
+    ".auto-memory/role-context/generator.md": {
+      "src": "memory/role-context/generator.md",
+      "sha256": "d393ee25a768840738afb0cbaeb349c5f36d726a942cf535af4d4f67a788fa64",
+      "upstream": "53c791c09aeb49f06ecf88375215312488be7cdd092641160b1d4af0435b26be"
+    },
+    ".auto-memory/role-context/planner.md": {
+      "src": "memory/role-context/planner.md",
+      "sha256": "fc0fbb238a5e03be77af28ffcbe784a62e90ee035a766eb79540a68c045da512",
+      "upstream": "fbae03bd188140b939b4ec0c4b49e378af97909c1141605378d3e8cd49069345"
+    },
+    ".auto-memory/user-role.md": {
+      "src": "memory/user-role.md",
+      "sha256": "5dcee4674fb7246b2f16f550951c8db3e43c6ed50025e290ba30de17855816dc",
+      "upstream": "cb3eb1c043aad55b610ecefc185abe6411c399c5e446acf0544f00a81ec03f50"
+    },
+    "AGENTS.md": {
+      "src": "templates/AGENTS.md",
+      "sha256": "25b89c2e2ef3e493b7e4f21024baafcc3196a6ca1a69a6b5dcccb184a4744372",
+      "upstream": "01c20fb8de4b1f2aa8749e72f42b324b925a47e5aab7e0cdcaf58448e1a62610"
+    },
+    "CLAUDE.md": {
+      "src": "templates/CLAUDE.md",
+      "sha256": "1b0d2d9720a278894c7bdd8358ab7596c84d611a19344a5b2fbb27baaa11ff4a",
+      "upstream": "8bb2391c528ab7d532d26f53fe2c9854c9cf8e1da4f0c4098fbd8693959ecb86"
+    },
+    "progress.json": {
+      "src": "harness/progress.init.json",
+      "sha256": "28e4699d2fe710f8eb4f9c1ade769c3e779826e4cd654db671abb24aad26aae5",
+      "upstream": "30a8983d211cea8625960524d6118f1f4d6d27c61fcd7bab95ffee6a7e6e613b"
+    }
+  }
+}
