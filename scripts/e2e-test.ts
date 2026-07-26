@@ -24,6 +24,8 @@ let textModel = "";
 let imageModel = "";
 let initialBalance = 0;
 let rechargedBalance = 0;
+// fix_round 2 / DSV4-DEF-02：依赖"调用已发生"的断言据此决定 SKIP
+let hasSuccessfulCall = false;
 
 async function resolveModels() {
   const res = await fetch(`${BASE}/v1/models`, {
@@ -302,6 +304,7 @@ async function main() {
     if (!body.choices?.[0]?.message?.content) throw new Error("No content");
     const traceId = res.headers.get("x-trace-id");
     if (!traceId) throw new Error("No X-Trace-Id");
+    hasSuccessfulCall = true;
   });
 
   // 9. API call (streaming)
@@ -338,6 +341,7 @@ async function main() {
 
   // 11. Check balance decreased
   await step("11. Balance decreased after calls", async () => {
+    skipUnless(hasSuccessfulCall, "no successful AI call — nothing consumed balance");
     const { body } = await api(`/api/projects/${projectId}/balance`);
     if (body.balance >= rechargedBalance) {
       throw new Error(`Balance not decreased: ${body.balance} (was ${rechargedBalance})`);
@@ -346,14 +350,28 @@ async function main() {
 
   // 12. Transaction records
   await step("12. Transaction records", async () => {
-    const { body } = await api(`/api/projects/${projectId}/transactions`);
-    const types = body.data?.map((t: { type: string }) => t.type) ?? [];
-    if (!types.includes("RECHARGE")) throw new Error("No RECHARGE record");
-    if (!types.includes("DEDUCTION")) throw new Error("No DEDUCTION record");
+    // fix_round 2 / DSV4-DEF-02：余额是用户级的，`billing/payment.ts` 明确把
+    // RECHARGE 记到 user.defaultProjectId 而非下单所在项目（见该文件"查找用于
+    // Transaction 记录的 projectId"）。原断言只查本脚本建的项目，必然查不到。
+    // 改为跨用户全部项目聚合。
+    const projects = await api(`/api/projects`);
+    const ids: string[] = (projects.body.data ?? []).map((p: { id: string }) => p.id);
+    const types = new Set<string>();
+    for (const id of ids) {
+      const { body } = await api(`/api/projects/${id}/transactions`);
+      for (const t of body.data ?? []) types.add(t.type);
+    }
+    if (!types.has("RECHARGE")) throw new Error(`No RECHARGE record (types: ${[...types]})`);
+    if (!hasSuccessfulCall) {
+      console.log("(RECHARGE ok; DEDUCTION 需真实调用，本环境跳过) ");
+      return;
+    }
+    if (!types.has("DEDUCTION")) throw new Error(`No DEDUCTION record (types: ${[...types]})`);
   });
 
   // 13. Audit logs
   await step("13. Audit logs", async () => {
+    skipUnless(hasSuccessfulCall, "no successful AI call — no logs to assert");
     const { body } = await api(`/api/projects/${projectId}/logs`);
     if (!body.data?.length) throw new Error("No logs");
     if (!body.data[0].traceId) throw new Error("No traceId in log");
@@ -368,6 +386,7 @@ async function main() {
 
   // 15. Models list
   await step("15. GET /v1/models", async () => {
+    skipUnless(textModel || imageModel, "environment has no models configured");
     const res = await fetch(`${BASE}/v1/models`);
     const body = await res.json();
     if (!body.data?.length) throw new Error("No models");
@@ -395,6 +414,7 @@ async function main() {
   // the models page can group them; the "show all" button's expand logic
   // depends on every entry carrying a `brand` field.
   await step("18. BL-121 models brand field", async () => {
+    skipUnless(textModel || imageModel, "environment has no models configured");
     const res = await fetch(`${BASE}/v1/models`);
     const body = await res.json();
     if (!Array.isArray(body.data) || body.data.length === 0)
@@ -410,7 +430,11 @@ async function main() {
   await step("19. BL-123 templates tab sources", async () => {
     const my = await api(`/api/projects/${projectId}/templates?page=1&pageSize=20`);
     if (!Array.isArray(my.body.data)) throw new Error("My templates: no data array");
-    const pub = await fetch(`${BASE}/api/templates/public`);
+    // fix_round 2 / DSV4-DEF-02：/api/templates/public 已加 verifyJwt 鉴权
+    // （src/app/api/templates/public/route.ts:9），脚本仍在裸 fetch → 401。
+    const pub = await fetch(`${BASE}/api/templates/public`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
     if (!pub.ok) throw new Error(`Public templates HTTP ${pub.status}`);
     const pubBody = await pub.json();
     if (!Array.isArray(pubBody.data) && !Array.isArray(pubBody))
@@ -421,6 +445,9 @@ async function main() {
   // We send a chat request and immediately abort, then verify the CallLog
   // is recorded as TIMEOUT with sellPrice=0.
   await step("20. F-AF2-01 client abort → TIMEOUT, no billing", async () => {
+    // fix_round 2：原硬编码 "gpt-4o-mini"，环境没有该别名时请求在写 CallLog 前
+    // 就被拒，断言必然失败。改用运行时选出的模型并在无模型时 SKIP。
+    skipUnless(textModel, "no text model available — abort path cannot produce a CallLog");
     const controller = new AbortController();
     // Abort immediately to simulate client timeout
     setTimeout(() => controller.abort(), 50);
@@ -432,7 +459,7 @@ async function main() {
           Authorization: `Bearer ${apiKey}`,
         },
         body: JSON.stringify({
-          model: "gpt-4o-mini",
+          model: textModel,
           messages: [{ role: "user", content: "say hi" }],
         }),
         signal: controller.signal,
@@ -619,6 +646,7 @@ async function main() {
   // for this run, (c) each callLogId appears at most once in transactions — i.e. deduct_balance
   // did not get double-INSERTed by a stray tx.transaction.create (the F-BA-02 anti-pattern).
   await step("24. BL-SEC-BILLING-AI F-BA-02 concurrent atomicity", async () => {
+    skipUnless(textModel, "no text model available — concurrent deduction path unreachable");
     const user = await prisma.user.findUnique({ where: { email } });
     if (!user) throw new Error("e2e user missing");
 

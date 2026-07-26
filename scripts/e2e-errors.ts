@@ -110,11 +110,14 @@ async function main() {
 
   // 1. Insufficient balance → 402
   await step("1. Insufficient balance → 402", async () => {
+    // fix_round 2 / DSV4-DEF-02：余额校验发生在模型解析之后，环境无模型时
+    // 会先返回 404 model_not_found，断言的根本不是 402 语义。
+    if (!textModel) throw new SkipStep("no text model available from /v1/models");
     const res = await fetch(`${BASE}/v1/chat/completions`, {
       method: "POST",
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
       body: JSON.stringify({
-        model: textModel || "deepseek-v3",
+        model: textModel,
         messages: [{ role: "user", content: "test" }],
       }),
     });
@@ -129,7 +132,7 @@ async function main() {
       method: "POST",
       headers: { "Content-Type": "application/json", Authorization: "Bearer pk_invalid_key" },
       body: JSON.stringify({
-        model: textModel || "deepseek-v3",
+        model: textModel,
         messages: [{ role: "user", content: "test" }],
       }),
     });
@@ -148,7 +151,7 @@ async function main() {
       method: "POST",
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
       body: JSON.stringify({
-        model: textModel || "deepseek-v3",
+        model: textModel,
         messages: [{ role: "user", content: "test" }],
       }),
     });

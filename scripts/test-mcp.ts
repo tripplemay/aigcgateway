@@ -10,6 +10,7 @@ const MCP_URL = `${BASE}/mcp`;
 
 let passed = 0;
 let failed = 0;
+let skipped = 0;
 let lastTraceId = "";
 let imageTraceId = "";
 let selectedImageModel = "";
@@ -112,6 +113,23 @@ async function apiChatCall(model: string, messages: Array<{ role: string; conten
   };
 }
 
+/**
+ * BL-DEEPSEEK-V4-HOTFIX fix_round 2 / DSV4-DEF-02：环境没有可用模型时，真实调用
+ * **以及一切依赖调用产物的断言**（余额扣减、call_logs、trace 详情、计费对账）
+ * 都无从验证。这类步骤记 SKIP 而不是 FAIL —— 环境受阻不是回归。
+ *
+ * fix_round 1 只挡住了直接调用那几步，依赖链继续 FAIL，脚本照样 exit 1，
+ * 统一回归入口仍不可信。这里补齐传播。
+ */
+class SkipStep extends Error {}
+
+function skipUnless(condition: unknown, reason: string): asserts condition {
+  if (!condition) throw new SkipStep(reason);
+}
+
+/** 是否已产生过成功的真实调用（决定 call_logs 相关断言能否执行） */
+let hasSuccessfulCall = false;
+
 async function step(name: string, fn: () => Promise<void>) {
   process.stdout.write(`  ${name}... `);
   try {
@@ -119,6 +137,11 @@ async function step(name: string, fn: () => Promise<void>) {
     console.log("✅ PASS");
     passed++;
   } catch (e) {
+    if (e instanceof SkipStep) {
+      console.log(`⏭️  SKIP: ${e.message}`);
+      skipped++;
+      return;
+    }
     console.log(`❌ FAIL: ${(e as Error).message}`);
     failed++;
   }
@@ -180,7 +203,7 @@ async function main() {
 
   let mcpTokens = 0;
   await step("5. chat (text model, MCP)", async () => {
-    if (!selectedTextModel) throw new Error("No text model found from list_models");
+    skipUnless(selectedTextModel, "no text model available from list_models");
     const result = await callTool("chat", {
       model: selectedTextModel,
       messages: [{ role: "user", content: "Say OK" }],
@@ -190,11 +213,16 @@ async function main() {
     if (!data.traceId) throw new Error("No traceId");
     if (!data.content) throw new Error("No content");
     lastTraceId = data.traceId;
+    hasSuccessfulCall = true;
     mcpTokens = data.usage?.totalTokens ?? 0;
     console.log(`(traceId: ${data.traceId}, tokens: ${mcpTokens}) `);
   });
 
   await step("6. get_balance (after chat)", async () => {
+    skipUnless(
+      hasSuccessfulCall,
+      "no successful AI call in this environment — nothing to assert against",
+    );
     const result = await callTool("get_balance");
     const data = JSON.parse(parseTextContent(result));
     if (data.balance === undefined) throw new Error("No balance");
@@ -206,6 +234,10 @@ async function main() {
   });
 
   await step("7. Verify CallLog.source='mcp' (get_log_detail)", async () => {
+    skipUnless(
+      hasSuccessfulCall,
+      "no successful AI call in this environment — nothing to assert against",
+    );
     await new Promise((r) => setTimeout(r, 500));
     const detail = await getLogDetail(lastTraceId);
     if (detail.source !== "mcp") {
@@ -216,7 +248,7 @@ async function main() {
 
   let apiTraceId = "";
   await step("8. chat (text model, API) for billing comparison", async () => {
-    if (!selectedTextModel) throw new Error("No text model found from list_models");
+    skipUnless(selectedTextModel, "no text model available from list_models");
     const response = await apiChatCall(selectedTextModel, [{ role: "user", content: "Say OK" }]);
     if (!response.body.usage) throw new Error("No usage in API response");
     if (!response.traceId) throw new Error("No X-Trace-Id in API response");
@@ -225,6 +257,10 @@ async function main() {
   });
 
   await step("9. Verify billing consistency (MCP vs API)", async () => {
+    skipUnless(
+      hasSuccessfulCall,
+      "no successful AI call in this environment — nothing to assert against",
+    );
     await new Promise((r) => setTimeout(r, 500));
     const mcpDetail = await getLogDetail(lastTraceId);
     const apiDetail = await getLogDetail(apiTraceId);
@@ -241,7 +277,7 @@ async function main() {
   });
 
   await step("10. generate_image (normal call)", async () => {
-    if (!selectedImageModel) throw new Error("No image model found from list_models");
+    skipUnless(selectedImageModel, "no image model available from list_models");
     const result = await callTool("generate_image", {
       model: selectedImageModel,
       prompt: "a red circle",
@@ -259,6 +295,7 @@ async function main() {
   });
 
   await step("11. Verify CallLog.source='mcp' (generate_image)", async () => {
+    skipUnless(imageTraceId, "no image call in this environment");
     await new Promise((r) => setTimeout(r, 500));
     const detail = await getLogDetail(imageTraceId);
     if (detail.source !== "mcp") {
@@ -273,6 +310,10 @@ async function main() {
   // would be violated (SUCCESS with sellPrice>0 but images_count=0). If none
   // exist the test passes trivially.
   await step("11b. F-ACF-01 zero-image invariant", async () => {
+    skipUnless(
+      hasSuccessfulCall,
+      "no successful AI call in this environment — nothing to assert against",
+    );
     const logs = JSON.parse(
       parseTextContent(await callTool("list_logs", { status: "success", limit: 50 })),
     );
@@ -332,6 +373,10 @@ async function main() {
   });
 
   await step("13. list_logs (model filter: selected text model)", async () => {
+    skipUnless(
+      hasSuccessfulCall,
+      "no successful AI call in this environment — nothing to assert against",
+    );
     const result = await callTool("list_logs", { model: selectedTextModel, limit: 10 });
     const logs = JSON.parse(parseTextContent(result));
     if (!Array.isArray(logs)) throw new Error("Expected array");
@@ -344,6 +389,10 @@ async function main() {
   });
 
   await step("14. list_logs (status filter: success)", async () => {
+    skipUnless(
+      hasSuccessfulCall,
+      "no successful AI call in this environment — nothing to assert against",
+    );
     const result = await callTool("list_logs", { status: "success", limit: 10 });
     const logs = JSON.parse(parseTextContent(result));
     if (!Array.isArray(logs)) throw new Error("Expected array");
@@ -356,6 +405,10 @@ async function main() {
   });
 
   await step("15. list_logs (search: 'Say OK')", async () => {
+    skipUnless(
+      hasSuccessfulCall,
+      "no successful AI call in this environment — nothing to assert against",
+    );
     const result = await callTool("list_logs", { search: "Say OK", limit: 10 });
     const logs = JSON.parse(parseTextContent(result));
     if (!Array.isArray(logs) || logs.length === 0) {
@@ -365,6 +418,10 @@ async function main() {
   });
 
   await step("16. get_log_detail (first chat log)", async () => {
+    skipUnless(
+      hasSuccessfulCall,
+      "no successful AI call in this environment — nothing to assert against",
+    );
     if (!lastTraceId) throw new Error("No traceId from chat step");
     const detail = await getLogDetail(lastTraceId);
     if (!detail.prompt) throw new Error("No prompt in detail");
@@ -806,6 +863,7 @@ async function main() {
   // json_mode response must survive JSON.parse and carry no leading
   // ```json fence — the response post-processor should strip it.
   await step("RB-03.3 dx-polish: json_mode strips markdown fence", async () => {
+    skipUnless(selectedTextModel, "no text model available from list_models");
     const res = await callTool("chat", {
       model: selectedTextModel,
       messages: [{ role: "user", content: 'Respond with JSON {"ok":true}. Do not add any prose.' }],
@@ -988,6 +1046,7 @@ async function main() {
 
   // 24. F-AF2-09 regression — chat response must include cost field
   await step("24. F-AF2-09 chat response includes cost", async () => {
+    skipUnless(selectedTextModel, "no text model available from list_models");
     const result = await callTool("chat", {
       model: selectedTextModel ?? "gpt-4o-mini",
       messages: [{ role: "user", content: "say ok" }],
@@ -1043,7 +1102,12 @@ async function main() {
   });
 
   console.log("\n" + "=".repeat(60));
-  console.log(`Results: ${passed} PASS | ${failed} FAIL | ${passed + failed} total`);
+  console.log(
+    `Results: ${passed} PASS | ${failed} FAIL | ${skipped} SKIP | ${passed + failed + skipped} total`,
+  );
+  if (skipped > 0) {
+    console.log("(SKIP = 环境缺可用模型/无调用记录，非回归；配好 provider key 后重跑可覆盖)");
+  }
   console.log("=".repeat(60));
   process.exit(failed > 0 ? 1 : 0);
 }

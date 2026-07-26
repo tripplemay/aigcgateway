@@ -305,6 +305,39 @@ rename .../ingest/.../data .../blobs/sha256/8458c34067...: no such file or direc
 
 **回归：** `dedup-delivery.test.ts` 7 例，含"回填前 0 投递不留键 → 回填后再触发必须投递"的缺陷核心场景。红/绿已验证（旧实现 5 红）。
 
+## 6.9 fix_round 2（2026-07-26）— DSV4-DEF-02
+
+**缺陷（复验发现，High）：** fix_round 1 的 SKIP 只挡住直接调用那几步，**没有传播到依赖链**，四个脚本仍全部 exit 1，统一入口 `test-all.sh` 必然失败。
+
+**复现方式：** 本地按 `codex-setup.sh` 起同构 L1（`/v1/models` 为空），拿到与 Evaluator 完全一致的基线 —— e2e-test 20/7/3、e2e-errors 11/1/1、test-mcp 32/14、test-mcp-errors 8/3。
+
+**逐项定性（区分"环境受阻"与"真实漂移"）：**
+
+| # | 现象 | 定性 | 处置 |
+|---|---|---|---|
+| e2e-test 11/13/15/18/20/24 | 余额扣减、审计日志、模型清单、abort→TIMEOUT、并发扣费 | 环境无模型 → 依赖链无从断言 | SKIP 传播 |
+| e2e-test 20 | 硬编码 `gpt-4o-mini`（fix_round 1 的正则只换了 `deepseek/v3`） | 漏网硬编码 | 改运行时选型 |
+| e2e-test 12 | "No RECHARGE record" | **真实漂移**：`billing/payment.ts:65` 明确把 RECHARGE 记到 `user.defaultProjectId` 而非下单项目，脚本只查自建项目 | 改为跨用户全部项目聚合断言 |
+| e2e-test 19 | "Public templates HTTP 401" | **真实漂移**：`/api/templates/public` 已加 `verifyJwt`，脚本仍裸 fetch | 补 JWT |
+| e2e-errors 1 | 期望 402 实得 404 | 余额校验在模型解析之后 | SKIP |
+| test-mcp（14 项） | chat/余额/trace/计费/图片/list_logs 整条链 | **完全没有 SKIP 机制** | 新增机制 + `hasSuccessfulCall` 传播 |
+| test-mcp `list_logs` | "Expected array" | 空环境下工具返回 `{message, results:[]}` 友好空态而非裸数组 | 依 `hasSuccessfulCall` SKIP |
+| test-mcp-errors RB-02.4 | "retry after 60 seconds" | fix_round 1 冷却 31s **小于真实 RPM 滑动窗口 60s** | 冷却提到 65s |
+
+**修复后（同一 L1 环境实测）：**
+
+| 脚本 | 修复前 | 修复后 | exit |
+|---|---|---|---|
+| `e2e-test.ts` | 20 P / 7 F / 3 S | **21 P / 0 F / 9 S** | 0 |
+| `e2e-errors.ts` | 11 P / 1 F / 1 S | **11 P / 0 F / 2 S** | 0 |
+| `test-mcp.ts` | 32 P / 14 F | **32 P / 0 F / 14 S** | 0 |
+| `test-mcp-errors.ts` | 8 P / 3 F | **8 P / 0 F / 3 S** | 0 |
+| `test-all.sh` | 必然失败 | **Overall: PASS** | 0 |
+
+每个脚本的 PASS 数均不低于基线（e2e-test 因修好两处真实漂移反而 +1），没有靠"把失败改成跳过"充数。
+
+**过度门控的自我修正：** 一度把 `5d 空 chat content → invalid_request` 也标成 SKIP，核对后确认该校验发生在 schema 层、早于模型解析，无模型环境同样可验 —— 已撤回门控，保住这条断言。
+
 ## 7. 与 BL-IMG-I2I-VISION 的关系
 
 BL-IMG-I2I-VISION 处于 `reverifying`（F-IIV-08 待 Codex 复验），本批次插队。挂起状态已归档：

@@ -13,6 +13,7 @@ const ZERO_BALANCE_API_KEY = process.env.ZERO_BALANCE_API_KEY ?? "";
 const MCP_URL = `${BASE}/mcp`;
 
 let passed = 0;
+let skipped = 0;
 let failed = 0;
 
 async function rawMcpRequest(
@@ -53,6 +54,37 @@ async function rawMcpRequest(
   return { status: res.status, body };
 }
 
+/**
+ * BL-DEEPSEEK-V4-HOTFIX fix_round 2 / DSV4-DEF-02：环境无可用模型时，需要"先命中
+ * 一个真实模型才能触发目标错误"的用例（modality 门禁、contextWindow 校验等）
+ * 会先撞上 model_not_found，断言的根本不是被测语义。这类记 SKIP。
+ */
+class SkipStep extends Error {}
+
+function skipUnless(condition: unknown, reason: string): asserts condition {
+  if (!condition) throw new SkipStep(reason);
+}
+
+let selectedTextModel = "";
+
+/** 从 list_models 取一个真实可用的文本别名，避免硬编码随上下架腐坏 */
+async function resolveTextModel() {
+  try {
+    const { body } = await rawMcpRequest(
+      "tools/call",
+      { name: "list_models", arguments: {} },
+      API_KEY,
+    );
+    const text =
+      (body as { result?: { content?: Array<{ text?: string }> } })?.result?.content?.[0]?.text ??
+      "";
+    const models = JSON.parse(text) as Array<{ name?: string; modality?: string }>;
+    selectedTextModel = models.find((m) => m.modality === "text")?.name ?? "";
+  } catch {
+    selectedTextModel = "";
+  }
+}
+
 async function step(name: string, fn: () => Promise<void>) {
   process.stdout.write(`  ${name}... `);
   try {
@@ -60,6 +92,11 @@ async function step(name: string, fn: () => Promise<void>) {
     console.log("✅ PASS");
     passed++;
   } catch (e) {
+    if (e instanceof SkipStep) {
+      console.log(`⏭️  SKIP: ${e.message}`);
+      skipped++;
+      return;
+    }
     console.log(`❌ FAIL: ${(e as Error).message}`);
     failed++;
   }
@@ -69,6 +106,10 @@ async function main() {
   console.log("=".repeat(60));
   console.log("AIGC Gateway — MCP Error Scenario Tests");
   console.log("=".repeat(60));
+
+  // fix_round 2：先取一个真实可用的文本别名，供需要"命中真模型才能触发目标
+  // 错误"的用例使用；取不到则那些用例记 SKIP。
+  if (API_KEY) await resolveTextModel();
 
   // 1. Invalid Key → 401
   await step("1. Invalid API Key → 401", async () => {
@@ -163,7 +204,7 @@ async function main() {
         {
           name: "chat",
           arguments: {
-            model: "deepseek-v3",
+            model: selectedTextModel,
             messages: [{ role: "user", content: "test" }],
             max_tokens: 10,
           },
@@ -186,13 +227,14 @@ async function main() {
 
   // F-ACF-11 regression — generate_image with a TEXT model is rejected.
   await step("5b. F-ACF-11 generate_image on text model → invalid_modality", async () => {
+    skipUnless(selectedTextModel, "no text model available from list_models");
     if (!API_KEY) throw new Error("API_KEY not set");
     const { body } = await rawMcpRequest(
       "tools/call",
       {
         name: "generate_image",
         arguments: {
-          model: "deepseek-v3",
+          model: selectedTextModel,
           prompt: "a tiny dot",
           size: "1024x1024",
         },
@@ -248,13 +290,14 @@ async function main() {
 
   // F-WP-05 regression — empty content / binary prompt rejected client-side.
   await step("5d. F-WP-05 empty chat content → invalid_request", async () => {
+    // 空 content 在 schema 层就被拒，早于模型解析 —— 无模型环境同样可验，不 SKIP
     if (!API_KEY) throw new Error("API_KEY not set");
     const { body } = await rawMcpRequest(
       "tools/call",
       {
         name: "chat",
         arguments: {
-          model: "deepseek-v3",
+          model: selectedTextModel || "any-model",
           messages: [{ role: "user", content: "" }],
           max_tokens: 10,
         },
@@ -275,6 +318,7 @@ async function main() {
 
   // F-RL-03 regression — burst limit kicks in under a fast loop.
   await step("5c. F-RL-03 burst limit", async () => {
+    skipUnless(selectedTextModel, "no text model available from list_models");
     if (!API_KEY) throw new Error("API_KEY not set");
     let sawBurst = false;
     for (let i = 0; i < 25; i++) {
@@ -283,7 +327,7 @@ async function main() {
         {
           name: "chat",
           arguments: {
-            model: "deepseek-v3",
+            model: selectedTextModel,
             messages: [{ role: "user", content: "hi" }],
             max_tokens: 1,
           },
@@ -304,12 +348,12 @@ async function main() {
       console.log("(burst triggered) ");
     }
 
-    // BL-DEEPSEEK-V4-HOTFIX F-DSV4-07：burst 是 5s 滑动窗口（rate-limit.ts
-    // DEFAULT_BURST_WINDOW_SEC=5），触发后错误信息还会建议 30s 后重试。原实现
-    // 打完 25 发就直接跑下一个用例，后续 context/size 校验被 429 短路，报成
-    // 假 FAIL。这里等窗口滑过再继续。
+    // BL-DEEPSEEK-V4-HOTFIX F-DSV4-07 / fix_round 2：打 25 发不只会触发 burst
+    // （5s 窗口），也会把 RPM 滑动窗口（60s，DEFAULT_RPM=60）顶满 —— 上游返回的
+    // 就是 "Rate limit exceeded. Please retry after 60 seconds."。fix_round 1 只
+    // 等了 31s，后续 invalid-size 用例仍被 429 短路成假 FAIL。按真实窗口等满。
     if (sawBurst) {
-      const waitSec = Number(process.env.BURST_COOLDOWN_SEC ?? 31);
+      const waitSec = Number(process.env.BURST_COOLDOWN_SEC ?? 65);
       process.stdout.write(`(cooling down ${waitSec}s) `);
       await new Promise((r) => setTimeout(r, waitSec * 1000));
     }
@@ -317,13 +361,14 @@ async function main() {
 
   // F-ACF-06 regression — max_tokens over model context window is rejected 400.
   await step("6. F-ACF-06 max_tokens > contextWindow → invalid_parameter", async () => {
+    skipUnless(selectedTextModel, "no text model available from list_models");
     if (!API_KEY) throw new Error("API_KEY not set");
     const { body } = await rawMcpRequest(
       "tools/call",
       {
         name: "chat",
         arguments: {
-          model: "deepseek-v3",
+          model: selectedTextModel,
           messages: [{ role: "user", content: "hi" }],
           max_tokens: 10_000_000,
         },
@@ -403,7 +448,10 @@ async function main() {
   });
 
   console.log("\n" + "=".repeat(60));
-  console.log(`Results: ${passed} PASS | ${failed} FAIL`);
+  console.log(`Results: ${passed} PASS | ${failed} FAIL | ${skipped} SKIP`);
+  if (skipped > 0) {
+    console.log("(SKIP = 环境缺可用模型，非回归)");
+  }
   console.log("=".repeat(60));
   process.exit(failed > 0 ? 1 : 0);
 }
