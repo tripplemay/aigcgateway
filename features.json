@@ -47,7 +47,7 @@
       "title": "既有 E2E 脚本漂移修复 + scripts/ 纳入类型检查（解 TC-010/011 BLOCKED）",
       "priority": "medium",
       "executor": "generator",
-      "status": "completed",
+      "status": "pending",
       "acceptance": "test-mcp.ts selectedTextModel 补声明并按 list_models 赋值；4 个脚本 19 处硬编码 deepseek/v3 全部改为运行时选型；e2e-test balance 断言改按 welcome bonus 基线增量、keys 路径改用户级 /api/keys；test-mcp-errors burst 后加冷却等待；无可用模型时真实调用类用例记 SKIP 而非 FAIL；新增 tsconfig.scripts.json + npm run typecheck:scripts 并接入 CI；全量 vitest + tsc + lint + build 通过"
     },
     {
