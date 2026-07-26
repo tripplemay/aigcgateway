@@ -15,7 +15,7 @@
       "title": "健康检查调度器丢 leadership 后自动重抢恢复（修复全站健康检查停摆）",
       "priority": "critical",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "丢锁后不再终局停止，进入待命重抢；抢不到锁绝不 probe 的不变式保持；状态迁移写 SystemLog；单测覆盖 丢锁→不 probe→重抢成功→恢复 与 重抢失败→保持待命；其他三调度器 leadership 不一致性核实结论追记 spec；tsc + build + 全量 vitest PASS；独立 commit"
     },
     {

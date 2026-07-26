@@ -28,7 +28,7 @@ import {
 import { sendAlert } from "./alert";
 import type { RouteResult } from "../engine/types";
 import { isTransientFailureReason, markChannelCooldown } from "../engine/cooldown";
-import { heartbeatLock } from "@/lib/infra/leader-lock";
+import { acquireLeaderLock, heartbeatLock } from "@/lib/infra/leader-lock";
 // BL-EMBEDDING-MVP fix-round-3 diagnostic: tick id 区分多 worker（若 H4 真）。
 // 用 process.pid 后 4 位（PM2 cluster mode 下不同 worker pid 不同）。
 const SCHED_PID_TAG = String(process.pid).slice(-4);
@@ -97,22 +97,76 @@ let schedulerTimer: ReturnType<typeof setInterval> | null = null;
 // guard 防止单进程内重入；leader-lock 已防止跨进程 race。
 let schedulerRunning = false;
 
+// BL-DEEPSEEK-V4-HOTFIX F-DSV4-02: 本进程当前是否持有 leader lock。
+// startScheduler 由 instrumentation.ts 在 acquireLeaderLock 成功后调用，
+// 故初始置 true；心跳失败转 false（待命），重抢成功再转回 true。
+let hasLeadership = false;
+
 // ============================================================
 // 公共 API
 // ============================================================
 
+/**
+ * BL-DEEPSEEK-V4-HOTFIX F-DSV4-02 — 每 tick 的 leadership 决策。
+ *
+ * ## 修复的故障
+ *
+ * 原实现心跳一失败就 `stopScheduler()` 终局退出，而 leader lock 只在
+ * `instrumentation.ts` 进程启动时抢一次、没有任何重抢路径 → 单副本生产在
+ * 2026-07-23T05:15 丢锁后**健康检查永久停摆**（容器不重启就不恢复），
+ * 全站两天零 probe，DeepSeek 通道下线也就没被自动降级。
+ *
+ * ## 新语义
+ *
+ * - 持锁中：心跳续期；续期失败 → 转「待命」（不再 probe）并记一条 WARN
+ * - 待命中：每 tick 尝试 `acquireLeaderLock`（SET NX，别的副本持锁时抢不到）；
+ *   抢到 → 恢复 probe 并记一条 INFO
+ *
+ * **不变式：任何一 tick 只有在本函数返回 true（即本 tick 确认持锁）时才 probe。**
+ * 多副本安全性与原实现等价：SET NX 保证同一时刻只有一个持有者。
+ *
+ * SystemLog 只在状态迁移时写（丢锁一次、重抢成功一次），待命期间每 tick 的
+ * 抢锁失败不写，避免刷屏。
+ */
+export async function ensureLeadership(): Promise<boolean> {
+  if (hasLeadership) {
+    const stillLeader = await heartbeatLock(LEADER_KEY, LEADER_TTL_SEC).catch(() => false);
+    if (stillLeader) return true;
+
+    hasLeadership = false;
+    console.warn(
+      `[health-scheduler:${SCHED_PID_TAG}] lost scheduler leadership — standing by, retrying acquire every tick`,
+    );
+    void writeSystemLog(
+      "HEALTH_CHECK",
+      "WARN",
+      "健康检查调度器丢失 leader lock，转入待命（暂停 probe），将每 tick 重试抢锁",
+      { pidTag: SCHED_PID_TAG, leaderKey: LEADER_KEY },
+    ).catch(() => {});
+    return false;
+  }
+
+  const acquired = await acquireLeaderLock(LEADER_KEY, LEADER_TTL_SEC).catch(() => false);
+  if (!acquired) return false;
+
+  hasLeadership = true;
+  console.log(`[health-scheduler:${SCHED_PID_TAG}] re-acquired scheduler leadership — resuming`);
+  void writeSystemLog("HEALTH_CHECK", "INFO", "健康检查调度器重新抢到 leader lock，恢复 probe", {
+    pidTag: SCHED_PID_TAG,
+    leaderKey: LEADER_KEY,
+  }).catch(() => {});
+  return true;
+}
+
 export function startScheduler(): void {
   if (schedulerTimer) return;
+  // instrumentation.ts 只在 acquireLeaderLock 成功后才调用本函数。
+  hasLeadership = true;
   schedulerTimer = setInterval(async () => {
-    // F-IG-02: heartbeat leader lock first. If we lost leadership (Redis
-    // expiry, failover), stop the scheduler instead of continuing to run in
-    // parallel with whichever replica now holds the lock.
-    const stillLeader = await heartbeatLock(LEADER_KEY, LEADER_TTL_SEC).catch(() => false);
-    if (!stillLeader) {
-      console.warn(`[health-scheduler:${SCHED_PID_TAG}] lost scheduler leadership — stopping`);
-      stopScheduler();
-      return;
-    }
+    // F-IG-02 + F-DSV4-02: 先确认 leadership。丢锁不再终局停止，而是待命重抢；
+    // 未确认持锁的 tick 一律不 probe（多副本安全不变式）。
+    const isLeader = await ensureLeadership();
+    if (!isLeader) return;
     if (schedulerRunning) {
       console.warn(
         `[health-scheduler:${SCHED_PID_TAG}] previous tick still running, skipping (re-entrancy guard)`,
@@ -132,12 +186,24 @@ export function startScheduler(): void {
 }
 
 export function stopScheduler(): void {
+  // 显式停止（进程退出 / 测试隔离）。丢锁不再走这条路径 —— 见 ensureLeadership。
+  hasLeadership = false;
   if (schedulerTimer) {
     clearInterval(schedulerTimer);
     schedulerTimer = null;
     console.log(`[health-scheduler:${SCHED_PID_TAG}] stopped`);
   }
 }
+
+/** 测试用：读写 leadership 状态，不导出给业务代码使用。 */
+export const __leadershipTesting = {
+  get hasLeadership(): boolean {
+    return hasLeadership;
+  },
+  set hasLeadership(v: boolean) {
+    hasLeadership = v;
+  },
+};
 
 /**
  * 对单个通道执行检查（含重试、降级、记录、告警）

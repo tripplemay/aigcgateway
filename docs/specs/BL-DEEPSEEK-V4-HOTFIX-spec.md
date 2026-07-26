@@ -200,7 +200,15 @@ DeepSeek 从 5 个模型缩到 2 个，`2 < 5 × 0.5` 命中护栏。生产日�
 
 - **D1：不把 `deepseek-v3` / `deepseek-r1` 别名重指到 v4。** DeepSeek 直连已无 V3/R1，但其他四家服务商仍在供，别名语义应保持"用户点的是 V3 就给 V3"。要 V4 走已上线的 v4 别名。
 - **D2：止血用"下架"而非"改 realModelId"。** 改 realModelId 等于偷换模型（见 D1）；下架后 router 自动落到同别名健康通道，语义正确且可逆。
-- **D3：F-DSV4-02 只修复"丢锁永久停摆"，不重构调度器架构。** 其他三个调度器的 leadership 语义不一致是已知项，Generator 核实后在 spec 追记结论；如需统一改造另开批次。
+- **D3：F-DSV4-02 只修复"丢锁永久停摆"，不重构调度器架构。**
+
+  **Generator 核实结论（2026-07-25）：** `grep -n "LeaderLock\|heartbeatLock" src/lib/{billing,sync,maintenance}/scheduler.ts` **零命中** —— billing / model-sync / maintenance 三个调度器完全不感知 leadership，启动后无条件常驻。当前 leadership 语义只存在于两处：`instrumentation.ts` 启动时抢一次锁决定"本节点是否启动全部调度器"，以及 health scheduler 的每 tick 心跳。
+
+  由此得出两条事实：
+  1. 这解释了本次事故的现象差异 —— 07-23 丢锁后 health 停摆，而 model-sync 每天 04:00 照常运行（日志可证）。
+  2. 多副本下若 leader 丢锁、另一副本抢到，两边的 billing / sync / maintenance 会**同时运行**。这是既有缺陷，与本次改动无关；F-DSV4-02 只让 health scheduler 从"永久停摆"变为"待命重抢"，不改变其他三者的行为，**不引入新的并发风险**。
+
+  统一改造方向（建议另开批次）：把四个调度器收敛到一个共享的 leadership gate，丢锁时统一转待命、重抢后统一恢复。
 - **D4：F-DSV4-05 的匹配特征宁窄勿宽。** 宁可漏掉某家服务商的文案（退化为现状），不可把用户参数错误误判为可 failover（会把确定性失败变成 N 次无效重试 + N 倍延迟）。
 - **D5：不动 model-sync 护栏阈值。** 50% 阈值在"上游 API 抖动"场景是对的；本次问题是静默，不是阈值。
 - **D6：不追补历史失败调用。** 失败调用未扣费，无需补偿；5 条 ERROR 记录保留作故障存证。
