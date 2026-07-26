@@ -256,6 +256,21 @@ DeepSeek 从 5 个模型缩到 2 个，`2 < 5 × 0.5` 命中护栏。生产日�
 | 3 | 回填通知偏好 | **部署之后** | `npx tsx scripts/backfill-notification-preferences.ts --apply`（dry-run 显示待新增 **174 行**）。**必须等 migration 落地**，否则 `SYNC_RECONCILE_SKIPPED` 枚举值不存在会写入失败 |
 | 4 | 确认健康检查恢复 | 部署后 | 容器重启即重新抢锁；`SELECT max("createdAt") FROM health_checks` 应持续推进 |
 
+**2026-07-26 首次 Deploy 失败（已修复部署流水线）：**
+
+`docker compose pull` 阶段报 containerd 内容存储提交失败：
+
+```
+failed commit on ref "layer-sha256:8458c3406731...": commit failed:
+rename .../ingest/.../data .../blobs/sha256/8458c34067...: no such file or directory
+```
+
+不是磁盘问题（145G 用 34%，inode 5%）。真因是**并行拉取竞态**：`app` 与 `migrate` 由同一个 Dockerfile 构建、共享一个 640MB 层，compose 默认并行拉取时两个服务同时拉同一层，先完成的一方提交后清掉 ingest，另一方 rename 就扑空。dockerd 日志同时段的 `failed to cleanup "extract-..." snapshot does not exist` 与 `Error deleting lease ... not found` 佐证。
+
+**生产未受影响**：`set -euo pipefail` 在 `pull` 就中止，没走到 `up -d`。服务器上 `app:latest` 已是新镜像（created 2026-07-26T05:05），`migrate:latest` 仍是旧的（2026-07-12），运行中的容器仍是 13 天前那个。
+
+**修复**：`deploy.yml` 的 pull 改为 `COMPOSE_PARALLEL_LIMIT=1` 串行 + 最多 3 次重试。重跑 Deploy 即可（共享层已在内容存储里，第二次基本是秒过）。
+
 **F-DSV4-03 执行中发现的既有缺陷（已一并修复）：**
 
 `dispatcher.sendNotification` 对「用户无该 eventType 偏好行」是**静默丢弃**，而偏好行只在建号时 seed、从无回填路径。生产实查：

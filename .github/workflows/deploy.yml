@@ -68,7 +68,27 @@ jobs:
             echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
             trap 'docker logout ghcr.io >/dev/null 2>&1 || true' EXIT
 
-            docker compose -f docker-compose.prod.yml pull
+            # BL-DEEPSEEK-V4-HOTFIX 2026-07-26：并行拉取撞 containerd 内容存储竞态。
+            # app 与 migrate 由同一个 Dockerfile 构建，共享一个 640MB 层；compose
+            # 默认并行 pull 时两边同时拉同一层，先完成的一方提交后清掉 ingest，
+            # 另一方 rename 失败：
+            #   failed commit on ref "layer-sha256:8458c34067...": no such file or
+            #   directory
+            # 结果 set -e 直接中止部署（生产未受影响，因为还没走到 up -d）。
+            # COMPOSE_PARALLEL_LIMIT=1 串行拉取消除竞态；再加两次重试兜住偶发网络问题。
+            pull_ok=0
+            for attempt in 1 2 3; do
+              if COMPOSE_PARALLEL_LIMIT=1 docker compose -f docker-compose.prod.yml pull; then
+                pull_ok=1
+                break
+              fi
+              echo "::warning::image pull attempt ${attempt} failed, retrying in 10s"
+              sleep 10
+            done
+            if [ "$pull_ok" -ne 1 ]; then
+              echo "::error::image pull failed after 3 attempts"
+              exit 1
+            fi
             # up -d 前 migrate 服务经 service_completed_successfully 门禁自动先跑 prisma migrate deploy，
             # 迁移失败则 app 不启动、up -d 非零退出（fail-safe）。
             docker compose -f docker-compose.prod.yml up -d
