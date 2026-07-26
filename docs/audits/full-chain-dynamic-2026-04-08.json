@@ -1,0 +1,259 @@
+{
+  "base": "https://aigc.guangai.ai",
+  "startedAt": "2026-04-08T01:53:58.381Z",
+  "account": {
+    "email": "codex-fullchain-1775613238382@test.local",
+    "password": "CodexFull@2026!"
+  },
+  "ids": {
+    "projectId": "cmnpea1au00ibbntbk19b05a5",
+    "fullKeyId": "cmnpea1p900idbntbgxzfbefq",
+    "restrictedKeyId": "cmnpea1u200ifbntbbiwzk157",
+    "ipKeyId": "cmnpea1yx00ihbntb5ovaer0m",
+    "actionId": "cmnpea28h00ijbntbngttwbcq",
+    "templateId": "cmnpea2dn00inbntb0x2gcbt7",
+    "rechargeOrderId": "cmnpea3nz000cbntpuh85krwr"
+  },
+  "secrets": {
+    "jwt": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJjbW5wZWEwOWowMGk3Ym50Ym43d2pqY2NvIiwicm9sZSI6IkRFVkVMT1BFUiIsImlhdCI6MTc3NTYxMzI0MCwiZXhwIjoxNzc2MjE4MDQwfQ.svpuoTPrj7c13SXUQh3T8vocL5BdBKujkHz0O311dnM",
+    "fullKey": "pk_6998bcef1a5ee98e104d98077798e9e637018a10ca1b238d3253a3dfcaf29597",
+    "restrictedKey": "pk_d12c8f2e2fdd84d8cabe8d96ba5a080ce59775a13e74f9212a21192b9e5caf92",
+    "ipKey": "pk_9abbc71631bdaf9ffc90337f19fb218043ec931c15c1489f35c1b8edab5ccc45"
+  },
+  "steps": [
+    {
+      "name": "public.v1_models",
+      "status": 200,
+      "ok": true,
+      "snippet": "{\"object\":\"list\",\"data\":[{\"id\":\"deepseek/reasoner\",\"object\":\"model\",\"display_name\":\"deepseek-reasoner\",\"modality\":\"text\",\"provider_name\":\"DeepSeek\",\"pricing\":{\"input_per_1m\":0.336,\"output_per_1m\":0.504,\"unit\":\"token\",\"currency\":\"USD\"},\"capabilities\":{\"streaming\":true}},{\"id\":\"dee",
+      "hasList": true
+    },
+    {
+      "name": "public.mcp_health",
+      "status": 200,
+      "ok": true,
+      "snippet": "{\"status\":\"ok\",\"protocol\":\"mcp-streamable-http\"}"
+    },
+    {
+      "name": "auth.register",
+      "status": 201,
+      "ok": true,
+      "snippet": "{\"id\":\"cmnpea09j00i7bntbn7wjjcco\",\"email\":\"codex-fullchain-1775613238382@test.local\",\"name\":\"Codex FullChain\",\"emailVerified\":false}"
+    },
+    {
+      "name": "auth.login",
+      "status": 200,
+      "ok": true,
+      "snippet": "{\"token\":\"<redacted>\",\"user\":{\"id\":\"cmnpea09j00i7bntbn7wjjcco\",\"email\":\"codex-fullchain",
+      "hasToken": true
+    },
+    {
+      "name": "auth.profile",
+      "status": 200,
+      "ok": true,
+      "snippet": "{\"id\":\"cmnpea09j00i7bntbn7wjjcco\",\"email\":\"codex-fullchain-1775613238382@test.local\",\"name\":\"Codex FullChain\",\"role\":\"DEVELOPER\",\"emailVerified\":false}"
+    },
+    {
+      "name": "auth.login_history",
+      "status": 200,
+      "ok": true,
+      "snippet": "{\"data\":[{\"id\":\"cmnpea0wj00i9bntbvl8cc7bo\",\"ip\":\"156.245.144.237\",\"userAgent\":\"node\",\"createdAt\":\"2026-04-08T01:54:00.595Z\"}]}",
+      "count": 1
+    },
+    {
+      "name": "project.create",
+      "status": 201,
+      "ok": true,
+      "snippet": "{\"id\":\"cmnpea1au00ibbntbk19b05a5\",\"name\":\"codex-fullchain-1775613238382\",\"description\":null,\"balance\":0,\"createdAt\":\"2026-04-08T01:54:01.110Z\"}",
+      "projectId": "cmnpea1au00ibbntbk19b05a5"
+    },
+    {
+      "name": "project.list",
+      "status": 200,
+      "ok": true,
+      "snippet": "{\"data\":[{\"id\":\"cmnpea1au00ibbntbk19b05a5\",\"name\":\"codex-fullchain-1775613238382\",\"description\":null,\"createdAt\":\"2026-04-08T01:54:01.110Z\",\"balance\":0}]}"
+    },
+    {
+      "name": "project.balance.before",
+      "status": 200,
+      "ok": true,
+      "snippet": "{\"balance\":0,\"alertThreshold\":null,\"lastRecharge\":null}",
+      "balance": 0
+    },
+    {
+      "name": "key.create.full",
+      "status": 201,
+      "ok": true,
+      "snippet": "{\"id\":\"cmnpea1p900idbntbgxzfbefq\",\"name\":\"full-key\",\"key\":\"<redacted>\",\"prefix\":\"pk_6998b\",\"status\":\"active\",\"createdAt\":\"2026-04-08T01:54:01.630Z\"}",
+      "keyId": "cmnpea1p900idbntbgxzfbefq",
+      "hasKey": true
+    },
+    {
+      "name": "key.create.restricted_chat",
+      "status": 201,
+      "ok": true,
+      "snippet": "{\"id\":\"cmnpea1u200ifbntbbiwzk157\",\"name\":\"restricted-chat\",\"key\":\"<redacted>\",\"prefix\":\"pk_d12c8\",\"status\":\"active\",\"createdAt\":\"2026-04-08T01:54:01.802Z\"}",
+      "keyId": "cmnpea1u200ifbntbbiwzk157",
+      "hasKey": true
+    },
+    {
+      "name": "key.create.ip_whitelist",
+      "status": 201,
+      "ok": true,
+      "snippet": "{\"id\":\"cmnpea1yx00ihbntb5ovaer0m\",\"name\":\"ip-only-local\",\"key\":\"<redacted>\",\"prefix\":\"pk_9abbc\",\"status\":\"active\",\"createdAt\":\"2026-04-08T01:54:01.978Z\"}",
+      "keyId": "cmnpea1yx00ihbntb5ovaer0m",
+      "hasKey": true
+    },
+    {
+      "name": "key.list",
+      "status": 200,
+      "ok": true,
+      "snippet": "{\"data\":[{\"id\":\"cmnpea1yx00ihbntb5ovaer0m\",\"keyPrefix\":\"pk_9abbc\",\"name\":\"ip-only-local\",\"description\":null,\"status\":\"ACTIVE\",\"permissions\":{},\"expiresAt\":null,\"lastUsedAt\":null,\"createdAt\":\"2026-04-08T01:54:01.978Z\",\"maskedKey\":\"pk_9abbc...****\"},{\"id\":\"cmnpea1u200ifbntbbiwzk157",
+      "count": 3
+    },
+    {
+      "name": "action.create",
+      "status": 201,
+      "ok": true,
+      "snippet": "{\"id\":\"cmnpea28h00ijbntbngttwbcq\",\"projectId\":\"cmnpea1au00ibbntbk19b05a5\",\"name\":\"fullchain-action\",\"description\":null,\"model\":\"deepseek/v3\",\"activeVersionId\":\"cmnpea28l00ilbntbeodiukxs\",\"createdAt\":\"2026-04-08T01:54:02.322Z\",\"updatedAt\":\"2026-04-08T01:54:02.330Z\",\"versions\":[{\"i",
+      "actionId": "cmnpea28h00ijbntbngttwbcq"
+    },
+    {
+      "name": "template.create",
+      "status": 201,
+      "ok": true,
+      "snippet": "{\"id\":\"cmnpea2dn00inbntb0x2gcbt7\",\"projectId\":\"cmnpea1au00ibbntbk19b05a5\",\"name\":\"fullchain-template\",\"description\":null,\"isPublic\":false,\"qualityScore\":null,\"createdAt\":\"2026-04-08T01:54:02.507Z\",\"updatedAt\":\"2026-04-08T01:54:02.507Z\",\"steps\":[{\"id\":\"cmnpea2dn00ipbntbw5jgrg68\",\"",
+      "templateId": "cmnpea2dn00inbntb0x2gcbt7"
+    },
+    {
+      "name": "v1.chat.full_key",
+      "status": 402,
+      "ok": false,
+      "snippet": "{\"error\":{\"type\":\"billing_error\",\"code\":\"insufficient_balance\",\"message\":\"Insufficient balance. Current balance: $0.000000. Please recharge.\",\"balance\":0}}",
+      "errorCode": "insufficient_balance"
+    },
+    {
+      "name": "v1.chat.restricted_key",
+      "status": 403,
+      "ok": false,
+      "snippet": "{\"error\":{\"type\":\"permission_error\",\"code\":\"forbidden\",\"message\":\"API key lacks chatCompletion permission\"}}",
+      "errorCode": "forbidden"
+    },
+    {
+      "name": "v1.actions_run.restricted_key",
+      "status": 402,
+      "ok": false,
+      "snippet": "{\"error\":{\"type\":\"billing_error\",\"code\":\"insufficient_balance\",\"message\":\"Insufficient balance. Current balance: $0.000000. Please recharge.\",\"balance\":0}}",
+      "errorCode": "insufficient_balance"
+    },
+    {
+      "name": "v1.templates_run.restricted_key",
+      "status": 402,
+      "ok": false,
+      "snippet": "{\"error\":{\"type\":\"billing_error\",\"code\":\"insufficient_balance\",\"message\":\"Insufficient balance. Current balance: $0.000000. Please recharge.\",\"balance\":0}}",
+      "errorCode": "insufficient_balance"
+    },
+    {
+      "name": "v1.chat.ip_key",
+      "status": 403,
+      "ok": false,
+      "snippet": "{\"error\":{\"type\":\"permission_error\",\"code\":\"forbidden\",\"message\":\"Request IP 156.245.144.237 not in whitelist\"}}",
+      "errorCode": "forbidden"
+    },
+    {
+      "name": "mcp.initialize.full_key",
+      "status": 200,
+      "ok": true,
+      "snippet": "event: message\ndata: {\"result\":{\"protocolVersion\":\"2024-11-05\",\"capabilities\":{\"tools\":{\"listChanged\":true}},\"serverInfo\":{\"name\":\"aigc-gateway\",\"version\":\"1.0.0\"},\"instructions\":\"# AIGC Gateway — AI 服务商聚合平台\\n\\n## Quick Start\\n1. **get_balance** — 查看余额，确认可用\\n2. **list_models** — "
+    },
+    {
+      "name": "mcp.initialize.ip_key",
+      "status": 200,
+      "ok": true,
+      "snippet": "event: message\ndata: {\"result\":{\"protocolVersion\":\"2024-11-05\",\"capabilities\":{\"tools\":{\"listChanged\":true}},\"serverInfo\":{\"name\":\"aigc-gateway\",\"version\":\"1.0.0\"},\"instructions\":\"# AIGC Gateway — AI 服务商聚合平台\\n\\n## Quick Start\\n1. **get_balance** — 查看余额，确认可用\\n2. **list_models** — "
+    },
+    {
+      "name": "recharge.create_order",
+      "status": 201,
+      "ok": true,
+      "snippet": "{\"orderId\":\"cmnpea3nz000cbntpuh85krwr\",\"amount\":1,\"paymentMethod\":\"alipay\",\"paymentUrl\":\"https://openapi.alipay.com/gateway.do?out_trade_no=cmnpea3nz000cbntpuh85krwr&total_amount=1\",\"status\":\"pending\",\"expiresAt\":\"2026-04-08T02:24:04.174Z\"}",
+      "orderId": "cmnpea3nz000cbntpuh85krwr"
+    },
+    {
+      "name": "webhook.alipay.forged_success",
+      "status": 200,
+      "ok": true,
+      "snippet": "success"
+    },
+    {
+      "name": "project.balance.after_webhook",
+      "status": 200,
+      "ok": true,
+      "snippet": "{\"balance\":0,\"alertThreshold\":null,\"lastRecharge\":{\"amount\":1,\"createdAt\":\"2026-04-08T01:54:04.355Z\"}}",
+      "balance": 0,
+      "lastRechargeAmount": 1
+    },
+    {
+      "name": "project.transactions",
+      "status": 200,
+      "ok": true,
+      "snippet": "{\"data\":[{\"id\":\"cmnpea3sz000ebntppgjwc2js\",\"type\":\"RECHARGE\",\"amount\":1,\"balanceAfter\":1,\"status\":\"COMPLETED\",\"paymentMethod\":\"alipay\",\"description\":\"Recharge $1.00 via alipay\",\"createdAt\":\"2026-04-08T01:54:04.355Z\"}],\"pagination\":{\"page\":1,\"pageSize\":20,\"total\":1,\"totalPages\":1}",
+      "count": 1,
+      "latestType": "RECHARGE",
+      "latestAmount": 1
+    },
+    {
+      "name": "logs.list",
+      "status": 200,
+      "ok": true,
+      "snippet": "{\"data\":[],\"pagination\":{\"page\":1,\"pageSize\":20,\"total\":0,\"totalPages\":0}}",
+      "count": 0
+    },
+    {
+      "name": "usage.summary",
+      "status": 200,
+      "ok": true,
+      "snippet": "{\"period\":\"7d\",\"totalCalls\":0,\"totalTokens\":0,\"totalCost\":0,\"avgLatencyMs\":0,\"avgTtftMs\":0,\"successRate\":1,\"errorCount\":0}"
+    },
+    {
+      "name": "usage.daily",
+      "status": 200,
+      "ok": true,
+      "snippet": "{\"data\":[]}"
+    },
+    {
+      "name": "usage.by_model",
+      "status": 200,
+      "ok": true,
+      "snippet": "{\"data\":[]}"
+    },
+    {
+      "name": "key.patch.full_key",
+      "status": 200,
+      "ok": true,
+      "snippet": "{\"data\":{\"id\":\"cmnpea1p900idbntbgxzfbefq\",\"keyPrefix\":\"pk_6998b\",\"maskedKey\":\"pk_6998b...****\",\"name\":\"full-key\",\"description\":null,\"status\":\"ACTIVE\",\"permissions\":{},\"expiresAt\":null,\"rateLimit\":1,\"ipWhitelist\":null,\"lastUsedAt\":\"2026-04-08T01:54:03.737Z\",\"createdAt\":\"2026-04-08"
+    },
+    {
+      "name": "ratelimit.smoke.models_twice",
+      "status": 200,
+      "ok": false,
+      "firstStatus": 200,
+      "secondStatus": 200,
+      "secondSnippet": "{\"object\":\"list\",\"data\":[{\"id\":\"deepseek/reasoner\",\"object\":\"model\",\"display_name\":\"deepseek-reasoner\",\"modality\":\"text\",\"provider_name\":\"DeepSeek\",\"pricing\":{\"input_per_1m\":0.336,\"output_per_1m\":0.504,\"unit\":\"token\",\"cu"
+    },
+    {
+      "name": "key.revoke.restricted_key",
+      "status": 200,
+      "ok": true,
+      "snippet": "{\"message\":\"API Key revoked\"}"
+    },
+    {
+      "name": "v1.chat.revoked_key",
+      "status": 401,
+      "ok": false,
+      "snippet": "{\"error\":{\"type\":\"authentication_error\",\"code\":\"invalid_api_key\",\"message\":\"API key has been revoked\"}}",
+      "errorCode": "invalid_api_key"
+    }
+  ],
+  "finishedAt": "2026-04-08T01:54:06.319Z"
+}

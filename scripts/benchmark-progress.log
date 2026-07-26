@@ -1,0 +1,61 @@
+Question: 六个人A B C D E F参加一个循环赛，每两人之间恰好比赛一次，赢得1分，输得0分，平局各得0.5分。比赛结束后：A的得分严格高于B，B严格高于C，C严格高于D，D严格高于E，E严格高于F，所有人得分各不相同，且A和F的比赛结果是平局。请问C的得分是多少？给出完整推理过程。
+
+Firing 24 parallel chat calls at 2026-04-25T05:33:28.690Z
+Per-model timeout: 60min
+
+[05:33:30] gpt-5                    FAIL  1.7s  HTTP 429  {"error":{"type":"rate_limit_error","code":"burst_limit_exceeded","message":"Burst limit exceeded (20 / 20 in 5s). Please retry after 30 seconds.","retryAfterSe
+[05:33:30] minimax-m2               FAIL  1.7s  HTTP 429  {"error":{"type":"rate_limit_error","code":"burst_limit_exceeded","message":"Burst limit exceeded (21 / 20 in 5s). Please retry after 30 seconds.","retryAfterSe
+[05:33:30] doubao-pro               FAIL  1.7s  HTTP 429  {"error":{"type":"rate_limit_error","code":"burst_limit_exceeded","message":"Burst limit exceeded (22 / 20 in 5s). Please retry after 30 seconds.","retryAfterSe
+[05:33:30] gemini-3-flash           FAIL  1.7s  HTTP 429  {"error":{"type":"rate_limit_error","code":"burst_limit_exceeded","message":"Burst limit exceeded (23 / 20 in 5s). Please retry after 30 seconds.","retryAfterSe
+[05:33:39] gpt-4o-mini              OK    10.6s  in=120 out=756 chars=1140
+[05:33:39] claude-haiku-4.5         OK    11.1s  in=148 out=1266 chars=1451
+[05:33:46] gpt-4o                   OK    18.0s  in=120 out=880 chars=1358
+[05:33:55] deepseek-v3              OK    26.5s  in=96 out=1862 chars=2710
+[05:34:01] gemini-2.5-flash-lite    OK    32.8s  in=98 out=10376 chars=14595
+[05:34:01] deepseek-r1              OK    32.9s  in=97 out=3170 chars=586
+[05:35:00] mimo-v2-flash            OK    92.1s  in=132 out=10758 chars=14582
+[05:35:01] qwen3.5-plus             FAIL  92.8s  HTTP 502  {"error":{"type":"upstream_error","code":"provider_error","message":"Unexpected end of JSON input"}}
+[05:35:29] glm-5                    FAIL  120.6s  HTTP 504  <html> <head><title>504 Gateway Time-out</title></head> <body> <center><h1>504 Gateway Time-out</h1></center> <hr><center>nginx/1.18.0 (Ubuntu)</center> </
+[05:35:29] mimo-v2-omni             FAIL  120.6s  HTTP 504  <html> <head><title>504 Gateway Time-out</title></head> <body> <center><h1>504 Gateway Time-out</h1></center> <hr><center>nginx/1.18.0 (Ubuntu)</center> </
+[05:35:29] mimo-v2-pro              FAIL  120.6s  HTTP 504  <html> <head><title>504 Gateway Time-out</title></head> <body> <center><h1>504 Gateway Time-out</h1></center> <hr><center>nginx/1.18.0 (Ubuntu)</center> </
+[05:35:29] ernie-4.5                FAIL  120.6s  HTTP 504  <html> <head><title>504 Gateway Time-out</title></head> <body> <center><h1>504 Gateway Time-out</h1></center> <hr><center>nginx/1.18.0 (Ubuntu)</center> </
+[05:35:29] gemma-4                  FAIL  120.6s  HTTP 504  <html> <head><title>504 Gateway Time-out</title></head> <body> <center><h1>504 Gateway Time-out</h1></center> <hr><center>nginx/1.18.0 (Ubuntu)</center> </
+[05:35:29] grok-4.1-fast            FAIL  120.6s  HTTP 504  <html> <head><title>504 Gateway Time-out</title></head> <body> <center><h1>504 Gateway Time-out</h1></center> <hr><center>nginx/1.18.0 (Ubuntu)</center> </
+[05:35:29] deepseek-v4-pro          FAIL  120.6s  HTTP 504  <html> <head><title>504 Gateway Time-out</title></head> <body> <center><h1>504 Gateway Time-out</h1></center> <hr><center>nginx/1.18.0 (Ubuntu)</center> </
+[05:35:29] glm-4.7-flash            FAIL  120.7s  HTTP 504  <html> <head><title>504 Gateway Time-out</title></head> <body> <center><h1>504 Gateway Time-out</h1></center> <hr><center>nginx/1.18.0 (Ubuntu)</center> </
+[05:35:29] kimi-k2-thinking         FAIL  120.7s  HTTP 504  <html> <head><title>504 Gateway Time-out</title></head> <body> <center><h1>504 Gateway Time-out</h1></center> <hr><center>nginx/1.18.0 (Ubuntu)</center> </
+[05:35:29] qwen3.5-flash            FAIL  120.9s  HTTP 504  <html> <head><title>504 Gateway Time-out</title></head> <body> <center><h1>504 Gateway Time-out</h1></center> <hr><center>nginx/1.18.0 (Ubuntu)</center> </
+[05:35:29] minimax-m2.5             FAIL  120.9s  HTTP 504  <html> <head><title>504 Gateway Time-out</title></head> <body> <center><h1>504 Gateway Time-out</h1></center> <hr><center>nginx/1.18.0 (Ubuntu)</center> </
+[05:35:29] deepseek-v4-flash        FAIL  121.2s  HTTP 504  <html> <head><title>504 Gateway Time-out</title></head> <body> <center><h1>504 Gateway Time-out</h1></center> <hr><center>nginx/1.18.0 (Ubuntu)</center> </
+
+=== ALL DONE in 121.2s ===
+
+Summary (sorted by duration):
+model                    status  duration
+gpt-5                    FAIL        1.7s
+minimax-m2               FAIL        1.7s
+doubao-pro               FAIL        1.7s
+gemini-3-flash           FAIL        1.7s
+gpt-4o-mini              OK         10.6s
+claude-haiku-4.5         OK         11.1s
+gpt-4o                   OK         18.0s
+deepseek-v3              OK         26.5s
+gemini-2.5-flash-lite    OK         32.8s
+deepseek-r1              OK         32.9s
+mimo-v2-flash            OK         92.1s
+qwen3.5-plus             FAIL       92.8s
+glm-5                    FAIL      120.6s
+mimo-v2-omni             FAIL      120.6s
+mimo-v2-pro              FAIL      120.6s
+grok-4.1-fast            FAIL      120.6s
+ernie-4.5                FAIL      120.6s
+gemma-4                  FAIL      120.6s
+deepseek-v4-pro          FAIL      120.6s
+glm-4.7-flash            FAIL      120.7s
+kimi-k2-thinking         FAIL      120.7s
+qwen3.5-flash            FAIL      120.9s
+minimax-m2.5             FAIL      120.9s
+deepseek-v4-flash        FAIL      121.2s
+
+7/24 succeeded.
+Full answers saved to scripts/benchmark-results.json

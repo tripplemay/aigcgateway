@@ -13,6 +13,11 @@ let failed = 0;
 let lastTraceId = "";
 let imageTraceId = "";
 let selectedImageModel = "";
+// BL-DEEPSEEK-V4-HOTFIX F-DSV4-07：本变量被引用 4 处却从未声明（TS2304）。
+// scripts/ 长期不在 tsc 覆盖范围内，所以这个必然的 ReferenceError 一直没人发现。
+// 与 selectedImageModel 同样在 step 3 list_models 里按实际可用模型赋值 ——
+// 硬编码模型名会随服务商上下架而腐坏（deepseek/v3 就是这么烂掉的）。
+let selectedTextModel = "";
 
 async function mcpRequest(method: string, params?: Record<string, unknown>) {
   const body = {
@@ -153,8 +158,14 @@ async function main() {
       (m: { modality?: string; name?: string }) => m.modality === "image",
     );
     selectedImageModel = imageModel?.name ?? "";
+    const textModel = models.find(
+      (m: { modality?: string; name?: string }) => m.modality === "text",
+    );
+    selectedTextModel = textModel?.name ?? "";
     console.log(
-      `(${models.length} models${selectedImageModel ? `, image=${selectedImageModel}` : ""}) `,
+      `(${models.length} models${selectedTextModel ? `, text=${selectedTextModel}` : ""}${
+        selectedImageModel ? `, image=${selectedImageModel}` : ""
+      }) `,
     );
   });
 
@@ -168,9 +179,10 @@ async function main() {
   });
 
   let mcpTokens = 0;
-  await step("5. chat (deepseek/v3, MCP)", async () => {
+  await step("5. chat (text model, MCP)", async () => {
+    if (!selectedTextModel) throw new Error("No text model found from list_models");
     const result = await callTool("chat", {
-      model: "deepseek/v3",
+      model: selectedTextModel,
       messages: [{ role: "user", content: "Say OK" }],
       max_tokens: 10,
     });
@@ -203,8 +215,9 @@ async function main() {
   });
 
   let apiTraceId = "";
-  await step("8. chat (deepseek/v3, API) for billing comparison", async () => {
-    const response = await apiChatCall("deepseek/v3", [{ role: "user", content: "Say OK" }]);
+  await step("8. chat (text model, API) for billing comparison", async () => {
+    if (!selectedTextModel) throw new Error("No text model found from list_models");
+    const response = await apiChatCall(selectedTextModel, [{ role: "user", content: "Say OK" }]);
     if (!response.body.usage) throw new Error("No usage in API response");
     if (!response.traceId) throw new Error("No X-Trace-Id in API response");
     apiTraceId = response.traceId;
@@ -318,16 +331,16 @@ async function main() {
     console.log("(error returned as expected) ");
   });
 
-  await step("13. list_logs (model filter: deepseek/v3)", async () => {
-    const result = await callTool("list_logs", { model: "deepseek/v3", limit: 10 });
+  await step("13. list_logs (model filter: selected text model)", async () => {
+    const result = await callTool("list_logs", { model: selectedTextModel, limit: 10 });
     const logs = JSON.parse(parseTextContent(result));
     if (!Array.isArray(logs)) throw new Error("Expected array");
     for (const log of logs) {
-      if (log.model !== "deepseek/v3") {
-        throw new Error(`Expected model='deepseek/v3', got '${log.model}'`);
+      if (log.model !== selectedTextModel) {
+        throw new Error(`Expected model='${selectedTextModel}', got '${log.model}'`);
       }
     }
-    console.log(`(${logs.length} logs, all model=deepseek/v3) `);
+    console.log(`(${logs.length} logs, all model=${selectedTextModel}) `);
   });
 
   await step("14. list_logs (status filter: success)", async () => {
@@ -522,7 +535,7 @@ async function main() {
   await step("16h. F-AF-03 chat messages-as-string tolerated or friendly error", async () => {
     try {
       const res = await callTool("chat", {
-        model: "deepseek/v3",
+        model: selectedTextModel,
         messages: '[{"role":"user","content":"Say OK"}]' as unknown as object,
         max_tokens: 5,
       });
@@ -575,9 +588,11 @@ async function main() {
   // pricing field exposed to customers.
   await step("RB-01.1 billing: list_models pricing = deducted amount", async () => {
     const models = JSON.parse(parseTextContent(await callTool("list_models")));
-    const alias = (models as Array<Record<string, unknown>>).find((m) => m.name === "deepseek/v3");
+    const alias = (models as Array<Record<string, unknown>>).find(
+      (m) => m.name === selectedTextModel,
+    );
     if (!alias) {
-      console.log("(deepseek/v3 alias missing, skipping) ");
+      console.log(`(${selectedTextModel || "text model"} alias missing, skipping) `);
       return;
     }
     const pricing = alias.pricing as Record<string, unknown>;
@@ -586,7 +601,7 @@ async function main() {
     const chatRes = JSON.parse(
       parseTextContent(
         await callTool("chat", {
-          model: "deepseek/v3",
+          model: selectedTextModel,
           messages: [{ role: "user", content: "Say OK" }],
           max_tokens: 5,
         }),
@@ -792,7 +807,7 @@ async function main() {
   // ```json fence — the response post-processor should strip it.
   await step("RB-03.3 dx-polish: json_mode strips markdown fence", async () => {
     const res = await callTool("chat", {
-      model: "deepseek/v3",
+      model: selectedTextModel,
       messages: [{ role: "user", content: 'Respond with JSON {"ok":true}. Do not add any prose.' }],
       response_format: { type: "json_object" },
       max_tokens: 32,

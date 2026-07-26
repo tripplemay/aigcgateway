@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>AIGC Gateway 架构信息图 — 三层能力闭环</title>
+<link rel="stylesheet" href="assets/shared.css">
+<style>
+  /* ============ v3.1 · 对齐 ds-* design system（Algorithmic Atelier） ============ */
+  body { background: #f2f3ff; padding: 0; margin: 0; }
+  .page {
+    width: 1600px; height: 900px;
+    background:
+      radial-gradient(ellipse 800px 500px at 20% 0%, rgba(109, 93, 211, 0.12), transparent 65%),
+      radial-gradient(ellipse 900px 600px at 80% 100%, rgba(109, 93, 211, 0.06), transparent 60%),
+      linear-gradient(180deg, #faf8ff 0%, #eaedff 100%);
+    padding: 40px 56px;
+    position: relative;
+    overflow: hidden;
+    font-family: 'PingFang SC', 'Manrope', sans-serif;
+    color: #131b2e; /* --ds-on-surface */
+  }
+  /* 底纹 dot grid，呼应 Hero */
+  .page::before {
+    content: "";
+    position: absolute; inset: 0;
+    background-image: radial-gradient(#5443b9 0.5px, transparent 0.5px);
+    background-size: 24px 24px;
+    opacity: 0.05;
+    pointer-events: none;
+  }
+
+  /* 标题区 */
+  .hdr {
+    position: relative; z-index: 2;
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 24px;
+  }
+  .hdr-left { display: flex; align-items: center; gap: 14px; }
+  .logo-box {
+    width: 56px; height: 56px; border-radius: 14px;
+    background: linear-gradient(135deg, #5443b9 0%, #6d5dd3 100%);
+    display: grid; place-items: center;
+    color: #fff; font-weight: 800; font-size: 24px;
+    box-shadow: 0 12px 24px rgba(84, 67, 185, 0.35);
+  }
+  .hdr-title {
+    font-family: 'Manrope', 'PingFang SC', sans-serif;
+    font-size: 28px; font-weight: 800;
+    color: #131b2e;
+    letter-spacing: -0.01em;
+  }
+  .hdr-title .sub {
+    display: block; font-size: 14px; font-weight: 500;
+    color: #474553; margin-top: 2px;
+    letter-spacing: 0;
+  }
+  .hdr-right {
+    padding: 10px 18px;
+    background: #ffffff;
+    border-radius: 12px;
+    border: 1px solid #dae2fd;
+    font-size: 13px; color: #474553;
+    box-shadow: 0 2px 8px rgba(84, 67, 185, 0.05);
+  }
+  .hdr-right strong {
+    color: #5443b9; font-size: 13px;
+    font-family: 'SFMono-Regular', monospace;
+  }
+
+  /* 顶部用户 */
+  .topbar {
+    position: relative; z-index: 2;
+    display: flex; justify-content: center; gap: 16px;
+    margin-bottom: 12px;
+  }
+  .user-chip {
+    padding: 12px 22px;
+    background: #ffffff;
+    border: 1px solid #dae2fd;
+    border-radius: 14px;
+    font-size: 14px; font-weight: 600;
+    color: #131b2e;
+    display: inline-flex; align-items: center; gap: 10px;
+    box-shadow: 0 4px 12px rgba(84, 67, 185, 0.06);
+  }
+  .user-chip .ic {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 24px; height: 24px;
+    background: rgba(84, 67, 185, 0.10);
+    color: #5443b9;
+    border-radius: 6px;
+    font-size: 13px;
+  }
+
+  /* 中间 Gateway 盒子（深色 terminal，呼应 Hero） */
+  .gateway {
+    position: relative; z-index: 2;
+    margin: 16px auto;
+    width: 920px; height: 140px;
+    background: #13141c; /* --ds-terminal-surface */
+    border-radius: 20px;
+    border: 1px solid rgba(200, 191, 255, 0.16);
+    display: flex; align-items: center; justify-content: space-around;
+    color: #ffffff;
+    box-shadow: 0 20px 50px rgba(84, 67, 185, 0.25);
+    overflow: hidden;
+  }
+  .gateway::after {
+    content: ""; position: absolute; inset: 0;
+    background-image: radial-gradient(#6d5dd3 0.5px, transparent 0.5px);
+    background-size: 20px 20px;
+    opacity: 0.10;
+    pointer-events: none;
+  }
+  .gateway::before {
+    content: "AIGC Gateway · 接入层";
+    position: absolute; top: -12px; left: 24px;
+    background: #5443b9; color: #ffffff;
+    padding: 4px 14px; border-radius: 999px;
+    font-size: 11px; font-weight: 700;
+    font-family: 'SFMono-Regular', monospace;
+    letter-spacing: 0.12em; text-transform: uppercase;
+    z-index: 1;
+  }
+  .gw-cell {
+    position: relative; z-index: 1;
+    text-align: center; padding: 0 16px;
+    display: flex; flex-direction: column; gap: 4px; align-items: center;
+  }
+  .gw-cell .ic {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 32px; height: 32px;
+    background: rgba(109, 93, 211, 0.22);
+    color: #c8bfff;
+    border: 1px solid rgba(200, 191, 255, 0.24);
+    border-radius: 8px;
+    font-size: 15px; font-weight: 800;
+    margin-bottom: 4px;
+  }
+  .gw-cell .t {
+    font-family: 'Manrope', sans-serif;
+    font-size: 15px; font-weight: 700;
+    color: #ffffff;
+  }
+  .gw-cell .d {
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.55);
+    font-family: 'SFMono-Regular', monospace;
+  }
+
+  /* 三层主体 */
+  .layers {
+    position: relative; z-index: 2;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 20px;
+    margin-top: 28px;
+  }
+  .layer {
+    background: #ffffff;
+    border-radius: 18px;
+    padding: 22px 24px;
+    border: 1px solid #dae2fd;
+    border-top: 3px solid;
+    box-shadow: 0 10px 30px rgba(84, 67, 185, 0.06);
+    position: relative;
+  }
+  .layer.providers { border-top-color: #5443b9; } /* --ds-primary */
+  .layer.monitor   { border-top-color: #16a34a; } /* --ds-status-success */
+  .layer.optimize  { border-top-color: #6d5dd3; } /* --ds-primary-container */
+
+  .layer-head {
+    display: flex; align-items: center; gap: 12px;
+    margin-bottom: 14px;
+  }
+  .layer-head .num {
+    width: 34px; height: 34px; border-radius: 10px;
+    display: grid; place-items: center;
+    font-family: 'Manrope', sans-serif;
+    font-weight: 800; color: #fff; font-size: 14px;
+  }
+  .providers .num { background: linear-gradient(135deg, #5443b9 0%, #6d5dd3 100%); box-shadow: 0 4px 10px rgba(84, 67, 185, 0.35); }
+  .monitor .num   { background: linear-gradient(135deg, #16a34a 0%, #15803d 100%); box-shadow: 0 4px 10px rgba(22, 163, 74, 0.30); }
+  .optimize .num  { background: linear-gradient(135deg, #6d5dd3 0%, #5443b9 100%); box-shadow: 0 4px 10px rgba(109, 93, 211, 0.35); }
+
+  .layer-head h3 {
+    font-family: 'Manrope', 'PingFang SC', sans-serif;
+    font-size: 17px; font-weight: 800;
+    color: #131b2e;
+    line-height: 1.25;
+    letter-spacing: -0.01em;
+  }
+  .layer-head h3 .sub {
+    display: block; font-size: 11.5px; color: #474553;
+    font-weight: 500; margin-top: 2px;
+    font-family: 'SFMono-Regular', monospace;
+    letter-spacing: 0.04em;
+  }
+
+  /* 服务商列 */
+  .prov-grid {
+    display: grid; grid-template-columns: repeat(2, 1fr);
+    gap: 6px;
+  }
+  .prov-item {
+    padding: 7px 10px;
+    background: #f2f3ff;
+    border: 1px solid #dae2fd;
+    border-radius: 8px;
+    font-size: 12px; font-weight: 600;
+    color: #131b2e;
+    text-align: center;
+  }
+  .prov-item.more {
+    background: rgba(84, 67, 185, 0.08);
+    color: #5443b9;
+    border-color: rgba(84, 67, 185, 0.22);
+  }
+
+  .modality-strip {
+    margin-top: 14px;
+    padding: 10px 12px;
+    background: rgba(84, 67, 185, 0.06);
+    border: 1px solid rgba(84, 67, 185, 0.14);
+    border-radius: 10px;
+    font-size: 12px; color: #5443b9;
+    line-height: 1.5;
+  }
+  .modality-strip strong {
+    font-family: 'SFMono-Regular', monospace;
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    margin-right: 6px;
+  }
+
+  /* 监测 / 优化卡片 */
+  .feat-list { display: flex; flex-direction: column; gap: 10px; }
+  .feat-item {
+    display: flex; align-items: flex-start; gap: 10px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    background: #f2f3ff;
+    border: 1px solid #eaedff;
+  }
+  .feat-item .ic {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 22px; height: 22px;
+    flex-shrink: 0;
+    border-radius: 6px;
+    font-size: 11px; font-weight: 800;
+    font-family: 'SFMono-Regular', monospace;
+  }
+  .feat-item .txt { font-size: 12.5px; line-height: 1.55; color: #131b2e; }
+  .feat-item .txt strong {
+    display: block; font-size: 13px; font-weight: 700;
+    margin-bottom: 2px;
+    font-family: 'Manrope', 'PingFang SC', sans-serif;
+  }
+  .feat-item .txt span { color: #474553; }
+
+  .monitor .feat-item {
+    background: #dcfce7; /* --ds-status-success-container */
+    border-color: rgba(22, 163, 74, 0.18);
+  }
+  .monitor .feat-item .ic { background: #16a34a; color: #ffffff; }
+
+  .optimize .feat-item {
+    background: rgba(109, 93, 211, 0.08);
+    border-color: rgba(109, 93, 211, 0.18);
+  }
+  .optimize .feat-item .ic { background: #6d5dd3; color: #ffffff; }
+
+  .providers .feat-item .ic { background: #5443b9; color: #ffffff; }
+
+  /* 闭环箭头（监测 → 优化） */
+  .loop-arrow {
+    position: absolute;
+    bottom: 162px; left: 50%; transform: translateX(-50%);
+    width: 560px; height: 60px;
+    pointer-events: none;
+    z-index: 2;
+  }
+
+  /* 底部标语 */
+  .footer-strip {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    height: 64px;
+    background: #0a0a0c; /* --ds-terminal-bg */
+    border-top: 1px solid rgba(200, 191, 255, 0.16);
+    display: flex; align-items: center; justify-content: center;
+    color: rgba(255, 255, 255, 0.82);
+    font-family: 'Manrope', 'PingFang SC', sans-serif;
+    font-size: 15px; font-weight: 600;
+    letter-spacing: 0.02em;
+    gap: 18px;
+    overflow: hidden;
+  }
+  .footer-strip::before {
+    content: ""; position: absolute; inset: 0;
+    background-image: radial-gradient(#6d5dd3 0.5px, transparent 0.5px);
+    background-size: 24px 24px;
+    opacity: 0.10;
+    pointer-events: none;
+  }
+  .footer-strip > span { position: relative; z-index: 1; }
+  .footer-strip .em { color: #c8bfff; font-weight: 700; }
+  .footer-strip .sep {
+    width: 4px; height: 4px; border-radius: 50%;
+    background: rgba(200, 191, 255, 0.35);
+  }
+
+  /* 箭头：用户→Gateway */
+  .arrow-down-1 {
+    position: relative; z-index: 2;
+    margin: 0 auto;
+    width: 2px; height: 16px;
+    background: #5443b9;
+  }
+  .arrow-down-1::after {
+    content: ""; position: absolute; bottom: -6px; left: -5px;
+    border-left: 6px solid transparent; border-right: 6px solid transparent;
+    border-top: 8px solid #5443b9;
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- 标题 -->
+  <div class="hdr">
+    <div class="hdr-left">
+      <div class="logo-box">A</div>
+      <div class="hdr-title">
+        AIGC Gateway · 三层能力闭环架构
+        <span class="sub">从接入，到监测，到持续优化 — 让 AI 生成质量有据可依</span>
+      </div>
+    </div>
+    <div class="hdr-right">
+      <strong>aigc.guangai.ai</strong> · 面向独立开发者与小团队
+    </div>
+  </div>
+
+  <!-- 顶部：用户应用 -->
+  <div class="topbar">
+    <div class="user-chip"><span class="ic">⟨⟩</span>你的应用 / 后端服务</div>
+    <div class="user-chip"><span class="ic">AI</span>Claude Code / Cursor（MCP）</div>
+    <div class="user-chip"><span class="ic">◈</span>SDK · Python · Node · curl</div>
+  </div>
+  <div class="arrow-down-1"></div>
+
+  <!-- 中间：Gateway（深色 terminal） -->
+  <div class="gateway">
+    <div class="gw-cell">
+      <div class="ic">⚡</div>
+      <div class="t">统一协议</div>
+      <div class="d">OpenAI compatible</div>
+    </div>
+    <div class="gw-cell">
+      <div class="ic">⇌</div>
+      <div class="t">智能路由</div>
+      <div class="d">multi-channel</div>
+    </div>
+    <div class="gw-cell">
+      <div class="ic">♡</div>
+      <div class="t">故障降级</div>
+      <div class="d">auto-failover</div>
+    </div>
+    <div class="gw-cell">
+      <div class="ic">❋</div>
+      <div class="t">MCP Server</div>
+      <div class="d">25 tools ready</div>
+    </div>
+  </div>
+
+  <!-- 三层主体 -->
+  <div class="layers">
+
+    <!-- 接入层 -->
+    <div class="layer providers">
+      <div class="layer-head">
+        <div class="num">1</div>
+        <h3>接入层 · 11 家服务商<span class="sub">UNIFIED · 100+ MODELS</span></h3>
+      </div>
+      <div class="prov-grid">
+        <div class="prov-item">OpenAI</div>
+        <div class="prov-item">Anthropic</div>
+        <div class="prov-item">DeepSeek</div>
+        <div class="prov-item">智谱 AI</div>
+        <div class="prov-item">火山引擎</div>
+        <div class="prov-item">SiliconFlow</div>
+        <div class="prov-item">OpenRouter</div>
+        <div class="prov-item">MiniMax</div>
+        <div class="prov-item">Moonshot</div>
+        <div class="prov-item">Qwen</div>
+        <div class="prov-item">StepFun</div>
+        <div class="prov-item more">&amp; more…</div>
+      </div>
+      <div class="modality-strip">
+        <strong>MODALITIES</strong>对话 · 推理 · 图像 · 向量 · 多模态
+      </div>
+    </div>
+
+    <!-- 监测层 -->
+    <div class="layer monitor">
+      <div class="layer-head">
+        <div class="num">2</div>
+        <h3>监测层 · 看得见<span class="sub">FULL-CHAIN TRACEABLE</span></h3>
+      </div>
+      <div class="feat-list">
+        <div class="feat-item">
+          <span class="ic">✓</span>
+          <div class="txt"><strong>全链路审计日志</strong><span>Prompt / 输出 / token / 延迟 / 成本</span></div>
+        </div>
+        <div class="feat-item">
+          <span class="ic">✓</span>
+          <div class="txt"><strong>用量看板</strong><span>调用量 · 费用 · 延迟 · 成功率 · 7 天趋势</span></div>
+        </div>
+        <div class="feat-item">
+          <span class="ic">✓</span>
+          <div class="txt"><strong>用量告警</strong><span>日 / 月额度阈值实时通知</span></div>
+        </div>
+        <div class="feat-item">
+          <span class="ic">✓</span>
+          <div class="txt"><strong>模型能力元信息</strong><span>reasoning · vision · function · search</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 优化层 -->
+    <div class="layer optimize">
+      <div class="layer-head">
+        <div class="num">3</div>
+        <h3>优化层 · 改得了<span class="sub">DATA-DRIVEN ITERATION</span></h3>
+      </div>
+      <div class="feat-list">
+        <div class="feat-item">
+          <span class="ic">⟲</span>
+          <div class="txt"><strong>Action 多版本</strong><span>改 Prompt 留痕 · 一键回滚历史版本</span></div>
+        </div>
+        <div class="feat-item">
+          <span class="ic">⟲</span>
+          <div class="txt"><strong>模板测试 · 步骤级</strong><span>多步 Template 输入输出逐步可见</span></div>
+        </div>
+        <div class="feat-item">
+          <span class="ic">⟲</span>
+          <div class="txt"><strong>dry_run 预览</strong><span>变量替换零成本预览</span></div>
+        </div>
+        <div class="feat-item">
+          <span class="ic">⟲</span>
+          <div class="txt"><strong>公共模板评分</strong><span>1-5 星 · 质量 × 热度综合排序</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 监测 → 优化 闭环箭头 SVG -->
+  <svg class="loop-arrow" viewBox="0 0 560 60" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <marker id="arrowR" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+        <polygon points="0,0 8,3 0,6" fill="#16a34a" />
+      </marker>
+      <marker id="arrowL" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+        <polygon points="0,0 8,3 0,6" fill="#6d5dd3" />
+      </marker>
+    </defs>
+    <!-- 监测 → 优化 -->
+    <path d="M 30 20 Q 280 0 530 20" fill="none" stroke="#16a34a" stroke-width="2" stroke-dasharray="6,4" marker-end="url(#arrowR)"/>
+    <text x="280" y="12" text-anchor="middle" fill="#15803d" font-size="12" font-weight="700" font-family="'SFMono-Regular', monospace" letter-spacing="0.04em">DATA → NEXT ITERATION</text>
+    <!-- 优化 → 监测 -->
+    <path d="M 530 40 Q 280 60 30 40" fill="none" stroke="#6d5dd3" stroke-width="2" stroke-dasharray="6,4" marker-end="url(#arrowL)"/>
+    <text x="280" y="56" text-anchor="middle" fill="#5443b9" font-size="12" font-weight="700" font-family="'SFMono-Regular', monospace" letter-spacing="0.04em">SHIP → MONITOR AGAIN</text>
+  </svg>
+
+  <!-- 底部标语 -->
+  <div class="footer-strip">
+    <span><span class="em">一个 Key</span> 接入</span>
+    <span class="sep"></span>
+    <span>每一次调用 <span class="em">看得见</span></span>
+    <span class="sep"></span>
+    <span>每一次迭代 <span class="em">有据可依</span></span>
+  </div>
+
+</div>
+</body>
+</html>

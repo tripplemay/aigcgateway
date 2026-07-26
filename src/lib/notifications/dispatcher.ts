@@ -49,13 +49,21 @@ const DEFAULT_DEPS: DispatcherDeps = {
   backoffMs: [5_000, 30_000, 120_000],
 };
 
+/**
+ * 返回值语义（BL-DEEPSEEK-V4-HOTFIX fix_round 1 / DSV4-DEF-01）：
+ * `true` 表示这条通知**真的进入了投递路径**（写了 inApp 行，或派发了 webhook）。
+ * `false` 表示被静默丢弃 —— 用户没有该事件的偏好行，或显式关掉了。
+ *
+ * 调用方（triggers.ts）据此决定要不要提交 Redis 去重窗口：把一条根本没送出去
+ * 的通知也算进去重，会让回填偏好后的第一条有效告警被白白吞掉一个 TTL。
+ */
 export async function sendNotification(
   userId: string,
   eventType: NotificationEventType,
   payload: DispatchPayload,
   projectId?: string,
   deps: DispatcherDeps = DEFAULT_DEPS,
-): Promise<void> {
+): Promise<boolean> {
   const pref = await prisma.notificationPreference.findUnique({
     where: { userId_eventType: { userId, eventType } },
   });
@@ -63,9 +71,10 @@ export async function sendNotification(
   // No preference row or explicitly disabled → swallow silently. The
   // spec chooses silence over an error because event sources should
   // never fail the caller's main request.
-  if (!pref || !pref.enabled) return;
+  if (!pref || !pref.enabled) return false;
 
   const channels = (pref.channels as unknown as string[] | null) ?? [];
+  let delivered = false;
 
   // ── inApp channel: synchronous DB insert ──
   if (channels.includes("inApp")) {
@@ -80,6 +89,9 @@ export async function sendNotification(
           payload: payload as unknown as Prisma.InputJsonValue,
           expiresAt: defaultExpiresAt(eventType),
         },
+      })
+      .then(() => {
+        delivered = true;
       })
       .catch((err) => {
         console.error("[dispatcher] inApp insert failed:", err);
@@ -99,7 +111,12 @@ export async function sendNotification(
       },
       deps,
     );
+    // webhook 是 fire-and-forget（重试循环在后台），派发出去即视为已投递 ——
+    // 这里判定的是"有没有送出去"，不是"对端有没有收到"。
+    delivered = true;
   }
+
+  return delivered;
 }
 
 interface WebhookJob {

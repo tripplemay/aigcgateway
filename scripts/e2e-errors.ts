@@ -13,6 +13,21 @@ const BASE = process.env.BASE_URL ?? "http://localhost:3199";
 const E2E_TEST_PASSWORD = requireEnv("E2E_TEST_PASSWORD");
 let passed = 0;
 let failed = 0;
+let skipped = 0;
+// BL-DEEPSEEK-V4-HOTFIX F-DSV4-07：原硬编码 "deepseek/v3"（旧 NAME_MAP 产物，
+// DeepSeek 直连下线后该名已不存在）。改为运行时从 /v1/models 取实际别名。
+let textModel = "";
+
+async function resolveTextModel(apiKey: string) {
+  const res = await fetch(`${BASE}/v1/models`, { headers: { Authorization: `Bearer ${apiKey}` } });
+  if (!res.ok) return;
+  const body = await res.json().catch(() => null);
+  const list: Array<{ id?: string; modality?: string }> = body?.data ?? [];
+  textModel = list.find((m) => (m.modality ?? "text") === "text")?.id ?? "";
+}
+
+/** 环境无可用模型时，需要真实成功调用的用例记 SKIP 而非 FAIL */
+class SkipStep extends Error {}
 
 async function step(name: string, fn: () => Promise<void>) {
   process.stdout.write(`  ${name}... `);
@@ -21,6 +36,11 @@ async function step(name: string, fn: () => Promise<void>) {
     console.log("✅ PASS");
     passed++;
   } catch (e) {
+    if (e instanceof SkipStep) {
+      console.log(`⏭️  SKIP: ${e.message}`);
+      skipped++;
+      return;
+    }
     console.log(`❌ FAIL: ${(e as Error).message}`);
     failed++;
   }
@@ -83,6 +103,7 @@ async function main() {
     apiKey = keyData.key;
     keyId = keyData.id;
     if (!apiKey || !keyId) fatal("create key", "missing key/id in response");
+    await resolveTextModel(apiKey);
   } catch (err) {
     fatal("setup", err);
   }
@@ -92,7 +113,10 @@ async function main() {
     const res = await fetch(`${BASE}/v1/chat/completions`, {
       method: "POST",
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
-      body: JSON.stringify({ model: "deepseek/v3", messages: [{ role: "user", content: "test" }] }),
+      body: JSON.stringify({
+        model: textModel || "deepseek-v3",
+        messages: [{ role: "user", content: "test" }],
+      }),
     });
     if (res.status !== 402) throw new Error(`Expected 402, got ${res.status}`);
     const body = await res.json();
@@ -104,7 +128,10 @@ async function main() {
     const res = await fetch(`${BASE}/v1/chat/completions`, {
       method: "POST",
       headers: { "Content-Type": "application/json", Authorization: "Bearer pk_invalid_key" },
-      body: JSON.stringify({ model: "deepseek/v3", messages: [{ role: "user", content: "test" }] }),
+      body: JSON.stringify({
+        model: textModel || "deepseek-v3",
+        messages: [{ role: "user", content: "test" }],
+      }),
     });
     if (res.status !== 401) throw new Error(`Expected 401, got ${res.status}`);
   });
@@ -120,7 +147,10 @@ async function main() {
     const res = await fetch(`${BASE}/v1/chat/completions`, {
       method: "POST",
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
-      body: JSON.stringify({ model: "deepseek/v3", messages: [{ role: "user", content: "test" }] }),
+      body: JSON.stringify({
+        model: textModel || "deepseek-v3",
+        messages: [{ role: "user", content: "test" }],
+      }),
     });
     if (res.status !== 401) throw new Error(`Expected 401, got ${res.status}`);
   });
@@ -188,13 +218,14 @@ async function main() {
       body: `out_trade_no=${orderId2}&trade_status=TRADE_SUCCESS&total_amount=1`,
     });
 
+    if (!textModel) throw new SkipStep("no text model available from /v1/models");
     // 10 concurrent calls
     const calls = Array.from({ length: 10 }, () =>
       fetch(`${BASE}/v1/chat/completions`, {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${key2}` },
         body: JSON.stringify({
-          model: "deepseek/v3",
+          model: textModel,
           messages: [{ role: "user", content: "1" }],
           max_tokens: 1,
         }),
@@ -400,7 +431,10 @@ async function main() {
   });
 
   console.log("\n" + "=".repeat(60));
-  console.log(`Results: ${passed} PASS | ${failed} FAIL`);
+  console.log(`Results: ${passed} PASS | ${failed} FAIL | ${skipped} SKIP`);
+  if (skipped > 0) {
+    console.log("(SKIP = 环境缺可用模型，非回归)");
+  }
   console.log("=".repeat(60));
   await prisma.$disconnect().catch(() => {});
   process.exit(failed > 0 ? 1 : 0);

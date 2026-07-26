@@ -23,7 +23,7 @@
       "title": "model-sync 缩水护栏告警可见化（SystemLog + 管理员通知 + 节流）",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "两种 SKIPPED reconcile 分支命中时写 SystemLog(SYNC/WARN) 含 provider/远端模型数/现存通道数 + 生成管理员通知；连续命中按节流不重复轰炸；未命中不写；不改护栏阈值与拦截行为；单测覆盖；tsc + build + 全量 vitest PASS；独立 commit"
     },
     {
@@ -41,6 +41,14 @@
       "executor": "generator",
       "status": "completed",
       "acceptance": "匹配特征严格收窄至模型名类错误（文案以真实上游为准，无把握不纳入）；正反双向单测（模型名类 400 → failover 成功；参数类/内容违规 400 → 仍 INVALID_REQUEST 不 failover）；全候选失败时用户侧错误仍保留上游原文可定位；构造错误 realModelId 通道验证别名整体仍可用；tsc + build + 全量 vitest PASS；独立 commit"
+    },
+    {
+      "id": "F-DSV4-07",
+      "title": "既有 E2E 脚本漂移修复 + scripts/ 纳入类型检查（解 TC-010/011 BLOCKED）",
+      "priority": "medium",
+      "executor": "generator",
+      "status": "completed",
+      "acceptance": "test-mcp.ts selectedTextModel 补声明并按 list_models 赋值；4 个脚本 19 处硬编码 deepseek/v3 全部改为运行时选型；e2e-test balance 断言改按 welcome bonus 基线增量、keys 路径改用户级 /api/keys；test-mcp-errors burst 后加冷却等待；无可用模型时真实调用类用例记 SKIP 而非 FAIL；新增 tsconfig.scripts.json + npm run typecheck:scripts 并接入 CI；全量 vitest + tsc + lint + build 通过"
     },
     {
       "id": "F-DSV4-06",

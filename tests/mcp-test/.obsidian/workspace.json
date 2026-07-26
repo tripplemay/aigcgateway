@@ -1,0 +1,212 @@
+{
+  "main": {
+    "id": "bf1a518fac692aa7",
+    "type": "split",
+    "children": [
+      {
+        "id": "58fb590d918ac91d",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "8aa0d254f45d4a90",
+            "type": "leaf",
+            "state": {
+              "type": "empty",
+              "state": {},
+              "icon": "lucide-file",
+              "title": "新标签页"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "d9a9d106234743d1",
+    "type": "split",
+    "children": [
+      {
+        "id": "02b23b6a0d3f5f52",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "f325b186e69681a8",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {
+                "sortOrder": "alphabetical",
+                "autoReveal": false
+              },
+              "icon": "lucide-folder-closed",
+              "title": "文件列表"
+            }
+          },
+          {
+            "id": "0fc1a4b2f78f9c72",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              },
+              "icon": "lucide-search",
+              "title": "搜索"
+            }
+          },
+          {
+            "id": "d4030c1589cbe821",
+            "type": "leaf",
+            "state": {
+              "type": "bookmarks",
+              "state": {},
+              "icon": "lucide-bookmark",
+              "title": "书签"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300
+  },
+  "right": {
+    "id": "829293d8a8640f80",
+    "type": "split",
+    "children": [
+      {
+        "id": "8dcc373c10d3f3a1",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "557397f4bbb6fdc2",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "file": "Modality-Audit-Report-20260412.md",
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-coming-in",
+              "title": "Modality-Audit-Report-20260412 的反向链接列表"
+            }
+          },
+          {
+            "id": "cbbaa7422a8e27d5",
+            "type": "leaf",
+            "state": {
+              "type": "outgoing-link",
+              "state": {
+                "file": "Modality-Audit-Report-20260412.md",
+                "linksCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-going-out",
+              "title": "Modality-Audit-Report-20260412 的出链列表"
+            }
+          },
+          {
+            "id": "5ac44c8c9186eb43",
+            "type": "leaf",
+            "state": {
+              "type": "tag",
+              "state": {
+                "sortOrder": "frequency",
+                "useHierarchy": true,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-tags",
+              "title": "标签"
+            }
+          },
+          {
+            "id": "d15b4ded5569e451",
+            "type": "leaf",
+            "state": {
+              "type": "all-properties",
+              "state": {
+                "sortOrder": "frequency",
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-archive",
+              "title": "添加笔记属性"
+            }
+          },
+          {
+            "id": "6b264b74e1fa51df",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "file": "Modality-Audit-Report-20260412.md",
+                "followCursor": false,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-list",
+              "title": "Modality-Audit-Report-20260412 的大纲"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300,
+    "collapsed": true
+  },
+  "left-ribbon": {
+    "hiddenItems": {
+      "switcher:打开快速切换": false,
+      "graph:查看关系图谱": false,
+      "canvas:新建白板": false,
+      "daily-notes:打开/创建今天的日记": false,
+      "templates:插入模板": false,
+      "command-palette:打开命令面板": false,
+      "bases:新建数据库": false
+    }
+  },
+  "active": "8aa0d254f45d4a90",
+  "lastOpenFiles": [
+    "FinOps-Audit-Report-20260412.md",
+    "DX-Audit-Report-20260412.md",
+    "Onboarding-Trial-Report-20260412.md",
+    "Modality-Audit-Report-20260412.md",
+    "Tenancy-Audit-Report-20260412.md",
+    "RateLimit-Audit-Report-20260412.md",
+    "Workflow-Audit-Report-20260412.md",
+    "Chaos-Audit-Report-20260412.md",
+    "Onboarding-Trial-Prompt.md",
+    "RateLimit-Audit-Prompt.md",
+    "Tenancy-Audit-Prompt.md",
+    "Workflow-Audit-Prompt.md",
+    "Modality-Audit-Prompt.md",
+    "FinOps-Audit-Prompt.md",
+    "dx-audit-prompt.md",
+    "Chaos-Audit-Prompt.md",
+    "DX-Audit-Report.md",
+    "Onboarding-Trial-Report.md",
+    "Modality-Audit-Report.md",
+    "Tenancy-Audit-Report.md",
+    "FinOps-Audit-Report.md",
+    "Workflow-Audit-Report.md",
+    "RateLimit-Audit-Report.md",
+    "Chaos-Audit-Report.md",
+    "Chaos & Boundary Audit.md",
+    "run_all_audits.sh",
+    "Rate Limit & Quota Audit.md"
+  ]
+}

@@ -1,0 +1,271 @@
+{
+  "meta": {
+    "base": "https://aigc.guangai.ai",
+    "startedAt": "2026-04-08T01:58:34.629Z",
+    "adminEmail": "tripplezhou@gmail.com",
+    "devEmail": "codex-admin-e2e-1775613514629@test.local",
+    "finishedAt": "2026-04-08T01:58:48.330Z"
+  },
+  "ids": {
+    "devUserId": "cmnpefxdh00isbntbdv0it0bg",
+    "projectId": "cmnpefy9900iwbntb9nk5be6e",
+    "actionId": "cmnpefye500iybntbwvjaqj2z",
+    "templateId": "cmnpefyjb00j2bntbh60uvetq",
+    "fullKeyId": "cmnpefyo500j6bntbo53yf00d",
+    "restrictedKeyId": "cmnpefyt200j8bntb1jl7ae5p",
+    "orderId": "cmnpeg5of000gbntpirw5p7ff"
+  },
+  "steps": [
+    {
+      "name": "public.v1_models",
+      "status": 200,
+      "ok": true,
+      "snippet": "{\"object\":\"list\",\"data\":[{\"id\":\"deepseek/reasoner\",\"object\":\"model\",\"display_name\":\"deepseek-reasoner\",\"modality\":\"text\",\"provider_name\":\"DeepSeek\",\"pricing\":{\"input_per_1m\":0.336,\"output_per_1m\":0.504,\"unit\":\"token\",\"currency\":\"USD\"},\"capabilities\":{\"streamin",
+      "hasData": true
+    },
+    {
+      "name": "admin.login",
+      "status": 200,
+      "ok": true,
+      "snippet": "{\"token\":\"<redacted>\",\"user\":{\"id\":\"cmncqpiin0000n59e0hicjt1q\",\"email\":\"t",
+      "hasToken": true
+    },
+    {
+      "name": "dev.register",
+      "status": 201,
+      "ok": true,
+      "snippet": "{\"id\":\"cmnpefxdh00isbntbdv0it0bg\",\"email\":\"codex-admin-e2e-1775613514629@test.local\",\"name\":\"Codex Admin E2E\",\"emailVerified\":false}"
+    },
+    {
+      "name": "dev.login",
+      "status": 200,
+      "ok": true,
+      "snippet": "{\"token\":\"<redacted>\",\"user\":{\"id\":\"cmnpefxdh00isbntbdv0it0bg\",\"ema",
+      "hasToken": true,
+      "devUserId": "cmnpefxdh00isbntbdv0it0bg"
+    },
+    {
+      "name": "dev.project.create",
+      "status": 201,
+      "ok": true,
+      "snippet": "{\"id\":\"cmnpefy9900iwbntb9nk5be6e\",\"name\":\"codex-admin-fullchain-1775613514629\",\"description\":null,\"balance\":0,\"createdAt\":\"2026-04-08T01:58:37.102Z\"}",
+      "projectId": "cmnpefy9900iwbntb9nk5be6e"
+    },
+    {
+      "name": "dev.action.create",
+      "status": 201,
+      "ok": true,
+      "snippet": "{\"id\":\"cmnpefye500iybntbwvjaqj2z\",\"projectId\":\"cmnpefy9900iwbntb9nk5be6e\",\"name\":\"admin-fullchain-action\",\"description\":null,\"model\":\"deepseek/v3\",\"activeVersionId\":\"cmnpefye800j0bntbup9dp67m\",\"createdAt\":\"2026-04-08T01:58:37.277Z\",\"updatedAt\":\"2026-04-08T01:5",
+      "actionId": "cmnpefye500iybntbwvjaqj2z"
+    },
+    {
+      "name": "dev.template.create",
+      "status": 201,
+      "ok": true,
+      "snippet": "{\"id\":\"cmnpefyjb00j2bntbh60uvetq\",\"projectId\":\"cmnpefy9900iwbntb9nk5be6e\",\"name\":\"admin-fullchain-template\",\"description\":null,\"isPublic\":false,\"qualityScore\":null,\"createdAt\":\"2026-04-08T01:58:37.464Z\",\"updatedAt\":\"2026-04-08T01:58:37.464Z\",\"steps\":[{\"id\":\"cm",
+      "templateId": "cmnpefyjb00j2bntbh60uvetq"
+    },
+    {
+      "name": "dev.key.create.full",
+      "status": 201,
+      "ok": true,
+      "snippet": "{\"id\":\"cmnpefyo500j6bntbo53yf00d\",\"name\":\"full-key\",\"key\":\"<redacted>\",\"prefix\":\"pk_1e35b\",\"status\":\"active\",\"createdAt\":\"2026-04-08T01:58:37.637Z\"}",
+      "hasKey": true,
+      "keyId": "cmnpefyo500j6bntbo53yf00d"
+    },
+    {
+      "name": "dev.key.create.restricted",
+      "status": 201,
+      "ok": true,
+      "snippet": "{\"id\":\"cmnpefyt200j8bntb1jl7ae5p\",\"name\":\"restricted-chat\",\"key\":\"<redacted>\",\"prefix\":\"pk_d0967\",\"status\":\"active\",\"createdAt\":\"2026-04-08T01:58:37.815Z\"}",
+      "hasKey": true,
+      "keyId": "cmnpefyt200j8bntb1jl7ae5p"
+    },
+    {
+      "name": "dev.key.create.ip_whitelist",
+      "status": 201,
+      "ok": true,
+      "snippet": "{\"id\":\"cmnpefyxu00jabntblficnlp5\",\"name\":\"ip-local-only\",\"key\":\"<redacted>\",\"prefix\":\"pk_02cc7\",\"status\":\"active\",\"createdAt\":\"2026-04-08T01:58:37.986Z\"}",
+      "hasKey": true
+    },
+    {
+      "name": "admin.guard.dev_access_users",
+      "status": 403,
+      "ok": false,
+      "snippet": "{\"error\":{\"type\":\"permission_error\",\"code\":\"forbidden\",\"message\":\"Requires ADMIN role\"}}"
+    },
+    {
+      "name": "admin.users.list",
+      "status": 200,
+      "ok": true,
+      "snippet": "{\"data\":[{\"id\":\"cmnpefxdh00isbntbdv0it0bg\",\"name\":\"Codex Admin E2E\",\"email\":\"codex-admin-e2e-1775613514629@test.local\",\"projectCount\":1,\"totalBalance\":0,\"totalCalls\":0,\"createdAt\":\"2026-04-08T01:58:35.957Z\"},{\"id\":\"cmnpea09j00i7bntbn7wjjcco\",\"name\":\"Codex Full"
+    },
+    {
+      "name": "admin.user.detail",
+      "status": 200,
+      "ok": true,
+      "snippet": "{\"id\":\"cmnpefxdh00isbntbdv0it0bg\",\"name\":\"Codex Admin E2E\",\"email\":\"codex-admin-e2e-1775613514629@test.local\",\"role\":\"DEVELOPER\",\"emailVerified\":false,\"balance\":0,\"createdAt\":\"2026-04-08T01:58:35.957Z\",\"projects\":[{\"id\":\"cmnpefy9900iwbntb9nk5be6e\",\"name\":\"code"
+    },
+    {
+      "name": "admin.models.list",
+      "status": 200,
+      "ok": true,
+      "snippet": "{\"data\":[{\"id\":\"cmnmzb2ng0077bnxyjobk8h7r\",\"name\":\"deepseek/reasoner\",\"displayName\":\"deepseek-reasoner\",\"modality\":\"TEXT\",\"enabled\":true,\"canonicalName\":\"deepseek/reasoner\",\"isVariant\":false,\"maxTokens\":null,\"contextWindow\":null,\"capabilities\":{\"streaming\":tru",
+      "count": 563
+    },
+    {
+      "name": "admin.channels.list",
+      "status": 200,
+      "ok": true,
+      "snippet": "{\"data\":[{\"id\":\"cmnmzb2nn007dbnxylmrc4aux\",\"providerName\":\"DeepSeek\",\"providerId\":\"cmnckvuyt0014n56ilpx34sur\",\"modelName\":\"deepseek/reasoner\",\"modelDisplayName\":\"deepseek-reasoner\",\"modelId\":\"cmnmzb2ng0077bnxyjobk8h7r\",\"modality\":\"TEXT\",\"realModelId\":\"deepseek",
+      "count": 458
+    },
+    {
+      "name": "admin.providers.list",
+      "status": 200,
+      "ok": true,
+      "snippet": "{\"data\":[{\"id\":\"cmnckvuxw000sn56irlkhle5s\",\"name\":\"anthropic\",\"displayName\":\"Anthropic Claude\",\"baseUrl\":\"https://api.anthropic.com/v1/\",\"adapterType\":\"openai-compat\",\"status\":\"ACTIVE\",\"channelCount\":0,\"proxyUrl\":null,\"hasConfig\":true},{\"id\":\"cmnckvuyt0014n56i",
+      "count": 7
+    },
+    {
+      "name": "admin.usage.summary",
+      "status": 200,
+      "ok": true,
+      "snippet": "{\"period\":\"7d\",\"totalCalls\":77,\"totalTokens\":16701,\"totalRevenue\":0.14888983,\"totalCost\":0.12409892,\"margin\":0.02479091,\"avgLatencyMs\":5763,\"successRate\":0.8051948051948052}"
+    },
+    {
+      "name": "admin.logs.list",
+      "status": 200,
+      "ok": true,
+      "snippet": "{\"data\":[{\"traceId\":\"trc_gu5yqhkugd8t3jnl04gj18cc\",\"projectName\":\"Prod Template QA 1775606631334\",\"projectId\":\"cmnpacd9i0003bn4209ancdcn\",\"modelName\":\"deepseek/v3\",\"channelId\":\"cmnmzb2ts00lubnxyweps8xpg\",\"channelProvider\":\"openrouter\",\"channelRealModelId\":\"dee"
+    },
+    {
+      "name": "admin.recharge.dev_user",
+      "status": 201,
+      "ok": true,
+      "snippet": "{\"balance\":2,\"transactionId\":\"cmnpeg0fq00jcbntb1vhexssd\"}"
+    },
+    {
+      "name": "dev.project.balance.after_admin_recharge",
+      "status": 200,
+      "ok": true,
+      "snippet": "{\"balance\":2,\"alertThreshold\":null,\"lastRecharge\":null}",
+      "balance": 2
+    },
+    {
+      "name": "v1.chat.full_key",
+      "status": 200,
+      "ok": true,
+      "snippet": "{\"id\":\"chatcmpl-trc_d76bobc54jqckbozewk8dl3c\",\"object\":\"chat.completion\",\"created\":1775613520,\"model\":\"deepseek/v3\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":\"OK\"},\"finish_reason\":\"stop\"}],\"usage\":{\"prompt_tokens\":6,\"completion_tokens\":1,\"t",
+      "errorCode": null
+    },
+    {
+      "name": "v1.chat.restricted_key",
+      "status": 403,
+      "ok": false,
+      "snippet": "{\"error\":{\"type\":\"permission_error\",\"code\":\"forbidden\",\"message\":\"API key lacks chatCompletion permission\"}}",
+      "errorCode": "forbidden"
+    },
+    {
+      "name": "v1.actions_run.restricted_key",
+      "status": 200,
+      "ok": true,
+      "snippet": "{\"output\":\"OK\",\"trace_id\":\"trc_sx0icavrbv7lz3lhd2ks9b3x\",\"usage\":{\"prompt_tokens\":8,\"completion_tokens\":1,\"total_tokens\":9}}",
+      "errorCode": null
+    },
+    {
+      "name": "v1.templates_run.restricted_key",
+      "status": 200,
+      "ok": true,
+      "snippet": "{\"output\":\"OK\",\"total_steps\":1,\"steps\":[{\"type\":\"step_end\",\"step\":0,\"output\":\"OK\",\"usage\":{\"prompt_tokens\":8,\"completion_tokens\":1}}]}",
+      "errorCode": null
+    },
+    {
+      "name": "v1.chat.ip_key",
+      "status": 403,
+      "ok": false,
+      "snippet": "{\"error\":{\"type\":\"permission_error\",\"code\":\"forbidden\",\"message\":\"Request IP 156.245.144.237 not in whitelist\"}}",
+      "errorCode": "forbidden"
+    },
+    {
+      "name": "mcp.initialize.full_key",
+      "status": 200,
+      "ok": true,
+      "snippet": "event: message\ndata: {\"result\":{\"protocolVersion\":\"2024-11-05\",\"capabilities\":{\"tools\":{\"listChanged\":true}},\"serverInfo\":{\"name\":\"aigc-gateway\",\"version\":\"1.0.0\"},\"instructions\":\"# AIGC Gateway — AI 服务商聚合平台\\n\\n## Quick Start\\n1. **get_balance** — 查看余额，确认可用\\n2"
+    },
+    {
+      "name": "mcp.initialize.ip_key",
+      "status": 200,
+      "ok": true,
+      "snippet": "event: message\ndata: {\"result\":{\"protocolVersion\":\"2024-11-05\",\"capabilities\":{\"tools\":{\"listChanged\":true}},\"serverInfo\":{\"name\":\"aigc-gateway\",\"version\":\"1.0.0\"},\"instructions\":\"# AIGC Gateway — AI 服务商聚合平台\\n\\n## Quick Start\\n1. **get_balance** — 查看余额，确认可用\\n2"
+    },
+    {
+      "name": "dev.recharge.create_order",
+      "status": 201,
+      "ok": true,
+      "snippet": "{\"orderId\":\"cmnpeg5of000gbntpirw5p7ff\",\"amount\":1,\"paymentMethod\":\"alipay\",\"paymentUrl\":\"https://openapi.alipay.com/gateway.do?out_trade_no=cmnpeg5of000gbntpirw5p7ff&total_amount=1\",\"status\":\"pending\",\"expiresAt\":\"2026-04-08T02:28:46.718Z\"}",
+      "orderId": "cmnpeg5of000gbntpirw5p7ff"
+    },
+    {
+      "name": "webhook.alipay.forged",
+      "status": 200,
+      "ok": true,
+      "snippet": "success"
+    },
+    {
+      "name": "dev.project.balance.after_webhook",
+      "status": 200,
+      "ok": true,
+      "snippet": "{\"balance\":1.9999911,\"alertThreshold\":null,\"lastRecharge\":{\"amount\":1,\"createdAt\":\"2026-04-08T01:58:46.900Z\"}}",
+      "balance": 1.9999911,
+      "lastRechargeAmount": 1
+    },
+    {
+      "name": "dev.transactions.list",
+      "status": 200,
+      "ok": true,
+      "snippet": "{\"data\":[{\"id\":\"cmnpeg5tg000ibntpbrovytki\",\"type\":\"RECHARGE\",\"amount\":1,\"balanceAfter\":1,\"status\":\"COMPLETED\",\"paymentMethod\":\"alipay\",\"description\":\"Recharge $1.00 via alipay\",\"createdAt\":\"2026-04-08T01:58:46.900Z\"},{\"id\":\"bb2db3d8-fbc3-403c-9763-f1e7639f92ef",
+      "count": 5,
+      "latestType": "RECHARGE",
+      "latestAmount": 1
+    },
+    {
+      "name": "dev.logs.list",
+      "status": 200,
+      "ok": true,
+      "snippet": "{\"data\":[{\"traceId\":\"trc_msksiw1e81x3qzn9vej9tv0m\",\"modelName\":\"deepseek/v3\",\"status\":\"SUCCESS\",\"finishReason\":\"STOP\",\"promptTokens\":8,\"completionTokens\":1,\"totalTokens\":9,\"sellPrice\":0.00000319,\"latencyMs\":1596,\"ttftMs\":1468,\"tokensPerSecond\":0.62656641604010",
+      "count": 3
+    },
+    {
+      "name": "dev.usage.summary",
+      "status": 200,
+      "ok": true,
+      "snippet": "{\"period\":\"7d\",\"totalCalls\":3,\"totalTokens\":25,\"totalCost\":0.0000089,\"avgLatencyMs\":1432,\"avgTtftMs\":1468,\"successRate\":1,\"errorCount\":0}"
+    },
+    {
+      "name": "dev.usage.daily",
+      "status": 200,
+      "ok": true,
+      "snippet": "{\"data\":[{\"date\":\"2026-04-08\",\"calls\":3,\"cost\":0.0000089,\"tokens\":25}]}"
+    },
+    {
+      "name": "dev.usage.by_model",
+      "status": 200,
+      "ok": true,
+      "snippet": "{\"data\":[{\"model\":\"deepseek/v3\",\"calls\":3,\"tokens\":25,\"cost\":0.0000089,\"avgLatency\":1432}]}"
+    },
+    {
+      "name": "dev.key.revoke.restricted",
+      "status": 200,
+      "ok": true,
+      "snippet": "{\"message\":\"API Key revoked\"}"
+    },
+    {
+      "name": "v1.chat.revoked_restricted_key",
+      "status": 401,
+      "ok": false,
+      "snippet": "{\"error\":{\"type\":\"authentication_error\",\"code\":\"invalid_api_key\",\"message\":\"API key has been revoked\"}}",
+      "errorCode": "invalid_api_key"
+    }
+  ]
+}

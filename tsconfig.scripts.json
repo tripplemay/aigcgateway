@@ -1,0 +1,16 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "moduleDetection": "force"
+  },
+  "include": [
+    "scripts/e2e-test.ts",
+    "scripts/e2e-errors.ts",
+    "scripts/test-mcp.ts",
+    "scripts/test-mcp-errors.ts",
+    "scripts/hotfix-deepseek-v4-retire-legacy.ts",
+    "scripts/backfill-notification-preferences.ts"
+  ],
+  "exclude": []
+}

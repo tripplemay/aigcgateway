@@ -10,9 +10,7 @@ export interface CleanupResult {
   deleted: number;
 }
 
-export async function cleanupExpiredNotifications(
-  now: Date = new Date(),
-): Promise<CleanupResult> {
+export async function cleanupExpiredNotifications(now: Date = new Date()): Promise<CleanupResult> {
   const result = await prisma.notification.deleteMany({
     where: {
       expiresAt: { lt: now },

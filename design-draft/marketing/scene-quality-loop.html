@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>AIGC Gateway · 质量闭环 — 翻车 → 追溯 → 优化</title>
+<link rel="stylesheet" href="assets/shared.css">
+<style>
+  /* ============ v3.1 · 对齐 ds-* design system ============ */
+  body { background: #f2f3ff; margin: 0; padding: 0; }
+  .page {
+    width: 1080px; height: 1440px;
+    background:
+      radial-gradient(ellipse 700px 500px at 15% 0%, rgba(109, 93, 211, 0.12), transparent 60%),
+      radial-gradient(ellipse 600px 500px at 100% 100%, rgba(84, 67, 185, 0.08), transparent 60%),
+      linear-gradient(180deg, #faf8ff 0%, #eaedff 100%);
+    padding: 48px 56px;
+    position: relative;
+    overflow: hidden;
+    font-family: 'PingFang SC', 'Manrope', sans-serif;
+    color: #131b2e;
+  }
+  .page::before {
+    content: "";
+    position: absolute; inset: 0;
+    background-image: radial-gradient(#5443b9 0.5px, transparent 0.5px);
+    background-size: 24px 24px;
+    opacity: 0.05;
+    pointer-events: none;
+  }
+
+  /* 顶部标题 */
+  .head {
+    position: relative; z-index: 2;
+    text-align: center;
+    margin-bottom: 32px;
+  }
+  .head .tag {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 5px 14px;
+    background: rgba(84, 67, 185, 0.08);
+    color: #5443b9;
+    border: 1px solid rgba(84, 67, 185, 0.18);
+    border-radius: 999px;
+    font-family: 'SFMono-Regular', monospace;
+    font-size: 12px; font-weight: 700;
+    letter-spacing: 0.14em; text-transform: uppercase;
+  }
+  .head h1 {
+    font-family: 'Manrope', 'PingFang SC', sans-serif;
+    font-size: 44px; line-height: 1.15;
+    margin-top: 18px;
+    color: #131b2e;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+  }
+  .head h1 .brand {
+    color: #5443b9;
+  }
+  .head p {
+    margin-top: 12px;
+    font-size: 16px; color: #474553;
+    line-height: 1.6;
+  }
+
+  /* 三帧 */
+  .frames {
+    position: relative; z-index: 2;
+    display: flex; flex-direction: column; gap: 20px;
+  }
+  .frame {
+    background: #ffffff;
+    border-radius: 20px;
+    padding: 26px 28px;
+    border: 1px solid #dae2fd;
+    box-shadow: 0 14px 40px rgba(84, 67, 185, 0.08);
+    position: relative;
+  }
+
+  /* 帧 2 · 深色 terminal（翻查审计日志的场景） */
+  .frame.frame-2 {
+    background: #13141c; /* --ds-terminal-surface */
+    border: 1px solid rgba(200, 191, 255, 0.16);
+    color: #ffffff;
+    box-shadow: 0 14px 40px rgba(109, 93, 211, 0.28);
+    overflow: hidden;
+  }
+  .frame.frame-2::before {
+    content: "";
+    position: absolute; inset: 0;
+    background-image: radial-gradient(#6d5dd3 0.5px, transparent 0.5px);
+    background-size: 22px 22px;
+    opacity: 0.10;
+    pointer-events: none;
+  }
+  .frame.frame-2 > * { position: relative; z-index: 1; }
+
+  .frame-hdr {
+    display: flex; align-items: center; gap: 14px;
+    margin-bottom: 16px;
+  }
+  .frame-num {
+    width: 50px; height: 50px; border-radius: 12px;
+    display: grid; place-items: center;
+    color: #fff;
+    font-family: 'Manrope', sans-serif;
+    font-weight: 800; font-size: 20px;
+    flex-shrink: 0;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+  }
+  .frame-1 .frame-num {
+    background: linear-gradient(135deg, #ba1a1a 0%, #93000a 100%);
+    box-shadow: 0 8px 16px rgba(186, 26, 26, 0.28);
+  }
+  .frame-2 .frame-num {
+    background: linear-gradient(135deg, #5443b9 0%, #6d5dd3 100%);
+    box-shadow: 0 8px 16px rgba(84, 67, 185, 0.4);
+  }
+  .frame-3 .frame-num {
+    background: linear-gradient(135deg, #6d5dd3 0%, #5443b9 100%);
+    box-shadow: 0 8px 16px rgba(109, 93, 211, 0.35);
+  }
+
+  .frame-hdr h3 {
+    font-family: 'Manrope', 'PingFang SC', sans-serif;
+    font-size: 22px; font-weight: 800;
+    color: #131b2e;
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+  }
+  .frame-hdr h3 .sub {
+    display: block; font-size: 13px; font-weight: 500;
+    color: #474553; margin-top: 2px;
+    letter-spacing: 0;
+  }
+  .frame.frame-2 .frame-hdr h3 { color: #ffffff; }
+  .frame.frame-2 .frame-hdr h3 .sub { color: rgba(255, 255, 255, 0.6); }
+
+  .frame-body {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 20px;
+    align-items: center;
+  }
+
+  .frame-text {
+    font-size: 14.5px; line-height: 1.75;
+    color: #131b2e;
+  }
+  .frame-text p { margin-bottom: 8px; }
+  .frame-text .hi { color: #5443b9; font-weight: 700; }
+  .frame-text ul { margin-top: 10px; padding-left: 20px; }
+  .frame-text li { padding: 3px 0; color: #131b2e; }
+  .frame-text li::marker { color: #5443b9; }
+
+  .frame.frame-2 .frame-text { color: rgba(255, 255, 255, 0.88); }
+  .frame.frame-2 .frame-text li { color: rgba(255, 255, 255, 0.88); }
+  .frame.frame-2 .frame-text .hi { color: #c8bfff; }
+  .frame.frame-2 .frame-text li::marker { color: #c8bfff; }
+  .frame.frame-2 .frame-text strong { color: #ffffff; }
+
+  /* 标签前缀 */
+  .sect-label {
+    display: inline-flex; align-items: center; gap: 8px;
+    margin-bottom: 10px;
+    font-family: 'SFMono-Regular', monospace;
+    font-size: 11px; font-weight: 700;
+    letter-spacing: 0.14em; text-transform: uppercase;
+  }
+  .frame-1 .sect-label { color: #ba1a1a; }
+  .frame-2 .sect-label { color: #c8bfff; }
+  .frame-3 .sect-label { color: #5443b9; }
+
+  /* 帧 1 mock：用户投诉对话 */
+  .chat-mock {
+    background: #f2f3ff;
+    border: 1px solid #dae2fd;
+    border-radius: 14px;
+    padding: 14px;
+  }
+  .chat-bubble {
+    padding: 10px 14px;
+    border-radius: 12px;
+    margin-bottom: 8px;
+    max-width: 88%;
+    font-size: 13px;
+    line-height: 1.55;
+  }
+  .bubble-user {
+    background: #ffdad6; /* --ds-error-container */
+    color: #93000a;
+    border: 1px solid rgba(186, 26, 26, 0.18);
+    margin-right: auto;
+  }
+  .bubble-ai {
+    background: #eaedff;
+    color: #131b2e;
+    border: 1px solid #dae2fd;
+    margin-left: auto;
+  }
+  .chat-bubble strong {
+    display: block; font-size: 11px;
+    font-family: 'SFMono-Regular', monospace;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    opacity: 0.65; margin-bottom: 4px;
+  }
+
+  /* 帧 2 mock：审计日志（深色 terminal 风） */
+  .term-mock {
+    background: #0a0a0c;
+    border: 1px solid rgba(200, 191, 255, 0.18);
+    border-radius: 12px;
+    padding: 14px;
+    font-family: 'SFMono-Regular', 'JetBrains Mono', monospace;
+  }
+  .term-hdr {
+    display: flex; align-items: center; gap: 6px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgba(200, 191, 255, 0.12);
+    margin-bottom: 10px;
+  }
+  .term-hdr .dot {
+    width: 10px; height: 10px; border-radius: 50%;
+  }
+  .term-hdr .dr { background: #ba1a1a; }
+  .term-hdr .dy { background: #ffb964; }
+  .term-hdr .dg { background: #16a34a; }
+  .term-hdr .title {
+    margin-left: 12px;
+    font-size: 11px;
+    color: rgba(255, 255, 255, 0.55);
+    letter-spacing: 0.08em;
+  }
+  .log-row-kv {
+    display: grid; grid-template-columns: 86px 1fr;
+    gap: 8px;
+    padding: 3px 0;
+    font-size: 12px;
+  }
+  .log-row-kv .k { color: rgba(255, 255, 255, 0.4); }
+  .log-row-kv .v { color: #ffffff; }
+  .log-row-kv .v.bad { color: #ffb964; font-weight: 700; }
+  .log-row-kv .v.status-warn { color: #ffb964; }
+
+  .ver-list {
+    margin-top: 12px;
+    display: flex; flex-direction: column; gap: 6px;
+  }
+  .ver-line {
+    display: grid; grid-template-columns: 46px 1fr 58px 18px;
+    align-items: center; gap: 10px;
+    padding: 8px 12px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(200, 191, 255, 0.12);
+    border-radius: 10px;
+    font-family: 'SFMono-Regular', monospace;
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.82);
+  }
+  .ver-line.active {
+    background: rgba(109, 93, 211, 0.18);
+    border-color: rgba(200, 191, 255, 0.36);
+  }
+  .ver-tag {
+    display: inline-block; padding: 2px 8px;
+    background: rgba(255, 255, 255, 0.08);
+    color: #c8bfff;
+    border-radius: 5px;
+    font-family: 'SFMono-Regular', monospace;
+    font-size: 11px; font-weight: 700;
+    text-align: center;
+  }
+  .ver-line.active .ver-tag {
+    background: #5443b9;
+    color: #ffffff;
+  }
+  .ver-line .dot-ok { color: #16a34a; font-size: 14px; font-weight: 700; text-align: right; }
+  .ver-line .dot-bad { color: #ba1a1a; font-size: 14px; font-weight: 700; text-align: right; }
+  .ver-note { color: rgba(255, 255, 255, 0.72); }
+  .ver-line.active .ver-note { color: #ffffff; font-weight: 700; }
+
+  /* 帧 3 mock：三版对比表 */
+  .cmp-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12.5px;
+    background: #ffffff;
+    border: 1px solid #dae2fd;
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  .cmp-table th, .cmp-table td {
+    padding: 10px 10px;
+    text-align: center;
+    border-bottom: 1px solid #eaedff;
+  }
+  .cmp-table th {
+    background: #f2f3ff;
+    font-weight: 700;
+    font-size: 11px;
+    color: #474553;
+    font-family: 'SFMono-Regular', monospace;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .cmp-table tr.winner {
+    background: linear-gradient(135deg, rgba(109, 93, 211, 0.08) 0%, rgba(200, 191, 255, 0.16) 100%);
+    font-weight: 700;
+  }
+  .cmp-table .winner td { color: #5443b9; }
+  .cmp-table .v-name {
+    text-align: left;
+    font-family: 'SFMono-Regular', monospace;
+    font-weight: 700;
+    color: #131b2e;
+  }
+  .cmp-table .winner .v-name { color: #5443b9; }
+  .cmp-table .trophy {
+    display: inline-block;
+    margin-left: 4px;
+    font-size: 11px;
+    padding: 1px 6px;
+    background: #5443b9;
+    color: #ffffff;
+    border-radius: 3px;
+    vertical-align: middle;
+  }
+
+  /* 连接箭头 */
+  .arrow-between {
+    text-align: center;
+    font-size: 22px;
+    font-weight: 800;
+    color: #5443b9;
+    margin: -2px 0;
+    opacity: 0.75;
+    letter-spacing: 0;
+  }
+
+  /* 底部 CTA（深色） */
+  .footer-cta {
+    position: absolute;
+    bottom: 48px; left: 56px; right: 56px;
+    padding: 22px 28px;
+    background: #0a0a0c;
+    color: #ffffff;
+    border-radius: 18px;
+    border: 1px solid rgba(200, 191, 255, 0.18);
+    display: flex; align-items: center; justify-content: space-between;
+    box-shadow: 0 20px 40px rgba(84, 67, 185, 0.22);
+    overflow: hidden;
+  }
+  .footer-cta::before {
+    content: ""; position: absolute; inset: 0;
+    background-image: radial-gradient(#6d5dd3 0.5px, transparent 0.5px);
+    background-size: 22px 22px;
+    opacity: 0.10;
+    pointer-events: none;
+  }
+  .footer-cta > * { position: relative; z-index: 1; }
+  .footer-cta .left {
+    font-family: 'Manrope', 'PingFang SC', sans-serif;
+    font-size: 17px; line-height: 1.4; font-weight: 800;
+    color: #ffffff;
+  }
+  .footer-cta .left .sub {
+    display: block; font-size: 13px; font-weight: 500;
+    color: rgba(255, 255, 255, 0.6); margin-top: 2px;
+  }
+  .footer-cta .logo-mark {
+    width: 44px; height: 44px; border-radius: 12px;
+    background: linear-gradient(135deg, #5443b9 0%, #6d5dd3 100%);
+    display: grid; place-items: center;
+    color: #ffffff;
+    font-weight: 800; font-size: 20px;
+    box-shadow: 0 6px 16px rgba(84, 67, 185, 0.4);
+  }
+  .footer-brand { display: flex; align-items: center; gap: 14px; }
+  .footer-cta .url {
+    padding: 10px 18px;
+    background: rgba(109, 93, 211, 0.18);
+    border: 1px solid rgba(200, 191, 255, 0.24);
+    color: #c8bfff;
+    border-radius: 10px;
+    font-size: 14px; font-weight: 700;
+    font-family: 'SFMono-Regular', monospace;
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- 顶部标题 -->
+  <div class="head">
+    <span class="tag">AI QUALITY · CLOSED LOOP</span>
+    <h1>线上翻车之后，<br>你是怎么 <span class="brand">追溯 + 优化</span> 的？</h1>
+    <p>用 AIGC Gateway，整个过程只需要 5 分钟、3 个按钮</p>
+  </div>
+
+  <!-- 三帧 -->
+  <div class="frames">
+
+    <!-- 帧 1：翻车（浅色） -->
+    <div class="frame frame-1">
+      <div class="frame-hdr">
+        <div class="frame-num">01</div>
+        <h3>翻车了<span class="sub">用户投诉 AI 输出跑偏，你一头雾水</span></h3>
+      </div>
+      <div class="frame-body">
+        <div>
+          <div class="sect-label">INCIDENT · USER COMPLAINT</div>
+          <div class="chat-mock">
+            <div class="chat-bubble bubble-user">
+              <strong>用户反馈</strong>
+              "你们的 AI 把我的简历写错了公司！之前还好好的……"
+            </div>
+            <div class="chat-bubble bubble-ai">
+              <strong>你内心 OS</strong>
+              什么时候改的 Prompt？哪一版开始这样的？今天发生过几次？
+            </div>
+          </div>
+        </div>
+        <div class="frame-text">
+          <p><strong class="hi">熟悉的崩溃时刻</strong></p>
+          <ul>
+            <li>不知道哪一版 Prompt 出的问题</li>
+            <li>不知道这是偶发还是持续在翻车</li>
+            <li>想复现问题找不到原始请求</li>
+            <li>想回滚到上一版想不起改了啥</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="arrow-between">↓</div>
+
+    <!-- 帧 2：追溯（深色 terminal） -->
+    <div class="frame frame-2">
+      <div class="frame-hdr">
+        <div class="frame-num">02</div>
+        <h3>全链路追溯<span class="sub">打开 AIGC Gateway，每一次调用的细节都在那</span></h3>
+      </div>
+      <div class="frame-body">
+        <div class="frame-text">
+          <div class="sect-label">TRACE · FILTER BY TIME / KEY</div>
+          <p><strong class="hi">审计日志 · 按时间 / 项目 / Key 筛选</strong></p>
+          <ul>
+            <li>找到出错那条调用，看渲染后的 Prompt</li>
+            <li>对比 Action 版本历史：<strong>v3</strong> 改了哪句话</li>
+            <li>发现 v3 平均评分 ★3.1，延迟 1.2s，比 v2 差</li>
+            <li>一键切回 <strong>v2</strong>，线上立刻恢复正常</li>
+          </ul>
+        </div>
+        <div>
+          <div class="term-mock" style="margin-bottom: 12px;">
+            <div class="term-hdr">
+              <span class="dot dr"></span>
+              <span class="dot dy"></span>
+              <span class="dot dg"></span>
+              <span class="title">aigc logs --id a8f3e2</span>
+            </div>
+            <div class="log-row-kv"><span class="k">time</span><span class="v">14:28:42</span></div>
+            <div class="log-row-kv"><span class="k">model</span><span class="v">gpt-4o</span></div>
+            <div class="log-row-kv"><span class="k">action</span><span class="v">简历生成 v3</span></div>
+            <div class="log-row-kv"><span class="k">latency</span><span class="v bad">1,240 ms</span></div>
+            <div class="log-row-kv"><span class="k">status</span><span class="v status-warn">200 · output anomaly</span></div>
+          </div>
+          <div class="ver-list">
+            <div class="ver-line">
+              <span class="ver-tag">v1</span>
+              <span class="ver-note">初版 · ★ 3.8</span>
+              <span>★ 3.8</span>
+              <span class="dot-ok">●</span>
+            </div>
+            <div class="ver-line active">
+              <span class="ver-tag">v2</span>
+              <span class="ver-note">稳定版 ← 回滚目标</span>
+              <span>★ 4.5</span>
+              <span class="dot-ok">●</span>
+            </div>
+            <div class="ver-line">
+              <span class="ver-tag">v3</span>
+              <span class="ver-note">新改动（有问题）</span>
+              <span>★ 3.1</span>
+              <span class="dot-bad">●</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="arrow-between">↓</div>
+
+    <!-- 帧 3：优化（浅色） -->
+    <div class="frame frame-3">
+      <div class="frame-hdr">
+        <div class="frame-num">03</div>
+        <h3>持续优化<span class="sub">在模板测试页里用同一组变量跑多版，数据说话</span></h3>
+      </div>
+      <div class="frame-body">
+        <div>
+          <div class="sect-label">COMPARE · DATA SPEAKS</div>
+          <table class="cmp-table">
+            <thead>
+              <tr>
+                <th>版本</th>
+                <th>评分</th>
+                <th>延迟</th>
+                <th>成本</th>
+                <th>状态</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="v-name">v2</td>
+                <td>★ 4.5</td>
+                <td>1.1 s</td>
+                <td>¥0.008</td>
+                <td>当前线上</td>
+              </tr>
+              <tr>
+                <td class="v-name">v3</td>
+                <td>★ 3.1</td>
+                <td>1.2 s</td>
+                <td>¥0.009</td>
+                <td>已弃用</td>
+              </tr>
+              <tr class="winner">
+                <td class="v-name">v4<span class="trophy">WIN</span></td>
+                <td>★ 4.8</td>
+                <td>0.9 s</td>
+                <td>¥0.007</td>
+                <td>激活 →</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="frame-text">
+          <p><strong class="hi">测试页 · 步骤级对比</strong></p>
+          <ul>
+            <li>dry_run 预览变量替换，不花一分钱</li>
+            <li>三版同一组输入跑一遍，看延迟 / 成本 / 输出质量</li>
+            <li>v4 综合最优：更准 + 更快 + 更便宜</li>
+            <li>一键激活 v4，上线后继续在监测层观测</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- 底部品牌 CTA（深色回声） -->
+  <div class="footer-cta">
+    <div class="footer-brand">
+      <div class="logo-mark">A</div>
+      <div class="left">
+        AIGC Gateway
+        <span class="sub">AI 生成质量的监测台与优化器</span>
+      </div>
+    </div>
+    <div class="url">aigc.guangai.ai</div>
+  </div>
+
+</div>
+</body>
+</html>

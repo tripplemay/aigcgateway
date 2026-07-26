@@ -181,6 +181,22 @@ DeepSeek 从 5 个模型缩到 2 个，`2 < 5 × 0.5` 命中护栏。生产日�
 - 反向验证：临时构造一条 realModelId 错误的通道，别名整体仍可用（自动降级到健康通道）
 - tsc + build + 全量 vitest PASS
 
+### F-DSV4-07 [medium / generator] 既有 E2E 脚本漂移修复 + scripts/ 纳入类型检查
+
+**来源：** 首轮验收 TC-DSV4-010/011 BLOCKED（用户 2026-07-26 裁决"本批次顺手修"）。
+
+**修复内容：**
+- `test-mcp.ts`：`selectedTextModel` 被引用 4 处却从未声明（必然 ReferenceError）。补声明 + 在 step 3 `list_models` 里按实际可用模型赋值，与既有 `selectedImageModel` 同构
+- **硬编码模型名 `deepseek/v3` 共 19 处**（比验收报告列的更广，散在 4 个脚本）。它是本批次 F-DSV4-04 删掉的旧 `NAME_MAP` 产物，DeepSeek 直连下线 `deepseek-chat` 后该名已不存在 → 全部改为运行时从 `/v1/models` 选型
+- `e2e-test.ts`：`balance !== 0` 断言改为按 welcome bonus 基线做增量断言（注册会发 `SystemConfig.WELCOME_BONUS_USD`）；`/api/projects/:id/keys` 改为已迁移的用户级 `/api/keys`
+- `test-mcp-errors.ts`：burst 用例（5s 滑动窗口）触发后加冷却等待，避免后续 context/size 校验被 429 短路成假 FAIL
+- `e2e-test.ts` / `e2e-errors.ts`：环境无可用模型时，真实调用类用例记 **SKIP** 而非 FAIL —— 环境受阻不是回归
+- **堵盲区**：新增 `tsconfig.scripts.json` + `npm run typecheck:scripts`，并接入 CI typecheck job。`tsconfig.json` 的 `exclude` 含 `scripts/`，正是这个盲区让 `selectedTextModel` 烂了很久没人发现
+
+**范围收敛：** 类型检查只覆盖 4 个活跃回归脚本 + 本批次新增的 2 个脚本。全量纳入会带出 46 个历史一次性脚本的错误，属独立治理工作，不在本批次。
+
+**验收：** `npm run typecheck:scripts` 通过并在 CI 中执行；4 个脚本无残留 `deepseek/v3`；全量 vitest + tsc + lint + build 通过。
+
 ### F-DSV4-06 [high / codex] Evaluator 验收 + 签收报告
 
 **范围：**
@@ -250,6 +266,29 @@ DeepSeek 从 5 个模型缩到 2 个，`2 < 5 × 0.5` 命中护栏。生产日�
 若不一并修复，本次新增的 `SYNC_RECONCILE_SKIPPED` 会掉进同一个坑，F-DSV4-03 等于白做。因此本 feature 额外交付：seed 名单补全（含 AUTH_ALERT）、API/Settings/通知中心接线、i18n 双语、回填脚本，以及一条把「enum 全集 ⊆ seed 名单」钉成结构性约束的测试。
 
 **另记：** `tsconfig.json` 的 `exclude` 含 `scripts`，因此 `npx tsc --noEmit` **不覆盖 `scripts/` 下的脚本**（本次一个 Prisma 关系名笔误就是靠实跑才暴露的）。脚本类交付必须实跑 dry-run 验证，不能只靠 tsc。
+
+## 6.8 fix_round 1（2026-07-26）— DSV4-DEF-01
+
+**缺陷（Evaluator 首轮验收发现，High）：** 去重窗口对"根本没送出去"的通知也生效。
+
+原实现每个 trigger 都是「先 `SET NX EX` 占键 → 再查管理员 → 再投递」。投递落空时（用户无该事件偏好行 → dispatcher 静默丢弃）键照样被占满一个 TTL，于是：
+
+```
+容器启动 → initial sync 命中护栏 → 占 24h 键 → 通知因缺偏好被丢弃
+→ 运维回填偏好 → 再次触发被 NX 键拦住 → 首个有效告警被吞最多 24 小时
+```
+
+而"可见化"正是 F-DSV4-03 的全部目的。Evaluator 在 L1 fresh DB 上稳定复现（键 TTL 85498s、通知 0 条）。
+
+**修复（用户裁决"修共用模式"）：** 去重窗口改为**从第一次成功投递开始计时**。
+
+- `dispatcher.sendNotification` 返回 `boolean` —— 是否真的进入投递路径
+- 新增 `notifyDeduped` 公共助手：仍用 `SET NX` 抢占（并发风暴防护不能丢），但**投递数为 0 时删键**，让下次触发还能告警
+- 同形态的键原本 4 处各写一遍（`BALANCE_LOW` / `CHANNEL_DOWN` / `AUTH_ALERT` / `SYNC_RECONCILE_SKIPPED`），全部收敛到该助手，避免下次新增事件类型再踩
+
+**为什么修全部 4 处而不只修 FAIL 项：** 本次部署与回填之间的窗口会同样吞掉 `CHANNEL_DOWN` 和 `AUTH_ALERT` 的首条告警 —— 只修一处等于明知故留。
+
+**回归：** `dedup-delivery.test.ts` 7 例，含"回填前 0 投递不留键 → 回填后再触发必须投递"的缺陷核心场景。红/绿已验证（旧实现 5 红）。
 
 ## 7. 与 BL-IMG-I2I-VISION 的关系
 

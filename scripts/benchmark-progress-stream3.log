@@ -1,0 +1,23 @@
+Question: 六个人A B C D E F参加一个循环赛，每两人之间恰好比赛一次，赢得1分，输得0分，平局各得0.5分。比赛结束后：A的得分严格高于B，B严格高于C，C严格高于D，D严格高于E，E严格高于F，所有人得分各不相同，且A和F的比赛结果是平局。请问C的得分是多少？给出完整推理过程。
+
+Streaming round 3: 6 models, stagger 400ms
+
+[06:06:49] ernie-4.5                OK    76.3s  ttft=1956ms  out=1862  content=2801c  reasoning=0c
+[06:07:33] gpt-5                    FAIL  120.3s  HTTP 504  <html> <head><title>504 Gateway Time-out</title></head> <body> <center><h1>504 Gateway Time-out</h1></center> <hr><center>nginx/1.18.0 (Ubuntu)</center> </
+[06:13:39] mimo-v2-pro              OK    486.7s  ttft=3501ms  out=28311  content=1211c  reasoning=35407c
+[06:13:45] minimax-m2               OK    493.6s  ttft=3375ms  out=50291  content=2208c  reasoning=140061c
+[06:14:05] glm-5                    OK    512.9s  ttft=1532ms  out=20117  content=3156c  reasoning=24976c
+[06:14:35] glm-4.7-flash            OK    543.8s  ttft=2188ms  out=36414  content=2601c  reasoning=48945c
+
+=== ALL DONE in 543.8s ===
+
+model                    status  duration  ttft
+ernie-4.5                OK         76.3s   1956ms
+gpt-5                    FAIL      120.3s        -
+mimo-v2-pro              OK        486.7s   3501ms
+minimax-m2               OK        493.6s   3375ms
+glm-5                    OK        512.9s   1532ms
+glm-4.7-flash            OK        543.8s   2188ms
+
+5/6 succeeded.
+Full answers: scripts/benchmark-results-stream3.json

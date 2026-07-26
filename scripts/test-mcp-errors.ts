@@ -163,7 +163,7 @@ async function main() {
         {
           name: "chat",
           arguments: {
-            model: "deepseek/v3",
+            model: "deepseek-v3",
             messages: [{ role: "user", content: "test" }],
             max_tokens: 10,
           },
@@ -302,6 +302,16 @@ async function main() {
       console.log("(no burst observed — Redis may be disabled or cap too high) ");
     } else {
       console.log("(burst triggered) ");
+    }
+
+    // BL-DEEPSEEK-V4-HOTFIX F-DSV4-07：burst 是 5s 滑动窗口（rate-limit.ts
+    // DEFAULT_BURST_WINDOW_SEC=5），触发后错误信息还会建议 30s 后重试。原实现
+    // 打完 25 发就直接跑下一个用例，后续 context/size 校验被 429 短路，报成
+    // 假 FAIL。这里等窗口滑过再继续。
+    if (sawBurst) {
+      const waitSec = Number(process.env.BURST_COOLDOWN_SEC ?? 31);
+      process.stdout.write(`(cooling down ${waitSec}s) `);
+      await new Promise((r) => setTimeout(r, waitSec * 1000));
     }
   });
 

@@ -1,0 +1,41 @@
+Question: 六个人A B C D E F参加一个循环赛，每两人之间恰好比赛一次，赢得1分，输得0分，平局各得0.5分。比赛结束后：A的得分严格高于B，B严格高于C，C严格高于D，D严格高于E，E严格高于F，所有人得分各不相同，且A和F的比赛结果是平局。请问C的得分是多少？给出完整推理过程。
+
+Streaming round 2: 15 models, stagger 400ms
+
+[05:51:28] ernie-4.5                FAIL  0.5s  HTTP 400  {"error":{"type":"invalid_request_error","code":"invalid_parameter","message":"max_tokens (16384) exceeds the max output limit of model \"ernie-4.5\" (12000).",
+[05:53:26] gpt-5                    FAIL  120.8s  HTTP 504  <html> <head><title>504 Gateway Time-out</title></head> <body> <center><h1>504 Gateway Time-out</h1></center> <hr><center>nginx/1.18.0 (Ubuntu)</center> </
+[05:53:26] mimo-v2-omni             OK    119.6s  ttft=1138ms  out=16322  content=820c  reasoning=20301c
+[05:53:28] grok-4.1-fast            OK    120.3s  ttft=786ms  out=13478  content=1852c  reasoning=17179c
+[05:53:38] deepseek-v4-pro          OK    129.1s  ttft=7127ms  out=1501  content=2135c  reasoning=0c
+[05:53:39] gemma-4                  OK    130.6s  ttft=1307ms  out=2040  content=2805c  reasoning=0c
+[05:53:59] glm-4.7-flash            OK    150.0s  ttft=1824ms  out=16384  content=0c  reasoning=33794c
+[05:54:43] minimax-m2               OK    197.4s  ttft=3182ms  out=16384  content=0c  reasoning=46738c
+[05:55:21] minimax-m2.5             OK    230.2s  ttft=2366ms  out=16384  content=44496c  reasoning=0c
+[05:56:05] deepseek-v4-flash        OK    274.6s  ttft=26188ms  out=877  content=1352c  reasoning=0c
+[05:57:23] glm-5                    OK    356.2s  ttft=2166ms  out=16384  content=0c  reasoning=23373c
+[05:57:25] qwen3.5-plus             OK    358.8s  ttft=2125ms  out=19818  content=4468c  reasoning=40294c
+[05:57:42] mimo-v2-pro              OK    375.2s  ttft=3808ms  out=16384  content=0c  reasoning=60374c
+[06:00:14] qwen3.5-flash            OK    524.4s  ttft=1136ms  out=64275  content=4099c  reasoning=242644c
+[06:04:07] kimi-k2-thinking         OK    757.9s  ttft=853ms  out=34869  content=3358c  reasoning=51139c
+
+=== ALL DONE in 762.3s ===
+
+model                    status  duration  ttft
+ernie-4.5                FAIL        0.5s        -
+mimo-v2-omni             OK        119.6s   1138ms
+grok-4.1-fast            OK        120.3s    786ms
+gpt-5                    FAIL      120.8s        -
+deepseek-v4-pro          OK        129.1s   7127ms
+gemma-4                  OK        130.6s   1307ms
+glm-4.7-flash            OK        150.0s   1824ms
+minimax-m2               OK        197.4s   3182ms
+minimax-m2.5             OK        230.2s   2366ms
+deepseek-v4-flash        OK        274.6s  26188ms
+glm-5                    OK        356.2s   2166ms
+qwen3.5-plus             OK        358.8s   2125ms
+mimo-v2-pro              OK        375.2s   3808ms
+qwen3.5-flash            OK        524.4s   1136ms
+kimi-k2-thinking         OK        757.9s    853ms
+
+13/15 succeeded.
+Full answers: scripts/benchmark-results-stream2.json

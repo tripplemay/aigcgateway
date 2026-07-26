@@ -23,6 +23,73 @@ async function getAdminUserIds(): Promise<string[]> {
 }
 
 // ============================================================
+// BL-DEEPSEEK-V4-HOTFIX fix_round 1 / DSV4-DEF-01 — 去重窗口只对
+// 「真的送出去了」的通知生效
+// ============================================================
+
+/**
+ * 缺陷现场：原来每个 trigger 都是「先 `SET NX EX` 占去重键，再查管理员、再投递」。
+ * 一旦投递实际落空（用户没有该事件的偏好行 → dispatcher 静默丢弃），键照样被占满
+ * 一个 TTL。Evaluator 复现的确定性竞态就是这么来的：
+ *
+ *   容器启动 → initial sync 命中护栏 → 占用 24h 键 → 通知因缺偏好被丢弃
+ *   → 运维回填偏好 → 再次触发被 NX 键拦住 → 首个有效告警被吞最多 24 小时
+ *
+ * 而这个"可见化"正是 F-DSV4-03 的全部目的。
+ *
+ * 修复：保留 `SET NX` 抢占（并发风暴防护不能丢），但**投递数为 0 时把键删掉**，
+ * 让下一次触发还能告警。等价于"去重窗口从第一次成功投递开始计时"。
+ *
+ * 同一形态的键原本有 4 处（BALANCE_LOW / CHANNEL_DOWN / AUTH_ALERT /
+ * SYNC_RECONCILE_SKIPPED），全部收敛到这里，避免下次新增事件类型再踩一遍。
+ *
+ * @returns 实际投递成功的接收者数量；`null` 表示被去重窗口拦截、本次未尝试投递
+ */
+async function notifyDeduped(params: {
+  dedupKey: string;
+  ttlSeconds: number;
+  /** 返回本次实际投递成功的接收者数量 */
+  deliver: () => Promise<number>;
+}): Promise<number | null> {
+  const redis = getRedis();
+  if (redis) {
+    const claimed = await redis.set(params.dedupKey, "1", "EX", params.ttlSeconds, "NX");
+    if (!claimed) return null; // 窗口内已经告警过
+  }
+
+  let delivered = 0;
+  try {
+    delivered = await params.deliver();
+  } finally {
+    // 一条都没送出去 → 释放键，别让这次空转吃掉整个窗口。
+    // Redis 不可用时本就没占键，无需释放。
+    if (redis && delivered === 0) {
+      await redis.del(params.dedupKey).catch(() => {});
+    }
+  }
+  return delivered;
+}
+
+/** 向全部管理员投递同一条通知，返回实际投递成功的人数 */
+async function deliverToAdmins(
+  eventType: Parameters<typeof sendNotification>[1],
+  payload: Record<string, unknown>,
+): Promise<number> {
+  const adminIds = await getAdminUserIds();
+  if (adminIds.length === 0) return 0;
+
+  const results = await Promise.all(
+    adminIds.map((adminId) =>
+      sendNotification(adminId, eventType, payload).catch((err) => {
+        console.error(`[triggers] ${eventType} to admin ${adminId} failed:`, err);
+        return false;
+      }),
+    ),
+  );
+  return results.filter(Boolean).length;
+}
+
+// ============================================================
 // F-UA-03: BALANCE_LOW (24-hour dedup per userId + threshold)
 // ============================================================
 
@@ -63,21 +130,21 @@ export async function checkAndSendBalanceLowAlert(
 
     // Dedup key uses integer microdollars to avoid float key ambiguity.
     const thresholdMicro = Math.round(threshold * 1_000_000);
-    const dedupKey = `alert:balance_low:${userId}:${thresholdMicro}`;
-    const redis = getRedis();
-    if (redis) {
-      // SET EX NX — atomic: write only if key absent, expire in 24 h
-      const set = await redis.set(dedupKey, "1", "EX", 86400, "NX");
-      if (!set) return; // already notified within 24 h
-    }
-
-    sendNotification(
-      userId,
-      "BALANCE_LOW",
-      { currentBalance: balance, threshold, projectId },
-      projectId,
-    ).catch((err) => {
-      console.error("[triggers] BALANCE_LOW notification failed:", err);
+    await notifyDeduped({
+      dedupKey: `alert:balance_low:${userId}:${thresholdMicro}`,
+      ttlSeconds: 86400,
+      deliver: async () => {
+        const sent = await sendNotification(
+          userId,
+          "BALANCE_LOW",
+          { currentBalance: balance, threshold, projectId },
+          projectId,
+        ).catch((err) => {
+          console.error("[triggers] BALANCE_LOW notification failed:", err);
+          return false;
+        });
+        return sent ? 1 : 0;
+      },
     });
   } catch (err) {
     console.error("[triggers] checkAndSendBalanceLowAlert error:", err);
@@ -100,30 +167,17 @@ export async function sendChannelDownToAdmins(params: {
   lastError?: string | null;
 }): Promise<void> {
   try {
-    const dedupKey = `alert:channel_down:${params.channelId}`;
-    const redis = getRedis();
-    if (redis) {
-      const set = await redis.set(dedupKey, "1", "EX", 21600, "NX"); // 6 h
-      if (!set) return; // already notified within 6 h
-    }
-
-    const adminIds = await getAdminUserIds();
-    if (adminIds.length === 0) return;
-
-    const payload = {
-      channelId: params.channelId,
-      providerName: params.providerName,
-      modelName: params.modelName,
-      lastError: params.lastError ?? null,
-    };
-
-    await Promise.all(
-      adminIds.map((adminId) =>
-        sendNotification(adminId, "CHANNEL_DOWN", payload).catch((err) => {
-          console.error(`[triggers] CHANNEL_DOWN to admin ${adminId} failed:`, err);
+    await notifyDeduped({
+      dedupKey: `alert:channel_down:${params.channelId}`,
+      ttlSeconds: 21600, // 6 h
+      deliver: () =>
+        deliverToAdmins("CHANNEL_DOWN", {
+          channelId: params.channelId,
+          providerName: params.providerName,
+          modelName: params.modelName,
+          lastError: params.lastError ?? null,
         }),
-      ),
-    );
+    });
   } catch (err) {
     console.error("[triggers] sendChannelDownToAdmins error:", err);
   }
@@ -146,37 +200,24 @@ export async function sendAuthAlertToAdmins(params: {
   consecutiveFailures: number;
 }): Promise<void> {
   try {
-    const dedupKey = `alert:auth_failed:${params.channelId}`;
-    const redis = getRedis();
-    if (redis) {
-      const set = await redis.set(dedupKey, "1", "EX", 86400, "NX"); // 24 h
-      if (!set) return; // already alerted within 24 h
-    }
-
-    const adminIds = await getAdminUserIds();
-    if (adminIds.length === 0) return;
-
     const firstFailureIso =
       typeof params.firstFailureAt === "string"
         ? params.firstFailureAt
         : params.firstFailureAt.toISOString();
 
-    const payload = {
-      channelId: params.channelId,
-      providerName: params.providerName,
-      modelName: params.modelName,
-      errorMessage: params.errorMessage,
-      firstFailureAt: firstFailureIso,
-      consecutiveFailures: params.consecutiveFailures,
-    };
-
-    await Promise.all(
-      adminIds.map((adminId) =>
-        sendNotification(adminId, "AUTH_ALERT", payload).catch((err) => {
-          console.error(`[triggers] AUTH_ALERT to admin ${adminId} failed:`, err);
+    await notifyDeduped({
+      dedupKey: `alert:auth_failed:${params.channelId}`,
+      ttlSeconds: 86400, // 24 h
+      deliver: () =>
+        deliverToAdmins("AUTH_ALERT", {
+          channelId: params.channelId,
+          providerName: params.providerName,
+          modelName: params.modelName,
+          errorMessage: params.errorMessage,
+          firstFailureAt: firstFailureIso,
+          consecutiveFailures: params.consecutiveFailures,
         }),
-      ),
-    );
+    });
   } catch (err) {
     console.error("[triggers] sendAuthAlertToAdmins error:", err);
   }
@@ -292,30 +333,17 @@ export async function sendSyncReconcileSkippedToAdmins(params: {
   existingChannelCount: number;
 }): Promise<void> {
   try {
-    const dedupKey = `alert:sync_reconcile_skipped:${params.providerName}:${params.reason}`;
-    const redis = getRedis();
-    if (redis) {
-      const set = await redis.set(dedupKey, "1", "EX", 86400, "NX"); // 24 h
-      if (!set) return; // already alerted within 24 h
-    }
-
-    const adminIds = await getAdminUserIds();
-    if (adminIds.length === 0) return;
-
-    const payload = {
-      providerName: params.providerName,
-      reason: params.reason,
-      remoteModelCount: params.remoteModelCount,
-      existingChannelCount: params.existingChannelCount,
-    };
-
-    await Promise.all(
-      adminIds.map((adminId) =>
-        sendNotification(adminId, "SYNC_RECONCILE_SKIPPED", payload).catch((err) => {
-          console.error(`[triggers] SYNC_RECONCILE_SKIPPED to admin ${adminId} failed:`, err);
+    await notifyDeduped({
+      dedupKey: `alert:sync_reconcile_skipped:${params.providerName}:${params.reason}`,
+      ttlSeconds: 86400, // 24 h
+      deliver: () =>
+        deliverToAdmins("SYNC_RECONCILE_SKIPPED", {
+          providerName: params.providerName,
+          reason: params.reason,
+          remoteModelCount: params.remoteModelCount,
+          existingChannelCount: params.existingChannelCount,
         }),
-      ),
-    );
+    });
   } catch (err) {
     console.error("[triggers] sendSyncReconcileSkippedToAdmins error:", err);
   }

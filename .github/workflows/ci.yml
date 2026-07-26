@@ -76,6 +76,10 @@ jobs:
       - run: npm ci
       - run: npx prisma generate
       - run: npm run typecheck
+      # BL-DEEPSEEK-V4-HOTFIX F-DSV4-07: tsconfig.json 的 exclude 含 scripts/，
+      # 主 typecheck 覆盖不到回归脚本。test-mcp.ts 里 selectedTextModel 引用了
+      # 4 次却从未声明（必然 ReferenceError），就是在这个盲区里烂了很久没人发现。
+      - run: npm run typecheck:scripts
 
   validate-rollback-sql:
     name: Validate migration ROLLBACK SQL

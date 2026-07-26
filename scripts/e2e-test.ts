@@ -16,6 +16,25 @@ const email = `e2e_${Date.now()}@test.com`;
 const password = requireEnv("E2E_TEST_PASSWORD");
 let passed = 0;
 let failed = 0;
+let skipped = 0;
+// BL-DEEPSEEK-V4-HOTFIX F-DSV4-07：原本硬编码 model: "deepseek/v3"。那是旧
+// NAME_MAP 生成的模型名，DeepSeek 直连下线 deepseek-chat 后该名已不存在，
+// 脚本随之常年失败。改为运行时从 /v1/models 取实际可用别名。
+let textModel = "";
+let imageModel = "";
+let initialBalance = 0;
+let rechargedBalance = 0;
+
+async function resolveModels() {
+  const res = await fetch(`${BASE}/v1/models`, {
+    headers: { Authorization: `Bearer ${apiKey}` },
+  });
+  if (!res.ok) return;
+  const body = await res.json().catch(() => null);
+  const list: Array<{ id?: string; modality?: string }> = body?.data ?? [];
+  textModel = list.find((m) => (m.modality ?? "text") === "text")?.id ?? "";
+  imageModel = list.find((m) => m.modality === "image")?.id ?? "";
+}
 
 async function api(path: string, opts?: RequestInit & { expectStatus?: number }) {
   const { expectStatus, ...init } = opts ?? {};
@@ -32,6 +51,17 @@ async function api(path: string, opts?: RequestInit & { expectStatus?: number })
   return { status: res.status, body, headers: res.headers };
 }
 
+/**
+ * BL-DEEPSEEK-V4-HOTFIX F-DSV4-07：环境里一个模型都没有（provider key 缺失 /
+ * 尚未 sync）时，真实调用步骤既不该 PASS 也不该记 FAIL —— 那是环境受阻，不是
+ * 回归。抛出本错误的步骤计入 SKIP，不污染红绿判断。
+ */
+class SkipStep extends Error {}
+
+function skipUnless(condition: unknown, reason: string): asserts condition {
+  if (!condition) throw new SkipStep(reason);
+}
+
 async function step(name: string, fn: () => Promise<void>) {
   process.stdout.write(`  ${name}... `);
   try {
@@ -39,6 +69,11 @@ async function step(name: string, fn: () => Promise<void>) {
     console.log("✅ PASS");
     passed++;
   } catch (e) {
+    if (e instanceof SkipStep) {
+      console.log(`⏭️  SKIP: ${e.message}`);
+      skipped++;
+      return;
+    }
     console.log(`❌ FAIL: ${(e as Error).message}`);
     failed++;
   }
@@ -177,12 +212,18 @@ async function main() {
     });
     if (!body.id) throw new Error("No project id");
     projectId = body.id;
-    if (body.balance !== 0) throw new Error(`Expected balance 0, got ${body.balance}`);
+    // F-DSV4-07：注册会发放 welcome bonus（SystemConfig.WELCOME_BONUS_USD），
+    // 新账号余额不再恒为 0。记下基线，后续步骤按增量断言。
+    if (typeof body.balance !== "number" || body.balance < 0) {
+      throw new Error(`Expected non-negative balance, got ${body.balance}`);
+    }
+    initialBalance = body.balance;
   });
 
   // 4. Generate API Key
   await step("4. Generate API Key", async () => {
-    const { body } = await api(`/api/projects/${projectId}/keys`, {
+    // F-DSV4-07：API Key 已从 project 级迁到 user 级（/api/keys）
+    const { body } = await api(`/api/keys`, {
       method: "POST",
       body: JSON.stringify({ name: "e2e-key" }),
       expectStatus: 201,
@@ -190,11 +231,13 @@ async function main() {
     if (!body.key?.startsWith("pk_")) throw new Error("Key format wrong");
     apiKey = body.key;
     keyId = body.id;
+    // Key 到手后才能查 /v1/models —— 后续调用步骤都用这里选出来的别名
+    await resolveModels();
   });
 
   // 5. Key list (masked)
   await step("5. Key list shows mask", async () => {
-    const { body } = await api(`/api/projects/${projectId}/keys`);
+    const { body } = await api(`/api/keys`);
     const k = body.data?.[0];
     if (!k?.maskedKey?.includes("****")) throw new Error("Key not masked");
   });
@@ -236,16 +279,20 @@ async function main() {
 
     // Verify balance
     const bal = await api(`/api/projects/${projectId}/balance`);
-    if (bal.body.balance < 50) throw new Error(`Balance: ${bal.body.balance}`);
+    if (bal.body.balance < initialBalance + 50) {
+      throw new Error(`Balance: ${bal.body.balance} (expected >= ${initialBalance + 50})`);
+    }
+    rechargedBalance = bal.body.balance;
   });
 
   // 8. API call (non-streaming via API Key)
   await step("8. Chat completion (non-stream)", async () => {
+    skipUnless(textModel, "no text model available from /v1/models");
     const res = await fetch(`${BASE}/v1/chat/completions`, {
       method: "POST",
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
       body: JSON.stringify({
-        model: "deepseek/v3",
+        model: textModel,
         messages: [{ role: "user", content: "Say hi" }],
         max_tokens: 5,
       }),
@@ -259,11 +306,12 @@ async function main() {
 
   // 9. API call (streaming)
   await step("9. Chat completion (stream)", async () => {
+    skipUnless(textModel, "no text model available from /v1/models");
     const res = await fetch(`${BASE}/v1/chat/completions`, {
       method: "POST",
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
       body: JSON.stringify({
-        model: "deepseek/v3",
+        model: textModel,
         messages: [{ role: "user", content: "Hi" }],
         max_tokens: 5,
         stream: true,
@@ -277,10 +325,11 @@ async function main() {
 
   // 10. Image generation
   await step("10. Image generation", async () => {
+    skipUnless(imageModel, "no image model available from /v1/models");
     const res = await fetch(`${BASE}/v1/images/generations`, {
       method: "POST",
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
-      body: JSON.stringify({ model: "zhipu/cogview-3-flash", prompt: "a red circle" }),
+      body: JSON.stringify({ model: imageModel, prompt: "a red circle" }),
     });
     if (res.status !== 200) throw new Error(`Status: ${res.status}`);
     const body = await res.json();
@@ -290,7 +339,9 @@ async function main() {
   // 11. Check balance decreased
   await step("11. Balance decreased after calls", async () => {
     const { body } = await api(`/api/projects/${projectId}/balance`);
-    if (body.balance >= 50) throw new Error(`Balance not decreased: ${body.balance}`);
+    if (body.balance >= rechargedBalance) {
+      throw new Error(`Balance not decreased: ${body.balance} (was ${rechargedBalance})`);
+    }
   });
 
   // 12. Transaction records
@@ -584,7 +635,7 @@ async function main() {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
         body: JSON.stringify({
-          model: "deepseek/v3",
+          model: textModel,
           messages: [{ role: "user", content: "ping" }],
           max_tokens: 5,
         }),
@@ -636,7 +687,12 @@ async function main() {
   });
 
   console.log("\n" + "=".repeat(60));
-  console.log(`Results: ${passed} PASS | ${failed} FAIL | ${passed + failed} total`);
+  console.log(
+    `Results: ${passed} PASS | ${failed} FAIL | ${skipped} SKIP | ${passed + failed + skipped} total`,
+  );
+  if (skipped > 0) {
+    console.log("(SKIP = 环境缺可用模型，非回归；补齐 provider key 后重跑可覆盖)");
+  }
   await prisma.$disconnect().catch(() => {});
   console.log("=".repeat(60));
   process.exit(failed > 0 ? 1 : 0);
