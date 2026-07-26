@@ -39,7 +39,7 @@
       "title": "上游「模型名不受支持」400 重分类为 MODEL_NOT_FOUND 以恢复跨通道 failover",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "匹配特征严格收窄至模型名类错误（文案以真实上游为准，无把握不纳入）；正反双向单测（模型名类 400 → failover 成功；参数类/内容违规 400 → 仍 INVALID_REQUEST 不 failover）；全候选失败时用户侧错误仍保留上游原文可定位；构造错误 realModelId 通道验证别名整体仍可用；tsc + build + 全量 vitest PASS；独立 commit"
     },
     {

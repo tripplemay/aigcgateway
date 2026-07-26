@@ -695,18 +695,32 @@ export class OpenAICompatEngine implements EngineAdapter {
     let message = `Provider returned ${status}`;
     let code: string = ErrorCodes.PROVIDER_ERROR;
     let parsed: Record<string, unknown> | undefined;
+    let upstreamCode: unknown;
 
     try {
       parsed = JSON.parse(body);
       const err = parsed?.error as Record<string, unknown> | undefined;
+      upstreamCode = err?.code ?? parsed?.code;
       if (err?.message) message = err.message as string;
+      // F-DSV4-05: 部分服务商不用 OpenAI 的 {error:{message}} 信封，而是平铺
+      // {code, message}（如 SiliconFlow `{"code":20012,"message":"Model does
+      // not exist..."}`）。原实现读不到就退回 "Provider returned 400"，上游原文
+      // 被丢掉——既让用户看不懂，也让下面的模型名判定无从匹配。
+      else if (typeof parsed?.message === "string") message = parsed.message;
     } catch {
       if (body) message = body.slice(0, 500);
     }
 
     switch (status) {
       case 400:
-        code = ErrorCodes.INVALID_REQUEST;
+        // F-DSV4-05: 上游说"这个模型名我不认识"时不是用户参数错误，而是网关侧
+        // channel.realModelId 配错/过期（发往上游的模型名完全由网关决定，用户
+        // 传的是别名）。归为 INVALID_REQUEST 会命中 failover 的 NEVER_RETRY，
+        // 让一条坏通道拖垮整个别名——DeepSeek 下线 deepseek-chat 时正是如此，
+        // 同别名下 7 条健康通道一条都没被试。
+        code = isUnsupportedModelError(message, upstreamCode)
+          ? ErrorCodes.MODEL_NOT_FOUND
+          : ErrorCodes.INVALID_REQUEST;
         break;
       case 401:
       case 403:
@@ -734,6 +748,51 @@ export class OpenAICompatEngine implements EngineAdapter {
     }
     return null;
   }
+}
+
+/**
+ * BL-DEEPSEEK-V4-HOTFIX F-DSV4-05 — 上游「模型名不受支持」的识别特征。
+ *
+ * ## 为什么要单独识别
+ *
+ * 发往上游的模型名是 `channel.realModelId`，**完全由网关决定**（用户传的是
+ * 别名，由 router 解析）。所以上游回「不认识这个模型」时，责任方一定是网关的
+ * 通道配置，而不是调用方的参数。把它归为 INVALID_REQUEST 会命中 failover 的
+ * NEVER_RETRY —— 2026-07-25 的 DeepSeek 事故就是这样：一条 realModelId 过期的
+ * 通道占着 priority=1，同别名下 7 条健康通道一条都没被尝试。
+ *
+ * ## 特征来自真实实测（2026-07-25 逐家探测，不是猜的）
+ *
+ * | 服务商 | HTTP | 原文 |
+ * |---|---|---|
+ * | DeepSeek | 400 | `The supported API model names are ... but you passed X.` |
+ * | SiliconFlow | 400 | `Model does not exist. Please check it carefully.` |
+ * | Zhipu | 400 | `模型不存在，请检查模型代码。` |
+ * | MiniMax | 400 | `invalid params, unknown model 'X' (2013)` |
+ * | OpenRouter | 400 | `X is not a valid model ID` |
+ * | Qwen | 404 | 已走 404 分支，无需匹配 |
+ * | Volcengine | 404 | 已走 404 分支，无需匹配 |
+ *
+ * ## 宁窄勿宽（spec D4）
+ *
+ * 只收上面这些明确指向"模型身份"的文案 + OpenAI 系的 `model_not_found` 错误码。
+ * 参数非法、内容违规等 400 必须保持 INVALID_REQUEST 且不 failover —— 放宽会把
+ * 确定性失败变成 N 次无效重试 + N 倍延迟。未实测过的服务商文案不纳入：漏判只是
+ * 退化回现状，误判会伤到所有人。
+ */
+const UNSUPPORTED_MODEL_PATTERNS: readonly RegExp[] = [
+  /the supported api model names are/i, // DeepSeek
+  /model does not exist/i, // SiliconFlow / OpenAI 系
+  /模型不存在/, // Zhipu
+  /unknown model/i, // MiniMax
+  /is not a valid model id/i, // OpenRouter
+];
+
+export function isUnsupportedModelError(message: string, upstreamCode?: unknown): boolean {
+  if (typeof upstreamCode === "string" && upstreamCode.toLowerCase() === "model_not_found") {
+    return true;
+  }
+  return UNSUPPORTED_MODEL_PATTERNS.some((re) => re.test(message));
 }
 
 /**
@@ -776,6 +835,12 @@ export function mapBodyError(json: Record<string, unknown>): EngineError | null 
   } else if (/insufficient.?(balance|fund|credit)|no.?balance|402/.test(hint)) {
     code = ErrorCodes.INSUFFICIENT_BALANCE;
     status = 402;
+  } else if (isUnsupportedModelError(message, errObj.code)) {
+    // F-DSV4-05: 必须排在 invalid_request 之前 —— MiniMax 的信封同时带
+    // `type: "bad_request_error"` 和 `unknown model`，先匹配到 invalid_request
+    // 就又变成不可 failover 了。
+    code = ErrorCodes.MODEL_NOT_FOUND;
+    status = 404;
   } else if (/invalid.?request|bad.?request|\b400\b/.test(hint)) {
     code = ErrorCodes.INVALID_REQUEST;
     status = 400;
