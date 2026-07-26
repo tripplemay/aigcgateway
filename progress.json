@@ -1,23 +1,34 @@
 {
-  "status": "reverifying",
-  "user_goal": "BL-IMG-I2I-VISION — 网关支持图片输入，提供图生图和图片解析能力。三项用户裁决：(1)并入 backlog BL-MCP-VISION-INPUT（MCP chat 多模态图片输入，复用 chat-content.ts + vision 门禁 + 日志卫生）；(2)图生图 API 两者都做——/v1/images/generations 扩展可选 image 参数（主形态，Seedream 4.x 官方一致）+ /v1/images/edits OpenAI 兼容壳（multipart，mask 不支持）；(3)首发模型 seedream-4-5（volcengine 原生 i2i）+ OpenRouter 图模 gpt-5-image / gemini-3-pro-image（imageViaChat 带图），上游契约前置实测（L1 铁律），探测不通的模型收缩出批次不硬上。新 capability 命名 image_to_image（避开 reinferAllCapabilities 的 image_input→vision 剥离迁移）。源图仅 URL+base64、网关不 fetch 不落盘、限制复用 vision-limits（≤10张/≤5MB/协议白名单）。生成结果管道（GCS 持久化+签名代理+perCall 计费）零改动。",
-  "total_features": 8,
-  "completed_features": 7,
-  "fix_rounds": 2,
-  "current_sprint": "BL-IMG-I2I-VISION",
-  "last_updated": "2026-07-24T03:20:00Z",
+  "status": "building",
+  "user_goal": "BL-DEEPSEEK-V4-HOTFIX — 生产故障止血 + 自动兜底修复。DeepSeek 直连 API 下线 deepseek-chat / deepseek-reasoner，只保留 deepseek-v4-pro / deepseek-v4-flash；生产 3 条 deepseek 直连通道 realModelId 陈旧且占据 priority=1，上游 400 被归类为 INVALID_REQUEST（NEVER_RETRY）→ 无 failover → deepseek-v3 别名硬失败。两层自动兜底同时失效：model-sync 缩水护栏（2 < 5×0.5）静默拦截自动下架已 5 天无告警；健康检查调度器 2026-07-23T05:15 丢 leadership 后永久停摆（无重抢路径，单副本 → 全站健康检查零执行）。用户裁决：止血 + 系统性修复，插队开 hotfix 批次（BL-IMG-I2I-VISION reverifying 挂起，本批次 done 后还原）。6 features（5 generator + 1 codex）。",
+  "total_features": 6,
+  "completed_features": 0,
+  "fix_rounds": 0,
+  "current_sprint": "BL-DEEPSEEK-V4-HOTFIX",
+  "last_updated": "2026-07-25T11:30:00Z",
   "role_assignments": null,
   "docs": {
-    "spec": "docs/specs/BL-IMG-I2I-VISION-spec.md",
-    "test_cases": "docs/test-cases/BL-IMG-I2I-VISION-test-cases.md",
+    "spec": "docs/specs/BL-DEEPSEEK-V4-HOTFIX-spec.md",
+    "test_cases": null,
     "signoff": null,
     "framework_reviewed": false
   },
   "evaluator_feedback": null,
-  "session_notes": {
-    "Planner": "2026-07-22 (Kimi) 从 done 起新批次 BL-IMG-I2I-VISION。勘察结论：vision REST 面已在 BL-VISION-INPUT 落地（chat-content.ts/vision-limits.ts 按 MCP 可共用设计）；MCP chat.ts:23 仍 z.string()；图生图完全空白（无 edits 路由、ImageGenerationRequest 无 image 字段、三 adapter 无源图上送）；Seedream 4.5 接入时 D7 已声明 i2i 列为后续增强，本批收割。关键发现：alias-classifier reinferAllCapabilities(:648-675) 会剥离 image_input 键并入 vision 且 Step 2 LLM 推断全量覆盖 capabilities → 新 capability 定名 image_to_image + F-IIV-07 必须核验 sync merge 语义防被抹（D8）。风险最高项：Seedream 与 OpenRouter 图模的 i2i 上游契约均未实测，F-IIV-04/05 前置探测是硬门禁（seedream-3 ep-ID 教训）。8 features（7 generator + 1 codex），混合批次 → building。角色默认映射 Kimi generator / Reviewer evaluator（用户确认默认，role_assignments=null）。backlog 已移除 BL-MCP-VISION-INPUT（并入本批次 F-IIV-01）。下一步 Generator 加载 generator.md 从 F-IIV-01 开始。",
-    "Generator": "2026-07-24 (Kimi) fix_round 2 修复 IIV-DEF-03 [High]（commit 72e58b8，CI 绿）。根因：calculateTokenCost:672 用 ?? 无条件优先任何非 null 的 alias.sellPrice；生产 gpt-image/gemini-3-pro-image 的 alias 是 call-priced（{unit:call,perCall}）、channel 是 token-priced，token 公式读不到 alias 的 inputPer1M/outputPer1M → sell=0 → 跳过扣费（生产 20/20 漏扣）。修复：镜像 calculateCallCost 的字段兼容 fallback——token 路径卖价取 alias/channel 中含 token 字段(inputPer1M/outputPer1M)的来源；alias 缺字段时回退 channel.sellPrice。costUsd 逻辑不变。回归落点选择：用 Vitest 单元测试（image-via-chat-token-cost.test.ts，即 BL-IMAGE-PRICING-OR-P2 同类 pricing bug 的既有测试家族），而非 role-context 默认的 test-mcp.ts——理由：纯计费函数 bug，需 token-channel+call-alias 的精确配置组合，单元测试可确定性覆盖且已 git-stash 验证 red(2 fail)/green，比 E2E 脚本更精准可靠。真实上游 L2（生产等价价格双 alias 扣费+Transaction）属 Codex F-IIV-08 复验范围。遗留裁决项：历史零扣费 CallLog 是否追补 Transaction，报告已列由 Planner/用户定；生产 alias sellPrice 是否改为 token-priced 是可选数据修正（代码 fallback 已让其正确计费，非必须）。",
-    "Reviewer": "2026-07-22 fix round 1 L2：用户明确授权后完成真实 Volcengine/OpenRouter/Qwen + GCS 验收。L1 44/44、L2 功能 14/14、视觉相关性、Seedream perCall、失败不扣费、tsc/build、Vitest 670 PASS / 4 SKIP 均通过；OR 原 402 已解除，两模型真实 i2i 成功。发现 IIV-DEF-03 [High]：生产 gpt-image/gemini-3-pro-image alias 为 call sell，channel 为 token sell；calculateTokenCost 被非 null alias 掩盖后 sell=0。生产只读抽样最近 20 条成功图片调用全部 cost>0/sell=0，样本无 Transaction。已输出 L2 脚本、证据和 FAIL 报告；status 转 fixing，F-IIV-08 pending，docs.signoff=null。"
+  "suspended_batch": {
+    "sprint": "BL-IMG-I2I-VISION",
+    "status_at_suspend": "reverifying",
+    "suspended_at": "2026-07-25",
+    "reason": "生产故障 BL-DEEPSEEK-V4-HOTFIX 插队（用户裁决）",
+    "restore_from": {
+      "features": "docs/archive/features-BL-IMG-I2I-VISION-suspended.json",
+      "progress": "docs/archive/progress-BL-IMG-I2I-VISION-suspended.json"
+    },
+    "pending_work": "F-IIV-08 Codex 复验（fix_round 2 的 IIV-DEF-03 修复待验），docs.signoff=null，fix_rounds=2"
   },
-  "generator_handoff": "7/7 generator features 完成（commit 3626cce..a92a113，CI 全绿）。Codex 执行 F-IIV-08。关键信息：(1) i2i 放行模型清单以 docs/specs/BL-IMG-I2I-VISION-ops.md 为准——seedream-4-5（上游实测通过）、gpt-image / gemini-3-pro-image（用户裁决按标准 OpenAI 契约直上，未实测；注意 spec 里写的 gpt-5-image 实际 alias 名是 gpt-image）。(2) ⚠️ OpenRouter 账户欠费（$590 用尽超支 $0.20），OR 两模型 E2E 会 402——按环境受阻记录，勿判代码 FAIL；seedream-4-5 不受影响。(3) F-IIV-08 前置：先跑 npx tsx scripts/provision-i2i-capabilities.ts --apply（可控环境；codex-setup 重置 DB 后需重跑）。(4) 本地真实验收需 provider 真实 key：从生产提取（ssh deploysvr → providers.authConfig->>'apiKey'），volcengine seedream-4-5 channel realModelId=ep-20260604162024-k2sbk。(5) seedream-4-5 的 chat API 上游整体不可用（恒回退 images 端点），1024x1024 恒被拒（min 3.68M 像素，2048x2048 兜底）——探测记录见 ops 文档 §1。(6) 日志卫生断言点：call_logs requestParams.image 应为 [image:url host]/[image:base64 NB] 占位符，responseSummary.source_images_count 应存在于 i2i 调用。"
+  "session_notes": {
+    "Planner": "2026-07-25 (Kimi) 用户报生产 DeepSeek 调用报错，按铁律 9 走 hotfix 流程：Planner 诊断 → 用户裁决 → Generator 执行。诊断证据全部实查：(1) 生产 key 实测 api.deepseek.com，/models 只剩 v4-flash/v4-pro，deepseek-chat 与 deepseek-reasoner 均 400。(2) 生产 DB 3 条 deepseek 直连通道 realModelId 陈旧，其中 deepseek-v3 别名与 deepseek-r1 别名下的两条 priority=1（router 按 ASC 取优，是第一选择）。(3) failover.ts:38 NEVER_RETRY 含 INVALID_REQUEST，openai-compat.ts:707 把上游 400 无条件映射成 INVALID_REQUEST → 同别名 7~9 条健康通道一条未试。(4) model-sync.ts:489 缩水护栏 2<5*0.5 命中，07-21 起连续 5 天 SKIPPED reconcile 只 console.log 无告警。(5) 健康检查调度器 2026-07-23T05:15:31Z lost leadership → stopScheduler 终局，instrumentation.ts:47 只在启动时抢一次锁，无重抢路径；单副本容器 Up 13 天未重启 → health_checks max(createdAt)=07-23 05:12，全站健康检查停摆 2 天；billing/model-sync/maintenance 不检查 leadership 所以还在跑（解释了为何 sync 日志有健康检查没有）。用户裁决：止血+系统性修复、插队。已归档 BL-IMG-I2I-VISION 状态到 docs/archive/*-suspended.json，本批次 done 后由 Planner 还原到 reverifying 让 Codex 继续 F-IIV-08。下一步 Generator 从 F-DSV4-01 开始（先止血）。",
+    "Generator": null,
+    "Reviewer": null
+  },
+  "generator_handoff": null
 }
