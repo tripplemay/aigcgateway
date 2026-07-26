@@ -51,4 +51,4 @@ yarn-error.log*
 next-env.d.ts
 
 # Claude Code session state
-.claude/
+.claude/settings.local.json

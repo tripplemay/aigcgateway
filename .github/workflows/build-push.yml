@@ -18,6 +18,9 @@ on:
       - "planner.md"
       - "generator.md"
       - "evaluator.md"
+      - ".claude/**"
+      - "harness.json"
+      - "harness.lock"
   workflow_dispatch:
 
 concurrency:
