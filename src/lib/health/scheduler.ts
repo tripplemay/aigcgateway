@@ -627,7 +627,17 @@ async function executeCheckWithRetry(
       // 的 /models 端点有响应，根本不碰 channel 自己的 realModelId —— 于是
       // 2026-07-26 08:44/08:45 把两条按上游目录下架的 DeepSeek 陈旧通道又
       // 拉回 ACTIVE，直接撤销了 F-DSV4-01 的止血。
-      const veto = await vetoRecovery(route);
+      //
+      // fix_round 4 / DSV4-DEF-04：闸门必须**只**盖住上面这个场景。
+      // 判据是「刚过的这次检查有没有真的碰到模型」：
+      //   DISABLED + reachability → 探测是模型盲的，目录缺席才是仅有的证据 → 可否决
+      //   DEGRADED  + full probe  → 已经拿这个模型真跑通了，这比一份不完整的
+      //                             目录更有说服力 → 必须放行，否则通道永久卡在
+      //                             DEGRADED（fix_round 3 的 `status !== ACTIVE`
+      //                             把 DEGRADED 也圈了进去，就是这个越界）
+      const catalogGateApplies =
+        route.channel.status === "DISABLED" && checkMode === "reachability";
+      const veto = catalogGateApplies ? await vetoRecovery(route) : null;
       if (veto) {
         console.warn(
           `[health] recovery vetoed ${route.provider.name}/${route.channel.realModelId}: ${veto}`,
@@ -650,7 +660,11 @@ async function executeCheckWithRetry(
 }
 
 /**
- * BL-DEEPSEEK-V4-HOTFIX fix_round 3 — DISABLED → ACTIVE 的额外门槛。
+ * BL-DEEPSEEK-V4-HOTFIX fix_round 3 — 目录闸门本体。
+ *
+ * **适用范围由调用方收窄**（fix_round 4 / DSV4-DEF-04）：只在「DISABLED 通道 +
+ * 模型盲的 reachability 检查」这一种情形下调用。只要探测真的碰过这个模型并通过，
+ * 就不该走到这里 —— 实跑通过比一份不完整的目录更有说服力。
  *
  * 只在**能确证模型已从服务商目录消失**时否决恢复，返回否决理由；其余一律放行。
  *

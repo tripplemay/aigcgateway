@@ -375,6 +375,27 @@ POST /chat/completions {"model":"deepseek-reasoner"} → 200，响应体 "model"
 
 **遗留（不在本批次，建议另开）：** 止血使 deepseek 通道数降到与远端相等 → 缩水护栏不再触发 → reconcile 恢复运行 → 把 `deepseek-v4-flash` / `deepseek-v4-pro` 的 costPrice 从 `{0.14,0.28}` / `{0.435,0.87}` 覆盖成 `{0,0}`（上游 `/models` 不返回价格）。卖价与用户不受影响，成本核算失真。与 §6.5 记录的跨服务商 costPrice 全零问题同源。
 
+## 6.11 fix_round 4（2026-07-26）— DSV4-DEF-04
+
+**缺陷（复验发现，High）：** fix_round 3 的目录闸门挂在 `route.channel.status !== "ACTIVE"` 上，**越界圈进了 DEGRADED**。
+
+DEGRADED 文本通道跑的是**模型特定的 full probe** —— PASS 意味着这个模型真的调通了。此时再拿一份不完整的 `/models` 目录去否决，通道就永久卡在 DEGRADED。Evaluator 用 `tests/unit/dsv4-recovery-veto-status.test.ts` 钉住了这个场景（全量 Vitest 1 FAIL 即此）。
+
+**修复：判据从「状态」换成「刚过的这次检查有没有真的碰到模型」。**
+
+| 场景 | 探测性质 | 处置 |
+|---|---|---|
+| DISABLED + `reachability` | 模型盲，只验端点可达 | 目录缺席是**仅有的**证据 → 可否决 |
+| DEGRADED + `full probe` | 真拿这个模型跑通了 | 实跑证据强于目录 → **必须放行** |
+
+调用点收窄为 `status === "DISABLED" && checkMode === "reachability"`；`vetoRecovery` 本体不变，其适用范围由调用方界定并在函数注释中写明。
+
+**回归：** Evaluator 的用例钉住放行半边；新增 `recovery-veto-boundary.test.ts` 3 例经 `checkChannel` 钉住否决半边（陈旧 realModelId 不因 reachability PASS 复活、否决必写 SystemLog、模型仍在目录中则正常恢复），避免下次"修放行"时把闸门整个废掉。
+
+全量 **745 PASS / 4 SKIP**（90 files），tsc + typecheck:scripts + lint + build 全绿。
+
+**本轮无生产改动** —— 生产当前状态（两条陈旧通道 DISABLED、别名语义已恢复）不受影响；本修复只放宽 DEGRADED 通道的恢复路径，需部署后由 Evaluator 复验。
+
 ## 7. 与 BL-IMG-I2I-VISION 的关系
 
 BL-IMG-I2I-VISION 处于 `reverifying`（F-IIV-08 待 Codex 复验），本批次插队。挂起状态已归档：
