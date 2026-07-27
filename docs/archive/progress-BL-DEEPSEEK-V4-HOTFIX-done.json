@@ -1,0 +1,40 @@
+{
+  "status": "done",
+  "user_goal": "BL-DEEPSEEK-V4-HOTFIX — 生产故障止血 + 自动兜底修复。DeepSeek 直连 API 下线 deepseek-chat / deepseek-reasoner，只保留 deepseek-v4-pro / deepseek-v4-flash；生产 3 条 deepseek 直连通道 realModelId 陈旧且占据 priority=1，上游 400 被归类为 INVALID_REQUEST（NEVER_RETRY）→ 无 failover → deepseek-v3 别名硬失败。两层自动兜底同时失效：model-sync 缩水护栏（2 < 5×0.5）静默拦截自动下架已 5 天无告警；健康检查调度器 2026-07-23T05:15 丢 leadership 后永久停摆（无重抢路径，单副本 → 全站健康检查零执行）。用户裁决：止血 + 系统性修复，插队开 hotfix 批次（BL-IMG-I2I-VISION reverifying 挂起，本批次 done 后还原）。6 features（5 generator + 1 codex）。",
+  "total_features": 7,
+  "completed_features": 7,
+  "fix_rounds": 4,
+  "current_sprint": "BL-DEEPSEEK-V4-HOTFIX",
+  "last_updated": "2026-07-27T04:07:40Z",
+  "role_assignments": null,
+  "docs": {
+    "spec": "docs/specs/BL-DEEPSEEK-V4-HOTFIX-spec.md",
+    "test_cases": "docs/test-cases/BL-DEEPSEEK-V4-HOTFIX-verifying-cases-2026-07-25.md",
+    "signoff": "docs/test-reports/BL-DEEPSEEK-V4-HOTFIX-signoff-2026-07-26.md",
+    "framework_reviewed": false
+  },
+  "evaluator_feedback": {
+    "summary": "fix round 4 复验 PASS：DSV4-DEF-04 原始红灯与否决/放行双向边界通过；全量 746 PASS / 3 SKIP / 0 FAIL，四组 L1 Overall PASS，生产止血、调度、告警、四别名语义与计费只读复核通过。",
+    "pass_count": 7,
+    "partial_count": 0,
+    "fail_count": 0,
+    "issues": []
+  },
+  "suspended_batch": {
+    "sprint": "BL-IMG-I2I-VISION",
+    "status_at_suspend": "reverifying",
+    "suspended_at": "2026-07-25",
+    "reason": "生产故障 BL-DEEPSEEK-V4-HOTFIX 插队（用户裁决）",
+    "restore_from": {
+      "features": "docs/archive/features-BL-IMG-I2I-VISION-suspended.json",
+      "progress": "docs/archive/progress-BL-IMG-I2I-VISION-suspended.json"
+    },
+    "pending_work": "F-IIV-08 Codex 复验（fix_round 2 的 IIV-DEF-03 修复待验），docs.signoff=null，fix_rounds=2"
+  },
+  "session_notes": {
+    "Planner": "2026-07-25 (Kimi) 用户报生产 DeepSeek 调用报错，按铁律 9 走 hotfix 流程：Planner 诊断 → 用户裁决 → Generator 执行。诊断证据全部实查：(1) 生产 key 实测 api.deepseek.com，/models 只剩 v4-flash/v4-pro，deepseek-chat 与 deepseek-reasoner 均 400。(2) 生产 DB 3 条 deepseek 直连通道 realModelId 陈旧，其中 deepseek-v3 别名与 deepseek-r1 别名下的两条 priority=1（router 按 ASC 取优，是第一选择）。(3) failover.ts:38 NEVER_RETRY 含 INVALID_REQUEST，openai-compat.ts:707 把上游 400 无条件映射成 INVALID_REQUEST → 同别名 7~9 条健康通道一条未试。(4) model-sync.ts:489 缩水护栏 2<5*0.5 命中，07-21 起连续 5 天 SKIPPED reconcile 只 console.log 无告警。(5) 健康检查调度器 2026-07-23T05:15:31Z lost leadership → stopScheduler 终局，instrumentation.ts:47 只在启动时抢一次锁，无重抢路径；单副本容器 Up 13 天未重启 → health_checks max(createdAt)=07-23 05:12，全站健康检查停摆 2 天；billing/model-sync/maintenance 不检查 leadership 所以还在跑（解释了为何 sync 日志有健康检查没有）。用户裁决：止血+系统性修复、插队。已归档 BL-IMG-I2I-VISION 状态到 docs/archive/*-suspended.json，本批次 done 后由 Planner 还原到 reverifying 让 Codex 继续 F-IIV-08。下一步 Generator 从 F-DSV4-01 开始（先止血）。",
+    "Generator": "2026-07-26 fix_round 4 (Kimi)：DSV4-DEF-04 修复。Evaluator 判断准确——fix_round 3 的目录闸门挂在 status != ACTIVE 上，越界圈进了 DEGRADED。DEGRADED 文本通道跑的是模型特定 full probe，PASS 说明模型真能调，此时拿一份不完整的 /models 目录否决它，通道就永久卡在 DEGRADED。修法：判据从「状态」换成「刚过的这次检查有没有真的碰到模型」——调用点收窄为 status === 'DISABLED' && checkMode === 'reachability'；vetoRecovery 本体不动，适用范围由调用方界定并写进函数注释。DISABLED+reachability 是模型盲探测，目录缺席是仅有的证据 → 可否决；DEGRADED+full probe 实跑证据强于目录 → 必须放行。回归：Evaluator 的 tests/unit/dsv4-recovery-veto-status.test.ts 钉放行半边（已从 FAIL 转 PASS）；新增 src/lib/health/__tests__/recovery-veto-boundary.test.ts 3 例经 checkChannel 钉否决半边，避免下次'修放行'把闸门整个废掉。全量 745 PASS / 4 SKIP（90 files），tsc + typecheck:scripts + lint + build 全绿。⚠️ 本轮无生产改动：生产现状（两条陈旧通道 DISABLED、deepseek-v3→真 V3、deepseek-r1→真 R1）不受影响；本修复只放宽 DEGRADED 恢复路径，需部署后复验。遗留未变（建议另开）：deepseek v4-flash/v4-pro 的 costPrice 被 reconcile 覆盖成 0；siliconflow 4 + openrouter 2 条通道因目录缺席将一直 DISABLED，需运维判断。",
+    "Reviewer": "2026-07-26 fix round 4 复验签收：DSV4-DEF-04 evaluator 原始红灯与 Generator 否决侧边界均 PASS；12 个热修专项 103/103，全量 Vitest 746 PASS / 3 SKIP / 0 FAIL，typecheck/typecheck:scripts/lint/build 通过；四组 L1 72 PASS / 0 FAIL / 28 SKIP，Overall PASS。生产只读复核三旧通道持续 DISABLED、v4 ACTIVE、健康检查持续推进、告警可见、四别名真实语义与计费一致。14/14 用例 PASS，F-DSV4-06 completed，signoff：docs/test-reports/BL-DEEPSEEK-V4-HOTFIX-signoff-2026-07-26.md。生产仍 checkout 26b3272，用户需部署 401a7da 后做 smoke；Planner 需更新实际部署路径 /opt/apps/aigc-gateway。"
+  },
+  "generator_handoff": "5/5 generator features 完成（commit 2720f8a / 864fbf1 / 7ad6950 / 9442160 / 6d85571）。Codex 执行 F-DSV4-06。关键信息：(1) 生产止血已在 2026-07-25 完成（3 条 deepseek 直连陈旧通道 DISABLED），证据 docs/test-reports/BL-DEEPSEEK-V4-HOTFIX-F-DSV4-01-prod-evidence-2026-07-25.md；四别名真实调用已验通过，复验请重跑确认。(2) ⚠️ 部署顺序有依赖：F-DSV4-03 带 migration 20260725_sync_reconcile_skipped_notification（ALTER TYPE ADD VALUE，向后兼容）。scripts/backfill-notification-preferences.ts --apply 必须在 migration 落地之后跑，否则 SYNC_RECONCILE_SKIPPED 枚举值不存在会写入失败。生产 dry-run 显示待新增 174 行。(3) 部署即容器重启 → 健康检查调度器会重新抢锁恢复；复验点：SELECT max(\"createdAt\") FROM health_checks 应持续推进（当前停在 2026-07-23 05:12）。(4) F-DSV4-05 的匹配特征来自 2026-07-25 逐家真实探测（deepseek/siliconflow/zhipu/minimax/openrouter 五家 400 文案 + qwen/volcengine 走 404）。反向验证很重要：参数类/内容违规 400 必须仍不 failover。(5) 顺带发现、未修（超出本批次范围，spec §5 已声明）：token 计价 ACTIVE 通道中 costPrice 全零的—qwen 185/185、siliconflow 62/68、zhipu 6/8、minimax+guangtech 各 5/5、xiaomi-mimo 2/2、openrouter 5/332。成本侧记 0，毛利统计失真（卖价正常，用户不受影响）。建议另开数据治理批次。(6) 本地跑脚本可用 SSH 隧道：ssh -f -N -L 15432:127.0.0.1:5432 -L 16379:127.0.0.1:6379 deploysvr，生产 pg/redis 只绑 127.0.0.1。(7) tsconfig exclude 含 scripts，tsc 不覆盖 scripts/，脚本类交付必须实跑 dry-run 验证。"
+}

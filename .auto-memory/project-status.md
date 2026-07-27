@@ -4,17 +4,17 @@ description: AIGC Gateway 当前状态快照（覆盖写，≤30 行）
 type: project
 ---
 ## 当前批次
-- **BL-DEEPSEEK-V4-HOTFIX**（**done**，fix_rounds=4，7/7）— 14/14 验收用例 PASS；签收 `docs/test-reports/BL-DEEPSEEK-V4-HOTFIX-signoff-2026-07-26.md`。
-- **回归 PASS**：12 个热修专项 103/103；全量 Vitest 746 PASS / 3 SKIP / 0 FAIL；四组 L1 72 PASS / 0 FAIL / 28 SKIP；typecheck、typecheck:scripts、lint、build 通过。
-- **生产只读 PASS**：checkout `26b3272`；DeepSeek 三旧通道持续 DISABLED，v4 两通道 ACTIVE；健康检查持续推进，告警可见，四别名真实语义与计费一致。
-- **✅ 已上线**（2026-07-27，run 30238029100）：生产 checkout `f16d2b7`（含 fix_round 4 闸门收窄）。Smoke 通过：容器 healthy；三旧通道持续 DISABLED、v4 两条 ACTIVE；health_checks 持续推进；`deepseek-v3` → volcengine `deepseek-v3-ark` SUCCESS 计费正常。闸门边界实测：20 分钟内 12 条否决**全部落在 DISABLED**、无一条 DEGRADED（当前全站 653 ACTIVE / 234 DISABLED / 0 DEGRADED）。`environment.md` 部署路径已更正为 `/opt/apps/aigc-gateway` + 容器化信息。
-- **遗留 A（建议另开）**：通道 costPrice 全零 — qwen 185/185、siliconflow 62/68、zhipu 6/8；deepseek v4-flash/v4-pro 亦被 reconcile 覆盖成 0。成本与毛利统计失真，卖价与用户不受影响。
-- **遗留 B（需运维判断）**：siliconflow 4 + openrouter 2 条通道 realModelId 不在各自 `/models` 目录中，将一直 DISABLED 不自动恢复（闸门只拦自动、不拦人工）。确认仍可调则后台手动置回，确认已下架则保持。
+- **BL-IMG-I2I-VISION**（**reverifying**，fix_rounds=2，7/8）— 2026-07-27 从 hotfix 还原，F-IIV-08 待 Codex 复验，`docs.signoff=null`。
+- **利好**：生产已升到 `f16d2b7`，**IIV-DEF-03 的修复（72e58b8）现在才真正上线**（挂起时生产还是 07-12 镜像），L2 计费复验到现在才具备条件。
+- **🔴 阻塞 A**：`seedream-4-5`（i2i 首发、唯一上游实测通过的模型）通道当前 **DISABLED** 且长期抖动，已被自动恢复 **59 次**。根因：realModelId 是火山接入点 ID `ep-2026…`，按设计永不出现在 `/models`；`model-sync` 的 `toDisable` 每轮下架它，健康检查 reachability 恢复再转回，两边对打。hotfix 的 `vetoRecovery` 已豁免 `quirks.endpointMap`，但 `toDisable` 无同等豁免 —— 早于 hotfix 存在的盲区。
+- **🔴 阻塞 B**：OpenRouter 又欠费（credits 595 / usage 595.13）→ `gpt-image`、`gemini-3-pro-image` 会 402。
+- **🔴 阻塞 C**：`provision-i2i-capabilities.ts --apply` 生产未跑 —— 三别名 `capabilities.image_to_image` 均空，i2i 门禁会拒绝所有带源图请求。
+- 图片计费未受 hotfix 影响（IMAGE 模态 `buildCostPrice` 返回 null，不动 costPrice；seedream 仍 `{perCall:0.2}`）。
 
-## 挂起批次
-- **BL-IMG-I2I-VISION**（挂起于 **reverifying**，fix_rounds=2）— F-IIV-08 待验，归档在 `docs/archive/{features,progress}-BL-IMG-I2I-VISION-suspended.json`。
-- Hotfix 已 done；按 Harness 由 Planner 还原该批次后，再由 Codex 继续复验。
-- 待裁决：历史零扣费 CallLog 是否追补 Transaction；生产 alias sellPrice 是否改 token-priced；`provision-i2i-capabilities.ts --apply` 未跑。
+## 上一批次（done）
+- **BL-DEEPSEEK-V4-HOTFIX**（done + 已上线 2026-07-27）— 14/14 PASS，signoff `docs/test-reports/BL-DEEPSEEK-V4-HOTFIX-signoff-2026-07-26.md`，状态归档 `docs/archive/*-BL-DEEPSEEK-V4-HOTFIX-done.json`。
+- **遗留 A**：通道 costPrice 全零 — qwen 185/185、siliconflow 62/68、zhipu 6/8、deepseek v4 两条。成本毛利失真，卖价不受影响。
+- **遗留 B**：siliconflow 4 + openrouter 2 条目录缺席通道将一直 DISABLED，需运维判断置回或保持。
 
 ## Backlog
 - **BL-SEC-PAY-DEFERRED**（critical-deferred）— 支付 webhook 验签 + 幂等 CAS。
