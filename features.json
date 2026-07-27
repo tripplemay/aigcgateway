@@ -55,7 +55,7 @@
       "title": "Codex 验收 + 签收报告（生产四别名真实调用 + 健康检查恢复 + 护栏告警 + failover 正反验证 + 全量回归）",
       "priority": "high",
       "executor": "codex",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "spec §3 F-DSV4-06 七项全过；输出 docs/test-reports/BL-DEEPSEEK-V4-HOTFIX-signoff-YYYY-MM-DD.md 含命令证据 + 结论 PASS/FAIL"
     }
   ]
