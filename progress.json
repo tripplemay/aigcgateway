@@ -1,11 +1,11 @@
 {
-  "status": "reverifying",
+  "status": "building",
   "user_goal": "BL-IMG-I2I-VISION — 网关支持图片输入，提供图生图和图片解析能力。三项用户裁决：(1)并入 backlog BL-MCP-VISION-INPUT（MCP chat 多模态图片输入，复用 chat-content.ts + vision 门禁 + 日志卫生）；(2)图生图 API 两者都做——/v1/images/generations 扩展可选 image 参数（主形态，Seedream 4.x 官方一致）+ /v1/images/edits OpenAI 兼容壳（multipart，mask 不支持）；(3)首发模型 seedream-4-5（volcengine 原生 i2i）+ OpenRouter 图模 gpt-5-image / gemini-3-pro-image（imageViaChat 带图），上游契约前置实测（L1 铁律），探测不通的模型收缩出批次不硬上。新 capability 命名 image_to_image（避开 reinferAllCapabilities 的 image_input→vision 剥离迁移）。源图仅 URL+base64、网关不 fetch 不落盘、限制复用 vision-limits（≤10张/≤5MB/协议白名单）。生成结果管道（GCS 持久化+签名代理+perCall 计费）零改动。",
-  "total_features": 8,
-  "completed_features": 7,
+  "total_features": 9,
+  "completed_features": 8,
   "fix_rounds": 2,
   "current_sprint": "BL-IMG-I2I-VISION",
-  "last_updated": "2026-07-27T05:00:00Z",
+  "last_updated": "2026-07-27T05:25:00Z",
   "role_assignments": null,
   "docs": {
     "spec": "docs/specs/BL-IMG-I2I-VISION-spec.md",

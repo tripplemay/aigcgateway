@@ -59,6 +59,14 @@
       "acceptance": "脚本 dry-run 盘点 + --apply 幂等（重跑无变化）且清 models:list* 缓存；不误标探测未通过模型；sync merge 语义核验结论落 ops 文档；docs 页双语示例与实际 API 一致；tsc + build PASS；独立 commit"
     },
     {
+      "id": "F-IIV-09",
+      "title": "model-sync toDisable 与健康恢复闸门统一「目录权威性」判据（解 F-IIV-08 阻塞 A）",
+      "priority": "high",
+      "executor": "generator",
+      "status": "completed",
+      "acceptance": "抽出共享判据供 model-sync.toDisable 与 scheduler.vetoRecovery 共用，两者不再对打；provider 声明 model_can_be_endpoint_id / 配置 endpointMap 时其 /models 不作为下架依据；EMBEDDING 维持既有豁免；seedream-4-5 通道在生产 sync 后不再被下架（已抖动 59 次）；单测覆盖豁免与非豁免两侧；tsc + lint + build + 全量 vitest 通过；独立 commit"
+    },
+    {
       "id": "F-IIV-08",
       "title": "Codex 验收 + 签收报告（i2i/edits/MCP vision 真实 E2E + 门禁/限制/计费/日志卫生/回归全套）",
       "priority": "high",

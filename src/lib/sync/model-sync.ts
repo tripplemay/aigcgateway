@@ -26,6 +26,7 @@ import { enrichFromDocs } from "./doc-enricher";
 import { getRedis } from "@/lib/redis";
 import { acquireLeaderLock, releaseLeaderLock } from "@/lib/infra/leader-lock";
 import { writeSystemLog } from "@/lib/system-logger";
+import { isCatalogAuthoritative } from "./catalog-authority";
 import {
   sendSyncReconcileSkippedToAdmins,
   type ReconcileSkipReason,
@@ -408,11 +409,19 @@ async function reconcile(
   // completions list 同步，由 seed-embedding-models.ts 单独管理）。
   // 长期方向：modality-aware sync（按需拉 embeddings list 同步），但 MVP
   // 只需 EMBEDDING 不被误下架即可。
+  //
+  // BL-IMG-I2I-VISION F-IIV-09：EMBEDDING 豁免收进 `isCatalogAuthoritative`，
+  // 与健康检查的 `vetoRecovery` 共用同一判据。此前两边各管各的，结果
+  // `seedream-4-5`（realModelId 是火山接入点 ID `ep-…`，按设计永不出现在
+  // /models）被这里每轮下架、又被 reachability 恢复，来回对打 59 次。
   const toDisable = existingChannels.filter(
     (ch) =>
       ch.status !== "DISABLED" &&
       !remoteRealModelIds.has(ch.realModelId) &&
-      ch.model.modality !== "EMBEDDING",
+      isCatalogAuthoritative({
+        modality: ch.model.modality,
+        quirks: provider.config?.quirks ?? null,
+      }),
   );
   if (toDisable.length > 0) {
     await prisma.channel.updateMany({

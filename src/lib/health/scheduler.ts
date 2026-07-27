@@ -29,6 +29,7 @@ import { sendAlert } from "./alert";
 import type { RouteResult } from "../engine/types";
 import { isTransientFailureReason, markChannelCooldown } from "../engine/cooldown";
 import { acquireLeaderLock, heartbeatLock } from "@/lib/infra/leader-lock";
+import { isCatalogAuthoritative } from "@/lib/sync/catalog-authority";
 // BL-EMBEDDING-MVP fix-round-3 diagnostic: tick id 区分多 worker（若 H4 真）。
 // 用 process.pid 后 4 位（PM2 cluster mode 下不同 worker pid 不同）。
 const SCHED_PID_TAG = String(process.pid).slice(-4);
@@ -685,12 +686,17 @@ async function executeCheckWithRetry(
  * 被否决时会写 SystemLog，避免又一个"静默行为"（本批次的教训）。
  */
 async function vetoRecovery(route: RouteResult): Promise<string | null> {
-  // EMBEDDING 不通过 chat /models 同步，缺席是常态
-  if (route.model.modality === "EMBEDDING") return null;
-
-  const quirks = route.config.quirks as Record<string, unknown> | null;
-  // 接入点 ID 体系（volcengine）：realModelId 与目录命名不可比
-  if (quirks?.endpointMap) return null;
+  // F-IIV-09：EMBEDDING 与接入点 ID 体系的豁免收敛到 isCatalogAuthoritative，
+  // 与 model-sync 的 toDisable 共用同一判据 —— 此前两边各判各的，seedream-4-5
+  // 被 sync 下架、被这里恢复，来回对打 59 次。
+  if (
+    !isCatalogAuthoritative({
+      modality: route.model.modality,
+      quirks: route.config.quirks,
+    })
+  ) {
+    return null;
+  }
 
   const { getSyncAdapter } = await import("@/lib/sync/model-sync");
   const adapter = getSyncAdapter(route.provider.name);
