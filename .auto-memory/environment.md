@@ -11,17 +11,20 @@ type: reference
 - MCP：`https://aigc.guangai.ai/mcp`
 - Stitch 设计稿项目 ID: 13523510089051052358
 
-## 生产服务器（GCP）
+## 生产服务器（deploysvr，2026-07-12 起）
 
 | 项目 | 值 |
 |---|---|
-| 机型 | e2-highmem-2（2 vCPU，16GB RAM） |
-| 地区 | asia-northeast1-b（东京） |
-| 外网 IP | `34.180.93.185` |
-| SSH | `ssh tripplezhou@34.180.93.185` |
-| 部署路径 | `/opt/aigc-gateway` |
-| 启动 | PM2（`ecosystem.config.cjs`） |
-| CI/CD | GitHub Actions → SSH → `git pull + npm ci + build + pm2 restart` |
+| 外网 IP | `194.238.26.173`（SSH 别名 `deploysvr`） |
+| SSH | `ssh deploysvr`（User root） |
+| 部署路径 | `/opt/apps/aigc-gateway` |
+| 运行方式 | Docker Compose（`docker-compose.prod.yml`）：`aigc-gateway-{app,postgres,redis}-1` |
+| 镜像 | GHCR `ghcr.io/tripplemay/aigcgateway/{app,migrate}`，VPS 只 pull |
+| CI/CD | GitHub Actions `Deploy to VPS`（workflow_dispatch，用户手动触发） |
+| DB / Redis | 只绑 `127.0.0.1`；本地跑脚本用隧道：`ssh -f -N -L 15432:127.0.0.1:5432 -L 16379:127.0.0.1:6379 deploysvr` |
+
+> 旧机 GCP `34.180.93.185`（e2-highmem-2 / 东京 / PM2 / `/opt/aigc-gateway`）已冻结作回滚点，
+> 仍跑 kolmatrix；整机退役待用户择机。
 
 ## 测试账号
 
