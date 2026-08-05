@@ -39,7 +39,7 @@
       "title": "MCP create_api_key 权限继承（C5 权限提升）",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "新建 Key 的 permissions 由调用方当前 Key 的 permissions 继承（取交集语义：调用方为 false 的位，新 Key 必须也是 false），不再硬编码 {}；调用方 Key 为全权限时新建 Key 行为与现状一致；新增单测覆盖「keyManagement-only 的 Key 创建出的新 Key 不得具备 chatCompletion/imageGeneration/logAccess」；REST POST /api/keys 走 JWT 的语义不变；tsc + lint + build + 全量 vitest PASS；独立 commit"
     }
   ]

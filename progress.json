@@ -1,11 +1,11 @@
 {
-  "status": "building",
+  "status": "verifying",
   "user_goal": "BL-SEC-HOTFIX-2608 — 2026-08-04 全量后端审查（6 Critical / 13 High / 14 Medium）的 P0 止血批次。只取改动小、能立刻止血、不需新设计的部分：F-SH-01 生产零计费损失与支付伪造利用的只读盘点（须在部署前完成）；F-SH-02 关闭未接通的支付回调与用户侧下单端点（C1+C2 一并 defuse——审查确认该链路从未接通：无支付 SDK 依赖、ALIPAY_*/WECHAT_* 全部 optional 且未配置、paymentUrl 是缺 sign 的手拼假串，因此关闭端点而非实现验签）；F-SH-03 移除 resolveEngine 的底层模型名 fallback（C6 零计费旁路，已用脚本证明该路径 sellUsd=0）；F-SH-04 SSE 解析器跨 chunk 丢帧（H13，同时导致内容丢失与末帧 usage 丢失零计费，已复现）；F-SH-05 MCP create_api_key 权限继承（C5 权限提升）。用户裁决：C3 采用『允许扣成负数』方案，但不在本批次，见 docs/adjudications/2026-08-04-c3-negative-balance-ruling.md，在 BL-SEC-BILLING-GATE 实施。",
   "total_features": 5,
-  "completed_features": 3,
+  "completed_features": 4,
   "fix_rounds": 0,
   "current_sprint": "BL-SEC-HOTFIX-2608",
-  "last_updated": "2026-08-04T15:02:00Z",
+  "last_updated": "2026-08-04T15:10:00Z",
   "role_assignments": null,
   "docs": {
     "spec": "docs/specs/BL-SEC-HOTFIX-2608-spec.md",
@@ -18,5 +18,5 @@
     "Kimi": "2026-08-04 (Planner) 本会话做了两件事：(1) 全量后端审查，报告 docs/code-review/backend-fullscan-2026-08-04.md（commit 0fcc2c8）——7 个 subagent 并行 + 引擎层手工审读（该 agent 两次因 API 连接错误中断），6 Critical / 13 High / 14 Medium，含对 2026-04-17 报告 10 项 Critical 的回归核对（4 修 / 3 部分修 / 2 未修，未修的两项都在支付链路）。(2) 用户确认批次划分后开出本 hotfix 批次。\n\n关键发现的验证深度（供 Generator 参考，不必重新论证）：C1 攻击链逐环读码确认，recharge 接口把 paymentOrderId 直接回给调用方，nginx deploy/nginx/aigc.conf:103 有独立 location 公开暴露 /api/webhooks/，middleware matcher 不覆盖它。C6 用 scratchpad 脚本跑通了对比——同一 usage 与通道配置，走别名 sell=0.0015，走底层模型名 sell=0，根因是 model-sync.ts:13 明确不写 channel.sellPrice 而 alias 是唯一卖价源。H13 用脚本复现了三种分片场景中的两种丢帧。\n\n在途批次 BL-IMG-I2I-VISION 已归档到 docs/archive/{features,progress}-BL-IMG-I2I-VISION-parked-2026-08-04.json（8/9 完成，仅剩 Codex 的 F-IIV-08，本就被 seedream-4-5 通道 DISABLED / OpenRouter 欠费 / provision 脚本未在生产跑这三件环境事挡着）。hotfix 完成后从归档还原，status 设 reverifying 交回 Codex。\n\n下一批 BL-SEC-BILLING-GATE 已规划：C3（用户已裁决扣成负数）+ C4 + H1 XFF + H2 embeddings 权限门 + H9 JWT 失效，重点是把『余额检查+限流+权限门』收敛成公共前置——审查发现 6 个 Critical 里 4 个、13 个 High 里 4 个都是同一病根：护栏实现在主路径，平行的次要路径没接入。第三批 BL-SEC-GUARDRAIL-PARITY 收剩余 High + Medium。npm audit 17 项 high（含 next/undici）须独立成批配完整 E2E。\n\n不走状态机、需用户本人做的：轮换生产 admin 密码并把 .auto-memory/environment.md:31-32 的明文改掉（4 月 CRIT-5 残留，源码已清但共享记忆文件还是明文）。",
     "Reviewer": null
   },
-  "generator_handoff": "本批次 4 条 generator 功能（F-SH-02..05）均为小改动，建议按 02 → 03 → 04 → 05 顺序逐条独立 commit。三个易踩的点：(1) F-SH-02 不要删 processPaymentCallback 和验签 TODO 注释，只加 flag 短路——未来支付批次要在其上实现，且 C2 的幂等 CAS 必须与验签一起做，验签替代不了它。(2) F-SH-03 改代码前必须先跑 spec §3 的 SQL 核验 actions.model 是否有存量引用落在别名之外，有落单先迁移数据再改代码，否则会让存量 Action 直接 404。(3) F-SH-04 的 flush() 也要补发残留 dataLines，只提升变量作用域不够；三个分片场景的单测要做到修复前 red、修复后 green 再提交。F-SH-01 由 Codex 在 verifying 阶段执行，是只读盘点，须在用户手动部署之前完成——因部署在 done 阶段手动触发，verifying 阶段执行即满足时序。"
+  "generator_handoff": "4 条 generator 功能全部完成并推送，CI 全绿（commit 272bb57 / 6669dc8 / 847b63b / 7b0c3b6）。每条都做了 red/green 验证：把修复点临时改回修复前形态确认测试转红，再还原。最终 tsc 干净、lint 0 error、vitest 788 passed / 4 skipped、build 通过。\n\n⚠️ 部署前必须先做的两件事（顺序不能反）：\n1) F-SH-03 存量数据迁移：生产有 1 条 Action（\"Response Generator\"，id=cmnnvatcx00fxbn2be48u2wcc，project=cmnj295c90003rny7hsd0li9l）的 model 是底层模型名 openai/gpt-4o-mini，正靠被移除的 fallback 存活（也就是它一直在零计费）。移除 fallback 后它会 404，须先跑 npx tsx scripts/migrate-action-model-to-alias.ts --apply 迁到启用别名 gpt-4o-mini。已对生产只读跑过等价 SQL 验证计划：可自动迁移恰好这 1 条。另有 7 条 model=deepseek/v3 的 Action，该模型与别名都已不存在，今天就在 404，不受本次影响，脚本会列出但不动它们。\n2) F-SH-01（Codex 只读盘点）须在部署前完成，否则 C6/H13 的指纹（sellPrice=0 且 costPrice>0）会随修复消失，无法再估算已发生的损失。\n\n验收要点：\n- F-SH-02：PAYMENT_ENABLED 默认关闭，三端点 410；admin 充值路径不受影响必须仍可用。注意 e2e-test.ts 步骤 6/7 已改为「断言 410 + 不落 RechargeOrder + 伪造回调不改余额」，供资改走 scripts/lib/fund-user.ts；e2e-errors.ts 两处供资同样迁移。跑 E2E 前无需设 PAYMENT_ENABLED。\n- F-SH-03：别名停用后用底层模型名调用须 404；正常别名调用计费不变。\n- F-SH-04：流式 chat 内容完整性 + 末帧 usage 不丢（计费）。\n- F-SH-05：用受限 Key 走 MCP create_api_key，新 Key 不得具备被禁权限。\n\n本批次未触碰 C3/C4（用户已裁决 C3 走「扣成负数」，见 docs/adjudications/2026-08-04-c3-negative-balance-ruling.md），留给 BL-SEC-BILLING-GATE。"
 }
