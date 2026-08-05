@@ -2,10 +2,10 @@
   "status": "building",
   "user_goal": "BL-SEC-HOTFIX-2608 — 2026-08-04 全量后端审查（6 Critical / 13 High / 14 Medium）的 P0 止血批次。只取改动小、能立刻止血、不需新设计的部分：F-SH-01 生产零计费损失与支付伪造利用的只读盘点（须在部署前完成）；F-SH-02 关闭未接通的支付回调与用户侧下单端点（C1+C2 一并 defuse——审查确认该链路从未接通：无支付 SDK 依赖、ALIPAY_*/WECHAT_* 全部 optional 且未配置、paymentUrl 是缺 sign 的手拼假串，因此关闭端点而非实现验签）；F-SH-03 移除 resolveEngine 的底层模型名 fallback（C6 零计费旁路，已用脚本证明该路径 sellUsd=0）；F-SH-04 SSE 解析器跨 chunk 丢帧（H13，同时导致内容丢失与末帧 usage 丢失零计费，已复现）；F-SH-05 MCP create_api_key 权限继承（C5 权限提升）。用户裁决：C3 采用『允许扣成负数』方案，但不在本批次，见 docs/adjudications/2026-08-04-c3-negative-balance-ruling.md，在 BL-SEC-BILLING-GATE 实施。",
   "total_features": 5,
-  "completed_features": 0,
+  "completed_features": 1,
   "fix_rounds": 0,
   "current_sprint": "BL-SEC-HOTFIX-2608",
-  "last_updated": "2026-08-04T09:20:00Z",
+  "last_updated": "2026-08-04T14:50:00Z",
   "role_assignments": null,
   "docs": {
     "spec": "docs/specs/BL-SEC-HOTFIX-2608-spec.md",

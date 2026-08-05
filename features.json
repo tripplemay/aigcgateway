@@ -15,7 +15,7 @@
       "title": "停用未接通的支付回调与用户侧下单端点（C1 + C2 一并 defuse）",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "POST /api/webhooks/alipay、/api/webhooks/wechat、POST /api/projects/[id]/recharge 三个端点在 PAYMENT_ENABLED 未显式为 'true' 时一律返回 410 且不触达 processPaymentCallback / 不创建 RechargeOrder；env flag 默认关闭；前端 recharge-dialog 在收到 410 时给出「充值请联系管理员」的双语提示而非静默失败；admin 侧 /api/admin/users/[id]/recharge 不受影响仍可正常充值；processPaymentCallback 与验签 TODO 代码保留不删（留给未来支付批次）；tsc + lint + build PASS；独立 commit"
     },
     {
