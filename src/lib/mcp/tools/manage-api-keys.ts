@@ -9,7 +9,7 @@ import { z } from "zod";
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { prisma } from "@/lib/prisma";
 import { randomBytes, createHash } from "crypto";
-import { checkMcpPermission } from "@/lib/mcp/auth";
+import { checkMcpPermission, derivePermissionsForNewKey } from "@/lib/mcp/auth";
 import type { McpServerOptions } from "@/lib/mcp/server";
 
 export function registerListApiKeys(server: McpServer, opts: McpServerOptions): void {
@@ -101,7 +101,10 @@ export function registerCreateApiKey(server: McpServer, opts: McpServerOptions):
           name,
           description: description ?? null,
           status: "ACTIVE",
-          permissions: {},
+          // F-SH-05（审查 C5）：原先硬编码 {}，而 checkMcpPermission 只在 === false
+          // 时拒绝，空对象等价于全权限——受限 Key 可借此铸造全权限 Key。改为继承
+          // 调用方权限（显式 false 的位必须传递下去）。
+          permissions: derivePermissionsForNewKey(permissions),
           expiresAt: expiresAtDate,
         },
       });
@@ -116,6 +119,8 @@ export function registerCreateApiKey(server: McpServer, opts: McpServerOptions):
                 key: rawKey,
                 name: apiKey.name,
                 status: "active",
+                // F-SH-05: 回显继承到的权限，避免调用方误以为新 Key 是全权限
+                permissions: apiKey.permissions,
                 expiresAt: apiKey.expiresAt?.toISOString() ?? null,
                 createdAt: apiKey.createdAt.toISOString(),
                 warning: "Save this key now — it will NOT be shown again.",

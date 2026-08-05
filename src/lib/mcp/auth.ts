@@ -10,7 +10,7 @@
 import { createHash } from "crypto";
 import { prisma } from "@/lib/prisma";
 import type { User, ApiKey } from "@prisma/client";
-import type { ApiKeyPermissions } from "@/lib/api/auth-middleware";
+import { API_KEY_PERMISSION_KEYS, type ApiKeyPermissions } from "@/lib/api/auth-middleware";
 import { getClientIp, isIpInWhitelist } from "@/lib/api/ip-utils";
 
 export interface McpAuthContext {
@@ -116,4 +116,26 @@ export function checkMcpPermission(
     return `API key lacks ${requiredPermission} permission`;
   }
   return null;
+}
+
+/**
+ * BL-SEC-HOTFIX-2608 F-SH-05（审查 C5）— 计算「由某把 Key 创建出的新 Key」应有的权限。
+ *
+ * MCP create_api_key 原先硬编码 `permissions: {}`。由于 checkMcpPermission 只在
+ * `=== false` 时拒绝，空对象等价于**全部权限**——于是一把只有 keyManagement、
+ * 其余全 false 的受限 Key，可以铸造出一把能 chat、能生成图片、能读日志的全权限
+ * Key，彻底突破原 Key 的权限边界。
+ *
+ * 这里按该三态模型取交集：调用方显式为 false 的位，新 Key 必须也是 false；
+ * 其余保持 undefined（沿用「未声明即放行」的既有语义），使全权限 Key 创建新 Key
+ * 的行为与从前一致。
+ */
+export function derivePermissionsForNewKey(
+  callerPermissions: Partial<ApiKeyPermissions>,
+): Partial<ApiKeyPermissions> {
+  const derived: Partial<ApiKeyPermissions> = {};
+  for (const key of API_KEY_PERMISSION_KEYS) {
+    if (callerPermissions[key] === false) derived[key] = false;
+  }
+  return derived;
 }

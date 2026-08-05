@@ -28,6 +28,25 @@ export interface ApiKeyPermissions {
   keyManagement?: boolean;
 }
 
+/**
+ * 全部权限位的运行时清单。
+ *
+ * 刻意用 Record<keyof ApiKeyPermissions, true> 而非手写数组：往
+ * ApiKeyPermissions 里加新权限位时，这个对象字面量会立刻编译报错，
+ * 强制补齐——避免「新权限位没被纳入继承/校验逻辑」这类静默遗漏。
+ */
+const ALL_PERMISSION_KEYS: Record<keyof ApiKeyPermissions, true> = {
+  chatCompletion: true,
+  imageGeneration: true,
+  logAccess: true,
+  projectInfo: true,
+  keyManagement: true,
+};
+
+export const API_KEY_PERMISSION_KEYS = Object.keys(ALL_PERMISSION_KEYS) as Array<
+  keyof ApiKeyPermissions
+>;
+
 export interface AuthContext {
   user: User;
   project: Project | null;
