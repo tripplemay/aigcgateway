@@ -7,7 +7,7 @@
       "title": "生产零计费损失盘点 + 支付伪造利用排查（只读，须在部署本批次修复之前完成）",
       "priority": "high",
       "executor": "codex",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "对生产库只读执行 spec §5 的三组 SQL：(a) status=SUCCESS 且 sellPrice=0 且 costPrice>0 的调用按 modelName 聚合计数与成本合计；(b) transactions 中同一 paymentOrderId 出现多条 RECHARGE 的记录；(c) rechargeOrder 中 status=COMPLETED 但无对应真实支付凭证（paymentRaw 缺 sign 字段）的订单。输出 docs/test-reports/BL-SEC-HOTFIX-2608-prod-exposure-2026-08-XX.md 含原始查询、结果表、以及「是否已被利用」的明确结论。不得写库、不得改任何生产数据"
     },
     {
@@ -23,7 +23,7 @@
       "title": "移除 resolveEngine 的底层模型名 fallback（C6 零计费旁路）",
       "priority": "high",
       "executor": "generator",
-      "status": "completed",
+      "status": "pending",
       "acceptance": "前置数据核验：先查 actions.model / templates 引用的模型串是否全部命中启用中的别名，落单项在报告中列出（有落单则先迁移再改代码，不得直接让其 404）。改后 resolveEngine 只走 routeByAlias，别名不存在或 enabled=false 一律 404 model_not_found，不再回退 routeByModelName；routeByModelName 保留供内部调用但从 @/lib/engine 的对外 barrel 收敛或标注内部用途；新增单测覆盖「别名停用后调用底层模型名 → 404」与「正常别名调用不受影响」；tsc + lint + build + 全量 vitest PASS；独立 commit"
     },
     {
