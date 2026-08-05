@@ -31,7 +31,7 @@
       "title": "SSE 解析器跨 chunk 丢帧修复（H13：内容丢失 + 末帧 usage 丢失导致零计费）",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "currentEvent / dataLines 提到闭包与 buffer 同级，跨 chunk 保留；flush() 补发残留 dataLines；新增单测覆盖 spec §4 的三个分片场景（整帧到达 / 边界落在帧内两换行之间 / 多帧合并且 chunk 以完整 data 行结尾），修复前 red 修复后 green；[DONE] 与注释行(:)语义不变；流式 chat 回归不变；tsc + lint + build + 全量 vitest PASS；独立 commit"
     },
     {
