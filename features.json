@@ -23,7 +23,7 @@
       "title": "移除 resolveEngine 的底层模型名 fallback（C6 零计费旁路）",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "前置数据核验：先查 actions.model / templates 引用的模型串是否全部命中启用中的别名，落单项在报告中列出（有落单则先迁移再改代码，不得直接让其 404）。改后 resolveEngine 只走 routeByAlias，别名不存在或 enabled=false 一律 404 model_not_found，不再回退 routeByModelName；routeByModelName 保留供内部调用但从 @/lib/engine 的对外 barrel 收敛或标注内部用途；新增单测覆盖「别名停用后调用底层模型名 → 404」与「正常别名调用不受影响」；tsc + lint + build + 全量 vitest PASS；独立 commit"
     },
     {
