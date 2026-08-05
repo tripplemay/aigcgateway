@@ -8,6 +8,7 @@ import { prisma } from "@/lib/prisma";
 import { randomBytes } from "node:crypto";
 import { sanitizeErrorMessage } from "@/lib/engine/types";
 import { requireEnv } from "./lib/require-env";
+import { fundUser } from "./lib/fund-user";
 
 const BASE = process.env.BASE_URL ?? "http://localhost:3199";
 const E2E_TEST_PASSWORD = requireEnv("E2E_TEST_PASSWORD");
@@ -56,6 +57,7 @@ async function main() {
   // would cascade into confusing step-level failures downstream.
   const email = `err_${Date.now()}@test.com`;
   let token = "";
+  let userId = "";
   let projectId = "";
   let apiKey = "";
   let keyId = "";
@@ -72,6 +74,8 @@ async function main() {
       body: JSON.stringify({ email, password: E2E_TEST_PASSWORD }),
     });
     if (!reg.ok) fatal("register", `HTTP ${reg.status} ${await reg.text()}`);
+    userId = (await reg.json().catch(() => ({}))).id ?? "";
+    if (!userId) fatal("register", "missing user id in response");
 
     const login = await fetch(`${BASE}/api/auth/login`, {
       method: "POST",
@@ -168,18 +172,10 @@ async function main() {
     });
     const newKey = (await newKeyRes.json()).key;
 
-    // Fund the project first
-    const orderRes = await fetch(`${BASE}/api/projects/${projectId}/recharge`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-      body: JSON.stringify({ amount: 10, paymentMethod: "alipay" }),
-    });
-    const orderId = (await orderRes.json()).orderId;
-    await fetch(`${BASE}/api/webhooks/alipay`, {
-      method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: `out_trade_no=${orderId}&trade_status=TRADE_SUCCESS&total_amount=10`,
-    });
+    // Fund the project first.
+    // BL-SEC-HOTFIX-2608 F-SH-02: 原先走「下单 → 伪造支付宝回调」，那条路径正是
+    // 审查 C1 的攻击链，已被 PAYMENT_ENABLED 关闭。改走等价于 admin 手动充值的助手。
+    await fundUser(userId, 10, "E2E errors: fund for model-not-found case");
 
     const res = await fetch(`${BASE}/v1/chat/completions`, {
       method: "POST",
@@ -208,18 +204,8 @@ async function main() {
     });
     const key2 = (await keyRes2.json()).key;
 
-    // Fund with $1
-    const orderRes2 = await fetch(`${BASE}/api/projects/${proj2.id}/recharge`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-      body: JSON.stringify({ amount: 1, paymentMethod: "alipay" }),
-    });
-    const orderId2 = (await orderRes2.json()).orderId;
-    await fetch(`${BASE}/api/webhooks/alipay`, {
-      method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: `out_trade_no=${orderId2}&trade_status=TRADE_SUCCESS&total_amount=1`,
-    });
+    // Fund with $1 (see F-SH-02 note above — admin-equivalent path, not the webhook)
+    await fundUser(userId, 1, "E2E errors: fund for concurrent-deduction case");
 
     if (!textModel) throw new SkipStep("no text model available from /v1/models");
     // 10 concurrent calls

@@ -9,8 +9,15 @@ export const dynamic = "force-dynamic";
 
 import { NextResponse } from "next/server";
 import { processPaymentCallback, markOrderFailed } from "@/lib/billing/payment";
+import { isPaymentEnabled } from "@/lib/env";
 
 export async function POST(request: Request) {
+  // BL-SEC-HOTFIX-2608 F-SH-02: 支付未接通期间此端点一律 410，且不解析 body、
+  // 不触达 processPaymentCallback。下方验签 TODO 保留，未来支付批次在其上实现。
+  if (!isPaymentEnabled()) {
+    return new NextResponse("gone", { status: 410 });
+  }
+
   let body: Record<string, string>;
   try {
     // 支付宝回调是 form-urlencoded 格式

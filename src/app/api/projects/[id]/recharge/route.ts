@@ -3,11 +3,22 @@ import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import { verifyJwt } from "@/lib/api/jwt-middleware";
 import { errorResponse } from "@/lib/api/errors";
+import { isPaymentEnabled } from "@/lib/env";
 
 /** POST /api/projects/:id/recharge — 创建充值订单 */
 export async function POST(request: Request, { params }: { params: { id: string } }) {
   const auth = verifyJwt(request);
   if (!auth.ok) return auth.error;
+
+  // BL-SEC-HOTFIX-2608 F-SH-02: 支付未接通期间不创建 RechargeOrder。
+  // 订单一旦创建，其 id 即被当作 paymentOrderId 回传给调用方，是 C1 攻击链的第一环。
+  if (!isPaymentEnabled()) {
+    return errorResponse(
+      410,
+      "payment_disabled",
+      "Self-service recharge is currently unavailable. Please contact an administrator to top up your balance.",
+    );
+  }
 
   const project = await prisma.project.findFirst({
     where: { id: params.id, userId: auth.payload.userId },

@@ -30,6 +30,8 @@ const envSchema = z.object({
   PROXY_URL_SECONDARY: z.string().optional(),
 
   // 支付
+  // BL-SEC-HOTFIX-2608 F-SH-02: 支付链路总开关，默认关闭。见下方 isPaymentEnabled()。
+  PAYMENT_ENABLED: z.string().optional(),
   ALIPAY_APP_ID: z.string().optional(),
   ALIPAY_PRIVATE_KEY: z.string().optional(),
   ALIPAY_PUBLIC_KEY: z.string().optional(),
@@ -94,6 +96,29 @@ export const env = new Proxy({} as Env, {
     return getEnv()[prop as keyof Env];
   },
 });
+
+/**
+ * BL-SEC-HOTFIX-2608 F-SH-02 — 支付链路总开关。
+ *
+ * 全量审查（docs/code-review/backend-fullscan-2026-08-04.md C1/C2）确认这条链路
+ * 从未接通：无支付 SDK 依赖、ALIPAY_* / WECHAT_* 全部未配置、recharge 返回的
+ * paymentUrl 是缺 sign 的手拼串。而两个 webhook 完全无验签，配合 recharge 直接
+ * 回传 paymentOrderId，构成"任意用户自助无限充值"。
+ *
+ * 因此三个用户侧支付端点在此开关未显式打开时一律 410。admin 手动充值
+ * (/api/admin/users/[id]/recharge) 不受影响，是当前唯一的合法充值路径。
+ *
+ * 重新打开此开关前必须先完成（缺一不可）：
+ *   1. 支付宝 RSA2 验签 + 微信 WECHATPAY2-SHA256-RSA2048 验签与 AEAD 解密
+ *   2. processPaymentCallback 的幂等 CAS（审查 C2）——验签替代不了它，真实支付
+ *      网关的重试会并发触达，两个根因独立
+ *   3. paymentUrl 改为真实 SDK 生成
+ *
+ * 显式比较 "true"：不能用 z.coerce.boolean()，因为字符串 "false" 也是 truthy。
+ */
+export function isPaymentEnabled(): boolean {
+  return process.env.PAYMENT_ENABLED === "true";
+}
 
 /**
  * Asserts that at least one of IMAGE_PROXY_SECRET / AUTH_SECRET / NEXTAUTH_SECRET is set.

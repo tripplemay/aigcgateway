@@ -22,6 +22,7 @@ const ERROR_TYPE_MAP: Record<number, string> = {
   403: "permission_error",
   404: "not_found_error",
   409: "conflict_error",
+  410: "gone_error",
   422: "invalid_request_error",
   429: "rate_limit_error",
   500: "server_error",

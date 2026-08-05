@@ -6,9 +6,11 @@
 
 import { prisma } from "@/lib/prisma";
 import { requireEnv } from "./lib/require-env";
+import { fundUser } from "./lib/fund-user";
 
 const BASE = process.env.BASE_URL ?? "http://localhost:3199";
 let token = "";
+let userId = "";
 let projectId = "";
 let apiKey = "";
 let keyId = "";
@@ -95,6 +97,7 @@ async function main() {
       expectStatus: 201,
     });
     if (!body.id) throw new Error("No user id");
+    userId = body.id;
   });
 
   // BL-073
@@ -244,42 +247,47 @@ async function main() {
     if (!k?.maskedKey?.includes("****")) throw new Error("Key not masked");
   });
 
-  // 6. Create recharge order
-  await step("6. Create recharge order", async () => {
-    const { body } = await api(`/api/projects/${projectId}/recharge`, {
+  // 6. Self-service recharge is disabled (BL-SEC-HOTFIX-2608 F-SH-02 / 审查 C1)
+  //
+  // 回归断言：下单端点必须 410 且不落 RechargeOrder。修复前这里返回 201 并把
+  // order.id 当作 paymentOrderId 回传，是「任意用户自助无限充值」攻击链的第一环。
+  await step("6. Recharge order creation is disabled (410)", async () => {
+    const before = await prisma.rechargeOrder.count({ where: { userId } });
+    const res = await fetch(`${BASE}/api/projects/${projectId}/recharge`, {
       method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
       body: JSON.stringify({ amount: 50, paymentMethod: "alipay" }),
-      expectStatus: 201,
     });
-    if (body.status !== "pending") throw new Error(`Order status: ${body.status}`);
+    if (res.status !== 410) throw new Error(`Expected 410, got ${res.status}`);
+    const body = await res.json().catch(() => ({}));
+    if (body.error?.code !== "payment_disabled") {
+      throw new Error(`Expected code payment_disabled, got ${body.error?.code}`);
+    }
+    const after = await prisma.rechargeOrder.count({ where: { userId } });
+    if (after !== before) throw new Error(`RechargeOrder created despite 410 (${before}→${after})`);
   });
 
-  // 7. Simulate payment callback
-  await step("7. Payment callback → balance $50", async () => {
-    // Get orderId from recharge orders via transactions (or use the order id)
-    const orderRes = await api(`/api/projects/${projectId}/balance`);
-    // Simulate alipay callback
-    const txnRes = await api(`/api/projects/${projectId}/transactions`);
-    // The recharge order id was returned in step 6, simulate callback
-    const rechargeBody = await api(`/api/projects/${projectId}/recharge`, {
-      method: "POST",
-      body: JSON.stringify({ amount: 50, paymentMethod: "alipay" }),
-      expectStatus: 201,
-    });
-    const orderId = rechargeBody.body.orderId;
-
-    // Simulate alipay callback (form-urlencoded).
-    // TODO(BL-PAY-DEFERRED / H-45): this callback currently bypasses signature
-    // verification because e2e runs against a mock webhook endpoint. When the
-    // real payment integration lands, sign the body with the alipay SDK so the
-    // e2e path exercises the production signature-verification branch.
-    await fetch(`${BASE}/api/webhooks/alipay`, {
+  // 7. Unsigned payment callbacks are rejected, then fund via the admin path
+  //
+  // 回归断言：伪造的支付宝回调必须 410 且不改余额。修复前无验签，任意人 POST
+  // 一个 trade_status=TRADE_SUCCESS 即可给任意订单入账。
+  await step("7. Forged alipay callback rejected (410) → fund via admin path", async () => {
+    const balBefore = await api(`/api/projects/${projectId}/balance`);
+    const cbRes = await fetch(`${BASE}/api/webhooks/alipay`, {
       method: "POST",
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: `out_trade_no=${orderId}&trade_status=TRADE_SUCCESS&total_amount=50`,
+      body: `out_trade_no=forged-${Date.now()}&trade_status=TRADE_SUCCESS&total_amount=50`,
     });
+    if (cbRes.status !== 410) throw new Error(`Expected 410 from webhook, got ${cbRes.status}`);
+    const balAfterForge = await api(`/api/projects/${projectId}/balance`);
+    if (balAfterForge.body.balance !== balBefore.body.balance) {
+      throw new Error(
+        `Forged callback changed balance: ${balBefore.body.balance} → ${balAfterForge.body.balance}`,
+      );
+    }
 
-    // Verify balance
+    // 合法充值路径（等价于 admin 手动充值），供后续计费用例使用
+    await fundUser(userId, 50, "E2E: post-hotfix funding");
     const bal = await api(`/api/projects/${projectId}/balance`);
     if (bal.body.balance < initialBalance + 50) {
       throw new Error(`Balance: ${bal.body.balance} (expected >= ${initialBalance + 50})`);

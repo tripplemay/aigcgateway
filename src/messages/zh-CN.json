@@ -426,6 +426,7 @@
     "amountError": "金额必须在 $1-$10,000 之间",
     "redirecting": "正在跳转到支付页面...",
     "orderCreated": "充值订单已创建",
+    "paymentDisabled": "自助充值暂未开放，请联系管理员为账户充值",
     "thresholdSaved": "预警阈值已保存",
     "saveThreshold": "保存阈值",
     "noTransactions": "暂无交易记录",

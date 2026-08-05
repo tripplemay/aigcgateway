@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import { useTranslations } from "next-intl";
-import { apiFetch } from "@/lib/api-client";
+import { ApiError, apiFetch } from "@/lib/api-client";
 import { useProject } from "@/hooks/use-project";
 import { useExchangeRate } from "@/hooks/use-exchange-rate";
 import { toast } from "sonner";
@@ -56,6 +56,13 @@ export function RechargeDialog({ open, onOpenChange, onRecharged }: RechargeDial
       }
       onRecharged?.();
     } catch (e) {
+      // BL-SEC-HOTFIX-2608 F-SH-02: 自助充值在支付接通前一律 410，给出可操作的
+      // 指引而不是把后端英文原文直接抛给用户。
+      if (e instanceof ApiError && e.code === "payment_disabled") {
+        onOpenChange(false);
+        toast.error(t("paymentDisabled"));
+        return;
+      }
       toast.error((e as Error).message);
     }
   };
