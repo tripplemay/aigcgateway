@@ -147,7 +147,20 @@ export async function routeByAlias(aliasName: string): Promise<RouteResultWithCa
 }
 
 /**
- * 根据底层模型名路由（保留供内部使用，如健康检查）
+ * 根据底层模型名路由。
+ *
+ * ⚠️ 内部专用，**不得**用于面向用户的请求路径。
+ *
+ * BL-SEC-HOTFIX-2608 F-SH-03（审查 C6）：本函数返回的 RouteResult 不含 `alias`，
+ * 而 alias 是网关的唯一卖价来源（model-sync.ts:13「sellPrice 不再由 sync 管理，
+ * 统一在 ModelAlias.sellPrice 设置」，故 sync 建的 channel.sellPrice 为 null）。
+ * 一旦这条路径承接真实流量，calculateTokenCost 两个卖价来源皆空 → sellUsd=0 →
+ * shouldDeduct=false → 调用成功、上游成本照付、但完全不扣费不写 Transaction。
+ * 同时 alias 缺失还会让 alias.enabled=false 的停用开关失效、
+ * chat/completions 与 image-generation-core 的 modality 门禁被整体跳过。
+ *
+ * 因此它已从 resolveEngine 的回退路径中移除，也不再从 @/lib/engine 对外导出。
+ * 新增调用方前请确认该调用不参与计费。
  */
 export async function routeByModelName(modelName: string): Promise<RouteResult> {
   const model = await prisma.model.findUnique({
@@ -209,26 +222,33 @@ export function getAdapterForRoute(route: RouteResult): EngineAdapter {
 }
 
 /**
- * 一步到位：路由 + 获取 Adapter。
+ * 一步到位：路由 + 获取 Adapter。**别名是唯一入口。**
  *
- * 优先按别名解析；若别名不存在但传入字符串命中一个底层 Model.name，则
- * 退回到 routeByModelName，避免测试/脚本直接传模型名时触发 404。
+ * BL-SEC-HOTFIX-2608 F-SH-03（审查 C6）：此处原本有一条回退——别名解析抛
+ * MODEL_NOT_FOUND 时改按底层 Model.name 路由，注释写的是「避免测试/脚本直接传
+ * 模型名时触发 404」。但 resolveEngine 的全部调用方都是用户可控入口
+ * （/v1/chat/completions、/v1/embeddings、MCP chat、MCP embed_text、action runner），
+ * 于是这条为便利而生的兜底变成了一条面向公网的旁路：
+ *
+ *   1. 零计费——回退返回的 route 不含 alias，而 alias 是唯一卖价来源，
+ *      sellUsd 恒为 0，调用成功、上游成本照付、不扣费不写 Transaction
+ *   2. 停用开关失效——routeByAlias 要求 alias.enabled=true，别名停用后抛的正是
+ *      MODEL_NOT_FOUND，恰好落进回退，管理员「停用别名」等于没停
+ *   3. modality 门禁被跳过——两处门禁读的都是 route.alias?.modality
+ *
+ * 且触发条件是常态而非边缘：alias-classifier 的职责就是把带日期/前缀的模型 ID
+ * 归一化成别名（gpt-4o-2024-08-06 → gpt-4o），而 resolveCanonicalName 保存的
+ * Model.name 是未归一化的裸 modelId——每个带后缀的模型，其原始名天然满足
+ * 「是 Model.name 但不是别名」。
+ *
+ * 因此别名不存在或已停用一律 404，不再回退。
  */
 export async function resolveEngine(aliasName: string): Promise<{
   route: RouteResult;
   adapter: EngineAdapter;
   candidates: RouteResult[];
 }> {
-  try {
-    const { best, candidates } = await routeByAlias(aliasName);
-    const adapter = getAdapterForRoute(best);
-    return { route: best, adapter, candidates };
-  } catch (err) {
-    if (!(err instanceof EngineError) || err.code !== ErrorCodes.MODEL_NOT_FOUND) {
-      throw err;
-    }
-    const route = await routeByModelName(aliasName);
-    const adapter = getAdapterForRoute(route);
-    return { route, adapter, candidates: [route] };
-  }
+  const { best, candidates } = await routeByAlias(aliasName);
+  const adapter = getAdapterForRoute(best);
+  return { route: best, adapter, candidates };
 }
