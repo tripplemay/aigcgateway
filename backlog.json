@@ -58,6 +58,19 @@
       "supersedes": "BL-065",
       "phase": "deferred",
       "order": 99
+    },
+    {
+      "id": "BL-BILLING-ALIAS-SELLPRICE-GUARD",
+      "title": "启用别名必须有 sellPrice —— 补齐存量空价别名 + 加约束防复发",
+      "description": "2026-08-05 在 BL-SEC-HOTFIX-2608 验收期间发现：37 条启用别名中有 2 条 sellPrice 为 NULL（gpt-5.5、gpt-5.4）。其中 gpt-5.5 近 30 天有 329 次成功调用，329 次卖价全为 0，上游成本 $0.957505，最后一次调用 2026-08-04 11:45。这既不是 C6（别名解析正常）也不是 H13（usage 正常），而是纯配置缺口：alias.sellPrice 为空且 sync 从不写 channel.sellPrice，calculateTokenCost 两个来源都取不到 token 字段 → sellUsd=0 → shouldDeduct=false。本 hotfix 批次完全覆盖不到这个洞，部署后仍在持续漏。护栏形状与审查主线一致：F-BAX-08 给 IMAGE 通道 costPrice 加了 CHECK 约束，别名侧卖价却没有对等护栏，一条没配价的别名可以正常启用、正常路由、正常服务、白送。",
+      "decisions": [
+        "先补数据：给 gpt-5.5 / gpt-5.4 配 sellPrice（需用户确认定价）",
+        "再加护栏：enabled=true 的 ModelAlias 必须有非空 sellPrice —— DB CHECK 约束或 admin 启用接口前置校验，二选一",
+        "护栏须覆盖 alias 启用路径与 sellPrice 清空路径两侧",
+        "建议并入 BL-SEC-BILLING-GATE 与 C3（扣成负数）一起做，同属计费门收敛"
+      ],
+      "confirmed_at": "2026-08-05",
+      "priority": "high"
     }
   ]
 }
