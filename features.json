@@ -1,46 +1,22 @@
 {
-  "sprint": "BL-SEC-HOTFIX-2608",
-  "spec": "docs/specs/BL-SEC-HOTFIX-2608-spec.md",
+  "sprint": "BL-IMG-GUANGTECH-CHANNEL",
+  "spec": "docs/specs/BL-IMG-GUANGTECH-CHANNEL-spec.md",
   "features": [
     {
-      "id": "F-SH-01",
-      "title": "生产零计费损失盘点 + 支付伪造利用排查（只读，须在部署本批次修复之前完成）",
-      "priority": "high",
-      "executor": "codex",
-      "status": "completed",
-      "acceptance": "对生产库只读执行 spec §5 的三组 SQL：(a) status=SUCCESS 且 sellPrice=0 且 costPrice>0 的调用按 modelName 聚合计数与成本合计；(b) transactions 中同一 paymentOrderId 出现多条 RECHARGE 的记录；(c) rechargeOrder 中 status=COMPLETED 但无对应真实支付凭证（paymentRaw 缺 sign 字段）的订单。输出 docs/test-reports/BL-SEC-HOTFIX-2608-prod-exposure-2026-08-XX.md 含原始查询、结果表、以及「是否已被利用」的明确结论。不得写库、不得改任何生产数据"
-    },
-    {
-      "id": "F-SH-02",
-      "title": "停用未接通的支付回调与用户侧下单端点（C1 + C2 一并 defuse）",
+      "id": "F-GTI-01",
+      "title": "guangtech 图片通道幂等 provisioning 脚本 + 上游实测（gpt-image-1 / 1.5 / 2）",
       "priority": "high",
       "executor": "generator",
-      "status": "completed",
-      "acceptance": "POST /api/webhooks/alipay、/api/webhooks/wechat、POST /api/projects/[id]/recharge 三个端点在 PAYMENT_ENABLED 未显式为 'true' 时一律返回 410 且不触达 processPaymentCallback / 不创建 RechargeOrder；env flag 默认关闭；前端 recharge-dialog 在收到 410 时给出「充值请联系管理员」的双语提示而非静默失败；admin 侧 /api/admin/users/[id]/recharge 不受影响仍可正常充值；processPaymentCallback 与验签 TODO 代码保留不删（留给未来支付批次）；tsc + lint + build PASS；独立 commit"
+      "status": "pending",
+      "acceptance": "新增 scripts/add-guangtech-image-channels.ts，默认 dry-run 打印将创建/更新的 model/channel/alias/link 摘要且不写库；--apply 前须完成上游 L2 实测（须用户明示授权）：对 gpt-image-2 / -1 / -1.5 各打一次真实 POST {baseUrl}/images/generations 确认返回合法图片（b64_json 或 url），记录响应形态与实际 size，探测失败的模型不得 apply 且须在报告中说明原因（不阻断其余模型）；--apply 后生产库满足：3 条 channel 存在且 ACTIVE（providerId=cmr4n7yb401cebnqhwps4vd7r，realModelId 为裸名 gpt-image-1/1.5/2，costPrice={unit:'call',perCall:0.068836}，sellPrice={unit:'call',perCall:0.082603}，priority=10），3 个 model enabled=true 且 supportedSizes=null，3 个 alias（gpt-image-1 / gpt-image-1.5 / gpt-image-2）enabled=true 且 sellPrice 非空且 modality=IMAGE，3 条 AliasModelLink 齐全；--apply 连跑两次幂等（channel/alias/link 行数不变，无重复行）；定价通过 imageChannelPriceValid（{unit:'call',perCall>0}）；CLI 退出前 prisma.$disconnect()（用到 redis 则一并 disconnectRedis）；交付 docs/specs/BL-IMG-GUANGTECH-CHANNEL-ops.md 含生产执行步骤（SSH 隧道 + dry-run + 探测 + apply + 复核 SQL）+ 回滚步骤 + spec D3 两条定价假设声明原文；npx tsc --noEmit + npm run lint + npm run build PASS；独立 commit"
     },
     {
-      "id": "F-SH-03",
-      "title": "移除 resolveEngine 的底层模型名 fallback（C6 零计费旁路）",
+      "id": "F-GTI-02",
+      "title": "sync 跳过 IMAGE channel 的可见性修复（本次问题潜伏一个月的直接原因）",
       "priority": "high",
       "executor": "generator",
-      "status": "completed",
-      "acceptance": "前置数据核验：先查 actions.model / templates 引用的模型串是否全部命中启用中的别名，落单项在报告中列出（有落单则先迁移再改代码，不得直接让其 404）。改后 resolveEngine 只走 routeByAlias，别名不存在或 enabled=false 一律 404 model_not_found，不再回退 routeByModelName；routeByModelName 保留供内部调用但从 @/lib/engine 的对外 barrel 收敛或标注内部用途；新增单测覆盖「别名停用后调用底层模型名 → 404」与「正常别名调用不受影响」；tsc + lint + build + 全量 vitest PASS；独立 commit"
-    },
-    {
-      "id": "F-SH-04",
-      "title": "SSE 解析器跨 chunk 丢帧修复（H13：内容丢失 + 末帧 usage 丢失导致零计费）",
-      "priority": "high",
-      "executor": "generator",
-      "status": "completed",
-      "acceptance": "currentEvent / dataLines 提到闭包与 buffer 同级，跨 chunk 保留；flush() 补发残留 dataLines；新增单测覆盖 spec §4 的三个分片场景（整帧到达 / 边界落在帧内两换行之间 / 多帧合并且 chunk 以完整 data 行结尾），修复前 red 修复后 green；[DONE] 与注释行(:)语义不变；流式 chat 回归不变；tsc + lint + build + 全量 vitest PASS；独立 commit"
-    },
-    {
-      "id": "F-SH-05",
-      "title": "MCP create_api_key 权限继承（C5 权限提升）",
-      "priority": "high",
-      "executor": "generator",
-      "status": "completed",
-      "acceptance": "新建 Key 的 permissions 由调用方当前 Key 的 permissions 继承（取交集语义：调用方为 false 的位，新 Key 必须也是 false），不再硬编码 {}；调用方 Key 为全权限时新建 Key 行为与现状一致；新增单测覆盖「keyManagement-only 的 Key 创建出的新 Key 不得具备 chatCompletion/imageGeneration/logAccess」；REST POST /api/keys 走 JWT 的语义不变；tsc + lint + build + 全量 vitest PASS；独立 commit"
+      "status": "pending",
+      "acceptance": "runModelSync 汇总各 provider 的 skippedImageChannels 后，总数>0 时写一条 SystemLog(type='SYNC', level='WARN') 并发 admin 通知（复用 writeSystemLog 与现有 admin 通知层），文案说明「N 个 IMAGE 模型已入库但缺 channel，需在 Admin 手工补 channel + 真实 costPrice 后才能调用」并列出模型名；通知须幂等或可抑制（同一跳过集合连续两次 sync 不重复轰炸，具体手法按现有通知层惯例定并在 commit message 说明）；admin 同步结果页展示「已跳过的 IMAGE 通道」及模型名列表（当前 UI 完全不读该字段），中英文文案齐全走 next-intl 无硬编码字面量；不得修改 F-SI-01 的跳过逻辑本身；按 CLAUDE.md 前端工程纪律，本 feature 触及的 admin 代码块内 raw input/select/button/table 顺手替换为 src/components/ui/ 的 shadcn 组件（不扩 scope，不适用则在 commit message 说明）；单测覆盖 skippedImageChannels 非空→写 WARN + 发通知、为空→不写不发、同一集合连续两次 sync 不重复轰炸；npx tsc --noEmit + npm run lint + npm run build + 全量 vitest PASS；独立 commit"
     }
   ]
 }

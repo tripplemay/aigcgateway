@@ -1,22 +1,22 @@
 {
-  "status": "done",
-  "user_goal": "BL-SEC-HOTFIX-2608 — 2026-08-04 全量后端审查（6 Critical / 13 High / 14 Medium）的 P0 止血批次。只取改动小、能立刻止血、不需新设计的部分：F-SH-01 生产零计费损失与支付伪造利用的只读盘点（须在部署前完成）；F-SH-02 关闭未接通的支付回调与用户侧下单端点（C1+C2 一并 defuse——审查确认该链路从未接通：无支付 SDK 依赖、ALIPAY_*/WECHAT_* 全部 optional 且未配置、paymentUrl 是缺 sign 的手拼假串，因此关闭端点而非实现验签）；F-SH-03 移除 resolveEngine 的底层模型名 fallback（C6 零计费旁路，已用脚本证明该路径 sellUsd=0）；F-SH-04 SSE 解析器跨 chunk 丢帧（H13，同时导致内容丢失与末帧 usage 丢失零计费，已复现）；F-SH-05 MCP create_api_key 权限继承（C5 权限提升）。用户裁决：C3 采用『允许扣成负数』方案，但不在本批次，见 docs/adjudications/2026-08-04-c3-negative-balance-ruling.md，在 BL-SEC-BILLING-GATE 实施。",
-  "total_features": 5,
-  "completed_features": 5,
-  "fix_rounds": 1,
-  "current_sprint": "BL-SEC-HOTFIX-2608",
-  "last_updated": "2026-08-05T06:40:00Z",
+  "status": "building",
+  "user_goal": "BL-IMG-GUANGTECH-CHANNEL — 用户报障：生产 guangtech 服务商端点可提供 gpt-image2 文生图，但网关无法通过该服务商生图。根因已定位为纯配置缺口：2026-07-03 sync 为 guangtech 建了 guangtech/gpt-image-1 / -1.5 / -2 三行 models（modality=IMAGE, enabled=false），但按 model-sync.ts:372-380 的 F-SI-01 设计跳过 IMAGE channel 创建（DB 触发器禁止 costPrice 全零的 IMAGE channel，sync 拿不到真实图片单价），留待人工在 Admin 补 channel + 真实定价——而跳过记录只走 console.log，admin 完全不可见，于是静默躺了一个月。上游侧已实测可用（GET https://co.ghgame.cn:18065/v1/models 200，含 gpt-image-1/1.5/2），缺口 100% 在网关配置侧。用户今天打到的 'Insufficient credits' 是 OpenRouter 欠费（唯一启用的 IMAGE 别名 gpt-image 只链 openai/gpt-5-image @ openrouter，guangtech 不在候选池，无 failover）。本批次：F-GTI-01 幂等 provisioning 打通三个模型（新建独立别名 gpt-image-1/1.5/2，不并入 gpt-image，避免同别名下静默 failover 到另一个模型）；F-GTI-02 修复 sync 跳过 IMAGE 的可见性。用户裁决：别名策略=新建独立别名；范围=三个模型全打通 + 修 sync 可见性；定价=参照 openrouter（costPrice {call,0.068836} / sellPrice {call,0.082603}，由 openrouter gpt-image 别名实付价 0.082603 ÷ 全项目统一 1.2x markup 反推）。",
+  "total_features": 2,
+  "completed_features": 0,
+  "fix_rounds": 0,
+  "current_sprint": "BL-IMG-GUANGTECH-CHANNEL",
+  "last_updated": "2026-08-06T10:30:00Z",
   "role_assignments": null,
   "docs": {
-    "spec": "docs/specs/BL-SEC-HOTFIX-2608-spec.md",
-    "test_cases": "docs/test-cases/BL-SEC-HOTFIX-2608-evaluator-2026-08-04.md",
-    "signoff": "docs/test-reports/BL-SEC-HOTFIX-2608-signoff-2026-08-05.md",
-    "framework_reviewed": true
+    "spec": "docs/specs/BL-IMG-GUANGTECH-CHANNEL-spec.md",
+    "test_cases": null,
+    "signoff": null,
+    "framework_reviewed": false
   },
   "evaluator_feedback": null,
   "session_notes": {
-    "Kimi": "2026-08-05 (Planner, done 收尾) BL-SEC-HOTFIX-2608 已签收 5/5 PASS。收尾三项：(1) 校验并整合 project-status.md —— 补进两条 Codex 版本缺失的关键状态：本批次**尚未部署**（生产 app 容器启动于 2026-07-27，仍跑修复前代码，C1/C6/H13 在生产上依然敞开），以及挂起中的 BL-IMG-I2I-VISION 归档位置与还原前置；(2) proposed-learnings.md 待确认区为空，无需同步 harness-template，framework_reviewed=true；(3) role_assignments 已清除。\n\n下一步取决于用户：先手动触发 Deploy 把 hotfix 送上生产，再开下一批。下一批建议 BL-SEC-BILLING-GATE，范围为 C3（已裁决扣成负数）+ C4 + H1 XFF + H2 embeddings 权限门 + H9 JWT 失效，并把新入池的 BL-BILLING-ALIAS-SELLPRICE-GUARD 并进去——它与 C3 同属计费门收敛，且 gpt-5.5 到 2026-08-04 仍在零计费。该批次的结构性目标是把「余额检查+限流+权限门」收敛成公共前置，因为审查显示 6 个 Critical 里 4 个、13 个 High 里 4 个都是同一病根：护栏实现在主路径、平行次要路径没接入。",
-    "Reviewer": "2026-08-05 (reverifying): 生产只读复核确认仍可用未命中启用别名的 Action=0；Response Generator 已迁移为 gpt-4o-mini，目标别名 enabled=true、卖价 0.18/0.72，关联 DEGRADED 通道仍在 routeByAlias 候选池；7 条 deepseek/v3 无 Model/alias，修复前后均 404。L1 setup/build、定向 33/33、全量 788 passed/4 skipped、typecheck、typecheck:scripts、lint 全通过；HTTP payment/recharge/admin 与 MCP 权限继承 smoke 全通过。复验 5/5 PASS，已写 reverifying 与 signoff 报告，状态置 done。新增范围外风险：gpt-5.5 最近 30 天 329 次 sellPrice=0 成功调用，成本 $0.957505，已进入 BL-BILLING-ALIAS-SELLPRICE-GUARD。"
+    "Kimi": "2026-08-06 (Planner) 用户以独立任务形式报障 guangtech 无法生图，我按 harness 第 1.5 步先做只读诊断，确认是配置缺口后用户指示『参照 openrouter 定价，按流程走』，遂开新批次 BL-IMG-GUANGTECH-CHANNEL。\n\n诊断证据（都已写进 spec §1，此处只记不便重查的）：guangtech providerId=cmr4n7yb401cebnqhwps4vd7r，baseUrl=https://co.ghgame.cn:18065/v1，currency=USD（⇒ calculateCallCost 的 exchangeRate=1，perCall 即 USD），imageViaChat=false + imageEndpoint=/images/generations（⇒ 走 openai-compat.imageGenerations() 标准路径，无需新 adapter），supportsModelsApi=false 但 sync 仍拿到了模型列表。三个别名名 gpt-image-1/1.5/2 在生产 model_aliases 中零冲突（已查）。\n\n定价推导链条（用户只说『参照 openrouter』，具体数是我推的，务必让用户知情）：openrouter 的 openai/gpt-5-image channel 是 token 计价（cost 10/10、sell 12/12 per 1M），但 IMAGE channel 经 admin 必须是 {unit:'call',perCall>0}（admin-schemas.ts:80-87 imageChannelPriceValid），token 口径落不了地；所以取 openrouter 线上 gpt-image **别名**的用户实付价 0.082603/张作 sellPrice，再用全项目统一的 1.2x markup（fix-image-channels-2026-04-24.ts:8 明文口径，qwen/siliconflow/volcengine/openrouter 全部严格 1.2x）反推 costPrice=0.068836。**这个 costPrice 是名义值不是 guangtech 真实进价**，只影响毛利报表不影响用户扣费，已在 spec D3 打了两条 ⚠️ 并要求抄进 ops 文档。gpt-image-1/1.5 无 openrouter 对照价，沿用同价，同样是假设。\n\n⚠️ 下一步的唯一硬阻塞：F-GTI-01 的上游实测属 L2（真实生图、花钱），evaluator.md 明确『L2 测试需用户明确授权再执行』，且 BL-IMG-SEEDREAM45 D2 已把『外部模型必须实测返回真实图片后才入验收』立成规矩（seedream-3 翻车沉淀）。已向用户请求授权，未获授权前只能做到写脚本 + dry-run。F-GTI-02 是纯代码不受此阻塞，可先做。\n\n本批次不覆盖 OpenRouter 欠费——gpt-image / gpt-image-mini / gemini-3-pro-image 仍全线不可用，需用户自己充值。打通 guangtech 后用户改用 gpt-image-2 可绕开。",
+    "Reviewer": null
   },
-  "generator_handoff": "fix_round 1：F-SH-03 的唯一阻塞项已解除——生产存量 Action 迁移已执行（用户明确授权）。\n\n执行记录：\n- 通道：ssh -f -N -L 15432 隧道 + scripts/migrate-action-model-to-alias.ts，执行完毕已关闭隧道\n- 先跑 dry-run 核对计划：Action 总数 67，可迁移 1，无法自动处理 7（与 Codex 盘点完全一致）\n- 迁移前：cmnnvatcx00fxbn2be48u2wcc \"Response Generator\" model=openai/gpt-4o-mini（updatedAt 2026-04-07）\n- 迁移后：model=gpt-4o-mini（updatedAt 2026-08-05T05:56:03.036Z）\n- 目标别名核验：gpt-4o-mini enabled=true，sellPrice={unit:token,inputPer1M:0.18,outputPer1M:0.72}，modality=TEXT —— 该 Action 从此在新旧代码下都走别名且正确计费（迁移本身即已止住它的零计费）\n- 全库复核：剩余未命中启用别名的 Action 恰为 7 条 deepseek/v3\n- 未做任何其他生产写入\n\n关于那 7 条 deepseek/v3：建议不作为发布阻塞。已复核生产 models 与 model_aliases 中 'deepseek/v3' 均为 0 行，它们今天就已 404，移除 fallback 前后行为完全一致，不构成回归。属测试残留，建议另行清理（不在本批次）。\n\n复验重点：仅需确认迁移结果与「7 条 deepseek/v3 不构成回归」这一判断；F-SH-02/04/05 与 F-SH-01 首轮已 PASS，代码自 5b7ef6c 起未再改动（本轮无任何代码变更，只有生产数据迁移 + 状态文件）。\n\n⚠️ 本轮新发现（已入需求池 BL-BILLING-ALIAS-SELLPRICE-GUARD，不在本批次范围）：37 条启用别名中 gpt-5.5 / gpt-5.4 的 sellPrice 为 NULL，其中 gpt-5.5 近 30 天 329 次成功调用卖价全为 0（上游成本 $0.957505，最后一次 2026-08-04 11:45）。这是独立于 C6/H13 的第三个零计费根因，本批次修复覆盖不到，部署后仍在漏。"
+  "generator_handoff": null
 }
