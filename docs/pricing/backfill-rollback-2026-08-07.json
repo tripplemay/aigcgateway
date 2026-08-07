@@ -1,0 +1,1202 @@
+[
+  {
+    "channelId": "cmocduo4l00bbbnsmg6h8jaoo",
+    "provider": "deepseek",
+    "model": "deepseek-v4-flash",
+    "originalCostPrice": {
+      "unit": "token",
+      "inputPer1M": 0,
+      "outputPer1M": 0
+    }
+  },
+  {
+    "channelId": "cmocduo4l00bcbnsmes5mzm93",
+    "provider": "deepseek",
+    "model": "deepseek-v4-pro",
+    "originalCostPrice": {
+      "unit": "token",
+      "inputPer1M": 0,
+      "outputPer1M": 0
+    }
+  },
+  {
+    "channelId": "cmr4osjpx000ibnwtwcvz327e",
+    "provider": "guangtech",
+    "model": "guangtech/gpt-5.2",
+    "originalCostPrice": {
+      "unit": "token",
+      "inputPer1M": 0,
+      "outputPer1M": 0
+    }
+  },
+  {
+    "channelId": "cmr4osjpx000ebnwtpn5prpyh",
+    "provider": "guangtech",
+    "model": "guangtech/gpt-5.4",
+    "originalCostPrice": {
+      "unit": "token",
+      "inputPer1M": 0,
+      "outputPer1M": 0
+    }
+  },
+  {
+    "channelId": "cmr4osjpx000fbnwtp37fnp48",
+    "provider": "guangtech",
+    "model": "guangtech/gpt-5.4-mini",
+    "originalCostPrice": {
+      "unit": "token",
+      "inputPer1M": 0,
+      "outputPer1M": 0
+    }
+  },
+  {
+    "channelId": "cmr4osjpx000dbnwthtfj451z",
+    "provider": "guangtech",
+    "model": "guangtech/gpt-5.5",
+    "originalCostPrice": {
+      "unit": "token",
+      "inputPer1M": 0,
+      "outputPer1M": 0
+    }
+  },
+  {
+    "channelId": "cmnujrc2q001zbnrzpes2kt59",
+    "provider": "minimax",
+    "model": "minimax-m2",
+    "originalCostPrice": {
+      "unit": "token",
+      "inputPer1M": 0,
+      "outputPer1M": 0
+    }
+  },
+  {
+    "channelId": "cmnujrc330023bnrzp7ec358k",
+    "provider": "minimax",
+    "model": "minimax-m2.1",
+    "originalCostPrice": {
+      "unit": "token",
+      "inputPer1M": 0,
+      "outputPer1M": 0
+    }
+  },
+  {
+    "channelId": "cmnujrc3y002cbnrz5ylmnevx",
+    "provider": "minimax",
+    "model": "minimax-m2.5",
+    "originalCostPrice": {
+      "unit": "token",
+      "inputPer1M": 0,
+      "outputPer1M": 0
+    }
+  },
+  {
+    "channelId": "cmnujrc4p002lbnrzrrc14z97",
+    "provider": "minimax",
+    "model": "minimax-m2.7",
+    "originalCostPrice": {
+      "unit": "token",
+      "inputPer1M": 0,
+      "outputPer1M": 0
+    }
+  },
+  {
+    "channelId": "cmpul6qut002abn1tpwcqfjnh",
+    "provider": "minimax",
+    "model": "minimax-m3",
+    "originalCostPrice": {
+      "unit": "token",
+      "inputPer1M": 0,
+      "outputPer1M": 0
+    }
+  },
+  {
+    "channelId": "cmnpquo1k00ptbnxcq42z13mi",
+    "provider": "openrouter",
+    "model": "openrouter/auto",
+    "originalCostPrice": {
+      "unit": "token",
+      "inputPer1M": 0,
+      "outputPer1M": 0
+    }
+  },
+  {
+    "channelId": "cmrpua28q1do6qu011ualcfoa",
+    "provider": "openrouter",
+    "model": "openrouter/auto-beta",
+    "originalCostPrice": {
+      "unit": "token",
+      "inputPer1M": 0,
+      "outputPer1M": 0
+    }
+  },
+  {
+    "channelId": "cmnpqumfv005tbnxci6tgdvbl",
+    "provider": "openrouter",
+    "model": "openrouter/bodybuilder",
+    "originalCostPrice": {
+      "unit": "token",
+      "inputPer1M": 0,
+      "outputPer1M": 0
+    }
+  },
+  {
+    "channelId": "cmpxjg81y06tfbn08ldst9o7w",
+    "provider": "openrouter",
+    "model": "openrouter/fusion",
+    "originalCostPrice": {
+      "unit": "token",
+      "inputPer1M": 0,
+      "outputPer1M": 0
+    }
+  },
+  {
+    "channelId": "cmo9iyi2w0buzbnvxuzb6q9gh",
+    "provider": "openrouter",
+    "model": "openrouter/pareto-code",
+    "originalCostPrice": {
+      "unit": "token",
+      "inputPer1M": 0,
+      "outputPer1M": 0
+    }
+  },
+  {
+    "channelId": "cmnukehm800hjbnserbpam7bz",
+    "provider": "qwen",
+    "model": "deepseek-r1",
+    "originalCostPrice": {
+      "unit": "token",
+      "inputPer1M": 0,
+      "outputPer1M": 0
+    }
+  },
+  {
+    "channelId": "cmnukehkc00gtbnse4jssgp1o",
+    "provider": "qwen",
+    "model": "deepseek-r1-distill-llama-70b",
+    "originalCostPrice": {
+      "unit": "token",
+      "inputPer1M": 0,
+      "outputPer1M": 0
+    }
+  },
+  {
+    "channelId": "cmnukegud007qbnseh7zvuk6p",
+    "provider": "qwen",
+    "model": "deepseek-v3.2",
+    "originalCostPrice": {
+      "unit": "token",
+      "inputPer1M": 0,
+      "outputPer1M": 0
+    }
+  },
+  {
+    "channelId": "cmodx7uky0009bn7iug9a66r2",
+    "provider": "qwen",
+    "model": "deepseek-v4-flash",
+    "originalCostPrice": {
+      "unit": "token",
+      "inputPer1M": 0,
+      "outputPer1M": 0
+    }
+  },
+  {
+    "channelId": "cmsb9v3011t9rmi01by8w4kjw",
+    "provider": "qwen",
+    "model": "deepseek-v4-flash-0731",
+    "originalCostPrice": {
+      "unit": "token",
+      "inputPer1M": 0,
+      "outputPer1M": 0
+    }
+  },
+  {
+    "channelId": "cmodx7uky000abn7iq6dev1d1",
+    "provider": "qwen",
+    "model": "deepseek-v4-pro",
+    "originalCostPrice": {
+      "unit": "token",
+      "inputPer1M": 0,
+      "outputPer1M": 0
+    }
+  },
+  {
+    "channelId": "cmnukegnj0056bnse5d6p7xlg",
+    "provider": "qwen",
+    "model": "glm-4.7",
+    "originalCostPrice": {
+      "unit": "token",
+      "inputPer1M": 0,
+      "outputPer1M": 0
+    }
+  },
+  {
+    "channelId": "cmnukegj1003ebnsegunyo4dw",
+    "provider": "qwen",
+    "model": "glm-5",
+    "originalCostPrice": {
+      "unit": "token",
+      "inputPer1M": 0,
+      "outputPer1M": 0
+    }
+  },
+  {
+    "channelId": "cmnzdy086000nbn50kr5bv9rm",
+    "provider": "qwen",
+    "model": "glm-5.1",
+    "originalCostPrice": {
+      "unit": "token",
+      "inputPer1M": 0,
+      "outputPer1M": 0
+    }
+  },
+  {
+    "channelId": "cmqhjmzaj04ohbnc3w3casjw1",
+    "provider": "qwen",
+    "model": "glm-5.2",
+    "originalCostPrice": {
+      "unit": "token",
+      "inputPer1M": 0,
+      "outputPer1M": 0
+    }
+  },
+  {
+    "channelId": "cmnukegx4008sbnseqyt6ak0n",
+    "provider": "qwen",
+    "model": "kimi-k2-thinking",
+    "originalCostPrice": {
+      "unit": "token",
+      "inputPer1M": 0,
+      "outputPer1M": 0
+    }
+  },
+  {
+    "channelId": "cmnukego4005fbnsesrp1aoqk",
+    "provider": "qwen",
+    "model": "kimi-k2.5",
+    "originalCostPrice": {
+      "unit": "token",
+      "inputPer1M": 0,
+      "outputPer1M": 0
+    }
+  },
+  {
+    "channelId": "cmo9iyjat0bv1bnvxoygnzusb",
+    "provider": "qwen",
+    "model": "kimi-k2.6",
+    "originalCostPrice": {
+      "unit": "token",
+      "inputPer1M": 0,
+      "outputPer1M": 0
+    }
+  },
+  {
+    "channelId": "cmqeor6f004bxbnqr4mn3w6sb",
+    "provider": "qwen",
+    "model": "kimi-k2.7-code",
+    "originalCostPrice": {
+      "unit": "token",
+      "inputPer1M": 0,
+      "outputPer1M": 0
+    }
+  },
+  {
+    "channelId": "cmnukegn90052bnsespi5amk3",
+    "provider": "qwen",
+    "model": "kimi/kimi-k2.5",
+    "originalCostPrice": {
+      "unit": "token",
+      "inputPer1M": 0,
+      "outputPer1M": 0
+    }
+  },
+  {
+    "channelId": "cmofy9por000abnqwqb2tqorr",
+    "provider": "qwen",
+    "model": "kimi/kimi-k2.6",
+    "originalCostPrice": {
+      "unit": "token",
+      "inputPer1M": 0,
+      "outputPer1M": 0
+    }
+  },
+  {
+    "channelId": "cmqg472ao09mvbnqravv6wt09",
+    "provider": "qwen",
+    "model": "kimi/kimi-k2.7-code",
+    "originalCostPrice": {
+      "unit": "token",
+      "inputPer1M": 0,
+      "outputPer1M": 0
+    }
+  },
+  {
+    "channelId": "cmrpua3661dobqu01c5ncib25",
+    "provider": "qwen",
+    "model": "kimi/kimi-k3",
+    "originalCostPrice": {
+      "unit": "token",
+      "inputPer1M": 0,
+      "outputPer1M": 0
+    }
+  },
+  {
+    "channelId": "cmnukegqa0068bnse6p7iax0f",
+    "provider": "qwen",
+    "model": "minimax-m2.1",
+    "originalCostPrice": {
+      "unit": "token",
+      "inputPer1M": 0,
+      "outputPer1M": 0
+    }
+  },
+  {
+    "channelId": "cmnukegjp003mbnselr3xcimr",
+    "provider": "qwen",
+    "model": "minimax-m2.5",
+    "originalCostPrice": {
+      "unit": "token",
+      "inputPer1M": 0,
+      "outputPer1M": 0
+    }
+  },
+  {
+    "channelId": "cmnukegmn004tbnseirao101e",
+    "provider": "qwen",
+    "model": "minimax/minimax-m2.1",
+    "originalCostPrice": {
+      "unit": "token",
+      "inputPer1M": 0,
+      "outputPer1M": 0
+    }
+  },
+  {
+    "channelId": "cmnukegmy004xbnsejhudgf87",
+    "provider": "qwen",
+    "model": "minimax/minimax-m2.5",
+    "originalCostPrice": {
+      "unit": "token",
+      "inputPer1M": 0,
+      "outputPer1M": 0
+    }
+  },
+  {
+    "channelId": "cmnukegg7002lbnse7i4ftkhs",
+    "provider": "qwen",
+    "model": "minimax/minimax-m2.7",
+    "originalCostPrice": {
+      "unit": "token",
+      "inputPer1M": 0,
+      "outputPer1M": 0
+    }
+  },
+  {
+    "channelId": "cmreeqxd20pyybnrx5xvgkt3c",
+    "provider": "qwen",
+    "model": "minimax/minimax-m3",
+    "originalCostPrice": {
+      "unit": "token",
+      "inputPer1M": 0,
+      "outputPer1M": 0
+    }
+  },
+  {
+    "channelId": "cmnukei5800oebnsewy5szjwy",
+    "provider": "qwen",
+    "model": "qwen-plus",
+    "originalCostPrice": {
+      "unit": "token",
+      "inputPer1M": 0,
+      "outputPer1M": 0
+    }
+  },
+  {
+    "channelId": "cmnukehi800g3bnse2ua3fnf0",
+    "provider": "qwen",
+    "model": "qwen3-14b",
+    "originalCostPrice": {
+      "unit": "token",
+      "inputPer1M": 0,
+      "outputPer1M": 0
+    }
+  },
+  {
+    "channelId": "cmnukehhw00fzbnsec0qwwgjh",
+    "provider": "qwen",
+    "model": "qwen3-235b-a22b",
+    "originalCostPrice": {
+      "unit": "token",
+      "inputPer1M": 0,
+      "outputPer1M": 0
+    }
+  },
+  {
+    "channelId": "cmnukeh7k00csbnse93k97gpt",
+    "provider": "qwen",
+    "model": "qwen3-235b-a22b-thinking-2507",
+    "originalCostPrice": {
+      "unit": "token",
+      "inputPer1M": 0,
+      "outputPer1M": 0
+    }
+  },
+  {
+    "channelId": "cmnukehhl00fubnsephksh2nu",
+    "provider": "qwen",
+    "model": "qwen3-30b-a3b",
+    "originalCostPrice": {
+      "unit": "token",
+      "inputPer1M": 0,
+      "outputPer1M": 0
+    }
+  },
+  {
+    "channelId": "cmnukeh8a00d1bnse4x2h34xc",
+    "provider": "qwen",
+    "model": "qwen3-30b-a3b-instruct-2507",
+    "originalCostPrice": {
+      "unit": "token",
+      "inputPer1M": 0,
+      "outputPer1M": 0
+    }
+  },
+  {
+    "channelId": "cmnukeh7w00cwbnsemfz4bhv5",
+    "provider": "qwen",
+    "model": "qwen3-30b-a3b-thinking-2507",
+    "originalCostPrice": {
+      "unit": "token",
+      "inputPer1M": 0,
+      "outputPer1M": 0
+    }
+  },
+  {
+    "channelId": "cmnukehh900fqbnserm4kziov",
+    "provider": "qwen",
+    "model": "qwen3-32b",
+    "originalCostPrice": {
+      "unit": "token",
+      "inputPer1M": 0,
+      "outputPer1M": 0
+    }
+  },
+  {
+    "channelId": "cmnukehj900ggbnseynvq53gg",
+    "provider": "qwen",
+    "model": "qwen3-8b",
+    "originalCostPrice": {
+      "unit": "token",
+      "inputPer1M": 0,
+      "outputPer1M": 0
+    }
+  },
+  {
+    "channelId": "cmnukeh8n00d5bnsedhmn7r9v",
+    "provider": "qwen",
+    "model": "qwen3-coder-flash",
+    "originalCostPrice": {
+      "unit": "token",
+      "inputPer1M": 0,
+      "outputPer1M": 0
+    }
+  },
+  {
+    "channelId": "cmnukeglf004cbnsezzbbp79m",
+    "provider": "qwen",
+    "model": "qwen3-coder-next",
+    "originalCostPrice": {
+      "unit": "token",
+      "inputPer1M": 0,
+      "outputPer1M": 0
+    }
+  },
+  {
+    "channelId": "cmnukehdm00ejbnseypnyxek8",
+    "provider": "qwen",
+    "model": "qwen3-coder-plus",
+    "originalCostPrice": {
+      "unit": "token",
+      "inputPer1M": 0,
+      "outputPer1M": 0
+    }
+  },
+  {
+    "channelId": "cmnukegnu005abnsex43x0ggf",
+    "provider": "qwen",
+    "model": "qwen3-max",
+    "originalCostPrice": {
+      "unit": "token",
+      "inputPer1M": 0,
+      "outputPer1M": 0
+    }
+  },
+  {
+    "channelId": "cmnukehc500e2bnseyy73p3bo",
+    "provider": "qwen",
+    "model": "qwen3-next-80b-a3b-instruct",
+    "originalCostPrice": {
+      "unit": "token",
+      "inputPer1M": 0,
+      "outputPer1M": 0
+    }
+  },
+  {
+    "channelId": "cmnukehbu00dxbnseyt5mbcbo",
+    "provider": "qwen",
+    "model": "qwen3-next-80b-a3b-thinking",
+    "originalCostPrice": {
+      "unit": "token",
+      "inputPer1M": 0,
+      "outputPer1M": 0
+    }
+  },
+  {
+    "channelId": "cmnukegkk003zbnsera8cru85",
+    "provider": "qwen",
+    "model": "qwen3.5-122b-a10b",
+    "originalCostPrice": {
+      "unit": "token",
+      "inputPer1M": 0,
+      "outputPer1M": 0
+    }
+  },
+  {
+    "channelId": "cmnukegl50048bnseb00h1ov2",
+    "provider": "qwen",
+    "model": "qwen3.5-27b",
+    "originalCostPrice": {
+      "unit": "token",
+      "inputPer1M": 0,
+      "outputPer1M": 0
+    }
+  },
+  {
+    "channelId": "cmnukegkv0044bnseciwwnwwl",
+    "provider": "qwen",
+    "model": "qwen3.5-35b-a3b",
+    "originalCostPrice": {
+      "unit": "token",
+      "inputPer1M": 0,
+      "outputPer1M": 0
+    }
+  },
+  {
+    "channelId": "cmnukeglp004gbnsexm2puxsv",
+    "provider": "qwen",
+    "model": "qwen3.5-397b-a17b",
+    "originalCostPrice": {
+      "unit": "token",
+      "inputPer1M": 0,
+      "outputPer1M": 0
+    }
+  },
+  {
+    "channelId": "cmnukegjz003rbnseeom8562z",
+    "provider": "qwen",
+    "model": "qwen3.5-flash-2026-02-23",
+    "originalCostPrice": {
+      "unit": "token",
+      "inputPer1M": 0,
+      "outputPer1M": 0
+    }
+  },
+  {
+    "channelId": "cmnukegm3004kbnsel9y0cb6a",
+    "provider": "qwen",
+    "model": "qwen3.5-plus-2026-02-15",
+    "originalCostPrice": {
+      "unit": "token",
+      "inputPer1M": 0,
+      "outputPer1M": 0
+    }
+  },
+  {
+    "channelId": "cmob0ensh0002bn1tndk6y1uw",
+    "provider": "qwen",
+    "model": "qwen3.5-plus-2026-04-20",
+    "originalCostPrice": {
+      "unit": "token",
+      "inputPer1M": 0,
+      "outputPer1M": 0
+    }
+  },
+  {
+    "channelId": "cmob0ensh0003bn1trpy3k53f",
+    "provider": "qwen",
+    "model": "qwen3.6-27b",
+    "originalCostPrice": {
+      "unit": "token",
+      "inputPer1M": 0,
+      "outputPer1M": 0
+    }
+  },
+  {
+    "channelId": "cmo2driy703m0bn5ozx7z8p4h",
+    "provider": "qwen",
+    "model": "qwen3.6-35b-a3b",
+    "originalCostPrice": {
+      "unit": "token",
+      "inputPer1M": 0,
+      "outputPer1M": 0
+    }
+  },
+  {
+    "channelId": "cmo2drizc03m9bn5oj1y13sr3",
+    "provider": "qwen",
+    "model": "qwen3.6-flash",
+    "originalCostPrice": {
+      "unit": "token",
+      "inputPer1M": 0,
+      "outputPer1M": 0
+    }
+  },
+  {
+    "channelId": "cmo78m0z40001bnuvgi71wtb1",
+    "provider": "qwen",
+    "model": "qwen3.6-max-preview",
+    "originalCostPrice": {
+      "unit": "token",
+      "inputPer1M": 0,
+      "outputPer1M": 0
+    }
+  },
+  {
+    "channelId": "cmnukegel0024bnse9rcrmaaf",
+    "provider": "qwen",
+    "model": "qwen3.6-plus",
+    "originalCostPrice": {
+      "unit": "token",
+      "inputPer1M": 0,
+      "outputPer1M": 0
+    }
+  },
+  {
+    "channelId": "cmrzuc6le30dvqu01zuzolxi9",
+    "provider": "qwen",
+    "model": "qwen3.7-flash",
+    "originalCostPrice": {
+      "unit": "token",
+      "inputPer1M": 0,
+      "outputPer1M": 0
+    }
+  },
+  {
+    "channelId": "cmpge5mqc0klybno1ewty102b",
+    "provider": "qwen",
+    "model": "qwen3.7-max",
+    "originalCostPrice": {
+      "unit": "token",
+      "inputPer1M": 0,
+      "outputPer1M": 0
+    }
+  },
+  {
+    "channelId": "cmpw40dtd03eybn080owfibc5",
+    "provider": "qwen",
+    "model": "qwen3.7-plus",
+    "originalCostPrice": {
+      "unit": "token",
+      "inputPer1M": 0,
+      "outputPer1M": 0
+    }
+  },
+  {
+    "channelId": "cmscpb6c828bvmi01xl8k8gm2",
+    "provider": "qwen",
+    "model": "qwen3.8-max",
+    "originalCostPrice": {
+      "unit": "token",
+      "inputPer1M": 0,
+      "outputPer1M": 0
+    }
+  },
+  {
+    "channelId": "cmnukegpc005vbnsebwevxjoe",
+    "provider": "qwen",
+    "model": "siliconflow/deepseek-v3.1-terminus",
+    "originalCostPrice": {
+      "unit": "token",
+      "inputPer1M": 0,
+      "outputPer1M": 0
+    }
+  },
+  {
+    "channelId": "cmnukegp1005rbnseglzjdxkw",
+    "provider": "qwen",
+    "model": "siliconflow/deepseek-v3.2",
+    "originalCostPrice": {
+      "unit": "token",
+      "inputPer1M": 0,
+      "outputPer1M": 0
+    }
+  },
+  {
+    "channelId": "cmnya5c1g0017bngpeu8ps6hv",
+    "provider": "qwen",
+    "model": "vanchin/deepseek-r1",
+    "originalCostPrice": {
+      "unit": "token",
+      "inputPer1M": 0,
+      "outputPer1M": 0
+    }
+  },
+  {
+    "channelId": "cmnya5bz8000wbngpfwbbu2kk",
+    "provider": "qwen",
+    "model": "vanchin/deepseek-v3.1-terminus",
+    "originalCostPrice": {
+      "unit": "token",
+      "inputPer1M": 0,
+      "outputPer1M": 0
+    }
+  },
+  {
+    "channelId": "cmreeqxd20pyxbnrx617qkb1g",
+    "provider": "qwen",
+    "model": "xiaomi/mimo-v2.5-pro",
+    "originalCostPrice": {
+      "unit": "token",
+      "inputPer1M": 0,
+      "outputPer1M": 0
+    }
+  },
+  {
+    "channelId": "cmpm3x3ql0xfsbno1x7bqyslu",
+    "provider": "qwen",
+    "model": "zhipu/glm-5",
+    "originalCostPrice": {
+      "unit": "token",
+      "inputPer1M": 0,
+      "outputPer1M": 0
+    }
+  },
+  {
+    "channelId": "cmpc3u0sa0awnbno1pdvjon4i",
+    "provider": "qwen",
+    "model": "zhipu/glm-5.1",
+    "originalCostPrice": {
+      "unit": "token",
+      "inputPer1M": 0,
+      "outputPer1M": 0
+    }
+  },
+  {
+    "channelId": "cmreeqxd20pyzbnrx5856gfin",
+    "provider": "qwen",
+    "model": "zhipu/glm-5.2",
+    "originalCostPrice": {
+      "unit": "token",
+      "inputPer1M": 0,
+      "outputPer1M": 0
+    }
+  },
+  {
+    "channelId": "cmnujtx3z00gdbnrzux5ijul4",
+    "provider": "siliconflow",
+    "model": "deepseek-ai/deepseek-v3.1-terminus",
+    "originalCostPrice": {
+      "unit": "token",
+      "inputPer1M": 0,
+      "outputPer1M": 0
+    }
+  },
+  {
+    "channelId": "cmnujtx3b00g7bnrzb8nelfsv",
+    "provider": "siliconflow",
+    "model": "deepseek-ai/deepseek-v3.2",
+    "originalCostPrice": {
+      "unit": "token",
+      "inputPer1M": 0,
+      "outputPer1M": 0
+    }
+  },
+  {
+    "channelId": "cmofk2too000ebn0rynspghto",
+    "provider": "siliconflow",
+    "model": "deepseek-ai/deepseek-v4-flash",
+    "originalCostPrice": {
+      "unit": "token",
+      "inputPer1M": 0,
+      "outputPer1M": 0
+    }
+  },
+  {
+    "channelId": "cmpnjd74312cebno1r2y1ncsm",
+    "provider": "siliconflow",
+    "model": "deepseek-ai/deepseek-v4-pro",
+    "originalCostPrice": {
+      "unit": "token",
+      "inputPer1M": 0,
+      "outputPer1M": 0
+    }
+  },
+  {
+    "channelId": "cmr1jsujw14j3bnqb0vyr93tl",
+    "provider": "siliconflow",
+    "model": "meituan-longcat/longcat-2.0",
+    "originalCostPrice": {
+      "unit": "token",
+      "inputPer1M": 0,
+      "outputPer1M": 0
+    }
+  },
+  {
+    "channelId": "cmoci4m78000kbn9whbgasrnx",
+    "provider": "siliconflow",
+    "model": "minimaxai/minimax-m2.5",
+    "originalCostPrice": {
+      "unit": "token",
+      "inputPer1M": 0,
+      "outputPer1M": 0
+    }
+  },
+  {
+    "channelId": "cmqhjn17h04ojbnc37tykgmq1",
+    "provider": "siliconflow",
+    "model": "moonshotai/kimi-k2.7-code",
+    "originalCostPrice": {
+      "unit": "token",
+      "inputPer1M": 0,
+      "outputPer1M": 0
+    }
+  },
+  {
+    "channelId": "cmpyyw4q50a89bn085oaeru5w",
+    "provider": "siliconflow",
+    "model": "nex-agi/nex-n2-pro",
+    "originalCostPrice": {
+      "unit": "token",
+      "inputPer1M": 0,
+      "outputPer1M": 0
+    }
+  },
+  {
+    "channelId": "cmnujtx6v00h7bnrz0u632s7c",
+    "provider": "siliconflow",
+    "model": "pro/deepseek-ai/deepseek-r1",
+    "originalCostPrice": {
+      "unit": "token",
+      "inputPer1M": 0,
+      "outputPer1M": 0
+    }
+  },
+  {
+    "channelId": "cmnujtx4a00ggbnrz0effdt6l",
+    "provider": "siliconflow",
+    "model": "pro/deepseek-ai/deepseek-v3.1-terminus",
+    "originalCostPrice": {
+      "unit": "token",
+      "inputPer1M": 0,
+      "outputPer1M": 0
+    }
+  },
+  {
+    "channelId": "cmnujtx3n00gabnrzsdtygg0b",
+    "provider": "siliconflow",
+    "model": "pro/deepseek-ai/deepseek-v3.2",
+    "originalCostPrice": {
+      "unit": "token",
+      "inputPer1M": 0,
+      "outputPer1M": 0
+    }
+  },
+  {
+    "channelId": "cmnujtx1x00fvbnrzyr43xiod",
+    "provider": "siliconflow",
+    "model": "pro/minimaxai/minimax-m2.5",
+    "originalCostPrice": {
+      "unit": "token",
+      "inputPer1M": 0,
+      "outputPer1M": 0
+    }
+  },
+  {
+    "channelId": "cmo9j15yt0bvqbnvxntibct8h",
+    "provider": "siliconflow",
+    "model": "pro/moonshotai/kimi-k2.6",
+    "originalCostPrice": {
+      "unit": "token",
+      "inputPer1M": 0,
+      "outputPer1M": 0
+    }
+  },
+  {
+    "channelId": "cmnujtx1n00fsbnrzkwrp4vlx",
+    "provider": "siliconflow",
+    "model": "pro/zai-org/glm-5.1",
+    "originalCostPrice": {
+      "unit": "token",
+      "inputPer1M": 0,
+      "outputPer1M": 0
+    }
+  },
+  {
+    "channelId": "cmnujtxn200l4bnrz2argc7lr",
+    "provider": "siliconflow",
+    "model": "qwen/qwen3-14b",
+    "originalCostPrice": {
+      "unit": "token",
+      "inputPer1M": 0,
+      "outputPer1M": 0
+    }
+  },
+  {
+    "channelId": "cmnujtxk900kgbnrzazj2wujc",
+    "provider": "siliconflow",
+    "model": "qwen/qwen3-30b-a3b-instruct-2507",
+    "originalCostPrice": {
+      "unit": "token",
+      "inputPer1M": 0,
+      "outputPer1M": 0
+    }
+  },
+  {
+    "channelId": "cmnujtxmq00l1bnrzog2bvcux",
+    "provider": "siliconflow",
+    "model": "qwen/qwen3-32b",
+    "originalCostPrice": {
+      "unit": "token",
+      "inputPer1M": 0,
+      "outputPer1M": 0
+    }
+  },
+  {
+    "channelId": "cmnujtxnc00l7bnrz8e6zu4v8",
+    "provider": "siliconflow",
+    "model": "qwen/qwen3-8b",
+    "originalCostPrice": {
+      "unit": "token",
+      "inputPer1M": 0,
+      "outputPer1M": 0
+    }
+  },
+  {
+    "channelId": "cmnujtxj800k7bnrzkd052488",
+    "provider": "siliconflow",
+    "model": "qwen/qwen3-coder-30b-a3b-instruct",
+    "originalCostPrice": {
+      "unit": "token",
+      "inputPer1M": 0,
+      "outputPer1M": 0
+    }
+  },
+  {
+    "channelId": "cmnujtxb400idbnrz6hmflkaa",
+    "provider": "siliconflow",
+    "model": "qwen/qwen3-vl-30b-a3b-instruct",
+    "originalCostPrice": {
+      "unit": "token",
+      "inputPer1M": 0,
+      "outputPer1M": 0
+    }
+  },
+  {
+    "channelId": "cmnujtxbd00igbnrzzyyn88s0",
+    "provider": "siliconflow",
+    "model": "qwen/qwen3-vl-30b-a3b-thinking",
+    "originalCostPrice": {
+      "unit": "token",
+      "inputPer1M": 0,
+      "outputPer1M": 0
+    }
+  },
+  {
+    "channelId": "cmnujtxa000i1bnrziicuds96",
+    "provider": "siliconflow",
+    "model": "qwen/qwen3-vl-32b-instruct",
+    "originalCostPrice": {
+      "unit": "token",
+      "inputPer1M": 0,
+      "outputPer1M": 0
+    }
+  },
+  {
+    "channelId": "cmnujtxal00i7bnrzqhzllmse",
+    "provider": "siliconflow",
+    "model": "qwen/qwen3-vl-8b-instruct",
+    "originalCostPrice": {
+      "unit": "token",
+      "inputPer1M": 0,
+      "outputPer1M": 0
+    }
+  },
+  {
+    "channelId": "cmnujtxau00iabnrz0kf8oown",
+    "provider": "siliconflow",
+    "model": "qwen/qwen3-vl-8b-thinking",
+    "originalCostPrice": {
+      "unit": "token",
+      "inputPer1M": 0,
+      "outputPer1M": 0
+    }
+  },
+  {
+    "channelId": "cmnujtx4v00gmbnrztho1zgoc",
+    "provider": "siliconflow",
+    "model": "qwen/qwen3.5-122b-a10b",
+    "originalCostPrice": {
+      "unit": "token",
+      "inputPer1M": 0,
+      "outputPer1M": 0
+    }
+  },
+  {
+    "channelId": "cmnujtx5d00gsbnrzbht4dprq",
+    "provider": "siliconflow",
+    "model": "qwen/qwen3.5-27b",
+    "originalCostPrice": {
+      "unit": "token",
+      "inputPer1M": 0,
+      "outputPer1M": 0
+    }
+  },
+  {
+    "channelId": "cmnujtx5400gpbnrz7on8oyos",
+    "provider": "siliconflow",
+    "model": "qwen/qwen3.5-35b-a3b",
+    "originalCostPrice": {
+      "unit": "token",
+      "inputPer1M": 0,
+      "outputPer1M": 0
+    }
+  },
+  {
+    "channelId": "cmnujtx4m00gjbnrzm6ylsqct",
+    "provider": "siliconflow",
+    "model": "qwen/qwen3.5-397b-a17b",
+    "originalCostPrice": {
+      "unit": "token",
+      "inputPer1M": 0,
+      "outputPer1M": 0
+    }
+  },
+  {
+    "channelId": "cmnujtx5l00gvbnrzozt3jaa6",
+    "provider": "siliconflow",
+    "model": "qwen/qwen3.5-9b",
+    "originalCostPrice": {
+      "unit": "token",
+      "inputPer1M": 0,
+      "outputPer1M": 0
+    }
+  },
+  {
+    "channelId": "cmobbjnvw000dbn6tbfvoap07",
+    "provider": "siliconflow",
+    "model": "qwen/qwen3.6-27b",
+    "originalCostPrice": {
+      "unit": "token",
+      "inputPer1M": 0,
+      "outputPer1M": 0
+    }
+  },
+  {
+    "channelId": "cmo78onc6000cbnuvek6aggm0",
+    "provider": "siliconflow",
+    "model": "qwen/qwen3.6-35b-a3b",
+    "originalCostPrice": {
+      "unit": "token",
+      "inputPer1M": 0,
+      "outputPer1M": 0
+    }
+  },
+  {
+    "channelId": "cmnujtx7u00hgbnrz6j0uvpqk",
+    "provider": "siliconflow",
+    "model": "stepfun-ai/step-3.5-flash",
+    "originalCostPrice": {
+      "unit": "token",
+      "inputPer1M": 0,
+      "outputPer1M": 0
+    }
+  },
+  {
+    "channelId": "cmnujtxlz00kvbnrzxklmazsf",
+    "provider": "siliconflow",
+    "model": "tencent/hunyuan-a13b-instruct",
+    "originalCostPrice": {
+      "unit": "token",
+      "inputPer1M": 0,
+      "outputPer1M": 0
+    }
+  },
+  {
+    "channelId": "cmnujtxiv00k4bnrzabjpjoj7",
+    "provider": "siliconflow",
+    "model": "zai-org/glm-4.5-air",
+    "originalCostPrice": {
+      "unit": "token",
+      "inputPer1M": 0,
+      "outputPer1M": 0
+    }
+  },
+  {
+    "channelId": "cmnujtxij00k1bnrz4wg5c1jy",
+    "provider": "siliconflow",
+    "model": "zai-org/glm-4.5v",
+    "originalCostPrice": {
+      "unit": "token",
+      "inputPer1M": 0,
+      "outputPer1M": 0
+    }
+  },
+  {
+    "channelId": "cmqiz31zm09oubnc3wg7yeyph",
+    "provider": "siliconflow",
+    "model": "zai-org/glm-5.2",
+    "originalCostPrice": {
+      "unit": "token",
+      "inputPer1M": 0,
+      "outputPer1M": 0
+    }
+  },
+  {
+    "channelId": "cmnpqvhxg0144bnxcjj3u9u26",
+    "provider": "zhipu",
+    "model": "glm-4.5-air",
+    "originalCostPrice": {
+      "unit": "token",
+      "inputPer1M": null,
+      "outputPer1M": null
+    }
+  },
+  {
+    "channelId": "cmnpqvhy1014abnxcp43gl5i7",
+    "provider": "zhipu",
+    "model": "glm-4.7",
+    "originalCostPrice": {
+      "unit": "token",
+      "inputPer1M": null,
+      "outputPer1M": null
+    }
+  },
+  {
+    "channelId": "cmnpqvhyc014dbnxcyd0q5pe9",
+    "provider": "zhipu",
+    "model": "glm-5",
+    "originalCostPrice": {
+      "unit": "token",
+      "inputPer1M": null,
+      "outputPer1M": null
+    }
+  },
+  {
+    "channelId": "cmnpqvhyn014gbnxc3nxvrmp2",
+    "provider": "zhipu",
+    "model": "glm-5-turbo",
+    "originalCostPrice": {
+      "unit": "token",
+      "inputPer1M": null,
+      "outputPer1M": null
+    }
+  },
+  {
+    "channelId": "cmnpqvhz1014jbnxc7xp5grww",
+    "provider": "zhipu",
+    "model": "glm-5.1",
+    "originalCostPrice": {
+      "unit": "token",
+      "inputPer1M": null,
+      "outputPer1M": null
+    }
+  }
+]
