@@ -26,6 +26,12 @@ interface ProviderSyncResult {
   newModels: string[];
   newChannels: string[];
   disabledChannels: string[];
+  /**
+   * F-GTI-02: sync 按 F-SI-01 主动跳过建 channel 的 IMAGE 模型（`provider/id → canonical`）。
+   * 此前该字段已随 providerResults 落进 LAST_SYNC_RESULT，但 UI 完全不读它 ——
+   * guangtech 的三个 gpt-image 模型因此静默不可用一个月。
+   */
+  skippedImageChannels?: string[];
   modelCount: number;
 }
 
@@ -39,6 +45,8 @@ interface SyncResult {
     totalNewChannels: number;
     totalDisabledChannels: number;
     totalFailedProviders: number;
+    /** F-GTI-02: 本轮被跳过的 IMAGE 模型总数（旧 sync 结果无此字段，故可选） */
+    totalSkippedImageChannels?: number;
   };
 }
 
@@ -109,6 +117,12 @@ export default function OperationsPage() {
   const status = data?.data ?? null;
   const syncResult = status?.lastSyncResultDetail ?? null;
   const inferResult = status?.lastInferenceResult ?? null;
+
+  // F-GTI-02: 跨 provider 摊平被跳过的 IMAGE 模型。summary 字段是本批次新加的，
+  // 旧的 LAST_SYNC_RESULT 没有它 —— 故回退到从 providers 现算，让历史同步结果
+  // 也能被看见（这些正是此前静默积压下来的那批）。
+  const skippedImageChannels =
+    syncResult?.providers.flatMap((p) => p.skippedImageChannels ?? []) ?? [];
 
   // Cleanup polling on unmount
   useEffect(() => {
@@ -329,6 +343,28 @@ export default function OperationsPage() {
                     ))}
                   </tbody>
                 </table>
+              </div>
+            )}
+
+            {/* F-GTI-02: 被跳过的 IMAGE 通道 — sync 按 F-SI-01 只建 model 不建
+                channel，此前只 console.log，admin 完全看不见。没有这块，
+                「模型在库里但永远调不通」就只能靠用户报障暴露。 */}
+            {skippedImageChannels.length > 0 && (
+              <div className="bg-ds-status-warning-container rounded-lg px-4 py-3 space-y-2">
+                <div className="flex items-center gap-2 text-ds-status-warning text-xs font-semibold">
+                  <span className="material-symbols-outlined text-[16px]">image_not_supported</span>
+                  {t("skippedImageChannelsWarning", { count: skippedImageChannels.length })}
+                </div>
+                <ul className="space-y-0.5 pl-6">
+                  {skippedImageChannels.map((entry) => (
+                    <li key={entry} className="text-ds-on-surface-variant text-[11px] font-mono">
+                      {entry}
+                    </li>
+                  ))}
+                </ul>
+                <p className="pl-6 text-ds-on-surface-variant text-[11px]">
+                  {t("skippedImageChannelsHint")}
+                </p>
               </div>
             )}
 

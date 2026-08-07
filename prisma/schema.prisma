@@ -693,6 +693,9 @@ enum NotificationEventType {
   AUTH_ALERT
   /// BL-DEEPSEEK-V4-HOTFIX F-DSV4-03: model-sync 缩水护栏拦下 reconcile 时告警
   SYNC_RECONCILE_SKIPPED
+  /// BL-IMG-GUANGTECH-CHANNEL F-GTI-02: sync 按 F-SI-01 跳过 IMAGE channel 创建时告警
+  /// （模型已入库但缺 channel，须人工补 channel + 真实 costPrice 才能调用）
+  SYNC_IMAGE_CHANNEL_SKIPPED
 }
 
 enum NotificationChannel {

@@ -15,7 +15,8 @@ type EventType =
   | "CHANNEL_RECOVERED"
   | "PENDING_CLASSIFICATION"
   | "AUTH_ALERT"
-  | "SYNC_RECONCILE_SKIPPED";
+  | "SYNC_RECONCILE_SKIPPED"
+  | "SYNC_IMAGE_CHANNEL_SKIPPED";
 
 interface NotificationItem {
   id: string;
@@ -42,6 +43,11 @@ const EVENT_META: Record<
     icon: "sync_problem",
     variant: "warning",
     labelKey: "syncReconcileSkipped",
+  },
+  SYNC_IMAGE_CHANNEL_SKIPPED: {
+    icon: "image_not_supported",
+    variant: "warning",
+    labelKey: "syncImageChannelSkipped",
   },
 };
 
@@ -87,6 +93,10 @@ function buildSummary(
         provider: String(payload.providerName ?? ""),
         remote: Number(payload.remoteModelCount ?? 0),
         existing: Number(payload.existingChannelCount ?? 0),
+      });
+    case "SYNC_IMAGE_CHANNEL_SKIPPED":
+      return t("summarySyncImageChannelSkipped", {
+        count: Number(payload.count ?? 0),
       });
     default:
       return "";

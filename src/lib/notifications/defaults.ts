@@ -48,6 +48,7 @@ const DEVELOPER_DEFAULTS: PrefSeed[] = [
   { eventType: "PENDING_CLASSIFICATION", channels: ["inApp"], enabled: false },
   { eventType: "AUTH_ALERT", channels: ["inApp"], enabled: false },
   { eventType: "SYNC_RECONCILE_SKIPPED", channels: ["inApp"], enabled: false },
+  { eventType: "SYNC_IMAGE_CHANNEL_SKIPPED", channels: ["inApp"], enabled: false },
 ];
 
 const ADMIN_DEFAULTS: PrefSeed[] = [
@@ -63,6 +64,10 @@ const ADMIN_DEFAULTS: PrefSeed[] = [
   // 回填（seed 只在建号时跑）。
   { eventType: "AUTH_ALERT", channels: ["inApp"], enabled: true },
   { eventType: "SYNC_RECONCILE_SKIPPED", channels: ["inApp"], enabled: true },
+  // BL-IMG-GUANGTECH-CHANNEL F-GTI-02: 同一病根第二次复发（sync 主动跳过处置却
+  // 只 console.log）。默认开启，否则本次修复等于没做 —— 存量用户仍需
+  // scripts/backfill-notification-preferences.ts 回填。
+  { eventType: "SYNC_IMAGE_CHANNEL_SKIPPED", channels: ["inApp"], enabled: true },
 ];
 
 export function defaultNotificationPreferences(role: UserRole): PrefSeed[] {

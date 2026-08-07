@@ -29,6 +29,7 @@ import { writeSystemLog } from "@/lib/system-logger";
 import { isCatalogAuthoritative } from "./catalog-authority";
 import {
   sendSyncReconcileSkippedToAdmins,
+  sendSyncImageChannelSkippedToAdmins,
   type ReconcileSkipReason,
 } from "@/lib/notifications/triggers";
 import type { ModelModality, Prisma } from "@prisma/client";
@@ -116,6 +117,8 @@ export interface SyncResult {
     totalDisabledChannels: number;
     totalFailedProviders: number;
     totalWarningProviders: number;
+    /** F-GTI-02: 本轮按 F-SI-01 跳过建 channel 的 IMAGE 模型总数（须人工补） */
+    totalSkippedImageChannels: number;
   };
 }
 
@@ -482,6 +485,48 @@ export async function announceReconcileSkipped(params: {
 }
 
 // ============================================================
+// BL-IMG-GUANGTECH-CHANNEL F-GTI-02: 跳过 IMAGE channel 的可见化
+// ============================================================
+
+/**
+ * sync 按 F-SI-01 跳过 IMAGE channel 创建时，把这件事变成"看得见的"。
+ *
+ * ## 为什么需要
+ *
+ * F-SI-01 的跳过本身是对的（`trg_validate_image_channel_pricing` 禁止 costPrice
+ * 全零的 IMAGE channel，sync 又拿不到真实图片单价，硬建会让整批 createMany 连坐
+ * 失败、把同批 TEXT channel 一起拖下水），但原实现**只把计数拼进 console.log**
+ * —— 全仓 grep `skippedImageChannels` 只命中 model-sync.ts 自身。
+ *
+ * 后果：2026-07-03 的 sync 为 guangtech 建了 `gpt-image-1` / `-1.5` / `-2` 三行
+ * models 却没建 channel，没有任何 UI / 通知 / SystemLog 提到过这件事，三个模型
+ * 静默不可用一个月，直到用户报障「guangtech 无法生图」。
+ *
+ * 与 {@link announceReconcileSkipped} 是同一病根的第二次复发：
+ * **自动化主动放弃处置 = 必须有人来看一眼。**
+ *
+ * 去重按「跳过集合」而非按 provider —— 跳过是持续状态（模型一直在、channel 一直
+ * 没人补），按 provider 去重会在 24h 后原样重播成噪音；按集合去重则在同一批模型
+ * 持续被跳过时保持安静，一旦出现**新的** IMAGE 模型立刻重新告警。
+ *
+ * 本函数吞掉自身的所有异常：告警失败不能让整轮 sync 挂掉。
+ */
+export async function announceSkippedImageChannels(entries: string[]): Promise<void> {
+  if (entries.length === 0) return;
+
+  const message =
+    `model-sync 跳过了 ${entries.length} 个 IMAGE 模型的 channel 创建：模型已入库但没有通道，` +
+    `在 Admin 手工补 channel + 真实 costPrice（{unit:'call', perCall>0}）之前一律无法调用`;
+
+  await writeSystemLog("SYNC", "WARN", message, { count: entries.length, entries }).catch((err) => {
+    console.error("[model-sync] announceSkippedImageChannels systemLog failed:", err);
+  });
+  await sendSyncImageChannelSkippedToAdmins({ entries }).catch((err) => {
+    console.error("[model-sync] announceSkippedImageChannels notification failed:", err);
+  });
+}
+
+// ============================================================
 // 核心：两层同步 + reconcile
 // ============================================================
 
@@ -622,6 +667,7 @@ export async function runModelSync(): Promise<SyncResult> {
         totalDisabledChannels: 0,
         totalFailedProviders: 0,
         totalWarningProviders: 0,
+        totalSkippedImageChannels: 0,
       },
     };
   }
@@ -767,6 +813,8 @@ export async function runModelSync(): Promise<SyncResult> {
     }
 
     const finishedAt = new Date();
+    // F-GTI-02: 跨 provider 汇总本轮被跳过的 IMAGE 模型，供 summary + 告警共用。
+    const allSkippedImageChannels = providerResults.flatMap((r) => r.skippedImageChannels);
     const syncResult: SyncResult = {
       startedAt: startedAt.toISOString(),
       finishedAt: finishedAt.toISOString(),
@@ -781,8 +829,13 @@ export async function runModelSync(): Promise<SyncResult> {
         ),
         totalFailedProviders: providerResults.filter((r) => !r.success).length,
         totalWarningProviders: providerResults.filter((r) => !!r.warning).length,
+        totalSkippedImageChannels: allSkippedImageChannels.length,
       },
     };
+
+    // F-GTI-02: 跳过 IMAGE channel 是"自动化主动放弃处置"，必须有人来看一眼。
+    // 放在 syncResult 组装之后、缓存清理之前；本身吞异常，不阻断整轮 sync。
+    await announceSkippedImageChannels(allSkippedImageChannels);
 
     // Mark sync progress as done
     if (progressRedis) {

@@ -6,6 +6,7 @@
  * the dedup + admin-lookup patterns testable in isolation.
  */
 
+import { createHash } from "node:crypto";
 import { prisma } from "@/lib/prisma";
 import { getRedis } from "@/lib/redis";
 import { sendNotification } from "./dispatcher";
@@ -346,5 +347,59 @@ export async function sendSyncReconcileSkippedToAdmins(params: {
     });
   } catch (err) {
     console.error("[triggers] sendSyncReconcileSkippedToAdmins error:", err);
+  }
+}
+
+// ============================================================
+// BL-IMG-GUANGTECH-CHANNEL F-GTI-02: SYNC_IMAGE_CHANNEL_SKIPPED
+// （24h dedup per「跳过集合」——集合变了立即重新告警）
+// ============================================================
+
+/**
+ * 把「跳过集合」压成稳定短哈希，用作 dedup key 的一部分。
+ *
+ * 为什么按集合而不是按 provider：跳过是**常态且持续**的（模型一直在库里、
+ * channel 一直没人补），按 provider 去重会让告警在 24h 后原样重播，等于噪音；
+ * 而完全不去重则每次定时 sync 都轰炸一遍。按集合去重取中间值 —— 同一批模型
+ * 持续被跳过时保持安静，一旦**出现新的 IMAGE 模型**（集合变化）立刻重新告警，
+ * 正好对应"有新东西需要人来补 channel"这一唯一值得打扰管理员的时刻。
+ */
+function hashSkippedSet(entries: string[]): string {
+  const canonical = [...entries].sort().join("\n");
+  return createHash("sha1").update(canonical).digest("hex").slice(0, 12);
+}
+
+/**
+ * model-sync 按 F-SI-01 跳过 IMAGE channel 创建时调用。
+ *
+ * 事故背景：sync 发现 IMAGE 模型后只建 `models` 行、**不建 channel**（DB 触发器
+ * 禁止 costPrice 全零的 IMAGE channel，sync 又拿不到真实图片单价），留待人工在
+ * Admin 补 channel + 真实定价。设计本身是对的，但它**只 console.log** ——
+ * 2026-07-03 的 sync 为 guangtech 建了 gpt-image-1 / -1.5 / -2 三行 models 却没建
+ * channel，无人知晓，三个模型静默不可用一个月，直到用户报障。
+ *
+ * 与 SYNC_RECONCILE_SKIPPED 同款病根：**自动化主动放弃处置 = 必须有人来看一眼。**
+ *
+ * 本函数吞掉自身异常：告警失败不能让整轮 sync 挂掉。
+ */
+export async function sendSyncImageChannelSkippedToAdmins(params: {
+  /** 形如 `guangtech/gpt-image-2 → guangtech/gpt-image-2`，来自 skippedImageChannels */
+  entries: string[];
+}): Promise<void> {
+  if (params.entries.length === 0) return;
+  try {
+    await notifyDeduped({
+      dedupKey: `alert:sync_image_channel_skipped:${hashSkippedSet(params.entries)}`,
+      ttlSeconds: 86400, // 24 h
+      deliver: () =>
+        deliverToAdmins("SYNC_IMAGE_CHANNEL_SKIPPED", {
+          count: params.entries.length,
+          // 通知负载只带前若干条，避免 payload 过大；完整清单在 admin 运维页
+          entries: params.entries.slice(0, 20),
+          truncated: params.entries.length > 20,
+        }),
+    });
+  } catch (err) {
+    console.error("[triggers] sendSyncImageChannelSkippedToAdmins error:", err);
   }
 }

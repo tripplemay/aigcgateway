@@ -93,13 +93,15 @@
     "pendingClass": "Pending Review",
     "authAlert": "Auth Alert",
     "syncReconcileSkipped": "Sync Guard",
+    "syncImageChannelSkipped": "Image Channel Missing",
     "summaryBalanceLow": "Balance {current} below threshold {threshold}",
     "summarySpendingRate": "Spent {spent} / {limit} per min",
     "summaryChannelDown": "{provider}/{model} went down",
     "summaryChannelRecovered": "{provider}/{model} recovered",
     "summaryPendingClass": "{count} models await review",
     "summaryAuthAlert": "{provider}/{model} failed auth {count} times in a row",
-    "summarySyncReconcileSkipped": "{provider} sync skipped retirement: {remote} upstream models vs {existing} channels — needs review"
+    "summarySyncReconcileSkipped": "{provider} sync skipped retirement: {remote} upstream models vs {existing} channels — needs review",
+    "summarySyncImageChannelSkipped": "{count} image models exist without a channel — uncallable until a channel and real cost price are added"
   },
   "emptyState": {
     "title": "No project yet",
@@ -922,6 +924,8 @@
     "models": "Models",
     "apiCount": "API",
     "aiEnriched": "AI Enriched",
+    "skippedImageChannelsWarning": "{count} image models exist without a channel",
+    "skippedImageChannelsHint": "Sync never creates channels for image models (it has no real per-image cost). Add them by hand in channel management with a per-call costPrice greater than zero — until then these models can never be called.",
     "zeroPriceWarning": "{count} active channels have zero sell price",
     "unpricedAliasWarning": "{count} enabled alias(es) without sellPrice (price field blank in /v1/models)",
     "inferTitle": "LLM Inference",
