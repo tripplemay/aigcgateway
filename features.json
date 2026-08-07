@@ -7,7 +7,7 @@
       "title": "guangtech 图片通道幂等 provisioning 脚本 + 上游实测（gpt-image-1 / 1.5 / 2）",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "新增 scripts/add-guangtech-image-channels.ts，默认 dry-run 打印将创建/更新的 model/channel/alias/link 摘要且不写库；--apply 前须完成上游 L2 实测（须用户明示授权）：对 gpt-image-2 / -1 / -1.5 各打一次真实 POST {baseUrl}/images/generations 确认返回合法图片（b64_json 或 url），记录响应形态与实际 size，探测失败的模型不得 apply 且须在报告中说明原因（不阻断其余模型）；--apply 后生产库满足：3 条 channel 存在且 ACTIVE（providerId=cmr4n7yb401cebnqhwps4vd7r，realModelId 为裸名 gpt-image-1/1.5/2，costPrice={unit:'call',perCall:0.068836}，sellPrice={unit:'call',perCall:0.082603}，priority=10），3 个 model enabled=true 且 supportedSizes=null，3 个 alias（gpt-image-1 / gpt-image-1.5 / gpt-image-2）enabled=true 且 sellPrice 非空且 modality=IMAGE，3 条 AliasModelLink 齐全；--apply 连跑两次幂等（channel/alias/link 行数不变，无重复行）；定价通过 imageChannelPriceValid（{unit:'call',perCall>0}）；CLI 退出前 prisma.$disconnect()（用到 redis 则一并 disconnectRedis）；交付 docs/specs/BL-IMG-GUANGTECH-CHANNEL-ops.md 含生产执行步骤（SSH 隧道 + dry-run + 探测 + apply + 复核 SQL）+ 回滚步骤 + spec D3 两条定价假设声明原文；npx tsc --noEmit + npm run lint + npm run build PASS；独立 commit"
     },
     {
@@ -15,7 +15,7 @@
       "title": "sync 跳过 IMAGE channel 的可见性修复（本次问题潜伏一个月的直接原因）",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "runModelSync 汇总各 provider 的 skippedImageChannels 后，总数>0 时写一条 SystemLog(type='SYNC', level='WARN') 并发 admin 通知（复用 writeSystemLog 与现有 admin 通知层），文案说明「N 个 IMAGE 模型已入库但缺 channel，需在 Admin 手工补 channel + 真实 costPrice 后才能调用」并列出模型名；通知须幂等或可抑制（同一跳过集合连续两次 sync 不重复轰炸，具体手法按现有通知层惯例定并在 commit message 说明）；admin 同步结果页展示「已跳过的 IMAGE 通道」及模型名列表（当前 UI 完全不读该字段），中英文文案齐全走 next-intl 无硬编码字面量；不得修改 F-SI-01 的跳过逻辑本身；按 CLAUDE.md 前端工程纪律，本 feature 触及的 admin 代码块内 raw input/select/button/table 顺手替换为 src/components/ui/ 的 shadcn 组件（不扩 scope，不适用则在 commit message 说明）；单测覆盖 skippedImageChannels 非空→写 WARN + 发通知、为空→不写不发、同一集合连续两次 sync 不重复轰炸；npx tsc --noEmit + npm run lint + npm run build + 全量 vitest PASS；独立 commit"
     }
   ]

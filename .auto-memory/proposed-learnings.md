@@ -158,3 +158,33 @@ type: project
 **建议写入 harness-template 的：** `harness/planner.md` 或 `docs/`（铁律 L1 的例外条款）
 
 **状态：** 待确认
+
+## [2026-08-07] Claude CLI — 来源：BL-IMG-GUANGTECH-CHANNEL fix_round 1（首验 4 条缺陷全部同源）
+
+**类型：** 铁律补充
+
+**内容：** **护栏不能写成给人看的文字。** 本轮 4 条缺陷收敛到同一反模式：我在 `runProbe` 里打印「探测失败的模型不得 --apply」却不在代码里拦（上游 502 后照样落库并 exit 0）；在 generator_handoff 里写「部署后记得跑回填脚本」却不做成迁移（同一个坑此前已踩过三次，那个回填脚本至今没人跑过）。讽刺的是这个批次本身就是在修同款病根——sync 跳过 IMAGE channel 只 console.log，导致三个模型静默不可用一个月。自检问题应该是「这条规则如果没人读会怎样」，而不是「我说清楚了吗」。可执行判据：任何以「记得/须/不得」开头写给人的约束，都要问一遍能否降级成代码强制（非零退出、DB 约束、数据迁移、测试）；不能则必须说明为什么不能。
+
+**建议写入 harness-template 的：** `harness/generator.md`（交付自检清单）+ 铁律补充
+
+**状态：** 待确认
+
+## [2026-08-07] Claude CLI — 来源：BL-IMG-GUANGTECH-CHANNEL GTI-DEF-03
+
+**类型：** 新坑
+
+**内容：** 「外部契约前置实测」这条已有铁律，**强度取决于验什么，不是验没验**。本轮我确实按 seedream-3 的沉淀打了真实生图请求，但 probe 只统计 base64 解码后的字节数就判 PASS——等于只验证了「上游回了点什么」，没验证「回的是不是我们声称的那个东西」。结果请求 1024x1024、上游实回 1254x1254，而 alias 对外声明 supported_sizes=1024x1024，`list_models`/MCP 的能力元数据失真。修法是解析图片头拿真实像素，不匹配则**整个字段不出现**（注意：写空数组也是一种声明）。推广：实测断言必须覆盖「我们准备对外声明的每一个属性」，而不只是「调用成功」。
+
+**建议写入 harness-template 的：** `harness/generator.md` 或 `docs/`（外部契约实测的验收强度）
+
+**状态：** 待确认
+
+## [2026-08-07] Claude CLI — 来源：BL-IMG-GUANGTECH-CHANNEL GTI-DEF-04（本项目具体设计，待用户裁决）
+
+**类型：** 新规律
+
+**内容：** 通知偏好「新事件类型必须回填」这个坑已在本项目踩到第四次（CHANNEL_DOWN 三兄弟 / AUTH_ALERT / SYNC_RECONCILE_SKIPPED / SYNC_IMAGE_CHANNEL_SKIPPED）。本轮用数据迁移堵住了当次，但根因是 `dispatcher.sendNotification` 对「无偏好行」静默丢弃——只要这个语义不变，每加一个事件类型就要记得配一次迁移。**彻底解法是让 dispatcher 在无偏好行时回退到 `defaultNotificationPreferences(role)`，那样永远不需要回填。** 代价：会改变所有事件类型的投递行为（存量 5 个 ADMIN 会开始收到此前静默的 CHANNEL_DOWN 等），超出本批次范围，需用户裁决后单独立批。
+
+**建议写入 harness-template 的：** 不入框架（本项目具体设计），仅供 done 阶段转 backlog
+
+**状态：** 待确认
