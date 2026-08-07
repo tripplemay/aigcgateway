@@ -1,11 +1,11 @@
 {
-  "status": "building",
+  "status": "verifying",
   "user_goal": "BL-BILLING-ZERO-PRICE-BACKFILL — 用户在上一批部署后追问「生产是否还存在因 0 定价导致以后不可用的模型」。只读盘点结论：(1) 不可用那一类已清零——30 个无 channel 的 IMAGE 模型全部 disabled 且零个挂别名，用户面不可见；仅 grok-4.1-fast / mimo-v2-flash 两个别名列得出来却调不通，但那是 openrouter 欠费导致通道 DISABLED，与定价无关。(2) 0 定价真正的危害在另一头：274 条 ACTIVE 通道 costPrice 恒为 0（qwen 187/siliconflow 62/...），全为 TEXT；其中仅 45 条挂启用别名（F-SH-03 部署后无底层模型名回退，无启用别名的通道不可路由，其余 229 条为死数据）。(3) 全库启用别名中只有 gpt-5.5 与 gpt-5.4 缺 sellPrice：gpt-5.5 两条通道卖价全空恒免费（已漏 106 次调用、成本 $0.957505）；gpt-5.4 走 openrouter 正常收费、走 guangtech 白送，属间歇性漏费，报表上极难发现。用户裁决：参考 openrouter 价目表定价；加价率 1.1x（低于全局 1.2x 惯例）；gpt-5.4 也改用新倍率（对现有付费用户构成降价）；范围含 45 条线上 + 约 80 条可匹配的休眠通道。匹配率实测 41%（274 中 113 条），匹配不上的一律不猜、出报告。",
   "total_features": 2,
-  "completed_features": 0,
+  "completed_features": 2,
   "fix_rounds": 0,
   "current_sprint": "BL-BILLING-ZERO-PRICE-BACKFILL",
-  "last_updated": "2026-08-07T08:10:00Z",
+  "last_updated": "2026-08-07T09:05:00Z",
   "role_assignments": null,
   "docs": {
     "spec": "docs/specs/BL-BILLING-ZERO-PRICE-BACKFILL-spec.md",
@@ -15,8 +15,8 @@
   },
   "evaluator_feedback": null,
   "session_notes": {
-    "Kimi": "2026-08-07 (Planner) 开新批次 BL-BILLING-ZERO-PRICE-BACKFILL。\n\n**盘点是怎么收敛到 45 条的**（下次遇到类似问题可复用这个思路）：先按「有没有 channel」查不可用类，再按「有没有启用别名」筛真正可路由的。关键洞察是 F-SH-03 今天部署后已无 routeByModelName 回退，所以**没有启用别名的通道根本不可路由**——274 条里 229 条是死数据，给它们定价属于自我安慰。真正影响线上的只有 45 条。\n\n**匹配率只有 41%**（274 中 113），别对 openrouter 价目表期望过高。qwen 187 条里只有 61 条能匹配——它自家模型（qwen3.5-plus 等）在 openrouter 上是 `qwen/qwen3.5-plus-20260420` 这种带压缩日期的 id，而我们库里是 `qwen3.5-plus-2026-04-20`，光靠朴素归一化对不上，spec D3 里写了日期三种写法互试的规则。\n\n**定价性质务必向用户讲清**：openrouter 是转售平台，价里含它自己的渠道费，而 qwen/siliconflow/deepseek 直连更便宜，所以回填出的 costPrice 系统性偏高、毛利报表会偏悲观。这跟上一批 guangtech 的 D3 是同一条口径。\n\n**用户裁决了两件有代价的事**：加价率取 1.1x（不是全局惯例的 1.2x）；且 gpt-5.4 也统一走 1.1x——因为别名层卖价优先于通道层，这会把 gpt-5.4 走 openrouter 时现有的 1.2x 收费**降下来**，是真实降价，我已明确提示过用户，用户选择接受。\n\n**最大的技术风险是错配污染成本数据**，spec D3 定了「宁缺毋滥」：短名多候选一律跳过、版本号不等不匹配、跳过必进报告。F-BZP-01 还硬性要求不触碰任何 sellPrice，验收要断言逐字节一致——避免定价脚本误伤用户账单。",
+    "Kimi": "2026-08-07 (Generator) BL-BILLING-ZERO-PRICE-BACKFILL 2/2 完成，生产已落库，交 Codex 验收。\n\n**盘点方法值得复用**：先按「有没有 channel」查不可用类，再按「有没有启用别名」筛真正可路由的。F-SH-03 部署后无 routeByModelName 回退 → 无启用别名的通道不可路由 → 274 条里 229 条是死数据。把范围从 274 收敛到 45，是这次最有价值的一步判断。\n\n**匹配率的现实**：openrouter 400 个模型，我们 274 条零成本通道只能匹配 120 条（44%）。别对「参考 openrouter 定价」期望过高，qwen/siliconflow 大量自有模型在 OR 上根本没有。\n\n**两个匹配卡点及其教训**：(1) :batch 变体造成假歧义——归一化剥后缀后两条 id 相同，却在短名索引里算成两个候选。修法是同 id 只保留非变体那条。(2) 日期写法三种并存。另外原本写了「版本号必须相等」的分支，写单测时才发现**不可达**（版本号本就在短名里，deepseek-v3 查不到 deepseek-v3.2 这个键），果断删掉而不是留着当摆设——上一批的教训是「护栏不能写成文字」，这次是「护栏不能写成永不执行的代码」。\n\n**误伤用户账单的防线**：F-BZP-01 硬性不触碰 sellPrice，apply 前后用 md5 比对了 959 条通道的 sellPrice。定价脚本改错卖价的代价远高于成本不准，这条自查值得固化成习惯。\n\n**最可能被推翻的假设**：sync 会用 buildCostPrice 覆盖 TEXT 通道的 costPrice，本批是一次性修复，下次 sync 可能把 120 条全刷回 0。已写进 handoff 让 Codex 特意验一次。",
     "Reviewer": "2026-08-07 复验通过并签收，status -> done。四项首验缺陷全部关闭：失败 probe 阻断落库并非零退出；复跑收敛 priority/supportedSizes；probe 解析真实图片格式与像素，不再误报尺寸；部署迁移自动、幂等回填存量通知偏好且保留用户设置。L1 隔离脚本 6/6、定向 30/30、全量 Vitest 813 passed/4 skipped，tsc/lint/build 均通过。生产只读 REST/SQL 确认三个 alias 无 supported_sizes，通道 ACTIVE/priority=10 且定价正确。生产应用尚未部署，F-GTI-02 迁移/通知/UI 尚未上线；内置浏览器仍无实例，保留 UI 渲染截图缺口。签收报告见 docs/test-reports/BL-IMG-GUANGTECH-CHANNEL-signoff-2026-08-07.md。"
   },
-  "generator_handoff": null
+  "generator_handoff": "2/2 完成，status -> verifying，交 Codex 验收。生产数据已落库。\n\n### F-BZP-01 零成本通道 costPrice 回填\n**生产 ACTIVE 零成本通道 274 -> 153**，回填 120 条（其中 37 条挂启用别名）。\n价目表快照存档 docs/pricing/openrouter-snapshot-2026-08-07.json（400 模型）。\n回滚清单 docs/pricing/backfill-rollback-2026-08-07.json（120 条原值）。\n\n匹配器 scripts/pricing/openrouter-price-match.ts 是纯函数、10 条单测。两处实际卡点：\n  - **变体后缀假歧义**：openai/gpt-5.4 与 openai/gpt-5.4:batch 归一化后同 id，曾被判两候选而跳过——而 guangtech 的 gpt-5.4/gpt-5.5 恰是最要紧的两条。改为同 id 只留非变体，110 -> 120 条\n  - **日期写法差异**：本地 qwen3.5-plus-2026-04-20 vs OR 的 qwen3.5-plus-20260420\n开发中还发现原写的「版本号比较」分支实测不可达（版本号本就是短名的一部分，deepseek-v3 根本查不到 deepseek-v3.2 这个键），已删除死代码而非留着凑数。\n\n**验收重点（我已自查，请独立复核）**：\n  - apply 前后比对了全部 959 条通道的 sellPrice，**逐字节不变**（脚本硬性不触碰 sellPrice）\n  - 幂等复跑：候选 273 -> 153，0 条新回填\n  - 153 条仍匹配不上，其中 7 条挂启用别名（deepseek-v3 系列 4 条、qwen3.5-plus/flash 无日期版本、hunyuan-mt-7b），按 spec D3「宁缺毋滥」一律不猜，已列清单\n\n### F-BZP-02 gpt-5.5 / gpt-5.4 别名卖价\n**启用别名零卖价 2 -> 0**。加价率 1.1x（用户裁决，低于全局 1.2x）。\n生产实测 1M in + 1M out：gpt-5.5 sell=38.5 / cost=35；gpt-5.4 sell=19.25 / cost=17.5，均为 1.1x。\nalias 的 enabled 与 modality 未被修改。回滚清单 docs/pricing/alias-sellprice-rollback-2026-08-07.json。\n\n⚠️ **两个用户可感知的后果，用户已明确裁决**：gpt-5.5 由免费转收费；gpt-5.4 走 openrouter 时原按通道层 1.2x 收费，别名层优先级更高，写入 1.1x 后对现有付费用户构成**降价**。\n\n### 口径声明（必须随验收结论一并交付用户）\nopenrouter 是转售平台、价含其渠道费，而 qwen/siliconflow/deepseek 直连更便宜，故回填出的 costPrice **系统性偏高**、毛利报表会偏悲观。**不影响用户扣费**。拿到各家真实费率后可逐条覆盖。\n\n### 已知风险（spec D8，不在本批次范围）\nmodel-sync 对 TEXT 通道会用 buildCostPrice 覆盖 costPrice。本批是**一次性数据修复**，若下次 sync 又把这 120 条刷回 0，说明需要在 sync 侧引入 openrouter 价源——建议验收时**特意跑一次 sync 观察**，这是本批最可能被推翻的假设。\n\n### 无需部署\n本批次不含应用代码改动（仅新增两个 scripts/pricing 脚本 + 单测），生产数据已直接落库生效。"
 }

@@ -7,7 +7,7 @@
       "title": "零成本通道 costPrice 回填脚本（openrouter 价目表匹配，约 121 条）",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "新增 scripts/pricing/backfill-zero-cost-channels.ts，openrouter 价目表快照落盘 docs/pricing/；默认 dry-run 不写库并打印将回填/跳过的完整清单与统计；跳过项逐条给出原因（多候选歧义/版本不符/openrouter 无此模型/openrouter 亦为 0），无静默丢弃；--apply 写入 costPrice={unit:'token',inputPer1M,outputPer1M}（openrouter 价 x 1e6，roundTo6 取 6 位），**一律不触碰任何 sellPrice**，验收须断言所有 sellPrice 与回填前逐字节一致；幂等（连跑两次第二次 0 条新回填）；生成回滚清单 docs/pricing/backfill-rollback-<date>.json 含每条通道原 costPrice，按清单还原后与回填前一致；版本号不同的模型不得互相匹配（deepseek-v3 不得匹配 deepseek-v3.2），须单测覆盖；短名多候选时跳过而非任选，须单测覆盖；--only=<channelId,...> 支持子集；CLI 退出前 prisma.$disconnect() + disconnectRedis()；npx tsc --noEmit + npm run lint + npm run build + 全量 vitest PASS；独立 commit"
     },
     {
@@ -15,7 +15,7 @@
       "title": "gpt-5.5 / gpt-5.4 别名卖价补齐（1.1x，堵住恒免费与间歇性免费）",
       "priority": "high",
       "executor": "generator",
-      "status": "pending",
+      "status": "completed",
       "acceptance": "gpt-5.5 别名 sellPrice={unit:'token',inputPer1M:5.5,outputPer1M:33}；gpt-5.4 别名 sellPrice={unit:'token',inputPer1M:2.75,outputPer1M:16.5}（均为 openrouter 成本 x 1.1，用户裁决的加价率）；两个别名的 enabled 与 modality 不被修改；执行前后各输出一次两别名完整定价快照；按 calculateTokenCost 语义验证 1M input + 1M output 下 gpt-5.5 走 openrouter 通道时 sellUsd=38.5 且 costUsd=35（证明卖价生效不再为 0）；dry-run/--apply/幂等/回滚清单要求同 F-BZP-01；commit message 须写明 gpt-5.4 对现有付费用户构成降价（1.2x->1.1x，别名层优先于通道层）、gpt-5.5 由免费转收费；独立 commit"
     }
   ]
