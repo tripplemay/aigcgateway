@@ -4,30 +4,24 @@ description: AIGC Gateway 当前状态快照（覆盖写，≤30 行）
 type: project
 ---
 ## 当前批次
-- **BL-SEC-HOTFIX-2608**（**done**，fix_rounds=1）— 2026-08-05 复验签收，5/5 PASS。
-- **验收**：F-SH-01..05 全部通过；全量 Vitest `788 passed / 4 skipped`，typecheck、lint、build 通过。
-- **⚠️ 尚未部署**：生产 app 容器启动于 `2026-07-27`，仍跑修复前代码 —— C1 支付伪造、C6 零计费旁路、
-  H13 SSE 丢帧在生产上**依然敞开**。需用户在 GitHub Actions 手动触发 Deploy。
-- **生产前置已完成**：`Response Generator` 已迁移为 `gpt-4o-mini`；仍可用未命中启用别名的 Action=0。
-  7 条 `deepseek/v3` 为既有失效测试残留（无 Model/alias，修复前后均 404），后续另行清理。
-- **历史暴露**：3,234 条零卖价/正成本调用，成本 `$5.35723988`；重复充值与无签名完成订单均 0 行，
-  C1/C2 无被利用证据。
-- **签收**：`docs/test-reports/BL-SEC-HOTFIX-2608-signoff-2026-08-05.md`。
+- **BL-IMG-GUANGTECH-CHANNEL** 首验未通过，已交回 Generator 修复。
+- 生产正向链路已证实：`gpt-image-1/1.5/2` 均可真实生图、代理 PNG 可读，
+  CallLog 成本/售价为 `$0.068836/$0.082603`，扣费各 `$0.082603`；REST/MCP 均可发现。
+- F-GTI-01 待修：失败 probe 仍会 apply；复跑不收敛 priority/supportedSizes；请求
+  `1024x1024` 实际返回 `1254x1254`，probe 未验尺寸却声明支持 1024。
+- F-GTI-02 待修：部署不自动回填新通知偏好；生产 5 个 ADMIN 中 0 个有新事件行，
+  dispatcher 会静默丢弃通知。完整证据见首验报告。
+- 验收临时生产 Key 已吊销；F-GTI-02 尚未部署。
 
-## 挂起中的批次
-- **BL-IMG-I2I-VISION**（8/9，仅剩 Codex 的 F-IIV-08）已归档在
-  `docs/archive/{features,progress}-BL-IMG-I2I-VISION-parked-2026-08-04.json`，待还原（status 设 reverifying）。
-  还原前需先解三件环境阻塞：seedream-4-5 通道 DISABLED、OpenRouter 欠费、provision 脚本未在生产跑。
+## 既有部署风险
+- **BL-SEC-HOTFIX-2608 已签收但尚未部署**：生产 app 仍跑修复前代码，C1 支付伪造、
+  C6 零计费旁路、H13 SSE 丢帧仍暴露；需用户手动触发 Deploy。
 
-## 待决与后续
-- 全量审查报告：`docs/code-review/backend-fullscan-2026-08-04.md`（6 Critical / 13 High / 14 Medium）。
-  本批次只收了其中 5 条；C3（已裁决「扣成负数」，见 `docs/adjudications/2026-08-04-c3-negative-balance-ruling.md`）、
-  C4、H1、H2、H9 留给 `BL-SEC-BILLING-GATE`；其余 High/Medium 留给 `BL-SEC-GUARDRAIL-PARITY`。
-- **需用户本人做**：轮换生产 admin 密码，并把 `.auto-memory/environment.md:31-32` 的明文改掉（4 月 CRIT-5 残留）。
+## 挂起批次
+- **BL-IMG-I2I-VISION**（8/9）归档于 `docs/archive/{features,progress}-BL-IMG-I2I-VISION-parked-2026-08-04.json`；
+  还原前需解 seedream-4-5 DISABLED、OpenRouter 欠费、provision 未跑三项阻塞。
 
-## Backlog
-- **BL-BILLING-ALIAS-SELLPRICE-GUARD**（high）— 启用别名必须有 sellPrice。`gpt-5.5` 近 30 天 329 次调用
-  卖价全 0（成本 `$0.957505`），独立于 C6/H13 且**本批次未修复**，建议并入 BL-SEC-BILLING-GATE。
-- **BL-SEC-PAY-DEFERRED**（critical-deferred）— 支付 webhook 验签 + 幂等 CAS（重开 PAYMENT_ENABLED 的前置）。
-- **BL-SEC-INFRA-GUARD-FOLLOWUP**（high-deferred）— Next.js 16 跨大版本迁移。
-- **BL-FE-DS-SHADCN**（low-deferred）— shadcn 采用率提升。
+## 后续
+- 安全审查余项见 `docs/code-review/backend-fullscan-2026-08-04.md`；C3/C4/H1/H2/H9 进入
+  `BL-SEC-BILLING-GATE`，其余进入 `BL-SEC-GUARDRAIL-PARITY`。
+- OpenRouter 仍欠费；生产 admin 密码仍需用户轮换并清理共享记忆中的明文。
