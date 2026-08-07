@@ -188,3 +188,13 @@ type: project
 **建议写入 harness-template 的：** 不入框架（本项目具体设计），仅供 done 阶段转 backlog
 
 **状态：** 待确认
+
+## [2026-08-07] Claude CLI — 来源：BL-IMG-GUANGTECH-CHANNEL 生产部署（本项目 deploy.yml 缺陷）
+
+**类型：** 新坑
+
+**内容：** `deploy.yml` 的回滚点逻辑在「连续用 `latest` 部署」这一常态路径下失效：`previous_tag` 取自 `.env` 的 `IMAGE_TAG`，而它长期就是 `latest`，与新 `IMAGE_TAG` 相等 → `if [ "$previous_tag" != "$IMAGE_TAG" ]` 不成立 → **`.deploy-state/last-known-good-tag` 永远不写**。同时 `docker compose pull` 会把本地 `latest` 标签指向新镜像，旧镜像变悬空，随后的 `docker image prune -f` 直接清除 → 回滚目标彻底消失。本次部署前手工 `docker tag ...:latest ...:rollback-<上一版 commit>` 才保住回滚能力。建议改法：pull 之前先把当前 `latest` 解析成 digest 并打上 `rollback-<当前部署 commit>` 标签，再写入 `last-known-good-tag`；或 build-push 阶段就让部署始终使用 sha tag 而非 `latest`。
+
+**建议写入 harness-template 的：** 不入框架（本项目 CI 具体缺陷），仅供转 backlog
+
+**状态：** 待确认
