@@ -1,54 +1,29 @@
 {
-  "status": "reverifying",
+  "status": "done",
   "user_goal": "BL-IMG-GUANGTECH-CHANNEL — 用户报障：生产 guangtech 服务商端点可提供 gpt-image2 文生图，但网关无法通过该服务商生图。根因已定位为纯配置缺口：2026-07-03 sync 为 guangtech 建了 guangtech/gpt-image-1 / -1.5 / -2 三行 models（modality=IMAGE, enabled=false），但按 model-sync.ts:372-380 的 F-SI-01 设计跳过 IMAGE channel 创建（DB 触发器禁止 costPrice 全零的 IMAGE channel，sync 拿不到真实图片单价），留待人工在 Admin 补 channel + 真实定价——而跳过记录只走 console.log，admin 完全不可见，于是静默躺了一个月。上游侧已实测可用（GET https://co.ghgame.cn:18065/v1/models 200，含 gpt-image-1/1.5/2），缺口 100% 在网关配置侧。用户今天打到的 'Insufficient credits' 是 OpenRouter 欠费（唯一启用的 IMAGE 别名 gpt-image 只链 openai/gpt-5-image @ openrouter，guangtech 不在候选池，无 failover）。本批次：F-GTI-01 幂等 provisioning 打通三个模型（新建独立别名 gpt-image-1/1.5/2，不并入 gpt-image，避免同别名下静默 failover 到另一个模型）；F-GTI-02 修复 sync 跳过 IMAGE 的可见性。用户裁决：别名策略=新建独立别名；范围=三个模型全打通 + 修 sync 可见性；定价=参照 openrouter（costPrice {call,0.068836} / sellPrice {call,0.082603}，由 openrouter gpt-image 别名实付价 0.082603 ÷ 全项目统一 1.2x markup 反推）。",
   "total_features": 2,
   "completed_features": 2,
   "fix_rounds": 1,
   "current_sprint": "BL-IMG-GUANGTECH-CHANNEL",
-  "last_updated": "2026-08-07T04:20:00Z",
+  "last_updated": "2026-08-07T04:00:39Z",
   "role_assignments": null,
   "docs": {
     "spec": "docs/specs/BL-IMG-GUANGTECH-CHANNEL-spec.md",
     "test_cases": "docs/test-cases/BL-IMG-GUANGTECH-CHANNEL-verifying-2026-08-06.md",
-    "signoff": null,
+    "signoff": "docs/test-reports/BL-IMG-GUANGTECH-CHANNEL-signoff-2026-08-07.md",
     "framework_reviewed": false
   },
   "evaluator_feedback": {
-    "summary": "首验不通过：生产三模型主链路与计费正常，但 F-GTI-01 存在失败 probe 仍落库、幂等字段不收敛、尺寸能力误报；F-GTI-02 的新通知在正常部署后会因存量 ADMIN 无偏好行而静默丢弃。",
-    "pass_count": 0,
+    "summary": "复验通过：四项首验缺陷全部关闭；L1 隔离复现 6/6、定向 30/30、全量 813 passed/4 skipped，类型检查、lint、build 均通过。生产只读核对确认三个 alias 已清除虚假 supported_sizes，通道状态、优先级与定价正确。",
+    "pass_count": 2,
     "partial_count": 0,
-    "fail_count": 2,
-    "report": "docs/test-reports/BL-IMG-GUANGTECH-CHANNEL-verifying-2026-08-06.md",
-    "issues": [
-      {
-        "feature_id": "F-GTI-01",
-        "result": "FAIL",
-        "description": "--probe --apply 不消费 probe 结果：上游 502 后仍创建失败模型的 channel/alias/link 并 exit 0。",
-        "steps_to_reproduce": "在本地测试库把 guangtech.baseUrl 指向固定 502 的 fake upstream，执行 npx tsx scripts/add-guangtech-image-channels.ts --probe --apply --only=gpt-image-2；观察 [FAIL] 后紧接 [created]，channelCount=1。"
-      },
-      {
-        "feature_id": "F-GTI-01",
-        "result": "FAIL",
-        "description": "复跑不会把已有 channel.priority 恢复为 10，也不会把 model.supportedSizes 清为 null。",
-        "steps_to_reproduce": "首次 apply 后将 gpt-image-2 priority 改为 3、supportedSizes 改为 [512x512]，再 --apply --only=gpt-image-2；两字段保持漂移值。"
-      },
-      {
-        "feature_id": "F-GTI-01",
-        "result": "FAIL",
-        "description": "probe 只统计 base64 字节、不校验图片格式/像素尺寸，却固定声明 supported_sizes=1024x1024；生产三张实图实际均为 1254x1254。",
-        "steps_to_reproduce": "对三个 alias 以 size=1024x1024 调用生产 images/generations，下载返回的签名代理 URL 后用 file 检查；三张 PNG 均为 1254 x 1254。"
-      },
-      {
-        "feature_id": "F-GTI-02",
-        "result": "FAIL",
-        "description": "部署流程未回填新事件偏好；现有 5 个生产 ADMIN 中 0 个有 SYNC_IMAGE_CHANNEL_SKIPPED 偏好，dispatcher 会静默丢弃通知。",
-        "steps_to_reproduce": "检查 deploy.yml 仅执行 prisma migrate deploy；查询生产 ADMIN 与 notification_preferences 得到 5/0；dispatcher.ts 对 !pref 直接 return false。"
-      }
-    ]
+    "fail_count": 0,
+    "report": "docs/test-reports/BL-IMG-GUANGTECH-CHANNEL-signoff-2026-08-07.md",
+    "issues": []
   },
   "session_notes": {
     "Kimi": "2026-08-07 (Generator, fix_round 1) 修完首验 4 条缺陷，交回 reverifying。\n\n**最值得记的一点**：四条缺陷收敛到同一个反模式——把护栏写成给人看的文字。我在 runProbe 里打印「探测失败的模型不得 --apply」却不在代码里拦；在 handoff 里写「部署后记得跑回填脚本」却不做成迁移。而这个批次 F-GTI-02 本身就是在修同一个病（sync 跳过 IMAGE channel 只 console.log）。写护栏时的自检问题应该是「这条规则如果没人读会怎样」，而不是「我说清楚了吗」。已加进 proposed-learnings。\n\n**GTI-DEF-03 的教训更细**：我按 seedream-3 的沉淀要求了「必须实测返回真实图片」，也确实打了真实请求，但只验了「有没有字节」。实测的强度取决于验什么，不是验没验。上游请求 1024x1024 实回 1254x1254，而我们对外声明 1024x1024。修法是解析 PNG 头拿真实像素，不匹配就整个 supported_sizes 字段不出现——注意不是写空数组，空数组也是一种声明。\n\n**生产数据已同步修正**：跑了 --apply 移除三个 alias 的虚假 supported_sizes，并收敛 priority=10 / supportedSizes=NULL。没有声明 1254x1254，因为那是上游这次返回的尺寸而非它接受的尺寸集。\n\n**回填迁移的设计选择**：用 CROSS JOIN enum_range 而不是硬编码类型名单，这样迁移执行时刻 enum 里有什么就补什么。但角色默认值仍是 defaults.ts 的第二份副本，所以补了 backfill-migration-parity.test.ts 做防漂移对账。更彻底的解法是让 dispatcher 在无偏好行时回退到角色默认值（那样永远不需要回填），但那会改变所有事件类型的投递行为、超出本批次范围，已记进 proposed-learnings 待用户裁决。\n\n生产 app 仍未部署本批次代码（F-GTI-02 的 migration/UI/通知均未上线），BL-SEC-HOTFIX-2608 也仍未部署。",
-    "Reviewer": "2026-08-06/07 首验完成，status -> fixing。L1 smoke、迁移、定向 17 tests、全量 Vitest 800 passed/4 skipped、tsc、lint、build 均通过。生产三个 guangtech alias 的 REST/MCP 可见性、真实生图、同源 PNG、CallLog 与 DEDUCTION 全通过，失败模型 404 且不扣费；临时生产 Key 已吊销。F-GTI-01 三项 FAIL：--probe --apply 在 502 后仍落库；复跑不收敛 priority=10 / supportedSizes=null；请求 1024x1024 实际三张均 1254x1254，但 probe 不验尺寸却对外声明 1024x1024。F-GTI-02 一项 FAIL：部署只迁移 schema，现有 5 个生产 ADMIN 新事件偏好为 0，dispatcher 会静默丢弃通知；需自动、幂等回填而非只在 handoff 提醒。报告见 docs/test-reports/BL-IMG-GUANGTECH-CHANNEL-verifying-2026-08-06.md。内置浏览器无可用实例，Admin UI 未做渲染截图。"
+    "Reviewer": "2026-08-07 复验通过并签收，status -> done。四项首验缺陷全部关闭：失败 probe 阻断落库并非零退出；复跑收敛 priority/supportedSizes；probe 解析真实图片格式与像素，不再误报尺寸；部署迁移自动、幂等回填存量通知偏好且保留用户设置。L1 隔离脚本 6/6、定向 30/30、全量 Vitest 813 passed/4 skipped，tsc/lint/build 均通过。生产只读 REST/SQL 确认三个 alias 无 supported_sizes，通道 ACTIVE/priority=10 且定价正确。生产应用尚未部署，F-GTI-02 迁移/通知/UI 尚未上线；内置浏览器仍无实例，保留 UI 渲染截图缺口。签收报告见 docs/test-reports/BL-IMG-GUANGTECH-CHANNEL-signoff-2026-08-07.md。"
   },
   "generator_handoff": "fix_round 1 完成，4/4 缺陷已修，status -> reverifying。\n\n四条缺陷有同一个主题：护栏写成了给人看的文字，而不是代码里的强制。DEF-01 和 DEF-04 尤其讽刺——本批次 F-GTI-02 存在的理由正是「自动化主动放弃处置却只 console.log」，我自己又犯了两遍。\n\n### GTI-DEF-01 探测失败仍会落库 —— 已修\nrunProbe 现返回 ProbeOutcome[]；--probe --apply 只 apply 探测成功的集合，全失败则 abort，有失败则 process.exitCode=1。**用你的复现脚本验过：exit=1、channelCount=0。**\n\n### GTI-DEF-02 复跑不收敛受管字段 —— 已修\nchannel.update 补 priority=10；model.supportedSizes 由 undefined（Prisma 语义是「别动」）改为 Prisma.DbNull 显式收敛为 SQL NULL。\n\n### GTI-DEF-03 probe 不验图却声明尺寸 —— 已修\n新增 readImageMeta 解析 PNG/JPEG/WebP 头部取真实像素。只有请求尺寸 == 返回尺寸才写入 supported_sizes；未验证或不匹配则**整个字段不出现**（不是写空数组），让 list_models 如实呈现「未知」而不是给一个错的承诺。字节能拿到但不是可识别图片时 ok=false，不再算 PASS。\n**已用新解析器对生产 gpt-image-2 做单模型 L2 复测（你报告里允许的最小必要复测）：**\n  [PASS] gpt-image-2 → b64_json 1464.7KB | png 1254x1254 != requested 1024x1024 → 不声明 supported_sizes (27485ms)\n独立复现了你的发现。**生产数据也已修正**：跑了一次 --apply（无 probe → verifiedSizes 为空 → 移除虚假声明），三个 alias 的 capabilities 现已无 supported_sizes 字段；三个 model supportedSizes=NULL、channel priority=10/ACTIVE。未声明 1254x1254 —— 那是上游这次返回的尺寸，不是它接受的尺寸集，同样属于未验证的断言。\n\n### GTI-DEF-04 部署后存量 ADMIN 收不到新通知 —— 已修\n改为数据迁移 prisma/migrations/20260807_backfill_notification_preferences。要点：\n  - CROSS JOIN enum_range(NULL::\"NotificationEventType\") 遍历，不硬编码类型名单\n  - ON CONFLICT (\"userId\",\"eventType\") DO NOTHING —— 只补缺失，绝不覆盖用户已调过的开关\n  - 角色规则与 defaults.ts 一致：ADMIN 全 true；DEVELOPER 仅 BALANCE_LOW / SPENDING_RATE_EXCEEDED true\n  - 部署跑 prisma migrate deploy 即自动执行（migrate 服务有 service_completed_successfully 门禁，迁移失败则 app 不启动）\n本地实测（全新库跑通全量迁移后造存量用户）：ADMIN 与 DEVELOPER 各补齐 8 个类型、角色默认值正确，**ADMIN 手动关掉的 CHANNEL_DOWN 保持 false 未被覆盖**；复跑 INSERT 0 0、行数不变。\n\n### 新增测试（13 条，全量 813 passed / 4 skipped）\n  - scripts/__tests__/guangtech-image-probe.test.ts —— PNG/JPEG 尺寸解析、非图片返回 null、截断 PNG 返回 null、尺寸匹配判定（含 1254x1254 现场值）\n  - src/lib/notifications/backfill-migration-parity.test.ts —— 回填迁移与 defaults.ts 的防漂移对账。迁移 SQL 里的角色规则是 defaults.ts 的第二份副本，副本就会漂；将来谁加一个「DEVELOPER 也默认开」的新类型，这条会红并提示同步改迁移的 CASE 分支\n\n### 复验建议\n  - 三条 F-GTI-01 缺陷可直接重跑你的 scripts/test/bl-img-guangtech-channel-verifying-2026-08-06.ts，现为 6/6 PASS（原 3/6）\n  - GTI-DEF-04 建议在空库跑 prisma migrate deploy 后造存量用户验回填；生产侧该迁移**尚未执行**（本批次未部署）\n  - 生产主链路无需再付费重跑三次；元数据已修正，可只读核对 capabilities 无 supported_sizes\n  - 上轮遗留：Admin UI 渲染验证仍是缺口（你上轮内置浏览器无实例）\n\n### 范围外提醒\nOpenRouter 仍欠费，gpt-image / gpt-image-mini / gemini-3-pro-image 全线不可用，本批次不覆盖。"
 }
