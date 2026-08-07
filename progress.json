@@ -1,29 +1,22 @@
 {
-  "status": "done",
-  "user_goal": "BL-IMG-GUANGTECH-CHANNEL — 用户报障：生产 guangtech 服务商端点可提供 gpt-image2 文生图，但网关无法通过该服务商生图。根因已定位为纯配置缺口：2026-07-03 sync 为 guangtech 建了 guangtech/gpt-image-1 / -1.5 / -2 三行 models（modality=IMAGE, enabled=false），但按 model-sync.ts:372-380 的 F-SI-01 设计跳过 IMAGE channel 创建（DB 触发器禁止 costPrice 全零的 IMAGE channel，sync 拿不到真实图片单价），留待人工在 Admin 补 channel + 真实定价——而跳过记录只走 console.log，admin 完全不可见，于是静默躺了一个月。上游侧已实测可用（GET https://co.ghgame.cn:18065/v1/models 200，含 gpt-image-1/1.5/2），缺口 100% 在网关配置侧。用户今天打到的 'Insufficient credits' 是 OpenRouter 欠费（唯一启用的 IMAGE 别名 gpt-image 只链 openai/gpt-5-image @ openrouter，guangtech 不在候选池，无 failover）。本批次：F-GTI-01 幂等 provisioning 打通三个模型（新建独立别名 gpt-image-1/1.5/2，不并入 gpt-image，避免同别名下静默 failover 到另一个模型）；F-GTI-02 修复 sync 跳过 IMAGE 的可见性。用户裁决：别名策略=新建独立别名；范围=三个模型全打通 + 修 sync 可见性；定价=参照 openrouter（costPrice {call,0.068836} / sellPrice {call,0.082603}，由 openrouter gpt-image 别名实付价 0.082603 ÷ 全项目统一 1.2x markup 反推）。",
+  "status": "building",
+  "user_goal": "BL-BILLING-ZERO-PRICE-BACKFILL — 用户在上一批部署后追问「生产是否还存在因 0 定价导致以后不可用的模型」。只读盘点结论：(1) 不可用那一类已清零——30 个无 channel 的 IMAGE 模型全部 disabled 且零个挂别名，用户面不可见；仅 grok-4.1-fast / mimo-v2-flash 两个别名列得出来却调不通，但那是 openrouter 欠费导致通道 DISABLED，与定价无关。(2) 0 定价真正的危害在另一头：274 条 ACTIVE 通道 costPrice 恒为 0（qwen 187/siliconflow 62/...），全为 TEXT；其中仅 45 条挂启用别名（F-SH-03 部署后无底层模型名回退，无启用别名的通道不可路由，其余 229 条为死数据）。(3) 全库启用别名中只有 gpt-5.5 与 gpt-5.4 缺 sellPrice：gpt-5.5 两条通道卖价全空恒免费（已漏 106 次调用、成本 $0.957505）；gpt-5.4 走 openrouter 正常收费、走 guangtech 白送，属间歇性漏费，报表上极难发现。用户裁决：参考 openrouter 价目表定价；加价率 1.1x（低于全局 1.2x 惯例）；gpt-5.4 也改用新倍率（对现有付费用户构成降价）；范围含 45 条线上 + 约 80 条可匹配的休眠通道。匹配率实测 41%（274 中 113 条），匹配不上的一律不猜、出报告。",
   "total_features": 2,
-  "completed_features": 2,
-  "fix_rounds": 1,
-  "current_sprint": "BL-IMG-GUANGTECH-CHANNEL",
-  "last_updated": "2026-08-07T07:35:00Z",
+  "completed_features": 0,
+  "fix_rounds": 0,
+  "current_sprint": "BL-BILLING-ZERO-PRICE-BACKFILL",
+  "last_updated": "2026-08-07T08:10:00Z",
   "role_assignments": null,
   "docs": {
-    "spec": "docs/specs/BL-IMG-GUANGTECH-CHANNEL-spec.md",
-    "test_cases": "docs/test-cases/BL-IMG-GUANGTECH-CHANNEL-verifying-2026-08-06.md",
-    "signoff": "docs/test-reports/BL-IMG-GUANGTECH-CHANNEL-signoff-2026-08-07.md",
+    "spec": "docs/specs/BL-BILLING-ZERO-PRICE-BACKFILL-spec.md",
+    "test_cases": null,
+    "signoff": null,
     "framework_reviewed": false
   },
-  "evaluator_feedback": {
-    "summary": "复验通过：四项首验缺陷全部关闭；L1 隔离复现 6/6、定向 30/30、全量 813 passed/4 skipped，类型检查、lint、build 均通过。生产只读核对确认三个 alias 已清除虚假 supported_sizes，通道状态、优先级与定价正确。",
-    "pass_count": 2,
-    "partial_count": 0,
-    "fail_count": 0,
-    "report": "docs/test-reports/BL-IMG-GUANGTECH-CHANNEL-signoff-2026-08-07.md",
-    "issues": []
-  },
+  "evaluator_feedback": null,
   "session_notes": {
-    "Kimi": "2026-08-07 (Planner/Generator) BL-IMG-GUANGTECH-CHANNEL 已签收并**已部署到生产**。\n\n### 部署记录（2026-08-07 07:29 UTC，run 31157874533，1m43s 成功）\n部署 commit e1ea5328，image_tag=latest（镜像构建自 4e068c8，与 HEAD 代码同构——e1ea532 只改了文档与状态文件）。本次一并带上了积压的 **BL-SEC-HOTFIX-2608**（自 2026-08-05 签收起一直未部署，生产曾持续跑 2026-07-27 的镜像 11 天）。\n\n**部署前发现并处理的坑（下次仍会遇到）**：`.env` 里 IMAGE_TAG 一直是 `latest`，而新部署也是 `latest`，deploy.yml 的 `previous_tag != IMAGE_TAG` 判断不成立 → **不会写 .deploy-state/last-known-good-tag**；同时 pull 会覆盖本地 latest 标签，旧镜像变悬空、被随后的 `docker image prune -f` 清除 → 回滚点凭空消失。已在部署前于服务器手工 `docker tag` 出 `app:rollback-f16d2b7c` 与 `migrate:rollback-f16d2b7c`（f16d2b7c 是上一版部署 commit）。**注意该标签只在服务器本地，GHCR 上没有**，回滚须在服务器直接 `IMAGE_TAG=rollback-f16d2b7c docker compose -f docker-compose.prod.yml up -d`，走 workflow 的 image_tag 输入会因 pull 失败而中止。已记进 proposed-learnings 建议改 deploy.yml。\n\n### 部署后验证\n- 两条迁移均已应用：20260806_sync_image_channel_skipped_notification + 20260807_backfill_notification_preferences\n- **GTI-DEF-04 在生产确认修复**：5 个 ADMIN 全部有 SYNC_IMAGE_CHANNEL_SKIPPED 偏好行且 enabled（Codex 首验时是 5/0）；27 个 DEVELOPER 均有行且 enabled=0，与 defaults.ts 一致\n- app 容器 healthy；GET /v1/models 200\n- gpt-image-1 / -1.5 / -2 三个别名在 modality=image 列表中，且均无 supported_sizes 声明（符合预期）\n\n### 现在才真正生效的东西（此前只在代码里）\nC1 支付伪造、C6 零计费旁路、H13 SSE 丢帧的修复现已上线。**PAYMENT_ENABLED 未在生产 .env 中设置**，因此 F-SH-02 生效后支付 webhook 与用户侧下单端点一律返回 410 —— 这是该批次的既定设计（该链路从未接通），admin 侧充值不受影响。\n\n未部署积压已清零。",
+    "Kimi": "2026-08-07 (Planner) 开新批次 BL-BILLING-ZERO-PRICE-BACKFILL。\n\n**盘点是怎么收敛到 45 条的**（下次遇到类似问题可复用这个思路）：先按「有没有 channel」查不可用类，再按「有没有启用别名」筛真正可路由的。关键洞察是 F-SH-03 今天部署后已无 routeByModelName 回退，所以**没有启用别名的通道根本不可路由**——274 条里 229 条是死数据，给它们定价属于自我安慰。真正影响线上的只有 45 条。\n\n**匹配率只有 41%**（274 中 113），别对 openrouter 价目表期望过高。qwen 187 条里只有 61 条能匹配——它自家模型（qwen3.5-plus 等）在 openrouter 上是 `qwen/qwen3.5-plus-20260420` 这种带压缩日期的 id，而我们库里是 `qwen3.5-plus-2026-04-20`，光靠朴素归一化对不上，spec D3 里写了日期三种写法互试的规则。\n\n**定价性质务必向用户讲清**：openrouter 是转售平台，价里含它自己的渠道费，而 qwen/siliconflow/deepseek 直连更便宜，所以回填出的 costPrice 系统性偏高、毛利报表会偏悲观。这跟上一批 guangtech 的 D3 是同一条口径。\n\n**用户裁决了两件有代价的事**：加价率取 1.1x（不是全局惯例的 1.2x）；且 gpt-5.4 也统一走 1.1x——因为别名层卖价优先于通道层，这会把 gpt-5.4 走 openrouter 时现有的 1.2x 收费**降下来**，是真实降价，我已明确提示过用户，用户选择接受。\n\n**最大的技术风险是错配污染成本数据**，spec D3 定了「宁缺毋滥」：短名多候选一律跳过、版本号不等不匹配、跳过必进报告。F-BZP-01 还硬性要求不触碰任何 sellPrice，验收要断言逐字节一致——避免定价脚本误伤用户账单。",
     "Reviewer": "2026-08-07 复验通过并签收，status -> done。四项首验缺陷全部关闭：失败 probe 阻断落库并非零退出；复跑收敛 priority/supportedSizes；probe 解析真实图片格式与像素，不再误报尺寸；部署迁移自动、幂等回填存量通知偏好且保留用户设置。L1 隔离脚本 6/6、定向 30/30、全量 Vitest 813 passed/4 skipped，tsc/lint/build 均通过。生产只读 REST/SQL 确认三个 alias 无 supported_sizes，通道 ACTIVE/priority=10 且定价正确。生产应用尚未部署，F-GTI-02 迁移/通知/UI 尚未上线；内置浏览器仍无实例，保留 UI 渲染截图缺口。签收报告见 docs/test-reports/BL-IMG-GUANGTECH-CHANNEL-signoff-2026-08-07.md。"
   },
-  "generator_handoff": "fix_round 1 完成，4/4 缺陷已修，status -> reverifying。\n\n四条缺陷有同一个主题：护栏写成了给人看的文字，而不是代码里的强制。DEF-01 和 DEF-04 尤其讽刺——本批次 F-GTI-02 存在的理由正是「自动化主动放弃处置却只 console.log」，我自己又犯了两遍。\n\n### GTI-DEF-01 探测失败仍会落库 —— 已修\nrunProbe 现返回 ProbeOutcome[]；--probe --apply 只 apply 探测成功的集合，全失败则 abort，有失败则 process.exitCode=1。**用你的复现脚本验过：exit=1、channelCount=0。**\n\n### GTI-DEF-02 复跑不收敛受管字段 —— 已修\nchannel.update 补 priority=10；model.supportedSizes 由 undefined（Prisma 语义是「别动」）改为 Prisma.DbNull 显式收敛为 SQL NULL。\n\n### GTI-DEF-03 probe 不验图却声明尺寸 —— 已修\n新增 readImageMeta 解析 PNG/JPEG/WebP 头部取真实像素。只有请求尺寸 == 返回尺寸才写入 supported_sizes；未验证或不匹配则**整个字段不出现**（不是写空数组），让 list_models 如实呈现「未知」而不是给一个错的承诺。字节能拿到但不是可识别图片时 ok=false，不再算 PASS。\n**已用新解析器对生产 gpt-image-2 做单模型 L2 复测（你报告里允许的最小必要复测）：**\n  [PASS] gpt-image-2 → b64_json 1464.7KB | png 1254x1254 != requested 1024x1024 → 不声明 supported_sizes (27485ms)\n独立复现了你的发现。**生产数据也已修正**：跑了一次 --apply（无 probe → verifiedSizes 为空 → 移除虚假声明），三个 alias 的 capabilities 现已无 supported_sizes 字段；三个 model supportedSizes=NULL、channel priority=10/ACTIVE。未声明 1254x1254 —— 那是上游这次返回的尺寸，不是它接受的尺寸集，同样属于未验证的断言。\n\n### GTI-DEF-04 部署后存量 ADMIN 收不到新通知 —— 已修\n改为数据迁移 prisma/migrations/20260807_backfill_notification_preferences。要点：\n  - CROSS JOIN enum_range(NULL::\"NotificationEventType\") 遍历，不硬编码类型名单\n  - ON CONFLICT (\"userId\",\"eventType\") DO NOTHING —— 只补缺失，绝不覆盖用户已调过的开关\n  - 角色规则与 defaults.ts 一致：ADMIN 全 true；DEVELOPER 仅 BALANCE_LOW / SPENDING_RATE_EXCEEDED true\n  - 部署跑 prisma migrate deploy 即自动执行（migrate 服务有 service_completed_successfully 门禁，迁移失败则 app 不启动）\n本地实测（全新库跑通全量迁移后造存量用户）：ADMIN 与 DEVELOPER 各补齐 8 个类型、角色默认值正确，**ADMIN 手动关掉的 CHANNEL_DOWN 保持 false 未被覆盖**；复跑 INSERT 0 0、行数不变。\n\n### 新增测试（13 条，全量 813 passed / 4 skipped）\n  - scripts/__tests__/guangtech-image-probe.test.ts —— PNG/JPEG 尺寸解析、非图片返回 null、截断 PNG 返回 null、尺寸匹配判定（含 1254x1254 现场值）\n  - src/lib/notifications/backfill-migration-parity.test.ts —— 回填迁移与 defaults.ts 的防漂移对账。迁移 SQL 里的角色规则是 defaults.ts 的第二份副本，副本就会漂；将来谁加一个「DEVELOPER 也默认开」的新类型，这条会红并提示同步改迁移的 CASE 分支\n\n### 复验建议\n  - 三条 F-GTI-01 缺陷可直接重跑你的 scripts/test/bl-img-guangtech-channel-verifying-2026-08-06.ts，现为 6/6 PASS（原 3/6）\n  - GTI-DEF-04 建议在空库跑 prisma migrate deploy 后造存量用户验回填；生产侧该迁移**尚未执行**（本批次未部署）\n  - 生产主链路无需再付费重跑三次；元数据已修正，可只读核对 capabilities 无 supported_sizes\n  - 上轮遗留：Admin UI 渲染验证仍是缺口（你上轮内置浏览器无实例）\n\n### 范围外提醒\nOpenRouter 仍欠费，gpt-image / gpt-image-mini / gemini-3-pro-image 全线不可用，本批次不覆盖。"
+  "generator_handoff": null
 }
