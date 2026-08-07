@@ -57,6 +57,8 @@
  */
 
 import { PrismaClient, type ModelModality } from "@prisma/client";
+import { invalidateModelsListCache } from "../src/lib/cache/models-cache";
+import { disconnectRedis } from "../src/lib/redis";
 
 const PROVIDER_NAME = "guangtech";
 const BRAND = "OpenAI";
@@ -512,8 +514,17 @@ async function cli(): Promise<void> {
       where: { modality: "IMAGE" as ModelModality, enabled: true },
     });
     console.log(`DB state: enabled IMAGE aliases=${imageAliases}`);
+
+    // 新别名不清缓存就不会出现在 /v1/models 与 MCP list_models 里（路由本身走
+    // 实时查询、不受影响，但"列不出来"同样是用户可见的半可用状态）。
+    // 与 scripts/fix-guangtech-canonical-naming.ts 同款收尾。
+    if (apply) {
+      invalidateModelsListCache();
+      console.log("models:list 缓存已失效");
+    }
   } finally {
     await prisma.$disconnect();
+    await disconnectRedis().catch(() => {});
   }
 }
 
