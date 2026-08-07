@@ -7,8 +7,7 @@
       "title": "guangtech 图片通道幂等 provisioning 脚本 + 上游实测（gpt-image-1 / 1.5 / 2）",
       "priority": "high",
       "executor": "generator",
-      "status": "blocked",
-      "blocked_reason": "代码交付已完成（脚本 + ops runbook + 生产 dry-run 已验证，commit 4eba61d）。剩余的上游 L2 实测与 --apply 落库须先取得用户对 L2 的明示授权（role-context/evaluator.md：L2 测试需用户明确授权再执行；每模型一张图约 $0.07，三个合计约 $0.21）。",
+      "status": "completed",
       "acceptance": "新增 scripts/add-guangtech-image-channels.ts，默认 dry-run 打印将创建/更新的 model/channel/alias/link 摘要且不写库；--apply 前须完成上游 L2 实测（须用户明示授权）：对 gpt-image-2 / -1 / -1.5 各打一次真实 POST {baseUrl}/images/generations 确认返回合法图片（b64_json 或 url），记录响应形态与实际 size，探测失败的模型不得 apply 且须在报告中说明原因（不阻断其余模型）；--apply 后生产库满足：3 条 channel 存在且 ACTIVE（providerId=cmr4n7yb401cebnqhwps4vd7r，realModelId 为裸名 gpt-image-1/1.5/2，costPrice={unit:'call',perCall:0.068836}，sellPrice={unit:'call',perCall:0.082603}，priority=10），3 个 model enabled=true 且 supportedSizes=null，3 个 alias（gpt-image-1 / gpt-image-1.5 / gpt-image-2）enabled=true 且 sellPrice 非空且 modality=IMAGE，3 条 AliasModelLink 齐全；--apply 连跑两次幂等（channel/alias/link 行数不变，无重复行）；定价通过 imageChannelPriceValid（{unit:'call',perCall>0}）；CLI 退出前 prisma.$disconnect()（用到 redis 则一并 disconnectRedis）；交付 docs/specs/BL-IMG-GUANGTECH-CHANNEL-ops.md 含生产执行步骤（SSH 隧道 + dry-run + 探测 + apply + 复核 SQL）+ 回滚步骤 + spec D3 两条定价假设声明原文；npx tsc --noEmit + npm run lint + npm run build PASS；独立 commit"
     },
     {
